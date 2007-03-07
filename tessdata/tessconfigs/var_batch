@@ -1,0 +1,82 @@
+#################################################
+# Adaptive Matcher Using PreAdapted Templates
+#################################################
+
+#acts_fx                 0x800
+#acts_ocr                0x20
+
+#RatingScale             30.0
+#CertaintyScale          20.0
+
+#EnableMatcher				0
+#CurrentFx					2
+#EnableMicroFeatures      1
+#EnableCharNormFeatures   1
+#MinSlope                 0.414213562
+#MaxSlope                 2.414213562
+#ExtremityMode            1
+#NormMethod               1
+#EnableAdaptiveMatcher	1
+
+#NormAdjMidpoint			32.0
+#NormAdjCurl					2.0
+
+#MinNormScaleX				0.0
+#MaxNormScaleX				0.325
+#MinNormScaleY				0.0
+#MaxNormScaleY				0.325
+
+#BuiltInTemplatesFile		data/inttemp
+#BuiltInCutoffsFile		data/pffmtable
+
+#EnableLearning				0
+#SaveAdaptedTemplates		0
+#UsePreAdaptedTemplates	0
+#ReliableConfigThreshold	2
+#MinNumPermClasses			3
+
+#EnableStopper				1
+#GoodAdaptiveMatch			0.125
+#GreatAdaptiveMatch		0.0
+
+#EnableIntFX					1
+#EnableNewAdaptRules		1
+################################################################################
+#
+# File:         marks/configs/knobs
+# RCS:          $Header: /cvsroot/tesseract-ocr/tesseract/tessdata/tessconfigs/var_batch,v 1.1 2006/06/16 22:17:08 lvincent Exp $
+# Description:  Control variables for 'marks' code
+# Author:       Mark Seaman, OCR Technology
+# Created:      Wed Feb 27 11:27:27 1991
+# Modified:     Tue Jul 30 16:25:37 1991 (Mark Seaman) marks@hpgrlt
+# Language:     Text
+# Package:      N/A
+# Status:       Experimental (Do Not Distribute)
+#
+# (c) Copyright 1991, Hewlett-Packard Company, all rights reserved.
+#
+################################################################################
+
+#hidden_edges            1
+
+#save_doc_words          1
+#doc_dict_enable         1
+#ClassPrunerThreshold			229
+#ClassPrunerMultiplier		15
+#IntegerMatcherMultiplier	7
+#IntThetaFudge					128
+#CPCutoffStrength				0.15
+#EvidenceTableBits				9
+#IntEvidenceTruncBits			14
+#SEExponentialMultiplier		0
+#SimilarityCenter				0.0075
+#################################################
+# Adaptive Matcher Using 2 Passes
+#################################################
+
+#EnableLearning				1
+#SaveAdaptedTemplates		0
+#UsePreAdaptedTemplates	0
+
+#save_errors             0
+

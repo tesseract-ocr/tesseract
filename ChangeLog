@@ -1,0 +1,20 @@
+June  2006 - V1.0 of open source Tesseract checked-in.
+Sep 7 2006 - V1.01.
+          Added mfcpch.cpp and getopt.cpp for VC++.
+          Fixed problem with greyscale images and no libtiff.
+          Stopped debug window from being used for the usage output.
+          Fixed load of inttemp for big-endian architectures.
+          Fixed some Mac compilation issues.
+Oct 4 2006 - V1.02
+          Removed dependency on Aspirin.
+          Fixed a few missing Apache license headers.
+          Removed $log.
+Feb 2 2007 - V1.03
+          Added mftraining and cntraining.
+          Added baseapi with adaptive thresholding for grey and color.
+          Fixed many memory leaks.
+          Fixed several bugs including lack of use of adaptive classifier.
+          Added ifdefs to eliminate graphics code and add embedded platform support.
+          Incorporated several patches, including 64-bit builds, Mac builds.
+          Minor accuracy improvements.
+

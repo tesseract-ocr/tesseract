@@ -1,0 +1,85 @@
+Introduction
+============
+This package contains the Tesseract Open Source OCR Engine.
+Orignally developed at Hewlett Packard Laboratories Bristol and
+at Hewlett Packard Co, Greeley Colorado, all the code
+in this distribution is now licensed under the Apache License:
+
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+** http://www.apache.org/licenses/LICENSE-2.0
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+
+
+Other Dependencies and Licenses:
+================================
+The Aspirin/MIGRAINES system is no longer required.
+
+Tesseract can also make use of the libtiff library. (www.libtiff.org)
+Without libtiff, Tesseract can only read uncompressed and G3 compressed
+TIFF files.
+
+
+History:
+========
+The engine was developed at Hewlett Packard Laboratories Bristol and
+at Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some
+more changes made in 1996 to port to Windows, and some C++izing in 1998.
+A lot of the code was written in C, and then some more was written in C++.
+Since then all the code has been converted to at least compile with a C++
+compiler. Currently it builds under Linux with gcc2.95 and under Windows
+with VC++6. The C++ code makes heavy use of a list system using macros.
+This predates stl, was portable before stl, and is more efficent than stl
+lists, but has the big negative that if you do get a segmentation violation,
+it is hard to debug. Another "feature" of the C/C++ split is that the C++
+data structures get converted to C data structures to call the low-level C
+code. This is ugly, and the C++izing of the C code is a step towards
+eliminating the conversion, but it has not happened yet.
+
+
+Directory Structure (ordered by dependency):
+============================================
+ccmain     Top-level code. The main program resides in tesseractmain.cpp.
+display    An "editor" to view and operate on the internal structures.
+           (Requires a working viewer - batteries not included.)
+wordrec    The word-level recognizer.
+textord    The module that organizes(orders) text into lines and words.
+classify   The low-level character classifiers.
+ccstruct   Classes to hold information about a page as it is being processed.
+viewer     The client side of a client server viewing system.
+           Unfortunately, at this time, the server side is not available.
+image      Image class and processing functions.
+dict       Language model code.
+cutil      Code for file I/O, lists, heaps etc, from the old C code.
+ccutil     Somewhat newer code for lists, memory allocation etc from the
+           old C++ code.
+
+
+About the Engine
+================
+This code is a raw OCR engine. It has NO PAGE LAYOUT ANALYSIS, NO OUTPUT
+FORMATTING, and NO UI. It can only process an image of a single column
+and create text from it. It can detect fixed pitch vs proportional text.
+Having said that, in 1995, this engine was in the top 3 in terms of character
+accuracy, and it compiles and runs on both Linux and Windows. Another current
+limitation is that it only recognizes English and its character set is only
+US-ASCII. Training code IS included in the open source release however, and
+will be included in a future release.
+
+
+Using the Engine
+================
+The usage of both Windows and Linux versions is the same.
+The executable must reside in the same directory as the tessdata directory
+The command line is:
+tesseract <image.tif> <output> batch
+The image file requires an .tif extension for its type to be recognized
+correctly. If a file exists with the .tif extension replaced by .uzn, then it
+will be interpreted as a UNLV-style zone file. (See www.isri.unlv.edu for
+details of the zone files.)
+
