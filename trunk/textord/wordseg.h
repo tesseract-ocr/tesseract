@@ -1,0 +1,70 @@
+/**********************************************************************
+ * File:        wordseg.h  (Formerly wspace.h)
+ * Description: Code to segment the blobs into words.
+ * Author:		Ray Smith
+ * Created:		Fri Oct 16 11:32:28 BST 1992
+ *
+ * (C) Copyright 1992, Hewlett-Packard Ltd.
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ ** http://www.apache.org/licenses/LICENSE-2.0
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ *
+ **********************************************************************/
+
+#ifndef           WORDSEG_H
+#define           WORDSEG_H
+
+#include          "varable.h"
+#include          "blobbox.h"
+#include          "notdll.h"
+
+extern BOOL_VAR_H (textord_fp_chopping, TRUE, "Do fixed pitch chopping");
+void make_words(                             //make words
+                ICOORD page_tr,              //top right
+                float gradient,              //page skew
+                BLOCK_LIST *blocks,          //block list
+                TO_BLOCK_LIST *land_blocks,  //rotated for landscape
+                TO_BLOCK_LIST *port_blocks   //output list
+               );
+void set_row_spaces(                  //find space sizes
+                    TO_BLOCK *block,  //block to do
+                    FCOORD rotation,  //for drawing
+                    BOOL8 testing_on  //correct orientation
+                   );
+INT32 row_words(                  //compute space size
+                TO_BLOCK *block,  //block it came from
+                TO_ROW *row,      //row to operate on
+                INT32 maxwidth,   //max expected space size
+                FCOORD rotation,  //for drawing
+                BOOL8 testing_on  //for debug
+               );
+INT32 row_words2(                  //compute space size
+                 TO_BLOCK *block,  //block it came from
+                 TO_ROW *row,      //row to operate on
+                 INT32 maxwidth,   //max expected space size
+                 FCOORD rotation,  //for drawing
+                 BOOL8 testing_on  //for debug
+                );
+void make_real_words(                  //find lines
+                     TO_BLOCK *block,  //block to do
+                     FCOORD rotation   //for drawing
+                    );
+ROW *make_rep_words(                 //make a row
+                    TO_ROW *row,     //row to convert
+                    TO_BLOCK *block  //block it lives in
+                   );
+WERD *make_real_word(                      //make a WERD
+                     BLOBNBOX_IT *box_it,  //iterator
+                     INT32 blobcount,      //no of blobs to use
+                     BOOL8 bol,            //start of line
+                     BOOL8 fuzzy_sp,       //fuzzy space
+                     BOOL8 fuzzy_non,      //fuzzy non-space
+                     UINT8 blanks          //no of blanks
+                    );
+#endif

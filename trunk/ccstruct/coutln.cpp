@@ -1,0 +1,604 @@
+/**********************************************************************
+ * File:        coutln.c  (Formerly coutline.c)
+ * Description: Code for the C_OUTLINE class.
+ * Author:					Ray Smith
+ * Created:					Mon Oct 07 16:01:57 BST 1991
+ *
+ * (C) Copyright 1991, Hewlett-Packard Ltd.
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ ** http://www.apache.org/licenses/LICENSE-2.0
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ *
+ **********************************************************************/
+
+#include "mfcpch.h"
+#include          <string.h>
+#ifdef __UNIX__
+#include          <assert.h>
+#endif
+#include          "coutln.h"
+
+ELISTIZE_S (C_OUTLINE)
+ICOORD C_OUTLINE::step_coords[4] = {
+  ICOORD (-1, 0), ICOORD (0, -1), ICOORD (1, 0), ICOORD (0, 1)
+};
+
+/**********************************************************************
+ * C_OUTLINE::C_OUTLINE
+ *
+ * Constructor to build a C_OUTLINE from a CRACKEDGE LOOP.
+ **********************************************************************/
+
+C_OUTLINE::C_OUTLINE (
+//constructor
+CRACKEDGE * startpt,             //outline to convert
+ICOORD bot_left,                 //bounding box
+ICOORD top_right, INT16 length   //length of loop
+):box (bot_left, top_right), start (startpt->pos) {
+  INT16 stepindex;               //index to step
+  CRACKEDGE *edgept;             //current point
+
+  stepcount = length;            //no of steps
+                                 //get memory
+  steps = (UINT8 *) alloc_mem (step_mem());
+  memset(steps, 0, step_mem());
+  edgept = startpt;
+
+  for (stepindex = 0; stepindex < length; stepindex++) {
+                                 //set compact step
+    set_step (stepindex, edgept->stepdir);
+    edgept = edgept->next;
+  }
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::C_OUTLINE
+ *
+ * Constructor to build a C_OUTLINE from a C_OUTLINE_FRAG.
+ **********************************************************************/
+C_OUTLINE::C_OUTLINE (
+//constructor
+                                 //steps to copy
+ICOORD startpt, DIR128 * new_steps,
+INT16 length                     //length of loop
+):start (startpt) {
+  INT8 dirdiff;                  //direction difference
+  DIR128 prevdir;                //previous direction
+  DIR128 dir;                    //current direction
+  DIR128 lastdir;                //dir of last step
+  BOX new_box;                   //easy bounding
+  INT16 stepindex;               //index to step
+  INT16 srcindex;                //source steps
+  ICOORD pos;                    //current position
+
+  pos = startpt;
+  stepcount = length;            //no of steps
+                                 //get memory
+  steps = (UINT8 *) alloc_mem (step_mem());
+  memset(steps, 0, step_mem());
+
+  lastdir = new_steps[length - 1];
+  prevdir = lastdir;
+  for (stepindex = 0, srcindex = 0; srcindex < length;
+  stepindex++, srcindex++) {
+    new_box = BOX (pos, pos);
+    box += new_box;
+                                 //copy steps
+    dir = new_steps[srcindex];
+    set_step(stepindex, dir);
+    dirdiff = dir - prevdir;
+    pos += step (stepindex);
+    if ((dirdiff == 64 || dirdiff == -64) && stepindex > 0) {
+      stepindex -= 2;            //cancel there-and-back
+      prevdir = stepindex >= 0 ? step_dir (stepindex) : lastdir;
+    }
+    else
+      prevdir = dir;
+  }
+  ASSERT_HOST (pos.x () == startpt.x () && pos.y () == startpt.y ());
+  do {
+    dirdiff = step_dir (stepindex - 1) - step_dir (0);
+    if (dirdiff == 64 || dirdiff == -64) {
+      start += step (0);
+      stepindex -= 2;            //cancel there-and-back
+      for (int i = 0; i < stepindex; ++i)
+        set_step(i, step_dir(i + 1));
+    }
+  }
+  while (stepindex > 1 && (dirdiff == 64 || dirdiff == -64));
+  stepcount = stepindex;
+  ASSERT_HOST (stepcount >= 4);
+}
+
+/**********************************************************************
+ * C_OUTLINE::C_OUTLINE
+ *
+ * Constructor to build a C_OUTLINE from a rotation of a C_OUTLINE.
+ **********************************************************************/
+
+C_OUTLINE::C_OUTLINE(                     //constructor
+                     C_OUTLINE *srcline,  //outline to
+                     FCOORD rotation      //rotate
+                    ) {
+  BOX new_box;                   //easy bounding
+  INT16 stepindex;               //index to step
+  INT16 dirdiff;                 //direction change
+  ICOORD pos;                    //current position
+  ICOORD prevpos;                //previous dest point
+
+  ICOORD destpos;                //destination point
+  INT16 destindex;               //index to step
+  DIR128 dir;                    //coded direction
+  UINT8 new_step;
+
+  stepcount = srcline->stepcount * 2;
+                                 //get memory
+  steps = (UINT8 *) alloc_mem (step_mem());
+  memset(steps, 0, step_mem());
+
+  for (int iteration = 0; iteration < 2; ++iteration) {
+    DIR128 round1 = iteration == 0 ? 32 : 0;
+    DIR128 round2 = iteration != 0 ? 32 : 0;
+    pos = srcline->start;
+    prevpos = pos;
+    prevpos.rotate (rotation);
+    start = prevpos;
+    box = BOX (start, start);
+    destindex = 0;
+    for (stepindex = 0; stepindex < srcline->stepcount; stepindex++) {
+      pos += srcline->step (stepindex);
+      destpos = pos;
+      destpos.rotate (rotation);
+      if (destpos.x () != prevpos.x () || destpos.y () != prevpos.y ()) {
+        dir = DIR128 (FCOORD (destpos - prevpos));
+        dir += 64;                 //turn to step style
+        new_step = dir.get_dir ();
+        if (new_step & 31) {
+          set_step(destindex++, dir + round1);
+          if (destindex < 2
+            || (dirdiff =
+            step_dir (destindex - 1) - step_dir (destindex - 2)) !=
+            -64 && dirdiff != 64)
+            set_step(destindex++, dir + round2);
+          else {
+            set_step(destindex - 1, dir + round2);
+            set_step(destindex++, dir + round1);
+          }
+        }
+        else {
+          set_step(destindex++, dir);
+          if (destindex >= 2
+            &&
+            ((dirdiff =
+            step_dir (destindex - 1) - step_dir (destindex - 2)) ==
+            -64 || dirdiff == 64))
+            destindex -= 2;        // Forget u turn
+        }
+        prevpos = destpos;
+        new_box = BOX (destpos, destpos);
+        box += new_box;
+      }
+    }
+    ASSERT_HOST (destpos.x () == start.x () && destpos.y () == start.y ());
+    dirdiff = step_dir (destindex - 1) - step_dir (0);
+    while ((dirdiff == 64 || dirdiff == -64) && destindex > 1) {
+      start += step (0);
+      destindex -= 2;
+      for (int i = 0; i < destindex; ++i)
+        set_step(i, step_dir(i + 1));
+      dirdiff = step_dir (destindex - 1) - step_dir (0);
+    }
+    if (destindex >= 4)
+      break;
+  }
+  stepcount = destindex;
+  destpos = start;
+  for (stepindex = 0; stepindex < stepcount; stepindex++) {
+    destpos += step (stepindex);
+  }
+  ASSERT_HOST (destpos.x () == start.x () && destpos.y () == start.y ());
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::area
+ *
+ * Compute the area of the outline.
+ **********************************************************************/
+
+INT32 C_OUTLINE::area() {  //winding number
+  int stepindex;                 //current step
+  INT32 total_steps;             //steps to do
+  INT32 total;                   //total area
+  ICOORD pos;                    //position of point
+  ICOORD next_step;              //step to next pix
+  C_OUTLINE_IT it = child ();
+
+  pos = start_pos ();
+  total_steps = pathlength ();
+  total = 0;
+  for (stepindex = 0; stepindex < total_steps; stepindex++) {
+                                 //all intersected
+    next_step = step (stepindex);
+    if (next_step.x () < 0)
+      total += pos.y ();
+    else if (next_step.x () > 0)
+      total -= pos.y ();
+    pos += next_step;
+  }
+  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
+    total += it.data ()->area ();//add areas of children
+
+  return total;
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::outer_area
+ *
+ * Compute the area of the outline.
+ **********************************************************************/
+
+INT32 C_OUTLINE::outer_area() {  //winding number
+  int stepindex;                 //current step
+  INT32 total_steps;             //steps to do
+  INT32 total;                   //total area
+  ICOORD pos;                    //position of point
+  ICOORD next_step;              //step to next pix
+
+  pos = start_pos ();
+  total_steps = pathlength ();
+  total = 0;
+  for (stepindex = 0; stepindex < total_steps; stepindex++) {
+                                 //all intersected
+    next_step = step (stepindex);
+    if (next_step.x () < 0)
+      total += pos.y ();
+    else if (next_step.x () > 0)
+      total -= pos.y ();
+    pos += next_step;
+  }
+
+  return total;
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::count_transitions
+ *
+ * Compute the number of x and y maxes and mins in the outline.
+ **********************************************************************/
+
+INT32 C_OUTLINE::count_transitions(                 //winding number
+                                   INT32 threshold  //on size
+                                  ) {
+  BOOL8 first_was_max_x;         //what was first
+  BOOL8 first_was_max_y;
+  BOOL8 looking_for_max_x;       //what is next
+  BOOL8 looking_for_min_x;
+  BOOL8 looking_for_max_y;       //what is next
+  BOOL8 looking_for_min_y;
+  int stepindex;                 //current step
+  INT32 total_steps;             //steps to do
+                                 //current limits
+  INT32 max_x, min_x, max_y, min_y;
+  INT32 initial_x, initial_y;    //initial limits
+  INT32 total;                   //total changes
+  ICOORD pos;                    //position of point
+  ICOORD next_step;              //step to next pix
+
+  pos = start_pos ();
+  total_steps = pathlength ();
+  total = 0;
+  max_x = min_x = pos.x ();
+  max_y = min_y = pos.y ();
+  looking_for_max_x = TRUE;
+  looking_for_min_x = TRUE;
+  looking_for_max_y = TRUE;
+  looking_for_min_y = TRUE;
+  first_was_max_x = FALSE;
+  first_was_max_y = FALSE;
+  initial_x = pos.x ();
+  initial_y = pos.y ();          //stop uninit warning
+  for (stepindex = 0; stepindex < total_steps; stepindex++) {
+                                 //all intersected
+    next_step = step (stepindex);
+    pos += next_step;
+    if (next_step.x () < 0) {
+      if (looking_for_max_x && pos.x () < min_x)
+        min_x = pos.x ();
+      if (looking_for_min_x && max_x - pos.x () > threshold) {
+        if (looking_for_max_x) {
+          initial_x = max_x;
+          first_was_max_x = FALSE;
+        }
+        total++;
+        looking_for_max_x = TRUE;
+        looking_for_min_x = FALSE;
+        min_x = pos.x ();        //reset min
+      }
+    }
+    else if (next_step.x () > 0) {
+      if (looking_for_min_x && pos.x () > max_x)
+        max_x = pos.x ();
+      if (looking_for_max_x && pos.x () - min_x > threshold) {
+        if (looking_for_min_x) {
+          initial_x = min_x;     //remember first min
+          first_was_max_x = TRUE;
+        }
+        total++;
+        looking_for_max_x = FALSE;
+        looking_for_min_x = TRUE;
+        max_x = pos.x ();
+      }
+    }
+    else if (next_step.y () < 0) {
+      if (looking_for_max_y && pos.y () < min_y)
+        min_y = pos.y ();
+      if (looking_for_min_y && max_y - pos.y () > threshold) {
+        if (looking_for_max_y) {
+          initial_y = max_y;     //remember first max
+          first_was_max_y = FALSE;
+        }
+        total++;
+        looking_for_max_y = TRUE;
+        looking_for_min_y = FALSE;
+        min_y = pos.y ();        //reset min
+      }
+    }
+    else {
+      if (looking_for_min_y && pos.y () > max_y)
+        max_y = pos.y ();
+      if (looking_for_max_y && pos.y () - min_y > threshold) {
+        if (looking_for_min_y) {
+          initial_y = min_y;     //remember first min
+          first_was_max_y = TRUE;
+        }
+        total++;
+        looking_for_max_y = FALSE;
+        looking_for_min_y = TRUE;
+        max_y = pos.y ();
+      }
+    }
+
+  }
+  if (first_was_max_x && looking_for_min_x) {
+    if (max_x - initial_x > threshold)
+      total++;
+    else
+      total--;
+  }
+  else if (!first_was_max_x && looking_for_max_x) {
+    if (initial_x - min_x > threshold)
+      total++;
+    else
+      total--;
+  }
+  if (first_was_max_y && looking_for_min_y) {
+    if (max_y - initial_y > threshold)
+      total++;
+    else
+      total--;
+  }
+  else if (!first_was_max_y && looking_for_max_y) {
+    if (initial_y - min_y > threshold)
+      total++;
+    else
+      total--;
+  }
+
+  return total;
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::operator<
+ *
+ * Return TRUE if the left operand is inside the right one.
+ **********************************************************************/
+
+BOOL8
+C_OUTLINE::operator< (           //winding number
+const C_OUTLINE & other          //other outline
+) const
+{
+  INT16 count = 0;               //winding count
+  ICOORD pos;                    //position of point
+  INT32 stepindex;               //index to cstep
+
+  if (!box.overlap (other.box))
+    return FALSE;                //can't be contained
+
+  pos = start;
+  for (stepindex = 0; stepindex < stepcount
+    && (count = other.winding_number (pos)) == INTERSECTING; stepindex++)
+    pos += step (stepindex);     //try all points
+  if (count == INTERSECTING) {
+                                 //all intersected
+    pos = other.start;
+    for (stepindex = 0; stepindex < other.stepcount
+      && (count = winding_number (pos)) == INTERSECTING; stepindex++)
+                                 //try other way round
+      pos += other.step (stepindex);
+    return count == INTERSECTING || count == 0;
+  }
+  return count != 0;
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::winding_number
+ *
+ * Return the winding number of the outline around the given point.
+ **********************************************************************/
+
+INT16 C_OUTLINE::winding_number(              //winding number
+                                ICOORD point  //point to wind around
+                               ) const {
+  INT16 stepindex;               //index to cstep
+  INT16 count;                   //winding count
+  ICOORD vec;                    //to current point
+  ICOORD stepvec;                //step vector
+  INT32 cross;                   //cross product
+
+  vec = start - point;           //vector to it
+  count = 0;
+  for (stepindex = 0; stepindex < stepcount; stepindex++) {
+    stepvec = step (stepindex);  //get the step
+                                 //crossing the line
+    if (vec.y () <= 0 && vec.y () + stepvec.y () > 0) {
+      cross = vec * stepvec;     //cross product
+      if (cross > 0)
+        count++;                 //crossing right half
+      else if (cross == 0)
+        return INTERSECTING;     //going through point
+    }
+    else if (vec.y () > 0 && vec.y () + stepvec.y () <= 0) {
+      cross = vec * stepvec;
+      if (cross < 0)
+        count--;                 //crossing back
+      else if (cross == 0)
+        return INTERSECTING;     //illegal
+    }
+    vec += stepvec;              //sum vectors
+  }
+  return count;                  //winding number
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::turn_direction
+ *
+ * Return the sum direction delta of the outline.
+ **********************************************************************/
+
+INT16 C_OUTLINE::turn_direction() const {  //winding number
+  DIR128 prevdir;                //previous direction
+  DIR128 dir;                    //current direction
+  INT16 stepindex;               //index to cstep
+  INT8 dirdiff;                  //direction difference
+  INT16 count;                   //winding count
+
+  count = 0;
+  prevdir = step_dir (stepcount - 1);
+  for (stepindex = 0; stepindex < stepcount; stepindex++) {
+    dir = step_dir (stepindex);
+    dirdiff = dir - prevdir;
+    ASSERT_HOST (dirdiff == 0 || dirdiff == 32 || dirdiff == -32);
+    count += dirdiff;
+    prevdir = dir;
+  }
+  ASSERT_HOST (count == 128 || count == -128);
+  return count;                  //winding number
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::reverse
+ *
+ * Reverse the direction of an outline.
+ **********************************************************************/
+
+void C_OUTLINE::reverse() {  //reverse drection
+  DIR128 halfturn = MODULUS / 2; //amount to shift
+  DIR128 stepdir;                //direction of step
+  INT16 stepindex;               //index to cstep
+  INT16 farindex;                //index to other side
+  INT16 halfsteps;               //half of stepcount
+
+  halfsteps = (stepcount + 1) / 2;
+  for (stepindex = 0; stepindex < halfsteps; stepindex++) {
+    farindex = stepcount - stepindex - 1;
+    stepdir = step_dir (stepindex);
+    set_step (stepindex, step_dir (farindex) + halfturn);
+    set_step (farindex, stepdir + halfturn);
+  }
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::move
+ *
+ * Move C_OUTLINE by vector
+ **********************************************************************/
+
+void C_OUTLINE::move(                  // reposition OUTLINE
+                     const ICOORD vec  // by vector
+                    ) {
+  C_OUTLINE_IT it(&children);  // iterator
+
+  box.move (vec);
+  start += vec;
+
+  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
+    it.data ()->move (vec);      // move child outlines
+}
+
+
+/**********************************************************************
+ * C_OUTLINE::plot
+ *
+ * Draw the outline in the given colour.
+ **********************************************************************/
+
+#ifndef GRAPHICS_DISABLED
+void C_OUTLINE::plot(                //draw it
+                     WINDOW window,  //window to draw in
+                     COLOUR colour   //colour to draw in
+                    ) const {
+  INT16 stepindex;               //index to cstep
+  ICOORD pos;                    //current position
+  DIR128 stepdir;                //direction of step
+  DIR128 oldstepdir;             //previous stepdir
+
+  pos = start;                   //current position
+  line_color_index(window, colour);
+  move2d (window, pos.x (), pos.y ());
+  stepindex = 0;
+  stepdir = step_dir (0);        //get direction
+  while (stepindex < stepcount) {
+    do {
+      pos += step (stepindex);   //step to next
+      stepindex++;               //count steps
+      oldstepdir = stepdir;
+                                 //new direction
+      stepdir = step_dir (stepindex);
+    }
+    while (stepindex < stepcount
+      && oldstepdir.get_dir () == stepdir.get_dir ());
+    //merge straight lines
+    draw2d (window, pos.x (), pos.y ());
+  }
+}
+#endif
+
+
+/**********************************************************************
+ * C_OUTLINE::operator=
+ *
+ * Assignment - deep copy data
+ **********************************************************************/
+
+                                 //assignment
+C_OUTLINE & C_OUTLINE::operator= (
+const C_OUTLINE & source         //from this
+) {
+  box = source.box;
+  start = source.start;
+  if (steps != NULL)
+    free_mem(steps);
+  stepcount = source.stepcount;
+  steps = (UINT8 *) alloc_mem (step_mem());
+  memmove (steps, source.steps, step_mem());
+  if (!children.empty ())
+    children.clear ();
+  children.deep_copy (&source.children);
+  return *this;
+}

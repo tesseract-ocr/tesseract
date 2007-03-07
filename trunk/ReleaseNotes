@@ -1,0 +1,78 @@
+Tesseract release notes Feb 2, 2007 - V1.03.
+Added mftraining and cntraining. Using an image with a box file, tesseract
+generates .tr output files. cntraining runs on the .tr files to make
+normproto that lives in tessdata. mftraining runs on the .tr files to
+make inttemp and pffmtable in tessdata. These are the main data files
+that tesseract uses to recognize characters. At present, the code to make
+dictionary files is not yet available, nor are any sample box files or
+rebuilt inttemp or documentation to create any of these. Recognition is
+still limited to the ASCII set, but when this problem is fixed, documentation
+will follow.
+
+Added a new API with adaptive thresholding for grey and color images.
+See ccmain/baseapi.h/cpp for details. The main program has been converted
+to use the API as an example. See main() in ccmain/tesseractmain.cpp for
+details. The API is designed to make it easy to add subclasses with ability
+to output the bounding boxes etc from the internal structures. The adaptive
+thresholding improves accuracy (most of the time) on non-binary images.
+
+Many memory leaks have been fixed. There are no known leaks left from using
+the API correctly.
+
+The adaptive classifier was not operating correctly. This bug, and several
+others have been fixed, including poor chopping, an indefinite (if not quite
+infinite) loop in the number parser, and a couple of crash bugs. Thanks to
+all that have contributed bugs and bug fixes.
+
+It is now possible to build without any of the graphics support to save code
+size using #define GRAPHICS_DISABLED. There is also a new EMBEDDED define
+for use on operating systems with limited library support.
+
+64-bit and Mac OSX buildability is now included in the mainline source tree.
+Thanks to all that have contributed patches and comments to help with that.
+1.03 is also endian-independent, apart from the tiff i/o, so if you use
+libtiff, the code should run on all platforms, even if you get/create new
+data files of a different endinanness.
+
+Some of the bug fixes improve accuracy, and so do some of the changes to
+DangAmbigs and user-words.
+
+Tesseract release notes, Oct 4 2006 - V1.02.
+Removed dependency on aspirin. *All* code is now licensed under Apache2.0.
+
+Tesseract release notes, Sep 7 2006 - V1.01.
+
+Fixes for this release:
+Added mfcpch.cpp and getopt.cpp for VC++.
+Fixed problem with greyscale images and no libtiff.
+Stopped debug window from being used for the usage output.
+Fixed load of inttemp for big-endian architectures.
+Fixed some Mac compilation issues.
+
+This version should read uncompressed 8 bit grey and 24 bit color tiffs
+without having to have libtiff. It does a dumb threshold though, so don't
+expect good results from poor contrast or images of natural scenes etc.
+
+If you just run tesseract with no command line args you should now get a
+sensible usage message on linux, with or without X-windows.
+
+If you can get it to compile on a PPC Mac, it may now run correctly,
+although not all the build issues are fixed yet.
+
+Building Tesseract:
+Windows:
+Unpack the tar.gz archive
+Open tesseract.dsw in DevStudio (preferably version 6, higher versions will be more difficult)
+Set Win32 - Release as the active configuration.
+Build.
+Copy tesseract.exe from bin.rel up one directory level.
+Run tesseract phototest.tif phototest
+This will create phototest.txt.
+
+Linux:
+Unpack the tar.gz archive
+./configure
+make
+Copy tesseract from ccmain up one directory level (or create a symbolic link)
+Run tesseract phototest.tif phototest
+This will create phototest.txt.

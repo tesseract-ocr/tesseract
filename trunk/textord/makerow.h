@@ -1,0 +1,295 @@
+/**********************************************************************
+ * File:        makerow.h  (Formerly makerows.h)
+ * Description: Code to arrange blobs into rows of text.
+ * Author:		Ray Smith
+ * Created:		Mon Sep 21 14:34:48 BST 1992
+ *
+ * (C) Copyright 1992, Hewlett-Packard Ltd.
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ ** http://www.apache.org/licenses/LICENSE-2.0
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ *
+ **********************************************************************/
+
+#ifndef           MAKEROW_H
+#define           MAKEROW_H
+
+#include          "varable.h"
+#include          "ocrblock.h"
+#include          "tessclas.h"
+#include          "blobbox.h"
+#include          "statistc.h"
+#include          "notdll.h"
+
+enum OVERLAP_STATE
+{
+  ASSIGN,                        //assign it to row
+  REJECT,                        //reject it - dual overlap
+  NEW_ROW
+};
+
+extern BOOL_VAR_H (textord_show_initial_rows, FALSE,
+"Display row accumulation");
+extern BOOL_VAR_H (textord_show_parallel_rows, FALSE,
+"Display page correlated rows");
+extern BOOL_VAR_H (textord_show_expanded_rows, FALSE,
+"Display rows after expanding");
+extern BOOL_VAR_H (textord_show_final_rows, FALSE,
+"Display rows after final fittin");
+extern BOOL_VAR_H (textord_show_final_blobs, FALSE,
+"Display blob bounds after pre-ass");
+extern BOOL_VAR_H (textord_test_landscape, FALSE, "Tests refer to land/port");
+extern BOOL_VAR_H (textord_parallel_baselines, TRUE,
+"Force parallel baselines");
+extern BOOL_VAR_H (textord_straight_baselines, FALSE,
+"Force straight baselines");
+extern BOOL_VAR_H (textord_quadratic_baselines, FALSE,
+"Use quadratic splines");
+extern BOOL_VAR_H (textord_old_baselines, TRUE, "Use old baseline algorithm");
+extern BOOL_VAR_H (textord_old_xheight, TRUE, "Use old xheight algorithm");
+extern BOOL_VAR_H (textord_fix_xheight_bug, TRUE, "Use spline baseline");
+extern BOOL_VAR_H (textord_fix_makerow_bug, TRUE,
+"Prevent multiple baselines");
+extern BOOL_VAR_H (textord_row_xheights, FALSE, "Use row height policy");
+extern BOOL_VAR_H (textord_block_xheights, TRUE, "Use block height policy");
+extern BOOL_VAR_H (textord_xheight_tweak, FALSE,
+"New min condition on height");
+extern BOOL_VAR_H (textord_cblob_blockocc, TRUE,
+"Use new projection for underlines");
+extern BOOL_VAR_H (textord_debug_xheights, FALSE, "Test xheight algorithms");
+extern INT_VAR_H (textord_test_x, 0, "coord of test pt");
+extern INT_VAR_H (textord_test_y, 0, "coord of test pt");
+extern INT_VAR_H (textord_min_blobs_in_row, 4,
+"Min blobs before gradient counted");
+extern INT_VAR_H (textord_spline_minblobs, 8,
+"Min blobs in each spline segment");
+extern INT_VAR_H (textord_spline_medianwin, 6,
+"Size of window for spline segmentation");
+extern INT_VAR_H (textord_min_xheight, 10, "Min credible pixel xheight");
+extern double_VAR_H (textord_spline_shift_fraction, 0.02,
+"Fraction of line spacing for quad");
+extern double_VAR_H (textord_spline_outlier_fraction, 0.1,
+"Fraction of line spacing for outlier");
+extern double_VAR_H (textord_skew_ile, 0.5, "Ile of gradients for page skew");
+extern double_VAR_H (textord_skew_lag, 0.75,
+"Lag for skew on row accumulation");
+extern double_VAR_H (textord_linespace_iqrlimit, 0.2,
+"Max iqr/median for linespace");
+extern double_VAR_H (textord_width_limit, 8,
+"Max width of blobs to make rows");
+extern double_VAR_H (textord_chop_width, 1.5, "Max width before chopping");
+extern double_VAR_H (textord_merge_desc, 0.25,
+"Fraction of linespace for desc drop");
+extern double_VAR_H (textord_merge_x, 0.5,
+"Fraction of linespace for x height");
+extern double_VAR_H (textord_merge_asc, 0.25,
+"Fraction of linespace for asc height");
+extern double_VAR_H (textord_minxh, 0.25,
+"fraction of linesize for min xheight");
+extern double_VAR_H (textord_min_linesize, 1.25,
+"* blob height for initial linesize");
+extern double_VAR_H (textord_excess_blobsize, 1.3,
+"New row made if blob makes row this big");
+extern double_VAR_H (textord_occupancy_threshold, 0.4,
+"Fraction of neighbourhood");
+extern double_VAR_H (textord_underline_width, 2.0,
+"Multiple of line_size for underline");
+extern double_VAR_H (textord_xheight_mode_fraction, 0.4,
+"Min pile height to make xheight");
+extern double_VAR_H (textord_ascheight_mode_fraction, 0.15,
+"Min pile height to make ascheight");
+extern double_VAR_H (textord_ascx_ratio_min, 1.2, "Min cap/xheight");
+extern double_VAR_H (textord_ascx_ratio_max, 1.7, "Max cap/xheight");
+extern double_VAR_H (textord_descx_ratio_min, 0.15, "Min desc/xheight");
+extern double_VAR_H (textord_descx_ratio_max, 0.6, "Max desc/xheight");
+extern double_VAR_H (textord_xheight_error_margin, 0.1, "Accepted variation");
+float make_rows(                             //make rows
+                ICOORD page_tr,              //top right
+                BLOCK_LIST *blocks,          //block list
+                TO_BLOCK_LIST *land_blocks,  //rotated for landscape
+                TO_BLOCK_LIST *port_blocks   //output list
+               );
+void make_initial_textrows(                  //find lines
+                           ICOORD page_tr,
+                           TO_BLOCK *block,  //block to do
+                           FCOORD rotation,  //for drawing
+                           BOOL8 testing_on  //correct orientation
+                          );
+void fit_lms_line(             //sort function
+                  TO_ROW *row  //row to fit
+                 );
+void compute_page_skew(                        //get average gradient
+                       TO_BLOCK_LIST *blocks,  //list of blocks
+                       float &page_m,          //average gradient
+                       float &page_err         //average error
+                      );
+void cleanup_rows(                   //find lines
+                  ICOORD page_tr,    //top right
+                  TO_BLOCK *block,   //block to do
+                  float gradient,    //gradient to fit
+                  FCOORD rotation,   //for drawing
+                  INT32 block_edge,  //edge of block
+                  BOOL8 testing_on   //correct orientation
+                 );
+void delete_non_dropout_rows(                   //find lines
+                             TO_BLOCK *block,   //block to do
+                             float gradient,    //global skew
+                             FCOORD rotation,   //deskew vector
+                             INT32 block_edge,  //left edge
+                             BOOL8 testing_on   //correct orientation
+                            );
+BOOL8 find_best_dropout_row(                    //find neighbours
+                            TO_ROW *row,        //row to test
+                            INT32 distance,     //dropout dist
+                            float dist_limit,   //threshold distance
+                            INT32 line_index,   //index of row
+                            TO_ROW_IT *row_it,  //current position
+                            BOOL8 testing_on    //correct orientation
+                           );
+BOX deskew_block_coords(                  //block box
+                        TO_BLOCK *block,  //block to do
+                        float gradient    //global skew
+                       );
+void compute_line_occupation(                    //project blobs
+                             TO_BLOCK *block,    //block to do
+                             float gradient,     //global skew
+                             INT32 min_y,        //min coord in block
+                             INT32 max_y,        //in block
+                             INT32 *occupation,  //output projection
+                             INT32 *deltas       //derivative
+                            );
+void compute_occupation_threshold(                    //project blobs
+                                  INT32 low_window,   //below result point
+                                  INT32 high_window,  //above result point
+                                  INT32 line_count,   //array sizes
+                                  INT32 *occupation,  //input projection
+                                  INT32 *thresholds   //output thresholds
+                                 );
+void compute_dropout_distances(                    //project blobs
+                               INT32 *occupation,  //input projection
+                               INT32 *thresholds,  //output thresholds
+                               INT32 line_count    //array sizes
+                              );
+void expand_rows(                   //find lines
+                 ICOORD page_tr,    //top right
+                 TO_BLOCK *block,   //block to do
+                 float gradient,    //gradient to fit
+                 FCOORD rotation,   //for drawing
+                 INT32 block_edge,  //edge of block
+                 BOOL8 testing_on   //correct orientation
+                );
+void adjust_row_limits(                 //tidy limits
+                       TO_BLOCK *block  //block to do
+                      );
+void compute_row_stats(                  //find lines
+                       TO_BLOCK *block,  //block to do
+                       BOOL8 testing_on  //correct orientation
+                      );
+void compute_block_xheight(                  //find lines
+                           TO_BLOCK *block,  //block to do
+                           float gradient    //global skew
+                          );
+float median_block_xheight(                  //find lines
+                           TO_BLOCK *block,  //block to do
+                           float gradient    //global skew
+                          );
+INT32 compute_row_xheight(                   //find lines
+                          TO_ROW *row,       //row to do
+                          INT32 min_height,  //min xheight
+                          INT32 max_height,  //max xheight
+                          float gradient     //global skew
+                         );
+INT32 compute_row_descdrop(                //find lines
+                           TO_ROW *row,    //row to do
+                           float gradient  //global skew
+                          );
+INT32 compute_height_modes(                   //find lines
+                           STATS *heights,    //stats to search
+                           INT32 min_height,  //bottom of range
+                           INT32 max_height,  //top of range
+                           INT32 *modes,      //output array
+                           INT32 maxmodes     //size of modes
+                          );
+void correct_row_xheight(                //fix bad values
+                         TO_ROW *row,    //row to fix
+                         float xheight,  //average values
+                         float ascrise,
+                         float descdrop);
+void separate_underlines(                  //make rough chars
+                         TO_BLOCK *block,  //block to do
+                         float gradient,   //skew angle
+                         FCOORD rotation,  //inverse landscape
+                         BOOL8 testing_on  //correct orientation
+                        );
+void pre_associate_blobs(                  //make rough chars
+                         ICOORD page_tr,   //top right
+                         TO_BLOCK *block,  //block to do
+                         FCOORD rotation,  //inverse landscape
+                         BOOL8 testing_on  //correct orientation
+                        );
+void fit_parallel_rows(                   //find lines
+                       TO_BLOCK *block,   //block to do
+                       float gradient,    //gradient to fit
+                       FCOORD rotation,   //for drawing
+                       INT32 block_edge,  //edge of block
+                       BOOL8 testing_on   //correct orientation
+                      );
+void fit_parallel_lms(                 //sort function
+                      float gradient,  //forced gradient
+                      TO_ROW *row      //row to fit
+                     );
+void make_spline_rows(                   //find lines
+                      TO_BLOCK *block,   //block to do
+                      float gradient,    //gradient to fit
+                      FCOORD rotation,   //for drawing
+                      INT32 block_edge,  //edge of block
+                      BOOL8 testing_on   //correct orientation
+                     );
+void make_baseline_spline(                 //sort function
+                          TO_ROW *row,     //row to fit
+                          TO_BLOCK *block  //block it came from
+                         );
+BOOL8 segment_baseline (         //split baseline
+TO_ROW * row,                    //row to fit
+TO_BLOCK * block,                //block it came from
+INT32 & segments,                //no fo segments
+INT32 xstarts[]                  //coords of segments
+);
+double *linear_spline_baseline ( //split baseline
+TO_ROW * row,                    //row to fit
+TO_BLOCK * block,                //block it came from
+INT32 & segments,                //no fo segments
+INT32 xstarts[]                  //coords of segments
+);
+void assign_blobs_to_rows(                      //find lines
+                          TO_BLOCK *block,      //block to do
+                          float *gradient,      //block skew
+                          int pass,             //identification
+                          BOOL8 reject_misses,  //chuck big ones out
+                          BOOL8 make_new_rows,  //add rows for unmatched
+                          BOOL8 drawing_skew    //draw smoothed skew
+                         );
+                                 //find best row
+OVERLAP_STATE most_overlapping_row(TO_ROW_IT *row_it,  //iterator
+                                   TO_ROW *&best_row,  //output row
+                                   float top,          //top of blob
+                                   float bottom,       //bottom of blob
+                                   float rowsize,      //max row size
+                                   BOOL8 testing_blob  //test stuff
+                                  );
+int blob_x_order(                    //sort function
+                 const void *item1,  //items to compare
+                 const void *item2);
+int row_y_order(                    //sort function
+                const void *item1,  //items to compare
+                const void *item2);
+int row_spacing_order(                    //sort function
+                      const void *item1,  //items to compare
+                      const void *item2);
+#endif

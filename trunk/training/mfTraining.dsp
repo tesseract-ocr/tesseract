@@ -1,0 +1,269 @@
+# Microsoft Developer Studio Project File - Name="mfTraining" - Package Owner=<4>
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
+# ** DO NOT EDIT **
+
+# TARGTYPE "Win32 (x86) Console Application" 0x0103
+
+CFG=mfTraining - Win32 Debug
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
+!MESSAGE 
+!MESSAGE NMAKE /f "mfTraining.mak".
+!MESSAGE 
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "mfTraining.mak" CFG="mfTraining - Win32 Debug"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+!MESSAGE "mfTraining - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "mfTraining - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE 
+
+# Begin Project
+# PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
+CPP=cl.exe
+RSC=rc.exe
+
+!IF  "$(CFG)" == "mfTraining - Win32 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "Release"
+# PROP BASE Intermediate_Dir "Release"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 2
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "..\..\release"
+# PROP Intermediate_Dir "..\..\release\train"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "../ccutil" /I "../ccstruct" /I "../classify" /I "../cutil" /I "../training" /I "../viewer" /I "../dict" /D "TRAINING" /D "WIN32" /D "_WINDOWS" /D "__NT__" /D "__MSW32__" /D "_AFXDLL" /FR /YX /FD /c
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+# ADD LINK32 /nologo /subsystem:console /profile /debug /machine:I386
+
+!ELSEIF  "$(CFG)" == "mfTraining - Win32 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "Debug"
+# PROP BASE Intermediate_Dir "Debug"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 2
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "..\..\Debug"
+# PROP Intermediate_Dir "..\..\Debug\train"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../ccutil" /I "../ccstruct" /I "../classify" /I "../cutil" /I "../training" /I "../viewer" /I "../dict" /D "_DEBUG" /D "TRAINING" /D "WIN32" /D "_WINDOWS" /D "__NT__" /D "__MSW32__" /D "_AFXDLL" /FR /YX /FD /c
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 /nologo /subsystem:console /profile /debug /machine:I386
+
+!ENDIF 
+
+# Begin Target
+
+# Name "mfTraining - Win32 Release"
+# Name "mfTraining - Win32 Debug"
+# Begin Source File
+
+SOURCE=..\cutil\bitvec.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\clst.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\classify\cluster.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\classify\clusttool.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\cutil.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\danerror.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\debug.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\debugwin.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\efio.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\emalloc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\errcode.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\viewer\evntlst.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\viewer\evnts.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\classify\featdefs.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\freelist.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\getopt.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\globaloc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\viewer\grphics.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\viewer\grphshm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\hashfn.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\classify\intproto.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\classify\kdtree.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\listio.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\memblk.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\memry.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\mergenf.cpp
+
+!IF  "$(CFG)" == "mfTraining - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "mfTraining - Win32 Debug"
+
+# SUBTRACT CPP /YX
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\mfcpch.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\mfTraining.cpp
+
+!IF  "$(CFG)" == "mfTraining - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "mfTraining - Win32 Debug"
+
+# SUBTRACT CPP /YX
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\training\name2char.cpp
+
+!IF  "$(CFG)" == "mfTraining - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "mfTraining - Win32 Debug"
+
+# SUBTRACT CPP /YX
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\classify\ocrfeatures.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\oldheap.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\oldlist.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\classify\protos.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\strngs.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\structures.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\tprintf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\training\training.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\varable.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cutil\variables.cpp
+# End Source File
+# End Target
+# End Project
