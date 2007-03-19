@@ -62,6 +62,8 @@ class COMMAND_WINDOW
                    const char *name,  //window name
                    MENU_ROOT *menu_ptr);
 
+    virtual ~COMMAND_WINDOW() {}
+
     void event(                   //Process event //Command event type
                GRAPHICS_EVENT &g_event,
                INT32 *c_event,

@@ -95,6 +95,8 @@ class MENU_NODE
                                INT16 width);  //required width
 
   public:
+    virtual ~MENU_NODE() {}
+
                                  //return ptr to name
     virtual const char *cmp_str() { 
       return name.string ();
