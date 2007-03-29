@@ -187,9 +187,9 @@ int statnum,                     //no of piles
 int modelist[], int modenum      //no of modes to get
 );
 
-void pick_x_height (             //find xheight
-TO_ROW * row,                    //row to do
-                                 //height stats
-int modelist[], STATS * heightstat,
+void pick_x_height(TO_ROW * row,                    //row to do
+int modelist[],
+int lefts[], int rights[],
+STATS * heightstat,
 int mode_threshold);
 #endif

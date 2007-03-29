@@ -1527,25 +1527,43 @@ int blobcount,                   /*blobs in blobcoords */
 QSPLINE * baseline,              /*established */
 float jumplimit                  /*min ascender height */
 ) {
-  int *heights;
   STATS heightstat (0, HEIGHTBUCKETS);
+  int lefts[HEIGHTBUCKETS];
+  int rights[HEIGHTBUCKETS];
   int modelist[MODENUM];
   int blobindex;
   int mode_count;                //blobs to count in thr
   int sign_bit;
   int mode_threshold;
+  const int kBaselineTouch = 2;  // This really should change with resolution.
+  const int kGoodStrength = 8;  // Strength of baseline-touching heights.
+  const float kMinHeight = 0.25;  // Min fraction of lineheight to use.
 
   sign_bit = row->xheight > 0 ? 1 : -1;
-  heights = make_height_array (blobcoords, blobcount, baseline);
 
+  memset(lefts, 0, HEIGHTBUCKETS * sizeof(lefts[0]));
+  memset(rights, 0, HEIGHTBUCKETS * sizeof(rights[0]));
   mode_count = 0;
   for (blobindex = 0; blobindex < blobcount; blobindex++) {
-    if (heights[blobindex] > lineheight * oldbl_xhfract
-      && blobcoords[blobindex].height () > init_lineheight * 0.25
-      && heights[blobindex] > textord_min_xheight)
-      heightstat.add (heights[blobindex], 1);
-    if (blobcoords[blobindex].height () > init_lineheight * 0.25)
-      mode_count++;
+    int xcenter = (blobcoords[blobindex].left () +
+        blobcoords[blobindex].right ()) / 2;
+    float base = baseline->y(xcenter);
+    float bottomdiff = fabs(base - blobcoords[blobindex].bottom());
+    int strength = bottomdiff <= kBaselineTouch ? kGoodStrength : 1;
+    int height = static_cast<int>(blobcoords[blobindex].top () - base);
+    if (blobcoords[blobindex].height () > init_lineheight * kMinHeight) {
+      if (height > lineheight * oldbl_xhfract
+        && height > textord_min_xheight) {
+        heightstat.add (height, strength);
+        if (height < HEIGHTBUCKETS) {
+          if (xcenter > rights[height])
+            rights[height] = xcenter;
+          if (xcenter > 0 && (lefts[height] == 0 || xcenter < lefts[height]))
+            lefts[height] = xcenter;
+        }
+      }
+      mode_count += strength;
+    }
   }
 
   mode_threshold = (int) (blobcount * 0.1);
@@ -1562,48 +1580,16 @@ float jumplimit                  /*min ascender height */
       tprintf ("mode[%d]=%d ", blobindex, modelist[blobindex]);
     tprintf ("\n");
   }
-  pick_x_height(row, modelist, &heightstat, mode_threshold);
+  pick_x_height(row, modelist, lefts, rights, &heightstat, mode_threshold);
 
   if (textord_oldbl_debug)
     tprintf ("Output xheight=%g\n", row->xheight);
   if (row->xheight < 0 && textord_oldbl_debug)
     tprintf ("warning: Row Line height < 0; %4.2f\n", row->xheight);
 
-  free_mem(heights);
-
   if (sign_bit < 0)
     row->xheight = -row->xheight;
 }
-
-
-/**********************************************************************
- * make_height_array
- *
- * Create an array of the number of blobs and each of their heights.
- **********************************************************************/
-
-int *
-make_height_array (              //get array of heights
-BOX blobcoords[],                /*blob bounding boxes */
-int blobcount,                   /*blobs in blobcoords */
-QSPLINE * baseline               /*established */
-) {
-  int blobindex;
-  int xcenter;
-  int *heights;
-
-  heights = (int *) alloc_mem (sizeof (int) * blobcount);
-
-  for (blobindex = 0; blobindex < blobcount; blobindex++) {
-    xcenter = (blobcoords[blobindex].left () +
-      blobcoords[blobindex].right ()) / 2;
-    heights[blobindex] = (int) (blobcoords[blobindex].top () -
-      baseline->y (xcenter) + 0.5);
-  }
-
-  return (heights);
-}
-
 
 /**********************************************************************
  * find_top_modes
@@ -1612,7 +1598,7 @@ QSPLINE * baseline               /*established */
  * input distribution.
  **********************************************************************/
 
-const int kMinModeFactor = 12;
+const int kMinModeFactor = 32;
 
 void
 find_top_modes (                 //get modes
@@ -1653,12 +1639,11 @@ int modelist[], int modenum      //no of modes to get
  * Choose based on the height modes the best x height value.
  **********************************************************************/
 
-void
-pick_x_height (                  //find xheight
-TO_ROW * row,                    //row to do
-                                 //height stats
-int modelist[], STATS * heightstat,
-int mode_threshold) {
+void pick_x_height(TO_ROW * row,                    //row to do
+                   int modelist[],
+                   int lefts[], int rights[],
+                   STATS * heightstat,
+                   int mode_threshold) {
   int x;
   int y;
   int z;
@@ -1672,64 +1657,65 @@ int mode_threshold) {
     for (y = 0; y < MODENUM; y++) {
       /* Check for two modes */
       if (modelist[x] && modelist[y] &&
-      heightstat->pile_count (modelist[x]) > mode_threshold) {
+          heightstat->pile_count (modelist[x]) > mode_threshold &&
+          MIN(rights[modelist[x]], rights[modelist[y]]) >
+          MAX(lefts[modelist[x]], lefts[modelist[y]])) {
         ratio = (float) modelist[y] / (float) modelist[x];
         if (1.2 < ratio && ratio < 1.8) {
-          if (modelist[y] && modelist[x]) {
-            /* Two modes found */
-            best_x_height = modelist[x];
-            num_in_best = heightstat->pile_count (modelist[x]);
+          /* Two modes found */
+          best_x_height = modelist[x];
+          num_in_best = heightstat->pile_count (modelist[x]);
 
-            /* Try to get one higher */
-            do {
-              found_one_bigger = FALSE;
-              for (z = 0; z < MODENUM; z++) {
-                if (modelist[z] == best_x_height + 1) {
-                  ratio =
-                    (float) modelist[y] / (float) modelist[z];
-                  if ((1.2 < ratio && ratio < 1.8) &&
-                                 /* Should be half of best */
+          /* Try to get one higher */
+          do {
+            found_one_bigger = FALSE;
+            for (z = 0; z < MODENUM; z++) {
+              if (modelist[z] == best_x_height + 1 &&
+                  MIN(rights[modelist[x]], rights[modelist[y]]) >
+                  MAX(lefts[modelist[x]], lefts[modelist[y]])) {
+                ratio = (float) modelist[y] / (float) modelist[z];
+                if ((1.2 < ratio && ratio < 1.8) &&
+                               /* Should be half of best */
                     heightstat->pile_count (modelist[z]) >
-                  num_in_best * 0.5) {
-                    best_x_height++;
-                    found_one_bigger = TRUE;
-                    break;
-                  }
+                    num_in_best * 0.5) {
+                  best_x_height++;
+                  found_one_bigger = TRUE;
+                  break;
                 }
               }
             }
-            while (found_one_bigger);
-
-            /* try to get a higher ascender */
-
-            best_asc = modelist[y];
-            num_in_best = heightstat->pile_count (modelist[y]);
-
-            /* Try to get one higher */
-            do {
-              found_one_bigger = FALSE;
-              for (z = 0; z < MODENUM; z++) {
-                if (modelist[z] > best_asc) {
-                  ratio =
-                    (float) modelist[z] /
-                    (float) best_x_height;
-                  if ((1.2 < ratio && ratio < 1.8) &&
-                                 /* Should be half of best */
-                    heightstat->pile_count (modelist[z]) >
-                  num_in_best * 0.5) {
-                    best_asc = modelist[z];
-                    found_one_bigger = TRUE;
-                    break;
-                  }
-                }
-              }
-            }
-            while (found_one_bigger);
-
-            row->xheight = (float) best_x_height;
-            row->ascrise = (float) best_asc - best_x_height;
-            return;
           }
+          while (found_one_bigger);
+
+          /* try to get a higher ascender */
+
+          best_asc = modelist[y];
+          num_in_best = heightstat->pile_count (modelist[y]);
+
+          /* Try to get one higher */
+          do {
+            found_one_bigger = FALSE;
+            for (z = 0; z < MODENUM; z++) {
+              if (modelist[z] > best_asc &&
+                  MIN(rights[modelist[x]], rights[modelist[y]]) >
+                  MAX(lefts[modelist[x]], lefts[modelist[y]])) {
+                ratio = (float) modelist[z] / (float) best_x_height;
+                if ((1.2 < ratio && ratio < 1.8) &&
+                               /* Should be half of best */
+                    heightstat->pile_count (modelist[z]) >
+                    num_in_best * 0.5) {
+                  best_asc = modelist[z];
+                  found_one_bigger = TRUE;
+                  break;
+                }
+              }
+            }
+          }
+          while (found_one_bigger);
+
+          row->xheight = (float) best_x_height;
+          row->ascrise = (float) best_asc - best_x_height;
+          return;
         }
       }
     }
