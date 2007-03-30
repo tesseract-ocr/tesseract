@@ -64,11 +64,20 @@ void main_setup(                         /*main demo program */
   STRING varfile;                /*name of file */
 
   imagebasename = basename;      /*name of image */
+
+  #ifdef TESSDATA_PREFIX
+  #define _STR(a) #a
+  #define _XSTR(a) _STR(a)
+  datadir = _XSTR(TESSDATA_PREFIX);
+  #undef _XSTR
+  #undef _STR
+  #else
   if (getpath (argv0, datadir) < 0)
   #ifdef __UNIX__
     CANTOPENFILE.error ("main", ABORT, "%s to get path", argv[0]);
   #else
   NO_PATH.error ("main", DBG, NULL);
+  #endif
   #endif
 
   for (arg = 0; arg < argc; arg++) {
@@ -98,6 +107,7 @@ void main_setup(                         /*main demo program */
 
   if (m_print_variables)
     print_variables(stdout);  /*print them all */
+
 
   datadir += m_data_sub_dir;     /*data directory */
 

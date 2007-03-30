@@ -1359,7 +1359,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-tesseract
 
 ac_aux_dir=
 for ac_dir in config $srcdir/config; do
@@ -4215,7 +4214,7 @@ fi;
 	OPTS="$OPTS $VCOPTS_COMMON /Ow /O2"
      else
 
- opt="-O3"
+ opt="-O2"
  echo "$as_me:$LINENO: checking if $CXX accepts $opt" >&5
 echo $ECHO_N "checking if $CXX accepts $opt... $ECHO_C" >&6
  echo 'void f(){}' > conftest.cc
@@ -4223,7 +4222,7 @@ echo $ECHO_N "checking if $CXX accepts $opt... $ECHO_C" >&6
     echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
     rm conftest.*
-    OPTS="$OPTS -O3"
+    OPTS="$OPTS -O2"
  else
     echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6

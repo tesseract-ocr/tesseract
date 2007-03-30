@@ -270,7 +270,7 @@ void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node) {
 void read_squished_dawg(char *filename, EDGE_ARRAY dawg, INT32 max_num_edges) {
   FILE       *file;
   EDGE_REF   edge;
-  INT32      num_edges;
+  INT32      num_edges = 0;
   INT32      node_count = 0;
 
   if (debug) print_string ("read_debug");
