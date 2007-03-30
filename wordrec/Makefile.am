@@ -13,7 +13,7 @@ EXTRA_DIST = \
     plotseg.h render.h seam.h split.h tally.h tessinit.h tface.h \
     wordclass.h
 
-noinst_LIBRARIES = libtesseract_wordrec.a
+lib_LIBRARIES = libtesseract_wordrec.a
 libtesseract_wordrec_a_SOURCES = \
     associate.cpp badwords.cpp bestfirst.cpp chop.cpp chopper.cpp \
     closed.cpp djmenus.cpp drawfx.cpp findseam.cpp gradechop.cpp \

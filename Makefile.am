@@ -1,5 +1,5 @@
 # TODO(luc) Add 'doc' to this list when ready
-SUBDIRS = ccstruct ccutil classify cutil dict display image textord viewer wordrec ccmain training
+SUBDIRS = ccstruct ccutil classify cutil dict display image textord viewer wordrec ccmain training tessdata
 
 EXTRA_DIST = tessdata phototest.tif tesseract.dsp tesseract.dsw
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz

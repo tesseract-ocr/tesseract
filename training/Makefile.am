@@ -11,7 +11,7 @@ EXTRA_DIST = \
     cnTraining.dsp mfTraining.dsp \
     mergenf.h name2char.h training.h
 
-noinst_LIBRARIES = libtesseract_training.a
+lib_LIBRARIES = libtesseract_training.a
 libtesseract_training_a_SOURCES = \
     name2char.cpp training.cpp
 

@@ -7,7 +7,7 @@ EXTRA_DIST = \
     minmax.h oldheap.h oldlist.h structures.h tessarray.h \
     tordvars.h variables.h
 
-noinst_LIBRARIES = libtesseract_cutil.a
+lib_LIBRARIES = libtesseract_cutil.a
 libtesseract_cutil_a_SOURCES = \
     tessarray.cpp bitvec.cpp cutil.cpp danerror.cpp debug.cpp efio.cpp \
     emalloc.cpp freelist.cpp globals.cpp listio.cpp oldheap.cpp \

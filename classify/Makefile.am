@@ -12,7 +12,7 @@ EXTRA_DIST = \
     mfoutline.h mfx.h normfeat.h normmatch.h ocrfeatures.h \
     outfeat.h picofeat.h protos.h sigmenu.h speckle.h xform2d.h
 
-noinst_LIBRARIES = libtesseract_classify.a
+lib_LIBRARIES = libtesseract_classify.a
 libtesseract_classify_a_SOURCES = \
     adaptive.cpp adaptmatch.cpp baseline.cpp blobclass.cpp \
     chartoname.cpp cluster.cpp clusttool.cpp cutoffs.cpp \

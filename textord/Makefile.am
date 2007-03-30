@@ -10,7 +10,7 @@ EXTRA_DIST = \
     topitch.h tordmain.h tospace.h tovars.h underlin.h \
     wordseg.h
 
-noinst_LIBRARIES = libtesseract_textord.a
+lib_LIBRARIES = libtesseract_textord.a
 libtesseract_textord_a_SOURCES = \
     blkocc.cpp drawedg.cpp drawtord.cpp edgblob.cpp \
     edgloop.cpp fpchop.cpp gap_map.cpp makerow.cpp oldbasel.cpp \

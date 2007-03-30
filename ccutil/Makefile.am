@@ -1,4 +1,5 @@
 SUBDIRS =
+CXXFLAGS = -DTESSDATA_PREFIX=@datadir@/
 
 EXTRA_DIST = \
     basedir.h bits16.h clst.h debugwin.h elst2.h elst.h errcode.h \
@@ -8,7 +9,7 @@ EXTRA_DIST = \
     stderr.h strngs.h tessclas.h tprintf.h varable.h \
     mfcpch.cpp scanutils.cpp scanutils.h unichar.h
 
-noinst_LIBRARIES = libtesseract_ccutil.a
+lib_LIBRARIES = libtesseract_ccutil.a
 libtesseract_ccutil_a_SOURCES = \
     basedir.cpp bits16.cpp clst.cpp debugwin.cpp elst.cpp \
     elst2.cpp errcode.cpp globaloc.cpp hashfn.cpp mainblk.cpp \

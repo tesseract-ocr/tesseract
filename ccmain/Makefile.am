@@ -15,7 +15,7 @@ EXTRA_DIST = \
     tessbox.h tessedit.h tesseractmain.h tessvars.h tfacep.h \
     tessembedded.h tfacepp.h tstruct.h werdit.h
 
-noinst_LIBRARIES = libtesseract_main.a
+lib_LIBRARIES = libtesseract_main.a
 libtesseract_main_a_SOURCES = \
     tessedit.cpp adaptions.cpp applybox.cpp \
     baseapi.cpp blobcmp.cpp \

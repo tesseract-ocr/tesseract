@@ -12,7 +12,7 @@ EXTRA_DIST = \
     quspline.h ratngs.h rect.h rejctmap.h rwpoly.h statistc.h \
     stepblob.h txtregn.h vecfuncs.h werd.h
 
-noinst_LIBRARIES = libtesseract_ccstruct.a
+lib_LIBRARIES = libtesseract_ccstruct.a
 libtesseract_ccstruct_a_SOURCES = \
     blobbox.cpp blobs.cpp blread.cpp callcpp.cpp \
     coutln.cpp genblob.cpp labls.cpp linlsq.cpp \

@@ -31,6 +31,8 @@ AC_SUBST(PACKAGE_VERSION)
 AC_SUBST(PACKAGE_YEAR)
 AC_SUBST(PACKAGE_DATE)
 
+# datadir="${datadir}/tessdata"
+
 AC_ARG_WITH(extra-includes,
             AC_HELP_STRING([--with-extra-includes=DIR],
                        [Define an additional directory for include files]),
@@ -92,7 +94,7 @@ AC_PROG_CXX(cl.exe g++)
 #AM_INIT_AUTOMAKE(dist-zip)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config_auto.h:config/config.h.in)
-AM_PROG_CC_C_O
+#AM_PROG_CC_C_O
 AM_MAINTAINER_MODE
 # Need to tell automake if Visual C++ is being used:
 AM_CONDITIONAL(USING_CL, test x$CC = xcl.exe)
@@ -295,6 +297,7 @@ AC_CONFIG_FILES(textord/Makefile)
 AC_CONFIG_FILES(viewer/Makefile)
 AC_CONFIG_FILES(wordrec/Makefile)
 AC_CONFIG_FILES(training/Makefile)
+AC_CONFIG_FILES(tessdata/Makefile)
 # AC_CONFIG_FILES(doc/Doxyfile)
 # AC_CONFIG_FILES(doc/header.html)
 # AC_CONFIG_FILES(doc/footer.html)
