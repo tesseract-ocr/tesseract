@@ -1,2 +1,15 @@
 If you have checked out Tesseract from Subversion, you must generate the configure script.
-You can do this by running ./runautoconf and it will go through all the steps.
+
+So, the steps for making Tesseract are:
+
+  * ./runautoconf  # ignore warnings
+  * ./configure
+  * make
+  * make install
+
+Note that ./runautoconf may generate some warnings:
+
+ -- quoting in some /usr/share/.../... .m4 files
+ -- old uses of datarootdir
+
+They don't seem to hurt anything.  We haven't found a good way of eliminating them yet.
