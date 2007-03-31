@@ -1,5 +1,5 @@
 SUBDIRS =
-CXXFLAGS = -DTESSDATA_PREFIX=@datadir@/
+AM_CXXFLAGS = -DTESSDATA_PREFIX=@datadir@/
 
 include_HEADERS = \
     basedir.h bits16.h clst.h debugwin.h elst2.h elst.h errcode.h \

@@ -188,7 +188,7 @@ AC_PROG_RANLIB
 
 
 # Test for GNUWIN32 tools (only useful under windows)
-AC_PATH_GNUWIN32
+# AC_PATH_GNUWIN32
 
 # ----------------------------------------
 # C++ related options
@@ -200,12 +200,11 @@ AC_LANG_CPLUSPLUS
 # compile options accordingly. We are supposed to be either
 # in debug mode or in optimize mode. Note that in debug mode,
 # DEBUG_MODE will be set by this macro
-AC_CXX_OPTIMIZE
-
-AC_CXX_BOOL
-AC_CXX_TYPENAME
-AC_CXX_STDINCLUDES
-AC_CXX_RPO
+# AC_CXX_OPTIMIZE
+# AC_CXX_BOOL
+# AC_CXX_TYPENAME
+# AC_CXX_STDINCLUDES
+# AC_CXX_RPO
 
 # ----------------------------------------
 # Check for libraries
@@ -279,7 +278,7 @@ AC_PATH_LIBTIFF(,
 # ----------------------------------------
 
 # Define installation paths
-AC_DEFINE_INSTALL_PATHS
+# AC_DEFINE_INSTALL_PATHS
 # Redundant with PACKAGE_VERSION - comment out
 # AC_DEFINE_UNQUOTED(TESSERACT_VERSION,["${PACKAGE_VERSION}"],[version string])
 
