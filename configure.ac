@@ -314,9 +314,6 @@ echo "You can now build $PACKAGE_NAME by running:"
 # echo "% make depend  [optional]"
 echo ""
 echo "% make"
-echo ""
-echo "Note: 'make install' has not been implemented yet. Avoid using."
-
 
 # ----------------------------------------
 # CONFIG Template
