@@ -7,7 +7,7 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/textord
 
-EXTRA_DIST = \
+include_HEADERS = \
     adaptions.h applybox.h baseapi.h blobcmp.h \
     callnet.h charcut.h \
     control.h docqual.h expandblob.h fixspace.h fixxht.h \

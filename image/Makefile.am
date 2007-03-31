@@ -1,7 +1,7 @@
 SUBDIRS =
 AM_CPPFLAGS = -I$(top_srcdir)/ccutil
 
-EXTRA_DIST = \
+include_HEADERS = \
     bitstrm.h imgbmp.h imgerrs.h img.h imgio.h imgs.h \
     imgtiff.h imgunpk.h
 

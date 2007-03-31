@@ -65,6 +65,7 @@ void main_setup(                         /*main demo program */
 
   imagebasename = basename;      /*name of image */
 
+  if(!getenv("TESSDATA_PREFIX")) {
   #ifdef TESSDATA_PREFIX
   #define _STR(a) #a
   #define _XSTR(a) _STR(a)
@@ -79,6 +80,9 @@ void main_setup(                         /*main demo program */
   NO_PATH.error ("main", DBG, NULL);
   #endif
   #endif
+  } else {
+    datadir = getenv("TESSDATA_PREFIX");
+  }
 
   for (arg = 0; arg < argc; arg++) {
     if (argv[arg][0] == '+' || argv[arg][0] == '-') {

@@ -1,7 +1,7 @@
 SUBDIRS =
 CXXFLAGS = -DTESSDATA_PREFIX=@datadir@/
 
-EXTRA_DIST = \
+include_HEADERS = \
     basedir.h bits16.h clst.h debugwin.h elst2.h elst.h errcode.h \
     fileerr.h getopt.h globaloc.h hashfn.h host.h hosthplb.h lsterr.h \
     mainblk.h memblk.h memryerr.h memry.h mfcpch.h ndminx.h notdll.h \

@@ -1,7 +1,7 @@
 SUBDIRS =
 AM_CPPFLAGS = -I$(top_srcdir)/ccutil
 
-EXTRA_DIST = \
+include_HEADERS = \
     bitvec.h callcpp.h const.h cutil.h danerror.h debug.h efio.h \
     emalloc.h freelist.h funcdefs.h general.h globals.h listio.h \
     minmax.h oldheap.h oldlist.h structures.h tessarray.h \

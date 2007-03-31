@@ -3,7 +3,7 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer
 
-EXTRA_DIST = \
+include_HEADERS = \
     blkocc.h blobcmpl.h drawedg.h drawtord.h edgblob.h \
     edgloop.h fpchop.h gap_map.h makerow.h oldbasel.h \
     pithsync.h pitsync1.h scanedg.h sortflts.h tessout.h \

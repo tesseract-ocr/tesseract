@@ -31,7 +31,7 @@ AC_SUBST(PACKAGE_VERSION)
 AC_SUBST(PACKAGE_YEAR)
 AC_SUBST(PACKAGE_DATE)
 
-# datadir="${datadir}/tessdata"
+includedir="${includedir}/tesseract"
 
 AC_ARG_WITH(extra-includes,
             AC_HELP_STRING([--with-extra-includes=DIR],

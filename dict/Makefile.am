@@ -1,7 +1,7 @@
 SUBDIRS =
 AM_CPPFLAGS = -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil
 
-EXTRA_DIST = \
+include_HEADERS = \
     choicearr.h choices.h context.h dawg.h hyphen.h matchdefs.h \
     permdawg.h permnum.h permute.h states.h stopper.h trie.h
 

@@ -7,7 +7,7 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/textord
 
-EXTRA_DIST = \
+include_HEADERS = \
     cnTraining.dsp mfTraining.dsp \
     mergenf.h name2char.h training.h
 

@@ -1,0 +1,2 @@
+If you have checked out Tesseract from Subversion, you must generate the configure script.
+You can do this by running ./runautoconf and it will go through all the steps.

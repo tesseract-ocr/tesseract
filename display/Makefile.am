@@ -4,7 +4,7 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/viewer -I$(top_srcdir)/textord \
     -I$(top_srcdir)/ccutil
 
-EXTRA_DIST = \
+include_HEADERS = \
     cmndwin.h pagewalk.h pgedit.h pgeditx.h sbdmenu.h submen.h \
     tessio.h varabled.h varblmen.h varblwin.h
 

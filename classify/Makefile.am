@@ -4,7 +4,7 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/dict \
     -I$(top_srcdir)/viewer
 
-EXTRA_DIST = \
+include_HEADERS = \
     adaptive.h adaptmatch.h baseline.h blobclass.h chartoname.h \
     cluster.h clusttool.h cutoffs.h extern.h extract.h featdefs.h \
     flexfx.h float2int.h fpoint.h fxdefs.h fxid.h hideedge.h \

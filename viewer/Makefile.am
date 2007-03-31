@@ -1,7 +1,7 @@
 SUBDIRS =
 AM_CPPFLAGS = -I$(top_srcdir)/image -I$(top_srcdir)/ccutil
 
-EXTRA_DIST = \
+include_HEADERS = \
     evntlst.h evnts.h grphics.h grphshm.h sbgconst.h sbgdefs.h \
     sbgtypes.h showim.h
 

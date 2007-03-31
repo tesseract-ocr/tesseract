@@ -5,7 +5,7 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/image -I$(top_srcdir)/dict \
     -I$(top_srcdir)/viewer
 
-EXTRA_DIST = \
+include_HEADERS = \
     associate.h badwords.h bestfirst.h charsample.h chop.h \
     chopper.h closed.h djmenus.h drawfx.h findseam.h gradechop.h \
     heuristic.h makechop.h matchtab.h matrix.h measure.h metrics.h \

@@ -3,7 +3,7 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer
 
-EXTRA_DIST = \
+include_HEADERS = \
     blckerr.h blobbox.h blobs.h blread.h coutln.h crakedge.h \
     genblob.h hpddef.h hpdsizes.h ipoints.h labls.h linlsq.h \
     lmedsq.h mod128.h normalis.h ocrblock.h ocrrow.h pageblk.h \
