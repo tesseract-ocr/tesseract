@@ -83,7 +83,7 @@ DLLSYM PAGE_BLOCK_LIST *read_poly_blocks(                  //read file
   page_block_it.set_to_list (pb_list);
   number_of_pblocks = pb_list->length ();
 
-  printf ("%d page blocks read\n", number_of_pblocks);
+  tprintf ("%d page blocks read\n", number_of_pblocks);
   return pb_list;
 
 }

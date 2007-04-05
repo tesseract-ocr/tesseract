@@ -40,6 +40,7 @@ Import original HP distribution
  **/
 
 #include "cutil.h"
+#include "tprintf.h"
 #include "callcpp.h"
 
 #include <stdlib.h>
@@ -85,7 +86,7 @@ long long_rand(long limit) {
 FILE *open_file(const char *filename, const char *mode) {
   FILE *thisfile = NULL;
   if ((thisfile = fopen (filename, mode)) == NULL) {
-    printf ("Could not open file, %s\n", filename);
+    tprintf ("Could not open file, %s\n", filename);
     exit (1);
   }
   return (thisfile);

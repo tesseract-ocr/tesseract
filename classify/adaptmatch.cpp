@@ -627,7 +627,7 @@ LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row) {
   NumClassesOutput += count (Choices);
   if (Choices == NIL) {
     if (!bln_numericmode)
-      printf ("Nil classification!\n");  // Should never normally happen.
+      tprintf ("Nil classification!\n");  // Should never normally happen.
     return (append_choice (NIL, "", 50.0f, -20.0f, -1));
   }
 

@@ -170,7 +170,7 @@ double streamtofloat(FILE* s)
       k *= 10;
     }
   } else if (c == 'e' || c == 'E') 
-    printf("WARNING: Scientific Notation not supported!");
+    tprintf("WARNING: Scientific Notation not supported!");
   
   ungetc(c, s);
   double f  = static_cast<double>(v) 
@@ -204,7 +204,7 @@ double strtofloat(const char* s)
       k *= 10;
     }
   } else if (*s == 'e' || *s == 'E') 
-    printf("WARNING: Scientific Notation not supported!");
+    tprintf("WARNING: Scientific Notation not supported!");
   
   double f  = static_cast<double>(v) 
             + static_cast<double>(w) / static_cast<double>(k);
