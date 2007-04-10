@@ -1348,7 +1348,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-tesseract
 
 ac_aux_dir=
 for ac_dir in config $srcdir/config; do
