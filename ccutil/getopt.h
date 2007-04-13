@@ -20,8 +20,10 @@
 #include          "host.h"
 #include          "notdll.h"     //must be last include
 
-extern int optind;
-extern char *optarg;
+extern "C" {
+    extern int optind;
+    extern char *optarg;
+}
 
 int getopt (                     //parse args
 INT32 argc,                      //arg count

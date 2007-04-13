@@ -43,8 +43,10 @@ extern int acts[MAXPROC];        /*action flags */
 extern int debugs[MAXPROC];      /*debug flags */
 extern int plots[MAXPROC];       /*plot flags */
 extern int corners[4];           /*corners of scan window */
-extern int optind;               /*option index */
-extern char *optarg;             /*option argument */
+extern "C" {
+    extern int optind;           /*option index */
+    extern char *optarg;         /*option argument */
+}
                                  /*image file name */
 extern char imagefile[FILENAMESIZE];
                                  /* main directory */

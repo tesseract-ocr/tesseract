@@ -34,24 +34,24 @@ extern int debug_3;
 extern int debug_5;
 extern int debug_8;
 
-extern FILE *rawfile;            /* Text before dictionary */
-extern FILE *textfile;           /* Text output file */
-extern FILE *correct_fp;         //correct text
+extern FILE *rawfile;                       /* Text before dictionary */
+extern FILE *textfile;                      /* Text output file */
+extern FILE *correct_fp;                    //correct text
 extern FILE *matcher_fp;
 
-extern int blob_skip;            /* Skip to next selection */
-extern int num_word_choices;     /* How many words to keep */
-extern int similarity_enable;    /* Switch for Similarity */
-extern int similarity_debug;     /* Level of debug output */
-extern int write_raw_output;     /* Text before context */
-extern int write_output;         /* Text file output */
-extern int display_ratings;      /* Show the ratings */
-extern int show_bold;            /* Use bold text */
-extern int display_text;         /* Show word text */
-extern int display_blocks;       /* Show word as boxes */
+extern int blob_skip;                       /* Skip to next selection */
+extern int num_word_choices;                /* How many words to keep */
+extern int similarity_enable;               /* Switch for Similarity */
+extern int similarity_debug;                /* Level of debug output */
+extern int write_raw_output;                /* Text before context */
+extern int write_output;                    /* Text file output */
+extern "C" { extern int display_ratings; }  /* Show the ratings */
+extern int show_bold;                       /* Use bold text */
+extern int display_text;                    /* Show word text */
+extern int display_blocks;                  /* Show word as boxes */
 
-extern float overlap_threshold;  /* Overlap Threshold */
-extern float certainty_threshold;/* When to quit looking */
+extern float overlap_threshold;             /* Overlap Threshold */
+extern float certainty_threshold;           /* When to quit looking */
 
 /*----------------------------------------------------------------------
               F u n c t i o n s

@@ -148,7 +148,7 @@ EXTERN double_VAR (test_pt_x, 99999.99, "xcoord");
 EXTERN double_VAR (test_pt_y, 99999.99, "ycoord");
 
 extern int MatcherDebugLevel;
-extern int display_ratings;
+extern "C" { extern int display_ratings; }
 extern int number_debug;
 extern int adjust_debug;
 /*
