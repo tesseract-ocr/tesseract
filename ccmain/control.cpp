@@ -229,35 +229,34 @@ BOOL8 recog_interactive(            //recognize blobs
 
 void recog_all_words(                              //process words
                      PAGE_RES *page_res,           //page structure
-                     volatile ETEXT_DESC *monitor  //progress monitor
-                    ) {
+                     volatile ETEXT_DESC *monitor,  //progress monitor
+                     BOX	*target_word_box,//specifies just to extract a retangle
+                     INT16 dopasses //0 - all, 1 just pass 1, 2 passes 2 and higher
+					 ) {
                                  //reset page iterator
-  PAGE_RES_IT page_res_it(page_res);
+  static PAGE_RES_IT page_res_it;
   INT16 chars_in_word;
   INT16 rejects_in_word;
-  CHAR_SAMPLES_LIST em_clusters;
-  CHAR_SAMPLE_LIST ems_waiting;
-  CHAR_SAMPLES_LIST char_clusters;
-  CHAR_SAMPLE_LIST chars_waiting;
+  static CHAR_SAMPLES_LIST em_clusters;
+  static CHAR_SAMPLE_LIST ems_waiting;
+  static CHAR_SAMPLES_LIST char_clusters;
+  static CHAR_SAMPLE_LIST chars_waiting;
   INT16 blob_quality = 0;
   INT16 outline_errs = 0;
-  INT16 doc_blob_quality = 0;
-  INT16 doc_outline_errs = 0;
-  INT16 doc_char_quality = 0;
+  static INT16 doc_blob_quality = 0;
+  static INT16 doc_outline_errs = 0;
+  static INT16 doc_char_quality = 0;
   INT16 all_char_quality;
   INT16 accepted_all_char_quality;
-  INT16 good_char_count = 0;
-  INT16 doc_good_char_quality = 0;
-  const STRING *wordstr;
-  const char *text;
+  static INT16 good_char_count = 0;
+  static INT16 doc_good_char_quality = 0;
   int i;
 
-  BOOL8 good_quality_doc;
-  UINT8 permuter_type;
 
   INT32 tess_adapt_mode = 0;
-  INT32 word_count;              //count of words in doc
+  static INT32 word_count;              //count of words in doc
   INT32 word_index;              //current word
+  static int dict_words;
 
   if (tessedit_minimal_rej_pass1) {
     tessedit_test_adaption.set_value (TRUE);
@@ -269,6 +268,12 @@ void recog_all_words(                              //process words
     tessedit_tess_adaption_mode.set_value (0);
     tessedit_tess_adapt_to_rejmap.set_value (TRUE);
   }
+
+
+if (dopasses==0 || dopasses==1)
+{
+	page_res_it.page_res=page_res;
+	page_res_it.restart_page();
 
   /* Pass 1 */
   word_count = 0;
@@ -284,7 +289,18 @@ void recog_all_words(                              //process words
     word_count = 1;
 
   word_index = 0;
-  int dict_words = 0;
+
+	em_clusters.clear();
+    ems_waiting.clear();
+    char_clusters.clear();
+    chars_waiting.clear();
+    dict_words = 0;
+	doc_blob_quality = 0;
+	doc_outline_errs = 0;
+	doc_char_quality = 0;
+	good_char_count = 0;
+	doc_good_char_quality = 0;
+
   while (page_res_it.word () != NULL) {
     set_global_loc_code(LOC_PASS1);
     word_index++;
@@ -305,9 +321,9 @@ void recog_all_words(                              //process words
         page_res_it.word ()->reject_map.rej_word_tess_failure ();
       //FAKE PERM REJ
       else {
-        wordstr = &(page_res_it.word ()->best_choice->string ());
+        const STRING* wordstr = &(page_res_it.word ()->best_choice->string ());
         /* Override rejection mechanisms for this word */
-        text = wordstr->string ();
+        const char* text = wordstr->string ();
         for (i = 0; text[i] != '\0'; i++) {
           if ((text[i] != ' ')
             && page_res_it.word ()->reject_map[i].rejected ())
@@ -350,6 +366,13 @@ void recog_all_words(                              //process words
     page_res_it.forward ();
   }
 
+  //
+
+
+ }
+
+if (dopasses==1) return;
+
   /* Pass 2 */
   page_res_it.restart_page ();
   word_index = 0;
@@ -364,6 +387,23 @@ void recog_all_words(                              //process words
                                                          dict_words)))
         return;
     }
+//changed by jetsoft
+//specific to its needs to extract one word when need
+
+	if (target_word_box)
+	{
+
+		BOX current_word_box=page_res_it.word ()->word->bounding_box();
+		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
+		if (!target_word_box->contains(center_pt))
+		{
+			page_res_it.forward ();
+			continue;
+		}
+
+	}
+//end jetsoft
+
     classify_word_pass2 (page_res_it.word (), page_res_it.row ()->row);
 
     if (tessedit_em_adaption_mode > 0)
@@ -401,6 +441,24 @@ void recog_all_words(                              //process words
     check_debug_pt (page_res_it.word (), 70);
     /* Use good matches to sort out confusions */
 
+
+//changed by jetsoft
+//specific to its needs to extract one word when need
+
+	if (target_word_box)
+	{
+
+		BOX current_word_box=page_res_it.word ()->word->bounding_box();
+		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
+		if (!target_word_box->contains(center_pt))
+		{
+			page_res_it.forward ();
+			continue;
+		}
+
+	}
+// end jetsoft
+
     if (tessedit_em_adaption_mode != 0)
       adapt_to_good_ems (page_res_it.word (), &em_clusters, &ems_waiting);
 
@@ -431,7 +489,7 @@ void recog_all_words(                              //process words
       page_res_it.row ()->row,
       &all_char_quality, &accepted_all_char_quality);
     doc_char_quality += all_char_quality;
-    permuter_type = page_res_it.word ()->best_choice->permuter ();
+    UINT8 permuter_type = page_res_it.word ()->best_choice->permuter ();
     if ((permuter_type == SYSTEM_DAWG_PERM) ||
       (permuter_type == FREQ_DAWG_PERM) ||
     (permuter_type == USER_DAWG_PERM)) {
@@ -451,6 +509,24 @@ void recog_all_words(                              //process words
   && tessedit_cluster_adapt_after_pass3 && page_res_it.word () != NULL) {
     if (monitor != NULL)
       monitor->ocr_alive = TRUE;
+
+//changed by jetsoft
+//specific to its needs to extract one word when need
+
+	if (target_word_box)
+	{
+
+		BOX current_word_box=page_res_it.word ()->word->bounding_box();
+		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
+		if (!target_word_box->contains(center_pt))
+		{
+			page_res_it.forward ();
+			continue;
+		}
+
+	}
+
+//end jetsoft
     if (tessedit_cluster_adaption_mode != 0)
       adapt_to_good_samples (page_res_it.word (),
         &char_clusters, &chars_waiting);
@@ -471,7 +547,7 @@ void recog_all_words(                              //process words
       0 ? doc_good_char_quality / (float) good_char_count : 0.0);
   }
   #endif
-  good_quality_doc =
+  BOOL8 good_quality_doc =
     (page_res->rej_count / (float) page_res->char_count <= quality_rej_pc)
     &&
     (doc_blob_quality / (float) page_res->char_count >= quality_blob_pc) &&
@@ -490,7 +566,13 @@ void recog_all_words(                              //process words
   set_global_loc_code(LOC_WRITE_RESULTS);
   // This is now redundant, but retained commented so show how to obtain
   // bounding boxes and style information.
-  // output_pass (page_res_it, false);
+
+////changed by jetsoft
+//needed for dll to output memory structure
+  if ((dopasses==0 || dopasses==2) && monitor)
+	output_pass (page_res_it,true, target_word_box);
+// end jetsoft
+
 }
 
 

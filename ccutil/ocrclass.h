@@ -285,7 +285,7 @@ typedef struct                   /*single character */
  **********************************************************************/
 typedef bool (*CANCEL_FUNC)(void* cancel_this, int words);
 
-typedef struct                   /*output header */
+typedef struct ETEXT_STRUCT      /*output header */
 {
   INT16 count;                   /*chars in this buffer(0) */
   INT16 progress;                /*percent complete increasing (0-100) */

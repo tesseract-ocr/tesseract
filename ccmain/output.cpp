@@ -109,7 +109,8 @@ INT32 pixels_to_pts(               //convert coords
 
 void output_pass(  //Tess output pass //send to api
                  PAGE_RES_IT &page_res_it,
-                 BOOL8 write_to_shm) {
+                 BOOL8 write_to_shm,
+				 BOX	*target_word_box) {
   BLOCK_RES *block_of_last_word;
   INT16 block_id;
   BOOL8 force_eol;               //During output
@@ -124,6 +125,19 @@ void output_pass(  //Tess output pass //send to api
   block_of_last_word = NULL;
   while (page_res_it.word () != NULL) {
     check_debug_pt (page_res_it.word (), 120);
+
+	if (target_word_box)
+	{
+
+		BOX current_word_box=page_res_it.word ()->word->bounding_box();
+		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
+		if (!target_word_box->contains(center_pt))
+		{
+			page_res_it.forward ();
+			continue;
+		}
+
+	}
     if (tessedit_write_block_separators &&
     block_of_last_word != page_res_it.block ()) {
       block_of_last_word = page_res_it.block ();
@@ -133,7 +147,7 @@ void output_pass(  //Tess output pass //send to api
         else
           block_id =
             ((WEIRD_BLOCK *) block_of_last_word->block->poly_block ())->
-            id_no(); 
+            id_no();
       }
       else
         block_id = block_of_last_word->block->text_region ()->id_no ();
@@ -160,7 +174,7 @@ void output_pass(  //Tess output pass //send to api
     page_res_it.forward ();
   }
   if (write_to_shm)
-    ocr_send_text(FALSE); 
+    ocr_send_text(FALSE);
   if (tessedit_write_block_separators) {
     if (!NO_BLOCK)
       fprintf (textfile, "|^~tr\n");
@@ -171,7 +185,7 @@ void output_pass(  //Tess output pass //send to api
     #ifdef __UNIX__
     fsync (fileno (txt_mapfile));
     #endif
-    fclose(txt_mapfile); 
+    fclose(txt_mapfile);
   }
 }
 
@@ -355,9 +369,9 @@ void write_results(                           //output a word
   ASSERT_HOST (strlen (ptr) == word->reject_map.length ());
 
   if (word->word->flag (W_REP_CHAR) && tessedit_consistent_reps)
-    ensure_rep_chars_are_consistent(word); 
+    ensure_rep_chars_are_consistent(word);
 
-  set_unlv_suspects(word); 
+  set_unlv_suspects(word);
   check_debug_pt (word, 120);
   if (tessedit_rejection_debug) {
     tprintf ("Dict word: \"%s\": %d\n",
@@ -366,7 +380,7 @@ void write_results(                           //output a word
   }
 
   if (tessedit_write_unlv) {
-    write_unlv_text(word); 
+    write_unlv_text(word);
   }
 
   if (word->word->flag (W_REP_CHAR) && tessedit_write_rep_codes) {
@@ -406,7 +420,7 @@ void write_results(                           //output a word
       TRUE, FALSE, rawfile);
 
   if (tessedit_write_txt_map)
-    write_map(txt_mapfile, word); 
+    write_map(txt_mapfile, word);
 
   ep_choice = make_epaper_choice (word, newline_type);
   word->ep_choice = ep_choice;
@@ -943,7 +957,7 @@ FILE *open_outfile(  //open .map & .unlv file
 }
 
 
-void write_unlv_text(WERD_RES *word) { 
+void write_unlv_text(WERD_RES *word) {
   const char *wordstr;
 
   char buff[512];                //string to output
@@ -1022,7 +1036,7 @@ char get_rep_char(  // what char is repeated?
 }
 
 
-void ensure_rep_chars_are_consistent(WERD_RES *word) { 
+void ensure_rep_chars_are_consistent(WERD_RES *word) {
   char rep_char = get_rep_char (word);
   char *ptr;
 
@@ -1045,7 +1059,7 @@ void ensure_rep_chars_are_consistent(WERD_RES *word) {
  * tessedit_minimal_rejection.
  *************************************************************************/
 
-void set_unlv_suspects(WERD_RES *word) { 
+void set_unlv_suspects(WERD_RES *word) {
   int len = word->reject_map.length ();
   int i;
   const char *ptr;
@@ -1158,7 +1172,7 @@ INT16 count_alphanums(  //how many alphanums
 }
 
 
-BOOL8 acceptable_number_string(const char *s) { 
+BOOL8 acceptable_number_string(const char *s) {
   BOOL8 prev_digit = FALSE;
 
   if (*s == '(')

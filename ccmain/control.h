@@ -134,8 +134,11 @@ BOOL8 recog_interactive(            //recognize blobs
                        );
 void recog_all_words(                              //process words
                      PAGE_RES *page_res,           //page structure
-                     volatile ETEXT_DESC *monitor  //progress monitor
-                    );
+                     volatile ETEXT_DESC *monitor,  //progress monitor
+                     BOX	*target_word_box=0L,
+					 INT16 dopasses=0
+					 );
+
 void classify_word_pass1(                 //recog one word
                          WERD_RES *word,  //word to do
                          ROW *row,
@@ -143,7 +146,7 @@ void classify_word_pass1(                 //recog one word
                          CHAR_SAMPLES_LIST *char_clusters,
                          CHAR_SAMPLE_LIST *chars_waiting);
                                  //word to do
-void classify_word_pass2(WERD_RES *word, ROW *row); 
+void classify_word_pass2(WERD_RES *word, ROW *row);
 void match_word_pass2(                 //recog one word
                       WERD_RES *word,  //word to do
                       ROW *row,
@@ -171,9 +174,9 @@ void choice_dump_tester(                           //dump chars in word
                         INT32 count,               //chars in text
                         BLOB_CHOICE_LIST *ratings  //list of results
                        );
-WERD *make_bln_copy(WERD *src_word, ROW *row, float x_height, DENORM *denorm); 
-ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s); 
-BOOL8 check_debug_pt(WERD_RES *word, int location); 
+WERD *make_bln_copy(WERD *src_word, ROW *row, float x_height, DENORM *denorm);
+ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s);
+BOOL8 check_debug_pt(WERD_RES *word, int location);
 void set_word_fonts(                 //good chars in word
                     WERD_RES *word,  //word to adapt to //detailed results
                     BLOB_CHOICE_LIST_CLIST *blob_choices);
