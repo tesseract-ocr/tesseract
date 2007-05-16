@@ -70,13 +70,13 @@ const char *format, ...          //special message
                                  //no specific
     msgptr += sprintf (msgptr, "\n");
     #endif
-    va_end(args); 
+    va_end(args);
   }
   else
                                  //no specific
     msgptr += sprintf (msgptr, "\n");
 
-  tprintf(msg); 
+  tprintf(msg);
   if ((strstr (message, "File") != NULL) ||
     (strstr (message, "file") != NULL))
     global_abort_code = FILE_ABORT;
@@ -91,12 +91,12 @@ const char *format, ...          //special message
 
   switch (action) {
     case DBG:
-    case LOG:
+    case TESSLOG:
       return;                    //report only
     case EXIT:
-      err_exit(); 
+      err_exit();
     case ABORT:
-      abort(); 
+      abort();
     default:
       BADERRACTION.error ("error", ABORT, NULL);
   }

@@ -125,7 +125,7 @@ void main_setup(                         /*main demo program */
       sleep (10);
     }
     else
-      free(membuf); 
+      free(membuf);
   }
   #endif
 }

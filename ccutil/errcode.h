@@ -24,7 +24,7 @@
 
 /*Control parameters for error()*/
 #define DBG         -1           /*log without alert */
-#define LOG         0            /*alert user */
+#define TESSLOG         0            /*alert user */
 #define EXIT        1            /*exit after erro */
 #define ABORT       2            /*abort after error */
 
@@ -73,7 +73,7 @@ class DLLSYM ERRCODE             //error handler class
       INT8 action,               //action to take
       const char *format, ...    //fprintf format
       ) const;
-    ERRCODE(const char *string) { 
+    ERRCODE(const char *string) {
       message = string;
     }                            //initialize with string
 };
@@ -82,7 +82,7 @@ const ERRCODE ASSERT_FAILED = "Assert failed";
 
 #define ASSERT_HOST(x) if (!(x))										\
 {																			\
-	ASSERT_FAILED.error(#x,LOG,"in file %s, line %d",		\
+	ASSERT_FAILED.error(#x,TESSLOG,"in file %s, line %d",		\
 		__FILE__,__LINE__);											\
 }
 
@@ -91,14 +91,14 @@ void signal_exit(                 //
                 );
 extern "C"
 {
-  void err_exit(); 
+  void err_exit();
                                  //The real signal
-  void signal_termination_handler(int sig); 
+  void signal_termination_handler(int sig);
 };
 
-void set_global_loc_code(int loc_code); 
+void set_global_loc_code(int loc_code);
 
-void set_global_subloc_code(int loc_code); 
+void set_global_subloc_code(int loc_code);
 
-void set_global_subsubloc_code(int loc_code); 
+void set_global_subsubloc_code(int loc_code);
 #endif
