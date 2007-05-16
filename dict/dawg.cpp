@@ -25,6 +25,11 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
+#ifdef __MSW32__
+#include <windows.h>
+#else
+#include <netinet/in.h>
+#endif
 #include "dawg.h"
 #include "cutil.h"
 #include "callcpp.h"
@@ -91,18 +96,24 @@ INT32 edges_in_node(EDGE_ARRAY dawg, NODE_REF node) {
 }
 
 
+/*
+ * Initialize letter_is_okay to point to default implmentation (a main
+ * program can override this).
+ */
+LETTER_OK_FUNC letter_is_okay = &def_letter_is_okay;
+
 /**********************************************************************
- * letter_is_okay
+ * def_letter_is_okay
  *
- * Check this letter in light of the current state.  If everything is
- * still OK then return TRUE;
+ * Default way to check this letter in light of the current state.  If
+ * everything is still OK then return TRUE.
  **********************************************************************/
-INT32 letter_is_okay(EDGE_ARRAY dawg,
-                     NODE_REF *node,
-                     INT32 char_index,
-                     char prevchar,
-                     const char *word,
-                     INT32 word_end) {
+INT32 def_letter_is_okay(EDGE_ARRAY dawg,
+                         NODE_REF *node,
+                         INT32 char_index,
+                         char prevchar,
+                         const char *word,
+                         INT32 word_end) {
   EDGE_REF     edge;
   STRING dummy_word(word);  // Auto-deleting string fixes memory leak.
 
@@ -267,7 +278,8 @@ void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node) {
  *
  * Write the DAWG out to a file
  **********************************************************************/
-void read_squished_dawg(char *filename, EDGE_ARRAY dawg, INT32 max_num_edges) {
+void read_squished_dawg(const char *filename, EDGE_ARRAY dawg,
+                        INT32 max_num_edges) {
   FILE       *file;
   EDGE_REF   edge;
   INT32      num_edges = 0;
@@ -282,28 +294,12 @@ void read_squished_dawg(char *filename, EDGE_ARRAY dawg, INT32 max_num_edges) {
   #else
   file = open_file (filename, "rb");
   #endif
-  fseek(file, 0, SEEK_END);
-  long fsize = ftell(file);
-  rewind(file);
   fread (&num_edges,  sizeof (int), 1, file);
-  // Auto-detect relative endianness of file and OS as future DAWG
-  // files may be little-endian.
-  long diff1 = sizeof(EDGE_RECORD)*num_edges + sizeof(int) - fsize;
-  reverse32(&num_edges);
-  long diff2 = sizeof(EDGE_RECORD)*num_edges + sizeof(int) - fsize;
-  reverse32(&num_edges);
-  // One of diff1 and diff2 should now be 0, but find the smallest
-  // just in case.
-  if (diff1 < 0) diff1 = -diff1;
-  if (diff2 < 0) diff2 = -diff2;
-  bool swap = diff2 < diff1;
-  if (swap)
-    reverse32(&num_edges);
+  num_edges = ntohl(num_edges);
   fread (&dawg[0], sizeof (EDGE_RECORD), num_edges, file);
   fclose(file);
-  if (swap)
-    for (edge=0;edge<num_edges;edge++)
-      reverse32(&dawg[edge]);
+  for (edge=0;edge<num_edges;edge++)
+    dawg[edge] = ntohl(dawg[edge]);
 
   for  (edge=0; edge<max_num_edges; edge++)
     if (last_edge (dawg, edge)) node_count++;

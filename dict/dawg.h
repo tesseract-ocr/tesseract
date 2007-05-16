@@ -225,24 +225,34 @@ EDGE_REF edge_char_of(EDGE_ARRAY dawg,
                       int character,
                       int word_end);
 
-INT32 edges_in_node(EDGE_ARRAY dawg, NODE_REF node); 
+INT32 edges_in_node(EDGE_ARRAY dawg, NODE_REF node);
 
-INT32 letter_is_okay(EDGE_ARRAY dawg,
+
+INT32 def_letter_is_okay(EDGE_ARRAY dawg,
                      NODE_REF *node,
                      INT32 char_index,
                      char prevchar,
                      const char *word,
                      INT32 word_end);
 
-INT32 num_forward_edges(EDGE_ARRAY dawg, NODE_REF node); 
+/*
+ * Allow for externally provided letter_is_okay.
+ */
+typedef INT32 (*LETTER_OK_FUNC)(EDGE_ARRAY, NODE_REF*, INT32, char, const char*,
+                                INT32);
+extern LETTER_OK_FUNC letter_is_okay;
 
-void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node); 
 
-void read_squished_dawg(char *filename, EDGE_ARRAY dawg, INT32 max_num_edges); 
+INT32 num_forward_edges(EDGE_ARRAY dawg, NODE_REF node);
 
-INT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, INT32 char_index); 
+void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node);
 
-INT32 word_in_dawg(EDGE_ARRAY dawg, const char *string); 
+void read_squished_dawg(const char *filename, EDGE_ARRAY dawg,
+                        INT32 max_num_edges);
+
+INT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, INT32 char_index);
+
+INT32 word_in_dawg(EDGE_ARRAY dawg, const char *string);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus) || MAC_OR_DOS
@@ -262,7 +272,7 @@ INT32 edges_in_node
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF node));
 
-INT32 letter_is_okay
+INT32 def_letter_is_okay
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF *node,
   INT32 char_index,
