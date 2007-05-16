@@ -57,7 +57,7 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, LINE_STATS *LineStats) {
 
   Features = OldFeatures;
   iterate(Features) {
-    OldFeature = (MICROFEATURE) first (Features);
+    OldFeature = (MICROFEATURE) first_node (Features);
     Feature = NewFeature (&MicroFeatureDesc);
     ParamOf (Feature, MFDirection) = OrientationOf (OldFeature);
     ParamOf (Feature, MFXPosition) = CenterX (OldFeature);
