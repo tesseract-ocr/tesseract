@@ -152,7 +152,7 @@ COLOUR check_path_legal(                  //certify outline
       return MAGENTA;
     }
     else {
-      ED_ILLEGAL_SUM.error ("check_path_legal", LOG, "chainsum=%d",
+      ED_ILLEGAL_SUM.error ("check_path_legal", TESSLOG, "chainsum=%d",
         chainsum);
       return GREEN;
     }

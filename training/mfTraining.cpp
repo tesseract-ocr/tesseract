@@ -30,7 +30,7 @@
 #include "efio.h"
 #include "emalloc.h"
 #include "featdefs.h"
-#include "getopt.h"
+#include "tessopt.h"
 #include "ocrfeatures.h"
 #include "general.h"
 #include "clusttool.h"
@@ -274,7 +274,7 @@ int main (
 		iterate(pCharList)
 		{
 			//Cluster
-			CharSample = (LABELEDLIST) first (pCharList);
+			CharSample = (LABELEDLIST) first_node (pCharList);
 			printf ("\nClustering %s ...", CharSample->Label);
 			Clusterer = SetUpForClustering(CharSample);
 			ProtoList = ClusterSamples(Clusterer, &Config);
@@ -295,7 +295,7 @@ int main (
 			pProtoList = ProtoList;
 			iterate (pProtoList)
 			{
-				Prototype = (PROTOTYPE *) first (pProtoList);
+				Prototype = (PROTOTYPE *) first_node (pProtoList);
 
 				// see if proto can be approximated by existing proto
 				Pid = FindClosestExistingProto (MergeClass->Class, MergeClass->NumMerged, Prototype);
@@ -367,7 +367,7 @@ char	**argv)
 **		ShowSignificantProtos	flag controlling proto display
 **		ShowInsignificantProtos	flag controlling proto display
 **		Config			current clustering parameters
-**		optarg, optind		defined by getopt sys call
+**		optarg, optind		defined by tessopt sys call
 **		Argc, Argv		global copies of argc and argv
 **	Operation:
 **		This routine parses the command line arguments that were
@@ -397,7 +397,7 @@ char	**argv)
 	Error = FALSE;
 	Argc = argc;
 	Argv = argv;
-	while (( Option = getopt( argc, argv, "R:N:D:C:I:M:B:S:d:n:p" )) != EOF )
+	while (( Option = tessopt( argc, argv, "R:N:D:C:I:M:B:S:d:n:p" )) != EOF )
 	{
 		switch ( Option )
 		{
@@ -478,7 +478,7 @@ char *GetNextFilename ()
 /*
 **	Parameters: none
 **	Globals:
-**		optind			defined by getopt sys call
+**		optind			defined by tessopt sys call
 **		Argc, Argv		global copies of argc and argv
 **	Operation:
 **		This routine returns the next command line argument.  If
@@ -574,7 +574,7 @@ LABELEDLIST FindList (
 
 	iterate (List)
     {
-		LabeledList = (LABELEDLIST) first (List);
+		LabeledList = (LABELEDLIST) first_node (List);
 		if (strcmp (LabeledList->Label, Label) == 0)
 			return (LabeledList);
     }
@@ -591,7 +591,7 @@ MERGE_CLASS FindClass (
 
 	iterate (List)
     {
-		MergeClass = (MERGE_CLASS) first (List);
+		MergeClass = (MERGE_CLASS) first_node (List);
 		if (strcmp (MergeClass->Label, Label) == 0)
 			return (MergeClass);
     }
@@ -670,7 +670,7 @@ void WriteTrainingSamples (
 
 	iterate (CharList)		// iterate thru all of the fonts
 	{
-		CharSample = (LABELEDLIST) first (CharList);
+		CharSample = (LABELEDLIST) first_node (CharList);
 
 		// construct the full pathname for the current samples file
 		strcpy (Filename, "");
@@ -708,7 +708,7 @@ void WriteTrainingSamples (
 		{
 			if (NumSamples >= MaxNumSamples) break;
 
-			FeatureSet = (FEATURE_SET) first (FeatureList);
+			FeatureSet = (FEATURE_SET) first_node (FeatureList);
 			WriteFeatureSet (File, FeatureSet);
 			NumSamples++;
 		}
@@ -774,7 +774,7 @@ void WriteMergedTrainingSamples(
 
 	iterate (ClassList)
 	{
-		MergeClass = (MERGE_CLASS) first (ClassList);
+		MergeClass = (MERGE_CLASS) first_node (ClassList);
 		strcpy (Filename, "");
 		if (Directory != NULL)
 		{
@@ -827,7 +827,7 @@ void WriteMicrofeat(
 	printf ("\nWriting Merged %s ...", Filename);
 	iterate(ClassList)
 	{
-		MergeClass = (MERGE_CLASS) first (ClassList);
+		MergeClass = (MERGE_CLASS) first_node (ClassList);
 		WriteProtos(File, MergeClass);
 		WriteConfigs(File, MergeClass->Class);
 	}
@@ -903,11 +903,11 @@ void FreeTrainingSamples (
 	printf ("\nFreeTrainingSamples...");
 	iterate (CharList) 		/* iterate thru all of the fonts */
 	{
-		CharSample = (LABELEDLIST) first (CharList);
+		CharSample = (LABELEDLIST) first_node (CharList);
 		FeatureList = CharSample->List;
 		iterate (FeatureList)	/* iterate thru all of the classes */
 		{
-			FeatureSet = (FEATURE_SET) first (FeatureList);
+			FeatureSet = (FEATURE_SET) first_node (FeatureList);
 			FreeFeatureSet (FeatureSet);
 		}
 		FreeLabeledList (CharSample);
@@ -937,7 +937,7 @@ void FreeLabeledClassList (
 
 	iterate (ClassList) 		/* iterate thru all of the fonts */
 	{
-		MergeClass = (MERGE_CLASS) first (ClassList);
+		MergeClass = (MERGE_CLASS) first_node (ClassList);
 		free (MergeClass->Label);
 		FreeClass(MergeClass->Class);
 		free (MergeClass);
@@ -1015,7 +1015,7 @@ CLUSTERER *SetUpForClustering(
 	{
 		if (CharID >= MaxNumSamples) break;
 
-		FeatureSet = (FEATURE_SET) first (FeatureList);
+		FeatureSet = (FEATURE_SET) first_node (FeatureList);
 		for (i=0; i < FeatureSet->MaxNumFeatures; i++)
 		{
 			if (Sample == NULL)
@@ -1051,7 +1051,7 @@ LIST RemoveInsignificantProtos(
 	pProtoList = ProtoList;
 	iterate(pProtoList)
 	{
-		Proto = (PROTOTYPE *) first (pProtoList);
+		Proto = (PROTOTYPE *) first_node (pProtoList);
 		if ((Proto->Significant && KeepSigProtos) ||
 			(!Proto->Significant && KeepInsigProtos))
 		{
@@ -1109,7 +1109,7 @@ void CleanUpUnusedData(
 
 	iterate(ProtoList)
 	{
-		Prototype = (PROTOTYPE *) first (ProtoList);
+		Prototype = (PROTOTYPE *) first_node (ProtoList);
 		if(Prototype->Variance.Elliptical != NULL)
 		{
 			memfree(Prototype->Variance.Elliptical);
@@ -1165,7 +1165,7 @@ void SetUpForFloat2Int(
 
 	iterate(LabeledClassList)
 	{
-		MergeClass = (MERGE_CLASS) first (LabeledClassList);
+		MergeClass = (MERGE_CLASS) first_node (LabeledClassList);
 		Class = &TrainingData[NameToChar(MergeClass->Label)];
 		NumProtos = NumProtosIn(MergeClass->Class);
 		NumConfigs = NumConfigsIn(MergeClass->Class);

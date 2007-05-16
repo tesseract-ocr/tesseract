@@ -37,8 +37,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 2
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\..\release"
-# PROP Intermediate_Dir "..\..\release\train"
+# PROP Output_Dir "../bin.rel"
+# PROP Intermediate_Dir "mftrain.Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
@@ -50,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /profile /debug /machine:I386
+# ADD LINK32 /nologo /subsystem:console /profile /debug /machine:I386 /out:"../mfTraining.exe"
 
 !ELSEIF  "$(CFG)" == "mfTraining - Win32 Debug"
 
@@ -61,8 +61,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 2
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "..\..\Debug"
-# PROP Intermediate_Dir "..\..\Debug\train"
+# PROP Output_Dir "../bin.dbg"
+# PROP Intermediate_Dir "mftrain.Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
@@ -141,10 +141,6 @@ SOURCE=..\classify\featdefs.cpp
 # Begin Source File
 
 SOURCE=..\cutil\freelist.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\ccutil\getopt.cpp
 # End Source File
 # Begin Source File
 
@@ -248,6 +244,10 @@ SOURCE=..\ccutil\strngs.cpp
 # Begin Source File
 
 SOURCE=..\cutil\structures.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\tessopt.cpp
 # End Source File
 # Begin Source File
 

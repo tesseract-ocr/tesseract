@@ -28,7 +28,7 @@
 #include "efio.h"
 #include "emalloc.h"
 #include "featdefs.h"
-#include "getopt.h"
+#include "tessopt.h"
 #include "ocrfeatures.h"
 #include "general.h"
 #include "clusttool.h"
@@ -229,7 +229,7 @@ int main (
 	iterate(pCharList)
 	{
 		//Cluster
-		CharSample = (LABELEDLIST) first (pCharList);
+		CharSample = (LABELEDLIST) first_node (pCharList);
 		printf ("\nClustering %s ...", CharSample->Label);
 		Clusterer = SetUpForClustering(CharSample);
 		ProtoList = ClusterSamples(Clusterer, &Config);
@@ -262,7 +262,7 @@ void ParseArguments(
 **		ShowSignificantProtos	flag controlling proto display
 **		ShowInsignificantProtos	flag controlling proto display
 **		Config			current clustering parameters
-**		optarg, optind		defined by getopt sys call
+**		optarg, optind		defined by tessopt sys call
 **		Argc, Argv		global copies of argc and argv
 **	Operation:
 **		This routine parses the command line arguments that were
@@ -292,7 +292,7 @@ void ParseArguments(
 	Error = FALSE;
 	Argc = argc;
 	Argv = argv;
-	while (( Option = getopt( argc, argv, "R:N:D:C:I:M:B:S:d:n:p" )) != EOF )
+	while (( Option = tessopt( argc, argv, "R:N:D:C:I:M:B:S:d:n:p" )) != EOF )
     {
 		switch ( Option )
 		{
@@ -375,7 +375,7 @@ char *GetNextFilename ()
 /*
 **	Parameters: none
 **	Globals:
-**		optind			defined by getopt sys call
+**		optind			defined by tessopt sys call
 **		Argc, Argv		global copies of argc and argv
 **	Operation:
 **		This routine returns the next command line argument.  If
@@ -469,7 +469,7 @@ LABELEDLIST FindList (
 
 	iterate (List)
     {
-		LabeledList = (LABELEDLIST) first (List);
+		LabeledList = (LABELEDLIST) first_node (List);
 		if (strcmp (LabeledList->Label, Label) == 0)
 			return (LabeledList);
     }
@@ -534,7 +534,7 @@ void WriteTrainingSamples (
 
 	iterate (CharList)		// iterate thru all of the fonts
 	{
-		CharSample = (LABELEDLIST) first (CharList);
+		CharSample = (LABELEDLIST) first_node (CharList);
 
 		// construct the full pathname for the current samples file
 		strcpy (Filename, "");
@@ -572,7 +572,7 @@ void WriteTrainingSamples (
 		{
 			//if (NumSamples >= MaxNumSamples) break;
 
-			FeatureSet = (FEATURE_SET) first (FeatureList);
+			FeatureSet = (FEATURE_SET) first_node (FeatureList);
 			WriteFeatureSet (File, FeatureSet);
 			NumSamples++;
 		}
@@ -621,7 +621,7 @@ void WriteNormProtos (
 	WriteParamDesc(File,Clusterer->SampleSize,Clusterer->ParamDesc);
 	iterate(LabeledProtoList)
 	{
-		LabeledProto = (LABELEDLIST) first (LabeledProtoList);
+		LabeledProto = (LABELEDLIST) first_node (LabeledProtoList);
 		N = NumberOfProtos(LabeledProto->List,
 			ShowSignificantProtos, ShowInsignificantProtos);
 		Label = NameToChar(LabeledProto->Label);
@@ -658,11 +658,11 @@ void FreeTrainingSamples (
 	printf ("\nFreeTrainingSamples...");
 	iterate (CharList) 		/* iterate thru all of the fonts */
 	{
-		CharSample = (LABELEDLIST) first (CharList);
+		CharSample = (LABELEDLIST) first_node (CharList);
 		FeatureList = CharSample->List;
 		iterate (FeatureList)	/* iterate thru all of the classes */
 		{
-			FeatureSet = (FEATURE_SET) first (FeatureList);
+			FeatureSet = (FEATURE_SET) first_node (FeatureList);
 			FreeFeatureSet (FeatureSet);
 		}
 		FreeLabeledList (CharSample);
@@ -680,7 +680,7 @@ void FreeNormProtoList (
 
 	iterate (CharList) 		/* iterate thru all of the fonts */
 	{
-		CharSample = (LABELEDLIST) first (CharList);
+		CharSample = (LABELEDLIST) first_node (CharList);
 		FreeLabeledList (CharSample);
 	}
 	destroy (CharList);
@@ -754,7 +754,7 @@ CLUSTERER *SetUpForClustering(
 	CharID = 0;
 	iterate(FeatureList)
 	{
-		FeatureSet = (FEATURE_SET) first (FeatureList);
+		FeatureSet = (FEATURE_SET) first_node (FeatureList);
 		for (i=0; i < FeatureSet->MaxNumFeatures; i++)
 		{
 			if (Sample == NULL)
@@ -785,7 +785,7 @@ void AddToNormProtosList(
 	LabeledProtoList = NewLabeledList(CharName);
 	iterate(ProtoList)
 	{
-		Proto = (PROTOTYPE *) first (ProtoList);
+		Proto = (PROTOTYPE *) first_node (ProtoList);
 		LabeledProtoList->List = push(LabeledProtoList->List, Proto);
 	}
 	*NormProtoList = push(*NormProtoList, LabeledProtoList);
@@ -804,7 +804,7 @@ void WriteProtos(
 	// write prototypes
 	iterate(ProtoList)
 	{
-		Proto = (PROTOTYPE *) first ( ProtoList );
+		Proto = (PROTOTYPE *) first_node ( ProtoList );
 		if (( Proto->Significant && WriteSigProtos )	||
 			( ! Proto->Significant && WriteInsigProtos ) )
 			WritePrototype( File, N, Proto );
@@ -822,11 +822,10 @@ int NumberOfProtos(
 
 	iterate(ProtoList)
 	{
-		Proto = (PROTOTYPE *) first ( ProtoList );
+		Proto = (PROTOTYPE *) first_node ( ProtoList );
 		if (( Proto->Significant && CountSigProtos )	||
 			( ! Proto->Significant && CountInsigProtos ) )
 			N++;
 	}
 	return(N);
 }
-

@@ -39,7 +39,7 @@
  * Allocate a piece of memory to hold a matrix of choice list pointers.
  * initialize all the elements of the matrix to NULL.
  **********************************************************************/
-MATRIX create_matrix(int dimension) { 
+MATRIX create_matrix(int dimension) {
   MATRIX m;
   int x;
   int y;
@@ -48,7 +48,7 @@ MATRIX create_matrix(int dimension) {
   m[0] = (LIST) dimension;
   for (x = 0; x < dimension; x++)
     for (y = 0; y < dimension; y++)
-      matrix_put(m, x, y, NOT_CLASSIFIED); 
+      matrix_put(m, x, y, NOT_CLASSIFIED);
   return (m);
 }
 
@@ -58,7 +58,7 @@ MATRIX create_matrix(int dimension) {
  *
  * Deallocate the memory taken up by a matrix of match ratings.
  *********************************************************************/
-void free_matrix(MATRIX matrix) { 
+void free_matrix(MATRIX matrix) {
   int x;
   int y;
   int dimension = matrix_dimension (matrix);
@@ -68,10 +68,10 @@ void free_matrix(MATRIX matrix) {
     for (y = 0; y < dimension; y++) {
       matrix_cell = matrix_get (matrix, x, y);
       if (matrix_cell != NOT_CLASSIFIED)
-        free_choices(matrix_cell); 
+        free_choices(matrix_cell);
     }
   }
-  memfree(matrix); 
+  memfree(matrix);
 }
 
 
@@ -80,7 +80,7 @@ void free_matrix(MATRIX matrix) {
  *
  * Print the best guesses out of the match rating matrix.
  **********************************************************************/
-void print_matrix(MATRIX rating_matrix) { 
+void print_matrix(MATRIX rating_matrix) {
   int x;
   int dimension;
   int spread;
@@ -98,20 +98,20 @@ void print_matrix(MATRIX rating_matrix) {
 
       if (rating != NOT_CLASSIFIED) {
         cprintf ("\t[%d,%d] : ", x, x + spread);
-        if (first (rating))
+        if (first_node (rating))
           cprintf ("%-10s%4.0f\t|\t",
-            class_string (first (rating)),
-            class_probability (first (rating)));
-        if (second (rating))
+            class_string (first_node (rating)),
+            class_probability (first_node (rating)));
+        if (second_node (rating))
           cprintf ("%-10s%4.0f\t|\t",
-            class_string (second (rating)),
-            class_probability (second (rating)));
+            class_string (second_node (rating)),
+            class_probability (second_node (rating)));
         if (third (rating))
           cprintf ("%-10s%4.0f\n",
             class_string (third (rating)),
             class_probability (third (rating)));
         else
-          new_line(); 
+          new_line();
       }
     }
   }

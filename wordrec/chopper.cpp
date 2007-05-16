@@ -717,9 +717,17 @@ MATRIX word_associator(TBLOB *blobs,
   /* Save chunk weights */
   for (x = 0; x < num_chunks; x++) {
     this_choice =
-      (A_CHOICE *) first (matrix_get (chunks_record.ratings, x, x));
-    blob_weights[x] = -(INT16) (10 * class_probability (this_choice) /
-      class_certainty (this_choice));
+      (A_CHOICE *) first_node (matrix_get (chunks_record.ratings, x, x));
+
+	//This is done by Jetsoft. Divide by zero is possible.
+	if (class_certainty (this_choice)==0)
+		blob_weights[x]=0;
+	else
+		blob_weights[x] = -(INT16) (10 * class_probability (this_choice) /
+				class_certainty (this_choice));
+
+	//
+
   }
   chunks_record.weights = blob_weights;
 

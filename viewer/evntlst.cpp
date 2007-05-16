@@ -63,8 +63,8 @@ void event_handler(                        //signal handler
   //      scp->sc_syscall_action=SIG_RESTART;                                     //restart sys calls
   event_pending = TRUE;
   if (!event_critical_section) {
-    lock_events(); 
-    unlock_events(); 
+    lock_events();
+    unlock_events();
   }
 }
 
@@ -91,7 +91,7 @@ BOOL8 check_event(            /*test for event */
 
                                  // && sbfds[fd].used!=1)
   if (fd < 0 || fd > maxsbfd || fd > 0) {
-    //     BADSBFD.error("check_event",LOG,NULL);                  /*report error*/
+    //     BADSBFD.error("check_event",TESSLOG,NULL);                  /*report error*/
     return FALSE;
   }
   time = wait ? AWAIT_TIME : CHECK_TIME;
@@ -100,7 +100,7 @@ BOOL8 check_event(            /*test for event */
   && (events_playback.string ()[0] != '\0' || eventsin != NULL)) {
     if (eventsin == NULL && events_playback.string ()[0] != '\0') {
       if ((eventsin = fopen (events_playback.string (), "r")) == NULL)
-        CANTOPENFILE.error ("check_event", LOG,
+        CANTOPENFILE.error ("check_event", TESSLOG,
           events_playback.string ());
                                  //remove name
       events_playback.set_value (NULL);
@@ -116,7 +116,7 @@ BOOL8 check_event(            /*test for event */
         else
           fprintf (stderr, "Error on event input: copied %d values\n",
             scanresult);
-        fclose(eventsin); 
+        fclose(eventsin);
         eventsin = NULL;
       }
       else {
@@ -197,9 +197,9 @@ void event_reader(             /*read events */
     else
       kick_daemon(COUNT_READS);  /*got acknowledge */
   }
-  CloseHandle(fd); 
+  CloseHandle(fd);
   *fdptr = NULL;
-  _endthread(); 
+  _endthread();
   #endif
 }
 #endif
@@ -235,7 +235,7 @@ void add_event(                       /*add an event */
                                  //save name
       outname = events_logfile.string ();
       if ((eventsout = fopen (outname.string (), "w")) == NULL)
-        CANTOPENFILE.error ("add_event", LOG, outname.string ());
+        CANTOPENFILE.error ("add_event", TESSLOG, outname.string ());
     }
     if (eventsout != NULL)
       fprintf (eventsout, "%d %d(%f,%f) on %d\n",
@@ -289,7 +289,7 @@ void add_event(                       /*add an event */
       }
       break;
   }
-  lock_events(); 
+  lock_events();
   newevent = new GRAPHICS_EVENT;
   if (newevent != NULL) {
     *newevent = *event;          /*copy event */
@@ -304,7 +304,7 @@ void add_event(                       /*add an event */
     newevent->next = NULL;
   }
   event_waiting = TRUE;          //added to queue
-  unlock_events(); 
+  unlock_events();
 }
 
 
