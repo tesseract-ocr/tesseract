@@ -22,7 +22,6 @@
  ** limitations under the License.
  *
  ********************************************************************************
-$Log: cutil.h,v $
 Revision 1.1  2007/02/02 23:39:07  theraysmith
 Fixed portability issues
 
@@ -142,9 +141,9 @@ extern char_proc allocate;
 /*----------------------------------------------------------------------
                      F u n c t i o n s
 ----------------------------------------------------------------------*/
-long long_rand(long limit); 
+long long_rand(long limit);
 
-FILE *open_file(const char *filename, const char *mode); 
+FILE *open_file(const char *filename, const char *mode);
 
 /* util.c
 long long_rand

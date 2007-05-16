@@ -107,7 +107,7 @@ MENU_ROOT *build_main_var_menu(  //build menus
     full_name = (it.data ()->ptr)->cmp_str ();
                                  // 1st word delim by _
     get_first_words (full_name, 1, first_word);
-    extract_sublist(all_leaves_list, first_word, &sub_window_list); 
+    extract_sublist(all_leaves_list, first_word, &sub_window_list);
 
                                  //addto main misc menu
     if (sub_window_list.singleton ()) {
@@ -133,7 +133,7 @@ MENU_ROOT *build_main_var_menu(  //build menus
         it.set_to_list (&sub_window_list);
         full_name = it.data ()->ptr->cmp_str ();
         get_first_words (full_name, 2, first_two_words);
-        extract_sublist(&sub_window_list, first_two_words, &sub_menu_list); 
+        extract_sublist(&sub_window_list, first_two_words, &sub_menu_list);
 
         it.set_to_list (&sub_menu_list);
                                  //addto subwin misc
@@ -145,7 +145,7 @@ MENU_ROOT *build_main_var_menu(  //build menus
         else {
                                  //build sub menu
           current_sub_win_menu =
-            new VAR_NON_RADIO_MENU(first_two_words); 
+            new VAR_NON_RADIO_MENU(first_two_words);
           sub_window_root->add_child (current_sub_win_menu);
           header_len = strlen (first_two_words);
           while (!sub_menu_list.empty ()) {
@@ -192,8 +192,8 @@ void extract_sublist(                             //remove initial items
                      char *leading_str,           //string to match
                      MENU_L_LIST *extracted_list  //extracted list
                     ) {
-  MENU_L_IT start_it(source_list); 
-  MENU_L_IT end_it(source_list); 
+  MENU_L_IT start_it(source_list);
+  MENU_L_IT end_it(source_list);
   int match_len = strlen (leading_str);
 
   while (!end_it.at_last () &&
@@ -226,7 +226,7 @@ void get_first_words(                //copy first N words
     next_word += reqd_len;
     n--;
   }
-  strncpy(t, s, reqd_len); 
+  strncpy(t, s, reqd_len);
   t[reqd_len] = '\0';            //ensure null terminal
 }
 
@@ -274,7 +274,7 @@ void start_variables_editor() {  //create top level win
   all_leaves_list = build_list_of_all_leaves ();
   it.set_to_list (all_leaves_list);
   if (it.empty ()) {
-    NO_VARIABLES_TO_EDIT.error ("start_variables_editor", LOG, NULL);
+    NO_VARIABLES_TO_EDIT.error ("start_variables_editor", TESSLOG, NULL);
   }
   it.sort (&menu_item_sorter);
 

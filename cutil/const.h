@@ -88,7 +88,7 @@
 #define SCAN        0            /*scanner process id */
 #define EDGE        1            /*edge process id */
 #define FX          2            /*fx process id */
-#define TO          3            /*pageseg process id */
+#define TESSTO      3            /*pageseg process id */
 #define OCR         4            /*ocr process id */
 #define MAXPROC       (OCR+1)    /*no of processes */
 

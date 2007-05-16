@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        getopt.c
+ * File:        getopt.h
  * Description: Re-implementation of the unix code.
  * Author:					Ray Smith
  * Created:					Tue Nov 28 05:52:50 MST 1995
@@ -17,46 +17,14 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
-#include          <string.h>
-#include          <stdio.h>
-#include          "getopt.h"
+#include          "host.h"
 #include          "notdll.h"     //must be last include
 
-int optind;
-char *optarg;
+extern int optind;
+extern char *optarg;
 
-/**********************************************************************
- * getopt
- *
- * parse command line args.
- **********************************************************************/
-
-int
-getopt (                         //parse args
+int tessopt (                     //parse args
 INT32 argc,                      //arg count
 char *argv[],                    //args
 const char *arglist                    //string of arg chars
-) {
-  char *arg;                     //arg char
-
-  if (optind == 0)
-    optind = 1;
-  if (optind < argc && argv[optind][0] == '-') {
-    arg = strchr (arglist, argv[optind][1]);
-    if (arg == NULL || *arg == ':')
-      return '?';                //dud option
-    optind++;
-    optarg = argv[optind];
-    if (arg[1] == ':') {
-      if (argv[optind - 1][2] != '\0')
-                                 //immediately after
-        optarg = argv[optind - 1] + 2;
-      else
-        optind++;
-    }
-    return *arg;
-  }
-  else
-    return EOF;
-}
+);

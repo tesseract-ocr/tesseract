@@ -42,17 +42,17 @@
 
   push       to add to the Stack                  l = push (l, (LIST) "jim");
   pop          to remove items from the Stack     l = pop (l);
-  first        to access the head                 name = (char *) first (l);
+  first_node        to access the head                 name = (char *) first_node (l);
 
   To implement a QUEUE use:
 
   push_last    to add to the Queue                 l = push_last (l, (LIST) "jim");
   pop                  remove items from the Queue l = pop (l);
-  first                to access the head          name = (char *) first (l);
+  first_node                to access the head          name = (char *) first_node (l);
 
   To implement LISP like functions use:
 
-  first           CAR                              x = (int) first (l);
+  first_node           CAR                              x = (int) first_node (l);
   rest            CDR                              l = rest (l);
   push            CONS                             l = push (l, (LIST) this);
   last            LAST                             x = last (l);
@@ -76,7 +76,7 @@
   adelete                                          l = adelete (l, x);
 
   The following rules of closure exist for the functions provided.
-  a = first (push (a, b))
+  a = first_node (push (a, b))
   b = rest (push (a, b))
   a = push (pop (a), a))        For all a <> NIL
   a = reverse (reverse (a))
@@ -94,7 +94,7 @@
 /*----------------------------------------------------------------------
               M a c r o s
 ----------------------------------------------------------------------*/
-#define add_on(l,x)     l = push (l,first (x))
+#define add_on(l,x)     l = push (l,first_node (x))
 #define next_one(l)     l = rest (l)
 
 /*----------------------------------------------------------------------
@@ -130,7 +130,7 @@ LIST delete_d(LIST list, void *key, int_compare is_equal) {
     is_equal = is_same;
 
   while (list != NIL) {
-    if (!(*is_equal) (first (list), key)) {
+    if (!(*is_equal) (first_node (list), key)) {
       if (last_one == NIL) {
         last_one = list;
         list = rest (list);
@@ -179,7 +179,7 @@ void destroy_nodes(LIST list, void_dest destructor) {
     destructor = memfree;
 
   while (list != NIL) {
-    (*destructor) (first (list));
+    (*destructor) (first_node (list));
     list = pop (list);
   }
 }
@@ -198,8 +198,8 @@ void insert(LIST list, void *node) {
     element = push (NIL, node);
     set_rest (element, rest (list));
     set_rest(list, element);
-    node = first (list);
-    list->node = first (rest (list));
+    node = first_node (list);
+    list->node = first_node (rest (list));
     list->next->node = (LIST) node;
   }
 }
@@ -363,7 +363,7 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
 
   l = var_list;
   iterate(l) {
-    result = (*compare) (variable, first (l));
+    result = (*compare) (variable, first_node (l));
     if (result == 0)
       return (var_list);
     else if (result < 0) {
@@ -387,7 +387,7 @@ LIST search(LIST list, void *key, int_compare is_equal) {
   if (is_equal == NULL)
     is_equal = is_same;
 
-  iterate (list) if ((*is_equal) (first (list), key))
+  iterate (list) if ((*is_equal) (first_node (list), key))
   return (list);
   return (NIL);
 }

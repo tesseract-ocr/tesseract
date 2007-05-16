@@ -746,7 +746,7 @@ MEMBLOCK *MEM_ALLOCATOR::new_block(               //get new big block
 
   if (blockcount >= MAXBLOCKS) {
                                  //can't have another
-    NOMOREBLOCKS.error ("mem_new_block", LOG, NULL);
+    NOMOREBLOCKS.error ("mem_new_block", TESSLOG, NULL);
     return NULL;
   }
   if (mem_checkfreq != 0) {
@@ -765,7 +765,7 @@ MEMBLOCK *MEM_ALLOCATOR::new_block(               //get new big block
   newblock->blockstart = (MEMUNION *)
     malloc (memsize * sizeof (MEMUNION));
   if (newblock->blockstart == NULL) {
-    NOMOREMEM.error ("mem_new_block", LOG, NULL);
+    NOMOREMEM.error ("mem_new_block", TESSLOG, NULL);
 
     #ifdef __UNIX__
     raise(SIGTTOU);  //hangup for js

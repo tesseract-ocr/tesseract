@@ -32,7 +32,7 @@ EXTERN PAGE_BLOCK_IT page_block_it;
 EXTERN BOOL_VAR (blocks_read_asc, TRUE, "Read blocks in ascii format");
 EXTERN BOOL_VAR (blocks_write_asc, TRUE, "Write blocks in ascii format");
 
-DLLSYM void write_poly_blocks(FILE *blfile, PAGE_BLOCK_LIST *blocks) { 
+DLLSYM void write_poly_blocks(FILE *blfile, PAGE_BLOCK_LIST *blocks) {
 
   if (blocks_write_asc)
     blocks->serialise_asc (blfile);
@@ -72,11 +72,11 @@ DLLSYM PAGE_BLOCK_LIST *read_poly_blocks(                  //read file
         pb_list = PAGE_BLOCK_LIST::de_serialise (infp);
       page_block_list = pb_list; //set global for now
     }
-    fclose(infp); 
+    fclose(infp);
   }
   else {
                                  //can't open file
-    CANTOPENFILE.error ("read_poly_blocks", LOG, name);
+    CANTOPENFILE.error ("read_poly_blocks", TESSLOG, name);
     pb_list = new PAGE_BLOCK_LIST;
     page_block_list = pb_list;   //set global for now
   }

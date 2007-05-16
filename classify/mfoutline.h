@@ -106,7 +106,7 @@ extern int NormMethod;
 
 /* macros for manipulating micro-feature outlines */
 #define DegenerateOutline(O)  (((O) == NIL) || ((O) == rest(O)))
-#define PointAt(O)    ((MFEDGEPT *) first (O))
+#define PointAt(O)    ((MFEDGEPT *) first_node (O))
 #define NextPointAfter(E) (rest (E))
 #define MakeOutlineCircular(O)  (set_rest (last (O), (O)))
 
@@ -126,19 +126,19 @@ extern int NormMethod;
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void ComputeBlobCenter(TBLOB *Blob, TPOINT *BlobCenter); 
+void ComputeBlobCenter(TBLOB *Blob, TPOINT *BlobCenter);
 
-LIST ConvertBlob(TBLOB *Blob); 
+LIST ConvertBlob(TBLOB *Blob);
 
-MFOUTLINE ConvertOutline(TESSLINE *Outline); 
+MFOUTLINE ConvertOutline(TESSLINE *Outline);
 
 LIST ConvertOutlines(TESSLINE *Outline,
                      LIST ConvertedOutlines,
                      OUTLINETYPE OutlineType);
 
-void ComputeOutlineStats(LIST Outlines, OUTLINE_STATS *OutlineStats); 
+void ComputeOutlineStats(LIST Outlines, OUTLINE_STATS *OutlineStats);
 
-void FilterEdgeNoise(MFOUTLINE Outline, FLOAT32 NoiseSegmentLength); 
+void FilterEdgeNoise(MFOUTLINE Outline, FLOAT32 NoiseSegmentLength);
 
 void FindDirectionChanges(MFOUTLINE Outline,
                           FLOAT32 MinSlope,
@@ -146,15 +146,15 @@ void FindDirectionChanges(MFOUTLINE Outline,
 
 void FreeMFOutline(void *agr);  //MFOUTLINE                             Outline);
 
-void FreeOutlines(LIST Outlines); 
+void FreeOutlines(LIST Outlines);
 
-void InitMFOutlineVars(); 
+void InitMFOutlineVars();
 
-void MarkDirectionChanges(MFOUTLINE Outline); 
+void MarkDirectionChanges(MFOUTLINE Outline);
 
-MFEDGEPT *NewEdgePoint(); 
+MFEDGEPT *NewEdgePoint();
 
-MFOUTLINE NextExtremity(MFOUTLINE EdgePoint); 
+MFOUTLINE NextExtremity(MFOUTLINE EdgePoint);
 
 void NormalizeOutline(MFOUTLINE Outline,
                       LINE_STATS *LineStats,
@@ -165,14 +165,14 @@ void NormalizeOutlines(LIST Outlines,
                        FLOAT32 *XScale,
                        FLOAT32 *YScale);
 
-void SettupBlobConversion(TBLOB *Blob); 
+void SettupBlobConversion(TBLOB *Blob);
 
-void SmearExtremities(MFOUTLINE Outline, FLOAT32 XScale, FLOAT32 YScale); 
+void SmearExtremities(MFOUTLINE Outline, FLOAT32 XScale, FLOAT32 YScale);
 
 /*----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
-void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction); 
+void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction);
 
 void CharNormalizeOutline(MFOUTLINE Outline,
                           FLOAT32 XCenter,
@@ -185,11 +185,11 @@ void ComputeDirection(MFEDGEPT *Start,
                       FLOAT32 MinSlope,
                       FLOAT32 MaxSlope);
 
-void FinishOutlineStats(register OUTLINE_STATS *OutlineStats); 
+void FinishOutlineStats(register OUTLINE_STATS *OutlineStats);
 
-void InitOutlineStats(OUTLINE_STATS *OutlineStats); 
+void InitOutlineStats(OUTLINE_STATS *OutlineStats);
 
-MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint); 
+MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint);
 
 void UpdateOutlineStats(register OUTLINE_STATS *OutlineStats,
                         register FLOAT32 x1,

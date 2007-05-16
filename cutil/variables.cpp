@@ -220,14 +220,14 @@ void read_variables(const char *filename) {
   var_strings = read_list (name);
   iterate(var_strings) {
     /* Get the name string */
-    this_string = (char *) first (var_strings);
+    this_string = (char *) first_node (var_strings);
     if (this_string[0] != '#') {
       for (x = 0;
         x < strlen (this_string) && this_string[x] != ' '
         && this_string[x] != '\t'; x++);
       this_string[x] = '\0';
       /* Find variable record */
-      this_var = (VARIABLE *) first (search (variable_list, this_string,
+      this_var = (VARIABLE *) first_node (search (variable_list, this_string,
         same_var_name));
       if (this_var == 0) {
         cprintf ("error: Could not find variable '%s'\n", this_string);
