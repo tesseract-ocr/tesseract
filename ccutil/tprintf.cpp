@@ -83,7 +83,7 @@ const char *format, ...          //special message
       #endif
 
       #ifdef __MSW32__
-      TRACE ("%s", msg);         //Visual C++2.0 macro
+     // TRACE ("%s", msg);         //Visual C++2.0 macro
       #endif
       #ifdef __MAC__
       printf ("%s", msg);        //Visual C++2.0 macro
