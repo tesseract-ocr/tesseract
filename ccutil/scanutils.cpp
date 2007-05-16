@@ -4,10 +4,10 @@
 //
 // The fscanf, vfscanf and creat functions are implemented so that their
 // functionality is mostly like their stdio counterparts. However, currently
-// these functions do not use any buffering, making them rather slow. 
+// these functions do not use any buffering, making them rather slow.
 // File streams are thus processed one character at a time.
-// Although the implementations of the scanf functions do lack a few minor 
-// features, they should be sufficient for their use in tesseract. 
+// Although the implementations of the scanf functions do lack a few minor
+// features, they should be sufficient for their use in tesseract.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -107,11 +107,11 @@ uintmax_t streamtoumax(FILE* s, int base)
   uintmax_t v = 0;
   int d, c = 0;
 
-  for (c = fgetc(s); 
-    isspace(static_cast<unsigned char>(c)) && (c != EOF); 
-    c = fgetc(s)) 
-  
-  // Single optional + or - 
+  for (c = fgetc(s);
+    isspace(static_cast<unsigned char>(c)) && (c != EOF);
+    c = fgetc(s))
+
+  // Single optional + or -
   if (c == '-' || c == '+') {
     minus = (c == '-');
     c = fgetc(s);
@@ -151,10 +151,10 @@ double streamtofloat(FILE* s)
   int k = 1;
   int w = 0;
 
-  for (c = fgetc(s); 
-    isspace(static_cast<unsigned char>(c)) && (c != EOF); 
-    c = fgetc(s)); 
-  
+  for (c = fgetc(s);
+    isspace(static_cast<unsigned char>(c)) && (c != EOF);
+    c = fgetc(s));
+
   // Single optional + or -
   if (c == '-' || c == '+') {
     minus = (c == '-');
@@ -169,13 +169,13 @@ double streamtofloat(FILE* s)
       w = w*10 + d;
       k *= 10;
     }
-  } else if (c == 'e' || c == 'E') 
+  } else if (c == 'e' || c == 'E')
     tprintf("WARNING: Scientific Notation not supported!");
-  
+
   ungetc(c, s);
-  double f  = static_cast<double>(v) 
+  double f  = static_cast<double>(v)
             + static_cast<double>(w) / static_cast<double>(k);
-  
+
   return minus ? -f : f;
 }
 
@@ -203,12 +203,12 @@ double strtofloat(const char* s)
       w = w*10 + d;
       k *= 10;
     }
-  } else if (*s == 'e' || *s == 'E') 
+  } else if (*s == 'e' || *s == 'E')
     tprintf("WARNING: Scientific Notation not supported!");
-  
-  double f  = static_cast<double>(v) 
+
+  double f  = static_cast<double>(v)
             + static_cast<double>(w) / static_cast<double>(k);
- 
+
   return minus ? -f : f;
 }
 
@@ -254,7 +254,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
 
   // Skip leading spaces
   SkipSpace(stream);
-  
+
   while ((ch = *p++) && !bail) {
     switch (state) {
       case ST_NORMAL:
@@ -264,8 +264,8 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
         } else if (isspace(static_cast<unsigned char>(ch))) {
           SkipSpace(stream);
         } else {
-          if (fgetc(stream) != ch) 
-            bail = BAIL_ERR;  // Match failure 
+          if (fgetc(stream) != ch)
+            bail = BAIL_ERR;  // Match failure
         }
         break;
 
@@ -334,32 +334,32 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
               rank = RANK_PTR;
               base = 0; sign = 0;
             goto scan_int;
-        
+
             case 'i':   // Base-independent integer
               base = 0; sign = 1;
             goto scan_int;
-        
+
             case 'd':   // Decimal integer
               base = 10; sign = 1;
             goto scan_int;
-        
+
             case 'o':   // Octal integer
               base = 8; sign = 0;
             goto scan_int;
-        
+
             case 'u':   // Unsigned decimal integer
               base = 10; sign = 0;
             goto scan_int;
-            
+
             case 'x':   // Hexadecimal integer
             case 'X':
               base = 16; sign = 0;
             goto scan_int;
-        
+
             case 'n':   // Number of characters consumed
               val = ftell(stream) - start_off;
             goto set_integer;
-        
+
             scan_int:
               q = SkipSpace(stream);
               if ( q <= 0 ) {
@@ -374,27 +374,27 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
               if (!(flags & FL_SPLAT)) {
                 switch(rank) {
                   case RANK_CHAR:
-                    *va_arg(ap, unsigned char *) 
+                    *va_arg(ap, unsigned char *)
                       = static_cast<unsigned char>(val);
                   break;
                   case RANK_SHORT:
-                    *va_arg(ap, unsigned short *) 
+                    *va_arg(ap, unsigned short *)
                       = static_cast<unsigned short>(val);
                   break;
                   case RANK_INT:
-                    *va_arg(ap, unsigned int *) 
+                    *va_arg(ap, unsigned int *)
                       = static_cast<unsigned int>(val);
                   break;
                   case RANK_LONG:
-                    *va_arg(ap, unsigned long *) 
+                    *va_arg(ap, unsigned long *)
                       = static_cast<unsigned long>(val);
                   break;
                   case RANK_LONGLONG:
-                    *va_arg(ap, unsigned long long *) 
+                    *va_arg(ap, unsigned long long *)
                       = static_cast<unsigned long long>(val);
                   break;
                   case RANK_PTR:
-                    *va_arg(ap, void **) 
+                    *va_arg(ap, void **)
                       = reinterpret_cast<void *>(static_cast<uintptr_t>(val));
                   break;
                 }
@@ -437,7 +437,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
               if (!bail)
                 converted++;
             break;
-      
+
             case 's':               // String
             {
               char *sp;
@@ -458,21 +458,21 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
               }
             }
             break;
-          
+
             case '[':   // Character range
               sarg = va_arg(ap, char *);
               state = ST_MATCH_INIT;
               matchinv = 0;
               memset(matchmap, 0, sizeof matchmap);
             break;
-      
+
             case '%':   // %% sequence
-              if (fgetc(stream) != '%' ) 
+              if (fgetc(stream) != '%' )
                 bail = BAIL_ERR;
             break;
-      
+
             default:    // Anything else
-              bail = BAIL_ERR;  // Unknown sequence 
+              bail = BAIL_ERR;  // Unknown sequence
             break;
           }
         }
@@ -486,7 +486,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
           state = ST_MATCH;
         }
       break;
-  
+
       case ST_MATCH:    // Main state for %[ match
         if (ch == ']') {
           goto match_run;
@@ -497,7 +497,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
           SetBit(matchmap, static_cast<unsigned char>(ch));
         }
       break;
-  
+
       case ST_MATCH_RANGE:    // %[ match after -
         if (ch == ']') {
           SetBit(matchmap, static_cast<unsigned char>('-'));
@@ -537,7 +537,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
   return converted;
 }
 
-int creat(const char *pathname, mode_t mode) 
+int creat(const char *pathname, mode_t mode)
 {
   return open(pathname, O_CREAT | O_TRUNC | O_WRONLY, mode);
 }
