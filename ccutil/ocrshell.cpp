@@ -88,8 +88,8 @@ static OCR_STATE ocr_state = OCS_UNINIT;
 pascal short TerminateOCR(AppleEvent *theEvent,
                           AppleEvent *theReply,
                           long refCon) {
-  ocr_internal_shutdown(); 
-  ExitToShell(); 
+  ocr_internal_shutdown();
+  ExitToShell();
 
 }
 #endif
@@ -124,7 +124,7 @@ UINT16 * lang                    /*required language */
   *lang = shm.language;
   GetCurrentProcess (&shm.OCRProcess);
   if (WakeUpProcess (&shm.IPEProcess))
-    ExitToShell(); 
+    ExitToShell();
   AEInstallEventHandler (kCoreEventClass, kAEQuitApplication,
     (AEEventHandlerUPP) TerminateOCR, 0, FALSE);
   #else
@@ -133,7 +133,7 @@ UINT16 * lang                    /*required language */
     *lang = (UINT16) strtol (lang_str, NULL, 10);
   #endif
   if (ocr_state != OCS_UNINIT) {
-    ocr_error(OCR_ERR_BAD_STATE); 
+    ocr_error(OCR_ERR_BAD_STATE);
     return OCR_API_BAD_STATE;    /*incorrect state */
   }
   #ifdef __MSW32__
@@ -189,7 +189,7 @@ void ocr_error(                   /*send an error code */
     case OCS_READING_STRIPS:     /*read first but more to come */
       strip->x_size = -code;     /*report error */
       release_ocr();  /*send ack */
-      release_mutex(); 
+      release_mutex();
       break;
     case OCS_READ_STRIPS:        /*read all but no monitor yet */
       monitor->count = 0;        /*chars in this buffer(-1) */
@@ -228,7 +228,7 @@ INT16 ocr_append_fontinfo(                    /*put info into shm */
   INT32 font_index;              /*which font */
 
   if (ocr_state != OCS_SETUP_SHM) {
-    ocr_error(OCR_ERR_BAD_STATE); 
+    ocr_error(OCR_ERR_BAD_STATE);
     return OCR_API_BAD_STATE;    /*incorrect state */
   }
 
@@ -275,7 +275,7 @@ INT16 ocr_setup_startinfo(                       /*put info into shm */
   INT16 result;                  /*from open */
 
   if (ocr_state != OCS_SETUP_SHM || font_count < 1) {
-    ocr_error(OCR_ERR_BAD_STATE); 
+    ocr_error(OCR_ERR_BAD_STATE);
     return OCR_API_BAD_STATE;    /*incorrect state */
   }
 
@@ -317,7 +317,7 @@ INT16 ocr_setup_startinfo_ansi(                     /*put info into shm */
   INT16 result;                  /*from open */
 
   if (ocr_state != OCS_SETUP_SHM || font_count < 1) {
-    ocr_error(OCR_ERR_BAD_STATE); 
+    ocr_error(OCR_ERR_BAD_STATE);
     return OCR_API_BAD_STATE;    /*incorrect state */
   }
 
@@ -354,7 +354,7 @@ ESTRIP_DESC *ocr_get_first_image_strip() {  /*get image strip */
 
   if (ocr_state != OCS_SETUP_INFO) {
     tprintf ("Bad state reading strip");
-    ocr_error(OCR_ERR_BAD_STATE); 
+    ocr_error(OCR_ERR_BAD_STATE);
     return NULL;                 /*incorrect state */
   }
 
@@ -402,7 +402,7 @@ ESTRIP_DESC *ocr_get_next_image_strip() {  /*get image strip */
   INT16 result;                  /*of wait/release */
 
   if (ocr_state != OCS_READING_STRIPS) {
-    ocr_error(OCR_ERR_BAD_STATE); 
+    ocr_error(OCR_ERR_BAD_STATE);
     return NULL;                 /*incorrect state */
   }
 
@@ -444,8 +444,11 @@ ETEXT_DESC *ocr_setup_monitor() {  /*setup monitor */
   monitor->err_code = 0;         /*used by ocr_error */
   monitor->cancel = FALSE;       /*0=continue, 1=cancel */
 
-  if (release_ocr () != OKAY)
-    return NULL;                 /*release failed */
+
+//by jetsoft
+//the sem functions are old and were meant for an hp product
+ // if (release_ocr () != OKAY)
+   // return NULL;                 /*release failed */
 
   ocr_state = OCS_RECOGNIZING;   /*record state */
   return monitor;
@@ -502,7 +505,7 @@ INT16 ocr_append_char(                              /*put char into shm */
   INT16 result;                  /*of callback */
 
   if (ocr_state != OCS_RECOGNIZING && ocr_state != OCS_SENDING_TEXT) {
-    ocr_error(OCR_ERR_BAD_STATE); 
+    ocr_error(OCR_ERR_BAD_STATE);
     return OCR_API_BAD_STATE;    /*incorrect state */
   }
 
@@ -568,7 +571,7 @@ INT16 ocr_send_text(                    /*send shm */
   ETEXT_DESC *buf;               /*text buffer */
 
   if (ocr_state != OCS_RECOGNIZING && ocr_state != OCS_SENDING_TEXT) {
-    ocr_error(OCR_ERR_BAD_STATE); 
+    ocr_error(OCR_ERR_BAD_STATE);
     return OCR_API_BAD_STATE;    /*incorrect state */
   }
 
@@ -670,7 +673,7 @@ INT16 wait_for_mutex() {  /*wait for HP to be ready */
     == WAIT_OBJECT_0 ? OKAY : HPERR;
   #endif
   if (result != OKAY)
-    ocr_internal_shutdown(); 
+    ocr_internal_shutdown();
   return result;
 }
 
@@ -693,7 +696,7 @@ INT16 wait_for_hp(               /*wait for semaphore */
     == WAIT_OBJECT_0 ? OKAY : HPERR;
   #endif
   if (result != OKAY)
-    ocr_internal_shutdown(); 
+    ocr_internal_shutdown();
   return result;
 }
 
@@ -715,7 +718,7 @@ INT16 release_mutex() {  /*release mutex */
   result = ReleaseSemaphore (shm.mutex) ? OKAY : HPERR;
   #endif
   if (result != OKAY)
-    ocr_internal_shutdown(); 
+    ocr_internal_shutdown();
   return result;
 }
 
@@ -732,6 +735,13 @@ INT16 release_ocr() {  /*release semaphore */
 
   timeout = RELEASE_TIMEOUT * TICKS;
   #ifdef __MSW32__
+  
+//jetsoft 
+// this stuff is old and no longer applies
+
+  return OKAY;
+//
+
   BOOL result = 0;               //of release
   do {
                                  //release it
@@ -743,7 +753,7 @@ INT16 release_ocr() {  /*release semaphore */
   }
   while (result == FALSE && timeout > 0);
   if (!result)
-    ocr_internal_shutdown(); 
+    ocr_internal_shutdown();
   return OKAY;
   #elif defined (__MAC__)
   INT16 result = HPERR;          /*return code */
@@ -751,7 +761,7 @@ INT16 release_ocr() {  /*release semaphore */
   result = ReleaseSemaphore (shm.ocr_sem) ? OKAY : HPERR;
 
   if (result != OKAY)
-    ocr_internal_shutdown(); 
+    ocr_internal_shutdown();
   return result;
   #elif defined (__UNIX__)
   return 0;
