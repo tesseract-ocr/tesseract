@@ -39,6 +39,7 @@ extern ETEXT_DESC *global_monitor;
 
 int init_tesseract(const char *arg0,
                    const char *textbase,
+                   const char *language,
                    const char *configfile,
                    int configc,
                    const char *const *configv);

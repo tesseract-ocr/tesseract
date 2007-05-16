@@ -26,6 +26,9 @@
 // at least 4. Must not exceed 31 without changing the coding of length.
 #define UNICHAR_LEN 4
 
+// A UNICHAR_ID is the unique id of a unichar.
+typedef int UNICHAR_ID;
+
 // The UNICHAR class holds a single classification result. This may be
 // a single Unicode character (stored as between 1 and 4 utf8 bytes) or
 // multple Unicode characters representing the NFKC expansion of a ligature

@@ -67,9 +67,11 @@ int main(int argc, char **argv) {
   }
 
   if (argc == 3)
-    TessBaseAPI::Init(argv[0], argv[1], NULL, false, 0, argv + 2);
+    TessBaseAPI::InitWithLanguage(argv[0], argv[1], NULL,
+                                  NULL, false, 0, argv + 2);
   else
-    TessBaseAPI::Init(argv[0], argv[1], argv[3], false, argc - 4, argv + 4);
+    TessBaseAPI::InitWithLanguage(argv[0], argv[1], NULL,
+                                  argv[3], false, argc - 4, argv + 4);
 
   tprintf ("Tesseract Open Source OCR Engine\n");
 

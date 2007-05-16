@@ -20,6 +20,7 @@
 #include "baseapi.h"
 
 #include "tessedit.h"
+#include "ocrclass.h"
 #include "pageres.h"
 #include "tessvars.h"
 #include "control.h"
@@ -52,7 +53,19 @@ const int kMinRectSize = 10;
 int TessBaseAPI::Init(const char* datapath, const char* outputbase,
                       const char* configfile, bool numeric_mode,
                       int argc, char* argv[]) {
-  int result = init_tesseract(datapath, outputbase, configfile, argc, argv);
+  return InitWithLanguage(datapath, outputbase, NULL, configfile,
+                          numeric_mode, argc, argv);
+}
+
+// Start tesseract.
+// Similar to Init() except that it is possible to specify the language.
+// Language is the code of the language for which the data will be loaded.
+// (Codes follow ISO 639-2.) If it is NULL, english (eng) will be loaded.
+int TessBaseAPI::InitWithLanguage(const char* datapath, const char* outputbase,
+                                  const char* language, const char* configfile,
+                                  bool numeric_mode, int argc, char* argv[]) {
+  int result = init_tesseract(datapath, outputbase, language,
+                              configfile, argc, argv);
   bln_numericmode.set_value(numeric_mode);
   return result;
 }
@@ -68,7 +81,7 @@ int TessBaseAPI::Init(const char* datapath, const char* outputbase,
 // one pixel is WHITE. For binary images set bytes_per_pixel=0.
 // The recognized text is returned as a char* which (in future will be coded
 // as UTF8 and) must be freed with the delete [] operator.
-char* TessBaseAPI::TesseractRect(const UINT8* imagedata,
+char* TessBaseAPI::TesseractRect(const unsigned char* imagedata,
                                  int bytes_per_pixel,
                                  int bytes_per_line,
                                  int left, int top,
@@ -114,7 +127,7 @@ void TessBaseAPI::DumpPGM(const char* filename) {
 
 // Copy the given image rectangle to Tesseract, with adaptive thresholding
 // if the image is not already binary.
-void TessBaseAPI::CopyImageToTesseract(const UINT8* imagedata,
+void TessBaseAPI::CopyImageToTesseract(const unsigned char* imagedata,
                                        int bytes_per_pixel,
                                        int bytes_per_line,
                                        int left, int top,
@@ -147,7 +160,7 @@ void TessBaseAPI::CopyImageToTesseract(const UINT8* imagedata,
 // hi_values[channel] is 0 or background if 1. A hi_value of -1 indicates
 // that there is no apparent foreground. At least one hi_value will not be -1.
 // thresholds and hi_values are assumed to be of bytes_per_pixel size.
-void TessBaseAPI::OtsuThreshold(const UINT8* imagedata,
+void TessBaseAPI::OtsuThreshold(const unsigned char* imagedata,
                                 int bytes_per_pixel,
                                 int bytes_per_line,
                                 int left, int top, int right, int bottom,
@@ -206,16 +219,16 @@ void TessBaseAPI::OtsuThreshold(const UINT8* imagedata,
 // counted with this call in a multi-channel (pixel-major) image.
 // Histogram is always a 256 element array to count occurrences of
 // each pixel value.
-void TessBaseAPI::HistogramRect(const UINT8* imagedata,
+void TessBaseAPI::HistogramRect(const unsigned char* imagedata,
                                 int bytes_per_pixel,
                                 int bytes_per_line,
                                 int left, int top, int right, int bottom,
                                 int* histogram) {
   int width = right - left;
   memset(histogram, 0, sizeof(*histogram) * 256);
-  const UINT8* pix = imagedata +
-                     top*bytes_per_line +
-                     left*bytes_per_pixel;
+  const unsigned char* pix = imagedata +
+                             top*bytes_per_line +
+                             left*bytes_per_pixel;
   for (int y = top; y < bottom; ++y) {
     for (int x = 0; x < width; ++x) {
       ++histogram[pix[x * bytes_per_pixel]];
@@ -270,7 +283,7 @@ int TessBaseAPI::OtsuStats(const int* histogram,
 // Threshold the given grey or color image into the tesseract global
 // image ready for recognition. Requires thresholds and hi_value
 // produced by OtsuThreshold above.
-void TessBaseAPI::ThresholdRect(const UINT8* imagedata,
+void TessBaseAPI::ThresholdRect(const unsigned char* imagedata,
                                 int bytes_per_pixel,
                                 int bytes_per_line,
                                 int left, int top,
@@ -283,9 +296,10 @@ void TessBaseAPI::ThresholdRect(const UINT8* imagedata,
   // For each line in the image, fill the IMAGELINE class and put it into the
   // Tesseract global page_image. Note that Tesseract stores images with the
   // bottom at y=0 and 0 is black, so we need 2 kinds of inversion.
-  const UINT8* data = imagedata + top*bytes_per_line + left*bytes_per_pixel;
+  const unsigned char* data = imagedata + top*bytes_per_line +
+                              left*bytes_per_pixel;
   for (int y = height - 1 ; y >= 0; --y) {
-    const UINT8* pix = data;
+    const unsigned char* pix = data;
     for (int x = 0; x < width; ++x, pix += bytes_per_pixel) {
       line.pixels[x] = 1;
       for (int ch = 0; ch < bytes_per_pixel; ++ch) {
@@ -303,13 +317,13 @@ void TessBaseAPI::ThresholdRect(const UINT8* imagedata,
 
 // Cut out the requested rectangle of the binary image to the
 // tesseract global image ready for recognition.
-void TessBaseAPI::CopyBinaryRect(const UINT8* imagedata,
+void TessBaseAPI::CopyBinaryRect(const unsigned char* imagedata,
                                  int bytes_per_line,
                                  int left, int top,
                                  int width, int height) {
   // Copy binary image, cutting out the required rectangle.
   IMAGE image;
-  image.capture(const_cast<UINT8*>(imagedata),
+  image.capture(const_cast<unsigned char*>(imagedata),
                 bytes_per_line*8, top + height, 1);
   page_image.create(width, height, 1);
   copy_sub_image(&image, left, top, width, height, &page_image, 0, 0, false);
@@ -392,4 +406,3 @@ char* TessBaseAPI::TesseractToText(PAGE_RES* page_res) {
   }
   return NULL;
 }
-

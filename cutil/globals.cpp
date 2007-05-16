@@ -63,3 +63,7 @@ char *demodir;                   /*demo home directory */
 int edgefd;                      /*edges window */
 int debugfd;                     /*debug window fd */
 FILE *debugfp;                   /*debug log file */
+
+UNICHARSET unicharset;
+
+STRING language_data_path_prefix;

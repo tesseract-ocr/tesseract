@@ -53,8 +53,8 @@
 #endif
 
 #define ADAPT_TEMPLATE_SUFFIX ".a"
-#define BUILT_IN_TEMPLATES_FILE "tessdata/inttemp"
-#define BUILT_IN_CUTOFFS_FILE "tessdata/pffmtable"
+#define BUILT_IN_TEMPLATES_FILE "inttemp"
+#define BUILT_IN_CUTOFFS_FILE "pffmtable"
 
 #define MAX_MATCHES         10
 #define UNLIKELY_NUM_FEAT 200
@@ -98,7 +98,7 @@ PROTO_KEY;
 ((Rating) > GreatAdaptiveMatch)
 
 #define TempConfigReliable(Config)	\
-((Config)->NumTimesSeen > ReliableConfigThreshold)
+((Config)->NumTimesSeen >= ReliableConfigThreshold)
 
 #define InitIntFX() (FeaturesHaveBeenExtracted = FALSE)
 
@@ -197,11 +197,11 @@ int GetIntCharNormFeatures(TBLOB *Blob,
 
 void InitMatcherRatings(register FLOAT32 *Rating);
 
-void MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
-                            CLASS_ID ClassId,
-                            int NumFeatures,
-                            INT_FEATURE_ARRAY Features,
-                            FEATURE_SET FloatFeatures);
+int MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
+                           CLASS_ID ClassId,
+                           int NumFeatures,
+                           INT_FEATURE_ARRAY Features,
+                           FEATURE_SET FloatFeatures);
 
 PROTO_ID MakeNewTempProtos (FEATURE_SET Features,
 int NumBadFeat,
@@ -429,7 +429,6 @@ void MakeNewAdaptedClass
 ----------------------------------------------------------------------------**/
 /* name of current image file being processed */
 extern char imagefile[];
-//extern char                                   *demodir;
 INT_VAR (tessedit_single_match, FALSE, "Top choice only from CP");
 
 //extern "C" int il1_adaption_test; //?
@@ -449,6 +448,7 @@ static int NumBaselineClassesTried = 0;
 static int NumCharNormClassesTried = 0;
 static int NumAmbigClassesTried = 0;
 static int NumClassesOutput = 0;
+static int NumAdaptationsFailed = 0;
 
 /* define globals used to hold onto extracted features.  This is used
 to map from the old scheme in which baseline features and char norm
@@ -529,11 +529,11 @@ make_float_var (RatingMargin, 0.1, MakeRatingMargin,
 make_float_var (NoiseBlobLength, 0.6, MakeNoiseBlobLength,
 18, 11, SetNoiseBlobLength, "Avg. noise blob length: ");
 
-make_int_var (MinNumPermClasses, 3, MakeMinNumPermClasses,
+make_int_var (MinNumPermClasses, 1, MakeMinNumPermClasses,
 18, 12, SetMinNumPermClasses, "Min # of permanent classes: ");
 /* PREV DEFAULT 200 */
 
-make_int_var (ReliableConfigThreshold, 2, MakeReliableConfigThreshold,
+make_int_var (ReliableConfigThreshold, 1, MakeReliableConfigThreshold,
 18, 13, SetReliableConfigThreshold,
 "Reliable Config Threshold: ");
 
@@ -555,6 +555,10 @@ make_float_var (RatingScale, 30.0, MakeRatingScale,
 
 make_float_var (CertaintyScale, 20.0, MakeCertaintyScale,
 18, 18, SetCertaintyScale, "CertaintyScale: ");
+
+make_int_var (FailedAdaptionsBeforeReset, 150, MakeFailedAdaptionsBeforeReset,
+18, 19, SetFailedAdaptionsBeforeReset,
+"Number of failed adaptions before adapted templates reset: ");
 
 int tess_cn_matching = 0;
 int tess_bn_matching = 0;
@@ -589,6 +593,11 @@ LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row) {
   ADAPT_RESULTS Results;
   LINE_STATS LineStats;
 
+  if (FailedAdaptionsBeforeReset >= 0 &&
+      NumAdaptationsFailed >= FailedAdaptionsBeforeReset) {
+    NumAdaptationsFailed = 0;
+    ResetAdaptiveClassifier();
+  }
   if (AdaptedTemplates == NULL)
     AdaptedTemplates = NewAdaptedTemplates ();
   EnterClassifyMode;
@@ -671,6 +680,9 @@ void AdaptToWord(TWERD *Word,
   FLOAT32 *Threshold;
   const char *map = rejmap;
   char map_char = '1';
+
+  if (strlen(BestChoice) > MAX_ADAPTABLE_WERD_SIZE)
+    return;
 
   if (EnableLearning) {
     NumWordsAdaptedTo++;
@@ -826,13 +838,13 @@ void InitAdaptiveClassifier() {
 */
   int i;
   FILE *File;
-  char Filename[1024];
+  STRING Filename;
 
   if (!EnableAdaptiveMatcher)
     return;
 
-  strcpy(Filename, demodir);
-  strcat(Filename, BuiltInTemplatesFile);
+  Filename = language_data_path_prefix;
+  Filename += BuiltInTemplatesFile;
   #ifndef SECURE_NAMES
   //      cprintf( "\nReading built-in templates from %s ...",
   //              Filename);
@@ -840,21 +852,22 @@ void InitAdaptiveClassifier() {
   #endif
 
   #ifdef __UNIX__
-  File = Efopen (Filename, "r");
+  File = Efopen (Filename.string(), "r");
   #else
-  File = Efopen (Filename, "rb");
+  File = Efopen (Filename.string(), "rb");
   #endif
   PreTrainedTemplates = ReadIntTemplates (File, TRUE);
   fclose(File);
 
-  strcpy(Filename, demodir);
-  strcat(Filename, BuiltInCutoffsFile);
+  Filename = language_data_path_prefix;
+  Filename += BuiltInCutoffsFile;
   #ifndef SECURE_NAMES
   //      cprintf( "\nReading built-in pico-feature cutoffs from %s ...",
   //              Filename);
   fflush(stdout);
   #endif
-  ReadNewCutoffs (Filename, PreTrainedTemplates->IndexFor, CharNormCutoffs);
+  ReadNewCutoffs (Filename.string(), PreTrainedTemplates->IndexFor,
+                  CharNormCutoffs);
 
   GetNormProtos();
 
@@ -874,14 +887,14 @@ void InitAdaptiveClassifier() {
   zero_all_bits (AllConfigsOff, WordsInVectorOfSize (MAX_NUM_CONFIGS));
 
   if (UsePreAdaptedTemplates) {
-    strcpy(Filename, imagefile);
-    strcat(Filename, ADAPT_TEMPLATE_SUFFIX);
-    File = fopen (Filename, "rb");
+    Filename = imagefile;
+    Filename += ADAPT_TEMPLATE_SUFFIX;
+    File = fopen (Filename.string(), "rb");
     if (File == NULL)
       AdaptedTemplates = NewAdaptedTemplates ();
     else {
       #ifndef SECURE_NAMES
-      cprintf ("\nReading pre-adapted templates from %s ...", Filename);
+      cprintf ("\nReading pre-adapted templates from %s ...", Filename.string());
       fflush(stdout);
       #endif
       AdaptedTemplates = ReadAdaptedTemplates (File);
@@ -950,6 +963,7 @@ void InitAdaptiveClassifierVars() {
   MakeEnableNewAdaptRules();
   MakeRatingScale();
   MakeCertaintyScale();
+  MakeFailedAdaptionsBeforeReset();
 
   InitPicoFXVars();
   InitOutlineFXVars();  //?
@@ -1098,8 +1112,9 @@ void MakeNewAdaptedClass(TBLOB *Blob,
   TempConfigFor (Class, 0) = Config;
 
   /* this is a kludge to construct cutoffs for adapted templates */
-  BaselineCutoffs[ClassIndex] =
-    CharNormCutoffs[IndexForClassId (PreTrainedTemplates, ClassId)];
+  if (Templates == AdaptedTemplates)
+    BaselineCutoffs[ClassIndex] =
+        CharNormCutoffs[IndexForClassId (PreTrainedTemplates, ClassId)];
 
   IClass = ClassForClassId (Templates->Templates, ClassId);
 
@@ -1275,6 +1290,7 @@ void AdaptToChar(TBLOB *Blob,
   ADAPT_CLASS Class;
   TEMP_CONFIG TempConfig;
   FEATURE_SET FloatFeatures;
+  int NewTempConfigId;
 
   NumCharsAdaptedTo++;
   if (!LegalClassId (ClassId))
@@ -1323,11 +1339,17 @@ void AdaptToChar(TBLOB *Blob,
       if (LearningDebugLevel >= 1)
         cprintf ("Found poor match to temp config %d = %4.1f%%.\n",
           IntResult.Config, (1.0 - IntResult.Rating) * 100.0);
-      MakeNewTemporaryConfig(AdaptedTemplates,
-                             ClassId,
-                             NumFeatures,
-                             IntFeatures,
-                             FloatFeatures);
+      NewTempConfigId = MakeNewTemporaryConfig(AdaptedTemplates,
+                                               ClassId,
+                                               NumFeatures,
+                                               IntFeatures,
+                                               FloatFeatures);
+
+      if (NewTempConfigId >= 0 &&
+          TempConfigReliable (TempConfigFor (Class, NewTempConfigId)))
+        MakePermanent (AdaptedTemplates, ClassId, NewTempConfigId,
+                       Blob, LineStats);
+
       if (LearningDebugLevel >= 1) {
         IntegerMatcher (IClass, AllProtosOn, AllConfigsOn,
           NumFeatures, NumFeatures, IntFeatures, 0, 0,
@@ -1630,6 +1652,8 @@ char *BaselineClassifier(TBLOB *Blob,
     }
 
     AddNewResult (Results, ClassId, IntResult.Rating, IntResult.Config);
+    if (IntResult.Rating < best_rating)
+      best_rating = IntResult.Rating;
   }
   while (i < NumClasses) {
     ClassId = ClassPrunerResults[i].Class;
@@ -2185,7 +2209,8 @@ void DoAdaptiveMatch(TBLOB *Blob,
   */
     TBLOB *Blob;
 
-    if (EnableNewAdaptRules) {   /* new rules */
+    if (EnableNewAdaptRules &&   /* new rules */
+        CurrentBestChoiceIs (BestChoice)) {
       FindClassifierErrors(PerfectRating,
                            GoodAdaptiveMatch,
                            RatingMargin,
@@ -2608,7 +2633,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
   }                              /* InitMatcherRatings */
 
   /*---------------------------------------------------------------------------*/
-  void MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
+  int MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
                               CLASS_ID ClassId,
                               int NumFeatures,
                               INT_FEATURE_ARRAY Features,
@@ -2633,7 +2658,8 @@ void DoAdaptiveMatch(TBLOB *Blob,
   **							TempProtoMask
                 defines old protos matched in new config
   **							Operation:
-  **							Return: none
+  **							Return: The id of the new config created, a negative integer in
+  **                                                    case of error.
   **							Exceptions: none
   **							History: Fri Mar 15 08:49:46 1991, DSJ, Created.
   */
@@ -2661,14 +2687,18 @@ void DoAdaptiveMatch(TBLOB *Blob,
     Class = Templates->Class[ClassIndex];
 
     if (NumIntConfigsIn (IClass) >= MAX_NUM_CONFIGS)
-      return;
+    {
+      ++NumAdaptationsFailed;
+      if (LearningDebugLevel >= 1)
+        cprintf ("Cannot make new temporary config: maximum number exceeded.\n");
+      return -1;
+    }
 
     OldMaxProtoId = NumIntProtosIn (IClass) - 1;
 
     NumOldProtos = FindGoodProtos (IClass, AllProtosOn, AllConfigsOff,
       BlobLength, NumFeatures, Features,
       OldProtos, debug_level);
-    NumOldProtos = 0;
 
     MaskSize = WordsInVectorOfSize (MAX_NUM_PROTOS);
     zero_all_bits(TempProtoMask, MaskSize);
@@ -2682,7 +2712,12 @@ void DoAdaptiveMatch(TBLOB *Blob,
     MaxProtoId = MakeNewTempProtos (FloatFeatures, NumBadFeatures, BadFeatures,
       IClass, Class, TempProtoMask);
     if (MaxProtoId == NO_PROTO)
-      return;
+    {
+      ++NumAdaptationsFailed;
+      if (LearningDebugLevel >= 1)
+        cprintf ("Cannot make new temp protos: maximum number exceeded.\n");
+      return -1;
+    }
 
     ConfigId = AddIntConfig (IClass);
     ConvertConfig(TempProtoMask, ConfigId, IClass);
@@ -2694,6 +2729,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
       cprintf ("Making new temp config %d using %d old and %d new protos.\n",
         ConfigId, NumOldProtos, MaxProtoId - OldMaxProtoId);
 
+    return ConfigId;
   }                              /* MakeNewTemporaryConfig */
 
   /*---------------------------------------------------------------------------*/

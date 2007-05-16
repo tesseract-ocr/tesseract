@@ -50,6 +50,8 @@
 #include "adaptmatch.h"
 #include "intmatcher.h"
 #include "chop.h"
+#include "efio.h"
+#include "danerror.h"
 #include "globals.h"
 
 //extern "C" {
@@ -96,6 +98,7 @@ ETEXT_DESC *global_monitor = NULL;
 
 int init_tesseract(const char *arg0,
                    const char *textbase,
+                   const char *language,
                    const char *configfile,
                    int configc,
                    const char *const *configv) {
@@ -116,6 +119,22 @@ int init_tesseract(const char *arg0,
   strcpy (c_path, datadir.string ());
   c_path[strlen (c_path) - strlen (m_data_sub_dir.string ())] = '\0';
   demodir = c_path;
+
+  // Set the language data path prefix
+  language_data_path_prefix = datadir;
+  if (language != NULL) {
+    language_data_path_prefix += language;
+    language_data_path_prefix += ".";
+  }
+  else
+    language_data_path_prefix += "eng.";
+
+  // Load the unichar set
+  STRING unicharpath = language_data_path_prefix;
+  unicharpath += "unicharset";
+  if (!unicharset.load_from_file(unicharpath.string())) {
+    DoError(FOPENERROR, "Unable to open unicharset");
+  }
   start_recog(configfile, textbase);
 
   ReliableConfigThreshold = tweak_ReliableConfigThreshold;

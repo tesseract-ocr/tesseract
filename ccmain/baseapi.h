@@ -22,9 +22,6 @@
 
 #include <string>
 
-#include "host.h"
-#include "ocrclass.h"
-
 class PAGE_RES;
 class BLOCK_LIST;
 
@@ -51,6 +48,14 @@ class TessBaseAPI {
                   const char* configfile, bool numeric_mode,
                   int argc, char* argv[]);
 
+  // Start tesseract.
+  // Similar to Init() except that it is possible to specify the language.
+  // Language is the code of the language for which the data will be loaded.
+  // (Codes follow ISO 639-2.) If it is NULL, english (eng) will be loaded.
+  static int InitWithLanguage(const char* datapath, const char* outputbase,
+                              const char* language, const char* configfile,
+                              bool numeric_mode, int argc, char* argv[]);
+
   // Recognize a rectangle from an image and return the result as a string.
   // May be called many times for a single Init.
   // Currently has no error checking.
@@ -62,7 +67,7 @@ class TessBaseAPI {
   // 1 represents WHITE. For binary images set bytes_per_pixel=0.
   // The recognized text is returned as a char* which (in future will be coded
   // as UTF8 and) must be freed with the delete [] operator.
-  static char* TesseractRect(const UINT8* imagedata,
+  static char* TesseractRect(const unsigned char* imagedata,
                              int bytes_per_pixel,
                              int bytes_per_line,
                              int left, int top, int width, int height);
@@ -80,7 +85,7 @@ class TessBaseAPI {
  protected:
   // Copy the given image rectangle to Tesseract, with adaptive thresholding
   // if the image is not already binary.
-  static void CopyImageToTesseract(const UINT8* imagedata,
+  static void CopyImageToTesseract(const unsigned char* imagedata,
                                    int bytes_per_pixel,
                                    int bytes_per_line,
                                    int left, int top, int width, int height);
@@ -92,7 +97,7 @@ class TessBaseAPI {
   // hi_values[channel] is 0 or background if 1. A hi_value of -1 indicates
   // that there is no apparent foreground. At least one hi_value will not be -1.
   // thresholds and hi_values are assumed to be of bytes_per_pixel size.
-  static void OtsuThreshold(const UINT8* imagedata,
+  static void OtsuThreshold(const unsigned char* imagedata,
                            int bytes_per_pixel,
                            int bytes_per_line,
                            int left, int top, int right, int bottom,
@@ -106,7 +111,7 @@ class TessBaseAPI {
   // counted with this call in a multi-channel (pixel-major) image.
   // Histogram is always a 256 element array to count occurrences of
   // each pixel value.
-  static void HistogramRect(const UINT8* imagedata,
+  static void HistogramRect(const unsigned char* imagedata,
                             int bytes_per_pixel,
                             int bytes_per_line,
                             int left, int top, int right, int bottom,
@@ -122,7 +127,7 @@ class TessBaseAPI {
   // Threshold the given grey or color image into the tesseract global
   // image ready for recognition. Requires thresholds and hi_value
   // produced by OtsuThreshold above.
-  static void ThresholdRect(const UINT8* imagedata,
+  static void ThresholdRect(const unsigned char* imagedata,
                             int bytes_per_pixel,
                             int bytes_per_line,
                             int left, int top,
@@ -132,7 +137,7 @@ class TessBaseAPI {
 
   // Cut out the requested rectangle of the binary image to the
   // tesseract global image ready for recognition.
-  static void CopyBinaryRect(const UINT8* imagedata,
+  static void CopyBinaryRect(const unsigned char* imagedata,
                              int bytes_per_line,
                              int left, int top,
                              int width, int height);
@@ -145,7 +150,8 @@ class TessBaseAPI {
 
   // Recognize the tesseract global image and return the result as Tesseract
   // internal structures.
-  static PAGE_RES* Recognize(BLOCK_LIST* block_list, ETEXT_DESC* monitor);
+  static PAGE_RES* Recognize(BLOCK_LIST* block_list,
+                             struct ETEXT_STRUCT* monitor);
 
   // Convert (and free) the internal data structures into a text string.
   static char* TesseractToText(PAGE_RES* page_res);

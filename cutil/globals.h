@@ -27,6 +27,8 @@
 
 #include "tessclas.h"
 #include "const.h"
+#include "unicharset.h"
+#include "strngs.h"
 
 #include <stdio.h>
 
@@ -43,10 +45,8 @@ extern int acts[MAXPROC];        /*action flags */
 extern int debugs[MAXPROC];      /*debug flags */
 extern int plots[MAXPROC];       /*plot flags */
 extern int corners[4];           /*corners of scan window */
-extern "C" {
-    extern int optind;           /*option index */
-    extern char *optarg;         /*option argument */
-}
+extern int optind;               /*option index */
+extern char *optarg;             /*option argument */
                                  /*image file name */
 extern char imagefile[FILENAMESIZE];
                                  /* main directory */
@@ -64,4 +64,9 @@ extern int acts_ocr;
 
 extern char *demodir;
 extern FILE *debugfp;            /*debug log file */
+
+extern UNICHARSET unicharset; /* The UNICHARSET variable that Tesseract uses internally */
+
+extern STRING language_data_path_prefix;
+
 #endif

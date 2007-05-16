@@ -29,7 +29,7 @@
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-void ReadNewCutoffs(char *Filename,
+void ReadNewCutoffs(const char *Filename,
                     CLASS_TO_INDEX ClassMapper,
                     CLASS_CUTOFF_ARRAY Cutoffs) {
 /*
@@ -62,6 +62,6 @@ void ReadNewCutoffs(char *Filename,
     ClassId = Class[0];
     Cutoffs[ClassMapper[ClassId]] = Cutoff;
   }
-  fclose(CutoffFile); 
+  fclose(CutoffFile);
 
 }                                /* ReadNewCutoffs */
