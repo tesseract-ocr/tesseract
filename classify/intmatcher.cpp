@@ -323,7 +323,7 @@ make_int_var (ClassPrunerThreshold, 229, MakeClassPrunerThreshold,
 16, 20, SetClassPrunerThreshold,
 "Class Pruner Threshold 0-255:        ");
 
-make_int_var (ClassPrunerMultiplier, 15, MakeClassPrunerMultiplier,
+make_int_var (ClassPrunerMultiplier, 30, MakeClassPrunerMultiplier,
 16, 21, SetClassPrunerMultiplier,
 "Class Pruner Multiplier 0-255:       ");
 
