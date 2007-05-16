@@ -74,9 +74,9 @@ class COMMAND_WINDOW
 
     void plot();  //(re)paint the window
 
-    void plot_msg_area(); 
+    void plot_msg_area();
 
-    void plot_prompt_area(); 
+    void plot_prompt_area();
 
     void press_radio_button(                                  //Change selected item //of this radio set
                             RADIO_MENU *radio_sub_menu_item,  //This button

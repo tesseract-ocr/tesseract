@@ -33,7 +33,7 @@ extern INT_VAR_H (menu_char_width, 8, "Width of characters in menu text");
 extern INT_VAR_H (menu_char_height, 14, "Height characters in menu text");
 
 class MENU_L;                    //Forward Declaration
-ELISTIZEH(MENU_L); 
+ELISTIZEH(MENU_L);
 
 class COMMAND_WINDOW;            //Fwd Decl #inc at end
 
@@ -98,7 +98,7 @@ class MENU_NODE
     virtual ~MENU_NODE() {}
 
                                  //return ptr to name
-    virtual const char *cmp_str() { 
+    virtual const char *cmp_str() {
       return name.string ();
     }
 
@@ -258,7 +258,7 @@ Class NON_LEAF_MENU_NODE - Generic menu item - an abstract class.
 class NON_LEAF_MENU_NODE:public MENU_NODE
 {
   public:
-    void clear_children() { 
+    void clear_children() {
       menu_list.clear ();
     };
 
@@ -311,7 +311,7 @@ class MENU_ROOT:public NON_LEAF_MENU_NODE
 
     void add_child(  //add to sub-menu end //item to add
                    NON_LEAF_MENU_NODE *new_child) {
-      link_child(new_child); 
+      link_child(new_child);
     }
 
     /* Public defn of event - at menu_root only*/
@@ -320,7 +320,7 @@ class MENU_ROOT:public NON_LEAF_MENU_NODE
                FCOORD pt,                //here
                INT32 *cmd_event_id,      //Command selected
                char *new_value) {        //Edited value
-      NON_LEAF_MENU_NODE::event(cmd_win, pt, cmd_event_id, new_value); 
+      NON_LEAF_MENU_NODE::event(cmd_win, pt, cmd_event_id, new_value);
     }
 
     BOX &recalc_bounding_box(              //build box
@@ -348,17 +348,17 @@ class NON_RADIO_MENU:public NON_LEAF_MENU_NODE
 
     void add_child(  //add to sub-menu end //item to add
                    SIMPLE_MENU_LEAF *new_child) {
-      link_child(new_child); 
+      link_child(new_child);
     }
 
     void add_child(  //add to sub-menu end //item to add
                    TOGGLE_MENU_LEAF *new_child) {
-      link_child(new_child); 
+      link_child(new_child);
     }
 
     void add_child(  //add to sub-menu end //item to add
                    VARIABLE_MENU_LEAF *new_child) {
-      link_child(new_child); 
+      link_child(new_child);
     }
 
 };
@@ -403,7 +403,7 @@ class MENU_L:public ELIST_LINK
   public:
     MENU_NODE * ptr;             //Generic menu item
 
-    MENU_L() { 
+    MENU_L() {
     }                            //copy list constrctr
 
     MENU_L(  //normal constructor
