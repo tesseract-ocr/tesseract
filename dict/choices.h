@@ -79,7 +79,7 @@ typedef struct choicestruct
  * Return the string corresponding to the best choice.
  **********************************************************************/
 #define best_string(choices)  \
-(first (choices) ? ((A_CHOICE*) (first (choices)))->string : NULL)
+(first_node (choices) ? ((A_CHOICE*) (first_node (choices)))->string : NULL)
 
 /**********************************************************************
  * best_probability
@@ -87,7 +87,7 @@ typedef struct choicestruct
  * Return the probability of the best choice.
  **********************************************************************/
 #define best_probability(choices)  \
-(((A_CHOICE*) (first (choices)))->rating)
+(((A_CHOICE*) (first_node (choices)))->rating)
 
 /**********************************************************************
  * best_certainty
@@ -95,7 +95,7 @@ typedef struct choicestruct
  * Return the certainty of the best choice.
  **********************************************************************/
 #define best_certainty(choices)  \
-(((A_CHOICE*) (first (choices)))->certainty)
+(((A_CHOICE*) (first_node (choices)))->certainty)
 
 /**********************************************************************
  * class_probability
@@ -177,7 +177,7 @@ CHOICES append_choice(CHOICES ratings,
                       float certainty,
                       INT8 config);
 
-CHOICES copy_choices(CHOICES choices); 
+CHOICES copy_choices(CHOICES choices);
 
 void free_choice(void *arg);  //LIST choice);
 
@@ -187,5 +187,5 @@ A_CHOICE *new_choice(const char *string,
                      INT8 config,
                      char permuter);
 
-void print_choices(const char *label, CHOICES rating); 
+void print_choices(const char *label, CHOICES rating);
 #endif

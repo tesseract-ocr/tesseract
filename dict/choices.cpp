@@ -67,17 +67,17 @@ CHOICES append_choice(CHOICES ratings,
  * Copy a list of choices.  This means that there will be two copies
  * in memory.
  **********************************************************************/
-CHOICES copy_choices(CHOICES choices) { 
+CHOICES copy_choices(CHOICES choices) {
   CHOICES l;
   CHOICES result = NIL;
 
-  iterate_list(l, choices) { 
+  iterate_list(l, choices) {
     result = push (result,
-      (LIST) new_choice (class_string (first (l)),
-      class_probability (first (l)),
-      class_certainty (first (l)),
-      class_config (first (l)),
-      class_permuter (first (l))));
+      (LIST) new_choice (class_string (first_node (l)),
+      class_probability (first_node (l)),
+      class_certainty (first_node (l)),
+      class_config (first_node (l)),
+      class_permuter (first_node (l))));
   }
   return (reverse_d (result));
 }
@@ -96,7 +96,7 @@ void free_choice(void *arg) {  //LIST choice)
   if (this_choice) {
     if (this_choice->string)
       strfree (this_choice->string);
-    oldchoice(this_choice); 
+    oldchoice(this_choice);
   }
 }
 
@@ -139,12 +139,12 @@ void print_choices(  /* List of (A_CHOICE*) */
   if (rating == NIL)
     cprintf (" No rating ");
 
-  iterate(rating) { 
+  iterate(rating) {
 
     if (first_one && show_bold) {
       cprintf ("|");
       len = sprintf (str, " %s ", best_string (rating));
-      print_bold(str); 
+      print_bold(str);
       while (len++ < 8)
         cprintf (" ");
     }
