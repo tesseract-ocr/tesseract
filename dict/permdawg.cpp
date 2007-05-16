@@ -65,8 +65,6 @@ make_float_var (good_word, GOOD_WERD, make_good_word,
 make_float_var (freq_word, FREQ_WERD, make_freq_word,
 8, 19, set_freq_word, "Freq word adjustment");
 
-//extern char *demodir;
-
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
@@ -250,7 +248,7 @@ CHOICES dawg_permute(EDGE_ARRAY dawg,
       (CHOICES) array_index (choices,
     char_index - hyphen_base_size ())) {
       append_next_choice (dawg, node, permuter, word, choices, char_index,
-        (A_CHOICE *) first (c),
+        (A_CHOICE *) first_node (c),
         prevchar != NULL ? *prevchar : '\0', limit,
         rating, certainty, rating_array, certainty_array,
         word_ending, last_word, &result);
@@ -310,9 +308,9 @@ void dawg_permute_and_select(const char *string,
 
   while (result != NIL) {
     if (best_probability (result) < class_probability (best_choice)) {
-      clone_choice (best_choice, first (result));
+      clone_choice (best_choice, first_node (result));
     }
-    free_choice (first (result));
+    free_choice (first_node (result));
     pop_off(result);
   }
 }
@@ -324,7 +322,7 @@ void dawg_permute_and_select(const char *string,
  * Initialize the variables needed by this file.
  **********************************************************************/
 void init_permdawg() {
-  char name[1024];
+  STRING name;
   make_dawg_debug();
   make_ok_word();
   make_good_word();
@@ -332,9 +330,9 @@ void init_permdawg() {
 
   frequent_words = (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) *
     MAX_FREQ_EDGES);
-  strcpy(name, demodir);
-  strcat (name, "tessdata/freq-dawg");
-  read_squished_dawg(name, frequent_words, MAX_FREQ_EDGES);
+  name = language_data_path_prefix;
+  name += "freq-dawg";
+  read_squished_dawg(name.string(), frequent_words, MAX_FREQ_EDGES);
 }
 
 void end_permdawg() {

@@ -791,7 +791,7 @@ void pgeditor_read_file(                    //of serialised file
 
   ICOORD page_tr;                //topright of page
 
-  char *filename_extension;
+  const char *filename_extension;
 
   block_it.move_to_last ();
 

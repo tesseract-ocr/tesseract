@@ -237,10 +237,10 @@ void append_number_choices(int state,
               cprintf ("new choice = %s\n", word);
             push_on (*result, new_choice (word, rating, certainty,
               -1, NUMBER_PERM));
-            adjust_number ((A_CHOICE *) first (*result),
+            adjust_number ((A_CHOICE *) first_node (*result),
               certainty_array);
             if (best_probability (*result) > *limit) {
-              free_choice (first (*result));
+              free_choice (first_node (*result));
               pop_off(*result);
             }
             else {
@@ -393,7 +393,7 @@ CHOICES number_permute(int state,
     iterate_list (c, (CHOICES) array_index (choices, char_index)) {
       if (depth++ < number_depth)
         append_number_choices (state, word, choices, char_index,
-          (A_CHOICE *) first (c), limit, rating,
+          (A_CHOICE *) first_node (c), limit, rating,
           certainty, certainty_array, &result);
     }
   }
@@ -429,9 +429,9 @@ A_CHOICE *number_permute_and_select(CHOICES_LIST char_choices,
 
     while (result != NIL) {
       if (best_probability (result) < class_probability (best_choice)) {
-        clone_choice (best_choice, first (result));
+        clone_choice (best_choice, first_node (result));
       }
-      free_choice (first (result));
+      free_choice (first_node (result));
       pop_off(result);
     }
   }

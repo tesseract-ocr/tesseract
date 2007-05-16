@@ -46,7 +46,7 @@ extern float CertaintyScale;     /* from subfeat.h */
 
 #define MAX_WERD_SIZE   100
 #define MAX_AMBIG_SIZE    3
-#define DANGEROUS_AMBIGS  "tessdata/DangAmbigs"
+#define DANGEROUS_AMBIGS  "DangAmbigs"
 
 typedef LIST AMBIG_TABLE;
 
@@ -83,9 +83,9 @@ EXPANDED_CHOICE;
 /**----------------------------------------------------------------------------
           Macros
 ----------------------------------------------------------------------------**/
-#define BestCertainty(Choices)  (((VIABLE_CHOICE) first (Choices))->Certainty)
-#define BestRating(Choices) (((VIABLE_CHOICE) first (Choices))->Rating)
-#define BestFactor(Choices) (((VIABLE_CHOICE) first (Choices))->AdjustFactor)
+#define BestCertainty(Choices)  (((VIABLE_CHOICE) first_node (Choices))->Certainty)
+#define BestRating(Choices) (((VIABLE_CHOICE) first_node (Choices))->Rating)
+#define BestFactor(Choices) (((VIABLE_CHOICE) first_node (Choices))->AdjustFactor)
 
 #define AmbigThreshold(F1,F2)	(((F2) - (F1)) * AmbigThresholdGain - \
 				AmbigThresholdOffset)
@@ -179,7 +179,6 @@ make_float_var (AmbigThresholdOffset, 1.5, MakeAmbigThresholdOffset,
 17, 9, SetAmbigThresholdOffset,
 "Certainty offset for ambiguity threshold");
 
-//extern char *demodir;
 extern int first_pass;
 INT_VAR (tessedit_truncate_wordchoice_log, 10, "Max words to keep in list");
 
@@ -329,7 +328,7 @@ int AlternativeChoicesWorseThan(FLOAT32 Threshold) {
 
   Alternatives = rest (BestChoices);
   iterate(Alternatives) {
-    Choice = (VIABLE_CHOICE) first (Alternatives);
+    Choice = (VIABLE_CHOICE) first_node (Alternatives);
     if (Choice->AdjustFactor <= Threshold)
       return (FALSE);
   }
@@ -353,7 +352,7 @@ int CurrentBestChoiceIs(const char *Word) {
  **	History: Thu May 30 14:44:22 1991, DSJ, Created.
  */
   return (BestChoices != NIL &&
-    StringSameAs (Word, (VIABLE_CHOICE) first (BestChoices)));
+    StringSameAs (Word, (VIABLE_CHOICE) first_node (BestChoices)));
 
 }                                /* CurrentBestChoiceIs */
 
@@ -375,7 +374,7 @@ FLOAT32 CurrentBestChoiceAdjustFactor() {
   if (BestChoices == NIL)
     return (MAX_FLOAT32);
 
-  BestChoice = (VIABLE_CHOICE) first (BestChoices);
+  BestChoice = (VIABLE_CHOICE) first_node (BestChoices);
   return (BestChoice->AdjustFactor);
 
 }                                /* CurrentBestChoiceAdjustFactor */
@@ -416,7 +415,7 @@ void DebugWordChoices() {
 
   if (StopperDebugLevel >= 1 ||
     WordToDebug && BestChoices &&
-  StringSameAs (WordToDebug, (VIABLE_CHOICE) first (BestChoices))) {
+  StringSameAs (WordToDebug, (VIABLE_CHOICE) first_node (BestChoices))) {
     if (BestRawChoice)
       PrintViableChoice (stdout, "\nBest Raw Choice:   ", BestRawChoice);
 
@@ -427,7 +426,7 @@ void DebugWordChoices() {
     iterate(Choices) {
       sprintf (LabelString, "Cooked Choice #%d:  ", i);
       PrintViableChoice (stdout, LabelString,
-        (VIABLE_CHOICE) first (Choices));
+        (VIABLE_CHOICE) first_node (Choices));
       i++;
     }
   }
@@ -448,11 +447,11 @@ void FilterWordChoices() {
  */
   EXPANDED_CHOICE BestChoice;
 
-  if (BestChoices == NIL || second (BestChoices) == NIL)
+  if (BestChoices == NIL || second_node (BestChoices) == NIL)
     return;
 
   /* compute certainties and class for each chunk in best choice */
-  ExpandChoice ((VIABLE_CHOICE_STRUCT *) first (BestChoices), &BestChoice);
+  ExpandChoice ((VIABLE_CHOICE_STRUCT *) first_node (BestChoices), &BestChoice);
 
   set_rest (BestChoices, delete_d (rest (BestChoices),
     &BestChoice, FreeBadChoice));
@@ -501,7 +500,7 @@ FLOAT32 RatingMargin, FLOAT32 Thresholds[]) {
   assert (BestRawChoice != NULL);
 
   ExpandChoice(BestRawChoice, &BestRaw);
-  Choice = (VIABLE_CHOICE) first (BestChoices);
+  Choice = (VIABLE_CHOICE) first_node (BestChoices);
 
   for (i = 0, Chunk = 0; i < Choice->Length; i++, Thresholds++) {
     AvgRating = 0.0;
@@ -661,7 +660,7 @@ void LogNewSplit(int Blob) {
 
   Choices = BestChoices;
   iterate(Choices) {
-    AddNewChunk ((VIABLE_CHOICE) first (Choices), Blob);
+    AddNewChunk ((VIABLE_CHOICE) first_node (Choices), Blob);
   }
 
 }                                /* LogNewSplit */
@@ -707,9 +706,9 @@ FLOAT32 AdjustFactor, float Certainties[]) {
   NewChoice = NULL;
   Choices = BestChoices;
   iterate(Choices) {
-    if (ChoiceSameAs (Choice, (VIABLE_CHOICE) first (Choices)))
+    if (ChoiceSameAs (Choice, (VIABLE_CHOICE) first_node (Choices)))
       if (class_probability (Choice) < BestRating (Choices))
-        NewChoice = (VIABLE_CHOICE) first (Choices);
+        NewChoice = (VIABLE_CHOICE) first_node (Choices);
     else
       return;
   }
@@ -884,7 +883,7 @@ int AmbigsFound(char *Word,
   int bad_length;
 
   iterate(Ambigs) {
-    AmbigSpec = (char *) first (Ambigs);
+    AmbigSpec = (char *) first_node (Ambigs);
     bad_length = 1;
     UnmatchedTail = Tail;
     Matches = TRUE;
@@ -1020,13 +1019,13 @@ AMBIG_TABLE *FillAmbigTable() {
   int i;
   char TestString[256];
   char ReplacementString[256];
-  char name[1024];
+  STRING name;
   char *AmbigSpec;
   int AmbigSize;
 
-  strcpy(name, demodir);
-  strcat(name, DangerousAmbigs);
-  AmbigFile = Efopen (name, "r");
+  name = language_data_path_prefix;
+  name += DangerousAmbigs;
+  AmbigFile = Efopen (name.string(), "r");
   NewTable = (AMBIG_TABLE *) Emalloc (sizeof (LIST) * (MAX_CLASS_ID + 1));
 
   for (i = 0; i <= MAX_CLASS_ID; i++)

@@ -909,6 +909,9 @@ void add_document_word(A_CHOICE *best_choice) {
   string = class_string (best_choice);
   stringlen = strlen (string);
 
+  // Skip if using external dictionary.
+  if (letter_is_okay != &def_letter_is_okay) return;
+
   if (!doc_dict_enable
     || valid_word (string) || CurrentWordAmbig () || stringlen < 2)
     return;
@@ -990,7 +993,7 @@ adjust_non_word (A_CHOICE * best_choice, float certainties[]) {
  * functions.
  **********************************************************************/
 void init_permute() {
-  char name[1024];
+  STRING name;
   make_adjust_debug();
   make_compound_debug();
   make_non_word();
@@ -1002,9 +1005,9 @@ void init_permute() {
   init_permnum();
 
   word_dawg = (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_NUM_EDGES);
-  strcpy(name, demodir);
-  strcat (name, "tessdata/word-dawg");
-  read_squished_dawg(name, word_dawg, MAX_NUM_EDGES);
+  name = language_data_path_prefix;
+  name += "word-dawg";
+  read_squished_dawg(name.string(), word_dawg, MAX_NUM_EDGES);
 
   document_words =
     (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_DOC_EDGES);
@@ -1015,9 +1018,9 @@ void init_permute() {
   initialize_dawg(pending_words, MAX_DOC_EDGES);
 
   user_words = (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_USER_EDGES);
-  strcpy(name, demodir);
-  strcat (name, "tessdata/user-words");
-  read_word_list(name, user_words, MAX_USER_EDGES, USER_RESERVED_EDGES);
+  name = language_data_path_prefix;
+  name += "user-words";
+  read_word_list(name.string(), user_words, MAX_USER_EDGES, USER_RESERVED_EDGES);
   case_sensative = FALSE;
 }
 
@@ -1147,7 +1150,7 @@ A_CHOICE *permute_compound_words(CHOICES_LIST character_choices,
   array_loop(character_choices, x) {
 
     first_choice =
-      (A_CHOICE *) first ((CHOICES) array_value (character_choices, x));
+      (A_CHOICE *) first_node ((CHOICES) array_value (character_choices, x));
 
     ptr = class_string (first_choice);
     char_choice = ptr != NULL ? *ptr : '\0';
@@ -1312,7 +1315,7 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
   array_loop(character_choices, x) {
     if (x + 1 < array_count (character_choices)) {
       char_list = (CHOICES) array_value (character_choices, x + 1);
-      first_choice = (A_CHOICE *) first (char_list);
+      first_choice = (A_CHOICE *) first_node (char_list);
 
       ptr = class_string (first_choice);
       next_char = (ptr != NULL && *ptr != '\0') ? *ptr : ' ';
@@ -1321,7 +1324,7 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
       next_char = '\0';
     if (x + 2 < array_count (character_choices)) {
       char_list = (CHOICES) array_value (character_choices, x + 2);
-      first_choice = (A_CHOICE *) first (char_list);
+      first_choice = (A_CHOICE *) first_node (char_list);
 
       ptr = class_string (first_choice);
       next_next_char = (ptr != NULL && *ptr != '\0') ? *ptr : ' ';
@@ -1330,7 +1333,7 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
       next_next_char = '\0';
 
     char_list = (CHOICES) array_value (character_choices, x);
-    first_choice = (A_CHOICE *) first (char_list);
+    first_choice = (A_CHOICE *) first_node (char_list);
 
     ptr = class_string (first_choice);
     word[x] = (ptr != NULL && *ptr != '\0') ? *ptr : ' ';

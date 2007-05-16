@@ -149,7 +149,7 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
                       INT32 max_num_edges,
                       INT32 reserved_edges);
 
-void initialize_dawg(EDGE_ARRAY dawg, INT32 max_num_edges); 
+void initialize_dawg(EDGE_ARRAY dawg, INT32 max_num_edges);
 
 NODE_REF move_node(EDGE_ARRAY dawg,
                    NODE_REF node,
@@ -161,7 +161,7 @@ NODE_REF new_dawg_node(EDGE_ARRAY dawg,
                        INT32 max_num_edges,
                        INT32 reserved_edges);
 
-void read_word_list(char *filename,
+void read_word_list(const char *filename,
                     EDGE_ARRAY dawg,
                     INT32 max_num_edges,
                     INT32 reserved_edges);
@@ -184,7 +184,7 @@ void remove_edge_linkage(EDGE_ARRAY dawg,
                          char character,
                          INT32 word_end);
 
-INT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node); 
+INT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

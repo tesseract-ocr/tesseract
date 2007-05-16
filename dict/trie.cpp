@@ -81,20 +81,20 @@ void add_edge_linkage(EDGE_ARRAY dawg,
     else {                       /* Backward links */
 
       if (forward_edge (dawg, edge1))
-        edge_loop(dawg, edge1); 
+        edge_loop(dawg, edge1);
 
                                  /* Existing back edges */
       if (backward_edge (dawg,edge1)) {
         num_edges = 0;
         edge2 = edge1;
         do { num_edges++; }
-        edge_loop(dawg, edge2); 
+        edge_loop(dawg, edge2);
 
         if (debug)
           cprintf ("moving edges (nodes = %ld, %ld, num = %ld)\n",
             edge1, edge1+1, num_edges);
         copy_edges (dawg, edge1, edge1+1, num_edges);
-        link_edge(dawg, edge1, node2, character, word_end); 
+        link_edge(dawg, edge1, node2, character, word_end);
       }
       else {                     /* First back edge */
         link_edge  (dawg, edge1, node2,  character,
@@ -124,15 +124,15 @@ void add_new_edge(EDGE_ARRAY dawg,
       *node1, *node2,  character, word_end);
   edge_counter++;
 
-  move_node_if_needed(dawg, *node1, max_num_edges, reserved_edges); 
-  move_node_if_needed(dawg, *node2, max_num_edges, reserved_edges); 
+  move_node_if_needed(dawg, *node1, max_num_edges, reserved_edges);
+  move_node_if_needed(dawg, *node2, max_num_edges, reserved_edges);
 
   direction = (int) FORWARD_EDGE;
 
-  add_edge_linkage(dawg, *node1, *node2, direction, character, word_end); 
+  add_edge_linkage(dawg, *node1, *node2, direction, character, word_end);
 
   direction = (int) BACKWARD_EDGE;
-  add_edge_linkage(dawg, *node2, *node1, direction, character, word_end); 
+  add_edge_linkage(dawg, *node2, *node1, direction, character, word_end);
 }
 
 
@@ -205,10 +205,19 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
  * Initialize the DAWG data structure for further used.  Reset each of
  * the edge cells to NO_EDGE.
  **********************************************************************/
-void initialize_dawg(EDGE_ARRAY dawg, INT32 max_num_edges) { 
+void initialize_dawg(EDGE_ARRAY dawg, INT32 max_num_edges) {
   INT32 x;
 
-  clear_all_edges(dawg, x, max_num_edges); 
+
+   //changed by jetsoft
+  // these values were not getting changes.
+
+  move_counter = 0;
+  new_counter  = 0;
+  edge_counter = 0;
+  // end jetsoft
+
+  clear_all_edges(dawg, x, max_num_edges);
 }
 
 
@@ -226,7 +235,7 @@ NODE_REF move_node(EDGE_ARRAY dawg,
   INT32        num_edges = edges_in_node (dawg, node);
 
   if (debug)
-    print_dawg_node(dawg, node); 
+    print_dawg_node(dawg, node);
 
   this_new_node = new_dawg_node (dawg, num_edges + EDGE_NUM_MARGIN, max_num_edges, reserved_edges);
 
@@ -234,10 +243,10 @@ NODE_REF move_node(EDGE_ARRAY dawg,
     cprintf ("move_node  (from = %ld, to = %ld, num = %ld)\n",
       node, this_new_node, num_edges);
 
-  move_edges(dawg, node, this_new_node, num_edges); 
+  move_edges(dawg, node, this_new_node, num_edges);
 
   if (debug)
-    print_dawg_node(dawg, this_new_node); 
+    print_dawg_node(dawg, this_new_node);
 
   edge = this_new_node;
   if (forward_edge (dawg, edge)) {
@@ -302,7 +311,7 @@ NODE_REF new_dawg_node(EDGE_ARRAY dawg,
  * Read the requested file (containing a list of words) and add all
  * the words to the DAWG.
  **********************************************************************/
-void read_word_list(char *filename,
+void read_word_list(const char *filename,
                     EDGE_ARRAY dawg,
                     INT32 max_num_edges,
                     INT32 reserved_edges) {
@@ -311,12 +320,12 @@ void read_word_list(char *filename,
 
   word_file = open_file (filename, "r");
 
-  initialize_dawg(dawg, max_num_edges); 
+  initialize_dawg(dawg, max_num_edges);
 
   while (fgets (string, CHARS_PER_LINE, word_file) != NULL) {
     string [strlen (string) - 1] = (char) 0;
     if (strlen (string)) {
-      add_word_to_dawg(dawg, string, max_num_edges, reserved_edges); 
+      add_word_to_dawg(dawg, string, max_num_edges, reserved_edges);
 
       if (! word_in_dawg (dawg, string)) {
         cprintf ("error: word not in DAWG after adding it '%s'\n", string);
@@ -324,6 +333,7 @@ void read_word_list(char *filename,
       }
     }
   }
+  fclose(word_file);
 }
 
 
@@ -349,7 +359,7 @@ void relocate_edge(EDGE_ARRAY dawg,
         if (debug)
           cprintf ("forward assign (%ld, %ld ==> %ld)\n", edge, old_node, new_node);
 
-        set_next_edge(dawg, edge, new_node); 
+        set_next_edge(dawg, edge, new_node);
       }
     } edge_loop (dawg, edge);
   }
@@ -360,10 +370,10 @@ void relocate_edge(EDGE_ARRAY dawg,
         if (debug)
           cprintf ("backward assign (%ld, %ld ==> %ld)\n", edge, old_node, new_node);
 
-        set_next_edge(dawg, edge, new_node); 
+        set_next_edge(dawg, edge, new_node);
       }
     }
-    edge_loop(dawg, edge); 
+    edge_loop(dawg, edge);
   }
 }
 
@@ -379,9 +389,9 @@ void remove_edge(EDGE_ARRAY dawg,
                  NODE_REF node2,
                  char character,
                  INT32 word_end) {
-  remove_edge_linkage(dawg, node1, node2, FORWARD_EDGE, character, word_end); 
+  remove_edge_linkage(dawg, node1, node2, FORWARD_EDGE, character, word_end);
 
-  remove_edge_linkage(dawg, node2, node1, BACKWARD_EDGE, character, word_end); 
+  remove_edge_linkage(dawg, node2, node1, BACKWARD_EDGE, character, word_end);
 }
 
 
@@ -419,7 +429,7 @@ void remove_edge_linkage(EDGE_ARRAY dawg,
 
       /* Delete the slot */
       last_flag = last_edge (dawg, e);
-      set_empty_edge(dawg, e); 
+      set_empty_edge(dawg, e);
       move_edges (dawg, e+1, e, num_edges+node-e-1);
       /* Restore 'last' flag */
       if (direction == FORWARD_EDGE) {
@@ -435,12 +445,12 @@ void remove_edge_linkage(EDGE_ARRAY dawg,
         }
       }
       if (debug)
-        print_dawg_node(dawg, node); 
+        print_dawg_node(dawg, node);
       return;
     }
   }
   cprintf ("error: Could not find the edge to remove, %d\n", next);
-  print_dawg_node(dawg, node); 
+  print_dawg_node(dawg, node);
   exit (1);
 }
 
@@ -451,7 +461,7 @@ void remove_edge_linkage(EDGE_ARRAY dawg,
  * Check to see if there is enough room left in this node for one more
  * edge link.  This may be a forward or backward link.
  **********************************************************************/
-INT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node) { 
+INT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node) {
   EDGE_REF   edge = node;
 
   if (edge_occupied (dawg, edge + edges_in_node (dawg, node))) {
