@@ -1,3 +1,18 @@
+Tesseract release notes May 15, 2007 - V1.04.
+Added a dll interface for windows. Thanks to Glen at Jetsoft for contributing
+this. To use the dll, include tessdll.h, import tessdll.lib and put tessdll.dll
+somewhere where the system can find it.
+Fixed a bunch of name collisions - mostly with stl.
+Made some preliminary changes for unicode compatibility. Includes a new data
+file (unicharset) and renaming of the other data files to eng.* to support
+different languages.
+There are also several other minor bug fixes and portability improvements
+for 64 bit, the latest visual studio compiler etc. Thanks to all who have
+contributed these fixes.
+
+NOTE: This is likely to be the last English-only release!
+
+
 Tesseract release notes Feb 2, 2007 - V1.03.
 Added mftraining and cntraining. Using an image with a box file, tesseract
 generates .tr output files. cntraining runs on the .tr files to make

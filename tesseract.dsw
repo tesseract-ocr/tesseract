@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "cnTraining"=.\training\cnTraining.dsp - Package Owner=<4>
+Project: "cnTraining"=".\training\cnTraining.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "mfTraining"=.\training\mfTraining.dsp - Package Owner=<4>
+Project: "mfTraining"=".\training\mfTraining.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,7 +27,19 @@ Package=<4>
 
 ###############################################################################
 
-Project: "tesseract"=.\tesseract.dsp - Package Owner=<4>
+Project: "tessdll"=".\tessdll.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "tesseract"=".\tesseract.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{

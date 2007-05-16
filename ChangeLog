@@ -17,4 +17,8 @@ Feb 2 2007 - V1.03
           Added ifdefs to eliminate graphics code and add embedded platform support.
           Incorporated several patches, including 64-bit builds, Mac builds.
           Minor accuracy improvements.
-
+May 15 2007 - V1.04
+          Added dll exports for Windows.
+          Fixed name collisions with stl etc.
+          Made some preliminary changes ready for unicodeization.
+          Several bug fixes discovered during unicodeization.

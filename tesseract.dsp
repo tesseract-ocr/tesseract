@@ -39,7 +39,8 @@ RSC=rc.exe
 # PROP Use_MFC 2
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "bin.rel"
-# PROP Intermediate_Dir "Release"
+# PROP Intermediate_Dir "tess.Release"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I "aspirin" /I "ccutil" /I "ccstruct" /I "classify" /I "cutil" /I "dict" /I "display" /I "image" /I "textord" /I "viewer" /I "wordrec" /I "." /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "__MSW32__" /D "_AFXDLL" /Yu"mfcpch.h" /FD /c
@@ -52,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 /nologo /subsystem:windows /machine:I386
+# ADD LINK32 ws2_32.lib /nologo /subsystem:windows /machine:I386 /out:"tesseract.exe"
 
 !ELSEIF  "$(CFG)" == "tesseract - Win32 Debug"
 
@@ -64,7 +65,8 @@ LINK32=link.exe
 # PROP Use_MFC 2
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "bin.dbg"
-# PROP Intermediate_Dir "Debug"
+# PROP Intermediate_Dir "tess.Debug"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "aspirin" /I "ccutil" /I "ccstruct" /I "classify" /I "cutil" /I "dict" /I "display" /I "image" /I "textord" /I "viewer" /I "wordrec" /I "." /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "__MSW32__" /D "_AFXDLL" /Yu"mfcpch.h" /FD /GZ /c
@@ -77,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 ws2_32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 
 !ENDIF 
 
@@ -366,10 +368,6 @@ SOURCE=.\ccutil\errcode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ccutil\getopt.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ccutil\globaloc.cpp
 # End Source File
 # Begin Source File
@@ -407,7 +405,21 @@ SOURCE=.\ccutil\strngs.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ccutil\tessopt.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccutil\tprintf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccutil\unicharmap.cpp
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccutil\unicharset.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -1033,6 +1045,10 @@ SOURCE=.\ccmain\applybox.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ccmain\baseapi.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccmain\blobcmp.h
 # End Source File
 # Begin Source File
@@ -1077,6 +1093,10 @@ SOURCE=.\ccmain\matmatch.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ccmain\output.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccmain\paircmp.h
 # End Source File
 # Begin Source File
@@ -1094,6 +1114,14 @@ SOURCE=.\ccmain\tessbox.h
 # Begin Source File
 
 SOURCE=.\ccmain\tessedit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccmain\tessembedded.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccmain\tesseractmain.h
 # End Source File
 # Begin Source File
 
@@ -1301,6 +1329,10 @@ SOURCE=.\ccutil\clst.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\cutil\cutil.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccutil\debugwin.h
 # End Source File
 # Begin Source File
@@ -1318,10 +1350,6 @@ SOURCE=.\ccutil\errcode.h
 # Begin Source File
 
 SOURCE=.\ccutil\fileerr.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ccutil\getopt.h
 # End Source File
 # Begin Source File
 
@@ -1389,6 +1417,10 @@ SOURCE=.\ccutil\platform.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ccutil\scanutils.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccutil\secname.h
 # End Source File
 # Begin Source File
@@ -1405,7 +1437,23 @@ SOURCE=.\ccutil\strngs.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ccutil\tessopt.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccutil\tprintf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccutil\unichar.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccutil\unicharmap.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccutil\unicharset.h
 # End Source File
 # Begin Source File
 
@@ -1661,6 +1709,10 @@ SOURCE=.\dict\hyphen.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\dict\matchdefs.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\dict\permdawg.h
 # End Source File
 # Begin Source File
@@ -1706,6 +1758,14 @@ SOURCE=.\display\pgeditx.h
 # Begin Source File
 
 SOURCE=.\display\sbdmenu.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\display\submen.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\display\tessio.h
 # End Source File
 # Begin Source File
 
@@ -2020,10 +2080,6 @@ SOURCE=.\wordrec\wordclass.h
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\ccmain\tesseractmain.h
-# End Source File
 # End Group
 # Begin Group "Resource Files"
 

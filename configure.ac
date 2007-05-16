@@ -7,7 +7,7 @@
 # ----------------------------------------
 
 AC_PREREQ(2.50)
-AC_INIT(Tesseract, 1.03, theraysmith@users.sourceforge.net)
+AC_INIT(Tesseract, 1.04, theraysmith@gmail.com)
 AC_REVISION($Id: configure.ac,v 1.4 2007/02/02 22:38:17 theraysmith Exp $)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(ccmain/tesseractmain.cpp)
@@ -17,8 +17,8 @@ AC_CANONICAL_HOST
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
-PACKAGE_YEAR=2006
-PACKAGE_DATE="06/2006"
+PACKAGE_YEAR=2007
+PACKAGE_DATE="05/2007"
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
