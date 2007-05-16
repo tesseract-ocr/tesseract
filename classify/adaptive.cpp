@@ -69,7 +69,7 @@ int AddAdaptedClass(ADAPT_TEMPLATES Templates,
 
 
 /*---------------------------------------------------------------------------*/
-void FreeTempConfig(TEMP_CONFIG Config) { 
+void FreeTempConfig(TEMP_CONFIG Config) {
 /*
  **	Parameters:
  **		Config	config to be freed
@@ -90,7 +90,7 @@ void FreeTempConfig(TEMP_CONFIG Config) {
 
 
 /*---------------------------------------------------------------------------*/
-void FreeTempProto(void *arg) { 
+void FreeTempProto(void *arg) {
   PROTO proto = (PROTO) arg;
 
   c_free_struct (proto, sizeof (TEMP_PROTO_STRUCT), "TEMP_PROTO_STRUCT");
@@ -98,7 +98,7 @@ void FreeTempProto(void *arg) {
 
 
 /*---------------------------------------------------------------------------*/
-ADAPT_CLASS NewAdaptedClass() { 
+ADAPT_CLASS NewAdaptedClass() {
 /*
  **	Parameters: none
  **	Globals: none
@@ -129,7 +129,7 @@ ADAPT_CLASS NewAdaptedClass() {
 
 
 /*-------------------------------------------------------------------------*/
-void free_adapted_class(ADAPT_CLASS adapt_class) { 
+void free_adapted_class(ADAPT_CLASS adapt_class) {
   int i;
 
   for (i = 0; i < MAX_NUM_CONFIGS; i++) {
@@ -143,12 +143,12 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
   FreeBitVector (adapt_class->PermProtos);
   FreeBitVector (adapt_class->PermConfigs);
   destroy_nodes (adapt_class->TempProtos, FreeTempProto);
-  Efree(adapt_class); 
+  Efree(adapt_class);
 }
 
 
 /*---------------------------------------------------------------------------*/
-ADAPT_TEMPLATES NewAdaptedTemplates() { 
+ADAPT_TEMPLATES NewAdaptedTemplates() {
 /*
  **	Parameters: none
  **	Globals: none
@@ -174,20 +174,20 @@ ADAPT_TEMPLATES NewAdaptedTemplates() {
 
 
 /*-------------------------------------------------------------------------------*/
-void free_adapted_templates(ADAPT_TEMPLATES templates) { 
+void free_adapted_templates(ADAPT_TEMPLATES templates) {
 
   if (templates != NULL) {
     int i;
     for (i = 0; i < NumClassesIn (templates->Templates); i++)
       free_adapted_class (templates->Class[i]);
     free_int_templates (templates->Templates);
-    Efree(templates); 
+    Efree(templates);
   }
 }
 
 
 /*---------------------------------------------------------------------------*/
-TEMP_CONFIG NewTempConfig(int MaxProtoId) { 
+TEMP_CONFIG NewTempConfig(int MaxProtoId) {
 /*
  **	Parameters:
  **		MaxProtoId	max id of any proto in new config
@@ -218,7 +218,7 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId) {
 
 
 /*---------------------------------------------------------------------------*/
-TEMP_PROTO NewTempProto() { 
+TEMP_PROTO NewTempProto() {
 /*
  **	Parameters: none
  **	Globals: none
@@ -233,7 +233,7 @@ TEMP_PROTO NewTempProto() {
 
 
 /*---------------------------------------------------------------------------*/
-void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) { 
+void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
 /*
  **	Parameters:
  **		File		open text file to print Templates to
@@ -273,7 +273,7 @@ void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
 
 
 /*---------------------------------------------------------------------------*/
-ADAPT_CLASS ReadAdaptedClass(FILE *File) { 
+ADAPT_CLASS ReadAdaptedClass(FILE *File) {
 /*
  **	Parameters:
  **		File	open file to read adapted class from
@@ -327,7 +327,7 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
 
 
 /*---------------------------------------------------------------------------*/
-ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File) { 
+ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File) {
 /*
  **	Parameters:
  **		File	open text file to read adapted templates from
@@ -358,7 +358,7 @@ ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File) {
 
 
 /*---------------------------------------------------------------------------*/
-PERM_CONFIG ReadPermConfig(FILE *File) { 
+PERM_CONFIG ReadPermConfig(FILE *File) {
 /*
  **	Parameters:
  **		File	open file to read permanent config from
@@ -383,7 +383,7 @@ PERM_CONFIG ReadPermConfig(FILE *File) {
 
 
 /*---------------------------------------------------------------------------*/
-TEMP_CONFIG ReadTempConfig(FILE *File) { 
+TEMP_CONFIG ReadTempConfig(FILE *File) {
 /*
  **	Parameters:
  **		File	open file to read temporary config from
@@ -411,7 +411,7 @@ TEMP_CONFIG ReadTempConfig(FILE *File) {
 
 
 /*---------------------------------------------------------------------------*/
-void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) { 
+void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
 /*
  **	Parameters:
  **		File		open file to write Class to
@@ -442,7 +442,7 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
   fwrite ((char *) &NumTempProtos, sizeof (int), 1, File);
   TempProtos = Class->TempProtos;
   iterate (TempProtos) {
-    void* proto = first(TempProtos);
+    void* proto = first_node(TempProtos);
     fwrite ((char *) proto, sizeof (TEMP_PROTO_STRUCT), 1, File);
   }
 
@@ -458,7 +458,7 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
 
 
 /*---------------------------------------------------------------------------*/
-void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) { 
+void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
 /*
  **	Parameters:
  **		File		open text file to write Templates to
@@ -487,7 +487,7 @@ void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
 
 
 /*---------------------------------------------------------------------------*/
-void WritePermConfig(FILE *File, PERM_CONFIG Config) { 
+void WritePermConfig(FILE *File, PERM_CONFIG Config) {
 /*
  **	Parameters:
  **		File	open file to write Config to
@@ -511,7 +511,7 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
 
 
 /*---------------------------------------------------------------------------*/
-void WriteTempConfig(FILE *File, TEMP_CONFIG Config) { 
+void WriteTempConfig(FILE *File, TEMP_CONFIG Config) {
 /*
  **	Parameters:
  **		File	open file to write Config to

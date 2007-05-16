@@ -60,7 +60,7 @@ void NormalizeOutlineX
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob, LINE_STATS *LineStats) { 
+FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 /*
  **	Parameters:
  **		Blob		blob to extract pico-features from
@@ -85,10 +85,10 @@ FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 
   Outlines = ConvertBlob (Blob);
 
-  NormalizeOutlines(Outlines, LineStats, &XScale, &YScale); 
+  NormalizeOutlines(Outlines, LineStats, &XScale, &YScale);
   RemainingOutlines = Outlines;
-  iterate(RemainingOutlines) { 
-    Outline = (MFOUTLINE) first (RemainingOutlines);
+  iterate(RemainingOutlines) {
+    Outline = (MFOUTLINE) first_node (RemainingOutlines);
     /*---------Debug--------------------------------------------------*
     OFile = fopen ("f:/ims/debug/ofOutline.logCPP", "r");
     if (OFile == NULL)
@@ -104,10 +104,10 @@ FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
     WriteOutline(OFile, Outline);
     fclose (OFile);
     *--------------------------------------------------------------------*/
-    ConvertToOutlineFeatures(Outline, FeatureSet); 
+    ConvertToOutlineFeatures(Outline, FeatureSet);
   }
   if (NormMethod == baseline)
-    NormalizeOutlineX(FeatureSet); 
+    NormalizeOutlineX(FeatureSet);
   /*---------Debug--------------------------------------------------*
   File = fopen ("f:/ims/debug/ofFeatSet.logCPP", "r");
   if (File == NULL)
@@ -123,13 +123,13 @@ FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   WriteFeatureSet(File, FeatureSet);
   fclose (File);
   *--------------------------------------------------------------------*/
-  FreeOutlines(Outlines); 
+  FreeOutlines(Outlines);
   return (FeatureSet);
 }                                /* ExtractOutlineFeatures */
 
 
 /*---------------------------------------------------------------------------*/
-void InitOutlineFXVars() { 
+void InitOutlineFXVars() {
                                  //once contained a dummy
 /*
  **	Parameters: none
@@ -174,13 +174,13 @@ void AddOutlineFeatureToSet(FPOINT *Start,
   ParamOf (Feature, OutlineFeatX) = AverageOf (Xof (*Start), Xof (*End));
   ParamOf (Feature, OutlineFeatY) = AverageOf (Yof (*Start), Yof (*End));
   ParamOf (Feature, OutlineFeatLength) = DistanceBetween (*Start, *End);
-  AddFeature(FeatureSet, Feature); 
+  AddFeature(FeatureSet, Feature);
 
 }                                /* AddOutlineFeatureToSet */
 
 
 /*---------------------------------------------------------------------------*/
-void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) { 
+void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
 /*
  **	Parameters:
  **		Outline		outline to extract outline-features from
@@ -216,7 +216,7 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
        starting point for that edge. */
     if (IsVisible (PointAt (Next))) {
       CopyPoint (PositionOf (PointAt (Next)), FeatureEnd);
-      AddOutlineFeatureToSet(&FeatureStart, &FeatureEnd, FeatureSet); 
+      AddOutlineFeatureToSet(&FeatureStart, &FeatureEnd, FeatureSet);
     }
   }
   while (Next != First);
@@ -224,7 +224,7 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
 
 
 /*---------------------------------------------------------------------------*/
-void NormalizeOutlineX(FEATURE_SET FeatureSet) { 
+void NormalizeOutlineX(FEATURE_SET FeatureSet) {
 /*
  **	Parameters:
  **		FeatureSet	outline-features to be normalized

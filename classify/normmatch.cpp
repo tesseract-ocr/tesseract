@@ -32,7 +32,7 @@
 #include <math.h>
 
 /* define default filenames for training data */
-#define NORM_PROTO_FILE   "tessdata/normproto"
+#define NORM_PROTO_FILE   "normproto"
 
 typedef struct
 {
@@ -70,7 +70,6 @@ make_float_var (NormAdjMidpoint, 32.0, MakeNormAdjMidpoint,
 15, 16, SetNormAdjMidpoint, "Norm adjust midpoint ...")
 make_float_var (NormAdjCurl, 2.0, MakeNormAdjCurl,
 15, 17, SetNormAdjCurl, "Norm adjust curl ...")
-//extern char *demodir;
 /**----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------**/
@@ -119,7 +118,7 @@ FLOAT32 ComputeNormMatch(CLASS_ID ClassId, FEATURE Feature, BOOL8 DebugMatch) {
 
   ProtoId = 0;
   iterate(Protos) {
-    Proto = (PROTOTYPE *) first (Protos);
+    Proto = (PROTOTYPE *) first_node (Protos);
     Delta = ParamOf (Feature, CharNormY) - Proto->Mean[CharNormY];
     Match = Delta * Delta * Proto->Weight.Elliptical[CharNormY];
     Delta = ParamOf (Feature, CharNormRx) - Proto->Mean[CharNormRx];
@@ -157,11 +156,11 @@ void GetNormProtos() {
  **	History: Wed Dec 19 16:24:25 1990, DSJ, Created.
  */
   FILE *File;
-  char name[1024];
+  STRING name;
 
-  strcpy(name, demodir);
-  strcat(name, NormProtoFile);
-  File = Efopen (name, "r");
+  name = language_data_path_prefix;
+  name += NormProtoFile;
+  File = Efopen (name.string(), "r");
   NormProtos = ReadNormProtos (File);
   fclose(File);
 

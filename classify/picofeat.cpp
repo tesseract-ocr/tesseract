@@ -41,9 +41,9 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
                               FPOINT *End,
                               FEATURE_SET FeatureSet);
 
-void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet); 
+void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet);
 
-void NormalizePicoX(FEATURE_SET FeatureSet); 
+void NormalizePicoX(FEATURE_SET FeatureSet);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)
@@ -76,7 +76,7 @@ void NormalizePicoX
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) { 
+FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 /*
  **	Parameters:
  **		Blob		blob to extract pico-features from
@@ -98,10 +98,10 @@ FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 
   Outlines = ConvertBlob (Blob);
 
-  NormalizeOutlines(Outlines, LineStats, &XScale, &YScale); 
+  NormalizeOutlines(Outlines, LineStats, &XScale, &YScale);
   RemainingOutlines = Outlines;
-  iterate(RemainingOutlines) { 
-    Outline = (MFOUTLINE) first (RemainingOutlines);
+  iterate(RemainingOutlines) {
+    Outline = (MFOUTLINE) first_node (RemainingOutlines);
     /*---------Debug--------------------------------------------------*
     OFile = fopen ("f:/ims/debug/pfOutline.logCPP", "r");
     if (OFile == NULL)
@@ -117,10 +117,10 @@ FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
     WriteOutline(OFile, Outline);
     fclose (OFile);
     *--------------------------------------------------------------------*/
-    ConvertToPicoFeatures2(Outline, FeatureSet); 
+    ConvertToPicoFeatures2(Outline, FeatureSet);
   }
   if (NormMethod == baseline)
-    NormalizePicoX(FeatureSet); 
+    NormalizePicoX(FeatureSet);
   /*---------Debug--------------------------------------------------*
   File = fopen ("f:/ims/debug/pfFeatSet.logCPP", "r");
   if (File == NULL)
@@ -136,14 +136,14 @@ FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   WriteFeatureSet(File, FeatureSet);
   fclose (File);
   *--------------------------------------------------------------------*/
-  FreeOutlines(Outlines); 
+  FreeOutlines(Outlines);
   return (FeatureSet);
 
 }                                /* ExtractPicoFeatures */
 
 
 /*---------------------------------------------------------------------------*/
-void InitPicoFXVars() { 
+void InitPicoFXVars() {
 /*
  **	Parameters: none
  **	Globals:
@@ -156,10 +156,10 @@ void InitPicoFXVars() {
  */
 
 	VALUE dummy;
-	
+
 	float_variable (PicoFeatureLength, "PicoFeatureLength",
 		PICO_FEATURE_LENGTH);
-	
+
 }														/* InitPicoFXVars */
 
 /**----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
     ParamOf (Feature, PicoFeatDir) = Angle;
     ParamOf (Feature, PicoFeatX) = Xof (Center);
     ParamOf (Feature, PicoFeatY) = Yof (Center);
-    AddFeature(FeatureSet, Feature); 
+    AddFeature(FeatureSet, Feature);
 
     Xof (Center) += Xof (Delta);
     Yof (Center) += Yof (Delta);
@@ -222,7 +222,7 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
 
 
 /*---------------------------------------------------------------------------*/
-void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) { 
+void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
 /*
  **	Parameters:
  **		Outline		outline to extract micro-features from
@@ -267,7 +267,7 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
 
 
 /*---------------------------------------------------------------------------*/
-void NormalizePicoX(FEATURE_SET FeatureSet) { 
+void NormalizePicoX(FEATURE_SET FeatureSet) {
 /*
  **	Parameters:
  **		FeatureSet	pico-features to be normalized

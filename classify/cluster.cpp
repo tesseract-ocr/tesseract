@@ -551,7 +551,7 @@ void FreeClusterer(CLUSTERER *Clusterer) {
     if (Clusterer->Root != NULL)
       FreeCluster (Clusterer->Root);
     iterate (Clusterer->ProtoList) {
-      ((PROTOTYPE *) (first (Clusterer->ProtoList)))->Cluster = NULL;
+      ((PROTOTYPE *) (first_node (Clusterer->ProtoList)))->Cluster = NULL;
     }
     memfree(Clusterer);
   }
@@ -629,7 +629,7 @@ CLUSTER *NextSample(LIST *SearchState) {
 
   if (*SearchState == NIL)
     return (NULL);
-  Cluster = (CLUSTER *) first (*SearchState);
+  Cluster = (CLUSTER *) first_node (*SearchState);
   *SearchState = pop (*SearchState);
   while (TRUE) {
     if (Cluster->Left == NULL)
@@ -971,7 +971,7 @@ void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
     // remove the next cluster to be analyzed from the stack
     // try to make a prototype from the cluster
     // if successful, put it on the proto list, else split the cluster
-    Cluster = (CLUSTER *) first (ClusterStack);
+    Cluster = (CLUSTER *) first_node (ClusterStack);
     ClusterStack = pop (ClusterStack);
     Prototype = MakePrototype (Clusterer, Config, Cluster);
     if (Prototype != NULL) {
@@ -1709,7 +1709,7 @@ BUCKETS *GetBuckets(DISTRIBUTION Distribution,
 
   // search for an old bucket structure with the same number of buckets
   NumberOfBuckets = OptimumNumberOfBuckets (SampleCount);
-  Buckets = (BUCKETS *) first (search (OldBuckets[(int) Distribution],
+  Buckets = (BUCKETS *) first_node (search (OldBuckets[(int) Distribution],
     &NumberOfBuckets, NumBucketsMatch));
 
   // if a matching bucket structure is found, delete it from the list
@@ -1922,7 +1922,7 @@ ComputeChiSquared (UINT16 DegreesOfFreedom, FLOAT64 Alpha)
      for the specified number of degrees of freedom.  Search the list for
      the desired chi-squared. */
   SearchKey.Alpha = Alpha;
-  OldChiSquared = (CHISTRUCT *) first (search (ChiWith[DegreesOfFreedom],
+  OldChiSquared = (CHISTRUCT *) first_node (search (ChiWith[DegreesOfFreedom],
     &SearchKey, AlphaMatch));
 
   if (OldChiSquared == NULL) {
@@ -2782,5 +2782,3 @@ double InvertMatrix(const float* input, int size, float* inv) {
   }
   return error_sum;
 }
-
-

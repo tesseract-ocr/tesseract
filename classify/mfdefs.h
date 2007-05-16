@@ -56,12 +56,12 @@ typedef FLOAT32 *MICROFEATURE;
 #define SecondBulgeOf(M)  ( (M)[SECONDBULGE] )
 
 /* macros for accessing micro-feature lists */
-#define NextFeatureOf(L)  ( (MICROFEATURE) first( L ) )
+#define NextFeatureOf(L)  ( (MICROFEATURE) first_node ( L ) )
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-MICROFEATURE NewMicroFeature(); 
+MICROFEATURE NewMicroFeature();
 
-void FreeMicroFeatures(MICROFEATURES MicroFeatures); 
+void FreeMicroFeatures(MICROFEATURES MicroFeatures);
 #endif

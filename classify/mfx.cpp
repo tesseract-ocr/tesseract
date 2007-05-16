@@ -158,14 +158,14 @@ CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 
   if (Blob != NULL) {
     Outlines = ConvertBlob (Blob);
-//    NormalizeOutlines(Outlines, LineStats, &XScale, &YScale); 
+//    NormalizeOutlines(Outlines, LineStats, &XScale, &YScale);
     ExtractIntFeat(Blob, blfeatures, cnfeatures, &results);
     XScale = 0.2f / results.Ry;
     YScale = 0.2f / results.Rx;
 
     RemainingOutlines = Outlines;
-    iterate(RemainingOutlines) { 
-      Outline = (MFOUTLINE) first (RemainingOutlines);
+    iterate(RemainingOutlines) {
+      Outline = (MFOUTLINE) first_node (RemainingOutlines);
       CharNormalizeOutline (Outline,
         results.Xmean, results.Ymean,
         XScale, YScale);
@@ -173,7 +173,7 @@ CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 
     RemainingOutlines = Outlines;
     iterate(RemainingOutlines) {
-      Outline = (MFOUTLINE) first (RemainingOutlines);
+      Outline = (MFOUTLINE) first_node (RemainingOutlines);
       FindDirectionChanges(Outline, MinSlope, MaxSlope);
       FilterEdgeNoise(Outline, NoiseSegmentLength);
       MarkDirectionChanges(Outline);

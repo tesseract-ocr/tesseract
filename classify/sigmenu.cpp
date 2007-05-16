@@ -44,7 +44,7 @@ static LIST SignalMenus[NSIG];   /* must be initialized to NIL */
 /**----------------------------------------------------------------------------
           Private Function Prototypes
 ----------------------------------------------------------------------------**/
-void MainSignalHandler(int Signal); 
+void MainSignalHandler(int Signal);
 
 SIG_MENU_ITEM *NewSignalMenuItem (int ItemNum,
 const char ItemLabel[], int_void ItemFunc);
@@ -97,7 +97,7 @@ int ItemNum, const char ItemLabel[], int_void ItemFunc) {
   SignalMenus[Signal] = s_adjoin (SignalMenus[Signal], NewItem, ItemCompare);
 
   /* set up the trap for the appropriate signal */
-  signal(Signal, MainSignalHandler); 
+  signal(Signal, MainSignalHandler);
   #endif
   #endif
 }                                /* AddSignalMenuItem */
@@ -107,7 +107,7 @@ int ItemNum, const char ItemLabel[], int_void ItemFunc) {
               Private Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-void MainSignalHandler(int Signal) { 
+void MainSignalHandler(int Signal) {
 /*
  **	Parameters:
  **		Signal		signal that caused this function to be called
@@ -135,8 +135,8 @@ void MainSignalHandler(int Signal) {
     cprintf ("0. Resume normal operation\n");
 
     Items = SignalMenus[Signal];
-    iterate(Items) { 
-      MenuItem = (SIG_MENU_ITEM *) first (Items);
+    iterate(Items) {
+      MenuItem = (SIG_MENU_ITEM *) first_node (Items);
       cprintf ("%d. %s\n", MenuItem->ItemNum, MenuItem->ItemLabel);
     }
     cprintf ("\nEnter Selection: ");
@@ -151,14 +151,14 @@ void MainSignalHandler(int Signal) {
     }
 
     if (Command == 0)
-      signal(Signal, MainSignalHandler); 
+      signal(Signal, MainSignalHandler);
 
     Items = SignalMenus[Signal];
-    iterate(Items) { 
-      MenuItem = (SIG_MENU_ITEM *) first (Items);
+    iterate(Items) {
+      MenuItem = (SIG_MENU_ITEM *) first_node (Items);
       if (Command == MenuItem->ItemNum) {
         if ((*MenuItem->ItemFunc) ( /*Params */ ) == SIG_RESUME)
-          signal(Signal, MainSignalHandler); 
+          signal(Signal, MainSignalHandler);
         break;
       }
     }

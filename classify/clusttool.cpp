@@ -43,7 +43,7 @@ Return:		Sample size
 Exceptions:	ILLEGALSAMPLESIZE	illegal format or range
 History:	6/6/89, DSJ, Created.
 ******************************************************************************/
-UINT16 ReadSampleSize(FILE *File) { 
+UINT16 ReadSampleSize(FILE *File) {
   int SampleSize;
 
   if ((fscanf (File, "%d", &SampleSize) != 1) ||
@@ -65,11 +65,11 @@ Exceptions:	ILLEGALCIRCULARSPEC
       ILLEGALMINMAXSPEC
 History:	6/6/89, DSJ, Created.
 ******************************************************************************/
-PARAM_DESC *ReadParamDesc(FILE *File, UINT16 N) { 
+PARAM_DESC *ReadParamDesc(FILE *File, UINT16 N) {
   int i;
   PARAM_DESC *ParamDesc;
   char Token[TOKENSIZE];
-  
+
   ParamDesc = (PARAM_DESC *) Emalloc (N * sizeof (PARAM_DESC));
   for (i = 0; i < N; i++) {
     if (fscanf (File, "%s", Token) != 1)
@@ -80,7 +80,7 @@ PARAM_DESC *ReadParamDesc(FILE *File, UINT16 N) {
     else
       ParamDesc[i].Circular = FALSE;
 
-    if (fscanf (File, "%s", Token) != 1) 
+    if (fscanf (File, "%s", Token) != 1)
       DoError (ILLEGALESSENTIALSPEC,
         "Illegal essential/non-essential spec");
     if (Token[0] == 'e')
@@ -112,7 +112,7 @@ Exceptions:	ILLEGALSIGNIFICANCESPEC
       ILLEGALDISTRIBUTION
 History:	6/6/89, DSJ, Created.
 ******************************************************************************/
-PROTOTYPE *ReadPrototype(FILE *File, UINT16 N) { 
+PROTOTYPE *ReadPrototype(FILE *File, UINT16 N) {
   char Token[TOKENSIZE];
   int Status;
   PROTOTYPE *Proto;
@@ -144,7 +144,7 @@ PROTOTYPE *ReadPrototype(FILE *File, UINT16 N) {
         Proto->Magnitude.Spherical =
           1.0 / sqrt ((double) (2.0 * PI * Proto->Variance.Spherical));
         Proto->TotalMagnitude =
-          pow (Proto->Magnitude.Spherical, (double) N);
+          pow (Proto->Magnitude.Spherical, (float) N);
         Proto->LogMagnitude = log ((double) Proto->TotalMagnitude);
         Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
         Proto->Distrib = NULL;
@@ -239,7 +239,7 @@ Return:		Prototype style read from text file
 Exceptions:	ILLEGALSTYLESPEC	illegal prototype style specification
 History:	6/8/89, DSJ, Created.
 *******************************************************************************/
-PROTOSTYLE ReadProtoStyle(FILE *File) { 
+PROTOSTYLE ReadProtoStyle(FILE *File) {
   char Token[TOKENSIZE];
   PROTOSTYLE Style;
 
@@ -343,7 +343,7 @@ Return:		None
 Exceptions:	None
 History:	6/12/89, DSJ, Created.
 *******************************************************************************/
-void WritePrototype(FILE *File, UINT16 N, PROTOTYPE *Proto) { 
+void WritePrototype(FILE *File, UINT16 N, PROTOTYPE *Proto) {
   int i;
 
   if (Proto->Significant)
@@ -413,7 +413,7 @@ Return:		None
 Exceptions:	None
 History:	6/8/89, DSJ, Created.
 ****************************************************************************/
-void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) { 
+void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
   switch (ProtoStyle) {
     case spherical:
       fprintf (File, "spherical");
@@ -438,7 +438,7 @@ void WriteProtoList(
      LIST	ProtoList,
      BOOL8	WriteSigProtos,
      BOOL8	WriteInsigProtos)
-     
+
 /*
 **	Parameters:
 **		File		open text file to write prototypes to
@@ -464,7 +464,7 @@ void WriteProtoList(
 
 {
   PROTOTYPE	*Proto;
-  
+
   /* write file header */
   fprintf(File,"%0d\n",N);
   WriteParamDesc(File,N,ParamDesc);
@@ -472,7 +472,7 @@ void WriteProtoList(
   /* write prototypes */
   iterate(ProtoList)
     {
-      Proto = (PROTOTYPE *) first ( ProtoList );
+      Proto = (PROTOTYPE *) first_node ( ProtoList );
       if (( Proto->Significant && WriteSigProtos )	||
 	  ( ! Proto->Significant && WriteInsigProtos ) )
 	WritePrototype( File, N, Proto );
@@ -489,8 +489,8 @@ Return:		Uniform random number
 Exceptions:	None
 History:	6/6/89, DSJ, Created.
 *******************************************************************************/
-FLOAT32 UniformRandomNumber(FLOAT32 MMin, FLOAT32 MMax) { 
-  double fake_drand48(); 
+FLOAT32 UniformRandomNumber(FLOAT32 MMin, FLOAT32 MMax) {
+  double fake_drand48();
   FLOAT32 RandomNumber;
 
   RandomNumber = fake_drand48 ();
@@ -502,6 +502,6 @@ FLOAT32 UniformRandomNumber(FLOAT32 MMin, FLOAT32 MMax) {
 Cheap replacement for drand48 which is not available on the PC.
 **********************************************************************/
 
-double fake_drand48() { 
+double fake_drand48() {
   return rand () / (RAND_MAX + 1.0);
 }
