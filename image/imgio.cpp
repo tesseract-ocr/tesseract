@@ -98,7 +98,7 @@ static INT8 name_to_image_type(                  //get image type
   for (type = 0; type < MAXIMAGETYPES && strcmp (imagetypes[type].string, nametype); type++);
   if (type >= MAXIMAGETYPES) {
                                  //unrecognized type
-    BADIMAGETYPE.error ("name_to_image_type", LOG, name);
+    BADIMAGETYPE.error ("name_to_image_type", TESSLOG, name);
     return -1;
   }
   return type;
@@ -121,7 +121,7 @@ INT8 IMAGE::read_header(                  //get file header
                                  //get type
   type = name_to_image_type (name);
   if (type < 0 || imagetypes[type].opener == NULL) {
-    CANTREADIMAGETYPE.error ("IMAGE::read_header", LOG, name);
+    CANTREADIMAGETYPE.error ("IMAGE::read_header", TESSLOG, name);
     return -1;                   //read not supported
   }
   #ifdef __UNIX__
@@ -131,7 +131,7 @@ INT8 IMAGE::read_header(                  //get file header
     if ((fd = open (name, O_RDONLY | O_BINARY)) < 0)
   #endif
   {
-    CANTOPENFILE.error ("IMAGE::read_header", LOG, name);
+    CANTOPENFILE.error ("IMAGE::read_header", TESSLOG, name);
     return -1;                   //failed
   }
   lineskip =
@@ -140,7 +140,7 @@ INT8 IMAGE::read_header(                  //get file header
   if (lineskip == -1) {
                                  //get header
     bpp = 0;                     //still empty
-    close(fd); 
+    close(fd);
     fd = -1;
     return -1;                   //failed
   }
@@ -186,8 +186,8 @@ INT8 IMAGE::read(                //get rest of image
   image =
     (UINT8 *) alloc_big_mem ((size_t) (xdim * bufheight * sizeof (UINT8)));
   if (image == NULL) {
-    MEMORY_OUT.error ("IMAGE::read", LOG, NULL);
-    destroy(); 
+    MEMORY_OUT.error ("IMAGE::read", TESSLOG, NULL);
+    destroy();
     return -1;
   }
   captured = FALSE;
@@ -208,8 +208,8 @@ INT8 IMAGE::read(                //get rest of image
     }
   }
   if (failed) {
-    READFAILED.error ("IMAGE::read", LOG, NULL);
-    destroy(); 
+    READFAILED.error ("IMAGE::read", TESSLOG, NULL);
+    destroy();
     return -1;                   //read failed
   }
   if (ymin <= 0) {
@@ -259,7 +259,7 @@ INT8 IMAGE::bufread(         //read more into buffer
     }
   }
   if (failed) {
-    READFAILED.error ("IMAGE::bufread", LOG, NULL);
+    READFAILED.error ("IMAGE::bufread", TESSLOG, NULL);
     return -1;                   //read failed
   }
   if (ymin <= 0) {
@@ -290,7 +290,7 @@ INT8 IMAGE::write(                  //write image
                                  //get image type
   type = name_to_image_type (name);
   if (type < 0 || imagetypes[type].writer == NULL) {
-    CANTWRITEIMAGETYPE.error ("IMAGE::write", LOG, name);
+    CANTWRITEIMAGETYPE.error ("IMAGE::write", TESSLOG, name);
     return -1;                   //write not supported
   }
   #ifdef __UNIX__
@@ -303,7 +303,7 @@ INT8 IMAGE::write(                  //write image
       if ((fd = creat (name, O_WRONLY | O_BINARY)) < 0)
   #endif
   {
-    CANTCREATEFILE.error ("IMAGE::write", LOG, name);
+    CANTCREATEFILE.error ("IMAGE::write", TESSLOG, name);
     return -1;                   //failed
   }
   if (res <= 0)
@@ -312,8 +312,8 @@ INT8 IMAGE::write(                  //write image
   res) < 0) {
                                  //get header
                                  //write failed
-    WRITEFAILED.error ("IMAGE::write", LOG, name);
-    close(fd); 
+    WRITEFAILED.error ("IMAGE::write", TESSLOG, name);
+    close(fd);
     fd = -1;
     return -1;                   //failed
   }

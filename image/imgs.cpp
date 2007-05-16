@@ -77,7 +77,7 @@ IMAGE::IMAGE() {  //construct an image
 IMAGE & IMAGE::operator= (       //assignment
 IMAGE & source                   //source image
 ) {
-  destroy(); 
+  destroy();
   bpp = source.bpp;
   photo_interp = source.photo_interp;
   bps = source.bps;
@@ -139,11 +139,11 @@ INT8 IMAGE::create(                     //get rest of image
 
 void IMAGE::destroy() {  //get rid of image
   if (image != NULL && !captured) {
-    free_big_mem(image); 
+    free_big_mem(image);
   }
   image = NULL;
   if (fd >= 0) {
-    close(fd); 
+    close(fd);
     fd = -1;
   }
   bpp = 0;
@@ -163,7 +163,7 @@ INT8 IMAGE::capture(                     //get rest of image
                     INT32 y,             //ysize required
                     INT8 bits_per_pixel  //bpp required
                    ) {
-  destroy(); 
+  destroy();
   xdim = check_legal_image_size (x, y, bits_per_pixel);
   if (xdim < 0)
     return -1;
@@ -233,13 +233,13 @@ INT32 check_legal_image_size(                     //get rest of image
                              INT8 bits_per_pixel  //bpp required
                             ) {
   if (x <= 0 || y <= 0) {
-    BADIMAGESIZE.error ("check_legal_image_size", LOG, "(%d,%d)", x, y);
+    BADIMAGESIZE.error ("check_legal_image_size", TESSLOG, "(%d,%d)", x, y);
     return -1;                   //failed
   }
   if (bits_per_pixel != 1 && bits_per_pixel != 2
     && bits_per_pixel != 4 && bits_per_pixel != 5
   && bits_per_pixel != 6 && bits_per_pixel != 8 && bits_per_pixel != 24) {
-    BADBPP.error ("check_legal_image_size", LOG, "%d", bits_per_pixel);
+    BADBPP.error ("check_legal_image_size", TESSLOG, "%d", bits_per_pixel);
     return -1;
   }
                                  //bytes per line
@@ -970,7 +970,7 @@ void IMAGE::fast_get_line(                    //get image line
                           IMAGELINE *linebuf  //line to copy to
                          ) {
   if (width > 0 && bpp > 4) {
-    check_legal_access(x, y, width); 
+    check_legal_access(x, y, width);
                                  //get pointer only
     linebuf->pixels = image + xdim * (ymax - 1 - y) + x * bytespp;
   }
@@ -1606,7 +1606,7 @@ UINT8 * result)                  //Ptr to result pix
         //Move along rows
       }
 
-      convolve(window, bytespp, win_width, win_height, white, pix); 
+      convolve(window, bytespp, win_width, win_height, white, pix);
       pix += bytespp;
       current_col++;
     }

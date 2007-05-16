@@ -193,24 +193,24 @@ INT8 open_tif_image(               //read header
   resoffset = -1;
   if (read (fd, (char *) &filetype, sizeof filetype) != sizeof filetype
   || filetype != INTEL && filetype != MOTO) {
-    BADIMAGEFORMAT.error ("read_tif_image", LOG, "Filetype");
+    BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Filetype");
     return -1;
   }
   lseek (fd, 4L, 0);
   if (read (fd, (char *) &start, sizeof start) != sizeof start) {
-    READFAILED.error ("read_tif_image", LOG, "Start of tag table");
+    READFAILED.error ("read_tif_image", TESSLOG, "Start of tag table");
     return -1;
   }
 
   if (filetype != __NATIVE__)
     start = reverse32 (start);
   if (start <= 0) {
-    BADIMAGEFORMAT.error ("read_tif_image", LOG, "Start of tag table");
+    BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Start of tag table");
     return -1;
   }
   lseek (fd, start, 0);
   if (read (fd, (char *) &entries, sizeof (INT16)) != sizeof (INT16)) {
-    BADIMAGEFORMAT.error ("read_tif_image", LOG, "Size of tag table");
+    BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Size of tag table");
     return -1;
   }
   if (filetype != __NATIVE__)
@@ -221,7 +221,7 @@ INT8 open_tif_image(               //read header
   for (; entries-- > 0;) {
     if (read (fd, (char *) &tiffentry, sizeof tiffentry) !=
     sizeof tiffentry) {
-      BADIMAGEFORMAT.error ("read_tif_image", LOG, "Tag table entry");
+      BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Tag table entry");
       return -1;
     }
     if (filetype != __NATIVE__) {
@@ -274,7 +274,7 @@ INT8 open_tif_image(               //read header
           compressed = TRUE;
         }
         else if (tiffentry.value != 1) {
-          BADIMAGEFORMAT.error ("read_tif_image", LOG, "Compression");
+          BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Compression");
           return -1;
         }
         break;
@@ -289,7 +289,7 @@ INT8 open_tif_image(               //read header
     }                            //endswitch
   }
   if (*xsize <= 0 || *ysize <= 0 || *bpp > 24 || imagestart <= 0) {
-    BADIMAGEFORMAT.error ("read_tif_image", LOG, "Vital tag");
+    BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Vital tag");
     return -1;
   }
   tprintf ("Image has %d bit%c per pixel and size (%d,%d)\n",
@@ -297,7 +297,7 @@ INT8 open_tif_image(               //read header
   if (resoffset >= 0) {
     lseek (fd, resoffset, 0);
     if (read (fd, (char *) &resinfo, sizeof (resinfo)) != sizeof (resinfo)) {
-      READFAILED.error ("read_tif_image", LOG, "Resolution");
+      READFAILED.error ("read_tif_image", TESSLOG, "Resolution");
       return -1;
     }
     if (filetype != __NATIVE__) {
@@ -311,7 +311,7 @@ INT8 open_tif_image(               //read header
   if (strips) {
     if (read (fd, (char *) &imagestart, sizeof (imagestart)) !=
     sizeof (imagestart)) {
-      READFAILED.error ("read_tif_image", LOG, "Strip offset");
+      READFAILED.error ("read_tif_image", TESSLOG, "Strip offset");
       return -1;
     }
     if (filetype != __NATIVE__)
@@ -567,7 +567,7 @@ INT8 write_tif_image(                //write whole image
   resolution.bottom = 1;
   if (write (fd, (char *) &type, sizeof type) != sizeof type
   || type != INTEL && type != MOTO) {
-    WRITEFAILED.error ("write_tif_image", LOG, "Filetype");
+    WRITEFAILED.error ("write_tif_image", TESSLOG, "Filetype");
     return -1;
   }
   start = START;
@@ -575,13 +575,13 @@ INT8 write_tif_image(                //write whole image
   if (type != __NATIVE__)
     entries = reverse16 (entries);
   if (write (fd, (char *) &entries, sizeof entries) != sizeof entries) {
-    WRITEFAILED.error ("write_tif_image", LOG, "Version");
+    WRITEFAILED.error ("write_tif_image", TESSLOG, "Version");
     return -1;
   }
   if (type != __NATIVE__)
     start = reverse32 (start);
   if (write (fd, (char *) &start, sizeof start) != sizeof start) {
-    WRITEFAILED.error ("write_tif_image", LOG, "Start");
+    WRITEFAILED.error ("write_tif_image", TESSLOG, "Start");
     return -1;
   }
   lseek (fd, (long) START, 0);
@@ -589,7 +589,7 @@ INT8 write_tif_image(                //write whole image
   if (type != __NATIVE__)
     entries = reverse16 (entries);
   if (write (fd, (char *) &entries, sizeof entries) != sizeof entries) {
-    WRITEFAILED.error ("write_tif_image", LOG, "Entries");
+    WRITEFAILED.error ("write_tif_image", TESSLOG, "Entries");
     return -1;
   }
                                  //line length
@@ -650,12 +650,12 @@ INT8 write_tif_image(                //write whole image
     }
     if (write (fd, (char *) &entry, sizeof (TIFFENTRY)) !=
     sizeof (TIFFENTRY)) {
-      WRITEFAILED.error ("write_tif_image", LOG, "Tag Table");
+      WRITEFAILED.error ("write_tif_image", TESSLOG, "Tag Table");
       return -1;
     }
   }
   if (write (fd, (char *) &zero, sizeof zero) != sizeof zero) {
-    WRITEFAILED.error ("write_tif_image", LOG, "Tag table Terminator");
+    WRITEFAILED.error ("write_tif_image", TESSLOG, "Tag table Terminator");
     return -1;
   }
   if (type != __NATIVE__) {
@@ -665,14 +665,14 @@ INT8 write_tif_image(                //write whole image
   if (write (fd, (char *) &resolution, sizeof resolution) != sizeof resolution
     || write (fd, (char *) &resolution,
   sizeof resolution) != sizeof resolution) {
-    WRITEFAILED.error ("write_tif_image", LOG, "Resolution");
+    WRITEFAILED.error ("write_tif_image", TESSLOG, "Resolution");
     return -1;
   }
   if (write (fd, (char *) pixels, (size_t) size) != size) {
-    WRITEFAILED.error ("write_tif_image", LOG, "Image");
+    WRITEFAILED.error ("write_tif_image", TESSLOG, "Image");
     return -1;
   }
-  close(fd); 
+  close(fd);
   return 0;
 }
 

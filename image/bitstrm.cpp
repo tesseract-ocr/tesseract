@@ -45,7 +45,7 @@ UINT16 R_BITSTREAM::open(        //open for read
   bufsize = read (fd, (char *) bitbuf, BITBUFSIZE * sizeof (UINT8));
   //fill buffer
   if (bufsize < 0) {
-    READFAILED.error ("R_BITSTREAM::open", LOG, NULL);
+    READFAILED.error ("R_BITSTREAM::open", TESSLOG, NULL);
     return 0;
   }
   bitword = bitbuf[0] | (bitbuf[1] << 8);
@@ -74,7 +74,7 @@ UINT16 R_BITSTREAM::read_code(              //take code out
       bufsize =
         read (bitfd, (char *) bitbuf, BITBUFSIZE * sizeof (UINT8));
       if (bufsize < 0) {
-        READFAILED.error ("R_BITSTREAM::read_code", LOG, NULL);
+        READFAILED.error ("R_BITSTREAM::read_code", TESSLOG, NULL);
         return 0;
       }
       bitindex = 0;              //newly filled buffer
@@ -131,7 +131,7 @@ INT8 W_BITSTREAM::write_code(              //take code out
     if ((bitindex > 0) &&
       (write (bitfd, (char *) bitbuf, bitindex * sizeof (UINT8)) !=
     (INT32) (bitindex * sizeof (UINT8)))) {
-      WRITEFAILED.error ("W_BITSTREAM::write_code", LOG, "Flushing");
+      WRITEFAILED.error ("W_BITSTREAM::write_code", TESSLOG, "Flushing");
       return -1;
     }
   }
@@ -146,7 +146,7 @@ INT8 W_BITSTREAM::write_code(              //take code out
       if (bitindex >= BITBUFSIZE) {
         if (write (bitfd, (char *) bitbuf, bitindex * sizeof (UINT8))
         != (INT32) (bitindex * sizeof (UINT8))) {
-          WRITEFAILED.error ("W_BITSTREAM::write_code", LOG, NULL);
+          WRITEFAILED.error ("W_BITSTREAM::write_code", TESSLOG, NULL);
           return -1;
         }
         bitindex = 0;            //newly filled buffer
