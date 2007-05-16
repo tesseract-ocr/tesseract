@@ -1401,7 +1401,15 @@ int bestpart                     /*biggest partition */
   bestpos = bestneg = 0.0;       /*no step yet */
   for (partition = 0; partition < partcount; partition++) {
     if (partition != bestpart) {
-      partsteps[partition] /= partsizes[partition];
+
+	//by jetsoft divide by zero possible
+		if (partsizes[partition]==0)
+		partsteps[partition]=0;
+       else 
+		partsteps[partition] /= partsizes[partition];
+	//
+
+
       if (partsteps[partition] >= MINASCRISE
       && partsizes[partition] > poscount) {
                                  /*ascender rise */

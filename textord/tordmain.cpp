@@ -148,7 +148,7 @@ void edges_and_textord(                       //read .pb file
                        const char *filename,  //.pb file
                        BLOCK_LIST *blocks) {
   BLOCK *block;                  //current block
-  char *lastdot;                 //of name
+  const char *lastdot;           //of name
   STRING name = filename;        //truncated name
   ICOORD page_tr;
   BOX page_box;                  //bounding_box
@@ -161,7 +161,7 @@ void edges_and_textord(                       //read .pb file
 
   lastdot = strrchr (name.string (), '.');
   if (lastdot != NULL)
-    *lastdot = '\0';
+    name[lastdot-name.string()] = '\0';
   if (page_image.get_bpp () == 0) {
     name += tessedit_image_ext;
     if (page_image.read_header (name.string ()))
@@ -171,7 +171,7 @@ void edges_and_textord(                       //read .pb file
     name = filename;
     lastdot = strrchr (name.string (), '.');
     if (lastdot != NULL)
-      *lastdot = '\0';
+      name[lastdot-name.string()] = '\0';
   }
   page_tr = ICOORD (page_image.get_xsize (), page_image.get_ysize ());
   read_pd_file (name, page_image.get_xsize (), page_image.get_ysize (),
