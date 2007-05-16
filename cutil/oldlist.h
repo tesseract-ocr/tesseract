@@ -34,7 +34,7 @@
  *
  * BASICS:
  * -------
- * first             - Macro to return the first list node (not the cell).
+ * first_node        - Macro to return the first list node (not the cell).
  * rest              - Macro the return the second list cell
  * pop               - Destroy one list cell
  * push              - Create one list cell and set the node and next fields
@@ -48,7 +48,7 @@
  * LIST CELL COUNTS:
  * -----------------
  * count             - Returns the number of list cells in the list.
- * second            - Returns the second node.
+ * second_node       - Returns the second node.
  * third             - Returns the third node.
  * fourth            - Returns the fourth node.
  * fifth             - Returns the fifth node.
@@ -135,7 +135,7 @@ typedef _LIST_ *LIST;
 ----------------------------------------------------------------------*/
 /* Predefinitions */
 #define rest(l)  ((l) ? (l)->next : NIL)
-#define first(l) ((l) ? (l)->node : NIL)
+#define first_node(l) ((l) ? (l)->node : NIL)
 
 /**********************************************************************
  *  c o p y   f i r s t
@@ -146,7 +146,7 @@ typedef _LIST_ *LIST;
  **********************************************************************/
 
 #define copy_first(l1,l2)  \
-(l2=push(l2, first(l1)))
+(l2=push(l2, first_node(l1)))
 
 /**********************************************************************
  *  i t e r a t e
@@ -204,11 +204,11 @@ for ((x)=(l); (x)!=0; (x)=rest(x))
  *
  *  Return the contents of the second list element.
  *
- *  #define second(l)    first (rest (l))
+ *  #define second_node(l)    first_node (rest (l))
  **********************************************************************/
 
-#define second(l)              \
-first (rest (l))
+#define second_node(l)              \
+first_node (rest (l))
 
 /**********************************************************************
  *  s e t   r e s t
@@ -226,11 +226,11 @@ first (rest (l))
  *
  *  Return the contents of the third list element.
  *
- *  #define third(l)     first (rest (rest (l)))
+ *  #define third(l)     first_node (rest (rest (l)))
  **********************************************************************/
 
 #define third(l)               \
-first (rest (rest (l)))
+first_node (rest (rest (l)))
 
 /*----------------------------------------------------------------------
           Public Funtion Prototypes
