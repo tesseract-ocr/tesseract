@@ -22,7 +22,6 @@
  ** limitations under the License.
  *
  ********************************************************************************
-$Log: cutil.cpp,v $
 Revision 1.1  2007/02/02 23:39:07  theraysmith
 Fixed portability issues
 
