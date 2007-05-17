@@ -1,7 +1,31 @@
 Tesseract release notes May 15, 2007 - V1.04.
+
+=== Windows users only ===
 Added a dll interface for windows. Thanks to Glen at Jetsoft for contributing
 this. To use the dll, include tessdll.h, import tessdll.lib and put tessdll.dll
-somewhere where the system can find it.
+somewhere where the system can find it. There is also a small dlltest program
+to test the dll. Run with:
+dlltest phototest.tif phototest.txt
+It will output the text from phototest.tif with bounding box information.
+**New for Windows** the distribution now includes tesseract.exe and tessdll.dll
+which *might* work out of the box! There are no guarantees as you need
+VC++6 versions of mfc and crt (at least) for it to work. (Batteries not
+included, and certainly no installshield.)
+
+== Important note for anyone building with make: i.e. anyone except devstudio
+users ==
+This release includes new standardization for the data directory. To enable
+Tesseract to find its data files, you must either:
+./configure
+make
+make install
+to move the data files to the standard place, or:
+export TESSDATA_PREFIX="directory in which your tessdata resides/"
+(or equivalent) in your .profile or whatever or setenv to set the environment
+variable. Note that the directory must end in a /
+HAVING tesseract and tessdata IN THE SAME DIRECTORY DOES NOT WORK ANY MORE.
+
+== All users ==
 Fixed a bunch of name collisions - mostly with stl.
 Made some preliminary changes for unicode compatibility. Includes a new data
 file (unicharset) and renaming of the other data files to eng.* to support
@@ -11,6 +35,9 @@ for 64 bit, the latest visual studio compiler etc. Thanks to all who have
 contributed these fixes.
 
 NOTE: This is likely to be the last English-only release!
+Apologies in advance to non-windows users for bloating the distribution with
+windows executables. This will probably get fixed in the next release with
+the multi-language capability, since that will also bloat the distribution.
 
 
 Tesseract release notes Feb 2, 2007 - V1.03.

@@ -174,7 +174,7 @@ target_alias = @target_alias@
 
 # TODO(luc) Add 'doc' to this list when ready
 SUBDIRS = ccstruct ccutil classify cutil dict display image textord viewer wordrec ccmain training tessdata dlltest
-EXTRA_DIST = tessdata phototest.tif tesseract.dsp tesseract.dsw StdAfx.cpp StdAfx.h tessdll.cpp tessdll.h tessdll.dsp tessdll.dll tessdll.lib tesseract.exe dlltest.exe
+EXTRA_DIST = tessdata phototest.tif tesseract.dsp tesseract.dsw StdAfx.cpp StdAfx.h tessdll.cpp tessdll.h tessdll.dsp tessdll.dll tessdll.lib tesseract.exe dlltest.exe ReleaseNotes
 all: config_auto.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -602,6 +602,7 @@ uninstall-info: uninstall-info-recursive
 	maintainer-clean-recursive mostlyclean mostlyclean-generic \
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
 	uninstall uninstall-am uninstall-info-am
+
 
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
 

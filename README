@@ -74,11 +74,31 @@ will be included in a future release.
 
 Using the Engine
 ================
-The usage of both Windows and Linux versions is the same.
+Windows:
 The executable must reside in the same directory as the tessdata directory
 The command line is:
-tesseract <image.tif> <output> batch
-The image file requires an .tif extension for its type to be recognized
+tesseract <image.tif> <output>
+A windows executable (tesseract.exe) is included in the distribution, but
+may not work for you unless you also have the correct mfc and crt dlls.
+There is also a tessdll.dll, which you can use to run tesseract from your
+own program, but you may be better off building it yourself.
+
+Non-Windows:
+You have to tell Tesseract through a standard unix mechanism where to find
+its data directory. You must either:
+./configure
+make
+make install
+to move the data files to the standard place, or:
+export TESSDATA_PREFIX="directory in which your tessdata resides/"
+(or equivalent) in your .profile or whatever or setenv to set the environment
+variable. Note that the directory must end in a /
+HAVING tesseract and tessdata IN THE SAME DIRECTORY DOES NOT WORK ANY MORE.
+The command line is:
+tesseract <image.tif> <output>
+
+All Systems:
+The image file requires a .tif extension for its type to be recognized
 correctly. If a file exists with the .tif extension replaced by .uzn, then it
 will be interpreted as a UNLV-style zone file. (See www.isri.unlv.edu for
 details of the zone files.)
