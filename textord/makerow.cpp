@@ -783,6 +783,7 @@ void compute_line_occupation(                    //project blobs
                             ) {
   INT32 line_count;              //maxy-miny+1
   INT32 line_index;              //of scan line
+  int index;                     //array index for daft compilers
   float top, bottom;             //coords of blob
   INT32 width;                   //of blob
   TO_ROW *row;                   //current row
@@ -816,13 +817,15 @@ void compute_line_occupation(                    //project blobs
           "Bad y coord of bottom, " INT32FORMAT "(" INT32FORMAT ","
           INT32FORMAT ")\n", (INT32) floor (bottom), min_y, max_y);
                                  //count transitions
-      deltas[(INT32) floor (bottom) - min_y] += width;
+      index = (INT32) floor (bottom) - min_y;
+      deltas[index] += width;
       if ((INT32) floor (top) < min_y
         || (INT32) floor (top) - min_y >= line_count)
         fprintf (stderr,
           "Bad y coord of top, " INT32FORMAT "(" INT32FORMAT ","
           INT32FORMAT ")\n", (INT32) floor (top), min_y, max_y);
-      deltas[(INT32) floor (top) - min_y] -= width;
+      index = (INT32) floor (top) - min_y;
+      deltas[index] -= width;
     }
   }
   occupation[0] = deltas[0];
