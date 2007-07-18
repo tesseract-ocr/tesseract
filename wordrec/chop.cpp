@@ -134,7 +134,7 @@ void add_point_to_list(POINT_GROUP point_list, EDGEPT *point) {
   }
 
 #ifndef GRAPHICS_DISABLED
-  if (chop_debug)
+  if (chop_debug > 2)
     mark_outline(point);
 #endif
 }
@@ -162,7 +162,8 @@ int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   length = length_product (vector1, vector2);
   if ((int) length == 0)
     return (0);
-  angle = (int) (asin (CROSS (vector1, vector2) / length) / PI * 180.0);
+  angle = static_cast<int>(floor(asin(CROSS (vector1, vector2) /
+                                      length) / PI * 180.0 + 0.5));
 
   /* Use dot product */
   if (SCALAR (vector1, vector2) < 0)

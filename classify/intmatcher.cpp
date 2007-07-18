@@ -22,6 +22,7 @@
 #include "intmatcher.h"
 #include "tordvars.h"
 #include "callcpp.h"
+#include "globals.h"
 #include <math.h>
 
 #define CLASS_MASK_SIZE ((MAX_NUM_CLASSES*NUM_BITS_PER_CLASS \
@@ -335,7 +336,7 @@ make_int_var (IntThetaFudge, 128, MakeIntThetaFudge,
 16, 23, SetIntThetaFudge,
 "Integer Matcher Theta Fudge 0-255:   ");
 
-make_float_var (CPCutoffStrength, 0.15, MakeCPCutoffStrength,
+make_int_var (CPCutoffStrength, 7, MakeCPCutoffStrength,
 16, 24, SetCPCutoffStrength,
 "Class Pruner CutoffStrength:         ");
 
@@ -422,10 +423,10 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   int NumPruners;
   INT32 feature_index;           //current feature
 
-  static INT32 ClassCount[MAX_NUM_CLASSES - 1];
-  static INT16 NormCount[MAX_NUM_CLASSES - 1];
-  static INT16 SortKey[MAX_NUM_CLASSES];
-  static UINT8 SortIndex[MAX_NUM_CLASSES];
+  static INT32 ClassCount[MAX_NUM_CLASSES];
+  static INT16 NormCount[MAX_NUM_CLASSES];
+  static INT16 SortKey[MAX_NUM_CLASSES + 1];
+  static UINT8 SortIndex[MAX_NUM_CLASSES + 1];
   CLASS_INDEX Class;
   int out_class;
   int MaxNumClasses;
@@ -433,7 +434,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   int NumClasses;
   FLOAT32 max_rating;            //max allowed rating
   INT32 *ClassCountPtr;
-  INT8 classch;
+  CLASS_ID classch;
 
   MaxNumClasses = NumClassesIn (IntTemplates);
 
@@ -497,12 +498,11 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
 
   /* Adjust Class Counts for Number of Expected Features */
   for (Class = 0; Class < MaxNumClasses; Class++)
-    if (NumFeatures < ExpectedNumFeatures[Class])
-      ClassCount[Class] =
-        (int) (((FLOAT32) (ClassCount[Class] * NumFeatures)) /
-        (NumFeatures +
-        CPCutoffStrength * (ExpectedNumFeatures[Class] -
-        NumFeatures)));
+    if (NumFeatures < ExpectedNumFeatures[Class]) {
+      int deficit = ExpectedNumFeatures[Class] - NumFeatures;
+      ClassCount[Class] -= ClassCount[Class] * deficit /
+                           (NumFeatures*CPCutoffStrength + deficit);
+    }
 
   /* Adjust Class Counts for Normalization Factors */
   MaxCount = 0;
@@ -535,17 +535,14 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   if (display_ratings > 1) {
     cprintf ("CP:%d classes, %d features:\n", NumClasses, NumFeatures);
     for (Class = 0; Class < NumClasses; Class++) {
-      classch =
-        ClassIdForIndex (IntTemplates, SortIndex[NumClasses - Class]);
-      cprintf ("%c:C=%d, E=%d, N=%d, Rat=%d\n", classch,
-        ClassCount[SortIndex[NumClasses - Class]],
-        ExpectedNumFeatures[SortIndex[NumClasses - Class]],
-        SortKey[NumClasses - Class],
-        (int) (10 +
-        1000 * (1.0f -
-        SortKey[NumClasses -
-        Class] / ((float) cp_maps[3] *
-        NumFeatures))));
+      classch = ClassIdForIndex (IntTemplates, SortIndex[NumClasses - Class]);
+      cprintf ("%s:C=%d, E=%d, N=%d, Rat=%d\n",
+               unicharset.id_to_unichar(classch),
+               ClassCount[SortIndex[NumClasses - Class]],
+               ExpectedNumFeatures[SortIndex[NumClasses - Class]],
+               SortKey[NumClasses - Class],
+               1010 - 1000 * SortKey[NumClasses - Class] /
+                 (cp_maps[3] * NumFeatures));
     }
     if (display_ratings > 2) {
       NumPruners = NumClassPrunersIn (IntTemplates);
@@ -569,9 +566,9 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
             PrunerWord = *BasePrunerAddress++;
             for (Class = 0; Class < 16; Class++, class_index++) {
               if (NormCount[class_index] >= MaxCount)
-                cprintf (" %c=%d,",
-                  ClassIdForIndex (IntTemplates,
-                  class_index),
+                cprintf (" %s=%d,",
+                  unicharset.id_to_unichar(ClassIdForIndex (IntTemplates,
+                                                            class_index)),
                   PrunerWord & 3);
               PrunerWord >>= 2;
             }
@@ -582,8 +579,8 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
       cprintf ("Adjustments:");
       for (Class = 0; Class < MaxNumClasses; Class++) {
         if (NormCount[Class] > MaxCount)
-          cprintf (" %c=%d,",
-            ClassIdForIndex (IntTemplates, Class),
+          cprintf (" %s=%d,",
+            unicharset.id_to_unichar(ClassIdForIndex (IntTemplates, Class)),
             -((ClassPrunerMultiplier *
             NormalizationFactors[Class]) >> 8) * cp_maps[3] /
             3);
@@ -640,7 +637,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
     cp_bestconf = -1;
     for (Class = 0; Class < NumClasses; Class++) {
       classch = Results[Class].Class;
-      if (classch == blob_answer) {
+      if (strcmp(unicharset.id_to_unichar(classch), blob_answer) == 0) {
         cp_bestindex = Class;
         cp_bestrating = (int) (1000 * Results[Class].Rating + 10);
         cp_bestconf = (int) (1000 * Results[Class].Rating2 + 10);
@@ -1191,7 +1188,6 @@ int FindGoodProtos(INT_CLASS ClassTemplate,
 
   if (MatchDebuggingOn (Debug))
     cprintf ("Match Complete --------------------------------------------\n");
-
   return NumGoodProtos;
 
 }

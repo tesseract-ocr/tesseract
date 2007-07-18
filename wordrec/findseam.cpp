@@ -370,7 +370,7 @@ SEAM *pick_good_seam(TBLOB *blob) {
   INT16 num_points = 0;
 
 #ifndef GRAPHICS_DISABLED
-  if (chop_debug)
+  if (chop_debug > 2)
     display_splits = TRUE;
 
   draw_blob_edges(blob);
@@ -417,7 +417,7 @@ SEAM *pick_good_seam(TBLOB *blob) {
         mark_split (seam->split2);
       if (seam->split3)
         mark_split (seam->split3);
-      if (chop_debug > 1) {
+      if (chop_debug > 2) {
         update_edge_window();
         edge_window_wait();
       }

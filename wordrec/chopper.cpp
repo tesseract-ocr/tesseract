@@ -73,7 +73,8 @@ double_VAR (tessedit_certainty_threshold, -2.25, "Good blob limit");
  * Set the fields in this choice to be defaulted bad initial values.
  **********************************************************************/
 #define set_null_choice(choice)            \
-(class_string      (choice) =  NULL,     \
+(class_string     (choice) =  NULL,     \
+class_lengths     (choice) =  NULL,     \
 class_probability (choice) =  MAX_FLOAT32, \
 class_certainty   (choice) = -MAX_FLOAT32) \
 
@@ -225,7 +226,8 @@ SEAM *attempt_blob_chop(TWERD *word, INT32 blob_number, SEAMS seam_list) {
       delete_seam(seam);
 #ifndef GRAPHICS_DISABLED
       if (chop_debug) {
-        display_blob(blob, Red);
+        if (chop_debug >2)
+          display_blob(blob, Red);
         cprintf ("\n** seam being removed ** \n");
       }
 #endif
@@ -437,7 +439,6 @@ CHOICES_LIST chop_word_main(register TWERD *word,
   }
   bit_count = index - 1;
   permute_characters(char_choices, rating_limit, best_choice, raw_choice);
-
   set_n_ones (&state, array_count (char_choices) - 1);
   if (matcher_fp != NULL) {
     if (matcher_pass == 0) {
@@ -474,7 +475,6 @@ CHOICES_LIST chop_word_main(register TWERD *word,
 
     if (chop_debug)
       print_seams ("Final seam list:", seam_list);
-
     if (enable_assoc &&
       !AcceptableChoice (char_choices, best_choice, raw_choice, NULL)
       || (tester || trainer)

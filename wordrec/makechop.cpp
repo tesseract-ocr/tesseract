@@ -42,22 +42,22 @@
  * Split this blob into two blobs by applying the splits included in
  * the seam description.
  **********************************************************************/
-void apply_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) { 
-  check_outline_mem(); 
+void apply_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
+  check_outline_mem();
   if (seam->split1 == NULL) {
     divide_blobs (blob, other_blob, seam->location);
   }
   else if (seam->split2 == NULL) {
-    make_split_blobs(blob, other_blob, seam); 
+    make_split_blobs(blob, other_blob, seam);
   }
   else if (seam->split3 == NULL) {
-    make_double_split(blob, other_blob, seam); 
+    make_double_split(blob, other_blob, seam);
   }
   else {
-    make_triple_split(blob, other_blob, seam); 
+    make_triple_split(blob, other_blob, seam);
   }
 
-  check_outline_mem(); 
+  check_outline_mem();
 }
 
 
@@ -69,7 +69,7 @@ void apply_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
  * other blob.  The ones whose x location is less than that point are
  * retained in the original blob.
  **********************************************************************/
-void divide_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location) { 
+void divide_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location) {
   TESSLINE *outline;
   TESSLINE *outline1 = NULL;
   TESSLINE *outline2 = NULL;
@@ -115,23 +115,23 @@ void divide_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location) {
  * Group the outlines from the first blob into both of them. Do so
  * according to the information about the split.
  **********************************************************************/
-void form_two_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location) { 
-  setup_blob_outlines(blob); 
+void form_two_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location) {
+  setup_blob_outlines(blob);
 
-  divide_blobs(blob, other_blob, location); 
+  divide_blobs(blob, other_blob, location);
 
-  eliminate_duplicate_outlines(blob); 
-  eliminate_duplicate_outlines(other_blob); 
+  eliminate_duplicate_outlines(blob);
+  eliminate_duplicate_outlines(other_blob);
 
-  correct_blob_order(blob, other_blob); 
+  correct_blob_order(blob, other_blob);
 
 #ifndef GRAPHICS_DISABLED
-  if (chop_debug) {
-    display_blob(blob, Red); 
+  if (chop_debug > 2) {
+    display_blob(blob, Red);
     #ifdef __UNIX__
     sleep (1);
     #endif
-    display_blob(other_blob, Cyan); 
+    display_blob(other_blob, Cyan);
   }
 #endif
 }
@@ -143,7 +143,7 @@ void form_two_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location) {
  * Create two blobs out of one by splitting the original one in half.
  * Return the resultant blobs for classification.
  **********************************************************************/
-void make_double_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam) { 
+void make_double_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
   make_single_split (blob->outlines, seam->split1);
   make_single_split (blob->outlines, seam->split2);
   form_two_blobs (blob, other_blob, seam->location);
@@ -156,7 +156,7 @@ void make_double_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
  * Create two outlines out of one by splitting the original one in half.
  * Return the resultant outlines.
  **********************************************************************/
-void make_single_split(TESSLINE *outlines, SPLIT *split) { 
+void make_single_split(TESSLINE *outlines, SPLIT *split) {
   assert (outlines != NULL);
 
   split_outline (split->point1, split->point2);
@@ -186,7 +186,7 @@ void make_single_split(TESSLINE *outlines, SPLIT *split) {
  * Create two blobs out of one by splitting the original one in half.
  * Return the resultant blobs for classification.
  **********************************************************************/
-void make_split_blobs(TBLOB *blob, TBLOB *other_blob, SEAM *seam) { 
+void make_split_blobs(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
   make_single_split (blob->outlines, seam->split1);
 
   form_two_blobs (blob, other_blob, seam->location);
@@ -201,7 +201,7 @@ void make_split_blobs(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
  * the outlines. Three of the starting outlines will produce two ending
  * outlines. Return the resultant blobs for classification.
  **********************************************************************/
-void make_triple_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam) { 
+void make_triple_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
   make_single_split (blob->outlines, seam->split1);
   make_single_split (blob->outlines, seam->split2);
   make_single_split (blob->outlines, seam->split3);
@@ -217,7 +217,7 @@ void make_triple_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
  * result.  The seam may consist of one, two, or three splits.  Each
  * of these split must be removed from the outlines.
  **********************************************************************/
-void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) { 
+void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
   TESSLINE *outline;
 
   if (!seam)
@@ -231,7 +231,7 @@ void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
   while (outline->next)
     outline = outline->next;
   outline->next = other_blob->outlines;
-  oldblob(other_blob); 
+  oldblob(other_blob);
 
   if (seam->split1 == NULL) {
   }
@@ -248,10 +248,10 @@ void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
     undo_single_split (blob, seam->split1);
   }
 
-  setup_blob_outlines(blob); 
-  eliminate_duplicate_outlines(blob); 
+  setup_blob_outlines(blob);
+  eliminate_duplicate_outlines(blob);
 
-  check_outline_mem(); 
+  check_outline_mem();
 }
 
 
@@ -261,7 +261,7 @@ void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
  * Undo a seam that is made by a single split.  Perform the correct
  * magic to reconstruct the appropriate set of outline data structures.
  **********************************************************************/
-void undo_single_split(TBLOB *blob, SPLIT *split) { 
+void undo_single_split(TBLOB *blob, SPLIT *split) {
   TESSLINE *outline1;
   TESSLINE *outline2;
   /* Modify edge points */
