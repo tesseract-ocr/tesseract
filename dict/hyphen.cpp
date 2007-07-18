@@ -36,6 +36,8 @@
 ----------------------------------------------------------------------*/
 int last_word_on_line = 0;
 char *hyphen_string = 0;
+char *hyphen_unichar_lengths = 0;
+int *hyphen_unichar_offsets = NULL;
 float hyphen_rating = MAXFLOAT;
 int hyphen_state = 0;
 
@@ -49,22 +51,34 @@ int hyphen_state = 0;
  * it as the new word choice.  This string can be used on the next
  * line to permute the other half of the word.
  **********************************************************************/
-void set_hyphen_word(char *word, float rating, int state) { 
-  int char_index = strlen (word) - 1;
+void set_hyphen_word(char *word, char *unichar_lengths, int *unichar_offsets,
+                     float rating, int state) {
+  int char_index = strlen (unichar_lengths) - 1;
 
   if (display_ratings)
     cprintf ("set hyphen word = %s\n", word);
 
   if (hyphen_rating > rating && char_index > 0) {
-    word[char_index] = '\0';
+    word[unichar_offsets[char_index]] = '\0';
+    unichar_lengths[char_index] = 0;
 
     if (hyphen_string)
-      strfree(hyphen_string); 
+    {
+      strfree(hyphen_string);
+      strfree(hyphen_unichar_lengths);
+      Efree(hyphen_unichar_offsets);
+    }
     hyphen_string = strsave (word);
+    hyphen_unichar_lengths = strsave (unichar_lengths);
+    hyphen_unichar_offsets = (int *)
+        Emalloc((strlen(unichar_lengths)) * sizeof (int));
+    memcpy(hyphen_unichar_offsets, unichar_offsets,
+           (strlen(unichar_lengths)) * sizeof (int));
 
     hyphen_state = state;
     hyphen_rating = rating;
 
-    word[char_index] = '-';
+    word[unichar_offsets[char_index]] = '-';
+    unichar_lengths[char_index] = 1;
   }
 }

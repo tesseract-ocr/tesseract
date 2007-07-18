@@ -22,6 +22,7 @@
 
 #include "host.h"
 #include "varable.h"
+#include "unichar.h"
 
 #ifdef __cplusplus
 //extern "C" {
@@ -110,7 +111,7 @@ extern INT32 cp_confs[2];
 extern INT32 cp_maps[4];
 //Global info to control writes of matcher info
 extern INT32 blob_type;          //write control
-extern char blob_answer;         //correct char
+extern char blob_answer[UNICHAR_LEN + 1];         //correct char
 extern char *word_answer;        //correct word
 extern INT32 matcher_pass;       //pass in chopper.c
 extern INT32 bits_in_states;     //no of bits in states
@@ -120,7 +121,7 @@ void assert(             //recog one owrd
             int testing  //assert fail if false
            );
 #endif
-void setup_cp_maps(); 
+void setup_cp_maps();
 void trace_stack();  //Trace current stack
 void cprintf (                   //Trace printf
 const char *format, ...          //special message
@@ -181,8 +182,8 @@ void c_clear_window(  /*move pen */
                     void *win);
 char window_wait(  /*move pen */
                  void *win);
-void reverse32(void *ptr); 
-void reverse16(void *ptr); 
+void reverse32(void *ptr);
+void reverse16(void *ptr);
 
 #ifdef __cplusplus
 //};

@@ -29,12 +29,15 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "choices.h"
+#include "emalloc.h"
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
 extern int last_word_on_line;
 extern char *hyphen_string;
+extern char *hyphen_unichar_lengths;
+extern int *hyphen_unichar_offsets;
 extern float hyphen_rating;
 extern int hyphen_state;
 
@@ -59,7 +62,11 @@ last_word_on_line = TRUE
 #define reset_hyphen_word()                      \
 if (last_word_on_line == FALSE) {              \
 	if (hyphen_string) strfree (hyphen_string); \
+	if (hyphen_unichar_lengths) strfree (hyphen_unichar_lengths); \
+	if (hyphen_unichar_offsets) Efree (hyphen_unichar_offsets); \
 	hyphen_string = NULL;                       \
+	hyphen_unichar_lengths = NULL;                       \
+	hyphen_unichar_offsets = NULL;                       \
 	hyphen_rating = MAX_FLOAT32;                   \
 	hyphen_state = 0;                           \
 }                                              \
@@ -92,7 +99,7 @@ last_word_on_line = FALSE
 
 #define hyphen_base_size()                 \
 ((! is_last_word () && hyphen_string) ?  \
-	(strlen (hyphen_string))             :  \
+	(strlen (hyphen_unichar_lengths))             :  \
 	(0))                                    \
 
 
@@ -105,10 +112,13 @@ last_word_on_line = FALSE
  **********************************************************************/
 
 #define hyphen_tail(word)        \
-(& word [hyphen_base_size()])  \
+(&word[hyphen_base_size() > 0 ? \
+      (hyphen_unichar_offsets[hyphen_base_size() - 1] + \
+       hyphen_unichar_lengths[hyphen_base_size() - 1]) : 0]) \
 
 /*----------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------*/
-void set_hyphen_word(char *word, float rating, int state); 
+void set_hyphen_word(char *word, char *unichar_lengths, int *unichar_offsets,
+                     float rating, int state);
 #endif

@@ -67,6 +67,7 @@ EXTERN BOOL_VAR (textord_biased_skewcalc, TRUE,
 "Bias skew estimates with line length");
 EXTERN BOOL_VAR (textord_interpolating_skew, TRUE, "Interpolate across gaps");
 EXTERN INT_VAR (textord_skewsmooth_offset, 2, "For smooth factor");
+EXTERN INT_VAR (textord_skewsmooth_offset2, 1, "For smooth factor");
 EXTERN INT_VAR (textord_test_x, 0, "coord of test pt");
 EXTERN INT_VAR (textord_test_y, 0, "coord of test pt");
 EXTERN INT_VAR (textord_min_blobs_in_row, 4,
@@ -87,6 +88,10 @@ EXTERN double_VAR (textord_linespace_iqrlimit, 0.2,
 "Max iqr/median for linespace");
 EXTERN double_VAR (textord_width_limit, 8, "Max width of blobs to make rows");
 EXTERN double_VAR (textord_chop_width, 1.5, "Max width before chopping");
+EXTERN double_VAR (textord_expansion_factor, 1.0,
+"Factor to expand rows by in expand_rows");
+EXTERN double_VAR (textord_overlap_x, 0.5,
+"Fraction of linespace for good overlap");
 EXTERN double_VAR (textord_merge_desc, 0.25,
 "Fraction of linespace for desc drop");
 EXTERN double_VAR (textord_merge_x, 0.5,
@@ -505,7 +510,7 @@ void cleanup_rows(                   //find lines
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
     blob_it.add_list_after (row_it.data ()->blob_list ());
   //give blobs back
-  assign_blobs_to_rows (block, &gradient, 1, TRUE, TRUE, FALSE);
+  assign_blobs_to_rows (block, &gradient, 1, FALSE, FALSE, FALSE);
   //now new rows must be genuine
   blob_it.set_to_list (&block->blobs);
   blob_it.add_list_after (&block->large_blobs);
@@ -1016,10 +1021,14 @@ void expand_rows(                   //find lines
     row = row_it.data ();
     y_max = row->max_y ();       //get current limits
     y_min = row->min_y ();
-    y_bottom = row->intercept () - block->line_size * textord_merge_desc;
-    y_top = row->intercept () + block->line_size
-      * (textord_merge_x + textord_merge_asc);
+    y_bottom = row->intercept () - block->line_size * textord_expansion_factor *
+      textord_merge_desc;
+    y_top = row->intercept () + block->line_size * textord_expansion_factor *
+      (textord_merge_x + textord_merge_asc);
     if (y_min > y_bottom) {      //expansion allowed
+      if (textord_show_expanded_rows && testing_on)
+        tprintf("Expanding bottom of row at %f from %f to %f\n",
+                row->intercept(), y_min, y_bottom);
                                  //expandable
       swallowed_row = TRUE;
       while (swallowed_row && !row_it.at_last ()) {
@@ -1029,6 +1038,8 @@ void expand_rows(                   //find lines
                                  //overlaps space
         if (test_row->max_y () > y_bottom) {
           if (test_row->min_y () > y_bottom) {
+            if (textord_show_expanded_rows && testing_on)
+              tprintf("Eating row below at %f\n", test_row->intercept());
             row_it.forward ();
 #ifndef GRAPHICS_DISABLED
             if (textord_show_expanded_rows && testing_on)
@@ -1045,16 +1056,27 @@ void expand_rows(                   //find lines
             row_it.backward ();
             swallowed_row = TRUE;
           }
-          else if (test_row->max_y () < y_min)
+          else if (test_row->max_y () < y_min) {
                                  //shorter limit
             y_bottom = test_row->max_y ();
-          else
+            if (textord_show_expanded_rows && testing_on)
+              tprintf("Truncating limit to %f due to touching row at %f\n",
+                      y_bottom, test_row->intercept());
+          }
+          else {
             y_bottom = y_min;    //can't expand it
+            if (textord_show_expanded_rows && testing_on)
+              tprintf("Not expanding limit beyond %f due to touching row at %f\n",
+                      y_bottom, test_row->intercept());
+          }
         }
       }
       y_min = y_bottom;          //expand it
     }
     if (y_max < y_top) {         //expansion allowed
+      if (textord_show_expanded_rows && testing_on)
+        tprintf("Expanding top of row at %f from %f to %f\n",
+                row->intercept(), y_max, y_top);
       swallowed_row = TRUE;
       while (swallowed_row && !row_it.at_first ()) {
         swallowed_row = FALSE;
@@ -1062,6 +1084,8 @@ void expand_rows(                   //find lines
         test_row = row_it.data_relative (-1);
         if (test_row->min_y () < y_top) {
           if (test_row->max_y () < y_top) {
+            if (textord_show_expanded_rows && testing_on)
+              tprintf("Eating row above at %f\n", test_row->intercept());
             row_it.backward ();
             blob_it.set_to_list (row->blob_list ());
 #ifndef GRAPHICS_DISABLED
@@ -1078,12 +1102,19 @@ void expand_rows(                   //find lines
             row_it.forward ();
             swallowed_row = TRUE;
           }
-          else if (test_row->min_y () < y_max)
+          else if (test_row->min_y () < y_max) {
                                  //shorter limit
             y_top = test_row->min_y ();
-          else
+            if (textord_show_expanded_rows && testing_on)
+              tprintf("Truncating limit to %f due to touching row at %f\n",
+                      y_top, test_row->intercept());
+          }
+          else {
             y_top = y_max;       //can't expand it
-
+            if (textord_show_expanded_rows && testing_on)
+              tprintf("Not expanding limit beyond %f due to touching row at %f\n",
+                      y_top, test_row->intercept());
+          }
         }
       }
       y_max = y_top;
@@ -1111,9 +1142,16 @@ void adjust_row_limits(                 //tidy limits
   float ymin;                    //bottom of row
   TO_ROW_IT row_it = block->get_rows ();
 
+  if (textord_show_expanded_rows)
+    tprintf("Adjusting row limits for block(%d,%d)\n",
+            block->block->bounding_box().left(),
+            block->block->bounding_box().top());
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
     size = row->max_y () - row->min_y ();
+    if (textord_show_expanded_rows)
+      tprintf("Row at %f has min %f, max %f, size %f\n",
+              row->intercept(), row->min_y(), row->max_y(), size);
     size /= textord_merge_x + textord_merge_asc + textord_merge_desc;
     ymax = size * (textord_merge_x + textord_merge_asc);
     ymin = -size * textord_merge_desc;
@@ -2343,7 +2381,7 @@ void assign_blobs_to_rows(                      //find lines
           else {
             if (top - row->max_y () <=
               (block->line_spacing -
-              block->line_size) * (textord_merge_x +
+              block->line_size) * (textord_overlap_x +
             textord_merge_asc)) {
                                  //done it
               overlap_result = ASSIGN;
@@ -2380,7 +2418,8 @@ void assign_blobs_to_rows(                      //find lines
         new TO_ROW (blob_it.extract (), top, bottom, block->line_size);
       row_count++;
       row_it.add_after_then_move (dest_row);
-      smooth_factor = 1.0 / (row_count * textord_skew_lag + 1);
+      smooth_factor = 1.0 / (row_count * textord_skew_lag +
+                             textord_skewsmooth_offset2);
     }
     else
       overlap_result = REJECT;
@@ -2509,7 +2548,8 @@ OVERLAP_STATE most_overlapping_row(                    //find best row
   while (row_it->data () != row)
     row_it->backward ();         //make it point to row
                                  //doesn't overlap much
-  if (top - bottom - bestover > rowsize * textord_merge_x && (!textord_fix_makerow_bug || bestover < rowsize * textord_merge_x)
+  if (top - bottom - bestover > rowsize * textord_overlap_x &&
+      (!textord_fix_makerow_bug || bestover < rowsize * textord_overlap_x)
     && result == ASSIGN)
     result = NEW_ROW;            //doesn't overlap enough
   best_row = row;

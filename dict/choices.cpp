@@ -50,12 +50,13 @@ freechoice, CHOICEBLOCK, "A_CHOICE", choicecount)
  **********************************************************************/
 CHOICES append_choice(CHOICES ratings,
                       const char *string,
+                      const char *lengths,
                       float rating,
                       float certainty,
                       INT8 config) {
   A_CHOICE *this_choice;
 
-  this_choice = new_choice (string, rating, certainty, config, NO_PERM);
+  this_choice = new_choice (string, lengths, rating, certainty, config, NO_PERM);
   ratings = push_last (ratings, (LIST) this_choice);
   return (ratings);
 }
@@ -74,10 +75,11 @@ CHOICES copy_choices(CHOICES choices) {
   iterate_list(l, choices) {
     result = push (result,
       (LIST) new_choice (class_string (first_node (l)),
-      class_probability (first_node (l)),
-      class_certainty (first_node (l)),
-      class_config (first_node (l)),
-      class_permuter (first_node (l))));
+                         class_lengths (first_node (l)),
+                         class_probability (first_node (l)),
+                         class_certainty (first_node (l)),
+                         class_config (first_node (l)),
+                         class_permuter (first_node (l))));
   }
   return (reverse_d (result));
 }
@@ -96,6 +98,8 @@ void free_choice(void *arg) {  //LIST choice)
   if (this_choice) {
     if (this_choice->string)
       strfree (this_choice->string);
+    if (this_choice->lengths)
+      strfree (this_choice->lengths);
     oldchoice(this_choice);
   }
 }
@@ -107,6 +111,7 @@ void free_choice(void *arg) {  //LIST choice)
  * Create a new choice record. Store the string value in a safe place.
  **********************************************************************/
 A_CHOICE *new_choice(const char *string,
+                     const char *lengths,
                      float rating,
                      float certainty,
                      INT8 config,
@@ -115,6 +120,7 @@ A_CHOICE *new_choice(const char *string,
 
   this_choice = newchoice ();
   this_choice->string = strsave (string);
+  this_choice->lengths = strsave (lengths);
   this_choice->rating = rating;
   this_choice->certainty = certainty;
   this_choice->config = config;

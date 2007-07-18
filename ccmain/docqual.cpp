@@ -26,6 +26,7 @@
 #include          "tessvars.h"
 #include          "genblob.h"
 #include          "secname.h"
+#include          "globals.h"
 
 #define EXTERN
 
@@ -206,7 +207,7 @@ INT16 word_blob_quality(  //Blob seg changes
  * crude_match_blobs()
  * Check bounding boxes are the same and the number of outlines are the same.
  *************************************************************************/
-BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2) { 
+BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2) {
   BOX box1 = blob1->bounding_box ();
   BOX box2 = blob2->bounding_box ();
 
@@ -332,7 +333,7 @@ void word_char_quality(  //Blob seg changes
  * unrej_good_chs()
  * Unreject POTENTIAL rejects if the blob passes the blob and outline checks
  *************************************************************************/
-void unrej_good_chs(WERD_RES *word, ROW *row) { 
+void unrej_good_chs(WERD_RES *word, ROW *row) {
   WERD *bln_word;                //BL norm init word
   TWERD *tessword;               //tess format
   WERD *init_word;               //BL norm init word
@@ -406,7 +407,7 @@ void unrej_good_chs(WERD_RES *word, ROW *row) {
 }
 
 
-void print_boxes(WERD *word) { 
+void print_boxes(WERD *word) {
   PBLOB_IT it;
   BOX box;
 
@@ -418,7 +419,7 @@ void print_boxes(WERD *word) {
 }
 
 
-INT16 count_outline_errs(char c, INT16 outline_count) { 
+INT16 count_outline_errs(char c, INT16 outline_count) {
   int expected_outline_count;
 
   if (STRING (outlines_odd).contains (c))
@@ -434,8 +435,8 @@ INT16 count_outline_errs(char c, INT16 outline_count) {
 void quality_based_rejection(PAGE_RES_IT &page_res_it,
                              BOOL8 good_quality_doc) {
   if ((tessedit_good_quality_unrej && good_quality_doc))
-    unrej_good_quality_words(page_res_it); 
-  doc_and_block_rejection(page_res_it, good_quality_doc); 
+    unrej_good_quality_words(page_res_it);
+  doc_and_block_rejection(page_res_it, good_quality_doc);
 
   page_res_it.restart_page ();
   while (page_res_it.word () != NULL) {
@@ -444,8 +445,8 @@ void quality_based_rejection(PAGE_RES_IT &page_res_it,
   }
 
   if (unlv_tilde_crunching) {
-    tilde_crunch(page_res_it); 
-    tilde_delete(page_res_it); 
+    tilde_crunch(page_res_it);
+    tilde_delete(page_res_it);
   }
 }
 
@@ -486,7 +487,8 @@ void unrej_good_quality_words(  //unreject potential
       word = page_res_it.word ();
       if (word->reject_map.quality_recoverable_rejects () &&
         (tessedit_unrej_any_wd ||
-        acceptable_word_string (word->best_choice->string ().string ())
+        acceptable_word_string (word->best_choice->string ().string (),
+                                word->best_choice->lengths().string())
       != AC_UNACCEPTABLE)) {
         unrej_good_chs (word, page_res_it.row ()->row);
       }
@@ -546,7 +548,7 @@ void doc_and_block_rejection(  //reject big chunks
 
   if ((page_res_it.page_res->rej_count * 100.0 /
   page_res_it.page_res->char_count) > tessedit_reject_doc_percent) {
-    reject_whole_page(page_res_it); 
+    reject_whole_page(page_res_it);
     #ifndef SECURE_NAMES
     if (tessedit_debug_doc_rejection) {
       tprintf ("REJECT ALL #chars: %d #Rejects: %d; \n",
@@ -596,7 +598,9 @@ void doc_and_block_rejection(  //reject big chunks
               tessedit_preserve_min_wd_len)
               &&
               (acceptable_word_string
-              (page_res_it.word ()->best_choice->string ().
+               (page_res_it.word ()->best_choice->string ().
+            string (),
+               page_res_it.word ()->best_choice->lengths ().
             string ()) != AC_UNACCEPTABLE)) {
               word_char_quality (page_res_it.word (),
                 page_res_it.row ()->row,
@@ -684,7 +688,9 @@ void doc_and_block_rejection(  //reject big chunks
                   &&
                   (acceptable_word_string
                   (page_res_it.word ()->best_choice->
-                string ().string ()) != AC_UNACCEPTABLE)) {
+                string ().string (),
+                   page_res_it.word ()->best_choice->
+                lengths ().string ()) != AC_UNACCEPTABLE)) {
                   word_char_quality (page_res_it.word (),
                     page_res_it.row ()->row,
                     &char_quality,
@@ -709,7 +715,7 @@ void doc_and_block_rejection(  //reject big chunks
                   1))
                   page_res_it.word ()->reject_spaces = TRUE;
                 page_res_it.word ()->reject_map.
-                  rej_word_row_rej(); 
+                  rej_word_row_rej();
               }
               prev_word_rejected = rej_word;
               page_res_it.forward ();
@@ -740,7 +746,7 @@ void doc_and_block_rejection(  //reject big chunks
  *
  *************************************************************************/
 
-void reject_whole_page(PAGE_RES_IT &page_res_it) { 
+void reject_whole_page(PAGE_RES_IT &page_res_it) {
   page_res_it.restart_page ();
   while (page_res_it.word () != NULL) {
     page_res_it.word ()->reject_map.rej_word_doc_rej ();
@@ -751,7 +757,7 @@ void reject_whole_page(PAGE_RES_IT &page_res_it) {
 }
 
 
-void tilde_crunch(PAGE_RES_IT &page_res_it) { 
+void tilde_crunch(PAGE_RES_IT &page_res_it) {
   WERD_RES *word;
   GARBAGE_LEVEL garbage_level;
   PAGE_RES_IT copy_it;
@@ -765,10 +771,10 @@ void tilde_crunch(PAGE_RES_IT &page_res_it) {
     word = page_res_it.word ();
 
     if (crunch_early_convert_bad_unlv_chs)
-      convert_bad_unlv_chs(word); 
+      convert_bad_unlv_chs(word);
 
     if (crunch_early_merge_tess_fails)
-      merge_tess_fails(word); 
+      merge_tess_fails(word);
 
     if (word->reject_map.accept_count () != 0) {
       found_terrible_word = FALSE;
@@ -835,7 +841,7 @@ void tilde_crunch(PAGE_RES_IT &page_res_it) {
 }
 
 
-BOOL8 terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level) { 
+BOOL8 terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level) {
   float rating_per_ch;
   int adjusted_len;
   int crunch_mode = 0;
@@ -878,14 +884,16 @@ BOOL8 potential_word_crunch(WERD_RES *word,
                             BOOL8 ok_dict_word) {
   float rating_per_ch;
   int adjusted_len;
-  char *str = (char *) word->best_choice->string ().string ();
+  const char *str = word->best_choice->string ().string ();
+  const char *lengths = word->best_choice->lengths ().string ();
   BOOL8 word_crunchable;
   int poor_indicator_count = 0;
 
   word_crunchable =
     !crunch_leave_accept_strings ||
     (word->reject_map.length () < 3) ||
-    ((acceptable_word_string (str) == AC_UNACCEPTABLE) && !ok_dict_word);
+    ((acceptable_word_string (str, lengths) == AC_UNACCEPTABLE) &&
+     !ok_dict_word);
 
   adjusted_len = word->reject_map.length ();
   if (adjusted_len > 10)
@@ -920,7 +928,7 @@ BOOL8 potential_word_crunch(WERD_RES *word,
 }
 
 
-void tilde_delete(PAGE_RES_IT &page_res_it) { 
+void tilde_delete(PAGE_RES_IT &page_res_it) {
   WERD_RES *word;
   PAGE_RES_IT copy_it;
   BOOL8 deleting_from_bol = FALSE;
@@ -986,7 +994,7 @@ void tilde_delete(PAGE_RES_IT &page_res_it) {
       determine if the word is deletable.
     */
     if (!crunch_early_merge_tess_fails)
-      merge_tess_fails(word); 
+      merge_tess_fails(word);
     page_res_it.forward ();
   }
 }
@@ -996,16 +1004,20 @@ void convert_bad_unlv_chs(  //word to do
                           WERD_RES *word_res) {
   char *ptr;                     //string ptr
   int i;
+  int offset;
 
   ptr = (char *) word_res->best_choice->string ().string ();
-  for (i = 0; i < word_res->reject_map.length (); i++) {
-    if (ptr[i] == '~') {
-      ptr[i] = '-';
+  for (i = 0, offset = 0; i < word_res->reject_map.length ();
+       offset += word_res->best_choice->lengths ()[i++]) {
+    if (word_res->best_choice->lengths ()[i] == 1 &&
+        ptr[offset] == '~') {
+      ptr[offset] = '-';
       if (word_res->reject_map[i].accepted ())
         word_res->reject_map[i].setrej_unlv_rej ();
     }
-    if (ptr[i] == '^') {
-      ptr[i] = ' ';
+    if (word_res->best_choice->lengths ()[i] == 1 &&
+        ptr[offset] == '^') {
+      ptr[offset] = ' ';
       if (word_res->reject_map[i].accepted ())
         word_res->reject_map[i].setrej_unlv_rej ();
     }
@@ -1022,36 +1034,39 @@ void convert_bad_unlv_chs(  //word to do
 void merge_tess_fails(  //word to do
                       WERD_RES *word_res) {
   char *ptr;                     //string ptr
+  char *ptr_lengths;             //lengths ptr
   PBLOB_IT blob_it;              //blobs
   int i = 0;
   int len;
 
-  len = strlen (word_res->best_choice->string ().string ());
+  len = strlen (word_res->best_choice->lengths ().string ());
   ASSERT_HOST (word_res->reject_map.length () == len);
   ASSERT_HOST (word_res->outword->blob_list ()->length () == len);
 
   ptr = (char *) word_res->best_choice->string ().string ();
+  ptr_lengths = (char *) word_res->best_choice->lengths ().string ();
   blob_it = word_res->outword->blob_list ();
   while (*ptr != '\0') {
     if ((*ptr == ' ') && (*(ptr + 1) == ' ')) {
       strcpy (ptr + 1, ptr + 2); //shuffle up
+      strcpy (ptr_lengths + 1, ptr_lengths + 2); //shuffle up
       word_res->reject_map.remove_pos (i);
       merge_blobs (blob_it.data_relative (1), blob_it.data ());
       delete blob_it.extract (); //get rid of spare
     }
     else {
       i++;
-      ptr++;
+      ptr += *(ptr_lengths++);
     }
     blob_it.forward ();
   }
-  len = strlen (word_res->best_choice->string ().string ());
+  len = strlen (word_res->best_choice->lengths ().string ());
   ASSERT_HOST (word_res->reject_map.length () == len);
   ASSERT_HOST (word_res->outword->blob_list ()->length () == len);
 }
 
 
-GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) { 
+GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
   enum STATES
   {
     JUNK,
@@ -1062,7 +1077,8 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
     SUBSEQUENT_LOWER,
     SUBSEQUENT_NUM
   };
-  char *str = (char *) word->best_choice->string ().string ();
+  const char *str = word->best_choice->string ().string ();
+  const char *lengths = word->best_choice->lengths ().string ();
   STATES state = JUNK;
   int len = 0;
   int isolated_digits = 0;
@@ -1071,7 +1087,7 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
   int tess_rejs = 0;
   int dodgy_chars = 0;
   int ok_chars;
-  char last_char = ' ';
+  UNICHAR_ID last_char = -1;
   int alpha_repetition_count = 0;
   int longest_alpha_repetition_count = 0;
   int longest_lower_run_len = 0;
@@ -1081,9 +1097,9 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
   int total_alpha_count = 0;
   int total_digit_count = 0;
 
-  for (; *str != '\0'; str++) {
+  for (; *str != '\0'; str += *(lengths++)) {
     len++;
-    if (isupper (*str)) {
+    if (unicharset.get_isupper (str, *lengths)) {
       total_alpha_count++;
       switch (state) {
         case SUBSEQUENT_UPPER:
@@ -1092,14 +1108,14 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
           upper_string_count++;
           if (longest_upper_run_len < upper_string_count)
             longest_upper_run_len = upper_string_count;
-          if (last_char == *str) {
+          if (last_char == unicharset.unichar_to_id(str, *lengths)) {
             alpha_repetition_count++;
             if (longest_alpha_repetition_count < alpha_repetition_count) {
               longest_alpha_repetition_count = alpha_repetition_count;
             }
           }
           else {
-            last_char = *str;
+            last_char = unicharset.unichar_to_id(str, *lengths);
             alpha_repetition_count = 1;
           }
           break;
@@ -1107,13 +1123,13 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
           isolated_digits++;
         default:
           state = FIRST_UPPER;
-          last_char = *str;
+          last_char = unicharset.unichar_to_id(str, *lengths);
           alpha_repetition_count = 1;
           upper_string_count = 1;
           break;
       }
     }
-    else if (islower (*str)) {
+    else if (unicharset.get_islower (str, *lengths)) {
       total_alpha_count++;
       switch (state) {
         case SUBSEQUENT_LOWER:
@@ -1122,14 +1138,14 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
           lower_string_count++;
           if (longest_lower_run_len < lower_string_count)
             longest_lower_run_len = lower_string_count;
-          if (last_char == *str) {
+          if (last_char == unicharset.unichar_to_id(str, *lengths)) {
             alpha_repetition_count++;
             if (longest_alpha_repetition_count < alpha_repetition_count) {
               longest_alpha_repetition_count = alpha_repetition_count;
             }
           }
           else {
-            last_char = *str;
+            last_char = unicharset.unichar_to_id(str, *lengths);
             alpha_repetition_count = 1;
           }
           break;
@@ -1137,13 +1153,13 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
           isolated_digits++;
         default:
           state = FIRST_LOWER;
-          last_char = *str;
+          last_char = unicharset.unichar_to_id(str, *lengths);
           alpha_repetition_count = 1;
           lower_string_count = 1;
           break;
       }
     }
-    else if (isdigit (*str)) {
+    else if (unicharset.get_isdigit (str, *lengths)) {
       total_digit_count++;
       switch (state) {
         case FIRST_NUM:
@@ -1159,7 +1175,7 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
       }
     }
     else {
-      if (*str == ' ')
+      if (*lengths == 1 && *str == ' ')
         tess_rejs++;
       else
         bad_char_count++;
@@ -1197,7 +1213,7 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
     (2 * (total_alpha_count - isolated_alphas) > len) &&
   (longest_alpha_repetition_count < crunch_long_repetitions)) {
     if ((crunch_accept_ok &&
-      (acceptable_word_string (str) != AC_UNACCEPTABLE)) ||
+      (acceptable_word_string (str, lengths) != AC_UNACCEPTABLE)) ||
       (longest_lower_run_len > crunch_leave_lc_strings) ||
       (longest_upper_run_len > crunch_leave_uc_strings))
       return G_NEVER_CRUNCH;
@@ -1208,7 +1224,7 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
     (word->best_choice->permuter () == FREQ_DAWG_PERM) ||
     (word->best_choice->permuter () == USER_DAWG_PERM) ||
     (word->best_choice->permuter () == NUMBER_PERM) ||
-    (acceptable_word_string (str) != AC_UNACCEPTABLE) || ok_dict_word))
+    (acceptable_word_string (str, lengths) != AC_UNACCEPTABLE) || ok_dict_word))
     return G_OK;
 
   ok_chars = len - bad_char_count - isolated_digits -
@@ -1265,7 +1281,7 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
  *          >75% of the outline BBs have longest dimension < 0.5xht
  *************************************************************************/
 
-CRUNCH_MODE word_deletable(WERD_RES *word, INT16 &delete_mode) { 
+CRUNCH_MODE word_deletable(WERD_RES *word, INT16 &delete_mode) {
   int word_len = word->reject_map.length ();
   float rating_per_ch;
   BOX box;                       //BB of word
@@ -1334,7 +1350,7 @@ CRUNCH_MODE word_deletable(WERD_RES *word, INT16 &delete_mode) {
 }
 
 
-INT16 failure_count(WERD_RES *word) { 
+INT16 failure_count(WERD_RES *word) {
   char *str = (char *) word->best_choice->string ().string ();
   int tess_rejs = 0;
 
@@ -1346,7 +1362,7 @@ INT16 failure_count(WERD_RES *word) {
 }
 
 
-BOOL8 noise_outlines(WERD *word) { 
+BOOL8 noise_outlines(WERD *word) {
   PBLOB_IT blob_it;
   OUTLINE_IT outline_it;
   BOX box;                       //BB of outline
@@ -1384,13 +1400,17 @@ void insert_rej_cblobs(  //word to do
                        WERD_RES *word) {
   PBLOB_IT blob_it;              //blob iterator
   PBLOB_IT rej_blob_it;
-  const STRING *wordstr;
+  const STRING *word_str;
+  const STRING *word_lengths;
   int old_len;
   int rej_len;
-  char new_str[512];
+  char new_str[512 * UNICHAR_LEN];
+  char new_lengths[512];
   REJMAP new_map;
   int i = 0;                     //new_str index
   int j = 0;                     //old_str index
+  int i_offset = 0;              //new_str offset
+  int j_offset = 0;              //old_str offset
   int new_len;
 
   gblob_sort_list (word->outword->rej_blob_list (), TRUE);
@@ -1399,8 +1419,9 @@ void insert_rej_cblobs(  //word to do
     return;
   rej_len = rej_blob_it.length ();
   blob_it.set_to_list (word->outword->blob_list ());
-  wordstr = &(word->best_choice->string ());
-  old_len = wordstr->length ();
+  word_str = &(word->best_choice->string ());
+  word_lengths = &(word->best_choice->lengths ());
+  old_len = word->best_choice->lengths().length ();
   ASSERT_HOST (word->reject_map.length () == old_len);
   ASSERT_HOST (blob_it.length () == old_len);
   if ((old_len + rej_len) > 511)
@@ -1418,26 +1439,32 @@ void insert_rej_cblobs(  //word to do
         blob_it.add_before_stay_put (rej_blob_it.extract ());
       if (!rej_blob_it.empty ())
         rej_blob_it.forward ();
-      new_str[i] = ' ';
+      new_str[i_offset] = ' ';
+      new_lengths[i] = 1;
       new_map[i].setrej_rej_cblob ();
-      i++;
+      i_offset += new_lengths[i++];
     }
     else {
-      new_str[i] = (*wordstr)[j];
+      strncpy(new_str + i_offset, &(*word_str)[j_offset],
+              (*word_lengths)[j]);
+      new_lengths[i] = (*word_lengths)[j];
       new_map[i] = word->reject_map[j];
-      i++;
-      j++;
+      i_offset += new_lengths[i++];
+      j_offset += (*word_lengths)[j++];
       blob_it.forward ();
     }
   }
   /* Add any extra normal blobs to strings */
-  while (j < wordstr->length ()) {
-    new_str[i] = (*wordstr)[j];
+  while (j < word_lengths->length ()) {
+    strncpy(new_str + i_offset, &(*word_str)[j_offset],
+            (*word_lengths)[j]);
+    new_lengths[i] = (*word_lengths)[j];
     new_map[i] = word->reject_map[j];
-    i++;
-    j++;
+    i_offset += new_lengths[i++];
+    j_offset += (*word_lengths)[j++];
   }
-  new_str[i] = '\0';
+  new_str[i_offset] = '\0';
+  new_lengths[i] = 0;
   /*
     tprintf(
           "\nOld len %d; New len %d; New str \"%s\"; New map \"%s\"\n",
@@ -1446,8 +1473,9 @@ void insert_rej_cblobs(  //word to do
   ASSERT_HOST (i == blob_it.length ());
   ASSERT_HOST (i == old_len + rej_len);
   word->reject_map = new_map;
-  *((STRING *) wordstr) = new_str;
-  new_len = strlen (word->best_choice->string ().string ());
+  *((STRING *) word_str) = new_str;
+  *((STRING *) word_lengths) = new_lengths;
+  new_len = word->best_choice->lengths ().length ();
   ASSERT_HOST (word->reject_map.length () == new_len);
   ASSERT_HOST (word->outword->blob_list ()->length () == new_len);
 }

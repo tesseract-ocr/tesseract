@@ -59,7 +59,7 @@ int AcceptableResult(A_CHOICE *BestChoice, A_CHOICE *RawChoice);
 
 int AlternativeChoicesWorseThan(FLOAT32 Threshold);
 
-int CurrentBestChoiceIs(const char *Word);
+int CurrentBestChoiceIs(const char *Word, const char *Word_lengths);
 
 FLOAT32 CurrentBestChoiceAdjustFactor();
 
@@ -87,7 +87,9 @@ void LogNewSplit(int Blob);
 void LogNewWordChoice (A_CHOICE * Choice,
 FLOAT32 AdjustFactor, float Certainties[]);
 
-int NoDangerousAmbig(const char *Word, DANGERR *fixpt);
+int NoDangerousAmbig(const char *Word,
+                     const char *Word_lengths,
+                     DANGERR *fixpt);
 void EndDangerousAmbigs();
 
 void SettupStopperPass1();

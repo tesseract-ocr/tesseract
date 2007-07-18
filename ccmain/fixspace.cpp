@@ -20,15 +20,16 @@
 **********************************************************************/
 
 #include "mfcpch.h"
-#include          <ctype.h>
-#include          "reject.h"
-#include          "statistc.h"
-#include          "genblob.h"
-#include          "control.h"
-#include          "fixspace.h"
-#include          "tessvars.h"
-#include          "tessbox.h"
-#include          "secname.h"
+#include <ctype.h>
+#include "reject.h"
+#include "statistc.h"
+#include "genblob.h"
+#include "control.h"
+#include "fixspace.h"
+#include "tessvars.h"
+#include "tessbox.h"
+#include "secname.h"
+#include "globals.h"
 
 #define EXTERN
 
@@ -168,10 +169,10 @@ void fix_fuzzy_space_list(  //space explorer
   dump_words (best_perm, best_score, 1, improved);
 
   if (best_score != PERFECT_WERDS)
-    initialise_search(best_perm, current_perm); 
+    initialise_search(best_perm, current_perm);
 
   while ((best_score != PERFECT_WERDS) && !current_perm.empty ()) {
-    match_current_words(current_perm, row); 
+    match_current_words(current_perm, row);
     current_score = eval_word_spacing (current_perm);
     dump_words (current_perm, current_score, 2, improved);
     if (current_score > best_score) {
@@ -181,15 +182,15 @@ void fix_fuzzy_space_list(  //space explorer
       improved = TRUE;
     }
     if (current_score < PERFECT_WERDS)
-      transform_to_next_perm(current_perm); 
+      transform_to_next_perm(current_perm);
   }
   dump_words (best_perm, best_score, 3, improved);
 }
 
 
-void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list) { 
-  WERD_RES_IT src_it(&src_list); 
-  WERD_RES_IT new_it(&new_list); 
+void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list) {
+  WERD_RES_IT src_it(&src_list);
+  WERD_RES_IT new_it(&new_list);
   WERD_RES *src_wd;
   WERD_RES *new_wd;
 
@@ -205,14 +206,14 @@ void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list) {
 }
 
 
-void match_current_words(WERD_RES_LIST &words, ROW *row) { 
-  WERD_RES_IT word_it(&words); 
+void match_current_words(WERD_RES_LIST &words, ROW *row) {
+  WERD_RES_IT word_it(&words);
   WERD_RES *word;
 
   for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
     word = word_it.data ();
     if ((!word->part_of_combo) && (word->outword == NULL))
-      classify_word_pass2(word, row); 
+      classify_word_pass2(word, row);
   }
 }
 
@@ -242,13 +243,14 @@ void match_current_words(WERD_RES_LIST &words, ROW *row) {
  * confirmed. The only score is from the joined 1. "PS7a713/7a" scores 2.
  *
  *************************************************************************/
-INT16 eval_word_spacing(WERD_RES_LIST &word_res_list) { 
-  WERD_RES_IT word_res_it(&word_res_list); 
+INT16 eval_word_spacing(WERD_RES_LIST &word_res_list) {
+  WERD_RES_IT word_res_it(&word_res_list);
   INT16 total_score = 0;
   INT16 word_count = 0;
   INT16 done_word_count = 0;
   INT16 word_len;
   INT16 i;
+  INT16 offset;
   WERD_RES *word;                //current word
   INT16 prev_word_score = 0;
   BOOL8 prev_word_done = FALSE;
@@ -283,11 +285,11 @@ INT16 eval_word_spacing(WERD_RES_LIST &word_res_list) {
       word_len = word->reject_map.length ();
       current_word_ok_so_far = FALSE;
       if (!((prev_char_1 &&
-        digit_or_numeric_punct (word,
-        word->best_choice->string ()[0])) ||
+        digit_or_numeric_punct (word, 0)) ||
         (prev_char_digit &&
         ((word_done &&
-        (word->best_choice->string ()[0] == '1')) ||
+        (word->best_choice->lengths().string()[0] == 1 &&
+         word->best_choice->string ()[0] == '1')) ||
         (!word_done &&
         STRING (conflict_set_I_l_1).contains (word->best_choice->
       string ()[0])))))) {
@@ -323,24 +325,24 @@ INT16 eval_word_spacing(WERD_RES_LIST &word_res_list) {
       /* Add 1 to total score for every joined punctuation regardless of context
         and rejtn */
       if (tessedit_prefer_joined_punct) {
-        for (i = 0, prev_char_punct = FALSE; i < word_len; i++) {
+        for (i = 0, offset = 0, prev_char_punct = FALSE; i < word_len;
+             offset += word->best_choice->lengths()[i++]) {
           current_char_punct =
-            punct_chars.contains (word->best_choice->string ()[i]);
+            punct_chars.contains (word->best_choice->string ()[offset]);
           if (prev_char_punct || (current_char_punct && (i > 0)))
             total_score++;
           prev_char_punct = current_char_punct;
         }
       }
-      prev_char_digit = digit_or_numeric_punct (word,
-        word->best_choice->
-        string ()[word_len - 1]);
+      prev_char_digit = digit_or_numeric_punct (word, word_len - 1);
+      for (i = 0, offset = 0; i < word_len - 1;
+           offset += word->best_choice->lengths()[i++]);
       prev_char_1 =
         ((word_done
-        && (word->best_choice->string ()[word_len - 1] == '1'))
+        && (word->best_choice->string ()[offset] == '1'))
         || (!word_done
         && STRING (conflict_set_I_l_1).contains (word->best_choice->
-        string ()[word_len -
-        1])));
+        string ()[offset])));
     }
     /* Find next word */
     do
@@ -358,11 +360,18 @@ INT16 eval_word_spacing(WERD_RES_LIST &word_res_list) {
 }
 
 
-BOOL8 digit_or_numeric_punct(WERD_RES *word, char ch) { 
-  return (isdigit (ch) ||
+BOOL8 digit_or_numeric_punct(WERD_RES *word, int char_position) {
+  int i;
+  int offset;
+
+  for (i = 0, offset = 0; i < char_position;
+       offset += word->best_choice->lengths()[i++]);
+  return (unicharset.get_isdigit(word->best_choice->string().string() + offset,
+                                 word->best_choice->lengths()[i]) ||
     (fixsp_numeric_fix &&
     (word->best_choice->permuter () == NUMBER_PERM) &&
-    STRING (numeric_punctuation).contains (ch)));
+    STRING (numeric_punctuation).contains
+     (word->best_choice->string().string()[offset])));
 }
 
 
@@ -377,9 +386,9 @@ BOOL8 digit_or_numeric_punct(WERD_RES *word, char ch) {
  * If there are no more gaps then it DELETES the entire list and returns the
  * empty list to cause termination.
  *************************************************************************/
-void transform_to_next_perm(WERD_RES_LIST &words) { 
-  WERD_RES_IT word_it(&words); 
-  WERD_RES_IT prev_word_it(&words); 
+void transform_to_next_perm(WERD_RES_LIST &words) {
+  WERD_RES_IT word_it(&words);
+  WERD_RES_IT prev_word_it(&words);
   WERD_RES *word;
   WERD_RES *prev_word;
   WERD_RES *combo;
@@ -460,8 +469,8 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
 }
 
 
-void dump_words(WERD_RES_LIST &perm, INT16 score, INT16 mode, BOOL8 improved) { 
-  WERD_RES_IT word_res_it(&perm); 
+void dump_words(WERD_RES_LIST &perm, INT16 score, INT16 mode, BOOL8 improved) {
+  WERD_RES_IT word_res_it(&perm);
   static STRING initial_str;
 
   if (debug_fix_space_level > 0) {
@@ -539,6 +548,7 @@ BOOL8 uniformly_spaced(  //sensible word
   float max_non_space;
   float normalised_max_nonspace;
   INT16 i = 0;
+  INT16 offset = 0;
   STRING punct_chars = "\"`',.:;";
 
   blob_it.set_to_list (word->outword->blob_list ());
@@ -547,8 +557,9 @@ BOOL8 uniformly_spaced(  //sensible word
     box = blob_it.data ()->bounding_box ();
     if ((prev_right > -MAX_INT16) &&
       (!fixsp_ignore_punct ||
-      (!punct_chars.contains (word->best_choice->string ()[i - 1]) &&
-    !punct_chars.contains (word->best_choice->string ()[i])))) {
+      (!punct_chars.contains (word->best_choice->string ()
+                              [offset - word->best_choice->lengths()[i - 1]]) &&
+    !punct_chars.contains (word->best_choice->string ()[offset])))) {
       gap = box.left () - prev_right;
       if (gap < max_gap)
         gap_stats.add (gap, 1);
@@ -562,7 +573,7 @@ BOOL8 uniformly_spaced(  //sensible word
       }
     }
     prev_right = box.right ();
-    i++;
+    offset += word->best_choice->lengths()[i++];
   }
 
   max_non_space = (row->space () + 3 * row->kern ()) / 4;
@@ -595,7 +606,7 @@ BOOL8 uniformly_spaced(  //sensible word
 }
 
 
-BOOL8 fixspace_thinks_word_done(WERD_RES *word) { 
+BOOL8 fixspace_thinks_word_done(WERD_RES *word) {
   if (word->done)
     return TRUE;
 
@@ -627,10 +638,10 @@ BOOL8 fixspace_thinks_word_done(WERD_RES *word) {
  * Return with the iterator pointing to the same place if the word is unchanged,
  * or the last of the replacement words.
  *************************************************************************/
-void fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row) { 
+void fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row) {
   WERD_RES *word_res;
   WERD_RES_LIST sub_word_list;
-  WERD_RES_IT sub_word_list_it(&sub_word_list); 
+  WERD_RES_IT sub_word_list_it(&sub_word_list);
   INT16 blob_index;
   INT16 new_length;
   float junk;
@@ -654,7 +665,7 @@ void fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row) {
   #endif
   gblob_sort_list ((PBLOB_LIST *) word_res->word->rej_cblob_list (), FALSE);
   sub_word_list_it.add_after_stay_put (word_res_it.extract ());
-  fix_noisy_space_list(sub_word_list, row); 
+  fix_noisy_space_list(sub_word_list, row);
   new_length = sub_word_list.length ();
   word_res_it.add_list_before (&sub_word_list);
   for (; (!word_res_it.at_last () && (new_length > 1)); new_length--) {
@@ -663,11 +674,11 @@ void fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row) {
 }
 
 
-void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row) { 
+void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row) {
   INT16 best_score;
-  WERD_RES_IT best_perm_it(&best_perm); 
+  WERD_RES_IT best_perm_it(&best_perm);
   WERD_RES_LIST current_perm;
-  WERD_RES_IT current_perm_it(&current_perm); 
+  WERD_RES_IT current_perm_it(&current_perm);
   WERD_RES *old_word_res;
   WERD_RES *new_word_res;
   INT16 current_score;
@@ -689,10 +700,10 @@ void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row) {
   new_word_res->combination = FALSE;
   current_perm_it.add_to_end (new_word_res);
 
-  break_noisiest_blob_word(current_perm); 
+  break_noisiest_blob_word(current_perm);
 
   while ((best_score != PERFECT_WERDS) && !current_perm.empty ()) {
-    match_current_words(current_perm, row); 
+    match_current_words(current_perm, row);
     current_score = fp_eval_word_spacing (current_perm);
     dump_words (current_perm, current_score, 2, improved);
     if (current_score > best_score) {
@@ -702,7 +713,7 @@ void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row) {
       improved = TRUE;
     }
     if (current_score < PERFECT_WERDS)
-      break_noisiest_blob_word(current_perm); 
+      break_noisiest_blob_word(current_perm);
   }
   dump_words (best_perm, best_score, 3, improved);
 }
@@ -713,8 +724,8 @@ void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row) {
  * Find the word with the blob which looks like the worst noise.
  * Break the word into two, deleting the noise blob.
  *************************************************************************/
-void break_noisiest_blob_word(WERD_RES_LIST &words) { 
-  WERD_RES_IT word_it(&words); 
+void break_noisiest_blob_word(WERD_RES_LIST &words) {
+  WERD_RES_IT word_it(&words);
   WERD_RES_IT worst_word_it;
   float worst_noise_score = 9999;
   int worst_blob_index = -1;     //noisiest blb of noisiest wd
@@ -785,7 +796,7 @@ void break_noisiest_blob_word(WERD_RES_LIST &words) {
 }
 
 
-INT16 worst_noise_blob(WERD_RES *word_res, float *worst_noise_score) { 
+INT16 worst_noise_blob(WERD_RES *word_res, float *worst_noise_score) {
   PBLOB_IT blob_it;
   INT16 blob_count;
   float noise_score[512];
@@ -860,7 +871,7 @@ INT16 worst_noise_blob(WERD_RES *word_res, float *worst_noise_score) {
 }
 
 
-float blob_noise_score(PBLOB *blob) { 
+float blob_noise_score(PBLOB *blob) {
   OUTLINE_IT outline_it;
   BOX box;                       //BB of outline
   INT16 outline_count = 0;
@@ -897,7 +908,7 @@ float blob_noise_score(PBLOB *blob) {
 }
 
 
-void fixspace_dbg(WERD_RES *word) { 
+void fixspace_dbg(WERD_RES *word) {
   BOX box = word->word->bounding_box ();
   BOOL8 show_map_detail = FALSE;
   INT16 i;
@@ -934,13 +945,14 @@ void fixspace_dbg(WERD_RES *word) {
  * Penalise any potential noise chars
  *************************************************************************/
 
-INT16 fp_eval_word_spacing(WERD_RES_LIST &word_res_list) { 
-  WERD_RES_IT word_it(&word_res_list); 
+INT16 fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
+  WERD_RES_IT word_it(&word_res_list);
   WERD_RES *word;
   PBLOB_IT blob_it;
   INT16 word_length;
   INT16 score = 0;
   INT16 i;
+  INT16 offset;
   const char *chs;
   float small_limit = bln_x_height * fixsp_small_outlines_size;
 
@@ -958,8 +970,9 @@ INT16 fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
       (word->best_choice->permuter () == USER_DAWG_PERM) ||
     (safe_dict_word (chs) > 0)) {
       blob_it.set_to_list (word->outword->blob_list ());
-      for (i = 0; i < word_length; i++, blob_it.forward ()) {
-        if ((chs[i] == ' ') ||
+      for (i = 0, offset = 0; i < word_length;
+           offset += word->best_choice->lengths()[i++], blob_it.forward ()) {
+        if ((chs[offset] == ' ') ||
           (blob_noise_score (blob_it.data ()) < small_limit))
           score -= 1;            //penalise possibly erroneous non-space
 

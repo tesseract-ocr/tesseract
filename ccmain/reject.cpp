@@ -37,6 +37,7 @@
 #include          "control.h"
 #include          "docqual.h"
 #include          "secname.h"
+#include          "globals.h"
 
 /* #define SECURE_NAMES done in secnames.h when necessary */
 
@@ -337,12 +338,13 @@ void make_reject_map(            //make rej map for wd //detailed results
                      ROW *row,
                      INT16 pass  //1st or 2nd?
                     ) {
-  INT16 i;
+  int i;
+  int offset;
 
   flip_0O(word);
   check_debug_pt (word, -1);     //For trap only
   set_done(word, pass);  //Set acceptance
-  word->reject_map.initialise (word->best_choice->string ().length ());
+  word->reject_map.initialise (word->best_choice->lengths ().length ());
   reject_blanks(word);
   /*
   0: Rays original heuristic - the baseline
@@ -380,16 +382,20 @@ void make_reject_map(            //make rej map for wd //detailed results
           (word->best_choice->permuter () == USER_DAWG_PERM)) &&
           (!rej_use_sensible_wd ||
           (acceptable_word_string
-          (word->best_choice->string ().string ()) !=
+          (word->best_choice->string ().string (),
+           word->best_choice->lengths ().string ()) !=
         AC_UNACCEPTABLE))) {
           //PASSED TEST
         }
         else if (word->best_choice->permuter () == NUMBER_PERM) {
           if (rej_alphas_in_number_perm) {
-            for (i = 0; word->best_choice->string ()[i] != '\0';
-            i++) {
+            for (i = 0, offset = 0;
+                 word->best_choice->string ()[offset] != '\0';
+                 offset += word->best_choice->lengths()[i++]) {
               if (word->reject_map[i].accepted () &&
-                isalpha (word->best_choice->string ()[i]))
+                  unicharset.get_isalpha (word->best_choice->string ().string()
+                                          + offset,
+                                          word->best_choice->lengths()[i]))
                 word->reject_map[i].setrej_bad_permuter ();
               //rej alpha
             }
@@ -433,9 +439,11 @@ void make_reject_map(            //make rej map for wd //detailed results
 
 void reject_blanks(WERD_RES *word) {
   INT16 i;
+  INT16 offset;
 
-  for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
-    if (word->best_choice->string ()[i] == ' ')
+  for (i = 0, offset = 0; word->best_choice->string ()[offset] != '\0';
+       offset += word->best_choice->lengths ()[i], i += 1) {
+    if (word->best_choice->string ()[offset] == ' ')
                                  //rej unrecognised blobs
       word->reject_map[i].setrej_tess_failure ();
   }
@@ -444,10 +452,12 @@ void reject_blanks(WERD_RES *word) {
 
 void reject_I_1_L(WERD_RES *word) {
   INT16 i;
+  INT16 offset;
 
-  for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
+  for (i = 0, offset = 0; word->best_choice->string ()[offset] != '\0';
+       offset += word->best_choice->lengths ()[i], i += 1) {
     if (STRING (conflict_set_I_l_1).
-    contains (word->best_choice->string ()[i])) {
+    contains (word->best_choice->string ()[offset])) {
                                  //rej 1Il conflict
       word->reject_map[i].setrej_1Il_conflict ();
     }
@@ -460,30 +470,32 @@ void reject_poor_matches(  //detailed results
                          BLOB_CHOICE_LIST_CLIST *blob_choices) {
   float threshold;
   INT16 i = 0;
+  INT16 offset = 0;
                                  //super iterator
   BLOB_CHOICE_LIST_C_IT list_it = blob_choices;
   BLOB_CHOICE_IT choice_it;      //real iterator
 
   #ifndef SECURE_NAMES
-  if (strlen (word->best_choice->string ().string ()) != list_it.length ()) {
+  if (strlen (word->best_choice->lengths ().string ()) != list_it.length ()) {
     tprintf
       ("ASSERT FAIL string:\"%s\"; strlen=%d; choices len=%d; blob len=%d\n",
       word->best_choice->string ().string (),
-      strlen (word->best_choice->string ().string ()), list_it.length (),
+      strlen (word->best_choice->lengths ().string ()), list_it.length (),
       word->outword->blob_list ()->length ());
   }
   #endif
-  ASSERT_HOST (strlen (word->best_choice->string ().string ()) ==
+  ASSERT_HOST (strlen (word->best_choice->lengths ().string ()) ==
     list_it.length ());
   ASSERT_HOST (word->outword->blob_list ()->length () == list_it.length ());
   threshold = compute_reject_threshold (blob_choices);
 
   for (list_it.mark_cycle_pt ();
-  !list_it.cycled_list (); list_it.forward (), i++) {
+  !list_it.cycled_list (); list_it.forward (), i++,
+           offset += word->best_choice->lengths ()[i]) {
     /* NB - only compares the threshold against the TOP choice char in the
       choices list for a blob !! - the selected one may be below the threshold */
     choice_it.set_to_list (list_it.data ());
-    if ((word->best_choice->string ()[i] == ' ') ||
+    if ((word->best_choice->string ()[offset] == ' ') ||
       (choice_it.length () == 0))
                                  //rej unrecognised blobs
       word->reject_map[i].setrej_tess_failure ();
@@ -622,9 +634,12 @@ void reject_edge_blobs(WERD_RES *word) {
 
 BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
   const char *word;
+  const char *lengths;
   INT16 word_len;                //its length
-  INT16 first_alphanum_idx;
+  INT16 first_alphanum_index_;
+  INT16 first_alphanum_offset_;
   INT16 i;
+  INT16 offset;
   BOOL8 non_conflict_set_char;   //non conf set a/n?
   BOOL8 conflict = FALSE;
   BOOL8 allow_1s;
@@ -634,7 +649,8 @@ BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
   int dict_word_type;
 
   word = word_res->best_choice->string ().string ();
-  word_len = strlen (word);
+  lengths = word_res->best_choice->lengths().string();
+  word_len = strlen (lengths);
   /*
     If there are no occurrences of the conflict set characters then the word
     is OK.
@@ -647,10 +663,12 @@ BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
     from those in the conflict set.
   */
 
-  for (i = 0, non_conflict_set_char = FALSE;
-    (i < word_len) && !non_conflict_set_char; i++)
-  non_conflict_set_char = isalnum (word[i]) &&
-      !STRING (conflict_set_I_l_1).contains (word[i]);
+  for (i = 0, offset = 0, non_conflict_set_char = FALSE;
+       (i < word_len) && !non_conflict_set_char; offset += lengths[i++])
+    non_conflict_set_char =
+        (unicharset.get_isalpha(word + offset, lengths[i]) ||
+         unicharset.get_isdigit(word + offset, lengths[i])) &&
+        !STRING (conflict_set_I_l_1).contains (word[offset]);
   if (!non_conflict_set_char) {
     if (update_map)
       reject_I_1_L(word_res);
@@ -675,33 +693,36 @@ BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
   if ((rej_1Il_use_dict_word && dict_word_ok) ||
     (rej_1Il_trust_permuter_type && dict_perm_type) ||
   (dict_perm_type && dict_word_ok)) {
-    first_alphanum_idx = first_alphanum_pos (word);
-    if (word[first_alphanum_idx] == 'I') {
-      word_res->best_choice->string ()[first_alphanum_idx] = 'l';
+    first_alphanum_index_ = first_alphanum_index (word, lengths);
+    first_alphanum_offset_ = first_alphanum_offset (word, lengths);
+    if (lengths[first_alphanum_index_] == 1 &&
+        word[first_alphanum_offset_] == 'I') {
+      word_res->best_choice->string ()[first_alphanum_offset_] = 'l';
       if (safe_dict_word (word) > 0) {
-        word_res->best_choice->string ()[first_alphanum_idx] = 'I';
+        word_res->best_choice->string ()[first_alphanum_offset_] = 'I';
         if (update_map)
-          word_res->reject_map[first_alphanum_idx].
+          word_res->reject_map[first_alphanum_index_].
             setrej_1Il_conflict();
         return TRUE;
       }
       else {
-        word_res->best_choice->string ()[first_alphanum_idx] = 'I';
+        word_res->best_choice->string ()[first_alphanum_offset_] = 'I';
         return FALSE;
       }
     }
 
-    if (word[first_alphanum_idx] == 'l') {
-      word_res->best_choice->string ()[first_alphanum_idx] = 'I';
+    if (lengths[first_alphanum_index_] == 1 &&
+        word[first_alphanum_offset_] == 'l') {
+      word_res->best_choice->string ()[first_alphanum_offset_] = 'I';
       if (safe_dict_word (word) > 0) {
-        word_res->best_choice->string ()[first_alphanum_idx] = 'l';
+        word_res->best_choice->string ()[first_alphanum_offset_] = 'l';
         if (update_map)
-          word_res->reject_map[first_alphanum_idx].
+          word_res->reject_map[first_alphanum_index_].
             setrej_1Il_conflict();
         return TRUE;
       }
       else {
-        word_res->best_choice->string ()[first_alphanum_idx] = 'l';
+        word_res->best_choice->string ()[first_alphanum_offset_] = 'l';
         return FALSE;
       }
     }
@@ -719,20 +740,23 @@ BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
     REGARDLESS OF PERMUTER, see if flipping a leading I/l generates a
     dictionary word.
   */
-  first_alphanum_idx = first_alphanum_pos (word);
-  if (word[first_alphanum_idx] == 'l') {
-    word_res->best_choice->string ()[first_alphanum_idx] = 'I';
+  first_alphanum_index_ = first_alphanum_index (word, lengths);
+  first_alphanum_offset_ = first_alphanum_offset (word, lengths);
+  if (lengths[first_alphanum_index_] == 1 &&
+      word[first_alphanum_offset_] == 'l') {
+    word_res->best_choice->string ()[first_alphanum_offset_] = 'I';
     if (safe_dict_word (word) > 0)
       return FALSE;
     else
-      word_res->best_choice->string ()[first_alphanum_idx] = 'l';
+      word_res->best_choice->string ()[first_alphanum_offset_] = 'l';
   }
-  else if (word[first_alphanum_idx] == 'I') {
-    word_res->best_choice->string ()[first_alphanum_idx] = 'l';
+  else if (lengths[first_alphanum_index_] == 1 &&
+           word[first_alphanum_offset_] == 'I') {
+    word_res->best_choice->string ()[first_alphanum_offset_] = 'l';
     if (safe_dict_word (word) > 0)
       return FALSE;
     else
-      word_res->best_choice->string ()[first_alphanum_idx] = 'I';
+      word_res->best_choice->string ()[first_alphanum_offset_] = 'I';
   }
   /*
     For strings containing digits:
@@ -740,14 +764,16 @@ BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
         reject any non 1 conflict chs
       Else reject all conflict chs
   */
-  if (word_contains_non_1_digit (word)) {
-    allow_1s = (alpha_count (word) == 0) ||
+  if (word_contains_non_1_digit (word, lengths)) {
+    allow_1s = (alpha_count (word, lengths) == 0) ||
       (word_res->best_choice->permuter () == NUMBER_PERM);
 
+    INT16 offset;
     conflict = FALSE;
-    for (i = 0; i < word_len; i++) {
-      if ((!allow_1s || (word[i] != '1')) &&
-      STRING (conflict_set_I_l_1).contains (word[i])) {
+    for (i = 0, offset = 0; word[offset] != '\0';
+         offset += word_res->best_choice->lengths ()[i++]) {
+      if ((!allow_1s || (word[offset] != '1')) &&
+      STRING (conflict_set_I_l_1).contains (word[offset])) {
         if (update_map)
           word_res->reject_map[i].setrej_1Il_conflict ();
         conflict = TRUE;
@@ -759,12 +785,14 @@ BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
     For anything else. See if it conforms to an acceptable word type. If so,
     treat accordingly.
   */
-  word_type = acceptable_word_string (word);
+  word_type = acceptable_word_string (word, lengths);
   if ((word_type == AC_LOWER_CASE) || (word_type == AC_INITIAL_CAP)) {
-    first_alphanum_idx = first_alphanum_pos (word);
-    if (STRING (conflict_set_I_l_1).contains (word[first_alphanum_idx])) {
+    first_alphanum_index_ = first_alphanum_index (word, lengths);
+    first_alphanum_offset_ = first_alphanum_offset (word, lengths);
+    if (STRING (conflict_set_I_l_1).contains (word[first_alphanum_offset_])) {
       if (update_map)
-        word_res->reject_map[first_alphanum_idx].setrej_1Il_conflict ();
+        word_res->reject_map[first_alphanum_index_].
+            setrej_1Il_conflict ();
       return TRUE;
     }
     else
@@ -781,34 +809,54 @@ BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
 }
 
 
-INT16 first_alphanum_pos(const char *word) {
+INT16 first_alphanum_index(const char *word,
+                           const char *word_lengths) {
   INT16 i;
+  INT16 offset;
 
-  for (i = 0; word[i] != '\0'; i++) {
-    if (isalnum (word[i]))
+  for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
+    if (unicharset.get_isalpha(word + offset, word_lengths[i]) ||
+        unicharset.get_isdigit(word + offset, word_lengths[i]))
       return i;
   }
   return -1;
 }
 
-
-INT16 alpha_count(const char *word) {
+INT16 first_alphanum_offset(const char *word,
+                            const char *word_lengths) {
   INT16 i;
+  INT16 offset;
+
+  for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
+    if (unicharset.get_isalpha(word + offset, word_lengths[i]) ||
+        unicharset.get_isdigit(word + offset, word_lengths[i]))
+      return offset;
+  }
+  return -1;
+}
+
+INT16 alpha_count(const char *word,
+                  const char *word_lengths) {
+  INT16 i;
+  INT16 offset;
   INT16 count = 0;
 
-  for (i = 0; word[i] != '\0'; i++) {
-    if (isalpha (word[i]))
+  for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
+    if (unicharset.get_isalpha (word + offset, word_lengths[i]))
       count++;
   }
   return count;
 }
 
 
-BOOL8 word_contains_non_1_digit(const char *word) {
+BOOL8 word_contains_non_1_digit(const char *word,
+                                const char *word_lengths) {
   INT16 i;
+  INT16 offset;
 
-  for (i = 0; word[i] != '\0'; i++) {
-    if (isdigit (word[i]) && word[i] != '1')
+  for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
+    if (unicharset.get_isdigit (word + offset, word_lengths[i]) &&
+        (word_lengths[i] != 1 || word[offset] != '1'))
       return TRUE;
   }
   return FALSE;
@@ -822,7 +870,9 @@ BOOL8 test_ambig_word(  //test for ambiguity
   if ((word->best_choice->permuter () == SYSTEM_DAWG_PERM) ||
     (word->best_choice->permuter () == FREQ_DAWG_PERM) ||
   (word->best_choice->permuter () == USER_DAWG_PERM)) {
-    ambig = !NoDangerousAmbig(word->best_choice->string().string(), NULL);
+    ambig = !NoDangerousAmbig(word->best_choice->string().string(),
+                              word->best_choice->lengths().string(),
+                              NULL);
   }
   return ambig;
 }
@@ -975,7 +1025,7 @@ void nn_recover_rejects(WERD_RES *word, ROW *row) {
   */
   if (no_unrej_no_alphanum_wds &&
     (count_alphanums (word) < 1) &&
-    !((word->best_choice->string ().length () == 1) &&
+    !((word->best_choice->lengths ().length () == 1) &&
     STRING (ok_single_ch_non_alphanum_wds).contains (word->best_choice->
     string ()[0]))
     && !repeated_nonalphanum_wd (word, row))
@@ -1015,6 +1065,7 @@ void nn_match_word(  //Match a word
   INT16 i;
 
   const char *word_string;
+  const char *word_string_lengths;
   BOOL8 word_in_dict;            //Tess wd in dict
   BOOL8 checked_dict_word;       //Tess wd definitely in dict
   BOOL8 sensible_word;           //OK char string
@@ -1027,18 +1078,24 @@ void nn_match_word(  //Match a word
   //1:DODGY ACCEPT
   //2:DICT ACCEPT
   //3:CLEAR ACCEPT
-  INT16 first_alphanum_idx;
+  INT16 first_alphanum_index_;
+  INT16 first_alphanum_offset_;
 
   word_string = word->best_choice->string ().string ();
-  first_alphanum_idx = first_alphanum_pos (word_string);
+  word_string_lengths = word->best_choice->lengths ().string ();
+  first_alphanum_index_ = first_alphanum_index (word_string,
+                                                word_string_lengths);
+  first_alphanum_offset_ = first_alphanum_offset (word_string,
+                                                  word_string_lengths);
   word_in_dict = ((word->best_choice->permuter () == SYSTEM_DAWG_PERM) ||
     (word->best_choice->permuter () == FREQ_DAWG_PERM) ||
     (word->best_choice->permuter () == USER_DAWG_PERM));
   checked_dict_word = word_in_dict && (safe_dict_word (word_string) > 0);
-  sensible_word = acceptable_word_string (word_string) != AC_UNACCEPTABLE;
+  sensible_word = acceptable_word_string (word_string, word_string_lengths) !=
+      AC_UNACCEPTABLE;
 
   word_char_quality(word, row, &char_quality, &accepted_char_quality);
-  good_quality_word = word->best_choice->string ().length () == char_quality;
+  good_quality_word = word->best_choice->lengths ().length () == char_quality;
 
   #ifndef SECURE_NAMES
   if (nn_reject_debug) {
@@ -1049,7 +1106,7 @@ void nn_match_word(  //Match a word
   }
   #endif
 
-  if (word->best_choice->string ().length () !=
+  if (word->best_choice->lengths ().length () !=
   word->outword->blob_list ()->length ()) {
     #ifndef SECURE_NAMES
     tprintf ("nn_match_word ASSERT FAIL String:\"%s\";  #Blobs=%d\n",
@@ -1112,8 +1169,10 @@ void nn_match_word(  //Match a word
       sensible_word, centre,
       good_quality_word, word_string[i]);
     if (word->reject_map[i].recoverable ()) {
-      if ((i == first_alphanum_idx) &&
-      ((word_string[i] == 'I') || (word_string[i] == 'i'))) {
+      if ((i == first_alphanum_index_) &&
+          word_string_lengths[first_alphanum_index_] == 1 &&
+      ((word_string[first_alphanum_offset_] == 'I') ||
+       (word_string[first_alphanum_offset_] == 'i'))) {
         if (conf_level >= nn_conf_initial_i_level)
           word->reject_map[i].setrej_nn_accept ();
         //un-reject char
@@ -1356,6 +1415,7 @@ INT16 evaluate_net_match(char top,
  *************************************************************************/
 void dont_allow_dubious_chars(WERD_RES *word) {
   int i = 0;
+  int offset = 0;
   int rej_pos;
   int word_len = word->reject_map.length ();
 
@@ -1363,25 +1423,31 @@ void dont_allow_dubious_chars(WERD_RES *word) {
     /* Find next reject */
 
     while ((i < word_len) && (word->reject_map[i].accepted ()))
+    {
+      offset += word->best_choice->lengths()[i];
       i++;
+    }
 
     if (i < word_len) {
       rej_pos = i;
 
       /* Reject dubious chars to the left */
       i--;
+      offset -= word->best_choice->lengths()[i];
       while ((i >= 0) &&
         STRING (dubious_chars_left_of_reject).contains (word->
         best_choice->
         string ()
-      [i])) {
+      [offset])) {
         word->reject_map[i--].setrej_dubious ();
+        offset -= word->best_choice->lengths()[i];
       }
 
       /* Skip adjacent rejects */
 
       for (i = rej_pos;
-        (i < word_len) && (word->reject_map[i].rejected ()); i++);
+        (i < word_len) && (word->reject_map[i].rejected ());
+           offset += word->best_choice->lengths()[i++]);
 
       /* Reject dubious chars to the right */
 
@@ -1389,7 +1455,8 @@ void dont_allow_dubious_chars(WERD_RES *word) {
         STRING (dubious_chars_right_of_reject).contains (word->
         best_choice->
         string ()
-      [i])) {
+      [offset])) {
+        offset += word->best_choice->lengths()[i];
         word->reject_map[i++].setrej_dubious ();
       }
     }
@@ -1403,16 +1470,20 @@ void dont_allow_dubious_chars(WERD_RES *word) {
  *************************************************************************/
 void dont_allow_1Il(WERD_RES *word) {
   int i = 0;
+  int offset;
   int word_len = word->reject_map.length ();
   const char *s = word->best_choice->string ().string ();
+  const char *lengths = word->best_choice->lengths ().string ();
   BOOL8 accepted_1Il = FALSE;
 
-  for (i = 0; i < word_len; i++) {
+  for (i = 0, offset = 0; i < word_len;
+       offset += word->best_choice->lengths()[i++]) {
     if (word->reject_map[i].accepted ()) {
-      if (STRING (conflict_set_I_l_1).contains (s[i]))
+      if (STRING (conflict_set_I_l_1).contains (s[offset]))
         accepted_1Il = TRUE;
       else {
-        if (isalnum (s[i]))
+        if (unicharset.get_isalpha (s + offset, lengths[i]) ||
+            unicharset.get_isdigit (s + offset, lengths[i]))
           return;                // >=1 non 1Il ch accepted
       }
     }
@@ -1420,8 +1491,9 @@ void dont_allow_1Il(WERD_RES *word) {
   if (!accepted_1Il)
     return;                      //Nothing to worry about
 
-  for (i = 0; i < word_len; i++) {
-    if (STRING (conflict_set_I_l_1).contains (s[i]) &&
+  for (i = 0, offset = 0; i < word_len;
+       offset += word->best_choice->lengths()[i++]) {
+    if (STRING (conflict_set_I_l_1).contains (s[offset]) &&
       word->reject_map[i].accepted ())
       word->reject_map[i].setrej_postNN_1Il ();
   }
@@ -1432,10 +1504,15 @@ INT16 count_alphanums(  //how many alphanums
                       WERD_RES *word) {
   int count = 0;
   int i;
+  int offset;
 
-  for (i = 0; i < word->reject_map.length (); i++) {
+  for (i = 0, offset = 0; i < word->reject_map.length ();
+       offset += word->best_choice->lengths()[i++]) {
     if ((word->reject_map[i].accepted ()) &&
-      (isalnum (word->best_choice->string ()[i])))
+      (unicharset.get_isalpha (word->best_choice->string ().string() + offset,
+                               word->best_choice->lengths ()[i]) ||
+       unicharset.get_isdigit (word->best_choice->string ().string() + offset,
+                               word->best_choice->lengths ()[i])))
       count++;
   }
   return count;
@@ -1456,19 +1533,20 @@ BOOL8 repeated_nonalphanum_wd(WERD_RES *word, ROW *row) {
   INT16 char_quality;
   INT16 accepted_char_quality;
 
-  if (word->best_choice->string ().length () <= 1)
+  if (word->best_choice->lengths ().length () <= 1)
     return FALSE;
 
   if (!STRING (ok_repeated_ch_non_alphanum_wds).
     contains (word->best_choice->string ()[0]))
     return FALSE;
 
-  if (!repeated_ch_string (word->best_choice->string ().string ()))
+  if (!repeated_ch_string (word->best_choice->string ().string (),
+                           word->best_choice->lengths ().string ()))
     return FALSE;
 
   word_char_quality(word, row, &char_quality, &accepted_char_quality);
 
-  if ((word->best_choice->string ().length () == char_quality) &&
+  if ((word->best_choice->lengths ().length () == char_quality) &&
     (char_quality == accepted_char_quality))
     return TRUE;
   else
@@ -1476,16 +1554,18 @@ BOOL8 repeated_nonalphanum_wd(WERD_RES *word, ROW *row) {
 }
 
 
-BOOL8 repeated_ch_string(const char *rep_ch_str) {
-  char c;
+BOOL8 repeated_ch_string(const char *rep_ch_str,
+                         const char *lengths) {
+  UNICHAR_ID c;
 
   if ((rep_ch_str == NULL) || (*rep_ch_str == '\0')) {
     return FALSE;
   }
 
-  c = *rep_ch_str;
-  rep_ch_str++;
-  while (*rep_ch_str == c) {
+  c = unicharset.unichar_to_id(rep_ch_str, *lengths);
+  rep_ch_str += *(lengths++);
+  while (*rep_ch_str != '\0' &&
+         unicharset.unichar_to_id(rep_ch_str, *lengths) == c) {
     rep_ch_str++;
   }
   if (*rep_ch_str == '\0')
@@ -1508,6 +1588,7 @@ INT16 safe_dict_word(const char *s) {
 void flip_hyphens(WERD_RES *word) {
   char *str = (char *) word->best_choice->string ().string ();
   int i = 0;
+  int offset = 0;
   PBLOB_IT outword_it;
   int prev_right = -9999;
   int next_left;
@@ -1520,7 +1601,8 @@ void flip_hyphens(WERD_RES *word) {
   outword_it.set_to_list (word->outword->blob_list ());
 
   for (outword_it.mark_cycle_pt ();
-  !outword_it.cycled_list (); outword_it.forward (), i++) {
+  !outword_it.cycled_list (); outword_it.forward (),
+           offset += word->best_choice->lengths()[i++]) {
     out_box = outword_it.data ()->bounding_box ();
     if (outword_it.at_last ())
       next_left = 9999;
@@ -1532,10 +1614,10 @@ void flip_hyphens(WERD_RES *word) {
     if ((out_box.width () > 8 * word->denorm.scale ()) &&
     (out_box.left () > prev_right) && (out_box.right () < next_left)) {
       aspect_ratio = out_box.width () / (float) out_box.height ();
-      if (str[i] == '.') {
+      if (str[offset] == '.') {
         if (aspect_ratio >= tessedit_upper_flip_hyphen) {
           /* Certain HYPHEN */
-          str[i] = '-';
+          str[offset] = '-';
           if (word->reject_map[i].rejected ())
             word->reject_map[i].setrej_hyphen_accept ();
         }
@@ -1544,7 +1626,7 @@ void flip_hyphens(WERD_RES *word) {
                                  //Suspected HYPHEN
           word->reject_map[i].setrej_hyphen ();
       }
-      else if (str[i] == '-') {
+      else if (str[offset] == '-') {
         if ((aspect_ratio >= tessedit_upper_flip_hyphen) &&
           (word->reject_map[i].rejected ()))
           word->reject_map[i].setrej_hyphen_accept ();
@@ -1563,7 +1645,9 @@ void flip_hyphens(WERD_RES *word) {
 
 void flip_0O(WERD_RES *word) {
   char *str = (char *) word->best_choice->string ().string ();
+  char *lengths = (char *) word->best_choice->lengths ().string ();
   int i;
+  int offset;
   PBLOB_IT outword_it;
   BOX out_box;
 
@@ -1572,9 +1656,10 @@ void flip_0O(WERD_RES *word) {
 
   outword_it.set_to_list (word->outword->blob_list ());
 
-  for (i = 0, outword_it.mark_cycle_pt ();
-  !outword_it.cycled_list (); i++, outword_it.forward ()) {
-    if (isupper (str[i]) || isdigit (str[i])) {
+  for (i = 0, offset = 0, outword_it.mark_cycle_pt ();
+  !outword_it.cycled_list (); offset += lengths[i++], outword_it.forward ()) {
+    if (unicharset.get_isupper (str + offset, lengths[i]) ||
+        unicharset.get_isdigit (str + offset, lengths[i])) {
       out_box = outword_it.data ()->bounding_box ();
       if ((out_box.top () < bln_baseline_offset + bln_x_height) ||
         (out_box.bottom () > bln_baseline_offset + bln_x_height / 4))
@@ -1582,74 +1667,107 @@ void flip_0O(WERD_RES *word) {
     }
   }
 
-  for (i = 1; str[i] != '\0'; i++, outword_it.forward ()) {
-    if ((str[i] == '0') || (str[i] == 'O')) {
+  for (i = 1, offset = lengths[0]; str[offset] != '\0';
+       offset += lengths[i++], outword_it.forward ()) {
+    if (lengths[i] == 1 &&
+        ((str[offset] == '0') || (str[offset] == 'O'))) {
       /* A0A */
-      if (non_O_upper (str[i - 1]) && non_O_upper (str[i + 1])) {
-        str[i] = 'O';
+      if (non_O_upper (str + offset - lengths[i - 1], lengths[i - 1]) &&
+          lengths[i + 1] > 0 &&
+          non_O_upper (str + offset + lengths[i], lengths[i + 1])) {
+        str[offset] = 'O';
       }
       /* A00A */
-      if (non_O_upper (str[i - 1]) &&
-        ((str[i + 1] == '0') || (str[i + 1] == 'O')) &&
-      non_O_upper (str[i + 2])) {
-        str[i] = 'O';
-        str[i + 1] = 'O';
-        i++;
+      if (non_O_upper (str + offset - lengths[i - 1], lengths[i - 1]) &&
+        ((lengths[i + 1] == 1 && str[offset + lengths[i]] == '0') ||
+         (lengths[i + 1] == 1 && str[offset + lengths[i]] == 'O')) &&
+          lengths[i + 2] > 0 &&
+          non_O_upper (str + offset + lengths[i] + lengths[i + 1],
+                       lengths[i + 2])) {
+        str[offset] = 'O';
+        str[offset + lengths[i]] = 'O';
+        offset += lengths[i++];
       }
       /* AA0<non digit or end of word> */
       if ((i > 1) &&
-        non_O_upper (str[i - 2]) &&
-        non_O_upper (str[i - 1]) &&
-        !isdigit (str[i + 1]) &&
-      (str[i + 1] != 'l') && (str[i + 1] != 'I')) {
-        str[i] = 'O';
+        non_O_upper (str + offset - lengths[i - 1] - lengths[i - 2],
+                     lengths[i - 2]) &&
+        non_O_upper (str + offset - lengths[i - 1], lengths[i - 1]) &&
+          lengths[i + 1] > 0 &&
+        !unicharset.get_isdigit (str + offset + lengths[i], lengths[i + 1]) &&
+          (lengths[i + 1] != 1 || str[offset + lengths[i]] != 'l') &&
+          (lengths[i + 1] != 1 || str[offset + lengths[i]] != 'I')) {
+        str[offset] = 'O';
       }
       /* 9O9 */
-      if (non_0_digit (str[i - 1]) && non_0_digit (str[i + 1])) {
-        str[i] = '0';
+      if (non_0_digit (str + offset - lengths[i - 1], lengths[i - 1]) &&
+          lengths[i + 1] > 0 &&
+          non_0_digit (str + offset + lengths[i], lengths[i + 1])) {
+        str[offset] = '0';
       }
       /* 9OOO */
-      if (non_0_digit (str[i - 1]) &&
-        ((str[i + 1] == '0') || (str[i + 1] == 'O')) &&
-      ((str[i + 2] == '0') || (str[i + 2] == 'O'))) {
-        str[i] = '0';
-        str[i + 1] = '0';
-        str[i + 2] = '0';
-        i += 2;
+      if (non_0_digit (str + offset - lengths[i - 1], lengths[i - 1]) &&
+          ((lengths[i + 1] == 1 && str[offset + lengths[i]] == '0') ||
+           (lengths[i + 1] == 1 && str[offset + lengths[i]] == 'O')) &&
+          ((lengths[i + 2] == 1 &&
+            str[offset + lengths[i] + lengths[i + 1]] == '0') ||
+           (lengths[i + 2] == 1 &&
+            str[offset + lengths[i] + lengths[i + 1]] == 'O'))) {
+        str[offset] = '0';
+        str[offset + lengths[i]] = '0';
+        str[offset + lengths[i] + lengths[i + 1]] = '0';
+        offset += lengths[i++];
+        offset += lengths[i++];
       }
       /* 9OO<non upper> */
-      if (non_0_digit (str[i - 1]) &&
-        ((str[i + 1] == '0') || (str[i + 1] == 'O')) &&
-      !isupper (str[i + 2])) {
-        str[i] = '0';
-        str[i + 1] = '0';
-        i++;
+      if (non_0_digit (str + offset - lengths[i - 1], lengths[i - 1]) &&
+          ((lengths[i + 1] == 1 && str[offset + lengths[i]] == '0') ||
+           (lengths[i + 1] == 1 && str[offset + lengths[i]] == 'O')) &&
+          lengths[i + 2] > 0 &&
+          !unicharset.get_isupper (str + offset + lengths[i] + lengths[i + 1],
+                                   lengths[i + 2])) {
+        str[offset] = '0';
+        str[offset + lengths[i]] = '0';
+        offset += lengths[i++];
       }
       /* 9O<non upper> */
-      if (non_0_digit (str[i - 1]) && !isupper (str[i + 1])) {
-        str[i] = '0';
+      if (non_0_digit (str + offset - lengths[i - 1], lengths[i - 1]) &&
+          lengths[i + 1] > 0 &&
+          !unicharset.get_isupper (str + offset + lengths[i], lengths[i + 1])) {
+        str[offset] = '0';
       }
       /* 9[.,]OOO.. */
       if ((i > 1) &&
-        ((str[i - 1] == '.') || (str[i - 1] == ',')) &&
-      (isdigit (str[i - 2]) || (str[i - 2] == 'O'))) {
-        if (str[i - 2] == 'O')
-          str[i - 2] = '0';
-        while ((str[i] == 'O') || (str[i] == '0')) {
-          str[i++] = '0';
+        ((lengths[i - 1] == 1 && str[offset - lengths[i - 1]] == '.') ||
+         (lengths[i - 1] == 1 && str[offset - lengths[i - 1]] == ',')) &&
+          (unicharset.get_isdigit (str + offset -
+                                   lengths[i - 1] - lengths[i - 2],
+                                   lengths[i - 2]) ||
+           (lengths[i - 2] == 1 &&
+            str[offset - lengths[i - 1] - lengths[i - 2]] == 'O'))) {
+        if (lengths[i - 2] == 1 &&
+            str[offset - lengths[i - 1] - lengths[i - 2]] == 'O')
+          str[offset - lengths[i - 1] - lengths[i - 2]] = '0';
+        while (lengths[i] == 1 &&
+               (str[offset] == 'O') || (str[offset] == '0')) {
+          str[offset] = '0';
+          offset += lengths[i++];
         }
         i--;
+        offset -= lengths[i];
       }
     }
   }
 }
 
 
-BOOL8 non_O_upper(char c) {
-  return isupper (c) && (c != 'O');
+BOOL8 non_O_upper(const char* str, int length) {
+  return unicharset.get_isupper (str, length) &&
+      (!unicharset.eq(unicharset.unichar_to_id(str, length), "O"));
 }
 
 
-BOOL8 non_0_digit(char c) {
-  return isdigit (c) && (c != '0');
+BOOL8 non_0_digit(const char* str, int length) {
+  return unicharset.get_isdigit (str, length) &&
+      (!unicharset.eq(unicharset.unichar_to_id(str, length), "0"));
 }

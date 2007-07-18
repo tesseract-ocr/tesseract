@@ -32,6 +32,7 @@
 #include "dawg.h"
 #include "tordvars.h"
 #include "stopper.h"
+#include "globals.h"
 
 #include <math.h>
 #include <ctype.h>
@@ -39,14 +40,18 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
+#if 0
 static const char *allowed_alpha_strs[] = {
   "jan", "feb", "mar", "apr", "may", "jun",
   "jul", "aug", "sep", "oct", "nov", "dec", NULL
 };
+#endif
 
+#if 0
 static const char *allowed_char_strs[] = {
   "adfjmnos", "aceopu", "bcglnrptvy"
 };
+#endif
 
 const int kNumStates = 7;
 
@@ -165,7 +170,7 @@ void adjust_number(A_CHOICE *best_choice, float *certainty_array) {
       class_string (best_choice), class_probability (best_choice));
 
   class_probability (best_choice) += RATING_PAD;
-  if (pure_number (class_string (best_choice))) {
+  if (pure_number (class_string (best_choice), class_lengths (best_choice))) {
     class_probability (best_choice) *= good_number;
     adjust_factor = good_number;
     if (adjust_debug)
@@ -194,6 +199,8 @@ void adjust_number(A_CHOICE *best_choice, float *certainty_array) {
  **********************************************************************/
 void append_number_choices(int state,
                            char *word,
+                           char unichar_lengths[],
+                           int unichar_offsets[],
                            CHOICES_LIST choices,
                            int char_index,
                            A_CHOICE *this_choice,
@@ -204,14 +211,26 @@ void append_number_choices(int state,
                            CHOICES *result) {
   int word_ending = FALSE;
   int x;
+  int offset;
 
   if (char_index == (array_count (choices) - 1))
     word_ending = TRUE;
+  strcpy(word + unichar_offsets[char_index], class_string (this_choice));
 
-  word[char_index] = class_string (this_choice)[0];
-  word[char_index + 1] = '\0';
-  if (word[char_index] == '\0')
-    word[char_index] = ' ';
+  unichar_lengths[char_index] = strlen(class_string (this_choice));
+  unichar_lengths[char_index + 1] = 0;
+  unichar_offsets[char_index + 1] = unichar_offsets[char_index] +
+      unichar_lengths[char_index];
+
+  if (word[unichar_offsets[char_index]] == '\0') {
+    word[unichar_offsets[char_index]] = ' ';
+    word[unichar_offsets[char_index] + 1] = '\0';
+    unichar_lengths[char_index] = 1;
+    unichar_lengths[char_index + 1] = 0;
+    unichar_offsets[char_index + 1] = unichar_offsets[char_index] +
+        unichar_lengths[char_index];
+  }
+
   certainty_array[char_index] = class_certainty (this_choice);
 
   rating += class_probability (this_choice);
@@ -219,9 +238,10 @@ void append_number_choices(int state,
 
   if (rating < *limit) {
 
-    state = number_state_change (state, word + char_index);
+    state = number_state_change (state, word + unichar_offsets[char_index],
+                                 unichar_lengths + char_index);
     if (number_debug)
-      cprintf ("%-20s prob=%4.2f  state=%d\n", word, rating, state);
+      cprintf ("%s prob=%4.2f  state=%d\n", word, rating, state);
 
     if (state != -1) {
 
@@ -231,11 +251,11 @@ void append_number_choices(int state,
       }
 
       if (word_ending) {
-        for (x = 0; x <= char_index; x++) {
-          if (isdigit (word[x])) {
+        for (x = 0, offset = 0; x <= char_index; offset += unichar_lengths[x++]) {
+          if (unicharset.get_isdigit (word + offset, unichar_lengths[x])) {
             if (number_debug)
               cprintf ("new choice = %s\n", word);
-            push_on (*result, new_choice (word, rating, certainty,
+            push_on (*result, new_choice (word, unichar_lengths, rating, certainty,
               -1, NUMBER_PERM));
             adjust_number ((A_CHOICE *) first_node (*result),
               certainty_array);
@@ -253,7 +273,7 @@ void append_number_choices(int state,
       else {
         JOIN_ON (*result,
           number_permute (state, choices, char_index + 1, limit,
-          word, rating, certainty,
+          word, unichar_lengths, unichar_offsets, rating, certainty,
           certainty_array));
       }
     }
@@ -287,28 +307,30 @@ void init_permnum() {
  * table) we are looking at.
  **********************************************************************/
 int number_character_type(  //current state
-                          char ch,
+                          const char* ch,
+                          int length,
                           int state) {
-  char lower_char = tolower (ch);
-
-  if (isalpha (ch)) {
-    if (state < 4 && strchr (allowed_char_strs[0], lower_char) != NULL)
+  if (unicharset.get_isalpha (ch, length)) {
+#if 0
+    if (state < 4
+        && strchr (allowed_char_strs[0], lower_char) != NULL)
       return 5;
     else if (state == 4
-      && strchr (allowed_char_strs[1], lower_char) != NULL)
+        && strchr (allowed_char_strs[1], lower_char) != NULL)
       return 6;
     else if (state == 5
-      && strchr (allowed_char_strs[2], lower_char) != NULL)
+        && strchr (allowed_char_strs[2], lower_char) != NULL)
       return 7;
+#endif
     return 3;
   }
-  else if (isdigit (ch))
+  else if (unicharset.get_isdigit (ch, length))
     return (1);
-  else if (isoperator (ch))
+  else if (length == 1 && isoperator (*ch))
     return (2);
-  else if (istrailing (ch))
+  else if (length == 1 && istrailing (*ch))
     return (4);
-  else if (isleading (ch))
+  else if (length == 1 && isleading (*ch))
     return (0);
   else
     return (-1);
@@ -321,16 +343,19 @@ int number_character_type(  //current state
  * Execute a state transition according to the state table and
  * additional rules.
  **********************************************************************/
-int number_state_change(int state,           //current state
-                        const char *word) {  //current char
+int number_state_change(int state,             //current state
+                        const char *word,      //current char
+                        const char *lengths) { //length of current char
   int char_type;                 //type of char
   int new_state;                 //state to return
   int old_state = state >> kStateShift;
   int repeats = state & kRepeatMask;
+#if 0
   int index;
   char copy_word[4];             //tolowered chars
+#endif
 
-  char_type = number_character_type (*word, old_state);
+  char_type = number_character_type (word, *lengths, old_state);
   if (char_type == -1)
     return -1;
   new_state = number_state_table[old_state][char_type];
@@ -351,6 +376,7 @@ int number_state_change(int state,           //current state
   //are allowed
   if (old_state != 6)
     return -1;                   //only 3 letters now
+#if 0
   copy_word[0] = tolower (word[-3]);
   copy_word[1] = tolower (word[-2]);
   copy_word[2] = tolower (word[-1]);
@@ -359,6 +385,7 @@ int number_state_change(int state,           //current state
     if (strcmp (copy_word, allowed_alpha_strs[index]) == 0)
       return (-new_state) << kStateShift;
   }
+#endif
   return -1;                     //not a good word
 }
 
@@ -376,6 +403,8 @@ CHOICES number_permute(int state,
                        int char_index,
                        float *limit,
                        char *word,
+                       char unichar_lengths[],
+                       int unichar_offsets[],
                        float rating,
                        float certainty,
                        float *certainty_array) {
@@ -392,9 +421,10 @@ CHOICES number_permute(int state,
   if (char_index < array_count (choices)) {
     iterate_list (c, (CHOICES) array_index (choices, char_index)) {
       if (depth++ < number_depth)
-        append_number_choices (state, word, choices, char_index,
-          (A_CHOICE *) first_node (c), limit, rating,
-          certainty, certainty_array, &result);
+        append_number_choices (state, word, unichar_lengths, unichar_offsets,
+                               choices, char_index,
+                               (A_CHOICE *) first_node (c), limit, rating,
+                               certainty, certainty_array, &result);
     }
   }
   if (result && number_debug == 1)
@@ -412,17 +442,21 @@ CHOICES number_permute(int state,
 A_CHOICE *number_permute_and_select(CHOICES_LIST char_choices,
                                     float rating_limit) {
   CHOICES result = NIL;
-  char word[MAX_WERD_LENGTH + 1];
+  char word[UNICHAR_LEN * MAX_WERD_LENGTH + 1];
+  char unichar_lengths[MAX_WERD_LENGTH + 1];
+  int unichar_offsets[MAX_WERD_LENGTH + 1];
   float certainty_array[MAX_WERD_LENGTH + 1];
   float rating = rating_limit;
   A_CHOICE *best_choice;
 
-  best_choice = new_choice (NULL, MAXFLOAT, -MAXFLOAT, -1, NO_PERM);
+  best_choice = new_choice (NULL, NULL, MAXFLOAT, -MAXFLOAT, -1, NO_PERM);
 
   if (array_count (char_choices) <= MAX_WERD_LENGTH) {
     word[0] = '\0';
+    unichar_lengths[0] = 0;
+    unichar_offsets[0] = 0;
     result = number_permute (0, char_choices, 0, &rating,
-      word, 0.0, 0.0, certainty_array);
+      word, unichar_lengths, unichar_offsets, 0.0, 0.0, certainty_array);
 
     if (display_ratings && result)
       print_choices ("number_permuter", result);
@@ -445,14 +479,17 @@ A_CHOICE *number_permute_and_select(CHOICES_LIST char_choices,
  * Check to see if this string is a pure number (one that does not end
  * with alphabetic characters).
  **********************************************************************/
-int pure_number(const char *string) {
+int pure_number(const char *string, const char *lengths) {
   int x;
+  int offset;
 
-  for (x = strlen (string) - 1; x >= 0; x--) {
-    if (isdigit (string[x])) {
+  x = strlen (lengths) - 1;
+  offset = strlen (string) - lengths[x];
+  for (;x >= 0; offset -= lengths[--x]) {
+    if (unicharset.get_isdigit (string + offset, lengths[x])) {
       return (TRUE);
     }
-    else if (isalpha (string[x]))
+    else if (unicharset.get_isalpha (string + offset, lengths[x]))
       return (FALSE);
   }
   return (FALSE);
@@ -465,18 +502,20 @@ int pure_number(const char *string) {
  * Check this string to see if it is a valid number.  Return TRUE if
  * it is.
  **********************************************************************/
-int valid_number(const char *string) {
+int valid_number(const char *string, const char *lengths) {
   int state = 0;
   int char_index;
-  int num_chars = strlen (string);
+  int offset;
+  int num_chars = strlen (lengths);
   int num_digits = 0;
 
-  for (char_index = 0; char_index < num_chars; char_index++) {
+  for (char_index = 0, offset = 0; char_index < num_chars;
+       offset += lengths[char_index++]) {
 
-    state = number_state_change (state, string + char_index);
+    state = number_state_change (state, string + offset, lengths + char_index);
     if (state == -1)
       return (FALSE);
-    if (isdigit (string[char_index]))
+    if (unicharset.get_isdigit (string + offset, lengths[char_index]))
       num_digits++;
   }
   return num_digits > num_chars - num_digits;

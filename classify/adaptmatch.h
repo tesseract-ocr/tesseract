@@ -27,6 +27,7 @@
 #include "matchdefs.h"
 #include "adaptive.h"
 #include "ocrfeatures.h"
+#include "ratngs.h"
 
 /*---------------------------------------------------------------------------
           Variables
@@ -41,27 +42,27 @@ extern int LearningDebugLevel;
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row); 
+LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row);
 /**/
 void AdaptToWord(TWERD *Word,
                  TEXTROW *Row,
-                 const char *BestChoice,
-                 const char *BestRawChoice,
+                 const WERD_CHOICE& BestChoice,
+                 const WERD_CHOICE& BestRawChoice,
                  const char *rejmap);
 
-void EndAdaptiveClassifier(); 
+void EndAdaptiveClassifier();
 
-void InitAdaptiveClassifier(); 
+void InitAdaptiveClassifier();
 
 void ResetAdaptiveClassifier();
 
-void InitAdaptiveClassifierVars(); 
+void InitAdaptiveClassifierVars();
 
-void PrintAdaptiveStatistics(FILE *File); 
+void PrintAdaptiveStatistics(FILE *File);
 
-void SettupPass1(); 
+void SettupPass1();
 
-void SettupPass2(); 
+void SettupPass2();
 
 void MakeNewAdaptedClass(TBLOB *Blob,
                          LINE_STATS *LineStats,
@@ -75,7 +76,9 @@ int GetAdaptiveFeatures(TBLOB *Blob,
 
 int AdaptableWord(TWERD *Word,
                   const char *BestChoice,
-                  const char *BestRawChoice);
+                  const char *BestChoice_lengths,
+                  const char *BestRawChoice,
+                  const char *BestRawChoice_lengths);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

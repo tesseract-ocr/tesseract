@@ -22,6 +22,7 @@
 #include "adaptive.h"
 #include "emalloc.h"
 #include "freelist.h"
+#include "globals.h"
 
 #ifdef __UNIX__
 #include <assert.h>
@@ -260,8 +261,8 @@ void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
     IClass = ClassForIndex (Templates->Templates, i);
     AClass = Templates->Class[i];
 
-    fprintf (File, "%5d  %c %3d %3d %3d %3d\n",
-      i, ClassIdForIndex (Templates->Templates, i),
+    fprintf (File, "%5d  %s %3d %3d %3d %3d\n",
+      i, unicharset.id_to_unichar(ClassIdForIndex (Templates->Templates, i)),
       NumIntConfigsIn (IClass), AClass->NumPermConfigs,
       NumIntProtosIn (IClass),
       NumIntProtosIn (IClass) - count (AClass->TempProtos));
@@ -374,8 +375,8 @@ PERM_CONFIG ReadPermConfig(FILE *File) {
 
   fread ((char *) &NumAmbigs, sizeof (UINT8), 1, File);
   Config = (PERM_CONFIG) Emalloc (sizeof (char) * (NumAmbigs + 1));
-  fread (Config, sizeof (char), NumAmbigs, File);
-  Config[NumAmbigs] = '\0';
+  fread (Config, sizeof (UNICHAR_ID), NumAmbigs, File);
+  Config[NumAmbigs] = -1;
 
   return (Config);
 
@@ -475,7 +476,7 @@ void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
   fwrite ((char *) Templates, sizeof (ADAPT_TEMPLATES_STRUCT), 1, File);
 
   /* then write out the basic integer templates */
-  WriteIntTemplates (File, Templates->Templates);
+  WriteIntTemplates (File, Templates->Templates, unicharset);
 
   /* then write out the adaptive info for each class */
   for (i = 0; i < NumClassesIn (Templates->Templates); i++) {
@@ -499,13 +500,14 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
  **	Exceptions: none
  **	History: Tue Mar 19 13:55:44 1991, DSJ, Created.
  */
-  UINT8 NumAmbigs;
+  UINT8 NumAmbigs = 0;
 
   assert (Config != NULL);
+  while (Config[NumAmbigs] > 0)
+    ++NumAmbigs;
 
-  NumAmbigs = strlen (Config);
   fwrite ((char *) &NumAmbigs, sizeof (UINT8), 1, File);
-  fwrite (Config, sizeof (char), NumAmbigs, File);
+  fwrite (Config, sizeof (UNICHAR_ID), NumAmbigs, File);
 
 }                                /* WritePermConfig */
 

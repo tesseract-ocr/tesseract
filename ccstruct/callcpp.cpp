@@ -32,6 +32,7 @@
 #include          "tprintf.h"
 //#include                                      "strace.h"
 #include          "host.h"
+#include "unichar.h"
 
 //extern "C" {
 
@@ -60,11 +61,11 @@ INT32 cp_ratings[2];
 INT32 cp_confs[2];
 INT32 cp_maps[4];
 //Global info to control writes of matcher info
-INT32 blob_type;                 //write control
-char blob_answer;                //correct char
-char *word_answer;               //correct word
-INT32 matcher_pass;              //pass in chopper.c
-INT32 bits_in_states;            //no of bits in states
+INT32 blob_type;                   //write control
+char blob_answer[UNICHAR_LEN + 1]; //correct char
+char *word_answer;                 //correct word
+INT32 matcher_pass;                //pass in chopper.c
+INT32 bits_in_states;              //no of bits in states
 
 #ifndef __UNIX__
 /**********************************************************************
@@ -76,11 +77,11 @@ INT32 bits_in_states;            //no of bits in states
 void assert(             //recog one owrd
             int testing  //assert fail if false
            ) {
-  ASSERT_HOST(testing); 
+  ASSERT_HOST(testing);
 }
 #endif
 
-void setup_cp_maps() { 
+void setup_cp_maps() {
   cp_maps[0] = tess_cp_mapping0;
   cp_maps[1] = tess_cp_mapping1;
   cp_maps[2] = tess_cp_mapping2;
@@ -101,7 +102,7 @@ const char *format, ...          //special message
 
   va_start(args, format);  //variable list
   vsprintf(msg, format, args);  //Format into msg
-  va_end(args); 
+  va_end(args);
 
   tprintf ("%s", msg);
 }
@@ -117,7 +118,7 @@ char *c_alloc_string(             //allocate string
 void c_free_string(              //free a string
                    char *string  //string to free
                   ) {
-  free_string(string); 
+  free_string(string);
 }
 
 
@@ -134,7 +135,7 @@ void c_free_struct(                   //free a structure
                    INT32 count,       //no of bytes
                    const char *name   //class name
                   ) {
-  free_struct(deadstruct, count, name); 
+  free_struct(deadstruct, count, name);
 }
 
 
@@ -155,7 +156,7 @@ void *c_alloc_mem(             //get some memory
 void c_free_mem(                //free mem from alloc_mem
                 void *oldchunk  //chunk to free
                ) {
-  free_mem(oldchunk); 
+  free_mem(oldchunk);
 }
 
 
@@ -163,7 +164,7 @@ void c_check_mem(                     //check consistency
                  const char *string,  //context message
                  INT8 level           //level of check
                 ) {
-  check_mem(string, level); 
+  check_mem(string, level);
 }
 
 #ifndef GRAPHICS_DISABLED
@@ -236,7 +237,7 @@ char window_wait(  /*move pen */
   WINDOW window = (WINDOW) win;
   GRAPHICS_EVENT event;
 
-  await_event(window, TRUE, ANY_EVENT, &event); 
+  await_event(window, TRUE, ANY_EVENT, &event);
   if (event.type == KEYPRESS_EVENT)
     return event.key;
   else
@@ -244,7 +245,7 @@ char window_wait(  /*move pen */
 }
 #endif
 
-void reverse32(void *ptr) { 
+void reverse32(void *ptr) {
   char tmp;
   char *cptr = (char *) ptr;
 
@@ -257,7 +258,7 @@ void reverse32(void *ptr) {
 }
 
 
-void reverse16(void *ptr) { 
+void reverse16(void *ptr) {
   char tmp;
   char *cptr = (char *) ptr;
 

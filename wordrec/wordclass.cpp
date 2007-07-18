@@ -42,8 +42,9 @@
 #include "context.h"
 #include "badwords.h"
 #include "callcpp.h"
+#include <assert.h>
 
-extern TBLOB *newblob(); 
+extern TBLOB *newblob();
 
 /*----------------------------------------------------------------------
             Variables
@@ -97,7 +98,7 @@ CHOICES classify_blob(TBLOB *pblob,
 
 #ifndef GRAPHICS_DISABLED
   if (display_all_blobs)
-    display_blob(blob, color); 
+    display_blob(blob, color);
 #endif
   rating = get_match (blob);
   if (rating == NIL) {
@@ -105,6 +106,11 @@ CHOICES classify_blob(TBLOB *pblob,
       old_index = blob_index;
                                  //?cast to int*
       blob_type = compare_states (best_state, this_state, (int *) &blob_index);
+      // TODO(tkielbus) Remove this assert and reactivate code.
+      // Manage the blob_answer, word_answer mechanism.
+      // (convert or remove because it doesnt seem to be used anymore)
+      assert(0);
+#if 0
       blob_answer = word_answer[blob_index];
       if (blob_answer < '!')
         fprintf (matcher_fp,
@@ -113,21 +119,22 @@ CHOICES classify_blob(TBLOB *pblob,
           INT32FORMAT ", word=%s\n", best_state->part1,
           best_state->part2, this_state->part1, this_state->part2,
           bits_in_states, old_index, blob_index, word_answer);
+#endif
     }
     else
       blob_type = 0;
     rating = /*(*blob_matchers [fx]) */ (CHOICES) call_matcher (pblob, blob,
       nblob, NULL,
       row);
-    put_match(blob, rating); 
+    put_match(blob, rating);
   }
 
 #ifndef GRAPHICS_DISABLED
   if (display_ratings && string)
-    print_choices(string, rating); 
+    print_choices(string, rating);
 
   if (blob_pause)
-    window_wait(blob_window); 
+    window_wait(blob_window);
 #endif
 
   return (rating);
@@ -152,7 +159,7 @@ void write_text_files(TWERD *word,
       fprintf (rawfile, "\n");
     if (raw_choice && strlen (raw_choice)) {
       fprintf (rawfile, "%s ", raw_choice);
-      fflush(rawfile); 
+      fflush(rawfile);
     }
   }
   /* Text file output */
@@ -163,15 +170,15 @@ void write_text_files(TWERD *word,
       for (x = 0; x < word->blanks; x++)
         fprintf (textfile, " ");
       if (!firstpass)
-        fprintf(textfile, BOLD_ON); 
+        fprintf(textfile, BOLD_ON);
       if (!good_word)
-        fprintf(textfile, UNDERLINE_ON); 
+        fprintf(textfile, UNDERLINE_ON);
       fprintf (textfile, "%s", word->guess);
       if (!good_word)
-        fprintf(textfile, UNDERLINE_OFF); 
+        fprintf(textfile, UNDERLINE_OFF);
       if (!firstpass)
-        fprintf(textfile, BOLD_OFF); 
-      fflush(textfile); 
+        fprintf(textfile, BOLD_OFF);
+      fflush(textfile);
     }
   }
   /* Global counters */
@@ -209,7 +216,7 @@ void save_answer(TWERD *word,
                                  /* First pass */
     if (string) {
                                  /* Got answer */
-      add_document_word(best_choice); 
+      add_document_word(best_choice);
 
       word->guess = string;
       fix_quotes (word->guess);
@@ -224,7 +231,7 @@ void save_answer(TWERD *word,
         word->guess = strsave (raw_answer);
         word->guess[strlen (string)] = 0;
         if (string) {
-          strfree(string); 
+          strfree(string);
           class_string (best_choice) = NULL;
         }
       }
@@ -270,7 +277,7 @@ void save_answer(TWERD *word,
       cprintf ("%s ", word->guess);
     else
       cprintf ("%s ", raw_answer);
-    fflush(stdout); 
+    fflush(stdout);
   }
 
   last_row = row;

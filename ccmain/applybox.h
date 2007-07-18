@@ -24,6 +24,7 @@
 #include          "ocrblock.h"
 #include          "ocrrow.h"
 #include          "notdll.h"
+#include          "unichar.h"
 
 extern BOOL_VAR_H (applybox_rebalance, TRUE, "Drop dead");
 extern INT_VAR_H (applybox_debug, 0, "Debug level");
@@ -37,7 +38,7 @@ void clear_any_old_text(                        //remove correct text
                        );
 BOOL8 read_next_box(FILE* box_file,  //
                     BOX *box,
-                    char *ch);
+                    UNICHAR_ID *uch_id);
 ROW *find_row_of_box(                         //
                      BLOCK_LIST *block_list,  //real blocks
                      BOX box,                 //from boxfile
@@ -46,7 +47,7 @@ ROW *find_row_of_box(                         //
 INT16 resegment_box(  //
                     ROW *row,
                     BOX box,
-                    char *ch,
+                    UNICHAR_ID uch_id,
                     INT16 block_id,
                     INT16 row_id,
                     INT16 boxfile_lineno,
@@ -58,13 +59,13 @@ void tidy_up(                         //
              INT16 &unlabelled_words,
              INT16 *tgt_char_counts,
              INT16 &rebalance_count,
-             char &min_char,
+             UNICHAR_ID *min_uch_id,
              INT16 &min_samples,
              INT16 &final_labelled_blob_count);
 void report_failed_box(INT16 boxfile_lineno,
                        INT16 boxfile_charno,
                        BOX box,
-                       char *box_ch,
+                       const char *box_ch,
                        const char *err_msg);
 void apply_box_training(BLOCK_LIST *block_list);
 void apply_box_testing(BLOCK_LIST *block_list);

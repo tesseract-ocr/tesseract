@@ -20,24 +20,25 @@
 #ifndef           RATNGS_H
 #define           RATNGS_H
 
-#include          "clst.h"
-#include          "werd.h"
-#include          "notdll.h"
+#include "clst.h"
+#include "werd.h"
+#include "notdll.h"
+#include "unichar.h"
 
 class BLOB_CHOICE:public ELIST_LINK
 {
   public:
     BLOB_CHOICE() {  //empty
     }
-    BLOB_CHOICE(                   //constructor
-                char src_class,    //character
-                float src_rating,  //rating
-                float src_cert,    //certainty
-                INT8 src_config);  //config (font)
+    BLOB_CHOICE(                    //constructor
+                char *src_unichar,  //character
+                float src_rating,   //rating
+                float src_cert,     //certainty
+                INT8 src_config);   //config (font)
 
-    void set_class(  //change it
-                   char newchar) {
-      blob_class = newchar;
+    void set_unichar(  //change it
+                   char *newunichar) {
+      strcpy(blob_unichar, newunichar);
     }
     void set_rating(  //change it
                     float newrat) {
@@ -52,8 +53,8 @@ class BLOB_CHOICE:public ELIST_LINK
       blob_config = newfont;
     }
 
-    char char_class() const {  //access function
-      return blob_class;
+    const char* const unichar() const {  //access function
+      return blob_unichar;
     }
     float rating() const {  //access function
       return blob_rating;
@@ -66,11 +67,11 @@ class BLOB_CHOICE:public ELIST_LINK
     }
 
     NEWDELETE private:
-    char blob_class;             //char code
-    char blob_config;            //char config (font)
+    char blob_unichar[UNICHAR_LEN + 1]; //unichar
+    char blob_config;                   //char config (font)
     INT16 junk2;
-    float blob_rating;           //size related
-    float blob_certainty;        //absolute
+    float blob_rating;                  //size related
+    float blob_certainty;               //absolute
 };
 
                                  //make them listable
@@ -97,13 +98,18 @@ WERD_CHOICE
     }
     WERD_CHOICE(                         //constructor
                 const char *src_string,  //word string
+                const char *src_lengths, //unichar lengths
                 float src_rating,        //rating
                 float src_cert,          //certainty
                 UINT8 src_permuter);     //permuter code
 
                                  //access function
-    const STRING &string() const { 
+    const STRING &string() const {
       return word_string;
+    }
+                                 //access function
+    const STRING &lengths() const {
+      return word_lengths;
     }
 
     float rating() const {  //access function
@@ -125,6 +131,7 @@ WERD_CHOICE
 
     NEWDELETE private:
     STRING word_string;          //text
+    STRING word_lengths;         //unichar lengths for the string
     float word_rating;           //size related
     float word_certainty;        //absolute
     UINT8 word_permuter;         //permuter code

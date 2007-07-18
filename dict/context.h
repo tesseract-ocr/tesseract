@@ -32,15 +32,15 @@
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void close_choices(); 
+void close_choices();
 
-void fix_quotes(char *str); 
+void fix_quotes(char *str);
 
-int punctuation_ok(const char *word); 
+int punctuation_ok(const char *word, const char *lengths);
 
-int case_ok(const char *word); 
+int case_ok(const char *word, const char *lengths);
 
-void write_choice_line(); 
+void write_choice_line();
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

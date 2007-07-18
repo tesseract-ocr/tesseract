@@ -41,10 +41,12 @@ extern float good_number;
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void adjust_number(A_CHOICE *best_choice, float *certainty_array); 
+void adjust_number(A_CHOICE *best_choice, float *certainty_array);
 
 void append_number_choices(int state,
                            char *word,
+                           char unichar_lengths[],
+                           int unichar_offsets[],
                            CHOICES_LIST choices,
                            int char_index,
                            A_CHOICE *this_choice,
@@ -54,18 +56,20 @@ void append_number_choices(int state,
                            float *certainty_array,
                            CHOICES *result);
 
-void init_permnum(); 
+void init_permnum();
 
-int number_character_type(char ch, int state); 
+int number_character_type(char ch, int length, int state);
 
                                  //current state
-int number_state_change(int state, const char *word); 
+int number_state_change(int state, const char *word, const char* lengths);
 
 CHOICES number_permute(int state,
                        CHOICES_LIST choices,
                        int char_index,
                        float *limit,
                        char *word,
+                       char unichar_lengths[],
+                       int unichar_offsets[],
                        float rating,
                        float certainty,
                        float *certainty_array);
@@ -73,7 +77,7 @@ CHOICES number_permute(int state,
 A_CHOICE *number_permute_and_select(CHOICES_LIST char_choices,
                                     float rating_limit);
 
-int pure_number(const char *string); 
+int pure_number(const char *string, const char *lengths);
 
-int valid_number(const char *string); 
+int valid_number(const char *string, const char *lengths);
 #endif

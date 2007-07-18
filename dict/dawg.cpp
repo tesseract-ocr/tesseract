@@ -35,12 +35,13 @@
 #include "callcpp.h"
 #include "context.h"
 #include "strngs.h"
+#include "emalloc.h"
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
 INT32 debug          = 0;
-INT32 case_sensative = 0;
+INT32 case_sensative = 1;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -108,6 +109,8 @@ LETTER_OK_FUNC letter_is_okay = &def_letter_is_okay;
  * Default way to check this letter in light of the current state.  If
  * everything is still OK then return TRUE.
  **********************************************************************/
+// TODO(tkielbus) Change the prevchar argument to make it unicode safe.
+// We might want to get rid of def_letter_is_okay at some point though.
 INT32 def_letter_is_okay(EDGE_ARRAY dawg,
                          NODE_REF *node,
                          INT32 char_index,
@@ -116,11 +119,19 @@ INT32 def_letter_is_okay(EDGE_ARRAY dawg,
                          INT32 word_end) {
   EDGE_REF     edge;
   STRING dummy_word(word);  // Auto-deleting string fixes memory leak.
+  STRING word_single_lengths; //Lengths of single UTF-8 characters of the word.
+  const char *ptr;
+
+  for (ptr = word; *ptr != '\0';) {
+    word_single_lengths += UNICHAR::utf8_step(ptr);
+    ptr += UNICHAR::utf8_step(ptr);
+  }
 
   if (*node == NO_EDGE) {        /* Trailing punctuation */
     if (trailing_punc (dummy_word [char_index])
       && (!trailing_punc (prevchar)
-      || punctuation_ok(dummy_word.string())>=0))
+          || punctuation_ok(dummy_word.string(),
+                            word_single_lengths.string())>=0))
       return (TRUE);
     else
       return (FALSE);
@@ -129,17 +140,21 @@ INT32 def_letter_is_okay(EDGE_ARRAY dawg,
     /* Leading punctuation */
     if (*node == 0                           &&
       char_index != 0                      &&
-      isalpha (dummy_word [char_index])          &&
+        // TODO(tkielbus) Replace islalpha by unicode versions.
+        // However the lengths information is not available at this point in the
+        // code. We will probably get rid of the dictionaries at some point anyway.
+        isalpha (dummy_word [char_index])          &&
       ! leading_punc (dummy_word [char_index-1]) &&
     dummy_word [char_index-1] != '-') {
       return (FALSE);
     }
   }
   /* Handle compund words */
+#if 0
   if (dummy_word [char_index] == '-') {
     if (char_index>0 && !word_end
-      && word [char_index-1] == '-'
-      && word [char_index+1] == '-')
+         && word [char_index-1] == '-'
+         && word [char_index+1] == '-')
       return FALSE;              /*not allowed*/
     dummy_word [char_index] = (char) 0;
     if (word_in_dawg (dawg, dummy_word.string())) {
@@ -152,13 +167,14 @@ INT32 def_letter_is_okay(EDGE_ARRAY dawg,
       return (FALSE);
     }
   }
+#endif
   /* Check the DAWG */
   edge = edge_char_of (dawg, *node, dummy_word [char_index], word_end);
 
   if (edge != NO_EDGE) {         /* Normal edge in DAWG */
     if (case_sensative || case_is_okay (dummy_word, char_index)) {
                                  //next_node (dawg, edge);
-      *node = (dawg)[edge] & NO_EDGE;
+    *node = next_node(dawg, edge);
       return (TRUE);
     }
     else {
@@ -170,7 +186,8 @@ INT32 def_letter_is_okay(EDGE_ARRAY dawg,
     if (leading_punc (word [char_index]) &&
     (char_index == 0  ||  leading_punc (dummy_word [char_index-1]))) {
       *node = 0;
-      if (leading_punc (prevchar) || punctuation_ok (word)>=0)
+      if (leading_punc (prevchar) ||
+          punctuation_ok (word, word_single_lengths.string())>=0)
         return (TRUE);
       else
         return FALSE;
@@ -239,11 +256,11 @@ void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node) {
       else                           eow       = not_eow_string;
 
       ch = edge_letter (dawg, edge);
-      cprintf ("%7d : next = %7d, char = '%c', %s %s %s\n",
-        (int) edge, (int) next_node (dawg, edge), ch,
+      cprintf (REFFORMAT " : next = " REFFORMAT ", char = '%c', %s %s %s\n",
+        edge, next_node (dawg, edge), ch,
         direction, is_last, eow);
 
-      if (edge - node > MAX_NODE_EDGES) return;
+      if (edge - node > MAX_NODE_EDGES_DISPLAY) return;
     } edge_loop (dawg, edge);
 
     if (edge_occupied (dawg, edge) && backward_edge (dawg, edge)) {
@@ -258,25 +275,25 @@ void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node) {
         else                           eow       = not_eow_string;
 
         ch = edge_letter (dawg, edge);
-        cprintf ("%7d : next = %7d, char = '%c', %s %s %s\n",
-          (int) edge, (int) next_node (dawg, edge), ch,
+        cprintf (REFFORMAT " : next = " REFFORMAT ", char = '%c', %s %s %s\n",
+          edge, next_node (dawg, edge), ch,
           direction, is_last, eow);
 
-        if (edge - node > MAX_NODE_EDGES) return;
+        if (edge - node > MAX_NODE_EDGES_DISPLAY) return;
       } edge_loop (dawg, edge);
     }
   }
   else {
-    cprintf ("%5d : no edges in this node\n", node);
+    cprintf (REFFORMAT " : no edges in this node\n", node);
   }
-  new_line();
+  cprintf("\n");
 }
 
 
 /**********************************************************************
  * read_squished_dawg
  *
- * Write the DAWG out to a file
+ * Read the DAWG from a file
  **********************************************************************/
 void read_squished_dawg(const char *filename, EDGE_ARRAY dawg,
                         INT32 max_num_edges) {
@@ -294,14 +311,24 @@ void read_squished_dawg(const char *filename, EDGE_ARRAY dawg,
   #else
   file = open_file (filename, "rb");
   #endif
-  fread (&num_edges,  sizeof (int), 1, file);
+  fread (&num_edges,  sizeof (INT32), 1, file);
   num_edges = ntohl(num_edges);
-  fread (&dawg[0], sizeof (EDGE_RECORD), num_edges, file);
-  fclose(file);
-  for (edge=0;edge<num_edges;edge++)
-    dawg[edge] = ntohl(dawg[edge]);
+  if (num_edges > max_num_edges || num_edges < 0) {
+    cprintf("Error: trying to read a DAWG '%s' that contains \
+%d edges while the maximum is %d.\n", filename, num_edges, max_num_edges);
+    exit(1);
+  }
 
-  for  (edge=0; edge<max_num_edges; edge++)
+  UINT32 *dawg_32 = (UINT32*) Emalloc(num_edges * sizeof (UINT32));
+  fread(&dawg_32[0], sizeof (UINT32), num_edges, file);
+  fclose(file);
+
+  for (edge = 0; edge < num_edges; ++edge)
+    dawg[edge] = ntohl(dawg_32[edge]);
+
+  Efree(dawg_32);
+
+  for  (edge = 0; edge < num_edges; ++edge)
     if (last_edge (dawg, edge)) node_count++;
 }
 
@@ -348,12 +375,11 @@ INT32 word_in_dawg(EDGE_ARRAY dawg, const char *string) {
   if (length==0)
     return FALSE;
   for (i=0; i<length; i++) {
-    if (debug) {
+    if (debug > 1) {
       print_dawg_node(dawg, node);
       new_line();
     }
-
-    if (! letter_is_okay (dawg, &node, i,'\0', string, (string[i+1]==0))) {
+    if (! letter_is_okay (dawg, &node, i, '\0', string, (string[i+1]==0))) {
       return (FALSE);
     }
   }

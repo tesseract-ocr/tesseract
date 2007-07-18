@@ -50,7 +50,7 @@ static const char *FontName = FONT_NAME;
             Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-void InitBlobClassifierVars() { 
+void InitBlobClassifierVars() {
 /*
  **      Parameters: none
  **      Globals:
@@ -70,7 +70,7 @@ void InitBlobClassifierVars() {
 
 /*---------------------------------------------------------------------------*/
 void
-LearnBlob (TBLOB * Blob, TEXTROW * Row, char BlobText[], int TextLength)
+LearnBlob (TBLOB * Blob, TEXTROW * Row, char BlobText[])
 /*
  **      Parameters:
  **              Blob            blob whose micro-features are to be learned
@@ -94,38 +94,30 @@ LearnBlob (TBLOB * Blob, TEXTROW * Row, char BlobText[], int TextLength)
 {
   static FILE *FeatureFile = NULL;
   char Filename[MAXFILENAME];
-  char CharName[MAXCHARNAME];
   CHAR_DESC CharDesc;
   LINE_STATS LineStats;
 
   EnterLearnMode;
 
-  // throw out blobs which do not represent only one character
-  if (TextLength != 1)
-    return;
-
-  GetLineStatsFromRow(Row, &LineStats); 
+  GetLineStatsFromRow(Row, &LineStats);
 
   CharDesc = ExtractBlobFeatures (Blob, &LineStats);
 
   // if a feature file is not yet open, open it
   // the name of the file is the name of the image plus TRAIN_SUFFIX
   if (FeatureFile == NULL) {
-    strcpy(Filename, imagefile); 
-    strcat(Filename, TRAIN_SUFFIX); 
+    strcpy(Filename, imagefile);
+    strcat(Filename, TRAIN_SUFFIX);
     FeatureFile = Efopen (Filename, "w");
 
     cprintf ("TRAINING ... Font name = %s.\n", FontName);
   }
 
-  // get the name of the character for this blob
-  chartoname (CharName, BlobText[0], "");
-
   // label the features with a class name and font name
-  fprintf (FeatureFile, "\n%s %s ", FontName, CharName);
+  fprintf (FeatureFile, "\n%s %s ", FontName, BlobText);
 
   // write micro-features to file and clean up
-  WriteCharDescription(FeatureFile, CharDesc); 
-  FreeCharDescription(CharDesc); 
+  WriteCharDescription(FeatureFile, CharDesc);
+  FreeCharDescription(CharDesc);
 
 }                                // LearnBlob

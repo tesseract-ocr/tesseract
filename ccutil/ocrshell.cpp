@@ -467,6 +467,9 @@ INT32 ocr_char_space() {  /*put char into shm */
 
                                  /*progress info */
   buf = (ETEXT_DESC *) shm.shm_mem;
+  if (buf == NULL)
+    return 0;
+
   result =
     (shm.shm_size - sizeof (ETEXT_DESC)) / sizeof (EANYCODE_CHAR) -
     buf->count + 1;
@@ -735,8 +738,8 @@ INT16 release_ocr() {  /*release semaphore */
 
   timeout = RELEASE_TIMEOUT * TICKS;
   #ifdef __MSW32__
-  
-//jetsoft 
+
+//jetsoft
 // this stuff is old and no longer applies
 
   return OKAY;

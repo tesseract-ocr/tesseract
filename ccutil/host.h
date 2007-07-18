@@ -159,6 +159,8 @@ typedef unsigned short UINT16;
 #if (_MSC_VER < 1200)            //%%% vkr for VC 6.0
 typedef int INT32;
 typedef unsigned int UINT32;
+typedef long long int INT64;
+typedef unsigned long long int UINT64;
 #endif                           //%%% vkr for VC 6.0
 typedef float FLOAT32;
 typedef double FLOAT64;
@@ -192,6 +194,7 @@ typedef const double *PCFLOAT64;
 typedef void *PVOID;
 
 #define INT32FORMAT "%d"
+#define INT64FORMAT "%lld"
 
 #define MAX_INT8  0x7f
 #define MAX_INT16 0x7fff

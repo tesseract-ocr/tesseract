@@ -23,15 +23,17 @@
 ----------------------------------------------------------------------------**/
 #include "general.h"
 #include <stdio.h>
+#include "unichar.h"
 
 /* define the maximum number of classes defined for any matcher
-  and the maximum class id for any matcher */
-#define MAX_NUM_CLASSES   100
-#define MAX_CLASS_ID    255
+  and the maximum class id for any matcher. This must be changed
+  if more different classes need to be classified */
+#define MAX_NUM_CLASSES   256
+#define MAX_CLASS_ID    (MAX_NUM_CLASSES - 1)
 
 /* a CLASS_ID is the ascii character to be associated with a class */
-typedef UINT8 CLASS_ID;
-#define NO_CLASS      0
+typedef UNICHAR_ID CLASS_ID;
+#define NO_CLASS      (0)
 
 /* define a type for the index (rather than the class id) of a class.
   Class indexes are sequentially defined, while class id's are defined

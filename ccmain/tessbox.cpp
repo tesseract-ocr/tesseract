@@ -166,9 +166,11 @@ BOOL8 tess_acceptable_word(                           //test acceptability
   choice.rating = word_choice->rating ();
   choice.certainty = word_choice->certainty ();
   choice.string = (char *) word_choice->string ().string ();
+  choice.lengths = (char *) word_choice->lengths ().string ();
   tess_raw.rating = raw_choice->rating ();
   tess_raw.certainty = raw_choice->certainty ();
   tess_raw.string = (char *) raw_choice->string ().string ();
+  tess_raw.lengths = (char *) raw_choice->lengths ().string ();
                                  //call tess
   return AcceptableResult (&choice, &tess_raw);
 }
@@ -190,7 +192,9 @@ BOOL8 tess_adaptable_word(                           //test adaptability
 
   tessword = make_tess_word (word, NULL);
   result = AdaptableWord (tessword, word_choice->string ().string (),
-    raw_choice->string ().string ());
+                          word_choice->lengths ().string (),
+                          raw_choice->string ().string (),
+                          raw_choice->lengths ().string ());
   delete_word(tessword);
   return result != 0;
 }
@@ -320,7 +324,7 @@ void tess_training_tester(                           //call tess
                                  //make dummy row
     make_tess_row(denorm, &tessrow);
                                  //learn it
-    LearnBlob(tessblob, &tessrow, text, count);
+    LearnBlob(tessblob, &tessrow, text);
     free_blob(tessblob);
   }
 }
@@ -335,8 +339,8 @@ void tess_training_tester(                           //call tess
 void tess_adapter(                         //adapt to word
                   WERD *word,              //bln word
                   DENORM *denorm,          //de-normalise
-                  const char *string,      //string for word
-                  const char *raw_string,  //before context
+                  const WERD_CHOICE& choice,      //string for word
+                  const WERD_CHOICE& raw_choice,  //before context
                   const char *rejmap       //reject map
                  ) {
   TWERD *tessword;               //converted word
@@ -346,7 +350,7 @@ void tess_adapter(                         //adapt to word
   make_tess_row(denorm, &tessrow);
                                  //make a word
   tessword = make_tess_word (word, &tessrow);
-  AdaptToWord(tessword, &tessrow, string, raw_string, rejmap);
+  AdaptToWord(tessword, &tessrow, choice, raw_choice, rejmap);
   //adapt to it
   delete_word(tessword);  //free it
 }
@@ -366,5 +370,6 @@ void tess_add_doc_word(                          //test acceptability
   choice.rating = word_choice->rating ();
   choice.certainty = word_choice->certainty ();
   choice.string = (char *) word_choice->string ().string ();
+  choice.lengths = (char *) word_choice->lengths ().string ();
   add_document_word(&choice);
 }

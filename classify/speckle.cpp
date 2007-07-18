@@ -43,7 +43,7 @@ make_float_var (SmallSpeckleCertainty, -1.0, MakeSmallSpeckleCertainty,
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-LIST AddLargeSpeckleTo(LIST Choices) { 
+LIST AddLargeSpeckleTo(LIST Choices) {
 /*
  **	Parameters:
  **		Choices		choices to add a speckle choice to
@@ -61,17 +61,18 @@ LIST AddLargeSpeckleTo(LIST Choices) {
  **	History: Mon Mar 11 11:08:11 1991, DSJ, Created.
  */
   LIST WorstChoice;
+  char empty_lengths[] = {0};
 
   /* if there are no other choices, use the small speckle penalty plus
      the large speckle penalty */
   if (Choices == NIL)
-    return (append_choice (NIL, "", SmallSpecklePenalty + LargeSpecklePenalty,
+    return (append_choice (NIL, "", empty_lengths, SmallSpecklePenalty + LargeSpecklePenalty,
       SmallSpeckleCertainty, -1));
 
   /* if there are other choices,  add a null choice that is slightly worse
      than the worst choice so far */
   WorstChoice = last (Choices);
-  return (append_choice (Choices, "",
+  return (append_choice (Choices, "", empty_lengths,
     best_probability (WorstChoice) + LargeSpecklePenalty,
     best_certainty (WorstChoice), -1));
 
@@ -79,7 +80,7 @@ LIST AddLargeSpeckleTo(LIST Choices) {
 
 
 /*---------------------------------------------------------------------------*/
-void InitSpeckleVars() { 
+void InitSpeckleVars() {
 /*
  **	Parameters: none
  **	Globals: none
@@ -89,15 +90,15 @@ void InitSpeckleVars() {
  **	Exceptions: none
  **	History: Mon Mar 11 12:04:59 1991, DSJ, Created.
  */
-  MakeMaxLargeSpeckleSize(); 
-  MakeSmallSpecklePenalty(); 
-  MakeLargeSpecklePenalty(); 
-  MakeSmallSpeckleCertainty(); 
+  MakeMaxLargeSpeckleSize();
+  MakeSmallSpecklePenalty();
+  MakeLargeSpecklePenalty();
+  MakeSmallSpeckleCertainty();
 }                                /* InitSpeckleVars */
 
 
 /*---------------------------------------------------------------------------*/
-BOOL8 LargeSpeckle(TBLOB *Blob, TEXTROW *Row) { 
+BOOL8 LargeSpeckle(TBLOB *Blob, TEXTROW *Row) {
 /*
  **	Parameters:
  **		Blob		blob to test against speckle criteria
@@ -115,7 +116,7 @@ BOOL8 LargeSpeckle(TBLOB *Blob, TEXTROW *Row) {
   TPOINT BottomRight;
 
   SpeckleSize = RowHeight (Row) * MaxLargeSpeckleSize;
-  blob_bounding_box(Blob, &TopLeft, &BottomRight); 
+  blob_bounding_box(Blob, &TopLeft, &BottomRight);
 
   if (TopLeft.y - BottomRight.y < SpeckleSize &&
     BottomRight.x - TopLeft.x < SpeckleSize)

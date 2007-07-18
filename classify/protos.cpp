@@ -33,6 +33,7 @@
 #include "callcpp.h"
 #include "adaptmatch.h"
 #include "scanutils.h"
+#include "globals.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -288,24 +289,24 @@ void PrintProtos(CLASS_TYPE Class) {
  * in.  The results are stored in the global variable, 'TrainingData'.
  **********************************************************************/
 void ReadClassFile() {
-  FILE *File;
-  char TextLine[CHARS_PER_LINE];
+ FILE *File;
+ char TextLine[CHARS_PER_LINE];
+ char unichar[CHARS_PER_LINE];
 
-  cprintf ("Reading training data from '%s' ...", TrainingFile);
-  fflush(stdout);
+ cprintf ("Reading training data from '%s' ...", TrainingFile);
+ fflush(stdout);
 
-  File = open_file (TrainingFile, "r");
-  while (fgets (TextLine, CHARS_PER_LINE, File) != NULL) {
+ File = open_file (TrainingFile, "r");
+ while (fgets (TextLine, CHARS_PER_LINE, File) != NULL) {
 
-    ReadClassFromFile (File, TextLine[0]);
-    fgets(TextLine, CHARS_PER_LINE, File);
-    fgets(TextLine, CHARS_PER_LINE, File);
-  }
-  fclose(File);
-
-  new_line();
+   sscanf(TextLine, "%s", unichar);
+   ReadClassFromFile (File, unicharset.unichar_to_id(unichar));
+   fgets(TextLine, CHARS_PER_LINE, File);
+   fgets(TextLine, CHARS_PER_LINE, File);
+ }
+ fclose(File);
+ new_line();
 }
-
 
 /**********************************************************************
  * ReadClassFromFile
@@ -313,16 +314,15 @@ void ReadClassFile() {
  * Read in a class description (protos and configs) from a file.  Update
  * the class structure record.
  **********************************************************************/
-void ReadClassFromFile(FILE *File, char ClassChar) {
+void ReadClassFromFile(FILE *File, UNICHAR_ID unichar_id) {
   CLASS_TYPE Class;
 
-  Class = &TrainingData[ClassChar];
+  Class = &TrainingData[unichar_id];
 
   ReadProtos(File, Class);
 
   ReadConfigs(File, Class);
 }
-
 
 /**********************************************************************
  * ReadConfigs

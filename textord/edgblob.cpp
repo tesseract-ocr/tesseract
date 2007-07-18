@@ -37,7 +37,7 @@ EXTERN INT_VAR (edges_patharea_ratio, 40,
 "Max lensq/area for acceptable child outline");
 EXTERN double_VAR (edges_childarea, 0.5,
 "Max area fraction of child outline");
-EXTERN double_VAR (edges_boxarea, 0.8,
+EXTERN double_VAR (edges_boxarea, 0.875,
 "Min area fraction of grandchild for box");
 
 /**********************************************************************
@@ -119,12 +119,15 @@ INT32 OL_BUCKETS::count_children(                     //recursive count
         child = child_it.data ();
         if (child != outline && *child < *outline) {
           child_count++;
-          if (child_count <= max_count)
-            grandchild_count += count_children (child,
-              (max_count -
-              child_count) /
-              edges_children_per_grandchild)
-              * edges_children_per_grandchild;
+          if (child_count <= max_count) {
+            int max_grand = (max_count - child_count) /
+                            edges_children_per_grandchild;
+            if (max_grand > 0)
+              grandchild_count += count_children (child, max_grand) *
+                                  edges_children_per_grandchild;
+            else
+              grandchild_count += count_children(child, 1);
+          }
           if (child_count + grandchild_count > max_count) {
             /*						err.log(RESULT_OKAY,E_LOC,ERR_OCR,
                             ERR_SCROLLING,ERR_CONTINUE,ERR_DEBUG,
@@ -253,7 +256,7 @@ void extract_edges(                 //find blobs
                                  //block box
   block->bounding_box (bleft, tright);
                                  //make blobs
-  outlines_to_blobs(block, bleft, tright, &outlines); 
+  outlines_to_blobs(block, bleft, tright, &outlines);
 
 }
 
@@ -270,10 +273,10 @@ void outlines_to_blobs(               //find blobs
                        ICOORD tright,
                        C_OUTLINE_LIST *outlines) {
                                  //make buckets
-  OL_BUCKETS buckets(bleft, tright); 
+  OL_BUCKETS buckets(bleft, tright);
 
-  fill_buckets(outlines, &buckets); 
-  empty_buckets(block, &buckets); 
+  fill_buckets(outlines, &buckets);
+  empty_buckets(block, &buckets);
 }
 
 
@@ -360,14 +363,8 @@ BOOL8 capture_children(                       //find children
                        C_BLOB_IT *reject_it,  //dead grandchildren
                        C_OUTLINE_IT *blob_it  //output outlines
                       ) {
-  BOOL8 anydone;                 //anything canned
   C_OUTLINE *outline;            //master outline
-  C_OUTLINE *child;              //child under test
-  C_OUTLINE_IT test_it;          //for grandchildren
   INT32 child_count;             //no of children
-  C_BLOB *blob;                  //reject
-  C_OUTLINE_LIST r_list;         //rejects
-  C_OUTLINE_IT r_it;             //iterator
 
   outline = blob_it->data ();
   child_count = buckets->count_children (outline, edges_children_count_limit);
@@ -377,6 +374,13 @@ BOOL8 capture_children(                       //find children
     return TRUE;
                                  //get single level
   buckets->extract_children (outline, blob_it);
+#if 0
+  C_BLOB *blob;                  //reject
+  C_OUTLINE *child;              //child under test
+  C_OUTLINE_LIST r_list;         //rejects
+  C_OUTLINE_IT r_it;             //iterator
+  C_OUTLINE_IT test_it;          //for grandchildren
+  BOOL8 anydone;                 //anything canned
   if (child_count == 1)
     return TRUE;
   do {
@@ -403,5 +407,6 @@ BOOL8 capture_children(                       //find children
     }
   }
   while (anydone);               //got to restart
+#endif
   return TRUE;
 }

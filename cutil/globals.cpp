@@ -31,7 +31,7 @@
 //IMAGE                                         info;                                           /*image info record*/
 TBLOB *pageblobs;                /*first blob on page */
 TEXTBLOCK *pageblocks;           /*first block on page */
-char classes[CLASSIZE][CLASSLENGTH];
+// char classes[CLASSIZE][CLASSLENGTH];
                                  /*class definitions */
                                  /*indices to to_classes */
 

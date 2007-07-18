@@ -21,7 +21,12 @@
 #include "cutoffs.h"
 #include "efio.h"
 #include "scanutils.h"
+#include "serialis.h"
+#include "unichar.h"
+#include "globals.h"
 #include <stdio.h>
+
+#define REALLY_QUOTE_IT(x) QUOTE_IT(x)
 
 #define MAX_CUTOFF      1000
 
@@ -35,7 +40,7 @@ void ReadNewCutoffs(const char *Filename,
 /*
  **	Parameters:
  **		Filename	name of file containing cutoff definitions
- **		ClassMapper	array which maps class id's to class indexes
+ **             ClassMapper     array which maps class id's to class indexes
  **		Cutoffs		array to put cutoffs into
  **	Globals: none
  **	Operation: Open Filename, read in all of the class-id/cutoff pairs
@@ -48,7 +53,7 @@ void ReadNewCutoffs(const char *Filename,
  **	History: Wed Feb 20 09:38:26 1991, DSJ, Created.
  */
   FILE *CutoffFile;
-  char Class[2];
+  char Class[UNICHAR_LEN + 1];
   CLASS_ID ClassId;
   int Cutoff;
   int i;
@@ -58,8 +63,9 @@ void ReadNewCutoffs(const char *Filename,
   for (i = 0; i < MAX_NUM_CLASSES; i++)
     Cutoffs[i] = MAX_CUTOFF;
 
-  while (fscanf (CutoffFile, "%1s %d", Class, &Cutoff) == 2) {
-    ClassId = Class[0];
+  while (fscanf (CutoffFile, "%" REALLY_QUOTE_IT(UNICHAR_LEN) "s %d",
+                 Class, &Cutoff) == 2) {
+    ClassId = unicharset.unichar_to_id(Class);
     Cutoffs[ClassMapper[ClassId]] = Cutoff;
   }
   fclose(CutoffFile);

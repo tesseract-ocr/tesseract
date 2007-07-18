@@ -101,8 +101,8 @@ void tess_training_tester(                           //call tess
 void tess_adapter(                         //adapt to word
                   WERD *word,              //bln word
                   DENORM *denorm,          //de-normalise
-                  const char *string,      //string for word
-                  const char *raw_string,  //before context
+                  const WERD_CHOICE& choice,      //string for word
+                  const WERD_CHOICE& raw_choice,  //before context
                   const char *rejmap);
 void tess_add_doc_word(                          //test acceptability
                        WERD_CHOICE *word_choice  //after context

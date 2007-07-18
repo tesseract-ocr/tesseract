@@ -38,6 +38,7 @@ EXTERN BOOL_VAR (textord_oldbl_merge_parts, TRUE, "Merge suspect partitions");
 EXTERN BOOL_VAR (oldbl_corrfix, TRUE, "Improve correlation of heights");
 EXTERN BOOL_VAR (oldbl_xhfix, FALSE,
 "Fix bug in modes threshold for xheights");
+EXTERN BOOL_VAR(textord_ocropus_mode, FALSE, "Make baselines for ocropus");
 EXTERN double_VAR (oldbl_xhfract, 0.4, "Fraction of est allowed in calc");
 EXTERN INT_VAR (oldbl_holed_losscount, 10,
 "Max lost before fallback line used");
@@ -1405,7 +1406,7 @@ int bestpart                     /*biggest partition */
 	//by jetsoft divide by zero possible
 		if (partsizes[partition]==0)
 		partsteps[partition]=0;
-       else 
+       else
 		partsteps[partition] /= partsizes[partition];
 	//
 
@@ -1557,8 +1558,9 @@ float jumplimit                  /*min ascender height */
         blobcoords[blobindex].right ()) / 2;
     float base = baseline->y(xcenter);
     float bottomdiff = fabs(base - blobcoords[blobindex].bottom());
-    int strength = bottomdiff <= kBaselineTouch ? kGoodStrength : 1;
-    int height = static_cast<int>(blobcoords[blobindex].top () - base);
+    int strength = textord_ocropus_mode &&
+                   bottomdiff <= kBaselineTouch ? kGoodStrength : 1;
+    int height = static_cast<int>(blobcoords[blobindex].top () - base + 0.5);
     if (blobcoords[blobindex].height () > init_lineheight * kMinHeight) {
       if (height > lineheight * oldbl_xhfract
         && height > textord_min_xheight) {
@@ -1606,7 +1608,8 @@ float jumplimit                  /*min ascender height */
  * input distribution.
  **********************************************************************/
 
-const int kMinModeFactor = 32;
+const int kMinModeFactorOcropus = 32;
+const int kMinModeFactor = 12;
 
 void
 find_top_modes (                 //get modes
@@ -1620,6 +1623,8 @@ int modelist[], int modenum      //no of modes to get
   int i;
   int mode;
   int total_max = 0;
+  int mode_factor = textord_ocropus_mode ?
+                    kMinModeFactorOcropus : kMinModeFactor;
 
   for (mode_count = 0; mode_count < modenum; mode_count++) {
     mode = 0;
@@ -1634,7 +1639,7 @@ int modelist[], int modenum      //no of modes to get
     last_i = mode;
     last_max = stats->pile_count (last_i);
     total_max += last_max;
-    if (last_max <= total_max / kMinModeFactor)
+    if (last_max <= total_max / mode_factor)
       mode = 0;
     modelist[mode_count] = mode;
   }
@@ -1666,8 +1671,9 @@ void pick_x_height(TO_ROW * row,                    //row to do
       /* Check for two modes */
       if (modelist[x] && modelist[y] &&
           heightstat->pile_count (modelist[x]) > mode_threshold &&
-          MIN(rights[modelist[x]], rights[modelist[y]]) >
-          MAX(lefts[modelist[x]], lefts[modelist[y]])) {
+          (!textord_ocropus_mode ||
+           MIN(rights[modelist[x]], rights[modelist[y]]) >
+           MAX(lefts[modelist[x]], lefts[modelist[y]]))) {
         ratio = (float) modelist[y] / (float) modelist[x];
         if (1.2 < ratio && ratio < 1.8) {
           /* Two modes found */
@@ -1679,8 +1685,9 @@ void pick_x_height(TO_ROW * row,                    //row to do
             found_one_bigger = FALSE;
             for (z = 0; z < MODENUM; z++) {
               if (modelist[z] == best_x_height + 1 &&
-                  MIN(rights[modelist[x]], rights[modelist[y]]) >
-                  MAX(lefts[modelist[x]], lefts[modelist[y]])) {
+                  (!textord_ocropus_mode ||
+                    MIN(rights[modelist[x]], rights[modelist[y]]) >
+                    MAX(lefts[modelist[x]], lefts[modelist[y]]))) {
                 ratio = (float) modelist[y] / (float) modelist[z];
                 if ((1.2 < ratio && ratio < 1.8) &&
                                /* Should be half of best */
@@ -1705,8 +1712,9 @@ void pick_x_height(TO_ROW * row,                    //row to do
             found_one_bigger = FALSE;
             for (z = 0; z < MODENUM; z++) {
               if (modelist[z] > best_asc &&
-                  MIN(rights[modelist[x]], rights[modelist[y]]) >
-                  MAX(lefts[modelist[x]], lefts[modelist[y]])) {
+                  (!textord_ocropus_mode ||
+                    MIN(rights[modelist[x]], rights[modelist[y]]) >
+                    MAX(lefts[modelist[x]], lefts[modelist[y]]))) {
                 ratio = (float) modelist[z] / (float) best_x_height;
                 if ((1.2 < ratio && ratio < 1.8) &&
                                /* Should be half of best */

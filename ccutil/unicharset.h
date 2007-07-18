@@ -84,9 +84,107 @@ class UNICHARSET {
   // true if the operation is successful.
   bool load_from_file(const char* const filename);
 
+  // Set the isalpha property of the given unichar to the given value.
+  void set_isalpha(UNICHAR_ID unichar_id, bool value) {
+    unichars[unichar_id].properties.isalpha = value;
+  }
+
+  // Set the islower property of the given unichar to the given value.
+  void set_islower(UNICHAR_ID unichar_id, bool value) {
+    unichars[unichar_id].properties.islower = value;
+  }
+
+  // Set the isupper property of the given unichar to the given value.
+  void set_isupper(UNICHAR_ID unichar_id, bool value) {
+    unichars[unichar_id].properties.isupper = value;
+  }
+
+  // Set the isdigit property of the given unichar to the given value.
+  void set_isdigit(UNICHAR_ID unichar_id, bool value) {
+    unichars[unichar_id].properties.isdigit = value;
+  }
+
+  // Return the isalpha property of the given unichar.
+  bool get_isalpha(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.isalpha;
+  }
+
+  // Return the islower property of the given unichar.
+  bool get_islower(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.islower;
+  }
+
+  // Return the isupper property of the given unichar.
+  bool get_isupper(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.isupper;
+  }
+
+  // Return the isdigit property of the given unichar.
+  bool get_isdigit(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.isdigit;
+  }
+
+  // Return the isalpha property of the given unichar representation.
+  bool get_isalpha(const char* const unichar_repr) const {
+    return get_isalpha(unichar_to_id(unichar_repr));
+  }
+
+  // Return the islower property of the given unichar representation.
+  bool get_islower(const char* const unichar_repr) const {
+    return get_islower(unichar_to_id(unichar_repr));
+  }
+
+  // Return the isupper property of the given unichar representation.
+  bool get_isupper(const char* const unichar_repr) const {
+    return get_isupper(unichar_to_id(unichar_repr));
+  }
+
+  // Return the isdigit property of the given unichar representation.
+  bool get_isdigit(const char* const unichar_repr) const {
+    return get_isdigit(unichar_to_id(unichar_repr));
+  }
+
+  // Return the isalpha property of the given unichar representation.
+  // Only the first length characters from unichar_repr are used.
+  bool get_isalpha(const char* const unichar_repr,
+               int length) const {
+    return get_isalpha(unichar_to_id(unichar_repr, length));
+  }
+
+  // Return the islower property of the given unichar representation.
+  // Only the first length characters from unichar_repr are used.
+  bool get_islower(const char* const unichar_repr,
+               int length) const {
+    return get_islower(unichar_to_id(unichar_repr, length));
+  }
+
+  // Return the isupper property of the given unichar representation.
+  // Only the first length characters from unichar_repr are used.
+  bool get_isupper(const char* const unichar_repr,
+               int length) const {
+    return get_isupper(unichar_to_id(unichar_repr, length));
+  }
+
+  // Return the isdigit property of the given unichar representation.
+  // Only the first length characters from unichar_repr are used.
+  bool get_isdigit(const char* const unichar_repr,
+               int length) const {
+    return get_isdigit(unichar_to_id(unichar_repr, length));
+  }
+
  private:
 
-  typedef char UNICHAR_SLOT[UNICHAR_LEN + 1];
+  struct UNICHAR_PROPERTIES {
+    bool isalpha;
+    bool islower;
+    bool isupper;
+    bool isdigit;
+  };
+
+  struct UNICHAR_SLOT {
+    char representation[UNICHAR_LEN + 1];
+    UNICHAR_PROPERTIES properties;
+  };
 
   UNICHAR_SLOT* unichars;
   UNICHARMAP ids;

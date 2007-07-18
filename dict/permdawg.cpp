@@ -34,6 +34,7 @@
 #include "stopper.h"
 #include "freelist.h"
 #include "globals.h"
+#include "cutil.h"
 #include "dawg.h"
 #include <ctype.h>
 
@@ -43,7 +44,7 @@
 #define FREQ_WERD     1.0
 #define GOOD_WERD     1.1
 #define OK_WERD       1.25
-#define MAX_FREQ_EDGES    1000
+#define MAX_FREQ_EDGES    1500
 #define NO_RATING              -1
 
 /*----------------------------------------------------------------------
@@ -84,10 +85,11 @@ void adjust_word(A_CHOICE *best_choice, float *certainty_array) {
       class_string (best_choice), class_probability (best_choice));
 
   this_word = class_string (best_choice);
-  punct_status = punctuation_ok (this_word);
+  punct_status = punctuation_ok (this_word, class_lengths (best_choice));
 
   class_probability (best_choice) += RATING_PAD;
-  if (case_ok (this_word) && punct_status != -1) {
+  if (case_ok (this_word, class_lengths (best_choice))
+      && punct_status != -1) {
     if (punct_status < 1 && word_in_dawg (frequent_words, this_word)) {
       class_probability (best_choice) *= freq_word;
       class_permuter (best_choice) = FREQ_DAWG_PERM;
@@ -106,9 +108,9 @@ void adjust_word(A_CHOICE *best_choice, float *certainty_array) {
     class_probability (best_choice) *= ok_word;
     adjust_factor = ok_word;
     if (adjust_debug) {
-      if (!case_ok (this_word))
+      if (!case_ok (this_word, class_lengths (best_choice)))
         cprintf (", C");
-      if (punctuation_ok (this_word) == -1)
+      if (punctuation_ok (this_word, class_lengths (best_choice)) == -1)
         cprintf (", P");
       cprintf (", %4.2f ", ok_word);
     }
@@ -135,10 +137,12 @@ void append_next_choice(  /*previous option */
                         NODE_REF node,
                         char permuter,
                         char *word,
+                        char unichar_lengths[],
+                        int unichar_offsets[],
                         CHOICES_LIST choices,
                         int char_index,
                         A_CHOICE *this_choice,
-                        char prevchar,
+                        const char *prevchar,
                         float *limit,
                         float rating,
                         float certainty,
@@ -149,10 +153,20 @@ void append_next_choice(  /*previous option */
                         CHOICES *result) {
   A_CHOICE *better_choice;
   /* Add new character */
-  word[char_index] = class_string (this_choice)[0];
-  word[char_index + 1] = 0;
-  if (word[char_index] == 0)
-    word[char_index] = ' ';
+  strcpy(word + unichar_offsets[char_index], class_string (this_choice));
+
+  unichar_lengths[char_index] = strlen(class_string (this_choice));
+  unichar_lengths[char_index + 1] = 0;
+  unichar_offsets[char_index + 1] = unichar_offsets[char_index] +
+      unichar_lengths[char_index];
+  if (word[unichar_offsets[char_index]] == '\0') {
+    word[unichar_offsets[char_index]] = ' ';
+    word[unichar_offsets[char_index] + 1] = '\0';
+    unichar_lengths[char_index] = 1;
+    unichar_lengths[char_index + 1] = 0;
+    unichar_offsets[char_index + 1] = unichar_offsets[char_index] +
+        unichar_lengths[char_index];
+  }
   certainty_array[char_index] = class_certainty (this_choice);
 
   rating += class_probability (this_choice);
@@ -172,37 +186,50 @@ void append_next_choice(  /*previous option */
   }
 
   /* Deal with hyphens */
-  if (word_ending && last_word && word[char_index] == '-' && char_index > 0) {
+  if (word_ending && last_word && word[unichar_offsets[char_index]] == '-' &&
+      char_index > 0) {
     *limit = rating;
     if (dawg_debug)
       cprintf ("new hyphen choice = %s\n", word);
-
-    better_choice = new_choice (word, rating, certainty, -1, permuter);
+    better_choice = new_choice (word, unichar_lengths, rating, certainty, -1, permuter);
     adjust_word(better_choice, certainty_array);
     push_on(*result, better_choice);
-    set_hyphen_word(word, rating, node);
+    set_hyphen_word(word, unichar_lengths, unichar_offsets, rating, node);
   }
   /* Look up char in DAWG */
-  else if (letter_is_okay (dawg, &node, char_index, prevchar,
-  word, word_ending)) {
-    /* Add a new word choice */
-    if (word_ending) {
-      if (dawg_debug == 1)
-        cprintf ("new choice = %s\n", word);
-      *limit = rating;
+  else {
+    int sub_offset = 0;
+    NODE_REF node_saved = node;
+    while (sub_offset < unichar_lengths[char_index] &&
+           letter_is_okay (dawg, &node, unichar_offsets[char_index] +
+                           sub_offset, *prevchar, word, word_ending &&
+                           sub_offset == unichar_lengths[char_index] - 1))
+      ++sub_offset;
+    if (sub_offset == unichar_lengths[char_index]) {
+      /* Add a new word choice */
+      if (word_ending) {
+        if (dawg_debug == 1)
+          cprintf ("new choice = %s\n", word);
+        *limit = rating;
 
-      better_choice = new_choice (hyphen_tail (word), rating, certainty,
-        -1, permuter);
-      adjust_word (better_choice, &certainty_array[hyphen_base_size ()]);
-      push_on(*result, better_choice);
-    }
-    else {
-                                 /* Search the next letter */
-      JOIN_ON (*result,
-        dawg_permute (dawg, node, permuter,
-        choices, char_index + 1, limit,
-        word, rating, certainty,
-        rating_array, certainty_array, last_word));
+        better_choice = new_choice (hyphen_tail (word), unichar_lengths +
+                                    hyphen_base_size(),
+                                    rating, certainty,
+                                    -1, permuter);
+        adjust_word (better_choice, &certainty_array[hyphen_base_size ()]);
+        push_on(*result, better_choice);
+      }
+      else {
+        /* Search the next letter */
+        JOIN_ON (*result,
+                 dawg_permute (dawg, node, permuter,
+                               choices, char_index + 1, limit,
+                               word, unichar_lengths, unichar_offsets, rating, certainty,
+                               rating_array, certainty_array, last_word));
+      }
+    } else {
+      if (node != 0)
+        node = node_saved;
     }
   }
 }
@@ -222,6 +249,8 @@ CHOICES dawg_permute(EDGE_ARRAY dawg,
                      int char_index,
                      float *limit,
                      char *word,
+                     char unichar_lengths[],
+                     int unichar_offsets[],
                      float rating,
                      float certainty,
                      float *rating_array,
@@ -233,11 +262,12 @@ CHOICES dawg_permute(EDGE_ARRAY dawg,
   int word_ending = FALSE;
 
   if (dawg_debug) {
-    cprintf ("dawg_permute (node=%d, char_index=%d, limit=%4.2f, ",
+    cprintf ("dawg_permute (node=" REFFORMAT ", char_index=%d, limit=%f, ",
       node, char_index, *limit);
     cprintf ("word=%s, rating=%4.2f, certainty=%4.2f)\n",
       word, rating, certainty);
   }
+
   /* Check for EOW */
   if (1 + char_index == array_count (choices) + hyphen_base_size ())
     word_ending = TRUE;
@@ -247,15 +277,15 @@ CHOICES dawg_permute(EDGE_ARRAY dawg,
     iterate_list (c,
       (CHOICES) array_index (choices,
     char_index - hyphen_base_size ())) {
-      append_next_choice (dawg, node, permuter, word, choices, char_index,
-        (A_CHOICE *) first_node (c),
-        prevchar != NULL ? *prevchar : '\0', limit,
-        rating, certainty, rating_array, certainty_array,
-        word_ending, last_word, &result);
+      append_next_choice (dawg, node, permuter, word, unichar_lengths,
+                          unichar_offsets, choices, char_index,
+                          (A_CHOICE *) first_node (c),
+                          prevchar != NULL ? prevchar : "", limit,
+                          rating, certainty, rating_array, certainty_array,
+                          word_ending, last_word, &result);
       prevchar = best_string (c);
     }
   }
-
   if (result && (dawg_debug == 1))
     print_choices ("dawg_permute", result);
   return (result);
@@ -276,7 +306,9 @@ void dawg_permute_and_select(const char *string,
                              A_CHOICE *best_choice,
                              INT16 system_words) {
   CHOICES result = NIL;
-  char word[MAX_WERD_LENGTH + 1];
+  char word[UNICHAR_LEN * MAX_WERD_LENGTH + 1];
+  char unichar_lengths[MAX_WERD_LENGTH + 1];
+  int unichar_offsets[MAX_WERD_LENGTH + 1];
   float certainty_array[MAX_WERD_LENGTH + 1];
   float rating_array[MAX_WERD_LENGTH + 1];
   float rating;
@@ -287,6 +319,8 @@ void dawg_permute_and_select(const char *string,
   rating_margin = ok_word / good_word;
 
   word[0] = '\0';
+  unichar_lengths[0] = 0;
+  unichar_offsets[0] = 0;
   rating = class_probability (best_choice);
 
   for (char_index = 0; char_index < MAX_WERD_LENGTH + 1; char_index++)
@@ -295,12 +329,19 @@ void dawg_permute_and_select(const char *string,
 
   if (!is_last_word () && hyphen_string) {
     strcpy(word, hyphen_string);
-    char_index = strlen (hyphen_string);
+    strcpy(unichar_lengths, hyphen_unichar_lengths);
+    memcpy(unichar_offsets, hyphen_unichar_offsets,
+           (hyphen_base_size()) * sizeof (int));
+    unichar_offsets[hyphen_base_size()] =
+        unichar_offsets[hyphen_base_size() - 1] +
+        unichar_lengths[hyphen_base_size() - 1];
+    char_index = strlen (hyphen_unichar_lengths);
     if (system_words)
       dawg_node = hyphen_state;
   }
+
   result = dawg_permute (dawg, dawg_node, permuter, character_choices,
-    char_index, &rating, word, 0.0, 0.0,
+    char_index, &rating, word, unichar_lengths, unichar_offsets, 0.0, 0.0,
     rating_array, certainty_array, is_last_word ());
 
   if (display_ratings && result)

@@ -38,9 +38,9 @@
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void InitBlobClassifierVars(); 
+void InitBlobClassifierVars();
 
-void LearnBlob (TBLOB * Blob, TEXTROW * Row, char BlobText[], int TextLength);
+void LearnBlob (TBLOB * Blob, TEXTROW * Row, char BlobText[]);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

@@ -24,6 +24,7 @@
 #include "matchdefs.h"
 #include "protos.h"
 #include "callcpp.h"
+#include "unicharset.h"
 
 /* define order of params in pruners */
 #define PRUNER_X      0
@@ -107,8 +108,8 @@ typedef struct
 {
   int NumClasses;
   int NumClassPruners;
-  CLASS_TO_INDEX IndexFor;       /*int16[256] */
-  INDEX_TO_CLASS ClassIdFor;     /*unit8[100 */
+  CLASS_TO_INDEX IndexFor;
+  INDEX_TO_CLASS ClassIdFor;
   INT_CLASS Class[MAX_NUM_CLASSES];
   CLASS_PRUNER ClassPruner[MAX_NUM_CLASS_PRUNERS];
 }
@@ -164,7 +165,7 @@ typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 #define MaxNumClassesIn(T)    (NumClassPrunersIn (T) * CLASSES_PER_CP)
 #define ClassIdForIndex(T,I)  ((T)->ClassIdFor[I])
 #define IndexForClassId(T,C)  ((T)->IndexFor[C])
-#define LegalClassId(C)   ((C) > 0 && (C) < MAX_CLASS_ID)
+#define LegalClassId(C)   ((C) > 0 && (C) <= MAX_CLASS_ID)
 #define UnusedClassIdIn(T,C)  (IndexForClassId (T,C) == ILLEGAL_CLASS)
 #define ClassForIndex(T,I)  ((T)->Class[I])
 #define ClassForClassId(T,C)  (ClassForIndex (T, IndexForClassId (T, C)))
@@ -194,51 +195,53 @@ typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-int AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class); 
+int AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class);
 
-int AddIntConfig(INT_CLASS Class); 
+int AddIntConfig(INT_CLASS Class);
 
-int AddIntProto(INT_CLASS Class); 
+int AddIntProto(INT_CLASS Class);
 
 void AddProtoToClassPruner(PROTO Proto,
                            CLASS_ID ClassId,
                            INT_TEMPLATES Templates);
 
-void AddProtoToProtoPruner(PROTO Proto, int ProtoId, INT_CLASS Class); 
+void AddProtoToProtoPruner(PROTO Proto, int ProtoId, INT_CLASS Class);
 
-int BucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets); 
+int BucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets);
 
-int CircBucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets); 
+int CircBucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets);
 
-void UpdateMatchDisplay(); 
+void UpdateMatchDisplay();
 
-void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class); 
+void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class);
 
-void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class); 
+void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class);
 
-INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos); 
+INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos,
+                                 const UNICHARSET& target_unicharset);
 
-void DisplayIntFeature(INT_FEATURE Feature, FLOAT32 Evidence); 
+void DisplayIntFeature(INT_FEATURE Feature, FLOAT32 Evidence);
 
-void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence); 
+void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence);
 
-void InitIntProtoVars(); 
+void InitIntProtoVars();
 
-INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs); 
+INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs);
 
-void free_int_class(INT_CLASS int_class); 
+void free_int_class(INT_CLASS int_class);
 
-INT_TEMPLATES NewIntTemplates(); 
+INT_TEMPLATES NewIntTemplates();
 
-void free_int_templates(INT_TEMPLATES templates); 
+void free_int_templates(INT_TEMPLATES templates);
 
-INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap); 
+INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap);
 
-void ShowMatchDisplay(); 
+void ShowMatchDisplay();
 
-CLASS_ID GetClassToDebug(const char *Prompt); 
+CLASS_ID GetClassToDebug(const char *Prompt);
 
-void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates); 
+void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
+                       const UNICHARSET& target_unicharset);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

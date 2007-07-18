@@ -59,8 +59,9 @@ WERD *make_ed_word(                  //construct word
 
   for (tblob = tessword->blobs; tblob != NULL; tblob = tblob->next) {
     blob = make_ed_blob (tblob);
-    if (blob != NULL)
+    if (blob != NULL) {
       blob_it.add_after_then_move (blob);
+    }
   }
   if (!blobs.empty ())
     word = new WERD (&blobs, clone);
@@ -91,8 +92,9 @@ PBLOB *make_ed_blob(                 //construct blob
   }
   while (!fragments.empty ()) {
     outline = make_ed_outline (&fragments);
-    if (outline != NULL)
+    if (outline != NULL) {
       out_it.add_after_then_move (outline);
+    }
   }
   if (out_it.empty())
     return NULL;                 //couldn't do it
@@ -138,28 +140,29 @@ OUTLINE *make_ed_outline(                     //constructoutline
     delete fragment_it.extract ();
     if (tailpos != headpos) {
       if (fragment_it.empty ()) {
-        //                              tprintf("Bad tailpos (%d,%d), Head=(%d,%d), no fragments.\n",
-        //                                      fragment->head.x(),fragment->head.y(),
-        //                                      headpos.x(),headpos.y());
+        tprintf("Bad tailpos (%d,%d), Head=(%d,%d), no fragments.\n",
+                fragment->head.x(),fragment->head.y(),
+                headpos.x(),headpos.y());
         return NULL;
       }
       fragment_it.forward ();
                                  //find next segment
-      for (fragment_it.mark_cycle_pt (); !fragment_it.cycled_list () && fragment_it.data ()->head != tailpos;
+      for (fragment_it.mark_cycle_pt (); !fragment_it.cycled_list () &&
+               fragment_it.data ()->head != tailpos;
         fragment_it.forward ());
       if (fragment_it.data ()->head != tailpos) {
-        //                              tprintf("Bad tailpos (%d,%d), Fragments are:\n",
-        //                                      tailpos.x(),tailpos.y());
+        tprintf("Bad tailpos (%d,%d), Fragments are:\n",
+                tailpos.x(),tailpos.y());
         for (fragment_it.mark_cycle_pt ();
         !fragment_it.cycled_list (); fragment_it.forward ()) {
           fragment = fragment_it.extract ();
-          //                                      tprintf("Head=(%d,%d), tail=(%d,%d)\n",
-          //                                              fragment->head.x(),fragment->head.y(),
-          //                                              fragment->tail.x(),fragment->tail.y());
+          tprintf("Head=(%d,%d), tail=(%d,%d)\n",
+                  fragment->head.x(),fragment->head.y(),
+                  fragment->tail.x(),fragment->tail.y());
           delete fragment;
         }
         return NULL;             //can't do it
-        //                              BADFRAGMENTS.error("make_ed_blob",ABORT,NULL);
+//         BADFRAGMENTS.error("make_ed_blob",ABORT,NULL);
       }
     }
   }
@@ -266,7 +269,8 @@ void convert_choice_list(                           //convert lists
   //traverse list
     tesschoice = (A_CHOICE *) result->node;
                                  //make one
-    choice = new BLOB_CHOICE (tesschoice->string[0], tesschoice->rating, tesschoice->certainty, tesschoice->config);
+    choice = new BLOB_CHOICE (tesschoice->string, tesschoice->rating,
+                              tesschoice->certainty, tesschoice->config);
     it.add_after_then_move (choice);
   }
   destroy_nodes (list, (void (*)(void *)) free_choice);

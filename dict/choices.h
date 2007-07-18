@@ -68,6 +68,7 @@ typedef struct choicestruct
   char permuter;
   INT8 config;
   char *string;
+  char *lengths; //Length of each unichar in the string
 } A_CHOICE;
 
 /*----------------------------------------------------------------------
@@ -80,6 +81,14 @@ typedef struct choicestruct
  **********************************************************************/
 #define best_string(choices)  \
 (first_node (choices) ? ((A_CHOICE*) (first_node (choices)))->string : NULL)
+
+/**********************************************************************
+ * best_lengths
+ *
+ * Return the lengths corresponding to the best choice.
+ **********************************************************************/
+#define best_lengths(choices)  \
+(first_node (choices) ? ((A_CHOICE*) (first_node (choices)))->lengths : NULL)
 
 /**********************************************************************
  * best_probability
@@ -116,10 +125,18 @@ typedef struct choicestruct
 /**********************************************************************
  * class_string
  *
- * Return the probability of a given character class.
+ * Return the string of a given character class.
  **********************************************************************/
 #define class_string(choice)  \
 (((A_CHOICE*) (choice))->string)
+
+/**********************************************************************
+ * class_lengths
+ *
+ * Return the lengths of a given character class.
+ **********************************************************************/
+#define class_lengths(choice)  \
+(((A_CHOICE*) (choice))->lengths)
 
 /**********************************************************************
  * class_permuter
@@ -145,10 +162,12 @@ typedef struct choicestruct
  **********************************************************************/
 #define clone_choice(choice_2,choice_1)  \
 if (class_string (choice_2)) strfree (class_string (choice_2));    \
+if (class_lengths (choice_2)) strfree (class_lengths (choice_2));    \
 class_probability (choice_2) = class_probability (choice_1);       \
 class_certainty   (choice_2) = class_certainty   (choice_1);       \
 class_permuter    (choice_2) = class_permuter   (choice_1);        \
-class_string      (choice_2) = strsave (class_string (choice_1))   \
+class_string      (choice_2) = strsave (class_string (choice_1));   \
+class_lengths     (choice_2) = strsave (class_lengths (choice_1))   \
 
 
 /**********************************************************************
@@ -173,6 +192,7 @@ destroy_nodes ((c), free_choice)
 ----------------------------------------------------------------------*/
 CHOICES append_choice(CHOICES ratings,
                       const char *string,
+                      const char *lengths,
                       float rating,
                       float certainty,
                       INT8 config);
@@ -182,6 +202,7 @@ CHOICES copy_choices(CHOICES choices);
 void free_choice(void *arg);  //LIST choice);
 
 A_CHOICE *new_choice(const char *string,
+                     const char *lengths,
                      float rating,
                      float certainty,
                      INT8 config,

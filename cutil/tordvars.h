@@ -57,5 +57,5 @@ extern float certainty_threshold;           /* When to quit looking */
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void init_textord_vars(); 
+void init_textord_vars();
 #endif

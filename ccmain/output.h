@@ -93,7 +93,8 @@ void write_shm_text(                    //write output
                     WERD_RES *word,     //word to do
                     BLOCK *block,       //block it is from
                     ROW_RES *row,       //row it is from
-                    const STRING &text  //text to write
+                    const STRING &text, //text to write
+                    const STRING &text_lengths
                    );
 void write_map(                //output a map file
                FILE *mapfile,  //mapfile to write to
@@ -101,13 +102,15 @@ void write_map(                //output a map file
 FILE *open_outfile(  //open .map & .unlv file
                    const char *extension);
 void write_unlv_text(WERD_RES *word);
-char get_rep_char(  // what char is repeated?
-                  WERD_RES *word);
+UNICHAR_ID get_rep_char(WERD_RES *word);  // what char is repeated?
 void ensure_rep_chars_are_consistent(WERD_RES *word);
 void set_unlv_suspects(WERD_RES *word);
 INT16 count_alphas(  //how many alphas
-                   const char *s);
+                   const char *s,
+                   const char *lengths);
 INT16 count_alphanums(  //how many alphanums
-                      const char *s);
-BOOL8 acceptable_number_string(const char *s);
+                      const char *s,
+                      const char *lengths);
+BOOL8 acceptable_number_string(const char *s,
+                               const char *lengths);
 #endif

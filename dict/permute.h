@@ -70,6 +70,7 @@ void permute_subword(CHOICES_LIST character_choices,
                      int start,
                      int end,
                      char *word,
+                     char unichar_lengths[],
                      float *rating,
                      float *certainty);
 
@@ -78,12 +79,12 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
                              A_CHOICE *raw_choice,
                              BOOL8 *any_alpha);
 
-char choose_il1(char first_char,   //first choice
-                char second_char,  //second choice
-                char third_char,   //third choice
-                char prev_char,    //prev in word
-                char next_char,    //next in word
-                char next_next_char);
+const char* choose_il1(const char *first_char,   //first choice
+                       const char *second_char,  //second choice
+                       const char *third_char,   //third choice
+                       const char *prev_char,    //prev in word
+                       const char *next_char,    //next in word
+                       const char *next_next_char);
 
 A_CHOICE *permute_words(CHOICES_LIST char_choices, float rating_limit);
 

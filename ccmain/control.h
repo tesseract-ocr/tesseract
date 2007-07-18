@@ -155,11 +155,11 @@ void fix_rep_char(                //Repeated char word
                   WERD_RES *word  //word to do
                  );
 void fix_quotes(               //make double quotes
-                char *string,  //string to fix
+                WERD_CHOICE *choice,  //string to fix
                 WERD *word,    //word to do //char choices
                 BLOB_CHOICE_LIST_CLIST *blob_choices);
 void fix_hyphens(               //crunch double hyphens
-                 char *string,  //string to fix
+                 WERD_CHOICE *choice,  //string to fix
                  WERD *word,    //word to do //char choices
                  BLOB_CHOICE_LIST_CLIST *blob_choices);
 void merge_blobs(               //combine 2 blobs
@@ -175,7 +175,8 @@ void choice_dump_tester(                           //dump chars in word
                         BLOB_CHOICE_LIST *ratings  //list of results
                        );
 WERD *make_bln_copy(WERD *src_word, ROW *row, float x_height, DENORM *denorm);
-ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s);
+ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s,
+                                            const char *lengths);
 BOOL8 check_debug_pt(WERD_RES *word, int location);
 void set_word_fonts(                 //good chars in word
                     WERD_RES *word,  //word to adapt to //detailed results

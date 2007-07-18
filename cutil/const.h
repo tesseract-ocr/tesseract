@@ -19,10 +19,11 @@
 #define OUTLINESIZE     256      /*max elements in aprroximated path */
 #define BLOBSIZE      10000      /*max no of blobs on a page */
 
+#if 0
 #define FIRSTCHAR       '!'      /*first char in set */
 #define LASTCHAR        '~'      /*last char in set */
 #define CHARSETSIZE     (LASTCHAR-FIRSTCHAR+1)
-                                 /*no of chars in set */
+                                 no of chars in set
 #define MERGESIZE     10         /*max chars in a class */
 #define MAXCHARSIZE     159      /*max size of any char */
 #define CLASSIZE      256        /*max no of classes */
@@ -30,6 +31,8 @@
 #define BADCLASS      255        /*null class */
 #define BADMATCH      255        /*no match */
 #define CLASSLENGTH     16       /*max chars in a class string */
+#endif
+
 #define VECSCALE      3          /*vector scaling factor in fx */
 #define REALSCALE       ((double)(1<<VECSCALE))
                                  /*2.0**VECSCALE */

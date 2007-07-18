@@ -64,25 +64,28 @@ WERD_CHOICE *recog_word(                           //recog one owrd
   UINT8 real_dict_perm_type;
 
   if (word->blob_list ()->empty ()) {
-    word_choice = new WERD_CHOICE ("", 10.0f, -1.0f, TOP_CHOICE_PERM);
-    raw_choice = new WERD_CHOICE ("", 10.0f, -1.0f, TOP_CHOICE_PERM);
+    char empty_lengths[] = {0};
+    word_choice = new WERD_CHOICE ("", empty_lengths,
+                                   10.0f, -1.0f, TOP_CHOICE_PERM);
+    raw_choice = new WERD_CHOICE ("", empty_lengths,
+                                  10.0f, -1.0f, TOP_CHOICE_PERM);
     outword = word->poly_copy (denorm->row ()->x_height ());
   }
   else
     word_choice = recog_word_recursive (word, denorm, matcher, tester,
       trainer, testing, raw_choice,
       blob_choices, outword);
-  if ((word_choice->string ().length () !=
+  if ((word_choice->lengths ().length () !=
     outword->blob_list ()->length ()) ||
-  (word_choice->string ().length () != blob_choices->length ())) {
+  (word_choice->lengths ().length () != blob_choices->length ())) {
     tprintf
       ("recog_word ASSERT FAIL String:\"%s\"; Strlen=%d; #Blobs=%d; #Choices=%d\n",
-      word_choice->string ().string (), word_choice->string ().length (),
+      word_choice->string ().string (), word_choice->lengths ().length (),
       outword->blob_list ()->length (), blob_choices->length ());
   }
-  ASSERT_HOST (word_choice->string ().length () ==
+  ASSERT_HOST (word_choice->lengths ().length () ==
     outword->blob_list ()->length ());
-  ASSERT_HOST (word_choice->string ().length () == blob_choices->length ());
+  ASSERT_HOST (word_choice->lengths ().length () == blob_choices->length ());
 
   /* Copy any reject blobs into the outword */
   outword->rej_blob_list ()->deep_copy (word->rej_blob_list ());
@@ -96,7 +99,8 @@ WERD_CHOICE *recog_word(                           //recog one owrd
       if (((real_dict_perm_type == SYSTEM_DAWG_PERM) ||
         (real_dict_perm_type == FREQ_DAWG_PERM) ||
         (real_dict_perm_type == USER_DAWG_PERM)) &&
-        (alpha_count (word_choice->string ().string ()) > 0))
+        (alpha_count (word_choice->string ().string (),
+                      word_choice->lengths ().string ()) > 0))
         word_choice->set_permuter (real_dict_perm_type);
       //Use dict perm
     }
@@ -131,6 +135,7 @@ WERD_CHOICE *recog_word_recursive(                           //recog one owrd
   INT32 initial_blob_choice_len;
   INT32 word_length;             //no of blobs
   STRING word_string;            //converted from tess
+  STRING word_string_lengths;
   ARRAY tess_ratings;            //tess results
   A_CHOICE tess_choice;          //best word
   A_CHOICE tess_raw;             //raw result
@@ -175,19 +180,27 @@ WERD_CHOICE *recog_word_recursive(                           //recog one owrd
     convert_choice_lists(tess_ratings, blob_choices);
                                  //copy string
     word_string = tess_raw.string;
-    while (word_string.length () < word_length)
+    word_string_lengths = tess_raw.lengths;
+    while (word_string_lengths.length () < word_length) {
       word_string += " ";        //pad with blanks
+      word_string_lengths += 1;
+    }
     raw_choice = new WERD_CHOICE (word_string.string (),
-      tess_raw.rating, tess_raw.certainty,
-      tess_raw.permuter);
+                                  word_string_lengths.string (),
+                                  tess_raw.rating, tess_raw.certainty,
+                                  tess_raw.permuter);
     word_string = tess_choice.string;
-    if (word_string.length () > word_length) {
-      tprintf ("recog_word: Discarded long string \"%s\"\n",
-        word_string.string ());
+    word_string_lengths = tess_choice.lengths;
+    if (word_string_lengths.length () > word_length) {
+      tprintf ("recog_word: Discarded long string \"%s\""
+               " (%d characters vs %d blobs)\n",
+        word_string.string (), word_string_lengths.length(), word_length);
       word_string = NULL;        //should never happen
+      word_string_lengths = NULL;
     }
     if (blob_choices->length () - initial_blob_choice_len != word_length) {
       word_string = NULL;        //force rejection
+      word_string_lengths = NULL;
       tprintf ("recog_word: Choices list len:%d; blob lists len:%d\n",
         blob_choices->length (), word_length);
                                  //list of lists
@@ -208,17 +221,24 @@ WERD_CHOICE *recog_word_recursive(                           //recog one owrd
         tprintf ("recog_word: Deleted choice list\n");
       }
     }
-    while (word_string.length () < word_length)
+    while (word_string_lengths.length () < word_length) {
       word_string += " ";        //pad with blanks
+      word_string_lengths += 1;
+    }
 
     assert (raw_choice != NULL);
-    if (tess_choice.string)
+    if (tess_choice.string) {
       strfree(tess_choice.string);
-    if (tess_raw.string)
+      strfree(tess_choice.lengths);
+    }
+    if (tess_raw.string) {
       strfree(tess_raw.string);
+      strfree(tess_raw.lengths);
+    }
     return new WERD_CHOICE (word_string.string (),
-      tess_choice.rating, tess_choice.certainty,
-      tess_choice.permuter);
+                            word_string_lengths.string (),
+                            tess_choice.rating, tess_choice.certainty,
+                            tess_choice.permuter);
   }
 }
 
@@ -323,9 +343,9 @@ LIST call_matcher(                  //call a matcher
   PBLOB *nblob;                  //converted blob
   LIST result;                   //tess output
   BLOB_CHOICE *choice;           //current choice
-  char string[2];                //char converted
   BLOB_CHOICE_LIST ratings;      //matcher result
   BLOB_CHOICE_IT it;             //iterator
+  char choice_lengths[2] = {0, 0};
 
   blob = make_ed_blob (tessblob);//convert blob
   if (blob == NULL)
@@ -341,13 +361,12 @@ LIST call_matcher(                  //call a matcher
     delete nblob;
   it.set_to_list (&ratings);     //get list
   result = NULL;
-  string[1] = '\0';
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
     choice = it.data ();
-    string[0] = choice->char_class ();
-    result = append_choice (result, string,
-      choice->rating (), choice->certainty (),
-      choice->config ());
+    choice_lengths[0] = strlen(choice->unichar ());
+    result = append_choice (result, choice->unichar (),
+                            choice_lengths, choice->rating (),
+                            choice->certainty (), choice->config ());
   }
   return result;                 //converted list
 }

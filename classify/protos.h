@@ -30,6 +30,7 @@
 ----------------------------------------------------------------------*/
 #include "bitvec.h"
 #include "cutil.h"
+#include "unichar.h"
 
 /*----------------------------------------------------------------------
               T y p e s
@@ -63,7 +64,7 @@ typedef CLASS_STRUCT *CLASSES;
 /*----------------------------------------------------------------------
               C o n s t a n t s
 ----------------------------------------------------------------------*/
-#define NUMBER_OF_CLASSES  256
+#define NUMBER_OF_CLASSES  MAX_NUM_CLASSES
 #define Y_OFFSET           -40.0
 #define FEATURE_SCALE      100.0
 
@@ -248,41 +249,41 @@ extern CLASS_STRUCT TrainingData[];
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-int AddConfigToClass(CLASS_TYPE Class); 
+int AddConfigToClass(CLASS_TYPE Class);
 
-int AddProtoToClass(CLASS_TYPE Class); 
+int AddProtoToClass(CLASS_TYPE Class);
 
-FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config); 
+FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config);
 
-FLOAT32 ClassProtoLength(CLASS_TYPE Class); 
+FLOAT32 ClassProtoLength(CLASS_TYPE Class);
 
-void CopyProto(PROTO Src, PROTO Dest); 
+void CopyProto(PROTO Src, PROTO Dest);
 
-void FillABC(PROTO Proto); 
+void FillABC(PROTO Proto);
 
-void FreeClass(CLASS_TYPE Class); 
+void FreeClass(CLASS_TYPE Class);
 
-void FreeClassFields(CLASS_TYPE Class); 
+void FreeClassFields(CLASS_TYPE Class);
 
-void InitPrototypes(); 
+void InitPrototypes();
 
-CLASS_TYPE NewClass(int NumProtos, int NumConfigs); 
+CLASS_TYPE NewClass(int NumProtos, int NumConfigs);
 
-void PrintProtos(CLASS_TYPE Class); 
+void PrintProtos(CLASS_TYPE Class);
 
-void ReadClassFile(); 
+void ReadClassFile();
 
-void ReadClassFromFile(FILE *File, char ClassChar); 
+void ReadClassFromFile(FILE *File, UNICHAR_ID unichar_id);
 
-void ReadConfigs(register FILE *File, CLASS_TYPE Class); 
+void ReadConfigs(register FILE *File, CLASS_TYPE Class);
 
-void ReadProtos(register FILE *File, CLASS_TYPE Class); 
+void ReadProtos(register FILE *File, CLASS_TYPE Class);
 
-int SplitProto(CLASS_TYPE Class, int OldPid); 
+int SplitProto(CLASS_TYPE Class, int OldPid);
 
-void WriteOldConfigFile(FILE *File, CLASS_TYPE Class); 
+void WriteOldConfigFile(FILE *File, CLASS_TYPE Class);
 
-void WriteOldProtoFile(FILE *File, CLASS_TYPE Class); 
+void WriteOldProtoFile(FILE *File, CLASS_TYPE Class);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

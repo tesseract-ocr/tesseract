@@ -122,19 +122,24 @@ int init_tesseract(const char *arg0,
 
   // Set the language data path prefix
   language_data_path_prefix = datadir;
-  if (language != NULL) {
+  if (language != NULL)
     language_data_path_prefix += language;
-    language_data_path_prefix += ".";
-  }
   else
-    language_data_path_prefix += "eng.";
+    language_data_path_prefix += "eng";
+  language_data_path_prefix += ".";
 
   // Load the unichar set
   STRING unicharpath = language_data_path_prefix;
   unicharpath += "unicharset";
   if (!unicharset.load_from_file(unicharpath.string())) {
-    DoError(FOPENERROR, "Unable to open unicharset");
+    cprintf("Unable to load unicharset file %s\n", unicharpath.string());
+    exit(1);
   }
+  if (unicharset.size() > MAX_NUM_CLASSES) {
+    cprintf("Error: Size of unicharset is greater than MAX_NUM_CLASSES\n");
+    exit(1);
+  }
+
   start_recog(configfile, textbase);
 
   ReliableConfigThreshold = tweak_ReliableConfigThreshold;

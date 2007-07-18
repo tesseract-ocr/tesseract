@@ -137,7 +137,9 @@ BOOL8 word_adaptable(  //should we adapt?
 
 //  if (flags.bit (CHECK_AMBIG_WERD) && test_ambig_word (word))
   if (flags.bit (CHECK_AMBIG_WERD) &&
-      !NoDangerousAmbig(word->best_choice->string().string(), NULL))
+      !NoDangerousAmbig(word->best_choice->string().string(),
+                        word->best_choice->lengths().string(),
+                        NULL))
     return FALSE;
 
   return status;

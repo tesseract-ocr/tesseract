@@ -32,6 +32,7 @@
 #include "efio.h"
 #include "globals.h"
 #include "scanutils.h"
+#include "unichar.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -52,7 +53,7 @@ typedef LIST AMBIG_TABLE;
 
 typedef struct
 {
-  UINT8 Class;
+  UNICHAR_ID Class;
   UINT16 NumChunks;
   float Certainty;
 }
@@ -74,11 +75,17 @@ typedef struct
 {
   VIABLE_CHOICE Choice;
   float ChunkCertainty[MAX_NUM_CHUNKS];
-  UINT8 ChunkClass[MAX_NUM_CHUNKS];
+  UNICHAR_ID ChunkClass[MAX_NUM_CHUNKS];
 }
 
 
 EXPANDED_CHOICE;
+
+typedef struct
+{
+  char ambig[2 * (UNICHAR_LEN * MAX_AMBIG_SIZE) + 2];
+  char lengths[2 * (MAX_AMBIG_SIZE) + 2];
+} AMBIG_SPEC;
 
 /**----------------------------------------------------------------------------
           Macros
@@ -98,6 +105,7 @@ void AddNewChunk(VIABLE_CHOICE Choice, int Blob);
 int AmbigsFound(char *Word,
                 char *CurrentChar,
                 const char *Tail,
+                const char *Tail_lengths,
                 LIST Ambigs,
                 DANGERR *fixpt);
 
@@ -113,7 +121,7 @@ AMBIG_TABLE *FillAmbigTable();
 int FreeBadChoice(void *item1,   //VIABLE_CHOICE                 Choice,
                   void *item2);  //EXPANDED_CHOICE                       *BestChoice);
 
-int LengthOfShortestAlphaRun(register char *Word);
+int LengthOfShortestAlphaRun(register char *Word, const char *Word_lengths);
 
 VIABLE_CHOICE NewViableChoice (A_CHOICE * Choice,
 FLOAT32 AdjustFactor, float Certainties[]);
@@ -124,7 +132,9 @@ void ReplaceDuplicateChoice (VIABLE_CHOICE OldChoice,
 A_CHOICE * NewChoice,
 FLOAT32 AdjustFactor, float Certainties[]);
 
-int StringSameAs(const char *String, VIABLE_CHOICE ViableChoice);
+int StringSameAs(const char *String,
+                 const char *String_lengths,
+                 VIABLE_CHOICE ViableChoice);
 
 int UniformCertainties(CHOICES_LIST Choices, A_CHOICE *BestChoice);
 
@@ -136,6 +146,7 @@ static const char *DangerousAmbigs = DANGEROUS_AMBIGS;
 
 /* Word for which stopper debug information should be printed to stdout */
 static char *WordToDebug = NULL;
+static char *WordToDebug_lengths = NULL;
 
 /* flag used to disable accumulation of word choices during compound word
   permutation */
@@ -217,20 +228,25 @@ int AcceptableChoice(CHOICES_LIST Choices,
     cprintf ("\nStopper:  %s (word=%c, case=%c, punct=%c)\n",
       class_string (BestChoice),
       (valid_word (class_string (BestChoice)) ? 'y' : 'n'),
-    (case_ok (class_string (BestChoice)) ? 'y' : 'n'),
-    ((punctuation_ok (class_string (BestChoice)) !=
+    (case_ok (class_string (BestChoice),
+              class_lengths (BestChoice)) ? 'y' : 'n'),
+    ((punctuation_ok (class_string (BestChoice),
+                      class_lengths (BestChoice)) !=
     -1) ? 'y' : 'n'));
 
   if (valid_word (class_string (BestChoice)) &&
-    case_ok (class_string (BestChoice)) &&
-  punctuation_ok (class_string (BestChoice)) != -1) {
-    WordSize = LengthOfShortestAlphaRun (class_string (BestChoice));
+    case_ok (class_string (BestChoice), class_lengths (BestChoice)) &&
+  punctuation_ok (class_string (BestChoice),
+                  class_lengths (BestChoice)) != -1) {
+    WordSize = LengthOfShortestAlphaRun (class_string (BestChoice),
+                                         class_lengths (BestChoice));
     WordSize -= SmallWordSize;
     if (WordSize < 0)
       WordSize = 0;
     CertaintyThreshold += WordSize * CertaintyPerChar;
   }
-  else if (stopper_numbers_on && valid_number (class_string (BestChoice))) {
+  else if (stopper_numbers_on && valid_number (class_string (BestChoice),
+                                               class_lengths (BestChoice))) {
     CertaintyThreshold += stopper_numbers_on * CertaintyPerChar;
   }
 
@@ -238,7 +254,8 @@ int AcceptableChoice(CHOICES_LIST Choices,
     cprintf ("Stopper:  Certainty = %4.1f, Threshold = %4.1f\n",
       class_certainty (BestChoice), CertaintyThreshold);
 
-  if (NoDangerousAmbig (class_string (BestChoice), fixpt)
+  if (NoDangerousAmbig (class_string (BestChoice),
+                        class_lengths (BestChoice), fixpt)
     && class_certainty (BestChoice) > CertaintyThreshold &&
     UniformCertainties (Choices, BestChoice))
     return (TRUE);
@@ -274,8 +291,10 @@ int AcceptableResult(A_CHOICE *BestChoice, A_CHOICE *RawChoice) {
     cprintf ("\nRejecter: %s (word=%c, case=%c, punct=%c, unambig=%c)\n",
       class_string (BestChoice),
       (valid_word (class_string (BestChoice)) ? 'y' : 'n'),
-    (case_ok (class_string (BestChoice)) ? 'y' : 'n'),
-    ((punctuation_ok (class_string (BestChoice)) != -1) ? 'y' : 'n'),
+    (case_ok (class_string (BestChoice),
+              class_lengths (BestChoice)) ? 'y' : 'n'),
+    ((punctuation_ok (class_string (BestChoice),
+                      class_lengths (BestChoice)) != -1) ? 'y' : 'n'),
     ((rest (BestChoices) != NIL) ? 'n' : 'y'));
 
   if ((BestChoice == NULL) ||
@@ -283,9 +302,11 @@ int AcceptableResult(A_CHOICE *BestChoice, A_CHOICE *RawChoice) {
     return (FALSE);
 
   if (valid_word (class_string (BestChoice)) &&
-    case_ok (class_string (BestChoice)) &&
-  punctuation_ok (class_string (BestChoice)) != -1) {
-    WordSize = LengthOfShortestAlphaRun (class_string (BestChoice));
+    case_ok (class_string (BestChoice), class_lengths (BestChoice)) &&
+  punctuation_ok (class_string (BestChoice),
+                  class_lengths (BestChoice)) != -1) {
+    WordSize = LengthOfShortestAlphaRun (class_string (BestChoice),
+                                         class_lengths (BestChoice));
     WordSize -= SmallWordSize;
     if (WordSize < 0)
       WordSize = 0;
@@ -339,10 +360,11 @@ int AlternativeChoicesWorseThan(FLOAT32 Threshold) {
 
 
 /*---------------------------------------------------------------------------*/
-int CurrentBestChoiceIs(const char *Word) {
+int CurrentBestChoiceIs(const char *Word, const char *Word_lengths) {
 /*
  **	Parameters:
- **		Word	string to compare to current best choice
+ **		Word            string to compare to current best choice
+ **		Word_lengths	lengths of unichars in Word
  **	Globals:
  **		BestChoices	set of best choices for current word
  **	Operation: Returns TRUE if Word is the same as the current best
@@ -352,7 +374,8 @@ int CurrentBestChoiceIs(const char *Word) {
  **	History: Thu May 30 14:44:22 1991, DSJ, Created.
  */
   return (BestChoices != NIL &&
-    StringSameAs (Word, (VIABLE_CHOICE) first_node (BestChoices)));
+    StringSameAs (Word, Word_lengths,
+                  (VIABLE_CHOICE) first_node (BestChoices)));
 
 }                                /* CurrentBestChoiceIs */
 
@@ -415,9 +438,10 @@ void DebugWordChoices() {
 
   if (StopperDebugLevel >= 1 ||
     WordToDebug && BestChoices &&
-  StringSameAs (WordToDebug, (VIABLE_CHOICE) first_node (BestChoices))) {
+  StringSameAs (WordToDebug, WordToDebug_lengths,
+                (VIABLE_CHOICE) first_node (BestChoices))) {
     if (BestRawChoice)
-      PrintViableChoice (stdout, "\nBest Raw Choice:   ", BestRawChoice);
+      PrintViableChoice (stderr, "\nBest Raw Choice:   ", BestRawChoice);
 
     i = 1;
     Choices = BestChoices;
@@ -425,7 +449,7 @@ void DebugWordChoices() {
       cprintf ("\nBest Cooked Choices:\n");
     iterate(Choices) {
       sprintf (LabelString, "Cooked Choice #%d:  ", i);
-      PrintViableChoice (stdout, LabelString,
+      PrintViableChoice (stderr, LabelString,
         (VIABLE_CHOICE) first_node (Choices));
       i++;
     }
@@ -541,6 +565,7 @@ void InitStopperVars() {
 
   string_variable (DangerousAmbigs, "DangerousAmbigs", DANGEROUS_AMBIGS);
   string_variable (WordToDebug, "WordToDebug", "");
+  string_variable (WordToDebug_lengths, "WordToDebug_lengths", "");
 
   MakeNonDictCertainty();
   MakeRejectCertaintyOffset();
@@ -723,7 +748,7 @@ FLOAT32 AdjustFactor, float Certainties[]) {
 
   BestChoices = s_adjoin (BestChoices, NewChoice, CmpChoiceRatings);
   if (StopperDebugLevel >= 2)
-    PrintViableChoice (stdout, "New Word Choice:  ", NewChoice);
+    PrintViableChoice (stderr, "New Word Choice:  ", NewChoice);
   if (count (BestChoices) > tessedit_truncate_wordchoice_log) {
     Choices =
       (LIST) nth_cell (BestChoices, tessedit_truncate_wordchoice_log);
@@ -737,10 +762,13 @@ FLOAT32 AdjustFactor, float Certainties[]) {
 /*---------------------------------------------------------------------------*/
 static AMBIG_TABLE *AmbigFor = NULL;
 
-int NoDangerousAmbig(const char *Word, DANGERR *fixpt) {
+int NoDangerousAmbig(const char *Word,
+                     const char *Word_lengths,
+                     DANGERR *fixpt) {
 /*
  **	Parameters:
  **		Word	word to check for dangerous ambiguities
+ **		Word_lengths	lengths of unichars in Word
  **	Globals: none
  **	Operation: This word checks each letter in word against a list
  **		of potentially ambiguous characters.  If a match is found
@@ -754,7 +782,7 @@ int NoDangerousAmbig(const char *Word, DANGERR *fixpt) {
  **	History: Mon May  6 16:28:56 1991, DSJ, Created.
  */
 
-  char NewWord[MAX_WERD_SIZE];
+  char NewWord[MAX_WERD_SIZE * UNICHAR_LEN + 1];
   char *NextNewChar;
   int bad_index = 0;
 
@@ -763,13 +791,19 @@ int NoDangerousAmbig(const char *Word, DANGERR *fixpt) {
 
   NextNewChar = NewWord;
   while (*Word)
-  if (AmbigsFound (NewWord, NextNewChar, Word + 1, AmbigFor[*Word], fixpt)) {
+  if (AmbigsFound (NewWord, NextNewChar,
+                   Word + *Word_lengths, Word_lengths + 1,
+                   AmbigFor[unicharset.unichar_to_id(Word, *Word_lengths)],
+                   fixpt)) {
     if (fixpt != NULL)
       fixpt->index = bad_index;
     return (FALSE);
   }
   else {
-    *NextNewChar++ = *Word++;
+    strncpy(NextNewChar, Word, *Word_lengths);
+    NextNewChar += *Word_lengths;
+    Word += *Word_lengths;
+    Word_lengths++;
     bad_index++;
   }
 
@@ -856,6 +890,7 @@ void AddNewChunk(VIABLE_CHOICE Choice, int Blob) {
 int AmbigsFound(char *Word,
                 char *CurrentChar,
                 const char *Tail,
+                const char *Tail_lengths,
                 LIST Ambigs,
                 DANGERR *fixpt) {
 /*
@@ -863,6 +898,7 @@ int AmbigsFound(char *Word,
  **		Word		word being tested for ambiguities
  **		CurrentChar	position in Word to put ambig replacement
  **		Tail		end of word to place after ambiguity
+ **		Tail_lengths    lengths of the unichars in Tail
  **		Ambigs		list of ambiguities to test at this position
  **	Globals: none
  **	Operation: For each ambiguity in Ambigs, see if the remainder of
@@ -877,37 +913,44 @@ int AmbigsFound(char *Word,
  **	Exceptions: none
  **	History: Thu May  9 10:10:28 1991, DSJ, Created.
  */
-  char *AmbigSpec;
+  AMBIG_SPEC *AmbigSpec;
+  char *ambig;
+  char *ambig_lengths;
   const char *UnmatchedTail;
+  const char *UnmatchedTail_lengths;
   int Matches;
   int bad_length;
 
   iterate(Ambigs) {
-    AmbigSpec = (char *) first_node (Ambigs);
+    AmbigSpec = (AMBIG_SPEC *) first_node (Ambigs);
+    ambig = AmbigSpec->ambig;
+    ambig_lengths = AmbigSpec->lengths;
     bad_length = 1;
     UnmatchedTail = Tail;
+    UnmatchedTail_lengths = Tail_lengths;
     Matches = TRUE;
 
-    while (*AmbigSpec != ' ' && Matches)
-    if (*AmbigSpec == *UnmatchedTail) {
-      AmbigSpec++;
-      UnmatchedTail++;
-      bad_length++;
-    }
-    else
-      Matches = FALSE;
+    while (*ambig != ' ' && Matches)
+      if (*UnmatchedTail_lengths == *ambig_lengths &&
+          strncmp(ambig, UnmatchedTail, *ambig_lengths) == 0) {
+        ambig += *(ambig_lengths++);
+        UnmatchedTail += *(UnmatchedTail_lengths++);
+        bad_length++;
+      }
+      else
+        Matches = FALSE;
 
     if (Matches) {
-      AmbigSpec++;               /* skip over the space */
-                                 /* insert replacement string */
-      strcpy(CurrentChar, AmbigSpec);
-                                 /* add tail */
+      ambig += *(ambig_lengths++); /* skip over the space */
+                                   /* insert replacement string */
+      strcpy(CurrentChar, ambig);
+                                   /* add tail */
       strcat(Word, UnmatchedTail);
       if (valid_word (Word)) {
         if (StopperDebugLevel >= 1)
           cprintf ("Stopper:  Possible ambiguous word = %s\n", Word);
         if (fixpt != NULL) {
-          fixpt->good_length = strlen (AmbigSpec);
+          fixpt->good_length = strlen (ambig_lengths);
           fixpt->bad_length = bad_length;
         }
         return (TRUE);
@@ -933,7 +976,8 @@ int ChoiceSameAs(A_CHOICE *Choice, VIABLE_CHOICE ViableChoice) {
  **	Exceptions: none
  **	History: Fri May 17 08:48:04 1991, DSJ, Created.
  */
-  return (StringSameAs (class_string (Choice), ViableChoice));
+  return (StringSameAs (class_string (Choice), class_lengths (Choice),
+                        ViableChoice));
 
 }                                /* ChoiceSameAs */
 
@@ -1017,11 +1061,18 @@ AMBIG_TABLE *FillAmbigTable() {
   FILE *AmbigFile;
   AMBIG_TABLE *NewTable;
   int i;
-  char TestString[256];
-  char ReplacementString[256];
+  int AmbigPartSize;
+  char buffer[256 * UNICHAR_LEN];
+  char TestString[256 * UNICHAR_LEN];
+  char TestString_lengths[256];
+  char ReplacementString[256 * UNICHAR_LEN];
+  char ReplacementString_lengths[256];
   STRING name;
-  char *AmbigSpec;
-  int AmbigSize;
+  char lengths[2];
+  AMBIG_SPEC *AmbigSpec;
+  UNICHAR_ID unichar_id;
+
+  lengths[1] = 0;
 
   name = language_data_path_prefix;
   name += DangerousAmbigs;
@@ -1031,21 +1082,43 @@ AMBIG_TABLE *FillAmbigTable() {
   for (i = 0; i <= MAX_CLASS_ID; i++)
     NewTable[i] = NIL;
 
-  while (fscanf (AmbigFile, "%s", TestString) == 1 &&
-  fscanf (AmbigFile, "%s", ReplacementString) == 1) {
-    if (strlen (TestString) > MAX_AMBIG_SIZE ||
-      strlen (ReplacementString) > MAX_AMBIG_SIZE)
+  while (fscanf (AmbigFile, "%d", &AmbigPartSize) == 1) {
+    TestString[0] = '\0';
+    TestString_lengths[0] = 0;
+    ReplacementString[0] = '\0';
+    ReplacementString_lengths[0] = 0;
+    for (i = 0; i < AmbigPartSize; ++i) {
+      fscanf (AmbigFile, "%s", buffer);
+      strcat(TestString, buffer);
+      lengths[0] = strlen(buffer);
+      strcat(TestString_lengths, lengths);
+    }
+    fscanf (AmbigFile, "%d", &AmbigPartSize);
+    for (i = 0; i < AmbigPartSize; ++i) {
+      fscanf (AmbigFile, "%s", buffer);
+      strcat(ReplacementString, buffer);
+      lengths[0] = strlen(buffer);
+      strcat(ReplacementString_lengths, lengths);
+    }
+
+    if (strlen (TestString_lengths) > MAX_AMBIG_SIZE ||
+        strlen (ReplacementString_lengths) > MAX_AMBIG_SIZE)
       DoError (0, "Illegal ambiguity specification!");
 
-    AmbigSize = strlen (TestString) + strlen (ReplacementString) + 1;
-    AmbigSpec = (char *) Emalloc (sizeof (char) * AmbigSize);
+    AmbigSpec = (AMBIG_SPEC *) Emalloc (sizeof (AMBIG_SPEC));
 
-    strcpy (AmbigSpec, &(TestString[1]));
-    strcat (AmbigSpec, " ");
-    strcat(AmbigSpec, ReplacementString);
-    NewTable[TestString[0]] =
-      push_last (NewTable[TestString[0]], AmbigSpec);
+    strcpy(AmbigSpec->ambig, TestString + TestString_lengths[0]);
+    strcat(AmbigSpec->ambig, " ");
+    strcat(AmbigSpec->ambig, ReplacementString);
+
+    strcpy(AmbigSpec->lengths, TestString_lengths + 1);
+    lengths[0] = 1;
+    strcat(AmbigSpec->lengths, lengths);
+    strcat(AmbigSpec->lengths, ReplacementString_lengths);
+    unichar_id = unicharset.unichar_to_id(TestString, TestString_lengths[0]);
+    NewTable[unichar_id] = push_last (NewTable[unichar_id], AmbigSpec);
   }
+
   fclose(AmbigFile);
   return (NewTable);
 
@@ -1095,10 +1168,11 @@ int FreeBadChoice(void *item1,    //VIABLE_CHOICE                 Choice,
 
 
 /*---------------------------------------------------------------------------*/
-int LengthOfShortestAlphaRun(register char *Word) {
+int LengthOfShortestAlphaRun(register char *Word, const char *Word_lengths) {
 /*
  **	Parameters:
- **		Word	word to be tested
+ **		Word            word to be tested
+ **		Word_lengths    lengths of the unichars in Word
  **	Globals: none
  **	Operation: Return the length of the shortest alpha run in Word.
  **	Return:  Return the length of the shortest alpha run in Word.
@@ -1108,9 +1182,11 @@ int LengthOfShortestAlphaRun(register char *Word) {
   register int Shortest = MAXINT;
   register int Length;
 
-  for (; *Word; Word++)
-  if (isalpha (*Word)) {
-    for (Length = 1, Word++; isalpha (*Word); Word++, Length++);
+  for (; *Word; Word += *(Word_lengths++))
+  if (unicharset.get_isalpha(Word, *Word_lengths)) {
+    for (Length = 1, Word += *(Word_lengths++);
+         *Word && unicharset.get_isalpha(Word, *Word_lengths);
+         Word += *(Word_lengths++), Length++);
     if (Length < Shortest)
       Shortest = Length;
 
@@ -1145,10 +1221,11 @@ NewViableChoice (A_CHOICE * Choice, FLOAT32 AdjustFactor, float Certainties[]) {
   VIABLE_CHOICE NewChoice;
   int Length;
   char *Word;
+  char *Word_lengths;
   CHAR_CHOICE *NewChar;
   BLOB_WIDTH *BlobWidth;
 
-  Length = strlen (class_string (Choice));
+  Length = strlen (class_lengths (Choice));
   assert (Length <= MAX_NUM_CHUNKS && Length > 0);
 
   NewChoice = (VIABLE_CHOICE) Emalloc (sizeof (VIABLE_CHOICE_STRUCT) +
@@ -1158,12 +1235,13 @@ NewViableChoice (A_CHOICE * Choice, FLOAT32 AdjustFactor, float Certainties[]) {
   NewChoice->Certainty = class_certainty (Choice);
   NewChoice->AdjustFactor = AdjustFactor;
   NewChoice->Length = Length;
-
   for (Word = class_string (Choice),
-    NewChar = &(NewChoice->Blob[0]),
-    BlobWidth = CurrentSegmentation;
-  *Word; Word++, NewChar++, Certainties++, BlobWidth++) {
-    NewChar->Class = *Word;
+           Word_lengths = class_lengths (Choice),
+           NewChar = &(NewChoice->Blob[0]),
+           BlobWidth = CurrentSegmentation;
+       *Word;
+       Word += *(Word_lengths++), NewChar++, Certainties++, BlobWidth++) {
+    NewChar->Class = unicharset.unichar_to_id(Word, *Word_lengths);
     NewChar->NumChunks = *BlobWidth;
     NewChar->Certainty = *Certainties;
   }
@@ -1195,11 +1273,11 @@ void PrintViableChoice(FILE *File, const char *Label, VIABLE_CHOICE Choice) {
     Choice->Rating, Choice->Certainty, Choice->AdjustFactor);
 
   for (i = 0; i < Choice->Length; i++)
-    fprintf (File, "%c", Choice->Blob[i].Class);
+    fprintf (File, "%s", unicharset.id_to_unichar(Choice->Blob[i].Class));
   fprintf (File, "\n");
 
   for (i = 0; i < Choice->Length; i++) {
-    fprintf (File, "  %c", Choice->Blob[i].Class);
+    fprintf (File, "  %s", unicharset.id_to_unichar(Choice->Blob[i].Class));
     for (j = 0; j < Choice->Blob[i].NumChunks - 1; j++)
       fprintf (File, "   ");
   }
@@ -1238,6 +1316,7 @@ FLOAT32 AdjustFactor, float Certainties[]) {
  **	History: Fri May 17 13:35:58 1991, DSJ, Created.
  */
   char *Word;
+  char *Word_lengths;
   CHAR_CHOICE *NewChar;
   BLOB_WIDTH *BlobWidth;
 
@@ -1246,9 +1325,11 @@ FLOAT32 AdjustFactor, float Certainties[]) {
   OldChoice->AdjustFactor = AdjustFactor;
 
   for (Word = class_string (NewChoice),
-    NewChar = &(OldChoice->Blob[0]),
-    BlobWidth = CurrentSegmentation;
-  *Word; Word++, NewChar++, Certainties++, BlobWidth++) {
+           Word_lengths = class_lengths (NewChoice),
+           NewChar = &(OldChoice->Blob[0]),
+           BlobWidth = CurrentSegmentation;
+       *Word;
+       Word += *(Word_lengths++), NewChar++, Certainties++, BlobWidth++) {
     NewChar->NumChunks = *BlobWidth;
     NewChar->Certainty = *Certainties;
   }
@@ -1256,10 +1337,13 @@ FLOAT32 AdjustFactor, float Certainties[]) {
 
 
 /*---------------------------------------------------------------------------*/
-int StringSameAs(const char *String, VIABLE_CHOICE ViableChoice) {
+int StringSameAs(const char *String,
+                 const char *String_lengths,
+                 VIABLE_CHOICE ViableChoice) {
 /*
  **	Parameters:
  **		String		string to compare to ViableChoice
+ **		String_lengths	lengths of unichars in String
  **		ViableChoice	viable choice to compare to String
  **	Globals: none
  **	Operation: This routine compares String to ViableChoice and
@@ -1270,11 +1354,17 @@ int StringSameAs(const char *String, VIABLE_CHOICE ViableChoice) {
  */
   CHAR_CHOICE *Char;
   int i;
+  int current_unichar_length;
 
   for (Char = &(ViableChoice->Blob[0]), i = 0;
-    i < ViableChoice->Length; String++, Char++, i++)
-  if (*String != Char->Class)
+    i < ViableChoice->Length;
+       String += *(String_lengths++), Char++, i++) {
+    current_unichar_length = strlen(unicharset.id_to_unichar(Char->Class));
+  if (current_unichar_length != *String_lengths ||
+      strncmp(String, unicharset.id_to_unichar(Char->Class),
+              current_unichar_length) != 0)
     return (FALSE);
+  }
 
   if (*String == 0)
     return (TRUE);

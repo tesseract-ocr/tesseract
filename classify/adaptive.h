@@ -46,7 +46,7 @@ typedef struct
 } TEMP_CONFIG_STRUCT;
 typedef TEMP_CONFIG_STRUCT *TEMP_CONFIG;
 
-typedef char *PERM_CONFIG;
+typedef UNICHAR_ID *PERM_CONFIG;
 
 typedef union
 {
@@ -99,39 +99,39 @@ int AddAdaptedClass(ADAPT_TEMPLATES Templates,
                     ADAPT_CLASS Class,
                     CLASS_ID ClassId);
 
-void FreeTempProto(void *arg); 
+void FreeTempProto(void *arg);
 
-void FreeTempConfig(TEMP_CONFIG Config); 
+void FreeTempConfig(TEMP_CONFIG Config);
 
-ADAPT_CLASS NewAdaptedClass(); 
+ADAPT_CLASS NewAdaptedClass();
 
-void free_adapted_class(ADAPT_CLASS adapt_class); 
+void free_adapted_class(ADAPT_CLASS adapt_class);
 
-ADAPT_TEMPLATES NewAdaptedTemplates(); 
+ADAPT_TEMPLATES NewAdaptedTemplates();
 
-void free_adapted_templates(ADAPT_TEMPLATES templates); 
+void free_adapted_templates(ADAPT_TEMPLATES templates);
 
-TEMP_CONFIG NewTempConfig(int MaxProtoId); 
+TEMP_CONFIG NewTempConfig(int MaxProtoId);
 
-TEMP_PROTO NewTempProto(); 
+TEMP_PROTO NewTempProto();
 
-void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates); 
+void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
 
-ADAPT_CLASS ReadAdaptedClass(FILE *File); 
+ADAPT_CLASS ReadAdaptedClass(FILE *File);
 
-ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File); 
+ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File);
 
-PERM_CONFIG ReadPermConfig(FILE *File); 
+PERM_CONFIG ReadPermConfig(FILE *File);
 
-TEMP_CONFIG ReadTempConfig(FILE *File); 
+TEMP_CONFIG ReadTempConfig(FILE *File);
 
-void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs); 
+void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs);
 
-void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates); 
+void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
 
-void WritePermConfig(FILE *File, PERM_CONFIG Config); 
+void WritePermConfig(FILE *File, PERM_CONFIG Config);
 
-void WriteTempConfig(FILE *File, TEMP_CONFIG Config); 
+void WriteTempConfig(FILE *File, TEMP_CONFIG Config);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

@@ -44,7 +44,9 @@ int permutation_count;           // Used in metrics.cpp.
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-#define MAX_NUM_EDGES          60000
+// TODO(tkielbus) Choose a value for the MAX_NUM_EDGES constant
+// (or make it dynamic)
+#define MAX_NUM_EDGES          2000000
 #define MAX_DOC_EDGES          250000
 #define RESERVED_DOC_EDGES     10000
 #define MAX_USER_EDGES         20000
@@ -80,6 +82,7 @@ make_toggle_var (doc_dict_enable, 1, make_doc_dict,
 
 int permute_only_top = 0;
 
+#if 0
                                  //0x0=.
 static INT32 bigram_counts[256][3] = { {
     0, 0, 0
@@ -850,6 +853,7 @@ static INT32 bigram_counts[256][3] = { {
     0, 0, 0
   },
 };
+#endif
 
 //extern "C" double permuter_pending_threshold;
 
@@ -904,10 +908,12 @@ void add_document_word(A_CHOICE *best_choice) {
   char filename[CHARS_PER_LINE];
   FILE *doc_word_file;
   char *string;
+  char *lengths;
   int stringlen;                 //length of word
 
   string = class_string (best_choice);
-  stringlen = strlen (string);
+  lengths = class_lengths (best_choice);
+  stringlen = strlen (lengths);
 
   // Skip if using external dictionary.
   if (letter_is_okay != &def_letter_is_okay) return;
@@ -920,7 +926,9 @@ void add_document_word(A_CHOICE *best_choice) {
     if (class_certainty (best_choice) < permuter_pending_threshold)
       return;
     if (!word_in_dawg (pending_words, string)) {
-      if (stringlen > 2 || isupper (string[0]) && isupper (string[1]))
+      if (stringlen > 2 ||
+          (stringlen >= 2 && unicharset.get_isupper (string, lengths[0]) &&
+           unicharset.get_isupper (string + lengths[0], lengths[1])))
         add_word_to_dawg(pending_words,
                          string,
                          MAX_DOC_EDGES,
@@ -937,7 +945,6 @@ void add_document_word(A_CHOICE *best_choice) {
     fclose(doc_word_file);
   }
   add_word_to_dawg(document_words, string, MAX_DOC_EDGES, RESERVED_DOC_EDGES);
-  case_sensative = FALSE;
 }
 
 
@@ -959,7 +966,8 @@ adjust_non_word (A_CHOICE * best_choice, float certainties[]) {
   this_word = class_string (best_choice);
 
   class_probability (best_choice) += RATING_PAD;
-  if (case_ok (this_word) && punctuation_ok (this_word) != -1) {
+  if (case_ok (this_word, class_lengths (best_choice))
+      && punctuation_ok (this_word, class_lengths (best_choice)) != -1) {
     class_probability (best_choice) *= non_word;
     adjust_factor = non_word;
     if (adjust_debug)
@@ -969,9 +977,9 @@ adjust_non_word (A_CHOICE * best_choice, float certainties[]) {
     class_probability (best_choice) *= garbage;
     adjust_factor = garbage;
     if (adjust_debug) {
-      if (!case_ok (this_word))
+      if (!case_ok (this_word, class_lengths (best_choice)))
         cprintf (", C");
-      if (punctuation_ok (this_word) == -1)
+      if (punctuation_ok (this_word, class_lengths (best_choice)) == -1)
         cprintf (", P");
       cprintf (", %4.2f ", garbage);
     }
@@ -1021,7 +1029,6 @@ void init_permute() {
   name = language_data_path_prefix;
   name += "user-words";
   read_word_list(name.string(), user_words, MAX_USER_EDGES, USER_RESERVED_EDGES);
-  case_sensative = FALSE;
 }
 
 void end_permute() {
@@ -1051,13 +1058,13 @@ A_CHOICE *permute_all(CHOICES_LIST char_choices,
 
   result_1 = permute_top_choice (char_choices, rating_limit, raw_choice,
     &any_alpha);
+
   if (result_1 == NULL)
     return (NULL);
   if (permute_only_top)
     return result_1;
-  if (any_alpha && array_count (char_choices) <= 20) {
+  if (any_alpha && array_count (char_choices) <= MAX_WERD_LENGTH) {
     result_2 = permute_words (char_choices, rating_limit);
-
     if (class_probability (result_1) < class_probability (result_2)
     || class_string (result_2) == NULL) {
       free_choice(result_2);
@@ -1133,7 +1140,8 @@ A_CHOICE *permute_compound_words(CHOICES_LIST character_choices,
                                  float rating_limit) {
   A_CHOICE *first_choice;
   A_CHOICE *best_choice = NULL;
-  char word[MAX_WERD_LENGTH + 1];
+  char word[UNICHAR_LEN * MAX_WERD_LENGTH + 1];
+  char unichar_lengths[MAX_WERD_LENGTH + 1];
   float rating = 0;
   float certainty = 10000;
   char char_choice;
@@ -1142,9 +1150,10 @@ A_CHOICE *permute_compound_words(CHOICES_LIST character_choices,
   char *ptr;
 
   word[0] = '\0';
+  unichar_lengths[0] = 0;
 
   if (array_count (character_choices) > MAX_WERD_LENGTH) {
-    return (new_choice (NULL, MAX_FLOAT32, -MAX_FLOAT32, -1, NO_PERM));
+    return (new_choice (NULL, NULL, MAX_FLOAT32, -MAX_FLOAT32, -1, NO_PERM));
   }
 
   array_loop(character_choices, x) {
@@ -1159,12 +1168,16 @@ A_CHOICE *permute_compound_words(CHOICES_LIST character_choices,
         cprintf ("Hyphenated word found\n");
 
       permute_subword (character_choices, rating_limit,
-        first_index, x - 1, word, &rating, &certainty);
+        first_index, x - 1, word, unichar_lengths,
+                       &rating, &certainty);
 
       if (rating > rating_limit)
         break;
       first_index = x + 1;
-      strcat (word, class_string (first_choice));
+
+      strcat(word, class_string (first_choice));
+      char length[] = {strlen(class_string (first_choice)), 0};
+      strcat(unichar_lengths + x, length);
       rating += class_probability (first_choice);
       certainty = min (class_certainty (first_choice), certainty);
     }
@@ -1172,9 +1185,11 @@ A_CHOICE *permute_compound_words(CHOICES_LIST character_choices,
 
   if (first_index > 0 && first_index < x && rating <= rating_limit) {
     permute_subword (character_choices, rating_limit,
-      first_index, x - 1, word, &rating, &certainty);
+                     first_index, x - 1, word, unichar_lengths,
+                     &rating, &certainty);
 
-    best_choice = new_choice (word, rating, certainty, -1, COMPOUND_PERM);
+    best_choice = new_choice (word, unichar_lengths, rating,
+                              certainty, -1, COMPOUND_PERM);
   }
   return (best_choice);
 }
@@ -1194,6 +1209,7 @@ void permute_subword(CHOICES_LIST character_choices,
                      int start,
                      int end,
                      char *word,
+                     char unichar_lengths[],
                      float *rating,
                      float *certainty) {
   int x;
@@ -1206,6 +1222,7 @@ void permute_subword(CHOICES_LIST character_choices,
 
   DisableChoiceAccum();
   raw_choice.string = NULL;
+  raw_choice.lengths = NULL;
   raw_choice.rating = MAX_INT16;
   raw_choice.certainty = -MAX_INT16;
 
@@ -1218,7 +1235,9 @@ void permute_subword(CHOICES_LIST character_choices,
       subchoices = array_push (subchoices, choices);
     } else {
       const char* str = best_string(choices);
-      strcat (word, str);
+      strcat(word, str);
+      char length[] = {strlen(str), 0};
+      strcat(unichar_lengths + x, length);
     }
   }
 
@@ -1231,6 +1250,7 @@ void permute_subword(CHOICES_LIST character_choices,
 
     if (best_choice && class_string (best_choice)) {
       strcat (word, class_string (best_choice));
+      strcat (unichar_lengths, class_lengths (best_choice));
       *rating += class_probability (best_choice);
       *certainty = min (class_certainty (best_choice), *certainty);
     }
@@ -1252,6 +1272,8 @@ void permute_subword(CHOICES_LIST character_choices,
   }
   if (raw_choice.string)
     strfree(raw_choice.string);
+  if (raw_choice.lengths)
+    strfree(raw_choice.lengths);
 
   EnableChoiceAccum();
 }
@@ -1273,18 +1295,26 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
   A_CHOICE *first_choice;
   A_CHOICE *best_choice;
   A_CHOICE *other_choice;
-  char *ptr;
-  char first_char;               //first choice
-  char second_char;              //second choice
-  char third_char;               //third choice
-  char prev_char = '\0';         //prev in word
-  char next_char = '\0';         //next in word
-  char next_next_char = '\0';    //after next next in word
+  const char *ptr;
+  const char *first_char;             //first choice
+  const char *second_char;            //second choice
+  const char *third_char;             //third choice
+  char prev_char[UNICHAR_LEN + 1];    //prev in word
+  const char *next_char = "";         //next in word
+  const char *next_next_char = "";    //after next next in word
 
-  char word[MAX_PERM_LENGTH + 1];
-  char capital_word[MAX_PERM_LENGTH + 1];
-  char lower_word[MAX_PERM_LENGTH + 1];
+  char word[UNICHAR_LEN * MAX_PERM_LENGTH + 1];
+  char capital_word[UNICHAR_LEN * MAX_PERM_LENGTH + 1];
+  char lower_word[UNICHAR_LEN * MAX_PERM_LENGTH + 1];
+
+  char word_lengths[MAX_PERM_LENGTH + 1];
+  char capital_word_lengths[MAX_PERM_LENGTH + 1];
+  char lower_word_lengths[MAX_PERM_LENGTH + 1];
+
   int x;
+  int x_word = 0;
+  int x_capital_word = 0;
+  int x_lower_word = 0;
   BOOL8 char_alpha;
 
   float rating = 0;
@@ -1301,9 +1331,11 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
   float upper_certainties[MAX_PERM_LENGTH + 1];
 
   register CHOICES this_char;
-  register char ch;
+  register const char* ch;
   register INT8 lower_done;
   register INT8 upper_done;
+
+  prev_char[0] = '\0';
 
   if (any_alpha != NULL)
     *any_alpha = FALSE;
@@ -1318,29 +1350,48 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
       first_choice = (A_CHOICE *) first_node (char_list);
 
       ptr = class_string (first_choice);
-      next_char = (ptr != NULL && *ptr != '\0') ? *ptr : ' ';
+      next_char = (ptr != NULL && *ptr != '\0') ? ptr : " ";
     }
     else
-      next_char = '\0';
+      next_char = "";
     if (x + 2 < array_count (character_choices)) {
       char_list = (CHOICES) array_value (character_choices, x + 2);
       first_choice = (A_CHOICE *) first_node (char_list);
 
       ptr = class_string (first_choice);
-      next_next_char = (ptr != NULL && *ptr != '\0') ? *ptr : ' ';
+      next_next_char = (ptr != NULL && *ptr != '\0') ? ptr : " ";
     }
     else
-      next_next_char = '\0';
+      next_next_char = "";
 
     char_list = (CHOICES) array_value (character_choices, x);
     first_choice = (A_CHOICE *) first_node (char_list);
 
     ptr = class_string (first_choice);
-    word[x] = (ptr != NULL && *ptr != '\0') ? *ptr : ' ';
+    if (ptr != NULL && *ptr != '\0')
+    {
+      strcpy(word + x_word, ptr);
+      word_lengths[x] = strlen(ptr);
 
-    lower_word[x] = word[x];
-    capital_word[x] = word[x];
-    first_char = word[x];
+      strcpy(capital_word + x_capital_word, ptr);
+      capital_word_lengths[x] = strlen(ptr);
+
+      strcpy(lower_word + x_lower_word, ptr);
+      lower_word_lengths[x] = strlen(ptr);
+    }
+    else
+    {
+      word[x_word] = ' ';
+      word_lengths[x] = 1;
+
+      capital_word[x_capital_word] = ' ';
+      capital_word_lengths[x] = 1;
+
+      lower_word[x_lower_word] = ' ';
+      lower_word_lengths[x] = 1;
+    }
+
+    first_char = (ptr != NULL && *ptr != '\0') ? ptr : " ";
     first_rating = class_probability (first_choice);
     upper_rating += class_probability (first_choice);
     lower_rating += class_probability (first_choice);
@@ -1354,64 +1405,72 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
     lower_done = FALSE;
     upper_done = FALSE;
     char_alpha = FALSE;
-    second_char = '\0';
-    third_char = '\0';
+    second_char = "";
+    third_char = "";
     iterate_list(this_char, char_list) {
       ptr = best_string (this_char);
-      ch = ptr != NULL ? *ptr : '\0';
-      if (ch == 'l' && rest (this_char) != NULL
+      ch = ptr != NULL ? ptr : "";
+      if (strcmp(ch, "l") == 0 && rest (this_char) != NULL
       && best_probability (rest (this_char)) == first_rating) {
         ptr = best_string (rest (this_char));
-        if (ptr != NULL && (*ptr == '1' || *ptr == 'I')) {
-          second_char = *ptr;
+        if (ptr != NULL && (strcmp(ptr, "1") == 0 || strcmp(ptr, "I") == 0)) {
+          second_char = ptr;
           this_char = rest (this_char);
           if (rest (this_char) != NULL
           && best_probability (rest (this_char)) == first_rating) {
             ptr = best_string (rest (this_char));
-            if (ptr != NULL && (*ptr == '1' || *ptr == 'I')) {
-              third_char = *ptr;
+            if (ptr != NULL && (strcmp(ptr, "1") == 0 || strcmp(ptr, "I") == 0)) {
+              third_char = ptr;
               this_char = rest (this_char);
             }
           }
           ch = choose_il1 (first_char, second_char, third_char,
             prev_char, next_char, next_next_char);
-          if (ch != 'l' && word[x] == 'l') {
-            word[x] = ch;
-            lower_word[x] = ch;
-            capital_word[x] = ch;
+          if (strcmp(ch, "l") != 0 && word_lengths[x] == 1 &&
+              word[x_word] == 'l') {
+            word[x_word] = *ch;
+            lower_word[x_lower_word] = *ch;
+            capital_word[x_capital_word] = *ch;
           }
         }
       }
-      /* Find lower case */
-      if (!lower_done && (islower (ch) || (isupper (ch) && x == 0))) {
-        lower_word[x] = ch;
-        lower_rating += best_probability (this_char);
-        lower_rating -= class_probability (first_choice);
-        lower_certainty = min (best_certainty (this_char), lower_certainty);
-        lower_certainties[x] = best_certainty (this_char);
-        lower_done = TRUE;
+      if (ch != NULL && *ch != '\0') {
+        /* Find lower case */
+        if (!lower_done && (unicharset.get_islower(ch) ||
+                            (unicharset.get_isupper(ch) && x == 0))) {
+          strcpy(lower_word + x_lower_word, ch);
+          lower_word_lengths[x] = strlen(ch);
+          lower_rating += best_probability (this_char);
+          lower_rating -= class_probability (first_choice);
+          lower_certainty = min (best_certainty (this_char), lower_certainty);
+          lower_certainties[x] = best_certainty (this_char);
+          lower_done = TRUE;
+        }
+        /* Find upper case */
+        if (!upper_done && unicharset.get_isupper(ch)) {
+          strcpy(capital_word + x_capital_word, ch);
+          capital_word_lengths[x] = strlen(ch);
+          upper_rating += best_probability (this_char);
+          upper_rating -= class_probability (first_choice);
+          upper_certainty = min (best_certainty (this_char), upper_certainty);
+          upper_certainties[x] = best_certainty (this_char);
+          upper_done = TRUE;
+        }
+        if (!char_alpha && unicharset.get_isalpha(ch))
+          char_alpha = TRUE;
+        if (lower_done && upper_done)
+          break;
       }
-      /* Find upper case */
-      if (!upper_done && isupper (ch)) {
-        capital_word[x] = ch;
-        upper_rating += best_probability (this_char);
-        upper_rating -= class_probability (first_choice);
-        upper_certainty = min (best_certainty (this_char), upper_certainty);
-        upper_certainties[x] = best_certainty (this_char);
-        upper_done = TRUE;
-      }
-      if (!char_alpha && isalpha (ch))
-        char_alpha = TRUE;
-      if (lower_done && upper_done)
-        break;
     }
     if (char_alpha && any_alpha != NULL)
       *any_alpha = TRUE;
 
     if (first_choice == NULL) {
       cprintf ("Permuter giving up due to null choices list");
-      word[x + 1] = '$';
-      word[x + 2] = '\0';
+      word[x_word + 1] = '$';
+      word[x_word + 2] = '\0';
+      word_lengths[x + 1] = 1;
+      word_lengths[x + 2] = 0;
       cprintf (" word=%s\n", word);
       return (NULL);
     }
@@ -1421,44 +1480,60 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
       return (NULL);
 
     certainty = min (class_certainty (first_choice), certainty);
-    prev_char = word[x];
+
+    strncpy(prev_char, word + x_word, word_lengths[x]);
+    prev_char[word_lengths[x]] = '\0';
+
+    x_word += word_lengths[x];
+    x_capital_word += capital_word_lengths[x];
+    x_lower_word += lower_word_lengths[x];
   }
 
-  lower_word[x] = '\0';
-  capital_word[x] = '\0';
-  word[x] = '\0';
+  word[x_word] = '\0';
+  word_lengths[x] = 0;
+
+  capital_word[x_capital_word] = '\0';
+  capital_word_lengths[x] = 0;
+
+  lower_word[x_lower_word] = '\0';
+  lower_word_lengths[x] = 0;
 
   if (rating < class_probability (raw_choice)) {
     if (class_string (raw_choice))
       strfree (class_string (raw_choice));
+    if (class_lengths (raw_choice))
+      strfree (class_lengths (raw_choice));
 
     class_probability (raw_choice) = rating;
     class_certainty (raw_choice) = certainty;
     class_string (raw_choice) = strsave (word);
+    class_lengths (raw_choice) = strsave (word_lengths);
     class_permuter (raw_choice) = TOP_CHOICE_PERM;
 
     LogNewRawChoice (raw_choice, 1.0, certainties);
   }
 
-  best_choice = new_choice (word, rating, certainty, -1, TOP_CHOICE_PERM);
+  best_choice = new_choice (word, word_lengths,
+                            rating, certainty, -1, TOP_CHOICE_PERM);
   adjust_non_word(best_choice, certainties);
 
-  other_choice = new_choice (lower_word, lower_rating, lower_certainty,
-    -1, LOWER_CASE_PERM);
+  other_choice = new_choice (lower_word, lower_word_lengths,
+                             lower_rating, lower_certainty,
+                             -1, LOWER_CASE_PERM);
   adjust_non_word(other_choice, lower_certainties);
   if (class_probability (best_choice) > class_probability (other_choice)) {
     clone_choice(best_choice, other_choice);
   }
   free_choice(other_choice);
 
-  other_choice = new_choice (capital_word, upper_rating, upper_certainty,
-    -1, UPPER_CASE_PERM);
+  other_choice = new_choice (capital_word, capital_word_lengths,
+                             upper_rating, upper_certainty,
+                             -1, UPPER_CASE_PERM);
   adjust_non_word(other_choice, upper_certainties);
   if (class_probability (best_choice) > class_probability (other_choice)) {
     clone_choice(best_choice, other_choice);
   }
   free_choice(other_choice);
-
   return (best_choice);
 }
 
@@ -1468,67 +1543,95 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
  *
  * Choose between the candidate il1 chars.
  **********************************************************************/
-char choose_il1(char first_char,        //first choice
-                char second_char,       //second choice
-                char third_char,        //third choice
-                char prev_char,         //prev in word
-                char next_char,         //next in word
-                char next_next_char) {  //after next next in word
+const char* choose_il1(const char *first_char,        //first choice
+                       const char *second_char,       //second choice
+                       const char *third_char,        //third choice
+                       const char *prev_char,         //prev in word
+                       const char *next_char,         //next in word
+                       const char *next_next_char) {  //after next next in word
   INT32 type1;                   //1/I/l type of first choice
   INT32 type2;                   //1/I/l type of second choice
   INT32 type3;                   //1/I/l type of third choice
 
-  if (first_char == 'l' && second_char != '\0') {
-    if (second_char == 'I'
-      && (isupper (prev_char) && !islower (next_char)
-      && !isdigit (next_char) || isupper (next_char)
-      && !islower (prev_char) && !isdigit (prev_char)))
+  int first_char_length = strlen(first_char);
+  int prev_char_length = strlen(prev_char);
+  int next_char_length = strlen(next_char);
+  int next_next_char_length = strlen(next_next_char);
+
+  if (*first_char == 'l' && *second_char != '\0') {
+    if (*second_char == 'I'
+        && ((prev_char_length != 0 &&
+            unicharset.get_isupper (prev_char, prev_char_length)) &&
+            (next_char_length == 0 ||
+             !unicharset.get_islower (next_char, next_char_length)) &&
+            (next_char_length == 0 ||
+             !unicharset.get_isdigit (next_char, next_char_length)) ||
+            (next_char_length != 0 &&
+             unicharset.get_isupper (next_char, next_char_length)) &&
+            (prev_char_length == 0 ||
+             !unicharset.get_islower (prev_char, prev_char_length)) &&
+            (prev_char_length == 0 ||
+             !unicharset.get_isdigit (prev_char, prev_char_length))))
       first_char = second_char;  //override
-    else if (second_char == '1' || third_char == '1') {
-      if (isdigit (next_char) || isdigit (prev_char)
-      || next_char == 'l' && isdigit (next_next_char)) {
-        first_char = '1';
+    else if (*second_char == '1' || *third_char == '1') {
+      if ((next_char_length != 0 &&
+           unicharset.get_isdigit (next_char, next_char_length)) ||
+          (prev_char_length != 0 &&
+           unicharset.get_isdigit (prev_char, prev_char_length))
+          || *next_char == 'l' &&
+          (next_next_char_length != 0 &&
+           unicharset.get_isdigit (next_next_char, next_next_char_length))) {
+        first_char = "1";
+        first_char_length = 1;
       }
-      else if (!islower (prev_char)
-        && (!islower (next_char) || next_char == 's'
-      && next_next_char == 't')) {
-        if ((prev_char != '\'' && prev_char != '`' || next_char != '\0')
-          && (next_char != '\'' && next_char != '`'
-        || prev_char != '\0')) {
-          first_char = '1';
+      else if ((prev_char_length == 0 ||
+                !unicharset.get_islower (prev_char, prev_char_length)) &&
+               ((next_char_length == 0 ||
+                 !unicharset.get_islower (next_char, next_char_length)) ||
+                *next_char == 's' &&
+                *next_next_char == 't')) {
+        if ((*prev_char != '\'' && *prev_char != '`' || *next_char != '\0')
+            && (*next_char != '\'' && *next_char != '`'
+                || *prev_char != '\0')) {
+          first_char = "1";
+          first_char_length = 1;
         }
       }
     }
-    if (first_char == 'l' && next_char != '\0' && !isalpha (prev_char)) {
+    if (*first_char == 'l' && *next_char != '\0' &&
+        (prev_char_length == 0 ||
+         !unicharset.get_isalpha (prev_char, prev_char_length))) {
       type1 = 2;
 
-      if (second_char == '1')
+      if (*second_char == '1')
         type2 = 0;
-      else if (second_char == 'I')
+      else if (*second_char == 'I')
         type2 = 1;
-      else if (second_char == 'l')
+      else if (*second_char == 'l')
         type2 = 2;
       else
         type2 = type1;
 
-      if (third_char == '1')
+      if (*third_char == '1')
         type3 = 0;
-      else if (third_char == 'I')
+      else if (*third_char == 'I')
         type3 = 1;
-      else if (third_char == 'l')
+      else if (*third_char == 'l')
         type3 = 2;
       else
         type3 = type1;
 
-      if (bigram_counts[next_char][type2] >
-      bigram_counts[next_char][type1]) {
+#if 0
+      if (bigram_counts[*next_char][type2] >
+      bigram_counts[*next_char][type1]) {
         first_char = second_char;
         type1 = type2;
       }
-      if (bigram_counts[next_char][type3] >
-      bigram_counts[next_char][type1]) {
+      if (bigram_counts[*next_char][type3] >
+      bigram_counts[*next_char][type1]) {
         first_char = third_char;
       }
+#endif
     }
   }
   return first_char;
@@ -1543,12 +1646,10 @@ char choose_il1(char first_char,        //first choice
  **********************************************************************/
 A_CHOICE *permute_words(CHOICES_LIST char_choices, float rating_limit) {
   A_CHOICE *best_choice;
-  int hyphen_len;
 
-  best_choice = new_choice (NULL, rating_limit, -MAX_FLOAT32, -1, NO_PERM);
+  best_choice = new_choice (NULL, NULL, rating_limit, -MAX_FLOAT32, -1, NO_PERM);
 
-  hyphen_len = hyphen_string != NULL ? strlen (hyphen_string) : 0;
-  if (hyphen_len + array_count (char_choices) > MAX_WERD_LENGTH) {
+  if (hyphen_base_size() + array_count (char_choices) > MAX_WERD_LENGTH) {
     class_probability (best_choice) = MAX_FLOAT32;
   }
   else {
@@ -1562,7 +1663,6 @@ A_CHOICE *permute_words(CHOICES_LIST char_choices, float rating_limit) {
 
     dawg_permute_and_select ("user words", user_words, USER_DAWG_PERM,
       char_choices, best_choice, FALSE);
-    case_sensative = FALSE;
   }
 
   return (best_choice);
@@ -1584,7 +1684,6 @@ int valid_word(const char *string) {
       result = DOC_DAWG_PERM;
     else if (word_in_dawg (user_words, string))
       result = USER_DAWG_PERM;
-    case_sensative = FALSE;
   }
   return (result);
 }

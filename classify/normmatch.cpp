@@ -38,11 +38,9 @@ typedef struct
 {
   int NumParams;
   PARAM_DESC *ParamDesc;
-  LIST Protos[MAX_CLASS_ID + 1];
-}
-
-
-NORM_PROTOS;
+  LIST* Protos;
+  int NumProtos;
+} NORM_PROTOS;
 
 /**----------------------------------------------------------------------------
           Private Function Prototypes
@@ -168,8 +166,9 @@ void GetNormProtos() {
 
 void FreeNormProtos() {
   if (NormProtos != NULL) {
-    for (int i = 0; i <= MAX_CLASS_ID; i++)
+    for (int i = 0; i < NormProtos->NumProtos; i++)
       FreeProtoList(&NormProtos->Protos[i]);
+    Efree(NormProtos->Protos);
     Efree(NormProtos->ParamDesc);
     Efree(NormProtos);
     NormProtos = NULL;
@@ -272,13 +271,16 @@ NORM_PROTOS *ReadNormProtos(FILE *File) {
  */
   NORM_PROTOS *NormProtos;
   int i;
-  char ClassId[2];
+  char unichar[UNICHAR_LEN + 1];
+  UNICHAR_ID unichar_id;
   LIST Protos;
   int NumProtos;
 
   /* allocate and initialization data structure */
   NormProtos = (NORM_PROTOS *) Emalloc (sizeof (NORM_PROTOS));
-  for (i = 0; i <= MAX_CLASS_ID; i++)
+  NormProtos->NumProtos = unicharset.size();
+  NormProtos->Protos = (LIST *) Emalloc (NormProtos->NumProtos * sizeof(LIST));
+  for (i = 0; i < NormProtos->NumProtos; i++)
     NormProtos->Protos[i] = NIL;
 
   /* read file header and save in data structure */
@@ -286,12 +288,16 @@ NORM_PROTOS *ReadNormProtos(FILE *File) {
   NormProtos->ParamDesc = ReadParamDesc (File, NormProtos->NumParams);
 
   /* read protos for each class into a separate list */
-  while (fscanf (File, "%1s %d", ClassId, &NumProtos) == 2) {
-    Protos = NormProtos->Protos[ClassId[0]];
-    for (i = 0; i < NumProtos; i++)
-      Protos =
-        push_last (Protos, ReadPrototype (File, NormProtos->NumParams));
-    NormProtos->Protos[ClassId[0]] = Protos;
+  while (fscanf (File, "%s %d", unichar, &NumProtos) == 2) {
+    if (unicharset.contains_unichar(unichar)) {
+      unichar_id = unicharset.unichar_to_id(unichar);
+      Protos = NormProtos->Protos[unichar_id];
+      for (i = 0; i < NumProtos; i++)
+        Protos =
+            push_last (Protos, ReadPrototype (File, NormProtos->NumParams));
+      NormProtos->Protos[unichar_id] = Protos;
+    } else
+      cprintf("Error: unichar %s in normproto file is not in unichar set.\n");
   }
 
   return (NormProtos);

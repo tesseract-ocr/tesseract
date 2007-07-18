@@ -69,12 +69,13 @@ void re_estimate_x_ht(                     //improve for 1 word
                       WERD_RES *word_res,  //word to do
                       float *trial_x_ht    //new match value
                      );
-void check_block_occ(WERD_RES *word_res); 
-char check_blob_occ(char proposed_char,
+void check_block_occ(WERD_RES *word_res);
+void check_blob_occ(char *proposed_char,
                     INT16 blob_ht_above_baseline,
                     float x_ht,
-                    float caps_ht);
-float estimate_from_stats(STATS &stats); 
+                    float caps_ht,
+                    char *confirmed_char);
+float estimate_from_stats(STATS &stats);
 void improve_estimate(WERD_RES *word_res,
                       float &est_x_ht,
                       float &est_caps_ht,
@@ -88,5 +89,5 @@ void est_ambigs(WERD_RES *word_res,
                 float *ambig_lc_x_est,    //xht est
                 float *ambig_uc_caps_est  //caps est
                );
-BOOL8 dodgy_blob(PBLOB *blob); 
+BOOL8 dodgy_blob(PBLOB *blob);
 #endif

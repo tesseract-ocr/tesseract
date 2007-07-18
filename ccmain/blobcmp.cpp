@@ -27,7 +27,7 @@
 #include "const.h"
 #include "tessvars.h"
 
-#define CMP_CLASS       'x'
+#define CMP_CLASS       1
 
 /**********************************************************************
  * compare_tess_blobs
