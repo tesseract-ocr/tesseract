@@ -66,10 +66,11 @@ This code is a raw OCR engine. It has NO PAGE LAYOUT ANALYSIS, NO OUTPUT
 FORMATTING, and NO UI. It can only process an image of a single column
 and create text from it. It can detect fixed pitch vs proportional text.
 Having said that, in 1995, this engine was in the top 3 in terms of character
-accuracy, and it compiles and runs on both Linux and Windows. Another current
-limitation is that it only recognizes English and its character set is only
-US-ASCII. Training code IS included in the open source release however, and
-will be included in a future release.
+accuracy, and it compiles and runs on both Linux and Windows.
+As of 2.0, Tesseract is fully unicode (UTF-8) enabled, and can recognize 6
+languages "out of the box." Code and documentation is provided for the brave
+to train in other languages. See code.google.com/p/tesseract-ocr for more
+information on training.
 
 
 Using the Engine
@@ -77,7 +78,7 @@ Using the Engine
 Windows:
 The executable must reside in the same directory as the tessdata directory
 The command line is:
-tesseract <image.tif> <output>
+tesseract <image.tif> <output> [-l langid]
 A windows executable (tesseract.exe) is included in the distribution, but
 may not work for you unless you also have the correct mfc and crt dlls.
 There is also a tessdll.dll, which you can use to run tesseract from your
@@ -95,11 +96,12 @@ export TESSDATA_PREFIX="directory in which your tessdata resides/"
 variable. Note that the directory must end in a /
 HAVING tesseract and tessdata IN THE SAME DIRECTORY DOES NOT WORK ANY MORE.
 The command line is:
-tesseract <image.tif> <output>
+tesseract <image.tif> <output> [-l langid]
 
 All Systems:
 The image file requires a .tif extension for its type to be recognized
 correctly. If a file exists with the .tif extension replaced by .uzn, then it
 will be interpreted as a UNLV-style zone file. (See www.isri.unlv.edu for
 details of the zone files.)
-
+langid may be one of the codes defined in ISO 639-2, and you must download
+the corresponding data files into your tessdata directory.

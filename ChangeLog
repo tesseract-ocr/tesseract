@@ -22,3 +22,11 @@ May 15 2007 - V1.04
           Fixed name collisions with stl etc.
           Made some preliminary changes ready for unicodeization.
           Several bug fixes discovered during unicodeization.
+July 02 2007 - V2.00
+	  Converted internal character handling to UTF8.
+	  Trained with 6 languages.
+	  Added unicharset_extractor, wordlist2dawg.
+	  Added boxfile creation mode.
+	  Added UNLV regression test capability.
+	  Fixed problems with copyright and registered symbols.
+	  Fixed extern "C" declarations problem.

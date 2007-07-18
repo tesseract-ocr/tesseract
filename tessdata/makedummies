@@ -1,0 +1,8 @@
+#!/bin/sh
+for f in DangAmbigs freq-dawg inttemp normproto pffmtable unicharset user-words word-dawg
+do
+	if [ ! -r $1.$f ]
+	then
+		touch $1.$f
+	fi
+done

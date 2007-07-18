@@ -1,3 +1,52 @@
+Tesseract release notes July 17, 2007 - V2.00
+
+First release of the International version.
+This version recognizes the following languages:
+English - eng
+French  - fra
+Italian - ita
+German  - deu
+Spanish - spa
+Dutch   - nld
+The language codes follow ISO 639-2. The default language is English.
+To recognize another language:
+tesseract inputimage outputbase -l langcode
+
+To train on a new language, see separate documentation.
+More languages will be appearing over time.
+
+List of changes in this release:
+  Converted internal character handling to UTF8.
+  Trained with 6 languages.
+  Added unicharset_extractor, wordlist2dawg.
+  Added boxfile creation mode.
+  Added UNLV regression test capability.
+  Fixed problems with copyright and registered symbols.
+  Fixed extern "C" declarations problem.
+  Made some improvements to consistency of accuracy across platforms.
+  Added vc++ express support.
+
+Instructions for downloading and building version 2.00.
+Things have changed quite a bit since the previous versions so please read carefully.
+*All users*
+The tarballs are split into pieces.
+tesseract-2.00.tar.gz contains all the source code.
+tesseract-2.00.<lang>.tar.gt contains the data files for <lang>. You need at least one of these or tesseract will not work.
+tesseract-2.00.exe.tar.gz is not for the 'exe' language. It is windows executables. They are built with VC++ express and come with absolutely no warranty. If they work for you then great, otherwise get visual C++ express (and the platform sdk) and build from the source.
+
+*Non-windows users*
+As with 1.04, this version works with make install.
+*New* there is a tesseract.spec for making rpms. (Thanks to Andrew Ziem for the help.)
+It might work with your OS if you know how to do that sort of thing.
+If you are linking to the libraries, as with Ocropus, there is now a single master
+library called libtesseract_full.a.
+
+*Windows users*
+If you are building from the sources, there are still dsw and dsp files for vc++6 and also
+sln and vcproj files for vc++ express.
+The dll has been updated to allow input of non-binary images. (Thanks to Glen of Jetsoft.)
+
+
 Tesseract release notes May 15, 2007 - V1.04.
 
 === Windows users only ===

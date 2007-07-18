@@ -15,7 +15,7 @@ include_HEADERS = \
     tessbox.h tessedit.h tesseractmain.h tessvars.h tfacep.h \
     tessembedded.h tfacepp.h tstruct.h werdit.h
 
-lib_LIBRARIES = libtesseract_main.a
+lib_LIBRARIES = libtesseract_main.a libtesseract_full.a
 libtesseract_main_a_SOURCES = \
     tessedit.cpp adaptions.cpp applybox.cpp \
     baseapi.cpp blobcmp.cpp \
@@ -24,10 +24,8 @@ libtesseract_main_a_SOURCES = \
     imgscale.cpp matmatch.cpp output.cpp paircmp.cpp \
     reject.cpp scaleimg.cpp tessbox.cpp tessvars.cpp \
     tfacepp.cpp tstruct.cpp werdit.cpp
-
-bin_PROGRAMS = tesseract
-tesseract_SOURCES = tesseractmain.cpp
-tesseract_LDADD = \
+libtesseract_full_a_SOURCES = tesseractfull.cc
+libtesseract_full.o: tesseractfull.o \
     libtesseract_main.a \
     ../display/libtesseract_display.a \
     ../textord/libtesseract_textord.a \
@@ -39,3 +37,23 @@ tesseract_LDADD = \
     ../cutil/libtesseract_cutil.a \
     ../ccstruct/libtesseract_ccstruct.a \
     ../ccutil/libtesseract_ccutil.a
+	ld -r -o libtesseract_full.o tesseractfull.o \
+    libtesseract_main.a \
+    ../display/libtesseract_display.a \
+    ../textord/libtesseract_textord.a \
+    ../wordrec/libtesseract_wordrec.a \
+    ../classify/libtesseract_classify.a \
+    ../dict/libtesseract_dict.a \
+    ../viewer/libtesseract_viewer.a \
+    ../image/libtesseract_image.a \
+    ../cutil/libtesseract_cutil.a \
+    ../ccstruct/libtesseract_ccstruct.a \
+    ../ccutil/libtesseract_ccutil.a
+
+libtesseract_full.a : libtesseract_full.o
+	ar cru libtesseract_full.a libtesseract_full.o ; ranlib libtesseract_full.a
+
+bin_PROGRAMS = tesseract
+tesseract_SOURCES = tesseractmain.cpp
+tesseract_LDADD = \
+    libtesseract_full.a

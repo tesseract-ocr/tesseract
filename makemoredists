@@ -1,0 +1,9 @@
+#!/bin/bash
+winlist="tessdll.dll tessdll.lib tesseract.exe dlltest.exe training/cnTraining.exe training/mfTraining.exe training/unicharset_extractor.exe training/wordlist2dawg.exe"
+ver=`ls -1rt *[0-9].tar.gz |tail -1`
+ver=${ver%.tar.gz}
+for l in eng deu fra ita spa nld
+do
+	tar chozf $ver.$l.tar.gz tessdata/$l.*
+done
+tar chozf $ver.exe.tar.gz $winlist

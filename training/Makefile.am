@@ -7,15 +7,19 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/textord
 
-include_HEADERS = \
+EXTRA_DIST = training.cpp unicharset_extractor.dsp wordlist2dawg.dsp \
     cnTraining.dsp mfTraining.dsp \
+    unicharset_extractor.vcproj wordlist2dawg.vcproj \
+    cnTraining.vcproj mfTraining.vcproj
+
+include_HEADERS = \
     mergenf.h name2char.h training.h
 
 lib_LIBRARIES = libtesseract_training.a
 libtesseract_training_a_SOURCES = \
-    name2char.cpp training.cpp
+    name2char.cpp
 
-bin_PROGRAMS = cntraining mftraining
+bin_PROGRAMS = cntraining mftraining unicharset_extractor wordlist2dawg
 cntraining_SOURCES = cnTraining.cpp
 cntraining_LDADD = \
     libtesseract_training.a \
@@ -34,6 +38,16 @@ mftraining_LDADD = \
     ../classify/libtesseract_classify.a \
     ../dict/libtesseract_dict.a \
     ../image/libtesseract_image.a \
+    ../cutil/libtesseract_cutil.a \
+    ../ccstruct/libtesseract_ccstruct.a \
+    ../viewer/libtesseract_viewer.a \
+    ../ccutil/libtesseract_ccutil.a
+unicharset_extractor_SOURCES = unicharset_extractor.cpp
+unicharset_extractor_LDADD = \
+    ../ccutil/libtesseract_ccutil.a
+wordlist2dawg_SOURCES = wordlist2dawg.cpp
+wordlist2dawg_LDADD = \
+    ../dict/libtesseract_dict.a \
     ../cutil/libtesseract_cutil.a \
     ../ccstruct/libtesseract_ccstruct.a \
     ../viewer/libtesseract_viewer.a \

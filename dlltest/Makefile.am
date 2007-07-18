@@ -1,2 +1,2 @@
-include_HEADERS = dlltest.cpp dlltest.dsp
+include_HEADERS = dlltest.cpp dlltest.dsp dlltest.vcproj
 
