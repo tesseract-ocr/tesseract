@@ -34,16 +34,20 @@
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
-#define NUM_PLACEMENT_ATTEMPTS (INT32) 100
-#define EDGE_NUM_MARGIN        (INT32) 2
-#define DEFAULT_NODE_SIZE      (INT32) 2
-#define FORWARD_EDGE           (INT32) 0
-#define BACKWARD_EDGE          (INT32) 1
+#define NUM_PLACEMENT_ATTEMPTS (INT32) 100000
+#define EDGE_NUM_MARGIN        (EDGE_RECORD) 2
+#define DEFAULT_NODE_SIZE      (EDGE_RECORD) 2
+#define FORWARD_EDGE           (EDGE_RECORD) 0
+#define BACKWARD_EDGE          (EDGE_RECORD) 1
+
+typedef EDGE_REF *NODE_MAP;
+typedef char     *NODE_MARKER;
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-//?extern INT32 max_new_attempts;
+
+extern INT32 max_new_attempts;
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -55,9 +59,9 @@
  **********************************************************************/
 
 #define link_edge(edges,e,nxt,ch,flgs)                \
-(edges[e] = ((INT32) (nxt)                        | \
-					((INT32) (ch)   << LETTER_START_BIT) | \
-					((INT32) (flgs) << FLAG_START_BIT)))
+(edges[e] = ((EDGE_RECORD) (nxt)  << NEXT_EDGE_START_BIT | \
+	    ((EDGE_RECORD) static_cast<unsigned char>(ch)   << LETTER_START_BIT) | \
+	    ((EDGE_RECORD) (flgs) << FLAG_START_BIT)))
 
 /**********************************************************************
  * set_last_flag
@@ -87,10 +91,10 @@
 
 #define move_edges(dawg,from,to,num)              \
 {                                               \
-	INT32 i;                                     \
+	int i;                                     \
 	for (i=0; i<num; i++) {                      \
 		copy_edge(dawg,from+i,to+i);              \
-		dawg[from+i] = NO_EDGE;                   \
+		dawg[from+i] = NEXT_EDGE_MASK;                   \
 	}                                            \
 }                                               \
 
@@ -106,7 +110,7 @@
 
 #define copy_edges(dawg,from,to,num)            \
 {                                             \
-	INT32 i;                                   \
+	int i;                                   \
 	for (i=num-1; i>=0; i--) {                 \
 		copy_edge(dawg,from+i,to+i);            \
 	}                                          \
@@ -132,15 +136,15 @@ if (! room_in_node (dawg, node)) {                                    \
 void add_edge_linkage(EDGE_ARRAY dawg,
                       NODE_REF node1,
                       NODE_REF node2,
-                      INT32 direction,
+                      EDGE_RECORD direction,
                       char character,
-                      INT32 word_end);
+                      EDGE_RECORD word_end);
 
 void add_new_edge(EDGE_ARRAY dawg,
                   NODE_REF *node1,
                   NODE_REF *node2,
                   char character,
-                  INT32 word_end,
+                  EDGE_RECORD word_end,
                   INT32 max_num_edges,
                   INT32 reserved_edges);
 
@@ -161,6 +165,12 @@ NODE_REF new_dawg_node(EDGE_ARRAY dawg,
                        INT32 max_num_edges,
                        INT32 reserved_edges);
 
+void print_dawg_map (EDGE_ARRAY dawg, INT32 max_num_edges);
+
+void read_full_dawg (const char *filename,
+                     EDGE_ARRAY dawg,
+                     INT32 max_num_edges);
+
 void read_word_list(const char *filename,
                     EDGE_ARRAY dawg,
                     INT32 max_num_edges,
@@ -175,16 +185,21 @@ void remove_edge(EDGE_ARRAY dawg,
                  NODE_REF node1,
                  NODE_REF node2,
                  char character,
-                 INT32 word_end);
+                 EDGE_RECORD word_end);
 
 void remove_edge_linkage(EDGE_ARRAY dawg,
                          NODE_REF node,
                          NODE_REF next,
-                         INT32 direction,
+                         EDGE_RECORD direction,
                          char character,
-                         INT32 word_end);
+                         EDGE_RECORD word_end);
 
 INT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node);
+
+void write_full_dawg (const char *filename,
+                      EDGE_ARRAY dawg,
+                      INT32 max_num_edges);
+
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

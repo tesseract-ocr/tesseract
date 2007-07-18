@@ -103,16 +103,16 @@ int UNICHAR::first_uni() const {
   default:
     break;
   case 4:
-    uni += *src++;
+    uni += static_cast<unsigned char>(*src++);
     uni <<= 6;
   case 3:
-    uni += *src++;
+    uni += static_cast<unsigned char>(*src++);
     uni <<= 6;
   case 2:
-    uni += *src++;
+    uni += static_cast<unsigned char>(*src++);
     uni <<= 6;
   case 1:
-    uni += *src++;
+    uni += static_cast<unsigned char>(*src++);
   }
   uni -= utf8_offsets[len];
   return uni;
@@ -140,5 +140,5 @@ int UNICHAR::utf8_step(const char* utf8_str) {
     3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3, 4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0
   };
 
-  return utf8_bytes[*utf8_str];
+  return utf8_bytes[static_cast<unsigned char>(*utf8_str)];
 }

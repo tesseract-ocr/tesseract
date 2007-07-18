@@ -41,9 +41,9 @@ UNICHAR_ID UNICHARMAP::unichar_to_id(const char* const unichar_repr) const {
 
   do {
     if (*(current_char + 1) == '\0')
-      return current_nodes[static_cast<unsigned int>(*current_char)].id;
+      return current_nodes[static_cast<unsigned char>(*current_char)].id;
     current_nodes =
-        current_nodes[static_cast<unsigned int>(*current_char)].children;
+        current_nodes[static_cast<unsigned char>(*current_char)].children;
     ++current_char;
   } while (true);
 }
@@ -61,9 +61,9 @@ UNICHAR_ID UNICHARMAP::unichar_to_id(const char* const unichar_repr,
 
   do {
     if (length == 1 || *(current_char + 1) == '\0')
-      return current_nodes[static_cast<unsigned int>(*current_char)].id;
+      return current_nodes[static_cast<unsigned char>(*current_char)].id;
     current_nodes =
-        current_nodes[static_cast<unsigned int>(*current_char)].children;
+        current_nodes[static_cast<unsigned char>(*current_char)].children;
     ++current_char;
     --length;
   } while (true);
@@ -85,12 +85,12 @@ void UNICHARMAP::insert(const char* const unichar_repr, UNICHAR_ID id) {
       *current_nodes_pointer = new UNICHARMAP_NODE[256];
     if (*(current_char + 1) == '\0') {
       (*current_nodes_pointer)
-          [static_cast<unsigned int>(*current_char)].id = id;
+          [static_cast<unsigned char>(*current_char)].id = id;
       return;
     }
     current_nodes_pointer =
         &((*current_nodes_pointer)
-          [static_cast<unsigned int>(*current_char)].children);
+          [static_cast<unsigned char>(*current_char)].children);
     ++current_char;
   } while (true);
 }
@@ -106,11 +106,11 @@ bool UNICHARMAP::contains(const char* const unichar_repr) const {
 
   while (current_nodes != 0 && *(current_char + 1) != '\0') {
     current_nodes =
-        current_nodes[static_cast<unsigned int>(*current_char)].children;
+        current_nodes[static_cast<unsigned char>(*current_char)].children;
     ++current_char;
   }
   return current_nodes != 0 && *(current_char + 1) == '\0' &&
-      current_nodes[static_cast<unsigned int>(*current_char)].id >= 0;
+      current_nodes[static_cast<unsigned char>(*current_char)].id >= 0;
 }
 
 // Search the given unichar representation in the tree, using length characters
@@ -127,12 +127,12 @@ bool UNICHARMAP::contains(const char* const unichar_repr,
 
   while (current_nodes != 0 && (length > 1 && *(current_char + 1) != '\0')) {
     current_nodes =
-        current_nodes[static_cast<unsigned int>(*current_char)].children;
+        current_nodes[static_cast<unsigned char>(*current_char)].children;
     --length;
     ++current_char;
   }
   return current_nodes != 0 && (length == 1 || *(current_char + 1) == '\0') &&
-      current_nodes[static_cast<unsigned int>(*current_char)].id >= 0;
+      current_nodes[static_cast<unsigned char>(*current_char)].id >= 0;
 }
 
 void UNICHARMAP::clear() {
