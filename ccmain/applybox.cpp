@@ -24,20 +24,22 @@ what measures we are interested in.
 /* #define SECURE_NAMES done in secnames.h when necessary*/
 
 #include "mfcpch.h"
-#include          "applybox.h"
-#include          <ctype.h>
-#include          <string.h>
+#include "applybox.h"
+#include <ctype.h>
+#include <string.h>
 #ifdef __UNIX__
-#include          <assert.h>
-#include                    <errno.h>
+#include <assert.h>
+#include <errno.h>
 #endif
-#include          "mainblk.h"
-#include                   "genblob.h"
-#include                   "fixxht.h"
-#include          "control.h"
-#include          "tessbox.h"
-#include          "globals.h"
-#include          "secname.h"
+#include "mainblk.h"
+#include "genblob.h"
+#include "fixxht.h"
+#include "control.h"
+#include "tessbox.h"
+#include "globals.h"
+#include "secname.h"
+#include "unichar.h"
+#include "matchdefs.h"
 
 #define SECURE_NAMES
 #ifndef SECURE_NAMES
@@ -47,9 +49,12 @@ what measures we are interested in.
 #define EXTERN
 EXTERN BOOL_VAR (applybox_rebalance, TRUE, "Drop dead");
 EXTERN INT_VAR (applybox_debug, 0, "Debug level");
-EXTERN STRING_VAR (applybox_test_exclusions, "|",
+EXTERN STRING_VAR (applybox_test_exclusions, "",
 "Chars ignored for testing");
 EXTERN double_VAR (applybox_error_band, 0.15, "Err band as fract of xht");
+
+// The unicharset used during box training
+static UNICHARSET unicharset_boxes;
 
 /*************************************************************************
  * The code re-assigns outlines to form words each with ONE labelled blob.
@@ -89,7 +94,7 @@ void apply_boxes(BLOCK_LIST *block_list    //real blocks
   INT16 boxfile_lineno = 0;
   INT16 boxfile_charno = 0;
   BOX box;                       //boxfile box
-  char ch[2];                    //correct ch from boxfile
+  UNICHAR_ID uch_id;             //correct ch from boxfile
   ROW *row;
   ROW *prev_row = NULL;
   INT16 prev_box_right = MAX_INT16;
@@ -100,15 +105,20 @@ void apply_boxes(BLOCK_LIST *block_list    //real blocks
   INT16 labels_ok;
   INT16 rows_ok;
   INT16 bad_blobs;
-  INT16 tgt_char_counts[128];    //No. of box samples
+  INT16 tgt_char_counts[MAX_NUM_CLASSES];    //No. of box samples
   //      INT16                                   labelled_char_counts[128];      //No. of unique labelled samples
   INT16 i;
   INT16 rebalance_count = 0;
-  char min_char;
+  UNICHAR_ID min_uch_id;
   INT16 min_samples;
   INT16 final_labelled_blob_count;
 
-  for (i = 0; i < 128; i++)
+  // Clean the unichar set
+  unicharset_boxes.clear();
+  // Space character needed to represent NIL classification
+  unicharset_boxes.unichar_insert(" ");
+
+  for (i = 0; i < MAX_NUM_CLASSES; i++)
     tgt_char_counts[i] = 0;
 
   FILE* box_file;
@@ -120,11 +130,10 @@ void apply_boxes(BLOCK_LIST *block_list    //real blocks
       filename.string(), errno);
   }
 
-  ch[1] = '\0';
   clear_any_old_text(block_list);
-  while (read_next_box (box_file, &box, &ch[0])) {
+  while (read_next_box (box_file, &box, &uch_id)) {
     box_count++;
-    tgt_char_counts[ch[0]]++;
+    tgt_char_counts[uch_id]++;
     row = find_row_of_box (block_list, box, block_id, row_id);
     if (box.left () < prev_box_right) {
       boxfile_lineno++;
@@ -135,14 +144,16 @@ void apply_boxes(BLOCK_LIST *block_list    //real blocks
 
     if (row == NULL) {
       box_failures++;
-      report_failed_box (boxfile_lineno, boxfile_charno, box, ch,
+      report_failed_box (boxfile_lineno, boxfile_charno, box,
+                         unicharset_boxes.id_to_unichar(uch_id),
         "FAILURE! box overlaps no blobs or blobs in multiple rows");
     }
     else {
       if ((box.left () >= prev_box_right) && (row != prev_row))
-        report_failed_box (boxfile_lineno, boxfile_charno, box, ch,
+        report_failed_box (boxfile_lineno, boxfile_charno, box,
+                           unicharset_boxes.id_to_unichar(uch_id),
           "WARNING! false row break");
-      box_failures += resegment_box (row, box, ch, block_id, row_id,
+      box_failures += resegment_box (row, box, uch_id, block_id, row_id,
         boxfile_lineno, boxfile_charno);
       prev_row = row;
     }
@@ -154,7 +165,7 @@ void apply_boxes(BLOCK_LIST *block_list    //real blocks
           bad_blobs,
           tgt_char_counts,
           rebalance_count,
-          min_char,
+          &min_uch_id,
           min_samples,
           final_labelled_blob_count);
   tprintf ("APPLY_BOXES:\n");
@@ -163,7 +174,8 @@ void apply_boxes(BLOCK_LIST *block_list    //real blocks
     labels_ok, rows_ok);
   tprintf ("   Box failures detected:		%6d\n", box_failures);
   tprintf ("   Duped blobs for rebalance:%6d\n", rebalance_count);
-  tprintf ("   \"%c\" has fewest samples:%6d\n", min_char, min_samples);
+  tprintf ("   \"%s\" has fewest samples:%6d\n",
+           unicharset_boxes.id_to_unichar(min_uch_id), min_samples);
   tprintf ("				Total unlabelled words:   %6d\n",
     bad_blobs);
   tprintf ("				Final labelled words:     %6d\n",
@@ -194,7 +206,7 @@ void clear_any_old_text(                        //remove correct text
 
 BOOL8 read_next_box(FILE* box_file,  //
                     BOX *box,
-                    char *ch) {
+                    UNICHAR_ID *uch_id) {
   char buff[256];                //boxfile read buffer
   char *buffptr = buff;
   STRING box_filename;
@@ -204,23 +216,38 @@ BOOL8 read_next_box(FILE* box_file,  //
   INT32 x_max;
   INT32 y_max;
   INT32 count = 0;
+  char uch[256];
 
   while (!feof (box_file)) {
     fgets (buff, sizeof (buff) - 1, box_file);
     line++;
 
+    buffptr = buff;
+    const unsigned char *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
+    if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
+      buffptr += 3;  // Skip unicode file designation.
     /* Check for blank lines in box file */
-    for (buffptr = buff; isspace (*buffptr); buffptr++)
-      ;
+    while (isspace (*buffptr))
+      buffptr++;
     if (*buffptr != '\0') {
       count =
-        sscanf (buff,
-        "%c " INT32FORMAT " " INT32FORMAT " " INT32FORMAT " "
-        INT32FORMAT, ch, &x_min, &y_min, &x_max, &y_max);
+        sscanf (buffptr,
+        "%s " INT32FORMAT " " INT32FORMAT " " INT32FORMAT " "
+        INT32FORMAT, uch, &x_min, &y_min, &x_max, &y_max);
       if (count != 5) {
         tprintf ("Box file format error on line %i ignored\n", line);
       }
       else {
+        if (!unicharset_boxes.contains_unichar(uch))
+        {
+          unicharset_boxes.unichar_insert(uch);
+          if (unicharset_boxes.size() > MAX_NUM_CLASSES) {
+            tprintf("Error: Size of unicharset of boxes is \
+greater than MAX_NUM_CLASSES\n");
+            exit(1);
+          }
+        }
+        *uch_id = unicharset_boxes.unichar_to_id(uch);
         *box = BOX (ICOORD (x_min, y_min), ICOORD (x_max, y_max));
         return TRUE;             //read a box ok
       }
@@ -314,7 +341,7 @@ ROW *find_row_of_box(                         //
 INT16 resegment_box(  //
                     ROW *row,
                     BOX box,
-                    char *ch,
+                    UNICHAR_ID uch_id,
                     INT16 block_id,
                     INT16 row_id,
                     INT16 boxfile_lineno,
@@ -358,7 +385,7 @@ INT16 resegment_box(  //
                   if (applybox_debug > 4)
                     report_failed_box (boxfile_lineno,
                       boxfile_charno,
-                      box, ch,
+                      box, unicharset_boxes.id_to_unichar(uch_id),
                       "FAILURE! box overlaps blob in labelled word");
                 }
                 if (applybox_debug > 4)
@@ -375,7 +402,7 @@ INT16 resegment_box(  //
                 if (new_word == NULL) {
                                  /* Make a new word with a single blob */
                   new_word = word->shallow_copy ();
-                  new_word->set_text (ch);
+                  new_word->set_text (unicharset_boxes.id_to_unichar(uch_id));
                   if (polyg)
                     new_blob = new PBLOB;
                   else
@@ -414,63 +441,75 @@ INT16 resegment_box(  //
     word_x_centre = (new_word_box.left () + new_word_box.right ()) / 2.0f;
     baseline = row->base_line (word_x_centre);
 
-    if (STRING (chs_caps_ht).contains (ch[0]) &&
-      (new_word_box.top () <
-    baseline + (1 + applybox_error_band) * row->x_height ())) {
-      report_failed_box (boxfile_lineno, boxfile_charno, box, ch,
-        "FAILURE! caps-ht char didn't ascend");
-      new_word->set_text ("");
-      return 1;
-    }
-    if (STRING (chs_odd_top).contains (ch[0]) &&
-      (new_word_box.top () <
-    baseline + (1 - applybox_error_band) * row->x_height ())) {
-      report_failed_box (boxfile_lineno, boxfile_charno, box, ch,
-        "FAILURE! Odd top char below xht");
-      new_word->set_text ("");
-      return 1;
-    }
-    if (STRING (chs_x_ht).contains (ch[0]) &&
-      ((new_word_box.top () >
-      baseline + (1 + applybox_error_band) * row->x_height ()) ||
-      (new_word_box.top () <
-    baseline + (1 - applybox_error_band) * row->x_height ()))) {
-      report_failed_box (boxfile_lineno, boxfile_charno, box, ch,
-        "FAILURE! x-ht char didn't have top near xht");
-      new_word->set_text ("");
-      return 1;
-    }
-    if (STRING (chs_non_ambig_bl).contains (ch[0]) &&
-      ((new_word_box.bottom () <
-      baseline - applybox_error_band * row->x_height ()) ||
-      (new_word_box.bottom () >
-    baseline + applybox_error_band * row->x_height ()))) {
-      report_failed_box (boxfile_lineno, boxfile_charno, box, ch,
-        "FAILURE! non ambig BL char didnt have bottom near baseline");
-      new_word->set_text ("");
-      return 1;
-    }
-    if (STRING (chs_odd_bot).contains (ch[0]) &&
-      (new_word_box.bottom () >
-    baseline + applybox_error_band * row->x_height ())) {
-      report_failed_box (boxfile_lineno, boxfile_charno, box, ch,
-        "FAILURE! Odd bottom char above baseline");
-      new_word->set_text ("");
-      return 1;
-    }
-    if (STRING (chs_desc).contains (ch[0]) &&
-      (new_word_box.bottom () >
-    baseline - applybox_error_band * row->x_height ())) {
-      report_failed_box (boxfile_lineno, boxfile_charno, box, ch,
+#if 0
+    if (strlen(unicharset_boxes.id_to_unichar(uch_id)) == 1) {
+      if (STRING (chs_caps_ht).contains (unicharset_boxes.id_to_unichar(uch_id)[0]) &&
+          (new_word_box.top () <
+           baseline + (1 + applybox_error_band) * row->x_height ())) {
+        report_failed_box (boxfile_lineno, boxfile_charno, box,
+                           unicharset_boxes.id_to_unichar(uch_id),
+                           "FAILURE! caps-ht char didn't ascend");
+        new_word->set_text ("");
+        return 1;
+      }
+      if (STRING (chs_odd_top).contains (unicharset_boxes.id_to_unichar(uch_id)[0]) &&
+          (new_word_box.top () <
+           baseline + (1 - applybox_error_band) * row->x_height ())) {
+        report_failed_box (boxfile_lineno, boxfile_charno, box,
+                           unicharset_boxes.id_to_unichar(uch_id),
+                           "FAILURE! Odd top char below xht");
+        new_word->set_text ("");
+        return 1;
+      }
+      if (STRING (chs_x_ht).contains (unicharset_boxes.id_to_unichar(uch_id)[0]) &&
+          ((new_word_box.top () >
+            baseline + (1 + applybox_error_band) * row->x_height ()) ||
+           (new_word_box.top () <
+            baseline + (1 - applybox_error_band) * row->x_height ()))) {
+        report_failed_box (boxfile_lineno, boxfile_charno, box,
+                           unicharset_boxes.id_to_unichar(uch_id),
+                           "FAILURE! x-ht char didn't have top near xht");
+        new_word->set_text ("");
+        return 1;
+      }
+      if (STRING (chs_non_ambig_bl).contains
+          (unicharset_boxes.id_to_unichar(uch_id)[0]) &&
+          ((new_word_box.bottom () <
+            baseline - applybox_error_band * row->x_height ()) ||
+           (new_word_box.bottom () >
+            baseline + applybox_error_band * row->x_height ()))) {
+        report_failed_box (boxfile_lineno, boxfile_charno, box,
+                           unicharset_boxes.id_to_unichar(uch_id),
+                           "FAILURE! non ambig BL char didnt have bottom near baseline");
+        new_word->set_text ("");
+        return 1;
+      }
+      if (STRING (chs_odd_bot).contains (unicharset_boxes.id_to_unichar(uch_id)[0]) &&
+          (new_word_box.bottom () >
+           baseline + applybox_error_band * row->x_height ())) {
+        report_failed_box (boxfile_lineno, boxfile_charno, box,
+                           unicharset_boxes.id_to_unichar(uch_id),
+                           "FAILURE! Odd bottom char above baseline");
+        new_word->set_text ("");
+        return 1;
+      }
+      if (STRING (chs_desc).contains (unicharset_boxes.id_to_unichar(uch_id)[0]) &&
+          (new_word_box.bottom () >
+           baseline - applybox_error_band * row->x_height ())) {
+        report_failed_box (boxfile_lineno, boxfile_charno, box,
+                           unicharset_boxes.id_to_unichar(uch_id),
         "FAILURE! Descender doesn't descend");
-      new_word->set_text ("");
-      return 1;
+        new_word->set_text ("");
+        return 1;
+      }
     }
+#endif
     return 0;
   }
   else {
-    report_failed_box (boxfile_lineno, boxfile_charno, box, ch,
-      "FAILURE! Couldn't find any blobs");
+    report_failed_box (boxfile_lineno, boxfile_charno, box,
+                       unicharset_boxes.id_to_unichar(uch_id),
+                       "FAILURE! Couldn't find any blobs");
     return 1;
   }
 }
@@ -492,7 +531,7 @@ void tidy_up(                         //
              INT16 &unlabelled_words,
              INT16 *tgt_char_counts,
              INT16 &rebalance_count,
-             char &min_char,
+             UNICHAR_ID *min_uch_id,
              INT16 &min_samples,
              INT16 &final_labelled_blob_count) {
   BLOCK_IT block_it(block_list);
@@ -507,16 +546,16 @@ void tidy_up(                         //
   BOOL8 row_ok;
   BOOL8 rebalance_needed = FALSE;
                                  //No. of unique labelled samples
-  INT16 labelled_char_counts[128];
+  INT16 labelled_char_counts[MAX_NUM_CLASSES];
   INT16 i;
-  char ch;
-  char prev_ch = '\0';
+  UNICHAR_ID uch_id;
+  UNICHAR_ID prev_uch_id = -1;
   BOOL8 at_dupe_of_prev_word;
   ROW *prev_row = NULL;
   INT16 left;
   INT16 prev_left = -1;
 
-  for (i = 0; i < 128; i++)
+  for (i = 0; i < MAX_NUM_CLASSES; i++)
     labelled_char_counts[i] = 0;
 
   ok_char_count = 0;
@@ -556,7 +595,7 @@ void tidy_up(                         //
               block_idx, row_idx, all_row_idx);
 
           ok_char_count++;
-          labelled_char_counts[*word->text ()]++;
+          labelled_char_counts[unicharset_boxes.unichar_to_id(word->text ())]++;
           row_ok = TRUE;
         }
       }
@@ -571,24 +610,24 @@ void tidy_up(                         //
   }
 
   min_samples = 9999;
-  for (i = 0; i < 128; i++) {
+  for (i = 0; i < unicharset_boxes.size(); i++) {
     if (tgt_char_counts[i] > labelled_char_counts[i]) {
       if (labelled_char_counts[i] <= 1) {
         tprintf
-          ("APPLY_BOXES: FATALITY - %d labelled samples of \"%c\" - target is %d\n",
-          labelled_char_counts[i], (char) i, tgt_char_counts[i]);
+          ("APPLY_BOXES: FATALITY - %d labelled samples of \"%s\" - target is %d\n",
+          labelled_char_counts[i], unicharset_boxes.id_to_unichar(i), tgt_char_counts[i]);
       }
       else {
         rebalance_needed = TRUE;
         if (applybox_debug > 0)
           tprintf
-            ("APPLY_BOXES: REBALANCE REQD \"%c\" - target of %d from %d labelled samples\n",
-            (char) i, tgt_char_counts[i], labelled_char_counts[i]);
+            ("APPLY_BOXES: REBALANCE REQD \"%s\" - target of %d from %d labelled samples\n",
+            unicharset_boxes.id_to_unichar(i), tgt_char_counts[i], labelled_char_counts[i]);
       }
     }
     if ((min_samples > labelled_char_counts[i]) && (tgt_char_counts[i] > 0)) {
       min_samples = labelled_char_counts[i];
-      min_char = (char) i;
+      *min_uch_id = i;
     }
   }
 
@@ -605,33 +644,36 @@ void tidy_up(                         //
         !word_it.cycled_list (); word_it.forward ()) {
           word = word_it.data ();
           left = word->bounding_box ().left ();
-          ch = *word->text ();
+          if (*word->text () != '\0')
+            uch_id = unicharset_boxes.unichar_to_id(word->text ());
+          else
+            uch_id = -1;
           at_dupe_of_prev_word = ((row == prev_row) &&
             (left = prev_left) &&
-            (ch == prev_ch));
-          if ((ch != '\0') &&
-            (labelled_char_counts[ch] > 1) &&
-            (tgt_char_counts[ch] > labelled_char_counts[ch]) &&
+            (uch_id == prev_uch_id));
+          if ((uch_id != -1) &&
+            (labelled_char_counts[uch_id] > 1) &&
+            (tgt_char_counts[uch_id] > labelled_char_counts[uch_id]) &&
           (!at_dupe_of_prev_word)) {
             /* Duplicate the word to rebalance the labelled samples */
             if (applybox_debug > 9) {
-              tprintf ("Duping \"%c\" from ", ch);
+              tprintf ("Duping \"%s\" from ", unicharset_boxes.id_to_unichar(uch_id));
               word->bounding_box ().print ();
             }
             duplicate_word = new WERD;
             *duplicate_word = *word;
             word_it.add_after_then_move (duplicate_word);
             rebalance_count++;
-            labelled_char_counts[ch]++;
+            labelled_char_counts[uch_id]++;
           }
           prev_row = row;
           prev_left = left;
-          prev_ch = ch;
+          prev_uch_id = uch_id;
         }
       }
     }
     rebalance_needed = FALSE;
-    for (i = 0; i < 128; i++) {
+    for (i = 0; i < unicharset_boxes.size(); i++) {
       if ((tgt_char_counts[i] > labelled_char_counts[i]) &&
       (labelled_char_counts[i] > 1)) {
         rebalance_needed = TRUE;
@@ -653,7 +695,7 @@ void tidy_up(                         //
       for (word_it.mark_cycle_pt ();
       !word_it.cycled_list (); word_it.forward ()) {
         word = word_it.data ();
-        if ((strlen (word->text ()) == 1) &&
+        if ((strlen (word->text ()) > 0) &&
           (word->gblob_list ()->length () == 1))
           final_labelled_blob_count++;
       }
@@ -665,7 +707,7 @@ void tidy_up(                         //
 void report_failed_box(INT16 boxfile_lineno,
                        INT16 boxfile_charno,
                        BOX box,
-                       char *box_ch,
+                       const char *box_ch,
                        const char *err_msg) {
   if (applybox_debug > 4)
     tprintf ("APPLY_BOXES: boxfile %1d/%1d/%s ((%1d,%1d),(%1d,%1d)): %s\n",
@@ -687,10 +729,9 @@ void apply_box_training(BLOCK_LIST *block_list) {
   PBLOB_IT blob_it;
   DENORM denorm;
   INT16 count = 0;
-  char ch[2];
+  char unichar[UNICHAR_LEN + 1];
 
-  ch[1] = '\0';
-
+  unichar[UNICHAR_LEN] = '\0';
   tprintf ("Generating training data\n");
   for (block_it.mark_cycle_pt ();
   !block_it.cycled_list (); block_it.forward ()) {
@@ -701,23 +742,22 @@ void apply_box_training(BLOCK_LIST *block_list) {
       for (word_it.mark_cycle_pt ();
       !word_it.cycled_list (); word_it.forward ()) {
         word = word_it.data ();
-        if ((strlen (word->text ()) == 1) &&
+        if ((strlen (word->text ()) > 0) &&
         (word->gblob_list ()->length () == 1)) {
-          /* Here is a word with a single char label and a single blob so train on it */
+          /* Here is a word with a single unichar label and a single blob so train on it */
           bln_word =
             make_bln_copy (word, row, row->x_height (), &denorm);
           blob_it.set_to_list (bln_word->blob_list ());
-          ch[0] = *word->text ();
+          strncpy(unichar, word->text (), UNICHAR_LEN);
           tess_training_tester (blob_it.data (),
                                  //single blob
             &denorm, TRUE,       //correct
-            ch,                  //correct ASCII char
-            1,                   //ASCII length
+            unichar,             //correct character
+            strlen(unichar),     //character length
             NULL);
           copy_outword = *(bln_word);
           copy_outword.baseline_denormalise (&denorm);
           blob_it.set_to_list (copy_outword.blob_list ());
-          ch[0] = *word->text ();
           delete bln_word;
           count++;
         }
@@ -793,7 +833,7 @@ void apply_box_testing(BLOCK_LIST *block_list) {
             choice list, outword blob lists and best_choice string are the same
             length. A TESS screw up is indicated by a blank filled or 0 length string.
           */
-          if ((best_choice->string ().length () == 0) ||
+          if ((best_choice->lengths ().length () == 0) ||
             (strspn (best_choice->string ().string (), " ") ==
           best_choice->string ().length ())) {
             rej_count++;
@@ -804,22 +844,22 @@ void apply_box_testing(BLOCK_LIST *block_list) {
             #endif
           }
           else {
-            if ((best_choice->string ().length () !=
+            if ((best_choice->lengths ().length () !=
               outword->blob_list ()->length ()) ||
-              (best_choice->string ().length () !=
+              (best_choice->lengths ().length () !=
             blob_choices.length ())) {
               tprintf
                 ("ASSERT FAIL String:\"%s\"; Strlen=%d; #Blobs=%d; #Choices=%d\n",
                 best_choice->string ().string (),
-                best_choice->string ().length (),
+                best_choice->lengths ().length (),
                 outword->blob_list ()->length (),
                 blob_choices.length ());
             }
-            ASSERT_HOST (best_choice->string ().length () ==
+            ASSERT_HOST (best_choice->lengths ().length () ==
               outword->blob_list ()->length ());
-            ASSERT_HOST (best_choice->string ().length () ==
+            ASSERT_HOST (best_choice->lengths ().length () ==
               blob_choices.length ());
-            fix_quotes ((char *) best_choice->string ().string (),
+            fix_quotes (best_choice,
                                  //turn to double
               outword, &blob_choices);
             if (strcmp (best_choice->string ().string (), ch) != 0) {

@@ -20,8 +20,6 @@
 #ifndef THIRD_PARTY_TESSERACT_CCMAIN_BASEAPI_H__
 #define THIRD_PARTY_TESSERACT_CCMAIN_BASEAPI_H__
 
-#include <string>
-
 class PAGE_RES;
 class BLOCK_LIST;
 
@@ -56,6 +54,10 @@ class TessBaseAPI {
                               const char* language, const char* configfile,
                               bool numeric_mode, int argc, char* argv[]);
 
+  // Set the name of the input file. Needed only for training and
+  // reading a UNLV zone file.
+  static void SetInputName(const char* name);
+
   // Recognize a rectangle from an image and return the result as a string.
   // May be called many times for a single Init.
   // Currently has no error checking.
@@ -71,6 +73,19 @@ class TessBaseAPI {
                              int bytes_per_pixel,
                              int bytes_per_line,
                              int left, int top, int width, int height);
+  // As TesseractRect but produces a box file as output.
+  // Image height is needed as well as rect height, since output y-coords
+  // will be relative to the bottom of the image.
+  static char* TesseractRectBoxes(const unsigned char* imagedata,
+                                  int bytes_per_pixel,
+                                  int bytes_per_line,
+                                  int left, int top, int width, int height,
+                                  int imageheight);
+  // As TesseractRect but produces UNLV-style output.
+  static char* TesseractRectUNLV(const unsigned char* imagedata,
+                                 int bytes_per_pixel,
+                                 int bytes_per_line,
+                                 int left, int top, int width, int height);
 
   // Call between pages or documents etc to free up memory and forget
   // adaptive data.
@@ -153,8 +168,18 @@ class TessBaseAPI {
   static PAGE_RES* Recognize(BLOCK_LIST* block_list,
                              struct ETEXT_STRUCT* monitor);
 
+  // Return the maximum length that the output text string might occupy.
+  static int TextLength(PAGE_RES* page_res);
   // Convert (and free) the internal data structures into a text string.
   static char* TesseractToText(PAGE_RES* page_res);
+  // Make a text string from the internal data structures.
+  // The input page_res is deleted.
+  // The text string takes the form of a box file as needed for training.
+  static char* TesseractToBoxText(PAGE_RES* page_res, int left, int bottom);
+  // Make a text string from the internal data structures.
+  // The input page_res is deleted. The text string is converted
+  // to UNLV-format: Latin-1 with specific reject and suspect codes.
+  static char* TesseractToUNLV(PAGE_RES* page_res);
 };
 
 #endif  // THIRD_PARTY_TESSERACT_CCMAIN_BASEAPI_H__

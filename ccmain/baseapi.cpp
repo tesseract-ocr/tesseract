@@ -27,6 +27,7 @@
 #include "applybox.h"
 #include "pgedit.h"
 #include "varabled.h"
+#include "output.h"
 #include "adaptmatch.h"
 
 BOOL_VAR(tessedit_resegment_from_boxes, FALSE,
@@ -36,6 +37,8 @@ BOOL_VAR(tessedit_train_from_boxes, FALSE,
 
 // Minimum sensible image size to be worth running tesseract.
 const int kMinRectSize = 10;
+
+static STRING input_file = "noname.tif";
 
 // Start tesseract.
 // The datapath must be the name of the data directory or some other file
@@ -70,6 +73,12 @@ int TessBaseAPI::InitWithLanguage(const char* datapath, const char* outputbase,
   return result;
 }
 
+// Set the name of the input file. Needed only for training and
+// loading a UNLV zone file.
+void TessBaseAPI::SetInputName(const char* name) {
+  input_file = name;
+}
+
 // Recognize a rectangle from an image and return the result as a string.
 // May be called many times for a single Init.
 // Currently has no error checking.
@@ -94,6 +103,52 @@ char* TessBaseAPI::TesseractRect(const unsigned char* imagedata,
                        left, top, width, height);
 
   return RecognizeToString();
+}
+
+// As TesseractRect but produces a box file as output.
+char* TessBaseAPI::TesseractRectBoxes(const unsigned char* imagedata,
+                                      int bytes_per_pixel,
+                                      int bytes_per_line,
+                                      int left, int top,
+                                      int width, int height,
+                                      int imageheight) {
+  if (width < kMinRectSize || height < kMinRectSize)
+  return NULL;  // Nothing worth doing.
+
+  // Copy/Threshold the image to the tesseract global page_image.
+  CopyImageToTesseract(imagedata, bytes_per_pixel, bytes_per_line,
+                       left, top, width, height);
+
+  BLOCK_LIST    block_list;
+
+  FindLines(&block_list);
+
+  // Now run the main recognition.
+  PAGE_RES* page_res = Recognize(&block_list, NULL);
+
+  return TesseractToBoxText(page_res, left, imageheight - (top + height));
+}
+
+char* TessBaseAPI::TesseractRectUNLV(const unsigned char* imagedata,
+                                     int bytes_per_pixel,
+                                     int bytes_per_line,
+                                     int left, int top,
+                                     int width, int height) {
+  if (width < kMinRectSize || height < kMinRectSize)
+    return NULL;  // Nothing worth doing.
+
+  // Copy/Threshold the image to the tesseract global page_image.
+  CopyImageToTesseract(imagedata, bytes_per_pixel, bytes_per_line,
+                       left, top, width, height);
+
+  BLOCK_LIST    block_list;
+
+  FindLines(&block_list);
+
+  // Now run the main recognition.
+  PAGE_RES* page_res = Recognize(&block_list, NULL);
+
+  return TesseractToUNLV(page_res);
 }
 
 // Call between pages or documents etc to free up memory and forget
@@ -326,7 +381,7 @@ void TessBaseAPI::CopyBinaryRect(const unsigned char* imagedata,
   image.capture(const_cast<unsigned char*>(imagedata),
                 bytes_per_line*8, top + height, 1);
   page_image.create(width, height, 1);
-  copy_sub_image(&image, left, top, width, height, &page_image, 0, 0, false);
+  copy_sub_image(&image, left, 0, width, height, &page_image, 0, 0, false);
 }
 
 // Low-level function to recognize the current global image to a string.
@@ -343,7 +398,6 @@ char* TessBaseAPI::RecognizeToString() {
 
 // Find lines from the image making the BLOCK_LIST.
 void TessBaseAPI::FindLines(BLOCK_LIST* block_list) {
-  STRING input_file = "noname.tif";
   // The following call creates a full-page block and then runs connected
   // component analysis and text line creation.
   pgeditor_read_file(input_file, block_list);
@@ -369,21 +423,32 @@ PAGE_RES* TessBaseAPI::Recognize(BLOCK_LIST* block_list, ETEXT_DESC* monitor) {
   return page_res;
 }
 
+// Return the maximum length that the output text string might occupy.
+int TessBaseAPI::TextLength(PAGE_RES* page_res) {
+  PAGE_RES_IT   page_res_it(page_res);
+  int total_length = 2;
+  // Iterate over the data structures to extract the recognition result.
+  for (page_res_it.restart_page(); page_res_it.word () != NULL;
+       page_res_it.forward()) {
+    WERD_RES *word = page_res_it.word();
+    WERD_CHOICE* choice = word->best_choice;
+    if (choice != NULL) {
+      total_length += choice->string().length() + 1;
+      for (int i = 0; i < word->reject_map.length(); ++i) {
+        if (word->reject_map[i].rejected())
+          ++total_length;
+      }
+    }
+  }
+  return total_length;
+}
+
 // Make a text string from the internal data structures.
 // The input page_res is deleted.
 char* TessBaseAPI::TesseractToText(PAGE_RES* page_res) {
   if (page_res != NULL) {
-    int total_length = 2;
+    int total_length = TextLength(page_res);
     PAGE_RES_IT   page_res_it(page_res);
-    // Iterate over the data structures to extract the recognition result.
-    for (page_res_it.restart_page(); page_res_it.word () != NULL;
-         page_res_it.forward()) {
-      WERD_RES *word = page_res_it.word();
-      WERD_CHOICE* choice = word->best_choice;
-      if (choice != NULL) {
-        total_length += choice->string().length() + 1;
-      }
-    }
     char* result = new char[total_length];
     char* ptr = result;
     for (page_res_it.restart_page(); page_res_it.word () != NULL;
@@ -406,3 +471,207 @@ char* TessBaseAPI::TesseractToText(PAGE_RES* page_res) {
   }
   return NULL;
 }
+
+static int ConvertWordToBoxText(WERD_RES *word,
+                                ROW_RES* row,
+                                int left,
+                                int bottom,
+                                char* word_str) {
+  // Copy the output word and denormalize it back to image coords.
+  WERD copy_outword;
+  copy_outword = *(word->outword);
+  copy_outword.baseline_denormalise(&word->denorm);
+  PBLOB_IT blob_it;
+  blob_it.set_to_list(copy_outword.blob_list());
+  int length = copy_outword.blob_list()->length();
+  int output_size = 0;
+
+  if (length > 0) {
+    for (int index = 0, offset = 0; index < length;
+         offset += word->best_choice->lengths()[index++], blob_it.forward()) {
+      PBLOB* blob = blob_it.data();
+      BOX blob_box = blob->bounding_box();
+      if (word->tess_failed ||
+          blob_box.left() < 0 ||
+          blob_box.right() > page_image.get_xsize() ||
+          blob_box.bottom() < 0 ||
+          blob_box.top() > page_image.get_ysize()) {
+        // Bounding boxes can be illegal when tess fails on a word.
+        blob_box = word->word->bounding_box();  // Use original word as backup.
+        tprintf("Using substitute bounding box at (%d,%d)->(%d,%d)\n",
+                blob_box.left(), blob_box.bottom(),
+                blob_box.right(), blob_box.top());
+      }
+
+      // A single classification unit can be composed of several UTF-8
+      // characters. Append each of them to the result.
+      for (int sub = 0; sub < word->best_choice->lengths()[index]; ++sub) {
+        char ch = word->best_choice->string()[offset + sub];
+        // Tesseract uses space for recognition failure. Fix to a reject
+        // character, '~' so we don't create illegal box files.
+        if (ch == ' ')
+          ch = '~';
+        word_str[output_size++] = ch;
+      }
+      sprintf(word_str + output_size, " %d %d %d %d\n",
+              blob_box.left() + left, blob_box.bottom() + bottom,
+              blob_box.right() + left, blob_box.top() + bottom);
+      output_size += strlen(word_str + output_size);
+    }
+  }
+  return output_size;
+}
+
+// Multiplier for textlength assumes 4 numbers @ 5 digits and a space
+// plus the newline and the orginial character = 4*(5+1)+2
+const int kMaxCharsPerChar = 26;
+
+// Make a text string from the internal data structures.
+// The input page_res is deleted.
+// The text string takes the form of a box file as needed for training.
+char* TessBaseAPI::TesseractToBoxText(PAGE_RES* page_res,
+                                      int left, int bottom) {
+  if (page_res != NULL) {
+    int total_length = TextLength(page_res) * kMaxCharsPerChar;
+    PAGE_RES_IT   page_res_it(page_res);
+    char* result = new char[total_length];
+    char* ptr = result;
+    for (page_res_it.restart_page(); page_res_it.word () != NULL;
+         page_res_it.forward()) {
+      WERD_RES *word = page_res_it.word();
+      ptr += ConvertWordToBoxText(word,page_res_it.row(),left, bottom, ptr);
+    }
+    *ptr = '\0';
+    delete page_res;
+    return result;
+  }
+  return NULL;
+}
+
+// Make a text string from the internal data structures.
+// The input page_res is deleted. The text string is converted
+// to UNLV-format: Latin-1 with specific reject and suspect codes.
+const char kUnrecognized = '~';
+// Conversion table for non-latin characters.
+// Maps characters out of the latin set into the latin set.
+// TODO(rays) incorporate this translation into unicharset.
+const int kUniChs[] = {
+  0x20ac, 0x201c, 0x201d, 0x2018, 0x2019, 0x2022, 0x2014, 0
+};
+// Latin chars corresponding to the unicode chars above.
+const int kLatinChs[] = {
+  0x00a2, 0x0022, 0x0022, 0x0027, 0x0027, 0x00b7, 0x002d, 0
+};
+
+char* TessBaseAPI::TesseractToUNLV(PAGE_RES* page_res) {
+  bool tilde_crunch_written = false;
+  bool last_char_was_newline = true;
+  bool last_char_was_tilde = false;
+
+  if (page_res != NULL) {
+    int total_length = TextLength(page_res);
+    PAGE_RES_IT   page_res_it(page_res);
+    char* result = new char[total_length];
+    char* ptr = result;
+    for (page_res_it.restart_page(); page_res_it.word () != NULL;
+         page_res_it.forward()) {
+      WERD_RES *word = page_res_it.word();
+      // Process the current word.
+      if (word->unlv_crunch_mode != CR_NONE) {
+        if (word->unlv_crunch_mode != CR_DELETE &&
+            (!tilde_crunch_written ||
+             (word->unlv_crunch_mode == CR_KEEP_SPACE &&
+              word->word->space () > 0 &&
+              !word->word->flag (W_FUZZY_NON) &&
+              !word->word->flag (W_FUZZY_SP)))) {
+          if (!word->word->flag (W_BOL) &&
+              word->word->space () > 0 &&
+              !word->word->flag (W_FUZZY_NON) &&
+              !word->word->flag (W_FUZZY_SP)) {
+            /* Write a space to separate from preceeding good text */
+            *ptr++ = ' ';
+            last_char_was_tilde = false;
+          }
+          if (!last_char_was_tilde) {
+            // Write a reject char.
+            last_char_was_tilde = true;
+            *ptr++ = kUnrecognized;
+            tilde_crunch_written = true;
+            last_char_was_newline = false;
+          }
+        }
+      } else {
+        // NORMAL PROCESSING of non tilde crunched words.
+        tilde_crunch_written = false;
+
+        if (last_char_was_tilde &&
+            word->word->space () == 0 &&
+            (word->best_choice->string ()[0] == ' ')) {
+          /* Prevent adjacent tilde across words - we know that adjacent tildes within
+             words have been removed */
+          char* p = (char *) word->best_choice->string().string ();
+          strcpy (p, p + 1);       //shuffle up
+          p = (char *) word->best_choice->lengths().string ();
+          strcpy (p, p + 1);       //shuffle up
+          word->reject_map.remove_pos (0);
+          PBLOB_IT blob_it = word->outword->blob_list ();
+          delete blob_it.extract ();   //get rid of reject blob
+        }
+
+        if (word->word->flag(W_REP_CHAR) && tessedit_consistent_reps)
+          ensure_rep_chars_are_consistent(word);
+
+        set_unlv_suspects(word);
+        const char* wordstr = word->best_choice->string().string();
+        if (wordstr[0] != 0) {
+          if (!last_char_was_newline)
+            *ptr++ = ' ';
+          else
+            last_char_was_newline = false;
+          int offset = 0;
+          const STRING& lengths = word->best_choice->lengths();
+          int length = lengths.length();
+          for (int i = 0; i < length; offset += lengths[i++]) {
+            if (wordstr[offset] == ' ' ||
+                wordstr[offset] == '~' ||
+                wordstr[offset] == '|') {
+              *ptr++ = kUnrecognized;
+              last_char_was_tilde = true;
+            } else {
+              if (word->reject_map[i].rejected())
+                *ptr++ = '^';
+              UNICHAR ch(wordstr + offset, lengths[i]);
+              int uni_ch = ch.first_uni();
+              for (int j = 0; kUniChs[j] != 0; ++j) {
+                if (kUniChs[j] == uni_ch) {
+                  uni_ch = kLatinChs[j];
+                  break;
+                }
+              }
+              if (uni_ch <= 0xff) {
+                *ptr++ = static_cast<char>(uni_ch);
+                last_char_was_tilde = false;
+              } else {
+                *ptr++ = kUnrecognized;
+                last_char_was_tilde = true;
+              }
+            }
+          }
+        }
+      }
+      if (word->word->flag(W_EOL) && !last_char_was_newline) {
+        /* Add a new line output */
+        *ptr++ = '\n';
+        tilde_crunch_written = false;
+        last_char_was_newline = true;
+        last_char_was_tilde = false;
+      }
+    }
+    *ptr++ = '\n';
+    *ptr = '\0';
+    delete page_res;
+    return result;
+  }
+  return NULL;
+}
+

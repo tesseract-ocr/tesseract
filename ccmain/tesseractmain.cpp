@@ -31,7 +31,9 @@
 #include "stderr.h"
 #include "notdll.h"
 #include "mainblk.h"
+#include "output.h"
 #include "globals.h"
+#include "blread.h"
 #include "tfacep.h"
 #include "callnet.h"
 
@@ -40,7 +42,10 @@
 #define API_CONFIG      "configs/api_config"
 #define EXTERN
 
+EXTERN BOOL_VAR (tessedit_create_boxfile, FALSE, "Output text with boxes");
 EXTERN BOOL_VAR (tessedit_read_image, TRUE, "Ensure the image is read");
+EXTERN INT_VAR (tessedit_serial_unlv, 0,
+                "0->Whole page, 1->serial no adapt, 2->serial with adapt");
 EXTERN BOOL_VAR (tessedit_write_images, FALSE,
 "Capture the image from the IPE");
 EXTERN BOOL_VAR (tessedit_debug_to_screen, FALSE, "Dont use debug file");
@@ -63,15 +68,30 @@ int main(int argc, char **argv) {
 
   if (argc < 3) {
     USAGE.error (argv[0], EXIT,
-      "%s imagename outputbase [configfile [[+|-]varfile]...]\n", argv[0]);
+      "%s imagename outputbase [-l lang] [configfile [[+|-]varfile]...]\n",
+      argv[0]);
+  }
+  // Find the required language.
+  const char* lang = "eng";
+  int arg = 3;
+  if (argc >= 5 && strcmp(argv[3], "-l") == 0) {
+    lang = argv[4];
+    arg = 5;
+  }
+  // Find the basename of the input file.
+  STRING infile(argv[1]);
+  const char* lastdot = strrchr(argv[1], '.');
+  if (lastdot != NULL) {
+    infile[lastdot - argv[1]] = '\0';
   }
 
-  if (argc == 3)
-    TessBaseAPI::InitWithLanguage(argv[0], argv[1], NULL,
-                                  NULL, false, 0, argv + 2);
+  if (argc == arg)
+    TessBaseAPI::InitWithLanguage(argv[0], infile.string(), lang,
+                                  NULL, false, 0, argv + arg);
   else
-    TessBaseAPI::InitWithLanguage(argv[0], argv[1], NULL,
-                                  argv[3], false, argc - 4, argv + 4);
+    TessBaseAPI::InitWithLanguage(argv[0], infile.string(), lang,
+                                  argv[arg], false,
+                                  argc - arg - 1, argv + arg + 1);
 
   tprintf ("Tesseract Open Source OCR Engine\n");
 
@@ -92,20 +112,70 @@ int main(int argc, char **argv) {
       argv[1]);
   }
 #endif
+  STRING text_out;
   int bytes_per_line = check_legal_image_size(image.get_xsize(),
                                               image.get_ysize(),
                                               image.get_bpp());
-  char* text = TessBaseAPI::TesseractRect(image.get_buffer(), image.get_bpp()/8,
-                                          bytes_per_line, 0, 0,
-                                          image.get_xsize(), image.get_ysize());
+  if (tessedit_serial_unlv == 0) {
+    TessBaseAPI::SetInputName(argv[1]);
+    char* text;
+    if (tessedit_create_boxfile)
+      text = TessBaseAPI::TesseractRectBoxes(image.get_buffer(),
+                                             image.get_bpp()/8,
+                                             bytes_per_line, 0, 0,
+                                             image.get_xsize(),
+                                             image.get_ysize(),
+                                             image.get_ysize());
+    else if (tessedit_write_unlv)
+      text = TessBaseAPI::TesseractRectUNLV(image.get_buffer(),
+                                            image.get_bpp()/8,
+                                            bytes_per_line, 0, 0,
+                                            image.get_xsize(),
+                                            image.get_ysize());
+    else
+      text = TessBaseAPI::TesseractRect(image.get_buffer(), image.get_bpp()/8,
+                                        bytes_per_line, 0, 0,
+                                        image.get_xsize(), image.get_ysize());
+    text_out = text;
+    delete [] text;
+  } else {
+    BLOCK_LIST blocks;
+    STRING filename = argv[1];
+    int len = filename.length();
+    if (len > 4 && filename[len - 4] == '.') {
+      filename[len - 4] = '\0';
+    }
+    if (!read_unlv_file(filename, image.get_xsize(), image.get_ysize(),
+                        &blocks)) {
+      fprintf(stderr, "Error: Must have a unlv zone file %s to read!\n",
+              filename.string());
+      return 1;
+    }
+    BLOCK_IT b_it = &blocks;
+    for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
+      BLOCK* block = b_it.data();
+      BOX box = block->bounding_box();
+      char* text = TessBaseAPI::TesseractRectUNLV(image.get_buffer(),
+                                                  image.get_bpp()/8,
+                                                  bytes_per_line,
+                                                  box.left(),
+                                                  image.get_ysize() - box.top(),
+                                                  box.width(),
+                                                  box.height());
+      text_out += text;
+      delete [] text;
+      if (tessedit_serial_unlv == 1)
+        TessBaseAPI::ClearAdaptiveClassifier();
+    }
+  }
+
   outfile = argv[2];
   outfile += ".txt";
   FILE* fp = fopen(outfile.string(), "w");
   if (fp != NULL) {
-    fwrite(text, 1, strlen(text), fp);
+    fwrite(text_out.string(), 1, text_out.length(), fp);
     fclose(fp);
   }
-  delete [] text;
   TessBaseAPI::End();
 
   return 0;                      //Normal exit

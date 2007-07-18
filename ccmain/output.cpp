@@ -35,6 +35,7 @@
 #include          "docqual.h"
 #include          "output.h"
 #include "bestfirst.h"
+#include "globals.h"
 
 #define EXTERN
 
@@ -55,12 +56,12 @@ EXTERN BOOL_EVAR (tessedit_write_block_separators, FALSE,
 "Write block separators in output");
 EXTERN BOOL_VAR (tessedit_write_raw_output, FALSE,
 "Write raw stuff to name.raw");
-EXTERN BOOL_EVAR (tessedit_write_output, TRUE, "Write text to name.txt");
+EXTERN BOOL_EVAR (tessedit_write_output, FALSE, "Write text to name.txt");
 EXTERN BOOL_EVAR (tessedit_write_ratings, FALSE,
 "Return ratings in IPEOCRAPI data");
-EXTERN BOOL_EVAR (tessedit_write_txt_map, TRUE,
+EXTERN BOOL_EVAR (tessedit_write_txt_map, FALSE,
 "Write .txt to .etx map file");
-EXTERN BOOL_EVAR (tessedit_write_rep_codes, TRUE,
+EXTERN BOOL_EVAR (tessedit_write_rep_codes, FALSE,
 "Write repetition char code");
 EXTERN BOOL_EVAR (tessedit_write_unlv, FALSE, "Write .unlv output file");
 EXTERN STRING_EVAR (unrecognised_char, "|",
@@ -106,7 +107,6 @@ INT32 pixels_to_pts(               //convert coords
   return (INT32) (pts + 0.5);    //round it
 }
 
-
 void output_pass(  //Tess output pass //send to api
                  PAGE_RES_IT &page_res_it,
                  BOOL8 write_to_shm,
@@ -119,8 +119,7 @@ void output_pass(  //Tess output pass //send to api
 
   if (tessedit_write_txt_map)
     txt_mapfile = open_outfile (".map");
-  if (tessedit_write_unlv)
-    unlv_file = open_outfile (".unlv");
+
   page_res_it.restart_page ();
   block_of_last_word = NULL;
   while (page_res_it.word () != NULL) {
@@ -189,7 +188,6 @@ void output_pass(  //Tess output pass //send to api
   }
 }
 
-
 /*************************************************************************
  * write_results()
  *
@@ -211,9 +209,10 @@ void write_results(                           //output a word
                   ) {
                                  //word to do
   WERD_RES *word = page_res_it.word ();
-  WERD_CHOICE *ep_choice;        //ep format
+//   WERD_CHOICE *ep_choice;        //ep format
   STRING repetition_code;
   const STRING *wordstr;
+  STRING wordstr_lengths;
   const char *text;
   int i;
   char unrecognised = STRING (unrecognised_char)[0];
@@ -312,15 +311,12 @@ void write_results(                           //output a word
     if (tessedit_write_output && !NO_BLOCK)
       fprintf (textfile, "%s", txt_chs);
 
-    if (tessedit_write_unlv)
-      fprintf (unlv_file, "%s", txt_chs);
-
     if (tessedit_write_txt_map)
       fprintf (txt_mapfile, "%s", map_chs);
 
                                  //terminate string
     ep_chars[ep_chars_index] = '\0';
-    word->ep_choice = new WERD_CHOICE (ep_chars, 0, 0, NO_PERM);
+    word->ep_choice = new WERD_CHOICE (ep_chars, NULL, 0, 0, NO_PERM);
 
     if (force_eol)
       empty_block = TRUE;
@@ -345,6 +341,8 @@ void write_results(                           //output a word
        words have been removed */
     ptr = (char *) word->best_choice->string ().string ();
     strcpy (ptr, ptr + 1);       //shuffle up
+    ptr = (char *) word->best_choice->lengths ().string ();
+    strcpy (ptr, ptr + 1);       //shuffle up
     word->reject_map.remove_pos (0);
     blob_it = word->outword->blob_list ();
     delete blob_it.extract ();   //get rid of reject blob
@@ -354,8 +352,10 @@ void write_results(                           //output a word
     last_char_was_tilde = FALSE;
   else {
     if (word->reject_map.length () > 0) {
-      if (word->best_choice->string ()[word->reject_map.length () - 1] ==
-        ' ')
+      for (i = 0, ptr = (char *) word->best_choice->string().string();
+           i < word->reject_map.length () - 1; ++i)
+        ptr += word->best_choice->lengths()[i];
+      if (*ptr == ' ')
         last_char_was_tilde = TRUE;
       else
         last_char_was_tilde = FALSE;
@@ -365,7 +365,7 @@ void write_results(                           //output a word
     /* else it is unchanged as there are no output chars */
   }
 
-  ptr = (char *) word->best_choice->string ().string ();
+  ptr = (char *) word->best_choice->lengths ().string ();
   ASSERT_HOST (strlen (ptr) == word->reject_map.length ());
 
   if (word->word->flag (W_REP_CHAR) && tessedit_consistent_reps)
@@ -379,21 +379,26 @@ void write_results(                           //output a word
       dict_word (word->best_choice->string ().string ()));
   }
 
+#if 0
   if (tessedit_write_unlv) {
     write_unlv_text(word);
   }
+#endif
 
   if (word->word->flag (W_REP_CHAR) && tessedit_write_rep_codes) {
     repetition_code = "|^~R";
-    repetition_code += get_rep_char (word);
+    wordstr_lengths = "\001\001\001\001";
+    repetition_code += unicharset.id_to_unichar(get_rep_char (word));
+    wordstr_lengths += strlen(unicharset.id_to_unichar(get_rep_char (word)));
     wordstr = &repetition_code;
   }
   else {
     wordstr = &(word->best_choice->string ());
+    wordstr_lengths = word->best_choice->lengths ();
     if (tessedit_zero_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
       text = wordstr->string ();
-      for (i = 0; text[i] != '\0'; i++) {
+      for (i = 0; *text != '\0'; text += word->best_choice->lengths()[i++]) {
         if (word->reject_map[i].rejected ())
           word->reject_map[i].setrej_minimal_rej_accept ();
       }
@@ -401,8 +406,8 @@ void write_results(                           //output a word
     if (tessedit_minimal_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
       text = wordstr->string ();
-      for (i = 0; text[i] != '\0'; i++) {
-        if ((text[i] != ' ') && word->reject_map[i].rejected ())
+      for (i = 0; *text != '\0'; text += word->best_choice->lengths()[i++]) {
+        if ((*text != ' ') && word->reject_map[i].rejected ())
           word->reject_map[i].setrej_minimal_rej_accept ();
       }
     }
@@ -410,8 +415,9 @@ void write_results(                           //output a word
 
   if (write_to_shm)
     write_shm_text (word, page_res_it.block ()->block,
-      page_res_it.row (), *wordstr);
+      page_res_it.row (), *wordstr, wordstr_lengths);
 
+#if 0
   if (tessedit_write_output)
     write_cooked_text (word->word, *wordstr, TRUE, FALSE, textfile);
 
@@ -424,11 +430,11 @@ void write_results(                           //output a word
 
   ep_choice = make_epaper_choice (word, newline_type);
   word->ep_choice = ep_choice;
+#endif
 
-  character_count += word->best_choice->string ().length ();
+  character_count += word->best_choice->lengths ().length ();
   word_count++;
 }
-
 
 /**********************************************************************
  * make_epaper_choice
@@ -437,6 +443,7 @@ void write_results(                           //output a word
  * determine whether each blob should be rejected.
  **********************************************************************/
 
+#if 0
 WERD_CHOICE *make_epaper_choice(                   //convert one word
                                 WERD_RES *word,    //word to do
                                 char newline_type  //type of newline
@@ -482,7 +489,8 @@ WERD_CHOICE *make_epaper_choice(                   //convert one word
   if (word->word->flag (W_REP_CHAR) && tessedit_write_rep_codes) {
     strcpy (word_string + index, "|^~R");
     index += 4;
-    word_string[index++] = get_rep_char (word);
+    strcpy(word_string + index, unicharset.id_to_unichar(get_rep_char (word)));
+    index += strlen(unicharset.id_to_unichar(get_rep_char (word)));
   }
   else {
     if (!blob_it.empty ())
@@ -537,7 +545,7 @@ WERD_CHOICE *make_epaper_choice(                   //convert one word
   ASSERT_HOST (strlen (word_string) == index);
   return new WERD_CHOICE (word_string, 0, 0, NO_PERM);
 }
-
+#endif
 
 /**********************************************************************
  * make_reject
@@ -653,6 +661,7 @@ char determine_newline_type(                   //test line ends
  * to the given file.
  **********************************************************************/
 
+#if 0
 void write_cooked_text(                     //write output
                        WERD *word,          //word to do
                        const STRING &text,  //text to write
@@ -749,6 +758,7 @@ void write_cooked_text(                     //write output
   if (status != 0)
     WRITEFAILED.error ("write_cooked_text", EXIT, "Fflush Errno: %d", errno);
 }
+#endif
 
 
 /**********************************************************************
@@ -761,7 +771,8 @@ void write_shm_text(                    //write output
                     WERD_RES *word,     //word to do
                     BLOCK *block,       //block it is from
                     ROW_RES *row,       //row it is from
-                    const STRING &text  //text to write
+                    const STRING &text, //text to write
+                    const STRING &text_lengths
                    ) {
   INT32 index;                   //char counter
   INT32 index2;                  //char counter
@@ -777,6 +788,8 @@ void write_shm_text(                    //write output
   WERD copy_outword;             // copy to denorm
   UINT32 rating;                 //of char
   BOOL8 lineend;                 //end of line
+  int offset;
+  int offset2;
 
                                  //point size
   ptsize = pixels_to_pts ((INT32) (row->row->x_height () + row->row->ascenders () - row->row->descenders ()), 300);
@@ -786,13 +799,14 @@ void write_shm_text(                    //write output
   copy_outword = *(word->outword);
   copy_outword.baseline_denormalise (&word->denorm);
   blob_it.set_to_list (copy_outword.blob_list ());
-  length = text.length ();
+  length = text_lengths.length ();
 
   if (length > 0) {
     blanks = word->word->space ();
     if (blanks == 0 && tessedit_word_for_word && !word->word->flag (W_BOL))
       blanks = 1;
-    for (index = 0; index < length; index++, blob_it.forward ()) {
+    for (index = 0, offset = 0; index < length;
+         offset += text_lengths[index++], blob_it.forward ()) {
       blob = blob_it.data ();
       blob_box = blob->bounding_box ();
 
@@ -804,7 +818,7 @@ void write_shm_text(                    //write output
       if (tessedit_write_ratings)
         rating = (UINT32) (-word->best_choice->certainty () / 0.035);
       else if (tessedit_zero_rejection)
-        rating = text[index] == ' ' ? 100 : 0;
+        rating = text[offset] == ' ' ? 100 : 0;
       else
         rating = word->reject_map[index].accepted ()? 0 : 100;
       if (rating > 255)
@@ -819,22 +833,41 @@ void write_shm_text(                    //write output
 
       lineend = word->word->flag (W_EOL) && index == length - 1;
       if (word->word->flag (W_EOL) && tessedit_zero_rejection
-      && index < length - 1 && text[index + 1] == ' ') {
-        for (index2 = index + 1; index2 < length && text[index2] == ' ';
-          index2++);
+      && index < length - 1 && text[index + text_lengths[index]] == ' ') {
+        for (index2 = index + 1, offset2 = offset + text_lengths[index];
+             index2 < length && text[offset2] == ' ';
+             offset2 += text_lengths[index2++]);
         if (index2 == length)
           lineend = TRUE;
       }
 
-      if (!tessedit_zero_rejection || text[index] != ' '
+      if (!tessedit_zero_rejection || text[offset] != ' '
       || tessedit_word_for_word) {
                                  //confidence
-        ocr_append_char (text[index] == ' ' ? unrecognised : text[index], blob_box.left (), blob_box.right (), page_image.get_ysize () - 1 - blob_box.top (), page_image.get_ysize () - 1 - blob_box.bottom (), font, (UINT8) rating,
-          ptsize,                //point size
-          blanks, enhancement,   //enhancement
-          OCR_CDIR_LEFT_RIGHT,
-          OCR_LDIR_DOWN_RIGHT,
-          lineend ? OCR_NL_NEWLINE : OCR_NL_NONE);
+        if (text[offset] == ' ') {
+        ocr_append_char (unrecognised,
+                         blob_box.left (), blob_box.right (),
+                         page_image.get_ysize () - 1 - blob_box.top (),
+                         page_image.get_ysize () - 1 - blob_box.bottom (),
+                         font, (UINT8) rating,
+                         ptsize,                //point size
+                         blanks, enhancement,   //enhancement
+                         OCR_CDIR_LEFT_RIGHT,
+                         OCR_LDIR_DOWN_RIGHT,
+                         lineend ? OCR_NL_NEWLINE : OCR_NL_NONE);
+        } else {
+          for (int suboffset = 0; suboffset < text_lengths[index]; ++suboffset)
+            ocr_append_char (text[offset + suboffset],
+                             blob_box.left (), blob_box.right (),
+                             page_image.get_ysize () - 1 - blob_box.top (),
+                             page_image.get_ysize () - 1 - blob_box.bottom (),
+                             font, (UINT8) rating,
+                             ptsize,                //point size
+                             blanks, enhancement,   //enhancement
+                             OCR_CDIR_LEFT_RIGHT,
+                             OCR_LDIR_DOWN_RIGHT,
+                             lineend ? OCR_NL_NEWLINE : OCR_NL_NONE);
+        }
         blanks = 0;
       }
 
@@ -863,13 +896,17 @@ void write_shm_text(                    //write output
     lineend = word->word->flag (W_EOL);
 
                                  //font index
-    ocr_append_char (unrecognised, blob_box.left (), blob_box.right (), page_image.get_ysize () - 1 - blob_box.top (), page_image.get_ysize () - 1 - blob_box.bottom (), font,
-      rating,                    //confidence
-      ptsize,                    //point size
-      blanks, enhancement,       //enhancement
-      OCR_CDIR_LEFT_RIGHT,
-      OCR_LDIR_DOWN_RIGHT,
-      lineend ? OCR_NL_NEWLINE : OCR_NL_NONE);
+    ocr_append_char (unrecognised,
+                     blob_box.left (), blob_box.right (),
+                     page_image.get_ysize () - 1 - blob_box.top (),
+                     page_image.get_ysize () - 1 - blob_box.bottom (),
+                     font,
+                     rating,                    //confidence
+                     ptsize,                    //point size
+                     blanks, enhancement,       //enhancement
+                     OCR_CDIR_LEFT_RIGHT,
+                     OCR_LDIR_DOWN_RIGHT,
+                     lineend ? OCR_NL_NEWLINE : OCR_NL_NONE);
   }
 }
 
@@ -888,6 +925,7 @@ void write_shm_text(                    //write output
  * newdiff needs etx files!
  **********************************************************************/
 
+#if 0
 void write_map(                //output a map file
                FILE *mapfile,  //mapfile to write to
                WERD_RES *word) {
@@ -937,6 +975,7 @@ void write_map(                //output a map file
   if (status != 0)
     WRITEFAILED.error ("write_map", EXIT, "fflush Errno: %d", errno);
 }
+#endif
 
 
 /*************************************************************************
@@ -957,6 +996,7 @@ FILE *open_outfile(  //open .map & .unlv file
 }
 
 
+#if 0
 void write_unlv_text(WERD_RES *word) {
   const char *wordstr;
 
@@ -1015,6 +1055,7 @@ void write_unlv_text(WERD_RES *word) {
   if (status != 0)
     WRITEFAILED.error ("write_unlv_text", EXIT, "Fflush Errno: %d", errno);
 }
+#endif
 
 
 /*************************************************************************
@@ -1022,21 +1063,24 @@ void write_unlv_text(WERD_RES *word) {
  * Return the first accepted character from the repetition string. This is the
  * character which is repeated - as determined earlier by fix_rep_char()
  *************************************************************************/
-char get_rep_char(  // what char is repeated?
-                  WERD_RES *word) {
+UNICHAR_ID get_rep_char(WERD_RES *word) {  // what char is repeated?
   int i;
+  int offset;
 
-  for (i = 0;
+  for (i = 0, offset = 0;
     ((i < word->reject_map.length ()) &&
-    (word->reject_map[i].rejected ())); i++);
+    (word->reject_map[i].rejected ()));
+       offset += word->best_choice->lengths()[i++]);
   if (i < word->reject_map.length ())
-    return word->best_choice->string ()[i];
+    return unicharset.unichar_to_id(word->best_choice->string().string()
+                                    + offset,
+                                    word->best_choice->lengths()[i]);
   else
-    return STRING (unrecognised_char)[0];
+    return unicharset.unichar_to_id(unrecognised_char.string());
 }
 
-
 void ensure_rep_chars_are_consistent(WERD_RES *word) {
+#if 0
   char rep_char = get_rep_char (word);
   char *ptr;
 
@@ -1045,8 +1089,24 @@ void ensure_rep_chars_are_consistent(WERD_RES *word) {
     if (*ptr != rep_char)
       *ptr = rep_char;
   }
-}
+#endif
 
+#if 0
+  UNICHAR_ID rep_char = get_rep_char (word); //TODO(tkielbus) Reactivate
+  int i;
+  char *ptr;
+  STRING consistent_string;
+  STRING consistent_string_lengths;
+
+  ptr = (char *) word->best_choice->string ().string ();
+  for (i = 0; *ptr != '\0'; ptr += word->best_choice->lengths()[i++]) {
+    consistent_string += unicharset.id_to_unichar(rep_char);
+    consistent_string_lengths += strlen(unicharset.id_to_unichar(rep_char));
+  }
+  word->best_choice->string() = consistent_string;
+  word->best_choice->lengths() = consistent_string_lengths;
+#endif
+}
 
 /*************************************************************************
  * SUSPECT LEVELS
@@ -1062,7 +1122,9 @@ void ensure_rep_chars_are_consistent(WERD_RES *word) {
 void set_unlv_suspects(WERD_RES *word) {
   int len = word->reject_map.length ();
   int i;
+  int offset;
   const char *ptr;
+  const char *lengths = word->best_choice->lengths ().string ();
   float rating_per_ch;
 
   ptr = word->best_choice->string ().string ();
@@ -1080,10 +1142,12 @@ void set_unlv_suspects(WERD_RES *word) {
 
   /* NOW FOR LEVELS 1 and 2 Find some stuff to unreject*/
 
-  if (safe_dict_word (ptr) && (count_alphas (ptr) > suspect_short_words)) {
+  if (safe_dict_word (ptr) && (count_alphas (ptr, lengths) >
+                               suspect_short_words)) {
     /* Unreject alphas in dictionary words */
-    for (i = 0; i < len; i++) {
-      if (word->reject_map[i].rejected () && isalpha (ptr[i]))
+    for (i = 0, offset = 0; i < len; offset += lengths[i++]) {
+      if (word->reject_map[i].rejected () &&
+          unicharset.get_isalpha (ptr + offset, lengths[i]))
         word->reject_map[i].setrej_minimal_rej_accept ();
     }
   }
@@ -1095,8 +1159,8 @@ void set_unlv_suspects(WERD_RES *word) {
 
   if ((word->tess_accepted) || (rating_per_ch < suspect_accept_rating)) {
     /* Unreject any Tess Acceptable word - but NOT tess reject chs*/
-    for (i = 0; i < len; i++) {
-      if (word->reject_map[i].rejected () && (ptr[i] != ' '))
+    for (i = 0, offset = 0; i < len; offset += lengths[i++]) {
+      if (word->reject_map[i].rejected () && (ptr[offset] != ' '))
         word->reject_map[i].setrej_minimal_rej_accept ();
     }
   }
@@ -1130,9 +1194,11 @@ void set_unlv_suspects(WERD_RES *word) {
     }
   }
 
-  if ((acceptable_word_string (word->best_choice->string ().string ())
+  if ((acceptable_word_string (word->best_choice->string ().string (),
+                               word->best_choice->lengths ().string ())
     != AC_UNACCEPTABLE) ||
-  acceptable_number_string (word->best_choice->string ().string ())) {
+  acceptable_number_string (word->best_choice->string ().string (),
+                            word->best_choice->lengths ().string ())) {
     if (word->reject_map.length () > suspect_short_words) {
       for (i = 0; i < len; i++) {
         if (word->reject_map[i].rejected () &&
@@ -1149,11 +1215,12 @@ void set_unlv_suspects(WERD_RES *word) {
 
 
 INT16 count_alphas(  //how many alphas
-                   const char *s) {
+                   const char *s,
+                   const char *lengths) {
   int count = 0;
 
-  for (; *s != '\0'; s++) {
-    if (isalpha (*s))
+  for (; *s != '\0'; s += *(lengths++)) {
+    if (unicharset.get_isalpha(s, *lengths))
       count++;
   }
   return count;
@@ -1161,36 +1228,43 @@ INT16 count_alphas(  //how many alphas
 
 
 INT16 count_alphanums(  //how many alphanums
-                      const char *s) {
+                      const char *s,
+                      const char *lengths) {
   int count = 0;
 
-  for (; *s != '\0'; s++) {
-    if (isalnum (*s))
+  for (; *s != '\0'; s += *(lengths++)) {
+    if (unicharset.get_isalpha(s, *lengths) ||
+        unicharset.get_isdigit(s, *lengths))
       count++;
   }
   return count;
 }
 
 
-BOOL8 acceptable_number_string(const char *s) {
+BOOL8 acceptable_number_string(const char *s,
+                               const char *lengths) {
   BOOL8 prev_digit = FALSE;
 
-  if (*s == '(')
+  if (*lengths == 1 && *s == '(')
     s++;
 
-  if ((*s == '$') || (*s == '.') || (*s == '+') || (*s == '-'))
+  if (*lengths == 1 &&
+      ((*s == '$') || (*s == '.') || (*s == '+') || (*s == '-')))
     s++;
 
-  for (; *s != '\0'; s++) {
-    if (isdigit (*s))
+  for (; *s != '\0'; s += *(lengths++)) {
+    if (unicharset.get_isdigit (s, *lengths))
       prev_digit = TRUE;
-    else if (prev_digit && ((*s == '.') || (*s == ',') || (*s == '-')))
-      prev_digit = FALSE;
     else if (prev_digit &&
-      (*(s + 1) == '\0') && ((*s == '%') || (*s == ')')))
+             (*lengths == 1 && ((*s == '.') || (*s == ',') || (*s == '-'))))
+      prev_digit = FALSE;
+    else if (prev_digit && *lengths == 1 &&
+             (*(s + *lengths) == '\0') && ((*s == '%') || (*s == ')')))
       return TRUE;
     else if (prev_digit &&
-      (*s == '%') && (*(s + 1) == ')') && (*(s + 2) == '\0'))
+             *lengths == 1 && (*s == '%') &&
+             (*(lengths + 1) == 1 && *(s + *lengths) == ')') &&
+             (*(s + *lengths + *(lengths + 1)) == '\0'))
       return TRUE;
     else
       return FALSE;

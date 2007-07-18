@@ -63,7 +63,7 @@ make_toggle_var (debug_8, 0, make_debug_8, 6, 8, toggle_debug_8, "Debug #8");
 make_toggle_var (display_ratings, 0, make_display_ratings,
 6, 9, toggle_ratings, "Ratings display");
 
-make_toggle_var (display_text, 1, make_display_text,
+make_toggle_var (display_text, 0, make_display_text,
 6, 10, toggle_text, "Display Text");
 
 make_toggle_var (show_bold, 1, make_show_bold,

@@ -527,7 +527,9 @@ BOOL8 read_unlv_file(                    //print list of sides
   else {
     while (fscanf (pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {
                                  //make rect block
-      block = new BLOCK (name.string (), TRUE, 0, 0, (INT16) x, (INT16) (ysize - 1 - y - height), (INT16) (x + width), (INT16) (ysize - 1 - y));
+      block = new BLOCK (name.string (), TRUE, 0, 0,
+                         (INT16) x, (INT16) (ysize - y - height),
+                         (INT16) (x + width), (INT16) (ysize - y));
                                  //on end of list
       block_it.add_to_end (block);
     }
