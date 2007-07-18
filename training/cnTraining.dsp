@@ -37,7 +37,7 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 2
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "../bin.rel"
+# PROP Output_Dir "."
 # PROP Intermediate_Dir "cntrain.Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
@@ -50,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /profile /debug /machine:I386 /out:"../cnTraining.exe"
+# ADD LINK32 /nologo /subsystem:console /profile /debug /machine:I386 /out:"cnTraining.exe"
 
 !ELSEIF  "$(CFG)" == "cnTraining - Win32 Debug"
 
@@ -149,6 +149,10 @@ SOURCE=..\ccutil\globaloc.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\cutil\globals.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\viewer\grphics.cpp
 # End Source File
 # Begin Source File
@@ -214,6 +218,14 @@ SOURCE=..\ccutil\tprintf.cpp
 # Begin Source File
 
 SOURCE=..\training\training.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\unicharmap.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\unicharset.cpp
 # End Source File
 # Begin Source File
 

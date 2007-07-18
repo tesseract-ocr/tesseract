@@ -295,9 +295,9 @@ LIST ConvertOutlines(TESSLINE *Outline,
       if (OutlineType == outer)
         ConvertedOutlines = ConvertOutlines (Outline->child,
           ConvertedOutlines, hole);
-    else
-      ConvertedOutlines = ConvertOutlines (Outline->child,
-        ConvertedOutlines, outer);
+      else
+        ConvertedOutlines = ConvertOutlines (Outline->child,
+          ConvertedOutlines, outer);
 
     MFOutline = ConvertOutline (Outline);
     ConvertedOutlines = push (ConvertedOutlines, MFOutline);

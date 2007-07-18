@@ -1,24 +1,25 @@
-# Microsoft Developer Studio Project File - Name="tesseract" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="tessdll" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
-# TARGTYPE "Win32 (x86) Application" 0x0101
+# TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=tesseract - Win32 Debug
+CFG=tessdll - Win32 load
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "tesseract.mak".
+!MESSAGE NMAKE /f "tessdll.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "tesseract.mak" CFG="tesseract - Win32 Debug"
+!MESSAGE NMAKE /f "tessdll.mak" CFG="tessdll - Win32 load"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "tesseract - Win32 Release" (based on "Win32 (x86) Application")
-!MESSAGE "tesseract - Win32 Debug" (based on "Win32 (x86) Application")
+!MESSAGE "tessdll - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "tessdll - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "tessdll - Win32 load" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,67 +30,99 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "tesseract - Win32 Release"
+!IF  "$(CFG)" == "tessdll - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
 # PROP BASE Output_Dir "Release"
 # PROP BASE Intermediate_Dir "Release"
 # PROP BASE Target_Dir ""
-# PROP Use_MFC 2
+# PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "."
-# PROP Intermediate_Dir "tess.Release"
+# PROP Intermediate_Dir "dll.Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "aspirin" /I "ccutil" /I "ccstruct" /I "classify" /I "cutil" /I "dict" /I "display" /I "image" /I "textord" /I "viewer" /I "wordrec" /I "." /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "__MSW32__" /D "_AFXDLL" /Yu"mfcpch.h" /FD /c
+# ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TESSDLL_EXPORTS" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /O2 /I "aspirin" /I "ccutil" /I "ccstruct" /I "classify" /I "cutil" /I "dict" /I "display" /I "image" /I "textord" /I "viewer" /I "wordrec" /I "ccmain" /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TESSDLL_EXPORTS" /D "__MSW32__" /D "__IPEREGDLL" /D "PURIFY" /FD /c
+# SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
-# ADD RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
+# ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 ws2_32.lib /nologo /subsystem:windows /machine:I386 /out:"tesseract.exe"
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /dll /machine:I386 /out:"tessdll.dll"
 
-!ELSEIF  "$(CFG)" == "tesseract - Win32 Debug"
+!ELSEIF  "$(CFG)" == "tessdll - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "Debug"
-# PROP BASE Intermediate_Dir "Debug"
+# PROP BASE Output_Dir "tessdll___Win32_Debug"
+# PROP BASE Intermediate_Dir "tessdll___Win32_Debug"
 # PROP BASE Target_Dir ""
-# PROP Use_MFC 2
+# PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "bin.dbg"
-# PROP Intermediate_Dir "tess.Debug"
+# PROP Intermediate_Dir "dll.Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "aspirin" /I "ccutil" /I "ccstruct" /I "classify" /I "cutil" /I "dict" /I "display" /I "image" /I "textord" /I "viewer" /I "wordrec" /I "." /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "__MSW32__" /D "_AFXDLL" /Yu"mfcpch.h" /FD /GZ /c
+# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TESSDLL_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /I "aspirin" /I "ccutil" /I "ccstruct" /I "classify" /I "cutil" /I "dict" /I "display" /I "image" /I "textord" /I "viewer" /I "wordrec" /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TESSDLL_EXPORTS" /D "__MSW32__" /D "__IPEREGDLL" /D "_CRTDBG_MAP_ALLOC" /D "PURIFY" /FD /GZ /c
+# SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
-# ADD RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
+# ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
+
+!ELSEIF  "$(CFG)" == "tessdll - Win32 load"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "tessdll___Win32_load"
+# PROP BASE Intermediate_Dir "tessdll___Win32_load"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "tessdll___Win32_load"
+# PROP Intermediate_Dir "tessdll.load"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /I "aspirin" /I "ccutil" /I "ccstruct" /I "classify" /I "cutil" /I "dict" /I "display" /I "image" /I "textord" /I "viewer" /I "wordrec" /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TESSDLL_EXPORTS" /D "__MSW32__" /D "__IPEREGDLL" /D "_CRTDBG_MAP_ALLOC" /D "PURIFY" /FD /GZ /c
+# SUBTRACT BASE CPP /YX /Yc /Yu
+# ADD CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /I "aspirin" /I "ccutil" /I "ccstruct" /I "classify" /I "cutil" /I "dict" /I "display" /I "image" /I "textord" /I "viewer" /I "wordrec" /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TESSDLL_EXPORTS" /D "__MSW32__" /D "__IPEREGDLL" /D "_CRTDBG_MAP_ALLOC" /D "PURIFY" /FD /GZ /c
+# SUBTRACT CPP /YX /Yc /Yu
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /out:"C:\Program Files\JetsoftOCR\tessdll.dll" /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /dll /debug /machine:I386 /out:"C:\Documents and Settings\Glen Wernersbach\Desktop\loan\tessdll.dll" /pdbtype:sept
 
 !ENDIF 
 
 # Begin Target
 
-# Name "tesseract - Win32 Release"
-# Name "tesseract - Win32 Debug"
+# Name "tessdll - Win32 Release"
+# Name "tessdll - Win32 Debug"
+# Name "tessdll - Win32 load"
 # Begin Group "Source Files"
 
-# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# PROP Default_Filter ""
 # Begin Group "ccmain"
 
 # PROP Default_Filter ""
@@ -104,7 +137,6 @@ SOURCE=.\ccmain\applybox.cpp
 # Begin Source File
 
 SOURCE=.\ccmain\baseapi.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -389,7 +421,6 @@ SOURCE=.\ccutil\memry.cpp
 # Begin Source File
 
 SOURCE=.\ccutil\mfcpch.cpp
-# ADD CPP /Yc"mfcpch.h"
 # End Source File
 # Begin Source File
 
@@ -413,18 +444,11 @@ SOURCE=.\ccutil\tprintf.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ccutil\unichar.cpp
-# SUBTRACT CPP /YX /Yc /Yu
-# End Source File
-# Begin Source File
-
 SOURCE=.\ccutil\unicharmap.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\ccutil\unicharset.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -437,162 +461,130 @@ SOURCE=.\ccutil\varable.cpp
 # Begin Source File
 
 SOURCE=.\classify\adaptive.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\adaptmatch.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\baseline.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\blobclass.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\chartoname.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\cluster.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\clusttool.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\cutoffs.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\extract.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\featdefs.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\flexfx.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\float2int.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\fpoint.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\fxdefs.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\hideedge.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\intfx.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\intmatcher.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\intproto.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\kdtree.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\mf.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\mfdefs.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\mfoutline.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\mfx.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\normfeat.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\normmatch.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\ocrfeatures.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\outfeat.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\picofeat.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\protos.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\sigmenu.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\speckle.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\classify\xform2d.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # End Group
 # Begin Group "cutil"
@@ -601,77 +593,62 @@ SOURCE=.\classify\xform2d.cpp
 # Begin Source File
 
 SOURCE=.\cutil\bitvec.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\cutil.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\danerror.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\debug.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\efio.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\emalloc.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\freelist.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\globals.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\listio.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\oldheap.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\oldlist.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\structures.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\tessarray.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\tordvars.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\cutil\variables.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # End Group
 # Begin Group "dict"
@@ -680,52 +657,42 @@ SOURCE=.\cutil\variables.cpp
 # Begin Source File
 
 SOURCE=.\dict\choices.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\dict\context.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\dict\dawg.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\dict\hyphen.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\dict\permdawg.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\dict\permnum.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\dict\permute.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\dict\states.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\dict\stopper.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\dict\trie.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # End Group
 # Begin Group "display"
@@ -894,147 +861,118 @@ SOURCE=.\viewer\showim.cpp
 # Begin Source File
 
 SOURCE=.\wordrec\associate.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\badwords.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\bestfirst.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\chop.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\chopper.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\closed.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\djmenus.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\drawfx.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\findseam.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\gradechop.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\heuristic.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\makechop.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\matchtab.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\matrix.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\metrics.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\mfvars.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\msmenus.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\olutil.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\outlines.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\pieces.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\plotedges.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\plotseg.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\render.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\seam.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\split.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\tally.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\tessinit.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\tface.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
 SOURCE=.\wordrec\wordclass.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # End Group
 # Begin Group "ccmain header"
@@ -1047,10 +985,6 @@ SOURCE=.\ccmain\adaptions.h
 # Begin Source File
 
 SOURCE=.\ccmain\applybox.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ccmain\baseapi.h
 # End Source File
 # Begin Source File
 
@@ -1098,10 +1032,6 @@ SOURCE=.\ccmain\matmatch.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ccmain\output.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\ccmain\paircmp.h
 # End Source File
 # Begin Source File
@@ -1119,14 +1049,6 @@ SOURCE=.\ccmain\tessbox.h
 # Begin Source File
 
 SOURCE=.\ccmain\tessedit.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ccmain\tessembedded.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ccmain\tesseractmain.h
 # End Source File
 # Begin Source File
 
@@ -1298,6 +1220,10 @@ SOURCE=.\ccstruct\stepblob.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ccstruct\tessclas.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccstruct\txtregn.h
 # End Source File
 # Begin Source File
@@ -1327,10 +1253,6 @@ SOURCE=.\ccutil\bits16.h
 # Begin Source File
 
 SOURCE=.\ccutil\clst.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\cutil\cutil.h
 # End Source File
 # Begin Source File
 
@@ -1418,10 +1340,6 @@ SOURCE=.\ccutil\platform.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ccutil\scanutils.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\ccutil\secname.h
 # End Source File
 # Begin Source File
@@ -1443,10 +1361,6 @@ SOURCE=.\ccutil\tessopt.h
 # Begin Source File
 
 SOURCE=.\ccutil\tprintf.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ccutil\unichar.h
 # End Source File
 # Begin Source File
 
@@ -1710,10 +1624,6 @@ SOURCE=.\dict\hyphen.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\dict\matchdefs.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\dict\permdawg.h
 # End Source File
 # Begin Source File
@@ -1759,14 +1669,6 @@ SOURCE=.\display\pgeditx.h
 # Begin Source File
 
 SOURCE=.\display\sbdmenu.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\display\submen.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\display\tessio.h
 # End Source File
 # Begin Source File
 
@@ -2026,10 +1928,6 @@ SOURCE=.\wordrec\mfvars.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\wordrec\msmenus.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\wordrec\olutil.h
 # End Source File
 # Begin Source File
@@ -2077,14 +1975,53 @@ SOURCE=.\wordrec\tface.h
 SOURCE=.\wordrec\wordclass.h
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\StdAfx.cpp
+# ADD CPP /Yc"stdafx.h"
+# End Source File
+# Begin Source File
+
+SOURCE=.\tessdll.cpp
+
+!IF  "$(CFG)" == "tessdll - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "tessdll - Win32 Debug"
+
+# ADD CPP /I "ccmain"
+
+!ELSEIF  "$(CFG)" == "tessdll - Win32 load"
+
+# ADD BASE CPP /I "ccmain"
+# ADD CPP /I "ccmain"
+
+!ENDIF 
+
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
-# PROP Default_Filter "h;hpp;hxx;hm;inl"
-# End Group
-# Begin Group "Resource Files"
+# PROP Default_Filter ""
+# Begin Source File
 
-# PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+SOURCE=.\StdAfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\tessdll.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccmain\tesseractmain.h
+# End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\ReadMe.txt
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccutil\unichar.cpp
+# End Source File
 # End Target
 # End Project

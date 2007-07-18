@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        dlltest.cpp
  * Description: Main program to test the tessdll interface.
- * Author:		  Ray Smith
- * Created:			Wed May 16 15:17:46 PDT 2007
+ * Author:      Ray Smith
+ * Created:     Wed May 16 15:17:46 PDT 2007
  *
  * (C) Copyright 2007, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,7 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+
   IMAGE image;
   if (image.read_header(argv[1]) < 0) {
     fprintf(stderr, "Can't open %s\n", argv[1]);
@@ -41,15 +42,21 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Can't read %s\n", argv[1]);
     exit(1);
   }
-  if (image.get_bpp() != 1) {
-    fprintf(stderr, "Image is not binary!\n");
-    exit(1);
-  }
+ 
+
 
   TessDllAPI api("eng");
-  api.BeginPageUpright(image.get_xsize(), image.get_ysize(), image.get_buffer());
+
+
+
+  api.BeginPageUpright(image.get_xsize(), image.get_ysize(), image.get_buffer(),
+		       image.get_bpp());
+
   ETEXT_DESC* output = api.Recognize_all_Words();
-  
+
+
+
+
   FILE* fp = fopen(argv[2],"w");
   if (fp == NULL) {
     fprintf(stderr, "Can't create %s\n", argv[2]);
@@ -57,6 +64,13 @@ int main(int argc, char **argv) {
   }
 
   for (int i = 0; i < output->count; ++i) {
+// It should be noted that the format for char_code for version 2.0 and beyond is UTF8
+// which means that ASCII characters will come out as one structure but other characters
+// will be returned in two or more instances of this structure with a single byte of the
+// UTF8 code in each, but each will have the same bounding box.
+// Programs which want to handle languagues with different characters sets will need to
+// handle extended characters appropriately, but *all* code needs to be prepared to
+// receive UTF8 coded characters for characters such as bullet and fancy quotes.
     const EANYCODE_CHAR* ch = &output->text[i];
     for (int b = 0; b < ch->blanks; ++b)
       fprintf(fp, "\n");
@@ -68,6 +82,8 @@ int main(int argc, char **argv) {
     if (ch->formatting & 128)
       fprintf(fp, "<para>\n\n");
   }
+
+  fclose(fp);
 
   return 0;
 }
