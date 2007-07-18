@@ -44,7 +44,7 @@ static INT32 CurrentTrapDepth = 0;
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-void ReleaseErrorTrap() { 
+void ReleaseErrorTrap() {
 /*
  **	Parameters:
  **		None
@@ -69,7 +69,7 @@ void ReleaseErrorTrap() {
 
 
 /*---------------------------------------------------------------------------*/
-void DoError(int Error, const char *Message) { 
+void DoError(int Error, const char *Message) {
 /*
  **	Parameters:
  **		Error	error number which is to be trapped
@@ -100,14 +100,13 @@ void DoError(int Error, const char *Message) {
        There used to be a call to abort() here. I've changed it to call into the
        C++ error code to generate a meaningful status code
      */
-    signal_termination_handler(Error); 
+    signal_termination_handler(Error);
   }
 
   if (ProcTrapStack[CurrentTrapDepth - 1] != DO_NOTHING)
     (*ProcTrapStack[CurrentTrapDepth - 1]) ();
 
   longjmp (ErrorTrapStack[CurrentTrapDepth - 1], 1);
-  assert(FALSE); 
 }                                /* DoError */
 
 
@@ -115,7 +114,7 @@ void DoError(int Error, const char *Message) {
               Private Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-jmp_buf &PushErrorTrap(VOID_PROC Procedure) { 
+jmp_buf &PushErrorTrap(VOID_PROC Procedure) {
 /*
  **	Parameters:
  **		Procedure		trap procedure to execute

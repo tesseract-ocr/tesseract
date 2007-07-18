@@ -139,6 +139,7 @@ void re_estimate_x_ht(                     //improve for 1 word
 
   const char *word_str;
   INT16 i;
+  INT16 offset;
 
   STATS all_blobs_ht (0, 300);   //every blob in word
   STATS x_ht (0, 300);           //confirmed pts in wd
@@ -174,8 +175,9 @@ void re_estimate_x_ht(                     //improve for 1 word
     Cycle blobs, allocating to one of the stats sets when possible.
   */
   blob_it.set_to_list (word_res->outword->blob_list ());
-  for (blob_it.mark_cycle_pt (), i = 0;
-  !blob_it.cycled_list (); blob_it.forward (), i++) {
+  for (blob_it.mark_cycle_pt (), i = 0, offset = 0;
+  !blob_it.cycled_list (); blob_it.forward (),
+           offset += word_res->best_choice->lengths()[i++]) {
     if (!dodgy_blob (blob_it.data ())) {
       blob_box = blob_it.data ()->bounding_box ();
       blob_ht_above_baseline = blob_box.top () - bln_baseline_offset;
@@ -189,22 +191,22 @@ void re_estimate_x_ht(                     //improve for 1 word
           rej_blobs_max_area = blob_box.area ();
       }
       else {
-        if (STRING (chs_non_ambig_x_ht).contains (word_str[i]))
+        if (STRING (chs_non_ambig_x_ht).contains (word_str[offset]))
           x_ht.add (blob_ht_above_baseline, 1);
 
-        if (STRING (chs_non_ambig_caps_ht).contains (word_str[i]))
+        if (STRING (chs_non_ambig_caps_ht).contains (word_str[offset]))
           caps_ht.add (blob_ht_above_baseline, 1);
 
-        if (STRING (chs_ambig_caps_x).contains (word_str[i])) {
+        if (STRING (chs_ambig_caps_x).contains (word_str[offset])) {
           case_ambig.add (blob_ht_above_baseline, 1);
-          if (STRING (chs_x_ht).contains (word_str[i]))
+          if (STRING (chs_x_ht).contains (word_str[offset]))
             x_ht_ambigs++;
           else
             caps_ht_ambigs++;
         }
 
-        if (STRING (chs_bl_ambig_caps_x).contains (word_str[i])) {
-          if (STRING (chs_x_ht).contains (word_str[i])) {
+        if (STRING (chs_bl_ambig_caps_x).contains (word_str[offset])) {
+          if (STRING (chs_x_ht).contains (word_str[offset])) {
             /* confirm x_height provided > 15% total height below baseline */
             if ((bln_baseline_offset - blob_box.bottom ()) /
               (float) blob_box.height () > 0.15)
@@ -222,7 +224,7 @@ void re_estimate_x_ht(                     //improve for 1 word
   }
   est_caps_ht = estimate_from_stats (caps_ht);
   est_x_ht = estimate_from_stats (x_ht);
-  est_ambigs(word_res, case_ambig, &ambig_lc_x_est, &ambig_uc_caps_est); 
+  est_ambigs(word_res, case_ambig, &ambig_lc_x_est, &ambig_uc_caps_est);
   max_blob_ht = all_blobs_ht.ile (0.9999);
 
   #ifndef SECURE_NAMES
@@ -265,7 +267,7 @@ void re_estimate_x_ht(                     //improve for 1 word
           est_caps_ht = est_x_ht / x_ht_fraction_of_caps_ht;
       }
       if (case_ambig.get_total () > 0)
-        improve_estimate(word_res, est_x_ht, est_caps_ht, x_ht, caps_ht); 
+        improve_estimate(word_res, est_x_ht, est_caps_ht, x_ht, caps_ht);
       est_caps_ht_certain = caps_ht.get_total () > 0;
       #ifndef SECURE_NAMES
       if (debug_x_ht_level >= 20)
@@ -281,7 +283,7 @@ void re_estimate_x_ht(                     //improve for 1 word
       else
         est_x_ht = est_caps_ht * x_ht_fraction_of_caps_ht;
       if (ambig_lc_x_est + ambig_uc_caps_est > 0)
-        improve_estimate(word_res, est_x_ht, est_caps_ht, x_ht, caps_ht); 
+        improve_estimate(word_res, est_x_ht, est_caps_ht, x_ht, caps_ht);
       est_x_ht_certain = x_ht.get_total () > 0;
       #ifndef SECURE_NAMES
       if (debug_x_ht_level >= 20)
@@ -454,7 +456,7 @@ void re_estimate_x_ht(                     //improve for 1 word
         word_res->reject_map.print (debug_fp);
       }
       #endif
-      reject_ambigs(word_res); 
+      reject_ambigs(word_res);
       if (debug_x_ht_level >= 2) {
         tprintf (" ");
         word_res->reject_map.print (debug_fp);
@@ -495,18 +497,24 @@ void re_estimate_x_ht(                     //improve for 1 word
  * case of case ambiguous chars as required.
  *************************************************************************/
 
-void check_block_occ(WERD_RES *word_res) { 
+void check_block_occ(WERD_RES *word_res) {
   PBLOB_IT blob_it;
   STRING new_string;
+  STRING new_string_lengths(word_res->best_choice->lengths());
+//  char new_string_lengths[word_res->best_choice->lengths().length() + 1];
   REJMAP new_map = word_res->reject_map;
   WERD_CHOICE *new_choice;
 
   const char *word_str = word_res->best_choice->string ().string ();
   INT16 i;
+  INT16 offset;
   INT16 reject_count = 0;
-  char confirmed_char;
+  char confirmed_char[UNICHAR_LEN + 1];
+  char temp_char[UNICHAR_LEN + 1];
   float x_ht;
   float caps_ht;
+
+  new_string_lengths[0] = 0;
 
   if (word_res->x_height > 0)
     x_ht = word_res->x_height * word_res->denorm.scale ();
@@ -520,24 +528,31 @@ void check_block_occ(WERD_RES *word_res) {
 
   blob_it.set_to_list (word_res->outword->blob_list ());
 
-  for (blob_it.mark_cycle_pt (), i = 0;
-  !blob_it.cycled_list (); blob_it.forward (), i++) {
-    new_string += word_str[i];   //default copy
+  for (blob_it.mark_cycle_pt (), i = 0, offset = 0;
+  !blob_it.cycled_list (); blob_it.forward (),
+           offset += word_res->best_choice->lengths()[i++]) {
+    strncpy(temp_char, word_str + offset,
+            word_res->best_choice->lengths()[i]); //default copy
+    temp_char[word_res->best_choice->lengths()[i]] = '\0';
     if (word_res->reject_map[i].accepted ()) {
-      confirmed_char = check_blob_occ (word_str[i],
-        blob_it.data ()->bounding_box ().
-        top () - bln_baseline_offset, x_ht,
-        caps_ht);
+      check_blob_occ (temp_char,
+                      blob_it.data ()->bounding_box ().
+                      top () - bln_baseline_offset, x_ht,
+                      caps_ht, confirmed_char);
 
-      if (confirmed_char == '\0') {
+      if (strcmp(confirmed_char, "") == 0) {
         if (rej_use_check_block_occ) {
           new_map[i].setrej_xht_fixup ();
           reject_count++;
         }
       }
       else
-        new_string[i] = confirmed_char;
+        strcpy(temp_char, confirmed_char);
     }
+    new_string += temp_char;
+    new_string_lengths[i] = strlen(temp_char);
+    new_string_lengths[i + 1] = 0;
+
   }
   if ((reject_count > 0) || (new_string != word_str)) {
     if (debug_x_ht_level >= 2) {
@@ -548,9 +563,10 @@ void check_block_occ(WERD_RES *word_res) {
       tprintf ("\n");
     }
     new_choice = new WERD_CHOICE (new_string.string (),
-      word_res->best_choice->rating (),
-      word_res->best_choice->certainty (),
-      word_res->best_choice->permuter ());
+                                  new_string_lengths.string(),
+                                  word_res->best_choice->rating (),
+                                  word_res->best_choice->certainty (),
+                                  word_res->best_choice->permuter ());
     delete word_res->best_choice;
     word_res->best_choice = new_choice;
     word_res->reject_map = new_map;
@@ -562,13 +578,14 @@ void check_block_occ(WERD_RES *word_res) {
  * check_blob_occ()
  *
  * Checks blob for position relative to position above baseline
- * Returns 0 for reject, or (possibly case shifted) confirmed char
+ * Return 0 for reject, or (possibly case shifted) confirmed char
  *************************************************************************/
 
-char check_blob_occ(char proposed_char,
+void check_blob_occ(char* proposed_char,
                     INT16 blob_ht_above_baseline,
                     float x_ht,
-                    float caps_ht) {
+                    float caps_ht,
+                    char* confirmed_char) {
   BOOL8 blob_definite_x_ht;
   BOOL8 blob_definite_caps_ht;
   float acceptable_variation;
@@ -593,41 +610,51 @@ char check_blob_occ(char proposed_char,
   blob_definite_caps_ht = blob_ht_above_baseline >=
     caps_ht - acceptable_variation;
 
-  if (STRING (chs_ambig_caps_x).contains (proposed_char)) {
+  if (STRING (chs_ambig_caps_x).contains (*proposed_char)) {
     if ((!blob_definite_x_ht && !blob_definite_caps_ht) ||
-      (proposed_char == '0' && !blob_definite_caps_ht) ||
-      (proposed_char == 'o' && !blob_definite_x_ht))
-      return '\0';
+        ((strcmp(proposed_char, "0") == 0) && !blob_definite_caps_ht) ||
+        ((strcmp(proposed_char, "o") == 0) && !blob_definite_x_ht)) {
+      strcpy(confirmed_char, "");
+      return;
+    }
 
     else if (blob_definite_caps_ht &&
-    STRING (chs_x_ht).contains (proposed_char)) {
-      if (x_ht_case_flip)
+    STRING (chs_x_ht).contains (*proposed_char)) {
+      if (x_ht_case_flip) {
                                  //flip to upper case
-        return (char) toupper (proposed_char);
-      else
-        return '\0';
+        proposed_char[0] = (char) toupper (*proposed_char);
+        return;
+      } else {
+        strcpy(confirmed_char, "");
+        return;
+      }
     }
 
     else if (blob_definite_x_ht &&
-    !STRING (chs_x_ht).contains (proposed_char)) {
-      if (x_ht_case_flip)
+    !STRING (chs_x_ht).contains (*proposed_char)) {
+      if (x_ht_case_flip) {
                                  //flip to lower case
-        return (char) tolower (proposed_char);
-      else
-        return '\0';
+        proposed_char[0] = (char) tolower (*proposed_char);
+      } else {
+        strcpy(confirmed_char, "");
+        return;
+      }
     }
   }
   else
-  if ((STRING (chs_non_ambig_x_ht).contains (proposed_char)
+  if ((STRING (chs_non_ambig_x_ht).contains (*proposed_char)
     && !blob_definite_x_ht)
-    || (STRING (chs_non_ambig_caps_ht).contains (proposed_char)
-    && !blob_definite_caps_ht))
-    return '\0';
-  return proposed_char;
+    || (STRING (chs_non_ambig_caps_ht).contains (*proposed_char)
+        && !blob_definite_caps_ht)) {
+    strcpy(confirmed_char, "");
+    return;
+  }
+  strcpy(confirmed_char, proposed_char);
+  return;
 }
 
 
-float estimate_from_stats(STATS &stats) { 
+float estimate_from_stats(STATS &stats) {
   if (stats.get_total () <= 0)
     return 0.0;
   else if (stats.get_total () >= 3)
@@ -647,8 +674,10 @@ void improve_estimate(WERD_RES *word_res,
 
   const char *word_str;
   INT16 i;
+  INT16 offset;
   BOX blob_box;                  //blob bounding box
-  char confirmed_char;
+  char confirmed_char[UNICHAR_LEN + 1];
+  char temp_char[UNICHAR_LEN + 1];
   float new_val;
 
   /* IMPROVE estimates here - if good estimates, and case ambig chars,
@@ -658,17 +687,21 @@ void improve_estimate(WERD_RES *word_res,
 
   blob_it.set_to_list (word_res->outword->blob_list ());
   word_str = word_res->best_choice->string ().string ();
-  for (blob_it.mark_cycle_pt (), i = 0;
-  !blob_it.cycled_list (); blob_it.forward (), i++) {
-    if ((STRING (chs_ambig_caps_x).contains (word_str[i])) &&
+  for (blob_it.mark_cycle_pt (), i = 0, offset = 0;
+       !blob_it.cycled_list (); blob_it.forward (),
+           offset += word_res->best_choice->lengths()[i++]) {
+    if ((STRING (chs_ambig_caps_x).contains (word_str[offset])) &&
     (!dodgy_blob (blob_it.data ()))) {
       blob_box = blob_it.data ()->bounding_box ();
       blob_ht_above_baseline = blob_box.top () - bln_baseline_offset;
-      confirmed_char = check_blob_occ (word_str[i],
-        blob_ht_above_baseline,
-        est_x_ht, est_caps_ht);
-      if (confirmed_char != '\0')
-        if (STRING (chs_x_ht).contains (confirmed_char))
+      strncpy(temp_char, word_str + offset,
+              word_res->best_choice->lengths()[i]);
+      temp_char[word_res->best_choice->lengths()[i]] = '\0';
+      check_blob_occ (temp_char,
+                      blob_ht_above_baseline,
+                      est_x_ht, est_caps_ht, confirmed_char);
+      if (strcmp(confirmed_char, "") != 0)
+        if (STRING (chs_x_ht).contains (*confirmed_char))
           x_ht.add (blob_ht_above_baseline, 1);
       else
         caps_ht.add (blob_ht_above_baseline, 1);
@@ -692,8 +725,7 @@ void reject_ambigs(  //rej any accepted xht ambig chars
   while (*word_str != '\0') {
     if (STRING (chs_ambig_caps_x).contains (*word_str))
       word->reject_map[i].setrej_xht_fixup ();
-    word_str++;
-    i++;
+    word_str += word->best_choice->lengths()[i++];
   }
 }
 
@@ -713,6 +745,7 @@ void est_ambigs(                          //xht ambig ht stats
 
   const char *word_str;
   INT16 i;
+  INT16 offset;
   float min;                     //min ambig ch ht
   float max;                     //max ambig ch ht
   float short_limit;             // for lower case
@@ -738,10 +771,11 @@ void est_ambigs(                          //xht ambig ht stats
       tall_limit = max - (max - min) * x_ht_variation;
       word_str = word_res->best_choice->string ().string ();
       blob_it.set_to_list (word_res->outword->blob_list ());
-      for (blob_it.mark_cycle_pt (), i = 0;
-      !blob_it.cycled_list (); blob_it.forward (), i++) {
+      for (blob_it.mark_cycle_pt (), i = 0, offset = 0;
+      !blob_it.cycled_list (); blob_it.forward (),
+               offset += word_res->best_choice->lengths()[i++]) {
         if (word_res->reject_map[i].accepted () &&
-          STRING (chs_ambig_caps_x).contains (word_str[i]) &&
+          STRING (chs_ambig_caps_x).contains (word_str[offset]) &&
         (!dodgy_blob (blob_it.data ()))) {
           blob_box = blob_it.data ()->bounding_box ();
           blob_ht_above_baseline =
@@ -770,7 +804,7 @@ void est_ambigs(                          //xht ambig ht stats
  * to be misleading
  *************************************************************************/
 
-BOOL8 dodgy_blob(PBLOB *blob) { 
+BOOL8 dodgy_blob(PBLOB *blob) {
   OUTLINE_IT outline_it = blob->out_list ();
   INT16 highest_bottom = -MAX_INT16;
   INT16 lowest_top = MAX_INT16;

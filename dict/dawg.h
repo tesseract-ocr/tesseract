@@ -35,21 +35,59 @@
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
-#define MAX_WERD_LENGTH        (INT32) 40
-#define MAX_NODE_EDGES         (INT32) 100
-#define LAST_FLAG              (INT32) 1
-#define DIRECTION_FLAG         (INT32) 2
-#define WERD_END_FLAG          (INT32) 4
+/* #define MAX_WERD_LENGTH        (INT32) 40 */
+/* #define MAX_NODE_EDGES_DISPLAY (INT32) 100 */
+/* #define LAST_FLAG              (INT32) 1 */
+/* #define DIRECTION_FLAG         (INT32) 2 */
+/* #define WERD_END_FLAG          (INT32) 4 */
 
-#define FLAG_START_BIT         21
-#define LETTER_START_BIT       24
+/* #define LETTER_START_BIT       0 */
+/* #define FLAG_START_BIT         8 */
+/* #define NEXT_EDGE_START_BIT    11 */
 
-#define NO_EDGE                (INT32) 0x1fffff
+/* #define NO_EDGE                (INT32) 0x001fffff */
 
-typedef UINT32 EDGE_RECORD;
+/* #define NEXT_EDGE_MASK         (INT32) 0xfffff800 */
+/* #define FLAGS_MASK             (INT32) 0x00000700 */
+/* #define LETTER_MASK            (INT32) 0x000000ff */
+
+/* #define REFFORMAT "%d" */
+
+/* typedef UINT32 EDGE_RECORD; */
+/* typedef EDGE_RECORD *EDGE_ARRAY; */
+/* typedef INT32 EDGE_REF; */
+/* typedef INT32 NODE_REF; */
+
+#define MAX_WERD_LENGTH        (INT64) 40
+#define MAX_NODE_EDGES_DISPLAY (INT64) 100
+#define LAST_FLAG              (INT64) 1
+#define DIRECTION_FLAG         (INT64) 2
+#define WERD_END_FLAG          (INT64) 4
+
+#define LETTER_START_BIT       0
+#define FLAG_START_BIT         8
+#define NEXT_EDGE_START_BIT    11
+
+#ifdef __MSW32__
+#define NO_EDGE                (INT64) 0x001fffffffffffffi64
+#define NEXT_EDGE_MASK         (INT64) 0xfffffffffffff800i64
+#define FLAGS_MASK             (INT64) 0x0000000000000700i64
+#define LETTER_MASK            (INT64) 0x00000000000000ffi64
+#else
+#define NO_EDGE                (INT64) 0x001fffffffffffffll
+#define NEXT_EDGE_MASK         (INT64) 0xfffffffffffff800ll
+#define FLAGS_MASK             (INT64) 0x0000000000000700ll
+#define LETTER_MASK            (INT64) 0x00000000000000ffll
+#endif
+
+#define MAX_NUM_EDGES_IN_SQUISHED_DAWG_FILE 2000000
+
+#define REFFORMAT "%lld"
+
+typedef UINT64 EDGE_RECORD;
 typedef EDGE_RECORD *EDGE_ARRAY;
-typedef INT32 EDGE_REF;
-typedef INT32 NODE_REF;
+typedef INT64 EDGE_REF;
+typedef INT64 NODE_REF;
 
 /*---------------------------------------------------------------------
               V a r i a b l e s
@@ -61,13 +99,35 @@ extern INT32 debug;
               M a c r o s
 ----------------------------------------------------------------------*/
 /**********************************************************************
+* edge_of
+*
+* Access the edge that is indexed by the requested edge number.
+**********************************************************************/
+
+#define edge_of(edges,e)  \
+  ((edges)[e])
+
+/**********************************************************************
+* print_edge
+*
+* Print the contents of a single edge entry in the DAWG.
+**********************************************************************/
+
+#define print_edge(dawg,edge)                                     \
+  printf ("%7d : next = %7d, char = '%c', %s %s %s\n",            \
+          edge, next_node (dawg, edge), edge_letter (dawg, edge), \
+          (forward_edge (dawg, edge) ? "FORWARD" : "       "),    \
+          (last_edge    (dawg, edge) ? "LAST"    : "    "),       \
+          (end_of_word  (dawg, edge) ? "EOW"     : ""))           \
+
+/**********************************************************************
  * next_node
  *
  * The next node visited in the DAWG by following this edge.
  **********************************************************************/
 
 #define next_node(edges,e)  \
-((edges)[e] & NO_EDGE)
+(((edges)[e] & NEXT_EDGE_MASK) >> NEXT_EDGE_START_BIT)
 
 /**********************************************************************
  * set_next_edge
@@ -76,8 +136,17 @@ extern INT32 debug;
  **********************************************************************/
 
 #define set_next_edge(edges,e,value)               \
-((edges)[e] = ((edges)[e] & (INT32) 0xffe00000) |\
-					(value  &     NO_EDGE))
+((edges)[e] = ((edges)[e] & (~NEXT_EDGE_MASK)) |\
+              ((value << NEXT_EDGE_START_BIT) & NEXT_EDGE_MASK))
+
+/**********************************************************************
+* empty_edge_spot
+*
+* Return TRUE if this edge spot in this location is unoccupied.
+**********************************************************************/
+
+#define empty_edge_spot(edges,e)  \
+  ((edges)[e] == NEXT_EDGE_MASK)
 
 /**********************************************************************
  * set_empty_edge
@@ -86,7 +155,7 @@ extern INT32 debug;
  **********************************************************************/
 
 #define set_empty_edge(edges,e)  \
-((edges)[e] = NO_EDGE)
+((edges)[e] = NEXT_EDGE_MASK)
 
 /**********************************************************************
  * clear_all_edges
@@ -105,7 +174,16 @@ for  (edge=0; edge<max_num_edges; edge++)      \
  **********************************************************************/
 
 #define edge_occupied(edges,e)  \
-((edges)[e] != NO_EDGE)
+((edges)[e] != NEXT_EDGE_MASK)
+
+/**********************************************************************
+* edge_flags
+*
+* The letter choice that corresponds to this edge in the DAWG.
+**********************************************************************/
+
+#define edge_flags(edges,e)  \
+  (((edges)[e] & FLAGS_MASK) >> FLAG_START_BIT)
 
 /**********************************************************************
  * edge_letter
@@ -114,7 +192,16 @@ for  (edge=0; edge<max_num_edges; edge++)      \
  **********************************************************************/
 
 #define edge_letter(edges,e)  \
-((edges)[e] >> LETTER_START_BIT)
+((char)(((edges)[e] & LETTER_MASK) >> LETTER_START_BIT))
+
+/**********************************************************************
+* letter_of_edge
+*
+* The letter choice that corresponds to this edge in the DAWG.
+**********************************************************************/
+
+#define letter_of_edge(edge)  \
+  ((char)((edge & LETTER_MASK) >> LETTER_START_BIT))
 
 /**********************************************************************
  * last_edge
@@ -171,7 +258,9 @@ while (! last_edge (edges,e++))
  * Check the case of this character in the character string to make
  * sure that there is not a problem with the case.
  **********************************************************************/
-
+// TODO(tkielbus) Replace islalpha, islower & isupper by unicode versions.
+// However the lengths information is not available at this point in the
+// code. We will probably get rid of the dictionaries at some point anyway.
 #define case_is_okay(word,i)                                \
 (i ?                                                      \
 	((isupper(word[i]) && islower(word[i-1])) ?              \

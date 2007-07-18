@@ -23,7 +23,7 @@ make_int_var    (LearningDebugLevel, 0, MakeLearningDebugLevel,
 make_int_var   (NormMethod, character, MakeNormMethod,
 					15, 10, SetNormMethod,   "Normalization Method   ...")
 
-char *demodir;                   /*demo home directory */
+//char *demodir;                   /*demo home directory */
 
 
 void						cprintf(					//Trace printf
