@@ -26,12 +26,16 @@
 #include "const.h"
 #include "ndminx.h"
 #include "adaptmatch.h"
+#include "globals.h"
 
 //extern GetPicoFeatureLength();
 
 #include <math.h>
 #include <stdio.h>
 #include <assert.h>
+#ifdef __UNIX__
+#include <unistd.h>
+#endif
 
 /* match debug display constants*/
 #define DISPLAY_OFFSET  (0.5  * INT_CHAR_NORM_RANGE)
@@ -631,7 +635,8 @@ void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
 
 
 /*---------------------------------------------------------------------------*/
-INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos) {
+INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos,
+                                 const UNICHARSET& target_unicharset) {
 /*
  **	Parameters:
  **		FloatProtos	prototypes in old floating pt format
@@ -651,11 +656,10 @@ INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos) {
 
   IntTemplates = NewIntTemplates ();
 
-  for (ClassId = 0; ClassId < NUMBER_OF_CLASSES; ClassId++) {
+  for (ClassId = 0; ClassId < target_unicharset.size(); ClassId++) {
     FClass = &(FloatProtos[ClassId]);
     if (NumProtosIn (FClass) > 0) {
       assert (UnusedClassIdIn (IntTemplates, ClassId));
-
       IClass = NewIntClass (NumProtosIn (FClass), NumConfigsIn (FClass));
       AddIntClass(IntTemplates, ClassId, IClass);
 
@@ -867,6 +871,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
  */
   int i, j, x, y, z;
   int nread;
+  int unicharset_size;
   INT_TEMPLATES Templates;
   CLASS_PRUNER Pruner;
   INT_CLASS Class;
@@ -876,30 +881,38 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
   /* first read the high level template struct */
   Templates = NewIntTemplates ();
   // Read Templates in parts for 64 bit compatibility.
+  if (fread(&unicharset_size, sizeof(int), 1, File) != 1)
+    cprintf ("Bad read of inttemp!\n");
   if (fread(&Templates->NumClasses, sizeof(int), 1, File) != 1 ||
       fread(&Templates->NumClassPruners, sizeof(int), 1, File) != 1)
     cprintf ("Bad read of inttemp!\n");
-  for (i = 0; i <= MAX_CLASS_ID; ++i) {
-    if (fread(&Templates->IndexFor[i], sizeof(CLASS_INDEX), 1, File) != 1)
-      cprintf("Bad read of inttemp!\n");
-  }
-  for (i = 0; i < MAX_NUM_CLASSES; ++i) {
-    if (fread(&Templates->ClassIdFor[i], sizeof(CLASS_ID), 1, File) != 1)
-      cprintf("Bad read of inttemp!\n");
-  }
-  for (i = 0; i < MAX_NUM_CLASSES + MAX_NUM_CLASS_PRUNERS; ++i) {
-    int junk;
-    if (fread(&junk, sizeof(junk), 1, File) != 1)
-      cprintf("Bad read of inttemp!\n");
-  }
   // Swap status is determined automatically.
   swap = Templates->NumClassPruners < 0 ||
          Templates->NumClassPruners > MAX_NUM_CLASS_PRUNERS;
   if (swap) {
     reverse32 (&Templates->NumClassPruners);
     reverse32 (&Templates->NumClasses);
+    reverse32 (&unicharset_size);
+  }
+  if (unicharset_size != unicharset.size()) {
+    cprintf("Error: %d classes in inttemp while "
+            "unicharset contains %d unichars.\n",
+            unicharset_size, unicharset.size());
+    exit(1);
+  }
+  for (i = 0; i < unicharset_size; ++i) {
+    if (fread(&Templates->IndexFor[i], sizeof(CLASS_INDEX), 1, File) != 1)
+      cprintf("Bad read of inttemp!\n");
+  }
+  for (i = 0; i < NumClassesIn (Templates); ++i) {
+    if (fread(&Templates->ClassIdFor[i], sizeof(CLASS_ID), 1, File) != 1)
+      cprintf("Bad read of inttemp!\n");
+  }
+  if (swap) {
     for (i = 0; i < MAX_CLASS_ID + 1; i++)
       reverse16 (&Templates->IndexFor[i]);
+    for (i = 0; i < MAX_NUM_CLASSES; i++)
+      reverse32 (&Templates->ClassIdFor[i]);
   }
 
   /* then read in the class pruners */
@@ -1042,7 +1055,8 @@ void ShowMatchDisplay() {
 #endif
 
 /*---------------------------------------------------------------------------*/
-void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates) {
+void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
+                       const UNICHARSET& target_unicharset) {
 /*
  **	Parameters:
  **		File		open file to write templates to
@@ -1057,9 +1071,16 @@ void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates) {
  */
   int i, j;
   INT_CLASS Class;
+  int unicharset_size = target_unicharset.size();
 
   /* first write the high level template struct */
-  fwrite ((char *) Templates, sizeof (INT_TEMPLATES_STRUCT), 1, File);
+  fwrite((char *) &unicharset_size, sizeof (int), 1, File);
+  fwrite((char *) &Templates->NumClasses, sizeof (int), 1, File);
+  fwrite((char *) &Templates->NumClassPruners, sizeof (int), 1, File);
+  fwrite((char *) &Templates->IndexFor[0], sizeof (CLASS_INDEX),
+         unicharset_size, File);
+  fwrite((char *) &Templates->ClassIdFor[0], sizeof (CLASS_ID),
+         NumClassesIn (Templates), File);
 
   /* then write out the class pruners */
   for (i = 0; i < NumClassPrunersIn (Templates); i++)
@@ -1302,8 +1323,31 @@ CLASS_ID GetClassToDebug(const char *Prompt) {
  **	Exceptions: none
  **	History: Thu Mar 21 16:55:13 1991, DSJ, Created.
  */
-  return window_wait (IntMatchWindow);
+  char c = 0;
+  do
+    c = window_wait(IntMatchWindow);
+  while (c != 0 && c != '\n');
+#ifdef __UNIX__
+  // Temp sychronization.
+  if (c == '\n' && input_unicode[0] == 0) {
+    sleep(1);
+  }
+#endif
+  char utf8[kInputSize * UNICHAR_LEN];
+  int offset = 0;
+  int i;
+  for (i = 0; i < kInputSize && input_unicode[i] != 0; ++i) {
+    UNICHAR ch(input_unicode[i]);
+    int len = ch.utf8_len();
+    for (int j = 0; j < len; ++j) {
+      utf8[offset++] = ch.utf8()[j];
+    }
+  }
 
+  cprintf("unicode len = %d, 1st code=%d, utf8 len = %d, 1st code=%d\n",
+          i, input_unicode[0], offset, utf8[0]);
+  input_unicode[0] = 0;
+  return c == '\n' ? unicharset.unichar_to_id(utf8, offset) : 0;
 }                                /* GetClassToDebug */
 #endif
 

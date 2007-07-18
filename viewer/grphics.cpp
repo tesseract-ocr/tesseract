@@ -36,6 +36,7 @@ void def_overlap_picture_ops(BOOL8 update);
 
 WINCREATEFUNC create_func = WINFD::create;
 void (*overlap_func) (BOOL8) = def_overlap_picture_ops;
+int input_unicode[kInputSize];
 
 /**********************************************************************
  * line_color_index
@@ -741,7 +742,7 @@ void WINFD::Destroy_window() {  /*destroy a window */
     return;
   }
   else {
-    Clear_event_queue(); 
+    Clear_event_queue();
     sbfds[fd].used = FALSE;      /*it is not in use */
     sbfds[fd].click_handler = NULL;
 
@@ -921,7 +922,7 @@ void WINFD::Make_picture_current() {  /*update window */
   ONEOP *newop;                  /*message structure */
 
   if (this == NULL || fd <= 0) {
-    overlap_picture_ops(TRUE); 
+    overlap_picture_ops(TRUE);
   }
   else {
                                  /*get some space */

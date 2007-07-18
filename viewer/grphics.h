@@ -76,6 +76,8 @@ BOOL8 moveon, BOOL8 upon, BOOL8 keyon);
 extern WINCREATEFUNC create_func;
 extern void (*overlap_func) (BOOL8);
 extern WINDOW (*await_event_func) (WINDOW, BOOL8, INT8, GRAPHICS_EVENT *);
+const int kInputSize = 16;
+extern int input_unicode[kInputSize];
 
 class DLLSYM WINFD
 {
@@ -182,11 +184,11 @@ class DLLSYM WINFD
                      float rotation,     /*rotation of arc */
                      INT16 close_type);  /*type of closure */
                                  /*destroy a window */
-    virtual void Destroy_window(); 
+    virtual void Destroy_window();
                                  /*clear window */
-    virtual void Clear_view_surface(); 
+    virtual void Clear_view_surface();
                                  /*Mark need to recalc */
-    virtual void Re_compute_colourmap(); 
+    virtual void Re_compute_colourmap();
     virtual void Vdc_extent(              /*set window focus */
                             float xmin,   /*min values */
                             float ymin,   /*min values */
@@ -197,7 +199,7 @@ class DLLSYM WINFD
                   float xorig,          /*min values */
                   float yorig);         /*min values */
                                  /*update window */
-    virtual void Make_picture_current(); 
+    virtual void Make_picture_current();
                                  /*flush output */
     friend void def_overlap_picture_ops(BOOL8 update);  /*send make_ */
                                  /*set line colour */
@@ -224,7 +226,7 @@ class DLLSYM WINFD
     void Set_click_handler(                         //set callback function
                            EVENT_HANDLER handler);  //handler function
                                  /*delete all events */
-    virtual void Clear_event_queue(); 
+    virtual void Clear_event_queue();
 
     //internal maintenance functions
     friend void add_event(                         /*add an event */
@@ -244,15 +246,15 @@ class DLLSYM WINFD
                                  //callback function
     EVENT_HANDLER destroy_handler;
   private:
-    void get_lock() { 
+    void get_lock() {
     }                            //wait for lock
-    void get_lock_for_draw() { 
+    void get_lock_for_draw() {
     }                            //kill draw thread
-    void release_lock() { 
+    void release_lock() {
     }                            //let it go
-    void get_core_lock() { 
+    void get_core_lock() {
     }                            //wait for lock
-    void release_core_lock() { 
+    void release_core_lock() {
     }                            //let it go
 
     INT16 fd;                    //"file descriptor"
