@@ -37,6 +37,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "unichar.h"
 
 #define MAXNAMESIZE	80
 #define MAX_NUM_SAMPLES	10000
@@ -219,21 +220,34 @@ int main (
 	ParseArguments (argc, argv);
 	while ((PageName = GetNextFilename()) != NULL)
 	{
-		printf ("\nReading %s ...", PageName);
+		printf ("Reading %s ...\n", PageName);
 		TrainingPage = Efopen (PageName, "r");
 		ReadTrainingSamples (TrainingPage, &CharList);
 		fclose (TrainingPage);
 		//WriteTrainingSamples (Directory, CharList);
 	}
+        printf("Clustering ...\n");
 	pCharList = CharList;
 	iterate(pCharList)
 	{
-		//Cluster
-		CharSample = (LABELEDLIST) first_node (pCharList);
-		printf ("\nClustering %s ...", CharSample->Label);
-		Clusterer = SetUpForClustering(CharSample);
-		ProtoList = ClusterSamples(Clusterer, &Config);
-		AddToNormProtosList(&NormProtoList, ProtoList, CharSample->Label);
+          //Cluster
+          CharSample = (LABELEDLIST) first_node (pCharList);
+          //printf ("\nClustering %s ...", CharSample->Label);
+          Clusterer = SetUpForClustering(CharSample);
+          float SavedMinSamples = Config.MinSamples;
+          while (Config.MinSamples > 0.001) {
+            ProtoList = ClusterSamples(Clusterer, &Config);
+            if (NumberOfProtos(ProtoList, 1, 0) > 0)
+              break;
+            else {
+              Config.MinSamples *= 0.95;
+              printf("0 significant protos for %s."
+                     " Retrying clustering with MinSamples = %f%%\n",
+                     CharSample->Label, Config.MinSamples);
+            }
+          }
+          Config.MinSamples = SavedMinSamples;
+          AddToNormProtosList(&NormProtoList, ProtoList, CharSample->Label);
 	}
 	FreeTrainingSamples (CharList);
 	WriteNormProtos (Directory, NormProtoList, Clusterer);
@@ -262,7 +276,7 @@ void ParseArguments(
 **		ShowSignificantProtos	flag controlling proto display
 **		ShowInsignificantProtos	flag controlling proto display
 **		Config			current clustering parameters
-**		optarg, optind		defined by tessopt sys call
+**		tessoptarg, tessoptind		defined by tessopt sys call
 **		Argc, Argv		global copies of argc and argv
 **	Operation:
 **		This routine parses the command line arguments that were
@@ -287,7 +301,6 @@ void ParseArguments(
 	int		Option;
 	int		ParametersRead;
 	BOOL8		Error;
-	extern char	*optarg;
 
 	Error = FALSE;
 	Argc = argc;
@@ -297,48 +310,48 @@ void ParseArguments(
 		switch ( Option )
 		{
 		case 'n':
-      sscanf(optarg,"%d", &ParametersRead);
+      sscanf(tessoptarg,"%d", &ParametersRead);
 			ShowInsignificantProtos = ParametersRead;
 			break;
 		case 'p':
-      sscanf(optarg,"%d", &ParametersRead);
+      sscanf(tessoptarg,"%d", &ParametersRead);
 			ShowSignificantProtos = ParametersRead;
 			break;
 		case 'd':
 			ShowAllSamples = FALSE;
 			break;
 		case 'C':
-			ParametersRead = sscanf( optarg, "%lf", &(Config.Confidence) );
+			ParametersRead = sscanf( tessoptarg, "%lf", &(Config.Confidence) );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( Config.Confidence > 1 ) Config.Confidence = 1;
 			else if ( Config.Confidence < 0 ) Config.Confidence = 0;
 			break;
 		case 'I':
-			ParametersRead = sscanf( optarg, "%f", &(Config.Independence) );
+			ParametersRead = sscanf( tessoptarg, "%f", &(Config.Independence) );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( Config.Independence > 1 ) Config.Independence = 1;
 			else if ( Config.Independence < 0 ) Config.Independence = 0;
 			break;
 		case 'M':
-			ParametersRead = sscanf( optarg, "%f", &(Config.MinSamples) );
+			ParametersRead = sscanf( tessoptarg, "%f", &(Config.MinSamples) );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( Config.MinSamples > 1 ) Config.MinSamples = 1;
 			else if ( Config.MinSamples < 0 ) Config.MinSamples = 0;
 			break;
 		case 'B':
-			ParametersRead = sscanf( optarg, "%f", &(Config.MaxIllegal) );
+			ParametersRead = sscanf( tessoptarg, "%f", &(Config.MaxIllegal) );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( Config.MaxIllegal > 1 ) Config.MaxIllegal = 1;
 			else if ( Config.MaxIllegal < 0 ) Config.MaxIllegal = 0;
 			break;
 		case 'R':
-			ParametersRead = sscanf( optarg, "%f", &RoundingAccuracy );
+			ParametersRead = sscanf( tessoptarg, "%f", &RoundingAccuracy );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( RoundingAccuracy > 0.01 ) RoundingAccuracy = 0.01;
 			else if ( RoundingAccuracy < 0.0 ) RoundingAccuracy = 0.0;
 			break;
 		case 'S':
-			switch ( optarg[0] )
+			switch ( tessoptarg[0] )
 			{
 			case 's': Config.ProtoStyle = spherical; break;
 			case 'e': Config.ProtoStyle = elliptical; break;
@@ -348,10 +361,10 @@ void ParseArguments(
 			}
 			break;
 			case 'D':
-				Directory = optarg;
+				Directory = tessoptarg;
 				break;
 			case 'N':
-				if (sscanf (optarg, "%d", &MaxNumSamples) != 1 ||
+				if (sscanf (tessoptarg, "%d", &MaxNumSamples) != 1 ||
 					MaxNumSamples <= 0)
 					Error = TRUE;
 				break;
@@ -375,7 +388,7 @@ char *GetNextFilename ()
 /*
 **	Parameters: none
 **	Globals:
-**		optind			defined by tessopt sys call
+**		tessoptind			defined by tessopt sys call
 **		Argc, Argv		global copies of argc and argv
 **	Operation:
 **		This routine returns the next command line argument.  If
@@ -388,8 +401,8 @@ char *GetNextFilename ()
 */
 
 {
-	if (optind < Argc)
-		return (Argv [optind++]);
+	if (tessoptind < Argc)
+		return (Argv [tessoptind++]);
 	else
 		return (NULL);
 
@@ -417,32 +430,32 @@ void ReadTrainingSamples (
 */
 
 {
-	char			CharName[MAXNAMESIZE];
+	char		unichar[UNICHAR_LEN + 1];
 	LABELEDLIST	CharSample;
 	FEATURE_SET	FeatureSamples;
-	CHAR_DESC		CharDesc;
-	int			Type, i;
+	CHAR_DESC	CharDesc;
+	int		Type, i;
 
-	while (fscanf (File, "%s %s", FontName, CharName) == 2) {
-		CharSample = FindList (*TrainingSamples, CharName);
-		if (CharSample == NULL) {
-			CharSample = NewLabeledList (CharName);
-			*TrainingSamples = push (*TrainingSamples, CharSample);
-		}
-		CharDesc = ReadCharDescription (File);
-		Type = ShortNameToFeatureType(PROGRAM_FEATURE_TYPE);
-		FeatureSamples = FeaturesOfType(CharDesc, Type);
-    for (int feature = 0; feature < FeatureSamples->NumFeatures; ++feature) {
-      FEATURE f = FeatureSamples->Features[feature];
-      for (int dim =0; dim < f->Type->NumParams; ++dim)
-        f->Params[dim] += UniformRandomNumber(-MINSD, MINSD);
-    }
-		CharSample->List = push (CharSample->List, FeatureSamples);
-		for (i = 0; i < NumFeatureSetsIn (CharDesc); i++)
-			if (Type != i)
-				FreeFeatureSet (FeaturesOfType (CharDesc, i));
-		free (CharDesc);
-    }
+	while (fscanf (File, "%s %s", FontName, unichar) == 2) {
+          CharSample = FindList (*TrainingSamples, unichar);
+          if (CharSample == NULL) {
+            CharSample = NewLabeledList (unichar);
+            *TrainingSamples = push (*TrainingSamples, CharSample);
+          }
+          CharDesc = ReadCharDescription (File);
+          Type = ShortNameToFeatureType(PROGRAM_FEATURE_TYPE);
+          FeatureSamples = FeaturesOfType(CharDesc, Type);
+          for (int feature = 0; feature < FeatureSamples->NumFeatures; ++feature) {
+            FEATURE f = FeatureSamples->Features[feature];
+            for (int dim =0; dim < f->Type->NumParams; ++dim)
+              f->Params[dim] += UniformRandomNumber(-MINSD, MINSD);
+          }
+          CharSample->List = push (CharSample->List, FeatureSamples);
+          for (i = 0; i < NumFeatureSetsIn (CharDesc); i++)
+            if (Type != i)
+              FreeFeatureSet (FeaturesOfType (CharDesc, i));
+          free (CharDesc);
+        }
 }	// ReadTrainingSamples
 
 /*---------------------------------------------------------------------------*/
@@ -606,7 +619,6 @@ void WriteNormProtos (
 	char		Filename[MAXNAMESIZE];
 	LABELEDLIST LabeledProto;
 	int N;
-	char Label;
 
 	strcpy (Filename, "");
 	if (Directory != NULL)
@@ -623,9 +635,17 @@ void WriteNormProtos (
 	{
 		LabeledProto = (LABELEDLIST) first_node (LabeledProtoList);
 		N = NumberOfProtos(LabeledProto->List,
-			ShowSignificantProtos, ShowInsignificantProtos);
-		Label = NameToChar(LabeledProto->Label);
-		fprintf(File, "\n%c %d\n", Label, N);
+		ShowSignificantProtos, ShowInsignificantProtos);
+                if (N < 1) {
+                  printf ("\nError! Not enough protos for %s: %d protos"
+                          " (%d significant protos"
+                          ", %d insignificant protos)\n",
+                          LabeledProto->Label, N,
+                          NumberOfProtos(LabeledProto->List, 1, 0),
+                          NumberOfProtos(LabeledProto->List, 0, 1));
+                  exit(1);
+                }
+		fprintf(File, "\n%s %d\n", LabeledProto->Label, N);
 		WriteProtos(File, Clusterer->SampleSize, LabeledProto->List,
 			ShowSignificantProtos, ShowInsignificantProtos);
 	}

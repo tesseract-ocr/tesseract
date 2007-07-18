@@ -20,8 +20,8 @@
 #include          "host.h"
 #include          "notdll.h"     //must be last include
 
-extern int optind;
-extern char *optarg;
+extern int tessoptind;
+extern char *tessoptarg;
 
 int tessopt (                     //parse args
 INT32 argc,                      //arg count

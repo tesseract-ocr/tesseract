@@ -23,8 +23,8 @@
 #include          "tessopt.h"
 #include          "notdll.h"     //must be last include
 
-int optind;
-char *optarg;
+int tessoptind;
+char *tessoptarg;
 
 /**********************************************************************
  * tessopt
@@ -37,22 +37,22 @@ INT32 argc,                      //arg count
 char *argv[],                    //args
 const char *arglist                    //string of arg chars
 ) {
-  char *arg;                     //arg char
+  const char *arg;                     //arg char
 
-  if (optind == 0)
-    optind = 1;
-  if (optind < argc && argv[optind][0] == '-') {
-    arg = strchr (arglist, argv[optind][1]);
+  if (tessoptind == 0)
+    tessoptind = 1;
+  if (tessoptind < argc && argv[tessoptind][0] == '-') {
+    arg = strchr (arglist, argv[tessoptind][1]);
     if (arg == NULL || *arg == ':')
       return '?';                //dud option
-    optind++;
-    optarg = argv[optind];
+    tessoptind++;
+    tessoptarg = argv[tessoptind];
     if (arg[1] == ':') {
-      if (argv[optind - 1][2] != '\0')
+      if (argv[tessoptind - 1][2] != '\0')
                                  //immediately after
-        optarg = argv[optind - 1] + 2;
+        tessoptarg = argv[tessoptind - 1] + 2;
       else
-        optind++;
+        tessoptind++;
     }
     return *arg;
   }

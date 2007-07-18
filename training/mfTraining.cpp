@@ -44,6 +44,9 @@
 #include "intproto.h"
 #include "variables.h"
 #include "freelist.h"
+#include "efio.h"
+#include "danerror.h"
+#include "globals.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -72,7 +75,6 @@ typedef struct
 typedef MERGE_CLASS_NODE* MERGE_CLASS;
 
 #define round(x,frag)(floor(x/frag+.5)*frag)
-
 
 /**----------------------------------------------------------------------------
 					Public Function Prototypes
@@ -164,21 +166,7 @@ void Normalize (
 void SetUpForFloat2Int(
 	LIST LabeledClassList);
 
-void WritePFFMTable(INT_TEMPLATES Templates, const char* filename) {
-  FILE* fp = Efopen(filename, "wb");
-  /* then write out each class */
-  for (int i = 0; i < NumClassesIn (Templates); i++) {
-    int MaxLength = 0;
-    INT_CLASS Class = ClassForIndex (Templates, i);
-    for (int ConfigId = 0; ConfigId < NumIntConfigsIn (Class); ConfigId++) {
-      if (LengthForConfigId (Class, ConfigId) > MaxLength)
-        MaxLength = LengthForConfigId (Class, ConfigId);
-    }
-    fprintf(fp, "%c %d\n", ClassIdForIndex(Templates, i), MaxLength);
-  }
-  fclose(fp);
-}
-
+void WritePFFMTable(INT_TEMPLATES Templates, const char* filename);
 
 //--------------Global Data Definitions and Declarations--------------
 static char FontName[MAXNAMESIZE];
@@ -199,6 +187,9 @@ static CLUSTERCONFIG Config =
 { elliptical, 0.40, 0.05, 1.0, 1e-6 };
 
 static FLOAT32 RoundingAccuracy = 0.0;
+
+// The unicharset used during mftraining
+static UNICHARSET unicharset_mftraining;
 
 /*----------------------------------------------------------------------------
 						Public Code
@@ -260,12 +251,17 @@ int main (
 	LIST pCharList, pProtoList;
 	char Filename[MAXNAMESIZE];
 
+        // Clean the unichar set
+        unicharset_mftraining.clear();
+        // Space character needed to represent NIL classification
+        unicharset_mftraining.unichar_insert(" ");
+
 	ParseArguments (argc, argv);
 	InitFastTrainerVars ();
 	InitSubfeatureVars ();
 	while ((PageName = GetNextFilename()) != NULL)
 	{
-		printf ("\nReading %s ...", PageName);
+		printf ("Reading %s ...\n", PageName);
 		TrainingPage = Efopen (PageName, "r");
 		CharList = ReadTrainingSamples (TrainingPage);
 		fclose (TrainingPage);
@@ -275,7 +271,7 @@ int main (
 		{
 			//Cluster
 			CharSample = (LABELEDLIST) first_node (pCharList);
-			printf ("\nClustering %s ...", CharSample->Label);
+// 			printf ("\nClustering %s ...", CharSample->Label);
 			Clusterer = SetUpForClustering(CharSample);
 			ProtoList = ClusterSamples(Clusterer, &Config);
 			//WriteClusteredTrainingSamples (Directory, ProtoList, Clusterer, CharSample);
@@ -320,14 +316,13 @@ int main (
 			FreeProtoList (&ProtoList);
 		}
 		FreeTrainingSamples (CharList);
-		printf ("\n");
 	}
 	//WriteMergedTrainingSamples(Directory,ClassList);
 	WriteMicrofeat(Directory, ClassList);
 	InitIntProtoVars ();
 	InitPrototypes ();
 	SetUpForFloat2Int(ClassList);
-	IntTemplates = CreateIntTemplates(TrainingData);
+	IntTemplates = CreateIntTemplates(TrainingData, unicharset_mftraining);
 	strcpy (Filename, "");
 	if (Directory != NULL)
 	{
@@ -340,11 +335,18 @@ int main (
 #else
 	OutFile = Efopen (Filename, "wb");
 #endif
-	WriteIntTemplates(OutFile, IntTemplates);
+	WriteIntTemplates(OutFile, IntTemplates, unicharset_mftraining);
 	fclose (OutFile);
-  // Now create pffmtable.
-  WritePFFMTable(IntTemplates, "pffmtable");
-	printf ("\nDone!\n"); /**/
+	strcpy (Filename, "");
+	if (Directory != NULL)
+	{
+		strcat (Filename, Directory);
+		strcat (Filename, "/");
+	}
+	strcat (Filename, "pffmtable");
+        // Now create pffmtable.
+        WritePFFMTable(IntTemplates, Filename);
+	printf ("Done!\n"); /**/
 	FreeLabeledClassList (ClassList);
   return 0;
 }	/* main */
@@ -367,7 +369,7 @@ char	**argv)
 **		ShowSignificantProtos	flag controlling proto display
 **		ShowInsignificantProtos	flag controlling proto display
 **		Config			current clustering parameters
-**		optarg, optind		defined by tessopt sys call
+**		tessoptarg, tessoptind		defined by tessopt sys call
 **		Argc, Argv		global copies of argc and argv
 **	Operation:
 **		This routine parses the command line arguments that were
@@ -392,7 +394,6 @@ char	**argv)
 	int		Option;
 	int		ParametersRead;
 	BOOL8		Error;
-	extern char	*optarg;
 
 	Error = FALSE;
 	Argc = argc;
@@ -411,37 +412,37 @@ char	**argv)
 			ShowAllSamples = FALSE;
 			break;
 		case 'C':
-			ParametersRead = sscanf( optarg, "%lf", &(Config.Confidence) );
+			ParametersRead = sscanf( tessoptarg, "%lf", &(Config.Confidence) );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( Config.Confidence > 1 ) Config.Confidence = 1;
 			else if ( Config.Confidence < 0 ) Config.Confidence = 0;
 			break;
 		case 'I':
-			ParametersRead = sscanf( optarg, "%f", &(Config.Independence) );
+			ParametersRead = sscanf( tessoptarg, "%f", &(Config.Independence) );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( Config.Independence > 1 ) Config.Independence = 1;
 			else if ( Config.Independence < 0 ) Config.Independence = 0;
 			break;
 		case 'M':
-			ParametersRead = sscanf( optarg, "%f", &(Config.MinSamples) );
+			ParametersRead = sscanf( tessoptarg, "%f", &(Config.MinSamples) );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( Config.MinSamples > 1 ) Config.MinSamples = 1;
 			else if ( Config.MinSamples < 0 ) Config.MinSamples = 0;
 			break;
 		case 'B':
-			ParametersRead = sscanf( optarg, "%f", &(Config.MaxIllegal) );
+			ParametersRead = sscanf( tessoptarg, "%f", &(Config.MaxIllegal) );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( Config.MaxIllegal > 1 ) Config.MaxIllegal = 1;
 			else if ( Config.MaxIllegal < 0 ) Config.MaxIllegal = 0;
 			break;
 		case 'R':
-			ParametersRead = sscanf( optarg, "%f", &RoundingAccuracy );
+			ParametersRead = sscanf( tessoptarg, "%f", &RoundingAccuracy );
 			if ( ParametersRead != 1 ) Error = TRUE;
 			else if ( RoundingAccuracy > 0.01 ) RoundingAccuracy = 0.01;
 			else if ( RoundingAccuracy < 0.0 ) RoundingAccuracy = 0.0;
 			break;
 		case 'S':
-			switch ( optarg[0] )
+			switch ( tessoptarg[0] )
 			{
 			case 's': Config.ProtoStyle = spherical; break;
 			case 'e': Config.ProtoStyle = elliptical; break;
@@ -451,10 +452,10 @@ char	**argv)
 			}
 			break;
 			case 'D':
-				Directory = optarg;
+				Directory = tessoptarg;
 				break;
 			case 'N':
-				if (sscanf (optarg, "%d", &MaxNumSamples) != 1 ||
+				if (sscanf (tessoptarg, "%d", &MaxNumSamples) != 1 ||
 					MaxNumSamples <= 0)
 					Error = TRUE;
 				break;
@@ -478,7 +479,7 @@ char *GetNextFilename ()
 /*
 **	Parameters: none
 **	Globals:
-**		optind			defined by tessopt sys call
+**		tessoptind			defined by tessopt sys call
 **		Argc, Argv		global copies of argc and argv
 **	Operation:
 **		This routine returns the next command line argument.  If
@@ -491,8 +492,8 @@ char *GetNextFilename ()
 */
 
 {
-	if (optind < Argc)
-		return (Argv [optind++]);
+	if (tessoptind < Argc)
+		return (Argv [tessoptind++]);
 	else
 		return (NULL);
 
@@ -519,33 +520,41 @@ LIST ReadTrainingSamples (
 */
 
 {
-	char			CharName[MAXNAMESIZE];
-	LABELEDLIST	CharSample;
-  FEATURE_SET FeatureSamples;
+	char			unichar[UNICHAR_LEN + 1];
+	LABELEDLIST             CharSample;
+        FEATURE_SET             FeatureSamples;
 	LIST			TrainingSamples = NIL;
 	CHAR_DESC		CharDesc;
 	int			Type, i;
 
-	while (fscanf (File, "%s %s", FontName, CharName) == 2) {
-		CharSample = FindList (TrainingSamples, CharName);
+	while (fscanf (File, "%s %s", FontName, unichar) == 2) {
+          if (!unicharset_mftraining.contains_unichar(unichar)) {
+            unicharset_mftraining.unichar_insert(unichar);
+            if (unicharset_mftraining.size() > MAX_NUM_CLASSES) {
+              cprintf("Error: Size of unicharset of mftraining is "
+                      "greater than MAX_NUM_CLASSES\n");
+              exit(1);
+            }
+          }
+		CharSample = FindList (TrainingSamples, unichar);
 		if (CharSample == NULL) {
-			CharSample = NewLabeledList (CharName);
+			CharSample = NewLabeledList (unichar);
 			TrainingSamples = push (TrainingSamples, CharSample);
 		}
 		CharDesc = ReadCharDescription (File);
 		Type = ShortNameToFeatureType(PROGRAM_FEATURE_TYPE);
 		FeatureSamples = FeaturesOfType(CharDesc, Type);
-    for (int feature = 0; feature < FeatureSamples->NumFeatures; ++feature) {
-      FEATURE f = FeatureSamples->Features[feature];
-      for (int dim =0; dim < f->Type->NumParams; ++dim)
-        f->Params[dim] += UniformRandomNumber(-MINSD, MINSD);
-    }
+                for (int feature = 0; feature < FeatureSamples->NumFeatures; ++feature) {
+                  FEATURE f = FeatureSamples->Features[feature];
+                  for (int dim =0; dim < f->Type->NumParams; ++dim)
+                    f->Params[dim] += UniformRandomNumber(-MINSD, MINSD);
+                }
 		CharSample->List = push (CharSample->List, FeatureSamples);
 		for (i = 0; i < NumFeatureSetsIn (CharDesc); i++)
-			if (Type != i)
-				FreeFeatureSet (FeaturesOfType (CharDesc, i));
+                  if (Type != i)
+                    FreeFeatureSet (FeaturesOfType (CharDesc, i));
 		free (CharDesc);
-    }
+        }
 	return (TrainingSamples);
 
 }	/* ReadTrainingSamples */
@@ -843,7 +852,7 @@ void WriteProtos(
 	int i;
 	PROTO Proto;
 
-	fprintf(File, "%c\n", NameToChar(MergeClass->Label));
+	fprintf(File, "%s\n", MergeClass->Label);
 	fprintf(File, "%d\n", NumProtosIn(MergeClass->Class));
 	for(i=0; i < NumProtosIn(MergeClass->Class); i++)
 	{
@@ -900,7 +909,7 @@ void FreeTrainingSamples (
 	LIST		FeatureList;
 
 
-	printf ("\nFreeTrainingSamples...");
+// 	printf ("FreeTrainingSamples...\n");
 	iterate (CharList) 		/* iterate thru all of the fonts */
 	{
 		CharSample = (LABELEDLIST) first_node (CharList);
@@ -1161,12 +1170,13 @@ void SetUpForFloat2Int(
 	BIT_VECTOR		NewConfig;
 	BIT_VECTOR		OldConfig;
 
-	printf("Float2Int ...");
+// 	printf("Float2Int ...\n");
 
 	iterate(LabeledClassList)
 	{
 		MergeClass = (MERGE_CLASS) first_node (LabeledClassList);
-		Class = &TrainingData[NameToChar(MergeClass->Label)];
+		Class = &TrainingData[unicharset_mftraining.unichar_to_id(
+                                          MergeClass->Label)];
 		NumProtos = NumProtosIn(MergeClass->Class);
 		NumConfigs = NumConfigsIn(MergeClass->Class);
 
@@ -1204,3 +1214,20 @@ void SetUpForFloat2Int(
 		}
 	}
 } // SetUpForFloat2Int
+
+/*--------------------------------------------------------------------------*/
+void WritePFFMTable(INT_TEMPLATES Templates, const char* filename) {
+  FILE* fp = Efopen(filename, "wb");
+  /* then write out each class */
+  for (int i = 0; i < NumClassesIn (Templates); i++) {
+    int MaxLength = 0;
+    INT_CLASS Class = ClassForIndex (Templates, i);
+    for (int ConfigId = 0; ConfigId < NumIntConfigsIn (Class); ConfigId++) {
+      if (LengthForConfigId (Class, ConfigId) > MaxLength)
+        MaxLength = LengthForConfigId (Class, ConfigId);
+    }
+    fprintf(fp, "%s %d\n", unicharset_mftraining.id_to_unichar(
+                ClassIdForIndex(Templates, i)), MaxLength);
+  }
+  fclose(fp);
+} // WritePFFMTable

@@ -39,14 +39,12 @@
 extern TBLOB *pageblobs;         /*first blob on page */
 extern TEXTBLOCK *pageblocks;    /*first block on page */
                                  /*class definitions */
-extern char classes[CLASSIZE][CLASSLENGTH];
+/* extern char classes[CLASSIZE][CLASSLENGTH]; */
 extern int resolution;           /*scanner res in dpi */
 extern int acts[MAXPROC];        /*action flags */
 extern int debugs[MAXPROC];      /*debug flags */
 extern int plots[MAXPROC];       /*plot flags */
 extern int corners[4];           /*corners of scan window */
-extern int optind;               /*option index */
-extern char *optarg;             /*option argument */
                                  /*image file name */
 extern char imagefile[FILENAMESIZE];
                                  /* main directory */

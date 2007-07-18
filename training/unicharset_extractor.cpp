@@ -52,8 +52,8 @@ int main(int argc, char** argv) {
   while ((option = tessopt(argc, argv, "D" )) != EOF) {
     switch (option) {
       case 'D':
-        output_directory = optarg;
-        ++optind;
+        output_directory = tessoptarg;
+        ++tessoptind;
         break;
     }
   }
@@ -64,12 +64,12 @@ int main(int argc, char** argv) {
   unicharset_file_name += kUnicharsetFileName;
 
   // Load box files
-  for (; optind < argc; ++optind) {
-    printf("Extracting unicharset from %s\n", argv[optind]);
+  for (; tessoptind < argc; ++tessoptind) {
+    printf("Extracting unicharset from %s\n", argv[tessoptind]);
 
-    FILE* box_file = fopen(argv[optind], "r");
+    FILE* box_file = fopen(argv[tessoptind], "r");
     if (box_file == NULL) {
-      printf("Cannot open box file %s\n", argv[optind]);
+      printf("Cannot open box file %s\n", argv[tessoptind]);
       return -1;
     }
 

@@ -50,6 +50,7 @@
 #include          "notdll.h"
 #include "tordvars.h"
 #include "adaptmatch.h"
+#include "globals.h"
 
 #define MIN_FONT_ROW_COUNT  8
 #define MAX_XHEIGHT_DIFF  3
@@ -148,18 +149,9 @@ EXTERN double_VAR (test_pt_x, 99999.99, "xcoord");
 EXTERN double_VAR (test_pt_y, 99999.99, "ycoord");
 
 extern int MatcherDebugLevel;
-extern "C" { extern int display_ratings; }
+extern int display_ratings;
 extern int number_debug;
 extern int adjust_debug;
-/*
-extern "C" {
-  extern int 	MatcherDebugLevel;
-  extern int 	display_ratings;
-  extern int	number_debug;
-  extern int	adjust_debug;
-//	extern int 	LearningDebugLevel;
- };
-*/
 FILE *choice_file = NULL;        //Choice file ptr
 
 CLISTIZEH (PBLOB) CLISTIZE (PBLOB)
@@ -569,8 +561,8 @@ if (dopasses==1) return;
 
 ////changed by jetsoft
 //needed for dll to output memory structure
-  if ((dopasses==0 || dopasses==2) && monitor)
-	output_pass (page_res_it,true, target_word_box);
+  if ((dopasses == 0 || dopasses == 2) && (monitor || tessedit_write_unlv))
+	output_pass(page_res_it, ocr_char_space() > 0, target_word_box);
 // end jetsoft
 
 }
@@ -620,34 +612,33 @@ void classify_word_pass1(                 //recog one word
     tess_default_matcher,
     word->raw_choice, &blob_choices,
     word->outword);
-
   /*
      Test for TESS screw up on word. Recog_word has already ensured that the
      choice list, outword blob lists and best_choice string are the same
      length. A TESS screw up is indicated by a blank filled or 0 length string.
    */
-  if ((word->best_choice->string ().length () == 0) ||
+  if ((word->best_choice->lengths ().length () == 0) ||
     (strspn (word->best_choice->string ().string (), " ") ==
   word->best_choice->string ().length ())) {
     word->done = FALSE;          //Try again on pass2 - adaption may help
     word->tess_failed = TRUE;
-    word->reject_map.initialise (word->best_choice->string ().length ());
+    word->reject_map.initialise (word->best_choice->lengths ().length ());
     word->reject_map.rej_word_tess_failure ();
   }
   else {
     word->tess_failed = FALSE;
-    if ((word->best_choice->string ().length () !=
+    if ((word->best_choice->lengths ().length () !=
       word->outword->blob_list ()->length ()) ||
-    (word->best_choice->string ().length () != blob_choices.length ())) {
+    (word->best_choice->lengths ().length () != blob_choices.length ())) {
       tprintf
         ("ASSERT FAIL String:\"%s\"; Strlen=%d; #Blobs=%d; #Choices=%d\n",
         word->best_choice->string ().string (),
-        word->best_choice->string ().length (),
+        word->best_choice->lengths ().length (),
         word->outword->blob_list ()->length (), blob_choices.length ());
     }
-    ASSERT_HOST (word->best_choice->string ().length () ==
+    ASSERT_HOST (word->best_choice->lengths ().length () ==
       word->outword->blob_list ()->length ());
-    ASSERT_HOST (word->best_choice->string ().length () ==
+    ASSERT_HOST (word->best_choice->lengths ().length () ==
       blob_choices.length ());
 
     /*
@@ -664,12 +655,12 @@ void classify_word_pass1(                 //recog one word
       fix_rep_char(word);
     }
     else {
-      fix_quotes ((char *) word->best_choice->string ().string (),
+      fix_quotes (word->best_choice,
       //turn to double
         word->outword, &blob_choices);
       if (tessedit_fix_hyphens)
                                  //turn 2 to 1
-        fix_hyphens ((char *) word->best_choice->string ().string (), word->outword, &blob_choices);
+        fix_hyphens (word->best_choice, word->outword, &blob_choices);
       record_certainty (word->best_choice->certainty (), 1);
       //accounting
 
@@ -692,7 +683,7 @@ void classify_word_pass1(                 //recog one word
           rejmap = NULL;
         else {
           ASSERT_HOST (word->reject_map.length () ==
-            word->best_choice->string ().length ());
+            word->best_choice->lengths ().length ());
 
           for (index = 0; index < word->reject_map.length (); index++) {
             if (adapt_ok || word->reject_map[index].accepted ())
@@ -704,7 +695,9 @@ void classify_word_pass1(                 //recog one word
         }
 
                                  //adapt to it
-        tess_adapter (word->outword, &word->denorm, word->best_choice->string ().string (), word->raw_choice->string ().string (), rejmap);
+        tess_adapter (word->outword, &word->denorm,
+                      *word->best_choice,
+                      *word->raw_choice, rejmap);
       }
 
       if (tessedit_enable_doc_dict)
@@ -712,10 +705,12 @@ void classify_word_pass1(                 //recog one word
       set_word_fonts(word, &blob_choices);
     }
   }
+#if 0
   if (tessedit_print_text) {
     write_cooked_text (bln_word, word->best_choice->string (),
       word->done, FALSE, stdout);
   }
+#endif
   delete bln_word;
   blob_choices.deep_clear ();
 }
@@ -898,10 +893,12 @@ void classify_word_pass2(  //word to do
 #endif
 
   set_global_subloc_code(SUBLOC_NORM);
+#if 0
   if (tessedit_print_text) {
     write_cooked_text (word->outword, word->best_choice->string (),
       word->done, done_this_pass, stdout);
   }
+#endif
   check_debug_pt (word, 50);
 }
 
@@ -971,18 +968,18 @@ void match_word_pass2(                 //recog one word
     //              tprintf("Empty word produced\n");
   }
   else {
-    if ((word->best_choice->string ().length () !=
+    if ((word->best_choice->lengths ().length () !=
       word->outword->blob_list ()->length ()) ||
-    (word->best_choice->string ().length () != blob_choices.length ())) {
+    (word->best_choice->lengths ().length () != blob_choices.length ())) {
       tprintf
         ("ASSERT FAIL String:\"%s\"; Strlen=%d; #Blobs=%d; #Choices=%d\n",
         word->best_choice->string ().string (),
-        word->best_choice->string ().length (),
+        word->best_choice->lengths ().length (),
         word->outword->blob_list ()->length (), blob_choices.length ());
     }
-    ASSERT_HOST (word->best_choice->string ().length () ==
+    ASSERT_HOST (word->best_choice->lengths ().length () ==
       word->outword->blob_list ()->length ());
-    ASSERT_HOST (word->best_choice->string ().length () ==
+    ASSERT_HOST (word->best_choice->lengths ().length () ==
       blob_choices.length ());
 
     word->tess_failed = FALSE;
@@ -990,29 +987,29 @@ void match_word_pass2(                 //recog one word
       fix_rep_char(word);
     }
     else {
-      fix_quotes ((char *) word->best_choice->string ().string (),
+      fix_quotes (word->best_choice,
         word->outword, &blob_choices);
       if (tessedit_fix_hyphens)
-        fix_hyphens ((char *) word->best_choice->string ().string (),
+        fix_hyphens (word->best_choice,
           word->outword, &blob_choices);
       /* Dont trust fix_quotes! - though I think I've fixed the bug */
-      if ((word->best_choice->string ().length () !=
-        word->outword->blob_list ()->length ()) ||
-        (word->best_choice->string ().length () !=
-      blob_choices.length ())) {
+      if ((word->best_choice->lengths ().length () !=
+           word->outword->blob_list ()->length ()) ||
+          (word->best_choice->lengths ().length () !=
+           blob_choices.length ())) {
         #ifndef SECURE_NAMES
         tprintf
           ("POST FIX_QUOTES FAIL String:\"%s\"; Strlen=%d; #Blobs=%d; #Choices=%d\n",
-          word->best_choice->string ().string (),
-          word->best_choice->string ().length (),
-          word->outword->blob_list ()->length (),
-          blob_choices.length ());
+           word->best_choice->string ().string (),
+           word->best_choice->lengths ().length (),
+           word->outword->blob_list ()->length (),
+           blob_choices.length ());
         #endif
 
       }
-      ASSERT_HOST (word->best_choice->string ().length () ==
+      ASSERT_HOST (word->best_choice->lengths ().length () ==
         word->outword->blob_list ()->length ());
-      ASSERT_HOST (word->best_choice->string ().length () ==
+      ASSERT_HOST (word->best_choice->lengths ().length () ==
         blob_choices.length ());
 
       word->tess_accepted = tess_acceptable_word (word->best_choice,
@@ -1039,7 +1036,7 @@ void fix_rep_char(                //Repeated char word
                  ) {
   struct REP_CH
   {
-    char ch;
+    char ch[UNICHAR_LEN + 1];
     int count;
   };
 
@@ -1048,19 +1045,25 @@ void fix_rep_char(                //Repeated char word
   int rep_ch_count = 0;          //how many unique chs
   const char *word_str;          //the repeated chs
   int i, j;
+  int offset;
   int total = 0;
   int max = 0;
-  char maxch = ' ';              //Most common char
+  char *maxch = NULL;              //Most common char
 
   word_str = word->best_choice->string ().string ();
-  word_len = strlen (word_str);
+  word_len = word->best_choice->lengths ().length ();;
   rep_ch = (REP_CH *) alloc_mem (word_len * sizeof (REP_CH));
-  for (i = 0; i < word_len; i++) {
-    for (j = 0; j < rep_ch_count && rep_ch[j].ch != word_str[i]; j++);
+  for (i = 0, offset = 0; i < word_len;
+       offset += word->best_choice->lengths()[i++]) {
+    for (j = 0; j < rep_ch_count &&
+             strncmp(rep_ch[j].ch, word_str + offset,
+                     word->best_choice->lengths()[i]) != 0; j++);
     if (j < rep_ch_count)
       rep_ch[j].count++;
     else {
-      rep_ch[rep_ch_count].ch = word_str[i];
+      strncpy(rep_ch[rep_ch_count].ch, word_str + offset,
+              word->best_choice->lengths()[i]);
+      rep_ch[rep_ch_count].ch[word->best_choice->lengths()[i]] = '\0';
       rep_ch[rep_ch_count].count = 1;
       rep_ch_count++;
     }
@@ -1068,7 +1071,7 @@ void fix_rep_char(                //Repeated char word
 
   for (j = 0; j < rep_ch_count; j++) {
     total += rep_ch[j].count;
-    if ((rep_ch[j].count > max) && (rep_ch[j].ch != ' ')) {
+    if ((rep_ch[j].count > max) && (*rep_ch[j].ch != ' ')) {
       max = rep_ch[j].count;
       maxch = rep_ch[j].ch;
     }
@@ -1078,26 +1081,47 @@ void fix_rep_char(                //Repeated char word
   free_mem(rep_ch);
 
   word->reject_map.initialise (word_len);
-  for (i = 0; i < word_len; i++) {
-    if (word_str[i] != maxch)
+  for (i = 0, offset = 0; i < word_len;
+       offset += word->best_choice->lengths()[i++]) {
+    if (strncmp(word_str + offset, maxch,
+                word->best_choice->lengths()[i]) != 0)
                                  //rej unrecognised blobs
       word->reject_map[i].setrej_bad_repetition ();
   }
   word->done = TRUE;
 }
 
+// TODO(tkielbus) Decide between keeping this behavior here or modifying the
+// training data.
+
+// Utility function for fix_quotes
+// Return true if the next character in the string (given the UTF8 length in
+// bytes) is a quote character.
+static int is_simple_quote(const char* signed_str, int length) {
+  const unsigned char* str = reinterpret_cast<const unsigned char*>(signed_str);
+   //standard 1 byte quotes
+  return (length == 1 && (*str == '\'' || *str == '`')) ||
+      //utf8 3 bytes curved quotes
+      (length == 3 && ((*str == 0xe2 &&
+                        *(str + 1) == 0x80 &&
+                        *(str + 2) == 0x98) ||
+                       (*str == 0xe2 &&
+                        *(str + 1) == 0x80 &&
+                        *(str + 2) == 0x99)));
+}
 
 /**********************************************************************
  * fix_quotes
  *
  * Change pairs of quotes to double quotes.
  **********************************************************************/
-
 void fix_quotes(               //make double quotes
-                char *string,  //string to fix
+                WERD_CHOICE *choice,  //choice to fix
                 WERD *word,    //word to do //char choices
                 BLOB_CHOICE_LIST_CLIST *blob_choices) {
-  char *ptr;                     //string ptr
+  char *str = (char *) choice->string().string();//string ptr
+  int i;
+  int offset;
                                  //blobs
   PBLOB_IT blob_it = word->blob_list ();
                                  //choices
@@ -1105,12 +1129,20 @@ void fix_quotes(               //make double quotes
   BLOB_CHOICE_IT it1;            //first choices
   BLOB_CHOICE_IT it2;            //second choices
 
-  for (ptr = string;
-  *ptr != '\0'; ptr++, blob_it.forward (), choice_it.forward ()) {
-    if ((*ptr == '\'' || *ptr == '`')
-    && (*(ptr + 1) == '\'' || *(ptr + 1) == '`')) {
-      *ptr = '"';                //turn to double
-      strcpy (ptr + 1, ptr + 2); //shuffle up
+  for (i = 0, offset = 0; str[offset] != '\0';
+       offset += choice->lengths()[i++],
+           blob_it.forward (), choice_it.forward ()) {
+    if (str[offset + choice->lengths()[i]] != '\0' &&
+        is_simple_quote(str + offset, choice->lengths()[i]) &&
+        is_simple_quote(str + offset + choice->lengths()[i],
+                        choice->lengths()[i + 1])) {
+      str[offset] = '"';                //turn to double
+      strcpy (str + offset + 1,
+              str + offset + choice->lengths()[i] +
+              choice->lengths()[i + 1]); //shuffle up
+      choice->lengths()[i] = 1;
+      strcpy ((char*) choice->lengths().string() + i + 1,
+              choice->lengths().string() + i + 2);
       merge_blobs (blob_it.data (), blob_it.data_relative (1));
       blob_it.forward ();
       delete blob_it.extract (); //get rid of spare
@@ -1138,12 +1170,13 @@ void fix_quotes(               //make double quotes
  * Change pairs of hyphens to a single hyphen if the bounding boxes touch
  * Typically a long dash which has been segmented.
  **********************************************************************/
-
 void fix_hyphens(               //crunch double hyphens
-                 char *string,  //string to fix
+                 WERD_CHOICE *choice,  //choice to fix
                  WERD *word,    //word to do //char choices
                  BLOB_CHOICE_LIST_CLIST *blob_choices) {
-  char *ptr;                     //string ptr
+  char *str = (char *) choice->string().string();//string ptr
+  int i;
+  int offset;
                                  //blobs
   PBLOB_IT blob_it = word->blob_list ();
                                  //choices
@@ -1151,14 +1184,20 @@ void fix_hyphens(               //crunch double hyphens
   BLOB_CHOICE_IT it1;            //first choices
   BLOB_CHOICE_IT it2;            //second choices
 
-  for (ptr = string;
-  *ptr != '\0'; ptr++, blob_it.forward (), choice_it.forward ()) {
-    if ((*ptr == '-' || *ptr == '~') &&
-      (*(ptr + 1) == '-' || *(ptr + 1) == '~') &&
+  for (i = 0, offset = 0; str[offset] != '\0';
+  offset += choice->lengths()[i++],
+           blob_it.forward (), choice_it.forward ()) {
+    if ((str[offset] == '-' || str[offset] == '~') &&
+      (str[offset + choice->lengths()[i]] == '-' ||
+       str[offset + choice->lengths()[i]] == '~') &&
       (blob_it.data ()->bounding_box ().right () >=
     blob_it.data_relative (1)->bounding_box ().left ())) {
-      *ptr = '-';                //turn to single hyphen
-      strcpy (ptr + 1, ptr + 2); //shuffle up
+      str[offset] = '-';                //turn to single hyphen
+      strcpy (str + offset + choice->lengths()[i],
+              str + offset + choice->lengths()[i] +
+              choice->lengths()[i + 1]); //shuffle up
+      strcpy ((char*) choice->lengths().string() + i + 1,
+              choice->lengths().string() + i + 2);
       merge_blobs (blob_it.data (), blob_it.data_relative (1));
       blob_it.forward ();
       delete blob_it.extract (); //get rid of spare
@@ -1249,11 +1288,9 @@ void choice_dump_tester(                           //dump chars in word
   it.set_to_list (ratings);
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
     blob_choice = it.data ();
-    if ((blob_choice->char_class () >= '!') &&
-      (blob_choice->char_class () <= '~'))
-      fprintf (choice_file, "\t%c\t%f\t%f",
-        blob_choice->char_class (),
-        blob_choice->rating (), blob_choice->certainty ());
+    fprintf (choice_file, "\t%s\t%f\t%f",
+             blob_choice->unichar (),
+             blob_choice->rating (), blob_choice->certainty ());
   }
   fprintf (choice_file, "\n");
 }
@@ -1290,33 +1327,37 @@ WERD *make_bln_copy(WERD *src_word, ROW *row, float x_height, DENORM *denorm) {
 }
 
 
-ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s) {
+ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s,
+                                            const char *lengths) {
   int i = 0;
+  int offset = 0;
   int leading_punct_count;
   int upper_count = 0;
   int hyphen_pos = -1;
   ACCEPTABLE_WERD_TYPE word_type = AC_UNACCEPTABLE;
 
-  if (strlen (s) > 20)
+  if (strlen (lengths) > 20)
     return word_type;
 
   /* Single Leading punctuation char*/
 
-  if ((s[i] != '\0') && (STRING (chs_leading_punct).contains (s[i])))
-    i++;
+  if ((s[offset] != '\0') && (STRING (chs_leading_punct).contains (s[offset])))
+    offset += lengths[i++];
   leading_punct_count = i;
 
   /* Initial cap */
-  while (isupper (s[i])) {
-    i++;
+  while ((s[offset] != '\0') &&
+         unicharset.get_isupper(s + offset, lengths[i])) {
+    offset += lengths[i++];
     upper_count++;
   }
   if (upper_count > 1)
     word_type = AC_UPPER_CASE;
   else {
     /* Lower case word, possibly with an initial cap */
-    while (islower (s[i])) {
-      i++;
+    while ((s[offset] != '\0') &&
+           unicharset.get_islower (s + offset, lengths[i])) {
+      offset += lengths[i++];
     }
     if (i - leading_punct_count < quality_min_initial_alphas_reqd)
       goto not_a_word;
@@ -1324,11 +1365,13 @@ ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s) {
     Allow a single hyphen in a lower case word
     - dont trust upper case - I've seen several cases of "H" -> "I-I"
     */
-    if (s[i] == '-') {
-      hyphen_pos = i++;
-      if (s[i] != '\0') {
-        while (islower (s[i])) {
-          i++;
+    if (lengths[i] == 1 && s[offset] == '-') {
+      hyphen_pos = i;
+      offset += lengths[i++];
+      if (s[offset] != '\0') {
+        while ((s[offset] != '\0') &&
+               unicharset.get_islower(s + offset, lengths[i])) {
+          offset += lengths[i++];
         }
         if (i < hyphen_pos + 3)
           goto not_a_word;
@@ -1336,8 +1379,11 @@ ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s) {
     }
     else {
       /* Allow "'s" in NON hyphenated lower case words */
-      if ((s[i] == '\'') && (s[i + 1] == 's'))
-        i += 2;
+      if (lengths[i] == 1 && (s[offset] == '\'') &&
+          lengths[i + 1] == 1 && (s[offset + lengths[i]] == 's')) {
+        offset += lengths[i++];
+        offset += lengths[i++];
+      }
     }
     if (upper_count > 0)
       word_type = AC_INITIAL_CAP;
@@ -1346,13 +1392,15 @@ ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s) {
   }
 
   /* Up to two different, constrained trailing punctuation chars */
-  if ((s[i] != '\0') && (STRING (chs_trailing_punct1).contains (s[i])))
-    i++;
-  if ((s[i] != '\0') &&
-    (s[i - 1] != s[i]) && (STRING (chs_trailing_punct2).contains (s[i])))
-    i++;
+  if (lengths[i] == 1 && (s[offset] != '\0') &&
+      (STRING (chs_trailing_punct1).contains (s[offset])))
+    offset += lengths[i++];
+  if (lengths[i] == 1 && (s[offset] != '\0') && i > 0 &&
+    (s[offset - lengths[i - 1]] != s[offset]) &&
+      (STRING (chs_trailing_punct2).contains (s[offset])))
+    offset += lengths[i++];
 
-  if (s[i] != '\0')
+  if (s[offset] != '\0')
     word_type = AC_UNACCEPTABLE;
 
   not_a_word:
@@ -1360,17 +1408,26 @@ ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s) {
   if (word_type == AC_UNACCEPTABLE) {
     /* Look for abbreviation string */
     i = 0;
-    if (isupper (s[0])) {
+    offset = 0;
+    if (s[0] != '\0' && unicharset.get_isupper (s, lengths[0])) {
       word_type = AC_UC_ABBREV;
-      while ((s[i] != '\0') && isupper (s[i]) && (s[i + 1] == '.'))
-        i += 2;
+      while ((s[offset] != '\0') &&
+             unicharset.get_isupper(s + offset, lengths[i]) &&
+             (lengths[i + 1] == 1 && s[offset + lengths[i]] == '.')) {
+        offset += lengths[i++];
+        offset += lengths[i++];
+      }
     }
-    else if (islower (s[0])) {
+    else if (s[0] != '\0' && unicharset.get_islower (s, lengths[0])) {
       word_type = AC_LC_ABBREV;
-      while ((s[i] != '\0') && islower (s[i]) && (s[i + 1] == '.'))
-        i += 2;
+      while ((s[offset] != '\0') &&
+             unicharset.get_islower(s + offset, lengths[i]) &&
+             (lengths[i + 1] == 1 && s[offset + lengths[i]] == '.')) {
+        offset += lengths[i++];
+        offset += lengths[i++];
+      }
     }
-    if (s[i] != '\0')
+    if (s[offset] != '\0')
       word_type = AC_UNACCEPTABLE;
   }
 
@@ -1478,7 +1535,8 @@ void set_word_fonts(                 //good chars in word
                     WERD_RES *word,  //word to adapt to //detailed results
                     BLOB_CHOICE_LIST_CLIST *blob_choices) {
   INT32 index;                   //char index
-  char choice_char;              //char from word
+  INT32 offset;                  //char offset
+  char choice_char[UNICHAR_LEN + 1];    //char from word
   INT8 config;                   //font of char
                                  //character iterator
   BLOB_CHOICE_LIST_C_IT char_it = blob_choices;
@@ -1517,16 +1575,19 @@ void set_word_fonts(                 //good chars in word
 
   word->italic = 0;
   word->bold = 0;
-  for (char_it.mark_cycle_pt (), index = 0;
-  !char_it.cycled_list (); char_it.forward (), index++) {
-    choice_char = word->best_choice->string ()[index];
+  for (char_it.mark_cycle_pt (), index = 0, offset = 0;
+  !char_it.cycled_list (); char_it.forward (),
+           offset += word->best_choice->lengths()[index++]) {
+    strncpy(choice_char, word->best_choice->string ().string() + offset,
+            word->best_choice->lengths()[index]);
+    choice_char[word->best_choice->lengths()[index]] = '\0';
     choice_it.set_to_list (char_it.data ());
     for (choice_it.mark_cycle_pt (); !choice_it.cycled_list ();
-    choice_it.forward ()) {
-      if (choice_it.data ()->char_class () == choice_char) {
+         choice_it.forward ()) {
+      if (strcmp(choice_it.data ()->unichar (), choice_char) == 0) {
         config = choice_it.data ()->config ();
         if (tessedit_debug_fonts)
-          tprintf ("%c(%d=%d%c%c)",
+          tprintf ("%s(%d=%d%c%c)",
             choice_char, config, (config & 31) >> 2,
             config & 2 ? 'N' : 'B', config & 1 ? 'N' : 'I');
         if (config != -1) {

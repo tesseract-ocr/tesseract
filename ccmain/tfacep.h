@@ -46,66 +46,8 @@
 typedef void (*TESS_TESTER) (TBLOB *, BOOL8, char *, INT32, LIST);
 typedef LIST (*TESS_MATCHER) (TBLOB *, TBLOB *, TBLOB *, void *, TEXTROW *);
 
-extern "C"
-{
-  /*
-  int							start_recog(				//Real main in C
-  int							argc,
-  char						*argv[]);
-  void						program_editup2(			//afterforking part
-  int							argc,
-  char**						argv);
-
-  int							end_recog(					//Real main in C
-  int							argc,
-  char						*argv[]);
-  void						set_interactive_pass();
-  void						set_pass1();
-  void						set_pass2();
-  //ARRAY						cc_recog(TWERD*,TESS_CHOICE*,TESS_CHOICE*,TESS_TESTER,
-  //										TESS_TESTER);*/
-  //void                                          wo_learn_blob(TBLOB*,TEXTROW*,char*,INT32);
-  //LIST                                  AdaptiveClassifier(TBLOB*,TBLOB*,TEXTROW*);
-  //void                                          LearnBlob(TBLOB*,TEXTROW*,char*,INT32);
-  //TWERD                                         *newword();
-  //TBLOB                                         *newblob();
-  //TESSLINE                                      *newoutline();
-  //EDGEPT                                                *newedgept();
-  //void                                          oldedgept(EDGEPT*);
-  //void                                          destroy_nodes(void*,void (*)(void*));
-  //TESS_LIST                                     *append_choice(TESS_LIST*,char*,double,double,char);
-  //void                                          fix_quotes (char*);
-  //void                                          record_certainty(double,int);
-  //int                                                   AcceptableResult(A_CHOICE*,A_CHOICE*);
-  //int                                                   AdaptableWord(TWERD*,const char*,const char*);
-  //void                                          delete_word(TWERD*);
-  //void                                          free_blob(TBLOB*);
-  //void                                          add_document_word(A_CHOICE*);
-  //void                                          AdaptToWord(TWERD*,TEXTROW*,const char*,const char*,const char*);
-  //void                                          SaveBadWord(const char*,double);
-  //void                                          free_choice(TESS_CHOICE*);
-  //TWERD                                         *newword();
-  //TBLOB                                         *newblob();
-  //void                                          free_blob(                                      //free a blob
-  //      TBLOB                                           *blob);                                         //blob to free
-
-  //int                                                   dict_word( const char* );
-
-  //extern int                                    tess_cn_matching;
-  //extern int                                    tess_bn_matching;
-  //extern int                                    last_word_on_line;
-  extern TEXTROW normalized_row;
-  //extern TESS_MATCHER                   blob_matchers[];
-  //extern FILE                                   *rawfile;
-  //extern FILE                                   *textfile;
-  //extern int                                    character_count;
-  //extern int                                    word_count;
-  //extern int                                    enable_assoc;
-  //extern int                                    chop_enable;
-  //extern int                                    permute_only_top;
-  extern int display_ratings;
-
-};
+extern TEXTROW normalized_row;
+extern int display_ratings;
 
 #if 0
 #define strsave(s)    \

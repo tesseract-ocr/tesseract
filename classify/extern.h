@@ -28,7 +28,7 @@
  */
 
 #ifdef __cplusplus
-#define EXTERN extern "C"
+#define EXTERN extern
 #else
 #define EXTERN extern
 #endif
