@@ -180,6 +180,40 @@ class TessBaseAPI {
   // The input page_res is deleted. The text string is converted
   // to UNLV-format: Latin-1 with specific reject and suspect codes.
   static char* TesseractToUNLV(PAGE_RES* page_res);
+
+  // __________________________   ocropus add-ons   ___________________________
+
+  // Find lines from the image making the BLOCK_LIST.
+  static BLOCK_LIST* FindLinesCreateBlockList();
+
+  // Delete a block list.
+  // This is to keep BLOCK_LIST pointer opaque
+  // and let go of including the other headers.
+  static void DeleteBlockList(BLOCK_LIST *);
+
+  // Adapt to recognize the current image as the given character.
+  // The image must be preloaded and be just an image of a single character.
+  static void AdaptToCharacter(const char *unichar_repr,
+                               int length,
+                               float baseline,
+                               float xheight,
+                               float descender,
+                               float ascender);
+
+  // Recognize text doing one pass only, using settings for a given pass.
+  static PAGE_RES* RecognitionPass1(BLOCK_LIST* block_list);
+  static PAGE_RES* RecognitionPass2(BLOCK_LIST* block_list, PAGE_RES* pass1_result);
+
+  // Extract the OCR results, costs (penalty points for uncertainty),
+  // and the bounding boxes of the characters.
+  static int TesseractExtractResult(char** string,
+                                    int** lengths,
+                                    float** costs,
+                                    int** x0,
+                                    int** y0,
+                                    int** x1,
+                                    int** y1,
+                                    PAGE_RES* page_res);
 };
 
 #endif  // THIRD_PARTY_TESSERACT_CCMAIN_BASEAPI_H__

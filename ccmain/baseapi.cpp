@@ -28,6 +28,18 @@
 #include "pgedit.h"
 #include "varabled.h"
 #include "output.h"
+#include "globals.h"
+#include "adaptmatch.h"
+#include "edgblob.h"
+#include "tessbox.h"
+#include "tordvars.h"
+#include "tessvars.h"
+#include "imgs.h"
+#include "makerow.h"
+#include "output.h"
+#include "tstruct.h"
+#include "tessout.h"
+#include "tface.h"
 #include "adaptmatch.h"
 
 BOOL_VAR(tessedit_resegment_from_boxes, FALSE,
@@ -675,3 +687,349 @@ char* TessBaseAPI::TesseractToUNLV(PAGE_RES* page_res) {
   return NULL;
 }
 
+// ____________________________________________________________________________
+
+// Find lines from the image making the BLOCK_LIST.
+BLOCK_LIST* TessBaseAPI::FindLinesCreateBlockList() {
+    BLOCK_LIST *block_list = new BLOCK_LIST();
+    FindLines(block_list);
+    return block_list;
+}
+
+// Delete a block list.
+// This is to keep BLOCK_LIST pointer opaque
+// and let go of including the other headers.
+void TessBaseAPI::DeleteBlockList(BLOCK_LIST *block_list) {
+    delete block_list;
+}
+
+
+static ROW *make_tess_ocrrow(float baseline, 
+                             float xheight,
+                             float descender,
+                             float ascender) {
+    INT32 xstarts[] = {-32000};
+    double quad_coeffs[] = {0,0,baseline};
+    return new ROW(
+        1,
+        xstarts,
+        quad_coeffs,
+        xheight,
+        ascender - (baseline + xheight),
+        descender - baseline,
+        0,
+        0
+    );
+}
+
+// Almost a copy of make_tess_row() from ccmain/tstruct.cpp.
+static void fill_dummy_row(TEXTROW &tessrow, float baseline, float xheight, float descender, float ascender)
+{
+    tessrow.baseline.segments = 1;
+    tessrow.baseline.xstarts[0] = -32767;
+    tessrow.baseline.xstarts[1] = 32767;
+    tessrow.baseline.quads[0].a = 0;
+    tessrow.baseline.quads[0].b = 0;
+    tessrow.baseline.quads[0].c = bln_baseline_offset;
+    tessrow.xheight.segments = 1;
+    tessrow.xheight.xstarts[0] = -32767;
+    tessrow.xheight.xstarts[1] = 32767;
+    tessrow.xheight.quads[0].a = 0;
+    tessrow.xheight.quads[0].b = 0;
+    tessrow.xheight.quads[0].c = bln_baseline_offset + bln_x_height;
+    tessrow.lineheight = bln_x_height;
+    tessrow.ascrise = bln_x_height * (ascender - (xheight + baseline)) / xheight;
+    tessrow.descdrop = bln_x_height * (descender - baseline) / xheight;
+}
+
+
+/// Return a TBLOB * from the whole page_image.
+/// To be freed later with free_blob().
+TBLOB *make_tesseract_blob(float baseline, float xheight, float descender, float ascender) {
+    BLOCK *block = new BLOCK ("a character",
+                              TRUE, 
+                              0, 0,
+                              0, 0,
+                              page_image.get_xsize(),
+                              page_image.get_ysize());
+
+    // Create C_BLOBs from the page
+    extract_edges(NULL, &page_image, &page_image,
+                  ICOORD(page_image.get_xsize(), page_image.get_ysize()),
+                  block);
+
+    // Create one PBLOB from all C_BLOBs
+    C_BLOB_LIST *list = block->blob_list();
+    C_BLOB_IT c_blob_it(list);
+    PBLOB *pblob = new PBLOB; // will be (hopefully) deleted by the pblob_list
+    for (c_blob_it.mark_cycle_pt();
+        !c_blob_it.cycled_list();
+         c_blob_it.forward()) {
+        C_BLOB *c_blob = c_blob_it.data();
+        PBLOB c_as_p(c_blob, baseline + xheight);
+        merge_blobs(pblob, &c_as_p);
+    }
+    PBLOB_LIST *pblob_list = new PBLOB_LIST; // will be deleted by the word
+    PBLOB_IT pblob_it(pblob_list);
+    pblob_it.add_after_then_move(pblob);
+
+    // Normalize PBLOB
+    WERD word(pblob_list, 0, " ");
+    ROW *row = make_tess_ocrrow(baseline, xheight, descender, ascender);
+    word.baseline_normalise(row);
+    delete row;
+
+    // Create a TBLOB from PBLOB
+    return make_tess_blob(pblob, /* flatten: */ TRUE);
+}
+
+
+// Adapt to recognize the current image as the given character.
+// The image must be preloaded and be just an image of a single character.
+void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
+                                   int length,
+                                   float baseline,
+                                   float xheight,
+                                   float descender,
+                                   float ascender) {
+    UNICHAR_ID id = unicharset.unichar_to_id(unichar_repr, length);
+    LINE_STATS LineStats;
+    TEXTROW row;
+    fill_dummy_row(row, baseline, xheight, descender, ascender);
+    GetLineStatsFromRow(&row, &LineStats); 
+    
+    TBLOB *blob = make_tesseract_blob(baseline, xheight, descender, ascender);
+    float threshold;
+    int best_class = 0;
+    float best_rating = -100;
+
+
+    // Classify to get a raw choice.
+    LIST result = AdaptiveClassifier(blob, NULL, &row);
+    LIST p;
+    for (p = result; p != NULL; p = p->next) {
+        A_CHOICE *tesschoice = (A_CHOICE *) p->node;
+        if (tesschoice->rating > best_rating) {
+            best_rating = tesschoice->rating;
+            best_class = tesschoice->string[0];
+        }
+    }
+
+    FLOAT32 GetBestRatingFor(TBLOB *Blob, LINE_STATS *LineStats, CLASS_ID ClassId);
+
+    // We have to use char-level adaptation because otherwise
+    // someone should do forced alignment somewhere.
+    void AdaptToChar(TBLOB *Blob,
+                     LINE_STATS *LineStats,
+                     CLASS_ID ClassId,
+                     FLOAT32 Threshold);
+
+
+    if (id == best_class)
+        threshold = GoodAdaptiveMatch;
+    else {
+        /* the blob was incorrectly classified - find the rating threshold
+           needed to create a template which will correct the error with
+           some margin.  However, don't waste time trying to make
+           templates which are too tight. */
+        threshold = GetBestRatingFor(blob, &LineStats, id);
+        threshold *= .9;
+        const float max_threshold = .125;
+        const float min_threshold = .02;
+
+        if (threshold > max_threshold)
+            threshold = max_threshold;
+
+        // I have cuddled the following line to set it out of the strike
+        // of the coverage testing tool. I have no idea how to trigger
+        // this situation nor I have any necessity to do it. --mezhirov
+        if (threshold < min_threshold) threshold = min_threshold;
+    }
+    
+    if (blob->outlines)
+        AdaptToChar(blob, &LineStats, id, threshold);
+    free_blob(blob);
+}
+
+
+PAGE_RES* TessBaseAPI::RecognitionPass1(BLOCK_LIST* block_list) {
+    PAGE_RES *page_res = new PAGE_RES(block_list);
+    recog_all_words(page_res, NULL, NULL, 1);
+    return page_res;
+}
+
+PAGE_RES* TessBaseAPI::RecognitionPass2(BLOCK_LIST* block_list, PAGE_RES* pass1_result) {
+    if (!pass1_result)
+        pass1_result = new PAGE_RES(block_list);
+    recog_all_words(pass1_result, NULL, NULL, 2);
+    return pass1_result;
+}
+
+// brief Get a bounding box of a PBLOB.
+static BOX pblob_get_bbox(PBLOB *blob) {
+    OUTLINE_LIST *outlines = blob->out_list();
+    OUTLINE_IT it(outlines);
+    BOX result;
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+        OUTLINE *outline = it.data();
+        outline->compute_bb();
+        result.bounding_union(outline->bounding_box());
+    }
+    return result;
+}
+
+static BOX c_blob_list_get_bbox(C_BLOB_LIST *cblobs) {
+    BOX result;
+    C_BLOB_IT c_it(cblobs);
+    for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
+        C_BLOB *blob = c_it.data();
+        //bboxes.push(tessy_rectangle(blob->bounding_box()));
+        result.bounding_union(blob->bounding_box());
+    }
+}
+
+struct TESS_CHAR : ELIST_LINK {
+    char *unicode_repr;
+    int length; // of unicode_repr
+    float cost;
+    BOX box;
+
+    TESS_CHAR(float _cost, const char *repr, int len = -1) : cost(_cost) {
+        length = (len == -1 ? strlen(repr) : len);
+        unicode_repr = new char[length + 1];
+        strncpy(unicode_repr, repr, length);
+    }
+
+    ~TESS_CHAR() {
+        delete unicode_repr;
+    }
+};
+
+
+static void add_space(ELIST_ITERATOR *it) {
+    TESS_CHAR *t = new TESS_CHAR(0, " ");
+    it->add_after_then_move(t);
+}
+
+
+static float rating_to_cost(float rating) {
+    rating = 100 + rating;
+    // cuddled that to save from coverage profiler 
+    // (I have never seen ratings worse than -100, 
+    //  but the check won't hurt)
+    if (rating < 0) rating = 0;
+    return rating;
+}
+
+
+// Extract the OCR results, costs (penalty points for uncertainty),
+// and the bounding boxes of the characters.
+static void extract_result(ELIST_ITERATOR *out,
+                           PAGE_RES* page_res) {
+    PAGE_RES_IT page_res_it(page_res);
+    int word_count = 0;
+    while (page_res_it.word() != NULL) {
+        WERD_RES *word = page_res_it.word();
+        const char *str = word->best_choice->string().string();
+        const char *len = word->best_choice->lengths().string();
+
+        if (word_count)
+            add_space(out);
+        BOX bln_rect;
+        PBLOB_LIST *blobs = word->outword->blob_list();
+        PBLOB_IT it(blobs);
+        int n = strlen(len);
+        BOX *(boxes_to_fix[n]);
+        for (int i = 0; i < n; i++) {
+            PBLOB *blob = it.data();
+            BOX current = pblob_get_bbox(blob);
+            bln_rect.bounding_union(current);
+            
+            TESS_CHAR *tc = new TESS_CHAR(
+                                    rating_to_cost(word->best_choice->rating()),
+                                    str, *len);
+            tc->box = current;
+            boxes_to_fix[i] = &tc->box;
+
+            out->add_after_then_move(tc);
+            it.forward();
+            str += *len;
+            len++;
+        }
+
+        // Find the word bbox before normalization.
+        // Here we can't use the C_BLOB bboxes directly,
+        // since connected letters are not yet cut.
+        BOX real_rect = c_blob_list_get_bbox(word->word->cblob_list());
+
+        // Denormalize boxes by transforming the bbox of the whole bln word
+        // into the denorm bbox (`real_rect') of the whole word.
+        double x_stretch = double(real_rect.width()) / bln_rect.width();
+        double y_stretch = double(real_rect.height()) / bln_rect.height();
+        for (int i = 0; i < n; i++) {
+            BOX *box = boxes_to_fix[i];
+            int x0 = int(real_rect.left() +
+                     x_stretch * (box->left() - bln_rect.left()) + 0.5);
+            int x1 = int(real_rect.left() +
+                     x_stretch * (box->right() - bln_rect.left()) + 0.5);
+            int y0 = int(real_rect.bottom() +
+                     y_stretch * (box->bottom() - bln_rect.bottom()) + 0.5);
+            int y1 = int(real_rect.bottom() +
+                     y_stretch * (box->top() - bln_rect.bottom()) + 0.5);
+            *box = BOX(ICOORD(x0, y0), ICOORD(x1, y1));
+        }
+        
+        page_res_it.forward();
+        word_count++;
+    } 
+}
+
+
+// Extract the OCR results, costs (penalty points for uncertainty),
+// and the bounding boxes of the characters.
+int TessBaseAPI::TesseractExtractResult(char** string,
+                                        int** lengths,
+                                        float** costs,
+                                        int** x0,
+                                        int** y0,
+                                        int** x1,
+                                        int** y1,
+                                        PAGE_RES* page_res) {
+    ELIST tess_chars;
+    ELIST_ITERATOR tess_chars_it(&tess_chars);
+    extract_result(&tess_chars_it, page_res);
+    tess_chars_it.move_to_first();
+    int n = tess_chars.length();
+    int string_len = 0;
+    *lengths = new int[n];
+    *costs = new float[n];
+    *x0 = new int[n];
+    *y0 = new int[n];
+    *x1 = new int[n];
+    *y1 = new int[n];
+    int i = 0;
+    for (tess_chars_it.mark_cycle_pt();
+        !tess_chars_it.cycled_list();
+         tess_chars_it.forward(), i++) 
+    {
+        TESS_CHAR *tc = (TESS_CHAR *) tess_chars_it.data();
+        string_len += (*lengths)[i] = tc->length;
+        (*costs)[i] = tc->cost;
+        (*x0)[i] = tc->box.left();
+        (*y0)[i] = tc->box.bottom();
+        (*x1)[i] = tc->box.right();
+        (*y1)[i] = tc->box.top();
+    }
+    char *p = *string = new char[string_len];
+    
+    tess_chars_it.move_to_first();
+    for (tess_chars_it.mark_cycle_pt();
+        !tess_chars_it.cycled_list();
+         tess_chars_it.forward()) 
+    {
+        TESS_CHAR *tc = (TESS_CHAR *) tess_chars_it.data();
+        strncpy(p, tc->unicode_repr, tc->length);
+        p += tc->length;
+    }
+    return n;
+}
