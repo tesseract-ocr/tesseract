@@ -1,3 +1,13 @@
+Tesseract release notes August 27 2007 - V2.01
+Fixed UTF8 input problems with box file reader.
+Fixed various infinite loops and crashes in dawg code.
+Removed include of config_auto.h from host.h.
+Added automatic wctype encoding to unicharset_extractor.
+Fixed dawg table too full error.
+Removed svn files from tarball.
+Added new functions to tessdll.
+Increased maximum utf8 string in a classification result to 8.
+
 Tesseract release notes July 17, 2007 - V2.00
 
 First release of the International version.

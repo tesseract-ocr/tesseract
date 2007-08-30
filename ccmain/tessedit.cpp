@@ -54,6 +54,21 @@
 #include "danerror.h"
 #include "globals.h"
 
+/*
+** Include automatically generated configuration file if running autoconf
+*/
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+// Includes libtiff if HAVE_LIBTIFF is defined
+#ifdef HAVE_LIBTIFF
+#include "tiffio.h"
+#endif
+#endif
+
+#ifdef GOOGLE3
+#include "third_party/tiff/tiffio.h"
+#endif
+
 //extern "C" {
 #include          "callnet.h"    //phils nn stuff
 //}
@@ -68,8 +83,6 @@ EXTERN BOOL_EVAR (tessedit_write_vars, FALSE, "Write all vars to file");
 EXTERN BOOL_VAR (tessedit_tweaking_tess_vars, FALSE,
 "Fiddle tess config values");
 
-EXTERN INT_VAR (tweak_ReliableConfigThreshold, 2, "Tess VAR");
-
 EXTERN double_VAR (tweak_garbage, 1.5, "Tess VAR");
 EXTERN double_VAR (tweak_ok_word, 1.25, "Tess VAR");
 EXTERN double_VAR (tweak_good_word, 1.1, "Tess VAR");
@@ -82,6 +95,7 @@ EXTERN double_VAR (tweak_NonDictCertainty, -2.5, "Tess VAR");
 EXTERN double_VAR (tweak_RejectCertaintyOffset, 1.0, "Tess VAR");
 EXTERN double_VAR (tweak_GoodAdaptiveMatch, 0.125, "Tess VAR");
 EXTERN double_VAR (tweak_GreatAdaptiveMatch, 0.10, "Tess VAR");
+EXTERN INT_VAR (tweak_ReliableConfigThreshold, 2, "Tess VAR");
 EXTERN INT_VAR (tweak_AdaptProtoThresh, 230, "Tess VAR");
 EXTERN INT_VAR (tweak_AdaptFeatureThresh, 230, "Tess VAR");
 EXTERN INT_VAR (tweak_min_outline_points, 6, "Tess VAR");
@@ -141,8 +155,6 @@ int init_tesseract(const char *arg0,
   }
 
   start_recog(configfile, textbase);
-
-  ReliableConfigThreshold = tweak_ReliableConfigThreshold;
 
   set_tess_tweak_vars();
 
@@ -333,6 +345,7 @@ void set_tess_tweak_vars() {
     RejectCertaintyOffset = tweak_RejectCertaintyOffset;
     GoodAdaptiveMatch = tweak_GoodAdaptiveMatch;
     GreatAdaptiveMatch = tweak_GreatAdaptiveMatch;
+    ReliableConfigThreshold = tweak_ReliableConfigThreshold;
     AdaptProtoThresh = tweak_AdaptProtoThresh;
     AdaptFeatureThresh = tweak_AdaptFeatureThresh;
     min_outline_points = tweak_min_outline_points;

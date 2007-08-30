@@ -25,15 +25,6 @@
 #include                    "pgedit.h"
 #include          "notdll.h"
 
-// Includes libtiff if HAVE_LIBTIFF is defined
-#ifdef HAVE_LIBTIFF
-#ifdef GOOGLE3
-#include "third_party/tiff/tiffio.h"
-#else
-#include "tiffio.h"
-#endif
-#endif
-
                                  //progress monitor
 extern ETEXT_DESC *global_monitor;
 
@@ -45,10 +36,6 @@ int init_tesseract(const char *arg0,
                    const char *const *configv);
 void recognize_page(STRING& image_name);
 void end_tesseract();
-
-#ifdef _TIFFIO_
-void read_tiff_image(TIFF* tif, IMAGE* image);
-#endif
 
 //handle for "MODES"
 void extend_menu(RADIO_MENU *modes_menu,

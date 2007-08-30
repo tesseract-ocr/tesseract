@@ -23,6 +23,17 @@
 #else
 #include          <unistd.h>
 #endif
+
+/*
+** Include automatically generated configuration file if running autoconf
+*/
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#if defined(MOTOROLA_BYTE_ORDER) || defined(WORDS_BIGENDIAN)
+#define __MOTO__  // Big-endian.
+#endif
+#endif
+
 #include          "fileerr.h"
 #include          "imgerrs.h"
 #include          "img.h"

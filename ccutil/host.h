@@ -45,17 +45,6 @@
 #ifndef   __HOST__
 #define   __HOST__
 
-/*
-** Include automatically generated configuration file if running autoconf
-*/
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#if defined(MOTOROLA_BYTE_ORDER) || defined(WORDS_BIGENDIAN)
-#define __MOTO__  // Big-endian.
-#endif
-#endif
-
-
 /******************************************************************************
  **                                IMPORTANT!!!                                                                                                                 **
  **                                                                                                                                                                              **

@@ -37,6 +37,25 @@
 #include "tfacep.h"
 #include "callnet.h"
 
+/*
+** Include automatically generated configuration file if running autoconf
+*/
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+// Includes libtiff if HAVE_LIBTIFF is defined
+#ifdef HAVE_LIBTIFF
+#include "tiffio.h"
+#endif
+#endif
+
+#ifdef GOOGLE3
+#include "third_party/tiff/tiffio.h"
+#endif
+
+#ifdef _TIFFIO_
+void read_tiff_image(TIFF* tif, IMAGE* image);
+#endif
+
 #define VARDIR        "configs/" /*variables files */
                                  //config under api
 #define API_CONFIG      "configs/api_config"
