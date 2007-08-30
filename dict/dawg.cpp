@@ -123,8 +123,11 @@ INT32 def_letter_is_okay(EDGE_ARRAY dawg,
   const char *ptr;
 
   for (ptr = word; *ptr != '\0';) {
-    word_single_lengths += UNICHAR::utf8_step(ptr);
-    ptr += UNICHAR::utf8_step(ptr);
+    int step = UNICHAR::utf8_step(ptr);
+    if (step == 0)
+      return FALSE;
+    word_single_lengths += step;
+    ptr += step;
   }
 
   if (*node == NO_EDGE) {        /* Trailing punctuation */
@@ -174,10 +177,11 @@ INT32 def_letter_is_okay(EDGE_ARRAY dawg,
   if (edge != NO_EDGE) {         /* Normal edge in DAWG */
     if (case_sensative || case_is_okay (dummy_word, char_index)) {
                                  //next_node (dawg, edge);
-    *node = next_node(dawg, edge);
+      *node = next_node(dawg, edge);
+      if (*node == 0)
+        *node = NO_EDGE;
       return (TRUE);
-    }
-    else {
+    } else {
       return (FALSE);
     }
   }

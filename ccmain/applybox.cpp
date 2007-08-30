@@ -31,6 +31,7 @@ what measures we are interested in.
 #include <assert.h>
 #include <errno.h>
 #endif
+#include "boxread.h"
 #include "mainblk.h"
 #include "genblob.h"
 #include "fixxht.h"
@@ -207,51 +208,26 @@ void clear_any_old_text(                        //remove correct text
 BOOL8 read_next_box(FILE* box_file,  //
                     BOX *box,
                     UNICHAR_ID *uch_id) {
-  char buff[256];                //boxfile read buffer
-  char *buffptr = buff;
-  STRING box_filename;
-  static INT16 line = 0;
-  INT32 x_min;
-  INT32 y_min;
-  INT32 x_max;
-  INT32 y_max;
-  INT32 count = 0;
-  char uch[256];
+  int x_min;
+  int y_min;
+  int x_max;
+  int y_max;
+  char uch[kBufSize];
 
-  while (!feof (box_file)) {
-    fgets (buff, sizeof (buff) - 1, box_file);
-    line++;
-
-    buffptr = buff;
-    const unsigned char *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
-    if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
-      buffptr += 3;  // Skip unicode file designation.
-    /* Check for blank lines in box file */
-    while (isspace (*buffptr))
-      buffptr++;
-    if (*buffptr != '\0') {
-      count =
-        sscanf (buffptr,
-        "%s " INT32FORMAT " " INT32FORMAT " " INT32FORMAT " "
-        INT32FORMAT, uch, &x_min, &y_min, &x_max, &y_max);
-      if (count != 5) {
-        tprintf ("Box file format error on line %i ignored\n", line);
-      }
-      else {
-        if (!unicharset_boxes.contains_unichar(uch))
-        {
-          unicharset_boxes.unichar_insert(uch);
-          if (unicharset_boxes.size() > MAX_NUM_CLASSES) {
-            tprintf("Error: Size of unicharset of boxes is \
-greater than MAX_NUM_CLASSES\n");
-            exit(1);
-          }
-        }
-        *uch_id = unicharset_boxes.unichar_to_id(uch);
-        *box = BOX (ICOORD (x_min, y_min), ICOORD (x_max, y_max));
-        return TRUE;             //read a box ok
+  while (read_next_box(box_file, uch, &x_min, &y_min, &x_max, &y_max)) {
+    if (!unicharset_boxes.contains_unichar(uch))
+    {
+      unicharset_boxes.unichar_insert(uch);
+      if (unicharset_boxes.size() > MAX_NUM_CLASSES) {
+        tprintf("Error: Size of unicharset of boxes is "
+                "greater than MAX_NUM_CLASSES (%d)\n",
+                MAX_NUM_CLASSES);
+        exit(1);
       }
     }
+    *uch_id = unicharset_boxes.unichar_to_id(uch);
+    *box = BOX (ICOORD (x_min, y_min), ICOORD (x_max, y_max));
+    return TRUE;             //read a box ok
   }
   return FALSE;                  //EOF
 }

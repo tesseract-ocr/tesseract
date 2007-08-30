@@ -24,13 +24,62 @@
 // unichar per line.
 
 #include <stdio.h>
+/*
+** Include automatically generated configuration file if running autoconf
+*/
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+#if defined(HAVE_WCHAR_T) || defined(__MSW32__) || defined(GOOGLE3)
+#include <wchar.h>
+#include <wctype.h>
+#define USING_WCTYPE
+#endif
 
 #include "unichar.h"
 #include "unicharset.h"
 #include "strngs.h"
+#include "boxread.h"
 #include "tessopt.h"
 
 static const char* const kUnicharsetFileName = "unicharset";
+
+// Set character properties using wctype if we have it.
+// Contributed by piggy@gmail.com.
+// Modified by Ray to use UNICHAR for unicode conversion
+// and to check for wctype using autoconf/presence of windows.
+void set_properties(UNICHARSET *unicharset, const char* const c_string) {
+#ifdef USING_WCTYPE
+  UNICHAR_ID id;
+  int wc;
+
+  // Convert the string to a unichar id.
+  id = unicharset->unichar_to_id(c_string);
+
+  int step = 0;
+  int len = strlen(c_string);
+  for (int offset = 0; offset < len; offset += step) {
+    step = UNICHAR::utf8_step(c_string + offset);
+    if (step == 0)
+      break; // Invalid utf-8.
+
+    // Get the next Unicode cond point in the string.
+    UNICHAR ch(c_string + offset, step);
+    wc = ch.first_uni();
+
+    /* Copy the properties. */
+    if (iswalpha(wc)) {
+      unicharset->set_isalpha(id, 1);
+      if (iswlower(wc))
+        unicharset->set_islower(id, 1);
+      if (iswlower(wc))
+        unicharset->set_isupper(id, 1);
+    }
+    if (iswdigit(wc))
+      unicharset->set_isdigit(id, 1);
+  }
+#endif
+}
 
 int main(int argc, char** argv) {
   int option;
@@ -73,18 +122,12 @@ int main(int argc, char** argv) {
       return -1;
     }
 
-    while (!feof(box_file)) {
-      int x_min, y_min, x_max, y_max;
-      char buffer[256];
-      char c_string[256];
-
-      fgets(buffer, sizeof (buffer), box_file);
-      sscanf(buffer, "%s %d %d %d %d",
-             c_string, &x_min, &y_min, &x_max, &y_max);
-
+    int x_min, y_min, x_max, y_max;
+    char c_string[kBufSize];
+    while (read_next_box(box_file, c_string, &x_min, &y_min, &x_max, &y_max)) {
       unicharset.unichar_insert(c_string);
+      set_properties(&unicharset, c_string);
     }
-    fclose(box_file);
   }
 
   // Write unicharset file

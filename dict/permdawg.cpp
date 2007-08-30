@@ -43,7 +43,7 @@
 ----------------------------------------------------------------------*/
 #define FREQ_WERD     1.0
 #define GOOD_WERD     1.1
-#define OK_WERD       1.25
+#define OK_WERD       1.3125
 #define MAX_FREQ_EDGES    1500
 #define NO_RATING              -1
 

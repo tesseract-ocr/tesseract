@@ -80,7 +80,7 @@ extern int num_popped;
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void init_bestfirst_vars(); 
+void init_bestfirst_vars();
 
 void best_first_search(CHUNKS_RECORD *chunks_record,
                        A_CHOICE *best_choice,
@@ -90,9 +90,9 @@ void best_first_search(CHUNKS_RECORD *chunks_record,
                        STATE *best_state,
                        INT32 pass);
 
-int chunks_width(WIDTH_RECORD *width_record, int start_chunk, int last_chunk); 
+int chunks_width(WIDTH_RECORD *width_record, int start_chunk, int last_chunk);
 
-void delete_search(SEARCH_RECORD *the_search); 
+void delete_search(SEARCH_RECORD *the_search);
 
 CHOICES_LIST evaluate_chunks(CHUNKS_RECORD *chunks_record,
                              SEARCH_STATE search_state,
@@ -112,7 +112,9 @@ CHOICES_LIST rebuild_current_state(TBLOB *blobs,
                                    CHOICES_LIST old_choices,
                                    int fx);
 
-void expand_node(CHUNKS_RECORD *chunks_record, SEARCH_RECORD *the_search); 
+void expand_node(FLOAT32 worst_priority,
+                 CHUNKS_RECORD *chunks_record,
+                 SEARCH_RECORD *the_search);
 
 SEARCH_RECORD *new_search(CHUNKS_RECORD *chunks_record,
                           int num_joints,
@@ -120,11 +122,12 @@ SEARCH_RECORD *new_search(CHUNKS_RECORD *chunks_record,
                           A_CHOICE *raw_choice,
                           STATE *state);
 
-STATE *pop_queue(HEAP *queue); 
+STATE *pop_queue(HEAP *queue);
 
-void push_queue(HEAP *queue, STATE *state, FLOAT32 priority); 
+void push_queue(HEAP *queue, STATE *state,
+                FLOAT32 worst_priority, FLOAT32 priority);
 
-void replace_char_widths(CHUNKS_RECORD *chunks_record, SEARCH_STATE state); 
+void replace_char_widths(CHUNKS_RECORD *chunks_record, SEARCH_STATE state);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

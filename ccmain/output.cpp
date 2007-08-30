@@ -857,7 +857,7 @@ void write_shm_text(                    //write output
                          lineend ? OCR_NL_NEWLINE : OCR_NL_NONE);
         } else {
           for (int suboffset = 0; suboffset < text_lengths[index]; ++suboffset)
-            ocr_append_char (text[offset + suboffset],
+            ocr_append_char (static_cast<unsigned char>(text[offset+suboffset]),
                              blob_box.left (), blob_box.right (),
                              page_image.get_ysize () - 1 - blob_box.top (),
                              page_image.get_ysize () - 1 - blob_box.bottom (),

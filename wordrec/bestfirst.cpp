@@ -41,7 +41,7 @@
 #include "structures.h"
 #include "wordclass.h"
 
-void call_caller(); 
+void call_caller();
 
 /*----------------------------------------------------------------------
           V a r i a b l e s
@@ -65,9 +65,9 @@ make_float_var (worst_state, 1, make_worst_state,
  * Create and initialize references to debug variables that control
  * operations in this file.
  **********************************************************************/
-void init_bestfirst_vars() { 
-  make_seg_states(); 
-  make_worst_state(); 
+void init_bestfirst_vars() {
+  make_seg_states();
+  make_worst_state();
 }
 
 
@@ -93,9 +93,14 @@ void best_first_search(CHUNKS_RECORD *chunks_record,
     best_choice, raw_choice, state);
 
 #ifndef GRAPHICS_DISABLED
-  save_best_state(chunks_record); 
+  save_best_state(chunks_record);
 #endif
-  start_recording(); 
+  start_recording();
+  FLOAT32 worst_priority = 2.0f * prioritize_state(chunks_record,
+                                                   the_search,
+                                                   best_state);
+  if (worst_priority < worst_state)
+    worst_priority = worst_state;
 
   guided_state = *state;
   do {
@@ -109,7 +114,7 @@ void best_first_search(CHUNKS_RECORD *chunks_record,
 
       guided_state = *(the_search->this_state);
       keep_going =
-        evaluate_state(chunks_record, the_search, fixpt, best_state, pass); 
+        evaluate_state(chunks_record, the_search, fixpt, best_state, pass);
 
       hash_add (the_search->closed_states, the_search->this_state);
 
@@ -119,7 +124,7 @@ void best_first_search(CHUNKS_RECORD *chunks_record,
         break;
       }
 
-      expand_node(chunks_record, the_search); 
+      expand_node(worst_priority, chunks_record, the_search);
     }
 
     free_state (the_search->this_state);
@@ -130,8 +135,8 @@ void best_first_search(CHUNKS_RECORD *chunks_record,
 
   state->part1 = the_search->best_state->part1;
   state->part2 = the_search->best_state->part2;
-  stop_recording(); 
-  delete_search(the_search); 
+  stop_recording();
+  delete_search(the_search);
 }
 
 
@@ -141,7 +146,7 @@ void best_first_search(CHUNKS_RECORD *chunks_record,
  * Return the width of several of the chunks (if they were joined to-
  * gether.
  **********************************************************************/
-int chunks_width(WIDTH_RECORD *width_record, int start_chunk, int last_chunk) { 
+int chunks_width(WIDTH_RECORD *width_record, int start_chunk, int last_chunk) {
   int result = 0;
   int x;
 
@@ -157,7 +162,7 @@ int chunks_width(WIDTH_RECORD *width_record, int start_chunk, int last_chunk) {
  *
  * Terminate the current search and free all the memory involved.
  **********************************************************************/
-void delete_search(SEARCH_RECORD *the_search) { 
+void delete_search(SEARCH_RECORD *the_search) {
   float closeness;
 
   closeness = (the_search->num_joints ?
@@ -174,7 +179,7 @@ void delete_search(SEARCH_RECORD *the_search) {
   free_hash_table (the_search->closed_states);
   FreeHeapData (the_search->open_states, (void_dest) free_state);
 
-  memfree(the_search); 
+  memfree(the_search);
 }
 
 
@@ -204,7 +209,7 @@ CHOICES_LIST evaluate_chunks(CHUNKS_RECORD *chunks_record,
       y = x + search_state[i];
 
     if (blob_skip) {
-      array_free(char_choices); 
+      array_free(char_choices);
       return (NULL);
     }                            /* Process one square */
     /* Classify if needed */
@@ -216,7 +221,7 @@ CHOICES_LIST evaluate_chunks(CHUNKS_RECORD *chunks_record,
       this_state, best_state, pass, i - 1);
 
     if (this_choice == NIL) {
-      array_free(char_choices); 
+      array_free(char_choices);
       return (NULL);
     }
     /* Add permuted ratings */
@@ -256,7 +261,7 @@ INT16 evaluate_state(CHUNKS_RECORD *chunks_record,
   chunk_groups = bin_to_chunks (the_search->this_state,
     the_search->num_joints);
   bin_to_pieces (the_search->this_state, the_search->num_joints, widths);
-  LogNewSegmentation(widths); 
+  LogNewSegmentation(widths);
 
   rating_limit = class_probability (the_search->best_choice);
 
@@ -270,14 +275,14 @@ INT16 evaluate_state(CHUNKS_RECORD *chunks_record,
     if (AcceptableChoice (char_choices, the_search->best_choice,
       the_search->raw_choice, fixpt))
       keep_going = FALSE;
-    array_free(char_choices); 
+    array_free(char_choices);
   }
 
 #ifndef GRAPHICS_DISABLED
   if (display_segmentations) {
     display_segmentation (chunks_record->chunks, chunk_groups);
     if (display_segmentations > 1)
-      window_wait(segm_window); 
+      window_wait(segm_window);
   }
 #endif
 
@@ -285,12 +290,12 @@ INT16 evaluate_state(CHUNKS_RECORD *chunks_record,
     the_search->before_best = the_search->num_states;
     the_search->best_state->part1 = the_search->this_state->part1;
     the_search->best_state->part2 = the_search->this_state->part2;
-    replace_char_widths(chunks_record, chunk_groups); 
+    replace_char_widths(chunks_record, chunk_groups);
   }
   else if (char_choices != NULL)
     fixpt->index = -1;
 
-  memfree(chunk_groups); 
+  memfree(chunk_groups);
 
   return (keep_going);
 }
@@ -337,7 +342,7 @@ CHOICES_LIST rebuild_current_state(TBLOB *blobs,
       array_value (old_choices, x) = NULL;
     }
     else {
-      join_pieces(blobs, seam_list, x, y); 
+      join_pieces(blobs, seam_list, x, y);
       for (blob = blobs, blobindex = 0, p_blob = NULL; blobindex < x;
       blobindex++) {
         p_blob = blob;
@@ -358,8 +363,8 @@ CHOICES_LIST rebuild_current_state(TBLOB *blobs,
     x = y - search_state[i];
   }
 
-  memfree(search_state); 
-  free_all_choices(old_choices, x); 
+  memfree(search_state);
+  free_all_choices(old_choices, x);
   return (char_choices);
 
 }
@@ -372,7 +377,8 @@ CHOICES_LIST rebuild_current_state(TBLOB *blobs,
  * each one has not already been visited.  If not add it to the priority
  * queue.
  **********************************************************************/
-void expand_node(CHUNKS_RECORD *chunks_record, SEARCH_RECORD *the_search) { 
+void expand_node(FLOAT32 worst_priority,
+                 CHUNKS_RECORD *chunks_record, SEARCH_RECORD *the_search) {
   STATE old_state;
   int x;
   int mask = 1 << (the_search->num_joints - 1 - 32);
@@ -383,9 +389,9 @@ void expand_node(CHUNKS_RECORD *chunks_record, SEARCH_RECORD *the_search) {
   for (x = the_search->num_joints; x > 32; x--) {
     the_search->this_state->part1 = mask ^ old_state.part1;
     if (!hash_lookup (the_search->closed_states, the_search->this_state))
-      push_queue (the_search->open_states,
-        the_search->this_state,
-        prioritize_state (chunks_record, the_search, &old_state));
+      push_queue (the_search->open_states, the_search->this_state,
+                  worst_priority,
+                  prioritize_state (chunks_record, the_search, &old_state));
     mask >>= 1;
   }
 
@@ -399,9 +405,9 @@ void expand_node(CHUNKS_RECORD *chunks_record, SEARCH_RECORD *the_search) {
   while (x--) {
     the_search->this_state->part2 = mask ^ old_state.part2;
     if (!hash_lookup (the_search->closed_states, the_search->this_state))
-      push_queue (the_search->open_states,
-        the_search->this_state,
-        prioritize_state (chunks_record, the_search, &old_state));
+      push_queue (the_search->open_states, the_search->this_state,
+                  worst_priority,
+                  prioritize_state (chunks_record, the_search, &old_state));
     mask >>= 1;
   }
 }
@@ -449,7 +455,7 @@ SEARCH_RECORD *new_search(CHUNKS_RECORD *chunks_record,
  * Get this state from the priority queue.  It should be the state that
  * has the greatest urgency to be evaluated.
  **********************************************************************/
-STATE *pop_queue(HEAP *queue) { 
+STATE *pop_queue(HEAP *queue) {
   HEAPENTRY entry;
 
   if (GetTopOfHeap (queue, &entry) == OK) {
@@ -472,14 +478,15 @@ STATE *pop_queue(HEAP *queue) {
  *
  * Add this state into the priority queue.
  **********************************************************************/
-void push_queue(HEAP *queue, STATE *state, FLOAT32 priority) { 
+void push_queue(HEAP *queue, STATE *state, FLOAT32 worst_priority,
+                FLOAT32 priority) {
   HEAPENTRY entry;
 
-  if (SizeOfHeap (queue) < MaxSizeOfHeap (queue) && priority < worst_state) {
+  if (SizeOfHeap (queue) < MaxSizeOfHeap (queue) && priority < worst_priority) {
     entry.Data = (char *) new_state (state);
     num_pushed++;
     entry.Key = priority;
-    HeapStore(queue, &entry); 
+    HeapStore(queue, &entry);
   }
 }
 
@@ -490,7 +497,7 @@ void push_queue(HEAP *queue, STATE *state, FLOAT32 priority) {
  * Replace the value of the char_width field in the chunks_record with
  * the updated width measurements from the last_segmentation.
  **********************************************************************/
-void replace_char_widths(CHUNKS_RECORD *chunks_record, SEARCH_STATE state) { 
+void replace_char_widths(CHUNKS_RECORD *chunks_record, SEARCH_STATE state) {
   WIDTH_RECORD *width_record;
   int num_blobs;
   int i;
