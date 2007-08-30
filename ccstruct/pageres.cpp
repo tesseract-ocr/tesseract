@@ -34,8 +34,8 @@ CLISTIZE (BLOCK_RES) ELISTIZE (ROW_RES) ELISTIZE (WERD_RES)
 PAGE_RES::PAGE_RES(                            //recursive construct
                    BLOCK_LIST *the_block_list  //real page
                   ) {
-  BLOCK_IT block_it(the_block_list); 
-  BLOCK_RES_IT block_res_it(&block_res_list); 
+  BLOCK_IT block_it(the_block_list);
+  BLOCK_RES_IT block_res_it(&block_res_list);
 
   char_count = 0;
   rej_count = 0;
@@ -58,7 +58,7 @@ BLOCK_RES::BLOCK_RES(                  //recursive construct
                      BLOCK *the_block  //real BLOCK
                     ) {
   ROW_IT row_it (the_block->row_list ());
-  ROW_RES_IT row_res_it(&row_res_list); 
+  ROW_RES_IT row_res_it(&row_res_list);
 
   char_count = 0;
   rej_count = 0;
@@ -87,7 +87,7 @@ ROW_RES::ROW_RES(              //recursive construct
                  ROW *the_row  //real ROW
                 ) {
   WERD_IT word_it (the_row->word_list ());
-  WERD_RES_IT word_res_it(&word_res_list); 
+  WERD_RES_IT word_res_it(&word_res_list);
   WERD_RES *combo = NULL;        //current combination of fuzzies
   WERD_RES *word_res;            //current word
   WERD *copy_word;
@@ -104,6 +104,7 @@ ROW_RES::ROW_RES(              //recursive construct
 
   for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
     word_res = new WERD_RES (word_it.data ());
+    word_res->x_height = the_row->x_height();
 
     if (word_res->word->flag (W_FUZZY_NON)) {
       ASSERT_HOST (combo != NULL);
@@ -116,6 +117,7 @@ ROW_RES::ROW_RES(              //recursive construct
                                  //deep copy
         *copy_word = *(word_it.data ());
         combo = new WERD_RES (copy_word);
+        combo->x_height = the_row->x_height();
         combo->combination = TRUE;
         word_res_it.add_to_end (combo);
       }
@@ -207,7 +209,7 @@ WERD_RES::~WERD_RES () {
  * Set things up at the start of the page
  *************************************************************************/
 
-WERD_RES *PAGE_RES_IT::restart_page() { 
+WERD_RES *PAGE_RES_IT::restart_page() {
   block_res_it.set_to_list (&page_res->block_res_list);
   block_res_it.mark_cycle_pt ();
   block_res = NULL;
@@ -216,7 +218,7 @@ WERD_RES *PAGE_RES_IT::restart_page() {
   next_block_res = NULL;
   next_row_res = NULL;
   next_word_res = NULL;
-  internal_forward(TRUE); 
+  internal_forward(TRUE);
   return internal_forward (FALSE);
 }
 
@@ -230,7 +232,7 @@ WERD_RES *PAGE_RES_IT::restart_page() {
  * boundaries. NULL values denote start and end of the page.
  *************************************************************************/
 
-WERD_RES *PAGE_RES_IT::internal_forward(BOOL8 new_block) { 
+WERD_RES *PAGE_RES_IT::internal_forward(BOOL8 new_block) {
   BOOL8 found_next_word = FALSE;
   BOOL8 new_row = FALSE;
 
@@ -291,7 +293,7 @@ WERD_RES *PAGE_RES_IT::internal_forward(BOOL8 new_block) {
  * the block, the prev block, row and word are all NULL.
  *************************************************************************/
 
-WERD_RES *PAGE_RES_IT::forward_block() { 
+WERD_RES *PAGE_RES_IT::forward_block() {
   if (block_res == next_block_res) {
     block_res_it.forward ();;
     block_res = NULL;
@@ -300,13 +302,13 @@ WERD_RES *PAGE_RES_IT::forward_block() {
     next_block_res = NULL;
     next_row_res = NULL;
     next_word_res = NULL;
-    internal_forward(TRUE); 
+    internal_forward(TRUE);
   }
   return internal_forward (FALSE);
 }
 
 
-void PAGE_RES_IT::rej_stat_word() { 
+void PAGE_RES_IT::rej_stat_word() {
   INT16 chars_in_word;
   INT16 rejects_in_word = 0;
 

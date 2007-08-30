@@ -434,6 +434,8 @@ CHOICES_LIST chop_word_main(register TWERD *word,
       (CHOICES) classify_blob (pblob, blob, blob->next, NULL, fx,
       "chop_word:", Green, &chop_states[0],
       &best_state, matcher_pass, index);
+    if (match_result == NULL)
+      cprintf("Null classifier output!\n");
     char_choices = array_push (char_choices, match_result);
     pblob = blob;
   }

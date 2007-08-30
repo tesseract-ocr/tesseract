@@ -431,6 +431,7 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
               //deep copy
               combo = new WERD_RES (copy_word);
               combo->combination = TRUE;
+              combo->x_height = prev_word->x_height;
               prev_word->part_of_combo = TRUE;
               prev_word_it.add_before_then_move (combo);
             }

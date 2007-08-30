@@ -348,8 +348,10 @@ LIST call_matcher(                  //call a matcher
   char choice_lengths[2] = {0, 0};
 
   blob = make_ed_blob (tessblob);//convert blob
-  if (blob == NULL)
+  if (blob == NULL) {
+    tprintf("Failed to convert blob for recognition!\n");
     return NULL;                 //can't do it
+  }
   pblob = ptblob != NULL ? make_ed_blob (ptblob) : NULL;
   nblob = ntblob != NULL ? make_ed_blob (ntblob) : NULL;
   (*tess_matcher) (pblob, blob, nblob, tess_word, tess_denorm, ratings);

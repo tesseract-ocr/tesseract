@@ -606,7 +606,7 @@ void classify_word_pass1(                 //recog one word
 
   check_debug_pt (word, 0);
   matcher_pass = 0;
-  bln_word = make_bln_copy (word->word, row, row->x_height (), &word->denorm);
+  bln_word = make_bln_copy (word->word, row, word->x_height, &word->denorm);
 
   word->best_choice = tess_segment_pass1 (bln_word, &word->denorm,
     tess_default_matcher,
@@ -744,14 +744,15 @@ void classify_word_pass2(  //word to do
   if (!word->done ||
     tessedit_training_tess ||
   tessedit_training_wiseowl || tessedit_dump_choices) {
-    word->x_height = row->x_height ();
     word->caps_height = 0.0;
+    if (word->x_height == 0.0f)
+      word->x_height = row->x_height();
     if (word->outword != NULL) {
       delete word->outword;      //get rid of junk
       delete word->best_choice;
       delete word->raw_choice;
     }
-    match_word_pass2 (word, row, row->x_height ());
+    match_word_pass2 (word, row, word->x_height);
     done_this_pass = TRUE;
     check_debug_pt (word, 40);
   }
