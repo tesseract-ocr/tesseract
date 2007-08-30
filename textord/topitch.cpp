@@ -1942,7 +1942,9 @@ void find_repeated_chars(                  //search for equal chars
               search_it.forward ();
               matched_blobcount++;
               while (blobindex + blobcount < row_length
-              && search_it.data ()->joined_to_prev ()) {
+              && (search_it.data ()->joined_to_prev () ||
+                  (search_it.data()->blob() == NULL &&
+                   search_it.data()->cblob() == NULL))) {
                 search_it.forward ();
                 blobcount++;     //suck in joined bits
               }
