@@ -30,6 +30,7 @@
 ----------------------------------------------------------------------*/
 #include "choices.h"
 #include "emalloc.h"
+#include "dawg.h"
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -39,7 +40,7 @@ extern char *hyphen_string;
 extern char *hyphen_unichar_lengths;
 extern int *hyphen_unichar_offsets;
 extern float hyphen_rating;
-extern int hyphen_state;
+extern NODE_REF hyphen_state;
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -120,5 +121,5 @@ last_word_on_line = FALSE
           Public Function Prototypes
 ----------------------------------------------------------------------*/
 void set_hyphen_word(char *word, char *unichar_lengths, int *unichar_offsets,
-                     float rating, int state);
+                     float rating, NODE_REF state);
 #endif

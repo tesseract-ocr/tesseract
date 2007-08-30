@@ -39,7 +39,7 @@ char *hyphen_string = 0;
 char *hyphen_unichar_lengths = 0;
 int *hyphen_unichar_offsets = NULL;
 float hyphen_rating = MAXFLOAT;
-int hyphen_state = 0;
+NODE_REF hyphen_state = 0;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -52,7 +52,7 @@ int hyphen_state = 0;
  * line to permute the other half of the word.
  **********************************************************************/
 void set_hyphen_word(char *word, char *unichar_lengths, int *unichar_offsets,
-                     float rating, int state) {
+                     float rating, NODE_REF state) {
   int char_index = strlen (unichar_lengths) - 1;
 
   if (display_ratings)
