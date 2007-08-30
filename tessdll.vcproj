@@ -2278,6 +2278,10 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\ccutil\boxread.cpp"
+					>
+				</File>
+				<File
 					RelativePath="ccutil\clst.cpp"
 					>
 					<FileConfiguration
@@ -2744,6 +2748,37 @@
 				</File>
 				<File
 					RelativePath="ccutil\tprintf.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="load|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							AdditionalIncludeDirectories=""
+							PreprocessorDefinitions=""
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="ccutil\unichar.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -6957,6 +6992,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ccutil\boxread.h"
+					>
+				</File>
+				<File
 					RelativePath="ccutil\clst.h"
 					>
 				</File>
@@ -7066,6 +7105,10 @@
 				</File>
 				<File
 					RelativePath="ccutil\tprintf.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ccutil\unichar.h"
 					>
 				</File>
 				<File
@@ -7701,37 +7744,6 @@
 		<File
 			RelativePath="ReadMe.txt"
 			>
-		</File>
-		<File
-			RelativePath="ccutil\unichar.cpp"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="load|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
 		</File>
 	</Files>
 	<Globals>

@@ -231,6 +231,10 @@
 				Name="ccutil"
 				>
 				<File
+					RelativePath="..\ccutil\boxread.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\ccutil\clst.cpp"
 					>
 					<FileConfiguration
@@ -608,6 +612,10 @@
 			</File>
 			<File
 				RelativePath="..\ccutil\bits16.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\boxread.h"
 				>
 			</File>
 			<File

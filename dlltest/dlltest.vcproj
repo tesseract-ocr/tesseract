@@ -587,6 +587,10 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath="..\ccutil\unichar.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\ccutil\varable.cpp"
 					>
 					<FileConfiguration
@@ -616,6 +620,10 @@
 			>
 			<File
 				RelativePath="dlltest.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\unichar.h"
 				>
 			</File>
 		</Filter>

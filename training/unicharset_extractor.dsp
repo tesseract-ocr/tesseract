@@ -131,10 +131,12 @@ SOURCE=..\ccutil\mfcpch.cpp
 # Begin Source File
 
 SOURCE=..\ccutil\strngs.cpp
+# ADD CPP /Yu"mfcpch.h"
 # End Source File
 # Begin Source File
 
 SOURCE=..\ccutil\tessopt.cpp
+# ADD CPP /Yu"mfcpch.h"
 # End Source File
 # Begin Source File
 
@@ -159,8 +161,24 @@ SOURCE=..\ccutil\unicharset.cpp
 # Begin Source File
 
 SOURCE=..\ccutil\varable.cpp
+# ADD CPP /Yu"mfcpch.h"
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=..\ccutil\boxread.cpp
+
+!IF  "$(CFG)" == "unicharset_extractor - Win32 Release"
+
+# ADD CPP /Yu"mfcpch.h"
+
+!ELSEIF  "$(CFG)" == "unicharset_extractor - Win32 Debug"
+
+# ADD CPP /Yu"mfcpch.h"
+
+!ENDIF 
+
+# End Source File
 # Begin Source File
 
 SOURCE=.\unicharset_extractor.cpp

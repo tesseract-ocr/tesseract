@@ -348,6 +348,10 @@ SOURCE=.\ccutil\bits16.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ccutil\boxread.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccutil\clst.cpp
 # End Source File
 # Begin Source File
@@ -2081,6 +2085,10 @@ SOURCE=.\wordrec\wordclass.h
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\ccutil\boxread.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 

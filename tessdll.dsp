@@ -2017,6 +2017,10 @@ SOURCE=.\ccmain\tesseractmain.h
 # End Group
 # Begin Source File
 
+SOURCE=.\ccutil\boxread.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ReadMe.txt
 # End Source File
 # Begin Source File

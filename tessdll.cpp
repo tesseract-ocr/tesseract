@@ -155,7 +155,7 @@ int TessDllAPI::BeginPageUpright(UINT32 xsize,UINT32 ysize,unsigned char *buf, U
   tmp.capture(buf, xsize, ysize, bpp);
 
 
-  copy_sub_image(&tmp, 0, 0, 0, 0, &page_image, 400, 400, false);
+  copy_sub_image(&tmp, 0, 0, 0, 0, &page_image, 400, 400, true);
   
 
 
@@ -248,9 +248,34 @@ TESSDLL_API void  * __cdecl TessDllInit(const char* lang) {
   return (void*) recognize;
 }
 
+TESSDLL_API int __cdecl TessDllBeginPageBPP(UINT32 xsize,UINT32 ysize,
+                                         unsigned char *buf, UINT8 bpp) {
+  return TessDllBeginPageLangBPP(xsize, ysize, buf, NULL,bpp);
+}
+
+TESSDLL_API int __cdecl TessDllBeginPageLangBPP(UINT32 xsize, UINT32 ysize,
+                                             unsigned char *buf,
+                                             const char* lang, UINT8 bpp) {
+  if (recognize==0L || (lang != 0L) != (current_lang != 0L) ||
+      lang != 0L && strcmp(lang, current_lang))
+    TessDllInit(lang);
+
+  return recognize->BeginPage(xsize, ysize, buf,bpp);
+}
+
+TESSDLL_API int __cdecl TessDllBeginPageUprightBPP(UINT32 xsize, UINT32 ysize,
+                                             unsigned char *buf,
+                                             const char* lang, UINT8 bpp) {
+  if (recognize==0L || (lang != 0L) != (current_lang != 0L) ||
+      lang != 0L && strcmp(lang, current_lang))
+    TessDllInit(lang);
+
+  return recognize->BeginPageUpright(xsize, ysize, buf,bpp);
+}
+
 TESSDLL_API int __cdecl TessDllBeginPage(UINT32 xsize,UINT32 ysize,
                                          unsigned char *buf) {
-  return TessDllBeginPageLang(xsize, ysize, buf, NULL);
+  return TessDllBeginPageLangBPP(xsize, ysize, buf, NULL,1);
 }
 
 TESSDLL_API int __cdecl TessDllBeginPageLang(UINT32 xsize, UINT32 ysize,
@@ -260,7 +285,7 @@ TESSDLL_API int __cdecl TessDllBeginPageLang(UINT32 xsize, UINT32 ysize,
       lang != 0L && strcmp(lang, current_lang))
     TessDllInit(lang);
 
-  return recognize->BeginPage(xsize, ysize, buf);
+  return recognize->BeginPage(xsize, ysize, buf,1);
 }
 
 TESSDLL_API int __cdecl TessDllBeginPageUpright(UINT32 xsize, UINT32 ysize,

@@ -16,9 +16,11 @@
  ** limitations under the License.
  *
  **********************************************************************/
+#define _UNICODE
 
 #include "stdafx.h"
 #include "imgs.h"
+#include "unichar.h"
 #include "tessdll.h"
 
 /**********************************************************************
@@ -26,9 +28,48 @@
  *
  **********************************************************************/
 
+
+
+
+static wchar_t *make_unicode_string(const char *utf8)
+{
+  int size = 0, out_index = 0;
+  wchar_t *out;
+
+  /* first calculate the size of the target string */
+  int used = 0;
+  int utf8_len = strlen(utf8);
+  while (used < utf8_len) {
+    int step = UNICHAR::utf8_step(utf8 + used);
+    if (step == 0)
+      break;
+    used += step;
+    ++size;
+  }
+
+  out = (wchar_t *) malloc((size + 1) * sizeof(wchar_t));
+  if (out == NULL)
+      return NULL;
+
+  /* now convert to Unicode */
+  used = 0;
+  while (used < utf8_len) {
+    int step = UNICHAR::utf8_step(utf8 + used);
+    if (step == 0)
+      break;
+    UNICHAR ch(utf8 + used, step);
+    out[out_index++] = ch.first_uni();
+    used += step;
+  }
+  out[out_index] = 0;
+
+  return out;
+}
+
+
 int main(int argc, char **argv) {
-  if (argc != 3) {
-    fprintf(stderr, "Usage:%s imagename outputname\n", argv[0]);
+  if (argc < 3 || argc > 4) {
+    fprintf(stderr, "Usage:%s imagename outputname [lang]\n", argv[0]);
     exit(1);
   }
 
@@ -45,7 +86,7 @@ int main(int argc, char **argv) {
  
 
 
-  TessDllAPI api("eng");
+  TessDllAPI api(argc > 3 ? argv[3] : "eng");
 
 
 
@@ -63,24 +104,57 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  for (int i = 0; i < output->count; ++i) {
-// It should be noted that the format for char_code for version 2.0 and beyond is UTF8
-// which means that ASCII characters will come out as one structure but other characters
-// will be returned in two or more instances of this structure with a single byte of the
-// UTF8 code in each, but each will have the same bounding box.
-// Programs which want to handle languagues with different characters sets will need to
-// handle extended characters appropriately, but *all* code needs to be prepared to
-// receive UTF8 coded characters for characters such as bullet and fancy quotes.
+  // It should be noted that the format for char_code for version 2.0 and beyond is UTF8
+  // which means that ASCII characters will come out as one structure but other characters
+  // will be returned in two or more instances of this structure with a single byte of the
+  // UTF8 code in each, but each will have the same bounding box.
+  // Programs which want to handle languagues with different characters sets will need to
+  // handle extended characters appropriately, but *all* code needs to be prepared to
+  // receive UTF8 coded characters for characters such as bullet and fancy quotes.
+  int j;
+  for (int i = 0; i < output->count; i = j) {
     const EANYCODE_CHAR* ch = &output->text[i];
+	  unsigned char unistr[UNICHAR_LEN];
+		
     for (int b = 0; b < ch->blanks; ++b)
       fprintf(fp, "\n");
-    fprintf(fp, "%C[%x](%d,%d)->(%d,%d)\n",
-      ch->char_code, ch->char_code,
+
+    for (j = i; j < output->count; j++)
+	  {
+		  const EANYCODE_CHAR* unich = &output->text[j];
+
+		  if (ch->left != unich->left || ch->right != unich->right ||
+          ch->top != unich->top || ch->bottom != unich->bottom)
+			  break;
+		  unistr[j - i] = static_cast<unsigned char>(unich->char_code);
+	  }
+    unistr[j - i] = '\0';
+		  
+    wchar_t *utf16ch=make_unicode_string(reinterpret_cast<const char*>(unistr));
+#ifndef _UNICODE
+    // If we aren't in _UNICODE mode, print string only if ascii.
+    if (ch->char_code <= 0x7f) {
+      fprintf(fp, "%s", unistr);
+#else
+    // %S is a microsoft-special. Attempts to translate the Unicode
+    // back to the current locale to print in 8 bit
+    fprintf(fp, "%S", utf16ch);
+#endif
+    // Print the hex codes of the utf8 code.
+    for (int x = 0; unistr[x] != '\0'; ++x)
+      fprintf(fp, "[%x]", unistr[x]);
+		fprintf(fp, "->");
+    // Print the hex codes of the unicode.
+    for (int y = 0; utf16ch[y] != 0; ++y)
+      fprintf(fp, "[%x]", utf16ch[y]);
+    // Print the coords.
+    fprintf(fp, "(%d,%d)->(%d,%d)\n",
       ch->left, ch->bottom, ch->right, ch->top);
     if (ch->formatting & 64)
       fprintf(fp, "<nl>\n\n");
     if (ch->formatting & 128)
       fprintf(fp, "<para>\n\n");
+	  free(utf16ch);
   }
 
   fclose(fp);
