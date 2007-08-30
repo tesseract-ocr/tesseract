@@ -116,20 +116,6 @@ extern INT32 max_new_attempts;
 	}                                          \
 }                                             \
 
-
-/**********************************************************************
- * move_node_if_needed
- *
- * Move the node location if there is a need to do it because there is
- * not enough room to add the new edges.
- **********************************************************************/
-
-#define move_node_if_needed(dawg,node,max_num_edges,reserved_edges)     \
-if (! room_in_node (dawg, node)) {                                    \
-	node = move_node (dawg, node, max_num_edges, reserved_edges);      \
-}                                                                     \
-
-
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
@@ -140,7 +126,7 @@ void add_edge_linkage(EDGE_ARRAY dawg,
                       char character,
                       EDGE_RECORD word_end);
 
-void add_new_edge(EDGE_ARRAY dawg,
+bool add_new_edge(EDGE_ARRAY dawg,
                   NODE_REF *node1,
                   NODE_REF *node2,
                   char character,
@@ -155,10 +141,10 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
 
 void initialize_dawg(EDGE_ARRAY dawg, INT32 max_num_edges);
 
-NODE_REF move_node(EDGE_ARRAY dawg,
-                   NODE_REF node,
-                   INT32 max_num_edges,
-                   INT32 reserved_edges);
+bool move_node_if_needed(EDGE_ARRAY dawg,
+                         NODE_REF* node,
+                         INT32 max_num_edges,
+                         INT32 reserved_edges);
 
 NODE_REF new_dawg_node(EDGE_ARRAY dawg,
                        INT32 num_edges,

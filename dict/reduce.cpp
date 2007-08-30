@@ -116,7 +116,7 @@ void collapse_source_nodes (EDGE_ARRAY dawg,
   edge += num_forward_edges (dawg, source_node_2);
   if (backward_edge (dawg, edge)) {
     do {
-      move_node_if_needed (dawg, source_node_1,
+      move_node_if_needed (dawg, &source_node_1,
                            max_num_edges, reserved_edges);
 
       add_edge_linkage (dawg, source_node_1, next_node (dawg, edge),

@@ -114,7 +114,7 @@ void add_edge_linkage(EDGE_ARRAY dawg,
  *
  * Add an edge between two nodes in the DAWG.  Link the nodes both ways.
  **********************************************************************/
-void add_new_edge(EDGE_ARRAY dawg,
+bool add_new_edge(EDGE_ARRAY dawg,
                   NODE_REF *node1,
                   NODE_REF *node2,
                   char character,
@@ -129,14 +129,17 @@ void add_new_edge(EDGE_ARRAY dawg,
       *node1, *node2,  character, word_end);
   edge_counter++;
 
-  move_node_if_needed(dawg, *node1, max_num_edges, reserved_edges);
-  move_node_if_needed(dawg, *node2, max_num_edges, reserved_edges);
+  if (!move_node_if_needed(dawg, node1, max_num_edges, reserved_edges))
+    return false;
+  if (!move_node_if_needed(dawg, node2, max_num_edges, reserved_edges))
+    return false;
 
   direction = (int) FORWARD_EDGE;
   add_edge_linkage(dawg, *node1, *node2, direction, character, word_end);
 
   direction = (int) BACKWARD_EDGE;
   add_edge_linkage(dawg, *node2, *node1, direction, character, word_end);
+  return true;
 }
 
 
@@ -155,6 +158,7 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
   INT32         i;
   INT32         still_finding_chars = TRUE;
   INT32         word_end = FALSE;
+  bool          add_failed = false;
 
   if (debug) cprintf("Adding word %s\n", string);
   for (i=0; i<strlen(string)-1; i++) {
@@ -178,14 +182,25 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
     if (! still_finding_chars) {
       the_next_node = new_dawg_node (dawg, DEFAULT_NODE_SIZE,
                                      max_num_edges, reserved_edges);
+      if (the_next_node == 0) {
+        add_failed = true;
+        break;
+      }
       if (edges_in_node (dawg, last_node) + last_node == the_next_node) {
         cprintf ("Node collision at %d\n", the_next_node);
         the_next_node = new_dawg_node (dawg, DEFAULT_NODE_SIZE,
                                        max_num_edges, reserved_edges);
+        if (the_next_node == 0) {
+          add_failed = true;
+          break;
+        }
       }
       if (! case_sensative) string[i] = tolower (string[i]);
-      add_new_edge (dawg, &last_node, &the_next_node,
-        string[i], word_end, max_num_edges, reserved_edges);
+      if (!add_new_edge (dawg, &last_node, &the_next_node,
+        string[i], word_end, max_num_edges, reserved_edges)) {
+        add_failed = true;
+        break;
+      }
       word_end = FALSE;
       if (debug)
         cprintf ("adding node = %ld\n", the_next_node);
@@ -195,13 +210,19 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
 
   the_next_node = 0;
   if (! case_sensative) string[i] = tolower (string[i]);
-  add_new_edge (dawg, &last_node, &the_next_node,
-    string[i], TRUE, max_num_edges, reserved_edges);
+  if (!add_failed &&
+      !add_new_edge(dawg, &last_node, &the_next_node,
+                    string[i], TRUE, max_num_edges, reserved_edges))
+    add_failed = true;
 
   if (edges_in_node (dawg, 0) > reserved_edges) {
     cprintf ("error: Not enough room in root node, %d\n",
       edges_in_node (dawg, 0));
-    exit (1);
+    add_failed = true;
+  }
+  if (add_failed) {
+    cprintf ("Re-initializing document dictionary...\n");
+    initialize_dawg(dawg,max_num_edges);
   }
 }
 
@@ -229,30 +250,36 @@ void initialize_dawg(EDGE_ARRAY dawg, INT32 max_num_edges) {
 
 
 /**********************************************************************
- * move_node
+ * move_node_if_needed
  *
- * Move the location in the edge array of this node in the DAWG.
+ * Move the node location if there is a need to do it because there is
+ * not enough room to add the new edges.
  **********************************************************************/
-NODE_REF move_node(EDGE_ARRAY dawg,
-                   NODE_REF node,
-                   INT32 max_num_edges,
-                   INT32 reserved_edges) {
+bool move_node_if_needed(EDGE_ARRAY dawg,
+                         NODE_REF* node,
+                         INT32 max_num_edges,
+                         INT32 reserved_edges) {
+  if (room_in_node(dawg, *node))
+    return true;
+
   NODE_REF   this_new_node;
   EDGE_REF   edge;
-  INT32      num_edges = edges_in_node (dawg, node);
+  INT32      num_edges = edges_in_node (dawg, *node);
 
   if (debug)
-    print_dawg_node(dawg, node);
+    print_dawg_node(dawg, *node);
 
   this_new_node = new_dawg_node (dawg, num_edges + EDGE_NUM_MARGIN,
                                  max_num_edges, reserved_edges);
+  if (this_new_node == 0)
+    return false;
 
   if (debug)
     cprintf ("move_node  (from = " REFFORMAT ", to = " REFFORMAT
              ", num = %d)\n",
-      node, this_new_node, num_edges);
+      *node, this_new_node, num_edges);
 
-  move_edges(dawg, node, this_new_node, num_edges);
+  move_edges(dawg, *node, this_new_node, num_edges);
 
   if (debug)
     print_dawg_node(dawg, this_new_node);
@@ -260,17 +287,18 @@ NODE_REF move_node(EDGE_ARRAY dawg,
   edge = this_new_node;
   if (forward_edge (dawg, edge)) {
     do {
-      relocate_edge (dawg, next_node (dawg, edge), node, this_new_node);
+      relocate_edge (dawg, next_node (dawg, edge), *node, this_new_node);
     } edge_loop (dawg, edge);
   }
   if (backward_edge (dawg, edge)) {
     do {
-      relocate_edge (dawg, next_node (dawg, edge), node, this_new_node);
+      relocate_edge (dawg, next_node (dawg, edge), *node, this_new_node);
     } edge_loop (dawg, edge);
   }
 
   move_counter++;
-  return (this_new_node);
+  *node = this_new_node;
+  return true;
 }
 
 
@@ -309,8 +337,7 @@ NODE_REF new_dawg_node(EDGE_ARRAY dawg,
   }
 
   cprintf ("DAWG Table is too full, nodes = %d, edges = %d, moves %d\n",
-    new_counter, edge_counter, move_counter);
-  exit (1);
+           new_counter, edge_counter, move_counter);
   return 0;
 }
 
