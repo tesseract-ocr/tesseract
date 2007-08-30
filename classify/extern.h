@@ -27,9 +27,6 @@
  ********************************************************************************
  */
 
-#ifdef __cplusplus
 #define EXTERN extern
-#else
-#define EXTERN extern
-#endif
+
 #endif
