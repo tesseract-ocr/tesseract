@@ -534,7 +534,7 @@ make_int_var (MinNumPermClasses, 1, MakeMinNumPermClasses,
 18, 12, SetMinNumPermClasses, "Min # of permanent classes: ");
 /* PREV DEFAULT 200 */
 
-make_int_var (ReliableConfigThreshold, 1, MakeReliableConfigThreshold,
+make_int_var (ReliableConfigThreshold, 2, MakeReliableConfigThreshold,
 18, 13, SetReliableConfigThreshold,
 "Reliable Config Threshold: ");
 
