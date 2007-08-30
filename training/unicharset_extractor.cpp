@@ -72,7 +72,7 @@ void set_properties(UNICHARSET *unicharset, const char* const c_string) {
       unicharset->set_isalpha(id, 1);
       if (iswlower(wc))
         unicharset->set_islower(id, 1);
-      if (iswlower(wc))
+      if (iswupper(wc))
         unicharset->set_isupper(id, 1);
     }
     if (iswdigit(wc))
