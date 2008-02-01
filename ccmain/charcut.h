@@ -23,6 +23,7 @@
 #include          "pgedit.h"
 #include          "notdll.h"
 #include          "notdll.h"
+class ScrollView;
 
 /*************************************************************************
  * CLASS PIXROW
@@ -63,7 +64,7 @@ class PIXROW:public ELIST_LINK
     }
 
     void plot(                   //use current settings
-              WINDOW fd) const;  //where to paint
+              ScrollView* fd) const;  //where to paint
 
     BOX bounding_box() const;  //return bounding box
                                  //return true if box exceeds image
@@ -107,7 +108,7 @@ IMAGELINE *generate_imlines(                   //get some imagelines
                             IMAGE &bin_image,  //from here
                             BOX &pix_box);
                                  //word to be processed
-WINDOW display_clip_image(WERD *word,
+ScrollView* display_clip_image(WERD *word,
                           IMAGE &bin_image,          //whole image
                           PIXROW_LIST *pixrow_list,  //pixrows built
                           BOX &pix_box               //box of subimage
@@ -115,5 +116,5 @@ WINDOW display_clip_image(WERD *word,
 void display_images(IMAGE &clip_image, IMAGE &scaled_image); 
 void plot_pixrows(  //plot for all blobs
                   PIXROW_LIST *pixrow_list,
-                  WINDOW win);
+                  ScrollView* win);
 #endif

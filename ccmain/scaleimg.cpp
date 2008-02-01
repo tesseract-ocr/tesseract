@@ -29,7 +29,7 @@
 #include          <string.h>
 #include          "fileerr.h"
 #include          "tprintf.h"
-#include          "grphics.h"
+//#include          "grphics.h"
 #include          "img.h"
 //#include                                      "basefile.h"
 #include          "imgscale.h"

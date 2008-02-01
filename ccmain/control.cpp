@@ -143,6 +143,8 @@ EXTERN BOOL_VAR (tessedit_global_adaption, FALSE,
 EXTERN BOOL_VAR (tessedit_matcher_log, FALSE, "Log matcher activity");
 EXTERN INT_VAR (tessedit_test_adaption_mode, 3,
 "Adaptation decision algorithm for tess");
+BOOL_VAR (save_best_choices, FALSE, "Save the results of the recognition step"
+" (blob_choices) within the corresponding WERD_CHOICE");
 
 EXTERN BOOL_VAR (test_pt, FALSE, "Test for point");
 EXTERN double_VAR (test_pt_x, 99999.99, "xcoord");
@@ -582,13 +584,19 @@ void classify_word_pass1(                 //recog one word
                          CHAR_SAMPLE_LIST *chars_waiting) {
   WERD *bln_word;                //baseline norm copy
                                  //detailed results
-  BLOB_CHOICE_LIST_CLIST blob_choices;
+  BLOB_CHOICE_LIST_CLIST local_blob_choices;
+  BLOB_CHOICE_LIST_CLIST *blob_choices;
   BOOL8 adapt_ok;
   const char *rejmap;
   INT16 index;
   STRING mapstr = "";
   char *match_string;
   char word_string[1024];
+
+  if (save_best_choices)
+    blob_choices = new BLOB_CHOICE_LIST_CLIST();
+  else
+    blob_choices = &local_blob_choices;
 
   if (matcher_fp != NULL) {
     fgets (word_string, 1023, correct_fp);
@@ -610,7 +618,7 @@ void classify_word_pass1(                 //recog one word
 
   word->best_choice = tess_segment_pass1 (bln_word, &word->denorm,
     tess_default_matcher,
-    word->raw_choice, &blob_choices,
+    word->raw_choice, blob_choices,
     word->outword);
   /*
      Test for TESS screw up on word. Recog_word has already ensured that the
@@ -629,17 +637,17 @@ void classify_word_pass1(                 //recog one word
     word->tess_failed = FALSE;
     if ((word->best_choice->lengths ().length () !=
       word->outword->blob_list ()->length ()) ||
-    (word->best_choice->lengths ().length () != blob_choices.length ())) {
+    (word->best_choice->lengths ().length () != blob_choices->length ())) {
       tprintf
         ("ASSERT FAIL String:\"%s\"; Strlen=%d; #Blobs=%d; #Choices=%d\n",
         word->best_choice->string ().string (),
         word->best_choice->lengths ().length (),
-        word->outword->blob_list ()->length (), blob_choices.length ());
+        word->outword->blob_list ()->length (), blob_choices->length ());
     }
     ASSERT_HOST (word->best_choice->lengths ().length () ==
       word->outword->blob_list ()->length ());
     ASSERT_HOST (word->best_choice->lengths ().length () ==
-      blob_choices.length ());
+      blob_choices->length ());
 
     /*
        The adaption step used to be here. It has been moved to after
@@ -657,10 +665,10 @@ void classify_word_pass1(                 //recog one word
     else {
       fix_quotes (word->best_choice,
       //turn to double
-        word->outword, &blob_choices);
+        word->outword, blob_choices);
       if (tessedit_fix_hyphens)
                                  //turn 2 to 1
-        fix_hyphens (word->best_choice, word->outword, &blob_choices);
+        fix_hyphens (word->best_choice, word->outword, blob_choices);
       record_certainty (word->best_choice->certainty (), 1);
       //accounting
 
@@ -671,7 +679,7 @@ void classify_word_pass1(                 //recog one word
         word->best_choice,
         word->raw_choice);
                                  // Also sets word->done flag
-      make_reject_map (word, &blob_choices, row, 1);
+      make_reject_map (word, blob_choices, row, 1);
 
       adapt_ok = word_adaptable (word, tessedit_tess_adaption_mode);
 
@@ -702,7 +710,7 @@ void classify_word_pass1(                 //recog one word
 
       if (tessedit_enable_doc_dict)
         tess_add_doc_word (word->best_choice);
-      set_word_fonts(word, &blob_choices);
+      set_word_fonts(word, blob_choices);
     }
   }
 #if 0
@@ -712,7 +720,12 @@ void classify_word_pass1(                 //recog one word
   }
 #endif
   delete bln_word;
-  blob_choices.deep_clear ();
+
+  // Save best choices in the WERD_CHOICE if needed
+  if (blob_choices != &local_blob_choices)
+    word->best_choice->set_blob_choices(blob_choices);
+  else
+    blob_choices->deep_clear();
 }
 
 
@@ -885,11 +898,12 @@ void classify_word_pass2(  //word to do
   }
 #ifndef GRAPHICS_DISABLED
   if (tessedit_draw_outwords) {
-    if (fx_win == NO_WINDOW)
+    if (fx_win == NULL)
       create_fx_win();
     clear_fx_win();
     word->outword->plot (fx_win);
-    make_picture_current(fx_win);
+    //make_picture_current(fx_win);
+    ScrollView::Update();
   }
 #endif
 
@@ -916,7 +930,13 @@ void match_word_pass2(                 //recog one word
                       float x_height) {
   WERD *bln_word;                //baseline norm copy
                                  //detailed results
-  BLOB_CHOICE_LIST_CLIST blob_choices;
+  BLOB_CHOICE_LIST_CLIST local_blob_choices;
+  BLOB_CHOICE_LIST_CLIST *blob_choices;
+
+  if (save_best_choices)
+    blob_choices = new BLOB_CHOICE_LIST_CLIST();
+  else
+    blob_choices = &local_blob_choices;
 
   set_global_subsubloc_code(SUBSUBLOC_OTHER);
   if (matcher_fp != NULL) {
@@ -933,25 +953,25 @@ void match_word_pass2(                 //recog one word
       tess_default_matcher,
       tess_training_tester,
       word->raw_choice,
-      &blob_choices, word->outword);
+      blob_choices, word->outword);
   else if (tessedit_dump_choices)
     word->best_choice = test_segment_pass2 (bln_word,
         &word->denorm,
         tess_default_matcher,
         choice_dump_tester,
         word->raw_choice,
-        &blob_choices, word->outword);
+        blob_choices, word->outword);
   //      else if (tessedit_training_wiseowl)
   //              best_choice=correct_segment_pass2( word, &denorm,
   //                                                                                                        tess_default_matcher,wo_learn,
-  //                                                                                                        raw_choice,&blob_choices,outword);
+  //                                                                                                        raw_choice,blob_choices,outword);
   //      else if (tessedit_matcher_is_wiseowl)
   //              best_choice=tess_segment_pass2( word, &denorm, wo_classify,
-  //                                                                                                raw_choice, &blob_choices, outword);
+  //                                                                                                raw_choice, blob_choices, outword);
   else {
     word->best_choice = tess_segment_pass2 (bln_word, &word->denorm,
       tess_default_matcher,
-      word->raw_choice, &blob_choices,
+      word->raw_choice, blob_choices,
       word->outword);
   }
   set_global_subsubloc_code(SUBSUBLOC_OTHER);
@@ -971,17 +991,17 @@ void match_word_pass2(                 //recog one word
   else {
     if ((word->best_choice->lengths ().length () !=
       word->outword->blob_list ()->length ()) ||
-    (word->best_choice->lengths ().length () != blob_choices.length ())) {
+    (word->best_choice->lengths ().length () != blob_choices->length ())) {
       tprintf
         ("ASSERT FAIL String:\"%s\"; Strlen=%d; #Blobs=%d; #Choices=%d\n",
         word->best_choice->string ().string (),
         word->best_choice->lengths ().length (),
-        word->outword->blob_list ()->length (), blob_choices.length ());
+        word->outword->blob_list ()->length (), blob_choices->length ());
     }
     ASSERT_HOST (word->best_choice->lengths ().length () ==
       word->outword->blob_list ()->length ());
     ASSERT_HOST (word->best_choice->lengths ().length () ==
-      blob_choices.length ());
+      blob_choices->length ());
 
     word->tess_failed = FALSE;
     if (word->word->flag (W_REP_CHAR)) {
@@ -989,37 +1009,43 @@ void match_word_pass2(                 //recog one word
     }
     else {
       fix_quotes (word->best_choice,
-        word->outword, &blob_choices);
+        word->outword, blob_choices);
       if (tessedit_fix_hyphens)
         fix_hyphens (word->best_choice,
-          word->outword, &blob_choices);
+          word->outword, blob_choices);
       /* Dont trust fix_quotes! - though I think I've fixed the bug */
       if ((word->best_choice->lengths ().length () !=
            word->outword->blob_list ()->length ()) ||
           (word->best_choice->lengths ().length () !=
-           blob_choices.length ())) {
+           blob_choices->length ())) {
         #ifndef SECURE_NAMES
         tprintf
           ("POST FIX_QUOTES FAIL String:\"%s\"; Strlen=%d; #Blobs=%d; #Choices=%d\n",
            word->best_choice->string ().string (),
            word->best_choice->lengths ().length (),
            word->outword->blob_list ()->length (),
-           blob_choices.length ());
+           blob_choices->length ());
         #endif
 
       }
       ASSERT_HOST (word->best_choice->lengths ().length () ==
         word->outword->blob_list ()->length ());
       ASSERT_HOST (word->best_choice->lengths ().length () ==
-        blob_choices.length ());
+        blob_choices->length ());
 
       word->tess_accepted = tess_acceptable_word (word->best_choice,
         word->raw_choice);
 
-      make_reject_map (word, &blob_choices, row, 2);
+      make_reject_map (word, blob_choices, row, 2);
     }
   }
-  blob_choices.deep_clear ();
+
+  // Save best choices in the WERD_CHOICE if needed
+  if (blob_choices != &local_blob_choices)
+    word->best_choice->set_blob_choices(blob_choices);
+  else
+    blob_choices->deep_clear();
+
   delete bln_word;
   assert (word->raw_choice != NULL);
 }
@@ -1136,7 +1162,8 @@ void fix_quotes(               //make double quotes
     if (str[offset + choice->lengths()[i]] != '\0' &&
         is_simple_quote(str + offset, choice->lengths()[i]) &&
         is_simple_quote(str + offset + choice->lengths()[i],
-                        choice->lengths()[i + 1])) {
+                        choice->lengths()[i + 1]) &&
+        unicharset.contains_unichar("\"")) {
       str[offset] = '"';                //turn to double
       strcpy (str + offset + 1,
               str + offset + choice->lengths()[i] +
@@ -1736,17 +1763,17 @@ void font_recognition_pass(  //good chars in word
     count = word->italic;
     if (count < 0)
       count = -count;
-    if (!(count == length || length > 3 && count >= length * 3 / 4))
+    if (!(count == length || (length > 3 && count >= length * 3 / 4)))
       word->italic = doc_italic > 0 ? 1 : -1;
 
     count = word->bold;
     if (count < 0)
       count = -count;
-    if (!(count == length || length > 3 && count >= length * 3 / 4))
+    if (!(count == length || (length > 3 && count >= length * 3 / 4)))
       word->bold = doc_bold > 0 ? 1 : -1;
 
     count = word->font1_count;
-    if (!(count == length || length > 3 && count >= length * 3 / 4)) {
+    if (!(count == length || (length > 3 && count >= length * 3 / 4))) {
       word->font1 = doc_font;
       word->font1_count = doc_font_count;
     }

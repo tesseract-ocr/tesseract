@@ -28,14 +28,15 @@
 #include          "tessvars.h"
 #include          "stderr.h"
 #include          "img.h"
-#include          "evnts.h"
-#include          "showim.h"
+//#include          "evnts.h"
+//#include          "showim.h"
 #include          "hosthplb.h"
-#include          "grphics.h"
-#include          "evnts.h"
+#include          "scrollview.h"
+//#include          "evnts.h"
 #include          "adaptions.h"
 #include          "matmatch.h"
 #include          "secname.h"
+#include "svshowim.h"
 
 #define EXTERN
 
@@ -285,78 +286,68 @@ float match1(  /* returns match score */
 
 #ifndef GRAPHICS_DISABLED
 void display_images(IMAGE *image_w, IMAGE *image_n, IMAGE *match_image) { 
-  WINDOW w_im_window;
-  WINDOW n_im_window;
-  WINDOW match_window;
-  GRAPHICS_EVENT event;          //output event
+  ScrollView* w_im_window;
+  ScrollView* n_im_window;
+  ScrollView* match_window;
   INT16 i;
 
-                                 // xmin xmax ymin ymax
-  w_im_window = create_window ("Image 1", SCROLLINGWIN, 20, 100, 10 * image_w->get_xsize (), 10 * image_w->get_ysize (), 0, image_w->get_xsize (), 0, image_w->get_ysize (),
-    TRUE, FALSE, FALSE, TRUE);   // down event & key only
+  w_im_window = new ScrollView("Image 1", 20, 100, 
+      10 * image_w->get_xsize (), 10 * image_w->get_ysize (),
+      image_w->get_xsize (), image_w->get_ysize ());
 
-  clear_view_surface(w_im_window); 
-  show_sub_image (image_w,
+  sv_show_sub_image (image_w,
     0, 0,
     image_w->get_xsize (), image_w->get_ysize (),
     w_im_window, 0, 0);
 
-  line_color_index(w_im_window, RED); 
+  w_im_window->Pen(255,0,0);
   for (i = 1; i < image_w->get_xsize (); i++) {
-    move2d (w_im_window, i, 0);
-    draw2d (w_im_window, i, image_w->get_ysize ());
+     w_im_window->Line(i, 0, i, image_w->get_ysize ());
   }
   for (i = 1; i < image_w->get_ysize (); i++) {
-    move2d (w_im_window, 0, i);
-    draw2d (w_im_window, image_w->get_xsize (), i);
+    w_im_window->Line(0, i, image_w->get_xsize (), i);
   }
 
-                                 // xmin xmax ymin ymax
-  n_im_window = create_window ("Image 2", SCROLLINGWIN, 240, 100, 10 * image_n->get_xsize (), 10 * image_n->get_ysize (), 0, image_n->get_xsize (), 0, image_n->get_ysize (),
-    TRUE, FALSE, FALSE, TRUE);   // down event & key only
+  n_im_window = new ScrollView ("Image 2", 240, 100,
+      10 * image_n->get_xsize (), 10 * image_n->get_ysize (),
+      image_n->get_xsize (), image_n->get_ysize ());
 
-  clear_view_surface(n_im_window); 
-  show_sub_image (image_n,
+  sv_show_sub_image (image_n,
     0, 0,
     image_n->get_xsize (), image_n->get_ysize (),
     n_im_window, 0, 0);
 
-  line_color_index(n_im_window, RED); 
+  n_im_window->Pen(255,0,0);
   for (i = 1; i < image_n->get_xsize (); i++) {
-    move2d (n_im_window, i, 0);
-    draw2d (n_im_window, i, image_n->get_ysize ());
+     n_im_window->Line(i, 0, i, image_n->get_ysize ());
   }
   for (i = 1; i < image_n->get_ysize (); i++) {
-    move2d (n_im_window, 0, i);
-    draw2d (n_im_window, image_n->get_xsize (), i);
+    n_im_window->Line(0, i, image_n->get_xsize (), i);
   }
-  overlap_picture_ops(TRUE); 
 
-                                 // xmin xmax ymin ymax
-  match_window = create_window ("Match Result", SCROLLINGWIN, 460, 100, 10 * match_image->get_xsize (), 10 * match_image->get_ysize (), 0, match_image->get_xsize (), 0, match_image->get_ysize (),
-    TRUE, FALSE, FALSE, TRUE);   // down event & key only
+  match_window = new ScrollView ("Match Result", 460, 100,
+       10 * match_image->get_xsize (), 10 * match_image->get_ysize (),
+       match_image->get_xsize (), match_image->get_ysize ());
 
-  clear_view_surface(match_window); 
-  show_sub_image (match_image,
+  match_window->Clear();
+  sv_show_sub_image (match_image,
     0, 0,
     match_image->get_xsize (), match_image->get_ysize (),
     match_window, 0, 0);
 
-  line_color_index(match_window, RED); 
+  match_window->Pen(255,0,0);
   for (i = 1; i < match_image->get_xsize (); i++) {
-    move2d (match_window, i, 0);
-    draw2d (match_window, i, match_image->get_ysize ());
+     match_window->Line(i, 0, i, match_image->get_ysize ());
   }
   for (i = 1; i < match_image->get_ysize (); i++) {
-    move2d (match_window, 0, i);
-    draw2d (match_window, match_image->get_xsize (), i);
+     match_window->Line(0, i, match_image->get_xsize (), i);
   }
-  overlap_picture_ops(TRUE); 
+  SVEvent* sve = match_window->AwaitEvent(SVET_DESTROY);
+  delete sve;
 
-  await_event(match_window, TRUE, ANY_EVENT, &event); 
-  destroy_window(w_im_window); 
-  destroy_window(n_im_window); 
-  destroy_window(match_window); 
+  delete w_im_window;
+  delete n_im_window;
+  delete match_window;
 }
 
 
@@ -367,37 +358,33 @@ void display_images(IMAGE *image_w, IMAGE *image_n, IMAGE *match_image) {
  *
  *************************************************************************/
 
-WINDOW display_image(IMAGE *image,
+ScrollView* display_image(IMAGE *image,
                      const char *title,
                      INT32 x,
                      INT32 y,
                      BOOL8 wait) {
-  WINDOW im_window;
+  ScrollView* im_window;
   INT16 i;
-  GRAPHICS_EVENT event;          //output event
 
-                                 // xmin xmax ymin ymax
-  im_window = create_window (title, SCROLLINGWIN, x, y, 10 * image->get_xsize (), 10 * image->get_ysize (), 0, image->get_xsize (), 0, image->get_ysize (),
-    TRUE, FALSE, FALSE, TRUE);   // down event & key only
+  im_window = new ScrollView (title, x, y, 
+      10 * image->get_xsize (), 10 * image->get_ysize (),
+      image->get_xsize (),  image->get_ysize ());
 
-  clear_view_surface(im_window); 
-  show_sub_image (image,
+  sv_show_sub_image (image,
     0, 0,
     image->get_xsize (), image->get_ysize (), im_window, 0, 0);
 
-  line_color_index(im_window, RED); 
+  im_window->Pen(255,0,0);
   for (i = 1; i < image->get_xsize (); i++) {
-    move2d (im_window, i, 0);
-    draw2d (im_window, i, image->get_ysize ());
+    im_window->SetCursor(i, 0);
+    im_window->DrawTo(i, image->get_ysize());
   }
   for (i = 1; i < image->get_ysize (); i++) {
-    move2d (im_window, 0, i);
-    draw2d (im_window, image->get_xsize (), i);
+    im_window->SetCursor(0, i);
+    im_window->DrawTo(image->get_xsize(),i);
   }
-  overlap_picture_ops(TRUE); 
 
-  if (wait)
-    await_event(im_window, TRUE, ANY_EVENT, &event); 
+  if (wait) { delete im_window->AwaitEvent(SVET_CLICK); }
 
   return im_window;
 }

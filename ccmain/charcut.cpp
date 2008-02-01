@@ -20,9 +20,10 @@
 #include "mfcpch.h"
 #include          "charcut.h"
 #include          "imgs.h"
-#include          "showim.h"
-#include          "evnts.h"
+#include          "svshowim.h"
+//#include          "evnts.h"
 #include          "notdll.h"
+#include	  "scrollview.h"
 
 #define LARGEST(a,b) ( (a) > (b) ? (a) : (b) )
 #define SMALLEST(a,b) ( (a) > (b) ? (b) : (a) )
@@ -96,7 +97,7 @@ PIXROW::PIXROW(INT16 pos, INT16 count, PBLOB *blob) {
  *************************************************************************/
 
 #ifndef GRAPHICS_DISABLED
-void PIXROW::plot(WINDOW fd  //where to paint
+void PIXROW::plot(ScrollView* fd  //where to paint
                  ) const {
   INT16 i;
   INT16 y_coord;
@@ -104,7 +105,7 @@ void PIXROW::plot(WINDOW fd  //where to paint
   for (i = 0; i < row_count; i++) {
     y_coord = row_offset + i;
     if (min[i] <= max[i]) {
-      rectangle (fd, min[i], y_coord, max[i] + 1, y_coord + 1);
+      fd->Rectangle(min[i], y_coord, max[i] + 1, y_coord + 1);
     }
   }
 }
@@ -574,12 +575,12 @@ IMAGELINE *generate_imlines(                   //get some imagelines
  *************************************************************************/
 
 #ifndef GRAPHICS_DISABLED
-WINDOW display_clip_image(WERD *word,                //word to be processed
+ScrollView* display_clip_image(WERD *word,                //word to be processed
                           IMAGE &bin_image,          //whole image
                           PIXROW_LIST *pixrow_list,  //pixrows built
                           BOX &pix_box               //box of subimage
                          ) {
-  WINDOW clip_window;            //window for debug
+  ScrollView* clip_window;            //window for debug
   BOX word_box = word->bounding_box ();
   int border = word_box.height () / 2;
   BOX display_box = word_box;
@@ -593,23 +594,19 @@ WINDOW display_clip_image(WERD *word,                //word to be processed
     bin_image.get_ysize () - BUG_OFFSET));
 
   pgeditor_msg ("Creating Clip window...");
-  clip_window =
-    create_window ("Clipped Blobs",
-    SCROLLINGWIN,
+  clip_window = new ScrollView("Clipped Blobs",
     editor_word_xpos, editor_word_ypos,
     3 * (word_box.width () + 2 * border),
     3 * (word_box.height () + 2 * border),
-  //window width,height
-                                 // xmin, xmax
-    display_box.left (), display_box.right (),
-    display_box.bottom () - BUG_OFFSET,
+    display_box.left () + display_box.right (),
+    display_box.bottom () - BUG_OFFSET +
     display_box.top () - BUG_OFFSET,
+    true);
   // ymin, ymax
-    TRUE, FALSE, FALSE, TRUE);   // down event & key only
   pgeditor_msg ("Creating Clip window...Done");
 
-  clear_view_surface(clip_window); 
-  show_sub_image (&bin_image,
+  clip_window->Clear();
+  sv_show_sub_image (&bin_image,
     display_box.left (),
     display_box.bottom (),
     display_box.width (),
@@ -617,11 +614,10 @@ WINDOW display_clip_image(WERD *word,                //word to be processed
     clip_window,
     display_box.left (), display_box.bottom () - BUG_OFFSET);
 
-  word->plot (clip_window, RED);
-  word_box.plot (clip_window, INT_HOLLOW, TRUE, BLUE, BLUE);
-  pix_box.plot (clip_window, INT_HOLLOW, TRUE, BLUE, BLUE);
+  word->plot (clip_window, ScrollView::RED);
+  word_box.plot (clip_window, ScrollView::BLUE, ScrollView::BLUE);
+  pix_box.plot (clip_window, ScrollView::BLUE, ScrollView::BLUE);
   plot_pixrows(pixrow_list, clip_window); 
-  overlap_picture_ops(TRUE); 
   return clip_window;
 }
 
@@ -633,55 +629,54 @@ WINDOW display_clip_image(WERD *word,                //word to be processed
  *************************************************************************/
 
 void display_images(IMAGE &clip_image, IMAGE &scaled_image) { 
-  WINDOW clip_im_window;         //window for debug
-  WINDOW scale_im_window;        //window for debug
+  ScrollView* clip_im_window;         //window for debug
+  ScrollView* scale_im_window;        //window for debug
   INT16 i;
-  GRAPHICS_EVENT event;          //                                                      c;
 
                                  // xmin xmax ymin ymax
-  clip_im_window = create_window ("Clipped Blob", SCROLLINGWIN, editor_word_xpos - 20, editor_word_ypos - 100, 5 * clip_image.get_xsize (), 5 * clip_image.get_ysize (), 0, clip_image.get_xsize (), 0, clip_image.get_ysize (),
-    TRUE, FALSE, FALSE, TRUE);   // down event & key only
+  clip_im_window = new ScrollView ("Clipped Blob", editor_word_xpos - 20,
+      editor_word_ypos - 100, 5 * clip_image.get_xsize (),
+      5 * clip_image.get_ysize (), clip_image.get_xsize (),
+      clip_image.get_ysize (), true);
 
-  clear_view_surface(clip_im_window); 
-  show_sub_image (&clip_image,
+  sv_show_sub_image (&clip_image,
     0, 0,
     clip_image.get_xsize (), clip_image.get_ysize (),
     clip_im_window, 0, 0);
 
-  line_color_index(clip_im_window, RED); 
+  clip_im_window->Pen(255,0,0);
   for (i = 1; i < clip_image.get_xsize (); i++) {
-    move2d (clip_im_window, i, 0);
-    draw2d (clip_im_window, i, clip_image.get_xsize ());
+    clip_im_window->SetCursor(i,0);
+    clip_im_window->DrawTo(i, clip_image.get_xsize ());
   }
   for (i = 1; i < clip_image.get_ysize (); i++) {
-    move2d (clip_im_window, 0, i);
-    draw2d (clip_im_window, clip_image.get_xsize (), i);
+    clip_im_window->SetCursor(0,i);
+    clip_im_window->DrawTo(clip_image.get_xsize (),i);
+
   }
 
                                  // xmin xmax ymin ymax
-  scale_im_window = create_window ("Scaled Blob", SCROLLINGWIN, editor_word_xpos + 300, editor_word_ypos - 100, 5 * scaled_image.get_xsize (), 5 * scaled_image.get_ysize (), 0, scaled_image.get_xsize (), 0, scaled_image.get_ysize (),
-    TRUE, FALSE, FALSE, TRUE);   // down event & key only
+  scale_im_window = new ScrollView ("Scaled Blob", editor_word_xpos + 300,
+      editor_word_ypos - 100, 5 * scaled_image.get_xsize (), 
+      5 * scaled_image.get_ysize (), scaled_image.get_xsize (), 
+      scaled_image.get_ysize (), true);
 
-  clear_view_surface(scale_im_window); 
-  show_sub_image (&scaled_image,
+  sv_show_sub_image (&scaled_image,
     0, 0,
     scaled_image.get_xsize (), scaled_image.get_ysize (),
     scale_im_window, 0, 0);
 
-  line_color_index(scale_im_window, RED); 
+  scale_im_window->Pen(255,0,0);
   for (i = 1; i < scaled_image.get_xsize (); i++) {
-    move2d (scale_im_window, i, 0);
-    draw2d (scale_im_window, i, scaled_image.get_xsize ());
+    scale_im_window->SetCursor(i,0);
+    scale_im_window->DrawTo(i, scaled_image.get_xsize ());
   }
   for (i = 1; i < scaled_image.get_ysize (); i++) {
-    move2d (scale_im_window, 0, i);
-    draw2d (scale_im_window, scaled_image.get_xsize (), i);
+    scale_im_window->SetCursor(0,i);
+    scale_im_window->DrawTo(scaled_image.get_xsize (),i);
   }
 
-  overlap_picture_ops(TRUE); 
-  await_event(scale_im_window, TRUE, ANY_EVENT, &event); 
-  destroy_window(clip_im_window); 
-  destroy_window(scale_im_window); 
+  ScrollView::Update();
 }
 
 
@@ -692,17 +687,16 @@ void display_images(IMAGE &clip_image, IMAGE &scaled_image) {
 
 void plot_pixrows(  //plot for all blobs
                   PIXROW_LIST *pixrow_list,
-                  WINDOW win) {
+                  ScrollView* win) {
   PIXROW_IT pixrow_it(pixrow_list); 
-  INT16 colour = RED;
+  INT16 colour = ScrollView::RED;
 
   for (pixrow_it.mark_cycle_pt ();
   !pixrow_it.cycled_list (); pixrow_it.forward ()) {
-    if (colour > RED + 7)
-      colour = RED;
+    if (colour > ScrollView::RED + 7)
+      colour = ScrollView::RED;
 
-    perimeter_color_index (win, (COLOUR) colour);
-    interior_style(win, INT_HOLLOW, TRUE); 
+   win->Pen((ScrollView::Color) colour);
     pixrow_it.data ()->plot (win);
     colour++;
   }

@@ -41,6 +41,8 @@
 
 INT32 demo_word = 0;
 
+#define WINDOWNAMESIZE    13     /*max size of name */
+
 #define EXTERN
 
 EXTERN BOOL_VAR (tessedit_reject_ems, FALSE, "Reject all m's");
@@ -507,7 +509,7 @@ void adapt_to_good_ems(WERD_RES *word,
   static INT32 word_number = 0;
 
 #ifndef GRAPHICS_DISABLED
-  WINDOW demo_win = NULL;
+  ScrollView* demo_win = NULL;
 #endif
 
   INT32 resolution = page_image.get_res ();
@@ -745,7 +747,7 @@ void adapt_to_good_samples(WERD_RES *word,
   static INT32 word_number = 0;
 
 #ifndef GRAPHICS_DISABLED
-  WINDOW demo_win = NULL;
+  ScrollView* demo_win = NULL;
 #endif
 
   INT32 resolution = page_image.get_res ();

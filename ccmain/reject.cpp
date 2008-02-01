@@ -279,11 +279,11 @@ void set_done(  //set done flag
 
     if (word->done &&
       (pass == 1) &&
-      ((word->best_choice->permuter () != SYSTEM_DAWG_PERM) &&
+      (((word->best_choice->permuter () != SYSTEM_DAWG_PERM) &&
       (word->best_choice->permuter () != FREQ_DAWG_PERM) &&
       (word->best_choice->permuter () != USER_DAWG_PERM) &&
       (word->best_choice->permuter () != NUMBER_PERM)) ||
-    (test_ambig_word (word))) {
+    (test_ambig_word (word)))) {
       #ifndef SECURE_NAMES
       if (tessedit_rejection_debug)
         tprintf ("\nVETO Tess accepting poor word \"%s\"\n",
@@ -303,11 +303,11 @@ void set_done(  //set done flag
       word->done = FALSE;
 
     if (word->done &&
-      ((word->best_choice->permuter () != SYSTEM_DAWG_PERM) &&
+      (((word->best_choice->permuter () != SYSTEM_DAWG_PERM) &&
       (word->best_choice->permuter () != FREQ_DAWG_PERM) &&
       (word->best_choice->permuter () != USER_DAWG_PERM) &&
       (word->best_choice->permuter () != NUMBER_PERM)) ||
-    (test_ambig_word (word))) {
+    (test_ambig_word (word)))) {
       #ifndef SECURE_NAMES
       if (tessedit_rejection_debug)
         tprintf ("\nVETO Tess accepting poor word \"%s\"\n",
@@ -1054,7 +1054,7 @@ void nn_match_word(  //Match a word
   IMAGELINE *imlines;            //lines of the image
   BOX pix_box;                   //box of imlines extent
 #ifndef GRAPHICS_DISABLED
-  WINDOW win = NULL;
+  ScrollView* win = NULL;
 #endif
   IMAGE clip_image;
   IMAGE scaled_image;
@@ -1185,8 +1185,8 @@ void nn_match_word(  //Match a word
     if (show_char_clipping)
       display_images(clip_image, scaled_image);
 #endif
-    clip_image.destroy ();
-    scaled_image.destroy ();
+   clip_image.destroy();
+   scaled_image.destroy();
   }
 
   delete[]imlines;               // Free array of imlines
@@ -1194,7 +1194,9 @@ void nn_match_word(  //Match a word
 
 #ifndef GRAPHICS_DISABLED
   if (show_char_clipping) {
-    destroy_window(win);
+//    destroy_window(win);
+//   win->Destroy();
+    delete win;
   }
 #endif
 }
@@ -1749,7 +1751,7 @@ void flip_0O(WERD_RES *word) {
             str[offset - lengths[i - 1] - lengths[i - 2]] == 'O')
           str[offset - lengths[i - 1] - lengths[i - 2]] = '0';
         while (lengths[i] == 1 &&
-               (str[offset] == 'O') || (str[offset] == '0')) {
+               ((str[offset] == 'O') || (str[offset] == '0'))) {
           str[offset] = '0';
           offset += lengths[i++];
         }

@@ -40,7 +40,7 @@ float match1(  /* returns match score */
              IMAGE *image_w,
              IMAGE *image_n);
 void display_images(IMAGE *image_w, IMAGE *image_n, IMAGE *match_image); 
-WINDOW display_image(IMAGE *image,
+ScrollView* display_image(IMAGE *image,
                      const char *title,
                      INT32 x,
                      INT32 y,

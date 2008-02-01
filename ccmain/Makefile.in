@@ -75,14 +75,14 @@ RANLIB = @RANLIB@
 VERSION = @VERSION@
 
 SUBDIRS = 
-AM_CPPFLAGS =      -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct     -I$(top_srcdir)/image -I$(top_srcdir)/viewer     -I$(top_srcdir)/ccops -I$(top_srcdir)/dict     -I$(top_srcdir)/classify -I$(top_srcdir)/display     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil     -I$(top_srcdir)/textord
+AM_CPPFLAGS =      -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct     -I$(top_srcdir)/image -I$(top_srcdir)/viewer     -I$(top_srcdir)/ccops -I$(top_srcdir)/dict     -I$(top_srcdir)/classify     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil     -I$(top_srcdir)/textord
 
 
-include_HEADERS =      adaptions.h applybox.h baseapi.h blobcmp.h     callnet.h charcut.h     control.h docqual.h expandblob.h fixspace.h fixxht.h     imgscale.h matmatch.h output.h paircmp.h reject.h scaleimg.h     tessbox.h tessedit.h tesseractmain.h tessvars.h tfacep.h     tessembedded.h tfacepp.h tstruct.h werdit.h
+include_HEADERS =      adaptions.h applybox.h baseapi.h blobcmp.h     callnet.h charcut.h     control.h docqual.h expandblob.h fixspace.h fixxht.h     imgscale.h matmatch.h output.h paircmp.h reject.h scaleimg.h     tessbox.h tessedit.h tesseractmain.h tessvars.h tfacep.h     pagewalk.h pgedit.h varabled.h     tessembedded.h tessio.h tfacepp.h tstruct.h werdit.h
 
 
 lib_LIBRARIES = libtesseract_main.a libtesseract_full.a
-libtesseract_main_a_SOURCES =      tessedit.cpp adaptions.cpp applybox.cpp     baseapi.cpp blobcmp.cpp     callnet.cpp charcut.cpp charsample.cpp control.cpp     docqual.cpp expandblob.cpp fixspace.cpp fixxht.cpp     imgscale.cpp matmatch.cpp output.cpp paircmp.cpp     reject.cpp scaleimg.cpp tessbox.cpp tessvars.cpp     tfacepp.cpp tstruct.cpp werdit.cpp
+libtesseract_main_a_SOURCES =      tessedit.cpp adaptions.cpp applybox.cpp     baseapi.cpp blobcmp.cpp     callnet.cpp charcut.cpp charsample.cpp control.cpp     docqual.cpp expandblob.cpp fixspace.cpp fixxht.cpp     imgscale.cpp matmatch.cpp output.cpp paircmp.cpp     reject.cpp scaleimg.cpp tessbox.cpp tessvars.cpp     pagewalk.cpp pgedit.cpp varabled.cpp     tfacepp.cpp tstruct.cpp werdit.cpp
 
 libtesseract_full_a_SOURCES = tesseractfull.cc
 
@@ -104,8 +104,8 @@ libtesseract_main_a_LIBADD =
 libtesseract_main_a_OBJECTS =  tessedit.o adaptions.o applybox.o \
 baseapi.o blobcmp.o callnet.o charcut.o charsample.o control.o \
 docqual.o expandblob.o fixspace.o fixxht.o imgscale.o matmatch.o \
-output.o paircmp.o reject.o scaleimg.o tessbox.o tessvars.o tfacepp.o \
-tstruct.o werdit.o
+output.o paircmp.o reject.o scaleimg.o tessbox.o tessvars.o pagewalk.o \
+pgedit.o varabled.o tfacepp.o tstruct.o werdit.o
 libtesseract_full_a_LIBADD = 
 libtesseract_full_a_OBJECTS =  tesseractfull.o
 AR = ar
@@ -131,9 +131,10 @@ DEP_FILES =  .deps/adaptions.P .deps/applybox.P .deps/baseapi.P \
 .deps/blobcmp.P .deps/callnet.P .deps/charcut.P .deps/charsample.P \
 .deps/control.P .deps/docqual.P .deps/expandblob.P .deps/fixspace.P \
 .deps/fixxht.P .deps/imgscale.P .deps/matmatch.P .deps/output.P \
-.deps/paircmp.P .deps/reject.P .deps/scaleimg.P .deps/tessbox.P \
-.deps/tessedit.P .deps/tesseractfull.P .deps/tesseractmain.P \
-.deps/tessvars.P .deps/tfacepp.P .deps/tstruct.P .deps/werdit.P
+.deps/pagewalk.P .deps/paircmp.P .deps/pgedit.P .deps/reject.P \
+.deps/scaleimg.P .deps/tessbox.P .deps/tessedit.P .deps/tesseractfull.P \
+.deps/tesseractmain.P .deps/tessvars.P .deps/tfacepp.P .deps/tstruct.P \
+.deps/varabled.P .deps/werdit.P
 SOURCES = $(libtesseract_main_a_SOURCES) $(libtesseract_full_a_SOURCES) $(tesseract_SOURCES)
 OBJECTS = $(libtesseract_main_a_OBJECTS) $(libtesseract_full_a_OBJECTS) $(tesseract_OBJECTS)
 
@@ -526,8 +527,8 @@ mostlyclean distclean maintainer-clean
 
 libtesseract_full.o: tesseractfull.o \
     libtesseract_main.a \
-    ../display/libtesseract_display.a \
     ../textord/libtesseract_textord.a \
+    ../pageseg/libtesseract_pageseg.a \
     ../wordrec/libtesseract_wordrec.a \
     ../classify/libtesseract_classify.a \
     ../dict/libtesseract_dict.a \
@@ -538,8 +539,8 @@ libtesseract_full.o: tesseractfull.o \
     ../ccutil/libtesseract_ccutil.a
 	ld -r -o libtesseract_full.o tesseractfull.o \
     libtesseract_main.a \
-    ../display/libtesseract_display.a \
     ../textord/libtesseract_textord.a \
+    ../pageseg/libtesseract_pageseg.a \
     ../wordrec/libtesseract_wordrec.a \
     ../classify/libtesseract_classify.a \
     ../dict/libtesseract_dict.a \
