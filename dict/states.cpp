@@ -290,7 +290,7 @@ int compare_states(STATE *true_state, STATE *this_state, int *blob_index) {
     return 2;
   if (*blob_index == 0) {
     if (bits_in_states > 32) {
-      for (mask = 1 << bits_in_states - 33; mask != 0; mask >>= 1) {
+      for (mask = 1 << (bits_in_states - 33); mask != 0; mask >>= 1) {
         if (this_state->part1 & mask) {
           if (true_state->part1 & mask)
             return 2;
@@ -320,7 +320,7 @@ int compare_states(STATE *true_state, STATE *this_state, int *blob_index) {
     blob_count = 0;
     true_index = 0;
     if (bits_in_states > 32) {
-      for (mask = 1 << bits_in_states - 33; mask != 0; mask >>= 1) {
+      for (mask = 1 << (bits_in_states - 33); mask != 0; mask >>= 1) {
         if (true_state->part1 & mask)
           true_index++;
         if (this_state->part1 & mask) {

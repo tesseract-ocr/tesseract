@@ -203,7 +203,7 @@ INT8 open_tif_image(               //read header
   *res = -1;
   resoffset = -1;
   if (read (fd, (char *) &filetype, sizeof filetype) != sizeof filetype
-  || filetype != INTEL && filetype != MOTO) {
+  || (filetype != INTEL && filetype != MOTO)) {
     BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Filetype");
     return -1;
   }
@@ -577,7 +577,7 @@ INT8 write_tif_image(                //write whole image
   resolution.top = res;
   resolution.bottom = 1;
   if (write (fd, (char *) &type, sizeof type) != sizeof type
-  || type != INTEL && type != MOTO) {
+  || (type != INTEL && type != MOTO)) {
     WRITEFAILED.error ("write_tif_image", TESSLOG, "Filetype");
     return -1;
   }

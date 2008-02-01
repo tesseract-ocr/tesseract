@@ -29,8 +29,8 @@ different popular data structures. A new "das" can be created by declaring
 a variable of type 'DAS'
 ******************************************************************************/
 
-#ifndef ARRAY_H
-#define ARRAY_H
+#ifndef TESSARRAY_H
+#define TESSARRAY_H
 
 /*
 ----------------------------------------------------------------------
@@ -135,11 +135,11 @@ for (x=0; x < array_count (a); x++)
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-ARRAY array_insert(ARRAY array, int index, void *value); 
+ARRAY array_insert(ARRAY array, int index, void *value);
 
-ARRAY array_new(int num); 
+ARRAY array_new(int num);
 
-ARRAY array_push(ARRAY array, void *value); 
+ARRAY array_push(ARRAY array, void *value);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

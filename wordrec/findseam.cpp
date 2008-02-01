@@ -284,26 +284,38 @@ void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam) {
     if (-SPLIT_CLOSENESS < dist &&
       dist < SPLIT_CLOSENESS &&
     seam->priority + this_one->priority < ok_split) {
+      INT16 split1_point1_y = this_one->split1->point1->pos.y;
+      INT16 split1_point2_y = this_one->split1->point2->pos.y;
+      INT16 split2_point1_y = 0;
+      INT16 split2_point2_y = 0;
+      if (this_one->split2) {
+        split2_point1_y = this_one->split2->point1->pos.y;
+        split2_point2_y = this_one->split2->point2->pos.y;
+      }
       if (
-        /*!tessedit_fix_sideways_chops
-                          || */
-        (this_one->split1->point1->pos.y >= top1
-        && this_one->split1->point2->pos.y >= top1
-        || this_one->split1->point1->pos.y <= bottom1
-        && this_one->split1->point2->pos.y <= bottom1)
-        && (this_one->split1->point1->pos.y >= top2
-        && this_one->split1->point2->pos.y >= top2
-        || this_one->split1->point1->pos.y <= bottom2
-        && this_one->split1->point2->pos.y <= bottom2)
-        && (this_one->split2 == NULL
-        || (this_one->split2->point1->pos.y >= top1
-        && this_one->split2->point2->pos.y >= top1
-        || this_one->split2->point1->pos.y <= bottom1
-        && this_one->split2->point2->pos.y <= bottom1)
-        && (this_one->split2->point1->pos.y >= top2
-        && this_one->split2->point2->pos.y >= top2
-        || this_one->split2->point1->pos.y <= bottom2
-      && this_one->split2->point2->pos.y <= bottom2))) {
+        /*!tessedit_fix_sideways_chops || */
+        (
+          /* this_one->split1 always exists */
+          (
+            ((split1_point1_y >= top1 && split1_point2_y >= top1) ||
+             (split1_point1_y <= bottom1 && split1_point2_y <= bottom1))
+            &&
+            ((split1_point1_y >= top2 && split1_point2_y >= top2) ||
+             (split1_point1_y <= bottom2 && split1_point2_y <= bottom2))
+          )
+        )
+        &&
+        (
+          this_one->split2 == NULL ||
+          (
+            ((split2_point1_y >= top1 && split2_point2_y >= top1) ||
+             (split2_point1_y <= bottom1 && split2_point2_y <= bottom1))
+            &&
+            ((split2_point1_y >= top2 && split2_point2_y >= top2) ||
+             (split2_point1_y <= bottom2 && split2_point2_y <= bottom2))
+          )
+        )
+      ) {
         new_one = join_two_seams (seam, this_one);
         if (chop_debug > 1)
           print_seam ("Combo priority       ", new_one);

@@ -353,8 +353,8 @@ SEAM *join_two_seams(SEAM *seam1, SEAM *seam2) {
 
   assert(seam1 &&seam2);
 
-  if ((seam1->split3 == NULL && seam2->split2 == NULL ||
-    seam1->split2 == NULL && seam2->split3 == NULL ||
+  if (((seam1->split3 == NULL && seam2->split2 == NULL) ||
+    (seam1->split2 == NULL && seam2->split3 == NULL) ||
     seam1->split1 == NULL ||
   seam2->split1 == NULL) && (!shared_split_points (seam1, seam2))) {
     clone_seam(result, seam1);

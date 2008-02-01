@@ -134,7 +134,7 @@ extern char_proc allocate;
  **********************************************************************/
 
 #define strsave(s)    \
-  ((s) ?  \
+  ((s) != NULL ?  \
    ((char*) strcpy ((*allocate) (strlen(s)+1), s))  :  \
    (NULL))
 

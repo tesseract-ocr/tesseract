@@ -428,8 +428,8 @@ double check_pitch_sync2(                          //find segmentation
     if (cutpts[x - array_origin].index () +
     cutpts[x - array_origin].fake_count <= best_count + best_fake) {
       if (cutpts[x - array_origin].fake_count < best_fake
-        || cutpts[x - array_origin].fake_count == best_fake
-      && cutpts[x - array_origin].cost_function () < best_cost) {
+        || (cutpts[x - array_origin].fake_count == best_fake
+      && cutpts[x - array_origin].cost_function () < best_cost)) {
         best_fake = cutpts[x - array_origin].fake_count;
         best_cost = cutpts[x - array_origin].cost_function ();
         best_left_x = x;
@@ -610,7 +610,7 @@ double check_pitch_sync3(                          //find segmentation
         mid_cut = TRUE;
       }
     }
-    if (start == 0 && end == 0
+    if ((start == 0 && end == 0)
       || !textord_fast_pitch_test
       || (x - projection_left - start) % pitch <= end)
       cutpts[x - array_origin].assign (cutpts, array_origin, x,
@@ -643,8 +643,8 @@ double check_pitch_sync3(                          //find segmentation
     if (cutpts[x - array_origin].index () +
     cutpts[x - array_origin].fake_count <= best_count + best_fake) {
       if (cutpts[x - array_origin].fake_count < best_fake
-        || cutpts[x - array_origin].fake_count == best_fake
-      && cutpts[x - array_origin].cost_function () < best_cost) {
+        || (cutpts[x - array_origin].fake_count == best_fake
+      && cutpts[x - array_origin].cost_function () < best_cost)) {
         best_fake = cutpts[x - array_origin].fake_count;
         best_cost = cutpts[x - array_origin].cost_function ();
         best_left_x = x;

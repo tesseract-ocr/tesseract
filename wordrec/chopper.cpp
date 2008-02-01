@@ -451,8 +451,8 @@ CHOICES_LIST chop_word_main(register TWERD *word,
   }
 
   if (!AcceptableChoice (char_choices, best_choice, raw_choice, &fixpt)
-    || (tester || trainer)
-  && strcmp (word->correct, class_string (best_choice))) {
+    || ((tester || trainer)
+  && strcmp (word->correct, class_string (best_choice)))) {
     did_chopping = 1;
     if (first_pass)
       words_chopped1++;
@@ -477,10 +477,10 @@ CHOICES_LIST chop_word_main(register TWERD *word,
 
     if (chop_debug)
       print_seams ("Final seam list:", seam_list);
-    if (enable_assoc &&
-      !AcceptableChoice (char_choices, best_choice, raw_choice, NULL)
-      || (tester || trainer)
-    && strcmp (word->correct, class_string (best_choice))) {
+    if ((enable_assoc &&
+      !AcceptableChoice (char_choices, best_choice, raw_choice, NULL))
+      || ((tester || trainer)
+    && strcmp (word->correct, class_string (best_choice)))) {
       ratings = word_associator (word->blobs, seam_list, &state, fx,
         best_choice, raw_choice, word->correct,
         /*0, */ &fixpt,
@@ -606,11 +606,12 @@ INT16 select_blob_to_split(CHOICES_LIST char_choices, float rating_ceiling) {
   float worst = -MAX_FLOAT32;
   int worst_index = -1;
 
-  if (chop_debug)
+  if (chop_debug) {
     if (rating_ceiling < MAX_FLOAT32)
       cprintf ("rating_ceiling = %8.4f\n", rating_ceiling);
-  else
-    cprintf ("rating_ceiling = No Limit\n");
+    else
+      cprintf ("rating_ceiling = No Limit\n");
+  }
 
   for_each_choice(char_choices, x) {
     this_choice = (CHOICES) array_value (char_choices, x);

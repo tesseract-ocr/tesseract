@@ -88,9 +88,9 @@ int is_crossed(TPOINT a0, TPOINT a1, TPOINT b0, TPOINT b1) {
                                  /*a1a0xa1b0=CROSS(a1a0,a1b0); */
   a1a0xa1b0 = -CROSS (a1a0, b0a1);
 
-  return (b0a1xb0b1 > 0 && b0b1xb0a0 > 0
-    || b0a1xb0b1 < 0 && b0b1xb0a0 < 0)
-    && (a1b1xa1a0 > 0 && a1a0xa1b0 > 0 || a1b1xa1a0 < 0 && a1a0xa1b0 < 0);
+  return ((b0a1xb0b1 > 0 && b0b1xb0a0 > 0)
+    || (b0a1xb0b1 < 0 && b0b1xb0a0 < 0))
+    && ((a1b1xa1a0 > 0 && a1a0xa1b0 > 0) || (a1b1xa1a0 < 0 && a1a0xa1b0 < 0));
 }
 
 

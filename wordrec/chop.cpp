@@ -281,9 +281,8 @@ EDGEPT *pick_close_point(EDGEPT *critical_point,
     if (this_distance <= *best_dist) {
 
       if (!(same_point (critical_point->pos, vertical_point->pos) ||
-        same_point (critical_point->pos, vertical_point->next->pos)
-        || best_point != NULL
-        && same_point (best_point->pos, vertical_point->pos) ||
+        same_point (critical_point->pos, vertical_point->next->pos) ||
+        (best_point && same_point (best_point->pos, vertical_point->pos)) ||
       is_exterior_point (critical_point, vertical_point))) {
         *best_dist = this_distance;
         best_point = vertical_point;

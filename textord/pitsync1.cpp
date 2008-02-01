@@ -253,9 +253,9 @@ double check_pitch_sync(                        //find segmentation
       }
       if (x <= max_box.left () + pitch_error
         || x >= max_box.right () - pitch_error || x >= right_edge
-        || max_index < blob_count - 1 && x >= next_box.left ()
-        || x - max_box.left () > pitch * pitsync_joined_edge
-      && max_box.right () - x > pitch * pitsync_joined_edge) {
+        || (max_index < blob_count - 1 && x >= next_box.left ())
+        || (x - max_box.left () > pitch * pitsync_joined_edge
+      && max_box.right () - x > pitch * pitsync_joined_edge)) {
       //                      || projection->local_min(x))
         if (x - max_box.left () > 0
           && x - max_box.left () <= pitch_error)

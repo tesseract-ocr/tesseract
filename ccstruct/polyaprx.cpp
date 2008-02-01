@@ -221,9 +221,9 @@ void fix2(                //polygonal approx
   register EDGEPT *edgefix0, *edgefix1, *edgefix2, *edgefix3;
 
   edgept = start;                /*start of loop */
-  while ((edgept->flags[DIR] - edgept->prev->flags[DIR] + 1 & 7) < 3
+  while (((edgept->flags[DIR] - edgept->prev->flags[DIR] + 1) & 7) < 3
     && (dir1 =
-    edgept->prev->flags[DIR] - edgept->next->flags[DIR] & 7) != 2
+    (edgept->prev->flags[DIR] - edgept->next->flags[DIR]) & 7) != 2
     && dir1 != 6)
     edgept = edgept->next;       /*find suitable start */
   loopstart = edgept;            /*remember start */
@@ -239,7 +239,7 @@ void fix2(                //polygonal approx
     dir2 = edgept->flags[DIR];   /*2nd direction */
                                  /*length in dir2 */
     sum2 = edgept->flags[RUNLENGTH];
-    if ((dir1 - dir2 + 1 & 7) < 3) {
+    if (((dir1 - dir2 + 1) & 7) < 3) {
       while (edgept->prev->flags[DIR] == edgept->next->flags[DIR]) {
         edgept = edgept->next;   /*look at next */
         if (edgept->flags[DIR] == dir1)
@@ -260,11 +260,11 @@ void fix2(                //polygonal approx
         linestart->flags[FLAGS] |= FIXED;
       }
 
-      if ((edgept->next->flags[DIR] - edgept->flags[DIR] + 1 & 7) >= 3
-        || edgept->flags[DIR] == dir1 && sum1 >= sum2
-        || (edgept->prev->flags[RUNLENGTH] < edgept->flags[RUNLENGTH]
-        || edgept->flags[DIR] == dir2 && sum2 >= sum1)
-        && linestart->next != edgept)
+      if (((edgept->next->flags[DIR] - edgept->flags[DIR] + 1) & 7) >= 3
+        || (edgept->flags[DIR] == dir1 && sum1 >= sum2)
+        || ((edgept->prev->flags[RUNLENGTH] < edgept->flags[RUNLENGTH]
+        || (edgept->flags[DIR] == dir2 && sum2 >= sum1))
+          && linestart->next != edgept))
         edgept = edgept->next;
     }
                                  /*sharp bend */
@@ -295,7 +295,7 @@ void fix2(                //polygonal approx
       && edgept->next->flags[FLAGS] & FIXED && (edgept->prev->flags[FLAGS] & FIXED) == 0
                                  /*same pair of dirs */
       && (edgept->next->next->flags[FLAGS] & FIXED) == 0 && edgept->prev->flags[DIR] == edgept->next->flags[DIR] && edgept->prev->prev->flags[DIR] == edgept->next->next->flags[DIR]
-    && (edgept->prev->flags[DIR] - edgept->flags[DIR] + 1 & 7) < 3) {
+    && ((edgept->prev->flags[DIR] - edgept->flags[DIR] + 1) & 7) < 3) {
                                  /*unfix it */
       edgept->flags[FLAGS] &= ~FIXED;
       edgept->next->flags[FLAGS] &= ~FIXED;
