@@ -56,28 +56,24 @@ void set_properties(UNICHARSET *unicharset, const char* const c_string) {
   // Convert the string to a unichar id.
   id = unicharset->unichar_to_id(c_string);
 
-  int step = 0;
-  int len = strlen(c_string);
-  for (int offset = 0; offset < len; offset += step) {
-    step = UNICHAR::utf8_step(c_string + offset);
-    if (step == 0)
-      break; // Invalid utf-8.
+  int step = UNICHAR::utf8_step(c_string);
+  if (step == 0)
+    return; // Invalid utf-8.
 
-    // Get the next Unicode cond point in the string.
-    UNICHAR ch(c_string + offset, step);
-    wc = ch.first_uni();
+  // Get the next Unicode cond point in the string.
+  UNICHAR ch(c_string, step);
+  wc = ch.first_uni();
 
-    /* Copy the properties. */
-    if (iswalpha(wc)) {
-      unicharset->set_isalpha(id, 1);
-      if (iswlower(wc))
-        unicharset->set_islower(id, 1);
-      if (iswupper(wc))
-        unicharset->set_isupper(id, 1);
-    }
-    if (iswdigit(wc))
-      unicharset->set_isdigit(id, 1);
+  /* Copy the properties. */
+  if (iswalpha(wc)) {
+    unicharset->set_isalpha(id, 1);
+    if (iswlower(wc))
+      unicharset->set_islower(id, 1);
+    if (iswupper(wc))
+      unicharset->set_isupper(id, 1);
   }
+  if (iswdigit(wc))
+    unicharset->set_isdigit(id, 1);
 #endif
 }
 
@@ -123,7 +119,7 @@ int main(int argc, char** argv) {
     }
 
     int x_min, y_min, x_max, y_max;
-    char c_string[kBufSize];
+    char c_string[kBoxReadBufSize];
     while (read_next_box(box_file, c_string, &x_min, &y_min, &x_max, &y_max)) {
       unicharset.unichar_insert(c_string);
       set_properties(&unicharset, c_string);
