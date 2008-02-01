@@ -77,11 +77,11 @@ VERSION = @VERSION@
 SUBDIRS = 
 AM_CPPFLAGS = -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil
 
-include_HEADERS =      choicearr.h choices.h context.h dawg.h hyphen.h matchdefs.h     permdawg.h permnum.h permute.h states.h stopper.h trie.h     lookdawg.h makedawg.h reduce.h
+include_HEADERS =      choicearr.h choices.h context.h dawg.h hyphen.h matchdefs.h     permdawg.h permnum.h permute.h states.h stopper.h trie.h     lookdawg.h makedawg.h reduce.h permngram.h
 
 
 lib_LIBRARIES = libtesseract_dict.a
-libtesseract_dict_a_SOURCES =      choices.cpp context.cpp dawg.cpp hyphen.cpp permdawg.cpp     permnum.cpp permute.cpp states.cpp stopper.cpp trie.cpp     lookdawg.cpp makedawg.cpp reduce.cpp
+libtesseract_dict_a_SOURCES =      choices.cpp context.cpp dawg.cpp hyphen.cpp permdawg.cpp     permnum.cpp permute.cpp states.cpp stopper.cpp trie.cpp     lookdawg.cpp makedawg.cpp reduce.cpp permngram.cpp
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = ../config_auto.h
@@ -96,7 +96,7 @@ LIBS = @LIBS@
 libtesseract_dict_a_LIBADD = 
 libtesseract_dict_a_OBJECTS =  choices.o context.o dawg.o hyphen.o \
 permdawg.o permnum.o permute.o states.o stopper.o trie.o lookdawg.o \
-makedawg.o reduce.o
+makedawg.o reduce.o permngram.o
 AR = ar
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -112,9 +112,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/choices.P .deps/context.P .deps/dawg.P .deps/hyphen.P \
-.deps/lookdawg.P .deps/makedawg.P .deps/permdawg.P .deps/permnum.P \
-.deps/permute.P .deps/reduce.P .deps/states.P .deps/stopper.P \
-.deps/trie.P
+.deps/lookdawg.P .deps/makedawg.P .deps/permdawg.P .deps/permngram.P \
+.deps/permnum.P .deps/permute.P .deps/reduce.P .deps/states.P \
+.deps/stopper.P .deps/trie.P
 SOURCES = $(libtesseract_dict_a_SOURCES)
 OBJECTS = $(libtesseract_dict_a_OBJECTS)
 
