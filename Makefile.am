@@ -1,5 +1,5 @@
 # TODO(luc) Add 'doc' to this list when ready
-SUBDIRS = ccstruct ccutil classify cutil dict display image textord viewer wordrec ccmain training tessdata testing dlltest
+SUBDIRS = ccstruct ccutil classify cutil dict pageseg image textord viewer wordrec ccmain training tessdata testing dlltest java
 
 EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes tesseract.spec config \
       tesseract.dsp tesseract.dsw tesseract.vcproj tesseract.sln \
