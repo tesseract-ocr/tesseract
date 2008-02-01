@@ -75,13 +75,13 @@ RANLIB = @RANLIB@
 VERSION = @VERSION@
 
 SUBDIRS = 
-AM_CPPFLAGS = -I$(top_srcdir)/ccutil
+AM_CPPFLAGS = -I$(top_srcdir)/ccutil -I$(top_srcdir)/viewer
 
-include_HEADERS =      bitstrm.h imgbmp.h imgerrs.h img.h imgio.h imgs.h     imgtiff.h imgunpk.h
+include_HEADERS =      bitstrm.h imgbmp.h imgerrs.h img.h imgio.h imgs.h     imgtiff.h imgunpk.h svshowim.h
 
 
 lib_LIBRARIES = libtesseract_image.a
-libtesseract_image_a_SOURCES =      imgbmp.cpp imgio.cpp imgs.cpp imgtiff.cpp bitstrm.cpp
+libtesseract_image_a_SOURCES =      imgbmp.cpp imgio.cpp imgs.cpp imgtiff.cpp bitstrm.cpp svshowim.cpp
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = ../config_auto.h
@@ -95,7 +95,7 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libtesseract_image_a_LIBADD = 
 libtesseract_image_a_OBJECTS =  imgbmp.o imgio.o imgs.o imgtiff.o \
-bitstrm.o
+bitstrm.o svshowim.o
 AR = ar
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -111,7 +111,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/bitstrm.P .deps/imgbmp.P .deps/imgio.P .deps/imgs.P \
-.deps/imgtiff.P
+.deps/imgtiff.P .deps/svshowim.P
 SOURCES = $(libtesseract_image_a_SOURCES)
 OBJECTS = $(libtesseract_image_a_OBJECTS)
 
