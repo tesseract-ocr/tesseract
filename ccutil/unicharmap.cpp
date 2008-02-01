@@ -19,7 +19,7 @@
 
 #include <assert.h>
 #include "unichar.h"
-
+#include "host.h"
 #include "unicharmap.h"
 
 UNICHARMAP::UNICHARMAP() :
@@ -133,6 +133,22 @@ bool UNICHARMAP::contains(const char* const unichar_repr,
   }
   return current_nodes != 0 && (length == 1 || *(current_char + 1) == '\0') &&
       current_nodes[static_cast<unsigned char>(*current_char)].id >= 0;
+}
+
+// Return the minimum number of characters that must be used from this string
+// to obtain a match in the UNICHARMAP.
+int UNICHARMAP::minmatch(const char* const unichar_repr) const {
+  const char* current_char = unichar_repr;
+  UNICHARMAP_NODE* current_nodes = nodes;
+
+  while (current_nodes != NULL && *current_char != '\0') {
+    if (current_nodes[static_cast<unsigned char>(*current_char)].id >= 0)
+      return current_char + 1 - unichar_repr;
+    current_nodes =
+        current_nodes[static_cast<unsigned char>(*current_char)].children;
+    ++current_char;
+  }
+  return 0;
 }
 
 void UNICHARMAP::clear() {

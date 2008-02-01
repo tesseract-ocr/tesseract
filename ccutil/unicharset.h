@@ -43,6 +43,12 @@ class UNICHARSET {
   const UNICHAR_ID unichar_to_id(const char* const unichar_repr,
                                  int length) const;
 
+  // Return the minimum number of bytes that matches a legal UNICHAR_ID,
+  // while leaving a legal UNICHAR_ID afterwards. In other words, if there
+  // is both a short and a long match to the string, return the length that
+  // ensures there is a legal match after it.
+  int step(const char* str) const;
+
   // Return the unichar representation corresponding to the given UNICHAR_ID
   // within the UNICHARSET.
   const char* const id_to_unichar(UNICHAR_ID id) const;
@@ -52,6 +58,7 @@ class UNICHARSET {
 
   // Return true if the given unichar representation exists within the set.
   bool contains_unichar(const char* const unichar_repr);
+  bool contains_unichar(const char* const unichar_repr, int length);
 
   // Return true if the given unichar representation corresponds to the given
   // UNICHAR_ID within the set.
@@ -83,6 +90,15 @@ class UNICHARSET {
   // Load the UNICHARSET from the given file. The previous data is lost. Return
   // true if the operation is successful.
   bool load_from_file(const char* const filename);
+
+  // Set a whitelist and/or blacklist of characters to recognize.
+  // An empty or NULL whitelist enables everything (minus any blacklist).
+  // An empty or NULL blacklist disables nothing.
+  // The blacklist overrides the whitelist.
+  // Each list is a string of utf8 character strings. Boundaries between
+  // unicharset units are worked out automatically, and characters not in
+  // the unicharset are silently ignored.
+  void set_black_and_whitelist(const char* blacklist, const char* whitelist);
 
   // Set the isalpha property of the given unichar to the given value.
   void set_isalpha(UNICHAR_ID unichar_id, bool value) {
@@ -172,6 +188,11 @@ class UNICHARSET {
     return get_isdigit(unichar_to_id(unichar_repr, length));
   }
 
+  // Return the enabled property of the given unichar.
+  bool get_enabled(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.enabled;
+  }
+
  private:
 
   struct UNICHAR_PROPERTIES {
@@ -179,6 +200,7 @@ class UNICHARSET {
     bool islower;
     bool isupper;
     bool isdigit;
+    bool enabled;
   };
 
   struct UNICHAR_SLOT {

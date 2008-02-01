@@ -59,6 +59,10 @@
 /* define pad used to snap near horiz/vertical protos to horiz/vertical */
 #define HV_TOLERANCE  (0.0025)   /* approx 0.9 degrees */
 
+const int kInputSize = 16;
+//extern int input_unicode[kInputSize];
+int input_unicode[kInputSize];
+
 typedef enum
 { StartSwitch, EndSwitch, LastSwitch }
 SWITCH_TYPE;
@@ -872,6 +876,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
   int i, j, x, y, z;
   int nread;
   int unicharset_size;
+  int version_id = 0;
   INT_TEMPLATES Templates;
   CLASS_PRUNER Pruner;
   INT_CLASS Class;
@@ -899,6 +904,12 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
             "unicharset contains %d unichars.\n",
             unicharset_size, unicharset.size());
     exit(1);
+  }
+  if (Templates->NumClasses < 0) {
+    // This file has a version id!
+    version_id = -Templates->NumClasses;
+    if (fread(&Templates->NumClasses, sizeof(int), 1, File) != 1)
+      cprintf ("Bad read of inttemp!\n");
   }
   for (i = 0; i < unicharset_size; ++i) {
     if (fread(&Templates->IndexFor[i], sizeof(CLASS_INDEX), 1, File) != 1)
@@ -944,10 +955,13 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
         fread(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1, File) != 1 ||
         fread(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File) != 1)
       cprintf ("Bad read of inttemp!\n");
-    for (j = 0; j <= MAX_NUM_PROTO_SETS; ++j) {
-      int junk;
-      if (fread(&junk, sizeof(junk), 1, File) != 1)
-        cprintf ("Bad read of inttemp!\n");
+    if (version_id == 0) {
+      // Only version 0 writes 5 pointless pointers to the file.
+      for (j = 0; j < 5; ++j) {
+        int junk;
+        if (fread(&junk, sizeof(junk), 1, File) != 1)
+          cprintf ("Bad read of inttemp!\n");
+      }
     }
     for (j = 0; j < MAX_NUM_CONFIGS; ++j) {
       if (fread(&Class->ConfigLengths[j], sizeof(UINT16), 1, File) != 1)
@@ -1072,11 +1086,13 @@ void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
   int i, j;
   INT_CLASS Class;
   int unicharset_size = target_unicharset.size();
+  int version_id = -1;  // Turns positive on reading.
 
   /* first write the high level template struct */
   fwrite((char *) &unicharset_size, sizeof (int), 1, File);
-  fwrite((char *) &Templates->NumClasses, sizeof (int), 1, File);
+  fwrite((char *) &version_id, sizeof (int), 1, File);
   fwrite((char *) &Templates->NumClassPruners, sizeof (int), 1, File);
+  fwrite((char *) &Templates->NumClasses, sizeof (int), 1, File);
   fwrite((char *) &Templates->IndexFor[0], sizeof (CLASS_INDEX),
          unicharset_size, File);
   fwrite((char *) &Templates->ClassIdFor[0], sizeof (CLASS_ID),
@@ -1092,7 +1108,12 @@ void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
     Class = ClassForIndex (Templates, i);
 
     /* first write out the high level struct for the class */
-    fwrite ((char *) Class, sizeof (INT_CLASS_STRUCT), 1, File);
+    fwrite(&Class->NumProtos, sizeof(Class->NumProtos), 1, File);
+    fwrite(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1, File);
+    fwrite(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File);
+    for (j = 0; j < MAX_NUM_CONFIGS; ++j) {
+      fwrite(&Class->ConfigLengths[j], sizeof(UINT16), 1, File);
+    }
 
     /* then write out the proto lengths */
     fwrite ((char *) (Class->ProtoLengths), sizeof (UINT8),
@@ -1546,7 +1567,7 @@ FLOAT32 AnglePad, PROTO Proto, TABLE_FILLER * Filler)
   else {
     /* diagonal proto */
 
-    if (Angle > 0.0 && Angle < 0.25 || Angle > 0.5 && Angle < 0.75) {
+    if ((Angle > 0.0 && Angle < 0.25) || (Angle > 0.5 && Angle < 0.75)) {
       /* rising diagonal proto */
       Angle *= 2.0 * PI;
       Cos = fabs (cos (Angle));
@@ -1736,17 +1757,19 @@ void RenderIntProto(void *window,
   Xmin = Ymin = NUM_PP_BUCKETS;
   Xmax = Ymax = 0;
   for (Bucket = 0; Bucket < NUM_PP_BUCKETS; Bucket++) {
-    if (ProtoMask & ProtoSet->ProtoPruner[PRUNER_X][Bucket][ProtoWordIndex])
+    if (ProtoMask & ProtoSet->ProtoPruner[PRUNER_X][Bucket][ProtoWordIndex]) {
       if (Bucket < Xmin)
         Xmin = Bucket;
-    else if (Bucket > Xmax)
-      Xmax = Bucket;
+      else if (Bucket > Xmax)
+        Xmax = Bucket;
+    }
 
-    if (ProtoMask & ProtoSet->ProtoPruner[PRUNER_Y][Bucket][ProtoWordIndex])
+    if (ProtoMask & ProtoSet->ProtoPruner[PRUNER_Y][Bucket][ProtoWordIndex]) {
       if (Bucket < Ymin)
         Ymin = Bucket;
-    else if (Bucket > Ymax)
-      Ymax = Bucket;
+      else if (Bucket > Ymax)
+        Ymax = Bucket;
+    }
   }
   X = (Xmin + Xmax + 1) / 2.0 * PROTO_PRUNER_SCALE - DISPLAY_OFFSET;
   Y = (Ymin + Ymax + 1) / 2.0 * PROTO_PRUNER_SCALE - DISPLAY_OFFSET;

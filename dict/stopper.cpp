@@ -437,9 +437,9 @@ void DebugWordChoices() {
   char LabelString[80];
 
   if (StopperDebugLevel >= 1 ||
-    WordToDebug && BestChoices &&
+    (WordToDebug && BestChoices &&
   StringSameAs (WordToDebug, WordToDebug_lengths,
-                (VIABLE_CHOICE) first_node (BestChoices))) {
+                (VIABLE_CHOICE) first_node (BestChoices)))) {
     if (BestRawChoice)
       PrintViableChoice (stderr, "\nBest Raw Choice:   ", BestRawChoice);
 
@@ -731,11 +731,12 @@ FLOAT32 AdjustFactor, float Certainties[]) {
   NewChoice = NULL;
   Choices = BestChoices;
   iterate(Choices) {
-    if (ChoiceSameAs (Choice, (VIABLE_CHOICE) first_node (Choices)))
+    if (ChoiceSameAs (Choice, (VIABLE_CHOICE) first_node (Choices))) {
       if (class_probability (Choice) < BestRating (Choices))
         NewChoice = (VIABLE_CHOICE) first_node (Choices);
-    else
-      return;
+      else
+        return;
+    }
   }
 
   if (NewChoice) {
@@ -1087,11 +1088,14 @@ AMBIG_TABLE *FillAmbigTable() {
     TestString_lengths[0] = 0;
     ReplacementString[0] = '\0';
     ReplacementString_lengths[0] = 0;
+    bool illegal_char = false;
     for (i = 0; i < AmbigPartSize; ++i) {
       fscanf (AmbigFile, "%s", buffer);
       strcat(TestString, buffer);
       lengths[0] = strlen(buffer);
       strcat(TestString_lengths, lengths);
+      if (!unicharset.contains_unichar(buffer))
+        illegal_char = true;
     }
     fscanf (AmbigFile, "%d", &AmbigPartSize);
     for (i = 0; i < AmbigPartSize; ++i) {
@@ -1099,11 +1103,16 @@ AMBIG_TABLE *FillAmbigTable() {
       strcat(ReplacementString, buffer);
       lengths[0] = strlen(buffer);
       strcat(ReplacementString_lengths, lengths);
+      if (!unicharset.contains_unichar(buffer))
+        illegal_char = true;
     }
 
     if (strlen (TestString_lengths) > MAX_AMBIG_SIZE ||
         strlen (ReplacementString_lengths) > MAX_AMBIG_SIZE)
       DoError (0, "Illegal ambiguity specification!");
+    if (illegal_char) {
+      continue;
+    }
 
     AmbigSpec = (AMBIG_SPEC *) Emalloc (sizeof (AMBIG_SPEC));
 

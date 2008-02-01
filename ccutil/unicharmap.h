@@ -56,6 +56,10 @@ class UNICHARMAP {
   // used. The length MUST be non-zero.
   bool contains(const char* const unichar_repr, int length) const;
 
+  // Return the minimum number of characters that must be used from this string
+  // to obtain a match in the UNICHARMAP.
+  int minmatch(const char* const unichar_repr) const;
+
   // Clear the UNICHARMAP. All previous data is lost.
   void clear();
 

@@ -336,8 +336,7 @@ INT32 num_forward_edges(EDGE_ARRAY dawg, NODE_REF node);
 
 void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node);
 
-void read_squished_dawg(const char *filename, EDGE_ARRAY dawg,
-                        INT32 max_num_edges);
+EDGE_ARRAY read_squished_dawg(const char *filename);
 
 INT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, INT32 char_index);
 

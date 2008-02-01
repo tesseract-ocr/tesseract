@@ -42,6 +42,18 @@ int case_ok(const char *word, const char *lengths);
 
 void write_choice_line();
 
+typedef double (*PROBABILITY_IN_CONTEXT_FUNCTION)(const char* context,
+                                                  int context_bytes,
+                                                  const char* character,
+                                                  int character_bytes);
+
+extern PROBABILITY_IN_CONTEXT_FUNCTION probability_in_context;
+
+extern double def_probability_in_context(const char* context,
+                                         int context_bytes,
+                                         const char* character,
+                                         int character_bytes);
+
 /*
 #if defined(__STDC__) || defined(__cplusplus)
 # define _ARGS(s) s

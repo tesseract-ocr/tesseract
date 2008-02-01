@@ -187,7 +187,7 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
         break;
       }
       if (edges_in_node (dawg, last_node) + last_node == the_next_node) {
-        cprintf ("Node collision at %d\n", the_next_node);
+        //cprintf ("Node collision at %d\n", the_next_node);
         the_next_node = new_dawg_node (dawg, DEFAULT_NODE_SIZE,
                                        max_num_edges, reserved_edges);
         if (the_next_node == 0) {

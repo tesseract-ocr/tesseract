@@ -32,6 +32,21 @@
 #include <string.h>
 #include <math.h>
 
+// Initialize probability_in_context to point to a default implementation (a
+// main program can override this).
+PROBABILITY_IN_CONTEXT_FUNCTION probability_in_context = &def_probability_in_context;
+
+double def_probability_in_context(const char* context,
+                                  int context_bytes,
+                                  const char* character,
+                                  int character_bytes) {
+  (void) context;
+  (void) context_bytes;
+  (void) character;
+  (void) character_bytes;
+  return 0.0;
+}
+
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
@@ -85,8 +100,15 @@ int punctuation_ok(const char *word, const char *lengths) {
   for (x = 0; x < 5; x++)
     punctuation_types[x] = 0;
 
+  // check for un-supported symbols
   for (x = 0, offset = 0; x < strlen (lengths); offset += lengths[x++]) {
+    // a un-supported symbol
+    if (!unicharset.contains_unichar (word + offset, lengths[x])) {
+      return -1;
+    }
+  }
 
+  for (x = 0, offset = 0; x < strlen (lengths); offset += lengths[x++]) {
     if (unicharset.get_isalpha (word + offset, lengths[x])) {
       if (trailing &&
         !(unicharset.get_isalpha (word + offset - lengths[x - 1], lengths[x - 1])

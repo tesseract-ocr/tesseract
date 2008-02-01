@@ -32,7 +32,8 @@
 #endif
 #include "dawg.h"
 #include "cutil.h"
-#include "callcpp.h"
+#include "tprintf.h"
+#include "freelist.h"
 #include "context.h"
 #include "strngs.h"
 #include "emalloc.h"
@@ -297,18 +298,15 @@ void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node) {
 /**********************************************************************
  * read_squished_dawg
  *
- * Read the DAWG from a file
+ * Read the DAWG from a file and return it. Must be freed with memfree.
  **********************************************************************/
-void read_squished_dawg(const char *filename, EDGE_ARRAY dawg,
-                        INT32 max_num_edges) {
+EDGE_ARRAY read_squished_dawg(const char *filename) {
   FILE       *file;
   EDGE_REF   edge;
   INT32      num_edges = 0;
   INT32      node_count = 0;
 
   if (debug) print_string ("read_debug");
-
-  clear_all_edges(dawg, edge, max_num_edges);
 
   #ifdef __UNIX__
   file = open_file (filename, "r");
@@ -317,23 +315,27 @@ void read_squished_dawg(const char *filename, EDGE_ARRAY dawg,
   #endif
   fread (&num_edges,  sizeof (INT32), 1, file);
   num_edges = ntohl(num_edges);
-  if (num_edges > max_num_edges || num_edges < 0) {
-    cprintf("Error: trying to read a DAWG '%s' that contains \
-%d edges while the maximum is %d.\n", filename, num_edges, max_num_edges);
+  if (num_edges > MAX_NUM_EDGES_IN_SQUISHED_DAWG_FILE || num_edges < 0) {
+    tprintf("(ENDIAN)Error: trying to read a DAWG '%s' that contains "
+            "%d edges while the maximum is %d.\n",
+            filename, num_edges, MAX_NUM_EDGES_IN_SQUISHED_DAWG_FILE);
     exit(1);
   }
 
   UINT32 *dawg_32 = (UINT32*) Emalloc(num_edges * sizeof (UINT32));
   fread(&dawg_32[0], sizeof (UINT32), num_edges, file);
   fclose(file);
+  EDGE_ARRAY dawg = (EDGE_ARRAY) memalloc(sizeof(EDGE_RECORD) * num_edges);
 
   for (edge = 0; edge < num_edges; ++edge)
     dawg[edge] = ntohl(dawg_32[edge]);
 
   Efree(dawg_32);
 
-  for  (edge = 0; edge < num_edges; ++edge)
+  for (edge = 0; edge < num_edges; ++edge)
     if (last_edge (dawg, edge)) node_count++;
+
+  return dawg;
 }
 
 

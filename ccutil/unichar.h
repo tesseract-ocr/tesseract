@@ -24,7 +24,7 @@
 
 // Maximum number of characters that can be stored in a UNICHAR. Must be
 // at least 4. Must not exceed 31 without changing the coding of length.
-#define UNICHAR_LEN 8
+#define UNICHAR_LEN 24
 
 // A UNICHAR_ID is the unique id of a unichar.
 typedef int UNICHAR_ID;

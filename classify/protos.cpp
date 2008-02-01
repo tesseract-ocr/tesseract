@@ -31,6 +31,7 @@
 #include "emalloc.h"
 #include "freelist.h"
 #include "callcpp.h"
+#include "tprintf.h"
 #include "adaptmatch.h"
 #include "scanutils.h"
 #include "globals.h"
@@ -122,6 +123,10 @@ int AddProtoToClass(CLASS_TYPE Class) {
   }
   NewProto = NumProtosIn (Class);
   NumProtosIn (Class)++;
+  if (NumProtosIn(Class) > MAX_NUM_PROTOS) {
+    tprintf("Ouch! number of protos = %d, vs max of %d!",
+            NumProtosIn(Class), MAX_NUM_PROTOS);
+  }
   return (NewProto);
 }
 
