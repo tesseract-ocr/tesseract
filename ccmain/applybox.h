@@ -36,7 +36,8 @@ void apply_boxes(BLOCK_LIST *block_list    //real blocks
 void clear_any_old_text(                        //remove correct text
                         BLOCK_LIST *block_list  //real blocks
                        );
-BOOL8 read_next_box(FILE* box_file,  //
+BOOL8 read_next_box(int page,
+                    FILE* box_file,  //
                     BOX *box,
                     UNICHAR_ID *uch_id);
 ROW *find_row_of_box(                         //

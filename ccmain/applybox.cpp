@@ -49,13 +49,27 @@ what measures we are interested in.
 
 #define EXTERN
 EXTERN BOOL_VAR (applybox_rebalance, TRUE, "Drop dead");
-EXTERN INT_VAR (applybox_debug, 0, "Debug level");
+EXTERN INT_VAR (applybox_debug, 5, "Debug level");
+EXTERN INT_VAR (applybox_page, 0, "Page number to apply boxes from");
 EXTERN STRING_VAR (applybox_test_exclusions, "",
 "Chars ignored for testing");
 EXTERN double_VAR (applybox_error_band, 0.15, "Err band as fract of xht");
 
 // The unicharset used during box training
 static UNICHARSET unicharset_boxes;
+
+static void PrintString(const char* str) {
+  tprintf("%s:", str);
+  int step = 0;
+  for (int i = 0; str[i]; i += step) {
+    step = UNICHAR::utf8_step(str + i);
+    if (step == 0)
+      step = 1;
+    UNICHAR ch(str + i, step);
+    tprintf("[%x]", ch.first_uni());
+  }
+  tprintf("\n", str);
+}
 
 /*************************************************************************
  * The code re-assigns outlines to form words each with ONE labelled blob.
@@ -132,7 +146,7 @@ void apply_boxes(BLOCK_LIST *block_list    //real blocks
   }
 
   clear_any_old_text(block_list);
-  while (read_next_box (box_file, &box, &uch_id)) {
+  while (read_next_box(applybox_page, box_file, &box, &uch_id)) {
     box_count++;
     tgt_char_counts[uch_id]++;
     row = find_row_of_box (block_list, box, block_id, row_id);
@@ -205,16 +219,17 @@ void clear_any_old_text(                        //remove correct text
 }
 
 
-BOOL8 read_next_box(FILE* box_file,  //
+BOOL8 read_next_box(int page,
+                    FILE* box_file,  //
                     BOX *box,
                     UNICHAR_ID *uch_id) {
   int x_min;
   int y_min;
   int x_max;
   int y_max;
-  char uch[kBufSize];
+  char uch[kBoxReadBufSize];
 
-  while (read_next_box(box_file, uch, &x_min, &y_min, &x_max, &y_max)) {
+  while (read_next_box(page, box_file, uch, &x_min, &y_min, &x_max, &y_max)) {
     if (!unicharset_boxes.contains_unichar(uch))
     {
       unicharset_boxes.unichar_insert(uch);
@@ -225,6 +240,8 @@ BOOL8 read_next_box(FILE* box_file,  //
         exit(1);
       }
     }
+//    tprintf("Read box at (%d,%d), str:", x_min, y_min);
+//    PrintString(uch);
     *uch_id = unicharset_boxes.unichar_to_id(uch);
     *box = BOX (ICOORD (x_min, y_min), ICOORD (x_max, y_max));
     return TRUE;             //read a box ok
@@ -590,8 +607,9 @@ void tidy_up(                         //
     if (tgt_char_counts[i] > labelled_char_counts[i]) {
       if (labelled_char_counts[i] <= 1) {
         tprintf
-          ("APPLY_BOXES: FATALITY - %d labelled samples of \"%s\" - target is %d\n",
+          ("APPLY_BOXES: FATALITY - %d labelled samples of \"%s\" - target is %d:\n",
           labelled_char_counts[i], unicharset_boxes.id_to_unichar(i), tgt_char_counts[i]);
+        PrintString(unicharset_boxes.id_to_unichar(i));
       }
       else {
         rebalance_needed = TRUE;

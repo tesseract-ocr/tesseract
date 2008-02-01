@@ -59,14 +59,10 @@
 */
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
+#endif
 // Includes libtiff if HAVE_LIBTIFF is defined
 #ifdef HAVE_LIBTIFF
 #include "tiffio.h"
-#endif
-#endif
-
-#ifdef GOOGLE3
-#include "third_party/tiff/tiffio.h"
 #endif
 
 //extern "C" {
@@ -79,6 +75,10 @@
 #define API_CONFIG      "configs/api_config"
 #define EXTERN
 
+EXTERN STRING_VAR (tessedit_char_blacklist, "",
+                   "Blacklist of chars not to recognize");
+EXTERN STRING_VAR (tessedit_char_whitelist, "",
+                   "Whitelist of chars to recognize");
 EXTERN BOOL_EVAR (tessedit_write_vars, FALSE, "Write all vars to file");
 EXTERN BOOL_VAR (tessedit_tweaking_tess_vars, FALSE,
 "Fiddle tess config values");
@@ -153,6 +153,9 @@ int init_tesseract(const char *arg0,
     cprintf("Error: Size of unicharset is greater than MAX_NUM_CLASSES\n");
     exit(1);
   }
+  // Set the white and blacklists (if any)
+  unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
+                                     tessedit_char_whitelist.string());
 
   start_recog(configfile, textbase);
 
@@ -210,119 +213,6 @@ enum CMD_EVENTS
   RECOG_PSEUDO,
   ACTION_2_CMD_EVENT
 };
-
-/**********************************************************************
- *  extend_menu()
- *
- *  Function called by pgeditor to let you extend the command menu.
- *  Items can be added to the "MODES" and "OTHER" menus.  The modes_id_base
- *  and other_id_base parameters are required to offset your command event ids
- *  from those of pgeditor, and to let the pgeditor which commands are mode
- *  changes and which are unmoded commands.  (Sorry if you think these offsets
- *  are a bit kludgy, the alternative would be to duplicate all the menu
- *  constructor modes within pgeditor so that the offsets could be hidden.)
- *
- *  Items for the "MODES" menu may only be simple menu items (just a name and
- *  id).  Items for the "OTHER" menu can be editable parameters or boolean
- *  toggles.  Refer to menu.h to see how to build different types.
- **********************************************************************/
-
-void extend_menu(                             //handle for "MODES"
-                 RADIO_MENU *modes_menu,
-                 INT16 modes_id_base,         //mode cmd ids offset
-                 NON_RADIO_MENU *other_menu,  //handle for "OTHER"
-                 INT16 other_id_base          //mode cmd ids offset
-                ) {
-  /* Example new mode */
-
-  modes_menu->add_child (new RADIO_MENU_LEAF ("Recog Words",
-    modes_id_base + RECOG_WERDS));
-  modes_menu->add_child (new RADIO_MENU_LEAF ("Recog Blobs",
-    modes_id_base + RECOG_PSEUDO));
-
-  /* Example toggle
-
-  other_menu->add_child(
-    new TOGGLE_MENU_LEAF( "Action 2",					//Display string
-            other_id_base + ACTION_2_CMD_EVENT,	//offset command id
-            FALSE ) );							//Initial value
-
-   Example text parm  (commented out)
-
-    other_menu->add_child(
-    new VARIABLE_MENU_LEAF( "Parm change",				//Display string
-            other_id_base + ACTION_3_CMD_EVENT,	//offset command id
-            "default value" ) );				//default value string
-  */
-}
-
-
-/**********************************************************************
- *  extend_moded_commands()
- *
- * Function called by pgeditor when the user is in one of the extended modes
- * defined by extend_menu() and the user has selected an area in the image
- * window.
- **********************************************************************/
-
-void extend_moded_commands(                   //current mode
-                           INT32 mode,
-                           BOX selection_box  //area selected
-                          ) {
-  char msg[MAX_CHARS + 1];
-
-  switch (mode) {
-    case RECOG_WERDS:
-      command_window->msg ("Recogging selected words");
-
-      /* This is how to apply a "word processor" function to each selected word */
-
-      process_selected_words(current_block_list,
-                             selection_box,
-                             &recog_interactive);
-      break;
-    case RECOG_PSEUDO:
-      command_window->msg ("Recogging selected blobs");
-
-      /* This is how to apply a "word processor" function to each selected word */
-
-      recog_pseudo_word(current_block_list, selection_box);
-      break;
-    default:
-      sprintf (msg, "Unexpected extended mode " INT32FORMAT, mode);
-      command_window->msg (msg);
-  }
-}
-
-
-/**********************************************************************
- *  extend_unmoded_commands()
- *
- * Function called by pgeditor when the user has selected one of the unmoded
- * extended menu options.
- **********************************************************************/
-
-void extend_unmoded_commands(                 //current mode
-                             INT32 cmd_event,
-                             char *new_value  //changed value if any
-                            ) {
-  char msg[MAX_CHARS + 1];
-
-  switch (cmd_event) {
-    case ACTION_2_CMD_EVENT:     //a toggle event
-      if (new_value[0] == 'T')
-                                 //Display message
-        command_window->msg ("Extended Action 2 ON!!");
-      else
-        command_window->msg ("Extended Action 2 OFF!!");
-      break;
-    default:
-      sprintf (msg, "Unrecognised extended command " INT32FORMAT " (%s)",
-        cmd_event, new_value);
-      command_window->msg (msg);
-      break;
-  }
-}
 
 
 /*************************************************************************

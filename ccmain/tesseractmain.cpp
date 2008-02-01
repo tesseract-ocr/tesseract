@@ -42,14 +42,10 @@
 */
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
+#endif
 // Includes libtiff if HAVE_LIBTIFF is defined
 #ifdef HAVE_LIBTIFF
 #include "tiffio.h"
-#endif
-#endif
-
-#ifdef GOOGLE3
-#include "third_party/tiff/tiffio.h"
 #endif
 
 #ifdef _TIFFIO_
@@ -65,6 +61,8 @@ EXTERN BOOL_VAR (tessedit_create_boxfile, FALSE, "Output text with boxes");
 EXTERN BOOL_VAR (tessedit_read_image, TRUE, "Ensure the image is read");
 EXTERN INT_VAR (tessedit_serial_unlv, 0,
                 "0->Whole page, 1->serial no adapt, 2->serial with adapt");
+EXTERN INT_VAR (tessedit_page_number, -1,
+                "-1 -> All pages, else specifc page to process");
 EXTERN BOOL_VAR (tessedit_write_images, FALSE,
 "Capture the image from the IPE");
 EXTERN BOOL_VAR (tessedit_debug_to_screen, FALSE, "Dont use debug file");
@@ -73,8 +71,69 @@ extern INT16 XOFFSET;
 extern INT16 YOFFSET;
 extern int NO_BLOCK;
 
+const int kMaxIntSize = 22;
 const ERRCODE USAGE = "Usage";
 char szAppName[] = "Tessedit";   //app name
+
+void TesseractImage(const char* input_file, IMAGE* image, STRING* text_out) {
+  int bytes_per_line = check_legal_image_size(image->get_xsize(),
+                                              image->get_ysize(),
+                                              image->get_bpp());
+  if (tessedit_serial_unlv == 0) {
+    char* text;
+    if (tessedit_create_boxfile)
+      text = TessBaseAPI::TesseractRectBoxes(image->get_buffer(),
+                                             image->get_bpp()/8,
+                                             bytes_per_line, 0, 0,
+                                             image->get_xsize(),
+                                             image->get_ysize(),
+                                             image->get_ysize());
+    else if (tessedit_write_unlv)
+      text = TessBaseAPI::TesseractRectUNLV(image->get_buffer(),
+                                            image->get_bpp()/8,
+                                            bytes_per_line, 0, 0,
+                                            image->get_xsize(),
+                                            image->get_ysize());
+    else
+      text = TessBaseAPI::TesseractRect(image->get_buffer(), image->get_bpp()/8,
+                                        bytes_per_line, 0, 0,
+                                        image->get_xsize(), image->get_ysize());
+    *text_out += text;
+    delete [] text;
+  } else {
+    BLOCK_LIST blocks;
+    STRING filename = input_file;
+    int len = filename.length();
+    if (len > 4 && filename[len - 4] == '.') {
+      filename[len - 4] = '\0';
+    }
+    if (!read_unlv_file(filename, image->get_xsize(), image->get_ysize(),
+                        &blocks)) {
+      fprintf(stderr, "Error: Must have a unlv zone file %s to read!\n",
+              filename.string());
+      return;
+    }
+    BLOCK_IT b_it = &blocks;
+    for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
+      BLOCK* block = b_it.data();
+      BOX box = block->bounding_box();
+      char* text = TessBaseAPI::TesseractRectUNLV(image->get_buffer(),
+                                                  image->get_bpp()/8,
+                                                  bytes_per_line,
+                                                  box.left(),
+                                                  image->get_ysize() - box.top(),
+                                                  box.width(),
+                                                  box.height());
+      *text_out += text;
+      delete [] text;
+      if (tessedit_serial_unlv == 1)
+        TessBaseAPI::ClearAdaptiveClassifier();
+    }
+  }
+  if (tessedit_write_images) {
+    page_image.write("tessinput.tif");
+  }
+}
 
 /**********************************************************************
  *  main()
@@ -111,82 +170,65 @@ int main(int argc, char **argv) {
     TessBaseAPI::InitWithLanguage(argv[0], infile.string(), lang,
                                   argv[arg], false,
                                   argc - arg - 1, argv + arg + 1);
+  TessBaseAPI::SetInputName(argv[1]);
 
   tprintf ("Tesseract Open Source OCR Engine\n");
 
   IMAGE image;
+  STRING text_out;
 #ifdef _TIFFIO_
-  TIFF* tif = TIFFOpen(argv[1], "r");
-  if (tif) {
-    read_tiff_image(tif, &image);
-    TIFFClose(tif);
+  tprintf ("LibTiff is installed\n");
+  int len = strlen(argv[1]);
+  if (len > 3 && strcmp("tif", argv[1] + len - 3) == 0) {
+    // Use libtiff to read a tif file so multi-page can be handled.
+    // The page number so the tiff file can be closed and reopened.
+    int page_number = tessedit_page_number;
+    if (page_number < 0)
+      page_number = 0;
+    TIFF* archive = NULL;
+    do {
+      // Since libtiff keeps all read images in memory we have to close the
+      // file and reopen it for every page, and seek to the appropriate page.
+      if (archive != NULL)
+        TIFFClose(archive);
+      archive = TIFFOpen(argv[1], "r");
+      if (archive == NULL) {
+        READFAILED.error (argv[0], EXIT, argv[1]);
+        return 1;
+      }
+      if (page_number > 0)
+        tprintf("Page %d\n", page_number);
+
+      // Seek to the appropriate page.
+      for (int i = 0; i < page_number; ++i) {
+        TIFFReadDirectory(archive);
+      }
+      char page_str[kMaxIntSize];
+      snprintf(page_str, kMaxIntSize - 1, "%d", page_number);
+      TessBaseAPI::SetVariable("applybox_page", page_str);
+      ++page_number;
+      // Read the current page into the Tesseract image.
+      IMAGE image;
+      read_tiff_image(archive, &image);
+
+      // Run tesseract on the page!
+      TesseractImage(argv[1], &image, &text_out);
+    // Do this while there are more pages in the tiff file.
+    } while (TIFFReadDirectory(archive) &&
+             (page_number <= tessedit_page_number || tessedit_page_number < 0));
+    TIFFClose(archive);
   } else {
-    READFAILED.error (argv[0], EXIT, argv[1]);
-  }
-#else
-  if (image.read_header(argv[1]) < 0)
-    READFAILED.error (argv[0], EXIT, argv[1]);
-  if (image.read(image.get_ysize ()) < 0) {
-    MEMORY_OUT.error(argv[0], EXIT, "Read of image %s",
-      argv[1]);
+#endif
+    if (image.read_header(argv[1]) < 0)
+      READFAILED.error (argv[0], EXIT, argv[1]);
+    if (image.read(image.get_ysize ()) < 0) {
+      MEMORY_OUT.error(argv[0], EXIT, "Read of image %s",
+        argv[1]);
+    }
+    TesseractImage(argv[1], &image, &text_out);
+#ifdef _TIFFIO_
   }
 #endif
-  STRING text_out;
-  int bytes_per_line = check_legal_image_size(image.get_xsize(),
-                                              image.get_ysize(),
-                                              image.get_bpp());
-  if (tessedit_serial_unlv == 0) {
-    TessBaseAPI::SetInputName(argv[1]);
-    char* text;
-    if (tessedit_create_boxfile)
-      text = TessBaseAPI::TesseractRectBoxes(image.get_buffer(),
-                                             image.get_bpp()/8,
-                                             bytes_per_line, 0, 0,
-                                             image.get_xsize(),
-                                             image.get_ysize(),
-                                             image.get_ysize());
-    else if (tessedit_write_unlv)
-      text = TessBaseAPI::TesseractRectUNLV(image.get_buffer(),
-                                            image.get_bpp()/8,
-                                            bytes_per_line, 0, 0,
-                                            image.get_xsize(),
-                                            image.get_ysize());
-    else
-      text = TessBaseAPI::TesseractRect(image.get_buffer(), image.get_bpp()/8,
-                                        bytes_per_line, 0, 0,
-                                        image.get_xsize(), image.get_ysize());
-    text_out = text;
-    delete [] text;
-  } else {
-    BLOCK_LIST blocks;
-    STRING filename = argv[1];
-    int len = filename.length();
-    if (len > 4 && filename[len - 4] == '.') {
-      filename[len - 4] = '\0';
-    }
-    if (!read_unlv_file(filename, image.get_xsize(), image.get_ysize(),
-                        &blocks)) {
-      fprintf(stderr, "Error: Must have a unlv zone file %s to read!\n",
-              filename.string());
-      return 1;
-    }
-    BLOCK_IT b_it = &blocks;
-    for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
-      BLOCK* block = b_it.data();
-      BOX box = block->bounding_box();
-      char* text = TessBaseAPI::TesseractRectUNLV(image.get_buffer(),
-                                                  image.get_bpp()/8,
-                                                  bytes_per_line,
-                                                  box.left(),
-                                                  image.get_ysize() - box.top(),
-                                                  box.width(),
-                                                  box.height());
-      text_out += text;
-      delete [] text;
-      if (tessedit_serial_unlv == 1)
-        TessBaseAPI::ClearAdaptiveClassifier();
-    }
-  }
 
   outfile = argv[2];
   outfile += ".txt";

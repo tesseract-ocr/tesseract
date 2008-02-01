@@ -25,14 +25,20 @@
 
 bool read_next_box(FILE* box_file, char* utf8_str,
                    int* x_min, int* y_min, int* x_max, int* y_max) {
+  return read_next_box(-1, box_file, utf8_str,
+                       x_min, y_min, x_max, y_max);
+}
+
+bool read_next_box(int target_page, FILE* box_file, char* utf8_str,
+                   int* x_min, int* y_min, int* x_max, int* y_max) {
   static int line = 0;
   int count = 0;
-  char buff[kBufSize];                //boxfile read buffer
-  char uch[kBufSize];
+  int page = 0;
+  char buff[kBoxReadBufSize];                //boxfile read buffer
+  char uch[kBoxReadBufSize];
   char *buffptr = buff;
 
-  while (!feof(box_file)) {
-    fgets(buff, sizeof(buff) - 1, box_file);
+  while (fgets(buff, sizeof(buff) - 1, box_file)) {
     line++;
 
     buffptr = buff;
@@ -43,9 +49,15 @@ bool read_next_box(FILE* box_file, char* utf8_str,
     while (*buffptr == ' ' || *buffptr == '\t')
       buffptr++;
     if (*buffptr != '\0') {
-      count = sscanf(buffptr, "%s " INT32FORMAT " " INT32FORMAT " "
-                     INT32FORMAT " " INT32FORMAT,
-                     uch, x_min, y_min, x_max, y_max);
+      count = sscanf(buffptr, "%s %d %d %d %d %d",
+                     uch, x_min, y_min, x_max, y_max, &page);
+      if (count != 6) {
+        page = 0;
+        count = sscanf(buffptr, "%s %d %d %d %d",
+                       uch, x_min, y_min, x_max, y_max);
+      }
+      if (target_page >= 0 && target_page != page)
+        continue;  // Not on the appropriate page.
       if (count == 5) {
         // Validate UTF8 by making unichars with it.
         int used = 0;
@@ -66,7 +78,7 @@ bool read_next_box(FILE* box_file, char* utf8_str,
           count = 0;
         }
       }
-      if (count != 5) {
+      if (count < 5) {
         tprintf("Box file format error on line %i ignored\n", line);
       } else {
         strcpy(utf8_str, uch);
