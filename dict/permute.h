@@ -50,6 +50,7 @@ void add_document_word(A_CHOICE *best_choice);
 
 void adjust_non_word (A_CHOICE * best_choice, float certainties[]);
 
+void init_permute_vars();
 void init_permute();
 void end_permute();
 

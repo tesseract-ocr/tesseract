@@ -37,6 +37,7 @@
 #include "permnum.h"
 #include "freelist.h"
 #include "callcpp.h"
+#include "permngram.h"
 
 #include <math.h>
 
@@ -49,17 +50,17 @@ int permutation_count;           // Used in metrics.cpp.
 #define MAX_NUM_EDGES          2000000
 #define MAX_DOC_EDGES          250000
 #define RESERVED_DOC_EDGES     10000
-#define MAX_USER_EDGES         20000
+#define MAX_USER_EDGES         50000
 #define USER_RESERVED_EDGES    2000
                                  /* Weights for adjustment */
 #define NON_WERD               1.25
 #define GARBAGE_STRING         1.5
 #define MAX_PERM_LENGTH         128
 
-static EDGE_ARRAY pending_words;
-static EDGE_ARRAY document_words;
-static EDGE_ARRAY user_words;
-static EDGE_ARRAY word_dawg;
+EDGE_ARRAY pending_words;
+EDGE_ARRAY document_words;
+EDGE_ARRAY user_words;
+EDGE_ARRAY word_dawg;
 
 make_toggle_var (adjust_debug, 0, make_adjust_debug,
 8, 13, set_adjust_debug, "Adjustment Debug");
@@ -79,6 +80,9 @@ make_toggle_var (save_doc_words, 0, make_doc_words,
 make_toggle_var (doc_dict_enable, 1, make_doc_dict,
 8, 25, set_doc_dict, "Enable Document Dictionary ");
 /* PREV DEFAULT 0 */
+
+BOOL_VAR(ngram_permuter_activated, FALSE,
+         "Activate character-level n-gram-based permuter");
 
 int permute_only_top = 0;
 
@@ -1000,8 +1004,7 @@ adjust_non_word (A_CHOICE * best_choice, float certainties[]) {
  * Initialize anything that needs to be set up for the permute
  * functions.
  **********************************************************************/
-void init_permute() {
-  STRING name;
+void init_permute_vars() {
   make_adjust_debug();
   make_compound_debug();
   make_non_word();
@@ -1009,13 +1012,18 @@ void init_permute() {
   make_doc_words();
   make_doc_dict();
 
-  init_permdawg();
+  init_permdawg_vars();
   init_permnum();
+}
 
-  word_dawg = (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_NUM_EDGES);
+void init_permute() {
+  if (word_dawg != NULL)
+    end_permute();
+  init_permdawg();
+  STRING name;
   name = language_data_path_prefix;
   name += "word-dawg";
-  read_squished_dawg(name.string(), word_dawg, MAX_NUM_EDGES);
+  word_dawg = read_squished_dawg(name.string());
 
   document_words =
     (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_DOC_EDGES);
@@ -1032,6 +1040,8 @@ void init_permute() {
 }
 
 void end_permute() {
+  if (word_dawg == NULL)
+    return;  // Not safe to call twice.
   memfree(word_dawg);
   word_dawg = NULL;
   memfree(document_words);
@@ -1040,6 +1050,7 @@ void end_permute() {
   pending_words = NULL;
   memfree(user_words);
   user_words = NULL;
+  end_permdawg();
 }
 
 /**********************************************************************
@@ -1058,6 +1069,9 @@ A_CHOICE *permute_all(CHOICES_LIST char_choices,
 
   result_1 = permute_top_choice (char_choices, rating_limit, raw_choice,
     &any_alpha);
+
+  if (ngram_permuter_activated)
+    return ngram_permute_and_select(char_choices, rating_limit, word_dawg);
 
   if (result_1 == NULL)
     return (NULL);
@@ -1513,6 +1527,9 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
     LogNewRawChoice (raw_choice, 1.0, certainties);
   }
 
+  if (ngram_permuter_activated)
+    return NULL;
+
   best_choice = new_choice (word, word_lengths,
                             rating, certainty, -1, TOP_CHOICE_PERM);
   adjust_non_word(best_choice, certainties);
@@ -1560,27 +1577,27 @@ const char* choose_il1(const char *first_char,        //first choice
 
   if (*first_char == 'l' && *second_char != '\0') {
     if (*second_char == 'I'
-        && ((prev_char_length != 0 &&
+        && (((prev_char_length != 0 &&
             unicharset.get_isupper (prev_char, prev_char_length)) &&
             (next_char_length == 0 ||
              !unicharset.get_islower (next_char, next_char_length)) &&
             (next_char_length == 0 ||
-             !unicharset.get_isdigit (next_char, next_char_length)) ||
-            (next_char_length != 0 &&
+             !unicharset.get_isdigit (next_char, next_char_length))) ||
+            ((next_char_length != 0 &&
              unicharset.get_isupper (next_char, next_char_length)) &&
             (prev_char_length == 0 ||
              !unicharset.get_islower (prev_char, prev_char_length)) &&
             (prev_char_length == 0 ||
-             !unicharset.get_isdigit (prev_char, prev_char_length))))
+             !unicharset.get_isdigit (prev_char, prev_char_length)))))
       first_char = second_char;  //override
     else if (*second_char == '1' || *third_char == '1') {
       if ((next_char_length != 0 &&
            unicharset.get_isdigit (next_char, next_char_length)) ||
           (prev_char_length != 0 &&
            unicharset.get_isdigit (prev_char, prev_char_length))
-          || *next_char == 'l' &&
+          || (*next_char == 'l' &&
           (next_next_char_length != 0 &&
-           unicharset.get_isdigit (next_next_char, next_next_char_length))) {
+           unicharset.get_isdigit (next_next_char, next_next_char_length)))) {
         first_char = "1";
         first_char_length = 1;
       }
@@ -1588,10 +1605,10 @@ const char* choose_il1(const char *first_char,        //first choice
                 !unicharset.get_islower (prev_char, prev_char_length)) &&
                ((next_char_length == 0 ||
                  !unicharset.get_islower (next_char, next_char_length)) ||
-                *next_char == 's' &&
-                *next_next_char == 't')) {
-        if ((*prev_char != '\'' && *prev_char != '`' || *next_char != '\0')
-            && (*next_char != '\'' && *next_char != '`'
+                (*next_char == 's' &&
+                *next_next_char == 't'))) {
+        if (((*prev_char != '\'' && *prev_char != '`') || *next_char != '\0')
+            && ((*next_char != '\'' && *next_char != '`')
                 || *prev_char != '\0')) {
           first_char = "1";
           first_char_length = 1;
@@ -1687,3 +1704,4 @@ int valid_word(const char *string) {
   }
   return (result);
 }
+
