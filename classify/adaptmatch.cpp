@@ -1,10 +1,10 @@
 /******************************************************************************
- **							Filename:    adaptmatch.c
- **							Purpose:     High level adaptive matcher.
- **							Author:      Dan Johnson
- **							History:     Mon Mar 11 10:00:10 1991, DSJ, Created.
+ **                         Filename:    adaptmatch.c
+ **                         Purpose:     High level adaptive matcher.
+ **                         Author:      Dan Johnson
+ **                         History:     Mon Mar 11 10:00:10 1991, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -77,6 +77,7 @@ typedef struct
   FLOAT32 BestRating;
   CLASS_ID BestClass;
   UINT8 BestConfig;
+  CLASS_PRUNER_RESULTS CPResults;
 }
 
 
@@ -95,10 +96,10 @@ PROTO_KEY;
 /**----------------------------------------------------------------------------
           Private Macros
 ----------------------------------------------------------------------------**/
-#define MarginalMatch(Rating)		\
+#define MarginalMatch(Rating)       \
 ((Rating) > GreatAdaptiveMatch)
 
-#define TempConfigReliable(Config)	\
+#define TempConfigReliable(Config)  \
 ((Config)->NumTimesSeen >= ReliableConfigThreshold)
 
 #define InitIntFX() (FeaturesHaveBeenExtracted = FALSE)
@@ -143,9 +144,8 @@ void ClassifyAsNoise(TBLOB *Blob,
                      LINE_STATS *LineStats,
                      ADAPT_RESULTS *Results);
 
-                                 //CLASS_ID                              *Class1,
 int CompareCurrentRatings(const void *arg1,
-                          const void *arg2);  //CLASS_ID                              *Class2);
+                          const void *arg2);
 
 LIST ConvertMatchesToChoices(ADAPT_RESULTS *Results);
 
@@ -157,7 +157,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
                      LINE_STATS *LineStats,
                      ADAPT_RESULTS *Results);
 
-void GetAdaptThresholds (TWERD * Word,
+void GetAdaptThresholds(TWERD * Word,
 LINE_STATS * LineStats,
 const WERD_CHOICE& BestChoice,
 const WERD_CHOICE& BestRawChoice, FLOAT32 Thresholds[]);
@@ -204,7 +204,7 @@ int MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
                            INT_FEATURE_ARRAY Features,
                            FEATURE_SET FloatFeatures);
 
-PROTO_ID MakeNewTempProtos (FEATURE_SET Features,
+PROTO_ID MakeNewTempProtos(FEATURE_SET Features,
 int NumBadFeat,
 FEATURE_ID BadFeat[],
 INT_CLASS IClass,
@@ -237,9 +237,9 @@ void ShowBestMatchFor(TBLOB *Blob,
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)
-# define	_ARGS(s) s
+# define    _ARGS(s) s
 #else
-# define	_ARGS(s) ()
+# define    _ARGS(s) ()
 #endif*/
 
 /* /users/danj/wiseowl/src/danj/microfeatures/adaptmatch.c
@@ -430,14 +430,8 @@ void MakeNewAdaptedClass
 ----------------------------------------------------------------------------**/
 /* name of current image file being processed */
 extern char imagefile[];
-INT_VAR (tessedit_single_match, FALSE, "Top choice only from CP");
+INT_VAR(tessedit_single_match, FALSE, "Top choice only from CP");
 
-//extern "C" int il1_adaption_test; //?
-//extern int display_ratings;
-//extern "C" int newcp_ratings_on;
-//extern int config_pruner_enabled;
-//extern "C" int feature_prune_percentile;
-//extern "C" double newcp_duff_rating;
 /* variables used to hold performance statistics */
 static int AdaptiveMatcherCalls = 0;
 static int BaselineClassifierCalls = 0;
@@ -459,8 +453,6 @@ static BOOL8 FeaturesHaveBeenExtracted = FALSE;
 static BOOL8 FeaturesOK = TRUE;
 static INT_FEATURE_ARRAY BaselineFeatures;
 static INT_FEATURE_ARRAY CharNormFeatures;
-//static CLASS_NORMALIZATION_ARRAY
-//                                                      NormalizationAdjustments;
 static INT_FX_RESULT_STRUCT FXInfo;
 
 /* use a global variable to hold onto the current ratings so that the
@@ -487,79 +479,81 @@ static BIT_VECTOR AllConfigsOff;
 static BIT_VECTOR TempProtoMask;
 
 /* define control knobs for adaptive matcher */
-make_toggle_const (EnableAdaptiveMatcher, 1, MakeEnableAdaptiveMatcher);
+make_toggle_const(EnableAdaptiveMatcher, 1, MakeEnableAdaptiveMatcher);
 /* PREV DEFAULT 0 */
 
-make_toggle_const (UsePreAdaptedTemplates, 0, MakeUsePreAdaptedTemplates);
-make_toggle_const (SaveAdaptedTemplates, 0, MakeSaveAdaptedTemplates);
+make_toggle_const(UsePreAdaptedTemplates, 0, MakeUsePreAdaptedTemplates);
+make_toggle_const(SaveAdaptedTemplates, 0, MakeSaveAdaptedTemplates);
 
-make_toggle_var (EnableAdaptiveDebugger, 0, MakeEnableAdaptiveDebugger,
+make_toggle_var(EnableAdaptiveDebugger, 0, MakeEnableAdaptiveDebugger,
 18, 1, SetEnableAdaptiveDebugger, "Enable match debugger");
 
-make_int_var (MatcherDebugLevel, 0, MakeMatcherDebugLevel,
+make_int_var(MatcherDebugLevel, 0, MakeMatcherDebugLevel,
 18, 2, SetMatcherDebugLevel, "Matcher Debug Level: ");
 
-make_int_var (MatchDebugFlags, 0, MakeMatchDebugFlags,
+make_int_var(MatchDebugFlags, 0, MakeMatchDebugFlags,
 18, 3, SetMatchDebugFlags, "Matcher Debug Flags: ");
 
-make_toggle_var (EnableLearning, 1, MakeEnableLearning,
+make_toggle_var(EnableLearning, 1, MakeEnableLearning,
 18, 4, SetEnableLearning, "Enable learning");
 /* PREV DEFAULT 0 */
                                  /*record it for multiple pages */
 static int old_enable_learning = 1;
 
-make_int_var (LearningDebugLevel, 0, MakeLearningDebugLevel,
+make_int_var(LearningDebugLevel, 0, MakeLearningDebugLevel,
 18, 5, SetLearningDebugLevel, "Learning Debug Level: ");
 
-make_float_var (GoodAdaptiveMatch, 0.125, MakeGoodAdaptiveMatch,
+make_float_var(GoodAdaptiveMatch, 0.125, MakeGoodAdaptiveMatch,
 18, 6, SetGoodAdaptiveMatch, "Good Match    (0-1): ");
 
-make_float_var (GreatAdaptiveMatch, 0.0, MakeGreatAdaptiveMatch,
+make_float_var(GreatAdaptiveMatch, 0.0, MakeGreatAdaptiveMatch,
 18, 7, SetGreatAdaptiveMatch, "Great Match   (0-1): ");
 /* PREV DEFAULT 0.10 */
 
-make_float_var (PerfectRating, 0.02, MakePerfectRating,
+make_float_var(PerfectRating, 0.02, MakePerfectRating,
 18, 8, SetPerfectRating, "Perfect Match (0-1): ");
 
-make_float_var (BadMatchPad, 0.15, MakeBadMatchPad,
+make_float_var(BadMatchPad, 0.15, MakeBadMatchPad,
 18, 9, SetBadMatchPad, "Bad Match Pad (0-1): ");
 
-make_float_var (RatingMargin, 0.1, MakeRatingMargin,
+make_float_var(RatingMargin, 0.1, MakeRatingMargin,
 18, 10, SetRatingMargin, "New template margin (0-1): ");
 
-make_float_var (NoiseBlobLength, 12.0, MakeNoiseBlobLength,
+make_float_var(NoiseBlobLength, 12.0, MakeNoiseBlobLength,
 18, 11, SetNoiseBlobLength, "Avg. noise blob length: ");
 
-make_int_var (MinNumPermClasses, 1, MakeMinNumPermClasses,
+make_int_var(MinNumPermClasses, 1, MakeMinNumPermClasses,
 18, 12, SetMinNumPermClasses, "Min # of permanent classes: ");
 /* PREV DEFAULT 200 */
 
-make_int_var (ReliableConfigThreshold, 2, MakeReliableConfigThreshold,
+make_int_var(ReliableConfigThreshold, 2, MakeReliableConfigThreshold,
 18, 13, SetReliableConfigThreshold,
 "Reliable Config Threshold: ");
 
-make_float_var (MaxAngleDelta, 0.015, MakeMaxAngleDelta,
+make_float_var(MaxAngleDelta, 0.015, MakeMaxAngleDelta,
 18, 14, SetMaxAngleDelta,
 "Maximum angle delta for proto clustering: ");
 
-make_toggle_var (EnableIntFX, 1, MakeEnableIntFX,
+make_toggle_var(EnableIntFX, 1, MakeEnableIntFX,
 18, 15, SetEnableIntFX, "Enable integer fx");
 /* PREV DEFAULT 0 */
 
-make_toggle_var (EnableNewAdaptRules, 1, MakeEnableNewAdaptRules,
+make_toggle_var(EnableNewAdaptRules, 1, MakeEnableNewAdaptRules,
 18, 16, SetEnableNewAdaptRules,
 "Enable new adaptation rules");
 /* PREV DEFAULT 0 */
 
-make_float_var (RatingScale, 1.5, MakeRatingScale,
+make_float_var(RatingScale, 1.5, MakeRatingScale,
 18, 17, SetRatingScale, "Rating scale: ");
 
-make_float_var (CertaintyScale, 20.0, MakeCertaintyScale,
+make_float_var(CertaintyScale, 20.0, MakeCertaintyScale,
 18, 18, SetCertaintyScale, "CertaintyScale: ");
 
-make_int_var (FailedAdaptionsBeforeReset, 150, MakeFailedAdaptionsBeforeReset,
+make_int_var(FailedAdaptionsBeforeReset, 150, MakeFailedAdaptionsBeforeReset,
 18, 19, SetFailedAdaptionsBeforeReset,
 "Number of failed adaptions before adapted templates reset: ");
+double_VAR(tessedit_class_miss_scale, 0.00390625,
+           "Scale factor for features not used");
 
 int tess_cn_matching = 0;
 int tess_bn_matching = 0;
@@ -570,25 +564,25 @@ int tess_bn_matching = 0;
 /*---------------------------------------------------------------------------*/
 LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row) {
 /*
- **							Parameters:
+ **                         Parameters:
  **              Blob            blob to be classified
  **              DotBlob         (obsolete)
  **              Row             row of text that word appears in
- **							Globals:
- **							CurrentRatings
+ **                         Globals:
+ **                         CurrentRatings
               used by compare function for qsort
-**							Operation: This routine calls the adaptive matcher which returns
-**		(in an array) the class id of each class matched.  It also
-**							returns the number of classes matched.
-**							For each class matched it places the best rating
-**							found for that class into the Ratings array.
-**							Bad matches are then removed so that they don't need to be
-**							sorted.  The remaining good matches are then sorted and
-**							converted to choices.
-**							This routine also performs some simple speckle filtering.
-**							Return: List of choices found by adaptive matcher.
-**							Exceptions: none
-**							History: Mon Mar 11 10:00:58 1991, DSJ, Created.
+**                          Operation: This routine calls the adaptive matcher which returns
+**      (in an array) the class id of each class matched.  It also
+**                          returns the number of classes matched.
+**                          For each class matched it places the best rating
+**                          found for that class into the Ratings array.
+**                          Bad matches are then removed so that they don't need to be
+**                          sorted.  The remaining good matches are then sorted and
+**                          converted to choices.
+**                          This routine also performs some simple speckle filtering.
+**                          Return: List of choices found by adaptive matcher.
+**                          Exceptions: none
+**                          History: Mon Mar 11 10:00:58 1991, DSJ, Created.
 */
   LIST Choices;
   ADAPT_RESULTS Results;
@@ -654,27 +648,27 @@ void AdaptToWord(TWERD *Word,
                  const WERD_CHOICE& BestRawChoice,
                  const char *rejmap) {
 /*
- **							Parameters:
- **							Word
+ **                         Parameters:
+ **                         Word
               word to be adapted to
-**							Row
+**                          Row
               row of text that word is found in
-**							BestChoice
+**                          BestChoice
               best choice for word found by system
-**							BestRawChoice
+**                          BestRawChoice
               best choice for word found by classifier only
-**							Globals:
-**							EnableLearning
+**                          Globals:
+**                          EnableLearning
               TRUE if learning is enabled
-**							Operation: This routine implements a preliminary version of the
-**							rules which are used to decide which characters to adapt to.
-**							A word is adapted to if it is in the dictionary or if it
-**							is a "good" number (no trailing units, etc.).  It cannot
-**							contain broken or merged characters.  Within that word, only
-**							letters and digits are adapted to (no punctuation).
-**							Return: none
-**							Exceptions: none
-**							History: Thu Mar 14 07:40:36 1991, DSJ, Created.
+**                          Operation: This routine implements a preliminary version of the
+**                          rules which are used to decide which characters to adapt to.
+**                          A word is adapted to if it is in the dictionary or if it
+**                          is a "good" number (no trailing units, etc.).  It cannot
+**                          contain broken or merged characters.  Within that word, only
+**                          letters and digits are adapted to (no punctuation).
+**                          Return: none
+**                          Exceptions: none
+**                          History: Thu Mar 14 07:40:36 1991, DSJ, Created.
 */
   TBLOB *Blob;
   LINE_STATS LineStats;
@@ -727,10 +721,10 @@ void AdaptToWord(TWERD *Word,
              characters. */
           if (*BestChoice_lengths == 1 &&
               (*BestChoice_string == 'i'
-               || il1_adaption_test && *BestChoice_string == 'I' &&
+               || (il1_adaption_test && *BestChoice_string == 'I' &&
                (Blob->next == NULL ||
                unicharset.get_islower (BestChoice_string + *BestChoice_lengths,
-                                       *(BestChoice_lengths + 1))))
+                                       *(BestChoice_lengths + 1)))))
               && (Blob == Word->blobs
                   || (!(unicharset.get_isalpha (BestChoice_string -
                                                 *(BestChoice_lengths - 1),
@@ -739,7 +733,7 @@ void AdaptToWord(TWERD *Word,
                                                 *(BestChoice_lengths - 1),
                                                 *(BestChoice_lengths - 1))))
 
-                  || !il1_adaption_test && NumOutlinesInBlob(Blob) != 2)) {
+                  || (!il1_adaption_test && NumOutlinesInBlob(Blob) != 2))) {
             if (LearningDebugLevel >= 1)
               cprintf ("Rejecting char = %s\n", unicharset.id_to_unichar(
                            unicharset.unichar_to_id(BestChoice_string,
@@ -776,21 +770,21 @@ void AdaptToWord(TWERD *Word,
 /*---------------------------------------------------------------------------*/
 void EndAdaptiveClassifier() {
 /*
- **							Parameters: none
- **							Globals:
- **							AdaptedTemplates
+ **                         Parameters: none
+ **                         Globals:
+ **                         AdaptedTemplates
               current set of adapted templates
-**							SaveAdaptedTemplates
+**                          SaveAdaptedTemplates
               TRUE if templates should be saved
-**							EnableAdaptiveMatcher
+**                          EnableAdaptiveMatcher
               TRUE if adaptive matcher is enabled
-**							Operation: This routine performs cleanup operations on the
-**							adaptive classifier.  It should be called before the
-**							program is terminated.  Its main function is to save
-**							the adapted templates to a file.
-**							Return: none
-**							Exceptions: none
-**							History: Tue Mar 19 14:37:06 1991, DSJ, Created.
+**                          Operation: This routine performs cleanup operations on the
+**                          adaptive classifier.  It should be called before the
+**                          program is terminated.  Its main function is to save
+**                          the adapted templates to a file.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Tue Mar 19 14:37:06 1991, DSJ, Created.
 */
   char Filename[256];
   FILE *File;
@@ -811,6 +805,8 @@ void EndAdaptiveClassifier() {
     }
   }
   #endif
+  if (PreTrainedTemplates == NULL)
+    return;  // This function isn't safe to run twice.
   EndDangerousAmbigs();
   FreeNormProtos();
   free_int_templates(PreTrainedTemplates);
@@ -833,30 +829,30 @@ void EndAdaptiveClassifier() {
 /*---------------------------------------------------------------------------*/
 void InitAdaptiveClassifier() {
 /*
- **							Parameters: none
- **							Globals:
- **							BuiltInTemplatesFile
+ **                         Parameters: none
+ **                         Globals:
+ **                         BuiltInTemplatesFile
               file to get built-in temps from
-**							BuiltInCutoffsFile
+**                          BuiltInCutoffsFile
               file to get avg. feat per class from
-**							PreTrainedTemplates
+**                          PreTrainedTemplates
               pre-trained configs and protos
-**							AdaptedTemplates
+**                          AdaptedTemplates
               templates adapted to current page
-**							CharNormCutoffs
+**                          CharNormCutoffs
               avg # of features per class
-**							AllProtosOn
+**                          AllProtosOn
               dummy proto mask with all bits 1
-**							AllConfigsOn
+**                          AllConfigsOn
               dummy config mask with all bits 1
-**							UsePreAdaptedTemplates
+**                          UsePreAdaptedTemplates
               enables use of pre-adapted templates
-**							Operation: This routine reads in the training information needed
-**							by the adaptive classifier and saves it into global
-**							variables.
-**							Return: none
-**							Exceptions: none
-**							History: Mon Mar 11 12:49:34 1991, DSJ, Created.
+**                          Operation: This routine reads in the training information needed
+**                          by the adaptive classifier and saves it into global
+**                          variables.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Mon Mar 11 12:49:34 1991, DSJ, Created.
 */
   int i;
   FILE *File;
@@ -864,6 +860,8 @@ void InitAdaptiveClassifier() {
 
   if (!EnableAdaptiveMatcher)
     return;
+  if (PreTrainedTemplates != NULL)
+    EndAdaptiveClassifier();  // Don't leak with multiple inits.
 
   Filename = language_data_path_prefix;
   Filename += BuiltInTemplatesFile;
@@ -932,9 +930,11 @@ void InitAdaptiveClassifier() {
           i))];
       }
     }
-  }
-  else
+  } else {
+    if (AdaptedTemplates != NULL)
+      free_adapted_templates(AdaptedTemplates);
     AdaptedTemplates = NewAdaptedTemplates ();
+  }
   old_enable_learning = EnableLearning;
 
 }                                /* InitAdaptiveClassifier */
@@ -948,13 +948,13 @@ void ResetAdaptiveClassifier() {
 /*---------------------------------------------------------------------------*/
 void InitAdaptiveClassifierVars() {
 /*
- **							Parameters: none
- **							Globals: none
- **							Operation: This routine installs the control knobs used by the
- **							adaptive matcher.
- **							Return: none
- **							Exceptions: none
- **							History: Mon Mar 11 12:49:34 1991, DSJ, Created.
+ **                         Parameters: none
+ **                         Globals: none
+ **                         Operation: This routine installs the control knobs used by the
+ **                         adaptive matcher.
+ **                         Return: none
+ **                         Exceptions: none
+ **                         History: Mon Mar 11 12:49:34 1991, DSJ, Created.
  */
   VALUE dummy;
 
@@ -996,15 +996,15 @@ void InitAdaptiveClassifierVars() {
 /*---------------------------------------------------------------------------*/
 void PrintAdaptiveStatistics(FILE *File) {
 /*
- **							Parameters:
- **							File
+ **                         Parameters:
+ **                         File
               open text file to print adaptive statistics to
-**							Globals: none
-**							Operation: Print to File the statistics which have been gathered
-**							for the adaptive matcher.
-**							Return: none
-**							Exceptions: none
-**							History: Thu Apr 18 14:37:37 1991, DSJ, Created.
+**                          Globals: none
+**                          Operation: Print to File the statistics which have been gathered
+**                          for the adaptive matcher.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Thu Apr 18 14:37:37 1991, DSJ, Created.
 */
   #ifndef SECURE_NAMES
 
@@ -1039,16 +1039,16 @@ void PrintAdaptiveStatistics(FILE *File) {
 /*---------------------------------------------------------------------------*/
 void SettupPass1() {
 /*
- **							Parameters: none
- **							Globals:
- **							EnableLearning
+ **                         Parameters: none
+ **                         Globals:
+ **                         EnableLearning
               set to TRUE by this routine
-**							Operation: This routine prepares the adaptive matcher for the start
-**							of the first pass.  Learning is enabled (unless it is
-**							disabled for the whole program).
-**							Return: none
-**							Exceptions: none
-**							History: Mon Apr 15 16:39:29 1991, DSJ, Created.
+**                          Operation: This routine prepares the adaptive matcher for the start
+**                          of the first pass.  Learning is enabled (unless it is
+**                          disabled for the whole program).
+**                          Return: none
+**                          Exceptions: none
+**                          History: Mon Apr 15 16:39:29 1991, DSJ, Created.
 */
   /* Note: this is somewhat redundant, it simply says that if learning is
   enabled then it will remain enabled on the first pass.  If it is
@@ -1065,15 +1065,15 @@ void SettupPass1() {
 /*---------------------------------------------------------------------------*/
 void SettupPass2() {
 /*
- **							Parameters: none
- **							Globals:
- **							EnableLearning
+ **                         Parameters: none
+ **                         Globals:
+ **                         EnableLearning
               set to FALSE by this routine
-**							Operation: This routine prepares the adaptive matcher for the start
-**							of the second pass.  Further learning is disabled.
-**							Return: none
-**							Exceptions: none
-**							History: Mon Apr 15 16:39:29 1991, DSJ, Created.
+**                          Operation: This routine prepares the adaptive matcher for the start
+**                          of the second pass.  Further learning is disabled.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Mon Apr 15 16:39:29 1991, DSJ, Created.
 */
   EnableLearning = FALSE;
   SettupStopperPass2();
@@ -1087,27 +1087,27 @@ void MakeNewAdaptedClass(TBLOB *Blob,
                          CLASS_ID ClassId,
                          ADAPT_TEMPLATES Templates) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob to model new class after
-**							LineStats
+**                          LineStats
               statistics for text row blob is in
-**							ClassId
+**                          ClassId
               id of new class to be created
-**							Templates
+**                          Templates
               adapted templates to add new class to
-**							Globals:
-**							AllProtosOn
+**                          Globals:
+**                          AllProtosOn
               dummy mask with all 1's
-**							BaselineCutoffs
+**                          BaselineCutoffs
               kludge needed to get cutoffs
-**							PreTrainedTemplates
+**                          PreTrainedTemplates
               kludge needed to get cutoffs
-**							Operation: This routine creates a new adapted class and uses Blob
-**							as the model for the first config in that class.
-**							Return: none
-**							Exceptions: none
-**							History: Thu Mar 14 12:49:39 1991, DSJ, Created.
+**                          Operation: This routine creates a new adapted class and uses Blob
+**                          as the model for the first config in that class.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Thu Mar 14 12:49:39 1991, DSJ, Created.
 */
   FEATURE_SET Features;
   int Fid, Pid;
@@ -1183,24 +1183,24 @@ int GetAdaptiveFeatures(TBLOB *Blob,
                         INT_FEATURE_ARRAY IntFeatures,
                         FEATURE_SET *FloatFeatures) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob to extract features from
-**							LineStats
+**                          LineStats
               statistics about text row blob is in
-**							IntFeatures
+**                          IntFeatures
               array to fill with integer features
-**							FloatFeatures
+**                          FloatFeatures
               place to return actual floating-pt features
-**							Globals: none
-**							Operation: This routine sets up the feature extractor to extract
-**							baseline normalized pico-features.
-**							The extracted pico-features are converted
-**							to integer form and placed in IntFeatures.  The original
-**							floating-pt. features are returned in FloatFeatures.
-**							Return: Number of pico-features returned (0 if an error occurred)
-**							Exceptions: none
-**							History: Tue Mar 12 17:55:18 1991, DSJ, Created.
+**                          Globals: none
+**                          Operation: This routine sets up the feature extractor to extract
+**                          baseline normalized pico-features.
+**                          The extracted pico-features are converted
+**                          to integer form and placed in IntFeatures.  The original
+**                          floating-pt. features are returned in FloatFeatures.
+**                          Return: Number of pico-features returned (0 if an error occurred)
+**                          Exceptions: none
+**                          History: Tue Mar 12 17:55:18 1991, DSJ, Created.
 */
   FEATURE_SET Features;
   int NumFeatures;
@@ -1232,19 +1232,19 @@ int AdaptableWord(TWERD *Word,
                   const char *BestRawChoice,
                   const char *BestRawChoice_lengths) {
 /*
- **							Parameters:
- **							Word
+ **                         Parameters:
+ **                         Word
               current word
-**							BestChoice
+**                          BestChoice
               best overall choice for word with context
-**							BestRawChoice
+**                          BestRawChoice
               best choice for word without context
-**							Globals: none
-**							Operation: Return TRUE if the specified word is acceptable for
-**							adaptation.
-**							Return: TRUE or FALSE
-**							Exceptions: none
-**							History: Thu May 30 14:25:06 1991, DSJ, Created.
+**                          Globals: none
+**                          Operation: Return TRUE if the specified word is acceptable for
+**                          adaptation.
+**                          Return: TRUE or FALSE
+**                          Exceptions: none
+**                          History: Thu May 30 14:25:06 1991, DSJ, Created.
 */
   int BestChoiceLength;
 
@@ -1255,7 +1255,7 @@ int AdaptableWord(TWERD *Word,
     (BestChoiceLength = strlen (BestChoice_lengths)) > 0 &&
     BestChoiceLength == NumBlobsIn (Word) &&
     BestChoiceLength <= MAX_ADAPTABLE_WERD_SIZE && (
-    EnableNewAdaptRules
+    (EnableNewAdaptRules
     &&
     CurrentBestChoiceAdjustFactor
     ()
@@ -1266,17 +1266,17 @@ int AdaptableWord(TWERD *Word,
     (ADAPTABLE_WERD)
     &&
     CurrentBestChoiceIs
-    (BestChoice, BestChoice_lengths)
+    (BestChoice, BestChoice_lengths))
     ||
                                  /* old rules */
-    !EnableNewAdaptRules
+    (!EnableNewAdaptRules
     &&
     BestChoiceLength
     ==
     strlen
     (BestRawChoice_lengths)
     &&
-    ((valid_word (BestChoice) && case_ok (BestChoice, BestChoice_lengths)) || (valid_number (BestChoice, BestChoice_lengths) && pure_number (BestChoice, BestChoice_lengths))) && punctuation_ok (BestChoice, BestChoice_lengths) != -1 && punctuation_ok (BestChoice, BestChoice_lengths) <= 1));
+    ((valid_word (BestChoice) && case_ok (BestChoice, BestChoice_lengths)) || (valid_number (BestChoice, BestChoice_lengths) && pure_number (BestChoice, BestChoice_lengths))) && punctuation_ok (BestChoice, BestChoice_lengths) != -1 && punctuation_ok (BestChoice, BestChoice_lengths) <= 1)));
 
 }                                /* AdaptableWord */
 
@@ -1287,26 +1287,26 @@ void AdaptToChar(TBLOB *Blob,
                  CLASS_ID ClassId,
                  FLOAT32 Threshold) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob to add to templates for ClassId
-**							LineStats
+**                          LineStats
               statistics about text line blob is in
-**							ClassId
+**                          ClassId
               class to add blob to
-**							Threshold
+**                          Threshold
               minimum match rating to existing template
-**							Globals:
-**							AdaptedTemplates
+**                          Globals:
+**                          AdaptedTemplates
               current set of adapted templates
-**							AllProtosOn
+**                          AllProtosOn
               dummy mask to match against all protos
-**							AllConfigsOn
+**                          AllConfigsOn
               dummy mask to match against all configs
-**							Operation:
-**							Return: none
-**							Exceptions: none
-**							History: Thu Mar 14 09:36:03 1991, DSJ, Created.
+**                          Operation:
+**                          Return: none
+**                          Exceptions: none
+**                          History: Thu Mar 14 09:36:03 1991, DSJ, Created.
 */
   int NumFeatures;
   INT_FEATURE_ARRAY IntFeatures;
@@ -1337,7 +1337,7 @@ void AdaptToChar(TBLOB *Blob,
 
     SetBaseLineMatch();
     IntegerMatcher (IClass, AllProtosOn, AllConfigsOn,
-      NumFeatures, NumFeatures, IntFeatures, 0, 0,
+      NumFeatures, NumFeatures, IntFeatures, 0,
       &IntResult, NO_DEBUG);
 
     SetAdaptiveThreshold(Threshold);
@@ -1378,7 +1378,7 @@ void AdaptToChar(TBLOB *Blob,
 
       if (LearningDebugLevel >= 1) {
         IntegerMatcher (IClass, AllProtosOn, AllConfigsOn,
-          NumFeatures, NumFeatures, IntFeatures, 0, 0,
+          NumFeatures, NumFeatures, IntFeatures, 0,
           &IntResult, NO_DEBUG);
         cprintf ("Best match to temp config %d = %4.1f%%.\n",
           IntResult.Config, (1.0 - IntResult.Rating) * 100.0);
@@ -1387,7 +1387,7 @@ void AdaptToChar(TBLOB *Blob,
           ConfigMask = 1 << IntResult.Config;
           ShowMatchDisplay();
           IntegerMatcher (IClass, AllProtosOn, (BIT_VECTOR)&ConfigMask,
-            NumFeatures, NumFeatures, IntFeatures, 0, 0,
+            NumFeatures, NumFeatures, IntFeatures, 0,
             &IntResult, 6 | 0x19);
           UpdateMatchDisplay();
           GetClassToDebug ("Adapting");
@@ -1405,22 +1405,22 @@ void AdaptToPunc(TBLOB *Blob,
                  CLASS_ID ClassId,
                  FLOAT32 Threshold) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob to add to templates for ClassId
-**							LineStats
+**                          LineStats
               statistics about text line blob is in
-**							ClassId
+**                          ClassId
               class to add blob to
-**							Threshold
+**                          Threshold
               minimum match rating to existing template
-**							Globals:
-**							PreTrainedTemplates
+**                          Globals:
+**                          PreTrainedTemplates
               current set of built-in templates
-**							Operation:
-**							Return: none
-**							Exceptions: none
-**							History: Thu Mar 14 09:36:03 1991, DSJ, Created.
+**                          Operation:
+**                          Return: none
+**                          Exceptions: none
+**                          History: Thu Mar 14 09:36:03 1991, DSJ, Created.
 */
   ADAPT_RESULTS Results;
   int i;
@@ -1462,30 +1462,30 @@ void AddNewResult(ADAPT_RESULTS *Results,
                   FLOAT32 Rating,
                   int ConfigId) {
 /*
- **							Parameters:
- **							Results
+ **                         Parameters:
+ **                         Results
               results to add new result to
-**							ClassId
+**                          ClassId
               class of new result
-**							Rating
+**                          Rating
               rating of new result
-**							ConfigId
+**                          ConfigId
               config id of new result
-**							Globals:
-**							BadMatchPad
+**                          Globals:
+**                          BadMatchPad
               defines limits of an acceptable match
-**							Operation: This routine adds the result of a classification into
-**							Results.  If the new rating is much worse than the current
-**							best rating, it is not entered into results because it
-**							would end up being stripped later anyway.  If the new rating
-**							is better than the old rating for the class, it replaces the
-**							old rating.  If this is the first rating for the class, the
-**							class is added to the list of matched classes in Results.
-**							If the new rating is better than the best so far, it
-**							becomes the best so far.
-**							Return: none
-**							Exceptions: none
-**							History: Tue Mar 12 18:19:29 1991, DSJ, Created.
+**                          Operation: This routine adds the result of a classification into
+**                          Results.  If the new rating is much worse than the current
+**                          best rating, it is not entered into results because it
+**                          would end up being stripped later anyway.  If the new rating
+**                          is better than the old rating for the class, it replaces the
+**                          old rating.  If this is the first rating for the class, the
+**                          class is added to the list of matched classes in Results.
+**                          If the new rating is better than the best so far, it
+**                          becomes the best so far.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Tue Mar 12 18:19:29 1991, DSJ, Created.
 */
   FLOAT32 OldRating;
   INT_CLASS_STRUCT* CharClass = NULL;
@@ -1520,29 +1520,29 @@ void AmbigClassifier(TBLOB *Blob,
                      UNICHAR_ID *Ambiguities,
                      ADAPT_RESULTS *Results) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob to be classified
-**							LineStats
+**                          LineStats
               statistics for text line Blob is in
-**							Templates
+**                          Templates
               built-in templates to classify against
-**							Ambiguities
+**                          Ambiguities
               array of class id's to match against
-**							Results
+**                          Results
               place to put match results
-**							Globals:
-**							AllProtosOn
+**                          Globals:
+**                          AllProtosOn
               mask that enables all protos
-**							AllConfigsOn
+**                          AllConfigsOn
               mask that enables all configs
-**							Operation: This routine is identical to CharNormClassifier()
-**							except that it does no class pruning.  It simply matches
-**							the unknown blob against the classes listed in
-**							Ambiguities.
-**							Return: none
-**							Exceptions: none
-**							History: Tue Mar 12 19:40:36 1991, DSJ, Created.
+**                          Operation: This routine is identical to CharNormClassifier()
+**                          except that it does no class pruning.  It simply matches
+**                          the unknown blob against the classes listed in
+**                          Ambiguities.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Tue Mar 12 19:40:36 1991, DSJ, Created.
 */
   int NumFeatures;
   INT_FEATURE_ARRAY IntFeatures;
@@ -1570,7 +1570,7 @@ void AmbigClassifier(TBLOB *Blob,
     SetCharNormMatch();
     IntegerMatcher (ClassForClassId (Templates, ClassId),
       AllProtosOn, AllConfigsOn,
-      Results->BlobLength, NumFeatures, IntFeatures, 0,
+      Results->BlobLength, NumFeatures, IntFeatures,
       CharNormArray[ClassIndex], &IntResult, NO_DEBUG);
 
     if (MatcherDebugLevel >= 2)
@@ -1589,6 +1589,51 @@ void AmbigClassifier(TBLOB *Blob,
 
 }                                /* AmbigClassifier */
 
+/*---------------------------------------------------------------------------*/
+// Factored-out calls to IntegerMatcher based on class pruner results.
+// Returns integer matcher results inside CLASS_PRUNER_RESULTS structure.
+void MasterMatcher(INT_TEMPLATES templates,
+                   INT16 num_features,
+                   INT_FEATURE_ARRAY features,
+                   CLASS_NORMALIZATION_ARRAY norm_factors,
+                   ADAPT_CLASS* classes,
+                   int debug,
+                   int num_classes,
+                   CLASS_PRUNER_RESULTS results,
+                   ADAPT_RESULTS* final_results) {
+  for (int c = 0; c < num_classes; c++) {
+    CLASS_ID class_id = results[c].Class;
+    INT_RESULT_STRUCT& int_result = results[c].IMResult;
+    CLASS_INDEX class_index = IndexForClassId(templates, class_id);
+    BIT_VECTOR protos = classes != NULL ? classes[class_index]->PermProtos
+                                        : AllProtosOn;
+    BIT_VECTOR configs = classes != NULL ? classes[class_index]->PermConfigs
+                                         : AllConfigsOn;
+
+    IntegerMatcher(ClassForClassId(templates, class_id),
+                   protos, configs, final_results->BlobLength,
+                   num_features, features, norm_factors[class_index],
+                   &int_result, debug);
+    // Compute class feature corrections.
+    double miss_penalty = tessedit_class_miss_scale *
+                          int_result.FeatureMisses;
+    if (MatcherDebugLevel >= 2 || display_ratings > 1) {
+      cprintf("%s-%-2d %2.1f(CP%2.1f, IM%2.1f + MP%2.1f)  ",
+              unicharset.id_to_unichar(class_id), int_result.Config,
+              (int_result.Rating + miss_penalty) * 100.0,
+              results[c].Rating * 100.0,
+              int_result.Rating * 100.0, miss_penalty * 100.0);
+      if (c % 4 == 3)
+        cprintf ("\n");
+    }
+    int_result.Rating += miss_penalty;
+    if (int_result.Rating > WORST_POSSIBLE_RATING)
+      int_result.Rating = WORST_POSSIBLE_RATING;
+    AddNewResult(final_results, class_id, int_result.Rating, int_result.Config);
+  }
+  if (MatcherDebugLevel >= 2 || display_ratings > 1)
+    cprintf("\n");
+}
 
 /*---------------------------------------------------------------------------*/
 UNICHAR_ID *BaselineClassifier(TBLOB *Blob,
@@ -1596,38 +1641,32 @@ UNICHAR_ID *BaselineClassifier(TBLOB *Blob,
                                ADAPT_TEMPLATES Templates,
                                ADAPT_RESULTS *Results) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob to be classified
-**							LineStats
+**                          LineStats
               statistics for text line Blob is in
-**							Templates
+**                          Templates
               current set of adapted templates
-**							Results
+**                          Results
               place to put match results
-**							Globals:
-**							BaselineCutoffs
+**                          Globals:
+**                          BaselineCutoffs
               expected num features for each class
-**							Operation: This routine extracts baseline normalized features
-**							from the unknown character and matches them against the
-**							specified set of templates.  The classes which match
-**							are added to Results.
-**							Return: Array of possible ambiguous chars that should be checked.
-**							Exceptions: none
-**							History: Tue Mar 12 19:38:03 1991, DSJ, Created.
+**                          Operation: This routine extracts baseline normalized features
+**                          from the unknown character and matches them against the
+**                          specified set of templates.  The classes which match
+**                          are added to Results.
+**                          Return: Array of possible ambiguous chars that should be checked.
+**                          Exceptions: none
+**                          History: Tue Mar 12 19:38:03 1991, DSJ, Created.
 */
   int NumFeatures;
   int NumClasses;
-  int i;
-  int config;
-  float best_rating;
   INT_FEATURE_ARRAY IntFeatures;
   CLASS_NORMALIZATION_ARRAY CharNormArray;
-  CLASS_PRUNER_RESULTS ClassPrunerResults;
-  INT_RESULT_STRUCT IntResult;
   CLASS_ID ClassId;
   CLASS_INDEX ClassIndex;
-  ADAPT_CLASS Class;
 
   BaselineClassifierCalls++;
 
@@ -1640,7 +1679,7 @@ UNICHAR_ID *BaselineClassifier(TBLOB *Blob,
 
   NumClasses = ClassPruner (Templates->Templates, NumFeatures,
     IntFeatures, CharNormArray,
-    BaselineCutoffs, ClassPrunerResults,
+    BaselineCutoffs, Results->CPResults,
     MatchDebugFlags);
 
   NumBaselineClassesTried += NumClasses;
@@ -1648,61 +1687,10 @@ UNICHAR_ID *BaselineClassifier(TBLOB *Blob,
   if (MatcherDebugLevel >= 2 || display_ratings > 1)
     cprintf ("BL Matches =  ");
 
-  best_rating = WORST_POSSIBLE_RATING;
-  for (i = 0; i < NumClasses
-    && ((newcp_ratings_on & 12) < 8
-    || (newcp_ratings_on & 12) == 8
-    && ClassPrunerResults[i].Rating < best_rating + BadMatchPad / 2
-    && ClassPrunerResults[i].Rating < newcp_duff_rating
-  && NumClasses > 1); i++) {
-    ClassId = ClassPrunerResults[i].Class;
-    ClassIndex = IndexForClassId (Templates->Templates, ClassId);
-
-    SetBaseLineMatch();
-    IntegerMatcher (ClassForClassId (Templates->Templates, ClassId),
-      Templates->Class[ClassIndex]->PermProtos,
-      Templates->Class[ClassIndex]->PermConfigs,
-      Results->BlobLength, NumFeatures, IntFeatures, 0,
-      CharNormArray[ClassIndex], &IntResult, MatchDebugFlags);
-
-    if (MatcherDebugLevel >= 2 || display_ratings > 1) {
-      cprintf ("%s-%-2d %2.1f(%2.1f/%2.1f)  ",
-               unicharset.id_to_unichar(ClassId), IntResult.Config,
-        IntResult.Rating * 100.0,
-        ClassPrunerResults[i].Rating * 100.0,
-        ClassPrunerResults[i].Rating2 * 100.0);
-      if (i % 4 == 3)
-        cprintf ("\n");
-    }
-
-    AddNewResult (Results, ClassId, IntResult.Rating, IntResult.Config);
-    if (IntResult.Rating < best_rating)
-      best_rating = IntResult.Rating;
-  }
-  while (i < NumClasses) {
-    ClassId = ClassPrunerResults[i].Class;
-    ClassIndex = IndexForClassId (Templates->Templates, ClassId);
-    Class = Templates->Class[ClassIndex];
-    config =
-      NumIntConfigsIn (ClassForIndex (Templates->Templates, ClassIndex));
-    for (config--; config >= 0 && !ConfigIsPermanent (Class, config);
-      config--);
-
-    if (MatcherDebugLevel >= 2 || display_ratings > 1) {
-      cprintf ("%s(%d) %2.1f(%2.1f)  ",
-               unicharset.id_to_unichar(ClassId), config,
-        ClassPrunerResults[i].Rating * 200.0,
-        ClassPrunerResults[i].Rating2 * 100.0);
-      if (i % 4 == 3)
-        cprintf ("\n");
-    }
-
-    AddNewResult (Results, ClassId, ClassPrunerResults[i].Rating * 2,
-      config);
-    i++;
-  }
-  if (MatcherDebugLevel >= 2 || display_ratings > 1)
-    cprintf ("\n");
+  SetBaseLineMatch();
+  MasterMatcher(Templates->Templates, NumFeatures, IntFeatures, CharNormArray,
+                Templates->Class, MatchDebugFlags, NumClasses,
+                Results->CPResults, Results);
 
   ClassId = Results->BestClass;
   if (ClassId == NO_CLASS)
@@ -1712,112 +1700,7 @@ UNICHAR_ID *BaselineClassifier(TBLOB *Blob,
   ClassIndex = IndexForClassId (Templates->Templates, ClassId);
   return (Templates->Class[ClassIndex]->
     Config[Results->BestConfig].Perm);
-
 }                                /* BaselineClassifier */
-
-
-/*---------------------------------------------------------------------------*/
-void make_config_pruner(INT_TEMPLATES templates,
-                        CONFIG_PRUNER *config_pruner) {
-  int classid;
-  int x;                         //feature coord
-  int word_index;                //in faster version
-  int bit_index;
-  UINT32 XFeatureAddress;
-  UINT32 YFeatureAddress;
-  UINT32 ThetaFeatureAddress;
-  INT_CLASS ClassTemplate;
-  int ProtoSetIndex;
-  PROTO_SET ProtoSet;
-  UINT32 *ProtoPrunerPtr;
-  UINT32 ProtoNum;
-  INT32 proto_offset;
-  UINT32 ConfigWord;
-  UINT32 ProtoWord;
-  INT_PROTO Proto;
-  UINT32 x_config_mask;          //forming mask
-  UINT32 y_config_mask;          //forming mask
-  UINT32 th_config_mask;         //forming mask
-
-  for (classid = 0; classid < NumClassesIn (templates); classid++) {
-    ClassTemplate = ClassForIndex (templates, classid);
-    for (x = 0; x < NUM_PP_BUCKETS; x++) {
-      XFeatureAddress = (x << 1);
-      YFeatureAddress = (NUM_PP_BUCKETS << 1) + (x << 1);
-      ThetaFeatureAddress = (NUM_PP_BUCKETS << 2) + (x << 1);
-      x_config_mask = 0;
-      y_config_mask = 0;
-      th_config_mask = 0;
-      for (ProtoSetIndex = 0;
-        ProtoSetIndex < NumProtoSetsIn (ClassTemplate);
-      ProtoSetIndex++) {
-        ProtoSet = ProtoSetIn (ClassTemplate, ProtoSetIndex);
-        ProtoPrunerPtr = (UINT32 *) ((*ProtoSet).ProtoPruner);
-        for (ProtoNum = 0; ProtoNum < PROTOS_PER_PROTO_SET;
-        ProtoNum += (PROTOS_PER_PROTO_SET >> 1), ProtoPrunerPtr++) {
-          /* Prune Protos of current Proto Set */
-          ProtoWord = *(ProtoPrunerPtr + XFeatureAddress);
-          for (proto_offset = 0; ProtoWord != 0;
-          proto_offset++, ProtoWord >>= 1) {
-            if (ProtoWord & 1) {
-              Proto =
-                &(ProtoSet->Protos[ProtoNum + proto_offset]);
-              ConfigWord = Proto->Configs[0];
-              x_config_mask |= ConfigWord;
-            }
-          }
-
-          ProtoWord = *(ProtoPrunerPtr + YFeatureAddress);
-          for (proto_offset = 0; ProtoWord != 0;
-          proto_offset++, ProtoWord >>= 1) {
-            if (ProtoWord & 1) {
-              Proto =
-                &(ProtoSet->Protos[ProtoNum + proto_offset]);
-              ConfigWord = Proto->Configs[0];
-              y_config_mask |= ConfigWord;
-            }
-          }
-
-          ProtoWord = *(ProtoPrunerPtr + ThetaFeatureAddress);
-          for (proto_offset = 0; ProtoWord != 0;
-          proto_offset++, ProtoWord >>= 1) {
-            if (ProtoWord & 1) {
-              Proto =
-                &(ProtoSet->Protos[ProtoNum + proto_offset]);
-              ConfigWord = Proto->Configs[0];
-              th_config_mask |= ConfigWord;
-            }
-          }
-        }
-      }
-      for (word_index = 0; word_index < 4; word_index++) {
-        ConfigWord = 0;
-        for (bit_index = 0; bit_index < 8; bit_index++) {
-          if (x_config_mask & 1)
-            ConfigWord |= 1 << (bit_index * 4);
-          x_config_mask >>= 1;
-        }
-        config_pruner[classid][0][x][word_index] = ConfigWord;
-
-        ConfigWord = 0;
-        for (bit_index = 0; bit_index < 8; bit_index++) {
-          if (y_config_mask & 1)
-            ConfigWord |= 1 << (bit_index * 4);
-          y_config_mask >>= 1;
-        }
-        config_pruner[classid][1][x][word_index] = ConfigWord;
-
-        ConfigWord = 0;
-        for (bit_index = 0; bit_index < 8; bit_index++) {
-          if (th_config_mask & 1)
-            ConfigWord |= 1 << (bit_index * 4);
-          th_config_mask >>= 1;
-        }
-        config_pruner[classid][2][x][word_index] = ConfigWord;
-      }
-    }
-  }
-}
 
 
 /*---------------------------------------------------------------------------*/
@@ -1826,133 +1709,60 @@ void CharNormClassifier(TBLOB *Blob,
                         INT_TEMPLATES Templates,
                         ADAPT_RESULTS *Results) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob to be classified
-**							LineStats
+**                          LineStats
               statistics for text line Blob is in
-**							Templates
+**                          Templates
               templates to classify unknown against
-**							Results
+**                          Results
               place to put match results
-**							Globals:
-**							CharNormCutoffs
+**                          Globals:
+**                          CharNormCutoffs
               expected num features for each class
-**							AllProtosOn
+**                          AllProtosOn
               mask that enables all protos
-**							AllConfigsOn
+**                          AllConfigsOn
               mask that enables all configs
-**							Operation: This routine extracts character normalized features
-**							from the unknown character and matches them against the
-**							specified set of templates.  The classes which match
-**							are added to Results.
-**							Return: none
-**							Exceptions: none
-**							History: Tue Mar 12 16:02:52 1991, DSJ, Created.
+**                          Operation: This routine extracts character normalized features
+**                          from the unknown character and matches them against the
+**                          specified set of templates.  The classes which match
+**                          are added to Results.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Tue Mar 12 16:02:52 1991, DSJ, Created.
 */
   int NumFeatures;
   int NumClasses;
-  int i;
-  INT32 min_misses;
-  float best_rating;
   INT_FEATURE_ARRAY IntFeatures;
   CLASS_NORMALIZATION_ARRAY CharNormArray;
-  CLASS_PRUNER_RESULTS ClassPrunerResults;
-  INT_RESULT_STRUCT IntResult;
-  CLASS_ID ClassId;
-  CLASS_INDEX ClassIndex;
 
   CharNormClassifierCalls++;
 
-  NumFeatures = GetCharNormFeatures (Blob, LineStats,
+  NumFeatures = GetCharNormFeatures(Blob, LineStats,
     Templates,
     IntFeatures, CharNormArray,
     &(Results->BlobLength));
   if (NumFeatures <= 0)
     return;
 
-  NumClasses = ClassPruner (Templates, NumFeatures,
-    IntFeatures, CharNormArray,
-    CharNormCutoffs, ClassPrunerResults,
-    MatchDebugFlags);
+  NumClasses = ClassPruner(Templates, NumFeatures,
+                           IntFeatures, CharNormArray,
+                           CharNormCutoffs, Results->CPResults,
+                           MatchDebugFlags);
 
-  if (feature_prune_percentile > 0) {
-    min_misses = feature_pruner (Templates, NumFeatures,
-      IntFeatures, NumClasses,
-      ClassPrunerResults);
-    NumClasses =
-      prune_configs(Templates,
-                    min_misses,
-                    NumFeatures,
-                    IntFeatures,
-                    CharNormArray,
-                    NumClasses,
-                    Results->BlobLength,
-                    ClassPrunerResults,
-                    MatchDebugFlags);
-  }
-  else
-    min_misses = 0;
   if (tessedit_single_match && NumClasses > 1)
     NumClasses = 1;
   NumCharNormClassesTried += NumClasses;
 
   if (MatcherDebugLevel >= 2 || display_ratings > 1)
-    cprintf ("CN Matches =  ");
+    cprintf("CN Matches =  ");
 
-  best_rating = WORST_POSSIBLE_RATING;
-  for (i = 0; i < NumClasses
-    && ((newcp_ratings_on & 3) < 2
-    || (newcp_ratings_on & 3) == 2
-    && ClassPrunerResults[i].Rating < best_rating + BadMatchPad / 2
-    && ClassPrunerResults[i].Rating < newcp_duff_rating
-  && NumClasses > 1); i++) {
-    ClassId = ClassPrunerResults[i].Class;
-    ClassIndex = IndexForClassId (Templates, ClassId);
-
-    SetCharNormMatch();
-
-    if (feature_prune_percentile > 0)
-                                 //xiaofan
-      config_mask_to_proto_mask (ClassForClassId (Templates, ClassId), (BIT_VECTOR) & ClassPrunerResults[i].config_mask,
-        PrunedProtos);
-                                 //xiaofan
-    IntegerMatcher (ClassForClassId (Templates, ClassId), PrunedProtos, (BIT_VECTOR) & ClassPrunerResults[i].config_mask,
-      Results->BlobLength, NumFeatures, IntFeatures, 0,
-      CharNormArray[ClassIndex], &IntResult, MatchDebugFlags);
-
-    if (MatcherDebugLevel >= 2 || display_ratings > 1) {
-      cprintf ("%s-%-2d %2.1f(%2.1f/%2.1f)  ",
-               unicharset.id_to_unichar(ClassId), IntResult.Config,
-        IntResult.Rating * 100.0,
-        ClassPrunerResults[i].Rating * 100.0,
-        ClassPrunerResults[i].Rating2 * 100.0);
-      if (i % 4 == 3)
-        cprintf ("\n");
-    }
-
-    AddNewResult (Results, ClassId, IntResult.Rating, IntResult.Config);
-    if (IntResult.Rating < best_rating)
-      best_rating = IntResult.Rating;
-  }
-  while (i < NumClasses) {
-    ClassId = ClassPrunerResults[i].Class;
-    ClassIndex = IndexForClassId (Templates, ClassId);
-
-    if (MatcherDebugLevel >= 2 || display_ratings > 1) {
-      cprintf ("%s %2.1f(%2.1f)  ", unicharset.id_to_unichar(ClassId),
-        ClassPrunerResults[i].Rating * 200.0,
-        ClassPrunerResults[i].Rating2 * 100.0);
-      if (i % 4 == 3)
-        cprintf ("\n");
-    }
-
-    AddNewResult (Results, ClassId, ClassPrunerResults[i].Rating * 2, 0);
-    i++;
-  }
-  if (MatcherDebugLevel >= 2 || display_ratings > 1)
-    cprintf ("\n");
-
+  SetCharNormMatch();
+  MasterMatcher(Templates, NumFeatures, IntFeatures, CharNormArray,
+                NULL, MatchDebugFlags, NumClasses,
+                Results->CPResults, Results);
 }                                /* CharNormClassifier */
 
 
@@ -1961,23 +1771,23 @@ void ClassifyAsNoise(TBLOB *Blob,
                      LINE_STATS *LineStats,
                      ADAPT_RESULTS *Results) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob to be classified
-**							LineStats
+**                          LineStats
               statistics for text line Blob is in
-**							Results
+**                          Results
               results to add noise classification to
-**							Globals:
-**							NoiseBlobLength
+**                          Globals:
+**                          NoiseBlobLength
               avg. length of a noise blob
-**							Operation: This routine computes a rating which reflects the
-**							likelihood that the blob being classified is a noise
-**							blob.  NOTE: assumes that the blob length has already been
-**							computed and placed into Results.
-**							Return: none
-**							Exceptions: none
-**							History: Tue Mar 12 18:36:52 1991, DSJ, Created.
+**                          Operation: This routine computes a rating which reflects the
+**                          likelihood that the blob being classified is a noise
+**                          blob.  NOTE: assumes that the blob length has already been
+**                          computed and placed into Results.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Tue Mar 12 18:36:52 1991, DSJ, Created.
 */
   register FLOAT32 Rating;
 
@@ -1994,20 +1804,20 @@ int CompareCurrentRatings(                     //CLASS_ID              *Class1,
                           const void *arg1,
                           const void *arg2) {  //CLASS_ID              *Class2)
 /*
- **							Parameters:
- **							Class1, Class2
+ **                         Parameters:
+ **                         Class1, Class2
               classes whose ratings are to be compared
-**							Globals:
-**							CurrentRatings
+**                          Globals:
+**                          CurrentRatings
               contains actual ratings for each class
-**							Operation: This routine gets the ratings for the 2 specified classes
-**							from a global variable (CurrentRatings) and returns:
-**			-1 if Rating1 < Rating2
-**							0 if Rating1 = Rating2
-**							1 if Rating1 > Rating2
-**							Return: Order of classes based on their ratings (see above).
-**							Exceptions: none
-**							History: Tue Mar 12 14:18:31 1991, DSJ, Created.
+**                          Operation: This routine gets the ratings for the 2 specified classes
+**                          from a global variable (CurrentRatings) and returns:
+**          -1 if Rating1 < Rating2
+**                          0 if Rating1 = Rating2
+**                          1 if Rating1 > Rating2
+**                          Return: Order of classes based on their ratings (see above).
+**                          Exceptions: none
+**                          History: Tue Mar 12 14:18:31 1991, DSJ, Created.
 */
   FLOAT32 Rating1, Rating2;
   CLASS_ID *Class1 = (CLASS_ID *) arg1;
@@ -2029,18 +1839,18 @@ int CompareCurrentRatings(                     //CLASS_ID              *Class1,
 /*---------------------------------------------------------------------------*/
 LIST ConvertMatchesToChoices(ADAPT_RESULTS *Results) {
 /*
- **							Parameters:
- **							Results
+ **                         Parameters:
+ **                         Results
               adaptive matcher results to convert to choices
-**							Globals: none
-**							Operation: This routine creates a choice for each matching class
-**							in Results (up to MAX_MATCHES) and returns a list of
-**							these choices.  The match
-**							ratings are converted to be the ratings and certainties
-**							as used by the context checkers.
-**							Return: List of choices.
-**							Exceptions: none
-**							History: Tue Mar 12 08:55:37 1991, DSJ, Created.
+**                          Globals: none
+**                          Operation: This routine creates a choice for each matching class
+**                          in Results (up to MAX_MATCHES) and returns a list of
+**                          these choices.  The match
+**                          ratings are converted to be the ratings and certainties
+**                          as used by the context checkers.
+**                          Return: List of choices.
+**                          Exceptions: none
+**                          History: Tue Mar 12 08:55:37 1991, DSJ, Created.
 */
   int i;
   LIST Choices;
@@ -2080,18 +1890,18 @@ void DebugAdaptiveClassifier(TBLOB *Blob,
                              LINE_STATS *LineStats,
                              ADAPT_RESULTS *Results) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob whose classification is being debugged
-**							LineStats
+**                          LineStats
               statistics for text line blob is in
-**							Results
+**                          Results
               results of match being debugged
-**							Globals: none
-**							Operation:
-**							Return: none
-**							Exceptions: none
-**							History: Wed Mar 13 16:44:41 1991, DSJ, Created.
+**                          Globals: none
+**                          Operation:
+**                          Return: none
+**                          Exceptions: none
+**                          History: Wed Mar 13 16:44:41 1991, DSJ, Created.
 */
   const char *Prompt =
     "\nType class id (or CTRL-A,B,C) in IntegerMatch Window ...";
@@ -2149,32 +1959,32 @@ void DoAdaptiveMatch(TBLOB *Blob,
                      LINE_STATS *LineStats,
                      ADAPT_RESULTS *Results) {
 /*
- **							Parameters:
- **							Blob
+ **                         Parameters:
+ **                         Blob
               blob to be classified
-**							LineStats
+**                          LineStats
               statistics for text line Blob is in
-**							Results
+**                          Results
               place to put match results
-**							Globals:
-**							PreTrainedTemplates
+**                          Globals:
+**                          PreTrainedTemplates
               built-in training templates
-**							AdaptedTemplates
+**                          AdaptedTemplates
               templates adapted for this page
-**							GreatAdaptiveMatch
+**                          GreatAdaptiveMatch
               rating limit for a great match
-**							Operation: This routine performs an adaptive classification.
-**							If we have not yet adapted to enough classes, a simple
-**							classification to the pre-trained templates is performed.
-**							Otherwise, we match the blob against the adapted templates.
-**							If the adapted templates do not match well, we try a
-**							match against the pre-trained templates.  If an adapted
-**							template match is found, we do a match to any pre-trained
-**							templates which could be ambiguous.  The results from all
-**							of these classifications are merged together into Results.
-**							Return: none
-**							Exceptions: none
-**							History: Tue Mar 12 08:50:11 1991, DSJ, Created.
+**                          Operation: This routine performs an adaptive classification.
+**                          If we have not yet adapted to enough classes, a simple
+**                          classification to the pre-trained templates is performed.
+**                          Otherwise, we match the blob against the adapted templates.
+**                          If the adapted templates do not match well, we try a
+**                          match against the pre-trained templates.  If an adapted
+**                          template match is found, we do a match to any pre-trained
+**                          templates which could be ambiguous.  The results from all
+**                          of these classifications are merged together into Results.
+**                          Return: none
+**                          Exceptions: none
+**                          History: Tue Mar 12 08:50:11 1991, DSJ, Created.
 */
   UNICHAR_ID *Ambiguities;
 
@@ -2189,8 +1999,8 @@ void DoAdaptiveMatch(TBLOB *Blob,
     Ambiguities = BaselineClassifier (Blob, LineStats,
       AdaptedTemplates, Results);
 
-    if (Results->NumMatches > 0 && MarginalMatch (Results->BestRating)
-    && !tess_bn_matching) {
+    if ((Results->NumMatches > 0 && MarginalMatch (Results->BestRating)
+    && !tess_bn_matching) || Results->NumMatches == 0) {
       CharNormClassifier(Blob, LineStats, PreTrainedTemplates, Results);
     }
     else if (Ambiguities && *Ambiguities >= 0) {
@@ -2213,33 +2023,33 @@ void DoAdaptiveMatch(TBLOB *Blob,
   const WERD_CHOICE& BestChoice,
   const WERD_CHOICE& BestRawChoice, FLOAT32 Thresholds[]) {
   /*
-   **							Parameters:
-   **							Word
+   **                           Parameters:
+   **                           Word
                 current word
-  **							LineStats
+  **                            LineStats
                 line stats for row word is in
-  **							BestChoice
+  **                            BestChoice
                 best choice for current word with context
-  **							BestRawChoice
+  **                            BestRawChoice
                 best choice for current word without context
-  **							Thresholds
+  **                            Thresholds
                 array of thresholds to be filled in
-  **							Globals:
-  **							EnableNewAdaptRules
-  **							GoodAdaptiveMatch
-  **							PerfectRating
-  **							RatingMargin
-  **							Operation: This routine tries to estimate how tight the adaptation
-  **							threshold should be set for each character in the current
-  **							word.  In general, the routine tries to set tighter
-  **							thresholds for a character when the current set of templates
-  **							would have made an error on that character.  It tries
-  **							to set a threshold tight enough to eliminate the error.
-  **							Two different sets of rules can be used to determine the
-  **							desired thresholds.
-  **							Return: none (results are returned in Thresholds)
-  **							Exceptions: none
-  **							History: Fri May 31 09:22:08 1991, DSJ, Created.
+  **                            Globals:
+  **                            EnableNewAdaptRules
+  **                            GoodAdaptiveMatch
+  **                            PerfectRating
+  **                            RatingMargin
+  **                            Operation: This routine tries to estimate how tight the adaptation
+  **                            threshold should be set for each character in the current
+  **                            word.  In general, the routine tries to set tighter
+  **                            thresholds for a character when the current set of templates
+  **                            would have made an error on that character.  It tries
+  **                            to set a threshold tight enough to eliminate the error.
+  **                            Two different sets of rules can be used to determine the
+  **                            desired thresholds.
+  **                            Return: none (results are returned in Thresholds)
+  **                            Exceptions: none
+  **                            History: Fri May 31 09:22:08 1991, DSJ, Created.
   */
     TBLOB *Blob;
     const char* BestChoice_string = BestChoice.string().string();
@@ -2286,24 +2096,24 @@ void DoAdaptiveMatch(TBLOB *Blob,
                              LINE_STATS *LineStats,
                              CLASS_ID CorrectClass) {
   /*
-   **							Parameters:
-   **							Blob
+   **                           Parameters:
+   **                           Blob
                 blob to get classification ambiguities for
-  **							LineStats
+  **                            LineStats
                 statistics for text line blob is in
-  **							CorrectClass
+  **                            CorrectClass
                 correct class for Blob
-  **							Globals:
-  **							CurrentRatings
+  **                            Globals:
+  **                            CurrentRatings
                 used by qsort compare routine
-  **							PreTrainedTemplates
+  **                            PreTrainedTemplates
                 built-in templates
-  **							Operation: This routine matches blob to the built-in templates
-  **							to find out if there are any classes other than the correct
-  **							class which are potential ambiguities.
-  **							Return: String containing all possible ambiguous classes.
-  **							Exceptions: none
-  **							History: Fri Mar 15 08:08:22 1991, DSJ, Created.
+  **                            Operation: This routine matches blob to the built-in templates
+  **                            to find out if there are any classes other than the correct
+  **                            class which are potential ambiguities.
+  **                            Return: String containing all possible ambiguous classes.
+  **                            Exceptions: none
+  **                            History: Fri Mar 15 08:08:22 1991, DSJ, Created.
   */
     ADAPT_RESULTS Results;
     UNICHAR_ID *Ambiguities;
@@ -2330,7 +2140,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
     Ambiguities = (UNICHAR_ID *) Emalloc (sizeof (UNICHAR_ID) *
                                           (Results.NumMatches + 1));
     if (Results.NumMatches > 1 ||
-    Results.NumMatches == 1 && Results.Classes[0] != CorrectClass) {
+    (Results.NumMatches == 1 && Results.Classes[0] != CorrectClass)) {
       for (i = 0; i < Results.NumMatches; i++)
         Ambiguities[i] = Results.Classes[i];
       Ambiguities[i] = -1;
@@ -2350,31 +2160,31 @@ void DoAdaptiveMatch(TBLOB *Blob,
                           CLASS_NORMALIZATION_ARRAY CharNormArray,
                           INT32 *BlobLength) {
   /*
-   **							Parameters:
-   **							Blob
+   **                           Parameters:
+   **                           Blob
                 blob to extract features from
-  **							LineStats
+  **                            LineStats
                 statistics about text row blob is in
-  **							Templates
+  **                            Templates
                 used to compute char norm adjustments
-  **							IntFeatures
+  **                            IntFeatures
                 array to fill with integer features
-  **							CharNormArray
+  **                            CharNormArray
                 array to fill with dummy char norm adjustments
-  **							BlobLength
+  **                            BlobLength
                 length of blob in baseline-normalized units
-  **							Globals: none
-  **							Operation: This routine sets up the feature extractor to extract
-  **							baseline normalized pico-features.
-  **							The extracted pico-features are converted
-  **							to integer form and placed in IntFeatures.  CharNormArray
-  **							is filled with 0's to indicate to the matcher that no
-  **							character normalization adjustment needs to be done.
-  **							The total length of all blob outlines
-  **							in baseline normalized units is also returned.
-  **							Return: Number of pico-features returned (0 if an error occurred)
-  **							Exceptions: none
-  **							History: Tue Mar 12 17:55:18 1991, DSJ, Created.
+  **                            Globals: none
+  **                            Operation: This routine sets up the feature extractor to extract
+  **                            baseline normalized pico-features.
+  **                            The extracted pico-features are converted
+  **                            to integer form and placed in IntFeatures.  CharNormArray
+  **                            is filled with 0's to indicate to the matcher that no
+  **                            character normalization adjustment needs to be done.
+  **                            The total length of all blob outlines
+  **                            in baseline normalized units is also returned.
+  **                            Return: Number of pico-features returned (0 if an error occurred)
+  **                            Exceptions: none
+  **                            History: Tue Mar 12 17:55:18 1991, DSJ, Created.
   */
     FEATURE_SET Features;
     int NumFeatures;
@@ -2406,28 +2216,28 @@ void DoAdaptiveMatch(TBLOB *Blob,
                            LINE_STATS *LineStats,
                            CLASS_ID ClassId) {
   /*
-   **							Parameters:
-   **							Blob
+   **                           Parameters:
+   **                           Blob
                 blob to get best rating for
-  **							LineStats
+  **                            LineStats
                 statistics about text line blob is in
-  **							ClassId
+  **                            ClassId
                 class blob is to be compared to
-  **							Globals:
-  **							PreTrainedTemplates
+  **                            Globals:
+  **                            PreTrainedTemplates
                 built-in templates
-  **							AdaptedTemplates
+  **                            AdaptedTemplates
                 current set of adapted templates
-  **							AllProtosOn
+  **                            AllProtosOn
                 dummy mask to enable all protos
-  **							AllConfigsOn
+  **                            AllConfigsOn
                 dummy mask to enable all configs
-  **							Operation: This routine classifies Blob against both sets of
-  **							templates for the specified class and returns the best
-  **							rating found.
-  **							Return: Best rating for match of Blob to ClassId.
-  **							Exceptions: none
-  **							History: Tue Apr  9 09:01:24 1991, DSJ, Created.
+  **                            Operation: This routine classifies Blob against both sets of
+  **                            templates for the specified class and returns the best
+  **                            rating found.
+  **                            Return: Best rating for match of Blob to ClassId.
+  **                            Exceptions: none
+  **                            History: Tue Apr  9 09:01:24 1991, DSJ, Created.
   */
     int NumCNFeatures, NumBLFeatures;
     INT_FEATURE_ARRAY CNFeatures, BLFeatures;
@@ -2451,7 +2261,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
         SetCharNormMatch();
         IntegerMatcher (ClassForClassId (PreTrainedTemplates, ClassId),
           AllProtosOn, AllConfigsOn,
-          BlobLength, NumCNFeatures, CNFeatures, 0,
+          BlobLength, NumCNFeatures, CNFeatures,
           CNAdjust[ClassIndex], &CNResult, NO_DEBUG);
       }
     }
@@ -2468,7 +2278,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
           (AdaptedTemplates->Templates, ClassId),
           AdaptedTemplates->Class[ClassIndex]->PermProtos,
           AdaptedTemplates->Class[ClassIndex]->PermConfigs,
-          BlobLength, NumBLFeatures, BLFeatures, 0,
+          BlobLength, NumBLFeatures, BLFeatures,
           BLAdjust[ClassIndex], &BLResult, NO_DEBUG);
       }
     }
@@ -2485,31 +2295,31 @@ void DoAdaptiveMatch(TBLOB *Blob,
                           CLASS_NORMALIZATION_ARRAY CharNormArray,
                           INT32 *BlobLength) {
   /*
-   **							Parameters:
-   **							Blob
+   **                           Parameters:
+   **                           Blob
                 blob to extract features from
-  **							LineStats
+  **                            LineStats
                 statistics about text row blob is in
-  **							Templates
+  **                            Templates
                 used to compute char norm adjustments
-  **							IntFeatures
+  **                            IntFeatures
                 array to fill with integer features
-  **							CharNormArray
+  **                            CharNormArray
                 array to fill with char norm adjustments
-  **							BlobLength
+  **                            BlobLength
                 length of blob in baseline-normalized units
-  **							Globals: none
-  **							Operation: This routine sets up the feature extractor to extract
-  **							character normalization features and character normalized
-  **							pico-features.  The extracted pico-features are converted
-  **							to integer form and placed in IntFeatures.  The character
-  **							normalization features are matched to each class in
-  **							templates and the resulting adjustment factors are returned
-  **							in CharNormArray.  The total length of all blob outlines
-  **							in baseline normalized units is also returned.
-  **							Return: Number of pico-features returned (0 if an error occurred)
-  **							Exceptions: none
-  **							History: Tue Mar 12 17:55:18 1991, DSJ, Created.
+  **                            Globals: none
+  **                            Operation: This routine sets up the feature extractor to extract
+  **                            character normalization features and character normalized
+  **                            pico-features.  The extracted pico-features are converted
+  **                            to integer form and placed in IntFeatures.  The character
+  **                            normalization features are matched to each class in
+  **                            templates and the resulting adjustment factors are returned
+  **                            in CharNormArray.  The total length of all blob outlines
+  **                            in baseline normalized units is also returned.
+  **                            Return: Number of pico-features returned (0 if an error occurred)
+  **                            Exceptions: none
+  **                            History: Tue Mar 12 17:55:18 1991, DSJ, Created.
   */
     return (GetIntCharNormFeatures (Blob, LineStats, Templates,
       IntFeatures, CharNormArray, BlobLength));
@@ -2523,38 +2333,38 @@ void DoAdaptiveMatch(TBLOB *Blob,
                              CLASS_NORMALIZATION_ARRAY CharNormArray,
                              INT32 *BlobLength) {
   /*
-   **							Parameters:
-   **							Blob
+   **                           Parameters:
+   **                           Blob
                 blob to extract features from
-  **							LineStats
+  **                            LineStats
                 statistics about text row blob is in
-  **							Templates
+  **                            Templates
                 used to compute char norm adjustments
-  **							IntFeatures
+  **                            IntFeatures
                 array to fill with integer features
-  **							CharNormArray
+  **                            CharNormArray
                 array to fill with dummy char norm adjustments
-  **							BlobLength
+  **                            BlobLength
                 length of blob in baseline-normalized units
-  **							Globals:
-  **							FeaturesHaveBeenExtracted
+  **                            Globals:
+  **                            FeaturesHaveBeenExtracted
                 TRUE if fx has been done
-  **							BaselineFeatures
+  **                            BaselineFeatures
                 holds extracted baseline feat
-  **							CharNormFeatures
+  **                            CharNormFeatures
                 holds extracted char norm feat
-  **							FXInfo
+  **                            FXInfo
                 holds misc. FX info
-  **							Operation: This routine calls the integer (Hardware) feature
-  **							extractor if it has not been called before for this blob.
-  **							The results from the feature extractor are placed into
-  **							globals so that they can be used in other routines without
-  **							re-extracting the features.
-  **							It then copies the baseline features into the IntFeatures
-  **							array provided by the caller.
-  **							Return: Number of features extracted or 0 if an error occured.
-  **							Exceptions: none
-  **							History: Tue May 28 10:40:52 1991, DSJ, Created.
+  **                            Operation: This routine calls the integer (Hardware) feature
+  **                            extractor if it has not been called before for this blob.
+  **                            The results from the feature extractor are placed into
+  **                            globals so that they can be used in other routines without
+  **                            re-extracting the features.
+  **                            It then copies the baseline features into the IntFeatures
+  **                            array provided by the caller.
+  **                            Return: Number of features extracted or 0 if an error occured.
+  **                            Exceptions: none
+  **                            History: Tue May 28 10:40:52 1991, DSJ, Created.
   */
     register INT_FEATURE Src, Dest, End;
 
@@ -2586,38 +2396,38 @@ void DoAdaptiveMatch(TBLOB *Blob,
                              CLASS_NORMALIZATION_ARRAY CharNormArray,
                              INT32 *BlobLength) {
   /*
-   **							Parameters:
-   **							Blob
+   **                           Parameters:
+   **                           Blob
                 blob to extract features from
-  **							LineStats
+  **                            LineStats
                 statistics about text row blob is in
-  **							Templates
+  **                            Templates
                 used to compute char norm adjustments
-  **							IntFeatures
+  **                            IntFeatures
                 array to fill with integer features
-  **							CharNormArray
+  **                            CharNormArray
                 array to fill with dummy char norm adjustments
-  **							BlobLength
+  **                            BlobLength
                 length of blob in baseline-normalized units
-  **							Globals:
-  **							FeaturesHaveBeenExtracted
+  **                            Globals:
+  **                            FeaturesHaveBeenExtracted
                 TRUE if fx has been done
-  **							BaselineFeatures
+  **                            BaselineFeatures
                 holds extracted baseline feat
-  **							CharNormFeatures
+  **                            CharNormFeatures
                 holds extracted char norm feat
-  **							FXInfo
+  **                            FXInfo
                 holds misc. FX info
-  **							Operation: This routine calls the integer (Hardware) feature
-  **							extractor if it has not been called before for this blob.
-  **							The results from the feature extractor are placed into
-  **							globals so that they can be used in other routines without
-  **							re-extracting the features.
-  **							It then copies the char norm features into the IntFeatures
-  **							array provided by the caller.
-  **							Return: Number of features extracted or 0 if an error occured.
-  **							Exceptions: none
-  **							History: Tue May 28 10:40:52 1991, DSJ, Created.
+  **                            Operation: This routine calls the integer (Hardware) feature
+  **                            extractor if it has not been called before for this blob.
+  **                            The results from the feature extractor are placed into
+  **                            globals so that they can be used in other routines without
+  **                            re-extracting the features.
+  **                            It then copies the char norm features into the IntFeatures
+  **                            array provided by the caller.
+  **                            Return: Number of features extracted or 0 if an error occured.
+  **                            Exceptions: none
+  **                            History: Tue May 28 10:40:52 1991, DSJ, Created.
   */
     register INT_FEATURE Src, Dest, End;
     FEATURE NormFeature;
@@ -2656,15 +2466,15 @@ void DoAdaptiveMatch(TBLOB *Blob,
   /*---------------------------------------------------------------------------*/
   void InitMatcherRatings(register FLOAT32 *Rating) {
   /*
-   **							Parameters:
-   **							Rating
+   **                           Parameters:
+   **                           Rating
                 ptr to array of ratings to be initialized
-  **							Globals: none
-  **							Operation: This routine initializes the best rating for each class
-  **							to be the worst possible rating (1.0).
-  **							Return: none
-  **							Exceptions: none
-  **							History: Tue Mar 12 13:43:28 1991, DSJ, Created.
+  **                            Globals: none
+  **                            Operation: This routine initializes the best rating for each class
+  **                            to be the worst possible rating (1.0).
+  **                            Return: none
+  **                            Exceptions: none
+  **                            History: Tue Mar 12 13:43:28 1991, DSJ, Created.
   */
     register FLOAT32 *LastRating;
     register FLOAT32 WorstRating = WORST_POSSIBLE_RATING;
@@ -2681,29 +2491,29 @@ void DoAdaptiveMatch(TBLOB *Blob,
                               INT_FEATURE_ARRAY Features,
                               FEATURE_SET FloatFeatures) {
   /*
-   **							Parameters:
-   **							Templates
+   **                           Parameters:
+   **                           Templates
                 adapted templates to add new config to
-  **							ClassId
+  **                            ClassId
                 class id to associate with new config
-  **							NumFeatures
+  **                            NumFeatures
                 number of features in IntFeatures
-  **							Features
+  **                            Features
                 features describing model for new config
-  **							FloatFeatures
+  **                            FloatFeatures
                 floating-pt representation of features
-  **							Globals:
-  **							AllProtosOn
+  **                            Globals:
+  **                            AllProtosOn
                 mask to enable all protos
-  **							AllConfigsOff
+  **                            AllConfigsOff
                 mask to disable all configs
-  **							TempProtoMask
+  **                            TempProtoMask
                 defines old protos matched in new config
-  **							Operation:
-  **							Return: The id of the new config created, a negative integer in
+  **                            Operation:
+  **                            Return: The id of the new config created, a negative integer in
   **                                                    case of error.
-  **							Exceptions: none
-  **							History: Fri Mar 15 08:49:46 1991, DSJ, Created.
+  **                            Exceptions: none
+  **                            History: Fri Mar 15 08:49:46 1991, DSJ, Created.
   */
     CLASS_INDEX ClassIndex;
     INT_CLASS IClass;
@@ -2782,28 +2592,28 @@ void DoAdaptiveMatch(TBLOB *Blob,
   INT_CLASS IClass,
   ADAPT_CLASS Class, BIT_VECTOR TempProtoMask) {
   /*
-   **							Parameters:
-   **							Features
+   **                           Parameters:
+   **                           Features
                 floating-pt features describing new character
-  **							NumBadFeat
+  **                            NumBadFeat
                 number of bad features to turn into protos
-  **							BadFeat
+  **                            BadFeat
                 feature id's of bad features
-  **							IClass
+  **                            IClass
                 integer class templates to add new protos to
-  **							Class
+  **                            Class
                 adapted class templates to add new protos to
-  **							TempProtoMask
+  **                            TempProtoMask
                 proto mask to add new protos to
-  **							Globals: none
-  **							Operation: This routine finds sets of sequential bad features
-  **							that all have the same angle and converts each set into
-  **							a new temporary proto.  The temp proto is added to the
-  **							proto pruner for IClass, pushed onto the list of temp
-  **							protos in Class, and added to TempProtoMask.
-  **							Return: Max proto id in class after all protos have been added.
-  **							Exceptions: none
-  **							History: Fri Mar 15 11:39:38 1991, DSJ, Created.
+  **                            Globals: none
+  **                            Operation: This routine finds sets of sequential bad features
+  **                            that all have the same angle and converts each set into
+  **                            a new temporary proto.  The temp proto is added to the
+  **                            proto pruner for IClass, pushed onto the list of temp
+  **                            protos in Class, and added to TempProtoMask.
+  **                            Return: Max proto id in class after all protos have been added.
+  **                            Exceptions: none
+  **                            History: Fri Mar 15 11:39:38 1991, DSJ, Created.
   */
     FEATURE_ID *ProtoStart;
     FEATURE_ID *ProtoEnd;
@@ -2881,22 +2691,22 @@ void DoAdaptiveMatch(TBLOB *Blob,
                      TBLOB *Blob,
                      LINE_STATS *LineStats) {
   /*
-   **							Parameters:
-   **							Templates
+   **                           Parameters:
+   **                           Templates
                 current set of adaptive templates
-  **							ClassId
+  **                            ClassId
                 class containing config to be made permanent
-  **							ConfigId
+  **                            ConfigId
                 config to be made permanent
-  **							Blob
+  **                            Blob
                 current blob being adapted to
-  **							LineStats
+  **                            LineStats
                 statistics about text line Blob is in
-  **							Globals: none
-  **							Operation:
-  **							Return: none
-  **							Exceptions: none
-  **							History: Thu Mar 14 15:54:08 1991, DSJ, Created.
+  **                            Globals: none
+  **                            Operation:
+  **                            Return: none
+  **                            Exceptions: none
+  **                            History: Thu Mar 14 15:54:08 1991, DSJ, Created.
   */
     UNICHAR_ID *Ambigs;
     TEMP_CONFIG Config;
@@ -2938,18 +2748,18 @@ void DoAdaptiveMatch(TBLOB *Blob,
   int MakeTempProtoPerm(void *item1,    //TEMP_PROTO    TempProto,
                         void *item2) {  //PROTO_KEY             *ProtoKey)
   /*
-   **							Parameters:
-   **							TempProto
+   **                           Parameters:
+   **                           TempProto
                 temporary proto to compare to key
-  **							ProtoKey
+  **                            ProtoKey
                 defines which protos to make permanent
-  **							Globals: none
-  **							Operation: This routine converts TempProto to be permanent if
-  **							its proto id is used by the configuration specified in
-  **							ProtoKey.
-  **							Return: TRUE if TempProto is converted, FALSE otherwise
-  **							Exceptions: none
-  **							History: Thu Mar 14 18:49:54 1991, DSJ, Created.
+  **                            Globals: none
+  **                            Operation: This routine converts TempProto to be permanent if
+  **                            its proto id is used by the configuration specified in
+  **                            ProtoKey.
+  **                            Return: TRUE if TempProto is converted, FALSE otherwise
+  **                            Exceptions: none
+  **                            History: Thu Mar 14 18:49:54 1991, DSJ, Created.
   */
     CLASS_INDEX ClassIndex;
     ADAPT_CLASS Class;
@@ -2981,14 +2791,14 @@ void DoAdaptiveMatch(TBLOB *Blob,
   /*---------------------------------------------------------------------------*/
   int NumBlobsIn(TWERD *Word) {
   /*
-   **							Parameters:
-   **							Word
+   **                           Parameters:
+   **                           Word
                 word to count blobs in
-  **							Globals: none
-  **							Operation: This routine returns the number of blobs in Word.
-  **							Return: Number of blobs in Word.
-  **							Exceptions: none
-  **							History: Thu Mar 14 08:30:27 1991, DSJ, Created.
+  **                            Globals: none
+  **                            Operation: This routine returns the number of blobs in Word.
+  **                            Return: Number of blobs in Word.
+  **                            Exceptions: none
+  **                            History: Thu Mar 14 08:30:27 1991, DSJ, Created.
   */
     register TBLOB *Blob;
     register int NumBlobs;
@@ -3006,15 +2816,15 @@ void DoAdaptiveMatch(TBLOB *Blob,
   /*---------------------------------------------------------------------------*/
   int NumOutlinesInBlob(TBLOB *Blob) {
   /*
-   **							Parameters:
-   **							Blob
+   **                           Parameters:
+   **                           Blob
                 blob to count outlines in
-  **							Globals: none
-  **							Operation: This routine returns the number of OUTER outlines
-  **							in Blob.
-  **							Return: Number of outer outlines in Blob.
-  **							Exceptions: none
-  **							History: Mon Jun 10 15:46:20 1991, DSJ, Created.
+  **                            Globals: none
+  **                            Operation: This routine returns the number of OUTER outlines
+  **                            in Blob.
+  **                            Return: Number of outer outlines in Blob.
+  **                            Exceptions: none
+  **                            History: Mon Jun 10 15:46:20 1991, DSJ, Created.
   */
     register TESSLINE *Outline;
     register int NumOutlines;
@@ -3032,16 +2842,16 @@ void DoAdaptiveMatch(TBLOB *Blob,
   /*---------------------------------------------------------------------------*/
   void PrintAdaptiveMatchResults(FILE *File, ADAPT_RESULTS *Results) {
   /*
-   **							Parameters:
-   **							File
+   **                           Parameters:
+   **                           File
                 open text file to write Results to
-  **							Results
+  **                            Results
                 match results to write to File
-  **							Globals: none
-  **							Operation: This routine writes the matches in Results to File.
-  **							Return: none
-  **							Exceptions: none
-  **							History: Mon Mar 18 09:24:53 1991, DSJ, Created.
+  **                            Globals: none
+  **                            Operation: This routine writes the matches in Results to File.
+  **                            Return: none
+  **                            Exceptions: none
+  **                            History: Mon Mar 18 09:24:53 1991, DSJ, Created.
   */
     int i;
 
@@ -3063,20 +2873,20 @@ void DoAdaptiveMatch(TBLOB *Blob,
   /*---------------------------------------------------------------------------*/
   void RemoveBadMatches(ADAPT_RESULTS *Results) {
   /*
-   **							Parameters:
-   **							Results
+   **                           Parameters:
+   **                           Results
                 contains matches to be filtered
-  **							Globals:
-  **							BadMatchPad
+  **                            Globals:
+  **                            BadMatchPad
                 defines a "bad match"
-  **							Operation: This routine steps thru each matching class in Results
-  **							and removes it from the match list if its rating
-  **							is worse than the BestRating plus a pad.  In other words,
-  **							all good matches get moved to the front of the classes
-  **							array.
-  **							Return: none
-  **							Exceptions: none
-  **							History: Tue Mar 12 13:51:03 1991, DSJ, Created.
+  **                            Operation: This routine steps thru each matching class in Results
+  **                            and removes it from the match list if its rating
+  **                            is worse than the BestRating plus a pad.  In other words,
+  **                            all good matches get moved to the front of the classes
+  **                            array.
+  **                            Return: none
+  **                            Exceptions: none
+  **                            History: Tue Mar 12 13:51:03 1991, DSJ, Created.
   */
     int Next, NextGood;
     FLOAT32 *Rating = Results->Ratings;
@@ -3121,20 +2931,20 @@ void DoAdaptiveMatch(TBLOB *Blob,
   /*----------------------------------------------------------------------------------*/
   void RemoveExtraPuncs(ADAPT_RESULTS *Results) {
   /*
-   **							Parameters:
-   **							Results
+   **                           Parameters:
+   **                           Results
                 contains matches to be filtered
-  **							Globals:
-  **							BadMatchPad
+  **                            Globals:
+  **                            BadMatchPad
                 defines a "bad match"
-  **							Operation: This routine steps thru each matching class in Results
-  **							and removes it from the match list if its rating
-  **							is worse than the BestRating plus a pad.  In other words,
-  **							all good matches get moved to the front of the classes
-  **							array.
-  **							Return: none
-  **							Exceptions: none
-  **							History: Tue Mar 12 13:51:03 1991, DSJ, Created.
+  **                            Operation: This routine steps thru each matching class in Results
+  **                            and removes it from the match list if its rating
+  **                            is worse than the BestRating plus a pad.  In other words,
+  **                            all good matches get moved to the front of the classes
+  **                            array.
+  **                            Return: none
+  **                            Exceptions: none
+  **                            History: Tue Mar 12 13:51:03 1991, DSJ, Created.
   */
     int Next, NextGood;
     int punc_count;              /*no of garbage characters */
@@ -3171,18 +2981,18 @@ void DoAdaptiveMatch(TBLOB *Blob,
   /*---------------------------------------------------------------------------*/
   void SetAdaptiveThreshold(FLOAT32 Threshold) {
   /*
-   **							Parameters:
-   **							Threshold
+   **                           Parameters:
+   **                           Threshold
                 threshold for creating new templates
-  **							Globals:
-  **							GoodAdaptiveMatch
+  **                            Globals:
+  **                            GoodAdaptiveMatch
                 default good match rating
-  **							Operation: This routine resets the internal thresholds inside
-  **							the integer matcher to correspond to the specified
-  **							threshold.
-  **							Return: none
-  **							Exceptions: none
-  **							History: Tue Apr  9 08:33:13 1991, DSJ, Created.
+  **                            Operation: This routine resets the internal thresholds inside
+  **                            the integer matcher to correspond to the specified
+  **                            threshold.
+  **                            Return: none
+  **                            Exceptions: none
+  **                            History: Tue Apr  9 08:33:13 1991, DSJ, Created.
   */
     if (Threshold == GoodAdaptiveMatch) {
       /* the blob was probably classified correctly - use the default rating
@@ -3204,32 +3014,32 @@ void DoAdaptiveMatch(TBLOB *Blob,
                         BOOL8 AdaptiveOn,
                         BOOL8 PreTrainedOn) {
   /*
-   **							Parameters:
-   **							Blob
+   **                           Parameters:
+   **                           Blob
                 blob to show best matching config for
-  **							LineStats
+  **                            LineStats
                 statistics for text line Blob is in
-  **							ClassId
+  **                            ClassId
                 class whose configs are to be searched
-  **							AdaptiveOn
+  **                            AdaptiveOn
                 TRUE if adaptive configs are enabled
-  **							PreTrainedOn
+  **                            PreTrainedOn
                 TRUE if pretrained configs are enabled
-  **							Globals:
-  **							PreTrainedTemplates
+  **                            Globals:
+  **                            PreTrainedTemplates
                 built-in training
-  **							AdaptedTemplates
+  **                            AdaptedTemplates
                 adaptive templates
-  **							AllProtosOn
+  **                            AllProtosOn
                 dummy proto mask
-  **							AllConfigsOn
+  **                            AllConfigsOn
                 dummy config mask
-  **							Operation: This routine compares Blob to both sets of templates
-  **		(adaptive and pre-trained) and then displays debug
-  **							information for the config which matched best.
-  **							Return: none
-  **							Exceptions: none
-  **							History: Fri Mar 22 08:43:52 1991, DSJ, Created.
+  **                            Operation: This routine compares Blob to both sets of templates
+  **        (adaptive and pre-trained) and then displays debug
+  **                            information for the config which matched best.
+  **                            Return: none
+  **                            Exceptions: none
+  **                            History: Fri Mar 22 08:43:52 1991, DSJ, Created.
   */
     int NumCNFeatures = 0, NumBLFeatures = 0;
     INT_FEATURE_ARRAY CNFeatures, BLFeatures;
@@ -3249,60 +3059,62 @@ void DoAdaptiveMatch(TBLOB *Blob,
       return;
     }
 
-    if (PreTrainedOn)
+    if (PreTrainedOn) {
       if (UnusedClassIdIn (PreTrainedTemplates, ClassId))
         cprintf ("No built-in templates for class '%c'\n", ClassId);
-    else {
-      NumCNFeatures = GetCharNormFeatures (Blob, LineStats,
-        PreTrainedTemplates,
-        CNFeatures, CNAdjust,
-        &BlobLength);
-      if (NumCNFeatures <= 0)
-        cprintf ("Illegal blob (char norm features)!\n");
       else {
-        ClassIndex = IndexForClassId (PreTrainedTemplates, ClassId);
+        NumCNFeatures = GetCharNormFeatures (Blob, LineStats,
+          PreTrainedTemplates,
+          CNFeatures, CNAdjust,
+          &BlobLength);
+        if (NumCNFeatures <= 0)
+          cprintf ("Illegal blob (char norm features)!\n");
+        else {
+          ClassIndex = IndexForClassId (PreTrainedTemplates, ClassId);
 
-        SetCharNormMatch();
-        IntegerMatcher (ClassForClassId (PreTrainedTemplates, ClassId),
-          AllProtosOn, AllConfigsOn,
-          BlobLength, NumCNFeatures, CNFeatures, 0,
-          CNAdjust[ClassIndex], &CNResult, NO_DEBUG);
+          SetCharNormMatch();
+          IntegerMatcher (ClassForClassId (PreTrainedTemplates, ClassId),
+            AllProtosOn, AllConfigsOn,
+            BlobLength, NumCNFeatures, CNFeatures,
+            CNAdjust[ClassIndex], &CNResult, NO_DEBUG);
 
-        cprintf ("Best built-in template match is config %2d (%4.1f) (cn=%d)\n",
-          CNResult.Config, CNResult.Rating * 100.0, CNAdjust[ClassIndex]);
+          cprintf ("Best built-in template match is config %2d (%4.1f) (cn=%d)\n",
+            CNResult.Config, CNResult.Rating * 100.0, CNAdjust[ClassIndex]);
+        }
       }
     }
 
-    if (AdaptiveOn)
+    if (AdaptiveOn) {
       if (UnusedClassIdIn (AdaptedTemplates->Templates, ClassId))
         cprintf ("No AD templates for class '%c'\n", ClassId);
-    else {
-      NumBLFeatures = GetBaselineFeatures (Blob, LineStats,
-        AdaptedTemplates->Templates,
-        BLFeatures, BLAdjust,
-        &BlobLength);
-      if (NumBLFeatures <= 0)
-        cprintf ("Illegal blob (baseline features)!\n");
       else {
-        ClassIndex =
-          IndexForClassId (AdaptedTemplates->Templates, ClassId);
+        NumBLFeatures = GetBaselineFeatures (Blob, LineStats,
+          AdaptedTemplates->Templates,
+          BLFeatures, BLAdjust,
+          &BlobLength);
+        if (NumBLFeatures <= 0)
+          cprintf ("Illegal blob (baseline features)!\n");
+        else {
+          ClassIndex =
+            IndexForClassId (AdaptedTemplates->Templates, ClassId);
 
-        SetBaseLineMatch();
-        IntegerMatcher (ClassForClassId
-          (AdaptedTemplates->Templates, ClassId),
-                        AllProtosOn, AllConfigsOn,
-//          AdaptedTemplates->Class[ClassIndex]->PermProtos,
-//          AdaptedTemplates->Class[ClassIndex]->PermConfigs,
-          BlobLength, NumBLFeatures, BLFeatures, 0,
-          BLAdjust[ClassIndex], &BLResult, NO_DEBUG);
+          SetBaseLineMatch();
+          IntegerMatcher (ClassForClassId
+            (AdaptedTemplates->Templates, ClassId),
+                          AllProtosOn, AllConfigsOn,
+  //          AdaptedTemplates->Class[ClassIndex]->PermProtos,
+  //          AdaptedTemplates->Class[ClassIndex]->PermConfigs,
+            BlobLength, NumBLFeatures, BLFeatures,
+            BLAdjust[ClassIndex], &BLResult, NO_DEBUG);
 
-        #ifndef SECURE_NAMES
-        int ClassIndex = IndexForClassId (AdaptedTemplates->Templates, ClassId);
-        ADAPT_CLASS Class = AdaptedTemplates->Class[ClassIndex];
-        cprintf ("Best adaptive template match is config %2d (%4.1f) %s\n",
-                 BLResult.Config, BLResult.Rating * 100.0,
-                 ConfigIsPermanent(Class, BLResult.Config) ? "Perm" : "Temp");
-        #endif
+          #ifndef SECURE_NAMES
+          int ClassIndex = IndexForClassId (AdaptedTemplates->Templates, ClassId);
+          ADAPT_CLASS Class = AdaptedTemplates->Class[ClassIndex];
+          cprintf ("Best adaptive template match is config %2d (%4.1f) %s\n",
+                   BLResult.Config, BLResult.Rating * 100.0,
+                   ConfigIsPermanent(Class, BLResult.Config) ? "Perm" : "Temp");
+          #endif
+        }
       }
     }
 
@@ -3323,7 +3135,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
                       AllProtosOn,
 //        AdaptedTemplates->Class[ClassIndex]->PermProtos,
         (BIT_VECTOR) & ConfigMask,
-        BlobLength, NumBLFeatures, BLFeatures, 0,
+        BlobLength, NumBLFeatures, BLFeatures,
         BLAdjust[ClassIndex], &BLResult, MatchDebugFlags);
       cprintf ("Adaptive template match for config %2d is %4.1f\n",
         BLResult.Config, BLResult.Rating * 100.0);
@@ -3336,7 +3148,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
       SetCharNormMatch();
                                  //xiaofan
       IntegerMatcher (ClassForClassId (PreTrainedTemplates, ClassId), AllProtosOn, (BIT_VECTOR) & ConfigMask,
-        BlobLength, NumCNFeatures, CNFeatures, 0,
+        BlobLength, NumCNFeatures, CNFeatures,
         CNAdjust[ClassIndex], &CNResult, MatchDebugFlags);
     }
   }                              /* ShowBestMatchFor */

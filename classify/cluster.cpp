@@ -19,6 +19,7 @@
 #include "const.h"
 #include "cluster.h"
 #include "emalloc.h"
+#include "tprintf.h"
 #include "danerror.h"
 #include "freelist.h"
 #include <math.h>
@@ -281,6 +282,7 @@ PROTOTYPE *MakeDegenerateProto(UINT16 N,
                                INT32 MinSamples);
 
 PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
+                               CLUSTERCONFIG *Config,
                                CLUSTER *Cluster,
                                STATISTICS *Statistics);
 
@@ -1037,7 +1039,7 @@ PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
   }
 
   if (HOTELLING && Config->ProtoStyle == elliptical) {
-    Proto = TestEllipticalProto(Clusterer, Cluster, Statistics);
+    Proto = TestEllipticalProto(Clusterer, Config, Cluster, Statistics);
     if (Proto != NULL) {
       FreeStatistics(Statistics);
       return Proto;
@@ -1129,6 +1131,7 @@ PROTOTYPE *MakeDegenerateProto(  //this was MinSample
 
 /** TestEllipticalProto ****************************************************
 Parameters:	Clusterer	data struct containing samples being clustered
+      Config provides the magic number of samples that make a good cluster
       Cluster		cluster to be made into an elliptical prototype
       Statistics	statistical info about cluster
 Globals:	None
@@ -1141,24 +1144,60 @@ Operation:	This routine tests the specified cluster to see if **
 Return:		Pointer to new elliptical prototype or NULL.
 ****************************************************************************/
 PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
+                               CLUSTERCONFIG *Config,
                                CLUSTER *Cluster,
                                STATISTICS *Statistics) {
+  // Fraction of the number of samples used as a range around 1 within
+  // which a cluster has the magic size that allows a boost to the
+  // FTable by kFTableBoostMargin, thus allowing clusters near the
+  // magic size (equal to the number of sample characters) to be more
+  // likely to stay together.
+  const double kMagicSampleMargin = 0.0625;
+  const double kFTableBoostMargin = 2.0;
+
   int N = Clusterer->SampleSize;
   CLUSTER* Left = Cluster->Left;
   CLUSTER* Right = Cluster->Right;
   if (Left == NULL || Right == NULL)
     return NULL;
   int TotalDims = Left->SampleCount + Right->SampleCount;
-  if (TotalDims < N + 1)
+  if (TotalDims < N + 1 || TotalDims < 2)
     return NULL;
-  FLOAT32* Inverse = (FLOAT32 *) Emalloc(N * N * sizeof(FLOAT32));
-  FLOAT32* Delta = (FLOAT32*) Emalloc(N * sizeof(FLOAT32));
-  double err = InvertMatrix(Statistics->CoVariance, N, Inverse);
-  if (err > 1) {
-    cprintf("Clustering error: Matrix inverse failed with error %g\n", err);
+  const int kMatrixSize = N * N * sizeof(FLOAT32);
+  FLOAT32* Covariance = reinterpret_cast<FLOAT32 *>(Emalloc(kMatrixSize));
+  FLOAT32* Inverse = reinterpret_cast<FLOAT32 *>(Emalloc(kMatrixSize));
+  FLOAT32* Delta = reinterpret_cast<FLOAT32*>(Emalloc(N * sizeof(FLOAT32)));
+  // Compute a new covariance matrix that only uses essential features.
+  for (int i = 0; i < N; ++i) {
+    int row_offset = i * N;
+    if (!Clusterer->ParamDesc[i].NonEssential) {
+      for (int j = 0; j < N; ++j) {
+        if (!Clusterer->ParamDesc[j].NonEssential)
+          Covariance[j + row_offset] = Statistics->CoVariance[j + row_offset];
+        else
+          Covariance[j + row_offset] = 0.0f;
+      }
+    } else {
+      for (int j = 0; j < N; ++j) {
+        if (i == j)
+          Covariance[j + row_offset] = 1.0f;
+        else
+          Covariance[j + row_offset] = 0.0f;
+      }
+    }
   }
+  double err = InvertMatrix(Covariance, N, Inverse);
+  if (err > 1) {
+    tprintf("Clustering error: Matrix inverse failed with error %g\n", err);
+  }
+  int EssentialN = 0;
   for (int dim = 0; dim < N; ++dim) {
-    Delta[dim] = Left->Mean[dim] - Right->Mean[dim];
+    if (!Clusterer->ParamDesc[dim].NonEssential) {
+      Delta[dim] = Left->Mean[dim] - Right->Mean[dim];
+      ++EssentialN;
+    } else {
+      Delta[dim] = 0.0f;
+    }
   }
   // Compute Hotelling's T-squared.
   double Tsq = 0.0;
@@ -1169,19 +1208,30 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
     }
     Tsq += Delta[x] * temp;
   }
+  memfree(Covariance);
   memfree(Inverse);
   memfree(Delta);
-  Tsq *= Left->SampleCount * Right->SampleCount / TotalDims;
-  double F = Tsq * (TotalDims - N - 1) / ((TotalDims - N) * 2);
-  int Fx = N;
+  // Changed this function to match the formula in
+  // Statistical Methods in Medical Research p 473
+  // By Peter Armitage, Geoffrey Berry, J. N. S. Matthews.
+  // Tsq *= Left->SampleCount * Right->SampleCount / TotalDims;
+  double F = Tsq * (TotalDims - EssentialN - 1) / ((TotalDims - 2)*EssentialN);
+  int Fx = EssentialN;
   if (Fx > FTABLE_X)
     Fx = FTABLE_X;
   --Fx;
-  int Fy = TotalDims - N - 1;
+  int Fy = TotalDims - EssentialN - 1;
   if (Fy > FTABLE_Y)
     Fy = FTABLE_Y;
   --Fy;
-  if (F < FTable[Fy][Fx]) {
+  double FTarget = FTable[Fy][Fx];
+  if (Config->MagicSamples > 0 &&
+      TotalDims >= Config->MagicSamples * (1.0 - kMagicSampleMargin) &&
+      TotalDims <= Config->MagicSamples * (1.0 + kMagicSampleMargin)) {
+    // Give magic-sized clusters a magic FTable boost.
+    FTarget += kFTableBoostMargin;
+  }
+  if (F < FTarget) {
     return NewEllipticalProto (Clusterer->SampleSize, Cluster, Statistics);
   }
   return NULL;

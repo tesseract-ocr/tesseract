@@ -41,7 +41,7 @@
 StartParamDesc (MicroFeatureParams)
 DefineParam (0, 0, -0.5, 0.5)
 DefineParam (0, 0, -0.25, 0.75)
-DefineParam (0, 0, 0.0, 1.0)
+DefineParam (0, 1, 0.0, 1.0)
 DefineParam (1, 0, 0.0, 1.0)
 DefineParam (0, 1, -0.5, 0.5)
 DefineParam (0, 1, -0.5, 0.5)
@@ -65,9 +65,9 @@ DefineFeature (PicoFeatDesc, 2, 1, 1, MAX_UINT8, "Pico", "pf", PicoFeatParams)
 /* define all of the parameters for the NormFeat type*/
 StartParamDesc (CharNormParams)
 DefineParam (0, 0, -0.25, 0.75)
-DefineParam (0, 0, 0.0, 1.0)
-DefineParam (0, 0, 0.0, 1.0)
-DefineParam (0, 0, 0.0, 1.0)
+DefineParam (0, 1, 0.0, 1.0)
+DefineParam (0, 1, 0.0, 1.0)
+DefineParam (0, 1, 0.0, 1.0)
 EndParamDesc
 /* now define the feature type itself (see features.h for info about each
   parameter).*/

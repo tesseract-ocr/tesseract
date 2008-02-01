@@ -55,6 +55,7 @@ typedef struct                   // parameters to control clustering
   // more than 1 feature in that cluster
   FLOAT32 Independence;          // desired independence between dimensions
   FLOAT64 Confidence;            // desired confidence in prototypes created
+  int MagicSamples;              // Ideal number of samples in a cluster.
 }
 
 
@@ -80,8 +81,13 @@ FLOATUNION;
 typedef struct proto
 {
   unsigned Significant:1;        // TRUE if prototype is significant
+  unsigned Merged:1;             // Merged after clustering so do not output
+                                 // but kept for display purposes. If it has no
+                                 // samples then it was actually merged.
+                                 // Otherwise it matched an already significant
+                                 // cluster.
   unsigned Style:2;              // spherical, elliptical, or mixed
-  unsigned NumSamples:29;        // number of samples in the cluster
+  unsigned NumSamples:28;        // number of samples in the cluster
   CLUSTER *Cluster;              // ptr to cluster which made prototype
   DISTRIBUTION *Distrib;         // different distribution for each dimension
   FLOAT32 *Mean;                 // prototype mean
@@ -129,19 +135,22 @@ CLUSTERER *MakeClusterer (INT16 SampleSize, PARAM_DESC ParamDesc[]);
 
 SAMPLE *MakeSample (CLUSTERER * Clusterer, FLOAT32 Feature[], INT32 CharID);
 
-LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config); 
+LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);
 
-void FreeClusterer(CLUSTERER *Clusterer); 
+void FreeClusterer(CLUSTERER *Clusterer);
 
-void FreeProtoList(LIST *ProtoList); 
+void FreeProtoList(LIST *ProtoList);
 
 void FreePrototype(void *arg);  //PROTOTYPE     *Prototype);
 
-CLUSTER *NextSample(LIST *SearchState); 
+CLUSTER *NextSample(LIST *SearchState);
 
-FLOAT32 Mean(PROTOTYPE *Proto, UINT16 Dimension); 
+FLOAT32 Mean(PROTOTYPE *Proto, UINT16 Dimension);
 
-FLOAT32 StandardDeviation(PROTOTYPE *Proto, UINT16 Dimension); 
+FLOAT32 StandardDeviation(PROTOTYPE *Proto, UINT16 Dimension);
+
+INT32 MergeClusters(INT16 N, PARAM_DESC ParamDesc[], INT32 n1, INT32 n2,
+                    FLOAT32 m[], FLOAT32 m1[], FLOAT32 m2[]);
 
 //--------------Global Data Definitions and Declarations---------------------------
 // define errors that can be trapped

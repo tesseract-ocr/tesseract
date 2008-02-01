@@ -49,6 +49,7 @@ int	row_number;						/* cjn: fixes link problem */
 typedef struct
 {
   char		*Label;
+  int       SampleCount;
   LIST		List;
 }
 LABELEDLISTNODE, *LABELEDLIST;
@@ -143,7 +144,7 @@ static BOOL8		ShowInsignificantProtos = FALSE;
 //-M 0.025   -B 0.05   -I 0.8   -C 1e-3
 static CLUSTERCONFIG	Config =
 {
-  elliptical, 0.025, 0.05, 0.8, 1e-3
+  elliptical, 0.025, 0.05, 0.8, 1e-3, 0
 };
 
 static FLOAT32 RoundingAccuracy = 0.0;
@@ -235,6 +236,7 @@ int main (
           //printf ("\nClustering %s ...", CharSample->Label);
           Clusterer = SetUpForClustering(CharSample);
           float SavedMinSamples = Config.MinSamples;
+          Config.MagicSamples = CharSample->SampleCount;
           while (Config.MinSamples > 0.001) {
             ProtoList = ClusterSamples(Clusterer, &Config);
             if (NumberOfProtos(ProtoList, 1, 0) > 0)
@@ -451,6 +453,7 @@ void ReadTrainingSamples (
               f->Params[dim] += UniformRandomNumber(-MINSD, MINSD);
           }
           CharSample->List = push (CharSample->List, FeatureSamples);
+          CharSample->SampleCount++;
           for (i = 0; i < NumFeatureSetsIn (CharDesc); i++)
             if (Type != i)
               FreeFeatureSet (FeaturesOfType (CharDesc, i));
@@ -513,6 +516,7 @@ LABELEDLIST NewLabeledList (
 	LabeledList->Label = (char*)Emalloc (strlen (Label)+1);
 	strcpy (LabeledList->Label, Label);
 	LabeledList->List = NIL;
+    LabeledList->SampleCount = 0;
 	return (LabeledList);
 
 }	/* NewLabeledList */

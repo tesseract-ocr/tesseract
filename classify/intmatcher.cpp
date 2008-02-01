@@ -86,229 +86,6 @@ static UINT8 next_table[256] = {
   0xe0, 0xf0, 0xf0, 0xf2, 0xf0, 0xf4, 0xf4, 0xf6, 0xf0, 0xf8, 0xf8, 0xfa,
   0xf8, 0xfc, 0xfc, 0xfe
 };
-static int cp_maxes[128] = {
-  100,
-  100, 100, 100, 100, 100, 100, 100, 100,
-  100, 100, 100, 100, 100, 100, 100, 100,
-  100, 100, 100, 100, 100, 100, 100, 100,
-  100, 100, 100, 100, 100, 100, 100, 100,
-  194,                           //!
-  100,                           //"
-  182,                           //#
-  224,                           //$
-  203,                           //%
-  242,                           //&
-  245,                           //'
-  226,                           //(
-  190,                           //)
-  244,                           //*
-  195,                           //+
-  254,                           //,
-  253,                           //-
-  253,                           //.
-  206,                           ///
-  253,                           //0
-  234,                           //1
-  252,                           //2
-  246,                           //3
-  253,                           //4
-  160,                           //5
-  202,                           //6
-  199,                           //7
-  171,                           //8
-  227,                           //9
-  208,                           //:
-  188,                           //;
-  60,                            //<
-  221,                           //=
-  138,                           //>
-  108,                           //?
-  98,                            //@
-  251,                           //A
-  214,                           //B
-  230,                           //C
-  252,                           //D
-  237,                           //E
-  217,                           //F
-  233,                           //G
-  174,                           //H
-  216,                           //I
-  210,                           //J
-  252,                           //K
-  253,                           //L
-  233,                           //M
-  243,                           //N
-  240,                           //O
-  230,                           //P
-  167,                           //Q
-  248,                           //R
-  250,                           //S
-  232,                           //T
-  209,                           //U
-  193,                           //V
-  254,                           //W
-  146,                           //X
-  198,                           //Y
-  107,                           //Z
-  167,                           //[
-  163,                           //
-  73,                            //]
-  16,                            //^
-  199,                           //_
-  162,                           //`
-  251,                           //a
-  250,                           //b
-  254,                           //c
-  253,                           //d
-  252,                           //e
-  253,                           //f
-  248,                           //g
-  251,                           //h
-  254,                           //i
-  201,                           //j
-  224,                           //k
-  253,                           //l
-  242,                           //m
-  254,                           //n
-  254,                           //o
-  253,                           //p
-  246,                           //q
-  254,                           //r
-  254,                           //s
-  254,                           //t
-  245,                           //u
-  221,                           //v
-  230,                           //w
-  251,                           //x
-  243,                           //y
-  133,                           //z
-  35,                            //{
-  100,                           //|
-  143,                           //}
-  100,                           //~
-  100
-};
-
-static float cp_ratios[128] = {
-  1.5f,
-  1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f,
-  1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f,
-  1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f,
-  1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f,
-  2.24775,                       //!
-  1.5,                           //"
-  1.90376,                       //#
-  1.61443,                       //$
-  1.87857,                       //%
-  2.29167,                       //&
-  7.4,                           //'
-  4.7,                           //(
-  9.4,                           //)
-  2.13014,                       //*
-  1.53175,                       //+
-  2.86957,                       //,
-  7.4,                           //-
-  7.4,                           //.
-  9.4,                           ///
-  8.1,                           //0
-  12.6,                          //1
-  2.7439,                        //2
-  4.22222,                       //3
-  2.57447,                       //4
-  2.93902,                       //5
-  4.23684,                       //6
-  6,                             //7
-  2.78889,                       //8
-  3.55,                          //9
-  8.5,                           //:
-  2.4,                           //;
-  1.5,                           //<
-  1.94737,                       //=
-  1.89394,                       //>
-  1.5,                           //?
-  1.5,                           //@
-  3.125,                         //A
-  5.5,                           //B
-  6.1,                           //C
-  6,                             //D
-  2.78205,                       //E
-  2.03763,                       //F
-  2.73256,                       //G
-  2.57692,                       //H
-  11.8,                          //I
-  7.1,                           //J
-  1.85227,                       //K
-  7.4,                           //L
-  2.26056,                       //M
-  2.46078,                       //N
-  6.85714,                       //O
-  3.45238,                       //P
-  2.47222,                       //Q
-  3.74,                          //R
-  10.2,                          //S
-  3.08065,                       //T
-  6.1,                           //U
-  9.5,                           //V
-  7.1,                           //W
-  7.9,                           //X
-  2.55714,                       //Y
-  7.7,                           //Z
-  2,                             //[
-  1.5,                           //
-  2.55714,                       //]
-  1.5,                           //^
-  1.80065,                       //_
-  1.69512,                       //`
-  5.34,                          //a
-  7.3,                           //b
-  6.43333,                       //c
-  4.10606,                       //d
-  4.41667,                       //e
-  12.6,                          //f
-  3.7093,                        //g
-  2.38889,                       //h
-  5.5,                           //i
-  4.03125,                       //j
-  2.24561,                       //k
-  11.5,                          //l
-  3.5,                           //m
-  5.63333,                       //n
-  11,                            //o
-  2.52667,                       //p
-  2.1129,                        //q
-  6.56667,                       //r
-  6.42857,                       //s
-  11.4,                          //t
-  3.62,                          //u
-  2.77273,                       //v
-  2.90909,                       //w
-  6.5,                           //x
-  4.98387,                       //y
-  2.92857,                       //z
-  1.5,                           //{
-  1.5,                           //|
-  2.02128,                       //}
-  1.5,                           //~
-  1.5f
-};
-static INT8 miss_table[256] = {
-  4, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2,
-  4, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2,
-  4, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2,
-  3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3, 2, 2, 2, 2, 1,
-  4, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2,
-  4, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2,
-  4, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2,
-  3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3, 2, 2, 2, 2, 1,
-  4, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2,
-  4, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2,
-  4, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 3, 3, 3, 3, 2,
-  3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3, 2, 2, 2, 2, 1,
-  3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3, 2, 2, 2, 2, 1,
-  3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3, 2, 2, 2, 2, 1,
-  3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 3, 2, 2, 2, 2, 1,
-  2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 1, 1, 1, 1, 0
-};
 
 static UINT32 EvidenceTableMask;
 
@@ -363,10 +140,6 @@ make_int_var (AdaptFeatureThresh, 230, MakeAdaptFeatureThresh,
 16, 30, SetAdaptFeatureThresh,
 "Threshold for good features during adaptive 0-255:   ");
 //extern int display_ratings;
-//extern "C" int                                        newcp_ratings_on;
-//extern "C" double                             newcp_prune_threshold;
-//extern "C" double                             tessedit_cp_ratio;
-//extern "C" int                                        feature_prune_percentile;
 //extern INT32                                  cp_maps[4];
 
 int protoword_lookups;
@@ -423,17 +196,17 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   int NumPruners;
   INT32 feature_index;           //current feature
 
-  static INT32 ClassCount[MAX_NUM_CLASSES];
-  static INT16 NormCount[MAX_NUM_CLASSES];
-  static INT16 SortKey[MAX_NUM_CLASSES + 1];
-  static UINT8 SortIndex[MAX_NUM_CLASSES + 1];
+  static int ClassCount[MAX_NUM_CLASSES];
+  static int NormCount[MAX_NUM_CLASSES];
+  static int SortKey[MAX_NUM_CLASSES + 1];
+  static int SortIndex[MAX_NUM_CLASSES + 1];
   CLASS_INDEX Class;
   int out_class;
   int MaxNumClasses;
   int MaxCount;
   int NumClasses;
   FLOAT32 max_rating;            //max allowed rating
-  INT32 *ClassCountPtr;
+  int *ClassCountPtr;
   CLASS_ID classch;
 
   MaxNumClasses = NumClassesIn (IntTemplates);
@@ -448,7 +221,6 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   NumPruners = NumClassPrunersIn (IntTemplates);
   for (feature_index = 0; feature_index < NumFeatures; feature_index++) {
     feature = &Features[feature_index];
-    feature->CP_misses = 0;
     feature_address = (((feature->X * NUM_CP_BUCKETS >> 8) * NUM_CP_BUCKETS
       +
       (feature->Y * NUM_CP_BUCKETS >> 8)) *
@@ -497,12 +269,15 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   }
 
   /* Adjust Class Counts for Number of Expected Features */
-  for (Class = 0; Class < MaxNumClasses; Class++)
+  for (Class = 0; Class < MaxNumClasses; Class++) {
     if (NumFeatures < ExpectedNumFeatures[Class]) {
       int deficit = ExpectedNumFeatures[Class] - NumFeatures;
       ClassCount[Class] -= ClassCount[Class] * deficit /
                            (NumFeatures*CPCutoffStrength + deficit);
     }
+    if (!unicharset.get_enabled(ClassIdForIndex(IntTemplates, Class)))
+      ClassCount[Class] = 0;  // This char is disabled!
+  }
 
   /* Adjust Class Counts for Normalization Factors */
   MaxCount = 0;
@@ -550,7 +325,6 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
       feature_index++) {
         cprintf ("F=%3d,", feature_index);
         feature = &Features[feature_index];
-        feature->CP_misses = 0;
         feature_address =
           (((feature->X * NUM_CP_BUCKETS >> 8) * NUM_CP_BUCKETS +
           (feature->Y * NUM_CP_BUCKETS >> 8)) * NUM_CP_BUCKETS +
@@ -594,395 +368,14 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   for (Class = 0, out_class = 0; Class < NumClasses; Class++) {
     Results[out_class].Class =
       ClassIdForIndex (IntTemplates, SortIndex[NumClasses - Class]);
-    Results[out_class].config_mask = (UINT32) - 1;
     Results[out_class].Rating =
       1.0 - SortKey[NumClasses -
       Class] / ((float) cp_maps[3] * NumFeatures);
-    /**/ Results[out_class].Rating2 =
-      1.0 - SortKey[NumClasses -
-      Class] / ((float) cp_maps[3] * NumFeatures);
-    if (tessedit_cp_ratio == 0.0 || Class == 0
-      || Results[out_class].Rating * 1000 + 10 <
-      cp_maxes[Results[out_class].Class]
-      && Results[out_class].Rating * 1000 + 10 <
-      (Results[0].Rating * 1000 +
-      10) * cp_ratios[Results[out_class].Class])
-      out_class++;
+    out_class++;
   }
   NumClasses = out_class;
-  if (blob_type != 0) {
-    cp_classes = NumClasses;
-    if (NumClasses > 0) {
-      cp_chars[0] = Results[0].Class;
-      cp_ratings[0] = (int) (1000 * Results[0].Rating + 10);
-      cp_confs[0] = (int) (1000 * Results[0].Rating2 + 10);
-      if (NumClasses > 1) {
-        cp_chars[1] = Results[1].Class;
-        cp_ratings[1] = (int) (1000 * Results[1].Rating + 10);
-        cp_confs[1] = (int) (1000 * Results[1].Rating2 + 10);
-      }
-      else {
-        cp_chars[1] = '~';
-        cp_ratings[1] = -1;
-        cp_confs[1] = -1;
-      }
-    }
-    else {
-      cp_chars[0] = '~';
-      cp_ratings[0] = -1;
-      cp_confs[0] = -1;
-    }
-    cp_bestindex = -1;
-    cp_bestrating = -1;
-    cp_bestconf = -1;
-    for (Class = 0; Class < NumClasses; Class++) {
-      classch = Results[Class].Class;
-      if (strcmp(unicharset.id_to_unichar(classch), blob_answer) == 0) {
-        cp_bestindex = Class;
-        cp_bestrating = (int) (1000 * Results[Class].Rating + 10);
-        cp_bestconf = (int) (1000 * Results[Class].Rating2 + 10);
-      }
-    }
-  }
   return NumClasses;
 
-}
-
-
-/*---------------------------------------------------------------------------*/
-int feature_pruner(INT_TEMPLATES IntTemplates,
-                   INT16 NumFeatures,
-                   INT_FEATURE_ARRAY Features,
-                   INT32 NumClasses,
-                   CLASS_PRUNER_RESULTS Results) {
-/*
- **      Parameters:
- **              IntTemplates           Class pruner tables
- **              NumFeatures            Number of features in blob
- **              Features               Array of features
- **              NormalizationFactors   Array of fudge factors from blob
- **                                     normalization process
- **                                     (by CLASS_INDEX)
- **              ExpectedNumFeatures    Array of expected number of features
- **                                     for each class
- **                                     (by CLASS_INDEX)
- **              Results                Sorted Array of pruned classes
- **                                     (by CLASS_ID)
- **              Debug                  Debugger flag: 1=debugger on
- **      Globals:
- **              ClassPrunerThreshold   Cutoff threshold
- **              ClassPrunerMultiplier  Normalization factor multiplier
- **      Operation:
- **              Prune the classes using a modified fast match table.
- **              Return a sorted list of classes along with the number
- **              of pruned classes in that list.
- **      Return: Number of pruned classes.
- **      Exceptions: none
- **      History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
- */
-  UINT32 PrunerWord;
-  CLASS_PRUNER *ClassPruner;
-  INT32 class_index;             //index to class
-  INT32 result_index;            //CP results index
-  int PrunerSet;
-  int NumPruners;
-  int Word;
-  INT_FEATURE feature;           //current feature
-  INT32 feature_index;           //current feature
-  INT32 CP_misses;               //missed features
-  UINT32 feature_address;        //current feature index
-  UINT32 *BasePrunerAddress;
-  int MaxNumClasses;
-  UINT32 class_mask[CLASS_MASK_SIZE];
-  INT32 miss_histogram[MAX_NUM_CLASSES];
-
-  MaxNumClasses = NumClassesIn (IntTemplates);
-  for (class_index = 0; class_index < MaxNumClasses; class_index++)
-    miss_histogram[class_index] = 0;
-
-  /* Create class mask */
-  for (class_index = 0; class_index < CLASS_MASK_SIZE; class_index++)
-    class_mask[class_index] = (UINT32) - 1;
-  for (result_index = 0; result_index < NumClasses; result_index++) {
-    class_index =
-      IndexForClassId (IntTemplates, Results[result_index].Class);
-    class_mask[class_index / CLASSES_PER_CP_WERD] &=
-      ~(3 << (class_index % CLASSES_PER_CP_WERD) * 2);
-  }
-
-  /* Update Class Counts */
-  NumPruners = NumClassPrunersIn (IntTemplates);
-  for (feature_index = 0; feature_index < NumFeatures; feature_index++) {
-    feature = &Features[feature_index];
-    feature_address = (((feature->X * NUM_CP_BUCKETS >> 8) * NUM_CP_BUCKETS
-      +
-      (feature->Y * NUM_CP_BUCKETS >> 8)) *
-      NUM_CP_BUCKETS +
-      (feature->Theta * NUM_CP_BUCKETS >> 8)) << 1;
-    CP_misses = 0;
-    ClassPruner = ClassPrunersFor (IntTemplates);
-    class_index = 0;
-    for (PrunerSet = 0; PrunerSet < NumPruners; PrunerSet++, ClassPruner++) {
-      BasePrunerAddress = (UINT32 *) (*ClassPruner) + feature_address;
-
-      for (Word = 0; Word < WERDS_PER_CP_VECTOR; Word++) {
-        PrunerWord = *BasePrunerAddress++;
-        PrunerWord |= class_mask[class_index++];
-        CP_misses += miss_table[PrunerWord & 255];
-        PrunerWord >>= 8;
-        CP_misses += miss_table[PrunerWord & 255];
-        PrunerWord >>= 8;
-        CP_misses += miss_table[PrunerWord & 255];
-        PrunerWord >>= 8;
-        CP_misses += miss_table[PrunerWord & 255];
-      }
-    }
-    feature->CP_misses = CP_misses;
-    if (display_ratings > 1) {
-      cprintf ("F=%d: misses=%d\n", feature_index, CP_misses);
-    }
-    miss_histogram[CP_misses]++;
-  }
-
-  CP_misses = 0;
-  feature_index = NumFeatures * feature_prune_percentile / 100;
-  for (class_index = MaxNumClasses - 1; class_index >= 0; class_index--) {
-    CP_misses += miss_histogram[class_index];
-    if (CP_misses >= feature_index)
-      break;
-  }
-
-  if (display_ratings > 1) {
-    cprintf ("FP:Selected miss factor of %d for %d features (%g%%)\n",
-      class_index, CP_misses, 100.0 * CP_misses / NumFeatures);
-  }
-  return class_index;
-}
-
-
-/*---------------------------------------------------------------------------*/
-int prune_configs(INT_TEMPLATES IntTemplates,
-                  INT32 min_misses,
-                  INT16 NumFeatures,
-                  INT_FEATURE_ARRAY Features,
-                  CLASS_NORMALIZATION_ARRAY NormalizationFactors,
-                  INT32 class_count,
-                  UINT16 BlobLength,
-                  CLASS_PRUNER_RESULTS Results,
-                  int Debug) {
-/*
- **      Parameters:
- **              IntTemplates           Class pruner tables
- **              NumFeatures            Number of features in blob
- **              Features               Array of features
- **              NormalizationFactors   Array of fudge factors from blob
- **                                     normalization process
- **                                     (by CLASS_INDEX)
- **              ExpectedNumFeatures    Array of expected number of features
- **                                     for each class
- **                                     (by CLASS_INDEX)
- **              Results                Sorted Array of pruned classes
- **                                     (by CLASS_ID)
- **              Debug                  Debugger flag: 1=debugger on
- **      Globals:
- **              ClassPrunerThreshold   Cutoff threshold
- **              ClassPrunerMultiplier  Normalization factor multiplier
- **      Operation:
- **              Prune the classes using a modified fast match table.
- **              Return a sorted list of classes along with the number
- **              of pruned classes in that list.
- **      Return: Number of pruned classes.
- **      Exceptions: none
- **      History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
- */
-  INT32 classindex;              //current Results index
-  CLASS_INDEX Class;             //current class
-  INT_CLASS ClassTemplate;       //info on current class
-  FLOAT32 best_rating;           //best over all classes
-  FLOAT32 best_class_rating;     //best over all classes
-  INT32 output_count;            //number of classes out
-  INT32 best_index;              //for sorting
-  INT_RESULT_STRUCT IntResult;
-                                 //results of pruning
-  CLASS_PRUNER_RESULTS new_results;
-
-  best_class_rating = 9999.0f;
-  for (classindex = 0; classindex < class_count; classindex++) {
-    Class = IndexForClassId (IntTemplates, Results[classindex].Class);
-    ClassTemplate = ClassForIndex (IntTemplates, Class);
-    PruningMatcher (ClassTemplate, BlobLength, NumFeatures, Features,
-      min_misses, NormalizationFactors[Class],
-      &IntResult, Debug);
-
-    /* Prune configs */
-                                 //save old rating
-    new_results[classindex].Rating2 = Results[classindex].Rating;
-                                 //save new rating
-    new_results[classindex].Rating = IntResult.Rating;
-                                 //save new rating
-    new_results[classindex].config_mask = (1 << IntResult.Config) | (1 << IntResult.Config2);
-                                 //save old class
-    new_results[classindex].Class = Results[classindex].Class;
-
-    if (display_ratings > 1) {
-      cprintf ("PC:%c: old=%g, best_rating=%g, config1=%d, config2=%d\n",
-        Results[classindex].Class,
-        Results[classindex].Rating2,
-        IntResult.Rating, IntResult.Config, IntResult.Config2);
-    }
-
-    if (IntResult.Rating < best_class_rating)
-      best_class_rating = IntResult.Rating;
-  }
-  /* Select Classes */
-  best_class_rating *= newcp_prune_threshold;
-
-  output_count = 0;
-  do {
-    best_rating = best_class_rating;
-    best_index = -1;
-    for (classindex = 0; classindex < class_count; classindex++) {
-      if (new_results[classindex].Rating <= best_rating) {
-        best_rating = new_results[classindex].Rating;
-        best_index = classindex;
-      }
-    }
-    if (best_index >= 0) {
-      Results[output_count].Class = new_results[best_index].Class;
-      Results[output_count].Rating = best_rating;
-      Results[output_count].Rating2 = new_results[best_index].Rating2;
-      Results[output_count].config_mask =
-        new_results[best_index].config_mask;
-      new_results[best_index].Rating = 9999.0f;
-      output_count++;
-    }
-  }
-  while (best_index >= 0);
-
-  if (display_ratings > 1) {
-    cprintf ("%d classes reduced to %d\n", class_count, output_count);
-    for (classindex = 0; classindex < output_count; classindex++) {
-      cprintf ("%c=%g/%g/0x%x, ",
-        Results[classindex].Class,
-        Results[classindex].Rating,
-        Results[classindex].Rating2,
-        Results[classindex].config_mask);
-    }
-    cprintf ("\n");
-  }
-  return output_count;
-}
-
-
-/*---------------------------------------------------------------------------*/
-void PruningMatcher(INT_CLASS ClassTemplate,
-                    UINT16 BlobLength,
-                    INT16 NumFeatures,
-                    INT_FEATURE_ARRAY Features,
-                    INT32 min_misses,
-                    UINT8 NormalizationFactor,
-                    INT_RESULT Result,
-                    int Debug) {
-/*
- **      Parameters:
- **              ClassTemplate             Prototypes & tables for a class
- **              BlobLength                Length of unormalized blob
- **              NumFeatures               Number of features in blob
- **              Features                  Array of features
- **              NormalizationFactor       Fudge factor from blob
- **                                        normalization process
- **              Result                    Class rating & configuration:
- **                                        (0.0 -> 1.0), 0=good, 1=bad
- **              Debug                     Debugger flag: 1=debugger on
- **      Globals:
- **              LocalMatcherMultiplier    Normalization factor multiplier
- **              IntThetaFudge             Theta fudge factor used for
- **                                        evidence calculation
- **      Operation:
- **              IntegerMatcher returns the best configuration and rating
- **              for a single class.  The class matched against is determined
- **              by the uniqueness of the ClassTemplate parameter.  The
- **              best rating and its associated configuration are returned.
- **      Return:
- **      Exceptions: none
- **      History: Tue Feb 19 16:36:23 MST 1991, RWM, Created.
- */
-  static UINT8 FeatureEvidence[MAX_NUM_CONFIGS];
-  static int SumOfFeatureEvidence[MAX_NUM_CONFIGS];
-  int *IntPointer;
-  int Feature;
-  int BestMatch;
-  int used_features;
-  int NumConfigs;
-
-  if (MatchDebuggingOn (Debug))
-    cprintf ("Pruning Matcher -------------------------------------------\n");
-
-  IntPointer = SumOfFeatureEvidence;
-  for (NumConfigs = NumIntConfigsIn (ClassTemplate); NumConfigs > 0;
-    NumConfigs--)
-  *IntPointer++ = 0;
-
-  for (Feature = 0, used_features = 0; Feature < NumFeatures; Feature++) {
-    if (Features[Feature].CP_misses >= min_misses) {
-      PMUpdateTablesForFeature (ClassTemplate, Feature,
-        &(Features[Feature]), FeatureEvidence,
-        SumOfFeatureEvidence, Debug);
-      used_features++;
-    }
-  }
-
-  IMNormalizeSumOfEvidences(ClassTemplate,
-                            SumOfFeatureEvidence,
-                            NumFeatures,
-                            used_features);
-
-  BestMatch =
-    IMFindBestMatch(ClassTemplate,
-                    SumOfFeatureEvidence,
-                    BlobLength,
-                    NormalizationFactor,
-                    Result);
-
-#ifndef GRAPHICS_DISABLED
-  if (PrintMatchSummaryOn (Debug))
-    IMDebugBestMatch(BestMatch, Result, BlobLength, NormalizationFactor);
-#endif
-
-  if (MatchDebuggingOn (Debug))
-    cprintf ("Match Complete --------------------------------------------\n");
-
-}
-
-
-/*---------------------------------------------------------------------------*/
-void config_mask_to_proto_mask(INT_CLASS ClassTemplate,
-                               BIT_VECTOR config_mask,
-                               BIT_VECTOR proto_mask) {
-  UINT32 ConfigWord;
-  int ProtoSetIndex;
-  UINT32 ProtoNum;
-  PROTO_SET ProtoSet;
-  int NumProtos;
-  UINT32 ActualProtoNum;
-
-  NumProtos = NumIntProtosIn (ClassTemplate);
-
-  zero_all_bits (proto_mask, WordsInVectorOfSize (MAX_NUM_PROTOS));
-  for (ProtoSetIndex = 0; ProtoSetIndex < NumProtoSetsIn (ClassTemplate);
-  ProtoSetIndex++) {
-    ProtoSet = ProtoSetIn (ClassTemplate, ProtoSetIndex);
-    ActualProtoNum = (ProtoSetIndex * PROTOS_PER_PROTO_SET);
-    for (ProtoNum = 0;
-      ((ProtoNum < PROTOS_PER_PROTO_SET)
-    && (ActualProtoNum < NumProtos)); ProtoNum++, ActualProtoNum++) {
-      ConfigWord = (ProtoSet->Protos[ProtoNum]).Configs[0];
-      ConfigWord &= *config_mask;
-      if (ConfigWord != 0) {
-        proto_mask[ActualProtoNum / 32] |= 1 << (ActualProtoNum % 32);
-      }
-    }
-  }
 }
 
 
@@ -993,7 +386,6 @@ void IntegerMatcher(INT_CLASS ClassTemplate,
                     UINT16 BlobLength,
                     INT16 NumFeatures,
                     INT_FEATURE_ARRAY Features,
-                    INT32 min_misses,
                     UINT8 NormalizationFactor,
                     INT_RESULT Result,
                     int Debug) {
@@ -1026,21 +418,21 @@ void IntegerMatcher(INT_CLASS ClassTemplate,
   static UINT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
   int Feature;
   int BestMatch;
-  int used_features;
 
   if (MatchDebuggingOn (Debug))
     cprintf ("Integer Matcher -------------------------------------------\n");
 
   IMClearTables(ClassTemplate, SumOfFeatureEvidence, ProtoEvidence);
+  Result->FeatureMisses = 0;
 
-  for (Feature = 0, used_features = 0; Feature < NumFeatures; Feature++) {
-    if (Features[Feature].CP_misses >= min_misses) {
-      IMUpdateTablesForFeature (ClassTemplate, ProtoMask, ConfigMask,
-        Feature, &(Features[Feature]),
-        FeatureEvidence, SumOfFeatureEvidence,
-        ProtoEvidence, Debug);
-      used_features++;
-    }
+  for (Feature = 0; Feature < NumFeatures; Feature++) {
+    int csum = IMUpdateTablesForFeature(ClassTemplate, ProtoMask, ConfigMask,
+                                        Feature, &(Features[Feature]),
+                                        FeatureEvidence, SumOfFeatureEvidence,
+                                        ProtoEvidence, Debug);
+    // Count features that were missed over all configs.
+    if (csum == 0)
+      Result->FeatureMisses++;
   }
 
 #ifndef GRAPHICS_DISABLED
@@ -1078,7 +470,7 @@ void IntegerMatcher(INT_CLASS ClassTemplate,
   IMNormalizeSumOfEvidences(ClassTemplate,
                             SumOfFeatureEvidence,
                             NumFeatures,
-                            used_features);
+                            NumFeatures);
 
   BestMatch =
     IMFindBestMatch(ClassTemplate,
@@ -1404,26 +796,13 @@ UINT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX]) {
  **      Exceptions: none
  **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
-  register UINT8 *UINT8Pointer;
-  register int *IntPointer;
-  register int ConfigNum;
-  int NumConfigs;
-  register UINT16 ProtoNum;
-  int NumProtos;
-  register int ProtoIndex;
+  int NumProtos = NumIntProtosIn (ClassTemplate);
+  int NumConfigs = NumIntConfigsIn (ClassTemplate);
 
-  NumProtos = NumIntProtosIn (ClassTemplate);
-  NumConfigs = NumIntConfigsIn (ClassTemplate);
-
-  IntPointer = SumOfFeatureEvidence;
-  for (ConfigNum = 0; ConfigNum < NumConfigs; ConfigNum++, IntPointer++)
-    *IntPointer = 0;
-  UINT8Pointer = (UINT8 *) ProtoEvidence;
-  for (ProtoNum = 0; ProtoNum < NumProtos; ProtoNum++)
-    for (ProtoIndex = 0; ProtoIndex < MAX_PROTO_INDEX;
-    ProtoIndex++, UINT8Pointer++)
-  *UINT8Pointer = 0;
-
+  memset(SumOfFeatureEvidence, 0,
+         NumConfigs * sizeof(SumOfFeatureEvidence[0]));
+  memset(ProtoEvidence, 0,
+         NumProtos * sizeof(ProtoEvidence[0]));
 }
 
 
@@ -1442,13 +821,7 @@ int NumConfigs) {
  **      Exceptions: none
  **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
-  register UINT8 *UINT8Pointer;
-  register int ConfigNum;
-
-  UINT8Pointer = FeatureEvidence;
-  for (ConfigNum = 0; ConfigNum < NumConfigs; ConfigNum++, UINT8Pointer++)
-    *UINT8Pointer = 0;
-
+  memset(FeatureEvidence, 0, NumConfigs * sizeof(*FeatureEvidence));
 }
 
 
@@ -1505,145 +878,9 @@ void IMDebugConfigurationSum(int FeatureNum,
 }
 
 
-/*---------------------------------------------------------------------------*/
-void
-PMUpdateTablesForFeature (INT_CLASS ClassTemplate,
-int FeatureNum,
-INT_FEATURE Feature,
-UINT8 FeatureEvidence[MAX_NUM_CONFIGS],
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-int Debug) {
-/*
- **      Parameters:
- **              ClassTemplate         Prototypes & tables for a class
- **              FeatureNum            Current feature number (for DEBUG only)
- **              Feature               Pointer to a feature struct
- **              FeatureEvidence       Feature Evidence Table
- **              SumOfFeatureEvidence  Sum of Feature Evidence Table
- **              ProtoEvidence         Prototype Evidence Table
- **              Debug                 Debugger flag: 1=debugger on
- **      Globals:
- **      Operation:
- **              For the given feature: prune protos, compute evidence, update Feature Evidence,
- **              Proto Evidence, and Sum of Feature Evidence tables.
- **      Return:
- **      Exceptions: none
- **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
- */
-  UINT8 config_byte;
-  UINT8 proto_byte;
-  UINT8 Evidence;
-  INT32 config_offset;
-  UINT8 *UINT8Pointer;
-  UINT32 ConfigWord;
-  UINT32 ProtoWord;
-  INT32 M3;
-  INT32 A3;
-  UINT32 A4;
-  INT32 proto_word_offset;
-  INT32 proto_offset;
-  UINT32 ProtoNum;
-  UINT32 ActualProtoNum;
-  PROTO_SET ProtoSet;
-  UINT32 *ProtoPrunerPtr;
-  INT_PROTO Proto;
-  int ProtoSetIndex;
-  UINT32 XFeatureAddress;
-  UINT32 YFeatureAddress;
-  UINT32 ThetaFeatureAddress;
-  int *IntPointer;
-  int ConfigNum;
-
-  IMClearFeatureEvidenceTable (FeatureEvidence,
-    NumIntConfigsIn (ClassTemplate));
-
-  /* Precompute Feature Address offset for Proto Pruning */
-  XFeatureAddress = ((Feature->X >> 2) << 1);
-  YFeatureAddress = (NUM_PP_BUCKETS << 1) + ((Feature->Y >> 2) << 1);
-  ThetaFeatureAddress = (NUM_PP_BUCKETS << 2) + ((Feature->Theta >> 2) << 1);
-
-  for (ProtoSetIndex = 0, ActualProtoNum = 0;
-  ProtoSetIndex < NumProtoSetsIn (ClassTemplate); ProtoSetIndex++) {
-    ProtoSet = ProtoSetIn (ClassTemplate, ProtoSetIndex);
-    ProtoPrunerPtr = (UINT32 *) ((*ProtoSet).ProtoPruner);
-    for (ProtoNum = 0; ProtoNum < PROTOS_PER_PROTO_SET;
-      ProtoNum += (PROTOS_PER_PROTO_SET >> 1), ActualProtoNum +=
-    (PROTOS_PER_PROTO_SET >> 1), ProtoPrunerPtr++) {
-      /* Prune Protos of current Proto Set */
-      ProtoWord = *(ProtoPrunerPtr + XFeatureAddress);
-      ProtoWord &= *(ProtoPrunerPtr + YFeatureAddress);
-      ProtoWord &= *(ProtoPrunerPtr + ThetaFeatureAddress);
-
-      if (ProtoWord != 0) {
-        proto_byte = ProtoWord & 0xff;
-        ProtoWord >>= 8;
-        proto_word_offset = 0;
-        while (ProtoWord != 0 || proto_byte != 0) {
-          while (proto_byte == 0) {
-            proto_byte = ProtoWord & 0xff;
-            ProtoWord >>= 8;
-            proto_word_offset += 8;
-          }
-          proto_offset = offset_table[proto_byte] + proto_word_offset;
-          proto_byte = next_table[proto_byte];
-          /* Compute Evidence */
-          Proto = &(ProtoSet->Protos[ProtoNum + proto_offset]);
-          ConfigWord = Proto->Configs[0];
-          A3 = (((Proto->A * (Feature->X - 128)) << 1)
-            - (Proto->B * (Feature->Y - 128)) + (Proto->C << 9));
-          M3 =
-            (((INT8) (Feature->Theta - Proto->Angle)) *
-            IntThetaFudge) << 1;
-
-          if (A3 < 0)
-            A3 = ~A3;
-          if (M3 < 0)
-            M3 = ~M3;
-          A3 >>= MultTruncShiftBits;
-          M3 >>= MultTruncShiftBits;
-          if (A3 > EvidenceMultMask)
-            A3 = EvidenceMultMask;
-          if (M3 > EvidenceMultMask)
-            M3 = EvidenceMultMask;
-
-          A4 = (A3 * A3) + (M3 * M3);
-          A4 >>= TableTruncShiftBits;
-          if (A4 > EvidenceTableMask)
-            Evidence = 0;
-          else
-            Evidence = SimilarityEvidenceTable[A4];
-
-          UINT8Pointer = FeatureEvidence - 8;
-          config_byte = 0;
-          while (ConfigWord != 0 || config_byte != 0) {
-            while (config_byte == 0) {
-              config_byte = ConfigWord & 0xff;
-              ConfigWord >>= 8;
-              UINT8Pointer += 8;
-            }
-            config_offset = offset_table[config_byte];
-            config_byte = next_table[config_byte];
-            if (Evidence > UINT8Pointer[config_offset])
-              UINT8Pointer[config_offset] = Evidence;
-          }
-        }
-      }
-    }
-  }
-
-  if (PrintFeatureMatchesOn (Debug))
-    IMDebugConfigurationSum (FeatureNum, FeatureEvidence,
-      NumIntConfigsIn (ClassTemplate));
-  IntPointer = SumOfFeatureEvidence;
-  UINT8Pointer = FeatureEvidence;
-  for (ConfigNum = NumIntConfigsIn (ClassTemplate); ConfigNum > 0;
-    ConfigNum--)
-  *IntPointer++ += (*UINT8Pointer++);
-}
-
 
 /*---------------------------------------------------------------------------*/
-void
+int
 IMUpdateTablesForFeature (INT_CLASS ClassTemplate,
 BIT_VECTOR ProtoMask,
 BIT_VECTOR ConfigMask,
@@ -1802,10 +1039,14 @@ int Debug) {
       NumIntConfigsIn (ClassTemplate));
   IntPointer = SumOfFeatureEvidence;
   UINT8Pointer = FeatureEvidence;
+  int SumOverConfigs = 0;
   for (ConfigNum = NumIntConfigsIn (ClassTemplate); ConfigNum > 0;
-    ConfigNum--)
-  *IntPointer++ += (*UINT8Pointer++);
-
+  ConfigNum--) {
+    int evidence = *UINT8Pointer++;
+    SumOverConfigs += evidence;
+    *IntPointer++ += evidence;
+  }
+  return SumOverConfigs;
 }
 
 
@@ -1995,19 +1236,20 @@ int Debug) {
 
       ConfigWord = (ProtoSet->Protos[ProtoNum]).Configs[0];
       ConfigWord &= *ConfigMask;
-      if (ConfigWord)
+      if (ConfigWord) {
         /* Update display for current proto */
-      if (ClipMatchEvidenceOn (Debug)) {
-        if (Temp < AdaptProtoThresh)
+        if (ClipMatchEvidenceOn (Debug)) {
+          if (Temp < AdaptProtoThresh)
+            DisplayIntProto (ClassTemplate, ActualProtoNum,
+              (Temp / 255.0));
+          else
+            DisplayIntProto (ClassTemplate, ActualProtoNum,
+              (Temp / 255.0));
+        }
+        else {
           DisplayIntProto (ClassTemplate, ActualProtoNum,
             (Temp / 255.0));
-        else
-          DisplayIntProto (ClassTemplate, ActualProtoNum,
-            (Temp / 255.0));
-      }
-      else {
-        DisplayIntProto (ClassTemplate, ActualProtoNum,
-          (Temp / 255.0));
+        }
       }
     }
   }
@@ -2115,35 +1357,6 @@ INT16 NumFeatures) {
   }
 }
 
-
-/*---------------------------------------------------------------------------*/
-void
-PMNormalizeSumOfEvidences (INT_CLASS ClassTemplate,
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-INT16 NumFeatures, INT32 used_features) {
-/*
- **      Parameters:
- **      Globals:
- **      Operation:
- **              Normalize Sum of Proto and Feature Evidence by dividing by
- **              the sum of the Feature Lengths and the Proto Lengths for each
- **              configuration.
- **      Return:
- **      Exceptions: none
- **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
- */
-  register int *IntPointer;
-  register int ConfigNum;
-  int NumConfigs;
-
-  NumConfigs = NumIntConfigsIn (ClassTemplate);
-  if (used_features <= 0)
-    used_features = 1;
-
-  IntPointer = SumOfFeatureEvidence;
-  for (ConfigNum = 0; ConfigNum < NumConfigs; ConfigNum++, IntPointer++)
-    *IntPointer = (*IntPointer << 8) / used_features;
-}
 
 
 /*---------------------------------------------------------------------------*/
@@ -2262,7 +1475,7 @@ void IMDebugBestMatch(int BestMatch,
 
 /*---------------------------------------------------------------------------*/
 void
-HeapSort (int n, register INT16 ra[], register UINT8 rb[]) {
+HeapSort (int n, register int ra[], register int rb[]) {
 /*
  **      Parameters:
  **              n      Number of elements to sort

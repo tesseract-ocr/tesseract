@@ -30,6 +30,7 @@ typedef struct
   FLOAT32 Rating;
   UINT8 Config;
   UINT8 Config2;
+  UINT16 FeatureMisses;
 }
 
 
@@ -38,8 +39,7 @@ INT_RESULT_STRUCT, *INT_RESULT;
 typedef struct
 {
   FLOAT32 Rating;
-  FLOAT32 Rating2;
-  UINT32 config_mask;
+  INT_RESULT_STRUCT IMResult;
   CLASS_ID Class;
 }
 
@@ -68,42 +68,12 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
                 CLASS_PRUNER_RESULTS Results,
                 int Debug);
 
-int feature_pruner(INT_TEMPLATES IntTemplates,
-                   INT16 NumFeatures,
-                   INT_FEATURE_ARRAY Features,
-                   INT32 NumClasses,
-                   CLASS_PRUNER_RESULTS Results);
-
-int prune_configs(INT_TEMPLATES IntTemplates,
-                  INT32 min_misses,
-                  INT16 NumFeatures,
-                  INT_FEATURE_ARRAY Features,
-                  CLASS_NORMALIZATION_ARRAY NormalizationFactors,
-                  INT32 class_count,
-                  UINT16 BlobLength,
-                  CLASS_PRUNER_RESULTS Results,
-                  int Debug);
-
-void PruningMatcher(INT_CLASS ClassTemplate,
-                    UINT16 BlobLength,
-                    INT16 NumFeatures,
-                    INT_FEATURE_ARRAY Features,
-                    INT32 min_misses,
-                    UINT8 NormalizationFactor,
-                    INT_RESULT Result,
-                    int Debug);
-
-void config_mask_to_proto_mask(INT_CLASS ClassTemplate,
-                               BIT_VECTOR config_mask,
-                               BIT_VECTOR proto_mask);
-
 void IntegerMatcher(INT_CLASS ClassTemplate,
                     BIT_VECTOR ProtoMask,
                     BIT_VECTOR ConfigMask,
                     UINT16 BlobLength,
                     INT16 NumFeatures,
                     INT_FEATURE_ARRAY Features,
-                    INT32 min_misses,
                     UINT8 NormalizationFactor,
                     INT_RESULT Result,
                     int Debug);
@@ -126,19 +96,19 @@ int FindBadFeatures(INT_CLASS ClassTemplate,
                     FEATURE_ID *FeatureArray,
                     int Debug);
 
-void InitIntegerMatcher(); 
+void InitIntegerMatcher();
 
-void InitIntegerMatcherVars(); 
+void InitIntegerMatcherVars();
 
-void PrintIntMatcherStats(FILE *f); 
+void PrintIntMatcherStats(FILE *f);
 
-void SetProtoThresh(FLOAT32 Threshold); 
+void SetProtoThresh(FLOAT32 Threshold);
 
-void SetFeatureThresh(FLOAT32 Threshold); 
+void SetFeatureThresh(FLOAT32 Threshold);
 
-void SetBaseLineMatch(); 
+void SetBaseLineMatch();
 
-void SetCharNormMatch(); 
+void SetCharNormMatch();
 
 /**----------------------------------------------------------------------------
           Private Function Prototypes
@@ -160,14 +130,7 @@ void IMDebugConfigurationSum(INT_FEATURE FeatureNum,
                              UINT8 *FeatureEvidence,
                              INT32 ConfigCount);
 
-void PMUpdateTablesForFeature (INT_CLASS ClassTemplate,
-int FeatureNum,
-INT_FEATURE Feature,
-UINT8 FeatureEvidence[MAX_NUM_CONFIGS],
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-int Debug);
-
-void IMUpdateTablesForFeature (INT_CLASS ClassTemplate,
+int IMUpdateTablesForFeature (INT_CLASS ClassTemplate,
 BIT_VECTOR ProtoMask,
 BIT_VECTOR ConfigMask,
 int FeatureNum,
@@ -209,10 +172,6 @@ UINT8
 ProtoEvidence[MAX_NUM_PROTOS]
 [MAX_PROTO_INDEX], INT16 NumFeatures);
 
-void PMNormalizeSumOfEvidences (INT_CLASS ClassTemplate,
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-INT16 NumFeatures, INT32 used_features);
-
 void IMNormalizeSumOfEvidences (INT_CLASS ClassTemplate,
 int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
 INT16 NumFeatures, INT32 used_features);
@@ -229,7 +188,7 @@ void IMDebugBestMatch(int BestMatch,
                       UINT8 NormalizationFactor);
 #endif
 
-void HeapSort (int n, register INT16 ra[], register UINT8 rb[]);
+void HeapSort (int n, register int ra[], register int rb[]);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

@@ -32,12 +32,14 @@
 #include "featdefs.h"
 #include "tessopt.h"
 #include "ocrfeatures.h"
+#include "mf.h"
 #include "general.h"
 #include "clusttool.h"
 #include "cluster.h"
 #include "protos.h"
 #include "minmax.h"
 #include "debug.h"
+#include "tprintf.h"
 #include "const.h"
 #include "mergenf.h"
 #include "name2char.h"
@@ -50,18 +52,21 @@
 
 #include <string.h>
 #include <stdio.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 #define MAXNAMESIZE	80
 #define MAX_NUM_SAMPLES	10000
 #define PROGRAM_FEATURE_TYPE "mf"
 #define MINSD (1.0f / 128.0f)
+#define MINSD_ANGLE (1.0f / 64.0f)
 
 int	row_number;						/* cjn: fixes link problem */
 
 typedef struct
 {
   char		*Label;
+  int       SampleCount;
   LIST		List;
 }
 LABELEDLISTNODE, *LABELEDLIST;
@@ -151,6 +156,9 @@ PARAMDESC *ConvertToPARAMDESC(
 	PARAM_DESC* Param_Desc,
 	int N);
 */
+void MergeInsignificantProtos(LIST ProtoList, const char* label,
+                              CLUSTERER	*Clusterer, CLUSTERCONFIG *Config);
+
 LIST RemoveInsignificantProtos(
 	LIST ProtoList,
 	BOOL8 KeepSigProtos,
@@ -184,21 +192,51 @@ static BOOL8		ShowInsignificantProtos = FALSE;
 // global variable to hold configuration parameters to control clustering
 // -M 0.40   -B 0.05   -I 1.0   -C 1e-6.
 static CLUSTERCONFIG Config =
-{ elliptical, 0.40, 0.05, 1.0, 1e-6 };
+{ elliptical, 0.625, 0.05, 1.0, 1e-6, 0 };
 
-static FLOAT32 RoundingAccuracy = 0.0;
+static FLOAT32 RoundingAccuracy = 0.0f;
 
 // The unicharset used during mftraining
 static UNICHARSET unicharset_mftraining;
 
+const char* test_ch = "";
+
 /*----------------------------------------------------------------------------
 						Public Code
 -----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-int main (
-     int	argc,
-     char	**argv)
+void DisplayProtoList(const char* ch, LIST protolist) {
+  void* window = c_create_window("Char samples", 50, 200,
+                                 520, 520, -130.0, 130.0, -130.0, 130.0);
+  LIST proto = protolist;
+  iterate(proto) {
+    PROTOTYPE* prototype = reinterpret_cast<PROTOTYPE *>(first_node(proto));
+    if (prototype->Significant)
+      c_line_color_index(window, Green);
+    else if (prototype->NumSamples == 0)
+      c_line_color_index(window, Blue);
+    else if (prototype->Merged)
+      c_line_color_index(window, Magenta);
+    else
+      c_line_color_index(window, Red);
+    float x = CenterX(prototype->Mean);
+    float y = CenterY(prototype->Mean);
+    double angle = OrientationOf(prototype->Mean) * 2 * M_PI;
+    float dx = static_cast<float>(LengthOf(prototype->Mean) * cos(angle) / 2);
+    float dy = static_cast<float>(LengthOf(prototype->Mean) * sin(angle) / 2);
+    c_move(window, (x - dx) * 256, (y - dy) * 256);
+    c_draw(window, (x + dx) * 256, (y + dy) * 256);
+    if (prototype->Significant)
+      tprintf("Green proto at (%g,%g)+(%g,%g) %d samples\n",
+              x, y, dx, dy, prototype->NumSamples);
+    else if (prototype->NumSamples > 0 && !prototype->Merged)
+      tprintf("Red proto at (%g,%g)+(%g,%g) %d samples\n",
+              x, y, dx, dy, prototype->NumSamples);
+  }
+  c_make_current(window);
+}
 
+/*---------------------------------------------------------------------------*/
+int main (int argc, char **argv) {
 /*
 **	Parameters:
 **		argc	number of command line arguments
@@ -231,123 +269,119 @@ int main (
 **	History:	Fri Aug 18 08:56:17 1989, DSJ, Created.
 **				Mon May 18 1998, Christy Russson, Revistion started.
 */
+  char	*PageName;
+  FILE	*TrainingPage;
+  FILE	*OutFile;
+  LIST	CharList;
+  CLUSTERER	*Clusterer = NULL;
+  LIST		ProtoList = NIL;
+  LABELEDLIST CharSample;
+  PROTOTYPE	*Prototype;
+  LIST   	ClassList = NIL;
+  int		Cid, Pid;
+  PROTO		Proto;
+  PROTO_STRUCT	DummyProto;
+  BIT_VECTOR	Config2;
+  MERGE_CLASS	MergeClass;
+  INT_TEMPLATES	IntTemplates;
+  LIST pCharList, pProtoList;
+  char Filename[MAXNAMESIZE];
 
-{
-	char	*PageName;
-	FILE	*TrainingPage;
-	FILE	*OutFile;
-	LIST	CharList;
-	CLUSTERER	*Clusterer = NULL;
-	LIST		ProtoList = NIL;
-	LABELEDLIST CharSample;
-	PROTOTYPE	*Prototype;
-	LIST   	ClassList = NIL;
-	int		Cid, Pid;
-	PROTO		Proto;
-	PROTO_STRUCT	DummyProto;
-	BIT_VECTOR	Config2;
-	MERGE_CLASS	MergeClass;
-	INT_TEMPLATES	IntTemplates;
-	LIST pCharList, pProtoList;
-	char Filename[MAXNAMESIZE];
+  // Clean the unichar set
+  unicharset_mftraining.clear();
+  // Space character needed to represent NIL classification
+  unicharset_mftraining.unichar_insert(" ");
 
-        // Clean the unichar set
-        unicharset_mftraining.clear();
-        // Space character needed to represent NIL classification
-        unicharset_mftraining.unichar_insert(" ");
+  ParseArguments (argc, argv);
+  InitFastTrainerVars ();
+  InitSubfeatureVars ();
+  while ((PageName = GetNextFilename()) != NULL) {
+    printf ("Reading %s ...\n", PageName);
+    TrainingPage = Efopen (PageName, "r");
+    CharList = ReadTrainingSamples (TrainingPage);
+    fclose (TrainingPage);
+    //WriteTrainingSamples (Directory, CharList);
+    pCharList = CharList;
+    iterate(pCharList) {
+      //Cluster
+      CharSample = (LABELEDLIST) first_node (pCharList);
+//    printf ("\nClustering %s ...", CharSample->Label);
+      Clusterer = SetUpForClustering(CharSample);
+      Config.MagicSamples = CharSample->SampleCount;
+      ProtoList = ClusterSamples(Clusterer, &Config);
+      CleanUpUnusedData(ProtoList);
 
-	ParseArguments (argc, argv);
-	InitFastTrainerVars ();
-	InitSubfeatureVars ();
-	while ((PageName = GetNextFilename()) != NULL)
-	{
-		printf ("Reading %s ...\n", PageName);
-		TrainingPage = Efopen (PageName, "r");
-		CharList = ReadTrainingSamples (TrainingPage);
-		fclose (TrainingPage);
-		//WriteTrainingSamples (Directory, CharList);
-		pCharList = CharList;
-		iterate(pCharList)
-		{
-			//Cluster
-			CharSample = (LABELEDLIST) first_node (pCharList);
-// 			printf ("\nClustering %s ...", CharSample->Label);
-			Clusterer = SetUpForClustering(CharSample);
-			ProtoList = ClusterSamples(Clusterer, &Config);
-			//WriteClusteredTrainingSamples (Directory, ProtoList, Clusterer, CharSample);
-			CleanUpUnusedData(ProtoList);
+      //Merge
+      MergeInsignificantProtos(ProtoList, CharSample->Label,
+                               Clusterer, &Config);
+      if (strcmp(test_ch, CharSample->Label) == 0)
+        DisplayProtoList(test_ch, ProtoList);
+      ProtoList = RemoveInsignificantProtos(ProtoList, ShowSignificantProtos,
+                                            ShowInsignificantProtos,
+                                            Clusterer->SampleSize);
+      FreeClusterer(Clusterer);
+      MergeClass = FindClass (ClassList, CharSample->Label);
+      if (MergeClass == NULL) {
+        MergeClass = NewLabeledClass (CharSample->Label);
+        ClassList = push (ClassList, MergeClass);
+      }
+      Cid = AddConfigToClass(MergeClass->Class);
+      pProtoList = ProtoList;
+      iterate (pProtoList) {
+        Prototype = (PROTOTYPE *) first_node (pProtoList);
 
-			//Merge
-			ProtoList = RemoveInsignificantProtos(ProtoList, ShowSignificantProtos,
-				ShowInsignificantProtos, Clusterer->SampleSize);
-			FreeClusterer(Clusterer);
-			MergeClass = FindClass (ClassList, CharSample->Label);
-			if (MergeClass == NULL)
-			{
-				MergeClass = NewLabeledClass (CharSample->Label);
-				ClassList = push (ClassList, MergeClass);
-			}
-			Cid = AddConfigToClass(MergeClass->Class);
-			pProtoList = ProtoList;
-			iterate (pProtoList)
-			{
-				Prototype = (PROTOTYPE *) first_node (pProtoList);
-
-				// see if proto can be approximated by existing proto
-				Pid = FindClosestExistingProto (MergeClass->Class, MergeClass->NumMerged, Prototype);
-				if (Pid == NO_PROTO)
-				{
-					Pid = AddProtoToClass (MergeClass->Class);
-					Proto = ProtoIn (MergeClass->Class, Pid);
-					MakeNewFromOld (Proto, Prototype);
-					MergeClass->NumMerged[Pid] = 1;
-				}
-				else
-				{
-					MakeNewFromOld (&DummyProto, Prototype);
-					ComputeMergedProto (ProtoIn (MergeClass->Class, Pid), &DummyProto,
-						(FLOAT32) MergeClass->NumMerged[Pid], 1.0,
-						ProtoIn (MergeClass->Class, Pid));
-					MergeClass->NumMerged[Pid] ++;
-				}
-				Config2 = ConfigIn (MergeClass->Class, Cid);
-				AddProtoToConfig (Pid, Config2);
-			}
-			FreeProtoList (&ProtoList);
-		}
-		FreeTrainingSamples (CharList);
-	}
-	//WriteMergedTrainingSamples(Directory,ClassList);
-	WriteMicrofeat(Directory, ClassList);
-	InitIntProtoVars ();
-	InitPrototypes ();
-	SetUpForFloat2Int(ClassList);
-	IntTemplates = CreateIntTemplates(TrainingData, unicharset_mftraining);
-	strcpy (Filename, "");
-	if (Directory != NULL)
-	{
-		strcat (Filename, Directory);
-		strcat (Filename, "/");
-	}
-	strcat (Filename, "inttemp");
+        // see if proto can be approximated by existing proto
+        Pid = FindClosestExistingProto(MergeClass->Class,
+                                       MergeClass->NumMerged, Prototype);
+        if (Pid == NO_PROTO) {
+          Pid = AddProtoToClass (MergeClass->Class);
+          Proto = ProtoIn (MergeClass->Class, Pid);
+          MakeNewFromOld (Proto, Prototype);
+          MergeClass->NumMerged[Pid] = 1;
+        }
+        else {
+          MakeNewFromOld (&DummyProto, Prototype);
+          ComputeMergedProto (ProtoIn (MergeClass->Class, Pid), &DummyProto,
+              (FLOAT32) MergeClass->NumMerged[Pid], 1.0,
+              ProtoIn (MergeClass->Class, Pid));
+          MergeClass->NumMerged[Pid] ++;
+        }
+        Config2 = ConfigIn (MergeClass->Class, Cid);
+        AddProtoToConfig (Pid, Config2);
+      }
+      FreeProtoList (&ProtoList);
+    }
+    FreeTrainingSamples (CharList);
+  }
+  //WriteMergedTrainingSamples(Directory,ClassList);
+  WriteMicrofeat(Directory, ClassList);
+  InitIntProtoVars ();
+  InitPrototypes ();
+  SetUpForFloat2Int(ClassList);
+  IntTemplates = CreateIntTemplates(TrainingData, unicharset_mftraining);
+  strcpy (Filename, "");
+  if (Directory != NULL) {
+    strcat (Filename, Directory);
+    strcat (Filename, "/");
+  }
+  strcat (Filename, "inttemp");
 #ifdef __UNIX__
-	OutFile = Efopen (Filename, "w");
+  OutFile = Efopen (Filename, "w");
 #else
-	OutFile = Efopen (Filename, "wb");
+  OutFile = Efopen (Filename, "wb");
 #endif
-	WriteIntTemplates(OutFile, IntTemplates, unicharset_mftraining);
-	fclose (OutFile);
-	strcpy (Filename, "");
-	if (Directory != NULL)
-	{
-		strcat (Filename, Directory);
-		strcat (Filename, "/");
-	}
-	strcat (Filename, "pffmtable");
-        // Now create pffmtable.
-        WritePFFMTable(IntTemplates, Filename);
-	printf ("Done!\n"); /**/
-	FreeLabeledClassList (ClassList);
+  WriteIntTemplates(OutFile, IntTemplates, unicharset_mftraining);
+  fclose (OutFile);
+  strcpy (Filename, "");
+  if (Directory != NULL) {
+    strcat (Filename, Directory);
+    strcat (Filename, "/");
+  }
+  strcat (Filename, "pffmtable");
+  // Now create pffmtable.
+  WritePFFMTable(IntTemplates, Filename);
+  printf ("Done!\n"); /**/
+  FreeLabeledClassList (ClassList);
   return 0;
 }	/* main */
 
@@ -438,8 +472,8 @@ char	**argv)
 		case 'R':
 			ParametersRead = sscanf( tessoptarg, "%f", &RoundingAccuracy );
 			if ( ParametersRead != 1 ) Error = TRUE;
-			else if ( RoundingAccuracy > 0.01 ) RoundingAccuracy = 0.01;
-			else if ( RoundingAccuracy < 0.0 ) RoundingAccuracy = 0.0;
+			else if ( RoundingAccuracy > 0.01f ) RoundingAccuracy = 0.01f;
+			else if ( RoundingAccuracy < 0.0f ) RoundingAccuracy = 0.0f;
 			break;
 		case 'S':
 			switch ( tessoptarg[0] )
@@ -547,9 +581,12 @@ LIST ReadTrainingSamples (
                 for (int feature = 0; feature < FeatureSamples->NumFeatures; ++feature) {
                   FEATURE f = FeatureSamples->Features[feature];
                   for (int dim =0; dim < f->Type->NumParams; ++dim)
-                    f->Params[dim] += UniformRandomNumber(-MINSD, MINSD);
+                    f->Params[dim] += dim == MFDirection ?
+                                    UniformRandomNumber(-MINSD_ANGLE, MINSD_ANGLE) :
+                                    UniformRandomNumber(-MINSD, MINSD);
                 }
 		CharSample->List = push (CharSample->List, FeatureSamples);
+        CharSample->SampleCount++;
 		for (i = 0; i < NumFeatureSetsIn (CharDesc); i++)
                   if (Type != i)
                     FreeFeatureSet (FeaturesOfType (CharDesc, i));
@@ -631,6 +668,7 @@ LABELEDLIST NewLabeledList (
 	LabeledList->Label = (char*)Emalloc (strlen (Label)+1);
 	strcpy (LabeledList->Label, Label);
 	LabeledList->List = NIL;
+    LabeledList->SampleCount = 0;
 	return (LabeledList);
 
 }	/* NewLabeledList */
@@ -1030,7 +1068,7 @@ CLUSTERER *SetUpForClustering(
 			if (Sample == NULL)
 				Sample = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
 			for (j=0; j < N; j++)
-				if (RoundingAccuracy != 0.0)
+				if (RoundingAccuracy != 0.0f)
 					Sample[j] = round(FeatureSet->Features[i]->Params[j], RoundingAccuracy);
 				else
 					Sample[j] = FeatureSet->Features[i]->Params[j];
@@ -1042,6 +1080,71 @@ CLUSTERER *SetUpForClustering(
 	return( Clusterer );
 
 }	/* SetUpForClustering */
+
+/*------------------------------------------------------------------------*/
+void MergeInsignificantProtos(LIST ProtoList, const char* label,
+                              CLUSTERER	*Clusterer, CLUSTERCONFIG *Config) {
+  PROTOTYPE	*Prototype;
+  bool debug = strcmp(test_ch, label) == 0;
+
+  LIST pProtoList = ProtoList;
+  iterate(pProtoList) {
+    Prototype = (PROTOTYPE *) first_node (pProtoList);
+    if (Prototype->Significant || Prototype->Merged)
+      continue;
+    FLOAT32 best_dist = 0.125;
+    PROTOTYPE* best_match = NULL;
+    // Find the nearest alive prototype.
+    LIST list_it = ProtoList;
+    iterate(list_it) {
+      PROTOTYPE* test_p = (PROTOTYPE *) first_node (list_it);
+      if (test_p != Prototype && !test_p->Merged) {
+        FLOAT32 dist = ComputeDistance(Clusterer->SampleSize,
+                                       Clusterer->ParamDesc,
+                                       Prototype->Mean, test_p->Mean);
+        if (dist < best_dist) {
+          best_match = test_p;
+          best_dist = dist;
+        }
+      }
+    }
+    if (best_match != NULL && !best_match->Significant) {
+      if (debug)
+         tprintf("Merging red clusters (%d+%d) at %g,%g and %g,%g\n",
+                 best_match->NumSamples, Prototype->NumSamples,
+                 best_match->Mean[0], best_match->Mean[1],
+                 Prototype->Mean[0], Prototype->Mean[1]);
+      best_match->NumSamples = MergeClusters(Clusterer->SampleSize,
+                                             Clusterer->ParamDesc,
+                                             best_match->NumSamples,
+                                             Prototype->NumSamples,
+                                             best_match->Mean,
+                                             best_match->Mean, Prototype->Mean);
+      Prototype->NumSamples = 0;
+      Prototype->Merged = 1;
+    } else if (best_match != NULL) {
+      if (debug)
+        tprintf("Red proto at %g,%g matched a green one at %g,%g\n",
+                Prototype->Mean[0], Prototype->Mean[1],
+                best_match->Mean[0], best_match->Mean[1]);
+      Prototype->Merged = 1;
+    }
+  }
+  // Mark significant those that now have enough samples.
+  int min_samples = (INT32) (Config->MinSamples * Clusterer->NumChar);
+  pProtoList = ProtoList;
+  iterate(pProtoList) {
+    Prototype = (PROTOTYPE *) first_node (pProtoList);
+    // Process insignificant protos that do not match a green one
+    if (!Prototype->Significant && Prototype->NumSamples >= min_samples &&
+        !Prototype->Merged) {
+      if (debug)
+        tprintf("Red proto at %g,%g becoming green\n",
+                Prototype->Mean[0], Prototype->Mean[1]);
+      Prototype->Significant = true;
+    }
+  }
+}	/* MergeInsignificantProtos */
 
 /*------------------------------------------------------------------------*/
 LIST RemoveInsignificantProtos(

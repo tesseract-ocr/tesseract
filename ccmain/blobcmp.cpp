@@ -62,7 +62,7 @@ float compare_tess_blobs(TBLOB *blob1,
     SetBaseLineMatch();
     IntegerMatcher (ClassForClassId (ad_templates->Templates, CMP_CLASS),
       AllProtosOn, AllConfigsOn, fcount, fcount,
-      int_features, 0, 0, &int_result, testedit_match_debug);
+      int_features, 0, &int_result, testedit_match_debug);
     FreeFeatureSet(float_features);
     if (int_result.Rating < 0)
       int_result.Rating = MAX_FLOAT32;

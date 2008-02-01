@@ -61,6 +61,26 @@ static jmp_buf QuickExit;
 
 static void_proc WalkAction;
 
+// Helper function to find the next essential dimension in a cycle.
+static int NextLevel(int level) {
+  do {
+    ++level;
+    if (level >= N)
+      level = 0;
+  } while (KeyDesc[level].NonEssential);
+  return level;
+}
+
+// Helper function to find the previous essential dimension in a cycle.
+static int PrevLevel(int level) {
+  do {
+    --level;
+    if (level < 0)
+      level = N - 1;
+  } while (KeyDesc[level].NonEssential);
+  return level;
+}
+
 /**----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------**/
@@ -136,7 +156,7 @@ MakeKDTree (INT16 KeySize, PARAM_DESC KeyDesc[]) {
 
 
 /*---------------------------------------------------------------------------*/
-void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data) { 
+void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data) {
 /*
  **	Parameters:
  **		Tree		K-D tree in which data is to be stored
@@ -164,7 +184,7 @@ void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data) {
   KeyDesc = &(Tree->KeyDesc[0]);
   PtrToNode = &(Tree->Root.Left);
   Node = *PtrToNode;
-  Level = 0;
+  Level = NextLevel(-1);
   while (Node != NULL) {
     if (Key[Level] < Node->BranchPoint) {
       PtrToNode = &(Node->Left);
@@ -176,9 +196,7 @@ void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data) {
       if (Key[Level] < Node->RightBranch)
         Node->RightBranch = Key[Level];
     }
-    Level++;
-    if (Level >= N)
-      Level = 0;
+    Level = NextLevel(Level);
     Node = *PtrToNode;
   }
 
@@ -239,7 +257,7 @@ KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data) {
   KeyDesc = &(Tree->KeyDesc[0]);
   Father = &(Tree->Root);
   Current = Father->Left;
-  Level = 0;
+  Level = NextLevel(-1);
 
   /* search tree for node to be deleted */
   while ((Current != NULL) && (!NodeFound (Current, Key, Data))) {
@@ -249,9 +267,7 @@ KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data) {
     else
       Current = Current->Right;
 
-    Level++;
-    if (Level >= N)
-      Level = 0;
+    Level = NextLevel(Level);
   }
 
   if (Current != NULL) {         /* if node to be deleted was found */
@@ -271,15 +287,11 @@ KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data) {
       else
         break;
 
-      Level++;
-      if (Level >= N)
-        Level = 0;
+      Level = NextLevel(Level);
     }
 
     /* compute level of replacement node's father */
-    Level--;
-    if (Level < 0)
-      Level = N - 1;
+    Level = PrevLevel(Level);
 
     /* disconnect replacement node from it's father */
     if (FatherReplacement->Left == Replacement) {
@@ -304,7 +316,7 @@ KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data) {
       else
         Father->Right = Replacement;
     }
-    FreeKDNode(Current); 
+    FreeKDNode(Current);
   }
 }                                /* KDDelete */
 
@@ -381,7 +393,7 @@ void *NBuffer, FLOAT32 DBuffer[]) {
 
 
 /*---------------------------------------------------------------------------*/
-void KDWalk(KDTREE *Tree, void_proc Action) { 
+void KDWalk(KDTREE *Tree, void_proc Action) {
 /*
  **	Parameters:
  **		Tree	ptr to K-D tree to be walked
@@ -401,12 +413,12 @@ void KDWalk(KDTREE *Tree, void_proc Action) {
  */
   WalkAction = Action;
   if (Tree->Root.Left != NULL)
-    Walk (Tree->Root.Left, 0);
+    Walk (Tree->Root.Left, NextLevel(-1));
 }                                /* KDWalk */
 
 
 /*---------------------------------------------------------------------------*/
-void FreeKDTree(KDTREE *Tree) { 
+void FreeKDTree(KDTREE *Tree) {
 /*
  **	Parameters:
  **		Tree	tree data structure to be released
@@ -424,7 +436,7 @@ void FreeKDTree(KDTREE *Tree) {
  **		5/26/89, DSJ, Created.
  */
   FreeSubTree (Tree->Root.Left);
-  memfree(Tree); 
+  memfree(Tree);
 }                                /* FreeKDTree */
 
 
@@ -496,7 +508,7 @@ MakeKDNode (FLOAT32 Key[], char *Data, int Index) {
 
 
 /*---------------------------------------------------------------------------*/
-void FreeKDNode(KDNODE *Node) { 
+void FreeKDNode(KDNODE *Node) {
 /*
  **	Parameters:
  **		Node	ptr to node data structure to be freed
@@ -516,7 +528,7 @@ void FreeKDNode(KDNODE *Node) {
 
 
 /*---------------------------------------------------------------------------*/
-void Search(int Level, KDNODE *SubTree) { 
+void Search(int Level, KDNODE *SubTree) {
 /*
  **	Parameters:
  **		Level		level in tree of sub-tree to be searched
@@ -561,12 +573,12 @@ void Search(int Level, KDNODE *SubTree) {
       Distance[NumberOfNeighbors] = d;
       NumberOfNeighbors++;
       if (NumberOfNeighbors == MaxNeighbors)
-        FindMaxDistance(); 
+        FindMaxDistance();
     }
     else {
       Neighbor[Furthest] = SubTree->Data;
       Distance[Furthest] = d;
-      FindMaxDistance(); 
+      FindMaxDistance();
     }
   }
   if (QueryPoint[Level] < SubTree->BranchPoint) {
@@ -575,7 +587,7 @@ void Search(int Level, KDNODE *SubTree) {
     OldLBoxEdge = LBMax[Level];
     LBMax[Level] = SubTree->RightBranch;
     if (SubTree->Left != NULL)
-      Search (Level + 1, SubTree->Left);
+      Search (NextLevel(Level), SubTree->Left);
     SBMax[Level] = OldSBoxEdge;
     LBMax[Level] = OldLBoxEdge;
     OldSBoxEdge = SBMin[Level];
@@ -583,7 +595,7 @@ void Search(int Level, KDNODE *SubTree) {
     OldLBoxEdge = LBMin[Level];
     LBMin[Level] = SubTree->LeftBranch;
     if ((SubTree->Right != NULL) && QueryIntersectsSearch ())
-      Search (Level + 1, SubTree->Right);
+      Search (NextLevel(Level), SubTree->Right);
     SBMin[Level] = OldSBoxEdge;
     LBMin[Level] = OldLBoxEdge;
   }
@@ -593,7 +605,7 @@ void Search(int Level, KDNODE *SubTree) {
     OldLBoxEdge = LBMin[Level];
     LBMin[Level] = SubTree->LeftBranch;
     if (SubTree->Right != NULL)
-      Search (Level + 1, SubTree->Right);
+      Search (NextLevel(Level), SubTree->Right);
     SBMin[Level] = OldSBoxEdge;
     LBMin[Level] = OldLBoxEdge;
     OldSBoxEdge = SBMax[Level];
@@ -601,7 +613,7 @@ void Search(int Level, KDNODE *SubTree) {
     OldLBoxEdge = LBMax[Level];
     LBMax[Level] = SubTree->RightBranch;
     if ((SubTree->Left != NULL) && QueryIntersectsSearch ())
-      Search (Level + 1, SubTree->Left);
+      Search (NextLevel(Level), SubTree->Left);
     SBMax[Level] = OldSBoxEdge;
     LBMax[Level] = OldLBoxEdge;
   }
@@ -657,7 +669,7 @@ register FLOAT32 p1[], register FLOAT32 p2[]) {
 
 
 /*---------------------------------------------------------------------------*/
-void FindMaxDistance() { 
+void FindMaxDistance() {
 /*
  **	Parameters:
  **		None
@@ -690,7 +702,7 @@ void FindMaxDistance() {
 
 
 /*---------------------------------------------------------------------------*/
-int QueryIntersectsSearch() { 
+int QueryIntersectsSearch() {
 /*
  **	Parameters:
  **		None
@@ -765,7 +777,7 @@ int QueryIntersectsSearch() {
 
 
 /*---------------------------------------------------------------------------*/
-int QueryInSearch() { 
+int QueryInSearch() {
 /*
  **	Parameters:
  **		None
@@ -813,7 +825,7 @@ int QueryInSearch() {
 
 
 /*---------------------------------------------------------------------------*/
-void Walk(KDNODE *SubTree, INT32 Level) { 
+void Walk(KDNODE *SubTree, INT32 Level) {
 /*
  **	Parameters:
  **		SubTree		ptr to root of subtree to be walked
@@ -842,17 +854,17 @@ void Walk(KDNODE *SubTree, INT32 Level) {
   else {
     (*WalkAction) (SubTree->Data, preorder, Level);
     if (SubTree->Left != NULL)
-      Walk (SubTree->Left, Level + 1);
+      Walk (SubTree->Left, NextLevel(Level));
     (*WalkAction) (SubTree->Data, postorder, Level);
     if (SubTree->Right != NULL)
-      Walk (SubTree->Right, Level + 1);
+      Walk (SubTree->Right, NextLevel(Level));
     (*WalkAction) (SubTree->Data, endorder, Level);
   }
 }                                /* Walk */
 
 
 /*---------------------------------------------------------------------------*/
-void FreeSubTree(KDNODE *SubTree) { 
+void FreeSubTree(KDNODE *SubTree) {
 /*
  **	Parameters:
  **		SubTree		ptr to root node of sub-tree to be freed
@@ -867,6 +879,6 @@ void FreeSubTree(KDNODE *SubTree) {
   if (SubTree != NULL) {
     FreeSubTree (SubTree->Left);
     FreeSubTree (SubTree->Right);
-    memfree(SubTree); 
+    memfree(SubTree);
   }
 }                                /* FreeSubTree */
