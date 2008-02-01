@@ -24,155 +24,115 @@
 #include          "memry.h"
 #include          "serialis.h"
 
+// STRING_IS_PROTECTED means that  string[index] = X is invalid
+// because you have to go through strings interface to modify it.
+// This allows the string to ensure internal integrity and maintain
+// its own string length. Unfortunately this is not possible because
+// STRINGS are used as direct-manipulation data buffers for things
+// like length arrays and many places cast away the const on string()
+// to mutate the string. Turning this off means that internally we
+// cannot assume we know the strlen.
+#define STRING_IS_PROTECTED  0
+
 class DLLSYM STRING
 {
-  char *ptr;                     //ptr to the chars
-
   public:
-    STRING() {  //constructor
-      ptr = NULL;                //empty string
-    }
+    STRING();
+    STRING(const STRING &string);
+    STRING(const char *string);
+    ~STRING ();
 
-    STRING(  //classwise copy
-           const STRING &string) {
-      if (string.ptr != NULL) {
-                                 //length of source
-        INT32 length = strlen (string.ptr) + 1;
+    BOOL8 contains(const char c) const;
+    INT32 length() const;
+    const char *string() const;
 
-                                 //get space
-        ptr = alloc_string (length);
-        strcpy (ptr, string.ptr);//and copy it
-      }
-      else {
-        ptr = alloc_string (1);
-        if (ptr != NULL)
-          *ptr = '\0';
-      }
-    }
+#if STRING_IS_PROTECTED
+    const char &operator[] (INT32 index) const;
+    // len is number of chars in s to insert starting at index in this string
+    void insert_range(INT32 index, const char*s, int len);
+    void erase_range(INT32 index, int len);
+    void truncate_at(INT32 index);
+#else
+    char &operator[] (INT32 index) const;
+#endif
 
-    STRING(  //contruct from char*
-           const char *string) {
-      if (string != NULL) {
-                                 //length of source
-        INT32 length = strlen (string) + 1;
+    BOOL8 operator== (const STRING & string) const;
+    BOOL8 operator!= (const STRING & string) const;
+    BOOL8 operator!= (const char *string) const;
 
-                                 //get space
-        ptr = alloc_string (length);
-        if (ptr != NULL)
-          strcpy(ptr, string);  //and copy it
-      }
-      else {
-        ptr = alloc_string (1);
-        if (ptr != NULL)
-          *ptr = '\0';
-      }
-    }
+    STRING & operator= (const char *string);
+    STRING & operator= (const STRING & string);
 
-    ~STRING () {                 //destructor
-      if (ptr != NULL)
-        free_string(ptr);  //give it back
-    }
+    STRING operator+ (const STRING & string) const;
+    STRING operator+ (const char ch) const;
 
-    char &operator[] (           //access function
-      INT32 index) const         //string index
-    {
-      return ptr[index];         //no bounds checks
-    }
+    STRING & operator+= (const char *string);
+    STRING & operator+= (const STRING & string);
+    STRING & operator+= (const char ch);
 
-    BOOL8 contains(  //char in string?
-                   const char c) const {
-      if ((ptr == NULL) || ((c != '\0') && strchr (ptr, c) == NULL))
-        return FALSE;
-      else
-        return TRUE;
-    }
+    // WARNING
+    // This method leaks the underlying pointer,
+    // but that is what the original implementation did
+    void prep_serialise();
 
-    INT32 length() const {  //string length
-      if (ptr != NULL)
-        return strlen (ptr);
-      else
-        return 0;
-    }
-
-    const char *string() const {  //ptr to string
-      return ptr;
-    }
-
-    BOOL8 operator== (           //string equality
-      const STRING & string) const
-    {
-      if (ptr != NULL && string.ptr != NULL)
-        return strcmp (ptr, string.ptr) == 0;
-      else
-        return (ptr == NULL || *ptr == '\0')
-          && (string.ptr == NULL || *(string.ptr) == '\0');
-    }
-
-    BOOL8 operator!= (           //string equality
-      const STRING & string) const
-    {
-      if (ptr != NULL && string.ptr != NULL)
-        return strcmp (ptr, string.ptr) != 0;
-      else
-        return !((ptr == NULL || *ptr == '\0')
-          && (string.ptr == NULL || *(string.ptr) == '\0'));
-    }
-
-    BOOL8 operator!= (           //string equality
-      const char *string) const
-    {
-      if (ptr != NULL && string != NULL)
-        return strcmp (ptr, string) != 0;
-      else
-        return !((ptr == NULL || *ptr == '\0')
-          && (string == NULL || *string == '\0'));
-    }
-
-    STRING & operator= (         //assignment
-      const char *string);       //of char*
-
-    STRING & operator= (         //assignment
-    const STRING & string) {     //of string
-      *this = string.ptr;        //as for char*
-      return *this;
-    }
-
-    STRING operator+ (           //concatenation
-      const STRING & string) const;
-
-    STRING operator+ (           //char concatenation
-      const char ch) const;
-
-    STRING & operator+= (        //inplace cat
-      const char *string);
-    STRING & operator+= (        //inplace cat
-    const STRING & string) {
-      *this += string.ptr;
-      return *this;
-    }
-
-    STRING & operator+= (        //inplace char cat
-      const char ch);
-
-    void prep_serialise() {  //set ptrs to counts
-      ptr = (char *) (length () + 1);
-    }
-
-    void dump(  //write external bits
-              FILE *f) {
-      serialise_bytes (f, (void *) ptr, (int) (length () + 1));
-    }
-
-    void de_dump(  //read external bits
-                 FILE *f) {
-      char *instring;            //input from read
-
-      instring = (char *) de_serialise_bytes (f, (ptrdiff_t) ptr);
-      ptr = NULL;
-      *this = instring;
-      free_mem(instring);
-    }
+    void dump(FILE *f);
+    void de_dump(FILE *f);
 
     make_serialise (STRING)
+
+    // ensure capcaity but keep pointer encapsulated
+    inline void ensure(INT32 min_capacity) { ensure_cstr(min_capacity); }
+
+  private:
+    typedef struct STRING_HEADER {
+      // How much space was allocated in the string buffer for char data.
+      int capacity_;
+
+      // used_ is how much of the capacity is currently being used,
+      // including a '\0' terminator.
+      //
+      // If used_ is 0 then string is NULL (not even the '\0')
+      // else if used_ > 0 then it is strlen() + 1 (because it includes '\0')
+      // else strlen is >= 0 (not NULL) but needs to be computed.
+      //      this condition is set when encapsulation is violated because
+      //      an API returned a mutable string.
+      //
+      // capacity_ - used_ = excess capacity that the string can grow
+      //                     without reallocating
+      mutable int used_;
+    } STRING_HEADER;
+
+    // To preserve the behavior of the old serialization, we only have space
+    // for one pointer in this structure. So we are embedding a data structure
+    // at the start of the storage that will hold additional state variables,
+    // then storing the actual string contents immediately after.
+    STRING_HEADER* data_;
+
+    // returns the header part of the storage
+    inline STRING_HEADER* GetHeader() {
+      return data_;
+    }
+    inline const STRING_HEADER* GetHeader() const {
+      return data_;
+    }
+
+    // returns the string data part of storage
+    inline char* GetCStr() {
+      return ((char *)data_) + sizeof(STRING_HEADER);
+    };
+
+    inline const char* GetCStr() const {
+      return ((const char *)data_) + sizeof(STRING_HEADER);
+    };
+
+    // Ensure string has requested capacity as optimization
+    // to avoid unnecessary reallocations.
+    // The return value is a cstr buffer with at least requested capacity
+    char* ensure_cstr(INT32 min_capacity);
+
+    void FixHeader() const;  // make used_ non-negative, even if const
+
+    char* AllocData(int used, int capacity);
+    void DiscardData();
 };
 #endif
