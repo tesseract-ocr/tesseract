@@ -75,13 +75,13 @@ RANLIB = @RANLIB@
 VERSION = @VERSION@
 
 SUBDIRS = 
-AM_CPPFLAGS = -I$(top_srcdir)/image -I$(top_srcdir)/ccutil
+AM_CPPFLAGS = 
 
-include_HEADERS =      evntlst.h evnts.h grphics.h grphshm.h sbgconst.h sbgdefs.h     sbgtypes.h showim.h
+include_HEADERS =      scrollview.h svmnode.h svutil.h svpaint.cpp
 
 
 lib_LIBRARIES = libtesseract_viewer.a
-libtesseract_viewer_a_SOURCES =      evntlst.cpp grphics.cpp evnts.cpp showim.cpp grphshm.cpp
+libtesseract_viewer_a_SOURCES =      scrollview.cpp svmnode.cpp svutil.cpp
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_HEADER = ../config_auto.h
@@ -94,8 +94,7 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libtesseract_viewer_a_LIBADD = 
-libtesseract_viewer_a_OBJECTS =  evntlst.o grphics.o evnts.o showim.o \
-grphshm.o
+libtesseract_viewer_a_OBJECTS =  scrollview.o svmnode.o svutil.o
 AR = ar
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -110,8 +109,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/evntlst.P .deps/evnts.P .deps/grphics.P \
-.deps/grphshm.P .deps/showim.P
+DEP_FILES =  .deps/scrollview.P .deps/svmnode.P .deps/svutil.P
 SOURCES = $(libtesseract_viewer_a_SOURCES)
 OBJECTS = $(libtesseract_viewer_a_OBJECTS)
 
