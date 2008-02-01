@@ -49,7 +49,7 @@ static BOX convert_vec_block(                        //make non-rect block
 /**********************************************************************
  * BLOCK::read_pd_file
  *
- * Read a whole pd file to make a list of blocks, or use the whole page.
+ * Read a whole pd file to make a list of blocks, or return false.
  **********************************************************************/
 
 BOOL8 read_pd_file(                    //print list of sides
@@ -82,8 +82,6 @@ BOOL8 read_pd_file(                    //print list of sides
   name += PD_EXT;                //add extension
   if ((pdfp = fopen (name.string (), "r")) == NULL) {
                                  //make rect block
-    block = new BLOCK (name.string (), TRUE, 0, 0, 0, 0, xsize, ysize);
-    block_it.add_to_end (block); //on end of list
     return FALSE;                //didn't read one
   }
   else {
