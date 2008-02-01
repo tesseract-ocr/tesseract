@@ -22,6 +22,8 @@
 
 class PAGE_RES;
 class BLOCK_LIST;
+class IMAGE;
+struct Pix;
 
 // Base class for all tesseract APIs.
 // Specific classes can add ability to work on different inputs or produce
@@ -29,7 +31,22 @@ class BLOCK_LIST;
 
 class TessBaseAPI {
  public:
+  // Set the value of an internal "variable" (of either old or new types).
+  // Supply the name of the variable and the value as a string, just as
+  // you would in a config file.
+  // Returns false if the name lookup failed.
+  // For most variables, it is wise to set them before calling Init.
+  // Eg TessBaseAPI::SetVariable("tessedit_char_blacklist", "xyz");
+  static bool SetVariable(const char* variable, const char* value);
+
   // Start tesseract.
+  // TODO(???): Make tesseract thread-safe, and then the init functions will
+  // return an instance of tesseract, and most of the other methods will become
+  // regular methods.
+  static void SimpleInit(const char* datapath,  // Path to tessdata-no ending /.
+                         const char* language,  // ISO 639-3 string or NULL.
+                         bool numeric_mode);
+
   // The datapath must be the name of the data directory or some other file
   // in which the data directory resides (for instance argv[0].)
   // The configfile is the name of a file in the tessconfigs directory
@@ -49,7 +66,7 @@ class TessBaseAPI {
   // Start tesseract.
   // Similar to Init() except that it is possible to specify the language.
   // Language is the code of the language for which the data will be loaded.
-  // (Codes follow ISO 639-2.) If it is NULL, english (eng) will be loaded.
+  // (Codes follow ISO 639-3.) If it is NULL, english (eng) will be loaded.
   static int InitWithLanguage(const char* datapath, const char* outputbase,
                               const char* language, const char* configfile,
                               bool numeric_mode, int argc, char* argv[]);
@@ -97,6 +114,22 @@ class TessBaseAPI {
   // Dump the internal binary image to a PGM file.
   static void DumpPGM(const char* filename);
 
+  // Get a copy of the thresholded global image from Tesseract.
+  // Caller takes ownership of the Pix and must pixDestroy it.
+  // May be called before or after RecognizeText, or after TesseractRect.
+  static Pix* GetTesseractImage();
+
+  // Compute the Otsu threshold(s) for the given histogram.
+  // Also returns H = total count in histogram, and
+  // omega0 = count of histogram below threshold.
+  static int OtsuStats(const int* histogram,
+                       int* H_out,
+                       int* omega0_out);
+
+  // Check whether a word is valid according to Tesseract's language model
+  // returns 0 if the string is invalid, non-zero if valid
+  static int IsValidWord(const char *string);
+
  protected:
   // Copy the given image rectangle to Tesseract, with adaptive thresholding
   // if the image is not already binary.
@@ -132,13 +165,6 @@ class TessBaseAPI {
                             int left, int top, int right, int bottom,
                             int* histogram);
 
-  // Compute the Otsu threshold(s) for the given histogram.
-  // Also returns H = total count in histogram, and
-  // omega0 = count of histogram below threshold.
-  static int OtsuStats(const int* histogram,
-                       int* H_out,
-                       int* omega0_out);
-
   // Threshold the given grey or color image into the tesseract global
   // image ready for recognition. Requires thresholds and hi_value
   // produced by OtsuThreshold above.
@@ -170,6 +196,12 @@ class TessBaseAPI {
 
   // Return the maximum length that the output text string might occupy.
   static int TextLength(PAGE_RES* page_res);
+  // Returns the (average) confidence value between 0 and 100.
+  // The input page_res is NOT deleted.
+  static int TextConf(PAGE_RES* page_res);
+  // Returns all word confidences (between 0 and 100) in an array, terminated
+  // by -1.  The calling function must delete [] after use.
+  static int* AllTextConfidences(PAGE_RES* page_res);
   // Convert (and free) the internal data structures into a text string.
   static char* TesseractToText(PAGE_RES* page_res);
   // Make a text string from the internal data structures.
@@ -226,7 +258,7 @@ class TessBaseAPI {
   // The segdata values are RGB triples, with distinct R values denoting distinct
   // "blocks" or "columns" and distinct GB pairs denoting distinct lines.
   // Lexicographic ordering of the RGB triples corresponds to text output order, with
-  // linebreaks inserted between distinct GB values and double blank lines between 
+  // linebreaks inserted between distinct GB values and double blank lines between
   // distinct R values.
   static int SetPageSegmentation(const unsigned char *segdata,
                                  int bytes_per_pixel, /* must be 3 */

@@ -19,6 +19,22 @@
 
 #include "baseapi.h"
 
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#ifdef HAVE_LIBLEPT
+// The jpeg library still has INT32 as long, which is no good for 64 bit.
+#define INT32 WRONGINT32
+#define BOX LEPT_BOX
+// Include leptonica library only if autoconf (or makefile etc) tell us to.
+#include "allheaders.h"
+#undef BOX
+#undef INT32
+#endif
+
 #include "tessedit.h"
 #include "ocrclass.h"
 #include "pageres.h"
@@ -27,20 +43,19 @@
 #include "applybox.h"
 #include "pgedit.h"
 #include "varabled.h"
+#include "variables.h"
 #include "output.h"
 #include "globals.h"
 #include "adaptmatch.h"
 #include "edgblob.h"
 #include "tessbox.h"
 #include "tordvars.h"
-#include "tessvars.h"
 #include "imgs.h"
 #include "makerow.h"
-#include "output.h"
 #include "tstruct.h"
 #include "tessout.h"
 #include "tface.h"
-#include "adaptmatch.h"
+#include "permute.h"
 
 BOOL_VAR(tessedit_resegment_from_boxes, FALSE,
          "Take segmentation and labeling from box file");
@@ -51,6 +66,22 @@ BOOL_VAR(tessedit_train_from_boxes, FALSE,
 const int kMinRectSize = 10;
 
 static STRING input_file = "noname.tif";
+
+// Set the value of an internal "variable" (of either old or new types).
+// Supply the name of the variable and the value as a string, just as
+// you would in a config file.
+// Returns false if the name lookup failed.
+bool TessBaseAPI::SetVariable(const char* variable, const char* value) {
+  if (set_new_style_variable(variable, value))
+    return true;
+  return set_old_style_variable(variable, value);
+}
+
+void TessBaseAPI::SimpleInit(const char* datapath,
+                             const char* language,
+                             bool numeric_mode) {
+  InitWithLanguage(datapath, NULL, language, NULL, numeric_mode, 0, NULL);
+}
 
 // Start tesseract.
 // The datapath must be the name of the data directory or some other file
@@ -75,7 +106,7 @@ int TessBaseAPI::Init(const char* datapath, const char* outputbase,
 // Start tesseract.
 // Similar to Init() except that it is possible to specify the language.
 // Language is the code of the language for which the data will be loaded.
-// (Codes follow ISO 639-2.) If it is NULL, english (eng) will be loaded.
+// (Codes follow ISO 639-3.) If it is NULL, english (eng) will be loaded.
 int TessBaseAPI::InitWithLanguage(const char* datapath, const char* outputbase,
                                   const char* language, const char* configfile,
                                   bool numeric_mode, int argc, char* argv[]) {
@@ -192,6 +223,14 @@ void TessBaseAPI::DumpPGM(const char* filename) {
   fclose(fp);
 }
 
+#ifdef HAVE_LIBLEPT
+// ONLY available if you have Leptonica installed.
+// Get a copy of the thresholded global image from Tesseract.
+Pix* TessBaseAPI::GetTesseractImage() {
+  return page_image.ToPix();
+}
+#endif  // HAVE_LIBLEPT
+
 // Copy the given image rectangle to Tesseract, with adaptive thresholding
 // if the image is not already binary.
 void TessBaseAPI::CopyImageToTesseract(const unsigned char* imagedata,
@@ -250,6 +289,10 @@ void TessBaseAPI::OtsuThreshold(const unsigned char* imagedata,
     int H;
     int best_omega_0;
     int best_t = OtsuStats(histogram, &H, &best_omega_0);
+    if (best_omega_0 == 0 || best_omega_0 == H) {
+       // This channel is empty.
+       continue;
+     }
     // To be a convincing foreground we must have a small fraction of H
     // or to be a convincing background we must have a large fraction of H.
     // In between we assume this channel contains no thresholding information.
@@ -293,14 +336,14 @@ void TessBaseAPI::HistogramRect(const unsigned char* imagedata,
                                 int* histogram) {
   int width = right - left;
   memset(histogram, 0, sizeof(*histogram) * 256);
-  const unsigned char* pix = imagedata +
-                             top*bytes_per_line +
-                             left*bytes_per_pixel;
+  const unsigned char* pixels = imagedata +
+                                top*bytes_per_line +
+                                left*bytes_per_pixel;
   for (int y = top; y < bottom; ++y) {
     for (int x = 0; x < width; ++x) {
-      ++histogram[pix[x * bytes_per_pixel]];
+      ++histogram[pixels[x * bytes_per_pixel]];
     }
-    pix += bytes_per_line;
+    pixels += bytes_per_line;
   }
 }
 
@@ -420,8 +463,6 @@ void TessBaseAPI::FindLines(BLOCK_LIST* block_list) {
 PAGE_RES* TessBaseAPI::Recognize(BLOCK_LIST* block_list, ETEXT_DESC* monitor) {
   if (tessedit_resegment_from_boxes)
     apply_boxes(block_list);
-  if (edit_variables)
-    start_variables_editor();
 
   PAGE_RES* page_res = new PAGE_RES(block_list);
   if (interactive_mode) {
@@ -453,6 +494,41 @@ int TessBaseAPI::TextLength(PAGE_RES* page_res) {
     }
   }
   return total_length;
+}
+
+// Returns an array of all word confidences, terminated by -1.
+int* TessBaseAPI::AllTextConfidences(PAGE_RES* page_res) {
+  if (!page_res) return NULL;
+  int n_word = 0;
+  PAGE_RES_IT res_it(page_res);
+  for (res_it.restart_page(); res_it.word () != NULL; res_it.forward())
+    n_word++;
+
+  int* conf = new int[n_word+1];
+  n_word = 0;
+  for (res_it.restart_page(); res_it.word () != NULL; res_it.forward()) {
+    WERD_RES *word = res_it.word();
+    WERD_CHOICE* choice = word->best_choice;
+    int w_conf = static_cast<int>(100 + 5 * choice->certainty());
+                 // This is the eq for converting Tesseract confidence to 1..100
+    if (w_conf < 0) w_conf = 0;
+    if (w_conf > 100) w_conf = 100;
+    conf[n_word++] = w_conf;
+  }
+  conf[n_word] = -1;
+  return conf;
+}
+
+// Returns the average word confidence for Tesseract page result.
+int TessBaseAPI::TextConf(PAGE_RES* page_res) {
+  int* conf = AllTextConfidences(page_res);
+  if (!conf) return 0;
+  int sum = 0;
+  int *pt = conf;
+  while (*pt >= 0) sum += *pt++;
+  if (pt != conf) sum /= pt - conf;
+  delete [] conf;
+  return sum;
 }
 
 // Make a text string from the internal data structures.
@@ -686,7 +762,6 @@ char* TessBaseAPI::TesseractToUNLV(PAGE_RES* page_res) {
   }
   return NULL;
 }
-
 // ____________________________________________________________________________
 // Ocropus add-ons.
 
@@ -1008,4 +1083,10 @@ int TessBaseAPI::TesseractExtractResult(char** string,
     p += tc->length;
   }
   return n;
+}
+
+// Check whether a word is valid according to Tesseract's language model
+// returns 0 if the string is invalid, non-zero if valid
+int TessBaseAPI::IsValidWord(const char *string) {
+  return valid_word(string);
 }
