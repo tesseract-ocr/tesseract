@@ -149,8 +149,8 @@ void find_blob_limits(                  //get y limits
       pos.rotate (rotation);
       vec = polypt->vec;
       vec.rotate (rotation);
-      if (pos.x () < leftx && pos.x () + vec.x () > leftx
-      || pos.x () > leftx && pos.x () + vec.x () < leftx) {
+      if ((pos.x () < leftx && pos.x () + vec.x () > leftx)
+      || (pos.x () > leftx && pos.x () + vec.x () < leftx)) {
         testy = pos.y () + vec.y () * (leftx - pos.x ()) / vec.x ();
         //intercept of boundary
         if (testy < ymin)
@@ -164,8 +164,8 @@ void find_blob_limits(                  //get y limits
         if (pos.y () < ymin)
           ymin = pos.y ();
       }
-      if (pos.x () > rightx && pos.x () + vec.x () < rightx
-      || pos.x () < rightx && pos.x () + vec.x () > rightx) {
+      if ((pos.x () > rightx && pos.x () + vec.x () < rightx)
+      || (pos.x () < rightx && pos.x () + vec.x () > rightx)) {
         testy = pos.y () + vec.y () * (rightx - pos.x ()) / vec.x ();
         //intercept of boundary
         if (testy < ymin)
@@ -416,7 +416,7 @@ BOX box_next(                 //get bounding box
       result += blob->bounding_box ();
   }
                                  //until next real blob
-  while (blob->blob () == NULL && blob->cblob () == NULL || blob->joined_to_prev ());
+  while ((blob->blob () == NULL && blob->cblob () == NULL) || blob->joined_to_prev ());
   return result;
 }
 

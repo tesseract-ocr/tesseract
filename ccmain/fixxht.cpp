@@ -700,11 +700,12 @@ void improve_estimate(WERD_RES *word_res,
       check_blob_occ (temp_char,
                       blob_ht_above_baseline,
                       est_x_ht, est_caps_ht, confirmed_char);
-      if (strcmp(confirmed_char, "") != 0)
+      if (strcmp(confirmed_char, "") != 0) {
         if (STRING (chs_x_ht).contains (*confirmed_char))
           x_ht.add (blob_ht_above_baseline, 1);
-      else
-        caps_ht.add (blob_ht_above_baseline, 1);
+        else
+          caps_ht.add (blob_ht_above_baseline, 1);
+      }
     }
   }
   new_val = estimate_from_stats (x_ht);

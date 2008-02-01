@@ -187,11 +187,12 @@ void CHAR_SAMPLES::add_sample(CHAR_SAMPLE *sample) {
 
   sample_it.add_to_end (sample);
 
-  if (tessedit_mm_use_prototypes && type == IMAGE_CLUSTER)
+  if (tessedit_mm_use_prototypes && type == IMAGE_CLUSTER) {
     if (samples.length () == tessedit_mm_prototype_min_size)
       this->build_prototype ();
-  else if (samples.length () > tessedit_mm_prototype_min_size)
-    this->add_sample_to_prototype (sample);
+    else if (samples.length () > tessedit_mm_prototype_min_size)
+      this->add_sample_to_prototype (sample);
+  }
 }
 
 

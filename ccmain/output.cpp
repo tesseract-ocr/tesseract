@@ -811,9 +811,9 @@ void write_shm_text(                    //write output
       blob_box = blob->bounding_box ();
 
       enhancement = 0;
-      if (word->italic > 0 || word->italic == 0 && row->italic > 0)
+      if (word->italic > 0 || (word->italic == 0 && row->italic > 0))
         enhancement |= EUC_ITALIC;
-      if (word->bold > 0 || word->bold == 0 && row->bold > 0)
+      if (word->bold > 0 || (word->bold == 0 && row->bold > 0))
         enhancement |= EUC_BOLD;
       if (tessedit_write_ratings)
         rating = (UINT32) (-word->best_choice->certainty () / 0.035);
