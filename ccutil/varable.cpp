@@ -334,14 +334,13 @@ const char *v,                   //the variable
 const char *vname,               //of variable
 const char *comment              //info on variable
 ):
-value(v) { 
-                                 //list iterator
+value(v) {
+                                 // list iterator
   STRING_VARIABLE_C_IT it = &head;
 
-  //tprintf("Constructing %s\n",vname);
-  name = vname;                  //strings must be static
+  name = vname;                  // strings must be static
   info = comment;
-  it.add_before_stay_put (this); //add it to stack
+  it.add_before_stay_put(this);  // add it to stack
 }
 
 
@@ -351,15 +350,15 @@ value(v) {
  * Destructor for STRING_VARIABLE. Add the variable to the static list.
  **********************************************************************/
 
-                                 //constructor
-STRING_VARIABLE::~STRING_VARIABLE (
+                                 // constructor
+STRING_VARIABLE::~STRING_VARIABLE(
 ) {
-                                 //list iterator
+                                 // list iterator
   STRING_VARIABLE_C_IT it = &head;
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-    if (it.data () == this)
-      it.extract ();
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+    if (it.data() == this)
+      it.extract();
 }
 
 
@@ -369,7 +368,7 @@ STRING_VARIABLE::~STRING_VARIABLE (
  * Get the head of the list of the variables.
  **********************************************************************/
 
-STRING_VARIABLE_CLIST *STRING_VARIABLE::get_head() {  //access to static
+STRING_VARIABLE_CLIST *STRING_VARIABLE::get_head() {  // access to static
   return &head;
 }
 
@@ -380,26 +379,24 @@ STRING_VARIABLE_CLIST *STRING_VARIABLE::get_head() {  //access to static
  * Print the entire list of STRING_VARIABLEs.
  **********************************************************************/
 
-void STRING_VARIABLE::print(          //print full list
-                            FILE *fp  //file to print on
+void STRING_VARIABLE::print(FILE *fp  // file to print on
                            ) {
-                                 //list iterator
+                                 // list iterator
   STRING_VARIABLE_C_IT it = &head;
-  STRING_VARIABLE *elt;          //current element
+  STRING_VARIABLE *elt;          // current element
 
   if (fp == stdout) {
-    tprintf ("#Variables of type STRING_VARIABLE:\n");
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-      elt = it.data ();
-      tprintf ("%s #%s %s\n", elt->name, elt->value.string (), elt->info);
+    tprintf("#Variables of type STRING_VARIABLE:\n");
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      elt = it.data();
+      tprintf("%s #%s %s\n", elt->name, elt->value.string(), elt->info);
     }
-  }
-  else {
-    fprintf (fp, "#Variables of type STRING_VARIABLE:\n");
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-      elt = it.data ();
-      fprintf (fp, "%s #%s %s\n",
-        elt->name, elt->value.string (), elt->info);
+  } else {
+    fprintf(fp, "#Variables of type STRING_VARIABLE:\n");
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      elt = it.data();
+      fprintf(fp, "%s #%s %s\n",
+        elt->name, elt->value.string(), elt->info);
     }
   }
 }
@@ -412,15 +409,15 @@ void STRING_VARIABLE::print(          //print full list
  * list head gets constructed.
  **********************************************************************/
 
-double_VAR_FROM::double_VAR_FROM() {  //constructor
+double_VAR_FROM::double_VAR_FROM() {  // constructor
   double_VARIABLE_C_IT start_it = &double_VARIABLE::head;
   double_VARIABLE_C_IT end_it = &double_VARIABLE::head;
 
-  if (!start_it.empty ()) {
-    while (!end_it.at_last ())
-      end_it.forward ();
-                                 //move to copy
-    list.assign_to_sublist (&start_it, &end_it);
+  if (!start_it.empty()) {
+    while (!end_it.at_last())
+      end_it.forward();
+                                 // move to copy
+    list.assign_to_sublist(&start_it, &end_it);
   }
 }
 
@@ -431,14 +428,14 @@ double_VAR_FROM::double_VAR_FROM() {  //constructor
  * Constructor to copy the list back to its rightful place.
  **********************************************************************/
 
-double_VAR_TO::double_VAR_TO() {  //constructor
+double_VAR_TO::double_VAR_TO() {  // constructor
   double_VARIABLE_C_IT start_it = &double_VARIABLE::copy.list;
   double_VARIABLE_C_IT end_it = &double_VARIABLE::copy.list;
 
-  if (!start_it.empty ()) {
-    while (!end_it.at_last ())
-      end_it.forward ();
-    double_VARIABLE::head.assign_to_sublist (&start_it, &end_it);
+  if (!start_it.empty()) {
+    while (!end_it.at_last())
+      end_it.forward();
+    double_VARIABLE::head.assign_to_sublist(&start_it, &end_it);
   }
 }
 
@@ -449,29 +446,27 @@ double_VAR_TO::double_VAR_TO() {  //constructor
  * Constructor for double_VARIABLE. Add the variable to the static list.
  **********************************************************************/
 
-double_VARIABLE::double_VARIABLE(                     //constructor
-                                 double v,            //the variable
-                                 const char *vname,   //of variable
-                                 const char *comment  //info on variable
+double_VARIABLE::double_VARIABLE(double v,            // the variable
+                                 const char *vname,   // of variable
+                                 const char *comment  // info on variable
                                 ) {
-                                 //list iterator
+                                 // list iterator
   double_VARIABLE_C_IT it = &head;
 
-  //tprintf("Constructing %s\n",vname);
-  set_value(v);  //set the value
-  name = vname;                  //strings must be static
+  set_value(v);  // set the value
+  name = vname;                  // strings must be static
   info = comment;
-  it.add_before_stay_put (this); //add it to stack
+  it.add_before_stay_put(this); // add it to stack
 }
 
 
-double_VARIABLE::~double_VARIABLE () {
-                                 //list iterator
+double_VARIABLE::~double_VARIABLE() {
+                                 // list iterator
   double_VARIABLE_C_IT it = &head;
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-    if (it.data () == this)
-      it.extract ();
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+    if (it.data() == this)
+      it.extract();
 }
 
 
@@ -481,7 +476,7 @@ double_VARIABLE::~double_VARIABLE () {
  * Get the head of the list of the variables.
  **********************************************************************/
 
-double_VARIABLE_CLIST *double_VARIABLE::get_head() {  //access to static
+double_VARIABLE_CLIST *double_VARIABLE::get_head() {  // access to static
   return &head;
 }
 
@@ -492,25 +487,23 @@ double_VARIABLE_CLIST *double_VARIABLE::get_head() {  //access to static
  * Print the entire list of double_VARIABLEs.
  **********************************************************************/
 
-void double_VARIABLE::print(          //print full list
-                            FILE *fp  //file to print on
+void double_VARIABLE::print(FILE *fp  // file to print on
                            ) {
-                                 //list iterator
+                                 // list iterator
   double_VARIABLE_C_IT it = &head;
-  double_VARIABLE *elt;          //current element
+  double_VARIABLE *elt;          // current element
 
   if (fp == stdout) {
-    tprintf ("#Variables of type double_VARIABLE:\n");
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-      elt = it.data ();
+    tprintf("#Variables of type double_VARIABLE:\n");
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      elt = it.data();
       tprintf ("%s %lg #%s\n", elt->name, elt->value, elt->info);
     }
-  }
-  else {
-    fprintf (fp, "#Variables of type double_VARIABLE:\n");
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-      elt = it.data ();
-      fprintf (fp, "%s %g #%s\n", elt->name, elt->value, elt->info);
+  } else {
+    fprintf(fp, "#Variables of type double_VARIABLE:\n");
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      elt = it.data();
+      fprintf(fp, "%s %g #%s\n", elt->name, elt->value, elt->info);
     }
   }
 }
@@ -526,50 +519,41 @@ void double_VARIABLE::print(          //print full list
  * Values may have any whitespace after the name and are the rest of line.
  **********************************************************************/
 
-DLLSYM BOOL8 read_variables_file(                  //read the file
-                                 const char *file  //name to read
+DLLSYM BOOL8 read_variables_file(const char *file  // name to read
                                 ) {
-  BOOL8 anyerr;                  //true if any error
-  char flag;                     //file flag
-  BOOL8 foundit;                 //found variable
-  INT16 length;                  //length of line
-  INT16 nameoffset;              //offset for real name
-  char *valptr;                  //value field
-  char *stringend;               //end of string value
-  FILE *fp;                      //file pointer
-  INT32 intval;                  //value from file
-  double doubleval;              //value form file
-                                 //iterators
-  INT_VARIABLE_C_IT int_it = &INT_VARIABLE::head;
-  BOOL_VARIABLE_C_IT BOOL_it = &BOOL_VARIABLE::head;
-  STRING_VARIABLE_C_IT STRING_it = &STRING_VARIABLE::head;
-  double_VARIABLE_C_IT double_it = &double_VARIABLE::head;
-  char line[MAX_PATH];           //input line
+  BOOL8 anyerr;                  // true if any error
+  char flag;                     // file flag
+  BOOL8 foundit;                 // found variable
+  INT16 length;                  // length of line
+  INT16 nameoffset;              // offset for real name
+  char *valptr;                  // value field
+  char *stringend;               // end of string value
+  FILE *fp;                      // file pointer
+                                 // iterators
+  char line[MAX_PATH];           // input line
 
   anyerr = FALSE;
   if (*file == PLUS) {
-    flag = PLUS;                 //file has flag
+    flag = PLUS;                 // file has flag
     nameoffset = 1;
-  }
-  else if (*file == MINUS) {
+  } else if (*file == MINUS) {
     flag = MINUS;
     nameoffset = 1;
-  }
-  else {
+  } else {
     flag = EQUAL;
     nameoffset = 0;
   }
 
-  fp = fopen (file + nameoffset, "r");
+  fp = fopen(file + nameoffset, "r");
   if (fp == NULL) {
-    tprintf ("read_variables_file:Can't open %s", file + nameoffset);
-    return TRUE;                 //can't open it
+    tprintf("read_variables_file:Can't open %s", file + nameoffset);
+    return TRUE;                 // can't open it
   }
   while (fgets (line, MAX_PATH, fp)) {
     if (line[0] != '\n' && line[0] != '#') {
       length = strlen (line);
       if (line[length - 1] == '\n')
-        line[length - 1] = '\0'; //cut newline
+        line[length - 1] = '\0';  // cut newline
       for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t';
         valptr++);
       if (*valptr) {             //found blank
@@ -585,99 +569,92 @@ DLLSYM BOOL8 read_variables_file(                  //read the file
           while (stringend != valptr) {
             while (stringend != valptr
               && (*stringend == ' ' || *stringend == '\t'))
-              //cut trailing blanks
+              // cut trailing blanks
               stringend--;
-            stringend[1] = '\0'; //terminate string
+            stringend[1] = '\0'; // terminate string
 
             while (stringend != valptr
-              && (*stringend != ' ' && *stringend != '\t'
+              && ((*stringend != ' ' && *stringend != '\t')
               || stringend[1] != '#'))
-              stringend--;       //find word start
+              stringend--;       // find word start
           }
         }
       }
-      foundit = FALSE;
+      foundit = set_new_style_variable(line, valptr);
 
-                                 //find name
-      for (STRING_it.mark_cycle_pt (); !STRING_it.cycled_list () && strcmp (line, STRING_it.data ()->name); STRING_it.forward ());
-                                 //found it
-      if (!STRING_it.cycled_list ()) {
-        foundit = TRUE;          //found the varaible
-        if (*valptr == '\0' || *valptr == '#')
-          STRING_it.data ()->set_value ((char *) NULL);
-        //no value
-        else
-                                 //set its value
-          STRING_it.data ()->set_value (valptr);
-      }
-
-      if (*valptr) {
-                                 //find name
-        for (int_it.mark_cycle_pt (); !int_it.cycled_list () && strcmp (line, int_it.data ()->name); int_it.forward ());
-                                 //found it
-        if (!int_it.cycled_list ()
-        && sscanf (valptr, INT32FORMAT, &intval) == 1) {
-          foundit = TRUE;        //found the varaible
-                                 //set its value
-          int_it.data ()->set_value (intval);
-        }
-
-                                 //find name
-        for (BOOL_it.mark_cycle_pt (); !BOOL_it.cycled_list () && strcmp (line, BOOL_it.data ()->name); BOOL_it.forward ());
-                                 //found it
-        if (!BOOL_it.cycled_list ()) {
-          if (*valptr == 'T' || *valptr == 't'
-          || *valptr == 'Y' || *valptr == 'y' || *valptr == '1') {
-            foundit = TRUE;
-            if (flag == MINUS)
-              BOOL_it.data ()->set_value (FALSE);
-            //set to false
-            else
-              BOOL_it.data ()->set_value (TRUE);
-            //set to true
-          }
-          else if (*valptr == 'F' || *valptr == 'f'
-            || *valptr == 'N' || *valptr == 'n'
-          || *valptr == '0') {
-            foundit = TRUE;
-            if (flag == EQUAL)
-              BOOL_it.data ()->set_value (FALSE);
-            //set to false
-          }
-        }
-
-                                 //find name
-        for (double_it.mark_cycle_pt (); !double_it.cycled_list () && strcmp (line, double_it.data ()->name); double_it.forward ());
-                                 //found it
-        
-        #ifdef EMBEDDED
-        if (!double_it.cycled_list ()) {
-          doubleval = strtofloat(valptr);
-        #else
-        if (!double_it.cycled_list ()
-        && sscanf (valptr, "%lf", &doubleval) == 1) {
-        #endif
-          foundit = TRUE;        //found the varaible
-          double_it.data ()->set_value (doubleval);
-          //set its value
-        }
-
-        if (!foundit) {
-          anyerr = TRUE;         //had an error
-          tprintf ("read_variables_file:variable not found: %s",
-            line);
-        }
-      }
-      else if (!foundit) {
-        anyerr = TRUE;           //had an error
-        tprintf ("read_variables_file:No value for variable %s", line);
+      if (!foundit) {
+        anyerr = TRUE;         // had an error
+        tprintf("read_variables_file:variable not found: %s",
+          line);
       }
     }
   }
-  fclose(fp);  //close file
+  fclose(fp);  // close file
   return anyerr;
 }
 
+bool set_new_style_variable(const char *variable, const char* value) {
+  INT_VARIABLE_C_IT int_it = &INT_VARIABLE::head;
+  BOOL_VARIABLE_C_IT BOOL_it = &BOOL_VARIABLE::head;
+  STRING_VARIABLE_C_IT STRING_it = &STRING_VARIABLE::head;
+  double_VARIABLE_C_IT double_it = &double_VARIABLE::head;
+
+  bool foundit = false;
+  // find name
+  for (STRING_it.mark_cycle_pt();
+       !STRING_it.cycled_list() && strcmp(variable, STRING_it.data()->name);
+       STRING_it.forward());
+  if (!STRING_it.cycled_list()) {
+    foundit = true;          // found the varaible
+    if (*value == '\0')
+      STRING_it.data()->set_value((char *) NULL);  // No value.
+    else
+      STRING_it.data()->set_value(value);  // set its value
+  }
+
+  if (*value) {
+    // find name
+    for (int_it.mark_cycle_pt();
+         !int_it.cycled_list() && strcmp(variable, int_it.data()->name);
+         int_it.forward());
+    int intval;
+    if (!int_it.cycled_list()
+    && sscanf(value, INT32FORMAT, &intval) == 1) {
+      foundit = true;        // found the varaible
+      int_it.data()->set_value(intval);  // set its value.
+    }
+    for (BOOL_it.mark_cycle_pt();
+         !BOOL_it.cycled_list () && strcmp(variable, BOOL_it.data()->name);
+         BOOL_it.forward());
+    if (!BOOL_it.cycled_list()) {
+      if (*value == 'T' || *value == 't' ||
+          *value == 'Y' || *value == 'y' || *value == '1') {
+        foundit = true;
+        BOOL_it.data()->set_value(TRUE);
+      }
+      else if (*value == 'F' || *value == 'f' ||
+               *value == 'N' || *value == 'n' || *value == '0') {
+        foundit = true;
+        BOOL_it.data()->set_value(FALSE);
+      }
+    }
+    for (double_it.mark_cycle_pt();
+         !double_it.cycled_list() && strcmp(variable, double_it.data ()->name);
+         double_it.forward());
+    double doubleval;
+#ifdef EMBEDDED
+    if (!double_it.cycled_list ()) {
+      doubleval = strtofloat(value);
+#else
+    if (!double_it.cycled_list()
+        && sscanf(value, "%lf", &doubleval) == 1) {
+#endif
+      foundit = true;        // found the varaible
+      double_it.data()->set_value(doubleval);
+    }
+  }
+  return foundit;
+}
 
 /**********************************************************************
  * print_variables

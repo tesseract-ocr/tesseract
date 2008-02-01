@@ -29,7 +29,7 @@
 #include <stdlib.h>
 
 #include "variables.h"
-#include "callcpp.h"
+#include "tprintf.h"
 #include "listio.h"
 #include "globals.h"
 #include "scanutils.h"
@@ -205,7 +205,6 @@ void read_variables(const char *filename) {
   LIST var_strings;
   char name[1024];
   FILE *fp;
-  VARIABLE *this_var;
   /* Read the strings */
   if (filename == NULL || filename[0] == '\0')
     return;
@@ -227,17 +226,27 @@ void read_variables(const char *filename) {
         && this_string[x] != '\t'; x++);
       this_string[x] = '\0';
       /* Find variable record */
-      this_var = (VARIABLE *) first_node (search (variable_list, this_string,
-        same_var_name));
-      if (this_var == 0) {
-        cprintf ("error: Could not find variable '%s'\n", this_string);
-        exit (1);                //?err_exit ();
+      if (!set_old_style_variable(this_string, this_string + x + 1)) {
+        tprintf("error: Could not find variable '%s'\n", this_string);
+        exit(1);                // ?err_exit ();
       }
-      /* Read the value */
-      this_string[x] = '\t';
-      (*(this_var->type_reader)) (this_var, this_string);
     }
   }
+}
+
+bool set_old_style_variable(const char* variable, const char* value) {
+  char* var_variable = strdup(variable);
+  char* var_value = strdup(value);
+
+  VARIABLE *this_var;
+  this_var = (VARIABLE *)first_node(search(variable_list, var_variable,
+                                           same_var_name));
+  if (this_var != NULL) {
+    (*(this_var->type_reader)) (this_var, var_value);
+  }
+  free(var_variable);
+  free(var_value);
+  return this_var != NULL;
 }
 
 
@@ -295,9 +304,7 @@ char *strip_line(char *string) {
   int x;
   int y;
 
-  /* Skip over name */
-  for (x = 0;
-    x < strlen (string) && string[x] != '\t' && string[x] != ' '; x++);
+  x = 0;
   /* Skip over whitespace */
   while (x < strlen (string) && (string[x] == '\t' || string[x] == ' '))
     x++;

@@ -362,18 +362,18 @@ void dawg_permute_and_select(const char *string,
  *
  * Initialize the variables needed by this file.
  **********************************************************************/
-void init_permdawg() {
-  STRING name;
+void init_permdawg_vars() {
   make_dawg_debug();
   make_ok_word();
   make_good_word();
   make_freq_word();
+}
 
-  frequent_words = (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) *
-    MAX_FREQ_EDGES);
+void init_permdawg() {
+  STRING name;
   name = language_data_path_prefix;
   name += "freq-dawg";
-  read_squished_dawg(name.string(), frequent_words, MAX_FREQ_EDGES);
+  frequent_words = read_squished_dawg(name.string());
 }
 
 void end_permdawg() {

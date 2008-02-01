@@ -20,6 +20,12 @@
 #ifndef           NDMINX_H
 #define           NDMINX_H
 
-#define MAX(a,b)        ( (a>b) ? a : b )
-#define MIN(a,b)        ( (a<b) ? a : b )
+#ifndef MAX
+  #define MAX(a,b)        ( (a>b) ? a : b )
+#endif
+
+#ifndef MIN
+  #define MIN(a,b)        ( (a<b) ? a : b )
+#endif
+
 #endif

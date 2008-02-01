@@ -40,7 +40,7 @@ EXTERN DLLSYM STRING imagebasename;
 EXTERN BOOL_VAR (m_print_variables, FALSE,
 "Print initial values of all variables");
 EXTERN STRING_VAR (m_data_sub_dir, "tessdata/", "Directory for data files");
-EXTERN INT_VAR (memgrab_size, 13000000, "Preallocation size for batch use");
+EXTERN INT_VAR (memgrab_size, 0, "Preallocation size for batch use");
 const ERRCODE NO_PATH =
 "Warning:explicit path for executable will not be used for configs";
 static const ERRCODE USAGE = "Usage";

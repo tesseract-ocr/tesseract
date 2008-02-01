@@ -29,6 +29,7 @@ class DLLSYM INT_VARIABLE;
                                  //read the file
 extern DLLSYM BOOL8 read_variables_file(const char *file  //name to read
                                        );
+bool set_new_style_variable(const char *variable, const char* value);
                                  //print all vars
 extern DLLSYM void print_variables(FILE *fp  //file to print on
                                   );
@@ -56,80 +57,74 @@ class DLLSYM INT_VARIABLE
   friend class INT_VAR_TO;
   friend class INT_VAR_FROM;
                                  //for setting values
-  friend DLLSYM BOOL8 read_variables_file(const char *file);  //file to read
+  friend bool set_new_style_variable(const char *variable, const char* value);
 
   public:
-    INT_VARIABLE(                       //constructor
-                 INT32 v,               //initial value
-                 const char *vname,     //name of variable
-                 const char *comment);  //info on variable
+    INT_VARIABLE(INT32 v,               // initial value
+                 const char *vname,     // name of variable
+                 const char *comment);  // info on variable
 
-    INT_VARIABLE() {  //for elist only
+    INT_VARIABLE() {  // for elist only
       value = 0;
       name = "NONAME";
       info = "Uninitialized";
     }
-    ~INT_VARIABLE ();            //for elist only
+    ~INT_VARIABLE();            // for elist only
 
-    operator INT32() {  //conversion
-      return value;              //access as int
+    operator INT32() {  // conversion
+      return value;              // access as int
     }
 
-    void set_value(            //assign to value
-                   INT32 v) {  //value to set
+    void set_value(INT32 v) {  // value to set
       value = v;
     }
 
-    const char *name_str() {  //access name
+    const char *name_str() {  // access name
       return name;
     }
 
-    const char *info_str() {  //access name
+    const char *info_str() {  // access name
       return info;
     }
 
-                                 //access list head
-    static INT_VARIABLE_CLIST *get_head(); 
+                                 // access list head
+    static INT_VARIABLE_CLIST *get_head();
 
-    static void print(            //print whole list
-                      FILE *fp);  //file to print on
+    static void print(FILE *fp);  // file to print on
 
   private:
-    INT32 value;                 //the variable
-    const char *name;            //name of variable
-    const char *info;            //for menus
-    static INT_VAR_FROM copy;    //pre constructor
-                                 //start  of list
+    INT32 value;                 // the variable
+    const char *name;            // name of variable
+    const char *info;            // for menus
+    static INT_VAR_FROM copy;    // pre constructor
+                                 // start  of list
     static INT_VARIABLE_CLIST head;
-    static INT_VAR_TO replace;   //post constructor
+    static INT_VAR_TO replace;   // post constructor
 };
 
 class DLLSYM BOOL_VARIABLE;
 
-CLISTIZEH (BOOL_VARIABLE)
-class DLLSYM BOOL_VAR_FROM
-{
+CLISTIZEH(BOOL_VARIABLE)
+class DLLSYM BOOL_VAR_FROM {
   friend class BOOL_VAR_TO;
   public:
-    BOOL_VAR_FROM();  //constructor
+    BOOL_VAR_FROM();  // constructor
   private:
-    BOOL_VARIABLE_CLIST list;    //copy of list
+    BOOL_VARIABLE_CLIST list;    // copy of list
 };
 
-class DLLSYM BOOL_VAR_TO
-{
+class DLLSYM BOOL_VAR_TO {
   public:
-    BOOL_VAR_TO();  //constructor
+    BOOL_VAR_TO();  // constructor
   private:
     BOOL_VARIABLE_CLIST dummy;
 };
 
-class DLLSYM BOOL_VARIABLE
-{
+class DLLSYM BOOL_VARIABLE {
   friend class BOOL_VAR_FROM;
   friend class BOOL_VAR_TO;
                                  //for setting values
-  friend DLLSYM BOOL8 read_variables_file(const char *file);  //file to read
+  friend bool set_new_style_variable(const char *variable, const char* value);
 
   public:
     BOOL_VARIABLE(                       //constructor
@@ -162,7 +157,7 @@ class DLLSYM BOOL_VARIABLE
     }
 
                                  //access list head
-    static BOOL_VARIABLE_CLIST *get_head(); 
+    static BOOL_VARIABLE_CLIST *get_head();
 
     static void print(            //print whole list
                       FILE *fp);  //file to print on
@@ -202,7 +197,7 @@ class DLLSYM STRING_VARIABLE
   friend class STRING_VAR_TO;
   friend class STRING_VAR_FROM;
                                  //for setting values
-  friend DLLSYM BOOL8 read_variables_file(const char *file);  //file to read
+  friend bool set_new_style_variable(const char *variable, const char* value);
 
   public:
     STRING_VARIABLE(                       //constructor
@@ -217,7 +212,7 @@ class DLLSYM STRING_VARIABLE
     ~STRING_VARIABLE ();         //for elist only
 
                                  //conversion
-    operator const STRING &() { 
+    operator const STRING &() {
       return value;              //access as int
     }
 
@@ -239,7 +234,7 @@ class DLLSYM STRING_VARIABLE
     }
 
                                  //access list head
-    static STRING_VARIABLE_CLIST *get_head(); 
+    static STRING_VARIABLE_CLIST *get_head();
 
     static void print(            //print whole list
                       FILE *fp);  //file to print on
@@ -279,7 +274,7 @@ class DLLSYM double_VARIABLE
   friend class double_VAR_TO;
   friend class double_VAR_FROM;
                                  //for setting values
-  friend DLLSYM BOOL8 read_variables_file(const char *file);  //file to read
+  friend bool set_new_style_variable(const char *variable, const char* value);
 
   public:
     double_VARIABLE(                       //constructor
@@ -312,7 +307,7 @@ class DLLSYM double_VARIABLE
     }
 
                                  //access list head
-    static double_VARIABLE_CLIST *get_head(); 
+    static double_VARIABLE_CLIST *get_head();
 
     static void print(            //print whole list
                       FILE *fp);  //file to print on

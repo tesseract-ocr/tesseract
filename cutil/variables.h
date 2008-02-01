@@ -157,6 +157,8 @@ void int_write(VARIABLE *variable, char *string);
 
 void read_variables(const char *filename);
 
+bool set_old_style_variable(const char* variable, const char* value);
+
 int same_var_name(void *item1,   //VARIABLE *variable,
                   void *item2);  //char     *string)
 

@@ -27,6 +27,22 @@
 #ifdef __UNIX__
 #include          <assert.h>
 #endif
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#ifdef HAVE_LIBLEPT
+// The jpeg library still has INT32 as long, which is no good for 64 bit.
+#define INT32 WRONGINT32
+#define BOX LEPT_BOX
+// Include leptonica library only if autoconf (or makefile etc) tell us to.
+#include "allheaders.h"
+#undef BOX
+#undef INT32
+#endif
+
 #include          "stderr.h"
 #include          "tprintf.h"
 #include          "imgerrs.h"
@@ -49,6 +65,7 @@ static UINT8 grey_scales[FIXED_COLOURS] = {
   129, 105, 179, 149, 168, 69, 84, 126
 };
 
+#undef EXTERN
 #define EXTERN
 
 EXTERN INT_VAR (image_default_resolution, 300, "Image resolution dpi");
@@ -1484,6 +1501,139 @@ void IMAGE::check_legal_access(            //check coords are legal
     bufread(y);  //read some more
 }
 
+#ifdef HAVE_LIBLEPT
+// ONLY available if you have Leptonica installed.
+/**********************************************************************
+ * ToPix
+ *
+ * Make a Pix from this image.
+ **********************************************************************/
+Pix* IMAGE::ToPix() {
+  int width = this->get_xsize();
+  int height = this->get_ysize();
+  int bpp = this->get_bpp();
+  Pix* pix = pixCreate(width, height, bpp == 24 ? 32 : bpp);
+  uint32* data = pixGetData(pix);
+  IMAGELINE line;
+  if (bpp == 24) {
+    line.init(width * 3);
+    line.set_bpp(24);
+  } else {
+    line.init(width);
+  }
+  switch (bpp) {
+  case 1:
+    for (int y = height - 1 ; y >= 0; --y) {
+      this->get_line(0, y, width, &line, 0);
+      for (int x = 0; x < width; ++x) {
+        if (line.pixels[x])
+          CLEAR_DATA_BIT(data, x);
+        else
+          SET_DATA_BIT(data, x);
+      }
+      data += pixGetWpl(pix);
+    }
+    break;
+
+  case 8:
+    // Greyscale just copies the bytes in the right order.
+    for (int y = height - 1 ; y >= 0; --y) {
+      this->get_line(0, y, width, &line, 0);
+      for (int x = 0; x < width; ++x)
+        SET_DATA_BYTE(data, x, line.pixels[x]);
+      data += pixGetWpl(pix);
+    }
+    break;
+
+  case 24:
+    // Put the colors in the correct places in the line buffer.
+    for (int y = height - 1 ; y >= 0; --y) {
+      this->get_line(0, y, width, &line, 0);
+      for (int x = 0; x < width; ++x, ++data) {
+        SET_DATA_BYTE(data, COLOR_RED, line[x][RED_PIX]);
+        SET_DATA_BYTE(data, COLOR_GREEN, line[x][GREEN_PIX]);
+        SET_DATA_BYTE(data, COLOR_BLUE, line[x][BLUE_PIX]);
+      }
+    }
+    break;
+
+  default:
+    tprintf("Cannot convert image to Pix with bpp = %d\n", bpp);
+  }
+  return pix;
+}
+
+/**********************************************************************
+ * FromPix
+ *
+ * Copy from the given Pix into this image.
+ **********************************************************************/
+void IMAGE::FromPix(const Pix* src_pix) {
+  // Leptonica doesn't const its inputs, but we don't change the input.
+  Pix* pix = const_cast<Pix*>(src_pix);
+  Pix* destroy_this_pix = NULL;
+
+  int depth = pixGetDepth(pix);
+  if (depth > 1 && depth < 8) {
+    // Convert funny depths to 8 bit.
+    destroy_this_pix = pixConvertTo8(pix, false);
+    pix = destroy_this_pix;
+    depth = pixGetDepth(pix);
+  }
+  int width = pixGetWidth(pix);
+  int height = pixGetHeight(pix);
+  const uint32* data = pixGetData(pix);
+  this->create(width, height, depth == 32 ? 24 : depth);
+  // For each line in the image, fill the IMAGELINE class and put it into the
+  // destination image. Note that Tesseract stores images with the
+  // bottom at y=0 and 0 is always black in grey and binary.
+  IMAGELINE line;
+  if (depth == 32) {
+    line.init(width * 3);
+    line.set_bpp(24);
+  } else {
+    line.init(width);
+  }
+  switch (depth) {
+  case 1:
+    // Binary images just flip the data bit.
+    for (int y = height - 1 ; y >= 0; --y) {
+      for (int x = 0; x < width; ++x)
+        line.pixels[x] = GET_DATA_BIT(data, x) ^ 1;
+      this->put_line(0, y, width, &line, 0);
+      data += pixGetWpl(pix);
+    }
+    break;
+
+  case 8:
+    // Greyscale just copies the bytes in the right order.
+    for (int y = height - 1 ; y >= 0; --y) {
+      for (int x = 0; x < width; ++x)
+        line.pixels[x] = GET_DATA_BYTE(data, x);
+      this->put_line(0, y, width, &line, 0);
+      data += pixGetWpl(pix);
+    }
+    break;
+
+  case 32:
+    // Put the colors in the correct places in the line buffer.
+    for (int y = height - 1 ; y >= 0; --y) {
+      for (int x = 0; x < width; ++x, ++data) {
+        line[x][RED_PIX] = GET_DATA_BYTE(data, COLOR_RED);
+        line[x][GREEN_PIX] = GET_DATA_BYTE(data, COLOR_GREEN);
+        line[x][BLUE_PIX] = GET_DATA_BYTE(data, COLOR_BLUE);
+      }
+      this->put_line(0, y, width, &line, 0);
+    }
+    break;
+
+  default:
+    tprintf("Cannot convert Pix to image with bpp = %d\n", depth);
+  }
+  if (destroy_this_pix != NULL)
+    pixDestroy(&destroy_this_pix);
+}
+#endif  // HAVE_LIBLEPT
 
 /*************************************************************************
  * convolver()

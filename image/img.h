@@ -22,6 +22,8 @@
 
 #include          "memry.h"
 
+struct Pix;
+
 #define MAXIMAGEWIDTH   (900*14) /*14inch * 400dpi */
                                  /*14inch * 400dpi */
 #define MAXIMAGEHEIGHT    (900*14)
@@ -76,18 +78,18 @@ class DLLSYM IMAGE               //encapsulated image
 
     void destroy();  //destroy image
 
-    INT32 get_xsize() { 
+    INT32 get_xsize() {
       return xsize;
     }
     //access function
-    INT32 get_ysize() { 
+    INT32 get_ysize() {
       return ysize;
     }
     //access function
-    INT8 get_bpp() { 
+    INT8 get_bpp() {
       return bpp;
     }                            //access function
-    INT8 get_bps() { 
+    INT8 get_bps() {
       return bps;
     }                            //bits per sample
     BOOL8 white_high() {  //photo interp
@@ -96,14 +98,14 @@ class DLLSYM IMAGE               //encapsulated image
     UINT8 get_white_level() {  //access function
       return (1 << bpp) - 1;
     }
-    INT32 get_res() { 
+    INT32 get_res() {
       return res;
     }                            //access function
     void set_res(  //set resolution
                  INT32 resolution) {
       res = resolution;
     }
-    UINT8 *get_buffer() { 
+    UINT8 *get_buffer() {
       return image;
     }
     //access function
@@ -154,6 +156,11 @@ class DLLSYM IMAGE               //encapsulated image
                             INT32 x,      //xcoord to check
                             INT32 y,
                             INT32 xext);  //ycoord to check
+
+
+    // Methods to convert image types. Only available if Leptonica is available.
+    Pix* ToPix();
+    void FromPix(const Pix* src_pix);
 
     void convolver (             //Map fn over window
       INT32 win_width,           //Window width
@@ -255,7 +262,7 @@ class DLLSYM IMAGELINE           //one line of image
         width = MAXIMAGEWIDTH;
       if (width > linewidth) {
         if (line != NULL)
-          free_mem(line); 
+          free_mem(line);
         linewidth = width;
         line = (UINT8 *) alloc_mem (linewidth * sizeof (UINT8));
       }
@@ -264,7 +271,7 @@ class DLLSYM IMAGELINE           //one line of image
     }
     ~IMAGELINE () {              //destructor
       if (line != NULL)
-        free_mem(line); 
+        free_mem(line);
     }
 
     void set_bpp(  //For colour
@@ -275,7 +282,7 @@ class DLLSYM IMAGELINE           //one line of image
         bpp = 24;
     }
 
-    void init() { 
+    void init() {
       if (line == NULL)
         init (0);
       else {
