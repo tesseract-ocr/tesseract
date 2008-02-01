@@ -20,12 +20,12 @@
 #ifndef           DRAWFX_H
 #define           DRAWFX_H
 
-#include          "grphics.h"
 #include          "varable.h"
 #include          "notdll.h"
+#include	  "scrollview.h"
 
 extern STRING_VAR_H (fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
-extern WINDOW fx_win;
+extern ScrollView* fx_win;
 extern FILE *fx_debug;
 void create_fx_win();  //make features win
 void clear_fx_win();  //make features win

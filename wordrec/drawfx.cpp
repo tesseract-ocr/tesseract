@@ -44,7 +44,7 @@
 
 EXTERN STRING_VAR (fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
 
-EXTERN WINDOW fx_win = NO_WINDOW;
+EXTERN ScrollView* fx_win = NULL;
 EXTERN FILE *fx_debug = NULL;
 
 /**********************************************************************
@@ -54,13 +54,9 @@ EXTERN FILE *fx_debug = NULL;
  **********************************************************************/
 
 void create_fx_win() {  //make features win
-  fx_win = create_window (FXDEMOWIN, SCROLLINGWIN,
+  fx_win = new ScrollView (FXDEMOWIN,
     FXDEMOXPOS, FXDEMOYPOS, FXDEMOXSIZE, FXDEMOYSIZE,
-    -WERDWIDTH, WERDWIDTH, -BLN_MAX, BLN_MAX,
-    TRUE, FALSE, TRUE, TRUE);
-  vdc_extent (fx_win, -DECENT_WERD_WIDTH,
-    bln_baseline_offset - bln_x_height,
-    DECENT_WERD_WIDTH, 2 * bln_x_height + bln_baseline_offset);
+    WERDWIDTH*2, BLN_MAX*2, true);
 }
 
 
@@ -71,12 +67,10 @@ void create_fx_win() {  //make features win
  **********************************************************************/
 
 void clear_fx_win() {  //make features win
-  clear_view_surface(fx_win); 
-  line_color_index(fx_win, DIM_GREY); 
-  move2d (fx_win, -WERDWIDTH, bln_baseline_offset);
-  draw2d(fx_win, WERDWIDTH, bln_baseline_offset); 
-  move2d (fx_win, -WERDWIDTH, bln_x_height + bln_baseline_offset);
-  draw2d (fx_win, WERDWIDTH, bln_x_height + bln_baseline_offset);
+  fx_win->Clear();
+  fx_win->Pen(64,64,64);
+  fx_win->Line(-WERDWIDTH, bln_baseline_offset, WERDWIDTH, bln_baseline_offset);
+  fx_win->Line(-WERDWIDTH, bln_x_height + bln_baseline_offset, WERDWIDTH, bln_x_height + bln_baseline_offset);
 }
 
 
