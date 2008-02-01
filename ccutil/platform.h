@@ -2,6 +2,8 @@
 #define DLLSYM
 #ifdef __MSW32__
 #define SIGNED
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
 #else
 #define __UNIX__
 #include <limits.h>
