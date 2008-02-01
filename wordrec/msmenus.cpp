@@ -45,13 +45,13 @@
               V a r i a b l e s
 ----------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-int handle_menu_3(); 
-int handle_menu_4(); 
-int handle_menu_5(); 
-int handle_menu_6(); 
-int handle_menu_7(); 
-int handle_menu_8(); 
-int handle_menu_9(); 
+int handle_menu_3();
+int handle_menu_4();
+int handle_menu_5();
+int handle_menu_6();
+int handle_menu_7();
+int handle_menu_8();
+int handle_menu_9();
 #endif
 
 /*----------------------------------------------------------------------
@@ -62,7 +62,7 @@ int handle_menu_9();
  *
  * Initialize the traps for handling the splitter debug stuff.
  **********************************************************************/
-void init_ms_debug() { 
+void init_ms_debug() {
   static int first_time = 1;
 
   if (first_time) {
@@ -79,18 +79,18 @@ void init_ms_debug() {
     AddSignalMenuItem (SIGINT, 9, "Joiner", handle_menu_9);
     #endif
 
-    init_plotseg(); 
-    init_render_vars(); 
+    init_plotseg();
+    init_render_vars();
     #endif
-    
-    init_baseline(); 
-    init_bestfirst_vars(); 
-    init_splitter_vars(); 
-    init_associate_vars(); 
-    init_chop(); 
-    
-    init_textord_vars(); 
-    init_permute(); 
+
+    init_baseline();
+    init_bestfirst_vars();
+    init_splitter_vars();
+    init_associate_vars();
+    init_chop();
+
+    init_textord_vars();
+    init_permute_vars();
   }
 }
 

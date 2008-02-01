@@ -90,6 +90,7 @@ void program_editup(const char *configfile) {
   /* Initialize subsystems */
   program_init();
   mfeature_init();
+  init_permute();
   setup_cp_maps();
 }
 
@@ -105,7 +106,6 @@ void program_editup2(const char *textbase) {
   init_metrics();
   pass2_ok_split = ok_split;
   pass2_seg_states = num_seg_states;
-  reset_width_tally();
 }
 
 
@@ -189,7 +189,6 @@ void program_editdown(INT32 elasped_time) {
   }
   end_metrics();
   end_permute();
-  end_permdawg();
   free_variables();
 }
 

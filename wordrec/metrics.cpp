@@ -112,21 +112,26 @@ void init_metrics() {
   chars_classified = 0;
   permutation_count = 0;
 
+  end_metrics();
+
   states_before_best = new_tally (min (100, num_seg_states));
 
   best_certainties[0] = new_tally (CERTAINTY_BUCKETS);
   best_certainties[1] = new_tally (CERTAINTY_BUCKETS);
+  reset_width_tally();
 }
 
 void end_metrics() {
-  memfree(states_before_best);
-  memfree(best_certainties[0]);
-  memfree(best_certainties[1]);
-  memfree(character_widths);
-  states_before_best = NULL;
-  best_certainties[0] = NULL;
-  best_certainties[1] = NULL;
-  character_widths = NULL;
+  if (states_before_best != NULL) {
+    memfree(states_before_best);
+    memfree(best_certainties[0]);
+    memfree(best_certainties[1]);
+    memfree(character_widths);
+    states_before_best = NULL;
+    best_certainties[0] = NULL;
+    best_certainties[1] = NULL;
+    character_widths = NULL;
+  }
 }
 
 

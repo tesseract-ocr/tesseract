@@ -59,7 +59,7 @@ make_toggle_var (blob_pause, 0, make_blob_pause,
  *
  * Macro to display blob in a window.
  **********************************************************************/
-void display_blob(TBLOB *blob, C_COL color) { 
+void display_blob(TBLOB *blob, C_COL color) {
   void *window;
   TPOINT origin;
   /* Size of drawable */
@@ -68,16 +68,14 @@ void display_blob(TBLOB *blob, C_COL color) {
       500, 128, -1000.0, 1000.0, 0.0, 256.0);
   }
   else {
-    c_clear_window(blob_window); 
+    c_clear_window(blob_window);
   }
 
   window = blob_window;
   /* Render blob */
-  blob_origin(blob, &origin); 
+  blob_origin(blob, &origin);
 
-  render_blob(window, blob, origin, color); 
-  /* Default zoom */
-  c_make_current(window); 
+  render_blob(window, blob, origin, color);
 }
 
 
@@ -86,10 +84,10 @@ void display_blob(TBLOB *blob, C_COL color) {
  *
  * Initialize the render graphics menu items.
  **********************************************************************/
-void init_render_vars() { 
-  make_disp_all_blobs(); 
-  make_disp_all_words(); 
-  make_blob_pause(); 
+void init_render_vars() {
+  make_disp_all_blobs();
+  make_disp_all_words();
+  make_blob_pause();
 }
 
 
@@ -99,7 +97,7 @@ void init_render_vars() {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_blob(void *window, TBLOB *blob, TPOINT origin, C_COL color) { 
+void render_blob(void *window, TBLOB *blob, TPOINT origin, C_COL color) {
   /* No outline */
   if (!blob)
     return;
@@ -114,7 +112,7 @@ void render_blob(void *window, TBLOB *blob, TPOINT origin, C_COL color) {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_edgepts(void *window, EDGEPT *edgept, C_COL color) { 
+void render_edgepts(void *window, EDGEPT *edgept, C_COL color) {
   float x = edgept->pos.x;
   float y = edgept->pos.y;
   EDGEPT *this_edge = edgept;
@@ -122,13 +120,13 @@ void render_edgepts(void *window, EDGEPT *edgept, C_COL color) {
   if (!edgept)
     return;
 
-  c_line_color_index(window, color); 
-  c_move(window, x, y); 
+  c_line_color_index(window, color);
+  c_move(window, x, y);
   do {
     this_edge = this_edge->next;
     x = this_edge->pos.x;
     y = this_edge->pos.y;
-    c_draw(window, x, y); 
+    c_draw(window, x, y);
   }
   while (edgept != this_edge);
 }
