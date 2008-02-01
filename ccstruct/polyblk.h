@@ -21,7 +21,7 @@
 
 #include          "rect.h"
 #include          "points.h"
-#include          "grphics.h"
+#include          "scrollview.h"
 #include          "elst.h"
 
 #include          "hpddef.h"     //must be last (handpd.dll)
@@ -64,9 +64,9 @@ class DLLSYM POLY_BLOCK          //poly block
     void move(                //move it
               ICOORD shift);  //vector
 
-    void plot(WINDOW window, COLOUR colour, INT32 num); 
+    void plot(ScrollView* window, ScrollView::Color colour, INT32 num); 
 
-    void fill(WINDOW window, COLOUR colour); 
+    void fill(ScrollView* window, ScrollView::Color colour); 
 
     BOOL8 contains(  // is poly inside poly
                    POLY_BLOCK *poly);

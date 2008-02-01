@@ -28,8 +28,8 @@
 
 #include          "hpddef.h"     //must be last (handpd.dll)
 
-#define REGION_COLOUR CYAN
-#define SUBREGION_COLOUR GREEN
+#define REGION_COLOUR ScrollView::CYAN
+#define SUBREGION_COLOUR ScrollView::GREEN
 
 class DLLSYM TEXT_REGION;        //forward decl
 

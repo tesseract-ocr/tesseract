@@ -22,6 +22,7 @@
 #include          "callcpp.h"
 #include          "ratngs.h"
 //#include "tordvars.h"
+
 extern FILE *matcher_fp;
 
 ELISTIZE (BLOB_CHOICE) CLISTIZE (BLOB_CHOICE_LIST) CLISTIZE (WERD_CHOICE)
@@ -63,8 +64,32 @@ word_lengths(src_lengths) {
   word_rating = src_rating;
   word_certainty = src_cert;
   word_permuter = src_permuter;  //just copy them
+  word_blob_choices = NULL;
 }
 
+
+/**********************************************************************
+ * WERD_CHOICE::~WERD_CHOICE
+ **********************************************************************/
+
+WERD_CHOICE::~WERD_CHOICE() {
+  delete_blob_choices();
+}
+
+
+/**********************************************************************
+ * WERD_CHOICE::set_blob_choices
+ *
+ * Delete current blob_choices. Set the blob_choices to the given new
+ * list.
+ **********************************************************************/
+
+void WERD_CHOICE::set_blob_choices(BLOB_CHOICE_LIST_CLIST *blob_choices) {
+  if (word_blob_choices != blob_choices) {
+    delete_blob_choices();
+    word_blob_choices = blob_choices;
+  }
+}
 
 /**********************************************************************
  * WERD_CHOICE::operator+=
@@ -81,6 +106,7 @@ const WERD_CHOICE & second       //second word
   if (word_string.length () == 0 || second.word_string.length () == 0) {
     word_string = NULL;          //make it empty
     word_lengths = NULL;
+    delete_blob_choices();
   }
   else {
                                  //add ratings
@@ -93,11 +119,87 @@ const WERD_CHOICE & second       //second word
     word_lengths += second.word_lengths;
     if (second.word_permuter != word_permuter)
       word_permuter = COMPOUND_PERM;
+
+    // Append a deep copy of second blob_choices if it exists
+    if (second.word_blob_choices != NULL) {
+
+      if (this->word_blob_choices == NULL)
+        this->word_blob_choices = new BLOB_CHOICE_LIST_CLIST;
+
+      BLOB_CHOICE_LIST_C_IT this_word_blob_choices_it;
+      BLOB_CHOICE_LIST_C_IT second_word_blob_choices_it;
+
+      this_word_blob_choices_it.set_to_list(this->word_blob_choices);
+      this_word_blob_choices_it.move_to_last();
+
+      second_word_blob_choices_it.set_to_list(second.word_blob_choices);
+
+      for (second_word_blob_choices_it.mark_cycle_pt();
+           !second_word_blob_choices_it.cycled_list();
+           second_word_blob_choices_it.forward()) {
+
+        BLOB_CHOICE_LIST* blob_choices_copy = new BLOB_CHOICE_LIST();
+        blob_choices_copy->deep_copy(second_word_blob_choices_it.data());
+
+        this_word_blob_choices_it.add_after_then_move(blob_choices_copy);
+      }
+    }
   }
 
   return *this;
 }
 
+/**********************************************************************
+ * WERD_CHOICE::operator=
+ **********************************************************************/
+WERD_CHOICE& WERD_CHOICE::operator= (const WERD_CHOICE& source) {
+  if (&source != this) {
+    this->word_string = source.word_string;
+    this->word_lengths = source.word_lengths;
+    this->word_rating = source.word_rating;
+    this->word_certainty = source.word_certainty;
+    this->word_permuter = source.word_permuter;
+
+    // Delete existing blob_choices
+    this->delete_blob_choices();
+
+    // Deep copy blob_choices of source
+    if (source.word_blob_choices != NULL) {
+      BLOB_CHOICE_LIST_C_IT this_word_blob_choices_it;
+      BLOB_CHOICE_LIST_C_IT source_word_blob_choices_it;
+
+      this->word_blob_choices = new BLOB_CHOICE_LIST_CLIST();
+
+      this_word_blob_choices_it.set_to_list(this->word_blob_choices);
+      source_word_blob_choices_it.set_to_list(source.word_blob_choices);
+
+      for (source_word_blob_choices_it.mark_cycle_pt();
+           !source_word_blob_choices_it.cycled_list();
+           source_word_blob_choices_it.forward()) {
+
+        BLOB_CHOICE_LIST* blob_choices_copy = new BLOB_CHOICE_LIST();
+        blob_choices_copy->deep_copy(source_word_blob_choices_it.data());
+
+        this_word_blob_choices_it.add_after_then_move(blob_choices_copy);
+      }
+    }
+  }
+  return *this;
+}
+
+/**********************************************************************
+ * WERD_CHOICE::delete_blob_choices
+ *
+ * Clear the blob_choices list, delete it and set it to NULL.
+ **********************************************************************/
+
+void WERD_CHOICE::delete_blob_choices() {
+  if (word_blob_choices != NULL) {
+    word_blob_choices->deep_clear();
+    delete word_blob_choices;
+    word_blob_choices = NULL;
+  }
+}
 
 /**********************************************************************
  * print_ratings_list

@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        coutln.c  (Formerly coutline.c)
  * Description: Code for the C_OUTLINE class.
- * Author:					Ray Smith
- * Created:					Mon Oct 07 16:01:57 BST 1991
+ * Author:                  Ray Smith
+ * Created:                 Mon Oct 07 16:01:57 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,6 +45,10 @@ ICOORD top_right, INT16 length   //length of loop
   CRACKEDGE *edgept;             //current point
 
   stepcount = length;            //no of steps
+  if (length == 0) {
+    steps = NULL;
+    return;
+  }
                                  //get memory
   steps = (UINT8 *) alloc_mem (step_mem());
   memset(steps, 0, step_mem());
@@ -163,9 +167,9 @@ C_OUTLINE::C_OUTLINE(                     //constructor
         if (new_step & 31) {
           set_step(destindex++, dir + round1);
           if (destindex < 2
-            || (dirdiff =
+            || ((dirdiff =
             step_dir (destindex - 1) - step_dir (destindex - 2)) !=
-            -64 && dirdiff != 64)
+            -64 && dirdiff != 64))
             set_step(destindex++, dir + round2);
           else {
             set_step(destindex - 1, dir + round2);
@@ -255,6 +259,8 @@ INT32 C_OUTLINE::outer_area() {  //winding number
 
   pos = start_pos ();
   total_steps = pathlength ();
+  if (total_steps == 0)
+    return box.area();
   total = 0;
   for (stepindex = 0; stepindex < total_steps; stepindex++) {
                                  //all intersected
@@ -415,6 +421,8 @@ const C_OUTLINE & other          //other outline
 
   if (!box.overlap (other.box))
     return FALSE;                //can't be contained
+  if (stepcount == 0)
+    return other.box.contains(this->box);
 
   pos = start;
   for (stepindex = 0; stepindex < stepcount
@@ -486,6 +494,8 @@ INT16 C_OUTLINE::turn_direction() const {  //winding number
   INT8 dirdiff;                  //direction difference
   INT16 count;                   //winding count
 
+  if (stepcount == 0)
+    return 128;
   count = 0;
   prevdir = step_dir (stepcount - 1);
   for (stepindex = 0; stepindex < stepcount; stepindex++) {
@@ -550,8 +560,8 @@ void C_OUTLINE::move(                  // reposition OUTLINE
 
 #ifndef GRAPHICS_DISABLED
 void C_OUTLINE::plot(                //draw it
-                     WINDOW window,  //window to draw in
-                     COLOUR colour   //colour to draw in
+                     ScrollView* window,  //window to draw in
+                     ScrollView::Color colour   //colour to draw in
                     ) const {
   INT16 stepindex;               //index to cstep
   ICOORD pos;                    //current position
@@ -559,8 +569,9 @@ void C_OUTLINE::plot(                //draw it
   DIR128 oldstepdir;             //previous stepdir
 
   pos = start;                   //current position
-  line_color_index(window, colour);
-  move2d (window, pos.x (), pos.y ());
+  window->Pen(colour); 
+  window->SetCursor(pos.x(), pos.y());
+
   stepindex = 0;
   stepdir = step_dir (0);        //get direction
   while (stepindex < stepcount) {
@@ -574,7 +585,7 @@ void C_OUTLINE::plot(                //draw it
     while (stepindex < stepcount
       && oldstepdir.get_dir () == stepdir.get_dir ());
     //merge straight lines
-    draw2d (window, pos.x (), pos.y ());
+     window->DrawTo(pos.x(), pos.y());
   }
 }
 #endif

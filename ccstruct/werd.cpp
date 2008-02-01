@@ -22,10 +22,10 @@
 #include          "linlsq.h"
 #include          "werd.h"
 
-#define FIRST_COLOUR    RED      //first rainbow colour
+#define FIRST_COLOUR    ScrollView::RED      //first rainbow colour
                                  //last rainbow colour
-#define LAST_COLOUR     AQUAMARINE
-#define CHILD_COLOUR    BROWN    //colour of children
+#define LAST_COLOUR     ScrollView::AQUAMARINE
+#define CHILD_COLOUR    ScrollView::BROWN    //colour of children
 
 const ERRCODE CANT_SCALE_EDGESTEPS =
 "Attempted to scale an edgestep format word";
@@ -789,8 +789,8 @@ void WERD::print(        //print
 
 #ifndef GRAPHICS_DISABLED
 void WERD::plot(                //draw it
-                WINDOW window,  //window to draw in
-                COLOUR colour,  //colour to draw in
+                ScrollView* window,  //window to draw in
+                ScrollView::Color colour,  //colour to draw in
                 BOOL8 solid     //draw larcs solid
                ) {
   if (flags.bit (W_POLYGON)) {
@@ -830,17 +830,17 @@ void WERD::plot(                //draw it
 
 #ifndef GRAPHICS_DISABLED
 void WERD::plot(                //draw it
-                WINDOW window,  //window to draw in
+                ScrollView* window,  //window to draw in
                 BOOL8 solid     //draw larcs solid
                ) {
-  COLOUR colour = FIRST_COLOUR;  //current colour
+  ScrollView::Color colour = FIRST_COLOUR;  //current colour
   if (flags.bit (W_POLYGON)) {
                                  //polygons
     PBLOB_IT it = (PBLOB_LIST *) (&cblobs);
 
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
       it.data ()->plot (window, colour, CHILD_COLOUR);
-      colour = (COLOUR) (colour + 1);
+      colour = (ScrollView::Color) (colour + 1);
       if (colour == LAST_COLOUR)
         colour = FIRST_COLOUR;   //cycle round
     }
@@ -862,7 +862,7 @@ void WERD::plot(                //draw it
 
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
       it.data ()->plot (window, colour, CHILD_COLOUR);
-      colour = (COLOUR) (colour + 1);
+      colour = (ScrollView::Color) (colour + 1);
       if (colour == LAST_COLOUR)
         colour = FIRST_COLOUR;   //cycle round
     }
@@ -880,7 +880,7 @@ void WERD::plot(                //draw it
 
 #ifndef GRAPHICS_DISABLED
 void WERD::plot_rej_blobs(                //draw it
-                          WINDOW window,  //window to draw in
+                          ScrollView* window,  //window to draw in
                           BOOL8 solid     //draw larcs solid
                          ) {
   if (flags.bit (W_POLYGON)) {
@@ -888,7 +888,7 @@ void WERD::plot_rej_blobs(                //draw it
     //polygons
 
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-      it.data ()->plot (window, GREY, GREY);
+      it.data ()->plot (window, ScrollView::GREY, ScrollView::GREY);
     }
   }
   //      else if (flags.bit(W_LINEARC))
@@ -904,7 +904,7 @@ void WERD::plot_rej_blobs(                //draw it
     C_BLOB_IT it = &rej_cblobs;  //blobs of WERD
 
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-      it.data ()->plot (window, GREY, GREY);
+      it.data ()->plot (window, ScrollView::GREY, ScrollView::GREY);
     }
   }
 }

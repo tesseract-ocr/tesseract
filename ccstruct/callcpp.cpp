@@ -25,8 +25,8 @@
 #endif
 #include          <time.h>
 #include          "memry.h"
-#include          "grphics.h"
-#include          "evnts.h"
+#include          "scrollview.h"
+//#include          "evnts.h"
 #include          "varable.h"
 #include          "callcpp.h"
 #include          "tprintf.h"
@@ -179,20 +179,16 @@ void *c_create_window(                   /*create a window */
                       double ymin,       /*getting lost in */
                       double ymax        /*empty space */
                      ) {
-  return create_window (name, SCROLLINGWIN, xpos, ypos, xsize, ysize,
-    xmin, xmax, ymin, ymax, TRUE, FALSE, FALSE, TRUE);
+   return new ScrollView(name, xpos, ypos, xsize, ysize, xmax - xmin, ymax - ymin, true);
 }
 
 
 void c_line_color_index(  /*set color */
                         void *win,
                         C_COL index) {
-  WINDOW window = (WINDOW) win;
-
-  //      ASSERT_HOST(index>=0 && index<=48);
-  if (index < 0 || index > 48)
-    index = (C_COL) 1;
-  window->Line_color_index ((COLOUR) index);
+ // The colors are the same as the SV ones except that SV has COLOR:NONE --> offset of 1
+ ScrollView* window = (ScrollView*) win;
+ window->Pen((ScrollView::Color) (index + 1));
 }
 
 
@@ -200,9 +196,8 @@ void c_move(  /*move pen */
             void *win,
             double x,
             double y) {
-  WINDOW window = (WINDOW) win;
-
-  window->Move2d (x, y);
+  ScrollView* window = (ScrollView*) win;
+  window->SetCursor((int) x, (int) y);
 }
 
 
@@ -210,38 +205,42 @@ void c_draw(  /*move pen */
             void *win,
             double x,
             double y) {
-  WINDOW window = (WINDOW) win;
-
-  window->Draw2d (x, y);
+  ScrollView* window = (ScrollView*) win;
+  window->DrawTo((int) x, (int) y);
 }
 
 
 void c_make_current(  /*move pen */
                     void *win) {
-  WINDOW window = (WINDOW) win;
-
-  window->Make_picture_current ();
+  ScrollView* window = (ScrollView*) win;
+  window->Update();
 }
 
 
 void c_clear_window(  /*move pen */
                     void *win) {
-  WINDOW window = (WINDOW) win;
-
-  window->Clear_view_surface ();
+  ScrollView* window = (ScrollView*) win;
+  window->Clear();
 }
 
 
 char window_wait(  /*move pen */
                  void *win) {
-  WINDOW window = (WINDOW) win;
-  GRAPHICS_EVENT event;
+  ScrollView* window = (ScrollView*) win;
+  SVEvent* ev;
 
-  await_event(window, TRUE, ANY_EVENT, &event);
-  if (event.type == KEYPRESS_EVENT)
-    return event.key;
-  else
-    return '\0';
+  // Wait till an input event (all others are thrown away)
+  char ret = '\0';
+  SVEventType ev_type = SVET_ANY;
+  do {
+    ev = window->AwaitEvent(SVET_ANY);
+    ev_type = ev->type;
+    if (ev_type == SVET_INPUT) {
+      ret = ev->parameter[0];
+    }
+    delete ev;
+  } while (ev_type != SVET_INPUT && ev_type != SVET_CLICK);
+  return ret;
 }
 #endif
 

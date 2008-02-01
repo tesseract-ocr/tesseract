@@ -218,33 +218,35 @@ void POLY_BLOCK::move(              //constructor
 
 
 #ifndef GRAPHICS_DISABLED
-void POLY_BLOCK::plot(WINDOW window, COLOUR colour, INT32 num) { 
+void POLY_BLOCK::plot(ScrollView* window, ScrollView::Color colour, INT32 num) { 
   ICOORDELT_IT v = &vertices;
 
-  line_color_index(window, colour); 
+  window->Pen(colour); 
+  
   v.move_to_first ();
 
   if (num > 0) {
-    text_color_index(window, colour); 
-    character_height (window, (float) 80);
-    text_font_index (window, 6);
+    window->Pen(colour); 
+    window->TextAttributes("Times", 80, false, false, false);
     char temp_buff[34];
     #ifdef __UNIX__
     sprintf(temp_buff, INT32FORMAT, num); 
     #else
     ltoa (num, temp_buff, 10);
     #endif
-    text2d (window, v.data ()->x (), v.data ()->y (), temp_buff, 0, FALSE);
+    window->Text(v.data ()->x (), v.data ()->y (), temp_buff);
   }
-  move2d (window, v.data ()->x (), v.data ()->y ());
-  for (v.mark_cycle_pt (); !v.cycled_list (); v.forward ())
-    draw2d (window, v.data ()->x (), v.data ()->y ());
+
+  window->SetCursor(v.data ()->x (), v.data ()->y ());
+  for (v.mark_cycle_pt (); !v.cycled_list (); v.forward ()) {
+    window->DrawTo(v.data ()->x (), v.data ()->y ());
+   }
   v.move_to_first ();
-  draw2d (window, v.data ()->x (), v.data ()->y ());
+   window->DrawTo(v.data ()->x (), v.data ()->y ());
 }
 
 
-void POLY_BLOCK::fill(WINDOW window, COLOUR colour) { 
+void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) { 
   INT16 y;
   INT16 width;
   PB_LINE_IT *lines;
@@ -252,8 +254,7 @@ void POLY_BLOCK::fill(WINDOW window, COLOUR colour) {
   ICOORDELT_IT s_it;
 
   lines = new PB_LINE_IT (this);
-
-  line_color_index(window, colour); 
+  window->Pen(colour); 
 
   for (y = this->bounding_box ()->bottom ();
   y <= this->bounding_box ()->top (); y++) {
@@ -265,8 +266,8 @@ void POLY_BLOCK::fill(WINDOW window, COLOUR colour) {
         // at the start of line segment, y coord is length of line segment
         // Last pixel is start pixel + length.
         width = s_it.data ()->y ();
-        move2d (window, s_it.data ()->x (), y);
-        draw2d (window, s_it.data ()->x () + (float) width, y);
+        window->SetCursor(s_it.data ()->x (), y);
+        window->DrawTo(s_it.data ()->x () + (float) width, y);
       }
     }
   }

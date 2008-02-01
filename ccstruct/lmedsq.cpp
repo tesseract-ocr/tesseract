@@ -437,14 +437,14 @@ float LMS::compute_quadratic_errors(                          //fit sample
 
 #ifndef GRAPHICS_DISABLED
 void LMS::plot(               //plot fit
-               WINDOW win,    //window
-               COLOUR colour  //colour to draw in
+               ScrollView* win,    //window
+               ScrollView::Color colour  //colour to draw in
               ) {
   if (fitted) {
-    line_color_index(win, colour); 
-    move2d (win, samples[0].x (),
+    win->Pen(colour); 
+    win->SetCursor(samples[0].x (),
       c + samples[0].x () * (m + samples[0].x () * a));
-    draw2d (win, samples[samplecount - 1].x (),
+    win->DrawTo(samples[samplecount - 1].x (),
       c + samples[samplecount - 1].x () * (m +
       samples[samplecount -
       1].x () * a));

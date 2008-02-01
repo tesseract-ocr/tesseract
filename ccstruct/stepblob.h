@@ -45,9 +45,9 @@ class C_BLOB:public ELIST_LINK
               const ICOORD vec);  // by vector
 
     void plot(                       //draw one
-              WINDOW window,         //window to draw in
-              COLOUR blob_colour,    //for outer bits
-              COLOUR child_colour);  //for holes
+              ScrollView* window,         //window to draw in
+              ScrollView::Color blob_colour,    //for outer bits
+              ScrollView::Color child_colour);  //for holes
 
     void prep_serialise() {  //set ptrs to counts
       outlines.prep_serialise ();

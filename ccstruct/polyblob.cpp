@@ -95,9 +95,9 @@ static void position_outline(                        //put in place
 #ifndef GRAPHICS_DISABLED
 static void plot_outline_list(                     //draw outlines
                               OUTLINE_LIST *list,  //outline to draw
-                              WINDOW window,       //window to draw in
-                              COLOUR colour,       //colour to use
-                              COLOUR child_colour  //colour of children
+                              ScrollView* window,       //window to draw in
+                              ScrollView::Color colour,       //colour to use
+                              ScrollView::Color child_colour  //colour of children
                              ) {
   OUTLINE *outline;              //current outline
   OUTLINE_IT it = list;          //iterator
@@ -335,9 +335,9 @@ void PBLOB::scale(                  // scale blob
 
 #ifndef GRAPHICS_DISABLED
 void PBLOB::plot(                     //draw it
-                 WINDOW window,       //window to draw in
-                 COLOUR blob_colour,  //main colour
-                 COLOUR child_colour  //for holes
+                 ScrollView* window,       //window to draw in
+                 ScrollView::Color blob_colour,  //main colour
+                 ScrollView::Color child_colour  //for holes
                 ) {
   plot_outline_list(&outlines, window, blob_colour, child_colour); 
 }

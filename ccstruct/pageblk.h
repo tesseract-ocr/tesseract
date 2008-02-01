@@ -59,9 +59,9 @@ class DLLSYM PAGE_BLOCK:public ELIST_LINK, public POLY_BLOCK
     void move(                //move it
               ICOORD shift);  //vector
 
-    void basic_plot(WINDOW window, COLOUR colour); 
+    void basic_plot(ScrollView* window, ScrollView::Color colour); 
 
-    void plot(WINDOW window, COLOUR colour); 
+    void plot(ScrollView* window, ScrollView::Color colour); 
 
     void show_attrs(DEBUG_WIN *debug); 
 
@@ -140,10 +140,10 @@ class DLLSYM TEXT_BLOCK:public PAGE_BLOCK
     void move(                //move it
               ICOORD shift);  //vector
 
-    void plot(WINDOW window,
-              COLOUR colour,
-              COLOUR region_colour,
-              COLOUR subregion_colour);
+    void plot(ScrollView* window,
+              ScrollView::Color colour,
+              ScrollView::Color region_colour,
+              ScrollView::Color subregion_colour);
 
     void set_attrs (BOOL8 backg[NUM_BACKGROUNDS]);
 
@@ -297,7 +297,7 @@ class DLLSYM WEIRD_BLOCK:public PAGE_BLOCK
       id_number = new_id;
     }
 
-    void plot(WINDOW window, COLOUR colour); 
+    void plot(ScrollView* window, ScrollView::Color colour); 
 
     INT32 id_no() { 
       return id_number;

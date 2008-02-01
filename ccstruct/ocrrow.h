@@ -83,15 +83,15 @@ class ROW:public ELIST_LINK
                FILE *fp);  //file to print on
 
     void plot(                 //draw one
-              WINDOW window,   //window to draw in
-              COLOUR colour);  //uniform colour
+              ScrollView* window,   //window to draw in
+              ScrollView::Color colour);  //uniform colour
     void plot(                 //draw one
-              WINDOW window);  //in rainbow colours
+              ScrollView* window);  //in rainbow colours
 
 #ifndef GRAPHICS_DISABLED
     void plot_baseline(                  //draw the baseline
-                       WINDOW window,    //window to draw in
-                       COLOUR colour) {  //colour to draw
+                       ScrollView* window,    //window to draw in
+                       ScrollView::Color colour) {  //colour to draw
                                  //draw it
       baseline.plot (window, colour);
     }

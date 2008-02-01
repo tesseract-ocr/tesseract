@@ -95,13 +95,13 @@ class DLLSYM PDBLK               //page block
               const ICOORD vec);  // by vector
 
     void plot(                 //draw histogram
-              WINDOW window,   //window to draw in
+              ScrollView* window,   //window to draw in
               INT32 serial,    //serial number
-              COLOUR colour);  //colour to draw in
+              ScrollView::Color colour);  //colour to draw in
 
     void show(                 //show image
               IMAGE *image,    //image to show
-              WINDOW window);  //window to show in
+              ScrollView* window);  //window to show in
 
     PDBLK & operator= (          //assignment
       const PDBLK & source);     //from this

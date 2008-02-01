@@ -20,7 +20,7 @@
 #ifndef           POUTLINE_H
 #define           POUTLINE_H
 
-#include          "grphics.h"
+#include          "scrollview.h"
 #include          "polyvert.h"
 #include          "rect.h"
 #include          "blckerr.h"
@@ -82,8 +82,8 @@ class OUTLINE:public ELIST_LINK
                const FCOORD vec);  // by FLOAT vector
 
     void plot(                 //draw one
-              WINDOW window,   //window to draw in
-              COLOUR colour);  //colour to draw it
+              ScrollView* window,   //window to draw in
+              ScrollView::Color colour);  //colour to draw it
 
     void prep_serialise() {  //set ptrs to counts
       outline.prep_serialise ();

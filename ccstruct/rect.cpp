@@ -133,15 +133,12 @@ BOX BOX::bounding_union(  //box enclosing both
 
 #ifndef GRAPHICS_DISABLED
 void BOX::plot(                      //paint box
-               WINDOW fd,            //where to paint
-               INT16 style,          //display style
-               INT16 edged,          //show border?
-               COLOUR fill_colour,   //colour for inside
-               COLOUR border_colour  //colour for border
+               ScrollView* fd,       //where to paint
+               ScrollView::Color fill_colour,   //colour for inside
+               ScrollView::Color border_colour  //colour for border
               ) const {
-  interior_style(fd, style, edged); 
-  fill_color_index(fd, fill_colour); 
-  perimeter_color_index(fd, border_colour); 
+  fd->Brush(fill_colour);
+  fd->Pen(border_colour);
   plot(fd); 
 }
 #endif

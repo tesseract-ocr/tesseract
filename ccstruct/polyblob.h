@@ -50,9 +50,9 @@ class PBLOB:public ELIST_LINK
                               const DENORM *denorm);  //antidote
 
     void plot(                       //draw one
-              WINDOW window,         //window to draw in
-              COLOUR blob_colour,    //for outer bits
-              COLOUR child_colour);  //for holes
+              ScrollView* window,         //window to draw in
+              ScrollView::Color blob_colour,    //for outer bits
+              ScrollView::Color child_colour);  //for holes
 
     void move(                    // reposition blob
               const FCOORD vec);  // by FLOAT vector

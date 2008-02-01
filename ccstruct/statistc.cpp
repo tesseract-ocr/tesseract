@@ -664,12 +664,12 @@ void STATS::short_print(            //print stats table
 
 #ifndef GRAPHICS_DISABLED
 void STATS::plot(                //plot stats table
-                 WINDOW window,  //to draw in
+                 ScrollView* window,  //to draw in
                  float xorigin,  //bottom left
                  float yorigin,
                  float xscale,   //one x unit
                  float yscale,   //one y unit
-                 COLOUR colour   //colour to draw in
+                 ScrollView::Color colour   //colour to draw in
                 ) {
   INT32 index;                   //table index
 
@@ -679,11 +679,10 @@ void STATS::plot(                //plot stats table
             "Empty stats");*/
     return;
   }
-  interior_style (window, INT_HOLLOW, 1);
-  perimeter_color_index(window, colour); 
+  window->Pen(colour); 
 
   for (index = 0; index < rangemax - rangemin; index++) {
-    rectangle (window, xorigin + xscale * index, yorigin,
+    window->Rectangle( xorigin + xscale * index, yorigin,
       xorigin + xscale * (index + 1),
       yorigin + yscale * buckets[index]);
   }
@@ -699,12 +698,12 @@ void STATS::plot(                //plot stats table
 
 #ifndef GRAPHICS_DISABLED
 void STATS::plotline(                //plot stats table
-                     WINDOW window,  //to draw in
+                     ScrollView* window,  //to draw in
                      float xorigin,  //bottom left
                      float yorigin,
                      float xscale,   //one x unit
                      float yscale,   //one y unit
-                     COLOUR colour   //colour to draw in
+                     ScrollView::Color colour   //colour to draw in
                     ) {
   INT32 index;                   //table index
 
@@ -714,13 +713,11 @@ void STATS::plotline(                //plot stats table
        "Empty stats"); */
     return;
   }
-  line_color_index(window, colour); 
-  line_type(window, SOLID); 
+  window->Pen(colour);
 
-  move2d (window, xorigin, yorigin + yscale * buckets[0]);
+  window->SetCursor(xorigin, yorigin + yscale * buckets[0]);
   for (index = 0; index < rangemax - rangemin; index++) {
-    draw2d (window, xorigin + xscale * index,
-      yorigin + yscale * buckets[index]);
+    window->DrawTo(xorigin + xscale * index,      yorigin + yscale * buckets[index]);
   }
 }
 #endif

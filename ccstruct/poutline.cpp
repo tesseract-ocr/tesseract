@@ -369,19 +369,22 @@ void OUTLINE::scale(                     // scale OUTLINE
 
 #ifndef GRAPHICS_DISABLED
 void OUTLINE::plot(                //draw it
-                   WINDOW window,  //window to draw in
-                   COLOUR colour   //colour to draw in
+                   ScrollView* window,  //window to draw in
+                   ScrollView::Color colour   //colour to draw in
                   ) {
   POLYPT *polypt;                //current point
   POLYPT_IT it = &outline;       //iterator
 
-  line_color_index(window, colour); 
+  window->Pen(colour); 
   polypt = it.data ();
-  move2d (window, polypt->pos.x (), polypt->pos.y ());
+  int startx = polypt->pos.x ();
+  int starty = polypt->pos.y ();
   do {
     it.forward ();
     polypt = it.data ();
-    draw2d (window, polypt->pos.x (), polypt->pos.y ());
+    window->Line(startx,starty,polypt->pos.x (),polypt->pos.y ());
+    startx = polypt->pos.x ();
+    starty = polypt->pos.y ();
   }
   while (!it.at_first ());
 }

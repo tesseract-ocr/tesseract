@@ -21,7 +21,7 @@
 #include          <stdlib.h>
 #include          "blckerr.h"
 #include          "pdblock.h"
-#include          "showim.h"
+#include          "svshowim.h"
 
 #include          "hpddef.h"     //must be last (handpd.dll)
 
@@ -131,9 +131,9 @@ void PDBLK::move(                  // reposition block
 
 #ifndef GRAPHICS_DISABLED
 void PDBLK::plot(                //draw outline
-                 WINDOW window,  //window to draw in
+                 ScrollView* window,  //window to draw in
                  INT32 serial,   //serial number
-                 COLOUR colour   //colour to draw in
+                 ScrollView::Color colour   //colour to draw in
                 ) {
   ICOORD startpt;                //start of outline
   ICOORD endpt;                  //end of outline
@@ -141,10 +141,8 @@ void PDBLK::plot(                //draw outline
   ICOORDELT_IT it = &leftside;   //iterator
 
                                  //set the colour
-  line_color_index(window, colour); 
-  text_color_index(window, colour); 
-  character_height (window, (float) BLOCK_LABEL_HEIGHT);
-  text_font_index (window, 6);
+  window->Pen(colour); 
+  window->TextAttributes("Times", BLOCK_LABEL_HEIGHT, false, false, false);
 
   if (!leftside.empty ()) {
     startpt = *(it.data ());     //bottom left corner
@@ -156,34 +154,35 @@ void PDBLK::plot(                //draw outline
     #else
     ultoa (serial, temp_buff, 10);
     #endif
-    text2d (window, startpt.x (), startpt.y (), temp_buff, 0, FALSE);
+    window->Text(startpt.x (), startpt.y (), temp_buff);
 
-    move2d (window, startpt.x (), startpt.y ());
+    window->SetCursor(startpt.x (), startpt.y ());
     do {
       prevpt = *(it.data ());    //previous point
       it.forward ();             //move to next point
                                  //draw round corner
-      draw2d (window, prevpt.x (), it.data ()->y ());
-      draw2d (window, it.data ()->x (), it.data ()->y ());
+    window->DrawTo(prevpt.x (), it.data ()->y ());
+    window->DrawTo(it.data ()->x (), it.data ()->y ());
     }
     while (!it.at_last ());      //until end of list
     endpt = *(it.data ());       //end point
 
                                  //other side of boundary
-    move2d (window, startpt.x (), startpt.y ());
+    window->SetCursor(startpt.x (), startpt.y ());
     it.set_to_list (&rightside);
     prevpt = startpt;
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
                                  //draw round corner
-      draw2d (window, prevpt.x (), it.data ()->y ());
-      draw2d (window, it.data ()->x (), it.data ()->y ());
+    window->DrawTo(prevpt.x (), it.data ()->y ());
+    window->DrawTo(it.data ()->x (), it.data ()->y ());
       prevpt = *(it.data ());    //previous point
     }
                                  //close boundary
-    draw2d (window, endpt.x (), endpt.y ());
+    window->DrawTo(endpt.x(), endpt.y());
     if (hand_block != NULL)
       hand_block->plot (window, colour, serial);
   }
+
 }
 #endif
 
@@ -197,7 +196,7 @@ void PDBLK::plot(                //draw outline
 #ifndef GRAPHICS_DISABLED
 void PDBLK::show(               //show image block
                  IMAGE *image,  //image to show
-                 WINDOW window  //window to show in
+                 ScrollView* window  //window to show in
                 ) {
   BLOCK_RECT_IT it = this;       //rectangle iterator
   ICOORD bleft, tright;          //corners of rectangle
@@ -208,7 +207,7 @@ void PDBLK::show(               //show image block
     //              tprintf("Drawing a block with a bottom left of (%d,%d)\n",
     //                      bleft.x(),bleft.y());
                                  //show it
-    show_sub_image (image, bleft.x (), bleft.y (), tright.x () - bleft.x (), tright.y () - bleft.y (), window, bleft.x (), bleft.y ());
+    sv_show_sub_image (image, bleft.x (), bleft.y (), tright.x () - bleft.x (), tright.y () - bleft.y (), window, bleft.x (), bleft.y ());
   }
 }
 #endif

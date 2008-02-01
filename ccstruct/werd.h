@@ -196,17 +196,17 @@ class WERD:public ELIST_LINK
                FILE *fp);  //file to print on
 
     void plot (                  //draw one
-      WINDOW window,             //window to draw in
+      ScrollView* window,             //window to draw in
                                  //uniform colour
-      COLOUR colour, BOOL8 solid = FALSE);
+      ScrollView::Color colour, BOOL8 solid = FALSE);
 
     void plot (                  //draw one
                                  //in rainbow colours
-      WINDOW window, BOOL8 solid = FALSE);
+      ScrollView* window, BOOL8 solid = FALSE);
 
     void plot_rej_blobs (        //draw one
                                  //in rainbow colours
-      WINDOW window, BOOL8 solid = FALSE);
+      ScrollView* window, BOOL8 solid = FALSE);
 
     WERD & operator= (           //assign words
       const WERD & source);      //from this

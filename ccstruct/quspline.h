@@ -20,7 +20,6 @@
 #ifndef           QUSPLINE_H
 #define           QUSPLINE_H
 
-#include          "grphics.h"
 #include          "quadratc.h"
 #include          "serialis.h"
 #include          "memry.h"
@@ -77,8 +76,8 @@ class QSPLINE
 
 #ifndef GRAPHICS_DISABLED
     void plot(                       //draw it
-              WINDOW window,         //in window
-              COLOUR colour) const;  //in colour
+              ScrollView* window,         //in window
+              ScrollView::Color colour) const;  //in colour
 #endif
 
     void prep_serialise() {  //set ptrs to counts

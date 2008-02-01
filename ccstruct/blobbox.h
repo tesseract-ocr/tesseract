@@ -117,9 +117,9 @@ class BLOBNBOX:public ELIST_LINK
 
 #ifndef GRAPHICS_DISABLED
     void plot(                        //draw one
-              WINDOW window,          //window to draw in
-              COLOUR blob_colour,     //for outer bits
-              COLOUR child_colour) {  //for holes
+              ScrollView* window,          //window to draw in
+              ScrollView::Color blob_colour,     //for outer bits
+              ScrollView::Color child_colour) {  //for holes
       if (blob_ptr != NULL)
         blob_ptr->plot (window, blob_colour, child_colour);
       if (cblob_ptr != NULL)

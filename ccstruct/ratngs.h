@@ -95,6 +95,12 @@ WERD_CHOICE
 {
   public:
     WERD_CHOICE() {  //empty
+      word_string = NULL;
+      word_lengths = NULL;
+      word_rating = 0.0;
+      word_certainty = 0.0;
+      word_permuter = 0;
+      word_blob_choices = NULL;
     }
     WERD_CHOICE(                         //constructor
                 const char *src_string,  //word string
@@ -103,6 +109,7 @@ WERD_CHOICE
                 float src_cert,          //certainty
                 UINT8 src_permuter);     //permuter code
 
+    ~WERD_CHOICE();
                                  //access function
     const STRING &string() const {
       return word_string;
@@ -126,8 +133,16 @@ WERD_CHOICE
       word_permuter = perm;
     }
 
+    BLOB_CHOICE_LIST_CLIST* blob_choices() {
+      return word_blob_choices;
+    }
+
+    void set_blob_choices(BLOB_CHOICE_LIST_CLIST *blob_choices);
+
     WERD_CHOICE & operator+= (   //concatanate
       const WERD_CHOICE & second);//second on first
+
+    WERD_CHOICE& operator= (const WERD_CHOICE& source);
 
     NEWDELETE private:
     STRING word_string;          //text
@@ -135,6 +150,11 @@ WERD_CHOICE
     float word_rating;           //size related
     float word_certainty;        //absolute
     UINT8 word_permuter;         //permuter code
+    BLOB_CHOICE_LIST_CLIST *word_blob_choices; //best choices for each blob
+
+ private:
+
+    void delete_blob_choices();
 };
 
 CLISTIZEH (WERD_CHOICE)

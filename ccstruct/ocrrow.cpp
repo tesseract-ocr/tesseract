@@ -160,8 +160,8 @@ void ROW::print(          //print
 
 #ifndef GRAPHICS_DISABLED
 void ROW::plot(                //draw it
-               WINDOW window,  //window to draw in
-               COLOUR colour   //colour to draw in
+               ScrollView* window,  //window to draw in
+               ScrollView::Color colour   //colour to draw in
               ) {
   WERD *word;                    //current word
   WERD_IT it = &words;           //words of ROW
@@ -181,7 +181,7 @@ void ROW::plot(                //draw it
 
 #ifndef GRAPHICS_DISABLED
 void ROW::plot(               //draw it
-               WINDOW window  //window to draw in
+               ScrollView* window  //window to draw in
               ) {
   WERD *word;                    //current word
   WERD_IT it = &words;           //words of ROW

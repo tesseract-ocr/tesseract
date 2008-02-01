@@ -344,7 +344,7 @@ void PAGE_BLOCK::move(ICOORD shift  //amount to move
 }
 
 #ifndef GRAPHICS_DISABLED
-void PAGE_BLOCK::basic_plot(WINDOW window, COLOUR colour) { 
+void PAGE_BLOCK::basic_plot(ScrollView* window, ScrollView::Color colour) { 
   PAGE_BLOCK_IT c = &children;
 
   POLY_BLOCK::plot (window, colour, 0);
@@ -355,7 +355,7 @@ void PAGE_BLOCK::basic_plot(WINDOW window, COLOUR colour) {
 }
 
 
-void PAGE_BLOCK::plot(WINDOW window, COLOUR colour) { 
+void PAGE_BLOCK::plot(ScrollView* window, ScrollView::Color colour) { 
   TEXT_BLOCK *tblock;
   WEIRD_BLOCK *wblock;
 
@@ -523,10 +523,10 @@ void TEXT_BLOCK::de_serialise_asc(         //convert from ascii
 
 
 #ifndef GRAPHICS_DISABLED
-void TEXT_BLOCK::plot(WINDOW window,
-                      COLOUR colour,
-                      COLOUR region_colour,
-                      COLOUR subregion_colour) {
+void TEXT_BLOCK::plot(ScrollView* window,
+                      ScrollView::Color colour,
+                      ScrollView::Color region_colour,
+                      ScrollView::Color subregion_colour) {
   TEXT_REGION_IT t = &text_regions, tc;
 
   PAGE_BLOCK::basic_plot(window, colour); 
@@ -817,7 +817,7 @@ PB_WEIRD) {
 
 
 #ifndef GRAPHICS_DISABLED
-void WEIRD_BLOCK::plot(WINDOW window, COLOUR colour) { 
+void WEIRD_BLOCK::plot(ScrollView* window, ScrollView::Color colour) { 
   PAGE_BLOCK_IT c = this->child ();
 
   POLY_BLOCK::plot(window, colour, id_number); 

@@ -20,12 +20,12 @@
 #ifndef           COUTLN_H
 #define           COUTLN_H
 
-#include          "grphics.h"
 #include          "crakedge.h"
 #include          "mod128.h"
 #include          "bits16.h"
 #include          "rect.h"
 #include          "blckerr.h"
+#include          "scrollview.h"
 
 #define INTERSECTING    MAX_INT16//no winding number
 
@@ -138,8 +138,8 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
               const ICOORD vec);  // by vector
 
     void plot(                       //draw one
-              WINDOW window,         //window to draw in
-              COLOUR colour) const;  //colour to draw it
+              ScrollView* window,         //window to draw in
+              ScrollView::Color colour) const;  //colour to draw it
 
     void prep_serialise() {  //set ptrs to counts
       children.prep_serialise ();

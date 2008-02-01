@@ -356,15 +356,15 @@ void QSPLINE::extrapolate(                  //linear extrapolation
 
 #ifndef GRAPHICS_DISABLED
 void QSPLINE::plot(                //draw it
-                   WINDOW window,  //window to draw in
-                   COLOUR colour   //colour to draw in
+                   ScrollView* window,  //window to draw in
+                   ScrollView::Color colour   //colour to draw in
                   ) const {
   INT32 segment;                 //index of segment
   INT16 step;                    //index of poly piece
   double increment;              //x increment
   double x;                      //x coord
 
-  line_color_index(window, colour); 
+  window->Pen(colour);
   for (segment = 0; segment < segments; segment++) {
     increment =
       (double) (xcoords[segment + 1] -
@@ -372,9 +372,9 @@ void QSPLINE::plot(                //draw it
     x = xcoords[segment];
     for (step = 0; step <= QSPLINE_PRECISION; step++) {
       if (segment == 0 && step == 0)
-        move2d (window, x, quadratics[segment].y (x));
+ 	window->SetCursor(x, quadratics[segment].y (x));
       else
-        draw2d (window, x, quadratics[segment].y (x));
+	window->DrawTo(x, quadratics[segment].y (x));
       x += increment;
     }
   }

@@ -23,8 +23,8 @@
 #include          <math.h>
 #include          "points.h"
 #include          "ndminx.h"
-#include          "grphics.h"
 #include          "tprintf.h"
+#include	"scrollview.h"
 
 class DLLSYM BOX                 //bounding box
 {
@@ -189,17 +189,15 @@ class DLLSYM BOX                 //bounding box
 
 #ifndef GRAPHICS_DISABLED
     void plot(                    //use current settings
-              WINDOW fd) const {  //where to paint
-      rectangle (fd, bot_left.x (), bot_left.y (), top_right.x (),
+              ScrollView* fd) const {  //where to paint
+      fd->Rectangle(bot_left.x (), bot_left.y (), top_right.x (),
         top_right.y ());
     }
 
     void plot(                              //paint box
-              WINDOW fd,                    //where to paint
-              INT16 style,                  //display style
-              INT16 edged,                  //show border?
-              COLOUR fill_colour,           //colour for inside
-              COLOUR border_colour) const;  //colour for border
+              ScrollView* fd,                    //where to paint
+              ScrollView::Color fill_colour,           //colour for inside
+              ScrollView::Color border_colour) const;  //colour for border
 #endif
 
     friend DLLSYM BOX & operator+= (BOX &, const BOX &);
