@@ -373,7 +373,7 @@ void find_textlines(                  //get baseline
       xcoords, ycoords, spline, &row->baseline, jumplimit);
 #ifndef GRAPHICS_DISABLED
   if (textord_show_final_rows)
-    row->baseline.plot (to_win, GOLDENROD);
+    row->baseline.plot (to_win, ScrollView::GOLDENROD);
 #endif
   if (blobcount > 1) {
     bestpart = partition_line (blobcoords, blobcount,
@@ -568,9 +568,9 @@ float jumplimit                  /*guess half descenders */
           y3 = thisy;            /*middle point */
           ycount++;
                                  /*local max */
-          if (ycount >= 3 && (y1 < y2 && y2 >= y3
+          if (ycount >= 3 && ((y1 < y2 && y2 >= y3)
                                  /*local min */
-          || y1 > y2 && y2 <= y3)) {
+          || (y1 > y2 && y2 <= y3))) {
             if (segment < SPLINESIZE - 2) {
                                  /*turning pt */
               xturns[segment] = x2;
@@ -610,9 +610,9 @@ float jumplimit                  /*guess half descenders */
               prevy = yturns[blobindex];
             }
                                  /*bigger max */
-            else if (prevy > minmin + jumplimit && yturns[blobindex] > prevy
+            else if ((prevy > minmin + jumplimit && yturns[blobindex] > prevy)
                                  /*smaller min */
-            || prevy < maxmax - jumplimit && yturns[blobindex] < prevy) {
+            || (prevy < maxmax - jumplimit && yturns[blobindex] < prevy)) {
               xstarts[segment - 1] = xturns[blobindex];
                                  /*improved previous */
               prevy = yturns[blobindex];

@@ -20,7 +20,7 @@
 #ifndef           EDGBLOB_H
 #define           EDGBLOB_H
 
-#include          "grphics.h"
+#include          "scrollview.h"
 #include          "varable.h"
 #include          "img.h"
 #include          "ocrblock.h"
@@ -72,7 +72,7 @@ class OL_BUCKETS
 
 void extract_edges(                 //find blobs
 #ifndef GRAPHICS_DISABLED
-                   WINDOW window,   //window for output
+                   ScrollView* window,   //window for output
 #endif
                    IMAGE *image,    //image to scan
                    IMAGE *t_image,  //thresholded image

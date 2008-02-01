@@ -20,7 +20,7 @@
 #ifndef           EDGLOOP_H
 #define           EDGLOOP_H
 
-#include          "grphics.h"
+#include          "scrollview.h"
 #include          "varable.h"
 #include          "img.h"
 #include          "pdblock.h"
@@ -45,7 +45,7 @@ extern double_VAR_H (edges_boxarea, 0.8,
 "Min area fraction of grandchild for box");
 DLLSYM void get_outlines(                      //edge detect
 #ifndef GRAPHICS_DISABLED
-                         WINDOW window,        //window for output
+                         ScrollView* window,        //window for output
 #endif
                          IMAGE *image,         //image to scan
                          IMAGE *t_image,       //thresholded image
@@ -56,7 +56,7 @@ DLLSYM void get_outlines(                      //edge detect
 void complete_edge(                  //clean and approximate
                    CRACKEDGE *start  //start of loop
                   );
-COLOUR check_path_legal(                  //certify outline
+ScrollView::Color check_path_legal(                  //certify outline
                         CRACKEDGE *start  //start of loop
                        );
 INT16 loop_bounding_box(                    //get bounding box

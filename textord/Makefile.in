@@ -75,7 +75,7 @@ RANLIB = @RANLIB@
 VERSION = @VERSION@
 
 SUBDIRS = 
-AM_CPPFLAGS =      -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil     -I$(top_srcdir)/image -I$(top_srcdir)/viewer
+AM_CPPFLAGS =      -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil     -I$(top_srcdir)/image -I$(top_srcdir)/viewer     -I$(top_srcdir)/pageseg
 
 
 include_HEADERS =      blkocc.h blobcmpl.h drawedg.h drawtord.h edgblob.h     edgloop.h fpchop.h gap_map.h makerow.h oldbasel.h     pithsync.h pitsync1.h scanedg.h sortflts.h tessout.h     topitch.h tordmain.h tospace.h tovars.h underlin.h     wordseg.h

@@ -20,15 +20,15 @@
 #ifndef           DRAWEDG_H
 #define           DRAWEDG_H
 
-#include          "grphics.h"
+#include          "scrollview.h"
 #include          "crakedge.h"
 
-WINDOW create_edges_window(                //make window
+ScrollView* create_edges_window(                //make window
                            ICOORD page_tr  //size of image
                           );
 void draw_raw_edge(                   //draw the cracks
-                   WINDOW fd,         //window to draw in
+                   ScrollView* fd,         //window to draw in
                    CRACKEDGE *start,  //start of loop
-                   COLOUR colour      //colour to draw in
+                   ScrollView::Color colour      //colour to draw in
                   );
 #endif

@@ -73,7 +73,7 @@ DLLSYM void block_edges(                      //get edges in a block
 
   bwline.init (t_image->get_xsize());
 
-  margin = WHITE;
+  margin = WHITE_PIX;
 
   for (y = tright.y () - 1; y >= bleft.y () - 1; y--) {
     if (y >= block_bleft.y () && y < block_tright.y ()) {

@@ -21,7 +21,7 @@
 #define           DRAWTORD_H
 
 #include          "varable.h"
-#include          "grphics.h"
+#include          "scrollview.h"
 #include          "pitsync1.h"
 #include          "blobbox.h"
 #include          "notdll.h"
@@ -32,7 +32,7 @@ extern BOOL_VAR_H (textord_show_fixed_cuts, FALSE,
 "Draw fixed pitch cell boundaries");
 extern STRING_VAR_H (to_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
 extern STRING_VAR_H (to_smdfile, NO_SMD, "Name of SMD file");
-extern WINDOW to_win;
+extern ScrollView* to_win;
 extern FILE *to_debug;
 void create_to_win(                //make features win
                    ICOORD page_tr  //size of page
@@ -40,26 +40,26 @@ void create_to_win(                //make features win
 void close_to_win();  //make features win
 void create_todebug_win();  //make gradients win
 void plot_blob_list(                      //make gradients win
-                    WINDOW win,           //window to draw in
+                    ScrollView* win,           //window to draw in
                     BLOBNBOX_LIST *list,  //blob list
-                    COLOUR body_colour,   //colour to draw
-                    COLOUR child_colour   //colour of child
+                    ScrollView::Color body_colour,   //colour to draw
+                    ScrollView::Color child_colour   //colour of child
                    );
 void plot_box_list(                      //make gradients win
-                   WINDOW win,           //window to draw in
+                   ScrollView* win,           //window to draw in
                    BLOBNBOX_LIST *list,  //blob list
-                   COLOUR body_colour    //colour to draw
+                   ScrollView::Color body_colour    //colour to draw
                   );
 void plot_to_row(                 //draw a row
                  TO_ROW *row,     //row to draw
-                 COLOUR colour,   //colour to draw in
+                 ScrollView::Color colour,   //colour to draw in
                  FCOORD rotation  //rotation for line
                 );
 void plot_parallel_row(                 //draw a row
                        TO_ROW *row,     //row to draw
                        float gradient,  //gradients of lines
                        INT32 left,      //edge of block
-                       COLOUR colour,   //colour to draw in
+                       ScrollView::Color colour,   //colour to draw in
                        FCOORD rotation  //rotation for line
                       );
 void draw_occupation (           //draw projection
@@ -73,17 +73,17 @@ void draw_meanlines(                  //draw a block
                     TO_BLOCK *block,  //block to draw
                     float gradient,   //gradients of lines
                     INT32 left,       //edge of block
-                    COLOUR colour,    //colour to draw in
+                    ScrollView::Color colour,    //colour to draw in
                     FCOORD rotation   //rotation for line
                    );
 void plot_word_decisions(              //draw words
-                         WINDOW win,   //window tro draw in
+                         ScrollView* win,   //window tro draw in
                          INT16 pitch,  //of block
                          TO_ROW *row   //row to draw
                         );
 void plot_fp_cells(                        //draw words
-                   WINDOW win,             //window tro draw in
-                   COLOUR colour,          //colour of lines
+                   ScrollView* win,             //window tro draw in
+                   ScrollView::Color colour,          //colour of lines
                    BLOBNBOX_IT *blob_it,   //blobs
                    INT16 pitch,            //of block
                    INT16 blob_count,       //no of real blobs
@@ -92,14 +92,14 @@ void plot_fp_cells(                        //draw words
                    INT16 projection_right,
                    float projection_scale);
 void plot_fp_cells2(                        //draw words
-                    WINDOW win,             //window tro draw in
-                    COLOUR colour,          //colour of lines
+                    ScrollView* win,             //window tro draw in
+                    ScrollView::Color colour,          //colour of lines
                     TO_ROW *row,            //for location
                     FPSEGPT_LIST *seg_list  //segments to plot
                    );
 void plot_row_cells(                       //draw words
-                    WINDOW win,            //window tro draw in
-                    COLOUR colour,         //colour of lines
+                    ScrollView* win,            //window tro draw in
+                    ScrollView::Color colour,         //colour of lines
                     TO_ROW *row,           //for location
                     float xshift,          //amount of shift
                     ICOORDELT_LIST *cells  //cells to draw

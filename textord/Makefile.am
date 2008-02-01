@@ -1,7 +1,8 @@
 SUBDIRS =
 AM_CPPFLAGS = \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
-    -I$(top_srcdir)/image -I$(top_srcdir)/viewer
+    -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
+    -I$(top_srcdir)/pageseg
 
 include_HEADERS = \
     blkocc.h blobcmpl.h drawedg.h drawtord.h edgblob.h \

@@ -32,7 +32,6 @@
 #include          <ctype.h>
 #include          <math.h>
 #include          "errcode.h"
-#include          "grphics.h"
 #include          "drawtord.h"
 #include          "blkocc.h"
 #include          "notdll.h"

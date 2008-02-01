@@ -33,7 +33,7 @@ EXTERN BOOL_VAR (edges_show_needles, FALSE, "Draw edge needles");
 EXTERN INT_VAR (edges_maxedgelength, 16000, "Max steps in any outline");
 
 #ifndef GRAPHICS_DISABLED
-static WINDOW edge_win;          //window
+static ScrollView* edge_win;          //window
 #endif
 static C_OUTLINE_IT *outline_it; //iterator
 static int short_edges;          //no of short ones
@@ -47,7 +47,7 @@ static int long_edges;           //no of long ones
 
 DLLSYM void get_outlines(                      //edge detect
 #ifndef GRAPHICS_DISABLED
-                         WINDOW window,        //window for output
+                         ScrollView* window,        //window for output
 #endif
                          IMAGE *image,         //image to scan
                          IMAGE *t_image,       //thresholded image
@@ -62,8 +62,9 @@ DLLSYM void get_outlines(                      //edge detect
   block_edges(t_image, block, page_tr);
   out_it->move_to_first ();
 #ifndef GRAPHICS_DISABLED
-  if (window != NO_WINDOW)
-    overlap_picture_ops(TRUE);  //update window
+  if (window != NULL)
+//    overlap_picture_ops(TRUE);  //update window
+  ScrollView::Update();
 #endif
 }
 
@@ -77,7 +78,7 @@ DLLSYM void get_outlines(                      //edge detect
 void complete_edge(                  //clean and approximate
                    CRACKEDGE *start  //start of loop
                   ) {
-  COLOUR colour;                 //colour to draw in
+  ScrollView::Color colour;                 //colour to draw in
   INT16 looplength;              //steps in loop
   ICOORD botleft;                //bounding box
   ICOORD topright;
@@ -92,7 +93,7 @@ void complete_edge(                  //clean and approximate
   }
 #endif
 
-  if (colour == RED || colour == BLUE) {
+  if (colour == ScrollView::RED || colour == ScrollView::BLUE) {
     looplength = loop_bounding_box (start, botleft, topright);
     outline = new C_OUTLINE (start, botleft, topright, looplength);
                                  //add to list
@@ -111,7 +112,7 @@ void complete_edge(                  //clean and approximate
  * These colours are used to draw the raw outline.
  **********************************************************************/
 
-COLOUR check_path_legal(                  //certify outline
+ScrollView::Color check_path_legal(                  //certify outline
                         CRACKEDGE *start  //start of loop
                        ) {
   int lastchain;              //last chain code
@@ -141,24 +142,24 @@ COLOUR check_path_legal(                  //certify outline
   }
   while (edgept != start && length < edges_maxedgelength);
 
-  if (chainsum != 4 && chainsum != -4
+  if ((chainsum != 4 && chainsum != -4)
   || edgept != start || length < MINEDGELENGTH) {
     if (edgept != start) {
       long_edges++;
-      return YELLOW;
+      return ScrollView::YELLOW;
     }
     else if (length < MINEDGELENGTH) {
       short_edges++;
-      return MAGENTA;
+      return ScrollView::MAGENTA;
     }
     else {
       ED_ILLEGAL_SUM.error ("check_path_legal", TESSLOG, "chainsum=%d",
         chainsum);
-      return GREEN;
+      return ScrollView::GREEN;
     }
   }
                                  //colour on inside
-  return chainsum < 0 ? BLUE : RED;
+  return chainsum < 0 ? ScrollView::BLUE : ScrollView::RED;
 }
 
 /**********************************************************************

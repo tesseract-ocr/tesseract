@@ -86,7 +86,7 @@ void compute_fixed_pitch(                             //determine pitch
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_initial_words && testing_on) {
-    if (to_win == NO_WINDOW)
+    if (to_win == NULL)
       create_to_win(page_tr);
   }
 #endif
@@ -123,7 +123,7 @@ void compute_fixed_pitch(                             //determine pitch
       row_index++;
     }
     if (testing_on
-      && (textord_debug_pitch_test && block->block->text_region () != NULL
+      && ((textord_debug_pitch_test && block->block->text_region () != NULL)
     || textord_blocksall_fixed || textord_blocksall_prop)) {
       tprintf ("Corr:");
       print_block_counts(block, block_index);
@@ -132,7 +132,8 @@ void compute_fixed_pitch(                             //determine pitch
   }
 #ifndef GRAPHICS_DISABLED
   if (textord_show_initial_words && testing_on) {
-    overlap_picture_ops(TRUE);
+    //overlap_picture_ops(TRUE);
+    ScrollView::Update();
   }
 #endif
 }
@@ -183,19 +184,19 @@ void fix_row_pitch(                        //get some value
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
       row_it.forward ()) {
         row = row_it.data ();
-        if (bad_row->all_caps
+        if ((bad_row->all_caps
           && row->xheight + row->ascrise
           <
           (bad_row->xheight + bad_row->ascrise) * (1 +
           textord_pitch_rowsimilarity)
           && row->xheight + row->ascrise >
           (bad_row->xheight + bad_row->ascrise) * (1 -
-          textord_pitch_rowsimilarity)
-          || !bad_row->all_caps
+          textord_pitch_rowsimilarity))
+          || (!bad_row->all_caps
           && row->xheight <
           bad_row->xheight * (1 + textord_pitch_rowsimilarity)
           && row->xheight >
-        bad_row->xheight * (1 - textord_pitch_rowsimilarity)) {
+        bad_row->xheight * (1 - textord_pitch_rowsimilarity))) {
           if (block_index == block_target) {
             if (row->pitch_decision == PITCH_DEF_FIXED) {
               block_votes += textord_words_veto_power;
@@ -364,7 +365,8 @@ void compute_block_pitch(                    //process each block
       find_repeated_chars(block, textord_show_initial_words &&testing_on);
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words && testing_on)
-      overlap_picture_ops(TRUE);
+      //overlap_picture_ops(TRUE);
+      ScrollView::Update();
 #endif
     compute_rows_pitch(block,
                        block_index,
@@ -523,9 +525,9 @@ BOOL8 try_doc_fixed(                             //determine pitch
   row_it.set_to_list (block_it.data ()->get_rows ());
   row = row_it.data ();
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_page_cuts && to_win != NO_WINDOW)
+  if (textord_show_page_cuts && to_win != NULL)
     projection.plot (to_win, projection_left,
-      row->intercept (), 1.0f, -1.0f, CORAL);
+      row->intercept (), 1.0f, -1.0f, ScrollView::CORAL);
 #endif
   final_pitch = pitches.ile (0.5);
   pitch = (INT16) final_pitch;
@@ -542,7 +544,7 @@ BOOL8 try_doc_fixed(                             //determine pitch
       pitch_sd / total_row_count / pitch);
 
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_page_cuts && to_win != NO_WINDOW) {
+  if (textord_show_page_cuts && to_win != NULL) {
     master_cells = &row->char_cells;
     for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
     block_it.forward ()) {
@@ -553,7 +555,7 @@ BOOL8 try_doc_fixed(                             //determine pitch
         row = row_it.data ();
         row_y = row->baseline.y (master_x);
         row_shift = shift_factor * (master_y - row_y);
-        plot_row_cells(to_win, GOLDENROD, row, row_shift, master_cells);
+        plot_row_cells(to_win, ScrollView::GOLDENROD, row, row_shift, master_cells);
       }
     }
   }
@@ -675,15 +677,15 @@ void print_block_counts(                   //find line stats
   tprintf ("Block %d has (%d,%d,%d)",
     block_index, def_fixed, maybe_fixed, corr_fixed);
   if ((textord_blocksall_prop
-    || block->block->text_region () != NULL
-    && block->block->text_region ()->is_prop ()) && (def_fixed
+    || (block->block->text_region () != NULL
+    && block->block->text_region ()->is_prop ())) && (def_fixed
     || maybe_fixed
     || corr_fixed))
     tprintf (" (Wrongly)");
   tprintf (" fixed, (%d,%d,%d)", def_prop, maybe_prop, corr_prop);
   if ((textord_blocksall_fixed
-    || block->block->text_region () != NULL
-    && !block->block->text_region ()->is_prop ()) && (def_prop
+    || (block->block->text_region () != NULL
+    && !block->block->text_region ()->is_prop ())) && (def_prop
     || maybe_prop
     || corr_prop))
     tprintf (" (Wrongly)");
@@ -1046,10 +1048,9 @@ BOOL8 fixed_pitch_row(                   //find lines
                                block_index == textord_debug_block);
     if (pitch_sd < textord_words_pitchsd_threshold * row->fixed_pitch
       && ((pitsync_linear_version & 3) < 3
-      || (pitsync_linear_version & 3) >= 3 && (row->used_dm_model
+      || ((pitsync_linear_version & 3) >= 3 && (row->used_dm_model
       || sp_sd > 20
-      || pitch_sd == 0
-    && sp_sd > 10))) {
+    || (pitch_sd == 0 && sp_sd > 10))))) {
       if (pitch_sd < textord_words_def_fixed * row->fixed_pitch
         && !row->all_caps
         && ((pitsync_linear_version & 3) < 3 || sp_sd > 20))
@@ -1139,9 +1140,9 @@ BOOL8 count_pitch_stats(                       //find lines
     blob = blob_it.data ();
     if (!blob->joined_to_prev ()) {
       blob_box = blob->bounding_box ();
-      if (blob_box.left () - joined_box.right () < dm_gap
-        && !blob_it.at_first ()
-        || blob->cblob () == NULL && blob->blob () == NULL)
+      if ((blob_box.left () - joined_box.right () < dm_gap
+        && !blob_it.at_first ())
+        || (blob->cblob () == NULL && blob->blob () == NULL))
         joined_box += blob_box;  //merge blobs
       else {
         blob_width = joined_box.width ();
@@ -1479,7 +1480,7 @@ float compute_pitch_sd(                            //find fp cells
   if (testing_on && to_win > 0) {
     blob_box = blob_it.data ()->bounding_box ();
     projection->plot (to_win, projection_left,
-      row->intercept (), 1.0f, -1.0f, CORAL);
+      row->intercept (), 1.0f, -1.0f, ScrollView::CORAL);
   }
 #endif
   start_it = blob_it;
@@ -1526,7 +1527,7 @@ float compute_pitch_sd(                            //find fp cells
     }
 #ifndef GRAPHICS_DISABLED
     if (textord_show_fixed_cuts && blob_count > 0 && to_win > 0)
-      plot_fp_cells2(to_win, GOLDENROD, row, &seg_list);
+      plot_fp_cells2(to_win, ScrollView::GOLDENROD, row, &seg_list);
 #endif
     seg_it.set_to_list (&seg_list);
     if (prev_right >= 0) {
@@ -1617,7 +1618,7 @@ float compute_pitch_sd2(                            //find fp cells
 #ifndef GRAPHICS_DISABLED
   if (testing_on && to_win > 0) {
     projection->plot (to_win, projection_left,
-      row->intercept (), 1.0f, -1.0f, CORAL);
+      row->intercept (), 1.0f, -1.0f, ScrollView::CORAL);
   }
 #endif
   blob_count = 0;
@@ -1652,7 +1653,7 @@ float compute_pitch_sd2(                            //find fp cells
   }
 #ifndef GRAPHICS_DISABLED
   if (textord_show_fixed_cuts && blob_count > 0 && to_win > 0)
-    plot_fp_cells2(to_win, GOLDENROD, row, &seg_list);
+    plot_fp_cells2(to_win, ScrollView::GOLDENROD, row, &seg_list);
 #endif
   seg_it.set_to_list (&seg_list);
   for (seg_it.mark_cycle_pt (); !seg_it.cycled_list (); seg_it.forward ()) {
@@ -1777,8 +1778,8 @@ void print_pitch_sd(                        //find fp cells
   word_sync = sqrt (word_sync);
 
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_row_cuts && to_win != NO_WINDOW)
-    plot_fp_cells2(to_win, CORAL, row, &seg_list);
+  if (textord_show_row_cuts && to_win != NULL)
+    plot_fp_cells2(to_win, ScrollView::CORAL, row, &seg_list);
 #endif
   seg_list.clear ();
   if (word_sync < textord_words_pitchsd_threshold * initial_pitch) {
@@ -1966,9 +1967,10 @@ void find_repeated_chars(                  //search for equal chars
                 blobcount, matched_blobcount, word_box.left (),
                 word_box.bottom (), word_box.right (),
                 word_box.top ());
-              perimeter_color_index(to_win, RED);
-              interior_style(to_win, INT_HOLLOW, TRUE);
-              rectangle (to_win, word_box.left (),
+              //perimeter_color_index(to_win, RED);
+	      to_win->Pen(255,0,0); 
+              //interior_style(to_win, INT_HOLLOW, TRUE);
+              to_win->Rectangle(word_box.left (),
                 word_box.bottom (), word_box.right (),
                 word_box.top ());
             }

@@ -1619,66 +1619,64 @@ void mark_gap(             //Debug stuff
               INT16 current_gap,
               INT16 next_blob_width,
               INT16 next_gap) {
-  COLOUR col;                    //of ellipse marking flipped gap
+  ScrollView::Color col;                    //of ellipse marking flipped gap
 
   switch (rule) {
     case 1:
-      col = RED;
+      col = ScrollView::RED;
       break;
     case 2:
-      col = CYAN;
+      col = ScrollView::CYAN;
       break;
     case 3:
-      col = GREEN;
+      col = ScrollView::GREEN;
       break;
     case 4:
-      col = BLACK;
+      col = ScrollView::BLACK;
       break;
     case 5:
-      col = MAGENTA;
+      col = ScrollView::MAGENTA;
       break;
     case 6:
-      col = BLUE;
+      col = ScrollView::BLUE;
       break;
 
     case 7:
-      col = WHITE;
+      col = ScrollView::WHITE;
       break;
     case 8:
-      col = YELLOW;
+      col = ScrollView::YELLOW;
       break;
     case 9:
-      col = BLACK;
+      col = ScrollView::BLACK;
       break;
 
     case 20:
-      col = CYAN;
+      col = ScrollView::CYAN;
       break;
     case 21:
-      col = GREEN;
+      col = ScrollView::GREEN;
       break;
     case 22:
-      col = MAGENTA;
+      col = ScrollView::MAGENTA;
       break;
     default:
-      col = BLACK;
+      col = ScrollView::BLACK;
   }
   if (textord_show_initial_words) {
-    fill_color_index(to_win, col);
-    perimeter_color_index(to_win, col);
-    if (rule < 20)
-      interior_style(to_win, INT_SOLID, FALSE);
+    to_win->Pen(col); 
+  /*  if (rule < 20)
+      //interior_style(to_win, INT_SOLID, FALSE);
     else
-      interior_style(to_win, INT_HOLLOW, TRUE);
+      //interior_style(to_win, INT_HOLLOW, TRUE);*/
                                  //x radius
-    ellipse (to_win, current_gap / 2.0f,
+    to_win->Ellipse (current_gap / 2.0f,
       blob.height () / 2.0f,     //y radius
                                  //x centre
       blob.left () - current_gap / 2.0f,
                                  //y centre
-      blob.bottom () + blob.height () / 2.0f,
-      0.0f);
-  }
+      blob.bottom () + blob.height () / 2.0f);
+ }
   if (tosp_debug_level > 0)
     tprintf ("  (%d,%d) Sp<->Kn Rule %d %d %d %d %d\n",
       blob.left () - current_gap / 2, blob.bottom (), rule,
@@ -1792,7 +1790,7 @@ BOX reduced_box_next(                 //get bounding box
       blob = it->data ();
     }
                                  //until next real blob
-    while (blob->blob () == NULL && blob->cblob () == NULL || blob->joined_to_prev ());
+    while ((blob->blob () == NULL && blob->cblob () == NULL) || blob->joined_to_prev ());
     return reduced_box;
   }
   head_blob = blob;
@@ -1811,14 +1809,14 @@ BOX reduced_box_next(                 //get bounding box
     }
   }
                                  //until next real blob
-  while (blob->blob () == NULL && blob->cblob () == NULL || blob->joined_to_prev ());
+  while ((blob->blob () == NULL && blob->cblob () == NULL) || blob->joined_to_prev ());
 
   if ((reduced_box.width () > 0) &&
     ((reduced_box.left () + tosp_near_lh_edge * reduced_box.width ())
   < left_above_xht) && (reduced_box.height () > 0.7 * row->xheight)) {
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words)
-      reduced_box.plot (to_win, INT_HOLLOW, TRUE, YELLOW, YELLOW);
+      reduced_box.plot (to_win, ScrollView::YELLOW, ScrollView::YELLOW);
 #endif
   }
   else

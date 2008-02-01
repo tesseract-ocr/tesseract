@@ -79,8 +79,8 @@ ROW *fixed_pitch_words(                 //find lines
   ICOORDELT_IT cell_it = &row->char_cells;
 
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_page_cuts && to_win != NO_WINDOW) {
-    plot_row_cells (to_win, RED, row, 0, &row->char_cells);
+  if (textord_show_page_cuts && to_win != NULL) {
+    plot_row_cells (to_win, ScrollView::RED, row, 0, &row->char_cells);
   }
 #endif
 
@@ -1438,8 +1438,8 @@ void add_frag_to_list(                            //ordered add
     for (frag_it.mark_cycle_pt (); !frag_it.cycled_list ();
     frag_it.forward ()) {
       if (frag_it.data ()->ycoord > frag->ycoord
-        || frag_it.data ()->ycoord == frag->ycoord
-      && frag->other_end->ycoord < frag->ycoord) {
+        || (frag_it.data ()->ycoord == frag->ycoord
+         && frag->other_end->ycoord < frag->ycoord)) {
         frag_it.add_before_then_move (frag);
         return;
       }
@@ -1477,8 +1477,8 @@ void close_chopped_cfragments(                             //chop the outline
     bottom_frag = frag_it.extract ();
     frag_it.forward ();
     top_frag = frag_it.data ();  //look at next
-    if (bottom_frag->steps == 0 && top_frag->steps == 0
-    || bottom_frag->steps != 0 && top_frag->steps != 0) {
+    if ((bottom_frag->steps == 0 && top_frag->steps == 0)
+    || (bottom_frag->steps != 0 && top_frag->steps != 0)) {
       if (frag_it.data_relative (1)->ycoord == top_frag->ycoord)
         frag_it.forward ();
     }

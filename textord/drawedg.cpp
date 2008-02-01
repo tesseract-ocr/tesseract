@@ -19,7 +19,6 @@
 
 #include "mfcpch.h"
 #include          "drawedg.h"
-#include          "evnts.h"
 
 #define IMAGE_WIN_NAME    "Edges"//title of window
 #define IMAGE_XPOS      250
@@ -34,17 +33,16 @@
  * Create the edges window.
  **********************************************************************/
 
-WINDOW create_edges_window(                //make window
+ScrollView* create_edges_window(                //make window
                            ICOORD page_tr  //size of image
                           ) {
-  WINDOW image_win;              //image window
+  ScrollView* image_win;              //image window
 
                                  //create the window
-  image_win = create_window (IMAGE_WIN_NAME, SCROLLINGWIN, IMAGE_XPOS, IMAGE_YPOS, 0, 0, (float) 0.0, page_tr.x (), (float) 0.0, page_tr.y (), TRUE, FALSE, FALSE, FALSE);
+  image_win = new ScrollView (IMAGE_WIN_NAME, IMAGE_XPOS, IMAGE_YPOS, 0, 0, page_tr.x (),  page_tr.y ());
   #ifdef __MSW32__
   set_selection_handler(image_win, win_selection_handler); 
   #endif
-  overlap_picture_ops(TRUE); 
   return image_win;              //window
 }
 
@@ -56,15 +54,15 @@ WINDOW create_edges_window(                //make window
  **********************************************************************/
 
 void draw_raw_edge(                   //draw the cracks
-                   WINDOW fd,         //window to draw in
+                   ScrollView* fd,         //window to draw in
                    CRACKEDGE *start,  //start of loop
-                   COLOUR colour      //colour to draw in
+                   ScrollView::Color colour      //colour to draw in
                   ) {
   CRACKEDGE *edgept;             //current point
 
-  line_color_index(fd, colour);  //in white
+  fd->Pen(colour); 
   edgept = start;
-  move2d (fd, edgept->pos.x (), edgept->pos.y ());
+  fd->SetCursor(edgept->pos.x (), edgept->pos.y ());
   do {
     do
     edgept = edgept->next;
@@ -72,7 +70,7 @@ void draw_raw_edge(                   //draw the cracks
     while (edgept != start && edgept->prev->stepx == edgept->stepx && edgept->prev->stepy == edgept->stepy);
 
                                  //draw lines
-    draw2d (fd, edgept->pos.x (), edgept->pos.y ());
+  fd->DrawTo(edgept->pos.x (), edgept->pos.y ());
   }
   while (edgept != start);
 }

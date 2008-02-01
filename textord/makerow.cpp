@@ -68,8 +68,8 @@ EXTERN BOOL_VAR (textord_biased_skewcalc, TRUE,
 EXTERN BOOL_VAR (textord_interpolating_skew, TRUE, "Interpolate across gaps");
 EXTERN INT_VAR (textord_skewsmooth_offset, 2, "For smooth factor");
 EXTERN INT_VAR (textord_skewsmooth_offset2, 1, "For smooth factor");
-EXTERN INT_VAR (textord_test_x, 0, "coord of test pt");
-EXTERN INT_VAR (textord_test_y, 0, "coord of test pt");
+EXTERN INT_VAR (textord_test_x, -1, "coord of test pt");
+EXTERN INT_VAR (textord_test_y, -1, "coord of test pt");
 EXTERN INT_VAR (textord_min_blobs_in_row, 4,
 "Min blobs before gradient counted");
 EXTERN INT_VAR (textord_spline_minblobs, 8,
@@ -188,10 +188,10 @@ void make_initial_textrows(                  //find lines
   TO_ROW_IT row_it = block->get_rows ();
 
 #ifndef GRAPHICS_DISABLED
-  COLOUR colour;                 //of row
+  ScrollView::Color colour;                 //of row
 
   if (textord_show_initial_rows && testing_on) {
-    if (to_win == NO_WINDOW)
+    if (to_win == NULL)
       create_to_win(page_tr);
   }
 #endif
@@ -202,12 +202,12 @@ void make_initial_textrows(                  //find lines
     fit_lms_line (row_it.data ());
 #ifndef GRAPHICS_DISABLED
   if (textord_show_initial_rows && testing_on) {
-    colour = RED;
+    colour = ScrollView::RED;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       plot_to_row (row_it.data (), colour, rotation);
-      colour = (COLOUR) (colour + 1);
-      if (colour > MAGENTA)
-        colour = RED;
+      colour = (ScrollView::Color) (colour + 1);
+      if (colour > ScrollView::MAGENTA)
+        colour = ScrollView::RED;
     }
   }
 #endif
@@ -489,7 +489,7 @@ void cleanup_rows(                   //find lines
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_parallel_rows && testing_on) {
-    if (to_win == NO_WINDOW)
+    if (to_win == NULL)
       create_to_win(page_tr);
   }
 #endif
@@ -534,7 +534,7 @@ void cleanup_rows(                   //find lines
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_final_rows && testing_on) {
-    if (to_win == NO_WINDOW)
+    if (to_win == NULL)
       create_to_win(page_tr);
   }
 #endif
@@ -553,14 +553,16 @@ void cleanup_rows(                   //find lines
     restore_underlined_blobs(block);
 #ifndef GRAPHICS_DISABLED
   if (textord_show_final_rows && testing_on) {
-    plot_blob_list (to_win, &block->blobs, MAGENTA, WHITE);
+    plot_blob_list (to_win, &block->blobs,
+                    ScrollView::MAGENTA, ScrollView::WHITE);
     //show discarded blobs
-    plot_blob_list (to_win, &block->underlines, YELLOW, CORAL);
+    plot_blob_list (to_win, &block->underlines,
+                    ScrollView::YELLOW, ScrollView::CORAL);
   }
   if (textord_show_final_rows && testing_on && block->blobs.length () > 0)
     tprintf ("%d blobs discarded as noise\n", block->blobs.length ());
   if (textord_show_final_rows && testing_on) {
-    draw_meanlines(block, gradient, block_edge, WHITE, rotation);
+    draw_meanlines(block, gradient, block_edge, ScrollView::WHITE, rotation);
   }
 #endif
 }
@@ -638,7 +640,8 @@ void delete_non_dropout_rows(                   //find lines
     line_index, &row_it, testing_on)) {
 #ifndef GRAPHICS_DISABLED
       if (testing_on)
-        plot_parallel_row(row, gradient, block_edge, WHITE, rotation);
+        plot_parallel_row(row, gradient, block_edge,
+                          ScrollView::WHITE, rotation);
 #endif
       blob_it.add_list_after (row_it.data ()->blob_list ());
       delete row_it.extract ();  //too far away
@@ -691,18 +694,18 @@ BOOL8 find_best_dropout_row(                    //find neighbours
     }
     return TRUE;
   }
-  if (distance < 0 && !row_it->at_last ()
-  || distance >= 0 && !row_it->at_first ()) {
+  if ((distance < 0 && !row_it->at_last ())
+  || (distance >= 0 && !row_it->at_first ())) {
     row_offset = row_inc;
     do {
       next_row = row_it->data_relative (row_offset);
       next_index = (INT32) floor (next_row->intercept ());
-      if (distance < 0
+      if ((distance < 0
         && next_index < line_index
-        && next_index > line_index + distance + distance
-        || distance >= 0
+        && next_index > line_index + distance + distance)
+        || (distance >= 0
         && next_index > line_index
-      && next_index < line_index + distance + distance) {
+      && next_index < line_index + distance + distance)) {
         if (testing_on) {
           tprintf (" nearer neighbour (%d) at %g\n",
             line_index + distance - next_index,
@@ -994,7 +997,7 @@ void expand_rows(                   //find lines
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_expanded_rows && testing_on) {
-    if (to_win == NO_WINDOW)
+    if (to_win == NULL)
       create_to_win(page_tr);
   }
 #endif
@@ -1046,7 +1049,7 @@ void expand_rows(                   //find lines
               plot_parallel_row(test_row,
                                 gradient,
                                 block_edge,
-                                WHITE,
+                                ScrollView::WHITE,
                                 rotation);
 #endif
             blob_it.set_to_list (row->blob_list ());
@@ -1093,7 +1096,7 @@ void expand_rows(                   //find lines
               plot_parallel_row(test_row,
                                 gradient,
                                 block_edge,
-                                WHITE,
+                                ScrollView::WHITE,
                                 rotation);
 #endif
             blob_it.add_list_after (test_row->blob_list ());
@@ -1776,7 +1779,7 @@ void pre_associate_blobs(                  //make rough chars
                          BOOL8 testing_on  //correct orientation
                         ) {
 #ifndef GRAPHICS_DISABLED
-  COLOUR colour;                 //of boxes
+  ScrollView::Color colour;                 //of boxes
 #endif
   INT16 overlap;                 //of adjacent boxes
   BLOBNBOX *blob;                //current blob
@@ -1789,7 +1792,7 @@ void pre_associate_blobs(                  //make rough chars
   TO_ROW_IT row_it = block->get_rows ();
 
 #ifndef GRAPHICS_DISABLED
-  colour = RED;
+  colour = ScrollView::RED;
 #endif
 
   blob_rotation = FCOORD (rotation.x (), -rotation.y ());
@@ -1840,23 +1843,22 @@ void pre_associate_blobs(                  //make rough chars
     }
 #ifndef GRAPHICS_DISABLED
     if (testing_on && textord_show_final_blobs) {
-      if (to_win == NO_WINDOW)
+      if (to_win == NULL)
         create_to_win(page_tr);
-      perimeter_color_index(to_win, colour);
-      interior_style(to_win, INT_HOLLOW, TRUE);
+      to_win->Pen(colour); 
       for (blob_it.mark_cycle_pt (); !blob_it.cycled_list ();
       blob_it.forward ()) {
         blob = blob_it.data ();
         blob_box = blob->bounding_box ();
         blob_box.rotate (rotation);
         if (!blob->joined_to_prev ()) {
-          rectangle (to_win, blob_box.left (), blob_box.bottom (),
+          to_win->Rectangle (blob_box.left (), blob_box.bottom (),
             blob_box.right (), blob_box.top ());
         }
       }
-      colour = (COLOUR) (colour + 1);
-      if (colour > MAGENTA)
-        colour = RED;
+      colour = (ScrollView::Color) (colour + 1);
+      if (colour > ScrollView::MAGENTA)
+        colour = ScrollView::RED;
     }
 #endif
   }
@@ -1877,7 +1879,7 @@ void fit_parallel_rows(                   //find lines
                        BOOL8 testing_on   //correct orientation
                       ) {
 #ifndef GRAPHICS_DISABLED
-  COLOUR colour;                 //of row
+  ScrollView::Color colour;                 //of row
 #endif
   TO_ROW_IT row_it = block->get_rows ();
 
@@ -1890,13 +1892,13 @@ void fit_parallel_rows(                   //find lines
   }
 #ifndef GRAPHICS_DISABLED
   if (testing_on) {
-    colour = RED;
+    colour = ScrollView::RED;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       plot_parallel_row (row_it.data (), gradient,
         block_edge, colour, rotation);
-      colour = (COLOUR) (colour + 1);
-      if (colour > MAGENTA)
-        colour = RED;
+      colour = (ScrollView::Color) (colour + 1);
+      if (colour > ScrollView::MAGENTA)
+        colour = ScrollView::RED;
     }
   }
 #endif
@@ -1956,7 +1958,7 @@ void make_spline_rows(                   //find lines
                       BOOL8 testing_on   //correct orientation
                      ) {
 #ifndef GRAPHICS_DISABLED
-  COLOUR colour;       //of row
+  ScrollView::Color colour;       //of row
 #endif
   TO_ROW_IT row_it = block->get_rows ();
 
@@ -1970,13 +1972,13 @@ void make_spline_rows(                   //find lines
   if (textord_old_baselines) {
 #ifndef GRAPHICS_DISABLED
     if (testing_on) {
-      colour = RED;
+      colour = ScrollView::RED;
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
       row_it.forward ()) {
         row_it.data ()->baseline.plot (to_win, colour);
-        colour = (COLOUR) (colour + 1);
-        if (colour > MAGENTA)
-          colour = RED;
+        colour = (ScrollView::Color) (colour + 1);
+        if (colour > ScrollView::MAGENTA)
+          colour = ScrollView::RED;
       }
     }
 #endif
@@ -1984,12 +1986,12 @@ void make_spline_rows(                   //find lines
   }
 #ifndef GRAPHICS_DISABLED
   if (testing_on) {
-    colour = RED;
+    colour = ScrollView::RED;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row_it.data ()->baseline.plot (to_win, colour);
-      colour = (COLOUR) (colour + 1);
-      if (colour > MAGENTA)
-        colour = RED;
+      colour = (ScrollView::Color) (colour + 1);
+      if (colour > ScrollView::MAGENTA)
+        colour = ScrollView::RED;
     }
   }
 #endif
@@ -2221,7 +2223,7 @@ INT32 xstarts[]                  //coords of segments
   do {
     blobindex += blobs_per_segment;
     lms.clear ();
-    while (index1 < blobindex || segment == segments && index1 < blobcount) {
+    while (index1 < blobindex || (segment == segments && index1 < blobcount)) {
       box = box_next_pre_chopped (&blob_it);
       middle = (box.left () + box.right ()) / 2.0;
       lms.add (FCOORD (middle, box.bottom ()));
@@ -2241,7 +2243,7 @@ INT32 xstarts[]                  //coords of segments
 
     blobindex += blobs_per_segment;
     lms.clear ();
-    while (index2 < blobindex || segment == segments && index2 < blobcount) {
+    while (index2 < blobindex || (segment == segments && index2 < blobcount)) {
       new_box = box_next_pre_chopped (&new_it);
       middle = (new_box.left () + new_box.right ()) / 2.0;
       lms.add (FCOORD (middle, new_box.bottom ()));
@@ -2302,7 +2304,7 @@ void assign_blobs_to_rows(                      //find lines
     g_length = sqrt (1 + *gradient * *gradient);
 #ifndef GRAPHICS_DISABLED
   if (drawing_skew)
-    move2d (to_win, block->block->bounding_box ().left (), ycoord);
+    to_win->SetCursor(block->block->bounding_box ().left (), ycoord);
 #endif
   testpt = ICOORD (textord_test_x, textord_test_y);
   blob_it.sort (blob_x_order);
@@ -2335,7 +2337,7 @@ void assign_blobs_to_rows(                      //find lines
     bottom = blob->bounding_box ().bottom () - block_skew;
 #ifndef GRAPHICS_DISABLED
     if (drawing_skew)
-      draw2d (to_win, blob->bounding_box ().left (), ycoord + block_skew);
+      to_win->DrawTo(blob->bounding_box ().left (), ycoord + block_skew);
 #endif
     if (!row_it.empty ()) {
       for (row_it.move_to_first ();

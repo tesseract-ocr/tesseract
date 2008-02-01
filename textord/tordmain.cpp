@@ -38,6 +38,7 @@
 //#include                                      "bairdskw.h"
 #include          "tordmain.h"
 #include          "secname.h"
+#include "pageseg.h"
 
 const ERRCODE BLOCKLESS_BLOBS = "Warning:some blobs assigned to no block";
 
@@ -47,6 +48,7 @@ ETEXT_DESC *global_monitor = NULL;
 
 #define EXTERN
 
+EXTERN BOOL_VAR (textord_no_rejects, FALSE, "Don't remove noise blobs");
 EXTERN BOOL_VAR (textord_show_blobs, FALSE, "Display unsorted blobs");
 EXTERN BOOL_VAR (textord_show_boxes, FALSE, "Display unsorted blobs");
 EXTERN BOOL_VAR (textord_new_initial_xheight, TRUE,
@@ -174,8 +176,9 @@ void edges_and_textord(                       //read .pb file
       name[lastdot-name.string()] = '\0';
   }
   page_tr = ICOORD (page_image.get_xsize (), page_image.get_ysize ());
-  read_pd_file (name, page_image.get_xsize (), page_image.get_ysize (),
-    blocks);
+  if (!read_pd_file (name, page_image.get_xsize (), page_image.get_ysize (),
+                     blocks))
+    segment_page(blocks);
   block_it.set_to_list (blocks);
   if (global_monitor != NULL)
     global_monitor->ocr_alive = TRUE;
@@ -198,7 +201,7 @@ void edges_and_textord(                       //read .pb file
       if (!polygon_tess_approximation)
         invert_image(&page_image);
 #ifndef GRAPHICS_DISABLED
-      extract_edges(NO_WINDOW, &page_image, &thresh_image, page_tr, block);
+      extract_edges(NULL, &page_image, &thresh_image, page_tr, block);
 #else
       extract_edges(&page_image, &thresh_image, page_tr, block);
 #endif
@@ -219,7 +222,7 @@ void edges_and_textord(                       //read .pb file
     block_it.forward ()) {
       block = block_it.data ();
 #ifndef GRAPHICS_DISABLED
-      extract_edges(NO_WINDOW, &page_image, &page_image, page_tr, block);
+      extract_edges(NULL, &page_image, &page_image, page_tr, block);
 #else
       extract_edges(&page_image, &page_image, page_tr, block);
 #endif
@@ -316,20 +319,24 @@ void filter_blobs(                        //split into groups
     block->max_blob_size = block->line_size * textord_excess_blobsize;
 #ifndef GRAPHICS_DISABLED
     if (textord_show_blobs && testing_on) {
-      if (to_win == NO_WINDOW)
+      if (to_win == NULL)
         create_to_win(page_tr);
-      plot_blob_list (to_win, &block->noise_blobs, CORAL, BLUE);
-      plot_blob_list (to_win, &block->small_blobs, GOLDENROD, YELLOW);
-      plot_blob_list (to_win, &block->large_blobs, DARK_GREEN, YELLOW);
-      plot_blob_list (to_win, &block->blobs, WHITE, BROWN);
+      plot_blob_list (to_win, &block->noise_blobs,
+                      ScrollView::CORAL, ScrollView::BLUE);
+      plot_blob_list (to_win, &block->small_blobs,
+                      ScrollView::GOLDENROD, ScrollView::YELLOW);
+      plot_blob_list (to_win, &block->large_blobs,
+                      ScrollView::DARK_GREEN, ScrollView::YELLOW);
+      plot_blob_list (to_win, &block->blobs,
+                      ScrollView::WHITE, ScrollView::BROWN);
     }
     if (textord_show_boxes && testing_on) {
-      if (to_win == NO_WINDOW)
+      if (to_win == NULL)
         create_to_win(page_tr);
-      plot_box_list (to_win, &block->noise_blobs, WHITE);
-      plot_box_list (to_win, &block->small_blobs, WHITE);
-      plot_box_list (to_win, &block->large_blobs, WHITE);
-      plot_box_list (to_win, &block->blobs, WHITE);
+      plot_box_list (to_win, &block->noise_blobs, ScrollView::WHITE);
+      plot_box_list (to_win, &block->small_blobs, ScrollView::WHITE);
+      plot_box_list (to_win, &block->large_blobs, ScrollView::WHITE);
+      plot_box_list (to_win, &block->blobs, ScrollView::WHITE);
     }
 #endif
   }
@@ -509,9 +516,9 @@ void cleanup_blocks(                    //remove empties
   block_it.forward ()) {
     row_it.set_to_list (block_it.data ()->row_list ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-      if (textord_noise_rejrows
+      if ((textord_noise_rejrows
         && !row_it.data ()->word_list ()->empty ()
-        && clean_noise_from_row (row_it.data ())
+        && clean_noise_from_row (row_it.data ()))
         || row_it.data ()->word_list ()->empty ())
         delete row_it.extract ();//lose empty row
       else {
@@ -665,7 +672,7 @@ void clean_noise_from_words(          //remove empties
   C_OUTLINE_IT out_it;           //outline iterator
 
   ok_words = word_it.length ();
-  if (ok_words == 0)
+  if (ok_words == 0 || textord_no_rejects)
     return;
   word_dud = (INT8 *) alloc_mem (ok_words * sizeof (INT8));
   dud_words = 0;
@@ -742,7 +749,7 @@ void clean_noise_from_words(          //remove empties
   word_index = 0;
   for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
     if (word_dud[word_index] == 2
-    || word_dud[word_index] == 1 && dud_words > ok_words) {
+    || (word_dud[word_index] == 1 && dud_words > ok_words)) {
       word = word_it.data ();    //current word
                                  //rejected blobs
       blob_it.set_to_list (word->rej_cblob_list ());
