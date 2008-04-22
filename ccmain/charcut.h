@@ -39,10 +39,10 @@ class ScrollView;
 class PIXROW:public ELIST_LINK
 {
   public:
-    INT16 row_offset;            //y coord of min[0]
-    INT16 row_count;             //length of arrays
-    INT16 *min;                  //array of min x
-    INT16 *max;                  //array of max x
+    inT16 row_offset;            //y coord of min[0]
+    inT16 row_count;             //length of arrays
+    inT16 *min;                  //array of min x
+    inT16 *max;                  //array of max x
 
     PIXROW() {  //empty constructor
       row_offset = 0;
@@ -51,40 +51,40 @@ class PIXROW:public ELIST_LINK
       max = NULL;
     }
     PIXROW(  //specified size
-           INT16 pos,
-           INT16 count,
+           inT16 pos,
+           inT16 count,
            PBLOB *blob);
 
     ~PIXROW () {                 //destructor
       if (min != NULL)
-        free_mem(min); 
+        free_mem(min);
       if (max != NULL)
-        free_mem(max); 
+        free_mem(max);
       max = NULL;
     }
 
     void plot(                   //use current settings
               ScrollView* fd) const;  //where to paint
 
-    BOX bounding_box() const;  //return bounding box
+    TBOX bounding_box() const;  //return bounding box
                                  //return true if box exceeds image
-    bool bad_box(int xsize, int ysize) const; 
+    bool bad_box(int xsize, int ysize) const;
 
     void contract(                           //force end on black
                   IMAGELINE *imlines,        //image array
-                  INT16 x_offset,            //of pixels[0]
-                  INT16 foreground_colour);  //0 or 1
+                  inT16 x_offset,            //of pixels[0]
+                  inT16 foreground_colour);  //0 or 1
 
                                  //image array
     BOOL8 extend(IMAGELINE *imlines,
-                 BOX &imbox,
+                 TBOX &imbox,
                  PIXROW *prev,              //for prev blob
                  PIXROW *next,              //for next blob
-                 INT16 foreground_colour);  //0 or 1
+                 inT16 foreground_colour);  //0 or 1
 
                                  //box of imlines extnt
     void char_clip_image(IMAGELINE *imlines,
-                         BOX &im_box,
+                         TBOX &im_box,
                          ROW *row,              //row containing word
                          IMAGE &clip_image,     //unscaled char image
                          float &baseline_pos);  //baseline ht in image
@@ -102,18 +102,18 @@ void char_clip_word(                            //
                     IMAGE &bin_image,           //whole image
                     PIXROW_LIST *&pixrow_list,  //pixrows built
                     IMAGELINE *&imlines,        //lines cut from image
-                    BOX &pix_box                //box defining imlines
+                    TBOX &pix_box                //box defining imlines
                    );
 IMAGELINE *generate_imlines(                   //get some imagelines
                             IMAGE &bin_image,  //from here
-                            BOX &pix_box);
+                            TBOX &pix_box);
                                  //word to be processed
 ScrollView* display_clip_image(WERD *word,
                           IMAGE &bin_image,          //whole image
                           PIXROW_LIST *pixrow_list,  //pixrows built
-                          BOX &pix_box               //box of subimage
+                          TBOX &pix_box               //box of subimage
                          );
-void display_images(IMAGE &clip_image, IMAGE &scaled_image); 
+void display_images(IMAGE &clip_image, IMAGE &scaled_image);
 void plot_pixrows(  //plot for all blobs
                   PIXROW_LIST *pixrow_list,
                   ScrollView* win);

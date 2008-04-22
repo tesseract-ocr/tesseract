@@ -58,7 +58,7 @@ extern BOOL_VAR_H (tessedit_consistent_reps, TRUE,
 void output_pass(  //Tess output pass //send to api
                  PAGE_RES_IT &page_res_it,
                  BOOL8 write_to_shm,
-				 BOX	*target_word_box=0L);
+				 TBOX	*target_word_box=0L);
 void write_results(                           //output a word
                    PAGE_RES_IT &page_res_it,  //full info
                    char newline_type,         //type of newline
@@ -69,10 +69,10 @@ WERD_CHOICE *make_epaper_choice(                   //convert one word
                                 WERD_RES *word,    //word to do
                                 char newline_type  //type of newline
                                );
-INT16 make_reject (              //make reject code
-BOX * inset_box,                 //bounding box
-INT16 prevright,                 //previous char
-INT16 nextleft,                  //next char
+inT16 make_reject (              //make reject code
+TBOX * inset_box,                 //bounding box
+inT16 prevright,                 //previous char
+inT16 nextleft,                  //next char
 DENORM * denorm,                 //de-normalizer
 char word_string[]               //output string
 );
@@ -105,10 +105,10 @@ void write_unlv_text(WERD_RES *word);
 UNICHAR_ID get_rep_char(WERD_RES *word);  // what char is repeated?
 void ensure_rep_chars_are_consistent(WERD_RES *word);
 void set_unlv_suspects(WERD_RES *word);
-INT16 count_alphas(  //how many alphas
+inT16 count_alphas(  //how many alphas
                    const char *s,
                    const char *lengths);
-INT16 count_alphanums(  //how many alphanums
+inT16 count_alphanums(  //how many alphanums
                       const char *s,
                       const char *lengths);
 BOOL8 acceptable_number_string(const char *s,

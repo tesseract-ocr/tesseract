@@ -39,10 +39,10 @@ float matrix_match(  // returns match score
 float match1(  /* returns match score */
              IMAGE *image_w,
              IMAGE *image_n);
-void display_images(IMAGE *image_w, IMAGE *image_n, IMAGE *match_image); 
+void display_images(IMAGE *image_w, IMAGE *image_n, IMAGE *match_image);
 ScrollView* display_image(IMAGE *image,
                      const char *title,
-                     INT32 x,
-                     INT32 y,
+                     inT32 x,
+                     inT32 y,
                      BOOL8 wait);
 #endif

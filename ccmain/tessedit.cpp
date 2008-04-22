@@ -63,6 +63,7 @@
 // Includes libtiff if HAVE_LIBTIFF is defined
 #ifdef HAVE_LIBTIFF
 #include "tiffio.h"
+
 #endif
 
 //extern "C" {
@@ -103,14 +104,14 @@ EXTERN INT_VAR (tweak_min_outline_area, 2000, "Tess VAR");
 EXTERN double_VAR (tweak_good_split, 50.0, "Tess VAR");
 EXTERN double_VAR (tweak_ok_split, 100.0, "Tess VAR");
 
-extern INT16 XOFFSET;
-extern INT16 YOFFSET;
+extern inT16 XOFFSET;
+extern inT16 YOFFSET;
 extern int NO_BLOCK;
 
                                  //progress monitor
 ETEXT_DESC *global_monitor = NULL;
 
-int init_tesseract(const char *arg0,
+void init_tesseract_lang_data(const char *arg0,
                    const char *textbase,
                    const char *language,
                    const char *configfile,
@@ -156,6 +157,16 @@ int init_tesseract(const char *arg0,
   // Set the white and blacklists (if any)
   unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
                                      tessedit_char_whitelist.string());
+}
+
+int init_tesseract(const char *arg0,
+                   const char *textbase,
+                   const char *language,
+                   const char *configfile,
+                   int configc,
+                   const char *const *configv) {
+  init_tesseract_lang_data (arg0, textbase, language,
+    configfile, configc, configv);
 
   start_recog(configfile, textbase);
 
@@ -163,6 +174,21 @@ int init_tesseract(const char *arg0,
 
   if (tessedit_use_nn)           //phils nn stuff
     init_net();
+  return 0;                      //Normal exit
+}
+
+// init the LM component
+int init_tesseract_lm(const char *arg0,
+                   const char *textbase,
+                   const char *language,
+                   const char *configfile,
+                   int configc,
+                   const char *const *configv) {
+  init_tesseract_lang_data (arg0, textbase, language,
+    configfile, configc, configv);
+
+  init_permute();
+
   return 0;                      //Normal exit
 }
 
@@ -183,14 +209,14 @@ void read_tiff_image(TIFF* tif, IMAGE* image) {
   // Tesseract's internal representation is 0-is-black,
   // so if the photometric is 1 (min is black) then high-valued pixels
   // are 1 (white), otherwise they are 0 (black).
-  UINT8 high_value = photometric == 1;
+  uinT8 high_value = photometric == 1;
   image->create(image_width, image_height, bpp);
   IMAGELINE line;
   line.init(image_width);
 
   buf = _TIFFmalloc(TIFFScanlineSize(tif));
   int bytes_per_line = (image_width*bpp + 7)/8;
-  UINT8* dest_buf = image->get_buffer();
+  uinT8* dest_buf = image->get_buffer();
   // This will go badly wrong with one of the more exotic tiff formats,
   // but the majority will work OK.
   for (int y = 0; y < image_height; ++y) {

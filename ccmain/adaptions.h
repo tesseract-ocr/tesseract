@@ -70,7 +70,7 @@ extern STRING_VAR_H (tessedit_demo_file, "academe",
 "Name of document containing demo words");
 BOOL8 word_adaptable(  //should we adapt?
                      WERD_RES *word,
-                     UINT16 mode);
+                     uinT16 mode);
 void collect_ems_for_adaption(WERD_RES *word,
                               CHAR_SAMPLES_LIST *char_clusters,
                               CHAR_SAMPLE_LIST *chars_waiting);
@@ -96,14 +96,14 @@ void print_em_stats(CHAR_SAMPLES_LIST *char_clusters,
                                  //lines of the image
 CHAR_SAMPLE *clip_sample(PIXROW *pixrow,
                          IMAGELINE *imlines,
-                         BOX pix_box,  //box of imlines extent
+                         TBOX pix_box,  //box of imlines extent
                          BOOL8 white_on_black,
                          char c);
-void display_cluster_prototypes(CHAR_SAMPLES_LIST *char_clusters); 
-void reject_all_ems(WERD_RES *word); 
-void reject_all_fullstops(WERD_RES *word); 
-void reject_suspect_ems(WERD_RES *word); 
-void reject_suspect_fullstops(WERD_RES *word); 
-BOOL8 suspect_em(WERD_RES *word, INT16 index); 
-BOOL8 suspect_fullstop(WERD_RES *word, INT16 i); 
+void display_cluster_prototypes(CHAR_SAMPLES_LIST *char_clusters);
+void reject_all_ems(WERD_RES *word);
+void reject_all_fullstops(WERD_RES *word);
+void reject_suspect_ems(WERD_RES *word);
+void reject_suspect_fullstops(WERD_RES *word);
+BOOL8 suspect_em(WERD_RES *word, inT16 index);
+BOOL8 suspect_fullstop(WERD_RES *word, inT16 i);
 #endif

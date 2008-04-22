@@ -36,10 +36,41 @@ EDGEPT * head_pt,                //start point
 EDGEPT * tail_pt                 //end point
 ):head (head_pt->pos.x, head_pt->pos.y), tail (tail_pt->pos.x,
 tail_pt->pos.y) {
-  headpt = head_pt;              //save ptrs
+  headpt = head_pt;              // save ptrs
   tailpt = tail_pt;
 }
 
+// Helper function to make a fake PBLOB formed from the bounding box
+// of the given old-format outline.
+static PBLOB* MakeRectBlob(TESSLINE* ol) {
+  POLYPT_LIST poly_list;
+  POLYPT_IT poly_it = &poly_list;
+  FCOORD pos, vec;
+  POLYPT *polypt;
+
+  // Create points at each of the 4 corners of the rectangle in turn.
+  pos = FCOORD(ol->topleft.x, ol->topleft.y);
+  vec = FCOORD(0.0f, ol->botright.y - ol->topleft.y);
+  polypt = new POLYPT(pos, vec);
+  poly_it.add_after_then_move(polypt);
+  pos = FCOORD(ol->topleft.x, ol->botright.y);
+  vec = FCOORD(ol->botright.x - ol->topleft.x, 0.0f);
+  polypt = new POLYPT(pos, vec);
+  poly_it.add_after_then_move(polypt);
+  pos = FCOORD(ol->botright.x, ol->botright.y);
+  vec = FCOORD(0.0f, ol->topleft.y - ol->botright.y);
+  polypt = new POLYPT(pos, vec);
+  poly_it.add_after_then_move(polypt);
+  pos = FCOORD(ol->botright.x, ol->topleft.y);
+  vec = FCOORD(ol->topleft.x - ol->botright.x, 0.0f);
+  polypt = new POLYPT(pos, vec);
+  poly_it.add_after_then_move(polypt);
+
+  OUTLINE_LIST out_list;
+  OUTLINE_IT out_it = &out_list;
+  out_it.add_after_then_move(new OUTLINE(&poly_it));
+  return new PBLOB(&out_list);
+}
 
 /**********************************************************************
  * make_ed_word
@@ -59,6 +90,10 @@ WERD *make_ed_word(                  //construct word
 
   for (tblob = tessword->blobs; tblob != NULL; tblob = tblob->next) {
     blob = make_ed_blob (tblob);
+    if (blob == NULL && tblob->outlines != NULL) {
+      // Make a fake blob using the bounding box rectangle of the 1st outline.
+      blob = MakeRectBlob(tblob->outlines);
+    }
     if (blob != NULL) {
       blob_it.add_after_then_move (blob);
     }
@@ -140,9 +175,6 @@ OUTLINE *make_ed_outline(                     //constructoutline
     delete fragment_it.extract ();
     if (tailpos != headpos) {
       if (fragment_it.empty ()) {
-        tprintf("Bad tailpos (%d,%d), Head=(%d,%d), no fragments.\n",
-                fragment->head.x(),fragment->head.y(),
-                headpos.x(),headpos.y());
         return NULL;
       }
       fragment_it.forward ();
@@ -151,18 +183,14 @@ OUTLINE *make_ed_outline(                     //constructoutline
                fragment_it.data ()->head != tailpos;
         fragment_it.forward ());
       if (fragment_it.data ()->head != tailpos) {
-        tprintf("Bad tailpos (%d,%d), Fragments are:\n",
-                tailpos.x(),tailpos.y());
+        // It is legitimate for the heads to not all match to tails,
+        // since not all combinations of seams always make sense.
         for (fragment_it.mark_cycle_pt ();
         !fragment_it.cycled_list (); fragment_it.forward ()) {
           fragment = fragment_it.extract ();
-          tprintf("Head=(%d,%d), tail=(%d,%d)\n",
-                  fragment->head.x(),fragment->head.y(),
-                  fragment->tail.x(),fragment->tail.y());
           delete fragment;
         }
         return NULL;             //can't do it
-//         BADFRAGMENTS.error("make_ed_blob",ABORT,NULL);
       }
     }
   }
@@ -227,8 +255,8 @@ void convert_choice_lists(                                 //convert lists
                           ARRAY tessarray,                 //list from tess
                           BLOB_CHOICE_LIST_CLIST *ratings  //list of results
                          ) {
-  INT32 length;                  //elements in array
-  INT32 index;                   //index to array
+  inT32 length;                  //elements in array
+  inT32 index;                   //index to array
   LIST result;                   //tess output
                                  //iterator
   BLOB_CHOICE_LIST_C_IT it = ratings;
@@ -270,7 +298,8 @@ void convert_choice_list(                           //convert lists
     tesschoice = (A_CHOICE *) result->node;
                                  //make one
     choice = new BLOB_CHOICE (tesschoice->string, tesschoice->rating,
-                              tesschoice->certainty, tesschoice->config);
+                              tesschoice->certainty, tesschoice->config,
+                              tesschoice->script);
     it.add_after_then_move (choice);
   }
   destroy_nodes (list, (void (*)(void *)) free_choice);
@@ -301,8 +330,13 @@ void make_tess_row(                  //make fake row
   tessrow->xheight.quads[0].b = 0;
   tessrow->xheight.quads[0].c = bln_x_height + bln_baseline_offset;
   tessrow->lineheight = bln_x_height;
-  tessrow->ascrise = denorm->row ()->ascenders () * denorm->scale ();
-  tessrow->descdrop = denorm->row ()->descenders () * denorm->scale ();
+  if (denorm != NULL) {
+    tessrow->ascrise = denorm->row ()->ascenders () * denorm->scale ();
+    tessrow->descdrop = denorm->row ()->descenders () * denorm->scale ();
+  } else {
+    tessrow->ascrise = bln_baseline_offset;
+    tessrow->descdrop = -bln_baseline_offset;
+  }
 }
 
 
@@ -371,7 +405,7 @@ TBLOB *make_tess_blob(               //make tess blob
                       PBLOB *blob,   //blob to convert
                       BOOL8 flatten  //flatten outline structure
                      ) {
-  INT32 index;
+  inT32 index;
   TBLOB *tessblob;
 
   tessblob = newblob ();
@@ -457,7 +491,7 @@ EDGEPT *make_tess_edgepts(                          //make tess edgepts
                           POLYPT_LIST *edgeptlist,  //list to convert
                           TPOINT &tl,               //bounding box
                           TPOINT &br) {
-  INT32 index;
+  inT32 index;
   POLYPT_IT it = edgeptlist;     //iterator
   POLYPT *edgept;                //current edgept
   EDGEPT *head;                  //output list
@@ -473,8 +507,8 @@ EDGEPT *make_tess_edgepts(                          //make tess edgepts
   for (it.mark_cycle_pt (); !it.cycled_list ();) {
     edgept = it.data ();
     tessedgept = newedgept ();
-    tessedgept->pos.x = (INT16) edgept->pos.x ();
-    tessedgept->pos.y = (INT16) edgept->pos.y ();
+    tessedgept->pos.x = (inT16) edgept->pos.x ();
+    tessedgept->pos.y = (inT16) edgept->pos.y ();
     if (tessedgept->pos.x < tl.x)
       tl.x = tessedgept->pos.x;
     if (tessedgept->pos.x > br.x)

@@ -28,6 +28,7 @@
 //#include                                      "epapconv.h"
 #include          "ocrshell.h"
 #include          "pageres.h"
+//TODO (wanke) why does the app. path have to be so weird here?
 #include          "charsample.h"
 #include          "notdll.h"
 
@@ -126,7 +127,7 @@ extern double_VAR_H (test_pt_x, 99999.99, "xcoord");
 extern double_VAR_H (test_pt_y, 99999.99, "ycoord");
 void recog_pseudo_word(                         //recognize blobs
                        BLOCK_LIST *block_list,  //blocks to check
-                       BOX &selection_box);
+                       TBOX &selection_box);
 BOOL8 recog_interactive(            //recognize blobs
                         BLOCK *,    //block
                         ROW *row,   //row of word
@@ -135,8 +136,8 @@ BOOL8 recog_interactive(            //recognize blobs
 void recog_all_words(                              //process words
                      PAGE_RES *page_res,           //page structure
                      volatile ETEXT_DESC *monitor,  //progress monitor
-                     BOX	*target_word_box=0L,
-					 INT16 dopasses=0
+                     TBOX	*target_word_box=0L,
+					 inT16 dopasses=0
 					 );
 
 void classify_word_pass1(                 //recog one word
@@ -171,7 +172,7 @@ void choice_dump_tester(                           //dump chars in word
                         DENORM *,                  //de-normaliser
                         BOOL8 correct,             //ly segmented
                         char *text,                //correct text
-                        INT32 count,               //chars in text
+                        inT32 count,               //chars in text
                         BLOB_CHOICE_LIST *ratings  //list of results
                        );
 WERD *make_bln_copy(WERD *src_word, ROW *row, float x_height, DENORM *denorm);
@@ -186,12 +187,12 @@ void font_recognition_pass(  //good chars in word
 void add_in_one_row(               //good chars in word
                     ROW_RES *row,  //current row
                     STATS *fonts,  //font stats
-                    INT8 *italic,  //output count
-                    INT8 *bold     //output count
+                    inT8 *italic,  //output count
+                    inT8 *bold     //output count
                    );
 void find_modal_font(                  //good chars in word
                      STATS *fonts,     //font stats
-                     INT8 *font_out,   //output font
-                     INT8 *font_count  //output count
+                     inT8 *font_out,   //output font
+                     inT8 *font_count  //output count
                     );
 #endif

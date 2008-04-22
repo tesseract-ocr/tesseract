@@ -34,10 +34,10 @@
 extern BOOL_VAR_H (current_word_quit, FALSE, "Stop processing this word");
 extern DLLSYM BOOL_VAR_H (selection_quit, FALSE,
 "Stop processing this selection");
-BOX block_list_bounding_box(                        //find bounding box
+TBOX block_list_bounding_box(                        //find bounding box
                             BLOCK_LIST *block_list  //of this block list
                            );
-const BOX block_list_compress(  //shuffle up blocks
+const TBOX block_list_compress(  //shuffle up blocks
                               BLOCK_LIST *block_list);
 void block_list_move(                         //move
                      BLOCK_LIST *block_list,  //this list
@@ -63,7 +63,7 @@ C_BLOB
 void process_selected_blobs (    //process blobs
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 blob_processor (
+TBOX & selection_box, BOOL8 blob_processor (
                                  //function to call
 BLOCK *, ROW *, WERD *, PBLOB *), BOOL8 c_blob_processor (
 BLOCK
@@ -81,7 +81,7 @@ BLOCK *, ROW *, WERD *));
 void process_selected_words (    //process words
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 word_processor (
+TBOX & selection_box, BOOL8 word_processor (
 BLOCK
 *,
 ROW
@@ -99,7 +99,7 @@ ROW_IT &, WERD_IT &));
 void process_selected_words_it ( //process words
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 word_processor (
+TBOX & selection_box, BOOL8 word_processor (
 BLOCK
 *,
 ROW
@@ -119,7 +119,7 @@ BLOCK *));
 void process_selected_blocks (   //process blocks
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 block_processor (
+TBOX & selection_box, BOOL8 block_processor (
 BLOCK
 *));
 void process_all_rows (          //process words
@@ -129,7 +129,7 @@ BLOCK *, ROW *));
 void process_selected_rows (     //process rows
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 row_processor (
+TBOX & selection_box, BOOL8 row_processor (
 BLOCK
 *,
 ROW
@@ -143,7 +143,7 @@ BLOCK_IT &, ROW_IT &));
 void process_selected_rows_it (  //process rows
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 row_processor (
+TBOX & selection_box, BOOL8 row_processor (
 BLOCK
 *,
 ROW

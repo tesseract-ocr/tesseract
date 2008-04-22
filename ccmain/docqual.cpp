@@ -125,7 +125,7 @@ EXTERN INT_VAR (crunch_debug, 0, "As it says");
  * ASSUME blobs in both initial word and outword are in ascending order of
  * left hand blob edge.
  *************************************************************************/
-INT16 word_blob_quality(  //Blob seg changes
+inT16 word_blob_quality(  //Blob seg changes
                         WERD_RES *word,
                         ROW *row) {
   WERD *bln_word;                //BL norm init word
@@ -133,11 +133,11 @@ INT16 word_blob_quality(  //Blob seg changes
   WERD *init_word;               //BL norm init word
   PBLOB_IT outword_it;
   PBLOB_IT initial_it;
-  INT16 i;
-  INT16 init_blobs_left;
-  INT16 match_count = 0;
+  inT16 i;
+  inT16 init_blobs_left;
+  inT16 match_count = 0;
   BOOL8 matched;
-  BOX out_box;
+  TBOX out_box;
   PBLOB *test_blob;
   DENORM denorm;
   float bln_xht;
@@ -208,8 +208,8 @@ INT16 word_blob_quality(  //Blob seg changes
  * Check bounding boxes are the same and the number of outlines are the same.
  *************************************************************************/
 BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2) {
-  BOX box1 = blob1->bounding_box ();
-  BOX box2 = blob2->bounding_box ();
+  TBOX box1 = blob1->bounding_box ();
+  TBOX box2 = blob2->bounding_box ();
 
   if (box1.contains (box2) &&
     box2.contains (box1) &&
@@ -220,11 +220,11 @@ BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2) {
 }
 
 
-INT16 word_outline_errs(  //Outline count errs
+inT16 word_outline_errs(  //Outline count errs
                         WERD_RES *word) {
   PBLOB_IT outword_it;
-  INT16 i = 0;
-  INT16 err_count = 0;
+  inT16 i = 0;
+  inT16 err_count = 0;
 
   outword_it.set_to_list (word->outword->blob_list ());
 
@@ -247,21 +247,21 @@ INT16 word_outline_errs(  //Outline count errs
 void word_char_quality(  //Blob seg changes
                        WERD_RES *word,
                        ROW *row,
-                       INT16 *match_count,
-                       INT16 *accepted_match_count) {
+                       inT16 *match_count,
+                       inT16 *accepted_match_count) {
   WERD *bln_word;                //BL norm init word
   TWERD *tessword;               //tess format
   WERD *init_word;               //BL norm init word
   PBLOB_IT outword_it;
   PBLOB_IT initial_it;
-  INT16 i;
-  INT16 init_blobs_left;
+  inT16 i;
+  inT16 init_blobs_left;
   BOOL8 matched;
-  BOX out_box;
+  TBOX out_box;
   PBLOB *test_blob;
   DENORM denorm;
   float bln_xht;
-  INT16 j = 0;
+  inT16 j = 0;
 
   *match_count = 0;
   *accepted_match_count = 0;
@@ -339,14 +339,14 @@ void unrej_good_chs(WERD_RES *word, ROW *row) {
   WERD *init_word;               //BL norm init word
   PBLOB_IT outword_it;
   PBLOB_IT initial_it;
-  INT16 i;
-  INT16 init_blobs_left;
+  inT16 i;
+  inT16 init_blobs_left;
   BOOL8 matched;
-  BOX out_box;
+  TBOX out_box;
   PBLOB *test_blob;
   DENORM denorm;
   float bln_xht;
-  INT16 j = 0;
+  inT16 j = 0;
 
   if (word->word->gblob_list ()->empty ())
     return;
@@ -409,7 +409,7 @@ void unrej_good_chs(WERD_RES *word, ROW *row) {
 
 void print_boxes(WERD *word) {
   PBLOB_IT it;
-  BOX box;
+  TBOX box;
 
   it.set_to_list (word->blob_list ());
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
@@ -419,7 +419,7 @@ void print_boxes(WERD *word) {
 }
 
 
-INT16 count_outline_errs(char c, INT16 outline_count) {
+inT16 count_outline_errs(char c, inT16 outline_count) {
   int expected_outline_count;
 
   if (STRING (outlines_odd).contains (c))
@@ -536,15 +536,15 @@ void unrej_good_quality_words(  //unreject potential
 void doc_and_block_rejection(  //reject big chunks
                              PAGE_RES_IT &page_res_it,
                              BOOL8 good_quality_doc) {
-  INT16 block_no = 0;
-  INT16 row_no = 0;
+  inT16 block_no = 0;
+  inT16 row_no = 0;
   BLOCK_RES *current_block;
   ROW_RES *current_row;
 
   BOOL8 rej_word;
   BOOL8 prev_word_rejected;
-  INT16 char_quality;
-  INT16 accepted_char_quality;
+  inT16 char_quality;
+  inT16 accepted_char_quality;
 
   if ((page_res_it.page_res->rej_count * 100.0 /
   page_res_it.page_res->char_count) > tessedit_reject_doc_percent) {
@@ -933,9 +933,9 @@ void tilde_delete(PAGE_RES_IT &page_res_it) {
   PAGE_RES_IT copy_it;
   BOOL8 deleting_from_bol = FALSE;
   BOOL8 marked_delete_point = FALSE;
-  INT16 debug_delete_mode;
+  inT16 debug_delete_mode;
   CRUNCH_MODE delete_mode;
-  INT16 x_debug_delete_mode;
+  inT16 x_debug_delete_mode;
   CRUNCH_MODE x_delete_mode;
 
   page_res_it.restart_page ();
@@ -1281,10 +1281,10 @@ GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
  *          >75% of the outline BBs have longest dimension < 0.5xht
  *************************************************************************/
 
-CRUNCH_MODE word_deletable(WERD_RES *word, INT16 &delete_mode) {
+CRUNCH_MODE word_deletable(WERD_RES *word, inT16 &delete_mode) {
   int word_len = word->reject_map.length ();
   float rating_per_ch;
-  BOX box;                       //BB of word
+  TBOX box;                       //BB of word
 
   if (word->unlv_crunch_mode == CR_NONE) {
     delete_mode = 0;
@@ -1350,7 +1350,7 @@ CRUNCH_MODE word_deletable(WERD_RES *word, INT16 &delete_mode) {
 }
 
 
-INT16 failure_count(WERD_RES *word) {
+inT16 failure_count(WERD_RES *word) {
   char *str = (char *) word->best_choice->string ().string ();
   int tess_rejs = 0;
 
@@ -1365,10 +1365,10 @@ INT16 failure_count(WERD_RES *word) {
 BOOL8 noise_outlines(WERD *word) {
   PBLOB_IT blob_it;
   OUTLINE_IT outline_it;
-  BOX box;                       //BB of outline
-  INT16 outline_count = 0;
-  INT16 small_outline_count = 0;
-  INT16 max_dimension;
+  TBOX box;                       //BB of outline
+  inT16 outline_count = 0;
+  inT16 small_outline_count = 0;
+  inT16 max_dimension;
   float small_limit = bln_x_height * crunch_small_outlines_size;
 
   blob_it.set_to_list (word->blob_list ());

@@ -26,13 +26,8 @@
 #endif
 
 #ifdef HAVE_LIBLEPT
-// The jpeg library still has INT32 as long, which is no good for 64 bit.
-#define INT32 WRONGINT32
-#define BOX LEPT_BOX
 // Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"
-#undef BOX
-#undef INT32
 #endif
 
 #include "tessedit.h"
@@ -97,8 +92,8 @@ void TessBaseAPI::SimpleInit(const char* datapath,
 // TODO(rays) get the facts straight. Is it OK to call
 // it more than once? Make it properly check for errors and return them.
 int TessBaseAPI::Init(const char* datapath, const char* outputbase,
-                      const char* configfile, bool numeric_mode,
-                      int argc, char* argv[]) {
+                              const char* configfile, bool numeric_mode,
+                              int argc, char* argv[]) {
   return InitWithLanguage(datapath, outputbase, NULL, configfile,
                           numeric_mode, argc, argv);
 }
@@ -108,12 +103,21 @@ int TessBaseAPI::Init(const char* datapath, const char* outputbase,
 // Language is the code of the language for which the data will be loaded.
 // (Codes follow ISO 639-3.) If it is NULL, english (eng) will be loaded.
 int TessBaseAPI::InitWithLanguage(const char* datapath, const char* outputbase,
-                                  const char* language, const char* configfile,
-                                  bool numeric_mode, int argc, char* argv[]) {
+                              const char* language, const char* configfile,
+                              bool numeric_mode, int argc, char* argv[]) {
   int result = init_tesseract(datapath, outputbase, language,
-                              configfile, argc, argv);
+      configfile, argc, argv);
+
   bln_numericmode.set_value(numeric_mode);
   return result;
+}
+
+// Init the lang model component of Tesseract
+int TessBaseAPI::InitLangMod(const char* datapath, const char* outputbase,
+                                const char* language, const char* configfile,
+                                bool numeric_mode, int argc, char* argv[]) {
+  return init_tesseract_lm(datapath, outputbase, language,
+      configfile, argc, argv);
 }
 
 // Set the name of the input file. Needed only for training and
@@ -216,7 +220,7 @@ void TessBaseAPI::DumpPGM(const char* filename) {
   for (int j = page_image.get_ysize()-1; j >= 0 ; --j) {
     page_image.get_line(0, j, page_image.get_xsize(), &line, 0);
     for (int i = 0; i < page_image.get_xsize(); ++i) {
-      UINT8 b = line.pixels[i] ? 255 : 0;
+      uinT8 b = line.pixels[i] ? 255 : 0;
       fwrite(&b, 1, 1, fp);
     }
   }
@@ -578,7 +582,7 @@ static int ConvertWordToBoxText(WERD_RES *word,
     for (int index = 0, offset = 0; index < length;
          offset += word->best_choice->lengths()[index++], blob_it.forward()) {
       PBLOB* blob = blob_it.data();
-      BOX blob_box = blob->bounding_box();
+      TBOX blob_box = blob->bounding_box();
       if (word->tess_failed ||
           blob_box.left() < 0 ||
           blob_box.right() > page_image.get_xsize() ||
@@ -784,7 +788,7 @@ static ROW *make_tess_ocrrow(float baseline,
                              float xheight,
                              float descender,
                              float ascender) {
-  INT32 xstarts[] = {-32000};
+  inT32 xstarts[] = {-32000};
   double quad_coeffs[] = {0,0,baseline};
   return new ROW(1,
                  xstarts,
@@ -941,11 +945,37 @@ PAGE_RES* TessBaseAPI::RecognitionPass2(BLOCK_LIST* block_list,
   return pass1_result;
 }
 
+// brief Get a bounding box of a PBLOB.
+// TODO(mezhirov) delete this function and replace with blob->bounding_box()
+static TBOX pblob_get_bbox(PBLOB *blob) {
+  OUTLINE_LIST *outlines = blob->out_list();
+  OUTLINE_IT it(outlines);
+  TBOX result;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    OUTLINE *outline = it.data();
+    outline->compute_bb();
+    result.bounding_union(outline->bounding_box());
+  }
+  return result;
+}
+
+// TODO(mezhirov) delete this function and replace with word->bounding_box()
+static TBOX c_blob_list_get_bbox(C_BLOB_LIST *cblobs) {
+  TBOX result;
+  C_BLOB_IT c_it(cblobs);
+  for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
+    C_BLOB *blob = c_it.data();
+    //bboxes.push(tessy_rectangle(blob->bounding_box()));
+    result.bounding_union(blob->bounding_box());
+  }
+  return result;
+}
+
 struct TESS_CHAR : ELIST_LINK {
   char *unicode_repr;
   int length; // of unicode_repr
   float cost;
-  BOX box;
+  TBOX box;
 
   TESS_CHAR(float _cost, const char *repr, int len = -1) : cost(_cost) {
     length = (len == -1 ? strlen(repr) : len);
@@ -988,15 +1018,15 @@ static void extract_result(ELIST_ITERATOR *out,
 
     if (word_count)
       add_space(out);
-    BOX bln_rect;
+    TBOX bln_rect;
     PBLOB_LIST *blobs = word->outword->blob_list();
     PBLOB_IT it(blobs);
     int n = strlen(len);
-    BOX** boxes_to_fix = new BOX*[n];
+    TBOX** boxes_to_fix = new TBOX*[n];
     for (int i = 0; i < n; i++) {
       PBLOB *blob = it.data();
-      BOX current = blob->bounding_box();
-      bln_rect = bln_rect.bounding_union(current);
+      TBOX current = pblob_get_bbox(blob);
+      bln_rect.bounding_union(current);
 
       TESS_CHAR *tc = new TESS_CHAR(rating_to_cost(word->best_choice->rating()),
                                     str, *len);
@@ -1012,14 +1042,14 @@ static void extract_result(ELIST_ITERATOR *out,
     // Find the word bbox before normalization.
     // Here we can't use the C_BLOB bboxes directly,
     // since connected letters are not yet cut.
-    BOX real_rect = word->word->bounding_box();
+    TBOX real_rect = c_blob_list_get_bbox(word->word->cblob_list());
 
     // Denormalize boxes by transforming the bbox of the whole bln word
     // into the denorm bbox (`real_rect') of the whole word.
     double x_stretch = double(real_rect.width()) / bln_rect.width();
     double y_stretch = double(real_rect.height()) / bln_rect.height();
     for (int j = 0; j < n; j++) {
-      BOX *box = boxes_to_fix[j];
+      TBOX *box = boxes_to_fix[j];
       int x0 = int(real_rect.left() +
                    x_stretch * (box->left() - bln_rect.left()) + 0.5);
       int x1 = int(real_rect.left() +
@@ -1028,7 +1058,7 @@ static void extract_result(ELIST_ITERATOR *out,
                    y_stretch * (box->bottom() - bln_rect.bottom()) + 0.5);
       int y1 = int(real_rect.bottom() +
                    y_stretch * (box->top() - bln_rect.bottom()) + 0.5);
-      *box = BOX(ICOORD(x0, y0), ICOORD(x1, y1));
+      *box = TBOX(ICOORD(x0, y0), ICOORD(x1, y1));
     }
     delete [] boxes_to_fix;
 

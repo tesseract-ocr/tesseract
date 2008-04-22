@@ -39,7 +39,7 @@
 #include          "matmatch.h"
 #include          "secname.h"
 
-INT32 demo_word = 0;
+inT32 demo_word = 0;
 
 #define WINDOWNAMESIZE    13     /*max size of name */
 
@@ -93,7 +93,7 @@ EXTERN STRING_VAR (tessedit_demo_file, "academe",
 
 BOOL8 word_adaptable(  //should we adapt?
                      WERD_RES *word,
-                     UINT16 mode) {
+                     uinT16 mode) {
   BOOL8 status = FALSE;
   BITS16 flags(mode);
 
@@ -154,17 +154,17 @@ void collect_ems_for_adaption(WERD_RES *word,
                               CHAR_SAMPLE_LIST *chars_waiting) {
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
-  INT16 i;
+  inT16 i;
   CHAR_SAMPLE *sample;
   PIXROW_LIST *pixrow_list;
   PIXROW_IT pixrow_it;
   IMAGELINE *imlines;            // lines of the image
-  BOX pix_box;                   // box of imlines
+  TBOX pix_box;                   // box of imlines
   // extent
   WERD copy_outword;             // copy to denorm
   PBLOB_IT copy_blob_it;
   OUTLINE_IT copy_outline_it;
-  INT32 resolution = page_image.get_res ();
+  inT32 resolution = page_image.get_res ();
 
   if (tessedit_reject_ems || tessedit_reject_suspect_ems)
     return;                      // Do nothing
@@ -265,15 +265,15 @@ void collect_characters_for_adaption(WERD_RES *word,
                                      CHAR_SAMPLE_LIST *chars_waiting) {
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
-  INT16 i;
+  inT16 i;
   CHAR_SAMPLE *sample;
   PIXROW_LIST *pixrow_list;
   PIXROW_IT pixrow_it;
   IMAGELINE *imlines;            // lines of the image
-  BOX pix_box;                   // box of imlines
+  TBOX pix_box;                   // box of imlines
   // extent
   WERD copy_outword;             // copy to denorm
-  INT32 resolution = page_image.get_res ();
+  inT32 resolution = page_image.get_res ();
 
   if (word->word->bounding_box ().height () > resolution / 3)
     return;
@@ -449,7 +449,7 @@ void complete_clustering(CHAR_SAMPLES_LIST *char_clusters,
   CHAR_SAMPLES_IT c_it = char_clusters;
   CHAR_SAMPLE_IT cw_it = chars_waiting;
   CHAR_SAMPLE *sample;
-  INT32 total_sample_count = 0;
+  inT32 total_sample_count = 0;
 
   while (!cw_it.empty ()) {
     cw_it.move_to_first ();
@@ -487,7 +487,7 @@ void adapt_to_good_ems(WERD_RES *word,
                        CHAR_SAMPLE_LIST *chars_waiting) {
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
-  INT16 i;
+  inT16 i;
   CHAR_SAMPLE *sample;
   CHAR_SAMPLES_IT c_it = char_clusters;
   CHAR_SAMPLE_IT cw_it = chars_waiting;
@@ -498,21 +498,21 @@ void adapt_to_good_ems(WERD_RES *word,
   PIXROW_LIST *pixrow_list;
   PIXROW_IT pixrow_it;
   IMAGELINE *imlines;            // lines of the image
-  BOX pix_box;                   // box of imlines
+  TBOX pix_box;                   // box of imlines
   // extent
   WERD copy_outword;             // copy to denorm
-  BOX b_box;
+  TBOX b_box;
   PBLOB_IT copy_blob_it;
   OUTLINE_IT copy_outline_it;
   PIXROW *pixrow = NULL;
 
-  static INT32 word_number = 0;
+  static inT32 word_number = 0;
 
 #ifndef GRAPHICS_DISABLED
   ScrollView* demo_win = NULL;
 #endif
 
-  INT32 resolution = page_image.get_res ();
+  inT32 resolution = page_image.get_res ();
 
   if (word->word->bounding_box ().height () > resolution / 3)
     return;
@@ -606,7 +606,7 @@ void adapt_to_good_ems(WERD_RES *word,
               i);
 
           if (tessedit_matrix_match) {
-            BOX copy_box = copy_blob_it.data ()->bounding_box ();
+            TBOX copy_box = copy_blob_it.data ()->bounding_box ();
 
             sample = clip_sample (pixrow_it.data (),
               imlines,
@@ -726,7 +726,7 @@ void adapt_to_good_samples(WERD_RES *word,
                            CHAR_SAMPLE_LIST *chars_waiting) {
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
-  INT16 i;
+  inT16 i;
   CHAR_SAMPLE *sample;
   CHAR_SAMPLES_IT c_it = char_clusters;
   CHAR_SAMPLE_IT cw_it = chars_waiting;
@@ -737,20 +737,20 @@ void adapt_to_good_samples(WERD_RES *word,
   PIXROW_LIST *pixrow_list;
   PIXROW_IT pixrow_it;
   IMAGELINE *imlines;            // lines of the image
-  BOX pix_box;                   // box of imlines
+  TBOX pix_box;                   // box of imlines
   // extent
   WERD copy_outword;             // copy to denorm
-  BOX b_box;
+  TBOX b_box;
   PBLOB_IT copy_blob_it;
   PIXROW *pixrow = NULL;
 
-  static INT32 word_number = 0;
+  static inT32 word_number = 0;
 
 #ifndef GRAPHICS_DISABLED
   ScrollView* demo_win = NULL;
 #endif
 
-  INT32 resolution = page_image.get_res ();
+  inT32 resolution = page_image.get_res ();
 
   word_number++;
 
@@ -801,7 +801,7 @@ void adapt_to_good_samples(WERD_RES *word,
     copy_blob_it.forward ()) {
       if (word->reject_map[i].recoverable ()
       || (tessedit_mm_all_rejects && word->reject_map[i].rejected ())) {
-        BOX copy_box = copy_blob_it.data ()->bounding_box ();
+        TBOX copy_box = copy_blob_it.data ()->bounding_box ();
 
         if (tessedit_cluster_debug)
           tprintf ("Sample %c to check found in %s, index %d\n",
@@ -935,12 +935,12 @@ void print_em_stats(CHAR_SAMPLES_LIST *char_clusters,
 CHAR_SAMPLE *clip_sample(              //lines of the image
                          PIXROW *pixrow,
                          IMAGELINE *imlines,
-                         BOX pix_box,  //box of imlines extent
+                         TBOX pix_box,  //box of imlines extent
                          BOOL8 white_on_black,
                          char c) {
-  BOX b_box = pixrow->bounding_box ();
+  TBOX b_box = pixrow->bounding_box ();
   float baseline_pos = 0;
-  INT32 resolution = page_image.get_res ();
+  inT32 resolution = page_image.get_res ();
 
   if (!b_box.null_box ()) {
     ASSERT_HOST (b_box.width () < page_image.get_xsize () &&
@@ -976,7 +976,7 @@ CHAR_SAMPLE *clip_sample(              //lines of the image
 
 #ifndef GRAPHICS_DISABLED
 void display_cluster_prototypes(CHAR_SAMPLES_LIST *char_clusters) {
-  INT16 proto_number = 0;
+  inT16 proto_number = 0;
   CHAR_SAMPLES_IT c_it = char_clusters;
   char title[WINDOWNAMESIZE];
 
@@ -1001,7 +1001,7 @@ void display_cluster_prototypes(CHAR_SAMPLES_LIST *char_clusters) {
 // *********************************************************************
 
 void reject_all_ems(WERD_RES *word) {
-  INT16 i;
+  inT16 i;
 
   for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
     if (word->best_choice->string ()[i] == 'm')
@@ -1012,7 +1012,7 @@ void reject_all_ems(WERD_RES *word) {
 
 
 void reject_all_fullstops(WERD_RES *word) {
-  INT16 i;
+  inT16 i;
 
   for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
     if (word->best_choice->string ()[i] == '.')
@@ -1023,7 +1023,7 @@ void reject_all_fullstops(WERD_RES *word) {
 
 
 void reject_suspect_ems(WERD_RES *word) {
-  INT16 i;
+  inT16 i;
 
   if (!word_adaptable (word, tessedit_cluster_adaption_mode))
   for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
@@ -1035,7 +1035,7 @@ void reject_suspect_ems(WERD_RES *word) {
 
 
 void reject_suspect_fullstops(WERD_RES *word) {
-  INT16 i;
+  inT16 i;
 
   for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
     if (word->best_choice->string ()[i] == '.'
@@ -1046,10 +1046,10 @@ void reject_suspect_fullstops(WERD_RES *word) {
 }
 
 
-BOOL8 suspect_em(WERD_RES *word, INT16 index) {
+BOOL8 suspect_em(WERD_RES *word, inT16 index) {
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
-  INT16 j;
+  inT16 j;
 
   for (j = 0; j < index; j++)
     blob_it.forward ();
@@ -1058,14 +1058,14 @@ BOOL8 suspect_em(WERD_RES *word, INT16 index) {
 }
 
 
-BOOL8 suspect_fullstop(WERD_RES *word, INT16 i) {
+BOOL8 suspect_fullstop(WERD_RES *word, inT16 i) {
   float aspect_ratio;
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
-  INT16 j;
-  BOX box;
-  INT16 width;
-  INT16 height;
+  inT16 j;
+  TBOX box;
+  inT16 width;
+  inT16 height;
 
   for (j = 0; j < i; j++)
     blob_it.forward ();

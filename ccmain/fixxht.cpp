@@ -79,11 +79,11 @@ EXTERN STRING_VAR (chs_non_ambig_desc, "gq", "Reliable descender chars");
  *
  * Walk the blobs in the word together with the text string and reject map.
  * NOTE: All evaluation is done on the baseline normalised word. This is so that
- * the BOX class can be used (integer). The reasons for this are:
+ * the TBOX class can be used (integer). The reasons for this are:
  *   a) We must use the outword - ie the Tess result
  *   b) The outword is always converted to integer representation as that is how
  *      Tess works
- *   c) We would like to use the BOX class, cos its there - this is integer
+ *   c) We would like to use the TBOX class, cos its there - this is integer
  *      precision.
  *   d) If we de-normed the outword we would get rounding errors and would find
  *      that integers are too imprecise (x-height around 15 pixels instead of a
@@ -135,25 +135,25 @@ void re_estimate_x_ht(                     //improve for 1 word
                       float *trial_x_ht    //new match value
                      ) {
   PBLOB_IT blob_it;
-  INT16 blob_ht_above_baseline;
+  inT16 blob_ht_above_baseline;
 
   const char *word_str;
-  INT16 i;
-  INT16 offset;
+  inT16 i;
+  inT16 offset;
 
   STATS all_blobs_ht (0, 300);   //every blob in word
   STATS x_ht (0, 300);           //confirmed pts in wd
   STATS caps_ht (0, 300);        //confirmed pts in wd
   STATS case_ambig (0, 300);     //lower case ambigs
 
-  INT16 rej_blobs_count = 0;
-  INT16 rej_blobs_max_height = 0;
-  INT32 rej_blobs_max_area = 0;
+  inT16 rej_blobs_count = 0;
+  inT16 rej_blobs_max_height = 0;
+  inT32 rej_blobs_max_area = 0;
   float x_ht_ok_variation;
   float max_blob_ht;
   float marginally_above_x_ht;
 
-  BOX blob_box;                  //blob bounding box
+  TBOX blob_box;                  //blob bounding box
   float est_x_ht = 0.0;          //word estimate
   float est_caps_ht = 0.0;       //word estimate
                                  //based on hard data?
@@ -163,8 +163,8 @@ void re_estimate_x_ht(                     //improve for 1 word
   BOOL8 no_comment = FALSE;      //No change in xht
   float ambig_lc_x_est;
   float ambig_uc_caps_est;
-  INT16 x_ht_ambigs = 0;
-  INT16 caps_ht_ambigs = 0;
+  inT16 x_ht_ambigs = 0;
+  inT16 caps_ht_ambigs = 0;
 
   /* Calculate default variation of blob x_ht from bln x_ht for bln word */
   x_ht_ok_variation =
@@ -506,9 +506,9 @@ void check_block_occ(WERD_RES *word_res) {
   WERD_CHOICE *new_choice;
 
   const char *word_str = word_res->best_choice->string ().string ();
-  INT16 i;
-  INT16 offset;
-  INT16 reject_count = 0;
+  inT16 i;
+  inT16 offset;
+  inT16 reject_count = 0;
   char confirmed_char[UNICHAR_LEN + 1];
   char temp_char[UNICHAR_LEN + 1];
   float x_ht;
@@ -582,7 +582,7 @@ void check_block_occ(WERD_RES *word_res) {
  *************************************************************************/
 
 void check_blob_occ(char* proposed_char,
-                    INT16 blob_ht_above_baseline,
+                    inT16 blob_ht_above_baseline,
                     float x_ht,
                     float caps_ht,
                     char* confirmed_char) {
@@ -670,12 +670,12 @@ void improve_estimate(WERD_RES *word_res,
                       STATS &x_ht,
                       STATS &caps_ht) {
   PBLOB_IT blob_it;
-  INT16 blob_ht_above_baseline;
+  inT16 blob_ht_above_baseline;
 
   const char *word_str;
-  INT16 i;
-  INT16 offset;
-  BOX blob_box;                  //blob bounding box
+  inT16 i;
+  inT16 offset;
+  TBOX blob_box;                  //blob bounding box
   char confirmed_char[UNICHAR_LEN + 1];
   char temp_char[UNICHAR_LEN + 1];
   float new_val;
@@ -741,12 +741,12 @@ void est_ambigs(                          //xht ambig ht stats
   STATS short_ambigs (0, 300);
   STATS tall_ambigs (0, 300);
   PBLOB_IT blob_it;
-  BOX blob_box;                  //blob bounding box
-  INT16 blob_ht_above_baseline;
+  TBOX blob_box;                  //blob bounding box
+  inT16 blob_ht_above_baseline;
 
   const char *word_str;
-  INT16 i;
-  INT16 offset;
+  inT16 i;
+  inT16 offset;
   float min;                     //min ambig ch ht
   float max;                     //max ambig ch ht
   float short_limit;             // for lower case
@@ -807,9 +807,9 @@ void est_ambigs(                          //xht ambig ht stats
 
 BOOL8 dodgy_blob(PBLOB *blob) {
   OUTLINE_IT outline_it = blob->out_list ();
-  INT16 highest_bottom = -MAX_INT16;
-  INT16 lowest_top = MAX_INT16;
-  BOX outline_box;
+  inT16 highest_bottom = -MAX_INT16;
+  inT16 lowest_top = MAX_INT16;
+  TBOX outline_box;
 
   if (x_ht_include_dodgy_blobs)
     return FALSE;                //no blob is ever dodgy

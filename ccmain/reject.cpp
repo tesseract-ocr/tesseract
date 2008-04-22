@@ -202,7 +202,7 @@ INT_VAR (min_sane_x_ht_pixels, 8, "Reject any x-ht lt or eq than this");
 
 void set_done(  //set done flag
               WERD_RES *word,
-              INT16 pass) {
+              inT16 pass) {
   /*
   0: Original heuristic used in Tesseract and Ray's prototype Resaljet
   */
@@ -336,7 +336,7 @@ void make_reject_map(            //make rej map for wd //detailed results
                      WERD_RES *word,
                      BLOB_CHOICE_LIST_CLIST *blob_choices,
                      ROW *row,
-                     INT16 pass  //1st or 2nd?
+                     inT16 pass  //1st or 2nd?
                     ) {
   int i;
   int offset;
@@ -438,8 +438,8 @@ void make_reject_map(            //make rej map for wd //detailed results
 
 
 void reject_blanks(WERD_RES *word) {
-  INT16 i;
-  INT16 offset;
+  inT16 i;
+  inT16 offset;
 
   for (i = 0, offset = 0; word->best_choice->string ()[offset] != '\0';
        offset += word->best_choice->lengths ()[i], i += 1) {
@@ -451,8 +451,8 @@ void reject_blanks(WERD_RES *word) {
 
 
 void reject_I_1_L(WERD_RES *word) {
-  INT16 i;
-  INT16 offset;
+  inT16 i;
+  inT16 offset;
 
   for (i = 0, offset = 0; word->best_choice->string ()[offset] != '\0';
        offset += word->best_choice->lengths ()[i], i += 1) {
@@ -469,8 +469,8 @@ void reject_poor_matches(  //detailed results
                          WERD_RES *word,
                          BLOB_CHOICE_LIST_CLIST *blob_choices) {
   float threshold;
-  INT16 i = 0;
-  INT16 offset = 0;
+  inT16 i = 0;
+  inT16 offset = 0;
                                  //super iterator
   BLOB_CHOICE_LIST_C_IT list_it = blob_choices;
   BLOB_CHOICE_IT choice_it;      //real iterator
@@ -516,9 +516,9 @@ void reject_poor_matches(  //detailed results
 
 float compute_reject_threshold(  //compute threshold //detailed results
                                BLOB_CHOICE_LIST_CLIST *blob_choices) {
-  INT16 index;                   //to ratings
-  INT16 blob_count;              //no of blobs in word
-  INT16 ok_blob_count = 0;       //non TESS rej blobs in word
+  inT16 index;                   //to ratings
+  inT16 blob_count;              //no of blobs in word
+  inT16 ok_blob_count = 0;       //non TESS rej blobs in word
   float *ratings;                //array of confidences
   float threshold;               //rejection threshold
   float bestgap;                 //biggest gap
@@ -593,8 +593,8 @@ int sort_floats(                   //qsort function
  *************************************************************************/
 
 void reject_edge_blobs(WERD_RES *word) {
-  BOX word_box = word->word->bounding_box ();
-  BOX blob_box;
+  TBOX word_box = word->word->bounding_box ();
+  TBOX blob_box;
   PBLOB_IT blob_it = word->outword->blob_list ();
   //blobs
   int blobindex = 0;
@@ -635,11 +635,11 @@ void reject_edge_blobs(WERD_RES *word) {
 BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
   const char *word;
   const char *lengths;
-  INT16 word_len;                //its length
-  INT16 first_alphanum_index_;
-  INT16 first_alphanum_offset_;
-  INT16 i;
-  INT16 offset;
+  inT16 word_len;                //its length
+  inT16 first_alphanum_index_;
+  inT16 first_alphanum_offset_;
+  inT16 i;
+  inT16 offset;
   BOOL8 non_conflict_set_char;   //non conf set a/n?
   BOOL8 conflict = FALSE;
   BOOL8 allow_1s;
@@ -768,7 +768,7 @@ BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
     allow_1s = (alpha_count (word, lengths) == 0) ||
       (word_res->best_choice->permuter () == NUMBER_PERM);
 
-    INT16 offset;
+    inT16 offset;
     conflict = FALSE;
     for (i = 0, offset = 0; word[offset] != '\0';
          offset += word_res->best_choice->lengths ()[i++]) {
@@ -809,10 +809,10 @@ BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
 }
 
 
-INT16 first_alphanum_index(const char *word,
+inT16 first_alphanum_index(const char *word,
                            const char *word_lengths) {
-  INT16 i;
-  INT16 offset;
+  inT16 i;
+  inT16 offset;
 
   for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
     if (unicharset.get_isalpha(word + offset, word_lengths[i]) ||
@@ -822,10 +822,10 @@ INT16 first_alphanum_index(const char *word,
   return -1;
 }
 
-INT16 first_alphanum_offset(const char *word,
+inT16 first_alphanum_offset(const char *word,
                             const char *word_lengths) {
-  INT16 i;
-  INT16 offset;
+  inT16 i;
+  inT16 offset;
 
   for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
     if (unicharset.get_isalpha(word + offset, word_lengths[i]) ||
@@ -835,11 +835,11 @@ INT16 first_alphanum_offset(const char *word,
   return -1;
 }
 
-INT16 alpha_count(const char *word,
+inT16 alpha_count(const char *word,
                   const char *word_lengths) {
-  INT16 i;
-  INT16 offset;
-  INT16 count = 0;
+  inT16 i;
+  inT16 offset;
+  inT16 count = 0;
 
   for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
     if (unicharset.get_isalpha (word + offset, word_lengths[i]))
@@ -851,8 +851,8 @@ INT16 alpha_count(const char *word,
 
 BOOL8 word_contains_non_1_digit(const char *word,
                                 const char *word_lengths) {
-  INT16 i;
-  INT16 offset;
+  inT16 i;
+  inT16 offset;
 
   for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
     if (unicharset.get_isdigit (word + offset, word_lengths[i]) &&
@@ -888,7 +888,7 @@ BOOL8 test_ambig_word(  //test for ambiguity
 BOOL8 ambig_word(                     //original word
                  const char *start_word,
                  char *temp_word,     //alterable copy
-                 INT16 test_char_pos  //idx to char to alter
+                 inT16 test_char_pos  //idx to char to alter
                 ) {
   const char *ambigs;            //Ambiguities for char
 
@@ -1052,17 +1052,17 @@ void nn_match_word(  //Match a word
   PIXROW_LIST *pixrow_list;
   PIXROW_IT pixrow_it;
   IMAGELINE *imlines;            //lines of the image
-  BOX pix_box;                   //box of imlines extent
+  TBOX pix_box;                   //box of imlines extent
 #ifndef GRAPHICS_DISABLED
   ScrollView* win = NULL;
 #endif
   IMAGE clip_image;
   IMAGE scaled_image;
   float baseline_pos;
-  INT16 net_image_size;
-  INT16 clip_image_size;
+  inT16 net_image_size;
+  inT16 clip_image_size;
   WERD copy_outword;             // copy to denorm
-  INT16 i;
+  inT16 i;
 
   const char *word_string;
   const char *word_string_lengths;
@@ -1071,15 +1071,15 @@ void nn_match_word(  //Match a word
   BOOL8 sensible_word;           //OK char string
   BOOL8 centre;                  //Not at word end       chs
   BOOL8 good_quality_word;
-  INT16 char_quality;
-  INT16 accepted_char_quality;
+  inT16 char_quality;
+  inT16 accepted_char_quality;
 
-  INT16 conf_level;              //0:REJECT
+  inT16 conf_level;              //0:REJECT
   //1:DODGY ACCEPT
   //2:DICT ACCEPT
   //3:CLEAR ACCEPT
-  INT16 first_alphanum_index_;
-  INT16 first_alphanum_offset_;
+  inT16 first_alphanum_index_;
+  inT16 first_alphanum_offset_;
 
   word_string = word->best_choice->string ().string ();
   word_string_lengths = word->best_choice->lengths ().string ();
@@ -1126,7 +1126,7 @@ void nn_match_word(  //Match a word
   */
   net_image_size = (net_image_width > net_image_height) ?
     net_image_width : net_image_height;
-  clip_image_size = (INT16) floor (0.5 +
+  clip_image_size = (inT16) floor (0.5 +
     net_image_size * word->x_height /
     net_image_x_height);
   if ((clip_image_size <= 1) || (net_image_size <= 1)) {
@@ -1208,7 +1208,7 @@ void nn_match_word(  //Match a word
  * square image
  *************************************************************************/
 
-INT16 nn_match_char(                          //of character
+inT16 nn_match_char(                          //of character
                     IMAGE &scaled_image,
                     float baseline_pos,       //rel to scaled_image
                     BOOL8 dict_word,          //part of dict wd?
@@ -1218,12 +1218,12 @@ INT16 nn_match_char(                          //of character
                     BOOL8 good_quality_word,  //initial segmentation
                     char tess_ch              //confirm this?
                    ) {
-  INT16 conf_level;              //0..2
-  INT32 row;
-  INT32 col;
-  INT32 y_size = scaled_image.get_ysize ();
-  INT32 start_y = y_size - (y_size - net_image_height) / 2 - 1;
-  INT32 end_y = start_y - net_image_height + 1;
+  inT16 conf_level;              //0..2
+  inT32 row;
+  inT32 col;
+  inT32 y_size = scaled_image.get_ysize ();
+  inT32 start_y = y_size - (y_size - net_image_height) / 2 - 1;
+  inT32 end_y = start_y - net_image_height + 1;
   IMAGELINE imline;
   float *input_vector;
   float *input_vec_ptr;
@@ -1231,8 +1231,8 @@ INT16 nn_match_char(                          //of character
   float top_score;
   char next;
   float next_score;
-  INT16 input_nodes = (net_image_height * net_image_width) + net_bl_nodes;
-  INT16 j;
+  inT16 input_nodes = (net_image_height * net_image_width) + net_bl_nodes;
+  inT16 j;
 
   input_vector = (float *) alloc_mem (input_nodes * sizeof (float));
   input_vec_ptr = input_vector;
@@ -1295,7 +1295,7 @@ INT16 nn_match_char(                          //of character
 }
 
 
-INT16 evaluate_net_match(char top,
+inT16 evaluate_net_match(char top,
                          float top_score,
                          char next,
                          float next_score,
@@ -1305,7 +1305,7 @@ INT16 evaluate_net_match(char top,
                          BOOL8 sensible_word,
                          BOOL8 centre,
                          BOOL8 good_quality_word) {
-  INT16 accept_level;            //0 Very clearly matched
+  inT16 accept_level;            //0 Very clearly matched
   //1 Clearly top
   //2 Top but poor match
   //3 Next & poor top match
@@ -1502,7 +1502,7 @@ void dont_allow_1Il(WERD_RES *word) {
 }
 
 
-INT16 count_alphanums(  //how many alphanums
+inT16 count_alphanums(  //how many alphanums
                       WERD_RES *word) {
   int count = 0;
   int i;
@@ -1532,8 +1532,8 @@ void reject_mostly_rejects(  //rej all if most rejectd
 
 
 BOOL8 repeated_nonalphanum_wd(WERD_RES *word, ROW *row) {
-  INT16 char_quality;
-  INT16 accepted_char_quality;
+  inT16 char_quality;
+  inT16 accepted_char_quality;
 
   if (word->best_choice->lengths ().length () <= 1)
     return FALSE;
@@ -1576,7 +1576,7 @@ BOOL8 repeated_ch_string(const char *rep_ch_str,
 }
 
 
-INT16 safe_dict_word(const char *s) {
+inT16 safe_dict_word(const char *s) {
   int dict_word_type;
 
   dict_word_type = dict_word (s);
@@ -1594,7 +1594,7 @@ void flip_hyphens(WERD_RES *word) {
   PBLOB_IT outword_it;
   int prev_right = -9999;
   int next_left;
-  BOX out_box;
+  TBOX out_box;
   float aspect_ratio;
 
   if (tessedit_lower_flip_hyphen <= 1)
@@ -1651,7 +1651,7 @@ void flip_0O(WERD_RES *word) {
   int i;
   int offset;
   PBLOB_IT outword_it;
-  BOX out_box;
+  TBOX out_box;
 
   if (!tessedit_flip_0O)
     return;

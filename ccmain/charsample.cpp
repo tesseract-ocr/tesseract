@@ -36,7 +36,7 @@
 #include          "secname.h"
 #include          "notdll.h"
 
-extern INT32 demo_word;          // Hack for demos
+extern inT32 demo_word;          // Hack for demos
 
 ELISTIZE (CHAR_SAMPLE) ELISTIZE (CHAR_SAMPLES) CHAR_SAMPLE::CHAR_SAMPLE () {
   sample_blob = NULL;
@@ -49,7 +49,7 @@ ELISTIZE (CHAR_SAMPLE) ELISTIZE (CHAR_SAMPLES) CHAR_SAMPLE::CHAR_SAMPLE () {
 }
 
 
-CHAR_SAMPLE::CHAR_SAMPLE(PBLOB *blob, DENORM *denorm, char c) { 
+CHAR_SAMPLE::CHAR_SAMPLE(PBLOB *blob, DENORM *denorm, char c) {
   sample_blob = blob;
   sample_denorm = denorm;
   sample_image = NULL;
@@ -60,7 +60,7 @@ CHAR_SAMPLE::CHAR_SAMPLE(PBLOB *blob, DENORM *denorm, char c) {
 }
 
 
-CHAR_SAMPLE::CHAR_SAMPLE(IMAGE *image, char c) { 
+CHAR_SAMPLE::CHAR_SAMPLE(IMAGE *image, char c) {
   sample_blob = NULL;
   sample_denorm = NULL;
   sample_image = image;
@@ -105,7 +105,7 @@ float CHAR_SAMPLE::match_sample(  // Update match scores
 }
 
 
-double CHAR_SAMPLE::mean_score() { 
+double CHAR_SAMPLE::mean_score() {
   if (n_samples_matched > 0)
     return (total_match_scores / n_samples_matched);
   else
@@ -113,7 +113,7 @@ double CHAR_SAMPLE::mean_score() {
 }
 
 
-double CHAR_SAMPLE::variance() { 
+double CHAR_SAMPLE::variance() {
   double mean = mean_score ();
 
   if (n_samples_matched > 0) {
@@ -124,7 +124,7 @@ double CHAR_SAMPLE::variance() {
 }
 
 
-void CHAR_SAMPLE::print(FILE *f) { 
+void CHAR_SAMPLE::print(FILE *f) {
   if (!tessedit_cluster_debug)
     return;
 
@@ -138,14 +138,14 @@ void CHAR_SAMPLE::print(FILE *f) {
 }
 
 
-void CHAR_SAMPLE::reset_match_statistics() { 
+void CHAR_SAMPLE::reset_match_statistics() {
   n_samples_matched = 0;
   total_match_scores = 0.0;
   sumsq_match_scores = 0.0;
 }
 
 
-CHAR_SAMPLES::CHAR_SAMPLES() { 
+CHAR_SAMPLES::CHAR_SAMPLES() {
   type = UNKNOWN;
   samples.clear ();
   ch = '\0';
@@ -154,7 +154,7 @@ CHAR_SAMPLES::CHAR_SAMPLES() {
 }
 
 
-CHAR_SAMPLES::CHAR_SAMPLES(CHAR_SAMPLE *sample) { 
+CHAR_SAMPLES::CHAR_SAMPLES(CHAR_SAMPLE *sample) {
   CHAR_SAMPLE_IT sample_it = &samples;
 
   ASSERT_HOST (sample->image () != NULL || sample->blob () != NULL);
@@ -175,7 +175,7 @@ CHAR_SAMPLES::CHAR_SAMPLES(CHAR_SAMPLE *sample) {
 }
 
 
-void CHAR_SAMPLES::add_sample(CHAR_SAMPLE *sample) { 
+void CHAR_SAMPLES::add_sample(CHAR_SAMPLE *sample) {
   CHAR_SAMPLE_IT sample_it = &samples;
 
   if (tessedit_use_best_sample || tessedit_cluster_debug)
@@ -196,12 +196,12 @@ void CHAR_SAMPLES::add_sample(CHAR_SAMPLE *sample) {
 }
 
 
-void CHAR_SAMPLES::add_sample_to_prototype(CHAR_SAMPLE *sample) { 
+void CHAR_SAMPLES::add_sample_to_prototype(CHAR_SAMPLE *sample) {
   BOOL8 rebuild = FALSE;
-  INT32 new_xsize = proto->x_size ();
-  INT32 new_ysize = proto->y_size ();
-  INT32 sample_xsize = sample->image ()->get_xsize ();
-  INT32 sample_ysize = sample->image ()->get_ysize ();
+  inT32 new_xsize = proto->x_size ();
+  inT32 new_ysize = proto->y_size ();
+  inT32 sample_xsize = sample->image ()->get_xsize ();
+  inT32 sample_ysize = sample->image ()->get_ysize ();
 
   if (sample_xsize > new_xsize) {
     new_xsize = sample_xsize;
@@ -219,11 +219,11 @@ void CHAR_SAMPLES::add_sample_to_prototype(CHAR_SAMPLE *sample) {
 }
 
 
-void CHAR_SAMPLES::build_prototype() { 
+void CHAR_SAMPLES::build_prototype() {
   CHAR_SAMPLE_IT sample_it = &samples;
   CHAR_SAMPLE *sample;
-  INT32 proto_xsize = 0;
-  INT32 proto_ysize = 0;
+  inT32 proto_xsize = 0;
+  inT32 proto_ysize = 0;
 
   if (type != IMAGE_CLUSTER
     || samples.length () < tessedit_mm_prototype_min_size)
@@ -247,7 +247,7 @@ void CHAR_SAMPLES::build_prototype() {
 }
 
 
-void CHAR_SAMPLES::find_best_sample() { 
+void CHAR_SAMPLES::find_best_sample() {
   CHAR_SAMPLE_IT sample_it = &samples;
   double score;
   double best_score = MAX_INT32;
@@ -272,7 +272,7 @@ void CHAR_SAMPLES::find_best_sample() {
 }
 
 
-float CHAR_SAMPLES::match_score(CHAR_SAMPLE *sample) { 
+float CHAR_SAMPLES::match_score(CHAR_SAMPLE *sample) {
   if (tessedit_mm_only_match_same_char && sample->character () != ch)
     return BAD_SCORE;
 
@@ -286,7 +286,7 @@ float CHAR_SAMPLES::match_score(CHAR_SAMPLE *sample) {
 }
 
 
-float CHAR_SAMPLES::nn_match_score(CHAR_SAMPLE *sample) { 
+float CHAR_SAMPLES::nn_match_score(CHAR_SAMPLE *sample) {
   CHAR_SAMPLE_IT sample_it = &samples;
   float score;
   float min_score = MAX_INT32;
@@ -302,19 +302,19 @@ float CHAR_SAMPLES::nn_match_score(CHAR_SAMPLE *sample) {
 }
 
 
-void CHAR_SAMPLES::assign_to_char() { 
-  STATS char_frequency(FIRST_CHAR, LAST_CHAR); 
+void CHAR_SAMPLES::assign_to_char() {
+  STATS char_frequency(FIRST_CHAR, LAST_CHAR);
   CHAR_SAMPLE_IT sample_it = &samples;
-  INT32 i;
-  INT32 max_index = 0;
-  INT32 max_freq = 0;
+  inT32 i;
+  inT32 max_index = 0;
+  inT32 max_freq = 0;
 
   if (samples.length () == 0 || tessedit_mm_only_match_same_char)
     return;
 
   for (sample_it.mark_cycle_pt ();
     !sample_it.cycled_list (); sample_it.forward ())
-  char_frequency.add ((INT32) sample_it.data ()->character (), 1);
+  char_frequency.add ((inT32) sample_it.data ()->character (), 1);
 
   for (i = FIRST_CHAR; i <= LAST_CHAR; i++)
   if (char_frequency.pile_count (i) > max_freq) {
@@ -328,7 +328,7 @@ void CHAR_SAMPLES::assign_to_char() {
 }
 
 
-void CHAR_SAMPLES::print(FILE *f) { 
+void CHAR_SAMPLES::print(FILE *f) {
   CHAR_SAMPLE_IT sample_it = &samples;
 
   fprintf (f, "Collected " INT32FORMAT " samples\n", samples.length ());
@@ -347,7 +347,7 @@ void CHAR_SAMPLES::print(FILE *f) {
 }
 
 
-CHAR_PROTO::CHAR_PROTO() { 
+CHAR_PROTO::CHAR_PROTO() {
   xsize = 0;
   ysize = 0;
   ch = '\0';
@@ -357,20 +357,20 @@ CHAR_PROTO::CHAR_PROTO() {
 }
 
 
-CHAR_PROTO::CHAR_PROTO(INT32 x_size,
-                       INT32 y_size,
-                       INT32 n_samples,
+CHAR_PROTO::CHAR_PROTO(inT32 x_size,
+                       inT32 y_size,
+                       inT32 n_samples,
                        float initial_value,
                        char c) {
-  INT32 x;
-  INT32 y;
+  inT32 x;
+  inT32 y;
 
   xsize = x_size;
   ysize = y_size;
   ch = c;
   nsamples = n_samples;
 
-  ALLOC_2D_ARRAY(xsize, ysize, proto_data, proto, float); 
+  ALLOC_2D_ARRAY(xsize, ysize, proto_data, proto, float);
 
   for (y = 0; y < ysize; y++)
     for (x = 0; x < xsize; x++)
@@ -378,9 +378,9 @@ CHAR_PROTO::CHAR_PROTO(INT32 x_size,
 }
 
 
-CHAR_PROTO::CHAR_PROTO(CHAR_SAMPLE *sample) { 
-  INT32 x;
-  INT32 y;
+CHAR_PROTO::CHAR_PROTO(CHAR_SAMPLE *sample) {
+  inT32 x;
+  inT32 y;
   IMAGELINE imline_s;
 
   if (sample->image () == NULL) {
@@ -397,7 +397,7 @@ CHAR_PROTO::CHAR_PROTO(CHAR_SAMPLE *sample) {
     ysize = sample->image ()->get_ysize ();
     nsamples = 1;
 
-    ALLOC_2D_ARRAY(xsize, ysize, proto_data, proto, float); 
+    ALLOC_2D_ARRAY(xsize, ysize, proto_data, proto, float);
 
     for (y = 0; y < ysize; y++) {
       sample->image ()->fast_get_line (0, y, xsize, &imline_s);
@@ -413,11 +413,11 @@ CHAR_PROTO::CHAR_PROTO(CHAR_SAMPLE *sample) {
 
 CHAR_PROTO::~CHAR_PROTO () {
   if (proto_data != NULL)
-    FREE_2D_ARRAY(proto_data, proto); 
+    FREE_2D_ARRAY(proto_data, proto);
 }
 
 
-float CHAR_PROTO::match_sample(CHAR_SAMPLE *test_sample) { 
+float CHAR_PROTO::match_sample(CHAR_SAMPLE *test_sample) {
   CHAR_PROTO *test_proto;
   float score;
 
@@ -439,14 +439,14 @@ float CHAR_PROTO::match_sample(CHAR_SAMPLE *test_sample) {
 }
 
 
-float CHAR_PROTO::match(CHAR_PROTO *test_proto) { 
-  INT32 xsize2 = test_proto->x_size ();
-  INT32 y_size;
-  INT32 y_size2;
-  INT32 x_offset;
-  INT32 y_offset;
-  INT32 x;
-  INT32 y;
+float CHAR_PROTO::match(CHAR_PROTO *test_proto) {
+  inT32 xsize2 = test_proto->x_size ();
+  inT32 y_size;
+  inT32 y_size2;
+  inT32 x_offset;
+  inT32 y_offset;
+  inT32 x;
+  inT32 y;
   CHAR_PROTO *match_proto;
   float score;
   float sum = 0.0;
@@ -562,7 +562,7 @@ float CHAR_PROTO::match(CHAR_PROTO *test_proto) {
 
       }
       tprintf ("\n");
-      fflush(debug_fp); 
+      fflush(debug_fp);
     }
   }
 
@@ -590,21 +590,21 @@ float CHAR_PROTO::match(CHAR_PROTO *test_proto) {
 }
 
 
-void CHAR_PROTO::enlarge_prototype(INT32 new_xsize, INT32 new_ysize) { 
+void CHAR_PROTO::enlarge_prototype(inT32 new_xsize, inT32 new_ysize) {
   float *old_proto_data = proto_data;
   float **old_proto = proto;
-  INT32 old_xsize = xsize;
-  INT32 old_ysize = ysize;
-  INT32 x_offset;
-  INT32 y_offset;
-  INT32 x;
-  INT32 y;
+  inT32 old_xsize = xsize;
+  inT32 old_ysize = ysize;
+  inT32 x_offset;
+  inT32 y_offset;
+  inT32 x;
+  inT32 y;
 
   ASSERT_HOST (new_xsize >= xsize && new_ysize >= ysize);
 
   xsize = new_xsize;
   ysize = new_ysize;
-  ALLOC_2D_ARRAY(xsize, ysize, proto_data, proto, float); 
+  ALLOC_2D_ARRAY(xsize, ysize, proto_data, proto, float);
   x_offset = (xsize - old_xsize) / 2;
   y_offset = (ysize - old_ysize) / 2;
 
@@ -627,18 +627,18 @@ void CHAR_PROTO::enlarge_prototype(INT32 new_xsize, INT32 new_ysize) {
       proto[x][y] = old_proto[x - x_offset][y - y_offset];
   }
 
-  FREE_2D_ARRAY(old_proto_data, old_proto); 
+  FREE_2D_ARRAY(old_proto_data, old_proto);
 }
 
 
-void CHAR_PROTO::add_sample(CHAR_SAMPLE *sample) { 
-  INT32 x_offset;
-  INT32 y_offset;
-  INT32 x;
-  INT32 y;
+void CHAR_PROTO::add_sample(CHAR_SAMPLE *sample) {
+  inT32 x_offset;
+  inT32 y_offset;
+  inT32 x;
+  inT32 y;
   IMAGELINE imline_s;
-  INT32 sample_xsize = sample->image ()->get_xsize ();
-  INT32 sample_ysize = sample->image ()->get_ysize ();
+  inT32 sample_xsize = sample->image ()->get_xsize ();
+  inT32 sample_ysize = sample->image ()->get_ysize ();
 
   x_offset = (xsize - sample_xsize) / 2;
   y_offset = (ysize - sample_ysize) / 2;
@@ -674,11 +674,11 @@ void CHAR_PROTO::add_sample(CHAR_SAMPLE *sample) {
 }
 
 
-IMAGE *CHAR_PROTO::make_image() { 
+IMAGE *CHAR_PROTO::make_image() {
   IMAGE *image;
   IMAGELINE imline_p;
-  INT32 x;
-  INT32 y;
+  inT32 x;
+  inT32 y;
 
   ASSERT_HOST (nsamples != 0);
 
@@ -690,7 +690,7 @@ IMAGE *CHAR_PROTO::make_image() {
 
     for (x = 0; x < xsize; x++) {
       imline_p.pixels[x] = 128 +
-        (UINT8) ((proto[x][y] * 128.0) / (0.00001 + nsamples));
+        (uinT8) ((proto[x][y] * 128.0) / (0.00001 + nsamples));
     }
 
     image->fast_put_line (0, y, xsize, &imline_p);

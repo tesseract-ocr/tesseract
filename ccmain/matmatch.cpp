@@ -75,18 +75,18 @@ float matrix_match(  // returns match score
 float match1(  /* returns match score */
              IMAGE *image_w,
              IMAGE *image_n) {
-  INT32 x_offset;
-  INT32 y_offset;
-  INT32 x_size = image_w->get_xsize ();
-  INT32 y_size;
-  INT32 x_size2 = image_n->get_xsize ();
-  INT32 y_size2;
+  inT32 x_offset;
+  inT32 y_offset;
+  inT32 x_size = image_w->get_xsize ();
+  inT32 y_size;
+  inT32 x_size2 = image_n->get_xsize ();
+  inT32 y_size2;
   IMAGE match_image;
   IMAGELINE imline_w;
   IMAGELINE imline_n;
   IMAGELINE match_imline;
-  INT32 x;
-  INT32 y;
+  inT32 x;
+  inT32 y;
   float sum = 0.0;
 
   x_offset = (image_w->get_xsize () - image_n->get_xsize ()) / 2;
@@ -266,7 +266,7 @@ float match1(  /* returns match score */
 #ifndef GRAPHICS_DISABLED
   if (tessedit_display_mm && !tessedit_mm_use_prototypes) {
     tprintf ("Match score %f\n", 1.0 - sum / (x_size * y_size));
-    display_images(image_w, image_n, &match_image); 
+    display_images(image_w, image_n, &match_image);
   }
 #endif
 
@@ -285,13 +285,13 @@ float match1(  /* returns match score */
  *************************************************************************/
 
 #ifndef GRAPHICS_DISABLED
-void display_images(IMAGE *image_w, IMAGE *image_n, IMAGE *match_image) { 
+void display_images(IMAGE *image_w, IMAGE *image_n, IMAGE *match_image) {
   ScrollView* w_im_window;
   ScrollView* n_im_window;
   ScrollView* match_window;
-  INT16 i;
+  inT16 i;
 
-  w_im_window = new ScrollView("Image 1", 20, 100, 
+  w_im_window = new ScrollView("Image 1", 20, 100,
       10 * image_w->get_xsize (), 10 * image_w->get_ysize (),
       image_w->get_xsize (), image_w->get_ysize ());
 
@@ -360,13 +360,13 @@ void display_images(IMAGE *image_w, IMAGE *image_n, IMAGE *match_image) {
 
 ScrollView* display_image(IMAGE *image,
                      const char *title,
-                     INT32 x,
-                     INT32 y,
+                     inT32 x,
+                     inT32 y,
                      BOOL8 wait) {
   ScrollView* im_window;
-  INT16 i;
+  inT16 i;
 
-  im_window = new ScrollView (title, x, y, 
+  im_window = new ScrollView (title, x, y,
       10 * image->get_xsize (), 10 * image->get_ysize (),
       image->get_xsize (),  image->get_ysize ());
 

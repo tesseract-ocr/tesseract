@@ -31,11 +31,11 @@ DLLSYM BOOL_VAR (selection_quit, FALSE, "Stop processing this selection");
  *  Scan block list to find the bounding box of all blocks.
  **********************************************************************/
 
-BOX block_list_bounding_box(                        //find bounding box
+TBOX block_list_bounding_box(                        //find bounding box
                             BLOCK_LIST *block_list  //of this block list
                            ) {
-  BLOCK_IT block_it(block_list); 
-  BOX enclosing_box;
+  BLOCK_IT block_it(block_list);
+  TBOX enclosing_box;
 
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
     block_it.forward ())
@@ -56,13 +56,13 @@ BOX block_list_bounding_box(                        //find bounding box
  *  The enclosing box of the compressed block list is returned.
  **********************************************************************/
 
-const BOX block_list_compress(  //shuffle up blocks
+const TBOX block_list_compress(  //shuffle up blocks
                               BLOCK_LIST *block_list) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ICOORD initial_top_left;
   ICOORD block_spacing (0, BLOCK_SPACING);
-  BOX enclosing_box;             //for full display
+  TBOX enclosing_box;             //for full display
 
   initial_top_left = block_it.data ()->bounding_box ().topleft ();
                                  //group srcfile blks
@@ -71,7 +71,7 @@ const BOX block_list_compress(  //shuffle up blocks
   /* Compress the target block list into an area starting from the top left of
     the first block on the list */
 
-  enclosing_box = BOX (initial_top_left, initial_top_left);
+  enclosing_box = TBOX (initial_top_left, initial_top_left);
   enclosing_box.move_bottom_edge (BLOCK_SPACING);
 
   for (block_it.mark_cycle_pt ();
@@ -95,7 +95,7 @@ void block_list_move(                         //move
                      BLOCK_LIST *block_list,  //this list
                      ICOORD vec               //by this vector
                     ) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
 
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
     block_it.forward ())
@@ -147,7 +147,7 @@ WERD
 *,
 C_BLOB
 *)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
@@ -209,7 +209,7 @@ void
 process_selected_blobs (         //process blobs
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 blob_processor (
+TBOX & selection_box, BOOL8 blob_processor (
                                  //function to call
 BLOCK *, ROW *, WERD *, PBLOB *), BOOL8 c_blob_processor (
 BLOCK
@@ -220,7 +220,7 @@ WERD
 *,
 C_BLOB
 *)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
@@ -301,7 +301,7 @@ process_all_words (              //process words
 BLOCK_LIST * block_list,         //blocks to check
 BOOL8 word_processor (           //function to call
 BLOCK *, ROW *, WERD *)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
@@ -337,11 +337,11 @@ void
 process_selected_words (         //process words
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 word_processor (
+TBOX & selection_box, BOOL8 word_processor (
 BLOCK *,
 ROW *,
 WERD *)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
@@ -390,7 +390,7 @@ ROW *,
 WERD *,
 BLOCK_IT &,
 ROW_IT &, WERD_IT &)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
@@ -428,7 +428,7 @@ void
 process_selected_words_it (      //process words
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 word_processor (
+TBOX & selection_box, BOOL8 word_processor (
 BLOCK
 *,
 ROW *,
@@ -440,7 +440,7 @@ ROW_IT
 &,
 WERD_IT
 &)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
@@ -486,7 +486,7 @@ process_all_blocks (             //process blocks
 BLOCK_LIST * block_list,         //blocks to check
 BOOL8 block_processor (          //function to call
 BLOCK *)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
 
   for (block_it.mark_cycle_pt ();
@@ -509,10 +509,10 @@ void
 process_selected_blocks (        //process blocks
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 block_processor (
+TBOX & selection_box, BOOL8 block_processor (
 BLOCK
 *)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
 
   for (block_it.mark_cycle_pt ();
@@ -538,7 +538,7 @@ process_all_rows (               //process words
 BLOCK_LIST * block_list,         //blocks to check
 BOOL8 row_processor (            //function to call
 BLOCK *, ROW *)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
@@ -567,10 +567,10 @@ void
 process_selected_rows (          //process rows
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 row_processor (
+TBOX & selection_box, BOOL8 row_processor (
 BLOCK *,
 ROW *)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
@@ -606,7 +606,7 @@ BLOCK_LIST * block_list,         //blocks to check
 BOOL8 row_processor (            //function to call
 BLOCK *,
 ROW *, BLOCK_IT &, ROW_IT &)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
@@ -635,14 +635,14 @@ void
 process_selected_rows_it (       //process rows
 BLOCK_LIST * block_list,         //blocks to check
                                  //function to call
-BOX & selection_box, BOOL8 row_processor (
+TBOX & selection_box, BOOL8 row_processor (
 BLOCK *,
 ROW *,
 BLOCK_IT
 &,
 ROW_IT
 &)) {
-  BLOCK_IT block_it(block_list); 
+  BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;

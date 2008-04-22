@@ -60,16 +60,21 @@ class TessBaseAPI {
   // TODO(rays) get the facts straight. Is it OK to call
   // it more than once? Make it properly check for errors and return them.
   static int Init(const char* datapath, const char* outputbase,
-                  const char* configfile, bool numeric_mode,
-                  int argc, char* argv[]);
+        const char* configfile, bool numeric_mode,
+        int argc, char* argv[]);
 
   // Start tesseract.
   // Similar to Init() except that it is possible to specify the language.
   // Language is the code of the language for which the data will be loaded.
   // (Codes follow ISO 639-3.) If it is NULL, english (eng) will be loaded.
   static int InitWithLanguage(const char* datapath, const char* outputbase,
-                              const char* language, const char* configfile,
-                              bool numeric_mode, int argc, char* argv[]);
+        const char* language, const char* configfile,
+        bool numeric_mode, int argc, char* argv[]);
+
+  // Init only the lang model component of Tesseract
+  static int InitLangMod(const char* datapath, const char* outputbase,
+        const char* language, const char* configfile,
+        bool numeric_mode, int argc, char* argv[]);
 
   // Set the name of the input file. Needed only for training and
   // reading a UNLV zone file.
@@ -246,39 +251,6 @@ class TessBaseAPI {
                                     int** x1,
                                     int** y1,
                                     PAGE_RES* page_res);
-
-  // If you call this before recognizing a page, Tesseract will use the color
-  // page segmentation data to guide its segmentation process.  If you call
-  // it with a null pointer, Tesseract will revert to internal layout analysis
-  // (i.e., single column line finding).  The segdata pointer is shared with
-  // Tesseract until SetPageSegmentation is called with a new pointer (i.e.,
-  // Tesseract doesn't make its own internal copy).  This image must have the
-  // same width and height as any image being recognized while this segmentation
-  // is in effect.
-  // The segdata values are RGB triples, with distinct R values denoting distinct
-  // "blocks" or "columns" and distinct GB pairs denoting distinct lines.
-  // Lexicographic ordering of the RGB triples corresponds to text output order, with
-  // linebreaks inserted between distinct GB values and double blank lines between
-  // distinct R values.
-  static int SetPageSegmentation(const unsigned char *segdata,
-                                 int bytes_per_pixel, /* must be 3 */
-                                 int top, int left, int width, int height);
-
-  // New calling interface into Tesseract that permits baseline data to be passed.
-  // The input to this should be a single line of text.
-  static int TesseractWithBaseline(const unsigned char* imagedata,
-                                     int bytes_per_pixel,
-                                     int width, int height,
-                                     int *baseline_ypos,
-                                     int *xheight_ypos,
-                                     char** string,
-                                     int** lengths,
-                                     float** costs,
-                                     int** x0,
-                                     int** y0,
-                                     int** x1,
-                                     int** y1,
-                                     PAGE_RES* page_res);
 };
 
 #endif  // THIRD_PARTY_TESSERACT_CCMAIN_BASEAPI_H__

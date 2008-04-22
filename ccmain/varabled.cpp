@@ -28,9 +28,7 @@
 #include <stdio.h>
 #endif
 
-#include <iostream>
 #include <map>
-#include <list>
 
 #include "scrollview.h"
 #include "svmnode.h"
@@ -48,6 +46,8 @@ static std::map<int, VariableContent*> vcMap;
 
 static int nrVariables = 0;
 static int writeCommands[2];
+
+ELISTIZE(VariableContent)
 
 // Constructors for the various VarTypes.
 VariableContent::VariableContent(STRING_VARIABLE* it) {
@@ -108,7 +108,7 @@ void VariablesEditor::GetFirstWords(
 }
 
 // Getter for the name.
-const char* VariableContent::GetName() {
+const char* VariableContent::GetName() const {
   if (var_type_ == VT_INTEGER) { return iIt->name_str(); }
   else if (var_type_ == VT_BOOLEAN) { return bIt->name_str(); }
   else if (var_type_ == VT_DOUBLE) { return dIt->name_str(); }
@@ -118,7 +118,7 @@ const char* VariableContent::GetName() {
 }
 
 // Getter for the description.
-const char* VariableContent::GetDescription() {
+const char* VariableContent::GetDescription() const {
   if (var_type_ == VT_INTEGER) { return iIt->info_str(); }
   else if (var_type_ == VT_BOOLEAN) { return bIt->info_str(); }
   else if (var_type_ == VT_DOUBLE) { return dIt->info_str(); }
@@ -127,10 +127,10 @@ const char* VariableContent::GetDescription() {
 }
 
 // Getter for the value.
-const char* VariableContent::GetValue() {
+const char* VariableContent::GetValue() const {
 char* msg = new char[1024];
   if (var_type_ == VT_INTEGER) {
-    sprintf(msg, "%d", ((INT32) *(iIt)));
+    sprintf(msg, "%d", ((inT32) *(iIt)));
   } else if (var_type_ == VT_BOOLEAN) {
     sprintf(msg, "%d", ((BOOL8) * (bIt)));
   } else if (var_type_ == VT_DOUBLE) {
@@ -139,7 +139,7 @@ char* msg = new char[1024];
     if (((STRING) * (sIt)).string() != NULL) {
       sprintf(msg, "%s", ((STRING) * (sIt)).string());
     } else {
-      strcpy(msg, "Null");
+      return "Null";
     }
   }
   return msg;
@@ -163,22 +163,24 @@ void VariableContent::SetValue(const char* val) {
 
 // Gets the up to the first 3 prefixes from s (split by _).
 // For example, tesseract_foo_bar will be split into tesseract,foo and bar.
-void VariablesEditor::GetPrefixes(const char* s, std::string* level_one,
-                                                 std::string* level_two,
-                                                 std::string* level_three) {
+void VariablesEditor::GetPrefixes(const char* s, STRING* level_one,
+                                                 STRING* level_two,
+                                                 STRING* level_three) {
   char* p = new char[1024];
   GetFirstWords(s, 1, p);
-  level_one->assign(p);
+  *level_one = p;
   GetFirstWords(s, 2, p);
-  level_two->assign(p);
+  *level_two = p;
   GetFirstWords(s, 3, p);
-  level_three->assign(p);
+  *level_three = p;
   delete[] p;
 }
 
 // Compare two VC objects by their name.
-bool VariableContent::Compare(VariableContent* one, VariableContent* two) {
-  return (strcmp(one->GetName(), two->GetName()) < 0);
+int VariableContent::Compare(const void* v1, const void* v2) {
+  const VariableContent* one = *reinterpret_cast<const VariableContent* const *>(v1);
+  const VariableContent* two = *reinterpret_cast<const VariableContent* const *>(v2);
+  return strcmp(one->GetName(), two->GetName());
 }
 
 // Find all editable variables used within tesseract and create a
@@ -186,8 +188,9 @@ bool VariableContent::Compare(VariableContent* one, VariableContent* two) {
 // TODO (wanke): This is actually sort of hackish.
 SVMenuNode* VariablesEditor::BuildListOfAllLeaves() {  // find all variables.
   SVMenuNode* mr = new SVMenuNode();
-  std::list<VariableContent*> vclist;
-  std::map<std::string, int> amount;  //to count the # of entries for a specifc char*.
+  VariableContent_LIST vclist;
+  VariableContent_IT vc_it(&vclist);
+  std::map<const char*, int> amount;  //to count the # of entries for a specifc char*.
 
   INT_VARIABLE_C_IT int_it(INT_VARIABLE::get_head());
   BOOL_VARIABLE_C_IT bool_it(BOOL_VARIABLE::get_head());
@@ -196,38 +199,32 @@ SVMenuNode* VariablesEditor::BuildListOfAllLeaves() {  // find all variables.
 
   // Add all variables to a list.
   for (int_it.mark_cycle_pt(); !int_it.cycled_list(); int_it.forward()) {
-    VariableContent* vc = (new VariableContent(int_it.data()));
-    vclist.push_back(vc);
+    vc_it.add_after_then_move(new VariableContent(int_it.data()));
   }
 
   for (bool_it.mark_cycle_pt(); !bool_it.cycled_list(); bool_it.forward()) {
-    VariableContent* vc = (new VariableContent(bool_it.data()));
-    vclist.push_back(vc);
+    vc_it.add_after_then_move(new VariableContent(bool_it.data()));
   }
 
   for (str_it.mark_cycle_pt(); !str_it.cycled_list(); str_it.forward()) {
-    VariableContent* vc = (new VariableContent(str_it.data()));
-    vclist.push_back(vc);
+    vc_it.add_after_then_move(new VariableContent(str_it.data()));
   }
 
   for (dbl_it.mark_cycle_pt(); !dbl_it.cycled_list(); dbl_it.forward()) {
-    VariableContent* vc = (new VariableContent(dbl_it.data()));
-    vclist.push_back(vc);
+    vc_it.add_after_then_move(new VariableContent(dbl_it.data()));
   }
 
   // Count the # of entries starting with a specific prefix.
-  for (std::list<VariableContent*>::iterator iterator = vclist.begin();
-                                             iterator != vclist.end();
-                                             ++iterator) {
-    VariableContent* vc = *iterator;
-    std::string tag;
-    std::string tag2;
-    std::string tag3;
+  for (vc_it.mark_cycle_pt(); !vc_it.cycled_list(); vc_it.forward()) {
+    VariableContent* vc = vc_it.data();
+    STRING tag;
+    STRING tag2;
+    STRING tag3;
 
     GetPrefixes(vc->GetName(), &tag, &tag2, &tag3);
-    amount[tag]++;
-    amount[tag2]++;
-    amount[tag3]++;
+    amount[tag.string()]++;
+    amount[tag2.string()]++;
+    amount[tag3.string()]++;
   }
 
   vclist.sort(VariableContent::Compare);  // Sort the list alphabetically.
@@ -235,25 +232,24 @@ SVMenuNode* VariablesEditor::BuildListOfAllLeaves() {  // find all variables.
   SVMenuNode* other = mr->AddChild("OTHER");
 
   // go through the list again and this time create the menu structure.
-  for (std::list<VariableContent*>::iterator iterator = vclist.begin();
-                                             iterator != vclist.end();
-                                             ++iterator) {
-    VariableContent* vc = *iterator;
-    std::string tag;
-    std::string tag2;
-    std::string tag3;
+  vc_it.move_to_first();
+  for (vc_it.mark_cycle_pt(); !vc_it.cycled_list(); vc_it.forward()) {
+    VariableContent* vc = vc_it.data();
+    STRING tag;
+    STRING tag2;
+    STRING tag3;
     GetPrefixes(vc->GetName(), &tag, &tag2, &tag3);
 
-    if (amount[tag] == 1) { other->AddChild(vc->GetName(), vc->GetId(),
+    if (amount[tag.string()] == 1) { other->AddChild(vc->GetName(), vc->GetId(),
                                             vc->GetValue(),
                                             vc->GetDescription());
     } else {  // More than one would use this submenu -> create submenu.
-      SVMenuNode* sv = mr->AddChild(tag.c_str());
-      if ((amount[tag] <= MAX_ITEMS_IN_SUBMENU) || (amount[tag2] <= 1)) {
+      SVMenuNode* sv = mr->AddChild(tag.string());
+      if ((amount[tag.string()] <= MAX_ITEMS_IN_SUBMENU) || (amount[tag2.string()] <= 1)) {
         sv->AddChild(vc->GetName(), vc->GetId(),
                      vc->GetValue(), vc->GetDescription());
       } else {  // Make subsubmenus.
-        SVMenuNode* sv2 = sv->AddChild(tag2.c_str());
+        SVMenuNode* sv2 = sv->AddChild(tag2.string());
         sv2->AddChild(vc->GetName(), vc->GetId(),
                       vc->GetValue(), vc->GetDescription());
       }

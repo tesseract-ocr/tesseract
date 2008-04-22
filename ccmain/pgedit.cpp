@@ -129,8 +129,7 @@ EXTERN STRING_VAR(editor_image_win_name, "EditorImage",
 "Editor image window name");
 EXTERN INT_VAR(editor_image_xpos, 590, "Editor image X Pos");
 EXTERN INT_VAR(editor_image_ypos, 10, "Editor image Y Pos");
-EXTERN INT_VAR(editor_image_height, 680, "Editor image height");
-EXTERN INT_VAR(editor_image_width, 655, "Editor image width");
+EXTERN INT_VAR(editor_image_menuheight, 50, "Add to image height for menu bar");
 EXTERN INT_VAR(editor_image_word_bb_color, ScrollView::BLUE,
 "Word bounding box colour");
 EXTERN INT_VAR(editor_image_blob_bb_color, ScrollView::YELLOW,
@@ -180,8 +179,8 @@ void add_word(                            // to block list
   ROW *row;                      // destination row
   ROW *dest_row = NULL;          // destination row
   WERD_IT word_it;
-  BOX word_box = word->bounding_box();
-  BOX insert_point_word_box;
+  TBOX word_box = word->bounding_box();
+  TBOX insert_point_word_box;
   BOOL8 seen_blocks_for_current_file = FALSE;
 
   block_it.mark_cycle_pt();
@@ -290,7 +289,10 @@ void add_word(                            // to block list
 class BlnEventHandler : public SVEventHandler {
  public:
   void Notify(const SVEvent* sv_event) {
-    if (sv_event->type == SVET_DESTROY) { bln_word_window = NULL; }
+    if (sv_event->type == SVET_DESTROY)
+      bln_word_window = NULL;
+    else if (sv_event->type == SVET_CLICK)
+      show_point(current_block_list, sv_event->x, sv_event->y);
   }
 };
 
@@ -315,16 +317,16 @@ ScrollView* bln_word_window_handle() {  // return handle
  *  new window needs to be. Create it and re-display.
  **********************************************************************/
 
-void build_image_window(BOX page_bounding_box) {
+void build_image_window(TBOX page_bounding_box) {
   if (image_win != NULL) { delete image_win; }
   image_win = new ScrollView(editor_image_win_name.string(),
-    editor_image_xpos,
-    editor_image_ypos,
-    editor_image_width,
-    editor_image_height,
-   (float) page_bounding_box.right() + 1,
-   (float) page_bounding_box.top() + 1,
-    true);
+                             editor_image_xpos, editor_image_ypos,
+                             page_bounding_box.right() + 1,
+                             page_bounding_box.top() +
+                               editor_image_menuheight + 1,
+                             page_bounding_box.right() + 1,
+                             page_bounding_box.top() + 1,
+                             true);
 }
 
 
@@ -536,10 +538,10 @@ BLOCK *, ROW *, WERD *)) {
  *  Tidy TARGET page
  **********************************************************************/
 
-const BOX do_tidy_cmd() {  // tidy
+const TBOX do_tidy_cmd() {  // tidy
   ICOORD shift_vector;
-  BOX tidy_box;                  // Just the tidy area
-  BOX source_box;                // source file area
+  TBOX tidy_box;                  // Just the tidy area
+  TBOX source_box;                // source file area
 
   source_box = block_list_bounding_box(source_block_list);
   // find src area
@@ -604,7 +606,7 @@ void do_write_file(           // serialise
   FILE *infp;                    // input file
   char msg_str[80];
 
-  BOX enclosing_box;
+  TBOX enclosing_box;
 
                                  // if file exists
   if ((infp = fopen(name, "r")) != NULL) {
@@ -861,7 +863,7 @@ void pgeditor_write_file(                   // serialise
  **********************************************************************/
 
 BOOL8 process_cmd_win_event(                 // UI command semantics
-                            INT32 cmd_event,  // which menu item?
+                            inT32 cmd_event,  // which menu item?
                             char *new_value   // any prompt data
                            ) {
   char msg[160];
@@ -999,7 +1001,7 @@ void process_image_event( // action in image win
                          const SVEvent &event) {
   static ICOORD down;
   ICOORD up;
-  BOX selection_box;
+  TBOX selection_box;
   char msg[80];
 
   switch(event.type) {
@@ -1015,7 +1017,7 @@ void process_image_event( // action in image win
       up.set_x(event.x);
       up.set_y(event.y);
 
-      selection_box = BOX(down, up);
+      selection_box = TBOX(down, up);
 
       switch(mode) {
         case CHANGE_DISP_CMD_EVENT:
@@ -1098,9 +1100,9 @@ void process_image_event( // action in image win
 
 float re_scale_and_move_bln_word(                 // put bln word in       box
                                  WERD *norm_word,  // BL normalised word
-                                 const BOX &box    // destination box
+                                 const TBOX &box    // destination box
                                 ) {
-  BOX norm_box = norm_word->bounding_box();
+  TBOX norm_box = norm_word->bounding_box();
   float width_scale_factor;
   float height_scale_factor;
   float selected_scale_factor;
@@ -1130,7 +1132,7 @@ float re_scale_and_move_bln_word(                 // put bln word in       box
 
 void re_segment_word(                        // break/join words
                      BLOCK_LIST *block_list,  // blocks to check
-                     BOX &selection_box) {
+                     TBOX &selection_box) {
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   BLOCK *block_to_process = NULL;
@@ -1213,7 +1215,7 @@ void re_segment_word(                        // break/join words
 
 void block_space_stat(                        // show space stats
                       BLOCK_LIST *block_list,  // blocks to check
-                      BOX &selection_box) {
+                      TBOX &selection_box) {
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -1226,11 +1228,11 @@ void block_space_stat(                        // show space stats
   PBLOB *blob;
   C_BLOB_IT cblob_it;
   C_BLOB *cblob;
-  BOX box;
-  INT16 prev_box_right;
-  INT16 gap_width;
-  INT16 min_inter_word_gap;
-  INT16 max_inter_char_gap;
+  TBOX box;
+  inT16 prev_box_right;
+  inT16 gap_width;
+  inT16 min_inter_word_gap;
+  inT16 max_inter_char_gap;
 
   /* Find blocks to process */
 
@@ -1310,7 +1312,7 @@ void block_space_stat(                        // show space stats
 
 void row_space_stat(                        // show space stats
                     BLOCK_LIST *block_list,  // blocks to check
-                    BOX &selection_box) {
+                    TBOX &selection_box) {
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -1324,11 +1326,11 @@ void row_space_stat(                        // show space stats
   PBLOB *blob;
   C_BLOB_IT cblob_it;
   C_BLOB *cblob;
-  BOX box;
-  INT16 prev_box_right;
-  INT16 gap_width;
-  INT16 min_inter_word_gap;
-  INT16 max_inter_char_gap;
+  TBOX box;
+  inT16 prev_box_right;
+  inT16 gap_width;
+  inT16 min_inter_word_gap;
+  inT16 max_inter_char_gap;
 
   /* Find rows to process */
 
@@ -1424,7 +1426,7 @@ void show_point(                        // display posn of bloba word
                 float x,
                 float y) {
   FCOORD pt(x, y);
-  BOX box;
+  TBOX box;
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -1655,7 +1657,7 @@ BOOL8 word_display(           // display a word
                    ROW *row,   // row holding word
                    WERD *word  // word to be processed
                   ) {
-  BOX word_bb;                   // word bounding box
+  TBOX word_bb;                   // word bounding box
   int word_height;               // ht of word BB
   BOOL8 displayed_something = FALSE;
   BOOL8 displayed_rainbow = FALSE;
@@ -1667,20 +1669,20 @@ BOOL8 word_display(           // display a word
   float scale_factor;            // for BN_POLYGON
 
   /*
-    Note the double coercions of(COLOUR)((INT32)editor_image_word_bb_color)
+    Note the double coercions of(COLOUR)((inT32)editor_image_word_bb_color)
     etc. are to keep the compiler happy.
   */
 
                                  // display bounding box
   if (word->display_flag(DF_BOX)) {
     word->bounding_box().plot(image_win,
-     (ScrollView::Color)((INT32)
+     (ScrollView::Color)((inT32)
       editor_image_word_bb_color),
-     (ScrollView::Color)((INT32)
+     (ScrollView::Color)((inT32)
       editor_image_word_bb_color));
 
     ScrollView::Color c = (ScrollView::Color)
-       ((INT32) editor_image_blob_bb_color);
+       ((inT32) editor_image_blob_bb_color);
     image_win->Pen(c);
     if (word->flag(W_POLYGON)) {
       it.set_to_list(word->blob_list());
@@ -1766,7 +1768,7 @@ BOOL8 word_display(           // display a word
   if (word->display_flag(DF_TEXT)) {
     word_bb = word->bounding_box();
     ScrollView::Color c =(ScrollView::Color)
-       ((INT32) editor_image_blob_bb_color);
+       ((inT32) editor_image_blob_bb_color);
     image_win->Pen(c);
     word_height = word_bb.height();
     image_win->TextAttributes("Times", 0.75 * word_height,
@@ -1785,8 +1787,8 @@ BOOL8 word_display(           // display a word
 
   if (!displayed_something)      // display BBox anyway
     word->bounding_box().plot(image_win,
-     (ScrollView::Color)((INT32) editor_image_word_bb_color),
-     (ScrollView::Color)((INT32)
+     (ScrollView::Color)((inT32) editor_image_word_bb_color),
+     (ScrollView::Color)((inT32)
       editor_image_word_bb_color));
   return TRUE;
 }
@@ -1825,7 +1827,7 @@ BOOL8 word_set_display(              // display a word
                        ROW *row,      // row holding word
                        WERD *word     // word to be processed
                       ) {
-  BOX word_bb;                   // word bounding box
+  TBOX word_bb;                   // word bounding box
 
   word->set_display_flag(DF_BOX, word_display_mode.bit(DF_BOX));
   word->set_display_flag(DF_TEXT, word_display_mode.bit(DF_TEXT));
@@ -1858,6 +1860,6 @@ BOOL8 word_toggle_seg(           // toggle seg flag
 /* DEBUG ONLY */
 
 void do_check_mem( // do it
-                  INT32 level) {
+                  inT32 level) {
   check_mem("Doing it", level);
 }

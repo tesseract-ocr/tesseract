@@ -67,8 +67,8 @@ EXTERN BOOL_VAR (tessedit_write_images, FALSE,
 "Capture the image from the IPE");
 EXTERN BOOL_VAR (tessedit_debug_to_screen, FALSE, "Dont use debug file");
 
-extern INT16 XOFFSET;
-extern INT16 YOFFSET;
+extern inT16 XOFFSET;
+extern inT16 YOFFSET;
 extern int NO_BLOCK;
 
 const int kMaxIntSize = 22;
@@ -116,7 +116,7 @@ void TesseractImage(const char* input_file, IMAGE* image, STRING* text_out) {
     BLOCK_IT b_it = &blocks;
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
       BLOCK* block = b_it.data();
-      BOX box = block->bounding_box();
+      TBOX box = block->bounding_box();
       char* text = TessBaseAPI::TesseractRectUNLV(image->get_buffer(),
                                                   image->get_bpp()/8,
                                                   bytes_per_line,
@@ -177,7 +177,6 @@ int main(int argc, char **argv) {
   IMAGE image;
   STRING text_out;
 #ifdef _TIFFIO_
-  tprintf ("LibTiff is installed\n");
   int len = strlen(argv[1]);
   if (len > 3 && strcmp("tif", argv[1] + len - 3) == 0) {
     // Use libtiff to read a tif file so multi-page can be handled.
@@ -244,7 +243,7 @@ int main(int argc, char **argv) {
 #else
 
 int main(int argc, char **argv) {
-  UINT16 lang;                   //language
+  uinT16 lang;                   //language
   STRING pagefile;               //input file
 
   if (argc < 4) {

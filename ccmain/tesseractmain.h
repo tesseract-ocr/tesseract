@@ -26,16 +26,16 @@
 #include          "tessembedded.h"
 
 extern BOOL_VAR_H (tessedit_read_image, TRUE, "Ensure the image is read");
-INT32 api_main(                   //run from api
+inT32 api_main(                   //run from api
                const char *arg0,  //program name
-               UINT16 lang        //language
+               uinT16 lang        //language
               );
-INT16 setup_info(                     //setup dummy engine info
-                 UINT16 lang,         //user language
+inT16 setup_info(                     //setup dummy engine info
+                 uinT16 lang,         //user language
                  const char *name,    //of engine
                  const char *version  //of engine
                 );
-INT16 read_image(               //read dummy image info
+inT16 read_image(               //read dummy image info
                  IMAGE *im_out  //output image
                 );
 #ifdef __MSW32__

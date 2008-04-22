@@ -39,13 +39,13 @@ void scale_image(                     //scale an image
                  IMAGE &image,        //source image
                  IMAGE &target_image  //target image
                 ) {
-  INT32 xsize, ysize, new_xsize, new_ysize;
+  inT32 xsize, ysize, new_xsize, new_ysize;
   IMAGELINE line, new_line;
   int *hires, *lores, *oldhires, *oldlores;
   int i, j, n, oldn, row, col;
   int offset = 0;                //not used here
   float factor;
-  UINT8 curr_colour, new_colour;
+  uinT8 curr_colour, new_colour;
   int dummy = -1;
   IMAGE image2;                  //horiz scaled image
 
@@ -67,7 +67,7 @@ void scale_image(                     //scale an image
   if ((hires == NULL) || (lores == NULL) || (oldhires == NULL)
   || (oldlores == NULL)) {
     fprintf (stderr, "Calloc error in scale_image\n");
-    err_exit(); 
+    err_exit();
   }
 
   image2.create (new_xsize, ysize, image.get_bpp ());
@@ -161,7 +161,7 @@ void scale_image(                     //scale an image
       return;
     }
     else if (n > 0)
-      dyn_prog(n, hires, lores, new_xsize, oldhires, oldlores, oldn, factor); 
+      dyn_prog(n, hires, lores, new_xsize, oldhires, oldlores, oldn, factor);
     else
       lores[0] = new_xsize;
 
@@ -187,10 +187,10 @@ void scale_image(                     //scale an image
     oldn = n;
   }
 
-  free(hires); 
-  free(lores); 
-  free(oldhires); 
-  free(oldlores); 
+  free(hires);
+  free(lores);
+  free(oldhires);
+  free(oldlores);
 
   /* NOW DO THE VERTICAL SCALING from image2 to target_image*/
 
@@ -205,7 +205,7 @@ void scale_image(                     //scale an image
   if ((hires == NULL) || (lores == NULL) || (oldhires == NULL)
   || (oldlores == NULL)) {
     fprintf (stderr, "Calloc error in scale_image (vert)\n");
-    err_exit(); 
+    err_exit();
   }
 
   oldn = 0;
@@ -298,7 +298,7 @@ void scale_image(                     //scale an image
       return;
     }
     else if (n > 0)
-      dyn_prog(n, hires, lores, new_ysize, oldhires, oldlores, oldn, factor); 
+      dyn_prog(n, hires, lores, new_ysize, oldhires, oldlores, oldn, factor);
     else
       lores[0] = new_ysize;
 
@@ -323,10 +323,10 @@ void scale_image(                     //scale an image
     }
     oldn = n;
   }
-  free(hires); 
-  free(lores); 
-  free(oldhires); 
-  free(oldlores); 
+  free(hires);
+  free(lores);
+  free(oldhires);
+  free(oldlores);
 }
 
 
@@ -344,7 +344,7 @@ void scale_image_cop_out(                      //scale an image
                          int *lores,
                          int *oldhires,
                          int *oldlores) {
-  INT32 xsize, ysize, new_xsize, new_ysize;
+  inT32 xsize, ysize, new_xsize, new_ysize;
 
   xsize = image.get_xsize ();
   ysize = image.get_ysize ();
@@ -353,14 +353,14 @@ void scale_image_cop_out(                      //scale an image
 
   if (factor <= 0.5)
     reduce_sub_image (&image, 0, 0, xsize, ysize,
-      &target_image, 0, 0, (INT32) (1.0 / factor), FALSE);
+      &target_image, 0, 0, (inT32) (1.0 / factor), FALSE);
   else if (factor >= 2)
     enlarge_sub_image (&image, 0, 0, &target_image,
-        0, 0, new_xsize, new_ysize, (INT32) factor, FALSE);
+        0, 0, new_xsize, new_ysize, (inT32) factor, FALSE);
   else
     copy_sub_image (&image, 0, 0, xsize, ysize, &target_image, 0, 0, FALSE);
-  free(hires); 
-  free(lores); 
-  free(oldhires); 
-  free(oldlores); 
+  free(hires);
+  free(lores);
+  free(oldhires);
+  free(oldlores);
 }

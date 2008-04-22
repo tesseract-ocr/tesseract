@@ -65,7 +65,7 @@ EXTERN STRING_VAR (numeric_punctuation, ".,",
 
 void fix_fuzzy_spaces(                               //find fuzzy words
                       volatile ETEXT_DESC *monitor,  //progress monitor
-                      INT32 word_count,              //count of words in doc
+                      inT32 word_count,              //count of words in doc
                       PAGE_RES *page_res) {
   BLOCK_RES_IT block_res_it;     //iterators
   ROW_RES_IT row_res_it;
@@ -73,9 +73,9 @@ void fix_fuzzy_spaces(                               //find fuzzy words
   WERD_RES_IT word_res_it_to;
   WERD_RES *word_res;
   WERD_RES_LIST fuzzy_space_words;
-  INT16 new_length;
+  inT16 new_length;
   BOOL8 prevent_null_wd_fixsp;   //DONT process blobless wds
-  INT32 word_index;              //current word
+  inT32 word_index;              //current word
 
   block_res_it.set_to_list (&page_res->block_res_list);
   word_index = 0;
@@ -158,9 +158,9 @@ void fix_fuzzy_spaces(                               //find fuzzy words
 void fix_fuzzy_space_list(  //space explorer
                           WERD_RES_LIST &best_perm,
                           ROW *row) {
-  INT16 best_score;
+  inT16 best_score;
   WERD_RES_LIST current_perm;
-  INT16 current_score;
+  inT16 current_score;
   BOOL8 improved = FALSE;
 
                                  //default score
@@ -243,16 +243,16 @@ void match_current_words(WERD_RES_LIST &words, ROW *row) {
  * confirmed. The only score is from the joined 1. "PS7a713/7a" scores 2.
  *
  *************************************************************************/
-INT16 eval_word_spacing(WERD_RES_LIST &word_res_list) {
+inT16 eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_res_it(&word_res_list);
-  INT16 total_score = 0;
-  INT16 word_count = 0;
-  INT16 done_word_count = 0;
-  INT16 word_len;
-  INT16 i;
-  INT16 offset;
+  inT16 total_score = 0;
+  inT16 word_count = 0;
+  inT16 done_word_count = 0;
+  inT16 word_len;
+  inT16 i;
+  inT16 offset;
   WERD_RES *word;                //current word
-  INT16 prev_word_score = 0;
+  inT16 prev_word_score = 0;
   BOOL8 prev_word_done = FALSE;
   BOOL8 prev_char_1 = FALSE;     //prev ch a "1/I/l"?
   BOOL8 prev_char_digit = FALSE; //prev ch 2..9 or 0
@@ -393,10 +393,10 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
   WERD_RES *prev_word;
   WERD_RES *combo;
   WERD *copy_word;
-  INT16 prev_right = -1;
-  BOX box;
-  INT16 gap;
-  INT16 min_gap = MAX_INT16;
+  inT16 prev_right = -1;
+  TBOX box;
+  inT16 gap;
+  inT16 min_gap = MAX_INT16;
 
   for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
     word = word_it.data ();
@@ -470,7 +470,7 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
 }
 
 
-void dump_words(WERD_RES_LIST &perm, INT16 score, INT16 mode, BOOL8 improved) {
+void dump_words(WERD_RES_LIST &perm, inT16 score, inT16 mode, BOOL8 improved) {
   WERD_RES_IT word_res_it(&perm);
   static STRING initial_str;
 
@@ -538,18 +538,18 @@ void dump_words(WERD_RES_LIST &perm, INT16 score, INT16 mode, BOOL8 improved) {
 BOOL8 uniformly_spaced(  //sensible word
                        WERD_RES *word) {
   PBLOB_IT blob_it;
-  BOX box;
-  INT16 prev_right = -MAX_INT16;
-  INT16 gap;
-  INT16 max_gap = -MAX_INT16;
-  INT16 max_gap_count = 0;
+  TBOX box;
+  inT16 prev_right = -MAX_INT16;
+  inT16 gap;
+  inT16 max_gap = -MAX_INT16;
+  inT16 max_gap_count = 0;
   STATS gap_stats (0, MAXSPACING);
   BOOL8 result;
   const ROW *row = word->denorm.row ();
   float max_non_space;
   float normalised_max_nonspace;
-  INT16 i = 0;
-  INT16 offset = 0;
+  inT16 i = 0;
+  inT16 offset = 0;
   STRING punct_chars = "\"`',.:;";
 
   blob_it.set_to_list (word->outword->blob_list ());
@@ -643,8 +643,8 @@ void fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row) {
   WERD_RES *word_res;
   WERD_RES_LIST sub_word_list;
   WERD_RES_IT sub_word_list_it(&sub_word_list);
-  INT16 blob_index;
-  INT16 new_length;
+  inT16 blob_index;
+  inT16 new_length;
   float junk;
 
   word_res = word_res_it.data ();
@@ -676,13 +676,13 @@ void fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row) {
 
 
 void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row) {
-  INT16 best_score;
+  inT16 best_score;
   WERD_RES_IT best_perm_it(&best_perm);
   WERD_RES_LIST current_perm;
   WERD_RES_IT current_perm_it(&current_perm);
   WERD_RES *old_word_res;
   WERD_RES *new_word_res;
-  INT16 current_score;
+  inT16 current_score;
   BOOL8 improved = FALSE;
 
                                  //default score
@@ -739,8 +739,8 @@ void break_noisiest_blob_word(WERD_RES_LIST &words) {
   C_BLOB_IT new_blob_it;
   C_BLOB_IT new_rej_cblob_it;
   WERD *new_word;
-  INT16 start_of_noise_blob;
-  INT16 i;
+  inT16 start_of_noise_blob;
+  inT16 i;
 
   for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
     blob_index = worst_noise_blob (word_it.data (), &noise_score);
@@ -797,9 +797,9 @@ void break_noisiest_blob_word(WERD_RES_LIST &words) {
 }
 
 
-INT16 worst_noise_blob(WERD_RES *word_res, float *worst_noise_score) {
+inT16 worst_noise_blob(WERD_RES *word_res, float *worst_noise_score) {
   PBLOB_IT blob_it;
-  INT16 blob_count;
+  inT16 blob_count;
   float noise_score[512];
   int i;
   int min_noise_blob;            //1st contender
@@ -874,10 +874,10 @@ INT16 worst_noise_blob(WERD_RES *word_res, float *worst_noise_score) {
 
 float blob_noise_score(PBLOB *blob) {
   OUTLINE_IT outline_it;
-  BOX box;                       //BB of outline
-  INT16 outline_count = 0;
-  INT16 max_dimension;
-  INT16 largest_outline_dimension = 0;
+  TBOX box;                       //BB of outline
+  inT16 outline_count = 0;
+  inT16 max_dimension;
+  inT16 largest_outline_dimension = 0;
 
   outline_it.set_to_list (blob->out_list ());
   for (outline_it.mark_cycle_pt ();
@@ -910,9 +910,9 @@ float blob_noise_score(PBLOB *blob) {
 
 
 void fixspace_dbg(WERD_RES *word) {
-  BOX box = word->word->bounding_box ();
+  TBOX box = word->word->bounding_box ();
   BOOL8 show_map_detail = FALSE;
-  INT16 i;
+  inT16 i;
 
   box.print ();
   #ifndef SECURE_NAMES
@@ -946,14 +946,14 @@ void fixspace_dbg(WERD_RES *word) {
  * Penalise any potential noise chars
  *************************************************************************/
 
-INT16 fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
+inT16 fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_it(&word_res_list);
   WERD_RES *word;
   PBLOB_IT blob_it;
-  INT16 word_length;
-  INT16 score = 0;
-  INT16 i;
-  INT16 offset;
+  inT16 word_length;
+  inT16 score = 0;
+  inT16 i;
+  inT16 offset;
   const char *chs;
   float small_limit = bln_x_height * fixsp_small_outlines_size;
 

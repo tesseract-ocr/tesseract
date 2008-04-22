@@ -49,8 +49,8 @@
 #define CTRL_NEWLINE      '\012' //newline
 #define CTRL_HARDLINE   '\015'   //cr
 int NO_BLOCK = 0;                //don't output block information
-INT16 XOFFSET = 0;               //the image can be a part of bigger picture and we want to have the original coordinates
-INT16 YOFFSET = 0;
+inT16 XOFFSET = 0;               //the image can be a part of bigger picture and we want to have the original coordinates
+inT16 YOFFSET = 0;
 
 EXTERN BOOL_EVAR (tessedit_write_block_separators, FALSE,
 "Write block separators in output");
@@ -97,22 +97,22 @@ FILE *unlv_file = NULL;          //reject map
  * number of points.
  **********************************************************************/
 
-INT32 pixels_to_pts(               //convert coords
-                    INT32 pixels,
-                    INT32 pix_res  //resolution
+inT32 pixels_to_pts(               //convert coords
+                    inT32 pixels,
+                    inT32 pix_res  //resolution
                    ) {
   float pts;                     //converted value
 
   pts = pixels * 72.0 / pix_res;
-  return (INT32) (pts + 0.5);    //round it
+  return (inT32) (pts + 0.5);    //round it
 }
 
 void output_pass(  //Tess output pass //send to api
                  PAGE_RES_IT &page_res_it,
                  BOOL8 write_to_shm,
-				 BOX	*target_word_box) {
+				 TBOX	*target_word_box) {
   BLOCK_RES *block_of_last_word;
-  INT16 block_id;
+  inT16 block_id;
   BOOL8 force_eol;               //During output
   BLOCK *nextblock;              //block of next word
   WERD *nextword;                //next word
@@ -128,7 +128,7 @@ void output_pass(  //Tess output pass //send to api
 	if (target_word_box)
 	{
 
-		BOX current_word_box=page_res_it.word ()->word->bounding_box();
+		TBOX current_word_box=page_res_it.word ()->word->bounding_box();
 		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
 		if (!target_word_box->contains(center_pt))
 		{
@@ -448,12 +448,12 @@ WERD_CHOICE *make_epaper_choice(                   //convert one word
                                 WERD_RES *word,    //word to do
                                 char newline_type  //type of newline
                                ) {
-  INT16 index = 0;               //to string
-  INT16 blobindex;               //to word
-  INT16 prevright = 0;           //right of previous blob
-  INT16 nextleft;                //left of next blob
+  inT16 index = 0;               //to string
+  inT16 blobindex;               //to word
+  inT16 prevright = 0;           //right of previous blob
+  inT16 nextleft;                //left of next blob
   PBLOB *blob;
-  BOX inset_box;                 //bounding box
+  TBOX inset_box;                 //bounding box
   PBLOB_IT blob_it;              //blob iterator
   char word_string[MAX_PATH];    //converted string
   BOOL8 force_total_reject;
@@ -553,42 +553,42 @@ WERD_CHOICE *make_epaper_choice(                   //convert one word
  * Add the escape code to the string for the reject.
  **********************************************************************/
 
-INT16
+inT16
 make_reject (                    //make reject code
-BOX * inset_box,                 //bounding box
-INT16 prevright,                 //previous char
-INT16 nextleft,                  //next char
+TBOX * inset_box,                 //bounding box
+inT16 prevright,                 //previous char
+inT16 nextleft,                  //next char
 DENORM * denorm,                 //de-normalizer
 char word_string[]               //output string
 ) {
-  INT16 index;                   //to string
-  INT16 xpos;                    //start of inset
-  INT16 ypos;
-  INT16 width;                   //size of inset
-  INT16 height;
-  INT16 left_offset;             //shift form prev char
-  INT16 right_offset;            //shift to next char
-  INT16 baseline_offset;         //shift from baseline
-  INT16 inset_index = 0;         //number of inset
-  INT16 min_chars;               //min width estimate
-  INT16 max_chars;               //max width estimate
+  inT16 index;                   //to string
+  inT16 xpos;                    //start of inset
+  inT16 ypos;
+  inT16 width;                   //size of inset
+  inT16 height;
+  inT16 left_offset;             //shift form prev char
+  inT16 right_offset;            //shift to next char
+  inT16 baseline_offset;         //shift from baseline
+  inT16 inset_index = 0;         //number of inset
+  inT16 min_chars;               //min width estimate
+  inT16 max_chars;               //max width estimate
   float x_centre;                //centre of box
 
   index = 0;
   x_centre = (inset_box->left () + inset_box->right ()) / 2.0;
   left_offset =
-    (INT16) (denorm->x (inset_box->left ()) - denorm->x (prevright));
+    (inT16) (denorm->x (inset_box->left ()) - denorm->x (prevright));
   right_offset =
-    (INT16) (denorm->x (nextleft) - denorm->x (inset_box->right ()));
-  xpos = (INT16) floor (denorm->x (inset_box->left ()));
-  width = (INT16) ceil (denorm->x (inset_box->right ())) - xpos;
-  ypos = (INT16) floor (denorm->y (inset_box->bottom (), x_centre));
-  height = (INT16) ceil (denorm->y (inset_box->top (), x_centre)) - ypos;
-  baseline_offset = ypos - (INT16) denorm->y (bln_baseline_offset, x_centre);
+    (inT16) (denorm->x (nextleft) - denorm->x (inset_box->right ()));
+  xpos = (inT16) floor (denorm->x (inset_box->left ()));
+  width = (inT16) ceil (denorm->x (inset_box->right ())) - xpos;
+  ypos = (inT16) floor (denorm->y (inset_box->bottom (), x_centre));
+  height = (inT16) ceil (denorm->y (inset_box->top (), x_centre)) - ypos;
+  baseline_offset = ypos - (inT16) denorm->y (bln_baseline_offset, x_centre);
                                  //escape code
   word_string[index++] = CTRL_INSET;
-  min_chars = (INT16) ceil (0.27 * width / denorm->row ()->x_height ());
-  max_chars = (INT16) floor (1.8 * width / denorm->row ()->x_height ());
+  min_chars = (inT16) ceil (0.27 * width / denorm->row ()->x_height ());
+  max_chars = (inT16) floor (1.8 * width / denorm->row ()->x_height ());
   /*
   Ensure min_chars and max_chars are in the range 0..254. This ensures that
   we can add 1 to them to avoid putting \0 in a string, and still not exceed
@@ -627,11 +627,11 @@ char determine_newline_type(                   //test line ends
                             WERD *next_word,   //next word
                             BLOCK *next_block  //block of next word
                            ) {
-  INT16 end_gap;                 //to right edge
-  INT16 width;                   //of next word
-  BOX word_box;                  //bounding
-  BOX next_box;                  //next word
-  BOX block_box;                 //block bounding
+  inT16 end_gap;                 //to right edge
+  inT16 width;                   //of next word
+  TBOX word_box;                  //bounding
+  TBOX next_box;                  //next word
+  TBOX block_box;                 //block bounding
 
   if (!word->flag (W_EOL))
     return FALSE;                //not end of line
@@ -644,7 +644,7 @@ char determine_newline_type(                   //test line ends
   block_box = block->bounding_box ();
                                  //gap to eol
   end_gap = block_box.right () - word_box.right ();
-  end_gap -= (INT32) block->space ();
+  end_gap -= (inT32) block->space ();
   width = next_box.right () - next_box.left ();
   //      tprintf("end_gap=%d-%d=%d, width=%d-%d=%d, nl=%d\n",
   //              block_box.right(),word_box.right(),end_gap,
@@ -669,7 +669,7 @@ void write_cooked_text(                     //write output
                        BOOL8 pass2,         //done on pass2
                        FILE *fp             //file to write
                       ) {
-  INT16 index;                   //blank counter
+  inT16 index;                   //blank counter
   int status;
   static int newaline = 1;
   static int havespace = 0;
@@ -678,7 +678,7 @@ void write_cooked_text(                     //write output
   int i = 0;
   char unrecognised = STRING (unrecognised_char)[0];
   static int old_segs = 0;
-  BOX mybox;
+  TBOX mybox;
   for (i = 0; wordstr[i] != '\0'; i++) {
     if (wordstr[i] == ' ')
       buff[i] = unrecognised;
@@ -774,25 +774,25 @@ void write_shm_text(                    //write output
                     const STRING &text, //text to write
                     const STRING &text_lengths
                    ) {
-  INT32 index;                   //char counter
-  INT32 index2;                  //char counter
-  INT32 length;                  //chars in word
-  INT32 ptsize;                  //font size
-  INT8 blanks;                   //blanks in word
-  UINT8 enhancement;             //bold etc
-  UINT8 font;                    //font index
+  inT32 index;                   //char counter
+  inT32 index2;                  //char counter
+  inT32 length;                  //chars in word
+  inT32 ptsize;                  //font size
+  inT8 blanks;                   //blanks in word
+  uinT8 enhancement;             //bold etc
+  uinT8 font;                    //font index
   char unrecognised = STRING (unrecognised_char)[0];
   PBLOB *blob;
-  BOX blob_box;                  //bounding box
+  TBOX blob_box;                  //bounding box
   PBLOB_IT blob_it;              //blob iterator
   WERD copy_outword;             // copy to denorm
-  UINT32 rating;                 //of char
+  uinT32 rating;                 //of char
   BOOL8 lineend;                 //end of line
   int offset;
   int offset2;
 
                                  //point size
-  ptsize = pixels_to_pts ((INT32) (row->row->x_height () + row->row->ascenders () - row->row->descenders ()), 300);
+  ptsize = pixels_to_pts ((inT32) (row->row->x_height () + row->row->ascenders () - row->row->descenders ()), 300);
   if (word->word->flag (W_BOL) && ocr_char_space () < 128
     && ocr_send_text (TRUE) != OKAY)
     return;                      //release failed
@@ -816,7 +816,7 @@ void write_shm_text(                    //write output
       if (word->bold > 0 || (word->bold == 0 && row->bold > 0))
         enhancement |= EUC_BOLD;
       if (tessedit_write_ratings)
-        rating = (UINT32) (-word->best_choice->certainty () / 0.035);
+        rating = (uinT32) (-word->best_choice->certainty () / 0.035);
       else if (tessedit_zero_rejection)
         rating = text[offset] == ' ' ? 100 : 0;
       else
@@ -849,7 +849,7 @@ void write_shm_text(                    //write output
                          blob_box.left (), blob_box.right (),
                          page_image.get_ysize () - 1 - blob_box.top (),
                          page_image.get_ysize () - 1 - blob_box.bottom (),
-                         font, (UINT8) rating,
+                         font, (uinT8) rating,
                          ptsize,                //point size
                          blanks, enhancement,   //enhancement
                          OCR_CDIR_LEFT_RIGHT,
@@ -861,7 +861,7 @@ void write_shm_text(                    //write output
                              blob_box.left (), blob_box.right (),
                              page_image.get_ysize () - 1 - blob_box.top (),
                              page_image.get_ysize () - 1 - blob_box.bottom (),
-                             font, (UINT8) rating,
+                             font, (uinT8) rating,
                              ptsize,                //point size
                              blanks, enhancement,   //enhancement
                              OCR_CDIR_LEFT_RIGHT,
@@ -929,7 +929,7 @@ void write_shm_text(                    //write output
 void write_map(                //output a map file
                FILE *mapfile,  //mapfile to write to
                WERD_RES *word) {
-  INT16 index;
+  inT16 index;
   int status;
   STRING mapstr = "";
 
@@ -1214,7 +1214,7 @@ void set_unlv_suspects(WERD_RES *word) {
 }
 
 
-INT16 count_alphas(  //how many alphas
+inT16 count_alphas(  //how many alphas
                    const char *s,
                    const char *lengths) {
   int count = 0;
@@ -1227,7 +1227,7 @@ INT16 count_alphas(  //how many alphas
 }
 
 
-INT16 count_alphanums(  //how many alphanums
+inT16 count_alphanums(  //how many alphanums
                       const char *s,
                       const char *lengths) {
   int count = 0;

@@ -188,7 +188,7 @@ BOOL8 tess_adaptable_word(                           //test adaptability
                           WERD_CHOICE *raw_choice    //before context
                          ) {
   TWERD *tessword;               //converted word
-  INT32 result;                  //answer
+  inT32 result;                  //answer
 
   tessword = make_tess_word (word, NULL);
   result = AdaptableWord (tessword, word_choice->string ().string (),
@@ -309,7 +309,7 @@ void tess_training_tester(                           //call tess
                           DENORM *denorm,            //de-normaliser
                           BOOL8 correct,             //ly segmented
                           char *text,                //correct text
-                          INT32 count,               //chars in text
+                          inT32 count,               //chars in text
                           BLOB_CHOICE_LIST *ratings  //list of results
                          ) {
   TBLOB *tessblob;               //converted blob

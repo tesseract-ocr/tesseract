@@ -38,34 +38,34 @@ void clear_any_old_text(                        //remove correct text
                        );
 BOOL8 read_next_box(int page,
                     FILE* box_file,  //
-                    BOX *box,
+                    TBOX *box,
                     UNICHAR_ID *uch_id);
 ROW *find_row_of_box(                         //
                      BLOCK_LIST *block_list,  //real blocks
-                     BOX box,                 //from boxfile
-                     INT16 &block_id,
-                     INT16 &row_id_to_process);
-INT16 resegment_box(  //
+                     TBOX box,                 //from boxfile
+                     inT16 &block_id,
+                     inT16 &row_id_to_process);
+inT16 resegment_box(  //
                     ROW *row,
-                    BOX box,
+                    TBOX box,
                     UNICHAR_ID uch_id,
-                    INT16 block_id,
-                    INT16 row_id,
-                    INT16 boxfile_lineno,
-                    INT16 boxfile_charno);
+                    inT16 block_id,
+                    inT16 row_id,
+                    inT16 boxfile_lineno,
+                    inT16 boxfile_charno);
 void tidy_up(                         //
              BLOCK_LIST *block_list,  //real blocks
-             INT16 &ok_char_count,
-             INT16 &ok_row_count,
-             INT16 &unlabelled_words,
-             INT16 *tgt_char_counts,
-             INT16 &rebalance_count,
+             inT16 &ok_char_count,
+             inT16 &ok_row_count,
+             inT16 &unlabelled_words,
+             inT16 *tgt_char_counts,
+             inT16 &rebalance_count,
              UNICHAR_ID *min_uch_id,
-             INT16 &min_samples,
-             INT16 &final_labelled_blob_count);
-void report_failed_box(INT16 boxfile_lineno,
-                       INT16 boxfile_charno,
-                       BOX box,
+             inT16 &min_samples,
+             inT16 &final_labelled_blob_count);
+void report_failed_box(inT16 boxfile_lineno,
+                       inT16 boxfile_charno,
+                       TBOX box,
                        const char *box_ch,
                        const char *err_msg);
 void apply_box_training(BLOCK_LIST *block_list);

@@ -71,7 +71,7 @@ void re_estimate_x_ht(                     //improve for 1 word
                      );
 void check_block_occ(WERD_RES *word_res);
 void check_blob_occ(char *proposed_char,
-                    INT16 blob_ht_above_baseline,
+                    inT16 blob_ht_above_baseline,
                     float x_ht,
                     float caps_ht,
                     char *confirmed_char);

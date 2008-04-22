@@ -40,21 +40,21 @@ ELISTIZE (PIXROW)
  *
  * Constructor for a specified size PIXROW from a blob
  *************************************************************************/
-PIXROW::PIXROW(INT16 pos, INT16 count, PBLOB *blob) { 
+PIXROW::PIXROW(inT16 pos, inT16 count, PBLOB *blob) {
   OUTLINE_LIST *outline_list;
   OUTLINE_IT outline_it;
   POLYPT_LIST *pts_list;
   POLYPT_IT pts_it;
-  INT16 i;
+  inT16 i;
   FCOORD pt;
   FCOORD vec;
   float y_coord;
-  INT16 x_coord;
+  inT16 x_coord;
 
   row_offset = pos;
   row_count = count;
-  min = (INT16 *) alloc_mem (count * sizeof (INT16));
-  max = (INT16 *) alloc_mem (count * sizeof (INT16));
+  min = (inT16 *) alloc_mem (count * sizeof (inT16));
+  max = (inT16 *) alloc_mem (count * sizeof (inT16));
   outline_list = blob->out_list ();
   outline_it.set_to_list (outline_list);
 
@@ -75,7 +75,7 @@ PIXROW::PIXROW(INT16 pos, INT16 count, PBLOB *blob) {
           || ((pt.y () >= y_coord)
         && (pt.y () + vec.y () <= y_coord)))) {
           /* The segment crosses y_coord so find x-point and check for min/max. */
-          x_coord = (INT16) floor ((y_coord -
+          x_coord = (inT16) floor ((y_coord -
             pt.y ()) * vec.x () / vec.y () +
             pt.x () + 0.5);
           if (x_coord < min[i])
@@ -99,8 +99,8 @@ PIXROW::PIXROW(INT16 pos, INT16 count, PBLOB *blob) {
 #ifndef GRAPHICS_DISABLED
 void PIXROW::plot(ScrollView* fd  //where to paint
                  ) const {
-  INT16 i;
-  INT16 y_coord;
+  inT16 i;
+  inT16 y_coord;
 
   for (i = 0; i < row_count; i++) {
     y_coord = row_offset + i;
@@ -120,7 +120,7 @@ void PIXROW::plot(ScrollView* fd  //where to paint
 bool PIXROW::bad_box(  //return true if box exceeds image
                      int xsize,
                      int ysize) const {
-  BOX bbox = bounding_box ();
+  TBOX bbox = bounding_box ();
   if (bbox.left () < 0 || bbox.right () > xsize
   || bbox.top () > ysize || bbox.bottom () < 0) {
     tprintf("Box (%d,%d)->(%d,%d) bad compared to %d,%d\n",
@@ -138,13 +138,13 @@ bool PIXROW::bad_box(  //return true if box exceeds image
  * Generate bounding box for blob image
  *************************************************************************/
 
-BOX PIXROW::bounding_box() const { 
-  INT16 i;
-  INT16 y_coord;
-  INT16 min_x = MAX_INT16 - 1;
-  INT16 min_y = MAX_INT16 - 1;
-  INT16 max_x = -MAX_INT16 + 1;
-  INT16 max_y = -MAX_INT16 + 1;
+TBOX PIXROW::bounding_box() const {
+  inT16 i;
+  inT16 y_coord;
+  inT16 min_x = MAX_INT16 - 1;
+  inT16 min_y = MAX_INT16 - 1;
+  inT16 max_x = -MAX_INT16 + 1;
+  inT16 max_y = -MAX_INT16 + 1;
 
   for (i = 0; i < row_count; i++) {
     y_coord = row_offset + i;
@@ -160,9 +160,9 @@ BOX PIXROW::bounding_box() const {
     }
   }
   if (min_x > max_x || min_y > max_y)
-    return BOX ();
+    return TBOX ();
   else
-    return BOX (ICOORD (min_x, min_y), ICOORD (max_x, max_y));
+    return TBOX (ICOORD (min_x, min_y), ICOORD (max_x, max_y));
 }
 
 
@@ -174,11 +174,11 @@ BOX PIXROW::bounding_box() const {
 
 void PIXROW::contract(                         //image array
                       IMAGELINE *imlines,
-                      INT16 x_offset,          //of pixels[0]
-                      INT16 foreground_colour  //0 or 1
+                      inT16 x_offset,          //of pixels[0]
+                      inT16 foreground_colour  //0 or 1
                      ) {
-  INT16 i;
-  UINT8 *line_pixels;
+  inT16 i;
+  uinT8 *line_pixels;
 
   for (i = 0; i < row_count; i++) {
     if (min[i] > max[i])
@@ -217,18 +217,18 @@ void PIXROW::contract(                         //image array
 
 BOOL8 PIXROW::extend(               //image array
                      IMAGELINE *imlines,
-                     BOX &imbox,
+                     TBOX &imbox,
                      PIXROW *prev,  //for prev blob
                      PIXROW *next,  //for next blob
-                     INT16 foreground_colour) {
-  INT16 i;
-  INT16 x_offset = imbox.left ();
-  INT16 limit;
-  INT16 left_limit;
-  INT16 right_limit;
-  UINT8 *pixels = NULL;
-  UINT8 *pixels_below = NULL;    //row below current
-  UINT8 *pixels_above = NULL;    //row above current
+                     inT16 foreground_colour) {
+  inT16 i;
+  inT16 x_offset = imbox.left ();
+  inT16 limit;
+  inT16 left_limit;
+  inT16 right_limit;
+  uinT8 *pixels = NULL;
+  uinT8 *pixels_below = NULL;    //row below current
+  uinT8 *pixels_above = NULL;    //row above current
   BOOL8 changed = FALSE;
 
   pixels_above = imlines[0].pixels;
@@ -353,23 +353,23 @@ BOOL8 PIXROW::extend(               //image array
 
 void PIXROW::char_clip_image(                     //box of imlines extnt
                              IMAGELINE *imlines,
-                             BOX &im_box,
+                             TBOX &im_box,
                              ROW *row,            //row containing word
                              IMAGE &clip_image,   //unscaled sq subimage
                              float &baseline_pos  //baseline ht in image
                             ) {
-  INT16 clip_image_xsize;        //sub image x size
-  INT16 clip_image_ysize;        //sub image y size
-  INT16 x_shift;                 //from pixrow to subim
-  INT16 y_shift;                 //from pixrow to subim
-  BOX char_pix_box;              //bbox of char pixels
-  INT16 y_dest;
-  INT16 x_min;
-  INT16 x_max;
-  INT16 x_min_dest;
-  INT16 x_max_dest;
-  INT16 x_width;
-  INT16 y;
+  inT16 clip_image_xsize;        //sub image x size
+  inT16 clip_image_ysize;        //sub image y size
+  inT16 x_shift;                 //from pixrow to subim
+  inT16 y_shift;                 //from pixrow to subim
+  TBOX char_pix_box;              //bbox of char pixels
+  inT16 y_dest;
+  inT16 x_min;
+  inT16 x_max;
+  inT16 x_min_dest;
+  inT16 x_max_dest;
+  inT16 x_width;
+  inT16 y;
 
   clip_image_xsize = clip_image.get_xsize ();
   clip_image_ysize = clip_image.get_ysize ();
@@ -382,7 +382,7 @@ void PIXROW::char_clip_image(                     //box of imlines extnt
     character.
   */
   y_shift = char_pix_box.bottom () - row_offset -
-    (INT16) floor ((clip_image_ysize - char_pix_box.height () + 0.5) / 2);
+    (inT16) floor ((clip_image_ysize - char_pix_box.height () + 0.5) / 2);
 
   /*
     The x_shift is the shift to be applied to the page coord in the pixrow to
@@ -390,7 +390,7 @@ void PIXROW::char_clip_image(                     //box of imlines extnt
     char is shifted to the margin width of the centred character.
   */
   x_shift = char_pix_box.left () -
-    (INT16) floor ((clip_image_xsize - char_pix_box.width () + 0.5) / 2);
+    (inT16) floor ((clip_image_xsize - char_pix_box.width () + 0.5) / 2);
 
   for (y = 0; y < row_count; y++) {
     /*
@@ -450,22 +450,22 @@ void char_clip_word(                            //
                     IMAGE &bin_image,           //whole image
                     PIXROW_LIST *&pixrow_list,  //pixrows built
                     IMAGELINE *&imlines,        //lines cut from image
-                    BOX &pix_box                //box defining imlines
+                    TBOX &pix_box                //box defining imlines
                    ) {
-  BOX word_box = word->bounding_box ();
+  TBOX word_box = word->bounding_box ();
   PBLOB_LIST *blob_list;
   PBLOB_IT blob_it;
   PIXROW_IT pixrow_it;
-  INT16 pix_offset;              //Y pos of pixrow[0]
-  INT16 row_height;              //No of pix rows
-  INT16 imlines_x_offset;
+  inT16 pix_offset;              //Y pos of pixrow[0]
+  inT16 row_height;              //No of pix rows
+  inT16 imlines_x_offset;
   PIXROW *prev;
   PIXROW *next;
   PIXROW *current;
   BOOL8 changed;                 //still improving
   BOOL8 just_changed;            //still improving
-  INT16 iteration_count = 0;
-  INT16 foreground_colour;
+  inT16 iteration_count = 0;
+  inT16 foreground_colour;
 
   if (word->flag (W_INVERSE))
     foreground_colour = 1;
@@ -478,7 +478,7 @@ void char_clip_word(                            //
   pix_box.move_top_edge (pix_word_margin);
   pix_box.move_left_edge (-pix_word_margin);
   pix_box.move_right_edge (pix_word_margin);
-  pix_box -= BOX (ICOORD (0, 0 + BUG_OFFSET),
+  pix_box -= TBOX (ICOORD (0, 0 + BUG_OFFSET),
     ICOORD (bin_image.get_xsize (),
     bin_image.get_ysize () - BUG_OFFSET));
 
@@ -551,7 +551,7 @@ void char_clip_word(                            //
 
 IMAGELINE *generate_imlines(                   //get some imagelines
                             IMAGE &bin_image,  //from here
-                            BOX &pix_box) {
+                            TBOX &pix_box) {
   IMAGELINE *imlines;            //array of lines
   int i;
 
@@ -578,18 +578,18 @@ IMAGELINE *generate_imlines(                   //get some imagelines
 ScrollView* display_clip_image(WERD *word,                //word to be processed
                           IMAGE &bin_image,          //whole image
                           PIXROW_LIST *pixrow_list,  //pixrows built
-                          BOX &pix_box               //box of subimage
+                          TBOX &pix_box               //box of subimage
                          ) {
   ScrollView* clip_window;            //window for debug
-  BOX word_box = word->bounding_box ();
+  TBOX word_box = word->bounding_box ();
   int border = word_box.height () / 2;
-  BOX display_box = word_box;
+  TBOX display_box = word_box;
 
   display_box.move_bottom_edge (-border);
   display_box.move_top_edge (border);
   display_box.move_left_edge (-border);
   display_box.move_right_edge (border);
-  display_box -= BOX (ICOORD (0, 0 - BUG_OFFSET),
+  display_box -= TBOX (ICOORD (0, 0 - BUG_OFFSET),
     ICOORD (bin_image.get_xsize (),
     bin_image.get_ysize () - BUG_OFFSET));
 
@@ -617,7 +617,7 @@ ScrollView* display_clip_image(WERD *word,                //word to be processed
   word->plot (clip_window, ScrollView::RED);
   word_box.plot (clip_window, ScrollView::BLUE, ScrollView::BLUE);
   pix_box.plot (clip_window, ScrollView::BLUE, ScrollView::BLUE);
-  plot_pixrows(pixrow_list, clip_window); 
+  plot_pixrows(pixrow_list, clip_window);
   return clip_window;
 }
 
@@ -628,10 +628,10 @@ ScrollView* display_clip_image(WERD *word,                //word to be processed
  * continuing.
  *************************************************************************/
 
-void display_images(IMAGE &clip_image, IMAGE &scaled_image) { 
+void display_images(IMAGE &clip_image, IMAGE &scaled_image) {
   ScrollView* clip_im_window;         //window for debug
   ScrollView* scale_im_window;        //window for debug
-  INT16 i;
+  inT16 i;
 
                                  // xmin xmax ymin ymax
   clip_im_window = new ScrollView ("Clipped Blob", editor_word_xpos - 20,
@@ -657,8 +657,8 @@ void display_images(IMAGE &clip_image, IMAGE &scaled_image) {
 
                                  // xmin xmax ymin ymax
   scale_im_window = new ScrollView ("Scaled Blob", editor_word_xpos + 300,
-      editor_word_ypos - 100, 5 * scaled_image.get_xsize (), 
-      5 * scaled_image.get_ysize (), scaled_image.get_xsize (), 
+      editor_word_ypos - 100, 5 * scaled_image.get_xsize (),
+      5 * scaled_image.get_ysize (), scaled_image.get_xsize (),
       scaled_image.get_ysize (), true);
 
   sv_show_sub_image (&scaled_image,
@@ -688,8 +688,8 @@ void display_images(IMAGE &clip_image, IMAGE &scaled_image) {
 void plot_pixrows(  //plot for all blobs
                   PIXROW_LIST *pixrow_list,
                   ScrollView* win) {
-  PIXROW_IT pixrow_it(pixrow_list); 
-  INT16 colour = ScrollView::RED;
+  PIXROW_IT pixrow_it(pixrow_list);
+  inT16 colour = ScrollView::RED;
 
   for (pixrow_it.mark_cycle_pt ();
   !pixrow_it.cycled_list (); pixrow_it.forward ()) {

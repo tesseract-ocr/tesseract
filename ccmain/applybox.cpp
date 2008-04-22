@@ -106,27 +106,27 @@ static void PrintString(const char* str) {
 
 void apply_boxes(BLOCK_LIST *block_list    //real blocks
                 ) {
-  INT16 boxfile_lineno = 0;
-  INT16 boxfile_charno = 0;
-  BOX box;                       //boxfile box
+  inT16 boxfile_lineno = 0;
+  inT16 boxfile_charno = 0;
+  TBOX box;                       //boxfile box
   UNICHAR_ID uch_id;             //correct ch from boxfile
   ROW *row;
   ROW *prev_row = NULL;
-  INT16 prev_box_right = MAX_INT16;
-  INT16 block_id;
-  INT16 row_id;
-  INT16 box_count = 0;
-  INT16 box_failures = 0;
-  INT16 labels_ok;
-  INT16 rows_ok;
-  INT16 bad_blobs;
-  INT16 tgt_char_counts[MAX_NUM_CLASSES];    //No. of box samples
-  //      INT16                                   labelled_char_counts[128];      //No. of unique labelled samples
-  INT16 i;
-  INT16 rebalance_count = 0;
+  inT16 prev_box_right = MAX_INT16;
+  inT16 block_id;
+  inT16 row_id;
+  inT16 box_count = 0;
+  inT16 box_failures = 0;
+  inT16 labels_ok;
+  inT16 rows_ok;
+  inT16 bad_blobs;
+  inT16 tgt_char_counts[MAX_NUM_CLASSES];    //No. of box samples
+  //      inT16                                   labelled_char_counts[128];      //No. of unique labelled samples
+  inT16 i;
+  inT16 rebalance_count = 0;
   UNICHAR_ID min_uch_id;
-  INT16 min_samples;
-  INT16 final_labelled_blob_count;
+  inT16 min_samples;
+  inT16 final_labelled_blob_count;
 
   // Clean the unichar set
   unicharset_boxes.clear();
@@ -221,7 +221,7 @@ void clear_any_old_text(                        //remove correct text
 
 BOOL8 read_next_box(int page,
                     FILE* box_file,  //
-                    BOX *box,
+                    TBOX *box,
                     UNICHAR_ID *uch_id) {
   int x_min;
   int y_min;
@@ -240,10 +240,8 @@ BOOL8 read_next_box(int page,
         exit(1);
       }
     }
-//    tprintf("Read box at (%d,%d), str:", x_min, y_min);
-//    PrintString(uch);
     *uch_id = unicharset_boxes.unichar_to_id(uch);
-    *box = BOX (ICOORD (x_min, y_min), ICOORD (x_max, y_max));
+    *box = TBOX (ICOORD (x_min, y_min), ICOORD (x_max, y_max));
     return TRUE;             //read a box ok
   }
   return FALSE;                  //EOF
@@ -252,15 +250,15 @@ BOOL8 read_next_box(int page,
 
 ROW *find_row_of_box(                         //
                      BLOCK_LIST *block_list,  //real blocks
-                     BOX box,                 //from boxfile
-                     INT16 &block_id,
-                     INT16 &row_id_to_process) {
+                     TBOX box,                 //from boxfile
+                     inT16 &block_id,
+                     inT16 &row_id_to_process) {
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
   ROW *row_to_process = NULL;
-  INT16 row_id;
+  inT16 row_id;
   WERD_IT word_it;
   WERD *word;
   BOOL8 polyg;
@@ -331,14 +329,14 @@ ROW *find_row_of_box(                         //
 }
 
 
-INT16 resegment_box(  //
+inT16 resegment_box(  //
                     ROW *row,
-                    BOX box,
+                    TBOX box,
                     UNICHAR_ID uch_id,
-                    INT16 block_id,
-                    INT16 row_id,
-                    INT16 boxfile_lineno,
-                    INT16 boxfile_charno) {
+                    inT16 block_id,
+                    inT16 row_id,
+                    inT16 boxfile_lineno,
+                    inT16 boxfile_charno) {
   WERD_IT word_it;
   WERD *word;
   WERD *new_word = NULL;
@@ -351,10 +349,10 @@ INT16 resegment_box(  //
   OUTLINE_LIST dummy;  // Just to initialize new_outline_it.
   OUTLINE_IT new_outline_it = &dummy;
   OUTLINE *outline;
-  BOX new_word_box;
+  TBOX new_word_box;
   float word_x_centre;
   float baseline;
-  INT16 error_count = 0;         //number of chars lost
+  inT16 error_count = 0;         //number of chars lost
 
   word_it.set_to_list (row->word_list ());
   for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
@@ -519,34 +517,34 @@ INT16 resegment_box(  //
  *************************************************************************/
 void tidy_up(                         //
              BLOCK_LIST *block_list,  //real blocks
-             INT16 &ok_char_count,
-             INT16 &ok_row_count,
-             INT16 &unlabelled_words,
-             INT16 *tgt_char_counts,
-             INT16 &rebalance_count,
+             inT16 &ok_char_count,
+             inT16 &ok_row_count,
+             inT16 &unlabelled_words,
+             inT16 *tgt_char_counts,
+             inT16 &rebalance_count,
              UNICHAR_ID *min_uch_id,
-             INT16 &min_samples,
-             INT16 &final_labelled_blob_count) {
+             inT16 &min_samples,
+             inT16 &final_labelled_blob_count) {
   BLOCK_IT block_it(block_list);
   ROW_IT row_it;
   ROW *row;
   WERD_IT word_it;
   WERD *word;
   WERD *duplicate_word;
-  INT16 block_idx = 0;
-  INT16 row_idx;
-  INT16 all_row_idx = 0;
+  inT16 block_idx = 0;
+  inT16 row_idx;
+  inT16 all_row_idx = 0;
   BOOL8 row_ok;
   BOOL8 rebalance_needed = FALSE;
                                  //No. of unique labelled samples
-  INT16 labelled_char_counts[MAX_NUM_CLASSES];
-  INT16 i;
+  inT16 labelled_char_counts[MAX_NUM_CLASSES];
+  inT16 i;
   UNICHAR_ID uch_id;
   UNICHAR_ID prev_uch_id = -1;
   BOOL8 at_dupe_of_prev_word;
   ROW *prev_row = NULL;
-  INT16 left;
-  INT16 prev_left = -1;
+  inT16 left;
+  inT16 prev_left = -1;
 
   for (i = 0; i < MAX_NUM_CLASSES; i++)
     labelled_char_counts[i] = 0;
@@ -698,9 +696,9 @@ void tidy_up(                         //
 }
 
 
-void report_failed_box(INT16 boxfile_lineno,
-                       INT16 boxfile_charno,
-                       BOX box,
+void report_failed_box(inT16 boxfile_lineno,
+                       inT16 boxfile_charno,
+                       TBOX box,
                        const char *box_ch,
                        const char *err_msg) {
   if (applybox_debug > 4)
@@ -722,7 +720,7 @@ void apply_box_training(BLOCK_LIST *block_list) {
   WERD copy_outword;             // copy to denorm
   PBLOB_IT blob_it;
   DENORM denorm;
-  INT16 count = 0;
+  inT16 count = 0;
   char unichar[UNICHAR_LEN + 1];
 
   unichar[UNICHAR_LEN] = '\0';
@@ -766,14 +764,14 @@ void apply_box_testing(BLOCK_LIST *block_list) {
   BLOCK_IT block_it(block_list);
   ROW_IT row_it;
   ROW *row;
-  INT16 row_count = 0;
+  inT16 row_count = 0;
   WERD_IT word_it;
   WERD *word;
   WERD *bln_word;
-  INT16 word_count = 0;
+  inT16 word_count = 0;
   PBLOB_IT blob_it;
   DENORM denorm;
-  INT16 count = 0;
+  inT16 count = 0;
   char ch[2];
   WERD *outword;                 //bln best choice
   //segmentation
@@ -781,10 +779,10 @@ void apply_box_testing(BLOCK_LIST *block_list) {
   WERD_CHOICE *raw_choice;       //top choice permuter
                                  //detailed results
   BLOB_CHOICE_LIST_CLIST blob_choices;
-  INT16 char_count = 0;
-  INT16 correct_count = 0;
-  INT16 err_count = 0;
-  INT16 rej_count = 0;
+  inT16 char_count = 0;
+  inT16 correct_count = 0;
+  inT16 err_count = 0;
+  inT16 rej_count = 0;
   #ifndef SECURE_NAMES
   WERDSTATS wordstats;           //As from newdiff
   #endif

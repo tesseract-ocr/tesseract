@@ -95,7 +95,7 @@ void tess_training_tester(                           //call tess
                           DENORM *denorm,            //de-normaliser
                           BOOL8 correct,             //ly segmented
                           char *text,                //correct text
-                          INT32 count,               //chars in text
+                          inT32 count,               //chars in text
                           BLOB_CHOICE_LIST *ratings  //list of results
                          );
 void tess_adapter(                         //adapt to word

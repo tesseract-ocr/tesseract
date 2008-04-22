@@ -39,7 +39,7 @@ struct TESS_CHOICE
   float					rating;						//scaled
   float					certainty;					//absolute
   char					permuter;					//which permuter code
-  INT8					config;						//which config
+  inT8					config;						//which config
   char*					string;						//really can!
 };
 */

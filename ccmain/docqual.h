@@ -115,41 +115,41 @@ extern INT_VAR_H (crunch_leave_uc_strings, 4,
 extern INT_VAR_H (crunch_long_repetitions, 3,
 "Crunch words with long repetitions");
 extern INT_VAR_H (crunch_debug, 0, "As it says");
-INT16 word_blob_quality(  //Blob seg changes
+inT16 word_blob_quality(  //Blob seg changes
                         WERD_RES *word,
                         ROW *row);
-BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2); 
-INT16 word_outline_errs(  //Outline count errs
+BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2);
+inT16 word_outline_errs(  //Outline count errs
                         WERD_RES *word);
 void word_char_quality(  //Blob seg changes
                        WERD_RES *word,
                        ROW *row,
-                       INT16 *match_count,
-                       INT16 *accepted_match_count);
-void unrej_good_chs(WERD_RES *word, ROW *row); 
-void print_boxes(WERD *word); 
-INT16 count_outline_errs(char c, INT16 outline_count); 
-void quality_based_rejection(PAGE_RES_IT &page_res_it, BOOL8 good_quality_doc); 
+                       inT16 *match_count,
+                       inT16 *accepted_match_count);
+void unrej_good_chs(WERD_RES *word, ROW *row);
+void print_boxes(WERD *word);
+inT16 count_outline_errs(char c, inT16 outline_count);
+void quality_based_rejection(PAGE_RES_IT &page_res_it, BOOL8 good_quality_doc);
 void unrej_good_quality_words(  //unreject potential
                               PAGE_RES_IT &page_res_it);
 void doc_and_block_rejection(  //reject big chunks
                              PAGE_RES_IT &page_res_it,
                              BOOL8 good_quality_doc);
-void reject_whole_page(PAGE_RES_IT &page_res_it); 
-void tilde_crunch(PAGE_RES_IT &page_res_it); 
-BOOL8 terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level); 
+void reject_whole_page(PAGE_RES_IT &page_res_it);
+void tilde_crunch(PAGE_RES_IT &page_res_it);
+BOOL8 terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level);
 BOOL8 potential_word_crunch(WERD_RES *word,
                             GARBAGE_LEVEL garbage_level,
                             BOOL8 ok_dict_word);
-void tilde_delete(PAGE_RES_IT &page_res_it); 
+void tilde_delete(PAGE_RES_IT &page_res_it);
                                  //word to do
-void convert_bad_unlv_chs(WERD_RES *word_res); 
+void convert_bad_unlv_chs(WERD_RES *word_res);
                                  //word to do
-void merge_tess_fails(WERD_RES *word_res); 
-GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word); 
-CRUNCH_MODE word_deletable(WERD_RES *word, INT16 &delete_mode); 
-INT16 failure_count(WERD_RES *word); 
-BOOL8 noise_outlines(WERD *word); 
+void merge_tess_fails(WERD_RES *word_res);
+GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word);
+CRUNCH_MODE word_deletable(WERD_RES *word, inT16 &delete_mode);
+inT16 failure_count(WERD_RES *word);
+BOOL8 noise_outlines(WERD *word);
                                  //word to do
-void insert_rej_cblobs(WERD_RES *word); 
+void insert_rej_cblobs(WERD_RES *word);
 #endif

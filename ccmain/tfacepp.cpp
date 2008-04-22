@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        tfacepp.cpp  (Formerly tface++.c)
  * Description: C++ side of the C/C++ Tess/Editor interface.
- * Author:					Ray Smith
- * Created:					Thu Apr 23 15:39:23 BST 1992
+ * Author:                  Ray Smith
+ * Created:                 Thu Apr 23 15:39:23 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@
 #include          "tstruct.h"
 #include          "tfacepp.h"
 #include          "tessvars.h"
+#include          "globals.h"
 #include          "reject.h"
 
 #define EXTERN
@@ -42,6 +43,9 @@ static DENORM *tess_denorm;      //current denorm
 static WERD *tess_word;          //current word
 
 #define MAX_UNDIVIDED_LENGTH 24
+
+const int kReallyBadCertainty = -20;
+
 /**********************************************************************
  * recog_word
  *
@@ -60,8 +64,8 @@ WERD_CHOICE *recog_word(                           //recog one owrd
                         WERD *&outword             //bln word output
                        ) {
   WERD_CHOICE *word_choice;
-  UINT8 perm_type;
-  UINT8 real_dict_perm_type;
+  uinT8 perm_type;
+  uinT8 real_dict_perm_type;
 
   if (word->blob_list ()->empty ()) {
     char empty_lengths[] = {0};
@@ -132,8 +136,8 @@ WERD_CHOICE *recog_word_recursive(                           //recog one owrd
                                   BLOB_CHOICE_LIST_CLIST *blob_choices,
                                   WERD *&outword             //bln word output
                                  ) {
-  INT32 initial_blob_choice_len;
-  INT32 word_length;             //no of blobs
+  inT32 initial_blob_choice_len;
+  inT32 word_length;             //no of blobs
   STRING word_string;            //converted from tess
   STRING word_string_lengths;
   ARRAY tess_ratings;            //tess results
@@ -197,6 +201,9 @@ WERD_CHOICE *recog_word_recursive(                           //recog one owrd
         word_string.string (), word_string_lengths.length(), word_length);
       word_string = NULL;        //should never happen
       word_string_lengths = NULL;
+      tprintf("Word is at (%g,%g)\n",
+              denorm->origin(),
+              denorm->y(word->bounding_box().bottom(), 0.0));
     }
     if (blob_choices->length () - initial_blob_choice_len != word_length) {
       word_string = NULL;        //force rejection
@@ -261,8 +268,8 @@ WERD_CHOICE *split_and_recog_word(                           //recog one owrd
                                   BLOB_CHOICE_LIST_CLIST *blob_choices,
                                   WERD *&outword             //bln word output
                                  ) {
-  //   INT32                                                      outword1_len;
-  //   INT32                                                      outword2_len;
+  //   inT32                                                      outword1_len;
+  //   inT32                                                      outword2_len;
   WERD *first_word;              //poly copy of word
   WERD *second_word;             //fabricated word
   WERD *outword2;                //2nd output word
@@ -349,8 +356,12 @@ LIST call_matcher(                  //call a matcher
 
   blob = make_ed_blob (tessblob);//convert blob
   if (blob == NULL) {
-    tprintf("Failed to convert blob for recognition!\n");
-    return NULL;                 //can't do it
+    // Since it is actually possible to get a NULL blob here, due to invalid
+    // segmentations, fake a really bad classification.
+    choice_lengths[0] = strlen(unicharset.id_to_unichar(1));
+    return append_choice(NULL, unicharset.id_to_unichar(1), choice_lengths,
+                         static_cast<float>(MAX_NUM_INT_FEATURES),
+                         static_cast<float>(kReallyBadCertainty), 0);
   }
   pblob = ptblob != NULL ? make_ed_blob (ptblob) : NULL;
   nblob = ntblob != NULL ? make_ed_blob (ntblob) : NULL;
@@ -386,7 +397,7 @@ void call_tester(                     //call a tester
                  TBLOB *tessblob,     //blob to test
                  BOOL8 correct_blob,  //true if good
                  char *text,          //source text
-                 INT32 count,         //chars in text
+                 inT32 count,         //chars in text
                  LIST result          //output of matcher
                 ) {
   PBLOB *blob;                   //converted blob
@@ -415,7 +426,7 @@ void call_train_tester(                     //call a tester
                        TBLOB *tessblob,     //blob to test
                        BOOL8 correct_blob,  //true if good
                        char *text,          //source text
-                       INT32 count,         //chars in text
+                       inT32 count,         //chars in text
                        LIST result          //output of matcher
                       ) {
   PBLOB *blob;                   //converted blob

@@ -27,7 +27,7 @@
 class WERDIT
 {
   public:
-    WERDIT() { 
+    WERDIT() {
     }                            //empty contructor
     WERDIT(                          //empty contructor
            BLOCK_LIST *blocklist) {  //blocks on page
@@ -60,7 +60,7 @@ class WERDIT
 //extern BOOL_VAR_H(wordit_linearc,FALSE,"Pass poly of linearc to Tess");
 WERD *make_pseudo_word(                         //make fake word
                        BLOCK_LIST *block_list,  //blocks to check //block of selection
-                       BOX &selection_box,
+                       TBOX &selection_box,
                        BLOCK *&pseudo_block,
                        ROW *&pseudo_row         //row of selection
                       );

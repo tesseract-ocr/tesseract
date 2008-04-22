@@ -73,7 +73,7 @@ void add_word(                             //to block list
               BLOCK_LIST *dest_block_list  //add to this
              );
 ScrollView* bln_word_window_handle();  //return handle
-void build_image_window(BOX page_bounding_box);
+void build_image_window(TBOX page_bounding_box);
 SVMenuNode *build_menu_new();
 void display_bln_lines(ScrollView window,
                        ScrollView::Color colour,
@@ -87,7 +87,7 @@ void do_new_source(            //serialise
                                  //function to call
 void do_re_display (BOOL8 word_painter (
 BLOCK *, ROW *, WERD *));
-const BOX do_tidy_cmd();  //tidy
+const TBOX do_tidy_cmd();  //tidy
 void do_view_cmd();
 void do_write_file(            //serialise
                    char *name  //file name
@@ -106,24 +106,24 @@ void pgeditor_write_file(                    //serialise
                          BLOCK_LIST *blocks  //block list to write
                         );
 BOOL8 process_cmd_win_event(                  //UI command semantics
-                            INT32 cmd_event,  //which menu item?
+                            inT32 cmd_event,  //which menu item?
                             char *new_value   //any prompt data
                            );
 void process_image_event(  //action in image win
                          const SVEvent &event);
                                  //put bln word in       box
 float re_scale_and_move_bln_word(WERD *norm_word,  //BL normalised word
-                                 const BOX &box    //destination box
+                                 const TBOX &box    //destination box
                                 );
 void re_segment_word(                         //break/join words
                      BLOCK_LIST *block_list,  //blocks to check
-                     BOX &selection_box);
+                     TBOX &selection_box);
 void block_space_stat(                         //show space stats
                       BLOCK_LIST *block_list,  //blocks to check
-                      BOX &selection_box);
+                      TBOX &selection_box);
 void row_space_stat(                         //show space stats
                     BLOCK_LIST *block_list,  //blocks to check
-                    BOX &selection_box);
+                    TBOX &selection_box);
 void show_point(                         //display posn of bloba word
                 BLOCK_LIST *block_list,  //blocks to check
                 float x,
@@ -177,5 +177,5 @@ BOOL8 word_toggle_seg(            //toggle seg flag
                       WERD *word  //word to be processed
                      );
 void do_check_mem(  //do it
-                  INT32 level);
+                  inT32 level);
 #endif

@@ -23,9 +23,7 @@
 #ifndef VARABLED_H
 #define VARABLED_H
 
-#include <string>
-#include <map>
-
+#include "elst.h"
 #include "scrollview.h"
 #include "varable.h"
 
@@ -41,13 +39,13 @@ enum VarType {
 
 // A rather hackish helper structure which can take any kind of variable input
 // (defined by VarType) and do a couple of common operations on them, like
-// comparisond or getting its value. It is used in the context of the 
+// comparisond or getting its value. It is used in the context of the
 // VariablesEditor as a bridge from the internal tesseract variables to the
 // ones displayed by the ScrollView server.
-class VariableContent {
-  public:    
+class VariableContent : public ELIST_LINK {
+  public:
     // Compare two VC objects by their name.
-    static bool Compare(VariableContent* one, VariableContent* two);
+    static int Compare(const void* v1, const void* v2);
 
     // Gets a VC object identified by its ID.
     static VariableContent* GetVariableContentById(int id);
@@ -61,9 +59,9 @@ class VariableContent {
 
     // Getters and Setters.
     void SetValue(const char* val);
-    const char* GetValue();
-    const char* GetName();
-    const char* GetDescription();
+    const char* GetValue() const;
+    const char* GetName() const;
+    const char* GetDescription() const;
 
     int GetId() { return my_id_; }
     bool HasChanged() { return changed_; }
@@ -82,6 +80,8 @@ class VariableContent {
     double_VARIABLE* dIt;
 };
 
+ELISTIZEH(VariableContent)
+
 // The variables editor enables the user to edit all the variables used within
 // tesseract. It can be invoked on its own, but is supposed to be invoked by
 // the program editor.
@@ -98,8 +98,8 @@ class VariablesEditor : public SVEventHandler {
   private:
     // Gets the up to the first 3 prefixes from s (split by _).
     // For example, tesseract_foo_bar will be split into tesseract,foo and bar.
-	  void GetPrefixes(const char* s, std::string* level_one,
-                     std::string* level_two, std::string* level_three);
+      void GetPrefixes(const char* s, STRING* level_one,
+                     STRING* level_two, STRING* level_three);
 
     // Gets the first n words (split by _) and puts them in t.
     // For example, tesseract_foo_bar with N=2 will yield tesseract_foo_.

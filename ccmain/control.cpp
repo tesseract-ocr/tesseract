@@ -158,7 +158,7 @@ FILE *choice_file = NULL;        //Choice file ptr
 
 CLISTIZEH (PBLOB) CLISTIZE (PBLOB)
 /* DEBUGGING */
-INT16 blob_count(WERD *w) {
+inT16 blob_count(WERD *w) {
   return w->blob_list ()->length ();
 }
 
@@ -171,7 +171,7 @@ INT16 blob_count(WERD *w) {
 
 void recog_pseudo_word(                         //recognize blobs
                        BLOCK_LIST *block_list,  //blocks to check
-                       BOX &selection_box) {
+                       TBOX &selection_box) {
   WERD *word;
   ROW *pseudo_row;               //row of word
   BLOCK *pseudo_block;           //block of word
@@ -197,8 +197,8 @@ BOOL8 recog_interactive(            //recognize blobs
                         WERD *word  //word to recognize
                        ) {
   WERD_RES word_res(word);
-  INT16 char_qual;
-  INT16 good_char_qual;
+  inT16 char_qual;
+  inT16 good_char_qual;
 
   classify_word_pass2(&word_res, row);
   #ifndef SECURE_NAMES
@@ -224,32 +224,32 @@ BOOL8 recog_interactive(            //recognize blobs
 void recog_all_words(                              //process words
                      PAGE_RES *page_res,           //page structure
                      volatile ETEXT_DESC *monitor,  //progress monitor
-                     BOX	*target_word_box,//specifies just to extract a retangle
-                     INT16 dopasses //0 - all, 1 just pass 1, 2 passes 2 and higher
+                     TBOX	*target_word_box,//specifies just to extract a retangle
+                     inT16 dopasses //0 - all, 1 just pass 1, 2 passes 2 and higher
 					 ) {
                                  //reset page iterator
   static PAGE_RES_IT page_res_it;
-  INT16 chars_in_word;
-  INT16 rejects_in_word;
+  inT16 chars_in_word;
+  inT16 rejects_in_word;
   static CHAR_SAMPLES_LIST em_clusters;
   static CHAR_SAMPLE_LIST ems_waiting;
   static CHAR_SAMPLES_LIST char_clusters;
   static CHAR_SAMPLE_LIST chars_waiting;
-  INT16 blob_quality = 0;
-  INT16 outline_errs = 0;
-  static INT16 doc_blob_quality = 0;
-  static INT16 doc_outline_errs = 0;
-  static INT16 doc_char_quality = 0;
-  INT16 all_char_quality;
-  INT16 accepted_all_char_quality;
-  static INT16 good_char_count = 0;
-  static INT16 doc_good_char_quality = 0;
+  inT16 blob_quality = 0;
+  inT16 outline_errs = 0;
+  static inT16 doc_blob_quality = 0;
+  static inT16 doc_outline_errs = 0;
+  static inT16 doc_char_quality = 0;
+  inT16 all_char_quality;
+  inT16 accepted_all_char_quality;
+  static inT16 good_char_count = 0;
+  static inT16 doc_good_char_quality = 0;
   int i;
 
 
-  INT32 tess_adapt_mode = 0;
-  static INT32 word_count;              //count of words in doc
-  INT32 word_index;              //current word
+  inT32 tess_adapt_mode = 0;
+  static inT32 word_count;              //count of words in doc
+  inT32 word_index;              //current word
   static int dict_words;
 
   if (tessedit_minimal_rej_pass1) {
@@ -387,7 +387,7 @@ if (dopasses==1) return;
 	if (target_word_box)
 	{
 
-		BOX current_word_box=page_res_it.word ()->word->bounding_box();
+		TBOX current_word_box=page_res_it.word ()->word->bounding_box();
 		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
 		if (!target_word_box->contains(center_pt))
 		{
@@ -442,7 +442,7 @@ if (dopasses==1) return;
 	if (target_word_box)
 	{
 
-		BOX current_word_box=page_res_it.word ()->word->bounding_box();
+		TBOX current_word_box=page_res_it.word ()->word->bounding_box();
 		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
 		if (!target_word_box->contains(center_pt))
 		{
@@ -483,7 +483,7 @@ if (dopasses==1) return;
       page_res_it.row ()->row,
       &all_char_quality, &accepted_all_char_quality);
     doc_char_quality += all_char_quality;
-    UINT8 permuter_type = page_res_it.word ()->best_choice->permuter ();
+    uinT8 permuter_type = page_res_it.word ()->best_choice->permuter ();
     if ((permuter_type == SYSTEM_DAWG_PERM) ||
       (permuter_type == FREQ_DAWG_PERM) ||
     (permuter_type == USER_DAWG_PERM)) {
@@ -510,7 +510,7 @@ if (dopasses==1) return;
 	if (target_word_box)
 	{
 
-		BOX current_word_box=page_res_it.word ()->word->bounding_box();
+		TBOX current_word_box=page_res_it.word ()->word->bounding_box();
 		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
 		if (!target_word_box->contains(center_pt))
 		{
@@ -588,7 +588,7 @@ void classify_word_pass1(                 //recog one word
   BLOB_CHOICE_LIST_CLIST *blob_choices;
   BOOL8 adapt_ok;
   const char *rejmap;
-  INT16 index;
+  inT16 index;
   STRING mapstr = "";
   char *match_string;
   char word_string[1024];
@@ -741,16 +741,16 @@ void classify_word_pass2(  //word to do
   BOOL8 done_this_pass = FALSE;
   WERD_RES new_x_ht_word (word->word);
   float new_x_ht = 0.0;
-  INT16 old_xht_reject_count;
-  INT16 new_xht_reject_count;
-  INT16 old_xht_accept_count;
-  INT16 new_xht_accept_count;
+  inT16 old_xht_reject_count;
+  inT16 new_xht_reject_count;
+  inT16 old_xht_accept_count;
+  inT16 new_xht_accept_count;
   BOOL8 accept_new_x_ht = FALSE;
-  INT16 old_chs_in_wd;
-  INT16 new_chs_in_wd;
-  INT16 old_word_quality;
-  INT16 new_word_quality;
-  INT16 dummy;
+  inT16 old_chs_in_wd;
+  inT16 new_chs_in_wd;
+  inT16 old_word_quality;
+  inT16 new_word_quality;
+  inT16 dummy;
 
   set_global_subloc_code(SUBLOC_NORM);
   check_debug_pt (word, 30);
@@ -902,6 +902,9 @@ void classify_word_pass2(  //word to do
       create_fx_win();
     clear_fx_win();
     word->outword->plot (fx_win);
+    TBOX wbox = word->outword->bounding_box();
+    fx_win->ZoomToRectangle(wbox.left(), wbox.top(),
+                            wbox.right(), wbox.bottom());
     //make_picture_current(fx_win);
     ScrollView::Update();
   }
@@ -1279,7 +1282,7 @@ void choice_dump_tester(                           //dump chars in word
                         DENORM *,                  //de-normaliser
                         BOOL8 correct,             //ly segmented
                         char *text,                //correct text
-                        INT32 count,               //chars in text
+                        inT32 count,               //chars in text
                         BLOB_CHOICE_LIST *ratings  //list of results
                        ) {
   STRING choice_file_name;
@@ -1467,7 +1470,7 @@ ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s,
 
 BOOL8 check_debug_pt(WERD_RES *word, int location) {
   BOOL8 show_map_detail = FALSE;
-  INT16 i;
+  inT16 i;
 
   #ifndef SECURE_NAMES
   if (!test_pt)
@@ -1562,15 +1565,15 @@ BOOL8 check_debug_pt(WERD_RES *word, int location) {
 void set_word_fonts(                 //good chars in word
                     WERD_RES *word,  //word to adapt to //detailed results
                     BLOB_CHOICE_LIST_CLIST *blob_choices) {
-  INT32 index;                   //char index
-  INT32 offset;                  //char offset
+  inT32 index;                   //char index
+  inT32 offset;                  //char offset
   char choice_char[UNICHAR_LEN + 1];    //char from word
-  INT8 config;                   //font of char
+  inT8 config;                   //font of char
                                  //character iterator
   BLOB_CHOICE_LIST_C_IT char_it = blob_choices;
   BLOB_CHOICE_IT choice_it;      //choice iterator
   STATS fonts (0, 32);           //font counters
-  static INT8 italic_table[32] = {
+  static inT8 italic_table[32] = {
     1, -1, 1, -1,
     1, -1, 1, -1,
     1, -1, 1, -1,
@@ -1580,7 +1583,7 @@ void set_word_fonts(                 //good chars in word
     1, -1, 1, -1,
     1, -1, 1, -1
   };
-  static INT8 bold_table[32] = {
+  static inT8 bold_table[32] = {
     1, 1, -1, -1,
     1, 1, -1, -1,
     1, 1, -1, -1,
@@ -1590,7 +1593,7 @@ void set_word_fonts(                 //good chars in word
     1, 1, -1, -1,
     1, 1, -1, -1
   };
-  static INT8 font_table[32] = {
+  static inT8 font_table[32] = {
     2, 2, 2, 2,
     -1, -1, -1, -1,
     0, 0, 0, 0,
@@ -1666,12 +1669,12 @@ void set_word_fonts(                 //good chars in word
 
 void font_recognition_pass(  //good chars in word
                            PAGE_RES_IT &page_res_it) {
-  INT32 length;                  //of word
-  INT32 count;                   //of a feature
-  INT8 doc_font;                 //modal font
-  INT8 doc_font_count;           //modal font
-  INT32 doc_italic;              //total italics
-  INT32 doc_bold;                //total bolds
+  inT32 length;                  //of word
+  inT32 count;                   //of a feature
+  inT8 doc_font;                 //modal font
+  inT8 doc_font_count;           //modal font
+  inT32 doc_italic;              //total italics
+  inT32 doc_bold;                //total bolds
   ROW_RES *row = NULL;           //current row
   WERD_RES *word;                //current word
   STATS fonts (0, 32);           //font counters
@@ -1792,8 +1795,8 @@ void font_recognition_pass(  //good chars in word
 void add_in_one_row(               //good chars in word
                     ROW_RES *row,  //current row
                     STATS *fonts,  //font stats
-                    INT8 *italic,  //output count
-                    INT8 *bold     //output count
+                    inT8 *italic,  //output count
+                    inT8 *bold     //output count
                    ) {
   WERD_RES *word;                //current word
   WERD_RES_IT word_it = &row->word_res_list;
@@ -1819,14 +1822,14 @@ void add_in_one_row(               //good chars in word
 
 void find_modal_font(                  //good chars in word
                      STATS *fonts,     //font stats
-                     INT8 *font_out,   //output font
-                     INT8 *font_count  //output count
+                     inT8 *font_out,   //output font
+                     inT8 *font_count  //output count
                     ) {
-  INT8 font;                     //font index
-  INT32 count;                   //pile couat
+  inT8 font;                     //font index
+  inT32 count;                   //pile couat
 
   if (fonts->get_total () > 0) {
-    font = (INT8) fonts->mode ();
+    font = (inT8) fonts->mode ();
     *font_out = font;
     count = fonts->pile_count (font);
     *font_count = count < MAX_INT8 ? count : MAX_INT8;

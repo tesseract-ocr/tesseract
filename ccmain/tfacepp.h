@@ -72,14 +72,14 @@ void call_tester(                     //call a tester
                  TBLOB *tessblob,     //blob to test
                  BOOL8 correct_blob,  //true if good
                  char *text,          //source text
-                 INT32 count,         //chars in text
+                 inT32 count,         //chars in text
                  LIST result          //output of matcher
                 );
 void call_train_tester(                     //call a tester
                        TBLOB *tessblob,     //blob to test
                        BOOL8 correct_blob,  //true if good
                        char *text,          //source text
-                       INT32 count,         //chars in text
+                       inT32 count,         //chars in text
                        LIST result          //output of matcher
                       );
 #endif
