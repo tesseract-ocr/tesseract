@@ -68,8 +68,8 @@ ICOORD tright):         bl (bleft), tr (tright) {
 
 C_OUTLINE_LIST *
 OL_BUCKETS::operator () (        //array access
-INT16 x,                         //image coords
-INT16 y) {
+inT16 x,                         //image coords
+inT16 y) {
   return &buckets[(y - bl.y ()) / BUCKETSIZE * bxdim +
     (x - bl.x ()) / BUCKETSIZE];
 }
@@ -81,22 +81,22 @@ INT16 y) {
  * Find number of descendants of this outline.
  **********************************************************************/
 
-INT32 OL_BUCKETS::count_children(                     //recursive count
+inT32 OL_BUCKETS::count_children(                     //recursive count
                                  C_OUTLINE *outline,  //parent outline
-                                 INT32 max_count      //max output
+                                 inT32 max_count      //max output
                                 ) {
   BOOL8 parent_box;              //could it be boxy
-  INT16 xmin, xmax;              //coord limits
-  INT16 ymin, ymax;
-  INT16 xindex, yindex;          //current bucket
+  inT16 xmin, xmax;              //coord limits
+  inT16 ymin, ymax;
+  inT16 xindex, yindex;          //current bucket
   C_OUTLINE *child;              //current child
-  INT32 child_count;             //no of children
-  INT32 grandchild_count;        //no of grandchildren
-  INT32 parent_area;             //potential box
+  inT32 child_count;             //no of children
+  inT32 grandchild_count;        //no of grandchildren
+  inT32 parent_area;             //potential box
   FLOAT32 max_parent_area;       //potential box
-  INT32 child_area;              //current child
-  INT32 child_length;            //current child
-  BOX olbox;
+  inT32 child_area;              //current child
+  inT32 child_length;            //current child
+  TBOX olbox;
   C_OUTLINE_IT child_it;         //search iterator
 
   olbox = outline->bounding_box ();
@@ -202,10 +202,10 @@ void OL_BUCKETS::extract_children(                     //recursive count
                                   C_OUTLINE *outline,  //parent outline
                                   C_OUTLINE_IT *it     //destination iterator
                                  ) {
-  INT16 xmin, xmax;              //coord limits
-  INT16 ymin, ymax;
-  INT16 xindex, yindex;          //current bucket
-  BOX olbox;
+  inT16 xmin, xmax;              //coord limits
+  inT16 ymin, ymax;
+  inT16 xindex, yindex;          //current bucket
+  TBOX olbox;
   C_OUTLINE_IT child_it;         //search iterator
 
   olbox = outline->bounding_box ();
@@ -290,7 +290,7 @@ void fill_buckets(                           //find blobs
                   C_OUTLINE_LIST *outlines,  //outlines in block
                   OL_BUCKETS *buckets        //output buckets
                  ) {
-  BOX ol_box;                    //outline box
+  TBOX ol_box;                    //outline box
   C_OUTLINE_IT out_it = outlines;//iterator
   C_OUTLINE_IT bucket_it;        //iterator in bucket
   C_OUTLINE *outline;            //current outline
@@ -364,7 +364,7 @@ BOOL8 capture_children(                       //find children
                        C_OUTLINE_IT *blob_it  //output outlines
                       ) {
   C_OUTLINE *outline;            //master outline
-  INT32 child_count;             //no of children
+  inT32 child_count;             //no of children
 
   outline = blob_it->data ();
   child_count = buckets->count_children (outline, edges_children_count_limit);

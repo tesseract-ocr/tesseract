@@ -28,12 +28,12 @@
 class OUTLINE_FRAG:public ELIST_LINK
 {
   public:
-    OUTLINE_FRAG() { 
+    OUTLINE_FRAG() {
     }                            //empty constructor
                                  //head of fragment
     OUTLINE_FRAG(POLYPT_IT *head_it, POLYPT_IT *tail_it);  //tail of fragment
                                  //other end
-    OUTLINE_FRAG(OUTLINE_FRAG *head, float tail_y); 
+    OUTLINE_FRAG(OUTLINE_FRAG *head, float tail_y);
 
     POLYPT_LIST polypts;         //only if a head
     OUTLINE_FRAG *other_end;     //head if a tail
@@ -51,16 +51,16 @@ class C_OUTLINE_FRAG:public ELIST_LINK
     }
     ~C_OUTLINE_FRAG () {
       if (steps != NULL)
-        delete [] steps; 
+        delete [] steps;
     }
                                  //start coord
     C_OUTLINE_FRAG(ICOORD start_pt,
                    ICOORD end_pt,       //end coord
                    C_OUTLINE *outline,  //source of steps
-                   INT16 start_index,
-                   INT16 end_index);
+                   inT16 start_index,
+                   inT16 end_index);
                                  //other end
-    C_OUTLINE_FRAG(C_OUTLINE_FRAG *head, INT16 tail_y); 
+    C_OUTLINE_FRAG(C_OUTLINE_FRAG *head, inT16 tail_y);
     C_OUTLINE *close();  //copy to outline
     C_OUTLINE_FRAG & operator= ( //assign
       const C_OUTLINE_FRAG & src);
@@ -68,9 +68,9 @@ class C_OUTLINE_FRAG:public ELIST_LINK
     ICOORD start;                //start coord
     ICOORD end;                  //end coord
     DIR128 *steps;                //step array
-    INT32 stepcount;             //no of steps
+    inT32 stepcount;             //no of steps
     C_OUTLINE_FRAG *other_end;   //head if a tail
-    INT16 ycoord;                //coord of cut pt
+    inT16 ycoord;                //coord of cut pt
 
   private:
 };
@@ -88,15 +88,15 @@ ROW *fixed_pitch_words(                 //find lines
                       );
 WERD *add_repeated_word(                         //move repeated word
                         WERD_IT *rep_it,         //repeated words
-                        INT16 &rep_left,         //left edge of word
-                        INT16 &prev_chop_coord,  //previous word end
-                        UINT8 &blanks,           //no of blanks
+                        inT16 &rep_left,         //left edge of word
+                        inT16 &prev_chop_coord,  //previous word end
+                        uinT8 &blanks,           //no of blanks
                         float pitch,             //char cell size
                         WERD_IT *word_it         //list of words
                        );
 void split_to_blob(                                 //split the blob
                    BLOBNBOX *blob,                  //blob to split
-                   INT16 chop_coord,                //place to chop
+                   inT16 chop_coord,                //place to chop
                    float pitch_error,               //allowed deviation
                    OUTLINE_LIST *left_outlines,     //left half of chop
                    C_OUTLINE_LIST *left_coutlines,  //for cblobs
@@ -104,21 +104,21 @@ void split_to_blob(                                 //split the blob
                    C_OUTLINE_LIST *right_coutlines);
 void fixed_chop_blob(                              //split the blob
                      PBLOB *blob,                  //blob to split
-                     INT16 chop_coord,             //place to chop
+                     inT16 chop_coord,             //place to chop
                      float pitch_error,            //allowed deviation
                      OUTLINE_LIST *left_outlines,  //left half of chop
                      OUTLINE_LIST *right_outlines  //right half of chop
                     );
 void fixed_split_outline(                      //chop the outline
                          OUTLINE *srcline,     //source outline
-                         INT16 chop_coord,     //place to chop
+                         inT16 chop_coord,     //place to chop
                          float pitch_error,    //allowed deviation
                          OUTLINE_IT *left_it,  //left half of chop
                          OUTLINE_IT *right_it  //right half of chop
                         );
 BOOL8 fixed_chop_outline(                                //chop the outline
                          OUTLINE *srcline,               //source outline
-                         INT16 chop_coord,               //place to chop
+                         inT16 chop_coord,               //place to chop
                          float pitch_error,              //allowed deviation
                          OUTLINE_FRAG_LIST *left_frags,  //left half of chop
                          OUTLINE_FRAG_LIST *right_frags  //right half of chop
@@ -134,11 +134,11 @@ void add_frag_to_list(                          //ordered add
                      );
 void insert_chop_pt(                  //make chop
                     POLYPT_IT *it,    //iterator
-                    INT16 chop_coord  //required chop pt
+                    inT16 chop_coord  //required chop pt
                    );
 FCOORD find_chop_coords(                  //make chop
                         POLYPT_IT *it,    //iterator
-                        INT16 chop_coord  //required chop pt
+                        inT16 chop_coord  //required chop pt
                        );
 void insert_extra_pt(               //make extra
                      POLYPT_IT *it  //iterator
@@ -154,65 +154,65 @@ void join_chopped_fragments(                       //join pieces
                            );
 void fixed_chop_cblob(                                //split the blob
                       C_BLOB *blob,                   //blob to split
-                      INT16 chop_coord,               //place to chop
+                      inT16 chop_coord,               //place to chop
                       float pitch_error,              //allowed deviation
                       C_OUTLINE_LIST *left_outlines,  //left half of chop
                       C_OUTLINE_LIST *right_outlines  //right half of chop
                      );
 void fixed_split_coutline(                        //chop the outline
                           C_OUTLINE *srcline,     //source outline
-                          INT16 chop_coord,       //place to chop
+                          inT16 chop_coord,       //place to chop
                           float pitch_error,      //allowed deviation
                           C_OUTLINE_IT *left_it,  //left half of chop
                           C_OUTLINE_IT *right_it  //right half of chop
                          );
 BOOL8 fixed_chop_coutline(                                  //chop the outline
                           C_OUTLINE *srcline,               //source outline
-                          INT16 chop_coord,                 //place to chop
+                          inT16 chop_coord,                 //place to chop
                           float pitch_error,                //allowed deviation
                           C_OUTLINE_FRAG_LIST *left_frags,  //left half of chop
                           C_OUTLINE_FRAG_LIST *right_frags  //right half of chop
                          );
-INT16 next_anti_left_seg(                     //chop the outline
+inT16 next_anti_left_seg(                     //chop the outline
                          C_OUTLINE *srcline,  //source outline
-                         INT16 tail_index,    //of tailpos
-                         INT16 startindex,    //end of search
-                         INT32 length,        //of outline
-                         INT16 chop_coord,    //place to chop
+                         inT16 tail_index,    //of tailpos
+                         inT16 startindex,    //end of search
+                         inT32 length,        //of outline
+                         inT16 chop_coord,    //place to chop
                          float pitch_error,   //allowed deviation
                          ICOORD *tail_pos     //current position
                         );
-INT16 next_anti_right_seg(                     //chop the outline
+inT16 next_anti_right_seg(                     //chop the outline
                           C_OUTLINE *srcline,  //source outline
-                          INT16 tail_index,    //of tailpos
-                          INT16 startindex,    //end of search
-                          INT32 length,        //of outline
-                          INT16 chop_coord,    //place to chop
+                          inT16 tail_index,    //of tailpos
+                          inT16 startindex,    //end of search
+                          inT32 length,        //of outline
+                          inT16 chop_coord,    //place to chop
                           float pitch_error,   //allowed deviation
                           ICOORD *tail_pos     //current position
                          );
-INT16 next_clock_left_seg(                     //chop the outline
+inT16 next_clock_left_seg(                     //chop the outline
                           C_OUTLINE *srcline,  //source outline
-                          INT16 tail_index,    //of tailpos
-                          INT16 startindex,    //end of search
-                          INT32 length,        //of outline
-                          INT16 chop_coord,    //place to chop
+                          inT16 tail_index,    //of tailpos
+                          inT16 startindex,    //end of search
+                          inT32 length,        //of outline
+                          inT16 chop_coord,    //place to chop
                           float pitch_error,   //allowed deviation
                           ICOORD *tail_pos     //current position
                          );
-INT16 next_clock_right_seg(                     //chop the outline
+inT16 next_clock_right_seg(                     //chop the outline
                            C_OUTLINE *srcline,  //source outline
-                           INT16 tail_index,    //of tailpos
-                           INT16 startindex,    //end of search
-                           INT32 length,        //of outline
-                           INT16 chop_coord,    //place to chop
+                           inT16 tail_index,    //of tailpos
+                           inT16 startindex,    //end of search
+                           inT32 length,        //of outline
+                           inT16 chop_coord,    //place to chop
                            float pitch_error,   //allowed deviation
                            ICOORD *tail_pos     //current position
                           );
 void save_chop_cfragment(                            //chop the outline
-                         INT16 head_index,           //head of fragment
+                         inT16 head_index,           //head of fragment
                          ICOORD head_pos,            //head of fragment
-                         INT16 tail_index,           //tail of fragment
+                         inT16 tail_index,           //tail of fragment
                          ICOORD tail_pos,            //tail of fragment
                          C_OUTLINE *srcline,         //source of edgesteps
                          C_OUTLINE_FRAG_LIST *frags  //fragment list

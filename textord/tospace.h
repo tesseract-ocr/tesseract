@@ -119,75 +119,75 @@ void to_spacing(                       //set spacing
 void block_spacing_stats(TO_BLOCK *block,
                          GAPMAP *gapmap,
                          BOOL8 &old_text_ord_proportional,
-                         INT16 &block_space_gap_width,     //resulting estimate
-                         INT16 &block_non_space_gap_width  //resulting estimate
+                         inT16 &block_space_gap_width,     //resulting estimate
+                         inT16 &block_non_space_gap_width  //resulting estimate
                         );
                                  //estimate for block
 void row_spacing_stats(TO_ROW *row,
                        GAPMAP *gapmap,
-                       INT16 block_idx,
-                       INT16 row_idx,
-                       INT16 block_space_gap_width,
-                       INT16 block_non_space_gap_width  //estimate for block
+                       inT16 block_idx,
+                       inT16 row_idx,
+                       inT16 block_space_gap_width,
+                       inT16 block_non_space_gap_width  //estimate for block
                       );
                                  //estimate for block
 void old_to_method(TO_ROW *row,
                    STATS *all_gap_stats,
                    STATS *space_gap_stats,
                    STATS *small_gap_stats,
-                   INT16 block_space_gap_width,
-                   INT16 block_non_space_gap_width  //estimate for block
+                   inT16 block_space_gap_width,
+                   inT16 block_non_space_gap_width  //estimate for block
                   );
 BOOL8 isolated_row_stats(TO_ROW *row,
                          GAPMAP *gapmap,
                          STATS *all_gap_stats,
                          BOOL8 suspected_table,
-                         INT16 block_idx,
-                         INT16 row_idx);
-INT16 stats_count_under(STATS *stats, INT16 threshold); 
-void improve_row_threshold(TO_ROW *row, STATS *all_gap_stats); 
+                         inT16 block_idx,
+                         inT16 row_idx);
+inT16 stats_count_under(STATS *stats, inT16 threshold);
+void improve_row_threshold(TO_ROW *row, STATS *all_gap_stats);
 ROW *make_prop_words(                 //find lines
                      TO_ROW *row,     //row to make
                      FCOORD rotation  //for drawing
                     );
 BOOL8 make_a_word_break(               //decide on word break
                         TO_ROW *row,   //row being made
-                        BOX blob_box,  //for next_blob //how many blanks?
-                        INT16 prev_gap,
-                        BOX prev_blob_box,
-                        INT16 real_current_gap,
-                        INT16 within_xht_current_gap,
-                        BOX next_blob_box,
-                        INT16 next_gap,
-                        UINT8 &blanks,
+                        TBOX blob_box,  //for next_blob //how many blanks?
+                        inT16 prev_gap,
+                        TBOX prev_blob_box,
+                        inT16 real_current_gap,
+                        inT16 within_xht_current_gap,
+                        TBOX next_blob_box,
+                        inT16 next_gap,
+                        uinT8 &blanks,
                         BOOL8 &fuzzy_sp,
                         BOOL8 &fuzzy_non);
-BOOL8 narrow_blob(TO_ROW *row, BOX blob_box); 
-BOOL8 wide_blob(TO_ROW *row, BOX blob_box); 
-BOOL8 suspected_punct_blob(TO_ROW *row, BOX box); 
+BOOL8 narrow_blob(TO_ROW *row, TBOX blob_box);
+BOOL8 wide_blob(TO_ROW *row, TBOX blob_box);
+BOOL8 suspected_punct_blob(TO_ROW *row, TBOX box);
                                  //A COPY FOR PEEKING
 void peek_at_next_gap(TO_ROW *row,
                       BLOBNBOX_IT box_it,
-                      BOX &next_blob_box,
-                      INT16 &next_gap,
-                      INT16 &next_within_xht_gap);
+                      TBOX &next_blob_box,
+                      inT16 &next_gap,
+                      inT16 &next_within_xht_gap);
 void mark_gap(             //Debug stuff
-              BOX blob,    //blob following gap
-              INT16 rule,  // heuristic id
-              INT16 prev_gap,
-              INT16 prev_blob_width,
-              INT16 current_gap,
-              INT16 next_blob_width,
-              INT16 next_gap);
-float find_mean_blob_spacing(WERD *word); 
+              TBOX blob,    //blob following gap
+              inT16 rule,  // heuristic id
+              inT16 prev_gap,
+              inT16 prev_blob_width,
+              inT16 current_gap,
+              inT16 next_blob_width,
+              inT16 next_gap);
+float find_mean_blob_spacing(WERD *word);
 BOOL8 ignore_big_gap(TO_ROW *row,
-                     INT32 row_length,
+                     inT32 row_length,
                      GAPMAP *gapmap,
-                     INT16 left,
-                     INT16 right);
-BOX reduced_box_next(                 //get bounding box
+                     inT16 left,
+                     inT16 right);
+TBOX reduced_box_next(                 //get bounding box
                      TO_ROW *row,     //current row
                      BLOBNBOX_IT *it  //iterator to blobds
                     );
-BOX reduced_box_for_blob(BLOBNBOX *blob, TO_ROW *row, INT16 *left_above_xht); 
+TBOX reduced_box_for_blob(BLOBNBOX *blob, TO_ROW *row, inT16 *left_above_xht);
 #endif

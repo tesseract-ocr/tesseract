@@ -134,54 +134,54 @@ void cleanup_rows(                   //find lines
                   TO_BLOCK *block,   //block to do
                   float gradient,    //gradient to fit
                   FCOORD rotation,   //for drawing
-                  INT32 block_edge,  //edge of block
+                  inT32 block_edge,  //edge of block
                   BOOL8 testing_on   //correct orientation
                  );
 void delete_non_dropout_rows(                   //find lines
                              TO_BLOCK *block,   //block to do
                              float gradient,    //global skew
                              FCOORD rotation,   //deskew vector
-                             INT32 block_edge,  //left edge
+                             inT32 block_edge,  //left edge
                              BOOL8 testing_on   //correct orientation
                             );
 BOOL8 find_best_dropout_row(                    //find neighbours
                             TO_ROW *row,        //row to test
-                            INT32 distance,     //dropout dist
+                            inT32 distance,     //dropout dist
                             float dist_limit,   //threshold distance
-                            INT32 line_index,   //index of row
+                            inT32 line_index,   //index of row
                             TO_ROW_IT *row_it,  //current position
                             BOOL8 testing_on    //correct orientation
                            );
-BOX deskew_block_coords(                  //block box
+TBOX deskew_block_coords(                  //block box
                         TO_BLOCK *block,  //block to do
                         float gradient    //global skew
                        );
 void compute_line_occupation(                    //project blobs
                              TO_BLOCK *block,    //block to do
                              float gradient,     //global skew
-                             INT32 min_y,        //min coord in block
-                             INT32 max_y,        //in block
-                             INT32 *occupation,  //output projection
-                             INT32 *deltas       //derivative
+                             inT32 min_y,        //min coord in block
+                             inT32 max_y,        //in block
+                             inT32 *occupation,  //output projection
+                             inT32 *deltas       //derivative
                             );
 void compute_occupation_threshold(                    //project blobs
-                                  INT32 low_window,   //below result point
-                                  INT32 high_window,  //above result point
-                                  INT32 line_count,   //array sizes
-                                  INT32 *occupation,  //input projection
-                                  INT32 *thresholds   //output thresholds
+                                  inT32 low_window,   //below result point
+                                  inT32 high_window,  //above result point
+                                  inT32 line_count,   //array sizes
+                                  inT32 *occupation,  //input projection
+                                  inT32 *thresholds   //output thresholds
                                  );
 void compute_dropout_distances(                    //project blobs
-                               INT32 *occupation,  //input projection
-                               INT32 *thresholds,  //output thresholds
-                               INT32 line_count    //array sizes
+                               inT32 *occupation,  //input projection
+                               inT32 *thresholds,  //output thresholds
+                               inT32 line_count    //array sizes
                               );
 void expand_rows(                   //find lines
                  ICOORD page_tr,    //top right
                  TO_BLOCK *block,   //block to do
                  float gradient,    //gradient to fit
                  FCOORD rotation,   //for drawing
-                 INT32 block_edge,  //edge of block
+                 inT32 block_edge,  //edge of block
                  BOOL8 testing_on   //correct orientation
                 );
 void adjust_row_limits(                 //tidy limits
@@ -199,22 +199,22 @@ float median_block_xheight(                  //find lines
                            TO_BLOCK *block,  //block to do
                            float gradient    //global skew
                           );
-INT32 compute_row_xheight(                   //find lines
+inT32 compute_row_xheight(                   //find lines
                           TO_ROW *row,       //row to do
-                          INT32 min_height,  //min xheight
-                          INT32 max_height,  //max xheight
+                          inT32 min_height,  //min xheight
+                          inT32 max_height,  //max xheight
                           float gradient     //global skew
                          );
-INT32 compute_row_descdrop(                //find lines
+inT32 compute_row_descdrop(                //find lines
                            TO_ROW *row,    //row to do
                            float gradient  //global skew
                           );
-INT32 compute_height_modes(                   //find lines
+inT32 compute_height_modes(                   //find lines
                            STATS *heights,    //stats to search
-                           INT32 min_height,  //bottom of range
-                           INT32 max_height,  //top of range
-                           INT32 *modes,      //output array
-                           INT32 maxmodes     //size of modes
+                           inT32 min_height,  //bottom of range
+                           inT32 max_height,  //top of range
+                           inT32 *modes,      //output array
+                           inT32 maxmodes     //size of modes
                           );
 void correct_row_xheight(                //fix bad values
                          TO_ROW *row,    //row to fix
@@ -237,7 +237,7 @@ void fit_parallel_rows(                   //find lines
                        TO_BLOCK *block,   //block to do
                        float gradient,    //gradient to fit
                        FCOORD rotation,   //for drawing
-                       INT32 block_edge,  //edge of block
+                       inT32 block_edge,  //edge of block
                        BOOL8 testing_on   //correct orientation
                       );
 void fit_parallel_lms(                 //sort function
@@ -248,7 +248,7 @@ void make_spline_rows(                   //find lines
                       TO_BLOCK *block,   //block to do
                       float gradient,    //gradient to fit
                       FCOORD rotation,   //for drawing
-                      INT32 block_edge,  //edge of block
+                      inT32 block_edge,  //edge of block
                       BOOL8 testing_on   //correct orientation
                      );
 void make_baseline_spline(                 //sort function
@@ -258,14 +258,14 @@ void make_baseline_spline(                 //sort function
 BOOL8 segment_baseline (         //split baseline
 TO_ROW * row,                    //row to fit
 TO_BLOCK * block,                //block it came from
-INT32 & segments,                //no fo segments
-INT32 xstarts[]                  //coords of segments
+inT32 & segments,                //no fo segments
+inT32 xstarts[]                  //coords of segments
 );
 double *linear_spline_baseline ( //split baseline
 TO_ROW * row,                    //row to fit
 TO_BLOCK * block,                //block it came from
-INT32 & segments,                //no fo segments
-INT32 xstarts[]                  //coords of segments
+inT32 & segments,                //no fo segments
+inT32 xstarts[]                  //coords of segments
 );
 void assign_blobs_to_rows(                      //find lines
                           TO_BLOCK *block,      //block to do

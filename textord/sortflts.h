@@ -29,17 +29,17 @@ class SORTED_FLOAT:public ELIST_LINK
   friend class SORTED_FLOATS;
 
   public:
-    SORTED_FLOAT() { 
+    SORTED_FLOAT() {
     }                            //empty constructor
     SORTED_FLOAT(              //create one
                  float value,  //value of entry
-                 INT32 key) {  //reference
+                 inT32 key) {  //reference
       entry = value;
       address = key;
     }
   private:
     float entry;                 //value of float
-    INT32 address;               //key
+    inT32 address;               //key
 };
 
 ELISTIZEH (SORTED_FLOAT)
@@ -51,11 +51,11 @@ class SORTED_FLOATS
     }
     void add(              //add sample
              float value,  //sample float
-             INT32 key);   //retrieval key
+             inT32 key);   //retrieval key
     void remove(             //delete sample
-                INT32 key);  //key to delete
+                inT32 key);  //key to delete
     float operator[] (           //index to list
-      INT32 index);              //item to get
+      inT32 index);              //item to get
 
   private:
     SORTED_FLOAT_LIST list;      //list of floats

@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        tordmain.cpp  (Formerly textordp.c)
  * Description: C++ top level textord code.
- * Author:					Ray Smith
- * Created:					Tue Jul 28 17:12:33 BST 1992
+ * Author:                  Ray Smith
+ * Created:                 Tue Jul 28 17:12:33 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -114,7 +114,7 @@ void read_and_textord(                       //read .pb file
   int c;                         //input character
   FILE *infp;                    //input file
   BLOCK *block;                  //current block
-  BOX page_box;                  //bounding_box
+  TBOX page_box;                  //bounding_box
   BLOCK_IT block_it = blocks;    //iterator
                                  //different orientations
   TO_BLOCK_LIST land_blocks, port_blocks;
@@ -153,7 +153,7 @@ void edges_and_textord(                       //read .pb file
   const char *lastdot;           //of name
   STRING name = filename;        //truncated name
   ICOORD page_tr;
-  BOX page_box;                  //bounding_box
+  TBOX page_box;                  //bounding_box
   PDBLK_CLIST pd_blocks;         //copy of list
   BLOCK_IT block_it = blocks;    //iterator
   PDBLK_C_IT pd_it = &pd_blocks; //iterator
@@ -355,8 +355,8 @@ float filter_noise_blobs(                            //separate noise
                          BLOBNBOX_LIST *small_list,  //small blobs
                          BLOBNBOX_LIST *large_list   //large blobs
                         ) {
-  INT16 height;                  //height of blob
-  INT16 width;                   //of blob
+  inT16 height;                  //height of blob
+  inT16 width;                   //of blob
   BLOBNBOX_IT src_it = src_list; //iterators
   BLOBNBOX_IT noise_it = noise_list;
   BLOBNBOX_IT small_it = small_list;
@@ -403,8 +403,8 @@ float filter_noise_blobs2(                            //separate noise
                           BLOBNBOX_LIST *small_list,  //small blobs
                           BLOBNBOX_LIST *large_list   //large blobs
                          ) {
-  INT16 height;                  //height of blob
-  INT16 width;                   //of blob
+  inT16 height;                  //height of blob
+  inT16 width;                   //of blob
   BLOBNBOX *blob;                //current blob
   float initial_x;               //first guess
   BLOBNBOX_IT src_it = src_list; //iterators
@@ -439,9 +439,11 @@ float filter_noise_blobs2(                            //separate noise
   small_it.move_to_first ();
   for (small_it.mark_cycle_pt (); !small_it.cycled_list ();
   small_it.forward ()) {
-    height = small_it.data ()->bounding_box ().height ();
-    if (height >= min_y)
-      large_it.add_after_then_move (small_it.extract ());
+    height = small_it.data()->bounding_box().height();
+    if (height > max_y)
+      large_it.add_after_then_move(small_it.extract ());
+    else if (height >= min_y)
+      src_it.add_after_then_move(small_it.extract ());
   }
   size_stats.clear ();
   for (src_it.mark_cycle_pt (); !src_it.cycled_list (); src_it.forward ()) {
@@ -545,16 +547,16 @@ BOOL8 clean_noise_from_row(          //remove empties
                            ROW *row  //row to clean
                           ) {
   BOOL8 testing_on;
-  BOX blob_box;                  //bounding box
+  TBOX blob_box;                  //bounding box
   C_BLOB *blob;                  //current blob
   C_OUTLINE *outline;            //current outline
   WERD *word;                    //current word
-  INT32 blob_size;               //biggest size
-  INT32 trans_count = 0;         //no of transitions
-  INT32 trans_threshold;         //noise tolerance
-  INT32 dot_count;               //small objects
-  INT32 norm_count;              //normal objects
-  INT32 super_norm_count;        //real char-like
+  inT32 blob_size;               //biggest size
+  inT32 trans_count = 0;         //no of transitions
+  inT32 trans_threshold;         //noise tolerance
+  inT32 dot_count;               //small objects
+  inT32 norm_count;              //normal objects
+  inT32 super_norm_count;        //real char-like
                                  //words of row
   WERD_IT word_it = row->word_list ();
   C_BLOB_IT blob_it;             //blob iterator
@@ -653,19 +655,19 @@ BOOL8 clean_noise_from_row(          //remove empties
 void clean_noise_from_words(          //remove empties
                             ROW *row  //row to clean
                            ) {
-  BOX blob_box;                  //bounding box
-  INT8 *word_dud;                //was it chucked
+  TBOX blob_box;                  //bounding box
+  inT8 *word_dud;                //was it chucked
   C_BLOB *blob;                  //current blob
   C_OUTLINE *outline;            //current outline
   WERD *word;                    //current word
-  INT32 blob_size;               //biggest size
-  INT32 trans_count;             //no of transitions
-  INT32 trans_threshold;         //noise tolerance
-  INT32 dot_count;               //small objects
-  INT32 norm_count;              //normal objects
-  INT32 dud_words;               //number discarded
-  INT32 ok_words;                //number remaining
-  INT32 word_index;              //current word
+  inT32 blob_size;               //biggest size
+  inT32 trans_count;             //no of transitions
+  inT32 trans_threshold;         //noise tolerance
+  inT32 dot_count;               //small objects
+  inT32 norm_count;              //normal objects
+  inT32 dud_words;               //number discarded
+  inT32 ok_words;                //number remaining
+  inT32 word_index;              //current word
                                  //words of row
   WERD_IT word_it = row->word_list ();
   C_BLOB_IT blob_it;             //blob iterator
@@ -674,7 +676,7 @@ void clean_noise_from_words(          //remove empties
   ok_words = word_it.length ();
   if (ok_words == 0 || textord_no_rejects)
     return;
-  word_dud = (INT8 *) alloc_mem (ok_words * sizeof (INT8));
+  word_dud = (inT8 *) alloc_mem (ok_words * sizeof (inT8));
   dud_words = 0;
   ok_words = 0;
   word_index = 0;
@@ -772,13 +774,13 @@ void clean_noise_from_words(          //remove empties
 void tweak_row_baseline(          //remove empties
                         ROW *row  //row to clean
                        ) {
-  BOX blob_box;                  //bounding box
+  TBOX blob_box;                  //bounding box
   C_BLOB *blob;                  //current blob
   WERD *word;                    //current word
-  INT32 blob_count;              //no of blobs
-  INT32 src_index;               //source segment
-  INT32 dest_index;              //destination segment
-  INT32 *xstarts;                //spline segments
+  inT32 blob_count;              //no of blobs
+  inT32 src_index;               //source segment
+  inT32 dest_index;              //destination segment
+  inT32 *xstarts;                //spline segments
   double *coeffs;                //spline coeffs
   float ydiff;                   //baseline error
   float x_centre;                //centre of blob
@@ -795,8 +797,8 @@ void tweak_row_baseline(          //remove empties
   if (blob_count == 0)
     return;
   xstarts =
-    (INT32 *) alloc_mem ((blob_count + row->baseline.segments + 1) *
-    sizeof (INT32));
+    (inT32 *) alloc_mem ((blob_count + row->baseline.segments + 1) *
+    sizeof (inT32));
   coeffs =
     (double *) alloc_mem ((blob_count + row->baseline.segments) * 3 *
     sizeof (double));
@@ -884,7 +886,7 @@ void tweak_row_baseline(          //remove empties
  * Sort function to sort blobs in y from page top.
  **********************************************************************/
 
-INT32 blob_y_order(              //sort function
+inT32 blob_y_order(              //sort function
                    void *item1,  //items to compare
                    void *item2) {
                                  //converted ptr

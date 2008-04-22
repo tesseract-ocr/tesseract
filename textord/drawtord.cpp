@@ -55,12 +55,12 @@ void create_to_win(                //make features win
                    ICOORD page_tr  //size of page
                   ) {
   if (strcmp (to_smdfile.string (), NO_SMD)) {
-    to_win = new ScrollView (to_smdfile.string (), 
+    to_win = new ScrollView (to_smdfile.string (),
       0, 0, page_tr.x () + 1, page_tr.y () + 1,
       page_tr.x (), page_tr.y ());
   }
   else {
-    to_win = new ScrollView (TO_WIN_NAME, 
+    to_win = new ScrollView (TO_WIN_NAME,
       TO_WIN_XPOS, TO_WIN_YPOS, 0, 0,
       page_tr.x (),  page_tr.y ());
   }
@@ -121,7 +121,7 @@ void plot_box_list(                      //make gradients win
                   ) {
   BLOBNBOX_IT it = list;         //iterator
 
-  win->Pen(body_colour); 
+  win->Pen(body_colour);
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
     it.data ()->bounding_box ().plot (win);
   }
@@ -152,7 +152,7 @@ void plot_to_row(                 //draw a row
   it.move_to_last ();
   right = it.data ()->bounding_box ().right ();
   plot_blob_list (to_win, row->blob_list (), colour, ScrollView::BROWN);
-  to_win->Pen(colour); 
+  to_win->Pen(colour);
   plot_pt = FCOORD (left, row->line_m () * left + row->line_c ());
   plot_pt.rotate (rotation);
   to_win->SetCursor(plot_pt.x (), plot_pt.y ());
@@ -171,7 +171,7 @@ void plot_to_row(                 //draw a row
 void plot_parallel_row(                 //draw a row
                        TO_ROW *row,     //row to draw
                        float gradient,  //gradients of lines
-                       INT32 left,      //edge of block
+                       inT32 left,      //edge of block
                        ScrollView::Color colour,   //colour to draw in
                        FCOORD rotation  //rotation for line
                       ) {
@@ -185,7 +185,7 @@ void plot_parallel_row(                 //draw a row
   it.move_to_last ();
   right = it.data ()->bounding_box ().right ();
   plot_blob_list (to_win, row->blob_list (), colour, ScrollView::BROWN);
-  to_win->Pen(colour); 
+  to_win->Pen(colour);
   plot_pt = FCOORD (fleft, gradient * left + row->max_y ());
   plot_pt.rotate (rotation);
   to_win->SetCursor(plot_pt.x (), plot_pt.y ());
@@ -210,36 +210,36 @@ void plot_parallel_row(                 //draw a row
 
 void
 draw_occupation (                //draw projection
-INT32 xleft,                     //edge of block
-INT32 ybottom,                   //bottom of block
-INT32 min_y,                     //coordinate limits
-INT32 max_y, INT32 occupation[], //projection counts
-INT32 thresholds[]               //for drop out
+inT32 xleft,                     //edge of block
+inT32 ybottom,                   //bottom of block
+inT32 min_y,                     //coordinate limits
+inT32 max_y, inT32 occupation[], //projection counts
+inT32 thresholds[]               //for drop out
 ) {
-  INT32 line_index;              //pixel coord
+  inT32 line_index;              //pixel coord
   ScrollView::Color colour;                 //of histogram
   float fleft = (float) xleft;   //float version
 
   colour = ScrollView::WHITE;
-  to_win->Pen(colour); 
+  to_win->Pen(colour);
   to_win->SetCursor(fleft, (float) ybottom);
   for (line_index = min_y; line_index <= max_y; line_index++) {
     if (occupation[line_index - min_y] < thresholds[line_index - min_y]) {
       if (colour != ScrollView::BLUE) {
         colour = ScrollView::BLUE;
-	to_win->Pen(colour); 
+	to_win->Pen(colour);
       }
     }
     else {
       if (colour != ScrollView::WHITE) {
         colour = ScrollView::WHITE;
-	to_win->Pen(colour); 
+	to_win->Pen(colour);
       }
     }
   to_win->DrawTo(fleft + occupation[line_index - min_y] / 10.0,      (float) line_index);
   }
   colour=ScrollView::STEEL_BLUE;
-  to_win->Pen(colour); 
+  to_win->Pen(colour);
   to_win->SetCursor(fleft, (float) ybottom);
   for (line_index = min_y; line_index <= max_y; line_index++) {
      to_win->DrawTo(fleft + thresholds[line_index - min_y] / 10.0,      (float) line_index);
@@ -256,7 +256,7 @@ INT32 thresholds[]               //for drop out
 void draw_meanlines(                  //draw a block
                     TO_BLOCK *block,  //block to draw
                     float gradient,   //gradients of lines
-                    INT32 left,       //edge of block
+                    inT32 left,       //edge of block
                     ScrollView::Color colour,    //colour to draw in
                     FCOORD rotation   //rotation for line
                    ) {
@@ -266,7 +266,7 @@ void draw_meanlines(                  //draw a block
   TO_ROW *row;                   //current row
   BLOBNBOX_IT blob_it;           //blobs
   float right;                   //end of row
-  to_win->Pen(colour); 
+  to_win->Pen(colour);
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
     blob_it.set_to_list (row->blob_list ());
@@ -295,15 +295,15 @@ void draw_meanlines(                  //draw a block
 
 void plot_word_decisions(              //draw words
                          ScrollView* win,   //window tro draw in
-                         INT16 pitch,  //of block
+                         inT16 pitch,  //of block
                          TO_ROW *row   //row to draw
                         ) {
   ScrollView::Color colour = ScrollView::MAGENTA;       //current colour
   ScrollView::Color rect_colour;            //fuzzy colour
-  INT32 prev_x;                  //end of prev blob
-  INT16 blob_count;              //blobs in word
+  inT32 prev_x;                  //end of prev blob
+  inT16 blob_count;              //blobs in word
   BLOBNBOX *blob;                //current blob
-  BOX blob_box;                  //bounding box
+  TBOX blob_box;                  //bounding box
                                  //iterator
   BLOBNBOX_IT blob_it = row->blob_list ();
   BLOBNBOX_IT start_it = blob_it;//word start
@@ -336,8 +336,8 @@ void plot_word_decisions(              //draw words
           rect_colour = ScrollView::GOLDENROD;
         else
           rect_colour = ScrollView::CORAL;
-        //fill_color_index(win, rect_colour); 
-        win->Brush(rect_colour); 
+        //fill_color_index(win, rect_colour);
+        win->Brush(rect_colour);
         win->Rectangle (prev_x, blob_box.bottom (),
           blob_box.left (), blob_box.top ());
       }
@@ -371,14 +371,14 @@ void plot_fp_cells(                        //draw words
                    ScrollView* win,             //window tro draw in
                    ScrollView::Color colour,          //colour of lines
                    BLOBNBOX_IT *blob_it,   //blobs
-                   INT16 pitch,            //of block
-                   INT16 blob_count,       //no of real blobs
+                   inT16 pitch,            //of block
+                   inT16 blob_count,       //no of real blobs
                    STATS *projection,      //vertical
-                   INT16 projection_left,  //edges //scale factor
-                   INT16 projection_right,
+                   inT16 projection_left,  //edges //scale factor
+                   inT16 projection_right,
                    float projection_scale) {
-  INT16 occupation;              //occupied cells
-  BOX word_box;                  //bounding box
+  inT16 occupation;              //occupied cells
+  TBOX word_box;                  //bounding box
   FPSEGPT_LIST seg_list;         //list of cuts
   FPSEGPT_IT seg_it;
   FPSEGPT *segpt;                //current point
@@ -417,7 +417,7 @@ void plot_fp_cells2(                        //draw words
                     TO_ROW *row,            //for location
                     FPSEGPT_LIST *seg_list  //segments to plot
                    ) {
-  BOX word_box;                  //bounding box
+  TBOX word_box;                  //bounding box
   FPSEGPT_IT seg_it = seg_list;
                                  //blobs in row
   BLOBNBOX_IT blob_it = row->blob_list ();
@@ -451,7 +451,7 @@ void plot_row_cells(                       //draw words
                     float xshift,          //amount of shift
                     ICOORDELT_LIST *cells  //cells to draw
                    ) {
-  BOX word_box;                  //bounding box
+  TBOX word_box;                  //bounding box
   ICOORDELT_IT cell_it = cells;
                                  //blobs in row
   BLOBNBOX_IT blob_it = row->blob_list ();
@@ -460,7 +460,7 @@ void plot_row_cells(                       //draw words
   word_box = blob_it.data ()->bounding_box ();
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list ();)
     word_box += box_next (&blob_it);
-  win->Pen(colour); 
+  win->Pen(colour);
   for (cell_it.mark_cycle_pt (); !cell_it.cycled_list (); cell_it.forward ()) {
     cell = cell_it.data ();
     win->Line(cell->x () + xshift, word_box.bottom (), cell->x () + xshift, word_box.top ());

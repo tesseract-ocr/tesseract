@@ -35,8 +35,8 @@ BOOL8 make_blocks_from_rows(                    //make thresholds
 ROW *convert_row(                   //convert a row
                  TEXTROW *tessrow,  //row to convert
                  BOOL8 do_shift,    //true do do shift
-                 INT16 &top,        //top of row
-                 INT16 &bottom      //bottom of row
+                 inT16 &top,        //top of row
+                 inT16 &bottom      //bottom of row
                 );
 void convert_words(                   //convert a row
                    TEXTROW *tessrow,  //row to convert
@@ -60,10 +60,10 @@ void accumulate_word_stats(                    //get stats
                            ICOORD &tright);
 void blob_bounding_box(              //get bounding box
                        TBLOB *blob,  //blob to do
-                       INT16 &xmin,  //bounding box
-                       INT16 &ymin,
-                       INT16 &xmax,  //of blob
-                       INT16 &ymax);
+                       inT16 &xmin,  //bounding box
+                       inT16 &ymin,
+                       inT16 &xmax,  //of blob
+                       inT16 &ymax);
 void free_blob(             //free tess blob
                TBLOB *blob  //blob to free
               );

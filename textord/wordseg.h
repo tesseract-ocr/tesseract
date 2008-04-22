@@ -37,17 +37,17 @@ void set_row_spaces(                  //find space sizes
                     FCOORD rotation,  //for drawing
                     BOOL8 testing_on  //correct orientation
                    );
-INT32 row_words(                  //compute space size
+inT32 row_words(                  //compute space size
                 TO_BLOCK *block,  //block it came from
                 TO_ROW *row,      //row to operate on
-                INT32 maxwidth,   //max expected space size
+                inT32 maxwidth,   //max expected space size
                 FCOORD rotation,  //for drawing
                 BOOL8 testing_on  //for debug
                );
-INT32 row_words2(                  //compute space size
+inT32 row_words2(                  //compute space size
                  TO_BLOCK *block,  //block it came from
                  TO_ROW *row,      //row to operate on
-                 INT32 maxwidth,   //max expected space size
+                 inT32 maxwidth,   //max expected space size
                  FCOORD rotation,  //for drawing
                  BOOL8 testing_on  //for debug
                 );
@@ -61,10 +61,10 @@ ROW *make_rep_words(                 //make a row
                    );
 WERD *make_real_word(                      //make a WERD
                      BLOBNBOX_IT *box_it,  //iterator
-                     INT32 blobcount,      //no of blobs to use
+                     inT32 blobcount,      //no of blobs to use
                      BOOL8 bol,            //start of line
                      BOOL8 fuzzy_sp,       //fuzzy space
                      BOOL8 fuzzy_non,      //fuzzy non-space
-                     UINT8 blanks          //no of blanks
+                     uinT8 blanks          //no of blanks
                     );
 #endif

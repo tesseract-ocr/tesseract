@@ -65,13 +65,13 @@ void find_textlines(                  //get baseline
                    );
 int get_blob_coords(                    //get boxes
                     TO_ROW *row,        //row to use
-                    INT32 lineheight,   //block level
-                    BOX *blobcoords,    //ouput boxes
+                    inT32 lineheight,   //block level
+                    TBOX *blobcoords,    //ouput boxes
                     BOOL8 &holed_line,  //lost a lot of blobs
                     int &outcount       //no of real blobs
                    );
 void make_first_baseline (       //initial approximation
-BOX blobcoords[],                /*blob bounding boxes */
+TBOX blobcoords[],                /*blob bounding boxes */
 int blobcount,                   /*no of blobcoords */
 int xcoords[],                   /*coords for spline */
 int ycoords[],                   /*approximator */
@@ -80,14 +80,14 @@ QSPLINE * baseline,              /*output spline */
 float jumplimit                  /*guess half descenders */
 );
 void make_holed_baseline (       //initial approximation
-BOX blobcoords[],                /*blob bounding boxes */
+TBOX blobcoords[],                /*blob bounding boxes */
 int blobcount,                   /*no of blobcoords */
 QSPLINE * spline,                /*initial spline */
 QSPLINE * baseline,              /*output spline */
 float gradient                   //of line
 );
 int partition_line (             //partition blobs
-BOX blobcoords[],                //bounding boxes
+TBOX blobcoords[],                //bounding boxes
 int blobcount,                   /*no of blobs on row */
 int *numparts,                   /*number of partitions */
 char partids[],                  /*partition no of each blob */
@@ -97,7 +97,7 @@ float jumplimit,                 /*allowed delta change */
 float ydiffs[]                   /*diff from spline */
 );
 void merge_oldbl_parts (         //partition blobs
-BOX blobcoords[],                //bounding boxes
+TBOX blobcoords[],                //bounding boxes
 int blobcount,                   /*no of blobs on row */
 char partids[],                  /*partition no of each blob */
 int partsizes[],                 /*no in each partition */
@@ -105,7 +105,7 @@ int biggestpart,                 //major partition
 float jumplimit                  /*allowed delta change */
 );
 int get_ydiffs (                 //evaluate differences
-BOX blobcoords[],                //bounding boxes
+TBOX blobcoords[],                //bounding boxes
 int blobcount,                   /*no of blobs */
 QSPLINE * spline,                /*approximating spline */
 float ydiffs[]                   /*output */
@@ -118,7 +118,7 @@ float jumplimit,                 /*new part threshold */
 int *partcount                   /*no of partitions */
 );
 int partition_coords (           //find relevant coords
-BOX blobcoords[],                //bounding boxes
+TBOX blobcoords[],                //bounding boxes
 int blobcount,                   /*no of blobs in row */
 char partids[],                  /*partition no of each blob */
 int bestpart,                    /*best new partition */
@@ -126,7 +126,7 @@ int xcoords[],                   /*points to work on */
 int ycoords[]                    /*points to work on */
 );
 int segment_spline (             //make xstarts
-BOX blobcoords[],                //boundign boxes
+TBOX blobcoords[],                //boundign boxes
 int blobcount,                   /*no of blobs in row */
 int xcoords[],                   /*points to work on */
 int ycoords[],                   /*points to work on */
@@ -148,7 +148,7 @@ int coord2, int &segments        //total segments
 );
 void find_lesser_parts (         //get descenders
 TO_ROW * row,                    //row to process
-BOX blobcoords[],                //bounding boxes
+TBOX blobcoords[],                //bounding boxes
 int blobcount,                   /*no of blobs */
 char partids[],                  /*partition of each blob */
 int partsizes[],                 /*size of each part */
@@ -158,7 +158,7 @@ int bestpart                     /*biggest partition */
 
 void old_first_xheight (         //the wiseowl way
 TO_ROW * row,                    /*current row */
-BOX blobcoords[],                /*blob bounding boxes */
+TBOX blobcoords[],                /*blob bounding boxes */
 int initialheight,               //initial guess
 int blobcount,                   /*blobs in blobcoords */
 QSPLINE * baseline,              /*established */
@@ -167,7 +167,7 @@ float jumplimit                  /*min ascender height */
 
 void make_first_xheight (        //find xheight
 TO_ROW * row,                    /*current row */
-BOX blobcoords[],                /*blob bounding boxes */
+TBOX blobcoords[],                /*blob bounding boxes */
 int lineheight,                  //initial guess
 int init_lineheight,             //block level guess
 int blobcount,                   /*blobs in blobcoords */
@@ -176,7 +176,7 @@ float jumplimit                  /*min ascender height */
 );
 
 int *make_height_array (         //get array of heights
-BOX blobcoords[],                /*blob bounding boxes */
+TBOX blobcoords[],                /*blob bounding boxes */
 int blobcount,                   /*blobs in blobcoords */
 QSPLINE * baseline               /*established */
 );

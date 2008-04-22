@@ -46,9 +46,9 @@ DLLSYM void block_edges(                      //get edges in a block
                         PDBLK *block,         //block in image
                         ICOORD page_tr        //corner of page
                        ) {
-  UINT8 margin;                  //margin colour
-  INT16 x;                       //line coords
-  INT16 y;                       //current line
+  uinT8 margin;                  //margin colour
+  inT16 x;                       //line coords
+  inT16 y;                       //current line
   ICOORD bleft;                  //bounding box
   ICOORD tright;
   ICOORD block_bleft;            //bounding box
@@ -108,17 +108,17 @@ DLLSYM void block_edges(                      //get edges in a block
 void make_margins(                         //get a line
                   PDBLK *block,            //block in image
                   BLOCK_LINE_IT *line_it,  //for old style
-                  UINT8 *pixels,           //pixels to strip
-                  UINT8 margin,            //white-out pixel
-                  INT16 left,              //block edges
-                  INT16 right,
-                  INT16 y                  //line coord
+                  uinT8 *pixels,           //pixels to strip
+                  uinT8 margin,            //white-out pixel
+                  inT16 left,              //block edges
+                  inT16 right,
+                  inT16 y                  //line coord
                  ) {
   PB_LINE_IT *lines;
   ICOORDELT_LIST *segments;      //bits of a line
   ICOORDELT_IT seg_it;
-  INT32 start;                   //of segment
-  INT16 xext;                    //of segment
+  inT32 start;                   //of segment
+  inT16 xext;                    //of segment
   int xindex;                    //index to pixel
 
   if (block->poly_block () != NULL) {
@@ -167,12 +167,12 @@ void whiteout_block(                 //clean it
                     IMAGE *t_image,  //threshold image
                     PDBLK *block     //block in image
                    ) {
-  INT16 x;                       //line coords
-  INT16 y;                       //current line
-  INT16 xext;                    //line width
+  inT16 x;                       //line coords
+  inT16 y;                       //current line
+  inT16 xext;                    //line width
   int xindex;                    //index to pixel
-  UINT8 *dest;                   //destination pixel
-  BOX block_box;                 //bounding box
+  uinT8 *dest;                   //destination pixel
+  TBOX block_box;                 //bounding box
   BLOCK_LINE_IT line_it = block; //line iterator
   IMAGELINE bwline;              //thresholded line
 
@@ -198,11 +198,11 @@ void whiteout_block(                 //clean it
 
 void
 line_edges (                     //scan for edges
-INT16 x,                         //coord of line start
-INT16 y,                         //coord of line
-INT16 xext,                      //width of line
-UINT8 uppercolour,               //start of prev line
-UINT8 * bwpos,                   //thresholded line
+inT16 x,                         //coord of line start
+inT16 y,                         //coord of line
+inT16 xext,                      //width of line
+uinT8 uppercolour,               //start of prev line
+uinT8 * bwpos,                   //thresholded line
 CRACKEDGE ** prevline            //edges in progress
 ) {
   int xpos;                      //current x coord
@@ -288,9 +288,9 @@ CRACKEDGE ** prevline            //edges in progress
 
 CRACKEDGE *
 h_edge (                         //horizontal edge
-INT16 x,                         //xposition
-INT16 y,                         //y position
-INT8 sign,                       //sign of edge
+inT16 x,                         //xposition
+inT16 y,                         //y position
+inT8 sign,                       //sign of edge
 CRACKEDGE * join                 //edge to join to
 ) {
   CRACKEDGE *newpt;              //return value
@@ -348,9 +348,9 @@ CRACKEDGE * join                 //edge to join to
 
 CRACKEDGE *
 v_edge (                         //vertical edge
-INT16 x,                         //xposition
-INT16 y,                         //y position
-INT8 sign,                       //sign of edge
+inT16 x,                         //xposition
+inT16 y,                         //y position
+inT8 sign,                       //sign of edge
 CRACKEDGE * join                 //edge to join to
 ) {
   CRACKEDGE *newpt;              //return value

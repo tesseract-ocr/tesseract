@@ -53,15 +53,15 @@ class REGION_OCC:public ELIST_LINK
   public:
     float min_x;                 //Lowest x in region
     float max_x;                 //Highest x in region
-    INT16 region_type;           //Type of crossing
+    inT16 region_type;           //Type of crossing
 
-    REGION_OCC() { 
+    REGION_OCC() {
     };                           //constructor used
     //only in COPIER etc
     REGION_OCC(  //constructor
                float min,
                float max,
-               INT16 region) {
+               inT16 region) {
       min_x = min;
       max_x = max;
       region_type = region;
@@ -77,10 +77,10 @@ class in an include file...
 
 BOOL8						range_in_band[
               range within band?
-INT16						band_max,
-INT16						band_min,
-INT16						range_max,
-INT16						range_min]
+inT16						band_max,
+inT16						band_min,
+inT16						range_max,
+inT16						range_min]
 {
   if ( (range_min >= band_min) && (range_max < band_max) )
     return TRUE;
@@ -96,10 +96,10 @@ class in an include file...
 
 BOOL8						range_overlaps_band[
               range crosses band?
-INT16						band_max,
-INT16						band_min,
-INT16						range_max,
-INT16						range_min]
+inT16						band_max,
+inT16						band_min,
+inT16						range_max,
+inT16						range_min]
 {
   if ( (range_max >= band_min) && (range_min < band_max) )
     return TRUE;
@@ -130,23 +130,23 @@ have significantly changed bands until it has moved out of the error margin.
 class BAND
 {
   public:
-    INT16 max_max;               //upper max
-    INT16 max;                   //nominal max
-    INT16 min_max;               //lower max
-    INT16 max_min;               //upper min
-    INT16 min;                   //nominal min
-    INT16 min_min;               //lower min
+    inT16 max_max;               //upper max
+    inT16 max;                   //nominal max
+    inT16 min_max;               //lower max
+    inT16 max_min;               //upper min
+    inT16 min;                   //nominal min
+    inT16 min_min;               //lower min
 
-    BAND() { 
+    BAND() {
     }                            // constructor
 
     void set(                      // initialise a band
-             INT16 new_max_max,    // upper max
-             INT16 new_max,        // new nominal max
-             INT16 new_min_max,    // new lower max
-             INT16 new_max_min,    // new upper min
-             INT16 new_min,        // new nominal min
-             INT16 new_min_min) {  // new lower min
+             inT16 new_max_max,    // upper max
+             inT16 new_max,        // new nominal max
+             inT16 new_min_max,    // new lower max
+             inT16 new_max_min,    // new upper min
+             inT16 new_min,        // new nominal min
+             inT16 new_min_min) {  // new lower min
       max_max = new_max_max;
       max = new_max;
       min_max = new_min_max;
@@ -264,8 +264,8 @@ BOOL8 test_underline(                   //look for underlines
 BOOL8 test_underline(                   //look for underlines
                      BOOL8 testing_on,  //drawing blob
                      C_BLOB *blob,      //blob to test
-                     INT16 baseline,    //coords of baseline
-                     INT16 xheight      //height of line
+                     inT16 baseline,    //coords of baseline
+                     inT16 xheight      //height of line
                     );
                                  //project outlines
 void horizontal_cblob_projection(C_BLOB *blob,  //blob to project
@@ -283,38 +283,38 @@ void block_occ (PBLOB * blob,    //blob to do
 float occs[]                     //output histogram
 );
                                  //blob to do
-void find_transitions(PBLOB *blob, REGION_OCC_LIST *region_occ_list); 
+void find_transitions(PBLOB *blob, REGION_OCC_LIST *region_occ_list);
 void record_region(  //add region on list
-                   INT16 band,
+                   inT16 band,
                    float new_min,
                    float new_max,
-                   INT16 region_type,
+                   inT16 region_type,
                    REGION_OCC_LIST *region_occ_list);
-INT16 find_containing_maximal_band(  //find range's band
+inT16 find_containing_maximal_band(  //find range's band
                                    float y1,
                                    float y2,
                                    BOOL8 *doubly_contained);
-void find_significant_line(POLYPT_IT it, INT16 *band); 
-INT16 find_overlapping_minimal_band(  //find range's band
+void find_significant_line(POLYPT_IT it, inT16 *band);
+inT16 find_overlapping_minimal_band(  //find range's band
                                     float y1,
                                     float y2);
-INT16 find_region_type(INT16 entry_band,
-                       INT16 current_band,
-                       INT16 exit_band,
+inT16 find_region_type(inT16 entry_band,
+                       inT16 current_band,
+                       inT16 exit_band,
                        float entry_x,
                        float exit_x);
 void find_trans_point(POLYPT_IT *pt_it,
-                      INT16 current_band,
-                      INT16 next_band,
+                      inT16 current_band,
+                      inT16 next_band,
                       FCOORD *transition_pt);
 void next_region(POLYPT_IT *start_pt_it,
-                 INT16 start_band,
-                 INT16 *to_band,
+                 inT16 start_band,
+                 inT16 *to_band,
                  float *min_x,
                  float *max_x,
-                 INT16 *increment,
+                 inT16 *increment,
                  FCOORD *exit_pt);
-INT16 find_band(  // find POINT's band
+inT16 find_band(  // find POINT's band
                 float y);
 void compress_region_list(  // join open regions
                           REGION_OCC_LIST *region_occ_list);
@@ -323,5 +323,5 @@ void find_fbox(OUTLINE_IT *out_it,
                float *min_y,
                float *max_x,
                float *max_y);
-void maintain_limits(float *min_x, float *max_x, float x); 
+void maintain_limits(float *min_x, float *max_x, float x);
 #endif

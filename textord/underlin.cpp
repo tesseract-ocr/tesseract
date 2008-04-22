@@ -39,8 +39,8 @@ EXTERN BOOL_VAR (textord_restore_underlines, TRUE,
 void restore_underlined_blobs(                 //get chop points
                               TO_BLOCK *block  //block to do
                              ) {
-  INT16 chop_coord;              //chop boundary
-  BOX blob_box;                  //of underline
+  inT16 chop_coord;              //chop boundary
+  TBOX blob_box;                  //of underline
   BLOBNBOX *u_line;              //underline bit
   TO_ROW *row;                   //best row for blob
   ICOORDELT_LIST chop_cells;     //blobs to cut out
@@ -146,7 +146,7 @@ TO_ROW *most_overlapping_row(                    //find best row
                              TO_ROW_LIST *rows,  //list of rows
                              BLOBNBOX *blob      //blob to place
                             ) {
-  INT16 x = (blob->bounding_box ().left ()
+  inT16 x = (blob->bounding_box ().left ()
     + blob->bounding_box ().right ()) / 2;
   TO_ROW_IT row_it = rows;       //row iterator
   TO_ROW *row;                   //current row
@@ -206,9 +206,9 @@ void find_underlined_blobs(                            //get chop points
                            float baseline_offset,      //amount to shrinke it
                            ICOORDELT_LIST *chop_cells  //places to chop
                           ) {
-  INT16 x, y;                    //sides of blob
+  inT16 x, y;                    //sides of blob
   ICOORD blob_chop;              //sides of blob
-  BOX blob_box = u_line->bounding_box ();
+  TBOX blob_box = u_line->bounding_box ();
                                  //cell iterator
   ICOORDELT_IT cell_it = chop_cells;
   STATS upper_proj (blob_box.left (), blob_box.right () + 1);
@@ -255,9 +255,9 @@ void vertical_cunderline_projection(                        //project outlines
                                    ) {
   ICOORD pos;                    //current point
   ICOORD step;                   //edge step
-  INT16 lower_y, upper_y;        //region limits
-  INT32 length;                  //of outline
-  INT16 stepindex;               //current step
+  inT16 lower_y, upper_y;        //region limits
+  inT32 length;                  //of outline
+  inT16 stepindex;               //current step
   C_OUTLINE_IT out_it = outline->child ();
 
   pos = outline->start_pos ();
@@ -266,9 +266,9 @@ void vertical_cunderline_projection(                        //project outlines
     step = outline->step (stepindex);
     if (step.x () > 0) {
       lower_y =
-        (INT16) floor (baseline->y (pos.x ()) + baseline_offset + 0.5);
+        (inT16) floor (baseline->y (pos.x ()) + baseline_offset + 0.5);
       upper_y =
-        (INT16) floor (baseline->y (pos.x ()) + baseline_offset +
+        (inT16) floor (baseline->y (pos.x ()) + baseline_offset +
         xheight + 0.5);
       if (pos.y () >= lower_y) {
         lower_proj->add (pos.x (), -lower_y);
@@ -284,10 +284,10 @@ void vertical_cunderline_projection(                        //project outlines
     }
     else if (step.x () < 0) {
       lower_y =
-        (INT16) floor (baseline->y (pos.x () - 1) + baseline_offset +
+        (inT16) floor (baseline->y (pos.x () - 1) + baseline_offset +
         0.5);
       upper_y =
-        (INT16) floor (baseline->y (pos.x () - 1) + baseline_offset +
+        (inT16) floor (baseline->y (pos.x () - 1) + baseline_offset +
         xheight + 0.5);
       if (pos.y () >= lower_y) {
         lower_proj->add (pos.x () - 1, lower_y);

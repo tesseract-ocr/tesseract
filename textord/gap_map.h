@@ -12,20 +12,20 @@ class GAPMAP
 
     ~GAPMAP () {                 //destructor
       if (map != NULL)
-        free_mem(map); 
+        free_mem(map);
     }
 
     BOOL8 table_gap(               //Is gap a table?
-                    INT16 left,    //From here
-                    INT16 right);  //To here
+                    inT16 left,    //From here
+                    inT16 right);  //To here
 
   private:
-    INT16 total_rows;            //in block
-    INT16 min_left;              //Left extreme
-    INT16 max_right;             //Right extreme
-    INT16 bucket_size;           // half an x ht
-    INT16 *map;                  //empty counts
-    INT16 map_max;               //map[0..max_map]       defind
+    inT16 total_rows;            //in block
+    inT16 min_left;              //Left extreme
+    inT16 max_right;             //Right extreme
+    inT16 bucket_size;           // half an x ht
+    inT16 *map;                  //empty counts
+    inT16 map_max;               //map[0..max_map]       defind
     BOOL8 any_tabs;
 };
 

@@ -29,7 +29,7 @@ ELISTIZE (SORTED_FLOAT)
  **********************************************************************/
 void SORTED_FLOATS::add(  //add new entry
                         float value,
-                        INT32 key) {
+                        inT32 key) {
   SORTED_FLOAT *new_float = new SORTED_FLOAT (value, key);
 
   if (list.empty ())
@@ -53,7 +53,7 @@ void SORTED_FLOATS::add(  //add new entry
  **********************************************************************/
 
 void SORTED_FLOATS::remove(  //remove the entry
-                           INT32 key) {
+                           inT32 key) {
   if (!list.empty ()) {
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
       if (it.data ()->address == key) {
@@ -73,7 +73,7 @@ void SORTED_FLOATS::remove(  //remove the entry
 
 float
 SORTED_FLOATS::operator[] (      //get an entry
-INT32 index                      //to list
+inT32 index                      //to list
 ) {
   it.move_to_first ();
   return it.data_relative (index)->entry;

@@ -126,7 +126,7 @@ void clean_noise_from_words(          //remove empties
 void tweak_row_baseline(          //remove empties
                         ROW *row  //row to clean
                        );
-INT32 blob_y_order(              //sort function
+inT32 blob_y_order(              //sort function
                    void *item1,  //items to compare
                    void *item2);
 #endif

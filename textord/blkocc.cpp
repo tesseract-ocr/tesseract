@@ -113,9 +113,9 @@ BOOL8 test_underline(                   //look for underlines
                      float baseline,    //coords of baseline
                      float xheight      //height of line
                     ) {
-  INT16 occ;
-  INT16 blob_width;              //width of blob
-  BOX blob_box;                  //bounding box
+  inT16 occ;
+  inT16 blob_width;              //width of blob
+  TBOX blob_box;                  //bounding box
   float occs[MAX_NUM_BANDS + 1]; //total occupancy
 
   blob_box = blob->bounding_box ();
@@ -134,7 +134,7 @@ BOOL8 test_underline(                   //look for underlines
       blob->bounding_box ().right (), blob->bounding_box ().top (),
       baseline);
   }
-  block_occ(blob, occs); 
+  block_occ(blob, occs);
   if (testing_on) {
     for (occ = 0; occ <= MAX_NUM_BANDS; occ++)
       tprintf ("%g ", occs[occ]);
@@ -160,15 +160,15 @@ BOOL8 test_underline(                   //look for underlines
 BOOL8 test_underline(                   //look for underlines
                      BOOL8 testing_on,  //drawing blob
                      C_BLOB *blob,      //blob to test
-                     INT16 baseline,    //coords of baseline
-                     INT16 xheight      //height of line
+                     inT16 baseline,    //coords of baseline
+                     inT16 xheight      //height of line
                     ) {
-  INT16 occ;
-  INT16 blob_width;              //width of blob
-  BOX blob_box;                  //bounding box
-  INT32 desc_occ;
-  INT32 x_occ;
-  INT32 asc_occ;
+  inT16 occ;
+  inT16 blob_width;              //width of blob
+  TBOX blob_box;                  //bounding box
+  inT32 desc_occ;
+  inT32 x_occ;
+  inT32 asc_occ;
   STATS projection;
 
   blob_box = blob->bounding_box ();
@@ -187,7 +187,7 @@ BOOL8 test_underline(                   //look for underlines
       blob->bounding_box ().right (), blob->bounding_box ().top (),
       baseline);
   }
-  horizontal_cblob_projection(blob, &projection); 
+  horizontal_cblob_projection(blob, &projection);
   desc_occ = 0;
   for (occ = blob_box.bottom (); occ < baseline; occ++)
     if (occ <= blob_box.top () && projection.pile_count (occ) > desc_occ)
@@ -254,8 +254,8 @@ void horizontal_coutline_projection(                     //project outlines
                                    ) {
   ICOORD pos;                    //current point
   ICOORD step;                   //edge step
-  INT32 length;                  //of outline
-  INT16 stepindex;               //current step
+  inT32 length;                  //of outline
+  inT16 stepindex;               //current step
   C_OUTLINE_IT out_it = outline->child ();
 
   pos = outline->start_pos ();
@@ -281,12 +281,12 @@ void set_bands(                 //init from varibles
                float baseline,  //top of bottom band
                float xheight    //height of split band
               ) {
-  INT16 int_bl, int_xh;          //for band.set
+  inT16 int_bl, int_xh;          //for band.set
 
   bands[DOT_BAND].set (0, 0, 0, 0, 0, 0);
 
-  int_bl = (INT16) baseline;
-  int_xh = (INT16) xheight;
+  int_bl = (inT16) baseline;
+  int_xh = (inT16) xheight;
   bands[1].set (int_bl, int_bl, int_bl,
     NO_LOWER_LIMIT, NO_LOWER_LIMIT, NO_LOWER_LIMIT);
 
@@ -311,8 +311,8 @@ float occs[]                     //output histogram
   REGION_OCC_LIST region_occ_list[MAX_NUM_BANDS + 1];
   REGION_OCC_IT region_it;       //region iterator
 
-  find_transitions(blob, region_occ_list); 
-  compress_region_list(region_occ_list); 
+  find_transitions(blob, region_occ_list);
+  compress_region_list(region_occ_list);
   for (band_index = 0; band_index <= MAX_NUM_BANDS; band_index++) {
     occs[band_index] = 0.0f;
     region_it.set_to_list (&region_occ_list[band_index]);
@@ -328,17 +328,17 @@ float occs[]                     //output histogram
 void find_transitions(PBLOB *blob,  //blob to do
                       REGION_OCC_LIST *region_occ_list) {
   OUTLINE_IT outline_it;
-  BOX box;
+  TBOX box;
   POLYPT_IT pt_it;
   FCOORD point1;
   FCOORD point2;
   FCOORD *entry_pt = &point1;
   FCOORD *exit_pt = &point2;
   FCOORD *temp_pt;
-  INT16 increment;
-  INT16 prev_band;
-  INT16 band;
-  INT16 next_band;
+  inT16 increment;
+  inT16 prev_band;
+  inT16 band;
+  inT16 next_band;
   float min_x;
   float max_x;
   float min_y;
@@ -348,7 +348,7 @@ void find_transitions(PBLOB *blob,  //blob to do
   outline_it = blob->out_list ();
   for (outline_it.mark_cycle_pt (); !outline_it.cycled_list ();
   outline_it.forward ()) {
-    find_fbox(&outline_it, &min_x, &min_y, &max_x, &max_y); 
+    find_fbox(&outline_it, &min_x, &min_y, &max_x, &max_y);
 
     if (bands[DOT_BAND].range_in_nominal (max_y, min_y)) {
       record_region(DOT_BAND,
@@ -399,7 +399,7 @@ void find_transitions(PBLOB *blob,  //blob to do
 
         pt_it = outline_it.data ()->polypts ();
 
-        find_significant_line(pt_it, &band); 
+        find_significant_line(pt_it, &band);
         *entry_pt = pt_it.data ()->pos;
         next_region(&pt_it,
                     band,
@@ -469,10 +469,10 @@ void find_transitions(PBLOB *blob,  //blob to do
 
 
 void record_region(  //add region on list
-                   INT16 band,
+                   inT16 band,
                    float new_min,
                    float new_max,
-                   INT16 region_type,
+                   inT16 region_type,
                    REGION_OCC_LIST *region_occ_list) {
   REGION_OCC_IT it (&(region_occ_list[band]));
 
@@ -509,11 +509,11 @@ void record_region(  //add region on list
 }
 
 
-INT16 find_containing_maximal_band(  //find range's band
+inT16 find_containing_maximal_band(  //find range's band
                                    float y1,
                                    float y2,
                                    BOOL8 *doubly_contained) {
-  INT16 band;
+  inT16 band;
 
   *doubly_contained = FALSE;
 
@@ -529,7 +529,7 @@ INT16 find_containing_maximal_band(  //find range's band
 }
 
 
-void find_significant_line(POLYPT_IT it, INT16 *band) { 
+void find_significant_line(POLYPT_IT it, inT16 *band) {
 
   /* Look for a line which significantly occupies at least one band. I.e. part
   of the line is in the non-margin part of the band. */
@@ -547,10 +547,10 @@ void find_significant_line(POLYPT_IT it, INT16 *band) {
 }
 
 
-INT16 find_overlapping_minimal_band(  //find range's band
+inT16 find_overlapping_minimal_band(  //find range's band
                                     float y1,
                                     float y2) {
-  INT16 band;
+  inT16 band;
 
   for (band = 1; band <= blockocc_band_count; band++) {
     if (bands[band].range_overlaps_minimal (y1, y2))
@@ -560,9 +560,9 @@ INT16 find_overlapping_minimal_band(  //find range's band
 }
 
 
-INT16 find_region_type(INT16 entry_band,
-                       INT16 current_band,
-                       INT16 exit_band,
+inT16 find_region_type(inT16 entry_band,
+                       inT16 current_band,
+                       inT16 exit_band,
                        float entry_x,
                        float exit_x) {
   if (entry_band > exit_band)
@@ -587,8 +587,8 @@ INT16 find_region_type(INT16 entry_band,
 
 
 void find_trans_point(POLYPT_IT *pt_it,
-                      INT16 current_band,
-                      INT16 next_band,
+                      inT16 current_band,
+                      inT16 next_band,
                       FCOORD *transition_pt) {
   float x1, x2, y1, y2;          // points of edge
   float gradient;                // m in y = mx + c
@@ -621,11 +621,11 @@ void find_trans_point(POLYPT_IT *pt_it,
 
 
 void next_region(POLYPT_IT *start_pt_it,
-                 INT16 start_band,
-                 INT16 *to_band,
+                 inT16 start_band,
+                 inT16 *to_band,
                  float *min_x,
                  float *max_x,
-                 INT16 *increment,
+                 inT16 *increment,
                  FCOORD *exit_pt) {
   /*
   Given an edge and a band which the edge significantly occupies, find the
@@ -639,12 +639,12 @@ void next_region(POLYPT_IT *start_pt_it,
   the start of the first region.
   */
 
-  INT16 band;                    //band of current edge
-  INT16 prev_band = start_band;  //band of prev edge
+  inT16 band;                    //band of current edge
+  inT16 prev_band = start_band;  //band of prev edge
                                  //edge crossing out
   POLYPT_IT last_transition_out_it;
                                  //band it pts to
-  INT16 last_trans_out_to_band = 0;
+  inT16 last_trans_out_to_band = 0;
   float ext_min_x = 0.0f;
   float ext_max_x = 0.0f;
 
@@ -704,9 +704,9 @@ void next_region(POLYPT_IT *start_pt_it,
 }
 
 
-INT16 find_band(  // find POINT's band
+inT16 find_band(  // find POINT's band
                 float y) {
-  INT16 band;
+  inT16 band;
 
   for (band = 1; band <= blockocc_band_count; band++) {
     if (bands[band].in_nominal (y))
@@ -722,7 +722,7 @@ void compress_region_list(  // join open regions
   REGION_OCC_IT it (&(region_occ_list[0]));
   REGION_OCC *open_right = NULL;
 
-  INT16 i = 0;
+  inT16 i = 0;
 
   for (i = 0; i <= blockocc_band_count; i++) {
     it.set_to_list (&(region_occ_list[i]));
@@ -801,7 +801,7 @@ void find_fbox(OUTLINE_IT *out_it,
 }
 
 
-void maintain_limits(float *min_x, float *max_x, float x) { 
+void maintain_limits(float *min_x, float *max_x, float x) {
   if (x > *max_x)
     *max_x = x;
   if (x < *min_x)

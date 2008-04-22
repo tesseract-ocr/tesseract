@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        drawedg.c  (Formerly drawedge.c)
  * Description: Collection of functions to draw things to do with edge detection.
- * Author:					Ray Smith
- * Created:					Thu Jun 06 13:29:20 BST 1991
+ * Author:                  Ray Smith
+ * Created:                 Thu Jun 06 13:29:20 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,9 +40,6 @@ ScrollView* create_edges_window(                //make window
 
                                  //create the window
   image_win = new ScrollView (IMAGE_WIN_NAME, IMAGE_XPOS, IMAGE_YPOS, 0, 0, page_tr.x (),  page_tr.y ());
-  #ifdef __MSW32__
-  set_selection_handler(image_win, win_selection_handler); 
-  #endif
   return image_win;              //window
 }
 
@@ -60,7 +57,7 @@ void draw_raw_edge(                   //draw the cracks
                   ) {
   CRACKEDGE *edgept;             //current point
 
-  fd->Pen(colour); 
+  fd->Pen(colour);
   edgept = start;
   fd->SetCursor(edgept->pos.x (), edgept->pos.y ());
   do {

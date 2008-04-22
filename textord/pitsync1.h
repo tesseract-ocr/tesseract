@@ -37,44 +37,44 @@ class FPSEGPT:public ELIST_LINK
     FPSEGPT() {  //empty
     }
     FPSEGPT(           //constructor
-            INT16 x);  //position
+            inT16 x);  //position
     FPSEGPT(                           //constructor
-            INT16 x,                   //position
+            inT16 x,                   //position
             BOOL8 faking,              //faking this one
-            INT16 offset,              //extra cost dist
-            INT16 region_index,        //segment number
-            INT16 pitch,               //proposed pitch
-            INT16 pitch_error,         //allowed tolerance
+            inT16 offset,              //extra cost dist
+            inT16 region_index,        //segment number
+            inT16 pitch,               //proposed pitch
+            inT16 pitch_error,         //allowed tolerance
             FPSEGPT_LIST *prev_list);  //previous segment
     FPSEGPT(FPCUTPT *cutpt);  //build from new type
 
-    INT32 position() {  //acces func
+    inT32 position() {  //acces func
       return xpos;
     }
-    double cost_function() { 
+    double cost_function() {
       return cost;
     }
-    double squares() { 
+    double squares() {
       return sq_sum;
     }
-    double sum() { 
+    double sum() {
       return mean_sum;
     }
-    FPSEGPT *previous() { 
+    FPSEGPT *previous() {
       return pred;
     }
-    INT16 cheap_cuts() const {  //no of cheap cuts
+    inT16 cheap_cuts() const {  //no of cheap cuts
       return mid_cuts;
     }
 
                                  //faked split point
     NEWDELETE2 (FPSEGPT) BOOL8 faked;
     BOOL8 terminal;              //successful end
-    INT16 fake_count;            //total fakes to here
+    inT16 fake_count;            //total fakes to here
 
   private:
-    INT16 mid_cuts;              //no of cheap cuts
-    INT32 xpos;                  //location
+    inT16 mid_cuts;              //no of cheap cuts
+    inT32 xpos;                  //location
     FPSEGPT *pred;               //optimal previous
     double mean_sum;             //mean so far
     double sq_sum;               //summed distsances
@@ -97,22 +97,22 @@ extern
 INT_VAR_H (pitsync_fake_depth, 1, "Max advance fake generation");
 double check_pitch_sync(                        //find segmentation
                         BLOBNBOX_IT *blob_it,   //blobs to do
-                        INT16 blob_count,       //no of blobs
-                        INT16 pitch,            //pitch estimate
-                        INT16 pitch_error,      //tolerance
+                        inT16 blob_count,       //no of blobs
+                        inT16 pitch,            //pitch estimate
+                        inT16 pitch_error,      //tolerance
                         STATS *projection,      //vertical
                         FPSEGPT_LIST *seg_list  //output list
                        );
 void make_illegal_segment(                          //find segmentation
                           FPSEGPT_LIST *prev_list,  //previous segments
-                          BOX blob_box,             //bounding box
+                          TBOX blob_box,             //bounding box
                           BLOBNBOX_IT blob_it,      //iterator
-                          INT16 region_index,       //number of segment
-                          INT16 pitch,              //pitch estimate
-                          INT16 pitch_error,        //tolerance
+                          inT16 region_index,       //number of segment
+                          inT16 pitch,              //pitch estimate
+                          inT16 pitch_error,        //tolerance
                           FPSEGPT_LIST *seg_list    //output list
                          );
-INT16 vertical_torow_projection(                   //project whole row
+inT16 vertical_torow_projection(                   //project whole row
                                 TO_ROW *row,       //row to do
                                 STATS *projection  //output
                                );

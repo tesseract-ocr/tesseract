@@ -41,33 +41,33 @@ class OL_BUCKETS
       delete[]buckets;
     }
     C_OUTLINE_LIST *operator () (//array access
-      INT16 x,                   //image coords
-      INT16 y);
+      inT16 x,                   //image coords
+      inT16 y);
                                  //first non-empty bucket
-    C_OUTLINE_LIST *start_scan() { 
+    C_OUTLINE_LIST *start_scan() {
       for (index = 0; buckets[index].empty () && index < bxdim * bydim - 1;
         index++);
       return &buckets[index];
     }
                                  //next non-empty bucket
-    C_OUTLINE_LIST *scan_next() { 
+    C_OUTLINE_LIST *scan_next() {
       for (; buckets[index].empty () && index < bxdim * bydim - 1; index++);
       return &buckets[index];
     }
-    INT32 count_children(                     //recursive sum
+    inT32 count_children(                     //recursive sum
                          C_OUTLINE *outline,  //parent outline
-                         INT32 max_count);    //max output
+                         inT32 max_count);    //max output
     void extract_children(                     //single level get
                           C_OUTLINE *outline,  //parent outline
                           C_OUTLINE_IT *it);   //destination iterator
 
   private:
     C_OUTLINE_LIST * buckets;    //array of buckets
-    INT16 bxdim;                 //size of array
-    INT16 bydim;
+    inT16 bxdim;                 //size of array
+    inT16 bydim;
     ICOORD bl;                   //corners
     ICOORD tr;
-    INT32 index;                 //for extraction scan
+    inT32 index;                 //for extraction scan
 };
 
 void extract_edges(                 //find blobs

@@ -30,15 +30,15 @@ GAPMAP::GAPMAP(                 //Constructor
   TO_ROW_IT row_it;              //row iterator
   TO_ROW *row;                   //current row
   BLOBNBOX_IT blob_it;           //iterator
-  BOX blob_box;
-  BOX prev_blob_box;
-  INT16 gap_width;
-  INT16 start_of_row;
-  INT16 end_of_row;
+  TBOX blob_box;
+  TBOX prev_blob_box;
+  inT16 gap_width;
+  inT16 start_of_row;
+  inT16 end_of_row;
   STATS xht_stats (0, 128);
-  INT16 min_quantum;
-  INT16 max_quantum;
-  INT16 i;
+  inT16 min_quantum;
+  inT16 max_quantum;
+  inT16 i;
 
   row_it.set_to_list (block->get_rows ());
   /*
@@ -53,7 +53,7 @@ GAPMAP::GAPMAP(                 //Constructor
     row = row_it.data ();
     if (!row->blob_list ()->empty ()) {
       total_rows++;
-      xht_stats.add ((INT16) floor (row->xheight + 0.5), 1);
+      xht_stats.add ((inT16) floor (row->xheight + 0.5), 1);
       blob_it.set_to_list (row->blob_list ());
       start_of_row = blob_it.data ()->bounding_box ().left ();
       end_of_row = blob_it.data_relative (-1)->bounding_box ().right ();
@@ -68,9 +68,9 @@ GAPMAP::GAPMAP(                 //Constructor
     min_left = max_right = 0;
     return;
   }
-  bucket_size = (INT16) floor (xht_stats.median () + 0.5) / 2;
+  bucket_size = (inT16) floor (xht_stats.median () + 0.5) / 2;
   map_max = (max_right - min_left) / bucket_size;
-  map = (INT16 *) alloc_mem ((map_max + 1) * sizeof (INT16));
+  map = (inT16 *) alloc_mem ((map_max + 1) * sizeof (inT16));
   for (i = 0; i <= map_max; i++)
     map[i] = 0;
 
@@ -146,12 +146,12 @@ GAPMAP::GAPMAP(                 //Constructor
  *************************************************************************/
 
 BOOL8 GAPMAP::table_gap(             //Is gap a table?
-                        INT16 left,  //From here
-                        INT16 right  //To here
+                        inT16 left,  //From here
+                        inT16 right  //To here
                        ) {
-  INT16 min_quantum;
-  INT16 max_quantum;
-  INT16 i;
+  inT16 min_quantum;
+  inT16 max_quantum;
+  inT16 i;
   BOOL8 tab_found = FALSE;
 
   if (!any_tabs)

@@ -59,7 +59,7 @@ void complete_edge(                  //clean and approximate
 ScrollView::Color check_path_legal(                  //certify outline
                         CRACKEDGE *start  //start of loop
                        );
-INT16 loop_bounding_box(                    //get bounding box
+inT16 loop_bounding_box(                    //get bounding box
                         CRACKEDGE *&start,  //edge loop
                         ICOORD &botleft,    //bounding box
                         ICOORD &topright);

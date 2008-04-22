@@ -34,34 +34,34 @@ DLLSYM void block_edges(                      //get edges in a block
 void make_margins(                         //get a line
                   PDBLK *block,            //block in image
                   BLOCK_LINE_IT *line_it,  //for old style
-                  UINT8 *pixels,           //pixels to strip
-                  UINT8 margin,            //white-out pixel
-                  INT16 left,              //block edges
-                  INT16 right,
-                  INT16 y                  //line coord
+                  uinT8 *pixels,           //pixels to strip
+                  uinT8 margin,            //white-out pixel
+                  inT16 left,              //block edges
+                  inT16 right,
+                  inT16 y                  //line coord
                  );
 void whiteout_block(                 //clean it
                     IMAGE *t_image,  //threshold image
                     PDBLK *block     //block in image
                    );
 void line_edges (                //scan for edges
-INT16 x,                         //coord of line start
-INT16 y,                         //coord of line
-INT16 xext,                      //width of line
-UINT8 uppercolour,               //start of prev line
-UINT8 * bwpos,                   //thresholded line
+inT16 x,                         //coord of line start
+inT16 y,                         //coord of line
+inT16 xext,                      //width of line
+uinT8 uppercolour,               //start of prev line
+uinT8 * bwpos,                   //thresholded line
 CRACKEDGE ** prevline            //edges in progress
 );
 CRACKEDGE *h_edge (              //horizontal edge
-INT16 x,                         //xposition
-INT16 y,                         //y position
-INT8 sign,                       //sign of edge
+inT16 x,                         //xposition
+inT16 y,                         //y position
+inT8 sign,                       //sign of edge
 CRACKEDGE * join                 //edge to join to
 );
 CRACKEDGE *v_edge (              //vertical edge
-INT16 x,                         //xposition
-INT16 y,                         //y position
-INT8 sign,                       //sign of edge
+inT16 x,                         //xposition
+inT16 y,                         //y position
+inT8 sign,                       //sign of edge
 CRACKEDGE * join                 //edge to join to
 );
 void join_edges(                   //join edge fragments

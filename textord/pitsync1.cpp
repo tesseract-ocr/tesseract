@@ -69,7 +69,7 @@ FPSEGPT::FPSEGPT(                //constructor
  **********************************************************************/
 
 FPSEGPT::FPSEGPT (               //constructor
-INT16 x                          //position
+inT16 x                          //position
 ):xpos (x) {
   pred = NULL;
   mean_sum = 0;
@@ -89,17 +89,17 @@ INT16 x                          //position
  **********************************************************************/
 
 FPSEGPT::FPSEGPT (               //constructor
-INT16 x,                         //position
+inT16 x,                         //position
 BOOL8 faking,                    //faking this one
-INT16 offset,                    //dist to gap
-INT16 region_index,              //segment number
-INT16 pitch,                     //proposed pitch
-INT16 pitch_error,               //allowed tolerance
+inT16 offset,                    //dist to gap
+inT16 region_index,              //segment number
+inT16 pitch,                     //proposed pitch
+inT16 pitch_error,               //allowed tolerance
 FPSEGPT_LIST * prev_list         //previous segment
 ):xpos (x) {
-  INT16 best_fake;               //on previous
+  inT16 best_fake;               //on previous
   FPSEGPT *segpt;                //segment point
-  INT32 dist;                    //from prev segment
+  inT32 dist;                    //from prev segment
   double sq_dist;                //squared distance
   double mean;                   //mean pitch
   double total;                  //total dists
@@ -150,28 +150,28 @@ FPSEGPT_LIST * prev_list         //previous segment
 
 double check_pitch_sync(                        //find segmentation
                         BLOBNBOX_IT *blob_it,   //blobs to do
-                        INT16 blob_count,       //no of blobs
-                        INT16 pitch,            //pitch estimate
-                        INT16 pitch_error,      //tolerance
+                        inT16 blob_count,       //no of blobs
+                        inT16 pitch,            //pitch estimate
+                        inT16 pitch_error,      //tolerance
                         STATS *projection,      //vertical
                         FPSEGPT_LIST *seg_list  //output list
                        ) {
-  INT16 x;                       //current coord
-  INT16 min_index;               //blob number
-  INT16 max_index;               //blob number
-  INT16 left_edge;               //of word
-  INT16 right_edge;              //of word
-  INT16 right_max;               //max allowed x
-  INT16 min_x;                   //in this region
-  INT16 max_x;
-  INT16 region_index;
-  INT16 best_region_index = 0;   //for best result
-  INT16 offset;                  //dist to legal area
-  INT16 left_best_x;             //edge of good region
-  INT16 right_best_x;            //right edge
-  BOX min_box;                   //bounding box
-  BOX max_box;                   //bounding box
-  BOX next_box;                  //box of next blob
+  inT16 x;                       //current coord
+  inT16 min_index;               //blob number
+  inT16 max_index;               //blob number
+  inT16 left_edge;               //of word
+  inT16 right_edge;              //of word
+  inT16 right_max;               //max allowed x
+  inT16 min_x;                   //in this region
+  inT16 max_x;
+  inT16 region_index;
+  inT16 best_region_index = 0;   //for best result
+  inT16 offset;                  //dist to legal area
+  inT16 left_best_x;             //edge of good region
+  inT16 right_best_x;            //right edge
+  TBOX min_box;                   //bounding box
+  TBOX max_box;                   //bounding box
+  TBOX next_box;                  //box of next blob
   FPSEGPT *segpt;                //segment point
   FPSEGPT_LIST *segpts;          //points in a segment
   double best_cost;              //best path
@@ -368,17 +368,17 @@ double check_pitch_sync(                        //find segmentation
 
 void make_illegal_segment(                          //find segmentation
                           FPSEGPT_LIST *prev_list,  //previous segments
-                          BOX blob_box,             //bounding box
+                          TBOX blob_box,             //bounding box
                           BLOBNBOX_IT blob_it,      //iterator
-                          INT16 region_index,       //number of segment
-                          INT16 pitch,              //pitch estimate
-                          INT16 pitch_error,        //tolerance
+                          inT16 region_index,       //number of segment
+                          inT16 pitch,              //pitch estimate
+                          inT16 pitch_error,        //tolerance
                           FPSEGPT_LIST *seg_list    //output list
                          ) {
-  INT16 x;                       //current coord
-  INT16 min_x = 0;               //in this region
-  INT16 max_x = 0;
-  INT16 offset;                  //dist to edge
+  inT16 x;                       //current coord
+  inT16 min_x = 0;               //in this region
+  inT16 max_x = 0;
+  inT16 offset;                  //dist to edge
   FPSEGPT *segpt;                //segment point
   FPSEGPT *prevpt;               //previous point
   float best_cost;               //best path
