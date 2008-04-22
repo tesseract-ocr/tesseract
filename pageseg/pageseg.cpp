@@ -119,8 +119,8 @@ void outlines_to_blocks(OUTLINE_LIST* outlines, BLOCK_LIST* blocks) {
     for (polypt_it.mark_cycle_pt();
          !polypt_it.cycled_list();
          polypt_it.forward()) {
-      ICOORD current_icoord = ICOORD((INT16) polypt_it.data()->pos.x(),
-                                     (INT16) polypt_it.data()->pos.y());
+      ICOORD current_icoord = ICOORD((inT16) polypt_it.data()->pos.x(),
+                                     (inT16) polypt_it.data()->pos.y());
       icoordelt_it.add_after_then_move(new ICOORDELT(current_icoord));
     }
 

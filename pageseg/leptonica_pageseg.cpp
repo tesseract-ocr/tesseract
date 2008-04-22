@@ -25,13 +25,8 @@
 #include "leptonica_pageseg.h"
 
 #ifdef HAVE_LIBLEPT
-// The jpeg library still has INT32 as long, which is no good for 64 bit.
-#define INT32 WRONGINT32
-#define BOX LEPT_BOX
 // Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"
-#undef BOX
-#undef INT32
 #endif
 
 #ifdef HAVE_LIBLEPT
