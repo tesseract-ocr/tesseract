@@ -34,11 +34,11 @@ ELISTIZE_S (BLOCK)
 BLOCK::BLOCK (                   //rectangular block
 const char *name,                //filename
 BOOL8 prop,                      //proportional
-INT16 kern,                      //kerning
-INT16 space,                     //spacing
-INT16 xmin,                      //bottom left
-INT16 ymin, INT16 xmax,          //top right
-INT16 ymax):
+inT16 kern,                      //kerning
+inT16 space,                     //spacing
+inT16 xmin,                      //bottom left
+inT16 ymin, inT16 xmax,          //top right
+inT16 ymax):
 PDBLK (xmin, ymin, xmax, ymax),
 filename(name) {  //box(ICOORD(xmin,ymin),ICOORD(xmax,ymax))
                                  //boundaries
@@ -154,7 +154,7 @@ int decreasing_top_order(  //
  **********************************************************************/
 
 void BLOCK::sort_rows() {  // order on "top"
-  ROW_IT row_it(&rows); 
+  ROW_IT row_it(&rows);
 
   row_it.sort (decreasing_top_order);
 }
@@ -170,15 +170,15 @@ void BLOCK::sort_rows() {  // order on "top"
 void BLOCK::compress() {  // squash it up
   #define           ROW_SPACING 5
 
-  ROW_IT row_it(&rows); 
+  ROW_IT row_it(&rows);
   ROW *row;
   ICOORD row_spacing (0, ROW_SPACING);
 
   ICOORDELT_IT icoordelt_it;
 
-  sort_rows(); 
+  sort_rows();
 
-  box = BOX (box.topleft (), box.topleft ());
+  box = TBOX (box.topleft (), box.topleft ());
   box.move_bottom_edge (ROW_SPACING);
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
@@ -221,7 +221,7 @@ void BLOCK::compress(                  // squash it up
                      const ICOORD vec  // and move
                     ) {
   box.move (vec);
-  compress(); 
+  compress();
 }
 
 
@@ -266,7 +266,7 @@ void BLOCK::print(            //print list of sides
 
 //void                                                          BLOCK::plot(                                            //draw outline
 //WINDOW                                                        window,                                                         //window to draw in
-//INT32                                                         serial,                                                         //serial number
+//inT32                                                         serial,                                                         //serial number
 //COLOUR                                                        colour                                                          //colour to draw in
 //)
 //{

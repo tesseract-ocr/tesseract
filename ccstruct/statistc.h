@@ -26,30 +26,30 @@
 
 class DLLSYM STATS               //statistics package
 {
-  INT32 rangemin;                //min of range
-  INT32 rangemax;                //max of range
-  INT32 total_count;             //no of samples
-  INT32 *buckets;                //array of cells
+  inT32 rangemin;                //min of range
+  inT32 rangemax;                //max of range
+  inT32 total_count;             //no of samples
+  inT32 *buckets;                //array of cells
 
   public:
     STATS(             //constructor
-          INT32 min,   //min of range
-          INT32 max);  //max of range
+          inT32 min,   //min of range
+          inT32 max);  //max of range
     STATS();  //empty for arrays
 
     ~STATS ();                   //destructor
 
     bool set_range(             //change range
-                   INT32 min,   //min of range
-                   INT32 max);  //max of range
+                   inT32 min,   //min of range
+                   inT32 max);  //max of range
 
     void clear();  //empty buckets
 
     void add(               //add sample
-             INT32 value,   //bucket
-             INT32 count);  //no to add
+             inT32 value,   //bucket
+             inT32 count);  //no to add
 
-    INT32 mode();  //get mode of samples
+    inT32 mode();  //get mode of samples
 
     float mean();  //get mean of samples
 
@@ -58,23 +58,23 @@ class DLLSYM STATS               //statistics package
     float ile(              //percentile
               float frac);  //[0,1] for percentil
 
-    INT32 min_bucket();  //Find min
+    inT32 min_bucket();  //Find min
 
-    INT32 max_bucket();  //Find max
+    inT32 max_bucket();  //Find max
 
     float median();  //get median of samples
 
     void smooth(                //apply blurring
-                INT32 factor);  //filter to stats
-    INT32 cluster(                     //cluster samples
+                inT32 factor);  //filter to stats
+    inT32 cluster(                     //cluster samples
                   float lower,         //thresholds
                   float upper,
                   float multiple,      //distance threshold
-                  INT32 max_clusters,  //max no to make
+                  inT32 max_clusters,  //max no to make
                   STATS *clusters);    //array of clusters
 
-    INT32 pile_count(             //access function
-                     INT32 value  //pile to count
+    inT32 pile_count(             //access function
+                     inT32 value  //pile to count
                     ) {
       return value > rangemin ? (value < rangemax
         ? buckets[value -
@@ -83,12 +83,12 @@ class DLLSYM STATS               //statistics package
         1]) : buckets[0];
     }
 
-    INT32 get_total() {  //access function
+    inT32 get_total() {  //access function
       return total_count;        //total of all piles
     }
 
     BOOL8 local_min(  //test local minness
-                    INT32 x);
+                    inT32 x);
 
     void print(              //print summary/table
                FILE *fp,     //file to print on
@@ -114,15 +114,15 @@ class DLLSYM STATS               //statistics package
                   float yscale,    //size of one uint
                   ScrollView::Color colour);  //colour to draw in
 };
-DLLSYM INT32 choose_nth_item(               //fast median
-                             INT32 index,   //index to choose
+DLLSYM inT32 choose_nth_item(               //fast median
+                             inT32 index,   //index to choose
                              float *array,  //array of items
-                             INT32 count    //no of items
+                             inT32 count    //no of items
                             );
-DLLSYM INT32 choose_nth_item (   //fast median
-INT32 index,                     //index to choose
+DLLSYM inT32 choose_nth_item (   //fast median
+inT32 index,                     //index to choose
 void *array,                     //array of items
-INT32 count,                     //no of items
+inT32 count,                     //no of items
 size_t size,                     //element size
                                  //comparator
 int (*compar) (const void *, const void *)
@@ -130,6 +130,6 @@ int (*compar) (const void *, const void *)
 void swap_entries(               //swap in place
                   void *array,   //array of entries
                   size_t size,   //size of entry
-                  INT32 index1,  //entries to swap
-                  INT32 index2);
+                  inT32 index1,  //entries to swap
+                  inT32 index2);
 #endif

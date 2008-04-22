@@ -37,7 +37,7 @@ class OUTLINE:public ELIST_LINK
     }
     OUTLINE(                        //constructor
             const ICOORD &startpt,  //start point
-            INT8 *compactloop,      //from Tess format
+            inT8 *compactloop,      //from Tess format
             BOOL8 reverse,          //reverse it
             ICOORD bot_left,        //bounding box
             ICOORD top_right);
@@ -49,13 +49,13 @@ class OUTLINE:public ELIST_LINK
     }
 
                                  //access function
-    const BOX &bounding_box() const { 
+    const TBOX &bounding_box() const {
       return box;
     }
     void compute_bb();  //set bounding box
 
                                  //get start position
-    const ICOORD &start_pos() const { 
+    const ICOORD &start_pos() const {
       return start;
     }
     float area();  //return area
@@ -69,7 +69,7 @@ class OUTLINE:public ELIST_LINK
     OUTLINE & other) {
       return other < *this;      //use the < to do it
     }
-    INT16 winding_number(                        //get winding number
+    inT16 winding_number(                        //get winding number
                          const FCOORD &testpt);  //around this point
     void reverse();  //reverse it
 
@@ -107,7 +107,7 @@ class OUTLINE:public ELIST_LINK
       const OUTLINE & source);   //from this
 
   private:
-    BOX box;                     //boudning box
+    TBOX box;                     //boudning box
     ICOORD start;                //start coord
     POLYPT_LIST outline;         //outline points
     OUTLINE_LIST children;       //child elements

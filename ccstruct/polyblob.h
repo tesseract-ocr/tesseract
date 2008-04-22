@@ -28,7 +28,7 @@
 class PBLOB:public ELIST_LINK
 {
   public:
-    PBLOB() { 
+    PBLOB() {
     }                            //empty constructor
     PBLOB(                              //constructor
           OUTLINE_LIST *outline_list);  //in random order
@@ -40,7 +40,7 @@ class PBLOB:public ELIST_LINK
       return &outlines;
     }
 
-    BOX bounding_box();  //compute bounding box
+    TBOX bounding_box();  //compute bounding box
     float area();  //get area of blob
 
     PBLOB *baseline_normalise(                  //normalise single blob

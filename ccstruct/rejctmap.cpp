@@ -41,39 +41,39 @@ BOOL8 REJ::perm_rejected() {  //Is char perm reject?
 }
 
 
-BOOL8 REJ::rej_before_nn_accept() { 
+BOOL8 REJ::rej_before_nn_accept() {
   return flag (R_POOR_MATCH) ||
     flag (R_NOT_TESS_ACCEPTED) ||
     flag (R_CONTAINS_BLANKS) || flag (R_BAD_PERMUTER);
 }
 
 
-BOOL8 REJ::rej_between_nn_and_mm() { 
+BOOL8 REJ::rej_between_nn_and_mm() {
   return flag (R_HYPHEN) ||
     flag (R_DUBIOUS) ||
     flag (R_NO_ALPHANUMS) || flag (R_MOSTLY_REJ) || flag (R_XHT_FIXUP);
 }
 
 
-BOOL8 REJ::rej_between_mm_and_quality_accept() { 
+BOOL8 REJ::rej_between_mm_and_quality_accept() {
   return flag (R_BAD_QUALITY);
 }
 
 
-BOOL8 REJ::rej_between_quality_and_minimal_rej_accept() { 
+BOOL8 REJ::rej_between_quality_and_minimal_rej_accept() {
   return flag (R_DOC_REJ) ||
     flag (R_BLOCK_REJ) || flag (R_ROW_REJ) || flag (R_UNLV_REJ);
 }
 
 
-BOOL8 REJ::rej_before_mm_accept() { 
+BOOL8 REJ::rej_before_mm_accept() {
   return rej_between_nn_and_mm () ||
     (rej_before_nn_accept () &&
     !flag (R_NN_ACCEPT) && !flag (R_HYPHEN_ACCEPT));
 }
 
 
-BOOL8 REJ::rej_before_quality_accept() { 
+BOOL8 REJ::rej_before_quality_accept() {
   return rej_between_mm_and_quality_accept () ||
     (!flag (R_MM_ACCEPT) && rej_before_mm_accept ());
 }
@@ -104,145 +104,145 @@ BOOL8 REJ::accept_if_good_quality() {  //potential rej?
 
 
 void REJ::setrej_tess_failure() {  //Tess generated blank
-  set_flag(R_TESS_FAILURE); 
+  set_flag(R_TESS_FAILURE);
 }
 
 
 void REJ::setrej_small_xht() {  //Small xht char/wd
-  set_flag(R_SMALL_XHT); 
+  set_flag(R_SMALL_XHT);
 }
 
 
 void REJ::setrej_edge_char() {  //Close to image edge
-  set_flag(R_EDGE_CHAR); 
+  set_flag(R_EDGE_CHAR);
 }
 
 
 void REJ::setrej_1Il_conflict() {  //Initial reject map
   if (rej_use_1Il_rej)
-    set_flag(R_1IL_CONFLICT); 
+    set_flag(R_1IL_CONFLICT);
 }
 
 
 void REJ::setrej_postNN_1Il() {  //1Il after NN
-  set_flag(R_POSTNN_1IL); 
+  set_flag(R_POSTNN_1IL);
 }
 
 
 void REJ::setrej_rej_cblob() {  //Insert duff blob
-  set_flag(R_REJ_CBLOB); 
+  set_flag(R_REJ_CBLOB);
 }
 
 
 void REJ::setrej_mm_reject() {  //Matrix matcher
-  set_flag(R_MM_REJECT); 
+  set_flag(R_MM_REJECT);
 }
 
 
 void REJ::setrej_bad_repetition() {  //Odd repeated char
-  set_flag(R_BAD_REPETITION); 
+  set_flag(R_BAD_REPETITION);
 }
 
 
 void REJ::setrej_poor_match() {  //Failed Rays heuristic
-  set_flag(R_POOR_MATCH); 
+  set_flag(R_POOR_MATCH);
 }
 
 
-void REJ::setrej_not_tess_accepted() { 
+void REJ::setrej_not_tess_accepted() {
                                  //TEMP reject_word
-  set_flag(R_NOT_TESS_ACCEPTED); 
+  set_flag(R_NOT_TESS_ACCEPTED);
 }
 
 
-void REJ::setrej_contains_blanks() { 
+void REJ::setrej_contains_blanks() {
                                  //TEMP reject_word
-  set_flag(R_CONTAINS_BLANKS); 
+  set_flag(R_CONTAINS_BLANKS);
 }
 
 
 void REJ::setrej_bad_permuter() {  //POTENTIAL reject_word
-  set_flag(R_BAD_PERMUTER); 
+  set_flag(R_BAD_PERMUTER);
 }
 
 
 void REJ::setrej_hyphen() {  //PostNN dubious hyphen or .
-  set_flag(R_HYPHEN); 
+  set_flag(R_HYPHEN);
 }
 
 
 void REJ::setrej_dubious() {  //PostNN dubious limit
-  set_flag(R_DUBIOUS); 
+  set_flag(R_DUBIOUS);
 }
 
 
 void REJ::setrej_no_alphanums() {  //TEMP reject_word
-  set_flag(R_NO_ALPHANUMS); 
+  set_flag(R_NO_ALPHANUMS);
 }
 
 
 void REJ::setrej_mostly_rej() {  //TEMP reject_word
-  set_flag(R_MOSTLY_REJ); 
+  set_flag(R_MOSTLY_REJ);
 }
 
 
 void REJ::setrej_xht_fixup() {  //xht fixup
-  set_flag(R_XHT_FIXUP); 
+  set_flag(R_XHT_FIXUP);
 }
 
 
 void REJ::setrej_bad_quality() {  //TEMP reject_word
-  set_flag(R_BAD_QUALITY); 
+  set_flag(R_BAD_QUALITY);
 }
 
 
 void REJ::setrej_doc_rej() {  //TEMP reject_word
-  set_flag(R_DOC_REJ); 
+  set_flag(R_DOC_REJ);
 }
 
 
 void REJ::setrej_block_rej() {  //TEMP reject_word
-  set_flag(R_BLOCK_REJ); 
+  set_flag(R_BLOCK_REJ);
 }
 
 
 void REJ::setrej_row_rej() {  //TEMP reject_word
-  set_flag(R_ROW_REJ); 
+  set_flag(R_ROW_REJ);
 }
 
 
 void REJ::setrej_unlv_rej() {  //TEMP reject_word
-  set_flag(R_UNLV_REJ); 
+  set_flag(R_UNLV_REJ);
 }
 
 
 void REJ::setrej_hyphen_accept() {  //NN Flipped a char
-  set_flag(R_HYPHEN_ACCEPT); 
+  set_flag(R_HYPHEN_ACCEPT);
 }
 
 
 void REJ::setrej_nn_accept() {  //NN Flipped a char
-  set_flag(R_NN_ACCEPT); 
+  set_flag(R_NN_ACCEPT);
 }
 
 
 void REJ::setrej_mm_accept() {  //Matrix matcher
-  set_flag(R_MM_ACCEPT); 
+  set_flag(R_MM_ACCEPT);
 }
 
 
 void REJ::setrej_quality_accept() {  //Quality flip a char
-  set_flag(R_QUALITY_ACCEPT); 
+  set_flag(R_QUALITY_ACCEPT);
 }
 
 
-void REJ::setrej_minimal_rej_accept() { 
+void REJ::setrej_minimal_rej_accept() {
                                  //Accept all except blank
-  set_flag(R_MINIMAL_REJ_ACCEPT); 
+  set_flag(R_MINIMAL_REJ_ACCEPT);
 }
 
 
-void REJ::full_print(FILE *fp) { 
+void REJ::full_print(FILE *fp) {
   #ifndef SECURE_NAMES
 
   fprintf (fp, "R_TESS_FAILURE: %s\n", flag (R_TESS_FAILURE) ? "T" : "F");
@@ -330,7 +330,7 @@ const REJMAP & source            //from this
 
 
 void REJMAP::initialise(  //Redefine map
-                        INT16 length) {
+                        inT16 length) {
   if (ptr != NULL)
     free_struct (ptr, len * sizeof (REJ), "REJ");
   len = length;
@@ -342,9 +342,9 @@ void REJMAP::initialise(  //Redefine map
 }
 
 
-INT16 REJMAP::accept_count() {  //How many accepted?
+inT16 REJMAP::accept_count() {  //How many accepted?
   int i;
-  INT16 count = 0;
+  inT16 count = 0;
 
   for (i = 0; i < len; i++) {
     if (ptr[i].accepted ())
@@ -377,7 +377,7 @@ BOOL8 REJMAP::quality_recoverable_rejects() {  //Any potential rejs?
 
 
 void REJMAP::remove_pos(           //Cut out an element
-                        INT16 pos  //element to remove
+                        inT16 pos  //element to remove
                        ) {
   REJ *new_ptr;                  //new, smaller map
   int i;
@@ -405,7 +405,7 @@ void REJMAP::remove_pos(           //Cut out an element
 }
 
 
-void REJMAP::print(FILE *fp) { 
+void REJMAP::print(FILE *fp) {
   int i;
   char buff[512];
 
@@ -417,7 +417,7 @@ void REJMAP::print(FILE *fp) {
 }
 
 
-void REJMAP::full_print(FILE *fp) { 
+void REJMAP::full_print(FILE *fp) {
   int i;
 
   for (i = 0; i < len; i++) {

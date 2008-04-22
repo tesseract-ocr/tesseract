@@ -143,7 +143,7 @@ C_BLOB::C_BLOB(                              //constructor
   while (!it.empty ()) {         //grab the list
     outline = it.extract ();     //get off the list
                                  //put it in place
-    position_outline(outline, &outlines); 
+    position_outline(outline, &outlines);
     if (!it.empty ())
       it.forward ();
   }
@@ -168,10 +168,10 @@ C_BLOB::C_BLOB(                              //constructor
  * Return the bounding box of the blob.
  **********************************************************************/
 
-BOX C_BLOB::bounding_box() {  //bounding box
+TBOX C_BLOB::bounding_box() {  //bounding box
   C_OUTLINE *outline;            //current outline
   C_OUTLINE_IT it = &outlines;   //outlines of blob
-  BOX box;                       //bounding box
+  TBOX box;                       //bounding box
 
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
     outline = it.data ();
@@ -187,10 +187,10 @@ BOX C_BLOB::bounding_box() {  //bounding box
  * Return the area of the blob.
  **********************************************************************/
 
-INT32 C_BLOB::area() {  //area
+inT32 C_BLOB::area() {  //area
   C_OUTLINE *outline;            //current outline
   C_OUTLINE_IT it = &outlines;   //outlines of blob
-  INT32 total;                   //total area
+  inT32 total;                   //total area
 
   total = 0;
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
@@ -207,10 +207,10 @@ INT32 C_BLOB::area() {  //area
  * Return the area of the blob.
  **********************************************************************/
 
-INT32 C_BLOB::outer_area() {  //area
+inT32 C_BLOB::outer_area() {  //area
   C_OUTLINE *outline;            //current outline
   C_OUTLINE_IT it = &outlines;   //outlines of blob
-  INT32 total;                   //total area
+  inT32 total;                   //total area
 
   total = 0;
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
@@ -228,12 +228,12 @@ INT32 C_BLOB::outer_area() {  //area
  * Chlid outlines are not counted.
  **********************************************************************/
 
-INT32 C_BLOB::count_transitions(                 //area
-                                INT32 threshold  //on size
+inT32 C_BLOB::count_transitions(                 //area
+                                inT32 threshold  //on size
                                ) {
   C_OUTLINE *outline;            //current outline
   C_OUTLINE_IT it = &outlines;   //outlines of blob
-  INT32 total;                   //total area
+  inT32 total;                   //total area
 
   total = 0;
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
@@ -272,6 +272,6 @@ void C_BLOB::plot(                     //draw it
                   ScrollView::Color blob_colour,  //main colour
                   ScrollView::Color child_colour  //for holes
                  ) {
-  plot_outline_list(&outlines, window, blob_colour, child_colour); 
+  plot_outline_list(&outlines, window, blob_colour, child_colour);
 }
 #endif

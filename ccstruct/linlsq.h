@@ -40,7 +40,7 @@ class LLSQ
     void remove(           //delete element
                 double x,  //coords to delete
                 double y);
-    INT32 count() {  //no of elements
+    inT32 count() {  //no of elements
       return n;
     }
 
@@ -53,7 +53,7 @@ class LLSQ
     double spearman();  //get error
 
   private:
-    INT32 n;                     //no of elements
+    inT32 n;                     //no of elements
     double sigx;                 //sum of x
     double sigy;                 //sum of y
     double sigxx;                //sum x squared
@@ -84,7 +84,7 @@ class PDLSQ
       pos.remove (removepos.x (), removepos.y ());
       dir.remove (removedir.x (), removedir.y ());
     }
-    INT32 count() {  //no of elements
+    inT32 count() {  //no of elements
       return pos.count ();
     }
 

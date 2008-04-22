@@ -30,7 +30,7 @@ class DLLSYM PAGE_BLOCK:public ELIST_LINK, public POLY_BLOCK
 //page block
 {
   public:
-    PAGE_BLOCK() { 
+    PAGE_BLOCK() {
     }                            //empty constructor
     PAGE_BLOCK(  //simple constructor
                ICOORDELT_LIST *points,
@@ -44,7 +44,7 @@ class DLLSYM PAGE_BLOCK:public ELIST_LINK, public POLY_BLOCK
     ~PAGE_BLOCK () {             //destructor
     }
 
-    void add_a_child(PAGE_BLOCK *newchild); 
+    void add_a_child(PAGE_BLOCK *newchild);
 
     PB_TYPE type() {  //get type
       return pb_type;
@@ -59,32 +59,32 @@ class DLLSYM PAGE_BLOCK:public ELIST_LINK, public POLY_BLOCK
     void move(                //move it
               ICOORD shift);  //vector
 
-    void basic_plot(ScrollView* window, ScrollView::Color colour); 
+    void basic_plot(ScrollView* window, ScrollView::Color colour);
 
-    void plot(ScrollView* window, ScrollView::Color colour); 
+    void plot(ScrollView* window, ScrollView::Color colour);
 
-    void show_attrs(DEBUG_WIN *debug); 
+    void show_attrs(DEBUG_WIN *debug);
 
     NEWDELETE2 (PAGE_BLOCK) void pb_delete ();
 
-    void serialise(FILE *f); 
+    void serialise(FILE *f);
 
-    static PAGE_BLOCK *de_serialise(FILE *f); 
+    static PAGE_BLOCK *de_serialise(FILE *f);
 
     void prep_serialise() {  //set ptrs to counts
-      POLY_BLOCK::prep_serialise(); 
+      POLY_BLOCK::prep_serialise();
       children.prep_serialise ();
     }
 
     void dump(  //write external bits
               FILE *f) {
-      POLY_BLOCK::dump(f); 
+      POLY_BLOCK::dump(f);
       children.dump (f);
     }
 
     void de_dump(  //read external bits
                  FILE *f) {
-      POLY_BLOCK::de_dump(f); 
+      POLY_BLOCK::de_dump(f);
       children.de_dump (f);
     }
 
@@ -99,7 +99,7 @@ class DLLSYM PAGE_BLOCK:public ELIST_LINK, public POLY_BLOCK
     void de_serialise_asc(  //serialise from ascii
                           FILE *f);
                                  //make one from ascii
-    static PAGE_BLOCK *new_de_serialise_asc(FILE *f); 
+    static PAGE_BLOCK *new_de_serialise_asc(FILE *f);
 
   private:
     PB_TYPE pb_type;
@@ -110,30 +110,30 @@ DLLSYM void show_all_in(PAGE_BLOCK *pblock,
                         POLY_BLOCK *show_area,
                         DEBUG_WIN *f);
 
-DLLSYM void delete_all_in(PAGE_BLOCK *pblock, POLY_BLOCK *delete_area); 
+DLLSYM void delete_all_in(PAGE_BLOCK *pblock, POLY_BLOCK *delete_area);
 
-DLLSYM PAGE_BLOCK *smallest_containing(PAGE_BLOCK *pblock, POLY_BLOCK *other); 
+DLLSYM PAGE_BLOCK *smallest_containing(PAGE_BLOCK *pblock, POLY_BLOCK *other);
 
 class DLLSYM TEXT_BLOCK:public PAGE_BLOCK
                                  //text block
 {
   public:
-    TEXT_BLOCK() { 
+    TEXT_BLOCK() {
     }                            //empty constructor
-    TEXT_BLOCK(ICOORDELT_LIST *points); 
+    TEXT_BLOCK(ICOORDELT_LIST *points);
 
     TEXT_BLOCK (ICOORDELT_LIST * points, BOOL8 backg[NUM_BACKGROUNDS]);
 
                                  //get children
-    TEXT_REGION_LIST *regions() { 
+    TEXT_REGION_LIST *regions() {
       return &text_regions;
     }
 
-    INT32 nregions() { 
+    inT32 nregions() {
       return text_regions.length ();
     }
 
-    void add_a_region(TEXT_REGION *newchild); 
+    void add_a_region(TEXT_REGION *newchild);
 
     void rotate(  //rotate it
                 FCOORD rotation);
@@ -147,22 +147,22 @@ class DLLSYM TEXT_BLOCK:public PAGE_BLOCK
 
     void set_attrs (BOOL8 backg[NUM_BACKGROUNDS]);
 
-    void show_attrs(DEBUG_WIN *debug); 
+    void show_attrs(DEBUG_WIN *debug);
 
     void prep_serialise() {  //set ptrs to counts
-      PAGE_BLOCK::prep_serialise(); 
+      PAGE_BLOCK::prep_serialise();
       text_regions.prep_serialise ();
     }
 
     void dump(  //write external bits
               FILE *f) {
-      PAGE_BLOCK::dump(f); 
+      PAGE_BLOCK::dump(f);
       text_regions.dump (f);
     }
 
     void de_dump(  //read external bits
                  FILE *f) {
-      PAGE_BLOCK::de_dump(f); 
+      PAGE_BLOCK::de_dump(f);
       text_regions.de_dump (f);
     }
 
@@ -178,7 +178,7 @@ class DLLSYM TEXT_BLOCK:public PAGE_BLOCK
     TEXT_REGION_LIST text_regions;
 };
 
-DLLSYM void delete_all_tr_in(TEXT_BLOCK *tblock, POLY_BLOCK *delete_area); 
+DLLSYM void delete_all_tr_in(TEXT_BLOCK *tblock, POLY_BLOCK *delete_area);
 
 DLLSYM void show_all_tr_in(TEXT_BLOCK *tblock,
                            POLY_BLOCK *show_area,
@@ -188,13 +188,13 @@ class DLLSYM RULE_BLOCK:public PAGE_BLOCK
                                  //rule block
 {
   public:
-    RULE_BLOCK() { 
+    RULE_BLOCK() {
     }                            //empty constructor
-    RULE_BLOCK(ICOORDELT_LIST *points, INT8 sing, INT8 colo); 
+    RULE_BLOCK(ICOORDELT_LIST *points, inT8 sing, inT8 colo);
 
-    void set_attrs(INT8 sing, INT8 colo); 
+    void set_attrs(inT8 sing, inT8 colo);
 
-    void show_attrs(DEBUG_WIN *debug); 
+    void show_attrs(DEBUG_WIN *debug);
 
                                  //serialise to ascii
     make_serialise (RULE_BLOCK) void serialise_asc (
@@ -203,8 +203,8 @@ class DLLSYM RULE_BLOCK:public PAGE_BLOCK
                           FILE *f);
 
   private:
-    INT8 multiplicity;
-    INT8 colour;
+    inT8 multiplicity;
+    inT8 colour;
 
 };
 
@@ -212,14 +212,14 @@ class DLLSYM GRAPHICS_BLOCK:public PAGE_BLOCK
                                  //graphics block
 {
   public:
-    GRAPHICS_BLOCK() { 
+    GRAPHICS_BLOCK() {
     }                            //empty constructor
     GRAPHICS_BLOCK (ICOORDELT_LIST * points,
-      BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg);
+      BOOL8 backg[NUM_BACKGROUNDS], inT8 foreg);
 
-    void set_attrs (BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg);
+    void set_attrs (BOOL8 backg[NUM_BACKGROUNDS], inT8 foreg);
 
-    void show_attrs(DEBUG_WIN *debug); 
+    void show_attrs(DEBUG_WIN *debug);
 
                                  //serialise to ascii
     make_serialise (GRAPHICS_BLOCK) void serialise_asc (
@@ -229,7 +229,7 @@ class DLLSYM GRAPHICS_BLOCK:public PAGE_BLOCK
 
   private:
     BITS16 background;
-    INT8 foreground;
+    inT8 foreground;
 
 };
 
@@ -237,13 +237,13 @@ class DLLSYM IMAGE_BLOCK:public PAGE_BLOCK
                                  //image block
 {
   public:
-    IMAGE_BLOCK() { 
+    IMAGE_BLOCK() {
     }                            //empty constructor
-    IMAGE_BLOCK(ICOORDELT_LIST *points, INT8 colo, INT8 qual); 
+    IMAGE_BLOCK(ICOORDELT_LIST *points, inT8 colo, inT8 qual);
 
-    void set_attrs(INT8 colo, INT8 qual); 
+    void set_attrs(inT8 colo, inT8 qual);
 
-    void show_attrs(DEBUG_WIN *debug); 
+    void show_attrs(DEBUG_WIN *debug);
 
                                  //serialise to ascii
     make_serialise (IMAGE_BLOCK) void serialise_asc (
@@ -252,8 +252,8 @@ class DLLSYM IMAGE_BLOCK:public PAGE_BLOCK
                           FILE *f);
 
   private:
-    INT8 colour;
-    INT8 quality;
+    inT8 colour;
+    inT8 quality;
 
 };
 
@@ -261,14 +261,14 @@ class DLLSYM SCRIBBLE_BLOCK:public PAGE_BLOCK
                                  //scribble block
 {
   public:
-    SCRIBBLE_BLOCK() { 
+    SCRIBBLE_BLOCK() {
     }                            //empty constructor
     SCRIBBLE_BLOCK (ICOORDELT_LIST * points,
-      BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg);
+      BOOL8 backg[NUM_BACKGROUNDS], inT8 foreg);
 
-    void set_attrs (BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg);
+    void set_attrs (BOOL8 backg[NUM_BACKGROUNDS], inT8 foreg);
 
-    void show_attrs(DEBUG_WIN *debug); 
+    void show_attrs(DEBUG_WIN *debug);
 
                                  //serialise to ascii
     make_serialise (SCRIBBLE_BLOCK) void serialise_asc (
@@ -278,28 +278,28 @@ class DLLSYM SCRIBBLE_BLOCK:public PAGE_BLOCK
 
   private:
     BITS16 background;
-    INT8 foreground;
+    inT8 foreground;
 };
 
 class DLLSYM WEIRD_BLOCK:public PAGE_BLOCK
                                  //weird block
 {
   public:
-    WEIRD_BLOCK() { 
+    WEIRD_BLOCK() {
     }                            //empty constructor
-    WEIRD_BLOCK(ICOORDELT_LIST *points, INT32 id_no); 
+    WEIRD_BLOCK(ICOORDELT_LIST *points, inT32 id_no);
 
-    void set_id(INT32 id_no); 
+    void set_id(inT32 id_no);
 
-    void show_attrs(DEBUG_WIN *debug); 
+    void show_attrs(DEBUG_WIN *debug);
 
-    void set_id_no(INT32 new_id) { 
+    void set_id_no(inT32 new_id) {
       id_number = new_id;
     }
 
-    void plot(ScrollView* window, ScrollView::Color colour); 
+    void plot(ScrollView* window, ScrollView::Color colour);
 
-    INT32 id_no() { 
+    inT32 id_no() {
       return id_number;
     }
 
@@ -310,9 +310,9 @@ class DLLSYM WEIRD_BLOCK:public PAGE_BLOCK
                           FILE *f);
 
   private:
-    INT32 id_number;             //unique id
+    inT32 id_number;             //unique id
 
 };
 
-void print_background(DEBUG_WIN *f, BITS16 background); 
+void print_background(DEBUG_WIN *f, BITS16 background);
 #endif

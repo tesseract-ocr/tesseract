@@ -29,16 +29,16 @@ ELISTIZE_S (ROW)
  * The words are added directly.
  **********************************************************************/
 ROW::ROW (                       //constructor
-INT32 spline_size,               //no of segments
-INT32 * xstarts,                 //segment boundaries
+inT32 spline_size,               //no of segments
+inT32 * xstarts,                 //segment boundaries
 double *coeffs,                  //coefficients
 float x_height,                  //line height
 float ascenders,                 //ascender size
 float descenders,                //descender drop
-INT16 kern,                      //char gap
-INT16 space                      //word gap
+inT16 kern,                      //char gap
+inT16 space                      //word gap
 ):
-baseline(spline_size, xstarts, coeffs) { 
+baseline(spline_size, xstarts, coeffs) {
   kerning = kern;                //just store stuff
   spacing = space;
   xheight = x_height;
@@ -56,8 +56,8 @@ baseline(spline_size, xstarts, coeffs) {
 
 ROW::ROW(                 //constructor
          TO_ROW *to_row,  //source row
-         INT16 kern,      //char gap
-         INT16 space      //word gap
+         inT16 kern,      //char gap
+         inT16 space      //word gap
         ) {
   kerning = kern;                //just store stuff
   spacing = space;
@@ -77,8 +77,8 @@ ROW::ROW(                 //constructor
 void ROW::recalc_bounding_box() {  //recalculate BB
   WERD *word;                    //current word
   WERD_IT it = &words;           //words of ROW
-  INT16 left;                    //of word
-  INT16 prev_left;               //old left
+  inT16 left;                    //of word
+  inT16 prev_left;               //old left
 
   if (!it.empty ()) {
     word = it.data ();

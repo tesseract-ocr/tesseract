@@ -25,7 +25,7 @@
 
 #include          "hpddef.h"     //must be last (handpd.dll)
 
-ELISTIZE_S (TEXT_REGION) TEXT_REGION::TEXT_REGION (INT32 idno, ICOORDELT_LIST * points, TEXT_REGION_LIST * child):POLY_BLOCK (points,
+ELISTIZE_S (TEXT_REGION) TEXT_REGION::TEXT_REGION (inT32 idno, ICOORDELT_LIST * points, TEXT_REGION_LIST * child):POLY_BLOCK (points,
 POLY_TEXT) {
   TEXT_REGION_IT
     c = &txt_regions;
@@ -37,7 +37,7 @@ POLY_TEXT) {
 }
 
 
-TEXT_REGION::TEXT_REGION (INT32 idno, ICOORDELT_LIST * points):POLY_BLOCK (points,
+TEXT_REGION::TEXT_REGION (inT32 idno, ICOORDELT_LIST * points):POLY_BLOCK (points,
 POLY_TEXT) {
   id_number = idno;
 
@@ -46,7 +46,7 @@ POLY_TEXT) {
 
 
 TEXT_REGION::TEXT_REGION (       //constructor
-INT32 idno, ICOORDELT_LIST * points, INT8 hor, INT8 tex, INT8 ser, INT8 pro, INT8 nor, INT8 upr, INT8 sol, INT8 bla, INT8 und, INT8 dro):POLY_BLOCK (points,
+inT32 idno, ICOORDELT_LIST * points, inT8 hor, inT8 tex, inT8 ser, inT8 pro, inT8 nor, inT8 upr, inT8 sol, inT8 bla, inT8 und, inT8 dro):POLY_BLOCK (points,
 POLY_TEXT) {
 
   id_number = idno;
@@ -65,16 +65,16 @@ POLY_TEXT) {
 }
 
 
-void TEXT_REGION::set_attrs(INT8 hor,
-                            INT8 tex,
-                            INT8 ser,
-                            INT8 pro,
-                            INT8 nor,
-                            INT8 upr,
-                            INT8 sol,
-                            INT8 bla,
-                            INT8 und,
-                            INT8 dro) {
+void TEXT_REGION::set_attrs(inT8 hor,
+                            inT8 tex,
+                            inT8 ser,
+                            inT8 pro,
+                            inT8 nor,
+                            inT8 upr,
+                            inT8 sol,
+                            inT8 bla,
+                            inT8 und,
+                            inT8 dro) {
 
   horizontal = hor;
   text = tex;
@@ -120,7 +120,7 @@ void TEXT_REGION::show_attrs(  //Now uses tprintf instead
 }
 
 
-void TEXT_REGION::add_a_region(TEXT_REGION *newchild) { 
+void TEXT_REGION::add_a_region(TEXT_REGION *newchild) {
   TEXT_REGION_IT c = &txt_regions;
 
   c.move_to_first ();
@@ -145,7 +145,7 @@ void TEXT_REGION::rotate(  //cos,sin
     child = child_it.data ();
     child->rotate (rotation);
   }
-  POLY_BLOCK::rotate(rotation); 
+  POLY_BLOCK::rotate(rotation);
 }
 
 
@@ -166,7 +166,7 @@ void TEXT_REGION::move(ICOORD shift  //amount to move
     child = child_it.data ();
     child->move (shift);
   }
-  POLY_BLOCK::move(shift); 
+  POLY_BLOCK::move(shift);
 }
 
 
@@ -181,17 +181,17 @@ void TEXT_REGION::serialise_asc(         //convert to ascii
   ((POLY_BLOCK *) this)->serialise_asc (f);
   serialise_INT32(f, id_number);  //unique id
                                  //horizontal, vertical, skewed
-  serialise_INT32(f, horizontal); 
+  serialise_INT32(f, horizontal);
   serialise_INT32(f, text);  //text, table, form
   serialise_INT32(f, serif);  //serif, sansserif
                                  //proportional, fixed
-  serialise_INT32(f, proportional); 
+  serialise_INT32(f, proportional);
   serialise_INT32(f, normal);  //normal, bold
   serialise_INT32(f, upright);  //upright, italic
   serialise_INT32(f, solid);  //solid, outline
   serialise_INT32(f, black);  //black, coloured, white,
                                  //not underlined, underlined
-  serialise_INT32(f, underlined); 
+  serialise_INT32(f, underlined);
   serialise_INT32(f, dropcaps);  //not dropcaps, dropcaps
 
   txt_regions.serialise_asc (f);

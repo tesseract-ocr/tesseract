@@ -36,17 +36,17 @@ class BLOCK:public ELIST_LINK, public PDBLK
                                  //block label
   friend void scan_hpd_blocks(const char *name,
                               PAGE_BLOCK_LIST *page_blocks,  //head of full pag
-                              INT32 &block_no,               //no of blocks
+                              inT32 &block_no,               //no of blocks
                               BLOCK_IT *block_it);
   friend BOOL8 read_vec_file(              //read uscan output
                              STRING name,  //basename of file
-                             INT32 xsize,  //page size //output list
-                             INT32 ysize,
+                             inT32 xsize,  //page size //output list
+                             inT32 ysize,
                              BLOCK_LIST *blocks);
   friend BOOL8 read_pd_file(              //read uscan output
                             STRING name,  //basename of file
-                            INT32 xsize,  //page size //output list
-                            INT32 ysize,
+                            inT32 xsize,  //page size //output list
+                            inT32 ysize,
                             BLOCK_LIST *blocks);
 
   public:
@@ -57,12 +57,12 @@ class BLOCK:public ELIST_LINK, public PDBLK
     BLOCK(                   //simple constructor
           const char *name,  //filename
           BOOL8 prop,        //proportional
-          INT16 kern,        //kerning
-          INT16 space,       //spacing
-          INT16 xmin,        //bottom left
-          INT16 ymin,
-          INT16 xmax,        //top right
-          INT16 ymax);
+          inT16 kern,        //kerning
+          inT16 space,       //spacing
+          inT16 xmin,        //bottom left
+          inT16 ymin,
+          inT16 xmax,        //top right
+          inT16 ymax);
 
     //      void                                            set_sides(                                                 //set vertex lists
     //              ICOORDELT_LIST       *left,                        //list of left vertices
@@ -73,20 +73,20 @@ class BLOCK:public ELIST_LINK, public PDBLK
 
     void set_stats(                   //set space size etc.
                    BOOL8 prop,        //proportional
-                   INT16 kern,        //inter char size
-                   INT16 space,       //inter word size
-                   INT16 ch_pitch) {  //pitch if fixed
+                   inT16 kern,        //inter char size
+                   inT16 space,       //inter word size
+                   inT16 ch_pitch) {  //pitch if fixed
       proportional = prop;
-      kerning = (INT8) kern;
+      kerning = (inT8) kern;
       spacing = space;
       pitch = ch_pitch;
     }
     void set_xheight(  //set char size
-                     INT32 height) {
+                     inT32 height) {
       xheight = height;
     }
     void set_font_class(  //set font class
-                        INT16 font) {
+                        inT16 font) {
       font_class = font;
     }
     //      TEXT_REGION*                            text_region()
@@ -100,22 +100,22 @@ class BLOCK:public ELIST_LINK, public PDBLK
     BOOL8 prop() const {  //return proportional
       return proportional;
     }
-    INT32 fixed_pitch() const {  //return pitch
+    inT32 fixed_pitch() const {  //return pitch
       return pitch;
     }
-    INT16 kern() const {  //return kerning
+    inT16 kern() const {  //return kerning
       return kerning;
     }
-    INT16 font() const {  //return font class
+    inT16 font() const {  //return font class
       return font_class;
     }
-    INT16 space() const {  //return spacing
+    inT16 space() const {  //return spacing
       return spacing;
     }
     const char *name() const {  //return filename
       return filename.string ();
     }
-    INT32 x_height() const {  //return xheight
+    inT32 x_height() const {  //return xheight
       return xheight;
     }
     ROW_LIST *row_list() {  //get rows
@@ -124,7 +124,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
     C_BLOB_LIST *blob_list() {  //get blobs
       return &c_blobs;
     }
-    C_BLOB_LIST *reject_blobs() { 
+    C_BLOB_LIST *reject_blobs() {
       return &rej_blobs;
     }
     //      void                                                    bounding_box(                                           //get box
@@ -134,7 +134,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
     //              bottom_left=box.botleft();
     //              top_right=box.topright();
     //      }
-    //      const BOX&                                      bounding_box() const                            //get real box
+    //      const TBOX&                                      bounding_box() const                            //get real box
     //      {
     //              return box;
     //      }
@@ -160,7 +160,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
 
     //      void                                                    plot(                                                                   //draw histogram
     //              WINDOW                                  window,                                                         //window to draw in
-    //              INT32                                           serial,                                                         //serial number
+    //              inT32                                           serial,                                                         //serial number
     //              COLOUR                                  colour);                                                                //colour to draw in
 
     //      void                                                    show(                                                                   //show image
@@ -206,11 +206,11 @@ class BLOCK:public ELIST_LINK, public PDBLK
 
   private:
     BOOL8 proportional;          //proportional
-    INT8 kerning;                //inter blob gap
-    INT16 spacing;               //inter word gap
-    INT16 pitch;                 //pitch of non-props
-    INT16 font_class;            //correct font class
-    INT32 xheight;               //height of chars
+    inT8 kerning;                //inter blob gap
+    inT16 spacing;               //inter word gap
+    inT16 pitch;                 //pitch of non-props
+    inT16 font_class;            //correct font class
+    inT32 xheight;               //height of chars
     STRING filename;             //name of block
     //      TEXT_REGION*                            hand_block;                                                     //if it exists
     //      POLY_BLOCK*                                     hand_poly;                                                      //wierd as well
@@ -219,7 +219,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
     C_BLOB_LIST rej_blobs;       //duff stuff
     //      ICOORDELT_LIST                          leftside;                                                       //left side vertices
     //      ICOORDELT_LIST                          rightside;                                                      //right side vertices
-    //      BOX                                                     box;                                                                    //bounding box
+    //      TBOX                                                     box;                                                                    //bounding box
 };
 
 int decreasing_top_order(  //

@@ -24,14 +24,14 @@
 
 #include          "hpddef.h"     //must be last (handpd.dll)
 
-extern DLLSYM INT32 tn[NUM_TEXT_ATTR];
+extern DLLSYM inT32 tn[NUM_TEXT_ATTR];
 
 extern DLLSYM char tlabel[NUM_TEXT_ATTR][4][MAXLENGTH];
 
-extern DLLSYM INT32 bn[NUM_BLOCK_ATTR];
+extern DLLSYM inT32 bn[NUM_BLOCK_ATTR];
 
-extern DLLSYM INT32 tvar[NUM_TEXT_ATTR];
-extern DLLSYM INT32 bvar[NUM_BLOCK_ATTR];
+extern DLLSYM inT32 tvar[NUM_TEXT_ATTR];
+extern DLLSYM inT32 bvar[NUM_BLOCK_ATTR];
 extern DLLSYM char blabel[NUM_BLOCK_ATTR][4][MAXLENGTH];
 
 extern DLLSYM char backlabel[NUM_BACKGROUNDS][MAXLENGTH];

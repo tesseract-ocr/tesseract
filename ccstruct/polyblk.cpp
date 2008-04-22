@@ -29,15 +29,15 @@
 #define PBLOCK_LABEL_SIZE 150
 #define INTERSECTING MAX_INT16
 
-int lessthan(const void *first, const void *second); 
+int lessthan(const void *first, const void *second);
 
-POLY_BLOCK::POLY_BLOCK(ICOORDELT_LIST *points, POLY_TYPE t) { 
+POLY_BLOCK::POLY_BLOCK(ICOORDELT_LIST *points, POLY_TYPE t) {
   ICOORDELT_IT v = &vertices;
 
   vertices.clear ();
   v.move_to_first ();
   v.add_list_before (points);
-  compute_bb(); 
+  compute_bb();
   type = t;
 }
 
@@ -73,7 +73,7 @@ void POLY_BLOCK::compute_bb() {  //constructor
   while (!pts.at_first ());
   ibl = ICOORD (botleft.x (), botleft.y ());
   itr = ICOORD (topright.x (), topright.y ());
-  box = BOX (ibl, itr);
+  box = TBOX (ibl, itr);
 }
 
 
@@ -83,14 +83,14 @@ void POLY_BLOCK::compute_bb() {  //constructor
  * Return the winding number of the outline around the given point.
  **********************************************************************/
 
-INT16 POLY_BLOCK::winding_number(                     //winding number
+inT16 POLY_BLOCK::winding_number(                     //winding number
                                  const ICOORD &point  //point to wind around
                                 ) {
-  INT16 count;                   //winding count
+  inT16 count;                   //winding count
   ICOORD pt;                     //current point
   ICOORD vec;                    //point to current point
   ICOORD vvec;                   //current point to next point
-  INT32 cross;                   //cross product
+  inT32 cross;                   //cross product
   ICOORDELT_IT it = &vertices;   //iterator
 
   count = 0;
@@ -130,7 +130,7 @@ INT16 POLY_BLOCK::winding_number(                     //winding number
 
 BOOL8 POLY_BLOCK::contains(  //other outline
                            POLY_BLOCK *other) {
-  INT16 count;                   //winding count
+  inT16 count;                   //winding count
   ICOORDELT_IT it = &vertices;   //iterator
   ICOORD vertex;
 
@@ -186,12 +186,12 @@ void POLY_BLOCK::rotate(                 //constructor
     pos.set_x (pt->x ());
     pos.set_y (pt->y ());
     pos.rotate (rotation);
-    pt->set_x ((INT16) (floor (pos.x () + 0.5)));
-    pt->set_y ((INT16) (floor (pos.y () + 0.5)));
+    pt->set_x ((inT16) (floor (pos.x () + 0.5)));
+    pt->set_y ((inT16) (floor (pos.y () + 0.5)));
     pts.forward ();
   }
   while (!pts.at_first ());
-  compute_bb(); 
+  compute_bb();
 }
 
 
@@ -213,24 +213,24 @@ void POLY_BLOCK::move(              //constructor
     pts.forward ();
   }
   while (!pts.at_first ());
-  compute_bb(); 
+  compute_bb();
 }
 
 
 #ifndef GRAPHICS_DISABLED
-void POLY_BLOCK::plot(ScrollView* window, ScrollView::Color colour, INT32 num) { 
+void POLY_BLOCK::plot(ScrollView* window, ScrollView::Color colour, inT32 num) {
   ICOORDELT_IT v = &vertices;
 
-  window->Pen(colour); 
-  
+  window->Pen(colour);
+
   v.move_to_first ();
 
   if (num > 0) {
-    window->Pen(colour); 
+    window->Pen(colour);
     window->TextAttributes("Times", 80, false, false, false);
     char temp_buff[34];
     #ifdef __UNIX__
-    sprintf(temp_buff, INT32FORMAT, num); 
+    sprintf(temp_buff, INT32FORMAT, num);
     #else
     ltoa (num, temp_buff, 10);
     #endif
@@ -246,15 +246,15 @@ void POLY_BLOCK::plot(ScrollView* window, ScrollView::Color colour, INT32 num) {
 }
 
 
-void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) { 
-  INT16 y;
-  INT16 width;
+void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
+  inT16 y;
+  inT16 width;
   PB_LINE_IT *lines;
   ICOORDELT_LIST *segments;
   ICOORDELT_IT s_it;
 
   lines = new PB_LINE_IT (this);
-  window->Pen(colour); 
+  window->Pen(colour);
 
   for (y = this->bounding_box ()->bottom ();
   y <= this->bounding_box ()->top (); y++) {
@@ -277,7 +277,7 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
 
 BOOL8 POLY_BLOCK::overlap(  // do polys overlap
                           POLY_BLOCK *other) {
-  INT16 count;                   //winding count
+  inT16 count;                   //winding count
   ICOORDELT_IT it = &vertices;   //iterator
   ICOORD vertex;
 
@@ -315,7 +315,7 @@ BOOL8 POLY_BLOCK::overlap(  // do polys overlap
 }
 
 
-ICOORDELT_LIST *PB_LINE_IT::get_line(INT16 y) { 
+ICOORDELT_LIST *PB_LINE_IT::get_line(inT16 y) {
   ICOORDELT_IT v, r;
   ICOORDELT_LIST *result;
   ICOORDELT *x, *current, *previous;
@@ -335,7 +335,7 @@ ICOORDELT_LIST *PB_LINE_IT::get_line(INT16 y) {
         (current->x () - previous->x ()) * (fy -
         previous->y ()) /
         (current->y () - previous->y ()));
-      x = new ICOORDELT ((INT16) fx, 0);
+      x = new ICOORDELT ((inT16) fx, 0);
       r.add_to_end (x);
     }
   }
@@ -355,7 +355,7 @@ ICOORDELT_LIST *PB_LINE_IT::get_line(INT16 y) {
 }
 
 
-int lessthan(const void *first, const void *second) { 
+int lessthan(const void *first, const void *second) {
   ICOORDELT *p1 = (*(ICOORDELT **) first);
   ICOORDELT *p2 = (*(ICOORDELT **) second);
 
@@ -379,7 +379,7 @@ void POLY_BLOCK::serialise_asc(         //convert to ascii
                               ) {
   vertices.serialise_asc (f);
   box.serialise_asc (f);
-  serialise_INT32(f, type); 
+  serialise_INT32(f, type);
 }
 
 

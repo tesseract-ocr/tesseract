@@ -73,19 +73,19 @@ class BLOBNBOX:public ELIST_LINK
     }
 
                                  //get bounding box
-    const BOX &bounding_box() const {
+    const TBOX &bounding_box() const {
       return box;
     }
                                  //get bounding box
-    const BOX &reduced_box() const {
+    const TBOX &reduced_box() const {
       return red_box;
     }
     void set_reduced_box(  //set other box
-                         BOX new_box) {
+                         TBOX new_box) {
       red_box = new_box;
       reduced = TRUE;
     }
-    INT32 enclosed_area() const {  //get area
+    inT32 enclosed_area() const {  //get area
       return area;
     }
 
@@ -131,8 +131,8 @@ class BLOBNBOX:public ELIST_LINK
     int area:30;                 //enclosed area
     int joined:1;                //joined to prev
     int reduced:1;               //reduced box set
-    BOX box;                     //bounding box
-    BOX red_box;                 //bounding box
+    TBOX box;                     //bounding box
+    TBOX red_box;                 //bounding box
     PBLOB *blob_ptr;             //poly blob
     C_BLOB *cblob_ptr;           //edgestep blob
 };
@@ -225,8 +225,8 @@ class TO_ROW:public ELIST2_LINK
     NEWDELETE2 (TO_ROW) BOOL8 merged;
     BOOL8 all_caps;              //had no ascenders
     BOOL8 used_dm_model;         //in guessing pitch
-    INT16 projection_left;       //start of projection
-    INT16 projection_right;      //start of projection
+    inT16 projection_left;       //start of projection
+    inT16 projection_right;      //start of projection
     PITCH_TYPE pitch_decision;   //how strong is decision
     float fixed_pitch;           //pitch or 0
     float fp_space;              //sp if fixed pitch
@@ -237,9 +237,9 @@ class TO_ROW:public ELIST2_LINK
     float xheight;               //of line
     float ascrise;               //ascenders
     float descdrop;              //descenders
-    INT32 min_space;             //min size for real space
-    INT32 max_nonspace;          //max size of non-space
-    INT32 space_threshold;       //space vs nonspace
+    inT32 min_space;             //min size for real space
+    inT32 max_nonspace;          //max size of non-space
+    inT32 space_threshold;       //space vs nonspace
     float kern_size;             //average non-space
     float space_size;            //average space
     WERD_LIST rep_words;         //repeated chars
@@ -302,8 +302,8 @@ class TO_BLOCK:public ELIST_LINK
     float fixed_pitch;           //pitch or 0
     float kern_size;             //average non-space
     float space_size;            //average space
-    INT32 min_space;             //min definite space
-    INT32 max_nonspace;          //max definite
+    inT32 min_space;             //min definite space
+    inT32 max_nonspace;          //max definite
     float fp_space;              //sp if fixed pitch
     float fp_nonsp;              //nonsp if fixed pitch
     float pr_space;              //sp if prop
@@ -356,10 +356,10 @@ C_BLOB *crotate_cblob(                 //rotate it
                       C_BLOB *blob,    //blob to search
                       FCOORD rotation  //for landscape
                      );
-BOX box_next(                 //get bounding box
+TBOX box_next(                 //get bounding box
              BLOBNBOX_IT *it  //iterator to blobds
             );
-BOX box_next_pre_chopped(                 //get bounding box
+TBOX box_next_pre_chopped(                 //get bounding box
                          BLOBNBOX_IT *it  //iterator to blobds
                         );
 void vertical_blob_projection(              //project outlines

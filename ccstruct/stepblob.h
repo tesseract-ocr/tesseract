@@ -26,7 +26,7 @@
 class C_BLOB:public ELIST_LINK
 {
   public:
-    C_BLOB() { 
+    C_BLOB() {
     }                            //empty constructor
     C_BLOB(  //constructor //in random order
            C_OUTLINE_LIST *outline_list);
@@ -35,11 +35,11 @@ class C_BLOB:public ELIST_LINK
       return &outlines;
     }
 
-    BOX bounding_box();  //compute bounding box
-    INT32 area();  //compute area
-    INT32 outer_area();  //compute area
-    INT32 count_transitions(                   //count maxima
-                            INT32 threshold);  //size threshold
+    TBOX bounding_box();  //compute bounding box
+    inT32 area();  //compute area
+    inT32 outer_area();  //compute area
+    inT32 count_transitions(                   //count maxima
+                            inT32 threshold);  //size threshold
 
     void move(                    // reposition blob
               const ICOORD vec);  // by vector

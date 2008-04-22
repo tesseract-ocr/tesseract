@@ -46,12 +46,12 @@ ELISTIZEH (WERD_RES)
 class PAGE_RES                   //page result
 {
   public:
-    INT32 char_count;
-    INT32 rej_count;
+    inT32 char_count;
+    inT32 rej_count;
     BLOCK_RES_LIST block_res_list;
     BOOL8 rejected;
 
-    PAGE_RES() { 
+    PAGE_RES() {
     }                            //empty constructor
 
     PAGE_RES(                          //simple constructor
@@ -70,10 +70,10 @@ class BLOCK_RES:public ELIST_LINK
 {
   public:
     BLOCK * block;               //real block
-    INT32 char_count;            //chars in block
-    INT32 rej_count;             //rejected chars
-    INT16 font_class;            //
-    INT16 row_count;
+    inT32 char_count;            //chars in block
+    inT32 rej_count;             //rejected chars
+    inT16 font_class;            //
+    inT16 row_count;
     float x_height;
     BOOL8 font_assigned;         // block already
     //      processed
@@ -82,7 +82,7 @@ class BLOCK_RES:public ELIST_LINK
 
     ROW_RES_LIST row_res_list;
 
-    BLOCK_RES() { 
+    BLOCK_RES() {
     }                            //empty constructor
 
     BLOCK_RES(                    //simple constructor
@@ -100,20 +100,20 @@ class ROW_RES:public ELIST_LINK  //row result
 {
   public:
     ROW * row;                   //real row
-    INT32 char_count;            //chars in block
-    INT32 rej_count;             //rejected chars
-    INT32 whole_word_rej_count;  //rejs in total rej wds
+    inT32 char_count;            //chars in block
+    inT32 rej_count;             //rejected chars
+    inT32 whole_word_rej_count;  //rejs in total rej wds
     WERD_RES_LIST word_res_list;
     float font_class_score;
-    INT16 font_class;            //
-    INT32 italic;
-    INT32 bold;
-    INT8 font1;                  //primary font
-    INT8 font1_count;            //no of voters
-    INT8 font2;                  //secondary font
-    INT8 font2_count;            //no of voters
+    inT16 font_class;            //
+    inT32 italic;
+    inT32 bold;
+    inT8 font1;                  //primary font
+    inT8 font1_count;            //no of voters
+    inT8 font2;                  //secondary font
+    inT8 font2_count;            //no of voters
 
-    ROW_RES() { 
+    ROW_RES() {
     }                            //empty constructor
 
     ROW_RES(                //simple constructor
@@ -156,12 +156,12 @@ class WERD_RES:public ELIST_LINK //word result
     BOOL8 tess_accepted;         //Tess thinks its ok?
     BOOL8 tess_would_adapt;      //Tess would adapt?
     BOOL8 done;                  //ready for output?
-    INT8 italic;
-    INT8 bold;
-    INT8 font1;                  //primary font
-    INT8 font1_count;            //no of voters
-    INT8 font2;                  //secondary font
-    INT8 font2_count;            //no of voters
+    inT8 italic;
+    inT8 bold;
+    inT8 font1;                  //primary font
+    inT8 font1_count;            //no of voters
+    inT8 font2;                  //secondary font
+    inT8 font2_count;            //no of voters
     CRUNCH_MODE unlv_crunch_mode;
     float x_height;              //Post match estimate
     float caps_height;           //Post match estimate
@@ -187,7 +187,7 @@ class WERD_RES:public ELIST_LINK //word result
     BOOL8 part_of_combo;         //part of a combo
     BOOL8 reject_spaces;         //Reject spacing?
 
-    WERD_RES() { 
+    WERD_RES() {
     }                            //empty constructor
 
     WERD_RES(                   //simple constructor
@@ -242,7 +242,7 @@ class PAGE_RES_IT
   public:
     PAGE_RES * page_res;         //page being iterated
 
-    PAGE_RES_IT() { 
+    PAGE_RES_IT() {
     }                            //empty contructor
 
     PAGE_RES_IT(                           //empty contructor

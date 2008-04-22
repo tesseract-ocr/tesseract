@@ -36,17 +36,17 @@ class DLLSYM PDBLK               //page block
                                  //block label
   friend void scan_hpd_blocks(const char *name,
                               PAGE_BLOCK_LIST *page_blocks,  //head of full pag
-                              INT32 &block_no,               //no of blocks
+                              inT32 &block_no,               //no of blocks
                               PDBLK_C_IT *block_it);
   friend BOOL8 read_vec_file(              //read uscan output
                              STRING name,  //basename of file
-                             INT32 xsize,  //page size //output list
-                             INT32 ysize,
+                             inT32 xsize,  //page size //output list
+                             inT32 ysize,
                              PDBLK_CLIST *blocks);
   friend BOOL8 read_pd_file(              //read uscan output
                             STRING name,  //basename of file
-                            INT32 xsize,  //page size //output list
-                            INT32 ysize,
+                            inT32 xsize,  //page size //output list
+                            inT32 ysize,
                             PDBLK_CLIST *blocks);
 
   public:
@@ -55,10 +55,10 @@ class DLLSYM PDBLK               //page block
       hand_poly = NULL;
     }
     PDBLK(             //simple constructor
-          INT16 xmin,  //bottom left
-          INT16 ymin,
-          INT16 xmax,  //top right
-          INT16 ymax);
+          inT16 xmin,  //bottom left
+          inT16 ymin,
+          inT16 xmax,  //top right
+          inT16 ymax);
 
     void set_sides(                         //set vertex lists
                    ICOORDELT_LIST *left,    //list of left vertices
@@ -67,10 +67,10 @@ class DLLSYM PDBLK               //page block
     ~PDBLK () {                  //destructor
     }
 
-    TEXT_REGION *text_region() { 
+    TEXT_REGION *text_region() {
       return hand_block;
     }
-    POLY_BLOCK *poly_block() { 
+    POLY_BLOCK *poly_block() {
       return hand_poly;
     }
     void set_poly_block(  //set the poly block
@@ -84,7 +84,7 @@ class DLLSYM PDBLK               //page block
       top_right = box.topright ();
     }
                                  //get real box
-    const BOX &bounding_box() const { 
+    const TBOX &bounding_box() const {
       return box;
     }
 
@@ -96,7 +96,7 @@ class DLLSYM PDBLK               //page block
 
     void plot(                 //draw histogram
               ScrollView* window,   //window to draw in
-              INT32 serial,    //serial number
+              inT32 serial,    //serial number
               ScrollView::Color colour);  //colour to draw in
 
     void show(                 //show image
@@ -111,7 +111,7 @@ class DLLSYM PDBLK               //page block
     POLY_BLOCK *hand_poly;       //wierd as well
     ICOORDELT_LIST leftside;     //left side vertices
     ICOORDELT_LIST rightside;    //right side vertices
-    BOX box;                     //bounding box
+    TBOX box;                     //bounding box
 };
 
 class DLLSYM BLOCK_RECT_IT       //rectangle iterator
@@ -142,8 +142,8 @@ class DLLSYM BLOCK_RECT_IT       //rectangle iterator
     }
 
   private:
-    INT16 ymin;                  //bottom of rectangle
-    INT16 ymax;                  //top of rectangle
+    inT16 ymin;                  //bottom of rectangle
+    inT16 ymax;                  //top of rectangle
     PDBLK *block;                //block to iterate
     ICOORDELT_IT left_it;        //boundary iterators
     ICOORDELT_IT right_it;
@@ -166,9 +166,9 @@ class DLLSYM BLOCK_LINE_IT       //rectangle iterator
       rect_it.set_to_block (blkptr);
     }
 
-    INT16 get_line(               //get a line
-                   INT16 y,       //line to get
-                   INT16 &xext);  //output extent
+    inT16 get_line(               //get a line
+                   inT16 y,       //line to get
+                   inT16 &xext);  //output extent
 
   private:
     PDBLK * block;               //block to iterate

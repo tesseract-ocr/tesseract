@@ -24,26 +24,26 @@
 
 struct VEC_HEADER
 {
-  INT32 filesize;                //bytes in file
-  INT16 bytesize;                //sizeof a byte
-  INT16 arraysize;               //no of blocks
-  INT16 width;                   //of image
-  INT16 height;
-  INT16 res;                     //not set
-  INT16 bpp;
+  inT32 filesize;                //bytes in file
+  inT16 bytesize;                //sizeof a byte
+  inT16 arraysize;               //no of blocks
+  inT16 width;                   //of image
+  inT16 height;
+  inT16 res;                     //not set
+  inT16 bpp;
 };
 
 struct BLOCK_HEADER
 {
-  UINT8 type;                    //block type
-  UINT8 valid;                   //useable flag
-  UINT8 charsize;                //blob size
-  UINT8 downsamplerate;          //??
-  UINT8 subtype;                 //??
-  UINT8 temp;                    //??
-  UINT16 offset;                 //index in vectors
-  UINT16 order;                  //block number
-  UINT16 entries;                //no of vectors
+  uinT8 type;                    //block type
+  uinT8 valid;                   //useable flag
+  uinT8 charsize;                //blob size
+  uinT8 downsamplerate;          //??
+  uinT8 subtype;                 //??
+  uinT8 temp;                    //??
+  uinT16 offset;                 //index in vectors
+  uinT16 order;                  //block number
+  uinT16 entries;                //no of vectors
 };
 
 struct VEC_ENTRY

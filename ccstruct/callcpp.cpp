@@ -52,20 +52,20 @@ double_VAR (newcp_duff_rating, 0.30, "Worst rating for calling real matcher");
 double_VAR (newcp_prune_threshold, 1.2, "Ratio of best to prune");
 double_VAR (tessedit_cp_ratio, 0.0, "Ratio from best to prune");
 //Global matcher info from the class pruner.
-INT32 cp_classes;
-INT32 cp_bestindex;
-INT32 cp_bestrating;
-INT32 cp_bestconf;
+inT32 cp_classes;
+inT32 cp_bestindex;
+inT32 cp_bestrating;
+inT32 cp_bestconf;
 char cp_chars[2];
-INT32 cp_ratings[2];
-INT32 cp_confs[2];
-INT32 cp_maps[4];
+inT32 cp_ratings[2];
+inT32 cp_confs[2];
+inT32 cp_maps[4];
 //Global info to control writes of matcher info
-INT32 blob_type;                   //write control
+inT32 blob_type;                   //write control
 char blob_answer[UNICHAR_LEN + 1]; //correct char
 char *word_answer;                 //correct word
-INT32 matcher_pass;                //pass in chopper.c
-INT32 bits_in_states;              //no of bits in states
+inT32 matcher_pass;                //pass in chopper.c
+inT32 bits_in_states;              //no of bits in states
 
 #ifndef __UNIX__
 /**********************************************************************
@@ -109,7 +109,7 @@ const char *format, ...          //special message
 
 
 char *c_alloc_string(             //allocate string
-                     INT32 count  //no of chars required
+                     inT32 count  //no of chars required
                     ) {
   return alloc_string (count);
 }
@@ -123,7 +123,7 @@ void c_free_string(              //free a string
 
 
 void *c_alloc_struct(                  //allocate memory
-                     INT32 count,      //no of chars required
+                     inT32 count,      //no of chars required
                      const char *name  //class name
                     ) {
   return alloc_struct (count, name);
@@ -132,7 +132,7 @@ void *c_alloc_struct(                  //allocate memory
 
 void c_free_struct(                   //free a structure
                    void *deadstruct,  //structure to free
-                   INT32 count,       //no of bytes
+                   inT32 count,       //no of bytes
                    const char *name   //class name
                   ) {
   free_struct(deadstruct, count, name);
@@ -140,14 +140,14 @@ void c_free_struct(                   //free a structure
 
 
 void *c_alloc_mem_p(             //allocate permanent space
-                    INT32 count  //block size to allocate
+                    inT32 count  //block size to allocate
                    ) {
   return alloc_mem_p (count);
 }
 
 
 void *c_alloc_mem(             //get some memory
-                  INT32 count  //no of bytes to get
+                  inT32 count  //no of bytes to get
                  ) {
   return alloc_mem (count);
 }
@@ -162,18 +162,18 @@ void c_free_mem(                //free mem from alloc_mem
 
 void c_check_mem(                     //check consistency
                  const char *string,  //context message
-                 INT8 level           //level of check
+                 inT8 level           //level of check
                 ) {
   check_mem(string, level);
 }
 
 #ifndef GRAPHICS_DISABLED
-void *c_create_window(                   /*create a window */
+ScrollView *c_create_window(                   /*create a window */
                       const char *name,  /*name/title of window */
-                      INT16 xpos,        /*coords of window */
-                      INT16 ypos,        /*coords of window */
-                      INT16 xsize,       /*size of window */
-                      INT16 ysize,       /*size of window */
+                      inT16 xpos,        /*coords of window */
+                      inT16 ypos,        /*coords of window */
+                      inT16 xsize,       /*size of window */
+                      inT16 ysize,       /*size of window */
                       double xmin,       /*scrolling limits */
                       double xmax,       /*to stop users */
                       double ymin,       /*getting lost in */
@@ -224,20 +224,16 @@ void c_clear_window(  /*move pen */
 }
 
 
-char window_wait(  /*move pen */
-                 void *win) {
-  ScrollView* window = (ScrollView*) win;
+char window_wait(ScrollView* win) {
   SVEvent* ev;
-
-  // Wait till an input event (all others are thrown away)
+  // Wait till an input or click event (all others are thrown away)
   char ret = '\0';
   SVEventType ev_type = SVET_ANY;
   do {
-    ev = window->AwaitEvent(SVET_ANY);
+    ev = win->AwaitEvent(SVET_ANY);
     ev_type = ev->type;
-    if (ev_type == SVET_INPUT) {
+    if (ev_type == SVET_INPUT)
       ret = ev->parameter[0];
-    }
     delete ev;
   } while (ev_type != SVET_INPUT && ev_type != SVET_CLICK);
   return ret;

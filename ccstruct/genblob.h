@@ -33,7 +33,7 @@ int c_blob_comparator(                     //sort blobs
                       const void *blob1p,  //ptr to ptr to blob1
                       const void *blob2p   //ptr to ptr to blob2
                      );
-BOX gblob_bounding_box(                 //Get bounding box
+TBOX gblob_bounding_box(                 //Get bounding box
                        PBLOB *blob,     //generic blob
                        BOOL8 polygonal  //is blob polygonal?
                       );
@@ -45,7 +45,7 @@ OUTLINE_LIST *gblob_out_list(                 //Get outline list
                              PBLOB *blob,     //generic blob
                              BOOL8 polygonal  //is blob polygonal?
                             );
-BOX goutline_bounding_box(                   //Get bounding box
+TBOX goutline_bounding_box(                   //Get bounding box
                           OUTLINE *outline,  //generic outline
                           BOOL8 polygonal    //is outline polygonal?
                          );

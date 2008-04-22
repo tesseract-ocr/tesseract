@@ -39,10 +39,10 @@
 
 EXTERN BOOL_EVAR (ignore_weird_blocks, TRUE, "Don't read weird blocks");
 
-static BOX convert_vec_block(                        //make non-rect block
+static TBOX convert_vec_block(                        //make non-rect block
                              VEC_ENTRY *entries,     //vectors
-                             UINT16 entry_count,     //no of entries
-                             INT32 ysize,            //image size
+                             uinT16 entry_count,     //no of entries
+                             inT32 ysize,            //image size
                              ICOORDELT_IT *left_it,  //block sides
                              ICOORDELT_IT *right_it);
 
@@ -54,20 +54,20 @@ static BOX convert_vec_block(                        //make non-rect block
 
 BOOL8 read_pd_file(                    //print list of sides
                    STRING name,        //basename of file
-                   INT32 xsize,        //image size
-                   INT32 ysize,        //image size
+                   inT32 xsize,        //image size
+                   inT32 ysize,        //image size
                    BLOCK_LIST *blocks  //output list
                   ) {
   FILE *pdfp;                    //file pointer
   BLOCK *block;                  //current block
-  INT32 block_count;             //no of blocks
-  INT32 junk_count;              //no of junks to read
-  INT32 junks[4];                //junk elements
-  INT32 vertex_count;            //boundary vertices
-  INT32 xcoord;                  //current coords
-  INT32 ycoord;
-  INT32 prevx;                   //previous coords
-  INT32 prevy;
+  inT32 block_count;             //no of blocks
+  inT32 junk_count;              //no of junks to read
+  inT32 junks[4];                //junk elements
+  inT32 vertex_count;            //boundary vertices
+  inT32 xcoord;                  //current coords
+  inT32 ycoord;
+  inT32 prevx;                   //previous coords
+  inT32 prevy;
   BLOCK_IT block_it = blocks;    //block iterator
   ICOORDELT_LIST dummy;          //for constructor
   ICOORDELT_IT left_it = &dummy; //iterator
@@ -152,7 +152,7 @@ BOOL8 read_pd_file(                    //print list of sides
       while (vertex_count > 0);  //until all read
 
       while (junk_count > 0) {
-        if (fread (junks, sizeof (INT32), 4, pdfp) != 4)
+        if (fread (junks, sizeof (inT32), 4, pdfp) != 4)
           READFAILED.error ("read_pd_file", EXIT, "Junk coords");
         junk_count--;
       }
@@ -175,12 +175,12 @@ BOOL8 read_pd_file(                    //print list of sides
 
 void get_pd_vertex(                //get new vertex
                    FILE *pdfp,     //file to read
-                   INT32 xsize,    //image size
-                   INT32 ysize,    //image size
-                   BOX *box,       //bounding box
-                   INT32 &xcoord,  //output coords
-                   INT32 &ycoord) {
-  BOX new_coord;                 //expansion box
+                   inT32 xsize,    //image size
+                   inT32 ysize,    //image size
+                   TBOX *box,       //bounding box
+                   inT32 &xcoord,  //output coords
+                   inT32 &ycoord) {
+  TBOX new_coord;                 //expansion box
 
                                  //get new coords
   if (fread (&xcoord, sizeof (xcoord), 1, pdfp) != 1)
@@ -198,7 +198,7 @@ void get_pd_vertex(                //get new vertex
     ycoord = ysize - BLOCK_EXPANSION;
 
   new_coord =
-    BOX (ICOORD (xcoord - BLOCK_EXPANSION, ycoord - BLOCK_EXPANSION),
+    TBOX (ICOORD (xcoord - BLOCK_EXPANSION, ycoord - BLOCK_EXPANSION),
     ICOORD (xcoord + BLOCK_EXPANSION, ycoord + BLOCK_EXPANSION));
   (*box) += new_coord;
 }
@@ -213,13 +213,13 @@ void get_pd_vertex(                //get new vertex
 
 BOOL8 read_hpd_file(                    //print list of sides
                     STRING name,        //basename of file
-                    INT32 xsize,        //image size
-                    INT32 ysize,        //image size
+                    inT32 xsize,        //image size
+                    inT32 ysize,        //image size
                     BLOCK_LIST *blocks  //output list
                    ) {
   FILE *pdfp;                    //file pointer
   PAGE_BLOCK_LIST *page_blocks;
-  INT32 block_no;                //no of blocks
+  inT32 block_no;                //no of blocks
   BLOCK_IT block_it = blocks;    //block iterator
 
   name += HPD_EXT;               //add extension
@@ -245,7 +245,7 @@ BOOL8 read_hpd_file(                    //print list of sides
 void scan_hpd_blocks(                               //print list of sides
                      const char *name,              //block label
                      PAGE_BLOCK_LIST *page_blocks,  //head of full pag
-                     INT32 &block_no,               //no of blocks
+                     inT32 &block_no,               //no of blocks
                      BLOCK_IT *block_it             //block iterator
                     ) {
   BLOCK *block;                  //current block
@@ -255,7 +255,7 @@ void scan_hpd_blocks(                               //print list of sides
   TEXT_REGION_IT tr_it;
   TEXT_BLOCK *tb;
   TEXT_REGION *tr;
-  BOX *block_box;                //from text region
+  TBOX *block_box;                //from text region
 
   for (pb_it.mark_cycle_pt (); !pb_it.cycled_list (); pb_it.forward ()) {
     current_block = pb_it.data ();
@@ -307,15 +307,15 @@ void scan_hpd_blocks(                               //print list of sides
 
 BOOL8 read_vec_file(                    //print list of sides
                     STRING name,        //basename of file
-                    INT32 xsize,        //image size
-                    INT32 ysize,        //image size
+                    inT32 xsize,        //image size
+                    inT32 ysize,        //image size
                     BLOCK_LIST *blocks  //output list
                    ) {
   FILE *pdfp;                    //file pointer
   BLOCK *block;                  //current block
-  INT32 block_no;                //no of blocks
-  INT32 block_index;             //current blocks
-  INT32 vector_count;            //total vectors
+  inT32 block_no;                //no of blocks
+  inT32 block_index;             //current blocks
+  inT32 vector_count;            //total vectors
   VEC_HEADER header;             //file header
   BLOCK_HEADER *vec_blocks;      //blocks from file
   VEC_ENTRY *vec_entries;        //vectors from file
@@ -408,19 +408,19 @@ BOOL8 read_vec_file(                    //print list of sides
  * Return FALSE if the .vec fiel cannot be found
  **********************************************************************/
 
-static BOX convert_vec_block(                        //make non-rect block
+static TBOX convert_vec_block(                        //make non-rect block
                              VEC_ENTRY *entries,     //vectors
-                             UINT16 entry_count,     //no of entries
-                             INT32 ysize,            //image size
+                             uinT16 entry_count,     //no of entries
+                             inT32 ysize,            //image size
                              ICOORDELT_IT *left_it,  //block sides
                              ICOORDELT_IT *right_it) {
-  BOX block_box;                 //bounding box
-  BOX vec_box;                   //box of vec
+  TBOX block_box;                 //bounding box
+  TBOX vec_box;                   //box of vec
   ICOORD box_point;              //expanded coord
   ICOORD shift_vec;              //for box expansion
   ICOORD prev_pt;                //previous coord
   ICOORD end_pt;                 //end of vector
-  INT32 vertex_index;            //boundary vertices
+  inT32 vertex_index;            //boundary vertices
 
   for (vertex_index = 0; vertex_index < entry_count; vertex_index++) {
     entries[vertex_index].start = ICOORD (entries[vertex_index].start.x (),
@@ -429,7 +429,7 @@ static BOX convert_vec_block(                        //make non-rect block
     entries[vertex_index].end =
       ICOORD (entries[vertex_index].end.x (),
       ysize - 1 - entries[vertex_index].end.y ());
-    vec_box = BOX (entries[vertex_index].start, entries[vertex_index].end);
+    vec_box = TBOX (entries[vertex_index].start, entries[vertex_index].end);
     block_box += vec_box;        //find total bounds
   }
 
@@ -494,7 +494,7 @@ static BOX convert_vec_block(                        //make non-rect block
   shift_vec = ICOORD (BLOCK_EXPANSION, BLOCK_EXPANSION);
   box_point = block_box.botleft () - shift_vec;
   end_pt = block_box.topright () + shift_vec;
-  return BOX (box_point, end_pt);
+  return TBOX (box_point, end_pt);
 }
 
 
@@ -506,8 +506,8 @@ static BOX convert_vec_block(                        //make non-rect block
 
 BOOL8 read_unlv_file(                    //print list of sides
                      STRING name,        //basename of file
-                     INT32 xsize,        //image size
-                     INT32 ysize,        //image size
+                     inT32 xsize,        //image size
+                     inT32 ysize,        //image size
                      BLOCK_LIST *blocks  //output list
                     ) {
   FILE *pdfp;                    //file pointer
@@ -526,8 +526,8 @@ BOOL8 read_unlv_file(                    //print list of sides
     while (fscanf (pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {
                                  //make rect block
       block = new BLOCK (name.string (), TRUE, 0, 0,
-                         (INT16) x, (INT16) (ysize - y - height),
-                         (INT16) (x + width), (INT16) (ysize - y));
+                         (inT16) x, (inT16) (ysize - y - height),
+                         (inT16) (x + width), (inT16) (ysize - y));
                                  //on end of list
       block_it.add_to_end (block);
     }

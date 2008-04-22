@@ -36,8 +36,8 @@ class DLLSYM ICOORD              //integer coordinate
       xcoord = ycoord = 0;       //default zero
     }
     ICOORD(              //constructor
-           INT16 xin,    //x value
-           INT16 yin) {  //y value
+           inT16 xin,    //x value
+           inT16 yin) {  //y value
       xcoord = xin;
       ycoord = yin;
     }
@@ -45,20 +45,20 @@ class DLLSYM ICOORD              //integer coordinate
     }
 
                                  //access function
-    NEWDELETE2 (ICOORD) INT16 x () const
+    NEWDELETE2 (ICOORD) inT16 x () const
     {
       return xcoord;
     }
-    INT16 y() const {  //access_function
+    inT16 y() const {  //access_function
       return ycoord;
     }
 
     void set_x(  //rewrite function
-               INT16 xin) {
+               inT16 xin) {
       xcoord = xin;              //write new value
     }
     void set_y(              //rewrite function
-               INT16 yin) {  //value to set
+               inT16 yin) {  //value to set
       ycoord = yin;
     }
 
@@ -108,23 +108,23 @@ class DLLSYM ICOORD              //integer coordinate
       const ICOORD &, const ICOORD &);
     friend ICOORD & operator-= ( //subtract
       ICOORD &, const ICOORD &);
-    friend INT32 operator% (     //scalar product
+    friend inT32 operator% (     //scalar product
       const ICOORD &, const ICOORD &);
-    friend INT32 operator *(  //cross product
+    friend inT32 operator *(  //cross product
                             const ICOORD &,
                             const ICOORD &);
     friend ICOORD operator *(  //multiply
                              const ICOORD &,
-                             INT16);
+                             inT16);
     friend ICOORD operator *(  //multiply
-                             INT16,
+                             inT16,
                              const ICOORD &);
     friend ICOORD & operator*= ( //multiply
-      ICOORD &, INT16);
+      ICOORD &, inT16);
     friend ICOORD operator/ (    //divide
-      const ICOORD &, INT16);
+      const ICOORD &, inT16);
                                  //divide
-    friend ICOORD & operator/= (ICOORD &, INT16);
+    friend ICOORD & operator/= (ICOORD &, inT16);
     void rotate(                    //rotate
                 const FCOORD& vec);  //by vector
 
@@ -134,8 +134,8 @@ class DLLSYM ICOORD              //integer coordinate
                           FILE *f);
 
   protected:
-    INT16 xcoord;                //x value
-    INT16 ycoord;                //y value
+    inT16 xcoord;                //x value
+    inT16 ycoord;                //y value
 };
 
 class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
@@ -149,8 +149,8 @@ class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
     ICOORD icoord):ICOORD (icoord) {
     }
     ICOORDELT(              //constructor
-              INT16 xin,    //x value
-              INT16 yin) {  //y value
+              inT16 xin,    //x value
+              inT16 yin) {  //y value
       xcoord = xin;
       ycoord = yin;
     }
@@ -181,7 +181,7 @@ ELISTIZEH_S (ICOORDELT)
 class DLLSYM FCOORD
 {
   public:
-    FCOORD() { 
+    FCOORD() {
     }                            //empty constructor
     FCOORD(               //constructor
            float xvalue,  //coords to set
@@ -198,7 +198,7 @@ class DLLSYM FCOORD
     float x() const {  //get coords
       return xcoord;
     }
-    float y() const { 
+    float y() const {
       return ycoord;
     }
     void set_x(  //rewrite function
@@ -261,10 +261,10 @@ class DLLSYM FCOORD
                                  //scalar product
     friend float operator% (const FCOORD &, const FCOORD &);
                                  //cross product
-    friend float operator *(const FCOORD &, const FCOORD &); 
-    friend FCOORD operator *(const FCOORD &, float); 
+    friend float operator *(const FCOORD &, const FCOORD &);
+    friend FCOORD operator *(const FCOORD &, float);
     //multiply
-    friend FCOORD operator *(float, const FCOORD &); 
+    friend FCOORD operator *(float, const FCOORD &);
     //multiply
                                  //multiply
     friend FCOORD & operator*= (FCOORD &, float);

@@ -36,12 +36,14 @@ BLOB_CHOICE::BLOB_CHOICE(                   //constructor
                          char *src_unichar, //character
                          float src_rating,  //rating
                          float src_cert,    //certainty
-                         INT8 src_config    //config (font)
+                         inT8 src_config,   //config (font)
+                         const char* src_script  //script
                         ) {
   strcpy(blob_unichar, src_unichar);
   blob_rating = src_rating;
   blob_certainty = src_cert;     //just copy them
   blob_config = src_config;
+  blob_script = src_script;
 }
 
 
@@ -57,7 +59,7 @@ const char *src_string,          //word string
 const char *src_lengths,         //unichar lengths
 float src_rating,                //rating
 float src_cert,                  //certainty
-UINT8 src_permuter               //permuter code
+uinT8 src_permuter               //permuter code
 ):
 word_string(src_string),
 word_lengths(src_lengths) {
@@ -302,9 +304,9 @@ void print_ratings_info(                           //print summary info
                         FILE *fp,                  //file to use
                         BLOB_CHOICE_LIST *ratings  //list of results
                        ) {
-  INT32
+  inT32
     index;                       //to list
-  INT32
+  inT32
     best_index;                  //to list
   FLOAT32
     best_rat;                    //rating

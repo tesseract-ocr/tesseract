@@ -21,11 +21,11 @@
 #include          "rect.h"
 
 /**********************************************************************
- * BOX::BOX()  Constructor from 2 ICOORDS
+ * TBOX::TBOX()  Constructor from 2 ICOORDS
  *
  **********************************************************************/
 
-BOX::BOX(                   //construtor
+TBOX::TBOX(                   //construtor
          const ICOORD pt1,  //one corner
          const ICOORD pt2   //the other corner
         ) {
@@ -53,12 +53,12 @@ BOX::BOX(                   //construtor
 
 
 /**********************************************************************
- * BOX::intersection()  Build the largest box contained in both boxes
+ * TBOX::intersection()  Build the largest box contained in both boxes
  *
  **********************************************************************/
 
-BOX BOX::intersection(  //shared area box
-                      const BOX &box) const {
+TBOX TBOX::intersection(  //shared area box
+                      const TBOX &box) const {
   ICOORD bl;                     //bottom left
   ICOORD tr;                     //top right
 
@@ -89,17 +89,17 @@ BOX BOX::intersection(  //shared area box
     tr.set_x (-MAX_INT16);
     tr.set_y (-MAX_INT16);
   }
-  return BOX (bl, tr);
+  return TBOX (bl, tr);
 }
 
 
 /**********************************************************************
- * BOX::bounding_union()  Build the smallest box containing both boxes
+ * TBOX::bounding_union()  Build the smallest box containing both boxes
  *
  **********************************************************************/
 
-BOX BOX::bounding_union(  //box enclosing both
-                        const BOX &box) const {
+TBOX TBOX::bounding_union(  //box enclosing both
+                        const TBOX &box) const {
   ICOORD bl;                     //bottom left
   ICOORD tr;                     //top right
 
@@ -122,24 +122,24 @@ BOX BOX::bounding_union(  //box enclosing both
     tr.set_y (box.top_right.y ());
   else
     tr.set_y (top_right.y ());
-  return BOX (bl, tr);
+  return TBOX (bl, tr);
 }
 
 
 /**********************************************************************
- * BOX::plot()  Paint a box using specified settings
+ * TBOX::plot()  Paint a box using specified settings
  *
  **********************************************************************/
 
 #ifndef GRAPHICS_DISABLED
-void BOX::plot(                      //paint box
+void TBOX::plot(                      //paint box
                ScrollView* fd,       //where to paint
                ScrollView::Color fill_colour,   //colour for inside
                ScrollView::Color border_colour  //colour for border
               ) const {
   fd->Brush(fill_colour);
   fd->Pen(border_colour);
-  plot(fd); 
+  plot(fd);
 }
 #endif
 
@@ -150,10 +150,10 @@ void BOX::plot(                      //paint box
  * Extend one box to include the other  (In place union)
  **********************************************************************/
 
-DLLSYM BOX &
+DLLSYM TBOX &
 operator+= (                     //bounding bounding bx
-BOX & op1,                       //operands
-const BOX & op2) {
+TBOX & op1,                       //operands
+const TBOX & op2) {
   if (op2.bot_left.x () < op1.bot_left.x ())
     op1.bot_left.set_x (op2.bot_left.x ());
 
@@ -176,10 +176,10 @@ const BOX & op2) {
  * Reduce one box to intersection with the other  (In place intersection)
  **********************************************************************/
 
-DLLSYM BOX &
+DLLSYM TBOX &
 operator-= (                     //inplace intersection
-BOX & op1,                       //operands
-const BOX & op2) {
+TBOX & op1,                       //operands
+const TBOX & op2) {
   if (op1.overlap (op2)) {
     if (op2.bot_left.x () > op1.bot_left.x ())
       op1.bot_left.set_x (op2.bot_left.x ());
@@ -204,11 +204,11 @@ const BOX & op2) {
 
 
 /**********************************************************************
- * BOX::serialise_asc()  Convert to ascii file.
+ * TBOX::serialise_asc()  Convert to ascii file.
  *
  **********************************************************************/
 
-void BOX::serialise_asc(         //convert to ascii
+void TBOX::serialise_asc(         //convert to ascii
                         FILE *f  //file to use
                        ) {
   bot_left.serialise_asc (f);
@@ -217,11 +217,11 @@ void BOX::serialise_asc(         //convert to ascii
 
 
 /**********************************************************************
- * BOX::de_serialise_asc()  Convert from ascii file.
+ * TBOX::de_serialise_asc()  Convert from ascii file.
  *
  **********************************************************************/
 
-void BOX::de_serialise_asc(         //convert from ascii
+void TBOX::de_serialise_asc(         //convert from ascii
                            FILE *f  //file to use
                           ) {
   bot_left.de_serialise_asc (f);

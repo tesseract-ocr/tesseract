@@ -111,7 +111,7 @@ DENORM::DENORM(float x,              //from same pieces
                float scaling,
                double line_m,        //default line
                double line_c,
-               INT16 seg_count,      //no of segments
+               inT16 seg_count,      //no of segments
                DENORM_SEG *seg_pts,  //actual segments
                BOOL8 using_row,      //as baseline
                ROW *src) {
@@ -147,7 +147,7 @@ DENORM::DENORM(float x,              //from same pieces
 }
 
 
-DENORM::DENORM(const DENORM &src) { 
+DENORM::DENORM(const DENORM &src) {
   segments = 0;
   segs = NULL;
   *this = src;

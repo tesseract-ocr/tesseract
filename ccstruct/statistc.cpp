@@ -37,8 +37,8 @@
  **********************************************************************/
 
 STATS::STATS(            //constructor
-             INT32 min,  //min of range
-             INT32 max   //max of range
+             inT32 min,  //min of range
+             inT32 max   //max of range
             ) {
 
   if (max <= min) {
@@ -50,7 +50,7 @@ STATS::STATS(            //constructor
   }
   rangemin = min;                //setup
   rangemax = max;
-  buckets = (INT32 *) alloc_mem ((max - min) * sizeof (INT32));
+  buckets = (inT32 *) alloc_mem ((max - min) * sizeof (inT32));
   if (buckets != NULL)
     this->clear ();              //zero it
   /*   else
@@ -74,8 +74,8 @@ STATS::STATS() {  //constructor
  **********************************************************************/
 
 bool STATS::set_range(            //constructor
-                      INT32 min,  //min of range
-                      INT32 max   //max of range
+                      inT32 min,  //min of range
+                      inT32 max   //max of range
                      ) {
 
   if (max <= min) {
@@ -85,7 +85,7 @@ bool STATS::set_range(            //constructor
   rangemax = max;
   if (buckets != NULL)
     free_mem(buckets);  //no longer want it
-  buckets = (INT32 *) alloc_mem ((max - min) * sizeof (INT32));
+  buckets = (inT32 *) alloc_mem ((max - min) * sizeof (inT32));
   /*	if (buckets==NULL)
       return err.log(RESULT_NO_MEMORY,E_LOC,ERR_PRIMITIVES,
           ERR_SCROLLING,ERR_CONTINUE,ERR_ERROR,
@@ -105,7 +105,7 @@ bool STATS::set_range(            //constructor
 void STATS::clear() {  //clear out buckets
   total_count = 0;
   if (buckets != NULL)
-    memset (buckets, 0, (rangemax - rangemin) * sizeof (INT32));
+    memset (buckets, 0, (rangemax - rangemin) * sizeof (inT32));
   //zero it
 }
 
@@ -119,7 +119,7 @@ void STATS::clear() {  //clear out buckets
 STATS::~STATS (                  //destructor
 ) {
   if (buckets != NULL) {
-    free_mem(buckets); 
+    free_mem(buckets);
     buckets = NULL;
   }
 }
@@ -132,8 +132,8 @@ STATS::~STATS (                  //destructor
  **********************************************************************/
 
 void STATS::add(              //add sample
-                INT32 value,  //bucket
-                INT32 count   //no to add
+                inT32 value,  //bucket
+                inT32 count   //no to add
                ) {
   if (buckets == NULL) {
     /*		err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -158,10 +158,10 @@ void STATS::add(              //add sample
  * Find the mode of a stats class.
  **********************************************************************/
 
-INT32 STATS::mode() {  //get mode of samples
-  INT32 index;                   //current index
-  INT32 max;                     //max cell count
-  INT32 maxindex;                //index of max
+inT32 STATS::mode() {  //get mode of samples
+  inT32 index;                   //current index
+  inT32 max;                     //max cell count
+  inT32 maxindex;                //index of max
 
   if (buckets == NULL) {
     /*		err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -187,8 +187,8 @@ INT32 STATS::mode() {  //get mode of samples
  **********************************************************************/
 
 float STATS::mean() {  //get mean of samples
-  INT32 index;                   //current index
-  INT32 sum;                     //sum of cells
+  inT32 index;                   //current index
+  inT32 sum;                     //sum of cells
 
   if (buckets == NULL) {
     /*		err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -215,9 +215,9 @@ float STATS::mean() {  //get mean of samples
  **********************************************************************/
 
 float STATS::sd() {  //standard deviation
-  INT32 index;                   //current index
-  INT32 sum;                     //sum of cells
-  INT32 sqsum;                   //sum of squares
+  inT32 index;                   //current index
+  inT32 sum;                     //sum of cells
+  inT32 sqsum;                   //sum of squares
   float variance;
 
   if (buckets == NULL) {
@@ -252,8 +252,8 @@ float STATS::sd() {  //standard deviation
 float STATS::ile(            //percentile
                  float frac  //fraction to find
                 ) {
-  INT32 index;                   //current index
-  INT32 sum;                     //sum of cells
+  inT32 index;                   //current index
+  inT32 sum;                     //sum of cells
   float target;                  //target value
 
   if (buckets == NULL) {
@@ -289,9 +289,9 @@ float STATS::ile(            //percentile
 
 float STATS::median() {  //get median
   float median;
-  INT32 min_pile;
-  INT32 median_pile;
-  INT32 max_pile;
+  inT32 min_pile;
+  inT32 median_pile;
+  inT32 max_pile;
 
   if (buckets == NULL) {
     /*		err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -300,7 +300,7 @@ float STATS::median() {  //get median
     return (float) rangemin;
   }
   median = (float) ile ((float) 0.5);
-  median_pile = (INT32) floor (median);
+  median_pile = (inT32) floor (median);
   if ((total_count > 1) && (pile_count (median_pile) == 0)) {
     /* Find preceeding non zero pile */
     for (min_pile = median_pile; pile_count (min_pile) == 0; min_pile--);
@@ -322,14 +322,14 @@ float STATS::median() {  //get median
  **********************************************************************/
 
 void STATS::smooth(              //smooth samples
-                   INT32 factor  //size of triangle
+                   inT32 factor  //size of triangle
                   ) {
-  INT32 entry;                   //bucket index
-  INT32 offset;                  //from entry
-  INT32 entrycount;              //no of entries
-  INT32 bucket;                  //new smoothed pile
+  inT32 entry;                   //bucket index
+  inT32 offset;                  //from entry
+  inT32 entrycount;              //no of entries
+  inT32 bucket;                  //new smoothed pile
                                  //output stats
-  STATS result(rangemin, rangemax); 
+  STATS result(rangemin, rangemax);
 
   if (buckets == NULL) {
     /*     err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -352,7 +352,7 @@ void STATS::smooth(              //smooth samples
     result.add (entry + rangemin, bucket);
   }
   total_count = result.total_count;
-  memcpy (buckets, result.buckets, entrycount * sizeof (INT32));
+  memcpy (buckets, result.buckets, entrycount * sizeof (inT32));
 }
 
 
@@ -366,24 +366,24 @@ void STATS::smooth(              //smooth samples
  * The return value is the current number of clusters.
  **********************************************************************/
 
-INT32 STATS::cluster(                     //cluster samples
+inT32 STATS::cluster(                     //cluster samples
                      float lower,         //thresholds
                      float upper,
                      float multiple,      //distance threshold
-                     INT32 max_clusters,  //max no to make
+                     inT32 max_clusters,  //max no to make
                      STATS *clusters      //array of clusters
                     ) {
   BOOL8 new_cluster;             //added one
   float *centres;                //cluster centres
-  INT32 entry;                   //bucket index
-  INT32 cluster;                 //cluster index
-  INT32 best_cluster;            //one to assign to
-  INT32 new_centre = 0;          //residual mode
-  INT32 new_mode;                //pile count of new_centre
-  INT32 count;                   //pile to place
+  inT32 entry;                   //bucket index
+  inT32 cluster;                 //cluster index
+  inT32 best_cluster;            //one to assign to
+  inT32 new_centre = 0;          //residual mode
+  inT32 new_mode;                //pile count of new_centre
+  inT32 count;                   //pile to place
   float dist;                    //from cluster
   float min_dist;                //from best_cluster
-  INT32 cluster_count;           //no of clusters
+  inT32 cluster_count;           //no of clusters
 
   if (max_clusters < 1)
     return 0;
@@ -492,7 +492,7 @@ INT32 STATS::cluster(                     //cluster samples
     }
   }
   while (new_cluster && cluster_count < max_clusters);
-  free_mem(centres); 
+  free_mem(centres);
   return cluster_count;
 }
 
@@ -504,9 +504,9 @@ INT32 STATS::cluster(                     //cluster samples
  **********************************************************************/
 
 BOOL8 STATS::local_min(         //test minness
-                       INT32 x  //of x
+                       inT32 x  //of x
                       ) {
-  INT32 index;                   //table index
+  inT32 index;                   //table index
 
   if (buckets == NULL) {
     /*		err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -543,7 +543,7 @@ void STATS::print(            //print stats table
                   FILE *,     //Now uses tprintf instead
                   BOOL8 dump  //dump full table
                  ) {
-  INT32 index;                   //table index
+  inT32 index;                   //table index
 
   if (buckets == NULL) {
     /*     err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -561,11 +561,11 @@ void STATS::print(            //print stats table
   }
 
   tprintf ("Total count=%d\n", total_count);
-  tprintf ("Min=%d\n", (INT32) (ile ((float) 0.0)));
+  tprintf ("Min=%d\n", (inT32) (ile ((float) 0.0)));
   tprintf ("Lower quartile=%.2f\n", ile ((float) 0.25));
   tprintf ("Median=%.2f\n", ile ((float) 0.5));
   tprintf ("Upper quartile=%.2f\n", ile ((float) 0.75));
-  tprintf ("Max=%d\n", (INT32) (ile ((float) 0.99999)));
+  tprintf ("Max=%d\n", (inT32) (ile ((float) 0.99999)));
   tprintf ("Mean= %.2f\n", mean ());
   tprintf ("SD= %.2f\n", sd ());
 }
@@ -577,8 +577,8 @@ void STATS::print(            //print stats table
  * Find REAL minimum bucket - ile(0.0) isnt necessarily correct
  **********************************************************************/
 
-INT32 STATS::min_bucket() {  //Find min
-  INT32 min;
+inT32 STATS::min_bucket() {  //Find min
+  inT32 min;
 
   if (buckets == NULL) {
     /*		err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -598,8 +598,8 @@ INT32 STATS::min_bucket() {  //Find min
  * Find REAL maximum bucket - ile(1.0) isnt necessarily correct
  **********************************************************************/
 
-INT32 STATS::max_bucket() {  //Find max
-  INT32 max;
+inT32 STATS::max_bucket() {  //Find max
+  inT32 max;
 
   if (buckets == NULL) {
     /*		err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -625,9 +625,9 @@ void STATS::short_print(            //print stats table
                         FILE *,     //Now uses tprintf instead
                         BOOL8 dump  //dump full table
                        ) {
-  INT32 index;                   //table index
-  INT32 min = min_bucket ();
-  INT32 max = max_bucket ();
+  inT32 index;                   //table index
+  inT32 min = min_bucket ();
+  inT32 max = max_bucket ();
 
   if (buckets == NULL) {
     /*     err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -645,8 +645,8 @@ void STATS::short_print(            //print stats table
   }
 
   tprintf ("Total count=%d\n", total_count);
-  tprintf ("Min=%d Really=%d\n", (INT32) (ile ((float) 0.0)), min);
-  tprintf ("Max=%d Really=%d\n", (INT32) (ile ((float) 1.1)), max);
+  tprintf ("Min=%d Really=%d\n", (inT32) (ile ((float) 0.0)), min);
+  tprintf ("Max=%d Really=%d\n", (inT32) (ile ((float) 1.1)), max);
   tprintf ("Range=%d\n", max + 1 - min);
   tprintf ("Lower quartile=%.2f\n", ile ((float) 0.25));
   tprintf ("Median=%.2f\n", ile ((float) 0.5));
@@ -671,7 +671,7 @@ void STATS::plot(                //plot stats table
                  float yscale,   //one y unit
                  ScrollView::Color colour   //colour to draw in
                 ) {
-  INT32 index;                   //table index
+  inT32 index;                   //table index
 
   if (buckets == NULL) {
     /*		err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -679,7 +679,7 @@ void STATS::plot(                //plot stats table
             "Empty stats");*/
     return;
   }
-  window->Pen(colour); 
+  window->Pen(colour);
 
   for (index = 0; index < rangemax - rangemin; index++) {
     window->Rectangle( xorigin + xscale * index, yorigin,
@@ -705,7 +705,7 @@ void STATS::plotline(                //plot stats table
                      float yscale,   //one y unit
                      ScrollView::Color colour   //colour to draw in
                     ) {
-  INT32 index;                   //table index
+  inT32 index;                   //table index
 
   if (buckets == NULL) {
     /*     err.log(RESULT_LOGICAL_ERROR,E_LOC,ERR_PRIMITIVES,
@@ -730,17 +730,17 @@ void STATS::plotline(                //plot stats table
  * if the members were sorted, without actually sorting.
  **********************************************************************/
 
-DLLSYM INT32 choose_nth_item(               //fast median
-                             INT32 index,   //index to choose
+DLLSYM inT32 choose_nth_item(               //fast median
+                             inT32 index,   //index to choose
                              float *array,  //array of items
-                             INT32 count    //no of items
+                             inT32 count    //no of items
                             ) {
-  static UINT16 seeds[3] = { SEED1, SEED2, SEED3 };
+  static uinT16 seeds[3] = { SEED1, SEED2, SEED3 };
   //for nrand
-  INT32 next_sample;             //next one to do
-  INT32 next_lesser;             //space for new
-  INT32 prev_greater;            //last one saved
-  INT32 equal_count;             //no of equal ones
+  inT32 next_sample;             //next one to do
+  inT32 next_lesser;             //space for new
+  inT32 prev_greater;            //last one saved
+  inT32 equal_count;             //no of equal ones
   float pivot;                   //proposed median
   float sample;                  //current sample
 
@@ -760,9 +760,9 @@ DLLSYM INT32 choose_nth_item(               //fast median
     else if (index >= count)
       index = count - 1;
     #ifdef __UNIX__
-    equal_count = (INT32) (nrand48 (seeds) % count);
+    equal_count = (inT32) (nrand48 (seeds) % count);
     #else
-    equal_count = (INT32) (rand () % count);
+    equal_count = (inT32) (rand () % count);
     #endif
     pivot = array[equal_count];
                                  //fill gap
@@ -809,23 +809,23 @@ DLLSYM INT32 choose_nth_item(               //fast median
  * if the members were sorted, without actually sorting.
  **********************************************************************/
 
-DLLSYM INT32
+DLLSYM inT32
 choose_nth_item (                //fast median
-INT32 index,                     //index to choose
+inT32 index,                     //index to choose
 void *array,                     //array of items
-INT32 count,                     //no of items
+inT32 count,                     //no of items
 size_t size,                     //element size
                                  //comparator
 int (*compar) (const void *, const void *)
 ) {
-  static UINT16 seeds[3] = { SEED1, SEED2, SEED3 };
+  static uinT16 seeds[3] = { SEED1, SEED2, SEED3 };
   //for nrand
   int result;                    //of compar
-  INT32 next_sample;             //next one to do
-  INT32 next_lesser;             //space for new
-  INT32 prev_greater;            //last one saved
-  INT32 equal_count;             //no of equal ones
-  INT32 pivot;                   //proposed median
+  inT32 next_sample;             //next one to do
+  inT32 next_lesser;             //space for new
+  inT32 prev_greater;            //last one saved
+  inT32 equal_count;             //no of equal ones
+  inT32 pivot;                   //proposed median
 
   if (count <= 1)
     return 0;
@@ -842,9 +842,9 @@ int (*compar) (const void *, const void *)
   else if (index >= count)
     index = count - 1;
   #ifdef __UNIX__
-  pivot = (INT32) (nrand48 (seeds) % count);
+  pivot = (inT32) (nrand48 (seeds) % count);
   #else
-  pivot = (INT32) (rand () % count);
+  pivot = (inT32) (rand () % count);
   #endif
   swap_entries (array, size, pivot, 0);
   next_lesser = 0;
@@ -860,7 +860,7 @@ int (*compar) (const void *, const void *)
     }
     else if (result > 0) {
       prev_greater--;
-      swap_entries(array, size, prev_greater, next_sample); 
+      swap_entries(array, size, prev_greater, next_sample);
     }
     else {
       equal_count++;
@@ -888,8 +888,8 @@ int (*compar) (const void *, const void *)
 void swap_entries(               //swap in place
                   void *array,   //array of entries
                   size_t size,   //size of entry
-                  INT32 index1,  //entries to swap
-                  INT32 index2) {
+                  inT32 index1,  //entries to swap
+                  inT32 index2) {
   char tmp;
   char *ptr1;                    //to entries
   char *ptr2;

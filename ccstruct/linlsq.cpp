@@ -218,7 +218,7 @@ float PDLSQ::fit(                 //get fit
       || error < -M_PI * pdlsq_threshold_angleavg)
       angle = avg_angle;         //go simple
                                  //convert direction
-    ang = (INT16) (angle * MODULUS / (2 * M_PI));
+    ang = (inT16) (angle * MODULUS / (2 * M_PI));
     sinx = sin (angle);
     cosx = cos (angle);
     r = (sinx * pos.sigx - cosx * pos.sigy) / pos.n;

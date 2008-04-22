@@ -33,14 +33,14 @@ EXTERN INT_VAR (lms_line_trials, 12, "Number of linew fits to do");
 #define LMS_MAX_FAILURES  3
 
 #ifndef __UNIX__
-UINT32 nrand48(               //get random number
-               UINT16 *seeds  //seeds to use
+uinT32 nrand48(               //get random number
+               uinT16 *seeds  //seeds to use
               ) {
-  static UINT32 seed = 0;        //only seed
+  static uinT32 seed = 0;        //only seed
 
   if (seed == 0) {
     seed = seeds[0] ^ (seeds[1] << 8) ^ (seeds[2] << 16);
-    srand(seed); 
+    srand(seed);
   }
                                  //make 32 bit one
   return rand () | (rand () << 16);
@@ -54,7 +54,7 @@ UINT32 nrand48(               //get random number
  **********************************************************************/
 
 LMS::LMS (                       //constructor
-INT32 size                       //samplesize
+inT32 size                       //samplesize
 ):samplesize (size) {
   samplecount = 0;
   a = 0;
@@ -75,8 +75,8 @@ INT32 size                       //samplesize
 
 LMS::~LMS (                      //constructor
 ) {
-  free_mem(samples); 
-  free_mem(errors); 
+  free_mem(samples);
+  free_mem(errors);
 }
 
 
@@ -117,8 +117,8 @@ void LMS::add(               //add sample
 void LMS::fit(               //fit sample
               float &out_m,  //output line
               float &out_c) {
-  INT32 index;                   //of median
-  INT32 trials;                  //no of medians
+  inT32 index;                   //of median
+  inT32 trials;                  //no of medians
   float test_m, test_c;          //candidate line
   float test_error;              //error of test line
 
@@ -155,8 +155,8 @@ void LMS::fit(               //fit sample
       line_error = errors[index];
       for (trials = 1; trials < lms_line_trials; trials++) {
                                  //random again
-        pick_line(test_m, test_c); 
-        compute_errors(test_m, test_c); 
+        pick_line(test_m, test_c);
+        compute_errors(test_m, test_c);
         index = choose_nth_item (samplecount / 2, errors, samplecount);
         test_error = errors[index];
         if (test_error < line_error) {
@@ -185,20 +185,20 @@ void LMS::fit_quadratic(                          //fit sample
                         double &out_a,            //x squared
                         float &out_b,             //output line
                         float &out_c) {
-  INT32 trials;                  //no of medians
+  inT32 trials;                  //no of medians
   double test_a;
   float test_b, test_c;          //candidate line
   float test_error;              //error of test line
 
   if (samplecount < 3) {
     out_a = 0;
-    fit(out_b, out_c); 
+    fit(out_b, out_c);
     return;
   }
-  pick_quadratic(a, m, c); 
+  pick_quadratic(a, m, c);
   line_error = compute_quadratic_errors (outlier_threshold, a, m, c);
   for (trials = 1; trials < lms_line_trials * 2; trials++) {
-    pick_quadratic(test_a, test_b, test_c); 
+    pick_quadratic(test_a, test_b, test_c);
     test_error = compute_quadratic_errors (outlier_threshold,
       test_a, test_b, test_c);
     if (test_error < line_error) {
@@ -225,10 +225,10 @@ void LMS::fit_quadratic(                          //fit sample
 void LMS::constrained_fit(                //fit sample
                           float fixed_m,  //forced gradient
                           float &out_c) {
-  INT32 index;                   //of median
-  INT32 trials;                  //no of medians
+  inT32 index;                   //of median
+  inT32 trials;                  //no of medians
   float test_c;                  //candidate line
-  static UINT16 seeds[3] = { SEED1, SEED2, SEED3 };
+  static uinT16 seeds[3] = { SEED1, SEED2, SEED3 };
   //for nrand
   float test_error;              //error of test line
 
@@ -253,17 +253,17 @@ void LMS::constrained_fit(                //fit sample
       break;
 
     default:
-      index = (INT32) nrand48 (seeds) % samplecount;
+      index = (inT32) nrand48 (seeds) % samplecount;
                                  //compute line
       c = samples[index].y () - m * samples[index].x ();
       compute_errors(m, c);  //from given line
       index = choose_nth_item (samplecount / 2, errors, samplecount);
       line_error = errors[index];
       for (trials = 1; trials < lms_line_trials; trials++) {
-        index = (INT32) nrand48 (seeds) % samplecount;
+        index = (inT32) nrand48 (seeds) % samplecount;
         test_c = samples[index].y () - m * samples[index].x ();
         //compute line
-        compute_errors(m, test_c); 
+        compute_errors(m, test_c);
         index = choose_nth_item (samplecount / 2, errors, samplecount);
         test_error = errors[index];
         if (test_error < line_error) {
@@ -288,16 +288,16 @@ void LMS::constrained_fit(                //fit sample
 void LMS::pick_line(                //fit sample
                     float &line_m,  //output gradient
                     float &line_c) {
-  INT16 trial_count;             //no of attempts
-  static UINT16 seeds[3] = { SEED1, SEED2, SEED3 };
+  inT16 trial_count;             //no of attempts
+  static uinT16 seeds[3] = { SEED1, SEED2, SEED3 };
   //for nrand
-  INT32 index1;                  //picked point
-  INT32 index2;                  //picked point
+  inT32 index1;                  //picked point
+  inT32 index2;                  //picked point
 
   trial_count = 0;
   do {
-    index1 = (INT32) nrand48 (seeds) % samplecount;
-    index2 = (INT32) nrand48 (seeds) % samplecount;
+    index1 = (inT32) nrand48 (seeds) % samplecount;
+    index2 = (inT32) nrand48 (seeds) % samplecount;
     line_m = samples[index2].x () - samples[index1].x ();
     trial_count++;
   }
@@ -322,12 +322,12 @@ void LMS::pick_quadratic(                 //fit sample
                          double &line_a,  //x suaread
                          float &line_m,   //output gradient
                          float &line_c) {
-  INT16 trial_count;             //no of attempts
-  static UINT16 seeds[3] = { SEED1, SEED2, SEED3 };
+  inT16 trial_count;             //no of attempts
+  static uinT16 seeds[3] = { SEED1, SEED2, SEED3 };
   //for nrand
-  INT32 index1;                  //picked point
-  INT32 index2;                  //picked point
-  INT32 index3;
+  inT32 index1;                  //picked point
+  inT32 index2;                  //picked point
+  inT32 index3;
   FCOORD x1x2;                   //vector
   FCOORD x1x3;
   FCOORD x3x2;
@@ -341,9 +341,9 @@ void LMS::pick_quadratic(                 //fit sample
       index3 = samplecount - 1;
     }
     else {
-      index1 = (INT32) nrand48 (seeds) % samplecount;
-      index2 = (INT32) nrand48 (seeds) % samplecount;
-      index3 = (INT32) nrand48 (seeds) % samplecount;
+      index1 = (inT32) nrand48 (seeds) % samplecount;
+      index2 = (inT32) nrand48 (seeds) % samplecount;
+      index3 = (inT32) nrand48 (seeds) % samplecount;
     }
     x1x2 = samples[index2] - samples[index1];
     x1x3 = samples[index3] - samples[index1];
@@ -354,7 +354,7 @@ void LMS::pick_quadratic(                 //fit sample
   while (bottom == 0 && trial_count < LMS_MAX_FAILURES);
   if (bottom == 0) {
     line_a = 0;
-    pick_line(line_m, line_c); 
+    pick_line(line_m, line_c);
   }
   else {
     line_a = x1x3 * x1x2 / bottom;
@@ -376,7 +376,7 @@ void LMS::pick_quadratic(                 //fit sample
 void LMS::compute_errors(               //fit sample
                          float line_m,  //input gradient
                          float line_c) {
-  INT32 index;                   //picked point
+  inT32 index;                   //picked point
 
   for (index = 0; index < samplecount; index++) {
     errors[index] =
@@ -397,9 +397,9 @@ float LMS::compute_quadratic_errors(                          //fit sample
                                     double line_a,
                                     float line_m,             //input gradient
                                     float line_c) {
-  INT32 outlier_count;           //total outliers
-  INT32 index;                   //picked point
-  INT32 error_count;             //no in total
+  inT32 outlier_count;           //total outliers
+  inT32 index;                   //picked point
+  inT32 error_count;             //no in total
   double total_error;            //summed squares
 
   total_error = 0;
@@ -441,7 +441,7 @@ void LMS::plot(               //plot fit
                ScrollView::Color colour  //colour to draw in
               ) {
   if (fitted) {
-    win->Pen(colour); 
+    win->Pen(colour);
     win->SetCursor(samples[0].x (),
       c + samples[0].x () * (m + samples[0].x () * a));
     win->DrawTo(samples[samplecount - 1].x (),

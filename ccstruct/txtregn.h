@@ -38,43 +38,43 @@ class DLLSYM TEXT_REGION:public ELIST_LINK, public POLY_BLOCK
 //text REGION
 {
   public:
-    TEXT_REGION() { 
+    TEXT_REGION() {
     }                            //empty constructor
     TEXT_REGION(  //simple constructor
-                INT32 idno,
+                inT32 idno,
                 ICOORDELT_LIST *points,
                 TEXT_REGION_LIST *child);
 
     TEXT_REGION(  //simple constructor
-                INT32 idno,
+                inT32 idno,
                 ICOORDELT_LIST *points);
 
     TEXT_REGION(  //constructor
-                INT32 idno,
+                inT32 idno,
                 ICOORDELT_LIST *points,
-                INT8 hor,
-                INT8 tex,
-                INT8 ser,
-                INT8 pro,
-                INT8 nor,
-                INT8 upr,
-                INT8 sol,
-                INT8 bla,
-                INT8 und,
-                INT8 dro);
+                inT8 hor,
+                inT8 tex,
+                inT8 ser,
+                inT8 pro,
+                inT8 nor,
+                inT8 upr,
+                inT8 sol,
+                inT8 bla,
+                inT8 und,
+                inT8 dro);
 
     ~TEXT_REGION () {            //destructor
     }
 
-    void set_id_no(INT32 new_id) { 
+    void set_id_no(inT32 new_id) {
       id_number = new_id;
     }
 
-    INT32 id_no() { 
+    inT32 id_no() {
       return id_number;
     }
 
-    INT32 nregions() { 
+    inT32 nregions() {
       return txt_regions.length ();
     }
 
@@ -82,32 +82,32 @@ class DLLSYM TEXT_REGION:public ELIST_LINK, public POLY_BLOCK
       return !proportional;      //stored negatively
     }
 
-    void set_prop(BOOL8 prop) { 
+    void set_prop(BOOL8 prop) {
       if (prop)
         proportional = 0;
       else
         proportional = 1;
     }
 
-    void add_a_region(TEXT_REGION *newchild); 
+    void add_a_region(TEXT_REGION *newchild);
 
                                  //get children
-    TEXT_REGION_LIST *regions() { 
+    TEXT_REGION_LIST *regions() {
       return &txt_regions;
     }
 
-    void set_attrs(INT8 hor,
-                   INT8 tex,
-                   INT8 ser,
-                   INT8 pro,
-                   INT8 nor,
-                   INT8 upr,
-                   INT8 sol,
-                   INT8 bla,
-                   INT8 und,
-                   INT8 dro);
+    void set_attrs(inT8 hor,
+                   inT8 tex,
+                   inT8 ser,
+                   inT8 pro,
+                   inT8 nor,
+                   inT8 upr,
+                   inT8 sol,
+                   inT8 bla,
+                   inT8 und,
+                   inT8 dro);
 
-    void show_attrs(DEBUG_WIN *f); 
+    void show_attrs(DEBUG_WIN *f);
 
     void rotate(  //rotate it
                 FCOORD rotation);
@@ -115,19 +115,19 @@ class DLLSYM TEXT_REGION:public ELIST_LINK, public POLY_BLOCK
               ICOORD shift);  //vector
 
     void prep_serialise() {  //set ptrs to counts
-      POLY_BLOCK::prep_serialise(); 
+      POLY_BLOCK::prep_serialise();
       txt_regions.prep_serialise ();
     }
 
     void dump(  //write external bits
               FILE *f) {
-      POLY_BLOCK::dump(f); 
+      POLY_BLOCK::dump(f);
       txt_regions.dump (f);
     }
 
     void de_dump(  //read external bits
                  FILE *f) {
-      POLY_BLOCK::de_dump(f); 
+      POLY_BLOCK::de_dump(f);
       txt_regions.de_dump (f);
     }
 
@@ -138,17 +138,17 @@ class DLLSYM TEXT_REGION:public ELIST_LINK, public POLY_BLOCK
                           FILE *f);
 
   private:
-    INT32 id_number;             //unique id
-    INT8 horizontal;             //horizontal, vertical, skewed
-    INT8 text;                   //text, table, form
-    INT8 serif;                  //serif, sansserif
-    INT8 proportional;           //proportional, fixed
-    INT8 normal;                 //normal, bold
-    INT8 upright;                //upright, italic
-    INT8 solid;                  //solid, outline
-    INT8 black;                  //black, coloured, white,
-    INT8 underlined;             //not underlined, underlined
-    INT8 dropcaps;               //not dropcaps, dropcaps
+    inT32 id_number;             //unique id
+    inT8 horizontal;             //horizontal, vertical, skewed
+    inT8 text;                   //text, table, form
+    inT8 serif;                  //serif, sansserif
+    inT8 proportional;           //proportional, fixed
+    inT8 normal;                 //normal, bold
+    inT8 upright;                //upright, italic
+    inT8 solid;                  //solid, outline
+    inT8 black;                  //black, coloured, white,
+    inT8 underlined;             //not underlined, underlined
+    inT8 dropcaps;               //not dropcaps, dropcaps
 
     TEXT_REGION_LIST txt_regions;
 };

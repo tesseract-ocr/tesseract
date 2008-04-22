@@ -56,11 +56,11 @@ void BLOBNBOX::chop(                        //chop blobs
                     FCOORD rotation,        //for landscape
                     float xheight           //of line
                    ) {
-  INT16 blobcount;               //no of blobs
+  inT16 blobcount;               //no of blobs
   BLOBNBOX *newblob;             //fake blob
   BLOBNBOX *blob;                //current blob
-  INT16 blobindex;               //number of chop
-  INT16 leftx;                   //left edge of blob
+  inT16 blobindex;               //number of chop
+  inT16 leftx;                   //left edge of blob
   float blobwidth;               //width of each
   float rightx;                  //right edge to scan
   float ymin, ymax;              //limits of new blob
@@ -69,7 +69,7 @@ void BLOBNBOX::chop(                        //chop blobs
   BLOBNBOX_IT blob_it;           //blob iterator
 
                                  //get no of chops
-  blobcount = (INT16) floor (box.width () / xheight);
+  blobcount = (inT16) floor (box.width () / xheight);
   if (blobcount > 1 && (blob_ptr != NULL || cblob_ptr != NULL)) {
                                  //width of each
     blobwidth = (float) (box.width () + 1) / blobcount;
@@ -95,17 +95,17 @@ void BLOBNBOX::chop(                        //chop blobs
       }
       while (blob != end_it->data ());
       if (ymin < ymax) {
-        leftx = (INT16) floor (rightx - blobwidth);
+        leftx = (inT16) floor (rightx - blobwidth);
         if (leftx < box.left ())
           leftx = box.left ();   //clip to real box
-        bl = ICOORD (leftx, (INT16) floor (ymin));
-        tr = ICOORD ((INT16) ceil (rightx), (INT16) ceil (ymax));
+        bl = ICOORD (leftx, (inT16) floor (ymin));
+        tr = ICOORD ((inT16) ceil (rightx), (inT16) ceil (ymax));
         if (blobindex == 0)
-          box = BOX (bl, tr);    //change box
+          box = TBOX (bl, tr);    //change box
         else {
           newblob = new BLOBNBOX;
                                  //box is all it has
-          newblob->box = BOX (bl, tr);
+          newblob->box = TBOX (bl, tr);
                                  //stay on current
           end_it->add_after_stay_put (newblob);
         }
@@ -192,7 +192,7 @@ void find_cblob_limits(                  //get y limits
                        FCOORD rotation,  //for landscape
                        float &ymin,      //output y limits
                        float &ymax) {
-  INT16 stepindex;               //current point
+  inT16 stepindex;               //current point
   ICOORD pos;                    //current coords
   ICOORD vec;                    //rotated step
   C_OUTLINE *outline;            //current outline
@@ -234,7 +234,7 @@ void find_cblob_vlimits(               //get y limits
                         float rightx,
                         float &ymin,   //output y limits
                         float &ymax) {
-  INT16 stepindex;               //current point
+  inT16 stepindex;               //current point
   ICOORD pos;                    //current coords
   ICOORD vec;                    //rotated step
   C_OUTLINE *outline;            //current outline
@@ -274,7 +274,7 @@ void find_cblob_hlimits(                //get x limits
                         float topy,
                         float &xmin,    //output x limits
                         float &xmax) {
-  INT16 stepindex;               //current point
+  inT16 stepindex;               //current point
   ICOORD pos;                    //current coords
   ICOORD vec;                    //rotated step
   C_OUTLINE *outline;            //current outline
@@ -400,11 +400,11 @@ C_BLOB *crotate_cblob(                 //rotate it
  * Then move the iterator on to the start of the next blob.
  **********************************************************************/
 
-BOX box_next(                 //get bounding box
+TBOX box_next(                 //get bounding box
              BLOBNBOX_IT *it  //iterator to blobds
             ) {
   BLOBNBOX *blob;                //current blob
-  BOX result;                    //total box
+  TBOX result;                    //total box
 
   blob = it->data ();
   result = blob->bounding_box ();
@@ -429,11 +429,11 @@ BOX box_next(                 //get bounding box
  * Then move the iterator on to the start of the next pre-chopped blob.
  **********************************************************************/
 
-BOX box_next_pre_chopped(                 //get bounding box
+TBOX box_next_pre_chopped(                 //get bounding box
                          BLOBNBOX_IT *it  //iterator to blobds
                         ) {
   BLOBNBOX *blob;                //current blob
-  BOX result;                    //total box
+  TBOX result;                    //total box
 
   blob = it->data ();
   result = blob->bounding_box ();
@@ -547,9 +547,9 @@ void TO_ROW::insert_blob(                //constructor
  **********************************************************************/
 
 void TO_ROW::compute_vertical_projection() {  //project whole row
-  BOX row_box;                   //bound of row
+  TBOX row_box;                   //bound of row
   BLOBNBOX *blob;                //current blob
-  BOX blob_box;                  //bounding box
+  TBOX blob_box;                  //bounding box
   BLOBNBOX_IT blob_it = blob_list ();
 
   if (blob_it.empty ())
@@ -604,7 +604,7 @@ void vertical_outline_projection(                   //project outlines
                                  STATS *stats       //output
                                 ) {
   POLYPT *polypt;                //current point
-  INT32 xcoord;                  //current pixel coord
+  inT32 xcoord;                  //current pixel coord
   float end_x;                   //end of vec
   POLYPT_IT poly_it = outline->polypts ();
   OUTLINE_IT out_it = outline->child ();
@@ -615,7 +615,7 @@ void vertical_outline_projection(                   //project outlines
     polypt = poly_it.data ();
     end_x = polypt->pos.x () + polypt->vec.x ();
     if (polypt->vec.x () > 0) {
-      for (xcoord = (INT32) floor (polypt->pos.x ());
+      for (xcoord = (inT32) floor (polypt->pos.x ());
       xcoord < end_x; xcoord++) {
         if (polypt->pos.x () < xcoord) {
           width = (float) xcoord;
@@ -640,11 +640,11 @@ void vertical_outline_projection(                   //project outlines
           ymean += polypt->pos.y () + polypt->vec.y ();
         }
         ymean = ymean * width / 2;
-        stats->add (xcoord, (INT32) floor (ymean + 0.5));
+        stats->add (xcoord, (inT32) floor (ymean + 0.5));
       }
     }
     else if (polypt->vec.x () < 0) {
-      for (xcoord = (INT32) floor (end_x);
+      for (xcoord = (inT32) floor (end_x);
       xcoord < polypt->pos.x (); xcoord++) {
         if (polypt->pos.x () > xcoord + 1) {
           width = xcoord + 1.0f;
@@ -669,7 +669,7 @@ void vertical_outline_projection(                   //project outlines
           ymean += polypt->pos.y () + polypt->vec.y ();
         }
         ymean = ymean * width / 2;
-        stats->add (xcoord, (INT32) floor (ymean + 0.5));
+        stats->add (xcoord, (inT32) floor (ymean + 0.5));
       }
     }
   }
@@ -713,8 +713,8 @@ void vertical_coutline_projection(                     //project outlines
                                  ) {
   ICOORD pos;                    //current point
   ICOORD step;                   //edge step
-  INT32 length;                  //of outline
-  INT16 stepindex;               //current step
+  inT32 length;                  //of outline
+  inT16 stepindex;               //current step
   C_OUTLINE_IT out_it = outline->child ();
 
   pos = outline->start_pos ();

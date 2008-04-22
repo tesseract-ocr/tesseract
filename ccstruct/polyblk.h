@@ -37,7 +37,7 @@ class DLLSYM POLY_BLOCK          //poly block
 {
 
   public:
-    POLY_BLOCK() { 
+    POLY_BLOCK() {
     }                            //empty constructor
     POLY_BLOCK(  //simple constructor
                ICOORDELT_LIST *points,
@@ -45,7 +45,7 @@ class DLLSYM POLY_BLOCK          //poly block
     ~POLY_BLOCK () {
     }                            //destructor
 
-    BOX *bounding_box() {  // access function
+    TBOX *bounding_box() {  // access function
       return &box;
     }
 
@@ -53,9 +53,9 @@ class DLLSYM POLY_BLOCK          //poly block
       return &vertices;
     }
 
-    void compute_bb(); 
+    void compute_bb();
 
-    POLY_TYPE isA() { 
+    POLY_TYPE isA() {
       return type;
     }
 
@@ -64,9 +64,9 @@ class DLLSYM POLY_BLOCK          //poly block
     void move(                //move it
               ICOORD shift);  //vector
 
-    void plot(ScrollView* window, ScrollView::Color colour, INT32 num); 
+    void plot(ScrollView* window, ScrollView::Color colour, inT32 num);
 
-    void fill(ScrollView* window, ScrollView::Color colour); 
+    void fill(ScrollView* window, ScrollView::Color colour);
 
     BOOL8 contains(  // is poly inside poly
                    POLY_BLOCK *poly);
@@ -74,18 +74,18 @@ class DLLSYM POLY_BLOCK          //poly block
     BOOL8 overlap(  // do polys overlap
                   POLY_BLOCK *poly);
 
-    INT16 winding_number(                         // get winding number
+    inT16 winding_number(                         // get winding number
                          const ICOORD &test_pt);  // around this point
 
-    void prep_serialise() { 
+    void prep_serialise() {
       vertices.prep_serialise ();
     }
 
-    void dump(FILE *f) { 
+    void dump(FILE *f) {
       vertices.dump (f);
     }
 
-    void de_dump(FILE *f) { 
+    void de_dump(FILE *f) {
       vertices.de_dump (f);
     }
 
@@ -97,7 +97,7 @@ class DLLSYM POLY_BLOCK          //poly block
 
   private:
     ICOORDELT_LIST vertices;     // vertices
-    BOX box;                     // bounding box
+    TBOX box;                     // bounding box
     POLY_TYPE type;              // Page block or
     // text region
 };
@@ -114,7 +114,7 @@ class DLLSYM PB_LINE_IT          //line iterator
       block = blkptr;
     }
 
-    ICOORDELT_LIST *get_line(INT16 y); 
+    ICOORDELT_LIST *get_line(inT16 y);
 
   private:
     POLY_BLOCK * block;

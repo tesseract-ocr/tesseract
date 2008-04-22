@@ -27,11 +27,11 @@ class ROW;                       //forward decl
 class DENORM_SEG
 {
   public:
-    DENORM_SEG() { 
+    DENORM_SEG() {
     }                            //empty
 
-    INT32 xstart;                //start of segment
-    INT32 ycoord;                //y at segment
+    inT32 xstart;                //start of segment
+    inT32 ycoord;                //y at segment
     float scale_factor;          //for this segment
 };
 
@@ -64,11 +64,11 @@ class DENORM
            float scaling,
            double line_m,        //default line //no of segments
            double line_c,
-           INT16 seg_count,
+           inT16 seg_count,
            DENORM_SEG *seg_pts,  //actual segments
            BOOL8 using_row,      //as baseline
            ROW *src);
-    DENORM(const DENORM &); 
+    DENORM(const DENORM &);
     DENORM & operator= (const DENORM &);
     ~DENORM () {
       if (segments > 0)
@@ -98,7 +98,7 @@ class DENORM
     const DENORM_SEG *binary_search_segment(float src_x) const;
 
     BOOL8 base_is_row;           //using row baseline?
-    INT16 segments;              //no of segments
+    inT16 segments;              //no of segments
     double c, m;                 //baseline
     float x_centre;              //middle of word
     float scale_factor;          //scaling

@@ -309,8 +309,8 @@ WERD_RES *PAGE_RES_IT::forward_block() {
 
 
 void PAGE_RES_IT::rej_stat_word() {
-  INT16 chars_in_word;
-  INT16 rejects_in_word = 0;
+  inT16 chars_in_word;
+  inT16 rejects_in_word = 0;
 
   chars_in_word = word_res->reject_map.length ();
   page_res->char_count += chars_in_word;

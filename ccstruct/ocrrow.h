@@ -28,23 +28,23 @@ class TO_ROW;
 
 class ROW:public ELIST_LINK
 {
-  friend void tweak_row_baseline(ROW *); 
+  friend void tweak_row_baseline(ROW *);
   public:
-    ROW() { 
+    ROW() {
     }                            //empty constructor
     ROW(                    //constructor
-        INT32 spline_size,  //no of segments
-        INT32 *xstarts,     //segment boundaries
+        inT32 spline_size,  //no of segments
+        inT32 *xstarts,     //segment boundaries
         double *coeffs,     //coefficients //ascender size
         float x_height,
         float ascenders,
         float descenders,   //descender size
-        INT16 kern,         //char gap
-        INT16 space);       //word gap
+        inT16 kern,         //char gap
+        inT16 space);       //word gap
     ROW(               //constructor
         TO_ROW *row,   //textord row
-        INT16 kern,    //char gap
-        INT16 space);  //word gap
+        inT16 kern,    //char gap
+        inT16 space);  //word gap
 
     WERD_LIST *word_list() {  //get words
       return &words;
@@ -58,10 +58,10 @@ class ROW:public ELIST_LINK
     float x_height() const {  //return x height
       return xheight;
     }
-    INT32 kern() const {  //return kerning
+    inT32 kern() const {  //return kerning
       return kerning;
     }
-    INT32 space() const {  //return spacing
+    inT32 space() const {  //return spacing
       return spacing;
     }
     float ascenders() const {  //return size
@@ -70,7 +70,7 @@ class ROW:public ELIST_LINK
     float descenders() const {  //return size
       return descdrop;
     }
-    BOX bounding_box() const {  //return bounding box
+    TBOX bounding_box() const {  //return bounding box
       return bound_box;
     }
 
@@ -119,9 +119,9 @@ class ROW:public ELIST_LINK
       const ROW & source);       //from this
 
   private:
-    INT32 kerning;               //inter char gap
-    INT32 spacing;               //inter word gap
-    BOX bound_box;               //bounding box
+    inT32 kerning;               //inter char gap
+    inT32 spacing;               //inter word gap
+    TBOX bound_box;               //bounding box
     float xheight;               //height of line
     float ascrise;               //size of ascenders
     float descdrop;              //-size of descenders

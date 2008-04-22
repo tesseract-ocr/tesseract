@@ -24,7 +24,7 @@
 /******************************************************************************
  * TEXT REGIONS
  *****************************************************************************/
-DLLSYM INT32 tn[NUM_TEXT_ATTR] = {
+DLLSYM inT32 tn[NUM_TEXT_ATTR] = {
   3,                             //T_HORIZONTAL
   4,                             //T_TEXT
   2,                             //T_SERIF
@@ -100,7 +100,7 @@ DLLSYM char tlabel[NUM_TEXT_ATTR][4][MAXLENGTH] = { {
   }
 };
 
-DLLSYM INT32 bn[NUM_BLOCK_ATTR] = {
+DLLSYM inT32 bn[NUM_BLOCK_ATTR] = {
   4,                             //G_MONOCHROME
   2,                             //I_MONOCHROME
   2,                             //I_SMOOTH
@@ -110,8 +110,8 @@ DLLSYM INT32 bn[NUM_BLOCK_ATTR] = {
   2                              //W_TEXT
 };
 
-DLLSYM INT32 tvar[NUM_TEXT_ATTR];
-DLLSYM INT32 bvar[NUM_BLOCK_ATTR];
+DLLSYM inT32 tvar[NUM_TEXT_ATTR];
+DLLSYM inT32 bvar[NUM_BLOCK_ATTR];
 DLLSYM char blabel[NUM_BLOCK_ATTR][4][MAXLENGTH] = { {
                                  //G_MONOCHROME
 

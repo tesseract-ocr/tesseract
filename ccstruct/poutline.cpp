@@ -28,16 +28,16 @@ ELISTIZE_S (OUTLINE)
  **********************************************************************/
 OUTLINE::OUTLINE (               //constructor
 const ICOORD & startpt,          //start position
-INT8 * compactloop,              //from Tess format
+inT8 * compactloop,              //from Tess format
 BOOL8 invert,                    //reverse it
 ICOORD bot_left,                 //bounding box
 ICOORD top_right):
 box (bot_left, top_right),
-start(startpt) { 
+start(startpt) {
   ICOORD pos;                    //current point
   ICOORD vec;                    //vector to next
   POLYPT *polypt;                //new point
-  INT8 *vector;                  //compact loop
+  inT8 *vector;                  //compact loop
   POLYPT_IT it = &outline;       //iterator
 
   pos = startpt;
@@ -73,7 +73,7 @@ OUTLINE::OUTLINE(                    //constructor
   other_it.move_to_last ();
                                  //put in outline
   outline.assign_to_sublist (polypts, &other_it);
-  compute_bb(); 
+  compute_bb();
 }
 
 
@@ -92,7 +92,7 @@ void OUTLINE::compute_bb() {  //constructor
 
   botleft = polypts.data ()->pos;
   topright = botleft;
-  start = ICOORD ((INT16) botleft.x (), (INT16) botleft.y ());
+  start = ICOORD ((inT16) botleft.x (), (inT16) botleft.y ());
   do {
     pos = polypts.data ()->pos;
     if (pos.x () < botleft.x ())
@@ -107,9 +107,9 @@ void OUTLINE::compute_bb() {  //constructor
     polypts.forward ();
   }
   while (!polypts.at_first ());
-  ibl = ICOORD ((INT16) botleft.x (), (INT16) botleft.y ());
-  itr = ICOORD ((INT16) topright.x () + 1, (INT16) topright.y () + 1);
-  box = BOX (ibl, itr);
+  ibl = ICOORD ((inT16) botleft.x (), (inT16) botleft.y ());
+  itr = ICOORD ((inT16) topright.x () + 1, (inT16) topright.y () + 1);
+  box = TBOX (ibl, itr);
 }
 
 
@@ -126,7 +126,7 @@ float OUTLINE::area() {  //constructor
   float total;                   //total area
   POLYPT_IT poly_it = polypts ();//iterator
                                  //child outline itertr
-  OUTLINE_IT child_it(&children); 
+  OUTLINE_IT child_it(&children);
 
   origin = poly_it.data ()->pos;
   poly_it.forward ();
@@ -159,7 +159,7 @@ BOOL8
 OUTLINE::operator< (             //winding number
 OUTLINE & other                  //other outline
 ) {
-  INT16 count;                   //winding count
+  inT16 count;                   //winding count
   POLYPT_IT it = &outline;       //iterator
 
   if (!box.overlap (other.box))
@@ -194,10 +194,10 @@ OUTLINE & other                  //other outline
  * Return the winding number of the outline around the given point.
  **********************************************************************/
 
-INT16 OUTLINE::winding_number(                     //winding number
+inT16 OUTLINE::winding_number(                     //winding number
                               const FCOORD &point  //point to wind around
                              ) {
-  INT16 count;                   //winding count
+  inT16 count;                   //winding count
   POLYPT *polypt;                //current point
   FCOORD vec;                    //to current point
   float cross;                   //cross product
@@ -273,14 +273,14 @@ void OUTLINE::move(                  // reposition OUTLINE
                    const FCOORD vec  // by vector
                   ) {
                                  //child outline itertr
-  OUTLINE_IT child_it(&children); 
+  OUTLINE_IT child_it(&children);
   POLYPT_IT poly_it(&outline);  //outline point itertr
 
   box.move (vec);
 
-  start.set_x ((INT16) floor (start.x () + vec.x () + 0.5));
+  start.set_x ((inT16) floor (start.x () + vec.x () + 0.5));
   // ?? Why ICOORD?
-  start.set_y ((INT16) floor (start.y () + vec.y () + 0.5));
+  start.set_y ((inT16) floor (start.y () + vec.y () + 0.5));
   // ?? Why ICOORD?
 
   for (poly_it.mark_cycle_pt (); !poly_it.cycled_list (); poly_it.forward ())
@@ -302,16 +302,16 @@ void OUTLINE::scale(               // scale OUTLINE
                     const float f  // by multiplier
                    ) {
                                  //child outline itertr
-  OUTLINE_IT child_it(&children); 
+  OUTLINE_IT child_it(&children);
   POLYPT_IT poly_it(&outline);  //outline point itertr
   POLYPT *pt;
 
   box.scale (f);
 
                                  // ?? Why ICOORD?
-  start.set_x ((INT16) floor (start.x () * f + 0.5));
+  start.set_x ((inT16) floor (start.x () * f + 0.5));
                                  // ?? Why ICOORD?
-  start.set_y ((INT16) floor (start.y () * f + 0.5));
+  start.set_y ((inT16) floor (start.y () * f + 0.5));
 
   for (poly_it.mark_cycle_pt (); !poly_it.cycled_list (); poly_it.forward ()) {
     pt = poly_it.data ();
@@ -335,15 +335,15 @@ void OUTLINE::scale(                     // scale OUTLINE
                     const FCOORD vector  //by fcoord
                    ) {
                                  //child outline itertr
-  OUTLINE_IT child_it(&children); 
+  OUTLINE_IT child_it(&children);
   POLYPT_IT poly_it(&outline);  //outline point itertr
   POLYPT *pt;
 
   box.scale (vector);
 
-  start.set_x ((INT16) floor (start.x () * vector.x () + 0.5));
+  start.set_x ((inT16) floor (start.x () * vector.x () + 0.5));
   // ?? Why ICOORD?
-  start.set_y ((INT16) floor (start.y () * vector.y () + 0.5));
+  start.set_y ((inT16) floor (start.y () * vector.y () + 0.5));
   // ?? Why ICOORD?
 
   for (poly_it.mark_cycle_pt (); !poly_it.cycled_list (); poly_it.forward ()) {
@@ -375,7 +375,7 @@ void OUTLINE::plot(                //draw it
   POLYPT *polypt;                //current point
   POLYPT_IT it = &outline;       //iterator
 
-  window->Pen(colour); 
+  window->Pen(colour);
   polypt = it.data ();
   int startx = polypt->pos.x ();
   int starty = polypt->pos.y ();

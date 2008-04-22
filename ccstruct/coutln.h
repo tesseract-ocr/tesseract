@@ -50,10 +50,10 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
               CRACKEDGE *startpt,  //from edge detector
               ICOORD bot_left,     //bounding box //length of loop
               ICOORD top_right,
-              INT16 length);
+              inT16 length);
     C_OUTLINE(ICOORD startpt,    //start of loop
               DIR128 *new_steps,  //steps in loop
-              INT16 length);     //length of loop
+              inT16 length);     //length of loop
                                  //outline to copy
     C_OUTLINE(C_OUTLINE *srcline, FCOORD rotation);  //and rotate
     ~C_OUTLINE () {              //destructor
@@ -77,23 +77,23 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
     }
 
                                  //access function
-    const BOX &bounding_box() const {
+    const TBOX &bounding_box() const {
       return box;
     }
     void set_step(                    //set a step
-                  INT16 stepindex,    //index of step
-                  INT8 stepdir) {     //chain code
+                  inT16 stepindex,    //index of step
+                  inT8 stepdir) {     //chain code
       int shift = stepindex%4 * 2;
-      UINT8 mask = 3 << shift;
+      uinT8 mask = 3 << shift;
       steps[stepindex/4] = ((stepdir << shift) & mask) |
                            (steps[stepindex/4] & ~mask);
       //squeeze 4 into byte
     }
     void set_step(                    //set a step
-                  INT16 stepindex,    //index of step
+                  inT16 stepindex,    //index of step
                   DIR128 stepdir) {   //direction
                                  //clean it
-      INT8 chaindir = stepdir.get_dir() >> (DIRBITS - 2);
+      inT8 chaindir = stepdir.get_dir() >> (DIRBITS - 2);
                                  //difference
       set_step(stepindex, chaindir);
       //squeeze 4 into byte
@@ -103,23 +103,23 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
     const ICOORD &start_pos() const {
       return start;
     }
-    INT32 pathlength() const {  //get path length
+    inT32 pathlength() const {  //get path length
       return stepcount;
     }
     // Return step at a given index as a DIR128.
-    DIR128 step_dir(INT16 index) const {
-      return DIR128((INT16)(((steps[index/4] >> (index%4 * 2)) & STEP_MASK) <<
+    DIR128 step_dir(inT16 index) const {
+      return DIR128((inT16)(((steps[index/4] >> (index%4 * 2)) & STEP_MASK) <<
                       (DIRBITS - 2)));
     }
     // Return the step vector for the given outline position.
-    ICOORD step(INT16 index) const { //index of step
+    ICOORD step(inT16 index) const { //index of step
       return step_coords[(steps[index/4] >> (index%4 * 2)) & STEP_MASK];
     }
 
-    INT32 area();  //return area
-    INT32 outer_area();  //return area
-    INT32 count_transitions(                   //count maxima
-                            INT32 threshold);  //size threshold
+    inT32 area();  //return area
+    inT32 outer_area();  //return area
+    inT32 count_transitions(                   //count maxima
+                            inT32 threshold);  //size threshold
 
     BOOL8 operator< (            //containment test
       const C_OUTLINE & other) const;
@@ -128,10 +128,10 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
     {
       return other < *this;      //use the < to do it
     }
-    INT16 winding_number(                       //get winding number
+    inT16 winding_number(                       //get winding number
                          ICOORD testpt) const;  //around this point
                                  //get direction
-    INT16 turn_direction() const;
+    inT16 turn_direction() const;
     void reverse();  //reverse direction
 
     void move(                    // reposition outline
@@ -154,7 +154,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
 
     void de_dump(  //read external bits
                  FILE *f) {
-      steps = (UINT8 *) de_serialise_bytes (f, step_mem());
+      steps = (uinT8 *) de_serialise_bytes (f, step_mem());
       children.de_dump (f);
     }
 
@@ -165,10 +165,10 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
   private:
     int step_mem() const { return (stepcount+3) / 4; }
 
-    BOX box;                     //boudning box
+    TBOX box;                     //boudning box
     ICOORD start;                //start coord
-    UINT8 *steps;                //step array
-    INT16 stepcount;             //no of steps
+    uinT8 *steps;                //step array
+    inT16 stepcount;             //no of steps
     BITS16 flags;                //flags about outline
     C_OUTLINE_LIST children;     //child elements
     static ICOORD step_coords[4];

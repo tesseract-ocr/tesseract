@@ -71,8 +71,8 @@ OUTLINE *tesspoly_outline(                       //old approximation
                          ) {
   EDGEPT *edgept;                //converted steps
   EDGEPT *startpt;               //start of outline
-  BOX loop_box;                  //bounding box
-  INT32 area;                    //loop area
+  TBOX loop_box;                  //bounding box
+  inT32 area;                    //loop area
   FCOORD pos;                    //vertex
   FCOORD vec;                    //vector
   POLYPT_LIST polypts;           //output polygon
@@ -86,7 +86,7 @@ OUTLINE *tesspoly_outline(                       //old approximation
     area = loop_box.width ();
   area *= area;
   edgept = edgesteps_to_edgepts (c_outline, edgepts);
-  fix2(edgepts, area); 
+  fix2(edgepts, area);
   edgept = poly2 (edgepts, area);/*2nd approximation */
   startpt = edgept;
   do {
@@ -117,15 +117,15 @@ edgesteps_to_edgepts (           //convert outline
 C_OUTLINE * c_outline,           //input
 EDGEPT edgepts[]                 //output is array
 ) {
-  INT32 length;                  //steps in path
+  inT32 length;                  //steps in path
   ICOORD pos;                    //current coords
-  INT32 stepindex;               //current step
-  INT32 stepinc;                 //increment
-  INT32 epindex;                 //current EDGEPT
-  INT32 count;                   //repeated steps
+  inT32 stepindex;               //current step
+  inT32 stepinc;                 //increment
+  inT32 epindex;                 //current EDGEPT
+  inT32 count;                   //repeated steps
   ICOORD vec;                    //for this 8 step
   ICOORD prev_vec;
-  INT8 epdir;                    //of this step
+  inT8 epdir;                    //of this step
   DIR128 prevdir;                //prvious dir
   DIR128 dir;                    //of this step
 
@@ -447,7 +447,7 @@ EDGEPT *poly2(                  //second poly
             linestart->vec.x, linestart->vec.y, edgesum, edgept->pos.x,
             edgept->pos.y);
                                  /*reapproximate */
-        cutline(linestart, edgept, area); 
+        cutline(linestart, edgept, area);
 
         while ((edgept->next->flags[FLAGS] & FIXED)
           && edgept != loopstart)
@@ -577,7 +577,7 @@ void cutline(                //recursive refine
   if (maxperp * par1 >= 10 * area || perp * par2 >= 10 * area || vlen >= 126) {
     maxpoint->flags[FLAGS] |= FIXED;
                                  /*partitions */
-    cutline(first, maxpoint, area); 
-    cutline(maxpoint, last, area); 
+    cutline(first, maxpoint, area);
+    cutline(maxpoint, last, area);
   }
 }

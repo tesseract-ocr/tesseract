@@ -132,7 +132,7 @@ const ICOORD & op2) {
  * Scalar product of 2 ICOORDS.
  **********************************************************************/
 
-inline INT32
+inline inT32
 operator% (                      //scalar product
 const ICOORD & op1,              //operands
 const ICOORD & op2) {
@@ -146,7 +146,7 @@ const ICOORD & op2) {
  * Cross product of 2 ICOORDS.
  **********************************************************************/
 
-inline INT32 operator *(                    //cross product
+inline inT32 operator *(                    //cross product
                         const ICOORD &op1,  //operands
                         const ICOORD &op2) {
   return op1.xcoord * op2.ycoord - op1.ycoord * op2.xcoord;
@@ -161,7 +161,7 @@ inline INT32 operator *(                    //cross product
 
 inline ICOORD operator *(                    //scalar multiply
                          const ICOORD &op1,  //operands
-                         INT16 scale) {
+                         inT16 scale) {
   ICOORD result;                 //output
 
   result.xcoord = op1.xcoord * scale;
@@ -171,7 +171,7 @@ inline ICOORD operator *(                    //scalar multiply
 
 
 inline ICOORD operator *(                   //scalar multiply
-                         INT16 scale,
+                         inT16 scale,
                          const ICOORD &op1  //operands
                         ) {
   ICOORD result;                 //output
@@ -191,7 +191,7 @@ inline ICOORD operator *(                   //scalar multiply
 inline ICOORD &
 operator*= (                     //scalar multiply
 ICOORD & op1,                    //operands
-INT16 scale) {
+inT16 scale) {
   op1.xcoord *= scale;
   op1.ycoord *= scale;
   return op1;
@@ -207,7 +207,7 @@ INT16 scale) {
 inline ICOORD
 operator/ (                      //scalar divide
 const ICOORD & op1,              //operands
-INT16 scale) {
+inT16 scale) {
   ICOORD result;                 //output
 
   result.xcoord = op1.xcoord / scale;
@@ -225,7 +225,7 @@ INT16 scale) {
 inline ICOORD &
 operator/= (                     //scalar divide
 ICOORD & op1,                    //operands
-INT16 scale) {
+inT16 scale) {
   op1.xcoord /= scale;
   op1.ycoord /= scale;
   return op1;
@@ -240,10 +240,10 @@ INT16 scale) {
 
 inline void ICOORD::rotate(  //rotate by vector
                            const FCOORD& vec) {
-  INT16 tmp;
+  inT16 tmp;
 
-  tmp = (INT16) floor (xcoord * vec.x () - ycoord * vec.y () + 0.5);
-  ycoord = (INT16) floor (ycoord * vec.x () + xcoord * vec.y () + 0.5);
+  tmp = (inT16) floor (xcoord * vec.x () - ycoord * vec.y () + 0.5);
+  ycoord = (inT16) floor (ycoord * vec.x () + xcoord * vec.y () + 0.5);
   xcoord = tmp;
 }
 

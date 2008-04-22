@@ -29,15 +29,15 @@ class ROW;
 
 class QSPLINE
 {
-  friend void make_first_baseline(BOX *,
+  friend void make_first_baseline(TBOX *,
                                   int,
                                   int *,
                                   int *,
                                   QSPLINE *,
                                   QSPLINE *,
                                   float);
-  friend void make_holed_baseline(BOX *, int, QSPLINE *, QSPLINE *, float); 
-  friend void tweak_row_baseline(ROW *); 
+  friend void make_holed_baseline(TBOX *, int, QSPLINE *, QSPLINE *, float);
+  friend void tweak_row_baseline(ROW *);
   public:
     QSPLINE() {  //empty constructor
       segments = 0;
@@ -47,8 +47,8 @@ class QSPLINE
     QSPLINE(  //copy constructor
             const QSPLINE &src);
     QSPLINE(                  //constructor
-            INT32 count,      //number of segments
-            INT32 *xstarts,   //segment starts
+            inT32 count,      //number of segments
+            inT32 *xstarts,   //segment starts
             double *coeffs);  //coefficients
     ~QSPLINE ();                 //destructor
     QSPLINE (                    //least squares fit
@@ -85,14 +85,14 @@ class QSPLINE
 
     void dump(  //write external bits
               FILE *f) {
-      serialise_bytes (f, (void *) xcoords, (segments + 1) * sizeof (INT32));
+      serialise_bytes (f, (void *) xcoords, (segments + 1) * sizeof (inT32));
       serialise_bytes (f, (void *) quadratics, segments * sizeof (QUAD_COEFFS));
     }
 
     void de_dump(  //read external bits
                  FILE *f) {
-      xcoords = (INT32 *) de_serialise_bytes (f,
-        (segments + 1) * sizeof (INT32));
+      xcoords = (inT32 *) de_serialise_bytes (f,
+        (segments + 1) * sizeof (inT32));
       quadratics = (QUAD_COEFFS *) de_serialise_bytes (f,
         segments *
         sizeof (QUAD_COEFFS));
@@ -104,10 +104,10 @@ class QSPLINE
 
   private:
 
-    INT32 spline_index(                  //binary search
+    inT32 spline_index(                  //binary search
                        double x) const;  //for x
-    INT32 segments;              //no of segments
-    INT32 *xcoords;              //no of coords
+    inT32 segments;              //no of segments
+    inT32 *xcoords;              //no of coords
     QUAD_COEFFS *quadratics;     //spline pieces
 };
 #endif

@@ -131,7 +131,7 @@ PBLOB::PBLOB(                            //constructor
   while (!it.empty ()) {         //grab the list
     outline = it.extract ();     //get off the list
                                  //put it in place
-    position_outline(outline, &outlines); 
+    position_outline(outline, &outlines);
     if (!it.empty ())
       it.forward ();
   }
@@ -182,7 +182,7 @@ PBLOB::PBLOB(                //constructor
              C_BLOB *cblob,  //compact blob
              float xheight   //height of line
             ) {
-  BOX bbox;                      //bounding box
+  TBOX bbox;                      //bounding box
 
   if (!cblob->out_list ()->empty ()) {
                                  //get bounding box
@@ -201,10 +201,10 @@ PBLOB::PBLOB(                //constructor
  * Return the bounding box of the blob.
  **********************************************************************/
 
-BOX PBLOB::bounding_box() {  //bounding box
+TBOX PBLOB::bounding_box() {  //bounding box
   OUTLINE *outline;              //current outline
   OUTLINE_IT it = &outlines;     //outlines of blob
-  BOX box;                       //bounding box
+  TBOX box;                       //bounding box
 
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
     outline = it.data ();
@@ -244,7 +244,7 @@ PBLOB *PBLOB::baseline_normalise(                //normalize blob
                                  ROW *row,       //row it came from
                                  DENORM *denorm  //inverse mapping
                                 ) {
-  BOX blob_box = bounding_box ();
+  TBOX blob_box = bounding_box ();
   float x_centre = (blob_box.left () + blob_box.right ()) / 2.0;
   PBLOB *bn_blob;                //copied blob
 
@@ -268,7 +268,7 @@ void PBLOB::baseline_denormalise(                      // Tess style BL Norm
                                  const DENORM *denorm  //antidote
                                 ) {
   float blob_x_left;           // Left edge of blob.
-  BOX blob_box;                  //blob bounding box
+  TBOX blob_box;                  //blob bounding box
 
   move(FCOORD (0.0f, 0.0f - bln_baseline_offset));
   blob_box = bounding_box ();
@@ -339,6 +339,6 @@ void PBLOB::plot(                     //draw it
                  ScrollView::Color blob_colour,  //main colour
                  ScrollView::Color child_colour  //for holes
                 ) {
-  plot_outline_list(&outlines, window, blob_colour, child_colour); 
+  plot_outline_list(&outlines, window, blob_colour, child_colour);
 }
 #endif

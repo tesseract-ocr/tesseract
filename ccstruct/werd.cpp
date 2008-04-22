@@ -49,11 +49,11 @@ ELISTIZE_S (WERD)
  **********************************************************************/
 WERD::WERD (                     //constructor
 C_BLOB_LIST * blob_list,         //in word order
-UINT8 blank_count,               //blanks in front
+uinT8 blank_count,               //blanks in front
 const char *text                 //correct text
 ):
 flags (0),
-correct(text) { 
+correct(text) {
   C_BLOB_IT start_it = blob_list;//iterator
   C_BLOB_IT end_it = blob_list;  //another
                                  //rejected blobs in wd
@@ -61,8 +61,8 @@ correct(text) {
   C_OUTLINE_IT c_outline_it;     //coutline iterator
   BOOL8 blob_inverted;
   BOOL8 reject_blob;
-  INT16 inverted_vote = 0;
-  INT16 non_inverted_vote = 0;
+  inT16 inverted_vote = 0;
+  inT16 non_inverted_vote = 0;
 
   while (!end_it.at_last ())
     end_it.forward ();           //move to last
@@ -129,11 +129,11 @@ correct(text) {
 
 WERD::WERD (                     //constructor
 PBLOB_LIST * blob_list,          //in word order
-UINT8 blank_count,               //blanks in front
+uinT8 blank_count,               //blanks in front
 const char *text                 //correct text
 ):
 flags (0),
-correct(text) { 
+correct(text) {
   PBLOB_IT start_it = blob_list; //iterator
   PBLOB_IT end_it = blob_list;   //another
 
@@ -277,8 +277,8 @@ WERD *WERD::poly_copy(               //make a poly copy
  * row being marked as FUZZY space.
  **********************************************************************/
 
-BOX WERD::bounding_box() {  //bounding box
-  BOX box;                       //box being built
+TBOX WERD::bounding_box() {  //bounding box
+  TBOX box;                       //box being built
                                  //rejected blobs in wd
   C_BLOB_IT rej_cblob_it = &rej_cblobs;
 
@@ -376,7 +376,7 @@ void WERD::join_on(              // join WERD
   PBLOB_IT blob_it ((PBLOB_LIST *) & cblobs);
   // blob iterator
   PBLOB_IT src_it ((PBLOB_LIST *) & other->cblobs);
-  C_BLOB_IT rej_cblob_it(&rej_cblobs); 
+  C_BLOB_IT rej_cblob_it(&rej_cblobs);
   C_BLOB_IT src_rej_it (&other->rej_cblobs);
 
   while (!src_it.empty ()) {
@@ -418,7 +418,7 @@ void WERD::copy_on(              //copy blobs
   //              larc_blob_it.add_list_after( &larc_blobs );
   //      }
   else {
-    C_BLOB_IT c_blob_it(&cblobs); 
+    C_BLOB_IT c_blob_it(&cblobs);
     C_BLOB_LIST c_blobs;
 
     c_blobs.deep_copy (&other->cblobs);
@@ -426,7 +426,7 @@ void WERD::copy_on(              //copy blobs
     c_blob_it.add_list_after (&c_blobs);
   }
   if (!other->rej_cblobs.empty ()) {
-    C_BLOB_IT rej_c_blob_it(&rej_cblobs); 
+    C_BLOB_IT rej_c_blob_it(&rej_cblobs);
     C_BLOB_LIST new_rej_c_blobs;
 
     new_rej_c_blobs.deep_copy (&other->rej_cblobs);
@@ -474,13 +474,13 @@ void WERD::baseline_normalise_x(                 // Tess style BL Norm
   float blob_offset;             //bottom miss
   float top_offset;              //top miss
   float blob_x_height;           //xh for this blob
-  INT16 segments;                //no of segments
-  INT16 segment;                 //current segment
+  inT16 segments;                //no of segments
+  inT16 segment;                 //current segment
   DENORM_SEG *segs;              //array of segments
   float mean_x;                  //mean xheight
-  INT32 x_count;                 //no of xs
-  BOX word_box = bounding_box ();//word bounding box
-  BOX blob_box;                  //blob bounding box
+  inT32 x_count;                 //no of xs
+  TBOX word_box = bounding_box ();//word bounding box
+  TBOX blob_box;                  //blob bounding box
   PBLOB_IT blob_it ((PBLOB_LIST *) & cblobs);
   // blob iterator
   PBLOB *blob;
@@ -817,7 +817,7 @@ void WERD::plot(                //draw it
       it.data ()->plot (window, colour, colour);
     }
   }
-  plot_rej_blobs(window, solid); 
+  plot_rej_blobs(window, solid);
 }
 #endif
 
@@ -867,7 +867,7 @@ void WERD::plot(                //draw it
         colour = FIRST_COLOUR;   //cycle round
     }
   }
-  plot_rej_blobs(window, solid); 
+  plot_rej_blobs(window, solid);
 }
 #endif
 

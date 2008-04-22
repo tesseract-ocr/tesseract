@@ -109,19 +109,19 @@ class REJ
   BITS16 flags1;
   BITS16 flags2;
 
-  void set_flag(REJ_FLAGS rej_flag) { 
+  void set_flag(REJ_FLAGS rej_flag) {
     if (rej_flag < 16)
       flags1.turn_on_bit (rej_flag);
     else
       flags2.turn_on_bit (rej_flag - 16);
   }
 
-  BOOL8 rej_before_nn_accept(); 
-  BOOL8 rej_between_nn_and_mm(); 
-  BOOL8 rej_between_mm_and_quality_accept(); 
-  BOOL8 rej_between_quality_and_minimal_rej_accept(); 
-  BOOL8 rej_before_mm_accept(); 
-  BOOL8 rej_before_quality_accept(); 
+  BOOL8 rej_before_nn_accept();
+  BOOL8 rej_between_nn_and_mm();
+  BOOL8 rej_between_mm_and_quality_accept();
+  BOOL8 rej_between_quality_and_minimal_rej_accept();
+  BOOL8 rej_before_mm_accept();
+  BOOL8 rej_before_quality_accept();
 
   public:
     REJ() {  //constructor
@@ -140,14 +140,14 @@ class REJ
       return *this;
     }
 
-    BOOL8 flag(REJ_FLAGS rej_flag) { 
+    BOOL8 flag(REJ_FLAGS rej_flag) {
       if (rej_flag < 16)
         return flags1.bit (rej_flag);
       else
         return flags2.bit (rej_flag - 16);
     }
 
-    char display_char() { 
+    char display_char() {
       if (perm_rejected ())
         return MAP_REJECT_PERM;
       else if (accept_if_good_quality ())
@@ -167,9 +167,9 @@ class REJ
     }
 
                                  //potential rej?
-    BOOL8 accept_if_good_quality(); 
+    BOOL8 accept_if_good_quality();
 
-    BOOL8 recoverable() { 
+    BOOL8 recoverable() {
       return (rejected () && !perm_rejected ());
     }
 
@@ -181,12 +181,12 @@ class REJ
     void setrej_rej_cblob();  //Insert duff blob
     void setrej_mm_reject();  //Matrix matcher
                                  //Odd repeated char
-    void setrej_bad_repetition(); 
+    void setrej_bad_repetition();
     void setrej_poor_match();  //Failed Rays heuristic
                                  //TEMP reject_word
-    void setrej_not_tess_accepted(); 
+    void setrej_not_tess_accepted();
                                  //TEMP reject_word
-    void setrej_contains_blanks(); 
+    void setrej_contains_blanks();
     void setrej_bad_permuter();  //POTENTIAL reject_word
     void setrej_hyphen();  //PostNN dubious hyph or .
     void setrej_dubious();  //PostNN dubious limit
@@ -202,17 +202,17 @@ class REJ
     void setrej_hyphen_accept();  //Good aspect ratio
     void setrej_mm_accept();  //Matrix matcher
                                  //Quality flip a char
-    void setrej_quality_accept(); 
+    void setrej_quality_accept();
                                  //Accept all except blank
-    void setrej_minimal_rej_accept(); 
+    void setrej_minimal_rej_accept();
 
-    void full_print(FILE *fp); 
+    void full_print(FILE *fp);
 };
 
 class REJMAP
 {
   REJ *ptr;                      //ptr to the chars
-  INT16 len;                     //Number of chars
+  inT16 len;                     //Number of chars
 
   public:
     REJMAP() {  //constructor
@@ -232,49 +232,49 @@ class REJMAP
     }
 
     void initialise(  //Redefine map
-                    INT16 length);
+                    inT16 length);
 
     REJ & operator[](            //access function
-      INT16 index) const         //map index
+      inT16 index) const         //map index
     {
       ASSERT_HOST (index < len);
       return ptr[index];         //no bounds checks
     }
 
-    INT32 length() const {  //map length
+    inT32 length() const {  //map length
       return len;
     }
 
-    INT16 accept_count();  //How many accepted?
+    inT16 accept_count();  //How many accepted?
 
-    INT16 reject_count() {  //How many rejects?
+    inT16 reject_count() {  //How many rejects?
       return len - accept_count ();
     }
 
     void remove_pos(             //Cut out an element
-                    INT16 pos);  //element to remove
+                    inT16 pos);  //element to remove
 
-    void print(FILE *fp); 
+    void print(FILE *fp);
 
-    void full_print(FILE *fp); 
+    void full_print(FILE *fp);
 
     BOOL8 recoverable_rejects();  //Any non perm rejs?
 
-    BOOL8 quality_recoverable_rejects(); 
+    BOOL8 quality_recoverable_rejects();
     //Any potential rejs?
 
     void rej_word_small_xht();  //Reject whole word
                                  //Reject whole word
-    void rej_word_tess_failure(); 
-    void rej_word_not_tess_accepted(); 
+    void rej_word_tess_failure();
+    void rej_word_not_tess_accepted();
     //Reject whole word
                                  //Reject whole word
-    void rej_word_contains_blanks(); 
+    void rej_word_contains_blanks();
                                  //Reject whole word
-    void rej_word_bad_permuter(); 
+    void rej_word_bad_permuter();
     void rej_word_xht_fixup();  //Reject whole word
                                  //Reject whole word
-    void rej_word_no_alphanums(); 
+    void rej_word_no_alphanums();
     void rej_word_mostly_rej();  //Reject whole word
     void rej_word_bad_quality();  //Reject whole word
     void rej_word_doc_rej();  //Reject whole word

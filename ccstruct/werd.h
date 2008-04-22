@@ -60,15 +60,15 @@ class ROW;                       //forward decl
 class WERD:public ELIST_LINK
 {
   public:
-    WERD() { 
+    WERD() {
     }                            //empty constructor
     WERD(                         //constructor
          C_BLOB_LIST *blob_list,  //blobs in word
-         UINT8 blanks,            //blanks in front
+         uinT8 blanks,            //blanks in front
          const char *text);       //correct text
     WERD(                        //constructor
          PBLOB_LIST *blob_list,  //blobs in word
-         UINT8 blanks,           //blanks in front
+         uinT8 blanks,           //blanks in front
          const char *text);      //correct text
     WERD(                        //constructor
          PBLOB_LIST *blob_list,  //blobs in word
@@ -93,14 +93,14 @@ class WERD:public ELIST_LINK
                     float xheight);  //row xheight
 
                                  //get DUFF compact blobs
-    C_BLOB_LIST *rej_cblob_list() { 
+    C_BLOB_LIST *rej_cblob_list() {
       if (flags.bit (W_POLYGON))
         WRONG_WORD.error ("WERD::rej_cblob_list", ABORT, NULL);
       return &rej_cblobs;
     }
 
                                  //get DUFF poly blobs
-    PBLOB_LIST *rej_blob_list() { 
+    PBLOB_LIST *rej_blob_list() {
       if (!flags.bit (W_POLYGON))
         WRONG_WORD.error ("WERD::rej_blob_list", ABORT, NULL);
       return (PBLOB_LIST *) (&rej_cblobs);
@@ -131,11 +131,11 @@ class WERD:public ELIST_LINK
     const char *text() const {  //correct text
       return correct.string ();
     }
-    UINT8 space() {  //access function
+    uinT8 space() {  //access function
       return blanks;
     }
     void set_blanks(  //set blanks
-                    UINT8 new_blanks) {
+                    uinT8 new_blanks) {
       blanks = new_blanks;
     }
 
@@ -144,7 +144,7 @@ class WERD:public ELIST_LINK
       correct = new_text;
     }
 
-    BOX bounding_box();  //compute bounding box
+    TBOX bounding_box();  //compute bounding box
 
     BOOL8 flag(                          //test flag
                WERD_FLAGS mask) const {  //flag to test
@@ -157,12 +157,12 @@ class WERD:public ELIST_LINK
     }
 
     BOOL8 display_flag(                     //test display flag
-                       UINT8 flag) const {  //flag to test
+                       uinT8 flag) const {  //flag to test
       return disp_flags.bit (flag);
     }
 
     void set_display_flag(                //set display flag
-                          UINT8 flag,     //flag to set
+                          uinT8 flag,     //flag to set
                           BOOL8 value) {  //value to set
       disp_flags.set_bit (flag, value);
     }
@@ -247,11 +247,11 @@ class WERD:public ELIST_LINK
     }
 
     make_serialise (WERD) private:
-    UINT8 blanks;                //no of blanks
-    UINT8 dummy;                 //padding
+    uinT8 blanks;                //no of blanks
+    uinT8 dummy;                 //padding
     BITS16 flags;                //flags about word
     BITS16 disp_flags;           //display flags
-    INT16 dummy2;                //padding
+    inT16 dummy2;                //padding
     STRING correct;              //correct text
     C_BLOB_LIST cblobs;          //compacted blobs
     C_BLOB_LIST rej_cblobs;      //DUFF blobs

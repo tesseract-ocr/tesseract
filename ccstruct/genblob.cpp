@@ -64,7 +64,7 @@ int c_blob_comparator(                     //sort blobs
  *  Return the bounding box of a generic blob.
  **********************************************************************/
 
-BOX gblob_bounding_box(                 //Get bounding box
+TBOX gblob_bounding_box(                 //Get bounding box
                        PBLOB *blob,     //generic blob
                        BOOL8 polygonal  //is blob polygonal?
                       ) {
@@ -122,7 +122,7 @@ OUTLINE_LIST *gblob_out_list(                 //Get outline list
  *  Return the bounding box of a generic outline.
  **********************************************************************/
 
-BOX goutline_bounding_box(                   //Get bounding box
+TBOX goutline_bounding_box(                   //Get bounding box
                           OUTLINE *outline,  //generic outline
                           BOOL8 polygonal    //is outline polygonal?
                          ) {

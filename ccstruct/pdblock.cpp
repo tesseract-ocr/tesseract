@@ -34,9 +34,9 @@ CLISTIZE (PDBLK)
  * Constructor for a simple rectangular block.
  **********************************************************************/
 PDBLK::PDBLK (                   //rectangular block
-INT16 xmin,                      //bottom left
-INT16 ymin, INT16 xmax,          //top right
-INT16 ymax):    box (ICOORD (xmin, ymin), ICOORD (xmax, ymax)) {
+inT16 xmin,                      //bottom left
+inT16 ymin, inT16 xmax,          //top right
+inT16 ymax):    box (ICOORD (xmin, ymin), ICOORD (xmax, ymax)) {
                                  //boundaries
   ICOORDELT_IT left_it = &leftside;
   ICOORDELT_IT right_it = &rightside;
@@ -109,7 +109,7 @@ BOOL8 PDBLK::contains(           //test containment
 void PDBLK::move(                  // reposition block
                  const ICOORD vec  // by vector
                 ) {
-  ICOORDELT_IT it(&leftside); 
+  ICOORDELT_IT it(&leftside);
 
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
     *(it.data ()) += vec;
@@ -132,7 +132,7 @@ void PDBLK::move(                  // reposition block
 #ifndef GRAPHICS_DISABLED
 void PDBLK::plot(                //draw outline
                  ScrollView* window,  //window to draw in
-                 INT32 serial,   //serial number
+                 inT32 serial,   //serial number
                  ScrollView::Color colour   //colour to draw in
                 ) {
   ICOORD startpt;                //start of outline
@@ -141,7 +141,7 @@ void PDBLK::plot(                //draw outline
   ICOORDELT_IT it = &leftside;   //iterator
 
                                  //set the colour
-  window->Pen(colour); 
+  window->Pen(colour);
   window->TextAttributes("Times", BLOCK_LABEL_HEIGHT, false, false, false);
 
   if (!leftside.empty ()) {
@@ -150,7 +150,7 @@ void PDBLK::plot(                //draw outline
     //                      serial,startpt.x(),startpt.y());
     char temp_buff[34];
     #ifdef __UNIX__
-    sprintf(temp_buff, INT32FORMAT, serial); 
+    sprintf(temp_buff, INT32FORMAT, serial);
     #else
     ultoa (serial, temp_buff, 10);
     #endif
@@ -325,9 +325,9 @@ void BLOCK_RECT_IT::forward() {  //next rectangle
  * Get the the start and width of a line in the block.
  **********************************************************************/
 
-INT16 BLOCK_LINE_IT::get_line(             //get a line
-                              INT16 y,     //line to get
-                              INT16 &xext  //output extent
+inT16 BLOCK_LINE_IT::get_line(             //get a line
+                              inT16 y,     //line to get
+                              inT16 &xext  //output extent
                              ) {
   ICOORD bleft;                  //bounding box
   ICOORD tright;                 //of block & rect

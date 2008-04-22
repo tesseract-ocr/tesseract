@@ -30,11 +30,12 @@ class BLOB_CHOICE:public ELIST_LINK
   public:
     BLOB_CHOICE() {  //empty
     }
-    BLOB_CHOICE(                    //constructor
-                char *src_unichar,  //character
-                float src_rating,   //rating
-                float src_cert,     //certainty
-                INT8 src_config);   //config (font)
+    BLOB_CHOICE(                      //constructor
+                char *src_unichar,    //character
+                float src_rating,     //rating
+                float src_cert,       //certainty
+                inT8 src_config,      //config (font)
+                const char* script);  //script
 
     void set_unichar(  //change it
                    char *newunichar) {
@@ -49,8 +50,18 @@ class BLOB_CHOICE:public ELIST_LINK
       blob_certainty = newrat;
     }
     void set_config(  //change it
-                    INT8 newfont) {
+                    inT8 newfont) {
       blob_config = newfont;
+    }
+    void set_script(  //change it
+                      //newscript is not copied and the structure does not take
+                      //the ownership of newscript.
+                      //Thus, newscript must outlive the BLOB_CHOICE structure.
+                      //The rationale is that the script is obtained from
+                      //unicharset that manage itself ownership of returned
+                      //pointers.
+                    const char* newscript) {
+      blob_script = newscript;
     }
 
     const char* const unichar() const {  //access function
@@ -62,16 +73,20 @@ class BLOB_CHOICE:public ELIST_LINK
     float certainty() const {  //access function
       return blob_certainty;
     }
-    INT8 config() const {  //access function
+    inT8 config() const {  //access function
       return blob_config;
+    }
+    const char* script() const {  //access function
+      return blob_script;
     }
 
     NEWDELETE private:
     char blob_unichar[UNICHAR_LEN + 1]; //unichar
     char blob_config;                   //char config (font)
-    INT16 junk2;
+    inT16 junk2;
     float blob_rating;                  //size related
     float blob_certainty;               //absolute
+    const char* blob_script;
 };
 
                                  //make them listable
@@ -107,7 +122,7 @@ WERD_CHOICE
                 const char *src_lengths, //unichar lengths
                 float src_rating,        //rating
                 float src_cert,          //certainty
-                UINT8 src_permuter);     //permuter code
+                uinT8 src_permuter);     //permuter code
 
     ~WERD_CHOICE();
                                  //access function
@@ -125,11 +140,15 @@ WERD_CHOICE
     float certainty() const {  //access function
       return word_certainty;
     }
-    UINT8 permuter() const {  //access function
+    void set_certainty(  //change it
+        float new_val) {
+      word_certainty = new_val;
+    }
+    uinT8 permuter() const {  //access function
       return word_permuter;
     }
     void set_permuter(  //Override
-                      UINT8 perm) {
+                      uinT8 perm) {
       word_permuter = perm;
     }
 
@@ -149,7 +168,7 @@ WERD_CHOICE
     STRING word_lengths;         //unichar lengths for the string
     float word_rating;           //size related
     float word_certainty;        //absolute
-    UINT8 word_permuter;         //permuter code
+    uinT8 word_permuter;         //permuter code
     BLOB_CHOICE_LIST_CLIST *word_blob_choices; //best choices for each blob
 
  private:
@@ -168,6 +187,6 @@ void print_ratings_info(                           //print summary info
                        );
 typedef void (*POLY_MATCHER) (PBLOB *, PBLOB *, PBLOB *, WERD *,
 DENORM *, BLOB_CHOICE_LIST &);
-typedef void (*POLY_TESTER) (PBLOB *, DENORM *, BOOL8, char *, INT32,
+typedef void (*POLY_TESTER) (PBLOB *, DENORM *, BOOL8, char *, inT32,
 BLOB_CHOICE_LIST *);
 #endif

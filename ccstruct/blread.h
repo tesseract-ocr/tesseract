@@ -25,39 +25,39 @@
 
 BOOL8 read_pd_file(                    //print list of sides
                    STRING name,        //basename of file
-                   INT32 xsize,        //image size
-                   INT32 ysize,        //image size
+                   inT32 xsize,        //image size
+                   inT32 ysize,        //image size
                    BLOCK_LIST *blocks  //output list
                   );
 void get_pd_vertex(                //get new vertex
                    FILE *pdfp,     //file to read
-                   INT32 xsize,    //image size
-                   INT32 ysize,    //image size
-                   BOX *box,       //bounding box
-                   INT32 &xcoord,  //output coords
-                   INT32 &ycoord);
+                   inT32 xsize,    //image size
+                   inT32 ysize,    //image size
+                   TBOX *box,       //bounding box
+                   inT32 &xcoord,  //output coords
+                   inT32 &ycoord);
 BOOL8 read_hpd_file(                    //print list of sides
                     STRING name,        //basename of file
-                    INT32 xsize,        //image size
-                    INT32 ysize,        //image size
+                    inT32 xsize,        //image size
+                    inT32 ysize,        //image size
                     BLOCK_LIST *blocks  //output list
                    );
 void scan_hpd_blocks(                               //print list of sides
                      const char *name,              //block label
                      PAGE_BLOCK_LIST *page_blocks,  //head of full pag
-                     INT32 &block_no,               //no of blocks
+                     inT32 &block_no,               //no of blocks
                      BLOCK_IT *block_it             //block iterator
                     );
 BOOL8 read_vec_file(                    //print list of sides
                     STRING name,        //basename of file
-                    INT32 xsize,        //image size
-                    INT32 ysize,        //image size
+                    inT32 xsize,        //image size
+                    inT32 ysize,        //image size
                     BLOCK_LIST *blocks  //output list
                    );
 BOOL8 read_unlv_file(                    //print list of sides
                      STRING name,        //basename of file
-                     INT32 xsize,        //image size
-                     INT32 ysize,        //image size
+                     inT32 xsize,        //image size
+                     inT32 ysize,        //image size
                      BLOCK_LIST *blocks  //output list
                     );
 #endif

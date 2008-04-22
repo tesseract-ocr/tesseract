@@ -37,16 +37,16 @@ bool FCOORD::normalise() {  //Convert to unit vec
 void ICOORD::serialise_asc(         //convert to ascii
                            FILE *f  //file to write
                           ) {
-  serialise_INT32(f, xcoord); 
-  serialise_INT32(f, ycoord); 
+  serialise_INT32(f, xcoord);
+  serialise_INT32(f, ycoord);
 }
 
 
 void ICOORD::de_serialise_asc(         //convert from ascii
                               FILE *f  //file to write
                              ) {
-  xcoord = (INT16) de_serialise_INT32 (f);
-  ycoord = (INT16) de_serialise_INT32 (f);
+  xcoord = (inT16) de_serialise_INT32 (f);
+  ycoord = (inT16) de_serialise_INT32 (f);
 }
 
 

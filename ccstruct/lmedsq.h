@@ -29,7 +29,7 @@ class LMS
 {
   public:
     LMS(              //constructor
-        INT32 size);  //no of samples
+        inT32 size);  //no of samples
     ~LMS ();                     //destructor
     void clear();  //clear samples
     void add(                 //add sample
@@ -71,8 +71,8 @@ class LMS
                                    float c);
 
     BOOL8 fitted;                //line parts valid
-    INT32 samplesize;            //max samples
-    INT32 samplecount;           //current sample size
+    inT32 samplesize;            //max samples
+    inT32 samplecount;           //current sample size
     FCOORD *samples;             //array of samples
     float *errors;               //error distances
     double a;                    //x squared

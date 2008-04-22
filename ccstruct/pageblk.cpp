@@ -20,7 +20,7 @@ extern char blabel[NUM_BLOCK_ATTR][4][MAXLENGTH];
 extern char backlabel[NUM_BACKGROUNDS][MAXLENGTH];
 
 ELISTIZE_S (PAGE_BLOCK)
-void PAGE_BLOCK::pb_delete() { 
+void PAGE_BLOCK::pb_delete() {
   switch (pb_type) {
     case PB_TEXT:
       delete ((TEXT_BLOCK *) this);
@@ -48,7 +48,7 @@ void PAGE_BLOCK::pb_delete() {
 
 #define QUOTE_IT( parm ) #parm
 
-void PAGE_BLOCK::serialise(FILE *f) { 
+void PAGE_BLOCK::serialise(FILE *f) {
 
   if (fwrite (&pb_type, sizeof (PB_TYPE), 1, f) != 1)
     WRITEFAILED.error (QUOTE_IT (PAGE_BLOCK::serialise), ABORT, NULL);
@@ -77,7 +77,7 @@ void PAGE_BLOCK::serialise(FILE *f) {
 }
 
 
-PAGE_BLOCK *PAGE_BLOCK::de_serialise(FILE *f) { 
+PAGE_BLOCK *PAGE_BLOCK::de_serialise(FILE *f) {
   PB_TYPE type;
   TEXT_BLOCK *tblock;
   GRAPHICS_BLOCK *gblock;
@@ -121,7 +121,7 @@ PAGE_BLOCK *PAGE_BLOCK::de_serialise(FILE *f) {
 void PAGE_BLOCK::serialise_asc(         //convert to ascii
                                FILE *f  //file to use
                               ) {
-  serialise_INT32(f, pb_type); 
+  serialise_INT32(f, pb_type);
   switch (pb_type) {
     case PB_TEXT:
       ((TEXT_BLOCK *) this)->serialise_asc (f);
@@ -156,7 +156,7 @@ void PAGE_BLOCK::internal_serialise_asc(         //convert to ascii
                                         FILE *f  //file to use
                                        ) {
   ((POLY_BLOCK *) this)->serialise_asc (f);
-  serialise_INT32(f, pb_type); 
+  serialise_INT32(f, pb_type);
   children.serialise_asc (f);
 }
 
@@ -170,7 +170,7 @@ void PAGE_BLOCK::de_serialise_asc(         //convert from ascii
                                   FILE *f  //file to use
                                  ) {
   PAGE_BLOCK *page_block;        //new block for list
-  INT32 len;                     /*length to retrive */
+  inT32 len;                     /*length to retrive */
   PAGE_BLOCK_IT it;
 
   ((POLY_BLOCK *) this)->de_serialise_asc (f);
@@ -233,7 +233,7 @@ PAGE_BLOCK *PAGE_BLOCK::new_de_serialise_asc(         //convert from ascii
 }
 
 
-void PAGE_BLOCK::show_attrs(DEBUG_WIN *f) { 
+void PAGE_BLOCK::show_attrs(DEBUG_WIN *f) {
   PAGE_BLOCK_IT it;
 
   switch (pb_type) {
@@ -288,7 +288,7 @@ POLY_PAGE) {
 }
 
 
-void PAGE_BLOCK::add_a_child(PAGE_BLOCK *newchild) { 
+void PAGE_BLOCK::add_a_child(PAGE_BLOCK *newchild) {
   PAGE_BLOCK_IT c = &children;
 
   c.move_to_first ();
@@ -316,7 +316,7 @@ void PAGE_BLOCK::rotate(  //cos,sin
   if (pb_type == PB_TEXT)
     ((TEXT_BLOCK *) this)->rotate (rotation);
   else
-    POLY_BLOCK::rotate(rotation); 
+    POLY_BLOCK::rotate(rotation);
 }
 
 
@@ -340,11 +340,11 @@ void PAGE_BLOCK::move(ICOORD shift  //amount to move
   if (pb_type == PB_TEXT)
     ((TEXT_BLOCK *) this)->move (shift);
   else
-    POLY_BLOCK::move(shift); 
+    POLY_BLOCK::move(shift);
 }
 
 #ifndef GRAPHICS_DISABLED
-void PAGE_BLOCK::basic_plot(ScrollView* window, ScrollView::Color colour) { 
+void PAGE_BLOCK::basic_plot(ScrollView* window, ScrollView::Color colour) {
   PAGE_BLOCK_IT c = &children;
 
   POLY_BLOCK::plot (window, colour, 0);
@@ -355,13 +355,13 @@ void PAGE_BLOCK::basic_plot(ScrollView* window, ScrollView::Color colour) {
 }
 
 
-void PAGE_BLOCK::plot(ScrollView* window, ScrollView::Color colour) { 
+void PAGE_BLOCK::plot(ScrollView* window, ScrollView::Color colour) {
   TEXT_BLOCK *tblock;
   WEIRD_BLOCK *wblock;
 
   switch (pb_type) {
     case PB_TEXT:
-      basic_plot(window, colour); 
+      basic_plot(window, colour);
       tblock = (TEXT_BLOCK *) this;
       tblock->plot (window, colour, REGION_COLOUR, SUBREGION_COLOUR);
       break;
@@ -370,15 +370,15 @@ void PAGE_BLOCK::plot(ScrollView* window, ScrollView::Color colour) {
       wblock->plot (window, colour);
       break;
     default:
-      basic_plot(window, colour); 
+      basic_plot(window, colour);
       break;
   }
 }
 #endif
 
-void show_all_in(PAGE_BLOCK *pblock, POLY_BLOCK *show_area, DEBUG_WIN *f) { 
+void show_all_in(PAGE_BLOCK *pblock, POLY_BLOCK *show_area, DEBUG_WIN *f) {
   PAGE_BLOCK_IT c;
-  INT16 i, pnum;
+  inT16 i, pnum;
 
   c.set_to_list (pblock->child ());
   pnum = pblock->child ()->length ();
@@ -391,9 +391,9 @@ void show_all_in(PAGE_BLOCK *pblock, POLY_BLOCK *show_area, DEBUG_WIN *f) {
 }
 
 
-void delete_all_in(PAGE_BLOCK *pblock, POLY_BLOCK *delete_area) { 
+void delete_all_in(PAGE_BLOCK *pblock, POLY_BLOCK *delete_area) {
   PAGE_BLOCK_IT c;
-  INT16 i, pnum;
+  inT16 i, pnum;
 
   c.set_to_list (pblock->child ());
   pnum = pblock->child ()->length ();
@@ -406,7 +406,7 @@ void delete_all_in(PAGE_BLOCK *pblock, POLY_BLOCK *delete_area) {
 }
 
 
-PAGE_BLOCK *smallest_containing(PAGE_BLOCK *pblock, POLY_BLOCK *other) { 
+PAGE_BLOCK *smallest_containing(PAGE_BLOCK *pblock, POLY_BLOCK *other) {
   PAGE_BLOCK_IT c;
 
   c.set_to_list (pblock->child ());
@@ -442,7 +442,7 @@ TEXT_BLOCK::set_attrs (BOOL8 backg[NUM_BACKGROUNDS]) {
 }
 
 
-void TEXT_BLOCK::add_a_region(TEXT_REGION *newchild) { 
+void TEXT_BLOCK::add_a_region(TEXT_REGION *newchild) {
   TEXT_REGION_IT c;
 
   c.set_to_list (&text_regions);
@@ -469,7 +469,7 @@ void TEXT_BLOCK::rotate(  //cos,sin
     child = child_it.data ();
     child->rotate (rotation);
   }
-  POLY_BLOCK::rotate(rotation); 
+  POLY_BLOCK::rotate(rotation);
 }
 
 
@@ -490,7 +490,7 @@ void TEXT_BLOCK::move(ICOORD shift  //amount to move
     child = child_it.data ();
     child->move (shift);
   }
-  POLY_BLOCK::move(shift); 
+  POLY_BLOCK::move(shift);
 }
 
 
@@ -529,7 +529,7 @@ void TEXT_BLOCK::plot(ScrollView* window,
                       ScrollView::Color subregion_colour) {
   TEXT_REGION_IT t = &text_regions, tc;
 
-  PAGE_BLOCK::basic_plot(window, colour); 
+  PAGE_BLOCK::basic_plot(window, colour);
 
   if (!t.empty ())
   for (t.mark_cycle_pt (); !t.cycled_list (); t.forward ()) {
@@ -543,11 +543,11 @@ void TEXT_BLOCK::plot(ScrollView* window,
 #endif
 
 
-void TEXT_BLOCK::show_attrs(DEBUG_WIN *f) { 
+void TEXT_BLOCK::show_attrs(DEBUG_WIN *f) {
   TEXT_REGION_IT it;
 
   f->dprintf ("TEXT BLOCK\n");
-  print_background(f, background); 
+  print_background(f, background);
   if (!text_regions.empty ()) {
     f->dprintf ("containing text regions:\n");
     it.set_to_list (&text_regions);
@@ -562,7 +562,7 @@ DLLSYM void show_all_tr_in(TEXT_BLOCK *tblock,
                            POLY_BLOCK *show_area,
                            DEBUG_WIN *f) {
   TEXT_REGION_IT t, tc;
-  INT16 i, tnum, j, ttnum;
+  inT16 i, tnum, j, ttnum;
 
   t.set_to_list (tblock->regions ());
   tnum = tblock->regions ()->length ();
@@ -580,9 +580,9 @@ DLLSYM void show_all_tr_in(TEXT_BLOCK *tblock,
 }
 
 
-void delete_all_tr_in(TEXT_BLOCK *tblock, POLY_BLOCK *delete_area) { 
+void delete_all_tr_in(TEXT_BLOCK *tblock, POLY_BLOCK *delete_area) {
   TEXT_REGION_IT t, tc;
-  INT16 i, tnum, j, ttnum;
+  inT16 i, tnum, j, ttnum;
 
   t.set_to_list (tblock->regions ());
   tnum = tblock->regions ()->length ();
@@ -600,20 +600,20 @@ void delete_all_tr_in(TEXT_BLOCK *tblock, POLY_BLOCK *delete_area) {
 }
 
 
-RULE_BLOCK::RULE_BLOCK (ICOORDELT_LIST * points, INT8 sing, INT8 colo):PAGE_BLOCK (points,
+RULE_BLOCK::RULE_BLOCK (ICOORDELT_LIST * points, inT8 sing, inT8 colo):PAGE_BLOCK (points,
 PB_RULES) {
   multiplicity = sing;
   colour = colo;
 }
 
 
-void RULE_BLOCK::set_attrs(INT8 sing, INT8 colo) { 
+void RULE_BLOCK::set_attrs(inT8 sing, inT8 colo) {
   multiplicity = sing;
   colour = colo;
 }
 
 
-void RULE_BLOCK::show_attrs(DEBUG_WIN *f) { 
+void RULE_BLOCK::show_attrs(DEBUG_WIN *f) {
   f->dprintf ("RULE BLOCK with attributes %s, %s\n",
     blabel[R_START][multiplicity], blabel[R_START + 1][colour]);
 }
@@ -628,8 +628,8 @@ void RULE_BLOCK::serialise_asc(         //convert to ascii
                                FILE *f  //file to use
                               ) {
   ((PAGE_BLOCK *) this)->internal_serialise_asc (f);
-  serialise_INT32(f, multiplicity); 
-  serialise_INT32(f, colour); 
+  serialise_INT32(f, multiplicity);
+  serialise_INT32(f, colour);
 }
 
 
@@ -647,7 +647,7 @@ void RULE_BLOCK::de_serialise_asc(         //convert from ascii
 }
 
 
-GRAPHICS_BLOCK::GRAPHICS_BLOCK (ICOORDELT_LIST * points, BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg):PAGE_BLOCK (points,
+GRAPHICS_BLOCK::GRAPHICS_BLOCK (ICOORDELT_LIST * points, BOOL8 backg[NUM_BACKGROUNDS], inT8 foreg):PAGE_BLOCK (points,
 PB_GRAPHICS) {
   int
     i;
@@ -660,7 +660,7 @@ PB_GRAPHICS) {
 
 
 void
-GRAPHICS_BLOCK::set_attrs (BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg) {
+GRAPHICS_BLOCK::set_attrs (BOOL8 backg[NUM_BACKGROUNDS], inT8 foreg) {
   int i;
 
   for (i = 0; i < NUM_BACKGROUNDS; i++)
@@ -670,10 +670,10 @@ GRAPHICS_BLOCK::set_attrs (BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg) {
 }
 
 
-void GRAPHICS_BLOCK::show_attrs(DEBUG_WIN *f) { 
+void GRAPHICS_BLOCK::show_attrs(DEBUG_WIN *f) {
   f->dprintf ("GRAPHICS BLOCK with attribute %s\n",
     blabel[G_START][foreground]);
-  print_background(f, background); 
+  print_background(f, background);
 }
 
 
@@ -687,7 +687,7 @@ void GRAPHICS_BLOCK::serialise_asc(         //convert to ascii
                                   ) {
   ((PAGE_BLOCK *) this)->internal_serialise_asc (f);
   serialise_INT32 (f, background.val);
-  serialise_INT32(f, foreground); 
+  serialise_INT32(f, foreground);
 }
 
 
@@ -705,20 +705,20 @@ void GRAPHICS_BLOCK::de_serialise_asc(         //convert from ascii
 }
 
 
-IMAGE_BLOCK::IMAGE_BLOCK (ICOORDELT_LIST * points, INT8 colo, INT8 qual):PAGE_BLOCK (points,
+IMAGE_BLOCK::IMAGE_BLOCK (ICOORDELT_LIST * points, inT8 colo, inT8 qual):PAGE_BLOCK (points,
 PB_IMAGE) {
   colour = colo;
   quality = qual;
 }
 
 
-void IMAGE_BLOCK::set_attrs(INT8 colo, INT8 qual) { 
+void IMAGE_BLOCK::set_attrs(inT8 colo, inT8 qual) {
   colour = colo;
   quality = qual;
 }
 
 
-void IMAGE_BLOCK::show_attrs(DEBUG_WIN *f) { 
+void IMAGE_BLOCK::show_attrs(DEBUG_WIN *f) {
   f->dprintf ("IMAGE BLOCK with attributes %s, %s\n", blabel[I_START][colour],
     blabel[I_START + 1][quality]);
 }
@@ -733,8 +733,8 @@ void IMAGE_BLOCK::serialise_asc(         //convert to ascii
                                 FILE *f  //file to use
                                ) {
   ((PAGE_BLOCK *) this)->internal_serialise_asc (f);
-  serialise_INT32(f, colour); 
-  serialise_INT32(f, quality); 
+  serialise_INT32(f, colour);
+  serialise_INT32(f, quality);
 }
 
 
@@ -752,7 +752,7 @@ void IMAGE_BLOCK::de_serialise_asc(         //convert from ascii
 }
 
 
-SCRIBBLE_BLOCK::SCRIBBLE_BLOCK (ICOORDELT_LIST * points, BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg):PAGE_BLOCK (points,
+SCRIBBLE_BLOCK::SCRIBBLE_BLOCK (ICOORDELT_LIST * points, BOOL8 backg[NUM_BACKGROUNDS], inT8 foreg):PAGE_BLOCK (points,
 PB_SCRIBBLE) {
   int
     i;
@@ -765,7 +765,7 @@ PB_SCRIBBLE) {
 
 
 void
-SCRIBBLE_BLOCK::set_attrs (BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg) {
+SCRIBBLE_BLOCK::set_attrs (BOOL8 backg[NUM_BACKGROUNDS], inT8 foreg) {
   int i;
 
   for (i = 0; i < NUM_BACKGROUNDS; i++)
@@ -775,10 +775,10 @@ SCRIBBLE_BLOCK::set_attrs (BOOL8 backg[NUM_BACKGROUNDS], INT8 foreg) {
 }
 
 
-void SCRIBBLE_BLOCK::show_attrs(DEBUG_WIN *f) { 
+void SCRIBBLE_BLOCK::show_attrs(DEBUG_WIN *f) {
   f->dprintf ("SCRIBBLE BLOCK with attributes %s\n",
     blabel[S_START][foreground]);
-  print_background(f, background); 
+  print_background(f, background);
 }
 
 
@@ -792,7 +792,7 @@ void SCRIBBLE_BLOCK::serialise_asc(         //convert to ascii
                                   ) {
   ((PAGE_BLOCK *) this)->internal_serialise_asc (f);
   serialise_INT32 (f, background.val);
-  serialise_INT32(f, foreground); 
+  serialise_INT32(f, foreground);
 }
 
 
@@ -810,17 +810,17 @@ void SCRIBBLE_BLOCK::de_serialise_asc(         //convert from ascii
 }
 
 
-WEIRD_BLOCK::WEIRD_BLOCK (ICOORDELT_LIST * points, INT32 id_no):PAGE_BLOCK (points,
+WEIRD_BLOCK::WEIRD_BLOCK (ICOORDELT_LIST * points, inT32 id_no):PAGE_BLOCK (points,
 PB_WEIRD) {
   id_number = id_no;
 }
 
 
 #ifndef GRAPHICS_DISABLED
-void WEIRD_BLOCK::plot(ScrollView* window, ScrollView::Color colour) { 
+void WEIRD_BLOCK::plot(ScrollView* window, ScrollView::Color colour) {
   PAGE_BLOCK_IT c = this->child ();
 
-  POLY_BLOCK::plot(window, colour, id_number); 
+  POLY_BLOCK::plot(window, colour, id_number);
 
   if (!c.empty ())
     for (c.mark_cycle_pt (); !c.cycled_list (); c.forward ())
@@ -829,12 +829,12 @@ void WEIRD_BLOCK::plot(ScrollView* window, ScrollView::Color colour) {
 #endif
 
 
-void WEIRD_BLOCK::set_id(INT32 id_no) { 
+void WEIRD_BLOCK::set_id(inT32 id_no) {
   id_number = id_no;
 }
 
 
-void WEIRD_BLOCK::show_attrs(DEBUG_WIN *f) { 
+void WEIRD_BLOCK::show_attrs(DEBUG_WIN *f) {
   f->dprintf ("WEIRD BLOCK with id number %d\n", id_number);
 }
 
@@ -848,7 +848,7 @@ void WEIRD_BLOCK::serialise_asc(         //convert to ascii
                                 FILE *f  //file to use
                                ) {
   ((PAGE_BLOCK *) this)->internal_serialise_asc (f);
-  serialise_INT32(f, id_number); 
+  serialise_INT32(f, id_number);
 }
 
 
@@ -865,7 +865,7 @@ void WEIRD_BLOCK::de_serialise_asc(         //convert from ascii
 }
 
 
-void print_background(DEBUG_WIN *f, BITS16 background) { 
+void print_background(DEBUG_WIN *f, BITS16 background) {
   int i;
 
   f->dprintf ("Background is \n");

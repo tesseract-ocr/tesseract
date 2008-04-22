@@ -48,11 +48,11 @@ DLLSYM PAGE_BLOCK_LIST *read_poly_blocks(                  //read file
                                         ) {
   FILE *infp;
   int c;
-  INT16 number_of_pblocks;
+  inT16 number_of_pblocks;
                                  //output list
   PAGE_BLOCK_LIST *pb_list = NULL;
   PAGE_BLOCK *page_block;        //new block for list
-  INT32 len;                     /*length to retrive */
+  inT32 len;                     /*length to retrive */
   PAGE_BLOCK_IT it;
 
   if ((infp = fopen (name, "r")) != NULL) {
