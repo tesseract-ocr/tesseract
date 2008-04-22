@@ -7,7 +7,7 @@
 # ----------------------------------------
 
 AC_PREREQ(2.50)
-AC_INIT(tesseract, 2.02, theraysmith@gmail.com)
+AC_INIT(tesseract, 2.03, theraysmith@gmail.com)
 AC_REVISION($Id: configure.ac,v 1.4 2007/02/02 22:38:17 theraysmith Exp $)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(ccmain/tesseractmain.cpp)
@@ -17,8 +17,8 @@ AC_CANONICAL_HOST
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
-PACKAGE_YEAR=2007
-PACKAGE_DATE="07/2007"
+PACKAGE_YEAR=2008
+PACKAGE_DATE="04/22"
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -216,9 +216,23 @@ AC_LANG_CPLUSPLUS
 AC_CHECK_LIB(z,deflate)
 AC_CHECK_LIB(png,png_read_png)
 AC_CHECK_LIB(jpeg,jpeg_read_scanlines)
-AC_CHECK_LIB(lept,pixCreate)
 AC_CHECK_LIB(pthread,sem_init)
 
+# Check location of leptonica/liblept headers.
+have_lept=no
+for incd in /usr/local/include /usr/include
+do
+  for lept in . leptonica liblept
+  do
+    if test -r "$incd/$lept/allheaders.h" ; then
+      CPPFLAGS="$CPPFLAGS -I$incd/$lept"
+      have_lept=yes
+    fi
+  done
+done
+if test "$have_lept" = yes ; then
+AC_CHECK_LIB(lept,pixCreate)
+fi
 
 # ----------------------------------------
 # Checks for header files.
@@ -229,6 +243,7 @@ AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(sys/ipc.h sys/shm.h)
 AC_CHECK_HEADERS(limits.h malloc.h)
+AC_CHECK_HEADERS(allheaders.h)
 # Enable use of system-defined bool type if available:
 AC_HEADER_STDBOOL
 

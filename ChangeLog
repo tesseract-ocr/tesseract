@@ -56,4 +56,7 @@ April 21 2008 - V2.02 (again)
           Fixed namespace collisions with jpeg library (INT32).
           Portability fixes for Windows for new code.
           Updates to autoconf system for new code.
-
+April 22 2008 - V2.03
+          Fixed crash introduced in 2.02.
+	  Fixed lack of tessembedded.cpp in distribution.
+	  Added test for leptonica header files and conditional test for lib.

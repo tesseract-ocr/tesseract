@@ -1,3 +1,8 @@
+Tesseract release notes April 22 2008 - V2.03
+2.02 was unrunnable, due to a last-minute "simple" change.
+2.03 fixes the problem and also adds an include check for leptonica
+to make it more usable.
+
 Tesseract release notes April 21 2008 - V2.02
 Improvements to clustering, training and classifier.
 Major internationalization improvements for large-character-set

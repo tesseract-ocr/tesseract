@@ -9,6 +9,9 @@
 /* Define to 1 if you have the `acos' function. */
 #undef HAVE_ACOS
 
+/* Define to 1 if you have the <allheaders.h> header file. */
+#undef HAVE_ALLHEADERS_H
+
 /* Define to 1 if you have the `asin' function. */
 #undef HAVE_ASIN
 
