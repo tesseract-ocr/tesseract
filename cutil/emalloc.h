@@ -30,11 +30,11 @@
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void *Emalloc(size_t Size); 
+void *Emalloc(size_t Size);
 
-void *Erealloc(void *ptr, size_t size); 
+void *Erealloc(void *ptr, size_t size);
 
-void Efree(void *ptr); 
+void Efree(void *ptr);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)
@@ -65,7 +65,7 @@ void Efree
 //#define alloc_struct c_alloc_struct
 /*extern void c_free_struct(void*
               deadstruct,					//structure to free
-INT32						count,						//no of bytes
+inT32						count,						//no of bytes
 const char*					name						//class name
 );*/
 //#define free_struct c_free_struct

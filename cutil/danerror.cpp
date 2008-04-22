@@ -38,7 +38,7 @@
 ----------------------------------------------------------------------------**/
 static jmp_buf ErrorTrapStack[MAXTRAPDEPTH];
 static VOID_PROC ProcTrapStack[MAXTRAPDEPTH];
-static INT32 CurrentTrapDepth = 0;
+static inT32 CurrentTrapDepth = 0;
 
 /**----------------------------------------------------------------------------
               Public Code

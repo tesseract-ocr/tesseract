@@ -32,7 +32,7 @@
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-HEAP *MakeHeap(int Size) { 
+HEAP *MakeHeap(int Size) {
 /*
  **	Parameters:
  **		Size	maximum number of entries in the heap
@@ -61,7 +61,7 @@ HEAP *MakeHeap(int Size) {
 
 
 /*---------------------------------------------------------------------------*/
-int HeapPop(HEAP *Heap, FLOAT32 *Key, void *out_ptr) { 
+int HeapPop(HEAP *Heap, FLOAT32 *Key, void *out_ptr) {
 /*
  **	Parameters:
  **		Heap	ptr to heap whose top is to be removed and returned
@@ -79,9 +79,9 @@ int HeapPop(HEAP *Heap, FLOAT32 *Key, void *out_ptr) {
  **	History:
  **		5/10/91, DSJ, Created (Modified from GetTopOfHeap).
  */
-  INT32 Hole;
+  inT32 Hole;
   FLOAT32 HoleKey;
-  INT32 Son;
+  inT32 Son;
   void **Data = (void **) out_ptr;
 
   if (Heap->FirstFree <= 1)
@@ -122,17 +122,17 @@ int HeapPop(HEAP *Heap, FLOAT32 *Key, void *out_ptr) {
  *
  * Remove the largest item from the heap.
  **********************************************************************/
-int HeapPopWorst(HEAP *Heap, FLOAT32 *Key, void *out_ptr) { 
+int HeapPopWorst(HEAP *Heap, FLOAT32 *Key, void *out_ptr) {
 /*
  **	Parameters:
  **		Heap	ptr to heap whose top is to be removed and returned
  **		Key	place to put key of top heap item
  **		Data	place to put data of top heap item
  */
-  INT32 Index;                   /*current index */
-  INT32 Hole;
+  inT32 Index;                   /*current index */
+  inT32 Hole;
   FLOAT32 HoleKey;
-  INT32 Father;
+  inT32 Father;
   void *HoleData;
   void **Data = (void **) out_ptr;
 
@@ -173,7 +173,7 @@ int HeapPopWorst(HEAP *Heap, FLOAT32 *Key, void *out_ptr) {
 
 
 /*---------------------------------------------------------------------------*/
-void HeapPush(HEAP *Heap, FLOAT32 Key, void *Data) { 
+void HeapPush(HEAP *Heap, FLOAT32 Key, void *Data) {
 /*
  **	Parameters:
  **		Heap		ptr to heap to store new item in
@@ -193,8 +193,8 @@ void HeapPush(HEAP *Heap, FLOAT32 Key, void *Data) {
  **	History:
  **		5/10/91, DSJ, Created (Modified version of HeapStore).
  */
-  INT32 Item;
-  INT32 Father;
+  inT32 Item;
+  inT32 Father;
 
   if (Heap->FirstFree > Heap->Size)
     DoError (HEAPFULL, "Heap size exceeded");
@@ -217,7 +217,7 @@ void HeapPush(HEAP *Heap, FLOAT32 Key, void *Data) {
 
 
 /*---------------------------------------------------------------------------*/
-void HeapStore(HEAP *Heap, HEAPENTRY *Entry) { 
+void HeapStore(HEAP *Heap, HEAPENTRY *Entry) {
 /*
  **	Parameters:
  **		Heap		ptr to heap to store new item in
@@ -235,8 +235,8 @@ void HeapStore(HEAP *Heap, HEAPENTRY *Entry) {
  **	History:
  **		3/13/89, DSJ, Created.
  */
-  INT32 Item;
-  INT32 Father;
+  inT32 Item;
+  inT32 Father;
 
   if (Heap->FirstFree > Heap->Size)
     DoError (HEAPFULL, "Heap size exceeded");
@@ -259,7 +259,7 @@ void HeapStore(HEAP *Heap, HEAPENTRY *Entry) {
 
 
 /*---------------------------------------------------------------------------*/
-int GetTopOfHeap(HEAP *Heap, HEAPENTRY *Entry) { 
+int GetTopOfHeap(HEAP *Heap, HEAPENTRY *Entry) {
 /*
  **	Parameters:
  **		Heap	ptr to heap whose top is to be removed and returned
@@ -276,9 +276,9 @@ int GetTopOfHeap(HEAP *Heap, HEAPENTRY *Entry) {
  **	History:
  **		3/13/89, DSJ, Created.
  */
-  INT32 Hole;
+  inT32 Hole;
   FLOAT32 HoleKey;
-  INT32 Son;
+  inT32 Son;
 
   if (Heap->FirstFree <= 1)
     return (EMPTY);
@@ -314,7 +314,7 @@ int GetTopOfHeap(HEAP *Heap, HEAPENTRY *Entry) {
 
 
 /*---------------------------------------------------------------------------*/
-void FreeHeapData(HEAP *Heap, void_dest destructor) { 
+void FreeHeapData(HEAP *Heap, void_dest destructor) {
 /*
  **	Parameters:
  **		Heap		heap whose data is to be freed
@@ -333,5 +333,5 @@ void FreeHeapData(HEAP *Heap, void_dest destructor) {
   while (GetTopOfHeap (Heap, &Entry) != EMPTY)
     destructor (Entry.Data);
 
-  FreeHeap(Heap); 
+  FreeHeap(Heap);
 }                                /* FreeHeapData */

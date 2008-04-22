@@ -24,6 +24,8 @@
 #include "varable.h"
 #include "unichar.h"
 
+class ScrollView;
+
 #ifdef __cplusplus
 //extern "C" {
 #endif
@@ -101,20 +103,20 @@ extern double_VAR_H (newcp_prune_threshold, 1.2, "Ratio of best to prune");
 extern double_VAR_H (tessedit_cp_ratio, 0.0, "Ratio from best to prune");
 
 //Global matcher info from the class pruner.
-extern INT32 cp_classes;
-extern INT32 cp_bestindex;
-extern INT32 cp_bestrating;
-extern INT32 cp_bestconf;
+extern inT32 cp_classes;
+extern inT32 cp_bestindex;
+extern inT32 cp_bestrating;
+extern inT32 cp_bestconf;
 extern char cp_chars[2];
-extern INT32 cp_ratings[2];
-extern INT32 cp_confs[2];
-extern INT32 cp_maps[4];
+extern inT32 cp_ratings[2];
+extern inT32 cp_confs[2];
+extern inT32 cp_maps[4];
 //Global info to control writes of matcher info
-extern INT32 blob_type;          //write control
+extern inT32 blob_type;          //write control
 extern char blob_answer[UNICHAR_LEN + 1];         //correct char
 extern char *word_answer;        //correct word
-extern INT32 matcher_pass;       //pass in chopper.c
-extern INT32 bits_in_states;     //no of bits in states
+extern inT32 matcher_pass;       //pass in chopper.c
+extern inT32 bits_in_states;     //no of bits in states
 
 #ifndef __UNIX__
 void assert(             //recog one owrd
@@ -127,39 +129,39 @@ void cprintf (                   //Trace printf
 const char *format, ...          //special message
 );
 char *c_alloc_string(             //allocate string
-                     INT32 count  //no of chars required
+                     inT32 count  //no of chars required
                     );
 void c_free_string(              //free a string
                    char *string  //string to free
                   );
 void *c_alloc_struct(                  //allocate memory
-                     INT32 count,      //no of chars required
+                     inT32 count,      //no of chars required
                      const char *name  //class name
                     );
 void c_free_struct(                   //free a structure
                    void *deadstruct,  //structure to free
-                   INT32 count,       //no of bytes
+                   inT32 count,       //no of bytes
                    const char *name   //class name
                   );
 void *c_alloc_mem_p(             //allocate permanent space
-                    INT32 count  //block size to allocate
+                    inT32 count  //block size to allocate
                    );
 void *c_alloc_mem(             //get some memory
-                  INT32 count  //no of bytes to get
+                  inT32 count  //no of bytes to get
                  );
 void c_free_mem(                //free mem from alloc_mem
                 void *oldchunk  //chunk to free
                );
 void c_check_mem(                     //check consistency
                  const char *string,  //context message
-                 INT8 level           //level of check
+                 inT8 level           //level of check
                 );
-void *c_create_window(                   /*create a window */
+ScrollView *c_create_window(                   /*create a window */
                       const char *name,  /*name/title of window */
-                      INT16 xpos,        /*coords of window */
-                      INT16 ypos,        /*coords of window */
-                      INT16 xsize,       /*size of window */
-                      INT16 ysize,       /*size of window */
+                      inT16 xpos,        /*coords of window */
+                      inT16 ypos,        /*coords of window */
+                      inT16 xsize,       /*size of window */
+                      inT16 ysize,       /*size of window */
                       double xmin,       /*scrolling limits */
                       double xmax,       /*to stop users */
                       double ymin,       /*getting lost in */
@@ -180,8 +182,7 @@ void c_make_current(  /*move pen */
                     void *win);
 void c_clear_window(  /*move pen */
                     void *win);
-char window_wait(  /*move pen */
-                 void *win);
+char window_wait(ScrollView* win);
 void reverse32(void *ptr);
 void reverse16(void *ptr);
 

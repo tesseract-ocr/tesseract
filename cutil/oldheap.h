@@ -40,8 +40,8 @@ HEAPENTRY;
 
 typedef struct
 {
-  INT32 Size;
-  INT32 FirstFree;
+  inT32 Size;
+  inT32 FirstFree;
   HEAPENTRY Entry[1];
 }
 
@@ -69,19 +69,19 @@ HEAP;
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-HEAP *MakeHeap(int Size); 
+HEAP *MakeHeap(int Size);
 
-int HeapPop(HEAP *Heap, FLOAT32 *Key, void *out_ptr); 
+int HeapPop(HEAP *Heap, FLOAT32 *Key, void *out_ptr);
 
-int HeapPopWorst(HEAP *Heap, FLOAT32 *Key, void *out_ptr); 
+int HeapPopWorst(HEAP *Heap, FLOAT32 *Key, void *out_ptr);
 
-void HeapPush(HEAP *Heap, FLOAT32 Key, void *Data); 
+void HeapPush(HEAP *Heap, FLOAT32 Key, void *Data);
 
-void HeapStore(HEAP *Heap, HEAPENTRY *Entry); 
+void HeapStore(HEAP *Heap, HEAPENTRY *Entry);
 
-int GetTopOfHeap(HEAP *Heap, HEAPENTRY *Entry); 
+int GetTopOfHeap(HEAP *Heap, HEAPENTRY *Entry);
 
-void FreeHeapData(HEAP *Heap, void_dest destructor); 
+void FreeHeapData(HEAP *Heap, void_dest destructor);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

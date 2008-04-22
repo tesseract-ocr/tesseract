@@ -23,26 +23,6 @@
 ----------------------------------------------------------------------------**/
 #include "general.h"
 
-typedef INT8 (*INT8_FUNC) ();
-typedef UINT8 (*UINT8_FUNC) ();
-typedef INT16 (*INT16_FUNC) ();
-typedef UINT16 (*UINT16_FUNC) ();
-typedef INT32 (*INT32_FUNC) ();
-typedef UINT32 (*UINT32_FUNC) ();
-typedef FLOAT32 (*FLOAT32_FUNC) ();
-typedef FLOAT64 (*FLOAT64_FUNC) ();
-typedef PINT8 (*PINT8_FUNC) ();
-typedef PUINT8 (*PUINT8_FUNC) ();
-typedef PINT16 (*PINT16_FUNC) ();
-typedef PUINT16 (*PUINT16_FUNC) ();
-typedef PINT32 (*PINT32_FUNC) ();
-typedef PUINT32 (*PUINT32_FUNC) ();
-typedef PFLOAT32 (*PFLOAT32_FUNC) ();
-typedef PFLOAT64 (*PFLOAT64_FUNC) ();
-
-typedef CHAR (*CHAR_FUNC) ();
-typedef BOOL8 (*BOOL8_FUNC) ();
-typedef int (*INT_FUNC) ();
 typedef void (*VOID_FUNC) ();
 
 /**----------------------------------------------------------------------------
