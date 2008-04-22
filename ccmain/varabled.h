@@ -51,6 +51,8 @@ class VariableContent : public ELIST_LINK {
     static VariableContent* GetVariableContentById(int id);
 
     // Constructors for the various VarTypes.
+    VariableContent() {
+    }
     VariableContent(STRING_VARIABLE* it);
     VariableContent(INT_VARIABLE* it);
     VariableContent(BOOL_VARIABLE* it);

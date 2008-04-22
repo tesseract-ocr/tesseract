@@ -1073,7 +1073,8 @@ ELIST_LINK*                 old_element)                /*source link*/     \
 {                                                                                                       \
     CLASSNAME*          new_element;                                                \
                                                                                                         \
-new_element = new CLASSNAME(*reinterpret_cast<CLASSNAME*>(old_element)); \
+  new_element = new CLASSNAME;  \
+  *new_element = *reinterpret_cast<CLASSNAME*>(old_element); \
 return (ELIST_LINK*) new_element;                                                       \
 }
 
