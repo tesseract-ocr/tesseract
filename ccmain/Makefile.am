@@ -41,7 +41,7 @@ libtesseract_full.o: tesseractfull.o \
     ../cutil/libtesseract_cutil.a \
     ../ccstruct/libtesseract_ccstruct.a \
     ../ccutil/libtesseract_ccutil.a
-        ld -r -o libtesseract_full.o tesseractfull.o \
+	ld -r -o libtesseract_full.o tesseractfull.o \
     libtesseract_main.a \
     ../textord/libtesseract_textord.a \
     ../pageseg/libtesseract_pageseg.a \
@@ -55,7 +55,7 @@ libtesseract_full.o: tesseractfull.o \
     ../ccutil/libtesseract_ccutil.a
 
 libtesseract_full.a : libtesseract_full.o
-        ar cru libtesseract_full.a libtesseract_full.o ; ranlib libtesseract_full.a
+	ar cru libtesseract_full.a libtesseract_full.o ; ranlib libtesseract_full.a
 
 bin_PROGRAMS = tesseract
 tesseract_SOURCES = tesseractmain.cpp
