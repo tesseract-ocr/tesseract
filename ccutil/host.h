@@ -26,9 +26,9 @@
  **                  FILE_HANDLE, MEMORY_HANDLE, BOOL8,
  **                  MAX_INT8, MAX_INT16, MAX_INT32, MAX_UINT8
  **                  MAX_UINT16, MAX_UINT32, MAX_FLOAT32
- **					06/19/96 MCD. Took out MAX_FLOAT32
- **					07/15/96 MCD. Fixed the comments error
- **					Add back BOOL8.
+ **                 06/19/96 MCD. Took out MAX_FLOAT32
+ **                 07/15/96 MCD. Fixed the comments error
+ **                 Add back BOOL8.
  **
  **  (c) Copyright Hewlett-Packard Company, 1988-1996.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,9 +68,6 @@
 #define DLLIMPORT __declspec( dllimport)
 #define DLLEXPORT __declspec( dllexport)
 
-typedef HANDLE FILE_HANDLE;
-typedef HANDLE MEMORY_HANDLE;
-
 #else
 /********************************************************/
 /* __MSW__ */
@@ -79,14 +76,6 @@ typedef HANDLE MEMORY_HANDLE;
 
 #define DLLIMPORT __import
 #define DLLEXPORT __export
-/*----------------------------*/
-/*----------------------------*/
-typedef HANDLE FILE_HANDLE;
-typedef HANDLE MEMORY_HANDLE;
-/*----------------------------*/
-#ifndef BOOLEAN
-typedef UINT16 BOOLEAN;
-#endif                           // BOOLEAN
 #endif
 #endif
 
@@ -99,15 +88,6 @@ typedef UINT16 BOOLEAN;
 #define DLLIMPORT
 #define DLLEXPORT
 
-// definitions of handles to relocatable blocks
-typedef Handle HANDLE;           // a handle to a relocatable memory block
-
-typedef short FILE_HANDLE;
-typedef Handle MEMORY_HANDLE;
-/*----------------------------*/
-#ifndef BOOLEAN
-#define BOOLEAN        Boolean
-#endif
 #endif
 /********************************************************/
 #if defined(__UNIX__) || defined( __DOS__ ) || defined(__OS2__) || defined(__PM__)
@@ -116,13 +96,7 @@ typedef Handle MEMORY_HANDLE;
 /*----------------------------*/
 #define DLLIMPORT
 #define DLLEXPORT
-typedef void *HANDLE;
-typedef HANDLE FILE_HANDLE;
-typedef HANDLE MEMORY_HANDLE;
 /*----------------------------*/
-#ifndef BOOLEAN
-typedef unsigned short BOOLEAN;
-#endif                           // BOOLEAN
 #endif
 /*****************************************************************************
  **
@@ -139,48 +113,22 @@ typedef unsigned short BOOLEAN;
 //typedef HANDLE FD*  PHANDLE;
 
 // definitions of portable data types (numbers and characters)
-#if (_MSC_VER < 1400)  // For VC 8.0.
-typedef SIGNED char INT8;
-#endif
-typedef unsigned char UINT8;
-typedef short INT16;
-typedef unsigned short UINT16;
-#if (_MSC_VER < 1200)            //%%% vkr for VC 6.0
-typedef int INT32;
-typedef unsigned int UINT32;
-typedef long long int INT64;
-typedef unsigned long long int UINT64;
+typedef SIGNED char inT8;
+typedef unsigned char uinT8;
+typedef short inT16;
+typedef unsigned short uinT16;
+typedef int inT32;
+typedef unsigned int uinT32;
+#if (_MSC_VER >= 1200)            //%%% vkr for VC 6.0
+typedef INT64 inT64;
+typedef UINT64 uinT64;
+#else
+typedef long long int inT64;
+typedef unsigned long long int uinT64;
 #endif                           //%%% vkr for VC 6.0
 typedef float FLOAT32;
 typedef double FLOAT64;
 typedef unsigned char BOOL8;
-
-// definitions of pointers to portable data types
-#if (_MSC_VER < 1400)  // For VC 8.0.
-typedef SIGNED char *PINT8;
-#endif
-typedef unsigned char *PUINT8;
-typedef short *PINT16;
-typedef unsigned short *PUINT16;
-#if (_MSC_VER < 1200)            //%%% vkr for VC 6.0
-typedef int *PINT32;
-typedef unsigned int *PUINT32;
-#endif                           //%%% vkr for VC 6.0
-typedef float *PFLOAT32;
-typedef double *PFLOAT64;
-
-// these are pointers to constant values (not constant pointers)
-
-typedef const SIGNED char *PCINT8;
-typedef const unsigned char *PCUINT8;
-typedef const short *PCINT16;
-typedef const unsigned short *PCUINT16;
-typedef const int *PCINT32;
-typedef const unsigned int *PCUINT32;
-typedef const float *PCFLOAT32;
-typedef const double *PCFLOAT64;
-
-typedef void *PVOID;
 
 #define INT32FORMAT "%d"
 #define INT64FORMAT "%lld"
@@ -222,57 +170,5 @@ typedef void *PVOID;
 #ifndef NULL
 #define NULL            0L
 #endif
-/******************************************************************************
- **                               WARNING!!                                                                                                                        **
- ** Below are definition that will be obsoleted in the next version. Please                                                   **
- ** do not continue to use the definition under __OLDCODE__.                                                                 **
- *****************************************************************************/
-#ifdef __OLDCODE__
-#ifdef __MSW32__
 
-#ifdef  ERROR                    // Use HPERR
-#undef  ERROR
-#define ERROR -1
-#endif
-
-typedef double FLOATHP;
-#else
-
-#ifdef __MSW__
-#ifdef  ERROR                    // Use HPERR
-#undef  ERROR
-#define ERROR -1
-#endif
-typedef double FLOAT;
-typedef double FLOATHP;
-typedef FLOAT FD *PFLOAT;
-#endif
-#endif
-#ifdef __MAC__
-typedef float FLOAT;
-typedef float FLOATHP;
-typedef FLOAT FD *PFLOAT;
-#endif
-
-#ifdef __UNIX__
-typedef float FLOAT;
-typedef float FLOATHP;
-typedef FLOAT FD *PFLOAT;
-#endif
-
-#ifdef __DOS__
-typedef float FLOAT;
-typedef float FLOATHP;
-typedef FLOAT FD *PFLOAT;
-#endif
-
-// definitions of pointers to functions that take no parameters
-// specific definitions should be provided for functions that take parameters
-
-typedef void (far * PFVOID) ();  /* pointer to function */
-typedef INT16 (*PFINT16) (void);
-typedef INT32 (*PFINT32) (void);
-
-typedef BOOLEAN *PBOOLEAN;       // a pointer to a Boolean
-#endif
 #endif

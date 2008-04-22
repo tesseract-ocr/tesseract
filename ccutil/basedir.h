@@ -25,7 +25,7 @@
 
 #include          "notdll.h"     //must be last include
 
-DLLSYM INT8 getpath(                   //get dir name of code
+DLLSYM inT8 getpath(                   //get dir name of code
                     const char *code,  //executable to locate
                     STRING &path       //output path name
                    );

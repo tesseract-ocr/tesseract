@@ -64,7 +64,7 @@ void*						addr						//mem to free
 
 DLLSYM void check_mem(                     //check consistency
                       const char *string,  //context message
-                      INT8 level           //level of check
+                      inT8 level           //level of check
                      ) {
   big_mem.check (string, level);
   main_mem.check (string, level);
@@ -83,7 +83,7 @@ DLLSYM void check_mem(                     //check consistency
  **********************************************************************/
 
 DLLSYM char *alloc_string(             //allocate string
-                          INT32 count  //no of chars required
+                          inT32 count  //no of chars required
                          ) {
 #ifdef RAYS_MALLOC
   char *string;                  //allocated string
@@ -101,7 +101,7 @@ DLLSYM char *alloc_string(             //allocate string
       tprintf ("No memory for alloc_string");
       return NULL;
     }
-    string[0] = (INT8) count;    //save its length
+    string[0] = (inT8) count;    //save its length
   }
   else {
                                  //get a big block
@@ -162,7 +162,7 @@ DLLSYM void free_string(              //free a string
 
 DLLSYM void *
 alloc_struct (                   //allocate memory
-INT32 count,                     //no of chars required
+inT32 count,                     //no of chars required
 #if defined COUNTING_CLASS_STRUCTURES
 const char *name                 //name of type
 #else
@@ -172,9 +172,9 @@ const char *                     //name of type
 #ifdef RAYS_MALLOC
   MEMUNION *element;             //current element
   MEMUNION *returnelement;       //return value
-  INT32 struct_count;            //no of required structs
-  INT32 blocksize;               //no of structs in block
-  INT32 index;                   //index to structure
+  inT32 struct_count;            //no of required structs
+  inT32 blocksize;               //no of structs in block
+  inT32 index;                   //index to structure
 
   if (count < 1 || count > MAX_CHUNK) {
     tprintf ("Invalid size %d requested of alloc_struct", count);
@@ -247,7 +247,7 @@ const char *                     //name of type
 DLLSYM void
 free_struct (                    //free a structure
 void *deadstruct,                //structure to free
-INT32 count,                     //no of bytes
+inT32 count,                     //no of bytes
 #if defined COUNTING_CLASS_STRUCTURES
 const char *name                 //name of type
 #else
@@ -261,8 +261,8 @@ const char *                     //name of type
   MEMUNION *prev_block;          //previous element
   MEMUNION *nextblock;           //next block in list
   MEMUNION *block;               //next block in list
-  INT32 struct_count;            //no of required structs
-  INT32 index;                   //to structure counts
+  inT32 struct_count;            //no of required structs
+  inT32 index;                   //to structure counts
 
   if (count < 1 || count > MAX_CHUNK) {
     tprintf ("Invalid size %d requested of free_struct", count);
@@ -386,7 +386,7 @@ const char *                     //name of type
 //#pragma OPT_LEVEL 0
 //#endif
 DLLSYM void *alloc_mem_p(             //allocate permanent space
-                         INT32 count  //block size to allocate
+                         inT32 count  //block size to allocate
                         ) {
   #ifdef RAYS_MALLOC
   #ifdef TESTING_BIGSTUFF
@@ -395,7 +395,7 @@ DLLSYM void *alloc_mem_p(             //allocate permanent space
       FIRSTSIZE, LASTSIZE, MAX_CHUNK);
   #else
   if (main_mem.biggestblock == 0)
-    main_mem.init ((void *(*)(INT32)) malloc, free,
+    main_mem.init ((void *(*)(inT32)) malloc, free,
       FIRSTSIZE, LASTSIZE, MAX_CHUNK);
   #endif
   if (mem_mallocdepth > 0)
@@ -415,7 +415,7 @@ DLLSYM void *alloc_mem_p(             //allocate permanent space
  **********************************************************************/
 
 DLLSYM void *alloc_mem(             //get some memory
-                       INT32 count  //no of bytes to get
+                       inT32 count  //no of bytes to get
                       ) {
   #ifdef RAYS_MALLOC
   #ifdef TESTING_BIGSTUFF
@@ -424,7 +424,7 @@ DLLSYM void *alloc_mem(             //get some memory
       FIRSTSIZE, LASTSIZE, MAX_CHUNK);
   #else
   if (main_mem.biggestblock == 0)
-    main_mem.init ((void *(*)(INT32)) malloc, free,
+    main_mem.init ((void *(*)(inT32)) malloc, free,
       FIRSTSIZE, LASTSIZE, MAX_CHUNK);
   #endif
   if (mem_mallocdepth > 0)
@@ -444,11 +444,11 @@ DLLSYM void *alloc_mem(             //get some memory
  **********************************************************************/
 
 DLLSYM void *alloc_big_mem(             //get some memory
-                           INT32 count  //no of bytes to get
+                           inT32 count  //no of bytes to get
                           ) {
   #ifdef TESTING_BIGSTUFF
   if (big_mem.biggestblock == 0)
-    big_mem.init ((void *(*)(INT32)) malloc, free,
+    big_mem.init ((void *(*)(inT32)) malloc, free,
       BIGSIZE, BIGSIZE, MAX_BIGCHUNK);
   if (mem_mallocdepth > 0)
     return big_mem.alloc (count, trace_caller (mem_mallocdepth));
@@ -467,11 +467,11 @@ DLLSYM void *alloc_big_mem(             //get some memory
  **********************************************************************/
 
 DLLSYM void *alloc_big_zeros(             //get some memory
-                             INT32 count  //no of bytes to get
+                             inT32 count  //no of bytes to get
                             ) {
   #ifdef TESTING_BIGSTUFF
   if (big_mem.biggestblock == 0)
-    big_mem.init ((void *(*)(INT32)) malloc, free,
+    big_mem.init ((void *(*)(inT32)) malloc, free,
       BIGSIZE, BIGSIZE, MAX_BIGCHUNK);
   void *buf;                     //return value
 

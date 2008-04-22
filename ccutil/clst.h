@@ -117,7 +117,7 @@ class DLLSYM CLIST
                            CLIST_ITERATOR *start_it,  //from list start
                            CLIST_ITERATOR *end_it);   //from list end
 
-    INT32 length();  //# elements in list
+    inT32 length();  //# elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -208,7 +208,7 @@ class DLLSYM CLIST_ITERATOR
     }
 
     void *data_relative(               //get data + or - ...
-                        INT8 offset);  //offset from current
+                        inT8 offset);  //offset from current
 
     void *forward();  //move to next element
 
@@ -244,7 +244,7 @@ class DLLSYM CLIST_ITERATOR
     void exchange(                            //positions of 2 links
                   CLIST_ITERATOR *other_it);  //other iterator
 
-    INT32 length();  //# elements in list
+    inT32 length();  //# elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -752,7 +752,7 @@ inline BOOL8 CLIST_ITERATOR::cycled_list() {
  *
  **********************************************************************/
 
-inline INT32 CLIST_ITERATOR::length() {
+inline inT32 CLIST_ITERATOR::length() {
   #ifdef _DEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST_ITERATOR::length", ABORT, NULL);
@@ -948,7 +948,7 @@ public:																			\
 		{ return (CLASSNAME*) CLIST_ITERATOR::data(); }						\
 																				\
 	CLASSNAME*			data_relative(										\
-	INT8					offset)												\
+	inT8					offset)												\
 		{ return (CLASSNAME*) CLIST_ITERATOR::data_relative( offset ); }		\
 																				\
 	CLASSNAME*			forward()											\

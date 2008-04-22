@@ -22,9 +22,9 @@
 
 #include          "host.h"
 
-INT32 hash(               //hash function
-           INT32 bits,    //bits in hash function
+inT32 hash(               //hash function
+           inT32 bits,    //bits in hash function
            void *key,     //key to hash
-           INT32 keysize  //size of key
+           inT32 keysize  //size of key
           );
 #endif

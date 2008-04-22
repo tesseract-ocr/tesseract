@@ -31,7 +31,7 @@
 
 const ERRCODE BADERRACTION = "Illegal error action";
 #define MAX_MSG       1024
-extern INT16 global_abort_code;
+extern inT16 global_abort_code;
 
 /**********************************************************************
  * error
@@ -43,7 +43,7 @@ extern INT16 global_abort_code;
 void
 ERRCODE::error (                 //handle error
 const char *caller,              //name of caller
-INT8 action,                     //action to take
+inT8 action,                     //action to take
 const char *format, ...          //special message
 ) const
 {

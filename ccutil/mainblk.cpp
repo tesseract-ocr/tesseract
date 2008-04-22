@@ -57,8 +57,8 @@ void main_setup(                         /*main demo program */
                 int argc,                /*argument count */
                 const char *const *argv  /*arguments */
                ) {
-  INT32 arg;                     /*argument */
-  INT32 offset;                  //for flag
+  inT32 arg;                     /*argument */
+  inT32 offset;                  //for flag
   FILE *fp;                      /*variables file */
   char flag[2];                  //+/-
   STRING varfile;                /*name of file */

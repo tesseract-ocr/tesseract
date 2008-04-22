@@ -130,9 +130,9 @@ void ELIST2::assign_to_sublist(                            //to this list
  *  Return count of elements on list
  **********************************************************************/
 
-INT32 ELIST2::length() {  //count elements
+inT32 ELIST2::length() {  //count elements
   ELIST2_ITERATOR it(this);
-  INT32 count = 0;
+  inT32 count = 0;
 
   #ifdef _DEBUG
   if (!this)
@@ -158,10 +158,10 @@ ELIST2::sort (                   //sort elements
 int comparator (                 //comparison routine
 const void *, const void *)) {
   ELIST2_ITERATOR it(this);
-  INT32 count;
+  inT32 count;
   ELIST2_LINK **base;            //ptr array to sort
   ELIST2_LINK **current;
-  INT32 i;
+  inT32 i;
 
   #ifdef _DEBUG
   if (!this)
@@ -203,7 +203,7 @@ const void *, const void *)) {
 
 void ELIST2::prep_serialise() {
   ELIST2_ITERATOR this_it(this);
-  INT32 count = 0;
+  inT32 count = 0;
 
   #ifdef _DEBUG
   if (!this)
@@ -257,7 +257,7 @@ void element_serialiser (FILE *, ELIST2_LINK *)) {
 void
 ELIST2::internal_de_dump (FILE * f,
 ELIST2_LINK * element_de_serialiser (FILE *)) {
-  INT32 count = (ptrdiff_t) last;
+  inT32 count = (ptrdiff_t) last;
   ELIST2_ITERATOR this_it;
   ELIST2_LINK *de_serialised_element;
 
@@ -374,7 +374,7 @@ ELIST2_LINK *ELIST2_ITERATOR::backward() {
  **********************************************************************/
 
 ELIST2_LINK *ELIST2_ITERATOR::data_relative(                //get data + or - ..
-                                            INT8 offset) {  //offset from current
+                                            inT8 offset) {  //offset from current
   ELIST2_LINK *ptr;
 
   #ifdef _DEBUG

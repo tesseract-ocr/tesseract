@@ -20,6 +20,7 @@
 #ifndef THIRD_PARTY_TESSERACT_CCUTIL_UNICHARSET_H__
 #define THIRD_PARTY_TESSERACT_CCUTIL_UNICHARSET_H__
 
+#include "strngs.h"
 #include "unichar.h"
 #include "unicharmap.h"
 
@@ -53,6 +54,10 @@ class UNICHARSET {
   // within the UNICHARSET.
   const char* const id_to_unichar(UNICHAR_ID id) const;
 
+  // Return a STRING containing debug information on the unichar, including
+  // the id_to_unichar, its hex unicodes and the properties.
+  STRING debug_str(UNICHAR_ID id) const;
+
   // Add a unichar representation to the set.
   void unichar_insert(const char* const unichar_repr);
 
@@ -67,6 +72,12 @@ class UNICHARSET {
   // Clear the UNICHARSET (all the previous data is lost).
   void clear() {
     if (size_reserved > 0) {
+      for (int i = 0; i < script_table_size_used; ++i)
+        delete[] script_table[i];
+      delete[] script_table;
+      script_table = 0;
+      script_table_size_reserved = 0;
+      script_table_size_used = 0;
       delete[] unichars;
       unichars = 0;
       size_reserved = 0;
@@ -120,6 +131,12 @@ class UNICHARSET {
     unichars[unichar_id].properties.isdigit = value;
   }
 
+  // Set the script name of the given unichar to the given value.
+  // Value is copied and thus can be a temporary;
+  void set_script(UNICHAR_ID unichar_id, const char* value) {
+    unichars[unichar_id].properties.script = add_script(value);
+  }
+
   // Return the isalpha property of the given unichar.
   bool get_isalpha(UNICHAR_ID unichar_id) const {
     return unichars[unichar_id].properties.isalpha;
@@ -140,6 +157,13 @@ class UNICHARSET {
     return unichars[unichar_id].properties.isdigit;
   }
 
+  // Return the script name of the given unichar.
+  // The returned pointer will always be the same for the same script, it's
+  // managed by unicharset and thus MUST NOT be deleted
+  const char* get_script(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.script;
+  }
+
   // Return the isalpha property of the given unichar representation.
   bool get_isalpha(const char* const unichar_repr) const {
     return get_isalpha(unichar_to_id(unichar_repr));
@@ -158,6 +182,13 @@ class UNICHARSET {
   // Return the isdigit property of the given unichar representation.
   bool get_isdigit(const char* const unichar_repr) const {
     return get_isdigit(unichar_to_id(unichar_repr));
+  }
+
+  // Return the script name of the given unichar representation.
+  // The returned pointer will always be the same for the same script, it's
+  // managed by unicharset and thus MUST NOT be deleted
+  const char* get_script(const char* const unichar_repr) const {
+    return get_script(unichar_to_id(unichar_repr));
   }
 
   // Return the isalpha property of the given unichar representation.
@@ -188,6 +219,15 @@ class UNICHARSET {
     return get_isdigit(unichar_to_id(unichar_repr, length));
   }
 
+  // Return the script name of the given unichar representation.
+  // Only the first length characters from unichar_repr are used.
+  // The returned pointer will always be the same for the same script, it's
+  // managed by unicharset and thus MUST NOT be deleted
+  const char* get_script(const char* const unichar_repr,
+               int length) const {
+    return get_script(unichar_to_id(unichar_repr, length));
+  }
+
   // Return the enabled property of the given unichar.
   bool get_enabled(UNICHAR_ID unichar_id) const {
     return unichars[unichar_id].properties.enabled;
@@ -195,12 +235,18 @@ class UNICHARSET {
 
  private:
 
+  // Uniquify the given script. For two scripts a and b, if strcmp(a, b) == 0,
+  // then the returned pointer will be the same.
+  // The script parameter is copied and thus can be a temporary.
+  char* add_script(const char* script);
+
   struct UNICHAR_PROPERTIES {
-    bool isalpha;
-    bool islower;
-    bool isupper;
-    bool isdigit;
-    bool enabled;
+    bool  isalpha;
+    bool  islower;
+    bool  isupper;
+    bool  isdigit;
+    bool  enabled;
+    char* script;
   };
 
   struct UNICHAR_SLOT {
@@ -212,6 +258,10 @@ class UNICHARSET {
   UNICHARMAP ids;
   int size_used;
   int size_reserved;
+  char** script_table;
+  int script_table_size_used;
+  int script_table_size_reserved;
+  const char* null_script;
 };
 
 #endif  // THIRD_PARTY_TESSERACT_CCUTIL_UNICHARSET_H__

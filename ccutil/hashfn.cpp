@@ -27,15 +27,15 @@
  * Uses xor function. Needs linear rehash.
  **********************************************************************/
 
-INT32 hash(               //hash function
-           INT32 bits,    //bits in hash function
+inT32 hash(               //hash function
+           inT32 bits,    //bits in hash function
            void *key,     //key to hash
-           INT32 keysize  //size of key
+           inT32 keysize  //size of key
           ) {
-  INT32 bitindex;                //current bit count
-  UINT32 keybits;                //bit buffer
-  UINT32 hcode;                  //current hash code
-  UINT32 mask;                   //bit mask
+  inT32 bitindex;                //current bit count
+  uinT32 keybits;                //bit buffer
+  uinT32 hcode;                  //current hash code
+  uinT32 mask;                   //bit mask
 
   mask = (1 << bits) - 1;
   keysize *= 8;                  //in bits
@@ -44,8 +44,8 @@ INT32 hash(               //hash function
   hcode = 0;
   do {
     while (keysize > 0 && bitindex <= 24) {
-      keybits |= *((UINT8 *) key) << bitindex;
-      key = (UINT8 *) key + 1;
+      keybits |= *((uinT8 *) key) << bitindex;
+      key = (uinT8 *) key + 1;
       bitindex += 8;
       keysize -= 8;
     }

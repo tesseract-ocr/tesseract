@@ -43,15 +43,15 @@ REALLY_DECLARE_MAIN(ARGC,ARGV)
 * whitespace spaced string being an arg.\
 **********************************************************************/\
 \
-INT32						parse_args(					/*refine arg list*/\
-INT32						argc,						/*no of input args*/\
+inT32						parse_args(					/*refine arg list*/\
+inT32						argc,						/*no of input args*/\
 char						*argv[],					/*input args*/\
 char						*arglist[]					/*output args*/\
 )\
 {\
-	INT32					argcount;					/*converted argc*/\
+	inT32					argcount;					/*converted argc*/\
 	char					*testchar;					/*char in option string*/\
-	INT32					arg;						/*current argument*/\
+	inT32					arg;						/*current argument*/\
 \
 	argcount=0;											/*no of options*/\
 	for (arg=0;arg<argc;arg++)\
@@ -81,17 +81,17 @@ char						*arglist[]					/*output args*/\
 	return argcount;									/*new number of args*/\
 }\
 \
-INT32						global_exit_code;\
-INT32						real_main(INT32,const char**);\
+inT32						global_exit_code;\
+inT32						real_main(inT32,const char**);\
 \
-INT32						run_main(					/*the main thread*/\
+inT32						run_main(					/*the main thread*/\
 CWinApp*					theapp						/*arguments*/\
 )\
 {\
 	char					**argv;\
 	char					*argsin[2];\
-	INT32					argc;\
-	INT32					exit_code;\
+	inT32					argc;\
+	inT32					exit_code;\
 	\
 	argsin[0]=strdup(theapp->m_pszExeName);\
 	argsin[1]=strdup(theapp->m_lpCmdLine);\
@@ -116,7 +116,7 @@ CWinApp*					theapp						/*arguments*/\
 	return exit_code;\
 }\
 \
-INT32						real_main(INT32 ARGC,const char* ARGV[])\
+inT32						real_main(inT32 ARGC,const char* ARGV[])\
 
 #else
 
@@ -129,15 +129,15 @@ INT32						real_main(INT32 ARGC,const char* ARGV[])\
 * whitespace spaced string being an arg.\
 **********************************************************************/\
 \
-INT32						parse_args(					/*refine arg list*/\
-INT32						argc,						/*no of input args*/\
+inT32						parse_args(					/*refine arg list*/\
+inT32						argc,						/*no of input args*/\
 char						*argv[],					/*input args*/\
 char						*arglist[]					/*output args*/\
 )\
 {\
-	INT32					argcount;					/*converted argc*/\
+	inT32					argcount;					/*converted argc*/\
 	char					*testchar;					/*char in option string*/\
-	INT32					arg;						/*current argument*/\
+	inT32					arg;						/*current argument*/\
 \
 	argcount=0;											/*no of options*/\
 	for (arg=0;arg<argc;arg++)\
@@ -167,7 +167,7 @@ char						*arglist[]					/*output args*/\
 	return argcount;									/*new number of args*/\
 }\
 \
-INT32						main(INT32 ARGC,const char* ARGV[])\
+inT32						main(inT32 ARGC,const char* ARGV[])\
 
 #endif
 

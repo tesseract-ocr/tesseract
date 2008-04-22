@@ -186,11 +186,11 @@ enum OCR_ERR_CODE
 
 typedef struct                   /*font description */
 {
-  UINT16 language;               /*default language */
-  UINT8 font_family;             /*serif/not, fixed/not */
-  UINT8 char_set;                /*character set standard */
-  UINT8 pitch;                   /*fixed or prop */
-  INT8 name[MAX_FONT_NAME + 1];  /*plain ascii name */
+  uinT16 language;               /*default language */
+  uinT8 font_family;             /*serif/not, fixed/not */
+  uinT8 char_set;                /*character set standard */
+  uinT8 pitch;                   /*fixed or prop */
+  inT8 name[MAX_FONT_NAME + 1];  /*plain ascii name */
 } EFONT_DESC;                    /*font description */
 
 /**********************************************************************
@@ -203,12 +203,12 @@ typedef struct                   /*font description */
 
 typedef struct                   /*startup info */
 {
-  INT32 protocol;                /*interface version */
-  UINT32 font_count;             /*number of fonts */
-  UINT16 language;               /*default language */
-  UINT16 name[MAX_OCR_NAME + 1]; /*name of engine */
+  inT32 protocol;                /*interface version */
+  uinT32 font_count;             /*number of fonts */
+  uinT16 language;               /*default language */
+  uinT16 name[MAX_OCR_NAME + 1]; /*name of engine */
                                  /*version of engine */
-  UINT16 version[MAX_OCR_VERSION + 1];
+  uinT16 version[MAX_OCR_VERSION + 1];
   EFONT_DESC fonts[1];           /*array of fonts */
 } EOCR_DESC;                     /*startup info */
 
@@ -224,11 +224,11 @@ typedef struct                   /*startup info */
 
 typedef struct                   /*bitmap strip */
 {
-  INT16 x_size;                  /*width in pixels */
-  INT16 y_size;                  /*of full image */
-  INT16 strip_size;              /*of this strip */
-  INT16 resolution;              /*pixels per inch */
-  UINT8 data[8];                 /*image data */
+  inT16 x_size;                  /*width in pixels */
+  inT16 y_size;                  /*of full image */
+  inT16 strip_size;              /*of this strip */
+  inT16 resolution;              /*pixels per inch */
+  uinT8 data[8];                 /*image data */
 } ESTRIP_DESC;                   /*bitmap strip */
 
 /**********************************************************************
@@ -264,16 +264,16 @@ typedef struct                   /*single character */
 // Programs which want to handle languagues with different characters sets will need to
 // handle extended characters appropriately, but *all* code needs to be prepared to
 // receive UTF8 coded characters for characters such as bullet and fancy quotes.
-  UINT16 char_code;              /*character itself */
-  INT16 left;                    /*of char (-1) */
-  INT16 right;                   /*of char (-1) */
-  INT16 top;                     /*of char (-1) */
-  INT16 bottom;                  /*of char (-1) */
-  INT16 font_index;              /*what font (0) */
-  UINT8 confidence;              /*0=perfect, 100=reject (0/100) */
-  UINT8 point_size;              /*of char, 72=i inch, (10) */
-  INT8 blanks;                   /*no of spaces before this char (1) */
-  UINT8 formatting;              /*char formatting (0) */
+  uinT16 char_code;              /*character itself */
+  inT16 left;                    /*of char (-1) */
+  inT16 right;                   /*of char (-1) */
+  inT16 top;                     /*of char (-1) */
+  inT16 bottom;                  /*of char (-1) */
+  inT16 font_index;              /*what font (0) */
+  uinT8 confidence;              /*0=perfect, 100=reject (0/100) */
+  uinT8 point_size;              /*of char, 72=i inch, (10) */
+  inT8 blanks;                   /*no of spaces before this char (1) */
+  uinT8 formatting;              /*char formatting (0) */
 } EANYCODE_CHAR;                 /*single character */
 
 /**********************************************************************
@@ -294,11 +294,11 @@ typedef bool (*CANCEL_FUNC)(void* cancel_this, int words);
 
 typedef struct ETEXT_STRUCT      /*output header */
 {
-  INT16 count;                   /*chars in this buffer(0) */
-  INT16 progress;                /*percent complete increasing (0-100) */
-  INT8 more_to_come;             /*true if not last */
-  INT8 ocr_alive;                /*ocr sets to 1, HP 0 */
-  INT8 err_code;                 /*for errcode use */
+  inT16 count;                   /*chars in this buffer(0) */
+  inT16 progress;                /*percent complete increasing (0-100) */
+  inT8 more_to_come;             /*true if not last */
+  inT8 ocr_alive;                /*ocr sets to 1, HP 0 */
+  inT8 err_code;                 /*for errcode use */
   CANCEL_FUNC cancel;            /*returns true to cancel */
   void* cancel_this;             /*this or other data for cancel*/
   clock_t end_time;              /*time to stop if not 0*/
@@ -319,7 +319,7 @@ typedef struct                   /*shared mem info */
   HANDLE ocr_sem;                /*ocr semaphore */
   HANDLE hp_sem;                 /*hp semaphore */
   void *shm_mem;                 /*shared memory */
-  INT32 shm_size;                /*size of shm */
+  inT32 shm_size;                /*size of shm */
 } ESHM_INFO;                     /*shared mem info */
 #elif defined (__MAC__)
 typedef struct                   /*shared mem info */
@@ -328,8 +328,8 @@ typedef struct                   /*shared mem info */
   Boolean ocr_sem;               /*ocr semaphore */
   Boolean hp_sem;                /*hp semaphore */
   void *shm_mem;                 /*shared memory */
-  INT32 shm_size;                /*size of shm */
-  INT16 language;
+  inT32 shm_size;                /*size of shm */
+  inT16 language;
 
   // Process management information follows:
   ProcessSerialNumber IPEProcess;
@@ -339,7 +339,7 @@ typedef struct                   /*shared mem info */
 typedef struct                   /*shared mem info */
 {
   void *shm_mem;                 /*shared memory */
-  INT32 shm_size;                /*size of shm */
+  inT32 shm_size;                /*size of shm */
 } ESHM_INFO;
 #endif
 #endif

@@ -62,14 +62,14 @@ class DLLSYM DEBUG_WIN
     //the constructor creates the window, the destructor kills it
     DEBUG_WIN (                  //constructor
       const char *title,         //of window
-      INT32 xpos = DEBUG_WIN_XPOS,//initial position
-      INT32 ypos = DEBUG_WIN_YPOS,//in pixels
+      inT32 xpos = DEBUG_WIN_XPOS,//initial position
+      inT32 ypos = DEBUG_WIN_YPOS,//in pixels
                                  //initial size
-      INT32 xsize = DEBUG_WIN_XSIZE,
+      inT32 xsize = DEBUG_WIN_XSIZE,
                                  //in pixels
-      INT32 ysize = DEBUG_WIN_YSIZE,
+      inT32 ysize = DEBUG_WIN_YSIZE,
                                  //default scroll size (textlines)
-      INT32 buflines = debug_lines);
+      inT32 buflines = debug_lines);
 
     ~DEBUG_WIN ();               //destructor
 
@@ -79,7 +79,7 @@ class DLLSYM DEBUG_WIN
     void await_destruction();  //wait for user to close
 
   #ifdef __MAC__
-    static void SetCommander(LCommander *pCommander); 
+    static void SetCommander(LCommander *pCommander);
   #endif
 
   private:

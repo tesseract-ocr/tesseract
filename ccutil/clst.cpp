@@ -160,9 +160,9 @@ void CLIST::assign_to_sublist(                           //to this list
  *  Return count of elements on list
  **********************************************************************/
 
-INT32 CLIST::length() {  //count elements
+inT32 CLIST::length() {  //count elements
   CLIST_ITERATOR it(this);
-  INT32 count = 0;
+  inT32 count = 0;
 
   #ifdef _DEBUG
   if (!this)
@@ -186,10 +186,10 @@ CLIST::sort (                    //sort elements
 int comparator (                 //comparison routine
 const void *, const void *)) {
   CLIST_ITERATOR it(this);
-  INT32 count;
+  inT32 count;
   void **base;                   //ptr array to sort
   void **current;
-  INT32 i;
+  inT32 i;
 
   #ifdef _DEBUG
   if (!this)
@@ -231,7 +231,7 @@ const void *, const void *)) {
 
 void CLIST::prep_serialise() {
   CLIST_ITERATOR this_it(this);
-  INT32 count = 0;
+  inT32 count = 0;
 
   #ifdef _DEBUG
   if (!this)
@@ -283,7 +283,7 @@ CLIST::internal_dump (FILE * f, void element_serialiser (FILE *, void *)) {
 
 void
 CLIST::internal_de_dump (FILE * f, void *element_de_serialiser (FILE *)) {
-  INT32 count = (ptrdiff_t) last;
+  inT32 count = (ptrdiff_t) last;
   CLIST_ITERATOR this_it;
 
   #ifdef _DEBUG
@@ -353,7 +353,7 @@ void *CLIST_ITERATOR::forward() {
  **********************************************************************/
 
 void *CLIST_ITERATOR::data_relative(                //get data + or - ...
-                                    INT8 offset) {  //offset from current
+                                    inT8 offset) {  //offset from current
   CLIST_LINK *ptr;
 
   #ifdef _DEBUG

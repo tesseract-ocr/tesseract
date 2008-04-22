@@ -22,12 +22,12 @@
 #include          "errcode.h"
 #include          "tprintf.h"
 
-INT16 global_loc_code = LOC_INIT;//location code
-INT16 global_subloc_code = SUBLOC_NORM;
+inT16 global_loc_code = LOC_INIT;//location code
+inT16 global_subloc_code = SUBLOC_NORM;
                                  //pass2 subloc code
-INT16 global_subsubloc_code = SUBSUBLOC_OTHER;
+inT16 global_subsubloc_code = SUBSUBLOC_OTHER;
                                  //location code
-INT16 global_abort_code = NO_ABORT_CODE;
+inT16 global_abort_code = NO_ABORT_CODE;
                                  //Prog abort code
 
 void signal_exit(                 //
@@ -49,7 +49,7 @@ void signal_exit(                 //
       exit_status, global_loc_code, signal_code);
   }
 
-  exit(exit_status); 
+  exit(exit_status);
 }
 
 
@@ -69,7 +69,7 @@ void signal_exit(                 //
 
 //extern "C" {
 
-void err_exit() { 
+void err_exit() {
   signal_exit (-1);
 }
 
@@ -95,19 +95,19 @@ void signal_termination_handler(  //The real signal
 
 //};                                                                                                            //end extern "C"
 
-void set_global_loc_code(int loc_code) { 
+void set_global_loc_code(int loc_code) {
   global_loc_code = loc_code;
 
 }
 
 
-void set_global_subloc_code(int loc_code) { 
+void set_global_subloc_code(int loc_code) {
   global_subloc_code = loc_code;
 
 }
 
 
-void set_global_subsubloc_code(int loc_code) { 
+void set_global_subsubloc_code(int loc_code) {
   global_subsubloc_code = loc_code;
 
 }

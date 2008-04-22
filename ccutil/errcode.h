@@ -70,7 +70,7 @@ class DLLSYM ERRCODE             //error handler class
   public:
     void error (                 //error print function
       const char *caller,        //function location
-      INT8 action,               //action to take
+      inT8 action,               //action to take
       const char *format, ...    //fprintf format
       ) const;
     ERRCODE(const char *string) {

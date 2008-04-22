@@ -37,17 +37,17 @@ member functions for the class name specified in the macro parameter.
 
 ************************************************************************** */
 
-extern DLLSYM void *de_serialise_bytes(FILE *f, int size); 
-extern DLLSYM void serialise_bytes(FILE *f, void *ptr, int size); 
-extern DLLSYM void serialise_INT32(FILE *f, INT32 the_int); 
-extern DLLSYM INT32 de_serialise_INT32(FILE *f); 
-extern DLLSYM void serialise_FLOAT64(FILE *f, double the_float); 
-extern DLLSYM double de_serialise_FLOAT64(FILE *f); 
-extern DLLSYM UINT32 reverse32(            //switch endian
-                               UINT32 num  //number to fix
+extern DLLSYM void *de_serialise_bytes(FILE *f, int size);
+extern DLLSYM void serialise_bytes(FILE *f, void *ptr, int size);
+extern DLLSYM void serialise_INT32(FILE *f, inT32 the_int);
+extern DLLSYM inT32 de_serialise_INT32(FILE *f);
+extern DLLSYM void serialise_FLOAT64(FILE *f, double the_float);
+extern DLLSYM double de_serialise_FLOAT64(FILE *f);
+extern DLLSYM uinT32 reverse32(            //switch endian
+                               uinT32 num  //number to fix
                               );
-extern DLLSYM UINT16 reverse16(            //switch endian
-                               UINT16 num  //number to fix
+extern DLLSYM uinT16 reverse16(            //switch endian
+                               uinT16 num  //number to fix
                               );
 
 /***********************************************************************

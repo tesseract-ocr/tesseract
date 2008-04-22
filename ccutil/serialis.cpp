@@ -31,7 +31,7 @@ member functions for the class name specified in the macro parameter.
 
 ************************************************************************** */
 
-DLLSYM void *de_serialise_bytes(FILE *f, int size) { 
+DLLSYM void *de_serialise_bytes(FILE *f, int size) {
   void *ptr;
 
   ptr = alloc_mem (size);
@@ -45,7 +45,7 @@ DLLSYM void *de_serialise_bytes(FILE *f, int size) {
 }
 
 
-DLLSYM void serialise_bytes(FILE *f, void *ptr, int size) { 
+DLLSYM void serialise_bytes(FILE *f, void *ptr, int size) {
   /*
   printf( "Serialising bytes\n" );
   printf( "  Addr: %d    Size: %d\n", int(ptr), size );
@@ -55,14 +55,14 @@ DLLSYM void serialise_bytes(FILE *f, void *ptr, int size) {
 }
 
 
-DLLSYM void serialise_INT32(FILE *f, INT32 the_int) { 
+DLLSYM void serialise_INT32(FILE *f, inT32 the_int) {
   if (fprintf (f, INT32FORMAT "\n", the_int) < 0)
     WRITEFAILED.error ("serialise_INT32", ABORT, NULL);
 }
 
 
-DLLSYM INT32 de_serialise_INT32(FILE *f) { 
-  INT32 the_int;
+DLLSYM inT32 de_serialise_INT32(FILE *f) {
+  inT32 the_int;
 
   if (fscanf (f, INT32FORMAT, &the_int) != 1)
     READFAILED.error ("de_serialise_INT32", ABORT, NULL);
@@ -70,15 +70,15 @@ DLLSYM INT32 de_serialise_INT32(FILE *f) {
 }
 
 
-DLLSYM void serialise_FLOAT64(FILE *f, double the_float) { 
+DLLSYM void serialise_FLOAT64(FILE *f, double the_float) {
   if (fprintf (f, "%g\n", the_float) < 0)
     WRITEFAILED.error ("serialise_FLOAT64", ABORT, NULL);
 }
 
 
-DLLSYM double de_serialise_FLOAT64(FILE *f) { 
+DLLSYM double de_serialise_FLOAT64(FILE *f) {
   double the_float;
-  
+
   if (fscanf (f, "%lg", &the_float) != 1)
     READFAILED.error ("de_serialise_FLOAT64", ABORT, NULL);
   return the_float;
@@ -88,25 +88,25 @@ DLLSYM double de_serialise_FLOAT64(FILE *f) {
 /**********************************************************************
  * reverse32
  *
- * Byte swap an INT32 or UINT32.
+ * Byte swap an inT32 or uinT32.
  **********************************************************************/
 
-DLLSYM UINT32 reverse32(            //switch endian
-                        UINT32 num  //number to fix
+DLLSYM uinT32 reverse32(            //switch endian
+                        uinT32 num  //number to fix
                        ) {
-  return (reverse16 ((UINT16) (num & 0xffff)) << 16)
-    | reverse16 ((UINT16) ((num >> 16) & 0xffff));
+  return (reverse16 ((uinT16) (num & 0xffff)) << 16)
+    | reverse16 ((uinT16) ((num >> 16) & 0xffff));
 }
 
 
 /**********************************************************************
  * reverse16
  *
- * Byte swap an INT16 or UINT16.
+ * Byte swap an inT16 or uinT16.
  **********************************************************************/
 
-DLLSYM UINT16 reverse16(            //switch endian
-                        UINT16 num  //number to fix
+DLLSYM uinT16 reverse16(            //switch endian
+                        uinT16 num  //number to fix
                        ) {
   return ((num & 0xff) << 8) | ((num >> 8) & 0xff);
 }

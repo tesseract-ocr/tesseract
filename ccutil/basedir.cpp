@@ -36,13 +36,13 @@
  * This enables data to be located relative to the code.
  **********************************************************************/
 
-DLLSYM INT8 getpath(                   //get dir name of code
+DLLSYM inT8 getpath(                   //get dir name of code
                     const char *code,  //executable to locate
                     STRING &path       //output path name
                    ) {
   char directory[MAX_PATH];      //main directory
   #ifdef __UNIX__
-  INT16 dirind;                  //index in directory
+  inT16 dirind;                  //index in directory
   register char *pathlist;       //$PATH
   int fd;                        //file descriptor
 
@@ -68,7 +68,7 @@ DLLSYM INT8 getpath(                   //get dir name of code
     directory[dirind++] = '/';   //add ending slash
     directory[dirind++] = '\0';
     path = directory;            //try this path
-    strcat(directory, code); 
+    strcat(directory, code);
     fd = open (directory, 0);
     if (fd >= 0) {
       close(fd);  //found it
@@ -77,10 +77,10 @@ DLLSYM INT8 getpath(                   //get dir name of code
   }
   strcpy (directory, "./");
   path = directory;              //in current?
-  strcat(directory, code); 
+  strcat(directory, code);
   fd = open (directory, 0);
   if (fd >= 0) {
-    close(fd); 
+    close(fd);
     return 0;                    //in current after all
   }
   return -1;

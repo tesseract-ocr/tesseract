@@ -71,16 +71,16 @@ typedef enum {
 } OCR_STATE;
 
 /* forward declarations - not in .h file as not needed outside this file*/
-INT16 ocr_internal_shutdown();  /*closedown */
-INT16 wait_for_mutex();  /*wait for HP to be ready */
-INT16 wait_for_hp(               /*wait for semaphore */
-                  INT32 timeout  /*in seconds */
+inT16 ocr_internal_shutdown();  /*closedown */
+inT16 wait_for_mutex();  /*wait for HP to be ready */
+inT16 wait_for_hp(               /*wait for semaphore */
+                  inT32 timeout  /*in seconds */
                  );
-INT16 release_mutex();  /*release mutex */
-INT16 release_ocr();  /*release semaphore */
+inT16 release_mutex();  /*release mutex */
+inT16 release_ocr();  /*release semaphore */
 
-static INT32 font_count = 0;     /*number of fonts */
-static INT16 lines_read = 0;     /*no read in this image */
+static inT32 font_count = 0;     /*number of fonts */
+static inT16 lines_read = 0;     /*no read in this image */
                                  /*current state */
 static OCR_STATE ocr_state = OCS_UNINIT;
 
@@ -102,10 +102,10 @@ pascal short TerminateOCR(AppleEvent *theEvent,
  * The parameters are the command line arguments in order.
  **********************************************************************/
 #ifdef __MAC__
-INT16
-ocr_open_shm (UINT16 * lang)
+inT16
+ocr_open_shm (uinT16 * lang)
 #else
-INT16
+inT16
 ocr_open_shm (                   /*open the shm */
 const char *shm_h,               /*handle of shm */
 const char *shm_size,            /*size of shm segment */
@@ -113,7 +113,7 @@ const char *mutex_h,             /*hp mutex */
 const char *ocr_h,               /*ocr semaphore */
 const char *hp_h,                /*hp semaphore */
 const char *lang_str,            /*language */
-UINT16 * lang                    /*required language */
+uinT16 * lang                    /*required language */
 )
 #endif
 {
@@ -130,7 +130,7 @@ UINT16 * lang                    /*required language */
   #else
   if (lang != NULL)
                                  /*get language */
-    *lang = (UINT16) strtol (lang_str, NULL, 10);
+    *lang = (uinT16) strtol (lang_str, NULL, 10);
   #endif
   if (ocr_state != OCS_UNINIT) {
     ocr_error(OCR_ERR_BAD_STATE);
@@ -216,16 +216,16 @@ void ocr_error(                   /*send an error code */
  * Initialize one of the font descriptors.
  **********************************************************************/
 
-INT16 ocr_append_fontinfo(                    /*put info into shm */
-                          UINT16 language,    /*default language */
-                          UINT8 font_family,  /*serif/not, fixed/not */
-                          UINT8 char_set,     /*character set standard */
-                          UINT8 pitch,        /*fixed or prop */
+inT16 ocr_append_fontinfo(                    /*put info into shm */
+                          uinT16 language,    /*default language */
+                          uinT8 font_family,  /*serif/not, fixed/not */
+                          uinT8 char_set,     /*character set standard */
+                          uinT8 pitch,        /*fixed or prop */
                           const char *name    /*plain ascii name */
                          ) {
   EOCR_DESC *desc;               /*ocr engine info */
   int index;                     /*char index */
-  INT32 font_index;              /*which font */
+  inT32 font_index;              /*which font */
 
   if (ocr_state != OCS_SETUP_SHM) {
     ocr_error(OCR_ERR_BAD_STATE);
@@ -235,7 +235,7 @@ INT16 ocr_append_fontinfo(                    /*put info into shm */
                                  /*turn to right type */
   desc = (EOCR_DESC *) shm.shm_mem;
   if (font_count >
-    (INT32) ((shm.shm_size - sizeof (EOCR_DESC)) / sizeof (EFONT_DESC)))
+    (inT32) ((shm.shm_size - sizeof (EOCR_DESC)) / sizeof (EFONT_DESC)))
     return OCR_API_NO_MEM;       /*insufficient space */
   font_index = font_count++;     /*add a font */
                                  /*setup structure */
@@ -264,15 +264,15 @@ INT16 ocr_append_fontinfo(                    /*put info into shm */
  * engine.
  **********************************************************************/
 
-INT16 ocr_setup_startinfo(                       /*put info into shm */
-                          INT32 protocol,        /*interface version */
-                          UINT16 language,       /*default language */
-                          const UINT16 *name,    /*name of engine */
-                          const UINT16 *version  /*version of engine */
+inT16 ocr_setup_startinfo(                       /*put info into shm */
+                          inT32 protocol,        /*interface version */
+                          uinT16 language,       /*default language */
+                          const uinT16 *name,    /*name of engine */
+                          const uinT16 *version  /*version of engine */
                          ) {
   EOCR_DESC *desc;               /*ocr engine info */
   int index;                     /*char index */
-  INT16 result;                  /*from open */
+  inT16 result;                  /*from open */
 
   if (ocr_state != OCS_SETUP_SHM || font_count < 1) {
     ocr_error(OCR_ERR_BAD_STATE);
@@ -306,15 +306,15 @@ INT16 ocr_setup_startinfo(                       /*put info into shm */
  * engine.
  **********************************************************************/
 
-INT16 ocr_setup_startinfo_ansi(                     /*put info into shm */
-                               UINT32 protocol,     /*interface version */
-                               UINT16 language,     /*default language */
+inT16 ocr_setup_startinfo_ansi(                     /*put info into shm */
+                               uinT32 protocol,     /*interface version */
+                               uinT16 language,     /*default language */
                                const char *name,    /*name of engine */
                                const char *version  /*version of engine */
                               ) {
   EOCR_DESC *desc;               /*ocr engine info */
   int index;                     /*char index */
-  INT16 result;                  /*from open */
+  inT16 result;                  /*from open */
 
   if (ocr_state != OCS_SETUP_SHM || font_count < 1) {
     ocr_error(OCR_ERR_BAD_STATE);
@@ -350,7 +350,7 @@ INT16 ocr_setup_startinfo_ansi(                     /*put info into shm */
 
 ESTRIP_DESC *ocr_get_first_image_strip() {  /*get image strip */
   ESTRIP_DESC *strip;            /*strip info */
-  INT16 result;                  /*of wait/release */
+  inT16 result;                  /*of wait/release */
 
   if (ocr_state != OCS_SETUP_INFO) {
     tprintf ("Bad state reading strip");
@@ -399,7 +399,7 @@ ESTRIP_DESC *ocr_get_first_image_strip() {  /*get image strip */
 
 ESTRIP_DESC *ocr_get_next_image_strip() {  /*get image strip */
   ESTRIP_DESC *strip;            /*strip info */
-  INT16 result;                  /*of wait/release */
+  inT16 result;                  /*of wait/release */
 
   if (ocr_state != OCS_READING_STRIPS) {
     ocr_error(OCR_ERR_BAD_STATE);
@@ -461,7 +461,7 @@ ETEXT_DESC *ocr_setup_monitor() {  /*setup monitor */
  * Return the number of chars that can be fitted into the buffer.
  **********************************************************************/
 
-INT32 ocr_char_space() {  /*put char into shm */
+inT32 ocr_char_space() {  /*put char into shm */
   ETEXT_DESC *buf;               /*text buffer */
   int result;
 
@@ -488,24 +488,24 @@ INT32 ocr_char_space() {  /*put char into shm */
  * if there was insufficient room in the buffer.
  **********************************************************************/
 
-INT16 ocr_append_char(                              /*put char into shm */
-                      UINT16 char_code,             /*character itself */
-                      INT16 left,                   /*of char (-1) */
-                      INT16 right,                  /*of char (-1) */
-                      INT16 top,                    /*of char (-1) */
-                      INT16 bottom,                 /*of char (-1) */
-                      INT16 font_index,             /*what font (-1) */
-                      UINT8 confidence,             /*0=perfect, 100=reject (0/100) */
-                      UINT8 point_size,             /*of char, 72=i inch, (10) */
-                      INT8 blanks,                  /*no of spaces before this char (1) */
-                      UINT8 enhancement,            /*char enhancement (0) */
+inT16 ocr_append_char(                              /*put char into shm */
+                      uinT16 char_code,             /*character itself */
+                      inT16 left,                   /*of char (-1) */
+                      inT16 right,                  /*of char (-1) */
+                      inT16 top,                    /*of char (-1) */
+                      inT16 bottom,                 /*of char (-1) */
+                      inT16 font_index,             /*what font (-1) */
+                      uinT8 confidence,             /*0=perfect, 100=reject (0/100) */
+                      uinT8 point_size,             /*of char, 72=i inch, (10) */
+                      inT8 blanks,                  /*no of spaces before this char (1) */
+                      uinT8 enhancement,            /*char enhancement (0) */
                       OCR_CHAR_DIRECTION text_dir,  /*rendering direction (OCR_CDIR_RIGHT_LEFT) */
                       OCR_LINE_DIRECTION line_dir,  /*line rendering direction (OCR_LDIR_DOWN_RIGHT) */
                       OCR_NEWLINE_TYPE nl_type      /*type of newline (if any) (OCR_NL_NONE) */
                      ) {
   ETEXT_DESC *buf;               /*text buffer */
   int index;                     /*char index */
-  INT16 result;                  /*of callback */
+  inT16 result;                  /*of callback */
 
   if (ocr_state != OCS_RECOGNIZING && ocr_state != OCS_SENDING_TEXT) {
     ocr_error(OCR_ERR_BAD_STATE);
@@ -568,7 +568,7 @@ INT16 ocr_append_char(                              /*put char into shm */
  * if the OCR engine is now ready to receive another image.
  **********************************************************************/
 
-INT16 ocr_send_text(                    /*send shm */
+inT16 ocr_send_text(                    /*send shm */
                     BOOL8 more_to_come  /*any text left */
                    ) {
   ETEXT_DESC *buf;               /*text buffer */
@@ -624,7 +624,7 @@ INT16 ocr_send_text(                    /*send shm */
  * Closedown communications with the HP side and free up handles.
  **********************************************************************/
 
-INT16 ocr_shutdown() {  /*closedown */
+inT16 ocr_shutdown() {  /*closedown */
   #ifdef __MAC__
   shm.OCRProcess.lowLongOfPSN = kNoProcess;
   shm.OCRProcess.highLongOfPSN = 0;
@@ -641,7 +641,7 @@ INT16 ocr_shutdown() {  /*closedown */
  * Free up handles or whatever to clean up without attempting to communicate.
  **********************************************************************/
 
-INT16 ocr_internal_shutdown() {  /*closedown */
+inT16 ocr_internal_shutdown() {  /*closedown */
   ocr_state = OCS_DEAD;          /*record state */
   #ifdef __MSW32__
   if (shm.shm_mem != NULL) {
@@ -667,8 +667,8 @@ INT16 ocr_internal_shutdown() {  /*closedown */
  * The return value is HPERR if the HP side has terminated.
  **********************************************************************/
 
-INT16 wait_for_mutex() {  /*wait for HP to be ready */
-  INT16 result = HPERR;          /*return code */
+inT16 wait_for_mutex() {  /*wait for HP to be ready */
+  inT16 result = HPERR;          /*return code */
   #if defined (__MSW32__) || defined (__MAC__)
   result = WaitForSingleObject (shm.mutex, (unsigned long) -1)
   /*wait for thread to move */
@@ -688,10 +688,10 @@ INT16 wait_for_mutex() {  /*wait for HP to be ready */
  * The return value is HPERR if the timeout (in seconds) elapsed.
  **********************************************************************/
 
-INT16 wait_for_hp(               /*wait for semaphore */
-                  INT32 timeout  /*in seconds */
+inT16 wait_for_hp(               /*wait for semaphore */
+                  inT32 timeout  /*in seconds */
                  ) {
-  INT16 result = HPERR;          /*return code */
+  inT16 result = HPERR;          /*return code */
   #if defined (__MSW32__) || defined (__MAC__)
                                  /*wait for thread to move */
   result = WaitForSingleObject (shm.hp_sem, timeout * TICKS)
@@ -711,8 +711,8 @@ INT16 wait_for_hp(               /*wait for semaphore */
  * The return value is OKAY if the call succeeds.
  **********************************************************************/
 
-INT16 release_mutex() {  /*release mutex */
-  INT16 result = HPERR;          /*return code */
+inT16 release_mutex() {  /*release mutex */
+  inT16 result = HPERR;          /*return code */
   #ifdef __MSW32__
                                  /*release it */
   result = ReleaseMutex (shm.mutex) ? OKAY : HPERR;
@@ -733,8 +733,8 @@ INT16 release_mutex() {  /*release mutex */
  * The return value is OKAY if the call succeeds.
  **********************************************************************/
 
-INT16 release_ocr() {  /*release semaphore */
-  INT32 timeout;                 //time allowed
+inT16 release_ocr() {  /*release semaphore */
+  inT32 timeout;                 //time allowed
 
   timeout = RELEASE_TIMEOUT * TICKS;
   #ifdef __MSW32__
@@ -759,7 +759,7 @@ INT16 release_ocr() {  /*release semaphore */
     ocr_internal_shutdown();
   return OKAY;
   #elif defined (__MAC__)
-  INT16 result = HPERR;          /*return code */
+  inT16 result = HPERR;          /*return code */
                                  /*release it */
   result = ReleaseSemaphore (shm.ocr_sem) ? OKAY : HPERR;
 

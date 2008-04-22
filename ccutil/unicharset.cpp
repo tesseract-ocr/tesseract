@@ -34,13 +34,21 @@ UNICHARSET::UNICHARSET() :
     unichars(NULL),
     ids(),
     size_used(0),
-    size_reserved(0)
+    size_reserved(0),
+    script_table(0),
+    script_table_size_used(0),
+    script_table_size_reserved(0),
+    null_script("NULL")
 {
 }
 
 UNICHARSET::~UNICHARSET() {
-  if (size_reserved > 0)
+  if (size_reserved > 0) {
+    for (int i = 0; i < script_table_size_used; ++i)
+      delete[] script_table[i];
+    delete[] script_table;
     delete[] unichars;
+  }
 }
 
 void UNICHARSET::reserve(int unichars_number) {
@@ -48,6 +56,8 @@ void UNICHARSET::reserve(int unichars_number) {
     UNICHAR_SLOT* unichars_new = new UNICHAR_SLOT[unichars_number];
     for (int i = 0; i < size_used; ++i)
       memcpy(&unichars_new[i], &unichars[i], sizeof(UNICHAR_SLOT));
+    for (int j = size_used; j < unichars_number; ++j)
+      unichars_new[j].properties.script = add_script(null_script);
     delete[] unichars;
     unichars = unichars_new;
     size_reserved = unichars_number;
@@ -96,6 +106,44 @@ const char* const UNICHARSET::id_to_unichar(UNICHAR_ID id) const {
   return unichars[id].representation;
 }
 
+// Return a STRING containing debug information on the unichar, including
+// the id_to_unichar, its hex unicodes and the properties.
+STRING UNICHARSET::debug_str(UNICHAR_ID id) const {
+  const char* str = id_to_unichar(id);
+  STRING result = str;
+  result += " [";
+  int step = 1;
+  // Chop into unicodes and code each as hex.
+  for (int i = 0; str[i] != '\0'; i += step) {
+    char hex[sizeof(int) * 2 + 1];
+    step = UNICHAR::utf8_step(str + i);
+    if (step == 0) {
+      step = 1;
+      sprintf(hex, "%x", str[i]);
+    } else {
+      UNICHAR ch(str + i, step);
+      sprintf(hex, "%x", ch.first_uni());
+    }
+    result += hex;
+    result += " ";
+  }
+  result += "]";
+  // Append a for lower alpha, A for upper alpha, and x if alpha but neither.
+  if (get_isalpha(id)) {
+    if (get_islower(id))
+      result += "a";
+    else if (get_isupper(id))
+      result += "A";
+    else
+      result += "x";
+  }
+  // Append 0 if a digit.
+  if (get_isdigit(id)) {
+    result += "0";
+  }
+  return result;
+}
+
 void UNICHARSET::unichar_insert(const char* const unichar_repr) {
   if (!ids.contains(unichar_repr)) {
     if (size_used == size_reserved) {
@@ -110,6 +158,7 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr) {
     this->set_islower(size_used, false);
     this->set_isupper(size_used, false);
     this->set_isdigit(size_used, false);
+    this->set_script(size_used, add_script(null_script));
     this->unichars[size_used].properties.enabled = true;
     ids.insert(unichar_repr, size_used);
     ++size_used;
@@ -148,9 +197,10 @@ bool UNICHARSET::save_to_file(const char* filename) const {
       properties |= ISDIGIT_MASK;
 
     if (strcmp(this->id_to_unichar(id), " ") == 0)
-      fprintf(file, "%s %x\n", "NULL", properties);
+      fprintf(file, "%s %x %s\n", "NULL", properties, this->get_script(id));
     else
-      fprintf(file, "%s %x\n", this->id_to_unichar(id), properties);
+      fprintf(file, "%s %x %s\n", this->id_to_unichar(id), properties,
+              this->get_script(id));
   }
   fclose(file);
   return true;
@@ -174,9 +224,12 @@ bool UNICHARSET::load_from_file(const char* filename) {
   for (UNICHAR_ID id = 0; id < unicharset_size; ++id) {
     char unichar[256];
     unsigned int properties;
+    char script[64];
 
     if (fgets(buffer, sizeof (buffer), file) == NULL ||
-        sscanf(buffer, "%s %x", unichar, &properties) != 2) {
+        (sscanf(buffer, "%s %x %63s", unichar, &properties, script) != 3 &&
+        !(sscanf(buffer, "%s %x", unichar, &properties) == 2 &&
+         strcpy(script, null_script)))) {
       fclose(file);
       return false;
     }
@@ -189,6 +242,7 @@ bool UNICHARSET::load_from_file(const char* filename) {
     this->set_islower(id, properties & ISLOWER_MASK);
     this->set_isupper(id, properties & ISUPPER_MASK);
     this->set_isdigit(id, properties & ISDIGIT_MASK);
+    this->set_script(id, add_script(script));
     this->unichars[id].properties.enabled = true;
   }
   fclose(file);
@@ -231,3 +285,23 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
   }
 }
 
+char* UNICHARSET::add_script(const char* script) {
+  for (int i = 0; i < script_table_size_used; ++i) {
+    if (strcmp(script, script_table[i]) == 0)
+      return script_table[i];
+  }
+  if (script_table_size_reserved == 0) {
+    script_table_size_reserved = 8;
+    script_table = new char*[script_table_size_reserved];
+  }
+  if (script_table_size_used + 1 >= script_table_size_reserved) {
+    char** new_script_table = new char*[script_table_size_reserved * 2];
+    memcpy(new_script_table, script_table, script_table_size_reserved * sizeof(char*));
+    delete[] script_table;
+    script_table = new_script_table;
+      script_table_size_reserved = 2 * script_table_size_reserved;
+  }
+  script_table[script_table_size_used] = new char[strlen(script) + 1];
+  strcpy(script_table[script_table_size_used], script);
+  return script_table[script_table_size_used++];
+}

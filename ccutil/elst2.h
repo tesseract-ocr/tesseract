@@ -131,7 +131,7 @@ class DLLSYM ELIST2
                            ELIST2_ITERATOR *start_it,  //from list start
                            ELIST2_ITERATOR *end_it);   //from list end
 
-    INT32 length();  //# elements in list
+    inT32 length();  //# elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -223,7 +223,7 @@ class DLLSYM ELIST2_ITERATOR
     }
 
     ELIST2_LINK *data_relative(               //get data + or - ...
-                               INT8 offset);  //offset from current
+                               inT8 offset);  //offset from current
 
     ELIST2_LINK *forward();  //move to next element
 
@@ -262,7 +262,7 @@ class DLLSYM ELIST2_ITERATOR
     void exchange(                             //positions of 2 links
                   ELIST2_ITERATOR *other_it);  //other iterator
 
-    INT32 length();  //# elements in list
+    inT32 length();  //# elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -808,7 +808,7 @@ inline BOOL8 ELIST2_ITERATOR::cycled_list() {
  *
  **********************************************************************/
 
-inline INT32 ELIST2_ITERATOR::length() {
+inline inT32 ELIST2_ITERATOR::length() {
   #ifdef _DEBUG
   if (!this)
     NULL_OBJECT.error ("ELIST2_ITERATOR::length", ABORT, NULL);
@@ -1005,7 +1005,7 @@ CLASSNAME##_LIST*			list):ELIST2_ITERATOR(list){}								\
 		{ return (CLASSNAME*) ELIST2_ITERATOR::data(); }								\
 																										\
 	CLASSNAME*			data_relative(													\
-	INT8					offset)															\
+	inT8					offset)															\
 		{ return (CLASSNAME*) ELIST2_ITERATOR::data_relative( offset ); }		\
 																										\
 	CLASSNAME*			forward()														\

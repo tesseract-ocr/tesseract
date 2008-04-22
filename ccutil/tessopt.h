@@ -24,7 +24,7 @@ extern int tessoptind;
 extern char *tessoptarg;
 
 int tessopt (                     //parse args
-INT32 argc,                      //arg count
+inT32 argc,                      //arg count
 char *argv[],                    //args
 const char *arglist                    //string of arg chars
 );

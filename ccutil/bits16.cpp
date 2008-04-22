@@ -25,6 +25,6 @@
  *
  **********************************************************************/
 BITS16::BITS16(                // constructor
-               UINT16 init) {  // initial val
+               uinT16 init) {  // initial val
   val = init;
 }

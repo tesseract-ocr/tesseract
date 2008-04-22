@@ -102,7 +102,7 @@ INT_VAR_TO::INT_VAR_TO() {  //constructor
  **********************************************************************/
 
 INT_VARIABLE::INT_VARIABLE(                     //constructor
-                           INT32 v,             //the variable
+                           inT32 v,             //the variable
                            const char *vname,   //of variable
                            const char *comment  //info on variable
                           ) {
@@ -524,8 +524,8 @@ DLLSYM BOOL8 read_variables_file(const char *file  // name to read
   BOOL8 anyerr;                  // true if any error
   char flag;                     // file flag
   BOOL8 foundit;                 // found variable
-  INT16 length;                  // length of line
-  INT16 nameoffset;              // offset for real name
+  inT16 length;                  // length of line
+  inT16 nameoffset;              // offset for real name
   char *valptr;                  // value field
   char *stringend;               // end of string value
   FILE *fp;                      // file pointer

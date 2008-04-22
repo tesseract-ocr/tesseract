@@ -42,10 +42,10 @@ class MEMUNION
     union
     {
       MEMUNION *ptr;             //next chunk
-      INT32 size;                //chunk size
+      inT32 size;                //chunk size
     };
-    UINT16 owner;                //owner of chunk
-    UINT16 age;                  //age of chunk
+    uinT16 owner;                //owner of chunk
+    uinT16 age;                  //age of chunk
 };
 
 class MEMBLOCK
@@ -56,18 +56,18 @@ class MEMBLOCK
     MEMUNION *freechunk;         /*next free chunk */
     MEMUNION *topchunk;          /*top free chunk */
     MEMBLOCK *next;              /*next block in chain */
-    INT32 upperspace;            /*space above freechunk */
-    INT32 lowerspace;            /*space below freechunk */
+    inT32 upperspace;            /*space above freechunk */
+    inT32 lowerspace;            /*space below freechunk */
 
     MEMUNION *find_chunk(               //find free chunk
-                         INT32 count);  //size required
+                         inT32 count);  //size required
 };
 
 class FREE_CALL
 {
   public:
     void *freeer;                //return addr
-    INT32 count;                 //no of frees
+    inT32 count;                 //no of frees
     FREE_CALL() {  //constructor
       freeer = NULL;
       count = 0;
@@ -78,8 +78,8 @@ class MALLOC_CALL
   public:
     void *caller;                //return addr
     FREE_CALL *free_list;        //freeer counts
-    INT32 *counts;               //no of blocks
-    INT32 free_bits;             //bits in free table
+    inT32 *counts;               //no of blocks
+    inT32 free_bits;             //bits in free table
 
     MALLOC_CALL() {  //constructor
       caller = NULL;
@@ -96,50 +96,50 @@ class MALLOC_CALL
 class MEM_ALLOCATOR
 {
   public:
-    INT16 blockcount;            //blocks in use
-    UINT16 malloc_serial;        //serial allocation
+    inT16 blockcount;            //blocks in use
+    uinT16 malloc_serial;        //serial allocation
     MEMBLOCK *topblock;          //block for permanents
     MEMBLOCK *currblock;         //current block
     MALLOC_CALL *callers;        //hash table of callers
-    void *(*malloc) (INT32);     //external allocator
+    void *(*malloc) (inT32);     //external allocator
     void (*free) (void *);       //external free
-    INT32 maxsize;               //biggest block
-    INT32 biggestblock;          //biggest chunk
-    INT32 totalmem;              //total free memory
-    INT32 memsize;               //current block size
-    UINT32 malloc_div_ratio;     //scaling of malloc_serial
-    UINT32 malloc_minor_serial;  //scaling counter
-    UINT32 malloc_auto_count;    //counts auto checks
-    INT32 call_bits;             //size of table
-    INT32 entries;               //size of table
+    inT32 maxsize;               //biggest block
+    inT32 biggestblock;          //biggest chunk
+    inT32 totalmem;              //total free memory
+    inT32 memsize;               //current block size
+    uinT32 malloc_div_ratio;     //scaling of malloc_serial
+    uinT32 malloc_minor_serial;  //scaling counter
+    uinT32 malloc_auto_count;    //counts auto checks
+    inT32 call_bits;             //size of table
+    inT32 entries;               //size of table
                                  //all memory blocks
     MEMBLOCK memblocks[MAXBLOCKS];
 
     void init (                  //initialize
-      void *(*ext_malloc) (INT32),//external source
+      void *(*ext_malloc) (inT32),//external source
       void (*ext_free) (void *), //external free
-      INT32 firstsize,           //size of first block
-      INT32 lastsize,            //size of last block
-      INT32 maxchunk);           //biggest request
+      inT32 firstsize,           //size of first block
+      inT32 lastsize,            //size of last block
+      inT32 maxchunk);           //biggest request
 
     void *alloc(                //allocator
-                INT32 size,     //size of chunk
+                inT32 size,     //size of chunk
                 void *caller);  //ptr to caller
     void *alloc_p(                //allocator
-                  INT32 size,     //size of chunk
+                  inT32 size,     //size of chunk
                   void *caller);  //ptr to caller
     void dealloc(                //deallocator
                  void *ptr,      //mem to free
                  void *caller);  //ptr to caller
     void check(                     //check chunks
                const char *string,  //message
-               INT8 level);         //amount of checks
+               inT8 level);         //amount of checks
 
     void reduce_counts();  //divide by 2
     void display_counts();  //count up
     MEMBLOCK *new_block(                 //get new big block
-                        INT32 minsize);  //minimum size
-    UINT16 hash_caller(              //check a structure
+                        inT32 minsize);  //minimum size
+    uinT16 hash_caller(              //check a structure
                        void *addr);  //return address
 
   private:
@@ -153,12 +153,12 @@ extern MEM_ALLOCATOR main_mem;
                                  //heads of freelists
 extern MEMUNION *free_structs[MAX_STRUCTS];
                                  //number issued
-extern INT32 structs_in_use[MAX_STRUCTS];
+extern inT32 structs_in_use[MAX_STRUCTS];
                                  //number issued
-extern INT32 blocks_in_use[MAX_STRUCTS];
+extern inT32 blocks_in_use[MAX_STRUCTS];
                                  //head of block lists
 extern MEMUNION *struct_blocks[MAX_STRUCTS];
-extern INT32 owner_counts[MAX_STRUCTS][MAX_CLASSES];
+extern inT32 owner_counts[MAX_STRUCTS][MAX_CLASSES];
 
 extern INT_VAR_H (mem_mallocdepth, 0, "Malloc stack depth to trace");
 extern INT_VAR_H (mem_mallocbits, 8, "Log 2 of hash table size");
@@ -169,18 +169,18 @@ extern INT_VAR_H (mem_checkfreq, 0,
 "Calls to alloc_mem between owner counts");
 
 void *trace_caller(             //trace stack
-                   INT32 depth  //depth to trace
+                   inT32 depth  //depth to trace
                   );
-INT32 identify_struct_owner(                     //get table index
-                            INT32 struct_count,  //cell size
+inT32 identify_struct_owner(                     //get table index
+                            inT32 struct_count,  //cell size
                             const char *name     //name of type
                            );
 void check_struct(             //check a structure
-                  INT8 level,  //print control
-                  INT32 count  //no of bytes
+                  inT8 level,  //print control
+                  inT32 count  //no of bytes
                  );
 void check_structs(            //count in use on structs
-                   INT8 level  //print control
+                   inT8 level  //print control
                   );
 void *new_struct_block();  //allocate memory
 void old_struct_block(                     //free a structure block

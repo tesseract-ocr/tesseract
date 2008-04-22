@@ -60,7 +60,7 @@ class DLLSYM INT_VARIABLE
   friend bool set_new_style_variable(const char *variable, const char* value);
 
   public:
-    INT_VARIABLE(INT32 v,               // initial value
+    INT_VARIABLE(inT32 v,               // initial value
                  const char *vname,     // name of variable
                  const char *comment);  // info on variable
 
@@ -71,11 +71,11 @@ class DLLSYM INT_VARIABLE
     }
     ~INT_VARIABLE();            // for elist only
 
-    operator INT32() {  // conversion
+    operator inT32() {  // conversion
       return value;              // access as int
     }
 
-    void set_value(INT32 v) {  // value to set
+    void set_value(inT32 v) {  // value to set
       value = v;
     }
 
@@ -93,7 +93,7 @@ class DLLSYM INT_VARIABLE
     static void print(FILE *fp);  // file to print on
 
   private:
-    INT32 value;                 // the variable
+    inT32 value;                 // the variable
     const char *name;            // name of variable
     const char *info;            // for menus
     static INT_VAR_FROM copy;    // pre constructor

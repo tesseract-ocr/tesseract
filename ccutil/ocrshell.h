@@ -41,16 +41,16 @@
  * the default.
  **********************************************************************/
 #ifdef __MAC__
-INT16 ocr_open_shm(UINT16 *lang); 
+inT16 ocr_open_shm(uinT16 *lang);
 #else
-INT16 ocr_open_shm(                       /*open the shm */
+inT16 ocr_open_shm(                       /*open the shm */
                    const char *shm_h,     /*handle of shm */
                    const char *shm_size,  /*size of shm segment */
                    const char *mutex_h,   /*hp mutex */
                    const char *ocr_h,     /*ocr semaphore */
                    const char *hp_h,      /*hp semaphore */
                    const char *lang_str,  /*language */
-                   UINT16 *lang           /*required language */
+                   uinT16 *lang           /*required language */
                   );
 #endif
 
@@ -60,11 +60,11 @@ INT16 ocr_open_shm(                       /*open the shm */
  * Initialize one of the font descriptors.
  **********************************************************************/
 
-INT16 ocr_append_fontinfo(                    /*put info into shm */
-                          UINT16 language,    /*default language */
-                          UINT8 font_family,  /*serif/not, fixed/not */
-                          UINT8 char_set,     /*character set standard */
-                          UINT8 pitch,        /*fixed or prop */
+inT16 ocr_append_fontinfo(                    /*put info into shm */
+                          uinT16 language,    /*default language */
+                          uinT8 font_family,  /*serif/not, fixed/not */
+                          uinT8 char_set,     /*character set standard */
+                          uinT8 pitch,        /*fixed or prop */
                           const char *name    /*plain ascii name */
                          );
 
@@ -75,11 +75,11 @@ INT16 ocr_append_fontinfo(                    /*put info into shm */
  * engine.
  **********************************************************************/
 
-INT16 ocr_setup_startinfo(                       /*put info into shm */
-                          UINT32 protocol,       /*interface version */
-                          UINT16 language,       /*default language */
-                          const UINT16 *name,    /*name of engine */
-                          const UINT16 *version  /*version of engine */
+inT16 ocr_setup_startinfo(                       /*put info into shm */
+                          uinT32 protocol,       /*interface version */
+                          uinT16 language,       /*default language */
+                          const uinT16 *name,    /*name of engine */
+                          const uinT16 *version  /*version of engine */
                          );
 
 /**********************************************************************
@@ -89,9 +89,9 @@ INT16 ocr_setup_startinfo(                       /*put info into shm */
  * engine.
  **********************************************************************/
 
-INT16 ocr_setup_startinfo_ansi(                     /*put info into shm */
-                               UINT32 protocol,     /*interface version */
-                               UINT16 language,     /*default language */
+inT16 ocr_setup_startinfo_ansi(                     /*put info into shm */
+                               uinT32 protocol,     /*interface version */
+                               uinT16 language,     /*default language */
                                const char *name,    /*name of engine */
                                const char *version  /*version of engine */
                               );
@@ -104,7 +104,7 @@ INT16 ocr_setup_startinfo_ansi(                     /*put info into shm */
  **********************************************************************/
 
                                  /*get image strip */
-ESTRIP_DESC *ocr_get_first_image_strip(); 
+ESTRIP_DESC *ocr_get_first_image_strip();
 
 /**********************************************************************
  * ocr_get_next_image_strip
@@ -114,7 +114,7 @@ ESTRIP_DESC *ocr_get_first_image_strip();
  **********************************************************************/
 
                                  /*get image strip */
-ESTRIP_DESC *ocr_get_next_image_strip(); 
+ESTRIP_DESC *ocr_get_next_image_strip();
 
 /**********************************************************************
  * ocr_setup_monitor
@@ -130,7 +130,7 @@ ETEXT_DESC *ocr_setup_monitor();  /*setup monitor */
  * Return the number of chars that can be fitted into the buffer.
  **********************************************************************/
 
-INT32 ocr_char_space();  /*put char into shm */
+inT32 ocr_char_space();  /*put char into shm */
 
 /**********************************************************************
  * ocr_append_char
@@ -139,17 +139,17 @@ INT32 ocr_char_space();  /*put char into shm */
  * if there was insufficient room in the buffer.
  **********************************************************************/
 
-INT16 ocr_append_char(                              /*put char into shm */
-                      UINT16 char_code,             /*character itself */
-                      INT16 left,                   /*of char (-1) */
-                      INT16 right,                  /*of char (-1) */
-                      INT16 top,                    /*of char (-1) */
-                      INT16 bottom,                 /*of char (-1) */
-                      INT16 font_index,             /*what font (-1) */
-                      UINT8 confidence,             /*0=perfect, 100=reject (0/100) */
-                      UINT8 point_size,             /*of char, 72=i inch, (10) */
-                      INT8 blanks,                  /*no of spaces before this char (1) */
-                      UINT8 enhancement,            /*char enhancement (0) */
+inT16 ocr_append_char(                              /*put char into shm */
+                      uinT16 char_code,             /*character itself */
+                      inT16 left,                   /*of char (-1) */
+                      inT16 right,                  /*of char (-1) */
+                      inT16 top,                    /*of char (-1) */
+                      inT16 bottom,                 /*of char (-1) */
+                      inT16 font_index,             /*what font (-1) */
+                      uinT8 confidence,             /*0=perfect, 100=reject (0/100) */
+                      uinT8 point_size,             /*of char, 72=i inch, (10) */
+                      inT8 blanks,                  /*no of spaces before this char (1) */
+                      uinT8 enhancement,            /*char enhancement (0) */
                       OCR_CHAR_DIRECTION text_dir,  /*rendering direction (OCR_CDIR_RIGHT_LEFT) */
                       OCR_LINE_DIRECTION line_dir,  /*line rendering direction (OCR_LDIR_DOWN_RIGHT) */
                       OCR_NEWLINE_TYPE nl_type      /*type of newline (if any) (OCR_NL_NONE) */
@@ -165,7 +165,7 @@ INT16 ocr_append_char(                              /*put char into shm */
  * if the OCR engine is now ready to receive another image.
  **********************************************************************/
 
-INT16 ocr_send_text(                    /*send shm */
+inT16 ocr_send_text(                    /*send shm */
                     BOOL8 more_to_come  /*any text left */
                    );
 
@@ -175,7 +175,7 @@ INT16 ocr_send_text(                    /*send shm */
  * Closedown communications with the HP side and free up handles.
  **********************************************************************/
 
-INT16 ocr_shutdown();  /*closedown */
+inT16 ocr_shutdown();  /*closedown */
 
 /**********************************************************************
  * ocr_error

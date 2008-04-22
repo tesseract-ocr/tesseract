@@ -50,11 +50,11 @@ static LCommander *pCommander = NULL;
 
 DEBUG_WIN::DEBUG_WIN(                    //constructor
                      const char *title,  //of window
-                     INT32 xpos,         //initial position
-                     INT32 ypos,         //in pixels
-                     INT32 xsize,        //initial size
-                     INT32 ysize,        //in pixels
-                     INT32 buflines      //default scroll size
+                     inT32 xpos,         //initial position
+                     inT32 ypos,         //in pixels
+                     inT32 xsize,        //initial size
+                     inT32 ysize,        //in pixels
+                     inT32 buflines      //default scroll size
                     ) {
   char cmd[1024];
   int parm;                      //output from scrolrwin
@@ -94,8 +94,8 @@ DEBUG_WIN::DEBUG_WIN(                    //constructor
   do
   Sleep (100);
   while (shm_mem[5] == 0);       //wait for handle
-  parm = ((((UINT8) shm_mem[4] << 8) + (UINT8) shm_mem[3] << 8)
-    + (UINT8) shm_mem[2] << 8) + (UINT8) shm_mem[1];
+  parm = ((((uinT8) shm_mem[4] << 8) + (uinT8) shm_mem[3] << 8)
+    + (uinT8) shm_mem[2] << 8) + (uinT8) shm_mem[1];
   handle = (HWND) parm;
   if (handle != NULL) {
                                  //setup window
@@ -118,13 +118,13 @@ DEBUG_WIN::~DEBUG_WIN (
   if (IsWindow (handle))
     ::SendMessage (handle, WM_COMMAND, IDOK, 0);
   if (shm_mem != NULL)
-    UnmapViewOfFile(shm_mem); 
+    UnmapViewOfFile(shm_mem);
   if (shm_hand != NULL)
-    CloseHandle(shm_hand); 
+    CloseHandle(shm_hand);
   if (dbg_thread != NULL)
-    CloseHandle(dbg_thread); 
+    CloseHandle(dbg_thread);
   if (dbg_process == NULL)
-    CloseHandle(dbg_process); 
+    CloseHandle(dbg_process);
 
 }
 
@@ -150,8 +150,8 @@ const char *format, ...          //special message
     msg_end = shm_mem + 1;
   va_start(args, format);  //variable list
                                  //Format into msg
-  vsprintf(msg_end, format, args); 
-  va_end(args); 
+  vsprintf(msg_end, format, args);
+  va_end(args);
   if (*msg_end == '\0')
     return;
   msg_start = shm_mem + 1;
@@ -208,14 +208,14 @@ void DEBUG_WIN::await_destruction() {  //wait for user to close
 
 DEBUG_WIN::DEBUG_WIN(                    //constructor
                      const char *title,  //of window
-                     INT32 xpos,         //initial position
-                     INT32 ypos,         //in pixels
-                     INT32 xsize,        //initial size
-                     INT32 ysize,        //in pixels
-                     INT32 buflines      //default scroll size
+                     inT32 xpos,         //initial position
+                     inT32 ypos,         //in pixels
+                     inT32 xsize,        //initial size
+                     inT32 ysize,        //in pixels
+                     inT32 buflines      //default scroll size
                     ) {
   #ifdef __UNIX__
-  INT32 length;                  /*length of name */
+  inT32 length;                  /*length of name */
   char command[MAX_PATH];        /*pipe command */
   pid_t pid;                     /*process id */
   char host[MAX_PATH];           //remote host
@@ -266,7 +266,7 @@ DEBUG_WIN::DEBUG_WIN(                    //constructor
   if (fp != NULL) {
                                  /*set no buffering */
     if (setvbuf (fp, NULL, _IONBF, BUFSIZ)) {
-      pclose(fp); 
+      pclose(fp);
       fp = NULL;
     }
   }
@@ -284,7 +284,7 @@ DEBUG_WIN::~DEBUG_WIN (
 //destructor
 ) {
   #ifdef __UNIX__
-  pclose(fp); 
+  pclose(fp);
   #endif
 }
 
@@ -308,9 +308,9 @@ const char *format, ...          //special message
   vfprintf(fp, format, args);  //Format into msg
   #else
                                  //Format into msg
-  vfprintf(stderr, format, args); 
+  vfprintf(stderr, format, args);
   #endif
-  va_end(args); 
+  va_end(args);
 }
 
 
@@ -322,7 +322,7 @@ const char *format, ...          //special message
 
 void DEBUG_WIN::await_destruction() {  //wait for user to close
   #ifdef __UNIX__
-  signal(SIGPIPE, SIG_IGN); 
+  signal(SIGPIPE, SIG_IGN);
   while (!ferror (fp)) {
     sleep (1);
     fputc (0, fp);               //send nulls until error
@@ -345,7 +345,7 @@ void DEBUG_WIN::await_destruction() {  //wait for user to close
  *
  * Mac-specific function to set the commander for the next debug window
  **********************************************************************/
-void DEBUG_WIN::SetCommander(LCommander *pNew) { 
+void DEBUG_WIN::SetCommander(LCommander *pNew) {
   pCommander = pNew;
 }
 
@@ -359,13 +359,13 @@ void DEBUG_WIN::SetCommander(LCommander *pNew) {
 
 DEBUG_WIN::DEBUG_WIN(                    //constructor
                      const char *title,  //of window
-                     INT32 xpos,         //initial position
-                     INT32 ypos,         //in pixels
-                     INT32 xsize,        //initial size
-                     INT32 ysize,        //in pixels
-                     INT32 buflines      //default scroll size
+                     inT32 xpos,         //initial position
+                     inT32 ypos,         //in pixels
+                     inT32 xsize,        //initial size
+                     inT32 ysize,        //in pixels
+                     inT32 buflines      //default scroll size
                     ) {
-  INT32 length;                  /*length of name */
+  inT32 length;                  /*length of name */
 
   // don't replace this DebugStr() with a call to DEBUG_WIN!
 
@@ -406,14 +406,14 @@ const char *format, ...          //special message
   va_list args;                  //variable args
   static char msg[1024];
 
-  INT32 i;
-  INT32 OriginalLength;
-  INT32 NewLength;
+  inT32 i;
+  inT32 OriginalLength;
+  inT32 NewLength;
   TEHandle hTextEdit;
   char *pTempBuffer;
   CharsHandle hChar;
   char *pOriginalText;
-  INT32 StringLength;
+  inT32 StringLength;
 
   pTextEdit = (LTextEdit *) pWindow->FindPaneByID (text_FLOWED);
   if (pTextEdit == NULL)
@@ -423,7 +423,7 @@ const char *format, ...          //special message
 
   va_start(args, format);  //variable list
   vsprintf(msg, format, args);  //Format into msg
-  va_end(args); 
+  va_end(args);
 
   StringLength = strlen (msg);
 
@@ -468,18 +468,18 @@ const char *format, ...          //special message
 
   // put the new text into the text edit item
 
-  TESetText(pTempBuffer, NewLength, hTextEdit); 
+  TESetText(pTempBuffer, NewLength, hTextEdit);
 
   // clean up
 
-  DisposePtr(pTempBuffer); 
+  DisposePtr(pTempBuffer);
   #endif
 }
 #endif                           //Mac Implmentation
 
 #else                            // Non graphical debugger
 
-DEBUG_WIN::DEBUG_WIN( const char*, INT32, INT32, INT32, INT32, INT32 ) {
+DEBUG_WIN::DEBUG_WIN( const char*, inT32, inT32, inT32, inT32, inT32 ) {
 }
 
 DEBUG_WIN::~DEBUG_WIN () {

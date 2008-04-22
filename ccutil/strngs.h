@@ -43,17 +43,17 @@ class DLLSYM STRING
     ~STRING ();
 
     BOOL8 contains(const char c) const;
-    INT32 length() const;
+    inT32 length() const;
     const char *string() const;
 
 #if STRING_IS_PROTECTED
-    const char &operator[] (INT32 index) const;
+    const char &operator[] (inT32 index) const;
     // len is number of chars in s to insert starting at index in this string
-    void insert_range(INT32 index, const char*s, int len);
-    void erase_range(INT32 index, int len);
-    void truncate_at(INT32 index);
+    void insert_range(inT32 index, const char*s, int len);
+    void erase_range(inT32 index, int len);
+    void truncate_at(inT32 index);
 #else
-    char &operator[] (INT32 index) const;
+    char &operator[] (inT32 index) const;
 #endif
 
     BOOL8 operator== (const STRING & string) const;
@@ -81,7 +81,7 @@ class DLLSYM STRING
     make_serialise (STRING)
 
     // ensure capcaity but keep pointer encapsulated
-    inline void ensure(INT32 min_capacity) { ensure_cstr(min_capacity); }
+    inline void ensure(inT32 min_capacity) { ensure_cstr(min_capacity); }
 
   private:
     typedef struct STRING_HEADER {
@@ -128,7 +128,7 @@ class DLLSYM STRING
     // Ensure string has requested capacity as optimization
     // to avoid unnecessary reallocations.
     // The return value is a cstr buffer with at least requested capacity
-    char* ensure_cstr(INT32 min_capacity);
+    char* ensure_cstr(inT32 min_capacity);
 
     void FixHeader() const;  // make used_ non-negative, even if const
 

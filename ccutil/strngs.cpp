@@ -135,7 +135,7 @@ void STRING::DiscardData() {
 
 // This is a private method; ensure FixHeader is called (or used_ is well defined)
 // beforehand
-char* STRING::ensure_cstr(INT32 min_capacity) {
+char* STRING::ensure_cstr(inT32 min_capacity) {
   STRING_HEADER* orig_header = GetHeader();
   if (min_capacity <= orig_header->capacity_)
     return ((char *)this->data_) + sizeof(STRING_HEADER);
@@ -203,7 +203,7 @@ BOOL8 STRING::contains(const char c) const {
   return (c != '\0') && (strchr (GetCStr(), c) != NULL);
 }
 
-INT32 STRING::length() const {
+inT32 STRING::length() const {
   FixHeader();
   return GetHeader()->used_ - 1;
 }
@@ -227,11 +227,11 @@ const char* STRING::string() const {
  * Also makes the [] operator return a const so it is immutable
  */
 #if STRING_IS_PROTECTED
-const char& STRING::operator[](INT32 index) const {
+const char& STRING::operator[](inT32 index) const {
   return GetCStr()[index];
 }
 
-void STRING::insert_range(INT32 index, const char* str, int len) {
+void STRING::insert_range(inT32 index, const char* str, int len) {
   // if index is outside current range, then also grow size of string
   // to accmodate the requested range.
   STRING_HEADER* this_header = GetHeader();
@@ -264,7 +264,7 @@ void STRING::insert_range(INT32 index, const char* str, int len) {
   CHECK_INVARIANT(this);
 }
 
-void STRING::erase_range(INT32 index, int len) {
+void STRING::erase_range(inT32 index, int len) {
   char* this_cstr = GetCStr();
   STRING_HEADER* this_header = GetHeader();
 
@@ -274,7 +274,7 @@ void STRING::erase_range(INT32 index, int len) {
   CHECK_INVARIANT(this);
 }
 
-void STRING::truncate_at(INT32 index) {
+void STRING::truncate_at(inT32 index) {
   char* this_cstr = ensure_cstr(index);
   this_cstr[index] = '\0';
   GetHeader()->used_ = index;
@@ -282,7 +282,7 @@ void STRING::truncate_at(INT32 index) {
 }
 
 #else
-char& STRING::operator[](INT32 index) const {
+char& STRING::operator[](inT32 index) const {
   // Code is casting away this const and mutating the string,
   // so mark used_ as -1 to flag it unreliable.
   GetHeader()->used_ = -1;
@@ -321,7 +321,7 @@ BOOL8 STRING::operator!=(const char* cstr) const {
   if (cstr == NULL)
     return this_header->used_ > 1;  // either '\0' or NULL
   else {
-    INT32 length = strlen(cstr) + 1;
+    inT32 length = strlen(cstr) + 1;
     return (this_header->used_ != length)
             || (memcmp(GetCStr(), cstr, length) != 0);
   }

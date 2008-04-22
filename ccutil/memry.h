@@ -32,7 +32,7 @@
 	void					*operator new(				/*fast allocator*/\
 	size_t					size,						/*size of object*/\
 	const char*				file=NULL,					/*filename*/\
-	INT32					line=0)						/*line number*/\
+	inT32					line=0)						/*line number*/\
 	{\
 		return alloc_struct(size);						/*simple to do*/\
 	}\
@@ -48,7 +48,7 @@
 	void					*operator new(				/*fast allocator*/\
 	size_t					size,						/*size of object*/\
 	const char*				file=NULL,					/*filename*/\
-	INT32					line=0)						/*line number*/\
+	inT32					line=0)						/*line number*/\
 	{\
 		return alloc_struct(size,#name);				/*simple to do*/\
 	}\
@@ -104,7 +104,7 @@
 
 #define ALLOC_2D_ARRAY(x,y,mem,ptrs,type)				/*make 2d array*/\
 { \
-	INT32					TMP_i; \
+	inT32					TMP_i; \
 	mem=(type*)alloc_mem((x)*(y)*sizeof(type));			/*get memory*/\
 	ptrs=(type**)alloc_mem((x)*sizeof(type*));			/*get ptrs*/\
 	for (TMP_i=0;TMP_i<(x);TMP_i++)\
@@ -132,7 +132,7 @@
 
 #define ALLOC_BIG_2D_ARRAY(x,y,mem,ptrs,type)			/*make 2d array*/\
 { \
-	INT32					TMP_i; \
+	inT32					TMP_i; \
 	mem=(type*)alloc_big_mem((x)*(y)*sizeof(type));		/*get memory*/\
 	ptrs=(type**)alloc_big_mem((x)*sizeof(type*));		/*get ptrs*/\
 	for (TMP_i=0;TMP_i<(x);TMP_i++)\
@@ -153,35 +153,35 @@
 
 extern DLLSYM void check_mem(                     //check consistency
                              const char *string,  //context message
-                             INT8 level           //level of check
+                             inT8 level           //level of check
                             );
                                  //allocate string
-extern DLLSYM char *alloc_string(INT32 count  //no of chars required
+extern DLLSYM char *alloc_string(inT32 count  //no of chars required
                                 );
 extern DLLSYM void free_string(              //free a string
                                char *string  //string to free
                               );
                                  //allocate memory
 extern DLLSYM void *alloc_struct (
-INT32 count,                     //no of chars required
+inT32 count,                     //no of chars required
 const char *name = NULL          //class name
 );
 extern DLLSYM void free_struct ( //free a structure
 void *deadstruct,                //structure to free
-INT32 count,                     //no of bytes
+inT32 count,                     //no of bytes
 const char *name = NULL          //class name
 );
 extern DLLSYM void *alloc_mem_p(             //allocate permanent space
-                                INT32 count  //block size to allocate
+                                inT32 count  //block size to allocate
                                );
 extern DLLSYM void *alloc_mem(             //get some memory
-                              INT32 count  //no of bytes to get
+                              inT32 count  //no of bytes to get
                              );
                                  //get some memory
-extern DLLSYM void *alloc_big_mem(INT32 count  //no of bytes to get
+extern DLLSYM void *alloc_big_mem(inT32 count  //no of bytes to get
                                  );
                                  //get some memory
-extern DLLSYM void *alloc_big_zeros(INT32 count  //no of bytes to get
+extern DLLSYM void *alloc_big_zeros(inT32 count  //no of bytes to get
                                    );
 extern DLLSYM void free_mem(                //free mem from alloc_mem
                             void *oldchunk  //chunk to free

@@ -32,24 +32,24 @@ This module implements list classes and iterators.
 The following list types and iterators are provided:
 
   List type        List Class      Iterator Class     Element Class
-  ---------			----------		--------------		-------------
+  ---------         ----------      --------------      -------------
 
-    Embedded list		ELIST
+    Embedded list       ELIST
               ELIST_ITERATOR
               ELIST_LINK
     (Single linked)
 
-    Embedded list		ELIST2
+    Embedded list       ELIST2
               ELIST2_ITERATOR
               ELIST2_LINK
     (Double linked)
 
-    Cons List			CLIST
+    Cons List           CLIST
               CLIST_ITERATOR
               CLIST_LINK
     (Single linked)
 
-    Cons List			CLIST2
+    Cons List           CLIST2
               CLIST2_ITERATOR
               CLIST2_LINK
     (Double linked)
@@ -72,9 +72,9 @@ lists.
 **********************************************************************/
 
 /**********************************************************************
- *							CLASS - ELIST_LINK
+ *                          CLASS - ELIST_LINK
  *
- *							Generic link class for singly linked lists with embedded links
+ *                          Generic link class for singly linked lists with embedded links
  *
  *  Note:  No destructor - elements are assumed to be destroyed EITHER after
  *  they have been extracted from a list OR by the ELIST destructor which
@@ -162,7 +162,7 @@ class DLLSYM ELIST
                            ELIST_ITERATOR *start_it,  //from list start
                            ELIST_ITERATOR *end_it);   //from list end
 
-    INT32 length();  //# elements in list
+    inT32 length();  //# elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -189,9 +189,9 @@ class DLLSYM ELIST
 };
 
 /***********************************************************************
- *							CLASS - ELIST_ITERATOR
+ *                          CLASS - ELIST_ITERATOR
  *
- *							Generic iterator class for singly linked lists with embedded links
+ *                          Generic iterator class for singly linked lists with embedded links
  **********************************************************************/
 
 class DLLSYM ELIST_ITERATOR
@@ -254,7 +254,7 @@ class DLLSYM ELIST_ITERATOR
     }
 
     ELIST_LINK *data_relative(               //get data + or - ...
-                              INT8 offset);  //offset from current
+                              inT8 offset);  //offset from current
 
     ELIST_LINK *forward();  //move to next element
 
@@ -290,7 +290,7 @@ class DLLSYM ELIST_ITERATOR
     void exchange(                            //positions of 2 links
                   ELIST_ITERATOR *other_it);  //other iterator
 
-    INT32 length();  //# elements in list
+    inT32 length();  //# elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -299,7 +299,7 @@ class DLLSYM ELIST_ITERATOR
 };
 
 /***********************************************************************
- *							ELIST_ITERATOR::set_to_list
+ *                          ELIST_ITERATOR::set_to_list
  *
  *  (Re-)initialise the iterator to point to the start of the list_to_iterate
  *  over.
@@ -327,7 +327,7 @@ inline void ELIST_ITERATOR::set_to_list(  //change list
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::ELIST_ITERATOR
+ *                          ELIST_ITERATOR::ELIST_ITERATOR
  *
  *  CONSTRUCTOR - set iterator to specified list;
  **********************************************************************/
@@ -338,7 +338,7 @@ inline ELIST_ITERATOR::ELIST_ITERATOR(ELIST *list_to_iterate) {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::add_after_then_move
+ *                          ELIST_ITERATOR::add_after_then_move
  *
  *  Add a new element to the list after the current element and move the
  *  iterator to the new element.
@@ -385,7 +385,7 @@ inline void ELIST_ITERATOR::add_after_then_move(  // element to add
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::add_after_stay_put
+ *                          ELIST_ITERATOR::add_after_stay_put
  *
  *  Add a new element to the list after the current element but do not move
  *  the iterator to the new element.
@@ -435,7 +435,7 @@ inline void ELIST_ITERATOR::add_after_stay_put(  // element to add
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::add_before_then_move
+ *                          ELIST_ITERATOR::add_before_then_move
  *
  *  Add a new element to the list before the current element and move the
  *  iterator to the new element.
@@ -479,7 +479,7 @@ inline void ELIST_ITERATOR::add_before_then_move(  // element to add
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::add_before_stay_put
+ *                          ELIST_ITERATOR::add_before_stay_put
  *
  *  Add a new element to the list before the current element but dont move the
  *  iterator to the new element.
@@ -524,7 +524,7 @@ inline void ELIST_ITERATOR::add_before_stay_put(  // element to add
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::add_list_after
+ *                          ELIST_ITERATOR::add_list_after
  *
  *  Insert another list to this list after the current element but dont move the
  *  iterator.
@@ -573,7 +573,7 @@ inline void ELIST_ITERATOR::add_list_after(ELIST *list_to_add) {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::add_list_before
+ *                          ELIST_ITERATOR::add_list_before
  *
  *  Insert another list to this list before the current element. Move the
  *  iterator to the start of the inserted elements
@@ -620,7 +620,7 @@ inline void ELIST_ITERATOR::add_list_before(ELIST *list_to_add) {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::extract
+ *                          ELIST_ITERATOR::extract
  *
  *  Do extraction by removing current from the list, returning it to the
  *  caller, but NOT updating the iterator.  (So that any calling loop can do
@@ -667,7 +667,7 @@ inline ELIST_LINK *ELIST_ITERATOR::extract() {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::move_to_first()
+ *                          ELIST_ITERATOR::move_to_first()
  *
  *  Move current so that it is set to the start of the list.
  *  Return data just in case anyone wants it.
@@ -689,7 +689,7 @@ inline ELIST_LINK *ELIST_ITERATOR::move_to_first() {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::mark_cycle_pt()
+ *                          ELIST_ITERATOR::mark_cycle_pt()
  *
  *  Remember the current location so that we can tell whether we've returned
  *  to this point later.
@@ -716,7 +716,7 @@ inline void ELIST_ITERATOR::mark_cycle_pt() {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::at_first()
+ *                          ELIST_ITERATOR::at_first()
  *
  *  Are we at the start of the list?
  *
@@ -738,7 +738,7 @@ inline BOOL8 ELIST_ITERATOR::at_first() {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::at_last()
+ *                          ELIST_ITERATOR::at_last()
  *
  *  Are we at the end of the list?
  *
@@ -760,7 +760,7 @@ inline BOOL8 ELIST_ITERATOR::at_last() {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::cycled_list()
+ *                          ELIST_ITERATOR::cycled_list()
  *
  *  Have we returned to the cycle_pt since it was set?
  *
@@ -780,13 +780,13 @@ inline BOOL8 ELIST_ITERATOR::cycled_list() {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::length()
+ *                          ELIST_ITERATOR::length()
  *
  *  Return the length of the list
  *
  **********************************************************************/
 
-inline INT32 ELIST_ITERATOR::length() {
+inline inT32 ELIST_ITERATOR::length() {
   #ifdef _DEBUG
   if (!this)
     NULL_OBJECT.error ("ELIST_ITERATOR::length", ABORT, NULL);
@@ -799,7 +799,7 @@ inline INT32 ELIST_ITERATOR::length() {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::sort()
+ *                          ELIST_ITERATOR::sort()
  *
  *  Sort the elements of the list, then reposition at the start.
  *
@@ -822,7 +822,7 @@ const void *, const void *)) {
 
 
 /***********************************************************************
- *							ELIST_ITERATOR::add_to_end
+ *                          ELIST_ITERATOR::add_to_end
  *
  *  Add a new element to the end of the list without moving the iterator.
  *  This is provided because a single linked list cannot move to the last as
@@ -889,7 +889,7 @@ The macros generate:
   - An element copier function:        CLASSNAME##_copier
   - An element serialiser function"    CLASSNAME##_serialiser
   - An element de-serialiser function" CLASSNAME##_de_serialiser
-  - An E_LIST subclass:	CLASSNAME##_LIST
+  - An E_LIST subclass: CLASSNAME##_LIST
   - An E_LIST_ITERATOR subclass:       CLASSNAME##_IT
 
 NOTE: Generated names are DELIBERATELY designed to clash with those for
@@ -912,129 +912,129 @@ ELISTIZEH_C.  ELISTIZEH is simply a concatenation of these parts.
 ELISTIZEH_S has some additional bits thrown in the gaps.
 ***********************************************************************/
 
-#define ELISTIZEH_A( CLASSNAME )														\
-																										\
-extern DLLSYM void			CLASSNAME##_zapper(			/*delete a link*/		\
-ELIST_LINK*					link);						/*link to delete*/   \
-																										\
-extern DLLSYM ELIST_LINK*	CLASSNAME##_copier(			/*deep copy a link*/	\
-ELIST_LINK*					old_element);   /*source link */
+#define ELISTIZEH_A( CLASSNAME )                                                        \
+                                                                                                        \
+extern DLLSYM void          CLASSNAME##_zapper(         /*delete a link*/       \
+ELIST_LINK*                 link);                      /*link to delete*/   \
+                                                                                                        \
+extern DLLSYM ELIST_LINK*   CLASSNAME##_copier(         /*deep copy a link*/    \
+ELIST_LINK*                 old_element);   /*source link */
 
-#define ELISTIZEH_B( CLASSNAME )														\
-																										\
-/***********************************************************************		\
-*							CLASS - CLASSNAME##_LIST																	\
-*																										\
-*							List class for class CLASSNAME															\
-*																										\
-**********************************************************************/			\
-																										\
-class DLLSYM				CLASSNAME##_LIST : public ELIST							\
-{																										\
-public:																								\
-							CLASSNAME##_LIST():ELIST() {}\
-														/* constructor */		\
-																										\
-							CLASSNAME##_LIST(			/* dont construct */ \
-	const CLASSNAME##_LIST&)							/*by initial assign*/\
-	{ DONT_CONSTRUCT_LIST_BY_COPY.error( QUOTE_IT( CLASSNAME##_LIST ),      \
-														ABORT, NULL ); }							\
-																										\
-void						clear()						/* delete elements */\
-	{ ELIST::internal_clear( &CLASSNAME##_zapper ); }								\
-																										\
-									~CLASSNAME##_LIST()	/* destructor */		\
-	{ clear(); }																				\
-																										\
-void						deep_copy(					/* become a deep */  \
-	const CLASSNAME##_LIST*	list)						/* copy of src list*/\
-	{ ELIST::internal_deep_copy( &CLASSNAME##_copier, list ); }					\
-																										\
-void						operator=(					/* prevent assign */	\
-	const CLASSNAME##_LIST&)																\
-	{ DONT_ASSIGN_LISTS.error( QUOTE_IT( CLASSNAME##_LIST ),						\
-											ABORT, NULL ); }
+#define ELISTIZEH_B( CLASSNAME )                                                        \
+                                                                                                        \
+/***********************************************************************        \
+*                           CLASS - CLASSNAME##_LIST                                                                    \
+*                                                                                                       \
+*                           List class for class CLASSNAME                                                          \
+*                                                                                                       \
+**********************************************************************/         \
+                                                                                                        \
+class DLLSYM                CLASSNAME##_LIST : public ELIST                         \
+{                                                                                                       \
+public:                                                                                             \
+                            CLASSNAME##_LIST():ELIST() {}\
+                                                        /* constructor */       \
+                                                                                                        \
+                            CLASSNAME##_LIST(           /* dont construct */ \
+    const CLASSNAME##_LIST&)                            /*by initial assign*/\
+    { DONT_CONSTRUCT_LIST_BY_COPY.error( QUOTE_IT( CLASSNAME##_LIST ),      \
+                                                        ABORT, NULL ); }                            \
+                                                                                                        \
+void                        clear()                     /* delete elements */\
+    { ELIST::internal_clear( &CLASSNAME##_zapper ); }                               \
+                                                                                                        \
+                                    ~CLASSNAME##_LIST() /* destructor */        \
+    { clear(); }                                                                                \
+                                                                                                        \
+void                        deep_copy(                  /* become a deep */  \
+    const CLASSNAME##_LIST* list)                       /* copy of src list*/\
+    { ELIST::internal_deep_copy( &CLASSNAME##_copier, list ); }                 \
+                                                                                                        \
+void                        operator=(                  /* prevent assign */    \
+    const CLASSNAME##_LIST&)                                                                \
+    { DONT_ASSIGN_LISTS.error( QUOTE_IT( CLASSNAME##_LIST ),                        \
+                                            ABORT, NULL ); }
 
-#define ELISTIZEH_C( CLASSNAME )														\
-};																										\
-																										\
-																										\
-																										\
-/***********************************************************************		\
-*							CLASS - CLASSNAME##_IT																		\
-*																										\
-*							Iterator class for class CLASSNAME##_LIST											\
-*																										\
-*  Note: We don't need to coerce pointers to member functions input				\
-*  parameters as these are automatically converted to the type of the base		\
-*  type. ("A ptr to a class may be converted to a pointer to a public base		\
-*  class of that class")																		\
-**********************************************************************/			\
-																										\
-class DLLSYM				CLASSNAME##_IT : public ELIST_ITERATOR					\
-{																										\
-public:																								\
-								CLASSNAME##_IT():ELIST_ITERATOR(){}						\
-																										\
-								CLASSNAME##_IT(												\
-CLASSNAME##_LIST*			list):ELIST_ITERATOR(list){}								\
-																										\
-	CLASSNAME*			data()															\
-		{ return (CLASSNAME*) ELIST_ITERATOR::data(); }								\
-																										\
-	CLASSNAME*			data_relative(													\
-	INT8					offset)															\
-		{ return (CLASSNAME*) ELIST_ITERATOR::data_relative( offset ); }		\
-																										\
-	CLASSNAME*			forward()														\
-		{ return (CLASSNAME*) ELIST_ITERATOR::forward(); }							\
-																										\
-	CLASSNAME*			extract()														\
-		{ return (CLASSNAME*) ELIST_ITERATOR::extract(); }							\
-																										\
-	CLASSNAME*			move_to_first()												\
-		{ return (CLASSNAME*) ELIST_ITERATOR::move_to_first(); }					\
-																										\
-	CLASSNAME*			move_to_last()													\
-		{ return (CLASSNAME*) ELIST_ITERATOR::move_to_last(); }					\
+#define ELISTIZEH_C( CLASSNAME )                                                        \
+};                                                                                                      \
+                                                                                                        \
+                                                                                                        \
+                                                                                                        \
+/***********************************************************************        \
+*                           CLASS - CLASSNAME##_IT                                                                      \
+*                                                                                                       \
+*                           Iterator class for class CLASSNAME##_LIST                                           \
+*                                                                                                       \
+*  Note: We don't need to coerce pointers to member functions input             \
+*  parameters as these are automatically converted to the type of the base      \
+*  type. ("A ptr to a class may be converted to a pointer to a public base      \
+*  class of that class")                                                                        \
+**********************************************************************/         \
+                                                                                                        \
+class DLLSYM                CLASSNAME##_IT : public ELIST_ITERATOR                  \
+{                                                                                                       \
+public:                                                                                             \
+                                CLASSNAME##_IT():ELIST_ITERATOR(){}                     \
+                                                                                                        \
+                                CLASSNAME##_IT(                                             \
+CLASSNAME##_LIST*           list):ELIST_ITERATOR(list){}                                \
+                                                                                                        \
+    CLASSNAME*          data()                                                          \
+        { return (CLASSNAME*) ELIST_ITERATOR::data(); }                             \
+                                                                                                        \
+    CLASSNAME*          data_relative(                                                  \
+    inT8                    offset)                                                         \
+        { return (CLASSNAME*) ELIST_ITERATOR::data_relative( offset ); }        \
+                                                                                                        \
+    CLASSNAME*          forward()                                                       \
+        { return (CLASSNAME*) ELIST_ITERATOR::forward(); }                          \
+                                                                                                        \
+    CLASSNAME*          extract()                                                       \
+        { return (CLASSNAME*) ELIST_ITERATOR::extract(); }                          \
+                                                                                                        \
+    CLASSNAME*          move_to_first()                                             \
+        { return (CLASSNAME*) ELIST_ITERATOR::move_to_first(); }                    \
+                                                                                                        \
+    CLASSNAME*          move_to_last()                                                  \
+        { return (CLASSNAME*) ELIST_ITERATOR::move_to_last(); }                 \
 };
 
-#define ELISTIZEH( CLASSNAME )														\
-																										\
-ELISTIZEH_A( CLASSNAME )																		\
-																										\
-ELISTIZEH_B( CLASSNAME )																		\
-																										\
+#define ELISTIZEH( CLASSNAME )                                                      \
+                                                                                                        \
+ELISTIZEH_A( CLASSNAME )                                                                        \
+                                                                                                        \
+ELISTIZEH_B( CLASSNAME )                                                                        \
+                                                                                                        \
 ELISTIZEH_C( CLASSNAME )
 
-#define ELISTIZEH_S( CLASSNAME )														\
-																										\
-ELISTIZEH_A( CLASSNAME )																		\
-																										\
-extern DLLSYM void			CLASSNAME##_serialiser(										\
-FILE*						f,																	\
-ELIST_LINK*					element);														\
-																										\
-extern DLLSYM ELIST_LINK*	CLASSNAME##_de_serialiser(									\
-FILE*						f);																\
-																										\
-ELISTIZEH_B( CLASSNAME )																		\
-																										\
-	void					dump(						/* dump to file */   \
-	FILE*					f)																	\
-	{ ELIST::internal_dump( f, &CLASSNAME##_serialiser );}						\
-																										\
-	void					de_dump(					/* get from file */  \
-	FILE*					f)																	\
-	{ ELIST::internal_de_dump( f, &CLASSNAME##_de_serialiser );}				\
-																										\
-	void					serialise_asc(				/*dump to ascii*/		\
-	FILE*					f);																	\
-	void					de_serialise_asc(			/*de-dump from ascii*/\
-	FILE*					f);																	\
-																										\
-make_serialise( CLASSNAME##_LIST )													\
-																										\
+#define ELISTIZEH_S( CLASSNAME )                                                        \
+                                                                                                        \
+ELISTIZEH_A( CLASSNAME )                                                                        \
+                                                                                                        \
+extern DLLSYM void          CLASSNAME##_serialiser(                                     \
+FILE*                       f,                                                                  \
+ELIST_LINK*                 element);                                                       \
+                                                                                                        \
+extern DLLSYM ELIST_LINK*   CLASSNAME##_de_serialiser(                                  \
+FILE*                       f);                                                             \
+                                                                                                        \
+ELISTIZEH_B( CLASSNAME )                                                                        \
+                                                                                                        \
+    void                    dump(                       /* dump to file */   \
+    FILE*                   f)                                                                  \
+    { ELIST::internal_dump( f, &CLASSNAME##_serialiser );}                      \
+                                                                                                        \
+    void                    de_dump(                    /* get from file */  \
+    FILE*                   f)                                                                  \
+    { ELIST::internal_de_dump( f, &CLASSNAME##_de_serialiser );}                \
+                                                                                                        \
+    void                    serialise_asc(              /*dump to ascii*/       \
+    FILE*                   f);                                                                 \
+    void                    de_serialise_asc(           /*de-dump from ascii*/\
+    FILE*                   f);                                                                 \
+                                                                                                        \
+make_serialise( CLASSNAME##_LIST )                                                  \
+                                                                                                        \
 ELISTIZEH_C( CLASSNAME )
 
 /***********************************************************************
@@ -1043,104 +1043,103 @@ ELISTIZE_S is a simple extension to ELISTIZE
 ***********************************************************************/
 
 #define ELISTIZE( CLASSNAME )                                                 \
-																										\
-/***********************************************************************		\
-*							CLASSNAME##_zapper																			\
-*																										\
-*  A function which can delete a CLASSNAME element.  This is passed to the		\
-*  generic clear list member function so that when a list is cleared the		\
-*  elements on the list are properly destroyed from the base class, even		\
-*  though we dont use a virtual destructor function.									\
-**********************************************************************/			\
-																										\
-DLLSYM void					CLASSNAME##_zapper(			/*delete a link*/		\
-ELIST_LINK*					link)						/*link to delete*/	\
-{																										\
-delete (CLASSNAME *) link;																	\
-}																										\
-																										\
-/***********************************************************************		\
-*							CLASSNAME##_copier																			\
-*																										\
-*  A function which can generate a new, deep copy of a CLASSNAME element.		\
+                                                                                                        \
+/***********************************************************************        \
+*                           CLASSNAME##_zapper                                                                          \
+*                                                                                                       \
+*  A function which can delete a CLASSNAME element.  This is passed to the      \
+*  generic clear list member function so that when a list is cleared the        \
+*  elements on the list are properly destroyed from the base class, even        \
+*  though we dont use a virtual destructor function.                                    \
+**********************************************************************/         \
+                                                                                                        \
+DLLSYM void                 CLASSNAME##_zapper(         /*delete a link*/       \
+ELIST_LINK*                 link)                       /*link to delete*/  \
+{                                                                                                       \
+delete (CLASSNAME *) link;                                                                  \
+}                                                                                                       \
+                                                                                                        \
+/***********************************************************************        \
+*                           CLASSNAME##_copier                                                                          \
+*                                                                                                       \
+*  A function which can generate a new, deep copy of a CLASSNAME element.       \
 *  This is passed to the generic deep copy list member function so that when  \
-*  a list is copied the elements on the list are properly copied from the		\
-*  base class, even though we dont use a virtual function.							\
-**********************************************************************/			\
-																										\
-DLLSYM ELIST_LINK*			CLASSNAME##_copier(			/*deep copy a link*/	\
-ELIST_LINK*					old_element)				/*source link*/		\
-{																										\
-	CLASSNAME*			new_element;												\
-																										\
-new_element = new CLASSNAME;															\
-*new_element = *((CLASSNAME*) old_element);										\
-return (ELIST_LINK*) new_element;														\
+*  a list is copied the elements on the list are properly copied from the       \
+*  base class, even though we dont use a virtual function.                          \
+**********************************************************************/         \
+                                                                                                        \
+DLLSYM ELIST_LINK*          CLASSNAME##_copier(         /*deep copy a link*/    \
+ELIST_LINK*                 old_element)                /*source link*/     \
+{                                                                                                       \
+    CLASSNAME*          new_element;                                                \
+                                                                                                        \
+new_element = new CLASSNAME(*reinterpret_cast<CLASSNAME*>(old_element)); \
+return (ELIST_LINK*) new_element;                                                       \
 }
 
-#define ELISTIZE_S( CLASSNAME )														\
-																										\
-ELISTIZE( CLASSNAME )																			\
-																										\
-	void					CLASSNAME##_LIST::serialise_asc( \
-														/*dump to ascii*/		\
-	FILE*					f)																	\
-	{																									\
-		CLASSNAME##_IT		it(this);														\
-																								\
-		serialise_INT32(f,length());															\
-		for (it.mark_cycle_pt();!it.cycled_list();it.forward())						\
-			it.data()->serialise_asc(f);				/*serialise the list*/\
-	}																									\
-																										\
-	void					CLASSNAME##_LIST::de_serialise_asc(	\
-														/*de-dump from ascii*/\
-	FILE*					f)																	\
-	{																									\
-		INT32				len;						/*length to retrive*/\
-		CLASSNAME##_IT		it;																\
-		CLASSNAME*		new_elt=NULL;				/*list element*/		\
-																								\
-		len=de_serialise_INT32(f);																\
-		it.set_to_list(this);																	\
-		for (;len>0;len--)																		\
-		{																								\
-			new_elt=new CLASSNAME;																\
-			new_elt->de_serialise_asc(f);														\
-			it.add_to_end(new_elt);						/*put on the list*/	\
-		}																								\
-		return;																						\
-	}																									\
-																										\
-																										\
-/***********************************************************************		\
-*							CLASSNAME##_serialiser																			\
-*																										\
-*  A function which can serialise an element												\
+#define ELISTIZE_S( CLASSNAME )                                                     \
+                                                                                                        \
+ELISTIZE( CLASSNAME )                                                                           \
+                                                                                                        \
+    void                    CLASSNAME##_LIST::serialise_asc( \
+                                                        /*dump to ascii*/       \
+    FILE*                   f)                                                                  \
+    {                                                                                                   \
+        CLASSNAME##_IT      it(this);                                                       \
+                                                                                                \
+        serialise_INT32(f,length());                                                            \
+        for (it.mark_cycle_pt();!it.cycled_list();it.forward())                     \
+            it.data()->serialise_asc(f);                /*serialise the list*/\
+    }                                                                                                   \
+                                                                                                        \
+    void                    CLASSNAME##_LIST::de_serialise_asc( \
+                                                        /*de-dump from ascii*/\
+    FILE*                   f)                                                                  \
+    {                                                                                                   \
+        inT32               len;                        /*length to retrive*/\
+        CLASSNAME##_IT      it;                                                             \
+        CLASSNAME*      new_elt=NULL;               /*list element*/        \
+                                                                                                \
+        len=de_serialise_INT32(f);                                                              \
+        it.set_to_list(this);                                                                   \
+        for (;len>0;len--)                                                                      \
+        {                                                                                               \
+            new_elt=new CLASSNAME;                                                              \
+            new_elt->de_serialise_asc(f);                                                       \
+            it.add_to_end(new_elt);                     /*put on the list*/ \
+        }                                                                                               \
+        return;                                                                                     \
+    }                                                                                                   \
+                                                                                                        \
+                                                                                                        \
+/***********************************************************************        \
+*                           CLASSNAME##_serialiser                                                                          \
+*                                                                                                       \
+*  A function which can serialise an element                                                \
 *  This is passed to the generic dump member function so that when a list is  \
-*  serialised the elements on the list are properly serialised.					\
-**********************************************************************/			\
-																										\
-DLLSYM void					CLASSNAME##_serialiser(										\
-FILE*						f,																	\
-ELIST_LINK*					element)															\
-{																										\
-((CLASSNAME*) element)->serialise( f );													\
-}																										\
-																										\
-																										\
-																										\
-/***********************************************************************		\
-*							CLASSNAME##_de_serialiser																		\
-*																										\
-*  A function which can de-serialise an element											\
+*  serialised the elements on the list are properly serialised.                 \
+**********************************************************************/         \
+                                                                                                        \
+DLLSYM void                 CLASSNAME##_serialiser(                                     \
+FILE*                       f,                                                                  \
+ELIST_LINK*                 element)                                                            \
+{                                                                                                       \
+((CLASSNAME*) element)->serialise( f );                                                 \
+}                                                                                                       \
+                                                                                                        \
+                                                                                                        \
+                                                                                                        \
+/***********************************************************************        \
+*                           CLASSNAME##_de_serialiser                                                                       \
+*                                                                                                       \
+*  A function which can de-serialise an element                                         \
 *  This is passed to the generic de-dump member function so that when a list  \
-*  is de-serialised the elements on the list are properly de-serialised.		\
-**********************************************************************/			\
-																										\
-DLLSYM ELIST_LINK*			CLASSNAME##_de_serialiser(									\
-FILE*						f)																	\
-{																										\
-return (ELIST_LINK*) CLASSNAME::de_serialise( f );								\
+*  is de-serialised the elements on the list are properly de-serialised.        \
+**********************************************************************/         \
+                                                                                                        \
+DLLSYM ELIST_LINK*          CLASSNAME##_de_serialiser(                                  \
+FILE*                       f)                                                                  \
+{                                                                                                       \
+return (ELIST_LINK*) CLASSNAME::de_serialise( f );                              \
 }
 #endif
