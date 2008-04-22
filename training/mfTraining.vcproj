@@ -69,7 +69,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib"
+				AdditionalDependencies="user32.lib ws2_32.lib"
 				OutputFile=".\../bin.dbg/mfTraining.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -161,11 +161,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib"
+				AdditionalDependencies="user32.lib ws2_32.lib"
 				OutputFile="mfTraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -443,50 +443,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\viewer\evntlst.cpp"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\viewer\evnts.cpp"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath="..\classify\featdefs.cpp"
 			>
 			<FileConfiguration
@@ -554,50 +510,6 @@
 		</File>
 		<File
 			RelativePath="..\cutil\globals.cpp"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\viewer\grphics.cpp"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\viewer\grphshm.cpp"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
@@ -927,6 +839,18 @@
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath="..\viewer\scrollview.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\viewer\scrollview.h"
+			>
+		</File>
+		<File
+			RelativePath="..\ccutil\serialis.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\ccutil\strngs.cpp"
 			>
 			<FileConfiguration
@@ -969,6 +893,22 @@
 					PreprocessorDefinitions=""
 				/>
 			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\viewer\svmnode.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\viewer\svmnode.h"
+			>
+		</File>
+		<File
+			RelativePath="..\viewer\svutil.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\viewer\svutil.h"
+			>
 		</File>
 		<File
 			RelativePath="..\ccutil\tessopt.cpp"

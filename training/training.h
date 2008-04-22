@@ -43,7 +43,7 @@ const char					*format,...					//special message
 );
 
 char						*c_alloc_string(			//allocate string
-INT32						count						//no of chars required
+inT32						count						//no of chars required
 );
 
 void						c_free_string(				//free a string
@@ -51,11 +51,11 @@ char						*string						//string to free
 );
 
 void						*c_alloc_mem_p(				//allocate permanent space
-INT32						count						//block size to allocate
+inT32						count						//block size to allocate
 );
 
 void						*c_alloc_mem(				//get some memory
-INT32						count						//no of bytes to get
+inT32						count						//no of bytes to get
 );
 
 void						c_free_mem(					//free mem from alloc_mem
@@ -64,17 +64,17 @@ void						*oldchunk					//chunk to free
 
 void						c_check_mem(				//check consistency
 char						*string,					//context message
-INT8						level						//level of check
+inT8						level						//level of check
 );
 
 void*						c_alloc_struct(				//allocate memory
-INT32						count,						//no of chars required
+inT32						count,						//no of chars required
 const char*					name						//class name
 );
 
 void						c_free_struct(				//free a structure
 void*						deadstruct,					//structure to free
-INT32						count,						//no of bytes
+inT32						count,						//no of bytes
 const char*					name						//class name
 );
 
@@ -90,12 +90,12 @@ void						reverse16(
 void*						ptr
 );
 
-void*						c_create_window(			/*create a window*/
+ScrollView*					c_create_window(			/*create a window*/
 const char					*name,						/*name/title of window*/
-INT16						xpos,						/*coords of window*/
-INT16						ypos,						/*coords of window*/
-INT16						xsize,						/*size of window*/
-INT16						ysize,						/*size of window*/
+inT16						xpos,						/*coords of window*/
+inT16						ypos,						/*coords of window*/
+inT16						xsize,						/*size of window*/
+inT16						ysize,						/*size of window*/
 double						xmin,						/*scrolling limits*/
 double						xmax,						/*to stop users*/
 double						ymin,						/*getting lost in*/

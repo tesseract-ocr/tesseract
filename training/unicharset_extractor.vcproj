@@ -206,6 +206,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath="..\ccutil\serialis.cpp"
+				>
+			</File>
+			<File
 				RelativePath="unicharset_extractor.cpp"
 				>
 				<FileConfiguration

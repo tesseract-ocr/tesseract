@@ -37,8 +37,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 2
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "."
-# PROP Intermediate_Dir "w2d.Release"
+# PROP Output_Dir "w2d.Release6"
+# PROP Intermediate_Dir "w2d.Release6"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
@@ -49,8 +49,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 ws2_32.lib /nologo /subsystem:console /machine:I386
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+# ADD LINK32 ws2_32.lib /nologo /subsystem:console /machine:I386 /out:"./wordlist2dawg.exe"
 
 !ELSEIF  "$(CFG)" == "wordlist2dawg - Win32 Debug"
 
@@ -61,20 +61,20 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 2
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "../bin.dbg"
-# PROP Intermediate_Dir "w2d.Debug"
+# PROP Output_Dir "w2d.Debug6"
+# PROP Intermediate_Dir "w2d.Debug6"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ  /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../ccutil" /I "../cutil" /I "../dict" /I "../viewer" /I "../ccstruct" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "__MSW32__" /D "_AFXDLL" /Yu"mfcpch.h" /FD /GZ  /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../ccutil" /I "../cutil" /I "../dict" /I "../viewer" /I "../ccstruct" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "__MSW32__" /D "_AFXDLL" /Yu"mfcpch.h" /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /out:"../bin.dbg6/wordlist2dawg.exe" /pdbtype:sept
 
 !ENDIF 
 
@@ -91,112 +91,46 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=..\ccutil\clst.cpp
-
-!IF  "$(CFG)" == "wordlist2dawg - Win32 Release"
-
 # ADD CPP /Yu"mfcpch.h"
-
-!ELSEIF  "$(CFG)" == "wordlist2dawg - Win32 Debug"
-
-# ADD CPP /Yu"mfcpch.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=..\ccutil\debugwin.cpp
-
-!IF  "$(CFG)" == "wordlist2dawg - Win32 Release"
-
 # ADD CPP /Yu"mfcpch.h"
-
-!ELSEIF  "$(CFG)" == "wordlist2dawg - Win32 Debug"
-
-# ADD CPP /Yu"mfcpch.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=..\ccutil\errcode.cpp
-
-!IF  "$(CFG)" == "wordlist2dawg - Win32 Release"
-
 # ADD CPP /Yu"mfcpch.h"
-
-!ELSEIF  "$(CFG)" == "wordlist2dawg - Win32 Debug"
-
-# ADD CPP /Yu"mfcpch.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=..\ccutil\globaloc.cpp
-
-!IF  "$(CFG)" == "wordlist2dawg - Win32 Release"
-
 # ADD CPP /Yu"mfcpch.h"
-
-!ELSEIF  "$(CFG)" == "wordlist2dawg - Win32 Debug"
-
-# ADD CPP /Yu"mfcpch.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=..\ccutil\hashfn.cpp
-
-!IF  "$(CFG)" == "wordlist2dawg - Win32 Release"
-
 # ADD CPP /Yu"mfcpch.h"
-
-!ELSEIF  "$(CFG)" == "wordlist2dawg - Win32 Debug"
-
-# ADD CPP /Yu"mfcpch.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=..\ccutil\memblk.cpp
-
-!IF  "$(CFG)" == "wordlist2dawg - Win32 Release"
-
 # ADD CPP /Yu"mfcpch.h"
-
-!ELSEIF  "$(CFG)" == "wordlist2dawg - Win32 Debug"
-
-# ADD CPP /Yu"mfcpch.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=..\ccutil\memry.cpp
-
-!IF  "$(CFG)" == "wordlist2dawg - Win32 Release"
-
 # ADD CPP /Yu"mfcpch.h"
-
-!ELSEIF  "$(CFG)" == "wordlist2dawg - Win32 Debug"
-
-# ADD CPP /Yu"mfcpch.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=..\ccutil\mfcpch.cpp
 # ADD CPP /Yc"mfcpch.h"
+# End Source File
+# Begin Source File
+
+SOURCE=..\ccutil\serialis.cpp
 # End Source File
 # Begin Source File
 
@@ -209,17 +143,7 @@ SOURCE=..\ccutil\tessopt.cpp
 # Begin Source File
 
 SOURCE=..\ccutil\tprintf.cpp
-
-!IF  "$(CFG)" == "wordlist2dawg - Win32 Release"
-
 # ADD CPP /Yu"mfcpch.h"
-
-!ELSEIF  "$(CFG)" == "wordlist2dawg - Win32 Debug"
-
-# ADD CPP /Yu"mfcpch.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
@@ -347,19 +271,18 @@ SOURCE=..\ccstruct\callcpp.cpp
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\viewer\evntlst.cpp
+SOURCE=..\viewer\scrollview.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=..\viewer\evnts.cpp
+SOURCE=..\viewer\svmnode.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
-SOURCE=..\viewer\grphics.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\viewer\grphshm.cpp
+SOURCE=..\viewer\svutil.cpp
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # End Group
 # Begin Source File

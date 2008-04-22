@@ -54,6 +54,11 @@
 #include <stdio.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#ifdef WIN32
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+#endif
 
 #define MAXNAMESIZE	80
 #define MAX_NUM_SAMPLES	10000
@@ -1040,11 +1045,11 @@ CLUSTERER *SetUpForClustering(
 */
 
 {
-	UINT16	N;
+	uinT16	N;
 	int		i, j;
 	FLOAT32	*Sample = NULL;
 	CLUSTERER	*Clusterer;
-	INT32		CharID;
+	inT32		CharID;
 	LIST FeatureList = NULL;
 	FEATURE_SET FeatureSet = NULL;
 	FEATURE_DESC FeatureDesc = NULL;
@@ -1131,7 +1136,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char* label,
     }
   }
   // Mark significant those that now have enough samples.
-  int min_samples = (INT32) (Config->MinSamples * Clusterer->NumChar);
+  int min_samples = (inT32) (Config->MinSamples * Clusterer->NumChar);
   pProtoList = ProtoList;
   iterate(pProtoList) {
     Prototype = (PROTOTYPE *) first_node (pProtoList);

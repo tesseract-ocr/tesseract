@@ -115,7 +115,7 @@ void AddToNormProtosList(
 
 void WriteProtos(
      FILE	*File,
-     UINT16	N,
+     uinT16	N,
      LIST	ProtoList,
      BOOL8	WriteSigProtos,
      BOOL8	WriteInsigProtos);
@@ -758,11 +758,11 @@ CLUSTERER *SetUpForClustering(
 */
 
 {
-	UINT16	N;
+	uinT16	N;
 	int		i, j;
 	FLOAT32	*Sample = NULL;
 	CLUSTERER	*Clusterer;
-	INT32		CharID;
+	inT32		CharID;
 	LIST FeatureList = NULL;
 	FEATURE_SET FeatureSet = NULL;
 	FEATURE_DESC FeatureDesc = NULL;
@@ -818,7 +818,7 @@ void AddToNormProtosList(
 /*-------------------------------------------------------------------------*/
 void WriteProtos(
      FILE	*File,
-     UINT16	N,
+     uinT16	N,
      LIST	ProtoList,
      BOOL8	WriteSigProtos,
      BOOL8	WriteInsigProtos)
