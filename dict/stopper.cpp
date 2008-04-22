@@ -54,7 +54,7 @@ typedef LIST AMBIG_TABLE;
 typedef struct
 {
   UNICHAR_ID Class;
-  UINT16 NumChunks;
+  uinT16 NumChunks;
   float Certainty;
 }
 

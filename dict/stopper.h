@@ -24,11 +24,11 @@
 #include "choicearr.h"
 #include "states.h"
 
-typedef UINT8 BLOB_WIDTH;
+typedef uinT8 BLOB_WIDTH;
 
 typedef struct
 {
-  INT16 index;
+  inT16 index;
   unsigned bad_length:8;
   unsigned good_length:8;
 } DANGERR;

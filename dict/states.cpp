@@ -47,7 +47,7 @@ freestate, STATEBLOCK, "STATE", statecount);
  * in "SEARCH_STATE" form.  Create the memory required to hold the
  * resultant state value.
  **********************************************************************/
-SEARCH_STATE bin_to_chunks(STATE *state, int num_joints) { 
+SEARCH_STATE bin_to_chunks(STATE *state, int num_joints) {
   int x;
   unsigned int mask;
   int depth;
@@ -97,10 +97,10 @@ SEARCH_STATE bin_to_chunks(STATE *state, int num_joints) {
  * of piece counts. This array has a zero element after the last valid
  * character.
  **********************************************************************/
-void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) { 
+void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
   int x;
   unsigned int mask;             /* Bit mask */
-  INT16 num_pieces = 0;
+  inT16 num_pieces = 0;
   /* Preset mask */
   if (debug_8)
     print_state ("bin_to_pieces = ", state, num_joints);
@@ -128,7 +128,7 @@ void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
   pieces[++num_pieces] = 0;
   ASSERT_HOST (num_pieces < MAX_NUM_CHUNKS + 2);
   if (debug_8)
-    new_line(); 
+    new_line();
 }
 
 
@@ -171,7 +171,7 @@ void insert_new_chunk(register STATE *state,
  * Create a memory space for a new state variable.  Set its initial
  * value according to the parameters.
  **********************************************************************/
-STATE *new_state(STATE *oldstate) { 
+STATE *new_state(STATE *oldstate) {
   STATE *this_state;
 
   this_state = newstate ();
@@ -186,9 +186,9 @@ STATE *new_state(STATE *oldstate) {
  *
  * Return the number of ones that are in this state.
  **********************************************************************/
-int ones_in_state(STATE *state, int num_joints) { 
-  INT8 num_ones = 0;
-  INT8 x;
+int ones_in_state(STATE *state, int num_joints) {
+  inT8 num_ones = 0;
+  inT8 x;
   unsigned int mask;
 
   if (num_joints > 32)           /* Preset mask */
@@ -219,7 +219,7 @@ int ones_in_state(STATE *state, int num_joints) {
  *
  * Print out the current state variable on a line with a label.
  **********************************************************************/
-void print_state(const char *label, STATE *state, int num_joints) { 
+void print_state(const char *label, STATE *state, int num_joints) {
   int x;
   unsigned int mask;             /* Bit mask */
 
@@ -246,7 +246,7 @@ void print_state(const char *label, STATE *state, int num_joints) {
       mask >>= 1;
   }
 
-  new_line(); 
+  new_line();
 }
 
 
@@ -255,7 +255,7 @@ void print_state(const char *label, STATE *state, int num_joints) {
  *
  * Set the first n bits in a state.
  **********************************************************************/
-void set_n_ones(STATE *state, int n) { 
+void set_n_ones(STATE *state, int n) {
   if (n < 32) {
     state->part2 = ~0;
     state->part2 >>= 32 - n;
@@ -278,12 +278,12 @@ void set_n_ones(STATE *state, int n) {
  * On return the blob index is set to the corresponding index in the
  * correct string.
  **********************************************************************/
-int compare_states(STATE *true_state, STATE *this_state, int *blob_index) { 
+int compare_states(STATE *true_state, STATE *this_state, int *blob_index) {
   int blob_count;                //number found
   int true_index;                //index of true blob
   int index;                     //current
   int result = 0;                //return value
-  UINT32 mask;
+  uinT32 mask;
 
   if (true_state->part1 == this_state->part1
     && true_state->part2 == this_state->part2)

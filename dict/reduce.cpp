@@ -54,7 +54,7 @@
 ----------------------------------------------------------------------
 */
 
-static INT32 debug_1 = 0;
+static inT32 debug_1 = 0;
 
 /*
 ----------------------------------------------------------------------
@@ -81,9 +81,9 @@ void collapse_source_nodes (EDGE_ARRAY dawg,
                             NODE_REF   source_node_1,
                             NODE_REF   source_node_2,
                             NODE_REF   dest_node,
-                            INT32        max_num_edges,
-                            INT32        reserved_edges) {
-  INT32      num_links;
+                            inT32        max_num_edges,
+                            inT32        reserved_edges) {
+  inT32      num_links;
   EDGE_REF   edge;
   /*    NODE_REF   new_source_1; */
 
@@ -152,14 +152,14 @@ void collapse_source_nodes (EDGE_ARRAY dawg,
 * reduction and return TRUE.  If not, return FALSE.
 **********************************************************************/
 
-INT32 eliminate_redundant_edges (EDGE_ARRAY dawg,
+inT32 eliminate_redundant_edges (EDGE_ARRAY dawg,
                                  NODE_REF   node,
                                  EDGE_REF   edge_1,
                                  EDGE_REF   edge_2,
-                                 INT32        max_num_edges,
-                                 INT32        reserved_edges) {
-  static INT32 elim_count = 0;
-  static INT32 keep_count = 0;
+                                 inT32        max_num_edges,
+                                 inT32        reserved_edges) {
+  static inT32 elim_count = 0;
+  static inT32 keep_count = 0;
 
   if (same_output (dawg,
                    next_node (dawg, edge_1),
@@ -195,7 +195,7 @@ INT32 eliminate_redundant_edges (EDGE_ARRAY dawg,
 * Compare two edges to see which one of the letters is larger.
 **********************************************************************/
 
-INT32 letter_order (const void* edge1_ptr,
+inT32 letter_order (const void* edge1_ptr,
                     const void* edge2_ptr) {
 
   if (letter_of_edge(*((EDGE_RECORD*) edge1_ptr)) <
@@ -220,7 +220,7 @@ INT32 letter_order (const void* edge1_ptr,
 */
 
 void print_n_edges (EDGE_RECORD *edge1,
-                    INT32         n) {
+                    inT32         n) {
   EDGE_RECORD *edge;
 
   edge = edge1;
@@ -244,16 +244,16 @@ void print_n_edges (EDGE_RECORD *edge1,
 * possible then FALSE is returned.
 **********************************************************************/
 
-INT32 reduce_lettered_edges (EDGE_ARRAY  dawg,
+inT32 reduce_lettered_edges (EDGE_ARRAY  dawg,
                              EDGE_REF    *edge,
                              NODE_REF    node,
                              NODE_MARKER reduced_nodes,
-                             INT32        max_num_edges,
-                             INT32        reserved_edges) {
+                             inT32        max_num_edges,
+                             inT32        reserved_edges) {
   EDGE_REF    edge_1;
   EDGE_REF    edge_2;
-  INT32         fixed_one;
-  INT32         did_something = FALSE;
+  inT32         fixed_one;
+  inT32         did_something = FALSE;
 
   if (debug_1)
     printf ("reduce_lettered_edges (edge=" REFFORMAT ")\n", *edge);
@@ -315,13 +315,13 @@ INT32 reduce_lettered_edges (EDGE_ARRAY  dawg,
 void reduce_node_input (EDGE_ARRAY dawg,
                         NODE_REF   node,
                         NODE_MARKER reduced_nodes,
-                        INT32        max_num_edges,
-                        INT32        reserved_edges) {
+                        inT32        max_num_edges,
+                        inT32        reserved_edges) {
   EDGE_REF   edge_1;
-  INT32        forward_edges  = num_forward_edges (dawg, node);
-  INT32        backward_edges = edges_in_node (dawg, node) - forward_edges;
+  inT32        forward_edges  = num_forward_edges (dawg, node);
+  inT32        backward_edges = edges_in_node (dawg, node) - forward_edges;
 
-  static INT32 num_nodes_reduced = 0;
+  static inT32 num_nodes_reduced = 0;
 
   if (debug_1) {
     printf ("reduce_node_input (node=" REFFORMAT ")\n", node);
@@ -375,7 +375,7 @@ void reduce_node_input (EDGE_ARRAY dawg,
 * they can be collapsed into a single node.
 **********************************************************************/
 
-INT32 same_output (EDGE_ARRAY dawg,
+inT32 same_output (EDGE_ARRAY dawg,
                    NODE_REF   node1,
                    NODE_REF   node2) {
   if (debug_1) printf ("Edge nodes = " REFFORMAT " , " \
@@ -407,10 +407,10 @@ INT32 same_output (EDGE_ARRAY dawg,
 **********************************************************************/
 
 void trie_to_dawg (EDGE_ARRAY dawg,
-                   INT32        max_num_edges,
-                   INT32        reserved_edges) {
+                   inT32        max_num_edges,
+                   inT32        reserved_edges) {
   NODE_MARKER reduced_nodes;
-  INT32         x;
+  inT32         x;
 
   max_new_attempts = 100000;
   compact_dawg (dawg, max_num_edges, reserved_edges);

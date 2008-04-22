@@ -227,11 +227,11 @@ int case_ok(const char *word, const char *lengths) {
   for (x = 0, offset = 0; x < strlen (lengths); offset += lengths[x++]) {
 
     ch_id = unicharset.unichar_to_id(word + offset, lengths[x]);
-    if (unicharset.get_islower (ch_id))
-      state = case_state_table[state][2];
-    else if (unicharset.get_isupper (ch_id))
+    if (unicharset.get_isupper(ch_id))
       state = case_state_table[state][1];
-    else if (unicharset.get_isdigit (ch_id))
+    else if (unicharset.get_isalpha(ch_id))
+      state = case_state_table[state][2];
+    else if (unicharset.get_isdigit(ch_id))
       state = case_state_table[state][3];
     else
       state = case_state_table[state][0];

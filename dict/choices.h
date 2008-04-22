@@ -66,9 +66,11 @@ typedef struct choicestruct
   float rating;
   float certainty;
   char permuter;
-  INT8 config;
+  inT8 config;
   char *string;
   char *lengths; //Length of each unichar in the string
+  const char* script; // script is a script returned by unicharset,
+                      // and thus must not be deleted.
 } A_CHOICE;
 
 /*----------------------------------------------------------------------
@@ -155,6 +157,14 @@ typedef struct choicestruct
 (((A_CHOICE*) (choice))->config)
 
 /**********************************************************************
+ * class_script
+ *
+ * Return the script of a given character class.
+ **********************************************************************/
+#define class_script(choice)  \
+(((A_CHOICE*) (choice))->script)
+
+/**********************************************************************
  * clone_choice
  *
  * Copy the contents of this choice record onto another replacing any
@@ -195,7 +205,15 @@ CHOICES append_choice(CHOICES ratings,
                       const char *lengths,
                       float rating,
                       float certainty,
-                      INT8 config);
+                      inT8 config,
+                      const char* script);
+
+CHOICES append_choice(CHOICES ratings,
+                      const char *string,
+                      const char *lengths,
+                      float rating,
+                      float certainty,
+                      inT8 config);
 
 CHOICES copy_choices(CHOICES choices);
 
@@ -205,8 +223,19 @@ A_CHOICE *new_choice(const char *string,
                      const char *lengths,
                      float rating,
                      float certainty,
-                     INT8 config,
+                     inT8 config,
+                     const char* script,
+                     char permuter);
+
+A_CHOICE *new_choice(const char *string,
+                     const char *lengths,
+                     float rating,
+                     float certainty,
+                     inT8 config,
                      char permuter);
 
 void print_choices(const char *label, CHOICES rating);
+void print_word_string(const char* str);
+void print_word_choice(const char *label, A_CHOICE* choice);
+
 #endif

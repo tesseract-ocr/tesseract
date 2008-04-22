@@ -72,14 +72,14 @@
 **********************************************************************/
 
 NODE_MAP build_node_map (EDGE_ARRAY dawg,
-                         INT32       *num_nodes,
-                         INT32       both_links,
-                         INT32       max_num_edges,
-                         INT32       reserved_edges) {
+                         inT32       *num_nodes,
+                         inT32       both_links,
+                         inT32       max_num_edges,
+                         inT32       reserved_edges) {
   EDGE_REF   edge;
   NODE_MAP   node_map;
-  INT32       node_counter;
-  INT32       num_edges;
+  inT32       node_counter;
+  inT32       num_edges;
 
   node_map = (NODE_MAP) malloc (sizeof (EDGE_REF) * max_num_edges);
 
@@ -122,14 +122,14 @@ NODE_MAP build_node_map (EDGE_ARRAY dawg,
 **********************************************************************/
 
 void compact_dawg (EDGE_ARRAY dawg,
-                   INT32       max_num_edges,
-                   INT32       reserved_edges) {
+                   inT32       max_num_edges,
+                   inT32       reserved_edges) {
   EDGE_REF   edge;
-  INT32      num_edges = 0;
+  inT32      num_edges = 0;
   NODE_REF   next_node_space;
   NODE_REF   node = 0;
   NODE_REF   destination;
-  INT32      node_count;
+  inT32      node_count;
   NODE_MAP   node_map;
   NODE_REF   the_next_node;
 
@@ -201,7 +201,7 @@ void compact_dawg (EDGE_ARRAY dawg,
 void delete_node (EDGE_ARRAY dawg,
                   NODE_REF   node) {
   EDGE_REF   edge = node;
-  INT32       counter = edges_in_node (dawg, node);
+  inT32       counter = edges_in_node (dawg, node);
 
   /*
     printf ("node deleted = %d (%d)\n", node, counter);
@@ -219,15 +219,15 @@ void delete_node (EDGE_ARRAY dawg,
 
 void write_squished_dawg (const char *filename,
                           EDGE_ARRAY dawg,
-                          INT32      max_num_edges,
-                          INT32      reserved_edges) {
+                          inT32      max_num_edges,
+                          inT32      reserved_edges) {
   FILE       *file;
   EDGE_REF    edge;
-  INT32       num_edges;
-  INT32       node_count = 0;
+  inT32       num_edges;
+  inT32       node_count = 0;
   NODE_MAP    node_map;
   EDGE_REF    old_index;
-  UINT32      temp_record_32;
+  uinT32      temp_record_32;
 
   if (debug) print_string ("write_squished_dawg");
 
@@ -242,7 +242,7 @@ void write_squished_dawg (const char *filename,
       num_edges++;
 
   num_edges = htonl(num_edges);
-  fwrite (&num_edges, sizeof (INT32), 1, file);  /* Write edge count to file */
+  fwrite (&num_edges, sizeof (inT32), 1, file);  /* Write edge count to file */
   num_edges = ntohl(num_edges);
 
   printf ("%d nodes in DAWG\n", node_count);
@@ -260,8 +260,8 @@ void write_squished_dawg (const char *filename,
       do {
         old_index = next_node (dawg,edge);
         set_next_edge (dawg, edge, node_map [next_node (dawg, edge)]);
-        temp_record_32 = htonl((UINT32) edge_of (dawg,edge));
-        fwrite (&temp_record_32, sizeof (UINT32), 1, file);
+        temp_record_32 = htonl((uinT32) edge_of (dawg,edge));
+        fwrite (&temp_record_32, sizeof (uinT32), 1, file);
         set_next_edge (dawg, edge, old_index);
       } edge_loop (dawg, edge);
 
@@ -294,9 +294,9 @@ main (argc, argv)
    time_t      end_time;
    FILE        *word_file;
    char        string [CHARS_PER_LINE];
-   INT32       word_count = 0;
-   INT32       max_num_edges  = 700000;
-   INT32       reserved_edges = 50000;
+   inT32       word_count = 0;
+   inT32       max_num_edges  = 700000;
+   inT32       reserved_edges = 50000;
    EDGE_ARRAY  dawg;
    char        *wordfile = "WORDS";
    char        *dawgfile = "DAWG";

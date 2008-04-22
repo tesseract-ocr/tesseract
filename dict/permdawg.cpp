@@ -34,6 +34,7 @@
 #include "stopper.h"
 #include "freelist.h"
 #include "globals.h"
+#include "tprintf.h"
 #include "cutil.h"
 #include "dawg.h"
 #include <ctype.h>
@@ -81,7 +82,7 @@ void adjust_word(A_CHOICE *best_choice, float *certainty_array) {
   float adjust_factor;
 
   if (adjust_debug)
-    cprintf ("%s %4.2f ",
+    tprintf ("%s %4.2f ",
       class_string (best_choice), class_probability (best_choice));
 
   this_word = class_string (best_choice);
@@ -95,13 +96,13 @@ void adjust_word(A_CHOICE *best_choice, float *certainty_array) {
       class_permuter (best_choice) = FREQ_DAWG_PERM;
       adjust_factor = freq_word;
       if (adjust_debug)
-        cprintf (", F, %4.2f ", freq_word);
+        tprintf(", F, %4.2f ", freq_word);
     }
     else {
       class_probability (best_choice) *= good_word;
       adjust_factor = good_word;
       if (adjust_debug)
-        cprintf (", %4.2f ", good_word);
+        tprintf(", %4.2f ", good_word);
     }
   }
   else {
@@ -109,10 +110,10 @@ void adjust_word(A_CHOICE *best_choice, float *certainty_array) {
     adjust_factor = ok_word;
     if (adjust_debug) {
       if (!case_ok (this_word, class_lengths (best_choice)))
-        cprintf (", C");
+        tprintf(", C");
       if (punctuation_ok (this_word, class_lengths (best_choice)) == -1)
-        cprintf (", P");
-      cprintf (", %4.2f ", ok_word);
+        tprintf(", P");
+      tprintf(", %4.2f ", ok_word);
     }
   }
 
@@ -121,7 +122,7 @@ void adjust_word(A_CHOICE *best_choice, float *certainty_array) {
   LogNewWordChoice(best_choice, adjust_factor, certainty_array);
 
   if (adjust_debug)
-    cprintf (" --> %4.2f\n", class_probability (best_choice));
+    tprintf(" --> %4.2f\n", class_probability (best_choice));
 }
 
 
@@ -178,9 +179,13 @@ void append_next_choice(  /*previous option */
   }
   else {
     if (rating_array[char_index] * rating_margin + rating_pad < rating) {
-      if (dawg_debug)
-        cprintf ("early pruned word (%s, rating=%4.2f, limit=%4.2f)\n",
-          word, rating, *limit);
+      if (dawg_debug) {
+        tprintf("early pruned word rating=%4.2f, limit=%4.2f",
+                rating, *limit);
+        print_word_string(word);
+        tprintf("\n");
+      }
+
       return;
     }
   }
@@ -190,7 +195,7 @@ void append_next_choice(  /*previous option */
       char_index > 0) {
     *limit = rating;
     if (dawg_debug)
-      cprintf ("new hyphen choice = %s\n", word);
+      tprintf("new hyphen choice = %s\n", word);
     better_choice = new_choice (word, unichar_lengths, rating, certainty, -1, permuter);
     adjust_word(better_choice, certainty_array);
     push_on(*result, better_choice);
@@ -209,7 +214,7 @@ void append_next_choice(  /*previous option */
       /* Add a new word choice */
       if (word_ending) {
         if (dawg_debug == 1)
-          cprintf ("new choice = %s\n", word);
+          tprintf("new choice = %s\n", word);
         *limit = rating;
 
         better_choice = new_choice (hyphen_tail (word), unichar_lengths +
@@ -228,6 +233,16 @@ void append_next_choice(  /*previous option */
                                rating_array, certainty_array, last_word));
       }
     } else {
+      if (dawg_debug == 1) {
+        tprintf("letter not OK at char %d, index %d + sub index %d/%d\n",
+                char_index, unichar_offsets[char_index],
+                sub_offset, unichar_lengths[char_index]);
+        tprintf("Word");
+        print_word_string(word);
+        tprintf("\nRejected tail");
+        print_word_string(word + unichar_offsets[char_index]);
+        tprintf("\n");
+      }
       if (node != 0)
         node = node_saved;
     }
@@ -262,10 +277,11 @@ CHOICES dawg_permute(EDGE_ARRAY dawg,
   int word_ending = FALSE;
 
   if (dawg_debug) {
-    cprintf ("dawg_permute (node=" REFFORMAT ", char_index=%d, limit=%f, ",
-      node, char_index, *limit);
-    cprintf ("word=%s, rating=%4.2f, certainty=%4.2f)\n",
-      word, rating, certainty);
+    tprintf("dawg_permute (node=" REFFORMAT ", char_index=%d, limit=%f, word=",
+             node, char_index, *limit);
+    print_word_string(word);
+    tprintf(", rating=%4.2f, certainty=%4.2f)\n",
+             rating, certainty);
   }
 
   /* Check for EOW */
@@ -304,7 +320,7 @@ void dawg_permute_and_select(const char *string,
                              char permuter,
                              CHOICES_LIST character_choices,
                              A_CHOICE *best_choice,
-                             INT16 system_words) {
+                             inT16 system_words) {
   CHOICES result = NIL;
   char word[UNICHAR_LEN * MAX_WERD_LENGTH + 1];
   char unichar_lengths[MAX_WERD_LENGTH + 1];
@@ -344,8 +360,9 @@ void dawg_permute_and_select(const char *string,
     char_index, &rating, word, unichar_lengths, unichar_offsets, 0.0, 0.0,
     rating_array, certainty_array, is_last_word ());
 
-  if (display_ratings && result)
+  if (display_ratings && result) {
     print_choices(string, result);
+  }
 
   while (result != NIL) {
     if (best_probability (result) < class_probability (best_choice)) {

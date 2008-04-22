@@ -109,7 +109,7 @@ int main (argc, argv)
    int  argc;
    char **argv;
 {
-   INT32       max_num_edges  = 700000;
+   inT32       max_num_edges  = 700000;
    EDGE_ARRAY  dawg;
    int         argnum = 1;
    int         show_nodes = FALSE;
@@ -161,10 +161,10 @@ int main (argc, argv)
 
 void match_words (EDGE_ARRAY  dawg,
                   char        *string,
-                  INT32         index,
+                  inT32         index,
                   NODE_REF    node) {
   EDGE_REF   edge;
-  INT32        word_end;
+  inT32        word_end;
 
   if (string[index] == '*') {
     edge = node;

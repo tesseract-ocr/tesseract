@@ -35,65 +35,65 @@
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
-/* #define MAX_WERD_LENGTH        (INT32) 40 */
-/* #define MAX_NODE_EDGES_DISPLAY (INT32) 100 */
-/* #define LAST_FLAG              (INT32) 1 */
-/* #define DIRECTION_FLAG         (INT32) 2 */
-/* #define WERD_END_FLAG          (INT32) 4 */
+/* #define MAX_WERD_LENGTH        (inT32) 40 */
+/* #define MAX_NODE_EDGES_DISPLAY (inT32) 100 */
+/* #define LAST_FLAG              (inT32) 1 */
+/* #define DIRECTION_FLAG         (inT32) 2 */
+/* #define WERD_END_FLAG          (inT32) 4 */
 
 /* #define LETTER_START_BIT       0 */
 /* #define FLAG_START_BIT         8 */
 /* #define NEXT_EDGE_START_BIT    11 */
 
-/* #define NO_EDGE                (INT32) 0x001fffff */
+/* #define NO_EDGE                (inT32) 0x001fffff */
 
-/* #define NEXT_EDGE_MASK         (INT32) 0xfffff800 */
-/* #define FLAGS_MASK             (INT32) 0x00000700 */
-/* #define LETTER_MASK            (INT32) 0x000000ff */
+/* #define NEXT_EDGE_MASK         (inT32) 0xfffff800 */
+/* #define FLAGS_MASK             (inT32) 0x00000700 */
+/* #define LETTER_MASK            (inT32) 0x000000ff */
 
 /* #define REFFORMAT "%d" */
 
-/* typedef UINT32 EDGE_RECORD; */
+/* typedef uinT32 EDGE_RECORD; */
 /* typedef EDGE_RECORD *EDGE_ARRAY; */
-/* typedef INT32 EDGE_REF; */
-/* typedef INT32 NODE_REF; */
+/* typedef inT32 EDGE_REF; */
+/* typedef inT32 NODE_REF; */
 
-#define MAX_WERD_LENGTH        (INT64) 40
-#define MAX_NODE_EDGES_DISPLAY (INT64) 100
-#define LAST_FLAG              (INT64) 1
-#define DIRECTION_FLAG         (INT64) 2
-#define WERD_END_FLAG          (INT64) 4
+#define MAX_WERD_LENGTH        (inT64) 40
+#define MAX_NODE_EDGES_DISPLAY (inT64) 100
+#define LAST_FLAG              (inT64) 1
+#define DIRECTION_FLAG         (inT64) 2
+#define WERD_END_FLAG          (inT64) 4
 
 #define LETTER_START_BIT       0
 #define FLAG_START_BIT         8
 #define NEXT_EDGE_START_BIT    11
 
 #ifdef __MSW32__
-#define NO_EDGE                (INT64) 0x001fffffffffffffi64
-#define NEXT_EDGE_MASK         (INT64) 0xfffffffffffff800i64
-#define FLAGS_MASK             (INT64) 0x0000000000000700i64
-#define LETTER_MASK            (INT64) 0x00000000000000ffi64
+#define NO_EDGE                (inT64) 0x001fffffffffffffi64
+#define NEXT_EDGE_MASK         (inT64) 0xfffffffffffff800i64
+#define FLAGS_MASK             (inT64) 0x0000000000000700i64
+#define LETTER_MASK            (inT64) 0x00000000000000ffi64
 #else
-#define NO_EDGE                (INT64) 0x001fffffffffffffll
-#define NEXT_EDGE_MASK         (INT64) 0xfffffffffffff800ll
-#define FLAGS_MASK             (INT64) 0x0000000000000700ll
-#define LETTER_MASK            (INT64) 0x00000000000000ffll
+#define NO_EDGE                (inT64) 0x001fffffffffffffll
+#define NEXT_EDGE_MASK         (inT64) 0xfffffffffffff800ll
+#define FLAGS_MASK             (inT64) 0x0000000000000700ll
+#define LETTER_MASK            (inT64) 0x00000000000000ffll
 #endif
 
 #define MAX_NUM_EDGES_IN_SQUISHED_DAWG_FILE 2000000
 
 #define REFFORMAT "%lld"
 
-typedef UINT64 EDGE_RECORD;
+typedef uinT64 EDGE_RECORD;
 typedef EDGE_RECORD *EDGE_ARRAY;
-typedef INT64 EDGE_REF;
-typedef INT64 NODE_REF;
+typedef inT64 EDGE_REF;
+typedef inT64 NODE_REF;
 
 /*---------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern INT32 case_sensative;
-extern INT32 debug;
+extern inT32 case_sensative;
+extern inT32 debug;
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -314,33 +314,33 @@ EDGE_REF edge_char_of(EDGE_ARRAY dawg,
                       int character,
                       int word_end);
 
-INT32 edges_in_node(EDGE_ARRAY dawg, NODE_REF node);
+inT32 edges_in_node(EDGE_ARRAY dawg, NODE_REF node);
 
 
-INT32 def_letter_is_okay(EDGE_ARRAY dawg,
+inT32 def_letter_is_okay(EDGE_ARRAY dawg,
                      NODE_REF *node,
-                     INT32 char_index,
+                     inT32 char_index,
                      char prevchar,
                      const char *word,
-                     INT32 word_end);
+                     inT32 word_end);
 
 /*
  * Allow for externally provided letter_is_okay.
  */
-typedef INT32 (*LETTER_OK_FUNC)(EDGE_ARRAY, NODE_REF*, INT32, char, const char*,
-                                INT32);
+typedef inT32 (*LETTER_OK_FUNC)(EDGE_ARRAY, NODE_REF*, inT32, char, const char*,
+                                inT32);
 extern LETTER_OK_FUNC letter_is_okay;
 
 
-INT32 num_forward_edges(EDGE_ARRAY dawg, NODE_REF node);
+inT32 num_forward_edges(EDGE_ARRAY dawg, NODE_REF node);
 
 void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node);
 
 EDGE_ARRAY read_squished_dawg(const char *filename);
 
-INT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, INT32 char_index);
+inT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, inT32 char_index);
 
-INT32 word_in_dawg(EDGE_ARRAY dawg, const char *string);
+inT32 word_in_dawg(EDGE_ARRAY dawg, const char *string);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus) || MAC_OR_DOS
@@ -356,18 +356,18 @@ EDGE_REF edge_char_of
   int character,
   int word_end));
 
-INT32 edges_in_node
+inT32 edges_in_node
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF node));
 
-INT32 def_letter_is_okay
+inT32 def_letter_is_okay
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF *node,
-  INT32 char_index,
+  inT32 char_index,
   char *word,
-  INT32 word_end));
+  inT32 word_end));
 
-INT32 num_forward_edges
+inT32 num_forward_edges
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF node));
 
@@ -378,14 +378,14 @@ void print_dawg_node
 void read_squished_dawg
   _ARGS((char *filename,
   EDGE_ARRAY dawg,
-  INT32 max_num_edges));
+  inT32 max_num_edges));
 
-INT32 verify_trailing_punct
+inT32 verify_trailing_punct
   _ARGS((EDGE_ARRAY dawg,
   char *word,
-  INT32 char_index));
+  inT32 char_index));
 
-INT32 word_in_dawg
+inT32 word_in_dawg
   _ARGS((EDGE_ARRAY dawg,
   char *string));
 

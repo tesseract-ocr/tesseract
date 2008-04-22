@@ -25,7 +25,8 @@
 #include "choices.h"
 #include "structures.h"
 #include "tordvars.h"
-#include "callcpp.h"
+#include "tprintf.h"
+#include "globals.h"
 #include "danerror.h"
 #include "host.h"
 
@@ -53,10 +54,25 @@ CHOICES append_choice(CHOICES ratings,
                       const char *lengths,
                       float rating,
                       float certainty,
-                      INT8 config) {
+                      inT8 config) {
   A_CHOICE *this_choice;
 
   this_choice = new_choice (string, lengths, rating, certainty, config, NO_PERM);
+  ratings = push_last (ratings, (LIST) this_choice);
+  return (ratings);
+}
+
+CHOICES append_choice(CHOICES ratings,
+                      const char *string,
+                      const char *lengths,
+                      float rating,
+                      float certainty,
+                      inT8 config,
+                      const char* script) {
+  A_CHOICE *this_choice;
+
+  this_choice = new_choice (string, lengths, rating, certainty, config,
+                            script, NO_PERM);
   ratings = push_last (ratings, (LIST) this_choice);
   return (ratings);
 }
@@ -79,6 +95,7 @@ CHOICES copy_choices(CHOICES choices) {
                          class_probability (first_node (l)),
                          class_certainty (first_node (l)),
                          class_config (first_node (l)),
+                         class_script (first_node (l)),
                          class_permuter (first_node (l))));
   }
   return (reverse_d (result));
@@ -114,7 +131,18 @@ A_CHOICE *new_choice(const char *string,
                      const char *lengths,
                      float rating,
                      float certainty,
-                     INT8 config,
+                     inT8 config,
+                     char permuter) {
+  return new_choice(string, lengths, rating, certainty,
+                    config, "dummy", permuter);
+}
+
+A_CHOICE *new_choice(const char *string,
+                     const char *lengths,
+                     float rating,
+                     float certainty,
+                     inT8 config,
+                     const char* script,
                      char permuter) {
   A_CHOICE *this_choice;
 
@@ -125,6 +153,7 @@ A_CHOICE *new_choice(const char *string,
   this_choice->certainty = certainty;
   this_choice->config = config;
   this_choice->permuter = permuter;
+  this_choice->script = script;
   return (this_choice);
 }
 
@@ -134,34 +163,48 @@ A_CHOICE *new_choice(const char *string,
  *
  * Print the probability ratings for a particular blob or word.
  **********************************************************************/
-void print_choices(  /* List of (A_CHOICE*) */
-                   const char *label,
-                   CHOICES rating) {
-  int first_one = TRUE;
-  char str[CHARS_PER_LINE];
-  int len;
-
-  cprintf ("%-20s\n", label);
+void print_choices(const char *label,
+                   CHOICES rating) {   // List of (A_CHOICE*).
+  tprintf("%s\n", label);
   if (rating == NIL)
-    cprintf (" No rating ");
+    tprintf(" No rating ");
 
   iterate(rating) {
-
-    if (first_one && show_bold) {
-      cprintf ("|");
-      len = sprintf (str, " %s ", best_string (rating));
-      print_bold(str);
-      while (len++ < 8)
-        cprintf (" ");
-    }
-    else {
-      cprintf ("| %-7s", best_string (rating));
-    }
-
-    cprintf ("%5.2lf ", best_probability (rating));
-
-    cprintf ("%5.2lf", best_certainty (rating));
-    first_one = FALSE;
+    tprintf("%.2f %.2f", best_probability(rating), best_certainty(rating));
+    print_word_string(best_string(rating));
   }
-  cprintf ("\n");
+  tprintf("\n");
 }
+
+/**********************************************************************
+ * print_word_choice
+ *
+ * Print the string in a human-readable format and ratings for a word.
+ **********************************************************************/
+void print_word_choice(const char *label, A_CHOICE* choice) {
+  tprintf("%s : ", label);
+  if (choice == NULL) {
+    tprintf("No rating\n");
+  } else {
+    tprintf("%.2f %.2f", class_probability(choice), class_certainty(choice));
+    print_word_string(class_string(choice));
+    tprintf("\n");
+  }
+}
+
+/**********************************************************************
+ * print_word_string
+ *
+ * Print the string in a human-readable format.
+ * The output is not newline terminated.
+ **********************************************************************/
+void print_word_string(const char* str) {
+  int step = 1;
+  for (int i = 0; str[i] != '\0'; i += step) {
+    step = unicharset.step(str + i);
+    int unichar_id = unicharset.unichar_to_id(str + i, step);
+    STRING ch_str = unicharset.debug_str(unichar_id);
+    tprintf(" : %s ", ch_str.string());
+  }
+}
+

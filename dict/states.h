@@ -37,37 +37,37 @@
 
 typedef struct
 {
-  UINT32 part1;
-  UINT32 part2;
+  uinT32 part1;
+  uinT32 part2;
 } STATE;
 
 typedef int *SEARCH_STATE;       /* State variable for search */
 
                                  /* State variable for search */
-typedef UINT8 PIECES_STATE[MAX_NUM_CHUNKS + 2];
+typedef uinT8 PIECES_STATE[MAX_NUM_CHUNKS + 2];
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-SEARCH_STATE bin_to_chunks(STATE *state, int num_joints); 
+SEARCH_STATE bin_to_chunks(STATE *state, int num_joints);
 
-void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces); 
+void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces);
 
 void insert_new_chunk(register STATE *state,
                       register int index,
                       int num_joints);
 
-STATE *new_state(STATE *oldstate); 
+STATE *new_state(STATE *oldstate);
 
-int ones_in_state(STATE *state, int num_joints); 
+int ones_in_state(STATE *state, int num_joints);
 
-void print_state(const char *label, STATE *state, int num_joints); 
+void print_state(const char *label, STATE *state, int num_joints);
 
-void set_n_ones(STATE *state, int n); 
+void set_n_ones(STATE *state, int n);
 
-int compare_states(STATE *true_state, STATE *this_state, int *blob_index); 
+int compare_states(STATE *true_state, STATE *this_state, int *blob_index);
 
-extern void free_state(STATE *); 
+extern void free_state(STATE *);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

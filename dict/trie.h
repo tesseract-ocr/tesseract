@@ -34,7 +34,7 @@
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
-#define NUM_PLACEMENT_ATTEMPTS (INT32) 100000
+#define NUM_PLACEMENT_ATTEMPTS (inT32) 100000
 #define EDGE_NUM_MARGIN        (EDGE_RECORD) 2
 #define DEFAULT_NODE_SIZE      (EDGE_RECORD) 2
 #define FORWARD_EDGE           (EDGE_RECORD) 0
@@ -47,7 +47,7 @@ typedef char     *NODE_MARKER;
               V a r i a b l e s
 ----------------------------------------------------------------------*/
 
-extern INT32 max_new_attempts;
+extern inT32 max_new_attempts;
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -131,36 +131,36 @@ bool add_new_edge(EDGE_ARRAY dawg,
                   NODE_REF *node2,
                   char character,
                   EDGE_RECORD word_end,
-                  INT32 max_num_edges,
-                  INT32 reserved_edges);
+                  inT32 max_num_edges,
+                  inT32 reserved_edges);
 
 void add_word_to_dawg(EDGE_ARRAY dawg,
                       char *string,
-                      INT32 max_num_edges,
-                      INT32 reserved_edges);
+                      inT32 max_num_edges,
+                      inT32 reserved_edges);
 
-void initialize_dawg(EDGE_ARRAY dawg, INT32 max_num_edges);
+void initialize_dawg(EDGE_ARRAY dawg, inT32 max_num_edges);
 
 bool move_node_if_needed(EDGE_ARRAY dawg,
                          NODE_REF* node,
-                         INT32 max_num_edges,
-                         INT32 reserved_edges);
+                         inT32 max_num_edges,
+                         inT32 reserved_edges);
 
 NODE_REF new_dawg_node(EDGE_ARRAY dawg,
-                       INT32 num_edges,
-                       INT32 max_num_edges,
-                       INT32 reserved_edges);
+                       inT32 num_edges,
+                       inT32 max_num_edges,
+                       inT32 reserved_edges);
 
-void print_dawg_map (EDGE_ARRAY dawg, INT32 max_num_edges);
+void print_dawg_map (EDGE_ARRAY dawg, inT32 max_num_edges);
 
 void read_full_dawg (const char *filename,
                      EDGE_ARRAY dawg,
-                     INT32 max_num_edges);
+                     inT32 max_num_edges);
 
 void read_word_list(const char *filename,
                     EDGE_ARRAY dawg,
-                    INT32 max_num_edges,
-                    INT32 reserved_edges);
+                    inT32 max_num_edges,
+                    inT32 reserved_edges);
 
 void relocate_edge(EDGE_ARRAY dawg,
                    NODE_REF node,
@@ -180,11 +180,11 @@ void remove_edge_linkage(EDGE_ARRAY dawg,
                          char character,
                          EDGE_RECORD word_end);
 
-INT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node);
+inT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node);
 
 void write_full_dawg (const char *filename,
                       EDGE_ARRAY dawg,
-                      INT32 max_num_edges);
+                      inT32 max_num_edges);
 
 
 /*
@@ -199,46 +199,46 @@ void add_edge_linkage
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF node1,
   NODE_REF node2,
-  INT32 direction,
+  inT32 direction,
   int character,
-  INT32 word_end));
+  inT32 word_end));
 
 void add_new_edge
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF *node1,
   NODE_REF *node2,
   int character,
-  INT32 word_end,
-  INT32 max_num_edges,
-  INT32 reserved_edges));
+  inT32 word_end,
+  inT32 max_num_edges,
+  inT32 reserved_edges));
 
 void add_word_to_dawg
   _ARGS((EDGE_ARRAY dawg,
   char *string,
-  INT32 max_num_edges,
-  INT32 reserved_edges));
+  inT32 max_num_edges,
+  inT32 reserved_edges));
 
 void initialize_dawg
   _ARGS((EDGE_ARRAY dawg,
-  INT32 max_num_edges));
+  inT32 max_num_edges));
 
 NODE_REF move_node
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF node,
-  INT32 max_num_edges,
-  INT32 reserved_edges));
+  inT32 max_num_edges,
+  inT32 reserved_edges));
 
 NODE_REF new_dawg_node
   _ARGS((EDGE_ARRAY dawg,
-  INT32 num_edges,
-  INT32 max_num_edges,
-  INT32 reserved_edges));
+  inT32 num_edges,
+  inT32 max_num_edges,
+  inT32 reserved_edges));
 
 void read_word_list
   _ARGS((char *filename,
   EDGE_ARRAY dawg,
-  INT32 max_num_edges,
-  INT32 reserved_edges));
+  inT32 max_num_edges,
+  inT32 reserved_edges));
 
 void relocate_edge
   _ARGS((EDGE_ARRAY dawg,
@@ -251,17 +251,17 @@ void remove_edge
   NODE_REF node1,
   NODE_REF node2,
   int character,
-  INT32 word_end));
+  inT32 word_end));
 
 void remove_edge_linkage
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF node,
   NODE_REF next,
-  INT32 direction,
+  inT32 direction,
   int character,
-  INT32 word_end));
+  inT32 word_end));
 
-INT32 room_in_node
+inT32 room_in_node
   _ARGS((EDGE_ARRAY dawg,
   NODE_REF node));
 

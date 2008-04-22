@@ -66,7 +66,7 @@ void check_for_words(EDGE_ARRAY dawg,
 
 void match_words(EDGE_ARRAY dawg,
                  char *string,
-                 INT32 index,
+                 inT32 index,
                  NODE_REF node);
 
 void print_lost_words(EDGE_ARRAY dawg,

@@ -63,21 +63,21 @@
 */
 
 NODE_MAP build_node_map(EDGE_ARRAY dawg,
-                        INT32 *num_nodes,
-                        INT32 both_links,
-                        INT32 max_num_edges,
-                        INT32 reserved_edges);
+                        inT32 *num_nodes,
+                        inT32 both_links,
+                        inT32 max_num_edges,
+                        inT32 reserved_edges);
 
 void compact_dawg(EDGE_ARRAY dawg,
-                  INT32 max_num_edges,
-                  INT32 reserved_edges);
+                  inT32 max_num_edges,
+                  inT32 reserved_edges);
 
 void delete_node(EDGE_ARRAY dawg,
                  NODE_REF node);
 
 void write_squished_dawg(const char *filename,
                          EDGE_ARRAY dawg,
-                         INT32 max_num_edges,
-                         INT32 reserved_edges);
+                         inT32 max_num_edges,
+                         inT32 reserved_edges);
 
 #endif

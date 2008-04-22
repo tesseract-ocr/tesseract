@@ -88,7 +88,7 @@ int permute_only_top = 0;
 
 #if 0
                                  //0x0=.
-static INT32 bigram_counts[256][3] = { {
+static inT32 bigram_counts[256][3] = { {
     0, 0, 0
   },
   {                              //0x1=.
@@ -1139,9 +1139,7 @@ void permute_characters(CHOICES_LIST char_choices,
   free_choice(this_choice);
 
   if (display_ratings)
-    cprintf ("permute_characters:   %-15s %4.2f %4.2f\n",
-      class_string (best_choice),
-      class_probability (best_choice), class_certainty (best_choice));
+    print_word_choice("permute_characters", best_choice);
 }
 
 
@@ -1346,8 +1344,8 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
 
   register CHOICES this_char;
   register const char* ch;
-  register INT8 lower_done;
-  register INT8 upper_done;
+  register inT8 lower_done;
+  register inT8 upper_done;
 
   prev_char[0] = '\0';
 
@@ -1566,9 +1564,9 @@ const char* choose_il1(const char *first_char,        //first choice
                        const char *prev_char,         //prev in word
                        const char *next_char,         //next in word
                        const char *next_next_char) {  //after next next in word
-  INT32 type1;                   //1/I/l type of first choice
-  INT32 type2;                   //1/I/l type of second choice
-  INT32 type3;                   //1/I/l type of third choice
+  inT32 type1;                   //1/I/l type of first choice
+  inT32 type2;                   //1/I/l type of second choice
+  inT32 type3;                   //1/I/l type of third choice
 
   int first_char_length = strlen(first_char);
   int prev_char_length = strlen(prev_char);

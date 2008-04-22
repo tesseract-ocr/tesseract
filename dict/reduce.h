@@ -71,42 +71,42 @@ void collapse_source_nodes(EDGE_ARRAY dawg,
                            NODE_REF source_node_1,
                            NODE_REF source_node_2,
                            NODE_REF dest_node,
-                           INT32 max_num_edges,
-                           INT32 reserved_edges);
+                           inT32 max_num_edges,
+                           inT32 reserved_edges);
 
-INT32 eliminate_redundant_edges(EDGE_ARRAY dawg,
+inT32 eliminate_redundant_edges(EDGE_ARRAY dawg,
                                 NODE_REF node,
                                 EDGE_REF edge_1,
                                 EDGE_REF edge_2,
-                                INT32 max_num_edges,
-                                INT32 reserved_edges);
+                                inT32 max_num_edges,
+                                inT32 reserved_edges);
 
-INT32 letter_order(const void* edge1_ptr,
+inT32 letter_order(const void* edge1_ptr,
                    const void* edge2_ptr);
 
 void print_n_edges(EDGE_RECORD *edge1,
-                   INT32 n);
+                   inT32 n);
 
-INT32 reduce_lettered_edges(EDGE_ARRAY dawg,
+inT32 reduce_lettered_edges(EDGE_ARRAY dawg,
                             EDGE_REF *edge,
                             NODE_REF node,
                             NODE_MARKER reduced_nodes,
-                            INT32 max_num_edges,
-                            INT32 reserved_edges);
+                            inT32 max_num_edges,
+                            inT32 reserved_edges);
 
 void reduce_node_input(EDGE_ARRAY dawg,
                        NODE_REF node,
                        NODE_MARKER reduced_nodes,
-                       INT32 max_num_edges,
-                       INT32 reserved_edges);
+                       inT32 max_num_edges,
+                       inT32 reserved_edges);
 
-INT32 same_output(EDGE_ARRAY dawg,
+inT32 same_output(EDGE_ARRAY dawg,
                   NODE_REF node1,
                   NODE_REF node2);
 
 void trie_to_dawg(EDGE_ARRAY dawg,
-                  INT32 max_num_edges,
-                  INT32 reserved_edges);
+                  inT32 max_num_edges,
+                  inT32 reserved_edges);
 
 
 #endif

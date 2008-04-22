@@ -41,8 +41,8 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-INT32 debug          = 0;
-INT32 case_sensative = 1;
+inT32 debug          = 0;
+inT32 case_sensative = 1;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -79,7 +79,7 @@ EDGE_REF edge_char_of(EDGE_ARRAY dawg,
  * Count the number of edges in this node in the DAWG. This includes
  * both forward and back links.
  **********************************************************************/
-INT32 edges_in_node(EDGE_ARRAY dawg, NODE_REF node) {
+inT32 edges_in_node(EDGE_ARRAY dawg, NODE_REF node) {
   EDGE_REF   edge = node;
 
   if (edge_occupied (dawg, edge)) {
@@ -112,12 +112,12 @@ LETTER_OK_FUNC letter_is_okay = &def_letter_is_okay;
  **********************************************************************/
 // TODO(tkielbus) Change the prevchar argument to make it unicode safe.
 // We might want to get rid of def_letter_is_okay at some point though.
-INT32 def_letter_is_okay(EDGE_ARRAY dawg,
+inT32 def_letter_is_okay(EDGE_ARRAY dawg,
                          NODE_REF *node,
-                         INT32 char_index,
+                         inT32 char_index,
                          char prevchar,
                          const char *word,
-                         INT32 word_end) {
+                         inT32 word_end) {
   EDGE_REF     edge;
   STRING dummy_word(word);  // Auto-deleting string fixes memory leak.
   STRING word_single_lengths; //Lengths of single UTF-8 characters of the word.
@@ -132,10 +132,8 @@ INT32 def_letter_is_okay(EDGE_ARRAY dawg,
   }
 
   if (*node == NO_EDGE) {        /* Trailing punctuation */
-    if (trailing_punc (dummy_word [char_index])
-      && (!trailing_punc (prevchar)
-          || punctuation_ok(dummy_word.string(),
-                            word_single_lengths.string())>=0))
+    if (trailing_punc(dummy_word[char_index]) &&
+        punctuation_ok(dummy_word.string(), word_single_lengths.string()) >= 0)
       return (TRUE);
     else
       return (FALSE);
@@ -191,8 +189,7 @@ INT32 def_letter_is_okay(EDGE_ARRAY dawg,
     if (leading_punc (word [char_index]) &&
     (char_index == 0  ||  leading_punc (dummy_word [char_index-1]))) {
       *node = 0;
-      if (leading_punc (prevchar) ||
-          punctuation_ok (word, word_single_lengths.string())>=0)
+      if (punctuation_ok(word, word_single_lengths.string()) >= 0)
         return (TRUE);
       else
         return FALSE;
@@ -213,9 +210,9 @@ INT32 def_letter_is_okay(EDGE_ARRAY dawg,
  *
  * Count and return the number of forward edges for this node.
  **********************************************************************/
-INT32 num_forward_edges(EDGE_ARRAY dawg, NODE_REF node) {
+inT32 num_forward_edges(EDGE_ARRAY dawg, NODE_REF node) {
   EDGE_REF   edge = node;
-  INT32        num  = 0;
+  inT32        num  = 0;
 
   if (forward_edge (dawg, edge)) {
     do {
@@ -303,8 +300,8 @@ void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node) {
 EDGE_ARRAY read_squished_dawg(const char *filename) {
   FILE       *file;
   EDGE_REF   edge;
-  INT32      num_edges = 0;
-  INT32      node_count = 0;
+  inT32      num_edges = 0;
+  inT32      node_count = 0;
 
   if (debug) print_string ("read_debug");
 
@@ -313,7 +310,7 @@ EDGE_ARRAY read_squished_dawg(const char *filename) {
   #else
   file = open_file (filename, "rb");
   #endif
-  fread (&num_edges,  sizeof (INT32), 1, file);
+  fread (&num_edges,  sizeof (inT32), 1, file);
   num_edges = ntohl(num_edges);
   if (num_edges > MAX_NUM_EDGES_IN_SQUISHED_DAWG_FILE || num_edges < 0) {
     tprintf("(ENDIAN)Error: trying to read a DAWG '%s' that contains "
@@ -322,8 +319,8 @@ EDGE_ARRAY read_squished_dawg(const char *filename) {
     exit(1);
   }
 
-  UINT32 *dawg_32 = (UINT32*) Emalloc(num_edges * sizeof (UINT32));
-  fread(&dawg_32[0], sizeof (UINT32), num_edges, file);
+  uinT32 *dawg_32 = (uinT32*) Emalloc(num_edges * sizeof (uinT32));
+  fread(&dawg_32[0], sizeof (uinT32), num_edges, file);
   fclose(file);
   EDGE_ARRAY dawg = (EDGE_ARRAY) memalloc(sizeof(EDGE_RECORD) * num_edges);
 
@@ -346,7 +343,7 @@ EDGE_ARRAY read_squished_dawg(const char *filename) {
  * string of trailing puntuation.  TRUE is returned if everything is
  * OK.
  **********************************************************************/
-INT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, INT32 char_index) {
+inT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, inT32 char_index) {
   char       last_char;
   char       *first_char;
 
@@ -372,10 +369,10 @@ INT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, INT32 char_index) {
  *
  * Test to see if the word can be found in the DAWG.
  **********************************************************************/
-INT32 word_in_dawg(EDGE_ARRAY dawg, const char *string) {
+inT32 word_in_dawg(EDGE_ARRAY dawg, const char *string) {
   NODE_REF   node = 0;
-  INT32        i;
-  INT32         length;
+  inT32        i;
+  inT32         length;
 
   length=strlen(string);
   if (length==0)

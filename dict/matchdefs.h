@@ -38,7 +38,7 @@ typedef UNICHAR_ID CLASS_ID;
 /* define a type for the index (rather than the class id) of a class.
   Class indexes are sequentially defined, while class id's are defined
   by the ascii character set. */
-typedef INT16 CLASS_INDEX;
+typedef inT16 CLASS_INDEX;
 typedef CLASS_INDEX CLASS_TO_INDEX[MAX_CLASS_ID + 1];
 typedef CLASS_ID INDEX_TO_CLASS[MAX_NUM_CLASSES];
 #define ILLEGAL_CLASS (-1)
@@ -46,13 +46,13 @@ typedef CLASS_ID INDEX_TO_CLASS[MAX_NUM_CLASSES];
 /* a PROTO_ID is the index of a prototype within it's class.  Valid proto
   id's are 0 to N-1 where N is the number of prototypes that make up the
   class. */
-typedef INT16 PROTO_ID;
+typedef inT16 PROTO_ID;
 #define NO_PROTO  (-1)
 
 /* FEATURE_ID is the index of a feature within a character description
   The feature id ranges from 0 to N-1 where N is the number
   of features in a character description. */
-typedef UINT8 FEATURE_ID;
+typedef uinT8 FEATURE_ID;
 #define NO_FEATURE      255
 #define NOISE_FEATURE   254
 #define MISSING_PROTO   254

@@ -36,11 +36,11 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-static INT32 move_counter = 0;
-static INT32 new_counter  = 0;
-static INT32 edge_counter = 0;
+static inT32 move_counter = 0;
+static inT32 new_counter  = 0;
+static inT32 edge_counter = 0;
 
-INT32 max_new_attempts = 0;
+inT32 max_new_attempts = 0;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -59,8 +59,8 @@ void add_edge_linkage(EDGE_ARRAY dawg,
                       EDGE_RECORD word_end) {
   EDGE_REF edge1 = node1;
   EDGE_REF edge2;
-  INT32      num_edges = edges_in_node (dawg, node1);
-  INT32      last_one;
+  inT32      num_edges = edges_in_node (dawg, node1);
+  inT32      last_one;
 
   word_end  = (word_end ? WERD_END_FLAG : 0);
 
@@ -119,8 +119,8 @@ bool add_new_edge(EDGE_ARRAY dawg,
                   NODE_REF *node2,
                   char character,
                   EDGE_RECORD word_end,
-                  INT32 max_num_edges,
-                  INT32 reserved_edges) {
+                  inT32 max_num_edges,
+                  inT32 reserved_edges) {
   int direction;
 
   if (debug)
@@ -150,14 +150,14 @@ bool add_new_edge(EDGE_ARRAY dawg,
  **********************************************************************/
 void add_word_to_dawg(EDGE_ARRAY dawg,
                       char *string,
-                      INT32 max_num_edges,
-                      INT32 reserved_edges) {
+                      inT32 max_num_edges,
+                      inT32 reserved_edges) {
   EDGE_REF    edge;
   NODE_REF    last_node = 0;
   NODE_REF    the_next_node;
-  INT32         i;
-  INT32         still_finding_chars = TRUE;
-  INT32         word_end = FALSE;
+  inT32         i;
+  inT32         still_finding_chars = TRUE;
+  inT32         word_end = FALSE;
   bool          add_failed = false;
 
   if (debug) cprintf("Adding word %s\n", string);
@@ -233,8 +233,8 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
  * Initialize the DAWG data structure for further used.  Reset each of
  * the edge cells to NO_EDGE.
  **********************************************************************/
-void initialize_dawg(EDGE_ARRAY dawg, INT32 max_num_edges) {
-  INT32 x;
+void initialize_dawg(EDGE_ARRAY dawg, inT32 max_num_edges) {
+  inT32 x;
 
 
    //changed by jetsoft
@@ -257,14 +257,14 @@ void initialize_dawg(EDGE_ARRAY dawg, INT32 max_num_edges) {
  **********************************************************************/
 bool move_node_if_needed(EDGE_ARRAY dawg,
                          NODE_REF* node,
-                         INT32 max_num_edges,
-                         INT32 reserved_edges) {
+                         inT32 max_num_edges,
+                         inT32 reserved_edges) {
   if (room_in_node(dawg, *node))
     return true;
 
   NODE_REF   this_new_node;
   EDGE_REF   edge;
-  INT32      num_edges = edges_in_node (dawg, *node);
+  inT32      num_edges = edges_in_node (dawg, *node);
 
   if (debug)
     print_dawg_node(dawg, *node);
@@ -309,13 +309,13 @@ bool move_node_if_needed(EDGE_ARRAY dawg,
  * consists of the requested number of edges.
  **********************************************************************/
 NODE_REF new_dawg_node(EDGE_ARRAY dawg,
-                       INT32 num_edges,
-                       INT32 max_num_edges,
-                       INT32 reserved_edges) {
-  INT32        i;
-  INT32        n;
-  INT32        edge_index;
-  INT32        edge_collision;
+                       inT32 num_edges,
+                       inT32 max_num_edges,
+                       inT32 reserved_edges) {
+  inT32        i;
+  inT32        n;
+  inT32        edge_index;
+  inT32        edge_collision;
 
   /* Try several times */
   for (i=0; i<NUM_PLACEMENT_ATTEMPTS; i++) {
@@ -346,9 +346,9 @@ NODE_REF new_dawg_node(EDGE_ARRAY dawg,
 *
 * Print the contents of one of the nodes in the DAWG.
 **********************************************************************/
-void print_dawg_map (EDGE_ARRAY dawg, INT32 max_num_edges) {
+void print_dawg_map (EDGE_ARRAY dawg, inT32 max_num_edges) {
    EDGE_REF edge = 0;
-   INT32 counter = 0;
+   inT32 counter = 0;
 
    do {
       if (edge_occupied (dawg, edge))
@@ -368,12 +368,12 @@ void print_dawg_map (EDGE_ARRAY dawg, INT32 max_num_edges) {
 **********************************************************************/
 void read_full_dawg (const char *filename,
                      EDGE_ARRAY dawg,
-                     INT32 max_num_edges) {
+                     inT32 max_num_edges) {
    FILE       *file;
    EDGE_REF   node_index;
-   INT32      num_edges;
-   INT32      node_count;
-   INT32      error_occured = FALSE;
+   inT32      num_edges;
+   inT32      node_count;
+   inT32      error_occured = FALSE;
 
    if (debug) print_string ("read_dawg");
 
@@ -381,12 +381,12 @@ void read_full_dawg (const char *filename,
 
    file = open_file (filename, "rb");
 
-   fread (&node_count, sizeof (INT32), 1, file);
+   fread (&node_count, sizeof (inT32), 1, file);
 
    while (node_count-- > 0) {
 
       fread (&node_index, sizeof (EDGE_REF), 1, file);
-      fread (&num_edges,  sizeof (INT32),    1, file);
+      fread (&num_edges,  sizeof (inT32),    1, file);
 
       assert (node_index + num_edges < max_num_edges);
       fread (&dawg[node_index], sizeof (EDGE_RECORD), num_edges, file);
@@ -410,8 +410,8 @@ void read_full_dawg (const char *filename,
  **********************************************************************/
 void read_word_list(const char *filename,
                     EDGE_ARRAY dawg,
-                    INT32 max_num_edges,
-                    INT32 reserved_edges) {
+                    inT32 max_num_edges,
+                    inT32 reserved_edges) {
   FILE *word_file;
   char string [CHARS_PER_LINE];
   int  word_count = 0;
@@ -516,10 +516,10 @@ void remove_edge_linkage(EDGE_ARRAY dawg,
                          EDGE_RECORD direction,
                          char character,
                          EDGE_RECORD word_end) {
-  INT32      forward_edges;
-  INT32      num_edges;
+  inT32      forward_edges;
+  inT32      num_edges;
   NODE_REF   e = node;
-  INT32      last_flag;
+  inT32      last_flag;
 
   forward_edges = num_forward_edges (dawg, node);
   num_edges = edges_in_node (dawg, node);
@@ -571,7 +571,7 @@ void remove_edge_linkage(EDGE_ARRAY dawg,
  * Check to see if there is enough room left in this node for one more
  * edge link.  This may be a forward or backward link.
  **********************************************************************/
-INT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node) {
+inT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node) {
   EDGE_REF   edge = node;
 
   if (edge_occupied (dawg, edge + edges_in_node (dawg, node))) {
@@ -589,11 +589,11 @@ INT32 room_in_node(EDGE_ARRAY dawg, NODE_REF node) {
 * Write the DAWG out to a file
 **********************************************************************/
 void write_full_dawg (const char *filename, EDGE_ARRAY dawg,
-                      INT32 max_num_edges) {
+                      inT32 max_num_edges) {
    FILE       *file;
    EDGE_REF   edge;
-   INT32      num_edges;
-   INT32      node_count = 0;
+   inT32      num_edges;
+   inT32      node_count = 0;
    NODE_REF   node;
 
    if (debug) print_string ("write_full_dawg");
@@ -609,7 +609,7 @@ void write_full_dawg (const char *filename, EDGE_ARRAY dawg,
    }
 
    file = open_file (filename, "wb");
-   fwrite (&node_count, sizeof (INT32), 1, file);
+   fwrite (&node_count, sizeof (inT32), 1, file);
 
    node_count = 0;
    for (edge=0; edge<max_num_edges; edge++) {
@@ -621,7 +621,7 @@ void write_full_dawg (const char *filename, EDGE_ARRAY dawg,
          assert ((node + num_edges < max_num_edges) && (num_edges > 0));
 
          fwrite (&edge,                sizeof (EDGE_REF),    1,         file);
-	 fwrite (&num_edges,           sizeof (INT32),       1,         file);
+	 fwrite (&num_edges,           sizeof (inT32),       1,         file);
 	 fwrite (&edge_of (dawg,edge), sizeof (EDGE_RECORD), num_edges, file);
 
          node_count++;
