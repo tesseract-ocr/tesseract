@@ -51,8 +51,8 @@ typedef FEATURE_STRUCT *FEATURE;
 
 typedef struct
 {
-  UINT16 NumFeatures;            /* number of features in set */
-  UINT16 MaxNumFeatures;         /* maximum size of feature set */
+  uinT16 NumFeatures;            /* number of features in set */
+  uinT16 MaxNumFeatures;         /* maximum size of feature set */
   FEATURE Features[1];           /* variable size array of features */
 } FEATURE_SET_STRUCT;
 typedef FEATURE_SET_STRUCT *FEATURE_SET;
@@ -64,8 +64,8 @@ typedef FLOAT32 (*PENALTY_FUNC) ();
 
 typedef struct
 {
-  INT8 Circular;                 /* TRUE if dimension wraps around */
-  INT8 NonEssential;             /* TRUE if dimension not used in searches */
+  inT8 Circular;                 /* TRUE if dimension wraps around */
+  inT8 NonEssential;             /* TRUE if dimension not used in searches */
   FLOAT32 Min;                   /* low end of range for circular dimensions */
   FLOAT32 Max;                   /* high end of range for circular dimensions */
   FLOAT32 Range;                 /* Max - Min */
@@ -75,11 +75,11 @@ typedef struct
 
 typedef struct fds
 {
-  UINT16 NumParams;              /* total # of params */
-  UINT8 NumLinearParams;         /* # of linear params */
-  UINT8 NumCircularParams;       /* # of linear params */
-  UINT8 MinFeatPerChar;          /* min # of feats allowed */
-  UINT8 MaxFeatPerChar;          /* max # of feats allowed */
+  uinT16 NumParams;              /* total # of params */
+  uinT8 NumLinearParams;         /* # of linear params */
+  uinT8 NumCircularParams;       /* # of linear params */
+  uinT8 MinFeatPerChar;          /* min # of feats allowed */
+  uinT8 MaxFeatPerChar;          /* max # of feats allowed */
   char LongName[FEAT_NAME_SIZE]; /* long name for feature */
   char ShortName[FEAT_NAME_SIZE];/* short name for feature */
   PARAM_DESC *ParamDesc;         /* array - one per param */
@@ -146,25 +146,25 @@ FEATURE_DESC_STRUCT Name = {						\
 /*----------------------------------------------------------------------
         Generic routines that work for all feature types
 ----------------------------------------------------------------------*/
-BOOL8 AddFeature(FEATURE_SET FeatureSet, FEATURE Feature); 
+BOOL8 AddFeature(FEATURE_SET FeatureSet, FEATURE Feature);
 
-void DefaultInitFXVars(); 
+void DefaultInitFXVars();
 
-void FreeFeature(FEATURE Feature); 
+void FreeFeature(FEATURE Feature);
 
-void FreeFeatureSet(FEATURE_SET FeatureSet); 
+void FreeFeatureSet(FEATURE_SET FeatureSet);
 
-FEATURE NewFeature(FEATURE_DESC FeatureDesc); 
+FEATURE NewFeature(FEATURE_DESC FeatureDesc);
 
-FEATURE_SET NewFeatureSet(int NumFeatures); 
+FEATURE_SET NewFeatureSet(int NumFeatures);
 
-FEATURE ReadFeature(FILE *File, FEATURE_DESC FeatureDesc); 
+FEATURE ReadFeature(FILE *File, FEATURE_DESC FeatureDesc);
 
-FEATURE_SET ReadFeatureSet(FILE *File, FEATURE_DESC FeatureDesc); 
+FEATURE_SET ReadFeatureSet(FILE *File, FEATURE_DESC FeatureDesc);
 
-void WriteFeature(FILE *File, FEATURE Feature); 
+void WriteFeature(FILE *File, FEATURE Feature);
 
-void WriteFeatureSet(FILE *File, FEATURE_SET FeatureSet); 
+void WriteFeatureSet(FILE *File, FEATURE_SET FeatureSet);
 
-void WriteOldParamDesc(FILE *File, FEATURE_DESC FeatureDesc); 
+void WriteOldParamDesc(FILE *File, FEATURE_DESC FeatureDesc);
 #endif

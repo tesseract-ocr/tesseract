@@ -39,7 +39,7 @@ typedef TPOINT SCALE;
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-INT8 baseline_normalized = TRUE;
+inT8 baseline_normalized = TRUE;
 
 make_int_var (baseline_enable, 1, make_baseline_enable,
 4, 3, set_baseline_enable, "Baseline Enable");
@@ -51,8 +51,8 @@ make_int_var (baseline_enable, 1, make_baseline_enable,
  *
  * Initialize the needed baseline variables.
  **********************************************************************/
-void init_baseline() { 
-  make_baseline_enable(); 
+void init_baseline() {
+  make_baseline_enable();
 
   baseline_normalized = baseline_enable;
 }

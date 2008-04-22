@@ -137,7 +137,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
  * Return the length of all the protos in this class.
  **********************************************************************/
 FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
-  INT16 Pid;
+  inT16 Pid;
   FLOAT32 TotalLength = 0;
 
   for (Pid = 0; Pid < NumProtosIn (Class); Pid++) {
@@ -156,7 +156,7 @@ FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
  * Return the length of all the protos in this class.
  **********************************************************************/
 FLOAT32 ClassProtoLength(CLASS_TYPE Class) {
-  INT16 Pid;
+  inT16 Pid;
   FLOAT32 TotalLength = 0;
 
   for (Pid = 0; Pid < NumProtosIn (Class); Pid++) {
@@ -275,7 +275,7 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
  * Print the list of prototypes in this class type.
  **********************************************************************/
 void PrintProtos(CLASS_TYPE Class) {
-  INT16 Pid;
+  inT16 Pid;
 
   for (Pid = 0; Pid < NumProtosIn (Class); Pid++) {
     cprintf ("Proto %d:\t", Pid);
@@ -336,8 +336,8 @@ void ReadClassFromFile(FILE *File, UNICHAR_ID unichar_id) {
  * the requested number of lines.
  **********************************************************************/
 void ReadConfigs(register FILE *File, CLASS_TYPE Class) {
-  INT16 Cid;
-  register INT16 Wid;
+  inT16 Cid;
+  register inT16 Wid;
   register BIT_VECTOR ThisConfig;
   int NumWords;
   int NumConfigs;
@@ -366,7 +366,7 @@ void ReadConfigs(register FILE *File, CLASS_TYPE Class) {
  * of lines requested.
  **********************************************************************/
 void ReadProtos(register FILE *File, CLASS_TYPE Class) {
-  register INT16 Pid;
+  register inT16 Pid;
   register PROTO Proto;
   int NumProtos;
 

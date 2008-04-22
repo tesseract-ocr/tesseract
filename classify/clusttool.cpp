@@ -43,7 +43,7 @@ Return:		Sample size
 Exceptions:	ILLEGALSAMPLESIZE	illegal format or range
 History:	6/6/89, DSJ, Created.
 ******************************************************************************/
-UINT16 ReadSampleSize(FILE *File) {
+uinT16 ReadSampleSize(FILE *File) {
   int SampleSize;
 
   if ((fscanf (File, "%d", &SampleSize) != 1) ||
@@ -65,7 +65,7 @@ Exceptions:	ILLEGALCIRCULARSPEC
       ILLEGALMINMAXSPEC
 History:	6/6/89, DSJ, Created.
 ******************************************************************************/
-PARAM_DESC *ReadParamDesc(FILE *File, UINT16 N) {
+PARAM_DESC *ReadParamDesc(FILE *File, uinT16 N) {
   int i;
   PARAM_DESC *ParamDesc;
   char Token[TOKENSIZE];
@@ -112,7 +112,7 @@ Exceptions:	ILLEGALSIGNIFICANCESPEC
       ILLEGALDISTRIBUTION
 History:	6/6/89, DSJ, Created.
 ******************************************************************************/
-PROTOTYPE *ReadPrototype(FILE *File, UINT16 N) {
+PROTOTYPE *ReadPrototype(FILE *File, uinT16 N) {
   char Token[TOKENSIZE];
   int Status;
   PROTOTYPE *Proto;
@@ -281,7 +281,7 @@ Exceptions:	ILLEGALFLOAT
 History:	6/6/89, DSJ, Created.
 ******************************************************************************/
 FLOAT32 *
-ReadNFloats (FILE * File, UINT16 N, FLOAT32 Buffer[]) {
+ReadNFloats (FILE * File, uinT16 N, FLOAT32 Buffer[]) {
   int i;
   int NumFloatsRead;
 
@@ -313,7 +313,7 @@ Exceptions:	None
 History:	6/6/89, DSJ, Created.
 ******************************************************************************/
 void
-WriteParamDesc (FILE * File, UINT16 N, PARAM_DESC ParamDesc[]) {
+WriteParamDesc (FILE * File, uinT16 N, PARAM_DESC ParamDesc[]) {
   int i;
 
   for (i = 0; i < N; i++) {
@@ -343,7 +343,7 @@ Return:		None
 Exceptions:	None
 History:	6/12/89, DSJ, Created.
 *******************************************************************************/
-void WritePrototype(FILE *File, UINT16 N, PROTOTYPE *Proto) {
+void WritePrototype(FILE *File, uinT16 N, PROTOTYPE *Proto) {
   int i;
 
   if (Proto->Significant)
@@ -393,7 +393,7 @@ Exceptions:	None
 History:	6/6/89, DSJ, Created.
 ****************************************************************************/
 void
-WriteNFloats (FILE * File, UINT16 N, FLOAT32 Array[]) {
+WriteNFloats (FILE * File, uinT16 N, FLOAT32 Array[]) {
   int i;
 
   for (i = 0; i < N; i++)
@@ -433,7 +433,7 @@ void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
 /*---------------------------------------------------------------------------*/
 void WriteProtoList(
      FILE	*File,
-     UINT16	N,
+     uinT16	N,
      PARAM_DESC	ParamDesc[],
      LIST	ProtoList,
      BOOL8	WriteSigProtos,

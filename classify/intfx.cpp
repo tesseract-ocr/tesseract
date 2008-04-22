@@ -28,10 +28,10 @@
 /**----------------------------------------------------------------------------
           Private Function Prototypes
 ----------------------------------------------------------------------------**/
-int SaveFeature(); 
-UINT8 TableLookup(); 
-UINT8 MySqrt2(); 
-void ClipRadius(); 
+int SaveFeature();
+uinT8 TableLookup();
+uinT8 MySqrt2();
+void ClipRadius();
 
 make_int_var (RadiusGyrMinMan, 255, MakeRadiusGyrMinMan,
 16, 10, SetRadiusGyrMinMan,
@@ -54,18 +54,18 @@ make_int_var (RadiusGyrMaxExp, 8, MakeRadiusGyrMaxExp,
 ----------------------------------------------------------------------------**/
 #define  ATAN_TABLE_SIZE    64
 
-static UINT8 AtanTable[ATAN_TABLE_SIZE];
+static uinT8 AtanTable[ATAN_TABLE_SIZE];
 
 /**----------------------------------------------------------------------------
             Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-void InitIntegerFX() { 
+void InitIntegerFX() {
   int i;
 
   for (i = 0; i < ATAN_TABLE_SIZE; i++)
     AtanTable[i] =
-      (UINT8) (atan ((i / (float) ATAN_TABLE_SIZE)) * 128.0 / PI + 0.5);
+      (uinT8) (atan ((i / (float) ATAN_TABLE_SIZE)) * 128.0 / PI + 0.5);
 
 }
 
@@ -78,18 +78,18 @@ int ExtractIntFeat(TBLOB *Blob,
 
   TESSLINE *OutLine;
   EDGEPT *Loop, *LoopStart, *Segment;
-  INT16 LastX, LastY, Xmean, Ymean;
-  INT32 NormX, NormY, DeltaX, DeltaY;
-  INT32 Xsum, Ysum;
-  UINT32 Ix, Iy, LengthSum;
-  UINT16 n;
-  UINT8 Theta;
-  UINT16 NumBLFeatures, NumCNFeatures;
-  UINT8 RxInv, RyInv;            /* x.xxxxxxx  *  2^Exp  */
-  UINT8 RxExp, RyExp;
+  inT16 LastX, LastY, Xmean, Ymean;
+  inT32 NormX, NormY, DeltaX, DeltaY;
+  inT32 Xsum, Ysum;
+  uinT32 Ix, Iy, LengthSum;
+  uinT16 n;
+  uinT8 Theta;
+  uinT16 NumBLFeatures, NumCNFeatures;
+  uinT8 RxInv, RyInv;            /* x.xxxxxxx  *  2^Exp  */
+  uinT8 RxExp, RyExp;
                                  /* sxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxx */
-  register INT32 pfX, pfY, dX, dY;
-  UINT16 Length;
+  register inT32 pfX, pfY, dX, dY;
+  uinT16 Length;
   register int i;
 
   Results->Length = 0;
@@ -143,8 +143,8 @@ int ExtractIntFeat(TBLOB *Blob,
   }
   if (LengthSum == 0)
     return FALSE;
-  Xmean = (Xsum / (INT32) LengthSum) >> 1;
-  Ymean = (Ysum / (INT32) LengthSum) >> 1;
+  Xmean = (Xsum / (inT32) LengthSum) >> 1;
+  Ymean = (Ysum / (inT32) LengthSum) >> 1;
 
   Results->Length = LengthSum;
   Results->Xmean = Xmean;
@@ -184,8 +184,8 @@ int ExtractIntFeat(TBLOB *Blob,
           pfY = (LastY << 8) + (dY >> 1);
           Ix += ((pfY >> 8) - Ymean) * ((pfY >> 8) - Ymean);
           Iy += (pfX >> 8) * (pfX >> 8);
-          if (SaveFeature (BLFeat, NumBLFeatures, (INT16) (pfX >> 8),
-            (INT16) ((pfY >> 8) - 128),
+          if (SaveFeature (BLFeat, NumBLFeatures, (inT16) (pfX >> 8),
+            (inT16) ((pfY >> 8) - 128),
             Theta) == FALSE)
             return FALSE;
           NumBLFeatures++;
@@ -195,8 +195,8 @@ int ExtractIntFeat(TBLOB *Blob,
             Ix += ((pfY >> 8) - Ymean) * ((pfY >> 8) - Ymean);
             Iy += (pfX >> 8) * (pfX >> 8);
             if (SaveFeature
-              (BLFeat, NumBLFeatures, (INT16) (pfX >> 8),
-              (INT16) ((pfY >> 8) - 128), Theta) == FALSE)
+              (BLFeat, NumBLFeatures, (inT16) (pfX >> 8),
+              (inT16) ((pfY >> 8) - 128), Theta) == FALSE)
               return FALSE;
             NumBLFeatures++;
           }
@@ -216,10 +216,10 @@ int ExtractIntFeat(TBLOB *Blob,
     Iy = 1;
   RxInv = MySqrt2 (NumBLFeatures, Ix, &RxExp);
   RyInv = MySqrt2 (NumBLFeatures, Iy, &RyExp);
-  ClipRadius(&RxInv, &RxExp, &RyInv, &RyExp); 
+  ClipRadius(&RxInv, &RxExp, &RyInv, &RyExp);
 
-  Results->Rx = (INT16) (51.2 / (double) RxInv * pow (2.0, (double) RxExp));
-  Results->Ry = (INT16) (51.2 / (double) RyInv * pow (2.0, (double) RyExp));
+  Results->Rx = (inT16) (51.2 / (double) RxInv * pow (2.0, (double) RxExp));
+  Results->Ry = (inT16) (51.2 / (double) RyInv * pow (2.0, (double) RyExp));
   Results->NumBL = NumBLFeatures;
 
   /* extract character normalized features */
@@ -230,8 +230,8 @@ int ExtractIntFeat(TBLOB *Blob,
     Loop = LoopStart;
     LastX = (Loop->pos.x - Xmean) * RyInv;
     LastY = (Loop->pos.y - Ymean) * RxInv;
-    LastX >>= (INT8) RyExp;
-    LastY >>= (INT8) RxExp;
+    LastX >>= (inT8) RyExp;
+    LastY >>= (inT8) RxExp;
     /* Check for bad loops */
     if ((Loop == NULL) || (Loop->next == NULL) || (Loop->next == LoopStart))
       return FALSE;
@@ -240,8 +240,8 @@ int ExtractIntFeat(TBLOB *Blob,
       Loop = Loop->next;
       NormX = (Loop->pos.x - Xmean) * RyInv;
       NormY = (Loop->pos.y - Ymean) * RxInv;
-      NormX >>= (INT8) RyExp;
-      NormY >>= (INT8) RxExp;
+      NormX >>= (inT8) RyExp;
+      NormY >>= (inT8) RxExp;
 
       n = 1;
       if (!is_hidden_edge (Segment)) {
@@ -255,16 +255,16 @@ int ExtractIntFeat(TBLOB *Blob,
           dY = (DeltaY << 8) / n;
           pfX = (LastX << 8) + (dX >> 1);
           pfY = (LastY << 8) + (dY >> 1);
-          if (SaveFeature (CNFeat, NumCNFeatures, (INT16) (pfX >> 8),
-            (INT16) ((pfY >> 8)), Theta) == FALSE)
+          if (SaveFeature (CNFeat, NumCNFeatures, (inT16) (pfX >> 8),
+            (inT16) ((pfY >> 8)), Theta) == FALSE)
             return FALSE;
           NumCNFeatures++;
           for (i = 1; i < n; i++) {
             pfX += dX;
             pfY += dY;
             if (SaveFeature
-              (CNFeat, NumCNFeatures, (INT16) (pfX >> 8),
-              (INT16) ((pfY >> 8)), Theta) == FALSE)
+              (CNFeat, NumCNFeatures, (inT16) (pfX >> 8),
+              (inT16) ((pfY >> 8)), Theta) == FALSE)
               return FALSE;
             NumCNFeatures++;
           }
@@ -285,10 +285,10 @@ int ExtractIntFeat(TBLOB *Blob,
 
 
 /*--------------------------------------------------------------------------*/
-UINT8 TableLookup(INT32 Y, INT32 X) { 
-  INT16 Angle;
-  UINT16 Ratio;
-  UINT32 AbsX, AbsY;
+uinT8 TableLookup(inT32 Y, inT32 X) {
+  inT16 Angle;
+  uinT16 Ratio;
+  uinT32 AbsX, AbsY;
 
   assert ((X != 0) || (Y != 0));
   if (X < 0)
@@ -329,16 +329,16 @@ UINT8 TableLookup(INT32 Y, INT32 X) {
   /* reverse angles to match old feature extractor:   Angle += PI */
   Angle += 128;
   Angle &= 255;
-  return (UINT8) Angle;
+  return (uinT8) Angle;
 }
 
 
 /*--------------------------------------------------------------------------*/
 int SaveFeature(INT_FEATURE_ARRAY FeatureArray,
-                UINT16 FeatureNum,
-                INT16 X,
-                INT16 Y,
-                UINT8 Theta) {
+                uinT16 FeatureNum,
+                inT16 X,
+                inT16 Y,
+                uinT8 Theta) {
   INT_FEATURE Feature;
 
   if (FeatureNum >= MAX_NUM_INT_FEATURES)
@@ -370,11 +370,11 @@ int SaveFeature(INT_FEATURE_ARRAY FeatureArray,
 
 
 /*---------------------------------------------------------------------------*/
-UINT16 MySqrt(INT32 X, INT32 Y) { 
-  register UINT16 SqRoot;
-  register UINT32 Square;
-  register UINT16 BitLocation;
-  register UINT32 Sum;
+uinT16 MySqrt(inT32 X, inT32 Y) {
+  register uinT16 SqRoot;
+  register uinT32 Square;
+  register uinT16 BitLocation;
+  register uinT32 Sum;
 
   if (X < 0)
     X = -X;
@@ -403,13 +403,13 @@ UINT16 MySqrt(INT32 X, INT32 Y) {
 
 
 /*--------------------------------------------------------------------------*/
-UINT8 MySqrt2(UINT16 N, UINT32 I, UINT8 *Exp) { 
-  register INT8 k;
-  register UINT32 N2;
-  register UINT8 SqRoot;
-  register UINT16 Square;
-  register UINT8 BitLocation;
-  register UINT16 Ratio;
+uinT8 MySqrt2(uinT16 N, uinT32 I, uinT8 *Exp) {
+  register inT8 k;
+  register uinT32 N2;
+  register uinT8 SqRoot;
+  register uinT16 Square;
+  register uinT8 BitLocation;
+  register uinT16 Ratio;
 
   N2 = N * 41943;
 
@@ -455,9 +455,9 @@ UINT8 MySqrt2(UINT16 N, UINT32 I, UINT8 *Exp) {
 
 
 /*-------------------------------------------------------------------------*/
-void ClipRadius(UINT8 *RxInv, UINT8 *RxExp, UINT8 *RyInv, UINT8 *RyExp) { 
-  register UINT8 AM, BM, AE, BE;
-  register UINT8 BitN, LastCarry;
+void ClipRadius(uinT8 *RxInv, uinT8 *RxExp, uinT8 *RyInv, uinT8 *RyExp) {
+  register uinT8 AM, BM, AE, BE;
+  register uinT8 BitN, LastCarry;
   int RxInvLarge, RyInvSmall;
 
   AM = RadiusGyrMinMan;

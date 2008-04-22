@@ -69,14 +69,14 @@
 
 typedef struct
 {
-  INT32 BlobLength;
+  inT32 BlobLength;
   int NumMatches;
   CLASS_ID Classes[MAX_NUM_CLASSES];
   FLOAT32 Ratings[MAX_CLASS_ID + 1];
-  UINT8 Configs[MAX_CLASS_ID + 1];
+  uinT8 Configs[MAX_CLASS_ID + 1];
   FLOAT32 BestRating;
   CLASS_ID BestClass;
-  UINT8 BestConfig;
+  uinT8 BestConfig;
   CLASS_PRUNER_RESULTS CPResults;
 }
 
@@ -171,7 +171,7 @@ int GetBaselineFeatures(TBLOB *Blob,
                         INT_TEMPLATES Templates,
                         INT_FEATURE_ARRAY IntFeatures,
                         CLASS_NORMALIZATION_ARRAY CharNormArray,
-                        INT32 *BlobLength);
+                        inT32 *BlobLength);
 
 FLOAT32 GetBestRatingFor(TBLOB *Blob, LINE_STATS *LineStats, CLASS_ID ClassId);
 
@@ -180,21 +180,21 @@ int GetCharNormFeatures(TBLOB *Blob,
                         INT_TEMPLATES Templates,
                         INT_FEATURE_ARRAY IntFeatures,
                         CLASS_NORMALIZATION_ARRAY CharNormArray,
-                        INT32 *BlobLength);
+                        inT32 *BlobLength);
 
 int GetIntBaselineFeatures(TBLOB *Blob,
                            LINE_STATS *LineStats,
                            INT_TEMPLATES Templates,
                            INT_FEATURE_ARRAY IntFeatures,
                            CLASS_NORMALIZATION_ARRAY CharNormArray,
-                           INT32 *BlobLength);
+                           inT32 *BlobLength);
 
 int GetIntCharNormFeatures(TBLOB *Blob,
                            LINE_STATS *LineStats,
                            INT_TEMPLATES Templates,
                            INT_FEATURE_ARRAY IntFeatures,
                            CLASS_NORMALIZATION_ARRAY CharNormArray,
-                           INT32 *BlobLength);
+                           inT32 *BlobLength);
 
 void InitMatcherRatings(register FLOAT32 *Rating);
 
@@ -1383,7 +1383,7 @@ void AdaptToChar(TBLOB *Blob,
         cprintf ("Best match to temp config %d = %4.1f%%.\n",
           IntResult.Config, (1.0 - IntResult.Rating) * 100.0);
         if (LearningDebugLevel >= 2) {
-          UINT32 ConfigMask;
+          uinT32 ConfigMask;
           ConfigMask = 1 << IntResult.Config;
           ShowMatchDisplay();
           IntegerMatcher (IClass, AllProtosOn, (BIT_VECTOR)&ConfigMask,
@@ -1593,7 +1593,7 @@ void AmbigClassifier(TBLOB *Blob,
 // Factored-out calls to IntegerMatcher based on class pruner results.
 // Returns integer matcher results inside CLASS_PRUNER_RESULTS structure.
 void MasterMatcher(INT_TEMPLATES templates,
-                   INT16 num_features,
+                   inT16 num_features,
                    INT_FEATURE_ARRAY features,
                    CLASS_NORMALIZATION_ARRAY norm_factors,
                    ADAPT_CLASS* classes,
@@ -1613,7 +1613,7 @@ void MasterMatcher(INT_TEMPLATES templates,
     IntegerMatcher(ClassForClassId(templates, class_id),
                    protos, configs, final_results->BlobLength,
                    num_features, features, norm_factors[class_index],
-                   &int_result, debug);
+                   &int_result, NO_DEBUG);
     // Compute class feature corrections.
     double miss_penalty = tessedit_class_miss_scale *
                           int_result.FeatureMisses;
@@ -1877,7 +1877,8 @@ LIST ConvertMatchesToChoices(ADAPT_RESULTS *Results) {
                              NextMatch_unichar,
                              choice_lengths,
                              Rating, Certainty,
-                             Results->Configs[NextMatch]);
+                             Results->Configs[NextMatch],
+                             unicharset.get_script(NextMatch));
   }
   return (Choices);
 
@@ -1904,7 +1905,7 @@ void DebugAdaptiveClassifier(TBLOB *Blob,
 **                          History: Wed Mar 13 16:44:41 1991, DSJ, Created.
 */
   const char *Prompt =
-    "\nType class id (or CTRL-A,B,C) in IntegerMatch Window ...";
+    "Left-click in IntegerMatch Window to continue or right click to debug...";
   const char *DebugMode = "All Templates";
   CLASS_ID LastClass = Results->BestClass;
   CLASS_ID ClassId;
@@ -1946,8 +1947,8 @@ void DebugAdaptiveClassifier(TBLOB *Blob,
     LastClass = ClassId;
 
     ShowMatchDisplay();
-    cprintf ("\nDebugging class = %s  (%s) ...\n",
-             unicharset.id_to_unichar(LastClass), DebugMode);
+    cprintf ("\nDebugging class = %d = %s  (%s) ...\n",
+             LastClass, unicharset.id_to_unichar(LastClass), DebugMode);
     ShowBestMatchFor(Blob, LineStats, LastClass, AdaptiveOn, PreTrainedOn);
     UpdateMatchDisplay();
   }
@@ -2158,7 +2159,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
                           INT_TEMPLATES Templates,
                           INT_FEATURE_ARRAY IntFeatures,
                           CLASS_NORMALIZATION_ARRAY CharNormArray,
-                          INT32 *BlobLength) {
+                          inT32 *BlobLength) {
   /*
    **                           Parameters:
    **                           Blob
@@ -2244,7 +2245,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
     INT_RESULT_STRUCT CNResult, BLResult;
     CLASS_NORMALIZATION_ARRAY CNAdjust, BLAdjust;
     CLASS_INDEX ClassIndex;
-    INT32 BlobLength;
+    inT32 BlobLength;
 
     CNResult.Rating = BLResult.Rating = 1.0;
 
@@ -2293,7 +2294,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
                           INT_TEMPLATES Templates,
                           INT_FEATURE_ARRAY IntFeatures,
                           CLASS_NORMALIZATION_ARRAY CharNormArray,
-                          INT32 *BlobLength) {
+                          inT32 *BlobLength) {
   /*
    **                           Parameters:
    **                           Blob
@@ -2331,7 +2332,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
                              INT_TEMPLATES Templates,
                              INT_FEATURE_ARRAY IntFeatures,
                              CLASS_NORMALIZATION_ARRAY CharNormArray,
-                             INT32 *BlobLength) {
+                             inT32 *BlobLength) {
   /*
    **                           Parameters:
    **                           Blob
@@ -2394,7 +2395,7 @@ void DoAdaptiveMatch(TBLOB *Blob,
                              INT_TEMPLATES Templates,
                              INT_FEATURE_ARRAY IntFeatures,
                              CLASS_NORMALIZATION_ARRAY CharNormArray,
-                             INT32 *BlobLength) {
+                             inT32 *BlobLength) {
   /*
    **                           Parameters:
    **                           Blob
@@ -2853,20 +2854,11 @@ void DoAdaptiveMatch(TBLOB *Blob,
   **                            Exceptions: none
   **                            History: Mon Mar 18 09:24:53 1991, DSJ, Created.
   */
-    int i;
-
-    if (Results->NumMatches > 0) {
-      cprintf ("%s(%d)  %4.1f  ",
-               unicharset.id_to_unichar(Results->Classes[0]),
-               Results->Classes[0],
-               Results->Ratings[Results->Classes[0]] * 100.0);
-
-      for (i = 1; i < Results->NumMatches; i++) {
-        cprintf ("%s(%d)  %4.1f  ",
-                 unicharset.id_to_unichar(Results->Classes[i]),
-                 Results->Classes[i],
-                 Results->Ratings[Results->Classes[i]] * 100.0);
-      }
+    for (int i = 0; i < Results->NumMatches; ++i) {
+      cprintf("%s(%d) %.2f  ",
+               unicharset.debug_str(Results->Classes[i]).string(),
+               Results->Classes[i],
+               Results->Ratings[Results->Classes[i]] * 100.0);
     }
   }                              /* PrintAdaptiveMatchResults */
 
@@ -3046,8 +3038,8 @@ void DoAdaptiveMatch(TBLOB *Blob,
     INT_RESULT_STRUCT CNResult, BLResult;
     CLASS_NORMALIZATION_ARRAY CNAdjust, BLAdjust;
     CLASS_INDEX ClassIndex;
-    INT32 BlobLength;
-    UINT32 ConfigMask;
+    inT32 BlobLength;
+    uinT32 ConfigMask;
     static int next_config = -1;
 
     if (PreTrainedOn) next_config = -1;
@@ -3055,13 +3047,14 @@ void DoAdaptiveMatch(TBLOB *Blob,
     CNResult.Rating = BLResult.Rating = 2.0;
 
     if (!LegalClassId (ClassId)) {
-      cprintf ("%c is not a legal class!!\n", ClassId);
+      cprintf ("%d is not a legal class id!!\n", ClassId);
       return;
     }
 
     if (PreTrainedOn) {
       if (UnusedClassIdIn (PreTrainedTemplates, ClassId))
-        cprintf ("No built-in templates for class '%c'\n", ClassId);
+        cprintf ("No built-in templates for class %d = %s\n",
+                 ClassId, unicharset.id_to_unichar(ClassId));
       else {
         NumCNFeatures = GetCharNormFeatures (Blob, LineStats,
           PreTrainedTemplates,
@@ -3086,7 +3079,8 @@ void DoAdaptiveMatch(TBLOB *Blob,
 
     if (AdaptiveOn) {
       if (UnusedClassIdIn (AdaptedTemplates->Templates, ClassId))
-        cprintf ("No AD templates for class '%c'\n", ClassId);
+        cprintf ("No AD templates for class %d = %s\n",
+                 ClassId, unicharset.id_to_unichar(ClassId));
       else {
         NumBLFeatures = GetBaselineFeatures (Blob, LineStats,
           AdaptedTemplates->Templates,

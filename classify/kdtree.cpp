@@ -40,7 +40,7 @@
 #define MAXSEARCH MAX_FLOAT32
 
 static int NumberOfNeighbors;
-static INT16 N;                  /* number of dimensions in the kd tree */
+static inT16 N;                  /* number of dimensions in the kd tree */
 
 static FLOAT32 *QueryPoint;
 static int MaxNeighbors;
@@ -86,7 +86,7 @@ static int PrevLevel(int level) {
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
 KDTREE *
-MakeKDTree (INT16 KeySize, PARAM_DESC KeyDesc[]) {
+MakeKDTree (inT16 KeySize, PARAM_DESC KeyDesc[]) {
 /*
  **	Parameters:
  **		KeySize		# of dimensions in the K-D tree
@@ -825,7 +825,7 @@ int QueryInSearch() {
 
 
 /*---------------------------------------------------------------------------*/
-void Walk(KDNODE *SubTree, INT32 Level) {
+void Walk(KDNODE *SubTree, inT32 Level) {
 /*
  **	Parameters:
  **		SubTree		ptr to root of subtree to be walked

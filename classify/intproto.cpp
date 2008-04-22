@@ -25,6 +25,7 @@
 #include "emalloc.h"
 #include "const.h"
 #include "ndminx.h"
+#include "svmnode.h"
 #include "adaptmatch.h"
 #include "globals.h"
 
@@ -59,10 +60,6 @@
 /* define pad used to snap near horiz/vertical protos to horiz/vertical */
 #define HV_TOLERANCE  (0.0025)   /* approx 0.9 degrees */
 
-const int kInputSize = 16;
-//extern int input_unicode[kInputSize];
-int input_unicode[kInputSize];
-
 typedef enum
 { StartSwitch, EndSwitch, LastSwitch }
 SWITCH_TYPE;
@@ -71,9 +68,9 @@ SWITCH_TYPE;
 typedef struct
 {
   SWITCH_TYPE Type;
-  INT8 X, Y;
-  INT16 YInit;
-  INT16 Delta;
+  inT8 X, Y;
+  inT16 YInit;
+  inT16 Delta;
 }
 
 
@@ -81,11 +78,11 @@ FILL_SWITCH;
 
 typedef struct
 {
-  UINT8 NextSwitch;
-  UINT8 AngleStart, AngleEnd;
-  INT8 X;
-  INT16 YStart, YEnd;
-  INT16 StartDelta, EndDelta;
+  uinT8 NextSwitch;
+  uinT8 AngleStart, AngleEnd;
+  inT8 X;
+  inT16 YStart, YEnd;
+  inT16 StartDelta, EndDelta;
   FILL_SWITCH Switch[MAX_NUM_SWITCHES];
 }
 
@@ -94,13 +91,19 @@ TABLE_FILLER;
 
 typedef struct
 {
-  INT8 X;
-  INT8 YStart, YEnd;
-  UINT8 AngleStart, AngleEnd;
+  inT8 X;
+  inT8 YStart, YEnd;
+  uinT8 AngleStart, AngleEnd;
 }
 
 
 FILL_SPEC;
+
+enum IntmatcherDebugAction {
+  IDA_ADAPTIVE,
+  IDA_STATIC,
+  IDA_BOTH
+};
 
 /**----------------------------------------------------------------------------
             Macros
@@ -120,17 +123,17 @@ FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets);
 
 void DoFill(FILL_SPEC *FillSpec,
             CLASS_PRUNER Pruner,
-            register UINT32 ClassMask,
-            register UINT32 ClassCount,
-            register UINT32 WordIndex);
+            register uinT32 ClassMask,
+            register uinT32 ClassCount,
+            register uinT32 WordIndex);
 
 BOOL8 FillerDone(TABLE_FILLER *Filler);
 
-void FillPPCircularBits (UINT32
+void FillPPCircularBits (uinT32
 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 int Bit, FLOAT32 Center, FLOAT32 Spread);
 
-void FillPPLinearBits (UINT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
+void FillPPLinearBits (uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 int Bit, FLOAT32 Center, FLOAT32 Spread);
 
 #ifndef GRAPHICS_DISABLED
@@ -184,21 +187,21 @@ FLOAT32 BucketEnd
 void DoFill
   _ARGS((FILL_SPEC *FillSpec,
   CLASS_PRUNER Pruner,
-  UINT32 ClassMask,
-  UINT32 ClassCount,
-  UINT32 WordIndex));
+  uinT32 ClassMask,
+  uinT32 ClassCount,
+  uinT32 WordIndex));
 
 BOOL8 FillerDone
   _ARGS((TABLE_FILLER *Filler));
 
 void FillPPCircularBits
-  _ARGS((UINT32 ParamTable [NUM_PP_BUCKETS ][WERDS_PER_PP_VECTOR ],
+  _ARGS((uinT32 ParamTable [NUM_PP_BUCKETS ][WERDS_PER_PP_VECTOR ],
   int Bit,
   FLOAT32 Center,
   FLOAT32 Spread));
 
 void FillPPLinearBits
-  _ARGS((UINT32 ParamTable [NUM_PP_BUCKETS ][WERDS_PER_PP_VECTOR ],
+  _ARGS((uinT32 ParamTable [NUM_PP_BUCKETS ][WERDS_PER_PP_VECTOR ],
   int Bit,
   FLOAT32 Center,
   FLOAT32 Spread));
@@ -262,7 +265,7 @@ make_float_const (PPEndPad, 0.5, MakePPEndPad);
 make_float_const (PPSidePad, 2.5, MakePPSidePad);
 
 /* global display lists used to display proto and feature match information*/
-void *IntMatchWindow = NULL;
+ScrollView *IntMatchWindow = NULL;
 //extern int LearningDebugLevel;
 
 /**----------------------------------------------------------------------------
@@ -284,7 +287,7 @@ int AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
  */
   int Index;
   int Pruner;
-  UINT32 *Word;
+  uinT32 *Word;
 
   assert (LegalClassId (ClassId));
   assert (UnusedClassIdIn (Templates, ClassId));
@@ -302,8 +305,8 @@ int AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
     Templates->ClassPruner[Pruner] =
       (CLASS_PRUNER) Emalloc (sizeof (CLASS_PRUNER_STRUCT));
 
-    for (Word = (UINT32 *) (Templates->ClassPruner[Pruner]);
-      Word < (UINT32 *) (Templates->ClassPruner[Pruner]) + WERDS_PER_CP;
+    for (Word = (uinT32 *) (Templates->ClassPruner[Pruner]);
+      Word < (uinT32 *) (Templates->ClassPruner[Pruner]) + WERDS_PER_CP;
       *Word++ = 0);
   }
 
@@ -351,7 +354,7 @@ int AddIntProto(INT_CLASS Class) {
   int ProtoSetId;
   PROTO_SET ProtoSet;
   INT_PROTO Proto;
-  register UINT32 *Word;
+  register uinT32 *Word;
 
   if (NumIntProtosIn (Class) >= MAX_NUM_PROTOS)
     return (NO_PROTO);
@@ -365,14 +368,14 @@ int AddIntProto(INT_CLASS Class) {
 
     ProtoSet = (PROTO_SET) Emalloc (sizeof (PROTO_SET_STRUCT));
     ProtoSetIn (Class, ProtoSetId) = ProtoSet;
-    for (Word = (UINT32 *) (ProtoPrunerFor (ProtoSet));
-      Word < (UINT32 *) (ProtoPrunerFor (ProtoSet)) + WERDS_PER_PP;
+    for (Word = (uinT32 *) (ProtoPrunerFor (ProtoSet));
+      Word < (uinT32 *) (ProtoPrunerFor (ProtoSet)) + WERDS_PER_PP;
       *Word++ = 0);
 
     /* reallocate space for the proto lengths and install in class */
-    Class->ProtoLengths = (UINT8 *) Erealloc (Class->ProtoLengths,
+    Class->ProtoLengths = (uinT8 *) Erealloc (Class->ProtoLengths,
       MaxNumIntProtosIn (Class) *
-      sizeof (UINT8));
+      sizeof (uinT8));
   }
 
   /* initialize proto so its length is zero and it isn't in any configs */
@@ -405,10 +408,10 @@ AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId, INT_TEMPLATES Templates)
 #define MAX_LEVEL     2
 {
   CLASS_PRUNER Pruner;
-  UINT32 ClassMask;
-  UINT32 ClassCount;
+  uinT32 ClassMask;
+  uinT32 ClassCount;
   CLASS_INDEX ClassIndex;
-  UINT32 WordIndex;
+  uinT32 WordIndex;
   int Level;
   FLOAT32 EndPad, SidePad, AnglePad;
   TABLE_FILLER TableFiller;
@@ -627,7 +630,7 @@ void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   if (Param < 0 || Param >= 256)
     P->Angle = 0;
   else
-    P->Angle = (UINT8) Param;
+    P->Angle = (uinT8) Param;
 
   /* round proto length to nearest integer number of pico-features */
   Param = (ProtoLength (Proto) / GetPicoFeatureLength ()) + 0.5;
@@ -775,7 +778,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   INT_CLASS Class;
   PROTO_SET ProtoSet;
   int i;
-  register UINT32 *Word;
+  register uinT32 *Word;
 
   assert (MaxNumConfigs <= MAX_NUM_CONFIGS);
 
@@ -792,14 +795,14 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
     /* allocate space for a proto set, install in class, and initialize */
     ProtoSet = (PROTO_SET) Emalloc (sizeof (PROTO_SET_STRUCT));
     ProtoSetIn (Class, i) = ProtoSet;
-    for (Word = (UINT32 *) (ProtoPrunerFor (ProtoSet));
-      Word < (UINT32 *) (ProtoPrunerFor (ProtoSet)) + WERDS_PER_PP;
+    for (Word = (uinT32 *) (ProtoPrunerFor (ProtoSet));
+      Word < (uinT32 *) (ProtoPrunerFor (ProtoSet)) + WERDS_PER_PP;
       *Word++ = 0);
 
     /* allocate space for the proto lengths and install in class */
   }
-  Class->ProtoLengths = (UINT8 *) Emalloc (MaxNumIntProtosIn (Class) *
-    sizeof (UINT8));
+  Class->ProtoLengths = (uinT8 *) Emalloc (MaxNumIntProtosIn (Class) *
+    sizeof (uinT8));
 
   return (Class);
 
@@ -880,7 +883,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
   INT_TEMPLATES Templates;
   CLASS_PRUNER Pruner;
   INT_CLASS Class;
-  UINT8 *Lengths;
+  uinT8 *Lengths;
   PROTO_SET ProtoSet;
 
   /* first read the high level template struct */
@@ -908,8 +911,11 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
   if (Templates->NumClasses < 0) {
     // This file has a version id!
     version_id = -Templates->NumClasses;
-    if (fread(&Templates->NumClasses, sizeof(int), 1, File) != 1)
-      cprintf ("Bad read of inttemp!\n");
+    if (fread(&Templates->NumClasses, sizeof(Templates->NumClasses),
+              1, File) != 1)
+      cprintf("Bad read of inttemp!\n");
+    if (swap)
+      reverse32 (&Templates->NumClasses);
   }
   for (i = 0; i < unicharset_size; ++i) {
     if (fread(&Templates->IndexFor[i], sizeof(CLASS_INDEX), 1, File) != 1)
@@ -964,7 +970,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
       }
     }
     for (j = 0; j < MAX_NUM_CONFIGS; ++j) {
-      if (fread(&Class->ConfigLengths[j], sizeof(UINT16), 1, File) != 1)
+      if (fread(&Class->ConfigLengths[j], sizeof(uinT16), 1, File) != 1)
         cprintf ("Bad read of inttemp!\n");
     }
     if (swap) {
@@ -975,9 +981,9 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
     ClassForIndex (Templates, i) = Class;
 
     /* then read in the proto lengths */
-    Lengths = (UINT8 *) Emalloc (sizeof (UINT8) *
+    Lengths = (uinT8 *) Emalloc (sizeof (uinT8) *
       MaxNumIntProtosIn (Class));
-    if ((nread = fread ((char *) Lengths, sizeof (UINT8),
+    if ((nread = fread ((char *) Lengths, sizeof (uinT8),
       MaxNumIntProtosIn (Class),
       File)) != MaxNumIntProtosIn (Class))
       cprintf ("Bad read of inttemp!\n");
@@ -1026,6 +1032,15 @@ void ShowMatchDisplay() {
     IntMatchWindow = c_create_window ("IntMatchWindow", 50, 200,
       520, 520,
       -130.0, 130.0, -130.0, 130.0);
+    SVMenuNode* popup_menu = new SVMenuNode();
+
+    popup_menu->AddChild("Debug Adapted classes", IDA_ADAPTIVE,
+                         "x", "Class to debug");
+    popup_menu->AddChild("Debug Static classes", IDA_STATIC,
+                         "x", "Class to debug");
+    popup_menu->AddChild("Debug Both", IDA_BOTH,
+                         "x", "Class to debug");
+    popup_menu->BuildMenu(IntMatchWindow, false);
   }
   else
     c_clear_window(IntMatchWindow);
@@ -1065,6 +1080,8 @@ void ShowMatchDisplay() {
     c_move(window, INT_MAX_X, INT_MAX_Y);
     c_draw(window, INT_MAX_X, INT_MIN_Y);
   }
+  IntMatchWindow->ZoomToRectangle(INT_MIN_X, INT_MIN_Y,
+                                  INT_MAX_X, INT_MAX_Y);
 }                                /* ShowMatchDisplay */
 #endif
 
@@ -1086,37 +1103,38 @@ void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
   int i, j;
   INT_CLASS Class;
   int unicharset_size = target_unicharset.size();
-  int version_id = -1;  // Turns positive on reading.
+  int version_id = -1;  // When negated by the reader -1 becomes +1 etc.
 
   /* first write the high level template struct */
-  fwrite((char *) &unicharset_size, sizeof (int), 1, File);
-  fwrite((char *) &version_id, sizeof (int), 1, File);
-  fwrite((char *) &Templates->NumClassPruners, sizeof (int), 1, File);
-  fwrite((char *) &Templates->NumClasses, sizeof (int), 1, File);
-  fwrite((char *) &Templates->IndexFor[0], sizeof (CLASS_INDEX),
+  fwrite(&unicharset_size, sizeof(unicharset_size), 1, File);
+  fwrite(&version_id, sizeof(version_id), 1, File);
+  fwrite(&Templates->NumClassPruners, sizeof(Templates->NumClassPruners),
+         1, File);
+  fwrite(&Templates->NumClasses, sizeof(Templates->NumClasses), 1, File);
+  fwrite(&Templates->IndexFor[0], sizeof(Templates->IndexFor[0]),
          unicharset_size, File);
-  fwrite((char *) &Templates->ClassIdFor[0], sizeof (CLASS_ID),
-         NumClassesIn (Templates), File);
+  fwrite(&Templates->ClassIdFor[0], sizeof(Templates->ClassIdFor[0]),
+         NumClassesIn(Templates), File);
 
   /* then write out the class pruners */
   for (i = 0; i < NumClassPrunersIn (Templates); i++)
-    fwrite ((char *) (Templates->ClassPruner[i]),
-      sizeof (CLASS_PRUNER_STRUCT), 1, File);
+    fwrite(Templates->ClassPruner[i],
+           sizeof(CLASS_PRUNER_STRUCT), 1, File);
 
   /* then write out each class */
-  for (i = 0; i < NumClassesIn (Templates); i++) {
-    Class = ClassForIndex (Templates, i);
+  for (i = 0; i < NumClassesIn(Templates); i++) {
+    Class = ClassForIndex(Templates, i);
 
     /* first write out the high level struct for the class */
     fwrite(&Class->NumProtos, sizeof(Class->NumProtos), 1, File);
     fwrite(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1, File);
     fwrite(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File);
     for (j = 0; j < MAX_NUM_CONFIGS; ++j) {
-      fwrite(&Class->ConfigLengths[j], sizeof(UINT16), 1, File);
+      fwrite(&Class->ConfigLengths[j], sizeof(uinT16), 1, File);
     }
 
     /* then write out the proto lengths */
-    fwrite ((char *) (Class->ProtoLengths), sizeof (UINT8),
+    fwrite ((char *) (Class->ProtoLengths), sizeof (uinT8),
       MaxNumIntProtosIn (Class), File);
 
     /* then write out the proto sets */
@@ -1174,9 +1192,9 @@ FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
 /*---------------------------------------------------------------------------*/
 void DoFill(FILL_SPEC *FillSpec,
             CLASS_PRUNER Pruner,
-            register UINT32 ClassMask,
-            register UINT32 ClassCount,
-            register UINT32 WordIndex) {
+            register uinT32 ClassMask,
+            register uinT32 ClassCount,
+            register uinT32 WordIndex) {
 /*
  **	Parameters:
  **		FillSpec	specifies which bits to fill in pruner
@@ -1193,7 +1211,7 @@ void DoFill(FILL_SPEC *FillSpec,
  **	History: Tue Feb 19 11:11:29 1991, DSJ, Created.
  */
   register int X, Y, Angle;
-  register UINT32 OldWord;
+  register uinT32 OldWord;
 
   X = FillSpec->X;
   if (X < 0)
@@ -1247,7 +1265,7 @@ BOOL8 FillerDone(TABLE_FILLER *Filler) {
 
 /*---------------------------------------------------------------------------*/
 void
-FillPPCircularBits (UINT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
+FillPPCircularBits (uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 int Bit, FLOAT32 Center, FLOAT32 Spread) {
 /*
  **	Parameters:
@@ -1293,7 +1311,7 @@ int Bit, FLOAT32 Center, FLOAT32 Spread) {
 
 /*---------------------------------------------------------------------------*/
 void
-FillPPLinearBits (UINT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
+FillPPLinearBits (uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 int Bit, FLOAT32 Center, FLOAT32 Spread) {
 /*
  **	Parameters:
@@ -1344,31 +1362,25 @@ CLASS_ID GetClassToDebug(const char *Prompt) {
  **	Exceptions: none
  **	History: Thu Mar 21 16:55:13 1991, DSJ, Created.
  */
-  char c = 0;
-  do
-    c = window_wait(IntMatchWindow);
-  while (c != 0 && c != '\n');
-#ifdef __UNIX__
-  // Temp sychronization.
-  if (c == '\n' && input_unicode[0] == 0) {
-    sleep(1);
-  }
-#endif
-  char utf8[kInputSize * UNICHAR_LEN];
-  int offset = 0;
-  int i;
-  for (i = 0; i < kInputSize && input_unicode[i] != 0; ++i) {
-    UNICHAR ch(input_unicode[i]);
-    int len = ch.utf8_len();
-    for (int j = 0; j < len; ++j) {
-      utf8[offset++] = ch.utf8()[j];
+  tprintf("%s\n", Prompt);
+  SVEvent* ev;
+  SVEventType ev_type;
+  // Wait until a click or popup event.
+  do {
+    ev = IntMatchWindow->AwaitEvent(SVET_ANY);
+    ev_type = ev->type;
+    if (ev_type == SVET_POPUP) {
+      // TODO(rays) must return which menu item was selected, but
+      // that can't be done in this CL without dragging in a lot of
+      // other changes.
+      if (unicharset.contains_unichar(ev->parameter))
+        return unicharset.unichar_to_id(ev->parameter);
+      tprintf("Char class '%s' not found in unicharset",
+              ev->parameter);
     }
-  }
-
-  cprintf("unicode len = %d, 1st code=%d, utf8 len = %d, 1st code=%d\n",
-          i, input_unicode[0], offset, utf8[0]);
-  input_unicode[0] = 0;
-  return c == '\n' ? unicharset.unichar_to_id(utf8, offset) : 0;
+    delete ev;
+  } while (ev_type != SVET_CLICK);
+  return 0;
 }                                /* GetClassToDebug */
 #endif
 
@@ -1589,36 +1601,36 @@ FLOAT32 AnglePad, PROTO Proto, TABLE_FILLER * Filler)
       }
 
       /* translate into bucket positions and deltas */
-      Filler->X = (INT8) MapParam (Start.x, XS, NB);
-      Filler->StartDelta = -(INT16) ((Cos / Sin) * 256);
-      Filler->EndDelta = (INT16) ((Sin / Cos) * 256);
+      Filler->X = (inT8) MapParam (Start.x, XS, NB);
+      Filler->StartDelta = -(inT16) ((Cos / Sin) * 256);
+      Filler->EndDelta = (inT16) ((Sin / Cos) * 256);
 
       XAdjust = BucketEnd (Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Cos / Sin;
-      Filler->YStart = (INT16) MapParam (Start.y - YAdjust, YS, NB * 256);
+      Filler->YStart = (inT16) MapParam (Start.y - YAdjust, YS, NB * 256);
       YAdjust = XAdjust * Sin / Cos;
-      Filler->YEnd = (INT16) MapParam (Start.y + YAdjust, YS, NB * 256);
+      Filler->YEnd = (inT16) MapParam (Start.y + YAdjust, YS, NB * 256);
 
       Filler->Switch[S1].Type = StartSwitch;
-      Filler->Switch[S1].X = (INT8) MapParam (Switch1.x, XS, NB);
-      Filler->Switch[S1].Y = (INT8) MapParam (Switch1.y, YS, NB);
+      Filler->Switch[S1].X = (inT8) MapParam (Switch1.x, XS, NB);
+      Filler->Switch[S1].Y = (inT8) MapParam (Switch1.y, YS, NB);
       XAdjust = Switch1.x - BucketStart (Filler->Switch[S1].X, XS, NB);
       YAdjust = XAdjust * Sin / Cos;
       Filler->Switch[S1].YInit =
-        (INT16) MapParam (Switch1.y - YAdjust, YS, NB * 256);
+        (inT16) MapParam (Switch1.y - YAdjust, YS, NB * 256);
       Filler->Switch[S1].Delta = Filler->EndDelta;
 
       Filler->Switch[S2].Type = EndSwitch;
-      Filler->Switch[S2].X = (INT8) MapParam (Switch2.x, XS, NB);
-      Filler->Switch[S2].Y = (INT8) MapParam (Switch2.y, YS, NB);
+      Filler->Switch[S2].X = (inT8) MapParam (Switch2.x, XS, NB);
+      Filler->Switch[S2].Y = (inT8) MapParam (Switch2.y, YS, NB);
       XAdjust = Switch2.x - BucketStart (Filler->Switch[S2].X, XS, NB);
       YAdjust = XAdjust * Cos / Sin;
       Filler->Switch[S2].YInit =
-        (INT16) MapParam (Switch2.y + YAdjust, YS, NB * 256);
+        (inT16) MapParam (Switch2.y + YAdjust, YS, NB * 256);
       Filler->Switch[S2].Delta = Filler->StartDelta;
 
       Filler->Switch[2].Type = LastSwitch;
-      Filler->Switch[2].X = (INT8) MapParam (End.x, XS, NB);
+      Filler->Switch[2].X = (inT8) MapParam (End.x, XS, NB);
     }
     else {
       /* falling diagonal proto */
@@ -1642,36 +1654,36 @@ FLOAT32 AnglePad, PROTO Proto, TABLE_FILLER * Filler)
       }
 
       /* translate into bucket positions and deltas */
-      Filler->X = (INT8) MapParam (Start.x, XS, NB);
-      Filler->StartDelta = -(INT16) ((Sin / Cos) * 256);
-      Filler->EndDelta = (INT16) ((Cos / Sin) * 256);
+      Filler->X = (inT8) MapParam (Start.x, XS, NB);
+      Filler->StartDelta = -(inT16) ((Sin / Cos) * 256);
+      Filler->EndDelta = (inT16) ((Cos / Sin) * 256);
 
       XAdjust = BucketEnd (Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Sin / Cos;
-      Filler->YStart = (INT16) MapParam (Start.y - YAdjust, YS, NB * 256);
+      Filler->YStart = (inT16) MapParam (Start.y - YAdjust, YS, NB * 256);
       YAdjust = XAdjust * Cos / Sin;
-      Filler->YEnd = (INT16) MapParam (Start.y + YAdjust, YS, NB * 256);
+      Filler->YEnd = (inT16) MapParam (Start.y + YAdjust, YS, NB * 256);
 
       Filler->Switch[S1].Type = EndSwitch;
-      Filler->Switch[S1].X = (INT8) MapParam (Switch1.x, XS, NB);
-      Filler->Switch[S1].Y = (INT8) MapParam (Switch1.y, YS, NB);
+      Filler->Switch[S1].X = (inT8) MapParam (Switch1.x, XS, NB);
+      Filler->Switch[S1].Y = (inT8) MapParam (Switch1.y, YS, NB);
       XAdjust = Switch1.x - BucketStart (Filler->Switch[S1].X, XS, NB);
       YAdjust = XAdjust * Sin / Cos;
       Filler->Switch[S1].YInit =
-        (INT16) MapParam (Switch1.y + YAdjust, YS, NB * 256);
+        (inT16) MapParam (Switch1.y + YAdjust, YS, NB * 256);
       Filler->Switch[S1].Delta = Filler->StartDelta;
 
       Filler->Switch[S2].Type = StartSwitch;
-      Filler->Switch[S2].X = (INT8) MapParam (Switch2.x, XS, NB);
-      Filler->Switch[S2].Y = (INT8) MapParam (Switch2.y, YS, NB);
+      Filler->Switch[S2].X = (inT8) MapParam (Switch2.x, XS, NB);
+      Filler->Switch[S2].Y = (inT8) MapParam (Switch2.y, YS, NB);
       XAdjust = Switch2.x - BucketStart (Filler->Switch[S2].X, XS, NB);
       YAdjust = XAdjust * Cos / Sin;
       Filler->Switch[S2].YInit =
-        (INT16) MapParam (Switch2.y - YAdjust, YS, NB * 256);
+        (inT16) MapParam (Switch2.y - YAdjust, YS, NB * 256);
       Filler->Switch[S2].Delta = Filler->EndDelta;
 
       Filler->Switch[2].Type = LastSwitch;
-      Filler->Switch[2].X = (INT8) MapParam (End.x, XS, NB);
+      Filler->Switch[2].X = (inT8) MapParam (End.x, XS, NB);
     }
   }
 }                                /* InitTableFiller */
@@ -1736,7 +1748,7 @@ void RenderIntProto(void *window,
   FLOAT32 Length;
   int Xmin, Xmax, Ymin, Ymax;
   FLOAT32 X, Y, Dx, Dy;
-  UINT32 ProtoMask;
+  uinT32 ProtoMask;
   int Bucket;
 
   assert (ProtoId >= 0);

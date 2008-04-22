@@ -26,33 +26,33 @@
 /*-------------------------------------------------------------------------
         Public Funtion Prototype
 --------------------------------------------------------------------------*/
-UINT16 ReadSampleSize(FILE *File); 
+uinT16 ReadSampleSize(FILE *File);
 
-PARAM_DESC *ReadParamDesc(FILE *File, UINT16 N); 
+PARAM_DESC *ReadParamDesc(FILE *File, uinT16 N);
 
-PROTOTYPE *ReadPrototype(FILE *File, UINT16 N); 
+PROTOTYPE *ReadPrototype(FILE *File, uinT16 N);
 
-PROTOSTYLE ReadProtoStyle(FILE *File); 
+PROTOSTYLE ReadProtoStyle(FILE *File);
 
-FLOAT32 *ReadNFloats (FILE * File, UINT16 N, FLOAT32 Buffer[]);
+FLOAT32 *ReadNFloats (FILE * File, uinT16 N, FLOAT32 Buffer[]);
 
-void WriteParamDesc (FILE * File, UINT16 N, PARAM_DESC ParamDesc[]);
+void WriteParamDesc (FILE * File, uinT16 N, PARAM_DESC ParamDesc[]);
 
-void WritePrototype(FILE *File, UINT16 N, PROTOTYPE *Proto); 
+void WritePrototype(FILE *File, uinT16 N, PROTOTYPE *Proto);
 
-void WriteNFloats (FILE * File, UINT16 N, FLOAT32 Array[]);
+void WriteNFloats (FILE * File, uinT16 N, FLOAT32 Array[]);
 
-void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle); 
+void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle);
 
 void WriteProtoList(
      FILE	*File,
-     UINT16	N,
+     uinT16	N,
      PARAM_DESC	ParamDesc[],
      LIST	ProtoList,
      BOOL8	WriteSigProtos,
      BOOL8	WriteInsigProtos);
 
-FLOAT32 UniformRandomNumber(FLOAT32 MMin, FLOAT32 MMax); 
+FLOAT32 UniformRandomNumber(FLOAT32 MMin, FLOAT32 MMax);
 
 //--------------Global Data Definitions and Declarations---------------------
 // define errors that can be trapped

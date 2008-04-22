@@ -37,14 +37,14 @@
 
 typedef struct
 {
-  UINT32 NumFeatureSets;
+  uinT32 NumFeatureSets;
   FEATURE_SET FeatureSets[NUM_FEATURE_TYPES];
 } CHAR_DESC_STRUCT;
 typedef CHAR_DESC_STRUCT *CHAR_DESC;
 
 typedef struct
 {
-  UINT32 NumFeatureTypes;
+  uinT32 NumFeatureTypes;
   FEATURE_DESC FeatureDesc[NUM_FEATURE_TYPES];
   FEATURE_EXT_STRUCT* FeatureExtractors[NUM_FEATURE_TYPES];
   int FeatureEnabled[NUM_FEATURE_TYPES];

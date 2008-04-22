@@ -52,7 +52,7 @@ KDNODE;
 
 typedef struct
 {
-  INT16 KeySize;                 /* number of dimensions in the tree */
+  inT16 KeySize;                 /* number of dimensions in the tree */
   KDNODE Root;                   /* Root.Left points to actual root node */
   PARAM_DESC KeyDesc[1];         /* description of each dimension */
 }
@@ -75,9 +75,9 @@ VISIT;
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-KDTREE *MakeKDTree (INT16 KeySize, PARAM_DESC KeyDesc[]);
+KDTREE *MakeKDTree (inT16 KeySize, PARAM_DESC KeyDesc[]);
 
-void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data); 
+void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data);
 
 void KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data);
 
@@ -87,9 +87,9 @@ int QuerySize,
 FLOAT32 MaxDistance,
 void *NBuffer, FLOAT32 DBuffer[]);
 
-void KDWalk(KDTREE *Tree, void_proc Action); 
+void KDWalk(KDTREE *Tree, void_proc Action);
 
-void FreeKDTree(KDTREE *Tree); 
+void FreeKDTree(KDTREE *Tree);
 
 /**----------------------------------------------------------------------------
           Private Function Prototypes
@@ -98,21 +98,21 @@ int Equal (FLOAT32 Key1[], FLOAT32 Key2[]);
 
 KDNODE *MakeKDNode (FLOAT32 Key[], char *Data, int Index);
 
-void FreeKDNode(KDNODE *Node); 
+void FreeKDNode(KDNODE *Node);
 
-void Search(int Level, KDNODE *SubTree); 
+void Search(int Level, KDNODE *SubTree);
 
 FLOAT32 ComputeDistance (register int N,
 register PARAM_DESC Dim[],
 register FLOAT32 p1[], register FLOAT32 p2[]);
 
-void FindMaxDistance(); 
+void FindMaxDistance();
 
-int QueryIntersectsSearch(); 
+int QueryIntersectsSearch();
 
-int QueryInSearch(); 
+int QueryInSearch();
 
-void Walk(KDNODE *SubTree, INT32 Level); 
+void Walk(KDNODE *SubTree, inT32 Level);
 
-void FreeSubTree(KDNODE *SubTree); 
+void FreeSubTree(KDNODE *SubTree);
 #endif

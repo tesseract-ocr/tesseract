@@ -27,8 +27,8 @@
 
 typedef struct
 {
-  UINT16 ProtoId;
-  UINT16 dummy;
+  uinT16 ProtoId;
+  uinT16 dummy;
   PROTO_STRUCT Proto;
 }
 
@@ -38,8 +38,8 @@ typedef TEMP_PROTO_STRUCT *TEMP_PROTO;
 
 typedef struct
 {
-  UINT8 NumTimesSeen;
-  UINT8 ProtoVectorSize;
+  uinT8 NumTimesSeen;
+  uinT8 ProtoVectorSize;
   PROTO_ID MaxProtoId;
   LIST ContextsSeen;
   BIT_VECTOR Protos;
@@ -56,8 +56,8 @@ typedef union
 
 typedef struct
 {
-  UINT8 NumPermConfigs;
-  UINT8 dummy[3];
+  uinT8 NumPermConfigs;
+  uinT8 dummy[3];
   BIT_VECTOR PermProtos;
   BIT_VECTOR PermConfigs;
   LIST TempProtos;
@@ -68,8 +68,8 @@ typedef ADAPT_CLASS_STRUCT *ADAPT_CLASS;
 typedef struct
 {
   INT_TEMPLATES Templates;
-  UINT8 NumPermClasses;
-  UINT8 dummy[3];
+  uinT8 NumPermClasses;
+  uinT8 dummy[3];
   ADAPT_CLASS Class[MAX_NUM_CLASSES];
 } ADAPT_TEMPLATES_STRUCT;
 typedef ADAPT_TEMPLATES_STRUCT *ADAPT_TEMPLATES;

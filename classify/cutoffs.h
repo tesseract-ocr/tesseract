@@ -23,7 +23,7 @@
 ----------------------------------------------------------------------------**/
 #include "matchdefs.h"
 
-typedef UINT16 CLASS_CUTOFF_ARRAY[MAX_NUM_CLASSES];
+typedef uinT16 CLASS_CUTOFF_ARRAY[MAX_NUM_CLASSES];
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes

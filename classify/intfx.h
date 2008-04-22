@@ -28,10 +28,10 @@
 
 typedef struct
 {
-  INT32 Length;                  /* total length of all outlines   */
-  INT16 Xmean, Ymean;            /* center of mass of all outlines */
-  INT16 Rx, Ry;                  /* radius of gyration             */
-  INT16 NumBL, NumCN;            /* number of features extracted   */
+  inT32 Length;                  /* total length of all outlines   */
+  inT16 Xmean, Ymean;            /* center of mass of all outlines */
+  inT16 Rx, Ry;                  /* radius of gyration             */
+  inT16 NumBL, NumCN;            /* number of features extracted   */
 }
 
 
@@ -40,24 +40,24 @@ INT_FX_RESULT_STRUCT, *INT_FX_RESULT;
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void InitIntegerFX(); 
+void InitIntegerFX();
 
 int ExtractIntFeat(TBLOB *Blob,
                    INT_FEATURE_ARRAY BLFeat,
                    INT_FEATURE_ARRAY CNFeat,
                    INT_FX_RESULT Results);
 
-UINT8 TableLookup(INT32 Y, INT32 X); 
+uinT8 TableLookup(inT32 Y, inT32 X);
 
 int SaveFeature(INT_FEATURE_ARRAY FeatureArray,
-                UINT16 FeatureNum,
-                INT16 X,
-                INT16 Y,
-                UINT8 Theta);
+                uinT16 FeatureNum,
+                inT16 X,
+                inT16 Y,
+                uinT8 Theta);
 
-UINT16 MySqrt(INT32 X, INT32 Y); 
+uinT16 MySqrt(inT32 X, inT32 Y);
 
-UINT8 MySqrt2(UINT16 N, UINT32 I, UINT8 *Exp); 
+uinT8 MySqrt2(uinT16 N, uinT32 I, uinT8 *Exp);
 
-void ClipRadius(UINT8 *RxInv, UINT8 *RxExp, UINT8 *RyInv, UINT8 *RyExp); 
+void ClipRadius(uinT8 *RxInv, uinT8 *RxExp, uinT8 *RyInv, uinT8 *RyExp);
 #endif

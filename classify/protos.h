@@ -51,11 +51,11 @@ typedef PROTO_STRUCT *PROTO;
 
 typedef struct
 {
-  INT16 NumProtos;
-  INT16 MaxNumProtos;
+  inT16 NumProtos;
+  inT16 MaxNumProtos;
   PROTO Prototypes;
-  INT16 NumConfigs;
-  INT16 MaxNumConfigs;
+  inT16 NumConfigs;
+  inT16 MaxNumConfigs;
   CONFIGS Configurations;
 } CLASS_STRUCT;
 typedef CLASS_STRUCT *CLASS_TYPE;

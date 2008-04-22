@@ -298,9 +298,9 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
   /* then read in the definitions of the permanent protos and configs */
   Class->PermProtos = NewBitVector (MAX_NUM_PROTOS);
   Class->PermConfigs = NewBitVector (MAX_NUM_CONFIGS);
-  fread ((char *) Class->PermProtos, sizeof (UINT32),
+  fread ((char *) Class->PermProtos, sizeof (uinT32),
     WordsInVectorOfSize (MAX_NUM_PROTOS), File);
-  fread ((char *) Class->PermConfigs, sizeof (UINT32),
+  fread ((char *) Class->PermConfigs, sizeof (uinT32),
     WordsInVectorOfSize (MAX_NUM_CONFIGS), File);
 
   /* then read in the list of temporary protos */
@@ -371,9 +371,9 @@ PERM_CONFIG ReadPermConfig(FILE *File) {
  **	History: Tue Mar 19 14:25:26 1991, DSJ, Created.
  */
   PERM_CONFIG Config;
-  UINT8 NumAmbigs;
+  uinT8 NumAmbigs;
 
-  fread ((char *) &NumAmbigs, sizeof (UINT8), 1, File);
+  fread ((char *) &NumAmbigs, sizeof (uinT8), 1, File);
   Config = (PERM_CONFIG) Emalloc (sizeof (char) * (NumAmbigs + 1));
   fread (Config, sizeof (UNICHAR_ID), NumAmbigs, File);
   Config[NumAmbigs] = -1;
@@ -403,7 +403,7 @@ TEMP_CONFIG ReadTempConfig(FILE *File) {
   fread ((char *) Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
 
   Config->Protos = NewBitVector (Config->ProtoVectorSize * BITSINLONG);
-  fread ((char *) Config->Protos, sizeof (UINT32),
+  fread ((char *) Config->Protos, sizeof (uinT32),
     Config->ProtoVectorSize, File);
 
   return (Config);
@@ -433,9 +433,9 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
   fwrite ((char *) Class, sizeof (ADAPT_CLASS_STRUCT), 1, File);
 
   /* then write out the definitions of the permanent protos and configs */
-  fwrite ((char *) Class->PermProtos, sizeof (UINT32),
+  fwrite ((char *) Class->PermProtos, sizeof (uinT32),
     WordsInVectorOfSize (MAX_NUM_PROTOS), File);
-  fwrite ((char *) Class->PermConfigs, sizeof (UINT32),
+  fwrite ((char *) Class->PermConfigs, sizeof (uinT32),
     WordsInVectorOfSize (MAX_NUM_CONFIGS), File);
 
   /* then write out the list of temporary protos */
@@ -500,13 +500,13 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
  **	Exceptions: none
  **	History: Tue Mar 19 13:55:44 1991, DSJ, Created.
  */
-  UINT8 NumAmbigs = 0;
+  uinT8 NumAmbigs = 0;
 
   assert (Config != NULL);
   while (Config[NumAmbigs] > 0)
     ++NumAmbigs;
 
-  fwrite ((char *) &NumAmbigs, sizeof (UINT8), 1, File);
+  fwrite ((char *) &NumAmbigs, sizeof (uinT8), 1, File);
   fwrite (Config, sizeof (UNICHAR_ID), NumAmbigs, File);
 
 }                                /* WritePermConfig */
@@ -530,7 +530,7 @@ void WriteTempConfig(FILE *File, TEMP_CONFIG Config) {
   assert (Config->ContextsSeen == NULL);
 
   fwrite ((char *) Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
-  fwrite ((char *) Config->Protos, sizeof (UINT32),
+  fwrite ((char *) Config->Protos, sizeof (uinT32),
     Config->ProtoVectorSize, File);
 
 }                                /* WriteTempConfig */

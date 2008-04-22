@@ -37,7 +37,7 @@
 #define Y_SHIFT   (0.5)
 
 #define MAX_PROTO_INDEX   24
-#define BITS_PER_WERD   (8 * sizeof (UINT32))
+#define BITS_PER_WERD   (8 * sizeof (uinT32))
 #define MAX_NUM_CONFIGS   32
 #define MAX_NUM_PROTOS    512
 #define PROTOS_PER_PROTO_SET  64
@@ -62,19 +62,19 @@
 #define WERDS_PER_CONFIG_VEC	((MAX_NUM_CONFIGS + BITS_PER_WERD - 1) /    \
 				BITS_PER_WERD)
 
-typedef UINT32 CLASS_PRUNER_STRUCT
+typedef uinT32 CLASS_PRUNER_STRUCT
 [NUM_CP_BUCKETS][NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
 
 typedef
-UINT32 (*CLASS_PRUNER)[NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
+uinT32 (*CLASS_PRUNER)[NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
 
 typedef struct
 {
-  INT8 A;
-  UINT8 B;
-  INT8 C;
-  UINT8 Angle;
-  UINT32 Configs[WERDS_PER_CONFIG_VEC];
+  inT8 A;
+  uinT8 B;
+  inT8 C;
+  uinT8 Angle;
+  uinT32 Configs[WERDS_PER_CONFIG_VEC];
 }
 
 
@@ -82,23 +82,23 @@ INT_PROTO_STRUCT, *INT_PROTO;
 
 typedef struct
 {
-  UINT32 ProtoPruner[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
+  uinT32 ProtoPruner[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
   INT_PROTO_STRUCT Protos[PROTOS_PER_PROTO_SET];
 }
 
 
 PROTO_SET_STRUCT, *PROTO_SET;
 
-typedef UINT32 CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
+typedef uinT32 CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
 
 typedef struct
 {
-  UINT16 NumProtos;
-  UINT8 NumProtoSets;
-  UINT8 NumConfigs;
+  uinT16 NumProtos;
+  uinT8 NumProtoSets;
+  uinT8 NumConfigs;
   PROTO_SET ProtoSets[MAX_NUM_PROTO_SETS];
-  UINT8 *ProtoLengths;
-  UINT16 ConfigLengths[MAX_NUM_CONFIGS];
+  uinT8 *ProtoLengths;
+  uinT16 ConfigLengths[MAX_NUM_CONFIGS];
 }
 
 
@@ -123,10 +123,10 @@ INT_TEMPLATES_STRUCT, *INT_TEMPLATES;
 
 typedef struct
 {
-  UINT8 X;
-  UINT8 Y;
-  UINT8 Theta;
-  INT8 CP_misses;
+  uinT8 X;
+  uinT8 Y;
+  uinT8 Theta;
+  inT8 CP_misses;
 }
 
 

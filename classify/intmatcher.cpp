@@ -22,6 +22,7 @@
 #include "intmatcher.h"
 #include "tordvars.h"
 #include "callcpp.h"
+#include "scrollview.h"
 #include "globals.h"
 #include <math.h>
 
@@ -34,8 +35,8 @@
 #define  SE_TABLE_BITS    9
 #define  SE_TABLE_SIZE  512
 #define TEMPLATE_CACHE 2
-static UINT8 SimilarityEvidenceTable[SE_TABLE_SIZE];
-static UINT8 offset_table[256] = {
+static uinT8 SimilarityEvidenceTable[SE_TABLE_SIZE];
+static uinT8 offset_table[256] = {
   255, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
   4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
   5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
@@ -53,7 +54,7 @@ static UINT8 offset_table[256] = {
   5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
   4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
 };
-static UINT8 next_table[256] = {
+static uinT8 next_table[256] = {
   0, 0, 0, 0x2, 0, 0x4, 0x4, 0x6, 0, 0x8, 0x8, 0x0a, 0x08, 0x0c, 0x0c, 0x0e,
   0, 0x10, 0x10, 0x12, 0x10, 0x14, 0x14, 0x16, 0x10, 0x18, 0x18, 0x1a, 0x18,
   0x1c, 0x1c, 0x1e,
@@ -87,15 +88,15 @@ static UINT8 next_table[256] = {
   0xf8, 0xfc, 0xfc, 0xfe
 };
 
-static UINT32 EvidenceTableMask;
+static uinT32 EvidenceTableMask;
 
-static UINT32 MultTruncShiftBits;
+static uinT32 MultTruncShiftBits;
 
-static UINT32 TableTruncShiftBits;
+static uinT32 TableTruncShiftBits;
 
-UINT32 EvidenceMultMask;
+uinT32 EvidenceMultMask;
 
-static INT16 LocalMatcherMultiplier;
+static inT16 LocalMatcherMultiplier;
 
 make_int_var (ClassPrunerThreshold, 229, MakeClassPrunerThreshold,
 16, 20, SetClassPrunerThreshold,
@@ -140,7 +141,7 @@ make_int_var (AdaptFeatureThresh, 230, MakeAdaptFeatureThresh,
 16, 30, SetAdaptFeatureThresh,
 "Threshold for good features during adaptive 0-255:   ");
 //extern int display_ratings;
-//extern INT32                                  cp_maps[4];
+//extern inT32                                  cp_maps[4];
 
 int protoword_lookups;
 int zero_protowords;
@@ -154,7 +155,7 @@ int set_config_bits;
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
 int ClassPruner(INT_TEMPLATES IntTemplates,
-                INT16 NumFeatures,
+                inT16 NumFeatures,
                 INT_FEATURE_ARRAY Features,
                 CLASS_NORMALIZATION_ARRAY NormalizationFactors,
                 CLASS_CUTOFF_ARRAY ExpectedNumFeatures,
@@ -185,16 +186,16 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
  **      Exceptions: none
  **      History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
  */
-  UINT32 PrunerWord;
-  INT32 class_index;             //index to class
+  uinT32 PrunerWord;
+  inT32 class_index;             //index to class
   int Word;
-  UINT32 *BasePrunerAddress;
-  UINT32 feature_address;        //current feature index
+  uinT32 *BasePrunerAddress;
+  uinT32 feature_address;        //current feature index
   INT_FEATURE feature;           //current feature
   CLASS_PRUNER *ClassPruner;
   int PrunerSet;
   int NumPruners;
-  INT32 feature_index;           //current feature
+  inT32 feature_index;           //current feature
 
   static int ClassCount[MAX_NUM_CLASSES];
   static int NormCount[MAX_NUM_CLASSES];
@@ -229,7 +230,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
     ClassPruner = ClassPrunersFor (IntTemplates);
     class_index = 0;
     for (PrunerSet = 0; PrunerSet < NumPruners; PrunerSet++, ClassPruner++) {
-      BasePrunerAddress = (UINT32 *) (*ClassPruner) + feature_address;
+      BasePrunerAddress = (uinT32 *) (*ClassPruner) + feature_address;
 
       for (Word = 0; Word < WERDS_PER_CP_VECTOR; Word++) {
         PrunerWord = *BasePrunerAddress++;
@@ -333,7 +334,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
         class_index = 0;
         for (PrunerSet = 0; PrunerSet < NumPruners;
         PrunerSet++, ClassPruner++) {
-          BasePrunerAddress = (UINT32 *) (*ClassPruner)
+          BasePrunerAddress = (uinT32 *) (*ClassPruner)
             + feature_address;
 
           for (Word = 0; Word < WERDS_PER_CP_VECTOR; Word++) {
@@ -383,10 +384,10 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
 void IntegerMatcher(INT_CLASS ClassTemplate,
                     BIT_VECTOR ProtoMask,
                     BIT_VECTOR ConfigMask,
-                    UINT16 BlobLength,
-                    INT16 NumFeatures,
+                    uinT16 BlobLength,
+                    inT16 NumFeatures,
                     INT_FEATURE_ARRAY Features,
-                    UINT8 NormalizationFactor,
+                    uinT8 NormalizationFactor,
                     INT_RESULT Result,
                     int Debug) {
 /*
@@ -413,9 +414,9 @@ void IntegerMatcher(INT_CLASS ClassTemplate,
  **      Exceptions: none
  **      History: Tue Feb 19 16:36:23 MST 1991, RWM, Created.
  */
-  static UINT8 FeatureEvidence[MAX_NUM_CONFIGS];
+  static uinT8 FeatureEvidence[MAX_NUM_CONFIGS];
   static int SumOfFeatureEvidence[MAX_NUM_CONFIGS];
-  static UINT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
+  static uinT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
   int Feature;
   int BestMatch;
 
@@ -494,8 +495,8 @@ void IntegerMatcher(INT_CLASS ClassTemplate,
 int FindGoodProtos(INT_CLASS ClassTemplate,
                    BIT_VECTOR ProtoMask,
                    BIT_VECTOR ConfigMask,
-                   UINT16 BlobLength,
-                   INT16 NumFeatures,
+                   uinT16 BlobLength,
+                   inT16 NumFeatures,
                    INT_FEATURE_ARRAY Features,
                    PROTO_ID *ProtoArray,
                    int Debug) {
@@ -523,15 +524,15 @@ int FindGoodProtos(INT_CLASS ClassTemplate,
  **      Exceptions: none
  **      History: Tue Mar 12 17:09:26 MST 1991, RWM, Created
  */
-  static UINT8 FeatureEvidence[MAX_NUM_CONFIGS];
+  static uinT8 FeatureEvidence[MAX_NUM_CONFIGS];
   static int SumOfFeatureEvidence[MAX_NUM_CONFIGS];
-  static UINT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
+  static uinT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
   int Feature;
-  register UINT8 *UINT8Pointer;
+  register uinT8 *UINT8Pointer;
   register int ProtoIndex;
   int NumProtos;
   int NumGoodProtos;
-  UINT16 ActualProtoNum;
+  uinT16 ActualProtoNum;
   register int Temp;
 
   /* DEBUG opening heading */
@@ -589,8 +590,8 @@ int FindGoodProtos(INT_CLASS ClassTemplate,
 int FindBadFeatures(INT_CLASS ClassTemplate,
                     BIT_VECTOR ProtoMask,
                     BIT_VECTOR ConfigMask,
-                    UINT16 BlobLength,
-                    INT16 NumFeatures,
+                    uinT16 BlobLength,
+                    inT16 NumFeatures,
                     INT_FEATURE_ARRAY Features,
                     FEATURE_ID *FeatureArray,
                     int Debug) {
@@ -618,11 +619,11 @@ int FindBadFeatures(INT_CLASS ClassTemplate,
  **      Exceptions: none
  **      History: Tue Mar 12 17:09:26 MST 1991, RWM, Created
  */
-  static UINT8 FeatureEvidence[MAX_NUM_CONFIGS];
+  static uinT8 FeatureEvidence[MAX_NUM_CONFIGS];
   static int SumOfFeatureEvidence[MAX_NUM_CONFIGS];
-  static UINT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
+  static uinT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
   int Feature;
-  register UINT8 *UINT8Pointer;
+  register uinT8 *UINT8Pointer;
   register int ConfigNum;
   int NumConfigs;
   int NumBadFeatures;
@@ -679,7 +680,7 @@ int FindBadFeatures(INT_CLASS ClassTemplate,
 /*---------------------------------------------------------------------------*/
 void InitIntegerMatcher() {
   int i;
-  UINT32 IntSimilarity;
+  uinT32 IntSimilarity;
   double Similarity;
   double Evidence;
   double ScaleFactor;
@@ -707,7 +708,7 @@ void InitIntegerMatcher() {
       Evidence *= ScaleFactor;
     }
 
-    SimilarityEvidenceTable[i] = (UINT8) (Evidence + 0.5);
+    SimilarityEvidenceTable[i] = (uinT8) (Evidence + 0.5);
   }
 
   /* Initialize evidence computation variables */
@@ -782,7 +783,7 @@ void SetCharNormMatch() {
 void
 IMClearTables (INT_CLASS ClassTemplate,
 int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-UINT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX]) {
+uinT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX]) {
 /*
  **      Parameters:
  **              SumOfFeatureEvidence  Sum of Feature Evidence Table
@@ -808,7 +809,7 @@ UINT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX]) {
 
 /*---------------------------------------------------------------------------*/
 void
-IMClearFeatureEvidenceTable (UINT8 FeatureEvidence[MAX_NUM_CONFIGS],
+IMClearFeatureEvidenceTable (uinT8 FeatureEvidence[MAX_NUM_CONFIGS],
 int NumConfigs) {
 /*
  **      Parameters:
@@ -827,10 +828,10 @@ int NumConfigs) {
 
 /*---------------------------------------------------------------------------*/
 void IMDebugConfiguration(int FeatureNum,
-                          UINT16 ActualProtoNum,
-                          UINT8 Evidence,
+                          uinT16 ActualProtoNum,
+                          uinT8 Evidence,
                           BIT_VECTOR ConfigMask,
-                          UINT32 ConfigWord) {
+                          uinT32 ConfigWord) {
 /*
  **      Parameters:
  **      Globals:
@@ -855,8 +856,8 @@ void IMDebugConfiguration(int FeatureNum,
 
 /*---------------------------------------------------------------------------*/
 void IMDebugConfigurationSum(int FeatureNum,
-                             UINT8 *FeatureEvidence,
-                             INT32 ConfigCount) {
+                             uinT8 *FeatureEvidence,
+                             inT32 ConfigCount) {
 /*
  **      Parameters:
  **      Globals:
@@ -886,9 +887,9 @@ BIT_VECTOR ProtoMask,
 BIT_VECTOR ConfigMask,
 int FeatureNum,
 INT_FEATURE Feature,
-UINT8 FeatureEvidence[MAX_NUM_CONFIGS],
+uinT8 FeatureEvidence[MAX_NUM_CONFIGS],
 int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-UINT8
+uinT8
 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX],
 int Debug) {
 /*
@@ -908,31 +909,31 @@ int Debug) {
  **      Exceptions: none
  **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
-  register UINT32 ConfigWord;
-  register UINT32 ProtoWord;
-  register UINT32 ProtoNum;
-  register UINT32 ActualProtoNum;
-  UINT8 proto_byte;
-  INT32 proto_word_offset;
-  INT32 proto_offset;
-  UINT8 config_byte;
-  INT32 config_offset;
+  register uinT32 ConfigWord;
+  register uinT32 ProtoWord;
+  register uinT32 ProtoNum;
+  register uinT32 ActualProtoNum;
+  uinT8 proto_byte;
+  inT32 proto_word_offset;
+  inT32 proto_offset;
+  uinT8 config_byte;
+  inT32 config_offset;
   PROTO_SET ProtoSet;
-  UINT32 *ProtoPrunerPtr;
+  uinT32 *ProtoPrunerPtr;
   INT_PROTO Proto;
   int ProtoSetIndex;
-  UINT8 Evidence;
-  UINT32 XFeatureAddress;
-  UINT32 YFeatureAddress;
-  UINT32 ThetaFeatureAddress;
-  register UINT8 *UINT8Pointer;
+  uinT8 Evidence;
+  uinT32 XFeatureAddress;
+  uinT32 YFeatureAddress;
+  uinT32 ThetaFeatureAddress;
+  register uinT8 *UINT8Pointer;
   register int ProtoIndex;
-  UINT8 Temp;
+  uinT8 Temp;
   register int *IntPointer;
   int ConfigNum;
-  register INT32 M3;
-  register INT32 A3;
-  register UINT32 A4;
+  register inT32 M3;
+  register inT32 A3;
+  register uinT32 A4;
 
   IMClearFeatureEvidenceTable (FeatureEvidence,
     NumIntConfigsIn (ClassTemplate));
@@ -945,7 +946,7 @@ int Debug) {
   for (ProtoSetIndex = 0, ActualProtoNum = 0;
   ProtoSetIndex < NumProtoSetsIn (ClassTemplate); ProtoSetIndex++) {
     ProtoSet = ProtoSetIn (ClassTemplate, ProtoSetIndex);
-    ProtoPrunerPtr = (UINT32 *) ((*ProtoSet).ProtoPruner);
+    ProtoPrunerPtr = (uinT32 *) ((*ProtoSet).ProtoPruner);
     for (ProtoNum = 0; ProtoNum < PROTOS_PER_PROTO_SET;
       ProtoNum += (PROTOS_PER_PROTO_SET >> 1), ActualProtoNum +=
     (PROTOS_PER_PROTO_SET >> 1), ProtoMask++, ProtoPrunerPtr++) {
@@ -972,7 +973,7 @@ int Debug) {
           A3 = (((Proto->A * (Feature->X - 128)) << 1)
             - (Proto->B * (Feature->Y - 128)) + (Proto->C << 9));
           M3 =
-            (((INT8) (Feature->Theta - Proto->Angle)) *
+            (((inT8) (Feature->Theta - Proto->Angle)) *
             IntThetaFudge) << 1;
 
           if (A3 < 0)
@@ -1057,9 +1058,9 @@ IMDebugFeatureProtoError (INT_CLASS ClassTemplate,
 BIT_VECTOR ProtoMask,
 BIT_VECTOR ConfigMask,
 int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-UINT8
+uinT8
 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX],
-INT16 NumFeatures, int Debug) {
+inT16 NumFeatures, int Debug) {
 /*
  **      Parameters:
  **      Globals:
@@ -1069,18 +1070,18 @@ INT16 NumFeatures, int Debug) {
  **      Exceptions: none
  **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
-  UINT8 *UINT8Pointer;
+  uinT8 *UINT8Pointer;
   int *IntPointer;
   FLOAT32 ProtoConfigs[MAX_NUM_CONFIGS];
   int ConfigNum;
-  UINT32 ConfigWord;
+  uinT32 ConfigWord;
   int ProtoSetIndex;
-  UINT16 ProtoNum;
-  UINT8 ProtoWordNum;
+  uinT16 ProtoNum;
+  uinT8 ProtoWordNum;
   PROTO_SET ProtoSet;
   int ProtoIndex;
   int NumProtos;
-  UINT16 ActualProtoNum;
+  uinT16 ActualProtoNum;
   int Temp;
   int NumConfigs;
 
@@ -1197,19 +1198,19 @@ void
 IMDisplayProtoDebugInfo (INT_CLASS ClassTemplate,
 BIT_VECTOR ProtoMask,
 BIT_VECTOR ConfigMask,
-UINT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX],
+uinT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX],
 int Debug) {
-  register UINT8 *UINT8Pointer;
-  register UINT32 ConfigWord;
-  register UINT16 ProtoNum;
-  register UINT16 ActualProtoNum;
+  register uinT8 *UINT8Pointer;
+  register uinT32 ConfigWord;
+  register uinT16 ProtoNum;
+  register uinT16 ActualProtoNum;
   PROTO_SET ProtoSet;
   int ProtoSetIndex;
   int ProtoIndex;
   int NumProtos;
   register int Temp;
 
-  extern void *IntMatchWindow;
+  extern ScrollView *IntMatchWindow;
 
   if (IntMatchWindow == NULL) {
     IntMatchWindow = c_create_window ("IntMatchWindow", 50, 200,
@@ -1260,14 +1261,14 @@ int Debug) {
 void IMDisplayFeatureDebugInfo(INT_CLASS ClassTemplate,
                                BIT_VECTOR ProtoMask,
                                BIT_VECTOR ConfigMask,
-                               INT16 NumFeatures,
+                               inT16 NumFeatures,
                                INT_FEATURE_ARRAY Features,
                                int Debug) {
-  static UINT8 FeatureEvidence[MAX_NUM_CONFIGS];
+  static uinT8 FeatureEvidence[MAX_NUM_CONFIGS];
   static int SumOfFeatureEvidence[MAX_NUM_CONFIGS];
-  static UINT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
+  static uinT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
   int Feature;
-  register UINT8 *UINT8Pointer;
+  register uinT8 *UINT8Pointer;
   register int ConfigNum;
   int NumConfigs;
   register int Temp;
@@ -1306,9 +1307,9 @@ void
 IMUpdateSumOfProtoEvidences (INT_CLASS ClassTemplate,
 BIT_VECTOR ConfigMask,
 int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-UINT8
+uinT8
 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX],
-INT16 NumFeatures) {
+inT16 NumFeatures) {
 /*
  **      Parameters:
  **      Globals:
@@ -1318,15 +1319,15 @@ INT16 NumFeatures) {
  **      Exceptions: none
  **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
-  register UINT8 *UINT8Pointer;
+  register uinT8 *UINT8Pointer;
   register int *IntPointer;
-  register UINT32 ConfigWord;
+  register uinT32 ConfigWord;
   int ProtoSetIndex;
-  register UINT16 ProtoNum;
+  register uinT16 ProtoNum;
   PROTO_SET ProtoSet;
   register int ProtoIndex;
   int NumProtos;
-  UINT16 ActualProtoNum;
+  uinT16 ActualProtoNum;
   int Temp;
 
   NumProtos = NumIntProtosIn (ClassTemplate);
@@ -1363,7 +1364,7 @@ INT16 NumFeatures) {
 void
 IMNormalizeSumOfEvidences (INT_CLASS ClassTemplate,
 int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-INT16 NumFeatures, INT32 used_features) {
+inT16 NumFeatures, inT32 used_features) {
 /*
  **      Parameters:
  **      Globals:
@@ -1392,8 +1393,8 @@ INT16 NumFeatures, INT32 used_features) {
 int
 IMFindBestMatch (INT_CLASS ClassTemplate,
 int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-UINT16 BlobLength,
-UINT8 NormalizationFactor, INT_RESULT Result) {
+uinT16 BlobLength,
+uinT8 NormalizationFactor, INT_RESULT Result) {
 /*
  **      Parameters:
  **      Globals:
@@ -1449,8 +1450,8 @@ UINT8 NormalizationFactor, INT_RESULT Result) {
 #ifndef GRAPHICS_DISABLED
 void IMDebugBestMatch(int BestMatch,
                       INT_RESULT Result,
-                      UINT16 BlobLength,
-                      UINT8 NormalizationFactor) {
+                      uinT16 BlobLength,
+                      uinT8 NormalizationFactor) {
 /*
  **      Parameters:
  **      Globals:
