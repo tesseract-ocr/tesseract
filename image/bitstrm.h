@@ -28,46 +28,46 @@ class DLLSYM R_BITSTREAM
 {
   private:
     int bitfd;                   //file descriptor
-    INT32 bitindex;              //current byte
-    UINT32 bitword;              //current word
-    INT32 bitbit;                //current bit
-    INT32 bufsize;               //size of buffer
-    UINT8 bitbuf[BITBUFSIZE];    //bitstream buffer
+    inT32 bitindex;              //current byte
+    uinT32 bitword;              //current word
+    inT32 bitbit;                //current bit
+    inT32 bufsize;               //size of buffer
+    uinT8 bitbuf[BITBUFSIZE];    //bitstream buffer
                                  //for reading codes
-    static const UINT16 bitmasks[17];
+    static const uinT16 bitmasks[17];
 
   public:
 
-    R_BITSTREAM() { 
+    R_BITSTREAM() {
     };                           //Null constructor
 
-    UINT16 open(          //open to read
+    uinT16 open(          //open to read
                 int fd);  //file to read
 
-    UINT16 read_code(                //read a code
-                     UINT8 length);  //bits to lose
-    UINT16 masks(               //read a code
-                 INT32 index);  //bits to lose
+    uinT16 read_code(                //read a code
+                     uinT8 length);  //bits to lose
+    uinT16 masks(               //read a code
+                 inT32 index);  //bits to lose
 };
 
 class DLLSYM W_BITSTREAM
 {
   private:
     int bitfd;                   //file descriptor
-    INT32 bitindex;              //current byte
-    UINT32 bitword;              //current word
-    INT32 bitbit;                //current bit
-    UINT8 bitbuf[BITBUFSIZE];    //bitstream buffer
+    inT32 bitindex;              //current byte
+    uinT32 bitword;              //current word
+    inT32 bitbit;                //current bit
+    uinT8 bitbuf[BITBUFSIZE];    //bitstream buffer
 
   public:
-    W_BITSTREAM() { 
+    W_BITSTREAM() {
     };                           //Null constructor
 
     void open(          //open to write
               int fd);  //file to write
 
-    INT8 write_code(                //write a code
-                    UINT16 code,    //code to write
-                    UINT8 length);  //bits to lose
+    inT8 write_code(                //write a code
+                    uinT16 code,    //code to write
+                    uinT8 length);  //bits to lose
 };
 #endif

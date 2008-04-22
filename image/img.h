@@ -30,11 +30,11 @@ struct Pix;
 
 #define COMPUTE_IMAGE_XDIM(xsize,bpp) ((bpp)>8 ? ((xsize)*(bpp)+7)/8 :((xsize)+8/(bpp)-1)/(8/(bpp)))
 
-typedef INT8 (*IMAGE_OPENER) (int, INT32 *, INT32 *, INT8 *, INT8 *, INT32 *);
-typedef INT8 (*IMAGE_READER) (int, UINT8 *, INT32, INT32, INT8, INT32);
-typedef INT8 (*IMAGE_WRITER) (int, UINT8 *, INT32, INT32, INT8, INT8, INT32);
+typedef inT8 (*IMAGE_OPENER) (int, inT32 *, inT32 *, inT8 *, inT8 *, inT32 *);
+typedef inT8 (*IMAGE_READER) (int, uinT8 *, inT32, inT32, inT8, inT32);
+typedef inT8 (*IMAGE_WRITER) (int, uinT8 *, inT32, inT32, inT8, inT8, inT32);
 
-typedef UINT8 *COLOUR_PIX;       //array of colours
+typedef uinT8 *COLOUR_PIX;       //array of colours
 enum COLOUR_PIX_NAME
 {
   RED_PIX,
@@ -56,106 +56,106 @@ class DLLSYM IMAGE               //encapsulated image
     IMAGE & operator= (          //assignment
       IMAGE & source);
 
-    INT8 read_header(                    //get file header
+    inT8 read_header(                    //get file header
                      const char *name);  //name of image
 
-    INT8 read(                  //get rest of image
-              INT32 buflines);  //size of buffer
+    inT8 read(                  //get rest of image
+              inT32 buflines);  //size of buffer
 
-    INT8 write(                    //write image
+    inT8 write(                    //write image
                const char *name);  //name to write
 
-    INT8 create(                       //create blank image
-                INT32 x,               //x size required
-                INT32 y,               //ysize required
-                INT8 bits_per_pixel);  //bpp required
+    inT8 create(                       //create blank image
+                inT32 x,               //x size required
+                inT32 y,               //ysize required
+                inT8 bits_per_pixel);  //bpp required
 
-    INT8 capture(                       //capture raw image
-                 UINT8 *pixels,         //pixels to capture
-                 INT32 x,               //x size required
-                 INT32 y,               //ysize required
-                 INT8 bits_per_pixel);  //bpp required
+    inT8 capture(                       //capture raw image
+                 uinT8 *pixels,         //pixels to capture
+                 inT32 x,               //x size required
+                 inT32 y,               //ysize required
+                 inT8 bits_per_pixel);  //bpp required
 
     void destroy();  //destroy image
 
-    INT32 get_xsize() {
+    inT32 get_xsize() {
       return xsize;
     }
     //access function
-    INT32 get_ysize() {
+    inT32 get_ysize() {
       return ysize;
     }
     //access function
-    INT8 get_bpp() {
+    inT8 get_bpp() {
       return bpp;
     }                            //access function
-    INT8 get_bps() {
+    inT8 get_bps() {
       return bps;
     }                            //bits per sample
     BOOL8 white_high() {  //photo interp
       return photo_interp;
     }
-    UINT8 get_white_level() {  //access function
+    uinT8 get_white_level() {  //access function
       return (1 << bpp) - 1;
     }
-    INT32 get_res() {
+    inT32 get_res() {
       return res;
     }                            //access function
     void set_res(  //set resolution
-                 INT32 resolution) {
+                 inT32 resolution) {
       res = resolution;
     }
-    UINT8 *get_buffer() {
+    uinT8 *get_buffer() {
       return image;
     }
     //access function
 
-    UINT8 pixel(           //access pixel
-                INT32 x,   //x coord
-                INT32 y);  //y coord
+    uinT8 pixel(           //access pixel
+                inT32 x,   //x coord
+                inT32 y);  //y coord
 
     void fast_get_line(                      //get image line
-                       INT32 x,              //coord to start at
-                       INT32 y,              //line to get
-                       INT32 width,          //no of pixels to get
+                       inT32 x,              //coord to start at
+                       inT32 y,              //line to get
+                       inT32 width,          //no of pixels to get
                        IMAGELINE *linebuf);  //line to copy to
 
     void get_line(                     //get image line
-                  INT32 x,             //coord to start at
-                  INT32 y,             //line to get
-                  INT32 width,         //no of pixels to get
+                  inT32 x,             //coord to start at
+                  inT32 y,             //line to get
+                  inT32 width,         //no of pixels to get
                   IMAGELINE *linebuf,  //line to copy to
-                  INT32 margins);      //size of margins
+                  inT32 margins);      //size of margins
     void get_column(                     //get image column
-                    INT32 x,             //coord to start at
-                    INT32 y,             //line to get
-                    INT32 height,        //no of pixels to get
+                    inT32 x,             //coord to start at
+                    inT32 y,             //line to get
+                    inT32 height,        //no of pixels to get
                     IMAGELINE *linebuf,  //line to copy to
-                    INT32 margins);      //size of margins
+                    inT32 margins);      //size of margins
 
     void fast_put_line(                      //put image line
-                       INT32 x,              //coord to start at
-                       INT32 y,              //line to put
-                       INT32 width,          //no of pixels to put
+                       inT32 x,              //coord to start at
+                       inT32 y,              //line to put
+                       inT32 width,          //no of pixels to put
                        IMAGELINE *linebuf);  //line to copy from
 
     void put_line(                     //put image line
-                  INT32 x,             //coord to start at
-                  INT32 y,             //line to put
-                  INT32 width,         //no of pixels to put
+                  inT32 x,             //coord to start at
+                  inT32 y,             //line to put
+                  inT32 width,         //no of pixels to put
                   IMAGELINE *linebuf,  //line to copy from
-                  INT32 margins);      //size of margins
+                  inT32 margins);      //size of margins
     void put_column(                     //put image column
-                    INT32 x,             //coord to start at
-                    INT32 y,             //line to put
-                    INT32 height,        //no of pixels to put
+                    inT32 x,             //coord to start at
+                    inT32 y,             //line to put
+                    inT32 height,        //no of pixels to put
                     IMAGELINE *linebuf,  //line to copy to
-                    INT32 margins);      //size of margins
+                    inT32 margins);      //size of margins
 
     void check_legal_access(              //check coords
-                            INT32 x,      //xcoord to check
-                            INT32 y,
-                            INT32 xext);  //ycoord to check
+                            inT32 x,      //xcoord to check
+                            inT32 y,
+                            inT32 xext);  //ycoord to check
 
 
     // Methods to convert image types. Only available if Leptonica is available.
@@ -163,90 +163,90 @@ class DLLSYM IMAGE               //encapsulated image
     void FromPix(const Pix* src_pix);
 
     void convolver (             //Map fn over window
-      INT32 win_width,           //Window width
-      INT32 win_height,          //Window height
+      inT32 win_width,           //Window width
+      inT32 win_height,          //Window height
       void (*convolve) (         //Conv Function
-      UINT8 ** pixels,           //Of window
-      UINT8 bytespp,             //1 or 3 for colour
-      INT32 win_wd,              //Window width
-      INT32 win_ht,              //Window height
-      UINT8 ret_white_value,     //White value to RETURN
-      UINT8 * result));          //Result pixel(s)
+      uinT8 ** pixels,           //Of window
+      uinT8 bytespp,             //1 or 3 for colour
+      inT32 win_wd,              //Window width
+      inT32 win_ht,              //Window height
+      uinT8 ret_white_value,     //White value to RETURN
+      uinT8 * result));          //Result pixel(s)
 
                                  //copy rectangle
     friend DLLSYM void copy_sub_image(IMAGE *source,  //source image
-                                      INT32 xstart,   //start coords
-                                      INT32 ystart,
-                                      INT32 xext,     //extent to copy
-                                      INT32 yext,
+                                      inT32 xstart,   //start coords
+                                      inT32 ystart,
+                                      inT32 xext,     //extent to copy
+                                      inT32 yext,
                                       IMAGE *dest,    //destination image
-                                      INT32 xdest,    //destination coords //shift to match bpp
-                                      INT32 ydest,
+                                      inT32 xdest,    //destination coords //shift to match bpp
+                                      inT32 ydest,
                                       BOOL8 adjust_grey);
 
                                  //enlarge rectangle
     friend DLLSYM void enlarge_sub_image(IMAGE *source,       //source image
-                                         INT32 xstart,        //scaled coords
-                                         INT32 ystart,
+                                         inT32 xstart,        //scaled coords
+                                         inT32 ystart,
                                          IMAGE *dest,         //destination image
-                                         INT32 xdest,         //destination coords
-                                         INT32 ydest,
-                                         INT32 xext,          //extent to copy
-                                         INT32 yext,
-                                         INT32 scale,         //scale factor
+                                         inT32 xdest,         //destination coords
+                                         inT32 ydest,
+                                         inT32 xext,          //extent to copy
+                                         inT32 yext,
+                                         inT32 scale,         //scale factor
                                          BOOL8 adjust_grey);  //shift to match bpp
 
                                  //reduce rectangle
     friend DLLSYM void fast_reduce_sub_image(IMAGE *source,       //source image
-                                             INT32 xstart,        //start coords
-                                             INT32 ystart,
-                                             INT32 xext,          //extent to copy
-                                             INT32 yext,
+                                             inT32 xstart,        //start coords
+                                             inT32 ystart,
+                                             inT32 xext,          //extent to copy
+                                             inT32 yext,
                                              IMAGE *dest,         //destination image
-                                             INT32 xdest,         //destination coords
-                                             INT32 ydest,
-                                             INT32 scale,         //scale factor
+                                             inT32 xdest,         //destination coords
+                                             inT32 ydest,
+                                             inT32 scale,         //scale factor
                                              BOOL8 adjust_grey);  //shift to match bpp
 
                                  //reduce rectangle
     friend DLLSYM void reduce_sub_image(IMAGE *source,       //source image
-                                        INT32 xstart,        //start coords
-                                        INT32 ystart,
-                                        INT32 xext,          //extent to copy
-                                        INT32 yext,
+                                        inT32 xstart,        //start coords
+                                        inT32 ystart,
+                                        inT32 xext,          //extent to copy
+                                        inT32 yext,
                                         IMAGE *dest,         //destination image
-                                        INT32 xdest,         //destination coords
-                                        INT32 ydest,
-                                        INT32 scale,         //scale factor
+                                        inT32 xdest,         //destination coords
+                                        inT32 ydest,
+                                        inT32 scale,         //scale factor
                                         BOOL8 adjust_grey);  //shift to match bpp
 
   private:
-    INT8 bpp;                    //bits per pixel
-    INT8 bps;                    //bits per sample
-    INT8 bytespp;                //per pixel
-    INT8 lineskip;               //waste bytes on line
+    inT8 bpp;                    //bits per pixel
+    inT8 bps;                    //bits per sample
+    inT8 bytespp;                //per pixel
+    inT8 lineskip;               //waste bytes on line
     BOOL8 captured;              //true if buffer captured
-    INT8 photo_interp;           //interpretation
-    INT32 xsize, ysize;          //size of image
-    INT32 res;                   //resolution
-    UINT8 *image;                //the actual image
-    INT32 xdim;                  //bytes per line
-    INT32 bufheight;             //height of buffer
+    inT8 photo_interp;           //interpretation
+    inT32 xsize, ysize;          //size of image
+    inT32 res;                   //resolution
+    uinT8 *image;                //the actual image
+    inT32 xdim;                  //bytes per line
+    inT32 bufheight;             //height of buffer
     int fd;                      //open file descriptor
     IMAGE_READER reader;         //reading function
-    INT32 ymin;                  //bottom line in mem
-    INT32 ymax;                  //top line in mem+1
-    INT8 bufread(           //read some more
-                 INT32 y);  //ycoord required
+    inT32 ymin;                  //bottom line in mem
+    inT32 ymax;                  //top line in mem+1
+    inT8 bufread(           //read some more
+                 inT32 y);  //ycoord required
 };
 
 class DLLSYM IMAGELINE           //one line of image
 {
   public:
-    UINT8 * pixels;              //image pixels
-    INT8 bpp;                    //bits per pixel
+    uinT8 * pixels;              //image pixels
+    inT8 bpp;                    //bits per pixel
     COLOUR_PIX operator[] (      //colour pixels
-    INT32 index) {
+    inT32 index) {
       return &pixels[index * 3]; //coercion access op
     }
 
@@ -257,14 +257,14 @@ class DLLSYM IMAGELINE           //one line of image
       bpp = 8;
     }
     void init(                //setup size
-              INT32 width) {  //size of line
+              inT32 width) {  //size of line
       if (width <= 0)
         width = MAXIMAGEWIDTH;
       if (width > linewidth) {
         if (line != NULL)
           free_mem(line);
         linewidth = width;
-        line = (UINT8 *) alloc_mem (linewidth * sizeof (UINT8));
+        line = (uinT8 *) alloc_mem (linewidth * sizeof (uinT8));
       }
       pixels = line;
       bpp = 8;
@@ -275,7 +275,7 @@ class DLLSYM IMAGELINE           //one line of image
     }
 
     void set_bpp(  //For colour
-                 INT8 new_bpp) {
+                 inT8 new_bpp) {
       if (new_bpp <= 8)
         bpp = 8;
       else
@@ -292,45 +292,45 @@ class DLLSYM IMAGELINE           //one line of image
     }
 
     friend void IMAGE::get_line(                     //copies a line
-                                INT32 x,             //coord to start at
-                                INT32 y,             //line to get
-                                INT32 width,         //no of pixels to get
+                                inT32 x,             //coord to start at
+                                inT32 y,             //line to get
+                                inT32 width,         //no of pixels to get
                                 IMAGELINE *linebuf,  //line to copy to
-                                INT32 margins);      //size of margins
+                                inT32 margins);      //size of margins
                                  //copies a column
-    friend void IMAGE::get_column(INT32 x,             //coord to start at
-                                  INT32 y,             //line to get
-                                  INT32 height,        //no of pixels to get
+    friend void IMAGE::get_column(inT32 x,             //coord to start at
+                                  inT32 y,             //line to get
+                                  inT32 height,        //no of pixels to get
                                   IMAGELINE *linebuf,  //line to copy to
-                                  INT32 margins);      //size of margins
+                                  inT32 margins);      //size of margins
 
     friend void IMAGE::put_line(                     //writes a line
-                                INT32 x,             //coord to start at
-                                INT32 y,             //line to put
-                                INT32 width,         //no of pixels to put
+                                inT32 x,             //coord to start at
+                                inT32 y,             //line to put
+                                inT32 width,         //no of pixels to put
                                 IMAGELINE *linebuf,  //line to copy from
-                                INT32 margins);      //size of margins
+                                inT32 margins);      //size of margins
                                  //writes a column
-    friend void IMAGE::put_column(INT32 x,             //coord to start at
-                                  INT32 y,             //line to put
-                                  INT32 height,        //no of pixels to put
+    friend void IMAGE::put_column(inT32 x,             //coord to start at
+                                  inT32 y,             //line to put
+                                  inT32 height,        //no of pixels to put
                                   IMAGELINE *linebuf,  //line to copy from
-                                  INT32 margins);      //size of margins
+                                  inT32 margins);      //size of margins
 
                                  //may just change pointer
-    friend void IMAGE::fast_get_line(INT32 x,              //coord to start at
-                                     INT32 y,              //line to get
-                                     INT32 width,          //no of pixels to get
+    friend void IMAGE::fast_get_line(inT32 x,              //coord to start at
+                                     inT32 y,              //line to get
+                                     inT32 width,          //no of pixels to get
                                      IMAGELINE *linebuf);  //line to copy to
 
                                  //may just change pointer
-    friend void IMAGE::fast_put_line(INT32 x,              //coord to start at
-                                     INT32 y,              //line to get
-                                     INT32 width,          //no of pixels to get
+    friend void IMAGE::fast_put_line(inT32 x,              //coord to start at
+                                     inT32 y,              //line to get
+                                     inT32 width,          //no of pixels to get
                                      IMAGELINE *linebuf);  //line to copy to
 
   private:
-    UINT8 * line;                //local buffer
-    INT32 linewidth;             //width of buffer
+    uinT8 * line;                //local buffer
+    inT32 linewidth;             //width of buffer
 };
 #endif

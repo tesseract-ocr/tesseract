@@ -19,10 +19,9 @@ import org.keplerproject.luajava.LuaStateFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Vector;
 
 
 /**
@@ -41,8 +40,12 @@ public class ScrollView {
    * receive messages.
    */
   private static Socket socket;
-  private static PrintWriter out;
+  private static PrintStream out;
   public static BufferedReader in;
+  public static float polylineXCoords[];  // The coords being received.
+  public static float polylineYCoords[];  // The coords being received.
+  public static int polylineSize;       // The size of the coords arrays.
+  public static int polylineScanned;    // The size read so far.
 
   /** Keeps track of the number of messages received. */
   static int nrInputLines = 0;
@@ -50,39 +53,29 @@ public class ScrollView {
   /** Binding to LUA */
   private static LuaState L;
 
-  /** Holds all messages which are to be send to the client, but have not yet. */
-  private static Vector<SVEvent> pendingMessages;
-
   /** Prints all received messages to the console if true. */
   static boolean debugViewNetworkTraffic = false;
 
   /** Add a new message to the outgoing queue */
   public static void addMessage(SVEvent e) {
-  if (debugViewNetworkTraffic) {
-    System.out.println("(S->c) " + e.toString());
-  }
-  out.println(e.toString());
-//    pendingMessages.add(e);
-  }
-
-  /**
-   * Send messages to client (if there actually are any).
-   *
-   * @throws IOException
-   */
-  public static void sendMessages() throws IOException {
-    while (pendingMessages.size() > 0) {
-      SVEvent cur = pendingMessages.get(0);
-      pendingMessages.remove(0);
-      if (debugViewNetworkTraffic) {
-        System.out.println("(S->c) " + cur.toString());
-      }
-      out.println(cur.toString());
+    if (debugViewNetworkTraffic) {
+      System.out.println("(S->c) " + e.toString());
     }
+    String str = e.toString();
+    // Send the whole thing as UTF8.
+    try {
+      byte [] utf8 = str.getBytes("UTF8");
+      out.write(utf8, 0, utf8.length);
+    } catch (java.io.UnsupportedEncodingException ex) {
+      System.out.println("Oops... can't encode to UTF8... Exiting");
+      System.exit(0);
+    }
+    out.println();
     // Flush the output and check for errors.
     boolean error = out.checkError();
     if (error) {
-      throw new IOException("Error while trying to write to server");
+      System.out.println("Connection error. Quitting ScrollView Server...");
+      System.exit(0);
     }
   }
 
@@ -99,40 +92,52 @@ public class ScrollView {
     String inputLine;
 
     try {
-      while (!socket.isClosed()) {
-//        if (in.ready()) { // There are new messages
-          inputLine = receiveMessage();
-          nrInputLines++;
+      while (!socket.isClosed() && !socket.isInputShutdown() &&
+             !socket.isOutputShutdown() &&
+             socket.isConnected() && socket.isBound()) {
+        inputLine = receiveMessage();
+        nrInputLines++;
+        if (debugViewNetworkTraffic) {
+          System.out.println("(c->S," + nrInputLines + ")" + inputLine);
+        }
 
+        if (polylineSize > polylineScanned) {
+          // We are processing a polyline.
+          // Read pairs of coordinates separated by commas.
+          boolean first = true;
+          for (String coordStr : inputLine.split(",")) {
+            int coord = Integer.parseInt(coordStr);
+            if (first) {
+              polylineXCoords[polylineScanned] = coord;
+            } else {
+              polylineYCoords[polylineScanned++] = coord;
+            }
+            first = !first;
+          }
+          assert first;
+        } else if (SVImageHandler.getReadImageData() == false) {
           // If we are currently not transmitting an image, process this
           // normally.
-          if (SVImageHandler.getReadImageData() == false) {
-            processInput(inputLine);
-          }
-          // We are still transmitting image data, but there seems to be some
-          // command at the
-          // end of the message attached as well. Thus, we have to split it
-          // accordingly and
-          // first generate the image and afterwards process the remaining
-          // message.
-          else if (inputLine.length() > SVImageHandler
-              .getMissingRemainingBytes()) {
-            String luaCmd =
-                inputLine.substring(SVImageHandler.getMissingRemainingBytes());
-            String imgData =
-                inputLine.substring(0, SVImageHandler
-                    .getMissingRemainingBytes());
-            SVImageHandler.parseData(imgData);
-            processInput(luaCmd);
-          } else { // We are still in the middle of image data and have not
-                    // reached the end yet.
-            SVImageHandler.parseData(inputLine);
-          }
-//        }
-        // If there are any pending messages awaiting to be send, send them now
-//        if (pendingMessages.size() > 0) {
-//          sendMessages();
-//        } // write messages
+          processInput(inputLine);
+        }
+        // We are still transmitting image data, but there seems to be some
+        // command at the
+        // end of the message attached as well. Thus, we have to split it
+        // accordingly and
+        // first generate the image and afterwards process the remaining
+        // message.
+        else if (inputLine.length() >
+                 SVImageHandler.getMissingRemainingBytes()) {
+          String luaCmd = inputLine.substring(
+              SVImageHandler.getMissingRemainingBytes());
+          String imgData = inputLine.substring(0,
+              SVImageHandler.getMissingRemainingBytes());
+          SVImageHandler.parseData(imgData);
+          processInput(luaCmd);
+        } else { // We are still in the middle of image data and have not
+                 // reached the end yet.
+          SVImageHandler.parseData(inputLine);
+        }
       }
     }
     // Some connection error
@@ -144,9 +149,6 @@ public class ScrollView {
 
   /** Executes the LUA command parsed as parameter. */
   private static void processInput(String inputLine) {
-    if (debugViewNetworkTraffic) {
-      System.out.println("(c->S," + nrInputLines + ")" + inputLine);
-    }
     int err = L.LdoString(inputLine);
     if (err == 1) {
       System.out
@@ -169,7 +171,6 @@ public class ScrollView {
     }
     L = LuaStateFactory.newLuaState();
     L.openLibs();
-    pendingMessages = new Vector<SVEvent>();
 
     try {
       // Open a socket to listen on.
@@ -181,7 +182,7 @@ public class ScrollView {
       System.out.println("Client connected");
 
       // Setup the streams
-      out = new PrintWriter(socket.getOutputStream(), true);
+      out = new PrintStream(socket.getOutputStream(), true);
       in =
           new BufferedReader(new InputStreamReader(socket.getInputStream(),
               "UTF8"));

@@ -31,6 +31,9 @@
 #include <signal.h>
 #include <netdb.h>
 #include <sys/socket.h>
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif
 #endif
 
 #include <iostream>
@@ -56,12 +59,17 @@ void SVSync::StartProcess(const char* executable, const char* args) {
   proc.append(" ");
   proc.append(args);
   std::cout << "Starting " << proc << std::endl;
-  CreateProcess(NULL, (LPWSTR) proc.c_str(), NULL,
-   NULL, FALSE, 0, NULL, NULL, NULL, NULL);
+  CreateProcess(NULL, const_cast<char*>(proc.c_str()), NULL,
+                NULL, FALSE, 0, NULL, NULL, NULL, NULL);
 #else
   int pid = fork();
   if (pid != 0) {   // The father process returns
   } else {
+#ifdef __linux__
+    // Make sure the java process terminates on exit, since its
+    // broken socket detection seems to be useless.
+    prctl(PR_SET_PDEATHSIG, 2, 0, 0, 0);
+#endif
     char* mutable_args = strdup(args);
     int argc = 1;
     for (int i = 0; mutable_args[i]; ++i) {
@@ -139,7 +147,7 @@ void SVMutex::Unlock() {
 
 // Create new thread.
 
-int SVSync::StartThread(void *(*func)(void*), void* arg) {
+void SVSync::StartThread(void *(*func)(void*), void* arg) {
 #ifdef WIN32
   LPTHREAD_START_ROUTINE f = (LPTHREAD_START_ROUTINE) func;
   DWORD threadid;
@@ -150,11 +158,9 @@ int SVSync::StartThread(void *(*func)(void*), void* arg) {
   arg,           // argument to thread function
   0,             // use default creation flags
   &threadid);    // returns the thread identifier
-  return threadid;
 #else
   pthread_t helper;
   pthread_create(&helper, NULL, func, arg);
-  return helper;
 #endif
 }
 
@@ -190,7 +196,7 @@ char* SVNetwork::Receive() {
   // Otherwise, we read from the stream_.
   } else {
     buffer_ptr_ = NULL;
-	has_content = false;
+    has_content = false;
 
     // The timeout length is not really important since we are looping anyway
     // until a new message is delivered.
@@ -216,7 +222,7 @@ char* SVNetwork::Receive() {
     msg_buffer_in_[i] = '\0';
     has_content = true;
 #ifdef WIN32
-	return strtok(msg_buffer_in_,"\n");
+    return strtok(msg_buffer_in_,"\n");
 #else
     // Setup a new string tokenizer.
     return strtok_r(msg_buffer_in_, "\n", &buffer_ptr_);
@@ -251,11 +257,13 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
   WSADATA wsaData;
   WSAStartup(MAKEWORD(1, 1), &wsaData);
   name = gethostbyname(hostname);
-#else
+#elif defined(__linux__)
   struct hostent hp;
   int herr;
   char buffer[kBufferSize];
   gethostbyname_r(hostname, &hp, buffer, kBufferSize, &name, &herr);
+#else
+  name = gethostbyname(hostname);
 #endif
 
   // Fill in the appropriate variables to be able to connect to the server.
@@ -280,20 +288,24 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
       scrollview_path = ".";
 #endif
     }
+    // The following ugly pair of ifdefs are to enable the output of the
+    // java runtime to be sent down a black hole to ignore all the
+    // exceptions in piccolo. Ideally piccolo would be debugged to make
+    // this unnecessary.
 #ifdef WIN32
     const char* prog = "java";
     const char* cmd_template =
 #else
     const char* prog = "sh";
-    const char* cmd_template = "-c \"java "
+    const char* cmd_template = "-c \"trap 'kill %1' 0 1 2 ; java "
 #endif
-      "-Djava.library.path=%s -cp %s/luajava-1.1.jar:%s/ScrollView.jar:"
-      "%s/piccolo-1.2.jar:%s/piccolox-1.2.jar"
-      " com.google.scrollview.ScrollView"
+        "-Djava.library.path=%s -cp %s/luajava-1.1.jar:%s/ScrollView.jar:"
+        "%s/piccolo-1.2.jar:%s/piccolox-1.2.jar"
+        " com.google.scrollview.ScrollView"
 #ifdef WIN32
-      ;
+        ;
 #else
-      " >/dev/null 2>&1\"";
+    " >/dev/null 2>&1 & wait\"";
 #endif
     int cmdlen = strlen(cmd_template) + 5*strlen(scrollview_path) + 1;
     char* cmd = new char[cmdlen];

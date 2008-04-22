@@ -23,67 +23,67 @@
 #include          "host.h"
 #include          "bitstrm.h"
 
-INT8 open_tif_image(               //read header
+inT8 open_tif_image(               //read header
                     int fd,        //file to read
-                    INT32 *xsize,  //size of image
-                    INT32 *ysize,
-                    INT8 *bpp,     //bits per pixel
-                    INT8 *photo,   //interpretation
-                    INT32 *res     //resolution
+                    inT32 *xsize,  //size of image
+                    inT32 *ysize,
+                    inT8 *bpp,     //bits per pixel
+                    inT8 *photo,   //interpretation
+                    inT32 *res     //resolution
                    );
-INT8 read_tif_image(                //read whole image
+inT8 read_tif_image(                //read whole image
                     int fd,         //file to read
-                    UINT8 *pixels,  //pixels of image
-                    INT32 xsize,    //size of image
-                    INT32 ysize,
-                    INT8 bpp,       //bits per pixel
-                    INT32           //bytes per line
+                    uinT8 *pixels,  //pixels of image
+                    inT32 xsize,    //size of image
+                    inT32 ysize,
+                    inT8 bpp,       //bits per pixel
+                    inT32           //bytes per line
                    );
-INT32 read_eol(                    //read end of line
+inT32 read_eol(                    //read end of line
                R_BITSTREAM *bits,  //bitstream to read
-               UINT16 &code        //current code
+               uinT16 &code        //current code
               );
-INT8 write_moto_tif(                //write whole image
+inT8 write_moto_tif(                //write whole image
                     int fd,         //file to write on
-                    UINT8 *pixels,  //image pixels
-                    INT32 xsize,    //size of image
-                    INT32 ysize,
-                    INT8 bpp,       //bits per pixel
-                    INT8 photo,
-                    INT32 res       //resolution
+                    uinT8 *pixels,  //image pixels
+                    inT32 xsize,    //size of image
+                    inT32 ysize,
+                    inT8 bpp,       //bits per pixel
+                    inT8 photo,
+                    inT32 res       //resolution
                    );
-INT8 write_intel_tif(                //write whole image
+inT8 write_intel_tif(                //write whole image
                      int fd,         //file to write on
-                     UINT8 *pixels,  //image pixels
-                     INT32 xsize,    //size of image
-                     INT32 ysize,
-                     INT8 bpp,       //bits per pixel
-                     INT8 photo,
-                     INT32 res       //resolution
+                     uinT8 *pixels,  //image pixels
+                     inT32 xsize,    //size of image
+                     inT32 ysize,
+                     inT8 bpp,       //bits per pixel
+                     inT8 photo,
+                     inT32 res       //resolution
                     );
-INT8 write_inverse_tif(                //write whole image
+inT8 write_inverse_tif(                //write whole image
                        int fd,         //file to write on
-                       UINT8 *pixels,  //image pixels
-                       INT32 xsize,    //size of image
-                       INT32 ysize,
-                       INT8 bpp,       //bits per pixel
-                       INT8 photo,
-                       INT32 res       //resolution
+                       uinT8 *pixels,  //image pixels
+                       inT32 xsize,    //size of image
+                       inT32 ysize,
+                       inT8 bpp,       //bits per pixel
+                       inT8 photo,
+                       inT32 res       //resolution
                       );
-INT8 write_tif_image(                //write whole image
+inT8 write_tif_image(                //write whole image
                      int fd,         //file to write on
-                     UINT8 *pixels,  //image pixels
-                     INT32 xsize,    //size of image
-                     INT32 ysize,
-                     INT8 bpp,       //bits per pixel
-                     INT32 res,      //resolution
-                     INT16 type,     //format type
-                     INT16 photo     //metric interp
+                     uinT8 *pixels,  //image pixels
+                     inT32 xsize,    //size of image
+                     inT32 ysize,
+                     inT8 bpp,       //bits per pixel
+                     inT32 res,      //resolution
+                     inT16 type,     //format type
+                     inT16 photo     //metric interp
                     );
-//INT32                                                         reverse32(                                                      //reverse 32 bit int
-//UINT32                                                        value                                                                   //value to reverse
+//inT32                                                         reverse32(                                                      //reverse 32 bit int
+//uinT32                                                        value                                                                   //value to reverse
 //);
-//INT16                                                         reverse16(                                                      //reverse 16 bit int
-//UINT16                                                        value                                                                   //value to reverse
+//inT16                                                         reverse16(                                                      //reverse 16 bit int
+//uinT16                                                        value                                                                   //value to reverse
 //);
 #endif

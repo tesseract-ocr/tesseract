@@ -18,14 +18,15 @@ import com.google.scrollview.ui.SVImageHandler;
 import com.google.scrollview.ui.SVMenuBar;
 import com.google.scrollview.ui.SVPopupMenu;
 
+import edu.umd.cs.piccolo.PCamera;
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.PLayer;
 
 import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PPath;
 import edu.umd.cs.piccolo.nodes.PText;
+import edu.umd.cs.piccolo.util.PPaintContext;
 import edu.umd.cs.piccolox.swing.PScrollPane;
-import edu.umd.cs.piccolox.util.PFixedWidthStroke;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -35,7 +36,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.geom.IllegalPathStateException;
 import java.awt.Rectangle;
 import java.awt.TextArea;
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,8 +55,11 @@ public class SVWindow extends JFrame {
   /**
    * Constants defining the maximum initial size of the window.
    */
-  private static final int MAX_WINDOW_X = 800;
-  private static final int MAX_WINDOW_Y = 1000;
+  private static final int MAX_WINDOW_X = 1000;
+  private static final int MAX_WINDOW_Y = 800;
+
+  /* Constant defining the (approx) height of the default message box*/
+  private static final int DEF_MESSAGEBOX_HEIGHT = 200;
 
   /** Constant defining the "speed" at which to zoom in and out. */
   public static final double SCALING_FACTOR = 2;
@@ -73,19 +76,21 @@ public class SVWindow extends JFrame {
    */
   Color currentBrushColor;
 
-  /** The system name of the current font we are using (e.g. "Times New Roman"). */
+  /** The system name of the current font we are using (e.g.
+   *  "Times New Roman"). */
   Font currentFont;
 
-  // TODO(wanke) allow user to change this, as it might be somewhat unexpected
-  // default behaviour.
   /** The stroke width to be used. */
   // This really needs to be a fixed width stroke as the basic stroke is
   // anti-aliased and gets too faint, but the piccolo fixed width stroke
   // is too buggy and generates missing initial moveto in path definition
   // errors with a IllegalPathStateException that cannot be caught because
-  // it is in the automatic repaint function.
-  // PFixedWidthStroke stroke = new PFixedWidthStroke(1.0f);
-  BasicStroke stroke = new BasicStroke(0.75f);
+  // it is in the automatic repaint function. If we can fix the exceptions
+  // in piccolo, then we can use the following instead of BasicStroke:
+  //   import edu.umd.cs.piccolox.util.PFixedWidthStroke;
+  //   PFixedWidthStroke stroke = new PFixedWidthStroke(0.5f);
+  // Instead we use the BasicStroke and turn off anti-aliasing.
+  BasicStroke stroke = new BasicStroke(0.5f);
 
   /**
    * A unique representation for the window, also known by the client. It is
@@ -108,6 +113,8 @@ public class SVWindow extends JFrame {
   private TextArea ta = null;
   public SVPopupMenu svPuMenu = null;
   public PCanvas canvas;
+  private int winSizeX;
+  private int winSizeY;
 
   /** Set the brush to an RGB color */
   public void brush(int red, int green, int blue) {
@@ -116,8 +123,9 @@ public class SVWindow extends JFrame {
 
   /** Set the brush to an RGBA color */
   public void brush(int red, int green, int blue, int alpha) {
-    if (red == -1) {
-      currentBrushColor = new Color(0, 0, 0, 0);
+    // If alpha is zero, use a null brush to save rendering time.
+    if (alpha == 0) {
+      currentBrushColor = null;
     } else {
       currentBrushColor = new Color(red, green, blue, alpha);
     }
@@ -144,6 +152,32 @@ public class SVWindow extends JFrame {
   }
 
   /**
+   * Start setting up a new polyline. The server will now expect
+   * polyline data until the polyline is complete.
+   *
+   * @param length number of coordinate pairs
+   */
+  public void createPolyline(int length) {
+    ScrollView.polylineXCoords = new float[length];
+    ScrollView.polylineYCoords = new float[length];
+    ScrollView.polylineSize = length;
+    ScrollView.polylineScanned = 0;
+  }
+
+  /**
+   * Draw the now complete polyline.
+   */
+  public void drawPolyline() {
+    PPath pn = PPath.createPolyline(ScrollView.polylineXCoords,
+                                    ScrollView.polylineYCoords);
+    ScrollView.polylineSize = 0;
+    pn.setStrokePaint(currentPenColor);
+    pn.setPaint(null);  // Don't fill the polygon - this is just a polyline.
+    pn.setStroke(stroke);
+    layer.addChild(pn);
+  }
+
+  /**
    * Construct a new SVWindow and set it visible.
    *
    * @param name Title of the window.
@@ -157,9 +191,14 @@ public class SVWindow extends JFrame {
    * @param canvasSizeY The canvas height of the window.
    */
   public SVWindow(String name, int hash, int posX, int posY, int sizeX,
-      int sizeY, int canvasSizeX, int canvasSizeY) {
-
+                  int sizeY, int canvasSizeX, int canvasSizeY) {
     super(name);
+
+    // Provide defaults for sizes.
+    if (sizeX == 0) sizeX = canvasSizeX;
+    if (sizeY == 0) sizeY = canvasSizeY;
+    if (canvasSizeX == 0) canvasSizeX = sizeX;
+    if (canvasSizeY == 0) canvasSizeY = sizeY;
 
     // Initialize variables
     nrWindows++;
@@ -171,19 +210,20 @@ public class SVWindow extends JFrame {
 
     // Determine the initial size and zoom factor of the window.
     // If the window is too big, rescale it and zoom out.
-    float initialScalingfactor = 1;
-    int winSizeX = Math.max(canvasSizeX, sizeX);
-    int winSizeY = Math.max(canvasSizeY, sizeY);
+    int shrinkfactor = 1;
 
-    if (winSizeX > MAX_WINDOW_X) {
-      initialScalingfactor = MAX_WINDOW_X / winSizeX;
-      winSizeX = MAX_WINDOW_X;
+    if (sizeX > MAX_WINDOW_X) {
+      shrinkfactor = (sizeX + MAX_WINDOW_X - 1) / MAX_WINDOW_X;
     }
-    if (winSizeY > MAX_WINDOW_Y) {
-      if ((MAX_WINDOW_Y / winSizeY) < initialScalingfactor) {
-        initialScalingfactor = MAX_WINDOW_Y / winSizeY;
-      }
-      winSizeY = MAX_WINDOW_Y;
+    if (sizeY / shrinkfactor > MAX_WINDOW_Y) {
+      shrinkfactor = (sizeY + MAX_WINDOW_Y - 1) / MAX_WINDOW_Y;
+    }
+    winSizeX = sizeX / shrinkfactor;
+    winSizeY = sizeY / shrinkfactor;
+    double initialScalingfactor = 1.0 / shrinkfactor;
+    if (winSizeX > canvasSizeX || winSizeY > canvasSizeY) {
+      initialScalingfactor = Math.min(1.0 * winSizeX / canvasSizeX,
+                                      1.0 * winSizeY / canvasSizeY);
     }
 
     // Setup the actual window (its size, camera, title, etc.)
@@ -194,6 +234,9 @@ public class SVWindow extends JFrame {
 
     layer = canvas.getLayer();
     canvas.setBackground(Color.BLACK);
+
+    // Disable anitaliasing to make the lines more visible.
+    canvas.setDefaultRenderQuality(PPaintContext.LOW_QUALITY_RENDERING);
 
     setLayout(new BorderLayout());
 
@@ -213,9 +256,6 @@ public class SVWindow extends JFrame {
     });
 
     setSize(winSizeX, winSizeY);
-    canvas.getCamera().setViewBounds(
-        new Rectangle(0, 0, Math.max(canvasSizeX, sizeX), Math.max(canvasSizeY,
-            sizeY)));
     setLocation(posX, posY);
     setTitle(name);
 
@@ -223,6 +263,8 @@ public class SVWindow extends JFrame {
     PScrollPane scrollPane = new PScrollPane(canvas);
     getContentPane().add(scrollPane);
     scrollPane.setWheelScrollingEnabled(false);
+    PCamera lc = canvas.getCamera();
+    lc.scaleViewAboutPoint(initialScalingfactor, 0, 0);
 
     // Disable the default event handlers and add our own.
     addWindowListener(svEventHandler);
@@ -247,20 +289,26 @@ public class SVWindow extends JFrame {
       ta.setEditable(false);
       getContentPane().add(ta, BorderLayout.SOUTH);
     }
+    // We need to make the window bigger to accomodate the message box.
+    winSizeY += DEF_MESSAGEBOX_HEIGHT;
+    setSize(winSizeX, winSizeY);
   }
 
   /**
-   * Allows you to specify the thickness with which to draw lines, recantgles and ellipses.
+   * Allows you to specify the thickness with which to draw lines, recantgles
+   * and ellipses.
    * @param width The new thickness.
    */
   public void setStrokeWidth(float width) {
-//      stroke = new PFixedWidthStroke(width);
+    // If this worked we wouldn't need the antialiased rendering off.
+    // stroke = new PFixedWidthStroke(width);
     stroke = new BasicStroke(width);
   }
 
   /**
-   * Draw an ellipse at (x,y) with given width and height, using the current stroke,
-   * the current brush color to fill it and the current pen color for the outline.
+   * Draw an ellipse at (x,y) with given width and height, using the
+   * current stroke, the current brush color to fill it and the
+   * current pen color for the outline.
    */
   public void drawEllipse(int x, int y, int width, int height) {
     PPath pn = PPath.createEllipse(x, y, width, height);
@@ -288,6 +336,7 @@ public class SVWindow extends JFrame {
   public void drawLine(int x1, int y1, int x2, int y2) {
     PPath pn = PPath.createLine(x1, y1, x2, y2);
     pn.setStrokePaint(currentPenColor);
+    pn.setPaint(null);  // Null paint may render faster than the default.
     pn.setStroke(stroke);
     pn.moveTo(x1, y1);
     pn.lineTo(x2, y2);
@@ -295,8 +344,9 @@ public class SVWindow extends JFrame {
   }
 
   /**
-   * Draw a rectangle given the two points (x1,y1) and (x2,y2) using the current stroke,
-   * pen color for the border and the brush to fill the interior.
+   * Draw a rectangle given the two points (x1,y1) and (x2,y2) using the current
+   * stroke, pen color for the border and the brush to fill the
+   * interior.
    */
   public void drawRectangle(int x1, int y1, int x2, int y2) {
 
@@ -368,11 +418,7 @@ public class SVWindow extends JFrame {
 
   /** Set the pen color to an RGBA value */
   public void pen(int red, int green, int blue, int alpha) {
-    if (red == -1) {
-      currentPenColor = new Color(0, 0, 0, 0);
-    } else {
-      currentPenColor = new Color(red, green, blue, alpha);
-    }
+    currentPenColor = new Color(red, green, blue, alpha);
   }
 
   /**
@@ -396,6 +442,29 @@ public class SVWindow extends JFrame {
     currentFont = new Font(font, style, pixelSize);
   }
 
+  /**
+   * Zoom the window to the rectangle given the two points (x1,y1)
+   * and (x2,y2), which must be greater than (x1,y1).
+   */
+  public void zoomRectangle(int x1, int y1, int x2, int y2) {
+    if (x2 > x1 && y2 > y1) {
+      winSizeX = getWidth();
+      winSizeY = getHeight();
+      int width = x2 - x1;
+      int height = y2 - y1;
+      // Since piccolo doesn't do this well either, pad with a margin
+      // all the way around.
+      int wmargin = width / 2;
+      int hmargin = height / 2;
+      double scalefactor = Math.min(winSizeX / (2.0 * wmargin + width),
+                                    winSizeY / (2.0 * hmargin + height));
+      PCamera lc = canvas.getCamera();
+      lc.scaleView(scalefactor / lc.getViewScale());
+      lc.animateViewToPanToBounds(new Rectangle(x1 - hmargin, y1 - hmargin,
+                                                2 * wmargin + width,
+                                                2 * hmargin + height), 0);
+    }
+  }
 
   /**
    * Flush buffers and update display.
@@ -404,15 +473,25 @@ public class SVWindow extends JFrame {
    * the canvas from flickering.
    */
   public void update() {
+    // TODO(rays) fix bugs in piccolo or use something else.
+    // The repaint function generates many
+    // exceptions for no good reason. We catch and ignore as many as we
+    // can here, but most of them are generated by the system repaints
+    // caused by resizing/exposing parts of the window etc, and they
+    // generate unwanted stack traces that have to be piped to /dev/null
+    // (on linux).
     try {
       repaint();
     } catch (NullPointerException e) {
+      // Do nothing so the output isn't full of stack traces.
     } catch (IllegalPathStateException e) {
+      // Do nothing so the output isn't full of stack traces.
     }
   }
 
   /** Adds a checkbox entry to the menubar, c.f. SVMenubar.add(...) */
-  public void addMenuBarItem(String parent, String name, int id, boolean checked) {
+  public void addMenuBarItem(String parent, String name, int id,
+                             boolean checked) {
     svMenuBar.add(parent, name, id, checked);
   }
 
@@ -443,7 +522,8 @@ public class SVWindow extends JFrame {
    * This method converts a string which might contain hexadecimal values to a
    * string which contains the respective unicode counterparts.
    *
-   * For example, Hall0x0094chen returns Hallöchen.
+   * For example, Hall0x0094chen returns Hall<o umlaut>chen
+   * encoded as utf8.
    *
    * @param input The original string, containing 0x values
    * @return The converted string which has the replaced unicode symbols
@@ -475,9 +555,11 @@ public class SVWindow extends JFrame {
    * @param msg The text that is displayed in the dialog.
    * @param def The default value of the dialog.
    * @param id The associated commandId
-   * @param evtype The event this is associated with (usually SVET_MENU or SVET_POPUP)
+   * @param evtype The event this is associated with (usually SVET_MENU
+   * or SVET_POPUP)
    */
-  public void showInputDialog(String msg, String def, int id, SVEventType evtype) {
+  public void showInputDialog(String msg, String def, int id,
+                              SVEventType evtype) {
     svEventHandler.timer.stop();
     String tmp =
         (String) JOptionPane.showInputDialog(this, msg, "",
@@ -499,7 +581,7 @@ public class SVWindow extends JFrame {
    * @param msg The text of the dialog.
    */
   public void showInputDialog(String msg) {
-    showInputDialog(msg, null, -1, SVEventType.SVET_POPUP);
+    showInputDialog(msg, null, -1, SVEventType.SVET_INPUT);
   }
 
   /**

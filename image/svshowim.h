@@ -14,12 +14,12 @@ class ScrollView;
 // This function redirects the display to ScrollView instead of the
 // stubbed-out functions in tesseract.
 void sv_show_sub_image(IMAGE*    source,         // Image to show.
-                       INT32     xstart,         // Bottom-left coords.
-                       INT32     ystart,
-                       INT32     xext,           // Size of rectangle to show.
-                       INT32     yext,
+                       inT32     xstart,         // Bottom-left coords.
+                       inT32     ystart,
+                       inT32     xext,           // Size of rectangle to show.
+                       inT32     yext,
                        ScrollView*    win,            // Window to draw in.
-                       INT32     xpos,           // Place to show bottom-left.
-                       INT32     ypos);          // Y position.
+                       inT32     xpos,           // Place to show bottom-left.
+                       inT32     ypos);          // Y position.
 
 #endif  // OCR_TESSERACT_SVSHOWIM_H__

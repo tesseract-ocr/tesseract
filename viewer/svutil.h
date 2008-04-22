@@ -26,6 +26,9 @@
 
 #ifdef WIN32
 #include <windows.h>
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#pragma warning(disable:4786)
 #else
 #include <pthread.h>
 #include <semaphore.h>
@@ -33,11 +36,19 @@
 
 #include <string>
 
+#ifndef MAX
+#define MAX(a ,b)  ((a > b) ? a : b)
+#endif
+
+#ifndef MIN
+#define MIN(a, b)  ((a < b) ? a : b)
+#endif
+
 // The SVSync class provides functionality for Thread & Process Creation
 class SVSync {
  public:
   // Create new thread.
-  static int StartThread(void *(*func)(void*), void* arg);
+  static void StartThread(void *(*func)(void*), void* arg);
   // Signals a thread to exit.
   static void ExitThread();
   // Starts a new process.

@@ -55,7 +55,7 @@ extern BOOL_VARIABLE tessedit_resegment_from_boxes;
 BOOL APIENTRY DllMain( HANDLE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
-					 )
+                     )
 {
   switch (ul_reason_for_call)
   {
@@ -72,7 +72,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 TessDllAPI::TessDllAPI(const char* lang) {
   const char *fake_argv[] = { "api_config" };
 
-  UINT16 oldlang;  //language
+  uinT16 oldlang;  //language
 
   ocr_open_shm ("0", "0", "0", "0", "0", "0", &oldlang);
 
@@ -103,13 +103,13 @@ TessDllAPI::~TessDllAPI() {
   if (membuf) delete []membuf;
 }
 
-int TessDllAPI::BeginPage(UINT32 xsize,UINT32 ysize,unsigned char *buf) 
+int TessDllAPI::BeginPage(uinT32 xsize,uinT32 ysize,unsigned char *buf)
 {
-	return BeginPage(xsize,ysize,buf,1);
+    return BeginPage(xsize,ysize,buf,1);
 }
 
-int TessDllAPI::BeginPage(UINT32 xsize,UINT32 ysize,unsigned char *buf,UINT8 bpp) {
-  INT16 c;
+int TessDllAPI::BeginPage(uinT32 xsize,uinT32 ysize,unsigned char *buf,uinT8 bpp) {
+  inT16 c;
 
   EndPage();
 
@@ -128,22 +128,22 @@ int TessDllAPI::BeginPage(UINT32 xsize,UINT32 ysize,unsigned char *buf,UINT8 bpp
 
 
   copy_sub_image(&tmp, 0, 0, 0, 0, &page_image, 400, 400, false);
-  
 
-  
+
+
 
   return ProcessPagePass1();
 }
-int TessDllAPI::BeginPageUpright(UINT32 xsize,UINT32 ysize,unsigned char *buf)
+int TessDllAPI::BeginPageUpright(uinT32 xsize,uinT32 ysize,unsigned char *buf)
 {
 
-	return BeginPageUpright(xsize,ysize,buf,1);
+    return BeginPageUpright(xsize,ysize,buf,1);
 }
 
-int TessDllAPI::BeginPageUpright(UINT32 xsize,UINT32 ysize,unsigned char *buf, UINT8 bpp) {
+int TessDllAPI::BeginPageUpright(uinT32 xsize,uinT32 ysize,unsigned char *buf, uinT8 bpp) {
 
-	
-	EndPage();
+
+    EndPage();
 
 //It looks like Adaptive thresholding is disabled so this must be a 1 bpp image
   if (page_image.create (xsize+800, ysize+800, 1)==-1)
@@ -156,7 +156,7 @@ int TessDllAPI::BeginPageUpright(UINT32 xsize,UINT32 ysize,unsigned char *buf, U
 
 
   copy_sub_image(&tmp, 0, 0, 0, 0, &page_image, 400, 400, true);
-  
+
 
 
   return ProcessPagePass1();
@@ -176,8 +176,6 @@ int TessDllAPI::ProcessPagePass1() {
 
   if (tessedit_resegment_from_boxes)
     apply_boxes(block_list);
-  if (edit_variables)
-    start_variables_editor();
   page_res = new PAGE_RES(block_list);
 
   if (page_res)
@@ -198,10 +196,10 @@ ETEXT_DESC * TessDllAPI::Recognize_all_Words(void) {
   return Recognize_a_Block(0,0,0,0);
 }
 
-ETEXT_DESC * TessDllAPI::Recognize_a_Block(UINT32 left,UINT32 right,
-                                           UINT32 top,UINT32 bottom) {
-  BOX			target_word_box(ICOORD (left+400, top+400), ICOORD (right+400, bottom+400));
-  int			i;
+ETEXT_DESC * TessDllAPI::Recognize_a_Block(uinT32 left,uinT32 right,
+                                           uinT32 top,uinT32 bottom) {
+  TBOX          target_word_box(ICOORD (left+400, top+400), ICOORD (right+400, bottom+400));
+  int           i;
 
 
   shm.shm_size=sizeof (ETEXT_DESC)+32000L*sizeof (EANYCODE_CHAR);
@@ -248,14 +246,14 @@ TESSDLL_API void  * __cdecl TessDllInit(const char* lang) {
   return (void*) recognize;
 }
 
-TESSDLL_API int __cdecl TessDllBeginPageBPP(UINT32 xsize,UINT32 ysize,
-                                         unsigned char *buf, UINT8 bpp) {
+TESSDLL_API int __cdecl TessDllBeginPageBPP(uinT32 xsize,uinT32 ysize,
+                                         unsigned char *buf, uinT8 bpp) {
   return TessDllBeginPageLangBPP(xsize, ysize, buf, NULL,bpp);
 }
 
-TESSDLL_API int __cdecl TessDllBeginPageLangBPP(UINT32 xsize, UINT32 ysize,
+TESSDLL_API int __cdecl TessDllBeginPageLangBPP(uinT32 xsize, uinT32 ysize,
                                              unsigned char *buf,
-                                             const char* lang, UINT8 bpp) {
+                                             const char* lang, uinT8 bpp) {
   if (recognize==0L || (lang != 0L) != (current_lang != 0L) ||
       lang != 0L && strcmp(lang, current_lang))
     TessDllInit(lang);
@@ -263,9 +261,9 @@ TESSDLL_API int __cdecl TessDllBeginPageLangBPP(UINT32 xsize, UINT32 ysize,
   return recognize->BeginPage(xsize, ysize, buf,bpp);
 }
 
-TESSDLL_API int __cdecl TessDllBeginPageUprightBPP(UINT32 xsize, UINT32 ysize,
+TESSDLL_API int __cdecl TessDllBeginPageUprightBPP(uinT32 xsize, uinT32 ysize,
                                              unsigned char *buf,
-                                             const char* lang, UINT8 bpp) {
+                                             const char* lang, uinT8 bpp) {
   if (recognize==0L || (lang != 0L) != (current_lang != 0L) ||
       lang != 0L && strcmp(lang, current_lang))
     TessDllInit(lang);
@@ -273,12 +271,12 @@ TESSDLL_API int __cdecl TessDllBeginPageUprightBPP(UINT32 xsize, UINT32 ysize,
   return recognize->BeginPageUpright(xsize, ysize, buf,bpp);
 }
 
-TESSDLL_API int __cdecl TessDllBeginPage(UINT32 xsize,UINT32 ysize,
+TESSDLL_API int __cdecl TessDllBeginPage(uinT32 xsize,uinT32 ysize,
                                          unsigned char *buf) {
   return TessDllBeginPageLangBPP(xsize, ysize, buf, NULL,1);
 }
 
-TESSDLL_API int __cdecl TessDllBeginPageLang(UINT32 xsize, UINT32 ysize,
+TESSDLL_API int __cdecl TessDllBeginPageLang(uinT32 xsize, uinT32 ysize,
                                              unsigned char *buf,
                                              const char* lang) {
   if (recognize==0L || (lang != 0L) != (current_lang != 0L) ||
@@ -288,7 +286,7 @@ TESSDLL_API int __cdecl TessDllBeginPageLang(UINT32 xsize, UINT32 ysize,
   return recognize->BeginPage(xsize, ysize, buf,1);
 }
 
-TESSDLL_API int __cdecl TessDllBeginPageUpright(UINT32 xsize, UINT32 ysize,
+TESSDLL_API int __cdecl TessDllBeginPageUpright(uinT32 xsize, uinT32 ysize,
                                              unsigned char *buf,
                                              const char* lang) {
   if (recognize==0L || (lang != 0L) != (current_lang != 0L) ||
@@ -302,10 +300,10 @@ TESSDLL_API void __cdecl TessDllEndPage(void) {
   recognize->EndPage();
 }
 
-TESSDLL_API ETEXT_DESC * __cdecl TessDllRecognize_a_Block(UINT32 left,
-                                                          UINT32 right,
-                                                          UINT32 top,
-                                                          UINT32 bottom) {
+TESSDLL_API ETEXT_DESC * __cdecl TessDllRecognize_a_Block(uinT32 left,
+                                                          uinT32 right,
+                                                          uinT32 top,
+                                                          uinT32 bottom) {
   return recognize->Recognize_a_Block(left,right,top,bottom);
 }
 
@@ -320,7 +318,7 @@ TESSDLL_API ETEXT_DESC * __cdecl TessDllRecognize_all_Words(void) {
 TESSDLL_API void __cdecl ReleaseRecognize()
 {
 
-	if (recognize) delete recognize;recognize=0L;
+    if (recognize) delete recognize;recognize=0L;
 
 }
 
@@ -336,7 +334,7 @@ recognize = new TessDllAPI();
 return (void*) recognize;
 }
 
-TESSDLL_API int __cdecl CreateRecognize(UINT32 xsize,UINT32 ysize,unsigned char *buf)
+TESSDLL_API int __cdecl CreateRecognize(uinT32 xsize,uinT32 ysize,unsigned char *buf)
 {
 InitRecognize();
 
@@ -344,7 +342,7 @@ return recognize->BeginPage(xsize,ysize,buf);
 
 }
 
-TESSDLL_API ETEXT_DESC * __cdecl reconize_a_word(UINT32 left,UINT32 right,UINT32 top,UINT32 bottom)
+TESSDLL_API ETEXT_DESC * __cdecl reconize_a_word(uinT32 left,uinT32 right,uinT32 top,uinT32 bottom)
 {
 return recognize->Recognize_a_Block(left,right,top,bottom);
 }

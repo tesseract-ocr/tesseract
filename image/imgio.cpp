@@ -82,11 +82,11 @@ static IMAGETYPE imagetypes[] = { {
  * has no extension, and complaining if the extension is not supported.
  **********************************************************************/
 
-static INT8 name_to_image_type(                  //get image type
+static inT8 name_to_image_type(                  //get image type
                                const char *name  //name of image
                               ) {
   const char *nametype;          //type part of name
-  INT8 type;                     //imagetypes index
+  inT8 type;                     //imagetypes index
 
   nametype = strrchr (name, '.');//find extension
   if (nametype != NULL)
@@ -112,10 +112,10 @@ static INT8 name_to_image_type(                  //get image type
  * the name.  Return is 0 for success, -1 for failure.
  **********************************************************************/
 
-INT8 IMAGE::read_header(                  //get file header
+inT8 IMAGE::read_header(                  //get file header
                         const char *name  //name of image
                        ) {
-  INT8 type;                     //image type
+  inT8 type;                     //image type
 
   destroy();  //destroy old image
                                  //get type
@@ -171,10 +171,10 @@ INT8 IMAGE::read_header(                  //get file header
  * Read returns -1 in case of failure or 0 if successful.
  **********************************************************************/
 
-INT8 IMAGE::read(                //get rest of image
-                 INT32 buflines  //size of buffer
+inT8 IMAGE::read(                //get rest of image
+                 inT32 buflines  //size of buffer
                 ) {
-  INT32 row;                     //image row
+  inT32 row;                     //image row
   BOOL8 failed;                  //read failed
 
   if (fd < 0 || image != NULL)
@@ -184,7 +184,7 @@ INT8 IMAGE::read(                //get rest of image
     buflines = ysize;            //default to all
   bufheight = buflines;
   image =
-    (UINT8 *) alloc_big_mem ((size_t) (xdim * bufheight * sizeof (UINT8)));
+    (uinT8 *) alloc_big_mem ((size_t) (xdim * bufheight * sizeof (uinT8)));
   if (image == NULL) {
     MEMORY_OUT.error ("IMAGE::read", TESSLOG, NULL);
     destroy();
@@ -226,12 +226,12 @@ INT8 IMAGE::read(                //get rest of image
  * Read a bit more of an image into the buffer.
  **********************************************************************/
 
-INT8 IMAGE::bufread(         //read more into buffer
-                    INT32 y  //required coord
+inT8 IMAGE::bufread(         //read more into buffer
+                    inT32 y  //required coord
                    ) {
-  INT32 readtop;                 //no of lines copied
-  INT32 linestoread;             //no of lines to read
-  INT32 row;                     //row to read
+  inT32 readtop;                 //no of lines copied
+  inT32 linestoread;             //no of lines to read
+  inT32 row;                     //row to read
   BOOL8 failed;                  //read failed
 
                                  //copy needed?
@@ -276,10 +276,10 @@ INT8 IMAGE::bufread(         //read more into buffer
  * Write an image to a file in a format determined by the name.
  **********************************************************************/
 
-INT8 IMAGE::write(                  //write image
+inT8 IMAGE::write(                  //write image
                   const char *name  //name to write
                  ) {
-  INT8 type;                     //type of image
+  inT8 type;                     //type of image
 
   if (bpp == 0 || image == NULL || bufheight != ysize)
     IMAGEUNDEFINED.error ("IMAGE::write", ABORT, NULL);

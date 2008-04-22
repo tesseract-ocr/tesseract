@@ -1,5 +1,5 @@
 // Copyright 2007 Google Inc. All Rights Reserved.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License"); You may not
 // use this file except in compliance with the License. You may obtain a copy of
 // the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by
@@ -15,6 +15,7 @@ import com.google.scrollview.ui.SVWindow;
 import com.google.scrollview.events.SVEvent;
 import com.google.scrollview.events.SVEventType;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -25,15 +26,17 @@ import java.awt.event.WindowListener;
 import javax.swing.Timer;
 
 import edu.umd.cs.piccolo.PCamera;
+import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
 import edu.umd.cs.piccolo.event.PInputEvent;
+import edu.umd.cs.piccolo.nodes.PPath;
 
 /**
  * The ScrollViewEventHandler takes care of any events which might happen on the
  * canvas and converts them to an according SVEvent, which is (using the
  * processEvent method) then added to a message queue. All events from the
  * message queue get sent gradually
- * 
+ *
  * @author wanke@google.com
  */
 public class SVEventHandler extends PBasicInputEventHandler implements
@@ -55,6 +58,18 @@ public class SVEventHandler extends PBasicInputEventHandler implements
    */
   private int lastXMove = 0;
   private int lastYMove = 0;
+
+  /** For Drawing a rubber-band rectangle for selection */
+  private int startX = 0;
+  private int startY = 0;
+  private float rubberBandTransparency = 0.5f;
+  private PNode selection = null;
+
+  /** The string entered since the last enter. Since the client
+   *  end eats all newlines, we can't use the newline
+   *  character, so use ! for now, as it cannot be entered
+   *  directly anyway and therefore can never show up for real. */
+  private String keyStr = "!";
 
   /** Setup the timer. */
   public SVEventHandler(SVWindow wdw) {
@@ -119,6 +134,25 @@ public class SVEventHandler extends PBasicInputEventHandler implements
         .getPosition().getX(), (int) e.getPosition().getY(), (int) e
         .getPosition().getX()
         - lastX, (int) e.getPosition().getY() - lastY, null));
+
+    // Paint a selection rectangle.
+    if (selection == null) {
+      startX = (int) e.getPosition().getX();
+      startY = (int) e.getPosition().getY();
+      selection = PPath.createRectangle(startX, startY, 1, 1);
+      selection.setTransparency(rubberBandTransparency);
+      svWindow.canvas.getLayer().addChild(selection);
+    } else {
+      int right = Math.max(startX, (int) e.getPosition().getX());
+      int left = Math.min(startX, (int) e.getPosition().getX());
+      int bottom = Math.max(startY, (int) e.getPosition().getY());
+      int top = Math.min(startY, (int) e.getPosition().getY());
+      svWindow.canvas.getLayer().removeChild(selection);
+      selection = PPath.createRectangle(left, top, right - left, bottom - top);
+      selection.setPaint(Color.YELLOW);
+      selection.setTransparency(rubberBandTransparency);
+      svWindow.canvas.getLayer().addChild(selection);
+    }
   }
 
   /**
@@ -136,6 +170,9 @@ public class SVEventHandler extends PBasicInputEventHandler implements
           .getPosition().getX(), (int) e.getPosition().getY(), (int) e
           .getPosition().getX()
           - lastX, (int) e.getPosition().getY() - lastY, null));
+    }
+    if (selection != null) {
+      svWindow.canvas.getLayer().removeChild(selection);
     }
   }
 
@@ -166,7 +203,7 @@ public class SVEventHandler extends PBasicInputEventHandler implements
         .getPosition().getX(), (int) e.getPosition().getY(), 0, 0, null));
   }
 
-  /** 
+  /**
    * The mouse entered the window.
    * Start the timer, which will then emit SVET_HOVER events every X ms. */
   @Override
@@ -175,7 +212,7 @@ public class SVEventHandler extends PBasicInputEventHandler implements
   }
 
   /**
-   * The mouse exited the window 
+   * The mouse exited the window
    * Stop the timer, so no more SVET_HOVER events will emit. */
   @Override
   public void mouseExited(PInputEvent e) {
@@ -193,15 +230,27 @@ public class SVEventHandler extends PBasicInputEventHandler implements
 
   /**
    * A key was pressed - create an SVET_INPUT event.
-   * 
+   *
    * NOTE: Might be useful to specify hotkeys.
-   * 
+   *
    * Implementation note: The keyListener provided by Piccolo seems to be
    * broken, so we use the AWT listener directly.
+   * There are never any keyTyped events received either so we are
+   * stuck with physical keys, which is very ugly.
    */
   public void keyPressed(KeyEvent e) {
-    processEvent(new SVEvent(SVEventType.SVET_INPUT, svWindow, lastXMove,
-        lastYMove, 0, 0, String.valueOf(e.getKeyChar())));
+    char keyCh = e.getKeyChar();
+    if (keyCh == '\r' || keyCh == '\n' || keyCh == '\0' || keyCh == '?') {
+      processEvent(new SVEvent(SVEventType.SVET_INPUT, svWindow, lastXMove,
+                               lastYMove, 0, 0, keyStr));
+      // Send newline characters as '!' as '!' can never be a keypressed
+      // and the client eats all newline characters.
+      keyStr = "!";
+    } else {
+      processEvent(new SVEvent(SVEventType.SVET_INPUT, svWindow, lastXMove,
+                               lastYMove, 0, 0, String.valueOf(keyCh)));
+      keyStr += keyCh;
+    }
   }
 
   /**

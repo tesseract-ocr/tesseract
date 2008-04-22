@@ -103,5 +103,5 @@ The image file requires a .tif extension for its type to be recognized
 correctly. If a file exists with the .tif extension replaced by .uzn, then it
 will be interpreted as a UNLV-style zone file. (See www.isri.unlv.edu for
 details of the zone files.)
-langid may be one of the codes defined in ISO 639-2, and you must download
+langid may be one of the codes defined in ISO 639-3, and you must download
 the corresponding data files into your tessdata directory.

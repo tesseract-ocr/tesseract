@@ -75,16 +75,16 @@
 
 typedef struct
 {
-  UINT16 tag;                    //entry tag
-  UINT16 type;
-  UINT32 length;
-  INT32 value;
+  uinT16 tag;                    //entry tag
+  uinT16 type;
+  uinT32 length;
+  inT32 value;
 } TIFFENTRY;                     //tiff tag entry
 
 typedef struct myrational
 {
-  INT32 top;
-  INT32 bottom;
+  inT32 top;
+  inT32 bottom;
 } MYRATIONAL;                    //type 5
 
 //statics for the run length codes
@@ -94,7 +94,7 @@ typedef struct myrational
 #define SHORT_CODE_SIZE   64     //no of short codes
 #define LONG_CODE_SIZE    40     //no of long codes
 
-static UINT16 short_white_codes[SHORT_CODE_SIZE] = {
+static uinT16 short_white_codes[SHORT_CODE_SIZE] = {
   0xac, 0x38, 0xe, 0x1, 0xd, 0x3, 0x7, 0xf,
   0x19, 0x5, 0x1c, 0x2, 0x4, 0x30, 0xb, 0x2b,
   0x15, 0x35, 0x72, 0x18, 0x8, 0x74, 0x60, 0x10,
@@ -104,7 +104,7 @@ static UINT16 short_white_codes[SHORT_CODE_SIZE] = {
   0xd0, 0x4a, 0xca, 0x2a, 0xaa, 0x24, 0xa4, 0x1a,
   0x9a, 0x5a, 0xda, 0x52, 0xd2, 0x4c, 0xcc, 0x2c
 };
-static UINT8 short_white_lengths[SHORT_CODE_SIZE] = {
+static uinT8 short_white_lengths[SHORT_CODE_SIZE] = {
   8, 6, 4, 4, 4, 4, 4, 4,
   5, 5, 5, 5, 6, 6, 6, 6,
   6, 6, 7, 7, 7, 7, 7, 7,
@@ -114,7 +114,7 @@ static UINT8 short_white_lengths[SHORT_CODE_SIZE] = {
   8, 8, 8, 8, 8, 8, 8, 8,
   8, 8, 8, 8, 8, 8, 8, 8
 };
-static UINT16 short_black_codes[SHORT_CODE_SIZE] = {
+static uinT16 short_black_codes[SHORT_CODE_SIZE] = {
   0x3b0, 0x2, 0x3, 0x1, 0x6, 0xc, 0x4, 0x18,
   0x28, 0x8, 0x10, 0x50, 0x70, 0x20, 0xe0, 0x30,
   0x3a0, 0x60, 0x40, 0x730, 0xb0, 0x1b0, 0x760, 0xa0,
@@ -129,7 +129,7 @@ static UINT16 short_black_codes[SHORT_CODE_SIZE] = {
   0x140, 0x1a0, 0x9a0, 0xd40,
   0x340, 0x5a0, 0x660, 0xe60
 };
-static UINT8 short_black_lengths[SHORT_CODE_SIZE] = {
+static uinT8 short_black_lengths[SHORT_CODE_SIZE] = {
   10, 3, 2, 2, 3, 4, 4, 5,
   6, 6, 7, 7, 7, 8, 8, 9,
   10, 10, 10, 11, 11, 11, 11, 11,
@@ -139,7 +139,7 @@ static UINT8 short_black_lengths[SHORT_CODE_SIZE] = {
   12, 12, 12, 12, 12, 12, 12, 12,
   12, 12, 12, 12, 12, 12, 12, 12
 };
-static UINT16 long_white_codes[LONG_CODE_SIZE] = {
+static uinT16 long_white_codes[LONG_CODE_SIZE] = {
   0x1b, 0x9, 0x3a, 0x76, 0x6c, 0xec, 0x26, 0xa6,
   0x16, 0xe6, 0x66, 0x166, 0x96, 0x196, 0x56, 0x156,
   0xd6, 0x1d6, 0x36, 0x136, 0xb6, 0x1b6, 0x32, 0x132,
@@ -147,14 +147,14 @@ static UINT16 long_white_codes[LONG_CODE_SIZE] = {
   0x80, 0x180, 0x580, 0x480, 0xc80,
   0x280, 0xa80, 0x680, 0xe80, 0x380, 0xb80, 0x780, 0xf80
 };
-static UINT8 long_white_lengths[LONG_CODE_SIZE] = {
+static uinT8 long_white_lengths[LONG_CODE_SIZE] = {
   5, 5, 6, 7, 8, 8, 8, 8,
   8, 8, 9, 9, 9, 9, 9, 9,
   9, 9, 9, 9, 9, 9, 9, 9,
   9, 6, 9, 11, 11, 11, 12, 12,
   12, 12, 12, 12, 12, 12, 12, 12
 };
-static UINT16 long_black_codes[LONG_CODE_SIZE] = {
+static uinT16 long_black_codes[LONG_CODE_SIZE] = {
   0x3c0, 0x130, 0x930, 0xda0,
   0xcc0, 0x2c0, 0xac0, 0x6c0,
   0x16c0, 0xa40, 0x1a40, 0x640,
@@ -165,7 +165,7 @@ static UINT16 long_black_codes[LONG_CODE_SIZE] = {
   0x80, 0x180, 0x580, 0x480, 0xc80,
   0x280, 0xa80, 0x680, 0xe80, 0x380, 0xb80, 0x780, 0xf80
 };
-static UINT8 long_black_lengths[LONG_CODE_SIZE] = {
+static uinT8 long_black_lengths[LONG_CODE_SIZE] = {
   10, 12, 12, 12, 12, 12, 12, 13,
   13, 13, 13, 13, 13, 13, 13, 13,
   13, 13, 13, 13, 13, 13, 13, 13,
@@ -179,19 +179,19 @@ static UINT8 long_black_lengths[LONG_CODE_SIZE] = {
  * Read the header of a tif format image and prepare to read the rest.
  **********************************************************************/
 
-INT8 open_tif_image(               //read header
+inT8 open_tif_image(               //read header
                     int fd,        //file to read
-                    INT32 *xsize,  //size of image
-                    INT32 *ysize,
-                    INT8 *bpp,     //bits per pixel
-                    INT8 *photo,   //interpretation
-                    INT32 *res     //resolution
+                    inT32 *xsize,  //size of image
+                    inT32 *ysize,
+                    inT8 *bpp,     //bits per pixel
+                    inT8 *photo,   //interpretation
+                    inT32 *res     //resolution
                    ) {
-  INT16 filetype;
-  INT32 start;                   //start of tiff directory
-  INT16 entries;                 //no of tiff entries
-  INT32 imagestart;              //location of image in file
-  INT32 resoffset;               //location of res
+  inT16 filetype;
+  inT32 start;                   //start of tiff directory
+  inT16 entries;                 //no of tiff entries
+  inT32 imagestart;              //location of image in file
+  inT32 resoffset;               //location of res
   TIFFENTRY tiffentry;           //tag table entry
   BOOL8 compressed;              //compression control
   MYRATIONAL resinfo;            //resolution
@@ -220,7 +220,7 @@ INT8 open_tif_image(               //read header
     return -1;
   }
   lseek (fd, start, 0);
-  if (read (fd, (char *) &entries, sizeof (INT16)) != sizeof (INT16)) {
+  if (read (fd, (char *) &entries, sizeof (inT16)) != sizeof (inT16)) {
     BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Size of tag table");
     return -1;
   }
@@ -254,7 +254,7 @@ INT8 open_tif_image(               //read header
       }
       else {                     //INTEL Machine
         if (filetype == MOTO)    //MOTO file on INTEL Machine
-          tiffentry.value = reverse16 ((UINT16) tiffentry.value);
+          tiffentry.value = reverse16 ((uinT16) tiffentry.value);
         //INTEL file on INTEL Machine NO ACTION NEEDED
       }
                                  //Clear top 2 MSBytes
@@ -272,7 +272,7 @@ INT8 open_tif_image(               //read header
         break;
       case 0x102:
         if (tiffentry.length == 1)
-          *bpp = (INT8) tiffentry.value;
+          *bpp = (inT8) tiffentry.value;
         else
           *bpp = 24;
         break;
@@ -295,7 +295,7 @@ INT8 open_tif_image(               //read header
         resoffset = tiffentry.value;
         break;
       case 0x106:
-        *photo = (INT8) tiffentry.value;
+        *photo = (inT8) tiffentry.value;
         break;
     }                            //endswitch
   }
@@ -340,25 +340,25 @@ INT8 open_tif_image(               //read header
  * Read a whole tif image into memory.
  **********************************************************************/
 
-INT8 read_tif_image(                //read whole image
+inT8 read_tif_image(                //read whole image
                     int fd,         //file to read
-                    UINT8 *pixels,  //pixels of image
-                    INT32 xsize,    //size of image
-                    INT32 ysize,
-                    INT8 bpp,       //bits per pixel
-                    INT32           //bytes per line
+                    uinT8 *pixels,  //pixels of image
+                    inT32 xsize,    //size of image
+                    inT32 ysize,
+                    inT8 bpp,       //bits per pixel
+                    inT32           //bytes per line
                    ) {
-  INT32 xindex;                  //indices in image
-  INT32 yindex;
-  INT32 length;                  //short length
-  INT32 biglength;               //extender
-  UINT8 *lengths;                //current lengths
-  UINT16 *codes;                 //current codes
-  UINT16 codeword;               //current code word
+  inT32 xindex;                  //indices in image
+  inT32 yindex;
+  inT32 length;                  //short length
+  inT32 biglength;               //extender
+  uinT8 *lengths;                //current lengths
+  uinT16 *codes;                 //current codes
+  uinT16 codeword;               //current code word
   IMAGELINE imageline;           //current line
   IMAGE image;                   //dummy image
   R_BITSTREAM bits;              //read bitstream
-  UINT8 colour;                  //current colour
+  uinT8 colour;                  //current colour
 
   image.capture (pixels, xsize, ysize, bpp);
   codeword = bits.open (fd);     //open bitstream
@@ -424,12 +424,12 @@ INT8 read_tif_image(                //read whole image
  * Take bits out of the stream until and end-of-line code is hit.
  **********************************************************************/
 
-INT32 read_eol(                    //read end of line
+inT32 read_eol(                    //read end of line
                R_BITSTREAM *bits,  //bitstream to read
-               UINT16 &code        //current code
+               uinT16 &code        //current code
               ) {
   BOOL8 anyones;                 //any 1 bits skipped
-  INT32 bitcount;                //total bits skipped
+  inT32 bitcount;                //total bits skipped
 
   anyones = FALSE;
   bitcount = 0;
@@ -454,14 +454,14 @@ INT32 read_eol(                    //read end of line
  * Write a whole tif format image and close the file.
  **********************************************************************/
 
-INT8 write_moto_tif(                //write whole image
+inT8 write_moto_tif(                //write whole image
                     int fd,         //file to write on
-                    UINT8 *pixels,  //image pixels
-                    INT32 xsize,    //size of image
-                    INT32 ysize,
-                    INT8 bpp,       //bits per pixel
-                    INT8 photo,
-                    INT32 res       //resolution
+                    uinT8 *pixels,  //image pixels
+                    inT32 xsize,    //size of image
+                    inT32 ysize,
+                    inT8 bpp,       //bits per pixel
+                    inT8 photo,
+                    inT32 res       //resolution
                    ) {
   return write_tif_image (fd, pixels, xsize, ysize, bpp, res, MOTO, photo);
   //use moto format
@@ -474,14 +474,14 @@ INT8 write_moto_tif(                //write whole image
  * Write a whole tif format image and close the file.
  **********************************************************************/
 
-INT8 write_intel_tif(                //write whole image
+inT8 write_intel_tif(                //write whole image
                      int fd,         //file to write on
-                     UINT8 *pixels,  //image pixels
-                     INT32 xsize,    //size of image
-                     INT32 ysize,
-                     INT8 bpp,       //bits per pixel
-                     INT8 photo,
-                     INT32 res       //resolution
+                     uinT8 *pixels,  //image pixels
+                     inT32 xsize,    //size of image
+                     inT32 ysize,
+                     inT8 bpp,       //bits per pixel
+                     inT8 photo,
+                     inT32 res       //resolution
                     ) {
   return write_tif_image (fd, pixels, xsize, ysize, bpp, res, INTEL, photo);
   //use intel format
@@ -494,14 +494,14 @@ INT8 write_intel_tif(                //write whole image
  * Write a whole tif format image and close the file.
  **********************************************************************/
 
-INT8 write_inverse_tif(                //write whole image
+inT8 write_inverse_tif(                //write whole image
                        int fd,         //file to write on
-                       UINT8 *pixels,  //image pixels
-                       INT32 xsize,    //size of image
-                       INT32 ysize,
-                       INT8 bpp,       //bits per pixel
-                       INT8 photo,
-                       INT32 res       //resolution
+                       uinT8 *pixels,  //image pixels
+                       inT32 xsize,    //size of image
+                       inT32 ysize,
+                       inT8 bpp,       //bits per pixel
+                       inT8 photo,
+                       inT32 res       //resolution
                       ) {
   return write_tif_image (fd, pixels, xsize, ysize, bpp, res, INTEL,
     1 - photo);
@@ -515,20 +515,20 @@ INT8 write_inverse_tif(                //write whole image
  * Write a whole tif format image and close the file.
  **********************************************************************/
 
-INT8 write_tif_image(                //write whole image
+inT8 write_tif_image(                //write whole image
                      int fd,         //file to write on
-                     UINT8 *pixels,  //image pixels
-                     INT32 xsize,    //size of image
-                     INT32 ysize,
-                     INT8 bpp,       //bits per pixel
-                     INT32 res,      //resolution
-                     INT16 type,     //format type
-                     INT16 photo     //metric interp
+                     uinT8 *pixels,  //image pixels
+                     inT32 xsize,    //size of image
+                     inT32 ysize,
+                     inT8 bpp,       //bits per pixel
+                     inT32 res,      //resolution
+                     inT16 type,     //format type
+                     inT16 photo     //metric interp
                     ) {
-  INT32 size;                    //line/image size
-  INT16 entries;                 //no of tiff entries
-  INT32 start;                   //start of tag table
-  INT32 zero = 0;
+  inT32 size;                    //line/image size
+  inT16 entries;                 //no of tiff entries
+  inT32 start;                   //start of tag table
+  inT32 zero = 0;
   MYRATIONAL resolution;         //resolution
   TIFFENTRY entry;               //current entry
 
@@ -545,7 +545,7 @@ INT8 write_tif_image(                //write whole image
     {0x10a, 3, 1, 1},
     {
       0x111, 4, 1, START + ENTRIES * sizeof (TIFFENTRY)
-      + sizeof (INT32) + sizeof (short) + sizeof (MYRATIONAL) * 2
+      + sizeof (inT32) + sizeof (short) + sizeof (MYRATIONAL) * 2
     }
     ,
     {0x112, 3, 1, 1}
@@ -562,11 +562,11 @@ INT8 write_tif_image(                //write whole image
     ,
     {
       0x11a, 5, 1, START + ENTRIES * sizeof (TIFFENTRY)
-      + sizeof (INT32) + sizeof (short)
+      + sizeof (inT32) + sizeof (short)
     },
     {
       0x11b, 5, 1, START + ENTRIES * sizeof (TIFFENTRY)
-      + sizeof (INT32) + sizeof (short) + sizeof (MYRATIONAL)
+      + sizeof (inT32) + sizeof (short) + sizeof (MYRATIONAL)
     }
     ,
     {0x11c, 3, 1, 1}
@@ -650,7 +650,7 @@ INT8 write_tif_image(                //write whole image
       }
       else {                     //INTEL Machine
         if (type == MOTO)        //MOTO file on INTEL Machine
-          entry.value = reverse16 ((UINT16) entry.value);
+          entry.value = reverse16 ((uinT16) entry.value);
         //INTEL file on INTEL Machine NO ACTION NEEDED
       }
     }
@@ -694,8 +694,8 @@ INT8 write_tif_image(                //write whole image
  * Byte swap the 32 bit number between Motorola & Intel format.
  **********************************************************************/
 
-//INT32                                                         reverse32(                                                      //reverse 32 bit int
-//UINT32                                                        value                                                                   //value to reverse
+//inT32                                                         reverse32(                                                      //reverse 32 bit int
+//uinT32                                                        value                                                                   //value to reverse
 //)
 //{
 //      return (value>>24) | (value>>8) & 0xff00
@@ -708,8 +708,8 @@ INT8 write_tif_image(                //write whole image
  * Byte swap the 16 bit number between Motorola & Intel format.
  **********************************************************************/
 
-//INT16                                                         reverse16(                                                      //reverse 16 bit int
-//UINT16                                                        value                                                                   //value to reverse
+//inT16                                                         reverse16(                                                      //reverse 16 bit int
+//uinT16                                                        value                                                                   //value to reverse
 //)
 //{
 //      return (value>>8) | (value<<8);

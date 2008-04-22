@@ -4,7 +4,7 @@ ver=`ls -1rt *[0-9].tar.gz |tail -1`
 ver=${ver%.tar.gz}
 for l in eng deu fra ita spa nld por deu-f vie kan
 do
-	chmod 644 tessdata/$l.*
-	tar --group root --owner root -chozf $ver.$l.tar.gz tessdata/$l.*
+        chmod 644 tessdata/$l.*
+        tar --group root --owner root -chozf $ver.$l.tar.gz tessdata/$l.*
 done
 tar chozf $ver.exe.tar.gz $winlist

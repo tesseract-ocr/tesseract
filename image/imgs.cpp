@@ -34,13 +34,8 @@
 #endif
 
 #ifdef HAVE_LIBLEPT
-// The jpeg library still has INT32 as long, which is no good for 64 bit.
-#define INT32 WRONGINT32
-#define BOX LEPT_BOX
 // Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"
-#undef BOX
-#undef INT32
 #endif
 
 #include          "stderr.h"
@@ -58,7 +53,7 @@
 #define MAX_6BIT      128
 #define BLACK_PIX     0
 
-static UINT8 grey_scales[FIXED_COLOURS] = {
+static uinT8 grey_scales[FIXED_COLOURS] = {
   0, 255, 76, 227, 151, 179, 28, 104,
   149, 72, 215, 67, 53, 44, 156, 137,
   110, 153, 79, 181, 166, 218, 55, 81,
@@ -125,17 +120,17 @@ IMAGE & source                   //source image
  * Create an image (allocate memory) of a specific size and bpp.
  **********************************************************************/
 
-INT8 IMAGE::create(                     //get rest of image
-                   INT32 x,             //x size required
-                   INT32 y,             //ysize required
-                   INT8 bits_per_pixel  //bpp required
+inT8 IMAGE::create(                     //get rest of image
+                   inT32 x,             //x size required
+                   inT32 y,             //ysize required
+                   inT8 bits_per_pixel  //bpp required
                   ) {
-  UINT8 *pixels;                 //memory for image
+  uinT8 *pixels;                 //memory for image
 
   xdim = check_legal_image_size (x, y, bits_per_pixel);
   if (xdim < 0)
     return -1;
-  pixels = (UINT8 *) alloc_big_zeros ((size_t) (xdim * y * sizeof (UINT8)));
+  pixels = (uinT8 *) alloc_big_zeros ((size_t) (xdim * y * sizeof (uinT8)));
   if (pixels == NULL) {
     MEMORY_OUT.error ("IMAGE::create", ABORT, "Size=(%d,%d)", xdim, y);
     return -1;
@@ -174,11 +169,11 @@ void IMAGE::destroy() {  //get rid of image
  * given size and bpp.
  **********************************************************************/
 
-INT8 IMAGE::capture(                     //get rest of image
-                    UINT8 *pixels,       //image memory
-                    INT32 x,             //x size required
-                    INT32 y,             //ysize required
-                    INT8 bits_per_pixel  //bpp required
+inT8 IMAGE::capture(                     //get rest of image
+                    uinT8 *pixels,       //image memory
+                    inT32 x,             //x size required
+                    inT32 y,             //ysize required
+                    inT8 bits_per_pixel  //bpp required
                    ) {
   destroy();
   xdim = check_legal_image_size (x, y, bits_per_pixel);
@@ -206,9 +201,9 @@ INT8 IMAGE::capture(                     //get rest of image
  * Get a single pixel out of the image.
  **********************************************************************/
 
-UINT8 IMAGE::pixel(          //get rest of image
-                   INT32 x,  //x coord
-                   INT32 y   //y coord
+uinT8 IMAGE::pixel(          //get rest of image
+                   inT32 x,  //x coord
+                   inT32 y   //y coord
                   ) {
   if (x < 0)
     x = 0;                       //silently clip
@@ -244,10 +239,10 @@ UINT8 IMAGE::pixel(          //get rest of image
  * the xdim is returned, else -1.
  **********************************************************************/
 
-INT32 check_legal_image_size(                     //get rest of image
-                             INT32 x,             //x size required
-                             INT32 y,             //ysize required
-                             INT8 bits_per_pixel  //bpp required
+inT32 check_legal_image_size(                     //get rest of image
+                             inT32 x,             //x size required
+                             inT32 y,             //ysize required
+                             inT8 bits_per_pixel  //bpp required
                             ) {
   if (x <= 0 || y <= 0) {
     BADIMAGESIZE.error ("check_legal_image_size", TESSLOG, "(%d,%d)", x, y);
@@ -274,23 +269,23 @@ INT32 check_legal_image_size(                     //get rest of image
 
 DLLSYM void copy_sub_image(                   //copy rectangle
                            IMAGE *source,     //source image
-                           INT32 xstart,      //start coords
-                           INT32 ystart,
-                           INT32 xext,        //extent to copy
-                           INT32 yext,
+                           inT32 xstart,      //start coords
+                           inT32 ystart,
+                           inT32 xext,        //extent to copy
+                           inT32 yext,
                            IMAGE *dest,       //destination image
-                           INT32 xdest,       //destination coords
-                           INT32 ydest,
+                           inT32 xdest,       //destination coords
+                           inT32 ydest,
                            BOOL8 adjust_grey  //shift to new bpp
                           ) {
   IMAGELINE copyline;            //copy of line
-  UINT8 *copy;                   //source pointer
-  INT8 shift;                    //shift factor
-  INT32 pixel;                   //pixel index
-  INT32 y;                       //line index
-  INT32 yoffset;                 //current adjusted offset
-  INT32 bytesize;                //no of bytes to copy
-  INT32 srcppb;                  //pixels per byte
+  uinT8 *copy;                   //source pointer
+  inT8 shift;                    //shift factor
+  inT32 pixel;                   //pixel index
+  inT32 y;                       //line index
+  inT32 yoffset;                 //current adjusted offset
+  inT32 bytesize;                //no of bytes to copy
+  inT32 srcppb;                  //pixels per byte
   BOOL8 aligned;
 
   if (xstart < 0 || ystart < 0 || xdest < 0 || ydest < 0)
@@ -402,26 +397,26 @@ DLLSYM void copy_sub_image(                   //copy rectangle
 
 DLLSYM void enlarge_sub_image(                   //enlarge rectangle
                               IMAGE *source,     //source image
-                              INT32 xstart,      //scaled start coords
-                              INT32 ystart,
+                              inT32 xstart,      //scaled start coords
+                              inT32 ystart,
                               IMAGE *dest,       //destination image
-                              INT32 xdest,       //dest coords
-                              INT32 ydest,
-                              INT32 xext,        //destination extent
-                              INT32 yext,
-                              INT32 scale,       //scale factor
+                              inT32 xdest,       //dest coords
+                              inT32 ydest,
+                              inT32 xext,        //destination extent
+                              inT32 yext,
+                              inT32 scale,       //scale factor
                               BOOL8 adjust_grey  //shift to new bpp
                              ) {
-  INT8 shift;                    //shift factor
-  UINT8 pixel;                   //current pixel
-  INT32 srcext;                  //source extent
-  INT32 xoffset;                 //column index
-  INT32 yoffset;                 //line index
-  INT32 xindex, yindex;          //index in super pixel
-  INT32 startxindex;             //initial x index
-  INT32 xscale;                  //x scale factor
-  UINT8 *src;                    //source pixels
-  UINT8 *destpix;                //dest pixels
+  inT8 shift;                    //shift factor
+  uinT8 pixel;                   //current pixel
+  inT32 srcext;                  //source extent
+  inT32 xoffset;                 //column index
+  inT32 yoffset;                 //line index
+  inT32 xindex, yindex;          //index in super pixel
+  inT32 startxindex;             //initial x index
+  inT32 xscale;                  //x scale factor
+  uinT8 *src;                    //source pixels
+  uinT8 *destpix;                //dest pixels
   IMAGELINE copyline;            //copy of line
   IMAGELINE bigline;             //expanded line
 
@@ -520,27 +515,27 @@ DLLSYM void enlarge_sub_image(                   //enlarge rectangle
 
 DLLSYM void fast_reduce_sub_image(                   //reduce rectangle
                                   IMAGE *source,     //source image
-                                  INT32 xstart,      //start coords
-                                  INT32 ystart,
-                                  INT32 xext,        //extent to copy
-                                  INT32 yext,
+                                  inT32 xstart,      //start coords
+                                  inT32 ystart,
+                                  inT32 xext,        //extent to copy
+                                  inT32 yext,
                                   IMAGE *dest,       //destination image
-                                  INT32 xdest,       //destination coords
-                                  INT32 ydest,
-                                  INT32 scale,       //reduction factor
+                                  inT32 xdest,       //destination coords
+                                  inT32 ydest,
+                                  inT32 scale,       //reduction factor
                                   BOOL8 adjust_grey  //shift to new bpp
                                  ) {
-  INT8 shift;                    //shift factor
-  INT32 xfactor;                 //run on x coord
-  INT32 divisor;                 //total cell area
-  INT32 xindex, yindex;          //into averaging square
-  INT32 xcoord;                  //current x coord
-  INT32 destext;                 //destination size
-  INT32 yoffset;                 //current adjusted offset
-  UINT8 *pixel;                  //ptr to source pixels
-  INT32 *sums;                   //ptr to sums array
+  inT8 shift;                    //shift factor
+  inT32 xfactor;                 //run on x coord
+  inT32 divisor;                 //total cell area
+  inT32 xindex, yindex;          //into averaging square
+  inT32 xcoord;                  //current x coord
+  inT32 destext;                 //destination size
+  inT32 yoffset;                 //current adjusted offset
+  uinT8 *pixel;                  //ptr to source pixels
+  inT32 *sums;                   //ptr to sums array
   IMAGELINE copyline;            //copy of line
-  INT32 *linesums;               //averaging sums
+  inT32 *linesums;               //averaging sums
 
   if (xstart < 0 || ystart < 0 || xdest < 0 || ydest < 0)
     return;
@@ -571,7 +566,7 @@ DLLSYM void fast_reduce_sub_image(                   //reduce rectangle
     shift = dest->bps - source->bps;
   else
     shift = 0;                   //no adjustment
-  linesums = new INT32[destext * source->bytespp];
+  linesums = new inT32[destext * source->bytespp];
 
   for (yoffset = 0; yoffset < yext; ydest++) {
     source->check_legal_access (xstart, ystart + yoffset, xext);
@@ -630,7 +625,7 @@ DLLSYM void fast_reduce_sub_image(                   //reduce rectangle
       for (sums = linesums, xindex = (destext - 1) * source->bytespp;
         xindex > 0; xindex--)
                                  //turn to destination value
-      *pixel++ = (UINT8) (*sums++ / divisor);
+      *pixel++ = (uinT8) (*sums++ / divisor);
       for (xindex = source->bytespp; xindex > 0; xindex--)
         *pixel++ = *sums++
           / (((yindex + 2) / 3) * ((xfactor + 1) / 2) << (-shift));
@@ -639,7 +634,7 @@ DLLSYM void fast_reduce_sub_image(                   //reduce rectangle
     else {
       for (sums = linesums, xindex = (destext - 1) * source->bytespp;
         xindex > 0; xindex--)
-      *pixel++ = (UINT8) ((*sums++ << shift) / divisor);
+      *pixel++ = (uinT8) ((*sums++ << shift) / divisor);
       //destination value
       for (xindex = source->bytespp; xindex > 0; xindex--)
                                  //last one different
@@ -662,28 +657,28 @@ DLLSYM void fast_reduce_sub_image(                   //reduce rectangle
 
 DLLSYM void reduce_sub_image(                   //reduce rectangle
                              IMAGE *source,     //source image
-                             INT32 xstart,      //start coords
-                             INT32 ystart,
-                             INT32 xext,        //extent to copy
-                             INT32 yext,
+                             inT32 xstart,      //start coords
+                             inT32 ystart,
+                             inT32 xext,        //extent to copy
+                             inT32 yext,
                              IMAGE *dest,       //destination image
-                             INT32 xdest,       //destination coords
-                             INT32 ydest,
-                             INT32 scale,       //reduction factor
+                             inT32 xdest,       //destination coords
+                             inT32 ydest,
+                             inT32 scale,       //reduction factor
                              BOOL8 adjust_grey  //shift to new bpp
                             ) {
-  INT8 shift;                    //shift factor
-  INT32 xfactor;                 //run on x coord
-  INT32 divisor;                 //total cell area
-  INT32 div2;                    //total cell area divided by 2
-  INT32 xindex, yindex;          //into averaging square
-  INT32 xcoord;                  //current x coord
-  INT32 destext;                 //destination size
-  INT32 yoffset;                 //current adjusted offset
-  UINT8 *pixel;                  //ptr to source pixels
-  INT32 *sums;                   //ptr to sums array
+  inT8 shift;                    //shift factor
+  inT32 xfactor;                 //run on x coord
+  inT32 divisor;                 //total cell area
+  inT32 div2;                    //total cell area divided by 2
+  inT32 xindex, yindex;          //into averaging square
+  inT32 xcoord;                  //current x coord
+  inT32 destext;                 //destination size
+  inT32 yoffset;                 //current adjusted offset
+  uinT8 *pixel;                  //ptr to source pixels
+  inT32 *sums;                   //ptr to sums array
   IMAGELINE copyline;            //copy of line
-  INT32 *linesums;               //averaging sums
+  inT32 *linesums;               //averaging sums
 
   if (xstart < 0 || ystart < 0 || xdest < 0 || ydest < 0)
     return;
@@ -714,7 +709,7 @@ DLLSYM void reduce_sub_image(                   //reduce rectangle
     shift = dest->bps - source->bps;
   else
     shift = 0;                   //no adjustment
-  linesums = new INT32[destext * source->bytespp];
+  linesums = new inT32[destext * source->bytespp];
 
   for (yoffset = 0; yoffset < yext; ydest++) {
     source->check_legal_access (xstart, ystart + yoffset, xext);
@@ -766,24 +761,24 @@ DLLSYM void reduce_sub_image(                   //reduce rectangle
       div2 = divisor / 2;
       for (sums = linesums, xindex = (destext - 1) * source->bytespp;
         xindex > 0; xindex--)
-      *pixel++ = (UINT8) ((div2 + *sums++) / divisor);
+      *pixel++ = (uinT8) ((div2 + *sums++) / divisor);
       //turn to destination value
       div2 = (yindex * xfactor << (-shift)) / 2;
       for (xindex = source->bytespp; xindex > 0; xindex--)
         *pixel++ =
-          (UINT8) ((div2 + *sums++) / (yindex * xfactor << (-shift)));
+          (uinT8) ((div2 + *sums++) / (yindex * xfactor << (-shift)));
       //lastone different
     }
     else {
       div2 = divisor / 2;
       for (sums = linesums, xindex = (destext - 1) * source->bytespp;
         xindex > 0; xindex--)
-      *pixel++ = (UINT8) ((div2 + (*sums++ << shift)) / divisor);
+      *pixel++ = (uinT8) ((div2 + (*sums++ << shift)) / divisor);
       //destination value
       div2 = (yindex * xfactor) / 2;
       for (xindex = source->bytespp; xindex > 0; xindex--)
         *pixel++ =
-          (UINT8) ((div2 + (*sums++ << shift)) / (yindex * xfactor));
+          (uinT8) ((div2 + (*sums++ << shift)) / (yindex * xfactor));
       //last one different
     }
                                  //put in destination
@@ -802,11 +797,11 @@ DLLSYM void reduce_sub_image(                   //reduce rectangle
 DLLSYM void invert_image(              /*invert the image */
                          IMAGE *image  /*image ot invert */
                         ) {
-  UINT8 mask;                    //bit mask
-  UINT8 bytespp;                 //bytes per pixel
-  INT32 xsize, ysize;            /*size of image */
-  INT32 xindex, yindex;          /*index into image */
-  UINT8 *pixel;                  /*current pixel */
+  uinT8 mask;                    //bit mask
+  uinT8 bytespp;                 //bytes per pixel
+  inT32 xsize, ysize;            /*size of image */
+  inT32 xindex, yindex;          /*index into image */
+  uinT8 *pixel;                  /*current pixel */
   IMAGELINE line;                /*line of image */
 
   bytespp = image->get_bpp () == 24 ? 3 : 1;
@@ -836,17 +831,17 @@ DLLSYM void invert_image(              /*invert the image */
 
 DLLSYM void bias_sub_image(                //bias rectangle
                            IMAGE *source,  //source image
-                           INT32 xstart,   //start coords
-                           INT32 ystart,
-                           INT32 xext,     //extent to copy
-                           INT32 yext,
-                           UINT8 bias      //number to add
+                           inT32 xstart,   //start coords
+                           inT32 ystart,
+                           inT32 xext,     //extent to copy
+                           inT32 yext,
+                           uinT8 bias      //number to add
                           ) {
   IMAGELINE copyline;            //copy of line
-  UINT8 *copy;                   //source pointer
-  INT32 pixel;                   //pixel index
-  INT32 y;                       //line index
-  UINT8 bytespp;                 //bytes per pixel
+  uinT8 *copy;                   //source pointer
+  inT32 pixel;                   //pixel index
+  inT32 y;                       //line index
+  uinT8 bytespp;                 //bytes per pixel
 
   if (xstart < 0 || ystart < 0)
     return;
@@ -886,25 +881,25 @@ DLLSYM void bias_sub_image(                //bias rectangle
 
 DLLSYM void starbase_to_normal(                     //copy rectangle
                                IMAGE *source,       //source image
-                               INT32 xstart,        //start coords
-                               INT32 ystart,
-                               INT32 xext,          //extent to copy
-                               INT32 yext,
+                               inT32 xstart,        //start coords
+                               inT32 ystart,
+                               inT32 xext,          //extent to copy
+                               inT32 yext,
                                IMAGE *dest,         //destination image
-                               INT32 xdest,         //destination coords
-                               INT32 ydest,
+                               inT32 xdest,         //destination coords
+                               inT32 ydest,
                                BOOL8 preserve_grey  //shift to new bpp
                               ) {
   IMAGELINE copyline;            //copy of line
-  UINT8 *copy;                   //source pointer
-  INT8 shift4;                   //shift factor
-  INT8 shift6;                   //shift factor
-  INT8 colour_shift;             //shift of colours
-  UINT8 white_level;             //dest white value
-  INT32 pixel;                   //pixel index
-  INT32 y;                       //line index
-  INT32 yoffset;                 //current adjusted offset
-  INT8 srcppb;                   //pixels per byte
+  uinT8 *copy;                   //source pointer
+  inT8 shift4;                   //shift factor
+  inT8 shift6;                   //shift factor
+  inT8 colour_shift;             //shift of colours
+  uinT8 white_level;             //dest white value
+  inT32 pixel;                   //pixel index
+  inT32 y;                       //line index
+  inT32 yoffset;                 //current adjusted offset
+  inT8 srcppb;                   //pixels per byte
 
   if (xstart < 0 || ystart < 0 || xdest < 0 || ydest < 0)
     return;
@@ -981,9 +976,9 @@ DLLSYM void starbase_to_normal(                     //copy rectangle
  **********************************************************************/
 
 void IMAGE::fast_get_line(                    //get image line
-                          INT32 x,            //coord to start at
-                          INT32 y,            //line to get
-                          INT32 width,        //no of pixels to get
+                          inT32 x,            //coord to start at
+                          inT32 y,            //line to get
+                          inT32 width,        //no of pixels to get
                           IMAGELINE *linebuf  //line to copy to
                          ) {
   if (width > 0 && bpp > 4) {
@@ -1006,19 +1001,19 @@ void IMAGE::fast_get_line(                    //get image line
  **********************************************************************/
 
 void IMAGE::get_line(                     //get image line
-                     INT32 x,             //coord to start at
-                     INT32 y,             //line to get
-                     INT32 width,         //no of pixels to get
+                     inT32 x,             //coord to start at
+                     inT32 y,             //line to get
+                     inT32 width,         //no of pixels to get
                      IMAGELINE *linebuf,  //line to copy to
-                     INT32 margins        //size of margins
+                     inT32 margins        //size of margins
                     ) {
-  UINT8 *src;                    //source pointer
-  UINT8 *dest;                   //destination pointer
-  UINT8 *unpacksrc;              //unpacking pointer
-  INT8 bit;                      //bit index
-  INT8 pixperbyte;               //pixels per byte
-  UINT8 white;                   //white colour
-  INT32 pixel;                   //pixel index
+  uinT8 *src;                    //source pointer
+  uinT8 *dest;                   //destination pointer
+  uinT8 *unpacksrc;              //unpacking pointer
+  inT8 bit;                      //bit index
+  inT8 pixperbyte;               //pixels per byte
+  uinT8 white;                   //white colour
+  inT32 pixel;                   //pixel index
 
                                  //test coords
   this->check_legal_access (x, y, width);
@@ -1063,12 +1058,12 @@ void IMAGE::get_line(                     //get image line
     else if (bpp == 2) {
       pixperbyte = 4;
       src += x / 4;              //offset on line
-      bit = (INT8) (x % 4);      //offset in byte
+      bit = (inT8) (x % 4);      //offset in byte
       width += bit;
       while (width > 0) {        //until all done
         if (width < pixperbyte)
                                  //less on last byte
-          pixperbyte = (INT8) width;
+          pixperbyte = (inT8) width;
                                  //get coded bits
         unpacksrc = &bpp2table[*src++][bit];
         for (; bit < pixperbyte; bit++)
@@ -1080,12 +1075,12 @@ void IMAGE::get_line(                     //get image line
     else {
       pixperbyte = 8;
       src += x / 8;              //offset on line
-      bit = (INT8) (x % 8);      //offset in byte
+      bit = (inT8) (x % 8);      //offset in byte
       width += bit;
       while (width > 0) {        //until all done
         if (width < pixperbyte)
                                  //less on last byte
-          pixperbyte = (INT8) width;
+          pixperbyte = (inT8) width;
                                  //get coded bits
         unpacksrc = &bpp1table[*src++][bit];
         for (; bit < pixperbyte; bit++)
@@ -1109,18 +1104,18 @@ void IMAGE::get_line(                     //get image line
  **********************************************************************/
 
 void IMAGE::get_column(                     //get image column
-                       INT32 x,             //coord to start at
-                       INT32 y,             //line to get
-                       INT32 height,        //no of pixels to get
+                       inT32 x,             //coord to start at
+                       inT32 y,             //line to get
+                       inT32 height,        //no of pixels to get
                        IMAGELINE *linebuf,  //line to copy to
-                       INT32 margins        //size of margins
+                       inT32 margins        //size of margins
                       ) {
-  UINT8 *src;                    //source pointer
-  UINT8 *dest;                   //destination pointer
-  INT8 bit;                      //bit index
-  INT8 pixperbyte;               //pixels per byte
-  UINT8 white;                   //white colour
-  INT32 pixel;                   //pixel index
+  uinT8 *src;                    //source pointer
+  uinT8 *dest;                   //destination pointer
+  inT8 bit;                      //bit index
+  inT8 pixperbyte;               //pixels per byte
+  uinT8 white;                   //white colour
+  inT32 pixel;                   //pixel index
 
                                  //test coords
   this->check_legal_access (x, y, 1);
@@ -1174,7 +1169,7 @@ void IMAGE::get_column(                     //get image column
     else if (bpp == 2) {
       pixperbyte = 4;
       src += x / 4;              //offset on line
-      bit = (INT8) (x % 4);      //offset in byte
+      bit = (inT8) (x % 4);      //offset in byte
       for (; height > 0; --height) {
                                  //get coded bits
         *dest++ = bpp2table[*src][bit];
@@ -1184,7 +1179,7 @@ void IMAGE::get_column(                     //get image column
     else {
       pixperbyte = 8;
       src += x / 8;              //offset on line
-      bit = (INT8) (x % 8);      //offset in byte
+      bit = (inT8) (x % 8);      //offset in byte
       for (; height > 0; --height) {
                                  //get coded bits
         *dest++ = bpp1table[*src][bit];
@@ -1207,9 +1202,9 @@ void IMAGE::get_column(                     //get image column
  **********************************************************************/
 
 void IMAGE::fast_put_line(                    //put image line
-                          INT32 x,            //coord to start at
-                          INT32 y,            //line to get
-                          INT32 width,        //no of pixels to put
+                          inT32 x,            //coord to start at
+                          inT32 y,            //line to get
+                          inT32 width,        //no of pixels to put
                           IMAGELINE *linebuf  //line to copy to
                          ) {
   if (width > 0 && (bpp <= 4 || linebuf->pixels == linebuf->line))
@@ -1226,18 +1221,18 @@ void IMAGE::fast_put_line(                    //put image line
  **********************************************************************/
 
 void IMAGE::put_line(                     //put image line
-                     INT32 x,             //coord to start at
-                     INT32 y,             //line to get
-                     INT32 width,         //no of pixels to get
+                     inT32 x,             //coord to start at
+                     inT32 y,             //line to get
+                     inT32 width,         //no of pixels to get
                      IMAGELINE *linebuf,  //line to copy to
-                     INT32 margins        //margins in buffer
+                     inT32 margins        //margins in buffer
                     ) {
-  UINT8 *src;                    //source pointer
-  UINT8 *dest;                   //destination pointer
-  INT8 bit;                      //bit index
-  UINT8 pixel;                   //collected bits
-  INT8 pixperbyte;               //pixels in a byte
-  INT8 bytesperpix;              //in source
+  uinT8 *src;                    //source pointer
+  uinT8 *dest;                   //destination pointer
+  inT8 bit;                      //bit index
+  uinT8 pixel;                   //collected bits
+  inT8 pixperbyte;               //pixels in a byte
+  inT8 bytesperpix;              //in source
 
   this->check_legal_access (x, y, width);
   if (width > xsize - x)
@@ -1308,7 +1303,7 @@ void IMAGE::put_line(                     //put image line
   else if (bpp == 2) {
     pixperbyte = 4;
     dest += x / 4;               //offset on line
-    bit = (INT8) (x % 4);        //offset in byte
+    bit = (inT8) (x % 4);        //offset in byte
     width += bit;
     pixel = *dest >> (8 - bit - bit);
     while (width >= 4) {         //until all done
@@ -1336,7 +1331,7 @@ void IMAGE::put_line(                     //put image line
   else {
     pixperbyte = 8;
     dest += x / 8;               //offset on line
-    bit = (INT8) (x % 8);        //offset in byte
+    bit = (inT8) (x % 8);        //offset in byte
     width += bit;
     pixel = *dest >> (8 - bit);
     while (width >= 8) {         //until all done
@@ -1375,17 +1370,17 @@ void IMAGE::put_line(                     //put image line
  **********************************************************************/
 
 void IMAGE::put_column(                     //put image column
-                       INT32 x,             //coord to start at
-                       INT32 y,             //line to get
-                       INT32 height,        //no of pixels to get
+                       inT32 x,             //coord to start at
+                       inT32 y,             //line to get
+                       inT32 height,        //no of pixels to get
                        IMAGELINE *linebuf,  //line to copy to
-                       INT32 margins        //margins in buffer
+                       inT32 margins        //margins in buffer
                       ) {
-  UINT8 *src;                    //source pointer
-  UINT8 *dest;                   //destination pointer
-  INT8 bit;                      //bit index
-  UINT8 pixel;                   //collected bits
-  INT8 bytesperpix;              //in source
+  uinT8 *src;                    //source pointer
+  uinT8 *dest;                   //destination pointer
+  inT8 bit;                      //bit index
+  uinT8 pixel;                   //collected bits
+  inT8 bytesperpix;              //in source
 
   this->check_legal_access (x, y, 1);
   this->check_legal_access (x, y + height - 1, 1);
@@ -1455,7 +1450,7 @@ void IMAGE::put_column(                     //put image column
   }
   else if (bpp == 2) {
     dest += x / 4;               //offset on line
-    bit = (INT8) (x % 4);        //offset in byte
+    bit = (inT8) (x % 4);        //offset in byte
     bit = 6 - bit - bit;         //bit shift
     pixel = ~(3 << bit);         //mask
     for (; height > 0; --height) {
@@ -1467,7 +1462,7 @@ void IMAGE::put_column(                     //put image column
   }
   else {
     dest += x / 8;               //offset on line
-    bit = (INT8) (x % 8);        //offset in byte
+    bit = (inT8) (x % 8);        //offset in byte
     bit = 7 - bit;
     pixel = ~(1 << bit);
     for (; height > 0; --height) {
@@ -1488,9 +1483,9 @@ void IMAGE::put_column(                     //put image column
  **********************************************************************/
 
 void IMAGE::check_legal_access(            //check coords are legal
-                               INT32 x,    //coords to check
-                               INT32 y,
-                               INT32 xext  //xextent
+                               inT32 x,    //coords to check
+                               inT32 y,
+                               inT32 xext  //xextent
                               ) {
   if (x < 0 || x >= xsize || y < 0 || y >= ysize || x + xext > xsize)
     BADIMAGECOORDS.error ("IMAGE::check_legal_access",
@@ -1647,33 +1642,33 @@ void IMAGE::FromPix(const Pix* src_pix) {
 
 void
 IMAGE::convolver (               //Map fn over window
-INT32 win_width,                 //Window width
-INT32 win_height,                //Window height
+inT32 win_width,                 //Window width
+inT32 win_height,                //Window height
 void (*convolve) (               //Conv Function
-UINT8 ** pixels,                 //Of window
-UINT8 bytespp,                   //1 or 3 for colour
-INT32 win_wd,                    //Window width
-INT32 win_ht,                    //Window height
-UINT8 ret_white_value,           //White value to RETURN
-UINT8 * result)                  //Ptr to result pix
+uinT8 ** pixels,                 //Of window
+uinT8 bytespp,                   //1 or 3 for colour
+inT32 win_wd,                    //Window width
+inT32 win_ht,                    //Window height
+uinT8 ret_white_value,           //White value to RETURN
+uinT8 * result)                  //Ptr to result pix
 ) {
   IMAGELINE new_row;             //Replacement pixels
   IMAGELINE *old_rows;           //Rows being processed
-  INT32 oldest_imline;           //Next imline to replace
-  UINT8 **window;                //ptrs to pixel rows
-  UINT8 **winmax;                //ptrs to pixel rows
-  UINT8 **win;                   //ptrs to pixel rows
-  INT32 current_row;             //Row being calculated
-  INT32 current_col;             //Col being calculated
-  INT32 row = 0;                 //Next row to get
+  inT32 oldest_imline;           //Next imline to replace
+  uinT8 **window;                //ptrs to pixel rows
+  uinT8 **winmax;                //ptrs to pixel rows
+  uinT8 **win;                   //ptrs to pixel rows
+  inT32 current_row;             //Row being calculated
+  inT32 current_col;             //Col being calculated
+  inT32 row = 0;                 //Next row to get
 
-  INT32 i, j;
-  UINT8 *pix;
-  UINT8 *max;
-  INT32 xmargin = win_width / 2;
-  INT32 ymargin = win_height / 2;
-  UINT8 white = get_white_level ();
-  const UINT8 max_white = 255;
+  inT32 i, j;
+  uinT8 *pix;
+  uinT8 *max;
+  inT32 xmargin = win_width / 2;
+  inT32 ymargin = win_height / 2;
+  uinT8 white = get_white_level ();
+  const uinT8 max_white = 255;
   float white_scale = (float) 255 / get_white_level ();
 
   if (((win_width % 2) == 0) ||
@@ -1691,7 +1686,7 @@ UINT8 * result)                  //Ptr to result pix
     old_rows[i].set_bpp (bpp);
   }
 
-  window = (UINT8 **) alloc_mem (win_height * sizeof (UINT8 *));
+  window = (uinT8 **) alloc_mem (win_height * sizeof (uinT8 *));
   winmax = window + win_height;
 
   /* Make bottom border */
@@ -1708,7 +1703,7 @@ UINT8 * result)                  //Ptr to result pix
       pix = old_rows[oldest_imline].pixels;
       max = pix + (xsize + 2 * xmargin) * bytespp;
       while (pix < max) {
-        *pix = (UINT8) (*pix * white_scale);
+        *pix = (uinT8) (*pix * white_scale);
         ++pix;
       }
     }
@@ -1724,7 +1719,7 @@ UINT8 * result)                  //Ptr to result pix
         pix = old_rows[oldest_imline].pixels;
         max = pix + (xsize + 2 * xmargin) * bytespp;
         while (pix < max) {
-          *pix = (UINT8) (*pix * white_scale);
+          *pix = (uinT8) (*pix * white_scale);
           ++pix;
         }
       }

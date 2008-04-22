@@ -1,4 +1,4 @@
-Tesseract release notes January 23 2008 - V2.02
+Tesseract release notes April 21 2008 - V2.02
 Improvements to clustering, training and classifier.
 Major internationalization improvements for large-character-set
 languages, eg Kannada.
@@ -10,6 +10,9 @@ Added leptonica support for more file types.
 Improved Init/End to make them safe.
 Reduced memory use of dictionaries.
 Added some new APIs to TessBaseAPI.
+Fixed namespace collisions with jpeg library (INT32).
+Portability fixes for Windows for new code.
+Updates to autoconf system for new code.
 
 Tesseract release notes August 27 2007 - V2.01
 Fixed UTF8 input problems with box file reader.

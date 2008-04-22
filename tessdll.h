@@ -44,7 +44,7 @@ class TESSDLL_API TessDllAPI : public TessBaseAPI
 {
  public:
   //lang is the code of the language for which the data will be loaded.
-  //(Codes follow ISO 639-2.) If it is NULL, english (eng) will be loaded.
+  //(Codes follow ISO 639-3.) If it is NULL, english (eng) will be loaded.
   TessDllAPI(const char* lang = NULL) ;
   ~TessDllAPI ();
 
@@ -53,12 +53,12 @@ class TESSDLL_API TessDllAPI : public TessBaseAPI
   //pass through a buffer of bytes for a 1 bit per pixel bitmap
   //BeginPage assumes the first memory address is the bottom of the image
   //BeginPageUpright assumes the first memory address is the top of the image
-  int BeginPage(UINT32 xsize,UINT32 ysize,unsigned char *buf);
-  int BeginPageUpright(UINT32 xsize,UINT32 ysize,unsigned char *buf);
+  int BeginPage(uinT32 xsize,uinT32 ysize,unsigned char *buf);
+  int BeginPageUpright(uinT32 xsize,uinT32 ysize,unsigned char *buf);
 
   // This could probably be combined with about in a one function bpp=1
-  int BeginPage(UINT32 xsize,UINT32 ysize,unsigned char *buf,UINT8 bpp);
-  int BeginPageUpright(UINT32 xsize,UINT32 ysize,unsigned char *buf, UINT8 bpp);
+  int BeginPage(uinT32 xsize,uinT32 ysize,unsigned char *buf,uinT8 bpp);
+  int BeginPageUpright(uinT32 xsize,uinT32 ysize,unsigned char *buf, uinT8 bpp);
   void EndPage();
 
   //This allows you to extract one word or section from the bitmap or
@@ -67,8 +67,8 @@ class TESSDLL_API TessDllAPI : public TessBaseAPI
   //Note: getting one word at time is not yet optimized for speed.
   //limit of 32000 character can be returned
   //see ocrclass.h for a decription of the ETEXT_DESC file
-  ETEXT_DESC *Recognize_a_Block(UINT32 left,UINT32 right,
-                                UINT32 top,UINT32 bottom);
+  ETEXT_DESC *Recognize_a_Block(uinT32 left,uinT32 right,
+                                uinT32 top,uinT32 bottom);
   ETEXT_DESC *Recognize_all_Words(void);
 
  private:
@@ -94,32 +94,32 @@ extern "C"
 //xsize should be the width of line in bytes times 8
 //ysize is the height
 //pass through a buffer of bytes for a 1 bit per pixel bitmap
-//BeginPage assumes the first memory address is the bottom of the image (MS DIB format)	
+//BeginPage assumes the first memory address is the bottom of the image (MS DIB format)
 //BeginPageUpright assumes the first memory address is the top of the image (TIFF format)
 //lang is the code of the language for which the data will be loaded.
-//(Codes follow ISO 639-2.) If it is NULL, english (eng) will be loaded.
-TESSDLL_API int __cdecl TessDllBeginPage(UINT32 xsize,UINT32 ysize,
+//(Codes follow ISO 639-3.) If it is NULL, english (eng) will be loaded.
+TESSDLL_API int __cdecl TessDllBeginPage(uinT32 xsize,uinT32 ysize,
                                          unsigned char *buf);
 
-TESSDLL_API int __cdecl TessDllBeginPageLang(UINT32 xsize,UINT32 ysize,
+TESSDLL_API int __cdecl TessDllBeginPageLang(uinT32 xsize,uinT32 ysize,
                                              unsigned char *buf,
                                              const char* lang);
-TESSDLL_API int __cdecl TessDllBeginPageUpright(UINT32 xsize,UINT32 ysize,
+TESSDLL_API int __cdecl TessDllBeginPageUpright(uinT32 xsize,uinT32 ysize,
                                              unsigned char *buf,
                                              const char* lang);
 //Added in version 2.0 to allow users to specify bytes per pixel to do
 //1 for binary biptmap
 //8 for gray
 //24 bit for color RGB
-TESSDLL_API int __cdecl TessDllBeginPageBPP(UINT32 xsize,UINT32 ysize,
-                                         unsigned char *buf,UINT8 bpp);
+TESSDLL_API int __cdecl TessDllBeginPageBPP(uinT32 xsize,uinT32 ysize,
+                                         unsigned char *buf,uinT8 bpp);
 
-TESSDLL_API int __cdecl TessDllBeginPageLangBPP(UINT32 xsize,UINT32 ysize,
+TESSDLL_API int __cdecl TessDllBeginPageLangBPP(uinT32 xsize,uinT32 ysize,
                                              unsigned char *buf,
-                                             const char* lang,UINT8 bpp);
-TESSDLL_API int __cdecl TessDllBeginPageUprightBPP(UINT32 xsize,UINT32 ysize,
+                                             const char* lang,uinT8 bpp);
+TESSDLL_API int __cdecl TessDllBeginPageUprightBPP(uinT32 xsize,uinT32 ysize,
                                              unsigned char *buf,
-                                             const char* lang,UINT8 bpp);
+                                             const char* lang,uinT8 bpp);
 
 TESSDLL_API void __cdecl TessDllEndPage(void);
 
@@ -129,10 +129,10 @@ TESSDLL_API void __cdecl TessDllEndPage(void);
 //Note: getting one word at time is not yet optimized for speed.
 //limit of 32000 character can be returned
 //see ocrclass.h for a decription of the ETEXT_DESC file
-TESSDLL_API ETEXT_DESC * __cdecl TessDllRecognize_a_Block(UINT32 left,
-                                                          UINT32 right,
-                                                          UINT32 top,
-                                                          UINT32 bottom);
+TESSDLL_API ETEXT_DESC * __cdecl TessDllRecognize_a_Block(uinT32 left,
+                                                          uinT32 right,
+                                                          uinT32 top,
+                                                          uinT32 bottom);
 TESSDLL_API ETEXT_DESC * __cdecl TessDllRecognize_all_Words();
 
 //This will release any memory associated with the recognize class object

@@ -22,29 +22,29 @@
 
 #include          "host.h"
 
-INT8 open_bmp_image(               //read header
+inT8 open_bmp_image(               //read header
                     int fd,        //file to read
-                    INT32 *xsize,  //size of image
-                    INT32 *ysize,
-                    INT8 *bpp,     //bits per pixel
-                    INT8 *photo,
-                    INT32 *res     //resolution
+                    inT32 *xsize,  //size of image
+                    inT32 *ysize,
+                    inT8 *bpp,     //bits per pixel
+                    inT8 *photo,
+                    inT32 *res     //resolution
                    );
-INT8 read_bmp_image(                //read header
+inT8 read_bmp_image(                //read header
                     int fd,         //file to read
-                    UINT8 *pixels,  //pixels of image
-                    INT32 xsize,    //size of image
-                    INT32 ysize,
-                    INT8 bpp,       //bits per pixel
-                    INT32           //bytes per line
+                    uinT8 *pixels,  //pixels of image
+                    inT32 xsize,    //size of image
+                    inT32 ysize,
+                    inT8 bpp,       //bits per pixel
+                    inT32           //bytes per line
                    );
-INT8 write_bmp_image(                //write whole image
+inT8 write_bmp_image(                //write whole image
                      int fd,         //file to write on
-                     UINT8 *pixels,  //image pixels
-                     INT32 xsize,    //size of image
-                     INT32 ysize,
-                     INT8 bpp,       //bits per pixel
-                     INT8,
-                     INT32           //resolution
+                     uinT8 *pixels,  //image pixels
+                     inT32 xsize,    //size of image
+                     inT32 ysize,
+                     inT8 bpp,       //bits per pixel
+                     inT8,
+                     inT32           //resolution
                     );
 #endif

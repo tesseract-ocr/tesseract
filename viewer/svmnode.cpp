@@ -97,7 +97,7 @@ SVMenuNode::SVMenuNode(int command_event, const char* txt,
   child_ = NULL;
   next_ = NULL;
   parent_ = NULL;
-  toggle_value_ = tv;
+  toggle_value_ = tv != 0;
   is_check_box_entry_ = check_box_entry;
 }
 

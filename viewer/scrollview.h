@@ -38,6 +38,7 @@ class ScrollView;
 class SVNetwork;
 class SVMutex;
 class SVSemaphore;
+struct SVPolyLineBuffer;
 
 enum SVEventType {
   SVET_DESTROY,    // Window has been destroyed by user.
@@ -288,6 +289,10 @@ class ScrollView {
 // This is intended as an "debug" output window.
   void AddMessage(const char* format, ...);
 
+// Zoom the window to the rectangle given upper left corner and
+// lower right corner.
+  void ZoomToRectangle(int x1, int y1, int x2, int y2);
+
 // Custom messages (manipulating java code directly) can be send through this.
 // Send a message to the server and attach the Id of the corresponding window.
 // Note: This should only be called if you are know what you are doing, since
@@ -352,6 +357,9 @@ class ScrollView {
                   int y_size, int x_canvas_size, int y_canvas_size,
                   bool y_axis_reversed, const char* server_name);
 
+// Send the current buffered polygon (if any) and clear it.
+  void SendPolygon();
+
 // Start the message receiving thread.
   static void* MessageReceiver(void* a);
 
@@ -376,8 +384,8 @@ class ScrollView {
   const char* window_name_;
   // The id of the window.
   int window_id_;
-  // The points last set by setCursor(x,y) or then updated by drawTo(x,y).
-  int current_position_x_, current_position_y_;
+  // The points of the currently under-construction polyline.
+  SVPolyLineBuffer* points_;
   // Whether the axis is reversed.
   bool y_axis_is_reversed_;
   // If the y axis is reversed, flip all y values by ySize.

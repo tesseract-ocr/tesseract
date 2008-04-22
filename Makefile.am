@@ -11,10 +11,10 @@ dist-hook:
 # Need to remove CVS directories from directories
 # added using EXTRA_DIST. $(distdir)/tessdata would in
 # theory suffice.
-	rm -rf `find $(distdir) -name CVS`
-	rm -rf `find $(distdir) -name .svn`
-	rm -rf `find $(distdir) -name .deps`
+        rm -rf `find $(distdir) -name CVS`
+        rm -rf `find $(distdir) -name .svn`
+        rm -rf `find $(distdir) -name .deps`
 # Also remove extra files not needed in a distribution
-	rm -rf `find $(distdir) -name configure.ac`
-	rm -rf `find $(distdir) -name acinclude.m4`
-	rm -rf `find $(distdir) -name aclocal.m4`
+        rm -rf `find $(distdir) -name configure.ac`
+        rm -rf `find $(distdir) -name acinclude.m4`
+        rm -rf `find $(distdir) -name aclocal.m4`

@@ -34,33 +34,33 @@ typedef struct
 } BMPHEADER0;
 typedef struct
 {                                // bmfh
-  UINT32 bfSize;                 //filesize
-  UINT16 bfReserved1;            //zero
-  UINT16 bfReserved2;            //zero
-  UINT32 bfOffBits;              //offset to bitmap
+  uinT32 bfSize;                 //filesize
+  uinT16 bfReserved1;            //zero
+  uinT16 bfReserved2;            //zero
+  uinT32 bfOffBits;              //offset to bitmap
 } BMPHEADER;
 
 typedef struct
 {                                // bmih
-  UINT32 biSize;                 //size of struct
-  INT32 biWidth;                 //image width
-  INT32 biHeight;                //image height
-  UINT16 biPlanes;               //1
-  UINT16 biBitCount;             //bpp
-  UINT32 biCompression;          //0 for uncompressed
-  UINT32 biSizeImage;            //image size
-  INT32 biXPelsPerMeter;         //res in pp metre
-  INT32 biYPelsPerMeter;
-  UINT32 biClrUsed;              //0 or actual size of colour table
-  UINT32 biClrImportant;         //usually 0
+  uinT32 biSize;                 //size of struct
+  inT32 biWidth;                 //image width
+  inT32 biHeight;                //image height
+  uinT16 biPlanes;               //1
+  uinT16 biBitCount;             //bpp
+  uinT32 biCompression;          //0 for uncompressed
+  uinT32 biSizeImage;            //image size
+  inT32 biXPelsPerMeter;         //res in pp metre
+  inT32 biYPelsPerMeter;
+  uinT32 biClrUsed;              //0 or actual size of colour table
+  uinT32 biClrImportant;         //usually 0
 } BMPHEADER2;
 
 typedef struct
 {                                // rgbq
-  UINT8 rgbBlue;
-  UINT8 rgbGreen;
-  UINT8 rgbRed;
-  UINT8 rgbReserved;             //0
+  uinT8 rgbBlue;
+  uinT8 rgbGreen;
+  uinT8 rgbRed;
+  uinT8 rgbReserved;             //0
 } WIN32_RGBQUAD;
 
 /**********************************************************************
@@ -69,15 +69,15 @@ typedef struct
  * Read the header of a bmp format image and prepare to read the rest.
  **********************************************************************/
 
-INT8 open_bmp_image(               //read header
+inT8 open_bmp_image(               //read header
                     int fd,        //file to read
-                    INT32 *xsize,  //size of image
-                    INT32 *ysize,
-                    INT8 *bpp,     //bits per pixel
-                    INT8 *photo,
-                    INT32 *res     //resolution
+                    inT32 *xsize,  //size of image
+                    inT32 *ysize,
+                    inT8 *bpp,     //bits per pixel
+                    inT8 *photo,
+                    inT32 *res     //resolution
                    ) {
-  UINT32 nread;                  //current bits
+  uinT32 nread;                  //current bits
   BMPHEADER0 head0;              //first part of header
   BMPHEADER head1;               //first part of header
   BMPHEADER2 head2;              //first part of header
@@ -112,18 +112,18 @@ INT8 open_bmp_image(               //read header
  * Read a whole lz format image and close the file.
  **********************************************************************/
 
-INT8 read_bmp_image(                //read header
+inT8 read_bmp_image(                //read header
                     int fd,         //file to read
-                    UINT8 *pixels,  //pixels of image
-                    INT32 xsize,    //size of image
-                    INT32 ysize,
-                    INT8 bpp,       //bits per pixel
-                    INT32           //bytes per line
+                    uinT8 *pixels,  //pixels of image
+                    inT32 xsize,    //size of image
+                    inT32 ysize,
+                    inT8 bpp,       //bits per pixel
+                    inT32           //bytes per line
                    ) {
-  UINT32 bpl;                    //bytes per line
-  UINT32 wpl;                    //words per line
-  UINT32 nread;                  //current bits
-  INT32 index;                   //to cols
+  uinT32 bpl;                    //bytes per line
+  uinT32 wpl;                    //words per line
+  uinT32 nread;                  //current bits
+  inT32 index;                   //to cols
 
   bpl = (xsize * bpp + 7) / 8;   //bytes per line
   wpl = (bpl + 3) / 4;
@@ -145,20 +145,20 @@ INT8 read_bmp_image(                //read header
  * Write a whole lz format image and close the file.
  **********************************************************************/
 
-INT8 write_bmp_image(                //write whole image
+inT8 write_bmp_image(                //write whole image
                      int fd,         //file to write on
-                     UINT8 *pixels,  //image pixels
-                     INT32 xsize,    //size of image
-                     INT32 ysize,
-                     INT8 bpp,       //bits per pixel
-                     INT8,
-                     INT32 res       //resolution
+                     uinT8 *pixels,  //image pixels
+                     inT32 xsize,    //size of image
+                     inT32 ysize,
+                     inT8 bpp,       //bits per pixel
+                     inT8,
+                     inT32 res       //resolution
                     ) {
-  UINT32 bpl;                    //bytes per line
-  UINT32 wpl;                    //words per line
-  UINT32 nread;                  //current bits
-  INT32 cols;                    //entries in table
-  INT32 index;                   //to cols
+  uinT32 bpl;                    //bytes per line
+  uinT32 wpl;                    //words per line
+  uinT32 nread;                  //current bits
+  inT32 cols;                    //entries in table
+  inT32 index;                   //to cols
   BMPHEADER0 head0;              //first part of header
   BMPHEADER head1;               //first part of header
   BMPHEADER2 head2;              //first part of header
@@ -180,8 +180,8 @@ INT8 write_bmp_image(                //write whole image
                                  //image size
   head2.biSizeImage = wpl * 4 * ysize;
                                  //res in pp metre
-  head2.biXPelsPerMeter = (UINT32) (res * 39.37);
-  head2.biYPelsPerMeter = (UINT32) (res * 39.37);
+  head2.biXPelsPerMeter = (uinT32) (res * 39.37);
+  head2.biYPelsPerMeter = (uinT32) (res * 39.37);
   head2.biClrUsed = cols;        //0 or actual size of colour table
   head2.biClrImportant = 0;      //usually 0
 

@@ -26,7 +26,7 @@
 #include          "fileerr.h"
 #include          "bitstrm.h"
 
-const UINT16
+const uinT16
 R_BITSTREAM::bitmasks[17] = {
   0, 1, 3, 7, 15, 31, 63, 127, 255,
   511, 1023, 2047, 4095, 8191, 16383, 32767, 65535
@@ -38,11 +38,11 @@ R_BITSTREAM::bitmasks[17] = {
  * Establish a bitstream for reading.
  **********************************************************************/
 
-UINT16 R_BITSTREAM::open(        //open for read
+uinT16 R_BITSTREAM::open(        //open for read
                          int fd  //file to read
                         ) {
   bitfd = fd;
-  bufsize = read (fd, (char *) bitbuf, BITBUFSIZE * sizeof (UINT8));
+  bufsize = read (fd, (char *) bitbuf, BITBUFSIZE * sizeof (uinT8));
   //fill buffer
   if (bufsize < 0) {
     READFAILED.error ("R_BITSTREAM::open", TESSLOG, NULL);
@@ -51,7 +51,7 @@ UINT16 R_BITSTREAM::open(        //open for read
   bitword = bitbuf[0] | (bitbuf[1] << 8);
   bitindex = 2;
   bitbit = 16;
-  return (UINT16) bitword;
+  return (uinT16) bitword;
 }
 
 
@@ -61,8 +61,8 @@ UINT16 R_BITSTREAM::open(        //open for read
  * Remove a code from the bitstream.
  **********************************************************************/
 
-UINT16 R_BITSTREAM::read_code(              //take code out
-                              UINT8 length  //length of code
+uinT16 R_BITSTREAM::read_code(              //take code out
+                              uinT8 length  //length of code
                              ) {
   bitbit -= length;              //no of bits left
   bitword >>= length;            //remove bits
@@ -72,7 +72,7 @@ UINT16 R_BITSTREAM::read_code(              //take code out
     bitbit += 8;
     if (bitindex >= bufsize) {
       bufsize =
-        read (bitfd, (char *) bitbuf, BITBUFSIZE * sizeof (UINT8));
+        read (bitfd, (char *) bitbuf, BITBUFSIZE * sizeof (uinT8));
       if (bufsize < 0) {
         READFAILED.error ("R_BITSTREAM::read_code", TESSLOG, NULL);
         return 0;
@@ -80,7 +80,7 @@ UINT16 R_BITSTREAM::read_code(              //take code out
       bitindex = 0;              //newly filled buffer
     }
   }
-  return (UINT16) bitword;
+  return (uinT16) bitword;
 }
 
 
@@ -90,8 +90,8 @@ UINT16 R_BITSTREAM::read_code(              //take code out
  * Read a code from the static member.
  **********************************************************************/
 
-UINT16 R_BITSTREAM::masks(             //take code out
-                          INT32 index  //length of code
+uinT16 R_BITSTREAM::masks(             //take code out
+                          inT32 index  //length of code
                          ) {
   return bitmasks[index];
 }
@@ -119,18 +119,18 @@ void W_BITSTREAM::open(        //open for write
  * Add a code to the bitstream.
  **********************************************************************/
 
-INT8 W_BITSTREAM::write_code(              //take code out
-                             UINT16 code,  //code to add
-                             UINT8 length  //length of code
+inT8 W_BITSTREAM::write_code(              //take code out
+                             uinT16 code,  //code to add
+                             uinT8 length  //length of code
                             ) {
   if (length == 0) {
                                  //flushing
     if (bitbit > 0)
                                  //get last byte
-      bitbuf[bitindex++] = (UINT8) bitword;
+      bitbuf[bitindex++] = (uinT8) bitword;
     if ((bitindex > 0) &&
-      (write (bitfd, (char *) bitbuf, bitindex * sizeof (UINT8)) !=
-    (INT32) (bitindex * sizeof (UINT8)))) {
+      (write (bitfd, (char *) bitbuf, bitindex * sizeof (uinT8)) !=
+    (inT32) (bitindex * sizeof (uinT8)))) {
       WRITEFAILED.error ("W_BITSTREAM::write_code", TESSLOG, "Flushing");
       return -1;
     }
@@ -140,12 +140,12 @@ INT8 W_BITSTREAM::write_code(              //take code out
     bitbit += length;
     while (bitbit >= 8) {
                                  //get next byte
-      bitbuf[bitindex++] = (UINT8) bitword;
+      bitbuf[bitindex++] = (uinT8) bitword;
       bitbit -= 8;
       bitword >>= 8;
       if (bitindex >= BITBUFSIZE) {
-        if (write (bitfd, (char *) bitbuf, bitindex * sizeof (UINT8))
-        != (INT32) (bitindex * sizeof (UINT8))) {
+        if (write (bitfd, (char *) bitbuf, bitindex * sizeof (uinT8))
+        != (inT32) (bitindex * sizeof (uinT8))) {
           WRITEFAILED.error ("W_BITSTREAM::write_code", TESSLOG, NULL);
           return -1;
         }

@@ -1,5 +1,5 @@
 // Copyright 2007 Google Inc. All Rights Reserved.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License"); You may not
 // use this file except in compliance with the License. You may obtain a copy of
 // the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by
@@ -26,9 +26,9 @@ import javax.swing.JPopupMenu;
  * The SVPopupMenu class provides the functionality to add a popup menu to
  * ScrollView. Each popup menu item gets associated with a (client-defined)
  * command-id, which SVPopupMenu will return upon clicking it.
- * 
+ *
  * @author wanke@google.com
- * 
+ *
  */
 
 public class SVPopupMenu implements ActionListener {
@@ -41,7 +41,7 @@ public class SVPopupMenu implements ActionListener {
 
   /**
    * Create a new SVPopupMenu and associate it with a ScrollView window.
-   * 
+   *
    * @param sv The window our popup menu belongs to.
    */
   SVPopupMenu(SVWindow sv) {
@@ -53,7 +53,7 @@ public class SVPopupMenu implements ActionListener {
   /**
    * Add a new entry to the menubar. For these items, the server will poll the
    * client to ask what to do.
-   * 
+   *
    * @param parent The menu we add our new entry to (should have been defined
    *        before). If the parent is "", we will add the entry to the root
    *        (top-level)
@@ -63,9 +63,9 @@ public class SVPopupMenu implements ActionListener {
    */
   public void add(String parent, String name, int id) {
     // A duplicate entry - we just throw it away, since its already in.
-    if (items.get(name) != null) { return; }    
+    if (items.get(name) != null) { return; }
     // A new submenu at the top-level
-    else if (parent.equals("")) {
+    if (parent.equals("")) {
       JMenu jli = new JMenu(name);
       SVAbstractMenuItem mli = new SVSubMenuItem(name, jli);
       items.put(name, mli);
@@ -98,7 +98,7 @@ public class SVPopupMenu implements ActionListener {
    * possibly even have a description. For these items, the server will not poll
    * the client to ask what to do, but just show an input dialog and send a
    * message with the new value.
-   * 
+   *
    * @param parent The menu we add our new entry to (should have been defined
    *        before). If the parent is "", we will add the entry to the root
    *        (top-level)
@@ -129,7 +129,7 @@ public class SVPopupMenu implements ActionListener {
     // Get the corresponding menuitem
     SVAbstractMenuItem svm = items.get(e.getActionCommand());
 
-   svm.performAction(svWindow, SVEventType.SVET_POPUP); 
+   svm.performAction(svWindow, SVEventType.SVET_POPUP);
   }
 
   /**

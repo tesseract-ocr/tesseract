@@ -40,7 +40,7 @@ RSC=rc.exe
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "."
-# PROP Intermediate_Dir "dll.Release"
+# PROP Intermediate_Dir "dll.Release6"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TESSDLL_EXPORTS" /Yu"stdafx.h" /FD /c
@@ -66,8 +66,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "bin.dbg"
-# PROP Intermediate_Dir "dll.Debug"
+# PROP Output_Dir "bin.dbg6"
+# PROP Intermediate_Dir "dll.Debug6"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "TESSDLL_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
@@ -188,7 +188,15 @@ SOURCE=.\ccmain\output.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ccmain\pagewalk.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccmain\paircmp.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccmain\pgedit.cpp
 # End Source File
 # Begin Source File
 
@@ -221,6 +229,10 @@ SOURCE=.\ccmain\tfacepp.cpp
 # Begin Source File
 
 SOURCE=.\ccmain\tstruct.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccmain\varabled.cpp
 # End Source File
 # Begin Source File
 
@@ -380,6 +392,10 @@ SOURCE=.\ccutil\bits16.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ccutil\boxread.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ccutil\clst.cpp
 # End Source File
 # Begin Source File
@@ -441,6 +457,10 @@ SOURCE=.\ccutil\tessopt.cpp
 # Begin Source File
 
 SOURCE=.\ccutil\tprintf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ccutil\unichar.cpp
 # End Source File
 # Begin Source File
 
@@ -676,6 +696,10 @@ SOURCE=.\dict\permdawg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dict\permngram.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dict\permnum.cpp
 # End Source File
 # Begin Source File
@@ -698,34 +722,6 @@ SOURCE=.\dict\trie.cpp
 # Begin Group "display"
 
 # PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\display\cmndwin.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\display\pagewalk.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\display\pgedit.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\display\sbdmenu.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\display\varabled.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\display\varblmen.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\display\varblwin.cpp
-# End Source File
 # End Group
 # Begin Group "image"
 
@@ -750,6 +746,10 @@ SOURCE=.\image\imgs.cpp
 
 SOURCE=.\image\imgtiff.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\image\svshowim.cpp
+# End Source File
 # End Group
 # Begin Group "textord"
 
@@ -757,78 +757,97 @@ SOURCE=.\image\imgtiff.cpp
 # Begin Source File
 
 SOURCE=.\textord\blkocc.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\drawedg.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\drawtord.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\edgblob.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\edgloop.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\fpchop.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\gap_map.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\makerow.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\oldbasel.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\pithsync.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\pitsync1.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\scanedg.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\sortflts.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\topitch.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\tordmain.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\tospace.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\tovars.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\underlin.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # Begin Source File
 
 SOURCE=.\textord\wordseg.cpp
+# ADD CPP /I "pageseg"
 # End Source File
 # End Group
 # Begin Group "viewer"
@@ -836,23 +855,15 @@ SOURCE=.\textord\wordseg.cpp
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\viewer\evntlst.cpp
+SOURCE=.\viewer\scrollview.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\viewer\evnts.cpp
+SOURCE=.\viewer\svmnode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\viewer\grphics.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\viewer\grphshm.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\viewer\showim.cpp
+SOURCE=.\viewer\svutil.cpp
 # End Source File
 # End Group
 # Begin Group "wordrec"
@@ -1975,6 +1986,22 @@ SOURCE=.\wordrec\tface.h
 SOURCE=.\wordrec\wordclass.h
 # End Source File
 # End Group
+# Begin Group "pageseg"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\pageseg\leptonica_pageseg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\pageseg\leptonica_pageseg_interface.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\pageseg\pageseg.cpp
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\StdAfx.cpp
@@ -2017,15 +2044,7 @@ SOURCE=.\ccmain\tesseractmain.h
 # End Group
 # Begin Source File
 
-SOURCE=.\ccutil\boxread.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ReadMe.txt
-# End Source File
-# Begin Source File
-
-SOURCE=.\ccutil\unichar.cpp
 # End Source File
 # End Target
 # End Project

@@ -25,56 +25,56 @@
 
 extern INT_VAR_H (image_default_resolution, 300, "Image resolution dpi");
 
-INT32 check_legal_image_size(                     //get rest of image
-                             INT32 x,             //x size required
-                             INT32 y,             //ysize required
-                             INT8 bits_per_pixel  //bpp required
+inT32 check_legal_image_size(                     //get rest of image
+                             inT32 x,             //x size required
+                             inT32 y,             //ysize required
+                             inT8 bits_per_pixel  //bpp required
                             );
                                  //copy rectangle
 extern DLLSYM void copy_sub_image(IMAGE *source,     //source image
-                                  INT32 xstart,      //start coords
-                                  INT32 ystart,
-                                  INT32 xext,        //extent to copy
-                                  INT32 yext,
+                                  inT32 xstart,      //start coords
+                                  inT32 ystart,
+                                  inT32 xext,        //extent to copy
+                                  inT32 yext,
                                   IMAGE *dest,       //destination image
-                                  INT32 xdest,       //destination coords
-                                  INT32 ydest,
+                                  inT32 xdest,       //destination coords
+                                  inT32 ydest,
                                   BOOL8 adjust_grey  //shift to new bpp
                                  );
                                  //enlarge rectangle
 extern DLLSYM void enlarge_sub_image(IMAGE *source,     //source image
-                                     INT32 xstart,      //scaled start coords
-                                     INT32 ystart,
+                                     inT32 xstart,      //scaled start coords
+                                     inT32 ystart,
                                      IMAGE *dest,       //destination image
-                                     INT32 xdest,       //dest coords
-                                     INT32 ydest,
-                                     INT32 xext,        //destination extent
-                                     INT32 yext,
-                                     INT32 scale,       //scale factor
+                                     inT32 xdest,       //dest coords
+                                     inT32 ydest,
+                                     inT32 xext,        //destination extent
+                                     inT32 yext,
+                                     inT32 scale,       //scale factor
                                      BOOL8 adjust_grey  //shift to new bpp
                                     );
                                  //reduce rectangle
 extern DLLSYM void fast_reduce_sub_image(IMAGE *source,     //source image
-                                         INT32 xstart,      //start coords
-                                         INT32 ystart,
-                                         INT32 xext,        //extent to copy
-                                         INT32 yext,
+                                         inT32 xstart,      //start coords
+                                         inT32 ystart,
+                                         inT32 xext,        //extent to copy
+                                         inT32 yext,
                                          IMAGE *dest,       //destination image
-                                         INT32 xdest,       //destination coords
-                                         INT32 ydest,
-                                         INT32 scale,       //reduction factor
+                                         inT32 xdest,       //destination coords
+                                         inT32 ydest,
+                                         inT32 scale,       //reduction factor
                                          BOOL8 adjust_grey  //shift to new bpp
                                         );
                                  //reduce rectangle
 extern DLLSYM void reduce_sub_image(IMAGE *source,     //source image
-                                    INT32 xstart,      //start coords
-                                    INT32 ystart,
-                                    INT32 xext,        //extent to copy
-                                    INT32 yext,
+                                    inT32 xstart,      //start coords
+                                    inT32 ystart,
+                                    inT32 xext,        //extent to copy
+                                    inT32 yext,
                                     IMAGE *dest,       //destination image
-                                    INT32 xdest,       //destination coords
-                                    INT32 ydest,
-                                    INT32 scale,       //reduction factor
+                                    inT32 xdest,       //destination coords
+                                    inT32 ydest,
+                                    inT32 scale,       //reduction factor
                                     BOOL8 adjust_grey  //shift to new bpp
                                    );
 extern DLLSYM void invert_image(              /*invert the image */
@@ -82,21 +82,21 @@ extern DLLSYM void invert_image(              /*invert the image */
                                );
                                  //bias rectangle
 extern DLLSYM void bias_sub_image(IMAGE *source,  //source image
-                                  INT32 xstart,   //start coords
-                                  INT32 ystart,
-                                  INT32 xext,     //extent to copy
-                                  INT32 yext,
-                                  UINT8 bias      //number to add
+                                  inT32 xstart,   //start coords
+                                  inT32 ystart,
+                                  inT32 xext,     //extent to copy
+                                  inT32 yext,
+                                  uinT8 bias      //number to add
                                  );
                                  //copy rectangle
 extern DLLSYM void starbase_to_normal(IMAGE *source,       //source image
-                                      INT32 xstart,        //start coords
-                                      INT32 ystart,
-                                      INT32 xext,          //extent to copy
-                                      INT32 yext,
+                                      inT32 xstart,        //start coords
+                                      inT32 ystart,
+                                      inT32 xext,          //extent to copy
+                                      inT32 yext,
                                       IMAGE *dest,         //destination image
-                                      INT32 xdest,         //destination coords
-                                      INT32 ydest,
+                                      inT32 xdest,         //destination coords
+                                      inT32 ydest,
                                       BOOL8 preserve_grey  //shift to new bpp
                                      );
 #endif

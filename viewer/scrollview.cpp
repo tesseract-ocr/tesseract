@@ -19,23 +19,34 @@
 //
 // This class contains the main ScrollView-logic,
 // e.g. parsing & sending messages, images etc.
+#ifdef WIN32
+#pragma warning(disable:4786)  // Don't give stupid warnings for stl
+#endif
 
-const bool kDebugMode = false;
 const int kSvPort = 8461;
 const int kMaxMsgSize = 4096;
+const int kMaxIntPairSize = 45;  // Holds %d,%d, for upto 64 bit.
 
 #include "scrollview.h"
 
 #include <stdarg.h>
-#include <iostream>
 #include <map>
 #include <utility>
+#include <algorithm>
+#include <vector>
+#include <string>
 
 #include "svutil.h"
 
 #ifdef HAVE_LIBLEPT
 #include "allheaders.h"
 #endif
+
+struct SVPolyLineBuffer {
+  bool empty;  // Independent indicator to allow SendMsg to call SendPolygon.
+  std::vector<int> xcoords;
+  std::vector<int> ycoords;
+};
 
 // A map between the window IDs and their corresponding pointers.
 static std::map<int, ScrollView*> svmap;
@@ -65,7 +76,7 @@ SVEvent* SVEvent::copy() {
 // and distributes it to the waiting handlers.
 // It is run from a different thread and synchronizes via SVSync.
 void* ScrollView::MessageReceiver(void* a) {
-  int counter_event_id = 0;  //ongoing counter
+  int counter_event_id = 0;  // ongoing counter
   char* message = NULL;
   // Wait until a new message appears in the input stream_.
   do {
@@ -82,8 +93,6 @@ void* ScrollView::MessageReceiver(void* a) {
       int window_id;
 
       int ev_type;
-
-      if (kDebugMode) { std::cout << "(s->C)" << message << "\n"; }
 
       int n;
       // Fill the new SVEvent properly.
@@ -102,8 +111,9 @@ void* ScrollView::MessageReceiver(void* a) {
         cur->type = static_cast<SVEventType>(ev_type);
         cur->y = cur->window->TranslateYCoordinate(cur->y);
         cur->counter = counter_event_id;
-        // Increase by 2 since we will also create an SVET_ANY event from cur, which
-        // will have a counter_id of cur + 1 (and thus gets processed after cur).
+        // Increase by 2 since we will also create an SVET_ANY event from cur,
+        // which will have a counter_id of cur + 1 (and thus gets processed
+        // after cur).
         counter_event_id += 2;
 
         // In case of an SVET_EXIT event, quit the whole application.
@@ -136,8 +146,10 @@ void* ScrollView::MessageReceiver(void* a) {
         mutex_waiting->Unlock();
         // Signal the corresponding semaphore twice (for both copies).
         ScrollView* sv = svmap[window_id];
-        sv->Signal();
-        sv->Signal();
+        if (sv != NULL) {
+          sv->Signal();
+          sv->Signal();
+        }
       }
 
       // Wait until a new message appears in the input stream_.
@@ -241,10 +253,6 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
     nr_created_windows_ = 0;
     stream_ = new SVNetwork(server_name, kSvPort);
     mutex_waiting = new SVMutex();
-    if (kDebugMode) {
-      std::cout << "(C->s) svmain = "
-                << "luajava.bindClass('com.google.scrollview.ScrollView')\n";
-    }
     SendRawMessage(
         "svmain = luajava.bindClass('com.google.scrollview.ScrollView')\n");
     SVSync::StartThread(MessageReceiver, NULL);
@@ -257,6 +265,9 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
   y_size_ = y_canvas_size;
   window_name_ = name;
   window_id_ = nr_created_windows_;
+  // Set up polygon buffering.
+  points_ = new SVPolyLineBuffer;
+  points_->empty = true;
 
   svmap[window_id_] = this;
 
@@ -270,15 +281,10 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
   // Set up an actual Window on the client side.
   char message[kMaxMsgSize];
   snprintf(message, sizeof(message),
-                    "w%u = luajava.newInstance('com.google.scrollview.ui"
-                    ".SVWindow','%s',%u,%u,%u,%u,%u,%u,%u)\n",
-                    window_id_, window_name_,
-                    window_id_, x_pos,
-                    TranslateYCoordinate(y_pos), x_size,
-                    y_size_, x_canvas_size, y_canvas_size);
-  if (kDebugMode) {
-    std::cout << "(C->s)" << message;
-  }
+           "w%u = luajava.newInstance('com.google.scrollview.ui"
+           ".SVWindow','%s',%u,%u,%u,%u,%u,%u,%u)\n",
+           window_id_, window_name_, window_id_,
+           x_pos, y_pos, x_size, y_size, x_canvas_size, y_canvas_size);
   SendRawMessage(message);
 
   SVSync::StartThread(StartEventHandler, this);
@@ -286,7 +292,7 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
 
 // Sits and waits for events on this window.
 void* ScrollView::StartEventHandler(void* a) {
-  ScrollView* sv = (ScrollView*) a;
+  ScrollView* sv = reinterpret_cast<ScrollView*>(a);
   SVEvent* new_event;
 
   do {
@@ -320,19 +326,24 @@ void* ScrollView::StartEventHandler(void* a) {
 }
 
 ScrollView::~ScrollView() {
-  // So the event handling thread can quit.
-  SendMsg("destroy()");
+  if (svmap[window_id_] != NULL) {
+    // So the event handling thread can quit.
+    SendMsg("destroy()");
 
-  SVEvent* sve = AwaitEvent(SVET_DESTROY);
-  delete sve;
+    SVEvent* sve = AwaitEvent(SVET_DESTROY);
+    delete sve;
+  }
   delete mutex_;
   delete semaphore_;
+  delete points_;
 
   svmap.erase(window_id_);
 }
 
 // Send a message to the server, attaching the window id.
 void ScrollView::SendMsg(const char* format, ...) {
+  if (!points_->empty)
+    SendPolygon();
   va_list args;
   char message[kMaxMsgSize];
 
@@ -343,7 +354,6 @@ void ScrollView::SendMsg(const char* format, ...) {
   char form[kMaxMsgSize];
   snprintf(form, kMaxMsgSize, "w%u:%s\n", window_id_, message);
 
-  if (kDebugMode) { std::cout << "(C->s)" << form; }
   stream_->Send(form);
 }
 
@@ -423,6 +433,37 @@ SVEvent* ScrollView::AwaitEventAnyWindow() {
   return ret;
 }
 
+// Send the current buffered polygon (if any) and clear it.
+void ScrollView::SendPolygon() {
+  if (!points_->empty) {
+    points_->empty = true;  // Allows us to use SendMsg.
+    int length = points_->xcoords.size();
+    // length == 1 corresponds to 2 SetCursors in a row and only the
+    // last setCursor has any effect.
+    if (length == 2) {
+      // An isolated line!
+      SendMsg("drawLine(%d,%d,%d,%d)",
+              points_->xcoords[0], points_->ycoords[0],
+              points_->xcoords[1], points_->ycoords[1]);
+    } else if (length > 2) {
+      // A polyline.
+      SendMsg("createPolyline(%d)", length);
+      char coordpair[kMaxIntPairSize];
+      std::string decimal_coords;
+      for (int i = 0; i < length; ++i) {
+        snprintf(coordpair, kMaxIntPairSize, "%d,%d,",
+                 points_->xcoords[i], points_->ycoords[i]);
+        decimal_coords += coordpair;
+      }
+      decimal_coords += '\n';
+      SendRawMessage(decimal_coords.c_str());
+      SendMsg("drawPolyline()");
+    }
+    points_->xcoords.clear();
+    points_->ycoords.clear();
+  }
+}
+
 
 /*******************************************************************************
 * LUA "API" functions.
@@ -430,14 +471,32 @@ SVEvent* ScrollView::AwaitEventAnyWindow() {
 
 // Sets the position from which to draw to (x,y).
 void ScrollView::SetCursor(int x, int y) {
-  current_position_x_ = x;
-  current_position_y_ = y;
+  SendPolygon();
+  DrawTo(x, y);
 }
 
 // Draws from the current position to (x,y) and sets the new position to it.
 void ScrollView::DrawTo(int x, int y) {
-    Line(current_position_x_, current_position_y_, x, y);
-    SetCursor(x, y);
+  points_->xcoords.push_back(x);
+  points_->ycoords.push_back(TranslateYCoordinate(y));
+  points_->empty = false;
+}
+
+// Draw a line using the current pen color.
+void ScrollView::Line(int x1, int y1, int x2, int y2) {
+  if (!points_->xcoords.empty() && x1 == points_->xcoords.back() &&
+      TranslateYCoordinate(y1) == points_->ycoords.back()) {
+    // We are already at x1, y1, so just draw to x2, y2.
+    DrawTo(x2, y2);
+  } else if (!points_->xcoords.empty() && x2 == points_->xcoords.back() &&
+      TranslateYCoordinate(y2) == points_->ycoords.back()) {
+    // We are already at x2, y2, so just draw to x1, y1.
+    DrawTo(x1, y1);
+  } else {
+    // This is a new line.
+    SetCursor(x1, y1);
+    DrawTo(x2, y2);
+  }
 }
 
 // Set the visibility of the window.
@@ -483,12 +542,6 @@ void ScrollView::Exit() {
 // Clear the canvas.
 void ScrollView::Clear() {
   SendMsg("clear()");
-}
-
-// Draw a line using the current pen color.
-void ScrollView::Line(int x1, int y1, int x2, int y2) {
-  SendMsg("drawLine(%d,%d,%d,%d)",
-          x1, TranslateYCoordinate(y1), x2, TranslateYCoordinate(y2));
 }
 
 // Set the stroke width.
@@ -608,7 +661,8 @@ void ScrollView::UpdateWindow() {
 void ScrollView::Update() {
   for (std::map<int, ScrollView*>::iterator iter = svmap.begin();
       iter != svmap.end(); ++iter) {
-     iter->second->UpdateWindow();
+    if (iter->second != NULL)
+      iter->second->UpdateWindow();
   }
 }
 
@@ -650,6 +704,15 @@ int ScrollView::ShowYesNoDialog(const char* msg) {
   return a;
 }
 
+// Zoom the window to the rectangle given upper left corner and
+// lower right corner.
+void ScrollView::ZoomToRectangle(int x1, int y1, int x2, int y2) {
+  y1 = TranslateYCoordinate(y1);
+  y2 = TranslateYCoordinate(y2);
+  SendMsg("zoomRectangle(%d,%d,%d,%d)",
+          MIN(x1, x2), MIN(y1, y2), MAX(x1, x2), MAX(y1, y2));
+}
+
 #ifdef HAVE_LIBLEPT
 // Send an image of type PIX.
 void ScrollView::Image(PIX* image, int x_pos, int y_pos) {
@@ -657,7 +720,7 @@ void ScrollView::Image(PIX* image, int x_pos, int y_pos) {
   int height = image->h;
   l_uint32 bpp = image->d;
   // PIX* do not have a unique identifier/name associated, so name them "lept".
-  SendMsg("createImage('%u',%u,%u,%u)", "lept", width, height, bpp);
+  SendMsg("createImage('%s',%d,%d,%d)", "lept", width, height, bpp);
 
   if (bpp == 32) {
     Transfer32bppImage(image);
@@ -667,7 +730,7 @@ void ScrollView::Image(PIX* image, int x_pos, int y_pos) {
     TransferBinaryImage(image);
   }
   // PIX* do not have a unique identifier/name associated, so name them "lept".
-  SendMsg("drawImage('%u',%d,%d)", "lept", x_pos, y_pos);
+  SendMsg("drawImage('%s',%d,%d)", "lept", x_pos, y_pos);
 }
 
 // Sends each pixel as hex value like html, e.g. #00FF00 for green.
@@ -675,7 +738,7 @@ void ScrollView::Transfer32bppImage(PIX* image) {
   int ppL = pixGetWidth(image);
   int h = pixGetHeight(image);
   int wpl = pixGetWpl(image);
-  int transfer_size= ppL * 7 + 1;
+  int transfer_size= ppL * 7 + 2;
   char* pixel_data = new char[transfer_size];
   for (int y = 0; y < h; ++y) {
     l_uint32* data = pixGetData(image) + y*wpl;
@@ -685,42 +748,44 @@ void ScrollView::Transfer32bppImage(PIX* image) {
                GET_DATA_BYTE(data, COLOR_GREEN),
                GET_DATA_BYTE(data, COLOR_BLUE));
     }
+    pixel_data[transfer_size - 2] = '\n';
     pixel_data[transfer_size - 1] = '\0';
     SendRawMessage(pixel_data);
   }
   delete[] pixel_data;
 }
 
-// TODO add RunLengthEncoding to this or something similar
-// TODO testme
 // Sends for each pixel either '1' or '0'.
 void ScrollView::TransferGrayImage(PIX* image) {
-  char pixel_data[image->w * 2 + 1];
+  char* pixel_data = new char[image->w * 2 + 2];
   for (int y = 0; y < image->h; y++) {
     l_uint32* data = pixGetData(image) + y * pixGetWpl(image);
     for (int x = 0; x < image->w; x++) {
       snprintf(&pixel_data[x*2], 2, "%.2x", (GET_DATA_BYTE(data, x)));
-      pixel_data[image->w * 2] = '\0';
+      pixel_data[image->w * 2] = '\n';
+      pixel_data[image->w * 2 + 1] = '\0';
       SendRawMessage(pixel_data);
     }
   }
+  delete [] pixel_data;
 }
 
-// TODO add RunLengthEncoding to this or something similar
 // Sends for each pixel either '1' or '0'.
 void ScrollView::TransferBinaryImage(PIX* image) {
-  char pixel_data[image->w + 1];
+  char* pixel_data = new char[image->w + 2];
   for (int y = 0; y < image->h; y++) {
     l_uint32* data = pixGetData(image) + y * pixGetWpl(image);
     for (int x = 0; x < image->w; x++) {
       if (GET_DATA_BIT(data, x))
-        { pixel_data[x] = '1'; }
+        pixel_data[x] = '1';
       else
-        { pixel_data[x] = '0'; }
+        pixel_data[x] = '0';
     }
-    pixel_data[image->w] = '\0';
+    pixel_data[image->w] = '\n';
+    pixel_data[image->w + 1] = '\0';
     SendRawMessage(pixel_data);
   }
+  delete [] pixel_data;
 }
 #endif
 

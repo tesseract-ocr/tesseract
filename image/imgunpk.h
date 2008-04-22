@@ -22,7 +22,7 @@
 
 #include          "host.h"
 
-UINT8 bpp4table[256][2] = {      /*4 bit converter */
+uinT8 bpp4table[256][2] = {      /*4 bit converter */
   {0, 0}
   , {0, 1}
   , {0, 2}
@@ -345,7 +345,7 @@ UINT8 bpp4table[256][2] = {      /*4 bit converter */
   ,
 };
 
-UINT8 bpp2table[256][4] = {      /*2bpp converter */
+uinT8 bpp2table[256][4] = {      /*2bpp converter */
   {0, 0, 0, 0}
   ,
   {0, 0, 0, 1}
@@ -860,7 +860,7 @@ UINT8 bpp2table[256][4] = {      /*2bpp converter */
   ,
 };
 
-UINT8 bpp1table[256][8] = {      /*1bpp converter */
+uinT8 bpp1table[256][8] = {      /*1bpp converter */
   {0, 0, 0, 0, 0, 0, 0, 0}
   ,
   {0, 0, 0, 0, 0, 0, 0, 1}

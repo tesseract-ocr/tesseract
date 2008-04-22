@@ -47,7 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="aspirin,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,."
+				AdditionalIncludeDirectories="aspirin,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,ccmain,pageseg,."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;__IPEREGDLL;_CRTDBG_MAP_ALLOC;PURIFY"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -144,7 +144,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="aspirin,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,ccmain,."
+				AdditionalIncludeDirectories="aspirin,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,ccmain,pageseg,."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;__IPEREGDLL;PURIFY"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -238,7 +238,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="aspirin,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,."
+				AdditionalIncludeDirectories="aspirin,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,ccmain,pageseg,."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;__IPEREGDLL;_CRTDBG_MAP_ALLOC;PURIFY"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -844,6 +844,10 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\ccmain\pagewalk.cpp"
+					>
+				</File>
+				<File
 					RelativePath="ccmain\paircmp.cpp"
 					>
 					<FileConfiguration
@@ -873,6 +877,10 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\ccmain\pgedit.cpp"
+					>
 				</File>
 				<File
 					RelativePath="ccmain\reject.cpp"
@@ -1121,6 +1129,10 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\ccmain\varabled.cpp"
+					>
 				</File>
 				<File
 					RelativePath="ccmain\werdit.cpp"
@@ -4526,6 +4538,10 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\dict\permngram.cpp"
+					>
+				</File>
+				<File
 					RelativePath="dict\permnum.cpp"
 					>
 					<FileConfiguration
@@ -4682,224 +4698,31 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="display"
+				Name="pageseg"
 				>
 				<File
-					RelativePath="display\cmndwin.cpp"
+					RelativePath=".\pageseg\leptonica_pageseg.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="display\pagewalk.cpp"
+					RelativePath=".\pageseg\leptonica_pageseg.h"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="display\pgedit.cpp"
+					RelativePath=".\pageseg\leptonica_pageseg_interface.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="display\sbdmenu.cpp"
+					RelativePath=".\pageseg\leptonica_pageseg_interface.h"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="display\varabled.cpp"
+					RelativePath=".\pageseg\pageseg.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="display\varblmen.cpp"
+					RelativePath=".\pageseg\pageseg.h"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="display\varblwin.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 			</Filter>
 			<Filter
@@ -5059,6 +4882,10 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\image\svshowim.cpp"
+					>
 				</File>
 			</Filter>
 			<Filter
@@ -5658,159 +5485,16 @@
 				Name="viewer"
 				>
 				<File
-					RelativePath="viewer\evntlst.cpp"
+					RelativePath=".\viewer\scrollview.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="viewer\evnts.cpp"
+					RelativePath=".\viewer\svmnode.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="viewer\grphics.cpp"
+					RelativePath=".\viewer\svutil.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="viewer\grphshm.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="viewer\showim.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 			</Filter>
 			<Filter
@@ -6772,7 +6456,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ccmain\pagewalk.h"
+					>
+				</File>
+				<File
 					RelativePath="ccmain\paircmp.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ccmain\pgedit.h"
 					>
 				</File>
 				<File
@@ -6805,6 +6497,10 @@
 				</File>
 				<File
 					RelativePath="ccmain\tstruct.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ccmain\varabled.h"
 					>
 				</File>
 				<File
@@ -7397,42 +7093,6 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="display header"
-				>
-				<File
-					RelativePath="display\cmndwin.h"
-					>
-				</File>
-				<File
-					RelativePath="display\pagewalk.h"
-					>
-				</File>
-				<File
-					RelativePath="display\pgedit.h"
-					>
-				</File>
-				<File
-					RelativePath="display\pgeditx.h"
-					>
-				</File>
-				<File
-					RelativePath="display\sbdmenu.h"
-					>
-				</File>
-				<File
-					RelativePath="display\varabled.h"
-					>
-				</File>
-				<File
-					RelativePath="display\varblmen.h"
-					>
-				</File>
-				<File
-					RelativePath="display\varblwin.h"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="image header"
 				>
 				<File
@@ -7560,35 +7220,15 @@
 				Name="viewer header"
 				>
 				<File
-					RelativePath="viewer\evntlst.h"
+					RelativePath=".\viewer\scrollview.h"
 					>
 				</File>
 				<File
-					RelativePath="viewer\evnts.h"
+					RelativePath=".\viewer\svmnode.h"
 					>
 				</File>
 				<File
-					RelativePath="viewer\grphics.h"
-					>
-				</File>
-				<File
-					RelativePath="viewer\grphshm.h"
-					>
-				</File>
-				<File
-					RelativePath="viewer\sbgconst.h"
-					>
-				</File>
-				<File
-					RelativePath="viewer\sbgdefs.h"
-					>
-				</File>
-				<File
-					RelativePath="viewer\sbgtypes.h"
-					>
-				</File>
-				<File
-					RelativePath="viewer\showim.h"
+					RelativePath=".\viewer\svutil.h"
 					>
 				</File>
 			</Filter>

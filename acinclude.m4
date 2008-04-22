@@ -98,7 +98,7 @@ AC_DEFUN([AC_PATH_LIBTIFF],
                 LIBTIFF_LIBS="$TIFF_PACKAGE/libtiff.a"
                 LIBTIFF_CFLAGS="-I$TIFF_PACKAGE"
              else
-	        LIBTIFF_LIBS="-ltiff"
+                LIBTIFF_LIBS="-ltiff"
              fi
           fi
        fi
@@ -122,7 +122,7 @@ AC_DEFUN([AC_PATH_LIBTIFF],
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <stdio.h> 
+#include <stdio.h>
 #include <tiffio.h>
 #ifdef __cplusplus
 }
