@@ -33,7 +33,7 @@
 /*----------------------------------------------------------------------
             Variables
 ----------------------------------------------------------------------*/
-extern INT16 first_pass;
+extern inT16 first_pass;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -47,8 +47,8 @@ CHOICES classify_blob(TBLOB *pblob,
                       C_COL color,
                       STATE *this_state,
                       STATE *best_state,
-                      INT32 pass,
-                      INT32 blob_index);
+                      inT32 pass,
+                      inT32 blob_index);
 
 void write_text_files(TWERD *word,
                       char *raw_choice,

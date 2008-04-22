@@ -67,10 +67,10 @@
  * Break up the blobs in this chain so that they are all independent.
  * This operation should undo the affect of join_pieces.
  **********************************************************************/
-void break_pieces(TBLOB *blobs, SEAMS seams, INT16 start, INT16 end) { 
+void break_pieces(TBLOB *blobs, SEAMS seams, inT16 start, inT16 end) {
   TESSLINE *outline = blobs->outlines;
   TBLOB *next_blob;
-  INT16 x;
+  inT16 x;
 
   for (x = start; x < end; x++)
     reveal_seam ((SEAM *) array_value (seams, x));
@@ -96,10 +96,10 @@ void break_pieces(TBLOB *blobs, SEAMS seams, INT16 start, INT16 end) {
  * Join a group of base level pieces into a single blob that can then
  * be classified.
  **********************************************************************/
-void join_pieces(TBLOB *piece_blobs, SEAMS seams, INT16 start, INT16 end) { 
+void join_pieces(TBLOB *piece_blobs, SEAMS seams, inT16 start, inT16 end) {
   TBLOB *next_blob;
   TBLOB *blob;
-  INT16 x;
+  inT16 x;
   TESSLINE *outline;
   SEAM *seam;
 
@@ -113,7 +113,7 @@ void join_pieces(TBLOB *piece_blobs, SEAMS seams, INT16 start, INT16 end) {
   while (x < end) {
     seam = (SEAM *) array_value (seams, x);
     if (x - seam->widthn >= start && x + seam->widthp < end)
-      hide_seam(seam); 
+      hide_seam(seam);
     while (outline->next)
       outline = outline->next;
     outline->next = next_blob->outlines;
@@ -130,7 +130,7 @@ void join_pieces(TBLOB *piece_blobs, SEAMS seams, INT16 start, INT16 end) {
  * Change the edge points that are referenced by this seam to make
  * them hidden edges.
  **********************************************************************/
-void hide_seam(SEAM *seam) { 
+void hide_seam(SEAM *seam) {
   if (seam == NULL || seam->split1 == NULL)
     return;
   hide_edge_pair (seam->split1->point1, seam->split1->point2);
@@ -151,12 +151,12 @@ void hide_seam(SEAM *seam) {
  * Change the edge points that are referenced by this seam to make
  * them hidden edges.
  **********************************************************************/
-void hide_edge_pair(EDGEPT *pt1, EDGEPT *pt2) { 
+void hide_edge_pair(EDGEPT *pt1, EDGEPT *pt2) {
   EDGEPT *edgept;
 
   edgept = pt1;
   do {
-    hide_edge(edgept); 
+    hide_edge(edgept);
     edgept = edgept->next;
   }
   while (!exact_point (edgept, pt2) && edgept != pt1);
@@ -166,7 +166,7 @@ void hide_edge_pair(EDGEPT *pt1, EDGEPT *pt2) {
   }
   edgept = pt2;
   do {
-    hide_edge(edgept); 
+    hide_edge(edgept);
     edgept = edgept->next;
   }
   while (!exact_point (edgept, pt1) && edgept != pt2);
@@ -183,7 +183,7 @@ void hide_edge_pair(EDGEPT *pt1, EDGEPT *pt2) {
  * Change the edge points that are referenced by this seam to make
  * them hidden edges.
  **********************************************************************/
-void reveal_seam(SEAM *seam) { 
+void reveal_seam(SEAM *seam) {
   if (seam == NULL || seam->split1 == NULL)
     return;
   reveal_edge_pair (seam->split1->point1, seam->split1->point2);
@@ -204,12 +204,12 @@ void reveal_seam(SEAM *seam) {
  * Change the edge points that are referenced by this seam to make
  * them hidden edges.
  **********************************************************************/
-void reveal_edge_pair(EDGEPT *pt1, EDGEPT *pt2) { 
+void reveal_edge_pair(EDGEPT *pt1, EDGEPT *pt2) {
   EDGEPT *edgept;
 
   edgept = pt1;
   do {
-    reveal_edge(edgept); 
+    reveal_edge(edgept);
     edgept = edgept->next;
   }
   while (!exact_point (edgept, pt2) && edgept != pt1);
@@ -219,7 +219,7 @@ void reveal_edge_pair(EDGEPT *pt1, EDGEPT *pt2) {
   }
   edgept = pt2;
   do {
-    reveal_edge(edgept); 
+    reveal_edge(edgept);
     edgept = edgept->next;
   }
   while (!exact_point (edgept, pt1) && edgept != pt2);
@@ -237,18 +237,18 @@ void reveal_edge_pair(EDGEPT *pt1, EDGEPT *pt2) {
  * requested collection of pieces together.
  **********************************************************************/
 void bounds_of_piece(BOUNDS_LIST bounds,
-                     INT16 start,
-                     INT16 end,
+                     inT16 start,
+                     inT16 end,
                      TPOINT *extreme_tl,
                      TPOINT *extreme_br) {
   TPOINT topleft;
   TPOINT botright;
-  INT16 x;
+  inT16 x;
 
-  get_bounds_entry(bounds, start, *extreme_tl, *extreme_br); 
+  get_bounds_entry(bounds, start, *extreme_tl, *extreme_br);
 
   for (x = start + 1; x <= end; x++) {
-    get_bounds_entry(bounds, x, topleft, botright); 
+    get_bounds_entry(bounds, x, topleft, botright);
 
     extreme_tl->x = min (topleft.x, extreme_tl->x);
     extreme_tl->y = max (topleft.y, extreme_tl->y);
@@ -267,24 +267,24 @@ void bounds_of_piece(BOUNDS_LIST bounds,
  **********************************************************************/
 CHOICES classify_piece(TBLOB *pieces,
                        SEAMS seams,
-                       INT16 start,
-                       INT16 end,
-                       INT32 fx,
+                       inT16 start,
+                       inT16 end,
+                       inT32 fx,
                        STATE *this_state,
                        STATE *best_state,
-                       INT32 pass,
-                       INT32 blob_index) {
+                       inT32 pass,
+                       inT32 blob_index) {
   STATE current_state;
   CHOICES choices;
   TBLOB *pblob;
   TBLOB *blob;
   TBLOB *nblob;
-  INT16 x;
+  inT16 x;
   SEARCH_STATE chunk_groups;
 
   set_n_ones (&current_state, array_count (seams));
 
-  join_pieces(pieces, seams, start, end); 
+  join_pieces(pieces, seams, start, end);
   for (blob = pieces, pblob = NULL, x = 0; x < start; x++) {
     pblob = blob;
     blob = blob->next;
@@ -294,13 +294,13 @@ CHOICES classify_piece(TBLOB *pieces,
   choices = classify_blob (pblob, blob, nblob, NULL, fx, "pieces:", White,
     this_state, best_state, pass, blob_index);
 
-  break_pieces(blob, seams, start, end); 
+  break_pieces(blob, seams, start, end);
 #ifndef GRAPHICS_DISABLED
   if (display_segmentations > 2) {
     chunk_groups = bin_to_chunks (&current_state, array_count (seams));
-    display_segmentation(pieces, chunk_groups); 
-    window_wait(segm_window); 
-    memfree(chunk_groups); 
+    display_segmentation(pieces, chunk_groups);
+    window_wait(segm_window);
+    memfree(chunk_groups);
   }
 #endif
 
@@ -319,13 +319,13 @@ CHOICES classify_piece(TBLOB *pieces,
 CHOICES get_piece_rating(MATRIX ratings,
                          TBLOB *blobs,
                          SEAMS seams,
-                         INT16 start,
-                         INT16 end,
-                         INT32 fx,
+                         inT16 start,
+                         inT16 end,
+                         inT32 fx,
                          STATE *this_state,
                          STATE *best_state,
-                         INT32 pass,
-                         INT32 blob_index) {
+                         inT32 pass,
+                         inT32 blob_index) {
   CHOICES choices;
 
   choices = matrix_get (ratings, start, end);
@@ -340,7 +340,7 @@ CHOICES get_piece_rating(MATRIX ratings,
                      best_state,
                      pass,
                      blob_index);
-    matrix_put(ratings, start, end, choices); 
+    matrix_put(ratings, start, end, choices);
   }
   return (choices);
 }
@@ -352,18 +352,18 @@ CHOICES get_piece_rating(MATRIX ratings,
  * Set up and initialize an array that holds the bounds of a set of
  * blobs.
  **********************************************************************/
-BOUNDS_LIST record_blob_bounds(TBLOB *blobs) { 
+BOUNDS_LIST record_blob_bounds(TBLOB *blobs) {
   TBLOB *blob;
   BOUNDS_LIST bounds;
   TPOINT topleft;
   TPOINT botright;
-  INT16 x = 0;
+  inT16 x = 0;
 
   bounds = (BOUNDS_LIST) memalloc (count_blobs (blobs) * sizeof (BOUNDS));
 
-  iterate_blobs(blob, blobs) { 
-    blob_bounding_box(blob, &topleft, &botright); 
-    set_bounds_entry(bounds, x, topleft, botright); 
+  iterate_blobs(blob, blobs) {
+    blob_bounding_box(blob, &topleft, &botright);
+    set_bounds_entry(bounds, x, topleft, botright);
     x++;
   }
   return (bounds);
@@ -378,11 +378,11 @@ BOUNDS_LIST record_blob_bounds(TBLOB *blobs) {
  * matrix is created.  The indices correspond to the starting and
  * ending initial piece number.
  **********************************************************************/
-MATRIX record_piece_ratings(TBLOB *blobs) { 
+MATRIX record_piece_ratings(TBLOB *blobs) {
   BOUNDS_LIST bounds;
-  INT16 num_blobs;
-  INT16 x;
-  INT16 y;
+  inT16 num_blobs;
+  inT16 x;
+  inT16 y;
   TPOINT tp_topleft;
   TPOINT tp_botright;
   unsigned int topleft;
@@ -396,15 +396,15 @@ MATRIX record_piece_ratings(TBLOB *blobs) {
 
   for (x = 0; x < num_blobs; x++) {
     for (y = x; y < num_blobs; y++) {
-      bounds_of_piece(bounds, x, y, &tp_topleft, &tp_botright); 
+      bounds_of_piece(bounds, x, y, &tp_topleft, &tp_botright);
       topleft = *(unsigned int *) &tp_topleft;
       botright = *(unsigned int *) &tp_botright;
       choices = get_match_by_bounds (topleft, botright);
       if (choices != NIL) {
-        matrix_put(ratings, x, y, choices); 
+        matrix_put(ratings, x, y, choices);
       }
     }
   }
-  memfree(bounds); 
+  memfree(bounds);
   return (ratings);
 }

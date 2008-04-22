@@ -170,13 +170,13 @@ void restore_outline_tree(TESSLINE *srcline) {
  * Try to split the this blob after this one.  Check to make sure that
  * it was successful.
  **********************************************************************/
-SEAM *attempt_blob_chop(TWERD *word, INT32 blob_number, SEAMS seam_list) {
+SEAM *attempt_blob_chop(TWERD *word, inT32 blob_number, SEAMS seam_list) {
   TBLOB *blob;
   TBLOB *other_blob;
   SEAM *seam;
   TBLOB *last_blob;
   TBLOB *next_blob;
-  INT16 x;
+  inT16 x;
 
   if (first_pass)
     chops_attempted1++;
@@ -294,15 +294,15 @@ int check_blob(TBLOB *blob) {
 CHOICES_LIST improve_one_blob(TWERD *word,
                               CHOICES_LIST char_choices,
                               int fx,
-                              INT32 *blob_number,
+                              inT32 *blob_number,
                               SEAMS *seam_list,
                               DANGERR *fixpt,
                               STATE *this_state,
                               STATE *correct_state,
-                              INT32 pass) {
+                              inT32 pass) {
   TBLOB *pblob;
   TBLOB *blob;
-  INT16 x = 0;
+  inT16 x = 0;
   float rating_ceiling = MAX_FLOAT32;
   CHOICES answer;
   SEAM *seam;
@@ -355,10 +355,10 @@ CHOICES_LIST improve_one_blob(TWERD *word,
  * blob then there is a problem (and FALSE should be returned to the
  * caller).
  **********************************************************************/
-INT16 check_seam_order(TBLOB *blob, SEAM *seam) {
+inT16 check_seam_order(TBLOB *blob, SEAM *seam) {
   TESSLINE *outline;
   TESSLINE *last_outline;
-  INT8 found_em[3];
+  inT8 found_em[3];
 
   if (seam->split1 == NULL || seam->split1 == NULL || blob == NULL)
     return (TRUE);
@@ -416,8 +416,8 @@ CHOICES_LIST chop_word_main(register TWERD *word,
   CHOICES match_result;
   MATRIX ratings = NULL;
   DANGERR fixpt;                 /*dangerous ambig */
-  INT32 state_count;             //no of states
-  INT32 bit_count;               //no of bits
+  inT32 state_count;             //no of states
+  inT32 bit_count;               //no of bits
   static STATE best_state;
   static STATE chop_states[64];  //in between states
 
@@ -522,15 +522,15 @@ void improve_by_chopping(register TWERD *word,
                          SEAMS *seam_list,
                          DANGERR *fixpt,
                          STATE *chop_states,
-                         INT32 *state_count,
+                         inT32 *state_count,
                          STATE *correct_state,
-                         INT32 pass) {
-  INT32 blob_number;
-  INT32 index;                   //to states
+                         inT32 pass) {
+  inT32 blob_number;
+  inT32 index;                   //to states
   CHOICES_LIST choices = *char_choices;
   float old_best;
   int fixpt_valid = 1;
-  static INT32 old_count;        //from pass1
+  static inT32 old_count;        //from pass1
 
   do {
                                  /* Improvement loop */
@@ -600,7 +600,7 @@ void improve_by_chopping(register TWERD *word,
  * These are the results of the last classification.  Find a likely
  * place to apply splits.
  **********************************************************************/
-INT16 select_blob_to_split(CHOICES_LIST char_choices, float rating_ceiling) {
+inT16 select_blob_to_split(CHOICES_LIST char_choices, float rating_ceiling) {
   CHOICES this_choice;
   int x;
   float worst = -MAX_FLOAT32;
@@ -673,7 +673,7 @@ SEAMS start_seam_list(TBLOB *blobs) {
  * Check to see if one of these outlines is totally contained within
  * the bounding box of the other.
  **********************************************************************/
-INT16 total_containment(TBLOB *blob1, TBLOB *blob2) {
+inT16 total_containment(TBLOB *blob1, TBLOB *blob2) {
   TPOINT topleft1;
   TPOINT botright1;
   TPOINT topleft2;
@@ -702,7 +702,7 @@ MATRIX word_associator(TBLOB *blobs,
                        char *correct,
                        DANGERR *fixpt,
                        STATE *best_state,
-                       INT32 pass) {
+                       inT32 pass) {
   CHUNKS_RECORD chunks_record;
   BLOB_WEIGHTS blob_weights;
   int x;
@@ -726,7 +726,7 @@ MATRIX word_associator(TBLOB *blobs,
 	if (class_certainty (this_choice)==0)
 		blob_weights[x]=0;
 	else
-		blob_weights[x] = -(INT16) (10 * class_probability (this_choice) /
+		blob_weights[x] = -(inT16) (10 * class_probability (this_choice) /
 				class_certainty (this_choice));
 
 	//

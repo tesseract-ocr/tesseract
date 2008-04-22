@@ -183,7 +183,7 @@ void record_search_status(int num_states, int before_best, float closeness) {
  *
  * Save the summary information into the file "file.sta".
  **********************************************************************/
-void save_summary(INT32 elapsed_time) {
+void save_summary(inT32 elapsed_time) {
   #ifndef SECURE_NAMES
   char outfilename[CHARS_PER_LINE];
   FILE *f;

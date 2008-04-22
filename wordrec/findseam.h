@@ -38,7 +38,7 @@ typedef ARRAY SEAM_PILE;
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void junk_worst_seam(SEAM_QUEUE seams, SEAM *new_seam, float new_priority); 
+void junk_worst_seam(SEAM_QUEUE seams, SEAM *new_seam, float new_priority);
 
 void choose_best_seam(SEAM_QUEUE seam_queue,
                       SEAM_PILE *seam_pile,
@@ -47,23 +47,23 @@ void choose_best_seam(SEAM_QUEUE seam_queue,
                       SEAM **seam_result,
                       TBLOB *blob);
 
-void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam); 
+void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam);
 
-INT16 constrained_split(SPLIT *split, TBLOB *blob); 
+inT16 constrained_split(SPLIT *split, TBLOB *blob);
 
-void delete_seam_pile(SEAM_PILE seam_pile); 
+void delete_seam_pile(SEAM_PILE seam_pile);
 
-SEAM *pick_good_seam(TBLOB *blob); 
+SEAM *pick_good_seam(TBLOB *blob);
 
-PRIORITY seam_priority(SEAM *seam, INT16 xmin, INT16 xmax); 
+PRIORITY seam_priority(SEAM *seam, inT16 xmin, inT16 xmax);
 
 void try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
-INT16 num_points,
+inT16 num_points,
 SEAM_QUEUE seam_queue,
 SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob);
 
 void try_vertical_splits (EDGEPT * points[MAX_NUM_POINTS],
-INT16 num_points,
+inT16 num_points,
 SEAM_QUEUE seam_queue,
 SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob);
 #endif

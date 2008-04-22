@@ -64,7 +64,7 @@ class CHAR_SAMPLE:public ELIST_LINK
 
     float match_sample(CHAR_SAMPLE *test_sample, BOOL8 updating);
 
-    INT32 n_matches() {
+    inT32 n_matches() {
       return n_samples_matched;
     }
 
@@ -96,7 +96,7 @@ class CHAR_SAMPLE:public ELIST_LINK
     IMAGE * sample_image;
     PBLOB *sample_blob;
     DENORM *sample_denorm;
-    INT32 n_samples_matched;
+    inT32 n_samples_matched;
     double total_match_scores;
     double sumsq_match_scores;
     char ch;
@@ -112,7 +112,7 @@ class CHAR_SAMPLES:public ELIST_LINK
     ~CHAR_SAMPLES () {           //destructor
     }
 
-    INT32 n_samples() {
+    inT32 n_samples() {
       return samples.length ();
     }
 
@@ -120,7 +120,7 @@ class CHAR_SAMPLES:public ELIST_LINK
 
     void build_prototype();
 
-    void rebuild_prototype(INT32 new_xsize, INT32 new_ysize);
+    void rebuild_prototype(inT32 new_xsize, inT32 new_ysize);
 
     void add_sample_to_prototype(CHAR_SAMPLE *sample);
 
@@ -155,9 +155,9 @@ class CHAR_PROTO
   public:
     CHAR_PROTO();  // empty constructor
 
-    CHAR_PROTO(INT32 x_size,
-               INT32 y_size,
-               INT32 n_samples,
+    CHAR_PROTO(inT32 x_size,
+               inT32 y_size,
+               inT32 n_samples,
                float initial_value,
                char c);
 
@@ -170,15 +170,15 @@ class CHAR_PROTO
 
     float match(CHAR_PROTO *test_proto);
 
-    INT32 n_samples() {
+    inT32 n_samples() {
       return nsamples;
     }
 
-    INT32 x_size() {
+    inT32 x_size() {
       return xsize;
     }
 
-    INT32 y_size() {
+    inT32 y_size() {
       return ysize;
     }
 
@@ -189,7 +189,7 @@ class CHAR_PROTO
       return ch;
     }
 
-    void enlarge_prototype(INT32 new_xsize, INT32 new_ysize);
+    void enlarge_prototype(inT32 new_xsize, inT32 new_ysize);
 
     void add_sample(CHAR_SAMPLE *sample);
 
@@ -198,11 +198,11 @@ class CHAR_PROTO
     void print(FILE *f);
 
     NEWDELETE2 (CHAR_PROTO) private:
-    INT32 xsize;
-    INT32 ysize;
+    inT32 xsize;
+    inT32 ysize;
     float *proto_data;
     float **proto;
-    INT32 nsamples;
+    inT32 nsamples;
     char ch;
 };
 #endif

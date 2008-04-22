@@ -34,7 +34,7 @@
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
-typedef INT16 BOUNDS_RECT[4];
+typedef inT16 BOUNDS_RECT[4];
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -73,17 +73,17 @@ extern int x_y_weight;
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-PRIORITY full_split_priority(SPLIT *split, INT16 xmin, INT16 xmax); 
+PRIORITY full_split_priority(SPLIT *split, inT16 xmin, inT16 xmax);
 
-PRIORITY grade_center_of_blob(register BOUNDS_RECT rect); 
+PRIORITY grade_center_of_blob(register BOUNDS_RECT rect);
 
-PRIORITY grade_overlap(register BOUNDS_RECT rect); 
+PRIORITY grade_overlap(register BOUNDS_RECT rect);
 
-PRIORITY grade_split_length(register SPLIT *split); 
+PRIORITY grade_split_length(register SPLIT *split);
 
-PRIORITY grade_sharpness(register SPLIT *split); 
+PRIORITY grade_sharpness(register SPLIT *split);
 
-PRIORITY grade_width_change(register BOUNDS_RECT rect); 
+PRIORITY grade_width_change(register BOUNDS_RECT rect);
 
 void set_outline_bounds(register EDGEPT *point1,
                         register EDGEPT *point2,

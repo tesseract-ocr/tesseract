@@ -49,7 +49,7 @@ extern TBLOB *newblob();
 /*----------------------------------------------------------------------
             Variables
 ----------------------------------------------------------------------*/
-INT16 first_pass;
+inT16 first_pass;
 
 /*----------------------------------------------------------------------
           C o n s t a n t s
@@ -87,10 +87,10 @@ CHOICES classify_blob(TBLOB *pblob,
                       C_COL color,
                       STATE *this_state,
                       STATE *best_state,
-                      INT32 pass,
-                      INT32 blob_index) {
+                      inT32 pass,
+                      inT32 blob_index) {
   CHOICES rating;
-  INT32 old_index;
+  inT32 old_index;
 
   chars_classified++;            /* Global value */
   if (blob_skip)

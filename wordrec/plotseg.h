@@ -34,17 +34,17 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern void *segm_window;
+extern ScrollView *segm_window;
 extern int display_segmentations;/* Display Segmentations */
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void display_segmentation(TBLOB *chunks, SEARCH_STATE segmentation); 
+void display_segmentation(TBLOB *chunks, SEARCH_STATE segmentation);
 
-void init_plotseg(); 
+void init_plotseg();
 
-void render_segmentation(void *window,
+void render_segmentation(ScrollView *window,
                          TBLOB *chunks,
                          SEARCH_STATE segmentation);
 

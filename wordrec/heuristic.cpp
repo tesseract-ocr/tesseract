@@ -58,7 +58,7 @@ FLOAT32 prioritize_state(CHUNKS_RECORD *chunks_record,
   width_pri = width_priority (chunks_record, the_search->this_state,
     the_search->num_joints) * 1000.0;
 
-  record_priorities(the_search, old_state, match_pri, width_pri); 
+  record_priorities(the_search, old_state, match_pri, width_pri);
 
   return (width_pri + match_pri);
 }
@@ -77,15 +77,15 @@ FLOAT32 rating_priority(CHUNKS_RECORD *chunks_record,
                         STATE *old_state,
                         int num_joints) {
   PIECES_STATE blob_chunks;
-  INT16 x;
-  INT16 y;
+  inT16 x;
+  inT16 y;
   CHOICES this_choice;
-  INT16 first_chunk = 0;
-  INT16 last_chunk;
-  INT16 ratings = 0;
-  INT16 weights = 0;
+  inT16 first_chunk = 0;
+  inT16 last_chunk;
+  inT16 ratings = 0;
+  inT16 weights = 0;
 
-  bin_to_pieces(state, num_joints, blob_chunks); 
+  bin_to_pieces(state, num_joints, blob_chunks);
 
   for (x = 0; blob_chunks[x]; x++) {
                                  // Iterate each blob
@@ -99,9 +99,9 @@ FLOAT32 rating_priority(CHUNKS_RECORD *chunks_record,
 
     if (this_choice != NOT_CLASSIFIED) {
 
-      ratings += (INT16) best_probability (this_choice);
+      ratings += (inT16) best_probability (this_choice);
       for (y = first_chunk; y <= last_chunk; y++) {
-        weights += (INT16) (chunks_record->weights[y]);
+        weights += (inT16) (chunks_record->weights[y]);
       }
     }
     first_chunk += blob_chunks[x];
@@ -187,8 +187,8 @@ FLOAT32 width_priority(CHUNKS_RECORD *chunks_record,
 
   }
 
-  memfree(new_chunks); 
-  free_widths(width_record); 
+  memfree(new_chunks);
+  free_widths(width_record);
 
   return (result);
 }

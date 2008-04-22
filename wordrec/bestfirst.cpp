@@ -83,9 +83,9 @@ void best_first_search(CHUNKS_RECORD *chunks_record,
                        STATE *state,
                        DANGERR *fixpt,
                        STATE *best_state,
-                       INT32 pass) {
+                       inT32 pass) {
   SEARCH_RECORD *the_search;
-  INT16 keep_going;
+  inT16 keep_going;
   STATE guided_state;
 
   num_joints = matrix_dimension (chunks_record->ratings) - 1;
@@ -193,7 +193,7 @@ CHOICES_LIST evaluate_chunks(CHUNKS_RECORD *chunks_record,
                              SEARCH_STATE search_state,
                              STATE *this_state,
                              STATE *best_state,
-                             INT32 pass) {
+                             inT32 pass) {
   CHOICES_LIST char_choices;
   CHOICES this_choice;
   int i;
@@ -246,15 +246,15 @@ CHOICES_LIST evaluate_chunks(CHUNKS_RECORD *chunks_record,
  * Evaluate the segmentation that is represented by this state in the
  * best first search.  Add this state to the "states_seen" list.
  **********************************************************************/
-INT16 evaluate_state(CHUNKS_RECORD *chunks_record,
+inT16 evaluate_state(CHUNKS_RECORD *chunks_record,
                      SEARCH_RECORD *the_search,
                      DANGERR *fixpt,
                      STATE *best_state,
-                     INT32 pass) {
+                     inT32 pass) {
   CHOICES_LIST char_choices;
   SEARCH_STATE chunk_groups;
   float rating_limit = class_probability (the_search->best_choice);
-  INT16 keep_going = TRUE;
+  inT16 keep_going = TRUE;
   PIECES_STATE widths;
 
   the_search->num_states++;
@@ -323,6 +323,11 @@ CHOICES_LIST rebuild_current_state(TBLOB *blobs,
   TBLOB *next_blob;
   int y;
 
+#ifndef GRAPHICS_DISABLED
+    if (display_segmentations) {
+      print_state("Rebuiling state", state, num_joints);
+    }
+#endif
   search_state = bin_to_chunks (state, num_joints);
 
   char_choices = new_choice_list ();

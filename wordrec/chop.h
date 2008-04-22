@@ -117,7 +117,7 @@ SEAM *create_split
   POINT_GROUP points));
 
 SPLIT *extended_split
-  _ARGS((INT32 location,
+  _ARGS((inT32 location,
   EDGEPT *starting_point));
 
 SEAM *get_best_pair

@@ -123,7 +123,7 @@ EDGEPT *near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1) {
 
   if (x0 == x1) {
                                  /* Handle vertical line */
-    p.x = (INT16) x0;
+    p.x = (inT16) x0;
     p.y = point->pos.y;
   }
   else {
@@ -132,9 +132,9 @@ EDGEPT *near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1) {
     intercept = y1 - x1 * slope;
 
     /* Find perpendicular */
-    p.x = (INT16) ((point->pos.x + (point->pos.y - intercept) * slope) /
+    p.x = (inT16) ((point->pos.x + (point->pos.y - intercept) * slope) /
       (slope * slope + 1));
-    p.y = (INT16) (slope * p.x + intercept);
+    p.y = (inT16) (slope * p.x + intercept);
   }
 
   if (is_on_line (p, line_pt_0->pos, line_pt_1->pos) &&

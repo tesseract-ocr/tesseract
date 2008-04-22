@@ -88,7 +88,7 @@ void best_first_search(CHUNKS_RECORD *chunks_record,
                        STATE *state,
                        DANGERR *fixpt,
                        STATE *best_state,
-                       INT32 pass);
+                       inT32 pass);
 
 int chunks_width(WIDTH_RECORD *width_record, int start_chunk, int last_chunk);
 
@@ -98,13 +98,13 @@ CHOICES_LIST evaluate_chunks(CHUNKS_RECORD *chunks_record,
                              SEARCH_STATE search_state,
                              STATE *this_state,
                              STATE *best_state,
-                             INT32 pass);
+                             inT32 pass);
 
-INT16 evaluate_state(CHUNKS_RECORD *chunks_record,
+inT16 evaluate_state(CHUNKS_RECORD *chunks_record,
                      SEARCH_RECORD *the_search,
                      DANGERR *fixpt,
                      STATE *best_state,
-                     INT32 pass);
+                     inT32 pass);
 
 CHOICES_LIST rebuild_current_state(TBLOB *blobs,
                                    SEAMS seam_list,
@@ -146,7 +146,7 @@ void best_first_search
   A_CHOICE *raw_choice,
   STATE *state,
   STATE*					best_state,
-  INT32					pass));
+  inT32					pass));
 
 CHOICES_LIST rebuild_current_state();
 
@@ -168,13 +168,13 @@ CHOICES_LIST evaluate_chunks
   SEARCH_STATE search_state,
   STATE*					this_state,
   STATE*					best_state,
-  INT32					pass));
+  inT32					pass));
 
-INT16 evaluate_state
+inT16 evaluate_state
   _ARGS((CHUNKS_RECORD *chunks_record,
   SEARCH_RECORD *the_search,
   STATE*					best_state,
-  INT32					pass));
+  inT32					pass));
 
 void expand_node
   _ARGS((CHUNKS_RECORD *chunks_record,

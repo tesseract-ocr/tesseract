@@ -39,9 +39,9 @@ typedef float PRIORITY;          /*  PRIORITY  */
 typedef struct seam_record
 {                                /*  SEAM  */
   PRIORITY priority;
-  INT8 widthp;
-  INT8 widthn;
-  INT16 location;
+  inT8 widthp;
+  inT8 widthn;
+  inT16 location;
   SPLIT *split1;
   SPLIT *split2;
   SPLIT *split3;

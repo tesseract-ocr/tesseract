@@ -25,8 +25,8 @@
 #define FXDEMOWIN     "FXDemo"
 #define FXDEMOXPOS      250
 #define FXDEMOYPOS      0
-#define FXDEMOXSIZE     400
-#define FXDEMOYSIZE     150
+#define FXDEMOXSIZE     600
+#define FXDEMOYSIZE     256
 #define BLN_MAX       512        //max coord for bln
 #define WERDWIDTH       (BLN_MAX*20)
 #define DECENT_WERD_WIDTH (5*bln_x_height)

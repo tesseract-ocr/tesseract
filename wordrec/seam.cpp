@@ -250,8 +250,8 @@ SEAMS insert_seam(SEAMS seam_list,
  * in the blob list.
  **********************************************************************/
 int account_splits_right(SEAM *seam, TBLOB *blob) {
-  INT8 found_em[3];
-  INT8 width;
+  inT8 found_em[3];
+  inT8 width;
 
   found_em[0] = seam->split1 == NULL;
   found_em[1] = seam->split2 == NULL;
@@ -284,9 +284,9 @@ int account_splits_right(SEAM *seam, TBLOB *blob) {
  * in the blob list.
  **********************************************************************/
 int account_splits_left(SEAM *seam, TBLOB *blob, TBLOB *end_blob) {
-  static INT32 depth = 0;
-  static INT8 width;
-  static INT8 found_em[3];
+  static inT32 depth = 0;
+  static inT8 width;
+  static inT8 found_em[3];
 
   if (blob != end_blob) {
     depth++;

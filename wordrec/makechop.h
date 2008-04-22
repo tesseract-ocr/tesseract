@@ -49,21 +49,21 @@
 /*----------------------------------------------------------------------
         Public Function Prototypes
 ----------------------------------------------------------------------*/
-void apply_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam); 
+void apply_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
 
-void divide_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location); 
+void divide_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location);
 
-void form_two_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location); 
+void form_two_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location);
 
-void make_double_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam); 
+void make_double_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
 
-void make_single_split(TESSLINE *outlines, SPLIT *split); 
+void make_single_split(TESSLINE *outlines, SPLIT *split);
 
-void make_split_blobs(TBLOB *blob, TBLOB *other_blob, SEAM *seam); 
+void make_split_blobs(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
 
-void make_triple_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam); 
+void make_triple_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
 
-void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam); 
+void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
 
-void undo_single_split(TBLOB *blob, SPLIT *split); 
+void undo_single_split(TBLOB *blob, SPLIT *split);
 #endif

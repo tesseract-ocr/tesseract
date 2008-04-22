@@ -372,7 +372,7 @@ void prioritize_points(TESSLINE *outline, POINT_GROUP points) {
  * the local minimum is reset to NULL.
  **********************************************************************/
 void new_min_point(EDGEPT *local_min, POINT_GROUP points) {
-  INT16 dir;
+  inT16 dir;
 
   dir = direction (local_min);
 
@@ -396,7 +396,7 @@ void new_min_point(EDGEPT *local_min, POINT_GROUP points) {
  * the local minimum is reset to NULL.
  **********************************************************************/
 void new_max_point(EDGEPT *local_max, POINT_GROUP points) {
-  INT16 dir;
+  inT16 dir;
 
   dir = direction (local_max);
 

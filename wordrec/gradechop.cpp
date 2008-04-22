@@ -68,7 +68,7 @@
  * Part of the priority has already been calculated so just return the
  * additional amount for the bounding box type information.
  **********************************************************************/
-PRIORITY full_split_priority(SPLIT *split, INT16 xmin, INT16 xmax) { 
+PRIORITY full_split_priority(SPLIT *split, inT16 xmin, inT16 xmax) {
   BOUNDS_RECT rect;
 
   set_outline_bounds (split->point1, split->point2, rect);
@@ -89,7 +89,7 @@ PRIORITY full_split_priority(SPLIT *split, INT16 xmin, INT16 xmax) {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY grade_center_of_blob(register BOUNDS_RECT rect) { 
+PRIORITY grade_center_of_blob(register BOUNDS_RECT rect) {
   register PRIORITY grade;
 
   grade = (rect[1] - rect[0]) - (rect[3] - rect[2]);
@@ -109,11 +109,11 @@ PRIORITY grade_center_of_blob(register BOUNDS_RECT rect) {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY grade_overlap(register BOUNDS_RECT rect) { 
+PRIORITY grade_overlap(register BOUNDS_RECT rect) {
   register PRIORITY grade;
-  register INT16 width1;
-  register INT16 width2;
-  register INT16 overlap;
+  register inT16 width1;
+  register inT16 width2;
+  register inT16 overlap;
 
   width1 = rect[3] - rect[2];
   width2 = rect[1] - rect[0];
@@ -139,7 +139,7 @@ PRIORITY grade_overlap(register BOUNDS_RECT rect) {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY grade_split_length(register SPLIT *split) { 
+PRIORITY grade_split_length(register SPLIT *split) {
   register PRIORITY grade;
   register float split_length;
 
@@ -162,7 +162,7 @@ PRIORITY grade_split_length(register SPLIT *split) {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY grade_sharpness(register SPLIT *split) { 
+PRIORITY grade_sharpness(register SPLIT *split) {
   register PRIORITY grade;
 
   grade = point_priority (split->point1) + point_priority (split->point2);
@@ -185,10 +185,10 @@ PRIORITY grade_sharpness(register SPLIT *split) {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY grade_width_change(register BOUNDS_RECT rect) { 
+PRIORITY grade_width_change(register BOUNDS_RECT rect) {
   register PRIORITY grade;
-  register INT32 width1;
-  register INT32 width2;
+  register inT32 width1;
+  register inT32 width2;
 
   width1 = rect[3] - rect[2];
   width2 = rect[1] - rect[0];
@@ -211,15 +211,15 @@ void set_outline_bounds(register EDGEPT *point1,
                         register EDGEPT *point2,
                         BOUNDS_RECT rect) {
   register EDGEPT *this_point;
-  register INT16 x_min;
-  register INT16 x_max;
+  register inT16 x_min;
+  register inT16 x_max;
 
-  find_bounds_loop(point1, point2, x_min, x_max); 
+  find_bounds_loop(point1, point2, x_min, x_max);
 
   rect[0] = x_min;
   rect[1] = x_max;
 
-  find_bounds_loop(point2, point1, x_min, x_max); 
+  find_bounds_loop(point2, point1, x_min, x_max);
 
   rect[2] = x_min;
   rect[3] = x_max;

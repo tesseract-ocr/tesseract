@@ -158,7 +158,7 @@ int end_recog() {
  * This function holds any nessessary post processing for the Wise Owl
  * program.
  **********************************************************************/
-void program_editdown(INT32 elasped_time) {
+void program_editdown(inT32 elasped_time) {
   dj_cleanup();
   if (display_text)
     cprintf ("\n");

@@ -39,31 +39,31 @@
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void preserve_outline(EDGEPT *start); 
+void preserve_outline(EDGEPT *start);
 
-void preserve_outline_tree(TESSLINE *srcline); 
+void preserve_outline_tree(TESSLINE *srcline);
 
-EDGEPT *restore_outline(EDGEPT *start); 
+EDGEPT *restore_outline(EDGEPT *start);
 
-void restore_outline_tree(TESSLINE *srcline); 
+void restore_outline_tree(TESSLINE *srcline);
 
-SEAM *attempt_blob_chop(TWERD *word, INT32 blob_number, SEAMS seam_list); 
+SEAM *attempt_blob_chop(TWERD *word, inT32 blob_number, SEAMS seam_list);
 
-int any_shared_split_points(SEAMS seam_list, SEAM *seam); 
+int any_shared_split_points(SEAMS seam_list, SEAM *seam);
 
-int check_blob(TBLOB *blob); 
+int check_blob(TBLOB *blob);
 
 CHOICES_LIST improve_one_blob(TWERD *word,
                               CHOICES_LIST char_choices,
                               int fx,
-                              INT32 *blob_number,
+                              inT32 *blob_number,
                               SEAMS *seam_list,
                               DANGERR *fixpt,
                               STATE *this_state,
                               STATE *correct_state,
-                              INT32 pass);
+                              inT32 pass);
 
-INT16 check_seam_order(TBLOB *blob, SEAM *seam); 
+inT16 check_seam_order(TBLOB *blob, SEAM *seam);
 
 CHOICES_LIST chop_word_main(register TWERD *word,
                             int fx,
@@ -81,15 +81,15 @@ void improve_by_chopping(register TWERD *word,
                          SEAMS *seam_list,
                          DANGERR *fixpt,
                          STATE *chop_states,
-                         INT32 *state_count,
+                         inT32 *state_count,
                          STATE *correct_state,
-                         INT32 pass);
+                         inT32 pass);
 
-INT16 select_blob_to_split(CHOICES_LIST char_choices, float rating_ceiling); 
+inT16 select_blob_to_split(CHOICES_LIST char_choices, float rating_ceiling);
 
-SEAMS start_seam_list(TBLOB *blobs); 
+SEAMS start_seam_list(TBLOB *blobs);
 
-INT16 total_containment(TBLOB *blob1, TBLOB *blob2); 
+inT16 total_containment(TBLOB *blob1, TBLOB *blob2);
 
 MATRIX word_associator(TBLOB *blobs,
                        SEAMS seams,
@@ -100,5 +100,5 @@ MATRIX word_associator(TBLOB *blobs,
                        char *correct,
                        DANGERR *fixpt,
                        STATE *best_state,
-                       INT32 pass);
+                       inT32 pass);
 #endif

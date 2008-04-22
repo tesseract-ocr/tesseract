@@ -33,7 +33,7 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern void *edge_window;        /* Window for edges */
+extern ScrollView *edge_window;        /* Window for edges */
 
 /*----------------------------------------------------------------------
             Macros
@@ -61,11 +61,11 @@ if (display_splits) window_wait (edge_window)
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ---------------------------------------------------------------------*/
-void display_edgepts(LIST outlines); 
+void display_edgepts(LIST outlines);
 
-void draw_blob_edges(TBLOB *blob); 
+void draw_blob_edges(TBLOB *blob);
 
-void mark_outline(EDGEPT *edgept); 
+void mark_outline(EDGEPT *edgept);
 
-void mark_split(SPLIT *split); 
+void mark_split(SPLIT *split);
 #endif

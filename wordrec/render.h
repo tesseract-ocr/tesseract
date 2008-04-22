@@ -32,7 +32,7 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern void *blob_window;        /* Window for blobs */
+extern ScrollView *blob_window;        /* Window for blobs */
 extern C_COL color_list[];       /* Colors for outlines */
 extern int blob_pause;           /* Wait after each blob */
 extern int display_all_blobs;    /* Display blobs ? */
@@ -43,48 +43,16 @@ extern int display_all_words;    /* Display words ? */
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void display_blob(TBLOB *blob, C_COL color); 
+void display_blob(TBLOB *blob, C_COL color);
 
-void init_render_vars(); 
+void init_render_vars();
 
-void render_blob(void *window, TBLOB *blob, TPOINT origin, C_COL color); 
+void render_blob(void *window, TBLOB *blob, C_COL color);
 
-void render_edgepts(void *window, EDGEPT *edgept, C_COL color); 
+void render_edgepts(void *window, EDGEPT *edgept, C_COL color);
 
 void render_outline(void *window,
                     TESSLINE *outline,
-                    TPOINT origin,
                     C_COL color);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif*/
-
-/* render.c
-void display_blob
-  _ARGS((BLOB *blob,
-  char *color));
-
-void render_blob
-  _ARGS((X_WINDOW *window,
-  BLOB *blob,
-  TPOINT origin,
-  char *color));
-
-void render_edgepts
-  _ARGS((X_WINDOW *window,
-  EDGEPT *edgept,
-  char *color));
-
-void render_outline
-  _ARGS((X_WINDOW *window,
-  TESSLINE *outline,
-  TPOINT origin,
-  char *color));
-
-#undef _ARGS
-*/
 #endif

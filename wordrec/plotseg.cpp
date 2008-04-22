@@ -27,6 +27,7 @@
 ----------------------------------------------------------------------*/
 #include "plotseg.h"
 #include "callcpp.h"
+#include "scrollview.h"
 #include "tessclas.h"
 #include "blobs.h"
 #include "debug.h"
@@ -36,7 +37,7 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-void *segm_window = NULL;
+ScrollView *segm_window = NULL;
 
 make_int_var (display_segmentations, 0, make_display_seg,
 9, 2, toggle_segmentations, "Display Segmentations");
@@ -49,24 +50,19 @@ make_int_var (display_segmentations, 0, make_display_seg,
  *
  * Display all the words on the page into a window.
  **********************************************************************/
-void display_segmentation(TBLOB *chunks, SEARCH_STATE segmentation) { 
-  void *window;
-
-  /* Destroy old data */
+void display_segmentation(TBLOB *chunks, SEARCH_STATE segmentation) {
   /* If no window create it */
   if (segm_window == NULL) {
     segm_window = c_create_window ("Segmentation", 5, 10,
-      500, 128, -1000.0, 1000.0, 0.0, 256.0);
+      500, 256, -1000.0, 1000.0, 0.0, 256.0);
   }
   else {
-    c_clear_window(segm_window); 
+    c_clear_window(segm_window);
   }
 
-  window = segm_window;
-
-  render_segmentation(window, chunks, segmentation); 
+  render_segmentation(segm_window, chunks, segmentation);
   /* Put data in the window */
-  c_make_current(window); 
+  c_make_current(segm_window);
 }
 
 
@@ -75,8 +71,8 @@ void display_segmentation(TBLOB *chunks, SEARCH_STATE segmentation) {
  *
  * Intialize the plotseg control variables.
  **********************************************************************/
-void init_plotseg() { 
-  make_display_seg(); 
+void init_plotseg() {
+  make_display_seg();
 }
 
 
@@ -86,18 +82,21 @@ void init_plotseg() {
  * Create a list of line segments that represent the list of chunks
  * using the correct segmentation that was supplied as input.
  **********************************************************************/
-void render_segmentation(void *window,
+void render_segmentation(ScrollView *window,
                          TBLOB *chunks,
                          SEARCH_STATE segmentation) {
-  TPOINT origin;
   TBLOB *blob;
   C_COL color = Black;
   int char_num = -1;
   int chunks_left = 0;
 
-  blobs_origin(chunks, &origin); 
+  TPOINT topleft;
+  TPOINT botright;
 
-  iterate_blobs(blob, chunks) { 
+  // Find bounding box.
+  blobs_bounding_box(chunks, &topleft, &botright);
+
+  iterate_blobs(blob, chunks) {
 
     if (chunks_left-- == 0) {
       color = color_list[++char_num % NUM_COLORS];
@@ -107,6 +106,7 @@ void render_segmentation(void *window,
       else
         chunks_left = MAXINT;
     }
-    render_outline (window, blob->outlines, origin, color);
+    render_outline(window, blob->outlines, color);
   }
+  window->ZoomToRectangle(topleft.x, topleft.y, botright.x, botright.y);
 }

@@ -36,7 +36,7 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-void *blob_window = NULL;
+ScrollView *blob_window = NULL;
 
 C_COL color_list[] = {
   Red, Cyan, Yellow, Blue, Green, White
@@ -60,22 +60,16 @@ make_toggle_var (blob_pause, 0, make_blob_pause,
  * Macro to display blob in a window.
  **********************************************************************/
 void display_blob(TBLOB *blob, C_COL color) {
-  void *window;
-  TPOINT origin;
   /* Size of drawable */
   if (blob_window == NULL) {
     blob_window = c_create_window ("Blobs", 520, 10,
-      500, 128, -1000.0, 1000.0, 0.0, 256.0);
+      500, 256, -1000.0, 1000.0, 0.0, 256.0);
   }
   else {
     c_clear_window(blob_window);
   }
 
-  window = blob_window;
-  /* Render blob */
-  blob_origin(blob, &origin);
-
-  render_blob(window, blob, origin, color);
+  render_blob(blob_window, blob, color);
 }
 
 
@@ -97,12 +91,12 @@ void init_render_vars() {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_blob(void *window, TBLOB *blob, TPOINT origin, C_COL color) {
+void render_blob(void *window, TBLOB *blob, C_COL color) {
   /* No outline */
   if (!blob)
     return;
 
-  render_outline (window, blob->outlines, origin, color);
+  render_outline (window, blob->outlines, color);
 }
 
 
@@ -140,7 +134,6 @@ void render_edgepts(void *window, EDGEPT *edgept, C_COL color) {
  **********************************************************************/
 void render_outline(void *window,
                     TESSLINE *outline,
-                    TPOINT origin,
                     C_COL color) {
   /* No outline */
   if (!outline)
@@ -149,8 +142,8 @@ void render_outline(void *window,
   if (outline->loop)
     render_edgepts (window, outline->loop, color);
   /* Add on next outlines */
-  render_outline (window, outline->next, origin, color);
+  render_outline (window, outline->next, color);
 
   /* Add on child outlines */
-  render_outline (window, outline->child, origin, Grey);
+  render_outline(window, outline->child, Grey);
 }

@@ -51,7 +51,7 @@ typedef LIST OUTLINES;           /* List of (TESSLINE*) */
 
 typedef LIST EDGEPTS;            /* List of (EDGEPT*) */
 
-typedef INT16 BLOB_WEIGHTS[MAX_NUM_CHUNKS];
+typedef inT16 BLOB_WEIGHTS[MAX_NUM_CHUNKS];
 
 typedef struct
 {                                /* Each char evaluated */
@@ -72,7 +72,7 @@ typedef struct
   int x_height;
   WIDTH_RECORD *chunk_widths;
   WIDTH_RECORD *char_widths;
-  INT16 *weights;
+  inT16 *weights;
 } CHUNKS_RECORD;
 
                                  /* Each segmentation */
@@ -89,5 +89,5 @@ extern int enable_assoc;
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void init_associate_vars(); 
+void init_associate_vars();
 #endif

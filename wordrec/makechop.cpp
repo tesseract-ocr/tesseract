@@ -69,7 +69,7 @@ void apply_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
  * other blob.  The ones whose x location is less than that point are
  * retained in the original blob.
  **********************************************************************/
-void divide_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location) {
+void divide_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location) {
   TESSLINE *outline;
   TESSLINE *outline1 = NULL;
   TESSLINE *outline2 = NULL;
@@ -115,7 +115,7 @@ void divide_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location) {
  * Group the outlines from the first blob into both of them. Do so
  * according to the information about the split.
  **********************************************************************/
-void form_two_blobs(TBLOB *blob, TBLOB *other_blob, INT32 location) {
+void form_two_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location) {
   setup_blob_outlines(blob);
 
   divide_blobs(blob, other_blob, location);

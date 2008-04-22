@@ -250,10 +250,10 @@ void choose_best_seam(SEAM_QUEUE seam_queue,
  * tells whether or not any additional seams were added to the queue.
  **********************************************************************/
 void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam) {
-  register INT16 x;
-  register INT16 dist;
-  INT16 bottom1, top1;
-  INT16 bottom2, top2;
+  register inT16 x;
+  register inT16 dist;
+  inT16 bottom1, top1;
+  inT16 bottom2, top2;
 
   SEAM *new_one;
   SEAM *this_one;
@@ -284,10 +284,10 @@ void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam) {
     if (-SPLIT_CLOSENESS < dist &&
       dist < SPLIT_CLOSENESS &&
     seam->priority + this_one->priority < ok_split) {
-      INT16 split1_point1_y = this_one->split1->point1->pos.y;
-      INT16 split1_point2_y = this_one->split1->point2->pos.y;
-      INT16 split2_point1_y = 0;
-      INT16 split2_point2_y = 0;
+      inT16 split1_point1_y = this_one->split1->point1->pos.y;
+      inT16 split1_point2_y = this_one->split1->point2->pos.y;
+      inT16 split2_point1_y = 0;
+      inT16 split2_point2_y = 0;
       if (this_one->split2) {
         split2_point1_y = this_one->split2->point1->pos.y;
         split2_point2_y = this_one->split2->point2->pos.y;
@@ -332,7 +332,7 @@ void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam) {
  * Constrain this split to obey certain rules.  It must not cross any
  * inner outline.  It must not cut off a small chunk of the outline.
  **********************************************************************/
-INT16 constrained_split(SPLIT *split, TBLOB *blob) {
+inT16 constrained_split(SPLIT *split, TBLOB *blob) {
   TESSLINE *outline;
 
   if (is_little_chunk (split->point1, split->point2))
@@ -355,7 +355,7 @@ INT16 constrained_split(SPLIT *split, TBLOB *blob) {
  * that are referenced by these seams.
  **********************************************************************/
 void delete_seam_pile(SEAM_PILE seam_pile) {
-  INT16 x;
+  inT16 x;
 
   array_loop(seam_pile, x) {
     delete_seam ((SEAM *) array_value (seam_pile, x));
@@ -379,7 +379,7 @@ SEAM *pick_good_seam(TBLOB *blob) {
   EDGEPT *points[MAX_NUM_POINTS];
   SEAM *seam = NULL;
   TESSLINE *outline;
-  INT16 num_points = 0;
+  inT16 num_points = 0;
 
 #ifndef GRAPHICS_DISABLED
   if (chop_debug > 2)
@@ -449,7 +449,7 @@ SEAM *pick_good_seam(TBLOB *blob) {
  *
  * Assign a full priority value to the seam.
  **********************************************************************/
-PRIORITY seam_priority(SEAM *seam, INT16 xmin, INT16 xmax) {
+PRIORITY seam_priority(SEAM *seam, inT16 xmin, inT16 xmax) {
   PRIORITY priority;
 
   if (seam->split1 == NULL)
@@ -489,11 +489,11 @@ PRIORITY seam_priority(SEAM *seam, INT16 xmin, INT16 xmax) {
  **********************************************************************/
 void
 try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
-INT16 num_points,
+inT16 num_points,
 SEAM_QUEUE seam_queue,
 SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
-  INT16 x;
-  INT16 y;
+  inT16 x;
+  inT16 y;
   SPLIT *split;
   PRIORITY priority;
 
@@ -531,12 +531,12 @@ SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
  **********************************************************************/
 void
 try_vertical_splits (EDGEPT * points[MAX_NUM_POINTS],
-INT16 num_points,
+inT16 num_points,
 SEAM_QUEUE seam_queue,
 SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
   EDGEPT *vertical_point = NULL;
   SPLIT *split;
-  INT16 x;
+  inT16 x;
   PRIORITY priority;
   TESSLINE *outline;
 
