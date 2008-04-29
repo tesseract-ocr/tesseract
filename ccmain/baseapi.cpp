@@ -945,32 +945,6 @@ PAGE_RES* TessBaseAPI::RecognitionPass2(BLOCK_LIST* block_list,
   return pass1_result;
 }
 
-// brief Get a bounding box of a PBLOB.
-// TODO(mezhirov) delete this function and replace with blob->bounding_box()
-static TBOX pblob_get_bbox(PBLOB *blob) {
-  OUTLINE_LIST *outlines = blob->out_list();
-  OUTLINE_IT it(outlines);
-  TBOX result;
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    OUTLINE *outline = it.data();
-    outline->compute_bb();
-    result.bounding_union(outline->bounding_box());
-  }
-  return result;
-}
-
-// TODO(mezhirov) delete this function and replace with word->bounding_box()
-static TBOX c_blob_list_get_bbox(C_BLOB_LIST *cblobs) {
-  TBOX result;
-  C_BLOB_IT c_it(cblobs);
-  for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
-    C_BLOB *blob = c_it.data();
-    //bboxes.push(tessy_rectangle(blob->bounding_box()));
-    result.bounding_union(blob->bounding_box());
-  }
-  return result;
-}
-
 struct TESS_CHAR : ELIST_LINK {
   char *unicode_repr;
   int length; // of unicode_repr
@@ -1025,9 +999,8 @@ static void extract_result(ELIST_ITERATOR *out,
     TBOX** boxes_to_fix = new TBOX*[n];
     for (int i = 0; i < n; i++) {
       PBLOB *blob = it.data();
-      TBOX current = pblob_get_bbox(blob);
-      bln_rect.bounding_union(current);
-
+      TBOX current = blob->bounding_box();
+      bln_rect = bln_rect.bounding_union(current);
       TESS_CHAR *tc = new TESS_CHAR(rating_to_cost(word->best_choice->rating()),
                                     str, *len);
       tc->box = current;
@@ -1042,7 +1015,7 @@ static void extract_result(ELIST_ITERATOR *out,
     // Find the word bbox before normalization.
     // Here we can't use the C_BLOB bboxes directly,
     // since connected letters are not yet cut.
-    TBOX real_rect = c_blob_list_get_bbox(word->word->cblob_list());
+    TBOX real_rect = word->word->bounding_box();
 
     // Denormalize boxes by transforming the bbox of the whole bln word
     // into the denorm bbox (`real_rect') of the whole word.
