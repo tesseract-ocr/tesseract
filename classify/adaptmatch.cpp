@@ -1031,7 +1031,8 @@ void PrintAdaptiveStatistics(FILE *File) {
   fprintf (File, "\tNumber of words adapted to: %d\n", NumWordsAdaptedTo);
   fprintf (File, "\tNumber of chars adapted to: %d\n", NumCharsAdaptedTo);
 
-  PrintAdaptedTemplates(File, AdaptedTemplates);
+  if (UsePreAdaptedTemplates)
+    PrintAdaptedTemplates(File, AdaptedTemplates);
   #endif
 }                                /* PrintAdaptiveStatistics */
 
