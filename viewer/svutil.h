@@ -27,7 +27,9 @@
 #ifdef WIN32
 #include <windows.h>
 #define snprintf _snprintf
+#if (_MSC_VER <= 1400)
 #define vsnprintf _vsnprintf
+#endif
 #pragma warning(disable:4786)
 #else
 #include <pthread.h>

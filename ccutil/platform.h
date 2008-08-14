@@ -3,7 +3,9 @@
 #ifdef __MSW32__
 #define SIGNED
 #define snprintf _snprintf
+#if (_MSC_VER <= 1400)
 #define vsnprintf _vsnprintf
+#endif
 #else
 #define __UNIX__
 #include <limits.h>
