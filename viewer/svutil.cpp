@@ -59,8 +59,13 @@ void SVSync::StartProcess(const char* executable, const char* args) {
   proc.append(" ");
   proc.append(args);
   std::cout << "Starting " << proc << std::endl;
-  CreateProcess(NULL, const_cast<char*>(proc.c_str()), NULL,
-                NULL, FALSE, 0, NULL, NULL, NULL, NULL);
+  STARTUPINFO start_info;
+  PROCESS_INFORMATION proc_info;
+  GetStartupInfo(&start_info);
+  if (!CreateProcess(NULL, const_cast<char*>(proc.c_str()), NULL, NULL, FALSE,
+                CREATE_NO_WINDOW | DETACHED_PROCESS, NULL, NULL,
+                &start_info, &proc_info))
+    return;
 #else
   int pid = fork();
   if (pid != 0) {   // The father process returns
@@ -288,24 +293,23 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
       scrollview_path = ".";
 #endif
     }
-    // The following ugly pair of ifdefs are to enable the output of the
-    // java runtime to be sent down a black hole to ignore all the
+    // The following ugly ifdef is to enable the output of the java runtime
+    // to be sent down a black hole on non-windows to ignore all the
     // exceptions in piccolo. Ideally piccolo would be debugged to make
     // this unnecessary.
+    // Also the path has to be separated by ; on windows and : otherwise.
 #ifdef WIN32
     const char* prog = "java";
-    const char* cmd_template =
+    const char* cmd_template = "-Djava.library.path=%s -cp %s/luajava-1.1.jar"
+        ";%s/ScrollView.jar;%s/piccolo-1.2.jar;%s/piccolox-1.2.jar"
+        " com.google.scrollview.ScrollView";
 #else
     const char* prog = "sh";
     const char* cmd_template = "-c \"trap 'kill %1' 0 1 2 ; java "
-#endif
         "-Djava.library.path=%s -cp %s/luajava-1.1.jar:%s/ScrollView.jar:"
         "%s/piccolo-1.2.jar:%s/piccolox-1.2.jar"
         " com.google.scrollview.ScrollView"
-#ifdef WIN32
-        ;
-#else
-    " >/dev/null 2>&1 & wait\"";
+        " >/dev/null 2>&1 & wait\"";
 #endif
     int cmdlen = strlen(cmd_template) + 5*strlen(scrollview_path) + 1;
     char* cmd = new char[cmdlen];

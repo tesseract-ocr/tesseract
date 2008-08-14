@@ -40,7 +40,7 @@ clean :
 	rm -f ScrollView.jar *.class
 
 # all-am does nothing, to make the java part optional.
-all all-am :
+all all-am install :
 
 # dist runs the autoconf makefile to archive the files correctly.
 dist distdir :
