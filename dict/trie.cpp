@@ -55,12 +55,12 @@ void add_edge_linkage(EDGE_ARRAY dawg,
                       NODE_REF node1,
                       NODE_REF node2,
                       EDGE_RECORD direction,
-                      char character,
+                      int character,
                       EDGE_RECORD word_end) {
   EDGE_REF edge1 = node1;
   EDGE_REF edge2;
   inT32      num_edges = edges_in_node (dawg, node1);
-  inT32      last_one;
+  inT64      last_one;
 
   word_end  = (word_end ? WERD_END_FLAG : 0);
 
@@ -117,7 +117,7 @@ void add_edge_linkage(EDGE_ARRAY dawg,
 bool add_new_edge(EDGE_ARRAY dawg,
                   NODE_REF *node1,
                   NODE_REF *node2,
-                  char character,
+                  int character,
                   EDGE_RECORD word_end,
                   inT32 max_num_edges,
                   inT32 reserved_edges) {
@@ -149,7 +149,7 @@ bool add_new_edge(EDGE_ARRAY dawg,
  * Add in a word by creating the necessary nodes and edges.
  **********************************************************************/
 void add_word_to_dawg(EDGE_ARRAY dawg,
-                      char *string,
+                      const char *string,
                       inT32 max_num_edges,
                       inT32 reserved_edges) {
   EDGE_REF    edge;
@@ -162,8 +162,9 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
 
   if (debug) cprintf("Adding word %s\n", string);
   for (i=0; i<strlen(string)-1; i++) {
+    unsigned char ch = case_sensative ? string[i] : tolower(string[i]);
     if (still_finding_chars) {
-      edge = edge_char_of (dawg, last_node, string[i], word_end);
+      edge = edge_char_of(dawg, last_node, ch, word_end);
       if (debug) cprintf ("exploring edge = " REFFORMAT "\n", edge);
       if (edge == NO_EDGE)
         still_finding_chars = FALSE;
@@ -171,8 +172,7 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
       if (next_node (dawg, edge) == 0) {
         word_end = TRUE;
         still_finding_chars = FALSE;
-        if (! case_sensative) string[i] = tolower (string[i]);
-        remove_edge (dawg, last_node, 0, string[i], word_end);
+        remove_edge (dawg, last_node, 0, ch, word_end);
       }
       else {
         last_node = next_node (dawg, edge);
@@ -195,9 +195,8 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
           break;
         }
       }
-      if (! case_sensative) string[i] = tolower (string[i]);
-      if (!add_new_edge (dawg, &last_node, &the_next_node,
-        string[i], word_end, max_num_edges, reserved_edges)) {
+      if (!add_new_edge (dawg, &last_node, &the_next_node, ch,
+                         word_end, max_num_edges, reserved_edges)) {
         add_failed = true;
         break;
       }
@@ -209,10 +208,10 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
   }
 
   the_next_node = 0;
-  if (! case_sensative) string[i] = tolower (string[i]);
+  unsigned char ch = case_sensative ? string[i] : tolower(string[i]);
   if (!add_failed &&
-      !add_new_edge(dawg, &last_node, &the_next_node,
-                    string[i], TRUE, max_num_edges, reserved_edges))
+      !add_new_edge(dawg, &last_node, &the_next_node, ch,
+                    TRUE, max_num_edges, reserved_edges))
     add_failed = true;
 
   if (edges_in_node (dawg, 0) > reserved_edges) {
@@ -496,7 +495,7 @@ void relocate_edge(EDGE_ARRAY dawg,
 void remove_edge(EDGE_ARRAY dawg,
                  NODE_REF node1,
                  NODE_REF node2,
-                 char character,
+                 int character,
                  EDGE_RECORD word_end) {
   remove_edge_linkage(dawg, node1, node2, FORWARD_EDGE, character, word_end);
 
@@ -514,7 +513,7 @@ void remove_edge_linkage(EDGE_ARRAY dawg,
                          NODE_REF node,
                          NODE_REF next,
                          EDGE_RECORD direction,
-                         char character,
+                         int character,
                          EDGE_RECORD word_end) {
   inT32      forward_edges;
   inT32      num_edges;

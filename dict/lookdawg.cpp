@@ -176,7 +176,8 @@ void match_words (EDGE_ARRAY  dawg,
   }
   else {
     word_end = (string[index+1] == (char) 0);
-    edge = edge_char_of (dawg, node, string[index], word_end);
+    edge = edge_char_of(dawg, node,
+                        static_cast<unsigned char>(string[index]), word_end);
     if (edge != NO_EDGE) {                         /* Normal edge in DAWG */
       node = next_node (dawg, edge);
       if (word_end) {

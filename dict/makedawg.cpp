@@ -234,7 +234,11 @@ void write_squished_dawg (const char *filename,
   node_map = build_node_map (dawg, &node_count, FALSE, max_num_edges,
                              reserved_edges);
 
+#ifdef WIN32
+  file = open_file (filename, "wb");
+#else
   file = open_file (filename, "w");
+#endif
 
   num_edges = 0;                                 /* Count number of edges */
   for (edge=0; edge<max_num_edges; edge++)

@@ -138,40 +138,12 @@ inT32 def_letter_is_okay(EDGE_ARRAY dawg,
     else
       return (FALSE);
   }
-  else {
-    /* Leading punctuation */
-    if (*node == 0                           &&
-      char_index != 0                      &&
-        // TODO(tkielbus) Replace islalpha by unicode versions.
-        // However the lengths information is not available at this point in the
-        // code. We will probably get rid of the dictionaries at some point anyway.
-        isalpha (dummy_word [char_index])          &&
-      ! leading_punc (dummy_word [char_index-1]) &&
-    dummy_word [char_index-1] != '-') {
-      return (FALSE);
-    }
-  }
-  /* Handle compund words */
-#if 0
-  if (dummy_word [char_index] == '-') {
-    if (char_index>0 && !word_end
-         && word [char_index-1] == '-'
-         && word [char_index+1] == '-')
-      return FALSE;              /*not allowed*/
-    dummy_word [char_index] = (char) 0;
-    if (word_in_dawg (dawg, dummy_word.string())) {
-      dummy_word [char_index] = '-';
-      *node = 0;
-      return (TRUE);
-    }
-    else {
-      dummy_word [char_index] = '-';
-      return (FALSE);
-    }
-  }
-#endif
+  // rays: removed incorrect code that attempted to enforce leading
+  // punctutation (or nothing) before an alpha character.
   /* Check the DAWG */
-  edge = edge_char_of (dawg, *node, dummy_word [char_index], word_end);
+  edge = edge_char_of(dawg, *node,
+                      static_cast<unsigned char>(dummy_word [char_index]),
+                      word_end);
 
   if (edge != NO_EDGE) {         /* Normal edge in DAWG */
     if (case_sensative || case_is_okay (dummy_word, char_index)) {
@@ -244,7 +216,7 @@ void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node) {
   const char       *is_last;
   const char       *eow;
 
-  char       ch;
+  int       ch;
 
   if (edge_occupied (dawg, edge)) {
     do {
