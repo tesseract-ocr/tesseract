@@ -120,7 +120,7 @@ tags: TAGS
 TAGS:
 
 
-distdir = $(top_builddir)/$(PACKAGE_NAME)-$(PACKAGE_VERSION)/$(subdir)
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
 subdir = tessdata/tessconfigs
 
