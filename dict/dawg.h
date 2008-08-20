@@ -192,7 +192,7 @@ for  (edge=0; edge<max_num_edges; edge++)      \
  **********************************************************************/
 
 #define edge_letter(edges,e)  \
-((int)(((edges)[e] & LETTER_MASK) >> LETTER_START_BIT))
+  (static_cast<int>(((edges)[e] & LETTER_MASK) >> LETTER_START_BIT))
 
 /**********************************************************************
 * letter_of_edge
@@ -201,7 +201,7 @@ for  (edge=0; edge<max_num_edges; edge++)      \
 **********************************************************************/
 
 #define letter_of_edge(edge)  \
-  ((int)((edge & LETTER_MASK) >> LETTER_START_BIT))
+  (static_cast<int>((edge & LETTER_MASK) >> LETTER_START_BIT))
 
 /**********************************************************************
  * last_edge

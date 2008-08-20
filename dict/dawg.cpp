@@ -142,8 +142,20 @@ inT32 def_letter_is_okay(EDGE_ARRAY dawg,
   // punctutation (or nothing) before an alpha character.
   /* Check the DAWG */
   edge = edge_char_of(dawg, *node,
-                      static_cast<unsigned char>(dummy_word [char_index]),
+                      static_cast<unsigned char>(dummy_word[char_index]),
                       word_end);
+#if 0
+  // TODO(rays) Turn dawg to a class so this can be used properly.
+  // The maximum value of edge is unknown to this function, but could
+  // easily be stored in a dawg class.
+  if ((edge < 0 || edge >= 10000000)  // MAX_NUM_EDGES_IN_SQUISHED_DAWG_FILE)
+      && edge != NO_EDGE) {
+    tprintf("Impossible return from edge_char_of: node=" REFFORMAT
+            ", ch=%d, edge=" REFFORMAT "\n",
+            *node, static_cast<unsigned char>(dummy_word[char_index]), edge);
+    edge = NO_EDGE;
+  }
+#endif
 
   if (edge != NO_EDGE) {         /* Normal edge in DAWG */
     if (case_sensative || case_is_okay (dummy_word, char_index)) {

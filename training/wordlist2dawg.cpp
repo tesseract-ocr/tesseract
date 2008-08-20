@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     const char* dawg_filename = argv[2];
 
     EDGE_ARRAY dawg;
-    inT32 max_num_edges =  100000000;
+    inT32 max_num_edges =  10000000;
     inT32 reserved_edges =  1000000;
 
     dawg = (EDGE_ARRAY) Emalloc(sizeof (EDGE_RECORD) * max_num_edges);

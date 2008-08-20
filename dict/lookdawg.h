@@ -64,7 +64,7 @@
 void check_for_words(EDGE_ARRAY dawg,
                      char *filename);
 
-void match_words(EDGE_ARRAY dawg,
+bool match_words(EDGE_ARRAY dawg,
                  char *string,
                  inT32 index,
                  NODE_REF node);

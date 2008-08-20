@@ -142,6 +142,31 @@ bool add_new_edge(EDGE_ARRAY dawg,
   return true;
 }
 
+/**********************************************************************
+ * add_word_ending
+ *
+ * Set the word ending flags in an already existing edge pair.
+ * Return true on success.
+ **********************************************************************/
+bool add_word_ending(EDGE_ARRAY dawg,
+                     EDGE_REF edge,
+                     NODE_REF the_next_node,
+                     int ch) {
+  EDGE_REF other_edge = the_next_node;
+  // Find the backward link from the_next_node back with ch.
+  if (forward_edge(dawg, other_edge))
+    edge_loop(dawg, other_edge);
+  if (backward_edge(dawg, other_edge)) {
+    other_edge = edge_char_of(dawg, other_edge, ch, false);
+    if (other_edge != NO_EDGE) {
+      // Mark both directions as end of word.
+      dawg[edge] |= (WERD_END_FLAG << FLAG_START_BIT);
+      dawg[other_edge] |= (WERD_END_FLAG << FLAG_START_BIT);
+      return true;  // Success.
+    }
+  }
+  return false;  // Failed.
+}
 
 /**********************************************************************
  * add_word_to_dawg
@@ -209,10 +234,19 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
 
   the_next_node = 0;
   unsigned char ch = case_sensative ? string[i] : tolower(string[i]);
-  if (!add_failed &&
-      !add_new_edge(dawg, &last_node, &the_next_node, ch,
-                    TRUE, max_num_edges, reserved_edges))
-    add_failed = true;
+  if (still_finding_chars &&
+      (edge = edge_char_of(dawg, last_node, ch, false))!= NO_EDGE &&
+      (the_next_node = next_node(dawg, edge)) != 0) {
+    // An extension of this word already exists in the trie, so we
+    // only have to add the ending flags in both directions.
+    if (!add_word_ending(dawg, edge, the_next_node, ch))
+      cprintf("Unable to find backward edge for subword ending! %s\n", string);
+  } else {
+    if (!add_failed &&
+        !add_new_edge(dawg, &last_node, &the_next_node, ch,
+                      TRUE, max_num_edges, reserved_edges))
+      add_failed = true;
+  }
 
   if (edges_in_node (dawg, 0) > reserved_edges) {
     cprintf ("error: Not enough room in root node, %d\n",
@@ -428,10 +462,12 @@ void read_word_list(const char *filename,
     if (debug && word_count % 10000 == 0)
       cprintf("Read %d words so far\n", word_count);
     if (string[0] != '\0' /* strlen (string) */) {
-      add_word_to_dawg(dawg, string, max_num_edges, reserved_edges);
-      if (! word_in_dawg (dawg, string)) {
-        cprintf ("error: word not in DAWG after adding it '%s'\n", string);
-      return;
+      if (!word_in_dawg(dawg, string)) {
+        add_word_to_dawg(dawg, string, max_num_edges, reserved_edges);
+        if (!word_in_dawg(dawg, string)) {
+          cprintf("error: word not in DAWG after adding it '%s'\n", string);
+          return;
+        }
       }
     }
   }

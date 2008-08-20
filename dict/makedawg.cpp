@@ -235,9 +235,9 @@ void write_squished_dawg (const char *filename,
                              reserved_edges);
 
 #ifdef WIN32
-  file = open_file (filename, "wb");
+  file = open_file(filename, "wb");
 #else
-  file = open_file (filename, "w");
+  file = open_file(filename, "w");
 #endif
 
   num_edges = 0;                                 /* Count number of edges */
