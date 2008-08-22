@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="wordlist2dawg"
 	ProjectGUID="{5B6DC93B-30BE-4E8E-A396-3970A83CB74B}"
+	RootNamespace="wordlist2dawg"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"
 	>
@@ -1101,6 +1102,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath="..\dict\dawg.h"
+				>
+			</File>
 			<File
 				RelativePath="..\viewer\grphics.h"
 				>
