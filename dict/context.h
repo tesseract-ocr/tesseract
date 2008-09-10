@@ -36,10 +36,6 @@ void close_choices();
 
 void fix_quotes(char *str);
 
-int punctuation_ok(const char *word, const char *lengths);
-
-int case_ok(const char *word, const char *lengths);
-
 void write_choice_line();
 
 typedef double (*PROBABILITY_IN_CONTEXT_FUNCTION)(const char* context,

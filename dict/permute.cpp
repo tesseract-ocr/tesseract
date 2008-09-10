@@ -2,7 +2,10 @@
  ********************************************************************************
  *
  * File:        permute.c  (Formerly permute.c)
- * Description:  Handle the new ratings choices for Wise Owl
+ * Description:  Choose OCR text given character-probability maps
+ *               for sequences of glyph fragments and a dictionary provided as
+ *               a Dual Acyclic Word Graph.
+ *               In this file, "permute" should be read "combine."
  * Author:       Mark Seaman, OCR Technology
  * Created:      Fri Sep 22 14:05:51 1989
  * Modified:     Thu Jan  3 16:38:46 1991 (Mark Seaman) marks@hpgrlt
@@ -25,21 +28,38 @@
 /*----------------------------------------------------------------------
             I n c l u d e s
 ---------------------------------------------------------------------*/
-#include "permute.h"
-#include "globals.h"
-#include "permdawg.h"
-#include "debug.h"
-#include "tordvars.h"
-#include "hyphen.h"
-#include "stopper.h"
-#include "trie.h"
-#include "context.h"
-#include "permnum.h"
-#include "freelist.h"
-#include "callcpp.h"
-#include "permngram.h"
 
+#include <assert.h>
 #include <math.h>
+
+#include "fstmodel.h"
+
+#include "const.h"
+
+#include "permute.h"
+
+#include "callcpp.h"
+#include "choices.h"
+#include "context.h"
+#include "conversion.h"
+#include "debug.h"
+#include "freelist.h"
+#include "globals.h"
+#include "hyphen.h"
+#include "ndminx.h"
+#include "permdawg.h"
+#include "permngram.h"
+#include "permnum.h"
+#include "ratngs.h"
+#include "stopper.h"
+#include "tordvars.h"
+#include "tprintf.h"
+#include "trie.h"
+#include "varable.h"
+#include "unicharset.h"
+#include "dict.h"
+#include "image.h"
+#include "ccutil.h"
 
 int permutation_count;           // Used in metrics.cpp.
 /*----------------------------------------------------------------------
@@ -62,27 +82,29 @@ EDGE_ARRAY document_words;
 EDGE_ARRAY user_words;
 EDGE_ARRAY word_dawg;
 
-make_toggle_var (adjust_debug, 0, make_adjust_debug,
-8, 13, set_adjust_debug, "Adjustment Debug");
+INT_VAR(fragments_debug, 0, "Debug character fragments");
 
-make_toggle_var (compound_debug, 0, make_compound_debug,
-8, 14, set_compound_debug, "Compound Debug");
+BOOL_VAR(segment_debug, 0, "Debug the whole segmentation process");
 
-make_float_var (non_word, NON_WERD, make_non_word,
-8, 20, set_non_word, "Non-word adjustment");
+BOOL_VAR(segment_adjust_debug, 0, "Segmentation adjustment debug");
 
-make_float_var (garbage, GARBAGE_STRING, make_garbage,
-8, 21, set_garbage, "Garbage adjustment");
+double_VAR(segment_penalty_dict_nonword, NON_WERD,
+           "Score multiplier for glyph fragment segmentations which do not "
+           "match a dictionary word (lower is better).");
 
-make_toggle_var (save_doc_words, 0, make_doc_words,
-8, 22, set_doc_words, "Save Document Words ");
+double_VAR(segment_penalty_garbage, GARBAGE_STRING,
+           "Score multiplier for poorly cased strings that are not in the "
+           "dictionary and generally look like garbage (lower is better).");
 
-make_toggle_var (doc_dict_enable, 1, make_doc_dict,
-8, 25, set_doc_dict, "Enable Document Dictionary ");
+BOOL_VAR(save_doc_words, 0, "Save Document Words");
+
+BOOL_VAR(doc_dict_enable, 1, "Enable Document Dictionary ");
 /* PREV DEFAULT 0 */
 
 BOOL_VAR(ngram_permuter_activated, FALSE,
          "Activate character-level n-gram-based permuter");
+
+BOOL_VAR(fst_activated, FALSE, "Activate fst");
 
 int permute_only_top = 0;
 
@@ -872,33 +894,44 @@ static inT32 bigram_counts[256][3] = { {
 ----------------------------------------------------------------------*/
 
 /**********************************************************************
+ * get_best_delete_other
+ *
+ * Returns the best of two choices and deletes the other (worse) choice.
+ * A choice is better if it has a non-empty string and has a lower
+ * rating than the other choice. If the ratings are the same,
+ * choice2 is preferred over choice1.
+ **********************************************************************/
+WERD_CHOICE *get_best_delete_other(WERD_CHOICE *choice1,
+                                   WERD_CHOICE *choice2) {
+  if (!choice1) return choice2;
+  if (!choice2) return choice1;
+  if (choice1->rating() < choice2->rating() || choice2->length() == 0) {
+    delete choice2;
+    return choice1;
+  } else {
+    delete choice1;
+    return choice2;
+  }
+}
+
+
+/**********************************************************************
  * good_choice
  *
  * Return TRUE if a good answer is found for the unknown blob rating.
  **********************************************************************/
-int good_choice(A_CHOICE *choice) {
+int good_choice(const WERD_CHOICE &choice) {
   register float certainty;
-  if (choice == NULL)
-    return (FALSE);
   if (similarity_enable) {
-    if ((class_probability (choice) + 1) * class_certainty (choice) >
-      SIMILARITY_FLOOR)
-      return (FALSE);
+    if ((choice.rating() + 1) * choice.certainty() > SIMILARITY_FLOOR)
+      return false;
     certainty =
-      SIM_CERTAINTY_OFFSET +
-      class_probability (choice) * SIM_CERTAINTY_SCALE;
+      SIM_CERTAINTY_OFFSET + choice.rating() * SIM_CERTAINTY_SCALE;
+  } else {
+    certainty = choice.certainty();
   }
 
-  else {
-    certainty = class_certainty (choice);
-  }
-  if (certainty > certainty_threshold) {
-    return (TRUE);
-  }
-
-  else {
-    return (FALSE);
-  }
+  return (certainty > certainty_threshold) ? true : false;
 }
 
 
@@ -908,41 +941,34 @@ int good_choice(A_CHOICE *choice) {
  * Add a word found on this document to the document specific
  * dictionary.
  **********************************************************************/
-void add_document_word(A_CHOICE *best_choice) {
+namespace tesseract {
+void Dict::add_document_word(const WERD_CHOICE &best_choice) {
   char filename[CHARS_PER_LINE];
   FILE *doc_word_file;
-  char *string;
-  char *lengths;
-  int stringlen;                 //length of word
-
-  string = class_string (best_choice);
-  lengths = class_lengths (best_choice);
-  stringlen = strlen (lengths);
-
-  // Skip if using external dictionary.
-  if (letter_is_okay != &def_letter_is_okay) return;
+  const char *string = best_choice.unichar_string().string();
+  int stringlen = best_choice.length();
 
   if (!doc_dict_enable
     || valid_word (string) || CurrentWordAmbig () || stringlen < 2)
     return;
 
-  if (!good_choice (best_choice) || stringlen == 2) {
-    if (class_certainty (best_choice) < permuter_pending_threshold)
+  if (!good_choice(best_choice) || stringlen == 2) {
+    if (best_choice.certainty() < permuter_pending_threshold)
       return;
-    if (!word_in_dawg (pending_words, string)) {
+    if (!word_in_dawg(pending_words, string)) {
       if (stringlen > 2 ||
-          (stringlen >= 2 && unicharset.get_isupper (string, lengths[0]) &&
-           unicharset.get_isupper (string + lengths[0], lengths[1])))
-        add_word_to_dawg(pending_words,
-                         string,
-                         MAX_DOC_EDGES,
-                         RESERVED_DOC_EDGES);
+          (stringlen == 2 &&
+           getUnicharset().get_isupper(best_choice.unichar_id(0)) &&
+           getUnicharset().get_isupper(best_choice.unichar_id(1)))) {
+        add_word_to_dawg(pending_words, string,
+                         MAX_DOC_EDGES, RESERVED_DOC_EDGES);
+      }
       return;
     }
   }
 
   if (save_doc_words) {
-    strcpy(filename, imagefile);
+    strcpy(filename, getImage()->getCCUtil()->imagefile.string());
     strcat (filename, ".doc");
     doc_word_file = open_file (filename, "a");
     fprintf (doc_word_file, "%s\n", string);
@@ -958,43 +984,35 @@ void add_document_word(A_CHOICE *best_choice) {
  * Assign an adjusted value to a string that is a non-word.  The value
  * that this word choice has is based on case and punctuation rules.
  **********************************************************************/
-void
-adjust_non_word (A_CHOICE * best_choice, float certainties[]) {
-  char *this_word;
-  float adjust_factor;
+void Dict::adjust_non_word(const char *word, const char *word_lengths,
+                           float rating, float *new_rating,
+                           float *adjust_factor) {
+  if (segment_adjust_debug)
+    cprintf("Non-word: %s %4.2f ", word, rating);
 
-  if (adjust_debug)
-    cprintf ("%s %4.2f ",
-      class_string (best_choice), class_probability (best_choice));
-
-  this_word = class_string (best_choice);
-
-  class_probability (best_choice) += RATING_PAD;
-  if (case_ok (this_word, class_lengths (best_choice))
-      && punctuation_ok (this_word, class_lengths (best_choice)) != -1) {
-    class_probability (best_choice) *= non_word;
-    adjust_factor = non_word;
-    if (adjust_debug)
-      cprintf (", %4.2f ", non_word);
-  }
-  else {
-    class_probability (best_choice) *= garbage;
-    adjust_factor = garbage;
-    if (adjust_debug) {
-      if (!case_ok (this_word, class_lengths (best_choice)))
+  *new_rating = rating + RATING_PAD;
+  if (case_ok(word, word_lengths) &&
+      punctuation_ok(word, word_lengths) != -1) {
+    *new_rating *= segment_penalty_dict_nonword;
+    *adjust_factor = segment_penalty_dict_nonword;
+    if (segment_adjust_debug)
+      cprintf(", %4.2f ", (double)segment_penalty_dict_nonword);
+  } else {
+    *new_rating *= segment_penalty_garbage;
+    *adjust_factor = segment_penalty_garbage;
+    if (segment_adjust_debug) {
+      if (!case_ok(word, word_lengths))
         cprintf (", C");
-      if (punctuation_ok (this_word, class_lengths (best_choice)) == -1)
+      if (punctuation_ok(word, word_lengths) == -1)
         cprintf (", P");
-      cprintf (", %4.2f ", garbage);
+      cprintf (", %4.2f ", (double)segment_penalty_garbage);
     }
   }
 
-  class_probability (best_choice) -= RATING_PAD;
+  *new_rating -= RATING_PAD;
 
-  LogNewWordChoice(best_choice, adjust_factor, certainties);
-
-  if (adjust_debug)
-    cprintf (" --> %4.2f\n", class_probability (best_choice));
+  if (segment_adjust_debug)
+    cprintf (" --> %4.2f\n", *new_rating);
 }
 
 
@@ -1004,42 +1022,37 @@ adjust_non_word (A_CHOICE * best_choice, float certainties[]) {
  * Initialize anything that needs to be set up for the permute
  * functions.
  **********************************************************************/
-void init_permute_vars() {
-  make_adjust_debug();
-  make_compound_debug();
-  make_non_word();
-  make_garbage();
-  make_doc_words();
-  make_doc_dict();
-
-  init_permdawg_vars();
-  init_permnum();
-}
-
-void init_permute() {
+void Dict::init_permute() {
   if (word_dawg != NULL)
     end_permute();
   init_permdawg();
   STRING name;
-  name = language_data_path_prefix;
+  name = getImage()->getCCUtil()->language_data_path_prefix;
   name += "word-dawg";
   word_dawg = read_squished_dawg(name.string());
 
   document_words =
-    (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_DOC_EDGES);
+      (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_DOC_EDGES);
   initialize_dawg(document_words, MAX_DOC_EDGES);
 
   pending_words =
-    (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_DOC_EDGES);
+      (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_DOC_EDGES);
   initialize_dawg(pending_words, MAX_DOC_EDGES);
 
   user_words = (EDGE_ARRAY) memalloc (sizeof (EDGE_RECORD) * MAX_USER_EDGES);
-  name = language_data_path_prefix;
+  name = getImage()->getCCUtil()->language_data_path_prefix;
   name += "user-words";
   read_word_list(name.string(), user_words, MAX_USER_EDGES, USER_RESERVED_EDGES);
+  if (fst_activated) {
+    STRING name;
+    name = getImage()->getCCUtil()->language_data_path_prefix;
+    name += "fst";
+    LanguageModel::Instance()->InitWithLanguage(name.string());
+    letter_is_okay_ = &tesseract::Dict::fst_letter_is_okay;
+  }
 }
 
-void end_permute() {
+void Dict::end_permute() {
   if (word_dawg == NULL)
     return;  // Not safe to call twice.
   memfree(word_dawg);
@@ -1058,61 +1071,73 @@ void end_permute() {
  *
  * Permute all the characters together using all of the different types
  * of permuters/selectors available.  Each of the characters must have
- * a non-NIL choice list.
+ * a non-NULL choice list.
+ *
+ * Note: order of applying permuters does matter, since the latter
+ * permuter will be recorded if the resulting word ratings are the same.
  **********************************************************************/
-A_CHOICE *permute_all(CHOICES_LIST char_choices,
-                      float rating_limit,
-                      A_CHOICE *raw_choice) {
-  A_CHOICE *result_1;
-  A_CHOICE *result_2 = NULL;
+WERD_CHOICE *Dict::permute_all(const BLOB_CHOICE_LIST_VECTOR &char_choices,
+                               float rating_limit,
+                               WERD_CHOICE *raw_choice) {
+  A_CHOICE *a_choice;
+  WERD_CHOICE *result1;
+  WERD_CHOICE *result2 = NULL;
   BOOL8 any_alpha;
+  int free_index;
+  float top_choice_rating_limit = rating_limit;
+  CHOICES_LIST old_char_choices = NULL;
 
-  result_1 = permute_top_choice (char_choices, rating_limit, raw_choice,
-    &any_alpha);
+  // Initialize result1 from the result of permute_top_choice.
+  result1 = permute_top_choice(char_choices, &top_choice_rating_limit,
+                               raw_choice, &any_alpha);
 
-  if (ngram_permuter_activated)
-    return ngram_permute_and_select(char_choices, rating_limit, word_dawg);
+  // Permute character fragments if necessary.
+  if (result1 == NULL || result1->fragment_mark()) {
+    result2 = top_fragments_permute_and_select(char_choices,
+                                               top_choice_rating_limit);
+    result1 = get_best_delete_other(result1, result2);
+  }
 
-  if (result_1 == NULL)
+  if (ngram_permuter_activated) {
+    old_char_choices = convert_to_choices_list(char_choices, getUnicharset());
+    A_CHOICE *ngram_choice =
+      ngram_permute_and_select(old_char_choices, rating_limit, word_dawg);
+    free_all_choices(old_char_choices, free_index);
+    if (ngram_choice == NULL) return NULL;
+    result1 = new WERD_CHOICE();
+    convert_to_word_choice(ngram_choice, getUnicharset(), result1);
+    return result1;
+  }
+
+  if (result1 == NULL)
     return (NULL);
   if (permute_only_top)
-    return result_1;
-  if (any_alpha && array_count (char_choices) <= MAX_WERD_LENGTH) {
-    result_2 = permute_words (char_choices, rating_limit);
-    if (class_probability (result_1) < class_probability (result_2)
-    || class_string (result_2) == NULL) {
-      free_choice(result_2);
+    return result1;
+
+  old_char_choices = convert_to_choices_list(char_choices, getUnicharset());
+
+  if (display_ratings > 1) {
+    int i;
+    cprintf("\nold_char_choices in permute_characters: ");
+    for_each_choice(old_char_choices, i) {
+      print_choices("", (CHOICES) array_index (old_char_choices, i));
+      cprintf("\n");
     }
-    else {
-      free_choice(result_1);
-      result_1 = result_2;
-    }
   }
 
-  result_2 = number_permute_and_select (char_choices, rating_limit);
-
-  if (class_probability (result_1) < class_probability (result_2)
-  || class_string (result_2) == NULL) {
-    free_choice(result_2);
-  }
-  else {
-    free_choice(result_1);
-    result_1 = result_2;
+  if (any_alpha && char_choices.length() <= MAX_WERD_LENGTH) {
+    a_choice = permute_words(old_char_choices, rating_limit);
+    result1 = get_best_delete_other(getUnicharset(), result1, a_choice);
   }
 
-  result_2 = permute_compound_words (char_choices, rating_limit);
+  a_choice = number_permute_and_select(old_char_choices, rating_limit);
+  result1 = get_best_delete_other(getUnicharset(), result1, a_choice);
 
-  if (!result_2 ||
-    class_probability (result_1) < class_probability (result_2)
-  || class_string (result_2) == NULL) {
-    free_choice(result_2);
-  }
-  else {
-    free_choice(result_1);
-    result_1 = result_2;
-  }
+  result2 = permute_compound_words(char_choices, rating_limit);
+  result1 = get_best_delete_other(result1, result2);
 
-  return (result_1);
+  free_all_choices(old_char_choices, free_index);
+  return (result1);
 }
 
 
@@ -1122,86 +1147,97 @@ A_CHOICE *permute_all(CHOICES_LIST char_choices,
  * Permute these characters together according to each of the different
  * permuters that are enabled.
  **********************************************************************/
-void permute_characters(CHOICES_LIST char_choices,
-                        float limit,
-                        A_CHOICE *best_choice,
-                        A_CHOICE *raw_choice) {
-  A_CHOICE *this_choice;
+void Dict::permute_characters(const BLOB_CHOICE_LIST_VECTOR &char_choices,
+                              float limit,
+                              WERD_CHOICE *best_choice,
+                              WERD_CHOICE *raw_choice) {
+  float old_raw_choice_rating = raw_choice->rating();
+
+  if (display_ratings > 1) {
+    cprintf("\nchar_choices in permute_characters:\n");
+    for (int i = 0; i < char_choices.length(); ++i) {
+      print_ratings_list("", char_choices.get(i), getUnicharset());
+      cprintf("\n");
+    }
+  }
 
   permutation_count++;           /* Global counter */
 
-  this_choice = permute_all (char_choices, limit, raw_choice);
+  WERD_CHOICE *this_choice = permute_all(char_choices, limit, raw_choice);
 
-  if (this_choice &&
-  class_probability (this_choice) < class_probability (best_choice)) {
-    clone_choice(best_choice, this_choice);
+  if (raw_choice->rating() < old_raw_choice_rating) {
+    // Populate unichars_ and unichar_lengths_ of raw_choice. This is
+    // needed for various components that still work with unichars rather
+    // than unichar ids (e.g. AdaptToWord).
+    raw_choice->populate_unichars(getUnicharset());
   }
-  free_choice(this_choice);
+  if (this_choice && this_choice->rating() < best_choice->rating()) {
+    *best_choice = *this_choice;
+    // Populate unichars_ and unichar_lengths_ of best_choice. This is
+    // needed for various components that still work with unichars rather
+    // than unichar ids (dawg, *_ok functions, various hard-coded hacks).
+    best_choice->populate_unichars(getUnicharset());
 
-  if (display_ratings)
-    print_word_choice("permute_characters", best_choice);
+    if (display_ratings) {
+      cprintf("permute_characters: %s\n",
+              best_choice->debug_string(getUnicharset()).string());
+    }
+  }
+  delete this_choice;
 }
 
 
 /**********************************************************************
- * permute_compound_word
+ * permute_compound_words
  *
  * Return the top choice for each character as the choice for the word.
  **********************************************************************/
-A_CHOICE *permute_compound_words(CHOICES_LIST character_choices,
-                                 float rating_limit) {
-  A_CHOICE *first_choice;
-  A_CHOICE *best_choice = NULL;
-  char word[UNICHAR_LEN * MAX_WERD_LENGTH + 1];
-  char unichar_lengths[MAX_WERD_LENGTH + 1];
-  float rating = 0;
-  float certainty = 10000;
-  char char_choice;
-  int x;
+WERD_CHOICE *Dict::permute_compound_words(
+    const BLOB_CHOICE_LIST_VECTOR &char_choices,
+    float rating_limit) {
+  BLOB_CHOICE *first_choice;
+  WERD_CHOICE *best_choice = NULL;
+  WERD_CHOICE current_word(MAX_WERD_LENGTH);
   int first_index = 0;
-  char *ptr;
+  int x;
+  BLOB_CHOICE_IT blob_choice_it;
 
-  word[0] = '\0';
-  unichar_lengths[0] = 0;
-
-  if (array_count (character_choices) > MAX_WERD_LENGTH) {
-    return (new_choice (NULL, NULL, MAX_FLOAT32, -MAX_FLOAT32, -1, NO_PERM));
+  if (char_choices.length() > MAX_WERD_LENGTH) {
+    WERD_CHOICE *bad_word_choice = new WERD_CHOICE();
+    bad_word_choice->make_bad();
+    return bad_word_choice;
   }
 
-  array_loop(character_choices, x) {
+  UNICHAR_ID slash = getUnicharset().unichar_to_id("/");
+  UNICHAR_ID dash = getUnicharset().unichar_to_id("-");
+  for (x = 0; x < char_choices.length(); ++x) {
+    blob_choice_it.set_to_list(char_choices.get(x));
+    first_choice = blob_choice_it.data();
+    if (first_choice->unichar_id() == slash ||
+        first_choice->unichar_id() == dash) {
+      if (x > first_index) {
+        if (segment_debug)
+          cprintf ("Hyphenated word found\n");
+        permute_subword(char_choices, rating_limit, first_index,
+                        x - 1, &current_word);
+        if (current_word.rating() > rating_limit)
+          break;
+      }
+      // Append hyphen/slash separator to current_word.
+      current_word.append_unichar_id_space_allocated(
+          first_choice->unichar_id(), 1,
+          first_choice->rating(), first_choice->certainty());
 
-    first_choice =
-      (A_CHOICE *) first_node ((CHOICES) array_value (character_choices, x));
-
-    ptr = class_string (first_choice);
-    char_choice = ptr != NULL ? *ptr : '\0';
-    if (x > first_index && (char_choice == '-' || char_choice == '/')) {
-      if (compound_debug)
-        cprintf ("Hyphenated word found\n");
-
-      permute_subword (character_choices, rating_limit,
-        first_index, x - 1, word, unichar_lengths,
-                       &rating, &certainty);
-
-      if (rating > rating_limit)
-        break;
-      first_index = x + 1;
-
-      strcat(word, class_string (first_choice));
-      char length[] = {strlen(class_string (first_choice)), 0};
-      strcat(unichar_lengths + x, length);
-      rating += class_probability (first_choice);
-      certainty = min (class_certainty (first_choice), certainty);
+      first_index = x + 1;  // update first_index
     }
   }
 
-  if (first_index > 0 && first_index < x && rating <= rating_limit) {
-    permute_subword (character_choices, rating_limit,
-                     first_index, x - 1, word, unichar_lengths,
-                     &rating, &certainty);
-
-    best_choice = new_choice (word, unichar_lengths, rating,
-                              certainty, -1, COMPOUND_PERM);
+  if (first_index > 0 && first_index < x &&
+      current_word.rating() <= rating_limit) {
+    permute_subword(char_choices, rating_limit, first_index,
+                    x - 1, &current_word);
+    best_choice = new WERD_CHOICE(current_word);
+    best_choice->set_permuter(COMPOUND_PERM);
   }
   return (best_choice);
 }
@@ -1216,76 +1252,50 @@ A_CHOICE *permute_compound_words(CHOICES_LIST character_choices,
  * word.  When it is done reclaim the memory that was used in the
  * excercise.
  **********************************************************************/
-void permute_subword(CHOICES_LIST character_choices,
-                     float rating_limit,
-                     int start,
-                     int end,
-                     char *word,
-                     char unichar_lengths[],
-                     float *rating,
-                     float *certainty) {
+void Dict::permute_subword(const BLOB_CHOICE_LIST_VECTOR &char_choices,
+                           float rating_limit,
+                           int start,
+                           int end,
+                           WERD_CHOICE *current_word) {
   int x;
-  A_CHOICE *best_choice = NULL;
-  A_CHOICE raw_choice;
-  CHOICES_LIST subchoices;
-  CHOICES choices;
-  char this_char;
-  char *ptr;
+  BLOB_CHOICE_LIST_VECTOR subchoices;
+  WERD_CHOICE *best_choice = NULL;
+  WERD_CHOICE raw_choice;
+  raw_choice.make_bad();
 
   DisableChoiceAccum();
-  raw_choice.string = NULL;
-  raw_choice.lengths = NULL;
-  raw_choice.rating = MAX_INT16;
-  raw_choice.certainty = -MAX_INT16;
 
-  subchoices = new_choice_list ();
   for (x = start; x <= end; x++) {
-    choices = (CHOICES) array_value (character_choices, x);
-    ptr = best_string (choices);
-    this_char = ptr != NULL ? *ptr : '\0';
-    if (this_char != '-' && this_char != '/') {
-      subchoices = array_push (subchoices, choices);
+    if (char_choices.get(x) != NULL) {
+      subchoices += char_choices.get(x);
+    }
+  }
+
+  if (!subchoices.empty()) {
+    if (segment_debug)
+      segment_dawg_debug.set_value(true);
+    best_choice = permute_all(subchoices, rating_limit, &raw_choice);
+
+    if (segment_debug)
+      segment_dawg_debug.set_value(false);
+
+    if (best_choice && best_choice->length() > 0) {
+      *current_word += *best_choice;
     } else {
-      const char* str = best_string(choices);
-      strcat(word, str);
-      char length[] = {strlen(str), 0};
-      strcat(unichar_lengths + x, length);
+      current_word->set_rating(MAX_FLOAT32);
     }
+  } else {
+    current_word->set_rating(MAX_FLOAT32);
   }
 
-  if (array_count (subchoices)) {
-    if (compound_debug)
-      dawg_debug = TRUE;
-    best_choice = permute_all (subchoices, rating_limit, &raw_choice);
-    if (compound_debug)
-      dawg_debug = FALSE;
-
-    if (best_choice && class_string (best_choice)) {
-      strcat (word, class_string (best_choice));
-      strcat (unichar_lengths, class_lengths (best_choice));
-      *rating += class_probability (best_choice);
-      *certainty = min (class_certainty (best_choice), *certainty);
-    }
-    else {
-      *rating = MAX_FLOAT32;
-    }
-  }
-  else {
-    *rating = MAX_FLOAT32;
-  }
-
-  free_choice_list(subchoices);
   if (best_choice)
-    free_choice(best_choice);
+    delete best_choice;
 
-  if (compound_debug && *rating < MAX_FLOAT32) {
+  if (segment_debug && current_word->rating() < MAX_FLOAT32) {
     cprintf ("Subword permuted = %s, %5.2f, %5.2f\n\n",
-      word, *rating, *certainty);
+             current_word->debug_string(getUnicharset()).string(),
+             current_word->rating(), current_word->certainty());
   }
-  if (raw_choice.string)
-    strfree(raw_choice.string);
-  if (raw_choice.lengths)
-    strfree(raw_choice.lengths);
 
   EnableChoiceAccum();
 }
@@ -1299,15 +1309,12 @@ void permute_subword(CHOICES_LIST character_choices,
  * non-words.  In each character position the best lower (or upper) case
  * character is substituted for the best overall character.
  **********************************************************************/
-A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
-                             float rating_limit,
-                             A_CHOICE *raw_choice,
-                             BOOL8 *any_alpha) {
-  CHOICES char_list;
-  A_CHOICE *first_choice;
-  A_CHOICE *best_choice;
-  A_CHOICE *other_choice;
-  const char *ptr;
+WERD_CHOICE *Dict::permute_top_choice(
+    const BLOB_CHOICE_LIST_VECTOR &char_choices,
+    float* rating_limit,
+    WERD_CHOICE *raw_choice,
+    BOOL8 *any_alpha) {
+  BLOB_CHOICE *first_choice;
   const char *first_char;             //first choice
   const char *second_char;            //second choice
   const char *third_char;             //third choice
@@ -1315,161 +1322,170 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
   const char *next_char = "";         //next in word
   const char *next_next_char = "";    //after next next in word
 
-  char word[UNICHAR_LEN * MAX_PERM_LENGTH + 1];
-  char capital_word[UNICHAR_LEN * MAX_PERM_LENGTH + 1];
-  char lower_word[UNICHAR_LEN * MAX_PERM_LENGTH + 1];
-
-  char word_lengths[MAX_PERM_LENGTH + 1];
-  char capital_word_lengths[MAX_PERM_LENGTH + 1];
-  char lower_word_lengths[MAX_PERM_LENGTH + 1];
+  WERD_CHOICE word(MAX_PERM_LENGTH);
+  word.set_permuter(TOP_CHOICE_PERM);
+  WERD_CHOICE capital_word(MAX_PERM_LENGTH);
+  capital_word.set_permuter(UPPER_CASE_PERM);
+  WERD_CHOICE lower_word(MAX_PERM_LENGTH);
+  lower_word.set_permuter(LOWER_CASE_PERM);
 
   int x;
-  int x_word = 0;
-  int x_capital_word = 0;
-  int x_lower_word = 0;
   BOOL8 char_alpha;
 
-  float rating = 0;
-  float upper_rating = 0;
-  float lower_rating = 0;
   float first_rating = 0;
 
-  float certainty = 10000;
-  float upper_certainty = 10000;
-  float lower_certainty = 10000;
+  float new_rating;
+  float adjust_factor;
 
   float certainties[MAX_PERM_LENGTH + 1];
   float lower_certainties[MAX_PERM_LENGTH + 1];
   float upper_certainties[MAX_PERM_LENGTH + 1];
 
-  register CHOICES this_char;
+  BLOB_CHOICE_IT blob_choice_it;
+  UNICHAR_ID temp_id;
+  UNICHAR_ID unichar_id;
+  UNICHAR_ID space = getUnicharset().unichar_to_id(" ");
   register const char* ch;
   register inT8 lower_done;
   register inT8 upper_done;
+
+  STRING unichar_str;
+  STRING unichar_lengths;
 
   prev_char[0] = '\0';
 
   if (any_alpha != NULL)
     *any_alpha = FALSE;
 
-  if (array_count (character_choices) > MAX_PERM_LENGTH) {
+  if (char_choices.length() > MAX_PERM_LENGTH) {
     return (NULL);
   }
 
-  array_loop(character_choices, x) {
-    if (x + 1 < array_count (character_choices)) {
-      char_list = (CHOICES) array_value (character_choices, x + 1);
-      first_choice = (A_CHOICE *) first_node (char_list);
-
-      ptr = class_string (first_choice);
-      next_char = (ptr != NULL && *ptr != '\0') ? ptr : " ";
-    }
-    else
+  for (x = 0; x < char_choices.length(); ++x) {
+    if (x + 1 < char_choices.length()) {
+      blob_choice_it.set_to_list(char_choices.get(x+1));
+      unichar_id = blob_choice_it.data()->unichar_id();
+      next_char = unichar_id != INVALID_UNICHAR_ID ?
+        getUnicharset().id_to_unichar(unichar_id) : "";
+    } else {
       next_char = "";
-    if (x + 2 < array_count (character_choices)) {
-      char_list = (CHOICES) array_value (character_choices, x + 2);
-      first_choice = (A_CHOICE *) first_node (char_list);
-
-      ptr = class_string (first_choice);
-      next_next_char = (ptr != NULL && *ptr != '\0') ? ptr : " ";
     }
-    else
+
+    if (x + 2 < char_choices.length()) {
+      blob_choice_it.set_to_list(char_choices.get(x+2));
+      unichar_id = blob_choice_it.data()->unichar_id();
+      next_next_char = unichar_id != INVALID_UNICHAR_ID ?
+        getUnicharset().id_to_unichar(unichar_id) : "";
+    } else {
       next_next_char = "";
-
-    char_list = (CHOICES) array_value (character_choices, x);
-    first_choice = (A_CHOICE *) first_node (char_list);
-
-    ptr = class_string (first_choice);
-    if (ptr != NULL && *ptr != '\0')
-    {
-      strcpy(word + x_word, ptr);
-      word_lengths[x] = strlen(ptr);
-
-      strcpy(capital_word + x_capital_word, ptr);
-      capital_word_lengths[x] = strlen(ptr);
-
-      strcpy(lower_word + x_lower_word, ptr);
-      lower_word_lengths[x] = strlen(ptr);
-    }
-    else
-    {
-      word[x_word] = ' ';
-      word_lengths[x] = 1;
-
-      capital_word[x_capital_word] = ' ';
-      capital_word_lengths[x] = 1;
-
-      lower_word[x_lower_word] = ' ';
-      lower_word_lengths[x] = 1;
     }
 
-    first_char = (ptr != NULL && *ptr != '\0') ? ptr : " ";
-    first_rating = class_probability (first_choice);
-    upper_rating += class_probability (first_choice);
-    lower_rating += class_probability (first_choice);
-    lower_certainty = min (class_certainty (first_choice), lower_certainty);
-    upper_certainty = min (class_certainty (first_choice), upper_certainty);
+    blob_choice_it.set_to_list(char_choices.get(x));
+    first_choice = NULL;
+    for (blob_choice_it.mark_cycle_pt(); !blob_choice_it.cycled_list();
+         blob_choice_it.forward()) {  // find the best non-fragment char choice
+      temp_id = blob_choice_it.data()->unichar_id();
+      if (!(getUnicharset().get_fragment(temp_id))) {
+        first_choice = blob_choice_it.data();
+        break;
+      } else if (char_choices.length() > 1) {
+        word.set_fragment_mark(true);
+        capital_word.set_fragment_mark(true);
+        lower_word.set_fragment_mark(true);
+      }
+    }
+    if (first_choice == NULL) {
+      cprintf("Permuter found only fragments for"
+              " character at position %d; word=%s\n",
+              x, word.debug_string(getUnicharset()).string());
+    }
+    ASSERT_HOST(first_choice != NULL);
 
-    certainties[x] = class_certainty (first_choice);
-    lower_certainties[x] = class_certainty (first_choice);
-    upper_certainties[x] = class_certainty (first_choice);
+    unichar_id = first_choice->unichar_id() != INVALID_UNICHAR_ID ?
+      first_choice->unichar_id() : space;
+    first_char = getUnicharset().id_to_unichar(unichar_id);
+    first_rating = first_choice->rating();
+    word.append_unichar_id_space_allocated(
+        unichar_id, 1, first_choice->rating(), first_choice->certainty());
+    capital_word.append_unichar_id_space_allocated(
+        unichar_id, 1, first_choice->rating(), first_choice->certainty());
+    lower_word.append_unichar_id_space_allocated(
+        unichar_id, 1, first_choice->rating(), first_choice->certainty());
+
+    certainties[x] = first_choice->certainty();
+    lower_certainties[x] = first_choice->certainty();
+    upper_certainties[x] = first_choice->certainty();
 
     lower_done = FALSE;
     upper_done = FALSE;
     char_alpha = FALSE;
     second_char = "";
     third_char = "";
-    iterate_list(this_char, char_list) {
-      ptr = best_string (this_char);
-      ch = ptr != NULL ? ptr : "";
-      if (strcmp(ch, "l") == 0 && rest (this_char) != NULL
-      && best_probability (rest (this_char)) == first_rating) {
-        ptr = best_string (rest (this_char));
-        if (ptr != NULL && (strcmp(ptr, "1") == 0 || strcmp(ptr, "I") == 0)) {
-          second_char = ptr;
-          this_char = rest (this_char);
-          if (rest (this_char) != NULL
-          && best_probability (rest (this_char)) == first_rating) {
-            ptr = best_string (rest (this_char));
-            if (ptr != NULL && (strcmp(ptr, "1") == 0 || strcmp(ptr, "I") == 0)) {
-              third_char = ptr;
-              this_char = rest (this_char);
+    for (; !blob_choice_it.cycled_list(); blob_choice_it.forward()) {
+      unichar_id = blob_choice_it.data()->unichar_id();
+      if (getUnicharset().eq(unichar_id, "l") && !blob_choice_it.at_last() &&
+          blob_choice_it.data_relative(1)->rating() == first_rating) {
+        blob_choice_it.forward();
+        temp_id = blob_choice_it.data()->unichar_id();
+        if (getUnicharset().eq(temp_id, "1") ||
+            getUnicharset().eq(temp_id, "I")) {
+          second_char = getUnicharset().id_to_unichar(temp_id);
+          if (!blob_choice_it.at_last() &&
+              blob_choice_it.data_relative(1)->rating() == first_rating) {
+            blob_choice_it.forward();
+            temp_id = blob_choice_it.data()->unichar_id();
+            if (getUnicharset().eq(temp_id, "1") ||
+                getUnicharset().eq(temp_id, "I")) {
+              third_char = getUnicharset().id_to_unichar(temp_id);
+              blob_choice_it.forward();
             }
           }
           ch = choose_il1 (first_char, second_char, third_char,
             prev_char, next_char, next_next_char);
-          if (strcmp(ch, "l") != 0 && word_lengths[x] == 1 &&
-              word[x_word] == 'l') {
-            word[x_word] = *ch;
-            lower_word[x_lower_word] = *ch;
-            capital_word[x_capital_word] = *ch;
+          unichar_id = (ch != NULL && *ch != '\0') ?
+            getUnicharset().unichar_to_id(ch) : INVALID_UNICHAR_ID;
+          if (strcmp(ch, "l") != 0 &&
+              getUnicharset().eq(word.unichar_id(x), "l")) {
+            word.set_unichar_id(unichar_id, x);
+            lower_word.set_unichar_id(unichar_id, x);
+            capital_word.set_unichar_id(unichar_id, x);
           }
         }
       }
-      if (ch != NULL && *ch != '\0') {
+      if (unichar_id != INVALID_UNICHAR_ID) {
         /* Find lower case */
-        if (!lower_done && (unicharset.get_islower(ch) ||
-                            (unicharset.get_isupper(ch) && x == 0))) {
-          strcpy(lower_word + x_lower_word, ch);
-          lower_word_lengths[x] = strlen(ch);
-          lower_rating += best_probability (this_char);
-          lower_rating -= class_probability (first_choice);
-          lower_certainty = min (best_certainty (this_char), lower_certainty);
-          lower_certainties[x] = best_certainty (this_char);
+        if (!lower_done &&
+            (getUnicharset().get_islower(unichar_id) ||
+             (getUnicharset().get_isupper(unichar_id) && x == 0))) {
+          lower_word.set_unichar_id(unichar_id, x);
+          lower_word.set_rating(lower_word.rating() -
+            first_choice->rating() + blob_choice_it.data()->rating());
+          if (blob_choice_it.data()->certainty() < lower_word.certainty()) {
+            lower_word.set_certainty(blob_choice_it.data()->certainty());
+          }
+          lower_certainties[x] = blob_choice_it.data()->certainty();
           lower_done = TRUE;
         }
         /* Find upper case */
-        if (!upper_done && unicharset.get_isupper(ch)) {
-          strcpy(capital_word + x_capital_word, ch);
-          capital_word_lengths[x] = strlen(ch);
-          upper_rating += best_probability (this_char);
-          upper_rating -= class_probability (first_choice);
-          upper_certainty = min (best_certainty (this_char), upper_certainty);
-          upper_certainties[x] = best_certainty (this_char);
+        if (!upper_done && getUnicharset().get_isupper(unichar_id)) {
+          capital_word.set_unichar_id(unichar_id, x);
+          capital_word.set_rating(capital_word.rating() -
+            first_choice->rating() + blob_choice_it.data()->rating());
+          if (blob_choice_it.data()->certainty() < capital_word.certainty()) {
+            capital_word.set_certainty(blob_choice_it.data()->certainty());
+          }
+          upper_certainties[x] = blob_choice_it.data()->certainty();
           upper_done = TRUE;
         }
-        if (!char_alpha && unicharset.get_isalpha(ch))
-          char_alpha = TRUE;
+        if (!char_alpha) {
+          const CHAR_FRAGMENT *fragment =
+            getUnicharset().get_fragment(unichar_id);
+          temp_id = !fragment ? unichar_id :
+            getUnicharset().unichar_to_id(fragment->get_unichar());
+          if (getUnicharset().get_isalpha(temp_id)) {
+            char_alpha = TRUE;
+          }
+        }
         if (lower_done && upper_done)
           break;
       }
@@ -1477,79 +1493,59 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
     if (char_alpha && any_alpha != NULL)
       *any_alpha = TRUE;
 
-    if (first_choice == NULL) {
-      cprintf ("Permuter giving up due to null choices list");
-      word[x_word + 1] = '$';
-      word[x_word + 2] = '\0';
-      word_lengths[x + 1] = 1;
-      word_lengths[x + 2] = 0;
-      cprintf (" word=%s\n", word);
+    if (word.rating() > *rating_limit)
       return (NULL);
+
+    *prev_char = '\0';
+    temp_id = word.unichar_id(word.length()-1);
+    if (temp_id != INVALID_UNICHAR_ID) {
+      strcpy(prev_char, getUnicharset().id_to_unichar(temp_id));
     }
-
-    rating += class_probability (first_choice);
-    if (rating > rating_limit)
-      return (NULL);
-
-    certainty = min (class_certainty (first_choice), certainty);
-
-    strncpy(prev_char, word + x_word, word_lengths[x]);
-    prev_char[word_lengths[x]] = '\0';
-
-    x_word += word_lengths[x];
-    x_capital_word += capital_word_lengths[x];
-    x_lower_word += lower_word_lengths[x];
   }
 
-  word[x_word] = '\0';
-  word_lengths[x] = 0;
-
-  capital_word[x_capital_word] = '\0';
-  capital_word_lengths[x] = 0;
-
-  lower_word[x_lower_word] = '\0';
-  lower_word_lengths[x] = 0;
-
-  if (rating < class_probability (raw_choice)) {
-    if (class_string (raw_choice))
-      strfree (class_string (raw_choice));
-    if (class_lengths (raw_choice))
-      strfree (class_lengths (raw_choice));
-
-    class_probability (raw_choice) = rating;
-    class_certainty (raw_choice) = certainty;
-    class_string (raw_choice) = strsave (word);
-    class_lengths (raw_choice) = strsave (word_lengths);
-    class_permuter (raw_choice) = TOP_CHOICE_PERM;
-
-    LogNewRawChoice (raw_choice, 1.0, certainties);
+  if (word.rating() < raw_choice->rating()) {
+    *raw_choice = word;
+    LogNewRawChoice(*raw_choice, 1.0, certainties);
   }
 
   if (ngram_permuter_activated)
     return NULL;
 
-  best_choice = new_choice (word, word_lengths,
-                            rating, certainty, -1, TOP_CHOICE_PERM);
-  adjust_non_word(best_choice, certainties);
+  float rating = word.rating();
+  word.string_and_lengths(getUnicharset(), &unichar_str, &unichar_lengths);
+  adjust_non_word(unichar_str.string(), unichar_lengths.string(),
+                  word.rating(), &new_rating, &adjust_factor);
+  word.set_rating(new_rating);
+  LogNewWordChoice(word, adjust_factor, certainties);
 
-  other_choice = new_choice (lower_word, lower_word_lengths,
-                             lower_rating, lower_certainty,
-                             -1, LOWER_CASE_PERM);
-  adjust_non_word(other_choice, lower_certainties);
-  if (class_probability (best_choice) > class_probability (other_choice)) {
-    clone_choice(best_choice, other_choice);
-  }
-  free_choice(other_choice);
+  float lower_rating = lower_word.rating();
+  lower_word.string_and_lengths(getUnicharset(),
+                                &unichar_str, &unichar_lengths);
+  adjust_non_word(unichar_str.string(), unichar_lengths.string(),
+                  lower_word.rating(), &new_rating, &adjust_factor);
+  lower_word.set_rating(new_rating);
+  LogNewWordChoice(lower_word, adjust_factor, lower_certainties);
 
-  other_choice = new_choice (capital_word, capital_word_lengths,
-                             upper_rating, upper_certainty,
-                             -1, UPPER_CASE_PERM);
-  adjust_non_word(other_choice, upper_certainties);
-  if (class_probability (best_choice) > class_probability (other_choice)) {
-    clone_choice(best_choice, other_choice);
+  float upper_rating = capital_word.rating();
+  capital_word.string_and_lengths(getUnicharset(),
+                                  &unichar_str, &unichar_lengths);
+  adjust_non_word(unichar_str.string(), unichar_lengths.string(),
+                  capital_word.rating(), &new_rating, &adjust_factor);
+  capital_word.set_rating(new_rating);
+  LogNewWordChoice(capital_word, adjust_factor, upper_certainties);
+
+
+  WERD_CHOICE *best_choice = &word;
+  *rating_limit = rating;
+  if (lower_word.rating() < best_choice->rating()) {
+    best_choice = &lower_word;
+    *rating_limit = lower_rating;
   }
-  free_choice(other_choice);
-  return (best_choice);
+  if (capital_word.rating() < best_choice->rating()) {
+    best_choice = &capital_word;
+    *rating_limit = upper_rating;
+  }
+  return new WERD_CHOICE(*best_choice);
 }
 
 
@@ -1558,12 +1554,12 @@ A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
  *
  * Choose between the candidate il1 chars.
  **********************************************************************/
-const char* choose_il1(const char *first_char,        //first choice
-                       const char *second_char,       //second choice
-                       const char *third_char,        //third choice
-                       const char *prev_char,         //prev in word
-                       const char *next_char,         //next in word
-                       const char *next_next_char) {  //after next next in word
+const char* Dict::choose_il1(const char *first_char,        //first choice
+                             const char *second_char,       //second choice
+                             const char *third_char,        //third choice
+                             const char *prev_char,         //prev in word
+                             const char *next_char,         //next in word
+                             const char *next_next_char) {  //after next next in word
   inT32 type1;                   //1/I/l type of first choice
   inT32 type2;                   //1/I/l type of second choice
   inT32 type3;                   //1/I/l type of third choice
@@ -1576,33 +1572,34 @@ const char* choose_il1(const char *first_char,        //first choice
   if (*first_char == 'l' && *second_char != '\0') {
     if (*second_char == 'I'
         && (((prev_char_length != 0 &&
-            unicharset.get_isupper (prev_char, prev_char_length)) &&
+            getUnicharset().get_isupper (prev_char, prev_char_length)) &&
             (next_char_length == 0 ||
-             !unicharset.get_islower (next_char, next_char_length)) &&
+             !getUnicharset().get_islower (next_char, next_char_length)) &&
             (next_char_length == 0 ||
-             !unicharset.get_isdigit (next_char, next_char_length))) ||
+             !getUnicharset().get_isdigit (next_char, next_char_length))) ||
             ((next_char_length != 0 &&
-             unicharset.get_isupper (next_char, next_char_length)) &&
+             getUnicharset().get_isupper (next_char, next_char_length)) &&
             (prev_char_length == 0 ||
-             !unicharset.get_islower (prev_char, prev_char_length)) &&
+             !getUnicharset().get_islower (prev_char, prev_char_length)) &&
             (prev_char_length == 0 ||
-             !unicharset.get_isdigit (prev_char, prev_char_length)))))
+             !getUnicharset().get_isdigit (prev_char, prev_char_length)))))
       first_char = second_char;  //override
     else if (*second_char == '1' || *third_char == '1') {
       if ((next_char_length != 0 &&
-           unicharset.get_isdigit (next_char, next_char_length)) ||
+           getUnicharset().get_isdigit (next_char, next_char_length)) ||
           (prev_char_length != 0 &&
-           unicharset.get_isdigit (prev_char, prev_char_length))
+           getUnicharset().get_isdigit (prev_char, prev_char_length))
           || (*next_char == 'l' &&
           (next_next_char_length != 0 &&
-           unicharset.get_isdigit (next_next_char, next_next_char_length)))) {
+           getUnicharset().get_isdigit (next_next_char,
+                                        next_next_char_length)))) {
         first_char = "1";
         first_char_length = 1;
       }
       else if ((prev_char_length == 0 ||
-                !unicharset.get_islower (prev_char, prev_char_length)) &&
+                !getUnicharset().get_islower (prev_char, prev_char_length)) &&
                ((next_char_length == 0 ||
-                 !unicharset.get_islower (next_char, next_char_length)) ||
+                 !getUnicharset().get_islower (next_char, next_char_length)) ||
                 (*next_char == 's' &&
                 *next_next_char == 't'))) {
         if (((*prev_char != '\'' && *prev_char != '`') || *next_char != '\0')
@@ -1615,7 +1612,7 @@ const char* choose_il1(const char *first_char,        //first choice
     }
     if (*first_char == 'l' && *next_char != '\0' &&
         (prev_char_length == 0 ||
-         !unicharset.get_isalpha (prev_char, prev_char_length))) {
+         !getUnicharset().get_isalpha (prev_char, prev_char_length))) {
       type1 = 2;
 
       if (*second_char == '1')
@@ -1652,20 +1649,19 @@ const char* choose_il1(const char *first_char,        //first choice
   return first_char;
 }
 
-
 /**********************************************************************
  * permute_words
  *
  * Permute all the characters together using the dawg to prune all
  * but the valid words.
  **********************************************************************/
-A_CHOICE *permute_words(CHOICES_LIST char_choices, float rating_limit) {
+A_CHOICE *Dict::permute_words(CHOICES_LIST char_choices, float rating_limit) {
   A_CHOICE *best_choice;
 
   best_choice = new_choice (NULL, NULL, rating_limit, -MAX_FLOAT32, -1, NO_PERM);
 
   if (hyphen_base_size() + array_count (char_choices) > MAX_WERD_LENGTH) {
-    class_probability (best_choice) = MAX_FLOAT32;
+    class_rating (best_choice) = MAX_FLOAT32;
   }
   else {
 
@@ -1689,7 +1685,7 @@ A_CHOICE *permute_words(CHOICES_LIST char_choices, float rating_limit) {
  *
  * Check all the DAWGs to see if this word is in any of them.
  **********************************************************************/
-int valid_word(const char *string) {
+int Dict::valid_word(const char *string) {
   int result = NO_PERM;
 
   if (word_in_dawg (word_dawg, string))
@@ -1703,3 +1699,297 @@ int valid_word(const char *string) {
   return (result);
 }
 
+/**********************************************************************
+ * fragment_state
+ *
+ * Given the current char choice and information about previously seen
+ * fragments, determines whether adjacent character fragments are
+ * present and whether they can be concatenated.
+ *
+ * The given prev_char_frag_info contains:
+ *  -- fragment: if not NULL contains information about immediately
+ *     preceeding fragmented character choice
+ *  -- num_fragments: number of fragments that have been used so far
+ *     to construct a character
+ *  -- certainty: certainty of the current choice or minimum
+ *     certainty of all fragments concatenated so far
+ *  -- rating: rating of the current choice or sum of fragment
+ *     ratings concatenated so far
+ *
+ * The output char_frag_info is filled in as follows:
+ * -- character: is set to be NULL if the choice is a non-matching
+ *    or non-ending fragment piece; is set to unichar of the given choice
+ *    if it represents a regular character or a matching ending fragment
+ * -- fragment,num_fragments,certainty,rating are set as described above
+ *
+ * Returns false if a non-matching fragment is discovered, true otherwise.
+ **********************************************************************/
+bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id,
+                               float curr_rating, float curr_certainty,
+                               const CHAR_FRAGMENT_INFO *prev_char_frag_info,
+                               const char *debug, int word_ending,
+                               CHAR_FRAGMENT_INFO *char_frag_info) {
+  const CHAR_FRAGMENT *this_fragment =
+    getUnicharset().get_fragment(curr_unichar_id);
+  const CHAR_FRAGMENT *prev_fragment =
+    prev_char_frag_info != NULL ? prev_char_frag_info->fragment : NULL;
+
+  // Print debug info for fragments.
+  if (debug && (prev_fragment || this_fragment)) {
+    cprintf("%s check fragments: choice=%s word_ending=%d\n", debug,
+            getUnicharset().debug_str(curr_unichar_id).string(),
+            word_ending);
+    if (prev_fragment) {
+      cprintf("prev_fragment %s\n", prev_fragment->to_string().string());
+    }
+    if (this_fragment) {
+      cprintf("this_fragment %s\n", this_fragment->to_string().string());
+    }
+  }
+
+  char_frag_info->unichar_id = curr_unichar_id;
+  char_frag_info->fragment = this_fragment;
+  char_frag_info->rating = curr_rating;
+  char_frag_info->certainty = curr_certainty;
+  char_frag_info->num_fragments = 1;
+  if (prev_fragment && !this_fragment) {
+    if (debug) cprintf("Skip choice with incomplete fragment\n");
+    return false;
+  }
+  if (this_fragment) {
+    // We are dealing with a fragment.
+    char_frag_info->unichar_id = INVALID_UNICHAR_ID;
+    if (prev_fragment) {
+      if (!this_fragment->is_continuation_of(prev_fragment)) {
+        if (debug) cprintf("Non-matching fragment piece\n");
+        return false;
+      }
+      if (this_fragment->is_ending()) {
+        char_frag_info->unichar_id =
+          getUnicharset().unichar_to_id(this_fragment->get_unichar());
+        char_frag_info->fragment = NULL;
+        if (debug) {
+          cprintf("Built character %s from fragments\n",
+                  getUnicharset().debug_str(
+                      char_frag_info->unichar_id).string());
+        }
+      } else {
+        if (debug) cprintf("Record fragment continuation\n");
+        char_frag_info->fragment = this_fragment;
+      }
+      // Update certainty and rating.
+      char_frag_info->rating =
+        prev_char_frag_info->rating + curr_rating;
+      char_frag_info->num_fragments = prev_char_frag_info->num_fragments + 1;
+      char_frag_info->certainty =
+        MIN(curr_certainty, prev_char_frag_info->certainty);
+    } else {
+      if (this_fragment->is_beginning()) {
+        if (debug) cprintf("Record fragment beginning\n");
+      } else {
+        if (debug) {
+          cprintf("Non-starting fragment piece with no prev_fragment\n");
+        }
+        return false;
+      }
+    }
+  }
+  if (word_ending && char_frag_info->fragment) {
+    if (debug) cprintf("Word can not end with a fragment\n");
+    return false;
+  }
+  return true;
+}
+/**********************************************************************
+ * top_fragments_permute_and_select
+ *
+ * Creates a copy of character choices list that contain only fragments
+ * and the best non-fragmented character choice.
+ * Permutes character in this shortened list, builds characters from
+ * fragments if possible and returns a better choice if found.
+ *
+ * TODO(daria): part of this code is similar to the code in permdag,
+ * permngram and permnum - need to figure out a way to combine them.
+ **********************************************************************/
+WERD_CHOICE *Dict::top_fragments_permute_and_select(
+    const BLOB_CHOICE_LIST_VECTOR &char_choices,
+    float rating_limit) {
+  if (char_choices.length() <= 1 ||
+      char_choices.length() > MAX_PERM_LENGTH) {
+    return NULL;
+  }
+  // See it would be possible to benefit from permuting fragments.
+  int x;
+  float min_rating = 0.0;
+  BLOB_CHOICE_IT blob_choice_it;
+  for (x = 0; x < char_choices.length(); ++x) {
+    blob_choice_it.set_to_list(char_choices.get(x));
+    if (blob_choice_it.data()) {
+      min_rating += blob_choice_it.data()->rating();
+    }
+    if (min_rating >= rating_limit) {
+      return NULL;
+    }
+  }
+  if (fragments_debug > 1) {
+    tprintf("A choice with fragment beats top choice\n");
+    tprintf("Running fragment permuter...\n");
+  }
+
+  // Construct a modified choices list that contains (for each position):
+  // the best choice, all fragments and at least one choice for
+  // a non-fragmented character.
+  BLOB_CHOICE_LIST_VECTOR frag_char_choices(char_choices.length());
+  for (x = 0; x < char_choices.length(); ++x) {
+    bool need_nonfrag_char = true;
+    BLOB_CHOICE_LIST *frag_choices = new BLOB_CHOICE_LIST();
+    BLOB_CHOICE_IT frag_choices_it;
+    frag_choices_it.set_to_list(frag_choices);
+    blob_choice_it.set_to_list(char_choices.get(x));
+    for (blob_choice_it.mark_cycle_pt(); !blob_choice_it.cycled_list();
+         blob_choice_it.forward()) {
+      if (getUnicharset().get_fragment(blob_choice_it.data()->unichar_id())) {
+        frag_choices_it.add_after_then_move(
+            new BLOB_CHOICE(*(blob_choice_it.data())));
+      } else if (need_nonfrag_char) {
+        frag_choices_it.add_after_then_move(
+            new BLOB_CHOICE(*(blob_choice_it.data())));
+        need_nonfrag_char = false;
+      }
+    }
+    frag_char_choices += frag_choices;
+  }
+
+  WERD_CHOICE *best_choice = new WERD_CHOICE();
+  best_choice->make_bad();
+  WERD_CHOICE word(MAX_PERM_LENGTH);
+  word.set_permuter(TOP_CHOICE_PERM);
+  float certainties[MAX_PERM_LENGTH];
+  top_fragments_permute(frag_char_choices, 0, min_rating, NULL,
+                        &word, certainties, &rating_limit, best_choice);
+
+  frag_char_choices.delete_data_pointers();
+  return best_choice;
+}
+
+/**********************************************************************
+ * top_fragments_permute
+ *
+ * Try to put together fragments that could have a better rating
+ * than non-fragmented choices.
+ *
+ * TODO(daria): this code is very similar to the code in permdag,
+ * permngram and permnum - need to figure out a way to combine them.
+ **********************************************************************/
+void Dict::top_fragments_permute(
+    const BLOB_CHOICE_LIST_VECTOR &char_choices,
+    int char_choice_index,
+    float min_rating,
+    const CHAR_FRAGMENT_INFO *prev_char_frag_info,
+    WERD_CHOICE *word,
+    float certainties[],
+    float *limit,
+    WERD_CHOICE *best_choice) {
+  if (fragments_debug > 1) {
+    tprintf("top_fragments_permute: char_choice_index=%d"
+            " limit=%4.2f rating=%4.f, certainty=%4.f word=%s\n",
+            char_choice_index, *limit,
+            word->rating(), word->certainty(),
+            word->debug_string(getUnicharset()).string());
+  }
+  if (char_choice_index < char_choices.length()) {
+    BLOB_CHOICE_IT blob_choice_it;
+    blob_choice_it.set_to_list(char_choices.get(char_choice_index));
+    for (blob_choice_it.mark_cycle_pt(); !blob_choice_it.cycled_list();
+         blob_choice_it.forward()) {
+      append_top_fragments_choices(char_choices, *(blob_choice_it.data()),
+                                   char_choice_index, min_rating,
+                                   prev_char_frag_info, word, certainties,
+                                   limit, best_choice);
+
+    }
+  }
+}
+
+/**********************************************************************
+ * append_top_fragments_choices
+ *
+ * Check to see whether or not the next choice is worth appending to
+ * the string being generated.  If so then keep going deeper into the
+ * word.
+ *
+ * TODO(daria): this code is very similar to the code in permdag,
+ * permngram and permnum - need to figure out a way to combine them.
+ **********************************************************************/
+void Dict::append_top_fragments_choices(
+    const BLOB_CHOICE_LIST_VECTOR &char_choices,
+    const BLOB_CHOICE &blob_choice,
+    int char_choice_index,
+    float min_rating,
+    const CHAR_FRAGMENT_INFO *prev_char_frag_info,
+    WERD_CHOICE *word,
+    float certainties[],
+    float *limit,
+    WERD_CHOICE *best_choice) {
+  int word_ending =
+    (char_choice_index == char_choices.length() - 1) ? TRUE : FALSE;
+
+  /* Deal with fragments */
+  CHAR_FRAGMENT_INFO char_frag_info;
+  if (!fragment_state_okay(blob_choice.unichar_id(), blob_choice.rating(),
+                           blob_choice.certainty(), prev_char_frag_info,
+                           (fragments_debug > 1) ? "fragments_debug" : NULL,
+                           word_ending, &char_frag_info)) {
+    return;  // blob_choice must be an invalid fragment
+  }
+  // Search the next letter if this character is a fragment.
+  if (char_frag_info.unichar_id == INVALID_UNICHAR_ID) {
+    top_fragments_permute(char_choices, char_choice_index + 1,
+                          min_rating, &char_frag_info,
+                          word, certainties, limit, best_choice);
+    return;
+  }
+
+  /* Add new character */
+  word->append_unichar_id_space_allocated(
+      char_frag_info.unichar_id, char_frag_info.num_fragments,
+      char_frag_info.rating, char_frag_info.certainty);
+  certainties[word->length()-1] = char_frag_info.certainty;
+
+  if (word->rating() < *limit) {
+    if (word_ending) {
+      if (fragments_debug > 1) {
+        tprintf("new choice = %s\n",
+                word->debug_string(getUnicharset()).string());
+      }
+      *limit = word->rating();
+
+      // TODO(daria): modify this when adjust_non_word
+      // is updated to use unichar ids.
+      STRING word_str;
+      STRING word_lengths_str;
+      word->string_and_lengths(getUnicharset(), &word_str, &word_lengths_str);
+      float new_rating;
+      float adjust_factor;
+      adjust_non_word(word_str.string(), word_lengths_str.string(),
+                      word->rating(), &new_rating, &adjust_factor);
+      word->set_rating(new_rating);
+      LogNewWordChoice(*word, adjust_factor, certainties);
+
+      if (word->rating() < best_choice->rating()) {
+        *best_choice = *word;
+      }
+    } else {
+      top_fragments_permute(char_choices, char_choice_index + 1,
+                            min_rating, &char_frag_info, word,
+                            certainties, limit, best_choice);
+    }
+  } else {
+    if (fragments_debug > 1) {
+      tprintf("pruned word (%s, rating=%4.2f, limit=%4.2f)\n",
+              word->debug_string(getUnicharset()).string(),
+              word->rating(), *limit);
+    }
+  }
+}
+}  // namespace tesseract

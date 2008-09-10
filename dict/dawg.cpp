@@ -37,6 +37,7 @@
 #include "context.h"
 #include "strngs.h"
 #include "emalloc.h"
+#include "dict.h"
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -62,6 +63,18 @@ EDGE_REF edge_char_of(EDGE_ARRAY dawg,
 
   if (edge_occupied (dawg, edge)) {
     do {
+#if 0
+      // TODO(rays) Turn dawg to a class so this can be used properly.
+      // The maximum value of edge is unknown to this function, but could
+      // easily be stored in a dawg class.
+      if ((edge < 0 || edge >= MAX_NUM_EDGES_IN_SQUISHED_DAWG_FILE)
+          && edge != NO_EDGE) {
+        tprintf("Impossible return from edge_char_of: node=" REFFORMAT
+                ", ch=%d, edge=" REFFORMAT "\n", *node,
+                static_cast<unsigned char>(dummy_word[char_index]), edge);
+        return NO_EDGE;
+      }
+#endif
       if ((edge_letter (dawg, edge) == character) &&
         (! word_end || end_of_word(dawg,edge)))
         return (edge);
@@ -98,12 +111,6 @@ inT32 edges_in_node(EDGE_ARRAY dawg, NODE_REF node) {
 }
 
 
-/*
- * Initialize letter_is_okay to point to default implmentation (a main
- * program can override this).
- */
-LETTER_OK_FUNC letter_is_okay = &def_letter_is_okay;
-
 /**********************************************************************
  * def_letter_is_okay
  *
@@ -112,12 +119,11 @@ LETTER_OK_FUNC letter_is_okay = &def_letter_is_okay;
  **********************************************************************/
 // TODO(tkielbus) Change the prevchar argument to make it unicode safe.
 // We might want to get rid of def_letter_is_okay at some point though.
-inT32 def_letter_is_okay(EDGE_ARRAY dawg,
-                         NODE_REF *node,
-                         inT32 char_index,
-                         char prevchar,
-                         const char *word,
-                         inT32 word_end) {
+namespace tesseract {
+int Dict::def_letter_is_okay(void* void_dawg, void* void_node, int char_index,
+                             char prevchar, const char* word, int word_end) {
+  EDGE_ARRAY dawg = reinterpret_cast<EDGE_ARRAY>(void_dawg);
+  NODE_REF* node = reinterpret_cast<NODE_REF*>(void_node);
   EDGE_REF     edge;
   STRING dummy_word(word);  // Auto-deleting string fixes memory leak.
   STRING word_single_lengths; //Lengths of single UTF-8 characters of the word.
@@ -138,40 +144,12 @@ inT32 def_letter_is_okay(EDGE_ARRAY dawg,
     else
       return (FALSE);
   }
-  else {
-    /* Leading punctuation */
-    if (*node == 0                           &&
-      char_index != 0                      &&
-        // TODO(tkielbus) Replace islalpha by unicode versions.
-        // However the lengths information is not available at this point in the
-        // code. We will probably get rid of the dictionaries at some point anyway.
-        isalpha (dummy_word [char_index])          &&
-      ! leading_punc (dummy_word [char_index-1]) &&
-    dummy_word [char_index-1] != '-') {
-      return (FALSE);
-    }
-  }
-  /* Handle compund words */
-#if 0
-  if (dummy_word [char_index] == '-') {
-    if (char_index>0 && !word_end
-         && word [char_index-1] == '-'
-         && word [char_index+1] == '-')
-      return FALSE;              /*not allowed*/
-    dummy_word [char_index] = (char) 0;
-    if (word_in_dawg (dawg, dummy_word.string())) {
-      dummy_word [char_index] = '-';
-      *node = 0;
-      return (TRUE);
-    }
-    else {
-      dummy_word [char_index] = '-';
-      return (FALSE);
-    }
-  }
-#endif
+  // rays: removed incorrect code that attempted to enforce leading
+  // punctutation (or nothing) before an alpha character.
   /* Check the DAWG */
-  edge = edge_char_of (dawg, *node, dummy_word [char_index], word_end);
+  edge = edge_char_of(dawg, *node,
+                      static_cast<unsigned char>(dummy_word[char_index]),
+                      word_end);
 
   if (edge != NO_EDGE) {         /* Normal edge in DAWG */
     if (case_sensative || case_is_okay (dummy_word, char_index)) {
@@ -203,7 +181,7 @@ inT32 def_letter_is_okay(EDGE_ARRAY dawg,
     return (FALSE);
   }
 }
-
+}  // namespace tesseract
 
 /**********************************************************************
  * num_forward_edges
@@ -244,7 +222,7 @@ void print_dawg_node(EDGE_ARRAY dawg, NODE_REF node) {
   const char       *is_last;
   const char       *eow;
 
-  char       ch;
+  int       ch;
 
   if (edge_occupied (dawg, edge)) {
     do {
@@ -343,7 +321,9 @@ EDGE_ARRAY read_squished_dawg(const char *filename) {
  * string of trailing puntuation.  TRUE is returned if everything is
  * OK.
  **********************************************************************/
-inT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, inT32 char_index) {
+namespace tesseract {
+inT32 Dict::verify_trailing_punct(EDGE_ARRAY dawg, char *word,
+                                  inT32 char_index) {
   char       last_char;
   char       *first_char;
 
@@ -369,7 +349,7 @@ inT32 verify_trailing_punct(EDGE_ARRAY dawg, char *word, inT32 char_index) {
  *
  * Test to see if the word can be found in the DAWG.
  **********************************************************************/
-inT32 word_in_dawg(EDGE_ARRAY dawg, const char *string) {
+inT32 Dict::word_in_dawg(EDGE_ARRAY dawg, const char *string) {
   NODE_REF   node = 0;
   inT32        i;
   inT32         length;
@@ -382,10 +362,12 @@ inT32 word_in_dawg(EDGE_ARRAY dawg, const char *string) {
       print_dawg_node(dawg, node);
       new_line();
     }
-    if (! letter_is_okay (dawg, &node, i, '\0', string, (string[i+1]==0))) {
+    if (!(this->*letter_is_okay_)(dawg, &node, i, '\0', string,
+                                  (string[i+1]==0))) {
       return (FALSE);
     }
   }
 
   return (TRUE);
 }
+}  // namespace tesseract

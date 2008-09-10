@@ -33,6 +33,11 @@
 #include "tordvars.h"
 #include "stopper.h"
 #include "globals.h"
+#include "ndminx.h"
+#include "dict.h"
+#include "image.h"
+#include "ccutil.h"
+#include "conversion.h"
 
 #include <math.h>
 #include <ctype.h>
@@ -90,17 +95,18 @@ const int kMaxRepeats[kNumStates] = {
   3, 10, 3, 3, 3, 3, 3
 };
 
-make_float_var (good_number, GOOD_NUMBER, make_good_number,
-8, 15, set_good_number, "Good number adjustment");
+double_VAR(segment_penalty_number_good, GOOD_NUMBER,
+           "Score multiplier for good-looking numbers "
+           "(lower is better).");
 
-make_float_var (ok_number, OK_NUMBER, make_ok_number,
-8, 16, set_ok_number, "Bad number adjustment");
+double_VAR(segment_penalty_number_ok, OK_NUMBER,
+           "Score multiplier for ok-looking numbers "
+           "(lower is better).");
 
-make_toggle_var (number_debug, 0, make_number_debug,
-8, 23, set_number_debug, "Number debug");
+BOOL_VAR(number_debug, 0, "Segmentation number debug mode");
 
-make_int_var (number_depth, 3, make_number_depth,
-8, 24, set_number_depth, "Number depth");
+INT_VAR(segment_digits_max, 3,
+        "Maximum length of a number we will try to segment.");
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -162,31 +168,33 @@ make_int_var (number_depth, 3, make_number_depth,
  * Assign an adjusted value to a string that is a word.  The value
  * that this word choice has is based on case and punctuation rules.
  **********************************************************************/
-void adjust_number(A_CHOICE *best_choice, float *certainty_array) {
+namespace tesseract {
+void Dict::adjust_number(A_CHOICE *best_choice, float *certainty_array) {
   float adjust_factor;
 
-  if (adjust_debug)
+  if (segment_adjust_debug)
     cprintf ("Number: %s %4.2f ",
-      class_string (best_choice), class_probability (best_choice));
+      class_string (best_choice), class_rating (best_choice));
 
-  class_probability (best_choice) += RATING_PAD;
+  class_rating (best_choice) += RATING_PAD;
   if (pure_number (class_string (best_choice), class_lengths (best_choice))) {
-    class_probability (best_choice) *= good_number;
-    adjust_factor = good_number;
-    if (adjust_debug)
-      cprintf (", %4.2f ", good_number);
+    class_rating (best_choice) *= segment_penalty_number_good;
+    adjust_factor = segment_penalty_number_good;
+    if (segment_adjust_debug)
+      cprintf (", %4.2f ", (double)segment_penalty_number_good);
   }
   else {
-    class_probability (best_choice) *= ok_number;
-    adjust_factor = ok_number;
-    if (adjust_debug)
-      cprintf (", N, %4.2f ", ok_number);
+    class_rating (best_choice) *= segment_penalty_number_ok;
+    adjust_factor = segment_penalty_number_ok;
+    if (segment_adjust_debug)
+      cprintf (", N, %4.2f ", (double)segment_penalty_number_ok);
   }
 
-  class_probability (best_choice) -= RATING_PAD;
-  LogNewWordChoice(best_choice, adjust_factor, certainty_array);
-  if (adjust_debug)
-    cprintf (" --> %4.2f\n", class_probability (best_choice));
+  class_rating (best_choice) -= RATING_PAD;
+  LogNewWordChoice(best_choice, adjust_factor,
+                   certainty_array, getUnicharset());
+  if (segment_adjust_debug)
+    cprintf (" --> %4.2f\n", class_rating (best_choice));
 }
 
 
@@ -197,74 +205,103 @@ void adjust_number(A_CHOICE *best_choice, float *certainty_array) {
  * the string being generated.  If so then keep going deeper into the
  * word.
  **********************************************************************/
-void append_number_choices(int state,
-                           char *word,
-                           char unichar_lengths[],
-                           int unichar_offsets[],
-                           CHOICES_LIST choices,
-                           int char_index,
-                           A_CHOICE *this_choice,
-                           float *limit,
-                           float rating,
-                           float certainty,
-                           float *certainty_array,
-                           CHOICES *result) {
-  int word_ending = FALSE;
+void Dict::append_number_choices(int state,
+                                 char *word,
+                                 char unichar_lengths[],
+                                 int unichar_offsets[],
+                                 CHOICES_LIST choices,
+                                 int char_choice_index,
+                                 int word_index,
+                                 A_CHOICE *this_choice,
+                                 float *limit,
+                                 float rating,
+                                 float certainty,
+                                 float *certainty_array,
+                                 const CHAR_FRAGMENT_INFO *prev_char_frag_info,
+                                 char fragment_lengths[],
+                                 CHOICES *result) {
   int x;
   int offset;
+  CHAR_FRAGMENT_INFO char_frag_info;
+  int word_ending =
+    (char_choice_index == (array_count(choices) - 1)) ? TRUE : FALSE;
+  const char *ch = NULL;
 
-  if (char_index == (array_count (choices) - 1))
-    word_ending = TRUE;
-  strcpy(word + unichar_offsets[char_index], class_string (this_choice));
-
-  unichar_lengths[char_index] = strlen(class_string (this_choice));
-  unichar_lengths[char_index + 1] = 0;
-  unichar_offsets[char_index + 1] = unichar_offsets[char_index] +
-      unichar_lengths[char_index];
-
-  if (word[unichar_offsets[char_index]] == '\0') {
-    word[unichar_offsets[char_index]] = ' ';
-    word[unichar_offsets[char_index] + 1] = '\0';
-    unichar_lengths[char_index] = 1;
-    unichar_lengths[char_index + 1] = 0;
-    unichar_offsets[char_index + 1] = unichar_offsets[char_index] +
-        unichar_lengths[char_index];
+  /* Deal lwith fragments */
+  if (!fragment_state_okay(
+      getUnicharset().unichar_to_id(class_string(this_choice)),
+      class_rating(this_choice), class_certainty(this_choice),
+      prev_char_frag_info,
+      (number_debug && (fragments_debug > 1)) ? "number_debug" : NULL,
+      word_ending, &char_frag_info)) {
+    return;  // this_choice must be an invalid fragment
+  }
+  if (char_frag_info.unichar_id != INVALID_UNICHAR_ID) {
+    ch = getUnicharset().id_to_unichar(char_frag_info.unichar_id);
+  }
+  if (ch == NULL) {   // this character is a fragment
+    JOIN_ON(*result,  // so search the next letter
+            number_permute(state, choices, char_choice_index + 1,
+                           word_index, limit, word, unichar_lengths,
+                           unichar_offsets, rating, certainty, certainty_array,
+                           &char_frag_info, fragment_lengths));
+    return;
   }
 
-  certainty_array[char_index] = class_certainty (this_choice);
+  /* Add new character */
+  strcpy(word + unichar_offsets[word_index], ch);
 
-  rating += class_probability (this_choice);
-  certainty = min (class_certainty (this_choice), certainty);
+  unichar_lengths[word_index] = strlen(ch);
+  unichar_lengths[word_index + 1] = 0;
+  fragment_lengths[word_index] = char_frag_info.num_fragments;
+  fragment_lengths[word_index + 1] = 0;
+  unichar_offsets[word_index + 1] = unichar_offsets[word_index] +
+      unichar_lengths[word_index];
+
+  if (word[unichar_offsets[word_index]] == '\0') {
+    word[unichar_offsets[word_index]] = ' ';
+    word[unichar_offsets[word_index] + 1] = '\0';
+    unichar_lengths[word_index] = 1;
+    unichar_lengths[word_index + 1] = 0;
+    fragment_lengths[word_index] = 1;
+    fragment_lengths[word_index + 1] = 0;
+    unichar_offsets[word_index + 1] = unichar_offsets[word_index] +
+        unichar_lengths[word_index];
+  }
+  certainty_array[word_index] = char_frag_info.certainty;
+  rating += char_frag_info.rating;
+  certainty = MIN (char_frag_info.certainty, certainty);
 
   if (rating < *limit) {
-
-    state = number_state_change (state, word + unichar_offsets[char_index],
-                                 unichar_lengths + char_index);
-    if (number_debug)
-      cprintf ("%s prob=%4.2f  state=%d\n", word, rating, state);
+    state = number_state_change (state, word + unichar_offsets[word_index],
+                                 unichar_lengths + word_index);
+    if (number_debug) {
+      cprintf ("%s rating=%4.2f  state=%d\n", word, rating, state);
+    }
 
     if (state != -1) {
 
       if ((state >> kStateShift) == 3 &&
-          char_index + 3 < array_count (choices)) {
+          word_index + 3 < array_count (choices)) {
         return;
       }
 
       if (word_ending) {
-        for (x = 0, offset = 0; x <= char_index; offset += unichar_lengths[x++]) {
-          if (unicharset.get_isdigit (word + offset, unichar_lengths[x])) {
-            if (number_debug)
-              cprintf ("new choice = %s\n", word);
-            push_on (*result, new_choice (word, unichar_lengths, rating, certainty,
-              -1, NUMBER_PERM));
-            adjust_number ((A_CHOICE *) first_node (*result),
-              certainty_array);
-            if (best_probability (*result) > *limit) {
+        for (x = 0, offset = 0; x <= word_index; offset += unichar_lengths[x++]) {
+          if (getUnicharset().get_isdigit (
+              word + offset, unichar_lengths[x])) {
+            if (number_debug) cprintf ("new choice = %s\n", word);
+            push_on (*result, new_choice (word, unichar_lengths, rating,
+                                          certainty, -1, NULL, NUMBER_PERM,
+                                          false, fragment_lengths));
+
+            adjust_number ((A_CHOICE *) first_node (*result), certainty_array);
+            if (best_rating (*result) > *limit) {
               free_choice (first_node (*result));
               pop_off(*result);
             }
             else {
-              *limit = best_probability (*result);
+              *limit = best_rating (*result);
               break;
             }
           }
@@ -272,9 +309,10 @@ void append_number_choices(int state,
       }
       else {
         JOIN_ON (*result,
-          number_permute (state, choices, char_index + 1, limit,
-          word, unichar_lengths, unichar_offsets, rating, certainty,
-          certainty_array));
+          number_permute (state, choices, char_choice_index + 1,
+                          word_index + 1, limit, word, unichar_lengths,
+                          unichar_offsets, rating, certainty,
+                          certainty_array, &char_frag_info, fragment_lengths));
       }
     }
   }
@@ -286,19 +324,6 @@ void append_number_choices(int state,
 }
 
 
-/**********************************************************************
- * init_permute
- *
- * Initialize anything that needs to be set up for the permute
- * functions.
- **********************************************************************/
-void init_permnum() {
-  make_good_number();
-  make_ok_number();
-  make_number_debug();
-  make_number_depth();
-}
-
 
 /**********************************************************************
  * number_character_type
@@ -306,11 +331,11 @@ void init_permnum() {
  * Decide which type of a character (with regard to the numeric state
  * table) we are looking at.
  **********************************************************************/
-int number_character_type(  //current state
-                          const char* ch,
-                          int length,
-                          int state) {
-  if (unicharset.get_isalpha (ch, length)) {
+int Dict::number_character_type(  //current state
+                                  const char* ch,
+                                  int length,
+                                  int state) {
+  if (getUnicharset().get_isalpha (ch, length)) {
 #if 0
     if (state < 4
         && strchr (allowed_char_strs[0], lower_char) != NULL)
@@ -324,7 +349,7 @@ int number_character_type(  //current state
 #endif
     return 3;
   }
-  else if (unicharset.get_isdigit (ch, length))
+  else if (getUnicharset().get_isdigit (ch, length))
     return (1);
   else if (length == 1 && isoperator (*ch))
     return (2);
@@ -343,9 +368,9 @@ int number_character_type(  //current state
  * Execute a state transition according to the state table and
  * additional rules.
  **********************************************************************/
-int number_state_change(int state,             //current state
-                        const char *word,      //current char
-                        const char *lengths) { //length of current char
+int Dict::number_state_change(int state,             //current state
+                              const char *word,      //current char
+                              const char *lengths) { //length of current char
   int char_type;                 //type of char
   int new_state;                 //state to return
   int old_state = state >> kStateShift;
@@ -398,33 +423,38 @@ int number_state_change(int state,             //current state
  * permuter uses this state table to enumerate all the string that
  * can be produced using the input choices.
  **********************************************************************/
-CHOICES number_permute(int state,
-                       CHOICES_LIST choices,
-                       int char_index,
-                       float *limit,
-                       char *word,
-                       char unichar_lengths[],
-                       int unichar_offsets[],
-                       float rating,
-                       float certainty,
-                       float *certainty_array) {
+CHOICES Dict::number_permute(int state,
+                             CHOICES_LIST choices,
+                             int char_choice_index,
+                             int word_index,
+                             float *limit,
+                             char *word,
+                             char unichar_lengths[],
+                             int unichar_offsets[],
+                             float rating,
+                             float certainty,
+                             float *certainty_array,
+                             const CHAR_FRAGMENT_INFO *prev_char_frag_info,
+                             char fragment_lengths[]) {
   CHOICES result = NIL;
   CHOICES c;
   int depth = 0;
 
   if (number_debug) {
-    cprintf ("number_permute (state=%d, char_index=%d, limit=%4.2f, ",
-      state, char_index, *limit);
+    cprintf ("number_permute (state=%d, char_choice_index=%d,"
+             " word_index=%d, limit=%4.2f, ", state, char_choice_index,
+             word_index, *limit);
     cprintf ("word=%s, rating=%4.2f, certainty=%4.2f)\n",
       word, rating, certainty);
   }
-  if (char_index < array_count (choices)) {
-    iterate_list (c, (CHOICES) array_index (choices, char_index)) {
-      if (depth++ < number_depth)
+  if (char_choice_index < array_count (choices)) {
+    iterate_list (c, (CHOICES) array_index (choices, char_choice_index)) {
+      if (depth++ < segment_digits_max)
         append_number_choices (state, word, unichar_lengths, unichar_offsets,
-                               choices, char_index,
+                               choices, char_choice_index, word_index,
                                (A_CHOICE *) first_node (c), limit, rating,
-                               certainty, certainty_array, &result);
+                               certainty, certainty_array, prev_char_frag_info,
+                               fragment_lengths, &result);
     }
   }
   if (result && number_debug == 1)
@@ -439,13 +469,15 @@ CHOICES number_permute(int state,
  * Permute all the possible valid numbers and adjust their ratings.
  * Save the best rating.
  **********************************************************************/
-A_CHOICE *number_permute_and_select(CHOICES_LIST char_choices,
-                                    float rating_limit) {
+A_CHOICE *Dict::number_permute_and_select(CHOICES_LIST char_choices,
+                                          float rating_limit) {
   CHOICES result = NIL;
   char word[UNICHAR_LEN * MAX_WERD_LENGTH + 1];
   char unichar_lengths[MAX_WERD_LENGTH + 1];
   int unichar_offsets[MAX_WERD_LENGTH + 1];
   float certainty_array[MAX_WERD_LENGTH + 1];
+  char fragment_lengths[MAX_WERD_LENGTH + 1];  // num fragments from which
+                                               // each char was constructed
   float rating = rating_limit;
   A_CHOICE *best_choice;
 
@@ -454,16 +486,17 @@ A_CHOICE *number_permute_and_select(CHOICES_LIST char_choices,
   if (array_count (char_choices) <= MAX_WERD_LENGTH) {
     word[0] = '\0';
     unichar_lengths[0] = 0;
+    fragment_lengths[0] = 0;
     unichar_offsets[0] = 0;
-    result = number_permute (0, char_choices, 0, &rating,
-      word, unichar_lengths, unichar_offsets, 0.0, 0.0, certainty_array);
-
+    result = number_permute (0, char_choices, 0, 0, &rating, word,
+                             unichar_lengths, unichar_offsets,
+                             0.0, 0.0, certainty_array, NULL, fragment_lengths);
     if (display_ratings && result)
       print_choices ("number_permuter", result);
 
     while (result != NIL) {
-      if (best_probability (result) < class_probability (best_choice)) {
-        clone_choice (best_choice, first_node (result));
+      if (best_rating (result) < class_rating (best_choice)) {
+        clone_choice (best_choice, (A_CHOICE *) first_node (result));
       }
       free_choice (first_node (result));
       pop_off(result);
@@ -471,6 +504,7 @@ A_CHOICE *number_permute_and_select(CHOICES_LIST char_choices,
   }
   return (best_choice);
 }
+}  // namespace tesseract
 
 
 /**********************************************************************
@@ -479,17 +513,18 @@ A_CHOICE *number_permute_and_select(CHOICES_LIST char_choices,
  * Check to see if this string is a pure number (one that does not end
  * with alphabetic characters).
  **********************************************************************/
-int pure_number(const char *string, const char *lengths) {
+namespace tesseract {
+int Dict::pure_number(const char *string, const char *lengths) {
   int x;
   int offset;
 
   x = strlen (lengths) - 1;
   offset = strlen (string) - lengths[x];
   for (;x >= 0; offset -= lengths[--x]) {
-    if (unicharset.get_isdigit (string + offset, lengths[x])) {
+    if (getUnicharset().get_isdigit (string + offset, lengths[x])) {
       return (TRUE);
     }
-    else if (unicharset.get_isalpha (string + offset, lengths[x]))
+    else if (getUnicharset().get_isalpha (string + offset, lengths[x]))
       return (FALSE);
   }
   return (FALSE);
@@ -502,7 +537,7 @@ int pure_number(const char *string, const char *lengths) {
  * Check this string to see if it is a valid number.  Return TRUE if
  * it is.
  **********************************************************************/
-int valid_number(const char *string, const char *lengths) {
+int Dict::valid_number(const char *string, const char *lengths) {
   int state = 0;
   int char_index;
   int offset;
@@ -515,8 +550,9 @@ int valid_number(const char *string, const char *lengths) {
     state = number_state_change (state, string + offset, lengths + char_index);
     if (state == -1)
       return (FALSE);
-    if (unicharset.get_isdigit (string + offset, lengths[char_index]))
+    if (getUnicharset().get_isdigit (string + offset, lengths[char_index]))
       num_digits++;
   }
   return num_digits > num_chars - num_digits;
 }
+}  // namespace tesseract

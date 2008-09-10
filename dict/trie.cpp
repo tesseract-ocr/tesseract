@@ -27,6 +27,7 @@
 ----------------------------------------------------------------------*/
 #include "trie.h"
 #include "callcpp.h"
+#include "dict.h"
 
 #ifdef __UNIX__
 #include <assert.h>
@@ -55,12 +56,12 @@ void add_edge_linkage(EDGE_ARRAY dawg,
                       NODE_REF node1,
                       NODE_REF node2,
                       EDGE_RECORD direction,
-                      char character,
+                      int character,
                       EDGE_RECORD word_end) {
   EDGE_REF edge1 = node1;
   EDGE_REF edge2;
   inT32      num_edges = edges_in_node (dawg, node1);
-  inT32      last_one;
+  inT64      last_one;
 
   word_end  = (word_end ? WERD_END_FLAG : 0);
 
@@ -117,7 +118,7 @@ void add_edge_linkage(EDGE_ARRAY dawg,
 bool add_new_edge(EDGE_ARRAY dawg,
                   NODE_REF *node1,
                   NODE_REF *node2,
-                  char character,
+                  int character,
                   EDGE_RECORD word_end,
                   inT32 max_num_edges,
                   inT32 reserved_edges) {
@@ -142,6 +143,31 @@ bool add_new_edge(EDGE_ARRAY dawg,
   return true;
 }
 
+/**********************************************************************
+ * add_word_ending
+ *
+ * Set the word ending flags in an already existing edge pair.
+ * Return true on success.
+ **********************************************************************/
+bool add_word_ending(EDGE_ARRAY dawg,
+                     EDGE_REF edge,
+                     NODE_REF the_next_node,
+                     int ch) {
+  EDGE_REF other_edge = the_next_node;
+  // Find the backward link from the_next_node back with ch.
+  if (forward_edge(dawg, other_edge))
+    edge_loop(dawg, other_edge);
+  if (backward_edge(dawg, other_edge)) {
+    other_edge = edge_char_of(dawg, other_edge, ch, false);
+    if (other_edge != NO_EDGE) {
+      // Mark both directions as end of word.
+      dawg[edge] |= (WERD_END_FLAG << FLAG_START_BIT);
+      dawg[other_edge] |= (WERD_END_FLAG << FLAG_START_BIT);
+      return true;  // Success.
+    }
+  }
+  return false;  // Failed.
+}
 
 /**********************************************************************
  * add_word_to_dawg
@@ -149,7 +175,7 @@ bool add_new_edge(EDGE_ARRAY dawg,
  * Add in a word by creating the necessary nodes and edges.
  **********************************************************************/
 void add_word_to_dawg(EDGE_ARRAY dawg,
-                      char *string,
+                      const char *string,
                       inT32 max_num_edges,
                       inT32 reserved_edges) {
   EDGE_REF    edge;
@@ -162,8 +188,9 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
 
   if (debug) cprintf("Adding word %s\n", string);
   for (i=0; i<strlen(string)-1; i++) {
+    unsigned char ch = case_sensative ? string[i] : tolower(string[i]);
     if (still_finding_chars) {
-      edge = edge_char_of (dawg, last_node, string[i], word_end);
+      edge = edge_char_of(dawg, last_node, ch, word_end);
       if (debug) cprintf ("exploring edge = " REFFORMAT "\n", edge);
       if (edge == NO_EDGE)
         still_finding_chars = FALSE;
@@ -171,8 +198,7 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
       if (next_node (dawg, edge) == 0) {
         word_end = TRUE;
         still_finding_chars = FALSE;
-        if (! case_sensative) string[i] = tolower (string[i]);
-        remove_edge (dawg, last_node, 0, string[i], word_end);
+        remove_edge (dawg, last_node, 0, ch, word_end);
       }
       else {
         last_node = next_node (dawg, edge);
@@ -195,9 +221,8 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
           break;
         }
       }
-      if (! case_sensative) string[i] = tolower (string[i]);
-      if (!add_new_edge (dawg, &last_node, &the_next_node,
-        string[i], word_end, max_num_edges, reserved_edges)) {
+      if (!add_new_edge (dawg, &last_node, &the_next_node, ch,
+                         word_end, max_num_edges, reserved_edges)) {
         add_failed = true;
         break;
       }
@@ -209,11 +234,20 @@ void add_word_to_dawg(EDGE_ARRAY dawg,
   }
 
   the_next_node = 0;
-  if (! case_sensative) string[i] = tolower (string[i]);
-  if (!add_failed &&
-      !add_new_edge(dawg, &last_node, &the_next_node,
-                    string[i], TRUE, max_num_edges, reserved_edges))
-    add_failed = true;
+  unsigned char ch = case_sensative ? string[i] : tolower(string[i]);
+  if (still_finding_chars &&
+      (edge = edge_char_of(dawg, last_node, ch, false))!= NO_EDGE &&
+      (the_next_node = next_node(dawg, edge)) != 0) {
+    // An extension of this word already exists in the trie, so we
+    // only have to add the ending flags in both directions.
+    if (!add_word_ending(dawg, edge, the_next_node, ch))
+      cprintf("Unable to find backward edge for subword ending! %s\n", string);
+  } else {
+    if (!add_failed &&
+        !add_new_edge(dawg, &last_node, &the_next_node, ch,
+                      TRUE, max_num_edges, reserved_edges))
+      add_failed = true;
+  }
 
   if (edges_in_node (dawg, 0) > reserved_edges) {
     cprintf ("error: Not enough room in root node, %d\n",
@@ -408,10 +442,11 @@ void read_full_dawg (const char *filename,
  * Read the requested file (containing a list of words) and add all
  * the words to the DAWG.
  **********************************************************************/
-void read_word_list(const char *filename,
-                    EDGE_ARRAY dawg,
-                    inT32 max_num_edges,
-                    inT32 reserved_edges) {
+namespace tesseract {
+void Dict::read_word_list(const char *filename,
+                          EDGE_ARRAY dawg,
+                          inT32 max_num_edges,
+                          inT32 reserved_edges) {
   FILE *word_file;
   char string [CHARS_PER_LINE];
   int  word_count = 0;
@@ -429,10 +464,12 @@ void read_word_list(const char *filename,
     if (debug && word_count % 10000 == 0)
       cprintf("Read %d words so far\n", word_count);
     if (string[0] != '\0' /* strlen (string) */) {
-      add_word_to_dawg(dawg, string, max_num_edges, reserved_edges);
-      if (! word_in_dawg (dawg, string)) {
-        cprintf ("error: word not in DAWG after adding it '%s'\n", string);
-      return;
+      if (!word_in_dawg(dawg, string)) {
+        add_word_to_dawg(dawg, string, max_num_edges, reserved_edges);
+        if (!word_in_dawg(dawg, string)) {
+          cprintf("error: word not in DAWG after adding it '%s'\n", string);
+          return;
+        }
       }
     }
   }
@@ -441,6 +478,7 @@ void read_word_list(const char *filename,
     cprintf("Read %d words total.\n", word_count);
   fclose(word_file);
 }
+}  // namespace tesseract
 
 
 /**********************************************************************
@@ -496,7 +534,7 @@ void relocate_edge(EDGE_ARRAY dawg,
 void remove_edge(EDGE_ARRAY dawg,
                  NODE_REF node1,
                  NODE_REF node2,
-                 char character,
+                 int character,
                  EDGE_RECORD word_end) {
   remove_edge_linkage(dawg, node1, node2, FORWARD_EDGE, character, word_end);
 
@@ -514,7 +552,7 @@ void remove_edge_linkage(EDGE_ARRAY dawg,
                          NODE_REF node,
                          NODE_REF next,
                          EDGE_RECORD direction,
-                         char character,
+                         int character,
                          EDGE_RECORD word_end) {
   inT32      forward_edges;
   inT32      num_edges;

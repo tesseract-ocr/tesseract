@@ -35,6 +35,7 @@
 
 #include "cutil.h"
 #include "trie.h"
+#include "dict.h"
 #ifdef __UNIX__
 #include <assert.h>
 #endif
@@ -57,11 +58,12 @@
 * Check the DAWG for the words that are listed in the requested file.
 * A file name of NULL will cause the words to be read from stdin.
 **********************************************************************/
-
-void check_for_words (EDGE_ARRAY dawg,
-                      char       *filename) {
+namespace tesseract {
+void Dict::check_for_words (EDGE_ARRAY dawg,
+                            char       *filename) {
   FILE       *word_file;
   char       string [CHARS_PER_LINE];
+  int misses = 0;
 
   word_file = open_file (filename, "r");
 
@@ -86,7 +88,8 @@ void check_for_words (EDGE_ARRAY dawg,
         debug = 1;
       }
       else {
-        match_words (dawg, string, 0, 0);
+        if (!match_words (dawg, string, 0, 0))
+          ++misses;
       }
     }
 
@@ -96,7 +99,11 @@ void check_for_words (EDGE_ARRAY dawg,
     }
   }
   fclose (word_file);
+  // Make sure the user sees this with fprintf instead of tprintf.
+  fprintf(stderr, "Number of lost words=%d\n", misses);
 }
+
+}  // namespace tesseract
 
 #if 0
 /**********************************************************************
@@ -159,7 +166,7 @@ int main (argc, argv)
 * in this string are wildcards.
 **********************************************************************/
 
-void match_words (EDGE_ARRAY  dawg,
+bool match_words (EDGE_ARRAY  dawg,
                   char        *string,
                   inT32         index,
                   NODE_REF    node) {
@@ -167,26 +174,32 @@ void match_words (EDGE_ARRAY  dawg,
   inT32        word_end;
 
   if (string[index] == '*') {
+    bool any_matched = false;
     edge = node;
     do {
       string[index] = edge_letter (dawg, edge);
-      match_words (dawg, string, index, node);
+      if (match_words (dawg, string, index, node))
+        any_matched = true;
     } edge_loop (dawg, edge);
     string[index] = '*';
+    return any_matched;
   }
   else {
     word_end = (string[index+1] == (char) 0);
-    edge = edge_char_of (dawg, node, string[index], word_end);
+    edge = edge_char_of(dawg, node,
+                        static_cast<unsigned char>(string[index]), word_end);
     if (edge != NO_EDGE) {                         /* Normal edge in DAWG */
       node = next_node (dawg, edge);
       if (word_end) {
         printf ("%s\n", string);
+        return true;
       }
       else if (node != 0) {
-        match_words (dawg, string, index+1, node);
+        return match_words (dawg, string, index+1, node);
       }
     }
   }
+  return false;
 }
 
 
@@ -197,8 +210,8 @@ void match_words (EDGE_ARRAY  dawg,
 * A file name of NULL will cause the words to be read from stdin. Print
 * each of the words that can not be found in the DAWG.
 **********************************************************************/
-
-void print_lost_words (EDGE_ARRAY dawg,
+namespace tesseract {
+void Dict::print_lost_words (EDGE_ARRAY dawg,
                        char       *filename) {
   FILE       *word_file;
   char       string [CHARS_PER_LINE];
@@ -216,3 +229,4 @@ void print_lost_words (EDGE_ARRAY dawg,
   }
   fclose (word_file);
 }
+}  // namespace tesseract

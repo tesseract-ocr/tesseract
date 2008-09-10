@@ -26,6 +26,9 @@
 #include "tordvars.h"
 #include "callcpp.h"
 #include "globals.h"
+#include "dict.h"
+#include "image.h"
+#include "ccutil.h"
 
 #include <stdio.h>
 #include <ctype.h>
@@ -89,7 +92,8 @@ void fix_quotes(char *str) {
  *
  * Check a string to see if it matches a set of punctuation rules.
  **********************************************************************/
-int punctuation_ok(const char *word, const char *lengths) {
+namespace tesseract {
+int Dict::punctuation_ok(const char *word, const char *lengths) {
   int punctuation_types[5];
   int trailing = 0;
   int num_puncts = 0;
@@ -103,15 +107,17 @@ int punctuation_ok(const char *word, const char *lengths) {
   // check for un-supported symbols
   for (x = 0, offset = 0; x < strlen (lengths); offset += lengths[x++]) {
     // a un-supported symbol
-    if (!unicharset.contains_unichar (word + offset, lengths[x])) {
+    if (!getUnicharset().contains_unichar (word + offset,
+                                                               lengths[x])) {
       return -1;
     }
   }
 
   for (x = 0, offset = 0; x < strlen (lengths); offset += lengths[x++]) {
-    if (unicharset.get_isalpha (word + offset, lengths[x])) {
+    if (getUnicharset().get_isalpha (word + offset, lengths[x])) {
       if (trailing &&
-        !(unicharset.get_isalpha (word + offset - lengths[x - 1], lengths[x - 1])
+        !(getUnicharset().get_isalpha(
+            word + offset - lengths[x - 1], lengths[x - 1])
 #if 0
           ||
         (word[x - 1] == '\'' &&
@@ -123,51 +129,51 @@ int punctuation_ok(const char *word, const char *lengths) {
       trailing = 1;
     }
     else {
-      ch_id = unicharset.unichar_to_id(word + offset, lengths[x]);
+      ch_id = getUnicharset().unichar_to_id(word + offset, lengths[x]);
 
-      if (unicharset.eq(ch_id, ".") && trailing) {
+      if (getUnicharset().eq(ch_id, ".") && trailing) {
         if (punctuation_types[0])
           return (-1);
         (punctuation_types[0])++;
       }
 
-      else if (((unicharset.eq(ch_id, "{")) ||
-                (unicharset.eq(ch_id, "[")) ||
-                (unicharset.eq(ch_id, "("))) && !trailing) {
+      else if (((getUnicharset().eq(ch_id, "{")) ||
+                (getUnicharset().eq(ch_id, "[")) ||
+                (getUnicharset().eq(ch_id, "("))) && !trailing) {
         if (punctuation_types[1])
           return (-1);
         (punctuation_types[1])++;
       }
 
-      else if (((unicharset.eq(ch_id, "}")) ||
-                (unicharset.eq(ch_id, "]")) ||
-                (unicharset.eq(ch_id, ")"))) && trailing) {
+      else if (((getUnicharset().eq(ch_id, "}")) ||
+                (getUnicharset().eq(ch_id, "]")) ||
+                (getUnicharset().eq(ch_id, ")"))) && trailing) {
         if (punctuation_types[2])
           return (-1);
         (punctuation_types[2])++;
       }
 
-      else if (((unicharset.eq(ch_id, ":")) ||
-                (unicharset.eq(ch_id, ";")) ||
-                (unicharset.eq(ch_id, "!")) ||
-                (unicharset.eq(ch_id, "-")) ||
-                (unicharset.eq(ch_id, ",")) ||
-                (unicharset.eq(ch_id, "?"))) && trailing) {
+      else if (((getUnicharset().eq(ch_id, ":")) ||
+                (getUnicharset().eq(ch_id, ";")) ||
+                (getUnicharset().eq(ch_id, "!")) ||
+                (getUnicharset().eq(ch_id, "-")) ||
+                (getUnicharset().eq(ch_id, ",")) ||
+                (getUnicharset().eq(ch_id, "?"))) && trailing) {
         if (punctuation_types[3])
           return (-1);
         (punctuation_types[3])++;
-        if (unicharset.eq(ch_id, "-"))
+        if (getUnicharset().eq(ch_id, "-"))
           punctuation_types[3] = 0;
       }
 
       else if (x < strlen(lengths) - 1 &&
-               ((unicharset.eq(ch_id, "`")) ||
-               (unicharset.eq(ch_id, "\"")) ||
-               (unicharset.eq(ch_id, "\'")))) {
-        UNICHAR_ID ch_id2 = unicharset.unichar_to_id(word + offset + lengths[x],
+               ((getUnicharset().eq(ch_id, "`")) ||
+               (getUnicharset().eq(ch_id, "\"")) ||
+               (getUnicharset().eq(ch_id, "\'")))) {
+        UNICHAR_ID ch_id2 = getUnicharset().unichar_to_id(word + offset + lengths[x],
                                                      lengths[x + 1]);
-        if ((unicharset.eq(ch_id2, "`")) ||
-            (unicharset.eq(ch_id2, "\'"))) {
+        if ((getUnicharset().eq(ch_id2, "`")) ||
+            (getUnicharset().eq(ch_id2, "\'"))) {
           offset += lengths[x++];
         }
         (punctuation_types[4])++;
@@ -175,7 +181,7 @@ int punctuation_ok(const char *word, const char *lengths) {
           return (-1);
       }
 
-      else if (!unicharset.get_isdigit (ch_id))
+      else if (!getUnicharset().get_isdigit (ch_id))
         return (-1);
     }
   }
@@ -194,7 +200,7 @@ int punctuation_ok(const char *word, const char *lengths) {
  *
  * Check a string to see if it matches a set of lexical rules.
  **********************************************************************/
-int case_ok(const char *word, const char *lengths) {
+int Dict::case_ok(const char *word, const char *lengths) {
   static int case_state_table[6][4] = { {
                                  /*  0. Begining of word         */
     /*    P   U   L   D                                     */
@@ -226,19 +232,19 @@ int case_ok(const char *word, const char *lengths) {
 
   for (x = 0, offset = 0; x < strlen (lengths); offset += lengths[x++]) {
 
-    ch_id = unicharset.unichar_to_id(word + offset, lengths[x]);
-    if (unicharset.get_isupper(ch_id))
+    ch_id = getUnicharset().unichar_to_id(word + offset, lengths[x]);
+    if (getUnicharset().get_isupper(ch_id))
       state = case_state_table[state][1];
-    else if (unicharset.get_isalpha(ch_id))
+    else if (getUnicharset().get_isalpha(ch_id))
       state = case_state_table[state][2];
-    else if (unicharset.get_isdigit(ch_id))
+    else if (getUnicharset().get_isdigit(ch_id))
       state = case_state_table[state][3];
     else
       state = case_state_table[state][0];
 
     if (debug_3)
       cprintf ("Case state = %d, char = %s\n", state,
-               unicharset.id_to_unichar(ch_id));
+               getUnicharset().id_to_unichar(ch_id));
     if (state == -1) {
                                  /* Handle ACCRONYMs */
 #if 0
@@ -254,6 +260,7 @@ int case_ok(const char *word, const char *lengths) {
   }
   return state != 5;             /*single lower is bad */
 }
+}  // namespace tesseract
 
 
 /**********************************************************************

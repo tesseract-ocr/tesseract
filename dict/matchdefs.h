@@ -28,20 +28,14 @@
 /* define the maximum number of classes defined for any matcher
   and the maximum class id for any matcher. This must be changed
   if more different classes need to be classified */
+/* Script Detection: Put this value to the size of the unicharset. Currently a
+ * value of 9000 is enough. */
 #define MAX_NUM_CLASSES   8192
 #define MAX_CLASS_ID    (MAX_NUM_CLASSES - 1)
 
 /* a CLASS_ID is the ascii character to be associated with a class */
 typedef UNICHAR_ID CLASS_ID;
 #define NO_CLASS      (0)
-
-/* define a type for the index (rather than the class id) of a class.
-  Class indexes are sequentially defined, while class id's are defined
-  by the ascii character set. */
-typedef inT16 CLASS_INDEX;
-typedef CLASS_INDEX CLASS_TO_INDEX[MAX_CLASS_ID + 1];
-typedef CLASS_ID INDEX_TO_CLASS[MAX_NUM_CLASSES];
-#define ILLEGAL_CLASS (-1)
 
 /* a PROTO_ID is the index of a prototype within it's class.  Valid proto
   id's are 0 to N-1 where N is the number of prototypes that make up the

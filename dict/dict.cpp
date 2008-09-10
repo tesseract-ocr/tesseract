@@ -1,10 +1,9 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        permngram.h
-// Description: Character n-gram permuter
-// Author:      Thomas Kielbus
-// Created:     Wed Sep 12 11:26:42 PDT 2007
+// File:        dict.cpp
+// Description: dict class.
+// Author:      Samuel Charron
 //
-// (C) Copyright 2007, Google Inc.
+// (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -17,17 +16,18 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef PERMNGRAM_H
-#define PERMNGRAM_H
+#include "dict.h"
 
-#include "choicearr.h"
-#include "dawg.h"
+namespace tesseract {
 
-// Permute the given char_choices using a character level n-gram model and
-// return the best word choice found. The given dawg is used to determine
-// which choices are contained in the dictionary.
-/*A_CHOICE *ngram_permute_and_select(CHOICES_LIST char_choices,
-                                   float rating_limit,
-                                   EDGE_ARRAY dawg);*/
+class Image;
 
-#endif  // PERMNGRAM_H
+Dict::Dict(Image* image_ptr)
+    : letter_is_okay_(&tesseract::Dict::def_letter_is_okay),
+      image_ptr_(image_ptr) {
+}
+
+Dict::~Dict() {
+}
+
+}  // namespace tesseract

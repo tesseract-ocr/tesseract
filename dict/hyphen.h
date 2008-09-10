@@ -38,9 +38,11 @@
 extern int last_word_on_line;
 extern char *hyphen_string;
 extern char *hyphen_unichar_lengths;
+extern char *hyphen_fragment_lengths;
 extern int *hyphen_unichar_offsets;
 extern float hyphen_rating;
 extern NODE_REF hyphen_state;
+extern int hyphen_char_choice_index;
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -64,12 +66,15 @@ last_word_on_line = TRUE
 if (last_word_on_line == FALSE) {              \
 	if (hyphen_string) strfree (hyphen_string); \
 	if (hyphen_unichar_lengths) strfree (hyphen_unichar_lengths); \
+        if (hyphen_fragment_lengths) strfree (hyphen_fragment_lengths); \
 	if (hyphen_unichar_offsets) Efree (hyphen_unichar_offsets); \
 	hyphen_string = NULL;                       \
 	hyphen_unichar_lengths = NULL;                       \
+        hyphen_fragment_lengths = NULL;                        \
 	hyphen_unichar_offsets = NULL;                       \
 	hyphen_rating = MAX_FLOAT32;                   \
 	hyphen_state = 0;                           \
+        hyphen_char_choice_index = 0;          \
 }                                              \
 
 
@@ -92,19 +97,6 @@ last_word_on_line = FALSE
 (last_word_on_line)
 
 /**********************************************************************
- * hyphen_base_size
- *
- * Size of the base word (the part on the line before) of a hyphenated
- * coumpound word.
- **********************************************************************/
-
-#define hyphen_base_size()                 \
-((! is_last_word () && hyphen_string) ?  \
-	(strlen (hyphen_unichar_lengths))             :  \
-	(0))                                    \
-
-
-/**********************************************************************
  * hyphen_tail
  *
  * Return the a pointer to the part of the word that was not on the
@@ -120,6 +112,21 @@ last_word_on_line = FALSE
 /*----------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------*/
+
+// Size of the base word (the part on the line before) of a hyphenated
+// coumpound word.
+inline int hyphen_base_size() {
+  return (!is_last_word() && hyphen_string) ?
+    strlen(hyphen_unichar_lengths) : 0;
+}
+
+// Number of char choices of the base word (the part on the line before)
+// of a hyphenated compound word.
+inline int hyphen_char_choice_size() {
+  return (!is_last_word() && hyphen_string) ? hyphen_char_choice_index : 0;
+}
+
 void set_hyphen_word(char *word, char *unichar_lengths, int *unichar_offsets,
-                     float rating, NODE_REF state);
+                     float rating, NODE_REF state, int char_choice_index,
+                     char *fragment_lengths);
 #endif

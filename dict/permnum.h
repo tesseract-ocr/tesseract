@@ -29,55 +29,26 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "choicearr.h"
+#include "varable.h"
+#include "permute.h"
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
 #define GOOD_NUMBER     1.1
 #define OK_NUMBER     1.4
-extern float ok_number;
-extern float good_number;
+
+extern double_VAR_H(segment_penalty_number_good, GOOD_NUMBER,
+                    "Score multiplier for good-looking numbers "
+                    "(lower is better).");
+
+extern double_VAR_H(segment_penalty_number_ok, OK_NUMBER,
+                    "Score multiplier for ok-looking numbers "
+                    "(lower is better).");
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void adjust_number(A_CHOICE *best_choice, float *certainty_array);
-
-void append_number_choices(int state,
-                           char *word,
-                           char unichar_lengths[],
-                           int unichar_offsets[],
-                           CHOICES_LIST choices,
-                           int char_index,
-                           A_CHOICE *this_choice,
-                           float *limit,
-                           float rating,
-                           float certainty,
-                           float *certainty_array,
-                           CHOICES *result);
 
 void init_permnum();
-
-int number_character_type(char ch, int length, int state);
-
-                                 //current state
-int number_state_change(int state, const char *word, const char* lengths);
-
-CHOICES number_permute(int state,
-                       CHOICES_LIST choices,
-                       int char_index,
-                       float *limit,
-                       char *word,
-                       char unichar_lengths[],
-                       int unichar_offsets[],
-                       float rating,
-                       float certainty,
-                       float *certainty_array);
-
-A_CHOICE *number_permute_and_select(CHOICES_LIST char_choices,
-                                    float rating_limit);
-
-int pure_number(const char *string, const char *lengths);
-
-int valid_number(const char *string, const char *lengths);
 #endif

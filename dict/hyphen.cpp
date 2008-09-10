@@ -25,11 +25,13 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
+#include <math.h>
+
 #include "const.h"
+
+#include "callcpp.h"
 #include "hyphen.h"
 #include "tordvars.h"
-#include "callcpp.h"
-#include <math.h>
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -37,9 +39,11 @@
 int last_word_on_line = 0;
 char *hyphen_string = 0;
 char *hyphen_unichar_lengths = 0;
+char *hyphen_fragment_lengths = 0;
 int *hyphen_unichar_offsets = NULL;
 float hyphen_rating = MAXFLOAT;
 NODE_REF hyphen_state = 0;
+int hyphen_char_choice_index = 0;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -52,33 +56,36 @@ NODE_REF hyphen_state = 0;
  * line to permute the other half of the word.
  **********************************************************************/
 void set_hyphen_word(char *word, char *unichar_lengths, int *unichar_offsets,
-                     float rating, NODE_REF state) {
-  int char_index = strlen (unichar_lengths) - 1;
+                     float rating, NODE_REF state, int char_choice_index,
+                     char *fragment_lengths) {
+  int word_index = strlen(unichar_lengths) - 1;
 
   if (display_ratings)
-    cprintf ("set hyphen word = %s\n", word);
+    cprintf("set hyphen word = %s\n", word);
 
-  if (hyphen_rating > rating && char_index > 0) {
-    word[unichar_offsets[char_index]] = '\0';
-    unichar_lengths[char_index] = 0;
+  if (hyphen_rating > rating && word_index > 0) {
+    word[unichar_offsets[word_index]] = '\0';
+    unichar_lengths[word_index] = 0;
 
-    if (hyphen_string)
-    {
+    if (hyphen_string) {
       strfree(hyphen_string);
       strfree(hyphen_unichar_lengths);
+      strfree(hyphen_fragment_lengths);
       Efree(hyphen_unichar_offsets);
     }
-    hyphen_string = strsave (word);
-    hyphen_unichar_lengths = strsave (unichar_lengths);
-    hyphen_unichar_offsets = (int *)
-        Emalloc((strlen(unichar_lengths)) * sizeof (int));
+    hyphen_string = strsave(word);
+    hyphen_unichar_lengths = strsave(unichar_lengths);
+    hyphen_fragment_lengths = strsave(fragment_lengths);
+    hyphen_unichar_offsets =
+      (int *)Emalloc((strlen(unichar_lengths)) * sizeof(int));
     memcpy(hyphen_unichar_offsets, unichar_offsets,
-           (strlen(unichar_lengths)) * sizeof (int));
+           (strlen(unichar_lengths)) * sizeof(int));
 
     hyphen_state = state;
     hyphen_rating = rating;
 
-    word[unichar_offsets[char_index]] = '-';
-    unichar_lengths[char_index] = 1;
+    word[unichar_offsets[word_index]] = '-';
+    unichar_lengths[word_index] = 1;
+    hyphen_char_choice_index = char_choice_index;
   }
 }
