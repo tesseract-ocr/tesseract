@@ -1,0 +1,8 @@
+This is a contour-based text detection module implemented by Marius Renn 
+during his internship with the OCR group at 2006.  The algorithm is designed
+to be light-weight and targeted for the Android platform, with the intention
+of open-sourcing it in the future.
+All the Google and Android specific codes can be found in 
+//google3/ocr/helium
+The details of the algorithm can be found in 
+http://wiki.corp.google.com/twiki/bin/view/Main/HeliumMobileTextDetector
