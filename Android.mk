@@ -525,3 +525,77 @@ LOCAL_SHARED_LIBRARIES:= \
 	libtesseract_main
 
 include $(BUILD_EXECUTABLE)
+
+ifeq (0,1)
+#
+# libhelium
+#
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE:= libhelium
+
+LOCAL_CFLAGS:= \
+	-DGRAPHICS_DISABLED	\
+	-DFST_DISABLED
+
+LOCAL_SRC_FILES:= \
+	helium/binarize.cpp \
+	helium/cluster.cpp \
+	helium/clusterer.cpp \
+	helium/color.cpp \
+	helium/cstringutils.cpp \
+	helium/contourdetector.cpp \
+	helium/debugging.cpp \
+	helium/edgedetector.cpp \
+	helium/gaussiansmooth.cpp \
+	helium/heliumbinarizer.cpp \
+	helium/histogram.cpp \
+	helium/image.cpp \
+	helium/mask.cpp \
+	helium/maxtracer.cpp \
+	helium/mathfunctions.cpp \
+	helium/perspectivedetection.cpp \
+	helium/point.cpp \
+	helium/quicksmooth.cpp \
+	helium/refcount.cpp \
+	helium/shape.cpp \
+	helium/shapetree.cpp \
+	helium/sobeledgedetector.cpp \
+	helium/laplaceedgedetector.cpp \
+	helium/surface.cpp \
+	helium/stringutils.cpp \
+	helium/tesseract.cpp \
+	helium/textareas.cpp \
+	helium/textclassifier.cpp \
+	helium/textvalidator.cpp \
+	helium/textrecognition.cpp \
+	helium/thresholdbinarizer.cpp \
+	helium/trace.cpp \
+	helium/tracer.cpp \
+	helium/unionfind.cpp
+#	helium/heliumtextdetector.cpp 
+#	helium/box.cpp
+#	helium/imageenhancer.cpp
+#	helium/leptonica.cpp
+#	helium/main_helium.cpp
+
+LOCAL_C_INCLUDES:= \
+	system/tesseract 		\
+	system/tesseract/helium		\
+	system/tesseract/ccutil		\
+	system/tesseract/ccstruct	\
+	system/tesseract/image		\
+	system/tesseract/dict		\
+	system/tesseract/classify	\
+	system/tesseract/wordrec	\
+	system/tesseract/cutil		\
+	system/tesseract/textord	\
+
+LOCAL_SHARED_LIBRARIES:= \
+	libtesseract_main
+
+LOCAL_PRELINK_MODULE:= false
+include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_STATIC_LIBRARY)
+endif
