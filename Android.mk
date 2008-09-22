@@ -573,12 +573,12 @@ LOCAL_SRC_FILES:= \
 	helium/thresholdbinarizer.cpp \
 	helium/trace.cpp \
 	helium/tracer.cpp \
-	helium/unionfind.cpp
-#	helium/heliumtextdetector.cpp 
-#	helium/box.cpp
-#	helium/imageenhancer.cpp
+	helium/unionfind.cpp \
+	helium/heliumtextdetector.cpp \
+	helium/box.cpp \
+	helium/imageenhancer.cpp \
+	helium/main_helium.cpp
 #	helium/leptonica.cpp
-#	helium/main_helium.cpp
 
 LOCAL_C_INCLUDES:= \
 	system/tesseract 		\
