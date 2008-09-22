@@ -55,9 +55,22 @@ bool Tesseract::DetectBaseline(const Mask& mask,
   return api_.GetTextDirection(&out_offset, &out_slope);
 }
 
+void MaskToBuffer(const Mask& mask, unsigned char* buf) {
+  bool* mask_ptr = mask.data();
+  for (int y = 0; y < mask.height(); ++y)
+    for (int x = 0; x < mask.width(); ++x)
+      *buf++ = *(mask_ptr++) ? 0 : 255;
+}
+
 char* Tesseract::RecognizeText(const Mask& mask) {
-  MaskThresholder* mt = new MaskThresholder(mask, true);
-  api_.SetThresholder(mt);
+  // MaskThresholder* mt = new MaskThresholder(mask, true);
+  // api_.SetThresholder(mt);
+  // Check with Ray on directly passing in image after fixing Otsu thresholding
+  unsigned char* buf = new unsigned char[mask.width() * mask.height()];
+  MaskToBuffer(mask, buf);
+  api_.SetImage(buf, mask.width(), mask.height(), 1, mask.width());
+  api_.Recognize(NULL);
+  delete[] buf;
   return api_.GetUTF8Text();
 }
 

@@ -65,24 +65,6 @@ class ImageEnhancer {
                     kDefaultEdgeThresh, &Func_SuppressBG);
     }
 
-    // Apply rank filter with specified window size on given graymap and
-    // return the new image.  The size is specified by half-width and half
-    // height that is added around each pixel.  The rank is a value between
-    // 0..1 representing the fraction of pixels in the neighborhood with
-    // smaller values.  (See leptonica for details.)
-    static GrayMap RankFilterGray(GrayMap& map,
-                                  int half_width, int half_height,
-                                  float rank_ratio);
-
-    // Implements a non-linear Niblack algorithm to produce a ternary valued
-    // component label map based on specified background window size and
-    // bg-to-fg window size ratio.  Parameter std_range controls thresholding.
-    // Values within std_range of normalized distance will be labeled as
-    // don't care.
-    static void NLNiblack(GrayMap& src, int bg_half_width, int bg_half_height,
-                          int bgfg_ratio, int min_fg_sdev_value,
-                          float fg_sdev_range, float fg_sdev_rank);
-
     static void Binarize(GrayMap& src, int threshold, int minval, int maxval);
 
     static void ApplyMask(const GrayMap& mask, GrayMap& src);

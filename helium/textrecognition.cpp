@@ -11,7 +11,6 @@
 #include "tesseract.h"
 #include "textareas.h"
 #include "textrecognition.h"
-#include "leptonica.h"
 
 using namespace helium;
 

@@ -3,10 +3,6 @@
 // Author: <renn@google.com> (Marius Renn)
 
 #include "box.h"
-#include "third_party/leptonica/include/allheaders.h"
-
-// Enclose all routines in helium namespace to avoid conflicts with
-// leptonica Box.
 
 namespace helium {
 
@@ -112,22 +108,28 @@ void BoxesInvert(const Array<Box>& boxes,
 
 unsigned Area(const Array<Box>& boxes) {
   if (boxes.size() == 0) return 0;
-  Box min_enclosing = MinEnclosingBox(boxes);
-  // Create bitmap for min_enclosing box and set all pixels in intersection
-  Pix *pix = pixCreate(min_enclosing.width(), min_enclosing.height(), 1);
+  
+  Array<Box> frame_boxes(4);
+  frame_boxes.Add(MinEnclosingBox(boxes));
+  unsigned frame_area = frame_boxes.ValueAt(0).Area();
+  unsigned cur_index = 0;
+  unsigned max_index = 0;
+  
+  // Find inverse of area of boxes
   for (unsigned i = 0; i < boxes.size(); i++) {
-    // translate to align with min_enclosing box
-    pixRasterop(pix,
-                boxes.ValueAt(i).left() - min_enclosing.left(),
-                boxes.ValueAt(i).top() - min_enclosing.top(),
-                boxes.ValueAt(i).width(), boxes.ValueAt(i).height(),
-                PIX_SET, NULL, 0, 0);
+    for (unsigned j = cur_index; j <= max_index; j++) {
+      Box cur_area = frame_boxes.ValueAt(j);
+      CutBox(cur_area, boxes.ValueAt(i), frame_boxes);
+    }
+    cur_index = max_index + 1;
+    max_index = frame_boxes.size() - 1;
   }
-  // Count set pixels
-  l_int32 count = 0;
-  pixCountPixels(pix, &count, NULL);
-  pixDestroy(&pix);
-  return static_cast<unsigned int>(count);
+  
+  // Subtract inverse from Max area
+  for (unsigned i = cur_index; i <= max_index; i++) 
+    frame_area -= frame_boxes.ValueAt(i).Area();
+  
+  return frame_area;
 }
 
 void CutBox(const Box& area, const Box& cut, Array<Box>& result) {

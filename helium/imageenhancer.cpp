@@ -11,7 +11,6 @@
 #include "image.h"
 #include "graymap.h"
 #include "imageenhancer.h"
-#include "leptonica.h"
 
 using namespace helium;
 
@@ -209,7 +208,6 @@ void ImageEnhancer::LocalContrast(GrayMap& src, int ws, int hs,
     GrayMap mask;
     mask.Copy(src);
     Binarize(mask, fg_thresh, -1, 0);  // keep BG values, zero out FG
-    // Leptonica::DisplayGrayMap(mask);
     im.Init(mask);    // compute mean/var over background
   } else {
     im.Init(src);
@@ -224,68 +222,6 @@ void ImageEnhancer::LocalContrast(GrayMap& src, int ws, int hs,
       double stddev = (var <= 1.0) ? 1.0 : sqrt(var);
       *data = (*funcpt)(*data, mean, stddev);
       data++;
-    }
-  }
-}
-
-GrayMap ImageEnhancer::RankFilterGray(GrayMap& map, int fwidth, int fheight,
-                                      float rank_ratio) {
-  Pix* pix = Leptonica::GrayMapToPix(map);
-  int width = 2 * fwidth + 1;     // full window width around a pixel
-  int height = 2 * fheight + 1;
-  Pix* filtered_pix = pixRankFilterGray(pix, width, height, rank_ratio);
-  GrayMap filtered_map = Leptonica::PixToGrayMap(filtered_pix);
-  pixDestroy(&pix);
-  pixDestroy(&filtered_pix);
-  return filtered_map;
-}
-
-// Implements the Non-linear Niblack decomposition algorithm described in
-// Kaihua Zhu's (khz@google.com) CBDAR05 paper with slight tweaking.
-void ImageEnhancer::NLNiblack(GrayMap& src, int bg_width, int bg_height,
-                              int bgfg_ratio, int min_fg_sdev_value,
-                              float fg_sdev_range, float fg_sdev_rank) {
-  int Wbg = bg_width;   // window half-width for computing background
-  int Wfg = bg_width / bgfg_ratio;
-  int Hbg = bg_height;
-  int Hfg = bg_height / bgfg_ratio;
-
-  IntegralMatrix im;
-  im.Init(src);
-  GrayMap bg_mean(src.width(), src.height());
-  GrayMap fg_sdev(src.width(), src.height());
-  uint8 *bg_u = bg_mean.data();
-  uint8 *fg_v = fg_sdev.data();
-  for (int y = 0; y < src.height(); ++y) {
-    for (int x = 0; x < src.width(); ++x) {
-      double bg_mean, bg_var;
-      double fg_mean, fg_var;
-      im.GetWindowMeanVar(x-Wbg, y-Hbg, x+Wbg, y+Hbg, &bg_mean, &bg_var);
-      im.GetWindowMeanVar(x-Wfg, y-Hfg, x+Wfg, y+Hfg, &fg_mean, &fg_var);
-      *bg_u++ = static_cast<uint8>(bg_mean);
-      *fg_v++ = static_cast<uint8>(sqrt(fg_var));
-    }
-  }
-  // Get 50-percentile (median filter) of the average background map,
-  // and use the top 20% largest variance in the foreground window
-  // to determine a threshold.
-  GrayMap bg_filtered_mean = RankFilterGray(bg_mean, Wbg, Hbg, 0.5);
-  GrayMap fg_filtered_sdev = RankFilterGray(fg_sdev, Wfg, Hfg, fg_sdev_rank);
-
-  uint8 *data = src.data();
-  bg_u = bg_filtered_mean.data();
-  fg_v = fg_filtered_sdev.data();
-  for (int y = 0; y < src.height(); ++y) {
-    for (int x = 0; x < src.width(); ++x) {
-      uint8 value = 128;   // don't care state
-      if (*fg_v > min_fg_sdev_value) {
-        uint8 range = fg_sdev_range * *fg_v;
-        if (*data > *bg_u + range) value = 255;
-        if (*data < *bg_u - range) value = 0;
-      }
-      *data++ = value;
-      bg_u++;
-      fg_v++;
     }
   }
 }

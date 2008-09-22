@@ -19,7 +19,6 @@
 #include "laplaceedgedetector.h"
 #include "textclassifier.h"
 #include "textvalidator.h"
-#include "leptonica.h"
 
 using namespace helium;
 
@@ -29,7 +28,7 @@ static void ShowTrace(ContourDetector& outliner, int trace_type,
   Mask mask(width, height);
   outliner.PlotTracesOnto(mask, trace_type);
   Image trace_image = Image::FromMask(mask);
-  Leptonica::DisplayImage(trace_image);
+  // Leptonica::DisplayImage(trace_image);
 }
 
 static void ShowShapeTree(Clusterer& clusterer, ShapeTree& shapes,
@@ -38,7 +37,7 @@ static void ShowShapeTree(Clusterer& clusterer, ShapeTree& shapes,
   image.Clear();
   shapes.PaintShapes(image);
   clusterer.DrawClusterBounds(image);
-  Leptonica::DisplayImage(image);
+  // Leptonica::DisplayImage(image);
 }
 
 HeliumTextDetector::HeliumTextDetector()
@@ -122,8 +121,8 @@ void HeliumTextDetector::DetectText(const Image& image) {
   clusterer_.ClusterShapes(shapemaker_.shapes(), text_validator);
 
   if (show_debug_) {
-    Leptonica::DisplayImage(smooth_image);
-    Leptonica::DisplayGrayMap(edges);
+    // Leptonica::DisplayImage(smooth_image);
+    // Leptonica::DisplayGrayMap(edges);
     ShowTrace(outliner, TRACECLASS_TEXT, image.width(), image.height());
     ShowShapeTree(clusterer_, shapemaker_, image.width(), image.height());
   }
