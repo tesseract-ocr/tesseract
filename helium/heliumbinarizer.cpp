@@ -3,10 +3,10 @@
 // Author: <renn@google.com> (Marius Renn)
 
 // Local includes
-#include "cluster.h"
+#include "helium_cluster.h"
 #include "debugging.h"
 #include "heliumbinarizer.h"
-#include "image.h"
+#include "helium_image.h"
 #include "mathfunctions.h"
 #include "shape.h"
 

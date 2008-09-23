@@ -2,11 +2,11 @@
 // All Rights Reserved.
 // Author: <renn@google.com> (Marius Renn)
 
-#include "cluster.h"
+#include "helium_cluster.h"
 #include "clusterer.h"
 #include "clustervalidator.h"
 #include "debugging.h"
-#include "image.h"
+#include "helium_image.h"
 #include "shape.h"
 
 using namespace helium;

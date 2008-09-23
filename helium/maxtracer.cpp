@@ -4,7 +4,7 @@
 //
 // Local includes
 #include "debugging.h"
-#include "image.h"
+#include "helium_image.h"
 #include "maxtracer.h"
 #include "mathfunctions.h"
 #include "trace.h"

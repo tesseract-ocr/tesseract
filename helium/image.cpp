@@ -4,7 +4,7 @@
 
 // Local includes
 #include "box.h"
-#include "image.h"
+#include "helium_image.h"
 
 using namespace helium;
 

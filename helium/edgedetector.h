@@ -12,7 +12,7 @@
 // Local includes
 #include "color.h"
 #include "graymap.h"
-#include "image.h"
+#include "helium_image.h"
 
 namespace helium {
 

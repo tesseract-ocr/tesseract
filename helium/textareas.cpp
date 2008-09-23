@@ -9,7 +9,7 @@
 
 // Local includes
 #include "debugging.h"
-#include "cluster.h"
+#include "helium_cluster.h"
 #include "mathfunctions.h"
 #include "stringutils.h"
 #include "textareas.h"

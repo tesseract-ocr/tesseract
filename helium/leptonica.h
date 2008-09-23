@@ -10,14 +10,17 @@
 #define HELIUM_LEPTONICA_H__
 
 // Local includes
-#include "image.h"
+#include "helium_image.h"
 
+#ifdef HAVE_LIBLEPT
 // Leptonica include
 #include "third_party/leptonica/include/allheaders.h"
+#endif
 
 namespace helium {
 
 class Image;
+class Pix;
 
 // This class is used for converting images from the Helium format to the
 // Leptonica Pix format, and vice versa. Note, that these methods are
@@ -27,7 +30,7 @@ class Leptonica {
   public:
     // Converts the given Pix pointer to an image. The Pix pointer must be
     // a 32 bit color image.
-    static Image PixToImage(const Pix* pix);
+    static Image& PixToImage(const Pix* pix);
 
     // Converts an Image to a Pix pointer.
     static Pix* ImageToPix(const Image& image);

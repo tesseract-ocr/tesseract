@@ -4,7 +4,7 @@
 
 // Local includes
 #include "leptonica.h"
-#include "image.h"
+#include "helium_image.h"
 #include "graymap.h"
 #include "imageenhancer.h"
 
@@ -15,7 +15,7 @@ using namespace helium;
 
 
 // TODO: CONVERT IF NECESSARY!!!
-Image Leptonica::PixToImage(const Pix* cpix) {
+Image& Leptonica::PixToImage(const Pix* cpix) {
   Pix* pix = const_cast<Pix*>(cpix);
   if (pixGetDepth(pix) == 8) {
     GrayMap gmap = PixToGrayMap(pix);
@@ -23,7 +23,7 @@ Image Leptonica::PixToImage(const Pix* cpix) {
   }
   // Else must be 32-bit
   ASSERT(pixGetDepth(pix) == 32);
-  Image out = Image(pixGetWidth(pix), pixGetHeight(pix));
+  Image& out = Image(pixGetWidth(pix), pixGetHeight(pix));
   memcpy(out.data(), pix->data, out.width() * out.height() * 4);
   return out;
 }

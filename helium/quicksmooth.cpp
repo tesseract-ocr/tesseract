@@ -4,7 +4,7 @@
 //
 #include "color.h"
 #include "debugging.h"
-#include "image.h"
+#include "helium_image.h"
 #include "quicksmooth.h"
 
 using namespace helium;

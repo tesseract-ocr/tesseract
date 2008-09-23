@@ -11,7 +11,7 @@
 // Local includes
 #include "color.h"
 #include "debugging.h"
-#include "image.h"
+#include "helium_image.h"
 #include "heliumbinarizer.h"
 #include "heliumtextdetector.h"
 #include "leptonica.h"
@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
   
   // Read input image
   LOG_MSG("Reading file...");
-  PIX* input = pixRead(argv[1]);
+  Pix* input = pixRead(argv[1]);
   if (!input) ExitWithError("Could not open image file!");
   Image image = Leptonica::PixToImage(input);
   if (!image.Valid()) ExitWithError("Error while loading image file!");

@@ -9,7 +9,7 @@
 #define HELIUM_GAUSSIANSMOOTH_H__
 
 // Local includes
-#include "image.h"
+#include "helium_image.h"
 
 namespace helium {
 

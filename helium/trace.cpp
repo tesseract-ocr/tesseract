@@ -3,7 +3,7 @@
 // Author: <renn@google.com> (Marius Renn)
 //
 #include "debugging.h"
-#include "image.h"
+#include "helium_image.h"
 #include "trace.h"
 
 using namespace helium;

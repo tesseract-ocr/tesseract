@@ -3,7 +3,7 @@
 // Author: <renn@google.com> (Marius Renn)
 
 #include "box.h"
-#include "image.h"
+#include "helium_image.h"
 #include "textareas.h"
 #include "thresholdbinarizer.h"
 

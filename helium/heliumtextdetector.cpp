@@ -12,7 +12,7 @@
 #include "heliumtextdetector.h"
 #include "maxtracer.h"
 #include "imageenhancer.h"
-#include "image.h"
+#include "helium_image.h"
 #include "quicksmooth.h"
 #include "shapetree.h"
 #include "sobeledgedetector.h"

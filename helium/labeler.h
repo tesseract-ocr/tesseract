@@ -11,7 +11,7 @@
 #ifndef HELIUM_LABELER_H__
 #define HELIUM_LABELER_H__
 
-#include "image.h"
+#include "helium_image.h"
 
 namespace helium {
 

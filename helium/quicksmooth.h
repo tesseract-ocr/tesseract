@@ -12,7 +12,7 @@
 #define HELIUM_QUICKSMOOTH_H__
 
 // Local includes
-#include "image.h"
+#include "helium_image.h"
 
 namespace helium {
 

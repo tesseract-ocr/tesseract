@@ -4,7 +4,7 @@
 //
 #include "contourdetector.h"
 #include "debugging.h"
-#include "image.h"
+#include "helium_image.h"
 #include "traceclassifier.h"
 #include "trace.h"
 #include "tracer.h"

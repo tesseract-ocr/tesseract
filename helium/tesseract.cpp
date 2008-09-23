@@ -10,10 +10,10 @@
 #include "tessvars.h"
 #include "control.h"
 #else
-#include "third_party/tesseract/ccmain/tessedit.h"
-#include "third_party/tesseract/ccstruct/pageres.h"
-#include "third_party/tesseract/ccmain/tessvars.h"
-#include "third_party/tesseract/ccmain/control.h"
+#include "ccmain/tessedit.h"
+#include "ccstruct/pageres.h"
+#include "ccmain/tessvars.h"
+#include "ccmain/control.h"
 #endif
 
 #undef LOG

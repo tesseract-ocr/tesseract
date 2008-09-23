@@ -8,7 +8,7 @@
 #include <math.h>
 #include "debugging.h"
 #include "histogram.h"
-#include "image.h"
+#include "helium_image.h"
 #include "graymap.h"
 #include "imageenhancer.h"
 

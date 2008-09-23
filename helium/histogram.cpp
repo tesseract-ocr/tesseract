@@ -9,7 +9,7 @@
 // Local includes
 #include "debugging.h"
 #include "histogram.h"
-#include "image.h"
+#include "helium_image.h"
 #include "mathfunctions.h"
 
 using namespace helium;

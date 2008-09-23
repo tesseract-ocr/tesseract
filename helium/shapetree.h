@@ -13,7 +13,7 @@
 #define HELIUM_SHAPETREE_H__
 
 #include "array.h"
-#include "image.h"
+#include "helium_image.h"
 
 namespace helium {
 

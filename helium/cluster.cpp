@@ -2,7 +2,7 @@
 // All Rights Reserved.
 // Author: <renn@google.com> (Marius Renn)
 
-#include "cluster.h"
+#include "helium_cluster.h"
 #include "shape.h"
 
 using namespace helium;

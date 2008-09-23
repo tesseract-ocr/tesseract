@@ -10,8 +10,8 @@
 #ifndef HELIUM_TESSERACT_H__
 #define HELIUM_TESSERACT_H__
 
-#include "third_party/tesseract/ccmain/baseapi.h"
-#include "third_party/tesseract/ccmain/thresholder.h"
+#include "ccmain/baseapi.h"
+#include "ccmain/thresholder.h"
 
 namespace helium {
 
