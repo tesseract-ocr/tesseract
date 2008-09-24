@@ -29,8 +29,8 @@ using namespace helium;
 
 const char* kArguments[3] = { "tesseract", "out", "batch" };
 
-int Tesseract::Init(const char* datapath) {
-  return api_.Init(datapath, NULL);
+int Tesseract::Init(const char* datapath, const char *lang) {
+  return api_.Init(datapath, lang);
 }
 
 void Tesseract::ReadMask(const Mask& mask, bool flipped) {

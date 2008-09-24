@@ -16,9 +16,9 @@ using namespace helium;
 
 bool TextRecognition::recognizer_initialized_ = false;
 
-void TextRecognition::Init(const char* data_path) {
+void TextRecognition::Init(const char* data_path, const char *lang) {
   // Allow reinitialization of Tesseract to get around its adaptation.
-  Tesseract::Init(data_path);
+  Tesseract::Init(data_path, lang);
   recognizer_initialized_ = true;
 }
 

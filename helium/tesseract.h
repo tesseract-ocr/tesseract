@@ -38,7 +38,7 @@ class Tesseract {
     // Call this method exactly once to initialize the Tesseract engine with
     // the data files at the specified path (This should be the path, that 
     // contains the 'tessdata' folder).
-    static int Init(const char* datapath);
+    static int Init(const char* datapath, const char *lang = NULL);
                 
     // Find the baseline, specified by the offset and slope, for the given
     // Mask. If flipped is true, this method will flip the image vertically
