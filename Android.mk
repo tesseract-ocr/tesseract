@@ -526,7 +526,6 @@ LOCAL_SHARED_LIBRARIES:= \
 
 include $(BUILD_EXECUTABLE)
 
-ifeq (1,1)
 #
 # libhelium
 #
@@ -578,9 +577,6 @@ LOCAL_SRC_FILES:= \
 	helium/box.cpp \
 	helium/imageenhancer.cpp 
 
-#	helium/main_helium.cpp
-#	helium/leptonica.cpp
-
 LOCAL_C_INCLUDES:= \
 	system/tesseract		\
 	system/tesseract/ccmain         \
@@ -595,12 +591,45 @@ LOCAL_C_INCLUDES:= \
 	system/tesseract/textord	\
 
 LOCAL_SHARED_LIBRARIES:= \
-	libtesseract_main \
 	libtesseract_image \
 	libtesseract_globals \
-	libtesseract_cc_util 
+	libtesseract_cc_util \
+	libtesseract_main
 
 LOCAL_PRELINK_MODULE:= false
 include $(BUILD_SHARED_LIBRARY)
 #include $(BUILD_STATIC_LIBRARY)
+
+ifeq (1,1)
+#
+# helium executable 
+#
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE:= heliumtest
+
+LOCAL_SRC_FILES:= \
+	helium/test.cpp
+
+LOCAL_CFLAGS:= \
+	-DGRAPHICS_DISABLED	\
+	-DFST_DISABLED
+
+LOCAL_C_INCLUDES+= \
+	system/tesseract		\
+	system/tesseract/ccutil		\
+	system/tesseract/ccstruct	\
+	system/tesseract/image		\
+	system/tesseract/dict		\
+	system/tesseract/classify	\
+	system/tesseract/wordrec	\
+	system/tesseract/cutil		\
+	system/tesseract/textord	\
+	system/tesseract/ccmain
+
+LOCAL_SHARED_LIBRARIES:= \
+	libhelium
+
+include $(BUILD_EXECUTABLE)
 endif
