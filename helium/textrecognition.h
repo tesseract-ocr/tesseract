@@ -23,7 +23,9 @@ class TextRecognition {
     // tessdata directory. 
     // This must be called before using RecognizeUsingBinarizer(...), but it
     // can be callled multiple times to clear OCR's internal adaptation.
-    static void Init(const char* data_path, const char *lang = NULL);
+    static void Init(const char* data_path,
+                     const char *lang = NULL,
+                     const char *configfile = NULL);
     
     // This method passes all the binarized masks, that were extracted by the
     // specified Binarizer, through perspective correction, and

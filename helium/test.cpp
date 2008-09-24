@@ -82,7 +82,10 @@ int main(int argc, char** argv) {
     // Run OCR
     printf("OCRing (language %s)...\n", lang);
     TextAreas text;
-    TextRecognition::Init("/sdcard/", lang);
+    TextRecognition::Init("/sdcard/", 
+                          lang,
+                          "/sdcard/tessdata/ratings");
+
     TextRecognition::RecognizeUsingBinarizer(&binarizer, text);
     
     // Output Text

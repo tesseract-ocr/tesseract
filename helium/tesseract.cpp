@@ -16,6 +16,10 @@
 #include "ccmain/control.h"
 #endif
 
+// This is to make the ratings file parser happy.
+BOOL_VAR (tessedit_write_images, FALSE,
+                 "Capture the image from the IPE");
+
 #undef LOG
 
 // Local includes
@@ -29,8 +33,13 @@ using namespace helium;
 
 const char* kArguments[3] = { "tesseract", "out", "batch" };
 
-int Tesseract::Init(const char* datapath, const char *lang) {
-  return api_.Init(datapath, lang);
+int Tesseract::Init(const char* datapath,
+                    const char *lang,
+                    const char *configfile) {
+  int res = api_.Init(datapath, lang);
+  if (!res && configfile)
+      api_.ReadConfigFile(configfile);
+  return res;
 }
 
 void Tesseract::ReadMask(const Mask& mask, bool flipped) {
@@ -70,8 +79,14 @@ char* Tesseract::RecognizeText(const Mask& mask) {
   MaskToBuffer(mask, buf);
   api_.SetImage(buf, mask.width(), mask.height(), 1, mask.width());
   api_.Recognize(NULL);
+
   delete[] buf;
-  return api_.GetUTF8Text();
+  char *text = api_.GetUTF8Text();
+
+  if (tessedit_write_images) 
+      page_image.write("tessinput.tif");
+
+  return text;
 }
 
 void Tesseract::End() {
