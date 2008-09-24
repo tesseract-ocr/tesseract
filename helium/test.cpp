@@ -64,34 +64,34 @@ int main(int argc, char** argv) {
 	printf("infile mmapped at %p\n", buffer);
 
 	printf("generating image object\n");
-    GrayMap gray(x, y, (uint8 *)buffer);
-    Image image = Image::FromGrayMap(gray);
-    FAILIF(!image.Valid(), "error while loading image file!");
+	GrayMap gray(x, y, (uint8 *)buffer);
+	Image image = Image::FromGrayMap(gray);
+	FAILIF(!image.Valid(), "error while loading image file!");
     
-    // Run text detector
-    printf("running text detector\n");
-    HeliumTextDetector detector;
-    detector.SetDefaultParameters();
-    detector.DetectText(image);
+	// Run text detector
+	printf("running text detector\n");
+	HeliumTextDetector detector;
+	detector.SetDefaultParameters();
+	detector.DetectText(image);
     
-    // Setup binarizer
-    printf("setting up binarizer...\n");
-    HeliumBinarizer binarizer(image);
-    binarizer.AddClusters(detector.GetClusters());
+	// Setup binarizer
+	printf("setting up binarizer...\n");
+	HeliumBinarizer binarizer(image);
+	binarizer.AddClusters(detector.GetClusters());
 
-    // Run OCR
-    printf("OCRing (language %s)...\n", lang);
-    TextAreas text;
-    TextRecognition::Init("/sdcard/", 
+	// Run OCR
+	printf("OCRing (language %s)...\n", lang);
+	TextAreas text;
+	TextRecognition::Init("/sdcard/", 
                           lang,
                           "/sdcard/tessdata/ratings");
 
-    TextRecognition::RecognizeUsingBinarizer(&binarizer, text);
+	TextRecognition::RecognizeUsingBinarizer(&binarizer, text);
     
-    // Output Text
-    printf("writing to output file %s\n", outfile);
-    text.WriteDatFile(outfile);
+	// Output Text
+	printf("writing to output file %s\n", outfile);
+	text.WriteDatFile(outfile);
     
-    printf("done\n");
-    return 0;
+	printf("done\n");
+	return 0;
 };
