@@ -38,6 +38,8 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
+#include <cstdlib>
 
 const int kBufferSize = 65536;
 const int kMaxMsgSize = 4096;

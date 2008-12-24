@@ -27,6 +27,7 @@
 #include "svmnode.h"
 
 #include <iostream>
+#include <cstring>
 
 #include "scrollview.h"
 
