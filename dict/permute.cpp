@@ -1670,14 +1670,13 @@ A_CHOICE *permute_words(CHOICES_LIST char_choices, float rating_limit) {
   else {
 
     dawg_permute_and_select ("system words:", word_dawg, SYSTEM_DAWG_PERM,
-      char_choices, best_choice, TRUE);
+      char_choices, best_choice);
 
     dawg_permute_and_select ("document_words", document_words,
-      DOC_DAWG_PERM, char_choices, best_choice,
-      FALSE);
+      DOC_DAWG_PERM, char_choices, best_choice);
 
     dawg_permute_and_select ("user words", user_words, USER_DAWG_PERM,
-      char_choices, best_choice, FALSE);
+      char_choices, best_choice);
   }
 
   return (best_choice);

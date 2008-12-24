@@ -199,7 +199,12 @@ void append_next_choice(  /*previous option */
     better_choice = new_choice (word, unichar_lengths, rating, certainty, -1, permuter);
     adjust_word(better_choice, certainty_array);
     push_on(*result, better_choice);
+    if (permuter == SYSTEM_DAWG_PERM) {
+      // Until dawg is a class, it is only safe to use set_hyphen_word
+      // on a single dawg type, as it saves permuter state to use on another
+      // word in hyphen_state, and this *must* apply to the same dawg.
     set_hyphen_word(word, unichar_lengths, unichar_offsets, rating, node);
+    }
   }
   /* Look up char in DAWG */
   else {
@@ -319,8 +324,7 @@ void dawg_permute_and_select(const char *string,
                              EDGE_ARRAY dawg,
                              char permuter,
                              CHOICES_LIST character_choices,
-                             A_CHOICE *best_choice,
-                             inT16 system_words) {
+                             A_CHOICE *best_choice) {
   CHOICES result = NIL;
   char word[UNICHAR_LEN * MAX_WERD_LENGTH + 1];
   char unichar_lengths[MAX_WERD_LENGTH + 1];
@@ -352,7 +356,10 @@ void dawg_permute_and_select(const char *string,
         unichar_offsets[hyphen_base_size() - 1] +
         unichar_lengths[hyphen_base_size() - 1];
     char_index = strlen (hyphen_unichar_lengths);
-    if (system_words)
+    if (permuter == SYSTEM_DAWG_PERM)
+      // Until dawg is a class, it is only safe to use set_hyphen_word
+      // on a single dawg type, as it saves permuter state to use on another
+      // word in hyphen_state, and this *must* apply to the same dawg.
       dawg_node = hyphen_state;
   }
 

@@ -88,8 +88,7 @@ void dawg_permute_and_select(const char *string,
                              EDGE_ARRAY dawg,
                              char permuter,
                              CHOICES_LIST character_choices,
-                             A_CHOICE *best_choice,
-                             inT16 system_words);
+                             A_CHOICE *best_choice);
 
 void init_permdawg_vars();
 void init_permdawg();
