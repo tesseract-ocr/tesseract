@@ -201,11 +201,15 @@ void read_tiff_image(TIFF* tif, IMAGE* image) {
   tdata_t buf;
   uint32 image_width, image_height;
   uint16 photometric;
-  short bpp;
+  inT16 bpp;
+  inT16 samples_per_pixel = 0;
   TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &image_width);
   TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &image_height);
   TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bpp);
+  TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &samples_per_pixel);
   TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometric);
+  if (samples_per_pixel > 1)
+    bpp *= samples_per_pixel;
   // Tesseract's internal representation is 0-is-black,
   // so if the photometric is 1 (min is black) then high-valued pixels
   // are 1 (white), otherwise they are 0 (black).

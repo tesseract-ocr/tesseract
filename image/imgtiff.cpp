@@ -229,6 +229,8 @@ inT8 open_tif_image(               //read header
   //      printf("No of tiff directory entries=%d\n",entries);
   imagestart = 0;
   compressed = FALSE;
+  int samples_per_pixel = 1;
+  int bits_per_sample = 1;
   for (; entries-- > 0;) {
     if (read (fd, (char *) &tiffentry, sizeof tiffentry) !=
     sizeof tiffentry) {
@@ -272,9 +274,12 @@ inT8 open_tif_image(               //read header
         break;
       case 0x102:
         if (tiffentry.length == 1)
-          *bpp = (inT8) tiffentry.value;
+          bits_per_sample = (inT8) tiffentry.value;
         else
-          *bpp = 24;
+          bits_per_sample = 8;
+        break;
+      case 0x115:
+        samples_per_pixel = (inT8) tiffentry.value;
         break;
       case 0x111:
         imagestart = tiffentry.value;
@@ -299,12 +304,14 @@ inT8 open_tif_image(               //read header
         break;
     }                            //endswitch
   }
-  if (*xsize <= 0 || *ysize <= 0 || *bpp > 24 || imagestart <= 0) {
+  if (*xsize <= 0 || *ysize <= 0 || imagestart <= 0) {
     BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Vital tag");
     return -1;
   }
-  tprintf ("Image has %d bit%c per pixel and size (%d,%d)\n",
-    *bpp, *bpp == 1 ? ' ' : 's', *xsize, *ysize);
+  tprintf("Image has %d * %d bit%c per pixel, and size (%d,%d)\n",
+          bits_per_sample, samples_per_pixel, bits_per_sample == 1 ? ' ' : 's',
+          *xsize, *ysize);
+  *bpp = bits_per_sample * samples_per_pixel;
   if (resoffset >= 0) {
     lseek (fd, resoffset, 0);
     if (read (fd, (char *) &resinfo, sizeof (resinfo)) != sizeof (resinfo)) {
