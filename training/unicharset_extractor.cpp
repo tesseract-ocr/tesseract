@@ -35,6 +35,7 @@
 #include <wctype.h>
 #define USING_WCTYPE
 #endif
+#include <locale.h>
 
 #include "unichar.h"
 #include "unicharset.h"
@@ -83,6 +84,7 @@ int main(int argc, char** argv) {
   STRING unicharset_file_name;
   UNICHARSET unicharset;
 
+  setlocale(LC_ALL, "");
   // Space character needed to represent NIL classification
   unicharset.unichar_insert(" ");
 
