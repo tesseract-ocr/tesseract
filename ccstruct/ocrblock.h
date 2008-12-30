@@ -118,6 +118,12 @@ class BLOCK:public ELIST_LINK, public PDBLK
     inT32 x_height() const {  //return xheight
       return xheight;
     }
+    float cell_over_xheight() const {
+      return cell_over_xheight_;
+    }
+    void set_cell_over_xheight(float ratio) {
+      cell_over_xheight_ = ratio;
+    }
     ROW_LIST *row_list() {  //get rows
       return &rows;
     }
@@ -211,6 +217,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
     inT16 pitch;                 //pitch of non-props
     inT16 font_class;            //correct font class
     inT32 xheight;               //height of chars
+    float cell_over_xheight_;    // Ratio of cell height to xheight.
     STRING filename;             //name of block
     //      TEXT_REGION*                            hand_block;                                                     //if it exists
     //      POLY_BLOCK*                                     hand_poly;                                                      //wierd as well

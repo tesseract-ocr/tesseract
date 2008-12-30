@@ -49,6 +49,7 @@ filename(name) {  //box(ICOORD(xmin,ymin),ICOORD(xmax,ymax))
   kerning = kern;
   spacing = space;
   font_class = -1;               //not assigned
+  cell_over_xheight_ = 2.0f;
   hand_block = NULL;
   hand_poly = NULL;
   left_it.set_to_list (&leftside);

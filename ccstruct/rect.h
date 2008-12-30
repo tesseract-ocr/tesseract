@@ -46,17 +46,29 @@ class DLLSYM TBOX                 //bounding box
     inT16 top() const {  // coord of top
       return top_right.y ();
     }
+    void set_top(int y) {
+      top_right.set_y(y);
+    }
 
     inT16 bottom() const {  // coord of bottom
       return bot_left.y ();
+    }
+    void set_bottom(int y) {
+      bot_left.set_y(y);
     }
 
     inT16 left() const {  // coord of left
       return bot_left.x ();
     }
+    void set_left(int x) {
+      bot_left.set_x(x);
+    }
 
     inT16 right() const {  // coord of right
       return top_right.x ();
+    }
+    void set_right(int x) {
+      top_right.set_x(x);
     }
 
                                  //access function
@@ -170,10 +182,17 @@ class DLLSYM TBOX                 //bounding box
     BOOL8 contains(  //is box inside box
                    const TBOX &box) const;
 
+    // Do boxes overlap on x axis.
+    BOOL8 x_overlap(const TBOX &box) const;
+
+    // Do boxes overlap on x axis by more than
+    // half of the width of the narrower box.
+    BOOL8 major_x_overlap(const TBOX &box) const;
+
     BOOL8 overlap(  //do boxes overlap
                   const TBOX &box) const;
 
-    BOOL8 major_overlap(  // Do boxes overlap more than half.
+    BOOL8 major_overlap(  // do boxes overlap more than half
                         const TBOX &box) const;
 
     TBOX intersection(  //shared area box
@@ -281,5 +300,21 @@ inline BOOL8 TBOX::major_overlap(  // Do boxes overlap more that half.
   if (overlap < MIN(box.height(), height()))
     return false;
   return true;
+}
+
+inline BOOL8 TBOX::x_overlap(const TBOX &box) const {
+  return ((box.bot_left.x() <= top_right.x()) &&
+    (box.top_right.x() >= bot_left.x()));
+}
+
+inline BOOL8 TBOX::major_x_overlap(const TBOX &box) const {
+  inT16 overlap = box.width();
+  if (this->left() > box.left()) {
+    overlap -= this->left() - box.left();
+  }
+  if (this->right() < box.right()) {
+    overlap -= box.right() - this->right();
+  }
+  return (overlap >= box.width() / 2 || overlap >= this->width() / 2);
 }
 #endif

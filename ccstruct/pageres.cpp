@@ -212,6 +212,9 @@ WERD_RES::~WERD_RES () {
 WERD_RES *PAGE_RES_IT::restart_page() {
   block_res_it.set_to_list (&page_res->block_res_list);
   block_res_it.mark_cycle_pt ();
+  prev_block_res = NULL;
+  prev_row_res = NULL;
+  prev_word_res = NULL;
   block_res = NULL;
   row_res = NULL;
   word_res = NULL;
