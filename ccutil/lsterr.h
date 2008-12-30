@@ -27,7 +27,7 @@ const ERRCODE DONT_CONSTRUCT_LIST_BY_COPY =
 const ERRCODE DONT_ASSIGN_LISTS = "Can't assign to lists";
 const ERRCODE SERIALISE_LINKS = "Attempted to (de)serialise a link element";
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 
 const ERRCODE NO_LIST = "Iterator not set to a list";
 const ERRCODE NULL_OBJECT = "List found this = NULL!";

@@ -58,38 +58,38 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 
 #define QUOTE_IT( parm ) #parm
 
-#define make_serialise( CLASSNAME )													\
-																									\
-	NEWDELETE2(CLASSNAME)                                                 \
-																									\
-void						serialise(														\
-	FILE*					f)																	\
-{																								\
-	CLASSNAME*			shallow_copy;													\
-																									\
-	shallow_copy = (CLASSNAME*) alloc_struct( sizeof( *this ) );				\
-		memmove( shallow_copy, this, sizeof( *this ) );								\
-																									\
-	shallow_copy->prep_serialise();													\
-		if (fwrite( (char*) shallow_copy, sizeof( *shallow_copy ), 1, f ) != 1)\
-		WRITEFAILED.error( QUOTE_IT( CLASSNAME::serialise ),              \
-									ABORT, NULL );											\
-																									\
-	free_struct( shallow_copy, sizeof( *this ) );								\
-		this->dump( f );																			\
-}																								\
-																									\
-	static CLASSNAME*		de_serialise(										\
-	FILE*					f)																	\
-{																								\
-	CLASSNAME*			restored;											\
-																									\
-		restored = (CLASSNAME*) alloc_struct( sizeof( CLASSNAME ) );				\
-		if (fread( (char*) restored, sizeof( CLASSNAME ), 1, f ) != 1)				\
-		READFAILED.error( QUOTE_IT( CLASSNAME::de_serialise ),            \
-									ABORT, NULL );												\
-																									\
-	restored->de_dump( f );																	\
-		return restored;																			\
+#define make_serialise( CLASSNAME )                                            \
+                                                                               \
+  NEWDELETE2(CLASSNAME)                                                        \
+                                                                               \
+void            serialise(                                                     \
+  FILE*          f)                                                            \
+{                                                                              \
+  CLASSNAME*      shallow_copy;                                                \
+                                                                               \
+  shallow_copy = (CLASSNAME*) alloc_struct( sizeof( *this ) );                 \
+    memmove( shallow_copy, this, sizeof( *this ) );                            \
+                                                                               \
+  shallow_copy->prep_serialise();                                              \
+    if (fwrite( (char*) shallow_copy, sizeof( *shallow_copy ), 1, f ) != 1)    \
+    WRITEFAILED.error( QUOTE_IT( CLASSNAME::serialise ),                       \
+                  ABORT, NULL );                                               \
+                                                                               \
+  free_struct( shallow_copy, sizeof( *this ) );                                \
+    this->dump( f );                                                           \
+}                                                                              \
+                                                                               \
+  static CLASSNAME*    de_serialise(                                           \
+  FILE*          f)                                                            \
+{                                                                              \
+  CLASSNAME*      restored;                                                    \
+                                                                               \
+    restored = (CLASSNAME*) alloc_struct( sizeof( CLASSNAME ) );               \
+    if (fread( (char*) restored, sizeof( CLASSNAME ), 1, f ) != 1)             \
+    READFAILED.error( QUOTE_IT( CLASSNAME::de_serialise ),                     \
+                  ABORT, NULL );                                               \
+                                                                               \
+  restored->de_dump( f );                                                      \
+    return restored;                                                           \
 }
 #endif

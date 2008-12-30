@@ -82,7 +82,7 @@ const ERRCODE ASSERT_FAILED = "Assert failed";
 
 #define ASSERT_HOST(x) if (!(x))										\
 {																			\
-	ASSERT_FAILED.error(#x,TESSLOG,"in file %s, line %d",		\
+	ASSERT_FAILED.error(#x,ABORT,"in file %s, line %d",		\
 		__FILE__,__LINE__);											\
 }
 
