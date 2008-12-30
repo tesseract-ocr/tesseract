@@ -360,6 +360,35 @@ void OUTLINE::scale(                     // scale OUTLINE
   child_it.data ()->scale (vector);
 }
 
+/**********************************************************************
+ * OUTLINE::rotate
+ *
+ * Rotate OUTLINE by the given vector
+ **********************************************************************/
+
+void OUTLINE::rotate(
+                     const FCOORD vector  //by fcoord
+                    ) {
+                                 //child outline itertr
+  OUTLINE_IT child_it(&children);
+  POLYPT_IT poly_it(&outline);  //outline point itertr
+  POLYPT *pt;
+  box.rotate(vector);
+
+  start.rotate(vector);
+
+  for (poly_it.mark_cycle_pt (); !poly_it.cycled_list (); poly_it.forward ()) {
+    pt = poly_it.data ();
+    pt->pos.rotate(vector);
+    pt->vec.rotate(vector);
+  }
+
+  for (child_it.mark_cycle_pt (); !child_it.cycled_list ();
+    child_it.forward ())
+                                 //scale child outlines
+    child_it.data ()->rotate(vector);
+}
+
 
 /**********************************************************************
  * OUTLINE::plot
@@ -402,11 +431,11 @@ const OUTLINE & source           //from this
 ) {
   box = source.box;
   start = source.start;
-  if (!outline.empty ())
-    outline.clear ();
-  outline.deep_copy (&source.outline);
-  if (!children.empty ())
-    children.clear ();
-  children.deep_copy (&source.children);
+  if (!outline.empty())
+    outline.clear();
+  outline.deep_copy(&source.outline, &POLYPT::deep_copy);
+  if (!children.empty())
+    children.clear();
+  children.deep_copy(&source.children, &OUTLINE::deep_copy);
   return *this;
 }

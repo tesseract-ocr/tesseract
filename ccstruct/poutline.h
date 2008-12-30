@@ -81,6 +81,9 @@ class OUTLINE:public ELIST_LINK
     void scale(                    // scale outline
                const FCOORD vec);  // by FLOAT vector
 
+    void rotate(               // rotate outline
+        const FCOORD vector);  // by fcoord
+
     void plot(                 //draw one
               ScrollView* window,   //window to draw in
               ScrollView::Color colour);  //colour to draw it
@@ -103,8 +106,15 @@ class OUTLINE:public ELIST_LINK
     }
 
                                  //assignment
-    make_serialise (OUTLINE) OUTLINE & operator= (
-      const OUTLINE & source);   //from this
+    make_serialise(OUTLINE)
+
+    OUTLINE& operator=(const OUTLINE& source);
+
+    static OUTLINE* deep_copy(const OUTLINE* src) {
+      OUTLINE* outline = new OUTLINE;
+      *outline = *src;
+      return outline;
+    }
 
   private:
     TBOX box;                     //boudning box

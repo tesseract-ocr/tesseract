@@ -61,6 +61,7 @@ class PBLOB:public ELIST_LINK
                const float f);  // by multiplier
     void scale(                    // scale blob
                const FCOORD vec);  // by FLOAT vector
+    void rotate();  // Rotate 90 deg anti
 
     void prep_serialise() {  //set ptrs to counts
       outlines.prep_serialise ();
@@ -77,13 +78,20 @@ class PBLOB:public ELIST_LINK
     }
 
                                  //assignment
-    make_serialise (PBLOB) PBLOB & operator= (
-    const PBLOB & source) {      //from this
+    make_serialise(PBLOB)
+
+    PBLOB& operator=(const PBLOB & source) {
       if (!outlines.empty ())
         outlines.clear ();
 
-      outlines.deep_copy (&source.outlines);
+      outlines.deep_copy(&source.outlines, &OUTLINE::deep_copy);
       return *this;
+    }
+
+    static PBLOB* deep_copy(const PBLOB* src) {
+      PBLOB* blob = new PBLOB;
+      *blob = *src;
+      return blob;
     }
 
   private:

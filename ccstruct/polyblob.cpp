@@ -326,6 +326,19 @@ void PBLOB::scale(                  // scale blob
     it.data ()->scale (vec);     // scale each outline
 }
 
+/**********************************************************************
+ * PBLOB::rotate
+ *
+ * Rotate PBLOB 90 deg anti
+ **********************************************************************/
+
+void PBLOB::rotate() {  // Rotate 90 deg anti
+  OUTLINE_IT it(&outlines);  // iterator
+
+  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
+    it.data ()->rotate (FCOORD(0.0f, 1.0f));     // rotate each outline
+  }
+}
 
 /**********************************************************************
  * PBLOB::plot

@@ -176,8 +176,8 @@ void fix_fuzzy_space_list(  //space explorer
     current_score = eval_word_spacing (current_perm);
     dump_words (current_perm, current_score, 2, improved);
     if (current_score > best_score) {
-      best_perm.clear ();
-      best_perm.deep_copy (&current_perm);
+      best_perm.clear();
+      best_perm.deep_copy(&current_perm, &WERD_RES::deep_copy);
       best_score = current_score;
       improved = TRUE;
     }
@@ -312,7 +312,8 @@ inT16 eval_word_spacing(WERD_RES_LIST &word_res_list) {
       }
 
       if (fixsp_prefer_joined_1s) {
-        /* Add 1 to total score for every joined 1 regardless of context and rejtn */
+        /* Add 1 to total score for every joined 1 regardless of context and
+           rejtn */
 
         for (i = 0, prev_char_1 = FALSE; i < word_len; i++) {
           current_char_1 = word->best_choice->string ()[i] == '1';
@@ -503,7 +504,7 @@ void dump_words(WERD_RES_LIST &perm, inT16 score, inT16 mode, BOOL8 improved) {
       for (word_res_it.mark_cycle_pt ();
       !word_res_it.cycled_list (); word_res_it.forward ()) {
         if (!word_res_it.data ()->part_of_combo)
-          tprintf ("%s/%1d ",
+          tprintf("%s/%1d ",
             word_res_it.data ()->best_choice->string ().
             string (),
             (int) word_res_it.data ()->best_choice->permuter ());
@@ -708,8 +709,8 @@ void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row) {
     current_score = fp_eval_word_spacing (current_perm);
     dump_words (current_perm, current_score, 2, improved);
     if (current_score > best_score) {
-      best_perm.clear ();
-      best_perm.deep_copy (&current_perm);
+      best_perm.clear();
+      best_perm.deep_copy(&current_perm, &WERD_RES::deep_copy);
       best_score = current_score;
       improved = TRUE;
     }

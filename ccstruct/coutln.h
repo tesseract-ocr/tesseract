@@ -117,6 +117,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
     }
 
     inT32 area();  //return area
+    inT32 perimeter();  // Total perimeter of self and 1st level children.
     inT32 outer_area();  //return area
     inT32 count_transitions(                   //count maxima
                             inT32 threshold);  //size threshold
@@ -159,8 +160,17 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
     }
 
                                  //assignment
-    make_serialise (C_OUTLINE) C_OUTLINE & operator= (
-      const C_OUTLINE & source); //from this
+    make_serialise (C_OUTLINE)
+
+    C_OUTLINE& operator=(const C_OUTLINE& source);
+
+    static C_OUTLINE* deep_copy(const C_OUTLINE* src) {
+      C_OUTLINE* outline = new C_OUTLINE;
+      *outline = *src;
+      return outline;
+    }
+
+    static ICOORD chain_step(int chaindir);
 
   private:
     int step_mem() const { return (stepcount+3) / 4; }

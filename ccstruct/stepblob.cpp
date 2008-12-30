@@ -200,6 +200,25 @@ inT32 C_BLOB::area() {  //area
   return total;
 }
 
+/**********************************************************************
+ * C_BLOB::perimeter
+ *
+ * Return the perimeter of the top and 2nd level outlines.
+ **********************************************************************/
+
+inT32 C_BLOB::perimeter() {
+  C_OUTLINE *outline;            // current outline
+  C_OUTLINE_IT it = &outlines;   // outlines of blob
+  inT32 total;                   // total perimeter
+
+  total = 0;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    outline = it.data();
+    total += outline->perimeter();
+  }
+  return total;
+}
+
 
 /**********************************************************************
  * C_BLOB::outer_area

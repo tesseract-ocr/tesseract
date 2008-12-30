@@ -404,24 +404,15 @@ void WERD::copy_on(              //copy blobs
     // blob iterator
     PBLOB_LIST blobs;
 
-    blobs.deep_copy ((PBLOB_LIST *) (&other->cblobs));
-    blob_it.move_to_last ();
-    blob_it.add_list_after (&blobs);
-  }
-  //      else if (flags.bit(W_LINEARC))
-  //      {
-  //              LARC_BLOB_IT                            larc_blob_it( (LARC_BLOB_LIST*)&cblobs );
-  //              LARC_BLOB_LIST                          larc_blobs;
-
-  //              larc_blobs.deep_copy((LARC_BLOB_LIST*)(&other->cblobs));
-  //    larc_blob_it.move_to_last();
-  //              larc_blob_it.add_list_after( &larc_blobs );
-  //      }
-  else {
+    blobs.deep_copy(reinterpret_cast<PBLOB_LIST*>(&other->cblobs),
+                    &PBLOB::deep_copy);
+    blob_it.move_to_last();
+    blob_it.add_list_after(&blobs);
+  } else {
     C_BLOB_IT c_blob_it(&cblobs);
     C_BLOB_LIST c_blobs;
 
-    c_blobs.deep_copy (&other->cblobs);
+    c_blobs.deep_copy(&other->cblobs, &C_BLOB::deep_copy);
     c_blob_it.move_to_last ();
     c_blob_it.add_list_after (&c_blobs);
   }
@@ -429,7 +420,7 @@ void WERD::copy_on(              //copy blobs
     C_BLOB_IT rej_c_blob_it(&rej_cblobs);
     C_BLOB_LIST new_rej_c_blobs;
 
-    new_rej_c_blobs.deep_copy (&other->rej_cblobs);
+    new_rej_c_blobs.deep_copy(&other->rej_cblobs, &C_BLOB::deep_copy);
     rej_c_blob_it.move_to_last ();
     rej_c_blob_it.add_list_after (&new_rej_c_blobs);
   }
@@ -890,17 +881,7 @@ void WERD::plot_rej_blobs(                //draw it
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
       it.data ()->plot (window, ScrollView::GREY, ScrollView::GREY);
     }
-  }
-  //      else if (flags.bit(W_LINEARC))
-  //      {
-  //              LARC_BLOB_IT                    it=(LARC_BLOB_LIST*)(&rej_cblobs);
-
-  //              for ( it.mark_cycle_pt(); !it.cycled_list(); it.forward() )
-  //              {
-  //                      it.data()->plot(window,solid,GREY,solid ? BLACK : GREY);
-  //              }
-  //      }
-  else {
+  } else {
     C_BLOB_IT it = &rej_cblobs;  //blobs of WERD
 
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
@@ -943,35 +924,24 @@ const WERD & source              //from this
   dummy = source.dummy;
   correct = source.correct;
   if (flags.bit (W_POLYGON)) {
-    if (!cblobs.empty ())
-      ((PBLOB_LIST *) (&cblobs))->clear ();
-    ((PBLOB_LIST *) (&cblobs))->deep_copy ((PBLOB_LIST *) (&source.cblobs));
+    if (!cblobs.empty())
+      reinterpret_cast<PBLOB_LIST*>(&cblobs)->clear();
+    reinterpret_cast<PBLOB_LIST*>(&cblobs)->deep_copy(
+      reinterpret_cast<const PBLOB_LIST*>(&source.cblobs), &PBLOB::deep_copy);
 
-    if (!rej_cblobs.empty ())
-      ((PBLOB_LIST *) (&rej_cblobs))->clear ();
-    ((PBLOB_LIST *) (&rej_cblobs))->deep_copy ((PBLOB_LIST *) (&source.
-      rej_cblobs));
-
-  }
-  //      else if (flags.bit(W_LINEARC))
-  //      {
-  //              if ( !cblobs.empty() )
-  //                      ((LARC_BLOB_LIST*)(&cblobs))->clear();
-  //              ((LARC_BLOB_LIST*)(&cblobs))->deep_copy(
-  //                      (LARC_BLOB_LIST*)(&source.cblobs));
-
-  //      if ( !rej_cblobs.empty() )
-  //              rej_cblobs.clear();
-  //              rej_cblobs.deep_copy( &source.rej_cblobs );
-  //      }
-  else {
+    if (!rej_cblobs.empty())
+      reinterpret_cast<PBLOB_LIST*>(&rej_cblobs)->clear();
+    reinterpret_cast<PBLOB_LIST*>(&rej_cblobs)->deep_copy(
+      reinterpret_cast<const PBLOB_LIST*>(&source.rej_cblobs),
+      &PBLOB::deep_copy);
+  } else {
     if (!cblobs.empty ())
       cblobs.clear ();
-    cblobs.deep_copy (&source.cblobs);
+    cblobs.deep_copy(&source.cblobs, &C_BLOB::deep_copy);
 
     if (!rej_cblobs.empty ())
       rej_cblobs.clear ();
-    rej_cblobs.deep_copy (&source.rej_cblobs);
+    rej_cblobs.deep_copy(&source.rej_cblobs, &C_BLOB::deep_copy);
   }
   return *this;
 }

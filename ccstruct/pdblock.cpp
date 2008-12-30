@@ -144,7 +144,9 @@ void PDBLK::plot(                //draw outline
   window->Pen(colour);
   window->TextAttributes("Times", BLOCK_LABEL_HEIGHT, false, false, false);
 
-  if (!leftside.empty ()) {
+  if (hand_poly != NULL) {
+    hand_poly->plot(window, colour, serial);
+  } else if (!leftside.empty ()) {
     startpt = *(it.data ());     //bottom left corner
     //              tprintf("Block %d bottom left is (%d,%d)\n",
     //                      serial,startpt.x(),startpt.y());
@@ -179,10 +181,7 @@ void PDBLK::plot(                //draw outline
     }
                                  //close boundary
     window->DrawTo(endpt.x(), endpt.y());
-    if (hand_block != NULL)
-      hand_block->plot (window, colour, serial);
   }
-
 }
 #endif
 
@@ -227,8 +226,8 @@ const PDBLK & source             //from this
     leftside.clear ();
   if (!rightside.empty ())
     rightside.clear ();
-  leftside.deep_copy (&source.leftside);
-  rightside.deep_copy (&source.rightside);
+  leftside.deep_copy(&source.leftside, &ICOORDELT::deep_copy);
+  rightside.deep_copy(&source.rightside, &ICOORDELT::deep_copy);
   box = source.box;
   return *this;
 }

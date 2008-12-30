@@ -92,7 +92,7 @@ WERD_CHOICE *recog_word(                           //recog one owrd
   ASSERT_HOST (word_choice->lengths ().length () == blob_choices->length ());
 
   /* Copy any reject blobs into the outword */
-  outword->rej_blob_list ()->deep_copy (word->rej_blob_list ());
+  outword->rej_blob_list()->deep_copy(word->rej_blob_list(), &PBLOB::deep_copy);
 
   if (tessedit_override_permuter) {
     /* Override the permuter type if a straight dictionary check disagrees. */

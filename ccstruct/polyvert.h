@@ -43,8 +43,14 @@ class POLYPT:public ELIST2_LINK
     void de_dump(  //read external bits
                  FILE *) {
     }
+
+    static POLYPT* deep_copy(const POLYPT* src) {
+      return new POLYPT(*src);
+    }
                                  //really simple
-    make_serialise (POLYPT) FCOORD pos;
+    make_serialise (POLYPT)
+
+    FCOORD pos;
     FCOORD vec;                  //vector to next
 };
 

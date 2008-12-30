@@ -160,32 +160,42 @@ C_OUTLINE::C_OUTLINE(                     //constructor
       pos += srcline->step (stepindex);
       destpos = pos;
       destpos.rotate (rotation);
-      if (destpos.x () != prevpos.x () || destpos.y () != prevpos.y ()) {
+      //  printf("%i %i %i %i ", destpos.x(), destpos.y(), pos.x(), pos.y());
+      while (destpos.x () != prevpos.x () || destpos.y () != prevpos.y ()) {
         dir = DIR128 (FCOORD (destpos - prevpos));
         dir += 64;                 //turn to step style
         new_step = dir.get_dir ();
+        //  printf(" %i\n", new_step);
         if (new_step & 31) {
           set_step(destindex++, dir + round1);
+          prevpos += step(destindex - 1);
           if (destindex < 2
             || ((dirdiff =
             step_dir (destindex - 1) - step_dir (destindex - 2)) !=
-            -64 && dirdiff != 64))
+            -64 && dirdiff != 64)) {
             set_step(destindex++, dir + round2);
-          else {
+            prevpos += step(destindex - 1);
+          } else {
+            prevpos -= step(destindex - 1);
+            destindex--;
+            prevpos -= step(destindex - 1);
             set_step(destindex - 1, dir + round2);
-            set_step(destindex++, dir + round1);
+            prevpos += step(destindex - 1);
           }
         }
         else {
           set_step(destindex++, dir);
-          if (destindex >= 2
-            &&
-            ((dirdiff =
-            step_dir (destindex - 1) - step_dir (destindex - 2)) ==
-            -64 || dirdiff == 64))
-            destindex -= 2;        // Forget u turn
+          prevpos += step(destindex - 1);
         }
-        prevpos = destpos;
+        while (destindex >= 2 &&
+               ((dirdiff =
+                 step_dir (destindex - 1) - step_dir (destindex - 2)) == -64 ||
+                dirdiff == 64)) {
+          prevpos -= step(destindex - 1);
+          prevpos -= step(destindex - 2);
+          destindex -= 2;        // Forget u turn
+        }
+        //ASSERT_HOST(prevpos.x() == destpos.x() && prevpos.y() == destpos.y());
         new_box = TBOX (destpos, destpos);
         box += new_box;
       }
@@ -241,6 +251,23 @@ inT32 C_OUTLINE::area() {  //winding number
     total += it.data ()->area ();//add areas of children
 
   return total;
+}
+
+/**********************************************************************
+ * C_OUTLINE::perimeter
+ *
+ * Compute the perimeter of the outline and its first level children.
+ **********************************************************************/
+
+inT32 C_OUTLINE::perimeter() {
+  inT32 total_steps;             // Return value.
+  C_OUTLINE_IT it = child();
+
+  total_steps = pathlength();
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+    total_steps += it.data()->pathlength();  // Add perimeters of children.
+
+  return total_steps;
 }
 
 
@@ -570,6 +597,10 @@ void C_OUTLINE::plot(                //draw it
 
   pos = start;                   //current position
   window->Pen(colour);
+  if (stepcount == 0) {
+    window->Rectangle(box.left(), box.top(), box.right(), box.bottom());
+    return;
+  }
   window->SetCursor(pos.x(), pos.y());
 
   stepindex = 0;
@@ -610,6 +641,10 @@ const C_OUTLINE & source         //from this
   memmove (steps, source.steps, step_mem());
   if (!children.empty ())
     children.clear ();
-  children.deep_copy (&source.children);
+  children.deep_copy(&source.children, &deep_copy);
   return *this;
+}
+
+ICOORD C_OUTLINE::chain_step(int chaindir) {
+  return step_coords[chaindir % 4];
 }

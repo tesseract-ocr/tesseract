@@ -37,6 +37,7 @@ class C_BLOB:public ELIST_LINK
 
     TBOX bounding_box();  //compute bounding box
     inT32 area();  //compute area
+    inT32 perimeter();  // Total perimeter of outlines and 1st level children.
     inT32 outer_area();  //compute area
     inT32 count_transitions(                   //count maxima
                             inT32 threshold);  //size threshold
@@ -64,13 +65,19 @@ class C_BLOB:public ELIST_LINK
     }
 
                                  //assignment
-    make_serialise (C_BLOB) C_BLOB & operator= (
-    const C_BLOB & source) {     //from this
-      if (!outlines.empty ())
-        outlines.clear ();
+    make_serialise(C_BLOB)
 
-      outlines.deep_copy (&source.outlines);
+    C_BLOB& operator= (const C_BLOB & source) {
+      if (!outlines.empty ())
+        outlines.clear();
+      outlines.deep_copy(&source.outlines, &C_OUTLINE::deep_copy);
       return *this;
+    }
+
+    static C_BLOB* deep_copy(const C_BLOB* src) {
+      C_BLOB* blob = new C_BLOB;
+      *blob = *src;
+      return blob;
     }
 
   private:

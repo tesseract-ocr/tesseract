@@ -44,7 +44,7 @@ void (*zapper) (void *)) {       //ptr to zapper functn
   CLIST_LINK *ptr;
   CLIST_LINK *next;
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST::internal_deep_clear", ABORT, NULL);
   #endif
@@ -76,7 +76,7 @@ void CLIST::shallow_clear() {  //destroy all links
   CLIST_LINK *ptr;
   CLIST_LINK *next;
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST::shallow_clear", ABORT, NULL);
   #endif
@@ -110,7 +110,7 @@ const CLIST * list) {            //list being copied
   CLIST_ITERATOR from_it ((CLIST *) list);
   CLIST_ITERATOR to_it(this);
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST::internal_deep_copy", ABORT, NULL);
   if (!list)
@@ -142,7 +142,7 @@ void CLIST::assign_to_sublist(                           //to this list
   const ERRCODE LIST_NOT_EMPTY =
     "Destination list must be empty before extracting a sublist";
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST::assign_to_sublist", ABORT, NULL);
   #endif
@@ -164,7 +164,7 @@ inT32 CLIST::length() {  //count elements
   CLIST_ITERATOR it(this);
   inT32 count = 0;
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST::length", ABORT, NULL);
   #endif
@@ -191,7 +191,7 @@ const void *, const void *)) {
   void **current;
   inT32 i;
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST::sort", ABORT, NULL);
   #endif
@@ -219,6 +219,41 @@ const void *, const void *)) {
   free(base);
 }
 
+// Assuming list has been sorted already, insert new_data to
+// keep the list sorted according to the same comparison function.
+// Comparision function is the same as used by sort, i.e. uses double
+// indirection. Time is O(1) to add to beginning or end.
+// Time is linear to add pre-sorted items to an empty list.
+// If unique, then don't add duplicate entries.
+void CLIST::add_sorted(int comparator(const void*, const void*),
+                       bool unique, void* new_data) {
+  // Check for adding at the end.
+  if (last == NULL || comparator(&last->data, &new_data) < 0) {
+    CLIST_LINK* new_element = new CLIST_LINK;
+    new_element->data = new_data;
+    if (last == NULL) {
+      new_element->next = new_element;
+    } else {
+      new_element->next = last->next;
+      last->next = new_element;
+    }
+    last = new_element;
+  } else if (!unique || last->data != new_data) {
+    // Need to use an iterator.
+    CLIST_ITERATOR it(this);
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      void* data = it.data();
+      if (data == new_data && unique)
+        return;
+      if (comparator(&data, &new_data) > 0)
+        break;
+    }
+    if (it.cycled_list())
+      it.add_to_end(new_data);
+    else
+      it.add_before_then_move(new_data);
+  }
+}
 
 /***********************************************************************
  *							CLIST::prep_serialise
@@ -233,7 +268,7 @@ void CLIST::prep_serialise() {
   CLIST_ITERATOR this_it(this);
   inT32 count = 0;
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST::prep_serialise", ABORT, NULL);
   #endif
@@ -260,7 +295,7 @@ void
 CLIST::internal_dump (FILE * f, void element_serialiser (FILE *, void *)) {
   CLIST_ITERATOR this_it(this);
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST::internal_dump", ABORT, NULL);
   #endif
@@ -286,7 +321,7 @@ CLIST::internal_de_dump (FILE * f, void *element_de_serialiser (FILE *)) {
   inT32 count = (ptrdiff_t) last;
   CLIST_ITERATOR this_it;
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST::internal_de_dump", ABORT, NULL);
   #endif
@@ -311,7 +346,7 @@ CLIST::internal_de_dump (FILE * f, void *element_de_serialiser (FILE *)) {
  **********************************************************************/
 
 void *CLIST_ITERATOR::forward() {
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST_ITERATOR::forward", ABORT, NULL);
   if (!list)
@@ -324,21 +359,21 @@ void *CLIST_ITERATOR::forward() {
                                  //set previous
     prev = current;
     started_cycling = TRUE;
-  }
-  else {
+    // In case next is deleted by another iterator, get next from current.
+    current = current->next;
+  } else {
     if (ex_current_was_cycle_pt)
       cycle_pt = next;
+    current = next;
   }
-  current = next;
   next = current->next;
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!current)
     NULL_DATA.error ("CLIST_ITERATOR::forward", ABORT, NULL);
   if (!next)
     NULL_NEXT.error ("CLIST_ITERATOR::forward", ABORT,
-      "This is: %i  Current is: %i",
-      (int) this, (int) current);
+                     "This is: %p  Current is: %p", this, current);
   #endif
   return current->data;
 }
@@ -356,7 +391,7 @@ void *CLIST_ITERATOR::data_relative(                //get data + or - ...
                                     inT8 offset) {  //offset from current
   CLIST_LINK *ptr;
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST_ITERATOR::data_relative", ABORT, NULL);
   if (!list)
@@ -373,7 +408,7 @@ void *CLIST_ITERATOR::data_relative(                //get data + or - ...
   else
     for (ptr = current ? current : prev; offset-- > 0; ptr = ptr->next);
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!ptr)
     NULL_DATA.error ("CLIST_ITERATOR::data_relative", ABORT, NULL);
   #endif
@@ -391,7 +426,7 @@ void *CLIST_ITERATOR::data_relative(                //get data + or - ...
  **********************************************************************/
 
 void *CLIST_ITERATOR::move_to_last() {
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST_ITERATOR::move_to_last", ABORT, NULL);
   if (!list)
@@ -425,7 +460,7 @@ void CLIST_ITERATOR::exchange(                             //positions of 2 link
 
   CLIST_LINK *old_current;
 
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("CLIST_ITERATOR::exchange", ABORT, NULL);
   if (!list)
@@ -524,7 +559,7 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist(                             //from 
   CLIST_LINK *end_of_new_list;
 
   const ERRCODE BAD_SUBLIST = "Can't find sublist end point in original list";
-  #ifdef _DEBUG
+  #ifndef NDEBUG
   const ERRCODE BAD_EXTRACTION_PTS =
     "Can't extract sublist from points on different lists";
   const ERRCODE DONT_EXTRACT_DELETED =

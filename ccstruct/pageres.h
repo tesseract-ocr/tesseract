@@ -216,15 +216,17 @@ class WERD_RES:public ELIST_LINK //word result
       part_of_combo = FALSE;
       reject_spaces = FALSE;
     }
-    WERD_RES(  //constr from WERD_RES
-             const WERD_RES &source) {
+    WERD_RES(const WERD_RES &source) {
       *this = source;            //see operator=
     }
 
     ~WERD_RES ();                //destructor
 
-    WERD_RES & operator= (       //assign word res
-      const WERD_RES & source);  //from this
+    WERD_RES& operator=(const WERD_RES& source);  //from this
+
+    static WERD_RES* deep_copy(const WERD_RES* src) {
+      return new WERD_RES(*src);
+    }
 
     void copy_on(                       //copy blobs onto word
                  WERD_RES *word_res) {  //from this word

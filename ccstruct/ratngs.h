@@ -64,6 +64,12 @@ class BLOB_CHOICE:public ELIST_LINK
       blob_script = newscript;
     }
 
+    static BLOB_CHOICE* deep_copy(const BLOB_CHOICE* src) {
+      BLOB_CHOICE* choice = new BLOB_CHOICE;
+      *choice = *src;
+      return choice;
+    }
+
     const char* const unichar() const {  //access function
       return blob_unichar;
     }

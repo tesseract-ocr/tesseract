@@ -140,8 +140,9 @@ const WERD_CHOICE & second       //second word
            !second_word_blob_choices_it.cycled_list();
            second_word_blob_choices_it.forward()) {
 
-        BLOB_CHOICE_LIST* blob_choices_copy = new BLOB_CHOICE_LIST();
-        blob_choices_copy->deep_copy(second_word_blob_choices_it.data());
+      BLOB_CHOICE_LIST* blob_choices_copy = new BLOB_CHOICE_LIST();
+      blob_choices_copy->deep_copy(second_word_blob_choices_it.data(),
+                                   &BLOB_CHOICE::deep_copy);
 
         this_word_blob_choices_it.add_after_then_move(blob_choices_copy);
       }
@@ -179,8 +180,9 @@ WERD_CHOICE& WERD_CHOICE::operator= (const WERD_CHOICE& source) {
            !source_word_blob_choices_it.cycled_list();
            source_word_blob_choices_it.forward()) {
 
-        BLOB_CHOICE_LIST* blob_choices_copy = new BLOB_CHOICE_LIST();
-        blob_choices_copy->deep_copy(source_word_blob_choices_it.data());
+      BLOB_CHOICE_LIST* blob_choices_copy = new BLOB_CHOICE_LIST();
+      blob_choices_copy->deep_copy(source_word_blob_choices_it.data(),
+                                   &BLOB_CHOICE::deep_copy);
 
         this_word_blob_choices_it.add_after_then_move(blob_choices_copy);
       }
