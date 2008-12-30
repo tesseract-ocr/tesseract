@@ -26,6 +26,7 @@
 #include <windows.h>
 #include <winsock.h>
 #else
+#include <arpa/inet.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
