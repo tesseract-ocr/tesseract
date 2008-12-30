@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        varable.h  (Formerly variable.h)
  * Description: Class definitions of the *_VAR classes for tunable constants.
- * Author:					Ray Smith
- * Created:					Fri Feb 22 11:26:25 GMT 1991
+ * Author:          Ray Smith
+ * Created:         Fri Feb 22 11:26:25 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -342,66 +342,78 @@ class DLLSYM double_VARIABLE
 /* SECURE_NAMES is defined in senames.h when necessary */
 #ifdef SECURE_NAMES
 
-#define INT_VAR(name,val,comment)						/*make INT_VARIABLE*/\
-	INT_VARIABLE			name(val,"","")
+#define INT_VAR(name,val,comment)           /*make INT_VARIABLE*/\
+  INT_VARIABLE      name(val,"","")
 
-#define BOOL_VAR(name,val,comment)						/*make BOOL_VARIABLE*/\
-	BOOL_VARIABLE			name(val,"","")
+#define BOOL_VAR(name,val,comment)            /*make BOOL_VARIABLE*/\
+  BOOL_VARIABLE     name(val,"","")
 
-#define STRING_VAR(name,val,comment)					/*make STRING_VARIABLE*/\
-	STRING_VARIABLE			name(val,"","")
+#define STRING_VAR(name,val,comment)          /*make STRING_VARIABLE*/\
+  STRING_VARIABLE     name(val,"","")
 
-#define double_VAR(name,val,comment)					/*make double_VARIABLE*/\
-	double_VARIABLE			name(val,"","")
+#define double_VAR(name,val,comment)          /*make double_VARIABLE*/\
+  double_VARIABLE     name(val,"","")
 
 #else
 
-#define INT_VAR(name,val,comment)						/*make INT_VARIABLE*/\
-	INT_VARIABLE			name(val,#name,comment)
+#define INT_VAR(name,val,comment)           /*make INT_VARIABLE*/\
+  INT_VARIABLE      name(val,#name,comment)
 
-#define BOOL_VAR(name,val,comment)						/*make BOOL_VARIABLE*/\
-	BOOL_VARIABLE			name(val,#name,comment)
+#define BOOL_VAR(name,val,comment)            /*make BOOL_VARIABLE*/\
+  BOOL_VARIABLE     name(val,#name,comment)
 
-#define STRING_VAR(name,val,comment)					/*make STRING_VARIABLE*/\
-	STRING_VARIABLE			name(val,#name,comment)
+#define STRING_VAR(name,val,comment)          /*make STRING_VARIABLE*/\
+  STRING_VARIABLE     name(val,#name,comment)
 
-#define double_VAR(name,val,comment)					/*make double_VARIABLE*/\
-	double_VARIABLE			name(val,#name,comment)
+#define double_VAR(name,val,comment)          /*make double_VARIABLE*/\
+  double_VARIABLE     name(val,#name,comment)
 #endif
 
-#define INT_VAR_H(name,val,comment)						/*declare one*/\
-	INT_VARIABLE			name
+#define INT_VAR_H(name,val,comment)           /*declare one*/\
+  INT_VARIABLE      name
 
-#define BOOL_VAR_H(name,val,comment)					/*declare one*/\
-	BOOL_VARIABLE			name
+#define BOOL_VAR_H(name,val,comment)          /*declare one*/\
+  BOOL_VARIABLE     name
 
-#define STRING_VAR_H(name,val,comment)					/*declare one*/\
-	STRING_VARIABLE			name
+#define STRING_VAR_H(name,val,comment)          /*declare one*/\
+  STRING_VARIABLE     name
 
-#define double_VAR_H(name,val,comment)					/*declare one*/\
-	double_VARIABLE			name
+#define double_VAR_H(name,val,comment)          /*declare one*/\
+  double_VARIABLE     name
 
-#define INT_EVAR(name,val,comment)						/*make INT_VARIABLE*/\
-	INT_VARIABLE			name(val,#name,comment)
+#define INT_MEMBER(name, val, comment)          /*make INT_VARIABLE*/\
+  name(val, #name, comment)
 
-#define INT_EVAR_H(name,val,comment)					/*declare one*/\
-	INT_VARIABLE			name
+#define BOOL_MEMBER(name, val, comment)         /*make BOOL_VARIABLE*/\
+  name(val, #name, comment)
 
-#define BOOL_EVAR(name,val,comment)						/*make BOOL_VARIABLE*/\
-	BOOL_VARIABLE			name(val,#name,comment)
+#define STRING_MEMBER(name, val, comment)       /*make STRING_VARIABLE*/\
+  name(val, #name, comment)
 
-#define BOOL_EVAR_H(name,val,comment)					/*declare one*/\
-	BOOL_VARIABLE			name
+#define double_MEMBER(name, val, comment)       /*make double_VARIABLE*/\
+  name(val, #name, comment)
 
-#define STRING_EVAR(name,val,comment)					/*make STRING_VARIABLE*/\
-	STRING_VARIABLE			name(val,#name,comment)
+#define INT_EVAR(name,val,comment)            /*make INT_VARIABLE*/\
+  INT_VARIABLE      name(val,#name,comment)
 
-#define STRING_EVAR_H(name,val,comment)					/*declare one*/\
-	STRING_VARIABLE			name
+#define INT_EVAR_H(name,val,comment)          /*declare one*/\
+  INT_VARIABLE      name
 
-#define double_EVAR(name,val,comment)					/*make double_VARIABLE*/\
-	double_VARIABLE			name(val,#name,comment)
+#define BOOL_EVAR(name,val,comment)           /*make BOOL_VARIABLE*/\
+  BOOL_VARIABLE     name(val,#name,comment)
 
-#define double_EVAR_H(name,val,comment)					/*declare one*/\
-	double_VARIABLE			name
+#define BOOL_EVAR_H(name,val,comment)         /*declare one*/\
+  BOOL_VARIABLE     name
+
+#define STRING_EVAR(name,val,comment)         /*make STRING_VARIABLE*/\
+  STRING_VARIABLE     name(val,#name,comment)
+
+#define STRING_EVAR_H(name,val,comment)         /*declare one*/\
+  STRING_VARIABLE     name
+
+#define double_EVAR(name,val,comment)         /*make double_VARIABLE*/\
+  double_VARIABLE     name(val,#name,comment)
+
+#define double_EVAR_H(name,val,comment)         /*declare one*/\
+  double_VARIABLE     name
 #endif

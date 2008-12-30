@@ -114,7 +114,8 @@ DLLSYM char *alloc_string(             //allocate string
   }
   return &string[1];             //string for user
 #else
-  return static_cast<char*>(malloc(count));
+  // Round up the amount allocated to a multiple of 4
+  return static_cast<char*>(malloc((count + 3) & ~3));
 #endif
 }
 

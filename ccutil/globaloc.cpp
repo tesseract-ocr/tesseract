@@ -22,18 +22,18 @@
 #include          "errcode.h"
 #include          "tprintf.h"
 
-inT16 global_loc_code = LOC_INIT;//location code
+/*inT16 global_loc_code = LOC_INIT;//location code
 inT16 global_subloc_code = SUBLOC_NORM;
                                  //pass2 subloc code
 inT16 global_subsubloc_code = SUBSUBLOC_OTHER;
                                  //location code
 inT16 global_abort_code = NO_ABORT_CODE;
                                  //Prog abort code
-
+*/
 void signal_exit(                 //
                  int signal_code  //Signal which
                 ) {
-  int exit_status;
+  /*int exit_status;
 
   if ((global_loc_code == LOC_PASS2) || (global_loc_code == LOC_FUZZY_SPACE))
     global_loc_code += global_subloc_code + global_subsubloc_code;
@@ -49,7 +49,8 @@ void signal_exit(                 //
       exit_status, global_loc_code, signal_code);
   }
 
-  exit(exit_status);
+  exit(exit_status);*/
+  exit(signal_code);
 }
 
 
@@ -95,19 +96,20 @@ void signal_termination_handler(  //The real signal
 
 //};                                                                                                            //end extern "C"
 
+
 void set_global_loc_code(int loc_code) {
-  global_loc_code = loc_code;
+  // global_loc_code = loc_code;
 
 }
 
 
 void set_global_subloc_code(int loc_code) {
-  global_subloc_code = loc_code;
+  // global_subloc_code = loc_code;
 
 }
 
 
 void set_global_subsubloc_code(int loc_code) {
-  global_subsubloc_code = loc_code;
+  // global_subsubloc_code = loc_code;
 
 }

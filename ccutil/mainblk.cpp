@@ -40,7 +40,10 @@ EXTERN DLLSYM STRING imagebasename;
 EXTERN BOOL_VAR (m_print_variables, FALSE,
 "Print initial values of all variables");
 EXTERN STRING_VAR (m_data_sub_dir, "tessdata/", "Directory for data files");
-EXTERN INT_VAR (memgrab_size, 0, "Preallocation size for batch use");
+/*
+EXTERN INT_VAR (memgrab_size, 0, "Preallocation size for batch use");*/
+
+
 const ERRCODE NO_PATH =
 "Warning:explicit path for executable will not be used for configs";
 static const ERRCODE USAGE = "Usage";
@@ -51,7 +54,7 @@ static const ERRCODE USAGE = "Usage";
  * Main for mithras demo program. Read the arguments and set up globals.
  **********************************************************************/
 
-void main_setup(                         /*main demo program */
+void main_setup(                 /*main demo program */
                 const char *argv0,       //program name
                 const char *basename,    //name of image
                 int argc,                /*argument count */
@@ -65,21 +68,29 @@ void main_setup(                         /*main demo program */
 
   imagebasename = basename;      /*name of image */
 
-  if(!getenv("TESSDATA_PREFIX")) {
-  #ifdef TESSDATA_PREFIX
-  #define _STR(a) #a
-  #define _XSTR(a) _STR(a)
-  datadir = _XSTR(TESSDATA_PREFIX);
-  #undef _XSTR
-  #undef _STR
-  #else
-  if (getpath (argv0, datadir) < 0)
-  #ifdef __UNIX__
-    CANTOPENFILE.error ("main", ABORT, "%s to get path", argv[0]);
-  #else
-  NO_PATH.error ("main", DBG, NULL);
-  #endif
-  #endif
+  // TESSDATA_PREFIX Environment variable overrules everything.
+  // Compiled in -DTESSDATA_PREFIX is next.
+  // NULL goes to current directory.
+  // An actual value of argv0 is used if getpath is successful.
+  if (!getenv("TESSDATA_PREFIX")) {
+#ifdef TESSDATA_PREFIX
+#define _STR(a) #a
+#define _XSTR(a) _STR(a)
+    datadir = _XSTR(TESSDATA_PREFIX);
+#undef _XSTR
+#undef _STR
+#else
+    if (argv0 != NULL) {
+      if (getpath(argv0, datadir) < 0)
+#ifdef __UNIX__
+        CANTOPENFILE.error("main", ABORT, "%s to get path", argv0);
+#else
+        NO_PATH.error("main", DBG, NULL);
+#endif
+    } else {
+      datadir = "./";
+    }
+#endif
   } else {
     datadir = getenv("TESSDATA_PREFIX");
   }
@@ -114,18 +125,4 @@ void main_setup(                         /*main demo program */
 
 
   datadir += m_data_sub_dir;     /*data directory */
-
-  #ifdef __UNIX__
-  if (memgrab_size > 0) {
-    void *membuf;                //test virtual mem
-                                 //test memory
-    membuf = malloc (memgrab_size);
-    if (membuf == NULL) {
-      raise(SIGTTOU);  //hangup for jobber
-      sleep (10);
-    }
-    else
-      free(membuf);
-  }
-  #endif
 }

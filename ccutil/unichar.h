@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef THIRD_PARTY_TESSERACT_CCUTIL_UNICHAR_H__
-#define THIRD_PARTY_TESSERACT_CCUTIL_UNICHAR_H__
+#ifndef TESSERACT_CCUTIL_UNICHAR_H__
+#define TESSERACT_CCUTIL_UNICHAR_H__
 
 #include <memory.h>
 
@@ -28,6 +28,11 @@
 
 // A UNICHAR_ID is the unique id of a unichar.
 typedef int UNICHAR_ID;
+
+// A variable to indicate an invalid or uninitialized unichar id.
+static const int INVALID_UNICHAR_ID = -1;
+// A special unichar that corresponds to INVALID_UNICHAR_ID.
+static const char INVALID_UNICHAR[] = "__INVALID_UNICHAR__";
 
 // The UNICHAR class holds a single classification result. This may be
 // a single Unicode character (stored as between 1 and 4 utf8 bytes) or
@@ -76,4 +81,4 @@ class UNICHAR {
   char chars[UNICHAR_LEN];
 };
 
-#endif  // THIRD_PARTY_TESSERACT_CCUTIL_UNICHAR_H__
+#endif  // TESSERACT_CCUTIL_UNICHAR_H__

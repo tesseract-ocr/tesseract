@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#ifndef THIRD_PARTY_TESSERACT_CCUTIL_BOXREAD_H__
-#define THIRD_PARTY_TESSERACT_CCUTIL_BOXREAD_H__
+#ifndef TESSERACT_CCUTIL_BOXREAD_H__
+#define TESSERACT_CCUTIL_BOXREAD_H__
 
 #include <stdio.h>
 
@@ -41,5 +41,4 @@ bool read_next_box(FILE* box_file, char* utf8_str,
 bool read_next_box(int page, FILE* box_file, char* utf8_str,
                    int* x_min, int* y_min, int* x_max, int* y_max);
 
-#endif  // THIRD_PARTY_TESSERACT_CCUTIL_BOXREAD_H__
-
+#endif  // TESSERACT_CCUTIL_BOXREAD_H__

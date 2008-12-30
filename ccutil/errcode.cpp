@@ -31,7 +31,6 @@
 
 const ERRCODE BADERRACTION = "Illegal error action";
 #define MAX_MSG       1024
-extern inT16 global_abort_code;
 
 /**********************************************************************
  * error
@@ -76,27 +75,29 @@ const char *format, ...          //special message
                                  //no specific
     msgptr += sprintf (msgptr, "\n");
 
-  tprintf(msg);
-  if ((strstr (message, "File") != NULL) ||
+  fprintf(stderr, msg);
+  /*if ((strstr (message, "File") != NULL) ||
     (strstr (message, "file") != NULL))
-    global_abort_code = FILE_ABORT;
   else if ((strstr (message, "List") != NULL) ||
     (strstr (message, "list") != NULL))
-    global_abort_code = LIST_ABORT;
   else if ((strstr (message, "Memory") != NULL) ||
     (strstr (message, "memory") != NULL))
     global_abort_code = MEMORY_ABORT;
   else
     global_abort_code = NO_ABORT_CODE;
+    */
 
+  int* p = NULL;
   switch (action) {
     case DBG:
     case TESSLOG:
       return;                    //report only
     case EXIT:
-      err_exit();
+      //err_exit();
     case ABORT:
-      abort();
+      // Create a deliberate segv as the stack trace is more useful that way.
+      if (!*p)
+        abort();
     default:
       BADERRACTION.error ("error", ABORT, NULL);
   }

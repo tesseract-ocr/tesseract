@@ -584,7 +584,7 @@ DLLSYM BOOL8 read_variables_file(const char *file  // name to read
 
       if (!foundit) {
         anyerr = TRUE;         // had an error
-        tprintf("read_variables_file:variable not found: %s",
+        tprintf("read_variables_file:variable not found: %s\n",
           line);
       }
     }
