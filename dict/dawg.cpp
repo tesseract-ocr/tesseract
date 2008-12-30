@@ -28,7 +28,7 @@
 #ifdef __MSW32__
 #include <windows.h>
 #else
-#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 #include "dawg.h"
 #include "cutil.h"
