@@ -18,14 +18,14 @@ SUBDIRS = configs tessconfigs
 EXTRA_DIST = confsets makedummies
 
 eng.DangAmbigs eng.freq-dawg eng.inttemp eng.normproto eng.pffmtable eng.user-words eng.word-dawg eng.unicharset : makedummies
-	./makedummies eng
+	$(top_srcdir)/tessdata/makedummies eng
 fra.DangAmbigs fra.freq-dawg fra.inttemp fra.normproto fra.pffmtable fra.user-words fra.word-dawg fra.unicharset : makedummies
-	./makedummies fra
+	$(top_srcdir)/tessdata/makedummies fra
 ita.DangAmbigs ita.freq-dawg ita.inttemp ita.normproto ita.pffmtable ita.user-words ita.word-dawg ita.unicharset : makedummies
-	./makedummies ita
+	$(top_srcdir)/tessdata/makedummies ita
 deu.DangAmbigs deu.freq-dawg deu.inttemp deu.normproto deu.pffmtable deu.user-words deu.word-dawg deu.unicharset : makedummies
-	./makedummies deu
+	$(top_srcdir)/tessdata/makedummies deu
 spa.DangAmbigs spa.freq-dawg spa.inttemp spa.normproto spa.pffmtable spa.user-words spa.word-dawg spa.unicharset : makedummies
-	./makedummies spa
+	$(top_srcdir)/tessdata/makedummies spa
 nld.DangAmbigs nld.freq-dawg nld.inttemp nld.normproto nld.pffmtable nld.user-words nld.word-dawg nld.unicharset : makedummies
-	./makedummies nld
+	$(top_srcdir)/tessdata/makedummies nld
