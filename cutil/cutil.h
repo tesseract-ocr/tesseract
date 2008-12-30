@@ -41,6 +41,7 @@ Import original HP distribution
 #include <stdlib.h>
 
 #include "general.h"
+#include "tprintf.h"
 
 /*----------------------------------------------------------------------
                       T y p e s
@@ -106,7 +107,7 @@ extern char_proc allocate;
  **********************************************************************/
 
 #define new_line()  \
-  printf ("\n")
+  tprintf("\n")
 
 /**********************************************************************
  * print_string
