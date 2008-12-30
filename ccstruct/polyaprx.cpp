@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        polyaprx.cpp  (Formerly polygon.c)
  * Description: Code for polygonal approximation from old edgeprog.
- * Author:		Ray Smith
- * Created:		Thu Nov 25 11:42:04 GMT 1993
+ * Author:      Ray Smith
+ * Created:     Thu Nov 25 11:42:04 GMT 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +22,7 @@
 #ifdef __UNIX__
 #include          <assert.h>
 #endif
-//#include                                                      "edgeloop.h"
-#define MAXEDGELENGTH    16000   //must replace
+#define FASTEDGELENGTH    256
 #include          "polyaprx.h"
 #include          "varable.h"
 #include          "tprintf.h"
@@ -57,7 +56,7 @@ static int par1, par2;
 #define LENGTH(a) ((a).x * (a).x + (a).y * (a).y)
 
 #define DISTANCE(a,b) (((b).x-(a).x) * ((b).x-(a).x) \
-						+ ((b).y-(a).y) * ((b).y-(a).y))
+                        + ((b).y-(a).y) * ((b).y-(a).y))
 
 /**********************************************************************
  * tesspoly_outline
@@ -78,7 +77,12 @@ OUTLINE *tesspoly_outline(                       //old approximation
   POLYPT_LIST polypts;           //output polygon
   POLYPT *polypt;                //converted point
   POLYPT_IT poly_it = &polypts;  //iterator
-  EDGEPT edgepts[MAXEDGELENGTH]; //converted path
+  EDGEPT stack_edgepts[FASTEDGELENGTH];  // converted path
+  EDGEPT* edgepts = stack_edgepts;
+
+  // Use heap memory if the stack buffer is not big enough.
+  if (c_outline->pathlength() > FASTEDGELENGTH)
+    edgepts = new EDGEPT[c_outline->pathlength()];
 
   loop_box = c_outline->bounding_box ();
   area = loop_box.height ();
@@ -98,11 +102,12 @@ OUTLINE *tesspoly_outline(                       //old approximation
     edgept = edgept->next;
   }
   while (edgept != startpt);
-  if (poly_it.length () <= 2)
+  if (edgepts != stack_edgepts)
+    delete [] edgepts;
+  if (poly_it.length() <= 2)
     return NULL;
   else
-                                 //turn to outline
-      return new OUTLINE (&poly_it);
+    return new OUTLINE(&poly_it);
 }
 
 
@@ -352,14 +357,14 @@ void fix2(                //polygonal approx
       if (d01 > d23) {
         edgefix2->flags[FLAGS] &= ~FIXED;
         fixed_count--;
-        /*					if ( plots[EDGE] & PATHS )
+        /*                  if ( plots[EDGE] & PATHS )
                   mark(edgefd,edgefix2->pos.x,edgefix2->pos.y,PLUS);
                                   */
       }
       else {
         edgefix1->flags[FLAGS] &= ~FIXED;
         fixed_count--;
-        /*					if ( plots[EDGE] & PATHS )
+        /*                  if ( plots[EDGE] & PATHS )
                   mark(edgefd,edgefix1->pos.x,edgefix1->pos.y,PLUS);
                                     */
         edgefix1 = edgefix2;
