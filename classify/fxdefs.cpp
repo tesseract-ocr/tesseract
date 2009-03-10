@@ -48,10 +48,10 @@ FEATURE_EXT_STRUCT* ExtractorDefs[NUM_FEATURE_TYPES] = {
 /*---------------------------------------------------------------------------*/
 void SetupExtractors() {
   for (int i = 0; i < NUM_FEATURE_TYPES; ++i)
-    ExtractorOf(i) = ExtractorDefs[i];
+	  FeatureDefs.FeatureExtractors[i] = ExtractorDefs[i];
 }
 
-void GetLineStatsFromRow(TEXTROW *Row, LINE_STATS *LineStats) { 
+void GetLineStatsFromRow(TEXTROW *Row, LINE_STATS *LineStats) {
 /*
  **	Parameters:
  **		Row		text row to get line statistics from

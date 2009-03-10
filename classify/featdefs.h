@@ -52,20 +52,6 @@ typedef struct
 typedef FEATURE_DEFS_STRUCT *FEATURE_DEFS;
 
 /*----------------------------------------------------------------------
-          Macros for finding feature definitions
-----------------------------------------------------------------------*/
-#define NumFeaturesDefined()  (FeatureDefs.NumFeatureTypes)
-#define DefinitionOf(Type)  (FeatureDefs.FeatureDesc[Type])
-#define ExtractorOf(Type)  (FeatureDefs.FeatureExtractors[Type])
-#define FeatureOn(Type)   (FeatureDefs.FeatureEnabled[Type])
-
-/*----------------------------------------------------------------------
-      Macros for manipulating character descriptions
-----------------------------------------------------------------------*/
-#define NumFeatureSetsIn(Char)    ((Char)->NumFeatureSets)
-#define FeaturesOfType(Char, Type)  ((Char)->FeatureSets[Type])
-
-/*----------------------------------------------------------------------
     Generic functions for manipulating character descriptions
 ----------------------------------------------------------------------*/
 void FreeCharDescription(CHAR_DESC CharDesc);

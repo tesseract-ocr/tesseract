@@ -111,17 +111,17 @@ extern int NormMethod;
 #define MakeOutlineCircular(O)  (set_rest (last (O), (O)))
 
 /* macros for manipulating micro-feature outline edge points */
-#define PositionOf(P)   ((P)->Point)
-#define XPositionOf(P)    (PositionOf(P).x)
-#define YPositionOf(P)    (PositionOf(P).y)
-#define DirectionOf(P)    ((P)->Direction)
-#define PreviousDirectionOf(P)  ((P)->PreviousDirection)
+//#define PositionOf(P)   ((P)->Point)
+//#define XPositionOf(P)    ((P)->Point.x)
+//#define YPositionOf(P)    ((P)->Point.y)
+//#define DirectionOf(P)    ((P)->Direction)
+//#define PreviousDirectionOf(P)  ((P)->PreviousDirection)
 #define ClearMark(P)    ((P)->ExtremityMark = FALSE)
 #define MarkPoint(P)    ((P)->ExtremityMark = TRUE)
-#define IsExtremity(P)    ((P)->ExtremityMark)
-#define NotExtremity(P)   (!IsExtremity(P))
-#define IsVisible(E)    (! IsHidden(E))
-#define IsHidden(E)   ((E)->Hidden)
+//#define IsExtremity(P)    ((P)->ExtremityMark)
+//#define NotExtremity(P)   (!(P->ExtremityMark))
+//#define IsVisible(E)    (! (E->Hidden))
+//#define IsHidden(E)   ((E)->Hidden)
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes

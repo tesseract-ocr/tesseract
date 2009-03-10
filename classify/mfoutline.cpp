@@ -208,9 +208,9 @@ MFOUTLINE ConvertOutline(TESSLINE *Outline) {
       EdgePoint->pos.y != NextPoint->pos.y) {
         NewPoint = NewEdgePoint ();
         ClearMark(NewPoint);
-        IsHidden (NewPoint) = is_hidden_edge (EdgePoint) ? TRUE : FALSE;
-        XPositionOf (NewPoint) = EdgePoint->pos.x;
-        YPositionOf (NewPoint) = EdgePoint->pos.y;
+        NewPoint->Hidden = is_hidden_edge (EdgePoint) ? TRUE : FALSE;
+        NewPoint->Point.x = EdgePoint->pos.x;
+        NewPoint->Point.y = EdgePoint->pos.y;
         MFOutline = push (MFOutline, NewPoint);
       }
       EdgePoint = NextPoint;
@@ -219,24 +219,24 @@ MFOUTLINE ConvertOutline(TESSLINE *Outline) {
   }
                                  /* use compressed version of outline */
   else if (Outline->loop == NULL) {
-    Xof (Position) = Xof (StartPosition) = Outline->start.x;
-    Yof (Position) = Yof (StartPosition) = Outline->start.y;
+    Position.x = StartPosition.x = Outline->start.x;
+    Position.y = StartPosition.y = Outline->start.y;
     Vector = Outline->compactloop;
     do {
       if (Vector->dx != 0 || Vector->dy != 0) {
         NewPoint = NewEdgePoint ();
         ClearMark(NewPoint);
                                  /* all edges are visible */
-        IsHidden (NewPoint) = FALSE;
-        CopyPoint (Position, PositionOf (NewPoint));
+        NewPoint->Hidden = FALSE;
+        CopyPoint (Position, NewPoint->Point);
         MFOutline = push (MFOutline, NewPoint);
       }
-      Xof (Position) += Vector->dx;
-      Yof (Position) += Vector->dy;
+      Position.x += Vector->dx;
+      Position.y += Vector->dy;
       Vector++;
     }
-    while ((Xof (Position) != Xof (StartPosition)) ||
-      (Yof (Position) != Yof (StartPosition)));
+    while (Position.x != StartPosition.x ||
+      (Position.y != StartPosition.y));
   }
   else {                         /* use expanded version of outline */
     StartPoint = Outline->loop;
@@ -249,10 +249,10 @@ MFOUTLINE ConvertOutline(TESSLINE *Outline) {
       EdgePoint->pos.y != NextPoint->pos.y) {
         NewPoint = NewEdgePoint ();
         ClearMark(NewPoint);
-        IsHidden (NewPoint) = is_hidden_edge (EdgePoint) ? TRUE : FALSE;
-        XPositionOf (NewPoint) =
+        NewPoint->Hidden = is_hidden_edge (EdgePoint) ? TRUE : FALSE;
+        NewPoint->Point.x =
           (EdgePoint->pos.x + BlobCenter.x) / REALSCALE;
-        YPositionOf (NewPoint) =
+        NewPoint->Point.y =
           (EdgePoint->pos.y + BlobCenter.y) / REALSCALE;
         MFOutline = push (MFOutline, NewPoint);
       }
@@ -344,8 +344,8 @@ void ComputeOutlineStats(LIST Outlines, OUTLINE_STATS *OutlineStats) {
       Current = PointAt (EdgePoint);
 
       UpdateOutlineStats (OutlineStats,
-        XPositionOf (Last), YPositionOf (Last),
-        XPositionOf (Current), YPositionOf (Current));
+        Last->Point.x, Last->Point.y,
+        Current->Point.x, Current->Point.y);
 
       Last = Current;
       EdgePoint = NextPointAfter (EdgePoint);
@@ -388,14 +388,14 @@ void FilterEdgeNoise(MFOUTLINE Outline, FLOAT32 NoiseSegmentLength) {
   Last = First;
   do {
     Current = NextDirectionChange (Last);
-    Length = DistanceBetween (PositionOf (PointAt (Current)),
-      PositionOf (PointAt (Last)));
+    Length = DistanceBetween ((PointAt (Current)->Point),
+      PointAt (Last)->Point);
     if (Length >= NoiseSegmentLength) {
       if (NumFound == 0) {
         NumFound = 1;
-        DirectionOfFirst = DirectionOf (PointAt (Last));
+        DirectionOfFirst = PointAt (Last)->Direction;
       }
-      else if (DirectionOfFirst != DirectionOf (PointAt (Last)))
+      else if (DirectionOfFirst != PointAt (Last)->Direction)
         break;
     }
     Last = Current;
@@ -410,10 +410,10 @@ void FilterEdgeNoise(MFOUTLINE Outline, FLOAT32 NoiseSegmentLength) {
   First = Last;
   do {
     Current = NextDirectionChange (Last);
-    Length = DistanceBetween (PositionOf (PointAt (Current)),
-      PositionOf (PointAt (Last)));
+    Length = DistanceBetween (PointAt (Current)->Point,
+      PointAt (Last)->Point);
     if (Length < NoiseSegmentLength)
-      ChangeDirection (Last, Current, PreviousDirectionOf (PointAt (Last)));
+      ChangeDirection (Last, Current, PointAt (Last)->PreviousDirection);
 
     Last = Current;
   }
@@ -485,7 +485,7 @@ void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline
   Start = rest (Outline);
   set_rest(Outline, NIL);
   while (Start != NULL) {
-    c_free_struct (first_node (Start), sizeof (MFEDGEPT), "MFEDGEPT");
+    free_struct (first_node (Start), sizeof (MFEDGEPT), "MFEDGEPT");
     Start = pop (Start);
   }
 
@@ -577,7 +577,7 @@ MFEDGEPT *NewEdgePoint() {
  **	Exceptions: none
  **	History: 7/21/89, DSJ, Created.
  */
-  return ((MFEDGEPT *) c_alloc_struct (sizeof (MFEDGEPT), "MFEDGEPT"));
+  return ((MFEDGEPT *) alloc_struct (sizeof (MFEDGEPT), "MFEDGEPT"));
 
 }                                /* NewEdgePoint */
 
@@ -599,7 +599,7 @@ MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
  **	History: 7/26/89, DSJ, Created.
  */
   EdgePoint = NextPointAfter (EdgePoint);
-  while (NotExtremity (PointAt (EdgePoint)))
+  while (!PointAt (EdgePoint)->ExtremityMark)
     EdgePoint = NextPointAfter (EdgePoint);
 
   return (EdgePoint);
@@ -646,20 +646,20 @@ void NormalizeOutline(MFOUTLINE Outline,
     do {
       Current = PointAt (EdgePoint);
 
-      YPositionOf (Current) = ScaleFactor *
-        (YPositionOf (Current) -
+      Current->Point.y = ScaleFactor *
+        (Current->Point.y -
         BaselineAt (LineStats, XPositionOf (Current)));
 
-      if (YPositionOf (Current) > NORMAL_X_HEIGHT)
-        YPositionOf (Current) = NORMAL_X_HEIGHT +
-          (YPositionOf (Current) - NORMAL_X_HEIGHT) / AscStretch;
+      if (Current->Point.y > NORMAL_X_HEIGHT)
+        Current->Point.y = NORMAL_X_HEIGHT +
+          (Current->Point.y - NORMAL_X_HEIGHT) / AscStretch;
 
-      else if (YPositionOf (Current) < NORMAL_BASELINE)
-        YPositionOf (Current) = NORMAL_BASELINE +
-            (YPositionOf (Current) - NORMAL_BASELINE) / DescStretch;
+      else if (Current->Point.y < NORMAL_BASELINE)
+        Current->Point.y = NORMAL_BASELINE +
+            (Current->Point.y - NORMAL_BASELINE) / DescStretch;
 
-      XPositionOf (Current) = ScaleFactor *
-        (XPositionOf (Current) - XOrigin);
+      Current->Point.x = ScaleFactor *
+        (Current->Point.x - XOrigin);
 
       EdgePoint = NextPointAfter (EdgePoint);
     }
@@ -787,10 +787,10 @@ void SmearExtremities(MFOUTLINE Outline, FLOAT32 XScale, FLOAT32 YScale) {
     EdgePoint = Outline;
     do {
       Current = PointAt (EdgePoint);
-      if (IsExtremity (Current)) {
-        XPositionOf (Current) +=
+      if (Current->ExtremityMark) {
+        Current->Point.x +=
           UniformRandomNumber(MinXSmear, MaxXSmear);
-        YPositionOf (Current) +=
+        Current->Point.y +=
           UniformRandomNumber(MinYSmear, MaxYSmear);
       }
 
@@ -823,9 +823,9 @@ void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
   MFOUTLINE Current;
 
   for (Current = Start; Current != End; Current = NextPointAfter (Current))
-    DirectionOf (PointAt (Current)) = Direction;
+    PointAt (Current)->Direction = Direction;
 
-  PreviousDirectionOf (PointAt (End)) = Direction;
+  PointAt (End)->PreviousDirection = Direction;
 
 }                                /* ChangeDirection */
 
@@ -859,10 +859,10 @@ void CharNormalizeOutline(MFOUTLINE Outline,
   Current = First;
   do {
     CurrentPoint = PointAt (Current);
-    XPositionOf (CurrentPoint) =
-      (XPositionOf (CurrentPoint) - XCenter) * XScale;
-    YPositionOf (CurrentPoint) =
-      (YPositionOf (CurrentPoint) - YCenter) * YScale;
+    CurrentPoint->Point.x =
+      (CurrentPoint->Point.x - XCenter) * XScale;
+    CurrentPoint->Point.y =
+      (CurrentPoint->Point.y - YCenter) * YScale;
 
     Current = NextPointAfter (Current);
   }
@@ -1029,11 +1029,11 @@ MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
  */
   DIRECTION InitialDirection;
 
-  InitialDirection = DirectionOf (PointAt (EdgePoint));
+  InitialDirection = PointAt (EdgePoint)->Direction;
 
   do
   EdgePoint = NextPointAfter (EdgePoint);
-  while (DirectionOf (PointAt (EdgePoint)) == InitialDirection);
+  while (PointAt (EdgePoint)->Direction == InitialDirection);
 
   return (EdgePoint);
 }                                /* NextDirectionChange */

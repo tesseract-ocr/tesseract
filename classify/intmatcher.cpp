@@ -210,7 +210,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   int *ClassCountPtr;
   CLASS_ID classch;
 
-  MaxNumClasses = NumClassesIn (IntTemplates);
+  MaxNumClasses = IntTemplates->NumClasses;
 
   /* Clear Class Counts */
   ClassCountPtr = &(ClassCount[0]);
@@ -219,7 +219,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   }
 
   /* Update Class Counts */
-  NumPruners = NumClassPrunersIn (IntTemplates);
+  NumPruners = IntTemplates->NumClassPruners;
   for (feature_index = 0; feature_index < NumFeatures; feature_index++) {
     feature = &Features[feature_index];
     feature_address = (((feature->X * NUM_CP_BUCKETS >> 8) * NUM_CP_BUCKETS
@@ -227,7 +227,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
       (feature->Y * NUM_CP_BUCKETS >> 8)) *
       NUM_CP_BUCKETS +
       (feature->Theta * NUM_CP_BUCKETS >> 8)) << 1;
-    ClassPruner = ClassPrunersFor (IntTemplates);
+    ClassPruner = IntTemplates->ClassPruner;
     class_index = 0;
     for (PrunerSet = 0; PrunerSet < NumPruners; PrunerSet++, ClassPruner++) {
       BasePrunerAddress = (uinT32 *) (*ClassPruner) + feature_address;
@@ -276,7 +276,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
       ClassCount[Class] -= ClassCount[Class] * deficit /
                            (NumFeatures*CPCutoffStrength + deficit);
     }
-    if (!unicharset.get_enabled(ClassIdForIndex(IntTemplates, Class)))
+    if (!unicharset.get_enabled(IntTemplates->ClassIdFor[Class]))
       ClassCount[Class] = 0;  // This char is disabled!
   }
 
@@ -311,7 +311,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   if (display_ratings > 1) {
     cprintf ("CP:%d classes, %d features:\n", NumClasses, NumFeatures);
     for (Class = 0; Class < NumClasses; Class++) {
-      classch = ClassIdForIndex (IntTemplates, SortIndex[NumClasses - Class]);
+      classch = IntTemplates->ClassIdFor[SortIndex[NumClasses - Class]];
       cprintf ("%s:C=%d, E=%d, N=%d, Rat=%d\n",
                unicharset.id_to_unichar(classch),
                ClassCount[SortIndex[NumClasses - Class]],
@@ -321,7 +321,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
                  (cp_maps[3] * NumFeatures));
     }
     if (display_ratings > 2) {
-      NumPruners = NumClassPrunersIn (IntTemplates);
+      NumPruners = IntTemplates->NumClassPruners;
       for (feature_index = 0; feature_index < NumFeatures;
       feature_index++) {
         cprintf ("F=%3d,", feature_index);
@@ -330,7 +330,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
           (((feature->X * NUM_CP_BUCKETS >> 8) * NUM_CP_BUCKETS +
           (feature->Y * NUM_CP_BUCKETS >> 8)) * NUM_CP_BUCKETS +
           (feature->Theta * NUM_CP_BUCKETS >> 8)) << 1;
-        ClassPruner = ClassPrunersFor (IntTemplates);
+        ClassPruner = IntTemplates->ClassPruner;
         class_index = 0;
         for (PrunerSet = 0; PrunerSet < NumPruners;
         PrunerSet++, ClassPruner++) {
@@ -342,8 +342,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
             for (Class = 0; Class < 16; Class++, class_index++) {
               if (NormCount[class_index] >= MaxCount)
                 cprintf (" %s=%d,",
-                  unicharset.id_to_unichar(ClassIdForIndex (IntTemplates,
-                                                            class_index)),
+                  unicharset.id_to_unichar(IntTemplates->ClassIdFor[class_index]),
                   PrunerWord & 3);
               PrunerWord >>= 2;
             }
@@ -355,7 +354,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
       for (Class = 0; Class < MaxNumClasses; Class++) {
         if (NormCount[Class] > MaxCount)
           cprintf (" %s=%d,",
-            unicharset.id_to_unichar(ClassIdForIndex (IntTemplates, Class)),
+            unicharset.id_to_unichar(IntTemplates->ClassIdFor[Class]),
             -((ClassPrunerMultiplier *
             NormalizationFactors[Class]) >> 8) * cp_maps[3] /
             3);
@@ -368,7 +367,7 @@ int ClassPruner(INT_TEMPLATES IntTemplates,
   max_rating = 0.0f;
   for (Class = 0, out_class = 0; Class < NumClasses; Class++) {
     Results[out_class].Class =
-      ClassIdForIndex (IntTemplates, SortIndex[NumClasses - Class]);
+      IntTemplates->ClassIdFor[SortIndex[NumClasses - Class]];
     Results[out_class].Rating =
       1.0 - SortKey[NumClasses -
       Class] / ((float) cp_maps[3] * NumFeatures);
@@ -559,17 +558,17 @@ int FindGoodProtos(INT_CLASS ClassTemplate,
 #endif
 
   /* Average Proto Evidences & Find Good Protos */
-  NumProtos = NumIntProtosIn (ClassTemplate);
+  NumProtos = ClassTemplate->NumProtos;
   NumGoodProtos = 0;
   for (ActualProtoNum = 0; ActualProtoNum < NumProtos; ActualProtoNum++) {
     /* Compute Average for Actual Proto */
     Temp = 0;
     UINT8Pointer = &(ProtoEvidence[ActualProtoNum][0]);
-    for (ProtoIndex = LengthForProtoId (ClassTemplate, ActualProtoNum);
+    for (ProtoIndex = ClassTemplate->ProtoLengths[ActualProtoNum];
       ProtoIndex > 0; ProtoIndex--, UINT8Pointer++)
     Temp += *UINT8Pointer;
 
-    Temp /= LengthForProtoId (ClassTemplate, ActualProtoNum);
+    Temp /= ClassTemplate->ProtoLengths[ActualProtoNum];
 
     /* Find Good Protos */
     if (Temp >= AdaptProtoThresh) {
@@ -637,7 +636,7 @@ int FindBadFeatures(INT_CLASS ClassTemplate,
   IMClearTables(ClassTemplate, SumOfFeatureEvidence, ProtoEvidence);
 
   NumBadFeatures = 0;
-  NumConfigs = NumIntConfigsIn (ClassTemplate);
+  NumConfigs = ClassTemplate->NumConfigs;
   for (Feature = 0; Feature < NumFeatures; Feature++) {
     IMUpdateTablesForFeature (ClassTemplate, ProtoMask, ConfigMask, Feature,
       &(Features[Feature]), FeatureEvidence,
@@ -797,8 +796,8 @@ uinT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX]) {
  **      Exceptions: none
  **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
-  int NumProtos = NumIntProtosIn (ClassTemplate);
-  int NumConfigs = NumIntConfigsIn (ClassTemplate);
+  int NumProtos = ClassTemplate->NumProtos;
+  int NumConfigs = ClassTemplate->NumConfigs;
 
   memset(SumOfFeatureEvidence, 0,
          NumConfigs * sizeof(SumOfFeatureEvidence[0]));
@@ -935,8 +934,7 @@ int Debug) {
   register inT32 A3;
   register uinT32 A4;
 
-  IMClearFeatureEvidenceTable (FeatureEvidence,
-    NumIntConfigsIn (ClassTemplate));
+  IMClearFeatureEvidenceTable(FeatureEvidence, ClassTemplate->NumConfigs);
 
   /* Precompute Feature Address offset for Proto Pruning */
   XFeatureAddress = ((Feature->X >> 2) << 1);
@@ -944,8 +942,8 @@ int Debug) {
   ThetaFeatureAddress = (NUM_PP_BUCKETS << 2) + ((Feature->Theta >> 2) << 1);
 
   for (ProtoSetIndex = 0, ActualProtoNum = 0;
-  ProtoSetIndex < NumProtoSetsIn (ClassTemplate); ProtoSetIndex++) {
-    ProtoSet = ProtoSetIn (ClassTemplate, ProtoSetIndex);
+  ProtoSetIndex < ClassTemplate->NumProtoSets; ProtoSetIndex++) {
+    ProtoSet = ClassTemplate->ProtoSets[ProtoSetIndex];
     ProtoPrunerPtr = (uinT32 *) ((*ProtoSet).ProtoPruner);
     for (ProtoNum = 0; ProtoNum < PROTOS_PER_PROTO_SET;
       ProtoNum += (PROTOS_PER_PROTO_SET >> 1), ActualProtoNum +=
@@ -1019,8 +1017,7 @@ int Debug) {
           UINT8Pointer =
             &(ProtoEvidence[ActualProtoNum + proto_offset][0]);
           for (ProtoIndex =
-            LengthForProtoId (ClassTemplate,
-            ActualProtoNum + proto_offset);
+            ClassTemplate->ProtoLengths[ActualProtoNum + proto_offset];
           ProtoIndex > 0; ProtoIndex--, UINT8Pointer++) {
             if (Evidence > *UINT8Pointer) {
               Temp = *UINT8Pointer;
@@ -1037,12 +1034,11 @@ int Debug) {
 
   if (PrintFeatureMatchesOn (Debug))
     IMDebugConfigurationSum (FeatureNum, FeatureEvidence,
-      NumIntConfigsIn (ClassTemplate));
+      ClassTemplate->NumConfigs);
   IntPointer = SumOfFeatureEvidence;
   UINT8Pointer = FeatureEvidence;
   int SumOverConfigs = 0;
-  for (ConfigNum = NumIntConfigsIn (ClassTemplate); ConfigNum > 0;
-  ConfigNum--) {
+  for (ConfigNum = ClassTemplate->NumConfigs; ConfigNum > 0; ConfigNum--) {
     int evidence = *UINT8Pointer++;
     SumOverConfigs += evidence;
     *IntPointer++ += evidence;
@@ -1085,8 +1081,8 @@ inT16 NumFeatures, int Debug) {
   int Temp;
   int NumConfigs;
 
-  NumProtos = NumIntProtosIn (ClassTemplate);
-  NumConfigs = NumIntConfigsIn (ClassTemplate);
+  NumProtos = ClassTemplate->NumProtos;
+  NumConfigs = ClassTemplate->NumConfigs;
 
   if (PrintMatchSummaryOn (Debug)) {
     cprintf ("Configuration Mask:\n");
@@ -1105,7 +1101,7 @@ inT16 NumFeatures, int Debug) {
 
   if (PrintMatchSummaryOn (Debug)) {
     cprintf ("Proto Mask:\n");
-    for (ProtoSetIndex = 0; ProtoSetIndex < NumProtoSetsIn (ClassTemplate);
+    for (ProtoSetIndex = 0; ProtoSetIndex < ClassTemplate->NumProtoSets;
     ProtoSetIndex++) {
       ActualProtoNum = (ProtoSetIndex * PROTOS_PER_PROTO_SET);
       for (ProtoWordNum = 0; ProtoWordNum < 2;
@@ -1127,9 +1123,9 @@ inT16 NumFeatures, int Debug) {
 
   if (PrintProtoMatchesOn (Debug)) {
     cprintf ("Proto Evidence:\n");
-    for (ProtoSetIndex = 0; ProtoSetIndex < NumProtoSetsIn (ClassTemplate);
+    for (ProtoSetIndex = 0; ProtoSetIndex < ClassTemplate->NumProtoSets;
     ProtoSetIndex++) {
-      ProtoSet = ProtoSetIn (ClassTemplate, ProtoSetIndex);
+      ProtoSet = ClassTemplate->ProtoSets[ProtoSetIndex];
       ActualProtoNum = (ProtoSetIndex * PROTOS_PER_PROTO_SET);
       for (ProtoNum = 0;
         ((ProtoNum < PROTOS_PER_PROTO_SET)
@@ -1139,16 +1135,14 @@ inT16 NumFeatures, int Debug) {
         Temp = 0;
         UINT8Pointer = &(ProtoEvidence[ActualProtoNum][0]);
         for (ProtoIndex = 0;
-          ProtoIndex < LengthForProtoId (ClassTemplate,
-          ActualProtoNum);
+          ProtoIndex < ClassTemplate->ProtoLengths[ActualProtoNum];
         ProtoIndex++, UINT8Pointer++) {
           cprintf (" %d", *UINT8Pointer);
           Temp += *UINT8Pointer;
         }
 
         cprintf (" = %6.4f%%\n", Temp /
-          256.0 / LengthForProtoId (ClassTemplate,
-          ActualProtoNum));
+          256.0 / ClassTemplate->ProtoLengths[ActualProtoNum]);
 
         ConfigWord = (ProtoSet->Protos[ProtoNum]).Configs[0];
         IntPointer = SumOfFeatureEvidence;
@@ -1172,8 +1166,7 @@ inT16 NumFeatures, int Debug) {
       cprintf (" %5.1f",
         100.0 * (1.0 -
         ProtoConfigs[ConfigNum] /
-        LengthForConfigId (ClassTemplate,
-        ConfigNum) / 256.0));
+        ClassTemplate->ConfigLengths[ConfigNum] / 256.0));
     cprintf ("\n\n");
   }
 
@@ -1186,7 +1179,7 @@ inT16 NumFeatures, int Debug) {
     cprintf ("Proto Length for Configurations:\n");
     for (ConfigNum = 0; ConfigNum < NumConfigs; ConfigNum++)
       cprintf (" %4.1f",
-        (float) LengthForConfigId (ClassTemplate, ConfigNum));
+        (float) ClassTemplate->ConfigLengths[ConfigNum]);
     cprintf ("\n\n");
   }
 
@@ -1217,11 +1210,11 @@ int Debug) {
       520, 520,
       -130.0, 130.0, -130.0, 130.0);
   }
-  NumProtos = NumIntProtosIn (ClassTemplate);
+  NumProtos = ClassTemplate->NumProtos;
 
-  for (ProtoSetIndex = 0; ProtoSetIndex < NumProtoSetsIn (ClassTemplate);
+  for (ProtoSetIndex = 0; ProtoSetIndex < ClassTemplate->NumProtoSets;
   ProtoSetIndex++) {
-    ProtoSet = ProtoSetIn (ClassTemplate, ProtoSetIndex);
+    ProtoSet = ClassTemplate->ProtoSets[ProtoSetIndex];
     ActualProtoNum = (ProtoSetIndex * PROTOS_PER_PROTO_SET);
     for (ProtoNum = 0;
       ((ProtoNum < PROTOS_PER_PROTO_SET)
@@ -1229,11 +1222,11 @@ int Debug) {
       /* Compute Average for Actual Proto */
       Temp = 0;
       UINT8Pointer = &(ProtoEvidence[ActualProtoNum][0]);
-      for (ProtoIndex = LengthForProtoId (ClassTemplate, ActualProtoNum);
+      for (ProtoIndex = ClassTemplate->ProtoLengths[ActualProtoNum];
         ProtoIndex > 0; ProtoIndex--, UINT8Pointer++)
       Temp += *UINT8Pointer;
 
-      Temp /= LengthForProtoId (ClassTemplate, ActualProtoNum);
+      Temp /= ClassTemplate->ProtoLengths[ActualProtoNum];
 
       ConfigWord = (ProtoSet->Protos[ProtoNum]).Configs[0];
       ConfigWord &= *ConfigMask;
@@ -1275,7 +1268,7 @@ void IMDisplayFeatureDebugInfo(INT_CLASS ClassTemplate,
 
   IMClearTables(ClassTemplate, SumOfFeatureEvidence, ProtoEvidence);
 
-  NumConfigs = NumIntConfigsIn (ClassTemplate);
+  NumConfigs = ClassTemplate->NumConfigs;
   for (Feature = 0; Feature < NumFeatures; Feature++) {
     IMUpdateTablesForFeature (ClassTemplate, ProtoMask, ConfigMask, Feature,
       &(Features[Feature]), FeatureEvidence,
@@ -1330,18 +1323,18 @@ inT16 NumFeatures) {
   uinT16 ActualProtoNum;
   int Temp;
 
-  NumProtos = NumIntProtosIn (ClassTemplate);
+  NumProtos = ClassTemplate->NumProtos;
 
-  for (ProtoSetIndex = 0; ProtoSetIndex < NumProtoSetsIn (ClassTemplate);
+  for (ProtoSetIndex = 0; ProtoSetIndex < ClassTemplate->NumProtoSets;
   ProtoSetIndex++) {
-    ProtoSet = ProtoSetIn (ClassTemplate, ProtoSetIndex);
+    ProtoSet = ClassTemplate->ProtoSets[ProtoSetIndex];
     ActualProtoNum = (ProtoSetIndex * PROTOS_PER_PROTO_SET);
     for (ProtoNum = 0;
       ((ProtoNum < PROTOS_PER_PROTO_SET)
     && (ActualProtoNum < NumProtos)); ProtoNum++, ActualProtoNum++) {
       Temp = 0;
       UINT8Pointer = &(ProtoEvidence[ActualProtoNum][0]);
-      for (ProtoIndex = LengthForProtoId (ClassTemplate, ActualProtoNum);
+      for (ProtoIndex = ClassTemplate->ProtoLengths[ActualProtoNum];
         ProtoIndex > 0; ProtoIndex--, UINT8Pointer++)
       Temp += *UINT8Pointer;
 
@@ -1380,12 +1373,12 @@ inT16 NumFeatures, inT32 used_features) {
   register int ConfigNum;
   int NumConfigs;
 
-  NumConfigs = NumIntConfigsIn (ClassTemplate);
+  NumConfigs = ClassTemplate->NumConfigs;
 
   IntPointer = SumOfFeatureEvidence;
   for (ConfigNum = 0; ConfigNum < NumConfigs; ConfigNum++, IntPointer++)
     *IntPointer = (*IntPointer << 8) /
-      (NumFeatures + LengthForConfigId (ClassTemplate, ConfigNum));
+      (NumFeatures + ClassTemplate->ConfigLengths[ConfigNum]);
 }
 
 
@@ -1412,7 +1405,7 @@ uinT8 NormalizationFactor, INT_RESULT Result) {
   register int BestMatch;
   register int Best2Match;
 
-  NumConfigs = NumIntConfigsIn (ClassTemplate);
+  NumConfigs = ClassTemplate->NumConfigs;
 
   /* Find best match */
   BestMatch = 0;

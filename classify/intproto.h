@@ -138,40 +138,22 @@ typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 /**----------------------------------------------------------------------------
             Macros
 ----------------------------------------------------------------------------**/
-/* PROTO_SET access macros*/
-#define ProtoPrunerFor(S) (S->ProtoPruner)
 
-/* INT_CLASS access macros*/
-#define NumIntProtosIn(C) ((C)->NumProtos)
-#define NumProtoSetsIn(C) ((C)->NumProtoSets)
-#define MaxNumIntProtosIn(C)  (NumProtoSetsIn (C) * PROTOS_PER_PROTO_SET)
-#define NumIntConfigsIn(C)  ((C)->NumConfigs)
-#define ProtoSetIn(C,I)   ((C)->ProtoSets[I])
+#define MaxNumIntProtosIn(C)  (C->NumProtoSets * PROTOS_PER_PROTO_SET)
 #define SetForProto(P)    (P / PROTOS_PER_PROTO_SET)
 #define IndexForProto(P)  (P % PROTOS_PER_PROTO_SET)
-//#define IllegalProto(C,P)     (P >= MaxNumIntProtosIn (C))
-#define ProtoForProtoId(C,P)	(&((ProtoSetIn (C, SetForProto (P)))->	\
+#define ProtoForProtoId(C,P)	(&((C->ProtoSets[SetForProto (P)])->	\
 					Protos [IndexForProto (P)]))
-#define LengthForProtoId(C,P) ((C)->ProtoLengths[P])
-#define LengthForConfigId(C,c)  ((C)->ConfigLengths[c])
 #define PPrunerWordIndexFor(I)	(((I) % PROTOS_PER_PROTO_SET) /		\
 				PROTOS_PER_PP_WERD)
 #define PPrunerBitIndexFor(I) ((I) % PROTOS_PER_PP_WERD)
 #define PPrunerMaskFor(I) (1 << PPrunerBitIndexFor (I))
 
-/* INT_TEMPLATE access macros*/
-#define NumClassesIn(T)   ((T)->NumClasses)
-#define NumClassPrunersIn(T)  ((T)->NumClassPruners)
-#define MaxNumClassesIn(T)    (NumClassPrunersIn (T) * CLASSES_PER_CP)
-#define ClassIdForIndex(T,I)  ((T)->ClassIdFor[I])
-#define IndexForClassId(T,C)  ((T)->IndexFor[C])
+#define MaxNumClassesIn(T)    (T->NumClassPruners * CLASSES_PER_CP)
 #define LegalClassId(C)   ((C) > 0 && (C) <= MAX_CLASS_ID)
-#define UnusedClassIdIn(T,C)  (IndexForClassId (T,C) == ILLEGAL_CLASS)
-#define ClassForIndex(T,I)  ((T)->Class[I])
-#define ClassForClassId(T,C)  (ClassForIndex (T, IndexForClassId (T, C)))
-#define ClassPrunersFor(T)  ((T)->ClassPruner)
+#define UnusedClassIdIn(T,C)  (T->IndexFor[C] == ILLEGAL_CLASS)
+#define ClassForClassId(T,C)  (T->Class[(T->IndexFor[C])])
 #define CPrunerIdFor(I)   ((I) / CLASSES_PER_CP)
-#define CPrunerFor(T,I)   ((T)->ClassPruner [CPrunerIdFor (I)])
 #define CPrunerWordIndexFor(I)  (((I) % CLASSES_PER_CP) / CLASSES_PER_CP_WERD)
 #define CPrunerBitIndexFor(I) (((I) % CLASSES_PER_CP) % CLASSES_PER_CP_WERD)
 #define CPrunerMaskFor(L,I) (((L)+1) << CPrunerBitIndexFor (I) * NUM_BITS_PER_CLASS)

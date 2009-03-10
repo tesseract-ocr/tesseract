@@ -248,25 +248,26 @@ void ComputeBulges(MFOUTLINE Start, MFOUTLINE End, MICROFEATURE MicroFeature) {
 
   /* check for simple case */
   if (End == NextPointAfter (Start))
-    FirstBulgeOf (MicroFeature) = SecondBulgeOf (MicroFeature) = 0;
+    MicroFeature[FIRSTBULGE] = MicroFeature[SECONDBULGE] = 0;
   else {
     Origin = PointAt (Start);
 
     InitMatrix(&Matrix);
-    RotateMatrix (&Matrix, OrientationOf (MicroFeature) * -2.0 * PI);
-    TranslateMatrix (&Matrix, -XPositionOf (Origin), -YPositionOf (Origin));
+    RotateMatrix (&Matrix, MicroFeature[ORIENTATION] * -2.0 * PI);
+    TranslateMatrix (&Matrix, -Origin->Point.x, -Origin->Point.y);
 
     SegmentEnd = Start;
     FillPoint (CurrentPoint, 0, 0);
-    BulgePosition = LengthOf (MicroFeature) / 3;
+    BulgePosition = MicroFeature[MFLENGTH] / 3;
     CopyPoint(CurrentPoint, LastPoint);
-    while (Xof (CurrentPoint) < BulgePosition) {
+    while (CurrentPoint.x < BulgePosition) {
       SegmentStart = SegmentEnd;
       SegmentEnd = NextPointAfter (SegmentStart);
       CopyPoint(CurrentPoint, LastPoint);
-      MapPoint (&Matrix, PositionOf (PointAt (SegmentEnd)), CurrentPoint);
+
+      MapPoint (&Matrix, PointAt (SegmentEnd)->Point, CurrentPoint);
     }
-    FirstBulgeOf (MicroFeature) =
+    MicroFeature[FIRSTBULGE] =
       XIntersectionOf(LastPoint, CurrentPoint, BulgePosition);
 
     BulgePosition *= 2;
@@ -274,21 +275,19 @@ void ComputeBulges(MFOUTLINE Start, MFOUTLINE End, MICROFEATURE MicroFeature) {
     // Prevents from copying the points before computing the bulge if
     // CurrentPoint will not change. (Which would cause to output nan
     // for the SecondBulge.)
-    if (Xof (CurrentPoint) < BulgePosition)
+    if (CurrentPoint.x < BulgePosition)
       CopyPoint(CurrentPoint, LastPoint);
-    while (Xof (CurrentPoint) < BulgePosition) {
+    while (CurrentPoint.x < BulgePosition) {
       SegmentStart = SegmentEnd;
       SegmentEnd = NextPointAfter (SegmentStart);
       CopyPoint(CurrentPoint, LastPoint);
-      MapPoint (&Matrix, PositionOf (PointAt (SegmentEnd)), CurrentPoint);
+      MapPoint (&Matrix, PointAt (SegmentEnd)->Point, CurrentPoint);
     }
-    SecondBulgeOf (MicroFeature) =
+    MicroFeature[SECONDBULGE] =
       XIntersectionOf(LastPoint, CurrentPoint, BulgePosition);
 
-    FirstBulgeOf (MicroFeature) /= BULGENORMALIZER *
-      LengthOf(MicroFeature);
-    SecondBulgeOf (MicroFeature) /= BULGENORMALIZER *
-      LengthOf(MicroFeature);
+    MicroFeature[FIRSTBULGE] /= BULGENORMALIZER * MicroFeature[MFLENGTH];
+    MicroFeature[SECONDBULGE] /= BULGENORMALIZER * MicroFeature[MFLENGTH];
   }
 }                                /* ComputeBulges */
 
@@ -315,8 +314,8 @@ FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
  */
   FLOAT32 Orientation;
 
-  Orientation = NormalizeAngle (AngleFrom (PositionOf (Start),
-    PositionOf (End)));
+  Orientation = NormalizeAngle (AngleFrom (Start->Point,
+    End->Point));
 
   /* ensure that round-off errors do not put circular param out of range */
   if ((Orientation < 0) || (Orientation >= 1))
@@ -389,11 +388,11 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
   P2 = PointAt (End);
 
   NewFeature = NewMicroFeature ();
-  CenterX (NewFeature) = AverageOf (XPositionOf (P1), XPositionOf (P2));
-  CenterY (NewFeature) = AverageOf (YPositionOf (P1), YPositionOf (P2));
-  LengthOf (NewFeature) = DistanceBetween (PositionOf (P1), PositionOf (P2));
-  OrientationOf (NewFeature) =
-    NormalizedAngleFrom (&(PositionOf (P1)), &(PositionOf (P2)), 1.0);
+  NewFeature[XPOSITION] = AverageOf (P1->Point.x, P2->Point.x);
+  NewFeature[YPOSITION] = AverageOf (P1->Point.y, P2->Point.y);
+  NewFeature[MFLENGTH] = DistanceBetween (P1->Point, P2->Point);
+  NewFeature[ORIENTATION] =
+    NormalizedAngleFrom (&((P1)->Point), &((P2)->Point), 1.0);
   ComputeBulges(Start, End, NewFeature);
   return (NewFeature);
 }                                /* ExtractMicroFeature */
@@ -424,14 +423,14 @@ void SmearBulges(MICROFEATURES MicroFeatures, FLOAT32 XScale, FLOAT32 YScale) {
   iterate(MicroFeatures) {
     MicroFeature = NextFeatureOf (MicroFeatures);
 
-    Cos = fabs (cos (2.0 * PI * OrientationOf (MicroFeature)));
-    Sin = fabs (sin (2.0 * PI * OrientationOf (MicroFeature)));
+    Cos = fabs (cos (2.0 * PI * MicroFeature[ORIENTATION]));
+    Sin = fabs (sin (2.0 * PI * MicroFeature[ORIENTATION]));
     Scale = YScale * Cos + XScale * Sin;
 
-    MinSmear = -0.5 * Scale / (BULGENORMALIZER * LengthOf (MicroFeature));
-    MaxSmear = 0.5 * Scale / (BULGENORMALIZER * LengthOf (MicroFeature));
+    MinSmear = -0.5 * Scale / (BULGENORMALIZER * MicroFeature[MFLENGTH]);
+    MaxSmear = 0.5 * Scale / (BULGENORMALIZER * MicroFeature[MFLENGTH]);
 
-    FirstBulgeOf (MicroFeature) += UniformRandomNumber (MinSmear, MaxSmear);
-    SecondBulgeOf (MicroFeature) += UniformRandomNumber (MinSmear, MaxSmear);
+    MicroFeature[FIRSTBULGE] += UniformRandomNumber (MinSmear, MaxSmear);
+    MicroFeature[SECONDBULGE] += UniformRandomNumber (MinSmear, MaxSmear);
   }
 }                                /* SmearBulges */

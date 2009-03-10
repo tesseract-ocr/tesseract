@@ -292,16 +292,16 @@ int AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
   assert (LegalClassId (ClassId));
   assert (UnusedClassIdIn (Templates, ClassId));
 
-  Index = NumClassesIn (Templates);
-  IndexForClassId (Templates, ClassId) = Index;
-  ClassIdForIndex (Templates, Index) = ClassId;
+  Index = Templates->NumClasses;
+  Templates->IndexFor[ClassId] = Index;
+  Templates->ClassIdFor[Index] = ClassId;
 
-  NumClassesIn (Templates)++;
-  ClassForIndex (Templates, Index) = Class;
+  Templates->NumClasses++;
+  Templates->Class[Index] = Class;
 
-  if (NumClassesIn (Templates) > MaxNumClassesIn (Templates)) {
-    Pruner = NumClassPrunersIn (Templates);
-    NumClassPrunersIn (Templates)++;
+  if (Templates->NumClasses > MaxNumClassesIn (Templates)) {
+    Pruner = Templates->NumClassPruners;
+    Templates->NumClassPruners++;
     Templates->ClassPruner[Pruner] =
       (CLASS_PRUNER) Emalloc (sizeof (CLASS_PRUNER_STRUCT));
 
@@ -329,11 +329,11 @@ int AddIntConfig(INT_CLASS Class) {
  */
   int Index;
 
-  assert (NumIntConfigsIn (Class) < MAX_NUM_CONFIGS);
+  assert (Class->NumConfigs < MAX_NUM_CONFIGS);
 
-  Index = NumIntConfigsIn (Class);
-  NumIntConfigsIn (Class)++;
-  LengthForConfigId (Class, Index) = 0;
+  Index = Class->NumConfigs;
+  Class->NumConfigs++;
+  Class->ConfigLengths[Index] = 0;
   return (Index);
 }                                /* AddIntConfig */
 
@@ -356,20 +356,18 @@ int AddIntProto(INT_CLASS Class) {
   INT_PROTO Proto;
   register uinT32 *Word;
 
-  if (NumIntProtosIn (Class) >= MAX_NUM_PROTOS)
+  if (Class->NumProtos >= MAX_NUM_PROTOS)
     return (NO_PROTO);
 
-  Index = NumIntProtosIn (Class);
-  NumIntProtosIn (Class)++;
+  Index = Class->NumProtos++;
 
-  if (NumIntProtosIn (Class) > MaxNumIntProtosIn (Class)) {
-    ProtoSetId = NumProtoSetsIn (Class);
-    NumProtoSetsIn (Class)++;
+  if (Class->NumProtos > MaxNumIntProtosIn(Class)) {
+    ProtoSetId = Class->NumProtoSets++;
 
     ProtoSet = (PROTO_SET) Emalloc (sizeof (PROTO_SET_STRUCT));
-    ProtoSetIn (Class, ProtoSetId) = ProtoSet;
-    for (Word = (uinT32 *) (ProtoPrunerFor (ProtoSet));
-      Word < (uinT32 *) (ProtoPrunerFor (ProtoSet)) + WERDS_PER_PP;
+    Class->ProtoSets[ProtoSetId] = ProtoSet;
+    for (Word = (uinT32 *) (ProtoSet->ProtoPruner);
+      Word < (uinT32 *) (ProtoSet->ProtoPruner) + WERDS_PER_PP;
       *Word++ = 0);
 
     /* reallocate space for the proto lengths and install in class */
@@ -379,7 +377,7 @@ int AddIntProto(INT_CLASS Class) {
   }
 
   /* initialize proto so its length is zero and it isn't in any configs */
-  LengthForProtoId (Class, Index) = 0;
+  Class->ProtoLengths[Index] = 0;
   Proto = ProtoForProtoId (Class, Index);
   for (Word = Proto->Configs;
     Word < Proto->Configs + WERDS_PER_CONFIG_VEC; *Word++ = 0);
@@ -417,8 +415,8 @@ AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId, INT_TEMPLATES Templates)
   TABLE_FILLER TableFiller;
   FILL_SPEC FillSpec;
 
-  ClassIndex = IndexForClassId (Templates, ClassId);
-  Pruner = CPrunerFor (Templates, ClassIndex);
+  ClassIndex = Templates->IndexFor[ClassId];
+  Pruner = Templates->ClassPruner [CPrunerIdFor (ClassIndex)];
   WordIndex = CPrunerWordIndexFor (ClassIndex);
   ClassMask = CPrunerMaskFor (MAX_LEVEL, ClassIndex);
 
@@ -455,29 +453,29 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId, INT_CLASS Class) {
   int Index;
   PROTO_SET ProtoSet;
 
-  if (ProtoId >= NumIntProtosIn (Class))
+  if (ProtoId >= Class->NumProtos)
     cprintf ("AddProtoToProtoPruner:assert failed: %d < %d",
-      ProtoId, NumIntProtosIn (Class));
-  assert (ProtoId < NumIntProtosIn (Class));
+      ProtoId, Class->NumProtos);
+  assert (ProtoId < Class->NumProtos);
 
   Index = IndexForProto (ProtoId);
-  ProtoSet = ProtoSetIn (Class, SetForProto (ProtoId));
+  ProtoSet = Class->ProtoSets[SetForProto (ProtoId)];
 
-  Angle = ProtoAngle (Proto);
+  Angle = Proto->Angle;
   FillPPCircularBits (ProtoSet->ProtoPruner[PRUNER_ANGLE], Index,
     Angle + ANGLE_SHIFT, PPAnglePad / 360.0);
 
   Angle *= 2.0 * PI;
-  Length = ProtoLength (Proto);
+  Length = Proto->Length;
 
-  X = ProtoX (Proto) + X_SHIFT;
+  X = Proto->X + X_SHIFT;
   Pad = max (fabs (cos (Angle)) * (Length / 2.0 +
     PPEndPad * GetPicoFeatureLength ()),
     fabs (sin (Angle)) * (PPSidePad * GetPicoFeatureLength ()));
 
   FillPPLinearBits (ProtoSet->ProtoPruner[PRUNER_X], Index, X, Pad);
 
-  Y = ProtoY (Proto) + Y_SHIFT;
+  Y = Proto->Y + Y_SHIFT;
   Pad = max (fabs (sin (Angle)) * (Length / 2.0 +
     PPEndPad * GetPicoFeatureLength ()),
     fabs (cos (Angle)) * (PPSidePad * GetPicoFeatureLength ()));
@@ -586,13 +584,13 @@ void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
   int TotalLength;
 
   for (ProtoId = 0, TotalLength = 0;
-    ProtoId < NumIntProtosIn (Class); ProtoId++)
+    ProtoId < Class->NumProtos; ProtoId++)
   if (test_bit (Config, ProtoId)) {
     Proto = ProtoForProtoId (Class, ProtoId);
     SET_BIT (Proto->Configs, ConfigId);
-    TotalLength += LengthForProtoId (Class, ProtoId);
+    TotalLength += Class->ProtoLengths[ProtoId];
   }
-  LengthForConfigId (Class, ConfigId) = TotalLength;
+  Class->ConfigLengths[ConfigId] = TotalLength;
 }                                /* ConvertConfig */
 
 
@@ -613,31 +611,31 @@ void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   INT_PROTO P;
   FLOAT32 Param;
 
-  assert (ProtoId < NumIntProtosIn (Class));
+  assert (ProtoId < Class->NumProtos);
 
   P = ProtoForProtoId (Class, ProtoId);
 
-  Param = CoefficientA (Proto) * 128;
+  Param = Proto->A * 128;
   P->A = TruncateParam (Param, -128, 127, NULL);
 
-  Param = -CoefficientB (Proto) * 256;
+  Param = -Proto->B * 256;
   P->B = TruncateParam (Param, 0, 255, NULL);
 
-  Param = CoefficientC (Proto) * 128;
+  Param = Proto->C * 128;
   P->C = TruncateParam (Param, -128, 127, NULL);
 
-  Param = ProtoAngle (Proto) * 256;
+  Param = Proto->Angle * 256;
   if (Param < 0 || Param >= 256)
     P->Angle = 0;
   else
     P->Angle = (uinT8) Param;
 
   /* round proto length to nearest integer number of pico-features */
-  Param = (ProtoLength (Proto) / GetPicoFeatureLength ()) + 0.5;
-  LengthForProtoId (Class, ProtoId) = TruncateParam (Param, 1, 255, NULL);
+  Param = (Proto->Length / GetPicoFeatureLength ()) + 0.5;
+  Class->ProtoLengths[ProtoId] = TruncateParam (Param, 1, 255, NULL);
   if (LearningDebugLevel >= 2)
     cprintf ("Converted ffeat to (A=%d,B=%d,C=%d,L=%d)",
-      P->A, P->B, P->C, LengthForProtoId (Class, ProtoId));
+      P->A, P->B, P->C, Class->ProtoLengths[ProtoId]);
 }                                /* ConvertProto */
 
 
@@ -665,12 +663,12 @@ INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos,
 
   for (ClassId = 0; ClassId < target_unicharset.size(); ClassId++) {
     FClass = &(FloatProtos[ClassId]);
-    if (NumProtosIn (FClass) > 0) {
+    if (FClass->NumProtos > 0) {
       assert (UnusedClassIdIn (IntTemplates, ClassId));
-      IClass = NewIntClass (NumProtosIn (FClass), NumConfigsIn (FClass));
+      IClass = NewIntClass (FClass->NumProtos, FClass->NumConfigs);
       AddIntClass(IntTemplates, ClassId, IClass);
 
-      for (ProtoId = 0; ProtoId < NumProtosIn (FClass); ProtoId++) {
+      for (ProtoId = 0; ProtoId < FClass->NumProtos; ProtoId++) {
         AddIntProto(IClass);
         ConvertProto (ProtoIn (FClass, ProtoId), ProtoId, IClass);
         AddProtoToProtoPruner (ProtoIn (FClass, ProtoId), ProtoId,
@@ -679,9 +677,9 @@ INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos,
           IntTemplates);
       }
 
-      for (ConfigId = 0; ConfigId < NumConfigsIn (FClass); ConfigId++) {
+      for (ConfigId = 0; ConfigId < FClass->NumConfigs; ConfigId++) {
         AddIntConfig(IClass);
-        ConvertConfig (ConfigIn (FClass, ConfigId), ConfigId, IClass);
+        ConvertConfig (FClass->Configurations[ConfigId], ConfigId, IClass);
       }
     }
   }
@@ -783,20 +781,20 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   assert (MaxNumConfigs <= MAX_NUM_CONFIGS);
 
   Class = (INT_CLASS) Emalloc (sizeof (INT_CLASS_STRUCT));
-  NumProtoSetsIn (Class) = ((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) /
+  Class->NumProtoSets = ((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) /
     PROTOS_PER_PROTO_SET);
 
-  assert (NumProtoSetsIn (Class) <= MAX_NUM_PROTO_SETS);
+  assert(Class->NumProtoSets <= MAX_NUM_PROTO_SETS);
 
-  NumIntProtosIn (Class) = 0;
-  NumIntConfigsIn (Class) = 0;
+  Class->NumProtos = 0;
+  Class->NumConfigs = 0;
 
-  for (i = 0; i < NumProtoSetsIn (Class); i++) {
+  for (i = 0; i < Class->NumProtoSets; i++) {
     /* allocate space for a proto set, install in class, and initialize */
     ProtoSet = (PROTO_SET) Emalloc (sizeof (PROTO_SET_STRUCT));
-    ProtoSetIn (Class, i) = ProtoSet;
-    for (Word = (uinT32 *) (ProtoPrunerFor (ProtoSet));
-      Word < (uinT32 *) (ProtoPrunerFor (ProtoSet)) + WERDS_PER_PP;
+    Class->ProtoSets[i] = ProtoSet;
+    for (Word = (uinT32 *) (ProtoSet->ProtoPruner);
+      Word < (uinT32 *) (ProtoSet->ProtoPruner) + WERDS_PER_PP;
       *Word++ = 0);
 
     /* allocate space for the proto lengths and install in class */
@@ -814,8 +812,8 @@ void free_int_class(  /*class to free */
                     INT_CLASS int_class) {
   int i;
 
-  for (i = 0; i < NumProtoSetsIn (int_class); i++) {
-    Efree (ProtoSetIn (int_class, i));
+  for (i = 0; i < int_class->NumProtoSets; i++) {
+    Efree (int_class->ProtoSets[i]);
   }
   Efree (int_class->ProtoLengths);
   Efree(int_class);
@@ -837,14 +835,14 @@ INT_TEMPLATES NewIntTemplates() {
   int i;
 
   T = (INT_TEMPLATES) Emalloc (sizeof (INT_TEMPLATES_STRUCT));
-  NumClassesIn (T) = 0;
-  NumClassPrunersIn (T) = 0;
+  T->NumClasses = 0;
+  T->NumClassPruners = 0;
 
   /* initialize mapping tables */
   for (i = 0; i <= MAX_CLASS_ID; i++)
-    IndexForClassId (T, i) = ILLEGAL_CLASS;
+    T->IndexFor[i] = ILLEGAL_CLASS;
   for (i = 0; i < MAX_NUM_CLASSES; i++)
-    ClassIdForIndex (T, i) = NO_CLASS;
+    T->ClassIdFor[i] = NO_CLASS;
 
   return (T);
 
@@ -855,9 +853,9 @@ INT_TEMPLATES NewIntTemplates() {
 void free_int_templates(INT_TEMPLATES templates) {
   int i;
 
-  for (i = 0; i < NumClassesIn (templates); i++)
-    free_int_class (ClassForIndex (templates, i));
-  for (i = 0; i < NumClassPrunersIn (templates); i++)
+  for (i = 0; i < templates->NumClasses; i++)
+    free_int_class (templates->Class[i]);
+  for (i = 0; i < templates->NumClassPruners; i++)
     Efree (templates->ClassPruner[i]);
   Efree(templates);
 }
@@ -921,7 +919,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
     if (fread(&Templates->IndexFor[i], sizeof(CLASS_INDEX), 1, File) != 1)
       cprintf("Bad read of inttemp!\n");
   }
-  for (i = 0; i < NumClassesIn (Templates); ++i) {
+  for (i = 0; i < Templates->NumClasses; ++i) {
     if (fread(&Templates->ClassIdFor[i], sizeof(CLASS_ID), 1, File) != 1)
       cprintf("Bad read of inttemp!\n");
   }
@@ -933,7 +931,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
   }
 
   /* then read in the class pruners */
-  for (i = 0; i < NumClassPrunersIn (Templates); i++) {
+  for (i = 0; i < Templates->NumClassPruners; i++) {
     Pruner = (CLASS_PRUNER) Emalloc (sizeof (CLASS_PRUNER_STRUCT));
     if ((nread =
       fread ((char *) Pruner, 1, sizeof (CLASS_PRUNER_STRUCT),
@@ -954,7 +952,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
   }
 
   /* then read in each class */
-  for (i = 0; i < NumClassesIn (Templates); i++) {
+  for (i = 0; i < Templates->NumClasses; i++) {
     /* first read in the high level struct for the class */
     Class = (INT_CLASS) Emalloc (sizeof (INT_CLASS_STRUCT));
     if (fread(&Class->NumProtos, sizeof(Class->NumProtos), 1, File) != 1 ||
@@ -978,7 +976,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
       for (j = 0; j < MAX_NUM_CONFIGS; j++)
         reverse16 (&Class->ConfigLengths[j]);
     }
-    ClassForIndex (Templates, i) = Class;
+    Templates->Class[i] = Class;
 
     /* then read in the proto lengths */
     Lengths = (uinT8 *) Emalloc (sizeof (uinT8) *
@@ -990,7 +988,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
     Class->ProtoLengths = Lengths;
 
     /* then read in the proto sets */
-    for (j = 0; j < NumProtoSetsIn (Class); j++) {
+    for (j = 0; j < Class->NumProtoSets; j++) {
       ProtoSet = (PROTO_SET) Emalloc (sizeof (PROTO_SET_STRUCT));
       if ((nread =
         fread ((char *) ProtoSet, 1, sizeof (PROTO_SET_STRUCT),
@@ -1005,7 +1003,7 @@ INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap) {
           for (y = 0; y < WERDS_PER_CONFIG_VEC; y++)
             reverse32 (&ProtoSet->Protos[x].Configs[y]);
       }
-      ProtoSetIn (Class, j) = ProtoSet;
+      Class->ProtoSets[j] = ProtoSet;
     }
   }
   return (Templates);
@@ -1114,16 +1112,16 @@ void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
   fwrite(&Templates->IndexFor[0], sizeof(Templates->IndexFor[0]),
          unicharset_size, File);
   fwrite(&Templates->ClassIdFor[0], sizeof(Templates->ClassIdFor[0]),
-         NumClassesIn(Templates), File);
+         Templates->NumClasses, File);
 
   /* then write out the class pruners */
-  for (i = 0; i < NumClassPrunersIn (Templates); i++)
+  for (i = 0; i < Templates->NumClassPruners; i++)
     fwrite(Templates->ClassPruner[i],
            sizeof(CLASS_PRUNER_STRUCT), 1, File);
 
   /* then write out each class */
-  for (i = 0; i < NumClassesIn(Templates); i++) {
-    Class = ClassForIndex(Templates, i);
+  for (i = 0; i < Templates->NumClasses; i++) {
+    Class = Templates->Class[i];
 
     /* first write out the high level struct for the class */
     fwrite(&Class->NumProtos, sizeof(Class->NumProtos), 1, File);
@@ -1138,8 +1136,8 @@ void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
       MaxNumIntProtosIn (Class), File);
 
     /* then write out the proto sets */
-    for (j = 0; j < NumProtoSetsIn (Class); j++)
-      fwrite ((char *) ProtoSetIn (Class, j),
+    for (j = 0; j < Class->NumProtoSets; j++)
+      fwrite ((char *) Class->ProtoSets[j],
         sizeof (PROTO_SET_STRUCT), 1, File);
   }
 }                                /* WriteIntTemplates */
@@ -1546,10 +1544,10 @@ FLOAT32 AnglePad, PROTO Proto, TABLE_FILLER * Filler)
   int S1 = 0;
   int S2 = 1;
 
-  Angle = ProtoAngle (Proto);
-  X = ProtoX (Proto);
-  Y = ProtoY (Proto);
-  HalfLength = ProtoLength (Proto) / 2.0;
+  Angle = Proto->Angle;
+  X = Proto->X;
+  Y = Proto->Y;
+  HalfLength = Proto->Length / 2.0;
 
   Filler->AngleStart = CircBucketFor (Angle - AnglePad, AS, NB);
   Filler->AngleEnd = CircBucketFor (Angle + AnglePad, AS, NB);
@@ -1753,14 +1751,14 @@ void RenderIntProto(void *window,
 
   assert (ProtoId >= 0);
   assert (Class != NULL);
-  assert (ProtoId < NumIntProtosIn (Class));
+  assert (ProtoId < Class->NumProtos);
   assert (Color != 0);
   c_line_color_index(window, Color);
 
-  ProtoSet = ProtoSetIn (Class, SetForProto (ProtoId));
+  ProtoSet = Class->ProtoSets[SetForProto (ProtoId)];
   ProtoSetIndex = IndexForProto (ProtoId);
   Proto = &(ProtoSet->Protos[ProtoSetIndex]);
-  Length = (LengthForProtoId (Class, ProtoId) *
+  Length = (Class->ProtoLengths[ProtoId] *
     GetPicoFeatureLength () * INT_CHAR_NORM_RANGE);
   ProtoMask = PPrunerMaskFor (ProtoId);
   ProtoWordIndex = PPrunerWordIndexFor (ProtoId);

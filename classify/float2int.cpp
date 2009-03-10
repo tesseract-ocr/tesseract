@@ -45,7 +45,7 @@ void ClearCharNormArray(INT_TEMPLATES Templates,
  */
   int i;
 
-  for (i = 0; i < NumClassesIn (Templates); i++) {
+  for (i = 0; i < Templates->NumClasses; i++) {
     CharNormArray[i] = 0;
   }
 
@@ -74,9 +74,9 @@ void ComputeIntCharNormArray(FEATURE NormFeature,
   int i;
   int NormAdjust;
 
-  for (i = 0; i < NumClassesIn (Templates); i++) {
+  for (i = 0; i < Templates->NumClasses; i++) {
     NormAdjust = (int) (INT_CHAR_NORM_RANGE *
-      ComputeNormMatch (ClassIdForIndex (Templates, i),
+      ComputeNormMatch (Templates->ClassIdFor[i],
       NormFeature, FALSE));
     if (NormAdjust < 0)
       NormAdjust = 0;
@@ -112,14 +112,14 @@ void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures) {
   else
     YShift = Y_SHIFT;
 
-  for (Fid = 0; Fid < NumFeaturesIn (Features); Fid++) {
-    Feature = FeatureIn (Features, Fid);
+  for (Fid = 0; Fid < Features->NumFeatures; Fid++) {
+    Feature = Features->Features[Fid];
 
-    IntFeatures[Fid].X = BucketFor (ParamOf (Feature, PicoFeatX),
+    IntFeatures[Fid].X = BucketFor (Feature->Params[PicoFeatX],
       X_SHIFT, INT_FEAT_RANGE);
-    IntFeatures[Fid].Y = BucketFor (ParamOf (Feature, PicoFeatY),
+    IntFeatures[Fid].Y = BucketFor (Feature->Params[PicoFeatY],
       YShift, INT_FEAT_RANGE);
-    IntFeatures[Fid].Theta = CircBucketFor (ParamOf (Feature, PicoFeatDir),
+    IntFeatures[Fid].Theta = CircBucketFor (Feature->Params[PicoFeatDir],
       ANGLE_SHIFT, INT_FEAT_RANGE);
     IntFeatures[Fid].CP_misses = 0;
   }

@@ -34,7 +34,7 @@
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-FLOAT32 ActualOutlineLength(FEATURE Feature) { 
+FLOAT32 ActualOutlineLength(FEATURE Feature) {
 /*
  **	Parameters:
  **		Feature		normalization feature
@@ -46,13 +46,13 @@ FLOAT32 ActualOutlineLength(FEATURE Feature) {
  **	Exceptions: none
  **	History: Thu Dec 20 14:50:57 1990, DSJ, Created.
  */
-  return (ParamOf (Feature, CharNormLength) * LENGTH_COMPRESSION);
+  return (Feature->Params[CharNormLength] * LENGTH_COMPRESSION);
 
 }                                /* ActualOutlineLength */
 
 
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) { 
+FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 /*
  **	Parameters:
  **		Blob		blob to extract char norm feature from
@@ -83,7 +83,7 @@ FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
      and only one char normalization feature for any blob */
   FeatureSet = NewFeatureSet (1);
   Feature = NewFeature (&CharNormDesc);
-  AddFeature(FeatureSet, Feature); 
+  AddFeature(FeatureSet, Feature);
 
   /* compute the normalization statistics for this blob */
   Outlines = ConvertBlob (Blob);
@@ -106,11 +106,11 @@ FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   ExtractIntFeat(Blob, blfeatures, cnfeatures, &FXInfo);
   Baseline = BaselineAt (LineStats, FXInfo.Xmean);
   Scale = ComputeScaleFactor (LineStats);
-  ParamOf (Feature, CharNormY) = (FXInfo.Ymean - Baseline) * Scale;
-  ParamOf (Feature, CharNormLength) =
+  Feature->Params[CharNormY] = (FXInfo.Ymean - Baseline) * Scale;
+  Feature->Params[CharNormLength] =
     FXInfo.Length * Scale / LENGTH_COMPRESSION;
-  ParamOf (Feature, CharNormRx) = FXInfo.Rx * Scale;
-  ParamOf (Feature, CharNormRy) = FXInfo.Ry * Scale;
+  Feature->Params[CharNormRx] = FXInfo.Rx * Scale;
+  Feature->Params[CharNormRy] = FXInfo.Ry * Scale;
 
   /*---------Debug--------------------------------------------------*
   File = fopen ("f:/ims/debug/nfFeatSet.logCPP", "r");
@@ -127,6 +127,6 @@ FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   WriteFeatureSet(File, FeatureSet);
   fclose (File);
   *--------------------------------------------------------------------*/
-  FreeOutlines(Outlines); 
+  FreeOutlines(Outlines);
   return (FeatureSet);
 }                                /* ExtractCharNormFeatures */

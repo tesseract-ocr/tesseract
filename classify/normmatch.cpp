@@ -97,12 +97,12 @@ FLOAT32 ComputeNormMatch(CLASS_ID ClassId, FEATURE Feature, BOOL8 DebugMatch) {
   /* handle requests for classification as noise */
   if (ClassId == NO_CLASS) {
     /* kludge - clean up constants and make into control knobs later */
-    Match = (ParamOf (Feature, CharNormLength) *
-      ParamOf (Feature, CharNormLength) * 500.0 +
-      ParamOf (Feature, CharNormRx) *
-      ParamOf (Feature, CharNormRx) * 8000.0 +
-      ParamOf (Feature, CharNormRy) *
-      ParamOf (Feature, CharNormRy) * 8000.0);
+    Match = (Feature->Params[CharNormLength] *
+      Feature->Params[CharNormLength] * 500.0 +
+      Feature->Params[CharNormRx] *
+      Feature->Params[CharNormRx] * 8000.0 +
+      Feature->Params[CharNormRy] *
+      Feature->Params[CharNormRy] * 8000.0);
     return (1.0 - NormEvidenceOf (Match));
   }
 
@@ -117,9 +117,9 @@ FLOAT32 ComputeNormMatch(CLASS_ID ClassId, FEATURE Feature, BOOL8 DebugMatch) {
   ProtoId = 0;
   iterate(Protos) {
     Proto = (PROTOTYPE *) first_node (Protos);
-    Delta = ParamOf (Feature, CharNormY) - Proto->Mean[CharNormY];
+    Delta = Feature->Params[CharNormY] - Proto->Mean[CharNormY];
     Match = Delta * Delta * Proto->Weight.Elliptical[CharNormY];
-    Delta = ParamOf (Feature, CharNormRx) - Proto->Mean[CharNormRx];
+    Delta = Feature->Params[CharNormRx] - Proto->Mean[CharNormRx];
     Match += Delta * Delta * Proto->Weight.Elliptical[CharNormRx];
 
     if (Match < BestMatch)
@@ -242,8 +242,8 @@ void PrintNormMatch(FILE *File,
   FLOAT32 TotalMatch;
 
   for (i = 0, TotalMatch = 0.0; i < NumParams; i++) {
-    ParamMatch = ((ParamOf (Feature, i) - Mean (Proto, i)) /
-      StandardDeviation (Proto, i));
+    ParamMatch = (Feature->Params[i] - Mean (Proto, i)) /
+      StandardDeviation (Proto, i);
 
     fprintf (File, " %6.1f", ParamMatch);
 

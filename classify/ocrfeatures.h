@@ -122,28 +122,6 @@ FEATURE_DESC_STRUCT Name = {						\
 #define DefineFeatureExt(Name, E, IEV) FEATURE_EXT_STRUCT Name = {E, IEV};
 
 /*----------------------------------------------------------------------
-        Macros for accessing features
-----------------------------------------------------------------------*/
-#define TypeOf(Feature)     ((Feature)->Type)
-#define ParamOf(Feature, N) ((Feature)->Params[N])
-#define NumParamsIn(Feature)  (TypeOf (Feature) -> NumParams)
-
-/*----------------------------------------------------------------------
-        Macros for accessing feature sets
-----------------------------------------------------------------------*/
-#define NumFeaturesIn(Set)  ((Set)->NumFeatures)
-#define MaxNumFeaturesIn(Set) ((Set)->MaxNumFeatures)
-#define FeatureIn(Set, N) ((Set)->Features[N])
-
-/*----------------------------------------------------------------------
-          Macros for accessing feature descriptions
-----------------------------------------------------------------------*/
-#define ShortNameOf(FeatDesc) ((FeatDesc)->ShortName)
-#define LongNameOf(FeatDesc)  ((FeatDesc)->LongName)
-#define ExtractUsing(FeatDesc)  (*(FeatDesc)->Extractor)
-#define InitFXVarsUsing(FD) (*(FD)->InitExtractorVars)
-
-/*----------------------------------------------------------------------
         Generic routines that work for all feature types
 ----------------------------------------------------------------------*/
 BOOL8 AddFeature(FEATURE_SET FeatureSet, FEATURE Feature);

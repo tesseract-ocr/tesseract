@@ -47,10 +47,11 @@ CHAR_DESC ExtractFlexFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 
   CharDesc = NewCharDescription ();
 
-  for (Type = 0; Type < NumFeatureSetsIn(CharDesc); Type++)
-    if (ExtractorOf(Type) != NULL && ExtractorOf(Type)->Extractor != NULL)
-      FeaturesOfType(CharDesc, Type) =
-        ExtractUsing(ExtractorOf(Type)) (Blob, LineStats);
+  for (Type = 0; Type < CharDesc->NumFeatureSets; Type++)
+    if (FeatureDefs.FeatureExtractors[Type] != NULL &&
+        FeatureDefs.FeatureExtractors[Type]->Extractor != NULL)
+      CharDesc->FeatureSets[Type] =
+        (FeatureDefs.FeatureExtractors[Type])->Extractor (Blob, LineStats);
 
   return (CharDesc);
 
@@ -80,7 +81,7 @@ InitFlexFXVars ()
   int Type;
 
   SetupExtractors();
-  for (Type = 0; Type < NumFeaturesDefined (); Type++) {
-    InitFXVarsUsing (ExtractorOf (Type)) ();
+  for (Type = 0; Type < FeatureDefs.NumFeatureTypes; Type++) {
+    (FeatureDefs.FeatureExtractors[Type])->InitExtractorVars ();
   }
 }                                /* InitFlexFXVars */

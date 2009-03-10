@@ -116,8 +116,8 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
   int i;
 
   if (CharDesc) {
-    for (i = 0; i < NumFeatureSetsIn (CharDesc); i++)
-      FreeFeatureSet (FeaturesOfType (CharDesc, i));
+    for (i = 0; i < CharDesc->NumFeatureSets; i++)
+      FreeFeatureSet (CharDesc->FeatureSets[i]);
     Efree(CharDesc);
   }
 }                                /* FreeCharDescription */
@@ -138,10 +138,10 @@ CHAR_DESC NewCharDescription() {
   int i;
 
   CharDesc = (CHAR_DESC) Emalloc (sizeof (CHAR_DESC_STRUCT));
-  NumFeatureSetsIn (CharDesc) = NumFeaturesDefined ();
+  CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
 
-  for (i = 0; i < NumFeatureSetsIn (CharDesc); i++)
-    FeaturesOfType (CharDesc, i) = NULL;
+  for (i = 0; i < CharDesc->NumFeatureSets; i++)
+    CharDesc->FeatureSets[i] = NULL;
 
   return (CharDesc);
 
@@ -169,15 +169,15 @@ void WriteCharDescription(FILE *File, CHAR_DESC CharDesc) {
   int Type;
   int NumSetsToWrite = 0;
 
-  for (Type = 0; Type < NumFeatureSetsIn (CharDesc); Type++)
-    if (FeaturesOfType (CharDesc, Type))
+  for (Type = 0; Type < CharDesc->NumFeatureSets; Type++)
+    if (CharDesc->FeatureSets[Type])
       NumSetsToWrite++;
 
   fprintf (File, " %d\n", NumSetsToWrite);
-  for (Type = 0; Type < NumFeatureSetsIn (CharDesc); Type++)
-  if (FeaturesOfType (CharDesc, Type)) {
-    fprintf (File, "%s ", ShortNameOf (DefinitionOf (Type)));
-    WriteFeatureSet (File, FeaturesOfType (CharDesc, Type));
+  for (Type = 0; Type < CharDesc->NumFeatureSets; Type++)
+  if (CharDesc->FeatureSets[Type]) {
+    fprintf (File, "%s ", (FeatureDefs.FeatureDesc[Type])->ShortName);
+    WriteFeatureSet (File, CharDesc->FeatureSets[Type]);
   }
 }                                /* WriteCharDescription */
 
@@ -205,15 +205,15 @@ CHAR_DESC ReadCharDescription(FILE *File) {
   int Type;
 
   if (fscanf (File, "%d", &NumSetsToRead) != 1 ||
-    NumSetsToRead < 0 || NumSetsToRead > NumFeaturesDefined ())
+    NumSetsToRead < 0 || NumSetsToRead > FeatureDefs.NumFeatureTypes)
     DoError (ILLEGAL_NUM_SETS, "Illegal number of feature sets");
 
   CharDesc = NewCharDescription ();
   for (; NumSetsToRead > 0; NumSetsToRead--) {
     fscanf (File, "%s", ShortName);
     Type = ShortNameToFeatureType (ShortName);
-    FeaturesOfType (CharDesc, Type) =
-      ReadFeatureSet (File, DefinitionOf (Type));
+    CharDesc->FeatureSets[Type] =
+      ReadFeatureSet (File, FeatureDefs.FeatureDesc[Type]);
   }
   return (CharDesc);
 
@@ -235,8 +235,8 @@ int ShortNameToFeatureType(const char *ShortName) {
  */
   int i;
 
-  for (i = 0; i < NumFeaturesDefined (); i++)
-    if (!strcmp (ShortNameOf (DefinitionOf (i)), ShortName))
+  for (i = 0; i < FeatureDefs.NumFeatureTypes; i++)
+    if (!strcmp ((FeatureDefs.FeatureDesc[i]->ShortName), ShortName))
       return (i);
   DoError (ILLEGAL_SHORT_NAME, "Illegal short name for a feature");
   return 0;

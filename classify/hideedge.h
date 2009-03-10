@@ -49,8 +49,8 @@
  * argument should be of type (EDGEPT*).
  **********************************************************************/
 
-#define is_hidden_edge(edge)  \
-/*(hidden_edges &&*/ edge->flags[0]     /*) */
+#define is_hidden_edge(edge) \
+/*(hidden_edges &&*/ (edge->flags[0])     /*) */
 
 /**********************************************************************
  * hide_edge

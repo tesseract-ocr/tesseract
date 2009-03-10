@@ -446,7 +446,7 @@ void ReadTrainingSamples (
           }
           CharDesc = ReadCharDescription (File);
           Type = ShortNameToFeatureType(PROGRAM_FEATURE_TYPE);
-          FeatureSamples = FeaturesOfType(CharDesc, Type);
+          FeatureSamples = CharDesc->FeatureSets[Type];
           for (int feature = 0; feature < FeatureSamples->NumFeatures; ++feature) {
             FEATURE f = FeatureSamples->Features[feature];
             for (int dim =0; dim < f->Type->NumParams; ++dim)
@@ -454,9 +454,9 @@ void ReadTrainingSamples (
           }
           CharSample->List = push (CharSample->List, FeatureSamples);
           CharSample->SampleCount++;
-          for (i = 0; i < NumFeatureSetsIn (CharDesc); i++)
+          for (i = 0; i < CharDesc->NumFeatureSets; i++)
             if (Type != i)
-              FreeFeatureSet (FeaturesOfType (CharDesc, i));
+              FreeFeatureSet(CharDesc->FeatureSets[i]);
           free (CharDesc);
         }
 }	// ReadTrainingSamples
@@ -574,7 +574,7 @@ void WriteTrainingSamples (
 		{
 			File = Efopen (Filename, "w");
 			WriteOldParamDesc
-				(File, DefinitionOf (ShortNameToFeatureType (PROGRAM_FEATURE_TYPE)));
+				(File, FeatureDefs.FeatureDesc[ShortNameToFeatureType (PROGRAM_FEATURE_TYPE)]);
 		}
 		else
 		{
@@ -768,7 +768,7 @@ CLUSTERER *SetUpForClustering(
 	FEATURE_DESC FeatureDesc = NULL;
 //	PARAM_DESC* ParamDesc;
 
-	FeatureDesc = DefinitionOf(ShortNameToFeatureType(PROGRAM_FEATURE_TYPE));
+	FeatureDesc = FeatureDefs.FeatureDesc[ShortNameToFeatureType(PROGRAM_FEATURE_TYPE)];
 	N = FeatureDesc->NumParams;
 	//ParamDesc = ConvertToPARAMDESC(FeatureDesc->ParamDesc, N);
 	Clusterer = MakeClusterer(N,FeatureDesc->ParamDesc);

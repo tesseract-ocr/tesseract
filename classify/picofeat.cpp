@@ -200,23 +200,23 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
     NumFeatures = 1;
 
   /* compute vector for one pico feature */
-  Xof (Delta) = XDelta (*Start, *End) / NumFeatures;
-  Yof (Delta) = YDelta (*Start, *End) / NumFeatures;
+  Delta.x = XDelta (*Start, *End) / NumFeatures;
+  Delta.y = YDelta (*Start, *End) / NumFeatures;
 
   /* compute position of first pico feature */
-  Xof (Center) = Xof (*Start) + Xof (Delta) / 2.0;
-  Yof (Center) = Yof (*Start) + Yof (Delta) / 2.0;
+  Center.x = Start->x + Delta.x / 2.0;
+  Center.y = Start->y + Delta.y / 2.0;
 
   /* compute each pico feature in segment and add to feature set */
   for (i = 0; i < NumFeatures; i++) {
     Feature = NewFeature (&PicoFeatDesc);
-    ParamOf (Feature, PicoFeatDir) = Angle;
-    ParamOf (Feature, PicoFeatX) = Xof (Center);
-    ParamOf (Feature, PicoFeatY) = Yof (Center);
+    Feature->Params[PicoFeatDir] = Angle;
+    Feature->Params[PicoFeatX] = Center.x;
+    Feature->Params[PicoFeatY] = Center.y;
     AddFeature(FeatureSet, Feature);
 
-    Xof (Center) += Xof (Delta);
-    Yof (Center) += Yof (Delta);
+    Center.x += Delta.x;
+    Center.y += Delta.y;
   }
 }                                /* ConvertSegmentToPicoFeat */
 
@@ -254,9 +254,9 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
        the outlines is reversed when they are converted from the old
        format.  In the old format, a hidden edge is marked by the
        starting point for that edge. */
-    if (IsVisible (PointAt (Next)))
-      ConvertSegmentToPicoFeat (&(PositionOf (PointAt (Current))),
-        &(PositionOf (PointAt (Next))), FeatureSet);
+    if (!(PointAt (Next)->Hidden))
+      ConvertSegmentToPicoFeat (&(PointAt (Current)->Point),
+        &(PointAt (Next)->Point), FeatureSet);
 
     Current = Next;
     Next = NextPointAfter (Current);
@@ -284,14 +284,14 @@ void NormalizePicoX(FEATURE_SET FeatureSet) {
   FEATURE Feature;
   FLOAT32 Origin = 0.0;
 
-  for (i = 0; i < NumFeaturesIn (FeatureSet); i++) {
-    Feature = FeatureIn (FeatureSet, i);
-    Origin += ParamOf (Feature, PicoFeatX);
+  for (i = 0; i < FeatureSet->NumFeatures; i++) {
+    Feature = FeatureSet->Features[i];
+    Origin += Feature->Params[PicoFeatX];
   }
-  Origin /= NumFeaturesIn (FeatureSet);
+  Origin /= FeatureSet->NumFeatures;
 
-  for (i = 0; i < NumFeaturesIn (FeatureSet); i++) {
-    Feature = FeatureIn (FeatureSet, i);
-    ParamOf (Feature, PicoFeatX) -= Origin;
+  for (i = 0; i < FeatureSet->NumFeatures; i++) {
+    Feature = FeatureSet->Features[i];
+    Feature->Params[PicoFeatX] -= Origin;
   }
 }                                /* NormalizePicoX */

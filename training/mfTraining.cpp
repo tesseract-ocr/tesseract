@@ -351,7 +351,7 @@ int main (int argc, char **argv) {
               ProtoIn (MergeClass->Class, Pid));
           MergeClass->NumMerged[Pid] ++;
         }
-        Config2 = ConfigIn (MergeClass->Class, Cid);
+        Config2 = MergeClass->Class->Configurations[Cid];
         AddProtoToConfig (Pid, Config2);
       }
       FreeProtoList (&ProtoList);
@@ -582,7 +582,7 @@ LIST ReadTrainingSamples (
 		}
 		CharDesc = ReadCharDescription (File);
 		Type = ShortNameToFeatureType(PROGRAM_FEATURE_TYPE);
-		FeatureSamples = FeaturesOfType(CharDesc, Type);
+		FeatureSamples = CharDesc->FeatureSets[Type];
                 for (int feature = 0; feature < FeatureSamples->NumFeatures; ++feature) {
                   FEATURE f = FeatureSamples->Features[feature];
                   for (int dim =0; dim < f->Type->NumParams; ++dim)
@@ -592,9 +592,9 @@ LIST ReadTrainingSamples (
                 }
 		CharSample->List = push (CharSample->List, FeatureSamples);
         CharSample->SampleCount++;
-		for (i = 0; i < NumFeatureSetsIn (CharDesc); i++)
+		for (i = 0; i < CharDesc->NumFeatureSets; i++)
                   if (Type != i)
-                    FreeFeatureSet (FeaturesOfType (CharDesc, i));
+                    FreeFeatureSet(CharDesc->FeatureSets[i]);
 		free (CharDesc);
         }
 	return (TrainingSamples);
@@ -745,7 +745,7 @@ void WriteTrainingSamples (
 		{
 			File = Efopen (Filename, "w");
 			WriteOldParamDesc
-				(File, DefinitionOf (ShortNameToFeatureType (PROGRAM_FEATURE_TYPE)));
+				(File, FeatureDefs.FeatureDesc[ShortNameToFeatureType (PROGRAM_FEATURE_TYPE)]);
 		}
 		else
 		{
@@ -896,15 +896,15 @@ void WriteProtos(
 	PROTO Proto;
 
 	fprintf(File, "%s\n", MergeClass->Label);
-	fprintf(File, "%d\n", NumProtosIn(MergeClass->Class));
-	for(i=0; i < NumProtosIn(MergeClass->Class); i++)
+	fprintf(File, "%d\n", MergeClass->Class->NumProtos);
+	for(i=0; i < (MergeClass->Class)->NumProtos; i++)
 	{
 		Proto = ProtoIn(MergeClass->Class,i);
-		fprintf(File, "\t%8.4f %8.4f %8.4f %8.4f ", ProtoX(Proto), ProtoY(Proto),
-			ProtoLength(Proto), ProtoAngle(Proto));
-		Values[0] = ProtoX(Proto);
-		Values[1] = ProtoY(Proto);
-		Values[2] = ProtoAngle(Proto);
+		fprintf(File, "\t%8.4f %8.4f %8.4f %8.4f ", Proto->X, Proto->Y,
+			Proto->Length, Proto->Angle);
+		Values[0] = Proto->X;
+		Values[1] = Proto->Y;
+		Values[2] = Proto->Angle;
 		Normalize(Values);
 		fprintf(File, "%8.4f %8.4f %8.4f\n", Values[0], Values[1], Values[2]);
 	}
@@ -918,11 +918,11 @@ void WriteConfigs(
 	BIT_VECTOR Config;
 	int i, j, WordsPerConfig;
 
-	WordsPerConfig = WordsInVectorOfSize(NumProtosIn(Class));
-	fprintf(File, "%d %d\n", NumConfigsIn(Class),WordsPerConfig);
-	for(i=0; i < NumConfigsIn(Class); i++)
+	WordsPerConfig = WordsInVectorOfSize(Class->NumProtos);
+	fprintf(File, "%d %d\n", Class->NumConfigs, WordsPerConfig);
+	for(i=0; i < Class->NumConfigs; i++)
 	{
-		Config = ConfigIn(Class,i);
+		Config = Class->Configurations[i];
 		for(j=0; j < WordsPerConfig; j++)
 			fprintf(File, "%08x ", Config[j]);
 		fprintf(File, "\n");
@@ -1055,7 +1055,7 @@ CLUSTERER *SetUpForClustering(
 	FEATURE_DESC FeatureDesc = NULL;
 //	PARAM_DESC* ParamDesc;
 
-	FeatureDesc = DefinitionOf(ShortNameToFeatureType(PROGRAM_FEATURE_TYPE));
+	FeatureDesc = FeatureDefs.FeatureDesc[ShortNameToFeatureType(PROGRAM_FEATURE_TYPE)];
 	N = FeatureDesc->NumParams;
 //	ParamDesc = ConvertToPARAMDESC(FeatureDesc->ParamDesc, N);
 	Clusterer = MakeClusterer(N,FeatureDesc->ParamDesc);
@@ -1285,40 +1285,40 @@ void SetUpForFloat2Int(
 		MergeClass = (MERGE_CLASS) first_node (LabeledClassList);
 		Class = &TrainingData[unicharset_mftraining.unichar_to_id(
                                           MergeClass->Label)];
-		NumProtos = NumProtosIn(MergeClass->Class);
-		NumConfigs = NumConfigsIn(MergeClass->Class);
+		NumProtos = (MergeClass->Class)->NumProtos;
+		NumConfigs = MergeClass->Class->NumConfigs;
 
-		NumProtosIn(Class) = NumProtos;
+		Class->NumProtos = NumProtos;
 		Class->MaxNumProtos = NumProtos;
 		Class->Prototypes = (PROTO) Emalloc (sizeof(PROTO_STRUCT) * NumProtos);
 		for(i=0; i < NumProtos; i++)
 		{
 			NewProto = ProtoIn(Class, i);
 			OldProto = ProtoIn(MergeClass->Class, i);
-			Values[0] = ProtoX(OldProto);
-			Values[1] = ProtoY(OldProto);
-			Values[2] = ProtoAngle(OldProto);
+			Values[0] = OldProto->X;
+			Values[1] = OldProto->Y;
+			Values[2] = OldProto->Angle;
 			Normalize(Values);
-			ProtoX(NewProto) = ProtoX(OldProto);
-			ProtoY(NewProto) = ProtoY(OldProto);
-			ProtoLength(NewProto) = ProtoLength(OldProto);
-			ProtoAngle(NewProto) = ProtoAngle(OldProto);
-			CoefficientA(NewProto) = Values[0];
-			CoefficientB(NewProto) = Values[1];
-			CoefficientC(NewProto) = Values[2];
+			NewProto->X = OldProto->X;
+			NewProto->Y = OldProto->Y;
+			NewProto->Length = OldProto->Length;
+			NewProto->Angle = OldProto->Angle;
+			NewProto->A = Values[0];
+			NewProto->B = Values[1];
+			NewProto->C = Values[2];
 		}
 
-		NumConfigsIn(Class) = NumConfigs;
+		Class->NumConfigs = NumConfigs;
 		Class->MaxNumConfigs = NumConfigs;
 		Class->Configurations = (BIT_VECTOR*) Emalloc (sizeof(BIT_VECTOR) * NumConfigs);
 		NumWords = WordsInVectorOfSize(NumProtos);
 		for(i=0; i < NumConfigs; i++)
 		{
 			NewConfig = NewBitVector(NumProtos);
-			OldConfig = ConfigIn(MergeClass->Class, i);
+			OldConfig = MergeClass->Class->Configurations[i];
 			for(j=0; j < NumWords; j++)
 				NewConfig[j] = OldConfig[j];
-			ConfigIn(Class, i) = NewConfig;
+			Class->Configurations[i] = NewConfig;
 		}
 	}
 } // SetUpForFloat2Int
@@ -1327,15 +1327,15 @@ void SetUpForFloat2Int(
 void WritePFFMTable(INT_TEMPLATES Templates, const char* filename) {
   FILE* fp = Efopen(filename, "wb");
   /* then write out each class */
-  for (int i = 0; i < NumClassesIn (Templates); i++) {
+  for (int i = 0; i < Templates->NumClasses; i++) {
     int MaxLength = 0;
-    INT_CLASS Class = ClassForIndex (Templates, i);
-    for (int ConfigId = 0; ConfigId < NumIntConfigsIn (Class); ConfigId++) {
-      if (LengthForConfigId (Class, ConfigId) > MaxLength)
-        MaxLength = LengthForConfigId (Class, ConfigId);
+    INT_CLASS Class = Templates->Class[i];
+    for (int ConfigId = 0; ConfigId < Class->NumConfigs; ConfigId++) {
+      if (Class->ConfigLengths[ConfigId] > MaxLength)
+        MaxLength = Class->ConfigLengths[ConfigId];
     }
     fprintf(fp, "%s %d\n", unicharset_mftraining.id_to_unichar(
-                ClassIdForIndex(Templates, i)), MaxLength);
+                Templates->ClassIdFor[i]), MaxLength);
   }
   fclose(fp);
 } // WritePFFMTable

@@ -59,17 +59,17 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, LINE_STATS *LineStats) {
   iterate(Features) {
     OldFeature = (MICROFEATURE) first_node (Features);
     Feature = NewFeature (&MicroFeatureDesc);
-    ParamOf (Feature, MFDirection) = OrientationOf (OldFeature);
-    ParamOf (Feature, MFXPosition) = CenterX (OldFeature);
-    ParamOf (Feature, MFYPosition) = CenterY (OldFeature);
-    ParamOf (Feature, MFLength) = LengthOf (OldFeature);
+    Feature->Params[MFDirection] = OldFeature[ORIENTATION];
+    Feature->Params[MFXPosition] = OldFeature[XPOSITION];
+    Feature->Params[MFYPosition] = OldFeature[YPOSITION];
+    Feature->Params[MFLength] = OldFeature[MFLENGTH];
 
     // Bulge features should not be used
     // anymore and are therefore set to 0.
 //     ParamOf (Feature, MFBulge1) = FirstBulgeOf (OldFeature);
 //     ParamOf (Feature, MFBulge2) = SecondBulgeOf (OldFeature);
-    ParamOf (Feature, MFBulge1) = 0.0f;
-    ParamOf (Feature, MFBulge2) = 0.0f;
+    Feature->Params[MFBulge1] = 0.0f;
+    Feature->Params[MFBulge2] = 0.0f;
 
     AddFeature(FeatureSet, Feature);
   }

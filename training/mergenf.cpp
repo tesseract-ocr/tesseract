@@ -95,24 +95,24 @@ FLOAT32 CompareProtos (
 	FLOAT32	Angle, Length;
 
 	/* if p1 and p2 are not close in length, don't let them match */
-	Length = fabs (ProtoLength (p1) - ProtoLength (p2));
+	Length = fabs (p1->Length - p2->Length);
 	if (Length > MAX_LENGTH_MISMATCH)
 		return (0.0);
 
 	/* create a dummy pico-feature to be used for comparisons */
 	Feature = NewFeature (&PicoFeatDesc);
-	ParamOf (Feature, PicoFeatDir) = ProtoAngle (p1);
+	Feature->Params[PicoFeatDir] = p1->Angle;
 
 	/* convert angle to radians */
-	Angle = ProtoAngle (p1) * 2.0 * PI;
+	Angle = p1->Angle * 2.0 * PI;
 
 	/* find distance from center of p1 to 1/2 picofeat from end */
-	Length = ProtoLength (p1) / 2.0 - GetPicoFeatureLength () / 2.0;
+	Length = p1->Length / 2.0 - GetPicoFeatureLength () / 2.0;
 	if (Length < 0) Length = 0;
 
 	/* set the dummy pico-feature at one end of p1 and match it to p2 */
-	ParamOf (Feature, PicoFeatX) = ProtoX (p1) + cos (Angle) * Length;
-	ParamOf (Feature, PicoFeatY) = ProtoY (p1) + sin (Angle) * Length;
+	Feature->Params[PicoFeatX] = p1->X + cos (Angle) * Length;
+	Feature->Params[PicoFeatY] = p1->Y + sin (Angle) * Length;
 	if (DummyFastMatch (Feature, p2))
     {
 		Evidence = SubfeatureEvidence (Feature, p2);
@@ -126,8 +126,8 @@ FLOAT32 CompareProtos (
     }
 
 	/* set the dummy pico-feature at the other end of p1 and match it to p2 */
-	ParamOf (Feature, PicoFeatX) = ProtoX (p1) - cos (Angle) * Length;
-	ParamOf (Feature, PicoFeatY) = ProtoY (p1) - sin (Angle) * Length;
+	Feature->Params[PicoFeatX] = p1->X - cos (Angle) * Length;
+	Feature->Params[PicoFeatY] = p1->Y - sin (Angle) * Length;
 	if (DummyFastMatch (Feature, p2))
     {
 		Evidence = SubfeatureEvidence (Feature, p2);
@@ -174,10 +174,10 @@ void ComputeMergedProto (
 	w1 /= TotalWeight;
 	w2 /= TotalWeight;
 
-	ProtoX      (MergedProto) = ProtoX      (p1) * w1 + ProtoX      (p2) * w2;
-	ProtoY      (MergedProto) = ProtoY      (p1) * w1 + ProtoY      (p2) * w2;
-	ProtoLength (MergedProto) = ProtoLength (p1) * w1 + ProtoLength (p2) * w2;
-	ProtoAngle  (MergedProto) = ProtoAngle  (p1) * w1 + ProtoAngle  (p2) * w2;
+	MergedProto->X = p1->X * w1 + p2->X * w2;
+	MergedProto->Y = p1->Y * w1 + p2->Y * w2;
+	MergedProto->Length = p1->Length * w1 + p2->Length * w2;
+	MergedProto->Angle = p1->Angle * w1 + p2->Angle * w2;
 	FillABC     (MergedProto);
 
 }	/* ComputeMergedProto */
@@ -216,7 +216,7 @@ int FindClosestExistingProto (
 
 	BestProto = NO_PROTO;
 	BestMatch = WORST_MATCH_ALLOWED;
-	for (Pid = 0; Pid < NumProtosIn (Class); Pid++)
+	for (Pid = 0; Pid < Class->NumProtos; Pid++)
     {
 		Proto  = ProtoIn (Class, Pid);
 		ComputeMergedProto (Proto, &NewProto,
@@ -252,10 +252,10 @@ void MakeNewFromOld (
 */
 
 {
-	ProtoX      (New) = CenterX       (Old->Mean);
-	ProtoY      (New) = CenterY       (Old->Mean);
-	ProtoLength (New) = LengthOf      (Old->Mean);
-	ProtoAngle  (New) = OrientationOf (Old->Mean);
+	New->X = CenterX       (Old->Mean);
+	New->Y = CenterY       (Old->Mean);
+	New->Length = LengthOf      (Old->Mean);
+	New->Angle = OrientationOf (Old->Mean);
 	FillABC     (New);
 
 }	/* MakeNewFromOld */
@@ -286,14 +286,14 @@ FLOAT32 SubfeatureEvidence (
 	float       Distance;
 	float       Dangle;
 
-	Dangle   = ProtoAngle (Proto) - ParamOf(Feature, PicoFeatDir);
+	Dangle   = Proto->Angle - Feature->Params[PicoFeatDir];
 	if (Dangle < -0.5) Dangle += 1.0;
 	if (Dangle >  0.5) Dangle -= 1.0;
 	Dangle   *= AngleMatchScale;
 
-	Distance = CoefficientA (Proto) * ParamOf(Feature, PicoFeatX) +
-		CoefficientB (Proto) * ParamOf(Feature, PicoFeatY) +
-		CoefficientC (Proto);
+	Distance = Proto->A * Feature->Params[PicoFeatX] +
+		Proto->B * Feature->Params[PicoFeatY] +
+		Proto->C;
 
 	return (EvidenceOf (Distance * Distance + Dangle * Dangle));
 }
@@ -366,7 +366,7 @@ BOOL8 DummyFastMatch (
 	FLOAT32	AngleError;
 
 	MaxAngleError = AnglePad / 360.0;
-	AngleError = fabs (ProtoAngle (Proto) - ParamOf (Feature, PicoFeatDir));
+	AngleError = fabs (Proto->Angle - Feature->Params[PicoFeatDir]);
 	if (AngleError > 0.5)
 		AngleError = 1.0 - AngleError;
 
@@ -379,8 +379,8 @@ BOOL8 DummyFastMatch (
 		&BoundingBox);
 
 	return (PointInside (&BoundingBox,
-		ParamOf (Feature, PicoFeatX),
-		ParamOf (Feature, PicoFeatY)));
+		Feature->Params[PicoFeatX],
+		Feature->Params[PicoFeatY]));
 
 }	/* DummyFastMatch */
 
@@ -411,18 +411,18 @@ void ComputePaddedBoundingBox (
 	FLOAT32	Pad, Length, Angle;
 	FLOAT32	CosOfAngle, SinOfAngle;
 
-	Length     = ProtoLength (Proto) / 2.0 + TangentPad;
-	Angle      = ProtoAngle (Proto) * 2.0 * PI;
+	Length     = Proto->Length / 2.0 + TangentPad;
+	Angle      = Proto->Angle * 2.0 * PI;
 	CosOfAngle = fabs (cos (Angle));
 	SinOfAngle = fabs (sin (Angle));
 
 	Pad = MAX (CosOfAngle * Length, SinOfAngle * OrthogonalPad);
-	BoundingBox->MinX = ProtoX (Proto) - Pad;
-	BoundingBox->MaxX = ProtoX (Proto) + Pad;
+	BoundingBox->MinX = Proto->X - Pad;
+	BoundingBox->MaxX = Proto->Y + Pad;
 
 	Pad = MAX (SinOfAngle * Length, CosOfAngle * OrthogonalPad);
-	BoundingBox->MinY = ProtoY (Proto) - Pad;
-	BoundingBox->MaxY = ProtoY (Proto) + Pad;
+	BoundingBox->MinY = Proto->Y - Pad;
+	BoundingBox->MaxY = Proto->Y + Pad;
 
 }	/* ComputePaddedBoundingBox */
 

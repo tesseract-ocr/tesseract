@@ -47,13 +47,6 @@ typedef FLOAT32 *MICROFEATURE;
 /**----------------------------------------------------------------------------
             Macros
 ----------------------------------------------------------------------------**/
-/* macros for accessing micro-feature parameters */
-#define CenterX(M)    ( (M)[XPOSITION] )
-#define CenterY(M)    ( (M)[YPOSITION] )
-#define LengthOf(M)   ( (M)[MFLENGTH] )
-#define OrientationOf(M)  ( (M)[ORIENTATION] )
-#define FirstBulgeOf(M)   ( (M)[FIRSTBULGE] )
-#define SecondBulgeOf(M)  ( (M)[SECONDBULGE] )
 
 /* macros for accessing micro-feature lists */
 #define NextFeatureOf(L)  ( (MICROFEATURE) first_node ( L ) )

@@ -116,109 +116,6 @@ extern CLASS_STRUCT TrainingData[];
 (& (Class)->Prototypes [Pid])
 
 /**********************************************************************
- * ConfigIn
- *
- * Choose the selected prototype configuration in this class record.
- * Return it as type 'BIT_VECTOR'.
- **********************************************************************/
-
-#define ConfigIn(Class,Cid)  \
-((Class)->Configurations [Cid])
-
-/**********************************************************************
- * NumProtosIn
- *
- * Return the number of prototypes in this class.  The 'Class' argument
- * is of type 'CLASS_TYPE'.
- **********************************************************************/
-
-#define NumProtosIn(Class)  \
-((Class)->NumProtos)
-
-/**********************************************************************
- * NumConfigsIn
- *
- * Return the number of configurations in this class.  The 'Class' argument
- * is of type 'CLASS_TYPE'.
- **********************************************************************/
-
-#define NumConfigsIn(Class)  \
-((Class)->NumConfigs)
-
-/**********************************************************************
- * CoefficientA
- *
- * Return the first parameter of the prototype structure.  This is the
- * A coefficient in the line representation of "Ax + By + C = 0".  The
- * 'Proto' argument is of type 'PROTO'.
- **********************************************************************/
-
-#define CoefficientA(Proto)  \
-((Proto)->A)
-
-/**********************************************************************
- * CoefficientB
- *
- * Return the second parameter of the prototype structure.  This is the
- * B coefficient in the line representation of "Ax + By + C = 0".  The
- * 'Proto' argument is of type 'PROTO'.
- **********************************************************************/
-
-#define CoefficientB(Proto)  \
-((Proto)->B)
-
-/**********************************************************************
- * CoefficientC
- *
- * Return the third parameter of the prototype structure.  This is the
- * C coefficient in the line representation of "Ax + By + C = 0".  The
- * 'Proto' argument is of type 'PROTO'.
- **********************************************************************/
-
-#define CoefficientC(Proto)  \
-((Proto)->C)
-
-/**********************************************************************
- * ProtoAngle
- *
- * Return the angle parameter of the prototype structure.  The
- * 'Proto' argument is of type 'PROTO'.
- **********************************************************************/
-
-#define ProtoAngle(Proto)  \
-((Proto)->Angle)
-
-/**********************************************************************
- * ProtoX
- *
- * Return the X parameter of the prototype structure.  The 'Proto'
- * argument is of type 'PROTO'.
- **********************************************************************/
-
-#define ProtoX(Proto)  \
-((Proto)->X)
-
-/**********************************************************************
- * ProtoY
- *
- * Return the angle parameter of the prototype structure.  The 'Proto'
- * argument is of type 'PROTO'.
- **********************************************************************/
-
-#define ProtoY(Proto)  \
-((Proto)->Y)
-
-/**********************************************************************
- * ProtoLength
- *
- * Return the length parameter of the prototype structure.  The
- * 'Proto' argument is of type 'PROTO'.
- **********************************************************************/
-
-#define  ProtoLength(Proto)  \
-((Proto)->Length)
-
-/**********************************************************************
  * PrintProto
  *
  * Print out the contents of a prototype.   The 'Proto' argument is of
@@ -227,10 +124,10 @@ extern CLASS_STRUCT TrainingData[];
 
 #define PrintProto(Proto)                      \
 (cprintf ("X=%4.2f, Y=%4.2f, Angle=%4.2f",    \
-			ProtoX      (Proto),                \
-			ProtoY      (Proto),                \
-			ProtoLength (Proto),                \
-			ProtoAngle  (Proto)))                \
+			Proto->X,                \
+			Proto->Y,                \
+			Proto->Length,                \
+			Proto->Angle))                \
 
 
 /**********************************************************************
@@ -242,9 +139,9 @@ extern CLASS_STRUCT TrainingData[];
 
 #define PrintProtoLine(Proto)             \
 (cprintf ("A=%4.2f, B=%4.2f, C=%4.2f",   \
-			CoefficientA (Proto),           \
-			CoefficientB (Proto),           \
-			CoefficientC (Proto)))           \
+			Proto->A,           \
+			Proto->B,           \
+			Proto->C))           \
 
 /*----------------------------------------------------------------------
               F u n c t i o n s

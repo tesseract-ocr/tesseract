@@ -170,10 +170,10 @@ void AddOutlineFeatureToSet(FPOINT *Start,
   FEATURE Feature;
 
   Feature = NewFeature (&OutlineFeatDesc);
-  ParamOf (Feature, OutlineFeatDir) = NormalizedAngleFrom (Start, End, 1.0);
-  ParamOf (Feature, OutlineFeatX) = AverageOf (Xof (*Start), Xof (*End));
-  ParamOf (Feature, OutlineFeatY) = AverageOf (Yof (*Start), Yof (*End));
-  ParamOf (Feature, OutlineFeatLength) = DistanceBetween (*Start, *End);
+  Feature->Params[OutlineFeatDir] = NormalizedAngleFrom (Start, End, 1.0);
+  Feature->Params[OutlineFeatX] = AverageOf (Start->x, End->x);
+  Feature->Params[OutlineFeatY] = AverageOf (Start->y, End->y);
+  Feature->Params[OutlineFeatLength] = DistanceBetween (*Start, *End);
   AddFeature(FeatureSet, Feature);
 
 }                                /* AddOutlineFeatureToSet */
@@ -206,7 +206,7 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   First = Outline;
   Next = First;
   do {
-    CopyPoint (PositionOf (PointAt (Next)), FeatureStart);
+    CopyPoint (PointAt (Next)->Point, FeatureStart);
     Next = NextPointAfter (Next);
 
     /* note that an edge is hidden if the ending point of the edge is
@@ -214,8 +214,8 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
        the outlines is reversed when they are converted from the old
        format.  In the old format, a hidden edge is marked by the
        starting point for that edge. */
-    if (IsVisible (PointAt (Next))) {
-      CopyPoint (PositionOf (PointAt (Next)), FeatureEnd);
+    if (! (PointAt (Next)->Hidden)) {
+      CopyPoint (PointAt (Next)->Point, FeatureEnd);
       AddOutlineFeatureToSet(&FeatureStart, &FeatureEnd, FeatureSet);
     }
   }
@@ -244,19 +244,19 @@ void NormalizeOutlineX(FEATURE_SET FeatureSet) {
   FLOAT32 TotalWeight = 0.0;
   FLOAT32 Origin;
 
-  if (NumFeaturesIn (FeatureSet) <= 0)
+  if (FeatureSet->NumFeatures <= 0)
     return;
 
-  for (i = 0; i < NumFeaturesIn (FeatureSet); i++) {
-    Feature = FeatureIn (FeatureSet, i);
-    Length = ParamOf (Feature, OutlineFeatLength);
-    TotalX += ParamOf (Feature, OutlineFeatX) * Length;
+  for (i = 0; i < FeatureSet->NumFeatures; i++) {
+    Feature = FeatureSet->Features[i];
+    Length = Feature->Params[OutlineFeatLength];
+    TotalX += Feature->Params[OutlineFeatX] * Length;
     TotalWeight += Length;
   }
   Origin = TotalX / TotalWeight;
 
-  for (i = 0; i < NumFeaturesIn (FeatureSet); i++) {
-    Feature = FeatureIn (FeatureSet, i);
-    ParamOf (Feature, OutlineFeatX) -= Origin;
+  for (i = 0; i < FeatureSet->NumFeatures; i++) {
+    Feature = FeatureSet->Features[i];
+    Feature->Params[OutlineFeatX] -= Origin;
   }
 }                                /* NormalizeOutlineX */

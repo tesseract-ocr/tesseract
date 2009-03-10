@@ -85,7 +85,7 @@ void FreeTempConfig(TEMP_CONFIG Config) {
 
   destroy_nodes (Config->ContextsSeen, memfree);
   FreeBitVector (Config->Protos);
-  c_free_struct (Config, sizeof (TEMP_CONFIG_STRUCT), "TEMP_CONFIG_STRUCT");
+  free_struct (Config, sizeof (TEMP_CONFIG_STRUCT), "TEMP_CONFIG_STRUCT");
 
 }                                /* FreeTempConfig */
 
@@ -94,7 +94,7 @@ void FreeTempConfig(TEMP_CONFIG Config) {
 void FreeTempProto(void *arg) {
   PROTO proto = (PROTO) arg;
 
-  c_free_struct (proto, sizeof (TEMP_PROTO_STRUCT), "TEMP_PROTO_STRUCT");
+  free_struct (proto, sizeof (TEMP_PROTO_STRUCT), "TEMP_PROTO_STRUCT");
 }
 
 
@@ -174,12 +174,12 @@ ADAPT_TEMPLATES NewAdaptedTemplates() {
 }                                /* NewAdaptedTemplates */
 
 
-/*-------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
 void free_adapted_templates(ADAPT_TEMPLATES templates) {
 
   if (templates != NULL) {
     int i;
-    for (i = 0; i < NumClassesIn (templates->Templates); i++)
+    for (i = 0; i < (templates->Templates)->NumClasses; i++)
       free_adapted_class (templates->Class[i]);
     free_int_templates (templates->Templates);
     Efree(templates);
@@ -203,7 +203,7 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId) {
   int NumProtos = MaxProtoId + 1;
 
   Config =
-    (TEMP_CONFIG) c_alloc_struct (sizeof (TEMP_CONFIG_STRUCT),
+    (TEMP_CONFIG) alloc_struct (sizeof (TEMP_CONFIG_STRUCT),
     "TEMP_CONFIG_STRUCT");
   Config->Protos = NewBitVector (NumProtos);
 
@@ -229,7 +229,7 @@ TEMP_PROTO NewTempProto() {
  **	History: Thu Mar 14 13:31:31 1991, DSJ, Created.
  */
   return ((TEMP_PROTO)
-    c_alloc_struct (sizeof (TEMP_PROTO_STRUCT), "TEMP_PROTO_STRUCT"));
+    alloc_struct (sizeof (TEMP_PROTO_STRUCT), "TEMP_PROTO_STRUCT"));
 }                                /* NewTempProto */
 
 
@@ -253,19 +253,19 @@ void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
   #ifndef SECURE_NAMES
   fprintf (File, "\n\nSUMMARY OF ADAPTED TEMPLATES:\n\n");
   fprintf (File, "Num classes = %d;  Num permanent classes = %d\n\n",
-    NumClassesIn (Templates->Templates), Templates->NumPermClasses);
+    (Templates->Templates)->NumClasses, Templates->NumPermClasses);
   fprintf (File, "Index Id  NC NPC  NP NPP\n");
   fprintf (File, "------------------------\n");
 
-  for (i = 0; i < NumClassesIn (Templates->Templates); i++) {
-    IClass = ClassForIndex (Templates->Templates, i);
+  for (i = 0; i < (Templates->Templates)->NumClasses; i++) {
+    IClass = Templates->Templates->Class[i];
     AClass = Templates->Class[i];
 
     fprintf (File, "%5d  %s %3d %3d %3d %3d\n",
-      i, unicharset.id_to_unichar(ClassIdForIndex (Templates->Templates, i)),
-      NumIntConfigsIn (IClass), AClass->NumPermConfigs,
-      NumIntProtosIn (IClass),
-      NumIntProtosIn (IClass) - count (AClass->TempProtos));
+      i, unicharset.id_to_unichar(Templates->Templates->ClassIdFor[i]),
+      IClass->NumConfigs, AClass->NumPermConfigs,
+      IClass->NumProtos,
+      IClass->NumProtos - count (AClass->TempProtos));
   }
   #endif
   fprintf (File, "\n");
@@ -308,7 +308,7 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
   Class->TempProtos = NIL;
   for (i = 0; i < NumTempProtos; i++) {
     TempProto =
-      (TEMP_PROTO) c_alloc_struct (sizeof (TEMP_PROTO_STRUCT),
+      (TEMP_PROTO) alloc_struct (sizeof (TEMP_PROTO_STRUCT),
       "TEMP_PROTO_STRUCT");
     fread ((char *) TempProto, sizeof (TEMP_PROTO_STRUCT), 1, File);
     Class->TempProtos = push_last (Class->TempProtos, TempProto);
@@ -319,8 +319,8 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
   for (i = 0; i < NumConfigs; i++)
     if (test_bit (Class->PermConfigs, i))
       Class->Config[i].Perm = ReadPermConfig (File);
-  else
-    Class->Config[i].Temp = ReadTempConfig (File);
+    else
+      Class->Config[i].Temp = ReadTempConfig (File);
 
   return (Class);
 
@@ -350,7 +350,7 @@ ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File) {
   Templates->Templates = ReadIntTemplates (File, FALSE);
 
   /* then read in the adaptive info for each class */
-  for (i = 0; i < NumClassesIn (Templates->Templates); i++) {
+  for (i = 0; i < (Templates->Templates)->NumClasses; i++) {
     Templates->Class[i] = ReadAdaptedClass (File);
   }
   return (Templates);
@@ -398,7 +398,7 @@ TEMP_CONFIG ReadTempConfig(FILE *File) {
   TEMP_CONFIG Config;
 
   Config =
-    (TEMP_CONFIG) c_alloc_struct (sizeof (TEMP_CONFIG_STRUCT),
+    (TEMP_CONFIG) alloc_struct (sizeof (TEMP_CONFIG_STRUCT),
     "TEMP_CONFIG_STRUCT");
   fread ((char *) Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
 
@@ -452,8 +452,8 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
   for (i = 0; i < NumConfigs; i++)
     if (test_bit (Class->PermConfigs, i))
       WritePermConfig (File, Class->Config[i].Perm);
-  else
-    WriteTempConfig (File, Class->Config[i].Temp);
+    else
+      WriteTempConfig (File, Class->Config[i].Temp);
 
 }                                /* WriteAdaptedClass */
 
@@ -479,10 +479,9 @@ void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
   WriteIntTemplates (File, Templates->Templates, unicharset);
 
   /* then write out the adaptive info for each class */
-  for (i = 0; i < NumClassesIn (Templates->Templates); i++) {
+  for (i = 0; i < (Templates->Templates)->NumClasses; i++) {
     WriteAdaptedClass (File, Templates->Class[i],
-      NumIntConfigsIn (ClassForIndex
-      (Templates->Templates, i)));
+      Templates->Templates->Class[i]->NumConfigs);
   }
 }                                /* WriteAdaptedTemplates */
 

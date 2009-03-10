@@ -32,38 +32,29 @@ typedef struct
 MATRIX_2D, *MATRIX_2D_PTR;
 
 /**----------------------------------------------------------------------------
-          Macros
-----------------------------------------------------------------------------**/
-/* macros for initializing transform matrices */
-#define InitMatrix(M)		((M)->a = 1, (M)->b = 0,		\
-				(M)->c = 0, (M)->d = 1,		\
-				(M)->tx = 0, (M)->ty = 0 )
-
-#define CopyMatrix(A,B)		((B)->a = (A)->a, (B)->b = (A)->b,	\
-				(B)->c = (A)->c, (B)->d = (A)->d,	\
-				(B)->tx = (A)->tx, (B)->ty = (A)->ty)
-
-/* matrix scaling, translation, rotation, mirroring, etc.*/
-#define TranslateMatrix(M,X,Y)	((M)->tx += (M)->a * (X) + (M)->c * (Y),  \
-				(M)->ty += (M)->b * (X) + (M)->d * (Y) )
-
-#define ScaleMatrix(M,X,Y)	((M)->a *= (X), (M)->b *= (X),		\
-				(M)->c *= (Y), (M)->d *= (Y))
-
-#define MirrorMatrixInX(M)  (ScaleMatrix((M),-1,1))
-#define MirrorMatrixInY(M)  (ScaleMatrix((M),1,-1))
-#define MirrorMatrixInXY(M) (ScaleMatrix((M),-1,-1))
-
-/* using a matrix to map points*/
-#define MapX(M,X,Y)   ((M)->a * (X) + (M)->c * (Y) + (M)->tx)
-#define MapY(M,X,Y)   ((M)->b * (X) + (M)->d * (Y) + (M)->ty)
-#define MapPoint(M,A,B)		(Xof(B) = MapX (M, Xof(A), Yof(A)),	\
-				Yof(B) = MapY (M, Xof(A), Yof(A)))
-#define MapDx(M,DX,DY)    ((M)->a * (DX) + (M)->c * (DY))
-#define MapDy(M,DX,DY)    ((M)->b * (DX) + (M)->d * (DY))
-
-/**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void RotateMatrix(MATRIX_2D_PTR Matrix, FLOAT32 Angle); 
+
+void InitMatrix(MATRIX_2D *M);
+void CopyMatrix(MATRIX_2D *A, MATRIX_2D *B);
+
+/* matrix scaling, translation, rotation, mirroring, etc.*/
+void TranslateMatrix(MATRIX_2D *M, FLOAT32 X, FLOAT32 Y);
+void ScaleMatrix(MATRIX_2D *M, FLOAT32 X, FLOAT32 Y);
+
+void MirrorMatrixInX(MATRIX_2D *M);
+void MirrorMatrixInY(MATRIX_2D *M);
+void MirrorMatrixInXY(MATRIX_2D *M);
+
+/* using a matrix to map points*/
+FLOAT32 MapX(MATRIX_2D *M, FLOAT32 X, FLOAT32 Y);
+
+FLOAT32 MapY(MATRIX_2D *M, FLOAT32 X, FLOAT32 Y);
+
+void MapPoint(MATRIX_2D *M, FPOINT &A, FPOINT &B);
+
+FLOAT32 MapDx(MATRIX_2D *M, FLOAT32 DX, FLOAT32 DY);
+FLOAT32 MapDy(MATRIX_2D M, FLOAT32 DX, FLOAT32 DY);
+
+	void RotateMatrix(MATRIX_2D_PTR Matrix, FLOAT32 Angle);
 #endif

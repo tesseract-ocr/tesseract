@@ -68,7 +68,7 @@ int AddConfigToClass(CLASS_TYPE Class) {
 
   MaxNumProtos = Class->MaxNumProtos;
 
-  if (NumConfigsIn (Class) >= Class->MaxNumConfigs) {
+  if (Class->NumConfigs >= Class->MaxNumConfigs) {
     /* add configs in CONFIG_INCREMENT chunks at a time */
     NewNumConfigs = (((Class->MaxNumConfigs + CONFIG_INCREMENT) /
       CONFIG_INCREMENT) * CONFIG_INCREMENT);
@@ -79,10 +79,10 @@ int AddConfigToClass(CLASS_TYPE Class) {
 
     Class->MaxNumConfigs = NewNumConfigs;
   }
-  NewConfig = NumConfigsIn (Class);
-  NumConfigsIn (Class)++;
+  NewConfig = Class->NumConfigs;
+  Class->NumConfigs++;
   Config = NewBitVector (MaxNumProtos);
-  ConfigIn (Class, NewConfig) = Config;
+  Class->Configurations[NewConfig] = Config;
   zero_all_bits (Config, WordsInVectorOfSize (MaxNumProtos));
 
   return (NewConfig);
@@ -102,7 +102,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
   int NewProto;
   BIT_VECTOR Config;
 
-  if (NumProtosIn (Class) >= Class->MaxNumProtos) {
+  if (Class->NumProtos >= Class->MaxNumProtos) {
     /* add protos in PROTO_INCREMENT chunks at a time */
     NewNumProtos = (((Class->MaxNumProtos + PROTO_INCREMENT) /
       PROTO_INCREMENT) * PROTO_INCREMENT);
@@ -113,19 +113,18 @@ int AddProtoToClass(CLASS_TYPE Class) {
 
     Class->MaxNumProtos = NewNumProtos;
 
-    for (i = 0; i < NumConfigsIn (Class); i++) {
-      Config = ConfigIn (Class, i);
-      ConfigIn (Class, i) = ExpandBitVector (Config, NewNumProtos);
+    for (i = 0; i < Class->NumConfigs; i++) {
+      Config = Class->Configurations[i];
+      Class->Configurations[i] = ExpandBitVector (Config, NewNumProtos);
 
-      for (Bit = NumProtosIn (Class); Bit < NewNumProtos; Bit++)
+      for (Bit = Class->NumProtos; Bit < NewNumProtos; Bit++)
         reset_bit(Config, Bit);
     }
   }
-  NewProto = NumProtosIn (Class);
-  NumProtosIn (Class)++;
-  if (NumProtosIn(Class) > MAX_NUM_PROTOS) {
+  NewProto = Class->NumProtos++;
+  if (Class->NumProtos > MAX_NUM_PROTOS) {
     tprintf("Ouch! number of protos = %d, vs max of %d!",
-            NumProtosIn(Class), MAX_NUM_PROTOS);
+            Class->NumProtos, MAX_NUM_PROTOS);
   }
   return (NewProto);
 }
@@ -140,10 +139,10 @@ FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
   inT16 Pid;
   FLOAT32 TotalLength = 0;
 
-  for (Pid = 0; Pid < NumProtosIn (Class); Pid++) {
+  for (Pid = 0; Pid < Class->NumProtos; Pid++) {
     if (test_bit (Config, Pid)) {
 
-      TotalLength += ProtoLength (ProtoIn (Class, Pid));
+      TotalLength += (ProtoIn (Class, Pid))->Length;
     }
   }
   return (TotalLength);
@@ -159,8 +158,8 @@ FLOAT32 ClassProtoLength(CLASS_TYPE Class) {
   inT16 Pid;
   FLOAT32 TotalLength = 0;
 
-  for (Pid = 0; Pid < NumProtosIn (Class); Pid++) {
-    TotalLength += ProtoLength (ProtoIn (Class, Pid));
+  for (Pid = 0; Pid < Class->NumProtos; Pid++) {
+    TotalLength += (ProtoIn (Class, Pid))->Length;
   }
   return (TotalLength);
 }
@@ -172,13 +171,13 @@ FLOAT32 ClassProtoLength(CLASS_TYPE Class) {
  * Copy the first proto into the second.
  **********************************************************************/
 void CopyProto(PROTO Src, PROTO Dest) {
-  ProtoX (Dest) = ProtoX (Src);
-  ProtoY (Dest) = ProtoY (Src);
-  ProtoLength (Dest) = ProtoLength (Src);
-  ProtoAngle (Dest) = ProtoAngle (Src);
-  CoefficientA (Dest) = CoefficientA (Src);
-  CoefficientB (Dest) = CoefficientB (Src);
-  CoefficientC (Dest) = CoefficientC (Src);
+  Dest->X = Src->X;
+  Dest->Y = Src->Y;
+  Dest->Length = Src->Length;
+  Dest->Angle = Src->Angle;
+  Dest->A = Src->A;
+  Dest->B = Src->B;
+  Dest->C = Src->C;
 }
 
 
@@ -224,8 +223,8 @@ void FreeClassFields(CLASS_TYPE Class) {
     if (Class->MaxNumProtos > 0)
       memfree (Class->Prototypes);
     if (Class->MaxNumConfigs > 0) {
-      for (i = 0; i < NumConfigsIn (Class); i++)
-        FreeBitVector (ConfigIn (Class, i));
+      for (i = 0; i < Class->NumConfigs; i++)
+        FreeBitVector (Class->Configurations[i]);
       memfree (Class->Configurations);
     }
   }
@@ -277,7 +276,7 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
 void PrintProtos(CLASS_TYPE Class) {
   inT16 Pid;
 
-  for (Pid = 0; Pid < NumProtosIn (Class); Pid++) {
+  for (Pid = 0; Pid < Class->NumProtos; Pid++) {
     cprintf ("Proto %d:\t", Pid);
     PrintProto (ProtoIn (Class, Pid));
     cprintf ("\t");
@@ -343,18 +342,18 @@ void ReadConfigs(register FILE *File, CLASS_TYPE Class) {
   int NumConfigs;
 
   fscanf (File, "%d %d\n", &NumConfigs, &NumWords);
-  NumConfigsIn (Class) = NumConfigs;
+  Class->NumConfigs = NumConfigs;
   Class->MaxNumConfigs = NumConfigs;
   Class->Configurations =
     (CONFIGS) Emalloc (sizeof (BIT_VECTOR) * NumConfigs);
-  NumWords = WordsInVectorOfSize (NumProtosIn (Class));
+  NumWords = WordsInVectorOfSize (Class->NumProtos);
 
   for (Cid = 0; Cid < NumConfigs; Cid++) {
 
-    ThisConfig = NewBitVector (NumProtosIn (Class));
+    ThisConfig = NewBitVector (Class->NumProtos);
     for (Wid = 0; Wid < NumWords; Wid++)
       fscanf (File, "%x", &ThisConfig[Wid]);
-    ConfigIn (Class, Cid) = ThisConfig;
+    Class->Configurations[Cid] = ThisConfig;
   }
 }
 
@@ -371,19 +370,19 @@ void ReadProtos(register FILE *File, CLASS_TYPE Class) {
   int NumProtos;
 
   fscanf (File, "%d\n", &NumProtos);
-  NumProtosIn (Class) = NumProtos;
+  Class->NumProtos = NumProtos;
   Class->MaxNumProtos = NumProtos;
   Class->Prototypes = (PROTO) Emalloc (sizeof (PROTO_STRUCT) * NumProtos);
 
   for (Pid = 0; Pid < NumProtos; Pid++) {
     Proto = ProtoIn (Class, Pid);
     fscanf (File, "%f %f %f %f %f %f %f\n",
-      &ProtoX (Proto),
-      &ProtoY (Proto),
-      &ProtoLength (Proto),
-      &ProtoAngle (Proto),
-      &CoefficientA (Proto),
-      &CoefficientB (Proto), &CoefficientC (Proto));
+      &Proto->X,
+      &Proto->Y,
+      &Proto->Length,
+      &Proto->Angle,
+      &Proto->A,
+      &Proto->B, &Proto->C);
   }
 }
 
@@ -404,8 +403,8 @@ int SplitProto(CLASS_TYPE Class, int OldPid) {
 
   NewPid = AddProtoToClass (Class);
 
-  for (i = 0; i < NumConfigsIn (Class); i++) {
-    Config = ConfigIn (Class, i);
+  for (i = 0; i < Class->NumConfigs; i++) {
+    Config = Class->Configurations[i];
     if (test_bit (Config, OldPid))
       SET_BIT(Config, NewPid);
   }
@@ -423,14 +422,14 @@ void WriteOldConfigFile(FILE *File, CLASS_TYPE Class) {
   int Cid, Pid;
   BIT_VECTOR Config;
 
-  fprintf (File, "%d %d\n", NumConfigsIn (Class), NumProtosIn (Class));
+  fprintf (File, "%d %d\n", Class->NumConfigs, Class->NumProtos);
 
-  for (Cid = 0; Cid < NumConfigsIn (Class); Cid++) {
+  for (Cid = 0; Cid < Class->NumConfigs; Cid++) {
     fprintf (File, "1 ");
 
-    Config = ConfigIn (Class, Cid);
+    Config = Class->Configurations[Cid];
 
-    for (Pid = 0; Pid < NumProtosIn (Class); Pid++) {
+    for (Pid = 0; Pid < Class->NumProtos; Pid++) {
       if (test_bit (Config, Pid))
         fprintf (File, "1");
       else
@@ -460,13 +459,13 @@ void WriteOldProtoFile(FILE *File, CLASS_TYPE Class) {
   fprintf (File, "linear   non-essential  -0.500000   0.500000\n");
   fprintf (File, "linear   non-essential  -0.500000   0.500000\n");
 
-  for (Pid = 0; Pid < NumProtosIn (Class); Pid++) {
+  for (Pid = 0; Pid < Class->NumProtos; Pid++) {
     Proto = ProtoIn (Class, Pid);
 
     fprintf (File, "significant   elliptical   1\n");
     fprintf (File, "     %9.6f %9.6f %9.6f %9.6f %9.6f %9.6f\n",
-      ProtoX (Proto), ProtoY (Proto),
-      ProtoLength (Proto), ProtoAngle (Proto), 0.0, 0.0);
+      Proto->X, Proto->Y,
+      Proto->Length, Proto->Angle, 0.0, 0.0);
     fprintf (File, "     %9.6f %9.6f %9.6f %9.6f %9.6f %9.6f\n",
       0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001);
   }

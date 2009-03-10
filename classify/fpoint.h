@@ -36,27 +36,28 @@ typedef FPOINT FVECTOR;
             Macros
 ----------------------------------------------------------------------------**/
 /* macros for manipulating simple point data structures */
-#define Xof(P)      ( (P).x )
-#define Yof(P)      ( (P).y )
-#define XofP(P)     ((P)->x)
-#define YofP(P)     ((P)->y)
-#define FillPoint(P,X,Y)  ( Xof(P) = (X), Yof(P) = (Y) )
-#define CopyPoint(A,B)    ( Xof(B) = Xof(A), Yof(B) = Yof(A) )
+//#define Xof(P)      ( (P).x )
+//#define Yof(P)      ( (P).y )
+//#define YofP(P)     ((P)->y)
+//#define XofP(P)     ((P)->x)
 
 /* macros for computing miscellaneous functions of 2 points */
-#define XDelta(A,B)   ( Xof(B) - Xof(A) )
-#define YDelta(A,B)   ( Yof(B) - Yof(A) )
-#define DistanceBetween(A,B)						\
-(sqrt ((double) (XDelta(A,B) * XDelta(A,B) + YDelta(A,B) * YDelta(A,B))))
-
+#define XDelta(A,B)   ( (B).x - (A).x )
+#define YDelta(A,B)   ( (B).y - (A).y )
+#define CopyPoint(A, B) ((B).x = (A).x, (B).y = (A).y) // FIXME, gets expanded for FPOINT and TPOINT.
 #define SlopeFrom(A,B)    ( YDelta(A,B) / XDelta(A,B) )
 #define AngleFrom(A,B)		( atan2((double) YDelta(A,B),		\
 					(double) XDelta(A,B) ) )
 
-#define XIntersectionOf(A,B,X)  ( SlopeFrom(A,B) * ((X) - Xof(A)) + Yof(A))
+#define XIntersectionOf(A,B,X)  ( SlopeFrom(A,B) * ((X) - A.x) + A.y)
 
 /*-------------------------------------------------------------------------
         Public Function Prototypes
 ---------------------------------------------------------------------------*/
-FLOAT32 NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, FLOAT32 FullScale); 
+
+void FillPoint(FPOINT &P, FLOAT32 X, FLOAT32 Y);
+
+FLOAT32 DistanceBetween(FPOINT A, FPOINT B);
+
+FLOAT32 NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, FLOAT32 FullScale);
 #endif

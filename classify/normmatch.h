@@ -35,25 +35,4 @@ void FreeNormProtos();
 
 void InitNormProtoVars();
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif*/
-
-/* normmatch.c *
-FLOAT32 ComputeNormMatch
-  _ARGS((CLASS_ID ClassId,
-  FEATURE Feature,
-  BOOL8 DebugMatch));
-
-void GetNormProtos
-  _ARGS((void));
-
-void InitNormProtoVars
-  _ARGS((void));
-
-#undef _ARGS
-*/
 #endif
