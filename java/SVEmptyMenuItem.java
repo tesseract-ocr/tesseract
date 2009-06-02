@@ -19,43 +19,30 @@ package com.google.scrollview.ui;
  * @author wanke@google.com
  */
 
+import com.google.scrollview.ScrollView;
+import com.google.scrollview.events.SVEvent;
 import com.google.scrollview.events.SVEventType;
 
 import javax.swing.JMenuItem;
 
 /**
- * Constructs a new menulistitem which also has a value and a description. For
- * these, we will not have to ask the server what the value is when the user
- * wants to change it, but can just call the client with the new value.
+ * Constructs a new menulistitem which just has an ID and a name attached to
+ * it. In this case, we will have to ask for the value of the item and its
+ * description if it gets called.
  */
-class SVMenuItem extends SVAbstractMenuItem {
-  public String value = null;
-  public String desc = null;
-
-  SVMenuItem(int id, String name, String v, String d) {
+class SVEmptyMenuItem extends SVAbstractMenuItem {
+  SVEmptyMenuItem(int id, String name) {
     super(id, name, new JMenuItem(name));
-    value = v;
-    desc = d;
   }
-
-  /**
-   * Ask the user for new input for a variable and send it.
-   * Depending on whether there is a description given for the entry, show
-   * the description in the dialog or just show the name.
-   */
+  /** What to do when user clicks on this item. */
   @Override
   public void performAction(SVWindow window, SVEventType eventType) {
-    if (desc != null) {
-      window.showInputDialog(desc, value, id, eventType);
-    } else {
-      window.showInputDialog(name, value, id, eventType);
-    }
-  }
-
-  /** Returns the actual value of the MenuListItem. */
-  @Override
-  public String getValue() {
-    return value;
+  // Send an event indicating that someone clicked on an entry.
+  // Value will be null here.
+    SVEvent svme =
+        new SVEvent(eventType, window, id, getValue());
+    ScrollView.addMessage(svme);
   }
 }
+
 

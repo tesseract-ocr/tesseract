@@ -1,7 +1,9 @@
 SUBDIRS =
 
 EXTRA_DIST = \
-    test.lua makefile SVEvent.java SVEventHandler.java \
+    test.lua makefile SVAbstractMenuItem.java \
+    SVCheckboxMenuItem.java SVEmptyMenuItem.java \
+    SVEvent.java SVEventHandler.java \
     SVEventType.java SVImageHandler.java SVMenuBar.java \
-    SVMenuItem.java SVPopupMenu.java SVWindow.java \
+    SVMenuItem.java SVPopupMenu.java SVSubMenuItem.java SVWindow.java \
     ScrollView.java

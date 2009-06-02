@@ -19,43 +19,42 @@ package com.google.scrollview.ui;
  * @author wanke@google.com
  */
 
+import com.google.scrollview.ScrollView;
+import com.google.scrollview.events.SVEvent;
 import com.google.scrollview.events.SVEventType;
 
-import javax.swing.JMenuItem;
+import javax.swing.JCheckBoxMenuItem;
 
 /**
- * Constructs a new menulistitem which also has a value and a description. For
- * these, we will not have to ask the server what the value is when the user
- * wants to change it, but can just call the client with the new value.
+ * Constructs a new menulistitem which possesses a flag that can be toggled.
  */
-class SVMenuItem extends SVAbstractMenuItem {
+class SVCheckboxMenuItem extends SVAbstractMenuItem {
   public String value = null;
   public String desc = null;
+  public boolean bvalue;
 
-  SVMenuItem(int id, String name, String v, String d) {
-    super(id, name, new JMenuItem(name));
-    value = v;
-    desc = d;
+  SVCheckboxMenuItem(int id, String name, boolean val) {
+    super(id, name, new JCheckBoxMenuItem(name, val));
+    bvalue = val;
   }
 
-  /**
-   * Ask the user for new input for a variable and send it.
-   * Depending on whether there is a description given for the entry, show
-   * the description in the dialog or just show the name.
-   */
+  /** What to do when user clicks on this item. */
   @Override
   public void performAction(SVWindow window, SVEventType eventType) {
-    if (desc != null) {
-      window.showInputDialog(desc, value, id, eventType);
+    // Checkbox entry - trigger and send event.
+    if (bvalue) {
+      bvalue = false;
     } else {
-      window.showInputDialog(name, value, id, eventType);
+      bvalue = true;
     }
+    SVEvent svme = new SVEvent(eventType, window, id, getValue());
+    ScrollView.addMessage(svme);
   }
 
   /** Returns the actual value of the MenuListItem. */
   @Override
   public String getValue() {
-    return value;
+    return Boolean.toString(bvalue);
   }
 }
 

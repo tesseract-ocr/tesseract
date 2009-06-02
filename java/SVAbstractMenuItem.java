@@ -21,41 +21,38 @@ package com.google.scrollview.ui;
 
 import com.google.scrollview.events.SVEventType;
 
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-/**
- * Constructs a new menulistitem which also has a value and a description. For
- * these, we will not have to ask the server what the value is when the user
- * wants to change it, but can just call the client with the new value.
- */
-class SVMenuItem extends SVAbstractMenuItem {
-  public String value = null;
-  public String desc = null;
-
-  SVMenuItem(int id, String name, String v, String d) {
-    super(id, name, new JMenuItem(name));
-    value = v;
-    desc = d;
-  }
+abstract class SVAbstractMenuItem {
+  JMenuItem mi;
+  public String name;
+  public int id;
 
   /**
-   * Ask the user for new input for a variable and send it.
-   * Depending on whether there is a description given for the entry, show
-   * the description in the dialog or just show the name.
+   * Sets the basic attributes for name, id and the corresponding swing item
    */
-  @Override
-  public void performAction(SVWindow window, SVEventType eventType) {
-    if (desc != null) {
-      window.showInputDialog(desc, value, id, eventType);
-    } else {
-      window.showInputDialog(name, value, id, eventType);
-    }
+  SVAbstractMenuItem(int id, String name, JMenuItem jmi) {
+    this.mi = jmi;
+    this.name = name;
+    this.id = id;
   }
 
   /** Returns the actual value of the MenuListItem. */
-  @Override
-  public String getValue() {
-    return value;
-  }
+  public String getValue() { return null; }
+
+  /** Adds a child entry to the submenu. */
+  public void add(SVAbstractMenuItem mli) { }
+
+  /** Adds a child menu to the submenu (or root node). */
+  public void add(JMenu jli) { }
+
+  /**
+   * What to do when user clicks on this item.
+   * @param window The window the event happened.
+   * @param eventType What kind of event will be associated
+   * (usually SVET_POPUP or SVET_MENU).
+   */
+  public void performAction(SVWindow window, SVEventType eventType) {}
 }
 
