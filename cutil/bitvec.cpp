@@ -20,11 +20,12 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "bitvec.h"
-#include "emalloc.h"
-#include "freelist.h"
-#include "callcpp.h"
 
 #include <stdio.h>
+
+#include "emalloc.h"
+#include "freelist.h"
+#include "tprintf.h"
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
@@ -35,7 +36,7 @@ static int BitVectorCount = 0;
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits) { 
+BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits) {
 /*
  **	Parameters:
  **		Vector		bit vector to be expanded
@@ -47,15 +48,13 @@ BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits) {
  **	Exceptions: none
  **	History: Fri Nov 16 10:11:16 1990, DSJ, Created.
  */
-  return ((BIT_VECTOR) Erealloc (Vector,
-    sizeof (unsigned long) *
-    WordsInVectorOfSize (NewNumBits)));
-
+  return ((BIT_VECTOR) Erealloc(Vector,
+    sizeof(Vector[0]) * WordsInVectorOfSize(NewNumBits)));
 }                                /* ExpandBitVector */
 
 
 /*---------------------------------------------------------------------------*/
-void FreeBitVector(BIT_VECTOR BitVector) { 
+void FreeBitVector(BIT_VECTOR BitVector) {
 /*
  **	Parameters:
  **		BitVector	bit vector to be freed
@@ -70,24 +69,19 @@ void FreeBitVector(BIT_VECTOR BitVector) {
  **	History: Tue Oct 23 16:46:09 1990, DSJ, Created.
  */
   if (BitVector) {
-    memfree(BitVector); 
+    Efree(BitVector);
     BitVectorCount--;
+  } else {
+    tprintf("%6d BITVECTOR elements in use\n", BitVectorCount);
   }
-  else {
-    cprintf ("%6d BITVECTOR elements in use\n", BitVectorCount);
-  }
-
 }                                /* FreeBitVector */
 
 
                                  /*hamming_distance(array1,array2,length) computes the hamming distance
    between two bit strings */
 /*--------------------------------------------------------------------------*/
-int hamming_distance(                        /*arrays to match */
-                     register unsigned long *array1,
-                     register unsigned long *array2,
-                     register int length) {  /*length of arrays */
-  register unsigned long diff;   /*bit difference */
+int hamming_distance(uinT32* array1, uinT32* array2, int length) {
+  register uinT32 diff;   /*bit difference */
   register int dist;             /*total distance */
 
   dist = 0;
@@ -103,7 +97,7 @@ int hamming_distance(                        /*arrays to match */
 
 
 /*---------------------------------------------------------------------------*/
-BIT_VECTOR NewBitVector(int NumBits) { 
+BIT_VECTOR NewBitVector(int NumBits) {
 /*
  **	Parameters:
  **		NumBits		number of bits in new bit vector
@@ -116,7 +110,6 @@ BIT_VECTOR NewBitVector(int NumBits) {
  **	History: Tue Oct 23 16:51:27 1990, DSJ, Created.
  */
   BitVectorCount++;
-  return ((BIT_VECTOR) Emalloc (sizeof (unsigned long) *
-    WordsInVectorOfSize (NumBits)));
-
+  return ((BIT_VECTOR) Emalloc(sizeof(uinT32) *
+    WordsInVectorOfSize(NumBits)));
 }                                /* NewBitVector */
