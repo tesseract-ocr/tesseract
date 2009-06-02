@@ -396,7 +396,7 @@ LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row) {
 **                          History: Mon Mar 11 10:00:58 1991, DSJ, Created.
 */
   LIST Choices;
-  ADAPT_RESULTS Results;
+  ADAPT_RESULTS* Results = new ADAPT_RESULTS;
   LINE_STATS LineStats;
 
   if (FailedAdaptionsBeforeReset >= 0 &&
@@ -408,27 +408,27 @@ LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row) {
     AdaptedTemplates = NewAdaptedTemplates ();
   EnterClassifyMode;
 
-  Results.BlobLength = MAX_INT32;
-  Results.NumMatches = 0;
-  Results.BestRating = WORST_POSSIBLE_RATING;
-  Results.BestClass = NO_CLASS;
-  Results.BestConfig = 0;
+  Results->BlobLength = MAX_INT32;
+  Results->NumMatches = 0;
+  Results->BestRating = WORST_POSSIBLE_RATING;
+  Results->BestClass = NO_CLASS;
+  Results->BestConfig = 0;
   GetLineStatsFromRow(Row, &LineStats);
-  InitMatcherRatings (Results.Ratings);
+  InitMatcherRatings (Results->Ratings);
 
-  DoAdaptiveMatch(Blob, &LineStats, &Results);
-  RemoveBadMatches(&Results);
+  DoAdaptiveMatch(Blob, &LineStats, Results);
+  RemoveBadMatches(Results);
 
   /* save ratings in a global so that CompareCurrentRatings() can see them */
-  CurrentRatings = Results.Ratings;
-  qsort ((void *) (Results.Classes), Results.NumMatches,
+  CurrentRatings = Results->Ratings;
+  qsort((void*) (Results->Classes), Results->NumMatches,
     sizeof (CLASS_ID), CompareCurrentRatings);
-  RemoveExtraPuncs(&Results);
-  Choices = ConvertMatchesToChoices (&Results);
+  RemoveExtraPuncs(Results);
+  Choices = ConvertMatchesToChoices(Results);
 
   if (MatcherDebugLevel >= 1) {
     cprintf ("AD Matches =  ");
-    PrintAdaptiveMatchResults(stdout, &Results);
+    PrintAdaptiveMatchResults(stdout, Results);
   }
 
   if (LargeSpeckle (Blob, Row))
@@ -436,7 +436,7 @@ LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row) {
 
 #ifndef GRAPHICS_DISABLED
   if (EnableAdaptiveDebugger)
-    DebugAdaptiveClassifier(Blob, &LineStats, &Results);
+    DebugAdaptiveClassifier(Blob, &LineStats, Results);
 #endif
 
   NumClassesOutput += count (Choices);
@@ -447,8 +447,8 @@ LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row) {
     return (append_choice (NIL, "", empty_lengths, 50.0f, -20.0f, -1));
   }
 
-  return (Choices);
-
+  delete Results;
+  return Choices;
 }                                /* AdaptiveClassifier */
 
 

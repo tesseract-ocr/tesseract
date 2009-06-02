@@ -57,15 +57,8 @@ DLLSYM void block_edges(                      //get edges in a block
   BLOCK_LINE_IT line_it = block; //line iterator
   IMAGELINE bwline;              //thresholded line
                                  //lines in progress
-  CRACKEDGE *ptrlinemem[MAXIMAGEWIDTH];
-  CRACKEDGE **ptrline = ptrlinemem;
-
-  if (t_image->get_xsize()+1 > MAXIMAGEWIDTH) {
-    ptrline = new CRACKEDGE*[t_image->get_xsize()+1];
-  }
-
-                                 //block box
-  block->bounding_box (bleft, tright);
+  CRACKEDGE **ptrline = new CRACKEDGE*[t_image->get_xsize()+1];
+  block->bounding_box (bleft, tright); // block box
   block_bleft = bleft;
   block_tright = tright;
   for (x = tright.x () - bleft.x (); x >= 0; x--)
@@ -93,9 +86,7 @@ DLLSYM void block_edges(                      //get edges in a block
 
   free_crackedges(free_cracks);  //really free them
   free_cracks = NULL;
-  if (ptrline != ptrlinemem) {
-    delete [] ptrline;
-  }
+  delete[] ptrline;
 }
 
 
