@@ -31,6 +31,8 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
+#include <stdlib.h>
+#include <string.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #ifdef __linux__
@@ -39,9 +41,6 @@
 #endif
 
 #include <iostream>
-#include <string>
-#include <cstring>
-#include <cstdlib>
 
 const int kBufferSize = 65536;
 const int kMaxMsgSize = 4096;
@@ -269,8 +268,9 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
 #elif defined(__linux__)
   struct hostent hp;
   int herr;
-  char buffer[kBufferSize];
+  char *buffer = new char[kBufferSize];
   gethostbyname_r(hostname, &hp, buffer, kBufferSize, &name, &herr);
+  delete[] buffer;
 #else
   name = gethostbyname(hostname);
 #endif
@@ -303,22 +303,22 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
     // this unnecessary.
     // Also the path has to be separated by ; on windows and : otherwise.
 #ifdef WIN32
-    const char* prog = "java";
-    const char* cmd_template = "-Djava.library.path=%s -cp %s/luajava-1.1.jar"
-        ";%s/ScrollView.jar;%s/piccolo-1.2.jar;%s/piccolox-1.2.jar"
+    const char* prog = "java -Xms1024m -Xmx2048m";
+    const char* cmd_template = "-Djava.library.path=%s -cp %s/ScrollView.jar;"
+        "%s/piccolo-1.2.jar;%s/piccolox-1.2.jar"
         " com.google.scrollview.ScrollView";
 #else
     const char* prog = "sh";
     const char* cmd_template = "-c \"trap 'kill %1' 0 1 2 ; java "
-        "-Djava.library.path=%s -cp %s/luajava-1.1.jar:%s/ScrollView.jar:"
+        "-Xms1024m -Xmx2048m -Djava.library.path=%s -cp %s/ScrollView.jar:"
         "%s/piccolo-1.2.jar:%s/piccolox-1.2.jar"
         " com.google.scrollview.ScrollView"
         " >/dev/null 2>&1 & wait\"";
 #endif
-    int cmdlen = strlen(cmd_template) + 5*strlen(scrollview_path) + 1;
+    int cmdlen = strlen(cmd_template) + 4*strlen(scrollview_path) + 1;
     char* cmd = new char[cmdlen];
     snprintf(cmd, cmdlen, cmd_template, scrollview_path, scrollview_path,
-             scrollview_path, scrollview_path, scrollview_path);
+             scrollview_path, scrollview_path);
 
     SVSync::StartProcess(prog, cmd);
     delete [] cmd;
