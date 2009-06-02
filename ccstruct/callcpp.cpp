@@ -67,20 +67,6 @@ char *word_answer;                 //correct word
 inT32 matcher_pass;                //pass in chopper.c
 inT32 bits_in_states;              //no of bits in states
 
-#ifndef __UNIX__
-/**********************************************************************
- * assert
- *
- * A version of assert for C on NT.
- **********************************************************************/
-
-void assert(             //recog one owrd
-            int testing  //assert fail if false
-           ) {
-  ASSERT_HOST(testing);
-}
-#endif
-
 void setup_cp_maps() {
   cp_maps[0] = tess_cp_mapping0;
   cp_maps[1] = tess_cp_mapping1;

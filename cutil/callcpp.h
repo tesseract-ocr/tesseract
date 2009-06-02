@@ -119,9 +119,7 @@ extern inT32 matcher_pass;       //pass in chopper.c
 extern inT32 bits_in_states;     //no of bits in states
 
 #ifndef __UNIX__
-void assert(             //recog one owrd
-            int testing  //assert fail if false
-           );
+#include <assert.h>
 #endif
 void setup_cp_maps();
 void trace_stack();  //Trace current stack
