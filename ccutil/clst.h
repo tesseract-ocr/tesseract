@@ -657,7 +657,7 @@ inline void *CLIST_ITERATOR::move_to_first() {
   current = list->First ();
   prev = list->last;
   next = current != NULL ? current->next : NULL;
-  return current->data;
+  return current != NULL ? current->data : NULL;
 }
 
 

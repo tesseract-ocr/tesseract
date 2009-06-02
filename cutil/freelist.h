@@ -34,36 +34,12 @@
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-int *memalloc_p(int size); 
+int *memalloc(int size);
 
-int *memalloc(int size); 
+int *memrealloc(void *ptr, int size, int oldsize);
 
-int *memrealloc(void *ptr, int size, int oldsize); 
+void memfree(void *element);
 
-void memfree(void *element); 
+void mem_tidy(int level);
 
-void mem_tidy(int level); 
-
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif*/
-
-/* freelist.c
-int *memalloc_p
-  _ARGS((int size));
-
-int *memalloc
-  _ARGS((int size));
-
-void memfree
-  _ARGS((void *element));
-
-void mem_tidy
-  _ARGS((void));
-
-#undef _ARGS
-*/
 #endif

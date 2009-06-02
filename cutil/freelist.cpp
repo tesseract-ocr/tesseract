@@ -10,24 +10,14 @@
  ** limitations under the License.
 **************************************************************************/
 #include "freelist.h"
-#include "danerror.h"
-#include "callcpp.h"
 
 #include <memory.h>
 
-static int mem_alloc_counter = 0;
+#include "danerror.h"
+#include "memry.h"
+#include "tprintf.h"
 
-/**********************************************************************
- * memalloc_p
- *
- * Memory allocator with protection.
- **********************************************************************/
-int *memalloc_p(int size) {
-  mem_alloc_counter++;
-  if (!size)
-    DoError (0, "Allocation of 0 bytes");
-  return ((int *) c_alloc_mem_p (size));
-}
+static int mem_alloc_counter = 0;
 
 
 /**********************************************************************
@@ -37,7 +27,7 @@ int *memalloc_p(int size) {
  **********************************************************************/
 int *memalloc(int size) {
   mem_alloc_counter++;
-  return ((int *) c_alloc_mem (size));
+  return ((int *) alloc_mem (size));
 }
 
 
@@ -51,9 +41,9 @@ int *memrealloc(void *ptr, int size, int oldsize) {
   int *newbuf;
 
   shiftsize = size > oldsize ? oldsize : size;
-  newbuf = (int *) c_alloc_mem (size);
+  newbuf = (int *) alloc_mem (size);
   memcpy(newbuf, ptr, shiftsize);
-  c_free_mem(ptr);
+  free_mem(ptr);
   return newbuf;
 }
 
@@ -65,11 +55,11 @@ int *memrealloc(void *ptr, int size, int oldsize) {
  **********************************************************************/
 void memfree(void *element) {
   if (element) {
-    c_free_mem(element);
+    free_mem(element);
     mem_alloc_counter--;
   }
   else {
-    cprintf ("%d MEM_ALLOC's used\n", mem_alloc_counter);
+    tprintf ("%d MEM_ALLOC's used\n", mem_alloc_counter);
     DoError (0, "Memfree of NULL pointer");
   }
 }
@@ -81,5 +71,5 @@ void memfree(void *element) {
  * Do nothing.
  **********************************************************************/
 void mem_tidy(int level) {
-  c_check_mem ("Old tidy", level);
+  check_mem ("Old tidy", level);
 }

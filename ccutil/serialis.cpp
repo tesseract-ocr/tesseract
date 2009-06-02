@@ -84,6 +84,11 @@ DLLSYM double de_serialise_FLOAT64(FILE *f) {
   return the_float;
 }
 
+// Byte swap an inT64 or uinT64.
+DLLSYM uinT64 reverse64(uinT64 num) {
+  return ((uinT64)reverse32((uinT32)(num & 0xffffffff)) << 32)
+    | reverse32((uinT32)((num >> 32) & 0xffffffff));
+}
 
 /**********************************************************************
  * reverse32

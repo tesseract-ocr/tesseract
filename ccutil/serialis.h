@@ -43,12 +43,10 @@ extern DLLSYM void serialise_INT32(FILE *f, inT32 the_int);
 extern DLLSYM inT32 de_serialise_INT32(FILE *f);
 extern DLLSYM void serialise_FLOAT64(FILE *f, double the_float);
 extern DLLSYM double de_serialise_FLOAT64(FILE *f);
-extern DLLSYM uinT32 reverse32(            //switch endian
-                               uinT32 num  //number to fix
-                              );
-extern DLLSYM uinT16 reverse16(            //switch endian
-                               uinT16 num  //number to fix
-                              );
+// Switch endinan.
+extern DLLSYM uinT64 reverse64(uinT64);
+extern DLLSYM uinT32 reverse32(uinT32);
+extern DLLSYM uinT16 reverse16(uinT16);
 
 /***********************************************************************
   QUOTE_IT   MACRO DEFINITION

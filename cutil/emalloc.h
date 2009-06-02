@@ -36,37 +36,9 @@ void *Erealloc(void *ptr, size_t size);
 
 void Efree(void *ptr);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif*/
-
-/* emalloc.c
-void *Emalloc
-  _ARGS((size_t Size));
-
-void *Erealloc
-  _ARGS((void *ptr,
-  size_t size));
-
-void Efree
-  _ARGS((void *ptr));
-
-#undef _ARGS
-*/
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
 
-//extern void* c_alloc_struct();
-//#define alloc_struct c_alloc_struct
-/*extern void c_free_struct(void*
-              deadstruct,					//structure to free
-inT32						count,						//no of bytes
-const char*					name						//class name
-);*/
-//#define free_struct c_free_struct
 #endif

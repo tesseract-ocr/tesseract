@@ -409,9 +409,10 @@ STRING & STRING::operator=(const char* cstr) {
     this_header->used_ = len;
   }
   else {
-    // preserve old behavior
-    *GetCStr() = '\0';
-    this_header->used_ = 1;
+    // Reallocate to zero capacity buffer, consistent with the corresponding
+    // copy constructor.
+    DiscardData();
+    AllocData(0, 0);
   }
 
   CHECK_INVARIANT(this);
