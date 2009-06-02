@@ -18,11 +18,13 @@
 #ifndef   BITVEC_H
 #define   BITVEC_H
 
+#include "host.h"
+
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #define BITSINLONG      32       /*no of bits in a long */
-typedef unsigned int *BIT_VECTOR;
+typedef uinT32 *BIT_VECTOR;
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
@@ -67,9 +69,7 @@ BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits);
 
 void FreeBitVector(BIT_VECTOR BitVector);
 
-int hamming_distance(register unsigned long *array1,
-                     register unsigned long *array2,
-                     register int length);
+int hamming_distance(uinT32* array1, uinT32* array2, int length);
 
 BIT_VECTOR NewBitVector(int NumBits);
 /*

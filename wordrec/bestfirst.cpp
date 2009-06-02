@@ -26,6 +26,8 @@
 /*----------------------------------------------------------------------
           I n c l u d e s
 ---------------------------------------------------------------------*/
+#include <assert.h>
+
 #include "bestfirst.h"
 #include "heuristic.h"
 #include "plotseg.h"
@@ -166,9 +168,9 @@ void delete_search(SEARCH_RECORD *the_search) {
   float closeness;
 
   closeness = (the_search->num_joints ?
-    (hamming_distance ((unsigned long *) the_search->first_state,
-    (unsigned long *) the_search->best_state,
-    2) / (float) the_search->num_joints) : 0.0);
+    (hamming_distance(reinterpret_cast<uinT32*>(the_search->first_state),
+                      reinterpret_cast<uinT32*>(the_search->best_state), 2) /
+      (float) the_search->num_joints) : 0.0f);
 
   record_search_status (the_search->num_states,
     the_search->before_best, closeness);
