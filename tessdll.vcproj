@@ -49,10 +49,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="aspirin,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,ccmain,pageseg,."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;__IPEREGDLL;_CRTDBG_MAP_ALLOC;PURIFY"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;_CRT_SECURE_NO_WARNINGS;__IPEREGDLL;_CRTDBG_MAP_ALLOC;PURIFY"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\dll.Debug/tessdll.pch"
 				AssemblerListingLocation=".\dll.Debug/"
 				ObjectFile=".\dll.Debug/"
@@ -80,6 +80,7 @@
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\bin.dbg/tessdll.pdb"
+				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary=".\bin.dbg/tessdll.lib"
@@ -145,9 +146,9 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="aspirin,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,ccmain,pageseg,."
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;__IPEREGDLL;PURIFY"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;_CRT_SECURE_NO_WARNINGS;__IPEREGDLL;PURIFY"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\dll.Release/tessdll.pch"
 				AssemblerListingLocation=".\dll.Release/"
@@ -174,6 +175,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\./tessdll.pdb"
+				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary=".\./tessdll.lib"
@@ -192,101 +194,6 @@
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
 				OutputFile=".\./tessdll.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="load|Win32"
-			OutputDirectory=".\tessdll___Win32_load"
-			IntermediateDirectory=".\tessdll.load"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\tessdll___Win32_load/tessdll.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="aspirin,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,ccmain,pageseg,."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;__IPEREGDLL;_CRTDBG_MAP_ALLOC;PURIFY"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\tessdll.load/tessdll.pch"
-				AssemblerListingLocation=".\tessdll.load/"
-				ObjectFile=".\tessdll.load/"
-				ProgramDataBaseFileName=".\tessdll.load/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib user32.lib"
-				OutputFile="C:\Documents and Settings\Glen Wernersbach\Desktop\loan\tessdll.dll"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\tessdll___Win32_load/tessdll.pdb"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary=".\tessdll___Win32_load/tessdll.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\tessdll___Win32_load/tessdll.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -330,17 +237,6 @@
 						PrecompiledHeaderThrough="stdafx.h"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="load|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="stdafx.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="tessdll.cpp"
@@ -363,15 +259,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="load|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="ccmain"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<Filter
 				Name="ccmain"
@@ -390,15 +277,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -428,15 +306,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\baseapi.cpp"
@@ -452,15 +321,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -490,15 +350,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\callnet.cpp"
@@ -514,15 +365,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -552,15 +394,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\charsample.cpp"
@@ -576,15 +409,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -614,15 +438,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\docqual.cpp"
@@ -638,15 +453,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -676,15 +482,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\fixspace.cpp"
@@ -700,15 +497,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -738,15 +526,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\imgscale.cpp"
@@ -762,15 +541,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -800,15 +570,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\output.cpp"
@@ -824,15 +585,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -866,15 +618,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\ccmain\pgedit.cpp"
@@ -894,15 +637,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -932,15 +666,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\tessbox.cpp"
@@ -956,15 +681,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -994,15 +710,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\tesseractmain.cpp"
@@ -1018,15 +725,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1056,15 +754,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\tfacepp.cpp"
@@ -1087,15 +776,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccmain\tstruct.cpp"
@@ -1111,15 +791,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1153,15 +824,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 			</Filter>
 			<Filter
@@ -1181,15 +843,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1219,15 +872,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\blread.cpp"
@@ -1243,15 +887,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1281,15 +916,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\coutln.cpp"
@@ -1305,15 +931,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1343,15 +960,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\labls.cpp"
@@ -1367,15 +975,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1405,15 +1004,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\lmedsq.cpp"
@@ -1429,15 +1019,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1467,15 +1048,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\normalis.cpp"
@@ -1491,15 +1063,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1529,15 +1092,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\ocrrow.cpp"
@@ -1553,15 +1107,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1591,15 +1136,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\pageres.cpp"
@@ -1615,15 +1151,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1653,15 +1180,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\points.cpp"
@@ -1677,15 +1195,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1715,15 +1224,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\polyblk.cpp"
@@ -1739,15 +1239,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1777,15 +1268,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\polyvert.cpp"
@@ -1801,15 +1283,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1839,15 +1312,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\quadlsq.cpp"
@@ -1863,15 +1327,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1901,15 +1356,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\quspline.cpp"
@@ -1925,15 +1371,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -1963,15 +1400,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\rect.cpp"
@@ -1987,15 +1415,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2025,15 +1444,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\rwpoly.cpp"
@@ -2049,15 +1459,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2087,15 +1488,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\stepblob.cpp"
@@ -2111,15 +1503,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2149,15 +1532,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\vecfuncs.cpp"
@@ -2180,15 +1554,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccstruct\werd.cpp"
@@ -2204,15 +1569,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2246,15 +1602,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\bits16.cpp"
@@ -2270,15 +1617,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2312,15 +1650,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\debugwin.cpp"
@@ -2336,15 +1665,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2374,15 +1694,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\elst2.cpp"
@@ -2398,15 +1709,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2436,15 +1738,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\globaloc.cpp"
@@ -2460,15 +1753,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2498,15 +1782,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\mainblk.cpp"
@@ -2522,15 +1797,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2560,15 +1826,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\memry.cpp"
@@ -2584,15 +1841,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2622,15 +1870,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\ocrshell.cpp"
@@ -2646,15 +1885,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2684,15 +1914,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\strngs.cpp"
@@ -2708,15 +1929,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2746,15 +1958,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\tprintf.cpp"
@@ -2770,15 +1973,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2808,15 +2002,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\unicharmap.cpp"
@@ -2832,15 +2017,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2870,15 +2046,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="ccutil\varable.cpp"
@@ -2894,15 +2061,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2936,15 +2094,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\adaptmatch.cpp"
@@ -2960,15 +2109,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -2998,15 +2138,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\blobclass.cpp"
@@ -3022,15 +2153,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3060,15 +2182,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\cluster.cpp"
@@ -3084,15 +2197,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3122,15 +2226,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\cutoffs.cpp"
@@ -3146,15 +2241,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3184,15 +2270,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\featdefs.cpp"
@@ -3208,15 +2285,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3246,15 +2314,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\float2int.cpp"
@@ -3270,15 +2329,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3308,15 +2358,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\fxdefs.cpp"
@@ -3332,15 +2373,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3370,15 +2402,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\intfx.cpp"
@@ -3394,15 +2417,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3432,15 +2446,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\intproto.cpp"
@@ -3456,15 +2461,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3494,15 +2490,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\mf.cpp"
@@ -3518,15 +2505,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3556,15 +2534,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\mfoutline.cpp"
@@ -3580,15 +2549,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3618,15 +2578,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\normfeat.cpp"
@@ -3642,15 +2593,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3680,15 +2622,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\ocrfeatures.cpp"
@@ -3704,15 +2637,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3742,15 +2666,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\picofeat.cpp"
@@ -3766,15 +2681,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3804,15 +2710,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\sigmenu.cpp"
@@ -3828,15 +2725,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3866,15 +2754,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="classify\xform2d.cpp"
@@ -3890,15 +2769,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3932,15 +2802,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="cutil\cutil.cpp"
@@ -3956,15 +2817,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -3994,46 +2846,10 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="cutil\debug.cpp"
+					RelativePath=".\cutil\debug.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="cutil\efio.cpp"
@@ -4049,15 +2865,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4087,15 +2894,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="cutil\freelist.cpp"
@@ -4111,15 +2909,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4149,15 +2938,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="cutil\listio.cpp"
@@ -4173,15 +2953,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4211,15 +2982,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="cutil\oldlist.cpp"
@@ -4235,15 +2997,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4273,15 +3026,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="cutil\tessarray.cpp"
@@ -4297,15 +3041,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4335,46 +3070,10 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="cutil\variables.cpp"
+					RelativePath=".\cutil\variables.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 			</Filter>
 			<Filter
@@ -4394,15 +3093,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4432,15 +3122,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="dict\dawg.cpp"
@@ -4456,15 +3137,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4494,15 +3166,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="dict\permdawg.cpp"
@@ -4525,50 +3188,14 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\dict\permngram.cpp"
 					>
 				</File>
 				<File
-					RelativePath="dict\permnum.cpp"
+					RelativePath=".\dict\permnum.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="dict\permute.cpp"
@@ -4584,15 +3211,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4622,15 +3240,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="dict\stopper.cpp"
@@ -4653,15 +3262,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="dict\trie.cpp"
@@ -4677,15 +3277,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4747,15 +3338,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="image\imgbmp.cpp"
@@ -4771,15 +3353,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4809,15 +3382,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="image\imgs.cpp"
@@ -4840,15 +3404,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="image\imgtiff.cpp"
@@ -4864,15 +3419,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4910,15 +3456,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\drawedg.cpp"
@@ -4934,15 +3471,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -4972,15 +3500,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\edgblob.cpp"
@@ -4996,15 +3515,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5034,15 +3544,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\fpchop.cpp"
@@ -5058,15 +3559,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5096,15 +3588,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\makerow.cpp"
@@ -5120,15 +3603,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5158,15 +3632,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\pithsync.cpp"
@@ -5182,15 +3647,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5220,15 +3676,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\scanedg.cpp"
@@ -5244,15 +3691,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5282,15 +3720,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\topitch.cpp"
@@ -5306,15 +3735,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5344,15 +3764,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\tospace.cpp"
@@ -5368,15 +3779,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5406,15 +3808,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\underlin.cpp"
@@ -5437,15 +3830,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="textord\wordseg.cpp"
@@ -5461,15 +3845,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5519,15 +3894,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\badwords.cpp"
@@ -5543,15 +3909,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5581,15 +3938,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\chop.cpp"
@@ -5605,15 +3953,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5643,15 +3982,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\closed.cpp"
@@ -5667,15 +3997,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5705,15 +4026,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\drawfx.cpp"
@@ -5729,15 +4041,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5767,15 +4070,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\gradechop.cpp"
@@ -5791,15 +4085,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5829,15 +4114,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\makechop.cpp"
@@ -5853,15 +4129,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5891,15 +4158,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\matrix.cpp"
@@ -5915,15 +4173,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -5953,15 +4202,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\mfvars.cpp"
@@ -5977,15 +4217,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -6015,15 +4246,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\olutil.cpp"
@@ -6039,15 +4261,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -6077,15 +4290,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\pieces.cpp"
@@ -6101,15 +4305,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -6139,15 +4334,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\plotseg.cpp"
@@ -6163,15 +4349,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -6201,15 +4378,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\seam.cpp"
@@ -6225,15 +4393,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -6263,15 +4422,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\tally.cpp"
@@ -6287,15 +4437,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -6325,15 +4466,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\tface.cpp"
@@ -6356,15 +4488,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="wordrec\wordclass.cpp"
@@ -6380,15 +4503,6 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="load|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -6982,10 +5096,6 @@
 					>
 				</File>
 				<File
-					RelativePath="cutil\debug.h"
-					>
-				</File>
-				<File
 					RelativePath="cutil\efio.h"
 					>
 				</File>
@@ -7038,7 +5148,7 @@
 					>
 				</File>
 				<File
-					RelativePath="cutil\variables.h"
+					RelativePath=".\cutil\variables.h"
 					>
 				</File>
 			</Filter>
@@ -7067,10 +5177,6 @@
 				</File>
 				<File
 					RelativePath="dict\permdawg.h"
-					>
-				</File>
-				<File
-					RelativePath="dict\permnum.h"
 					>
 				</File>
 				<File
