@@ -27,7 +27,13 @@
 #endif
 #include          <stdlib.h>
 #include          "basedir.h"
+#include          "varable.h"
 #include          "notdll.h"     //must be last include
+
+#ifdef __MSW32__
+STRING_VAR(tessedit_module_name, "tessdll.dll",
+        "Module colocated with tessdata dir");
+#endif
 
 /**********************************************************************
  * getpath
@@ -88,17 +94,25 @@ DLLSYM inT8 getpath(                   //get dir name of code
   #ifdef __MSW32__
   char *path_end;                //end of dir
 
-  if (GetModuleFileName (NULL, directory, MAX_PATH - 1) == 0) {
-    return -1;
+  if (code == NULL) {
+    // Attempt to get the path of the most relevant module. If the dll
+    // is being used, this will be the dll. Otherwise GetModuleHandle will
+    // return NULL and default to the path of the executable.
+    if (GetModuleFileName(GetModuleHandle(tessedit_module_name.string()),
+                          directory, MAX_PATH - 1) == 0) {
+      return -1;
+    }
+    while ((path_end = strchr (directory, '\\')) != NULL)
+      *path_end = '/';
+    path_end = strrchr (directory, '/');
+    if (path_end != NULL)
+      path_end[1] = '\0';
+    else
+      strcpy (directory, "./");
+    path = directory;
+  } else {
+    path = code;
   }
-  while ((path_end = strchr (directory, '\\')) != NULL)
-    *path_end = '/';
-  path_end = strrchr (directory, '/');
-  if (path_end != NULL)
-    path_end[1] = '\0';
-  else
-    strcpy (directory, "./");
-  path = directory;
   return 0;
   #endif
 }
