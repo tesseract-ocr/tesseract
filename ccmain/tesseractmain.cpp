@@ -145,9 +145,10 @@ int main(int argc, char **argv) {
   STRING outfile;               //output file
 
   if (argc < 3) {
-    USAGE.error (argv[0], EXIT,
+    USAGE.error (argv[0], TESSLOG,
       "%s imagename outputbase [-l lang] [configfile [[+|-]varfile]...]\n",
       argv[0]);
+	return 1;
   }
   // Find the required language.
   const char* lang = "eng";

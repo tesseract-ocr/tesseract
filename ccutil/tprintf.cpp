@@ -28,11 +28,7 @@
 #define MAX_MSG_LEN     1024
 
 #define EXTERN
-#ifdef __MSW32__
-DLLSYM STRING_VAR (debug_file, "tesseract.log", "File to send tprintf output to");
-#else
 DLLSYM STRING_VAR (debug_file, "", "File to send tprintf output to");
-#endif
 DLLSYM BOOL_VAR (debug_window_on, FALSE,
 "Send tprintf to window unless file set");
 
@@ -77,17 +73,7 @@ const char *format, ...          //special message
       debugwin->dprintf (msg);
     }
     else {
-      #ifdef __UNIX__
-                                 // output to stderr - like it used to
       fprintf (stderr, "%s", msg);
-      #endif
-
-      #ifdef __MSW32__
-     // TRACE ("%s", msg);         //Visual C++2.0 macro
-      #endif
-      #ifdef __MAC__
-      printf ("%s", msg);        //Visual C++2.0 macro
-      #endif
     }
   }
 }
