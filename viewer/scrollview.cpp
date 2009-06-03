@@ -32,6 +32,7 @@ const int kMaxIntPairSize = 45;  // Holds %d,%d, for upto 64 bit.
 #include "scrollview.h"
 
 #include <stdarg.h>
+#include <limits.h>
 #include <string.h>
 #include <map>
 #include <utility>

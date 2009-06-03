@@ -25,8 +25,8 @@
 // A SVMenuNode can both be used in the context_ of popup menus as well as
 // menu bars.
 
-#ifndef THIRD_PARTY_TESSERACT_VIEWER_SVMNODE_H__
-#define THIRD_PARTY_TESSERACT_VIEWER_SVMNODE_H__
+#ifndef TESSERACT_VIEWER_SVMNODE_H__
+#define TESSERACT_VIEWER_SVMNODE_H__
 
 class ScrollView;
 
@@ -91,4 +91,4 @@ class SVMenuNode {
   const char* description_;
 };
 
-#endif  // THIRD_PARTY_TESSERACT_VIEWER_SVMNODE_H__
+#endif  // TESSERACT_VIEWER_SVMNODE_H__

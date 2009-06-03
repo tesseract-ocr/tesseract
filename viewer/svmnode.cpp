@@ -28,6 +28,7 @@
 
 #ifndef GRAPHICS_DISABLED
 
+#include <string.h>
 #include <iostream>
 #include <cstring>
 

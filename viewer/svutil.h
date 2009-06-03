@@ -21,8 +21,8 @@
 // classes, which are used for thread/process creation & synchronization
 // and network connection.
 
-#ifndef THIRD_PARTY_TESSERACT_VIEWER_SVUTIL_H__
-#define THIRD_PARTY_TESSERACT_VIEWER_SVUTIL_H__
+#ifndef TESSERACT_VIEWER_SVUTIL_H__
+#define TESSERACT_VIEWER_SVUTIL_H__
 
 #ifdef WIN32
 #include <windows.h>
@@ -39,7 +39,7 @@
 #include <string>
 
 #ifndef MAX
-#define MAX(a ,b)  ((a > b) ? a : b)
+#define MAX(a, b)  ((a > b) ? a : b)
 #endif
 
 #ifndef MIN
@@ -134,4 +134,4 @@ class SVNetwork {
   char* buffer_ptr_;  // Unix (strtok_r)
 };
 
-#endif  // THIRD_PARTY_TESSERACT_VIEWER_SVUTIL_H__
+#endif  // TESSERACT_VIEWER_SVUTIL_H__
