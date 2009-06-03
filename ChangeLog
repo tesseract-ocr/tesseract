@@ -60,3 +60,12 @@ April 22 2008 - V2.03
           Fixed crash introduced in 2.02.
 	  Fixed lack of tessembedded.cpp in distribution.
 	  Added test for leptonica header files and conditional test for lib.
+May 29 2009 - V2.04
+	  Integrated bug fixes and patches and misc changes for portability.
+	  Integrated a patch to remove some of the "access" macros.
+	  Removed dependence on lua from the viewer, speeding it up
+	  dramatically.
+	  Fixed the viewer so it compiles and runs properly!
+	  Specifically fixing issues: 1, 63, 67, 71, 76, 81, 82, 106, 111,
+	  112, 128, 129, 130, 133, 135, 142, 143, 145, 147, 153, 154, 160,
+	  165, 170, 175, 177, 187, 192, 195, 199, 201, 205, 209, 108, 169
