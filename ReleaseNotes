@@ -1,3 +1,15 @@
+Tesseract release notes June 2 2009 - V2.04
+Integrated patches for portability and to remove some of the
+"access" macros.
+Removed dependence on lua from the viewer making it a *lot*
+faster. Also the viewer now compiles and works (on Linux.)
+Fixed the following issues:
+1, 63, 67, 71, 76, 81, 82, 106, 108, 111, 112, 128, 129, 130, 133, 135,
+142, 143, 145, 147, 153, 154, 160, 165, 169, 170, 175, 177, 187, 192,
+195, 199, 201, 205, 209.
+This is the last version to support VC++6!
+This may also be the last version to compile without leptonica!
+
 Tesseract release notes April 22 2008 - V2.03
 2.02 was unrunnable, due to a last-minute "simple" change.
 2.03 fixes the problem and also adds an include check for leptonica

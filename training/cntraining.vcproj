@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="cntraining"
 	ProjectGUID="{1AC769A4-E98E-48B9-B87B-90D7837031FA}"
 	Keyword="MFCProj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -77,6 +78,8 @@
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="false"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -98,9 +101,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -168,6 +168,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\../bin.dbg/cntraining.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -189,9 +191,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -332,6 +331,10 @@
 					PreprocessorDefinitions=""
 				/>
 			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\cutil\debug.cpp"
+			>
 		</File>
 		<File
 			RelativePath="..\ccutil\debugwin.cpp"
@@ -937,7 +940,11 @@
 				/>
 			</FileConfiguration>
 		</File>
-		</Files>
+		<File
+			RelativePath="..\cutil\variables.cpp"
+			>
+		</File>
+	</Files>
 	<Globals>
 	</Globals>
 </VisualStudioProject>

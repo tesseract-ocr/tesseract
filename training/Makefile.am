@@ -8,9 +8,9 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/textord
 
 EXTRA_DIST = training.cpp unicharset_extractor.dsp wordlist2dawg.dsp \
-    cnTraining.dsp mfTraining.dsp \
+    cntraining.dsp mftraining.dsp \
     unicharset_extractor.vcproj wordlist2dawg.vcproj \
-    cnTraining.vcproj mfTraining.vcproj
+    cntraining.vcproj mftraining.vcproj
 
 include_HEADERS = \
     mergenf.h name2char.h training.h

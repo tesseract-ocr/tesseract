@@ -102,17 +102,17 @@ DLLSYM inT8 getpath(                   //get dir name of code
                           directory, MAX_PATH - 1) == 0) {
       return -1;
     }
-    while ((path_end = strchr (directory, '\\')) != NULL)
-      *path_end = '/';
-    path_end = strrchr (directory, '/');
-    if (path_end != NULL)
-      path_end[1] = '\0';
-    else
-      strcpy (directory, "./");
-    path = directory;
   } else {
-    path = code;
+    strcpy(directory, code);
   }
+  while ((path_end = strchr (directory, '\\')) != NULL)
+    *path_end = '/';
+  path_end = strrchr (directory, '/');
+  if (path_end != NULL)
+    path_end[1] = '\0';
+  else
+    strcpy (directory, "./");
+  path = directory;
   return 0;
   #endif
 }

@@ -303,7 +303,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
     // this unnecessary.
     // Also the path has to be separated by ; on windows and : otherwise.
 #ifdef WIN32
-    const char* prog = "java -Xms1024m -Xmx2048m";
+    const char* prog = "java -Xms512m -Xmx1024m";
     const char* cmd_template = "-Djava.library.path=%s -cp %s/ScrollView.jar;"
         "%s/piccolo-1.2.jar;%s/piccolox-1.2.jar"
         " com.google.scrollview.ScrollView";
