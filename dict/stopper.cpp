@@ -1188,7 +1188,7 @@ int LengthOfShortestAlphaRun(register char *Word, const char *Word_lengths) {
  **	Exceptions: none
  **	History: Tue May 14 07:50:45 1991, DSJ, Created.
  */
-  register int Shortest = MAXINT;
+  register int Shortest = MAX_INT32;
   register int Length;
 
   for (; *Word; Word += *(Word_lengths++))
@@ -1202,7 +1202,7 @@ int LengthOfShortestAlphaRun(register char *Word, const char *Word_lengths) {
     if (*Word == 0)
       break;
   }
-  if (Shortest == MAXINT)
+  if (Shortest == MAX_INT32)
     Shortest = 0;
 
   return (Shortest);

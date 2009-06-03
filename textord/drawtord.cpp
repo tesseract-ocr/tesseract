@@ -50,6 +50,7 @@ EXTERN FILE *to_debug = NULL;
  *
  * Create the to window used to show the fit.
  **********************************************************************/
+#ifndef GRAPHICS_DISABLED
 
 void create_to_win(                //make features win
                    ICOORD page_tr  //size of page
@@ -86,7 +87,6 @@ void create_todebug_win() {  //make gradients win
     //      else
     to_debug = fopen (to_debugfile.string (), "w");
 }
-
 
 /**********************************************************************
  * plot_blob_list
@@ -466,3 +466,4 @@ void plot_row_cells(                       //draw words
     win->Line(cell->x () + xshift, word_box.bottom (), cell->x () + xshift, word_box.top ());
   }
 }
+#endif  // GRAPHICS_DISABLED

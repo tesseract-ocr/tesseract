@@ -112,10 +112,10 @@ void eliminate_duplicate_outlines(TBLOB *blob) {
  **********************************************************************/
 void setup_outline(TESSLINE *outline) { 
   register EDGEPT *this_edge;
-  register int minx = MAXINT;
-  register int miny = MAXINT;
-  register int maxx = -MAXINT;
-  register int maxy = -MAXINT;
+  register int minx = MAX_INT32;
+  register int miny = MAX_INT32;
+  register int maxx = -MAX_INT32;
+  register int maxy = -MAX_INT32;
 
   /* Find boundaries */
   this_edge = outline->loop;

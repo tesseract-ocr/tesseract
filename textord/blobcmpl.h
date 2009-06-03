@@ -22,7 +22,6 @@
 
 class PBLOB;
 class ROW;
-#define BLOB_MATCHING_ON
 
 float compare_blobs(               //match 2 blobs
                     PBLOB *blob1,  //first blob

@@ -54,6 +54,7 @@ make_toggle_var (blob_pause, 0, make_blob_pause,
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
+#ifndef GRAPHICS_DISABLED
 /**********************************************************************
  * display_blob
  *
@@ -147,3 +148,5 @@ void render_outline(void *window,
   /* Add on child outlines */
   render_outline(window, outline->child, Grey);
 }
+
+#endif  // GRAPHICS_DISABLED

@@ -26,6 +26,8 @@
 // menu bars.
 #include "svmnode.h"
 
+#ifndef GRAPHICS_DISABLED
+
 #include <iostream>
 #include <cstring>
 
@@ -133,3 +135,5 @@ void SVMenuNode::BuildMenu(ScrollView* sv, bool menu_bar) {
   if (child_ != NULL) { child_->BuildMenu(sv, menu_bar); delete child_; }
   if (next_ != NULL) { next_->BuildMenu(sv, menu_bar); delete next_; }
 }
+
+#endif  // GRAPHICS_DISABLED

@@ -20,6 +20,8 @@
 #include "mfcpch.h"
 #include          "drawedg.h"
 
+#ifndef GRAPHICS_DISABLED
+
 #define IMAGE_WIN_NAME    "Edges"//title of window
 #define IMAGE_XPOS      250
 #define IMAGE_YPOS      0        //default position
@@ -72,3 +74,4 @@ void draw_raw_edge(                   //draw the cracks
   while (edgept != start);
 }
 
+#endif  // GRAPHICS_DISABLED

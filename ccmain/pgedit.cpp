@@ -38,6 +38,7 @@
 
 #include          "control.h"
 
+#ifndef GRAPHICS_DISABLED
 #define ASC_HEIGHT     (2 * bln_baseline_offset + bln_x_height)
 #define X_HEIGHT       (bln_baseline_offset + bln_x_height)
 #define BL_HEIGHT     bln_baseline_offset
@@ -87,9 +88,7 @@ enum CMD_EVENTS
  **********************************************************************/
 
 ScrollView* image_win;
-#ifndef GRAPHICS_DISABLED
 VariablesEditor* ve;
-#endif
 bool stillRunning = false;
 
 #ifdef __UNIX__
@@ -660,9 +659,7 @@ void do_write_file(           // serialise
 void PGEventHandler::Notify(const SVEvent* event) {
   char myval = '0';
   if (event->type == SVET_POPUP) {
-#ifndef GRAPHICS_DISABLED
 ve->Notify(event);
-#endif
   } // These are handled by Var. Editor
   else if (event->type == SVET_EXIT) { stillRunning = false; }
   else if (event->type == SVET_MENU) {
@@ -728,7 +725,7 @@ void pgeditor_msg( // message display
     image_win->AddMessage(msg);
 }
 
-
+#endif  // GRAPHCICS_DISABLED
 /**********************************************************************
  * pgeditor_read_file()
  *
@@ -739,6 +736,10 @@ void pgeditor_read_file(                   // of serialised file
                         STRING &name,
                         BLOCK_LIST *blocks  // block list to add to
                        ) {
+#ifdef GRAPHICS_DISABLED
+  edges_and_textord(name.string(), blocks);
+}
+#else
   int c;                         // input character
   FILE *infp;                    // input file
   BLOCK_IT block_it(blocks);  // iterator
@@ -1856,6 +1857,7 @@ BOOL8 word_toggle_seg(           // toggle seg flag
   return TRUE;
 }
 
+#endif  // GRAPHICS_DISABLED
 
 /* DEBUG ONLY */
 

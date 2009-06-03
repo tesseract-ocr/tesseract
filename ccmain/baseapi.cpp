@@ -470,7 +470,9 @@ PAGE_RES* TessBaseAPI::Recognize(BLOCK_LIST* block_list, ETEXT_DESC* monitor) {
 
   PAGE_RES* page_res = new PAGE_RES(block_list);
   if (interactive_mode) {
-    pgeditor_main(block_list);                  //pgeditor user I/F
+#ifndef GRAPHICS_DISABLED
+	pgeditor_main(block_list);                  // pgeditor user I/F
+#endif
   } else if (tessedit_train_from_boxes) {
     apply_box_training(block_list);
   } else {
@@ -833,7 +835,11 @@ TBLOB *make_tesseract_blob(float baseline, float xheight, float descender, float
                             page_image.get_ysize());
 
   // Create C_BLOBs from the page
-  extract_edges(NULL, &page_image, &page_image,
+  extract_edges(
+#ifndef GRAPHICS_DISABLED
+	            NULL,
+#endif
+	            &page_image, &page_image,
                 ICOORD(page_image.get_xsize(), page_image.get_ysize()),
                 block);
 

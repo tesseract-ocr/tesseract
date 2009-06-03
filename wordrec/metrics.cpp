@@ -144,10 +144,10 @@ void end_metrics() {
 void record_certainty(float certainty, int pass) {
   int bucket;
 
-  if (certainty / CERTAINTY_BUCKET_SIZE < MAXINT)
+  if (certainty / CERTAINTY_BUCKET_SIZE < MAX_INT32)
     bucket = (int) (certainty / CERTAINTY_BUCKET_SIZE);
   else
-    bucket = MAXINT;
+    bucket = MAX_INT32;
 
   inc_tally_bucket (best_certainties[pass - 1], bucket);
 }

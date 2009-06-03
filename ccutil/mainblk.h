@@ -23,15 +23,6 @@
 #include          "varable.h"
 #include          "notdll.h"
 
-//#ifndef                                                       BLOB_MATCHING_ON
-//class                                                         BLOB;
-//class                                                         ROW;
-// float                                                        compare_blobs(BLOB*,ROW*,BLOB*,ROW*)
-//{
-//      return (float)MAX_INT32;
-//}
-//#endif
-
 extern DLLSYM STRING datadir;    //dir for data files
                                  //name of image
 extern DLLSYM STRING imagebasename;

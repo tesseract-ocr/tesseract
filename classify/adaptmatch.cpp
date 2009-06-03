@@ -1186,7 +1186,8 @@ void AdaptToChar(TBLOB *Blob,
         MakePermanent (AdaptedTemplates, ClassId, NewTempConfigId,
                        Blob, LineStats);
 
-      if (LearningDebugLevel >= 1) {
+#ifndef GRAPHICS_DISABLED
+	  if (LearningDebugLevel >= 1) {
         IntegerMatcher (IClass, AllProtosOn, AllConfigsOn,
           NumFeatures, NumFeatures, IntFeatures, 0,
           &IntResult, NO_DEBUG);
@@ -1203,6 +1204,7 @@ void AdaptToChar(TBLOB *Blob,
           GetClassToDebug ("Adapting");
         }
       }
+#endif  // GRAPHICS_DISABLED
     }
     FreeFeatureSet(FloatFeatures);
   }

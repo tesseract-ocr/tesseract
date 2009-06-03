@@ -42,9 +42,6 @@
 #define NULL        0            /*null pointer array index */
 #endif
 
-#define MAXINT        2147483647 /*max value of an int */
-//#define MAXSHORT                      32767                                           /*max value of short*/
-//#define MAXCHAR                               127                                                     /*max value of a char*/
 #define MAXUCHAR      255        /*max value of unsigned char */
 #define PI          3.14159265359/*pi */
 #ifndef __UNIX__

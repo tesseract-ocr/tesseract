@@ -150,6 +150,8 @@ class ScrollView {
     GREEN_YELLOW  // Make sure this one is last.
 };
 
+#ifndef GRAPHICS_DISABLED
+
 // Create a window. The pixel size of the window may be 0,0, in which case
 // a default size is selected based on the size of your canvas.
 // The canvas may not be 0,0 in size!
@@ -404,6 +406,7 @@ class ScrollView {
 
   // Semaphore to the thread belonging to this window.
   SVSemaphore* semaphore_;
+#endif  // GRAPHICS_DISABLED
 };
 
 #endif  // THIRD_PARTY_TESSERACT_VIEWER_SCROLLVIEW_H__

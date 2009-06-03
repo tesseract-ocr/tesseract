@@ -54,7 +54,7 @@
 				AssemblerListingLocation=".\cntrain.Release/"
 				ObjectFile=".\cntrain.Release/"
 				ProgramDataBaseFileName=".\cntrain.Release/"
-				BrowseInformation="2"
+				BrowseInformation="0"
 				BrowseInformationFile=".\cntrain.Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"

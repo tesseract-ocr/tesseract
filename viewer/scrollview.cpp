@@ -17,6 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 //
+
+#ifndef GRAPHICS_DISABLED
 // This class contains the main ScrollView-logic,
 // e.g. parsing & sending messages, images etc.
 #ifdef WIN32
@@ -817,3 +819,6 @@ int ScrollView::TranslateYCoordinate(int y) {
   if (!y_axis_is_reversed_) { return y;
   } else { return y_size_ - y; }
 }
+
+
+#endif  // GRAPHICS_DISABLED

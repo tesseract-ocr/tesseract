@@ -17,8 +17,6 @@
  *
  **********************************************************************/
 
-#define BLOB_MATCHING_ON
-
 #include "mfcpch.h"
 #include          "fileerr.h"
 #ifdef __UNIX__

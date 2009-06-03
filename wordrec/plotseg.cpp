@@ -34,6 +34,8 @@
 #include "const.h"
 #include <math.h>
 
+#ifndef GRAPHICS_DISABLED
+
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
@@ -104,9 +106,11 @@ void render_segmentation(ScrollView *window,
       if (char_num < segmentation[0])
         chunks_left = segmentation[char_num + 1];
       else
-        chunks_left = MAXINT;
+        chunks_left = MAX_INT32;
     }
     render_outline(window, blob->outlines, color);
   }
   window->ZoomToRectangle(topleft.x, topleft.y, botright.x, botright.y);
 }
+
+#endif  // GRPAHICS_DISABLED

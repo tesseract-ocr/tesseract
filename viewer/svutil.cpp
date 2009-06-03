@@ -20,6 +20,8 @@
 // SVUtil contains the SVSync and SVNetwork classes, which are used for
 // thread/process creation & synchronization and network connection.
 
+#ifndef GRAPHICS_DISABLED
+
 #include "svutil.h"
 
 #ifdef WIN32
@@ -341,3 +343,5 @@ SVNetwork::~SVNetwork() {
   delete[] msg_buffer_in_;
   delete mutex_send_;
 }
+
+#endif  // GRAPHICS_DISABLED

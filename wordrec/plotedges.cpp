@@ -30,6 +30,8 @@
 #include "render.h"
 #include "split.h"
 
+#ifndef GRAPHICS_DISABLED
+
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
@@ -128,3 +130,5 @@ void mark_split(SPLIT *split) {
   c_draw (window, (float) split->point2->pos.x, (float) split->point2->pos.y);
   c_make_current(window);
 }
+
+#endif  // GRAPHICS_DISABLED

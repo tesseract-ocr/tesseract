@@ -42,10 +42,6 @@
 
 const ERRCODE BLOCKLESS_BLOBS = "Warning:some blobs assigned to no block";
 
-#ifdef GRAPHICS_DISABLED
-ETEXT_DESC *global_monitor = NULL;
-#endif
-
 #define EXTERN
 
 EXTERN BOOL_VAR (textord_no_rejects, FALSE, "Don't remove noise blobs");
