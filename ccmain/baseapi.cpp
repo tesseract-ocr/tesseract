@@ -585,16 +585,20 @@ static int ConvertWordToBoxText(WERD_RES *word,
          offset += word->best_choice->lengths()[index++], blob_it.forward()) {
       PBLOB* blob = blob_it.data();
       TBOX blob_box = blob->bounding_box();
-      if (word->tess_failed ||
-          blob_box.left() < 0 ||
-          blob_box.right() > page_image.get_xsize() ||
-          blob_box.bottom() < 0 ||
-          blob_box.top() > page_image.get_ysize()) {
+      int box_left = MAX(blob_box.left(), 0);
+      int box_right = MIN(blob_box.right(), page_image.get_xsize());
+      int box_bottom = MAX(blob_box.bottom(), 0);
+      int box_top = MIN(blob_box.top(), page_image.get_ysize());
+
+      if (word->tess_failed || box_left >= box_right || box_bottom >= box_top) {
         // Bounding boxes can be illegal when tess fails on a word.
-        blob_box = word->word->bounding_box();  // Use original word as backup.
+        TBOX word_box = word->word->bounding_box();  // Original word is backup.
+        if (box_left < word_box.left()) box_left = word_box.left();
+        if (box_right > word_box.right()) box_right = word_box.right();
+        if (box_bottom < word_box.bottom()) box_bottom = word_box.bottom();
+        if (box_top > word_box.top()) box_top = word_box.top();
         tprintf("Using substitute bounding box at (%d,%d)->(%d,%d)\n",
-                blob_box.left(), blob_box.bottom(),
-                blob_box.right(), blob_box.top());
+                box_left, box_bottom, box_right, box_top);
       }
 
       // A single classification unit can be composed of several UTF-8
@@ -608,8 +612,8 @@ static int ConvertWordToBoxText(WERD_RES *word,
         word_str[output_size++] = ch;
       }
       sprintf(word_str + output_size, " %d %d %d %d\n",
-              blob_box.left() + left, blob_box.bottom() + bottom,
-              blob_box.right() + left, blob_box.top() + bottom);
+              box_left + left,box_bottom + bottom,
+              box_right + left, box_top + bottom);
       output_size += strlen(word_str + output_size);
     }
   }
