@@ -1,3 +1,7 @@
+Note that this is a text-only and possibly out-of-date version of the 
+wiki ReadMe, which is located at:
+ http://code.google.com/p/tesseract-ocr/wiki/ReadMe
+
 Introduction
 ============
 This package contains the Tesseract Open Source OCR Engine.
@@ -20,10 +24,67 @@ Other Dependencies and Licenses:
 ================================
 The Aspirin/MIGRAINES system is no longer required.
 
-Tesseract can also make use of the libtiff library. (www.libtiff.org)
+Tesseract can also make use of the libtiff library. (www.libtiff.org) See
+http://code.google.com/p/tesseract-ocr/wiki/FAQ for details.
 Without libtiff, Tesseract can only read uncompressed and G3 compressed
 TIFF files.
 
+Installing and Running Tesseract
+All Users Do NOT Ignore!
+The tarballs are split into pieces.
+
+tesseract-2.04.tar.gz contains all the source code.
+
+tesseract-2.00.<lang>.tar.gz contains the language data files for <lang>. You need at least one of these or tesseract will not work.
+
+Note that tesseract-2.04.tar.gz unpacks to the tesseract-2.04 directory. tesseract-2.00.<lang>.tar.gz unpacks to the tessdata directory which belongs inside your tesseract-2.04 directory. It is therefore best to download them into your tesseract-2.04 directory, so you can use unpack here or equivalent. You can unpack as many of the language packs as you care to, as they all contain different files. Note that if you are using make install you should unpack your language data to your source tree before you run make install. If you unpack them as root to the destination directory of make install, then the user ids and access permissions might be messed up.
+
+boxtiff-2.01.<lang>.tar.gz contains data that was used in training for those that want to do their own training. Most users should NOT download these files.
+
+Instructions for using the training tools are documented separately at TrainingTesseract and for testing at TestingTesseract. 
+
+Without Additional Libraries, Image format support is limited!
+
+Without additional libraries, Tesseract can only read uncompressed TIFF. (And some versions of BMP) Upto version 2.04, you can add libtiff-dev. See the FAQ question on compressed TIFF for installation instructions. Version 3.00 will support additional formats via Leptonica, but requires more libraries to be added.
+Windows:
+
+There is no windows installer! (Still looking for volunteers to create one.) There are windows executables: tesseract-2.04.exe.tar.gz (It is not for the 'exe' language.) They are built with VC++ express 2008 and come with absolutely no warranty. If they work for you then great, otherwise get Visual C++ Express 2008 with service pack 1 and build from the source. You can also try tesseract-2.01.exe.tar.gz, which is built with VC++6, and may work better if your windows is old, but note that this is an older version of Tesseract.
+
+If you are building from the sources, there are still (up to v2.04) .dsw and .dsp files for vc++6, but the recommended build platform is now VC++ Express 2008. There are also .sln and .vcproj files for VC++ Express 2008, but these files are not backward compatible with any previous version - not even VC++ Express 2005. Note that the executables produced with the newer compiler are smaller, faster, and, believe it or not, more accurate. (See TestingTesseract.)
+
+New with 2.04: the executables are built with static linking, so they stand more chance of working out of the box on more windows systems.
+
+The executable must reside in the same directory as the tessdata directory. (The Visual Studio projects build the release executable directly to the correct place!)
+
+The command line is:
+
+tesseract <image.tif> <output> [-l <langid>]
+
+For interfacing to other applications, there is a DLL included with the executables, but you may be better off building it yourself. The DLL is NOT built for static C-Runtime, so you will probably need VC++ Express 2008 to run it.
+
+The dll has been updated to allow input of non-binary images. (Thanks to Glen of Jetsoft.)
+
+Non-Windows (or Cygwin):
+
+You have to tell Tesseract through a standard unix mechanism where to find its data directory. You must either:
+
+./configure
+make
+make install
+
+to move the data files to the standard place, or:
+
+export TESSDATA_PREFIX="directory in which your tessdata resides/"
+
+In either case the command line is:
+
+tesseract <image.tif> <output> [-l <langid>]
+
+New there is a tesseract.spec for making rpms. (Thanks to Andrew Ziem for the help.) It might work with your OS if you know how to do that.
+
+If you are linking to the libraries, as Ocropus does, there is now a single master library called libtesseract_full.a.
+
+Libtiff support should now be properly working via configure, but note that you need libtiff-dev, as that contains the header files required to compile the code that uses it. 
 
 History:
 ========
@@ -40,6 +101,10 @@ it is hard to debug. Another "feature" of the C/C++ split is that the C++
 data structures get converted to C data structures to call the low-level C
 code. This is ugly, and the C++izing of the C code is a step towards
 eliminating the conversion, but it has not happened yet.
+
+The most recent change is that Tesseract can now recognize 6 languages, is fully UTF8 capable, and is fully trainable. See TrainingTesseract for more information on training.
+
+Tesseract was included in UNLV's Fourth Annual Test of OCR Accuracy. See http://www.isri.unlv.edu/downloads/AT-1995.pdf. With Tesseract 2.00, scripts are now included to allow anyone to reproduce some of these tests. See TestingTesseract for more details. 
 
 
 Directory Structure (ordered by dependency):
@@ -71,37 +136,3 @@ As of 2.0, Tesseract is fully unicode (UTF-8) enabled, and can recognize 6
 languages "out of the box." Code and documentation is provided for the brave
 to train in other languages. See code.google.com/p/tesseract-ocr for more
 information on training.
-
-
-Using the Engine
-================
-Windows:
-The executable must reside in the same directory as the tessdata directory
-The command line is:
-tesseract <image.tif> <output> [-l langid]
-A windows executable (tesseract.exe) is included in the distribution, but
-may not work for you unless you also have the correct mfc and crt dlls.
-There is also a tessdll.dll, which you can use to run tesseract from your
-own program, but you may be better off building it yourself.
-
-Non-Windows:
-You have to tell Tesseract through a standard unix mechanism where to find
-its data directory. You must either:
-./configure
-make
-make install
-to move the data files to the standard place, or:
-export TESSDATA_PREFIX="directory in which your tessdata resides/"
-(or equivalent) in your .profile or whatever or setenv to set the environment
-variable. Note that the directory must end in a /
-HAVING tesseract and tessdata IN THE SAME DIRECTORY DOES NOT WORK ANY MORE.
-The command line is:
-tesseract <image.tif> <output> [-l langid]
-
-All Systems:
-The image file requires a .tif extension for its type to be recognized
-correctly. If a file exists with the .tif extension replaced by .uzn, then it
-will be interpreted as a UNLV-style zone file. (See www.isri.unlv.edu for
-details of the zone files.)
-langid may be one of the codes defined in ISO 639-3, and you must download
-the corresponding data files into your tessdata directory.

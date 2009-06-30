@@ -1,4 +1,4 @@
-Tesseract release notes June 2 2009 - V2.04
+Tesseract release notes June 30 2009 - V2.04
 Integrated patches for portability and to remove some of the
 "access" macros.
 Removed dependence on lua from the viewer making it a *lot*
@@ -9,6 +9,7 @@ Fixed the following issues:
 195, 199, 201, 205, 209.
 This is the last version to support VC++6!
 This may also be the last version to compile without leptonica!
+Windows version now outputs to stderr by default, fixing a lot of the problems with lack of visible meaningful error messages.
 
 Tesseract release notes April 22 2008 - V2.03
 2.02 was unrunnable, due to a last-minute "simple" change.
