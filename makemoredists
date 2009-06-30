@@ -1,8 +1,8 @@
 #!/bin/bash
-winlist="tessdll.dll tessdll.lib tesseract.exe dlltest.exe training/cnTraining.exe training/mfTraining.exe training/unicharset_extractor.exe training/wordlist2dawg.exe java/ScrollView.jar"
+winlist="tessdll.dll tessdll.lib tesseract.exe dlltest.exe training/cntraining.exe training/mftraining.exe training/unicharset_extractor.exe training/wordlist2dawg.exe java/ScrollView.jar"
 ver=`ls -1rt *[0-9].tar.gz |tail -1`
 ver=${ver%.tar.gz}
-for l in eng deu fra ita spa nld por deu-f vie kan
+for l in eng deu fra ita spa nld por deu-f vie kan eus
 do
         chmod 644 tessdata/$l.*
         tar --group root --owner root -chozf $ver.$l.tar.gz tessdata/$l.*
