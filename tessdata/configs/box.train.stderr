@@ -16,4 +16,3 @@ tessedit_resegment_from_boxes T
 tessedit_train_from_boxes T
 textord_repeat_extraction F
 textord_no_rejects T
-debug_file tesseract.log
