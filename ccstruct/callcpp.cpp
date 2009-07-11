@@ -40,31 +40,15 @@ INT_VAR (tess_cp_mapping0, 0, "Mappings for class pruner distance");
 INT_VAR (tess_cp_mapping1, 1, "Mappings for class pruner distance");
 INT_VAR (tess_cp_mapping2, 2, "Mappings for class pruner distance");
 INT_VAR (tess_cp_mapping3, 3, "Mappings for class pruner distance");
-INT_VAR (stopper_numbers_on, 0, "Allow numbers to be acceptable choices");
-INT_VAR (config_pruner_enabled, 0, "Turn on config pruner");
-INT_VAR (feature_prune_percentile, 0, "Percent of features to use");
-INT_VAR (newcp_ratings_on, 0, "Use new class pruner normalisation");
 INT_VAR (record_matcher_output, 0, "Record detailed matcher info");
 INT_VAR (il1_adaption_test, 0, "Dont adapt to i/I at beginning of word");
 double_VAR (permuter_pending_threshold, 0.0,
 "Worst conf for using pending dictionary");
-double_VAR (newcp_duff_rating, 0.30, "Worst rating for calling real matcher");
-double_VAR (newcp_prune_threshold, 1.2, "Ratio of best to prune");
-double_VAR (tessedit_cp_ratio, 0.0, "Ratio from best to prune");
 //Global matcher info from the class pruner.
-inT32 cp_classes;
-inT32 cp_bestindex;
-inT32 cp_bestrating;
-inT32 cp_bestconf;
-char cp_chars[2];
-inT32 cp_ratings[2];
-inT32 cp_confs[2];
 inT32 cp_maps[4];
 //Global info to control writes of matcher info
-inT32 blob_type;                   //write control
 char blob_answer[UNICHAR_LEN + 1]; //correct char
 char *word_answer;                 //correct word
-inT32 matcher_pass;                //pass in chopper.c
 inT32 bits_in_states;              //no of bits in states
 
 void setup_cp_maps() {
@@ -73,11 +57,6 @@ void setup_cp_maps() {
   cp_maps[2] = tess_cp_mapping2;
   cp_maps[3] = tess_cp_mapping3;
 }
-
-
-void trace_stack() {  //Trace current stack
-}
-
 
 void
 cprintf (                        //Trace printf
@@ -93,65 +72,6 @@ const char *format, ...          //special message
   tprintf ("%s", msg);
 }
 
-
-char *c_alloc_string(             //allocate string
-                     inT32 count  //no of chars required
-                    ) {
-  return alloc_string (count);
-}
-
-
-void c_free_string(              //free a string
-                   char *string  //string to free
-                  ) {
-  free_string(string);
-}
-
-
-void *c_alloc_struct(                  //allocate memory
-                     inT32 count,      //no of chars required
-                     const char *name  //class name
-                    ) {
-  return alloc_struct (count, name);
-}
-
-
-void c_free_struct(                   //free a structure
-                   void *deadstruct,  //structure to free
-                   inT32 count,       //no of bytes
-                   const char *name   //class name
-                  ) {
-  free_struct(deadstruct, count, name);
-}
-
-
-void *c_alloc_mem_p(             //allocate permanent space
-                    inT32 count  //block size to allocate
-                   ) {
-  return alloc_mem_p (count);
-}
-
-
-void *c_alloc_mem(             //get some memory
-                  inT32 count  //no of bytes to get
-                 ) {
-  return alloc_mem (count);
-}
-
-
-void c_free_mem(                //free mem from alloc_mem
-                void *oldchunk  //chunk to free
-               ) {
-  free_mem(oldchunk);
-}
-
-
-void c_check_mem(                     //check consistency
-                 const char *string,  //context message
-                 inT8 level           //level of check
-                ) {
-  check_mem(string, level);
-}
 
 #ifndef GRAPHICS_DISABLED
 ScrollView *c_create_window(                   /*create a window */

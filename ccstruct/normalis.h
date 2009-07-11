@@ -23,6 +23,7 @@
 #include          <stdio.h>
 
 class ROW;                       //forward decl
+class BLOCK;
 
 class DENORM_SEG
 {
@@ -46,6 +47,7 @@ class DENORM
       segs = NULL;
       base_is_row = TRUE;
       m = c = 0;
+      block_ = NULL;
     }
     DENORM(          //constructor
            float x,  //from same pieces
@@ -58,6 +60,7 @@ class DENORM
       segs = NULL;
       base_is_row = TRUE;
       m = c = 0;
+      block_ = NULL;
     }
     DENORM(                      //constructor
            float x,              //from same pieces
@@ -84,6 +87,12 @@ class DENORM
     ROW *row() const {  //get row
       return source_row;
     }
+    const BLOCK* block() const {
+      return block_;
+    }
+    void set_block(const BLOCK* block) {
+      block_ = block;
+    }
     float x(  //convert an xcoord
             float src_x) const;
     float y(                    //convert a ycoord
@@ -104,5 +113,6 @@ class DENORM
     float scale_factor;          //scaling
     ROW *source_row;             //row it came from
     DENORM_SEG *segs;            //array of segments
+    const BLOCK* block_;         // Block the word came from.
 };
 #endif

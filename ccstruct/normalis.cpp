@@ -144,6 +144,7 @@ DENORM::DENORM(float x,              //from same pieces
   base_is_row = using_row;
   m = line_m;
   c = line_c;
+  block_ = NULL;
 }
 
 
@@ -172,5 +173,6 @@ DENORM & DENORM::operator= (const DENORM & src) {
   base_is_row = src.base_is_row;
   m = src.m;
   c = src.c;
+  block_ = src.block_;
   return *this;
 }

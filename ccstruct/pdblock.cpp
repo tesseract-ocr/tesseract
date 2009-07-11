@@ -41,7 +41,6 @@ inT16 ymax):    box (ICOORD (xmin, ymin), ICOORD (xmax, ymax)) {
   ICOORDELT_IT left_it = &leftside;
   ICOORDELT_IT right_it = &rightside;
 
-  hand_block = NULL;
   hand_poly = NULL;
   left_it.set_to_list (&leftside);
   right_it.set_to_list (&rightside);
@@ -50,6 +49,7 @@ inT16 ymax):    box (ICOORD (xmin, ymin), ICOORD (xmax, ymax)) {
   left_it.add_to_end (new ICOORDELT (xmin, ymax));
   right_it.add_to_end (new ICOORDELT (xmax, ymin));
   right_it.add_to_end (new ICOORDELT (xmax, ymax));
+  index_ = 0;
 }
 
 
@@ -145,7 +145,7 @@ void PDBLK::plot(                //draw outline
   window->TextAttributes("Times", BLOCK_LABEL_HEIGHT, false, false, false);
 
   if (hand_poly != NULL) {
-    hand_poly->plot(window, colour, serial);
+    hand_poly->plot(window, serial);
   } else if (!leftside.empty ()) {
     startpt = *(it.data ());     //bottom left corner
     //              tprintf("Block %d bottom left is (%d,%d)\n",

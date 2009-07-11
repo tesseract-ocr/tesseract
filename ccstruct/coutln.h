@@ -56,6 +56,10 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
               inT16 length);     //length of loop
                                  //outline to copy
     C_OUTLINE(C_OUTLINE *srcline, FCOORD rotation);  //and rotate
+
+    // Build a fake outline, given just a bounding box and append to the list.
+    static void FakeOutline(const TBOX& box, C_OUTLINE_LIST* outlines);
+
     ~C_OUTLINE () {              //destructor
       if (steps != NULL)
         free_mem(steps);
@@ -137,6 +141,13 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
 
     void move(                    // reposition outline
               const ICOORD vec);  // by vector
+
+    // If this outline is smaller than the given min_size, delete this and
+    // remove from its list, via *it, after checking that *it points to this.
+    // Otherwise, if any children of this are too small, delete them.
+    // On entry, *it must be an iterator pointing to this. If this gets deleted
+    // then this is extracted from *it, so an iteration can continue.
+    void RemoveSmallRecursive(int min_size, C_OUTLINE_IT* it);
 
     void plot(                       //draw one
               ScrollView* window,         //window to draw in

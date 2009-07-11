@@ -329,14 +329,27 @@ void PBLOB::scale(                  // scale blob
 /**********************************************************************
  * PBLOB::rotate
  *
- * Rotate PBLOB 90 deg anti
+ * Rotate PBLOB 90 deg anticlockwise about the origin.
  **********************************************************************/
 
 void PBLOB::rotate() {  // Rotate 90 deg anti
-  OUTLINE_IT it(&outlines);  // iterator
+  rotate(FCOORD(0.0f, 1.0f));
+}
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-    it.data ()->rotate (FCOORD(0.0f, 1.0f));     // rotate each outline
+/**********************************************************************
+ * PBLOB::rotate
+ *
+ * Rotate PBLOB by the given rotation about the origin.
+ * The rotation is defined to be (cos a, sin a) where a is the anticlockwise
+ * rotation angle (in units appropriate for cos, sin).
+ * Alternatively think of multiplication by the complex number
+ * rotation = z = (x + iy), with |z| = 1.
+ **********************************************************************/
+void PBLOB::rotate(const FCOORD& rotation) {  // Rotate by given rotation.
+  OUTLINE_IT it(&outlines);
+
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    it.data()->rotate(rotation);     // Rotate each outline.
   }
 }
 

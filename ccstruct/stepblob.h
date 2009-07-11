@@ -27,9 +27,12 @@ class C_BLOB:public ELIST_LINK
 {
   public:
     C_BLOB() {
-    }                            //empty constructor
-    C_BLOB(  //constructor //in random order
-           C_OUTLINE_LIST *outline_list);
+    }
+    explicit C_BLOB(C_OUTLINE_LIST *outline_list);
+
+    // Build and return a fake blob containing a single fake outline with no
+    // steps.
+    static C_BLOB* FakeBlob(const TBOX& box);
 
     C_OUTLINE_LIST *out_list() {  //get outline list
       return &outlines;
@@ -42,8 +45,8 @@ class C_BLOB:public ELIST_LINK
     inT32 count_transitions(                   //count maxima
                             inT32 threshold);  //size threshold
 
-    void move(                    // reposition blob
-              const ICOORD vec);  // by vector
+    void move(const ICOORD vec);  // repostion blob by vector
+    void rotate(const FCOORD& rotation);  // Rotate by given vector.
 
     void plot(                       //draw one
               ScrollView* window,         //window to draw in

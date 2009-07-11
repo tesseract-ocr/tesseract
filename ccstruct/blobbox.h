@@ -41,106 +41,257 @@ enum PITCH_TYPE
   PITCH_CORR_PROP
 };
 
+// The possible tab-stop types of each side of a BLOBNBOX.
+enum TabType {
+  TT_NONE,         // Not a tab.
+  TT_DELETED,      // Not a tab after detailed analysis.
+  TT_UNCONFIRMED,  // Initial designation of a tab-stop candidate.
+  TT_FAKE,         // Added by interpolation.
+  TT_CONFIRMED,    // Aligned with neighbours.
+  TT_VLINE         // Detected as a vertical line.
+};
+
+// The possible region types of a BLOBNBOX.
+// Note: keep all the text types > BRT_UNKNOWN and all the image types less.
+// Keep in sync with kBlobTypes in colpartition.cpp and BoxColor below.
+enum BlobRegionType {
+  BRT_NOISE,      // Neither text nor image.
+  BRT_HLINE,      // Horizontal separator line.
+  BRT_RECTIMAGE,  // Rectangular image.
+  BRT_POLYIMAGE,  // Non-rectangular image.
+  BRT_UNKNOWN,    // Not determined yet.
+  BRT_VERT_TEXT,  // Vertical alignment, not necessarily vertically oriented.
+  BRT_TEXT,       // Convincing text.
+
+  BRT_COUNT       // Number of possibilities.
+};
+
+namespace tesseract {
+class ColPartition;
+}
+
 class BLOBNBOX;
 ELISTIZEH (BLOBNBOX)
 class BLOBNBOX:public ELIST_LINK
 {
   public:
-    BLOBNBOX() {  //empty
+    BLOBNBOX() {
       blob_ptr = NULL;
       cblob_ptr = NULL;
-      joined = FALSE;
-      reduced = FALSE;
       area = 0;
+      Init();
     }
-    BLOBNBOX(  //constructor
-             PBLOB *srcblob) {
+    explicit BLOBNBOX(PBLOB *srcblob) {
       blob_ptr = srcblob;
       cblob_ptr = NULL;
       box = srcblob->bounding_box ();
-      joined = FALSE;
-      reduced = FALSE;
       area = (int) srcblob->area ();
+      Init();
     }
-    BLOBNBOX(  //constructor
-             C_BLOB *srcblob) {
+    explicit BLOBNBOX(C_BLOB *srcblob) {
       blob_ptr = NULL;
       cblob_ptr = srcblob;
       box = srcblob->bounding_box ();
-      joined = FALSE;
-      reduced = FALSE;
       area = (int) srcblob->area ();
+      Init();
     }
 
-                                 //get bounding box
-    const TBOX &bounding_box() const {
+    void rotate_box(FCOORD vec) {
+      box.rotate(vec);
+    }
+    void translate_box(ICOORD v) {
+      box.move(v);
+    }
+    void merge(BLOBNBOX *nextblob);
+    void chop(                        // fake chop blob
+              BLOBNBOX_IT *start_it,  // location of this
+              BLOBNBOX_IT *blob_it,   // iterator
+              FCOORD rotation,        // for landscape
+              float xheight);         // line height
+
+    // Simple accessors.
+    const TBOX& bounding_box() const {
       return box;
     }
-                                 //get bounding box
-    const TBOX &reduced_box() const {
+    void compute_bounding_box() {
+      box = cblob_ptr != NULL ? cblob_ptr->bounding_box()
+                              : blob_ptr->bounding_box();
+    }
+    const TBOX& reduced_box() const {
       return red_box;
     }
-    void set_reduced_box(  //set other box
-                         TBOX new_box) {
+    void set_reduced_box(TBOX new_box) {
       red_box = new_box;
       reduced = TRUE;
     }
-    inT32 enclosed_area() const {  //get area
+    inT32 enclosed_area() const {
       return area;
     }
-
-    void rotate_box(  //just box
-                    FCOORD vec) {
-      box.rotate (vec);
-    }
-
-    BOOL8 joined_to_prev() const {  //access function
+    bool joined_to_prev() const {
       return joined != 0;
     }
-    BOOL8 red_box_set() const {  //access function
+    bool red_box_set() const {
       return reduced != 0;
     }
-    void merge(  //merge with next
-               BLOBNBOX *nextblob);
-    void chop(                        //fake chop blob
-              BLOBNBOX_IT *start_it,  //location of this
-              BLOBNBOX_IT *blob_it,   //iterator
-              FCOORD rotation,        //for landscape
-              float xheight);         //line height
-
-    PBLOB *blob() {  //access function
+    int repeated_set() const {
+      return repeated_set_;
+    }
+    void set_repeated_set(int set_id) {
+      repeated_set_ = set_id;
+    }
+    PBLOB *blob() const {
       return blob_ptr;
     }
-    C_BLOB *cblob() {  //access function
+    C_BLOB *cblob() const {
       return cblob_ptr;
+    }
+    TabType left_tab_type() const {
+      return left_tab_type_;
+    }
+    void set_left_tab_type(TabType new_type) {
+      left_tab_type_ = new_type;
+    }
+    TabType right_tab_type() const {
+      return right_tab_type_;
+    }
+    void set_right_tab_type(TabType new_type) {
+      right_tab_type_ = new_type;
+    }
+    BlobRegionType region_type() const {
+      return region_type_;
+    }
+    void set_region_type(BlobRegionType new_type) {
+      region_type_ = new_type;
+    }
+    int left_rule() const {
+      return left_rule_;
+    }
+    void set_left_rule(int new_left) {
+      left_rule_ = new_left;
+    }
+    int right_rule() const {
+      return right_rule_;
+    }
+    void set_right_rule(int new_right) {
+      right_rule_ = new_right;
+    }
+    int left_crossing_rule() const {
+      return left_crossing_rule_;
+    }
+    void set_left_crossing_rule(int new_left) {
+      left_crossing_rule_ = new_left;
+    }
+    int right_crossing_rule() const {
+      return right_crossing_rule_;
+    }
+    void set_right_crossing_rule(int new_right) {
+      right_crossing_rule_ = new_right;
+    }
+    float horz_stroke_width() const {
+      return horz_stroke_width_;
+    }
+    void set_horz_stroke_width(float width) {
+      horz_stroke_width_ = width;
+    }
+    float vert_stroke_width() const {
+      return vert_stroke_width_;
+    }
+    void set_vert_stroke_width(float width) {
+      vert_stroke_width_ = width;
+    }
+    tesseract::ColPartition* owner() const {
+      return owner_;
+    }
+    void set_owner(tesseract::ColPartition* new_owner) {
+      owner_ = new_owner;
+    }
+    void set_noise_flag(bool flag) {
+      noise_flag_ = flag;
+    }
+    bool noise_flag() const {
+      return noise_flag_;
     }
 
 #ifndef GRAPHICS_DISABLED
-    void plot(                        //draw one
-              ScrollView* window,          //window to draw in
-              ScrollView::Color blob_colour,     //for outer bits
-              ScrollView::Color child_colour) {  //for holes
+    // Keep in sync with BlobRegionType.
+    ScrollView::Color BoxColor() const {
+      switch (region_type_) {
+      case BRT_HLINE:
+        return ScrollView::YELLOW;
+      case BRT_RECTIMAGE:
+        return ScrollView::RED;
+      case BRT_POLYIMAGE:
+        return ScrollView::ORANGE;
+      case BRT_UNKNOWN:
+        return ScrollView::CYAN;
+      case BRT_VERT_TEXT:
+        return ScrollView::GREEN;
+      case BRT_TEXT:
+        return ScrollView::BLUE;
+      case BRT_NOISE:
+      default:
+        return ScrollView::GREY;
+      }
+    }
+
+    void plot(ScrollView* window,                // window to draw in
+              ScrollView::Color blob_colour,     // for outer bits
+              ScrollView::Color child_colour) {  // for holes
       if (blob_ptr != NULL)
-        blob_ptr->plot (window, blob_colour, child_colour);
+        blob_ptr->plot(window, blob_colour, child_colour);
       if (cblob_ptr != NULL)
-        cblob_ptr->plot (window, blob_colour, child_colour);
+        cblob_ptr->plot(window, blob_colour, child_colour);
     }
 #endif
 
-    NEWDELETE2 (BLOBNBOX) private:
-    int area:30;                 //enclosed area
-    int joined:1;                //joined to prev
-    int reduced:1;               //reduced box set
-    TBOX box;                     //bounding box
-    TBOX red_box;                 //bounding box
-    PBLOB *blob_ptr;             //poly blob
-    C_BLOB *cblob_ptr;           //edgestep blob
+    NEWDELETE2(BLOBNBOX)
+
+ private:
+  // Initializes the bulk of the members to default values.
+  void Init() {
+    joined = false;
+    reduced = false;
+    repeated_set_ = 0;
+    left_tab_type_ = TT_NONE;
+    right_tab_type_ = TT_NONE;
+    region_type_ = BRT_UNKNOWN;
+    left_rule_ = 0;
+    right_rule_ = 0;
+    left_crossing_rule_ = 0;
+    right_crossing_rule_ = 0;
+    horz_stroke_width_ = 0.0f;
+    vert_stroke_width_ = 0.0f;
+    owner_ = NULL;
+    noise_flag_ = false;
+  }
+
+  PBLOB *blob_ptr;              // poly blob
+  C_BLOB *cblob_ptr;            // edgestep blob
+  TBOX box;                     // bounding box
+  TBOX red_box;                 // bounding box
+  int area:30;                  // enclosed area
+  int joined:1;                 // joined to prev
+  int reduced:1;                // reduced box set
+  int repeated_set_;            // id of the set of repeated blobs
+  TabType left_tab_type_;       // Indicates tab-stop assessment
+  TabType right_tab_type_;      // Indicates tab-stop assessment
+  BlobRegionType region_type_;  // Type of region this blob belongs to
+  inT16 left_rule_;             // x-coord of nearest but not crossing rule line
+  inT16 right_rule_;            // x-coord of nearest but not crossing rule line
+  inT16 left_crossing_rule_;    // x-coord of nearest or crossing rule line
+  inT16 right_crossing_rule_;   // x-coord of nearest or crossing rule line
+  float horz_stroke_width_;     // Median horizontal stroke width
+  float vert_stroke_width_;     // Median vertical stroke width
+  tesseract::ColPartition* owner_;  // Who will delete me when I am not needed
+  // Was the blob flagged as noise in the initial filtering step
+  bool noise_flag_;
 };
 
 class TO_ROW:public ELIST2_LINK
 {
   public:
     TO_ROW() {
+      num_repeated_sets_ = -1;
     }                            //empty
     TO_ROW(                 //constructor
            BLOBNBOX *blob,  //from first blob
@@ -221,31 +372,45 @@ class TO_ROW:public ELIST2_LINK
     void compute_vertical_projection();
     //get projection
 
-                                 //true when dead
+    bool rep_chars_marked() const {
+      return num_repeated_sets_ != -1;
+    }
+    void clear_rep_chars_marked() {
+      num_repeated_sets_ = -1;
+    }
+    int num_repeated_sets() const {
+      return num_repeated_sets_;
+    }
+    void set_num_repeated_sets(int num_sets) {
+      num_repeated_sets_ = num_sets;
+    }
+
+                                 // true when dead
     NEWDELETE2 (TO_ROW) BOOL8 merged;
-    BOOL8 all_caps;              //had no ascenders
-    BOOL8 used_dm_model;         //in guessing pitch
-    inT16 projection_left;       //start of projection
-    inT16 projection_right;      //start of projection
-    PITCH_TYPE pitch_decision;   //how strong is decision
-    float fixed_pitch;           //pitch or 0
-    float fp_space;              //sp if fixed pitch
-    float fp_nonsp;              //nonsp if fixed pitch
-    float pr_space;              //sp if prop
-    float pr_nonsp;              //non sp if prop
-    float spacing;               //to "next" row
-    float xheight;               //of line
-    float ascrise;               //ascenders
-    float descdrop;              //descenders
-    inT32 min_space;             //min size for real space
-    inT32 max_nonspace;          //max size of non-space
-    inT32 space_threshold;       //space vs nonspace
-    float kern_size;             //average non-space
-    float space_size;            //average space
-    WERD_LIST rep_words;         //repeated chars
-    ICOORDELT_LIST char_cells;   //fixed pitch cells
-    QSPLINE baseline;            //curved baseline
-    STATS projection;            //vertical projection
+    BOOL8 all_caps;              // had no ascenders
+    BOOL8 used_dm_model;         // in guessing pitch
+    inT16 projection_left;       // start of projection
+    inT16 projection_right;      // start of projection
+    PITCH_TYPE pitch_decision;   // how strong is decision
+    float fixed_pitch;           // pitch or 0
+    float fp_space;              // sp if fixed pitch
+    float fp_nonsp;              // nonsp if fixed pitch
+    float pr_space;              // sp if prop
+    float pr_nonsp;              // non sp if prop
+    float spacing;               // to "next" row
+    float xheight;               // of line
+    int xheight_evidence;        // number of blobs of height xheight
+    float ascrise;               // ascenders
+    float descdrop;              // descenders
+    inT32 min_space;             // min size for real space
+    inT32 max_nonspace;          // max size of non-space
+    inT32 space_threshold;       // space vs nonspace
+    float kern_size;             // average non-space
+    float space_size;            // average space
+    WERD_LIST rep_words;         // repeated chars
+    ICOORDELT_LIST char_cells;   // fixed pitch cells
+    QSPLINE baseline;            // curved baseline
+    STATS projection;            // vertical projection
 
   private:
     BLOBNBOX_LIST blobs;         //blobs in row
@@ -258,6 +423,9 @@ class TO_ROW:public ELIST2_LINK
     float para_error;
     float y_origin;              //rotated para_c;
     float credibility;           //baseline believability
+    int num_repeated_sets_;      // number of sets of repeated blobs
+                                 // set to -1 if we have not searched
+                                 // for repeated blobs in this row yet
 };
 
 ELIST2IZEH (TO_ROW)
@@ -286,6 +454,9 @@ class TO_BLOCK:public ELIST_LINK
           row->blob_list ()->length ());
       }
     }
+
+    // Draw the blobs on on the various lists in the block in different colors.
+    void plot_graded_blobs(ScrollView* to_win);
 
     BLOBNBOX_LIST blobs;         //medium size
     BLOBNBOX_LIST underlines;    //underline blobs
@@ -378,4 +549,9 @@ void vertical_coutline_projection(                     //project outlines
                                   C_OUTLINE *outline,  //outline to project
                                   STATS *stats         //output
                                  );
+void plot_blob_list(ScrollView* win,                   // window to draw in
+                    BLOBNBOX_LIST *list,               // blob list
+                    ScrollView::Color body_colour,     // colour to draw
+                    ScrollView::Color child_colour);   // colour of child
+
 #endif

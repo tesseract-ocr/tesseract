@@ -62,6 +62,9 @@ class DLLSYM ICOORD              //integer coordinate
       ycoord = yin;
     }
 
+    // Set from the given x,y, shrinking the vector to fit if needed.
+    void set_with_shrink(int x, int y);
+
     float sqlength() const {  //find sq length
       return (float) (xcoord * xcoord + ycoord * ycoord);
     }
@@ -134,7 +137,7 @@ class DLLSYM ICOORD              //integer coordinate
     // major_step, and then add minor to the accumulator. When
     // accumulator >= major subtract major and also move by minor_step.
     void setup_render(ICOORD* major_step, ICOORD* minor_step,
-                      int* major, int* minor);
+                      int* major, int* minor) const;
 
     void serialise_asc(  //serialise to ascii
                        FILE *f);

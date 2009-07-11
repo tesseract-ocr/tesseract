@@ -58,16 +58,16 @@ ARFLAGS = cru
 libtesseract_ccstruct_a_AR = $(AR) $(ARFLAGS)
 libtesseract_ccstruct_a_LIBADD =
 am_libtesseract_ccstruct_a_OBJECTS = blobbox.$(OBJEXT) blobs.$(OBJEXT) \
-	blread.$(OBJEXT) callcpp.$(OBJEXT) coutln.$(OBJEXT) \
-	genblob.$(OBJEXT) labls.$(OBJEXT) linlsq.$(OBJEXT) \
-	lmedsq.$(OBJEXT) mod128.$(OBJEXT) normalis.$(OBJEXT) \
-	ocrblock.$(OBJEXT) ocrrow.$(OBJEXT) pageblk.$(OBJEXT) \
-	pageres.$(OBJEXT) pdblock.$(OBJEXT) points.$(OBJEXT) \
-	polyaprx.$(OBJEXT) polyblk.$(OBJEXT) polyblob.$(OBJEXT) \
-	polyvert.$(OBJEXT) poutline.$(OBJEXT) quadlsq.$(OBJEXT) \
-	quadratc.$(OBJEXT) quspline.$(OBJEXT) ratngs.$(OBJEXT) \
-	rect.$(OBJEXT) rejctmap.$(OBJEXT) rwpoly.$(OBJEXT) \
-	statistc.$(OBJEXT) stepblob.$(OBJEXT) txtregn.$(OBJEXT) \
+	blread.$(OBJEXT) callcpp.$(OBJEXT) ccstruct.$(OBJEXT) \
+	coutln.$(OBJEXT) detlinefit.$(OBJEXT) genblob.$(OBJEXT) \
+	labls.$(OBJEXT) linlsq.$(OBJEXT) lmedsq.$(OBJEXT) \
+	mod128.$(OBJEXT) normalis.$(OBJEXT) ocrblock.$(OBJEXT) \
+	ocrrow.$(OBJEXT) otsuthr.$(OBJEXT) pageres.$(OBJEXT) \
+	pdblock.$(OBJEXT) points.$(OBJEXT) polyaprx.$(OBJEXT) \
+	polyblk.$(OBJEXT) polyblob.$(OBJEXT) polyvert.$(OBJEXT) \
+	poutline.$(OBJEXT) quadlsq.$(OBJEXT) quadratc.$(OBJEXT) \
+	quspline.$(OBJEXT) ratngs.$(OBJEXT) rect.$(OBJEXT) \
+	rejctmap.$(OBJEXT) statistc.$(OBJEXT) stepblob.$(OBJEXT) \
 	vecfuncs.$(OBJEXT) werd.$(OBJEXT)
 libtesseract_ccstruct_a_OBJECTS =  \
 	$(am_libtesseract_ccstruct_a_OBJECTS)
@@ -204,25 +204,27 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer
 
+EXTRA_DIST = ccstruct.vcproj
 include_HEADERS = \
-    blckerr.h blobbox.h blobs.h blread.h coutln.h crakedge.h \
-    genblob.h hpddef.h hpdsizes.h ipoints.h labls.h linlsq.h \
-    lmedsq.h mod128.h normalis.h ocrblock.h ocrrow.h pageblk.h \
-    pageres.h pdblock.h pdclass.h points.h polyaprx.h polyblk.h \
-    polyblob.h polyvert.h poutline.h quadlsq.h quadratc.h \
-    quspline.h ratngs.h rect.h rejctmap.h rwpoly.h statistc.h \
-    stepblob.h txtregn.h vecfuncs.h werd.h
+    blckerr.h blobbox.h blobs.h blread.h ccstruct.h coutln.h crakedge.h \
+    detlinefit.h genblob.h hpddef.h hpdsizes.h ipoints.h \
+    labls.h linlsq.h lmedsq.h mod128.h normalis.h \
+    ocrblock.h ocrrow.h otsuthr.h \
+    pageres.h pdblock.h points.h polyaprx.h polyblk.h \
+    polyblob.h polyvert.h poutline.h \
+    quadlsq.h quadratc.h quspline.h ratngs.h rect.h rejctmap.h \
+    statistc.h stepblob.h vecfuncs.h werd.h
 
 lib_LIBRARIES = libtesseract_ccstruct.a
 libtesseract_ccstruct_a_SOURCES = \
-    blobbox.cpp blobs.cpp blread.cpp callcpp.cpp \
-    coutln.cpp genblob.cpp labls.cpp linlsq.cpp \
-    lmedsq.cpp mod128.cpp normalis.cpp ocrblock.cpp \
-    ocrrow.cpp pageblk.cpp pageres.cpp pdblock.cpp \
-    points.cpp polyaprx.cpp polyblk.cpp polyblob.cpp \
-    polyvert.cpp poutline.cpp quadlsq.cpp quadratc.cpp \
-    quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \
-    rwpoly.cpp statistc.cpp stepblob.cpp txtregn.cpp \
+    blobbox.cpp blobs.cpp blread.cpp callcpp.cpp ccstruct.cpp coutln.cpp \
+    detlinefit.cpp genblob.cpp \
+    labls.cpp linlsq.cpp lmedsq.cpp mod128.cpp normalis.cpp \
+    ocrblock.cpp ocrrow.cpp otsuthr.cpp \
+    pageres.cpp pdblock.cpp points.cpp polyaprx.cpp polyblk.cpp \
+    polyblob.cpp polyvert.cpp poutline.cpp \
+    quadlsq.cpp quadratc.cpp quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \
+    statistc.cpp stepblob.cpp \
     vecfuncs.cpp werd.cpp
 
 all: all-recursive
@@ -302,7 +304,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blobs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blread.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/callcpp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ccstruct.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coutln.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/detlinefit.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/genblob.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/labls.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linlsq.Po@am__quote@
@@ -311,7 +315,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/normalis.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ocrblock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ocrrow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pageblk.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/otsuthr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pageres.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pdblock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/points.Po@am__quote@
@@ -326,10 +330,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ratngs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rect.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rejctmap.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rwpoly.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/statistc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stepblob.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/txtregn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vecfuncs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/werd.Po@am__quote@
 

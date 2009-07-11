@@ -458,7 +458,7 @@ BLOBNBOX * blob,                 //first blob
 float top,                       //corrected top
 float bottom,                    //of row
 float row_size                   //ideal
-):y_min (bottom), y_max (top), initial_y_min (bottom) {
+): y_min(bottom), y_max(top), initial_y_min(bottom), num_repeated_sets_(-1) {
   float diff;                    //in size
   BLOBNBOX_IT it = &blobs;       //list of blobs
 
@@ -775,4 +775,31 @@ TO_BLOCK::~TO_BLOCK() {
   clear_blobnboxes(&small_blobs);
   clear_blobnboxes(&large_blobs);
 }
+
+// Draw the blobs on the various lists in the block in different colors.
+void TO_BLOCK::plot_graded_blobs(ScrollView* to_win) {
+  plot_blob_list(to_win, &noise_blobs, ScrollView::CORAL, ScrollView::BLUE);
+  plot_blob_list(to_win, &small_blobs,
+                 ScrollView::GOLDENROD, ScrollView::YELLOW);
+  plot_blob_list(to_win, &large_blobs,
+                 ScrollView::DARK_GREEN, ScrollView::YELLOW);
+  plot_blob_list(to_win, &blobs, ScrollView::WHITE, ScrollView::BROWN);
+}
+
+/**********************************************************************
+ * plot_blob_list
+ *
+ * Draw a list of blobs.
+ **********************************************************************/
+
+void plot_blob_list(ScrollView* win,                   // window to draw in
+                    BLOBNBOX_LIST *list,               // blob list
+                    ScrollView::Color body_colour,     // colour to draw
+                    ScrollView::Color child_colour) {  // colour of child
+  BLOBNBOX_IT it = list;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    it.data()->plot(win, body_colour, child_colour);
+  }
+}
+
 

@@ -62,6 +62,7 @@ class PBLOB:public ELIST_LINK
     void scale(                    // scale blob
                const FCOORD vec);  // by FLOAT vector
     void rotate();  // Rotate 90 deg anti
+    void rotate(const FCOORD& rotation);  // Rotate by given rotation.
 
     void prep_serialise() {  //set ptrs to counts
       outlines.prep_serialise ();

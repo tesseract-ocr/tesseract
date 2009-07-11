@@ -20,27 +20,30 @@
 #ifndef           RECT_H
 #define           RECT_H
 
-#include          <math.h>
-#include          "points.h"
-#include          "ndminx.h"
-#include          "tprintf.h"
-#include	"scrollview.h"
+#include <math.h>
+#include "points.h"
+#include "ndminx.h"
+#include "tprintf.h"
+#include "scrollview.h"
 
-class DLLSYM TBOX                 //bounding box
-{
+class DLLSYM TBOX  {  // bounding box
   public:
-    TBOX ():                      //empty constructor
+    TBOX ():       // empty constructor making a null box
     bot_left (MAX_INT16, MAX_INT16), top_right (-MAX_INT16, -MAX_INT16) {
-    }                            //null box
+    }
 
-    TBOX(                    //constructor
-        const ICOORD pt1,   //one corner
-        const ICOORD pt2);  //the other corner
-    TBOX(  //box around FCOORD
+    TBOX(          // constructor
+        const ICOORD pt1,   // one corner
+        const ICOORD pt2);  // the other corner
+
+    TBOX(                    // constructor
+        inT16 left, inT16 bottom, inT16 right, inT16 top);
+
+    TBOX(  // box around FCOORD
         const FCOORD pt);
 
-    BOOL8 null_box() const {  //Is box null
-      return ((left () > right ()) || (top () < bottom ()));
+    bool null_box() const {  // Is box null
+      return ((left () >= right ()) || (top () <= bottom ()));
     }
 
     inT16 top() const {  // coord of top
@@ -71,8 +74,7 @@ class DLLSYM TBOX                 //bounding box
       top_right.set_x(x);
     }
 
-                                 //access function
-    const ICOORD &botleft() const {
+    const ICOORD &botleft() const {  // access function
       return bot_left;
     }
 
@@ -84,26 +86,25 @@ class DLLSYM TBOX                 //bounding box
       return ICOORD (bot_left.x (), top_right.y ());
     }
 
-                                 //access function
-    const ICOORD &topright() const {
+    const ICOORD &topright() const {  // access function
       return top_right;
     }
 
-    inT16 height() const {  //how high is it?
+    inT16 height() const {  // how high is it?
       if (!null_box ())
         return top_right.y () - bot_left.y ();
       else
         return 0;
     }
 
-    inT16 width() const {  //how high is it?
+    inT16 width() const {  // how high is it?
       if (!null_box ())
         return top_right.x () - bot_left.x ();
       else
         return 0;
     }
 
-    inT32 area() const {  //what is the area?
+    inT32 area() const {  // what is the area?
       if (!null_box ())
         return width () * height ();
       else
@@ -139,27 +140,21 @@ class DLLSYM TBOX                 //bounding box
     void move(                     // move box
               const FCOORD vec) {  // by float vector
       bot_left.set_x ((inT16) floor (bot_left.x () + vec.x ()));
-      //round left
+      // round left
       bot_left.set_y ((inT16) floor (bot_left.y () + vec.y ()));
-      //round down
-
+      // round down
       top_right.set_x ((inT16) ceil (top_right.x () + vec.x ()));
-      //round right
+      // round right
       top_right.set_y ((inT16) ceil (top_right.y () + vec.y ()));
-      //round up
+      // round up
     }
 
     void scale(                  // scale box
                const float f) {  // by multiplier
-                                 //round left
-      bot_left.set_x ((inT16) floor (bot_left.x () * f));
-                                 //round down
-      bot_left.set_y ((inT16) floor (bot_left.y () * f));
-
-      top_right.set_x ((inT16) ceil (top_right.x () * f));
-      //round right
-      top_right.set_y ((inT16) ceil (top_right.y () * f));
-      //round up
+      bot_left.set_x ((inT16) floor (bot_left.x () * f));  // round left
+      bot_left.set_y ((inT16) floor (bot_left.y () * f));  // round down
+      top_right.set_x ((inT16) ceil (top_right.x () * f));  // round right
+      top_right.set_y ((inT16) ceil (top_right.y () * f));  // round up
     }
     void scale(                     // scale box
                const FCOORD vec) {  // by float vector
@@ -169,69 +164,85 @@ class DLLSYM TBOX                 //bounding box
       top_right.set_y ((inT16) ceil (top_right.y () * vec.y ()));
     }
 
-    void rotate(                     //rotate coords
-                const FCOORD vec) {  //by vector
+    // rotate doesn't enlarge the box - it just rotates the bottom-left
+    // and top-right corners. Use rotate_large if you want to guarantee
+    // that all content is contained within the rotated box.
+    void rotate(const FCOORD& vec) {  // by vector
       bot_left.rotate (vec);
       top_right.rotate (vec);
       *this = TBOX (bot_left, top_right);
     }
+    // rotate_large constructs the containing bounding box of all 4
+    // corners after rotating them. It therefore guarantees that all
+    // original content is contained within, but also slightly enlarges the box.
+    void rotate_large(const FCOORD& vec);
 
-    BOOL8 contains(  //is pt inside box
+    bool contains(  // is pt inside box
                    const FCOORD pt) const;
 
-    BOOL8 contains(  //is box inside box
+    bool contains(  // is box inside box
                    const TBOX &box) const;
 
+    bool overlap(  // do boxes overlap
+                  const TBOX &box) const;
+
+    bool major_overlap(  // do boxes overlap more than half
+                        const TBOX &box) const;
+
     // Do boxes overlap on x axis.
-    BOOL8 x_overlap(const TBOX &box) const;
+    bool x_overlap(const TBOX &box) const;
 
     // Do boxes overlap on x axis by more than
     // half of the width of the narrower box.
-    BOOL8 major_x_overlap(const TBOX &box) const;
+    bool major_x_overlap(const TBOX &box) const;
 
-    BOOL8 overlap(  //do boxes overlap
-                  const TBOX &box) const;
+    // Do boxes overlap on y axis.
+    bool y_overlap(const TBOX &box) const;
 
-    BOOL8 major_overlap(  // do boxes overlap more than half
-                        const TBOX &box) const;
+    // Do boxes overlap on y axis by more than
+    // half of the height of the shorter box.
+    bool major_y_overlap(const TBOX &box) const;
 
-    TBOX intersection(  //shared area box
+    // fraction of current box's area covered by other
+    double overlap_fraction(const TBOX &box) const;
+
+    TBOX intersection(  // shared area box
                      const TBOX &box) const;
 
-    TBOX bounding_union(  //box enclosing both
+    TBOX bounding_union(  // box enclosing both
                        const TBOX &box) const;
 
-    void print() {  //print
-      tprintf ("Bounding box=(%d,%d)->(%d,%d)\n",
-        left (), bottom (), right (), top ());
+    void print() const {  // print
+      tprintf("Bounding box=(%d,%d)->(%d,%d)\n",
+              left(), bottom(), right(), top());
     }
 
 #ifndef GRAPHICS_DISABLED
-    void plot(                    //use current settings
-              ScrollView* fd) const {  //where to paint
+    void plot(                    // use current settings
+              ScrollView* fd) const {  // where to paint
       fd->Rectangle(bot_left.x (), bot_left.y (), top_right.x (),
         top_right.y ());
     }
 
-    void plot(                              //paint box
-              ScrollView* fd,                    //where to paint
-              ScrollView::Color fill_colour,           //colour for inside
-              ScrollView::Color border_colour) const;  //colour for border
+    void plot(                              // paint box
+              ScrollView* fd,                    // where to paint
+              ScrollView::Color fill_colour,           // colour for inside
+              ScrollView::Color border_colour) const;  // colour for border
 #endif
 
     friend DLLSYM TBOX & operator+= (TBOX &, const TBOX &);
-    //in place union
+    // in place union
     friend DLLSYM TBOX & operator-= (TBOX &, const TBOX &);
-    //in place intrsection
+    // in place intrsection
 
-    void serialise_asc(  //convert to ascii
+    void serialise_asc(  // convert to ascii
                        FILE *f);
-    void de_serialise_asc(  //convert from ascii
+    void de_serialise_asc(  // convert from ascii
                           FILE *f);
 
   private:
-    ICOORD bot_left;             //bottom left corner
-    ICOORD top_right;            //top right corner
+    ICOORD bot_left;             // bottom left corner
+    ICOORD top_right;            // top right corner
 };
 
 /**********************************************************************
@@ -239,8 +250,8 @@ class DLLSYM TBOX                 //bounding box
  *
  **********************************************************************/
 
-inline TBOX::TBOX(                 //construtor
-                const FCOORD pt  //floating centre
+inline TBOX::TBOX(               // construtor
+                const FCOORD pt  // floating centre
                ) {
   bot_left = ICOORD ((inT16) floor (pt.x ()), (inT16) floor (pt.y ()));
   top_right = ICOORD ((inT16) ceil (pt.x ()), (inT16) ceil (pt.y ()));
@@ -252,7 +263,7 @@ inline TBOX::TBOX(                 //construtor
  *
  **********************************************************************/
 
-inline BOOL8 TBOX::contains(const FCOORD pt) const {
+inline bool TBOX::contains(const FCOORD pt) const {
   return ((pt.x () >= bot_left.x ()) &&
     (pt.x () <= top_right.x ()) &&
     (pt.y () >= bot_left.y ()) && (pt.y () <= top_right.y ()));
@@ -264,7 +275,7 @@ inline BOOL8 TBOX::contains(const FCOORD pt) const {
  *
  **********************************************************************/
 
-inline BOOL8 TBOX::contains(const TBOX &box) const {
+inline bool TBOX::contains(const TBOX &box) const {
   return (contains (box.bot_left) && contains (box.top_right));
 }
 
@@ -274,7 +285,7 @@ inline BOOL8 TBOX::contains(const TBOX &box) const {
  *
  **********************************************************************/
 
-inline BOOL8 TBOX::overlap(  //do boxes overlap
+inline bool TBOX::overlap(  // do boxes overlap
                           const TBOX &box) const {
   return ((box.bot_left.x () <= top_right.x ()) &&
     (box.top_right.x () >= bot_left.x ()) &&
@@ -287,7 +298,7 @@ inline BOOL8 TBOX::overlap(  //do boxes overlap
  *
  **********************************************************************/
 
-inline BOOL8 TBOX::major_overlap(  // Do boxes overlap more that half.
+inline bool TBOX::major_overlap(  // Do boxes overlap more that half.
                                 const TBOX &box) const {
   int overlap = MIN(box.top_right.x(), top_right.x());
   overlap -= MAX(box.bot_left.x(), bot_left.x());
@@ -302,12 +313,36 @@ inline BOOL8 TBOX::major_overlap(  // Do boxes overlap more that half.
   return true;
 }
 
-inline BOOL8 TBOX::x_overlap(const TBOX &box) const {
+/**********************************************************************
+ * TBOX::overlap_fraction()  Fraction of area covered by the other box
+ *
+ **********************************************************************/
+
+inline double TBOX::overlap_fraction(const TBOX &box) const {
+  double fraction = 0.0;
+  if (this->area()) {
+    fraction = this->intersection(box).area() * 1.0 / this->area();
+  }
+  return fraction;
+}
+
+/**********************************************************************
+ * TBOX::x_overlap()  Do two boxes overlap on x-axis
+ *
+ **********************************************************************/
+
+inline bool TBOX::x_overlap(const TBOX &box) const {
   return ((box.bot_left.x() <= top_right.x()) &&
     (box.top_right.x() >= bot_left.x()));
 }
 
-inline BOOL8 TBOX::major_x_overlap(const TBOX &box) const {
+/**********************************************************************
+ * TBOX::major_x_overlap()  Do two boxes overlap by more than half the
+ *                          width of the narrower box on the x-axis
+ *
+ **********************************************************************/
+
+inline bool TBOX::major_x_overlap(const TBOX &box) const {
   inT16 overlap = box.width();
   if (this->left() > box.left()) {
     overlap -= this->left() - box.left();
@@ -316,5 +351,32 @@ inline BOOL8 TBOX::major_x_overlap(const TBOX &box) const {
     overlap -= box.right() - this->right();
   }
   return (overlap >= box.width() / 2 || overlap >= this->width() / 2);
+}
+
+/**********************************************************************
+ * TBOX::y_overlap()  Do two boxes overlap on y-axis
+ *
+ **********************************************************************/
+
+inline bool TBOX::y_overlap(const TBOX &box) const {
+  return ((box.bot_left.y() <= top_right.y()) &&
+    (box.top_right.y() >= bot_left.y()));
+}
+
+/**********************************************************************
+ * TBOX::major_y_overlap()  Do two boxes overlap by more than half the
+ *                          height of the shorter box on the y-axis
+ *
+ **********************************************************************/
+
+inline bool TBOX::major_y_overlap(const TBOX &box) const {
+  inT16 overlap = box.height();
+  if (this->bottom() > box.bottom()) {
+    overlap -= this->bottom() - box.bottom();
+  }
+  if (this->top() < box.top()) {
+    overlap -= box.top() - this->top();
+  }
+  return (overlap >= box.height() / 2 || overlap >= this->height() / 2);
 }
 #endif

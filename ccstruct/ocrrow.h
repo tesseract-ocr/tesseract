@@ -58,6 +58,9 @@ class ROW:public ELIST_LINK
     float x_height() const {  //return x height
       return xheight;
     }
+    void set_x_height(float new_xheight) {  // set x height
+      xheight = new_xheight;
+    }
     inT32 kern() const {  //return kerning
       return kerning;
     }

@@ -18,6 +18,8 @@
  **********************************************************************/
 
 #include          "mfcpch.h"     //precompiled headers
+#include          <stdlib.h>
+#include          "ndminx.h"
 #include          "serialis.h"
 #include          "points.h"
 
@@ -31,6 +33,17 @@ bool FCOORD::normalise() {  //Convert to unit vec
   xcoord /= len;
   ycoord /= len;
   return true;
+}
+
+// Set from the given x,y, shrinking the vector to fit if needed.
+void ICOORD::set_with_shrink(int x, int y) {
+  // Fit the vector into an ICOORD, which is 16 bit.
+  int factor = 1;
+  int max_extent = MAX(abs(x), abs(y));
+  if (max_extent > MAX_INT16)
+    factor = max_extent / MAX_INT16 + 1;
+  xcoord = x / factor;
+  ycoord = y / factor;
 }
 
 // The fortran/basic sgn function returns -1, 0, 1 if x < 0, x == 0, x > 0
@@ -49,7 +62,7 @@ static int sign(int x) {
 // subtract major and step a minor step.
 
 void ICOORD::setup_render(ICOORD* major_step, ICOORD* minor_step,
-                          int* major, int* minor) {
+                          int* major, int* minor) const {
   int abs_x = abs(xcoord);
   int abs_y = abs(ycoord);
   if (abs_x >= abs_y) {

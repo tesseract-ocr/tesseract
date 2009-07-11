@@ -51,6 +51,29 @@ TBOX::TBOX(                   //construtor
   }
 }
 
+/**********************************************************************
+ * TBOX::TBOX()  Constructor from 4 integer values.
+ *  Note: It is caller's responsibility to provide values in the right
+ *        order.
+ **********************************************************************/
+
+TBOX::TBOX(                    //constructor
+    inT16 left, inT16 bottom, inT16 right, inT16 top)
+    : bot_left(left, bottom), top_right(right, top) {
+}
+
+// rotate_large constructs the containing bounding box of all 4
+// corners after rotating them. It therefore guarantees that all
+// original content is contained within, but also slightly enlarges the box.
+void TBOX::rotate_large(const FCOORD& vec) {
+  ICOORD top_left(bot_left.x(), top_right.y());
+  ICOORD bottom_right(top_right.x(), bot_left.y());
+  top_left.rotate(vec);
+  bottom_right.rotate(vec);
+  rotate(vec);
+  TBOX box2(top_left, bottom_right);
+  *this += box2;
+}
 
 /**********************************************************************
  * TBOX::intersection()  Build the largest box contained in both boxes
@@ -59,37 +82,38 @@ TBOX::TBOX(                   //construtor
 
 TBOX TBOX::intersection(  //shared area box
                       const TBOX &box) const {
-  ICOORD bl;                     //bottom left
-  ICOORD tr;                     //top right
-
+  inT16 left;
+  inT16 bottom;
+  inT16 right;
+  inT16 top;
   if (overlap (box)) {
     if (box.bot_left.x () > bot_left.x ())
-      bl.set_x (box.bot_left.x ());
+      left = box.bot_left.x ();
     else
-      bl.set_x (bot_left.x ());
+      left = bot_left.x ();
 
     if (box.top_right.x () < top_right.x ())
-      tr.set_x (box.top_right.x ());
+      right = box.top_right.x ();
     else
-      tr.set_x (top_right.x ());
+      right = top_right.x ();
 
     if (box.bot_left.y () > bot_left.y ())
-      bl.set_y (box.bot_left.y ());
+      bottom = box.bot_left.y ();
     else
-      bl.set_y (bot_left.y ());
+      bottom = bot_left.y ();
 
     if (box.top_right.y () < top_right.y ())
-      tr.set_y (box.top_right.y ());
+      top = box.top_right.y ();
     else
-      tr.set_y (top_right.y ());
+      top = top_right.y ();
   }
   else {
-    bl.set_x (MAX_INT16);
-    bl.set_y (MAX_INT16);
-    tr.set_x (-MAX_INT16);
-    tr.set_y (-MAX_INT16);
+    left = MAX_INT16;
+    bottom = MAX_INT16;
+    top = -MAX_INT16;
+    right = -MAX_INT16;
   }
-  return TBOX (bl, tr);
+  return TBOX (left, bottom, right, top);
 }
 
 
