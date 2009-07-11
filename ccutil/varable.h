@@ -21,18 +21,27 @@
 #define           VARABLE_H
 
 #include          <stdio.h>
+
 #include          "clst.h"
 #include          "strngs.h"
 
 class DLLSYM INT_VARIABLE;
 
-                                 //read the file
-extern DLLSYM BOOL8 read_variables_file(const char *file  //name to read
-                                       );
-bool set_new_style_variable(const char *variable, const char* value);
-                                 //print all vars
-extern DLLSYM void print_variables(FILE *fp  //file to print on
-                                  );
+// Read config file.
+extern DLLSYM BOOL8 read_variables_file(
+    const char *file,   // filename to read
+    bool global_only);  // only set variables starting with "global_"
+
+// Read variables from the given file pointer (stop at end_offset).
+bool read_variables_from_fp(FILE *fp, inT64 end_offset, bool global_only);
+
+// Set a variable to have the given value.
+bool set_variable(const char *variable, const char* value);
+
+// Print variables to a file.
+extern DLLSYM void print_variables(FILE *fp);
+
+const char kGlobalVariablePrefix[] = "global_";
 
 CLISTIZEH (INT_VARIABLE)
 class DLLSYM INT_VAR_FROM
@@ -57,7 +66,7 @@ class DLLSYM INT_VARIABLE
   friend class INT_VAR_TO;
   friend class INT_VAR_FROM;
                                  //for setting values
-  friend bool set_new_style_variable(const char *variable, const char* value);
+  friend bool set_variable(const char *variable, const char* value);
 
   public:
     INT_VARIABLE(inT32 v,               // initial value
@@ -124,7 +133,7 @@ class DLLSYM BOOL_VARIABLE {
   friend class BOOL_VAR_FROM;
   friend class BOOL_VAR_TO;
                                  //for setting values
-  friend bool set_new_style_variable(const char *variable, const char* value);
+  friend bool set_variable(const char *variable, const char* value);
 
   public:
     BOOL_VARIABLE(                       //constructor
@@ -197,7 +206,7 @@ class DLLSYM STRING_VARIABLE
   friend class STRING_VAR_TO;
   friend class STRING_VAR_FROM;
                                  //for setting values
-  friend bool set_new_style_variable(const char *variable, const char* value);
+  friend bool set_variable(const char *variable, const char* value);
 
   public:
     STRING_VARIABLE(                       //constructor
@@ -274,7 +283,7 @@ class DLLSYM double_VARIABLE
   friend class double_VAR_TO;
   friend class double_VAR_FROM;
                                  //for setting values
-  friend bool set_new_style_variable(const char *variable, const char* value);
+  friend bool set_variable(const char *variable, const char* value);
 
   public:
     double_VARIABLE(                       //constructor

@@ -21,6 +21,7 @@
 #define TESSERACT_CCUTIL_UNICHAR_H__
 
 #include <memory.h>
+#include <string.h>
 
 // Maximum number of characters that can be stored in a UNICHAR. Must be
 // at least 4. Must not exceed 31 without changing the coding of length.

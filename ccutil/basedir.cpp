@@ -22,8 +22,6 @@
 #ifdef __UNIX__
 #include          <unistd.h>
 #include                    <fcntl.h>
-#else
-#include          <io.h>
 #endif
 #include          <stdlib.h>
 #include          "basedir.h"
@@ -103,7 +101,7 @@ DLLSYM inT8 getpath(                   //get dir name of code
       return -1;
     }
   } else {
-    strcpy(directory, code);
+    strncpy(directory, code, MAX_PATH - 1);
   }
   while ((path_end = strchr (directory, '\\')) != NULL)
     *path_end = '/';

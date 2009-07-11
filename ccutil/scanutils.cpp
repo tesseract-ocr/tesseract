@@ -31,6 +31,7 @@
 #include <fcntl.h>
 
 #include "scanutils.h"
+#include "tprintf.h"
 
 enum Flags {
   FL_SPLAT  = 0x01,   // Drop the value, do not assign
@@ -45,6 +46,7 @@ enum Ranks {
   RANK_INT  = 0,
   RANK_LONG = 1,
   RANK_LONGLONG = 2,
+  RANK_PTR      = INT_MAX // Special value used for pointers
   RANK_PTR      = 3 // Special value used for pointers
 };
 
@@ -183,7 +185,7 @@ double strtofloat(const char* s)
 {
   int minus = 0;
   int v = 0;
-  int d, c;
+  int d;
   int k = 1;
   int w = 0;
 
@@ -243,7 +245,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
     ST_MATCH,         // Main state of %[ sequence
     ST_MATCH_RANGE,   // After - in a %[ sequence
   } state = ST_NORMAL;
-  char *oarg, *sarg = NULL;    // %s %c or %[ string argument
+  char *sarg = NULL;    // %s %c or %[ string argument
   enum Bail bail = BAIL_NONE;
   int sign;
   int converted = 0;    // Successful conversions

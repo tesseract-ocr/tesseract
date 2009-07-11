@@ -26,14 +26,15 @@
 extern DLLSYM STRING datadir;    //dir for data files
                                  //name of image
 extern DLLSYM STRING imagebasename;
-extern BOOL_VAR_H (m_print_variables, FALSE,
-"Print initial values of all variables");
-extern STRING_VAR_H (m_data_sub_dir, "data/", "Directory for data files");
-extern INT_VAR_H (memgrab_size, 13000000, "Preallocation size for batch use");
-void main_setup(                         /*main demo program */
-                const char *argv0,       //program name
-                const char *basename,    //name of image
-                int argc,                /*argument count */
-                const char *const *argv  /*arguments */
-               );
+extern BOOL_VAR_H(m_print_variables, FALSE,
+                  "Print initial values of all variables");
+extern STRING_VAR_H(m_data_sub_dir, "data/", "Directory for data files");
+extern INT_VAR_H(memgrab_size, 13000000, "Preallocation size for batch use");
+// > ccutil.h
+//void main_setup(                         /*main demo program */
+//                const char *argv0,       //program name
+//                const char *basename,    //name of image
+//                int argc,                /*argument count */
+//                const char *const *argv  /*arguments */
+//               );
 #endif

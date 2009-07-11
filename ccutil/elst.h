@@ -141,11 +141,11 @@ class DLLSYM ELIST
                                  //ptr to zapper functn
       void (*zapper) (ELIST_LINK *));
 
-    BOOL8 empty() {  //is list empty?
+    bool empty() {  //is list empty?
       return !last;
     }
 
-    BOOL8 singleton() {
+    bool singleton() {
       return last ? (last == last->next) : FALSE;
     }
 
@@ -210,13 +210,13 @@ class DLLSYM ELIST_ITERATOR
   ELIST_LINK *prev;              //prev element
   ELIST_LINK *current;           //current element
   ELIST_LINK *next;              //next element
-  BOOL8 ex_current_was_last;     //current extracted
+  bool ex_current_was_last;     //current extracted
   //was end of list
-  BOOL8 ex_current_was_cycle_pt; //current extracted
+  bool ex_current_was_cycle_pt; //current extracted
   //was cycle point
   ELIST_LINK *cycle_pt;          //point we are cycling
   //the list to.
-  BOOL8 started_cycling;         //Have we moved off
+  bool started_cycling;         //Have we moved off
   //the start?
 
   ELIST_LINK *extract_sublist(                            //from this current...
@@ -274,7 +274,7 @@ class DLLSYM ELIST_ITERATOR
 
     void mark_cycle_pt();  //remember current
 
-    BOOL8 empty() {  //is list empty?
+    bool empty() {  //is list empty?
     #ifndef NDEBUG
       if (!list)
         NO_LIST.error ("ELIST_ITERATOR::empty", ABORT, NULL);
@@ -282,15 +282,15 @@ class DLLSYM ELIST_ITERATOR
       return list->empty ();
     }
 
-    BOOL8 current_extracted() {  //current extracted?
+    bool current_extracted() {  //current extracted?
       return !current;
     }
 
-    BOOL8 at_first();  //Current is first?
+    bool at_first();  //Current is first?
 
-    BOOL8 at_last();  //Current is last?
+    bool at_last();  //Current is last?
 
-    BOOL8 cycled_list();  //Completed a cycle?
+    bool cycled_list();  //Completed a cycle?
 
     void add_to_end(                        //add at end &
                     ELIST_LINK *new_link);  //dont move
@@ -728,7 +728,7 @@ inline void ELIST_ITERATOR::mark_cycle_pt() {
  *
  **********************************************************************/
 
-inline BOOL8 ELIST_ITERATOR::at_first() {
+inline bool ELIST_ITERATOR::at_first() {
   #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("ELIST_ITERATOR::at_first", ABORT, NULL);
@@ -750,7 +750,7 @@ inline BOOL8 ELIST_ITERATOR::at_first() {
  *
  **********************************************************************/
 
-inline BOOL8 ELIST_ITERATOR::at_last() {
+inline bool ELIST_ITERATOR::at_last() {
   #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("ELIST_ITERATOR::at_last", ABORT, NULL);
@@ -772,7 +772,7 @@ inline BOOL8 ELIST_ITERATOR::at_last() {
  *
  **********************************************************************/
 
-inline BOOL8 ELIST_ITERATOR::cycled_list() {
+inline bool ELIST_ITERATOR::cycled_list() {
   #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("ELIST_ITERATOR::cycled_list", ABORT, NULL);

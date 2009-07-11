@@ -18,13 +18,14 @@
  **********************************************************************/
 
 #include          "mfcpch.h"     //precompiled headers
+
 #include          <stdio.h>
 #include          <string.h>
 #include          <stdlib.h>
-#include          "tprintf.h"
-//#include                                      "ipeerr.h"
-#include          "varable.h"
+
 #include          "scanutils.h"
+#include          "tprintf.h"
+#include          "varable.h"
 
 #define PLUS          '+'        //flag states
 #define MINUS         '-'
@@ -379,24 +380,23 @@ STRING_VARIABLE_CLIST *STRING_VARIABLE::get_head() {  // access to static
  * Print the entire list of STRING_VARIABLEs.
  **********************************************************************/
 
-void STRING_VARIABLE::print(FILE *fp  // file to print on
-                           ) {
-                                 // list iterator
-  STRING_VARIABLE_C_IT it = &head;
+void STRING_VARIABLE::print(FILE *fp) {
+  STRING_VARIABLE_C_IT it = &head;  // list iterator
   STRING_VARIABLE *elt;          // current element
 
+  // Comments aren't allowed with string variables, so the # character can
+  // be part of a string.
   if (fp == stdout) {
     tprintf("#Variables of type STRING_VARIABLE:\n");
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       elt = it.data();
-      tprintf("%s #%s %s\n", elt->name, elt->value.string(), elt->info);
+      tprintf("%s %s\n", elt->name, elt->value.string());
     }
   } else {
     fprintf(fp, "#Variables of type STRING_VARIABLE:\n");
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       elt = it.data();
-      fprintf(fp, "%s #%s %s\n",
-        elt->name, elt->value.string(), elt->info);
+      fprintf(fp, "%s %s\n", elt->name, elt->value.string());
     }
   }
 }
@@ -519,20 +519,14 @@ void double_VARIABLE::print(FILE *fp  // file to print on
  * Values may have any whitespace after the name and are the rest of line.
  **********************************************************************/
 
-DLLSYM BOOL8 read_variables_file(const char *file  // name to read
-                                ) {
-  BOOL8 anyerr;                  // true if any error
+DLLSYM BOOL8 read_variables_file(const char *file,  // name to read
+                                 bool global_only   // only set variables
+                                 ) {                // starting with "global_"
   char flag;                     // file flag
-  BOOL8 foundit;                 // found variable
-  inT16 length;                  // length of line
   inT16 nameoffset;              // offset for real name
-  char *valptr;                  // value field
-  char *stringend;               // end of string value
   FILE *fp;                      // file pointer
                                  // iterators
-  char line[MAX_PATH];           // input line
 
-  anyerr = FALSE;
   if (*file == PLUS) {
     flag = PLUS;                 // file has flag
     nameoffset = 1;
@@ -546,54 +540,48 @@ DLLSYM BOOL8 read_variables_file(const char *file  // name to read
 
   fp = fopen(file + nameoffset, "r");
   if (fp == NULL) {
-    tprintf("read_variables_file:Can't open %s", file + nameoffset);
+    tprintf("read_variables_file: Can't open %s\n", file + nameoffset);
     return TRUE;                 // can't open it
   }
-  while (fgets (line, MAX_PATH, fp)) {
+  return read_variables_from_fp(fp, -1, global_only);
+  fclose(fp);
+}
+
+bool read_variables_from_fp(FILE *fp, inT64 end_offset, bool global_only) {
+  char line[MAX_PATH];           // input line
+  bool anyerr = false;          // true if any error
+  bool foundit;                 // found variable
+  inT16 length;                  // length of line
+  char *valptr;                  // value field
+
+  while ((end_offset < 0 || ftell(fp) < end_offset) &&
+         fgets(line, MAX_PATH, fp)) {
     if (line[0] != '\n' && line[0] != '#') {
       length = strlen (line);
       if (line[length - 1] == '\n')
         line[length - 1] = '\0';  // cut newline
       for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t';
         valptr++);
-      if (*valptr) {             //found blank
-        *valptr = '\0';          //make name a string
+      if (*valptr) {             // found blank
+        *valptr = '\0';          // make name a string
         do
-
-        valptr++;              //find end of blanks
+          valptr++;              // find end of blanks
         while (*valptr == ' ' || *valptr == '\t');
-
-        if (*valptr && *valptr != '#') {
-                                 //last char in string
-          stringend = valptr + strlen (valptr) - 1;
-          while (stringend != valptr) {
-            while (stringend != valptr
-              && (*stringend == ' ' || *stringend == '\t'))
-              // cut trailing blanks
-              stringend--;
-            stringend[1] = '\0'; // terminate string
-
-            while (stringend != valptr
-              && ((*stringend != ' ' && *stringend != '\t')
-              || stringend[1] != '#'))
-              stringend--;       // find word start
-          }
-        }
       }
-      foundit = set_new_style_variable(line, valptr);
+      if (global_only && strstr(line, kGlobalVariablePrefix) == NULL) continue;
+      foundit = set_variable(line, valptr);
 
       if (!foundit) {
         anyerr = TRUE;         // had an error
-        tprintf("read_variables_file:variable not found: %s\n",
-          line);
+        tprintf("read_variables_file: variable not found: %s\n", line);
+        exit(1);
       }
     }
   }
-  fclose(fp);  // close file
   return anyerr;
 }
 
-bool set_new_style_variable(const char *variable, const char* value) {
+bool set_variable(const char *variable, const char* value) {
   INT_VARIABLE_C_IT int_it = &INT_VARIABLE::head;
   BOOL_VARIABLE_C_IT BOOL_it = &BOOL_VARIABLE::head;
   STRING_VARIABLE_C_IT STRING_it = &STRING_VARIABLE::head;
@@ -606,10 +594,7 @@ bool set_new_style_variable(const char *variable, const char* value) {
        STRING_it.forward());
   if (!STRING_it.cycled_list()) {
     foundit = true;          // found the varaible
-    if (*value == '\0')
-      STRING_it.data()->set_value((char *) NULL);  // No value.
-    else
-      STRING_it.data()->set_value(value);  // set its value
+    STRING_it.data()->set_value(value);  // set its value
   }
 
   if (*value) {
@@ -624,7 +609,7 @@ bool set_new_style_variable(const char *variable, const char* value) {
       int_it.data()->set_value(intval);  // set its value.
     }
     for (BOOL_it.mark_cycle_pt();
-         !BOOL_it.cycled_list () && strcmp(variable, BOOL_it.data()->name);
+         !BOOL_it.cycled_list() && strcmp(variable, BOOL_it.data()->name);
          BOOL_it.forward());
     if (!BOOL_it.cycled_list()) {
       if (*value == 'T' || *value == 't' ||

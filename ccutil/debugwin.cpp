@@ -39,7 +39,6 @@ static LCommander *pCommander = NULL;
                                  //NT implementation
 #if defined(__MSW32__) && !defined(_CONSOLE)
 
-#include          <io.h>
 #define ID_DEBUG_MSG       32779
 
 /**********************************************************************

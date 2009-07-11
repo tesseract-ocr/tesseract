@@ -24,6 +24,7 @@
 #include              "debugwin.h"
 //#include                                      "ipeerr.h"
 #include          "tprintf.h"
+#include          "ccutil.h"
 
 #define MAX_MSG_LEN     1024
 
@@ -36,6 +37,7 @@ DLLSYM void
 tprintf (                        //Trace printf
 const char *format, ...          //special message
 ) {
+  tesseract::tprintfMutex.Lock();
   va_list args;                  //variable args
   static FILE *debugfp = NULL;   //debug file
                                  //debug window
@@ -76,6 +78,7 @@ const char *format, ...          //special message
       fprintf (stderr, "%s", msg);
     }
   }
+  tesseract::tprintfMutex.Unlock();
 }
 
 
