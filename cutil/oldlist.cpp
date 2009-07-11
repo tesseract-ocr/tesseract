@@ -151,6 +151,33 @@ LIST delete_d(LIST list, void *key, int_compare is_equal) {
   return (result);
 }
 
+LIST delete_d(LIST list, void *key,
+              ResultCallback2<int, void*, void*>* is_equal) {
+  LIST result = NIL;
+  LIST last_one = NIL;
+
+  while (list != NIL) {
+    if (!(*is_equal).Run (first_node (list), key)) {
+      if (last_one == NIL) {
+        last_one = list;
+        list = rest (list);
+        result = last_one;
+        set_rest(last_one, NIL);
+      }
+      else {
+        set_rest(last_one, list);
+        last_one = list;
+        list = rest (list);
+        set_rest(last_one, NIL);
+      }
+    }
+    else {
+      list = pop (list);
+    }
+  }
+  return (result);
+}
+
 
 /**********************************************************************
  *  d e s t r o y
@@ -388,6 +415,12 @@ LIST search(LIST list, void *key, int_compare is_equal) {
     is_equal = is_same;
 
   iterate (list) if ((*is_equal) (first_node (list), key))
+  return (list);
+  return (NIL);
+}
+
+LIST search(LIST list, void *key, ResultCallback2<int, void*, void*>* is_equal) {
+  iterate (list) if ((*is_equal).Run(first_node (list), key))
   return (list);
   return (NIL);
 }

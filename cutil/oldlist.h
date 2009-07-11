@@ -118,17 +118,18 @@
 #define LIST_H
 
 #include "cutil.h"
+#include "callback.h"
 
 /*----------------------------------------------------------------------
                   T y p e s
 ----------------------------------------------------------------------*/
 #define NIL  (LIST) 0
-typedef struct list_rec
+struct list_rec
 {
   struct list_rec *node;
   struct list_rec *next;
-} _LIST_;
-typedef _LIST_ *LIST;
+};
+typedef list_rec *LIST;
 
 /*----------------------------------------------------------------------
                   M a c r o s
@@ -239,6 +240,9 @@ int count(LIST var_list);
 
 LIST delete_d(LIST list, void *key, int_compare is_equal);
 
+LIST delete_d(LIST list, void *key,
+              ResultCallback2<int, void*, void*>* is_equal);
+
 LIST destroy(LIST list);
 
 void destroy_nodes(LIST list, void_dest destructor);
@@ -268,6 +272,8 @@ LIST reverse_d(LIST list);
 LIST s_adjoin(LIST var_list, void *variable, int_compare compare);
 
 LIST search(LIST list, void *key, int_compare is_equal);
+
+LIST search(LIST list, void *key, ResultCallback2<int, void*, void*>*);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

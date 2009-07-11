@@ -64,7 +64,6 @@ Import original HP distribution
 
 //typedef int (*int_proc)               (void);
 typedef void (*void_proc) (...);
-typedef char *(*char_proc) _ARGS ((...));
 typedef void *(*void_star_proc) _ARGS ((...));
 
 typedef int (*int_void) (void);
@@ -72,34 +71,9 @@ typedef void (*void_void) (void);
 typedef int (*int_compare) (void *, void *);
 typedef void (*void_dest) (void *);
 
-extern void_proc deallocate;
-extern char_proc allocate;
-
 /*----------------------------------------------------------------------
                      M a c r o s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * min
- *
- * Minimum of two values
- **********************************************************************/
-
-#ifndef min
-#define min(x,y) \
-  ((x) < (y) ? (x) : (y))
-#endif
-
-/**********************************************************************
- * max
- *
- * Maximum of two values
- **********************************************************************/
-
-#ifndef max
-#define max(x,y) \
-  ((y) < (x) ? (x) : (y))
-#endif
-
 /**********************************************************************
  * new_line
  *
@@ -125,7 +99,7 @@ extern char_proc allocate;
  * to it and return the result.
  **********************************************************************/
 
-#define strfree(s)  ((*deallocate) (s))
+#define strfree(s)  (free_string(s))
 
 /**********************************************************************
  * strsave
@@ -136,7 +110,7 @@ extern char_proc allocate;
 
 #define strsave(s)    \
   ((s) != NULL ?  \
-   ((char*) strcpy ((*allocate) (strlen(s)+1), s))  :  \
+   ((char*) strcpy (alloc_string(strlen(s)+1), s))  :  \
    (NULL))
 
 /*----------------------------------------------------------------------
@@ -156,4 +130,5 @@ FILE *open_file
 
 #undef _ARGS
 */
+#include "cutil_class.h"
 #endif

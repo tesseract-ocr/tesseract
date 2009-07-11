@@ -55,7 +55,7 @@ freeword, WERDBLOCK, "TWERD", wordcount)
 makestructure (newoutline, oldoutline, printol, TESSLINE,
 freeoutline, OUTLINEBLOCK, "TESSLINE", outlinecount);
 
-makestructure (new_cell, free_cell, printcell, _LIST_,
+makestructure (new_cell, free_cell, printcell, list_rec,
 freelist, LISTBLOCK, "LIST", listcount);
 
 newstructure (newblob, TBLOB, freeblob, BLOBBLOCK, "newblob", blobcount);

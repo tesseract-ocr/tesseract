@@ -29,41 +29,41 @@
 /* This file contains the global declarations used by all demonstrator files*/
 
 //IMAGE                                         info;                                           /*image info record*/
-TBLOB *pageblobs;                /*first blob on page */
-TEXTBLOCK *pageblocks;           /*first block on page */
+//TBLOB *pageblobs;                /*first blob on page */
+//TEXTBLOCK *pageblocks;           /*first block on page */
 // char classes[CLASSIZE][CLASSLENGTH];
                                  /*class definitions */
                                  /*indices to to_classes */
 
-int resolution;                  /*scanner res in dpi */
-int acts[MAXPROC];               /*action flags */
-int debugs[MAXPROC];             /*debug flags */
-int plots[MAXPROC];              /*plot flags */
+//int resolution;                  /*scanner res in dpi */
+//int acts[MAXPROC];               /*action flags */
+//int debugs[MAXPROC];             /*debug flags */
+//int plots[MAXPROC];              /*plot flags */
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-int corners[4];                  /*corners of scan window */
+//int corners[4];                  /*corners of scan window */
 
-char imagefile[FILENAMESIZE];    /*image file name */
-char directory[FILENAMESIZE];    /* main directory */
-char *debugfile;                 /* debug file name */
+//char imagefile[FILENAMESIZE];    /*image file name */
+//char directory[FILENAMESIZE];    /* main directory */
+//char *debugfile;                 /* debug file name */
 
-int plots_fx;
-int plots_ocr;
+//int plots_fx;
+//int plots_ocr;
 
-int debugs_fx;
-int debugs_ocr;
+//int debugs_fx;
+//int debugs_ocr;
 
-int acts_fx;
-int acts_ocr;
+//int acts_fx;
+//int acts_ocr;
 
-char *demodir;                   /*demo home directory */
+//char *demodir;                   /*demo home directory */
 
-int edgefd;                      /*edges window */
-int debugfd;                     /*debug window fd */
-FILE *debugfp;                   /*debug log file */
+//int edgefd;                      /*edges window */
+//int debugfd;                     /*debug window fd */
+//FILE *debugfp;                   /*debug log file */
 
-UNICHARSET unicharset;
+//UNICHARSET unicharset;
 
-STRING language_data_path_prefix;
+//STRING language_data_path_prefix;

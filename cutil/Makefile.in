@@ -57,12 +57,11 @@ AR = ar
 ARFLAGS = cru
 libtesseract_cutil_a_AR = $(AR) $(ARFLAGS)
 libtesseract_cutil_a_LIBADD =
-am_libtesseract_cutil_a_OBJECTS = tessarray.$(OBJEXT) bitvec.$(OBJEXT) \
-	cutil.$(OBJEXT) danerror.$(OBJEXT) debug.$(OBJEXT) \
-	efio.$(OBJEXT) emalloc.$(OBJEXT) freelist.$(OBJEXT) \
-	globals.$(OBJEXT) listio.$(OBJEXT) oldheap.$(OBJEXT) \
-	oldlist.$(OBJEXT) structures.$(OBJEXT) tordvars.$(OBJEXT) \
-	variables.$(OBJEXT)
+am_libtesseract_cutil_a_OBJECTS = bitvec.$(OBJEXT) cutil.$(OBJEXT) \
+	cutil_class.$(OBJEXT) danerror.$(OBJEXT) efio.$(OBJEXT) \
+	emalloc.$(OBJEXT) freelist.$(OBJEXT) globals.$(OBJEXT) \
+	listio.$(OBJEXT) oldheap.$(OBJEXT) oldlist.$(OBJEXT) \
+	structures.$(OBJEXT) tessarray.$(OBJEXT)
 libtesseract_cutil_a_OBJECTS = $(am_libtesseract_cutil_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -194,17 +193,17 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = 
 AM_CPPFLAGS = -I$(top_srcdir)/ccutil
+EXTRA_DIST = cutil.vcproj
 include_HEADERS = \
-    bitvec.h callcpp.h const.h cutil.h danerror.h debug.h efio.h \
+    bitvec.h callcpp.h const.h cutil.h cutil_class.h danerror.h efio.h \
     emalloc.h freelist.h funcdefs.h general.h globals.h listio.h \
-    minmax.h oldheap.h oldlist.h structures.h tessarray.h \
-    tordvars.h variables.h
+    oldheap.h oldlist.h structures.h tessarray.h
 
 lib_LIBRARIES = libtesseract_cutil.a
 libtesseract_cutil_a_SOURCES = \
-    tessarray.cpp bitvec.cpp cutil.cpp danerror.cpp debug.cpp efio.cpp \
+    bitvec.cpp cutil.cpp cutil_class.cpp danerror.cpp efio.cpp \
     emalloc.cpp freelist.cpp globals.cpp listio.cpp oldheap.cpp \
-    oldlist.cpp structures.cpp tordvars.cpp variables.cpp
+    oldlist.cpp structures.cpp tessarray.cpp
 
 all: all-recursive
 
@@ -281,8 +280,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bitvec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cutil.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cutil_class.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/danerror.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/efio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/emalloc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/freelist.Po@am__quote@
@@ -292,8 +291,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/oldlist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/structures.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tessarray.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tordvars.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/variables.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

@@ -46,9 +46,6 @@ Import original HP distribution
 
 #define RESET_COUNT 2000
 
-void_proc deallocate = (void_proc) c_free_string;
-char_proc allocate = (char_proc) c_alloc_string;
-
 /**********************************************************************
  * long_rand
  *

@@ -20,15 +20,15 @@
 #ifndef CALLCPP_H
 #define CALLCPP_H
 
+#ifndef __UNIX__
+#include <assert.h>
+#endif
 #include "host.h"
 #include "varable.h"
 #include "unichar.h"
 
 class ScrollView;
 
-#ifdef __cplusplus
-//extern "C" {
-#endif
 typedef enum {
   Black,
   White,
@@ -87,73 +87,23 @@ extern INT_VAR_H (tess_cp_mapping0, 0, "Mappings for class pruner distance");
 extern INT_VAR_H (tess_cp_mapping1, 1, "Mappings for class pruner distance");
 extern INT_VAR_H (tess_cp_mapping2, 2, "Mappings for class pruner distance");
 extern INT_VAR_H (tess_cp_mapping3, 3, "Mappings for class pruner distance");
-extern INT_VAR_H (stopper_numbers_on, 0,
-"Allow numbers to be acceptable choices");
-extern INT_VAR_H (config_pruner_enabled, 0, "Turn on config pruner");
-extern INT_VAR_H (feature_prune_percentile, 0, "Percent of features to use");
-extern INT_VAR_H (newcp_ratings_on, 0, "Use new class pruner normalisation");
 extern INT_VAR_H (record_matcher_output, 0, "Record detailed matcher info");
 extern INT_VAR_H (il1_adaption_test, 0,
 "Dont adapt to i/I at beginning of word");
 extern double_VAR_H (permuter_pending_threshold, 0.0,
 "Worst conf for using pending dictionary");
-extern double_VAR_H (newcp_duff_rating, 0.30,
-"Worst rating for calling real matcher");
-extern double_VAR_H (newcp_prune_threshold, 1.2, "Ratio of best to prune");
-extern double_VAR_H (tessedit_cp_ratio, 0.0, "Ratio from best to prune");
 
 //Global matcher info from the class pruner.
-extern inT32 cp_classes;
-extern inT32 cp_bestindex;
-extern inT32 cp_bestrating;
-extern inT32 cp_bestconf;
-extern char cp_chars[2];
-extern inT32 cp_ratings[2];
-extern inT32 cp_confs[2];
 extern inT32 cp_maps[4];
 //Global info to control writes of matcher info
-extern inT32 blob_type;          //write control
 extern char blob_answer[UNICHAR_LEN + 1];         //correct char
 extern char *word_answer;        //correct word
-extern inT32 matcher_pass;       //pass in chopper.c
 extern inT32 bits_in_states;     //no of bits in states
 
-#ifndef __UNIX__
-#include <assert.h>
-#endif
 void setup_cp_maps();
-void trace_stack();  //Trace current stack
 void cprintf (                   //Trace printf
 const char *format, ...          //special message
 );
-char *c_alloc_string(             //allocate string
-                     inT32 count  //no of chars required
-                    );
-void c_free_string(              //free a string
-                   char *string  //string to free
-                  );
-void *c_alloc_struct(                  //allocate memory
-                     inT32 count,      //no of chars required
-                     const char *name  //class name
-                    );
-void c_free_struct(                   //free a structure
-                   void *deadstruct,  //structure to free
-                   inT32 count,       //no of bytes
-                   const char *name   //class name
-                  );
-void *c_alloc_mem_p(             //allocate permanent space
-                    inT32 count  //block size to allocate
-                   );
-void *c_alloc_mem(             //get some memory
-                  inT32 count  //no of bytes to get
-                 );
-void c_free_mem(                //free mem from alloc_mem
-                void *oldchunk  //chunk to free
-               );
-void c_check_mem(                     //check consistency
-                 const char *string,  //context message
-                 inT8 level           //level of check
-                );
 ScrollView *c_create_window(                   /*create a window */
                       const char *name,  /*name/title of window */
                       inT16 xpos,        /*coords of window */
@@ -184,7 +134,4 @@ char window_wait(ScrollView* win);
 void reverse32(void *ptr);
 void reverse16(void *ptr);
 
-#ifdef __cplusplus
-//};
-#endif
 #endif
