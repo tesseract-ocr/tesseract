@@ -27,6 +27,10 @@
 #include          "blobbox.h"
 #include          "notdll.h"
 
+namespace tesseract {
+class Tesseract;
+}
+
 extern BOOL_VAR_H (textord_show_blobs, FALSE, "Display unsorted blobs");
 extern BOOL_VAR_H (textord_new_initial_xheight, TRUE,
 "Use test xheight mechanism");
@@ -74,18 +78,12 @@ void make_blocks_from_blobs(                       //convert & textord
                             BOOL8 do_shift,        //shift tess coords
                             BLOCK_LIST *blocks     //block list
                            );
-void read_and_textord(                       //read .pb file
-                      const char *filename,  //.pb file
-                      BLOCK_LIST *blocks);
-void edges_and_textord(                       //read .pb file
-                       const char *filename,  //.pb file
-                       BLOCK_LIST *blocks);
-void assign_blobs_to_blocks(                             //split into groups
-                            PBLOB_LIST *blobs,           //blobs to distribute
-                            BLOCK_LIST *blocks,          //block list
-                            TO_BLOCK_LIST *land_blocks,  //rotated for landscape
-                            TO_BLOCK_LIST *port_blocks   //output list
-                           );
+void find_components(  // find components in blocks
+                       BLOCK_LIST *blocks,
+                       TO_BLOCK_LIST *land_blocks,
+                       TO_BLOCK_LIST *port_blocks,
+                       TBOX *page_box);
+void SetBlobStrokeWidth(bool debug, BLOBNBOX* blob);
 void assign_blobs_to_blocks2(                             //split into groups
                              BLOCK_LIST *blocks,          //blocks to process
                              TO_BLOCK_LIST *land_blocks,  //rotated for landscape
@@ -112,7 +110,8 @@ void textord_page(                             //make rows & words
                   ICOORD page_tr,              //top right
                   BLOCK_LIST *blocks,          //block list
                   TO_BLOCK_LIST *land_blocks,  //rotated for landscape
-                  TO_BLOCK_LIST *port_blocks   //output list
+                  TO_BLOCK_LIST *port_blocks,  //output list
+                  tesseract::Tesseract*
                  );
 void cleanup_blocks(                    //remove empties
                     BLOCK_LIST *blocks  //list
@@ -123,6 +122,9 @@ BOOL8 clean_noise_from_row(          //remove empties
 void clean_noise_from_words(          //remove empties
                             ROW *row  //row to clean
                            );
+// Remove outlines that are a tiny fraction in either width or height
+// of the word height.
+void clean_small_noise_from_words(ROW *row);
 void tweak_row_baseline(          //remove empties
                         ROW *row  //row to clean
                        );

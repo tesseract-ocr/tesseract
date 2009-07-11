@@ -23,6 +23,9 @@
 #include          "blobbox.h"
 #include          "notdll.h"
 
+namespace tesseract {
+class Tesseract;
+}
 extern BOOL_VAR_H (textord_debug_pitch_test, FALSE,
 "Debug on fixed pitch test");
 extern BOOL_VAR_H (textord_debug_pitch_metric, FALSE,
@@ -39,14 +42,14 @@ extern double_VAR_H (textord_projection_scale, 0.125,
 "Ding rate for mid-cuts");
 extern double_VAR_H (textord_balance_factor, 2.0,
 "Ding rate for unbalanced char cells");
-extern double_VAR_H (textord_repch_width_variance, 0.2,
-"Max width change of gap/blob");
+
 void compute_fixed_pitch(                             //determine pitch
                          ICOORD page_tr,              //top right
                          TO_BLOCK_LIST *port_blocks,  //input list
                          float gradient,              //page skew
                          FCOORD rotation,             //for drawing
-                         BOOL8 testing_on             //correct orientation
+                         BOOL8 testing_on,            //correct orientation
+                         tesseract::Tesseract* tess
                         );
 void fix_row_pitch(                        //get some value
                    TO_ROW *bad_row,        //row to fix
@@ -59,7 +62,8 @@ void compute_block_pitch(                    //process each block
                          TO_BLOCK *block,    //input list
                          FCOORD rotation,    //for drawing
                          inT32 block_index,  //block number
-                         BOOL8 testing_on    //correct orientation
+                         BOOL8 testing_on,   //correct orientation
+                         tesseract::Tesseract* tess
                         );
 BOOL8 compute_rows_pitch(                    //find line stats
                          TO_BLOCK *block,    //block to do
@@ -185,7 +189,8 @@ int sort_floats2(                   //qsort function
                  const void *arg2);
 void find_repeated_chars(                  //search for equal chars
                          TO_BLOCK *block,  //block to search
-                         BOOL8 testing_on  //dbug mode
+                         BOOL8 testing_on, //dbug mode
+                         tesseract::Tesseract* tess
                         );
 void plot_fp_word(                  //draw block of words
                   TO_BLOCK *block,  //block to draw

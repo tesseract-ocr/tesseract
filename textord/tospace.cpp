@@ -1,101 +1,101 @@
 #include "mfcpch.h"
-#include          "tovars.h"
-#include          "drawtord.h"
-#include          "tospace.h"
-#include          "ndminx.h"
-#include          "statistc.h"
+#include "tovars.h"
+#include "drawtord.h"
+#include "tospace.h"
+#include "ndminx.h"
+#include "statistc.h"
 
-#define EXTERN
-EXTERN BOOL_VAR (tosp_old_to_method, FALSE, "Space stats use prechopping?");
-EXTERN BOOL_VAR (tosp_only_use_prop_rows, TRUE,
+BOOL_VAR(tosp_old_to_method, FALSE, "Space stats use prechopping?");
+BOOL_VAR(tosp_only_use_prop_rows, TRUE,
 "Block stats to use fixed pitch rows?");
-EXTERN BOOL_VAR (tosp_use_pre_chopping, FALSE,
+BOOL_VAR(tosp_force_wordbreak_on_punct, FALSE,
+"Force word breaks on punct to break long lines in non-space delimited langs");
+BOOL_VAR(tosp_use_pre_chopping, FALSE,
 "Space stats use prechopping?");
-EXTERN BOOL_VAR (tosp_old_to_bug_fix, FALSE, "Fix suspected bug in old code");
-EXTERN BOOL_VAR (tosp_block_use_cert_spaces, TRUE,
+BOOL_VAR(tosp_old_to_bug_fix, FALSE, "Fix suspected bug in old code");
+BOOL_VAR(tosp_block_use_cert_spaces, TRUE,
 "Only stat OBVIOUS spaces");
-EXTERN BOOL_VAR (tosp_row_use_cert_spaces, TRUE, "Only stat OBVIOUS spaces");
-EXTERN BOOL_VAR (tosp_narrow_blobs_not_cert, TRUE,
+BOOL_VAR(tosp_row_use_cert_spaces, TRUE, "Only stat OBVIOUS spaces");
+BOOL_VAR(tosp_narrow_blobs_not_cert, TRUE,
 "Only stat OBVIOUS spaces");
-EXTERN BOOL_VAR (tosp_row_use_cert_spaces1, TRUE, "Only stat OBVIOUS spaces");
-EXTERN BOOL_VAR (tosp_recovery_isolated_row_stats, TRUE,
+BOOL_VAR(tosp_row_use_cert_spaces1, TRUE, "Only stat OBVIOUS spaces");
+BOOL_VAR(tosp_recovery_isolated_row_stats, TRUE,
 "Use row alone when inadequate cert spaces");
-EXTERN BOOL_VAR (tosp_only_small_gaps_for_kern, FALSE, "Better guess");
-EXTERN BOOL_VAR (tosp_all_flips_fuzzy, FALSE, "Pass ANY flip to context?");
-EXTERN BOOL_VAR (tosp_fuzzy_limit_all, TRUE,
+BOOL_VAR(tosp_only_small_gaps_for_kern, FALSE, "Better guess");
+BOOL_VAR(tosp_all_flips_fuzzy, FALSE, "Pass ANY flip to context?");
+BOOL_VAR(tosp_fuzzy_limit_all, TRUE,
 "Dont restrict kn->sp fuzzy limit to tables");
-EXTERN BOOL_VAR (tosp_stats_use_xht_gaps, TRUE,
+BOOL_VAR(tosp_stats_use_xht_gaps, TRUE,
 "Use within xht gap for wd breaks");
-EXTERN BOOL_VAR (tosp_use_xht_gaps, TRUE, "Use within xht gap for wd breaks");
-EXTERN BOOL_VAR (tosp_only_use_xht_gaps, FALSE,
+BOOL_VAR(tosp_use_xht_gaps, TRUE, "Use within xht gap for wd breaks");
+BOOL_VAR(tosp_only_use_xht_gaps, FALSE,
 "Only use within xht gap for wd breaks");
-EXTERN BOOL_VAR (tosp_rule_9_test_punct, FALSE,
+BOOL_VAR(tosp_rule_9_test_punct, FALSE,
 "Dont chng kn to space next to punct");
-EXTERN BOOL_VAR (tosp_flip_fuzz_kn_to_sp, TRUE, "Default flip");
-EXTERN BOOL_VAR (tosp_flip_fuzz_sp_to_kn, TRUE, "Default flip");
-EXTERN BOOL_VAR (tosp_improve_thresh, FALSE, "Enable improvement heuristic");
-EXTERN INT_VAR (tosp_debug_level, 0, "Debug data");
-EXTERN INT_VAR (tosp_enough_space_samples_for_median, 3,
+BOOL_VAR(tosp_flip_fuzz_kn_to_sp, TRUE, "Default flip");
+BOOL_VAR(tosp_flip_fuzz_sp_to_kn, TRUE, "Default flip");
+BOOL_VAR(tosp_improve_thresh, FALSE, "Enable improvement heuristic");
+INT_VAR(tosp_debug_level, 0, "Debug data");
+INT_VAR(tosp_enough_space_samples_for_median, 3,
 "or should we use mean");
-EXTERN INT_VAR (tosp_redo_kern_limit, 10,
+INT_VAR(tosp_redo_kern_limit, 10,
 "No.samples reqd to reestimate for row");
-EXTERN INT_VAR (tosp_few_samples, 40,
+INT_VAR(tosp_few_samples, 40,
 "No.gaps reqd with 1 large gap to treat as a table");
-EXTERN INT_VAR (tosp_short_row, 20,
+INT_VAR(tosp_short_row, 20,
 "No.gaps reqd with few cert spaces to use certs");
-EXTERN INT_VAR (tosp_sanity_method, 1, "How to avoid being silly");
-EXTERN double_VAR (tosp_threshold_bias1, 0,
+INT_VAR(tosp_sanity_method, 1, "How to avoid being silly");
+double_VAR(tosp_threshold_bias1, 0,
 "how far between kern and space?");
-EXTERN double_VAR (tosp_threshold_bias2, 0,
+double_VAR(tosp_threshold_bias2, 0,
 "how far between kern and space?");
-EXTERN double_VAR (tosp_narrow_fraction, 0.3, "Fract of xheight for narrow");
-EXTERN double_VAR (tosp_narrow_aspect_ratio, 0.48,
+double_VAR(tosp_narrow_fraction, 0.3, "Fract of xheight for narrow");
+double_VAR(tosp_narrow_aspect_ratio, 0.48,
 "narrow if w/h less than this");
-EXTERN double_VAR (tosp_wide_fraction, 0.52, "Fract of xheight for wide");
-EXTERN double_VAR (tosp_wide_aspect_ratio, 0.0, "wide if w/h less than this");
-EXTERN double_VAR (tosp_fuzzy_space_factor, 0.6,
+double_VAR(tosp_wide_fraction, 0.52, "Fract of xheight for wide");
+double_VAR(tosp_wide_aspect_ratio, 0.0, "wide if w/h less than this");
+double_VAR(tosp_fuzzy_space_factor, 0.6,
 "Fract of xheight for fuzz sp");
-EXTERN double_VAR (tosp_fuzzy_space_factor1, 0.5,
+double_VAR(tosp_fuzzy_space_factor1, 0.5,
 "Fract of xheight for fuzz sp");
-EXTERN double_VAR (tosp_fuzzy_space_factor2, 0.72,
+double_VAR(tosp_fuzzy_space_factor2, 0.72,
 "Fract of xheight for fuzz sp");
-EXTERN double_VAR (tosp_gap_factor, 0.83, "gap ratio to flip sp->kern");
-EXTERN double_VAR (tosp_kern_gap_factor1, 2.0, "gap ratio to flip kern->sp");
-EXTERN double_VAR (tosp_kern_gap_factor2, 1.3, "gap ratio to flip kern->sp");
-EXTERN double_VAR (tosp_kern_gap_factor3, 2.5, "gap ratio to flip kern->sp");
-EXTERN double_VAR (tosp_ignore_big_gaps, -1, "xht multiplier");
-EXTERN double_VAR (tosp_ignore_very_big_gaps, 3.5, "xht multiplier");
-EXTERN double_VAR (tosp_rep_space, 1.6, "rep gap multiplier for space");
-EXTERN double_VAR (tosp_enough_small_gaps, 0.65,
+double_VAR(tosp_gap_factor, 0.83, "gap ratio to flip sp->kern");
+double_VAR(tosp_kern_gap_factor1, 2.0, "gap ratio to flip kern->sp");
+double_VAR(tosp_kern_gap_factor2, 1.3, "gap ratio to flip kern->sp");
+double_VAR(tosp_kern_gap_factor3, 2.5, "gap ratio to flip kern->sp");
+double_VAR(tosp_ignore_big_gaps, -1, "xht multiplier");
+double_VAR(tosp_ignore_very_big_gaps, 3.5, "xht multiplier");
+double_VAR(tosp_rep_space, 1.6, "rep gap multiplier for space");
+double_VAR(tosp_enough_small_gaps, 0.65,
 "Fract of kerns reqd for isolated row stats");
-EXTERN double_VAR (tosp_table_kn_sp_ratio, 2.25,
+double_VAR(tosp_table_kn_sp_ratio, 2.25,
 "Min difference of kn & sp in table");
-EXTERN double_VAR (tosp_table_xht_sp_ratio, 0.33,
+double_VAR(tosp_table_xht_sp_ratio, 0.33,
 "Expect spaces bigger than this");
-EXTERN double_VAR (tosp_table_fuzzy_kn_sp_ratio, 3.0,
+double_VAR(tosp_table_fuzzy_kn_sp_ratio, 3.0,
 "Fuzzy if less than this");
-EXTERN double_VAR (tosp_fuzzy_kn_fraction, 0.5, "New fuzzy kn alg");
-EXTERN double_VAR (tosp_fuzzy_sp_fraction, 0.5, "New fuzzy sp alg");
-EXTERN double_VAR (tosp_min_sane_kn_sp, 1.5,
+double_VAR(tosp_fuzzy_kn_fraction, 0.5, "New fuzzy kn alg");
+double_VAR(tosp_fuzzy_sp_fraction, 0.5, "New fuzzy sp alg");
+double_VAR(tosp_min_sane_kn_sp, 1.5,
 "Dont trust spaces less than this time kn");
-EXTERN double_VAR (tosp_init_guess_kn_mult, 2.2,
+double_VAR(tosp_init_guess_kn_mult, 2.2,
 "Thresh guess - mult kn by this");
-EXTERN double_VAR (tosp_init_guess_xht_mult, 0.28,
+double_VAR(tosp_init_guess_xht_mult, 0.28,
 "Thresh guess - mult xht by this");
-EXTERN double_VAR (tosp_max_sane_kn_thresh, 5.0,
+double_VAR(tosp_max_sane_kn_thresh, 5.0,
 "Multiplier on kn to limit thresh");
-EXTERN double_VAR (tosp_flip_caution, 0.0,
+double_VAR(tosp_flip_caution, 0.0,
 "Dont autoflip kn to sp when large separation");
-
-EXTERN double_VAR (tosp_large_kerning, 0.19,
+double_VAR(tosp_large_kerning, 0.19,
 "Limit use of xht gap with large kns");
-EXTERN double_VAR (tosp_dont_fool_with_small_kerns, -1,
+double_VAR(tosp_dont_fool_with_small_kerns, -1,
 "Limit use of xht gap with odd small kns");
-EXTERN double_VAR (tosp_near_lh_edge, 0,
+double_VAR(tosp_near_lh_edge, 0,
 "Dont reduce box if the top left is non blank");
-EXTERN double_VAR (tosp_silly_kn_sp_gap, 0.2,
+double_VAR(tosp_silly_kn_sp_gap, 0.2,
 "Dont let sp minus kn get too small");
-EXTERN double_VAR (tosp_pass_wide_fuzz_sp_to_context, 0.75,
+double_VAR(tosp_pass_wide_fuzz_sp_to_context, 0.75,
 "How wide fuzzies need context");
 
 #define MAXSPACING      128      /*max expected spacing in pix */
@@ -1082,19 +1082,19 @@ ROW *make_prop_words(                 //find lines
                          next_gap,
                          next_within_xht_gap);
 
-        if ((blob_box.left () > next_rep_char_word_right) ||
-          (!tosp_only_use_xht_gaps &&
-          make_a_word_break (row, blob_box, prev_gap, prev_blob_box,
-          current_gap, current_within_xht_gap,
-          next_blob_box, next_gap,
-          blanks, fuzzy_sp, fuzzy_non)) ||
-          (tosp_only_use_xht_gaps &&
-          make_a_word_break (row, blob_box, prev_within_xht_gap,
-          prev_blob_box,
-          current_gap, current_within_xht_gap,
-          next_blob_box, next_within_xht_gap,
-          blanks, fuzzy_sp, fuzzy_non)) ||
-        box_it.at_first ()) {
+        inT16 prev_gap_arg = prev_gap;
+        inT16 next_gap_arg = next_gap;
+        if (tosp_only_use_xht_gaps) {
+          prev_gap_arg = prev_within_xht_gap;
+          next_gap_arg = next_within_xht_gap;
+        }
+        // Decide if a word-break should be inserted
+        if (blob_box.left () > next_rep_char_word_right ||
+            make_a_word_break(row, blob_box, prev_gap_arg, prev_blob_box,
+                              current_gap, current_within_xht_gap,
+                              next_blob_box, next_gap_arg,
+                              blanks, fuzzy_sp, fuzzy_non) ||
+            box_it.at_first()) {
           /* Form a new word out of the blobs collected */
           if (!blob_it.empty ()) {
             word = new WERD (&blobs, prev_blanks, NULL);
@@ -1243,6 +1243,94 @@ ROW *make_prop_words(                 //find lines
   return NULL;
 }
 
+/**********************************************************************
+ * make_blob_words
+ *
+ * Converts words into blobs so that each blob is a single character.
+ *  Used for chopper test.
+ **********************************************************************/
+
+ROW *make_blob_words(                 // find lines
+                     TO_ROW *row,     // row to make
+                     FCOORD rotation  // for drawing
+                    ) {
+  bool bol;                      // start of line
+  ROW *real_row;                 // output row
+  C_OUTLINE_IT cout_it;
+  C_BLOB_LIST cblobs;
+  C_BLOB_IT cblob_it = &cblobs;
+  WERD_LIST words;
+  WERD_IT word_it;               // new words
+  WERD *word;                    // new word
+  double coeffs[3];              // quadratic
+  BLOBNBOX *bblob;               // current blob
+  TBOX blob_box;                 // bounding box
+  BLOBNBOX_IT box_it;            // iterator
+  inT16 word_count = 0;
+  static inT16 row_count = 0;
+
+  row_count++;
+
+  cblob_it.set_to_list(&cblobs);
+  box_it.set_to_list(row->blob_list());
+  word_it.set_to_list(&words);
+  bol = TRUE;
+  if (!box_it.empty()) {
+
+    do {
+      bblob = box_it.data();
+      blob_box = bblob->bounding_box();
+      if (bblob->joined_to_prev()) {
+        if (bblob->cblob() != NULL) {
+          cout_it.set_to_list(cblob_it.data()->out_list());
+          cout_it.move_to_last();
+          cout_it.add_list_after(bblob->cblob()->out_list());
+          delete bblob->cblob();
+        }
+      } else {
+        if (bblob->cblob() != NULL)
+          cblob_it.add_after_then_move(bblob->cblob());
+      }
+      box_it.forward();         // next one
+      bblob = box_it.data();
+      blob_box = bblob->bounding_box();
+
+      if (!bblob->joined_to_prev() && !cblobs.empty()) {
+        word = new WERD(&cblobs, 1, NULL);
+        word_count++;
+        word_it.add_after_then_move(word);
+        if (bol) {
+          word->set_flag(W_BOL, TRUE);
+          bol = FALSE;
+        }
+        if (box_it.at_first()) { // at end of line
+          word->set_flag(W_EOL, TRUE);
+        }
+      }
+    }
+    while (!box_it.at_first()); // until back at start
+    /* Setup the row with created words. */
+    coeffs[0] = 0;
+    coeffs[1] = row->line_m();
+    coeffs[2] = row->line_c();
+    real_row = new ROW(row, (inT16) row->kern_size, (inT16) row->space_size);
+    word_it.set_to_list(real_row->word_list());
+                                 //put words in row
+    word_it.add_list_after(&words);
+    real_row->recalc_bounding_box();
+    if (tosp_debug_level > 9) {
+      tprintf ("Row %d Made %d words in row ((%d,%d)(%d,%d))\n",
+        row_count,
+        word_count,
+        real_row->bounding_box().left(),
+        real_row->bounding_box().bottom(),
+        real_row->bounding_box().right(),
+        real_row->bounding_box().top());
+    }
+    return real_row;
+  }
+  return NULL;
+}
 
 BOOL8 make_a_word_break(               //decide on word break
                         TO_ROW *row,   //row being made
@@ -1256,11 +1344,16 @@ BOOL8 make_a_word_break(               //decide on word break
                         uinT8 &blanks,
                         BOOL8 &fuzzy_sp,
                         BOOL8 &fuzzy_non) {
-  static BOOL8 prev_gap_was_a_space;
+  static BOOL8 prev_gap_was_a_space = FALSE;
+  static BOOL8 break_at_next_gap = FALSE;
   BOOL8 space;
   inT16 current_gap;
   float fuzzy_sp_to_kn_limit;
 
+  if (break_at_next_gap) {
+    break_at_next_gap = FALSE;
+    return TRUE;
+  }
   /* Inhibit using the reduced gap if
     The kerning is large - chars are not kerned and reducing "f"s can cause
     erroneous blanks
@@ -1268,8 +1361,8 @@ BOOL8 make_a_word_break(               //decide on word break
   OR  The real gap is less than the kerning estimate
   */
   if ((row->kern_size > tosp_large_kerning * row->xheight) ||
-    ((tosp_dont_fool_with_small_kerns >= 0) &&
-    (real_current_gap < tosp_dont_fool_with_small_kerns * row->kern_size)))
+      ((tosp_dont_fool_with_small_kerns >= 0) &&
+       (real_current_gap < tosp_dont_fool_with_small_kerns * row->kern_size)))
                                  //Ignore the difference
     within_xht_current_gap = real_current_gap;
 
@@ -1306,9 +1399,8 @@ BOOL8 make_a_word_break(               //decide on word break
   }
   else {
   /* New exciting heuristic method */
-    if (prev_blob_box.null_box ())
-                                 //Beginning of row
-        prev_gap_was_a_space = TRUE;
+    if (prev_blob_box.null_box ())  // Beginning of row
+      prev_gap_was_a_space = TRUE;
 
                                  //Default as old TO
     space = current_gap > row->space_threshold;
@@ -1362,6 +1454,11 @@ BOOL8 make_a_word_break(               //decide on word break
         prev_gap, prev_blob_box.width (),
         current_gap, next_blob_box.width (), next_gap);
 #endif
+    }
+    else if (tosp_force_wordbreak_on_punct &&
+             !suspected_punct_blob(row, prev_blob_box) &&
+             suspected_punct_blob(row, blob_box)) {
+      break_at_next_gap = TRUE;
     }
     /* Now continue with normal heuristics */
     else if ((current_gap < row->min_space) &&
@@ -1467,7 +1564,7 @@ BOOL8 make_a_word_break(               //decide on word break
       }
     }
     else if ((current_gap > row->max_nonspace) &&
-    (current_gap <= row->space_threshold)) {
+             (current_gap <= row->space_threshold)) {
 
       /* Heuristics to turn dubious kerns to spaces */
       /* TRIED THIS BUT IT MADE THINGS WORSE
@@ -1502,13 +1599,13 @@ BOOL8 make_a_word_break(               //decide on word break
 #endif
       }
       else if ((prev_blob_box.width () > 0) &&
-        (next_blob_box.width () > 0) &&
-        (current_gap >=
-        tosp_kern_gap_factor2 * MAX (prev_gap, next_gap)) &&
-        !(narrow_blob (row, prev_blob_box) ||
-        suspected_punct_blob (row, prev_blob_box)) &&
-        !(narrow_blob (row, next_blob_box) ||
-      suspected_punct_blob (row, next_blob_box))) {
+               (next_blob_box.width () > 0) &&
+               (current_gap >=
+                 tosp_kern_gap_factor2 * MAX (prev_gap, next_gap)) &&
+               !(narrow_blob (row, prev_blob_box) ||
+                 suspected_punct_blob (row, prev_blob_box)) &&
+               !(narrow_blob (row, next_blob_box) ||
+                 suspected_punct_blob (row, next_blob_box))) {
         space = TRUE;
         fuzzy_non = TRUE;
 #ifndef GRAPHICS_DISABLED
@@ -1518,13 +1615,12 @@ BOOL8 make_a_word_break(               //decide on word break
 #endif
       }
       else if ((tosp_kern_gap_factor3 > 0) &&
-        (prev_blob_box.width () > 0) &&
-        (next_blob_box.width () > 0) &&
-        (current_gap >=
-        tosp_kern_gap_factor3 * MAX (prev_gap, next_gap)) &&
-        (!tosp_rule_9_test_punct ||
-        (!suspected_punct_blob (row, prev_blob_box) &&
-      !suspected_punct_blob (row, next_blob_box)))) {
+               (prev_blob_box.width () > 0) &&
+               (next_blob_box.width () > 0) &&
+               (current_gap >= tosp_kern_gap_factor3 * MAX (prev_gap, next_gap)) &&
+               (!tosp_rule_9_test_punct ||
+                (!suspected_punct_blob (row, prev_blob_box) &&
+                 !suspected_punct_blob (row, next_blob_box)))) {
         space = TRUE;
         fuzzy_non = TRUE;
 #ifndef GRAPHICS_DISABLED
@@ -1578,8 +1674,8 @@ BOOL8 suspected_punct_blob(TO_ROW *row, TBOX box) {
   baseline = row->baseline.y (blob_x_centre);
 
   result = (box.height () <= 0.66 * row->xheight) ||
-    (box.top () < baseline + row->xheight / 2.0) ||
-    (box.bottom () > baseline + row->xheight / 2.0);
+           (box.top () < baseline + row->xheight / 2.0) ||
+           (box.bottom () > baseline + row->xheight / 2.0);
   return result;
 }
 
@@ -1937,3 +2033,4 @@ TBOX reduced_box_for_blob(BLOBNBOX *blob, TO_ROW *row, inT16 *left_above_xht) {
   return TBOX (ICOORD ((inT16) floor (left_limit), blob_box.bottom ()),
     ICOORD ((inT16) ceil (right_limit), blob_box.top ()));
 }
+

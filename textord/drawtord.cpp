@@ -23,7 +23,7 @@
 #include          "drawtord.h"
 #include          "debugwin.h"
 
-#define TO_WIN_XPOS     -1       //default window pos
+#define TO_WIN_XPOS     0       //default window pos
 #define TO_WIN_YPOS     0
 #define TO_WIN_NAME     "Textord"
                                  //title of window
@@ -40,7 +40,6 @@
 EXTERN BOOL_VAR (textord_show_fixed_cuts, FALSE,
 "Draw fixed pitch cell boundaries");
 EXTERN STRING_VAR (to_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
-EXTERN STRING_VAR (to_smdfile, NO_SMD, "Name of SMD file");
 
 EXTERN ScrollView* to_win = NULL;
 EXTERN FILE *to_debug = NULL;
@@ -52,25 +51,17 @@ EXTERN FILE *to_debug = NULL;
  **********************************************************************/
 #ifndef GRAPHICS_DISABLED
 
-void create_to_win(                //make features win
-                   ICOORD page_tr  //size of page
-                  ) {
-  if (strcmp (to_smdfile.string (), NO_SMD)) {
-    to_win = new ScrollView (to_smdfile.string (),
-      0, 0, page_tr.x () + 1, page_tr.y () + 1,
-      page_tr.x (), page_tr.y ());
-  }
-  else {
-    to_win = new ScrollView (TO_WIN_NAME,
-      TO_WIN_XPOS, TO_WIN_YPOS, 0, 0,
-      page_tr.x (),  page_tr.y ());
-  }
+void create_to_win(ICOORD page_tr) {
+  to_win = new ScrollView(TO_WIN_NAME, TO_WIN_XPOS, TO_WIN_YPOS,
+                          page_tr.x() + 1, page_tr.y() + 1,
+                          page_tr.x(), page_tr.y(), true);
 }
 
 
-void close_to_win() {  //make features win
-  if (to_win != NULL && strcmp (to_smdfile.string (), NO_SMD)) {
-    delete to_win;
+void close_to_win() {
+  // to_win is leaked, but this enables the user to view the contents.
+  if (to_win != NULL) {
+    to_win->Update();
   }
 }
 
@@ -88,24 +79,6 @@ void create_todebug_win() {  //make gradients win
     to_debug = fopen (to_debugfile.string (), "w");
 }
 
-/**********************************************************************
- * plot_blob_list
- *
- * Draw a list of blobs.
- **********************************************************************/
-
-void plot_blob_list(                      //make gradients win
-                    ScrollView* win,           //window to draw in
-                    BLOBNBOX_LIST *list,  //blob list
-                    ScrollView::Color body_colour,   //colour to draw
-                    ScrollView::Color child_colour   //colour of child
-                   ) {
-  BLOBNBOX_IT it = list;         //iterator
-
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-    it.data ()->plot (win, body_colour, child_colour);
-  }
-}
 
 
 /**********************************************************************
@@ -122,6 +95,7 @@ void plot_box_list(                      //make gradients win
   BLOBNBOX_IT it = list;         //iterator
 
   win->Pen(body_colour);
+  win->Brush(ScrollView::NONE);
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
     it.data ()->bounding_box ().plot (win);
   }
@@ -466,4 +440,6 @@ void plot_row_cells(                       //draw words
     win->Line(cell->x () + xshift, word_box.bottom (), cell->x () + xshift, word_box.top ());
   }
 }
+
 #endif  // GRAPHICS_DISABLED
+

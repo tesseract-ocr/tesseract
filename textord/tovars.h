@@ -42,6 +42,8 @@ extern INT_VAR_H (textord_repeat_threshold, 4,
 extern INT_VAR_H (textord_debug_block, 0, "Block to do debug on");
 extern INT_VAR_H (textord_pitch_range, 2, "Max range test on pitch");
 extern double_VAR_H (textord_repeat_rating, 6, "Min rating for equal blobs");
+extern double_VAR_H(textord_repch_width_variance, 0.2,
+"Max width change of gap/blob for repeated chars");
 extern double_VAR_H (textord_wordstats_smooth_factor, 0.05,
 "Smoothing gap stats");
 extern double_VAR_H (textord_width_smooth_factor, 0.10,

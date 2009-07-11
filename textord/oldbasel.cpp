@@ -25,6 +25,7 @@
 #include          "drawtord.h"
 #include          "oldbasel.h"
 #include          "tprintf.h"
+#include          "tesseractclass.h"
 
 #define EXTERN
 
@@ -74,7 +75,9 @@ EXTERN double_VAR (textord_oldbl_jumplimit, 0.15,
 
 void make_old_baselines(                  //make splines
                         TO_BLOCK *block,  //block to do
-                        BOOL8 testing_on  //correct orientation
+                        BOOL8 testing_on, //correct orientation
+                        float gradient,
+                        tesseract::Tesseract* tess
                        ) {
   QSPLINE *prev_baseline;        //baseline of previous row
   TO_ROW *row;                   //current row
@@ -84,11 +87,10 @@ void make_old_baselines(                  //make splines
   prev_baseline = NULL;          //nothing yet
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
-    find_textlines (block, row, 2, NULL);
+    find_textlines(block, row, 2, NULL, tess);
     if (row->xheight <= 0 && prev_baseline != NULL)
-      find_textlines (block, row, 2, prev_baseline);
-    if (row->xheight > 0)
-                                 //was a good one
+      find_textlines(block, row, 2, prev_baseline, tess);
+    if (row->xheight > 0)  // was a good one
       prev_baseline = &row->baseline;
     else {
       prev_baseline = NULL;
@@ -99,7 +101,7 @@ void make_old_baselines(                  //make splines
           blob_it.data ()->bounding_box ().bottom ());
     }
   }
-  correlate_lines(block);
+  correlate_lines(block, gradient, tess);
 }
 
 
@@ -112,7 +114,9 @@ void make_old_baselines(                  //make splines
  **********************************************************************/
 
 void correlate_lines(                 //cleanup lines
-                     TO_BLOCK *block  //block to do
+                     TO_BLOCK *block, //block to do
+                     float gradient,
+                     tesseract::Tesseract* tess
                     ) {
   TO_ROW **rows;                 //array of ptrs
   int rowcount;                  /*no of rows to do */
@@ -133,15 +137,17 @@ void correlate_lines(                 //cleanup lines
     rows[rowindex++] = row_it.data ();
 
                                  /*try to fix bad lines */
-  correlate_neighbours(block, rows, rowcount);
+  correlate_neighbours(block, rows, rowcount, tess);
 
-  block->xheight = (float) correlate_with_stats (rows, rowcount);
-  /*use stats */
-  if (block->xheight <= 0)
-                                 //desperate
-    block->xheight = block->line_size * textord_merge_x;
-  if (block->xheight < textord_min_xheight)
-    block->xheight = (float) textord_min_xheight;
+  if (textord_really_old_xheight || textord_old_xheight) {
+    block->xheight = (float) correlate_with_stats(rows, rowcount, block);
+    if (block->xheight <= 0)
+      block->xheight = block->line_size * textord_merge_x;
+    if (block->xheight < textord_min_xheight)
+      block->xheight = (float) textord_min_xheight;
+  } else {
+    compute_block_xheight(block, gradient, tess);
+  }
 
   free_mem(rows);
 }
@@ -156,7 +162,8 @@ void correlate_lines(                 //cleanup lines
 void correlate_neighbours(                  //fix bad rows
                           TO_BLOCK *block,  /*block rows are in */
                           TO_ROW **rows,    /*rows of block */
-                          int rowcount      /*no of rows to do */
+                          int rowcount,     /*no of rows to do */
+                          tesseract::Tesseract* tess
                          ) {
   TO_ROW *row;                   /*current row */
   register int rowindex;         /*no of row */
@@ -182,14 +189,14 @@ void correlate_neighbours(                  //fix bad rows
         MAXOVERLAP)); otherrow++);
       lowerrow = otherrow;       /*decent row below */
       if (upperrow >= 0)
-        find_textlines (block, row, 2, &rows[upperrow]->baseline);
+        find_textlines(block, row, 2, &rows[upperrow]->baseline, tess);
       if (row->xheight < 0 && lowerrow < rowcount)
-        find_textlines (block, row, 2, &rows[lowerrow]->baseline);
+        find_textlines(block, row, 2, &rows[lowerrow]->baseline, tess);
       if (row->xheight < 0) {
         if (upperrow >= 0)
-          find_textlines (block, row, 1, &rows[upperrow]->baseline);
+          find_textlines(block, row, 1, &rows[upperrow]->baseline, tess);
         else if (lowerrow < rowcount)
-          find_textlines (block, row, 1, &rows[lowerrow]->baseline);
+          find_textlines(block, row, 1, &rows[lowerrow]->baseline, tess);
       }
     }
   }
@@ -213,7 +220,8 @@ void correlate_neighbours(                  //fix bad rows
 
 int correlate_with_stats(                //fix xheights
                          TO_ROW **rows,  /*rows of block */
-                         int rowcount    /*no of rows to do */
+                         int rowcount,   /*no of rows to do */
+                         TO_BLOCK* block
                         ) {
   TO_ROW *row;                   /*current row */
   register int rowindex;         /*no of row */
@@ -267,6 +275,9 @@ int correlate_with_stats(                //fix xheights
   else
                                  /*guess descenders */
     descheight = -lineheight * DESCENDER_FRACTION;
+
+  if (lineheight > 0.0f)
+    block->block->set_cell_over_xheight((fullheight - descheight) / lineheight);
 
   minascheight = lineheight * MIN_ASC_FRACTION;
   mindescheight = -lineheight * MIN_DESC_FRACTION;
@@ -327,7 +338,8 @@ void find_textlines(                  //get baseline
                     TO_BLOCK *block,  //block row is in
                     TO_ROW *row,      //row to do
                     int degree,       //required approximation
-                    QSPLINE *spline   //starting spline
+                    QSPLINE *spline,  //starting spline
+                    tesseract::Tesseract* tess
                    ) {
   int partcount;                 /*no of partitions of */
   BOOL8 holed_line;              //lost too many blobs
@@ -410,12 +422,16 @@ void find_textlines(                  //get baseline
   row->baseline.extrapolate (row->line_m (),
     block->block->bounding_box ().left (),
     block->block->bounding_box ().right ());
-  if (textord_really_old_xheight)
+
+  if (textord_really_old_xheight) {
     old_first_xheight (row, blobcoords, lineheight,
       blobcount, &row->baseline, jumplimit);
-  else
+  } else if (textord_old_xheight) {
     make_first_xheight (row, blobcoords, lineheight, (int) block->line_size,
-      blobcount, &row->baseline, jumplimit);
+                        blobcount, &row->baseline, jumplimit);
+  } else {
+    compute_row_xheight(row, row->line_m(), block->line_size, tess);
+  }
   free_mem(partids);
   free_mem(xcoords);
   free_mem(ycoords);
@@ -428,7 +444,7 @@ void find_textlines(                  //get baseline
  * get_blob_coords
  *
  * Fill the blobcoords array with the coordinates of the blobs
- * in the row. The return value is the first guess atthe line height.
+ * in the row. The return value is the first guess at the line height.
  **********************************************************************/
 
 int get_blob_coords(                    //get boxes

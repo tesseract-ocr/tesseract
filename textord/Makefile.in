@@ -57,13 +57,18 @@ AR = ar
 ARFLAGS = cru
 libtesseract_textord_a_AR = $(AR) $(ARFLAGS)
 libtesseract_textord_a_LIBADD =
-am_libtesseract_textord_a_OBJECTS = blkocc.$(OBJEXT) drawedg.$(OBJEXT) \
-	drawtord.$(OBJEXT) edgblob.$(OBJEXT) edgloop.$(OBJEXT) \
-	fpchop.$(OBJEXT) gap_map.$(OBJEXT) makerow.$(OBJEXT) \
-	oldbasel.$(OBJEXT) pithsync.$(OBJEXT) pitsync1.$(OBJEXT) \
-	scanedg.$(OBJEXT) sortflts.$(OBJEXT) topitch.$(OBJEXT) \
-	tordmain.$(OBJEXT) tospace.$(OBJEXT) tovars.$(OBJEXT) \
-	underlin.$(OBJEXT) wordseg.$(OBJEXT)
+am_libtesseract_textord_a_OBJECTS = alignedblob.$(OBJEXT) \
+	bbgrid.$(OBJEXT) blkocc.$(OBJEXT) colfind.$(OBJEXT) \
+	colpartition.$(OBJEXT) colpartitionset.$(OBJEXT) \
+	drawedg.$(OBJEXT) drawtord.$(OBJEXT) edgblob.$(OBJEXT) \
+	edgloop.$(OBJEXT) fpchop.$(OBJEXT) gap_map.$(OBJEXT) \
+	imagefind.$(OBJEXT) linefind.$(OBJEXT) makerow.$(OBJEXT) \
+	oldbasel.$(OBJEXT) pagesegmain.$(OBJEXT) pithsync.$(OBJEXT) \
+	pitsync1.$(OBJEXT) scanedg.$(OBJEXT) sortflts.$(OBJEXT) \
+	strokewidth.$(OBJEXT) tabfind.$(OBJEXT) tablefind.$(OBJEXT) \
+	tabvector.$(OBJEXT) topitch.$(OBJEXT) tordmain.$(OBJEXT) \
+	tospace.$(OBJEXT) tovars.$(OBJEXT) underlin.$(OBJEXT) \
+	wordseg.$(OBJEXT) workingpartset.$(OBJEXT)
 libtesseract_textord_a_OBJECTS = $(am_libtesseract_textord_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -197,22 +202,30 @@ SUBDIRS =
 AM_CPPFLAGS = \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
-    -I$(top_srcdir)/pageseg
+    -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
+    -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict
 
+EXTRA_DIST = textord.vcproj
 include_HEADERS = \
-    blkocc.h blobcmpl.h drawedg.h drawtord.h edgblob.h \
-    edgloop.h fpchop.h gap_map.h makerow.h oldbasel.h \
-    pithsync.h pitsync1.h scanedg.h sortflts.h tessout.h \
-    topitch.h tordmain.h tospace.h tovars.h underlin.h \
-    wordseg.h
+    alignedblob.h bbgrid.h blkocc.h blobcmpl.h \
+    colfind.h colpartition.h colpartitionset.h \
+    drawedg.h drawtord.h edgblob.h edgloop.h \
+    fpchop.h gap_map.h imagefind.h linefind.h makerow.h oldbasel.h \
+    pithsync.h pitsync1.h scanedg.h sortflts.h strokewidth.h \
+    tabfind.h tablefind.h tabvector.h tessout.h \
+    topitch.h tordmain.h tospace.h tovars.h \
+    underlin.h wordseg.h workingpartset.h
 
 lib_LIBRARIES = libtesseract_textord.a
 libtesseract_textord_a_SOURCES = \
-    blkocc.cpp drawedg.cpp drawtord.cpp edgblob.cpp \
-    edgloop.cpp fpchop.cpp gap_map.cpp makerow.cpp oldbasel.cpp \
-    pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp \
-    topitch.cpp tordmain.cpp tospace.cpp tovars.cpp underlin.cpp \
-    wordseg.cpp
+    alignedblob.cpp bbgrid.cpp blkocc.cpp \
+    colfind.cpp colpartition.cpp colpartitionset.cpp \
+    drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \
+    fpchop.cpp gap_map.cpp imagefind.cpp linefind.cpp makerow.cpp oldbasel.cpp \
+    pagesegmain.cpp pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp strokewidth.cpp \
+    tabfind.cpp tablefind.cpp tabvector.cpp \
+    topitch.cpp tordmain.cpp tospace.cpp tovars.cpp \
+    underlin.cpp wordseg.cpp workingpartset.cpp
 
 all: all-recursive
 
@@ -287,25 +300,38 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alignedblob.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bbgrid.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blkocc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colfind.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colpartition.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colpartitionset.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drawedg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drawtord.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/edgblob.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/edgloop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fpchop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gap_map.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imagefind.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linefind.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/makerow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/oldbasel.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pagesegmain.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pithsync.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pitsync1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scanedg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sortflts.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strokewidth.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tabfind.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablefind.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tabvector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/topitch.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tordmain.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tospace.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tovars.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/underlin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wordseg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/workingpartset.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

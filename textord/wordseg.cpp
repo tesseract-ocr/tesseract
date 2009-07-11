@@ -39,10 +39,56 @@
 #define EXTERN
 
 EXTERN BOOL_VAR (textord_fp_chopping, TRUE, "Do fixed pitch chopping");
+EXTERN BOOL_VAR (textord_force_make_prop_words, FALSE,
+                 "Force proportional word segmentation on all rows");
+EXTERN BOOL_VAR (textord_chopper_test, FALSE,
+                 "Chopper is being tested.");
 extern /*"C" */ ETEXT_DESC *global_monitor;     //progress monitor
 
 #define FIXED_WIDTH_MULTIPLE  5
 #define BLOCK_STATS_CLUSTERS  10
+
+
+/**********************************************************************
+ * make_single_word
+ *
+ * Arrange the blobs into one word. There is no fixed pitch detection.
+ **********************************************************************/
+
+void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST* real_rows) {
+  TO_ROW_IT to_row_it(rows);
+  TO_ROW* row = to_row_it.data();
+  // The blobs have to come out of the BLOBNBOX into the C_BLOB_LIST ready
+  // to create the word.
+  C_BLOB_LIST cblobs;
+  C_BLOB_IT cblob_it(&cblobs);
+  BLOBNBOX_IT box_it(row->blob_list());
+  for (;!box_it.empty(); box_it.forward()) {
+    BLOBNBOX* bblob= box_it.extract();
+    if (bblob->joined_to_prev() || (one_blob && !cblob_it.empty())) {
+      if (bblob->cblob() != NULL) {
+        C_OUTLINE_IT cout_it(cblob_it.data()->out_list());
+        cout_it.move_to_last();
+        cout_it.add_list_after(bblob->cblob()->out_list());
+        delete bblob->cblob();
+      }
+    } else {
+      if (bblob->cblob() != NULL)
+        cblob_it.add_after_then_move(bblob->cblob());
+      delete bblob;
+    }
+  }
+  // Convert the TO_ROW to a ROW.
+  ROW* real_row = new ROW(row, static_cast<inT16>(row->kern_size),
+                          static_cast<inT16>(row->space_size));
+  WERD_IT word_it(real_row->word_list());
+  WERD* word = new WERD(&cblobs, 0, NULL);
+  word->set_flag(W_BOL, TRUE);
+  word->set_flag(W_EOL, TRUE);
+  word_it.add_after_then_move(word);
+  ROW_IT row_it(real_rows);
+  row_it.add_after_then_move(real_row);
+}
 
 /**********************************************************************
  * make_words
@@ -55,13 +101,14 @@ void make_words(                             //make words
                 float gradient,              //page skew
                 BLOCK_LIST *blocks,          //block list
                 TO_BLOCK_LIST *land_blocks,  //rotated for landscape
-                TO_BLOCK_LIST *port_blocks   //output list
+                TO_BLOCK_LIST *port_blocks,  //output list
+                tesseract::Tesseract* tess
                ) {
   TO_BLOCK_IT block_it;          //iterator
   TO_BLOCK *block;               //current block;
 
-  compute_fixed_pitch (page_tr, port_blocks, gradient, FCOORD (0.0f, -1.0f),
-    !(BOOL8) textord_test_landscape);
+  compute_fixed_pitch(page_tr, port_blocks, gradient, FCOORD (0.0f, -1.0f),
+                      !(BOOL8) textord_test_landscape, tess);
   if (global_monitor != NULL) {
     global_monitor->ocr_alive = TRUE;
     global_monitor->progress = 25;
@@ -482,15 +529,22 @@ void make_real_words(                  //find lines
     if (row->blob_list ()->empty () && !row->rep_words.empty ()) {
       real_row = make_rep_words (row, block);
     }
-    else if (!row->blob_list ()->empty ()) {
-      //                      tprintf("Row pitch_decision=%d",row->pitch_decision);
-      if (row->pitch_decision == PITCH_DEF_FIXED
-        || row->pitch_decision == PITCH_CORR_FIXED)
-        real_row = fixed_pitch_words (row, rotation);
-      else if (row->pitch_decision == PITCH_DEF_PROP
-        || row->pitch_decision == PITCH_CORR_PROP)
+    else if (!row->blob_list()->empty()) {
+      // In a fixed pitch document, some lines may be detected as fixed pitch
+      // while others don't, and will go through different path.
+      // For non-space delimited language like CJK, fixed pitch chop always
+      // leave the entire line as one word.  We can force consistent chopping
+      // with force_make_prop_words flag.
+      if (textord_chopper_test) {
+        real_row = make_blob_words (row, rotation);
+      } else if (textord_force_make_prop_words ||
+          row->pitch_decision == PITCH_DEF_PROP ||
+          row->pitch_decision == PITCH_CORR_PROP) {
         real_row = make_prop_words (row, rotation);
-      else
+      } else if (row->pitch_decision == PITCH_DEF_FIXED ||
+                 row->pitch_decision == PITCH_CORR_FIXED) {
+        real_row = fixed_pitch_words (row, rotation);
+      } else
         ASSERT_HOST(FALSE);
     }
     if (real_row != NULL) {
@@ -534,7 +588,7 @@ ROW *make_rep_words(                 //make a row
   coeffs[1] = row->line_m ();
   coeffs[2] = row->line_c ();
   row->xheight = block->xheight;
-  real_row = new ROW (row,
+  real_row = new ROW(row,
     (inT16) block->kern_size, (inT16) block->space_size);
   word_it.set_to_list (real_row->word_list ());
                                  //put words in row
@@ -618,3 +672,4 @@ WERD *make_real_word(                      //make a WERD
   }
   return word;
 }
+

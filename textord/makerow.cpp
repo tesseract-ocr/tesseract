@@ -33,104 +33,131 @@
 #include          "underlin.h"
 #include          "makerow.h"
 #include          "tprintf.h"
+#include          "tesseractclass.h"
+#include          "tovars.h"
 
-#define EXTERN
-
-EXTERN BOOL_VAR (textord_heavy_nr, FALSE, "Vigorously remove noise");
-EXTERN BOOL_VAR (textord_show_initial_rows, FALSE,
-"Display row accumulation");
-EXTERN BOOL_VAR (textord_show_parallel_rows, FALSE,
-"Display page correlated rows");
-EXTERN BOOL_VAR (textord_show_expanded_rows, FALSE,
-"Display rows after expanding");
-EXTERN BOOL_VAR (textord_show_final_rows, FALSE,
-"Display rows after final fittin");
-EXTERN BOOL_VAR (textord_show_final_blobs, FALSE,
-"Display blob bounds after pre-ass");
-EXTERN BOOL_VAR (textord_test_landscape, FALSE, "Tests refer to land/port");
-EXTERN BOOL_VAR (textord_parallel_baselines, TRUE,
-"Force parallel baselines");
-EXTERN BOOL_VAR (textord_straight_baselines, FALSE,
-"Force straight baselines");
-EXTERN BOOL_VAR (textord_quadratic_baselines, FALSE, "Use quadratic splines");
-EXTERN BOOL_VAR (textord_old_baselines, TRUE, "Use old baseline algorithm");
-EXTERN BOOL_VAR (textord_old_xheight, TRUE, "Use old xheight algorithm");
-EXTERN BOOL_VAR (textord_fix_xheight_bug, TRUE, "Use spline baseline");
-EXTERN BOOL_VAR (textord_fix_makerow_bug, TRUE, "Prevent multiple baselines");
-EXTERN BOOL_VAR (textord_row_xheights, FALSE, "Use row height policy");
-EXTERN BOOL_VAR (textord_block_xheights, TRUE, "Use block height policy");
-EXTERN BOOL_VAR (textord_xheight_tweak, FALSE, "New min condition on height");
-EXTERN BOOL_VAR (textord_cblob_blockocc, TRUE,
-"Use new projection for underlines");
-EXTERN BOOL_VAR (textord_debug_xheights, FALSE, "Test xheight algorithms");
-EXTERN BOOL_VAR (textord_biased_skewcalc, TRUE,
-"Bias skew estimates with line length");
-EXTERN BOOL_VAR (textord_interpolating_skew, TRUE, "Interpolate across gaps");
-EXTERN INT_VAR (textord_skewsmooth_offset, 2, "For smooth factor");
-EXTERN INT_VAR (textord_skewsmooth_offset2, 1, "For smooth factor");
-EXTERN INT_VAR (textord_test_x, -1, "coord of test pt");
-EXTERN INT_VAR (textord_test_y, -1, "coord of test pt");
-EXTERN INT_VAR (textord_min_blobs_in_row, 4,
-"Min blobs before gradient counted");
-EXTERN INT_VAR (textord_spline_minblobs, 8,
-"Min blobs in each spline segment");
-EXTERN INT_VAR (textord_spline_medianwin, 6,
-"Size of window for spline segmentation");
-EXTERN INT_VAR (textord_min_xheight, 10, "Min credible pixel xheight");
-EXTERN double_VAR (textord_spline_shift_fraction, 0.02,
-"Fraction of line spacing for quad");
-EXTERN double_VAR (textord_spline_outlier_fraction, 0.1,
-"Fraction of line spacing for outlier");
-EXTERN double_VAR (textord_skew_ile, 0.5, "Ile of gradients for page skew");
-EXTERN double_VAR (textord_skew_lag, 0.01,
-"Lag for skew on row accumulation");
-EXTERN double_VAR (textord_linespace_iqrlimit, 0.2,
-"Max iqr/median for linespace");
-EXTERN double_VAR (textord_width_limit, 8, "Max width of blobs to make rows");
-EXTERN double_VAR (textord_chop_width, 1.5, "Max width before chopping");
-EXTERN double_VAR (textord_expansion_factor, 1.0,
-"Factor to expand rows by in expand_rows");
-EXTERN double_VAR (textord_overlap_x, 0.5,
-"Fraction of linespace for good overlap");
-EXTERN double_VAR (textord_merge_desc, 0.25,
-"Fraction of linespace for desc drop");
-EXTERN double_VAR (textord_merge_x, 0.5,
-"Fraction of linespace for x height");
-EXTERN double_VAR (textord_merge_asc, 0.25,
-"Fraction of linespace for asc height");
-EXTERN double_VAR (textord_minxh, 0.25,
-"fraction of linesize for min xheight");
-EXTERN double_VAR (textord_min_linesize, 1.25,
-"* blob height for initial linesize");
-EXTERN double_VAR (textord_excess_blobsize, 1.3,
-"New row made if blob makes row this big");
-EXTERN double_VAR (textord_occupancy_threshold, 0.4,
-"Fraction of neighbourhood");
-EXTERN double_VAR (textord_underline_width, 2.0,
-"Multiple of line_size for underline");
-EXTERN double_VAR (textord_xheight_mode_fraction, 0.4,
-"Min pile height to make xheight");
-EXTERN double_VAR (textord_ascheight_mode_fraction, 0.15,
-"Min pile height to make ascheight");
-EXTERN double_VAR (textord_ascx_ratio_min, 1.2, "Min cap/xheight");
-EXTERN double_VAR (textord_ascx_ratio_max, 1.7, "Max cap/xheight");
-EXTERN double_VAR (textord_descx_ratio_min, 0.15, "Min desc/xheight");
-EXTERN double_VAR (textord_descx_ratio_max, 0.6, "Max desc/xheight");
-EXTERN double_VAR (textord_xheight_error_margin, 0.1, "Accepted variation");
+BOOL_VAR(textord_heavy_nr, FALSE, "Vigorously remove noise");
+BOOL_VAR(textord_show_initial_rows, FALSE, "Display row accumulation");
+BOOL_VAR(textord_show_parallel_rows, FALSE, "Display page correlated rows");
+BOOL_VAR(textord_show_expanded_rows, FALSE, "Display rows after expanding");
+BOOL_VAR(textord_show_final_rows, FALSE, "Display rows after final fitting");
+BOOL_VAR(textord_show_final_blobs, FALSE, "Display blob bounds after pre-ass");
+BOOL_VAR(textord_test_landscape, FALSE, "Tests refer to land/port");
+BOOL_VAR(textord_parallel_baselines, TRUE, "Force parallel baselines");
+BOOL_VAR(textord_straight_baselines, FALSE, "Force straight baselines");
+BOOL_VAR(textord_quadratic_baselines, FALSE, "Use quadratic splines");
+BOOL_VAR(textord_old_baselines, TRUE, "Use old baseline algorithm");
+BOOL_VAR(textord_old_xheight, FALSE, "Use old xheight algorithm");
+BOOL_VAR(textord_fix_xheight_bug, TRUE, "Use spline baseline");
+BOOL_VAR(textord_fix_makerow_bug, TRUE, "Prevent multiple baselines");
+BOOL_VAR(textord_cblob_blockocc, TRUE, "Use new projection for underlines");
+BOOL_VAR(textord_debug_xheights, FALSE, "Test xheight algorithms");
+BOOL_VAR(textord_biased_skewcalc, TRUE, "Bias skew estimates with line length");
+BOOL_VAR(textord_interpolating_skew, TRUE, "Interpolate across gaps");
+INT_VAR(textord_skewsmooth_offset, 2, "For smooth factor");
+INT_VAR(textord_skewsmooth_offset2, 1, "For smooth factor");
+INT_VAR(textord_test_x, -1, "coord of test pt");
+INT_VAR(textord_test_y, -1, "coord of test pt");
+INT_VAR(textord_min_blobs_in_row, 4, "Min blobs before gradient counted");
+INT_VAR(textord_spline_minblobs, 8, "Min blobs in each spline segment");
+INT_VAR(textord_spline_medianwin, 6, "Size of window for spline segmentation");
+INT_VAR(textord_max_blob_overlaps, 4,
+        "Max number of blobs a big blob can overlap");
+INT_VAR(textord_min_xheight, 10, "Min credible pixel xheight");
+double_VAR(textord_spline_shift_fraction, 0.02,
+           "Fraction of line spacing for quad");
+double_VAR(textord_spline_outlier_fraction, 0.1,
+           "Fraction of line spacing for outlier");
+double_VAR(textord_skew_ile, 0.5, "Ile of gradients for page skew");
+double_VAR(textord_skew_lag, 0.01, "Lag for skew on row accumulation");
+double_VAR(textord_linespace_iqrlimit, 0.2, "Max iqr/median for linespace");
+double_VAR(textord_width_limit, 8, "Max width of blobs to make rows");
+double_VAR(textord_chop_width, 1.5, "Max width before chopping");
+double_VAR(textord_expansion_factor, 1.0,
+           "Factor to expand rows by in expand_rows");
+double_VAR(textord_overlap_x, 0.5, "Fraction of linespace for good overlap");
+double_VAR(textord_merge_desc, 0.25, "Fraction of linespace for desc drop");
+double_VAR(textord_merge_x, 0.5, "Fraction of linespace for x height");
+double_VAR(textord_merge_asc, 0.25, "Fraction of linespace for asc height");
+double_VAR(textord_minxh, 0.25, "fraction of linesize for min xheight");
+double_VAR(textord_min_linesize, 1.25, "* blob height for initial linesize");
+double_VAR(textord_excess_blobsize, 1.3,
+           "New row made if blob makes row this big");
+double_VAR(textord_occupancy_threshold, 0.4, "Fraction of neighbourhood");
+double_VAR(textord_underline_width, 2.0, "Multiple of line_size for underline");
+double_VAR(textord_min_blob_height_fraction, 0.75,
+           "Min blob height/top to include blob top into xheight stats");
+double_VAR(textord_xheight_mode_fraction, 0.4,
+           "Min pile height to make xheight");
+double_VAR(textord_ascheight_mode_fraction, 0.08,
+           "Min pile height to make ascheight");
+double_VAR(textord_descheight_mode_fraction, 0.08,
+           "Min pile height to make descheight");
+double_VAR(textord_ascx_ratio_min, 1.3, "Min cap/xheight");
+double_VAR(textord_ascx_ratio_max, 1.8, "Max cap/xheight");
+double_VAR(textord_descx_ratio_min, 0.25, "Min desc/xheight");
+double_VAR(textord_descx_ratio_max, 0.6, "Max desc/xheight");
+double_VAR(textord_xheight_error_margin, 0.1, "Accepted variation");
 
 #define MAX_HEIGHT_MODES  12
+
+/**********************************************************************
+ * make_single_row
+ *
+ * Arrange the blobs into a single row.
+ **********************************************************************/
+float make_single_row(ICOORD page_tr, TO_BLOCK* block, TO_BLOCK_LIST* blocks,
+                      tesseract::Tesseract* tess) {
+  BLOBNBOX_IT blob_it = &block->blobs;
+  TO_ROW_IT row_it = block->get_rows();
+
+  // Include all the small blobs and large blobs.
+  blob_it.add_list_after(&block->small_blobs);
+  blob_it.add_list_after(&block->noise_blobs);
+  blob_it.add_list_after(&block->large_blobs);
+  blob_it.sort(blob_x_order);
+  blob_it.move_to_first();
+  TO_ROW* row = NULL;
+  // Add all the blobs to a single TO_ROW.
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+    BLOBNBOX* blob = blob_it.extract();
+    int top = blob->bounding_box().top();
+    int bottom = blob->bounding_box().bottom();
+    if (row == NULL) {
+      row = new TO_ROW(blob, top, bottom, block->line_size);
+      row_it.add_before_then_move(row);
+    } else {
+      row->add_blob(blob, top, bottom, block->line_size);
+    }
+  }
+  // Fit an LMS line to the row.
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward())
+    fit_lms_line(row_it.data());
+  float gradient;
+  float fit_error;
+  // Compute the skew based on the fitted line.
+  compute_page_skew(blocks, gradient, fit_error);
+  FCOORD rotation(1.0f, 0.0f);
+  // Associate i dots and other diacriticals with the appropriate blobs.
+  pre_associate_blobs(page_tr, block, rotation, false);
+  int block_edge = block->block->bounding_box().left();
+  fit_parallel_rows(block, gradient, rotation, block_edge, false);
+  // Make the curved baselines and setup some key block members.
+  make_spline_rows(block, gradient, rotation, block_edge, false, tess);
+  return gradient;
+}
 
 /**********************************************************************
  * make_rows
  *
  * Arrange the blobs into rows.
  **********************************************************************/
-
 float make_rows(                             //make rows
                 ICOORD page_tr,              //top right
                 BLOCK_LIST *blocks,          //block list
                 TO_BLOCK_LIST *land_blocks,  //rotated for landscape
-                TO_BLOCK_LIST *port_blocks   //output list
+                TO_BLOCK_LIST *port_blocks,  //output list
+                tesseract::Tesseract* tess
                ) {
   float port_m;                  //global skew
   float port_err;                //global noise
@@ -150,17 +177,16 @@ float make_rows(                             //make rows
       !(BOOL8) textord_test_landscape);
                                  //compute globally
   compute_page_skew(port_blocks, port_m, port_err);
-  //      compute_page_skew(land_blocks,land_m,land_err);                 //compute globally
+  //      compute_page_skew(land_blocks,land_m,land_err);  // compute globally
   //      tprintf("Portrait skew gradient=%g, error=%g.\n",
   //              port_m,port_err);
   //      tprintf("Landscape skew gradient=%g, error=%g.\n",
   //              land_m,land_err);
   block_it.set_to_list (port_blocks);
-  for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-  block_it.forward ()) {
-    cleanup_rows (page_tr, block_it.data (), port_m, FCOORD (1.0f, 0.0f),
-      block_it.data ()->block->bounding_box ().left (),
-      !(BOOL8) textord_test_landscape);
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+    cleanup_rows(page_tr, block_it.data(), port_m, FCOORD(1.0f, 0.0f),
+                 block_it.data()->block->bounding_box().left(),
+                 !(BOOL8)textord_test_landscape, tess);
   }
   block_it.set_to_list (land_blocks);
   //      for (block_it.mark_cycle_pt();!block_it.cycled_list();block_it.forward())
@@ -178,7 +204,6 @@ float make_rows(                             //make rows
  *
  * Arrange the good blobs into rows of text.
  **********************************************************************/
-
 void make_initial_textrows(                  //find lines
                            ICOORD page_tr,
                            TO_BLOCK *block,  //block to do
@@ -219,7 +244,6 @@ void make_initial_textrows(                  //find lines
  *
  * Fit an LMS line to a row.
  **********************************************************************/
-
 void fit_lms_line(             //sort function
                   TO_ROW *row  //row to fit
                  ) {
@@ -244,7 +268,6 @@ void fit_lms_line(             //sort function
  * Compute the skew over a full page by averaging the gradients over
  * all the lines. Get the error of the same row.
  **********************************************************************/
-
 void compute_page_skew(                        //get average gradient
                        TO_BLOCK_LIST *blocks,  //list of blocks
                        float &page_m,          //average gradient
@@ -474,14 +497,14 @@ static void vigorous_noise_removal(TO_BLOCK* block) {
  *
  * Remove overlapping rows and fit all the blobs to what's left.
  **********************************************************************/
-
 void cleanup_rows(                   //find lines
                   ICOORD page_tr,    //top right
                   TO_BLOCK *block,   //block to do
                   float gradient,    //gradient to fit
                   FCOORD rotation,   //for drawing
                   inT32 block_edge,  //edge of block
-                  BOOL8 testing_on   //correct orientation
+                  BOOL8 testing_on,  //correct orientation
+                  tesseract::Tesseract* tess
                  ) {
                                  //iterators
   BLOBNBOX_IT blob_it = &block->blobs;
@@ -545,11 +568,18 @@ void cleanup_rows(                   //find lines
                    gradient,
                    rotation,
                    block_edge,
-                   textord_show_final_rows &&testing_on);
-  if (!textord_old_xheight || !textord_old_baselines)
-    compute_block_xheight(block, gradient);
-  if (textord_restore_underlines)
-                                 //fix underlines
+                   textord_show_final_rows && testing_on,
+                   tess);
+  // We only want to call compute_block_xheight() if
+  // both textord_old_xheight and textord_old_baselines are false.
+  // No need to call compute_block_xheight() if textord_old_baselines
+  // is true, since all appropriate xheight computation functions
+  // would be called from make_old_baselines().
+  // Note: it can not be the case that textord_old_baselines is
+  // false, and textord_old_xheight is true.
+  if (!textord_old_xheight && !textord_old_baselines)
+    compute_block_xheight(block, gradient, tess);
+  if (textord_restore_underlines)  // fix underlines
     restore_underlined_blobs(block);
 #ifndef GRAPHICS_DISABLED
   if (textord_show_final_rows && testing_on) {
@@ -573,7 +603,6 @@ void cleanup_rows(                   //find lines
  *
  * Compute the linespacing and offset.
  **********************************************************************/
-
 void delete_non_dropout_rows(                   //find lines
                              TO_BLOCK *block,   //block to do
                              float gradient,    //global skew
@@ -662,7 +691,6 @@ void delete_non_dropout_rows(                   //find lines
  * Delete this row if it has a neighbour with better dropout characteristics.
  * TRUE is returned if the row should be deleted.
  **********************************************************************/
-
 BOOL8 find_best_dropout_row(                    //find neighbours
                             TO_ROW *row,        //row to test
                             inT32 distance,     //dropout dist
@@ -743,7 +771,6 @@ BOOL8 find_best_dropout_row(                    //find neighbours
  * Compute the bounding box of all the blobs in the block
  * if they were deskewed without actually doing it.
  **********************************************************************/
-
 TBOX deskew_block_coords(                  //block box
                         TO_BLOCK *block,  //block to do
                         float gradient    //global skew
@@ -780,7 +807,6 @@ TBOX deskew_block_coords(                  //block box
  * Compute the pixel projection back on the y axis given the global
  * skew. Also compute the 1st derivative.
  **********************************************************************/
-
 void compute_line_occupation(                    //project blobs
                              TO_BLOCK *block,    //block to do
                              float gradient,     //global skew
@@ -847,7 +873,6 @@ void compute_line_occupation(                    //project blobs
  *
  * Compute thresholds for textline or not for the occupation array.
  **********************************************************************/
-
 void compute_occupation_threshold(                    //project blobs
                                   inT32 low_window,   //below result point
                                   inT32 high_window,  //above result point
@@ -929,7 +954,6 @@ void compute_occupation_threshold(                    //project blobs
  *
  * Compute the distance from each coordinate to the nearest dropout.
  **********************************************************************/
-
 void compute_dropout_distances(                    //project blobs
                                inT32 *occupation,  //input projection
                                inT32 *thresholds,  //output thresholds
@@ -977,7 +1001,6 @@ void compute_dropout_distances(                    //project blobs
  * neighbours. If the expansion would entirely swallow a neighbouring row
  * then do so.
  **********************************************************************/
-
 void expand_rows(                   //find lines
                  ICOORD page_tr,    //top right
                  TO_BLOCK *block,   //block to do
@@ -1135,7 +1158,6 @@ void expand_rows(                   //find lines
  *
  * Change the limits of rows to suit the default fractions.
  **********************************************************************/
-
 void adjust_row_limits(                 //tidy limits
                        TO_BLOCK *block  //block to do
                       ) {
@@ -1169,7 +1191,6 @@ void adjust_row_limits(                 //tidy limits
  *
  * Compute the linespacing and offset.
  **********************************************************************/
-
 void compute_row_stats(                  //find lines
                        TO_BLOCK *block,  //block to do
                        BOOL8 testing_on  //correct orientation
@@ -1260,286 +1281,382 @@ void compute_row_stats(                  //find lines
  *
  * Compute the xheight of the individual rows, then correlate them
  * and interpret ascenderless lines, correcting xheights.
- **********************************************************************/
-
-void compute_block_xheight(                  //find lines
-                           TO_BLOCK *block,  //block to do
-                           float gradient    //global skew
-                          ) {
-  TO_ROW *row;                   //current row
-  int xh_count, desc_count;      //no of samples
-  float block_median;            //median blob size
-  int asc_count, cap_count;
-  inT32 min_size, max_size;      //limits on xheight
-  inT32 evidence;                //no of samples on row
-  float xh_sum, desc_sum;        //for averages
-  float asc_sum, cap_sum;
-  TO_ROW_IT row_it = block->get_rows ();
-  STATS row_heights;             //block evidence
-
-  if (row_it.empty ())
-    return;                      //no rows
-  block_median = median_block_xheight (block, gradient);
-  block_median *= 2;
-  if (block_median < block->line_size)
-    block_median = block->line_size;
-  //      tprintf("Block median=%g, linesize=%g\n",
-  //              block_median,block->line_size);
-  max_size = (inT32) ceil (block_median);
-  min_size = (inT32) floor (block_median * textord_minxh);
-  row_heights.set_range (min_size, max_size + 1);
-  xh_count = desc_count = asc_count = cap_count = 0;
-  xh_sum = desc_sum = asc_sum = cap_sum = 0.0f;
-  for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    row = row_it.data ();
-    evidence = compute_row_xheight (row, min_size, max_size, gradient);
-    if (row->xheight > 0 && row->ascrise > 0) {
-      row_heights.add ((inT32) row->xheight, evidence);
-      xh_count += evidence;
-      asc_sum += row->ascrise;
-      asc_count++;
-    }
-    else if (row->xheight > 0) {
-      cap_sum += row->xheight;   //assume just caps
-      cap_count++;
-    }
-    if (row->descdrop != 0) {
-      desc_sum += row->descdrop;
-      desc_count++;
-    }
-  }
-  if (xh_count > 0) {
-                                 //median
-    xh_sum = row_heights.ile (0.5);
-    asc_sum /= asc_count;
-  }
-  else if (cap_count > 0) {
-    cap_sum /= cap_count;        //must assume caps
-    xh_sum =
-      cap_sum * textord_merge_x / (textord_merge_x + textord_merge_asc);
-    asc_sum =
-      cap_sum * textord_merge_asc / (textord_merge_x + textord_merge_asc);
-  }
-  else {
-                                 //default sizes
-    xh_sum = block_median * textord_merge_x;
-    asc_sum = block_median * textord_merge_asc;
-  }
-  if (desc_count > 0) {
-    desc_sum /= desc_count;
-  }
-  else {
-    desc_sum = xh_sum * textord_merge_desc / textord_merge_x;
-  }
-  //      tprintf("Block average x height=%g, count=%d, asc=%g/%d, desc=%g/%d,cap=%g/%d\n",
-  //              xh_sum,xh_count,asc_sum,asc_count,desc_sum,desc_count,
-  //              cap_sum,cap_count);
-  if (xh_sum < textord_min_xheight)
-    xh_sum = (float) textord_min_xheight;
-  block->xheight = xh_sum;
-  for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    correct_row_xheight (row_it.data (), xh_sum, asc_sum, desc_sum);
-  }
-}
-
-
-/**********************************************************************
- * median_block_xheight
  *
- * Compute the linespacing and offset.
- **********************************************************************/
+ * First we compute our best guess of the x-height of each row independently
+ * with compute_row_xheight(), which looks for a pair of commonly occurring
+ * heights that could be x-height and ascender height. This function also
+ * attempts to find descenders of lowercase letters (i.e. not the small
+ * descenders that could appear in upper case letters as Q,J).
+ *
+ * After this computation each row falls into one of the following categories:
+ * ROW_ASCENDERS_FOUND: we found xheight and ascender modes, so this must be
+ *                      a regular row; we'll use its xheight to compute
+ *                      xheight and ascrise estimates for the block
+ * ROW_DESCENDERS_FOUND: no ascenders, so we do not have a high confidence in
+ *                       the xheight of this row (don't use it for estimating
+ *                       block xheight), but this row can't contain all caps
+ * ROW_UNKNOWN: a row with no ascenders/descenders, could be all lowercase
+ *              (or mostly lowercase for fonts with very few ascenders),
+ *              all upper case or small caps
+ * ROW_INVALID: no meaningful xheight could be found for this row
+ *
+ * We then run correct_row_xheight() and use the computed xheight and ascrise
+ * averages to correct xheight values of the rows in ROW_DESCENDERS_FOUND,
+ * ROW_UNKNOWN and ROW_INVALID categories.
+ *
+ * **********************************************************************/
+void compute_block_xheight(TO_BLOCK *block, float gradient,
+                           tesseract::Tesseract *tess) {
+  TO_ROW *row;                          // current row
+  float asc_frac_xheight = textord_merge_asc / textord_merge_x;
+  float desc_frac_xheight = textord_merge_desc / textord_merge_x;
+  inT32 min_height, max_height;         // limits on xheight
+  TO_ROW_IT row_it = block->get_rows();
+  if (row_it.empty()) return;  // no rows
 
-float median_block_xheight(                  //find lines
-                           TO_BLOCK *block,  //block to do
-                           float gradient    //global skew
-                          ) {
-  TO_ROW *row;                   //current row
-  float result;                  //output size
-  float xcentre;                 //centre of blob
-  TO_ROW_IT row_it = block->get_rows ();
-  BLOBNBOX_IT blob_it;
-  BLOBNBOX *blob;                //current blob
-  float *heights;                //for choose nth
-  inT32 blob_count;              //blobs in block
-  inT32 blob_index;              //current blob
-
-  blob_count = 0;
-  for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
-    blob_count += row_it.data ()->blob_list ()->length ();
-  heights = (float *) alloc_mem (blob_count * sizeof (float));
-  if (heights == NULL)
-    MEMORY_OUT.error ("compute_row_stats", ABORT, NULL);
-
-  blob_index = 0;
-  for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    row = row_it.data ();
-    blob_it.set_to_list (row->blob_list ());
-    for (blob_it.mark_cycle_pt (); !blob_it.cycled_list ();
-    blob_it.forward ()) {
-      blob = blob_it.data ();
-      if (!blob->joined_to_prev ()) {
-        xcentre =
-          (blob->bounding_box ().left () +
-          blob->bounding_box ().right ()) / 2.0f;
-        heights[blob_index] =
-          blob->bounding_box ().top () - gradient * xcentre -
-          row->parallel_c ();
-        if (heights[blob_index] > 0)
-          blob_index++;
-      }
+  // Compute the best guess of xheight of each row individually.
+  // Use xheight and ascrise values of the rows where ascenders were found.
+  get_min_max_xheight(block->line_size, &min_height, &max_height);
+  STATS row_asc_xheights(min_height, max_height + 1);
+  STATS row_asc_ascrise(static_cast<int>(min_height * asc_frac_xheight),
+                        static_cast<int>(max_height * asc_frac_xheight) + 1);
+  int min_desc_height = static_cast<int>(min_height * desc_frac_xheight);
+  int max_desc_height = static_cast<int>(max_height * desc_frac_xheight);
+  STATS row_asc_descdrop(min_desc_height, max_desc_height + 1);
+  STATS row_desc_xheights(min_height, max_height + 1);
+  STATS row_desc_descdrop(min_desc_height, max_desc_height + 1);
+  STATS row_cap_xheights(min_height, max_height + 1);
+  STATS row_cap_floating_xheights(min_height, max_height + 1);
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+    row = row_it.data();
+    // Compute the xheight of this row if it has not been computed before.
+    if (row->xheight <= 0.0) {
+      compute_row_xheight(row, gradient, block->line_size, tess);
+    }
+    ROW_CATEGORY row_category = get_row_category(row);
+    if (row_category == ROW_ASCENDERS_FOUND) {
+      row_asc_xheights.add(static_cast<inT32>(row->xheight),
+                           row->xheight_evidence);
+      row_asc_ascrise.add(static_cast<inT32>(row->ascrise),
+                          row->xheight_evidence);
+      row_asc_descdrop.add(static_cast<inT32>(-row->descdrop),
+                           row->xheight_evidence);
+    } else if (row_category == ROW_DESCENDERS_FOUND) {
+      row_desc_xheights.add(static_cast<inT32>(row->xheight),
+                            row->xheight_evidence);
+      row_desc_descdrop.add(static_cast<inT32>(-row->descdrop),
+                            row->xheight_evidence);
+    } else if (row_category == ROW_UNKNOWN) {
+      fill_heights(row, gradient, min_height, max_height,
+                   &row_cap_xheights, &row_cap_floating_xheights);
     }
   }
-  ASSERT_HOST (blob_index > 0);  //dont expect 0
-  blob_count = blob_index;
-  blob_index = choose_nth_item (blob_count / 2, heights, blob_count);
-  result = heights[blob_index];
-  free_mem(heights);
-  return result;
-}
 
+  float xheight = 0.0;
+  float ascrise = 0.0;
+  float descdrop = 0.0;
+  // Compute our best guess of xheight of this block.
+  if (row_asc_xheights.get_total() > 0) {
+    // Determine xheight from rows where ascenders were found.
+    xheight = row_asc_xheights.median();
+    ascrise = row_asc_ascrise.median();
+    descdrop = -row_asc_descdrop.median();
+  } else if (row_desc_xheights.get_total() > 0) {
+    // Determine xheight from rows where descenders were found.
+    xheight = row_desc_xheights.median();
+    descdrop = -row_desc_descdrop.median();
+  } else if (row_cap_xheights.get_total() > 0) {
+    // All the rows in the block were (a/de)scenderless.
+    // Try to search for two modes in row_cap_heights that could
+    // be the xheight and the capheight (e.g. some of the rows
+    // were lowercase, but did not have enough (a/de)scenders.
+    // If such two modes can not be found, this block is most
+    // likely all caps (or all small caps, in which case the code
+    // still works as intended).
+    compute_xheight_from_modes(&row_cap_xheights, &row_cap_floating_xheights,
+                               min_height, max_height, &(xheight), &(ascrise));
+    if (ascrise == 0) {  // assume only caps in the whole block
+      xheight = row_cap_xheights.median() * textord_merge_x /
+        (textord_merge_x + textord_merge_asc);
+    }
+  } else {  // default block sizes
+    xheight = block->line_size * textord_merge_x;
+  }
+  // Correct xheight, ascrise and descdrop if necessary.
+  bool corrected_xheight = false;
+  if (xheight < textord_min_xheight) {
+    xheight = static_cast<float>(textord_min_xheight);
+    corrected_xheight = true;
+  }
+  if (corrected_xheight || ascrise <= 0.0) {
+    ascrise = xheight * asc_frac_xheight;
+  }
+  if (corrected_xheight || descdrop >= 0.0) {
+    descdrop = -(xheight * desc_frac_xheight);
+  }
+  block->xheight = xheight;
+
+  if (textord_debug_xheights) {
+    tprintf("Block average xheight=%.4f, ascrise=%.4f, descdrop=%.4f\n",
+            xheight, ascrise, descdrop);
+  }
+  // Correct xheight, ascrise, descdrop of rows based on block averages.
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+    correct_row_xheight(row_it.data(), xheight, ascrise, descdrop);
+  }
+}
 
 /**********************************************************************
  * compute_row_xheight
  *
  * Estimate the xheight of this row.
  * Compute the ascender rise and descender drop at the same time.
+ * Set xheigh_evidence to the number of blobs with the chosen xheight
+ * that appear in this row.
  **********************************************************************/
-
-inT32 compute_row_xheight(                   //find lines
-                          TO_ROW *row,       //row to do
-                          inT32 min_height,  //min xheight
-                          inT32 max_height,  //max xheight
-                          float gradient     //global skew
-                         ) {
-  BOOL8 in_best_pile;            //control of mode size
-  inT32 prev_size;               //previous size
-  float xcentre;                 //centre of blob
-  float height;                  //height of blob
-  BLOBNBOX_IT blob_it = row->blob_list ();
-  BLOBNBOX *blob;                //current blob
-  inT32 blob_count;              //blobs in block
-  inT32 x;                       //xheight index
-  inT32 asc;                     //ascender index
-  inT32 blob_index;              //current blob
-  inT32 mode_count;              //no of modes
-  inT32 best_count;              //count of best x so far
-  float ratio;                   //size ratio
-  inT32 modes[MAX_HEIGHT_MODES]; //biggest piles
-  STATS heights (min_height, max_height + 1);
-
-  for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
-    blob = blob_it.data ();
-    if (!blob->joined_to_prev ()) {
-      xcentre =
-        (blob->bounding_box ().left () +
-        blob->bounding_box ().right ()) / 2.0f;
-      height = blob->bounding_box ().top ();
-      if (textord_fix_xheight_bug)
-        height -= row->baseline.y (xcentre);
-      else
-        height -= gradient * xcentre + row->parallel_c ();
-      if (height >= min_height && height <= max_height
-        && (!textord_xheight_tweak || height > textord_min_xheight))
-        heights.add ((inT32) floor (height + 0.5), 1);
-    }
+void compute_row_xheight(TO_ROW *row,          // row to do
+                         float gradient,       // global skew
+                         int block_line_size,
+                         tesseract::Tesseract *tess) {
+  // Find blobs representing repeated characters in rows and mark them.
+  // This information is used for computing row xheight and at a later
+  // stage when words are formed by make_words.
+  if (!row->rep_chars_marked()) {
+    mark_repeated_chars(row, block_line_size * textord_merge_x, tess);
   }
-  blob_index = heights.mode ();  //find mode
-                                 //get count of mode
-  blob_count = heights.pile_count (blob_index);
-  if (textord_debug_xheights)
-    tprintf ("min_height=%d, max_height=%d, mode=%d, count=%d, total=%d,%d\n",
-      min_height, max_height, blob_index, blob_count,
-      heights.get_total (), row->blob_list ()->length ());
+
+  int min_height, max_height;
+  get_min_max_xheight(block_line_size, &min_height, &max_height);
+  STATS heights(min_height, max_height + 1);
+  STATS floating_heights(min_height, max_height + 1);
+  fill_heights(row, gradient, min_height, max_height,
+               &heights, &floating_heights);
   row->ascrise = 0.0f;
   row->xheight = 0.0f;
-  row->descdrop = 0.0f;          //undefined;
-  in_best_pile = FALSE;
-  prev_size = -MAX_INT32;
-  best_count = 0;
-  if (blob_count > 0) {
-                                 //get biggest ones
-    mode_count = compute_height_modes (&heights, min_height, max_height, modes, MAX_HEIGHT_MODES);
-    for (x = 0; x < mode_count - 1; x++) {
-      if (modes[x] != prev_size + 1)
-        in_best_pile = FALSE;    //had empty height
-      if (heights.pile_count (modes[x])
-        >= blob_count * textord_xheight_mode_fraction
-      && (in_best_pile || heights.pile_count (modes[x]) > best_count)) {
-        for (asc = x + 1; asc < mode_count; asc++) {
-          ratio = (float) modes[asc] / modes[x];
-          if (textord_ascx_ratio_min < ratio
-            && ratio < textord_ascx_ratio_max
-            && heights.pile_count (modes[asc])
-          >= blob_count * textord_ascheight_mode_fraction) {
-            if (heights.pile_count (modes[x]) > best_count) {
-              in_best_pile = TRUE;
-              best_count = heights.pile_count (modes[x]);
-            }
-            //                                              tprintf("X=%d, asc=%d, count=%d,  ratio=%g\n",
-            //                                                      modes[x],modes[asc]-modes[x],
-            //                                                      heights.pile_count(modes[x]),
-            //                                                      ratio);
-            prev_size = modes[x];
-            row->xheight = (float) modes[x];
-            row->ascrise = (float) (modes[asc] - modes[x]);
-          }
+  row->xheight_evidence =
+    compute_xheight_from_modes(&heights, &floating_heights, min_height,
+                               max_height, &(row->xheight), &(row->ascrise));
+  row->descdrop = 0.0f;
+  if (row->xheight > 0.0) {
+    row->descdrop = static_cast<float>(
+        compute_row_descdrop(row, gradient, row->xheight_evidence, &heights));
+  } else {
+    // Since we could not find a meaningful xheight, the results
+    // of mark_repeated_chars() should be recomputed at a later stage.
+    row->clear_rep_chars_marked();
+  }
+}
+
+/**********************************************************************
+ * fill_heights
+ *
+ * Fill the given heights with heights of the blobs that are legal
+ * candidates for estimating xheight.
+ **********************************************************************/
+void fill_heights(TO_ROW *row, float gradient, int min_height,
+                  int max_height, STATS *heights, STATS *floating_heights) {
+  float xcentre;                 // centre of blob
+  float top;                     // top y coord of blob
+  float height;                  // height of blob
+  BLOBNBOX *blob;                // current blob
+  int repeated_set;
+  BLOBNBOX_IT blob_it = row->blob_list();
+  if (blob_it.empty()) return;  // no blobs in this row
+  bool has_rep_chars =
+    row->rep_chars_marked() && row->num_repeated_sets() > 0;
+  do {
+    blob = blob_it.data();
+    if (!blob->joined_to_prev()) {
+      xcentre = (blob->bounding_box().left() +
+                 blob->bounding_box().right()) / 2.0f;
+      top = blob->bounding_box().top();
+      height = blob->bounding_box().height();
+      if (textord_fix_xheight_bug)
+        top -= row->baseline.y(xcentre);
+      else
+        top -= gradient * xcentre + row->parallel_c();
+      if (top >= min_height && top <= max_height) {
+        heights->add(static_cast<inT32>(floor(top + 0.5)), 1);
+        if (height / top < textord_min_blob_height_fraction) {
+          floating_heights->add(static_cast<inT32>(floor(top + 0.5)), 1);
         }
       }
     }
-    if (row->xheight == 0) {
-                                 //single mode
-      row->xheight = (float) blob_index;
-      row->ascrise = 0.0f;
-      if (textord_debug_xheights)
-        tprintf ("Single mode xheight set to %g\n", row->xheight);
+    // Skip repeated chars, since they are likely to skew the height stats.
+    if (has_rep_chars && blob->repeated_set() != 0) {
+      repeated_set = blob->repeated_set();
+      blob_it.forward();
+      while (!blob_it.at_first() &&
+             blob_it.data()->repeated_set() == repeated_set) {
+        blob_it.forward();
+        if (textord_debug_xheights)
+          tprintf("Skipping repeated char when computing xheight\n");
+      }
+    } else {
+      blob_it.forward();
     }
-    else if (textord_debug_xheights)
-      tprintf ("Multi-mode xheight set to %g, asc=%g\n",
-          row->xheight, row->ascrise);
-    row->descdrop = (float) compute_row_descdrop (row, gradient);
-    //find descenders
+  } while (!blob_it.at_first());
+}
+
+/**********************************************************************
+ * compute_xheight_from_modes
+ *
+ * Given a STATS object heights, looks for two most frequently occurring
+ * heights that look like xheight and xheight + ascrise. If found, sets
+ * the values of *xheight and *ascrise accordingly, otherwise sets xheight
+ * to any most frequently occurring height and sets *ascrise to 0.
+ * Returns the number of times xheight occurred in heights.
+ * For each mode that is considered for being an xheight the count of
+ * floating blobs (stored in floating_heights) is subtracted from the
+ * total count of the blobs of this height. This is done because blobs
+ * that sit far above the baseline could represent valid ascenders, but
+ * it is highly unlikely that such a character's height will be an xheight
+ * (e.g.  -, ', =, ^, `, ", ', etc)
+ **********************************************************************/
+int compute_xheight_from_modes(
+    STATS *heights, STATS *floating_heights, int min_height,
+    int max_height, float *xheight, float *ascrise) {
+  int blob_index = heights->mode();  // find mode
+  int blob_count = heights->pile_count(blob_index);  // get count of mode
+  if (textord_debug_xheights) {
+    tprintf ("min_height=%d, max_height=%d, mode=%d, count=%d, total=%d\n",
+      min_height, max_height, blob_index, blob_count, heights->get_total());
+    heights->print(NULL, true);
+    floating_heights->print(NULL, true);
+  }
+  if (blob_count == 0) return 0;
+  int modes[MAX_HEIGHT_MODES]; // biggest piles
+  bool in_best_pile = FALSE;
+  int prev_size = -MAX_INT32;
+  int best_count = 0;
+  int mode_count = compute_height_modes(heights, min_height, max_height,
+                                        modes, MAX_HEIGHT_MODES);
+  int x;
+  if (textord_debug_xheights) {
+    tprintf("found %d modes: ", mode_count);
+    for (x = 0; x < mode_count; x++) tprintf("%d ", modes[x]);
+    tprintf("\n");
+  }
+
+  for (x = 0; x < mode_count - 1; x++) {
+    if (modes[x] != prev_size + 1)
+      in_best_pile = FALSE;    // had empty height
+    int modes_x_count = heights->pile_count(modes[x]) -
+      floating_heights->pile_count(modes[x]);
+    if ((modes_x_count >= blob_count * textord_xheight_mode_fraction) &&
+        (in_best_pile || modes_x_count > best_count)) {
+      for (int asc = x + 1; asc < mode_count; asc++) {
+        float ratio =
+          static_cast<float>(modes[asc]) / static_cast<float>(modes[x]);
+        if (textord_ascx_ratio_min < ratio &&
+            ratio < textord_ascx_ratio_max &&
+            (heights->pile_count(modes[asc]) >=
+             blob_count * textord_ascheight_mode_fraction)) {
+          if (modes_x_count > best_count) {
+            in_best_pile = true;
+            best_count = modes_x_count;
+          }
+          if (textord_debug_xheights) {
+            tprintf("X=%d, asc=%d, count=%d, ratio=%g\n",
+                    modes[x], modes[asc]-modes[x], modes_x_count, ratio);
+          }
+          prev_size = modes[x];
+          *xheight = static_cast<float>(modes[x]);
+          *ascrise = static_cast<float>(modes[asc] - modes[x]);
+        }
+      }
+    }
+  }
+  if (*xheight == 0) {  // single mode
+    // Remove counts of the "floating" blobs (the one whose height is too
+    // small in relation to it's top end of the bounding box) from heights
+    // before computing the single-mode xheight.
+    // Restore the counts in heights after the mode is found, since
+    // floating blobs might be useful for determining potential ascenders
+    // in compute_row_descdrop().
+    if (floating_heights->get_total() > 0) {
+      for (x = min_height; x < max_height; ++x) {
+        heights->add(x, -(floating_heights->pile_count(x)));
+      }
+      blob_index = heights->mode();  // find the modified mode
+      for (x = min_height; x < max_height; ++x) {
+        heights->add(x, floating_heights->pile_count(x));
+      }
+    }
+    *xheight = static_cast<float>(blob_index);
+    *ascrise = 0.0f;
+    best_count = heights->pile_count(blob_index);
+    if (textord_debug_xheights)
+      tprintf("Single mode xheight set to %g\n", *xheight);
+  } else if (textord_debug_xheights) {
+    tprintf("Multi-mode xheight set to %g, asc=%g\n", *xheight, *ascrise);
   }
   return best_count;
 }
 
-
 /**********************************************************************
  * compute_row_descdrop
  *
- * Estimate the descdrop of this row.
+ * Estimates the descdrop of this row. This function looks for
+ * "significant" descenders of lowercase letters (those that could
+ * not just be the small descenders of upper case letters like Q,J).
+ * The function also takes into account how many potential ascenders
+ * this row might contain. If the number of potential ascenders along
+ * with descenders is close to the expected fraction of the total
+ * number of blobs in the row, the function returns the descender
+ * height, returns 0 otherwise.
  **********************************************************************/
-
-inT32 compute_row_descdrop(                //find lines
-                           TO_ROW *row,    //row to do
-                           float gradient  //global skew
-                          ) {
-  inT32 min_height = (inT32) floor (row->xheight * textord_descx_ratio_min);
-  inT32 max_height = (inT32) floor (row->xheight * textord_descx_ratio_max);
-  float xcentre;                 //centre of blob
-  float height;                  //height of blob
+inT32 compute_row_descdrop(TO_ROW *row, float gradient,
+                           int xheight_blob_count, STATS *asc_heights) {
+  // Count how many potential ascenders are in this row.
+  int i_min = asc_heights->min_bucket();
+  if ((i_min / row->xheight) < textord_ascx_ratio_min) {
+    i_min = static_cast<int>(
+        floor(row->xheight * textord_ascx_ratio_min + 0.5));
+  }
+  int i_max = asc_heights->max_bucket();
+  if ((i_max / row->xheight) > textord_ascx_ratio_max) {
+    i_max = static_cast<int>(floor(row->xheight * textord_ascx_ratio_max));
+  }
+  int num_potential_asc = 0;
+  for (int i = i_min; i <= i_max; ++i) {
+    num_potential_asc += asc_heights->pile_count(i);
+  }
+  inT32 min_height =
+    static_cast<inT32>(floor(row->xheight * textord_descx_ratio_min + 0.5));
+  inT32 max_height =
+    static_cast<inT32>(floor(row->xheight * textord_descx_ratio_max));
+  float xcentre;                 // centre of blob
+  float height;                  // height of blob
   BLOBNBOX_IT blob_it = row->blob_list ();
-  BLOBNBOX *blob;                //current blob
-  inT32 blob_count;              //blobs in block
-  inT32 blob_index;              //current blob
+  BLOBNBOX *blob;                // current blob
   STATS heights (min_height, max_height + 1);
-
-  for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
-    blob = blob_it.data ();
-    if (!blob->joined_to_prev ()) {
-      xcentre =
-        (blob->bounding_box ().left () +
-        blob->bounding_box ().right ()) / 2.0f;
-      height =
-        gradient * xcentre + row->parallel_c () -
-        blob->bounding_box ().bottom ();
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+    blob = blob_it.data();
+    if (!blob->joined_to_prev()) {
+      xcentre = (blob->bounding_box().left() +
+                 blob->bounding_box().right()) / 2.0f;
+      height = (gradient * xcentre + row->parallel_c() -
+                blob->bounding_box().bottom());
       if (height >= min_height && height <= max_height)
-        heights.add ((inT32) floor (height + 0.5), 1);
+        heights.add(static_cast<int>(floor(height + 0.5)), 1);
     }
   }
-  blob_index = heights.mode ();  //find mode
-                                 //get count of mode
-  blob_count = heights.pile_count (blob_index);
-  return blob_count > 0 ? -blob_index : 0;
+  int blob_index = heights.mode();  // find mode
+  int blob_count = heights.pile_count(blob_index);  // get count of mode
+  float total_fraction =
+    (textord_descheight_mode_fraction + textord_ascheight_mode_fraction);
+  if (static_cast<float>(blob_count + num_potential_asc) <
+      xheight_blob_count * total_fraction) {
+    blob_count = 0;
+  }
+  int descdrop = blob_count > 0 ? -blob_index : 0;
+  if (textord_debug_xheights) {
+    tprintf("Descdrop: %d (potential ascenders %d, descenders %d)\n",
+            descdrop, num_potential_asc, blob_count);
+    heights.print(NULL, true);
+  }
+  return descdrop;
 }
 
 
@@ -1549,7 +1666,6 @@ inT32 compute_row_descdrop(                //find lines
  * Find the top maxmodes values in the input array and put their
  * indices in the output in the order in which they occurred.
  **********************************************************************/
-
 inT32 compute_height_modes(                   //find lines
                            STATS *heights,    //stats to search
                            inT32 min_height,  //bottom of range
@@ -1616,56 +1732,87 @@ inT32 compute_height_modes(                   //find lines
  * Adjust the xheight etc of this row if not within reasonable limits
  * of the average for the block.
  **********************************************************************/
-
-void correct_row_xheight(                //fix bad values
-                         TO_ROW *row,    //row to fix
-                         float xheight,  //average values
-                         float ascrise,
-                         float descdrop) {
-  if (textord_row_xheights) {
-    if (row->xheight <= 0)
-      row->xheight = xheight;
-    if (row->ascrise < row->xheight * (textord_ascx_ratio_min - 1)) {
-      if (row->xheight >= xheight * (1 - textord_xheight_error_margin)
-      && row->xheight <= xheight * (1 + textord_xheight_error_margin)) {
-        row->all_caps = FALSE;
-        row->ascrise = ascrise;
-      }
-      else if (row->xheight >=
-        (xheight + ascrise) * (1 - textord_xheight_error_margin)
-        && row->xheight <=
-      (xheight + ascrise) * (1 + textord_xheight_error_margin)) {
-        row->all_caps = TRUE;
-                                 //it was caps
-        row->ascrise = row->xheight - xheight;
-        row->xheight = xheight;
-      }
-      else {
-        row->all_caps = TRUE;
-        row->ascrise = row->xheight * ascrise / (xheight + ascrise);
-        row->xheight -= row->ascrise;
-      }
-    }
-    else
-      row->all_caps = FALSE;
-    row->ascrise = ascrise;
-    if (row->descdrop >= -row->xheight * (textord_ascx_ratio_min - 1))
-      row->descdrop = descdrop;
+void correct_row_xheight(TO_ROW *row, float xheight,
+                         float ascrise, float descdrop) {
+  ROW_CATEGORY row_category = get_row_category(row);
+  if (textord_debug_xheights) {
+    tprintf("correcting row xheight: row->xheight %.4f"
+            ", row->acrise %.4f row->descdrop %.4f\n",
+            row->xheight, row->ascrise, row->descdrop);
   }
-  else {
-    if (row->xheight < xheight * (1 - textord_xheight_error_margin)
-      || row->xheight > xheight * (1 + textord_xheight_error_margin))
-      row->xheight = xheight;    //set to average
-    row->all_caps = row->ascrise <= 0;
-    if (row->ascrise < ascrise * (1 - textord_xheight_error_margin)
-      || row->ascrise > ascrise * (1 + textord_xheight_error_margin))
-      row->ascrise = ascrise;    //set to average
-    if (row->descdrop < descdrop * (1 - textord_xheight_error_margin)
-      || row->descdrop > descdrop * (1 + textord_xheight_error_margin))
-      row->descdrop = descdrop;  //set to average
+  bool normal_xheight =
+    within_error_margin(row->xheight, xheight, textord_xheight_error_margin);
+  bool cap_xheight =
+    within_error_margin(row->xheight, xheight + ascrise,
+                        textord_xheight_error_margin);
+  // Use the average xheight/ascrise for the following cases:
+  // -- the xheight of the row could not be determined at all
+  // -- the row has descenders (e.g. "many groups", "ISBN 12345 p.3")
+  //    and its xheight is close to either cap height or average xheight
+  // -- the row does not have ascenders or descenders, but its xheight
+  //    is close to the average block xheight (e.g. row with "www.mmm.com")
+  if (row_category == ROW_ASCENDERS_FOUND) {
+    if (row->descdrop >= 0.0)  {
+      row->descdrop = row->xheight * (descdrop / xheight);
+    }
+  } else  if (row_category == ROW_INVALID ||
+              (row_category == ROW_DESCENDERS_FOUND &&
+               (normal_xheight || cap_xheight)) ||
+              (row_category == ROW_UNKNOWN && normal_xheight)) {
+    if (textord_debug_xheights) tprintf("using average xheight\n");
+    row->xheight = xheight;
+    row->ascrise = ascrise;
+    row->descdrop = descdrop;
+  }
+  // Assume this is a row with mostly lowercase letters and it's xheight
+  // is computed correctly (unfortunately there is no way to distinguish
+  // this from the case when descenders are found, but the most common
+  // height is capheight).
+  else if (row_category == ROW_DESCENDERS_FOUND) {
+    if (textord_debug_xheights) tprintf("lowercase, corrected ascrise\n");
+    row->ascrise = row->xheight * (ascrise / xheight);
+  }
+  // Otherwise assume this row is an all-caps or small-caps row
+  // and adjust xheight and ascrise of the row.
+  else if (row_category == ROW_UNKNOWN) {
+    row->all_caps = true;
+    if (cap_xheight) { // regular all caps
+      if (textord_debug_xheights) tprintf("all caps\n");
+      row->xheight = xheight;
+      row->ascrise = ascrise;
+      row->descdrop = descdrop;
+    } else {  // small caps or caps with an odd xheight
+      if (textord_debug_xheights) {
+        if (row->xheight < xheight + ascrise && row->xheight > xheight) {
+          tprintf("small caps\n");
+        } else {
+          tprintf("all caps with irregular xheight\n");
+        }
+      }
+      row->ascrise = row->xheight * (ascrise / (xheight + ascrise));
+      row->xheight -= row->ascrise;
+      row->descdrop = row->xheight * (descdrop / xheight);
+    }
+  }
+  if (textord_debug_xheights) {
+    tprintf("corrected row->xheight = %.4f, row->acrise = %.4f, row->descdrop"
+            " = %.4f\n", row->xheight, row->ascrise, row->descdrop);
   }
 }
 
+static int CountOverlaps(const TBOX& box, int min_height,
+                         BLOBNBOX_LIST* blobs) {
+  int overlaps = 0;
+  BLOBNBOX_IT blob_it(blobs);
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+    BLOBNBOX* blob = blob_it.data();
+    TBOX blob_box = blob->bounding_box();
+    if (blob_box.height() >= min_height && box.major_overlap(blob_box)) {
+      ++overlaps;
+    }
+  }
+  return overlaps;
+}
 
 /**********************************************************************
  * separate_underlines
@@ -1673,7 +1820,6 @@ void correct_row_xheight(                //fix bad values
  * Test wide objects for being potential underlines. If they are then
  * put them in a separate list in the block.
  **********************************************************************/
-
 void separate_underlines(                  //make rough chars
                          TO_BLOCK *block,  //block to do
                          float gradient,   //skew angle
@@ -1691,7 +1837,10 @@ void separate_underlines(                  //make rough chars
   BLOBNBOX_IT blob_it;           //iterator
                                  //iterator
   BLOBNBOX_IT under_it = &block->underlines;
+  BLOBNBOX_IT large_it = &block->large_blobs;
   TO_ROW_IT row_it = block->get_rows ();
+  int min_blob_height = static_cast<int>(textord_min_blob_height_fraction *
+                                         block->line_size + 0.5);
 
                                  //length of vector
   length = sqrt (1 + gradient * gradient);
@@ -1710,21 +1859,27 @@ void separate_underlines(                  //make rough chars
         if (textord_cblob_blockocc && blob->cblob () != NULL) {
           rotated_blob = crotate_cblob (blob->cblob (),
             blob_rotation);
-          if (test_underline (testing_on && textord_show_final_rows,
-            rotated_blob, (inT16) row->intercept (),
-            (inT16) (block->line_size *
-            (textord_merge_x +
-          textord_merge_asc / 2.0f)))) {
-            under_it.add_after_then_move (blob_it.extract ());
+          if (test_underline(testing_on && textord_show_final_rows,
+                             rotated_blob, static_cast<inT16>(row->intercept()),
+                             static_cast<inT16>(block->line_size *
+                                                (textord_merge_x +
+                                                 textord_merge_asc / 2.0f)))) {
+            under_it.add_after_then_move(blob_it.extract());
             if (testing_on && textord_show_final_rows) {
-              tprintf ("Underlined blob at (%d,%d)->(%d,%d) ",
-                rotated_blob->bounding_box ().left (),
-                rotated_blob->bounding_box ().bottom (),
-                rotated_blob->bounding_box ().right (),
-                rotated_blob->bounding_box ().top ());
-              tprintf ("(Was (%d,%d)->(%d,%d))\n",
-                blob_box.left (), blob_box.bottom (),
-                blob_box.right (), blob_box.top ());
+              tprintf("Underlined blob at:");
+                rotated_blob->bounding_box().print();
+              tprintf("Was:");
+                blob_box.print();
+            }
+          } else if (CountOverlaps(blob->bounding_box(), min_blob_height,
+                                   row->blob_list()) >
+                     textord_max_blob_overlaps) {
+            large_it.add_after_then_move(blob_it.extract());
+            if (testing_on && textord_show_final_rows) {
+              tprintf("Large blob overlaps %d blobs at:",
+                      CountOverlaps(blob_box, min_blob_height,
+                                    row->blob_list()));
+              blob_box.print();
             }
           }
           delete rotated_blob;
@@ -1771,7 +1926,6 @@ void separate_underlines(                  //make rough chars
  *
  * Associate overlapping blobs and fake chop wide blobs.
  **********************************************************************/
-
 void pre_associate_blobs(                  //make rough chars
                          ICOORD page_tr,   //top right
                          TO_BLOCK *block,  //block to do
@@ -1781,11 +1935,9 @@ void pre_associate_blobs(                  //make rough chars
 #ifndef GRAPHICS_DISABLED
   ScrollView::Color colour;                 //of boxes
 #endif
-  inT16 overlap;                 //of adjacent boxes
   BLOBNBOX *blob;                //current blob
   BLOBNBOX *nextblob;            //next in list
   TBOX blob_box;
-  TBOX next_box;                  //next blob
   FCOORD blob_rotation;          //inverse of rotation
   BLOBNBOX_IT blob_it;           //iterator
   BLOBNBOX_IT start_it;          //iterator
@@ -1811,30 +1963,20 @@ void pre_associate_blobs(                  //make rough chars
       //                                      blob_box.right(),blob_box.top(),
       //                                      (void*)blob,blob_it.length());
       //                      }
+      bool overlap;
       do {
+        overlap = false;
         if (!blob_it.at_last ()) {
-          nextblob = blob_it.data_relative (1);
-          next_box = nextblob->bounding_box ();
-          overlap = next_box.width ();
-          if (blob_box.left () > next_box.left ())
-            overlap -= blob_box.left () - next_box.left ();
-          if (blob_box.right () < next_box.right ())
-            overlap -= next_box.right () - blob_box.right ();
-          if (overlap >= next_box.width () / 2
-          || overlap >= blob_box.width () / 2) {
-                                 //merge new blob
-            blob->merge (nextblob);
-                                 //get bigger box
-            blob_box = blob->bounding_box ();
-            blob_it.forward ();
+          nextblob = blob_it.data_relative(1);
+          overlap = blob_box.major_x_overlap(nextblob->bounding_box());
+          if (overlap) {
+            blob->merge(nextblob); // merge new blob
+            blob_box = blob->bounding_box(); // get bigger box
+            blob_it.forward();
           }
-          else
-            overlap = -1;        //no overlap
         }
-        else
-          overlap = -1;          //no overlap
       }
-      while (overlap >= 0);
+      while (overlap);
       blob->chop (&start_it, &blob_it,
         blob_rotation,
         block->line_size * textord_merge_x *
@@ -1870,7 +2012,6 @@ void pre_associate_blobs(                  //make rough chars
  *
  * Re-fit the rows in the block to the given gradient.
  **********************************************************************/
-
 void fit_parallel_rows(                   //find lines
                        TO_BLOCK *block,   //block to do
                        float gradient,    //gradient to fit
@@ -1913,7 +2054,6 @@ void fit_parallel_rows(                   //find lines
  * Make the fit parallel to the given gradient and set the
  * row accordingly.
  **********************************************************************/
-
 void fit_parallel_lms(                 //sort function
                       float gradient,  //forced gradient
                       TO_ROW *row      //row to fit
@@ -1949,14 +2089,14 @@ void fit_parallel_lms(                 //sort function
  *
  * Re-fit the rows in the block to the given gradient.
  **********************************************************************/
-
 void make_spline_rows(                   //find lines
                       TO_BLOCK *block,   //block to do
                       float gradient,    //gradient to fit
                       FCOORD rotation,   //for drawing
                       inT32 block_edge,  //edge of block
-                      BOOL8 testing_on   //correct orientation
-                     ) {
+                      BOOL8 testing_on,  //correct orientation
+                      tesseract::Tesseract* tess
+                      ) {
 #ifndef GRAPHICS_DISABLED
   ScrollView::Color colour;       //of row
 #endif
@@ -1982,7 +2122,7 @@ void make_spline_rows(                   //find lines
       }
     }
 #endif
-    make_old_baselines(block, testing_on);
+    make_old_baselines(block, testing_on, gradient, tess);
   }
 #ifndef GRAPHICS_DISABLED
   if (testing_on) {
@@ -2005,7 +2145,6 @@ void make_spline_rows(                   //find lines
  * Make the fit parallel to the given gradient and set the
  * row accordingly.
  **********************************************************************/
-
 void make_baseline_spline(                 //sort function
                           TO_ROW *row,     //row to fit
                           TO_BLOCK *block  //block it came from
@@ -2076,7 +2215,6 @@ void make_baseline_spline(                 //sort function
  * quadratic fitted to them.
  * Return TRUE if enough blobs were far enough away to need a quadratic.
  **********************************************************************/
-
 BOOL8
 segment_baseline (               //split baseline
 TO_ROW * row,                    //row to fit
@@ -2176,7 +2314,6 @@ inT32 xstarts[]                  //coords of segments
  * quadratic fitted to them.
  * Return TRUE if enough blobs were far enough away to need a quadratic.
  **********************************************************************/
-
 double *
 linear_spline_baseline (         //split baseline
 TO_ROW * row,                    //row to fit
@@ -2270,7 +2407,6 @@ inT32 xstarts[]                  //coords of segments
  * Make enough rows to allocate all the given blobs to one.
  * If a block skew is given, use that, else attempt to track it.
  **********************************************************************/
-
 void assign_blobs_to_rows(                      //find lines
                           TO_BLOCK *block,      //block to do
                           float *gradient,      //block skew
@@ -2467,7 +2603,6 @@ void assign_blobs_to_rows(                      //find lines
  *
  * Return the row which most overlaps the blob.
  **********************************************************************/
-
 OVERLAP_STATE most_overlapping_row(                    //find best row
                                    TO_ROW_IT *row_it,  //iterator
                                    TO_ROW *&best_row,  //output row
@@ -2564,7 +2699,6 @@ OVERLAP_STATE most_overlapping_row(                    //find best row
  *
  * Sort function to sort blobs in x from page left.
  **********************************************************************/
-
 int blob_x_order(                    //sort function
                  const void *item1,  //items to compare
                  const void *item2) {
@@ -2587,7 +2721,6 @@ int blob_x_order(                    //sort function
  *
  * Sort function to sort rows in y from page top.
  **********************************************************************/
-
 int row_y_order(                    //sort function
                 const void *item1,  //items to compare
                 const void *item2) {
@@ -2610,7 +2743,6 @@ int row_y_order(                    //sort function
  *
  * Qsort style function to compare 2 TO_ROWS based on their spacing value.
  **********************************************************************/
-
 int row_spacing_order(                    //sort function
                       const void *item1,  //items to compare
                       const void *item2) {
@@ -2625,4 +2757,131 @@ int row_spacing_order(                    //sort function
     return 1;
   else
     return 0;
+}
+
+/**********************************************************************
+ * make_repeated_chars
+ *
+ * Mark textord_repeat_threshold or more adjacent chars which are the
+ * same as repeated chars.
+ **********************************************************************/
+void mark_repeated_chars(TO_ROW *row, float block_xheight,
+                         tesseract::Tesseract *tess) {
+  ROW *real_row = NULL;          //output row
+  BLOBNBOX *bblob;               //current blob
+  BLOBNBOX *nextblob;            //neighbour to compare
+  BLOBNBOX_IT box_it;            //iterator
+  BLOBNBOX_IT search_it;         //forward search
+  inT32 blobcount;               //no of neighbours
+  inT32 matched_blobcount;       //no of matches
+  inT32 blobindex;               //in row
+  inT32 row_length;              //blobs in row
+  inT32 width_change;            //max width change
+  inT32 blob_width;              //required blob width
+  inT32 space_width;             //required gap width
+  inT32 prev_right;              //right edge of last blob
+  float rating;                  //match rating
+  PBLOB *pblob1;                 //polygonal blob
+  PBLOB *pblob2;                 //second blob
+
+  // kern_size and space_size are computed in the same way as in
+  // compute_block_pitch().
+  float kern_size = ceil(block_xheight * textord_words_default_nonspace);
+  float space_size = floor(block_xheight * textord_words_default_minspace);
+  int num_repeated_sets = 0;
+  box_it.set_to_list(row->blob_list());
+  row_length = row->blob_list()->length();
+  blobindex = 0;
+  if (!box_it.empty()) {
+    if (textord_debug_xheights)
+      tprintf("Running mark_repeated_chars(), row length %d\n", row_length);
+    real_row = new ROW(row, static_cast<inT32>(kern_size),
+                       static_cast<inT32>(space_size));
+    // Use block_xheight, since xheight of the row (used in the ROW()
+    // constructor) might not have been computed yet.
+    real_row->set_x_height(block_xheight);
+    do {
+      bblob = box_it.data();
+      blobcount = 1;
+      search_it = box_it;
+      search_it.forward();
+      matched_blobcount = 1;
+      width_change = MAX_INT16;
+      blob_width = 0;
+      space_width = 0;
+      prev_right = bblob->bounding_box().right();
+      if (bblob->bounding_box().height() * 2 < block_xheight &&
+          !bblob->joined_to_prev() &&
+          (bblob->blob() != NULL || bblob->cblob() != NULL)) {
+        pblob1 = (bblob->cblob() != NULL) ?
+          new PBLOB(bblob->cblob(), block_xheight) : bblob->blob();
+        rating = 0.0f;
+        while (rating < textord_repeat_rating &&
+               blobindex + blobcount < row_length &&
+               ((nextblob = search_it.data())->blob() != NULL ||
+                nextblob->cblob() != NULL) &&
+               nextblob->bounding_box().height() * 2 < block_xheight) {
+          if (blobcount == 1) {
+            space_width = nextblob->bounding_box().left() -
+              bblob->bounding_box().right();
+            blob_width = bblob->bounding_box().width();
+            width_change = blob_width > space_width ? blob_width : space_width;
+            width_change =
+              static_cast<inT32>(width_change * textord_repch_width_variance);
+            if (width_change < 3) width_change = 3;
+          }
+          if (nextblob->bounding_box().width() > blob_width + width_change ||
+              nextblob->bounding_box().width() < blob_width - width_change ||
+              nextblob->bounding_box().left() - prev_right >
+              space_width + width_change ||
+              nextblob->bounding_box().left() - prev_right <
+              space_width - width_change) {
+            break;  // not good enough
+          }
+          if (nextblob->blob() != NULL)
+            rating = tess->compare_blobs(pblob1, real_row,
+                                         nextblob->blob(), real_row);
+          else {
+              pblob2 = new PBLOB(nextblob->cblob(), block_xheight);
+              rating = tess->compare_blobs(pblob1, real_row, pblob2, real_row);
+              delete pblob2;
+          }
+          if (rating < textord_repeat_rating) {
+            blobcount++;
+            search_it.forward();
+            matched_blobcount++;
+            while (blobindex + blobcount < row_length &&
+                   (search_it.data()->joined_to_prev() ||
+                    (search_it.data()->blob() == NULL &&
+                     search_it.data()->cblob() == NULL))) {
+              search_it.forward();
+              blobcount++;     //suck in joined bits
+            }
+          }
+          prev_right = nextblob->bounding_box().right();
+        }
+        if (bblob->cblob() != NULL) delete pblob1;
+      }
+
+      // Record position and length of this run of repeated chars.
+      if (matched_blobcount >= textord_repeat_threshold) {
+        if (textord_debug_xheights) {
+          tprintf("Found %d repeated chars starting at blob index %d\n",
+                  blobcount, blobindex);
+        }
+        blobindex += blobcount;
+        num_repeated_sets++;
+        while (blobcount-- > 0 && !box_it.at_first()) {
+          box_it.data()->set_repeated_set(num_repeated_sets);
+          box_it.forward();
+        }
+      } else {  // just forward box_it to the next blob
+        blobindex += blobcount;
+        box_it.forward();
+      }
+    } while (!box_it.at_first());  // until all done
+
+    if (real_row != NULL) delete real_row;
+  }
+  row->set_num_repeated_sets(num_repeated_sets);
 }

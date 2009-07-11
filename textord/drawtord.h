@@ -39,12 +39,6 @@ void create_to_win(                //make features win
                   );
 void close_to_win();  //make features win
 void create_todebug_win();  //make gradients win
-void plot_blob_list(                      //make gradients win
-                    ScrollView* win,           //window to draw in
-                    BLOBNBOX_LIST *list,  //blob list
-                    ScrollView::Color body_colour,   //colour to draw
-                    ScrollView::Color child_colour   //colour of child
-                   );
 void plot_box_list(                      //make gradients win
                    ScrollView* win,           //window to draw in
                    BLOBNBOX_LIST *list,  //blob list

@@ -16,32 +16,38 @@
  ** limitations under the License.
  *
  **********************************************************************/
-
 #include "mfcpch.h"
 #ifdef __UNIX__
-#include          <assert.h>
+#include <assert.h>
 #endif
-#include          "stderr.h"
-#include          "globaloc.h"
-#include          "tessout.h"
-#include          "blread.h"
-#include          "blobbox.h"
-//#include                                      "lmedsq.h"
-#include          "edgblob.h"
-//#include                                      "adthsh.h"
-#include          "drawtord.h"
-#include          "makerow.h"
-#include          "wordseg.h"
-#include          "ocrclass.h"
-#include          "genblob.h"
-#include          "imgs.h"
-//#include                                      "bairdskw.h"
-#include          "tordmain.h"
-#include          "secname.h"
-#include "pageseg.h"
+#include "stderr.h"
+#include "globaloc.h"
+#include "tessout.h"
+#include "blread.h"
+#include "blobbox.h"
+#include "edgblob.h"
+#include "drawtord.h"
+#include "makerow.h"
+#include "wordseg.h"
+#include "ocrclass.h"
+#include "genblob.h"
+#include "imgs.h"
+#include "tordmain.h"
+#include "secname.h"
+#include "tesseractclass.h"
+
+// Some of the code in this file is dependent upon leptonica. If you don't
+// have it, you don't get this functionality.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+#ifdef HAVE_LIBLEPT
+#include "allheaders.h"
+#endif
 
 const ERRCODE BLOCKLESS_BLOBS = "Warning:some blobs assigned to no block";
 
+#undef EXTERN
 #define EXTERN
 
 EXTERN BOOL_VAR (textord_no_rejects, FALSE, "Don't remove noise blobs");
@@ -74,6 +80,8 @@ EXTERN double_VAR (textord_noise_syfract, 0.2,
 "xh fract error for norm blobs");
 EXTERN double_VAR (textord_noise_sxfract, 0.4,
 "xh fract width error for norm blobs");
+EXTERN double_VAR(textord_noise_hfract, 1.0/64,
+"Height fraction to discard outlines as speckle noise");
 EXTERN INT_VAR (textord_noise_sncount, 1, "super norm blobs to save row");
 EXTERN double_VAR (textord_noise_rowratio, 6.0,
 "Dot to norm ratio for deletion");
@@ -99,130 +107,55 @@ extern BOOL_VAR_H (interactive_mode, TRUE, "Run interactively?");
 extern /*"C" */ ETEXT_DESC *global_monitor;     //progress monitor
 
 /**********************************************************************
- * read_and_textord
+ * find_components
  *
- * Read a file of blocks n blobs and textord them.
+ * Find the C_OUTLINEs of the connected components in each block, put them
+ * in C_BLOBs, and filter them by size, putting the different size
+ * grades on different lists in the matching TO_BLOCK in port_blocks.
  **********************************************************************/
 
-void read_and_textord(                       //read .pb file
-                      const char *filename,  //.pb file
-                      BLOCK_LIST *blocks) {
-  int c;                         //input character
-  FILE *infp;                    //input file
+void find_components(
+                       BLOCK_LIST *blocks,
+                       TO_BLOCK_LIST *land_blocks,
+                       TO_BLOCK_LIST *port_blocks,
+                       TBOX *page_box) {
   BLOCK *block;                  //current block
-  TBOX page_box;                  //bounding_box
-  BLOCK_IT block_it = blocks;    //iterator
-                                 //different orientations
-  TO_BLOCK_LIST land_blocks, port_blocks;
-
-  infp = fopen (filename, "r");
-  if (infp == NULL)
-    CANTOPENFILE.error ("read_and_textord", EXIT, filename);
-
-  while (((c = fgetc (infp)) != EOF) && (ungetc (c, infp) != EOF)) {
-                                 //get one
-    block = BLOCK::de_serialise (infp);
-                                 //add to list
-    block_it.add_after_then_move (block);
-                                 //find page size
-    page_box += block->bounding_box ();
-  }
-  fclose(infp);
-
-  assign_blobs_to_blocks2(blocks, &land_blocks, &port_blocks);
-  filter_blobs (page_box.topright (), &port_blocks, !textord_test_landscape);
-  filter_blobs (page_box.topright (), &land_blocks, textord_test_landscape);
-  textord_page (page_box.topright (), blocks, &land_blocks, &port_blocks);
-}
-
-
-/**********************************************************************
- * edges_and_textord
- *
- * Read a file of blocks n blobs and textord them.
- **********************************************************************/
-
-void edges_and_textord(                       //read .pb file
-                       const char *filename,  //.pb file
-                       BLOCK_LIST *blocks) {
-  BLOCK *block;                  //current block
-  const char *lastdot;           //of name
-  STRING name = filename;        //truncated name
-  ICOORD page_tr;
-  TBOX page_box;                  //bounding_box
   PDBLK_CLIST pd_blocks;         //copy of list
   BLOCK_IT block_it = blocks;    //iterator
   PDBLK_C_IT pd_it = &pd_blocks; //iterator
-                                 //different orientations
-  TO_BLOCK_LIST land_blocks, port_blocks;
   IMAGE thresh_image;            //thresholded
 
-  lastdot = strrchr (name.string (), '.');
-  if (lastdot != NULL)
-    name[lastdot-name.string()] = '\0';
-  if (page_image.get_bpp () == 0) {
-    name += tessedit_image_ext;
-    if (page_image.read_header (name.string ()))
-      CANTOPENFILE.error ("edges_and_textord", EXIT, name.string ());
-    if (page_image.read (0))
-      READFAILED.error ("edges_and_textord", EXIT, name.string ());
-    name = filename;
-    lastdot = strrchr (name.string (), '.');
-    if (lastdot != NULL)
-      name[lastdot-name.string()] = '\0';
+  int width = page_image.get_xsize();
+  int height = page_image.get_ysize();
+  if (width > MAX_INT16 || height > MAX_INT16) {
+    tprintf("Input image too large! (%d, %d)\n", width, height);
+    return;  // Can't handle it.
   }
-  page_tr = ICOORD (page_image.get_xsize (), page_image.get_ysize ());
-  if (!read_pd_file (name, page_image.get_xsize (), page_image.get_ysize (),
-                     blocks))
-    segment_page(blocks);
+
+  ICOORD page_tr(width, height);
   block_it.set_to_list (blocks);
   if (global_monitor != NULL)
     global_monitor->ocr_alive = TRUE;
 
-  if (page_image.get_bpp () > 1) {
-    set_global_loc_code(LOC_ADAPTIVE);
-    for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-    block_it.forward ()) {
-      block = block_it.data ();
-      pd_it.add_after_then_move (block);
-    }
-    //              adaptive_threshold(&page_image,&pd_blocks,&thresh_image);
-    set_global_loc_code(LOC_EDGE_PROG);
-#ifndef EMBEDDED
-    previous_cpu = clock ();
-#endif
-    for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-    block_it.forward ()) {
-      block = block_it.data ();
-      if (!polygon_tess_approximation)
-        invert_image(&page_image);
-#ifndef GRAPHICS_DISABLED
-      extract_edges(NULL, &page_image, &thresh_image, page_tr, block);
-#else
-      extract_edges(&page_image, &thresh_image, page_tr, block);
-#endif
-      page_box += block->bounding_box ();
-    }
-    page_image = thresh_image;   //everyone else gets it
-  }
-  else {
-    set_global_loc_code(LOC_EDGE_PROG);
-    if (!page_image.white_high ())
-      invert_image(&page_image);
+  set_global_loc_code(LOC_EDGE_PROG);
+  if (!page_image.white_high ())
+    invert_image(&page_image);
 
 #ifndef EMBEDDED
-    previous_cpu = clock ();
+  previous_cpu = clock ();
 #endif
 
-    for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-    block_it.forward ()) {
-      block = block_it.data ();
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list();
+       block_it.forward()) {
+    block = block_it.data();
+    if (block->poly_block() == NULL ||
+        block->poly_block()->IsText()) {
 #ifndef GRAPHICS_DISABLED
       extract_edges(NULL, &page_image, &page_image, page_tr, block);
 #else
       extract_edges(&page_image, &page_image, page_tr, block);
 #endif
-      page_box += block->bounding_box ();
+      *page_box += block->bounding_box ();
     }
   }
   if (global_monitor != NULL) {
@@ -230,18 +163,147 @@ void edges_and_textord(                       //read .pb file
     global_monitor->progress = 10;
   }
 
-  assign_blobs_to_blocks2(blocks, &land_blocks, &port_blocks);
+  assign_blobs_to_blocks2(blocks, land_blocks, port_blocks);
   if (global_monitor != NULL)
     global_monitor->ocr_alive = TRUE;
-  filter_blobs (page_box.topright (), &land_blocks, textord_test_landscape);
+  filter_blobs (page_box->topright (), land_blocks, textord_test_landscape);
 #ifndef EMBEDDED
   previous_cpu = clock ();
 #endif
-  filter_blobs (page_box.topright (), &port_blocks, !textord_test_landscape);
+  filter_blobs (page_box->topright (), port_blocks, !textord_test_landscape);
   if (global_monitor != NULL)
     global_monitor->ocr_alive = TRUE;
-  textord_page (page_box.topright (), blocks, &land_blocks, &port_blocks);
 }
+
+/**********************************************************************
+ * SetBlobStrokeWidth
+ *
+ * Set the horizontal and vertical stroke widths in the blob.
+ **********************************************************************/
+void SetBlobStrokeWidth(bool debug, BLOBNBOX* blob) {
+#ifdef HAVE_LIBLEPT
+  // Cut the blob rectangle into a Pix.
+  // TODO(rays) make the page_image a Pix so this is more direct.
+  const TBOX& box = blob->bounding_box();
+  IMAGE blob_im;
+  int width = box.width();
+  int height = box.height();
+  blob_im.create(width, height, 1);
+  copy_sub_image(&page_image, box.left(), box.bottom(), width, height,
+                 &blob_im, 0, 0, false);
+  Pix* pix = blob_im.ToPix();
+  Pix* dist_pix = pixDistanceFunction(pix, 4, 8, L_BOUNDARY_BG);
+  if (debug) {
+    pixWrite("cutpix.png", pix, IFF_PNG);
+    pixWrite("distpix.png", dist_pix, IFF_PNG);
+  }
+  pixDestroy(&pix);
+  // Compute the stroke widths.
+  uinT32* data = pixGetData(dist_pix);
+  int wpl = pixGetWpl(dist_pix);
+  // Horizontal width of stroke.
+  STATS h_stats(0, width + 1);
+  for (int y = 0; y < height; ++y) {
+    uinT32* pixels = data + y*wpl;
+    int prev_pixel = 0;
+    int pixel = GET_DATA_BYTE(pixels, 0);
+    for (int x = 1; x < width; ++x) {
+      int next_pixel = GET_DATA_BYTE(pixels, x);
+      // We are looking for a pixel that is equal to its vertical neighbours,
+      // yet greater than its left neighbour.
+      if (prev_pixel < pixel &&
+          (y == 0 || pixel == GET_DATA_BYTE(pixels - wpl, x - 1)) &&
+          (y == height - 1 || pixel == GET_DATA_BYTE(pixels + wpl, x - 1))) {
+        if (pixel > next_pixel) {
+          // Single local max, so an odd width.
+          h_stats.add(pixel * 2 - 1, 1);
+        } else if (pixel == next_pixel && x + 1 < width &&
+                 pixel > GET_DATA_BYTE(pixels, x + 1)) {
+          // Double local max, so an even width.
+          h_stats.add(pixel * 2, 1);
+        }
+      }
+      prev_pixel = pixel;
+      pixel = next_pixel;
+    }
+  }
+  if (debug) {
+    h_stats.print(stderr, true);
+  }
+  // Vertical width of stroke.
+  STATS v_stats(0, height + 1);
+  for (int x = 0; x < width; ++x) {
+    int prev_pixel = 0;
+    int pixel = GET_DATA_BYTE(data, x);
+    for (int y = 1; y < height; ++y) {
+      uinT32* pixels = data + y*wpl;
+      int next_pixel = GET_DATA_BYTE(pixels, x);
+      // We are looking for a pixel that is equal to its horizontal neighbours,
+      // yet greater than its upper neighbour.
+      if (prev_pixel < pixel &&
+          (x == 0 || pixel == GET_DATA_BYTE(pixels - wpl, x - 1)) &&
+          (x == width - 1 || pixel == GET_DATA_BYTE(pixels - wpl, x + 1))) {
+        if (pixel > next_pixel) {
+          // Single local max, so an odd width.
+          v_stats.add(pixel * 2 - 1, 1);
+        } else if (pixel == next_pixel && y + 1 < height &&
+                 pixel > GET_DATA_BYTE(pixels + wpl, x)) {
+          // Double local max, so an even width.
+          v_stats.add(pixel * 2, 1);
+        }
+      }
+      prev_pixel = pixel;
+      pixel = next_pixel;
+    }
+  }
+  if (debug) {
+    v_stats.print(stderr, true);
+  }
+  pixDestroy(&dist_pix);
+  // Store the horizontal and vertical width in the blob, keeping both
+  // widths if there is enough information, otherwse only the one with
+  // the most samples.
+  // If there are insufficent samples, store zero, rather than using
+  // 2*area/perimeter, as the numbers that gives do not match the numbers
+  // from the distance method.
+  if (debug) {
+    tprintf("box=%d,%d->%d,%d, hcount=%d, vcount=%d, target=%d\n",
+            box.left(), box.bottom(), box.right(), box.top(),
+            h_stats.get_total(), v_stats.get_total(), (width+height) /4);
+    tprintf("hstats median=%f, lq=%f, uq=%f, sd=%f\n",
+            h_stats.median(), h_stats.ile(0.25f), h_stats.ile(0.75f),
+            h_stats.sd());
+    tprintf("vstats median=%f, lq=%f, uq=%f, sd=%f\n",
+            v_stats.median(), v_stats.ile(0.25f), v_stats.ile(0.75f),
+            v_stats.sd());
+
+  }
+  if (h_stats.get_total() >= (width + height) / 4) {
+    blob->set_horz_stroke_width(h_stats.ile(0.5f));
+    if (v_stats.get_total() >= (width + height) / 4)
+      blob->set_vert_stroke_width(v_stats.ile(0.5f));
+    else
+      blob->set_vert_stroke_width(0.0f);
+  } else {
+    if (v_stats.get_total() >= (width + height) / 4 ||
+        v_stats.get_total() > h_stats.get_total()) {
+      blob->set_horz_stroke_width(0.0f);
+      blob->set_vert_stroke_width(v_stats.ile(0.5f));
+    } else {
+      blob->set_horz_stroke_width(h_stats.get_total() > 2 ? h_stats.ile(0.5f)
+                                                          : 0.0f);
+      blob->set_vert_stroke_width(0.0f);
+    }
+  }
+#else
+  // Without leptonica present, use the 2*area/perimeter as an approximation.
+  float width = 2.0f * blob->cblob()->area();
+  width /= blob->cblob()->perimeter();
+  blob->set_horz_stroke_width(width);
+  blob->set_vert_stroke_width(width);
+#endif
+}
+
 
 /**********************************************************************
  * assign_blobs_to_blocks2
@@ -249,39 +311,48 @@ void edges_and_textord(                       //read .pb file
  * Make a list of TO_BLOCKs for portrait and landscape orientation.
  **********************************************************************/
 
-void assign_blobs_to_blocks2(                             //split into groups
-                             BLOCK_LIST *blocks,          //blocks to process
-                             TO_BLOCK_LIST *land_blocks,  //rotated for landscape
-                             TO_BLOCK_LIST *port_blocks   //output list
+void assign_blobs_to_blocks2(                             // split into groups
+                             BLOCK_LIST *blocks,          // blocks to process
+                             TO_BLOCK_LIST *land_blocks,  // ** unused **
+                             TO_BLOCK_LIST *port_blocks   // output list
                             ) {
-  BLOCK *block;                  //current block
-  BLOBNBOX *newblob;             //created blob
-  C_BLOB *blob;                  //current blob
+  BLOCK *block;                  // current block
+  BLOBNBOX *newblob;             // created blob
+  C_BLOB *blob;                  // current blob
   BLOCK_IT block_it = blocks;
-  C_BLOB_IT blob_it;             //iterator
-  BLOBNBOX_IT port_box_it;       //iterator
-                                 //destination iterator
+  C_BLOB_IT blob_it;             // iterator
+  BLOBNBOX_IT port_box_it;       // iterator
+                                 // destination iterator
   TO_BLOCK_IT port_block_it = port_blocks;
-  TO_BLOCK *port_block;          //created block
+  TO_BLOCK *port_block;          // created block
 
-  for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-  block_it.forward ()) {
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     block = block_it.data ();
-    blob_it.set_to_list (block->blob_list ());
-                                 //make one
-    port_block = new TO_BLOCK (block);
-                                 //make one
-    port_box_it.set_to_list (&port_block->blobs);
-    for (blob_it.mark_cycle_pt (); !blob_it.cycled_list ();
-    blob_it.forward ()) {
-      blob = blob_it.extract ();
-                                 //convert blob
-      newblob = new BLOBNBOX (blob);
-                                 //add to list
-      port_box_it.add_after_then_move (newblob);
-                                 //convert blob
+    port_block = new TO_BLOCK(block);
+
+    // Convert the good outlines to block->blob_list
+    port_box_it.set_to_list(&port_block->blobs);
+    blob_it.set_to_list(block->blob_list());
+    for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+      blob = blob_it.extract();
+      newblob = new BLOBNBOX(blob);  // Convert blob to BLOBNBOX.
+      SetBlobStrokeWidth(false, newblob);
+      port_box_it.add_after_then_move(newblob);
     }
-    port_block_it.add_after_then_move (port_block);
+
+    // Put the rejected outlines in block->noise_blobs, which allows them to
+    // be reconsidered and sorted back into rows and recover outlines mistakenly
+    // rejected.
+    port_box_it.set_to_list(&port_block->noise_blobs);
+    blob_it.set_to_list(block->reject_blobs());
+    for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+      blob = blob_it.extract();
+      newblob = new BLOBNBOX(blob);  // Convert blob to BLOBNBOX.
+      SetBlobStrokeWidth(false, newblob);
+      port_box_it.add_after_then_move(newblob);
+    }
+
+    port_block_it.add_after_then_move(port_block);
   }
 }
 
@@ -300,6 +371,8 @@ void filter_blobs(                        //split into groups
   TO_BLOCK_IT block_it = blocks; //destination iterator
   TO_BLOCK *block;               //created block
 
+  if (to_win != NULL)
+    to_win->Clear();
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
   block_it.forward ()) {
     block = block_it.data ();
@@ -317,14 +390,7 @@ void filter_blobs(                        //split into groups
     if (textord_show_blobs && testing_on) {
       if (to_win == NULL)
         create_to_win(page_tr);
-      plot_blob_list (to_win, &block->noise_blobs,
-                      ScrollView::CORAL, ScrollView::BLUE);
-      plot_blob_list (to_win, &block->small_blobs,
-                      ScrollView::GOLDENROD, ScrollView::YELLOW);
-      plot_blob_list (to_win, &block->large_blobs,
-                      ScrollView::DARK_GREEN, ScrollView::YELLOW);
-      plot_blob_list (to_win, &block->blobs,
-                      ScrollView::WHITE, ScrollView::BROWN);
+      block->plot_graded_blobs(to_win);
     }
     if (textord_show_boxes && testing_on) {
       if (to_win == NULL)
@@ -473,18 +539,19 @@ void textord_page(                             //make rows & words
                   ICOORD page_tr,              //top right
                   BLOCK_LIST *blocks,          //block list
                   TO_BLOCK_LIST *land_blocks,  //rotated for landscape
-                  TO_BLOCK_LIST *port_blocks   //output list
+                  TO_BLOCK_LIST *port_blocks,  //output list
+                  tesseract::Tesseract* tess
                  ) {
   float gradient;                //global skew
 
   set_global_loc_code(LOC_TEXT_ORD_ROWS);
-  gradient = make_rows (page_tr, blocks, land_blocks, port_blocks);
+  gradient = make_rows (page_tr, blocks, land_blocks, port_blocks, tess);
   if (global_monitor != NULL) {
     global_monitor->ocr_alive = TRUE;
     global_monitor->progress = 20;
   }
   set_global_loc_code(LOC_TEXT_ORD_WORDS);
-  make_words(page_tr, gradient, blocks, land_blocks, port_blocks);
+  make_words(page_tr, gradient, blocks, land_blocks, port_blocks, tess);
   if (global_monitor != NULL) {
     global_monitor->ocr_alive = TRUE;
     global_monitor->progress = 30;
@@ -496,7 +563,6 @@ void textord_page(                             //make rows & words
   if (textord_exit_after && !interactive_mode)
     exit (0);
 }
-
 
 /**********************************************************************
  * cleanup_blocks
@@ -514,6 +580,7 @@ void cleanup_blocks(                    //remove empties
   block_it.forward ()) {
     row_it.set_to_list (block_it.data ()->row_list ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
+      clean_small_noise_from_words(row_it.data());
       if ((textord_noise_rejrows
         && !row_it.data ()->word_list ()->empty ()
         && clean_noise_from_row (row_it.data ()))
@@ -759,6 +826,40 @@ void clean_noise_from_words(          //remove empties
   free_mem(word_dud);
 }
 
+// Remove outlines that are a tiny fraction in either width or height
+// of the word height.
+void clean_small_noise_from_words(ROW *row) {
+  WERD_IT word_it(row->word_list());
+  for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
+    WERD* word = word_it.data();
+    int min_size = static_cast<int>(
+      textord_noise_hfract * word->bounding_box().height() + 0.5);
+    C_BLOB_IT blob_it(word->cblob_list());
+    for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+      C_BLOB* blob = blob_it.data();
+      C_OUTLINE_IT out_it(blob->out_list());
+      for (out_it.mark_cycle_pt(); !out_it.cycled_list(); out_it.forward()) {
+        C_OUTLINE* outline = out_it.data();
+        outline->RemoveSmallRecursive(min_size, &out_it);
+      }
+      if (blob->out_list()->empty()) {
+        delete blob_it.extract();
+      }
+    }
+    if (word->cblob_list()->empty()) {
+      if (!word_it.at_last()) {
+        // The next word is no longer a fuzzy non space if it was before,
+        // since the word before is about to be deleted.
+        WERD* next_word = word_it.data_relative(1);
+        if (next_word->flag(W_FUZZY_NON)) {
+          next_word->set_flag(W_FUZZY_NON, false);
+        }
+      }
+      delete word_it.extract();
+    }
+  }
+}
+
 
 /**********************************************************************
  * tweak_row_baseline
@@ -905,3 +1006,4 @@ inT32 blob_y_order(              //sort function
       return 0;
   }
 }
+

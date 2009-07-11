@@ -34,6 +34,7 @@
 #include          "wordseg.h"
 #include          "topitch.h"
 #include          "secname.h"
+#include          "tesseractclass.h"
 
 #define EXTERN
 
@@ -55,8 +56,6 @@ EXTERN BOOL_VAR (textord_blockndoc_fixed, FALSE,
 EXTERN double_VAR (textord_projection_scale, 0.200, "Ding rate for mid-cuts");
 EXTERN double_VAR (textord_balance_factor, 1.0,
 "Ding rate for unbalanced char cells");
-EXTERN double_VAR (textord_repch_width_variance, 0.2,
-"Max width change of gap/blob");
 
 #define FIXED_WIDTH_MULTIPLE  5
 #define BLOCK_STATS_CLUSTERS  10
@@ -75,7 +74,8 @@ void compute_fixed_pitch(                             //determine pitch
                          TO_BLOCK_LIST *port_blocks,  //input list
                          float gradient,              //page skew
                          FCOORD rotation,             //for drawing
-                         BOOL8 testing_on             //correct orientation
+                         BOOL8 testing_on,            //correct orientation
+                         tesseract::Tesseract* tess
                         ) {
   TO_BLOCK_IT block_it;          //iterator
   TO_BLOCK *block;               //current block;
@@ -96,7 +96,7 @@ void compute_fixed_pitch(                             //determine pitch
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
   block_it.forward ()) {
     block = block_it.data ();
-    compute_block_pitch(block, rotation, block_index, testing_on);
+    compute_block_pitch(block, rotation, block_index, testing_on, tess);
     block_index++;
   }
 
@@ -122,17 +122,10 @@ void compute_fixed_pitch(                             //determine pitch
       fix_row_pitch(row, block, port_blocks, row_index, block_index);
       row_index++;
     }
-    if (testing_on
-      && ((textord_debug_pitch_test && block->block->text_region () != NULL)
-    || textord_blocksall_fixed || textord_blocksall_prop)) {
-      tprintf ("Corr:");
-      print_block_counts(block, block_index);
-    }
     block_index++;
   }
 #ifndef GRAPHICS_DISABLED
   if (textord_show_initial_words && testing_on) {
-    //overlap_picture_ops(TRUE);
     ScrollView::Update();
   }
 #endif
@@ -146,14 +139,11 @@ void compute_fixed_pitch(                             //determine pitch
  * block, then similar rows over all the page, or any other rows at all.
  **********************************************************************/
 
-void fix_row_pitch(                        //get some value
-                   TO_ROW *bad_row,        //row to fix
-                   TO_BLOCK *bad_block,    //block of bad_row
-                   TO_BLOCK_LIST *blocks,  //blocks to scan
-                   inT32 row_target,       //number of row
-                   inT32 block_target      //number of block
-                  ) {
-  const char *res_string;        //decision on line
+void fix_row_pitch(TO_ROW *bad_row,        // row to fix
+                   TO_BLOCK *bad_block,    // block of bad_row
+                   TO_BLOCK_LIST *blocks,  // blocks to scan
+                   inT32 row_target,       // number of row
+                   inT32 block_target) {   // number of block
   inT16 mid_cuts;
   int block_votes;               //votes in block
   int like_votes;                //votes over page
@@ -268,31 +258,10 @@ void fix_row_pitch(                        //get some value
     }
   }
   if (textord_debug_pitch_metric) {
-    tprintf (":b_votes=%d:l_votes=%d:o_votes=%d",
-      block_votes, like_votes, other_votes);
-    if (bad_row->pitch_decision == PITCH_CORR_PROP
-    || bad_row->pitch_decision == PITCH_DEF_PROP) {
-      res_string = bad_block->block->text_region () != NULL ?
-        (bad_block->block->text_region ()->
-        is_prop ()? "CP" : "WP") : "XP";
-    }
-    else {
-      res_string = bad_block->block->text_region () != NULL ?
-        (bad_block->block->text_region ()->
-        is_prop ()? "WF" : "CF") : "XF";
-    }
-    tprintf (":Blk=%d:Row=%d:%c:",
-      block_target, row_target,
-      bad_block->block->text_region () != NULL ?
-      (bad_block->block->text_region ()->
-      is_prop ()? 'P' : 'F') : 'X');
-    tprintf ("x=%g:asc=%g:corr_res=%s\n", bad_row->xheight,
-      bad_row->ascrise, res_string);
+    tprintf(":b_votes=%d:l_votes=%d:o_votes=%d",
+            block_votes, like_votes, other_votes);
+    tprintf("x=%g:asc=%g\n", bad_row->xheight, bad_row->ascrise);
   }
-  if (textord_pitch_cheat && bad_block->block->text_region () != NULL)
-    bad_row->pitch_decision =
-      bad_block->block->text_region ()->
-      is_prop ()? PITCH_CORR_PROP : PITCH_CORR_FIXED;
   if (bad_row->pitch_decision == PITCH_CORR_FIXED) {
     if (bad_row->fixed_pitch < textord_min_xheight) {
       if (block_votes > 0)
@@ -339,7 +308,8 @@ void compute_block_pitch(                    //process each block
                          TO_BLOCK *block,    //input list
                          FCOORD rotation,    //for drawing
                          inT32 block_index,  //block number
-                         BOOL8 testing_on    //correct orientation
+                         BOOL8 testing_on,   //correct orientation
+                         tesseract::Tesseract* tess
                         ) {
   TBOX block_box;                 //bounding box
 
@@ -362,7 +332,7 @@ void compute_block_pitch(                    //process each block
   if (!block->get_rows ()->empty ()) {
     ASSERT_HOST (block->xheight > 0);
     if (textord_repeat_extraction)
-      find_repeated_chars(block, textord_show_initial_words &&testing_on);
+      find_repeated_chars(block, textord_show_initial_words &&testing_on, tess);
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words && testing_on)
       //overlap_picture_ops(TRUE);
@@ -475,12 +445,6 @@ BOOL8 try_doc_fixed(                             //determine pitch
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
   block_it.forward ()) {
     block = block_it.data ();
-    if (block->block->text_region () != NULL) {
-      if (block->block->text_region ()->is_prop ())
-        prop_blocks++;
-      else
-        fixed_blocks++;
-    }
     row_it.set_to_list (block->get_rows ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
@@ -676,18 +640,10 @@ void print_block_counts(                   //find line stats
                     dunno);
   tprintf ("Block %d has (%d,%d,%d)",
     block_index, def_fixed, maybe_fixed, corr_fixed);
-  if ((textord_blocksall_prop
-    || (block->block->text_region () != NULL
-    && block->block->text_region ()->is_prop ())) && (def_fixed
-    || maybe_fixed
-    || corr_fixed))
+  if (textord_blocksall_prop && (def_fixed || maybe_fixed || corr_fixed))
     tprintf (" (Wrongly)");
   tprintf (" fixed, (%d,%d,%d)", def_prop, maybe_prop, corr_prop);
-  if ((textord_blocksall_fixed
-    || (block->block->text_region () != NULL
-    && !block->block->text_region ()->is_prop ())) && (def_prop
-    || maybe_prop
-    || corr_prop))
+  if (textord_blocksall_fixed && (def_prop || maybe_prop || corr_prop))
     tprintf (" (Wrongly)");
   tprintf (" prop, %d dunno\n", dunno);
 }
@@ -951,14 +907,11 @@ BOOL8 find_row_pitch(                    //find lines
     }
   }
   if (textord_debug_pitch_metric)
-    tprintf ("Blk=%d:Row=%d:%c:p_iqr=%g:g_iqr=%g:dm_p_iqr=%g:dm_g_iqr=%g:%c:",
-      block_index, row_index,
-      block->block->text_region () != NULL ?
-      (block->block->text_region ()->is_prop ()? 'P' : 'F') : 'X',
-    pitch_iqr, gap_iqr, dm_pitch_iqr, dm_gap_iqr,
-    pitch_iqr > maxwidth && dm_pitch_iqr > maxwidth ? 'D'
-    : (pitch_iqr * dm_gap_iqr <=
-    dm_pitch_iqr * gap_iqr ? 'S' : 'M'));
+    tprintf("Blk=%d:Row=%d:%c:p_iqr=%g:g_iqr=%g:dm_p_iqr=%g:dm_g_iqr=%g:%c:",
+            block_index, row_index, 'X',
+            pitch_iqr, gap_iqr, dm_pitch_iqr, dm_gap_iqr,
+            pitch_iqr > maxwidth && dm_pitch_iqr > maxwidth ? 'D' :
+              (pitch_iqr * dm_gap_iqr <= dm_pitch_iqr * gap_iqr ? 'S' : 'M'));
   if (pitch_iqr > maxwidth && dm_pitch_iqr > maxwidth) {
     row->pitch_decision = PITCH_DUNNO;
     if (textord_debug_pitch_metric)
@@ -1826,169 +1779,67 @@ int sort_floats2(                   //qsort function
  * Find 4 or more adjacent chars which are the same and put them
  * into words in advance of fixed pitch checking and word generation.
  **********************************************************************/
-
 void find_repeated_chars(                  //search for equal chars
                          TO_BLOCK *block,  //block to search
-                         BOOL8 testing_on  //dbug mode
+                         BOOL8 testing_on,  //dbug mode
+                         tesseract::Tesseract* tess
                         ) {
-  BOOL8 bol;                     //start of line
-  TO_ROW *row;                   //current row
-  TO_ROW_IT row_it = block->get_rows ();
-  ROW *real_row;                 //output row
-  WERD_IT word_it;               //new words
-  WERD *word;                    //new word
-  BLOBNBOX *bblob;               //current blob
-  BLOBNBOX *nextblob;            //neighbour to compare
-  BLOBNBOX_IT box_it;            //iterator
-  BLOBNBOX_IT search_it;         //forward search
-  inT32 blobcount;               //no of neighbours
-  inT32 matched_blobcount;       //no of matches
-  inT32 blobindex;               //in row
-  inT32 row_length;              //blobs in row
-  inT32 width_change;            //max width change
-  inT32 blob_width;              //required blob width
-  inT32 space_width;             //required gap width
-  inT32 prev_right;              //right edge of last blob
-  float rating;                  //match rating
-  PBLOB *pblob1;                 //polygonal blob
-  PBLOB *pblob2;                 //second blob
-  TBOX word_box;                  //for plotting
+  TO_ROW *row;
+  BLOBNBOX_IT box_it;
+  BLOBNBOX_IT search_it;         // forward search
+  WERD_IT word_it;               // new words
+  WERD *word;                    // new word
+  TBOX word_box;                 // for plotting
+  int blobcount, repeated_set;
 
-  if (row_it.empty ())
-    return;                      //empty block
-  for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    row = row_it.data ();
-    box_it.set_to_list (row->blob_list ());
-    row_length = row->blob_list ()->length ();
-    blobindex = 0;
-    word_it.set_to_list (&row->rep_words);
-    bol = TRUE;
-    if (!box_it.empty ()) {
-      real_row = new ROW (row,
-        (inT16) block->kern_size,
-        (inT16) block->space_size);
-      do {
-        bblob = box_it.data ();
-        blobcount = 1;
-        search_it = box_it;
-        search_it.forward ();
-        matched_blobcount = 1;
-        width_change = MAX_INT16;
-        blob_width = 0;
-        space_width = 0;
-        prev_right = bblob->bounding_box ().right ();
-        if (bblob->bounding_box ().height () * 2 < row->xheight
-          && !bblob->joined_to_prev ()
-        && (bblob->blob () != NULL || bblob->cblob () != NULL)) {
-          if (bblob->cblob () != NULL)
-            pblob1 = new PBLOB (bblob->cblob (), row->xheight);
-          else
-            pblob1 = bblob->blob ();
-
-          rating = 0.0f;
-          while (rating < textord_repeat_rating
-            && blobindex + blobcount < row_length
-            && ((nextblob = search_it.data ())->blob () != NULL
-            || nextblob->cblob () != NULL)
-            && nextblob->bounding_box ().height () * 2 <
-          row->xheight) {
-            if (blobcount == 1) {
-              space_width = nextblob->bounding_box ().left ()
-                - bblob->bounding_box ().right ();
-              blob_width = bblob->bounding_box ().width ();
-              width_change =
-                blob_width >
-                space_width ? blob_width : space_width;
-              width_change =
-                (inT32) (width_change *
-                textord_repch_width_variance);
-              if (width_change < 3)
-                width_change = 3;
-            }
-            if (nextblob->bounding_box ().width () >
-              blob_width + width_change
-              || nextblob->bounding_box ().width () <
-              blob_width - width_change
-              || nextblob->bounding_box ().left () - prev_right >
-              space_width + width_change
-              || nextblob->bounding_box ().left () - prev_right <
-            space_width - width_change) {
-              if (testing_on)
-                tprintf
-                  ("Repch terminated:bw=%d, sw=%d, wc=%d, pr=%d, nb=(%d,%d)\n",
-                  blob_width, space_width, width_change,
-                  prev_right, nextblob->bounding_box ().left (),
-                  nextblob->bounding_box ().right ());
-              break;             //not good enough
-            }
-            if (nextblob->blob () != NULL)
-              rating = compare_blobs (pblob1, real_row,
-                nextblob->blob (), real_row);
-            else {
-              pblob2 =
-                new PBLOB (nextblob->cblob (), row->xheight);
-              rating =
-                compare_blobs(pblob1, real_row, pblob2, real_row);
-              delete pblob2;
-            }
-            if (rating < textord_repeat_rating) {
-              //                                                      if (testing_on)
-              //                                                              tprintf("Blob at (%d,%d)->(%d,%d) had rating %g\n",
-              //                                                                      nextblob->bounding_box().left(),
-              //                                                                      nextblob->bounding_box().bottom(),
-              //                                                                      nextblob->bounding_box().right(),
-              //                                                                      nextblob->bounding_box().top(),
-              //                                                                      rating);
-              blobcount++;
-              search_it.forward ();
-              matched_blobcount++;
-              while (blobindex + blobcount < row_length
-              && (search_it.data ()->joined_to_prev () ||
-                  (search_it.data()->blob() == NULL &&
-                   search_it.data()->cblob() == NULL))) {
-                search_it.forward ();
-                blobcount++;     //suck in joined bits
-              }
-            }
-            prev_right = nextblob->bounding_box ().right ();
-          }
-          if (bblob->cblob () != NULL)
-            delete pblob1;
-
-          if (matched_blobcount >= textord_repeat_threshold) {
-            word =
-              make_real_word (&box_it, blobcount, bol, FALSE, FALSE,
-              1);
-#ifndef GRAPHICS_DISABLED
-            if (testing_on) {
-              word_box = word->bounding_box ();
-              tprintf
-                ("Found repeated word of %d blobs (%d matched) from (%d,%d)->(%d,%d)\n",
-                blobcount, matched_blobcount, word_box.left (),
-                word_box.bottom (), word_box.right (),
-                word_box.top ());
-              //perimeter_color_index(to_win, RED);
-	      to_win->Pen(255,0,0);
-              //interior_style(to_win, INT_HOLLOW, TRUE);
-              to_win->Rectangle(word_box.left (),
-                word_box.bottom (), word_box.right (),
-                word_box.top ());
-            }
-#endif
-            word->set_flag (W_REP_CHAR, TRUE);
-            word->set_flag (W_DONT_CHOP, TRUE);
-            word_it.add_after_then_move (word);
-            blobindex += blobcount;
-          }
-        }
-        bol = FALSE;
-        box_it.forward ();       //next one
-        blobindex++;
-      }
-                                 //until all done
-      while (!box_it.at_first ());
-      delete real_row;
+  TO_ROW_IT row_it = block->get_rows();
+  if (row_it.empty()) return;  // empty block
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+    row = row_it.data();
+    box_it.set_to_list(row->blob_list());
+    if (box_it.empty())  continue; // no blobs in this row
+    if (!row->rep_chars_marked()) {
+      mark_repeated_chars(row, block->xheight, tess);
     }
+    if (row->num_repeated_sets() == 0) continue;  // nothing to do for this row
+    word_it.set_to_list(&row->rep_words);
+    do {
+      if (box_it.data()->repeated_set() != 0 &&
+          !box_it.data()->joined_to_prev()) {
+        blobcount = 1;
+        repeated_set = box_it.data()->repeated_set();
+        search_it = box_it;
+        search_it.forward();
+        while (!search_it.at_first() &&
+               search_it.data()->repeated_set() == repeated_set) {
+          blobcount++;
+          search_it.forward();
+        }
+        // After the call to make_real_word() all the blobs from this
+        // repeated set will be removed from the blob list. box_it will be
+        // set to point to the blob after the end of the extracted sequence.
+        word = make_real_word(&box_it, blobcount,
+                              box_it.at_first(), false, false, 1);
+#ifndef GRAPHICS_DISABLED
+        if (testing_on) {
+          word_box = word->bounding_box();
+          tprintf("Found repeated word of %d blobs from (%d,%d)->(%d,%d)\n",
+                  blobcount, word_box.left(), word_box.bottom(),
+                  word_box.right(), word_box.top());
+          //perimeter_color_index(to_win, RED);
+          to_win->Pen(255,0,0);
+          //interior_style(to_win, INT_HOLLOW, TRUE);
+          to_win->Rectangle(word_box.left(), word_box.bottom(),
+                            word_box.right(), word_box.top());
+        }
+#endif
+        word->set_flag(W_REP_CHAR, true);
+        word->set_flag(W_DONT_CHOP, true);
+        word_it.add_after_then_move(word);
+      } else {
+        box_it.forward();
+      }
+    } while (!box_it.at_first());
   }
 }
 

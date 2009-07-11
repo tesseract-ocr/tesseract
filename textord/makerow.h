@@ -26,12 +26,20 @@
 #include          "blobbox.h"
 #include          "statistc.h"
 #include          "notdll.h"
+#include          "tesseractclass.h"
 
 enum OVERLAP_STATE
 {
   ASSIGN,                        //assign it to row
   REJECT,                        //reject it - dual overlap
   NEW_ROW
+};
+
+enum ROW_CATEGORY {
+  ROW_ASCENDERS_FOUND,
+  ROW_DESCENDERS_FOUND,
+  ROW_UNKNOWN,
+  ROW_INVALID,
 };
 
 extern BOOL_VAR_H (textord_show_initial_rows, FALSE,
@@ -41,7 +49,7 @@ extern BOOL_VAR_H (textord_show_parallel_rows, FALSE,
 extern BOOL_VAR_H (textord_show_expanded_rows, FALSE,
 "Display rows after expanding");
 extern BOOL_VAR_H (textord_show_final_rows, FALSE,
-"Display rows after final fittin");
+"Display rows after final fitting");
 extern BOOL_VAR_H (textord_show_final_blobs, FALSE,
 "Display blob bounds after pre-ass");
 extern BOOL_VAR_H (textord_test_landscape, FALSE, "Tests refer to land/port");
@@ -56,10 +64,6 @@ extern BOOL_VAR_H (textord_old_xheight, TRUE, "Use old xheight algorithm");
 extern BOOL_VAR_H (textord_fix_xheight_bug, TRUE, "Use spline baseline");
 extern BOOL_VAR_H (textord_fix_makerow_bug, TRUE,
 "Prevent multiple baselines");
-extern BOOL_VAR_H (textord_row_xheights, FALSE, "Use row height policy");
-extern BOOL_VAR_H (textord_block_xheights, TRUE, "Use block height policy");
-extern BOOL_VAR_H (textord_xheight_tweak, FALSE,
-"New min condition on height");
 extern BOOL_VAR_H (textord_cblob_blockocc, TRUE,
 "Use new projection for underlines");
 extern BOOL_VAR_H (textord_debug_xheights, FALSE, "Test xheight algorithms");
@@ -100,6 +104,8 @@ extern double_VAR_H (textord_occupancy_threshold, 0.4,
 "Fraction of neighbourhood");
 extern double_VAR_H (textord_underline_width, 2.0,
 "Multiple of line_size for underline");
+extern double_VAR_H(textord_min_blob_height_fraction, 0.75,
+"Min blob height/top to include blob top into xheight stats");
 extern double_VAR_H (textord_xheight_mode_fraction, 0.4,
 "Min pile height to make xheight");
 extern double_VAR_H (textord_ascheight_mode_fraction, 0.15,
@@ -109,11 +115,35 @@ extern double_VAR_H (textord_ascx_ratio_max, 1.7, "Max cap/xheight");
 extern double_VAR_H (textord_descx_ratio_min, 0.15, "Min desc/xheight");
 extern double_VAR_H (textord_descx_ratio_max, 0.6, "Max desc/xheight");
 extern double_VAR_H (textord_xheight_error_margin, 0.1, "Accepted variation");
+
+inline void get_min_max_xheight(double block_linesize,
+                                int *min_height, int *max_height) {
+  *min_height = static_cast<inT32>(floor(block_linesize * textord_minxh));
+  if (*min_height < textord_min_xheight) *min_height = textord_min_xheight;
+  *max_height = static_cast<inT32>(ceil(block_linesize * 3));
+}
+
+inline ROW_CATEGORY get_row_category(const TO_ROW *row) {
+  if (row->xheight <= 0) return ROW_INVALID;
+  return (row->ascrise > 0) ? ROW_ASCENDERS_FOUND :
+    (row->descdrop != 0) ? ROW_DESCENDERS_FOUND : ROW_UNKNOWN;
+}
+
+inline bool within_error_margin(float test, float num, float margin) {
+  return (test >= num * (1 - margin) && test <= num * (1 + margin));
+}
+
+void fill_heights(TO_ROW *row, float gradient, int min_height,
+                  int max_height, STATS *heights, STATS *floating_heights);
+
+float make_single_row(ICOORD page_tr, TO_BLOCK* block,
+                      TO_BLOCK_LIST* blocks, tesseract::Tesseract* tess);
 float make_rows(                             //make rows
                 ICOORD page_tr,              //top right
                 BLOCK_LIST *blocks,          //block list
                 TO_BLOCK_LIST *land_blocks,  //rotated for landscape
-                TO_BLOCK_LIST *port_blocks   //output list
+                TO_BLOCK_LIST *port_blocks,  //output list
+                tesseract::Tesseract* tess
                );
 void make_initial_textrows(                  //find lines
                            ICOORD page_tr,
@@ -135,7 +165,8 @@ void cleanup_rows(                   //find lines
                   float gradient,    //gradient to fit
                   FCOORD rotation,   //for drawing
                   inT32 block_edge,  //edge of block
-                  BOOL8 testing_on   //correct orientation
+                  BOOL8 testing_on,  //correct orientation
+                  tesseract::Tesseract* tess
                  );
 void delete_non_dropout_rows(                   //find lines
                              TO_BLOCK *block,   //block to do
@@ -193,21 +224,29 @@ void compute_row_stats(                  //find lines
                       );
 void compute_block_xheight(                  //find lines
                            TO_BLOCK *block,  //block to do
-                           float gradient    //global skew
+                           float gradient,   //global skew
+                           tesseract::Tesseract* tess
                           );
 float median_block_xheight(                  //find lines
                            TO_BLOCK *block,  //block to do
                            float gradient    //global skew
                           );
-inT32 compute_row_xheight(                   //find lines
-                          TO_ROW *row,       //row to do
-                          inT32 min_height,  //min xheight
-                          inT32 max_height,  //max xheight
-                          float gradient     //global skew
-                         );
-inT32 compute_row_descdrop(                //find lines
-                           TO_ROW *row,    //row to do
-                           float gradient  //global skew
+void compute_row_xheight(                   //find lines
+                         TO_ROW *row,       //row to do
+                         float gradient,    //global skew
+                         int block_height,  //a guess of block xheight
+                         tesseract::Tesseract* tess
+                        );
+
+int compute_xheight_from_modes(
+    STATS *heights, STATS *floating_heights, int min_height,
+    int max_height, float *xheight, float *ascrise);
+
+inT32 compute_row_descdrop(                 // find lines
+                           TO_ROW *row,     // row to do
+                           float gradient,  // global skew
+                           int xheight_blob_count,
+                           STATS *heights
                           );
 inT32 compute_height_modes(                   //find lines
                            STATS *heights,    //stats to search
@@ -249,7 +288,8 @@ void make_spline_rows(                   //find lines
                       float gradient,    //gradient to fit
                       FCOORD rotation,   //for drawing
                       inT32 block_edge,  //edge of block
-                      BOOL8 testing_on   //correct orientation
+                      BOOL8 testing_on,  //correct orientation
+                      tesseract::Tesseract* tess
                      );
 void make_baseline_spline(                 //sort function
                           TO_ROW *row,     //row to fit
@@ -292,4 +332,7 @@ int row_y_order(                    //sort function
 int row_spacing_order(                    //sort function
                       const void *item1,  //items to compare
                       const void *item2);
+
+void mark_repeated_chars(TO_ROW *row, float block_xheight,
+                         tesseract::Tesseract *tess);
 #endif
