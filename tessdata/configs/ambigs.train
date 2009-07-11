@@ -1,0 +1,6 @@
+global_tessedit_ambigs_training	1
+global_freq_dawg_suffix 
+global_punc_dawg_suffix 
+global_system_dawg_suffix       
+global_number_dawg_suffix       
+global_ambigs_debug_level	3
