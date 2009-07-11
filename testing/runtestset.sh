@@ -35,7 +35,7 @@ then
     tess="./tesseract.exe"
   fi
 else
-  tess="ccmain/tesseract"
+  tess="time -f %U -o times.txt ccmain/tesseract"
   export TESSDATA_PREFIX=$PWD/
 fi
 
@@ -43,9 +43,17 @@ pages=$1
 
 imdir=${pages%/pages}
 setname=${imdir##*/}
-resdir=testing/results/$setname
-echo "Testing on set $setname in directory $imdir to $resdir"
+if [ $# -eq 2 -a "$2" = "-zoning" ]
+then
+  config=unlv.auto
+  resdir=testing/results/zoning.$setname
+else
+  config=unlv
+  resdir=testing/results/$setname
+fi
+echo -e "Testing on set $setname in directory $imdir to $resdir\n"
 mkdir -p $resdir
+rm -f testing/reports/$setname.times
 while read page dir
 do
   # A pages file may be a list of files with subdirs or maybe just
@@ -57,5 +65,15 @@ do
      srcdir="$imdir"
   fi
 #  echo "$srcdir/$page.tif"
-  $tess $srcdir/$page.tif $resdir/$page nobatch unlv
+  $tess $srcdir/$page.tif $resdir/$page nobatch $config 2>&1 |grep -v "OCR Engine"
+  if [ -r times.txt ]
+  then
+    read t <times.txt
+    echo "$page $t" >>testing/reports/$setname.times
+    echo -e "\033M$page $t"
+    if [ "$t" = "Command terminated by signal 2" ]
+    then
+      exit 0
+    fi
+  fi
 done <$pages
