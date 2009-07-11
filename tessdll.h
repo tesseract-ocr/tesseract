@@ -25,22 +25,13 @@ typedef BOOL bool;
 #include "ocrclass.h"
 
 
-
-
-#ifdef TESSDLL_EXPORTS
-#define TESSDLL_API __declspec(dllexport)
-#else
-#define TESSDLL_API __declspec(dllimport)
-#endif
-
-
 #ifdef __cplusplus
 
 #include "baseapi.h"
 
 
 //This is an exposed C++
-class TESSDLL_API TessDllAPI : public TessBaseAPI
+class TESSDLL_API TessDllAPI : public tesseract::TessBaseAPI
 {
  public:
   //lang is the code of the language for which the data will be loaded.
@@ -74,10 +65,7 @@ class TESSDLL_API TessDllAPI : public TessBaseAPI
  private:
   int ProcessPagePass1();
 
-  PAGE_RES *page_res;
   unsigned char *membuf;
-  BLOCK_LIST*    block_list;
-
 };
 
 #endif
@@ -87,6 +75,15 @@ extern "C"
 {
 #endif
 
+#ifndef TESSDLL_API
+#ifdef TESSDLL_EXPORTS
+#define TESSDLL_API __declspec(dllexport)
+#elif defined(TESSDLL_IMPORTS)
+#define TESSDLL_API __declspec(dllimport)
+#else
+#define TESSDLL_API
+#endif
+#endif
 
 
 //The functions below provide a c wrapper to a global recognize class object

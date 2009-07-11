@@ -70,13 +70,11 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 
 
 TessDllAPI::TessDllAPI(const char* lang) {
-  const char *fake_argv[] = { "api_config" };
-
   uinT16 oldlang;  //language
 
   ocr_open_shm ("0", "0", "0", "0", "0", "0", &oldlang);
 
-  init_tesseract ("TESSEDIT", "tessapi", lang, 0L, 1, fake_argv);
+  Init(NULL, lang);
 
 
   if (interactive_mode) {
@@ -88,9 +86,6 @@ TessDllAPI::TessDllAPI(const char* lang) {
   tessedit_write_raw_output.set_value(FALSE);
   tessedit_write_txt_map.set_value(FALSE);
 
-
-  page_res=0L;
-  block_list = 0L;
 
   membuf = (unsigned char *) new BYTE[(sizeof (ETEXT_DESC)+32000L*sizeof (EANYCODE_CHAR))];
 }
@@ -109,29 +104,7 @@ int TessDllAPI::BeginPage(uinT32 xsize,uinT32 ysize,unsigned char *buf)
 }
 
 int TessDllAPI::BeginPage(uinT32 xsize,uinT32 ysize,unsigned char *buf,uinT8 bpp) {
-  inT16 c;
-
-  EndPage();
-
-  if (page_image.create (xsize+800, ysize+800, 1)==-1)
-    return 0L;  //make the image bigger to enclose in whitespace
-
-  //copy the passed buffer into the center of the image
-
-  IMAGE tmp;
-
-  tmp.create(xsize, ysize, bpp);
-
-  for (c=0;c<ysize;c++)
-    CopyMemory(tmp.get_buffer ()+(c)*((xsize*bpp + 7)/8),
-               buf+((ysize-1)-c)*((xsize*bpp + 7)/8),((xsize*bpp + 7)/8));
-
-
-  copy_sub_image(&tmp, 0, 0, 0, 0, &page_image, 400, 400, false);
-
-
-
-
+  SetImage(buf, xsize, ysize, bpp/8, (xsize*bpp + 7)/8);
   return ProcessPagePass1();
 }
 int TessDllAPI::BeginPageUpright(uinT32 xsize,uinT32 ysize,unsigned char *buf)
@@ -141,54 +114,27 @@ int TessDllAPI::BeginPageUpright(uinT32 xsize,uinT32 ysize,unsigned char *buf)
 }
 
 int TessDllAPI::BeginPageUpright(uinT32 xsize,uinT32 ysize,unsigned char *buf, uinT8 bpp) {
-
-
-    EndPage();
-
-//It looks like Adaptive thresholding is disabled so this must be a 1 bpp image
-  if (page_image.create (xsize+800, ysize+800, 1)==-1)
-    return 0L;  //make the image bigger to enclose in whitespace
-
-  //copy the passed buffer into the center of the image
-  IMAGE tmp;
-
-  tmp.capture(buf, xsize, ysize, bpp);
-
-
-  copy_sub_image(&tmp, 0, 0, 0, 0, &page_image, 400, 400, true);
-
-
-
+  SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
+  SetImage(buf, xsize, ysize, bpp/8, (xsize*bpp + 7)/8);
   return ProcessPagePass1();
 }
 
 int TessDllAPI::ProcessPagePass1() {
-  STRING pagefile;               //input file
-  static const char *fake_name = "noname.tif";
+  if (page_res_ != NULL)
+    ClearResults();
+  if (FindLines() != 0)
+    return -1;
 
-  //invert just to make it a normal black on white image.
-  invert_image(&page_image);
+  page_res_ = new PAGE_RES(block_list_);
 
-  block_list = new BLOCK_LIST;
-  pagefile = fake_name;
-  pgeditor_read_file(pagefile, block_list);
+  if (page_res_)
+    tesseract_->recog_all_words(page_res_, global_monitor,0L,1);
 
-
-  if (tessedit_resegment_from_boxes)
-    apply_boxes(block_list);
-  page_res = new PAGE_RES(block_list);
-
-  if (page_res)
-    recog_all_words(page_res, global_monitor,0L,1);
-
-  return (page_res!=0);
+  return (page_res_!=0);
 }
 
 void TessDllAPI::EndPage() {
-  if (page_res) delete page_res;
-  page_res=0L;
-  if (block_list) delete block_list;
-  block_list = 0L;
+  ClearResults();
 }
 
 
@@ -210,14 +156,16 @@ ETEXT_DESC * TessDllAPI::Recognize_a_Block(uinT32 left,uinT32 right,
 
   global_monitor = ocr_setup_monitor();
 
-  recog_all_words(page_res, global_monitor,(right==0 ? 0L : &target_word_box),2);
-
+  tesseract_->recog_all_words(page_res_, global_monitor,
+	                          (right==0 ? 0L : &target_word_box), 2);
+/* Disabled for now
   for (i=0;i<global_monitor->count;i++) {
     global_monitor->text[i].left-=400;
     global_monitor->text[i].right-=400;
     global_monitor->text[i].bottom-=400;
     global_monitor->text[i].top-=400;
   }
+*/
 
   global_monitor = 0L;
 

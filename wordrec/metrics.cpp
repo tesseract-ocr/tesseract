@@ -34,8 +34,9 @@
 #include "wordclass.h"
 #include "intmatcher.h"
 #include "freelist.h"
-#include "djmenus.h"
 #include "callcpp.h"
+#include "ndminx.h"
+#include "wordrec.h"
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -114,7 +115,7 @@ void init_metrics() {
 
   end_metrics();
 
-  states_before_best = new_tally (min (100, num_seg_states));
+  states_before_best = new_tally (MIN (100, wordrec_num_seg_states));
 
   best_certainties[0] = new_tally (CERTAINTY_BUCKETS);
   best_certainties[1] = new_tally (CERTAINTY_BUCKETS);
@@ -164,13 +165,13 @@ void record_search_status(int num_states, int before_best, float closeness) {
   inc_tally_bucket(states_before_best, before_best);
 
   if (first_pass) {
-    if (num_states == num_seg_states + 1)
+    if (num_states == wordrec_num_seg_states + 1)
       states_timed_out1++;
     segmentation_states1 += num_states;
     words_segmented1++;
   }
   else {
-    if (num_states == num_seg_states + 1)
+    if (num_states == wordrec_num_seg_states + 1)
       states_timed_out2++;
     segmentation_states2 += num_states;
     words_segmented2++;
@@ -183,16 +184,16 @@ void record_search_status(int num_states, int before_best, float closeness) {
  *
  * Save the summary information into the file "file.sta".
  **********************************************************************/
-void save_summary(inT32 elapsed_time) {
+namespace tesseract {
+void Wordrec::save_summary(inT32 elapsed_time) {
   #ifndef SECURE_NAMES
-  char outfilename[CHARS_PER_LINE];
+  STRING outfilename;
   FILE *f;
   int x;
   int total;
 
-  strcpy(outfilename, imagefile);
-  strcat (outfilename, ".sta");
-  f = open_file (outfilename, "w");
+  outfilename = imagefile + ".sta";
+  f = open_file (outfilename.string(), "w");
 
   fprintf (f, INT32FORMAT " seconds elapsed\n", elapsed_time);
   fprintf (f, "\n");
@@ -254,6 +255,7 @@ void save_summary(inT32 elapsed_time) {
   fclose(f);
   #endif
 }
+}  // namespace tesseract
 
 
 /**********************************************************************
@@ -264,7 +266,6 @@ void save_summary(inT32 elapsed_time) {
  * doing clustering.
  **********************************************************************/
 void record_priorities(SEARCH_RECORD *the_search,
-                       STATE *old_state,
                        FLOAT32 priority_1,
                        FLOAT32 priority_2) {
   record_samples(priority_1, priority_2);
@@ -308,7 +309,7 @@ void save_best_state(CHUNKS_RECORD *chunks_record) {
   int num_joints;
 
   if (save_priorities) {
-    num_joints = matrix_dimension (chunks_record->ratings) - 1;
+    num_joints = chunks_record->ratings->dimension() - 1;
 
     state.part1 = 0xffffffff;
     state.part2 = 0xffffffff;

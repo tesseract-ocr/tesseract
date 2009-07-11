@@ -1,10 +1,12 @@
 #!/bin/bash
-winlist="tessdll.dll tessdll.lib tesseract.exe dlltest.exe training/cnTraining.exe training/mfTraining.exe training/unicharset_extractor.exe training/wordlist2dawg.exe java/ScrollView.jar"
+winlist="tessdll.dll tessdll.lib tesseract.exe dlltest.exe cntraining.exe mftraining.exe unicharset_extractor.exe wordlist2dawg.exe java/ScrollView.jar"
+windeps="glut32.dll jpeg62.dll libimage.dll libpng13.dll librle3.dll libtiff3.dll zlib1.dll leptonlib.dll lib/leptonlib.lib include/*.h dlltest/* tesseract.vcproj tesseract.sln StdAfx.cpp StdAfx.h tessdll.cpp tessdll.h tessdll.vcproj"
 ver=`ls -1rt *[0-9].tar.gz |tail -1`
 ver=${ver%.tar.gz}
-for l in eng deu fra ita spa nld por deu-f vie kan eus
+for l in eng deu fra ita spa nld por vie 
 do
         chmod 644 tessdata/$l.*
         tar --group root --owner root -chozf $ver.$l.tar.gz tessdata/$l.*
 done
 tar chozf $ver.exe.tar.gz $winlist
+tar chozf $ver.windep.tar.gz $windeps

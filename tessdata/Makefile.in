@@ -169,22 +169,44 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-data_DATA = confsets \
-            fra.DangAmbigs fra.freq-dawg fra.inttemp fra.normproto \
-            fra.pffmtable fra.user-words fra.word-dawg fra.unicharset \
-            ita.DangAmbigs ita.freq-dawg ita.inttemp ita.normproto \
-            ita.pffmtable ita.user-words ita.word-dawg ita.unicharset \
-            deu.DangAmbigs deu.freq-dawg deu.inttemp deu.normproto \
-            deu.pffmtable deu.user-words deu.word-dawg deu.unicharset \
-            spa.DangAmbigs spa.freq-dawg spa.inttemp spa.normproto \
-            spa.pffmtable spa.user-words spa.word-dawg spa.unicharset \
-            nld.DangAmbigs nld.freq-dawg nld.inttemp nld.normproto \
-            nld.pffmtable nld.user-words nld.word-dawg nld.unicharset \
-            eng.DangAmbigs eng.freq-dawg eng.inttemp eng.normproto \
-            eng.pffmtable eng.user-words eng.word-dawg eng.unicharset
+data_DATA = bul.traineddata \
+  cat.traineddata \
+  ces.traineddata \
+  chi_sim.traineddata \
+  chi_tra.traineddata \
+  dan.traineddata \
+  deu.traineddata \
+  ell.traineddata \
+  eng.traineddata \
+  fin.traineddata \
+  fra.traineddata \
+  hun.traineddata \
+  ind.traineddata \
+  ita.traineddata \
+  jpn.traineddata \
+  kor.traineddata \
+  lav.traineddata \
+  lit.traineddata \
+  nld.traineddata \
+  nor.traineddata \
+  osd.traineddata \
+  pol.traineddata \
+  por.traineddata \
+  ron.traineddata \
+  rus.traineddata \
+  slk.traineddata \
+  slv.traineddata \
+  spa.traineddata \
+  srp.traineddata \
+  swe.traineddata \
+  tgl.traineddata \
+  tha.traineddata \
+  tur.traineddata \
+  ukr.traineddata \
+  vie.traineddata
 
 SUBDIRS = configs tessconfigs
-EXTRA_DIST = confsets makedummies
+EXTRA_DIST = makedummies
 all: all-recursive
 
 .SUFFIXES:
@@ -512,18 +534,76 @@ uninstall-am: uninstall-dataDATA
 	uninstall-dataDATA
 
 
-eng.DangAmbigs eng.freq-dawg eng.inttemp eng.normproto eng.pffmtable eng.user-words eng.word-dawg eng.unicharset : makedummies
-	$(top_srcdir)/tessdata/makedummies eng
-fra.DangAmbigs fra.freq-dawg fra.inttemp fra.normproto fra.pffmtable fra.user-words fra.word-dawg fra.unicharset : makedummies
-	$(top_srcdir)/tessdata/makedummies fra
-ita.DangAmbigs ita.freq-dawg ita.inttemp ita.normproto ita.pffmtable ita.user-words ita.word-dawg ita.unicharset : makedummies
-	$(top_srcdir)/tessdata/makedummies ita
-deu.DangAmbigs deu.freq-dawg deu.inttemp deu.normproto deu.pffmtable deu.user-words deu.word-dawg deu.unicharset : makedummies
-	$(top_srcdir)/tessdata/makedummies deu
-spa.DangAmbigs spa.freq-dawg spa.inttemp spa.normproto spa.pffmtable spa.user-words spa.word-dawg spa.unicharset : makedummies
-	$(top_srcdir)/tessdata/makedummies spa
-nld.DangAmbigs nld.freq-dawg nld.inttemp nld.normproto nld.pffmtable nld.user-words nld.word-dawg nld.unicharset : makedummies
-	$(top_srcdir)/tessdata/makedummies nld
+bul.traineddata : makedummies
+	touch bul.traineddata
+cat.traineddata : makedummies
+	touch cat.traineddata
+ces.traineddata : makedummies
+	touch ces.traineddata
+chi_sim.traineddata : makedummies
+	touch chi_sim.traineddata
+chi_tra.traineddata : makedummies
+	touch chi_tra.traineddata
+dan.traineddata : makedummies
+	touch dan.traineddata
+deu.traineddata : makedummies
+	touch deu.traineddata
+ell.traineddata : makedummies
+	touch ell.traineddata
+eng.traineddata : makedummies
+	touch eng.traineddata
+fin.traineddata : makedummies
+	touch fin.traineddata
+fra.traineddata : makedummies
+	touch fra.traineddata
+hun.traineddata : makedummies
+	touch hun.traineddata
+ind.traineddata : makedummies
+	touch ind.traineddata
+ita.traineddata : makedummies
+	touch ita.traineddata
+jpn.traineddata : makedummies
+	touch jpn.traineddata
+kor.traineddata : makedummies
+	touch kor.traineddata
+lav.traineddata : makedummies
+	touch lav.traineddata
+lit.traineddata : makedummies
+	touch lit.traineddata
+nld.traineddata : makedummies
+	touch nld.traineddata
+nor.traineddata : makedummies
+	touch nor.traineddata
+osd.traineddata : makedummies
+	touch osd.traineddata
+pol.traineddata : makedummies
+	touch pol.traineddata
+por.traineddata : makedummies
+	touch por.traineddata
+ron.traineddata : makedummies
+	touch ron.traineddata
+rus.traineddata : makedummies
+	touch rus.traineddata
+slk.traineddata : makedummies
+	touch slk.traineddata
+slv.traineddata : makedummies
+	touch slv.traineddata
+spa.traineddata : makedummies
+	touch spa.traineddata
+srp.traineddata : makedummies
+	touch srp.traineddata
+swe.traineddata : makedummies
+	touch swe.traineddata
+tgl.traineddata : makedummies
+	touch tgl.traineddata
+tha.traineddata : makedummies
+	touch tha.traineddata
+tur.traineddata : makedummies
+	touch tur.traineddata
+ukr.traineddata : makedummies
+	touch ukr.traineddata
+vie.traineddata : makedummies
+	touch vie.traineddata
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
