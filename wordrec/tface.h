@@ -1,35 +1,35 @@
+/**********************************************************************
+ * File:        tface.h
+ * Description: C side of the Tess/tessedit C/C++ interface.
+ * Author:		Ray Smith
+ * Created:		Mon Apr 27 11:57:06 BST 1992
+ *
+ * (C) Copyright 1992, Hewlett-Packard Ltd.
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
+ ** http://www.apache.org/licenses/LICENSE-2.0
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
+ ** limitations under the License.
+ *
+ **********************************************************************/
+
 #ifndef TFACE_H
 #define TFACE_H
 
-#include "host.h"
-#include "choicearr.h"
-#include "tessclas.h"
 #include "cutil.h"
+#include "host.h"
+#include "ratngs.h"
+#include "tessclas.h"
+
+extern BOOL_VAR_H(wordrec_no_block, false, "Don't output block information");
 
 /*----------------------------------------------------------------------------
           Function Prototypes
 ----------------------------------------------------------------------------*/
-int start_recog(const char *configfile, const char *imagebase);
-
-void program_editup(const char *configfile);
-
-void program_editup2(const char *imagebase);
-
 void edit_with_ocr(const char *imagename);
 
-int end_recog();
-
-void program_editdown(inT32 elasped_time);
-
-void set_pass1();
-
-void set_pass2();
-
-CHOICES_LIST cc_recog(TWERD *tessword,
-                      A_CHOICE *best_choice,
-                      A_CHOICE *best_raw_choice,
-                      BOOL8 tester,
-                      BOOL8 trainer);
-
-int dict_word(const char *word);
 #endif

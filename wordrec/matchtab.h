@@ -28,7 +28,8 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "choices.h"
+
+#include "ratngs.h"
 #include "tessclas.h"
 
 /*----------------------------------------------------------------------
@@ -37,9 +38,12 @@
 void init_match_table();
 void end_match_table();
 
-void put_match(TBLOB *blob, CHOICES ratings);
+void put_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings);
 
-CHOICES get_match(TBLOB *blob);
+BLOB_CHOICE_LIST *get_match(TBLOB *blob);
 
-CHOICES get_match_by_bounds(unsigned int topleft, unsigned int botright);
+BLOB_CHOICE_LIST *get_match_by_bounds(unsigned int topleft,
+                                      unsigned int botright);
+
+void add_to_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings);
 #endif

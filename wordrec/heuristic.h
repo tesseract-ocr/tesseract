@@ -30,91 +30,25 @@
 ----------------------------------------------------------------------*/
 #include "associate.h"
 #include "bestfirst.h"
+#include "seam.h"
 
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-FLOAT32 prioritize_state(CHUNKS_RECORD *chunks_record,
-                         SEARCH_RECORD *the_search,
-                         STATE *old_state);
+extern INT_VAR_H(segment_adjust_debug, 0,
+       "Segmentation adjustment debug");
+extern BOOL_VAR_H(assume_fixed_pitch_char_segment, 0,
+       "include fixed-pitch heuristics in char segmentation");
+extern BOOL_VAR_H(use_new_state_cost, 0,
+       "use new state cost heuristics for segmentation evaluation");
+extern double_VAR_H(heuristic_segcost_rating_base, 1.25,
+       "base factor for adding segmentation cost into word rating."
+       "It's a multiplying factor, the larger the value above 1, "
+       "the bigger the effect of segmentation cost.");
+extern double_VAR_H(heuristic_weight_rating, 1,
+       "weight associated with char rating in combined cost of state");
+extern double_VAR_H(heuristic_weight_width, 0,
+       "weight associated with width evidence in combined cost of state");
+extern double_VAR_H(heuristic_weight_seamcut, 0,
+       "weight associated with seam cut in combined cost of state");
+extern double_VAR_H(heuristic_max_char_wh_ratio, MAX_SQUAT,
+       "max char width-to-height ratio allowed in segmentation");
 
-FLOAT32 rating_priority(CHUNKS_RECORD *chunks_record,
-                        STATE *state,
-                        STATE *old_state,
-                        int num_joints);
-
-WIDTH_RECORD *state_char_widths(WIDTH_RECORD *chunk_widths,
-                                STATE *state,
-                                int num_joints,
-                                SEARCH_STATE *search_state);
-
-FLOAT32 width_priority(CHUNKS_RECORD *chunks_record,
-                       STATE *state,
-                       int num_joints);
-
-/*
-#if defined(__STDC__) || defined(__cplusplus) || MAC_OR_DOS
-# define	_ARGS(s) s
-#else
-# define	_ARGS(s) ()
-#endif*/
-
-/* heuristic.c
-PROBABILITY best_char_rating
-  _ARGS((CHUNKS_RECORD *chunks_record,
-  int first_chunk,
-  int last_chunk,
-  char *word));
-
-STATE *first_segmentation
-  _ARGS((CHUNKS_RECORD *chunks_record));
-
-FLOAT32 gap_priority
-  _ARGS((CHUNKS_RECORD *chunks_record,
-  STATE *state,
-  int num_joints));
-
-FLOAT32 match_priority
-  _ARGS((CHUNKS_RECORD *chunks_record,
-  STATE *state,
-  STATE *old_state,
-  int num_joints));
-
-FLOAT32 frequency_priority
-  _ARGS((STATE *state,
-  STATE *old_state,
-  int num_joints));
-
-STATE *pick_good_segmentation
-  _ARGS((CHUNKS_RECORD *chunks_record));
-
-void print_widths
-  _ARGS((FILE *file,
-  char *string,
-  WIDTH_RECORD *width_array));
-
-FLOAT32 prioritize_state
-  _ARGS((CHUNKS_RECORD *chunks_record,
-  SEARCH_RECORD *the_search,
-  STATE *old_state));
-
-FLOAT32 rating_priority
-  _ARGS((CHUNKS_RECORD *chunks_record,
-  STATE *state,
-  STATE *old_state,
-  int num_joints));
-
-WIDTH_RECORD *state_char_widths
-  _ARGS((WIDTH_RECORD *chunk_widths,
-  STATE *state,
-  int num_joints,
-  SEARCH_STATE *search_state));
-
-FLOAT32 width_priority
-  _ARGS((CHUNKS_RECORD *chunks_record,
-  STATE *state,
-  int num_joints));
-
-#undef _ARGS
-*/
 #endif

@@ -41,7 +41,7 @@ BOOL_VAR (tessedit_save_stats, FALSE, "Save final recognition statistics");
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-void PrintBadWords(FILE *File) { 
+void PrintBadWords(FILE *File) {
 /*
  **	Parameters:
  **		File		open text file to print bad words to
@@ -64,7 +64,7 @@ void PrintBadWords(FILE *File) {
   while (GetTopOfHeap (BadWords, &NextWord) != EMPTY) {
     fprintf (File, "%16s %6.2f\n", (const char *) NextWord.Data,
       NextWord.Key);
-    c_free_string ((char *) NextWord.Data);
+    free_string ((char *) NextWord.Data);
   }
   fprintf (File, "\n");
 
@@ -72,7 +72,7 @@ void PrintBadWords(FILE *File) {
 
 
 /*---------------------------------------------------------------------------*/
-void SaveBadWord(const char *Word, FLOAT32 Certainty) { 
+void SaveBadWord(const char *Word, FLOAT32 Certainty) {
 /*
  **	Parameters:
  **		Word		bad word to be saved
@@ -93,14 +93,14 @@ void SaveBadWord(const char *Word, FLOAT32 Certainty) {
 
   if (BadWords == NULL) {
     BadWords = MakeHeap (MAX_NUM_BAD_WERDS);
-    InitHeap(BadWords); 
+    InitHeap(BadWords);
   } else if (HeapFull(BadWords)) {
     return;
   }
 
   NewWord.Key = Certainty;
-  NewWord.Data = c_alloc_string (strlen (Word) + 1);
+  NewWord.Data = alloc_string (strlen (Word) + 1);
   strcpy ((char *) NewWord.Data, Word);
-  HeapStore(BadWords, &NewWord); 
+  HeapStore(BadWords, &NewWord);
 
 }                                /* SaveBadWord */

@@ -18,34 +18,14 @@
 #include "blobclass.h"
 #include "extract.h"
 #include "adaptmatch.h"
+#include "wordrec.h"
 
 /**----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
-void mfeature_variables() { 
-/*
- **	Parameters: none
- **	Globals: none
- **	Operation: Install global variables into the wiseowl variable system.
- **	Return: none
- **	Exceptions: none
- **	History: Fri Jan 12 13:17:07 1990, DSJ, Created.
- */
-  InitBlobClassifierVars(); 
-  InitExtractorVars(); 
-}                                /* mfeature_variables */
-
-
-/*---------------------------------------------------------------------------*/
-void mfeature_init() { 
-/*
- **	Parameters: none
- **	Globals: none
- **	Operation: none
- **	Return: none
- **	Exceptions: none
- **	History: Fri Jan 12 13:22:41 1990, DSJ, Created.
- */
-  InitAdaptiveClassifier(); 
-}                                /* mfeature_init */
+namespace tesseract {
+void Wordrec::mfeature_init() {
+  SetupExtractors();
+  InitAdaptiveClassifier();
+}
+}

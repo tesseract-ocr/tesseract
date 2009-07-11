@@ -19,28 +19,18 @@
 #ifndef TESSINIT_H
 #define TESSINIT_H
 
-/*---------------------------------------------------------------------------
-        Public Function Prototypes
-----------------------------------------------------------------------------*/
-void program_variables(); 
-
-void program_init(); 
-
-void program_init _ARGS ((void));
-
-void program_variables _ARGS ((void));
+#include "varable.h"
 
 #undef _ARGS
-
-//extern int imagescale;
-//extern int edgescale;
-
-extern int corner_0;
-extern int corner_1;
-extern int corner_2;
-extern int corner_3;
-
 extern int row_number;
-
 extern FILE *boxfp;
+
+/*---------------------------------------------------------------------------
+        Variables
+----------------------------------------------------------------------------*/
+extern INT_VAR_H(wordrec_corner_0, "corner_0", 0);
+extern INT_VAR_H(wordrec_corner_1, "corner_1", 0);
+extern INT_VAR_H(wordrec_corner_2, "corner_2", 2550);
+extern INT_VAR_H(wordrec_corner_3, "corner_3", 3508);
+
 #endif

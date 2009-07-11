@@ -25,8 +25,8 @@
 #ifndef WERDCLASSH
 #define WERDCLASSH
 
-#include "choices.h"
 #include "callcpp.h"
+#include "ratngs.h"
 #include "states.h"
 #include "tessclas.h"
 
@@ -38,27 +38,9 @@ extern inT16 first_pass;
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-CHOICES classify_blob(TBLOB *pblob,
-                      TBLOB *blob,
-                      TBLOB *nblob,
-                      TEXTROW *row,
-                      int fx,
-                      const char *string,
-                      C_COL color,
-                      STATE *this_state,
-                      STATE *best_state,
-                      inT32 pass,
-                      inT32 blob_index);
-
 void write_text_files(TWERD *word,
                       char *raw_choice,
                       int same_row,
                       int good_word,
                       int firstpass);
-
-void save_answer(TWERD *word,
-                 TEXTROW *row,
-                 A_CHOICE *best_choice,
-                 A_CHOICE *raw_choice,
-                 int firstpass);
 #endif

@@ -26,92 +26,35 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "matrix.h"
-#include "cutil.h"
-#include "freelist.h"
+
+#include "ratngs.h"
+#include "unicharset.h"
 #include "callcpp.h"
 
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-/**********************************************************************
- * create_matrix
- *
- * Allocate a piece of memory to hold a matrix of choice list pointers.
- * initialize all the elements of the matrix to NULL.
- **********************************************************************/
-MATRIX create_matrix(int dimension) {
-  MATRIX m;
-  int x;
-  int y;
+// Print the best guesses out of the match rating matrix.
+void MATRIX::print(const UNICHARSET &current_unicharset) {
+  cprintf("Ratings Matrix (top choices)\n");
 
-  m = (MATRIX) memalloc ((dimension * dimension + 1) * sizeof (LIST));
-  m[0] = (LIST) dimension;
-  for (x = 0; x < dimension; x++)
-    for (y = 0; y < dimension; y++)
-      matrix_put(m, x, y, NOT_CLASSIFIED);
-  return (m);
-}
-
-
-/**********************************************************************
- * free_matrix
- *
- * Deallocate the memory taken up by a matrix of match ratings.
- *********************************************************************/
-void free_matrix(MATRIX matrix) {
-  int x;
-  int y;
-  int dimension = matrix_dimension (matrix);
-  CHOICES matrix_cell;
-
-  for (x = 0; x < dimension; x++) {
-    for (y = 0; y < dimension; y++) {
-      matrix_cell = matrix_get (matrix, x, y);
-      if (matrix_cell != NOT_CLASSIFIED)
-        free_choices(matrix_cell);
-    }
-  }
-  memfree(matrix);
-}
-
-
-/**********************************************************************
- * print_matrix
- *
- * Print the best guesses out of the match rating matrix.
- **********************************************************************/
-void print_matrix(MATRIX rating_matrix) {
-  int x;
-  int dimension;
-  int spread;
-  CHOICES rating;
-
-  cprintf ("Ratings Matrix (top choices)\n");
-
-  dimension = matrix_dimension (rating_matrix);
   /* Do each diagonal */
-  for (spread = 0; spread < dimension; spread++) {
+  for (int spread = 0; spread < this->dimension(); spread++) {
     /* For each spot */
-    for (x = 0; x < dimension - spread; x++) {
+    for (int x = 0; x < this->dimension() - spread; x++) {
       /* Process one square */
-      rating = matrix_get (rating_matrix, x, x + spread);
-
+      BLOB_CHOICE_LIST *rating = this->get(x, x + spread);
       if (rating != NOT_CLASSIFIED) {
-        cprintf ("\t[%d,%d] : ", x, x + spread);
-        if (first_node (rating))
-          cprintf ("%-10s%4.0f\t|\t",
-            class_string (first_node (rating)),
-            class_probability (first_node (rating)));
-        if (second_node (rating))
-          cprintf ("%-10s%4.0f\t|\t",
-            class_string (second_node (rating)),
-            class_probability (second_node (rating)));
-        if (third (rating))
-          cprintf ("%-10s%4.0f\n",
-            class_string (third (rating)),
-            class_probability (third (rating)));
-        else
-          new_line();
+        cprintf("\t[%d,%d] : ", x, x + spread);
+        // Print first 3 BLOB_CHOICES from ratings.
+        BLOB_CHOICE_IT rating_it;
+        rating_it.set_to_list(rating);
+        int count = 0;
+        for (rating_it.mark_cycle_pt();
+             count < 3 && !rating_it.cycled_list();
+             ++count, rating_it.forward()) {
+          UNICHAR_ID unichar_id = rating_it.data()->unichar_id();
+          cprintf("%-10s%4.0f%s", current_unicharset.id_to_unichar(unichar_id),
+                  rating_it.data()->rating(),
+                  (!rating_it.at_last() && count+1 < 3) ? "\t|\t" : "\n");
+        }
       }
     }
   }

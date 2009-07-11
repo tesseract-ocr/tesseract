@@ -73,7 +73,7 @@ void draw_blob_edges(TBLOB *blob) {
   TESSLINE *ol;
   LIST edge_list = NIL;
 
-  if (display_splits) {
+  if (wordrec_display_splits) {
     for (ol = blob->outlines; ol != NULL; ol = ol->next)
       push_on (edge_list, ol->loop);
     display_edgepts(edge_list);

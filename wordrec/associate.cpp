@@ -33,17 +33,18 @@
 #endif
 
 #include "associate.h"
-#include "debug.h"
 #include "callcpp.h"
 
-extern TBLOB *newblob(); 
+extern TBLOB *newblob();
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
 
-make_toggle_var (enable_assoc, 1, make_enable_assoc,
-9, 4, toggle_assoc, "Associator Enable");
+BOOL_VAR(wordrec_enable_assoc, 1, "Associator Enable");
+BOOL_VAR(force_word_assoc, FALSE,
+         "always force associator to run, independent of what enable_assoc is."
+         "This is used for CJK where component grouping is necessary.");
 
 EVALUATION_ARRAY last_segmentation;
 
@@ -52,11 +53,11 @@ EVALUATION_ARRAY last_segmentation;
 ----------------------------------------------------------------------*/
 
 /**********************************************************************
- * init_associate_vars
- *
- * Create and initialize references to debug variables that control
- * operations in this file.
+ * print_eval_record
  **********************************************************************/
-void init_associate_vars() { 
-  make_enable_assoc(); 
+void print_eval_record(const char *label, EVALUATION_RECORD *rec) {
+  if (rec) {
+    cprintf ("%s: r%.2f c%.2f width=%d gap=%d\n", label,
+             rec->match, rec->certainty, rec->width, rec->gap);
+  }
 }

@@ -45,7 +45,8 @@ typedef LIST SPLITS;             /*  SPLITS  */
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern int display_splits;
+
+extern BOOL_VAR_H(wordrec_display_splits, 0, "Display splits");
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -67,49 +68,16 @@ else                                                         \
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void init_splitter_vars(); 
+void delete_split(SPLIT *split);
 
-void delete_split(SPLIT *split); 
+EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev);
 
-EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev); 
+SPLIT *new_split(EDGEPT *point1, EDGEPT *point2);
 
-SPLIT *new_split(EDGEPT *point1, EDGEPT *point2); 
+void print_split(SPLIT *split);
 
-void print_split(SPLIT *split); 
+void split_outline(EDGEPT *join_point1, EDGEPT *join_point2);
 
-void split_outline(EDGEPT *join_point1, EDGEPT *join_point2); 
+void unsplit_outlines(EDGEPT *p1, EDGEPT *p2);
 
-void unsplit_outlines(EDGEPT *p1, EDGEPT *p2); 
-
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define	_ARGS(s) s
-#else
-# define	_ARGS(s) ()
-#endif*/
-
-/* split.c
-void init_splitter_vars
-  _ARGS((void));
-
-void delete_split
-  _ARGS((SPLIT *split));
-
-SPLIT *new_split
-  _ARGS((EDGEPT *point1,
-  EDGEPT *point2));
-
-void print_split
-  _ARGS((SPLIT *split));
-
-void split_outline
-  _ARGS((EDGEPT *join_point1,
-  EDGEPT *join_point2));
-
-void unsplit_outlines
-  _ARGS((EDGEPT *p1,
-  EDGEPT *p2));
-
-#undef _ARGS
-*/
 #endif

@@ -43,7 +43,6 @@
 #define MAX_OLD_SEAMS          150
 #define NO_FULL_PRIORITY       -1/* Special marker for pri. */
                                  /* Evalute right away */
-#define GOOD_PARTIAL_PRIORITY  good_split
 #define BAD_PRIORITY           9999.0
 
 /*----------------------------------------------------------------------
@@ -188,7 +187,7 @@ void choose_best_seam(SEAM_QUEUE seam_queue,
       print_seam ("Partial priority    ", seam);
     add_seam_to_queue (seam_queue, seam, (float) my_priority);
 
-    if (my_priority > GOOD_PARTIAL_PRIORITY)
+    if (my_priority > chop_good_split)
       return;
   }
 
@@ -203,7 +202,7 @@ void choose_best_seam(SEAM_QUEUE seam_queue,
     }
 
     if ((*seam_result == NULL || /* Replace answer */
-    (*seam_result)->priority > my_priority) && my_priority < ok_split) {
+    (*seam_result)->priority > my_priority) && my_priority < chop_ok_split) {
       /* No crossing */
       if (constrained_split (seam->split1, blob)) {
         delete_seam(*seam_result);
@@ -217,7 +216,7 @@ void choose_best_seam(SEAM_QUEUE seam_queue,
       }
     }
 
-    if (my_priority < good_split) {
+    if (my_priority < chop_good_split) {
       if (seam)
         delete_seam(seam);
       return;                    /* Made good answer */
@@ -235,8 +234,8 @@ void choose_best_seam(SEAM_QUEUE seam_queue,
     }
 
     my_priority = best_seam_priority (seam_queue);
-    if ((my_priority > ok_split) ||
-      (my_priority > GOOD_PARTIAL_PRIORITY && split))
+    if ((my_priority > chop_ok_split) ||
+      (my_priority > chop_good_split && split))
       return;
   }
 }
@@ -283,7 +282,7 @@ void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam) {
     dist = seam->location - this_one->location;
     if (-SPLIT_CLOSENESS < dist &&
       dist < SPLIT_CLOSENESS &&
-    seam->priority + this_one->priority < ok_split) {
+    seam->priority + this_one->priority < chop_ok_split) {
       inT16 split1_point1_y = this_one->split1->point1->pos.y;
       inT16 split1_point2_y = this_one->split1->point2->pos.y;
       inT16 split2_point1_y = 0;
@@ -383,7 +382,7 @@ SEAM *pick_good_seam(TBLOB *blob) {
 
 #ifndef GRAPHICS_DISABLED
   if (chop_debug > 2)
-    display_splits = TRUE;
+    wordrec_display_splits.set_value(true);
 
   draw_blob_edges(blob);
 #endif
@@ -409,7 +408,7 @@ SEAM *pick_good_seam(TBLOB *blob) {
   if (seam == NULL) {
     choose_best_seam(seam_queue, &seam_pile, NULL, BAD_PRIORITY, &seam, blob);
   }
-  else if (seam->priority > good_split) {
+  else if (seam->priority > chop_good_split) {
     choose_best_seam (seam_queue, &seam_pile, NULL, seam->priority,
       &seam, blob);
   }
@@ -417,12 +416,12 @@ SEAM *pick_good_seam(TBLOB *blob) {
   delete_seam_pile(seam_pile);
 
   if (seam) {
-    if (seam->priority > ok_split) {
+    if (seam->priority > chop_ok_split) {
       delete_seam(seam);
       seam = NULL;
     }
 #ifndef GRAPHICS_DISABLED
-    else if (display_splits) {
+    else if (wordrec_display_splits) {
       if (seam->split1)
         mark_split (seam->split1);
       if (seam->split2)
@@ -438,7 +437,7 @@ SEAM *pick_good_seam(TBLOB *blob) {
   }
 
   if (chop_debug)
-    display_splits = FALSE;
+    wordrec_display_splits.set_value(false);
 
   return (seam);
 }
@@ -501,19 +500,18 @@ SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
     for (y = x + 1; y < num_points; y++) {
 
       if (points[y] &&
-        weighted_edgept_dist (points[x], points[y],
-        x_y_weight) < split_length &&
-        points[x] != points[y]->next &&
-        points[y] != points[x]->next &&
-        !is_exterior_point (points[x], points[y]) &&
-      !is_exterior_point (points[y], points[x])) {
-
+          weighted_edgept_dist(points[x], points[y],
+                               chop_x_y_weight) < chop_split_length &&
+          points[x] != points[y]->next &&
+          points[y] != points[x]->next &&
+          !is_exterior_point(points[x], points[y]) &&
+          !is_exterior_point(points[y], points[x])) {
         split = new_split (points[x], points[y]);
         priority = partial_split_priority (split);
 
         choose_best_seam(seam_queue, seam_pile, split, priority, seam, blob);
 
-        if (*seam && (*seam)->priority < good_split)
+        if (*seam && (*seam)->priority < chop_good_split)
           return;
       }
     }
@@ -542,7 +540,7 @@ SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
 
   for (x = 0; x < num_points; x++) {
 
-    if (*seam != NULL && (*seam)->priority < good_split)
+    if (*seam != NULL && (*seam)->priority < chop_good_split)
       return;
 
     vertical_point = NULL;
@@ -554,8 +552,8 @@ SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
     if (vertical_point &&
       points[x] != vertical_point->next &&
       vertical_point != points[x]->next &&
-      weighted_edgept_dist (points[x], vertical_point,
-    x_y_weight) < split_length) {
+      weighted_edgept_dist(points[x], vertical_point,
+                           chop_x_y_weight) < chop_split_length) {
 
       split = new_split (points[x], vertical_point);
       priority = partial_split_priority (split);

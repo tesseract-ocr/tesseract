@@ -26,12 +26,16 @@
           I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "pieces.h"
-#include "plotseg.h"
-#include "hideedge.h"
-#include "wordclass.h"
-#include "freelist.h"
+
 #include "blobs.h"
+#include "freelist.h"
+#include "hideedge.h"
 #include "matchtab.h"
+#include "ndminx.h"
+#include "plotseg.h"
+#include "ratngs.h"
+#include "wordclass.h"
+#include "wordrec.h"
 
 /*----------------------------------------------------------------------
           M a c r o s
@@ -250,10 +254,10 @@ void bounds_of_piece(BOUNDS_LIST bounds,
   for (x = start + 1; x <= end; x++) {
     get_bounds_entry(bounds, x, topleft, botright);
 
-    extreme_tl->x = min (topleft.x, extreme_tl->x);
-    extreme_tl->y = max (topleft.y, extreme_tl->y);
-    extreme_br->x = max (botright.x, extreme_br->x);
-    extreme_br->y = min (botright.y, extreme_br->y);
+    extreme_tl->x = MIN (topleft.x, extreme_tl->x);
+    extreme_tl->y = MAX (topleft.y, extreme_tl->y);
+    extreme_br->x = MAX (botright.x, extreme_br->x);
+    extreme_br->y = MIN (botright.y, extreme_br->y);
   }
 }
 
@@ -265,17 +269,13 @@ void bounds_of_piece(BOUNDS_LIST bounds,
  * it and return the results.  Take the large piece apart to leave
  * the collection of small pieces un modified.
  **********************************************************************/
-CHOICES classify_piece(TBLOB *pieces,
-                       SEAMS seams,
-                       inT16 start,
-                       inT16 end,
-                       inT32 fx,
-                       STATE *this_state,
-                       STATE *best_state,
-                       inT32 pass,
-                       inT32 blob_index) {
+namespace tesseract {
+BLOB_CHOICE_LIST *Wordrec::classify_piece(TBLOB *pieces,
+                                          SEAMS seams,
+                                          inT16 start,
+                                          inT16 end) {
   STATE current_state;
-  CHOICES choices;
+  BLOB_CHOICE_LIST *choices;
   TBLOB *pblob;
   TBLOB *blob;
   TBLOB *nblob;
@@ -291,12 +291,11 @@ CHOICES classify_piece(TBLOB *pieces,
   }
   for (nblob = blob->next; x < end; x++)
     nblob = nblob->next;
-  choices = classify_blob (pblob, blob, nblob, NULL, fx, "pieces:", White,
-    this_state, best_state, pass, blob_index);
+  choices = classify_blob (pblob, blob, nblob, NULL, "pieces:", White);
 
   break_pieces(blob, seams, start, end);
 #ifndef GRAPHICS_DISABLED
-  if (display_segmentations > 2) {
+  if (wordrec_display_segmentations > 2) {
     chunk_groups = bin_to_chunks (&current_state, array_count (seams));
     display_segmentation(pieces, chunk_groups);
     window_wait(segm_window);
@@ -316,34 +315,22 @@ CHOICES classify_piece(TBLOB *pieces,
  * pieces, classify it, store the rating for later, and take the piece
  * apart again.
  **********************************************************************/
-CHOICES get_piece_rating(MATRIX ratings,
-                         TBLOB *blobs,
-                         SEAMS seams,
-                         inT16 start,
-                         inT16 end,
-                         inT32 fx,
-                         STATE *this_state,
-                         STATE *best_state,
-                         inT32 pass,
-                         inT32 blob_index) {
-  CHOICES choices;
-
-  choices = matrix_get (ratings, start, end);
+BLOB_CHOICE_LIST *Wordrec::get_piece_rating(MATRIX *ratings,
+                                            TBLOB *blobs,
+                                            SEAMS seams,
+                                            inT16 start,
+                                            inT16 end) {
+  BLOB_CHOICE_LIST *choices = ratings->get(start, end);
   if (choices == NOT_CLASSIFIED) {
-    choices =
-      classify_piece(blobs,
-                     seams,
-                     start,
-                     end,
-                     fx,
-                     this_state,
-                     best_state,
-                     pass,
-                     blob_index);
-    matrix_put(ratings, start, end, choices);
+    choices = classify_piece(blobs,
+                             seams,
+                             start,
+                             end);
+    ratings->put(start, end, choices);
   }
   return (choices);
 }
+}  // namespace tesseract
 
 
 /**********************************************************************
@@ -378,7 +365,7 @@ BOUNDS_LIST record_blob_bounds(TBLOB *blobs) {
  * matrix is created.  The indices correspond to the starting and
  * ending initial piece number.
  **********************************************************************/
-MATRIX record_piece_ratings(TBLOB *blobs) {
+MATRIX *record_piece_ratings(TBLOB *blobs) {
   BOUNDS_LIST bounds;
   inT16 num_blobs;
   inT16 x;
@@ -387,12 +374,12 @@ MATRIX record_piece_ratings(TBLOB *blobs) {
   TPOINT tp_botright;
   unsigned int topleft;
   unsigned int botright;
-  MATRIX ratings;
-  CHOICES choices;
+  MATRIX *ratings;
+  BLOB_CHOICE_LIST *choices;
 
   bounds = record_blob_bounds (blobs);
   num_blobs = count_blobs (blobs);
-  ratings = create_matrix (num_blobs);
+  ratings = new MATRIX(num_blobs);
 
   for (x = 0; x < num_blobs; x++) {
     for (y = x; y < num_blobs; y++) {
@@ -400,8 +387,8 @@ MATRIX record_piece_ratings(TBLOB *blobs) {
       topleft = *(unsigned int *) &tp_topleft;
       botright = *(unsigned int *) &tp_botright;
       choices = get_match_by_bounds (topleft, botright);
-      if (choices != NIL) {
-        matrix_put(ratings, x, y, choices);
+      if (choices != NULL) {
+        ratings->put(x, y, choices);
       }
     }
   }

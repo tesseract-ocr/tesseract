@@ -62,9 +62,9 @@ typedef struct
   int gap;
 } EVALUATION_RECORD;
 
-typedef struct
+struct CHUNKS_RECORD
 {                                /* Classification info */
-  MATRIX ratings;                /* for chunks */
+  MATRIX *ratings;               /* for chunks */
   TBLOB *chunks;
   SEAMS splits;
   TEXTROW *row;
@@ -73,21 +73,24 @@ typedef struct
   WIDTH_RECORD *chunk_widths;
   WIDTH_RECORD *char_widths;
   inT16 *weights;
-} CHUNKS_RECORD;
+};
 
                                  /* Each segmentation */
 typedef EVALUATION_RECORD EVALUATION_ARRAY[MAX_NUM_CHUNKS];
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
-                                                                                                                                                                                                                                                                                                                                                                                                ----------------------------------------------------------------------*//* Debug vars */
-extern int enable_assoc;
+----------------------------------------------------------------------*/
 extern EVALUATION_ARRAY last_segmentation;
 extern WIDTH_RECORD *char_widths;
-extern int enable_assoc;
+extern BOOL_VAR_H(wordrec_enable_assoc, 1, "Associator Enable");
+extern BOOL_VAR_H(force_word_assoc, FALSE,
+       "always force associator to run, independent of what enable_assoc is."
+       "This is used for CJK where component grouping is necessary.");
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 void init_associate_vars();
+void print_eval_record(const char* label, EVALUATION_RECORD *eval_rec);
 #endif

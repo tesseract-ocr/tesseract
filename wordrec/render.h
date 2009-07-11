@@ -34,9 +34,12 @@
 ----------------------------------------------------------------------*/
 extern ScrollView *blob_window;        /* Window for blobs */
 extern C_COL color_list[];       /* Colors for outlines */
-extern int blob_pause;           /* Wait after each blob */
-extern int display_all_blobs;    /* Display blobs ? */
-extern int display_all_words;    /* Display words ? */
+
+extern BOOL_VAR_H(wordrec_display_all_blobs, 0, "Display Blobs");
+
+extern BOOL_VAR_H(wordrec_display_all_words, 0, "Display Words");
+
+extern BOOL_VAR_H(wordrec_blob_pause, 0, "Blob pause");
 
 #define NUM_COLORS 6
 
@@ -44,8 +47,6 @@ extern int display_all_words;    /* Display words ? */
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 void display_blob(TBLOB *blob, C_COL color);
-
-void init_render_vars();
 
 void render_blob(void *window, TBLOB *blob, C_COL color);
 

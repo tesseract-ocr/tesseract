@@ -42,20 +42,38 @@ typedef HEAP *SPLIT_GROUP;
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern int chop_enable;
-extern int chop_debug;
-extern int same_distance;
-extern int split_length;
-extern float center_knob;
-extern float overlap_knob;
-extern float split_dist_knob;
-extern float width_change_knob;
-extern float sharpness_knob;
-extern int min_outline_area;
-extern int min_outline_points;
-extern float good_split;
-extern float ok_split;
-extern int chop_enable;
+extern INT_VAR_H(chop_debug, 0, "Chop debug");
+
+extern BOOL_VAR_H(chop_enable, 1, "Chop enable");
+
+extern BOOL_VAR_H(chop_vertical_creep, 0, "Vertical creep");
+
+extern INT_VAR_H(chop_split_length, 10000, "Split Length");
+
+extern INT_VAR_H(chop_same_distance, 2, "Same distance");
+
+extern INT_VAR_H(chop_min_outline_points, 6,
+                 "Min Number of Points on Outline");
+
+extern INT_VAR_H(chop_inside_angle, -50, "Min Inside Angle Bend");
+
+extern INT_VAR_H(chop_min_outline_area, 2000, "Min Outline Area");
+
+extern double_VAR_H(chop_split_dist_knob, 0.5, "Split length adjustment");
+
+extern double_VAR_H(chop_overlap_knob, 0.9, "Split overlap adjustment");
+
+extern double_VAR_H(chop_center_knob, 0.15, "Split center adjustment");
+
+extern double_VAR_H(chop_sharpness_knob, 0.06, "Split sharpness adjustment");
+
+extern double_VAR_H(chop_width_change_knob, 5.0, "Width change adjustment");
+
+extern double_VAR_H(chop_ok_split, 100.0, "OK split limit");
+
+extern double_VAR_H(chop_good_split, 50.0, "Good split limit");
+
+extern INT_VAR_H(chop_x_y_weight, 3, "X / Y  length weight");
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -78,8 +96,6 @@ void add_point_to_list(POINT_GROUP point_list, EDGEPT *point);
 
 int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3);
 
-void init_chop();
-
 int is_little_chunk(EDGEPT *point1, EDGEPT *point2);
 
 int is_small_area(EDGEPT *point1, EDGEPT *point2);
@@ -97,57 +113,4 @@ void new_max_point(EDGEPT *local_max, POINT_GROUP points);
 void vertical_projection_point(EDGEPT *split_point, EDGEPT *target_point,
                                EDGEPT** best_point);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define	_ARGS(s) s
-#else
-# define	_ARGS(s) ()
-#endif*/
-
-/* chop.c
-PRIORITY point_priority
-  _ARGS((EDGEPT *point));
-
-void add_point_to_list
-  _ARGS((POINT_GROUP point_list,
-  EDGEPT *point));
-
-SEAM *create_split
-  _ARGS((BLOB *blob,
-  POINT_GROUP points));
-
-SPLIT *extended_split
-  _ARGS((inT32 location,
-  EDGEPT *starting_point));
-
-SEAM *get_best_pair
-  _ARGS((SPLIT_GROUP split_queue,
-  BLOB *blob));
-
-void init_chop
-  _ARGS((void));
-
-EDGEPT *pick_close_point
-  _ARGS((EDGEPT *critical_point,
-  EDGEPT *vertical_point,
-  int *best_dist));
-
-void prioritize_points
-  _ARGS((TESSLINE *outline,
-  POINT_GROUP points));
-
-void new_min_point
-  _ARGS((EDGEPT *local_min,
-  POINT_GROUP points));
-
-void new_max_point
-  _ARGS((EDGEPT *local_max,
-  POINT_GROUP points));
-
-EDGEPT *vertical_projection_point
-  _ARGS((EDGEPT *split_point,
-  EDGEPT *target_point));
-
-#undef _ARGS
-*/
 #endif

@@ -64,30 +64,9 @@ void bounds_of_piece(BOUNDS_LIST bounds,
                      TPOINT *extreme_tl,
                      TPOINT *extreme_br);
 
-CHOICES classify_piece(TBLOB *pieces,
-                       SEAMS seams,
-                       inT16 start,
-                       inT16 end,
-                       inT32 fx,
-                       STATE *this_state,
-                       STATE *best_state,
-                       inT32 pass,
-                       inT32 blob_index);
-
-CHOICES get_piece_rating(MATRIX ratings,
-                         TBLOB *blobs,
-                         SEAMS seams,
-                         inT16 start,
-                         inT16 end,
-                         inT32 fx,
-                         STATE *this_state,
-                         STATE *best_state,
-                         inT32 pass,
-                         inT32 blob_index);
-
 BOUNDS_LIST record_blob_bounds(TBLOB *blobs);
 
-MATRIX record_piece_ratings(TBLOB *blobs);
+MATRIX *record_piece_ratings(TBLOB *blobs);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

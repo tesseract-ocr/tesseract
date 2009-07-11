@@ -47,8 +47,8 @@
  * be of type POINT.
  **********************************************************************/
 #define same_point(p1,p2)                    \
-	((abs (p1.x - p2.x) < same_distance) && \
-	(abs (p1.y - p2.y) < same_distance))
+	((abs (p1.x - p2.x) < chop_same_distance) && \
+	(abs (p1.y - p2.y) < chop_same_distance))
 
 /**********************************************************************
  * dist_square

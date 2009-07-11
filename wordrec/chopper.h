@@ -29,12 +29,19 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "choicearr.h"
-#include "seam.h"
-#include "matrix.h"
-#include "stopper.h"
-#include "states.h"
 #include "cutil.h"
+#include "matrix.h"
+#include "seam.h"
+#include "states.h"
+#include "stopper.h"
+
+/*---------------------------------------------------------------------------
+          Variables
+---------------------------------------------------------------------------*/
+
+extern BOOL_VAR_H (fragments_guide_chopper, FALSE,
+                   "Use information from fragments to guide chopping process");
+
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -53,52 +60,9 @@ int any_shared_split_points(SEAMS seam_list, SEAM *seam);
 
 int check_blob(TBLOB *blob);
 
-CHOICES_LIST improve_one_blob(TWERD *word,
-                              CHOICES_LIST char_choices,
-                              int fx,
-                              inT32 *blob_number,
-                              SEAMS *seam_list,
-                              DANGERR *fixpt,
-                              STATE *this_state,
-                              STATE *correct_state,
-                              inT32 pass);
-
 inT16 check_seam_order(TBLOB *blob, SEAM *seam);
-
-CHOICES_LIST chop_word_main(register TWERD *word,
-                            int fx,
-                            A_CHOICE *best_choice,
-                            A_CHOICE *raw_choice,
-                            BOOL8 tester,
-                            BOOL8 trainer);
-
-void improve_by_chopping(register TWERD *word,
-                         CHOICES_LIST *char_choices,
-                         int fx,
-                         STATE *best_state,
-                         A_CHOICE *best_choice,
-                         A_CHOICE *raw_choice,
-                         SEAMS *seam_list,
-                         DANGERR *fixpt,
-                         STATE *chop_states,
-                         inT32 *state_count,
-                         STATE *correct_state,
-                         inT32 pass);
-
-inT16 select_blob_to_split(CHOICES_LIST char_choices, float rating_ceiling);
 
 SEAMS start_seam_list(TBLOB *blobs);
 
 inT16 total_containment(TBLOB *blob1, TBLOB *blob2);
-
-MATRIX word_associator(TBLOB *blobs,
-                       SEAMS seams,
-                       STATE *state,
-                       int fxid,
-                       A_CHOICE *best_choice,
-                       A_CHOICE *raw_choice,
-                       char *correct,
-                       DANGERR *fixpt,
-                       STATE *best_state,
-                       inT32 pass);
 #endif

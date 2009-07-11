@@ -27,7 +27,6 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "chop.h"
-#include "debug.h"
 #include "outlines.h"
 #include "olutil.h"
 #include "tordvars.h"
@@ -40,56 +39,37 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-make_int_var (chop_debug, 0, make_chop_debug,
-3, 1, set_chop_debug, "Chop debug");
+INT_VAR(chop_debug, 0, "Chop debug");
 
-make_int_var (chop_enable, 1, make_chop_enable,
-3, 2, set_chop_enable, "Chop enable");
+BOOL_VAR(chop_enable, 1, "Chop enable");
 
-make_toggle_var (vertical_creep, 0, make_vertical_creep,
-3, 4, set_vertical_creep, "Vertical creep");
+BOOL_VAR(chop_vertical_creep, 0, "Vertical creep");
 
-make_int_var (split_length, 10000, make_split_length,
-3, 5, set_split_length, "Split Length");
+INT_VAR(chop_split_length, 10000, "Split Length");
 
-make_int_var (same_distance, 2, make_same_distance,
-3, 6, set_same_distance, "Same distance");
+INT_VAR(chop_same_distance, 2, "Same distance");
 
-make_int_var (min_outline_points, 6, make_min_points,
-3, 9, set_min_points, "Min Number of Points on Outline");
+INT_VAR(chop_min_outline_points, 6, "Min Number of Points on Outline");
 
-make_int_var (inside_angle, -50, make_inside_angle,
-3, 12, set_inside_angle, "Min Inside Angle Bend");
+INT_VAR(chop_inside_angle, -50, "Min Inside Angle Bend");
 
-make_int_var (min_outline_area, 2000, make_outline_area,
-3, 13, set_outline_area, "Min Outline Area");
+INT_VAR(chop_min_outline_area, 2000, "Min Outline Area");
 
-/*----------------------------------------------------------------------
-              V a r i a b l e s (moved from gradechop)
-----------------------------------------------------------------------*/
-make_float_var (split_dist_knob, 0.5, make_split_dist,
-3, 17, set_split_dist, "Split length adjustment");
+double_VAR(chop_split_dist_knob, 0.5, "Split length adjustment");
 
-make_float_var (overlap_knob, 0.9, make_overlap_knob,
-3, 18, set_overlap_knob, "Split overlap adjustment");
+double_VAR(chop_overlap_knob, 0.9, "Split overlap adjustment");
 
-make_float_var (center_knob, 0.15, make_center_knob,
-3, 19, set_center_knob, "Split center adjustment");
+double_VAR(chop_center_knob, 0.15, "Split center adjustment");
 
-make_float_var (sharpness_knob, 0.06, make_sharpness_knob,
-3, 20, set_sharpness_knob, "Split sharpness adjustment");
+double_VAR(chop_sharpness_knob, 0.06, "Split sharpness adjustment");
 
-make_float_var (width_change_knob, 5.0, make_width_change,
-3, 21, set_width_change_knob, "Width change adjustment");
+double_VAR(chop_width_change_knob, 5.0, "Width change adjustment");
 
-make_float_var (ok_split, 100.0, make_ok_split,
-3, 14, set_ok_split, "OK split limit");
+double_VAR(chop_ok_split, 100.0, "OK split limit");
 
-make_float_var (good_split, 50.0, make_good_split,
-3, 15, set_good_split, "Good split limit");
+double_VAR(chop_good_split, 50.0, "Good split limit");
 
-make_int_var (x_y_weight, 3, make_x_y_weight,
-3, 16, set_x_y_weight, "X / Y  length weight");
+INT_VAR(chop_x_y_weight, 3, "X / Y  length weight");
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -176,32 +156,6 @@ int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   return (angle);
 }
 
-
-/**********************************************************************
- * init_chop
- *
- * Create the required chopper variables.
- **********************************************************************/
-void init_chop() {
-  make_same_distance();
-  make_vertical_creep();
-  make_x_y_weight();
-  make_chop_enable();
-  make_chop_debug();
-  make_split_dist();
-  make_overlap_knob();
-  make_sharpness_knob();
-  make_width_change();
-  make_good_split();
-  make_ok_split();
-  make_center_knob();
-  make_split_length();
-  make_min_points();
-  make_inside_angle();
-  make_outline_area();
-}
-
-
 /**********************************************************************
  * is_little_chunk
  *
@@ -222,7 +176,7 @@ int is_little_chunk(EDGEPT *point1, EDGEPT *point2) {
     }
     p = p->next;
   }
-  while ((p != point1) && (counter++ < min_outline_points));
+  while ((p != point1) && (counter++ < chop_min_outline_points));
   /* Go from P2 to P1 */
   p = point2;
   counter = 0;
@@ -232,7 +186,7 @@ int is_little_chunk(EDGEPT *point1, EDGEPT *point2) {
     }
     p = p->next;
   }
-  while ((p != point2) && (counter++ < min_outline_points));
+  while ((p != point2) && (counter++ < chop_min_outline_points));
 
   return (FALSE);
 }
@@ -257,7 +211,7 @@ int is_small_area(EDGEPT *point1, EDGEPT *point2) {
   }
   while (!is_same_edgept (point2, p));
 
-  return (area < min_outline_area);
+  return (area < chop_min_outline_area);
 }
 
 
@@ -286,7 +240,7 @@ EDGEPT *pick_close_point(EDGEPT *critical_point,
       is_exterior_point (critical_point, vertical_point))) {
         *best_dist = this_distance;
         best_point = vertical_point;
-        if (vertical_creep)
+        if (chop_vertical_creep)
           found_better = TRUE;
       }
     }
@@ -314,7 +268,7 @@ void prioritize_points(TESSLINE *outline, POINT_GROUP points) {
   local_min = this_point;
   local_max = this_point;
   do {
-    if (debug_5)
+    if (tord_debug_5)
       cprintf ("(%3d,%3d)  min=%3d, max=%3d, dir=%2d, ang=%2.0f\n",
         this_point->pos.x, this_point->pos.y,
         (local_min ? local_min->pos.y : 999),

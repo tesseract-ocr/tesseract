@@ -17,69 +17,57 @@
  *
  **********************************************************************/
 #include "globals.h"
-#include "variables.h"           /* Feature stuff */
 
 #include <math.h>
 #include <signal.h>
 #include "tessinit.h"
+#include "wordrec.h"
+#include "varable.h"
 
 /*----------------------------------------------------------------------
             Variables
 ----------------------------------------------------------------------*/
-int corner_0;
-int corner_1;
-int corner_2;
-int corner_3;
+
+INT_VAR(wordrec_plots_fx, 0, "plots_fx");
+INT_VAR(wordrec_plots_ocr, 0, "plots_ocr");
+INT_VAR(wordrec_debugs_fx, 0, "debugs_fx");
+INT_VAR(wordrec_debugs_ocr, 0, "debugs_ocr");
+INT_VAR(wordrec_acts_fx, 2048, "acts_fx");
+INT_VAR(wordrec_acts_ocr, 32, "acts_ocr");
+INT_VAR(wordrec_corner_0, 0, "wordrec_corner_0");
+INT_VAR(wordrec_corner_1, 0, "wordrec_corner_1");
+INT_VAR(wordrec_corner_2, 2550, "wordrec_corner_2");
+INT_VAR(wordrec_corner_3, 3508, "wordrec_corner_3");
+INT_VAR(wordrec_resolution, 300, "Resolution");
+STRING_VAR(wordrec_debugfile, "debugfile", "Debug file name");
 
 int row_number;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * program_variables
- *
- * Initialize all the things in the program that need to be initialized.
- **********************************************************************/
-void program_variables() { 
-  VALUE dummy;
-
-  int_variable (plots_fx, "plots_fx", 0);
-  int_variable (plots_ocr, "plots_ocr", 0);
-  int_variable (debugs_fx, "debugs_fx", 0);
-  int_variable (debugs_ocr, "debugs_ocr", 0);
-                                 /* PREV DEFAULT 0 */
-  int_variable (acts_fx, "acts_fx", 2048);
-                                 /* PREV DEFAULT 0 */
-  int_variable (acts_ocr, "acts_ocr", 32);
-  int_variable (corner_0, "corner_0", 0);
-  int_variable (corner_1, "corner_1", 0);
-  int_variable (corner_2, "corner_2", 2550);
-  int_variable (corner_3, "corner_3", 3508);
-  int_variable (resolution, "resolution", 300);
-  string_variable (debugfile, "debugfile", "");
-}
-
 
 /**********************************************************************
  * program_init
  *
  * Initialize all the things in the program that need to be initialized.
  **********************************************************************/
-void program_init() { 
+namespace tesseract {
+void Wordrec::program_init() {
   /* Plots flags */
-  plots[OCR] = plots_ocr;
-  debugs[OCR] = debugs_ocr;
-  acts[OCR] = acts_ocr;
-  plots[FX] = plots_fx;
-  debugs[FX] = debugs_fx;
-  acts[FX] = acts_fx;
+  plots[OCR] = wordrec_plots_ocr;
+  debugs[OCR] = wordrec_debugs_ocr;
+  acts[OCR] = wordrec_acts_ocr;
+  plots[FX] = wordrec_plots_fx;
+  debugs[FX] = wordrec_debugs_fx;
+  acts[FX] = wordrec_acts_fx;
 
-  corners[0] = corner_0;
-  corners[1] = corner_1;
-  corners[2] = corner_2;
-  corners[3] = corner_3;
+  corners[0] = wordrec_corner_0;
+  corners[1] = wordrec_corner_1;
+  corners[2] = wordrec_corner_2;
+  corners[3] = wordrec_corner_3;
 }
+}  // namespace tesseract
 
 
 /**********************************************************************

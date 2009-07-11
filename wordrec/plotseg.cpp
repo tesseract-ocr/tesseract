@@ -30,7 +30,6 @@
 #include "scrollview.h"
 #include "tessclas.h"
 #include "blobs.h"
-#include "debug.h"
 #include "const.h"
 #include <math.h>
 
@@ -41,8 +40,7 @@
 ----------------------------------------------------------------------*/
 ScrollView *segm_window = NULL;
 
-make_int_var (display_segmentations, 0, make_display_seg,
-9, 2, toggle_segmentations, "Display Segmentations");
+INT_VAR(wordrec_display_segmentations, 0, "Display Segmentations");
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -66,17 +64,6 @@ void display_segmentation(TBLOB *chunks, SEARCH_STATE segmentation) {
   /* Put data in the window */
   c_make_current(segm_window);
 }
-
-
-/**********************************************************************
- * init_plotseg
- *
- * Intialize the plotseg control variables.
- **********************************************************************/
-void init_plotseg() {
-  make_display_seg();
-}
-
 
 /**********************************************************************
  * render_segmentation

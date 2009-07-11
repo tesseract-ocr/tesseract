@@ -61,12 +61,7 @@ void record_certainty(float certainty, int pass);
 
 void record_search_status(int num_states, int before_best, float closeness);
 
-#ifndef SECURE_NAMES
-void save_summary(inT32 elapsed_time);
-#endif
-
 void record_priorities(SEARCH_RECORD *the_search,
-                       STATE *old_state,
                        FLOAT32 priority_1,
                        FLOAT32 priority_2);
 

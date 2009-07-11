@@ -27,7 +27,6 @@
 ----------------------------------------------------------------------*/
 #include "split.h"
 #include "structures.h"
-#include "debug.h"
 #include "hideedge.h"
 #include "callcpp.h"
 
@@ -38,8 +37,7 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-make_toggle_var (display_splits, 0, make_display_splits,
-3, 3, set_display_splits, "Display splits");
+BOOL_VAR(wordrec_display_splits, 0, "Display splits");
 
 #define SPLITBLOCK 100           /* Cells per block */
 makestructure (newsplit, free_split, printsplit, SPLIT,
@@ -48,16 +46,6 @@ freesplit, SPLITBLOCK, "SPLIT", splitcount);
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * init_splitter_vars
- *
- * Create and initialize references to debug variables that control
- * operations in this file.
- **********************************************************************/
-void init_splitter_vars() { 
-  make_display_splits(); 
-}
-
 
 /**********************************************************************
  * delete_split
