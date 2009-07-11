@@ -28,7 +28,11 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
+
 #include "choicearr.h"
+#include "choices.h"
+#include "ratngs.h"
+#include "varable.h"
 
 /*----------------------------------------------------------------------
               T y p e s
@@ -38,47 +42,38 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern int adjust_debug;
-extern float garbage;
-extern float non_word;
+extern INT_VAR_H(fragments_debug, 0, "Debug character fragments");
+extern BOOL_VAR_H(segment_debug, 0, "Debug the whole segmentation process");
+extern BOOL_VAR_H(permute_debug, 0, "char permutation debug");
+
+extern BOOL_VAR_H(permute_script_word, 0,
+                  "Turn on word script consistency permuter");
+
+extern BOOL_VAR_H(segment_segcost_rating, 0,
+                  "incorporate segmentation cost in word rating?");
+
+extern double_VAR_H(segment_reward_script, 0.95,
+                    "Score multipler for script consistency within a word. "
+                    "Being a 'reward' factor, it should be <= 1. "
+                    "Smaller value implies bigger reward.");
+
+extern double_VAR_H(segment_penalty_garbage, 1.5,
+                    "Score multiplier for poorly cased strings that are not "
+                    "in the dictionary and generally look like garbage "
+                    "(lower is better).");
+
+extern double_VAR_H(segment_penalty_dict_nonword, 1.25,
+                    "Score multiplier for glyph fragment segmentations which "
+                    "do not match a dictionary word (lower is better).");
+
 extern int permute_only_top;
+extern float wordseg_rating_adjust_factor;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void add_document_word(A_CHOICE *best_choice);
-
-void adjust_non_word (A_CHOICE * best_choice, float certainties[]);
-
-void init_permute_vars();
-void init_permute();
-void end_permute();
-
-A_CHOICE *permute_all(CHOICES_LIST char_choices,
-                      float rating_limit,
-                      A_CHOICE *raw_choice);
-
-void permute_characters(CHOICES_LIST char_choices,
-                        float limit,
-                        A_CHOICE *best_choice,
-                        A_CHOICE *raw_choice);
-
-A_CHOICE *permute_compound_words(CHOICES_LIST character_choices,
-                                 float rating_limit);
-
-void permute_subword(CHOICES_LIST character_choices,
-                     float rating_limit,
-                     int start,
-                     int end,
-                     char *word,
-                     char unichar_lengths[],
-                     float *rating,
-                     float *certainty);
-
-A_CHOICE *permute_top_choice(CHOICES_LIST character_choices,
-                             float rating_limit,
-                             A_CHOICE *raw_choice,
-                             BOOL8 *any_alpha);
+void adjust_non_word(const char *word, const char *word_lengths,
+                     float rating, float *new_rating, float *adjust_factor);
 
 const char* choose_il1(const char *first_char,   //first choice
                        const char *second_char,  //second choice
@@ -87,7 +82,4 @@ const char* choose_il1(const char *first_char,   //first choice
                        const char *next_char,    //next in word
                        const char *next_next_char);
 
-A_CHOICE *permute_words(CHOICES_LIST char_choices, float rating_limit);
-
-int valid_word(const char *string);
 #endif

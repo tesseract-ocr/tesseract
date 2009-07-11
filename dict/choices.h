@@ -25,11 +25,11 @@
  *
  *                         FUNCTIONS TO CALL
  *                         -----------------
- * append_choice     - Create a new choice and add it to the list.
- * class_probability - Return the probability of a given character class.
- * class_string      - Return the string corresponding to a character choice.
- * free_choice       - Free up the memory taken by one choice rating.
- * new_choice        - Create one choice record one set up the fields.
+ * append_char_choice - Create a new choice for a character and add it to the list.
+ * class_rating       - Return the rating of a given character class.
+ * class_string       - Return the string corresponding to a character choice.
+ * free_choice        - Free up the memory taken by one choice rating.
+ * new_choice         - Create one choice record one set up the fields.
  *
  *********************************************************************************/
 
@@ -40,26 +40,14 @@
 #include <string.h>
 
 #include "oldlist.h"
+#include "unicharset.h"
 
 /*----------------------------------------------------------------------
                 T y p e s
 ----------------------------------------------------------------------*/
 typedef LIST CHOICES;            /* CHOICES */
-//typedef float PROBABILITY;                                                            /* PROBABILITY */
-//typedef char PERM_TYPE;                                                                       /* PERMUTER CODE */
-
-/* permuter codes used in A_CHOICEs for words */
-
-#define NO_PERM       0
-#define TOP_CHOICE_PERM  1
-#define LOWER_CASE_PERM  2
-#define UPPER_CASE_PERM  3
-#define NUMBER_PERM      4
-#define SYSTEM_DAWG_PERM 5
-#define DOC_DAWG_PERM    6
-#define USER_DAWG_PERM   7
-#define FREQ_DAWG_PERM   8
-#define COMPOUND_PERM    9
+//typedef float PROBABILITY;       /* PROBABILITY */
+//typedef char PERM_TYPE;          /* PERMUTER CODE */
 
 typedef struct choicestruct
 {                                /* A_CHOICE */
@@ -68,9 +56,12 @@ typedef struct choicestruct
   char permuter;
   inT8 config;
   char *string;
-  char *lengths; //Length of each unichar in the string
-  const char* script; // script is a script returned by unicharset,
-                      // and thus must not be deleted.
+  char *lengths;           // length of each unichar in the string
+  int script_id;
+  char *fragment_lengths;  // length of fragments for each unichar in string
+  bool fragment_mark;      // if true, indicates that this choice
+                           // was chosen over a better one that
+                           // contained a fragment
 } A_CHOICE;
 
 /*----------------------------------------------------------------------
@@ -93,11 +84,11 @@ typedef struct choicestruct
 (first_node (choices) ? ((A_CHOICE*) (first_node (choices)))->lengths : NULL)
 
 /**********************************************************************
- * best_probability
+ * best_rating
  *
- * Return the probability of the best choice.
+ * Return the rating of the best choice.
  **********************************************************************/
-#define best_probability(choices)  \
+#define best_rating(choices)  \
 (((A_CHOICE*) (first_node (choices)))->rating)
 
 /**********************************************************************
@@ -109,11 +100,11 @@ typedef struct choicestruct
 (((A_CHOICE*) (first_node (choices)))->certainty)
 
 /**********************************************************************
- * class_probability
+ * class_rating
  *
- * Return the probability of a given character class.
+ * Return the rating of a given character class.
  **********************************************************************/
-#define class_probability(choice)  \
+#define class_rating(choice)  \
 (((A_CHOICE*) (choice))->rating)
 
 /**********************************************************************
@@ -161,24 +152,8 @@ typedef struct choicestruct
  *
  * Return the script of a given character class.
  **********************************************************************/
-#define class_script(choice)  \
-(((A_CHOICE*) (choice))->script)
-
-/**********************************************************************
- * clone_choice
- *
- * Copy the contents of this choice record onto another replacing any
- * previous value it might of had.
- **********************************************************************/
-#define clone_choice(choice_2,choice_1)  \
-if (class_string (choice_2)) strfree (class_string (choice_2));    \
-if (class_lengths (choice_2)) strfree (class_lengths (choice_2));    \
-class_probability (choice_2) = class_probability (choice_1);       \
-class_certainty   (choice_2) = class_certainty   (choice_1);       \
-class_permuter    (choice_2) = class_permuter   (choice_1);        \
-class_string      (choice_2) = strsave (class_string (choice_1));   \
-class_lengths     (choice_2) = strsave (class_lengths (choice_1))   \
-
+#define class_script_id(choice)  \
+(((A_CHOICE*) (choice))->script_id)
 
 /**********************************************************************
  * free_choices
@@ -195,37 +170,67 @@ destroy_nodes ((c), free_choice)
  * works for certain output devices.
  **********************************************************************/
 #define print_bold(string)               \
-	cprintf ("\033&dB%s\033&d@", string)
+cprintf ("\033&dB%s\033&d@", string)
+
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-CHOICES append_choice(CHOICES ratings,
-                      const char *string,
-                      const char *lengths,
-                      float rating,
-                      float certainty,
-                      inT8 config,
-                      const char* script);
 
-CHOICES append_choice(CHOICES ratings,
-                      const char *string,
-                      const char *lengths,
-                      float rating,
-                      float certainty,
-                      inT8 config);
+// Returns true if fragment_mark is set for the given choice.
+inline bool class_fragment_mark(A_CHOICE *choice) {
+  return choice->fragment_mark;
+}
+
+// Sets fragment_mark of choice to the given value.
+inline void set_class_fragment_mark(A_CHOICE *choice, bool mark) {
+  choice->fragment_mark = mark;
+}
+
+// Returns fragment_lengths of the given class.
+inline const char *class_fragment_lengths(A_CHOICE *choice) {
+  return choice->fragment_lengths;
+}
+
+CHOICES append_char_choice(CHOICES ratings,
+                           const char *string,
+                           const char *lengths,
+                           float rating,
+                           float certainty,
+                           inT8 config,
+                           int script_id);
 
 CHOICES copy_choices(CHOICES choices);
 
-void free_choice(void *arg);  //LIST choice);
+// Copy the given values into corresponding fields of choice.
+void clone_choice(A_CHOICE *choice, const char *string,
+                  const char *lengths, float rating, float certainty,
+                  inT8 permuter, bool fragment_mark,
+                  const char *fragment_lengths);
+
+// Copy the contents of choice_1 into choice_2.
+inline void clone_choice(A_CHOICE *choice_2, A_CHOICE *choice_1) {
+  clone_choice(choice_2, class_string(choice_1), class_lengths(choice_1),
+               class_rating(choice_1), class_certainty(choice_1),
+               class_permuter(choice_1), class_fragment_mark(choice_1),
+               class_fragment_lengths(choice_1));
+}
+
+void clear_choice(A_CHOICE *choice);
+
+void free_choice(void *arg);
+
+A_CHOICE *get_best_free_other(A_CHOICE *choice_1, A_CHOICE *choice_2);
 
 A_CHOICE *new_choice(const char *string,
                      const char *lengths,
                      float rating,
                      float certainty,
                      inT8 config,
-                     const char* script,
-                     char permuter);
+                     int script_id,
+                     char permuter,
+                     bool fragment_mark,
+                     const char *fragment_lengths);
 
 A_CHOICE *new_choice(const char *string,
                      const char *lengths,
@@ -233,9 +238,5 @@ A_CHOICE *new_choice(const char *string,
                      float certainty,
                      inT8 config,
                      char permuter);
-
-void print_choices(const char *label, CHOICES rating);
-void print_word_string(const char* str);
-void print_word_choice(const char *label, A_CHOICE* choice);
 
 #endif

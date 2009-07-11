@@ -23,12 +23,16 @@
  *
  *********************************************************************************/
 #include "choices.h"
+#include "emalloc.h"
+#include "globals.h"
+#include "host.h"
+#include "danerror.h"
 #include "structures.h"
 #include "tordvars.h"
 #include "tprintf.h"
-#include "globals.h"
-#include "danerror.h"
-#include "host.h"
+#include "unicharset.h"
+#include "dict.h"
+#include "image.h"
 
 /*----------------------------------------------------------------------
             Variables
@@ -41,7 +45,7 @@ freechoice, CHOICEBLOCK, "A_CHOICE", choicecount)
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 /**********************************************************************
- * append_choice
+ * append_char_choice
  *
  * Create a new choice record. Store the string value in a safe place.
  * Add the new choice record to the list.
@@ -49,34 +53,20 @@ freechoice, CHOICEBLOCK, "A_CHOICE", choicecount)
  * NB - This is only used by matchers, so permuter is always NO_PERM
  * SPC 16/9/92
  **********************************************************************/
-CHOICES append_choice(CHOICES ratings,
-                      const char *string,
-                      const char *lengths,
-                      float rating,
-                      float certainty,
-                      inT8 config) {
+CHOICES append_char_choice(CHOICES ratings,
+                           const char *string,
+                           const char *lengths,
+                           float rating,
+                           float certainty,
+                           inT8 config,
+                           int script_id) {
   A_CHOICE *this_choice;
 
-  this_choice = new_choice (string, lengths, rating, certainty, config, NO_PERM);
+  this_choice = new_choice (string, lengths, rating, certainty,
+                            config, script_id, NO_PERM, false, NULL);
   ratings = push_last (ratings, (LIST) this_choice);
   return (ratings);
 }
-
-CHOICES append_choice(CHOICES ratings,
-                      const char *string,
-                      const char *lengths,
-                      float rating,
-                      float certainty,
-                      inT8 config,
-                      const char* script) {
-  A_CHOICE *this_choice;
-
-  this_choice = new_choice (string, lengths, rating, certainty, config,
-                            script, NO_PERM);
-  ratings = push_last (ratings, (LIST) this_choice);
-  return (ratings);
-}
-
 
 /**********************************************************************
  * copy_choices
@@ -89,16 +79,57 @@ CHOICES copy_choices(CHOICES choices) {
   CHOICES result = NIL;
 
   iterate_list(l, choices) {
+    A_CHOICE *choice = (A_CHOICE *)(first_node(l));
     result = push (result,
-      (LIST) new_choice (class_string (first_node (l)),
-                         class_lengths (first_node (l)),
-                         class_probability (first_node (l)),
-                         class_certainty (first_node (l)),
-                         class_config (first_node (l)),
-                         class_script (first_node (l)),
-                         class_permuter (first_node (l))));
+      (LIST) new_choice (class_string(choice),
+                         class_lengths(choice),
+                         class_rating(choice),
+                         class_certainty(choice),
+                         class_config(choice),
+                         class_script_id(choice),
+                         class_permuter(choice),
+                         class_fragment_mark(choice),
+                         class_fragment_lengths(choice)));
   }
   return (reverse_d (result));
+}
+
+/**********************************************************************
+ * clone_choice
+ *
+ * Copy the contents of the given values to the corresponding values in
+ * a given choice replacing any previous values it might have had.
+ **********************************************************************/
+void clone_choice(A_CHOICE *choice, const char *string,
+                  const char *lengths, float rating, float certainty,
+                  inT8 permuter, bool fragment_mark,
+                  const char *fragment_lengths) {
+  if (choice->string) strfree (class_string (choice));
+  if (choice->lengths) strfree (class_lengths (choice));
+  if (choice->fragment_lengths) strfree(choice->fragment_lengths);
+
+  choice->string = strsave (string);
+  choice->lengths = strsave (lengths);
+  choice->rating = rating;
+  choice->certainty = certainty;
+  choice->permuter = permuter;
+  choice->fragment_mark = fragment_mark;
+  choice->fragment_lengths =
+    fragment_lengths ? strsave(fragment_lengths) : NULL;
+}
+
+/**********************************************************************
+ * clear_choice
+ *
+ * Set the fields in this choice to be defaulted bad initial values.
+ **********************************************************************/
+void clear_choice(A_CHOICE *choice) {
+  choice->string = NULL;
+  choice->lengths =  NULL;
+  choice->rating =  MAX_FLOAT32;
+  choice->certainty = -MAX_FLOAT32;
+  choice->fragment_mark = false;
+  choice->fragment_lengths = NULL;
 }
 
 
@@ -117,10 +148,31 @@ void free_choice(void *arg) {  //LIST choice)
       strfree (this_choice->string);
     if (this_choice->lengths)
       strfree (this_choice->lengths);
+    if (this_choice->fragment_lengths)
+      strfree (this_choice->fragment_lengths);
     oldchoice(this_choice);
   }
 }
 
+/**********************************************************************
+ * get_best_free_other
+ *
+ * Returns the best of two choices and frees the other (worse) choice.
+ * A choice is better if it has a non-NULL string and has a lower rating
+ * than the other choice.
+ **********************************************************************/
+A_CHOICE *get_best_free_other(A_CHOICE *choice_1, A_CHOICE *choice_2) {
+  if (!choice_1) return choice_2;
+  if (!choice_2) return choice_1;
+  if (class_rating (choice_1) < class_rating (choice_2) ||
+      class_string (choice_2) == NULL) {
+    free_choice(choice_2);
+    return choice_1;
+  } else {
+    free_choice(choice_1);
+    return choice_2;
+  }
+}
 
 /**********************************************************************
  * new_choice
@@ -132,9 +184,25 @@ A_CHOICE *new_choice(const char *string,
                      float rating,
                      float certainty,
                      inT8 config,
-                     char permuter) {
-  return new_choice(string, lengths, rating, certainty,
-                    config, "dummy", permuter);
+                     int script_id,
+                     char permuter,
+                     bool fragment_mark,
+                     const char *fragment_lengths) {
+  A_CHOICE *this_choice;
+
+  this_choice = newchoice();
+  this_choice->string = strsave(string);
+  this_choice->lengths = strsave(lengths);
+  this_choice->rating = rating;
+  this_choice->certainty = certainty;
+  this_choice->config = config;
+  this_choice->permuter = permuter;
+  this_choice->script_id = script_id;
+  this_choice->fragment_mark = fragment_mark;
+  this_choice->fragment_lengths =
+    fragment_lengths ? strsave(fragment_lengths) : NULL;
+
+  return (this_choice);
 }
 
 A_CHOICE *new_choice(const char *string,
@@ -142,36 +210,27 @@ A_CHOICE *new_choice(const char *string,
                      float rating,
                      float certainty,
                      inT8 config,
-                     const char* script,
                      char permuter) {
-  A_CHOICE *this_choice;
-
-  this_choice = newchoice ();
-  this_choice->string = strsave (string);
-  this_choice->lengths = strsave (lengths);
-  this_choice->rating = rating;
-  this_choice->certainty = certainty;
-  this_choice->config = config;
-  this_choice->permuter = permuter;
-  this_choice->script = script;
-  return (this_choice);
+  return new_choice(string, lengths, rating, certainty,
+                    config, -1, permuter, false, NULL);
 }
 
 
 /**********************************************************************
  * print_choices
  *
- * Print the probability ratings for a particular blob or word.
+ * Print the rating for a particular blob or word.
  **********************************************************************/
-void print_choices(const char *label,
-                   CHOICES rating) {   // List of (A_CHOICE*).
+namespace tesseract {
+void Dict::print_choices(const char *label,
+                         CHOICES choices) {   // List of (A_CHOICE*).
   tprintf("%s\n", label);
-  if (rating == NIL)
+  if (choices == NIL)
     tprintf(" No rating ");
 
-  iterate(rating) {
-    tprintf("%.2f %.2f", best_probability(rating), best_certainty(rating));
-    print_word_string(best_string(rating));
+  iterate(choices) {
+    tprintf("%.2f %.2f", best_rating(choices), best_certainty(choices));
+    print_word_string(best_string(choices));
   }
   tprintf("\n");
 }
@@ -181,12 +240,12 @@ void print_choices(const char *label,
  *
  * Print the string in a human-readable format and ratings for a word.
  **********************************************************************/
-void print_word_choice(const char *label, A_CHOICE* choice) {
+void Dict::print_word_choice(const char *label, A_CHOICE* choice) {
   tprintf("%s : ", label);
   if (choice == NULL) {
     tprintf("No rating\n");
   } else {
-    tprintf("%.2f %.2f", class_probability(choice), class_certainty(choice));
+    tprintf("%.2f %.2f", class_rating(choice), class_certainty(choice));
     print_word_string(class_string(choice));
     tprintf("\n");
   }
@@ -198,13 +257,13 @@ void print_word_choice(const char *label, A_CHOICE* choice) {
  * Print the string in a human-readable format.
  * The output is not newline terminated.
  **********************************************************************/
-void print_word_string(const char* str) {
+void Dict::print_word_string(const char* str) {
   int step = 1;
   for (int i = 0; str[i] != '\0'; i += step) {
-    step = unicharset.step(str + i);
-    int unichar_id = unicharset.unichar_to_id(str + i, step);
-    STRING ch_str = unicharset.debug_str(unichar_id);
-    tprintf(" : %s ", ch_str.string());
+    step = (getUnicharset().get_fragment(str) ?
+      strlen(str) : getUnicharset().step(str + i));
+    int unichar_id = getUnicharset().unichar_to_id(str + i, step);
+    tprintf(" : %s ", getUnicharset().debug_str(unichar_id).string());
   }
 }
-
+} // namespace tesseract

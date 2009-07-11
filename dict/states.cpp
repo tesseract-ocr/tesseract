@@ -102,7 +102,7 @@ void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
   unsigned int mask;             /* Bit mask */
   inT16 num_pieces = 0;
   /* Preset mask */
-  if (debug_8)
+  if (tord_debug_8)
     print_state ("bin_to_pieces = ", state, num_joints);
 
   mask = ((num_joints > 32) ?
@@ -118,7 +118,7 @@ void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
       ((state->part2 & mask) ? TRUE : FALSE) :
     ((state->part1 & mask) ? TRUE : FALSE)) {
       pieces[++num_pieces] = 0;
-      if (debug_8)
+      if (tord_debug_8)
         cprintf ("[%d]=%d ", num_pieces - 1, pieces[num_pieces - 1]);
     }
     /* Next mask value */
@@ -127,7 +127,7 @@ void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
   pieces[num_pieces]++;
   pieces[++num_pieces] = 0;
   ASSERT_HOST (num_pieces < MAX_NUM_CHUNKS + 2);
-  if (debug_8)
+  if (tord_debug_8)
     new_line();
 }
 

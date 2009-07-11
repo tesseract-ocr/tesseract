@@ -21,8 +21,10 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "choicearr.h"
+
 #include "states.h"
+#include "unichar.h"
+#include "varable.h"
 
 typedef uinT8 BLOB_WIDTH;
 
@@ -33,71 +35,46 @@ typedef struct
   unsigned good_length:8;
 } DANGERR;
 
+enum ACCEPTABLE_CHOICE_CALLER { CHOPPER_CALLER, ASSOCIATOR_CALLER };
+typedef struct
+{
+  UNICHAR_ID Class;
+  uinT16 NumChunks;
+  float Certainty;
+}
+
+
+CHAR_CHOICE;
+
+typedef struct
+{
+  float Rating;
+  float Certainty;
+  FLOAT32 AdjustFactor;
+  int Length;
+  bool ComposedFromCharFragments;
+  CHAR_CHOICE Blob[1];
+} VIABLE_CHOICE_STRUCT;
+typedef VIABLE_CHOICE_STRUCT *VIABLE_CHOICE;
+
 /*---------------------------------------------------------------------------
           Variables
 ---------------------------------------------------------------------------*/
-extern float CertaintyPerChar;
-extern float NonDictCertainty;
-extern float RejectCertaintyOffset;
-extern int StopperDebugLevel;
+extern double_VAR_H(stopper_certainty_per_char, -0.50,
+     "Certainty to add for each dict char above small word size.");
 
-/**----------------------------------------------------------------------------
-            Macros
-----------------------------------------------------------------------------**/
-#define DisableChoiceAccum()  (KeepWordChoices = FALSE)
-#define EnableChoiceAccum() (KeepWordChoices = TRUE)
+extern double_VAR_H(stopper_nondict_certainty_base, -2.50,
+    "Certainty threshold for non-dict words");
 
-/**----------------------------------------------------------------------------
-          Public Function Prototypes
-----------------------------------------------------------------------------**/
-int AcceptableChoice(CHOICES_LIST Choices,
-                     A_CHOICE *BestChoice,
-                     A_CHOICE *RawChoice,
-                     DANGERR *fixpt);
+extern double_VAR_H(stopper_phase2_certainty_rejection_offset, 1.0,
+           "Reject certainty offset");
 
-int AcceptableResult(A_CHOICE *BestChoice, A_CHOICE *RawChoice);
+extern INT_VAR_H(stopper_debug_level, 0, "Stopper debug level");
 
-int AlternativeChoicesWorseThan(FLOAT32 Threshold);
+extern BOOL_VAR_H(stopper_no_acceptable_choices, false,
+                  "Make AcceptableChoice() always return false. Useful"
+                  " when there is a need to explore all segmentations");
 
-int CurrentBestChoiceIs(const char *Word, const char *Word_lengths);
+extern BOOL_VAR_H(save_raw_choices, false, "Save all explored raw choices");
 
-FLOAT32 CurrentBestChoiceAdjustFactor();
-
-int CurrentWordAmbig();
-
-void DebugWordChoices();
-
-void FilterWordChoices();
-
-void FindClassifierErrors (FLOAT32 MinRating,
-FLOAT32 MaxRating,
-FLOAT32 RatingMargin, FLOAT32 Thresholds[]);
-
-void InitStopperVars();
-
-void InitChoiceAccum();
-
-void LogNewRawChoice (A_CHOICE * Choice,
-FLOAT32 AdjustFactor, float Certainties[]);
-
-void LogNewSegmentation(PIECES_STATE BlobWidth);
-
-void LogNewSplit(int Blob);
-
-void LogNewWordChoice (A_CHOICE * Choice,
-FLOAT32 AdjustFactor, float Certainties[]);
-
-int NoDangerousAmbig(const char *Word,
-                     const char *Word_lengths,
-                     DANGERR *fixpt);
-void EndDangerousAmbigs();
-
-void SettupStopperPass1();
-
-void SettupStopperPass2();
-
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
-extern BOOL8 KeepWordChoices;
 #endif

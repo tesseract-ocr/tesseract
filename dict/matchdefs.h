@@ -35,14 +35,6 @@
 typedef UNICHAR_ID CLASS_ID;
 #define NO_CLASS      (0)
 
-/* define a type for the index (rather than the class id) of a class.
-  Class indexes are sequentially defined, while class id's are defined
-  by the ascii character set. */
-typedef inT16 CLASS_INDEX;
-typedef CLASS_INDEX CLASS_TO_INDEX[MAX_CLASS_ID + 1];
-typedef CLASS_ID INDEX_TO_CLASS[MAX_NUM_CLASSES];
-#define ILLEGAL_CLASS (-1)
-
 /* a PROTO_ID is the index of a prototype within it's class.  Valid proto
   id's are 0 to N-1 where N is the number of prototypes that make up the
   class. */
@@ -86,36 +78,12 @@ typedef MATCH_RESULT SORTED_CLASSES[MAX_CLASS_ID + 1];
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-/* all feature matchers that are to be used with the high level
+/*
+  all feature matchers that are to be used with the high level
   classifier must support the following interface.  The names will, of
   course, be unique for each different matcher.  Note also that
   FEATURE_STRUCT is a data structure that is defined specifically for
   each feature extractor/matcher pair.
-
-void						InitClassifier		();
-
-void						InitClassifierVars	();
-
-int							TweekClassifier		(char *Params);
-
-void						InitQuickGuess		(FEATURE_STRUCT *CharFeatures);
-
-CLASS_ID					NextQuickGuess		();
-
-void						MatchCharToClass	(CLASS_ID
-              ClassID,
-                          FEATURE_STRUCT
-              *CharFeatures,
-                          MATCH_RESULT
-              *MatchResult);
-
-void						DebugMatch		(CLASS_ID
-              ClassID,
-                          FEATURE_STRUCT
-              *CharFeatures,
-          MATCH_RESULT
-              *MatchResult);
-
 */
 
 /* misc test functions for proto id's and feature id's */

@@ -31,14 +31,26 @@
 #include "dawg.h"
 #include "choices.h"
 #include "choicearr.h"
+#include "varable.h"
+#include "permute.h"
 
 /*---------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern int dawg_debug;
-extern float ok_word;
-extern float good_word;
-extern float freq_word;
+extern BOOL_VAR_H(segment_dawg_debug, 0, "Debug mode for word segmentation");
+
+extern double_VAR_H(segment_penalty_dict_case_bad, 1.3125,
+           "Default score multiplier for word matches, which may have case or "
+           "punctuation issues (lower is better).");
+
+extern double_VAR_H(segment_penalty_dict_case_ok, 1.1,
+           "Score multiplier for word matches that have good case "
+           "(lower is better).");
+
+extern double_VAR_H(segment_penalty_dict_frequent_word, 1.0,
+           "Score multiplier for word matches which have good case and are "
+           "frequent in the given language (lower is better).");
+
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -47,52 +59,5 @@ extern float freq_word;
 /*----------------------------------------------------------------------
             Public Function Prototypes
 ----------------------------------------------------------------------*/
-void adjust_word(A_CHOICE *best_choice, float *certainty_array);
 
-                                 /*previous option */
-void append_next_choice(EDGE_ARRAY dawg,
-                        NODE_REF node,
-                        char permuter,
-                        char *word,
-                        char unichar_lengths[],
-                        int unichar_offsets[],
-                        CHOICES_LIST choices,
-                        int char_index,
-                        A_CHOICE *this_choice,
-                        const char *prevchar,
-                        float *limit,
-                        float rating,
-                        float certainty,
-                        float *rating_array,
-                        float *certainty_array,
-                        int word_ending,
-                        int last_word,
-                        CHOICES *result);
-
-CHOICES dawg_permute(EDGE_ARRAY dawg,
-                     NODE_REF node,
-                     char permuter,
-                     CHOICES_LIST choices,
-                     int char_index,
-                     float *limit,
-                     char *word,
-                     char unichar_lengths[],
-                     int unichar_offsets[],
-                     float rating,
-                     float certainty,
-                     float *rating_array,
-                     float *certainty_array,
-                     int last_word);
-
-void dawg_permute_and_select(const char *string,
-                             EDGE_ARRAY dawg,
-                             char permuter,
-                             CHOICES_LIST character_choices,
-                             A_CHOICE *best_choice);
-
-void init_permdawg_vars();
-void init_permdawg();
-void end_permdawg();
-
-int test_freq_words(const char *word);
 #endif

@@ -58,10 +58,10 @@ ARFLAGS = cru
 libtesseract_dict_a_AR = $(AR) $(ARFLAGS)
 libtesseract_dict_a_LIBADD =
 am_libtesseract_dict_a_OBJECTS = choices.$(OBJEXT) context.$(OBJEXT) \
-	dawg.$(OBJEXT) hyphen.$(OBJEXT) permdawg.$(OBJEXT) \
-	permnum.$(OBJEXT) permute.$(OBJEXT) states.$(OBJEXT) \
-	stopper.$(OBJEXT) trie.$(OBJEXT) lookdawg.$(OBJEXT) \
-	makedawg.$(OBJEXT) reduce.$(OBJEXT) permngram.$(OBJEXT)
+	conversion.$(OBJEXT) dawg.$(OBJEXT) dict.$(OBJEXT) \
+	hyphen.$(OBJEXT) permdawg.$(OBJEXT) permngram.$(OBJEXT) \
+	permute.$(OBJEXT) states.$(OBJEXT) stopper.$(OBJEXT) \
+	trie.$(OBJEXT)
 libtesseract_dict_a_OBJECTS = $(am_libtesseract_dict_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -192,17 +192,20 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = 
-AM_CPPFLAGS = -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil
+AM_CPPFLAGS = -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
+    -I$(top_srcdir)/ccstruct -I$(top_srcdir)/viewer -I$(top_srcdir)/image
+
+EXTRA_DIST = dict.vcproj
 include_HEADERS = \
-    choicearr.h choices.h context.h dawg.h hyphen.h matchdefs.h \
-    permdawg.h permnum.h permute.h states.h stopper.h trie.h \
-    lookdawg.h makedawg.h reduce.h permngram.h
+    choicearr.h choices.h context.h conversion.h \
+    dawg.h dict.h matchdefs.h \
+    permdawg.h permngram.h permute.h states.h stopper.h trie.h
 
 lib_LIBRARIES = libtesseract_dict.a
 libtesseract_dict_a_SOURCES = \
-    choices.cpp context.cpp dawg.cpp hyphen.cpp permdawg.cpp \
-    permnum.cpp permute.cpp states.cpp stopper.cpp trie.cpp \
-    lookdawg.cpp makedawg.cpp reduce.cpp permngram.cpp
+    choices.cpp context.cpp conversion.cpp \
+    dawg.cpp dict.cpp hyphen.cpp \
+    permdawg.cpp permngram.cpp permute.cpp states.cpp stopper.cpp trie.cpp
 
 all: all-recursive
 
@@ -279,15 +282,13 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/choices.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/context.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/conversion.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dawg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dict.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hyphen.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lookdawg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/makedawg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permdawg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permngram.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permnum.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/permute.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reduce.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/states.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stopper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trie.Po@am__quote@

@@ -19,14 +19,15 @@
 
 #include "const.h"
 #include "permngram.h"
-#include "permnum.h"
-#include "debug.h"
 #include "permute.h"
 #include "dawg.h"
 #include "tordvars.h"
 #include "stopper.h"
 #include "globals.h"
 #include "context.h"
+#include "ndminx.h"
+#include "dict.h"
+#include "conversion.h"
 
 #include <math.h>
 #include <ctype.h>
@@ -57,7 +58,8 @@ class HypothesisPrefix {
   HypothesisPrefix(const HypothesisPrefix& prefix,
                    A_CHOICE* choice,
                    bool end_of_word,
-                   EDGE_ARRAY dawg);
+                   const tesseract::Dawg *dawg,
+                   tesseract::Dict* dict);
 
   double rating() const {return rating_;}
   double certainty() const {return certainty_;}
@@ -114,9 +116,10 @@ static double get_classifier_score_ngram_score_ratio(const char* choice);
 // For each character position, each possible character choice is appended to
 // the best current prefixes to create the list of best prefixes at the next
 // character position.
-A_CHOICE *ngram_permute_and_select(CHOICES_LIST char_choices,
-                                   float rating_limit,
-                                   EDGE_ARRAY dawg) {
+namespace tesseract {
+A_CHOICE *Dict::ngram_permute_and_select(CHOICES_LIST char_choices,
+                                         float rating_limit,
+                                         const Dawg *dawg) {
   if (array_count (char_choices) <= MAX_WERD_LENGTH) {
     CHOICES choices;
     int char_index_max = array_count(char_choices);
@@ -137,7 +140,7 @@ A_CHOICE *ngram_permute_and_select(CHOICES_LIST char_choices,
               current_list->node(node_index),
               choice,
               char_index == char_index_max - 1,
-              dawg);
+              dawg, this);
           next_list->add_node(new_node);
         }
       }
@@ -160,12 +163,14 @@ A_CHOICE *ngram_permute_and_select(CHOICES_LIST char_choices,
                                         SYSTEM_DAWG_PERM : TOP_CHOICE_PERM);
     LogNewWordChoice(best_choice, best_word.is_dawg_prefix() ?
                      1.0 : non_dawg_prefix_rating_adjustment,
-                     const_cast<float*>(best_word.certainty_array()));
+                     const_cast<float*>(best_word.certainty_array()),
+                     getUnicharset());
     return best_choice;
   } else {
     return new_choice (NULL, NULL, MAXFLOAT, -MAXFLOAT, -1, NO_PERM);
   }
 }
+}  // namespace tesseract
 
 double get_classifier_score_ngram_score_ratio(const char* choice) {
   if (!strcmp(",", choice) ||
@@ -194,7 +199,8 @@ HypothesisPrefix::HypothesisPrefix() {
 HypothesisPrefix::HypothesisPrefix(const HypothesisPrefix& prefix,
                                    A_CHOICE* choice,
                                    bool end_of_word,
-                                   EDGE_ARRAY dawg) {
+                                   const tesseract::Dawg *dawg,
+                                   tesseract::Dict* dict) {
   char* word_ptr = word_;
   const char* prefix_word_ptr = prefix.word_;
 
@@ -220,7 +226,7 @@ HypothesisPrefix::HypothesisPrefix(const HypothesisPrefix& prefix,
       " " : class_string(choice);
 
   // Update certainty
-  certainty_ = min(prefix.certainty_, class_certainty(choice));
+  certainty_ = MIN(prefix.certainty_, class_certainty(choice));
 
   // Apprend choice to the word
   strcpy(word_ptr, class_string_choice);
@@ -240,17 +246,26 @@ HypothesisPrefix::HypothesisPrefix(const HypothesisPrefix& prefix,
          class_string_choice[char_subindex] != '\0';
          ++char_subindex) {
 
+      // TODO(daria): update this code (and the rest of ngram permuter code
+      // to deal with unichar ids, make use of the new parallel dawg search
+      // and use WERD_CHOICE, BLOB_CHOICE_LIST_VECTOR instead of the deprecated
+      // A_CHOICE.
+      tprintf("Error: ngram permuter functionality is not available\n");
+      exit(1);
+
       // Verify each byte of the appended character. Note that word_ptr points
       // to the first byte so (word_ptr - (word_ + 1)) is the index of the first
       // new byte in the string that starts at (word_ + 1).
+      /*
       int current_byte_index = word_ptr - (word_ + 1) + char_subindex;
-      if(!letter_is_okay(dawg, &dawg_node_, current_byte_index, '\0',
-                         word_ + 1, end_of_word &&
-                         class_string_choice[char_subindex + 1] == '\0')) {
+      if (!(dict->*dict->letter_is_okay_)(
+         dawg, &dawg_node_, current_byte_index, word_ + 1,
+         end_of_word && class_string_choice[char_subindex + 1] == '\0')) {
         dawg_node_ = NO_EDGE;
         is_dawg_prefix_ = false;
         break;
       }
+      */
     }
   }
 
@@ -268,7 +283,7 @@ HypothesisPrefix::HypothesisPrefix(const HypothesisPrefix& prefix,
   double local_classifier_score_ngram_score_ratio =
       get_classifier_score_ngram_score_ratio(class_string_choice);
 
-  double classifier_rating = class_probability(choice);
+  double classifier_rating = class_rating(choice);
   double ngram_rating = -log(probability) / log(2.0);
   double mixed_rating =
       local_classifier_score_ngram_score_ratio * classifier_rating +
