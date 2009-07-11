@@ -27,7 +27,6 @@
 #include          "notdll.h"
 #include "choices.h"
 #include "oldlist.h"
-#include "hyphen.h"
 #include "tface.h"
 #include "permute.h"
 #include "adaptmatch.h"

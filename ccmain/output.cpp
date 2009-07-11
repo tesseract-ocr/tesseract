@@ -36,6 +36,7 @@
 #include          "output.h"
 #include "bestfirst.h"
 #include "globals.h"
+#include "tesseractclass.h"
 
 #define EXTERN
 
@@ -48,9 +49,6 @@
 #define CTRL_TAB        '\011'   //tab
 #define CTRL_NEWLINE      '\012' //newline
 #define CTRL_HARDLINE   '\015'   //cr
-int NO_BLOCK = 0;                //don't output block information
-inT16 XOFFSET = 0;               //the image can be a part of bigger picture and we want to have the original coordinates
-inT16 YOFFSET = 0;
 
 EXTERN BOOL_EVAR (tessedit_write_block_separators, FALSE,
 "Write block separators in output");
@@ -107,10 +105,11 @@ inT32 pixels_to_pts(               //convert coords
   return (inT32) (pts + 0.5);    //round it
 }
 
-void output_pass(  //Tess output pass //send to api
-                 PAGE_RES_IT &page_res_it,
-                 BOOL8 write_to_shm,
-				 TBOX	*target_word_box) {
+namespace tesseract {
+void Tesseract::output_pass(  //Tess output pass //send to api
+                            PAGE_RES_IT &page_res_it,
+                            BOOL8 write_to_shm,
+                            TBOX *target_word_box) {
   BLOCK_RES *block_of_last_word;
   inT16 block_id;
   BOOL8 force_eol;               //During output
@@ -140,17 +139,8 @@ void output_pass(  //Tess output pass //send to api
     if (tessedit_write_block_separators &&
     block_of_last_word != page_res_it.block ()) {
       block_of_last_word = page_res_it.block ();
-      if (block_of_last_word->block->text_region () == NULL) {
-        if (block_of_last_word->block->poly_block () == NULL)
-          block_id = 1;
-        else
-          block_id =
-            ((WEIRD_BLOCK *) block_of_last_word->block->poly_block ())->
-            id_no();
-      }
-      else
-        block_id = block_of_last_word->block->text_region ()->id_no ();
-      if (!NO_BLOCK)
+      block_id = block_of_last_word->block->index();
+      if (!wordrec_no_block)
         fprintf (textfile, "|^~tr%d\n", block_id);
       fprintf (txt_mapfile, "|^~tr%d\n", block_id);
     }
@@ -175,7 +165,7 @@ void output_pass(  //Tess output pass //send to api
   if (write_to_shm)
     ocr_send_text(FALSE);
   if (tessedit_write_block_separators) {
-    if (!NO_BLOCK)
+    if (!wordrec_no_block)
       fprintf (textfile, "|^~tr\n");
     fprintf (txt_mapfile, "|^~tr\n");
   }
@@ -187,6 +177,7 @@ void output_pass(  //Tess output pass //send to api
     fclose(txt_mapfile);
   }
 }
+
 
 /*************************************************************************
  * write_results()
@@ -201,11 +192,13 @@ void output_pass(  //Tess output pass //send to api
  *                   reject strings in the epchoice text.
  *************************************************************************/
 
-void write_results(                           //output a word
-                   PAGE_RES_IT &page_res_it,  //full info
-                   char newline_type,         //type of newline
-                   BOOL8 force_eol,           //override tilde crunch?
-                   BOOL8 write_to_shm         //send to api
+void Tesseract::write_results(                        //output a word
+                                                      //full info
+                              PAGE_RES_IT &page_res_it,
+                              char newline_type,      //type of newline
+                                                      //override tilde crunch?
+                              BOOL8 force_eol,
+                              BOOL8 write_to_shm      //send to api
                   ) {
                                  //word to do
   WERD_RES *word = page_res_it.word ();
@@ -213,7 +206,6 @@ void write_results(                           //output a word
   STRING repetition_code;
   const STRING *wordstr;
   STRING wordstr_lengths;
-  const char *text;
   int i;
   char unrecognised = STRING (unrecognised_char)[0];
   char ep_chars[32];             //Only for unlv_tilde_crunch
@@ -226,8 +218,8 @@ void write_results(                           //output a word
   static BOOL8 last_char_was_tilde = FALSE;
   static BOOL8 empty_block = TRUE;
   BOOL8 need_reject = FALSE;
-  char *ptr;                     //string ptr
   PBLOB_IT blob_it;              //blobs
+  UNICHAR_ID space = unicharset.unichar_to_id(" ");
 
   /*	if (word->best_choice->string().length() == 0)
     {
@@ -272,8 +264,8 @@ void write_results(                           //output a word
       else {
         map_chs[txt_index++] = '0';
         /*
-           The ep_choice string is a faked reject to allow newdiff to sync the .etx
-           with the .txt and .map files.
+           The ep_choice string is a faked reject to allow newdiff to sync the
+           .etx with the .txt and .map files.
          */
         ep_chars[ep_chars_index++] = CTRL_INSET;
         //escape code
@@ -308,7 +300,7 @@ void write_results(                           //output a word
     txt_chs[txt_index] = '\0';
     map_chs[txt_index] = '\0';
                                  //xiaofan
-    if (tessedit_write_output && !NO_BLOCK)
+    if (tessedit_write_output && !wordrec_no_block)
       fprintf (textfile, "%s", txt_chs);
 
     if (tessedit_write_txt_map)
@@ -316,7 +308,7 @@ void write_results(                           //output a word
 
                                  //terminate string
     ep_chars[ep_chars_index] = '\0';
-    word->ep_choice = new WERD_CHOICE (ep_chars, NULL, 0, 0, NO_PERM);
+    word->ep_choice = new WERD_CHOICE(ep_chars, unicharset);
 
     if (force_eol)
       empty_block = TRUE;
@@ -333,16 +325,14 @@ void write_results(                           //output a word
   empty_block = force_eol;       //About to write a real word
 
   if (unlv_tilde_crunching &&
-    last_char_was_tilde &&
-    (word->word->space () == 0) &&
-    !(word->word->flag (W_REP_CHAR) && tessedit_write_rep_codes) &&
-  (word->best_choice->string ()[0] == ' ')) {
+      last_char_was_tilde &&
+      (word->word->space() == 0) &&
+      !(word->word->flag(W_REP_CHAR) && tessedit_write_rep_codes) &&
+      (word->best_choice->unichar_id(0) == space)) {
     /* Prevent adjacent tilde across words - we know that adjacent tildes within
        words have been removed */
-    ptr = (char *) word->best_choice->string ().string ();
-    strcpy (ptr, ptr + 1);       //shuffle up
-    ptr = (char *) word->best_choice->lengths ().string ();
-    strcpy (ptr, ptr + 1);       //shuffle up
+    word->best_choice->remove_unichar_id(0);
+    word->best_choice->populate_unichars(getDict().getUnicharset());
     word->reject_map.remove_pos (0);
     blob_it = word->outword->blob_list ();
     delete blob_it.extract ();   //get rid of reject blob
@@ -352,10 +342,7 @@ void write_results(                           //output a word
     last_char_was_tilde = FALSE;
   else {
     if (word->reject_map.length () > 0) {
-      for (i = 0, ptr = (char *) word->best_choice->string().string();
-           i < word->reject_map.length () - 1; ++i)
-        ptr += word->best_choice->lengths()[i];
-      if (*ptr == ' ')
+      if (word->best_choice->unichar_id(word->reject_map.length() - 1) == space)
         last_char_was_tilde = TRUE;
       else
         last_char_was_tilde = FALSE;
@@ -365,8 +352,7 @@ void write_results(                           //output a word
     /* else it is unchanged as there are no output chars */
   }
 
-  ptr = (char *) word->best_choice->lengths ().string ();
-  ASSERT_HOST (strlen (ptr) == word->reject_map.length ());
+  ASSERT_HOST (word->best_choice->length() == word->reject_map.length());
 
   if (word->word->flag (W_REP_CHAR) && tessedit_consistent_reps)
     ensure_rep_chars_are_consistent(word);
@@ -375,8 +361,8 @@ void write_results(                           //output a word
   check_debug_pt (word, 120);
   if (tessedit_rejection_debug) {
     tprintf ("Dict word: \"%s\": %d\n",
-      word->best_choice->string ().string (),
-      dict_word (word->best_choice->string ().string ()));
+             word->best_choice->debug_string(unicharset).string(),
+             dict_word(*(word->best_choice)));
   }
 
 #if 0
@@ -393,22 +379,19 @@ void write_results(                           //output a word
     wordstr = &repetition_code;
   }
   else {
-    wordstr = &(word->best_choice->string ());
-    wordstr_lengths = word->best_choice->lengths ();
     if (tessedit_zero_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
-      text = wordstr->string ();
-      for (i = 0; *text != '\0'; text += word->best_choice->lengths()[i++]) {
-        if (word->reject_map[i].rejected ())
-          word->reject_map[i].setrej_minimal_rej_accept ();
+      for (i = 0; i < word->best_choice->length(); ++i) {
+        if (word->reject_map[i].rejected())
+          word->reject_map[i].setrej_minimal_rej_accept();
       }
     }
     if (tessedit_minimal_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
-      text = wordstr->string ();
-      for (i = 0; *text != '\0'; text += word->best_choice->lengths()[i++]) {
-        if ((*text != ' ') && word->reject_map[i].rejected ())
-          word->reject_map[i].setrej_minimal_rej_accept ();
+      for (i = 0; i < word->best_choice->length(); ++i) {
+        if ((word->best_choice->unichar_id(i) != space) &&
+            word->reject_map[i].rejected())
+          word->reject_map[i].setrej_minimal_rej_accept();
       }
     }
   }
@@ -432,9 +415,10 @@ void write_results(                           //output a word
   word->ep_choice = ep_choice;
 #endif
 
-  character_count += word->best_choice->lengths ().length ();
+  character_count += word->best_choice->length();
   word_count++;
 }
+}  // namespace tesseract
 
 /**********************************************************************
  * make_epaper_choice
@@ -652,114 +636,6 @@ char determine_newline_type(                   //test line ends
   //              end_gap>width ? CTRL_HARDLINE : CTRL_NEWLINE);
   return end_gap > width ? CTRL_HARDLINE : CTRL_NEWLINE;
 }
-
-
-/**********************************************************************
- * write_cooked_text
- *
- * Write the cooked text (with bold for pass2 and underline for reject)
- * to the given file.
- **********************************************************************/
-
-#if 0
-void write_cooked_text(                     //write output
-                       WERD *word,          //word to do
-                       const STRING &text,  //text to write
-                       BOOL8 acceptable,    //good stuff
-                       BOOL8 pass2,         //done on pass2
-                       FILE *fp             //file to write
-                      ) {
-  inT16 index;                   //blank counter
-  int status;
-  static int newaline = 1;
-  static int havespace = 0;
-  char buff[512];
-  const char *wordstr = text.string ();
-  int i = 0;
-  char unrecognised = STRING (unrecognised_char)[0];
-  static int old_segs = 0;
-  TBOX mybox;
-  for (i = 0; wordstr[i] != '\0'; i++) {
-    if (wordstr[i] == ' ')
-      buff[i] = unrecognised;
-    else
-      buff[i] = wordstr[i];
-  }
-  buff[i] = '\0';
-
-  if (fp == stdout) {
-    tprintf ("Cooked=%s, %d segs, acceptable=%d",
-      buff, num_popped - old_segs, acceptable);
-    old_segs = num_popped;
-    return;
-  }
-
-  if (text.length () > 0) {
-    for (index = 0; index < word->space (); index++) {
-      status = fprintf (fp, " ");
-      havespace = 1;
-      if (status < 0)
-        WRITEFAILED.error ("write_cooked_text", EXIT,
-          "Space Errno: %d", errno);
-    }
-    if (pass2) {
-      status = fprintf (fp, BOLD_ON);
-      if (status < 0)
-        WRITEFAILED.error ("write_cooked_text", EXIT,
-          "Bold Errno: %d", errno);
-    }
-    if (!acceptable) {
-      status = fprintf (fp, UNDERLINE_ON);
-      if (status < 0)
-        WRITEFAILED.error ("write_cooked_text", EXIT,
-          "Underline Errno: %d", errno);
-    }
-
-                                 //xiaofan
-    if (NO_BLOCK && word && strlen (buff)) {
-      mybox = word->bounding_box ();
-      if (newaline || !havespace) {
-        fprintf (fp, " ");
-        newaline = 0;
-      }
-      fprintf (fp, "(%d," INT32FORMAT ",%d," INT32FORMAT ")",
-        XOFFSET + mybox.left (),
-        YOFFSET + page_image.get_ysize () - mybox.top (),
-        XOFFSET + mybox.right (),
-        YOFFSET + page_image.get_ysize () - mybox.bottom ());
-      havespace = 0;
-    }
-
-    status = fprintf (fp, "%s", buff);
-    if (status < 0)
-      WRITEFAILED.error ("write_cooked_text", EXIT,
-        "Word Errno: %d", errno);
-    if (pass2) {
-      status = fprintf (fp, BOLD_OFF);
-      if (status < 0)
-        WRITEFAILED.error ("write_cooked_text", EXIT,
-          "Bold off Errno: %d", errno);
-    }
-    if (!acceptable) {
-      status = fprintf (fp, UNDERLINE_OFF);
-      if (status < 0)
-        WRITEFAILED.error ("write_cooked_text", EXIT,
-          "Underline off Errno: %d", errno);
-    }
-  }
-  if (word->flag (W_EOL)) {
-    status = fprintf (fp, "\n");
-    newaline = 1;
-    if (status < 0)
-      WRITEFAILED.error ("write_cooked_text", EXIT,
-        "Newline Errno: %d", errno);
-  }
-  status = fflush (fp);
-  if (status != 0)
-    WRITEFAILED.error ("write_cooked_text", EXIT, "Fflush Errno: %d", errno);
-}
-#endif
-
 
 /**********************************************************************
  * write_shm_text
@@ -982,7 +858,8 @@ void write_map(                //output a map file
  * open_file()
  *************************************************************************/
 
-FILE *open_outfile(  //open .map & .unlv file
+namespace tesseract {
+FILE *Tesseract::open_outfile(  //open .map & .unlv file
                    const char *extension) {
   STRING file_name;
   FILE *outfile;
@@ -994,6 +871,7 @@ FILE *open_outfile(  //open .map & .unlv file
   }
   return outfile;
 }
+}  // namespace tesseract
 
 
 #if 0
@@ -1063,21 +941,19 @@ void write_unlv_text(WERD_RES *word) {
  * Return the first accepted character from the repetition string. This is the
  * character which is repeated - as determined earlier by fix_rep_char()
  *************************************************************************/
-UNICHAR_ID get_rep_char(WERD_RES *word) {  // what char is repeated?
+namespace tesseract {
+UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) {  // what char is repeated?
   int i;
-  int offset;
+  for (i = 0; ((i < word->reject_map.length()) &&
+               (word->reject_map[i].rejected())); ++i);
 
-  for (i = 0, offset = 0;
-    ((i < word->reject_map.length ()) &&
-    (word->reject_map[i].rejected ()));
-       offset += word->best_choice->lengths()[i++]);
-  if (i < word->reject_map.length ())
-    return unicharset.unichar_to_id(word->best_choice->string().string()
-                                    + offset,
-                                    word->best_choice->lengths()[i]);
-  else
+  if (i < word->reject_map.length()) {
+    return word->best_choice->unichar_id(i);
+  } else {
     return unicharset.unichar_to_id(unrecognised_char.string());
+  }
 }
+}  // namespace tesseract
 
 void ensure_rep_chars_are_consistent(WERD_RES *word) {
 #if 0
@@ -1119,20 +995,17 @@ void ensure_rep_chars_are_consistent(WERD_RES *word) {
  * tessedit_minimal_rejection.
  *************************************************************************/
 
-void set_unlv_suspects(WERD_RES *word) {
-  int len = word->reject_map.length ();
+namespace tesseract {
+void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
+  int len = word_res->reject_map.length();
+  const WERD_CHOICE &word = *(word_res->best_choice);
   int i;
-  int offset;
-  const char *ptr;
-  const char *lengths = word->best_choice->lengths ().string ();
   float rating_per_ch;
-
-  ptr = word->best_choice->string ().string ();
 
   if (suspect_level == 0) {
     for (i = 0; i < len; i++) {
-      if (word->reject_map[i].rejected ())
-        word->reject_map[i].setrej_minimal_rej_accept ();
+      if (word_res->reject_map[i].rejected())
+        word_res->reject_map[i].setrej_minimal_rej_accept();
     }
     return;
   }
@@ -1142,37 +1015,38 @@ void set_unlv_suspects(WERD_RES *word) {
 
   /* NOW FOR LEVELS 1 and 2 Find some stuff to unreject*/
 
-  if (safe_dict_word (ptr) && (count_alphas (ptr, lengths) >
-                               suspect_short_words)) {
+  if (safe_dict_word(word) &&
+      (count_alphas(word) > suspect_short_words)) {
     /* Unreject alphas in dictionary words */
-    for (i = 0, offset = 0; i < len; offset += lengths[i++]) {
-      if (word->reject_map[i].rejected () &&
-          unicharset.get_isalpha (ptr + offset, lengths[i]))
-        word->reject_map[i].setrej_minimal_rej_accept ();
+    for (i = 0; i < len; ++i) {
+      if (word_res->reject_map[i].rejected() &&
+          unicharset.get_isalpha(word.unichar_id(i)))
+        word_res->reject_map[i].setrej_minimal_rej_accept();
     }
   }
 
-  rating_per_ch = word->best_choice->rating () / word->reject_map.length ();
+  rating_per_ch = word.rating() / word_res->reject_map.length();
 
   if (rating_per_ch >= suspect_rating_per_ch)
     return;                      //Dont touch bad ratings
 
-  if ((word->tess_accepted) || (rating_per_ch < suspect_accept_rating)) {
+  if ((word_res->tess_accepted) || (rating_per_ch < suspect_accept_rating)) {
     /* Unreject any Tess Acceptable word - but NOT tess reject chs*/
-    for (i = 0, offset = 0; i < len; offset += lengths[i++]) {
-      if (word->reject_map[i].rejected () && (ptr[offset] != ' '))
-        word->reject_map[i].setrej_minimal_rej_accept ();
+    for (i = 0; i < len; ++i) {
+      if (word_res->reject_map[i].rejected() &&
+          (!unicharset.eq(word.unichar_id(i), " ")))
+        word_res->reject_map[i].setrej_minimal_rej_accept();
     }
   }
 
   for (i = 0; i < len; i++) {
-    if (word->reject_map[i].rejected ()) {
-      if (word->reject_map[i].flag (R_DOC_REJ))
-        word->reject_map[i].setrej_minimal_rej_accept ();
-      if (word->reject_map[i].flag (R_BLOCK_REJ))
-        word->reject_map[i].setrej_minimal_rej_accept ();
-      if (word->reject_map[i].flag (R_ROW_REJ))
-        word->reject_map[i].setrej_minimal_rej_accept ();
+    if (word_res->reject_map[i].rejected()) {
+      if (word_res->reject_map[i].flag(R_DOC_REJ))
+        word_res->reject_map[i].setrej_minimal_rej_accept();
+      if (word_res->reject_map[i].flag(R_BLOCK_REJ))
+        word_res->reject_map[i].setrej_minimal_rej_accept();
+      if (word_res->reject_map[i].flag(R_ROW_REJ))
+        word_res->reject_map[i].setrej_minimal_rej_accept();
     }
   }
 
@@ -1180,69 +1054,62 @@ void set_unlv_suspects(WERD_RES *word) {
     return;
 
   if (!suspect_constrain_1Il ||
-  (word->reject_map.length () <= suspect_short_words)) {
+      (word_res->reject_map.length() <= suspect_short_words)) {
     for (i = 0; i < len; i++) {
-      if (word->reject_map[i].rejected ()) {
-        if ((word->reject_map[i].flag (R_1IL_CONFLICT) ||
-          word->reject_map[i].flag (R_POSTNN_1IL)))
-          word->reject_map[i].setrej_minimal_rej_accept ();
+      if (word_res->reject_map[i].rejected()) {
+        if ((word_res->reject_map[i].flag(R_1IL_CONFLICT) ||
+          word_res->reject_map[i].flag(R_POSTNN_1IL)))
+          word_res->reject_map[i].setrej_minimal_rej_accept();
 
         if (!suspect_constrain_1Il &&
-          word->reject_map[i].flag (R_MM_REJECT))
-          word->reject_map[i].setrej_minimal_rej_accept ();
+          word_res->reject_map[i].flag(R_MM_REJECT))
+          word_res->reject_map[i].setrej_minimal_rej_accept();
       }
     }
   }
 
-  if ((acceptable_word_string (word->best_choice->string ().string (),
-                               word->best_choice->lengths ().string ())
-    != AC_UNACCEPTABLE) ||
-  acceptable_number_string (word->best_choice->string ().string (),
-                            word->best_choice->lengths ().string ())) {
-    if (word->reject_map.length () > suspect_short_words) {
+  if ((acceptable_word_string(word.unichar_string().string(),
+                              word.unichar_lengths().string()) !=
+       AC_UNACCEPTABLE) ||
+      acceptable_number_string(word.unichar_string().string(),
+                               word.unichar_lengths().string())) {
+    if (word_res->reject_map.length() > suspect_short_words) {
       for (i = 0; i < len; i++) {
-        if (word->reject_map[i].rejected () &&
-          (!word->reject_map[i].perm_rejected () ||
-          word->reject_map[i].flag (R_1IL_CONFLICT) ||
-          word->reject_map[i].flag (R_POSTNN_1IL) ||
-        word->reject_map[i].flag (R_MM_REJECT))) {
-          word->reject_map[i].setrej_minimal_rej_accept ();
+        if (word_res->reject_map[i].rejected() &&
+          (!word_res->reject_map[i].perm_rejected() ||
+           word_res->reject_map[i].flag (R_1IL_CONFLICT) ||
+           word_res->reject_map[i].flag (R_POSTNN_1IL) ||
+           word_res->reject_map[i].flag (R_MM_REJECT))) {
+          word_res->reject_map[i].setrej_minimal_rej_accept();
         }
       }
     }
   }
 }
 
-
-inT16 count_alphas(  //how many alphas
-                   const char *s,
-                   const char *lengths) {
+inT16 Tesseract::count_alphas(const WERD_CHOICE &word) {
   int count = 0;
-
-  for (; *s != '\0'; s += *(lengths++)) {
-    if (unicharset.get_isalpha(s, *lengths))
+  for (int i = 0; i < word.length(); ++i) {
+    if (unicharset.get_isalpha(word.unichar_id(i)))
       count++;
   }
   return count;
 }
 
 
-inT16 count_alphanums(  //how many alphanums
-                      const char *s,
-                      const char *lengths) {
+inT16 Tesseract::count_alphanums(const WERD_CHOICE &word) {
   int count = 0;
-
-  for (; *s != '\0'; s += *(lengths++)) {
-    if (unicharset.get_isalpha(s, *lengths) ||
-        unicharset.get_isdigit(s, *lengths))
+  for (int i = 0; i < word.length(); ++i) {
+    if (unicharset.get_isalpha(word.unichar_id(i)) ||
+        unicharset.get_isdigit(word.unichar_id(i)))
       count++;
   }
   return count;
 }
 
 
-BOOL8 acceptable_number_string(const char *s,
-                               const char *lengths) {
+BOOL8 Tesseract::acceptable_number_string(const char *s,
+                                          const char *lengths) {
   BOOL8 prev_digit = FALSE;
 
   if (*lengths == 1 && *s == '(')
@@ -1271,3 +1138,4 @@ BOOL8 acceptable_number_string(const char *s,
   }
   return TRUE;
 }
+}  // namespace tesseract

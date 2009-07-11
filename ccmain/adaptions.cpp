@@ -38,6 +38,7 @@
 #include          "charsample.h"
 #include          "matmatch.h"
 #include          "secname.h"
+#include          "tesseractclass.h"
 
 inT32 demo_word = 0;
 
@@ -90,10 +91,21 @@ EXTERN INT_VAR (tessedit_demo_word2, 64,
 "Word number of second word to display");
 EXTERN STRING_VAR (tessedit_demo_file, "academe",
 "Name of document containing demo words");
+EXTERN BOOL_VAR(tessedit_adapt_to_char_fragments, TRUE,
+                "Adapt to words that contain "
+                " a character composed form fragments");
 
-BOOL8 word_adaptable(  //should we adapt?
-                     WERD_RES *word,
-                     uinT16 mode) {
+namespace tesseract {
+BOOL8 Tesseract::word_adaptable(  //should we adapt?
+                                WERD_RES *word,
+                                uinT16 mode) {
+  if (tessedit_adaption_debug) {
+    tprintf("Running word_adaptable() for %s rating %.4f certainty %.4f\n",
+          word->best_choice == NULL ? "" :
+          word->best_choice->unichar_string().string(),
+          word->best_choice->rating(), word->best_choice->certainty());
+  }
+
   BOOL8 status = FALSE;
   BITS16 flags(mode);
 
@@ -111,47 +123,80 @@ BOOL8 word_adaptable(  //should we adapt?
   0: NO adaption
   */
   if (mode == 0) {
+    if (tessedit_adaption_debug) tprintf("adaption disabled\n");
     return FALSE;
   }
 
-  if (flags.bit (ADAPTABLE_WERD))
-    status |= word->tess_would_adapt;
+  if (flags.bit (ADAPTABLE_WERD)) {
+    status |= word->tess_would_adapt;  // result of Classify::AdaptableWord()
+    if (tessedit_adaption_debug && !status) {
+      tprintf("tess_would_adapt bit is false\n");
+    }
+  }
 
-  if (flags.bit (ACCEPTABLE_WERD))
+  if (flags.bit (ACCEPTABLE_WERD)) {
     status |= word->tess_accepted;
+    if (tessedit_adaption_debug && !status) {
+      tprintf("tess_accepted bit is false\n");
+    }
+  }
 
-  if (!status)                   // If not set then
+  if (!status) {                  // If not set then
     return FALSE;                // ignore other checks
+  }
 
   if (flags.bit (CHECK_DAWGS) &&
     (word->best_choice->permuter () != SYSTEM_DAWG_PERM) &&
     (word->best_choice->permuter () != FREQ_DAWG_PERM) &&
     (word->best_choice->permuter () != USER_DAWG_PERM) &&
-    (word->best_choice->permuter () != NUMBER_PERM))
+    (word->best_choice->permuter () != NUMBER_PERM)) {
+    if (tessedit_adaption_debug) tprintf("word not in dawgs\n");
     return FALSE;
+  }
 
-  if (flags.bit (CHECK_ONE_ELL_CONFLICT) && one_ell_conflict (word, FALSE))
+  if (flags.bit (CHECK_ONE_ELL_CONFLICT) && one_ell_conflict (word, FALSE)) {
+    if (tessedit_adaption_debug) tprintf("word has ell conflict\n");
     return FALSE;
+  }
 
   if (flags.bit (CHECK_SPACES) &&
-    (strchr (word->best_choice->string ().string (), ' ') != NULL))
+    (strchr(word->best_choice->unichar_string().string(), ' ') != NULL)) {
+    if (tessedit_adaption_debug) tprintf("word contains spaces\n");
     return FALSE;
+  }
 
 //  if (flags.bit (CHECK_AMBIG_WERD) && test_ambig_word (word))
   if (flags.bit (CHECK_AMBIG_WERD) &&
-      !NoDangerousAmbig(word->best_choice->string().string(),
-                        word->best_choice->lengths().string(),
-                        NULL))
+      !getDict().NoDangerousAmbig(word->best_choice, NULL, false, NULL, NULL)) {
+    if (tessedit_adaption_debug) tprintf("word is ambiguous\n");
     return FALSE;
+  }
 
+  // Do not adapt to words that are composed from fragments if
+  // tessedit_adapt_to_char_fragments is false.
+  if (!tessedit_adapt_to_char_fragments) {
+    const char *fragment_lengths = word->best_choice->fragment_lengths();
+    if (fragment_lengths != NULL && *fragment_lengths != '\0') {
+      for (int i = 0; i < word->best_choice->length(); ++i) {
+        if (fragment_lengths[i] > 1) {
+          if (tessedit_adaption_debug) tprintf("won't adapt to fragments\n");
+          return false;  // found a character composed from fragments
+        }
+      }
+    }
+  }
+
+  if (tessedit_adaption_debug) {
+    tprintf("returning status %d\n", status);
+  }
   return status;
 
 }
 
 
-void collect_ems_for_adaption(WERD_RES *word,
-                              CHAR_SAMPLES_LIST *char_clusters,
-                              CHAR_SAMPLE_LIST *chars_waiting) {
+void Tesseract::collect_ems_for_adaption(WERD_RES *word,
+                                         CHAR_SAMPLES_LIST *char_clusters,
+                                         CHAR_SAMPLE_LIST *chars_waiting) {
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
   inT16 i;
@@ -178,18 +223,18 @@ void collect_ems_for_adaption(WERD_RES *word,
 
   if (word_adaptable (word, tessedit_em_adaption_mode)
     && word->reject_map.reject_count () == 0
-    && (strchr (word->best_choice->string ().string (), 'm') != NULL
+    && (strchr (word->best_choice->unichar_string().string (), 'm') != NULL
     || (tessedit_process_rns
-    && strstr (word->best_choice->string ().string (),
+    && strstr (word->best_choice->unichar_string().string (),
   "rn") != NULL))) {
     if (tessedit_process_rns
-    && strstr (word->best_choice->string ().string (), "rn") != NULL) {
+    && strstr (word->best_choice->unichar_string().string (), "rn") != NULL) {
       copy_outword = *(word->outword);
       copy_blob_it.set_to_list (copy_outword.blob_list ());
       i = 0;
-      while (word->best_choice->string ()[i] != '\0') {
-        if (word->best_choice->string ()[i] == 'r'
-        && word->best_choice->string ()[i + 1] == 'n') {
+      while (word->best_choice->unichar_string()[i] != '\0') {
+        if (word->best_choice->unichar_string()[i] == 'r'
+        && word->best_choice->unichar_string()[i + 1] == 'n') {
           copy_outline_it.set_to_list (copy_blob_it.data ()->
             out_list ());
           copy_outline_it.add_list_after (copy_blob_it.
@@ -213,31 +258,31 @@ void collect_ems_for_adaption(WERD_RES *word,
 
     blob_it.move_to_first ();
     for (i = 0;
-      word->best_choice->string ()[i] != '\0';
+      word->best_choice->unichar_string()[i] != '\0';
     i++, pixrow_it.forward (), blob_it.forward ()) {
 
-      if (word->best_choice->string ()[i] == 'm'
-        || (word->best_choice->string ()[i] == 'r'
-      && word->best_choice->string ()[i + 1] == 'n')) {
+      if (word->best_choice->unichar_string()[i] == 'm'
+        || (word->best_choice->unichar_string()[i] == 'r'
+      && word->best_choice->unichar_string()[i + 1] == 'n')) {
         #ifndef SECURE_NAMES
         if (tessedit_cluster_debug)
           tprintf ("Sample %c for adaption found in %s, index %d\n",
-            word->best_choice->string ()[i],
-            word->best_choice->string ().string (), i);
+            word->best_choice->unichar_string()[i],
+            word->best_choice->unichar_string().string (), i);
         #endif
         if (tessedit_matrix_match) {
           sample = clip_sample (pixrow_it.data (),
             imlines,
             pix_box,
             copy_outword.flag (W_INVERSE),
-            word->best_choice->string ()[i]);
+            word->best_choice->unichar_string()[i]);
 
           if (sample == NULL) {  //Clip failed
             #ifndef SECURE_NAMES
             tprintf ("Unable to clip sample from %s, index %d\n",
-              word->best_choice->string ().string (), i);
+              word->best_choice->unichar_string().string (), i);
             #endif
-            if (word->best_choice->string ()[i] == 'r')
+            if (word->best_choice->unichar_string()[i] == 'r')
               i++;
 
             continue;
@@ -246,11 +291,11 @@ void collect_ems_for_adaption(WERD_RES *word,
         else
           sample = new CHAR_SAMPLE (blob_it.data (),
             &word->denorm,
-            word->best_choice->string ()[i]);
+            word->best_choice->unichar_string()[i]);
 
         cluster_sample(sample, char_clusters, chars_waiting);
 
-        if (word->best_choice->string ()[i] == 'r')
+        if (word->best_choice->unichar_string()[i] == 'r')
           i++;                   // Skip next character
       }
     }
@@ -260,9 +305,10 @@ void collect_ems_for_adaption(WERD_RES *word,
 }
 
 
-void collect_characters_for_adaption(WERD_RES *word,
-                                     CHAR_SAMPLES_LIST *char_clusters,
-                                     CHAR_SAMPLE_LIST *chars_waiting) {
+void Tesseract::collect_characters_for_adaption(
+    WERD_RES *word,
+    CHAR_SAMPLES_LIST *char_clusters,
+    CHAR_SAMPLE_LIST *chars_waiting) {
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
   inT16 i;
@@ -295,30 +341,29 @@ void collect_characters_for_adaption(WERD_RES *word,
 
     blob_it.move_to_first ();
     for (i = 0;
-      word->best_choice->string ()[i] != '\0';
+      word->best_choice->unichar_string()[i] != '\0';
     i++, pixrow_it.forward (), blob_it.forward ()) {
 
       if (!(tessedit_mm_use_non_adaption_set
-        && STRING (tessedit_non_adaption_set).contains (word->
-        best_choice->
-        string ()[i]))
+        && STRING(tessedit_non_adaption_set).contains(
+            word->best_choice->unichar_string()[i]))
       || (tessedit_mm_use_rejmap && word->reject_map[i].accepted ())) {
         #ifndef SECURE_NAMES
         if (tessedit_cluster_debug)
           tprintf ("Sample %c for adaption found in %s, index %d\n",
-            word->best_choice->string ()[i],
-            word->best_choice->string ().string (), i);
+            word->best_choice->unichar_string()[i],
+            word->best_choice->unichar_string().string (), i);
         #endif
         sample = clip_sample (pixrow_it.data (),
           imlines,
           pix_box,
           copy_outword.flag (W_INVERSE),
-          word->best_choice->string ()[i]);
+          word->best_choice->unichar_string()[i]);
 
         if (sample == NULL) {    //Clip failed
           #ifndef SECURE_NAMES
           tprintf ("Unable to clip sample from %s, index %d\n",
-            word->best_choice->string ().string (), i);
+            word->best_choice->unichar_string().string (), i);
           #endif
           continue;
         }
@@ -335,9 +380,9 @@ void collect_characters_for_adaption(WERD_RES *word,
 }
 
 
-void cluster_sample(CHAR_SAMPLE *sample,
-                    CHAR_SAMPLES_LIST *char_clusters,
-                    CHAR_SAMPLE_LIST *chars_waiting) {
+void Tesseract::cluster_sample(CHAR_SAMPLE *sample,
+                               CHAR_SAMPLES_LIST *char_clusters,
+                               CHAR_SAMPLE_LIST *chars_waiting) {
   CHAR_SAMPLES *best_cluster = NULL;
   CHAR_SAMPLES_IT c_it = char_clusters;
   CHAR_SAMPLE_IT cw_it = chars_waiting;
@@ -348,7 +393,7 @@ void cluster_sample(CHAR_SAMPLE *sample,
     c_it.add_to_end (new CHAR_SAMPLES (sample));
   else {
     for (c_it.mark_cycle_pt (); !c_it.cycled_list (); c_it.forward ()) {
-      score = c_it.data ()->match_score (sample);
+      score = c_it.data ()->match_score (sample, this);
       if (score < best_score) {
         best_score = score;
         best_cluster = c_it.data ();
@@ -360,7 +405,7 @@ void cluster_sample(CHAR_SAMPLE *sample,
 
     if (best_score < tessedit_cluster_t1) {
       if (best_score > tessedit_cluster_t3 || tessedit_mm_use_prototypes) {
-        best_cluster->add_sample (sample);
+        best_cluster->add_sample (sample, this);
         check_wait_list(chars_waiting, sample, best_cluster);
         #ifndef SECURE_NAMES
         if (tessedit_cluster_debug)
@@ -390,10 +435,9 @@ void cluster_sample(CHAR_SAMPLE *sample,
   }
 }
 
-
-void check_wait_list(CHAR_SAMPLE_LIST *chars_waiting,
-                     CHAR_SAMPLE *sample,
-                     CHAR_SAMPLES *best_cluster) {
+void Tesseract::check_wait_list(CHAR_SAMPLE_LIST *chars_waiting,
+                                CHAR_SAMPLE *sample,
+                                CHAR_SAMPLES *best_cluster) {
   CHAR_SAMPLE *wait_sample;
   CHAR_SAMPLE *test_sample = sample;
   CHAR_SAMPLE_IT cw_it = chars_waiting;
@@ -408,16 +452,16 @@ void check_wait_list(CHAR_SAMPLE_LIST *chars_waiting,
       if (!add_list.empty ()) {
         add_it.forward ();
         test_sample = add_it.extract ();
-        best_cluster->add_sample (test_sample);
+        best_cluster->add_sample (test_sample, this);
       }
 
       for (cw_it.mark_cycle_pt ();
       !cw_it.cycled_list (); cw_it.forward ()) {
         wait_sample = cw_it.data ();
         if (tessedit_mm_use_prototypes)
-          score = best_cluster->match_score (wait_sample);
+          score = best_cluster->match_score (wait_sample, this);
         else
-          score = sample->match_sample (wait_sample, FALSE);
+          score = sample->match_sample (wait_sample, FALSE, this);
         if (score < tessedit_cluster_t1) {
           if (score > tessedit_cluster_t3
           || tessedit_mm_use_prototypes) {
@@ -443,8 +487,8 @@ void check_wait_list(CHAR_SAMPLE_LIST *chars_waiting,
 }
 
 
-void complete_clustering(CHAR_SAMPLES_LIST *char_clusters,
-                         CHAR_SAMPLE_LIST *chars_waiting) {
+void Tesseract::complete_clustering(CHAR_SAMPLES_LIST *char_clusters,
+                                    CHAR_SAMPLE_LIST *chars_waiting) {
   CHAR_SAMPLES *best_cluster;
   CHAR_SAMPLES_IT c_it = char_clusters;
   CHAR_SAMPLE_IT cw_it = chars_waiting;
@@ -481,10 +525,9 @@ void complete_clustering(CHAR_SAMPLES_LIST *char_clusters,
 
 }
 
-
-void adapt_to_good_ems(WERD_RES *word,
-                       CHAR_SAMPLES_LIST *char_clusters,
-                       CHAR_SAMPLE_LIST *chars_waiting) {
+void Tesseract::adapt_to_good_ems(WERD_RES *word,
+                                  CHAR_SAMPLES_LIST *char_clusters,
+                                  CHAR_SAMPLE_LIST *chars_waiting) {
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
   inT16 i;
@@ -519,9 +562,9 @@ void adapt_to_good_ems(WERD_RES *word,
 
   word_number++;
 
-  if (strchr (word->best_choice->string ().string (), 'm') == NULL
+  if (strchr (word->best_choice->unichar_string().string (), 'm') == NULL
     && (tessedit_process_rns
-    && strstr (word->best_choice->string ().string (), "rn") == NULL))
+    && strstr (word->best_choice->unichar_string().string (), "rn") == NULL))
     return;
 
   if (tessedit_reject_ems)
@@ -544,19 +587,19 @@ void adapt_to_good_ems(WERD_RES *word,
 
     if ((!word_adaptable (word, tessedit_em_adaption_mode) ||
       word->reject_map.reject_count () != 0)
-      && (strchr (word->best_choice->string ().string (), 'm') != NULL
+      && (strchr (word->best_choice->unichar_string().string (), 'm') != NULL
       || (tessedit_process_rns
-      && strstr (word->best_choice->string ().string (),
+      && strstr (word->best_choice->unichar_string().string (),
     "rn") != NULL))) {
       if (tessedit_process_rns
-        && strstr (word->best_choice->string ().string (),
+        && strstr (word->best_choice->unichar_string().string (),
       "rn") != NULL) {
         copy_outword = *(word->outword);
         copy_blob_it.set_to_list (copy_outword.blob_list ());
         i = 0;
-        while (word->best_choice->string ()[i] != '\0') {
-          if (word->best_choice->string ()[i] == 'r'
-          && word->best_choice->string ()[i + 1] == 'n') {
+        while (word->best_choice->unichar_string()[i] != '\0') {
+          if (word->best_choice->unichar_string()[i] == 'r'
+          && word->best_choice->unichar_string()[i + 1] == 'n') {
             copy_outline_it.set_to_list (copy_blob_it.data ()->
               out_list ());
             copy_outline_it.add_list_after (copy_blob_it.
@@ -586,23 +629,23 @@ void adapt_to_good_ems(WERD_RES *word,
       blob_it.move_to_first ();
       copy_blob_it.move_to_first ();
       for (i = 0;
-        word->best_choice->string ()[i] != '\0';
+        word->best_choice->unichar_string()[i] != '\0';
         i++, pixrow_it.forward (), blob_it.forward (),
       copy_blob_it.forward ()) {
-        if ((word->best_choice->string ()[i] == 'm'
-          || (word->best_choice->string ()[i] == 'r'
-          && word->best_choice->string ()[i + 1] == 'n'))
+        if ((word->best_choice->unichar_string()[i] == 'm'
+          || (word->best_choice->unichar_string()[i] == 'r'
+          && word->best_choice->unichar_string()[i + 1] == 'n'))
         && !word->reject_map[i].perm_rejected ()) {
           if (tessedit_cluster_debug)
             tprintf ("Sample %c to check found in %s, index %d\n",
-              word->best_choice->string ()[i],
-              word->best_choice->string ().string (), i);
+              word->best_choice->unichar_string()[i],
+              word->best_choice->unichar_string().string (), i);
 
           if (tessedit_demo_adaption)
             tprintf
               ("Sample %c to check found in %s (%d), index %d\n",
-              word->best_choice->string ()[i],
-              word->best_choice->string ().string (), word_number,
+              word->best_choice->unichar_string()[i],
+              word->best_choice->unichar_string().string (), word_number,
               i);
 
           if (tessedit_matrix_match) {
@@ -612,19 +655,19 @@ void adapt_to_good_ems(WERD_RES *word,
               imlines,
               pix_box,
               copy_outword.flag (W_INVERSE),
-              word->best_choice->string ()[i]);
+              word->best_choice->unichar_string()[i]);
 
                                  //Clip failed
             if (sample == NULL) {
               tprintf
                 ("Unable to clip sample from %s, index %d\n",
-                word->best_choice->string ().string (), i);
+                word->best_choice->unichar_string().string (), i);
               #ifndef SECURE_NAMES
               if (tessedit_cluster_debug)
                 tprintf ("Sample rejected (no sample)\n");
               #endif
               word->reject_map[i].setrej_mm_reject ();
-              if (word->best_choice->string ()[i] == 'r') {
+              if (word->best_choice->unichar_string()[i] == 'r') {
                 word->reject_map[i + 1].setrej_mm_reject ();
                 i++;
               }
@@ -632,10 +675,9 @@ void adapt_to_good_ems(WERD_RES *word,
             }
           }
           else
-            sample = new CHAR_SAMPLE (blob_it.data (),
-              &word->denorm,
-              word->best_choice->
-              string ()[i]);
+            sample = new CHAR_SAMPLE(blob_it.data(),
+                                     &word->denorm,
+                                     word->best_choice->unichar_string()[i]);
 
           best_score = MAX_INT32;
           best_char = '\0';
@@ -644,7 +686,7 @@ void adapt_to_good_ems(WERD_RES *word,
           for (c_it.mark_cycle_pt ();
           !c_it.cycled_list (); c_it.forward ()) {
             if (c_it.data ()->character () != '\0') {
-              score = c_it.data ()->match_score (sample);
+              score = c_it.data ()->match_score (sample, this);
               if (score < best_score) {
                 best_cluster = c_it.data ();
                 best_score = score;
@@ -661,11 +703,11 @@ void adapt_to_good_ems(WERD_RES *word,
               tprintf ("Sample rejected (score %f)\n", best_score);
             #endif
             word->reject_map[i].setrej_mm_reject ();
-            if (word->best_choice->string ()[i] == 'r')
+            if (word->best_choice->unichar_string()[i] == 'r')
               word->reject_map[i + 1].setrej_mm_reject ();
           }
           else {
-            if (word->best_choice->string ()[i] == best_char) {
+            if (word->best_choice->unichar_string()[i] == best_char) {
               #ifndef SECURE_NAMES
               if (tessedit_cluster_debug)
                 tprintf ("Sample accepted (score %f)\n",
@@ -675,7 +717,7 @@ void adapt_to_good_ems(WERD_RES *word,
                   best_score);
               #endif
               word->reject_map[i].setrej_mm_accept ();
-              if (word->best_choice->string ()[i] == 'r')
+              if (word->best_choice->unichar_string()[i] == 'r')
                 word->reject_map[i + 1].setrej_mm_accept ();
             }
             else {
@@ -688,7 +730,7 @@ void adapt_to_good_ems(WERD_RES *word,
                   best_char, best_score);
               #endif
               word->reject_map[i].setrej_mm_reject ();
-              if (word->best_choice->string ()[i] == 'r')
+              if (word->best_choice->unichar_string()[i] == 'r')
                 word->reject_map[i + 1].setrej_mm_reject ();
             }
           }
@@ -706,11 +748,11 @@ void adapt_to_good_ems(WERD_RES *word,
                                    pix_box);
 #endif
               demo_word = word_number;
-              best_cluster->match_score (sample);
+              best_cluster->match_score (sample, this);
               demo_word = 0;
             }
           }
-          if (word->best_choice->string ()[i] == 'r')
+          if (word->best_choice->unichar_string()[i] == 'r')
             i++;                 // Skip next character
         }
       }
@@ -721,9 +763,10 @@ void adapt_to_good_ems(WERD_RES *word,
 }
 
 
-void adapt_to_good_samples(WERD_RES *word,
-                           CHAR_SAMPLES_LIST *char_clusters,
-                           CHAR_SAMPLE_LIST *chars_waiting) {
+
+void Tesseract::adapt_to_good_samples(WERD_RES *word,
+                                      CHAR_SAMPLES_LIST *char_clusters,
+                                      CHAR_SAMPLE_LIST *chars_waiting) {
   PBLOB_LIST *blobs = word->outword->blob_list ();
   PBLOB_IT blob_it(blobs);
   inT16 i;
@@ -777,7 +820,7 @@ void adapt_to_good_samples(WERD_RES *word,
   && word->reject_map.reject_count () != 0) || tessedit_mm_use_rejmap) {
     if (tessedit_cluster_debug) {
       tprintf ("\nChecking: \"%s\"  MAP ",
-        word->best_choice->string ().string ());
+        word->best_choice->unichar_string().string ());
       word->reject_map.print (debug_fp);
       tprintf ("\n");
     }
@@ -796,7 +839,7 @@ void adapt_to_good_samples(WERD_RES *word,
     blob_it.move_to_first ();
     copy_blob_it.move_to_first ();
     for (i = 0;
-      word->best_choice->string ()[i] != '\0';
+      word->best_choice->unichar_string()[i] != '\0';
       i++, pixrow_it.forward (), blob_it.forward (),
     copy_blob_it.forward ()) {
       if (word->reject_map[i].recoverable ()
@@ -805,24 +848,24 @@ void adapt_to_good_samples(WERD_RES *word,
 
         if (tessedit_cluster_debug)
           tprintf ("Sample %c to check found in %s, index %d\n",
-            word->best_choice->string ()[i],
-            word->best_choice->string ().string (), i);
+            word->best_choice->unichar_string()[i],
+            word->best_choice->unichar_string().string (), i);
 
         if (tessedit_demo_adaption)
           tprintf ("Sample %c to check found in %s (%d), index %d\n",
-            word->best_choice->string ()[i],
-            word->best_choice->string ().string (),
+            word->best_choice->unichar_string()[i],
+            word->best_choice->unichar_string().string (),
             word_number, i);
 
         sample = clip_sample (pixrow_it.data (),
           imlines,
           pix_box,
           copy_outword.flag (W_INVERSE),
-          word->best_choice->string ()[i]);
+          word->best_choice->unichar_string()[i]);
 
         if (sample == NULL) {    //Clip failed
           tprintf ("Unable to clip sample from %s, index %d\n",
-            word->best_choice->string ().string (), i);
+            word->best_choice->unichar_string().string (), i);
           #ifndef SECURE_NAMES
           if (tessedit_cluster_debug)
             tprintf ("Sample rejected (no sample)\n");
@@ -839,7 +882,7 @@ void adapt_to_good_samples(WERD_RES *word,
         for (c_it.mark_cycle_pt ();
         !c_it.cycled_list (); c_it.forward ()) {
           if (c_it.data ()->character () != '\0') {
-            score = c_it.data ()->match_score (sample);
+            score = c_it.data ()->match_score (sample, this);
             if (score < best_score) {
               best_cluster = c_it.data ();
               best_score = score;
@@ -858,7 +901,7 @@ void adapt_to_good_samples(WERD_RES *word,
           word->reject_map[i].setrej_mm_reject ();
         }
         else {
-          if (word->best_choice->string ()[i] == best_char) {
+          if (word->best_choice->unichar_string()[i] == best_char) {
             #ifndef SECURE_NAMES
             if (tessedit_cluster_debug)
               tprintf ("Sample accepted (score %f)\n", best_score);
@@ -896,7 +939,7 @@ void adapt_to_good_samples(WERD_RES *word,
                                  pix_box);
 #endif
             demo_word = word_number;
-            best_cluster->match_score (sample);
+            best_cluster->match_score (sample, this);
             demo_word = 0;
           }
         }
@@ -907,12 +950,13 @@ void adapt_to_good_samples(WERD_RES *word,
 
     if (tessedit_cluster_debug) {
       tprintf ("\nFinal: \"%s\"  MAP ",
-        word->best_choice->string ().string ());
+        word->best_choice->unichar_string().string ());
       word->reject_map.print (debug_fp);
       tprintf ("\n");
     }
   }
 }
+}  // namespace tesseract
 
 
 void print_em_stats(CHAR_SAMPLES_LIST *char_clusters,
@@ -1003,8 +1047,8 @@ void display_cluster_prototypes(CHAR_SAMPLES_LIST *char_clusters) {
 void reject_all_ems(WERD_RES *word) {
   inT16 i;
 
-  for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
-    if (word->best_choice->string ()[i] == 'm')
+  for (i = 0; word->best_choice->unichar_string()[i] != '\0'; i++) {
+    if (word->best_choice->unichar_string()[i] == 'm')
                                  // reject all ems
       word->reject_map[i].setrej_mm_reject ();
   }
@@ -1014,31 +1058,32 @@ void reject_all_ems(WERD_RES *word) {
 void reject_all_fullstops(WERD_RES *word) {
   inT16 i;
 
-  for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
-    if (word->best_choice->string ()[i] == '.')
+  for (i = 0; word->best_choice->unichar_string()[i] != '\0'; i++) {
+    if (word->best_choice->unichar_string()[i] == '.')
                                  // reject all fullstops
       word->reject_map[i].setrej_mm_reject ();
   }
 }
 
-
-void reject_suspect_ems(WERD_RES *word) {
+namespace tesseract {
+void Tesseract::reject_suspect_ems(WERD_RES *word) {
   inT16 i;
 
   if (!word_adaptable (word, tessedit_cluster_adaption_mode))
-  for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
-    if (word->best_choice->string ()[i] == 'm' && suspect_em (word, i))
+  for (i = 0; word->best_choice->unichar_string()[i] != '\0'; i++) {
+    if (word->best_choice->unichar_string()[i] == 'm' && suspect_em (word, i))
                                  // reject all ems
       word->reject_map[i].setrej_mm_reject ();
   }
 }
+}  // namespace tesseract
 
 
 void reject_suspect_fullstops(WERD_RES *word) {
   inT16 i;
 
-  for (i = 0; word->best_choice->string ()[i] != '\0'; i++) {
-    if (word->best_choice->string ()[i] == '.'
+  for (i = 0; word->best_choice->unichar_string()[i] != '\0'; i++) {
+    if (word->best_choice->unichar_string()[i] == '.'
       && suspect_fullstop (word, i))
                                  // reject all commas
       word->reject_map[i].setrej_mm_reject ();

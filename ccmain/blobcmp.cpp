@@ -26,19 +26,22 @@
 #include "adaptmatch.h"
 #include "const.h"
 #include "tessvars.h"
+#include "tesseractclass.h"
 
-#define CMP_CLASS       1
+#define CMP_CLASS       0
 
 /**********************************************************************
  * compare_tess_blobs
  *
  * Match 2 blobs using the adaptive classifier.
  **********************************************************************/
-float compare_tess_blobs(TBLOB *blob1,
-                         TEXTROW *row1,
-                         TBLOB *blob2,
-                         TEXTROW *row2) {
+namespace tesseract {
+float Tesseract::compare_tess_blobs(TBLOB *blob1,
+                                    TEXTROW *row1,
+                                    TBLOB *blob2,
+                                    TEXTROW *row2) {
   int fcount;                    /*number of features */
+  ADAPT_CLASS adapted_class;
   ADAPT_TEMPLATES ad_templates;
   LINE_STATS line_stats1, line_stats2;
   INT_FEATURE_ARRAY int_features;
@@ -51,11 +54,13 @@ float compare_tess_blobs(TBLOB *blob1,
   set_all_bits (AllConfigsOn, WordsInVectorOfSize (MAX_NUM_CONFIGS));
 
   EnterClassifyMode;
-  ad_templates = NewAdaptedTemplates ();
+  ad_templates = NewAdaptedTemplates (false);
   GetLineStatsFromRow(row1, &line_stats1);
                                  /*copy baseline stuff */
   GetLineStatsFromRow(row2, &line_stats2);
-  MakeNewAdaptedClass(blob1, &line_stats1, CMP_CLASS, ad_templates);
+  adapted_class = NewAdaptedClass ();
+  AddAdaptedClass (ad_templates, adapted_class, CMP_CLASS);
+  InitAdaptedClass(blob1, &line_stats1, CMP_CLASS, adapted_class, ad_templates);
   fcount = GetAdaptiveFeatures (blob2, &line_stats2,
     int_features, &float_features);
   if (fcount > 0) {
@@ -74,3 +79,4 @@ float compare_tess_blobs(TBLOB *blob1,
 
   return fcount > 0 ? int_result.Rating * fcount : MAX_FLOAT32;
 }
+}  // namespace tesseract

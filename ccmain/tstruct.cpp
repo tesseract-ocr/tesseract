@@ -20,6 +20,8 @@
 #include "mfcpch.h"
 #include          "tfacep.h"
 #include          "tstruct.h"
+#include          "makerow.h"
+#include          "ocrblock.h"
 //#include "structures.h"
 
 static ERRCODE BADFRAGMENTS = "Couldn't find matching fragment ends";
@@ -246,68 +248,6 @@ void register_outline(                     //add fragments
 
 
 /**********************************************************************
- * convert_choice_lists
- *
- * Convert the ARRAY of TESS_LIST of TESS_CHOICEs into a BLOB_CHOICE_LIST.
- **********************************************************************/
-
-void convert_choice_lists(                                 //convert lists
-                          ARRAY tessarray,                 //list from tess
-                          BLOB_CHOICE_LIST_CLIST *ratings  //list of results
-                         ) {
-  inT32 length;                  //elements in array
-  inT32 index;                   //index to array
-  LIST result;                   //tess output
-                                 //iterator
-  BLOB_CHOICE_LIST_C_IT it = ratings;
-  BLOB_CHOICE_LIST *choice;      //created choice
-
-  if (tessarray != NULL) {
-    length = array_count (tessarray);
-    for (index = 0; index < length; index++) {
-      result = (LIST) array_value (tessarray, index);
-                                 //make one
-      choice = new BLOB_CHOICE_LIST;
-                                 //convert blob choices
-      convert_choice_list(result, *choice);
-                                 //add to super list
-      it.add_after_then_move (choice);
-    }
-    free_mem(tessarray);  //lists already freed
-  }
-}
-
-
-/**********************************************************************
- * convert_choice_list
- *
- * Convert the LIST of TESS_CHOICEs into a BLOB_CHOICE_LIST.
- **********************************************************************/
-
-void convert_choice_list(                           //convert lists
-                         LIST list,                 //list from tess
-                         BLOB_CHOICE_LIST &ratings  //list of results
-                        ) {
-  LIST result;                   //tess output
-  BLOB_CHOICE_IT it = &ratings;  //iterator
-  BLOB_CHOICE *choice;           //created choice
-  A_CHOICE *tesschoice;          //choice to convert
-
-  for (result = list; result != NULL; result = result->next) {
-  //traverse list
-    tesschoice = (A_CHOICE *) result->node;
-                                 //make one
-    choice = new BLOB_CHOICE (tesschoice->string, tesschoice->rating,
-                              tesschoice->certainty, tesschoice->config,
-                              tesschoice->script);
-    it.add_after_then_move (choice);
-  }
-  destroy_nodes (list, (void (*)(void *)) free_choice);
-  //get rid of it
-}
-
-
-/**********************************************************************
  * make_tess_row
  *
  * Make a fake row structure to pass to the tesseract matchers.
@@ -346,7 +286,7 @@ void make_tess_row(                  //make fake row
  * Convert the word to Tess format.
  **********************************************************************/
 
-TWERD *make_tess_word(              //convert owrd
+TWERD *make_tess_word(              //convert word
                       WERD *word,   //word to do
                       TEXTROW *row  //fake row
                      ) {
@@ -394,6 +334,49 @@ TBLOB *make_tess_blobs(                      //make tess blobs
   return head;
 }
 
+/**********************************************************************
+ * make_rotated_tess_blob
+ *
+ * Make a single Tess style blob, applying the given rotation and
+ * renormalizing.
+ **********************************************************************/
+TBLOB *make_rotated_tess_blob(const DENORM* denorm, PBLOB *blob,
+                              BOOL8 flatten) {
+  if (denorm != NULL && denorm->block() != NULL &&
+      denorm->block()->classify_rotation().y() != 0.0) {
+    TBOX box = blob->bounding_box();
+    int src_width = box.width();
+    int src_height = box.height();
+    src_width = static_cast<int>(src_width / denorm->scale() + 0.5);
+    src_height = static_cast<int>(src_height / denorm->scale() + 0.5);
+    int x_middle = (box.left() + box.right()) / 2;
+    int y_middle = (box.top() + box.bottom()) / 2;
+    PBLOB* rotated_blob = PBLOB::deep_copy(blob);
+    rotated_blob->move(FCOORD(-x_middle, -y_middle));
+    rotated_blob->rotate(denorm->block()->classify_rotation());
+    ICOORD median_size = denorm->block()->median_size();
+    int tolerance = median_size.x() / 8;
+    // TODO(dsl/rays) find a better normalization solution. In the mean time
+    // make it work for CJK by normalizing for Cap height in the same way
+    // as is applied in compute_block_xheight when the row is presumed to
+    // be ALLCAPS, i.e. the x-height is the fixed fraction
+    // blob height * textord_merge_x / (textord_merge_x + textord_merge_asc)
+    if (NearlyEqual(src_width, static_cast<int>(median_size.x()), tolerance) &&
+        NearlyEqual(src_height, static_cast<int>(median_size.y()), tolerance)) {
+      float target_height = bln_x_height * (textord_merge_x + textord_merge_asc)
+                          / textord_merge_x;
+      rotated_blob->scale(target_height / box.width());
+      rotated_blob->move(FCOORD(0.0f,
+                                bln_baseline_offset -
+                                  rotated_blob->bounding_box().bottom()));
+    }
+    TBLOB* result = make_tess_blob(rotated_blob, flatten);
+    delete rotated_blob;
+    return result;
+  } else {
+    return make_tess_blob(blob, flatten);
+  }
+}
 
 /**********************************************************************
  * make_tess_blob

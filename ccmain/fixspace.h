@@ -46,27 +46,14 @@ extern INT_VAR_H (fixsp_done_mode, 1, "What constitues done for spacing");
 extern INT_VAR_H (debug_fix_space_level, 0, "Contextual fixspace debug");
 extern STRING_VAR_H (numeric_punctuation, ".,",
 "Punct. chs expected WITHIN numbers");
-void fix_fuzzy_spaces(                               //find fuzzy words
-                      volatile ETEXT_DESC *monitor,  //progress monitor
-                      inT32 word_count,              //count of words in doc
-                      PAGE_RES *page_res);
-void fix_fuzzy_space_list(  //space explorer
-                          WERD_RES_LIST &best_perm,
-                          ROW *row);
 void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list);
-void match_current_words(WERD_RES_LIST &words, ROW *row);
-inT16 eval_word_spacing(WERD_RES_LIST &word_res_list);
-BOOL8 digit_or_numeric_punct(WERD_RES *word, int char_position);
 void transform_to_next_perm(WERD_RES_LIST &words);
 void dump_words(WERD_RES_LIST &perm, inT16 score, inT16 mode, BOOL8 improved);
 BOOL8 uniformly_spaced(  //sensible word
                        WERD_RES *word);
 BOOL8 fixspace_thinks_word_done(WERD_RES *word);
-void fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row);
-void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row);
 void break_noisiest_blob_word(WERD_RES_LIST &words);
 inT16 worst_noise_blob(WERD_RES *word_res, float *worst_noise_score);
 float blob_noise_score(PBLOB *blob);
 void fixspace_dbg(WERD_RES *word);
-inT16 fp_eval_word_spacing(WERD_RES_LIST &word_res_list);
 #endif

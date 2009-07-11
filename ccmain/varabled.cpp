@@ -178,8 +178,10 @@ void VariablesEditor::GetPrefixes(const char* s, STRING* level_one,
 
 // Compare two VC objects by their name.
 int VariableContent::Compare(const void* v1, const void* v2) {
-  const VariableContent* one = *reinterpret_cast<const VariableContent* const *>(v1);
-  const VariableContent* two = *reinterpret_cast<const VariableContent* const *>(v2);
+  const VariableContent* one =
+    *reinterpret_cast<const VariableContent* const *>(v1);
+  const VariableContent* two =
+    *reinterpret_cast<const VariableContent* const *>(v2);
   return strcmp(one->GetName(), two->GetName());
 }
 
@@ -190,7 +192,9 @@ SVMenuNode* VariablesEditor::BuildListOfAllLeaves() {  // find all variables.
   SVMenuNode* mr = new SVMenuNode();
   VariableContent_LIST vclist;
   VariableContent_IT vc_it(&vclist);
-  std::map<const char*, int> amount;  //to count the # of entries for a specifc char*.
+  // Amount counts the number of entries for a specific char*.
+  // TODO(rays) get rid of the use of std::map.
+  std::map<const char*, int> amount;
 
   INT_VARIABLE_C_IT int_it(INT_VARIABLE::get_head());
   BOOL_VARIABLE_C_IT bool_it(BOOL_VARIABLE::get_head());
@@ -245,7 +249,8 @@ SVMenuNode* VariablesEditor::BuildListOfAllLeaves() {  // find all variables.
                                             vc->GetDescription());
     } else {  // More than one would use this submenu -> create submenu.
       SVMenuNode* sv = mr->AddChild(tag.string());
-      if ((amount[tag.string()] <= MAX_ITEMS_IN_SUBMENU) || (amount[tag2.string()] <= 1)) {
+      if ((amount[tag.string()] <= MAX_ITEMS_IN_SUBMENU) ||
+          (amount[tag2.string()] <= 1)) {
         sv->AddChild(vc->GetName(), vc->GetId(),
                      vc->GetValue(), vc->GetDescription());
       } else {  // Make subsubmenus.
@@ -279,7 +284,8 @@ void VariablesEditor::Notify(const SVEvent* sve) {
 // Integrate the variables editor as popupmenu into the existing scrollview
 // window (usually the pg editor). If sv == null, create a new empty
 // empty window and attach the variables editor to that window (ugly).
-VariablesEditor::VariablesEditor(ScrollView* sv) {
+VariablesEditor::VariablesEditor(const tesseract::Tesseract* tess,
+                                 ScrollView* sv) {
   if (sv == NULL) {
     const char* name = "VarEditorMAIN";
     sv = new ScrollView(name, 1, 1, 200, 200, 300, 200);
@@ -293,7 +299,7 @@ VariablesEditor::VariablesEditor(ScrollView* sv) {
   SVMenuNode* svMenuRoot = BuildListOfAllLeaves();
 
   STRING varfile;
-  varfile = datadir;
+  varfile = tess->datadir;
   varfile += VARDIR;             // variables dir
   varfile += "edited";           // actual name
 

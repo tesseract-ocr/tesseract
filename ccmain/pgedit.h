@@ -27,6 +27,7 @@
 #include          "pagewalk.h"
 #include          "varable.h"
 #include          "notdll.h"
+#include          "tesseractclass.h"
 
 class ScrollView;
 class SVMenuNode;
@@ -36,7 +37,11 @@ struct SVEvent;
 // this window.
 class PGEventHandler : public SVEventHandler {
   public:
-    void Notify(const SVEvent* sve);
+   PGEventHandler(tesseract::Tesseract* tess) : tess_(tess) {
+   }
+   void Notify(const SVEvent* sve);
+  private:
+    tesseract::Tesseract* tess_;
 };
 
 extern BLOCK_LIST *current_block_list;
@@ -74,16 +79,12 @@ void add_word(                             //to block list
              );
 ScrollView* bln_word_window_handle();  //return handle
 void build_image_window(TBOX page_bounding_box);
-SVMenuNode *build_menu_new();
 void display_bln_lines(ScrollView window,
                        ScrollView::Color colour,
                        float scale_factor,
                        float y_offset,
                        float minx,
                        float maxx);
-void do_new_source(            //serialise
-                   char *name  //file name
-                  );
                                  //function to call
 void do_re_display (BOOL8 word_painter (
 BLOCK *, ROW *, WERD *));
@@ -92,25 +93,14 @@ void do_view_cmd();
 void do_write_file(            //serialise
                    char *name  //file name
                   );
-void pgeditor_main(BLOCK_LIST *blocks);
 void pgeditor_msg(  //message display
                   const char *msg);
-                                 //of serialised file
-void pgeditor_read_file(STRING &name,
-                        BLOCK_LIST *blocks  //block list to add to
-                       );
 void pgeditor_show_point(  //display coords
                          SVEvent *event);
 void pgeditor_write_file(                    //serialise
                          char *name,         //file name
                          BLOCK_LIST *blocks  //block list to write
                         );
-BOOL8 process_cmd_win_event(                  //UI command semantics
-                            inT32 cmd_event,  //which menu item?
-                            char *new_value   //any prompt data
-                           );
-void process_image_event(  //action in image win
-                         const SVEvent &event);
                                  //put bln word in       box
 float re_scale_and_move_bln_word(WERD *norm_word,  //BL normalised word
                                  const TBOX &box    //destination box

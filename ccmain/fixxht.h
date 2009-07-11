@@ -69,7 +69,6 @@ void re_estimate_x_ht(                     //improve for 1 word
                       WERD_RES *word_res,  //word to do
                       float *trial_x_ht    //new match value
                      );
-void check_block_occ(WERD_RES *word_res);
 void check_blob_occ(char *proposed_char,
                     inT16 blob_ht_above_baseline,
                     float x_ht,

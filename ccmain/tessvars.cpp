@@ -30,9 +30,9 @@ EXTERN BOOL_VAR (edit_variables, FALSE, "Variables Editor Window?");
 EXTERN STRING_VAR (file_type, ".tif", "Filename extension");
 INT_VAR (testedit_match_debug, 0, "Integer match debug ctrl");
 EXTERN INT_VAR (tessedit_dangambigs_chop, FALSE,
-"Use DangAmbigs to direct chop");
+"Use UnicharAmbigs to direct chop");
 EXTERN INT_VAR (tessedit_dangambigs_assoc, FALSE,
-"Use DangAmbigs to direct assoc");
+"Use UnicharAmbigs to direct assoc");
 
 EXTERN IMAGE page_image;         //image of page
 EXTERN FILE *debug_fp = stderr;           //write debug stuff here

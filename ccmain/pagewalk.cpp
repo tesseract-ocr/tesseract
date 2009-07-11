@@ -19,6 +19,7 @@
 
 #include "mfcpch.h"
 #include "pagewalk.h"
+#include "tesseractclass.h"
 
 #define EXTERN
 
@@ -295,7 +296,6 @@ C_BLOB
  * Walk the current block list applying the specified word processor function
  * to all words
  **********************************************************************/
-
 void
 process_all_words (              //process words
 BLOCK_LIST * block_list,         //blocks to check
@@ -334,13 +334,15 @@ BLOCK *, ROW *, WERD *)) {
  **********************************************************************/
 
 void
-process_selected_words (         //process words
-BLOCK_LIST * block_list,         //blocks to check
-                                 //function to call
-TBOX & selection_box, BOOL8 word_processor (
-BLOCK *,
-ROW *,
-WERD *)) {
+process_selected_words (
+                               //process words
+      BLOCK_LIST * block_list, //blocks to check
+      //function to call
+      TBOX & selection_box,
+      BOOL8 word_processor (
+          BLOCK *,
+          ROW *,
+          WERD *)) {
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -372,6 +374,49 @@ WERD *)) {
     }
   }
 }
+namespace tesseract {
+void
+Tesseract::process_selected_words (
+                               //process words
+      BLOCK_LIST * block_list, //blocks to check
+      //function to call
+      TBOX & selection_box,
+      BOOL8 (tesseract::Tesseract::*word_processor) (
+          BLOCK *,
+          ROW *,
+          WERD *)) {
+  BLOCK_IT block_it(block_list);
+  BLOCK *block;
+  ROW_IT row_it;
+  ROW *row;
+  WERD_IT word_it;
+  WERD *word;
+
+  for (block_it.mark_cycle_pt ();
+  !block_it.cycled_list (); block_it.forward ()) {
+    block = block_it.data ();
+    if (block->bounding_box ().overlap (selection_box)) {
+      row_it.set_to_list (block->row_list ());
+      for (row_it.mark_cycle_pt ();
+      !row_it.cycled_list (); row_it.forward ()) {
+        row = row_it.data ();
+        if (row->bounding_box ().overlap (selection_box)) {
+          word_it.set_to_list (row->word_list ());
+          for (word_it.mark_cycle_pt ();
+          !word_it.cycled_list (); word_it.forward ()) {
+            word = word_it.data ();
+            if (word->bounding_box ().overlap (selection_box)) {
+              if (!((this->*word_processor) (block, row, word)) ||
+                selection_quit)
+                return;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+}  // namespace tesseract
 
 
 /**********************************************************************

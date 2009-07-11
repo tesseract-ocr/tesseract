@@ -22,8 +22,4 @@
 
 #include          "tstruct.h"
 
-float compare_tess_blobs(TBLOB *blob1,
-                         TEXTROW *row1,
-                         TBLOB *blob2,
-                         TEXTROW *row2);
 #endif

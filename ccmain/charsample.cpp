@@ -35,6 +35,7 @@
 #include          "adaptions.h"
 #include          "secname.h"
 #include          "notdll.h"
+#include          "tesseractclass.h"
 
 extern inT32 demo_word;          // Hack for demos
 
@@ -73,7 +74,8 @@ CHAR_SAMPLE::CHAR_SAMPLE(IMAGE *image, char c) {
 
 float CHAR_SAMPLE::match_sample(  // Update match scores
                                 CHAR_SAMPLE *test_sample,
-                                BOOL8 updating) {
+                                BOOL8 updating,
+                                tesseract::Tesseract* tess) {
   float score1;
   float score2;
   IMAGE *image = test_sample->image ();
@@ -82,8 +84,8 @@ float CHAR_SAMPLE::match_sample(  // Update match scores
     PBLOB *blob = test_sample->blob ();
     DENORM *denorm = test_sample->denorm ();
 
-    score1 = compare_bln_blobs (sample_blob, sample_denorm, blob, denorm);
-    score2 = compare_bln_blobs (blob, denorm, sample_blob, sample_denorm);
+    score1 = tess->compare_bln_blobs (sample_blob, sample_denorm, blob, denorm);
+    score2 = tess->compare_bln_blobs (blob, denorm, sample_blob, sample_denorm);
 
     score1 = (score1 > score2) ? score1 : score2;
   }
@@ -175,14 +177,14 @@ CHAR_SAMPLES::CHAR_SAMPLES(CHAR_SAMPLE *sample) {
 }
 
 
-void CHAR_SAMPLES::add_sample(CHAR_SAMPLE *sample) {
+void CHAR_SAMPLES::add_sample(CHAR_SAMPLE *sample, tesseract::Tesseract* tess) {
   CHAR_SAMPLE_IT sample_it = &samples;
 
   if (tessedit_use_best_sample || tessedit_cluster_debug)
     for (sample_it.mark_cycle_pt ();
   !sample_it.cycled_list (); sample_it.forward ()) {
-    sample_it.data ()->match_sample (sample, TRUE);
-    sample->match_sample (sample_it.data (), TRUE);
+    sample_it.data ()->match_sample (sample, TRUE, tess);
+    sample->match_sample (sample_it.data (), TRUE, tess);
   }
 
   sample_it.add_to_end (sample);
@@ -272,28 +274,30 @@ void CHAR_SAMPLES::find_best_sample() {
 }
 
 
-float CHAR_SAMPLES::match_score(CHAR_SAMPLE *sample) {
+float CHAR_SAMPLES::match_score(CHAR_SAMPLE *sample,
+                                tesseract::Tesseract* tess) {
   if (tessedit_mm_only_match_same_char && sample->character () != ch)
     return BAD_SCORE;
 
   if (tessedit_use_best_sample && best_sample != NULL)
-    return best_sample->match_sample (sample, FALSE);
+    return best_sample->match_sample (sample, FALSE, tess);
   else if ((tessedit_mm_use_prototypes
     || tessedit_mm_adapt_using_prototypes) && proto != NULL)
     return proto->match_sample (sample);
   else
-    return this->nn_match_score (sample);
+    return this->nn_match_score (sample, tess);
 }
 
 
-float CHAR_SAMPLES::nn_match_score(CHAR_SAMPLE *sample) {
+float CHAR_SAMPLES::nn_match_score(CHAR_SAMPLE *sample,
+                                   tesseract::Tesseract* tess) {
   CHAR_SAMPLE_IT sample_it = &samples;
   float score;
   float min_score = MAX_INT32;
 
   for (sample_it.mark_cycle_pt ();
   !sample_it.cycled_list (); sample_it.forward ()) {
-    score = sample_it.data ()->match_sample (sample, FALSE);
+    score = sample_it.data ()->match_sample (sample, FALSE, tess);
     if (score < min_score)
       min_score = score;
   }

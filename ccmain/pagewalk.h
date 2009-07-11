@@ -28,6 +28,7 @@
 #include          "rect.h"
 #include          "varable.h"
 #include          "notdll.h"
+#include          "tesseractclass.h"
 
 #define BLOCK_SPACING   20
 
@@ -88,6 +89,7 @@ ROW
 *,
 WERD
 *));
+
 void process_all_words_it (      //process words
 BLOCK_LIST * block_list,         //blocks to check
 BOOL8 word_processor (           //function to call

@@ -24,20 +24,4 @@
 #include          "varable.h"
 #include          "notdll.h"
 
-BOOL8 compare_blob_pairs(             //blob processor
-                         BLOCK *,
-                         ROW *row,    //row it came from
-                         WERD *,
-                         PBLOB *blob  //blob to compare
-                        );
-float compare_blobs(               //match 2 blobs
-                    PBLOB *blob1,  //first blob
-                    ROW *row1,     //row it came from
-                    PBLOB *blob2,  //other blob
-                    ROW *row2);
-float compare_bln_blobs(               //match 2 blobs
-                        PBLOB *blob1,  //first blob
-                        DENORM *denorm1,
-                        PBLOB *blob2,  //other blob
-                        DENORM *denorm2);
 #endif

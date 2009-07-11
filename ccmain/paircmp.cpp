@@ -21,6 +21,7 @@
 #include          "blobcmp.h"
 #include          "tfacep.h"
 #include          "paircmp.h"
+#include          "tesseractclass.h"
 
 #define EXTERN
 
@@ -30,12 +31,13 @@
  * A blob processor to compare pairs of selected blobs.
  **********************************************************************/
 
-BOOL8 compare_blob_pairs(             //blob processor
-                         BLOCK *,
-                         ROW *row,    //row it came from
-                         WERD *,
-                         PBLOB *blob  //blob to compare
-                        ) {
+namespace tesseract {
+BOOL8 Tesseract::compare_blob_pairs(             //blob processor
+                                    BLOCK *,
+                                    ROW *row,    //row it came from
+                                    WERD *,
+                                    PBLOB *blob  //blob to compare
+                                   ) {
   static ROW *prev_row = NULL;   //other in pair
   static PBLOB *prev_blob = NULL;
   float rating;                  //from matcher
@@ -60,11 +62,11 @@ BOOL8 compare_blob_pairs(             //blob processor
  * Compare 2 blobs and return the rating.
  **********************************************************************/
 
-float compare_blobs(               //match 2 blobs
-                    PBLOB *blob1,  //first blob
-                    ROW *row1,     //row it came from
-                    PBLOB *blob2,  //other blob
-                    ROW *row2) {
+float Tesseract::compare_blobs(               //match 2 blobs
+                               PBLOB *blob1,  //first blob
+                               ROW *row1,     //row it came from
+                               PBLOB *blob2,  //other blob
+                               ROW *row2) {
   PBLOB *bn_blob1;               //baseline norm
   PBLOB *bn_blob2;
   DENORM denorm1, denorm2;
@@ -84,12 +86,11 @@ float compare_blobs(               //match 2 blobs
  *
  * Compare 2 baseline normalised blobs and return the rating.
  **********************************************************************/
-
-float compare_bln_blobs(               //match 2 blobs
-                        PBLOB *blob1,  //first blob
-                        DENORM *denorm1,
-                        PBLOB *blob2,  //other blob
-                        DENORM *denorm2) {
+float Tesseract::compare_bln_blobs(               //match 2 blobs
+                                   PBLOB *blob1,  //first blob
+                                   DENORM *denorm1,
+                                   PBLOB *blob2,  //other blob
+                                   DENORM *denorm2) {
   TBLOB *tblob1;                 //tessblobs
   TBLOB *tblob2;
   TEXTROW tessrow1, tessrow2;    //tess rows
@@ -105,3 +106,4 @@ float compare_bln_blobs(               //match 2 blobs
 
   return rating;
 }
+}  // namespace tesseract

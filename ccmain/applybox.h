@@ -28,32 +28,52 @@
 
 extern BOOL_VAR_H (applybox_rebalance, TRUE, "Drop dead");
 extern INT_VAR_H (applybox_debug, 0, "Debug level");
+extern INT_VAR_H (applybox_page, 0, "Page number to apply boxes from");
 extern STRING_VAR_H (applybox_test_exclusions, "|",
-"Chars ignored for testing");
+                     "Chars ignored for testing");
 extern double_VAR_H (applybox_error_band, 0.15, "Err band as fract of xht");
-void apply_boxes(BLOCK_LIST *block_list    //real blocks
+extern STRING_VAR_H(exposure_pattern, "exp",
+                    "Exposure value follows this pattern in the image"
+                    " filename. The name of the image files are expected"
+                    " to be in the form [lang].[fontname].exp[num].tif");
+
+static const int kMinFragmentOutlineArea = 10;
+
+// Register uch with unicharset_boxes.
+UNICHAR_ID register_char(const char *uch);
+
+void apply_boxes(const STRING& filename,
+                 BLOCK_LIST *block_list    //real blocks
                 );
+
 void clear_any_old_text(                        //remove correct text
                         BLOCK_LIST *block_list  //real blocks
                        );
+
 BOOL8 read_next_box(int page,
-                    FILE* box_file,  //
+                    FILE* box_file,
                     TBOX *box,
                     UNICHAR_ID *uch_id);
-ROW *find_row_of_box(                         //
+
+ROW *find_row_of_box(
                      BLOCK_LIST *block_list,  //real blocks
-                     TBOX box,                 //from boxfile
+                     const TBOX &box,               //from boxfile
                      inT16 &block_id,
                      inT16 &row_id_to_process);
-inT16 resegment_box(  //
+
+inT16 resegment_box(
                     ROW *row,
-                    TBOX box,
+                    TBOX &box,
                     UNICHAR_ID uch_id,
                     inT16 block_id,
                     inT16 row_id,
                     inT16 boxfile_lineno,
-                    inT16 boxfile_charno);
-void tidy_up(                         //
+                    inT16 boxfile_charno,
+                    inT16 *tgt_char_counts,
+                    bool learn_char_fragments,
+                    bool learning);
+
+void tidy_up(
              BLOCK_LIST *block_list,  //real blocks
              inT16 &ok_char_count,
              inT16 &ok_row_count,
@@ -62,12 +82,15 @@ void tidy_up(                         //
              inT16 &rebalance_count,
              UNICHAR_ID *min_uch_id,
              inT16 &min_samples,
-             inT16 &final_labelled_blob_count);
+             inT16 &final_labelled_blob_count,
+             bool learn_character_fragments,
+             bool learning);
+
 void report_failed_box(inT16 boxfile_lineno,
                        inT16 boxfile_charno,
                        TBOX box,
                        const char *box_ch,
                        const char *err_msg);
-void apply_box_training(BLOCK_LIST *block_list);
-void apply_box_testing(BLOCK_LIST *block_list);
+
+void apply_box_training(const STRING& filename, BLOCK_LIST *block_list);
 #endif

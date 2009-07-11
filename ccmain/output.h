@@ -55,10 +55,7 @@ extern BOOL_VAR_H (tessedit_word_for_word, FALSE,
 "Make output have exactly one word per WERD");
 extern BOOL_VAR_H (tessedit_consistent_reps, TRUE,
 "Force all rep chars the same");
-void output_pass(  //Tess output pass //send to api
-                 PAGE_RES_IT &page_res_it,
-                 BOOL8 write_to_shm,
-				 TBOX	*target_word_box=0L);
+
 void write_results(                           //output a word
                    PAGE_RES_IT &page_res_it,  //full info
                    char newline_type,         //type of newline
@@ -99,18 +96,8 @@ void write_shm_text(                    //write output
 void write_map(                //output a map file
                FILE *mapfile,  //mapfile to write to
                WERD_RES *word);
-FILE *open_outfile(  //open .map & .unlv file
-                   const char *extension);
+/*FILE *open_outfile(  //open .map & .unlv file
+                   const char *extension);*/
 void write_unlv_text(WERD_RES *word);
-UNICHAR_ID get_rep_char(WERD_RES *word);  // what char is repeated?
 void ensure_rep_chars_are_consistent(WERD_RES *word);
-void set_unlv_suspects(WERD_RES *word);
-inT16 count_alphas(  //how many alphas
-                   const char *s,
-                   const char *lengths);
-inT16 count_alphanums(  //how many alphanums
-                      const char *s,
-                      const char *lengths);
-BOOL8 acceptable_number_string(const char *s,
-                               const char *lengths);
 #endif

@@ -26,6 +26,7 @@
 #include          "reject.h"
 #include          "fixxht.h"
 #include          "secname.h"
+#include          "tesseractclass.h"
 
 #define EXTERN
 
@@ -170,14 +171,14 @@ void re_estimate_x_ht(                     //improve for 1 word
   x_ht_ok_variation =
     (bln_x_height / x_ht_fraction_of_caps_ht - bln_x_height) * x_ht_variation;
 
-  word_str = word_res->best_choice->string ().string ();
+  word_str = word_res->best_choice->unichar_string().string();
   /*
     Cycle blobs, allocating to one of the stats sets when possible.
   */
   blob_it.set_to_list (word_res->outword->blob_list ());
   for (blob_it.mark_cycle_pt (), i = 0, offset = 0;
   !blob_it.cycled_list (); blob_it.forward (),
-           offset += word_res->best_choice->lengths()[i++]) {
+           offset += word_res->best_choice->unichar_lengths()[i++]) {
     if (!dodgy_blob (blob_it.data ())) {
       blob_box = blob_it.data ()->bounding_box ();
       blob_ht_above_baseline = blob_box.top () - bln_baseline_offset;
@@ -496,16 +497,15 @@ void re_estimate_x_ht(                     //improve for 1 word
  * Checks word for coarse block occupancy, rejecting more chars and flipping
  * case of case ambiguous chars as required.
  *************************************************************************/
-
-void check_block_occ(WERD_RES *word_res) {
+namespace tesseract {
+void Tesseract::check_block_occ(WERD_RES *word_res) {
   PBLOB_IT blob_it;
   STRING new_string;
-  STRING new_string_lengths(word_res->best_choice->lengths());
-//  char new_string_lengths[word_res->best_choice->lengths().length() + 1];
+  STRING new_string_lengths(word_res->best_choice->unichar_lengths());
   REJMAP new_map = word_res->reject_map;
   WERD_CHOICE *new_choice;
 
-  const char *word_str = word_res->best_choice->string ().string ();
+  const char *word_str = word_res->best_choice->unichar_string().string();
   inT16 i;
   inT16 offset;
   inT16 reject_count = 0;
@@ -530,10 +530,10 @@ void check_block_occ(WERD_RES *word_res) {
 
   for (blob_it.mark_cycle_pt (), i = 0, offset = 0;
   !blob_it.cycled_list (); blob_it.forward (),
-           offset += word_res->best_choice->lengths()[i++]) {
+           offset += word_res->best_choice->unichar_lengths()[i++]) {
     strncpy(temp_char, word_str + offset,
-            word_res->best_choice->lengths()[i]); //default copy
-    temp_char[word_res->best_choice->lengths()[i]] = '\0';
+            word_res->best_choice->unichar_lengths()[i]); //default copy
+    temp_char[word_res->best_choice->unichar_lengths()[i]] = '\0';
     if (word_res->reject_map[i].accepted ()) {
       check_blob_occ (temp_char,
                       blob_it.data ()->bounding_box ().
@@ -562,17 +562,19 @@ void check_block_occ(WERD_RES *word_res) {
       new_map.print (debug_fp);
       tprintf ("\n");
     }
-    new_choice = new WERD_CHOICE (new_string.string (),
-                                  new_string_lengths.string(),
-                                  word_res->best_choice->rating (),
-                                  word_res->best_choice->certainty (),
-                                  word_res->best_choice->permuter ());
+    new_choice = new WERD_CHOICE(new_string.string(),
+                                 new_string_lengths.string(),
+                                 word_res->best_choice->rating(),
+                                 word_res->best_choice->certainty(),
+                                 word_res->best_choice->permuter(),
+                                 unicharset);
+    new_choice->populate_unichars(unicharset);
     delete word_res->best_choice;
     word_res->best_choice = new_choice;
     word_res->reject_map = new_map;
   }
 }
-
+}  // namespace tesseract
 
 /*************************************************************************
  * check_blob_occ()
@@ -686,17 +688,17 @@ void improve_estimate(WERD_RES *word_res,
   */
 
   blob_it.set_to_list (word_res->outword->blob_list ());
-  word_str = word_res->best_choice->string ().string ();
+  word_str = word_res->best_choice->unichar_string().string();
   for (blob_it.mark_cycle_pt (), i = 0, offset = 0;
        !blob_it.cycled_list (); blob_it.forward (),
-           offset += word_res->best_choice->lengths()[i++]) {
+           offset += word_res->best_choice->unichar_lengths()[i++]) {
     if ((STRING (chs_ambig_caps_x).contains (word_str[offset])) &&
     (!dodgy_blob (blob_it.data ()))) {
       blob_box = blob_it.data ()->bounding_box ();
       blob_ht_above_baseline = blob_box.top () - bln_baseline_offset;
       strncpy(temp_char, word_str + offset,
-              word_res->best_choice->lengths()[i]);
-      temp_char[word_res->best_choice->lengths()[i]] = '\0';
+              word_res->best_choice->unichar_lengths()[i]);
+      temp_char[word_res->best_choice->unichar_lengths()[i]] = '\0';
       check_blob_occ (temp_char,
                       blob_ht_above_baseline,
                       est_x_ht, est_caps_ht, confirmed_char);
@@ -722,11 +724,11 @@ void reject_ambigs(  //rej any accepted xht ambig chars
   const char *word_str;
   int i = 0;
 
-  word_str = word->best_choice->string ().string ();
+  word_str = word->best_choice->unichar_string().string();
   while (*word_str != '\0') {
     if (STRING (chs_ambig_caps_x).contains (*word_str))
       word->reject_map[i].setrej_xht_fixup ();
-    word_str += word->best_choice->lengths()[i++];
+    word_str += word->best_choice->unichar_lengths()[i++];
   }
 }
 
@@ -770,11 +772,11 @@ void est_ambigs(                          //xht ambig ht stats
     /* Try reclustering into lower and upper case chars */
       short_limit = min + (max - min) * x_ht_variation;
       tall_limit = max - (max - min) * x_ht_variation;
-      word_str = word_res->best_choice->string ().string ();
+      word_str = word_res->best_choice->unichar_string().string();
       blob_it.set_to_list (word_res->outword->blob_list ());
       for (blob_it.mark_cycle_pt (), i = 0, offset = 0;
       !blob_it.cycled_list (); blob_it.forward (),
-               offset += word_res->best_choice->lengths()[i++]) {
+               offset += word_res->best_choice->unichar_lengths()[i++]) {
         if (word_res->reject_map[i].accepted () &&
           STRING (chs_ambig_caps_x).contains (word_str[offset]) &&
         (!dodgy_blob (blob_it.data ()))) {

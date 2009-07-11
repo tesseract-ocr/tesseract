@@ -68,29 +68,10 @@ extern INT_VAR_H (tessedit_demo_word2, 64,
 "Word number of second word to display");
 extern STRING_VAR_H (tessedit_demo_file, "academe",
 "Name of document containing demo words");
-BOOL8 word_adaptable(  //should we adapt?
-                     WERD_RES *word,
-                     uinT16 mode);
-void collect_ems_for_adaption(WERD_RES *word,
-                              CHAR_SAMPLES_LIST *char_clusters,
-                              CHAR_SAMPLE_LIST *chars_waiting);
-void collect_characters_for_adaption(WERD_RES *word,
-                                     CHAR_SAMPLES_LIST *char_clusters,
-                                     CHAR_SAMPLE_LIST *chars_waiting);
-void cluster_sample(CHAR_SAMPLE *sample,
-                    CHAR_SAMPLES_LIST *char_clusters,
-                    CHAR_SAMPLE_LIST *chars_waiting);
-void check_wait_list(CHAR_SAMPLE_LIST *chars_waiting,
-                     CHAR_SAMPLE *sample,
-                     CHAR_SAMPLES *best_cluster);
-void complete_clustering(CHAR_SAMPLES_LIST *char_clusters,
-                         CHAR_SAMPLE_LIST *chars_waiting);
-void adapt_to_good_ems(WERD_RES *word,
-                       CHAR_SAMPLES_LIST *char_clusters,
-                       CHAR_SAMPLE_LIST *chars_waiting);
-void adapt_to_good_samples(WERD_RES *word,
-                           CHAR_SAMPLES_LIST *char_clusters,
-                           CHAR_SAMPLE_LIST *chars_waiting);
+extern BOOL_VAR_H(tessedit_adapt_to_char_fragments, TRUE,
+                  "Adapt to words that contain "
+                  " a character composed form fragments");
+
 void print_em_stats(CHAR_SAMPLES_LIST *char_clusters,
                     CHAR_SAMPLE_LIST *chars_waiting);
                                  //lines of the image
@@ -102,7 +83,6 @@ CHAR_SAMPLE *clip_sample(PIXROW *pixrow,
 void display_cluster_prototypes(CHAR_SAMPLES_LIST *char_clusters);
 void reject_all_ems(WERD_RES *word);
 void reject_all_fullstops(WERD_RES *word);
-void reject_suspect_ems(WERD_RES *word);
 void reject_suspect_fullstops(WERD_RES *word);
 BOOL8 suspect_em(WERD_RES *word, inT16 index);
 BOOL8 suspect_fullstop(WERD_RES *word, inT16 i);

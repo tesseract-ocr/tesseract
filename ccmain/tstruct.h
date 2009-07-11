@@ -20,29 +20,11 @@
 #ifndef           TSTRUCT_H
 #define           TSTRUCT_H
 
-#include          "tessarray.h"
 #include          "werd.h"
 #include          "tessclas.h"
 #include          "ratngs.h"
 #include          "notdll.h"
-#include "oldlist.h"
 
-/*
-struct TESS_LIST
-{
-  TESS_LIST				*node;						//data
-  TESS_LIST				*next;						//next in list
-};
-
-struct TESS_CHOICE
-{
-  float					rating;						//scaled
-  float					certainty;					//absolute
-  char					permuter;					//which permuter code
-  inT8					config;						//which config
-  char*					string;						//really can!
-};
-*/
 class FRAGMENT:public ELIST_LINK
 {
   public:
@@ -74,14 +56,6 @@ void register_outline(                     //add fragments
                       TESSLINE *outline,   //tess format
                       FRAGMENT_LIST *list  //list to add to
                      );
-void convert_choice_lists(                                 //convert lists
-                          ARRAY tessarray,                 //list from tess
-                          BLOB_CHOICE_LIST_CLIST *ratings  //list of results
-                         );
-void convert_choice_list(                           //convert lists
-                         LIST list,                 //list from tess
-                         BLOB_CHOICE_LIST &ratings  //list of results
-                        );
 void make_tess_row(                  //make fake row
                    DENORM *denorm,   //row info
                    TEXTROW *tessrow  //output row
@@ -93,6 +67,8 @@ TWERD *make_tess_word(              //convert owrd
 TBLOB *make_tess_blobs(                      //make tess blobs
                        PBLOB_LIST *bloblist  //list to convert
                       );
+TBLOB *make_rotated_tess_blob(const DENORM* denorm, PBLOB *blob,
+                              BOOL8 flatten);
 TBLOB *make_tess_blob(               //make tess blob
                       PBLOB *blob,   //blob to convert
                       BOOL8 flatten  //flatten outline structure

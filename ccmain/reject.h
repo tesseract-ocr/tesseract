@@ -97,15 +97,6 @@ extern STRING_VAR_H (dubious_chars_right_of_reject, "!'+`()-./\\<>;:^_,~\"",
 "Unreliable chars");
 extern INT_VAR_H (min_sane_x_ht_pixels, 8,
 "Reject any x-ht lt or eq than this");
-void set_done(  //set done flag
-              WERD_RES *word,
-              inT16 pass);
-void make_reject_map(            //make rej map for wd //detailed results
-                     WERD_RES *word,
-                     BLOB_CHOICE_LIST_CLIST *blob_choices,
-                     ROW *row,
-                     inT16 pass  //1st or 2nd?
-                    );
 void reject_blanks(WERD_RES *word);
 void reject_I_1_L(WERD_RES *word);
                                  //detailed results
@@ -116,32 +107,8 @@ int sort_floats(                   //qsort function
                 const void *arg1,  //ptrs to floats
                 const void *arg2);
 void reject_edge_blobs(WERD_RES *word);
-BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map);
-inT16 first_alphanum_offset(const char *word,
-                            const char *word_lengths);
-inT16 first_alphanum_index(const char *word,
-                           const char *word_lengths);
-inT16 alpha_count(const char *word,
-                  const char *word_lengths);
 BOOL8 word_contains_non_1_digit(const char *word,
                                 const char *word_lengths);
-BOOL8 test_ambig_word(  //test for ambiguity
-                      WERD_RES *word);
-                                 //original word
-BOOL8 ambig_word(const char *start_word,
-                 char *temp_word,     //alterable copy
-                 inT16 test_char_pos  //idx to char to alter
-                );
-const char *char_ambiguities(char c);
-
-#ifndef EMBEDDED
-void test_ambigs(const char *word);
-#endif
-
-void nn_recover_rejects(WERD_RES *word, ROW *row);
-void nn_match_word(  //Match a word
-                   WERD_RES *word,
-                   ROW *row);
                                  //of character
 inT16 nn_match_char(IMAGE &scaled_image,
                     float baseline_pos,       //rel to scaled_image
@@ -166,16 +133,9 @@ void dont_allow_dubious_chars(WERD_RES *word);
 
 void dont_allow_1Il(WERD_RES *word);
 
-inT16 count_alphanums(  //how many alphanums
-                      WERD_RES *word);
 void reject_mostly_rejects(  //rej all if most rejectd
                            WERD_RES *word);
-BOOL8 repeated_nonalphanum_wd(WERD_RES *word, ROW *row);
-BOOL8 repeated_ch_string(const char *rep_ch_str,
-                         const char *lengths);
-inT16 safe_dict_word(const char *s);
 void flip_hyphens(WERD_RES *word);
 void flip_0O(WERD_RES *word);
-BOOL8 non_O_upper(const char* str, int length);
 BOOL8 non_0_digit(const char* str, int length);
 #endif

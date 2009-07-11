@@ -39,9 +39,9 @@ extern INT_VAR_H (tessedit_truncate_chopper, 1,
 extern INT_VAR_H (tessedit_fix_sideways_chops, 1,
 "Fix sideways chop problem");
 extern INT_VAR_H (tessedit_dangambigs_chop, FALSE,
-"Use DangAmbigs to direct chop");
+"Use UnicharAmbigs to direct chop");
 extern INT_VAR_H (tessedit_dangambigs_assoc, FALSE,
-"Use DangAmbigs to direct assoc");
+"Use UnicharAmbigs to direct assoc");
 
 extern IMAGE page_image;         //image of page
 extern FILE *debug_fp;           //write debug stuff here

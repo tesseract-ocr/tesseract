@@ -25,49 +25,10 @@
 #include          "ratngs.h"
 #include          "tessclas.h"
 #include          "notdll.h"
+#include          "tesseractclass.h"
 
 extern BOOL_VAR_H (tessedit_override_permuter, TRUE,
 "According to dict_word");
-WERD_CHOICE *recog_word(                           //recog one owrd
-                        WERD *word,                //word to do
-                        DENORM *denorm,            //de-normaliser
-                        POLY_MATCHER matcher,      //matcher function
-                        POLY_TESTER tester,        //tester function
-                        POLY_TESTER trainer,       //trainer function
-                        BOOL8 testing,             //true if answer driven
-                        WERD_CHOICE *&raw_choice,  //raw result //list of blob lists
-                        BLOB_CHOICE_LIST_CLIST *blob_choices,
-                        WERD *&outword             //bln word output
-                       );
-                                 //recog one owrd
-WERD_CHOICE *recog_word_recursive(WERD *word,                //word to do
-                                  DENORM *denorm,            //de-normaliser
-                                  POLY_MATCHER matcher,      //matcher function
-                                  POLY_TESTER tester,        //tester function
-                                  POLY_TESTER trainer,       //trainer function
-                                  BOOL8 testing,             //true if answer driven
-                                  WERD_CHOICE *&raw_choice,  //raw result //list of blob lists
-                                  BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                  WERD *&outword             //bln word output
-                                 );
-                                 //recog one owrd
-WERD_CHOICE *split_and_recog_word(WERD *word,                //word to do
-                                  DENORM *denorm,            //de-normaliser
-                                  POLY_MATCHER matcher,      //matcher function
-                                  POLY_TESTER tester,        //tester function
-                                  POLY_TESTER trainer,       //trainer function
-                                  BOOL8 testing,             //true if answer driven
-                                  WERD_CHOICE *&raw_choice,  //raw result //list of blob lists
-                                  BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                  WERD *&outword             //bln word output
-                                 );
-LIST call_matcher(                  //call a matcher
-                  TBLOB *ptblob,    //previous
-                  TBLOB *tessblob,  //blob to match
-                  TBLOB *ntblob,    //next
-                  void *,           //unused parameter
-                  TEXTROW *         //always null anyway
-                 );
 void call_tester(                     //call a tester
                  TBLOB *tessblob,     //blob to test
                  BOOL8 correct_blob,  //true if good

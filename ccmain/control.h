@@ -125,40 +125,24 @@ extern INT_VAR_H (tessedit_test_adaption_mode, 3,
 extern BOOL_VAR_H (test_pt, FALSE, "Test for point");
 extern double_VAR_H (test_pt_x, 99999.99, "xcoord");
 extern double_VAR_H (test_pt_y, 99999.99, "ycoord");
-void recog_pseudo_word(                         //recognize blobs
-                       BLOCK_LIST *block_list,  //blocks to check
-                       TBOX &selection_box);
-BOOL8 recog_interactive(            //recognize blobs
-                        BLOCK *,    //block
-                        ROW *row,   //row of word
-                        WERD *word  //word to recognize
-                       );
-void recog_all_words(                              //process words
-                     PAGE_RES *page_res,           //page structure
-                     volatile ETEXT_DESC *monitor,  //progress monitor
-                     TBOX	*target_word_box=0L,
-					 inT16 dopasses=0
-					 );
+extern BOOL_VAR_H(save_best_choices, FALSE,
+                  "Save the results of the recognition step"
+                  " (blob_choices) within the corresponding WERD_CHOICE");
 
+/*
 void classify_word_pass1(                 //recog one word
                          WERD_RES *word,  //word to do
                          ROW *row,
                          BOOL8 cluster_adapt,
                          CHAR_SAMPLES_LIST *char_clusters,
                          CHAR_SAMPLE_LIST *chars_waiting);
+*/
                                  //word to do
 void classify_word_pass2(WERD_RES *word, ROW *row);
 void match_word_pass2(                 //recog one word
                       WERD_RES *word,  //word to do
                       ROW *row,
                       float x_height);
-void fix_rep_char(                //Repeated char word
-                  WERD_RES *word  //word to do
-                 );
-void fix_quotes(               //make double quotes
-                WERD_CHOICE *choice,  //string to fix
-                WERD *word,    //word to do //char choices
-                BLOB_CHOICE_LIST_CLIST *blob_choices);
 void fix_hyphens(               //crunch double hyphens
                  WERD_CHOICE *choice,  //string to fix
                  WERD *word,    //word to do //char choices
@@ -175,15 +159,9 @@ void choice_dump_tester(                           //dump chars in word
                         inT32 count,               //chars in text
                         BLOB_CHOICE_LIST *ratings  //list of results
                        );
-WERD *make_bln_copy(WERD *src_word, ROW *row, float x_height, DENORM *denorm);
-ACCEPTABLE_WERD_TYPE acceptable_word_string(const char *s,
-                                            const char *lengths);
+WERD *make_bln_copy(WERD *src_word, ROW *row, BLOCK* block,
+                    float x_height, DENORM *denorm);
 BOOL8 check_debug_pt(WERD_RES *word, int location);
-void set_word_fonts(                 //good chars in word
-                    WERD_RES *word,  //word to adapt to //detailed results
-                    BLOB_CHOICE_LIST_CLIST *blob_choices);
-void font_recognition_pass(  //good chars in word
-                           PAGE_RES_IT &page_res_it);
 void add_in_one_row(               //good chars in word
                     ROW_RES *row,  //current row
                     STATS *fonts,  //font stats

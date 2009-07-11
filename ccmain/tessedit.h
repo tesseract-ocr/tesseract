@@ -28,22 +28,4 @@
                                  //progress monitor
 extern ETEXT_DESC *global_monitor;
 
-int init_tesseract(const char *arg0,
-    const char *textbase,
-    const char *language,
-    const char *configfile,
-    int configc,
-    const char *const *configv);
-
-int init_tesseract_lm(const char *arg0,
-    const char *textbase,
-    const char *language,
-    const char *configfile,
-    int configc,
-    const char *const *configv);
-
-void recognize_page(STRING& image_name);
-void end_tesseract();
-
-void set_tess_tweak_vars();
 #endif

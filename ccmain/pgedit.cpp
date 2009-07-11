@@ -37,6 +37,9 @@
 #include          "svmnode.h"
 
 #include          "control.h"
+#include "tesseractclass.h"
+
+#include          "blread.h"
 
 #ifndef GRAPHICS_DISABLED
 #define ASC_HEIGHT     (2 * bln_baseline_offset + bln_x_height)
@@ -334,8 +337,8 @@ void build_image_window(TBOX page_bounding_box) {
  *
  *  Construct the menu tree used by the command window
  **********************************************************************/
-
-SVMenuNode *build_menu_new() {
+namespace tesseract {
+SVMenuNode *Tesseract::build_menu_new() {
 
   SVMenuNode* parent_menu;
   SVMenuNode* root_menu_item = new SVMenuNode();
@@ -372,7 +375,7 @@ SVMenuNode *build_menu_new() {
   parent_menu = root_menu_item->AddChild("DISPLAY");
 
   parent_menu->AddChild("Bounding Boxes",
-      BOUNDING_BOX_CMD_EVENT, TRUE);
+      BOUNDING_BOX_CMD_EVENT, FALSE);
   parent_menu->AddChild("Correct Text",
       CORRECT_TEXT_CMD_EVENT, FALSE);
   parent_menu->AddChild("Polygonal Approx",
@@ -380,7 +383,7 @@ SVMenuNode *build_menu_new() {
   parent_menu->AddChild("Baseline Normalised",
       BL_NORM_CMD_EVENT, FALSE);
   parent_menu->AddChild("Edge Steps",
-      BITMAP_CMD_EVENT, FALSE);
+      BITMAP_CMD_EVENT, TRUE);
 
   parent_menu = root_menu_item->AddChild("OTHER");
 
@@ -408,6 +411,8 @@ SVMenuNode *build_menu_new() {
 
   return root_menu_item;
 }
+
+}  // namespace tesseract
 
 
 /**********************************************************************
@@ -440,8 +445,8 @@ void display_bln_lines(ScrollView* window,
  *  Change to another source file.  Automatically tidy page first
  *
  **********************************************************************/
-
-void do_new_source(           // serialise
+namespace tesseract {
+void Tesseract::do_new_source(           // serialise
                   ) {
   FILE *infp;                    // input file
 
@@ -480,6 +485,7 @@ void do_new_source(           // serialise
   image_win->AddMessage("Doing automatic Tidy Target...Done");
 
 }
+}  // namespace tesseract
 
 
 /**********************************************************************
@@ -665,10 +671,10 @@ ve->Notify(event);
   else if (event->type == SVET_MENU) {
      if (strcmp(event->parameter, "true") == 0) { myval = 'T'; }
      else if (strcmp(event->parameter, "false") == 0) { myval = 'F'; }
-     process_cmd_win_event(event->command_id, &myval);
+     tess_->process_cmd_win_event(event->command_id, &myval);
   }
   else {
-     process_image_event(*event);
+     tess_->process_image_event(*event);
      // else    pgeditor_show_point(*event);
   }
   current_word_quit.set_value(FALSE);
@@ -685,7 +691,8 @@ ve->Notify(event);
  *
  **********************************************************************/
 
-void pgeditor_main(BLOCK_LIST *blocks) {
+namespace tesseract {
+void Tesseract::pgeditor_main(BLOCK_LIST *blocks) {
 
   source_block_list = blocks;
   current_block_list = blocks;
@@ -695,12 +702,12 @@ void pgeditor_main(BLOCK_LIST *blocks) {
   stillRunning = true;
 
   build_image_window(block_list_bounding_box(source_block_list));
-  do_re_display(&word_display);
-  word_display_mode.turn_on_bit(DF_BOX);
+  word_display_mode.turn_on_bit(DF_EDGE_STEP);
+  do_re_display(&word_set_display);
 #ifndef GRAPHICS_DISABLED
-  ve = new VariablesEditor(image_win);
+  ve = new VariablesEditor(this, image_win);
 #endif
-  PGEventHandler pgEventHandler;
+  PGEventHandler pgEventHandler(this);
 
   image_win->AddEventHandler(&pgEventHandler);
   image_win->AddMessageBox();
@@ -711,7 +718,9 @@ void pgeditor_main(BLOCK_LIST *blocks) {
   image_win->SetVisible(true);
 
   image_win->AwaitEvent(SVET_DESTROY);
+  image_win->AddEventHandler(NULL);
 }
+}  // namespace tesseract
 
 
 /**********************************************************************
@@ -725,88 +734,33 @@ void pgeditor_msg( // message display
     image_win->AddMessage(msg);
 }
 
-#endif  // GRAPHCICS_DISABLED
+
 /**********************************************************************
  * pgeditor_read_file()
  *
  * Deserialise source file
  **********************************************************************/
 
-void pgeditor_read_file(                   // of serialised file
-                        STRING &name,
-                        BLOCK_LIST *blocks  // block list to add to
-                       ) {
-#ifdef GRAPHICS_DISABLED
-  edges_and_textord(name.string(), blocks);
+namespace tesseract {
+void Tesseract::pgeditor_read_file(                   // of serialised file
+                                   STRING &filename,
+                                   BLOCK_LIST *blocks  // block list to add to
+                                  ) {
+  STRING name = filename;        //truncated name
+  const char *lastdot;           //of name
+  TO_BLOCK_LIST land_blocks, port_blocks;
+  TBOX page_box;
+
+  lastdot = strrchr (name.string (), '.');
+  if (lastdot != NULL)
+    name[lastdot-name.string()] = '\0';
+  if (!read_unlv_file(name, page_image.get_xsize(), page_image.get_ysize(),
+                     blocks))
+    FullPageBlock(page_image.get_xsize(), page_image.get_ysize(), blocks);
+  find_components(blocks, &land_blocks, &port_blocks, &page_box);
+  textord_page(page_box.topright(), blocks, &land_blocks, &port_blocks, this);
 }
-#else
-  int c;                         // input character
-  FILE *infp;                    // input file
-  BLOCK_IT block_it(blocks);  // iterator
-  BLOCK *block;                  // current block
-
-  ICOORD page_tr;                // topright of page
-
-  const char *filename_extension;
-
-  block_it.move_to_last();
-
-                                 // ptr to last dot
-  filename_extension = strrchr(name.string(), '.');
-  #ifdef __UNIX__
-  /*    TEXTROW*                tessrows;
-      TBLOB*                  tessblobs;
-      TPOINT                  tess_tr;
-
-    if (strcmp(filename_extension, ".r" ) == 0)
-    {
-      tprintf("Converting from .r file format.\n" );
-      tessrows = get_tess_row_file(name.string(),	// get the row file
-                          &tess_tr );
-      page_tr = ICOORD(tess_tr.x, tess_tr.y );
-      make_blocks_from_rows(tessrows, name.string(),	// reconstruct blocks
-                    page_tr, TRUE, &block_it );
-    }
-    else if (strcmp(filename_extension, ".b" ) == 0)
-    {
-      tprintf("Converting from .b file format.\n" );
-      tessblobs = get_tess_blob_file(name.string(),	// get the blob file
-                          &tess_tr );
-      page_tr = ICOORD(tess_tr.x, tess_tr.y );
-      make_blocks_from_blobs(tessblobs, name.string(),
-                              // reconstruct blocks
-                    page_tr, FALSE,blocks);
-    }
-     else*/
-  if (strcmp(filename_extension, ".pb") == 0) {
-    tprintf("Converting from .pb file format.\n");
-                                 // construct blocks
-    read_and_textord(name.string(), blocks);
-  }
-  else
-  #endif
-  if ((strcmp(filename_extension, ".pg") == 0) ||
-    // read a .pg file
-                               // or a .sp file
- (strcmp(filename_extension, ".sp") == 0)) {
-    tprintf("Reading %s file format.\n", filename_extension);
-    infp = fopen(name.string(), "r");
-    if (infp == NULL)
-      CANTOPENFILE.error("pgeditor_read_file", EXIT, name.string());
-    // can't open file
-
-    while(((c = fgetc(infp)) != EOF) &&(ungetc(c, infp) != EOF)) {
-                               // get one
-      block = BLOCK::de_serialise(infp);
-                               // add to list
-      block_it.add_after_then_move(block);
-    }
-    fclose(infp);
-  } else {
-    edges_and_textord(name.string(), blocks);
-  }
-}
-
+}  // namespace tesseract
 
 /**********************************************************************
  * pgeditor_show_point()
@@ -863,10 +817,11 @@ void pgeditor_write_file(                   // serialise
  * (Just call the appropriate command handler)
  **********************************************************************/
 
-BOOL8 process_cmd_win_event(                 // UI command semantics
-                            inT32 cmd_event,  // which menu item?
-                            char *new_value   // any prompt data
-                           ) {
+namespace tesseract {
+BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
+                                       inT32 cmd_event,  // which menu item?
+                                       char *new_value   // any prompt data
+                                      ) {
   char msg[160];
   BOOL8 exit = FALSE;
 
@@ -997,9 +952,8 @@ BOOL8 process_cmd_win_event(                 // UI command semantics
  * If UP - for each word in the selected area do the operation defined by
  * the current mode.
  **********************************************************************/
-
-void process_image_event( // action in image win
-                         const SVEvent &event) {
+void Tesseract::process_image_event( // action in image win
+                                    const SVEvent &event) {
   static ICOORD down;
   ICOORD up;
   TBOX selection_box;
@@ -1022,7 +976,7 @@ void process_image_event( // action in image win
 
       switch(mode) {
         case CHANGE_DISP_CMD_EVENT:
-          process_selected_words(current_block_list,
+          ::process_selected_words(current_block_list,
                                  selection_box,
                                  &word_blank_and_set_display);
           break;
@@ -1030,34 +984,34 @@ void process_image_event( // action in image win
           if (!viewing_source)
             image_win->AddMessage("Can't COPY while viewing target!");
           else
-            process_selected_words(current_block_list,
+            ::process_selected_words(current_block_list,
                                    selection_box,
                                    &word_copy);
           break;
         case DELETE_CMD_EVENT:
-          process_selected_words_it(current_block_list,
+          ::process_selected_words_it(current_block_list,
                                     selection_box,
                                     &word_delete);
           break;
         case CHANGE_TEXT_CMD_EVENT:
-          process_selected_words(current_block_list,
+          ::process_selected_words(current_block_list,
                                  selection_box,
                                  &word_change_text);
           break;
         case TOGGLE_SEG_CMD_EVENT:
-          process_selected_words(current_block_list,
-                                 selection_box,
-                                 &word_toggle_seg);
+          ::process_selected_words(current_block_list,
+                                   selection_box,
+                                   &word_toggle_seg);
           break;
         case DUMP_WERD_CMD_EVENT:
-          process_selected_words(current_block_list,
-                                 selection_box,
-                                 &word_dumper);
+          ::process_selected_words(current_block_list,
+                                   selection_box,
+                                   &word_dumper);
           break;
         case SHOW_BLN_WERD_CMD_EVENT:
-          process_selected_words(current_block_list,
-                                 selection_box,
-                                 &word_bln_display);
+          ::process_selected_words(current_block_list,
+                                   selection_box,
+                                   &word_bln_display);
           break;
         case SEGMENT_WERD_CMD_EVENT:
           re_segment_word(current_block_list, selection_box);
@@ -1073,8 +1027,9 @@ void process_image_event( // action in image win
 
         case RECOG_WERDS:
           image_win->AddMessage("Recogging selected words");
-          process_selected_words(current_block_list,
-                                 selection_box, &recog_interactive);
+          this->process_selected_words(current_block_list,
+                                       selection_box,
+                                       &Tesseract::recog_interactive);
           break;
         case RECOG_PSEUDO:
           image_win->AddMessage("Recogging selected blobs");
@@ -1090,6 +1045,7 @@ void process_image_event( // action in image win
       break;
   }
 }
+}  // namespace tesseract
 
 
 /**********************************************************************
@@ -1807,8 +1763,10 @@ BOOL8 word_dumper(              // dump word
                   WERD *word     // word to be processed
                  ) {
 
-  tprintf("\nBlock data...\n");
-  block->print(NULL, FALSE);
+  if (block != NULL) {
+    tprintf("\nBlock data...\n");
+    block->print(NULL, FALSE);
+  }
   tprintf("\nRow data...\n");
   row->print(NULL);
   tprintf("\nWord data...\n");

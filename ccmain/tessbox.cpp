@@ -22,6 +22,7 @@
 #include          "tfacepp.h"
 #include          "tessbox.h"
 #include "mfoutline.h"
+#include "tesseractclass.h"
 
 #define EXTERN
 
@@ -31,23 +32,27 @@
  * Segment a word using the pass1 conditions of the tess segmenter.
  **********************************************************************/
 
-WERD_CHOICE *tess_segment_pass1(                           //recog one word
-                                WERD *word,                //bln word to do
-                                DENORM *denorm,            //de-normaliser
-                                POLY_MATCHER matcher,      //matcher function
-                                WERD_CHOICE *&raw_choice,  //raw result //list of blob lists
-                                BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                WERD *&outword             //bln word output
-                               ) {
+namespace tesseract {
+WERD_CHOICE *Tesseract::tess_segment_pass1(                 //recog one word
+                                           WERD *word,      //bln word to do
+                                           DENORM *denorm,  //de-normaliser
+                                                            //matcher function
+                                           POLY_MATCHER matcher,
+                                                            //raw result
+                                           WERD_CHOICE *&raw_choice,
+                                                            //list of blob lists
+                                           BLOB_CHOICE_LIST_CLIST *blob_choices,
+                                           WERD *&outword   //bln word output
+                                          ) {
   WERD_CHOICE *result;           //return value
   int saved_enable_assoc = 0;
   int saved_chop_enable = 0;
 
   if (word->flag (W_DONT_CHOP)) {
-    saved_enable_assoc = enable_assoc;
+    saved_enable_assoc = wordrec_enable_assoc;
     saved_chop_enable = chop_enable;
-    enable_assoc = 0;
-    chop_enable = 0;
+    wordrec_enable_assoc.set_value(0);
+    chop_enable.set_value(0);
     if (word->flag (W_REP_CHAR))
       permute_only_top = 1;
   }
@@ -56,8 +61,8 @@ WERD_CHOICE *tess_segment_pass1(                           //recog one word
   result = recog_word (word, denorm, matcher, NULL, NULL, FALSE,
     raw_choice, blob_choices, outword);
   if (word->flag (W_DONT_CHOP)) {
-    enable_assoc = saved_enable_assoc;
-    chop_enable = saved_chop_enable;
+    wordrec_enable_assoc.set_value(saved_enable_assoc);
+    chop_enable.set_value(saved_chop_enable);
     permute_only_top = 0;
   }
   return result;
@@ -70,23 +75,26 @@ WERD_CHOICE *tess_segment_pass1(                           //recog one word
  * Segment a word using the pass2 conditions of the tess segmenter.
  **********************************************************************/
 
-WERD_CHOICE *tess_segment_pass2(                           //recog one word
-                                WERD *word,                //bln word to do
-                                DENORM *denorm,            //de-normaliser
-                                POLY_MATCHER matcher,      //matcher function
-                                WERD_CHOICE *&raw_choice,  //raw result //list of blob lists
-                                BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                WERD *&outword             //bln word output
-                               ) {
+WERD_CHOICE *Tesseract::tess_segment_pass2(                 //recog one word
+                                           WERD *word,      //bln word to do
+                                           DENORM *denorm,  //de-normaliser
+                                                            //matcher function
+                                           POLY_MATCHER matcher,
+                                                            //raw result
+                                           WERD_CHOICE *&raw_choice,
+                                                            //list of blob lists
+                                           BLOB_CHOICE_LIST_CLIST *blob_choices,
+                                           WERD *&outword   //bln word output
+                                          ) {
   WERD_CHOICE *result;           //return value
   int saved_enable_assoc = 0;
   int saved_chop_enable = 0;
 
   if (word->flag (W_DONT_CHOP)) {
-    saved_enable_assoc = enable_assoc;
+    saved_enable_assoc = wordrec_enable_assoc;
     saved_chop_enable = chop_enable;
-    enable_assoc = 0;
-    chop_enable = 0;
+    wordrec_enable_assoc.set_value(0);
+    chop_enable.set_value(0);
     if (word->flag (W_REP_CHAR))
       permute_only_top = 1;
   }
@@ -94,8 +102,8 @@ WERD_CHOICE *tess_segment_pass2(                           //recog one word
   result = recog_word (word, denorm, matcher, NULL, NULL, FALSE,
     raw_choice, blob_choices, outword);
   if (word->flag (W_DONT_CHOP)) {
-    enable_assoc = saved_enable_assoc;
-    chop_enable = saved_chop_enable;
+    wordrec_enable_assoc.set_value(saved_enable_assoc);
+    chop_enable.set_value(saved_chop_enable);
     permute_only_top = 0;
   }
   return result;
@@ -112,15 +120,21 @@ WERD_CHOICE *tess_segment_pass2(                           //recog one word
  * false and all strings are NULL.
  **********************************************************************/
 
-WERD_CHOICE *correct_segment_pass2(                           //recog one word
-                                   WERD *word,                //bln word to do
-                                   DENORM *denorm,            //de-normaliser
-                                   POLY_MATCHER matcher,      //matcher function
-                                   POLY_TESTER tester,        //tester function
-                                   WERD_CHOICE *&raw_choice,  //raw result //list of blob lists
-                                   BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                   WERD *&outword             //bln word output
-                                  ) {
+WERD_CHOICE *Tesseract::correct_segment_pass2(              //recog one word
+                                              WERD *word,   //bln word to do
+                                                            //de-normaliser
+                                              DENORM *denorm,
+                                                            //matcher function
+                                              POLY_MATCHER matcher,
+                                                            //tester function
+                                              POLY_TESTER tester,
+                                                            //raw result
+                                              WERD_CHOICE *&raw_choice,
+                                                            //list of blob lists
+                                              BLOB_CHOICE_LIST_CLIST *blob_choices,
+                                                            //bln word output
+                                              WERD *&outword
+                                             ) {
   set_pass2();
   return recog_word (word, denorm, matcher, NULL, tester, TRUE,
     raw_choice, blob_choices, outword);
@@ -134,16 +148,21 @@ WERD_CHOICE *correct_segment_pass2(                           //recog one word
  * Then call the tester on all words used by tess in its search.
  * Do this only on words where the correct segmentation could be found.
  **********************************************************************/
-
-WERD_CHOICE *test_segment_pass2(                           //recog one word
-                                WERD *word,                //bln word to do
-                                DENORM *denorm,            //de-normaliser
-                                POLY_MATCHER matcher,      //matcher function
-                                POLY_TESTER tester,        //tester function
-                                WERD_CHOICE *&raw_choice,  //raw result //list of blob lists
-                                BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                WERD *&outword             //bln word output
-                               ) {
+WERD_CHOICE *Tesseract::test_segment_pass2(               //recog one word
+                                           WERD *word,    //bln word to do
+                                                          //de-normaliser
+                                           DENORM *denorm,
+                                                          //matcher function
+                                           POLY_MATCHER matcher,
+                                                          //tester function
+                                           POLY_TESTER tester,
+                                                          //raw result
+                                           WERD_CHOICE *&raw_choice,
+                                                          //list of blob lists
+                                           BLOB_CHOICE_LIST_CLIST *blob_choices,
+                                                          //bln word output
+                                           WERD *&outword
+                                          ) {
   set_pass2();
   return recog_word (word, denorm, matcher, tester, NULL, TRUE,
     raw_choice, blob_choices, outword);
@@ -155,24 +174,10 @@ WERD_CHOICE *test_segment_pass2(                           //recog one word
  *
  * Return true if the word is regarded as "good enough".
  **********************************************************************/
-
-BOOL8 tess_acceptable_word(                           //test acceptability
-                           WERD_CHOICE *word_choice,  //after context
-                           WERD_CHOICE *raw_choice    //before context
-                          ) {
-  A_CHOICE choice;               //after context
-  A_CHOICE tess_raw;             //before
-
-  choice.rating = word_choice->rating ();
-  choice.certainty = word_choice->certainty ();
-  choice.string = (char *) word_choice->string ().string ();
-  choice.lengths = (char *) word_choice->lengths ().string ();
-  tess_raw.rating = raw_choice->rating ();
-  tess_raw.certainty = raw_choice->certainty ();
-  tess_raw.string = (char *) raw_choice->string ().string ();
-  tess_raw.lengths = (char *) raw_choice->lengths ().string ();
-                                 //call tess
-  return AcceptableResult (&choice, &tess_raw);
+BOOL8 Tesseract::tess_acceptable_word(
+    WERD_CHOICE *word_choice,  // after context
+    WERD_CHOICE *raw_choice) {  // before context
+  return getDict().AcceptableResult(*word_choice, *raw_choice);
 }
 
 
@@ -181,20 +186,14 @@ BOOL8 tess_acceptable_word(                           //test acceptability
  *
  * Return true if the word is regarded as "good enough".
  **********************************************************************/
-
-BOOL8 tess_adaptable_word(                           //test adaptability
-                          WERD *word,                //word to test
-                          WERD_CHOICE *word_choice,  //after context
-                          WERD_CHOICE *raw_choice    //before context
-                         ) {
-  TWERD *tessword;               //converted word
-  inT32 result;                  //answer
-
-  tessword = make_tess_word (word, NULL);
-  result = AdaptableWord (tessword, word_choice->string ().string (),
-                          word_choice->lengths ().string (),
-                          raw_choice->string ().string (),
-                          raw_choice->lengths ().string ());
+BOOL8 Tesseract::tess_adaptable_word(  // test adaptability
+    WERD *word,                        // word to test
+    WERD_CHOICE *best_choice,          // after context
+    WERD_CHOICE *raw_choice            // before context
+                                     ) {
+  TWERD *tessword = make_tess_word(word, NULL);
+  int result = (tessword && best_choice && raw_choice &&
+                AdaptableWord(tessword, *best_choice, *raw_choice));
   delete_word(tessword);
   return result != 0;
 }
@@ -207,29 +206,27 @@ BOOL8 tess_adaptable_word(                           //test adaptability
  * only.
  **********************************************************************/
 
-void tess_cn_matcher(                           //call tess
-                     PBLOB *pblob,              //previous blob
-                     PBLOB *blob,               //blob to match
-                     PBLOB *nblob,              //next blob
-                     WERD *word,                //word it came from
-                     DENORM *denorm,            //de-normaliser
-                     BLOB_CHOICE_LIST &ratings  //list of results
+void Tesseract::tess_cn_matcher(                           //call tess
+                                PBLOB *pblob,              //previous blob
+                                PBLOB *blob,               //blob to match
+                                PBLOB *nblob,              //next blob
+                                WERD *word,                //word it came from
+                                DENORM *denorm,            //de-normaliser
+                                BLOB_CHOICE_LIST *ratings,  //list of results
+                                CLASS_PRUNER_RESULTS cpresults  // may be null.
                     ) {
-  LIST result;                   //tess output
   TBLOB *tessblob;               //converted blob
   TEXTROW tessrow;               //dummy row
 
-  tess_cn_matching = TRUE;       //turn it on
-  tess_bn_matching = FALSE;
+  tess_cn_matching.set_value(true);       //turn it on
+  tess_bn_matching.set_value(false);
                                  //convert blob
-  tessblob = make_tess_blob (blob, TRUE);
+  tessblob = make_rotated_tess_blob(denorm, blob, true);
                                  //make dummy row
   make_tess_row(denorm, &tessrow);
                                  //classify
-  result = AdaptiveClassifier (tessblob, NULL, &tessrow);
+  AdaptiveClassifier(tessblob, NULL, &tessrow, ratings, cpresults);
   free_blob(tessblob);
-                                 //make our format
-  convert_choice_list(result, ratings);
 }
 
 
@@ -240,29 +237,26 @@ void tess_cn_matcher(                           //call tess
  * only.
  **********************************************************************/
 
-void tess_bn_matcher(                           //call tess
-                     PBLOB *pblob,              //previous blob
-                     PBLOB *blob,               //blob to match
-                     PBLOB *nblob,              //next blob
-                     WERD *word,                //word it came from
-                     DENORM *denorm,            //de-normaliser
-                     BLOB_CHOICE_LIST &ratings  //list of results
-                    ) {
-  LIST result;                   //tess output
+void Tesseract::tess_bn_matcher(                           //call tess
+                                PBLOB *pblob,              //previous blob
+                                PBLOB *blob,               //blob to match
+                                PBLOB *nblob,              //next blob
+                                WERD *word,                //word it came from
+                                DENORM *denorm,            //de-normaliser
+                                BLOB_CHOICE_LIST *ratings  //list of results
+                               ) {
   TBLOB *tessblob;               //converted blob
   TEXTROW tessrow;               //dummy row
 
-  tess_bn_matching = TRUE;       //turn it on
-  tess_cn_matching = FALSE;
+  tess_bn_matching.set_value(true);       //turn it on
+  tess_cn_matching.set_value(false);
                                  //convert blob
-  tessblob = make_tess_blob (blob, TRUE);
+  tessblob = make_rotated_tess_blob(denorm, blob, true);
                                  //make dummy row
   make_tess_row(denorm, &tessrow);
                                  //classify
-  result = AdaptiveClassifier (tessblob, NULL, &tessrow);
+  AdaptiveClassifier(tessblob, NULL, &tessrow, ratings, NULL);
   free_blob(tessblob);
-                                 //make our format
-  convert_choice_list(result, ratings);
 }
 
 
@@ -272,30 +266,31 @@ void tess_bn_matcher(                           //call tess
  * Match a blob using the default functionality of the Tess matcher.
  **********************************************************************/
 
-void tess_default_matcher(                           //call tess
-                          PBLOB *pblob,              //previous blob
-                          PBLOB *blob,               //blob to match
-                          PBLOB *nblob,              //next blob
-                          WERD *word,                //word it came from
-                          DENORM *denorm,            //de-normaliser
-                          BLOB_CHOICE_LIST &ratings  //list of results
-                         ) {
-  LIST result;                   //tess output
+void Tesseract::tess_default_matcher(                       //call tess
+                                     PBLOB *pblob,          //previous blob
+                                     PBLOB *blob,           //blob to match
+                                     PBLOB *nblob,          //next blob
+                                     WERD *word,            //word it came from
+                                     DENORM *denorm,        //de-normaliser
+                                                            //list of results
+                                     BLOB_CHOICE_LIST *ratings,
+                                     const char* script
+                                    ) {
+  assert(ratings != NULL);
   TBLOB *tessblob;               //converted blob
   TEXTROW tessrow;               //dummy row
 
-  tess_bn_matching = FALSE;      //turn it off
-  tess_cn_matching = FALSE;
+  tess_bn_matching.set_value(false);      //turn it off
+  tess_cn_matching.set_value(false);
                                  //convert blob
-  tessblob = make_tess_blob (blob, TRUE);
+  tessblob = make_rotated_tess_blob(denorm, blob, true);
                                  //make dummy row
   make_tess_row(denorm, &tessrow);
                                  //classify
-  result = AdaptiveClassifier (tessblob, NULL, &tessrow);
+  AdaptiveClassifier (tessblob, NULL, &tessrow, ratings, NULL);
   free_blob(tessblob);
-                                 //make our format
-  convert_choice_list(result, ratings);
 }
+}  // namespace tesseract
 
 
 /**********************************************************************
@@ -305,6 +300,7 @@ void tess_default_matcher(                           //call tess
  **********************************************************************/
 
 void tess_training_tester(                           //call tess
+                          const STRING& filename,    //filename to output
                           PBLOB *blob,               //blob to match
                           DENORM *denorm,            //de-normaliser
                           BOOL8 correct,             //ly segmented
@@ -316,15 +312,15 @@ void tess_training_tester(                           //call tess
   TEXTROW tessrow;               //dummy row
 
   if (correct) {
-    NormMethod = character;              //Force char norm spc 30/11/93
-    tess_bn_matching = FALSE;    //turn it off
-    tess_cn_matching = FALSE;
+    classify_norm_method.set_value(character); // force char norm spc 30/11/93
+    tess_bn_matching.set_value(false);    //turn it off
+    tess_cn_matching.set_value(false);
                                  //convert blob
     tessblob = make_tess_blob (blob, TRUE);
                                  //make dummy row
     make_tess_row(denorm, &tessrow);
                                  //learn it
-    LearnBlob(tessblob, &tessrow, text);
+    LearnBlob(filename, tessblob, &tessrow, text);
     free_blob(tessblob);
   }
 }
@@ -336,13 +332,14 @@ void tess_training_tester(                           //call tess
  * Adapt to the word using the Tesseract mechanism.
  **********************************************************************/
 
-void tess_adapter(                         //adapt to word
-                  WERD *word,              //bln word
-                  DENORM *denorm,          //de-normalise
-                  const WERD_CHOICE& choice,      //string for word
-                  const WERD_CHOICE& raw_choice,  //before context
-                  const char *rejmap       //reject map
-                 ) {
+namespace tesseract {
+void Tesseract::tess_adapter(                         //adapt to word
+                             WERD *word,              //bln word
+                             DENORM *denorm,          //de-normalise
+                             const WERD_CHOICE& choice,      //string for word
+                             const WERD_CHOICE& raw_choice,  //before context
+                             const char *rejmap       //reject map
+                            ) {
   TWERD *tessword;               //converted word
   static TEXTROW tessrow;        //dummy row
 
@@ -361,15 +358,7 @@ void tess_adapter(                         //adapt to word
  *
  * Add the given word to the document dictionary
  **********************************************************************/
-
-void tess_add_doc_word(                          //test acceptability
-                       WERD_CHOICE *word_choice  //after context
-                      ) {
-  A_CHOICE choice;               //after context
-
-  choice.rating = word_choice->rating ();
-  choice.certainty = word_choice->certainty ();
-  choice.string = (char *) word_choice->string ().string ();
-  choice.lengths = (char *) word_choice->lengths ().string ();
-  add_document_word(&choice);
+void Tesseract::tess_add_doc_word(WERD_CHOICE *word_choice) {
+  getDict().add_document_word(*word_choice);
 }
+}  // namespace tesseract
