@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    adaptive.c
- **	Purpose:     Adaptive matcher.
- **	Author:      Dan Johnson
- **	History:     Fri Mar  8 10:00:21 1991, DSJ, Created.
+ ** Filename:    adaptive.c
+ ** Purpose:     Adaptive matcher.
+ ** Author:      Dan Johnson
+ ** History:     Fri Mar  8 10:00:21 1991, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include "emalloc.h"
 #include "freelist.h"
 #include "globals.h"
+#include "classify.h"
 
 #ifdef __UNIX__
 #include <assert.h>
@@ -33,23 +34,22 @@
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-int AddAdaptedClass(ADAPT_TEMPLATES Templates,
-                    ADAPT_CLASS Class,
-                    CLASS_ID ClassId) {
+void AddAdaptedClass(ADAPT_TEMPLATES Templates,
+                     ADAPT_CLASS Class,
+                     CLASS_ID ClassId) {
 /*
- **	Parameters:
- **		Templates	set of templates to add new class to
- **		Class		new class to add to templates
- **		ClassId		class id to associate with new class
- **	Globals: none
- **	Operation: This routine adds a new adapted class to an existing
- **		set of adapted templates.
- **	Return: The class index of the new class.
- **	Exceptions: none
- **	History: Thu Mar 14 13:06:09 1991, DSJ, Created.
+ ** Parameters:
+ **   Templates set of templates to add new class to
+ **   Class   new class to add to templates
+ **   ClassId   class id to associate with new class
+ ** Globals: none
+ ** Operation: This routine adds a new adapted class to an existing
+ **   set of adapted templates.
+ ** Return: none
+ ** Exceptions: none
+ ** History: Thu Mar 14 13:06:09 1991, DSJ, Created.
  */
   INT_CLASS IntClass;
-  CLASS_INDEX ClassIndex;
 
   assert (Templates != NULL);
   assert (Class != NULL);
@@ -58,13 +58,10 @@ int AddAdaptedClass(ADAPT_TEMPLATES Templates,
   assert (Class->NumPermConfigs == 0);
 
   IntClass = NewIntClass (1, 1);
-  ClassIndex = AddIntClass (Templates->Templates, ClassId, IntClass);
+  AddIntClass (Templates->Templates, ClassId, IntClass);
 
-  assert (Templates->Class[ClassIndex] == NULL);
-
-  Templates->Class[ClassIndex] = Class;
-
-  return (ClassIndex);
+  assert (Templates->Class[ClassId] == NULL);
+  Templates->Class[ClassId] = Class;
 
 }                                /* AddAdaptedClass */
 
@@ -72,14 +69,14 @@ int AddAdaptedClass(ADAPT_TEMPLATES Templates,
 /*---------------------------------------------------------------------------*/
 void FreeTempConfig(TEMP_CONFIG Config) {
 /*
- **	Parameters:
- **		Config	config to be freed
- **	Globals: none
- **	Operation: This routine frees all memory consumed by a temporary
- **		configuration.
- **	Return: none
- **	Exceptions: none
- **	History: Thu Mar 14 13:34:23 1991, DSJ, Created.
+ ** Parameters:
+ **   Config  config to be freed
+ ** Globals: none
+ ** Operation: This routine frees all memory consumed by a temporary
+ **   configuration.
+ ** Return: none
+ ** Exceptions: none
+ ** History: Thu Mar 14 13:34:23 1991, DSJ, Created.
  */
   assert (Config != NULL);
 
@@ -101,13 +98,13 @@ void FreeTempProto(void *arg) {
 /*---------------------------------------------------------------------------*/
 ADAPT_CLASS NewAdaptedClass() {
 /*
- **	Parameters: none
- **	Globals: none
- **	Operation: This operation allocates and initializes a new adapted
- **		class data structure and returns a ptr to it.
- **	Return: Ptr to new class data structure.
- **	Exceptions: none
- **	History: Thu Mar 14 12:58:13 1991, DSJ, Created.
+ ** Parameters: none
+ ** Globals: none
+ ** Operation: This operation allocates and initializes a new adapted
+ **   class data structure and returns a ptr to it.
+ ** Return: Ptr to new class data structure.
+ ** Exceptions: none
+ ** History: Thu Mar 14 12:58:13 1991, DSJ, Created.
  */
   ADAPT_CLASS Class;
   int i;
@@ -149,14 +146,18 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
 
 
 /*---------------------------------------------------------------------------*/
-ADAPT_TEMPLATES NewAdaptedTemplates() {
+namespace tesseract {
+ADAPT_TEMPLATES Classify::NewAdaptedTemplates(bool InitFromUnicharset) {
 /*
- **	Parameters: none
- **	Globals: none
- **	Operation:
- **	Return: none
- **	Exceptions: none
- **	History: Fri Mar  8 10:15:28 1991, DSJ, Created.
+ ** Parameters:
+ **   PopulateFromUnicharset      if true, add an empty class for
+ **                                         each char in unicharset to the
+ **                                         newly created templates
+ ** Globals: none
+ ** Operation: Allocates memory for adapted tempates.
+ ** Return: Ptr to new adapted templates.
+ ** Exceptions: none
+ ** History: Fri Mar  8 10:15:28 1991, DSJ, Created.
  */
   ADAPT_TEMPLATES Templates;
   int i;
@@ -165,14 +166,20 @@ ADAPT_TEMPLATES NewAdaptedTemplates() {
 
   Templates->Templates = NewIntTemplates ();
   Templates->NumPermClasses = 0;
+  Templates->NumNonEmptyClasses = 0;
 
-  for (i = 0; i < MAX_NUM_CLASSES; i++)
+  /* Insert an empty class for each unichar id in unicharset */
+  for (i = 0; i < MAX_NUM_CLASSES; i++) {
     Templates->Class[i] = NULL;
+    if (InitFromUnicharset && i < unicharset.size()) {
+      AddAdaptedClass(Templates, NewAdaptedClass(), i);
+    }
+  }
 
   return (Templates);
 
 }                                /* NewAdaptedTemplates */
-
+}  // namespace tesseract
 
 /*----------------------------------------------------------------------------*/
 void free_adapted_templates(ADAPT_TEMPLATES templates) {
@@ -190,14 +197,14 @@ void free_adapted_templates(ADAPT_TEMPLATES templates) {
 /*---------------------------------------------------------------------------*/
 TEMP_CONFIG NewTempConfig(int MaxProtoId) {
 /*
- **	Parameters:
- **		MaxProtoId	max id of any proto in new config
- **	Globals: none
- **	Operation: This routine allocates and returns a new temporary
- **		config.
- **	Return: Ptr to new temp config.
- **	Exceptions: none
- **	History: Thu Mar 14 13:28:21 1991, DSJ, Created.
+ ** Parameters:
+ **   MaxProtoId  max id of any proto in new config
+ ** Globals: none
+ ** Operation: This routine allocates and returns a new temporary
+ **   config.
+ ** Return: Ptr to new temp config.
+ ** Exceptions: none
+ ** History: Thu Mar 14 13:28:21 1991, DSJ, Created.
  */
   TEMP_CONFIG Config;
   int NumProtos = MaxProtoId + 1;
@@ -221,12 +228,12 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId) {
 /*---------------------------------------------------------------------------*/
 TEMP_PROTO NewTempProto() {
 /*
- **	Parameters: none
- **	Globals: none
- **	Operation: This routine allocates and returns a new temporary proto.
- **	Return: Ptr to new temporary proto.
- **	Exceptions: none
- **	History: Thu Mar 14 13:31:31 1991, DSJ, Created.
+ ** Parameters: none
+ ** Globals: none
+ ** Operation: This routine allocates and returns a new temporary proto.
+ ** Return: Ptr to new temporary proto.
+ ** Exceptions: none
+ ** History: Thu Mar 14 13:31:31 1991, DSJ, Created.
  */
   return ((TEMP_PROTO)
     alloc_struct (sizeof (TEMP_PROTO_STRUCT), "TEMP_PROTO_STRUCT"));
@@ -234,17 +241,18 @@ TEMP_PROTO NewTempProto() {
 
 
 /*---------------------------------------------------------------------------*/
-void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
+namespace tesseract {
+void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
 /*
- **	Parameters:
- **		File		open text file to print Templates to
- **		Templates	adapted templates to print to File
- **	Globals: none
- **	Operation: This routine prints a summary of the adapted templates
- **		in Templates to File.
- **	Return: none
- **	Exceptions: none
- **	History: Wed Mar 20 13:35:29 1991, DSJ, Created.
+ ** Parameters:
+ **   File    open text file to print Templates to
+ **   Templates adapted templates to print to File
+ ** Globals: none
+ ** Operation: This routine prints a summary of the adapted templates
+ **   in Templates to File.
+ ** Return: none
+ ** Exceptions: none
+ ** History: Wed Mar 20 13:35:29 1991, DSJ, Created.
  */
   int i;
   INT_CLASS IClass;
@@ -253,37 +261,39 @@ void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
   #ifndef SECURE_NAMES
   fprintf (File, "\n\nSUMMARY OF ADAPTED TEMPLATES:\n\n");
   fprintf (File, "Num classes = %d;  Num permanent classes = %d\n\n",
-    (Templates->Templates)->NumClasses, Templates->NumPermClasses);
-  fprintf (File, "Index Id  NC NPC  NP NPP\n");
+           Templates->NumNonEmptyClasses, Templates->NumPermClasses);
+  fprintf (File, "   Id  NC NPC  NP NPP\n");
   fprintf (File, "------------------------\n");
 
   for (i = 0; i < (Templates->Templates)->NumClasses; i++) {
     IClass = Templates->Templates->Class[i];
     AClass = Templates->Class[i];
-
-    fprintf (File, "%5d  %s %3d %3d %3d %3d\n",
-      i, unicharset.id_to_unichar(Templates->Templates->ClassIdFor[i]),
+    if (!IsEmptyAdaptedClass (AClass)) {
+      fprintf (File, "%5d  %s %3d %3d %3d %3d\n",
+        i, unicharset.id_to_unichar(i),
       IClass->NumConfigs, AClass->NumPermConfigs,
       IClass->NumProtos,
       IClass->NumProtos - count (AClass->TempProtos));
+    }
   }
   #endif
   fprintf (File, "\n");
 
 }                                /* PrintAdaptedTemplates */
+}  // namespace tesseract
 
 
 /*---------------------------------------------------------------------------*/
 ADAPT_CLASS ReadAdaptedClass(FILE *File) {
 /*
- **	Parameters:
- **		File	open file to read adapted class from
- **	Globals: none
- **	Operation: Read an adapted class description from File and return
- **		a ptr to the adapted class.
- **	Return: Ptr to new adapted class.
- **	Exceptions: none
- **	History: Tue Mar 19 14:11:01 1991, DSJ, Created.
+ ** Parameters:
+ **   File  open file to read adapted class from
+ ** Globals: none
+ ** Operation: Read an adapted class description from File and return
+ **   a ptr to the adapted class.
+ ** Return: Ptr to new adapted class.
+ ** Exceptions: none
+ ** History: Tue Mar 19 14:11:01 1991, DSJ, Created.
  */
   int NumTempProtos;
   int NumConfigs;
@@ -328,16 +338,17 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
 
 
 /*---------------------------------------------------------------------------*/
-ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File) {
+namespace tesseract {
+ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(FILE *File) {
 /*
- **	Parameters:
- **		File	open text file to read adapted templates from
- **	Globals: none
- **	Operation: Read a set of adapted templates from File and return
- **		a ptr to the templates.
- **	Return: Ptr to adapted templates read from File.
- **	Exceptions: none
- **	History: Mon Mar 18 15:18:10 1991, DSJ, Created.
+ ** Parameters:
+ **   File  open text file to read adapted templates from
+ ** Globals: none
+ ** Operation: Read a set of adapted templates from File and return
+ **   a ptr to the templates.
+ ** Return: Ptr to adapted templates read from File.
+ ** Exceptions: none
+ ** History: Mon Mar 18 15:18:10 1991, DSJ, Created.
  */
   int i;
   ADAPT_TEMPLATES Templates;
@@ -347,7 +358,7 @@ ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File) {
   fread ((char *) Templates, sizeof (ADAPT_TEMPLATES_STRUCT), 1, File);
 
   /* then read in the basic integer templates */
-  Templates->Templates = ReadIntTemplates (File, FALSE);
+  Templates->Templates = ReadIntTemplates (File);
 
   /* then read in the adaptive info for each class */
   for (i = 0; i < (Templates->Templates)->NumClasses; i++) {
@@ -356,25 +367,26 @@ ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File) {
   return (Templates);
 
 }                                /* ReadAdaptedTemplates */
+}  // namespace tesseract
 
 
 /*---------------------------------------------------------------------------*/
 PERM_CONFIG ReadPermConfig(FILE *File) {
 /*
- **	Parameters:
- **		File	open file to read permanent config from
- **	Globals: none
- **	Operation: Read a permanent configuration description from File
- **		and return a ptr to it.
- **	Return: Ptr to new permanent configuration description.
- **	Exceptions: none
- **	History: Tue Mar 19 14:25:26 1991, DSJ, Created.
+ ** Parameters:
+ **   File  open file to read permanent config from
+ ** Globals: none
+ ** Operation: Read a permanent configuration description from File
+ **   and return a ptr to it.
+ ** Return: Ptr to new permanent configuration description.
+ ** Exceptions: none
+ ** History: Tue Mar 19 14:25:26 1991, DSJ, Created.
  */
   PERM_CONFIG Config;
   uinT8 NumAmbigs;
 
   fread ((char *) &NumAmbigs, sizeof (uinT8), 1, File);
-  Config = (PERM_CONFIG) Emalloc (sizeof (char) * (NumAmbigs + 1));
+  Config = (PERM_CONFIG) Emalloc (sizeof (UNICHAR_ID) * (NumAmbigs + 1));
   fread (Config, sizeof (UNICHAR_ID), NumAmbigs, File);
   Config[NumAmbigs] = -1;
 
@@ -386,14 +398,14 @@ PERM_CONFIG ReadPermConfig(FILE *File) {
 /*---------------------------------------------------------------------------*/
 TEMP_CONFIG ReadTempConfig(FILE *File) {
 /*
- **	Parameters:
- **		File	open file to read temporary config from
- **	Globals: none
- **	Operation:  Read a temporary configuration description from File
- **		and return a ptr to it.
- **	Return: Ptr to new temporary configuration description.
- **	Exceptions: none
- **	History: Tue Mar 19 14:29:59 1991, DSJ, Created.
+ ** Parameters:
+ **   File  open file to read temporary config from
+ ** Globals: none
+ ** Operation:  Read a temporary configuration description from File
+ **   and return a ptr to it.
+ ** Return: Ptr to new temporary configuration description.
+ ** Exceptions: none
+ ** History: Tue Mar 19 14:29:59 1991, DSJ, Created.
  */
   TEMP_CONFIG Config;
 
@@ -414,16 +426,16 @@ TEMP_CONFIG ReadTempConfig(FILE *File) {
 /*---------------------------------------------------------------------------*/
 void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
 /*
- **	Parameters:
- **		File		open file to write Class to
- **		Class		adapted class to write to File
- **		NumConfigs	number of configs in Class
- **	Globals: none
- **	Operation: This routine writes a binary representation of Class
- **		to File.
- **	Return: none
- **	Exceptions: none
- **	History: Tue Mar 19 13:33:51 1991, DSJ, Created.
+ ** Parameters:
+ **   File    open file to write Class to
+ **   Class   adapted class to write to File
+ **   NumConfigs  number of configs in Class
+ ** Globals: none
+ ** Operation: This routine writes a binary representation of Class
+ **   to File.
+ ** Return: none
+ ** Exceptions: none
+ ** History: Tue Mar 19 13:33:51 1991, DSJ, Created.
  */
   int NumTempProtos;
   LIST TempProtos;
@@ -459,16 +471,17 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
 
 
 /*---------------------------------------------------------------------------*/
-void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
+namespace tesseract {
+void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
 /*
- **	Parameters:
- **		File		open text file to write Templates to
- **		Templates	set of adapted templates to write to File
- **	Globals: none
- **	Operation: This routine saves Templates to File in a binary format.
- **	Return: none
- **	Exceptions: none
- **	History: Mon Mar 18 15:07:32 1991, DSJ, Created.
+ ** Parameters:
+ **   File    open text file to write Templates to
+ **   Templates set of adapted templates to write to File
+ ** Globals: none
+ ** Operation: This routine saves Templates to File in a binary format.
+ ** Return: none
+ ** Exceptions: none
+ ** History: Mon Mar 18 15:07:32 1991, DSJ, Created.
  */
   int i;
 
@@ -484,20 +497,21 @@ void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
       Templates->Templates->Class[i]->NumConfigs);
   }
 }                                /* WriteAdaptedTemplates */
+}  // namespace tesseract
 
 
 /*---------------------------------------------------------------------------*/
 void WritePermConfig(FILE *File, PERM_CONFIG Config) {
 /*
- **	Parameters:
- **		File	open file to write Config to
- **		Config	permanent config to write to File
- **	Globals: none
- **	Operation: This routine writes a binary representation of a
- **		permanent configuration to File.
- **	Return: none
- **	Exceptions: none
- **	History: Tue Mar 19 13:55:44 1991, DSJ, Created.
+ ** Parameters:
+ **   File  open file to write Config to
+ **   Config  permanent config to write to File
+ ** Globals: none
+ ** Operation: This routine writes a binary representation of a
+ **   permanent configuration to File.
+ ** Return: none
+ ** Exceptions: none
+ ** History: Tue Mar 19 13:55:44 1991, DSJ, Created.
  */
   uinT8 NumAmbigs = 0;
 
@@ -514,15 +528,15 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
 /*---------------------------------------------------------------------------*/
 void WriteTempConfig(FILE *File, TEMP_CONFIG Config) {
 /*
- **	Parameters:
- **		File	open file to write Config to
- **		Config	temporary config to write to File
- **	Globals: none
- **	Operation: This routine writes a binary representation of a
- **		temporary configuration to File.
- **	Return: none
- **	Exceptions: none
- **	History: Tue Mar 19 14:00:28 1991, DSJ, Created.
+ ** Parameters:
+ **   File  open file to write Config to
+ **   Config  temporary config to write to File
+ ** Globals: none
+ ** Operation: This routine writes a binary representation of a
+ **   temporary configuration to File.
+ ** Return: none
+ ** Exceptions: none
+ ** History: Tue Mar 19 14:00:28 1991, DSJ, Created.
  */
   assert (Config != NULL);
                                  /* contexts not yet implemented */

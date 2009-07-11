@@ -26,7 +26,6 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "protos.h"
-#include "debug.h"
 #include "const.h"
 #include "emalloc.h"
 #include "freelist.h"
@@ -35,6 +34,8 @@
 #include "adaptmatch.h"
 #include "scanutils.h"
 #include "globals.h"
+#include "classify.h"
+#include "varable.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -47,9 +48,7 @@
 ----------------------------------------------------------------------*/
 CLASS_STRUCT TrainingData[NUMBER_OF_CLASSES];
 
-char *TrainingFile;
-
-//extern int LearningDebugLevel;
+STRING_VAR(classify_training_file, "MicroFeatures", "Training file");
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -79,8 +78,7 @@ int AddConfigToClass(CLASS_TYPE Class) {
 
     Class->MaxNumConfigs = NewNumConfigs;
   }
-  NewConfig = Class->NumConfigs;
-  Class->NumConfigs++;
+  NewConfig = Class->NumConfigs++;
   Config = NewBitVector (MaxNumProtos);
   Class->Configurations[NewConfig] = Config;
   zero_all_bits (Config, WordsInVectorOfSize (MaxNumProtos));
@@ -206,7 +204,7 @@ void FillABC(PROTO Proto) {
 void FreeClass(CLASS_TYPE Class) {
   if (Class) {
     FreeClassFields(Class);
-    memfree(Class);
+    delete Class;
   }
 }
 
@@ -230,18 +228,6 @@ void FreeClassFields(CLASS_TYPE Class) {
   }
 }
 
-
-/**********************************************************************
- * InitPrototypes
- *
- * Initialize anything that needs to be initialized to work with the
- * functions in this file.
- **********************************************************************/
-void InitPrototypes() {
-  string_variable (TrainingFile, "TrainingFile", "MicroFeatures");
-}
-
-
 /**********************************************************************
  * NewClass
  *
@@ -251,7 +237,7 @@ void InitPrototypes() {
 CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
   CLASS_TYPE Class;
 
-  Class = (CLASS_TYPE) Emalloc (sizeof (CLASS_STRUCT));
+  Class = new CLASS_STRUCT;
 
   if (NumProtos > 0)
     Class->Prototypes = (PROTO) Emalloc (NumProtos * sizeof (PROTO_STRUCT));
@@ -292,15 +278,17 @@ void PrintProtos(CLASS_TYPE Class) {
  * Read in the training data from a file.  All of the classes are read
  * in.  The results are stored in the global variable, 'TrainingData'.
  **********************************************************************/
-void ReadClassFile() {
+namespace tesseract {
+void Classify::ReadClassFile() {
  FILE *File;
  char TextLine[CHARS_PER_LINE];
  char unichar[CHARS_PER_LINE];
 
- cprintf ("Reading training data from '%s' ...", TrainingFile);
+ cprintf ("Reading training data from '%s' ...",
+          static_cast<STRING>(classify_training_file).string());
  fflush(stdout);
 
- File = open_file (TrainingFile, "r");
+ File = open_file(static_cast<STRING>(classify_training_file).string(), "r");
  while (fgets (TextLine, CHARS_PER_LINE, File) != NULL) {
 
    sscanf(TextLine, "%s", unichar);
@@ -311,6 +299,7 @@ void ReadClassFile() {
  fclose(File);
  new_line();
 }
+}  // namespace tesseract
 
 /**********************************************************************
  * ReadClassFromFile

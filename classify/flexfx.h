@@ -28,7 +28,6 @@
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-CHAR_DESC ExtractFlexFeatures(TBLOB *Blob, LINE_STATS *LineStats); 
+CHAR_DESC ExtractFlexFeatures(TBLOB *Blob, LINE_STATS *LineStats);
 
-void InitFlexFXVars(); 
 #endif

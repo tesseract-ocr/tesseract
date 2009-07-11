@@ -78,7 +78,7 @@ typedef union
 
 FLOATUNION;
 
-typedef struct proto
+typedef struct
 {
   unsigned Significant:1;        // TRUE if prototype is significant
   unsigned Merged:1;             // Merged after clustering so do not output

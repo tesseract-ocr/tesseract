@@ -35,16 +35,9 @@ typedef FPOINT FVECTOR;
 /**----------------------------------------------------------------------------
             Macros
 ----------------------------------------------------------------------------**/
-/* macros for manipulating simple point data structures */
-//#define Xof(P)      ( (P).x )
-//#define Yof(P)      ( (P).y )
-//#define YofP(P)     ((P)->y)
-//#define XofP(P)     ((P)->x)
-
 /* macros for computing miscellaneous functions of 2 points */
 #define XDelta(A,B)   ( (B).x - (A).x )
 #define YDelta(A,B)   ( (B).y - (A).y )
-#define CopyPoint(A, B) ((B).x = (A).x, (B).y = (A).y) // FIXME, gets expanded for FPOINT and TPOINT.
 #define SlopeFrom(A,B)    ( YDelta(A,B) / XDelta(A,B) )
 #define AngleFrom(A,B)		( atan2((double) YDelta(A,B),		\
 					(double) XDelta(A,B) ) )
@@ -54,8 +47,6 @@ typedef FPOINT FVECTOR;
 /*-------------------------------------------------------------------------
         Public Function Prototypes
 ---------------------------------------------------------------------------*/
-
-void FillPoint(FPOINT &P, FLOAT32 X, FLOAT32 Y);
 
 FLOAT32 DistanceBetween(FPOINT A, FPOINT B);
 

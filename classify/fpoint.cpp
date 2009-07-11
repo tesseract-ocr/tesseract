@@ -28,18 +28,10 @@
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
 
-void FillPoint(FPOINT &P, FLOAT32 X, FLOAT32 Y) {
-	P.x = X;
-	P.y = Y;
-}
-/* Commented out, because there is also a same function for TPOINT and this gets resolved to it.
-void CopyPoint(FPOINT &A, FPOINT &B) {
-	B.x = A.x;
-	B.y = A.y;
-}
-*/
 FLOAT32 DistanceBetween(FPOINT A, FPOINT B) {
-  return sqrt ((double) (XDelta(A,B) * XDelta(A,B) + YDelta(A,B) * YDelta(A,B)));
+  double xd = XDelta(A, B);
+  double yd = YDelta(A, B);
+  return sqrt(static_cast<double>(xd * xd + yd * yd));
 }
 
 

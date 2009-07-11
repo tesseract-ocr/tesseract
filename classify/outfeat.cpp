@@ -20,42 +20,11 @@
 ----------------------------------------------------------------------------**/
 #include "outfeat.h"
 #include "mfoutline.h"
-#include "variables.h"
-#include "sigmenu.h"
 
 #include "ocrfeatures.h"         //Debug
 #include <stdio.h>               //Debug
 #include "efio.h"                //Debug
-//#include "christydbg.h"
 
-/**----------------------------------------------------------------------------
-          Private Function Prototypes
-----------------------------------------------------------------------------**/
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define	_ARGS(s) s
-#else
-# define	_ARGS(s) ()
-#endif*/
-
-/* /users/danj/wiseowl/src/danj/microfeatures/outfeat.c
-void AddOutlineFeatureToSet
-  _ARGS((FPOINT *Start,
-  FPOINT *End,
-  FEATURE_SET FeatureSet));
-
-void ConvertToOutlineFeatures
-  _ARGS((MFOUTLINE Outline,
-  FEATURE_SET FeatureSet));
-
-void NormalizeOutlineX
-  _ARGS((FEATURE_SET FeatureSet));
-
-#undef _ARGS
-*/
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
 /**----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------**/
@@ -89,59 +58,13 @@ FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   RemainingOutlines = Outlines;
   iterate(RemainingOutlines) {
     Outline = (MFOUTLINE) first_node (RemainingOutlines);
-    /*---------Debug--------------------------------------------------*
-    OFile = fopen ("f:/ims/debug/ofOutline.logCPP", "r");
-    if (OFile == NULL)
-    {
-      OFile = Efopen ("f:/ims/debug/ofOutline.logCPP", "w");
-      WriteOutline(OFile, Outline);
-    }
-    else
-    {
-      fclose (OFile);
-      OFile = Efopen ("f:/ims/debug/ofOutline.logCPP", "a");
-    }
-    WriteOutline(OFile, Outline);
-    fclose (OFile);
-    *--------------------------------------------------------------------*/
     ConvertToOutlineFeatures(Outline, FeatureSet);
   }
-  if (NormMethod == baseline)
+  if (classify_norm_method == baseline)
     NormalizeOutlineX(FeatureSet);
-  /*---------Debug--------------------------------------------------*
-  File = fopen ("f:/ims/debug/ofFeatSet.logCPP", "r");
-  if (File == NULL)
-  {
-    File = Efopen ("f:/ims/debug/ofFeatSet.logCPP", "w");
-    WriteFeatureSet(File, FeatureSet);
-  }
-  else
-  {
-    fclose (File);
-    File = Efopen ("f:/ims/debug/ofFeatSet.logCPP", "a");
-  }
-  WriteFeatureSet(File, FeatureSet);
-  fclose (File);
-  *--------------------------------------------------------------------*/
   FreeOutlines(Outlines);
   return (FeatureSet);
 }                                /* ExtractOutlineFeatures */
-
-
-/*---------------------------------------------------------------------------*/
-void InitOutlineFXVars() {
-                                 //once contained a dummy
-/*
- **	Parameters: none
- **	Globals: none
- **	Operation: Initialize the outline-feature extractor variables that can
- **		be tuned without recompiling.
- **	Return: none
- **	Exceptions: none
- **	History: 11/13/90, DSJ, Created.
- */
-}                                /* InitOutlineFXVars */
-
 
 /**----------------------------------------------------------------------------
               Private Code
@@ -169,11 +92,11 @@ void AddOutlineFeatureToSet(FPOINT *Start,
  */
   FEATURE Feature;
 
-  Feature = NewFeature (&OutlineFeatDesc);
-  Feature->Params[OutlineFeatDir] = NormalizedAngleFrom (Start, End, 1.0);
-  Feature->Params[OutlineFeatX] = AverageOf (Start->x, End->x);
-  Feature->Params[OutlineFeatY] = AverageOf (Start->y, End->y);
-  Feature->Params[OutlineFeatLength] = DistanceBetween (*Start, *End);
+  Feature = NewFeature(&OutlineFeatDesc);
+  Feature->Params[OutlineFeatDir] = NormalizedAngleFrom(Start, End, 1.0);
+  Feature->Params[OutlineFeatX] = AverageOf(Start->x, End->x);
+  Feature->Params[OutlineFeatY] = AverageOf(Start->y, End->y);
+  Feature->Params[OutlineFeatLength] = DistanceBetween(*Start, *End);
   AddFeature(FeatureSet, Feature);
 
 }                                /* AddOutlineFeatureToSet */
@@ -206,16 +129,16 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   First = Outline;
   Next = First;
   do {
-    CopyPoint (PointAt (Next)->Point, FeatureStart);
-    Next = NextPointAfter (Next);
+    FeatureStart = PointAt(Next)->Point;
+    Next = NextPointAfter(Next);
 
     /* note that an edge is hidden if the ending point of the edge is
        marked as hidden.  This situation happens because the order of
        the outlines is reversed when they are converted from the old
        format.  In the old format, a hidden edge is marked by the
        starting point for that edge. */
-    if (! (PointAt (Next)->Hidden)) {
-      CopyPoint (PointAt (Next)->Point, FeatureEnd);
+    if (!PointAt(Next)->Hidden) {
+      FeatureEnd = PointAt(Next)->Point;
       AddOutlineFeatureToSet(&FeatureStart, &FeatureEnd, FeatureSet);
     }
   }

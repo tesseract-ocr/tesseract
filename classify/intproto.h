@@ -38,7 +38,8 @@
 
 #define MAX_PROTO_INDEX   24
 #define BITS_PER_WERD   (8 * sizeof (uinT32))
-#define MAX_NUM_CONFIGS   32
+/* Script detection: increase this number to 128 */
+#define MAX_NUM_CONFIGS   64
 #define MAX_NUM_PROTOS    512
 #define PROTOS_PER_PROTO_SET  64
 #define MAX_NUM_PROTO_SETS  (MAX_NUM_PROTOS / PROTOS_PER_PROTO_SET)
@@ -62,6 +63,11 @@
 #define WERDS_PER_CONFIG_VEC	((MAX_NUM_CONFIGS + BITS_PER_WERD - 1) /    \
 				BITS_PER_WERD)
 
+/* The first 3 dimensions of the CLASS_PRUNER_STRUCT are the
+ * 3 axes of the quantized feature space.
+ * The position of the the bits recorded for each class in the
+ * 4th dimension is determined by using CPrunerWordIndexFor(c),
+ * where c is the corresponding class id. */
 typedef uinT32 CLASS_PRUNER_STRUCT
 [NUM_CP_BUCKETS][NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
 
@@ -80,9 +86,11 @@ typedef struct
 
 INT_PROTO_STRUCT, *INT_PROTO;
 
+typedef uinT32 PROTO_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
+
 typedef struct
 {
-  uinT32 ProtoPruner[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
+  PROTO_PRUNER ProtoPruner;
   INT_PROTO_STRUCT Protos[PROTOS_PER_PROTO_SET];
 }
 
@@ -90,6 +98,35 @@ typedef struct
 PROTO_SET_STRUCT, *PROTO_SET;
 
 typedef uinT32 CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
+
+/*
+ * font_properties contains properties about boldness, italicness, fixed pitch,
+ * serif, fraktur
+ */
+struct FontInfo {
+  char*         name;
+  uinT32        properties;
+  bool is_italic() { return properties & 1; }
+  bool is_bold() { return (properties & 2) != 0; }
+  bool is_fixed_pitch() { return (properties & 4) != 0; }
+  bool is_serif() { return (properties & 8) != 0; }
+  bool is_fraktur() { return (properties & 16) != 0; }
+};
+
+// Every class (character) owns a FontSet that represents all the fonts that can
+// render this character.
+// Since almost all the characters from the same script share the same set of
+// fonts, the sets are shared over multiple classes (see
+// Classify::fontset_table_). Thus, a class only store an id to a set.
+// Because some fonts cannot render just one character of a set, there are a
+// lot of FontSet that differ only by one font. Rather than storing directly
+// the FontInfo in the FontSet structure, it's better to share FontInfos among
+// FontSets (Classify::fontinfo_table_).
+struct FontSet {
+  int           size;
+  int*          configs;  // FontInfo ids
+};
+
 
 typedef struct
 {
@@ -99,6 +136,7 @@ typedef struct
   PROTO_SET ProtoSets[MAX_NUM_PROTO_SETS];
   uinT8 *ProtoLengths;
   uinT16 ConfigLengths[MAX_NUM_CONFIGS];
+  int font_set_id;  // FontSet id, see above
 }
 
 
@@ -108,8 +146,6 @@ typedef struct
 {
   int NumClasses;
   int NumClassPruners;
-  CLASS_TO_INDEX IndexFor;
-  INDEX_TO_CLASS ClassIdFor;
   INT_CLASS Class[MAX_NUM_CLASSES];
   CLASS_PRUNER ClassPruner[MAX_NUM_CLASS_PRUNERS];
 }
@@ -121,19 +157,23 @@ INT_TEMPLATES_STRUCT, *INT_TEMPLATES;
 #define MAX_NUM_INT_FEATURES 512
 #define INT_CHAR_NORM_RANGE  256
 
-typedef struct
+struct INT_FEATURE_STRUCT
 {
   uinT8 X;
   uinT8 Y;
   uinT8 Theta;
   inT8 CP_misses;
-}
+};
 
-
-INT_FEATURE_STRUCT;
 typedef INT_FEATURE_STRUCT *INT_FEATURE;
 
 typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
+
+enum IntmatcherDebugAction {
+  IDA_ADAPTIVE,
+  IDA_STATIC,
+  IDA_BOTH
+};
 
 /**----------------------------------------------------------------------------
             Macros
@@ -150,13 +190,15 @@ typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 #define PPrunerMaskFor(I) (1 << PPrunerBitIndexFor (I))
 
 #define MaxNumClassesIn(T)    (T->NumClassPruners * CLASSES_PER_CP)
-#define LegalClassId(C)   ((C) > 0 && (C) <= MAX_CLASS_ID)
-#define UnusedClassIdIn(T,C)  (T->IndexFor[C] == ILLEGAL_CLASS)
-#define ClassForClassId(T,C)  (T->Class[(T->IndexFor[C])])
-#define CPrunerIdFor(I)   ((I) / CLASSES_PER_CP)
-#define CPrunerWordIndexFor(I)  (((I) % CLASSES_PER_CP) / CLASSES_PER_CP_WERD)
-#define CPrunerBitIndexFor(I) (((I) % CLASSES_PER_CP) % CLASSES_PER_CP_WERD)
-#define CPrunerMaskFor(L,I) (((L)+1) << CPrunerBitIndexFor (I) * NUM_BITS_PER_CLASS)
+#define LegalClassId(c)   ((c) >= 0 && (c) <= MAX_CLASS_ID)
+#define UnusedClassIdIn(T,c)  ((T)->Class[c] == NULL)
+#define ClassForClassId(T,c) ((T)->Class[c])
+#define ClassPrunersFor(T)  ((T)->ClassPruner)
+#define CPrunerIdFor(c)   ((c) / CLASSES_PER_CP)
+#define CPrunerFor(T,c)   ((T)->ClassPruner [CPrunerIdFor (c)])
+#define CPrunerWordIndexFor(c)  (((c) % CLASSES_PER_CP) / CLASSES_PER_CP_WERD)
+#define CPrunerBitIndexFor(c) (((c) % CLASSES_PER_CP) % CLASSES_PER_CP_WERD)
+#define CPrunerMaskFor(L,c) (((L)+1) << CPrunerBitIndexFor (c) * NUM_BITS_PER_CLASS)
 
 /* DEBUG macros*/
 #define PRINT_MATCH_SUMMARY 0x001
@@ -177,7 +219,7 @@ typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-int AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class);
+void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class);
 
 int AddIntConfig(INT_CLASS Class);
 
@@ -199,122 +241,24 @@ void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class);
 
 void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class);
 
-INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos,
-                                 const UNICHARSET& target_unicharset);
-
 void DisplayIntFeature(INT_FEATURE Feature, FLOAT32 Evidence);
 
 void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence);
 
-void InitIntProtoVars();
-
 INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs);
-
-void free_int_class(INT_CLASS int_class);
 
 INT_TEMPLATES NewIntTemplates();
 
 void free_int_templates(INT_TEMPLATES templates);
 
-INT_TEMPLATES ReadIntTemplates(FILE *File, BOOL8 swap);
-
 void ShowMatchDisplay();
 
-CLASS_ID GetClassToDebug(const char *Prompt);
+/*----------------------------------------------------------------------------*/
 
-void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
-                       const UNICHARSET& target_unicharset);
+void InitIntMatchWindowIfReqd();
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define        _ARGS(s) s
-#else
-# define        _ARGS(s) ()
-#endif*/
+void InitProtoDisplayWindowIfReqd();
 
-/* intproto.c
-int AddIntClass
-    _ARGS((INT_TEMPLATES Templates,
-  CLASS_ID ClassId,
-  INT_CLASS Class));
+void InitFeatureDisplayWindowIfReqd();
 
-int AddIntConfig
-    _ARGS((INT_CLASS Class));
-
-int AddIntProto
-    _ARGS((INT_CLASS Class));
-
-void AddProtoToClassPruner
-    _ARGS((PROTO Proto,
-  CLASS_ID ClassId,
-  INT_TEMPLATES Templates));
-
-void AddProtoToProtoPruner
-    _ARGS((PROTO Proto,
-  int ProtoId,
-  INT_CLASS Class));
-
-int BucketFor
-    _ARGS((FLOAT32 Param,
-  FLOAT32 Offset,
-  int NumBuckets));
-
-int CircBucketFor
-    _ARGS((FLOAT32 Param,
-  FLOAT32 Offset,
-  int NumBuckets));
-
-void UpdateMatchDisplay
-    _ARGS((void));
-
-void ConvertConfig
-    _ARGS((BIT_VECTOR Config,
-  int ConfigId,
-  INT_CLASS Class));
-
-void ConvertProto
-    _ARGS((PROTO Proto,
-  int ProtoId,
-  INT_CLASS Class));
-
-INT_TEMPLATES CreateIntTemplates
-    _ARGS((CLASSES FloatProtos));
-
-void DisplayIntFeature
-    _ARGS((INT_FEATURE Feature,
-  FLOAT32 Evidence));
-
-void DisplayIntProto
-    _ARGS((INT_CLASS Class,
-  PROTO_ID ProtoId,
-  FLOAT32 Evidence));
-
-void InitIntProtoVars
-    _ARGS((void));
-
-INT_CLASS NewIntClass
-    _ARGS((int MaxNumProtos,
-  int MaxNumConfigs));
-
-INT_TEMPLATES NewIntTemplates
-    _ARGS((void));
-
-INT_TEMPLATES ReadIntTemplates
-    _ARGS((FILE *File));
-
-void ShowMatchDisplay
-    _ARGS((void));
-
-void WriteIntTemplates
-    _ARGS((FILE *File,
-  INT_TEMPLATES Templates));
-
-CLASS_ID GetClassToDebug
-    _ARGS((char *Prompt));
-
-C_COL GetMatchColorFor
-    _ARGS((FLOAT32 Evidence));
-
-#undef _ARGS
-*/
 #endif

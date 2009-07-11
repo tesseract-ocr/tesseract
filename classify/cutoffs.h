@@ -28,9 +28,6 @@ typedef uinT16 CLASS_CUTOFF_ARRAY[MAX_NUM_CLASSES];
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void ReadNewCutoffs(const char *Filename,
-                    CLASS_TO_INDEX ClassMapper,
-                    CLASS_CUTOFF_ARRAY Cutoffs);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)
@@ -42,7 +39,6 @@ void ReadNewCutoffs(const char *Filename,
 /* cutoffs.c
 void ReadNewCutoffs
   _ARGS((char *Filename,
-  CLASS_TO_INDEX ClassMapper,
   CLASS_CUTOFF_ARRAY Cutoffs));
 #undef _ARGS
 */

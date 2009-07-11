@@ -19,7 +19,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "extract.h"
-#include "variables.h"
 #include "flexfx.h"
 #include "funcdefs.h"
 #include "danerror.h"
@@ -60,24 +59,6 @@ CHAR_DESC ExtractBlobFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
  */
   return (ExtractFlexFeatures (Blob, LineStats));
 }                                /* ExtractBlobFeatures */
-
-
-/*---------------------------------------------------------------------------*/
-void InitExtractorVars() { 
-/*
- **	Parameters: none
- **	Globals: none
- **	Operation: Install global extractor variables into the variable
- **		system.
- **	Return: none
- **	Exceptions: none
- **	History: Sun Jan 21 10:19:59 1990, DSJ, Created.
- */
-  //      VALUE dummy;
-  InitFlexFXVars(); 
-
-}                                /* InitExtractorVars */
-
 
 /**----------------------------------------------------------------------------
               Private Code

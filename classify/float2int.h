@@ -30,36 +30,11 @@
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
+namespace tesseract {
 void ClearCharNormArray(INT_TEMPLATES Templates,
                         CLASS_NORMALIZATION_ARRAY CharNormArray);
+}  // namespace tesseract.
 
-void ComputeIntCharNormArray(FEATURE NormFeature,
-                             INT_TEMPLATES Templates,
-                             CLASS_NORMALIZATION_ARRAY CharNormArray);
+void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures);
 
-void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures); 
-
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define        _ARGS(s) s
-#else
-# define        _ARGS(s) ()
-#endif*/
-
-/* float2int.c
-void ClearCharNormArray
-    _ARGS((INT_TEMPLATES Templates,
-  CLASS_NORMALIZATION_ARRAY CharNormArray));
-
-void ComputeIntCharNormArray
-    _ARGS((FEATURE NormFeature,
-  INT_TEMPLATES Templates,
-  CLASS_NORMALIZATION_ARRAY CharNormArray));
-
-void ComputeIntFeatures
-    _ARGS((FEATURE_SET Features,
-  INT_FEATURE_ARRAY IntFeatures));
-
-#undef _ARGS
-*/
 #endif

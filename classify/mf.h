@@ -32,9 +32,7 @@ typedef enum {
 /*----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
-FEATURE_SET ExtractMicros(TBLOB *Blob, LINE_STATS *LineStats); 
-
-void InitMicroFXVars(); 
+FEATURE_SET ExtractMicros(TBLOB *Blob, LINE_STATS *LineStats);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

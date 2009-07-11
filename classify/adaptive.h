@@ -68,6 +68,7 @@ typedef ADAPT_CLASS_STRUCT *ADAPT_CLASS;
 typedef struct
 {
   INT_TEMPLATES Templates;
+  int NumNonEmptyClasses;
   uinT8 NumPermClasses;
   uinT8 dummy[3];
   ADAPT_CLASS Class[MAX_NUM_CLASSES];
@@ -77,6 +78,11 @@ typedef ADAPT_TEMPLATES_STRUCT *ADAPT_TEMPLATES;
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
+#define NumNonEmptyClassesIn(Template) ((Template)->NumNonEmptyClasses)
+
+#define IsEmptyAdaptedClass(Class) ((Class)->NumPermConfigs == 0 &&      \
+(Class)->TempProtos == NIL)
+
 #define ConfigIsPermanent(Class,ConfigId)		\
 (test_bit ((Class)->PermConfigs, ConfigId))
 
@@ -95,7 +101,7 @@ typedef ADAPT_TEMPLATES_STRUCT *ADAPT_TEMPLATES;
 #define IncreaseConfidence(TempConfig)	\
 ((TempConfig)->NumTimesSeen++)
 
-int AddAdaptedClass(ADAPT_TEMPLATES Templates,
+void AddAdaptedClass(ADAPT_TEMPLATES Templates,
                     ADAPT_CLASS Class,
                     CLASS_ID ClassId);
 
@@ -107,19 +113,13 @@ ADAPT_CLASS NewAdaptedClass();
 
 void free_adapted_class(ADAPT_CLASS adapt_class);
 
-ADAPT_TEMPLATES NewAdaptedTemplates();
-
 void free_adapted_templates(ADAPT_TEMPLATES templates);
 
 TEMP_CONFIG NewTempConfig(int MaxProtoId);
 
 TEMP_PROTO NewTempProto();
 
-void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
-
 ADAPT_CLASS ReadAdaptedClass(FILE *File);
-
-ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File);
 
 PERM_CONFIG ReadPermConfig(FILE *File);
 
@@ -127,73 +127,8 @@ TEMP_CONFIG ReadTempConfig(FILE *File);
 
 void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs);
 
-void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
-
 void WritePermConfig(FILE *File, PERM_CONFIG Config);
 
 void WriteTempConfig(FILE *File, TEMP_CONFIG Config);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define        _ARGS(s) s
-#else
-# define        _ARGS(s) ()
-#endif*/
-
-/* adaptive.c
-int AddAdaptedClass
-    _ARGS((ADAPT_TEMPLATES Templates,
-  ADAPT_CLASS Class,
-  CLASS_ID ClassId));
-
-void FreeTempConfig
-    _ARGS((TEMP_CONFIG Config));
-
-ADAPT_CLASS NewAdaptedClass
-    _ARGS((void));
-
-ADAPT_TEMPLATES NewAdaptedTemplates
-    _ARGS((void));
-
-TEMP_CONFIG NewTempConfig
-    _ARGS((int MaxProtoId));
-
-TEMP_PROTO NewTempProto
-    _ARGS((void));
-
-void PrintAdaptedTemplates
-    _ARGS((FILE *File,
-  ADAPT_TEMPLATES Templates));
-
-ADAPT_CLASS ReadAdaptedClass
-    _ARGS((FILE *File));
-
-ADAPT_TEMPLATES ReadAdaptedTemplates
-    _ARGS((FILE *File));
-
-PERM_CONFIG ReadPermConfig
-    _ARGS((FILE *File));
-
-TEMP_CONFIG ReadTempConfig
-    _ARGS((FILE *File));
-
-void WriteAdaptedClass
-    _ARGS((FILE *File,
-  ADAPT_CLASS Class,
-  int NumConfigs));
-
-void WriteAdaptedTemplates
-    _ARGS((FILE *File,
-  ADAPT_TEMPLATES Templates));
-
-void WritePermConfig
-    _ARGS((FILE *File,
-  PERM_CONFIG Config));
-
-void WriteTempConfig
-    _ARGS((FILE *File,
-  TEMP_CONFIG Config));
-
-#undef _ARGS
-*/
 #endif

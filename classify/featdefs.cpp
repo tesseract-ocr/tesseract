@@ -22,8 +22,6 @@
 #include "emalloc.h"
 #include "danerror.h"
 #include "scanutils.h"
-#include "variables.h"
-#include "sigmenu.h"
 
 #include <string.h>
 #include <stdio.h>

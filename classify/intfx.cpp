@@ -22,7 +22,6 @@
 #include "intmatcher.h"
 #include "const.h"
 #ifdef __UNIX__
-#include <assert.h>
 #endif
 
 /**----------------------------------------------------------------------------
@@ -33,21 +32,17 @@ uinT8 TableLookup();
 uinT8 MySqrt2();
 void ClipRadius();
 
-make_int_var (RadiusGyrMinMan, 255, MakeRadiusGyrMinMan,
-16, 10, SetRadiusGyrMinMan,
-"Minimum Radius of Gyration Mantissa 0-255:        ");
+INT_VAR(classify_radius_gyr_min_man, 255,
+        "Minimum Radius of Gyration Mantissa 0-255:        ");
 
-make_int_var (RadiusGyrMinExp, 0, MakeRadiusGyrMinExp,
-16, 11, SetRadiusGyrMinExp,
-"Minimum Radius of Gyration Exponent 0-255:        ");
+INT_VAR(classify_radius_gyr_min_exp, 0,
+        "Minimum Radius of Gyration Exponent 0-255:        ");
 
-make_int_var (RadiusGyrMaxMan, 158, MakeRadiusGyrMaxMan,
-16, 12, SetRadiusGyrMaxMan,
-"Maximum Radius of Gyration Mantissa 0-255:        ");
+INT_VAR(classify_radius_gyr_max_man, 158,
+        "Maximum Radius of Gyration Mantissa 0-255:        ");
 
-make_int_var (RadiusGyrMaxExp, 8, MakeRadiusGyrMaxExp,
-16, 13, SetRadiusGyrMaxExp,
-"Maximum Radius of Gyration Exponent 0-255:        ");
+INT_VAR(classify_radius_gyr_max_exp, 8,
+        "Maximum Radius of Gyration Exponent 0-255:        ");
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
@@ -220,6 +215,13 @@ int ExtractIntFeat(TBLOB *Blob,
 
   Results->Rx = (inT16) (51.2 / (double) RxInv * pow (2.0, (double) RxExp));
   Results->Ry = (inT16) (51.2 / (double) RyInv * pow (2.0, (double) RyExp));
+  if (Results->Ry == 0) {
+    /*
+        This would result in features having 'nan' values.
+        Since the expression is always > 0, assign a value of 1.
+    */
+    Results->Ry = 1;
+  }
   Results->NumBL = NumBLFeatures;
 
   /* extract character normalized features */
@@ -460,8 +462,8 @@ void ClipRadius(uinT8 *RxInv, uinT8 *RxExp, uinT8 *RyInv, uinT8 *RyExp) {
   register uinT8 BitN, LastCarry;
   int RxInvLarge, RyInvSmall;
 
-  AM = RadiusGyrMinMan;
-  AE = RadiusGyrMinExp;
+  AM = classify_radius_gyr_min_man;
+  AE = classify_radius_gyr_min_exp;
   BM = *RxInv;
   BE = *RxExp;
   LastCarry = 1;
@@ -491,12 +493,12 @@ void ClipRadius(uinT8 *RxInv, uinT8 *RxExp, uinT8 *RyInv, uinT8 *RyExp) {
   BitN = BitN & 1;
 
   if (BitN == 1) {
-    *RxInv = RadiusGyrMinMan;
-    *RxExp = RadiusGyrMinExp;
+    *RxInv = classify_radius_gyr_min_man;
+    *RxExp = classify_radius_gyr_min_exp;
   }
 
-  AM = RadiusGyrMinMan;
-  AE = RadiusGyrMinExp;
+  AM = classify_radius_gyr_min_man;
+  AE = classify_radius_gyr_min_exp;
   BM = *RyInv;
   BE = *RyExp;
   LastCarry = 1;
@@ -526,12 +528,12 @@ void ClipRadius(uinT8 *RxInv, uinT8 *RxExp, uinT8 *RyInv, uinT8 *RyExp) {
   BitN = BitN & 1;
 
   if (BitN == 1) {
-    *RyInv = RadiusGyrMinMan;
-    *RyExp = RadiusGyrMinExp;
+    *RyInv = classify_radius_gyr_min_man;
+    *RyExp = classify_radius_gyr_min_exp;
   }
 
-  AM = RadiusGyrMaxMan;
-  AE = RadiusGyrMaxExp;
+  AM = classify_radius_gyr_max_man;
+  AE = classify_radius_gyr_max_exp;
   BM = *RxInv;
   BE = *RxExp;
   LastCarry = 1;
@@ -567,8 +569,8 @@ void ClipRadius(uinT8 *RxInv, uinT8 *RxExp, uinT8 *RyInv, uinT8 *RyExp) {
 
   AM = *RyInv;
   AE = *RyExp;
-  BM = RadiusGyrMaxMan;
-  BE = RadiusGyrMaxExp;
+  BM = classify_radius_gyr_max_man;
+  BE = classify_radius_gyr_max_exp;
   LastCarry = 1;
   while ((AM != 0) || (BM != 0)) {
     if (AE > BE) {
@@ -601,8 +603,8 @@ void ClipRadius(uinT8 *RxInv, uinT8 *RxExp, uinT8 *RyInv, uinT8 *RyExp) {
     RyInvSmall = 0;
 
   if (RxInvLarge && RyInvSmall) {
-    *RyInv = RadiusGyrMaxMan;
-    *RyExp = RadiusGyrMaxExp;
+    *RyInv = classify_radius_gyr_max_man;
+    *RyExp = classify_radius_gyr_max_exp;
   }
 
 }

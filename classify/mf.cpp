@@ -19,7 +19,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "mfdefs.h"
-#include "variables.h"
 #include "mf.h"
 #include "fxdefs.h"
 #include "mfx.h"
@@ -52,6 +51,8 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, LINE_STATS *LineStats) {
   MICROFEATURE OldFeature;
 
   OldFeatures = (MICROFEATURES) BlobMicroFeatures (Blob, LineStats);
+  if (OldFeatures == NULL)
+    return NULL;
   NumFeatures = count (OldFeatures);
   FeatureSet = NewFeatureSet (NumFeatures);
 
@@ -70,37 +71,16 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, LINE_STATS *LineStats) {
 //     ParamOf (Feature, MFBulge2) = SecondBulgeOf (OldFeature);
     Feature->Params[MFBulge1] = 0.0f;
     Feature->Params[MFBulge2] = 0.0f;
-
+#ifndef __MSW32__
+    // Assert that feature parameters are well defined.
+    int i;
+    for (i = 0; i < Feature->Type->NumParams; i++) {
+      assert(!isnan(Feature->Params[i]));
+    }
+#endif
     AddFeature(FeatureSet, Feature);
   }
   FreeMicroFeatures(OldFeatures);
   return (FeatureSet);
 
 }                                /* ExtractMicros */
-
-
-/*---------------------------------------------------------------------------*/
-void InitMicroFXVars() {
-/*
- **	Parameters: none
- **	Globals:
- **		ExtraPenaltyMagnitude	controls for adjusting extra penalty
- **		ExtraPenaltyWeight
- **		ExtraPenaltyOrder
- **	Operation: Initialize the microfeature extractor variables that can
- **		be tuned without recompiling.
- **	Return: none
- **	Exceptions: none
- **	History: Thu May 24 10:50:46 1990, DSJ, Created.
- */
-  /*
-     float_variable (ExtraPenaltyMagnitude, "MFExtraPenaltyMag",
-     EXTRA_PENALTY_MAGNITUDE);
-     float_variable (ExtraPenaltyWeight, "MFExtraPenaltyWeight",
-     EXTRA_PENALTY_WEIGHT);
-     float_variable (ExtraPenaltyOrder, "MFExtraPenaltyOrder",
-     EXTRA_PENALTY_ORDER);
-   */
-  InitMicroFxVars();
-
-}                                /* InitMicroFXVars */

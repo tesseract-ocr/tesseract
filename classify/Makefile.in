@@ -59,15 +59,15 @@ libtesseract_classify_a_AR = $(AR) $(ARFLAGS)
 libtesseract_classify_a_LIBADD =
 am_libtesseract_classify_a_OBJECTS = adaptive.$(OBJEXT) \
 	adaptmatch.$(OBJEXT) baseline.$(OBJEXT) blobclass.$(OBJEXT) \
-	chartoname.$(OBJEXT) cluster.$(OBJEXT) clusttool.$(OBJEXT) \
-	cutoffs.$(OBJEXT) extract.$(OBJEXT) featdefs.$(OBJEXT) \
-	flexfx.$(OBJEXT) float2int.$(OBJEXT) fpoint.$(OBJEXT) \
-	fxdefs.$(OBJEXT) hideedge.$(OBJEXT) intfx.$(OBJEXT) \
-	intmatcher.$(OBJEXT) intproto.$(OBJEXT) kdtree.$(OBJEXT) \
-	mf.$(OBJEXT) mfdefs.$(OBJEXT) mfoutline.$(OBJEXT) \
-	mfx.$(OBJEXT) normfeat.$(OBJEXT) normmatch.$(OBJEXT) \
-	ocrfeatures.$(OBJEXT) outfeat.$(OBJEXT) picofeat.$(OBJEXT) \
-	protos.$(OBJEXT) sigmenu.$(OBJEXT) speckle.$(OBJEXT) \
+	chartoname.$(OBJEXT) classify.$(OBJEXT) cluster.$(OBJEXT) \
+	clusttool.$(OBJEXT) cutoffs.$(OBJEXT) extract.$(OBJEXT) \
+	featdefs.$(OBJEXT) flexfx.$(OBJEXT) float2int.$(OBJEXT) \
+	fpoint.$(OBJEXT) fxdefs.$(OBJEXT) hideedge.$(OBJEXT) \
+	intfx.$(OBJEXT) intmatcher.$(OBJEXT) intproto.$(OBJEXT) \
+	kdtree.$(OBJEXT) mf.$(OBJEXT) mfdefs.$(OBJEXT) \
+	mfoutline.$(OBJEXT) mfx.$(OBJEXT) normfeat.$(OBJEXT) \
+	normmatch.$(OBJEXT) ocrfeatures.$(OBJEXT) outfeat.$(OBJEXT) \
+	picofeat.$(OBJEXT) protos.$(OBJEXT) speckle.$(OBJEXT) \
 	xform2d.$(OBJEXT)
 libtesseract_classify_a_OBJECTS =  \
 	$(am_libtesseract_classify_a_OBJECTS)
@@ -203,26 +203,31 @@ SUBDIRS =
 AM_CPPFLAGS = \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/dict \
-    -I$(top_srcdir)/viewer
+    -I$(top_srcdir)/image -I$(top_srcdir)/viewer
 
+EXTRA_DIST = classify.vcproj
 include_HEADERS = \
     adaptive.h adaptmatch.h baseline.h blobclass.h chartoname.h \
-    cluster.h clusttool.h cutoffs.h extern.h extract.h featdefs.h \
-    flexfx.h float2int.h fpoint.h fxdefs.h fxid.h hideedge.h \
-    intfx.h intmatcher.h intproto.h kdtree.h mfdefs.h mf.h \
-    mfoutline.h mfx.h normfeat.h normmatch.h ocrfeatures.h \
-    outfeat.h picofeat.h protos.h sigmenu.h speckle.h xform2d.h
+    classify.h cluster.h clusttool.h cutoffs.h \
+    extern.h extract.h \
+    featdefs.h flexfx.h float2int.h fpoint.h fxdefs.h fxid.h \
+    hideedge.h intfx.h intmatcher.h intproto.h kdtree.h \
+    mf.h mfdefs.h mfoutline.h mfx.h \
+    normfeat.h normmatch.h \
+    ocrfeatures.h outfeat.h picofeat.h protos.h \
+    speckle.h xform2d.h
 
 lib_LIBRARIES = libtesseract_classify.a
 libtesseract_classify_a_SOURCES = \
     adaptive.cpp adaptmatch.cpp baseline.cpp blobclass.cpp \
-    chartoname.cpp cluster.cpp clusttool.cpp cutoffs.cpp \
-    extract.cpp featdefs.cpp flexfx.cpp float2int.cpp \
-    fpoint.cpp fxdefs.cpp hideedge.cpp intfx.cpp intmatcher.cpp \
-    intproto.cpp kdtree.cpp mf.cpp mfdefs.cpp mfoutline.cpp \
-    mfx.cpp normfeat.cpp normmatch.cpp ocrfeatures.cpp \
-    outfeat.cpp picofeat.cpp protos.cpp sigmenu.cpp speckle.cpp \
-    xform2d.cpp
+    chartoname.cpp classify.cpp cluster.cpp clusttool.cpp cutoffs.cpp \
+    extract.cpp \
+    featdefs.cpp flexfx.cpp float2int.cpp fpoint.cpp fxdefs.cpp \
+    hideedge.cpp intfx.cpp intmatcher.cpp intproto.cpp kdtree.cpp \
+    mf.cpp mfdefs.cpp mfoutline.cpp mfx.cpp \
+    normfeat.cpp normmatch.cpp \
+    ocrfeatures.cpp outfeat.cpp picofeat.cpp protos.cpp \
+    speckle.cpp xform2d.cpp
 
 all: all-recursive
 
@@ -302,6 +307,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/baseline.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blobclass.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chartoname.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/classify.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cluster.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clusttool.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cutoffs.Po@am__quote@
@@ -326,7 +332,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/outfeat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/picofeat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/protos.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sigmenu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/speckle.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xform2d.Po@am__quote@
 

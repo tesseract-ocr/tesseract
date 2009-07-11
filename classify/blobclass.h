@@ -38,9 +38,8 @@
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void InitBlobClassifierVars();
-
-void LearnBlob (TBLOB * Blob, TEXTROW * Row, char BlobText[]);
+void LearnBlob (const STRING& filename,
+                TBLOB * Blob, TEXTROW * Row, char BlobText[]);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

@@ -30,6 +30,7 @@
 ----------------------------------------------------------------------*/
 #include "general.h"
 #include "tessclas.h"
+#include "varable.h"
 
 /*----------------------------------------------------------------------
               T y p e s
@@ -40,52 +41,7 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern inT8 baseline_normalized;
-extern int baseline_enable;
 
-/*----------------------------------------------------------------------
-              M a c r o s
-----------------------------------------------------------------------*/
-/**********************************************************************
- * is_baseline_normalized
- *
- * Check the baseline_normalized flag to see if it is set.
- **********************************************************************/
-#define is_baseline_normalized()  \
-(baseline_normalized)
+extern INT_VAR_H(classify_baseline_normalized, 1, "Baseline Enable");
 
-/**********************************************************************
- * reset_baseline_normalized
- *
- * Reset the baseline_normalized flag to show that it is not being done.
- **********************************************************************/
-#define reset_baseline_normalized()  \
-(baseline_normalized = FALSE)
-
-/**********************************************************************
- * set_baseline_normalized
- *
- * Set the baseline_normalized flag to show that it is being done.
- **********************************************************************/
-#define set_baseline_normalized()  \
-(baseline_normalized = TRUE)
-
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-void init_baseline();
-
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif*/
-
-/* baseline.c
-void init_baseline
-  _ARGS((void));
-
-#undef _ARGS
-*/
 #endif

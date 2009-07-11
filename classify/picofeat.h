@@ -24,12 +24,20 @@
 #include "ocrfeatures.h"
 #include "tessclas.h"
 #include "fxdefs.h"
+#include "varable.h"
 
 typedef enum
 { PicoFeatY, PicoFeatDir, PicoFeatX }
 PICO_FEAT_PARAM_NAME;
 
 #define MAX_PICO_FEATURES (1000)
+
+/*---------------------------------------------------------------------------
+          Variables
+----------------------------------------------------------------------------*/
+
+extern double_VAR_H(classify_pico_feature_length, 0.05, "Pico Feature Length");
+
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
@@ -38,25 +46,6 @@ PICO_FEAT_PARAM_NAME;
 
 FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats); 
 
-void InitPicoFXVars(); 
-
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define        _ARGS(s) s
-#else
-# define        _ARGS(s) ()
-#endif*/
-
-/* picofeat.c
-FEATURE_SET ExtractPicoFeatures
-    _ARGS((BLOB *Blob,
-  LINE_STATS *LineStats));
-
-void InitPicoFXVars
-    _ARGS((void));
-
-#undef _ARGS
-*/
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/

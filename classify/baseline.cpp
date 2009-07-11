@@ -27,9 +27,8 @@
               I n c l u d e s
 ---------------------------------------------------------------------*/
 #include "baseline.h"
-//#include "blobs.h"
-#include "debug.h"
 #include "hideedge.h"
+#include "varable.h"
 
 /*----------------------------------------------------------------------
               T y p e s
@@ -39,20 +38,5 @@ typedef TPOINT SCALE;
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-inT8 baseline_normalized = TRUE;
 
-make_int_var (baseline_enable, 1, make_baseline_enable,
-4, 3, set_baseline_enable, "Baseline Enable");
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-/**********************************************************************
- * init_baseline
- *
- * Initialize the needed baseline variables.
- **********************************************************************/
-void init_baseline() {
-  make_baseline_enable();
-
-  baseline_normalized = baseline_enable;
-}
+INT_VAR(classify_baseline_normalized, 1, "Baseline Enable");

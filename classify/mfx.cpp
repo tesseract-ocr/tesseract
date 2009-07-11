@@ -19,24 +19,25 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "mfdefs.h"
-#include "variables.h"
-#include "sigmenu.h"
 #include "mfoutline.h"
 #include "clusttool.h"           //NEEDED
 #include "const.h"
 #include "intfx.h"
+#include "varable.h"
+
 #include <math.h>
 
-/* default values for tunable knobs */
+/**----------------------------------------------------------------------------
+          Variables
+----------------------------------------------------------------------------**/
+
 /* old numbers corresponded to 10.0 degrees and 80.0 degrees */
-                                 /* PREV DEFAULT 0.176326981 approx. 10.0 degrees */
-#define MIN_SLOPE               0.414213562
-                                 /* PREV DEFAULT 5.671281820 approx. 80.0 degrees */
-#define MAX_SLOPE               2.414213562
-                                 /* no noise filtering */
-#define NOISE_SEGMENT_LENGTH    (0.00)
-                                 /* no feature splitting */
-#define MAX_FEATURE_LENGTH      (MAXFLOAT)
+double_VAR(classify_min_slope, 0.414213562,
+           "Slope below which lines are called horizontal");
+double_VAR(classify_max_slope, 2.414213562,
+           "Slope above which lines are called vertical");
+double_VAR(classify_noise_segment_length, 0.00,
+           "Length below which outline segments are treated as noise");
 
 /**----------------------------------------------------------------------------
           Macros
@@ -58,77 +59,9 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
 
 void SmearBulges(MICROFEATURES MicroFeatures, FLOAT32 XScale, FLOAT32 YScale);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif*/
-
-/* /users/danj/wiseowl/src/danj/microfeatures/mfx.c
-void ComputeBulges
-  _ARGS((MFOUTLINE Start,
-  MFOUTLINE End,
-  MICROFEATURE MicroFeature));
-
-FLOAT32 ComputeOrientation
-  _ARGS((MFEDGEPT *Start,
-  MFEDGEPT *End));
-
-MICROFEATURES ConvertToMicroFeatures
-  _ARGS((MFOUTLINE Outline,
-  MICROFEATURES MicroFeatures));
-
-MICROFEATURE ExtractMicroFeature
-  _ARGS((MFOUTLINE Start,
-  MFOUTLINE End));
-
-void SmearBulges
-  _ARGS((MICROFEATURES MicroFeatures,
-  FLOAT32 XScale,
-  FLOAT32 YScale));
-
-#undef _ARGS
-*/
-
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
-/* tuning knobs that can be adjusted without recompilation */
-static FLOAT32 MinSlope;
-static FLOAT32 MaxSlope;
-static FLOAT32 NoiseSegmentLength;
-
 /**----------------------------------------------------------------------------
             Public Code
 ----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
-void InitMicroFxVars() {
-/*
- **      Parameters: none
- **      Globals:
- **              MinSlope        slope below which lines are called horizontal
- **              MaxSlope        slope above which lines are called vertical
- **              NoiseSegmentLength      length below which outline segments
- **                              are treated as noise
- **              MaxFeatureLength        length above which a feature will
- **                              be split into 2 equal pieces
- **              ExtremityMode   controls how extremities are defined
- **              XHeightAdjust   allows xheight of line to be adjusted
- **      Operation: Initialize the micro-feature extractor variables (knobs)
- **              that can be tuned without recompiling.
- **      Return: none
- **      Exceptions: none
- **      History: Mon May 14 11:24:40 1990, DSJ, Created.
- */
-  VALUE dummy;
-
-  float_variable (MinSlope, "MinSlope", MIN_SLOPE);
-  float_variable (MaxSlope, "MaxSlope", MAX_SLOPE);
-  float_variable (NoiseSegmentLength, "NoiseSegmentLength",
-    NOISE_SEGMENT_LENGTH);
-}                                /* InitMicroFxVars */
-
 
 /*---------------------------------------------------------------------------*/
 CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
@@ -136,8 +69,6 @@ CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
  **      Parameters:
  **              Blob            blob to extract micro-features from
  **              LineStats       statistics for text line normalization
- **      Globals:
- **              XHeightAdjust   used for manually adjusting xheight
  **      Operation:
  **              This routine extracts micro-features from the specified
  **              blob and returns a list of the micro-features.  All
@@ -159,7 +90,8 @@ CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   if (Blob != NULL) {
     Outlines = ConvertBlob (Blob);
 //    NormalizeOutlines(Outlines, LineStats, &XScale, &YScale);
-    ExtractIntFeat(Blob, blfeatures, cnfeatures, &results);
+    if (!ExtractIntFeat(Blob, blfeatures, cnfeatures, &results))
+      return NULL;
     XScale = 0.2f / results.Ry;
     YScale = 0.2f / results.Rx;
 
@@ -174,8 +106,8 @@ CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
     RemainingOutlines = Outlines;
     iterate(RemainingOutlines) {
       Outline = (MFOUTLINE) first_node (RemainingOutlines);
-      FindDirectionChanges(Outline, MinSlope, MaxSlope);
-      FilterEdgeNoise(Outline, NoiseSegmentLength);
+      FindDirectionChanges(Outline, classify_min_slope, classify_max_slope);
+      FilterEdgeNoise(Outline, classify_noise_segment_length);
       MarkDirectionChanges(Outline);
       SmearExtremities(Outline, XScale, YScale);
       MicroFeatures = ConvertToMicroFeatures (Outline, MicroFeatures);
@@ -197,8 +129,8 @@ CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
  **********************************************************************/
 #define angle_of(x1,y1,x2,y2)                   \
 ((x2-x1) ?                                    \
-	(atan2 (y2-y1, x2-x1)) :                     \
-	((y2<y1) ? (- PI / 2.0) : (PI / 2.0)))   \
+  (atan2 (y2-y1, x2-x1)) :                     \
+  ((y2<y1) ? (- PI / 2.0) : (PI / 2.0)))   \
 
 
 /**********************************************************************
@@ -257,15 +189,16 @@ void ComputeBulges(MFOUTLINE Start, MFOUTLINE End, MICROFEATURE MicroFeature) {
     TranslateMatrix (&Matrix, -Origin->Point.x, -Origin->Point.y);
 
     SegmentEnd = Start;
-    FillPoint (CurrentPoint, 0, 0);
+    CurrentPoint.x = 0.0f;
+    CurrentPoint.y =  0.0f;
     BulgePosition = MicroFeature[MFLENGTH] / 3;
-    CopyPoint(CurrentPoint, LastPoint);
+    LastPoint = CurrentPoint;
     while (CurrentPoint.x < BulgePosition) {
       SegmentStart = SegmentEnd;
       SegmentEnd = NextPointAfter (SegmentStart);
-      CopyPoint(CurrentPoint, LastPoint);
+      LastPoint = CurrentPoint;
 
-      MapPoint (&Matrix, PointAt (SegmentEnd)->Point, CurrentPoint);
+      MapPoint(&Matrix, PointAt(SegmentEnd)->Point, &CurrentPoint);
     }
     MicroFeature[FIRSTBULGE] =
       XIntersectionOf(LastPoint, CurrentPoint, BulgePosition);
@@ -276,12 +209,12 @@ void ComputeBulges(MFOUTLINE Start, MFOUTLINE End, MICROFEATURE MicroFeature) {
     // CurrentPoint will not change. (Which would cause to output nan
     // for the SecondBulge.)
     if (CurrentPoint.x < BulgePosition)
-      CopyPoint(CurrentPoint, LastPoint);
+      LastPoint = CurrentPoint;
     while (CurrentPoint.x < BulgePosition) {
       SegmentStart = SegmentEnd;
       SegmentEnd = NextPointAfter (SegmentStart);
-      CopyPoint(CurrentPoint, LastPoint);
-      MapPoint (&Matrix, PointAt (SegmentEnd)->Point, CurrentPoint);
+      LastPoint = CurrentPoint;
+      MapPoint(&Matrix, PointAt(SegmentEnd)->Point, &CurrentPoint);
     }
     MicroFeature[SECONDBULGE] =
       XIntersectionOf(LastPoint, CurrentPoint, BulgePosition);
@@ -314,8 +247,7 @@ FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
  */
   FLOAT32 Orientation;
 
-  Orientation = NormalizeAngle (AngleFrom (Start->Point,
-    End->Point));
+  Orientation = NormalizeAngle (AngleFrom (Start->Point, End->Point));
 
   /* ensure that round-off errors do not put circular param out of range */
   if ((Orientation < 0) || (Orientation >= 1))
@@ -391,8 +323,7 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
   NewFeature[XPOSITION] = AverageOf (P1->Point.x, P2->Point.x);
   NewFeature[YPOSITION] = AverageOf (P1->Point.y, P2->Point.y);
   NewFeature[MFLENGTH] = DistanceBetween (P1->Point, P2->Point);
-  NewFeature[ORIENTATION] =
-    NormalizedAngleFrom (&((P1)->Point), &((P2)->Point), 1.0);
+  NewFeature[ORIENTATION] = NormalizedAngleFrom(&P1->Point, &P2->Point, 1.0);
   ComputeBulges(Start, End, NewFeature);
   return (NewFeature);
 }                                /* ExtractMicroFeature */
@@ -403,8 +334,8 @@ void SmearBulges(MICROFEATURES MicroFeatures, FLOAT32 XScale, FLOAT32 YScale) {
 /*
  **      Parameters:
  **              MicroFeatures   features to be smeared
- **		XScale		# of normalized units per pixel in x dir
- **		YScale		# of normalized units per pixel in y dir
+ **   XScale    # of normalized units per pixel in x dir
+ **   YScale    # of normalized units per pixel in y dir
  **      Globals: none
  **      Operation: Add a random amount to each bulge parameter of each
  **              feature.  The amount added is between -0.5 pixels and
@@ -423,8 +354,8 @@ void SmearBulges(MICROFEATURES MicroFeatures, FLOAT32 XScale, FLOAT32 YScale) {
   iterate(MicroFeatures) {
     MicroFeature = NextFeatureOf (MicroFeatures);
 
-    Cos = fabs (cos (2.0 * PI * MicroFeature[ORIENTATION]));
-    Sin = fabs (sin (2.0 * PI * MicroFeature[ORIENTATION]));
+    Cos = fabs(cos(2.0 * PI * MicroFeature[ORIENTATION]));
+    Sin = fabs(sin(2.0 * PI * MicroFeature[ORIENTATION]));
     Scale = YScale * Cos + XScale * Sin;
 
     MinSmear = -0.5 * Scale / (BULGENORMALIZER * MicroFeature[MFLENGTH]);

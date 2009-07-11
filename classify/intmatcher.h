@@ -18,10 +18,23 @@
 #ifndef   INTMATCHER_H
 #define   INTMATCHER_H
 
+#include "varable.h"
+
+// Character fragments could be present in the trained templaes
+// but turned on/off on the language-by-language basis or depending
+// on particular properties of the corpus (e.g. when we expect the
+// images to have low exposure).
+extern BOOL_VAR_H(disable_character_fragments, FALSE,
+                  "Do not include character fragments in the"
+                  " results of the classifier");
+
+extern INT_VAR_H(classify_integer_matcher_multiplier, 14,
+                 "Integer Matcher Multiplier  0-255:   ");
+
+
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "debug.h"
 #include "intproto.h"
 #include "cutoffs.h"
 
@@ -54,19 +67,16 @@ typedef uinT8 CLASS_NORMALIZATION_ARRAY[MAX_NUM_CLASSES];
 /*----------------------------------------------------------------------------
             Variables
 -----------------------------------------------------------------------------*/
-extern int AdaptProtoThresh;
-extern int AdaptFeatureThresh;
+
+extern INT_VAR_H(classify_adapt_proto_thresh, 230,
+                 "Threshold for good protos during adaptive 0-255:   ");
+
+extern INT_VAR_H(classify_adapt_feature_thresh, 230,
+                 "Threshold for good features during adaptive 0-255:   ");
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-int ClassPruner(INT_TEMPLATES IntTemplates,
-                inT16 NumFeatures,
-                INT_FEATURE_ARRAY Features,
-                CLASS_NORMALIZATION_ARRAY NormalizationFactors,
-                CLASS_CUTOFF_ARRAY ExpectedNumFeatures,
-                CLASS_PRUNER_RESULTS Results,
-                int Debug);
 
 void IntegerMatcher(INT_CLASS ClassTemplate,
                     BIT_VECTOR ProtoMask,
@@ -97,8 +107,6 @@ int FindBadFeatures(INT_CLASS ClassTemplate,
                     int Debug);
 
 void InitIntegerMatcher();
-
-void InitIntegerMatcherVars();
 
 void PrintIntMatcherStats(FILE *f);
 
@@ -193,7 +201,5 @@ void HeapSort (int n, register int ra[], register int rb[]);
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
-extern int IntegerMatcherMultiplier;
-
 extern uinT32 EvidenceMultMask;
 #endif

@@ -29,10 +29,10 @@
 int ExtractMode;
 
 // Definitions of extractors separated from feature definitions.
-DefineFeatureExt (MicroFeatureExt, ExtractMicros, InitMicroFXVars)
-DefineFeatureExt (PicoFeatExt, NULL, DefaultInitFXVars)
-DefineFeatureExt (CharNormExt, ExtractCharNormFeatures, DefaultInitFXVars)
-DefineFeatureExt (OutlineFeatExt, NULL, DefaultInitFXVars)
+DefineFeatureExt (MicroFeatureExt, ExtractMicros)
+DefineFeatureExt (PicoFeatExt, NULL)
+DefineFeatureExt (CharNormExt, ExtractCharNormFeatures)
+DefineFeatureExt (OutlineFeatExt, NULL)
 
 FEATURE_EXT_STRUCT* ExtractorDefs[NUM_FEATURE_TYPES] = {
   &MicroFeatureExt,
@@ -48,7 +48,7 @@ FEATURE_EXT_STRUCT* ExtractorDefs[NUM_FEATURE_TYPES] = {
 /*---------------------------------------------------------------------------*/
 void SetupExtractors() {
   for (int i = 0; i < NUM_FEATURE_TYPES; ++i)
-	  FeatureDefs.FeatureExtractors[i] = ExtractorDefs[i];
+    FeatureDefs.FeatureExtractors[i] = ExtractorDefs[i];
 }
 
 void GetLineStatsFromRow(TEXTROW *Row, LINE_STATS *LineStats) {

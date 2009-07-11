@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    xform2d.h
- **	Purpose:     Definitions for using 2D point transformation library
- **	Author:      Dan Johnson
- **	History:     Fri Sep 22 09:57:08 1989, DSJ, Created.
+ ** Filename:    xform2d.h
+ ** Purpose:     Definitions for using 2D point transformation library
+ ** Author:      Dan Johnson
+ ** History:     Fri Sep 22 09:57:08 1989, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -51,10 +51,10 @@ FLOAT32 MapX(MATRIX_2D *M, FLOAT32 X, FLOAT32 Y);
 
 FLOAT32 MapY(MATRIX_2D *M, FLOAT32 X, FLOAT32 Y);
 
-void MapPoint(MATRIX_2D *M, FPOINT &A, FPOINT &B);
+void MapPoint(MATRIX_2D *M, const FPOINT &A, FPOINT* B);
 
 FLOAT32 MapDx(MATRIX_2D *M, FLOAT32 DX, FLOAT32 DY);
 FLOAT32 MapDy(MATRIX_2D M, FLOAT32 DX, FLOAT32 DY);
 
-	void RotateMatrix(MATRIX_2D_PTR Matrix, FLOAT32 Angle);
+  void RotateMatrix(MATRIX_2D_PTR Matrix, FLOAT32 Angle);
 #endif

@@ -25,12 +25,10 @@
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-CHAR_DESC ExtractBlobFeatures(TBLOB *Blob, LINE_STATS *LineStats); 
-
-void InitExtractorVars(); 
+CHAR_DESC ExtractBlobFeatures(TBLOB *Blob, LINE_STATS *LineStats);
 
 /*---------------------------------------------------------------------------
           Private Function Prototypes
 ----------------------------------------------------------------------------*/
-void ExtractorStub(); 
+void ExtractorStub();
 #endif

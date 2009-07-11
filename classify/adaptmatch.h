@@ -32,53 +32,23 @@
 /*---------------------------------------------------------------------------
           Variables
 ----------------------------------------------------------------------------*/
-extern float GoodAdaptiveMatch;
-extern float GreatAdaptiveMatch;
-extern int ReliableConfigThreshold;
-extern int tess_cn_matching;
-extern int tess_bn_matching;
-extern int LearningDebugLevel;
+extern double_VAR_H(matcher_good_threshold, 0.125, "Good Match (0-1)");
+extern double_VAR_H(matcher_great_threshold, 0.0, "Great Match (0-1)");
+extern INT_VAR_H(matcher_failed_adaptations_before_reset, 150,
+                 "Number of failed adaptions before adapted templates reset");
+extern INT_VAR_H(matcher_min_examples_for_prototyping, 2,
+               "Reliable Config Threshold");
+extern BOOL_VAR_H(tess_cn_matching, 0, "Character Normalized Matching");
+extern BOOL_VAR_H(tess_bn_matching, 0, "Baseline Normalized Matching");
+extern INT_VAR_H(classify_learning_debug_level, 0, "Learning Debug Level: ");
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-LIST AdaptiveClassifier(TBLOB *Blob, TBLOB *DotBlob, TEXTROW *Row);
-/**/
-void AdaptToWord(TWERD *Word,
-                 TEXTROW *Row,
-                 const WERD_CHOICE& BestChoice,
-                 const WERD_CHOICE& BestRawChoice,
-                 const char *rejmap);
-
-void EndAdaptiveClassifier();
-
-void InitAdaptiveClassifier();
-
-void ResetAdaptiveClassifier();
-
-void InitAdaptiveClassifierVars();
-
-void PrintAdaptiveStatistics(FILE *File);
-
-void SettupPass1();
-
-void SettupPass2();
-
-void MakeNewAdaptedClass(TBLOB *Blob,
-                         LINE_STATS *LineStats,
-                         CLASS_ID ClassId,
-                         ADAPT_TEMPLATES Templates);
-
 int GetAdaptiveFeatures(TBLOB *Blob,
                         LINE_STATS *LineStats,
                         INT_FEATURE_ARRAY IntFeatures,
                         FEATURE_SET *FloatFeatures);
-
-int AdaptableWord(TWERD *Word,
-                  const char *BestChoice,
-                  const char *BestChoice_lengths,
-                  const char *BestRawChoice,
-                  const char *BestRawChoice_lengths);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

@@ -20,19 +20,21 @@
 ----------------------------------------------------------------------------**/
 #include "picofeat.h"
 #include "mfoutline.h"
-#include "variables.h"
-#include "sigmenu.h"
 #include "hideedge.h"
 #include "fpoint.h"
+#include "varable.h"
 
 #include <math.h>
 
 #include "ocrfeatures.h"         //Debug
 #include <stdio.h>               //Debug
 #include "efio.h"                //Debug
-//#include "christydbg.h"
 
-#define PICO_FEATURE_LENGTH 0.05
+/*---------------------------------------------------------------------------
+          Variables
+----------------------------------------------------------------------------*/
+
+double_VAR(classify_pico_feature_length, 0.05, "Pico Feature Length");
 
 /*---------------------------------------------------------------------------
           Private Function Prototypes
@@ -45,33 +47,6 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet);
 
 void NormalizePicoX(FEATURE_SET FeatureSet);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define	_ARGS(s) s
-#else
-# define	_ARGS(s) ()
-#endif*/
-
-/* /users/danj/wiseowl/src/danj/microfeatures/picofeat.c
-void ConvertSegmentToPicoFeat
-  _ARGS((FPOINT *Start,
-  FPOINT *End,
-  FEATURE_SET FeatureSet));
-
-void ConvertToPicoFeatures2
-  _ARGS((MFOUTLINE Outline,
-  FEATURE_SET FeatureSet));
-
-void NormalizePicoX
-  _ARGS((FEATURE_SET FeatureSet));
-
-#undef _ARGS
-*/
-
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
-
 /**----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------**/
@@ -82,7 +57,7 @@ FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
  **		Blob		blob to extract pico-features from
  **		LineStats	statistics on text row blob is in
  **	Globals:
- **		NormMethod	normalization method currently specified
+ **		classify_norm_method	normalization method currently specified
  **	Operation: Dummy for now.
  **	Return: Pico-features for Blob.
  **	Exceptions: none
@@ -119,7 +94,7 @@ FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
     *--------------------------------------------------------------------*/
     ConvertToPicoFeatures2(Outline, FeatureSet);
   }
-  if (NormMethod == baseline)
+  if (classify_norm_method == baseline)
     NormalizePicoX(FeatureSet);
   /*---------Debug--------------------------------------------------*
   File = fopen ("f:/ims/debug/pfFeatSet.logCPP", "r");
@@ -141,27 +116,6 @@ FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 
 }                                /* ExtractPicoFeatures */
 
-
-/*---------------------------------------------------------------------------*/
-void InitPicoFXVars() {
-/*
- **	Parameters: none
- **	Globals:
- **		PicoFeatureLength	controls length of pico-features
- **	Operation: Initialize the pico-feature extractor variables that can
- **		be tuned without recompiling.
- **	Return: none
- **	Exceptions: none
- **	History: 9/4/90, DSJ, Created.
- */
-
-	VALUE dummy;
-
-	float_variable (PicoFeatureLength, "PicoFeatureLength",
-		PICO_FEATURE_LENGTH);
-
-}														/* InitPicoFXVars */
-
 /**----------------------------------------------------------------------------
               Private Code
 ----------------------------------------------------------------------------**/
@@ -175,7 +129,7 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
  **		End		ending point of pico-feature
  **		FeatureSet	set to add pico-feature to
  **	Globals:
- **		PicoFeatureLength	length of a single pico-feature
+ **		classify_pico_feature_length	length of a single pico-feature
  **	Operation: This routine converts an entire segment of an outline
  **		into a set of pico features which are added to
  **		FeatureSet.  The length of the segment is rounded to the
@@ -195,7 +149,7 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
 
   Angle = NormalizedAngleFrom (Start, End, 1.0);
   Length = DistanceBetween (*Start, *End);
-  NumFeatures = (int) floor (Length / PicoFeatureLength + 0.5);
+  NumFeatures = (int) floor (Length / classify_pico_feature_length + 0.5);
   if (NumFeatures < 1)
     NumFeatures = 1;
 
@@ -228,7 +182,8 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
  **		Outline		outline to extract micro-features from
  **		FeatureSet	set of features to add pico-features to
  **	Globals:
- **		PicoFeatureLength	length of features to be extracted
+ **		classify_pico_feature_length
+ **                             length of features to be extracted
  **	Operation:
  **		This routine steps thru the specified outline and cuts it
  **		up into pieces of equal length.  These pieces become the
@@ -242,24 +197,24 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   MFOUTLINE First;
   MFOUTLINE Current;
 
-  if (DegenerateOutline (Outline))
+  if (DegenerateOutline(Outline))
     return;
 
   First = Outline;
   Current = First;
-  Next = NextPointAfter (Current);
+  Next = NextPointAfter(Current);
   do {
     /* note that an edge is hidden if the ending point of the edge is
        marked as hidden.  This situation happens because the order of
        the outlines is reversed when they are converted from the old
        format.  In the old format, a hidden edge is marked by the
        starting point for that edge. */
-    if (!(PointAt (Next)->Hidden))
-      ConvertSegmentToPicoFeat (&(PointAt (Current)->Point),
-        &(PointAt (Next)->Point), FeatureSet);
+    if (!(PointAt(Next)->Hidden))
+      ConvertSegmentToPicoFeat (&(PointAt(Current)->Point),
+        &(PointAt(Next)->Point), FeatureSet);
 
     Current = Next;
-    Next = NextPointAfter (Current);
+    Next = NextPointAfter(Current);
   }
   while (Current != First);
 
