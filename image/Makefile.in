@@ -57,9 +57,9 @@ AR = ar
 ARFLAGS = cru
 libtesseract_image_a_AR = $(AR) $(ARFLAGS)
 libtesseract_image_a_LIBADD =
-am_libtesseract_image_a_OBJECTS = imgbmp.$(OBJEXT) imgio.$(OBJEXT) \
-	imgs.$(OBJEXT) imgtiff.$(OBJEXT) bitstrm.$(OBJEXT) \
-	svshowim.$(OBJEXT)
+am_libtesseract_image_a_OBJECTS = bitstrm.$(OBJEXT) image.$(OBJEXT) \
+	imgbmp.$(OBJEXT) imgio.$(OBJEXT) imgs.$(OBJEXT) \
+	imgtiff.$(OBJEXT) svshowim.$(OBJEXT)
 libtesseract_image_a_OBJECTS = $(am_libtesseract_image_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -191,13 +191,14 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = 
 AM_CPPFLAGS = -I$(top_srcdir)/ccutil -I$(top_srcdir)/viewer
+EXTRA_DIST = image.vcproj
 include_HEADERS = \
-    bitstrm.h imgbmp.h imgerrs.h img.h imgio.h imgs.h \
+    bitstrm.h image.h img.h imgbmp.h imgerrs.h imgio.h imgs.h \
     imgtiff.h imgunpk.h svshowim.h
 
 lib_LIBRARIES = libtesseract_image.a
 libtesseract_image_a_SOURCES = \
-    imgbmp.cpp imgio.cpp imgs.cpp imgtiff.cpp bitstrm.cpp svshowim.cpp
+    bitstrm.cpp image.cpp imgbmp.cpp imgio.cpp imgs.cpp imgtiff.cpp svshowim.cpp
 
 all: all-recursive
 
@@ -273,6 +274,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bitstrm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imgbmp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imgio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imgs.Po@am__quote@

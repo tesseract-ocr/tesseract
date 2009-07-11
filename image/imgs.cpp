@@ -249,8 +249,9 @@ inT32 check_legal_image_size(                     //get rest of image
     return -1;                   //failed
   }
   if (bits_per_pixel != 1 && bits_per_pixel != 2
-    && bits_per_pixel != 4 && bits_per_pixel != 5
-  && bits_per_pixel != 6 && bits_per_pixel != 8 && bits_per_pixel != 24) {
+      && bits_per_pixel != 4 && bits_per_pixel != 5
+      && bits_per_pixel != 6 && bits_per_pixel != 8 && bits_per_pixel != 24
+      && bits_per_pixel != 32) {
     BADBPP.error ("check_legal_image_size", TESSLOG, "%d", bits_per_pixel);
     return -1;
   }
@@ -1508,7 +1509,7 @@ Pix* IMAGE::ToPix() {
   int height = this->get_ysize();
   int bpp = this->get_bpp();
   Pix* pix = pixCreate(width, height, bpp == 24 ? 32 : bpp);
-  uint32* data = pixGetData(pix);
+  l_uint32* data = pixGetData(pix);
   IMAGELINE line;
   if (bpp == 24) {
     line.init(width * 3);
@@ -1577,7 +1578,7 @@ void IMAGE::FromPix(const Pix* src_pix) {
   }
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  const uint32* data = pixGetData(pix);
+  const l_uint32* data = pixGetData(pix);
   this->create(width, height, depth == 32 ? 24 : depth);
   // For each line in the image, fill the IMAGELINE class and put it into the
   // destination image. Note that Tesseract stores images with the
