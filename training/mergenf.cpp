@@ -1,10 +1,10 @@
 /******************************************************************************
-**	Filename:    MergeNF.c
-**	Purpose:     Program for merging similar nano-feature protos
-**	Author:      Dan Johnson
-**	History:     Wed Nov 21 09:55:23 1990, DSJ, Created.
+**  Filename:    MergeNF.c
+**  Purpose:     Program for merging similar nano-feature protos
+**  Author:      Dan Johnson
+**  History:     Wed Nov 21 09:55:23 1990, DSJ, Created.
 **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -16,7 +16,7 @@
  ** limitations under the License.
 ******************************************************************************/
 /**----------------------------------------------------------------------------
-					Include Files and Type Defines
+          Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "mergenf.h"
 #include "general.h"
@@ -25,12 +25,12 @@
 #include "cluster.h"
 #include "oldlist.h"
 #include "protos.h"
-#include "minmax.h"
+#include "ndminx.h"
 #include "ocrfeatures.h"
-#include "debug.h"
 #include "const.h"
 #include "featdefs.h"
 #include "intproto.h"
+#include "varable.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -38,264 +38,217 @@
 
 
 /**----------------------------------------------------------------------------
-					Variables
+          Variables
 -----------------------------------------------------------------------------**/
 /*-------------------once in subfeat---------------------------------*/
-make_float_var (AngleMatchScale, 1.0, MakeAngleMatchScale,
-                7, 2, SetAngleMatchScale,  "Angle Match Scale ...")
+double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");
 
-make_float_var (SimilarityMidpoint, 0.0075, MakeSimilarityMidpoint,
-                7, 3, SetSimilarityMidpoint,  "Similarity Midpoint ...")
+double_VAR(training_similarity_midpoint, 0.0075, "Similarity Midpoint ...");
 
-make_float_var (SimilarityCurl, 2.0, MakeSimilarityCurl,
-                7, 4, SetSimilarityCurl,  "Similarity Curl ...")
+double_VAR(training_similarity_curl, 2.0, "Similarity Curl ...");
 
 /*-----------------------------once in fasttrain----------------------------------*/
-make_float_var (TangentBBoxPad, 0.5, MakeTangentBBoxPad,
-                15, 3, SetTangentBBoxPad,  "Tangent bounding box pad ...")
+double_VAR(training_tangent_bbox_pad, 0.5, "Tangent bounding box pad ...");
 
-make_float_var (OrthogonalBBoxPad, 2.5, MakeOrthogonalBBoxPad,
-                15, 4, SetOrthogonalBBoxPad,  "Orthogonal bounding box pad ...")
+double_VAR(training_orthogonal_bbox_pad, 2.5, "Orthogonal bounding box pad ...");
 
-make_float_var (AnglePad, 45.0, MakeAnglePad,
-                15, 5, SetAnglePad,  "Angle pad ...")
+double_VAR(training_angle_pad, 45.0, "Angle pad ...");
 
 /**----------------------------------------------------------------------------
-		  		Global Data Definitions and Declarations
+          Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
-//int row_number;			/* kludge due to linking problems */
+//int row_number;     /* kludge due to linking problems */
 
 /**----------------------------------------------------------------------------
-							Public Code
+              Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-FLOAT32 CompareProtos (
-     PROTO	p1,
-	 PROTO	p2)
-
+FLOAT32 CompareProtos(PROTO p1, PROTO p2) {
 /*
-**	Parameters:
-**		p1, p2		protos to be compared
-**	Globals: none
-**	Operation: Compare protos p1 and p2 and return an estimate of the
-**		worst evidence rating that will result for any part of p1
-**		that is compared to p2.  In other words, if p1 were broken
-**		into pico-features and each pico-feature was matched to p2,
-**		what is the worst evidence rating that will be achieved for
-**		any pico-feature.
-**	Return: Worst possible result when matching p1 to p2.
-**	Exceptions: none
-**	History: Mon Nov 26 08:27:53 1990, DSJ, Created.
+**  Parameters:
+**    p1, p2    protos to be compared
+**  Globals: none
+**  Operation: Compare protos p1 and p2 and return an estimate of the
+**    worst evidence rating that will result for any part of p1
+**    that is compared to p2.  In other words, if p1 were broken
+**    into pico-features and each pico-feature was matched to p2,
+**    what is the worst evidence rating that will be achieved for
+**    any pico-feature.
+**  Return: Worst possible result when matching p1 to p2.
+**  Exceptions: none
+**  History: Mon Nov 26 08:27:53 1990, DSJ, Created.
 */
+  FEATURE Feature;
+  FLOAT32 WorstEvidence = WORST_EVIDENCE;
+  FLOAT32 Evidence;
+  FLOAT32 Angle, Length;
 
-{
-	FEATURE	Feature;
-	FLOAT32	WorstEvidence = WORST_EVIDENCE;
-	FLOAT32	Evidence;
-	FLOAT32	Angle, Length;
+  /* if p1 and p2 are not close in length, don't let them match */
+  Length = fabs (p1->Length - p2->Length);
+  if (Length > MAX_LENGTH_MISMATCH)
+    return (0.0);
 
-	/* if p1 and p2 are not close in length, don't let them match */
-	Length = fabs (p1->Length - p2->Length);
-	if (Length > MAX_LENGTH_MISMATCH)
-		return (0.0);
+  /* create a dummy pico-feature to be used for comparisons */
+  Feature = NewFeature (&PicoFeatDesc);
+  Feature->Params[PicoFeatDir] = p1->Angle;
 
-	/* create a dummy pico-feature to be used for comparisons */
-	Feature = NewFeature (&PicoFeatDesc);
-	Feature->Params[PicoFeatDir] = p1->Angle;
+  /* convert angle to radians */
+  Angle = p1->Angle * 2.0 * PI;
 
-	/* convert angle to radians */
-	Angle = p1->Angle * 2.0 * PI;
+  /* find distance from center of p1 to 1/2 picofeat from end */
+  Length = p1->Length / 2.0 - GetPicoFeatureLength () / 2.0;
+  if (Length < 0) Length = 0;
 
-	/* find distance from center of p1 to 1/2 picofeat from end */
-	Length = p1->Length / 2.0 - GetPicoFeatureLength () / 2.0;
-	if (Length < 0) Length = 0;
+  /* set the dummy pico-feature at one end of p1 and match it to p2 */
+  Feature->Params[PicoFeatX] = p1->X + cos (Angle) * Length;
+  Feature->Params[PicoFeatY] = p1->Y + sin (Angle) * Length;
+  if (DummyFastMatch (Feature, p2)) {
+    Evidence = SubfeatureEvidence (Feature, p2);
+    if (Evidence < WorstEvidence)
+      WorstEvidence = Evidence;
+  } else {
+    FreeFeature(Feature);
+    return 0.0;
+  }
 
-	/* set the dummy pico-feature at one end of p1 and match it to p2 */
-	Feature->Params[PicoFeatX] = p1->X + cos (Angle) * Length;
-	Feature->Params[PicoFeatY] = p1->Y + sin (Angle) * Length;
-	if (DummyFastMatch (Feature, p2))
-    {
-		Evidence = SubfeatureEvidence (Feature, p2);
-		if (Evidence < WorstEvidence)
-			WorstEvidence = Evidence;
-    }
-	else
-    {
-		FreeFeature (Feature);
-		return (0.0);
-    }
+  /* set the dummy pico-feature at the other end of p1 and match it to p2 */
+  Feature->Params[PicoFeatX] = p1->X - cos (Angle) * Length;
+  Feature->Params[PicoFeatY] = p1->Y - sin (Angle) * Length;
+  if (DummyFastMatch (Feature, p2)) {
+    Evidence = SubfeatureEvidence (Feature, p2);
+    if (Evidence < WorstEvidence)
+      WorstEvidence = Evidence;
+  } else {
+    FreeFeature(Feature);
+    return 0.0;
+  }
 
-	/* set the dummy pico-feature at the other end of p1 and match it to p2 */
-	Feature->Params[PicoFeatX] = p1->X - cos (Angle) * Length;
-	Feature->Params[PicoFeatY] = p1->Y - sin (Angle) * Length;
-	if (DummyFastMatch (Feature, p2))
-    {
-		Evidence = SubfeatureEvidence (Feature, p2);
-		if (Evidence < WorstEvidence)
-			WorstEvidence = Evidence;
-    }
-	else
-    {
-		FreeFeature (Feature);
-		return (0.0);
-    }
+  FreeFeature (Feature);
+  return (WorstEvidence);
 
-	FreeFeature (Feature);
-	return (WorstEvidence);
-
-}	/* CompareProtos */
+} /* CompareProtos */
 
 /*---------------------------------------------------------------------------*/
 void ComputeMergedProto (
-     PROTO	p1,
-	 PROTO	p2,
-     FLOAT32	w1,
-	 FLOAT32	w2,
-     PROTO	MergedProto)
+     PROTO  p1,
+   PROTO  p2,
+     FLOAT32  w1,
+   FLOAT32  w2,
+     PROTO  MergedProto)
 
 /*
-**	Parameters:
-**		p1, p2		protos to be merged
-**		w1, w2		weight of each proto
-**		MergedProto	place to put resulting merged proto
-**	Globals: none
-**	Operation: This routine computes a proto which is the weighted
-**		average of protos p1 and p2.  The new proto is returned
-**		in MergedProto.
-**	Return: none (results are returned in MergedProto)
-**	Exceptions: none
-**	History: Mon Nov 26 08:15:08 1990, DSJ, Created.
+**  Parameters:
+**    p1, p2    protos to be merged
+**    w1, w2    weight of each proto
+**    MergedProto place to put resulting merged proto
+**  Globals: none
+**  Operation: This routine computes a proto which is the weighted
+**    average of protos p1 and p2.  The new proto is returned
+**    in MergedProto.
+**  Return: none (results are returned in MergedProto)
+**  Exceptions: none
+**  History: Mon Nov 26 08:15:08 1990, DSJ, Created.
 */
 
 {
-	FLOAT32	TotalWeight;
+  FLOAT32 TotalWeight;
 
-	TotalWeight = w1 + w2;
-	w1 /= TotalWeight;
-	w2 /= TotalWeight;
+  TotalWeight = w1 + w2;
+  w1 /= TotalWeight;
+  w2 /= TotalWeight;
 
-	MergedProto->X = p1->X * w1 + p2->X * w2;
-	MergedProto->Y = p1->Y * w1 + p2->Y * w2;
-	MergedProto->Length = p1->Length * w1 + p2->Length * w2;
-	MergedProto->Angle = p1->Angle * w1 + p2->Angle * w2;
-	FillABC     (MergedProto);
-
-}	/* ComputeMergedProto */
+  MergedProto->X = p1->X * w1 + p2->X * w2;
+  MergedProto->Y = p1->Y * w1 + p2->Y * w2;
+  MergedProto->Length = p1->Length * w1 + p2->Length * w2;
+  MergedProto->Angle = p1->Angle * w1 + p2->Angle * w2;
+  FillABC(MergedProto);
+} /* ComputeMergedProto */
 
 /*---------------------------------------------------------------------------*/
-int FindClosestExistingProto (
-     CLASS_TYPE	Class,
-     int       	NumMerged[],
-     PROTOTYPE	*Prototype)
-
+int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
+                             PROTOTYPE  *Prototype) {
 /*
-**	Parameters:
-**		Class		class to search for matching old proto in
-**		NumMerged[]	# of protos merged into each proto of Class
-**		Prototype	new proto to find match for
-**	Globals: none
-**	Operation: This routine searches thru all of the prototypes in
-**		Class and returns the id of the proto which would provide
-**		the best approximation of Prototype.  If no close
-**		approximation can be found, NO_PROTO is returned.
-**	Return: Id of closest proto in Class or NO_PROTO.
-**	Exceptions: none
-**	History: Sat Nov 24 11:42:58 1990, DSJ, Created.
+**  Parameters:
+**    Class   class to search for matching old proto in
+**    NumMerged[] # of protos merged into each proto of Class
+**    Prototype new proto to find match for
+**  Globals: none
+**  Operation: This routine searches thru all of the prototypes in
+**    Class and returns the id of the proto which would provide
+**    the best approximation of Prototype.  If no close
+**    approximation can be found, NO_PROTO is returned.
+**  Return: Id of closest proto in Class or NO_PROTO.
+**  Exceptions: none
+**  History: Sat Nov 24 11:42:58 1990, DSJ, Created.
 */
+  PROTO_STRUCT  NewProto;
+  PROTO_STRUCT  MergedProto;
+  int   Pid;
+  PROTO   Proto;
+  int   BestProto;
+  FLOAT32 BestMatch;
+  FLOAT32 Match, OldMatch, NewMatch;
 
-{
-	PROTO_STRUCT	NewProto;
-	PROTO_STRUCT	MergedProto;
-	int		Pid;
-	PROTO		Proto;
-	int		BestProto;
-	FLOAT32	BestMatch;
-	FLOAT32	Match, OldMatch, NewMatch;
+  MakeNewFromOld (&NewProto, Prototype);
 
-	MakeNewFromOld (&NewProto, Prototype);
-
-	BestProto = NO_PROTO;
-	BestMatch = WORST_MATCH_ALLOWED;
-	for (Pid = 0; Pid < Class->NumProtos; Pid++)
-    {
-		Proto  = ProtoIn (Class, Pid);
-		ComputeMergedProto (Proto, &NewProto,
-			(FLOAT32) NumMerged[Pid], 1.0, &MergedProto);
-		OldMatch = CompareProtos (Proto, &MergedProto);
-		NewMatch = CompareProtos (&NewProto, &MergedProto);
-		Match = MIN (OldMatch, NewMatch);
-		if (Match > BestMatch)
-		{
-			BestProto = Pid;
-			BestMatch = Match;
-		}
+  BestProto = NO_PROTO;
+  BestMatch = WORST_MATCH_ALLOWED;
+  for (Pid = 0; Pid < Class->NumProtos; Pid++) {
+    Proto  = ProtoIn(Class, Pid);
+    ComputeMergedProto(Proto, &NewProto,
+      (FLOAT32) NumMerged[Pid], 1.0, &MergedProto);
+    OldMatch = CompareProtos(Proto, &MergedProto);
+    NewMatch = CompareProtos(&NewProto, &MergedProto);
+    Match = MIN(OldMatch, NewMatch);
+    if (Match > BestMatch) {
+      BestProto = Pid;
+      BestMatch = Match;
     }
-	return (BestProto);
-
-}	/* FindClosestExistingProto */
+  }
+  return BestProto;
+} /* FindClosestExistingProto */
 
 /*---------------------------------------------------------------------------*/
-void MakeNewFromOld (
-     PROTO	New,
-     PROTOTYPE	*Old)
-
+void MakeNewFromOld(PROTO New, PROTOTYPE *Old) {
 /*
-**	Parameters:
-**		New	new proto to be filled in
-**		Old	old proto to be converted
-**	Globals: none
-**	Operation: This fills in the fields of the New proto based on the
-**		fields of the Old proto.
-**	Return: none
-**	Exceptions: none
-**	History: Mon Nov 26 09:45:39 1990, DSJ, Created.
+**  Parameters:
+**    New new proto to be filled in
+**    Old old proto to be converted
+**  Globals: none
+**  Operation: This fills in the fields of the New proto based on the
+**    fields of the Old proto.
+**  Return: none
+**  Exceptions: none
+**  History: Mon Nov 26 09:45:39 1990, DSJ, Created.
 */
-
-{
-	New->X = CenterX       (Old->Mean);
-	New->Y = CenterY       (Old->Mean);
-	New->Length = LengthOf      (Old->Mean);
-	New->Angle = OrientationOf (Old->Mean);
-	FillABC     (New);
-
-}	/* MakeNewFromOld */
+  New->X = CenterX(Old->Mean);
+  New->Y = CenterY(Old->Mean);
+  New->Length = LengthOf(Old->Mean);
+  New->Angle = OrientationOf(Old->Mean);
+  FillABC(New);
+} /* MakeNewFromOld */
 
 /*-------------------once in subfeat---------------------------------*/
-/**********************************************************************
-* InitSubfeatureVars
-*
-* Create and set up all menus and variables needed for this file.
-**********************************************************************/
-void InitSubfeatureVars ()
-{
-	MakeAngleMatchScale     ();
-	MakeSimilarityCurl      ();
-	MakeSimilarityMidpoint  ();
-}
-
 
 /**********************************************************************
 * SubfeatureEvidence
 *
 * Compare a feature to a prototype. Print the result.
 **********************************************************************/
-FLOAT32 SubfeatureEvidence (
-   FEATURE     Feature,
-   PROTO       Proto)
-{
-	float       Distance;
-	float       Dangle;
+FLOAT32 SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
+  float       Distance;
+  float       Dangle;
 
-	Dangle   = Proto->Angle - Feature->Params[PicoFeatDir];
-	if (Dangle < -0.5) Dangle += 1.0;
-	if (Dangle >  0.5) Dangle -= 1.0;
-	Dangle   *= AngleMatchScale;
+  Dangle   = Proto->Angle - Feature->Params[PicoFeatDir];
+  if (Dangle < -0.5) Dangle += 1.0;
+  if (Dangle >  0.5) Dangle -= 1.0;
+  Dangle *= training_angle_match_scale;
 
-	Distance = Proto->A * Feature->Params[PicoFeatX] +
-		Proto->B * Feature->Params[PicoFeatY] +
-		Proto->C;
+  Distance = Proto->A * Feature->Params[PicoFeatX] +
+    Proto->B * Feature->Params[PicoFeatY] +
+    Proto->C;
 
-	return (EvidenceOf (Distance * Distance + Dangle * Dangle));
+  return (EvidenceOf (Distance * Distance + Dangle * Dangle));
 }
 
 /**********************************************************************
@@ -310,142 +263,110 @@ FLOAT32 EvidenceOf (
   register FLOAT32   Similarity)
 {
 
-	Similarity /= SimilarityMidpoint;
+  Similarity /= training_similarity_midpoint;
 
-	if (SimilarityCurl == 3)
-		Similarity = Similarity * Similarity * Similarity;
-	else if (SimilarityCurl == 2)
-		Similarity = Similarity * Similarity;
-	else
-		Similarity = pow (Similarity, SimilarityCurl);
+  if (training_similarity_curl == 3)
+    Similarity = Similarity * Similarity * Similarity;
+  else if (training_similarity_curl == 2)
+    Similarity = Similarity * Similarity;
+  else
+    Similarity = static_cast<float>(pow(static_cast<double>(Similarity),
+	                                    training_similarity_curl));
 
-	return (1.0 / (1.0 + Similarity));
+  return (1.0 / (1.0 + Similarity));
 }
-
-/*-----------------------------once in fasttrain----------------------------------*/
-void InitFastTrainerVars ()
-/*
-**	Parameters: none
-**	Globals: none
-**	Operation: This routine initializes all of the control variables
-**		for the fast trainer.
-**	Return: none
-**	Exceptions: none
-**	History: Mon Nov 12 13:27:35 1990, DSJ, Created.
-*/
-
-{
-	MakeTangentBBoxPad ();
-	MakeOrthogonalBBoxPad ();
-	MakeAnglePad ();
-
-}	/* InitFastTrainerVars */
 
 /*---------------------------------------------------------------------------*/
 BOOL8 DummyFastMatch (
-     FEATURE	Feature,
-     PROTO	Proto)
+     FEATURE  Feature,
+     PROTO  Proto)
 
 /*
-**	Parameters:
-**		Feature		feature to be "fast matched" to proto
-**		Proto		proto being "fast matched" against
-**	Globals:
-**		TangentBBoxPad		bounding box pad tangent to proto
-**		OrthogonalBBoxPad	bounding box pad orthogonal to proto
-**	Operation: This routine returns TRUE if Feature would be matched
-**		by a fast match table built from Proto.
-**	Return: TRUE if feature could match Proto.
-**	Exceptions: none
-**	History: Wed Nov 14 17:19:58 1990, DSJ, Created.
+**  Parameters:
+**    Feature   feature to be "fast matched" to proto
+**    Proto   proto being "fast matched" against
+**  Globals:
+**    training_tangent_bbox_pad    bounding box pad tangent to proto
+**    training_orthogonal_bbox_pad bounding box pad orthogonal to proto
+**  Operation: This routine returns TRUE if Feature would be matched
+**    by a fast match table built from Proto.
+**  Return: TRUE if feature could match Proto.
+**  Exceptions: none
+**  History: Wed Nov 14 17:19:58 1990, DSJ, Created.
 */
 
 {
-	FRECT		BoundingBox;
-	FLOAT32	MaxAngleError;
-	FLOAT32	AngleError;
+  FRECT   BoundingBox;
+  FLOAT32 MaxAngleError;
+  FLOAT32 AngleError;
 
-	MaxAngleError = AnglePad / 360.0;
-	AngleError = fabs (Proto->Angle - Feature->Params[PicoFeatDir]);
-	if (AngleError > 0.5)
-		AngleError = 1.0 - AngleError;
+  MaxAngleError = training_angle_pad / 360.0;
+  AngleError = fabs (Proto->Angle - Feature->Params[PicoFeatDir]);
+  if (AngleError > 0.5)
+    AngleError = 1.0 - AngleError;
 
-	if (AngleError > MaxAngleError)
-		return (FALSE);
+  if (AngleError > MaxAngleError)
+    return (FALSE);
 
-	ComputePaddedBoundingBox (Proto,
-		TangentBBoxPad * GetPicoFeatureLength (),
-		OrthogonalBBoxPad * GetPicoFeatureLength (),
-		&BoundingBox);
+  ComputePaddedBoundingBox (Proto,
+    training_tangent_bbox_pad * GetPicoFeatureLength (),
+    training_orthogonal_bbox_pad * GetPicoFeatureLength (),
+    &BoundingBox);
 
-	return (PointInside (&BoundingBox,
-		Feature->Params[PicoFeatX],
-		Feature->Params[PicoFeatY]));
-
-}	/* DummyFastMatch */
+  return PointInside(&BoundingBox, Feature->Params[PicoFeatX],
+                     Feature->Params[PicoFeatY]);
+} /* DummyFastMatch */
 
 /*----------------------------------------------------------------------------*/
-void ComputePaddedBoundingBox (
-     PROTO	Proto,
-     FLOAT32	TangentPad,
-	 FLOAT32	OrthogonalPad,
-     FRECT	*BoundingBox)
-
+void ComputePaddedBoundingBox (PROTO  Proto, FLOAT32  TangentPad,
+                               FLOAT32  OrthogonalPad, FRECT  *BoundingBox) {
 /*
-**	Parameters:
-**		Proto		proto to compute bounding box for
-**		TangentPad	amount of pad to add in direction of segment
-**		OrthogonalPad	amount of pad to add orthogonal to segment
-**		BoundingBox	place to put results
-**	Globals: none
-**	Operation: This routine computes a bounding box that encloses the
-**		specified proto along with some padding.  The
-**		amount of padding is specified as separate distances
-**		in the tangential and orthogonal directions.
-**	Return: none (results are returned in BoundingBox)
-**	Exceptions: none
-**	History: Wed Nov 14 14:55:30 1990, DSJ, Created.
+**  Parameters:
+**    Proto   proto to compute bounding box for
+**    TangentPad  amount of pad to add in direction of segment
+**    OrthogonalPad amount of pad to add orthogonal to segment
+**    BoundingBox place to put results
+**  Globals: none
+**  Operation: This routine computes a bounding box that encloses the
+**    specified proto along with some padding.  The
+**    amount of padding is specified as separate distances
+**    in the tangential and orthogonal directions.
+**  Return: none (results are returned in BoundingBox)
+**  Exceptions: none
+**  History: Wed Nov 14 14:55:30 1990, DSJ, Created.
 */
+  FLOAT32 Pad, Length, Angle;
+  FLOAT32 CosOfAngle, SinOfAngle;
 
-{
-	FLOAT32	Pad, Length, Angle;
-	FLOAT32	CosOfAngle, SinOfAngle;
+  Length     = Proto->Length / 2.0 + TangentPad;
+  Angle      = Proto->Angle * 2.0 * PI;
+  CosOfAngle = fabs(cos(Angle));
+  SinOfAngle = fabs(sin(Angle));
 
-	Length     = Proto->Length / 2.0 + TangentPad;
-	Angle      = Proto->Angle * 2.0 * PI;
-	CosOfAngle = fabs (cos (Angle));
-	SinOfAngle = fabs (sin (Angle));
+  Pad = MAX (CosOfAngle * Length, SinOfAngle * OrthogonalPad);
+  BoundingBox->MinX = Proto->X - Pad;
+  BoundingBox->MaxX = Proto->X + Pad;
 
-	Pad = MAX (CosOfAngle * Length, SinOfAngle * OrthogonalPad);
-	BoundingBox->MinX = Proto->X - Pad;
-	BoundingBox->MaxX = Proto->Y + Pad;
+  Pad = MAX(SinOfAngle * Length, CosOfAngle * OrthogonalPad);
+  BoundingBox->MinY = Proto->Y - Pad;
+  BoundingBox->MaxY = Proto->Y + Pad;
 
-	Pad = MAX (SinOfAngle * Length, CosOfAngle * OrthogonalPad);
-	BoundingBox->MinY = Proto->Y - Pad;
-	BoundingBox->MaxY = Proto->Y + Pad;
-
-}	/* ComputePaddedBoundingBox */
+} /* ComputePaddedBoundingBox */
 
 /*--------------------------------------------------------------------------*/
-BOOL8 PointInside (
-     FRECT	*Rectangle,
-     FLOAT32	X,
-	 FLOAT32	Y)
-
+BOOL8 PointInside(FRECT *Rectangle, FLOAT32 X, FLOAT32  Y) {
 /*
-**	Parameters:
-**	Globals: none
-**	Operation: Return TRUE if point (X,Y) is inside of Rectangle.
-**	Return:  Return TRUE if point (X,Y) is inside of Rectangle.
-**	Exceptions: none
-**	History: Wed Nov 14 17:26:35 1990, DSJ, Created.
+**  Parameters:
+**  Globals: none
+**  Operation: Return TRUE if point (X,Y) is inside of Rectangle.
+**  Return:  Return TRUE if point (X,Y) is inside of Rectangle.
+**  Exceptions: none
+**  History: Wed Nov 14 17:26:35 1990, DSJ, Created.
 */
+  if (X < Rectangle->MinX) return (FALSE);
+  if (X > Rectangle->MaxX) return (FALSE);
+  if (Y < Rectangle->MinY) return (FALSE);
+  if (Y > Rectangle->MaxY) return (FALSE);
+  return (TRUE);
 
-{
-	if (X < Rectangle->MinX) return (FALSE);
-	if (X > Rectangle->MaxX) return (FALSE);
-	if (Y < Rectangle->MinY) return (FALSE);
-	if (Y > Rectangle->MaxY) return (FALSE);
-	return (TRUE);
-
-}	/* PointInside */
+} /* PointInside */

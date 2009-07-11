@@ -34,8 +34,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = cntraining$(EXEEXT) mftraining$(EXEEXT) \
-	unicharset_extractor$(EXEEXT) wordlist2dawg$(EXEEXT)
+bin_PROGRAMS = cntraining$(EXEEXT) combine_tessdata$(EXEEXT) \
+	mftraining$(EXEEXT) unicharset_extractor$(EXEEXT) \
+	wordlist2dawg$(EXEEXT)
 subdir = training
 DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -61,29 +62,33 @@ AR = ar
 ARFLAGS = cru
 libtesseract_training_a_AR = $(AR) $(ARFLAGS)
 libtesseract_training_a_LIBADD =
-am_libtesseract_training_a_OBJECTS = name2char.$(OBJEXT)
+am_libtesseract_training_a_OBJECTS = name2char.$(OBJEXT) \
+	commontraining.$(OBJEXT)
 libtesseract_training_a_OBJECTS =  \
 	$(am_libtesseract_training_a_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_cntraining_OBJECTS = cnTraining.$(OBJEXT)
+am_cntraining_OBJECTS = cntraining.$(OBJEXT)
 cntraining_OBJECTS = $(am_cntraining_OBJECTS)
 cntraining_DEPENDENCIES = libtesseract_training.a \
 	../textord/libtesseract_textord.a \
 	../classify/libtesseract_classify.a \
-	../dict/libtesseract_dict.a ../image/libtesseract_image.a \
-	../cutil/libtesseract_cutil.a \
+	../dict/libtesseract_dict.a \
 	../ccstruct/libtesseract_ccstruct.a \
+	../image/libtesseract_image.a ../cutil/libtesseract_cutil.a \
 	../viewer/libtesseract_viewer.a \
 	../ccutil/libtesseract_ccutil.a
-am_mftraining_OBJECTS = mfTraining.$(OBJEXT) mergenf.$(OBJEXT)
+am_combine_tessdata_OBJECTS = combine_tessdata.$(OBJEXT)
+combine_tessdata_OBJECTS = $(am_combine_tessdata_OBJECTS)
+combine_tessdata_DEPENDENCIES = ../ccutil/libtesseract_ccutil.a
+am_mftraining_OBJECTS = mftraining.$(OBJEXT) mergenf.$(OBJEXT)
 mftraining_OBJECTS = $(am_mftraining_OBJECTS)
 mftraining_DEPENDENCIES = libtesseract_training.a \
 	../textord/libtesseract_textord.a \
 	../classify/libtesseract_classify.a \
-	../dict/libtesseract_dict.a ../image/libtesseract_image.a \
-	../cutil/libtesseract_cutil.a \
+	../dict/libtesseract_dict.a \
 	../ccstruct/libtesseract_ccstruct.a \
+	../image/libtesseract_image.a ../cutil/libtesseract_cutil.a \
 	../viewer/libtesseract_viewer.a \
 	../ccutil/libtesseract_ccutil.a
 am_unicharset_extractor_OBJECTS = unicharset_extractor.$(OBJEXT)
@@ -91,9 +96,10 @@ unicharset_extractor_OBJECTS = $(am_unicharset_extractor_OBJECTS)
 unicharset_extractor_DEPENDENCIES = ../ccutil/libtesseract_ccutil.a
 am_wordlist2dawg_OBJECTS = wordlist2dawg.$(OBJEXT)
 wordlist2dawg_OBJECTS = $(am_wordlist2dawg_OBJECTS)
-wordlist2dawg_DEPENDENCIES = ../dict/libtesseract_dict.a \
-	../cutil/libtesseract_cutil.a \
+wordlist2dawg_DEPENDENCIES = ../classify/libtesseract_classify.a \
+	../dict/libtesseract_dict.a \
 	../ccstruct/libtesseract_ccstruct.a \
+	../image/libtesseract_image.a ../cutil/libtesseract_cutil.a \
 	../viewer/libtesseract_viewer.a \
 	../ccutil/libtesseract_ccutil.a
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -105,11 +111,12 @@ CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 SOURCES = $(libtesseract_training_a_SOURCES) $(cntraining_SOURCES) \
+	$(combine_tessdata_SOURCES) $(mftraining_SOURCES) \
+	$(unicharset_extractor_SOURCES) $(wordlist2dawg_SOURCES)
+DIST_SOURCES = $(libtesseract_training_a_SOURCES) \
+	$(cntraining_SOURCES) $(combine_tessdata_SOURCES) \
 	$(mftraining_SOURCES) $(unicharset_extractor_SOURCES) \
 	$(wordlist2dawg_SOURCES)
-DIST_SOURCES = $(libtesseract_training_a_SOURCES) \
-	$(cntraining_SOURCES) $(mftraining_SOURCES) \
-	$(unicharset_extractor_SOURCES) $(wordlist2dawg_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -237,39 +244,41 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/textord
 
-EXTRA_DIST = training.cpp unicharset_extractor.dsp wordlist2dawg.dsp \
-    cntraining.dsp mftraining.dsp \
-    unicharset_extractor.vcproj wordlist2dawg.vcproj \
+EXTRA_DIST = unicharset_extractor.vcproj wordlist2dawg.vcproj \
     cntraining.vcproj mftraining.vcproj
 
 include_HEADERS = \
-    mergenf.h name2char.h training.h
+    commontraining.h mergenf.h name2char.h
 
 lib_LIBRARIES = libtesseract_training.a
 libtesseract_training_a_SOURCES = \
-    name2char.cpp
+    name2char.cpp commontraining.cpp
 
-cntraining_SOURCES = cnTraining.cpp
+combine_tessdata_SOURCES = combine_tessdata.cpp
+combine_tessdata_LDADD = \
+    ../ccutil/libtesseract_ccutil.a
+
+cntraining_SOURCES = cntraining.cpp
 cntraining_LDADD = \
     libtesseract_training.a \
     ../textord/libtesseract_textord.a \
     ../classify/libtesseract_classify.a \
     ../dict/libtesseract_dict.a \
+    ../ccstruct/libtesseract_ccstruct.a \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
-    ../ccstruct/libtesseract_ccstruct.a \
     ../viewer/libtesseract_viewer.a \
     ../ccutil/libtesseract_ccutil.a
 
-mftraining_SOURCES = mfTraining.cpp mergenf.cpp
+mftraining_SOURCES = mftraining.cpp mergenf.cpp
 mftraining_LDADD = \
     libtesseract_training.a \
     ../textord/libtesseract_textord.a \
     ../classify/libtesseract_classify.a \
     ../dict/libtesseract_dict.a \
+    ../ccstruct/libtesseract_ccstruct.a \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
-    ../ccstruct/libtesseract_ccstruct.a \
     ../viewer/libtesseract_viewer.a \
     ../ccutil/libtesseract_ccutil.a
 
@@ -279,9 +288,11 @@ unicharset_extractor_LDADD = \
 
 wordlist2dawg_SOURCES = wordlist2dawg.cpp
 wordlist2dawg_LDADD = \
+    ../classify/libtesseract_classify.a \
     ../dict/libtesseract_dict.a \
-    ../cutil/libtesseract_cutil.a \
     ../ccstruct/libtesseract_ccstruct.a \
+    ../image/libtesseract_image.a \
+    ../cutil/libtesseract_cutil.a \
     ../viewer/libtesseract_viewer.a \
     ../ccutil/libtesseract_ccutil.a
 
@@ -377,6 +388,9 @@ clean-binPROGRAMS:
 cntraining$(EXEEXT): $(cntraining_OBJECTS) $(cntraining_DEPENDENCIES) 
 	@rm -f cntraining$(EXEEXT)
 	$(CXXLINK) $(cntraining_OBJECTS) $(cntraining_LDADD) $(LIBS)
+combine_tessdata$(EXEEXT): $(combine_tessdata_OBJECTS) $(combine_tessdata_DEPENDENCIES) 
+	@rm -f combine_tessdata$(EXEEXT)
+	$(CXXLINK) $(combine_tessdata_OBJECTS) $(combine_tessdata_LDADD) $(LIBS)
 mftraining$(EXEEXT): $(mftraining_OBJECTS) $(mftraining_DEPENDENCIES) 
 	@rm -f mftraining$(EXEEXT)
 	$(CXXLINK) $(mftraining_OBJECTS) $(mftraining_LDADD) $(LIBS)
@@ -393,9 +407,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cnTraining.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cntraining.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/combine_tessdata.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/commontraining.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mergenf.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mfTraining.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mftraining.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/name2char.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unicharset_extractor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wordlist2dawg.Po@am__quote@

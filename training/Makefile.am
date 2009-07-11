@@ -7,48 +7,55 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/textord
 
-EXTRA_DIST = training.cpp unicharset_extractor.dsp wordlist2dawg.dsp \
-    cntraining.dsp mftraining.dsp \
-    unicharset_extractor.vcproj wordlist2dawg.vcproj \
+EXTRA_DIST = unicharset_extractor.vcproj wordlist2dawg.vcproj \
     cntraining.vcproj mftraining.vcproj
 
 include_HEADERS = \
-    mergenf.h name2char.h training.h
+    commontraining.h mergenf.h name2char.h
 
 lib_LIBRARIES = libtesseract_training.a
 libtesseract_training_a_SOURCES = \
-    name2char.cpp
+    name2char.cpp commontraining.cpp
 
-bin_PROGRAMS = cntraining mftraining unicharset_extractor wordlist2dawg
-cntraining_SOURCES = cnTraining.cpp
+bin_PROGRAMS = cntraining combine_tessdata mftraining unicharset_extractor wordlist2dawg
+combine_tessdata_SOURCES = combine_tessdata.cpp
+combine_tessdata_LDADD = \
+    ../ccutil/libtesseract_ccutil.a
+
+cntraining_SOURCES = cntraining.cpp
 cntraining_LDADD = \
     libtesseract_training.a \
     ../textord/libtesseract_textord.a \
     ../classify/libtesseract_classify.a \
     ../dict/libtesseract_dict.a \
+    ../ccstruct/libtesseract_ccstruct.a \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
-    ../ccstruct/libtesseract_ccstruct.a \
     ../viewer/libtesseract_viewer.a \
     ../ccutil/libtesseract_ccutil.a
-mftraining_SOURCES = mfTraining.cpp mergenf.cpp
+
+mftraining_SOURCES = mftraining.cpp mergenf.cpp
 mftraining_LDADD = \
     libtesseract_training.a \
     ../textord/libtesseract_textord.a \
     ../classify/libtesseract_classify.a \
     ../dict/libtesseract_dict.a \
+    ../ccstruct/libtesseract_ccstruct.a \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
-    ../ccstruct/libtesseract_ccstruct.a \
     ../viewer/libtesseract_viewer.a \
     ../ccutil/libtesseract_ccutil.a
+
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
 unicharset_extractor_LDADD = \
     ../ccutil/libtesseract_ccutil.a
+
 wordlist2dawg_SOURCES = wordlist2dawg.cpp
 wordlist2dawg_LDADD = \
+    ../classify/libtesseract_classify.a \
     ../dict/libtesseract_dict.a \
-    ../cutil/libtesseract_cutil.a \
     ../ccstruct/libtesseract_ccstruct.a \
+    ../image/libtesseract_image.a \
+    ../cutil/libtesseract_cutil.a \
     ../viewer/libtesseract_viewer.a \
     ../ccutil/libtesseract_ccutil.a
