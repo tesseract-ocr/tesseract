@@ -44,6 +44,10 @@ const int kMaxIntPairSize = 45;  // Holds %d,%d, for upto 64 bit.
 
 #include "svutil.h"
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 #ifdef HAVE_LIBLEPT
 #include "allheaders.h"
 #endif
@@ -719,9 +723,9 @@ void ScrollView::ZoomToRectangle(int x1, int y1, int x2, int y2) {
           MIN(x1, x2), MIN(y1, y2), MAX(x1, x2), MAX(y1, y2));
 }
 
-#ifdef HAVE_LIBLEPT
 // Send an image of type PIX.
-void ScrollView::Image(PIX* image, int x_pos, int y_pos) {
+void ScrollView::Image(Pix* image, int x_pos, int y_pos) {
+#ifdef HAVE_LIBLEPT
   int width = image->w;
   int height = image->h;
   l_uint32 bpp = image->d;
@@ -737,10 +741,12 @@ void ScrollView::Image(PIX* image, int x_pos, int y_pos) {
   }
   // PIX* do not have a unique identifier/name associated, so name them "lept".
   SendMsg("drawImage('%s',%d,%d)", "lept", x_pos, y_pos);
+#endif
 }
 
 // Sends each pixel as hex value like html, e.g. #00FF00 for green.
-void ScrollView::Transfer32bppImage(PIX* image) {
+void ScrollView::Transfer32bppImage(Pix* image) {
+#ifdef HAVE_LIBLEPT
   int ppL = pixGetWidth(image);
   int h = pixGetHeight(image);
   int wpl = pixGetWpl(image);
@@ -759,10 +765,12 @@ void ScrollView::Transfer32bppImage(PIX* image) {
     SendRawMessage(pixel_data);
   }
   delete[] pixel_data;
+#endif
 }
 
 // Sends for each pixel either '1' or '0'.
-void ScrollView::TransferGrayImage(PIX* image) {
+void ScrollView::TransferGrayImage(Pix* image) {
+#ifdef HAVE_LIBLEPT
   char* pixel_data = new char[image->w * 2 + 2];
   for (int y = 0; y < image->h; y++) {
     l_uint32* data = pixGetData(image) + y * pixGetWpl(image);
@@ -774,10 +782,12 @@ void ScrollView::TransferGrayImage(PIX* image) {
     }
   }
   delete [] pixel_data;
+#endif
 }
 
 // Sends for each pixel either '1' or '0'.
-void ScrollView::TransferBinaryImage(PIX* image) {
+void ScrollView::TransferBinaryImage(Pix* image) {
+#ifdef HAVE_LIBLEPT
   char* pixel_data = new char[image->w + 2];
   for (int y = 0; y < image->h; y++) {
     l_uint32* data = pixGetData(image) + y * pixGetWpl(image);
@@ -792,8 +802,8 @@ void ScrollView::TransferBinaryImage(PIX* image) {
     SendRawMessage(pixel_data);
   }
   delete [] pixel_data;
-}
 #endif
+}
 
 // Escapes the ' character with a \, so it can be processed by LUA.
 // Note: The caller will have to make sure he deletes the newly allocated item.
@@ -820,6 +830,5 @@ int ScrollView::TranslateYCoordinate(int y) {
   if (!y_axis_is_reversed_) { return y;
   } else { return y_size_ - y; }
 }
-
 
 #endif  // GRAPHICS_DISABLED

@@ -42,6 +42,7 @@
 #endif
 #endif
 
+#include <stdio.h>
 #include <iostream>
 
 const int kBufferSize = 65536;

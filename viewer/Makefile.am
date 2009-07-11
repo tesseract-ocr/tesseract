@@ -1,6 +1,8 @@
 SUBDIRS =
 AM_CPPFLAGS =
 
+EXTRA_DIST = viewer.vcproj
+
 include_HEADERS = \
     scrollview.h svmnode.h svutil.h svpaint.cpp
 
