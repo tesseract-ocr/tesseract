@@ -2,6 +2,6 @@
 # Adaptive Matcher Using PreAdapted Templates
 #################################################
 
-EnableAdaptiveDebugger   1
-MatchDebugFlags         6
-MatcherDebugLevel       1
+classify_enable_adaptive_debugger   1
+matcher_debug_flags         6
+matcher_debug_level       1
