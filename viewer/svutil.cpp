@@ -39,6 +39,8 @@
 #include <sys/socket.h>
 #ifdef __linux__
 #include <sys/prctl.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 #endif
 
