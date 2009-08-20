@@ -236,7 +236,8 @@ void read_tiff_image(TIFF* tif, IMAGE* image) {
   inT16 samples_per_pixel = 0;
   TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &image_width);
   TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &image_height);
-  TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bpp);
+  if (!TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &bpp))
+    bpp = 1;  // Binary is default if no value provided.
   TIFFGetField(tif, TIFFTAG_SAMPLESPERPIXEL, &samples_per_pixel);
   TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometric);
   if (samples_per_pixel > 1)
