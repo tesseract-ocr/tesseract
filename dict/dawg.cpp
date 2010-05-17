@@ -140,11 +140,7 @@ void Dawg::init(DawgType type, const STRING &lang,
   ASSERT_HOST(unicharset_size > 0);
   unicharset_size_ = unicharset_size;
   // Set bit masks.
-#ifdef WIN32
-  flag_start_bit_ = ceil(log(static_cast<double>(unicharset_size_))/log(2.0));
-#else
-  flag_start_bit_ = ceil(log2(unicharset_size_));
-#endif
+  flag_start_bit_ = ceil(log(static_cast<double>(unicharset_size_)) / log(2.0));
   next_node_start_bit_ = flag_start_bit_ + NUM_FLAG_BITS;
   letter_mask_ = ~(~0 << flag_start_bit_);
   next_node_mask_ = ~0 << (flag_start_bit_ + NUM_FLAG_BITS);
