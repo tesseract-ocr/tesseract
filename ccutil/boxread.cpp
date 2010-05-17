@@ -79,8 +79,8 @@ bool read_next_box(int target_page, FILE* box_file, char* utf8_str,
           UNICHAR ch(uch + used, uch_len - used);
           int new_used = ch.utf8_len();
           if (new_used == 0) {
-            tprintf("Bad utf-8 char starting with 0x%x at line %d, col %d, \n",
-                    uch[used], used + 1, line);
+            tprintf("Bad UTF-8 str %s starts with 0x%02x at line %d, col %d, \n",
+                    uch + used, uch[used], line, used + 1);
             count = 0;
             break;
           }
