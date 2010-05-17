@@ -273,7 +273,7 @@ char* TessBaseAPI::TesseractRect(const unsigned char* imagedata,
   // Since this original api didn't give the exact size of the image,
   // we have to invent a reasonable value.
   int bits_per_pixel = bytes_per_pixel == 0 ? 1 : bytes_per_pixel * 8;
-  SetImage(imagedata, bytes_per_line * 8 / bits_per_pixel, height,
+  SetImage(imagedata, bytes_per_line * 8 / bits_per_pixel, height + top,
            bytes_per_pixel, bytes_per_line);
   SetRectangle(left, top, width, height);
 
