@@ -5,7 +5,7 @@
  * Description:  General utility functions
  * Author:       Daria Antonova
  * Created:      Wed Apr 8 14:37:00 2009
- * Language:     C
+ * Language:     C++
  * Package:      N/A
  * Status:       Reusable Software Component
  *
@@ -25,11 +25,14 @@
 #ifndef TESSERACT_CCUTIL_HELPERS_H_
 #define TESSERACT_CCUTIL_HELPERS_H_
 
+#include <stdio.h>
+#include <string.h>
+
 // Remove newline (if any) at the end of the string.
-inline void chomp_string(char *string) {
-  int last_index = strlen(string) - 1;
-  if (string[last_index] == '\n') {
-    string[last_index] = '\0';
+inline void chomp_string(char *str) {
+  int last_index = strlen(str) - 1;
+  if (str[last_index] == '\n') {
+    str[last_index] = '\0';
   }
 }
 
@@ -38,4 +41,94 @@ inline void SkipNewline(FILE *file) {
   if (fgetc(file) != '\n') fseek(file, -1, SEEK_CUR);
 }
 
-#endif
+// qsort function to sort 2 floats.
+inline int sort_floats(const void *arg1, const void *arg2) {
+  float diff = *((float *) arg1) - *((float *) arg2);
+  if (diff > 0) {
+    return 1;
+  } else if (diff < 0) {
+    return -1;
+  } else {
+    return 0;
+  }
+}
+
+// return the smallest multiple of block_size greater than or equal to n.
+inline int RoundUp(int n, int block_size) {
+  return block_size * ((n + block_size - 1) / block_size);
+}
+
+// Clip a numeric value to the interval [lower_bound, upper_bound].
+template<typename T>
+inline T ClipToRange(const T& x, const T& lower_bound, const T& upper_bound) {
+  if (x < lower_bound)
+    return lower_bound;
+  if (x > upper_bound)
+    return upper_bound;
+  return x;
+}
+
+// Extend the range [lower_bound, upper_bound] to include x.
+template<typename T1, typename T2>
+inline void UpdateRange(const T1& x, T2* lower_bound, T2* upper_bound) {
+  if (x < *lower_bound)
+    *lower_bound = x;
+  if (x > *upper_bound)
+    *upper_bound = x;
+}
+
+// Decrease lower_bound to be <= x_lo AND increase upper_bound to be >= x_hi.
+template<typename T1, typename T2>
+inline void UpdateRange(const T1& x_lo, const T1& x_hi,
+                        T2* lower_bound, T2* upper_bound) {
+  if (x_lo < *lower_bound)
+    *lower_bound = x_lo;
+  if (x_hi > *upper_bound)
+    *upper_bound = x_hi;
+}
+
+// Proper modulo arithmetic operator. Returns a mod b that works for -ve a.
+// For any integer a and positive b, returns r : 0<=r<b and a=n*b + r for
+// some integer n.
+inline int Modulo(int a, int b) {
+  return (a % b + b) % b;
+}
+
+// Integer division operator with rounding that works for negative input.
+// Returns a divided by b, rounded to the nearest integer, without double
+// counting at 0. With simple rounding 1/3 = 0, 0/3 = 0 -1/3 = 0, -2/3 = 0,
+// -3/3 = 0 and -4/3 = -1.
+// I want 1/3 = 0, 0/3 = 0, -1/3 = 0, -2/3 = -1, -3/3 = -1 and -4/3 = -1.
+// Results with b negative are not defined.
+inline int DivRounded(int a, int b) {
+  return a >= 0 ? (a + b / 2) / b : (a - b / 2) / b;
+}
+
+// Reverse the order of bytes in a n byte quantity for big/little-endian switch.
+inline void ReverseN(void* ptr, int num_bytes) {
+  char *cptr = reinterpret_cast<char *>(ptr);
+  int halfsize = num_bytes / 2;
+  for (int i = 0; i < halfsize; ++i) {
+    char tmp = cptr[i];
+    cptr[i] = cptr[num_bytes - 1 - i];
+    cptr[num_bytes - 1 - i] = tmp;
+  }
+}
+
+// Reverse the order of bytes in a 16 bit quantity for big/little-endian switch.
+inline void Reverse16(void *ptr) {
+  ReverseN(ptr, 2);
+}
+
+// Reverse the order of bytes in a 32 bit quantity for big/little-endian switch.
+inline void Reverse32(void *ptr) {
+  ReverseN(ptr, 4);
+}
+
+// Reverse the order of bytes in a 64 bit quantity for big/little-endian switch.
+inline void Reverse64(void* ptr) {
+  ReverseN(ptr, 8);
+}
+
+
+#endif // TESSERACT_CCUTIL_HELPERS_H_

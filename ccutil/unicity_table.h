@@ -81,9 +81,10 @@ class UnicityTable {
   // Read/Write the table to a file. This does _NOT_ read/write the callbacks.
   // The Callback given must be permanent since they will be called more than
   // once. The given callback will be deleted at the end.
-  void write(FILE* f, Callback2<FILE*, T const &>* cb);
+  // Returns false on read/write error.
+  bool write(FILE* f, ResultCallback2<bool, FILE*, T const &>* cb);
   // swap is used to switch the endianness.
-  void read(FILE* f, Callback3<FILE*, T*, bool>* cb, bool swap);
+  bool read(FILE* f, ResultCallback3<bool, FILE*, T*, bool>* cb, bool swap);
 
  private:
   GenericVector<T> table_;
@@ -179,13 +180,15 @@ void UnicityTable<T>::clear() {
 }
 
 template <typename T>
-void UnicityTable<T>::write(FILE* f, Callback2<FILE*, T const &>* cb) {
-  table_.write(f, cb);
+bool UnicityTable<T>::write(FILE* f,
+                            ResultCallback2<bool, FILE*, T const &>* cb) {
+  return table_.write(f, cb);
 }
 
 template <typename T>
-void UnicityTable<T>::read(FILE* f, Callback3<FILE*, T*, bool>* cb, bool swap) {
-  table_.read(f, cb, swap);
+bool UnicityTable<T>::read(
+    FILE* f, ResultCallback3<bool, FILE*, T*, bool>* cb, bool swap) {
+  return table_.read(f, cb, swap);
 }
 
 // This method clear the current object, then, does a shallow copy of

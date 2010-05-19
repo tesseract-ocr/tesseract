@@ -566,27 +566,6 @@ float compute_reject_threshold(  //compute threshold //detailed results
 }
 
 
-/**********************************************************************
- * sort_floats
- *
- * qsort function to sort 2 floats.
- **********************************************************************/
-
-int sort_floats(                   //qsort function
-                const void *arg1,  //ptrs to floats
-                const void *arg2) {
-  float diff;                    //difference
-
-  diff = *((float *) arg1) - *((float *) arg2);
-  if (diff > 0)
-    return 1;
-  else if (diff < 0)
-    return -1;
-  else
-    return 0;
-}
-
-
 /*************************************************************************
  * reject_edge_blobs()
  *

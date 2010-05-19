@@ -24,6 +24,7 @@
 
 #include "callback.h"
 #include "errcode.h"
+#include "helpers.h"
 
 template <typename T>
 class GenericVector {
@@ -45,9 +46,6 @@ class GenericVector {
   void reserve(int size);
   // Double the size of the internal array.
   void double_the_size();
-
-  // Init the object, allocating size memory.
-  void init(int size);
 
   // Return the size used.
   int size() const {
@@ -117,8 +115,11 @@ class GenericVector {
   // Read/Write the array to a file. This does _NOT_ read/write the callbacks.
   // The Callback given must be permanent since they will be called more than
   // once. The given callback will be deleted at the end.
-  void write(FILE* f, Callback2<FILE*, T const &>* cb);
-  void read(FILE* f, Callback3<FILE*, T*, bool>* cb, bool swap);
+  // If the callbacks are NULL, then the data is simply read/written using
+  // fread (and swapping)/fwrite.
+  // Returns false on error or if the callback returns false.
+  bool write(FILE* f, ResultCallback2<bool, FILE*, T const &>* cb) const;
+  bool read(FILE* f, ResultCallback3<bool, FILE*, T*, bool>* cb, bool swap);
 
   // Allocates a new array of double the current_size, copies over the
   // information from data to the new location, deletes data and returns
@@ -133,12 +134,16 @@ class GenericVector {
   }
 
  protected:
+
+  // Init the object, allocating size memory.
+  void init(int size);
+
   // We are assuming that the object generally placed in thie
   // vector are small enough that for efficiency it makes sence
   // to start with a larger initial size.
   static const int kDefaultVectorSize = 4;
-  int   size_used_;
-  int   size_reserved_;
+  inT32   size_used_;
+  inT32   size_reserved_;
   T*    data_;
   Callback1<T>* clear_cb_;
   // Mutable because Run method is not const
@@ -330,6 +335,7 @@ void GenericVector<T>::clear() {
       for (int i = 0; i < size_used_; ++i)
         clear_cb_->Run(data_[i]);
     delete[] data_;
+    data_ = NULL;
     size_used_ = 0;
     size_reserved_ = 0;
   }
@@ -353,29 +359,50 @@ void GenericVector<T>::delete_data_pointers() {
 
 
 template <typename T>
-void GenericVector<T>::write(FILE* f, Callback2<FILE*, T const &>* cb) {
-  fwrite(&size_reserved_, sizeof(int), 1, f);
-  fwrite(&size_used_, sizeof(int), 1, f);
-  for (int i = 0; i < size_used_; ++i) {
-    cb->Run(f, data_[i]);
+bool GenericVector<T>::write(
+    FILE* f, ResultCallback2<bool, FILE*, T const &>* cb) const {
+  if (fwrite(&size_reserved_, sizeof(size_reserved_), 1, f) != 1) return false;
+  if (fwrite(&size_used_, sizeof(size_used_), 1, f) != 1) return false;
+  if (cb != NULL) {
+    for (int i = 0; i < size_used_; ++i) {
+      if (!cb->Run(f, data_[i])) {
+        delete cb;
+        return false;
+      }
+    }
+    delete cb;
+  } else {
+    if (fwrite(data_, sizeof(T), size_used_, f) != size_used_) return false;
   }
-  delete cb;
+  return true;
 }
 
 template <typename T>
-void GenericVector<T>::read(FILE* f, Callback3<FILE*, T*, bool>* cb, bool swap) {
+bool GenericVector<T>::read(FILE* f,
+                            ResultCallback3<bool, FILE*, T*, bool>* cb,
+                            bool swap) {
   uinT32 reserved;
-  fread(&reserved, sizeof(int), 1, f);
-  if (swap)
-    reserved = reverse32(reserved);
+  if (fread(&reserved, sizeof(reserved), 1, f) != 1) return false;
+  if (swap) Reverse32(&reserved);
   reserve(reserved);
-  fread(&size_used_, sizeof(int), 1, f);
-  if (swap)
-    size_used_ = reverse32(size_used_);
-  for (int i = 0; i < size_used_; ++i) {
-    cb->Run(f, data_ + i, swap);
+  if (fread(&size_used_, sizeof(size_used_), 1, f) != 1) return false;
+  if (swap) Reverse32(&size_used_);
+  if (cb != NULL) {
+    for (int i = 0; i < size_used_; ++i) {
+      if (!cb->Run(f, data_ + i, swap)) {
+        delete cb;
+        return false;
+      }
+    }
+    delete cb;
+  } else {
+    if (fread(data_, sizeof(T), size_used_, f) != size_used_) return false;
+    if (swap) {
+      for (int i = 0; i < size_used_; ++i)
+        ReverseN(&data_[i], sizeof(T));
+    }
   }
-  delete cb;
+  return true;
 }
 
 // This method clear the current object, then, does a shallow copy of

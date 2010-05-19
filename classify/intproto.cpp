@@ -18,6 +18,7 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
+#include "helpers.h"
 #include "intproto.h"
 #include "picofeat.h"
 #include "mfoutline.h"
@@ -432,14 +433,8 @@ int BucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets) {
  ** Exceptions: none
  ** History: Thu Feb 14 13:24:33 1991, DSJ, Created.
  */
-  int Bucket;
-
-  Bucket = static_cast<int>(MapParam(Param, Offset, NumBuckets));
-  if (Bucket < 0)
-    Bucket = 0;
-  else if (Bucket >= NumBuckets)
-    Bucket = NumBuckets - 1;
-  return (Bucket);
+  return ClipToRange(static_cast<int>(MapParam(Param, Offset, NumBuckets)),
+                     0, NumBuckets - 1);
 }                                /* BucketFor */
 
 
@@ -786,45 +781,51 @@ void free_int_templates(INT_TEMPLATES templates) {
 /*---------------------------------------------------------------------------*/
 // Code to read/write Classify::font*table structures.
 namespace {
-void read_info(FILE* f, FontInfo* fi, bool swap) {
+bool read_info(FILE* f, FontInfo* fi, bool swap) {
   inT32 size;
-  fread(&size, sizeof(inT32), 1, f);
+  if (fread(&size, sizeof(size), 1, f) != 1) return false;
   if (swap)
-    reverse32(&size);
-  fi->name = new char[size + 1];
-  fread(fi->name, sizeof(char), size, f);
-  fi->name[size] = '\0';
-  fread(&fi->properties, sizeof(fi->properties), 1, f);
+    Reverse32(&size);
+  char* font_name = new char[size + 1];
+  fi->name = font_name;
+  if (fread(font_name, sizeof(*font_name), size, f) != size) return false;
+  font_name[size] = '\0';
+  if (fread(&fi->properties, sizeof(fi->properties), 1, f) != 1) return false;
   if (swap)
-    reverse32(&fi->properties);
+    Reverse32(&fi->properties);
+  return true;
 }
 
-void write_info(FILE* f, const FontInfo& fi) {
+bool write_info(FILE* f, const FontInfo& fi) {
   inT32 size = strlen(fi.name);
-  fwrite(&size, sizeof(inT32), 1, f);
-  fwrite(fi.name, sizeof(char), size, f);
-  fwrite(&fi.properties, sizeof(inT32), 1, f);
+  if (fwrite(&size, sizeof(size), 1, f) != 1) return false;
+  if (fwrite(fi.name, sizeof(*fi.name), size, f) != size) return false;
+  if (fwrite(&fi.properties, sizeof(fi.properties), 1, f) != 1) return false;
+  return true;
 }
 
-void read_set(FILE* f, FontSet* fs, bool swap) {
-  fread(&fs->size, sizeof(inT32), 1, f);
+bool read_set(FILE* f, FontSet* fs, bool swap) {
+  if (fread(&fs->size, sizeof(fs->size), 1, f) != 1) return false;
   if (swap)
-    reverse32(&fs->size);
+    Reverse32(&fs->size);
   fs->configs = new int[fs->size];
   for (int i = 0; i < fs->size; ++i) {
-    fread(&fs->configs[i], sizeof(inT32), 1, f);
+    if (fread(&fs->configs[i], sizeof(fs->configs[i]), 1, f) != 1) return false;
     if (swap)
-      reverse32(&fs->configs[i]);
+      Reverse32(&fs->configs[i]);
   }
+  return true;
 }
 
-void write_set(FILE* f, const FontSet& fs) {
-  fwrite(&fs.size, sizeof(inT32), 1, f);
+bool write_set(FILE* f, const FontSet& fs) {
+  if (fwrite(&fs.size, sizeof(fs.size), 1, f) != 1) return false;
   for (int i = 0; i < fs.size; ++i) {
-    fwrite(&fs.configs[i], sizeof(inT32), 1, f);
+    if (fwrite(&fs.configs[i], sizeof(fs.configs[i]), 1, f) != 1) return false;
   }
+  return true;
 }
-}
+
+}  // namespace.
 
 namespace tesseract {
 INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
@@ -877,9 +878,9 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   swap = Templates->NumClassPruners < 0 ||
     Templates->NumClassPruners > MAX_NUM_CLASS_PRUNERS;
   if (swap) {
-    reverse32(&Templates->NumClassPruners);
-    reverse32(&Templates->NumClasses);
-    reverse32(&unicharset_size);
+    Reverse32(&Templates->NumClassPruners);
+    Reverse32(&Templates->NumClasses);
+    Reverse32(&unicharset_size);
   }
   if (Templates->NumClasses < 0) {
     // This file has a version id!
@@ -888,7 +889,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
               1, File) != 1)
       cprintf("Bad read of inttemp!\n");
     if (swap)
-      reverse32(&Templates->NumClasses);
+      Reverse32(&Templates->NumClasses);
   }
 
   if (version_id < 3) {
@@ -907,9 +908,9 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     }
     if (swap) {
       for (i = 0; i < Templates->NumClasses; i++)
-        reverse16(IndexFor[i]);
+        Reverse16(&IndexFor[i]);
       for (i = 0; i < Templates->NumClasses; i++)
-        reverse32(ClassIdFor[i]);
+        Reverse32(&ClassIdFor[i]);
     }
   }
 
@@ -925,7 +926,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
         for (y = 0; y < NUM_CP_BUCKETS; y++) {
           for (z = 0; z < NUM_CP_BUCKETS; z++) {
             for (w = 0; w < WERDS_PER_CP_VECTOR; w++) {
-              reverse32(&Pruner[x][y][z][w]);
+              Reverse32(&Pruner[x][y][z][w]);
             }
           }
         }
@@ -1015,9 +1016,9 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
           cprintf ("Bad read of inttemp!\n");
       }
       if (swap) {
-        reverse16 (&Class->NumProtos);
+        Reverse16(&Class->NumProtos);
         for (j = 0; j < MaxNumConfigs; j++)
-          reverse16 (&Class->ConfigLengths[j]);
+          Reverse16(&Class->ConfigLengths[j]);
       }
     } else {
       ASSERT_HOST(Class->NumConfigs < MaxNumConfigs);
@@ -1026,9 +1027,9 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
           cprintf ("Bad read of inttemp!\n");
       }
       if (swap) {
-        reverse16 (&Class->NumProtos);
+        Reverse16(&Class->NumProtos);
         for (j = 0; j < MaxNumConfigs; j++)
-          reverse16 (&Class->ConfigLengths[j]);
+          Reverse16(&Class->ConfigLengths[j]);
       }
     }
     if (version_id < 2) {
@@ -1081,10 +1082,10 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
         for (x = 0; x < NUM_PP_PARAMS; x++)
           for (y = 0; y < NUM_PP_BUCKETS; y++)
             for (z = 0; z < WERDS_PER_PP_VECTOR; z++)
-              reverse32 (&ProtoSet->ProtoPruner[x][y][z]);
+              Reverse32(&ProtoSet->ProtoPruner[x][y][z]);
         for (x = 0; x < PROTOS_PER_PROTO_SET; x++)
           for (y = 0; y < WerdsPerConfigVec; y++)
-            reverse32 (&ProtoSet->Protos[x].Configs[y]);
+            Reverse32(&ProtoSet->Protos[x].Configs[y]);
       }
       Class->ProtoSets[j] = ProtoSet;
     }
@@ -1093,7 +1094,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     else {
       fread(&Class->font_set_id, sizeof(int), 1, File);
       if (swap)
-        reverse32(&Class->font_set_id);
+        Reverse32(&Class->font_set_id);
     }
   }
 
@@ -1905,17 +1906,11 @@ void RenderIntProto(void *window,
   Xmax = Ymax = 0;
   for (Bucket = 0; Bucket < NUM_PP_BUCKETS; Bucket++) {
     if (ProtoMask & ProtoSet->ProtoPruner[PRUNER_X][Bucket][ProtoWordIndex]) {
-      if (Bucket < Xmin)
-        Xmin = Bucket;
-      else if (Bucket > Xmax)
-        Xmax = Bucket;
+      UpdateRange(Bucket, &Xmin, &Xmax);
     }
 
     if (ProtoMask & ProtoSet->ProtoPruner[PRUNER_Y][Bucket][ProtoWordIndex]) {
-      if (Bucket < Ymin)
-        Ymin = Bucket;
-      else if (Bucket > Ymax)
-        Ymax = Bucket;
+      UpdateRange(Bucket, &Ymin, &Ymax);
     }
   }
   X = (Xmin + Xmax + 1) / 2.0 * PROTO_PRUNER_SCALE - DISPLAY_OFFSET;
