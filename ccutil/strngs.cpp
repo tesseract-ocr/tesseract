@@ -37,6 +37,10 @@
 // kDataCacheSize is cache of last n min sized buffers freed for
 // cheap recyling
 const int kDataCacheSize = 8;  // max number of buffers cached
+// Size of buffer needed to host the decimal representation of the maximum
+// possible length of an int (in 64 bits, being -<20 digits>.
+const int kMaxIntSize = 22;
+
 
 #if 1
 #define CHECK_INVARIANT(s)  // EMPTY
@@ -364,6 +368,19 @@ STRING & STRING::operator+=(const STRING& str) {
 
   CHECK_INVARIANT(this);
   return *this;
+}
+
+// Appends the given string and int (as a %d) to this.
+// += cannot be used for ints as there as a char += operator that would
+// be ambiguous, and ints usually need a string before or between them
+// anyway.
+void STRING::add_str_int(const char* str, int number) {
+  *this += str;
+  // Allow space for the maximum possible length of inT64.
+  char num_buffer[kMaxIntSize];
+  num_buffer[kMaxIntSize - 1] = '\0';
+  snprintf(num_buffer, kMaxIntSize - 1, "%d", number);
+  *this += num_buffer;
 }
 
 void STRING::prep_serialise() {

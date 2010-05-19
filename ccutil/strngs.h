@@ -70,6 +70,12 @@ class DLLSYM STRING
     STRING & operator+= (const STRING & string);
     STRING & operator+= (const char ch);
 
+    // Appends the given string and int (as a %d) to this.
+    // += cannot be used for ints as there as a char += operator that would
+    // be ambiguous, and ints usually need a string before or between them
+    // anyway.
+    void add_str_int(const char* str, int number);
+
     // WARNING
     // This method leaks the underlying pointer,
     // but that is what the original implementation did
