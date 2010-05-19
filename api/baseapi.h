@@ -281,6 +281,9 @@ class TESSDLL_API TessBaseAPI {
   // The recognized text is returned as a char* which is coded
   // as UTF8 and must be freed with the delete [] operator.
   char* GetUTF8Text();
+  // The recognized text is returned as a char* which is coded
+  // as HTML with hOCR markup and must be freed with the delete [] operator.
+  char* GetHOCRText(int page_id);
   // The recognized text is returned as a char* which is coded in the same
   // format as a box file used in training. Returned string must be freed with
   // the delete [] operator.

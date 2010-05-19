@@ -18,6 +18,7 @@
  **********************************************************************/
 
 #include "mfcpch.h"
+#include <ctype.h>
 #include "applybox.h"
 #include "control.h"
 #include "tessvars.h"
@@ -62,6 +63,7 @@ void read_tiff_image(TIFF* tif, IMAGE* image);
 #define EXTERN
 
 BOOL_VAR(tessedit_create_boxfile, FALSE, "Output text with boxes");
+BOOL_VAR(tessedit_create_hocr, FALSE, "Output HTML with hOCR markup");
 BOOL_VAR(tessedit_read_image, TRUE, "Ensure the image is read");
 INT_VAR(tessedit_serial_unlv, 0,
         "0->Whole page, 1->serial no adapt, 2->serial with adapt");
@@ -100,7 +102,7 @@ char szAppName[] = "Tessedit";   //app name
 // the value of input_file is ignored - ugly, but true - a consequence of
 // the way that unlv zone file reading takes the place of a page layout
 // analyzer.
-void TesseractImage(const char* input_file, IMAGE* image, Pix* pix,
+void TesseractImage(const char* input_file, IMAGE* image, Pix* pix, int page_id,
                     tesseract::TessBaseAPI* api, STRING* text_out) {
   api->SetInputName(input_file);
 #ifdef HAVE_LIBLEPT
@@ -122,6 +124,8 @@ void TesseractImage(const char* input_file, IMAGE* image, Pix* pix,
       text = api->GetBoxText();
     else if (tessedit_write_unlv)
       text = api->GetUNLVText();
+    else if (tessedit_create_hocr)
+      text = api->GetHOCRText(page_id);
     else
       text = api->GetUTF8Text();
     *text_out += text;
@@ -198,37 +202,71 @@ int main(int argc, char **argv) {
 
   IMAGE image;
   STRING text_out;
+  int page_number = tessedit_page_number;
+  if (page_number < 0)
+    page_number = 0;
+  FILE* fp = fopen(argv[1], "rb");
+  if (fp == NULL) {
+    tprintf("Image file %s cannot be opened!\n", argv[1]);
+    exit(1);
+  }
 #ifdef HAVE_LIBLEPT
-  // Use leptonica to read images.
-  // If the image fails to read, try it as a list of filenames.
-  PIX* pix = pixRead(argv[1]);
-  if (pix == NULL) {
-    FILE* fp = fopen(argv[1], "r");
-    if (fp == NULL)
-      READFAILED.error(argv[0], EXIT, argv[1]);
-    char filename[MAX_PATH];
-    while (fgets(filename, sizeof(filename), fp) != NULL) {
-      chomp_string(filename);
-      pix = pixRead(filename);
-      if (pix == NULL)
-        READFAILED.error(argv[0], EXIT, argv[1]);
-      TesseractImage(argv[1], NULL, pix, &api, &text_out);
+  int page = page_number;
+  bool is_tiff = fileFormatIsTiff(fp);
+  fclose(fp);
+
+  if (is_tiff) {
+    for (; (pix = pixReadTiff(argv[1], page)) != NULL; ++page) {
+      if (page > 0)
+        tprintf("Page %d\n", page);
+      char page_str[kMaxIntSize];
+      snprintf(page_str, kMaxIntSize - 1, "%d", page);
+      api.SetVariable("applybox_page", page_str);
+
+      // Run tesseract on the page!
+      TesseractImage(argv[1], pix, page + 1, &api, &text_out);
+      pixDestroy(&pix);
+      if (tessedit_page_number >= 0) {
+        break;
+      }
+    }
+  } else {
+    // The file is not a tiff file, so use the general pixRead function.
+    // If the image fails to read, try it as a list of filenames.
+    PIX* pix = pixRead(argv[1]);
+    if (pix == NULL) {
+      FILE* fp = fopen(argv[1], "r");
+      if (fp == NULL) {
+        tprintf("File %s cannot be opened!\n", argv[1]);
+        exit(1);
+      }
+      char filename[MAX_PATH];
+      while (fgets(filename, sizeof(filename), fp) != NULL) {
+        chomp_string(filename);
+        pix = pixRead(filename);
+        if (pix == NULL) {
+          tprintf("Image file %s cannot be read!\n", filename);
+          exit(1);
+        }
+        tprintf("Page %d : %s\n", page, filename);
+        TesseractImage(filename, NULL, pix, page + 1, &api, &text_out);
+        pixDestroy(&pix);
+        ++page;
+      }
+      fclose(fp);
+    } else {
+      TesseractImage(argv[1], NULL, pix, 1, &api, &text_out);
       pixDestroy(&pix);
     }
-    fclose(fp);
-  } else {
-    TesseractImage(argv[1], NULL, pix, &api, &text_out);
-    pixDestroy(&pix);
-  }
 #else
 #ifdef _TIFFIO_
   int len = strlen(argv[1]);
-  if (len > 3 && strcmp("tif", argv[1] + len - 3) == 0) {
+  char* ext = new char[5];
+  for (int i=4; i>=0; i--)
+    ext[4-i] = (char) tolower((int) argv[1][len - i]);
+  if (len > 3 && (strcmp("tif",  ext + 1) == 0 || strcmp("tiff", ext) == 0)) {
     // Use libtiff to read a tif file so multi-page can be handled.
     // The page number so the tiff file can be closed and reopened.
-    int page_number = tessedit_page_number;
-    if (page_number < 0)
-      page_number = 0;
     TIFF* archive = NULL;
     do {
       // Since libtiff keeps all read images in memory we have to close the
@@ -256,7 +294,7 @@ int main(int argc, char **argv) {
       read_tiff_image(archive, &image);
 
       // Run tesseract on the page!
-      TesseractImage(argv[1], &image, NULL, &api, &text_out);
+      TesseractImage(argv[1], &image, NULL, page_number, &api, &text_out);
     // Do this while there are more pages in the tiff file.
     } while (TIFFReadDirectory(archive) &&
              (page_number <= tessedit_page_number || tessedit_page_number < 0));
@@ -268,19 +306,35 @@ int main(int argc, char **argv) {
       READFAILED.error (argv[0], EXIT, argv[1]);
     if (image.read(image.get_ysize ()) < 0)
       MEMORY_OUT.error(argv[0], EXIT, "Read of image %s", argv[1]);
-    TesseractImage(argv[1], &image, NULL, &api, &text_out);
+    invert_image(&image);
+    TesseractImage(argv[1], &image, NULL, 1, &api, &text_out);
 #ifdef _TIFFIO_
   }
 #endif
 #endif  // HAVE_LIBLEPT
 
+  bool output_hocr = tessedit_create_hocr;
   outfile = argv[2];
-  outfile += ".txt";
-  FILE* fp = fopen(outfile.string(), "w");
-  if (fp != NULL) {
-    fwrite(text_out.string(), 1, text_out.length(), fp);
-    fclose(fp);
+  outfile += output_hocr ? ".html" : ".txt";
+  fp = fopen(outfile.string(), "w");
+  if (fp == NULL) {
+    tprintf("Cannot create output file %s\n", outfile.string());
+    exit(1);
   }
+  if (output_hocr) {
+    const char html_header[] =
+        "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\""
+        " \"http://www.w3.org/TR/html4/loose.dtd\">\n"
+        "<html>\n<head>\n<title></title>\n"
+        "<meta http-equiv=\"Content-Type\" content=\"text/html;"
+        "charset=utf-8\" >\n<meta name='ocr-system' content='tesseract'>\n"
+        "</head>\n<body>\n";
+    fprintf(fp, "%s", html_header);
+  } 
+  fwrite(text_out.string(), 1, text_out.length(), fp);
+  if (output_hocr)
+    fprintf(fp, "</body>\n</html>\n");
+  fclose(fp);
 
   return 0;                      //Normal exit
 }

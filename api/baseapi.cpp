@@ -703,6 +703,144 @@ char* TessBaseAPI::GetUTF8Text() {
   return result;
 }
 
+// Helper returns true if there is a paragraph break between bbox_cur,
+// and bbox_prev.
+// TODO(rays) improve and incorporate deeper into tesseract, so other
+// output methods get the benefit.
+static bool IsParagraphBreak(TBOX bbox_cur, TBOX bbox_prev,
+                             int right, int line_height) {
+  // Check if the distance between lines is larger than the normal leading,
+  if (fabs(bbox_cur.bottom() - bbox_prev.bottom()) > line_height * 2)
+    return true;
+  
+  // Check if the distance between left bounds of the two lines is nearly the
+  // same as between their right bounds (if so, then both lines probably belong
+  // to the same paragraph, maybe a centered one).
+  if (fabs((bbox_cur.left() - bbox_prev.left()) -
+           (bbox_prev.right() - bbox_cur.right()) < line_height))
+    return false;
+  
+  // Check if there is a paragraph indent at this line (either -ve or +ve).
+  if (fabs(bbox_cur.left() - bbox_prev.left()) > line_height)
+    return true;
+  
+  // Check if both current and previous line don't reach the right bound of the
+  // block, but the distance is different. This will cause all lines in a verse
+  // to be treated as separate paragraphs, but most probably will not split
+  // block-quotes to separate lines (at least if the text is justified).
+  if (fabs(bbox_cur.right() - bbox_prev.right()) > line_height &&
+      right - bbox_cur.right() > line_height &&
+      right - bbox_prev.right() > line_height)
+    return true;
+    
+  return false;
+}
+
+// Helper to add the hOCR for a box to the given hocr_str.
+static void AddBoxTohOCR(const TBOX& box, int image_height, STRING* hocr_str) {
+  hocr_str->add_str_int("' title=\"bbox ", box.left());
+  hocr_str->add_str_int(" ", image_height - box.top());
+  hocr_str->add_str_int(" ", box.right());
+  hocr_str->add_str_int(" ", image_height - box.bottom());
+  *hocr_str += "\">";
+}
+
+// Make a HTML-formatted string with hOCR markup from the internal
+// data structures.
+// STL removed from orignal patch submission and refactored by rays.
+char* TessBaseAPI::GetHOCRText(int page_id) {
+  if (tesseract_ == NULL ||
+      (page_res_ == NULL && Recognize(NULL) < 0))
+    return NULL;
+  
+  PAGE_RES_IT page_res_it(page_res_);
+  ROW_RES *row = NULL;           // current row
+  ROW *real_row = NULL, *prev_row = NULL;
+  BLOCK_RES *block = NULL;       // current row
+  BLOCK *real_block = NULL;
+  int lcnt = 1, bcnt = 1, wcnt = 1;
+
+  STRING hocr_str;
+
+  hocr_str.add_str_int("<div class='ocr_page' id='page_", page_id);
+  hocr_str += "' title='image \"";
+  hocr_str += *input_file_;
+  hocr_str.add_str_int("\"; bbox ", rect_left_);
+  hocr_str.add_str_int(" ", rect_top_);
+  hocr_str.add_str_int(" ", rect_width_);
+  hocr_str.add_str_int(" ", rect_height_);
+  hocr_str += "'>\n";
+
+  for (page_res_it.restart_page(); page_res_it.word () != NULL;
+       page_res_it.forward()) {
+    if (block != page_res_it.block ()) {
+      
+      if (block != NULL) {
+        hocr_str += "</span>\n</p>\n</div>\n";
+      }
+      
+      block = page_res_it.block ();  // current row
+      real_block = block->block;
+      real_row = NULL;
+      row = NULL;
+      
+      hocr_str.add_str_int("<div class='ocr_carea' id='block_", page_id);
+      hocr_str.add_str_int("_", bcnt++);
+      AddBoxTohOCR(real_block->bounding_box(), image_height_, &hocr_str);
+      hocr_str += "\n<p class='ocr_par'>\n";
+    }
+    if (row != page_res_it.row ()) {
+      
+      if (row != NULL) {
+        hocr_str += "</span>\n";
+      }
+      prev_row = real_row;
+      
+      row = page_res_it.row ();  // current row
+      real_row = row->row;
+      
+      if (prev_row != NULL && 
+          IsParagraphBreak(real_row->bounding_box(), prev_row->bounding_box(),
+                           real_block->bounding_box().right(),
+                           real_row->x_height() + real_row->ascenders()))
+        hocr_str += "</p>\n<p class='ocr_par'>\n";
+      
+      hocr_str.add_str_int("<span class='ocr_line' id='line_", page_id);
+      hocr_str.add_str_int("_", lcnt++);
+      AddBoxTohOCR(real_row->bounding_box(), image_height_, &hocr_str);
+    }
+
+    WERD_RES *word = page_res_it.word();
+    WERD_CHOICE* choice = word->best_choice;
+    if (choice != NULL) {
+      hocr_str.add_str_int("<span class='ocr_word' id='word_", page_id);
+      hocr_str.add_str_int("_", wcnt);
+      AddBoxTohOCR(word->word->bounding_box(), image_height_, &hocr_str);
+      hocr_str.add_str_int("<span class='xocr_word' id='xword_", page_id);
+      hocr_str.add_str_int("_", wcnt++);
+ 	    hocr_str.add_str_int("' title=\"x_wconf ", choice->certainty());
+      hocr_str += "\">";
+      if (word->bold > 0)
+        hocr_str += "<strong>";
+      if (word->italic > 0)
+        hocr_str += "<em>";
+      hocr_str += choice->unichar_string();
+      if (word->italic > 0)
+        hocr_str += "</em>";
+      if (word->bold > 0)
+        hocr_str += "</strong>";
+      hocr_str += "</span></span>";
+      if (!word->word->flag(W_EOL))
+        hocr_str += " ";
+    }
+  }
+  hocr_str += "</span>\n</p>\n";  
+  hocr_str += "</div>\n</div>\n";  
+  char *ret = new char[hocr_str.length() + 1];
+  strcpy(ret, hocr_str.string());
+  return ret;
+}
+
 static int ConvertWordToBoxText(WERD_RES *word,
                                 ROW_RES* row,
                                 int left,

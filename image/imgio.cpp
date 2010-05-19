@@ -66,7 +66,25 @@ static IMAGETYPE imagetypes[] = { {
     write_intel_tif
   },
   {
+    "TIFF",
+    open_tif_image,
+    read_tif_image,
+    write_moto_tif
+  },
+  {
+    "tiff",
+    open_tif_image,
+    read_tif_image,
+    write_intel_tif
+  },
+  {
     "bmp",
+    open_bmp_image,
+    read_bmp_image,
+    write_bmp_image
+  },
+  {
+    "BMP",
     open_bmp_image,
     read_bmp_image,
     write_bmp_image
