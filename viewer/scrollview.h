@@ -201,8 +201,10 @@ class ScrollView {
 * constructor, so this is not listed here)
 *******************************************************************************/
 
+#ifdef HAVE_LIBLEPT
 // Draw a Pix on (x,y).
   void Image(struct Pix* image, int x_pos, int y_pos);
+#endif
 
 // Flush buffers and update display.
   static void Update();
@@ -345,12 +347,14 @@ class ScrollView {
   int TranslateYCoordinate(int y);
 
  private:
+#ifdef HAVE_LIBLEPT
 // Transfers a binary Image.
   void TransferBinaryImage(struct Pix* image);
 // Transfers a gray scale Image.
   void TransferGrayImage(struct Pix* image);
 // Transfers a 32-Bit Image.
   void Transfer32bppImage(struct Pix* image);
+#endif
 
 // Sets up ScrollView, depending on the variables from the constructor.
   void Initialize(const char* name, int x_pos, int y_pos, int x_size,
@@ -388,6 +392,8 @@ class ScrollView {
   SVPolyLineBuffer* points_;
   // Whether the axis is reversed.
   bool y_axis_is_reversed_;
+  // Set to true only after the event handler has terminated.
+  bool event_handler_ended_;
   // If the y axis is reversed, flip all y values by ySize.
   int y_size_;
   // # of created windows (used to assign an id to each ScrollView* for svmap).

@@ -24,9 +24,17 @@
 
 #include "svutil.h"
 
+#include <stdio.h>
 #ifdef WIN32
 #include <windows.h>
 #include <winsock.h>
+struct addrinfo {
+  struct sockaddr* ai_addr;
+  int ai_addrlen;
+  int ai_family;
+  int ai_socktype;
+  int ai_protocol;
+};
 #else
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -39,13 +47,11 @@
 #include <sys/socket.h>
 #ifdef __linux__
 #include <sys/prctl.h>
-#include <sys/types.h>
-#include <unistd.h>
 #endif
 #endif
 
-#include <stdio.h>
 #include <iostream>
+#include <string>
 
 const int kBufferSize = 65536;
 const int kMaxMsgSize = 4096;
@@ -252,44 +258,133 @@ void SVNetwork::Close() {
 #endif
 }
 
-// Set up a connection to hostname on port.
-SVNetwork::SVNetwork(const char* hostname, int port) {
-  mutex_send_ = new SVMutex();
-  struct sockaddr_in address;
-  struct hostent *name;
 
-  msg_buffer_in_ = new char[kMaxMsgSize + 1];
-  msg_buffer_in_[0] = '\0';
+// The program to invoke to start ScrollView
+static const char* ScrollViewProg() {
+#ifdef WIN32
+  const char* prog = "java -Xms512m -Xmx1024m";
+#else
+  const char* prog = "sh";
+#endif
+  return prog;
+}
 
-  has_content = false;
 
-  buffer_ptr_ = NULL;
+// The arguments to the program to invoke to start ScrollView
+static std::string ScrollViewCommand(std::string scrollview_path) {
+  // The following ugly ifdef is to enable the output of the java runtime
+  // to be sent down a black hole on non-windows to ignore all the
+  // exceptions in piccolo. Ideally piccolo would be debugged to make
+  // this unnecessary.
+  // Also the path has to be separated by ; on windows and : otherwise.
+#ifdef WIN32
+  const char* cmd_template = "-Djava.library.path=%s -cp %s/ScrollView.jar;"
+      "%s/piccolo-1.2.jar;%s/piccolox-1.2.jar"
+      " com.google.scrollview.ScrollView";
+#else
+  const char* cmd_template = "-c \"trap 'kill %1' 0 1 2 ; java "
+      "-Xms1024m -Xmx2048m -Djava.library.path=%s -cp %s/ScrollView.jar:"
+      "%s/piccolo-1.2.jar:%s/piccolox-1.2.jar"
+      " com.google.scrollview.ScrollView"
+      " >/dev/null 2>&1 & wait\"";
+#endif
+  int cmdlen = strlen(cmd_template) + 4*strlen(scrollview_path.c_str()) + 1;
+  char* cmd = new char[cmdlen];
+  const char* sv_path = scrollview_path.c_str();
+  snprintf(cmd, cmdlen, cmd_template, sv_path, sv_path, sv_path, sv_path);
+  std::string command(cmd);
+  delete [] cmd;
+  return command;
+}
 
+
+// Platform-independent freeaddrinfo()
+static void FreeAddrInfo(struct addrinfo* addr_info) {
+  #if defined(__linux__)
+  freeaddrinfo(addr_info);
+  #else
+  delete addr_info->ai_addr;
+  delete addr_info;
+  #endif
+}
+
+
+// Non-linux version of getaddrinfo()
+#if !defined(__linux__)
+static int GetAddrInfoNonLinux(const char* hostname, int port,
+                               struct addrinfo** addr_info) {
 // Get the host data depending on the OS.
+  struct sockaddr_in* address;
+  *addr_info = new struct addrinfo;
+  memset(*addr_info, 0, sizeof(struct addrinfo));
+  address = new struct sockaddr_in;
+  memset(address, 0, sizeof(struct sockaddr_in));
+
+  (*addr_info)->ai_addr = (struct sockaddr*) address;
+  (*addr_info)->ai_addrlen = sizeof(struct sockaddr);
+  (*addr_info)->ai_family = AF_INET;
+  (*addr_info)->ai_socktype = SOCK_STREAM;
+
+  struct hostent *name;
 #ifdef WIN32
   WSADATA wsaData;
   WSAStartup(MAKEWORD(1, 1), &wsaData);
   name = gethostbyname(hostname);
-#elif defined(__linux__)
-  struct hostent hp;
-  int herr;
-  char *buffer = new char[kBufferSize];
-  gethostbyname_r(hostname, &hp, buffer, kBufferSize, &name, &herr);
-  delete[] buffer;
 #else
   name = gethostbyname(hostname);
 #endif
 
-  // Fill in the appropriate variables to be able to connect to the server.
-  address.sin_family = name->h_addrtype;
-  memcpy((char *) &address.sin_addr.s_addr,
-         name->h_addr_list[0], name->h_length);
-  address.sin_port = htons(port);
+  if (name == NULL) {
+    FreeAddrInfo(*addr_info);
+    *addr_info = NULL;
+    return -1;
+  }
 
-  stream_ = socket(AF_INET, SOCK_STREAM, 0);
+  // Fill in the appropriate variables to be able to connect to the server.
+  address->sin_family = name->h_addrtype;
+  memcpy((char *) &address->sin_addr.s_addr,
+         name->h_addr_list[0], name->h_length);
+  address->sin_port = htons(port);
+  return 0;
+}
+#endif
+
+
+// Platform independent version of getaddrinfo()
+//   Given a hostname:port, produce an addrinfo struct
+static int GetAddrInfo(const char* hostname, int port,
+                       struct addrinfo** address) {
+#if defined(__linux__)
+  char port_str[40];
+  snprintf(port_str, 40, "%d", port);
+  return getaddrinfo(hostname, port_str, NULL, address);
+#else
+  return GetAddrInfoNonLinux(hostname, port, address);
+#endif
+}
+
+
+// Set up a connection to a ScrollView on hostname:port.
+SVNetwork::SVNetwork(const char* hostname, int port) {
+  mutex_send_ = new SVMutex();
+  msg_buffer_in_ = new char[kMaxMsgSize + 1];
+  msg_buffer_in_[0] = '\0';
+
+  has_content = false;
+  buffer_ptr_ = NULL;
+
+  struct addrinfo *addr_info = NULL;
+
+  if (GetAddrInfo(hostname, port, &addr_info) != 0) {
+    std::cerr << "Error resolving name for ScrollView host "
+              << std::string(hostname) << ":" << port << std::endl;
+  }
+
+  stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
+                   addr_info->ai_protocol);
 
   // If server is not there, we will start a new server as local child process.
-  if (connect(stream_, (struct sockaddr *) &address, sizeof(address)) < 0) {
+  if (connect(stream_, addr_info->ai_addr, addr_info->ai_addrlen) < 0) {
     const char* scrollview_path = getenv("SCROLLVIEW_PATH");
     if (scrollview_path == NULL) {
 #ifdef SCROLLVIEW_PATH
@@ -302,36 +397,14 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
       scrollview_path = ".";
 #endif
     }
-    // The following ugly ifdef is to enable the output of the java runtime
-    // to be sent down a black hole on non-windows to ignore all the
-    // exceptions in piccolo. Ideally piccolo would be debugged to make
-    // this unnecessary.
-    // Also the path has to be separated by ; on windows and : otherwise.
-#ifdef WIN32
-    const char* prog = "java -Xms512m -Xmx1024m";
-    const char* cmd_template = "-Djava.library.path=%s -cp %s/ScrollView.jar;"
-        "%s/piccolo-1.2.jar;%s/piccolox-1.2.jar"
-        " com.google.scrollview.ScrollView";
-#else
-    const char* prog = "sh";
-    const char* cmd_template = "-c \"trap 'kill %1' 0 1 2 ; java "
-        "-Xms1024m -Xmx2048m -Djava.library.path=%s -cp %s/ScrollView.jar:"
-        "%s/piccolo-1.2.jar:%s/piccolox-1.2.jar"
-        " com.google.scrollview.ScrollView"
-        " >/dev/null 2>&1 & wait\"";
-#endif
-    int cmdlen = strlen(cmd_template) + 4*strlen(scrollview_path) + 1;
-    char* cmd = new char[cmdlen];
-    snprintf(cmd, cmdlen, cmd_template, scrollview_path, scrollview_path,
-             scrollview_path, scrollview_path);
-
-    SVSync::StartProcess(prog, cmd);
-    delete [] cmd;
+    const char *prog = ScrollViewProg();
+    std::string command = ScrollViewCommand(scrollview_path);
+    SVSync::StartProcess(prog, command.c_str());
 
     // Wait for server to show up.
     // Note: There is no exception handling in case the server never turns up.
-    while (connect(stream_, (struct sockaddr *) &address,
-                   sizeof(address)) < 0) {
+    while (connect(stream_, (struct sockaddr *) addr_info->ai_addr,
+                   addr_info->ai_addrlen) < 0) {
       std::cout << "ScrollView: Waiting for server...\n";
 #ifdef WIN32
       Sleep(1000);
@@ -340,6 +413,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
 #endif
     }
   }
+  FreeAddrInfo(addr_info);
 }
 
 SVNetwork::~SVNetwork() {
