@@ -76,7 +76,7 @@ cntraining_DEPENDENCIES = libtesseract_training.a \
 	../dict/libtesseract_dict.a \
 	../ccstruct/libtesseract_ccstruct.a \
 	../image/libtesseract_image.a ../cutil/libtesseract_cutil.a \
-	../viewer/libtesseract_viewer.a \
+	../viewer/libtesseract_viewer.a ../ccmain/libtesseract_main.a \
 	../ccutil/libtesseract_ccutil.a
 am_combine_tessdata_OBJECTS = combine_tessdata.$(OBJEXT)
 combine_tessdata_OBJECTS = $(am_combine_tessdata_OBJECTS)
@@ -89,7 +89,7 @@ mftraining_DEPENDENCIES = libtesseract_training.a \
 	../dict/libtesseract_dict.a \
 	../ccstruct/libtesseract_ccstruct.a \
 	../image/libtesseract_image.a ../cutil/libtesseract_cutil.a \
-	../viewer/libtesseract_viewer.a \
+	../viewer/libtesseract_viewer.a ../ccmain/libtesseract_main.a \
 	../ccutil/libtesseract_ccutil.a
 am_unicharset_extractor_OBJECTS = unicharset_extractor.$(OBJEXT)
 unicharset_extractor_OBJECTS = $(am_unicharset_extractor_OBJECTS)
@@ -100,7 +100,7 @@ wordlist2dawg_DEPENDENCIES = ../classify/libtesseract_classify.a \
 	../dict/libtesseract_dict.a \
 	../ccstruct/libtesseract_ccstruct.a \
 	../image/libtesseract_image.a ../cutil/libtesseract_cutil.a \
-	../viewer/libtesseract_viewer.a \
+	../viewer/libtesseract_viewer.a ../ccmain/libtesseract_main.a \
 	../ccutil/libtesseract_ccutil.a
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -268,6 +268,7 @@ cntraining_LDADD = \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
     ../viewer/libtesseract_viewer.a \
+    ../ccmain/libtesseract_main.a \
     ../ccutil/libtesseract_ccutil.a
 
 mftraining_SOURCES = mftraining.cpp mergenf.cpp
@@ -280,6 +281,7 @@ mftraining_LDADD = \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
     ../viewer/libtesseract_viewer.a \
+    ../ccmain/libtesseract_main.a \
     ../ccutil/libtesseract_ccutil.a
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
@@ -294,6 +296,7 @@ wordlist2dawg_LDADD = \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
     ../viewer/libtesseract_viewer.a \
+    ../ccmain/libtesseract_main.a \
     ../ccutil/libtesseract_ccutil.a
 
 all: all-recursive

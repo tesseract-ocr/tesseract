@@ -32,6 +32,7 @@ cntraining_LDADD = \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
     ../viewer/libtesseract_viewer.a \
+    ../ccmain/libtesseract_main.a \
     ../ccutil/libtesseract_ccutil.a
 
 mftraining_SOURCES = mftraining.cpp mergenf.cpp
@@ -44,6 +45,7 @@ mftraining_LDADD = \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
     ../viewer/libtesseract_viewer.a \
+    ../ccmain/libtesseract_main.a \
     ../ccutil/libtesseract_ccutil.a
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
@@ -58,4 +60,5 @@ wordlist2dawg_LDADD = \
     ../image/libtesseract_image.a \
     ../cutil/libtesseract_cutil.a \
     ../viewer/libtesseract_viewer.a \
+    ../ccmain/libtesseract_main.a \
     ../ccutil/libtesseract_ccutil.a
