@@ -33,7 +33,9 @@
 #define MAXFILENAME             80
 #define MAXMATCHES              10
 
-STRING_VAR(classify_font_name, "UnknownFont",
+static const char kUnknownFontName[] = "UnknownFont";
+
+STRING_VAR(classify_font_name, kUnknownFontName,
            "Default font name to be used in training");
 
 /**----------------------------------------------------------------------------
@@ -47,9 +49,8 @@ extern char imagefile[];
 ----------------------------------------------------------------------------**/
 
 /*---------------------------------------------------------------------------*/
-void
-LearnBlob (const STRING& filename,
-           TBLOB * Blob, TEXTROW * Row, char BlobText[])
+void LearnBlob(const STRING& filename,
+               TBLOB * Blob, TEXTROW * Row, const char* BlobText) {
 /*
  **      Parameters:
  **              Blob            blob whose micro-features are to be learned
@@ -68,9 +69,36 @@ LearnBlob (const STRING& filename,
  **      History: 7/28/89, DSJ, Created.
  */
 #define TRAIN_SUFFIX    ".tr"
-{
   static FILE *FeatureFile = NULL;
   STRING Filename(filename);
+
+  // If no fontname was set, try to extract it from the filename
+  STRING CurrFontName = classify_font_name;
+  if (CurrFontName != kUnknownFontName) {
+    // filename is expected to be of the form [lang].[fontname].exp[num]
+    // The [lang], [fontname] and [num] fields should not have '.' characters.
+    const char *basename = strrchr(filename.string(), '/');
+    const char *firstdot = strchr(basename ? basename : filename.string(), '.');
+    const char *lastdot  = strrchr(filename.string(), '.');
+    if (firstdot != lastdot && firstdot != NULL && lastdot != NULL) {
+      strncpy(&CurrFontName[0], firstdot + 1, lastdot - firstdot - 1);
+      CurrFontName[lastdot - firstdot - 1] = '\0';
+    }
+  }
+
+  // if a feature file is not yet open, open it
+  // the name of the file is the name of the image plus TRAIN_SUFFIX
+  if (FeatureFile == NULL) {
+    Filename += TRAIN_SUFFIX;
+    FeatureFile = Efopen(Filename.string(), "w");
+    cprintf("TRAINING ... Font name = %s\n", CurrFontName.string());
+  }
+
+  LearnBlob(FeatureFile, Blob, Row, BlobText, CurrFontName.string());
+}                                // LearnBlob
+
+void LearnBlob(FILE* FeatureFile, TBLOB* Blob, TEXTROW* Row,
+               const char* BlobText, const char* FontName) {
   CHAR_DESC CharDesc;
   LINE_STATS LineStats;
 
@@ -84,30 +112,8 @@ LearnBlob (const STRING& filename,
     return;
   }
 
-  // If no fontname was set, try to extract it from the filename
-  char CurrFontName[32] = "";
-  strncpy(CurrFontName, static_cast<STRING>(classify_font_name).string(), 32);
-  if (!strcmp(CurrFontName, "UnknownFont")) {
-    // filename is expected to be of the form [lang].[fontname].exp[num]
-    // The [lang], [fontname] and [num] fields should not have '.' characters.
-    const char *basename = strrchr(filename.string(), '/');
-    const char *firstdot  = strchr(basename, '.');
-    const char *lastdot  = strrchr(filename.string(), '.');
-    if (firstdot != lastdot && firstdot != NULL && lastdot != NULL) {
-      strncpy(CurrFontName, firstdot + 1, lastdot - firstdot - 1);
-    }
-  }
-
-  // if a feature file is not yet open, open it
-  // the name of the file is the name of the image plus TRAIN_SUFFIX
-  if (FeatureFile == NULL) {
-    Filename += TRAIN_SUFFIX;
-    FeatureFile = Efopen (Filename.string(), "w");
-    cprintf ("TRAINING ... Font name = %s\n", CurrFontName);
-  }
-
   // label the features with a class name and font name
-  fprintf (FeatureFile, "\n%s %s ", CurrFontName, BlobText);
+  fprintf (FeatureFile, "\n%s %s ", FontName, BlobText);
 
   // write micro-features to file and clean up
   WriteCharDescription(FeatureFile, CharDesc);

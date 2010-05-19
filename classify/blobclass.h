@@ -38,8 +38,11 @@
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void LearnBlob (const STRING& filename,
-                TBLOB * Blob, TEXTROW * Row, char BlobText[]);
+void LearnBlob(const STRING& filename,
+               TBLOB * Blob, TEXTROW * Row, const char* BlobText);
+
+void LearnBlob(FILE* File, TBLOB* Blob, TEXTROW* Row,
+               const char* BlobText, const char* FontName);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
