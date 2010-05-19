@@ -311,6 +311,8 @@ WERD_CHOICE *Dict::dawg_permute_and_select(
   word.set_rating(0.0);
   word.set_certainty(0.0);
   if (word.length() + char_choices.length() > MAX_WERD_LENGTH) {
+    delete[] active_dawgs;
+    delete[] constraints;
     return best_choice;  // the word is too long to permute
   }
   float certainties[MAX_WERD_LENGTH];
