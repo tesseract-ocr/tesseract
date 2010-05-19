@@ -53,7 +53,7 @@
 #define MAX_6BIT      128
 #define BLACK_PIX     0
 
-static uinT8 grey_scales[FIXED_COLOURS] = {
+const uinT8 grey_scales[FIXED_COLOURS] = {
   0, 255, 76, 227, 151, 179, 28, 104,
   149, 72, 215, 67, 53, 44, 156, 137,
   110, 153, 79, 181, 166, 218, 55, 81,
@@ -63,6 +63,8 @@ static uinT8 grey_scales[FIXED_COLOURS] = {
 #undef EXTERN
 #define EXTERN
 
+// Parameter remains truly global, as it is tough to make a member of Image
+// and the whole of this code is likely to go away in the future.
 EXTERN INT_VAR (image_default_resolution, 300, "Image resolution dpi");
 
 /**********************************************************************
@@ -644,7 +646,7 @@ DLLSYM void fast_reduce_sub_image(                   //reduce rectangle
                                  //put in destination
     dest->put_line (xdest, ydest, destext, &copyline, 0);
   }
-  delete linesums;
+  delete [] linesums;
 }
 
 
@@ -785,7 +787,7 @@ DLLSYM void reduce_sub_image(                   //reduce rectangle
                                  //put in destination
     dest->put_line (xdest, ydest, destext, &copyline, 0);
   }
-  delete linesums;
+  delete [] linesums;
 }
 
 
@@ -1008,15 +1010,14 @@ void IMAGE::get_line(                     //get image line
                      IMAGELINE *linebuf,  //line to copy to
                      inT32 margins        //size of margins
                     ) {
-  uinT8 *src;                    //source pointer
-  uinT8 *dest;                   //destination pointer
-  uinT8 *unpacksrc;              //unpacking pointer
-  inT8 bit;                      //bit index
-  inT8 pixperbyte;               //pixels per byte
-  uinT8 white;                   //white colour
-  inT32 pixel;                   //pixel index
+  uinT8 *src;                    // source pointer
+  uinT8 *dest;                   // destination pointer
+  const uinT8 *unpacksrc;        // unpacking pointer
+  inT8 bit;                      // bit index
+  inT8 pixperbyte;               // pixels per byte
+  uinT8 white;                   // white colour
+  inT32 pixel;                   // pixel index
 
-                                 //test coords
   this->check_legal_access (x, y, width);
   if (width > xsize - x)
     width = xsize - x;           //clip to image

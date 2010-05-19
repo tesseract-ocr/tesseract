@@ -80,10 +80,4 @@ inT8 write_tif_image(                //write whole image
                      inT16 type,     //format type
                      inT16 photo     //metric interp
                     );
-//inT32                                                         reverse32(                                                      //reverse 32 bit int
-//uinT32                                                        value                                                                   //value to reverse
-//);
-//inT16                                                         reverse16(                                                      //reverse 16 bit int
-//uinT16                                                        value                                                                   //value to reverse
-//);
 #endif
