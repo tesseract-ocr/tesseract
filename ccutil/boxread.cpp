@@ -58,28 +58,38 @@ bool read_next_box(int target_page, FILE* box_file, char* utf8_str,
     const unsigned char *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
     if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
       buffptr += 3;  // Skip unicode file designation.
-    /* Check for blank lines in box file */
+    // Check for blank lines in box file
     while (*buffptr == ' ' || *buffptr == '\t')
       buffptr++;
     if (*buffptr != '\0') {
-      count = sscanf(buffptr, "%s %d %d %d %d %d",
-                     uch, x_min, y_min, x_max, y_max, &page);
-      if (count != 6) {
-        page = 0;
-        count = sscanf(buffptr, "%s %d %d %d %d",
-                       uch, x_min, y_min, x_max, y_max);
+      // Read the unichar without messing up on Tibetan.
+      int uch_len = 0;
+      while (*buffptr != '\0' && *buffptr != ' ' && *buffptr != '\t')
+        uch[uch_len++] = *buffptr++;
+      uch[uch_len] = '\0';
+      if (*buffptr != '\0') ++buffptr;
+      count = sscanf(buffptr, "%d %d %d %d %d",
+                     x_min, y_min, x_max, y_max, &page);
+      if (count != 5) {
+        if (target_page <= 0) {
+          // If target_page is negative or zero, allow lines with no page number
+          page = 0;
+          count = sscanf(buffptr, "%d %d %d %d", x_min, y_min, x_max, y_max);
+        } else {
+          tprintf("Box file format error on line %i; ignored\n", line);
+          continue;
+        }
       }
       if (target_page >= 0 && target_page != page)
         continue;  // Not on the appropriate page.
-      if (count == 5) {
+      if (count >= 4) {
         // Validate UTF8 by making unichars with it.
         int used = 0;
-        int uch_len = strlen(uch);
         while (used < uch_len) {
           UNICHAR ch(uch + used, uch_len - used);
           int new_used = ch.utf8_len();
           if (new_used == 0) {
-            tprintf("Bad UTF-8 str %s starts with 0x%02x at line %d, col %d, \n",
+            tprintf("Bad UTF-8 str %s starts with 0x%02x at line %d, col %d\n",
                     uch + used, uch[used], line, used + 1);
             count = 0;
             break;
@@ -95,7 +105,7 @@ bool read_next_box(int target_page, FILE* box_file, char* utf8_str,
         tprintf("Box file format error on line %i ignored\n", line);
       } else {
         strcpy(utf8_str, uch);
-        return true;             //read a box ok
+        return true;  // Successfully read a box.
       }
     }
   }
