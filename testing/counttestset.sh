@@ -20,7 +20,7 @@ then
   echo "Usage:$0 pagesfile"
   exit 1
 fi
-if [ ! -d ccmain ]
+if [ ! -d api ]
 then
   echo "Run $0 from the tesseract-ocr root directory!"
   exit 1

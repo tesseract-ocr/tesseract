@@ -15,17 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [ $# -ne 1 ]
+if [ $# -ne 1 -a $# -ne 2 ]
 then
-  echo "Usage:$0 pagesfile"
+  echo "Usage:$0 pagesfile [-zoning]"
   exit 1
 fi
-if [ ! -d ccmain ]
+if [ ! -d api ]
 then
   echo "Run $0 from the tesseract-ocr root directory!"
   exit 1
 fi
-if [ ! -r ccmain/tesseract ]
+if [ ! -r api/tesseract ]
 then
   if [ ! -r tesseract.exe ]
   then
@@ -35,12 +35,11 @@ then
     tess="./tesseract.exe"
   fi
 else
-  tess="time -f %U -o times.txt ccmain/tesseract"
+  tess="time -f %U -o times.txt api/tesseract"
   export TESSDATA_PREFIX=$PWD/
 fi
 
 pages=$1
-
 imdir=${pages%/pages}
 setname=${imdir##*/}
 if [ $# -eq 2 -a "$2" = "-zoning" ]

@@ -20,12 +20,12 @@ then
    echo "Usage:$0 unlv-data-dir version-id"
    exit 1
 fi
-if [ ! -d ccmain ]
+if [ ! -d api ]
 then
   echo "Run $0 from the tesseract-ocr root directory!"
   exit 1
 fi
-if [ ! -r ccmain/tesseract -a ! -r tesseract.exe ]
+if [ ! -r api/tesseract -a ! -r tesseract.exe ]
 then
   echo "Please build tesseract before running $0"
   exit 1
