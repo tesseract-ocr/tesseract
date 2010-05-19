@@ -115,11 +115,12 @@ enum {
 
 /*-------------------------------------------------------------------------*
  *         Direction flags for grayscale morphology, granulometry,         *
- *                           and composable Sels                           *
+ *                   composable Sels, and convolution                      *
  *-------------------------------------------------------------------------*/
 enum {
-    L_HORIZ      = 1,
-    L_VERT       = 2
+    L_HORIZ            = 1,
+    L_VERT             = 2,
+    L_BOTH_DIRECTIONS  = 3
 };
 
 
@@ -173,8 +174,9 @@ enum {
  *                        Min/max selection flags                          *
  *-------------------------------------------------------------------------*/
 enum {
-    L_CHOOSE_MIN = 1,
-    L_CHOOSE_MAX = 2
+    L_CHOOSE_MIN = 1,           /* useful in a downscaling "erosion"  */
+    L_CHOOSE_MAX = 2,           /* useful in a downscaling "dilation" */
+    L_CHOOSE_MAX_MIN_DIFF = 3   /* useful in a downscaling contrast   */
 };
 
 

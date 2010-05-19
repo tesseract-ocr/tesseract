@@ -46,9 +46,6 @@ typedef unsigned long int uintptr_t;
 #define LEPT_DLL
 #endif
 
-/* FILE was undefined somewhere */
-#include <stdio.h>
-
 typedef intptr_t l_intptr_t;
 typedef uintptr_t l_uintptr_t;
 

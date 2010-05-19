@@ -60,6 +60,8 @@
  *       edge filter flags
  *       handling negative values in conversion to unsigned int
  *       relative to zero flags
+ *       HSV histogram flags
+ *       region flags (inclusion, exclusion)
  */
 
 
@@ -765,6 +767,25 @@ enum {
     L_LESS_THAN_ZERO = 1,      /* Choose values less than zero             */
     L_EQUAL_TO_ZERO = 2,       /* Choose values equal to zero              */
     L_GREATER_THAN_ZERO = 3    /* Choose values greater than zero          */
+};
+
+
+/*-------------------------------------------------------------------------*
+ *                          HSV histogram flags                            *
+ *-------------------------------------------------------------------------*/
+enum {
+    L_HS_HISTO = 1,            /* Use hue-saturation histogram             */
+    L_HV_HISTO = 2,            /* Use hue-value histogram                  */
+    L_SV_HISTO = 3             /* Use saturation-value histogram           */
+};
+
+
+/*-------------------------------------------------------------------------*
+ *                    Region flags (inclusion, exclusion)                  *
+ *-------------------------------------------------------------------------*/
+enum {
+    L_INCLUDE_REGION = 1,      /* Use hue-saturation histogram             */
+    L_EXCLUDE_REGION = 2       /* Use hue-value histogram                  */
 };
 
 

@@ -36,6 +36,7 @@
 #include "watershed.h"
 
     /* i/o */
+#include <stdio.h>
 #include "imageio.h"
 
 #endif /* LEPTONICA_ALLTYPES_H */
