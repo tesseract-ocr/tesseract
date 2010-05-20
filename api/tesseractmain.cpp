@@ -276,8 +276,8 @@ int main(int argc, char **argv) {
         TIFFClose(archive);
       archive = TIFFOpen(argv[1], "r");
       if (archive == NULL) {
-        READFAILED.error (argv[0], EXIT, argv[1]);
-        return 1;
+        tprintf("Read of file %s failed\n", argv[1]);
+        exit(1);
       }
       if (page_number > 0)
         tprintf("Page %d\n", page_number);
@@ -303,8 +303,10 @@ int main(int argc, char **argv) {
   } else {
 #endif
     // Using built-in image library to read bmp, or tiff without libtiff.
-    if (image.read_header(argv[1]) < 0)
-      READFAILED.error (argv[0], EXIT, argv[1]);
+    if (image.read_header(argv[1]) < 0) {
+      tprintf("Read of file %s failed.\n", argv[1]);
+      exit(1);
+    }
     if (image.read(image.get_ysize ()) < 0)
       MEMORY_OUT.error(argv[0], EXIT, "Read of image %s", argv[1]);
     invert_image(&image);
