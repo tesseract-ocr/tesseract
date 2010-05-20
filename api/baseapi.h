@@ -281,14 +281,17 @@ class TESSDLL_API TessBaseAPI {
   // The recognized text is returned as a char* which is coded
   // as UTF8 and must be freed with the delete [] operator.
   char* GetUTF8Text();
-  // The recognized text is returned as a char* which is coded
-  // as HTML with hOCR markup and must be freed with the delete [] operator.
-  char* GetHOCRText(int page_id);
+  // Make a HTML-formatted string with hOCR markup from the internal
+  // data structures.
+  // STL removed from original patch submission and refactored by rays.
+  // page_id is 1-based and will appear in the output.
+ char* GetHOCRText(int page_id);
   // The recognized text is returned as a char* which is coded in the same
   // format as a box file used in training. Returned string must be freed with
   // the delete [] operator.
   // Constructs coordinates in the original image - not just the rectangle.
-  char* GetBoxText();
+  // page_number is a 0-base page index that will appear in the box file.
+  char* GetBoxText(int page_number);
   // The recognized text is returned as a char* which is coded
   // as UNLV format Latin-1 with specific reject and suspect codes
   // and must be freed with the delete [] operator.

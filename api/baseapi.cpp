@@ -747,7 +747,8 @@ static void AddBoxTohOCR(const TBOX& box, int image_height, STRING* hocr_str) {
 
 // Make a HTML-formatted string with hOCR markup from the internal
 // data structures.
-// STL removed from orignal patch submission and refactored by rays.
+// STL removed from original patch submission and refactored by rays.
+// page_id is 1-based and will appear in the output.
 char* TessBaseAPI::GetHOCRText(int page_id) {
   if (tesseract_ == NULL ||
       (page_res_ == NULL && Recognize(NULL) < 0))
@@ -845,6 +846,9 @@ static int ConvertWordToBoxText(WERD_RES *word,
                                 ROW_RES* row,
                                 int left,
                                 int bottom,
+                                int image_width,
+                                int image_height,
+                                int page_number,
                                 char* word_str) {
   // Copy the output word and denormalize it back to image coords.
   WERD copy_outword;
@@ -863,9 +867,9 @@ static int ConvertWordToBoxText(WERD_RES *word,
       TBOX blob_box = blob->bounding_box();
       if (word->tess_failed ||
           blob_box.left() < 0 ||
-          blob_box.right() > page_image.get_xsize() ||
+          blob_box.right() > image_width ||
           blob_box.bottom() < 0 ||
-          blob_box.top() > page_image.get_ysize()) {
+          blob_box.top() > image_height) {
         // Bounding boxes can be illegal when tess fails on a word.
         blob_box = word->word->bounding_box();  // Use original word as backup.
         tprintf("Using substitute bounding box at (%d,%d)->(%d,%d)\n",
@@ -884,27 +888,29 @@ static int ConvertWordToBoxText(WERD_RES *word,
           ch = kTesseractReject;
         word_str[output_size++] = ch;
       }
-      sprintf(word_str + output_size, " %d %d %d %d\n",
+      sprintf(word_str + output_size, " %d %d %d %d %d\n",
               blob_box.left() + left, blob_box.bottom() + bottom,
-              blob_box.right() + left, blob_box.top() + bottom);
+              blob_box.right() + left, blob_box.top() + bottom,
+              page_number);
       output_size += strlen(word_str + output_size);
     }
   }
   return output_size;
 }
 
-// Multiplier for max expected textlength assumes typically 4 numbers @
-// (5 digits and a space) plus the newline = 4*(5+1)+1. Add to this the
+// Multiplier for max expected textlength assumes typically 5 numbers @
+// (5 digits and a space) plus the newline = 5*(5+1)+1. Add to this the
 // orginal UTF8 characters, and one kMaxCharsPerChar.
-const int kCharsPerChar = 25;
-// A maximal single box could occupy 4 numbers at 20 digits (for 64 bit) and a
-// space plus the newline 4*(20+1)+1 and the maximum length of a UNICHAR.
+const int kCharsPerChar = 31;
+// A maximal single box could occupy 5 numbers at 20 digits (for 64 bit) and a
+// space plus the newline 5*(20+1)+1 and the maximum length of a UNICHAR.
 // Test against this on each iteration for safety.
-const int kMaxCharsPerChar = 85 + UNICHAR_LEN;
+const int kMaxCharsPerChar = 106 + UNICHAR_LEN;
 
 // The recognized text is returned as a char* which is coded
 // as a UTF8 box file and must be freed with the delete [] operator.
-char* TessBaseAPI::GetBoxText() {
+// page_number is a 0-base page index that will appear in the box file.
+char* TessBaseAPI::GetBoxText(int page_number) {
   int bottom = image_height_ - (rect_top_ + rect_height_);
   if (tesseract_ == NULL ||
       (page_res_ == NULL && Recognize(NULL) < 0))
@@ -919,7 +925,8 @@ char* TessBaseAPI::GetBoxText() {
        page_res_it.forward()) {
     WERD_RES *word = page_res_it.word();
     ptr += ConvertWordToBoxText(word, page_res_it.row(), rect_left_, bottom,
-                                ptr);
+                                image_width_, image_height_,
+                                page_number, ptr);
     // Just in case...
     if (ptr - result + kMaxCharsPerChar > total_length)
       break;

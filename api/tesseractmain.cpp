@@ -101,7 +101,7 @@ char szAppName[] = "Tessedit";   //app name
 // the value of input_file is ignored - ugly, but true - a consequence of
 // the way that unlv zone file reading takes the place of a page layout
 // analyzer.
-void TesseractImage(const char* input_file, IMAGE* image, Pix* pix, int page_id,
+void TesseractImage(const char* input_file, IMAGE* image, Pix* pix, int page_index,
                     tesseract::TessBaseAPI* api, STRING* text_out) {
   api->SetInputName(input_file);
 #ifdef HAVE_LIBLEPT
@@ -120,11 +120,11 @@ void TesseractImage(const char* input_file, IMAGE* image, Pix* pix, int page_id,
   if (tessedit_serial_unlv == 0) {
     char* text;
     if (tessedit_create_boxfile)
-      text = api->GetBoxText();
+      text = api->GetBoxText(page_index);
     else if (tessedit_write_unlv)
       text = api->GetUNLVText();
     else if (tessedit_create_hocr)
-      text = api->GetHOCRText(page_id);
+      text = api->GetHOCRText(page_index + 1);
     else
       text = api->GetUTF8Text();
     *text_out += text;
@@ -232,7 +232,7 @@ int main(int argc, char **argv) {
       api.SetVariable("applybox_page", page_str);
 
       // Run tesseract on the page!
-      TesseractImage(argv[1], pix, page + 1, &api, &text_out);
+      TesseractImage(argv[1], NULL, pix, page, &api, &text_out);
       pixDestroy(&pix);
       if (tessedit_page_number >= 0) {
         break;
@@ -257,13 +257,13 @@ int main(int argc, char **argv) {
           exit(1);
         }
         tprintf("Page %d : %s\n", page, filename);
-        TesseractImage(filename, NULL, pix, page + 1, &api, &text_out);
+        TesseractImage(filename, NULL, pix, page, &api, &text_out);
         pixDestroy(&pix);
         ++page;
       }
       fclose(fp);
     } else {
-      TesseractImage(argv[1], NULL, pix, 1, &api, &text_out);
+      TesseractImage(argv[1], NULL, pix, 0, &api, &text_out);
       pixDestroy(&pix);
     }
   }
@@ -297,13 +297,13 @@ int main(int argc, char **argv) {
       char page_str[kMaxIntSize];
       snprintf(page_str, kMaxIntSize - 1, "%d", page_number);
       api.SetVariable("applybox_page", page_str);
-      ++page_number;
       // Read the current page into the Tesseract image.
       IMAGE image;
       read_tiff_image(archive, &image);
 
       // Run tesseract on the page!
       TesseractImage(argv[1], &image, NULL, page_number, &api, &text_out);
+      ++page_number;
     // Do this while there are more pages in the tiff file.
     } while (TIFFReadDirectory(archive) &&
              (page_number <= tessedit_page_number || tessedit_page_number < 0));
@@ -318,7 +318,7 @@ int main(int argc, char **argv) {
     if (image.read(image.get_ysize ()) < 0)
       MEMORY_OUT.error(argv[0], EXIT, "Read of image %s", argv[1]);
     invert_image(&image);
-    TesseractImage(argv[1], &image, NULL, 1, &api, &text_out);
+    TesseractImage(argv[1], &image, NULL, 0, &api, &text_out);
 #ifdef _TIFFIO_
   }
 #endif
