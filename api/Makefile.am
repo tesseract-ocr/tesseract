@@ -36,7 +36,7 @@ libtesseract_api.o: baseapi.o \
     ../ccutil/libtesseract_ccutil.a
 
 libtesseract_api.a : libtesseract_api.o
-	ar cru libtesseract_api.a libtesseract_api.o ; ranlib libtesseract_api.a
+	ar cru libtesseract_api.a libtesseract_api.o ; $(RANLIB) libtesseract_api.a
 
 bin_PROGRAMS = tesseract
 tesseract_SOURCES = tesseractmain.cpp

@@ -650,7 +650,7 @@ libtesseract_api.o: baseapi.o \
     ../ccutil/libtesseract_ccutil.a
 
 libtesseract_api.a : libtesseract_api.o
-	ar cru libtesseract_api.a libtesseract_api.o ; ranlib libtesseract_api.a
+	ar cru libtesseract_api.a libtesseract_api.o ; $(RANLIB) libtesseract_api.a
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
