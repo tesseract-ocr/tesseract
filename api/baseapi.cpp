@@ -717,7 +717,7 @@ static bool IsParagraphBreak(TBOX bbox_cur, TBOX bbox_prev,
   // same as between their right bounds (if so, then both lines probably belong
   // to the same paragraph, maybe a centered one).
   if (fabs((bbox_cur.left() - bbox_prev.left()) -
-           (bbox_prev.right() - bbox_cur.right()) < line_height))
+           (bbox_prev.right() - bbox_cur.right())) < line_height)
     return false;
   
   // Check if there is a paragraph indent at this line (either -ve or +ve).

@@ -258,6 +258,7 @@ int main(int argc, char **argv) {
       TesseractImage(argv[1], NULL, pix, 1, &api, &text_out);
       pixDestroy(&pix);
     }
+  }
 #else
 #ifdef _TIFFIO_
   int len = strlen(argv[1]);
