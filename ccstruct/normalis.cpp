@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        normalis.cpp  (Formerly denorm.c)
  * Description: Code for the DENORM class.
- * Author:		Ray Smith
- * Created:		Thu Apr 23 09:22:43 BST 1992
+ * Author:      Ray Smith
+ * Created:     Thu Apr 23 09:22:43 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +17,12 @@
  *
  **********************************************************************/
 
+#include <stdlib.h>
+
 #include "mfcpch.h"
-#include          "werd.h"
-#include          "normalis.h"
+#include "werd.h"
+#include "normalis.h"
+
 
 /**********************************************************************
  * DENORM::binary_search_segment
@@ -69,14 +72,14 @@ float DENORM::yshift_at_x(float src_x) const {  // In normalized coords.
     const DENORM_SEG* seg = binary_search_segment(src_x);
     if (seg->ycoord == -MAX_INT32) {
       if (base_is_row)
-        return source_row->base_line(x(src_x)/scale_at_x(src_x) + x_centre);
+        return source_row->base_line(x(src_x));
       else
         return m * x(src_x) + c;
     } else {
       return seg->ycoord;
     }
   }
-  return source_row->base_line (x(src_x)/scale_at_x(src_x) + x_centre);
+  return source_row->base_line(x(src_x));
 }
 
 /**********************************************************************
@@ -85,12 +88,18 @@ float DENORM::yshift_at_x(float src_x) const {  // In normalized coords.
  * Denormalise an x coordinate.
  **********************************************************************/
 
-float DENORM::x(             //convert x coord
-                float src_x  //coord to convert
-               ) const {
+float DENORM::x(float src_x) const {
   return src_x / scale_at_x(src_x) + x_centre;
 }
 
+// Compare two segments by xstart for use with qsort(3) and bsearch(3)
+static int compare_seg_by_xstart(const DENORM_SEG* a, const DENORM_SEG* b) {
+  if (a->xstart < b->xstart)
+    return -1;
+  else if (a->xstart > b->xstart)
+    return 1;
+  return 0;
+}
 
 /**********************************************************************
  * DENORM::y
@@ -100,10 +109,10 @@ float DENORM::x(             //convert x coord
 
 float DENORM::y(                  //convert y coord
                 float src_y,      //coord to convert
-                float src_centre  //x location for base
+                float src_x_centre  //x location for base
                ) const {
-  return (src_y - bln_baseline_offset) / scale_at_x(src_centre)
-    + yshift_at_x(src_centre);
+  return (src_y - kBlnBaselineOffset) / scale_at_x(src_x_centre)
+    + yshift_at_x(src_x_centre);
 }
 
 
@@ -120,22 +129,13 @@ DENORM::DENORM(float x,              //from same pieces
   source_row = src;
   if (seg_count > 0) {
     segs = new DENORM_SEG[seg_count];
-    for (segments = 0; segments < seg_count; segments++) {
-      // It is possible, if infrequent that the segments may be out of order.
-      // since we are searching with a binary search, keep them in order.
-      if (segments == 0 || segs[segments - 1].xstart <=
-          seg_pts[segments].xstart) {
-        segs[segments] = seg_pts[segments];
-      } else {
-        int i;
-        for (i = 0; i < segments
-             && segs[segments - 1 - i].xstart > seg_pts[segments].xstart;
-             ++i) {
-          segs[segments - i ] = segs[segments - 1 - i];
-        }
-        segs[segments - i] = seg_pts[segments];
-      }
-    }
+    for (segments = 0; segments < seg_count; segments++)
+      segs[segments] = seg_pts[segments];
+    // It is possible, if infrequent that the segments may be out of order.
+    // since we are searching with a binary search, keep them in order.
+    qsort(segs, segments, sizeof(DENORM_SEG),
+          reinterpret_cast<int(*)(const void*, const void*)>(
+              &compare_seg_by_xstart));
   }
   else {
     segments = 0;

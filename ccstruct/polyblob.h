@@ -25,8 +25,10 @@
 #include          "normalis.h"
 #include          "stepblob.h"
 
-class PBLOB:public ELIST_LINK
-{
+const int kBlnXHeight = 128;  // x-height for baseline normalisation
+const int kBlnBaselineOffset = 64;  // offset for baseline normalization
+
+class PBLOB : public ELIST_LINK {
   public:
     PBLOB() {
     }                            //empty constructor

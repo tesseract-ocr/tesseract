@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        normalis.h  (Formerly denorm.h)
  * Description: Code for the DENORM class.
- * Author:		Ray Smith
- * Created:		Thu Apr 23 09:22:43 BST 1992
+ * Author:      Ray Smith
+ * Created:     Thu Apr 23 09:22:43 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,12 +28,11 @@ class BLOCK;
 class DENORM_SEG
 {
   public:
-    DENORM_SEG() {
-    }                            //empty
+    DENORM_SEG() {}
 
-    inT32 xstart;                //start of segment
-    inT32 ycoord;                //y at segment
-    float scale_factor;          //for this segment
+    inT32 xstart;         // start of segment
+    inT32 ycoord;         // y at segment
+    float scale_factor;   // normalized_x/scale_factor + x_center == original_x
 };
 
 class DENORM
@@ -62,25 +61,26 @@ class DENORM
       m = c = 0;
       block_ = NULL;
     }
-    DENORM(                      //constructor
-           float x,              //from same pieces
+    DENORM(                      // constructor
+           float x,              // from same pieces
            float scaling,
-           double line_m,        //default line //no of segments
+           double line_m,        // default line: y = mx + c
            double line_c,
-           inT16 seg_count,
-           DENORM_SEG *seg_pts,  //actual segments
-           BOOL8 using_row,      //as baseline
+           inT16 seg_count,      // no of segments
+           DENORM_SEG *seg_pts,  // actual segments
+           BOOL8 using_row,      // as baseline
            ROW *src);
     DENORM(const DENORM &);
     DENORM & operator= (const DENORM &);
-    ~DENORM () {
+    ~DENORM() {
       if (segments > 0)
         delete[]segs;
     }
 
-    float origin() const {  //get x centre
-      return x_centre;
-    }
+    // Return the original x coordinate of the middle of the word
+    // (mapped to 0 in normalized coordinates).
+    float origin() const { return x_centre; }
+
     float scale() const {  //get scale
       return scale_factor;
     }
@@ -93,11 +93,14 @@ class DENORM
     void set_block(const BLOCK* block) {
       block_ = block;
     }
-    float x(  //convert an xcoord
-            float src_x) const;
-    float y(                    //convert a ycoord
-            float src_y,        //coord to convert
-            float src_centre) const;  //normed x centre
+
+    // normalized x -> original x
+    float x(float src_x) const;
+
+    // Given a (y coordinate, x center of segment) in normalized coordinates,
+    // return the original y coordinate.
+    float y(float src_y, float src_x_centre) const;
+
     float scale_at_x(  // Return scaling at this coord.
             float src_x) const;
     float yshift_at_x(  // Return yshift at this coord.
@@ -106,13 +109,13 @@ class DENORM
   private:
     const DENORM_SEG *binary_search_segment(float src_x) const;
 
-    BOOL8 base_is_row;           //using row baseline?
-    inT16 segments;              //no of segments
-    double c, m;                 //baseline
-    float x_centre;              //middle of word
-    float scale_factor;          //scaling
-    ROW *source_row;             //row it came from
-    DENORM_SEG *segs;            //array of segments
-    const BLOCK* block_;         // Block the word came from.
+    BOOL8 base_is_row;    // using row baseline?
+    inT16 segments;       // no of segments
+    double c, m;          // baseline: y = mx + c
+    float x_centre;       // middle of word in original coordinates
+    float scale_factor;   // normalized_x/scale_factor + x_center == original_x
+    ROW *source_row;      // row it came from
+    DENORM_SEG *segs;     // array of segments
+    const BLOCK* block_;  // Block the word came from.
 };
 #endif
