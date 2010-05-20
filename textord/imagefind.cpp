@@ -42,6 +42,8 @@ const double kMaxRectangularFraction = 0.75;
 // Fraction of width or height to allow transition from kMinRectangularFraction
 // to kMaxRectangularFraction, equivalent to a dy/dx skew.
 const double kMaxRectangularGradient = 0.1;  // About 6 degrees.
+// Minimum image size to be worth looking for images on.
+const int kMinImageFindSize = 100;
 
 // Finds image regions within the source pix (page image) and returns
 // the image regions as a Boxa, Pixa pair, analgous to pixConnComp.
@@ -52,6 +54,9 @@ void ImageFinder::FindImages(Pix* pix, Boxa** boxa, Pixa** pixa) {
   *pixa = NULL;
 
 #ifdef HAVE_LIBLEPT
+  if (pixGetWidth(pix) < kMinImageFindSize ||
+      pixGetHeight(pix) < kMinImageFindSize)
+    return;  // Not worth looking at small images.
   // Reduce by factor 2.
   Pix *pixr = pixReduceRankBinaryCascade(pix, 1, 0, 0, 0);
   pixDisplayWrite(pixr, textord_tabfind_show_images);
