@@ -73,7 +73,6 @@ BOOL_VAR(tessedit_write_images, FALSE, "Capture the image from the IPE");
 BOOL_VAR(tessedit_debug_to_screen, FALSE, "Dont use debug file");
 
 const int kMaxIntSize = 22;
-const ERRCODE USAGE = "Usage";
 char szAppName[] = "Tessedit";   //app name
 
 // Recognize a single page, given by the (const) image, and output the text,
@@ -169,13 +168,22 @@ void TesseractImage(const char* input_file, IMAGE* image, Pix* pix, int page_id,
 int main(int argc, char **argv) {
   STRING outfile;               //output file
 
+  // Detect incorrectly placed -l option.
+  for (int arg = 0; arg < argc; ++arg) {
+    if (arg != 3 && strcmp(argv[arg], "-l") == 0) {
+      fprintf(stderr, "Error: -l must be arg3, not %d\n", arg);
+      argc = 0;
+    }
+  }
   if (argc < 3) {
-    USAGE.error (argv[0], EXIT,
-      "%s imagename outputbase [-l lang] [configfile [[+|-]varfile]...]\n"
+    fprintf(stderr, "Usage:%s imagename outputbase [-l lang]"
+            " [configfile [[+|-]varfile]...]\n"
 #if !defined(HAVE_LIBLEPT) && !defined(_TIFFIO_)
-      "Warning - no liblept or libtiff - cannot read compressed tiff files.\n"
+            "Warning - no liblept or libtiff - cannot read compressed"
+            " tiff files.\n"
 #endif
       , argv[0]);
+    exit(1);
   }
   // Find the required language.
   const char* lang = "eng";
