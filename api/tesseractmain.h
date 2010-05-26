@@ -29,7 +29,7 @@ extern BOOL_VAR_H(tessedit_read_image, TRUE, "Ensure the image is read");
 extern INT_VAR_H(tessedit_serial_unlv, 0,
         "0->Whole page, 1->serial no adapt, 2->serial with adapt");
 extern INT_VAR_H(tessedit_page_number, -1,
-        "-1 -> All pages, else specifc page to process");
+        "-1 -> All pages, else specific page to process");
 extern BOOL_VAR_H(tessedit_write_images, FALSE,
                   "Capture the image from the IPE");
 extern BOOL_VAR_H(tessedit_debug_to_screen, FALSE, "Dont use debug file");

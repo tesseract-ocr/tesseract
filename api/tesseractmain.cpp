@@ -68,7 +68,7 @@ BOOL_VAR(tessedit_read_image, TRUE, "Ensure the image is read");
 INT_VAR(tessedit_serial_unlv, 0,
         "0->Whole page, 1->serial no adapt, 2->serial with adapt");
 INT_VAR(tessedit_page_number, -1,
-        "-1 -> All pages, else specifc page to process");
+        "-1 -> All pages, else specific page to process");
 BOOL_VAR(tessedit_write_images, FALSE, "Capture the image from the IPE");
 BOOL_VAR(tessedit_debug_to_screen, FALSE, "Dont use debug file");
 
@@ -333,7 +333,7 @@ int main(int argc, char **argv) {
 
   bool output_hocr = tessedit_create_hocr;
   outfile = argv[2];
-  outfile += output_hocr ? ".html" : ".txt";
+  outfile += output_hocr ? ".html" : tessedit_create_boxfile ? ".box" : ".txt";
   fp = fopen(outfile.string(), "w");
   if (fp == NULL) {
     tprintf("Cannot create output file %s\n", outfile.string());
