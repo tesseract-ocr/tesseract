@@ -17,6 +17,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#endif
+
 #include "colfind.h"
 #include <math.h>
 #ifdef HAVE_CONFIG_H

@@ -23,6 +23,10 @@
 #include "config_auto.h"
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#endif
+
 #ifdef HAVE_LIBLEPT
 // Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"

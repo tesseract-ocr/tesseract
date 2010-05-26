@@ -17,6 +17,10 @@
  *
  **********************************************************************/
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#endif
+
 #include "mfcpch.h"
 #include          <ctype.h>
 #include          "docqual.h"

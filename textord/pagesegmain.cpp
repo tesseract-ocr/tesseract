@@ -22,6 +22,9 @@
 #else
 #include <unistd.h>
 #endif
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#endif
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
