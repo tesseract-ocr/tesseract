@@ -9,7 +9,7 @@
 _tesseract_languages()
 {
 	local TESSDATA="/usr/share/tesseract-ocr/tessdata/"
-	local langs="$(ls $TESSDATA | grep DangAmbigs | cut -d \. -f 1)"
+	local langs="$(ls $TESSDATA | grep traineddata | cut -d \. -f 1)"
 
 	COMPREPLY=(${COMPREPLY[@]:-} $(compgen -W "$langs" -- "$cur") )
 }
