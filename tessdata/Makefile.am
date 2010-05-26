@@ -5,6 +5,7 @@ data_DATA = bul.traineddata \
   chi_sim.traineddata \
   chi_tra.traineddata \
   dan.traineddata \
+  dan-frak.traineddata \
   deu.traineddata \
   ell.traineddata \
   eng.traineddata \
@@ -51,6 +52,8 @@ chi_tra.traineddata : makedummies
 	touch chi_tra.traineddata
 dan.traineddata : makedummies
 	touch dan.traineddata
+dan-frak.traineddata : makedummies
+	touch dan-frak.traineddata
 deu.traineddata : makedummies
 	touch deu.traineddata
 ell.traineddata : makedummies
