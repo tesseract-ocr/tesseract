@@ -29,6 +29,9 @@ const int kSvPort = 8461;
 const int kMaxMsgSize = 4096;
 const int kMaxIntPairSize = 45;  // Holds %d,%d, for upto 64 bit.
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 #include "scrollview.h"
 
 #include <stdarg.h>

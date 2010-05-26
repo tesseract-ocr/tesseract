@@ -223,6 +223,7 @@ int main(int argc, char **argv) {
   bool is_tiff = fileFormatIsTiff(fp);
   fclose(fp);
 
+  Pix *pix;
   if (is_tiff) {
     for (; (pix = pixReadTiff(argv[1], page)) != NULL; ++page) {
       if (page > 0)

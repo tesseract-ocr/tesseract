@@ -2,14 +2,14 @@
 // Author: <rays@google.com> (Ray Smith)
 //
 
-#include "svshowim.h"
-#include "scrollview.h"
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 #ifdef HAVE_LIBLEPT
 #include "allheaders.h"
 #endif
+#include "svshowim.h"
+#include "scrollview.h"
 
 // Override of a tesseract function to display an image in a window.
 // This function redirects the display to ScrollView instead of the
