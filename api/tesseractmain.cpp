@@ -226,7 +226,17 @@ int main(int argc, char **argv) {
   }
 #ifdef HAVE_LIBLEPT
   int page = page_number;
+  int npages = 0;
   bool is_tiff = fileFormatIsTiff(fp);
+  if (is_tiff) {
+    int tiffstat = tiffGetCount(fp, &npages);
+    if (tiffstat == 1) {
+      fprintf (stderr, "Error reading file %s!\n", argv[1]);
+      fclose(fp);
+      exit(1);
+    }
+    //fprintf (stderr, "%d pages\n", npages);
+  }
   fclose(fp);
 
   Pix *pix;
@@ -241,7 +251,7 @@ int main(int argc, char **argv) {
       // Run tesseract on the page!
       TesseractImage(argv[1], NULL, pix, page, &api, &text_out);
       pixDestroy(&pix);
-      if (tessedit_page_number >= 0) {
+      if (tessedit_page_number >= 0 || npages == 1) {
         break;
       }
     }
