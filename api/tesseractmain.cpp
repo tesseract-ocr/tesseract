@@ -175,6 +175,12 @@ int main(int argc, char **argv) {
       argc = 0;
     }
   }
+#ifdef HAVE_CONFIG_H /* Assume that only Unix users care about -v */
+  if (argc == 2 && strcmp(argv[1], "-v") == 0) {
+    fprintf(stderr, "tesseract %s\n", PACKAGE_VERSION);
+    exit(1);
+  }
+#endif
   if (argc < 3) {
     fprintf(stderr, "Usage:%s imagename outputbase [-l lang]"
             " [configfile [[+|-]varfile]...]\n"
