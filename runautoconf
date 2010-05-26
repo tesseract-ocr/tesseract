@@ -27,6 +27,8 @@
 #
 # All the rest is auto-generated.
 
+echo "Running libtoolize"
+libtoolize
 
 # --- Step 1: Generate aclocal.m4 from:
 #             . acinclude.m4 

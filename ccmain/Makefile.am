@@ -19,8 +19,8 @@ include_HEADERS = \
     tessio.h tessvars.h tfacep.h tfacepp.h thresholder.h tstruct.h \
     varabled.h werdit.h
 
-lib_LIBRARIES = libtesseract_main.a
-libtesseract_main_a_SOURCES = \
+lib_LTLIBRARIES = libtesseract_main.la
+libtesseract_main_la_SOURCES = \
     adaptions.cpp ambigsrecog.cpp applybox.cpp \
     blobcmp.cpp \
     callnet.cpp charcut.cpp charsample.cpp control.cpp \
@@ -30,3 +30,6 @@ libtesseract_main_a_SOURCES = \
     tessbox.cpp tessedit.cpp tesseractclass.cpp tessvars.cpp \
     tfacepp.cpp thresholder.cpp tstruct.cpp \
     varabled.cpp werdit.cpp
+libtesseract_main_la_LIBADD = \
+    ../wordrec/libtesseract_wordrec.la
+libtesseract_main_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

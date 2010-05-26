@@ -17,8 +17,8 @@ include_HEADERS = \
     topitch.h tordmain.h tospace.h tovars.h \
     underlin.h wordseg.h workingpartset.h
 
-lib_LIBRARIES = libtesseract_textord.a
-libtesseract_textord_a_SOURCES = \
+lib_LTLIBRARIES = libtesseract_textord.la
+libtesseract_textord_la_SOURCES = \
     alignedblob.cpp bbgrid.cpp blkocc.cpp \
     colfind.cpp colpartition.cpp colpartitionset.cpp \
     drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \
@@ -27,3 +27,5 @@ libtesseract_textord_a_SOURCES = \
     tabfind.cpp tablefind.cpp tabvector.cpp \
     topitch.cpp tordmain.cpp tospace.cpp tovars.cpp \
     underlin.cpp wordseg.cpp workingpartset.cpp
+
+libtesseract_textord_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

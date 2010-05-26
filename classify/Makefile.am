@@ -17,8 +17,8 @@ include_HEADERS = \
     ocrfeatures.h outfeat.h picofeat.h protos.h \
     speckle.h xform2d.h
 
-lib_LIBRARIES = libtesseract_classify.a
-libtesseract_classify_a_SOURCES = \
+lib_LTLIBRARIES = libtesseract_classify.la
+libtesseract_classify_la_SOURCES = \
     adaptive.cpp adaptmatch.cpp baseline.cpp blobclass.cpp \
     chartoname.cpp classify.cpp cluster.cpp clusttool.cpp cutoffs.cpp \
     extract.cpp \
@@ -28,3 +28,5 @@ libtesseract_classify_a_SOURCES = \
     normfeat.cpp normmatch.cpp \
     ocrfeatures.cpp outfeat.cpp picofeat.cpp protos.cpp \
     speckle.cpp xform2d.cpp
+
+libtesseract_classify_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

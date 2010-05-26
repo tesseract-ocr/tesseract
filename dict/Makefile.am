@@ -9,8 +9,10 @@ include_HEADERS = \
     dawg.h dict.h matchdefs.h \
     permdawg.h permngram.h permute.h states.h stopper.h trie.h
 
-lib_LIBRARIES = libtesseract_dict.a
-libtesseract_dict_a_SOURCES = \
+lib_LTLIBRARIES = libtesseract_dict.la
+libtesseract_dict_la_SOURCES = \
     choices.cpp context.cpp conversion.cpp \
     dawg.cpp dict.cpp hyphen.cpp \
     permdawg.cpp permngram.cpp permute.cpp states.cpp stopper.cpp trie.cpp
+
+libtesseract_dict_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

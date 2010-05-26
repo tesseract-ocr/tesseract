@@ -15,11 +15,12 @@ include_HEADERS = \
     plotseg.h render.h seam.h split.h tally.h tessinit.h tface.h \
     wordclass.h wordrec.h
 
-lib_LIBRARIES = libtesseract_wordrec.a
-libtesseract_wordrec_a_SOURCES = \
+lib_LTLIBRARIES = libtesseract_wordrec.la
+libtesseract_wordrec_la_SOURCES = \
     associate.cpp badwords.cpp bestfirst.cpp chop.cpp chopper.cpp \
     closed.cpp drawfx.cpp findseam.cpp gradechop.cpp \
     heuristic.cpp makechop.cpp matchtab.cpp matrix.cpp metrics.cpp \
     mfvars.cpp olutil.cpp outlines.cpp pieces.cpp \
     plotedges.cpp plotseg.cpp render.cpp seam.cpp split.cpp \
     tally.cpp tessinit.cpp tface.cpp wordclass.cpp wordrec.cpp
+libtesseract_wordrec_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

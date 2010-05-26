@@ -7,6 +7,8 @@ include_HEADERS = \
     bitstrm.h image.h img.h imgbmp.h imgerrs.h imgio.h imgs.h \
     imgtiff.h imgunpk.h svshowim.h
 
-lib_LIBRARIES = libtesseract_image.a
-libtesseract_image_a_SOURCES = \
+lib_LTLIBRARIES = libtesseract_image.la
+libtesseract_image_la_SOURCES = \
     bitstrm.cpp image.cpp imgbmp.cpp imgio.cpp imgs.cpp imgtiff.cpp svshowim.cpp
+
+libtesseract_image_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

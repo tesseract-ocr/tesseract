@@ -1,4 +1,5 @@
 # TODO(luc) Add 'doc' to this list when ready
+ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = ccstruct ccutil classify cutil dict image textord viewer wordrec ccmain training tessdata testing java api
 
 EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
