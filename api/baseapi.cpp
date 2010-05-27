@@ -710,25 +710,25 @@ char* TessBaseAPI::GetUTF8Text() {
 static bool IsParagraphBreak(TBOX bbox_cur, TBOX bbox_prev,
                              int right, int line_height) {
   // Check if the distance between lines is larger than the normal leading,
-  if (fabs(bbox_cur.bottom() - bbox_prev.bottom()) > line_height * 2)
+  if (fabs((float)(bbox_cur.bottom() - bbox_prev.bottom())) > line_height * 2)
     return true;
   
   // Check if the distance between left bounds of the two lines is nearly the
   // same as between their right bounds (if so, then both lines probably belong
   // to the same paragraph, maybe a centered one).
-  if (fabs((bbox_cur.left() - bbox_prev.left()) -
-           (bbox_prev.right() - bbox_cur.right())) < line_height)
+  if (fabs((float)((bbox_cur.left() - bbox_prev.left()) -
+           (bbox_prev.right() - bbox_cur.right()))) < line_height)
     return false;
   
   // Check if there is a paragraph indent at this line (either -ve or +ve).
-  if (fabs(bbox_cur.left() - bbox_prev.left()) > line_height)
+  if (fabs((float)(bbox_cur.left() - bbox_prev.left())) > line_height)
     return true;
   
   // Check if both current and previous line don't reach the right bound of the
   // block, but the distance is different. This will cause all lines in a verse
   // to be treated as separate paragraphs, but most probably will not split
   // block-quotes to separate lines (at least if the text is justified).
-  if (fabs(bbox_cur.right() - bbox_prev.right()) > line_height &&
+  if (fabs((float)(bbox_cur.right() - bbox_prev.right())) > line_height &&
       right - bbox_cur.right() > line_height &&
       right - bbox_prev.right() > line_height)
     return true;
