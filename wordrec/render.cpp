@@ -22,6 +22,11 @@
  ** limitations under the License.
  *
  *********************************************************************************/
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "render.h"
 #include "blobs.h"
 

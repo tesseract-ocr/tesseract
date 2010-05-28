@@ -20,6 +20,11 @@
 // SVUtil contains the SVSync and SVNetwork classes, which are used for
 // thread/process creation & synchronization and network connection.
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #ifndef GRAPHICS_DISABLED
 
 #include "svutil.h"

@@ -18,6 +18,11 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #ifndef GRAPHICS_DISABLED
 // This class contains the main ScrollView-logic,
 // e.g. parsing & sending messages, images etc.

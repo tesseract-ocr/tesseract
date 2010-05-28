@@ -19,6 +19,12 @@
 //
 // The variables editor is used to edit all the variables used within
 // tesseract from the ui.
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #ifndef GRAPHICS_DISABLED
 #include "varabled.h"
 

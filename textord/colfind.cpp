@@ -18,6 +18,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
