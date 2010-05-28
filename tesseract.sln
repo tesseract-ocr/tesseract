@@ -93,6 +93,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "textord", "textord\textord.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccmain", "ccmain\ccmain.vcproj", "{EFE93017-B435-46EA-9199-1C83A869595A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "combine_tessdata", "training\combine_tessdata.vcproj", "{3FB6B4AB-F35C-4E04-8EF7-B68906E50C6D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DF2FA86F-A663-4805-AED7-2F81D9EAC796} = {DF2FA86F-A663-4805-AED7-2F81D9EAC796}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -167,6 +172,10 @@ Global
 		{EFE93017-B435-46EA-9199-1C83A869595A}.Debug|Win32.Build.0 = Debug|Win32
 		{EFE93017-B435-46EA-9199-1C83A869595A}.Release|Win32.ActiveCfg = Release|Win32
 		{EFE93017-B435-46EA-9199-1C83A869595A}.Release|Win32.Build.0 = Release|Win32
+		{3FB6B4AB-F35C-4E04-8EF7-B68906E50C6D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3FB6B4AB-F35C-4E04-8EF7-B68906E50C6D}.Debug|Win32.Build.0 = Debug|Win32
+		{3FB6B4AB-F35C-4E04-8EF7-B68906E50C6D}.Release|Win32.ActiveCfg = Release|Win32
+		{3FB6B4AB-F35C-4E04-8EF7-B68906E50C6D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
