@@ -73,6 +73,16 @@ AC_ARG_WITH(extra-libraries,
             AC_MSG_ERROR([Cannot stat directory $withval])
           fi ] )
 
+AC_MSG_CHECKING(--enable-graphics argument)
+AC_ARG_ENABLE(graphics,
+    [  --enable-graphics         Enable graphics (default).],
+    [enable_graphics=$enableval],
+    [enable_graphics="yes"])
+AC_MSG_RESULT($enable_graphics)
+if test "$enable_graphics" = "no"; then
+  AC_DEFINE([DISABLE_GRAPHICS], [], [Disable graphics])
+fi
+
 # Always look into a "gnu" directory.
 curwd=`pwd`
 if test -d $curwd/gnu/include ; then

@@ -9,6 +9,9 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
+/* Disable graphics */
+#undef DISABLE_GRAPHICS
+
 /* Define to 1 if you have the `acos' function. */
 #undef HAVE_ACOS
 
