@@ -273,6 +273,7 @@ case $basic_machine in
 	| v850 | v850e \
 	| we32k \
 	| x86 | xscale | xscalee[bl] | xstormy16 | xtensa \
+	| mb \
 	| z8k)
 		basic_machine=$basic_machine-unknown
 		;;
@@ -357,6 +358,7 @@ case $basic_machine in
 	| x86-* | x86_64-* | xps100-* | xscale-* | xscalee[bl]-* \
 	| xstormy16-* | xtensa-* \
 	| ymp-* \
+	| mb-* \
 	| z8k-*)
 		;;
 	m32c-*)
@@ -1059,6 +1061,9 @@ case $basic_machine in
 	z8k-*-coff)
 		basic_machine=z8k-unknown
 		os=-sim
+		;;
+	mb-*)
+		basic_machine=mb-linux
 		;;
 	none)
 		basic_machine=none-none
