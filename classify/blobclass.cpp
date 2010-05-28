@@ -74,7 +74,7 @@ void LearnBlob(const STRING& filename,
 
   // If no fontname was set, try to extract it from the filename
   STRING CurrFontName = classify_font_name;
-  if (CurrFontName != kUnknownFontName) {
+  if (CurrFontName == kUnknownFontName) {
     // filename is expected to be of the form [lang].[fontname].exp[num]
     // The [lang], [fontname] and [num] fields should not have '.' characters.
     const char *basename = strrchr(filename.string(), '/');
