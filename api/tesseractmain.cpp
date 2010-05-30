@@ -345,7 +345,9 @@ int main(int argc, char **argv) {
 #endif  // HAVE_LIBLEPT
 
   //no longer using ext or fp
+#ifdef _TIFFIO_
   delete[] ext;
+#endif
   fclose(fp);
 
   bool output_hocr = tessedit_create_hocr;
