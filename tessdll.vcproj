@@ -146,7 +146,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="api,ccmain,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,ccmain,pageseg,.,include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;_CRT_SECURE_NO_WARNINGS;__IPEREGDLL;PURIFY;HAVE_LIBLEPT;LETONLIB_IMPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;_CRT_SECURE_NO_WARNINGS;__IPEREGDLL;PURIFY;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
