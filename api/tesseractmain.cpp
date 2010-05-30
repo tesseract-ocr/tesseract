@@ -222,6 +222,7 @@ int main(int argc, char **argv) {
   FILE* fp = fopen(argv[1], "rb");
   if (fp == NULL) {
     tprintf("Image file %s cannot be opened!\n", argv[1]);
+    fclose(fp);
     exit(1);
   }
 #ifdef HAVE_LIBLEPT
@@ -260,17 +261,19 @@ int main(int argc, char **argv) {
     // If the image fails to read, try it as a list of filenames.
     PIX* pix = pixRead(argv[1]);
     if (pix == NULL) {
-      FILE* fp = fopen(argv[1], "r");
-      if (fp == NULL) {
+      FILE* fimg = fopen(argv[1], "r");
+      if (fimg == NULL) {
         tprintf("File %s cannot be opened!\n", argv[1]);
+        fclose(fimg);
         exit(1);
       }
       char filename[MAX_PATH];
-      while (fgets(filename, sizeof(filename), fp) != NULL) {
+      while (fgets(filename, sizeof(filename), fimg) != NULL) {
         chomp_string(filename);
         pix = pixRead(filename);
         if (pix == NULL) {
           tprintf("Image file %s cannot be read!\n", filename);
+          fclose(fimg);
           exit(1);
         }
         tprintf("Page %d : %s\n", page, filename);
@@ -278,7 +281,7 @@ int main(int argc, char **argv) {
         pixDestroy(&pix);
         ++page;
       }
-      fclose(fp);
+      fclose(fimg);
     } else {
       TesseractImage(argv[1], NULL, pix, 0, &api, &text_out);
       pixDestroy(&pix);
@@ -341,12 +344,17 @@ int main(int argc, char **argv) {
 #endif
 #endif  // HAVE_LIBLEPT
 
+  //no longer using ext or fp
+  delete[] ext;
+  fclose(fp);
+
   bool output_hocr = tessedit_create_hocr;
   outfile = argv[2];
   outfile += output_hocr ? ".html" : tessedit_create_boxfile ? ".box" : ".txt";
-  fp = fopen(outfile.string(), "w");
-  if (fp == NULL) {
+  FILE* fout = fopen(outfile.string(), "w");
+  if (fout == NULL) {
     tprintf("Cannot create output file %s\n", outfile.string());
+    fclose(fout);
     exit(1);
   }
   if (output_hocr) {
@@ -357,12 +365,12 @@ int main(int argc, char **argv) {
         "<meta http-equiv=\"Content-Type\" content=\"text/html;"
         "charset=utf-8\" >\n<meta name='ocr-system' content='tesseract'>\n"
         "</head>\n<body>\n";
-    fprintf(fp, "%s", html_header);
+    fprintf(fout, "%s", html_header);
   } 
-  fwrite(text_out.string(), 1, text_out.length(), fp);
+  fwrite(text_out.string(), 1, text_out.length(), fout);
   if (output_hocr)
-    fprintf(fp, "</body>\n</html>\n");
-  fclose(fp);
+    fprintf(fout, "</body>\n</html>\n");
+  fclose(fout);
 
   return 0;                      //Normal exit
 }

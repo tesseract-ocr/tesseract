@@ -145,7 +145,7 @@ char* msg = new char[1024];
     if (((STRING) * (sIt)).string() != NULL) {
       sprintf(msg, "%s", ((STRING) * (sIt)).string());
     } else {
-      return "Null";
+      sprintf(msg, "Null");
     }
   }
   return msg;

@@ -137,6 +137,10 @@ class DLLSYM ELIST
       last = NULL;
     }
 
+    virtual ~ELIST() {
+      // Empty
+    }
+
     void internal_clear (        //destroy all links
                                  //ptr to zapper functn
       void (*zapper) (ELIST_LINK *));
