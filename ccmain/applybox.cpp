@@ -89,7 +89,7 @@ static UNICHARSET unicharset_boxes;
  *
  * The box file is assumed to contain box definitions, one per line, of the
  * following format:
- *   <Char> <left> <bottom> <right> <top> ... arbitrary trailing fields unused
+ *   <Char> <left> <bottom> <right> <top> <page> ... arbitrary trailing fields unused
  *
  * The approach taken is to search the WHOLE page for stuff overlapping each box.
  *  - This is not too inefficient and is SAFE.
