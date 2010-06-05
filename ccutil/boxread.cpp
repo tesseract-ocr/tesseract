@@ -101,7 +101,7 @@ bool read_next_box(int target_page, FILE* box_file, char* utf8_str,
           count = 0;
         }
       }
-      if (count < 5) {
+      if ((count < 5 && target_page > 0) || (count < 4 && target_page <= 0)) {
         tprintf("Box file format error on line %i ignored\n", line);
       } else {
         strcpy(utf8_str, uch);
