@@ -341,13 +341,11 @@ int main(int argc, char **argv) {
     TesseractImage(argv[1], &image, NULL, 0, &api, &text_out);
 #ifdef _TIFFIO_
   }
+  delete[] ext;
 #endif
 #endif  // HAVE_LIBLEPT
 
-  //no longer using ext or fp
-#ifdef _TIFFIO_
-  delete[] ext;
-#endif
+  //no longer using fp
   fclose(fp);
 
   bool output_hocr = tessedit_create_hocr;
