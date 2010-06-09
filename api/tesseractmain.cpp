@@ -239,6 +239,7 @@ int main(int argc, char **argv) {
     //fprintf (stderr, "%d pages\n", npages);
   }
   fclose(fp);
+  fp = NULL;
 
   Pix *pix;
   if (is_tiff) {
@@ -346,7 +347,7 @@ int main(int argc, char **argv) {
 #endif  // HAVE_LIBLEPT
 
   //no longer using fp
-  fclose(fp);
+  if (fp != NULL) fclose(fp);
 
   bool output_hocr = tessedit_create_hocr;
   outfile = argv[2];
