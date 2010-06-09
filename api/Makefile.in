@@ -90,7 +90,16 @@ libtesseract_api_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 PROGRAMS = $(bin_PROGRAMS)
 am_tesseract_OBJECTS = tesseractmain.$(OBJEXT)
 tesseract_OBJECTS = $(am_tesseract_OBJECTS)
-tesseract_DEPENDENCIES = libtesseract_api.la
+tesseract_DEPENDENCIES = libtesseract_api.la \
+	../ccmain/libtesseract_main.la \
+	../textord/libtesseract_textord.la \
+	../wordrec/libtesseract_wordrec.la \
+	../classify/libtesseract_classify.la \
+	../dict/libtesseract_dict.la \
+	../ccstruct/libtesseract_ccstruct.la \
+	../image/libtesseract_image.la ../cutil/libtesseract_cutil.la \
+	../viewer/libtesseract_viewer.la \
+	../ccutil/libtesseract_ccutil.la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -304,7 +313,17 @@ libtesseract_api_la_LIBADD = \
 
 tesseract_SOURCES = tesseractmain.cpp
 tesseract_LDADD = \
-    libtesseract_api.la
+    libtesseract_api.la \
+    ../ccmain/libtesseract_main.la \
+    ../textord/libtesseract_textord.la \
+    ../wordrec/libtesseract_wordrec.la \
+    ../classify/libtesseract_classify.la \
+    ../dict/libtesseract_dict.la \
+    ../ccstruct/libtesseract_ccstruct.la \
+    ../image/libtesseract_image.la \
+    ../cutil/libtesseract_cutil.la \
+    ../viewer/libtesseract_viewer.la \
+    ../ccutil/libtesseract_ccutil.la
 
 all: all-recursive
 

@@ -28,4 +28,15 @@ libtesseract_api_la_LIBADD = \
 bin_PROGRAMS = tesseract
 tesseract_SOURCES = tesseractmain.cpp
 tesseract_LDADD = \
-    libtesseract_api.la
+    libtesseract_api.la \
+    ../ccmain/libtesseract_main.la \
+    ../textord/libtesseract_textord.la \
+    ../wordrec/libtesseract_wordrec.la \
+    ../classify/libtesseract_classify.la \
+    ../dict/libtesseract_dict.la \
+    ../ccstruct/libtesseract_ccstruct.la \
+    ../image/libtesseract_image.la \
+    ../cutil/libtesseract_cutil.la \
+    ../viewer/libtesseract_viewer.la \
+    ../ccutil/libtesseract_ccutil.la
+
