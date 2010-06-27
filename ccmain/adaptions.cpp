@@ -556,7 +556,7 @@ void Tesseract::adapt_to_good_ems(WERD_RES *word,
 
   static inT32 word_number = 0;
 
-#ifndef SCROLLVIEW_DISABLED
+#ifndef GRAPHICS_DISABLED
   ScrollView* demo_win = NULL;
 #endif
 
@@ -794,7 +794,7 @@ void Tesseract::adapt_to_good_samples(WERD_RES *word,
 
   static inT32 word_number = 0;
 
-#ifndef SCROLLVIEW_DISABLED
+#ifndef GRAPHICS_DISABLED
   ScrollView* demo_win = NULL;
 #endif
 

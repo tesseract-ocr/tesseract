@@ -73,19 +73,9 @@ AC_ARG_WITH(extra-libraries,
             AC_MSG_ERROR([Cannot stat directory $withval])
           fi ] )
 
-AC_MSG_CHECKING(--enable-scrollview argument)
-AC_ARG_ENABLE(scrollview,
-    [  --enable-scrollview         Enable scrollview (default).],
-    [enable_scrollview=$enableval],
-    [enable_scrollview="yes"])
-AC_MSG_RESULT($enable_scrollview)
-if test "$enable_scrollview" = "no"; then
-  AC_DEFINE([DISABLE_SCROLLVIEW], [], [Disable scrollview])
-fi
-
 AC_MSG_CHECKING(--enable-graphics argument)
 AC_ARG_ENABLE(graphics,
-    [  --enable-graphics         Enable graphics (default).],
+    [  --enable-graphics         Enable graphics (ScrollView) (default).],
     [enable_graphics=$enableval],
     [enable_graphics="yes"])
 AC_MSG_RESULT($enable_graphics)
@@ -364,7 +354,7 @@ AC_CONFIG_FILES(tessdata/Makefile)
 AC_CONFIG_FILES(tessdata/configs/Makefile)
 AC_CONFIG_FILES(tessdata/tessconfigs/Makefile)
 AC_CONFIG_FILES(testing/Makefile)
-if test "$enable_scrollview" = "yes"; then
+if test "$enable_graphics" = "yes"; then
 AC_CONFIG_FILES(java/Makefile)
 AC_CONFIG_FILES(java/com/Makefile)
 AC_CONFIG_FILES(java/com/google/Makefile)
@@ -406,12 +396,7 @@ AH_BOTTOM([
 /* Miscellaneous defines */
 #define AUTOCONF 1
 
-#ifdef DISABLE_SCROLLVIEW
-#define SCROLLVIEW_DISABLED
-#endif
-
 #ifdef DISABLE_GRAPHICS
-#define SCROLLVIEW_DISABLED
 #define GRAPHICS_DISABLED
 #endif
 
