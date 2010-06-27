@@ -1652,7 +1652,7 @@ void TessBaseAPI::GetFeatures(INT_FEATURE_ARRAY int_features,
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
        block_it.forward ()) {
     BLOCK* block = block_it.data();
-#ifndef GRAPHICS_DISABLED
+#ifndef SCROLLVIEW_DISABLED
     extract_edges(NULL,         // Scrollview window.
                   &page_image,  // Image.
                   &page_image,  // Thresholded image.
