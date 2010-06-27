@@ -12,9 +12,6 @@
 /* Disable graphics */
 #undef DISABLE_GRAPHICS
 
-/* Disable scrollview */
-#undef DISABLE_SCROLLVIEW
-
 /* Define to 1 if you have the `acos' function. */
 #undef HAVE_ACOS
 
@@ -213,12 +210,7 @@
 /* Miscellaneous defines */
 #define AUTOCONF 1
 
-#ifdef DISABLE_SCROLLVIEW
-#define SCROLLVIEW_DISABLED
-#endif
-
 #ifdef DISABLE_GRAPHICS
-#define SCROLLVIEW_DISABLED
 #define GRAPHICS_DISABLED
 #endif
 
