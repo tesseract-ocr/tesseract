@@ -27,7 +27,7 @@
 #include          "werd.h"
 #include          "drawfx.h"
 
-#ifndef GRAPHICS_DISABLED
+#ifndef SCROLLVIEW_DISABLED
 #define FXDEMOWIN     "FXDemo"
 #define FXDEMOXPOS      250
 #define FXDEMOYPOS      0
@@ -79,7 +79,7 @@ void clear_fx_win() {  //make features win
   fx_win->Line(-WERDWIDTH, bln_x_height + bln_baseline_offset, WERDWIDTH, bln_x_height + bln_baseline_offset);
 }
 
-#endif  // GRAPHICS_DISABLED
+#endif  // SCROLLVIEW_DISABLED
 
 /**********************************************************************
  * create_fxdebug_win
