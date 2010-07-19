@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="tessdll"
 	ProjectGUID="{CB522274-3353-41AE-A700-F365FC79DEDD}"
+	RootNamespace="tessdll"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -52,7 +53,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;_CRT_SECURE_NO_WARNINGS;__IPEREGDLL;_CRTDBG_MAP_ALLOC;PURIFY;HAVE_LIBLEPT;LETONLIB_IMPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\dll.Debug/tessdll.pch"
 				AssemblerListingLocation=".\dll.Debug/"
 				ObjectFile=".\dll.Debug/"
@@ -74,7 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlib.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlibd.lib"
 				OutputFile=".\bin.dbg/tessdll.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -148,7 +149,7 @@
 				AdditionalIncludeDirectories="api,ccmain,ccutil,ccstruct,classify,cutil,dict,display,image,textord,viewer,wordrec,ccmain,pageseg,.,include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TESSDLL_EXPORTS;__MSW32__;_CRT_SECURE_NO_WARNINGS;__IPEREGDLL;PURIFY;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\dll.Release/tessdll.pch"
 				AssemblerListingLocation=".\dll.Release/"

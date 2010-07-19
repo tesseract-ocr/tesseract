@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="wordlist2dawg"
 	ProjectGUID="{5B6DC93B-30BE-4E8E-A396-3970A83CB74B}"
+	RootNamespace="wordlist2dawg"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"
 	>
@@ -50,7 +51,7 @@
 				AdditionalIncludeDirectories="../ccutil,../cutil,../dict,../viewer,../ccstruct,../image,../classify"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="mfcpch.h"
@@ -143,7 +144,7 @@
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="mfcpch.h"
 				PrecompiledHeaderFile=".\w2d.Debug/wordlist2dawg.pch"
@@ -167,7 +168,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib user32.lib ..\lib\leptonlib.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\lib\leptonlibd.lib"
 				OutputFile=".\../bin.dbg/wordlist2dawg.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

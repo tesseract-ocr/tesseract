@@ -50,7 +50,7 @@
 				AdditionalIncludeDirectories="../ccutil,../ccstruct,../classify,../cutil,../training,../viewer,../dict"
 				PreprocessorDefinitions="TRAINING;WIN32;_WINDOWS;__NT__;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\combine.Release/combine_tessdata.pch"
 				AssemblerListingLocation=".\combine.Release/"
@@ -140,7 +140,7 @@
 				AdditionalIncludeDirectories="../ccutil,../ccstruct,../classify,../cutil,../training,../viewer,../dict"
 				PreprocessorDefinitions="_DEBUG;TRAINING;WIN32;_WINDOWS;__NT__;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\combine.Debug/combine_tessdata.pch"
 				AssemblerListingLocation=".\combine.Debug/"
 				ObjectFile=".\combine.Debug/"
@@ -163,7 +163,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib user32.lib ..\lib\leptonlib.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\lib\leptonlibd.lib"
 				OutputFile=".\../bin.dbg/combine_tessdata.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
