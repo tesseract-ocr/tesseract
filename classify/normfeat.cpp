@@ -87,21 +87,21 @@ FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 
   /* compute the normalization statistics for this blob */
   Outlines = ConvertBlob (Blob);
-  /*---------Debug--------------------------------------------------*
-  OFile = fopen ("f:/ims/debug/nfOutline.logCPP", "r");
+#ifdef DEBUG_NORMFEAT
+  OFile = fopen ("nfOutline.logCPP", "r");
   if (OFile == NULL)
   {
-    OFile = Efopen ("f:/ims/debug/nfOutline.logCPP", "w");
+    OFile = Efopen ("nfOutline.logCPP", "w");
     WriteOutlines(OFile, Outlines);
   }
   else
   {
     fclose (OFile);
-    OFile = Efopen ("f:/ims/debug/nfOutline.logCPP", "a");
+    OFile = Efopen ("nfOutline.logCPP", "a");
   }
   WriteOutlines(OFile, Outlines);
   fclose (OFile);
-  *--------------------------------------------------------------------*/
+#endif
 
   ExtractIntFeat(Blob, blfeatures, cnfeatures, &FXInfo);
   Baseline = BaselineAt (LineStats, FXInfo.Xmean);
@@ -112,21 +112,21 @@ FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   Feature->Params[CharNormRx] = FXInfo.Rx * Scale;
   Feature->Params[CharNormRy] = FXInfo.Ry * Scale;
 
-  /*---------Debug--------------------------------------------------*
-  File = fopen ("f:/ims/debug/nfFeatSet.logCPP", "r");
+#ifdef DEBUG_NORMFEAT
+  File = fopen ("nfFeatSet.logCPP", "r");
   if (File == NULL)
   {
-    File = Efopen ("f:/ims/debug/nfFeatSet.logCPP", "w");
+    File = Efopen ("nfFeatSet.logCPP", "w");
     WriteFeatureSet(File, FeatureSet);
   }
   else
   {
     fclose (File);
-    File = Efopen ("f:/ims/debug/nfFeatSet.logCPP", "a");
+    File = Efopen ("nfFeatSet.logCPP", "a");
   }
   WriteFeatureSet(File, FeatureSet);
   fclose (File);
-  *--------------------------------------------------------------------*/
+#endif
   FreeOutlines(Outlines);
   return (FeatureSet);
 }                                /* ExtractCharNormFeatures */
