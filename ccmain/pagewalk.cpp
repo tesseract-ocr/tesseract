@@ -30,15 +30,15 @@
 EXTERN BOOL_VAR (current_word_quit, FALSE, "Stop processing this word");
 DLLSYM BOOL_VAR (selection_quit, FALSE, "Stop processing this selection");
 
-/**********************************************************************
+/**
  *  block_list_bounding_box()
  *
  *  Scan block list to find the bounding box of all blocks.
- **********************************************************************/
+ *  @param block_list the block list to find the bounding box of
+ */
 
-TBOX block_list_bounding_box(                        //find bounding box
-                            BLOCK_LIST *block_list  //of this block list
-                           ) {
+TBOX block_list_bounding_box(BLOCK_LIST *block_list) 
+{
   BLOCK_IT block_it(block_list);
   TBOX enclosing_box;
 
@@ -49,7 +49,7 @@ TBOX block_list_bounding_box(                        //find bounding box
 }
 
 
-/**********************************************************************
+/**
  *  block_list_compress()
  *
  *  Pack a block list to occupy a smaller space by compressing each block and
@@ -58,18 +58,19 @@ TBOX block_list_bounding_box(                        //find bounding box
  *  first.  Blocks are reordered so that the source names are in alphabetic
  *  order. (This gathers together, but does not combine, blocks from the same
  *  file.)
+ *
  *  The enclosing box of the compressed block list is returned.
- **********************************************************************/
+ */
 
-const TBOX block_list_compress(  //shuffle up blocks
-                              BLOCK_LIST *block_list) {
+const TBOX block_list_compress(BLOCK_LIST *block_list) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ICOORD initial_top_left;
   ICOORD block_spacing (0, BLOCK_SPACING);
   TBOX enclosing_box;             //for full display
 
-  initial_top_left = block_it.data ()->bounding_box ().topleft ();
+  initial_top_left = block_it.data()->bounding_box().topleft();
                                  //group srcfile blks
   block_it.sort (block_name_order);
 
@@ -90,36 +91,37 @@ const TBOX block_list_compress(  //shuffle up blocks
 }
 
 
-/**********************************************************************
- *  block_list_move()
+/**
+ * block_list_move()
  *
- *  Move all the blocks in the list by a vector
- **********************************************************************/
+ * Move all the blocks in the list by a vector
+ *
+ * @param block_list the block list to move
+ * @param vec the vector to move it by
+ */
 
-void block_list_move(                         //move
-                     BLOCK_LIST *block_list,  //this list
-                     ICOORD vec               //by this vector
-                    ) {
+void block_list_move(BLOCK_LIST *block_list,
+                     ICOORD vec) 
+{
   BLOCK_IT block_it(block_list);
 
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-    block_it.forward ())
-  block_it.data ()->move (vec);
+       block_it.forward ())
+    block_it.data ()->move (vec);
 }
 
 
-/**********************************************************************
+/**
  *  block_name_order()
  *
  *  Block comparator used to sort a block list so that blocks from the same
  *  filename are located together, and blocks from the same file are ordered
  *  by vertical position.
- **********************************************************************/
+ */
 
-int block_name_order(                      //sort blocks
-                     const void *block1p,  //ptr to ptr to block1
-                     const void *block2p   //ptr to ptr to block2
-                    ) {
+int block_name_order(const void *block1p,
+                     const void *block2p) 
+{
   int result;
   BLOCK *block1 = *(BLOCK **) block1p;
   BLOCK *block2 = *(BLOCK **) block2p;
@@ -131,27 +133,21 @@ int block_name_order(                      //sort blocks
 }
 
 
-/**********************************************************************
+/**
  * process_all_blobs()
  *
  * Walk the current block list applying the specified blob processor function
  * to all blobs
- **********************************************************************/
+ * @param block_list the blocks to check
+ * @param blob_processor function to call
+ * @param c_blob_processor function to call
+ */
 
 void
-process_all_blobs (              //process blobs
-BLOCK_LIST * block_list,         //blocks to check
-BOOL8 blob_processor (           //function to call
-                                 //function to call
-BLOCK *, ROW *, WERD *, PBLOB *), BOOL8 c_blob_processor (
-BLOCK
-*,
-ROW
-*,
-WERD
-*,
-C_BLOB
-*)) {
+process_all_blobs (BLOCK_LIST * block_list,
+                   BOOL8 blob_processor (BLOCK *, ROW *, WERD *, PBLOB *), 
+                   BOOL8 c_blob_processor (BLOCK *, ROW *, WERD *, C_BLOB *)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -163,24 +159,20 @@ C_BLOB
   C_BLOB_IT c_blob_it;
   C_BLOB *c_blob;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     row_it.set_to_list (block->row_list ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
       word_it.set_to_list (row->word_list ());
-      for (word_it.mark_cycle_pt ();
-      !word_it.cycled_list (); word_it.forward ()) {
+      for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
         word = word_it.data ();
         if (word->flag (W_POLYGON)) {
           if (blob_processor != NULL) {
             blob_it.set_to_list (word->blob_list ());
-            for (blob_it.mark_cycle_pt ();
-            !blob_it.cycled_list (); blob_it.forward ()) {
+            for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
               blob = blob_it.data ();
-              if (!blob_processor (block, row, word, blob) ||
-                selection_quit)
+              if (!blob_processor (block, row, word, blob) || selection_quit)
                 return;
             }
           }
@@ -188,11 +180,9 @@ C_BLOB
         else {
           if (c_blob_processor != NULL) {
             c_blob_it.set_to_list (word->cblob_list ());
-            for (c_blob_it.mark_cycle_pt ();
-            !c_blob_it.cycled_list (); c_blob_it.forward ()) {
+            for (c_blob_it.mark_cycle_pt (); !c_blob_it.cycled_list (); c_blob_it.forward ()) {
               c_blob = c_blob_it.data ();
-              if (!c_blob_processor (block, row, word, c_blob) ||
-                selection_quit)
+              if (!c_blob_processor (block, row, word, c_blob) || selection_quit)
                 return;
             }
           }
@@ -203,28 +193,23 @@ C_BLOB
 }
 
 
-/**********************************************************************
+/**
  * process_selected_blobs()
  *
  * Walk the current block list applying the specified blob processor function
  * to each selected blob
- **********************************************************************/
+ * @param block_list the blocks to check
+ * @param selection_box within this box(?)
+ * @param blob_processor function to call
+ * @param c_blob_processor function to call
+ */
 
 void
-process_selected_blobs (         //process blobs
-BLOCK_LIST * block_list,         //blocks to check
-                                 //function to call
-TBOX & selection_box, BOOL8 blob_processor (
-                                 //function to call
-BLOCK *, ROW *, WERD *, PBLOB *), BOOL8 c_blob_processor (
-BLOCK
-*,
-ROW
-*,
-WERD
-*,
-C_BLOB
-*)) {
+process_selected_blobs (BLOCK_LIST * block_list,
+                        TBOX & selection_box, 
+                        BOOL8 blob_processor (BLOCK *, ROW *, WERD *, PBLOB *), 
+                        BOOL8 c_blob_processor (BLOCK *, ROW *, WERD *, C_BLOB *)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -236,32 +221,24 @@ C_BLOB
   C_BLOB_IT c_blob_it;
   C_BLOB *c_blob;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     if (block->bounding_box ().overlap (selection_box)) {
       row_it.set_to_list (block->row_list ());
-      for (row_it.mark_cycle_pt ();
-      !row_it.cycled_list (); row_it.forward ()) {
+      for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
         row = row_it.data ();
         if (row->bounding_box ().overlap (selection_box)) {
           word_it.set_to_list (row->word_list ());
-          for (word_it.mark_cycle_pt ();
-          !word_it.cycled_list (); word_it.forward ()) {
+          for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
             word = word_it.data ();
             if (word->bounding_box ().overlap (selection_box)) {
               if (word->flag (W_POLYGON)) {
                 if (blob_processor != NULL) {
                   blob_it.set_to_list (word->blob_list ());
-                  for (blob_it.mark_cycle_pt ();
-                    !blob_it.cycled_list ();
-                  blob_it.forward ()) {
+                  for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
                     blob = blob_it.data ();
-                    if (blob->bounding_box ().
-                    overlap (selection_box)) {
-                      if (!blob_processor
-                        (block, row, word, blob)
-                        || selection_quit)
+                    if (blob->bounding_box().overlap (selection_box)) {
+                      if (!blob_processor(block, row, word, blob) || selection_quit)
                         return;
                     }
                   }
@@ -270,16 +247,10 @@ C_BLOB
               else {
                 if (c_blob_processor != NULL) {
                   c_blob_it.set_to_list (word->cblob_list ());
-                  for (c_blob_it.mark_cycle_pt ();
-                    !c_blob_it.cycled_list ();
-                  c_blob_it.forward ()) {
+                  for (c_blob_it.mark_cycle_pt (); !c_blob_it.cycled_list (); c_blob_it.forward ()) {
                     c_blob = c_blob_it.data ();
-                    if (c_blob->
-                      bounding_box ().
-                    overlap (selection_box)) {
-                      if (!c_blob_processor
-                        (block, row, word, c_blob)
-                        || selection_quit)
+                    if (c_blob->bounding_box ().overlap (selection_box)) {
+                      if (!c_blob_processor(block, row, word, c_blob) || selection_quit)
                         return;
                     }
                   }
@@ -294,17 +265,16 @@ C_BLOB
 }
 
 
-/**********************************************************************
+/**
  * process_all_words()
  *
  * Walk the current block list applying the specified word processor function
  * to all words
- **********************************************************************/
+ */
 void
-process_all_words (              //process words
-BLOCK_LIST * block_list,         //blocks to check
-BOOL8 word_processor (           //function to call
-BLOCK *, ROW *, WERD *)) {
+process_all_words (BLOCK_LIST * block_list,
+                   BOOL8 word_processor (BLOCK *, ROW *, WERD *)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -312,15 +282,13 @@ BLOCK *, ROW *, WERD *)) {
   WERD_IT word_it;
   WERD *word;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     row_it.set_to_list (block->row_list ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
       word_it.set_to_list (row->word_list ());
-      for (word_it.mark_cycle_pt ();
-      !word_it.cycled_list (); word_it.forward ()) {
+      for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
         word = word_it.data ();
         if (!word_processor (block, row, word) || selection_quit)
           return;
@@ -330,23 +298,18 @@ BLOCK *, ROW *, WERD *)) {
 }
 
 
-/**********************************************************************
+/**
  * process_selected_words()
  *
  * Walk the current block list applying the specified word processor function
  * to each word selected.
- **********************************************************************/
+ */
 
 void
-process_selected_words (
-                               //process words
-      BLOCK_LIST * block_list, //blocks to check
-      //function to call
-      TBOX & selection_box,
-      BOOL8 word_processor (
-          BLOCK *,
-          ROW *,
-          WERD *)) {
+process_selected_words (BLOCK_LIST * block_list,
+                        TBOX & selection_box,
+                        BOOL8 word_processor (BLOCK *, ROW *, WERD *)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -354,22 +317,18 @@ process_selected_words (
   WERD_IT word_it;
   WERD *word;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     if (block->bounding_box ().overlap (selection_box)) {
       row_it.set_to_list (block->row_list ());
-      for (row_it.mark_cycle_pt ();
-      !row_it.cycled_list (); row_it.forward ()) {
+      for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
         row = row_it.data ();
         if (row->bounding_box ().overlap (selection_box)) {
           word_it.set_to_list (row->word_list ());
-          for (word_it.mark_cycle_pt ();
-          !word_it.cycled_list (); word_it.forward ()) {
+          for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
             word = word_it.data ();
             if (word->bounding_box ().overlap (selection_box)) {
-              if (!word_processor (block, row, word) ||
-                selection_quit)
+              if (!word_processor (block, row, word) || selection_quit)
                 return;
             }
           }
@@ -378,17 +337,13 @@ process_selected_words (
     }
   }
 }
+
 namespace tesseract {
 void
-Tesseract::process_selected_words (
-                               //process words
-      BLOCK_LIST * block_list, //blocks to check
-      //function to call
-      TBOX & selection_box,
-      BOOL8 (tesseract::Tesseract::*word_processor) (
-          BLOCK *,
-          ROW *,
-          WERD *)) {
+Tesseract::process_selected_words (BLOCK_LIST * block_list,
+                                   TBOX & selection_box,
+                                   BOOL8 (tesseract::Tesseract::*word_processor) (BLOCK *, ROW *, WERD *)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -396,22 +351,18 @@ Tesseract::process_selected_words (
   WERD_IT word_it;
   WERD *word;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     if (block->bounding_box ().overlap (selection_box)) {
       row_it.set_to_list (block->row_list ());
-      for (row_it.mark_cycle_pt ();
-      !row_it.cycled_list (); row_it.forward ()) {
+      for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
         row = row_it.data ();
         if (row->bounding_box ().overlap (selection_box)) {
           word_it.set_to_list (row->word_list ());
-          for (word_it.mark_cycle_pt ();
-          !word_it.cycled_list (); word_it.forward ()) {
+          for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
             word = word_it.data ();
             if (word->bounding_box ().overlap (selection_box)) {
-              if (!((this->*word_processor) (block, row, word)) ||
-                selection_quit)
+              if (!((this->*word_processor) (block, row, word)) || selection_quit)
                 return;
             }
           }
@@ -423,22 +374,17 @@ Tesseract::process_selected_words (
 }  // namespace tesseract
 
 
-/**********************************************************************
+/**
  * process_all_words_it()   PASS ITERATORS
  *
  * Walk the current block list applying the specified word processor function
  * to all words
- **********************************************************************/
+ */
 
 void
-process_all_words_it (           //process words
-BLOCK_LIST * block_list,         //blocks to check
-BOOL8 word_processor (           //function to call
-BLOCK *,
-ROW *,
-WERD *,
-BLOCK_IT &,
-ROW_IT &, WERD_IT &)) {
+process_all_words_it (BLOCK_LIST * block_list,
+                      BOOL8 word_processor (BLOCK *, ROW *, WERD *, BLOCK_IT &, ROW_IT &, WERD_IT &)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -446,19 +392,15 @@ ROW_IT &, WERD_IT &)) {
   WERD_IT word_it;
   WERD *word;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     row_it.set_to_list (block->row_list ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
       word_it.set_to_list (row->word_list ());
-      for (word_it.mark_cycle_pt ();
-      !word_it.cycled_list (); word_it.forward ()) {
+      for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
         word = word_it.data ();
-        if (!word_processor
-          (block, row, word, block_it, row_it, word_it)
-          || selection_quit)
+        if (!word_processor (block, row, word, block_it, row_it, word_it) || selection_quit)
           return;
       }
     }
@@ -466,29 +408,18 @@ ROW_IT &, WERD_IT &)) {
 }
 
 
-/**********************************************************************
+/**
  * process_selected_words_it()   PASS ITERATORS
  *
  * Walk the current block list applying the specified word processor function
  * to each word selected.
- **********************************************************************/
+ */
 
 void
-process_selected_words_it (      //process words
-BLOCK_LIST * block_list,         //blocks to check
-                                 //function to call
-TBOX & selection_box, BOOL8 word_processor (
-BLOCK
-*,
-ROW *,
-WERD
-*,
-BLOCK_IT
-&,
-ROW_IT
-&,
-WERD_IT
-&)) {
+process_selected_words_it (BLOCK_LIST * block_list,
+                           TBOX & selection_box, 
+                           BOOL8 word_processor (BLOCK *, ROW *, WERD *, BLOCK_IT &, ROW_IT &, WERD_IT &)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
@@ -496,23 +427,18 @@ WERD_IT
   WERD_IT word_it;
   WERD *word;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     if (block->bounding_box ().overlap (selection_box)) {
       row_it.set_to_list (block->row_list ());
-      for (row_it.mark_cycle_pt ();
-      !row_it.cycled_list (); row_it.forward ()) {
+      for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
         row = row_it.data ();
         if (row->bounding_box ().overlap (selection_box)) {
           word_it.set_to_list (row->word_list ());
-          for (word_it.mark_cycle_pt ();
-          !word_it.cycled_list (); word_it.forward ()) {
+          for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ()) {
             word = word_it.data ();
             if (word->bounding_box ().overlap (selection_box)) {
-              if (!word_processor (block, row, word,
-                block_it, row_it, word_it) ||
-                selection_quit)
+              if (!word_processor (block, row, word, block_it, row_it, word_it) || selection_quit)
                 return;
             }
           }
@@ -523,23 +449,21 @@ WERD_IT
 }
 
 
-/**********************************************************************
+/**
  * process_all_blocks()
  *
  * Walk the current block list applying the specified block processor function
  * to each block.
- **********************************************************************/
+ */
 
 void
-process_all_blocks (             //process blocks
-BLOCK_LIST * block_list,         //blocks to check
-BOOL8 block_processor (          //function to call
-BLOCK *)) {
+process_all_blocks (BLOCK_LIST * block_list,
+                    BOOL8 block_processor (BLOCK *)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     if (!block_processor (block) || selection_quit)
       return;
@@ -547,25 +471,22 @@ BLOCK *)) {
 }
 
 
-/**********************************************************************
+/**
  * process_selected_blocks()
  *
  * Walk the current block list applying the specified block processor function
  * to each block selected.
- **********************************************************************/
+ */
 
 void
-process_selected_blocks (        //process blocks
-BLOCK_LIST * block_list,         //blocks to check
-                                 //function to call
-TBOX & selection_box, BOOL8 block_processor (
-BLOCK
-*)) {
+process_selected_blocks (BLOCK_LIST * block_list,
+                         TBOX & selection_box, 
+                         BOOL8 block_processor (BLOCK *)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     if (block->bounding_box ().overlap (selection_box)) {
       if (!block_processor (block) || selection_quit)
@@ -575,25 +496,23 @@ BLOCK
 }
 
 
-/**********************************************************************
+/**
  * process_all_rows()
  *
  * Walk the current block list applying the specified row processor function
  * to all rows
- **********************************************************************/
+ */
 
 void
-process_all_rows (               //process words
-BLOCK_LIST * block_list,         //blocks to check
-BOOL8 row_processor (            //function to call
-BLOCK *, ROW *)) {
+process_all_rows (BLOCK_LIST * block_list,
+                  BOOL8 row_processor (BLOCK *, ROW *)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     row_it.set_to_list (block->row_list ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
@@ -605,32 +524,28 @@ BLOCK *, ROW *)) {
 }
 
 
-/**********************************************************************
+/**
  * process_selected_rows()
  *
  * Walk the current block list applying the specified row processor function
  * to each row selected.
- **********************************************************************/
+ */
 
 void
-process_selected_rows (          //process rows
-BLOCK_LIST * block_list,         //blocks to check
-                                 //function to call
-TBOX & selection_box, BOOL8 row_processor (
-BLOCK *,
-ROW *)) {
+process_selected_rows (BLOCK_LIST * block_list,
+                       TBOX & selection_box, 
+                       BOOL8 row_processor (BLOCK *, ROW *)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     if (block->bounding_box ().overlap (selection_box)) {
       row_it.set_to_list (block->row_list ());
-      for (row_it.mark_cycle_pt ();
-      !row_it.cycled_list (); row_it.forward ()) {
+      for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
         row = row_it.data ();
         if (row->bounding_box ().overlap (selection_box)) {
           if (!row_processor (block, row) || selection_quit)
@@ -642,26 +557,23 @@ ROW *)) {
 }
 
 
-/**********************************************************************
+/**
  * process_all_rows_it()   PASS ITERATORS
  *
  * Walk the current block list applying the specified row processor function
  * to all rows
- **********************************************************************/
+ */
 
 void
-process_all_rows_it (            //process words
-BLOCK_LIST * block_list,         //blocks to check
-BOOL8 row_processor (            //function to call
-BLOCK *,
-ROW *, BLOCK_IT &, ROW_IT &)) {
+process_all_rows_it (BLOCK_LIST * block_list,
+                     BOOL8 row_processor (BLOCK *, ROW *, BLOCK_IT &, ROW_IT &)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     row_it.set_to_list (block->row_list ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
@@ -673,40 +585,31 @@ ROW *, BLOCK_IT &, ROW_IT &)) {
 }
 
 
-/**********************************************************************
+/**
  * process_selected_rows_it()   PASS ITERATORS
  *
  * Walk the current block list applying the specified row processor function
  * to each row selected.
- **********************************************************************/
+ */
 
 void
-process_selected_rows_it (       //process rows
-BLOCK_LIST * block_list,         //blocks to check
-                                 //function to call
-TBOX & selection_box, BOOL8 row_processor (
-BLOCK *,
-ROW *,
-BLOCK_IT
-&,
-ROW_IT
-&)) {
+process_selected_rows_it (BLOCK_LIST * block_list,
+                          TBOX & selection_box, 
+                          BOOL8 row_processor (BLOCK *, ROW *, BLOCK_IT &, ROW_IT &)) 
+{
   BLOCK_IT block_it(block_list);
   BLOCK *block;
   ROW_IT row_it;
   ROW *row;
 
-  for (block_it.mark_cycle_pt ();
-  !block_it.cycled_list (); block_it.forward ()) {
+  for (block_it.mark_cycle_pt (); !block_it.cycled_list (); block_it.forward ()) {
     block = block_it.data ();
     if (block->bounding_box ().overlap (selection_box)) {
       row_it.set_to_list (block->row_list ());
-      for (row_it.mark_cycle_pt ();
-      !row_it.cycled_list (); row_it.forward ()) {
+      for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
         row = row_it.data ();
         if (row->bounding_box ().overlap (selection_box)) {
-          if (!row_processor (block, row, block_it, row_it) ||
-            selection_quit)
+          if (!row_processor (block, row, block_it, row_it) || selection_quit)
             return;
         }
       }
