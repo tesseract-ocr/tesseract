@@ -29,6 +29,13 @@
 */
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
+#ifndef DISABLE_NLS
+#include <libintl.h>
+#include <locale.h>
+#define _(x) gettext(x)
+#else
+#define _(x) (x)
+#endif
 #if defined(MOTOROLA_BYTE_ORDER) || defined(WORDS_BIGENDIAN)
 #define __MOTO__  // Big-endian.
 #endif
@@ -308,7 +315,7 @@ inT8 open_tif_image(               //read header
     BADIMAGEFORMAT.error ("read_tif_image", TESSLOG, "Vital tag");
     return -1;
   }
-  tprintf("Image has %d * %d bit%c per pixel, and size (%d,%d)\n",
+  tprintf(_("Image has %d * %d bit%c per pixel, and size (%d,%d)\n"),
           bits_per_sample, samples_per_pixel, bits_per_sample == 1 ? ' ' : 's',
           *xsize, *ysize);
   *bpp = bits_per_sample * samples_per_pixel;
@@ -323,7 +330,7 @@ inT8 open_tif_image(               //read header
       resinfo.bottom = reverse32 (resinfo.bottom);
     }
     *res = resinfo.top / resinfo.bottom;
-    tprintf ("Resolution=%d\n", *res);
+    tprintf (_("Resolution=%d\n"), *res);
   }
   lseek (fd, (long) imagestart, 0);
   if (strips) {
@@ -411,12 +418,12 @@ inT8 read_tif_image(int fd,         // file to read
         break;
     }
     if (xindex < xsize) {
-      tprintf ("%d pixels short on line %d", xsize - xindex, yindex);
-      tprintf (", unknown code=%x\n", codeword);
+      tprintf (_("%d pixels short on line %d"), xsize - xindex, yindex);
+      tprintf (_(", unknown code=%x\n"), codeword);
     }
     xindex = read_eol (&bits, codeword);
     if (xindex > 0)
-      tprintf ("Discarding %d bits on line %d\n", xindex, yindex);
+      tprintf (_("Discarding %d bits on line %d\n"), xindex, yindex);
     image.put_line (0, yindex, xsize, &imageline, 0);
   }
   return 0;

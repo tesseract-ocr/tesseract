@@ -36,10 +36,10 @@ host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/config/config.h.in \
-	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	config/config.guess config/config.sub config/depcomp \
-	config/install-sh config/ltmain.sh config/missing \
-	config/mkinstalldirs
+	$(top_srcdir)/configure ABOUT-NLS AUTHORS COPYING ChangeLog \
+	INSTALL NEWS config/config.guess config/config.rpath \
+	config/config.sub config/depcomp config/install-sh \
+	config/ltmain.sh config/missing config/mkinstalldirs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/configure.ac
@@ -137,14 +137,21 @@ GENERIC_LIBRARY_VERSION = @GENERIC_LIBRARY_VERSION@
 GENERIC_MAJOR_VERSION = @GENERIC_MAJOR_VERSION@
 GENERIC_RELEASE = @GENERIC_RELEASE@
 GENERIC_VERSION = @GENERIC_VERSION@
+GETTEXT_MACRO_VERSION = @GETTEXT_MACRO_VERSION@
+GMSGFMT = @GMSGFMT@
+GMSGFMT_015 = @GMSGFMT_015@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+INTLLIBS = @INTLLIBS@
+INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LIBICONV = @LIBICONV@
+LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTIFF_CFLAGS = @LIBTIFF_CFLAGS@
@@ -152,10 +159,15 @@ LIBTIFF_LIBS = @LIBTIFF_LIBS@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
+LTLIBICONV = @LTLIBICONV@
+LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
+MSGFMT = @MSGFMT@
+MSGFMT_015 = @MSGFMT_015@
+MSGMERGE = @MSGMERGE@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -172,12 +184,17 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PACKAGE_YEAR = @PACKAGE_YEAR@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+POSUB = @POSUB@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+XGETTEXT = @XGETTEXT@
+XGETTEXT_015 = @XGETTEXT_015@
+XGETTEXT_EXTRA_OPTIONS = @XGETTEXT_EXTRA_OPTIONS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -234,8 +251,9 @@ top_srcdir = @top_srcdir@
 
 # TODO(luc) Add 'doc' to this list when ready
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = ccstruct ccutil classify cutil dict image textord viewer wordrec ccmain training tessdata testing java api
-EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
+SUBDIRS = po ccstruct ccutil classify cutil dict image textord viewer wordrec ccmain training tessdata testing java api
+AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"
+EXTRA_DIST = config/config.rpath  eurotext.tif phototest.tif ReleaseNotes \
       acinclude.m4 config configure.ac runautoconf tesseract.spec
 
 all: config_auto.h

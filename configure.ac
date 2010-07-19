@@ -74,13 +74,28 @@ AC_ARG_WITH(extra-libraries,
           fi ] )
 
 AC_MSG_CHECKING(--enable-graphics argument)
-AC_ARG_ENABLE(graphics,
+AC_ARG_ENABLE([graphics],
     [  --enable-graphics         Enable graphics (ScrollView) (default).],
     [enable_graphics=$enableval],
     [enable_graphics="yes"])
 AC_MSG_RESULT($enable_graphics)
 if test "$enable_graphics" = "no"; then
   AC_DEFINE([DISABLE_GRAPHICS], [], [Disable graphics])
+fi
+
+localedir='${prefix}/share/locale'
+
+AC_ARG_ENABLE([nls],
+    [  --enable-nls         Enable nls (gettext) (default).],
+    [enable_nls=$enableval],
+    [enable_nls="yes"])
+AC_MSG_RESULT($enable_nls)
+if test "$enable_nls" = "no"; then
+  AC_DEFINE([DISABLE_NLS], [], [Disable NLS])
+else
+  AM_GNU_GETTEXT_VERSION([0.17])
+  AM_GNU_GETTEXT([external])  
+  AC_SUBST(localedir)
 fi
 
 # Always look into a "gnu" directory.
@@ -337,7 +352,7 @@ fi
 # AC_DEFINE_UNQUOTED(TESSERACT_VERSION,["${PACKAGE_VERSION}"],[version string])
 
 # Output files
-AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES(Makefile po/Makefile.in)
 AC_CONFIG_FILES(api/Makefile)
 AC_CONFIG_FILES(ccmain/Makefile)
 AC_CONFIG_FILES(ccstruct/Makefile)

@@ -44,6 +44,13 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+#ifndef DISABLE_NLS
+#include <libintl.h>
+#include <locale.h>
+#define _(x) gettext(x)
+#else
+#define _(x) (x)
+#endif
 #ifdef HAVE_LIBTIFF
 #include "tiffio.h"
 #endif
@@ -138,7 +145,7 @@ void TesseractImage(const char* input_file, IMAGE* image, Pix* pix, int page_ind
     }
     if (!read_unlv_file(filename, image->get_xsize(), image->get_ysize(),
                         &blocks)) {
-      fprintf(stderr, "Error: Must have a unlv zone file %s to read!\n",
+      fprintf(stderr, _("Error: Must have a unlv zone file %s to read!\n"),
               filename.string());
       return;
     }
@@ -168,10 +175,16 @@ void TesseractImage(const char* input_file, IMAGE* image, Pix* pix, int page_ind
 int main(int argc, char **argv) {
   STRING outfile;               //output file
 
+#ifndef DISABLE_NLS
+  setlocale (LC_ALL, "");
+  bindtextdomain (PACKAGE, LOCALEDIR);
+  textdomain (PACKAGE);
+#endif
+
   // Detect incorrectly placed -l option.
   for (int arg = 0; arg < argc; ++arg) {
     if (arg != 3 && strcmp(argv[arg], "-l") == 0) {
-      fprintf(stderr, "Error: -l must be arg3, not %d\n", arg);
+      fprintf(stderr, _("Error: -l must be arg3, not %d\n"), arg);
       argc = 0;
     }
   }
@@ -205,13 +218,13 @@ int main(int argc, char **argv) {
   api.Init(argv[0], lang, &(argv[arg]), argc-arg, false);
   api.SetPageSegMode(tesseract::PSM_AUTO);
 
-  tprintf ("Tesseract Open Source OCR Engine %s\n",
+  tprintf (_("Tesseract Open Source OCR Engine %s\n"));
 #if defined(HAVE_LIBLEPT)
-           "with Leptonica");
+  tprintf (_("with Leptonica"));
 #elif defined(_TIFFIO_)
-           "with LibTiff");
+  tprintf (_("with LibTiff"));
 #else
-           "");
+  tprintf ("");
 #endif
 
   IMAGE image;
@@ -221,7 +234,7 @@ int main(int argc, char **argv) {
     page_number = 0;
   FILE* fp = fopen(argv[1], "rb");
   if (fp == NULL) {
-    tprintf("Image file %s cannot be opened!\n", argv[1]);
+    tprintf(_("Image file %s cannot be opened!\n"), argv[1]);
     fclose(fp);
     exit(1);
   }
@@ -232,7 +245,7 @@ int main(int argc, char **argv) {
   if (is_tiff) {
     int tiffstat = tiffGetCount(fp, &npages);
     if (tiffstat == 1) {
-      fprintf (stderr, "Error reading file %s!\n", argv[1]);
+      fprintf (stderr, _("Error reading file %s!\n"), argv[1]);
       fclose(fp);
       exit(1);
     }
@@ -245,7 +258,7 @@ int main(int argc, char **argv) {
   if (is_tiff) {
     for (; (pix = pixReadTiff(argv[1], page)) != NULL; ++page) {
       if (page > 0)
-        tprintf("Page %d\n", page);
+        tprintf(_("Page %d\n"), page);
       char page_str[kMaxIntSize];
       snprintf(page_str, kMaxIntSize - 1, "%d", page);
       api.SetVariable("applybox_page", page_str);
@@ -264,7 +277,7 @@ int main(int argc, char **argv) {
     if (pix == NULL) {
       FILE* fimg = fopen(argv[1], "r");
       if (fimg == NULL) {
-        tprintf("File %s cannot be opened!\n", argv[1]);
+        tprintf(_("File %s cannot be opened!\n"), argv[1]);
         fclose(fimg);
         exit(1);
       }
@@ -273,11 +286,11 @@ int main(int argc, char **argv) {
         chomp_string(filename);
         pix = pixRead(filename);
         if (pix == NULL) {
-          tprintf("Image file %s cannot be read!\n", filename);
+          tprintf(_("Image file %s cannot be read!\n"), filename);
           fclose(fimg);
           exit(1);
         }
-        tprintf("Page %d : %s\n", page, filename);
+        tprintf(_("Page %d : %s\n"), page, filename);
         TesseractImage(filename, NULL, pix, page, &api, &text_out);
         pixDestroy(&pix);
         ++page;
@@ -305,11 +318,11 @@ int main(int argc, char **argv) {
         TIFFClose(archive);
       archive = TIFFOpen(argv[1], "r");
       if (archive == NULL) {
-        tprintf("Read of file %s failed\n", argv[1]);
+        tprintf(_("Read of file %s failed\n"), argv[1]);
         exit(1);
       }
       if (page_number > 0)
-        tprintf("Page %d\n", page_number);
+        tprintf(_("Page %d\n"), page_number);
 
       // Seek to the appropriate page.
       for (int i = 0; i < page_number; ++i) {
@@ -333,11 +346,11 @@ int main(int argc, char **argv) {
 #endif
     // Using built-in image library to read bmp, or tiff without libtiff.
     if (image.read_header(argv[1]) < 0) {
-      tprintf("Read of file %s failed.\n", argv[1]);
+      tprintf(_("Read of file %s failed.\n"), argv[1]);
       exit(1);
     }
     if (image.read(image.get_ysize ()) < 0)
-      MEMORY_OUT.error(argv[0], EXIT, "Read of image %s", argv[1]);
+      MEMORY_OUT.error(argv[0], EXIT, _("Read of image %s"), argv[1]);
     invert_image(&image);
     TesseractImage(argv[1], &image, NULL, 0, &api, &text_out);
 #ifdef _TIFFIO_
@@ -354,7 +367,7 @@ int main(int argc, char **argv) {
   outfile += output_hocr ? ".html" : tessedit_create_boxfile ? ".box" : ".txt";
   FILE* fout = fopen(outfile.string(), "w");
   if (fout == NULL) {
-    tprintf("Cannot create output file %s\n", outfile.string());
+    tprintf(_("Cannot create output file %s\n"), outfile.string());
     fclose(fout);
     exit(1);
   }

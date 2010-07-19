@@ -1,11 +1,11 @@
 SUBDIRS =
-AM_CPPFLAGS = \
+AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"\
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/ccops -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify -I$(top_srcdir)/ccmain \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
-    -I$(top_srcdir)/textord
+    -I$(top_srcdir)/textord 
 
 include_HEADERS = \
     baseapi.h tesseractmain.h

@@ -1,3 +1,17 @@
+2010-07-19  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* m4/gettext.m4: New file, from gettext-0.17.
+	* m4/iconv.m4: New file, from gettext-0.17.
+	* m4/lib-ld.m4: New file, from gettext-0.17.
+	* m4/lib-link.m4: New file, from gettext-0.17.
+	* m4/lib-prefix.m4: New file, from gettext-0.17.
+	* m4/nls.m4: New file, from gettext-0.17.
+	* m4/po.m4: New file, from gettext-0.17.
+	* m4/progtest.m4: New file, from gettext-0.17.
+	* Makefile.am (SUBDIRS): Add po.
+	(EXTRA_DIST): Add config/config.rpath.
+	* configure.ac (AC_CONFIG_FILES): Add po/Makefile.in.
+
 June  2006 - V1.0 of open source Tesseract checked-in.
 Sep 7 2006 - V1.01.
           Added mfcpch.cpp and getopt.cpp for VC++.
