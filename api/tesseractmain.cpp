@@ -218,13 +218,13 @@ int main(int argc, char **argv) {
   api.Init(argv[0], lang, &(argv[arg]), argc-arg, false);
   api.SetPageSegMode(tesseract::PSM_AUTO);
 
-  tprintf (_("Tesseract Open Source OCR Engine %s\n"));
+  tprintf (_("Tesseract Open Source OCR Engine"));
 #if defined(HAVE_LIBLEPT)
-  tprintf (_("with Leptonica"));
+  tprintf (_(" with Leptonica\n"));
 #elif defined(_TIFFIO_)
-  tprintf (_("with LibTiff"));
+  tprintf (_(" with LibTiff\n"));
 #else
-  tprintf ("");
+  tprintf ("\n");
 #endif
 
   IMAGE image;
@@ -318,7 +318,7 @@ int main(int argc, char **argv) {
         TIFFClose(archive);
       archive = TIFFOpen(argv[1], "r");
       if (archive == NULL) {
-        tprintf(_("Read of file %s failed\n"), argv[1]);
+        tprintf(_("Read of file %s failed.\n"), argv[1]);
         exit(1);
       }
       if (page_number > 0)

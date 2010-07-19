@@ -1,19 +1,20 @@
-# SOME DESCRIPTIVE TITLE.
+# Polish translations for tesseract package.
 # This file is put in the public domain.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Automatically generated, 2010.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: tesseract 3.00\n"
 "Report-Msgid-Bugs-To: joregan@gmail.com\n"
 "POT-Creation-Date: 2010-07-19 03:05+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2010-07-19 00:49+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
 
 #: api/tesseractmain.cpp:148
 #, c-format
@@ -31,11 +32,11 @@ msgstr ""
 
 #: api/tesseractmain.cpp:223
 msgid " with Leptonica\n"
-msgstr ""
+msgstr " z Leptonicą\n"
 
 #: api/tesseractmain.cpp:225
 msgid " with LibTiff\n"
-msgstr ""
+msgstr " z LibTiff\n"
 
 #: api/tesseractmain.cpp:237
 #, c-format
@@ -50,7 +51,7 @@ msgstr ""
 #: api/tesseractmain.cpp:261 api/tesseractmain.cpp:325
 #, c-format
 msgid "Page %d\n"
-msgstr ""
+msgstr "Strona %d\n"
 
 #: api/tesseractmain.cpp:280
 #, c-format
@@ -60,12 +61,12 @@ msgstr ""
 #: api/tesseractmain.cpp:289
 #, c-format
 msgid "Image file %s cannot be read!\n"
-msgstr ""
+msgstr "Nie można czytać pliku %s!\n"
 
 #: api/tesseractmain.cpp:293
 #, c-format
 msgid "Page %d : %s\n"
-msgstr ""
+msgstr "Strona %d : %s\n"
 
 #: api/tesseractmain.cpp:321 api/tesseractmain.cpp:349
 #, c-format
@@ -100,7 +101,7 @@ msgstr ""
 #: image/imgtiff.cpp:422
 #, c-format
 msgid ", unknown code=%x\n"
-msgstr ""
+msgstr ", nieznany kod=%x\n"
 
 #: image/imgtiff.cpp:426
 #, c-format
