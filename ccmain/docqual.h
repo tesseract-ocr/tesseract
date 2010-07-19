@@ -118,7 +118,7 @@ extern INT_VAR_H (crunch_debug, 0, "As it says");
 inT16 word_blob_quality(  //Blob seg changes
                         WERD_RES *word,
                         ROW *row);
-BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2);
+//BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2);
 inT16 word_outline_errs(  //Outline count errs
                         WERD_RES *word);
 void word_char_quality(  //Blob seg changes
@@ -126,7 +126,7 @@ void word_char_quality(  //Blob seg changes
                        ROW *row,
                        inT16 *match_count,
                        inT16 *accepted_match_count);
-void unrej_good_chs(WERD_RES *word, ROW *row);
+//void unrej_good_chs(WERD_RES *word, ROW *row);
 void print_boxes(WERD *word);
 inT16 count_outline_errs(char c, inT16 outline_count);
 void reject_whole_page(PAGE_RES_IT &page_res_it);

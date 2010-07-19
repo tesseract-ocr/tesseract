@@ -88,6 +88,7 @@ FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   /* compute the normalization statistics for this blob */
   Outlines = ConvertBlob (Blob);
 #ifdef DEBUG_NORMFEAT
+  FILE* OFile;
   OFile = fopen ("nfOutline.logCPP", "r");
   if (OFile == NULL)
   {
@@ -113,6 +114,7 @@ FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   Feature->Params[CharNormRy] = FXInfo.Ry * Scale;
 
 #ifdef DEBUG_NORMFEAT
+  FILE* File;
   File = fopen ("nfFeatSet.logCPP", "r");
   if (File == NULL)
   {

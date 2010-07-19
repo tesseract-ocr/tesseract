@@ -70,7 +70,7 @@ EXTERN BOOL_VAR (tessedit_reject_bad_qual_wds, TRUE,
 EXTERN BOOL_VAR (tessedit_debug_doc_rejection, FALSE, "Page stats");
 EXTERN BOOL_VAR (tessedit_debug_quality_metrics, FALSE,
 "Output data to debug file");
-EXTERN BOOL_VAR (bland_unrej, FALSE, "unrej potential with no chekcs");
+EXTERN BOOL_VAR (bland_unrej, FALSE, "unrej potential with no checks");
 EXTERN double_VAR (quality_rowrej_pc, 1.1,
 "good_quality_doc gte good char limit");
 
@@ -123,6 +123,9 @@ EXTERN INT_VAR (crunch_long_repetitions, 3,
 "Crunch words with long repetitions");
 
 EXTERN INT_VAR (crunch_debug, 0, "As it says");
+
+static BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2);
+static void unrej_good_chs(WERD_RES *word, ROW *row);
 
 /*************************************************************************
  * word_blob_quality()
@@ -207,7 +210,7 @@ inT16 word_blob_quality(  //Blob seg changes
  * crude_match_blobs()
  * Check bounding boxes are the same and the number of outlines are the same.
  *************************************************************************/
-BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2) {
+static BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2) {
   TBOX box1 = blob1->bounding_box();
   TBOX box2 = blob2->bounding_box();
 
@@ -327,7 +330,7 @@ void word_char_quality(WERD_RES *word,
  * unrej_good_chs()
  * Unreject POTENTIAL rejects if the blob passes the blob and outline checks
  *************************************************************************/
-void unrej_good_chs(WERD_RES *word, ROW *row) {
+static void unrej_good_chs(WERD_RES *word, ROW *row) {
   WERD *bln_word;                // BL norm init word
   TWERD *tessword;               // tess format
   WERD *init_word;               // BL norm init word
