@@ -29,7 +29,7 @@
 */
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
-#ifndef DISABLE_NLS
+#ifdef USE_NLS
 #include <libintl.h>
 #include <locale.h>
 #define _(x) gettext(x)

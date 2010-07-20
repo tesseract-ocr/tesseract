@@ -415,6 +415,10 @@ AH_BOTTOM([
 #define GRAPHICS_DISABLED
 #endif
 
+#ifndef DISABLE_NLS
+#define USE_NLS
+#endif
+
 /* config_auto.h: end */
 #endif
 ])

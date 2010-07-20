@@ -771,8 +771,8 @@ void Tesseract::classify_word_pass2(WERD_RES *word, BLOCK* block, ROW *row) {
   set_global_subloc_code(SUBLOC_NORM);
   check_debug_pt(word, 30);
   if (!word->done ||
-    tessedit_training_tess ||
-  tessedit_training_wiseowl) {
+      tessedit_training_tess ||
+      tessedit_training_wiseowl) {
     word->caps_height = 0.0;
     if (word->x_height == 0.0f)
       word->x_height = row->x_height();

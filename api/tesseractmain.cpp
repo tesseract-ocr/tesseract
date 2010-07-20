@@ -44,7 +44,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-#ifndef DISABLE_NLS
+#ifdef USE_NLS
 #include <libintl.h>
 #include <locale.h>
 #define _(x) gettext(x)
@@ -175,7 +175,7 @@ void TesseractImage(const char* input_file, IMAGE* image, Pix* pix, int page_ind
 int main(int argc, char **argv) {
   STRING outfile;               //output file
 
-#ifndef DISABLE_NLS
+#ifdef USE_NLS
   setlocale (LC_ALL, "");
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
