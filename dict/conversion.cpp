@@ -29,6 +29,11 @@
 #include "stopper.h"
 #include "unicharset.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#pragma warning(disable:4018)  // signed/unsigned warnings
+#endif
+
 namespace tesseract {
 int Dict::valid_word(const char *string) {
   WERD_CHOICE word(string, getUnicharset());

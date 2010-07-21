@@ -55,6 +55,11 @@
 #include "image.h"
 #include "ccutil.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#pragma warning(disable:4800)  // int/bool warnings
+#endif
+
 int permutation_count;           // Used in metrics.cpp.
 /*----------------------------------------------------------------------
               V a r i a b l e s

@@ -33,6 +33,11 @@
 #include "freelist.h"
 #include "helpers.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#pragma warning(disable:4800)  // int/bool warnings
+#endif
+
 namespace tesseract {
 
 bool Trie::edge_char_of(NODE_REF node_ref, NODE_REF next_node,

@@ -27,6 +27,10 @@
 #include          "img.h"
 #include          "imgbmp.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#endif
+
 typedef struct
 {                                // bmfh
   char bfType1;                  //'B'

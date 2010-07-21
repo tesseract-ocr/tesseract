@@ -45,6 +45,11 @@
 #include <assert.h>
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#pragma warning(disable:4800)  // int/bool warnings
+#endif
+
 /* these are kludges - add appropriate .h file later */
 /* from adaptmatch.cpp */
 #define MAX_WERD_SIZE   100

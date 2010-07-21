@@ -18,6 +18,10 @@
 
 #include "dict.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#endif
+
 namespace tesseract {
 
 class Image;

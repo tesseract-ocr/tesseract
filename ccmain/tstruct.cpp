@@ -24,6 +24,10 @@
 #include          "ocrblock.h"
 //#include "structures.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#endif
+
 static ERRCODE BADFRAGMENTS = "Couldn't find matching fragment ends";
 
 ELISTIZE (FRAGMENT)

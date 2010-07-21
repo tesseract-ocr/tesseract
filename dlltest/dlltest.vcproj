@@ -71,6 +71,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="user32.lib ../tessdll.lib"
 				OutputFile=".\../dlltest.exe"
 				LinkIncremental="1"
