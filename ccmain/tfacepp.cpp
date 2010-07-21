@@ -270,11 +270,11 @@ Tesseract::split_and_recog_word(                        //recog one owrd
 
   first_word = word->poly_copy (denorm->row ()->x_height ());
   blob_it.set_to_list (first_word->blob_list ());
-  bestgap = -MAX_INT32;
+  bestgap = (float) -MAX_INT32;
   while (!blob_it.at_last ()) {
     blob = blob_it.data ();
                                  //gap to next
-    gap = blob_it.data_relative(1)->bounding_box().left() -
+    gap = (float) blob_it.data_relative(1)->bounding_box().left() -
         blob->bounding_box().right();
     blob_it.forward ();
     if (gap > bestgap) {

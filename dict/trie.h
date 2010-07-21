@@ -82,7 +82,7 @@ class Trie : public Dawg {
   // Fills the given NodeChildVector with all the unichar ids (and the
   // corresponding EDGE_REFs) for which there is an edge out of this node.
   void unichar_ids_of(NODE_REF node, NodeChildVector *vec) const {
-    const EDGE_VECTOR &forward_edges = nodes_[node]->forward_edges;
+    const EDGE_VECTOR &forward_edges = nodes_[(int)node]->forward_edges;
     for (int i = 0; i < forward_edges.size(); ++i) {
       vec->push_back(NodeChild(unichar_id_from_edge_rec(forward_edges[i]),
                                make_edge_ref(node, i)));
@@ -148,8 +148,8 @@ class Trie : public Dawg {
     uinT64 edge_index = (edge_ref & letter_mask_) >> LETTER_START_BIT;
     uinT64 node_index =
       (edge_ref & deref_node_index_mask_) >> flag_start_bit_;
-    TRIE_NODE_RECORD *node_rec = nodes_[node_index];
-    return &(node_rec->forward_edges[edge_index]);
+    TRIE_NODE_RECORD *node_rec = nodes_[(int)node_index];
+    return &(node_rec->forward_edges[(int)edge_index]);
   }
   // Constructs EDGE_REF from the given node_index and edge_index.
   inline EDGE_REF make_edge_ref(NODE_REF node_index,
@@ -179,7 +179,7 @@ class Trie : public Dawg {
   inline bool can_be_eliminated(const EDGE_RECORD &edge_rec) {
     NODE_REF node_ref = next_node_from_edge_rec(edge_rec);
     return (node_ref != NO_EDGE &&
-            nodes_[node_ref]->forward_edges.size() == 1);
+            nodes_[(int)node_ref]->forward_edges.size() == 1);
   }
 
   // Prints the contents of the Trie.
