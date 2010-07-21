@@ -53,3 +53,6 @@ all all-am install :
 # dist runs the autoconf makefile to archive the files correctly.
 dist distdir :
 	make -f Makefile $@
+uninstall uninstall-am:
+	make -f Makefile $@
+
