@@ -72,6 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="user32.lib"
 				OutputFile="..\unicharset_extractor.exe"
 				LinkIncremental="1"

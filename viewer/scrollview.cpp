@@ -28,6 +28,7 @@
 // e.g. parsing & sending messages, images etc.
 #ifdef WIN32
 #pragma warning(disable:4786)  // Don't give stupid warnings for stl
+#pragma warning(disable:4018)  // signed/unsigned warningss
 #endif
 
 const int kSvPort = 8461;

@@ -163,6 +163,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="user32.lib ws2_32.lib ..\lib\leptonlib.lib"
 				OutputFile="..\mftraining.exe"
 				LinkIncremental="1"
