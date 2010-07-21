@@ -29,6 +29,11 @@
             I n c l u d e s
 ---------------------------------------------------------------------*/
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#pragma warning(disable:4800)  // int/bool warnings
+#endif
+
 #include <assert.h>
 #include <math.h>
 
@@ -54,11 +59,6 @@
 #include "dict.h"
 #include "image.h"
 #include "ccutil.h"
-
-#ifdef _MSC_VER
-#pragma warning(disable:4244)  // Conversion warnings
-#pragma warning(disable:4800)  // int/bool warnings
-#endif
 
 int permutation_count;           // Used in metrics.cpp.
 /*----------------------------------------------------------------------

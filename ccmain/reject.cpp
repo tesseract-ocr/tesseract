@@ -17,12 +17,18 @@
  *
  **********************************************************************/
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#pragma warning(disable:4305)  // int/float warnings
+#endif
+
+#include "mfcpch.h"
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
-#include "mfcpch.h"
 #include          "tessvars.h"
 #ifdef __UNIX__
 #include          <assert.h>

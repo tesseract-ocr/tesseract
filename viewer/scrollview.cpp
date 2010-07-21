@@ -19,16 +19,13 @@
 //
 
 // Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #ifndef GRAPHICS_DISABLED
 // This class contains the main ScrollView-logic,
 // e.g. parsing & sending messages, images etc.
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable:4786)  // Don't give stupid warnings for stl
-#pragma warning(disable:4018)  // signed/unsigned warningss
+#pragma warning(disable:4018)  // signed/unsigned warnings
+#pragma warning(disable:4530)  // exception warnings
 #endif
 
 const int kSvPort = 8461;

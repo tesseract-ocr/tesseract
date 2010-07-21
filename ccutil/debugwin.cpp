@@ -16,15 +16,18 @@
  ** limitations under the License.
  *
  **********************************************************************/
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#ifdef _MSC_VER
+#pragma warning(disable:4554)  // Precedence warnings (line 101)
 #endif
 
 #include          "mfcpch.h"     //precompiled headers
 #include          <stdarg.h>
 #include          "debugwin.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 DLLSYM INT_VAR (debug_lines, 256, "Number of lines in debug window");
 

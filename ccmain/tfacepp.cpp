@@ -17,6 +17,12 @@
  *
  **********************************************************************/
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#pragma warning(disable:4305)  // int/float warnings
+#pragma warning(disable:4800)  // int/bool warnings
+#endif
+
 #include "mfcpch.h"
 #ifdef __UNIX__
 #include          <assert.h>

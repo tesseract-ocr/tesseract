@@ -18,6 +18,11 @@
  *
  **********************************************************************/
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#pragma warning(disable:4305)  // int/float warnings
+#endif
+
 #include "mfcpch.h"
 
 // Include automatically generated configuration file if running autoconf.
@@ -45,11 +50,6 @@
 #include          "matmatch.h"
 #include          "secname.h"
 #include          "tesseractclass.h"
-
-#ifdef _MSC_VER
-#pragma warning(disable:4244)  // Conversion warnings
-#pragma warning(disable:4305)  // int/float warnings
-#endif
 
 inT32 demo_word = 0;
 
