@@ -29,16 +29,16 @@
 */
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
+#if defined(MOTOROLA_BYTE_ORDER) || defined(WORDS_BIGENDIAN)
+#define __MOTO__  // Big-endian.
+#endif
+#endif
 #ifdef USE_NLS
 #include <libintl.h>
 #include <locale.h>
 #define _(x) gettext(x)
 #else
 #define _(x) (x)
-#endif
-#if defined(MOTOROLA_BYTE_ORDER) || defined(WORDS_BIGENDIAN)
-#define __MOTO__  // Big-endian.
-#endif
 #endif
 
 #include          "fileerr.h"
