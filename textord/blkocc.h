@@ -267,61 +267,8 @@ BOOL8 test_underline(                   //look for underlines
                      inT16 baseline,    //coords of baseline
                      inT16 xheight      //height of line
                     );
-                                 //project outlines
-void horizontal_cblob_projection(C_BLOB *blob,  //blob to project
-                                 STATS *stats   //output
-                                );
-void horizontal_coutline_projection(                     //project outlines
-                                    C_OUTLINE *outline,  //outline to project
-                                    STATS *stats         //output
-                                   );
-void set_bands(                 //init from varibles
-               float baseline,  //top of bottom band
-               float xheight    //height of split band
-              );
 void block_occ (PBLOB * blob,    //blob to do
 float occs[]                     //output histogram
 );
-                                 //blob to do
-void find_transitions(PBLOB *blob, REGION_OCC_LIST *region_occ_list);
-void record_region(  //add region on list
-                   inT16 band,
-                   float new_min,
-                   float new_max,
-                   inT16 region_type,
-                   REGION_OCC_LIST *region_occ_list);
-inT16 find_containing_maximal_band(  //find range's band
-                                   float y1,
-                                   float y2,
-                                   BOOL8 *doubly_contained);
-void find_significant_line(POLYPT_IT it, inT16 *band);
-inT16 find_overlapping_minimal_band(  //find range's band
-                                    float y1,
-                                    float y2);
-inT16 find_region_type(inT16 entry_band,
-                       inT16 current_band,
-                       inT16 exit_band,
-                       float entry_x,
-                       float exit_x);
-void find_trans_point(POLYPT_IT *pt_it,
-                      inT16 current_band,
-                      inT16 next_band,
-                      FCOORD *transition_pt);
-void next_region(POLYPT_IT *start_pt_it,
-                 inT16 start_band,
-                 inT16 *to_band,
-                 float *min_x,
-                 float *max_x,
-                 inT16 *increment,
-                 FCOORD *exit_pt);
-inT16 find_band(  // find POINT's band
-                float y);
-void compress_region_list(  // join open regions
-                          REGION_OCC_LIST *region_occ_list);
-void find_fbox(OUTLINE_IT *out_it,
-               float *min_x,
-               float *min_y,
-               float *max_x,
-               float *max_y);
-void maintain_limits(float *min_x, float *max_x, float x);
+
 #endif
