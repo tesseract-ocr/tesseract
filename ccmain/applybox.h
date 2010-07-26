@@ -39,21 +39,9 @@ extern STRING_VAR_H(exposure_pattern, "exp",
 
 static const int kMinFragmentOutlineArea = 10;
 
-// Register uch with unicharset_boxes.
-UNICHAR_ID register_char(const char *uch);
-
 void apply_boxes(const STRING& filename,
                  BLOCK_LIST *block_list    //real blocks
                 );
-
-void clear_any_old_text(                        //remove correct text
-                        BLOCK_LIST *block_list  //real blocks
-                       );
-
-BOOL8 read_next_box(int page,
-                    FILE* box_file,
-                    TBOX *box,
-                    UNICHAR_ID *uch_id);
 
 ROW *find_row_of_box(
                      BLOCK_LIST *block_list,  //real blocks

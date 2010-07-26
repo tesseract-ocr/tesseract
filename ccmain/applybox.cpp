@@ -81,6 +81,17 @@ extern IMAGE page_image;
 // The unicharset used during box training
 static UNICHARSET unicharset_boxes;
 
+static void clear_any_old_text(BLOCK_LIST *block_list);
+
+// Register uch with unicharset_boxes.
+static UNICHAR_ID register_char(const char *uch);
+
+static BOOL8 read_next_box(int page,
+                           FILE* box_file,
+                           TBOX *box,
+                           UNICHAR_ID *uch_id);
+
+
 /*************************************************************************
  * The code re-assigns outlines to form words each with ONE labelled blob.
  * Noise is left in UNLABELLED words. The chars on the page are checked crudely
@@ -175,7 +186,7 @@ void Tesseract::apply_boxes(const STRING& fname,
   while (read_next_box(applybox_page, box_file, &box, &uch_id)) {
     box_count++;
     if (!low_exposure || learn_chars_and_char_frags_mode) {
-    tgt_char_counts[uch_id]++;
+      tgt_char_counts[uch_id]++;
     }
     row = find_row_of_box (block_list, box, block_id, row_id);
     if (box.left () < prev_box_right) {
@@ -289,6 +300,7 @@ int Tesseract::Boxes2BlockList(int box_cnt, TBOX *boxes,
 }  // namespace tesseract
 
 
+static
 void clear_any_old_text(                        //remove correct text
                         BLOCK_LIST *block_list  //real blocks
                        ) {
@@ -309,6 +321,7 @@ void clear_any_old_text(                        //remove correct text
   }
 }
 
+static
 UNICHAR_ID register_char(const char *uch) {
   if (!unicharset_boxes.contains_unichar(uch)) {
     unicharset_boxes.unichar_insert(uch);
@@ -321,6 +334,7 @@ UNICHAR_ID register_char(const char *uch) {
   return unicharset_boxes.unichar_to_id(uch);
 }
 
+static
 BOOL8 read_next_box(int page,
                     FILE* box_file,
                     TBOX *box,

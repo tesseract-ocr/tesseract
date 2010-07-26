@@ -18,12 +18,13 @@
  *
  **********************************************************************/
 
+#include          "mfcpch.h"
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
-#include          "mfcpch.h"
 #include          "mainblk.h"
 #include          <string.h>
 #include          <math.h>
@@ -400,15 +401,15 @@ if (dopasses==1) return;
 	if (target_word_box)
 	{
 
-		TBOX current_word_box=page_res_it.word ()->word->bounding_box();
-		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
-		if (!target_word_box->contains(center_pt))
-		{
-			page_res_it.forward ();
-			continue;
-		}
+        TBOX current_word_box=page_res_it.word ()->word->bounding_box();
+        FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
+        if (!target_word_box->contains(center_pt))
+        {
+            page_res_it.forward ();
+            continue;
+        }
 
-	}
+    }
 //end jetsoft
 
     classify_word_pass2(page_res_it.word(), page_res_it.block()->block,
@@ -460,18 +461,16 @@ if (dopasses==1) return;
 //changed by jetsoft
 //specific to its needs to extract one word when need
 
-	if (target_word_box)
-	{
-
-		TBOX current_word_box=page_res_it.word ()->word->bounding_box();
-		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
-		if (!target_word_box->contains(center_pt))
-		{
-			page_res_it.forward ();
-			continue;
-		}
-
-	}
+    if (target_word_box)
+    {
+        TBOX current_word_box=page_res_it.word ()->word->bounding_box();
+        FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
+        if (!target_word_box->contains(center_pt))
+        {
+            page_res_it.forward ();
+            continue;
+        }
+    }
 // end jetsoft
 
     if (tessedit_em_adaption_mode != 0)
@@ -528,18 +527,16 @@ if (dopasses==1) return;
 //changed by jetsoft
 //specific to its needs to extract one word when need
 
-	if (target_word_box)
-	{
-
-		TBOX current_word_box=page_res_it.word ()->word->bounding_box();
-		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
-		if (!target_word_box->contains(center_pt))
-		{
-			page_res_it.forward ();
-			continue;
-		}
-
-	}
+    if (target_word_box)
+    {
+        TBOX current_word_box=page_res_it.word ()->word->bounding_box();
+        FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
+        if (!target_word_box->contains(center_pt))
+        {
+            page_res_it.forward ();
+            continue;
+        }
+    }
 
 //end jetsoft
     if (tessedit_cluster_adaption_mode != 0)
@@ -1761,7 +1758,7 @@ void Tesseract::font_recognition_pass(  //good chars in word
  *
  * Add into the stats for one row.
  **********************************************************************/
-
+//dead code?
 void add_in_one_row(               //good chars in word
                     ROW_RES *row,  //current row
                     STATS *fonts,  //font stats
@@ -1789,7 +1786,7 @@ void add_in_one_row(               //good chars in word
  *
  * Find the modal font and remove from the stats.
  **********************************************************************/
-
+//make static?
 void find_modal_font(                  //good chars in word
                      STATS *fonts,     //font stats
                      inT8 *font_out,   //output font
