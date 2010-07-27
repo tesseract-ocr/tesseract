@@ -47,12 +47,12 @@ int row_number;
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 
-/**********************************************************************
- * program_init
+namespace tesseract {
+/**
+ * @name program_init
  *
  * Initialize all the things in the program that need to be initialized.
- **********************************************************************/
-namespace tesseract {
+ */
 void Wordrec::program_init() {
   /* Plots flags */
   plots[OCR] = wordrec_plots_ocr;
@@ -70,11 +70,11 @@ void Wordrec::program_init() {
 }  // namespace tesseract
 
 
-/**********************************************************************
- * matherr
+/**
+ * @name matherr
  *
  * Trap procedure for the Standard Math library
- **********************************************************************/
+ */
 #ifdef __UNIX
 int
 matherr (error)

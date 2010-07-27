@@ -45,16 +45,20 @@
 ----------------------------------------------------------------------
 */
 
-typedef LIST BLOBS;              //?                                                                          /* List of (BLOB*) */
+/** List of (BLOB*) */
+typedef LIST BLOBS;
 
-typedef LIST OUTLINES;           /* List of (TESSLINE*) */
+/** List of (TESSLINE*) */
+typedef LIST OUTLINES;
 
-typedef LIST EDGEPTS;            /* List of (EDGEPT*) */
+/** List of (EDGEPT*) */
+typedef LIST EDGEPTS;
 
 typedef inT16 BLOB_WEIGHTS[MAX_NUM_CHUNKS];
 
+/** Each char evaluated */
 typedef struct
-{                                /* Each char evaluated */
+{
   float match;
   float certainty;
   char character;
@@ -62,9 +66,10 @@ typedef struct
   int gap;
 } EVALUATION_RECORD;
 
+/** Classification info for chunks */
 struct CHUNKS_RECORD
-{                                /* Classification info */
-  MATRIX *ratings;               /* for chunks */
+{
+  MATRIX *ratings;
   TBLOB *chunks;
   SEAMS splits;
   TEXTROW *row;
@@ -75,7 +80,7 @@ struct CHUNKS_RECORD
   inT16 *weights;
 };
 
-                                 /* Each segmentation */
+/** Each segmentation */
 typedef EVALUATION_RECORD EVALUATION_ARRAY[MAX_NUM_CHUNKS];
 
 /*----------------------------------------------------------------------

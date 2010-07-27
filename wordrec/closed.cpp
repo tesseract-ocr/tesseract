@@ -43,12 +43,12 @@ HASH_TABLE global_hash = NULL;
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * hash_add
+/**
+ * @name hash_add
  *
  * Look in the hash table for a particular value. If it is not there
  * then add it.
- **********************************************************************/
+ */
 int hash_add(HASH_TABLE state_table, STATE *state) { 
   int x;
   int i = 0;
@@ -79,12 +79,12 @@ int hash_add(HASH_TABLE state_table, STATE *state) {
 }
 
 
-/**********************************************************************
- * hash_lookup
+/**
+ * @name hash_lookup
  *
  * Look in the hash table for a particular value. If the value is there
  * then return TRUE, FALSE otherwise.
- **********************************************************************/
+ */
 int hash_lookup(HASH_TABLE state_table, STATE *state) { 
   int x;
   int i = 0;
@@ -114,11 +114,11 @@ int hash_lookup(HASH_TABLE state_table, STATE *state) {
 }
 
 
-/**********************************************************************
- * new_hash_table
+/**
+ * @name new_hash_table
  *
  * Create and initialize a hash table.
- **********************************************************************/
+ */
 HASH_TABLE new_hash_table() { 
   HASH_TABLE ht;
   int x;

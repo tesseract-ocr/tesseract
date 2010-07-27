@@ -34,33 +34,52 @@ extern BOOL_VAR_H(tessedit_write_images, FALSE,
                   "Capture the image from the IPE");
 extern BOOL_VAR_H(tessedit_debug_to_screen, FALSE, "Dont use debug file");
 
-inT32 api_main(                   //run from api
-               const char *arg0,  //program name
-               uinT16 lang        //language
-              );
-inT16 setup_info(                     //setup dummy engine info
-                 uinT16 lang,         //user language
-                 const char *name,    //of engine
-                 const char *version  //of engine
-                );
-inT16 read_image(               //read dummy image info
-                 IMAGE *im_out  //output image
-                );
+/**
+ * run from api
+ * @param arg0 program name
+ * @param lang language
+ */
+inT32 api_main(const char *arg0,
+               uinT16 lang);
+/**
+ * setup dummy engine info
+ * @param lang user language
+ * @param name of engine
+ * @param version of engine
+ */
+inT16 setup_info(uinT16 lang,
+                 const char *name,
+                 const char *version);
+/**
+ * read dummy image info
+ * @param im_out read dummy image info
+ */
+inT16 read_image(IMAGE *im_out);
 #ifdef __MSW32__
-int WINAPI WinMain(  //main for windows //command line
-                   HINSTANCE hInstance,
+/**
+ * main for windows command line
+ */
+int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
                    LPSTR lpszCmdLine,
                    int nCmdShow);
-LONG WINAPI WndProc(            //message handler
-                    HWND hwnd,  //window with message
-                    UINT msg,   //message typ
+/**
+ * message handler
+ * @param hwnd window with message
+ * @param msg message type
+ */
+LONG WINAPI WndProc(HWND hwnd,
+                    UINT msg,
                     WPARAM wParam,
                     LPARAM lParam);
-int parse_args (                 /*refine arg list */
-int argc,                        /*no of input args */
-char *argv[],                    /*input args */
-char *arglist[]                  /*output args */
-);
+/**
+ * refine argument list
+ * @param argc number of input arguments
+ * @param argv input arguments
+ * @param arglist output arguments
+ */
+int parse_args (int argc,
+                char *argv[],
+                char *arglist[]);
 #endif
 #endif

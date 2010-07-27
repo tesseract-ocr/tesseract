@@ -44,7 +44,7 @@ freechoice, CHOICEBLOCK, "A_CHOICE", choicecount)
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-/**********************************************************************
+/**
  * append_char_choice
  *
  * Create a new choice record. Store the string value in a safe place.
@@ -52,7 +52,7 @@ freechoice, CHOICEBLOCK, "A_CHOICE", choicecount)
  *
  * NB - This is only used by matchers, so permuter is always NO_PERM
  * SPC 16/9/92
- **********************************************************************/
+ */
 CHOICES append_char_choice(CHOICES ratings,
                            const char *string,
                            const char *lengths,
@@ -68,12 +68,12 @@ CHOICES append_char_choice(CHOICES ratings,
   return (ratings);
 }
 
-/**********************************************************************
+/**
  * copy_choices
  *
  * Copy a list of choices.  This means that there will be two copies
  * in memory.
- **********************************************************************/
+ */
 CHOICES copy_choices(CHOICES choices) {
   CHOICES l;
   CHOICES result = NIL;
@@ -94,12 +94,12 @@ CHOICES copy_choices(CHOICES choices) {
   return (reverse_d (result));
 }
 
-/**********************************************************************
+/**
  * clone_choice
  *
  * Copy the contents of the given values to the corresponding values in
  * a given choice replacing any previous values it might have had.
- **********************************************************************/
+ */
 void clone_choice(A_CHOICE *choice, const char *string,
                   const char *lengths, float rating, float certainty,
                   inT8 permuter, bool fragment_mark,
@@ -118,11 +118,11 @@ void clone_choice(A_CHOICE *choice, const char *string,
     fragment_lengths ? strsave(fragment_lengths) : NULL;
 }
 
-/**********************************************************************
+/**
  * clear_choice
  *
  * Set the fields in this choice to be defaulted bad initial values.
- **********************************************************************/
+ */
 void clear_choice(A_CHOICE *choice) {
   choice->string = NULL;
   choice->lengths =  NULL;
@@ -133,11 +133,11 @@ void clear_choice(A_CHOICE *choice) {
 }
 
 
-/**********************************************************************
+/**
  * free_choice
  *
  * Free up the memory taken by one choice rating.
- **********************************************************************/
+ */
 void free_choice(void *arg) {  //LIST choice)
   A_CHOICE *this_choice;
   LIST choice = (LIST) arg;
@@ -154,13 +154,13 @@ void free_choice(void *arg) {  //LIST choice)
   }
 }
 
-/**********************************************************************
+/**
  * get_best_free_other
  *
  * Returns the best of two choices and frees the other (worse) choice.
  * A choice is better if it has a non-NULL string and has a lower rating
  * than the other choice.
- **********************************************************************/
+ */
 A_CHOICE *get_best_free_other(A_CHOICE *choice_1, A_CHOICE *choice_2) {
   if (!choice_1) return choice_2;
   if (!choice_2) return choice_1;
@@ -174,11 +174,11 @@ A_CHOICE *get_best_free_other(A_CHOICE *choice_1, A_CHOICE *choice_2) {
   }
 }
 
-/**********************************************************************
+/**
  * new_choice
  *
  * Create a new choice record. Store the string value in a safe place.
- **********************************************************************/
+ */
 A_CHOICE *new_choice(const char *string,
                      const char *lengths,
                      float rating,
@@ -216,11 +216,11 @@ A_CHOICE *new_choice(const char *string,
 }
 
 
-/**********************************************************************
+/**
  * print_choices
  *
  * Print the rating for a particular blob or word.
- **********************************************************************/
+ */
 namespace tesseract {
 void Dict::print_choices(const char *label,
                          CHOICES choices) {   // List of (A_CHOICE*).
@@ -235,11 +235,11 @@ void Dict::print_choices(const char *label,
   tprintf("\n");
 }
 
-/**********************************************************************
+/**
  * print_word_choice
  *
  * Print the string in a human-readable format and ratings for a word.
- **********************************************************************/
+ */
 void Dict::print_word_choice(const char *label, A_CHOICE* choice) {
   tprintf("%s : ", label);
   if (choice == NULL) {
@@ -251,12 +251,12 @@ void Dict::print_word_choice(const char *label, A_CHOICE* choice) {
   }
 }
 
-/**********************************************************************
+/**
  * print_word_string
  *
  * Print the string in a human-readable format.
  * The output is not newline terminated.
- **********************************************************************/
+ */
 void Dict::print_word_string(const char* str) {
   int step = 1;
   for (int i = 0; str[i] != '\0'; i += step) {

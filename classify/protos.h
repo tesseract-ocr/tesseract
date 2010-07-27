@@ -81,51 +81,51 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
 /*----------------------------------------------------------------------
               M a c r o s
 ----------------------------------------------------------------------*/
-/**********************************************************************
+/**
  * AddProtoToConfig
  *
  * Set a single proto bit in the specified configuration.
- **********************************************************************/
+ */
 
 #define AddProtoToConfig(Pid,Config)	\
 (SET_BIT (Config, Pid))
 
-/**********************************************************************
+/**
  * RemoveProtoFromConfig
  *
  * Clear a single proto bit in the specified configuration.
- **********************************************************************/
+ */
 
 #define RemoveProtoFromConfig(Pid,Config)	\
 (reset_bit (Config, Pid))
 
-/**********************************************************************
+/**
  * ClassOfChar
  *
  * Return the class of a particular ASCII character value.
- **********************************************************************/
+ */
 
 #define ClassOfChar(Char)            \
 ((TrainingData [Char].NumProtos) ? \
 	(& TrainingData [Char])         : \
 	NO_CLASS)
 
-/**********************************************************************
+/**
  * ProtoIn
  *
  * Choose the selected prototype in this class record.  Return the
  * pointer to it (type PROTO).
- **********************************************************************/
+ */
 
 #define ProtoIn(Class,Pid)  \
 (& (Class)->Prototypes [Pid])
 
-/**********************************************************************
+/**
  * PrintProto
  *
  * Print out the contents of a prototype.   The 'Proto' argument is of
  * type 'PROTO'.
- **********************************************************************/
+ */
 
 #define PrintProto(Proto)                      \
 (cprintf ("X=%4.2f, Y=%4.2f, Angle=%4.2f",    \
@@ -135,12 +135,12 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
           Proto->Angle))                \
 
 
-/**********************************************************************
+/**
  * PrintProtoLine
  *
  * Print out the contents of a prototype.   The 'Proto' argument is of
  * type 'PROTO'.
- **********************************************************************/
+ */
 
 #define PrintProtoLine(Proto)             \
 (cprintf ("A=%4.2f, B=%4.2f, C=%4.2f",   \

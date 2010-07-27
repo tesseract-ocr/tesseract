@@ -40,13 +40,13 @@ BOOL_VAR(textord_tabfind_show_vlines, false, "Show vertical rule lines");
 
 namespace tesseract {
 
-// Denominator of resolution makes max pixel width to allow thin lines.
+/// Denominator of resolution makes max pixel width to allow thin lines.
 const int kThinLineFraction = 30;
-// Denominator of resolution makes min pixels to demand line lengths to be.
+/// Denominator of resolution makes min pixels to demand line lengths to be.
 const int kMinLineLengthFraction = 8;
-// Spacing of cracks across the page to break up tall vertical lines.
+/// Spacing of cracks across the page to break up tall vertical lines.
 const int kCrackSpacing = 100;
-// Grid size used by line finder. Not very critical.
+/// Grid size used by line finder. Not very critical.
 const int kLineFindGridSize = 50;
 
 // Finds vertical line objects in the given pix.
@@ -351,4 +351,5 @@ Boxa* LineFinder::GetHLineBoxes(int resolution, Pix* src_pix, Pix** line_pix) {
 }
 
 }  // namespace tesseract.
+
 

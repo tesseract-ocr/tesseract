@@ -73,13 +73,13 @@ double_VAR(wordrec_worst_state, 1, "Worst segmentation state");
           F u n c t i o n s
 ----------------------------------------------------------------------*/
 
-/**********************************************************************
- * best_first_search
+namespace tesseract {
+/**
+ * @name best_first_search
  *
  * Find the best segmentation by doing a best first search of the
  * solution space.
- **********************************************************************/
-namespace tesseract {
+ */
 void Wordrec::best_first_search(CHUNKS_RECORD *chunks_record,
                                 WERD_CHOICE *best_choice,
                                 WERD_CHOICE *raw_choice,
@@ -176,15 +176,15 @@ void Wordrec::best_first_search(CHUNKS_RECORD *chunks_record,
 }  // namespace tesseract
 
 
-/**********************************************************************
- * chunks_width
+/**
+ * @name chunks_width
  *
  * Return the width of a chunk which is a composed of several blobs
  * blobs[start_blob..last_blob] inclusively,
  * whose individual widths and gaps are record in width_record in the form
  * width_record->num_char = n
  * width_record->widths[2*n-1] = w0,g0,w1,g1..w(n-1),g(n-1)
- **********************************************************************/
+ */
 int chunks_width(WIDTH_RECORD *width_record, int start_blob, int last_blob) {
   int result = 0;
   for (int x = start_blob * 2; x <= last_blob * 2; x++)
@@ -192,22 +192,22 @@ int chunks_width(WIDTH_RECORD *width_record, int start_blob, int last_blob) {
   return (result);
 }
 
-/**********************************************************************
- * chunks_gap
+/**
+ * @name chunks_gap
  *
  * Return the width of between the specified chunk and next.
- **********************************************************************/
+ */
 int chunks_gap(WIDTH_RECORD *width_record, int last_chunk) {
   return (last_chunk < width_record->num_chars - 1) ?
       width_record->widths[last_chunk * 2 + 1] : 0;
 }
 
 
-/**********************************************************************
+/**
  * delete_search
  *
  * Terminate the current search and free all the memory involved.
- **********************************************************************/
+ */
 void delete_search(SEARCH_RECORD *the_search) {
   float closeness;
 
@@ -229,13 +229,13 @@ void delete_search(SEARCH_RECORD *the_search) {
 }
 
 
-/**********************************************************************
+namespace tesseract {
+/**
  * evaluate_chunks
  *
  * A particular word level segmentation has been chosen.  Evaluation
  * this to find the word list that corresponds to it.
- **********************************************************************/
-namespace tesseract {
+ */
 BLOB_CHOICE_LIST_VECTOR *Wordrec::evaluate_chunks(CHUNKS_RECORD *chunks_record,
                                                   SEARCH_STATE search_state) {
   BLOB_CHOICE_LIST_VECTOR *char_choices = new BLOB_CHOICE_LIST_VECTOR();
@@ -283,12 +283,12 @@ BLOB_CHOICE_LIST_VECTOR *Wordrec::evaluate_chunks(CHUNKS_RECORD *chunks_record,
   return (char_choices);
 }
 
-/**********************************************************************
- * evaluate_state
+/**
+ * @name evaluate_state
  *
  * Evaluate the segmentation that is represented by this state in the
  * best first search.  Add this state to the "states_seen" list.
- **********************************************************************/
+ */
 inT16 Wordrec::evaluate_state(CHUNKS_RECORD *chunks_record,
                               SEARCH_RECORD *the_search,
                               DANGERR *fixpt) {
@@ -348,12 +348,12 @@ inT16 Wordrec::evaluate_state(CHUNKS_RECORD *chunks_record,
 }
 
 
-/**********************************************************************
+/**
  * rebuild_current_state
  *
  * Evaluate the segmentation that is represented by this state in the
  * best first search.  Add this state to the "states_seen" list.
- **********************************************************************/
+ */
 BLOB_CHOICE_LIST_VECTOR *Wordrec::rebuild_current_state(
     TBLOB *blobs,
     SEAMS seam_list,
@@ -546,13 +546,13 @@ BLOB_CHOICE_LIST_VECTOR *Wordrec::rebuild_current_state(
 }  // namespace tesseract
 
 
-/**********************************************************************
- * expand_node
+/**
+ * @name expand_node
  *
  * Create the states that are attached to this one.  Check to see that
  * each one has not already been visited.  If not add it to the priority
  * queue.
- **********************************************************************/
+ */
 namespace tesseract {
 void Wordrec::expand_node(FLOAT32 worst_priority,
                           CHUNKS_RECORD *chunks_record,
@@ -617,11 +617,11 @@ void Wordrec::expand_node(FLOAT32 worst_priority,
 }  // namespace tesseract
 
 
-/**********************************************************************
- * new_search
+/**
+ * @name new_search
  *
  * Create and initialize a new search record.
- **********************************************************************/
+ */
 SEARCH_RECORD *new_search(CHUNKS_RECORD *chunks_record,
                           int num_joints,
                           WERD_CHOICE *best_choice,
@@ -654,12 +654,12 @@ SEARCH_RECORD *new_search(CHUNKS_RECORD *chunks_record,
 }
 
 
-/**********************************************************************
- * pop_queue
+/**
+ * @name pop_queue
  *
  * Get this state from the priority queue.  It should be the state that
  * has the greatest urgency to be evaluated.
- **********************************************************************/
+ */
 STATE *pop_queue(HEAP *queue) {
   HEAPENTRY entry;
 
@@ -678,11 +678,11 @@ STATE *pop_queue(HEAP *queue) {
 }
 
 
-/**********************************************************************
- * push_queue
+/**
+ * @name push_queue
  *
  * Add this state into the priority queue.
- **********************************************************************/
+ */
 void push_queue(HEAP *queue, STATE *state, FLOAT32 worst_priority,
                 FLOAT32 priority) {
   HEAPENTRY entry;
@@ -702,12 +702,12 @@ void push_queue(HEAP *queue, STATE *state, FLOAT32 worst_priority,
 }
 
 
-/**********************************************************************
- * replace_char_widths
+/**
+ * @name replace_char_widths
  *
  * Replace the value of the char_width field in the chunks_record with
  * the updated width measurements from the last_segmentation.
- **********************************************************************/
+ */
 void replace_char_widths(CHUNKS_RECORD *chunks_record, SEARCH_STATE state) {
   WIDTH_RECORD *width_record;
   int num_blobs;

@@ -17,6 +17,11 @@
  *
  **********************************************************************/
 
+/**
+ * @file control.h
+ * Module-independent matcher controller.
+ */
+
 #ifndef           CONTROL_H
 #define           CONTROL_H
 
@@ -34,12 +39,12 @@
 
 enum ACCEPTABLE_WERD_TYPE
 {
-  AC_UNACCEPTABLE,               //Unacceptable word
-  AC_LOWER_CASE,                 //ALL lower case
-  AC_UPPER_CASE,                 //ALL upper case
-  AC_INITIAL_CAP,                //ALL but initial lc
-  AC_LC_ABBREV,                  //a.b.c.
-  AC_UC_ABBREV                   //A.B.C.
+  AC_UNACCEPTABLE,               ///< Unacceptable word
+  AC_LOWER_CASE,                 ///< ALL lower case
+  AC_UPPER_CASE,                 ///< ALL upper case
+  AC_INITIAL_CAP,                ///< ALL but initial lc
+  AC_LC_ABBREV,                  ///< a.b.c.
+  AC_UC_ABBREV                   ///< A.B.C.
 };
 
 typedef BOOL8 (*BLOB_REJECTOR) (PBLOB *, BLOB_CHOICE_IT *, void *);
@@ -139,38 +144,57 @@ void classify_word_pass1(                 //recog one word
 */
                                  //word to do
 void classify_word_pass2(WERD_RES *word, ROW *row);
-void match_word_pass2(                 //recog one word
-                      WERD_RES *word,  //word to do
+/**
+ * recognize one word
+ * @param word word to do
+ */
+void match_word_pass2(
+                      WERD_RES *word,
                       ROW *row,
                       float x_height);
-void fix_hyphens(               //crunch double hyphens
-                 WERD_CHOICE *choice,  //string to fix
-                 WERD *word,    //word to do //char choices
+/**
+ * crunch double hyphens
+ * @param choice string to fix
+ * @param word word to do
+ * @param blob_choices char choices
+ */
+void fix_hyphens(
+                 WERD_CHOICE *choice,
+                 WERD *word,
                  BLOB_CHOICE_LIST_CLIST *blob_choices);
-void merge_blobs(               //combine 2 blobs
-                 PBLOB *blob1,  //dest blob
-                 PBLOB *blob2   //source blob
+
+/**
+ * combine 2 blobs
+ * @param blob1 dest blob
+ * @param blob2 source blob
+ */
+void merge_blobs(
+                 PBLOB *blob1,
+                 PBLOB *blob2
                 );
-void choice_dump_tester(                           //dump chars in word
-                        PBLOB *,                   //blob
-                        DENORM *,                  //de-normaliser
-                        BOOL8 correct,             //ly segmented
-                        char *text,                //correct text
-                        inT32 count,               //chars in text
-                        BLOB_CHOICE_LIST *ratings  //list of results
+/** dump chars in word */
+void choice_dump_tester(
+                        PBLOB *,                   ///< blob
+                        DENORM *,                  ///< de-normaliser
+                        BOOL8 correct,             ///< ly segmented
+                        char *text,                ///< correct text
+                        inT32 count,               ///< chars in text
+                        BLOB_CHOICE_LIST *ratings  ///< list of results
                        );
 WERD *make_bln_copy(WERD *src_word, ROW *row, BLOCK* block,
                     float x_height, DENORM *denorm);
 BOOL8 check_debug_pt(WERD_RES *word, int location);
-void add_in_one_row(               //good chars in word
-                    ROW_RES *row,  //current row
-                    STATS *fonts,  //font stats
-                    inT8 *italic,  //output count
-                    inT8 *bold     //output count
+/** good chars in word */
+void add_in_one_row(
+                    ROW_RES *row,  ///< current row
+                    STATS *fonts,  ///< font stats
+                    inT8 *italic,  ///< output count
+                    inT8 *bold     ///< output count
                    );
-void find_modal_font(                  //good chars in word
-                     STATS *fonts,     //font stats
-                     inT8 *font_out,   //output font
-                     inT8 *font_count  //output count
+/** good chars in word */
+void find_modal_font(
+                     STATS *fonts,     ///< font stats
+                     inT8 *font_out,   ///< output font
+                     inT8 *font_count  ///< output count
                     );
 #endif

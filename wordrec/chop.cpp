@@ -80,13 +80,13 @@ INT_VAR(chop_x_y_weight, 3, "X / Y  length weight");
 /*----------------------------------------------------------------------
               M a c r o s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * length_product
+/**
+ * @name length_product
  *
  * Compute the product of the length of two vectors.  The
  * vectors must be of type POINT.   This product is used in computing
  * angles.
- **********************************************************************/
+ */
 #define length_product(p1,p2)                                      \
 (sqrt ((((float) (p1).x * (p1).x + (float) (p1).y * (p1).y) *    \
 			((float) (p2).x * (p2).x + (float) (p2).y * (p2).y))))
@@ -94,22 +94,22 @@ INT_VAR(chop_x_y_weight, 3, "X / Y  length weight");
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * point_priority
+/**
+ * @name point_priority
  *
  * Assign a priority to and edge point that might be used as part of a
  * split. The argument should be of type EDGEPT.
- **********************************************************************/
+ */
 PRIORITY point_priority(EDGEPT *point) {
   return ((PRIORITY) point_bend_angle (point));
 }
 
 
-/**********************************************************************
- * add_point_to_list
+/**
+ * @name add_point_to_list
  *
  * Add an edge point to a POINT_GROUP containg a list of other points.
- **********************************************************************/
+ */
 void add_point_to_list(POINT_GROUP point_list, EDGEPT *point) {
   HEAPENTRY data;
 
@@ -126,12 +126,12 @@ void add_point_to_list(POINT_GROUP point_list, EDGEPT *point) {
 }
 
 
-/**********************************************************************
- * angle_change
+/**
+ * @name angle_change
  *
  * Return the change in angle (degrees) of the line segments between
  * points one and two, and two and three.
- **********************************************************************/
+ */
 int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   VECTOR vector1;
   VECTOR vector2;
@@ -162,12 +162,12 @@ int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   return (angle);
 }
 
-/**********************************************************************
- * is_little_chunk
+/**
+ * @name is_little_chunk
  *
  * Return TRUE if one of the pieces resulting from this split would
  * less than some number of edge points.
- **********************************************************************/
+ */
 int is_little_chunk(EDGEPT *point1, EDGEPT *point2) {
   EDGEPT *p = point1;            /* Iterator */
   int counter = 0;
@@ -198,11 +198,11 @@ int is_little_chunk(EDGEPT *point1, EDGEPT *point2) {
 }
 
 
-/**********************************************************************
- * is_small_area
+/**
+ * @name is_small_area
  *
  * Test the area defined by a split accross this outline.
- **********************************************************************/
+ */
 int is_small_area(EDGEPT *point1, EDGEPT *point2) {
   EDGEPT *p = point1->next;      /* Iterator */
   int area = 0;
@@ -221,12 +221,12 @@ int is_small_area(EDGEPT *point1, EDGEPT *point2) {
 }
 
 
-/**********************************************************************
- * pick_close_point
+/**
+ * @name pick_close_point
  *
  * Choose the edge point that is closest to the critical point.  This
  * point may not be exactly vertical from the critical point.
- **********************************************************************/
+ */
 EDGEPT *pick_close_point(EDGEPT *critical_point,
                          EDGEPT *vertical_point,
                          int *best_dist) {
@@ -258,13 +258,13 @@ EDGEPT *pick_close_point(EDGEPT *critical_point,
 }
 
 
-/**********************************************************************
- * prioritize_points
+/**
+ * @name prioritize_points
  *
  * Find a list of edge points from the outer outline of this blob.  For
  * each of these points assign a priority.  Sort these points using a
  * heap structure so that they can be visited in order.
- **********************************************************************/
+ */
 void prioritize_points(TESSLINE *outline, POINT_GROUP points) {
   EDGEPT *this_point;
   EDGEPT *local_min = NULL;
@@ -324,13 +324,13 @@ void prioritize_points(TESSLINE *outline, POINT_GROUP points) {
 }
 
 
-/**********************************************************************
- * new_min_point
+/**
+ * @name new_min_point
  *
  * Found a new minimum point try to decide whether to save it or not.
  * Return the new value for the local minimum.  If a point is saved then
  * the local minimum is reset to NULL.
- **********************************************************************/
+ */
 void new_min_point(EDGEPT *local_min, POINT_GROUP points) {
   inT16 dir;
 
@@ -348,13 +348,13 @@ void new_min_point(EDGEPT *local_min, POINT_GROUP points) {
 }
 
 
-/**********************************************************************
- * new_max_point
+/**
+ * @name new_max_point
  *
  * Found a new minimum point try to decide whether to save it or not.
  * Return the new value for the local minimum.  If a point is saved then
  * the local minimum is reset to NULL.
- **********************************************************************/
+ */
 void new_max_point(EDGEPT *local_max, POINT_GROUP points) {
   inT16 dir;
 
@@ -372,8 +372,8 @@ void new_max_point(EDGEPT *local_max, POINT_GROUP points) {
 }
 
 
-/**********************************************************************
- * vertical_projection_point
+/**
+ * @name vertical_projection_point
  *
  * For one point on the outline, find the corresponding point on the
  * other side of the outline that is a likely projection for a split
@@ -381,7 +381,7 @@ void new_max_point(EDGEPT *local_max, POINT_GROUP points) {
  * X value of the point being looked at is greater than the X value of
  * the split point.  Ensure that the point being returned is not right
  * next to the split point.  Return the edge point as a result.
- **********************************************************************/
+ */
 void vertical_projection_point(EDGEPT *split_point, EDGEPT *target_point,
                                EDGEPT** best_point) {
   EDGEPT *p;                     /* Iterator */

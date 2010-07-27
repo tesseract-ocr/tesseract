@@ -40,13 +40,15 @@ freestate, STATEBLOCK, "STATE", statecount);
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * bin_to_chunks
+/**
+ * @name bin_to_chunks
  *
  * Convert a representation of the search state in "STATE" form to one
  * in "SEARCH_STATE" form.  Create the memory required to hold the
  * resultant state value.
- **********************************************************************/
+ *
+ * @param state The state to convert
+ */
 SEARCH_STATE bin_to_chunks(STATE *state, int num_joints) {
   int x;
   unsigned int mask;
@@ -90,13 +92,13 @@ SEARCH_STATE bin_to_chunks(STATE *state, int num_joints) {
 }
 
 
-/**********************************************************************
+/**
  * bin_to_pieces
  *
  * Convert the binary (bit vector) format of a search state to an array
  * of piece counts. This array has a zero element after the last valid
  * character.
- **********************************************************************/
+ */
 void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
   int x;
   unsigned int mask;             /* Bit mask */
@@ -132,12 +134,12 @@ void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
 }
 
 
-/**********************************************************************
+/**
  * insert_new_chunk
  *
  * Add a new chunk division into this state vector at the location
  * requested.
- **********************************************************************/
+ */
 void insert_new_chunk(register STATE *state,
                       register int index,
                       register int num_joints) {
@@ -165,12 +167,12 @@ void insert_new_chunk(register STATE *state,
 }
 
 
-/**********************************************************************
+/**
  * new_state
  *
  * Create a memory space for a new state variable.  Set its initial
  * value according to the parameters.
- **********************************************************************/
+ */
 STATE *new_state(STATE *oldstate) {
   STATE *this_state;
 
@@ -181,11 +183,11 @@ STATE *new_state(STATE *oldstate) {
 }
 
 
-/*********************************************************************
+/**
  * ones_in_state
  *
  * Return the number of ones that are in this state.
- **********************************************************************/
+ */
 int ones_in_state(STATE *state, int num_joints) {
   inT8 num_ones = 0;
   inT8 x;
@@ -214,11 +216,11 @@ int ones_in_state(STATE *state, int num_joints) {
 }
 
 
-/**********************************************************************
+/**
  * print_state
  *
  * Print out the current state variable on a line with a label.
- **********************************************************************/
+ */
 void print_state(const char *label, STATE *state, int num_joints) {
   int x;
   unsigned int mask;             /* Bit mask */
@@ -250,11 +252,11 @@ void print_state(const char *label, STATE *state, int num_joints) {
 }
 
 
-/**********************************************************************
+/**
  * set_n_ones
  *
  * Set the first n bits in a state.
- **********************************************************************/
+ */
 void set_n_ones(STATE *state, int n) {
   if (n < 32) {
     state->part2 = ~0;
@@ -269,7 +271,7 @@ void set_n_ones(STATE *state, int n) {
 }
 
 
-/**********************************************************************
+/**
  * compare_states
  *
  * Compare the 2 states at the given blob index. Return 1 if the given
@@ -277,7 +279,7 @@ void set_n_ones(STATE *state, int n) {
  * and 5 if both a join and a fragment.
  * On return the blob index is set to the corresponding index in the
  * correct string.
- **********************************************************************/
+ */
 int compare_states(STATE *true_state, STATE *this_state, int *blob_index) {
   int blob_count;                //number found
   int true_index;                //index of true blob

@@ -16,9 +16,9 @@
  ** limitations under the License.
  ******************************************************************************/
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 #include "general.h"
 #include "oldheap.h"
 #include "callcpp.h"
@@ -31,28 +31,30 @@
 
 #define MAX_NUM_BAD_WERDS 1000
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
         Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
+/** heap that bad words are stored in */
 static HEAP *BadWords = NULL;
 BOOL_VAR (tessedit_save_stats, FALSE, "Save final recognition statistics");
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
-void PrintBadWords(FILE *File) {
-/*
- **	Parameters:
- **		File		open text file to print bad words to
- **	Globals:
- **		BadWords	heap that bad words are stored in
- **	Operation: This routine prints the bad words stored in BadWords
- **		to file ordered by certainty (worst certainty first).
- **	Return: none
- **	Exceptions: none
- **	History: Thu Apr 25 08:57:08 1991, DSJ, Created.
+/**
+ * This routine prints the bad words stored in BadWords
+ * to file ordered by certainty (worst certainty first).
+ *
+ * @param File open text file to print bad words to
+ *
+ * Globals: 
+ * - BadWords heap that bad words are stored in
+ *
+ * @note Exceptions: none
+ * @note History: Thu Apr 25 08:57:08 1991, DSJ, Created.
  */
+void PrintBadWords(FILE *File) {
   HEAPENTRY NextWord;
 
   if (BadWords == NULL)
@@ -72,21 +74,21 @@ void PrintBadWords(FILE *File) {
 
 
 /*---------------------------------------------------------------------------*/
-void SaveBadWord(const char *Word, FLOAT32 Certainty) {
-/*
- **	Parameters:
- **		Word		bad word to be saved
- **		Certainty	certainty of word
- **	Globals:
- **		BadWords	heap to keep bad words in
- **	Operation: This routine saves all words flagged as bad in a heap
- **		with the worst word on the top of the heap.  The contents
- **		of this heap can be printed to a file by calling
- **		PrintBadWords (File).
- **	Return: none
- **	Exceptions: none
- **	History: Thu Apr 25 08:41:00 1991, DSJ, Created.
+/**
+ * This routine saves all words flagged as bad in a heap
+ * with the worst word on the top of the heap.  The contents
+ * of this heap can be printed to a file by calling
+ * PrintBadWords (File).
+ *
+ * @param Word bad word to be saved
+ * @param Certainty certainty of word
+ *
+ * Globals: 
+ * - BadWords heap to keep bad words in
+ *
+ * History: Thu Apr 25 08:41:00 1991, DSJ, Created.
  */
+void SaveBadWord(const char *Word, FLOAT32 Certainty) {
   HEAPENTRY NewWord;
 
   assert (Word != NULL);

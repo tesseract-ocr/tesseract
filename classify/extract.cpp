@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 #include "extract.h"
 #include "flexfx.h"
 #include "funcdefs.h"
@@ -25,55 +25,54 @@
 
 typedef CHAR_FEATURES (*CF_FUNC) ();
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Private Function Prototypes
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 void ExtractorStub(); 
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
-/* tables to keep track of the different low level feature extractors */
+-----------------------------------------------------------------------------*/
+/** tables to keep track of the different low level feature extractors */
 #define NUM_FX        3
 #define DEFAULT_FX      2
 
 int CurrentFx = DEFAULT_FX;
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
-CHAR_DESC ExtractBlobFeatures(TBLOB *Blob, LINE_STATS *LineStats) { 
-/*
- **	Parameters:
- **		Blob		blob to extract features from
- **		LineStats	statistics about line blob is in
- **	Operation: Extract features from Blob by calling the feature
- **		extractor which is currently being used.  This routine
- **		simply provides a high level interface to feature
- **		extraction.  The caller can extract any type of features
- **		from a blob without understanding any lower level details.
- **	Return: The character features extracted from Blob.
- **	Exceptions: none
- **	History: Sun Jan 21 10:07:28 1990, DSJ, Created.
+/**
+ * Extract features from Blob by calling the feature
+ * extractor which is currently being used.  This routine
+ * simply provides a high level interface to feature
+ * extraction.  The caller can extract any type of features
+ * from a blob without understanding any lower level details.
+ *
+ * @param Blob		blob to extract features from
+ * @param LineStats	statistics about line blob is in
+ *
+ * @return The character features extracted from Blob.
+ * @note Exceptions: none
+ * @note History: Sun Jan 21 10:07:28 1990, DSJ, Created.
  */
+CHAR_DESC ExtractBlobFeatures(TBLOB *Blob, LINE_STATS *LineStats) { 
   return (ExtractFlexFeatures (Blob, LineStats));
 }                                /* ExtractBlobFeatures */
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
               Private Code
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 void
 ExtractorStub ()
-/*
- **	Parameters: none
- **	Globals: none
- **	Operation: This routine is used to stub out feature extractors
- **		that are no longer used.  It simply calls DoError.
- **	Return: none
- **	Exceptions: none
- **	History: Wed Jan  2 14:16:49 1991, DSJ, Created.
+/**
+ * This routine is used to stub out feature extractors
+ * that are no longer used.  It simply calls DoError.
+ *
+ * @note Exceptions: none
+ * @note History: Wed Jan  2 14:16:49 1991, DSJ, Created.
  */
 #define DUMMY_ERROR     1
 {

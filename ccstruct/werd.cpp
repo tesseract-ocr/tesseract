@@ -27,10 +27,11 @@
 #include          "linlsq.h"
 #include          "werd.h"
 
-#define FIRST_COLOUR    ScrollView::RED      //first rainbow colour
-                                 //last rainbow colour
+#define FIRST_COLOUR    ScrollView::RED      //< first rainbow colour
+
+/// last rainbow colour
 #define LAST_COLOUR     ScrollView::AQUAMARINE
-#define CHILD_COLOUR    ScrollView::BROWN    //colour of children
+#define CHILD_COLOUR    ScrollView::BROWN    //< colour of children
 
 const ERRCODE CANT_SCALE_EDGESTEPS =
 "Attempted to scale an edgestep format word";
@@ -46,16 +47,16 @@ EXTERN double_VAR (bln_blshift_xfraction, 0.75,
 "Size fraction of xh before shifting");
 
 ELISTIZE_S (WERD)
-/**********************************************************************
+/**
  * WERD::WERD
  *
  * Constructor to build a WERD from a list of C_BLOBs.
  * The C_BLOBs are not copied so the source list is emptied.
- **********************************************************************/
+ */
 WERD::WERD (                     //constructor
-C_BLOB_LIST * blob_list,         //in word order
-uinT8 blank_count,               //blanks in front
-const char *text                 //correct text
+C_BLOB_LIST * blob_list,         //< in word order
+uinT8 blank_count,               //< blanks in front
+const char *text                 //< correct text
 ):
 flags (0),
 correct(text) {
@@ -125,17 +126,17 @@ correct(text) {
 }
 
 
-/**********************************************************************
+/**
  * WERD::WERD
  *
  * Constructor to build a WERD from a list of BLOBs.
  * The BLOBs are not copied so the source list is emptied.
- **********************************************************************/
+ */
 
 WERD::WERD (                     //constructor
-PBLOB_LIST * blob_list,          //in word order
-uinT8 blank_count,               //blanks in front
-const char *text                 //correct text
+PBLOB_LIST * blob_list,          //< in word order
+uinT8 blank_count,               //< blanks in front
+const char *text                 //< correct text
 ):
 flags (0),
 correct(text) {
@@ -153,16 +154,16 @@ correct(text) {
 }
 
 
-/**********************************************************************
+/**
  * WERD::WERD
  *
  * Constructor to build a WERD from a list of BLOBs.
  * The BLOBs are not copied so the source list is emptied.
- **********************************************************************/
+ */
 
 WERD::WERD (                     //constructor
-PBLOB_LIST * blob_list,          //in word order
-WERD * clone                     //sorce of flags
+PBLOB_LIST * blob_list,          //< in word order
+WERD * clone                     //< sorce of flags
 ):flags (clone->flags), correct (clone->correct) {
   PBLOB_IT start_it = blob_list; //iterator
   PBLOB_IT end_it = blob_list;   //another
@@ -176,16 +177,16 @@ WERD * clone                     //sorce of flags
 }
 
 
-/**********************************************************************
+/**
  * WERD::WERD
  *
  * Constructor to build a WERD from a list of C_BLOBs.
  * The C_BLOBs are not copied so the source list is emptied.
- **********************************************************************/
+ */
 
 WERD::WERD (                     //constructor
-C_BLOB_LIST * blob_list,         //in word order
-WERD * clone                     //sorce of flags
+C_BLOB_LIST * blob_list,         //< in word order
+WERD * clone                     //< source of flags
 ):flags (clone->flags), correct (clone->correct) {
   C_BLOB_IT start_it = blob_list;//iterator
   C_BLOB_IT end_it = blob_list;  //another
@@ -199,15 +200,15 @@ WERD * clone                     //sorce of flags
 }
 
 
-/**********************************************************************
+/**
  * WERD::poly_copy
  *
  * Make a copy of a WERD in polygon format.
  * The source WERD is untouched.
- **********************************************************************/
+ */
 
 WERD *WERD::poly_copy(               //make a poly copy
-                      float xheight  //row height
+                      float xheight  //< row height
                      ) {
   PBLOB *blob;                   //new blob
   WERD *result = new WERD;       //output word
@@ -269,7 +270,7 @@ WERD *WERD::poly_copy(               //make a poly copy
 }
 
 
-/**********************************************************************
+/**
  * WERD::bounding_box
  *
  * Return the bounding box of the WERD.
@@ -280,7 +281,7 @@ WERD *WERD::poly_copy(               //make a poly copy
  * blobs in a word are rejected the BB for the word is NULL, causing the sort
  * to screw up, leading to the erroneous possibility of the first word in a
  * row being marked as FUZZY space.
- **********************************************************************/
+ */
 
 TBOX WERD::bounding_box() {  //bounding box
   TBOX box;                       //box being built
@@ -311,15 +312,15 @@ TBOX WERD::bounding_box() {  //bounding box
 }
 
 
-/**********************************************************************
+/**
  * WERD::move
  *
  * Reposition WERD by vector
  * NOTE!! REJECT CBLOBS ARE NOT MOVED
- **********************************************************************/
+ */
 
 void WERD::move(                  // reposition WERD
-                const ICOORD vec  // by vector
+                const ICOORD vec  //< by vector
                ) {
   PBLOB_IT blob_it ((PBLOB_LIST *) & cblobs);
   // blob iterator
@@ -342,14 +343,14 @@ void WERD::move(                  // reposition WERD
 }
 
 
-/**********************************************************************
+/**
  * WERD::scale
  *
  * Scale WERD by multiplier
- **********************************************************************/
+ */
 
 void WERD::scale(               // scale WERD
-                 const float f  // by multiplier
+                 const float f  //< by multiplier
                 ) {
   PBLOB_IT blob_it ((PBLOB_LIST *) & cblobs);
   // blob iterator
@@ -369,14 +370,14 @@ void WERD::scale(               // scale WERD
 }
 
 
-/**********************************************************************
+/**
  * WERD::join_on
  *
  * Join other word onto this one. Delete the old word.
- **********************************************************************/
+ */
 
 void WERD::join_on(              // join WERD
-                   WERD *&other  //other word
+                   WERD *&other  //< other word
                   ) {
   PBLOB_IT blob_it ((PBLOB_LIST *) & cblobs);
   // blob iterator
@@ -395,14 +396,14 @@ void WERD::join_on(              // join WERD
 }
 
 
-/**********************************************************************
+/**
  * WERD::copy_on
  *
  * Copy blobs from other word onto this one.
- **********************************************************************/
+ */
 
 void WERD::copy_on(              //copy blobs
-                   WERD *&other  //from other
+                   WERD *&other  //< from other
                   ) {
   if (flags.bit (W_POLYGON)) {
     PBLOB_IT blob_it ((PBLOB_LIST *) & cblobs);
@@ -432,25 +433,25 @@ void WERD::copy_on(              //copy blobs
 }
 
 
-/**********************************************************************
+/**
  * WERD::baseline_normalise
  *
  * Baseline Normalise the word in Tesseract style.  (I.e origin at centre of
  * word at bottom. x-height region scaled to region y =
  * (bln_baseline_offset)..(bln_baseline_offset + bln_x_height)
  * - usually 64..192)
- **********************************************************************/
+ */
 
 void WERD::baseline_normalise(                // Tess style BL Norm
                               ROW *row,
-                              DENORM *denorm  //antidote
+                              DENORM *denorm  //< antidote
                              ) {
   baseline_normalise_x (row, row->x_height (), denorm);
   //Use standard x ht
 }
 
 
-/**********************************************************************
+/**
  * WERD::baseline_normalise_x
  *
  * Baseline Normalise the word in Tesseract style.  (I.e origin at centre of
@@ -458,12 +459,12 @@ void WERD::baseline_normalise(                // Tess style BL Norm
  * (bln_baseline_offset)..(bln_baseline_offset + bln_x_height)
  * - usually 64..192)
  *  USE A SPECIFIED X-HEIGHT - NOT NECESSARILY THE ONE IN row
- **********************************************************************/
+ */
 
 void WERD::baseline_normalise_x(                 // Tess style BL Norm
                                 ROW *row,
-                                float x_height,  //non standard value
-                                DENORM *denorm   //antidote
+                                float x_height,  //< non standard value
+                                DENORM *denorm   //< antidote
                                ) {
   BOOL8 using_row;               //as baseline
   float blob_x_centre;           //middle of blob
@@ -703,17 +704,17 @@ void WERD::baseline_normalise_x(                 // Tess style BL Norm
 }
 
 
-/**********************************************************************
+/**
  * WERD::baseline_denormalise
  *
  * Baseline DeNormalise the word in Tesseract style.  (I.e origin at centre of
  * word at bottom. x-height region scaled to region y =
  * (bln_baseline_offset)..(bln_baseline_offset + bln_x_height)
  * - usually 64..192)
- **********************************************************************/
+ */
 
 void WERD::baseline_denormalise(                      // Tess style BL Norm
-                                const DENORM *denorm  //antidote
+                                const DENORM *denorm  //< antidote
                                ) {
   PBLOB_IT blob_it ((PBLOB_LIST *) & cblobs);
   // blob iterator
@@ -743,14 +744,14 @@ void WERD::baseline_denormalise(                      // Tess style BL Norm
 }
 
 
-/**********************************************************************
+/**
  * WERD::print
  *
  * Display members
- **********************************************************************/
+ */
 
 void WERD::print(        //print
-                 FILE *  //file to print on
+                 FILE *  //< file to print on
                 ) {
   tprintf ("Blanks= %d\n", blanks);
   bounding_box ().print ();
@@ -777,11 +778,11 @@ void WERD::print(        //print
 }
 
 
-/**********************************************************************
+/**
  * WERD::plot
  *
  * Draw the WERD in the given colour.
- **********************************************************************/
+ */
 
 #ifndef GRAPHICS_DISABLED
 void WERD::plot(                //draw it
@@ -818,16 +819,16 @@ void WERD::plot(                //draw it
 #endif
 
 
-/**********************************************************************
+/**
  * WERD::plot
  *
  * Draw the WERD in rainbow colours.
- **********************************************************************/
+ */
 
 #ifndef GRAPHICS_DISABLED
 void WERD::plot(                //draw it
-                ScrollView* window,  //window to draw in
-                BOOL8 solid     //draw larcs solid
+                ScrollView* window,  //< window to draw in
+                BOOL8 solid     //< draw larcs solid
                ) {
   ScrollView::Color colour = FIRST_COLOUR;  //current colour
   if (flags.bit (W_POLYGON)) {
@@ -868,16 +869,16 @@ void WERD::plot(                //draw it
 #endif
 
 
-/**********************************************************************
+/**
  * WERD::plot_rej_blobs
  *
  * Draw the WERD rejected blobs - ALWAYS GREY
- **********************************************************************/
+ */
 
 #ifndef GRAPHICS_DISABLED
 void WERD::plot_rej_blobs(                //draw it
-                          ScrollView* window,  //window to draw in
-                          BOOL8 solid     //draw larcs solid
+                          ScrollView* window,  //< window to draw in
+                          BOOL8 solid     //< draw larcs solid
                          ) {
   if (flags.bit (W_POLYGON)) {
     PBLOB_IT it = (PBLOB_LIST *) (&rej_cblobs);
@@ -897,11 +898,11 @@ void WERD::plot_rej_blobs(                //draw it
 #endif
 
 
-/**********************************************************************
+/**
  * WERD::shallow_copy()
  *
  * Make a shallow copy of a word
- **********************************************************************/
+ */
 
 WERD *WERD::shallow_copy() {  //shallow copy
   WERD *new_word = new WERD;
@@ -914,11 +915,11 @@ WERD *WERD::shallow_copy() {  //shallow copy
 }
 
 
-/**********************************************************************
+/**
  * WERD::operator=
  *
  * Assign a word, DEEP copying the blob list
- **********************************************************************/
+ */
 
 WERD & WERD::operator= (         //assign words
 const WERD & source              //from this
@@ -952,16 +953,16 @@ const WERD & source              //from this
 }
 
 
-/**********************************************************************
+/**
  *  word_comparator()
  *
  *  word comparator used to sort a word list so that words are in increasing
  *  order of left edge.
- **********************************************************************/
+ */
 
 int word_comparator(                     //sort blobs
-                    const void *word1p,  //ptr to ptr to word1
-                    const void *word2p   //ptr to ptr to word2
+                    const void *word1p,  //< ptr to ptr to word1
+                    const void *word2p   //< ptr to ptr to word2
                    ) {
   WERD *
     word1 = *(WERD **) word1p;

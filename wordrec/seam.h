@@ -54,11 +54,11 @@ extern SEAM *newseam();
 /*----------------------------------------------------------------------
               M a c r o s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * clone_seam
+/**
+ * @name clone_seam
  *
  * Create a new seam record and copy the contents of this seam into it.
- **********************************************************************/
+ */
 
 #define clone_seam(dest,source)                       \
 if (source) {                                       \
@@ -76,12 +76,12 @@ else {                                              \
 }                                                   \
 
 
-/**********************************************************************
+/**
  * exact_point
  *
  * Return TRUE if the point positions are the exactly the same. The
  * parameters must be of type (EDGEPT*).
- **********************************************************************/
+ */
 
 #define exact_point(p1,p2)                    \
 	(! ((p1->pos.x - p2->pos.x) || (p1->pos.y - p2->pos.y)))

@@ -39,7 +39,7 @@ extern INT_VAR_H(hyphen_debug_level, 0, "Debug level for hyphenated words.");
 #define GOOD_WERD               1.1
 #define OK_WERD                 1.3125
 
-// Struct used to hold temporary information about fragments.
+/** Struct used to hold temporary information about fragments. */
 struct CHAR_FRAGMENT_INFO {
   UNICHAR_ID unichar_id;
   const CHAR_FRAGMENT *fragment;
@@ -67,7 +67,7 @@ struct DawgArgs {
   DawgInfoVector *updated_active_dawgs;
   DawgInfoVector *updated_constraints;
   PermuterType permuter;
-  float rating_margin;  // prunning margin ratio
+  float rating_margin;  /**< pruning margin ratio */
   float rating_array[MAX_WERD_LENGTH];
 };
 
@@ -87,78 +87,79 @@ class Dict {
 
   /* hyphen.cpp ************************************************************/
 
-  // Returns true if we've recorded the beginning of a hyphenated word.
+  /// Returns true if we've recorded the beginning of a hyphenated word.
   inline bool hyphenated() { return !last_word_on_line_ && hyphen_word_; }
-  // Size of the base word (the part on the line before) of a hyphenated word.
+  /// Size of the base word (the part on the line before) of a hyphenated word.
   inline int hyphen_base_size() {
     return this->hyphenated() ? hyphen_word_->length() : 0;
   }
-  // If this word is hyphenated copy the base word (the part on
-  // the line before) of a hyphenated word into the given word.
-  // This function assumes that word is not NULL.
+  /// If this word is hyphenated copy the base word (the part on
+  /// the line before) of a hyphenated word into the given word.
+  /// This function assumes that word is not NULL.
   inline void copy_hyphen_info(WERD_CHOICE *word) {
     if (this->hyphenated()) {
       *word = *hyphen_word_;
       if (hyphen_debug_level) word->print("copy_hyphen_info: ");
     }
   }
-  // Erase the unichar ids corresponding to the portion of the word
-  // from the previous line. The word is not changed if it is not
-  // split between lines and hyphenated.
+  /// Erase the unichar ids corresponding to the portion of the word
+  /// from the previous line. The word is not changed if it is not
+  /// split between lines and hyphenated.
   inline void remove_hyphen_head(WERD_CHOICE *word) {
     if (this->hyphenated()) {
       word->remove_unichar_ids(0, hyphen_word_->length());
       if (hyphen_debug_level) hyphen_word_->print("remove_hyphen_head: ");
     }
   }
-  // Check whether the word has a hyphen at the end.
+  /// Check whether the word has a hyphen at the end.
   inline bool has_hyphen_end(const WERD_CHOICE &word) {
     int word_index = word.length() - 1;
     return (last_word_on_line_ && word_index > 0 &&
             word.unichar_id(word_index) == hyphen_unichar_id_);
   }
-  // Unless the previous word was the last one on the line, and the current
-  // one is not (thus it is the first one on the line), erase hyphen_word_,
-  // clear hyphen_active_dawgs_, hyphen_constraints_ update last_word_on_line_.
+  /// Unless the previous word was the last one on the line, and the current
+  /// one is not (thus it is the first one on the line), erase hyphen_word_,
+  /// clear hyphen_active_dawgs_, hyphen_constraints_ update last_word_on_line_.
   void reset_hyphen_vars(bool last_word_on_line);
-  // Update hyphen_word_, and copy the given DawgInfoVectors into
-  // hyphen_active_dawgs_ and hyphen_constraints_.
+  /// Update hyphen_word_, and copy the given DawgInfoVectors into
+  /// hyphen_active_dawgs_ and hyphen_constraints_.
   void set_hyphen_word(const WERD_CHOICE &word,
                        const DawgInfoVector &active_dawgs,
                        const DawgInfoVector &constraints);
 
   /* permdawg.cpp ************************************************************/
-  // If new_rating < best_choice->rating(), copy word int best_choice
-  // and update rating and permuter of best_choice to the new given values.
+  /// If new_rating < best_choice->rating(), copy word int best_choice
+  /// and update rating and permuter of best_choice to the new given values.
   inline void update_best_choice(
       const WERD_CHOICE &word, WERD_CHOICE *best_choice) {
     if (word.rating() < best_choice->rating()) {
       *best_choice = word;
     }
   }
-  // Fill the given active_dawgs vector with dawgs that could contain the
-  // beginning of the word. If hyphenated() returns true, copy the entries
-  // from hyphen_active_dawgs_ instead.
+  /// Fill the given active_dawgs vector with dawgs that could contain the
+  /// beginning of the word. If hyphenated() returns true, copy the entries
+  /// from hyphen_active_dawgs_ instead.
   void init_active_dawgs(DawgInfoVector *active_dawgs);
-  // If hyphenated() returns true, copy the entries from hyphen_constraints_
-  // into the given constraints vector.
+  /// If hyphenated() returns true, copy the entries from hyphen_constraints_
+  /// into the given constraints vector.
   void init_constraints(DawgInfoVector *constraints);
-  // Recursively explore all the possible character combinations in
-  // the given char_choices. Use go_deeper_dawg_fxn() to explore all the
-  // dawgs in the dawgs_ vector in parallel and discard invalid words.
-  //
-  // Allocate and return a WERD_CHOICE with the best valid word found.
+  /// Recursively explore all the possible character combinations in
+  /// the given char_choices. Use go_deeper_dawg_fxn() to explore all the
+  /// dawgs in the dawgs_ vector in parallel and discard invalid words.
+  ///
+  /// Allocate and return a WERD_CHOICE with the best valid word found.
   WERD_CHOICE *dawg_permute_and_select(
       const BLOB_CHOICE_LIST_VECTOR &char_choices, float rating_limit);
   void adjust_word(WERD_CHOICE *best_choice,
                    float *certainty_array);
-  // If the choice being composed so far could be a dictionary word
-  // and we have not reached the end of the word keep exploring the
-  // char_choices further.
-  // Also:
-  // -- set hyphen word if needed
-  // -- if word_ending is true and word is better than best_choice
-  //    copy word to best_choice log new word choice
+  /// If the choice being composed so far could be a dictionary word
+  /// and we have not reached the end of the word keep exploring the
+  /// char_choices further.
+  ///
+  /// Also:
+  /// - set hyphen word if needed
+  /// - if word_ending is true and word is better than best_choice
+  ///   copy word to best_choice log new word choice
   void go_deeper_dawg_fxn(
       const char *debug, const BLOB_CHOICE_LIST_VECTOR &char_choices,
       int char_choice_index, const CHAR_FRAGMENT_INFO *prev_char_frag_info,
@@ -173,17 +174,19 @@ class Dict {
     float* rating_limit,
     WERD_CHOICE *raw_choice,
     BOOL8 *any_alpha);
-  const char* choose_il1(const char *first_char,       //first choice
-                         const char *second_char,      //second choice
-                         const char *third_char,       //third choice
-                         const char *prev_char,        //prev in word
-                         const char *next_char,        //next in word
-                         const char *next_next_char);  //after next next in word
+  const char* choose_il1(const char *first_char,       //< first choice
+                         const char *second_char,      //< second choice
+                         const char *third_char,       //< third choice
+                         const char *prev_char,        //< prev in word
+                         const char *next_char,        //< next in word
+                         const char *next_next_char);  //< after next next in word
+  /// @return NO_PERM for words with digits
   int valid_word(const WERD_CHOICE &word) {
-    return valid_word(word, false);  // return NO_PERM for words with digits
+    return valid_word(word, false);  
   }
+  /// @return NUMBER_PERM for valid numbers
   int valid_word_or_number(const WERD_CHOICE &word) {
-    return valid_word(word, true);  // return NUMBER_PERM for valid numbers
+    return valid_word(word, true);
   }
   int valid_word(const WERD_CHOICE &word, bool numbers_ok);
   bool valid_punctuation(const WERD_CHOICE &word);
@@ -204,29 +207,29 @@ class Dict {
   WERD_CHOICE *permute_compound_words(
       const BLOB_CHOICE_LIST_VECTOR &char_choices,
       float rating_limit);
-  // checks if the dominant word script, if there is one, is same as target.
+  /// checks if the dominant word script, if there is one, is same as target.
   bool word_script_eq(const BLOB_CHOICE_LIST_VECTOR &char_choices,
                       int target_script_id);
-  // Incoporate segmentation cost into word rating
+  /// Incoporate segmentation cost into word rating
   void incorporate_segcost(WERD_CHOICE* word);
-  // checks for script-consistent permutations
+  /// checks for script-consistent permutations
   WERD_CHOICE *permute_script_words(
       const BLOB_CHOICE_LIST_VECTOR &char_choices);
 
   WERD_CHOICE *top_fragments_permute_and_select(
       const BLOB_CHOICE_LIST_VECTOR &char_choices,
       float rating_limit);
-  // If the choice being composed so far could be better
-  // than best_choice keep exploring char_choices.
-  // If we have reached the end of the word and word is better than
-  // best_choice, copy word to best_choice and log a new word choice.
+  /// If the choice being composed so far could be better
+  /// than best_choice keep exploring char_choices.
+  /// If we have reached the end of the word and word is better than
+  /// best_choice, copy word to best_choice and log a new word choice.
   void go_deeper_top_fragments_fxn(
       const char *debug, const BLOB_CHOICE_LIST_VECTOR &char_choices,
       int char_choice_index, const CHAR_FRAGMENT_INFO *prev_char_frag_info,
       bool word_ending, WERD_CHOICE *word, float certainties[],
       float *limit, WERD_CHOICE *best_choice, void *more_args);
 
-  // Semi-generic functions used by multiple permuters.
+  /// Semi-generic functions used by multiple permuters.
   bool fragment_state_okay(UNICHAR_ID curr_unichar_id,
                            float curr_rating, float curr_certainty,
                            const CHAR_FRAGMENT_INFO *prev_char_frag_info,
@@ -254,7 +257,7 @@ class Dict {
       float *limit,
       WERD_CHOICE *best_choice,
       void *more_args);
-  // Pointer to go_deeper function that will be modified by various permuters.
+  /// Pointer to go_deeper function that will be modified by various permuters.
   void (Dict::*go_deeper_fxn_)(const char *debug,
                                const BLOB_CHOICE_LIST_VECTOR &char_choices,
                                int char_choice_index,
@@ -329,67 +332,68 @@ class Dict {
                                      const Dawg *dawg);
   /* dawg.cpp ****************************************************************/
 
-  // Returns the maximal permuter code (from ccstruct/ratngs.h) if in light
-  // of the current state the letter at word_index in the given word
-  // is allowed according to at least one of the dawgs in dawgs_,
-  // otherwise returns NO_PERM.
-  //
-  // The state is described by void_dawg_args, which are interpreted as
-  // DawgArgs and contain two relevant input vectors: active_dawgs and
-  // constraints. Each entry in the active_dawgs vector contains an index
-  // into the dawgs_ vector and an EDGE_REF that indicates the last edge
-  // followed in the dawg. Each entry in the constraints vector contains
-  // an index into the dawgs_ vector and an EDGE_REF that indicates an edge
-  // in a pattern dawg followed to match a pattern. Currently constraints
-  // are used to save the state of punctuation dawgs after leading
-  // punctuation was found.
-  //
-  // Input:
-  // At word_index 0 dawg_args->active_dawgs should contain an entry for each
-  // dawg whose type has a bit set in kBeginningDawgsType,
-  // dawg_args->constraints should be empty. EDGE_REFs in active_dawgs and
-  // constraints vectors should be initialized to NO_EDGE. If hyphen state
-  // needs to be applied, initial dawg_args->active_dawgs and
-  // dawg_args->constrains can be copied from the saved hyphen state
-  // (maintained by Dict).
-  // For word_index > 0 the corresponding state (active_dawgs and constraints)
-  // can be obtained from dawg_args->updated_* passed to def_letter_is_okay
-  // for word_index-1.
-  // Note: the function assumes that active_dags, constraints and updated_*
-  // member variables of dawg_args are not NULL.
-  //
-  // Output:
-  // The function fills in dawg_args->updated_active_dawgs vector with the
-  // entries for dawgs that contain the word up to the letter at word_index.
-  // The new constraints (if any) are added to dawg_args->updated_constraints,
-  // the constraints from dawg_args->constraints are also copied into it.
-  //
-  // Detailed description:
-  // In order to determine whether the word is still valid after considering
-  // all the letters up to the one at word_index the following is done for
-  // each entry in dawg_args->active_dawgs:
-  //
-  // -- next starting node is obtained from entry.ref and edge_char_of() is
-  //    called to obtain the next edge
-  // -- if a valid edge is found, the function returns the updated permuter
-  //    code true and an entry [entry.dawg_index, edge] is inserted in
-  //    dawg_args->updated_active_dawgs
-  //    otherwise:
-  //    -- if we are dealing with dawg of type DAWG_TYPE_PUNCTUATION,
-  //       edge_char_of() is called again, but now with kPatternUnicharID
-  //       as unichar_id; if a valid edge is found it is recorded in
-  //       dawg_args->updated_constraints
-  //    -- the function checks whether the word can end with the previous
-  //       letter
-  //    -- each successor of the dawg (e.g. dawgs with type DAWG_TYPE_WORD
-  //       could be successors to dawgs with type DAWG_TYPE_PUNCTUATION; the
-  //       successors are defined by successors_ vector) is explored and if
-  //       a letter is found in the successor dawg, a new entry is inserted
-  //       into dawg_args->updated_active_dawgs with EDGE_REF being either
-  //       NO_EDGE or an EDGE_REF recorded in constraints vector for the
-  //       corresponding dawg index
+  /**
+   * Returns the maximal permuter code (from ccstruct/ratngs.h) if in light
+   * of the current state the letter at word_index in the given word
+   * is allowed according to at least one of the dawgs in dawgs_,
+   * otherwise returns NO_PERM.
+   *
+   * The state is described by void_dawg_args, which are interpreted as
+   * DawgArgs and contain two relevant input vectors: active_dawgs and
+   * constraints. Each entry in the active_dawgs vector contains an index
+   * into the dawgs_ vector and an EDGE_REF that indicates the last edge
+   * followed in the dawg. Each entry in the constraints vector contains
+   * an index into the dawgs_ vector and an EDGE_REF that indicates an edge
+   * in a pattern dawg followed to match a pattern. Currently constraints
+   * are used to save the state of punctuation dawgs after leading
+   * punctuation was found.
+   *
+   * Input:
+   * At word_index 0 dawg_args->active_dawgs should contain an entry for each
+   * dawg whose type has a bit set in kBeginningDawgsType,
+   * dawg_args->constraints should be empty. EDGE_REFs in active_dawgs and
+   * constraints vectors should be initialized to NO_EDGE. If hyphen state
+   * needs to be applied, initial dawg_args->active_dawgs and
+   * dawg_args->constrains can be copied from the saved hyphen state
+   * (maintained by Dict).
+   * For word_index > 0 the corresponding state (active_dawgs and constraints)
+   * can be obtained from dawg_args->updated_* passed to def_letter_is_okay
+   * for word_index-1.
+   * Note: the function assumes that active_dags, constraints and updated_*
+   * member variables of dawg_args are not NULL.
+   *
+   * Output:
+   * The function fills in dawg_args->updated_active_dawgs vector with the
+   * entries for dawgs that contain the word up to the letter at word_index.
+   * The new constraints (if any) are added to dawg_args->updated_constraints,
+   * the constraints from dawg_args->constraints are also copied into it.
+   *
+   * Detailed description:
+   * In order to determine whether the word is still valid after considering
+   * all the letters up to the one at word_index the following is done for
+   * each entry in dawg_args->active_dawgs:
+   *
+   *  - next starting node is obtained from entry.ref and edge_char_of() is
+   *    called to obtain the next edge
+   *  - if a valid edge is found, the function returns the updated permuter
+   *    code true and an entry [entry.dawg_index, edge] is inserted in
+   *    dawg_args->updated_active_dawgs
+   *    otherwise:
+   *    - if we are dealing with dawg of type DAWG_TYPE_PUNCTUATION,
+   *      edge_char_of() is called again, but now with kPatternUnicharID
+   *      as unichar_id; if a valid edge is found it is recorded in
+   *      dawg_args->updated_constraints
+   *    - the function checks whether the word can end with the previous
+   *      letter
+   *    - each successor of the dawg (e.g. dawgs with type DAWG_TYPE_WORD
+   *      could be successors to dawgs with type DAWG_TYPE_PUNCTUATION; the
+   *      successors are defined by successors_ vector) is explored and if
+   *      a letter is found in the successor dawg, a new entry is inserted
+   *      into dawg_args->updated_active_dawgs with EDGE_REF being either
+   *      NO_EDGE or an EDGE_REF recorded in constraints vector for the
+   *      corresponding dawg index
+   */
 
-  //
   int def_letter_is_okay(void* void_dawg_args, int word_index,
                          const void* word, bool word_end);
 
@@ -397,15 +401,17 @@ class Dict {
                          const void* word, bool word_end);
   int (Dict::*letter_is_okay_)(void* void_dawg_args, int word_index,
                                const void *word, bool word_end);
-  // Return the number of dawgs in the dawgs_ vector.
+  /** Return the number of dawgs in the dawgs_ vector. */
   inline const int NumDawgs() const { return dawgs_.size(); }
-  // Return i-th dawg pointer recorded in the dawgs_ vector.
+  /** Return i-th dawg pointer recorded in the dawgs_ vector. */
   inline const Dawg *GetDawg(int index) const { return dawgs_[index]; }
-  // At word ending make sure all the recorded constraints are satisfied.
-  // Each constraint signifies that we found a beginning pattern in a
-  // pattern dawg. Check that this pattern can end here (e.g. if some
-  // leading punctuation is found this would ensure that we are not
-  // expecting any particular trailing punctuation after the word).
+  /**
+   * At word ending make sure all the recorded constraints are satisfied.
+   * Each constraint signifies that we found a beginning pattern in a
+   * pattern dawg. Check that this pattern can end here (e.g. if some
+   * leading punctuation is found this would ensure that we are not
+   * expecting any particular trailing punctuation after the word).
+   */
   inline bool ConstraintsOk(const DawgInfoVector &constraints,
                             int word_end, DawgType current_dawg_type) {
     if (!word_end) return true;
@@ -423,7 +429,7 @@ class Dict {
     }
     return true;
   }
-  // Record the maximum of the two permuters in permuter.
+  /// Record the maximum of the two permuters in permuter.
   static inline void UpdatePermuter(PermuterType new_permuter,
                                     PermuterType *permuter) {
     if (dawg_debug_level >= 3) tprintf("Letter found\n");
@@ -440,23 +446,27 @@ class Dict {
   int valid_word(const char *string);
 
  private:
-  // Private member variables.
+  /** Private member variables. */
   Image* image_ptr_;
-  // Table that stores ambiguities computed during training
-  // (loaded when NoDangerousAmbigs() is called for the first time).
-  // Each entry i in the table stores a set of amibiguities whose
-  // wrong ngram starts with unichar id i.
+  /**
+   * Table that stores ambiguities computed during training
+   * (loaded when NoDangerousAmbigs() is called for the first time).
+   * Each entry i in the table stores a set of amibiguities whose
+   * wrong ngram starts with unichar id i.
+   */
   UnicharAmbigs *dang_ambigs_table_;
-  // Same as above, but for ambiguities with replace flag set.
+  /** Same as above, but for ambiguities with replace flag set. */
   UnicharAmbigs *replace_ambigs_table_;
-  // Flag used to disable accumulation of word choices
-  // during compound word permutation.
+  /**
+   * Flag used to disable accumulation of word choices
+   * during compound word permutation.
+   */
   BOOL8 keep_word_choices_;
-  // Additional certainty padding allowed before a word is rejected.
+  /** Additional certainty padding allowed before a word is rejected. */
   FLOAT32 reject_offset_;
-  // Current word segmentation.
+  /** Current word segmentation. */
   PIECES_STATE current_segmentation_;
-  // Variables to keep track of best/raw word choices.
+  /** Variables to keep track of best/raw word choices. */
   VIABLE_CHOICE best_raw_choice_;
   LIST raw_choices_;
   LIST best_choices_;
@@ -471,8 +481,8 @@ class Dict {
   SuccessorListsVector successors_;
   Dawg *freq_dawg_;
   Trie *pending_words_;
-  // The following pointers are only cached for convenience.
-  // The dawgs will be deleted when dawgs_ vector is destroyed.
+  /// The following pointers are only cached for convenience.
+  /// The dawgs will be deleted when dawgs_ vector is destroyed.
   // TODO(daria): need to support multiple languages in the future,
   // so maybe will need to maintain a list of dawgs of each kind.
   Trie *document_words_;

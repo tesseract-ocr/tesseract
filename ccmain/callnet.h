@@ -21,8 +21,11 @@
 #define           CALLNET_H
 
 //      extern "C" {
-void init_net();  /* Initialise net */
-void callnet(  /* Apply image to net */
+/** Initialise net */
+void init_net();
+
+/** Apply image to net */
+void callnet(  
              float *input_vector,
              char *top,
              float *top_score,

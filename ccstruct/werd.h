@@ -30,29 +30,29 @@
 
 enum WERD_FLAGS
 {
-  W_SEGMENTED,                   //correctly segmented
-  W_ITALIC,                      //italic text
-  W_BOLD,                        //bold text
-  W_BOL,                         //start of line
-  W_EOL,                         //end of line
-  W_NORMALIZED,                  //flags
-  W_POLYGON,                     //approximation
-  W_LINEARC,                     //linearc approx
-  W_DONT_CHOP,                   //fixed pitch chopped
-  W_REP_CHAR,                    //repeated character
-  W_FUZZY_SP,                    //fuzzy space
-  W_FUZZY_NON,                   //fuzzy nonspace
-  W_INVERSE                      //white on black
+  W_SEGMENTED,                   //< correctly segmented
+  W_ITALIC,                      //< italic text
+  W_BOLD,                        //< bold text
+  W_BOL,                         //< start of line
+  W_EOL,                         //< end of line
+  W_NORMALIZED,                  //< flags
+  W_POLYGON,                     //< approximation
+  W_LINEARC,                     //< linearc approx
+  W_DONT_CHOP,                   //< fixed pitch chopped
+  W_REP_CHAR,                    //< repeated character
+  W_FUZZY_SP,                    //< fuzzy space
+  W_FUZZY_NON,                   //< fuzzy nonspace
+  W_INVERSE                      //< white on black
 };
 
 enum DISPLAY_FLAGS
 {
   /* Display flags bit number allocations */
-  DF_BOX,                        //Bounding box
-  DF_TEXT,                       //Correct ascii
-  DF_POLYGONAL,                  //Polyg approx
-  DF_EDGE_STEP,                  //Edge steps
-  DF_BN_POLYGONAL                //BL normalisd polyapx
+  DF_BOX,                        //< Bounding box
+  DF_TEXT,                       //< Correct ascii
+  DF_POLYGONAL,                  //< Polyg approx
+  DF_EDGE_STEP,                  //< Edge steps
+  DF_BN_POLYGONAL                //< BL normalisd polyapx
 };
 
 class ROW;                       //forward decl

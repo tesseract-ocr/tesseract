@@ -16,9 +16,12 @@
 // limitations under the License.
 //
 ///////////////////////////////////////////////////////////////////////
-//
-// The variables editor is used to edit all the variables used within
-// tesseract from the ui.
+
+/**
+ * @file varabled.h
+ * The variables editor is used to edit all the variables used within
+ * tesseract from the ui.
+ */
 #ifndef GRAPHICS_DISABLED
 #ifndef VARABLED_H
 #define VARABLED_H
@@ -30,7 +33,7 @@
 
 class SVMenuNode;
 
-// A list of all possible variable types used.
+/** A list of all possible variable types used. */
 enum VarType {
   VT_INTEGER,
   VT_BOOLEAN,
@@ -38,20 +41,22 @@ enum VarType {
   VT_DOUBLE
 };
 
-// A rather hackish helper structure which can take any kind of variable input
-// (defined by VarType) and do a couple of common operations on them, like
-// comparisond or getting its value. It is used in the context of the
-// VariablesEditor as a bridge from the internal tesseract variables to the
-// ones displayed by the ScrollView server.
+/**
+ * A rather hackish helper structure which can take any kind of variable input
+ * (defined by VarType) and do a couple of common operations on them, like
+ * comparisond or getting its value. It is used in the context of the
+ * VariablesEditor as a bridge from the internal tesseract variables to the
+ * ones displayed by the ScrollView server.
+ */
 class VariableContent : public ELIST_LINK {
  public:
-  // Compare two VC objects by their name.
+  /** Compare two VC objects by their name. */
   static int Compare(const void* v1, const void* v2);
 
-  // Gets a VC object identified by its ID.
+  /** Gets a VC object identified by its ID. */
   static VariableContent* GetVariableContentById(int id);
 
-  // Constructors for the various VarTypes.
+  /** Constructors for the various VarTypes. */
   VariableContent() {
   }
   VariableContent(STRING_VARIABLE* it);
@@ -60,7 +65,7 @@ class VariableContent : public ELIST_LINK {
   VariableContent(double_VARIABLE* it);
 
 
-  // Getters and Setters.
+  /** Getters and Setters. */
   void SetValue(const char* val);
   const char* GetValue() const;
   const char* GetName() const;
@@ -70,11 +75,11 @@ class VariableContent : public ELIST_LINK {
   bool HasChanged() { return changed_; }
 
  private:
-  // The unique ID of this VC object.
+  /** The unique ID of this VC object. */
   int my_id_;
-  // Whether the variable was changed_ and thus needs to be rewritten.
+  /** Whether the variable was changed_ and thus needs to be rewritten. */
   bool changed_;
-  // The actual vartype of this VC object.
+  /** The actual vartype of this VC object. */
   VarType var_type_;
 
   STRING_VARIABLE* sIt;
@@ -85,36 +90,46 @@ class VariableContent : public ELIST_LINK {
 
 ELISTIZEH(VariableContent)
 
-// The variables editor enables the user to edit all the variables used within
-// tesseract. It can be invoked on its own, but is supposed to be invoked by
-// the program editor.
+/**
+ * The variables editor enables the user to edit all the variables used within
+ * tesseract. It can be invoked on its own, but is supposed to be invoked by
+ * the program editor.
+ */
 class VariablesEditor : public SVEventHandler {
  public:
-  // Integrate the variables editor as popupmenu into the existing scrollview
-  // window (usually the pg editor). If sv == null, create a new empty
-  // empty window and attach the variables editor to that window (ugly).
+  /**
+   * Integrate the variables editor as popupmenu into the existing scrollview
+   * window (usually the pg editor). If sv == null, create a new empty
+   * empty window and attach the variables editor to that window (ugly).
+   */
   VariablesEditor(const tesseract::Tesseract*, ScrollView* sv = NULL);
 
-  // Event listener. Waits for SVET_POPUP events and processes them.
+  /** Event listener. Waits for SVET_POPUP events and processes them. */
   void Notify(const SVEvent* sve);
 
  private:
-  // Gets the up to the first 3 prefixes from s (split by _).
-  // For example, tesseract_foo_bar will be split into tesseract,foo and bar.
+  /**
+   * Gets the up to the first 3 prefixes from s (split by _).
+   * For example, tesseract_foo_bar will be split into tesseract, foo, and bar.
+   */
   void GetPrefixes(const char* s, STRING* level_one,
                    STRING* level_two, STRING* level_three);
 
-  // Gets the first n words (split by _) and puts them in t.
-  // For example, tesseract_foo_bar with N=2 will yield tesseract_foo_.
+  /**
+   * Gets the first n words (split by _) and puts them in t.
+   * For example, tesseract_foo_bar with N=2 will yield tesseract_foo_.
+   */
   void GetFirstWords(const char *s,  // source string
                      int n,          // number of words
                      char *t);       // target string
 
-  // Find all editable variables used within tesseract and create a
-  // SVMenuNode tree from it.
+  /**
+   * Find all editable variables used within tesseract and create a
+   * SVMenuNode tree from it.
+   */
   SVMenuNode *BuildListOfAllLeaves();
 
-  // Write all (changed_) variables to a config file.
+  /** Write all (changed_) variables to a config file. */
   void WriteVars(char* filename, bool changes_only);
 
   ScrollView* sv_window_;

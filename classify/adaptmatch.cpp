@@ -1,8 +1,8 @@
 /******************************************************************************
- **                         Filename:    adaptmatch.c
- **                         Purpose:     High level adaptive matcher.
- **                         Author:      Dan Johnson
- **                         History:     Mon Mar 11 10:00:10 1991, DSJ, Created.
+ ** Filename:    adaptmatch.c
+ ** Purpose:     High level adaptive matcher.
+ ** Author:      Dan Johnson
+ ** History:     Mon Mar 11 10:00:10 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
  ** limitations under the License.
  ******************************************************************************/
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
@@ -84,8 +84,8 @@ struct ADAPT_RESULTS
   uinT8 BestConfig;
   CLASS_PRUNER_RESULTS CPResults;
 
-  // Initializes data members to the default values. Sets the initial
-  // rating of each class to be the worst possible rating (1.0).
+  /// Initializes data members to the default values. Sets the initial
+  /// rating of each class to be the worst possible rating (1.0).
   inline void Initialize() {
      BlobLength = MAX_INT32;
      NumMatches = 0;
@@ -111,9 +111,9 @@ typedef struct
 
 PROTO_KEY;
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Private Macros
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 #define MarginalMatch(Rating)       \
 ((Rating) > matcher_great_threshold)
 
@@ -122,9 +122,9 @@ PROTO_KEY;
 
 #define InitIntFX() (FeaturesHaveBeenExtracted = FALSE)
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Private Function Prototypes
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 void AdaptToChar(TBLOB *Blob,
                  LINE_STATS *LineStats,
                  CLASS_ID ClassId,
@@ -230,9 +230,9 @@ void ShowBestMatchFor(TBLOB *Blob,
                       BOOL8 PreTrainedOn);
 
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /* variables used to hold performance statistics */
 static int AdaptiveMatcherCalls = 0;
 static int BaselineClassifierCalls = 0;
@@ -256,11 +256,11 @@ static INT_FEATURE_ARRAY BaselineFeatures;
 static INT_FEATURE_ARRAY CharNormFeatures;
 static INT_FX_RESULT_STRUCT FXInfo;
 
-/* use a global variable to hold onto the current ratings so that the
+/** use a global variable to hold onto the current ratings so that the
 comparison function passes to qsort can get at them */
 static FLOAT32 *CurrentRatings;
 
-/* define globals to hold filenames of training data */
+/* define globals to hold filename of training data */
 static CLASS_CUTOFF_ARRAY CharNormCutoffs;
 static CLASS_CUTOFF_ARRAY BaselineCutoffs;
 
@@ -311,40 +311,47 @@ double_VAR(tessedit_class_miss_scale, 0.00390625,
 BOOL_VAR(tess_cn_matching, 0, "Character Normalized Matching");
 BOOL_VAR(tess_bn_matching, 0, "Baseline Normalized Matching");
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ * This routine calls the adaptive matcher
+ * which returns (in an array) the class id of each
+ * class matched.
+ *
+ * It also returns the number of classes matched.
+ * For each class matched it places the best rating
+ * found for that class into the Ratings array.
+ *
+ * Bad matches are then removed so that they don't
+ * need to be sorted.  The remaining good matches are
+ * then sorted and converted to choices.
+ *
+ * This routine also performs some simple speckle
+ * filtering.
+ *
+ * @note Exceptions: none
+ * @note History: Mon Mar 11 10:00:58 1991, DSJ, Created.
+ *
+ * @param Blob    blob to be classified
+ * @param DotBlob (obsolete)
+ * @param Row     row of text that word appears in
+ * @param[out] Choices    List of choices found by adaptive matcher.
+ * @param[out] CPResults  Array of CPResultStruct of size MAX_NUM_CLASSES is
+ * filled on return with the choices found by the
+ * class pruner and the ratings therefrom. Also
+ * contains the detailed results of the integer matcher.
+ *
+ * Globals: 
+ * - CurrentRatings  used by compare function for qsort
+ */
 void Classify::AdaptiveClassifier(TBLOB *Blob,
                                   TBLOB *DotBlob,
                                   TEXTROW *Row,
                                   BLOB_CHOICE_LIST *Choices,
                                   CLASS_PRUNER_RESULTS CPResults) {
-/*
- **  Parameters: Blob    blob to be classified
- **              DotBlob (obsolete)
- **              Row     row of text that word appears in
- **  Globals: CurrentRatings  used by compare function for qsort
- **  Operation: This routine calls the adaptive matcher
- **             which returns (in an array) the class id of each
- **             class matched.
- **             It also returns the number of classes matched.
- **             For each class matched it places the best rating
- **             found for that class into the Ratings array.
- **             Bad matches are then removed so that they don't
- **             need to be sorted.  The remaining good matches are
- **             then sorted and converted to choices.
- **             This routine also performs some simple speckle
- **             filtering.
- **  Return: Choices    List of choices found by adaptive matcher.
- **          CPResults  Array of CPResultStruct of size MAX_NUM_CLASSES is
- **                     filled on return with the choices found by the
- **                     class pruner and the ratings therefrom. Also
- **                     contains the detailed results of the integer matcher.
- **  Exceptions: none
- **  History: Mon Mar 11 10:00:58 1991, DSJ, Created.
- */
   assert(Choices != NULL);
   ADAPT_RESULTS *Results = new ADAPT_RESULTS();
   LINE_STATS LineStats;
@@ -404,36 +411,35 @@ void Classify::AdaptiveClassifier(TBLOB *Blob,
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine implements a preliminary
+ * version of the rules which are used to decide
+ * which characters to adapt to.
+ *
+ * A word is adapted to if it is in the dictionary or
+ * if it is a "good" number (no trailing units, etc.).
+ * It cannot contain broken or merged characters.
+ *
+ * Within that word, only letters and digits are
+ * adapted to (no punctuation).
+ *
+ * @param Word word to be adapted to
+ * @param Row row of text that word is found in
+ * @param BestChoice best choice for word found by system
+ * @param BestRawChoice best choice for word found by classifier only
+ * @param rejmap Reject map
+ *
+ * Globals:
+ * - #EnableLearning TRUE if learning is enabled
+ *
+ * @note Exceptions: none
+ * @note History: Thu Mar 14 07:40:36 1991, DSJ, Created.
+*/
 void Classify::AdaptToWord(TWERD *Word,
                            TEXTROW *Row,
                            const WERD_CHOICE& BestChoice,
                            const WERD_CHOICE& BestRawChoice,
                            const char *rejmap) {
-/*
- **                         Parameters:
- **                         Word
- **                         word to be adapted to
- **                         Row
- **                         row of text that word is found in
- **                         BestChoice
- **                         best choice for word found by system
- **                         BestRawChoice
- **                         best choice for word found by classifier only
- **                         Globals:
- **                         EnableLearning
- **                         TRUE if learning is enabled
- **                         Operation: This routine implements a preliminary
- **                         version of the rules which are used to decide
- **                         which characters to adapt to.
- **                         A word is adapted to if it is in the dictionary or
- **                         if it is a "good" number (no trailing units, etc.).
- **                         It cannot contain broken or merged characters.
- **                         Within that word, only letters and digits are
- **                         adapted to (no punctuation).
- **                         Return: none
- **                         Exceptions: none
- **                         History: Thu Mar 14 07:40:36 1991, DSJ, Created.
-*/
   TBLOB *Blob;
   LINE_STATS LineStats;
   FLOAT32 Thresholds[MAX_ADAPTABLE_WERD_SIZE];
@@ -533,24 +539,21 @@ void Classify::AdaptToWord(TWERD *Word,
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine performs cleanup operations
+ * on the adaptive classifier.  It should be called
+ * before the program is terminated.  Its main function
+ * is to save the adapted templates to a file.
+ *
+ * Globals:
+ * - #AdaptedTemplates current set of adapted templates
+ * - #classify_save_adapted_templates TRUE if templates should be saved
+ * - #classify_enable_adaptive_matcher TRUE if adaptive matcher is enabled
+ *
+ * @note Exceptions: none
+ * @note History: Tue Mar 19 14:37:06 1991, DSJ, Created.
+ */
 void Classify::EndAdaptiveClassifier() {
-/*
- **                         Parameters: none
- **                         Globals:
- **                         AdaptedTemplates
- **                         current set of adapted templates
- **                         classify_save_adapted_templates
- **                         TRUE if templates should be saved
- **                         classify_enable_adaptive_matcher
- **                         TRUE if adaptive matcher is enabled
- **                         Operation: This routine performs cleanup operations
- **                         on the adaptive classifier.  It should be called
- **                         before the program is terminated.  Its main function
- **                         is to save the adapted templates to a file.
- **                         Return: none
- **                         Exceptions: none
- **                         History: Tue Mar 19 14:37:06 1991, DSJ, Created.
-*/
   STRING Filename;
   FILE *File;
 
@@ -600,33 +603,25 @@ void Classify::EndAdaptiveClassifier() {
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine reads in the training
+ * information needed by the adaptive classifier
+ * and saves it into global variables.
+ *
+ * Globals:
+ * - BuiltInTemplatesFile file to get built-in temps from
+ * - BuiltInCutoffsFile file to get avg. feat per class from
+ * - #PreTrainedTemplates pre-trained configs and protos
+ * - #AdaptedTemplates templates adapted to current page
+ * - CharNormCutoffs avg # of features per class
+ * - #AllProtosOn dummy proto mask with all bits 1
+ * - #AllConfigsOn dummy config mask with all bits 1
+ * - #classify_use_pre_adapted_templates enables use of pre-adapted templates
+ *
+ * @note Exceptions: none
+ * @note History: Mon Mar 11 12:49:34 1991, DSJ, Created.
+ */
 void Classify::InitAdaptiveClassifier() {
-/*
- **                         Parameters: none
- **                         Globals:
- **                         BuiltInTemplatesFile
- **                         file to get built-in temps from
- **                         BuiltInCutoffsFile
- **                         file to get avg. feat per class from
- **                         PreTrainedTemplates
- **                         pre-trained configs and protos
- **                         AdaptedTemplates
- **                         templates adapted to current page
- **                         CharNormCutoffs
- **                         avg # of features per class
- **                         AllProtosOn
- **                         dummy proto mask with all bits 1
- **                         AllConfigsOn
- **                         dummy config mask with all bits 1
- **                         classify_use_pre_adapted_templates
- **                         enables use of pre-adapted templates
- **                         Operation: This routine reads in the training
- **                         information needed by the adaptive classifier
- **                         and saves it into global variables.
- **                         Return: none
- **                         Exceptions: none
- **                         History: Mon Mar 11 12:49:34 1991, DSJ, Created.
-*/
   if (!classify_enable_adaptive_matcher)
     return;
   if (AllProtosOn != NULL)
@@ -713,18 +708,18 @@ void Classify::ResetAdaptiveClassifier() {
 
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ * Print to File the statistics which have
+ * been gathered for the adaptive matcher.
+ *
+ * @param File open text file to print adaptive statistics to
+ *
+ * Globals: none
+ *
+ * @note Exceptions: none
+ * @note History: Thu Apr 18 14:37:37 1991, DSJ, Created.
+ */
 void Classify::PrintAdaptiveStatistics(FILE *File) {
-/*
- **                         Parameters:
- **                         File
- **                         open text file to print adaptive statistics to
- **                         Globals: none
- **                         Operation: Print to File the statistics which have
- **                         been gathered for the adaptive matcher.
- **                         Return: none
- **                         Exceptions: none
- **                         History: Thu Apr 18 14:37:37 1991, DSJ, Created.
-*/
   #ifndef SECURE_NAMES
 
   fprintf (File, "\nADAPTIVE MATCHER STATISTICS:\n");
@@ -756,20 +751,20 @@ void Classify::PrintAdaptiveStatistics(FILE *File) {
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine prepares the adaptive
+ * matcher for the start
+ * of the first pass.  Learning is enabled (unless it
+ * is disabled for the whole program).
+ *
+ * Globals:
+ * - #EnableLearning
+ * set to TRUE by this routine
+ *
+ * @note Exceptions: none
+ * @note History: Mon Apr 15 16:39:29 1991, DSJ, Created.
+ */
 void Classify::SettupPass1() {
-/*
- **                         Parameters: none
- **                         Globals:
- **                         EnableLearning
- **                         set to TRUE by this routine
- **                         Operation: This routine prepares the adaptive
- **                         matcher for the start
- **                         of the first pass.  Learning is enabled (unless it
- **                         is disabled for the whole program).
- **                         Return: none
- **                         Exceptions: none
- **                         History: Mon Apr 15 16:39:29 1991, DSJ, Created.
-*/
   /* Note: this is somewhat redundant, it simply says that if learning is
   enabled then it will remain enabled on the first pass.  If it is
   disabled, then it will remain disabled.  This is only put here to
@@ -783,19 +778,18 @@ void Classify::SettupPass1() {
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine prepares the adaptive
+ * matcher for the start of the second pass.  Further
+ * learning is disabled.
+ *
+ * Globals:
+ * - #EnableLearning set to FALSE by this routine
+ *
+ * @note Exceptions: none
+ * @note History: Mon Apr 15 16:39:29 1991, DSJ, Created.
+ */
 void Classify::SettupPass2() {
-/*
- **                         Parameters: none
- **                         Globals:
- **                         EnableLearning
- **                         set to FALSE by this routine
- **                         Operation: This routine prepares the adaptive
- **                         matcher for the start of the second pass.  Further
- **                         learning is disabled.
- **                         Return: none
- **                         Exceptions: none
- **                         History: Mon Apr 15 16:39:29 1991, DSJ, Created.
-*/
   EnableLearning = FALSE;
   getDict().SettupStopperPass2();
 
@@ -803,37 +797,30 @@ void Classify::SettupPass2() {
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine creates a new adapted
+ * class and uses Blob as the model for the first
+ * config in that class.
+ *
+ * @param Blob blob to model new class after
+ * @param LineStats statistics for text row blob is in
+ * @param ClassId id of the class to be initialized
+ * @param Class adapted class to be initialized
+ * @param Templates adapted templates to add new class to
+ *
+ * Globals:
+ * - #AllProtosOn dummy mask with all 1's
+ * - BaselineCutoffs kludge needed to get cutoffs
+ * - #PreTrainedTemplates kludge needed to get cutoffs
+ *
+ * @note Exceptions: none
+ * @note History: Thu Mar 14 12:49:39 1991, DSJ, Created.
+ */
 void Classify::InitAdaptedClass(TBLOB *Blob,
                                 LINE_STATS *LineStats,
                                 CLASS_ID ClassId,
                                 ADAPT_CLASS Class,
                                 ADAPT_TEMPLATES Templates) {
-/*
- **                          Parameters:
- **                          Blob
- **                          blob to model new class after
- **                          LineStats
- **                          statistics for text row blob is in
- **                          ClassId
- **                          id of the class to be initialized
- **                          Class
- **                          adapted class to be initialized
- **                          Templates
- **                          adapted templates to add new class to
- **                          Globals:
- **                          AllProtosOn
- **                          dummy mask with all 1's
- **                          BaselineCutoffs
- **                          kludge needed to get cutoffs
- **                          PreTrainedTemplates
- **                          kludge needed to get cutoffs
- **                          Operation: This routine creates a new adapted
- **                          class and uses Blob as the model for the first
- **                          config in that class.
- **                          Return: none
- **                          Exceptions: none
- **                          History: Thu Mar 14 12:49:39 1991, DSJ, Created.
-*/
   FEATURE_SET Features;
   int Fid, Pid;
   FEATURE Feature;
@@ -902,33 +889,31 @@ void Classify::InitAdaptedClass(TBLOB *Blob,
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine sets up the feature
+ * extractor to extract baseline normalized
+ * pico-features.
+ *
+ * The extracted pico-features are converted
+ * to integer form and placed in IntFeatures. The
+ * original floating-pt. features are returned in
+ * FloatFeatures.
+ *
+ * Globals: none
+ * @param Blob blob to extract features from
+ * @param LineStats statistics about text row blob is in
+ * @param[out] IntFeatures array to fill with integer features
+ * @param[out] FloatFeatures place to return actual floating-pt features
+ *
+ * @return Number of pico-features returned (0 if
+ * an error occurred)
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 17:55:18 1991, DSJ, Created.
+ */
 int GetAdaptiveFeatures(TBLOB *Blob,
                         LINE_STATS *LineStats,
                         INT_FEATURE_ARRAY IntFeatures,
                         FEATURE_SET *FloatFeatures) {
-/*
- **                         Parameters:
- **                         Blob
- **                         blob to extract features from
- **                         LineStats
- **                         statistics about text row blob is in
- **                         IntFeatures
- **                         array to fill with integer features
- **                         FloatFeatures
- **                         place to return actual floating-pt features
- **                         Globals: none
- **                         Operation: This routine sets up the feature
- **                         extractor to extract baseline normalized
- **                         pico-features.
- **                         The extracted pico-features are converted
- **                         to integer form and placed in IntFeatures. The
- **                         original floating-pt. features are returned in
- **                         FloatFeatures.
- **                         Return: Number of pico-features returned (0 if
- **                         an error occurred)
- **                         Exceptions: none
- **                         History: Tue Mar 12 17:55:18 1991, DSJ, Created.
-*/
   FEATURE_SET Features;
   int NumFeatures;
 
@@ -949,29 +934,28 @@ int GetAdaptiveFeatures(TBLOB *Blob,
 }                                /* GetAdaptiveFeatures */
 
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
               Private Code
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ * Return TRUE if the specified word is
+ * acceptable for adaptation.
+ *
+ * Globals: none
+ *
+ * @param Word current word
+ * @param BestChoiceWord best overall choice for word with context
+ * @param RawChoiceWord best choice for word without context
+ *
+ * @return TRUE or FALSE
+ * @note Exceptions: none
+ * @note History: Thu May 30 14:25:06 1991, DSJ, Created.
+ */
 int Classify::AdaptableWord(TWERD *Word,
                             const WERD_CHOICE &BestChoiceWord,
                             const WERD_CHOICE &RawChoiceWord) {
-/*
- **                         Parameters:
- **                         Word
- **                         current word
- **                         BestChoice
- **                         best overall choice for word with context
- **                         BestRawChoice
- **                         best choice for word without context
- **                         Globals: none
- **                         Operation: Return TRUE if the specified word is
- **                         acceptable for adaptation.
- **                         Return: TRUE or FALSE
- **                         Exceptions: none
- **                         History: Thu May 30 14:25:06 1991, DSJ, Created.
-*/
   int BestChoiceLength = BestChoiceWord.length();
   return (  // rules that apply in general - simplest to compute first
     BestChoiceLength > 0 &&
@@ -988,32 +972,25 @@ int Classify::AdaptableWord(TWERD *Word,
 }
 
 /*---------------------------------------------------------------------------*/
+/**
+ * @param Blob blob to add to templates for ClassId
+ * @param LineStats statistics about text line blob is in
+ * @param ClassId class to add blob to
+ * @param Threshold minimum match rating to existing template
+ *
+ * Globals:
+ * - AdaptedTemplates current set of adapted templates
+ * - AllProtosOn dummy mask to match against all protos
+ * - AllConfigsOn dummy mask to match against all configs
+ *
+ * @return none
+ * @note Exceptions: none
+ * @note History: Thu Mar 14 09:36:03 1991, DSJ, Created.
+ */
   void Classify::AdaptToChar(TBLOB *Blob,
                              LINE_STATS *LineStats,
                              CLASS_ID ClassId,
                              FLOAT32 Threshold) {
-/*
- **                         Parameters:
- **                         Blob
-              blob to add to templates for ClassId
-**                          LineStats
-              statistics about text line blob is in
-**                          ClassId
-              class to add blob to
-**                          Threshold
-              minimum match rating to existing template
-**                          Globals:
-**                          AdaptedTemplates
-              current set of adapted templates
-**                          AllProtosOn
-              dummy mask to match against all protos
-**                          AllConfigsOn
-              dummy mask to match against all configs
-**                          Operation:
-**                          Return: none
-**                          Exceptions: none
-**                          History: Thu Mar 14 09:36:03 1991, DSJ, Created.
-*/
   int NumFeatures;
   INT_FEATURE_ARRAY IntFeatures;
   INT_RESULT_STRUCT IntResult;
@@ -1107,28 +1084,22 @@ int Classify::AdaptableWord(TWERD *Word,
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * @param Blob blob to add to templates for ClassId
+ * @param LineStats statistics about text line blob is in
+ * @param ClassId class to add blob to
+ * @param Threshold minimum match rating to existing template
+ *
+ * Globals:
+ * - PreTrainedTemplates current set of built-in templates
+ *
+ * @note Exceptions: none
+ * @note History: Thu Mar 14 09:36:03 1991, DSJ, Created.
+ */
 void Classify::AdaptToPunc(TBLOB *Blob,
                            LINE_STATS *LineStats,
                            CLASS_ID ClassId,
                            FLOAT32 Threshold) {
-/*
- **                         Parameters:
- **                         Blob
-              blob to add to templates for ClassId
-**                          LineStats
-              statistics about text line blob is in
-**                          ClassId
-              class to add blob to
-**                          Threshold
-              minimum match rating to existing template
-**                          Globals:
-**                          PreTrainedTemplates
-              current set of built-in templates
-**                          Operation:
-**                          Return: none
-**                          Exceptions: none
-**                          History: Thu Mar 14 09:36:03 1991, DSJ, Created.
-*/
   ADAPT_RESULTS *Results = new ADAPT_RESULTS();
   int i;
 
@@ -1159,36 +1130,32 @@ void Classify::AdaptToPunc(TBLOB *Blob,
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine adds the result of a classification into
+ * Results.  If the new rating is much worse than the current
+ * best rating, it is not entered into results because it
+ * would end up being stripped later anyway.  If the new rating
+ * is better than the old rating for the class, it replaces the
+ * old rating.  If this is the first rating for the class, the
+ * class is added to the list of matched classes in Results.
+ * If the new rating is better than the best so far, it
+ * becomes the best so far.
+ *
+ * Globals:
+ * - #matcher_bad_match_pad defines limits of an acceptable match
+ *
+ * @param[out] Results results to add new result to
+ * @param ClassId class of new result
+ * @param Rating rating of new result
+ * @param ConfigId config id of new result
+ *
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 18:19:29 1991, DSJ, Created.
+ */
 void Classify::AddNewResult(ADAPT_RESULTS *Results,
                             CLASS_ID ClassId,
                             FLOAT32 Rating,
                             int ConfigId) {
-/*
- **                         Parameters:
- **                         Results
-              results to add new result to
-**                          ClassId
-              class of new result
-**                          Rating
-              rating of new result
-**                          ConfigId
-              config id of new result
-**                          Globals:
-**                          matcher_bad_match_pad
-              defines limits of an acceptable match
-**                          Operation: This routine adds the result of a classification into
-**                          Results.  If the new rating is much worse than the current
-**                          best rating, it is not entered into results because it
-**                          would end up being stripped later anyway.  If the new rating
-**                          is better than the old rating for the class, it replaces the
-**                          old rating.  If this is the first rating for the class, the
-**                          class is added to the list of matched classes in Results.
-**                          If the new rating is better than the best so far, it
-**                          becomes the best so far.
-**                          Return: none
-**                          Exceptions: none
-**                          History: Tue Mar 12 18:19:29 1991, DSJ, Created.
-*/
   FLOAT32 OldRating;
   INT_CLASS_STRUCT* CharClass = NULL;
 
@@ -1206,7 +1173,7 @@ void Classify::AddNewResult(ADAPT_RESULTS *Results,
       Results->Configs[ClassId] = ~0;
 
     if (Rating < Results->BestRating &&
-        // Ensure that fragments do no affect best rating, class and config.
+        // Ensure that fragments do not affect best rating, class and config.
         // This is needed so that at least one non-fragmented character is
         // always present in the Results.
         // TODO(daria): verify that this helps accuracy and does not
@@ -1225,36 +1192,30 @@ void Classify::AddNewResult(ADAPT_RESULTS *Results,
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine is identical to CharNormClassifier()
+ * except that it does no class pruning.  It simply matches
+ * the unknown blob against the classes listed in
+ * Ambiguities.
+ *
+ * Globals:
+ * - #AllProtosOn mask that enables all protos
+ * - #AllConfigsOn mask that enables all configs
+ *
+ * @param Blob blob to be classified
+ * @param LineStats statistics for text line Blob is in
+ * @param Templates built-in templates to classify against
+ * @param Ambiguities array of class id's to match against
+ * @param[out] Results place to put match results
+ *
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 19:40:36 1991, DSJ, Created.
+ */
 void Classify::AmbigClassifier(TBLOB *Blob,
                                LINE_STATS *LineStats,
                                INT_TEMPLATES Templates,
                                UNICHAR_ID *Ambiguities,
                                ADAPT_RESULTS *Results) {
-/*
- **                         Parameters:
- **                         Blob
-              blob to be classified
-**                          LineStats
-              statistics for text line Blob is in
-**                          Templates
-              built-in templates to classify against
-**                          Ambiguities
-              array of class id's to match against
-**                          Results
-              place to put match results
-**                          Globals:
-**                          AllProtosOn
-              mask that enables all protos
-**                          AllConfigsOn
-              mask that enables all configs
-**                          Operation: This routine is identical to CharNormClassifier()
-**                          except that it does no class pruning.  It simply matches
-**                          the unknown blob against the classes listed in
-**                          Ambiguities.
-**                          Return: none
-**                          Exceptions: none
-**                          History: Tue Mar 12 19:40:36 1991, DSJ, Created.
-*/
   int NumFeatures;
   INT_FEATURE_ARRAY IntFeatures;
   CLASS_NORMALIZATION_ARRAY CharNormArray;
@@ -1299,8 +1260,8 @@ void Classify::AmbigClassifier(TBLOB *Blob,
 }                                /* AmbigClassifier */
 
 /*---------------------------------------------------------------------------*/
-// Factored-out calls to IntegerMatcher based on class pruner results.
-// Returns integer matcher results inside CLASS_PRUNER_RESULTS structure.
+/// Factored-out calls to IntegerMatcher based on class pruner results.
+/// Returns integer matcher results inside CLASS_PRUNER_RESULTS structure.
 void Classify::MasterMatcher(INT_TEMPLATES templates,
                              inT16 num_features,
                              INT_FEATURE_ARRAY features,
@@ -1370,31 +1331,28 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
 
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ * This routine extracts baseline normalized features
+ * from the unknown character and matches them against the
+ * specified set of templates.  The classes which match
+ * are added to Results.
+ *
+ * Globals:
+ * - BaselineCutoffs expected num features for each class
+ *
+ * @param Blob blob to be classified
+ * @param LineStats statistics for text line Blob is in
+ * @param Templates current set of adapted templates
+ * @param Results place to put match results
+ *
+ * @return Array of possible ambiguous chars that should be checked.
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 19:38:03 1991, DSJ, Created.
+ */
 UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
                                          LINE_STATS *LineStats,
                                          ADAPT_TEMPLATES Templates,
                                          ADAPT_RESULTS *Results) {
-/*
- **                         Parameters:
- **                         Blob
-              blob to be classified
-**                          LineStats
-              statistics for text line Blob is in
-**                          Templates
-              current set of adapted templates
-**                          Results
-              place to put match results
-**                          Globals:
-**                          BaselineCutoffs
-              expected num features for each class
-**                          Operation: This routine extracts baseline normalized features
-**                          from the unknown character and matches them against the
-**                          specified set of templates.  The classes which match
-**                          are added to Results.
-**                          Return: Array of possible ambiguous chars that should be checked.
-**                          Exceptions: none
-**                          History: Tue Mar 12 19:38:03 1991, DSJ, Created.
-*/
   int NumFeatures;
   int NumClasses;
   INT_FEATURE_ARRAY IntFeatures;
@@ -1524,25 +1482,25 @@ void Classify::ClassifyAsNoise(ADAPT_RESULTS *Results) {
 
 
 /*---------------------------------------------------------------------------*/
-int CompareCurrentRatings(                     //CLASS_ID              *Class1,
-                          const void *arg1,
-                          const void *arg2) {  //CLASS_ID              *Class2)
-/*
- **                         Parameters:
- **                         Class1, Class2
-              classes whose ratings are to be compared
-**                          Globals:
-**                          CurrentRatings
-              contains actual ratings for each class
-**                          Operation: This routine gets the ratings for the 2 specified classes
-**                          from a global variable (CurrentRatings) and returns:
-**          -1 if Rating1 < Rating2
-**                          0 if Rating1 = Rating2
-**                          1 if Rating1 > Rating2
-**                          Return: Order of classes based on their ratings (see above).
-**                          Exceptions: none
-**                          History: Tue Mar 12 14:18:31 1991, DSJ, Created.
-*/
+/**
+ * This routine gets the ratings for the 2 specified classes
+ * from a global variable (CurrentRatings) and returns:
+ * - -1 if Rating1 < Rating2
+ * - 0 if Rating1 = Rating2
+ * - 1 if Rating1 > Rating2
+ *
+ * @param arg1
+ * @param arg2 classes whose ratings are to be compared
+ * 
+ * Globals:
+ * - CurrentRatings contains actual ratings for each class
+ * 
+ * @return Order of classes based on their ratings (see above).
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 14:18:31 1991, DSJ, Created.
+ */
+int CompareCurrentRatings(const void *arg1,
+                          const void *arg2) {
   FLOAT32 Rating1, Rating2;
   CLASS_ID *Class1 = (CLASS_ID *) arg1;
   CLASS_ID *Class2 = (CLASS_ID *) arg2;
@@ -1561,13 +1519,13 @@ int CompareCurrentRatings(                     //CLASS_ID              *Class1,
 
 
 /*---------------------------------------------------------------------------*/
-// The function converts the given match ratings to the list of blob
-// choices with ratings and certainties (used by the context checkers).
-// If character fragments are present in the results, this function also makes
-// sure that there is at least one non-fragmented classification included.
-// For each classificaiton result check the unicharset for "definite"
-// ambiguities and modify the resulting Choices accordingly.
 namespace tesseract {
+/// The function converts the given match ratings to the list of blob
+/// choices with ratings and certainties (used by the context checkers).
+/// If character fragments are present in the results, this function also makes
+/// sure that there is at least one non-fragmented classification included.
+/// For each classification result check the unicharset for "definite"
+/// ambiguities and modify the resulting Choices accordingly.
 void Classify::ConvertMatchesToChoices(ADAPT_RESULTS *Results,
                                        BLOB_CHOICE_LIST *Choices) {
   assert(Choices != NULL);

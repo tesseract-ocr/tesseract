@@ -115,23 +115,26 @@ static void find_fbox(OUTLINE_IT *out_it,
 static void maintain_limits(float *min_x, float *max_x, float x);
 
 
-/* ********************************************************************
+/**
 A note on transitions.
 
 We want to record occupancy in various bands. In general we need to consider
 7 situations:
 
+@verbatim
 (1)     (2)  (3)             (4)
-\       /   \           /   \           /
+ \       /   \           /   \           /
 __\_____/_____\_________/_____\_________/______ Upper Limit
-  \   /       \       /       \       /
-  /   \        \-->--/         \--<--/     /-----\
-v     ^                                  /       \(7)
-\      \                                 \       /
-  \      \      /--<--\      /-->--\       \-----/
+   \   /       \       /       \       /
+   /   \        \-->--/         \--<--/     /-----\
+  v     ^                                  /       \(7) 
+  \      \                                 \       /
+   \      \      /--<--\      /-->--\       \-----/
 ____\______\____/_______\____/_______\_________ Lower Limit
-  \      \  /         \  /         \
-          (5)          (6)
+     \      \  /         \  /         \
+             (5)          (6)
+@endverbatim
+
 We know that following "next" pointers around an outline keeps the black area
 on the LEFT. We only need be concerned with situations 1,2,3,5 and 7.
 4 and 6 can be ignored as they represent small incursions into a large black
@@ -158,18 +161,18 @@ to the original band at the same x location.
 
 BAND bands[MAX_NUM_BANDS + 1];   // band defns
 
-/**********************************************************************
+/**
  * test_underline
  *
  * Check to see if the blob is an underline.
  * Return TRUE if it is.
- **********************************************************************/
+ */
 
 BOOL8 test_underline(                   //look for underlines
-                     BOOL8 testing_on,  //drawing blob
-                     PBLOB *blob,       //blob to test
-                     float baseline,    //coords of baseline
-                     float xheight      //height of line
+                     BOOL8 testing_on,  //< drawing blob
+                     PBLOB *blob,       //< blob to test
+                     float baseline,    //< coords of baseline
+                     float xheight      //< height of line
                     ) {
   inT16 occ;
   inT16 blob_width;              //width of blob
@@ -208,18 +211,18 @@ BOOL8 test_underline(                   //look for underlines
 }
 
 
-/**********************************************************************
+/**
  * test_underline
  *
  * Check to see if the blob is an underline.
  * Return TRUE if it is.
- **********************************************************************/
+ */
 
 BOOL8 test_underline(                   //look for underlines
-                     BOOL8 testing_on,  //drawing blob
-                     C_BLOB *blob,      //blob to test
-                     inT16 baseline,    //coords of baseline
-                     inT16 xheight      //height of line
+                     BOOL8 testing_on,  //< drawing blob
+                     C_BLOB *blob,      //< blob to test
+                     inT16 baseline,    //< coords of baseline
+                     inT16 xheight      //< height of line
                     ) {
   inT16 occ;
   inT16 blob_width;              //width of blob
@@ -279,16 +282,16 @@ BOOL8 test_underline(                   //look for underlines
 }
 
 
-/**********************************************************************
+/**
  * horizontal_cblob_projection
  *
  * Compute the horizontal projection of a cblob from its outlines
  * and add to the given STATS.
- **********************************************************************/
+ */
 
 static void horizontal_cblob_projection(               //project outlines
-                                 C_BLOB *blob,  //blob to project
-                                 STATS *stats   //output
+                                 C_BLOB *blob,  //< blob to project
+                                 STATS *stats   //< output
                                 ) {
                                  //outlines of blob
   C_OUTLINE_IT out_it = blob->out_list ();
@@ -299,16 +302,16 @@ static void horizontal_cblob_projection(               //project outlines
 }
 
 
-/**********************************************************************
+/**
  * horizontal_coutline_projection
  *
  * Compute the horizontal projection of a outline from its outlines
  * and add to the given STATS.
- **********************************************************************/
+ */
 
 static void horizontal_coutline_projection(                     //project outlines
-                                    C_OUTLINE *outline,  //outline to project
-                                    STATS *stats         //output
+                                    C_OUTLINE *outline,  //< outline to project
+                                    STATS *stats         //< output
                                    ) {
   ICOORD pos;                    //current point
   ICOORD step;                   //edge step

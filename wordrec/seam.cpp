@@ -46,12 +46,13 @@ freeseam, SEAMBLOCK, "SEAM", seamcount);
 /*----------------------------------------------------------------------
         Public Function Code
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * point_in_split
+/**
+ * @name point_in_split
  *
  * Check to see if either of these points are present in the current
- * split.  Return TRUE if one of them is.
- **********************************************************************/
+ * split.  
+ * @returns TRUE if one of them is split.
+ */
 bool point_in_split(SPLIT *split, EDGEPT *point1, EDGEPT *point2) {
   return ((split) ?
     ((exact_point (split->point1, point1) ||
@@ -61,12 +62,13 @@ bool point_in_split(SPLIT *split, EDGEPT *point1, EDGEPT *point2) {
 }
 
 
-/**********************************************************************
- * point_in_seam
+/**
+ * @name point_in_seam
  *
  * Check to see if either of these points are present in the current
- * seam.  Return TRUE if one of them is.
- **********************************************************************/
+ * seam.  
+ * @returns TRUE if one of them is.
+ */
 bool point_in_seam(SEAM *seam, SPLIT *split) {
   return (point_in_split (seam->split1, split->point1, split->point2) ||
     point_in_split (seam->split2, split->point1, split->point2) ||
@@ -74,23 +76,23 @@ bool point_in_seam(SEAM *seam, SPLIT *split) {
 }
 
 
-/**********************************************************************
- * add_seam
+/**
+ * @name add_seam
  *
  * Add another seam to a collection of seams.
- **********************************************************************/
+ */
 SEAMS add_seam(SEAMS seam_list, SEAM *seam) {
   return (array_push (seam_list, seam));
 }
 
 
-/**********************************************************************
- * combine_seam
+/**
+ * @name combine_seam
  *
  * Combine two seam records into a single seam.  Move the split
  * references from the second seam to the first one.  The argument
  * convention is patterned after strcpy.
- **********************************************************************/
+ */
 void combine_seams(SEAM *dest_seam, SEAM *source_seam) {
   dest_seam->priority += source_seam->priority;
   dest_seam->location += source_seam->location;
@@ -124,11 +126,11 @@ void combine_seams(SEAM *dest_seam, SEAM *source_seam) {
 }
 
 
-/**********************************************************************
- * delete_seam
+/**
+ * @name delete_seam
  *
  * Free this seam record and the splits that are attached to it.
- **********************************************************************/
+ */
 void delete_seam(void *arg) {  //SEAM  *seam)
   SEAM *seam = (SEAM *) arg;
 
@@ -144,12 +146,12 @@ void delete_seam(void *arg) {  //SEAM  *seam)
 }
 
 
-/**********************************************************************
- * free_seam_list
+/**
+ * @name free_seam_list
  *
  * Free all the seams that have been allocated in this list.  Reclaim
  * the memory for each of the splits as well.
- **********************************************************************/
+ */
 void free_seam_list(SEAMS seam_list) {
   int x;
 
@@ -158,11 +160,11 @@ void free_seam_list(SEAMS seam_list) {
 }
 
 
-/**********************************************************************
- * test_insert_seam
+/**
+ * @name test_insert_seam
  *
- * Return true if insert_seam will succeed.
- **********************************************************************/
+ * @returns true if insert_seam will succeed.
+ */
 bool test_insert_seam(SEAMS seam_list,
                       int index,
                       TBLOB *left_blob,
@@ -192,12 +194,12 @@ bool test_insert_seam(SEAMS seam_list,
   return true;
 }
 
-/**********************************************************************
- * insert_seam
+/**
+ * @name insert_seam
  *
  * Add another seam to a collection of seams at a particular location
  * in the seam array.
- **********************************************************************/
+ */
 SEAMS insert_seam(SEAMS seam_list,
                   int index,
                   SEAM *seam,
@@ -243,12 +245,12 @@ SEAMS insert_seam(SEAMS seam_list,
 }
 
 
-/**********************************************************************
- * account_splits_right
+/**
+ * @name account_splits_right
  *
  * Account for all the splits by looking to the right.
  * in the blob list.
- **********************************************************************/
+ */
 int account_splits_right(SEAM *seam, TBLOB *blob) {
   inT8 found_em[3];
   inT8 width;
@@ -277,12 +279,12 @@ int account_splits_right(SEAM *seam, TBLOB *blob) {
 }
 
 
-/**********************************************************************
- * account_splits_left
+/**
+ * @name account_splits_left
  *
  * Account for all the splits by looking to the left.
  * in the blob list.
- **********************************************************************/
+ */
 int account_splits_left(SEAM *seam, TBLOB *blob, TBLOB *end_blob) {
   static inT32 depth = 0;
   static inT8 width;
@@ -315,11 +317,11 @@ int account_splits_left(SEAM *seam, TBLOB *blob, TBLOB *end_blob) {
 }
 
 
-/**********************************************************************
- * find_split_in_blob
+/**
+ * @name find_split_in_blob
  *
- * Return TRUE if the split is somewhere in this blob.
- **********************************************************************/
+ * @returns TRUE if the split is somewhere in this blob.
+ */
 bool find_split_in_blob(SPLIT *split, TBLOB *blob) {
   TESSLINE *outline;
 
@@ -341,12 +343,12 @@ bool find_split_in_blob(SPLIT *split, TBLOB *blob) {
 }
 
 
-/**********************************************************************
- * join_two_seams
+/**
+ * @name join_two_seams
  *
  * Merge these two seams into a new seam.  Duplicate the split records
  * in both of the input seams.  Return the resultant seam.
- **********************************************************************/
+ */
 SEAM *join_two_seams(SEAM *seam1, SEAM *seam2) {
   SEAM *result = NULL;
   SEAM *temp;
@@ -365,13 +367,13 @@ SEAM *join_two_seams(SEAM *seam1, SEAM *seam2) {
 }
 
 
-/**********************************************************************
- * new_seam
+/**
+ * @name new_seam
  *
  * Create a structure for a "seam" between two blobs.  This data
  * structure may actually hold up to three different splits.
  * Initailization of this record is done by this routine.
- **********************************************************************/
+ */
 SEAM *new_seam(PRIORITY priority,
                int x_location,
                SPLIT *split1,
@@ -393,22 +395,22 @@ SEAM *new_seam(PRIORITY priority,
 }
 
 
-/**********************************************************************
- * new_seam_list
+/**
+ * @name new_seam_list
  *
  * Create a collection of seam records in an array.
- **********************************************************************/
+ */
 SEAMS new_seam_list() {
   return (array_new (NUM_STARTING_SEAMS));
 }
 
 
-/**********************************************************************
- * print_seam
+/**
+ * @name print_seam
  *
  * Print a list of splits.  Show the coordinates of both points in
  * each split.
- **********************************************************************/
+ */
 void print_seam(const char *label, SEAM *seam) {
   if (seam) {
     cprintf(label);
@@ -431,12 +433,12 @@ void print_seam(const char *label, SEAM *seam) {
 }
 
 
-/**********************************************************************
- * print_seams
+/**
+ * @name print_seams
  *
  * Print a list of splits.  Show the coordinates of both points in
  * each split.
- **********************************************************************/
+ */
 void print_seams(const char *label, SEAMS seams) {
   int x;
   char number[CHARS_PER_LINE];
@@ -452,13 +454,13 @@ void print_seams(const char *label, SEAMS seams) {
 }
 
 
-/**********************************************************************
- * shared_split_points
+/**
+ * @name shared_split_points
  *
  * Check these two seams to make sure that neither of them have two
  * points in common. Return TRUE if any of the same points are present
  * in any of the splits of both seams.
- **********************************************************************/
+ */
 int shared_split_points(SEAM *seam1, SEAM *seam2) {
   if (seam1 == NULL || seam2 == NULL)
     return (FALSE);

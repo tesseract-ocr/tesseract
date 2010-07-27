@@ -43,14 +43,14 @@ included in your top level program file.
 #include "tessclas.h"
 #include "oldlist.h"
 
-#define FEATURE_MATCHER    1     /* Use micro-features */
+#define FEATURE_MATCHER    1     /**< Use micro-features */
 
-#define WO_UNSCALED        0     /*first square scaled fx */
-#define STATISTICAL_WO     1     /*new wo */
-#define MICRO_FEATURES     2     /*microfeature extractor */
-#define WO_SCALED          3     /*wiseowl scaled to baseline */
-#define MAX_FX             3     /*no of working fx-ers */
-#define NO_FUNCTION        0     /*special value for nothing */
+#define WO_UNSCALED        0     /**< first square scaled fx */
+#define STATISTICAL_WO     1     /**< new wo */
+#define MICRO_FEATURES     2     /**< microfeature extractor */
+#define WO_SCALED          3     /**< wiseowl scaled to baseline */
+#define MAX_FX             3     /**< no of working fx-ers */
+#define NO_FUNCTION        0     /**< special value for nothing */
 
 /* This file contains declarations of the top-level feature
 extractor functions as used by the Classify process*/

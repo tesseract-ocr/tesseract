@@ -78,12 +78,12 @@ extern INT_VAR_H(chop_x_y_weight, 3, "X / Y  length weight");
 /*----------------------------------------------------------------------
               M a c r o s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * point_bend_angle
+/**
+ * @name point_bend_angle
  *
  * Measure the angle of bend at this edge point. The argument should
  * be of type EDGEPT.
- **********************************************************************/
+ */
 #define point_bend_angle(point) \
 (angle_change ((point)->prev, (point), (point)->next))
 

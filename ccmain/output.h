@@ -56,46 +56,53 @@ extern BOOL_VAR_H (tessedit_word_for_word, FALSE,
 extern BOOL_VAR_H (tessedit_consistent_reps, TRUE,
 "Force all rep chars the same");
 
-void write_results(                           //output a word
-                   PAGE_RES_IT &page_res_it,  //full info
-                   char newline_type,         //type of newline
-                   BOOL8 force_eol,           //override tilde crunch?
-                   BOOL8 write_to_shm         //send to api
+/** output a word */
+void write_results(
+                   PAGE_RES_IT &page_res_it,  ///< full info
+                   char newline_type,         ///< type of newline
+                   BOOL8 force_eol,           ///< override tilde crunch?
+                   BOOL8 write_to_shm         ///< send to api
                   );
-WERD_CHOICE *make_epaper_choice(                   //convert one word
-                                WERD_RES *word,    //word to do
-                                char newline_type  //type of newline
+
+/** convert one word */
+WERD_CHOICE *make_epaper_choice(
+                                WERD_RES *word,    ///< word to do
+                                char newline_type  ///< type of newline
                                );
-inT16 make_reject (              //make reject code
-TBOX * inset_box,                 //bounding box
-inT16 prevright,                 //previous char
-inT16 nextleft,                  //next char
-DENORM * denorm,                 //de-normalizer
-char word_string[]               //output string
+/** make reject code */
+inT16 make_reject (
+TBOX * inset_box,                ///< bounding box
+inT16 prevright,                 ///< previous char
+inT16 nextleft,                  ///< next char
+DENORM * denorm,                 ///< de-normalizer
+char word_string[]               ///< output string
 );
-char determine_newline_type(                   //test line ends
-                            WERD *word,        //word to do
-                            BLOCK *block,      //current block
-                            WERD *next_word,   //next word
-                            BLOCK *next_block  //block of next word
+
+/** test line ends */
+char determine_newline_type(WERD *word,        ///< word to do
+                            BLOCK *block,      ///< current block
+                            WERD *next_word,   ///< next word
+                            BLOCK *next_block  ///< block of next word
                            );
-void write_cooked_text(                     //write output
-                       WERD *word,          //word to do
-                       const STRING &text,  //text to write
-                       BOOL8 acceptable,    //good stuff
-                       BOOL8 pass2,         //done on pass2
-                       FILE *fp             //file to write
+/** write output */
+void write_cooked_text(WERD *word,          ///< word to do
+                       const STRING &text,  ///< text to write
+                       BOOL8 acceptable,    ///< good stuff
+                       BOOL8 pass2,         ///< done on pass2
+                       FILE *fp             ///< file to write
                       );
-void write_shm_text(                    //write output
-                    WERD_RES *word,     //word to do
-                    BLOCK *block,       //block it is from
-                    ROW_RES *row,       //row it is from
-                    const STRING &text, //text to write
+/** write output */
+void write_shm_text(WERD_RES *word,     ///< word to do
+                    BLOCK *block,       ///< block it is from
+                    ROW_RES *row,       ///< row it is from
+                    const STRING &text, ///< text to write
                     const STRING &text_lengths
                    );
-void write_map(                //output a map file
-               FILE *mapfile,  //mapfile to write to
-               WERD_RES *word);
+/** output a map file */
+void write_map(
+               FILE *mapfile,  ///< mapfile to write to
+               WERD_RES *word  ///< word
+              );
 /*FILE *open_outfile(  //open .map & .unlv file
                    const char *extension);*/
 void write_unlv_text(WERD_RES *word);

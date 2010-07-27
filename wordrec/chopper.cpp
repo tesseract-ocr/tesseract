@@ -68,12 +68,12 @@ BOOL_VAR(fragments_guide_chopper, FALSE,
 /*----------------------------------------------------------------------
           M a c r o s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * bounds_inside
+/**
+ * @name bounds_inside
  *
  * Check to see if the bounding box of one thing is inside the
  * bounding box of another.
- **********************************************************************/
+ */
 #define bounds_inside(inner_tl,inner_br,outer_tl,outer_br)  \
 ((inner_tl.x >= outer_tl.x)	&& \
 (inner_tl.y <= outer_tl.y)	&& \
@@ -83,11 +83,11 @@ BOOL_VAR(fragments_guide_chopper, FALSE,
 /*----------------------------------------------------------------------
           F u n c t i o n s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * preserve_outline_tree
+/**
+ * @name preserve_outline_tree
  *
  * Copy the list of outlines.
- **********************************************************************/
+ */
 void preserve_outline(EDGEPT *start) {
   EDGEPT *srcpt;
 
@@ -115,11 +115,11 @@ void preserve_outline_tree(TESSLINE *srcline) {
 }
 
 
-/**********************************************************************
- * restore_outline_tree
+/**
+ * @name restore_outline_tree
  *
  * Copy the list of outlines.
- **********************************************************************/
+ */
 EDGEPT *restore_outline(EDGEPT *start) {
   EDGEPT *srcpt;
   EDGEPT *real_start;
@@ -166,12 +166,12 @@ void restore_outline_tree(TESSLINE *srcline) {
 }
 
 
-/**********************************************************************
- * attempt_blob_chop
+/**
+ * @name attempt_blob_chop
  *
  * Try to split the this blob after this one.  Check to make sure that
  * it was successful.
- **********************************************************************/
+ */
 SEAM *attempt_blob_chop(TWERD *word, inT32 blob_number, SEAMS seam_list) {
   TBLOB *blob;
   TBLOB *other_blob;
@@ -246,11 +246,11 @@ SEAM *attempt_blob_chop(TWERD *word, inT32 blob_number, SEAMS seam_list) {
 }
 
 
-/**********************************************************************
- * any_shared_split_points
+/**
+ * @name any_shared_split_points
  *
  * Return true if any of the splits share a point with this one.
- **********************************************************************/
+ */
 int any_shared_split_points(SEAMS seam_list, SEAM *seam) {
   int length;
   int index;
@@ -263,11 +263,11 @@ int any_shared_split_points(SEAMS seam_list, SEAM *seam) {
 }
 
 
-/**********************************************************************
- * check_blob
+/**
+ * @name check_blob
  *
- * Return true if blob has a non whole outline.
- **********************************************************************/
+ * @return true if blob has a non whole outline.
+ */
 int check_blob(TBLOB *blob) {
   TESSLINE *outline;
   EDGEPT *edgept;
@@ -287,13 +287,13 @@ int check_blob(TBLOB *blob) {
 }
 
 
-/**********************************************************************
- * improve_one_blob
+namespace tesseract {
+/**
+ * @name improve_one_blob
  *
  * Start with the current word of blobs and its classification.  Find
  * the worst blobs and try to divide it up to improve the ratings.
- *********************************************************************/
-namespace tesseract {
+ */
 bool Wordrec::improve_one_blob(TWERD *word,
                                BLOB_CHOICE_LIST_VECTOR *char_choices,
                                int fx,
@@ -348,13 +348,13 @@ bool Wordrec::improve_one_blob(TWERD *word,
   return true;
 }
 
-/**********************************************************************
- * modify_blob_choice
+/**
+ * @name modify_blob_choice
  *
  * Takes a blob and its chop index, converts that chop index to a
  * unichar_id, and stores the chop index in place of the blob's
  * original unichar_id.
- *********************************************************************/
+ */
 void Wordrec::modify_blob_choice(BLOB_CHOICE_LIST *answer,
                         int chop_index) {
   char chop_index_string[2];
@@ -377,13 +377,13 @@ void Wordrec::modify_blob_choice(BLOB_CHOICE_LIST *answer,
   answer_it.add_after_then_move(modified_blob);
 }
 
-/**********************************************************************
- * chop_one_blob
+/**
+ * @name chop_one_blob
  *
  * Start with the current one-blob word and its classification.  Find
  * the worst blobs and try to divide it up to improve the ratings.
  * Used for testing chopper.
- *********************************************************************/
+ */
 bool Wordrec::chop_one_blob(TWERD *word,
                                BLOB_CHOICE_LIST_VECTOR *char_choices,
                                inT32 *blob_number,
@@ -443,14 +443,14 @@ bool Wordrec::chop_one_blob(TWERD *word,
 }
 }  // namespace tesseract
 
-/**********************************************************************
- * check_seam_order
+/**
+ * @name check_seam_order
  *
  * Make sure that each of the splits in this seam match to outlines
  * in this blob.  If any of the splits could not correspond to this
  * blob then there is a problem (and FALSE should be returned to the
  * caller).
- **********************************************************************/
+ */
 inT16 check_seam_order(TBLOB *blob, SEAM *seam) {
   TESSLINE *outline;
   TESSLINE *last_outline;
@@ -486,15 +486,15 @@ inT16 check_seam_order(TBLOB *blob, SEAM *seam) {
     return (TRUE);
 }
 
-/**********************************************************************
- * chop_word_main
+namespace tesseract {
+/**
+ * @name chop_word_main
  *
  * Classify the blobs in this word and permute the results.  Find the
  * worst blob in the word and chop it up.  Continue this process until
  * a good answer has been found or all the blobs have been chopped up
  * enough.  Return the word level ratings.
- **********************************************************************/
-namespace tesseract {
+ */
 BLOB_CHOICE_LIST_VECTOR *Wordrec::chop_word_main(register TWERD *word,
                                                  int fx,
                                                  WERD_CHOICE *best_choice,
@@ -605,15 +605,15 @@ BLOB_CHOICE_LIST_VECTOR *Wordrec::chop_word_main(register TWERD *word,
 
 
 
-/**********************************************************************
- * improve_by_chopping
+/**
+ * @name improve_by_chopping
  *
  * Start with the current word of blobs and its classification.  Find
  * the worst blobs and try to divide them up to improve the ratings.
  * As long as ratings are produced by the new blob splitting.  When
  * all the splitting has been accomplished all the ratings memory is
  * reclaimed.
- **********************************************************************/
+ */
 void Wordrec::improve_by_chopping(register TWERD *word,
                                   BLOB_CHOICE_LIST_VECTOR *char_choices,
                                   int fx,
@@ -891,4 +891,5 @@ MATRIX *Wordrec::word_associator(TBLOB *blobs,
   return chunks_record.ratings;
 }
 }  // namespace tesseract
+
 

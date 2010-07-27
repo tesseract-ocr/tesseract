@@ -33,57 +33,57 @@ template <typename T>
 class UnicityTable {
  public:
   UnicityTable();
-  // Clear the structures and deallocate internal structures.
+  /// Clear the structures and deallocate internal structures.
   ~UnicityTable();
 
-  // Reserve some memory. If there is size or more elements, the table will
-  // then allocate size * 2 elements.
+  /// Reserve some memory. If there is size or more elements, the table will
+  /// then allocate size * 2 elements.
   void reserve(int size);
 
-  // Return the size used.
+  /// Return the size used.
   int size() const;
 
-  // Return the object from an id.
+  /// Return the object from an id.
   T get(int id) const;
 
-  // Return the id of the T object.
-  // This method NEEDS a compare_callback to be passed to
-  // set_compare_callback.
+  /// Return the id of the T object.
+  /// This method NEEDS a compare_callback to be passed to
+  /// set_compare_callback.
   int get_id(T object) const;
 
-  // Return true if T is in the table
+  /// Return true if T is in the table
   bool contains(T object) const;
 
-  // Return true if the id is valid
+  /// Return true if the id is valid
   T contains_id(int id) const;
 
-  // Add an element in the table
+  /// Add an element in the table
   int push_back(T object);
 
-  // Add a callback to be called to delete the elements when the table took
-  // their ownership.
+  /// Add a callback to be called to delete the elements when the table took
+  /// their ownership.
   void set_clear_callback(Callback1<T>* cb);
 
-  // Add a callback to be called to compare the elements when needed (contains,
-  // get_id, ...)
+  /// Add a callback to be called to compare the elements when needed (contains,
+  /// get_id, ...)
   void set_compare_callback(ResultCallback2<bool, T const &, T const &>* cb);
 
-  // Clear the table, calling the callback function if any.
-  // All the owned Callbacks are also deleted.
-  // If you don't want the Callbacks to be deleted, before calling clear, set
-  // the callback to NULL.
+  /// Clear the table, calling the callback function if any.
+  /// All the owned Callbacks are also deleted.
+  /// If you don't want the Callbacks to be deleted, before calling clear, set
+  /// the callback to NULL.
   void clear();
 
-  // This method clear the current object, then, does a shallow copy of
-  // its argument, and finally invalidate its argument.
+  /// This method clear the current object, then, does a shallow copy of
+  /// its argument, and finally invalidate its argument.
   void move(UnicityTable<T>* from);
 
-  // Read/Write the table to a file. This does _NOT_ read/write the callbacks.
-  // The Callback given must be permanent since they will be called more than
-  // once. The given callback will be deleted at the end.
-  // Returns false on read/write error.
+  /// Read/Write the table to a file. This does _NOT_ read/write the callbacks.
+  /// The Callback given must be permanent since they will be called more than
+  /// once. The given callback will be deleted at the end.
+  /// Returns false on read/write error.
   bool write(FILE* f, ResultCallback2<bool, FILE*, T const &>* cb);
-  // swap is used to switch the endianness.
+  /// swap is used to switch the endianness.
   bool read(FILE* f, ResultCallback3<bool, FILE*, T*, bool>* cb, bool swap);
 
  private:

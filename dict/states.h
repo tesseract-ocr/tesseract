@@ -41,9 +41,10 @@ typedef struct
   uinT32 part2;
 } STATE;
 
-typedef int *SEARCH_STATE;       /* State variable for search */
+/** State variable for search */
+typedef int *SEARCH_STATE;
 
-                                 /* State variable for search */
+/** State variable for search */
 typedef uinT8 PIECES_STATE[MAX_NUM_CHUNKS + 2];
 
 /*----------------------------------------------------------------------

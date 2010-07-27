@@ -19,14 +19,14 @@
 #ifndef   KDTREE_H
 #define   KDTREE_H
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 #include "general.h"
 #include "cutil.h"
 #include "ocrfeatures.h"
 
-/*
+/**
 NOTE:  All circular parameters of all keys must be in the range
 
 Min <= Param < Max
@@ -38,13 +38,13 @@ correctly if circular parameters outside the specified range are used.
 
 typedef struct kdnode
 {
-  FLOAT32 *Key;                  /* search key */
-  char *Data;                    /* data that corresponds to key */
-  FLOAT32 BranchPoint;           /* needed to make deletes work efficiently */
-  FLOAT32 LeftBranch;            /* used to optimize search pruning */
-  FLOAT32 RightBranch;           /* used to optimize search pruning */
-  struct kdnode *Left;           /* ptrs for KD tree structure */
-  struct kdnode *Right;
+  FLOAT32 *Key;                  /**< search key */
+  char *Data;                    /**< data that corresponds to key */
+  FLOAT32 BranchPoint;           /**< needed to make deletes work efficiently */
+  FLOAT32 LeftBranch;            /**< used to optimize search pruning */
+  FLOAT32 RightBranch;           /**< used to optimize search pruning */
+  struct kdnode *Left;           /**< ptr for KD tree structure */
+  struct kdnode *Right;          /**< ptr for KD tree structure */
 }
 
 
@@ -60,7 +60,8 @@ typedef struct
 
 KDTREE;
 
-typedef enum {                   /* used for walking thru KD trees */
+/** used for walking thru KD trees */
+typedef enum {                   
   preorder, postorder, endorder, leaf
 }
 
@@ -72,9 +73,9 @@ VISIT;
 -----------------------------------------------------------------------------*/
 #define RootOf(T)   ((T)->Root.Left->Data)
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Public Function Prototypes
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 KDTREE *MakeKDTree (inT16 KeySize, PARAM_DESC KeyDesc[]);
 
 void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data);
@@ -91,9 +92,9 @@ void KDWalk(KDTREE *Tree, void_proc Action);
 
 void FreeKDTree(KDTREE *Tree);
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Private Function Prototypes
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 int Equal (FLOAT32 Key1[], FLOAT32 Key2[]);
 
 KDNODE *MakeKDNode (FLOAT32 Key[], char *Data, int Index);

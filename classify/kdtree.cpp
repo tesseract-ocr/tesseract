@@ -18,9 +18,9 @@
  ** limitations under the License.
  ******************************************************************************/
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 #include "kdtree.h"
 #include "const.h"
 #include "emalloc.h"
@@ -33,9 +33,9 @@
 #define MIN(A,B)    ((A) < (B) ? (A) : (B))
 #define NodeFound(N,K,D)  (( (N)->Key == (K) ) && ( (N)->Data == (D) ))
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 #define MINSEARCH -MAX_FLOAT32
 #define MAXSEARCH MAX_FLOAT32
 
@@ -71,7 +71,7 @@ static int NextLevel(int level) {
   return level;
 }
 
-// Helper function to find the previous essential dimension in a cycle.
+/// Helper function to find the previous essential dimension in a cycle.
 static int PrevLevel(int level) {
   do {
     --level;
@@ -81,37 +81,35 @@ static int PrevLevel(int level) {
   return level;
 }
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine allocates and returns a new K-D tree data
+ * structure.  It also reallocates the small and large
+ * search region boxes if they are not large enough to
+ * accomodate the size of the new K-D tree.  KeyDesc is
+ * an array of key descriptors that indicate which dimensions
+ * are circular and, if they are circular, what the range is.
+ *
+ * Globals:
+ * - MaxDimension	largest # of dimensions in any K-D tree
+ * - SBMin		small search region box
+ * - SBMax
+ * - LBMin		large search region box
+ * - LBMax
+ * - Key		description of key dimensions
+ *
+ * @param KeySize # of dimensions in the K-D tree
+ * @param KeyDesc array of params to describe key dimensions
+ *
+ * @return Pointer to new K-D tree
+ * @note Exceptions: None
+ * @note History: 3/13/89, DSJ, Created.
+ */
 KDTREE *
 MakeKDTree (inT16 KeySize, PARAM_DESC KeyDesc[]) {
-/*
- **	Parameters:
- **		KeySize		# of dimensions in the K-D tree
- **		KeyDesc		array of params to describe key dimensions
- **	Globals:
- **		MaxDimension	largest # of dimensions in any K-D tree
- **		SBMin		small search region box
- **		SBMax
- **		LBMin		large search region box
- **		LBMax
- **		Key		description of key dimensions
- **	Operation:
- **		This routine allocates and returns a new K-D tree data
- **		structure.  It also reallocates the small and large
- **		search region boxes if they are not large enough to
- **		accomodate the size of the new K-D tree.  KeyDesc is
- **		an array of key descriptors that indicate which dimensions
- **		are circular and, if they are circular, what the range is.
- **	Return:
- **		Pointer to new K-D tree
- **	Exceptions:
- **		None
- **	History:
- **		3/13/89, DSJ, Created.
- */
   int i;
   void *NewMemory;
   KDTREE *KDTree;
@@ -157,24 +155,24 @@ MakeKDTree (inT16 KeySize, PARAM_DESC KeyDesc[]) {
 
 /*---------------------------------------------------------------------------*/
 void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data) {
-/*
- **	Parameters:
- **		Tree		K-D tree in which data is to be stored
- **		Key		ptr to key by which data can be retrieved
- **		Data		ptr to data to be stored in the tree
- **	Globals:
- **		N		dimension of the K-D tree
- **		KeyDesc		descriptions of tree dimensions
- **		StoreCount	debug variables for performance tests
- **		StoreUniqueCount
- **		StoreProbeCount
- **	Operation:
- **		This routine stores Data in the K-D tree specified by Tree
- **		using Key as an access key.
- **	Return: none
- **	Exceptions: none
- **	History:	3/10/89, DSJ, Created.
- **			7/13/89, DSJ, Changed return to void.
+/**
+ * This routine stores Data in the K-D tree specified by Tree
+ * using Key as an access key.
+ *
+ * @param Tree		K-D tree in which data is to be stored
+ * @param Key		ptr to key by which data can be retrieved
+ * @param Data		ptr to data to be stored in the tree
+ *
+ * Globals:
+ * - N		dimension of the K-D tree
+ * - KeyDesc		descriptions of tree dimensions
+ * - StoreCount	debug variables for performance tests
+ * - StoreUniqueCount
+ * - StoreProbeCount
+ *
+ * @note Exceptions: none
+ * @note History:	3/10/89, DSJ, Created.
+ *			7/13/89, DSJ, Changed return to void.
  */
   int Level;
   KDNODE *Node;
@@ -205,47 +203,46 @@ void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data) {
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine deletes a node from Tree.  The node to be
+ * deleted is specified by the Key for the node and the Data
+ * contents of the node.  These two pointers must be identical
+ * to the pointers that were used for the node when it was
+ * originally stored in the tree.  A node will be deleted from
+ * the tree only if its key and data pointers are identical
+ * to Key and Data respectively.  The empty space left in the tree
+ * is filled by pulling a leaf up from the bottom of one of
+ * the subtrees of the node being deleted.  The leaf node will
+ * be pulled from left subtrees whenever possible (this was
+ * an arbitrary decision).  No attempt is made to pull the leaf
+ * from the deepest subtree (to minimize length).  The branch
+ * point for the replacement node is changed to be the same as
+ * the branch point of the deleted node.  This keeps us from
+ * having to rearrange the tree every time we delete a node.
+ * Also, the LeftBranch and RightBranch numbers of the
+ * replacement node are set to be the same as the deleted node.
+ * The makes the delete easier and more efficient, but it may
+ * make searches in the tree less efficient after many nodes are
+ * deleted.  If the node specified by Key and Data does not
+ * exist in the tree, then nothing is done.
+ *
+ * Globals:
+ * - N		dimension of the K-D tree
+ * - KeyDesc		description of each dimension
+ * - DeleteCount	debug variables for performance tests
+ * - DeleteProbeCount
+ *
+ * @param Tree K-D tree to delete node from
+ * @param Key key of node to be deleted
+ * @param Data data contents of node to be deleted
+ *
+ * @note Exceptions: none
+ *
+ * @note History:	3/13/89, DSJ, Created.
+ *    		        7/13/89, DSJ, Specify node indirectly by key and data.
+ */
 void
 KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data) {
-/*
- **	Parameters:
- **		Tree		K-D tree to delete node from
- **		Key		key of node to be deleted
- **		Data		data contents of node to be deleted
- **	Globals:
- **		N		dimension of the K-D tree
- **		KeyDesc		description of each dimension
- **		DeleteCount	debug variables for performance tests
- **		DeleteProbeCount
- **	Operation:
- **		This routine deletes a node from Tree.  The node to be
- **		deleted is specified by the Key for the node and the Data
- **		contents of the node.  These two pointers must be identical
- **		to the pointers that were used for the node when it was
- **		originally stored in the tree.  A node will be deleted from
- **		the tree only if its key and data pointers are identical
- **		to Key and Data respectively.  The empty space left in the tree
- **		is filled by pulling a leaf up from the bottom of one of
- **		the subtrees of the node being deleted.  The leaf node will
- **		be pulled from left subtrees whenever possible (this was
- **		an arbitrary decision).  No attempt is made to pull the leaf
- **		from the deepest subtree (to minimize length).  The branch
- **		point for the replacement node is changed to be the same as
- **		the branch point of the deleted node.  This keeps us from
- **		having to rearrange the tree every time we delete a node.
- **		Also, the LeftBranch and RightBranch numbers of the
- **		replacement node are set to be the same as the deleted node.
- **		The makes the delete easier and more efficient, but it may
- **		make searches in the tree less efficient after many nodes are
- **		deleted.  If the node specified by Key and Data does not
- **		exist in the tree, then nothing is done.
- **	Return: none
- **		None
- **	Exceptions: none
- **		None
- **	History:	3/13/89, DSJ, Created.
- **			7/13/89, DSJ, Specify node indirectly by key and data.
- */
   int Level;
   KDNODE *Current;
   KDNODE *Father;
@@ -440,9 +437,9 @@ void FreeKDTree(KDTREE *Tree) {
 }                                /* FreeKDTree */
 
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
               Private Code
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 int
 Equal (FLOAT32 Key1[], FLOAT32 Key2[]) {

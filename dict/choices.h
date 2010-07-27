@@ -56,119 +56,123 @@ typedef struct choicestruct
   char permuter;
   inT8 config;
   char *string;
-  char *lengths;           // length of each unichar in the string
+  char *lengths;           //<  length of each unichar in the string
   int script_id;
-  char *fragment_lengths;  // length of fragments for each unichar in string
-  bool fragment_mark;      // if true, indicates that this choice
-                           // was chosen over a better one that
-                           // contained a fragment
+  char *fragment_lengths;  //<  length of fragments for each unichar in string
+  /** 
+   * if true, indicates that this choice
+   * was chosen over a better one that
+   * contained a fragment
+   */
+  bool fragment_mark;
+
 } A_CHOICE;
 
 /*----------------------------------------------------------------------
                 M a c r o s
 ----------------------------------------------------------------------*/
-/**********************************************************************
+/**
  * best_string
  *
  * Return the string corresponding to the best choice.
- **********************************************************************/
+ */
 #define best_string(choices)  \
 (first_node (choices) ? ((A_CHOICE*) (first_node (choices)))->string : NULL)
 
-/**********************************************************************
+/**
  * best_lengths
  *
  * Return the lengths corresponding to the best choice.
- **********************************************************************/
+ */
 #define best_lengths(choices)  \
 (first_node (choices) ? ((A_CHOICE*) (first_node (choices)))->lengths : NULL)
 
-/**********************************************************************
+/**
  * best_rating
  *
  * Return the rating of the best choice.
- **********************************************************************/
+ */
 #define best_rating(choices)  \
 (((A_CHOICE*) (first_node (choices)))->rating)
 
-/**********************************************************************
+/**
  * best_certainty
  *
  * Return the certainty of the best choice.
- **********************************************************************/
+ */
 #define best_certainty(choices)  \
 (((A_CHOICE*) (first_node (choices)))->certainty)
 
-/**********************************************************************
+/**
  * class_rating
  *
  * Return the rating of a given character class.
- **********************************************************************/
+ */
 #define class_rating(choice)  \
 (((A_CHOICE*) (choice))->rating)
 
-/**********************************************************************
+/**
  * class_certainty
  *
  * Return the certainty of a given character class.
- **********************************************************************/
+ */
 #define class_certainty(choice)  \
 (((A_CHOICE*) (choice))->certainty)
 
-/**********************************************************************
+/**
  * class_string
  *
  * Return the string of a given character class.
- **********************************************************************/
+ */
 #define class_string(choice)  \
 (((A_CHOICE*) (choice))->string)
 
-/**********************************************************************
+/**
  * class_lengths
  *
  * Return the lengths of a given character class.
- **********************************************************************/
+ */
 #define class_lengths(choice)  \
 (((A_CHOICE*) (choice))->lengths)
 
-/**********************************************************************
+/**
  * class_permuter
  *
  * Return the permuter of a given character class.
- **********************************************************************/
+ */
 #define class_permuter(choice)  \
 (((A_CHOICE*) (choice))->permuter)
 
-/**********************************************************************
+/**
  * class_config
  *
  * Return the config of a given character class.
- **********************************************************************/
+ */
 #define class_config(choice)  \
 (((A_CHOICE*) (choice))->config)
 
-/**********************************************************************
+/**
  * class_script
  *
  * Return the script of a given character class.
- **********************************************************************/
+ */
 #define class_script_id(choice)  \
 (((A_CHOICE*) (choice))->script_id)
 
-/**********************************************************************
+/**
  * free_choices
  *
  * Free a list of choices.
- **********************************************************************/
+ */
 #define free_choices(c)  \
 destroy_nodes ((c), free_choice)
 
-/**********************************************************************
+/**
  * print_bold
  *
  * Print a string in bold type by using escape sequences.  This only
  * works for certain output devices.
- **********************************************************************/
+ */
 #define print_bold(string)               \
 cprintf ("\033&dB%s\033&d@", string)
 
@@ -177,17 +181,17 @@ cprintf ("\033&dB%s\033&d@", string)
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 
-// Returns true if fragment_mark is set for the given choice.
+/// Returns true if fragment_mark is set for the given choice.
 inline bool class_fragment_mark(A_CHOICE *choice) {
   return choice->fragment_mark;
 }
 
-// Sets fragment_mark of choice to the given value.
+/// Sets fragment_mark of choice to the given value.
 inline void set_class_fragment_mark(A_CHOICE *choice, bool mark) {
   choice->fragment_mark = mark;
 }
 
-// Returns fragment_lengths of the given class.
+/// Returns fragment_lengths of the given class.
 inline const char *class_fragment_lengths(A_CHOICE *choice) {
   return choice->fragment_lengths;
 }
@@ -202,13 +206,13 @@ CHOICES append_char_choice(CHOICES ratings,
 
 CHOICES copy_choices(CHOICES choices);
 
-// Copy the given values into corresponding fields of choice.
+/// Copy the given values into corresponding fields of choice.
 void clone_choice(A_CHOICE *choice, const char *string,
                   const char *lengths, float rating, float certainty,
                   inT8 permuter, bool fragment_mark,
                   const char *fragment_lengths);
 
-// Copy the contents of choice_1 into choice_2.
+/// Copy the contents of choice_1 into choice_2.
 inline void clone_choice(A_CHOICE *choice_2, A_CHOICE *choice_1) {
   clone_choice(choice_2, class_string(choice_1), class_lengths(choice_1),
                class_rating(choice_1), class_certainty(choice_1),

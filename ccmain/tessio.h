@@ -24,87 +24,187 @@
 #include          "tessclas.h"
 #include          "notdll.h"
 
-TEXTROW *get_tess_row_file(                   //open read & close
-                           const char *name,  //file name
-                           TPOINT *topright   //corner
+/** 
+ * open read & close
+ * @param name file name
+ * @param topright corner
+ */
+TEXTROW *get_tess_row_file(
+                           const char *name,
+                           TPOINT *topright
                           );
-TBLOB *get_tess_blob_file(                   //open read & close
-                          const char *name,  //file name
-                          TPOINT *topright   //corner
+/** 
+ * open read & close
+ * @param name file name
+ * @param topright corner
+ */
+TBLOB *get_tess_blob_file(
+                          const char *name,
+                          TPOINT *topright
                          );
-TEXTROW *readrows(                   //read row file
-                  int gphfd,         /*file to read */
-                  int count,         /*number expected */
-                  TPOINT *imagesize  //size of image
+/** 
+ * read row file
+ * @param gphfd file to read
+ * @param count number expected
+ * @param imagesize size of image
+ */
+TEXTROW *readrows(
+                  int gphfd,
+                  int count,
+                  TPOINT *imagesize
                  );
-TWERD *readwords(                   //read some words
-                 int gphfd,         /*file to read */
-                 int count,         /*number expected */
-                 TEXTROW *row,      /*row it comes from */
-                 TPOINT *imagesize  /*size of image */
+/** 
+ * read some words
+ * @param gphfd file to read
+ * @param count number expected
+ * @param row row it comes from
+ * @param imagesize size of image
+ */
+TWERD *readwords(
+                 int gphfd,
+                 int count,
+                 TEXTROW *row,
+                 TPOINT *imagesize
                 );
-TBLOB *readblobs(                   //read some blobs
-                 int gphfd,         /*file to read */
-                 int count,         /*number expected */
-                 TPOINT *imagesize  /*size of image */
+/** 
+ * read some blobs
+ * @param gphfd file to read
+ * @param count number expected
+ * @param imagesize size of image
+ */
+TBLOB *readblobs(
+                 int gphfd,
+                 int count,
+                 TPOINT *imagesize
                 );
-char *readratings(                 //get a string
-                  int gphfd,       /*file to read */
-                  int ratingspace  /*size to read */
+/** 
+ * get a string
+ * @param gphfd file to read
+ * @param ratingspace size to read
+ */
+char *readratings(
+                  int gphfd,
+                  int ratingspace
                  );
-void readoutlines(                      //read some outlines
-                  int gphfd,            /*file to read */
-                  TESSLINE **outlines,  /*array of ptrs */
-                  int outlinecount      /*no to read */
+/** 
+ * read some outlines
+ * @param gphfd file to read
+ * @param outlines array of ptrs
+ * @param outlinecount no to read
+ */
+void readoutlines(
+                  int gphfd,
+                  TESSLINE **outlines,
+                  int outlinecount
                  );
-int readgph(              //read with testing
-            int fd,       /*file to read */
-            void *start,  /*buffer to write */
-            int size,     /*amount to write */
-            int checkeof  /*give error on eof? */
+/** 
+ * read with testing
+ * @param fd file to read
+ * @param start buffer to write
+ * @param size amount to write
+ * @param checkeof give error on eof?
+ */
+int readgph(
+            int fd,
+            void *start,
+            int size,
+            int checkeof
            );
-void write_row(              //write  a row
-               FILE *name,   //file to write
-               TEXTROW *row  /*row to write */
+/** 
+ * write a row
+ * @param name file name
+ * @param row row to write
+ */
+void write_row(
+               FILE *name,
+               TEXTROW *row
               );
-void write_error_row(               //write special row
-                     FILE *name,    /*file name */
-                     TEXTROW *row,  /*row to write */
-                     int wordcount  /*no of words to go */
+/** 
+ * write special row
+ * @param name file name
+ * @param row row to write
+ * @param wordcount number of words to go
+ */
+void write_error_row(
+                     FILE *name,
+                     TEXTROW *row,
+                     int wordcount
                     );
-void write_error_blob(                 //write special blob
-                      FILE *name,      /*file name */
-                      TBLOB *blob,     /*blob to write */
-                      char *charlist,  /*true chars */
-                      int charcount    /*no of true chars */
+/** 
+ * write special blob
+ * @param name file name
+ * @param blob blob to write
+ * @param charlist true chars
+ * @param charcount number of true chars
+ */
+void write_error_blob(
+                      FILE *name,
+                      TBLOB *blob,
+                      char *charlist,
+                      int charcount
                      );
-void write_error_word(                 //write special word
-                      FILE *name,      /*file name */
-                      TWERD *word,     /*word to write */
-                      char *charlist,  /*true chars */
-                      int charcount    /*no of true chars */
+/** 
+ * write special word
+ * @param name file name
+ * @param word word to write
+ * @param charlist true chars
+ * @param charcount number of true chars
+ */
+void write_error_word(
+                      FILE *name,
+                      TWERD *word,
+                      char *charlist,
+                      int charcount
                      );
-void writeblob(             //write a blob
-               FILE *name,  /*file to write */
-               TBLOB *blob  /*blob to write */
+/** 
+ * write a blob
+ * @param name file to write
+ * @param blob blob to write
+ */
+void writeblob(
+               FILE *name,
+               TBLOB *blob
               );
-void serial_outlines(                             //serialize
-                     FILE *name,                  /*file to write to */
-                     TBLOB *blob,                 /*current blob */
-                     register TESSLINE *outline,  /*current outline */
-                     int *outlineno               /*current serial no */
+/** 
+ * serialize
+ * @param name file to write to
+ * @param blob current blob
+ * @param outline current outline
+ * @param outlineno current serial no
+ */
+void serial_outlines(
+                     FILE *name,
+                     TBLOB *blob,
+                     register TESSLINE *outline,
+                     int *outlineno
                     );
-int countloop(                          //count loopsize
-              register BYTEVEC *vector  /*vectors to count */
+/** 
+ * count loopsize
+ * @param vector vectors to count
+ */
+int countloop(
+              register BYTEVEC *vector
              );
-int outlineserial(                             //get serial no
-                  register TESSLINE *outline,  /*start of serach */
-                  register TESSLINE *target,   /*outline to find */
-                  int serial                   /*serial no so far */
+/** 
+ * get serial no
+ * @param outline start of search
+ * @param target outline to find
+ * @param serial serial no so far
+ */
+int outlineserial(
+                  register TESSLINE *outline,
+                  register TESSLINE *target,
+                  int serial
                  );
-void writegph(              //interface to fwrite
-              FILE *name,   /*file to write */
-              void *start,  /*buffer to write */
-              int size      /*amount to write */
+/** 
+ * Interface to fwrite 
+ * @param name file to write
+ * @param start buffer to write
+ * @param size amount to write
+ */
+void writegph(
+              FILE *name,
+              void *start,
+              int size
              );
 #endif

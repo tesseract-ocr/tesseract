@@ -46,26 +46,26 @@
 #define MIN(a, b)  ((a < b) ? a : b)
 #endif
 
-// The SVSync class provides functionality for Thread & Process Creation
+/// The SVSync class provides functionality for Thread & Process Creation
 class SVSync {
  public:
-  // Create new thread.
+  /// Create new thread.
   static void StartThread(void *(*func)(void*), void* arg);
-  // Signals a thread to exit.
+  /// Signals a thread to exit.
   static void ExitThread();
-  // Starts a new process.
+  /// Starts a new process.
   static void StartProcess(const char* executable, const char* args);
 };
 
-// A semaphore class which encapsulates the main signalling
-// and wait abilities of semaphores for windows and unix.
+/// A semaphore class which encapsulates the main signalling
+/// and wait abilities of semaphores for windows and unix.
 class SVSemaphore {
  public:
-  // Sets up a semaphore.
+  /// Sets up a semaphore.
   SVSemaphore();
-  // Signal a semaphore.
+  /// Signal a semaphore.
   void Signal();
-  // Wait on a semaphore.
+  /// Wait on a semaphore.
   void Wait();
  private:
 #ifdef WIN32
@@ -75,15 +75,15 @@ class SVSemaphore {
 #endif
 };
 
-// A mutex which encapsulates the main locking and unlocking
-// abilites of mutexes for windows and unix.
+/// A mutex which encapsulates the main locking and unlocking
+/// abilites of mutexes for windows and unix.
 class SVMutex {
  public:
-  // Sets up a new mutex.
+  /// Sets up a new mutex.
   SVMutex();
-  // Locks on a mutex.
+  /// Locks on a mutex.
   void Lock();
-  // Unlocks on a mutex.
+  /// Unlocks on a mutex.
   void Unlock();
  private:
 #ifdef WIN32
@@ -93,44 +93,44 @@ class SVMutex {
 #endif
 };
 
-// The SVNetwork class takes care of the remote connection for ScrollView
-// This means setting up and maintaining a remote connection, sending and
-// receiving messages and closing the connection.
-// It is designed to work on both Linux and Windows.
+/// The SVNetwork class takes care of the remote connection for ScrollView
+/// This means setting up and maintaining a remote connection, sending and
+/// receiving messages and closing the connection.
+/// It is designed to work on both Linux and Windows.
 class SVNetwork {
  public:
-  // Set up a connection to hostname on port.
+  /// Set up a connection to hostname on port.
   SVNetwork(const char* hostname, int port);
 
-  // Destructor.
+  /// Destructor.
   ~SVNetwork();
 
-  // Put a message in the messagebuffer to the server and try to send it.
+  /// Put a message in the messagebuffer to the server and try to send it.
   void Send(const char* msg);
 
-  // Receive a message from the server.
-  // This will always return one line of char* (denoted by \n).
+  /// Receive a message from the server.
+  /// This will always return one line of char* (denoted by \n).
   char* Receive();
 
-  // Close the connection to the server.
+  /// Close the connection to the server.
   void Close();
 
-  // Flush the buffer.
+  /// Flush the buffer.
   void Flush();
 
  private:
-  // The mutex for access to Send() and Flush().
+  /// The mutex for access to Send() and Flush().
   SVMutex* mutex_send_;
-  // The actual stream_ to the server.
+  /// The actual stream_ to the server.
   int stream_;
-  // Stores the last received message-chunk from the server.
+  /// Stores the last received message-chunk from the server.
   char* msg_buffer_in_;
 
-  // Stores the messages which are supposed to go out.
+  /// Stores the messages which are supposed to go out.
   std::string msg_buffer_out_;
 
   bool has_content; // Win32 (strtok)
-  // Where we are at in our msg_buffer_in_
+  /// Where we are at in our msg_buffer_in_
   char* buffer_ptr_;  // Unix (strtok_r)
 };
 

@@ -63,12 +63,12 @@ BOOL_VAR(wordrec_no_block, false, "Don't output block information");
 /*----------------------------------------------------------------------
               Function Code
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * start_recog
+namespace tesseract {
+/**
+ * @name start_recog
  *
  * Startup recog program ready to recognize words.
- **********************************************************************/
-namespace tesseract {
+ */
 int Wordrec::start_recog(const char *textbase) {
 
   program_editup(textbase, true);
@@ -76,13 +76,13 @@ int Wordrec::start_recog(const char *textbase) {
 }
 
 
-/**********************************************************************
- * program_editup
+/**
+ * @name program_editup
  *
  * Initialize all the things in the program that need to be initialized.
  * init_permute determines whether to initialize the permute functions
  * and Dawg models.
- **********************************************************************/
+ */
 void Wordrec::program_editup(const char *textbase, bool init_permute) {
   if (textbase != NULL) {
     imagefile = textbase;
@@ -104,12 +104,12 @@ void Wordrec::program_editup(const char *textbase, bool init_permute) {
 }  // namespace tesseract
 
 
-/**********************************************************************
- * edit_with_ocr
+/**
+ * @name edit_with_ocr
  *
  * Initialize all the things in the program needed before the classifier
  * code is called.
- **********************************************************************/
+ */
 void edit_with_ocr(const char *imagename) {
   char name[FILENAMESIZE];       /*base name of file */
 
@@ -135,11 +135,11 @@ void edit_with_ocr(const char *imagename) {
 }
 
 
-/**********************************************************************
- * end_recog
+/**
+ * @name end_recog
  *
  * Cleanup and exit the recog program.
- **********************************************************************/
+ */
 namespace tesseract {
 int Wordrec::end_recog() {
   program_editdown (0);
@@ -148,12 +148,12 @@ int Wordrec::end_recog() {
 }
 
 
-/**********************************************************************
- * program_editdown
+/**
+ * @name program_editdown
  *
  * This function holds any nessessary post processing for the Wise Owl
  * program.
- **********************************************************************/
+ */
 void Wordrec::program_editdown(inT32 elasped_time) {
   dj_cleanup();
   if (tord_display_text)
@@ -188,11 +188,11 @@ void Wordrec::program_editdown(inT32 elasped_time) {
 }
 
 
-/**********************************************************************
- * set_pass1
+/**
+ * @name set_pass1
  *
  * Get ready to do some pass 1 stuff.
- **********************************************************************/
+ */
 void Wordrec::set_pass1() {
   tord_blob_skip.set_value(false);
   chop_ok_split.set_value(70.0);
@@ -202,11 +202,11 @@ void Wordrec::set_pass1() {
 }
 
 
-/**********************************************************************
- * set_pass2
+/**
+ * @name set_pass2
  *
  * Get ready to do some pass 2 stuff.
- **********************************************************************/
+ */
 void Wordrec::set_pass2() {
   tord_blob_skip.set_value(false);
   chop_ok_split.set_value(pass2_ok_split);
@@ -216,11 +216,11 @@ void Wordrec::set_pass2() {
 }
 
 
-/**********************************************************************
- * cc_recog
+/**
+ * @name cc_recog
  *
  * Recognize a word.
- **********************************************************************/
+ */
 BLOB_CHOICE_LIST_VECTOR *Wordrec::cc_recog(TWERD *tessword,
                                            WERD_CHOICE *best_choice,
                                            WERD_CHOICE *best_raw_choice,
@@ -253,29 +253,29 @@ BLOB_CHOICE_LIST_VECTOR *Wordrec::cc_recog(TWERD *tessword,
 }
 
 
-/**********************************************************************
- * dict_word()
+/**
+ * @name dict_word()
  *
  * Test the dictionaries, returning NO_PERM (0) if not found, or one
  * of the PermuterType values if found, according to the dictionary.
- **********************************************************************/
+ */
 int Wordrec::dict_word(const WERD_CHOICE &word) {
   return getDict().valid_word(word);
 }
 
-/**********************************************************************
- * call_matcher
+/**
+ * @name call_matcher
  *
  * Called from Tess with a blob in tess form.
  * Convert the blob to editor form.
  * Call the matcher setup by the segmenter in tess_matcher.
  * Convert the output choices back to tess form.
- **********************************************************************/
-BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *ptblob,    //previous
-                                        TBLOB *tessblob,  //blob to match
-                                        TBLOB *ntblob,    //next
-                                        void *,           //unused parameter
-                                        TEXTROW *         //always null anyway
+ */
+BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *ptblob,    //< previous blob
+                                        TBLOB *tessblob,  //< blob to match
+                                        TBLOB *ntblob,    //< next blob
+                                        void *,           //< unused parameter
+                                        TEXTROW *         //< always null anyway
                                         ) {
   PBLOB *pblob;                  //converted blob
   PBLOB *blob;                   //converted blob
@@ -310,14 +310,14 @@ BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *ptblob,    //previous
   return ratings;
 }
 
-/**********************************************************************
- * make_ed_blob
+/**
+ * @name make_ed_blob
  *
  * Make an editor format blob from the tess style blob.
- **********************************************************************/
+ */
 
 PBLOB *make_ed_blob(                 //construct blob
-                    TBLOB *tessblob  //blob to convert
+                    TBLOB *tessblob  //< blob to convert
                    ) {
   TESSLINE *tessol;              //tess outline
   FRAGMENT_LIST fragments;       //list of fragments
@@ -339,14 +339,14 @@ PBLOB *make_ed_blob(                 //construct blob
     return NULL;                 //couldn't do it
   return new PBLOB (&out_list);  //turn to blob
 }
-/**********************************************************************
- * make_ed_outline
+/**
+ * @name make_ed_outline
  *
  * Make an editor format outline from the list of fragments.
- **********************************************************************/
+ */
 
 OUTLINE *make_ed_outline(                     //constructoutline
-                         FRAGMENT_LIST *list  //list of fragments
+                         FRAGMENT_LIST *list  //< list of fragments
                         ) {
   FRAGMENT *fragment;            //current fragment
   EDGEPT *edgept;                //current point
@@ -399,15 +399,15 @@ OUTLINE *make_ed_outline(                     //constructoutline
   while (tailpos != headpos);
   return new OUTLINE (&poly_it); //turn to outline
 }
-/**********************************************************************
- * register_outline
+/**
+ * @name register_outline
  *
  * Add the fragments in the given outline to the list
- **********************************************************************/
+ */
 
 void register_outline(                     //add fragments
-                      TESSLINE *outline,   //tess format
-                      FRAGMENT_LIST *list  //list to add to
+                      TESSLINE *outline,   //< tess format
+                      FRAGMENT_LIST *list  //< list to add to
                      ) {
   EDGEPT *startpt;               //start of outline
   EDGEPT *headpt;                //start of fragment
@@ -446,14 +446,14 @@ void register_outline(                     //add fragments
 
 ELISTIZE (FRAGMENT)
 
-/**********************************************************************
- * FRAGMENT::FRAGMENT
+/**
+ * @name FRAGMENT::FRAGMENT
  *
  * Constructor for fragments.
- **********************************************************************/
+ */
 FRAGMENT::FRAGMENT (             //constructor
-EDGEPT * head_pt,                //start point
-EDGEPT * tail_pt                 //end point
+EDGEPT * head_pt,                //< start point
+EDGEPT * tail_pt                 //< end point
 ):head (head_pt->pos.x, head_pt->pos.y), tail (tail_pt->pos.x,
 tail_pt->pos.y) {
   headpt = head_pt;              // save ptrs

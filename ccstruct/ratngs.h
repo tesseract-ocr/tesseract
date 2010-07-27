@@ -182,7 +182,7 @@ class WERD_CHOICE {
   }
   void set_blob_choices(BLOB_CHOICE_LIST_CLIST *blob_choices);
 
-  // Make more space in unichar_id_ and fragment_lengths_ arrays.
+  /// Make more space in unichar_id_ and fragment_lengths_ arrays.
   inline void double_the_size() {
     unichar_ids_ = GenericVector<UNICHAR_ID>::double_the_size_memcpy(
         reserved_, unichar_ids_);
@@ -191,8 +191,8 @@ class WERD_CHOICE {
     reserved_ *= 2;
   }
 
-  // Initializes WERD_CHOICE - reseves length slots in unichar_ids_ and
-  // fragment_length_ arrays. Sets other values to default (blank) values.
+  /// Initializes WERD_CHOICE - reseves length slots in unichar_ids_ and
+  /// fragment_length_ arrays. Sets other values to default (blank) values.
   inline void init(int reserved) {
     reserved_ = reserved;
     unichar_ids_ = new UNICHAR_ID[reserved];
@@ -207,16 +207,16 @@ class WERD_CHOICE {
     unichar_lengths_ = "";
   }
 
-  // Helper function to build a WERD_CHOICE from the given string,
-  // fragment lengths, rating, certainty and permuter.
-  // The function assumes that src_string is not NULL.
-  // src_lengths argument could be NULL, in which case the unichars
-  // in src_string are assumed to all be of length 1.
+  /// Helper function to build a WERD_CHOICE from the given string,
+  /// fragment lengths, rating, certainty and permuter.
+  /// The function assumes that src_string is not NULL.
+  /// src_lengths argument could be NULL, in which case the unichars
+  /// in src_string are assumed to all be of length 1.
   void init(const char *src_string, const char *src_lengths,
             float src_rating, float src_certainty,
             uinT8 src_permuter, const UNICHARSET &current_unicharset);
 
-  // Set the fields in this choice to be default (bad) values.
+  /// Set the fields in this choice to be default (bad) values.
   inline void make_bad() {
     length_ = 0;
     rating_ = MAX_FLOAT32;
@@ -226,9 +226,9 @@ class WERD_CHOICE {
     unichar_lengths_ = "";
   }
 
-  // This function assumes that there is enough space reserved
-  // in the WERD_CHOICE for adding another unichar.
-  // This is an efficient alternative to append_unichar_id().
+  /// This function assumes that there is enough space reserved
+  /// in the WERD_CHOICE for adding another unichar.
+  /// This is an efficient alternative to append_unichar_id().
   inline void append_unichar_id_space_allocated(
       UNICHAR_ID unichar_id, char fragment_length,
       float rating, float certainty) {
@@ -266,22 +266,22 @@ class WERD_CHOICE {
     }
     return word_str;
   }
-  // Since this function walks over the whole word to convert unichar ids
-  // to unichars, it is best to call it once, e.g. after all changes to
-  // unichar_ids_ in WERD_CHOICE are finished.
+  /// Since this function walks over the whole word to convert unichar ids
+  /// to unichars, it is best to call it once, e.g. after all changes to
+  /// unichar_ids_ in WERD_CHOICE are finished.
   void populate_unichars(const UNICHARSET &current_unicharset) {
     this->string_and_lengths(current_unicharset, &unichar_string_,
                              &unichar_lengths_);
   }
-  // This function should only be called if populate_unichars()
-  // was called and WERD_CHOICE did not change since then.
+  /// This function should only be called if populate_unichars()
+  /// was called and WERD_CHOICE did not change since then.
   const STRING &unichar_string() const {
     assert(unichar_string_.length() <= 0 ||
            unichar_string_.length() >= length_);  // sanity check
     return unichar_string_;
   }
-  // This function should only be called if populate_unichars()
-  // was called and WERD_CHOICE did not change since then.
+  /// This function should only be called if populate_unichars()
+  /// was called and WERD_CHOICE did not change since then.
   const STRING &unichar_lengths() const {
     assert(unichar_lengths_.length() <= 0 ||
            unichar_lengths_.length() == length_);  // sanity check

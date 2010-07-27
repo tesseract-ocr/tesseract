@@ -42,7 +42,7 @@ extern BOOL_VAR_H (tessedit_test_uniform_wd_spacing, FALSE,
 "Limit context word spacing");
 extern BOOL_VAR_H (tessedit_prefer_joined_punct, FALSE,
 "Reward punctation joins");
-extern INT_VAR_H (fixsp_done_mode, 1, "What constitues done for spacing");
+extern INT_VAR_H (fixsp_done_mode, 1, "What constitutes done for spacing");
 extern INT_VAR_H (debug_fix_space_level, 0, "Contextual fixspace debug");
 extern STRING_VAR_H (numeric_punctuation, ".,",
 "Punct. chs expected WITHIN numbers");

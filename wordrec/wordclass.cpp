@@ -69,19 +69,26 @@ inT16 first_pass;
 /*----------------------------------------------------------------------
           F u n c t i o n s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * classify_blob
+namespace tesseract {
+/**
+ * @name classify_blob
  *
  * Classify the this blob if it is not already recorded in the match
  * table. Attempt to recognize this blob as a character. The recognition
  * rating for this blob will be stored as a part of the blob. This value
  * will also be returned to the caller.
- **********************************************************************/
-namespace tesseract {
+ *
+ * @param pblob Previous blob
+ * @param blob Current blob
+ * @param nlob Next blob
+ * @param row The row to process
+ * @param string The string to display in ScrollView
+ * @param color The colour to use when displayed with ScrollView
+ */
 BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *pblob,
                                          TBLOB *blob,
                                          TBLOB *nblob,
-                                         TEXTROW *row,
+                                         TEXTROW *row, 
                                          const char *string,
                                          C_COL color) {
   BLOB_CHOICE_LIST *choices = NULL;
@@ -108,12 +115,12 @@ BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *pblob,
   return (choices);
 }
 
-/**********************************************************************
- * update_blob_classifications
+/**
+ * @name update_blob_classifications
  *
  * For each blob in the given word update match_table with the
  * corresponding BLOB_CHOICES_LIST from choices.
- * **********************************************************************/
+ */
 void Wordrec::update_blob_classifications(
     TWERD *word, const BLOB_CHOICE_LIST_VECTOR &choices) {
   TBLOB *tblob = word->blobs;
@@ -127,12 +134,12 @@ void Wordrec::update_blob_classifications(
 }  // namespace tesseract;
 
 
-/**********************************************************************
- * write_text_files
+/**
+ * @name write_text_files
  *
  * Write an answer to the output file that is the raw guess (without
  * context) directly from the classifier.
- **********************************************************************/
+ */
 void write_text_files(TWERD *word,
                       char *raw_choice,
                       int same_row,

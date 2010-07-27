@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 #include "featdefs.h"
 #include "emalloc.h"
 #include "danerror.h"
@@ -26,15 +26,15 @@
 #include <string.h>
 #include <stdio.h>
 
-/* define errors triggered by this module */
+/** define errors triggered by this module */
 #define ILLEGAL_NUM_SETS  3001
 
 #define PICO_FEATURE_LENGTH 0.05
 #define MAX_OUTLINE_FEATURES  100
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /* define all of the parameters for the MicroFeature type*/
 StartParamDesc (MicroFeatureParams)
 DefineParam (0, 0, -0.5, 0.5)
@@ -83,9 +83,9 @@ EndParamDesc
 DefineFeature (OutlineFeatDesc, 3, 1, 1, MAX_OUTLINE_FEATURES, "Outline",
                "of", OutlineFeatParams)
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 FEATURE_DEFS_STRUCT FeatureDefs = {
   NUM_FEATURE_TYPES,
   {
@@ -96,21 +96,23 @@ FEATURE_DEFS_STRUCT FeatureDefs = {
   }
 };
 
-/**----------------------------------------------------------------------------
+/*-----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
-void FreeCharDescription(CHAR_DESC CharDesc) {
-/*
- **	Parameters:
- **		CharDesc	character description to be deallocated
- **	Globals: none
- **	Operation: Release the memory consumed by the specified character
- **		description and all of the features in that description.
- **	Return: none
- **	Exceptions: none
- **	History: Wed May 23 13:52:19 1990, DSJ, Created.
+/**
+ * Release the memory consumed by the specified character
+ * description and all of the features in that description.
+ *
+ * @param CharDesc character description to be deallocated
+ *
+ * Globals: 
+ * - none
+ *
+ * @note Exceptions: none
+ * @note History: Wed May 23 13:52:19 1990, DSJ, Created.
  */
+void FreeCharDescription(CHAR_DESC CharDesc) {
   int i;
 
   if (CharDesc) {
@@ -122,16 +124,18 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
 
 
 /*---------------------------------------------------------------------------*/
-CHAR_DESC NewCharDescription() {
-/*
- **	Parameters: none
- **	Globals: none
- **	Operation: Allocate a new character description, initialize its
- **		feature sets to be empty, and return it.
- **	Return: New character description structure.
- **	Exceptions: none
- **	History: Wed May 23 15:27:10 1990, DSJ, Created.
+/**
+ * Allocate a new character description, initialize its
+ * feature sets to be empty, and return it.
+ *
+ * Globals: 
+ * - none
+ *
+ * @return New character description structure.
+ * @note Exceptions: none
+ * @note History: Wed May 23 15:27:10 1990, DSJ, Created.
  */
+CHAR_DESC NewCharDescription() {
   CHAR_DESC CharDesc;
   int i;
 
@@ -147,23 +151,26 @@ CHAR_DESC NewCharDescription() {
 
 
 /*---------------------------------------------------------------------------*/
-void WriteCharDescription(FILE *File, CHAR_DESC CharDesc) {
-/*
- **	Parameters:
- **		File		open text file to write CharDesc to
- **		CharDesc	character description to write to File
- **	Globals: none
- **	Operation: Write a textual representation of CharDesc to File.
- **		The format used is to write out the number of feature
- **		sets which will be written followed by a representation of
- **		each feature set.
- **		Each set starts with the short name for that feature followed
- **		by a description of the feature set.  Feature sets which are
- **		not present are not written.
- **	Return: none
- **	Exceptions: none
- **	History: Wed May 23 17:21:18 1990, DSJ, Created.
+/**
+ * Write a textual representation of CharDesc to File.
+ * The format used is to write out the number of feature
+ * sets which will be written followed by a representation of
+ * each feature set.
+ *
+ * Each set starts with the short name for that feature followed
+ * by a description of the feature set.  Feature sets which are
+ * not present are not written.
+ *
+ * Globals: 
+ * - none
+ *
+ * @param File		open text file to write CharDesc to
+ * @param CharDesc	character description to write to File
+ *
+ * @note Exceptions: none
+ * @note History: Wed May 23 17:21:18 1990, DSJ, Created.
  */
+void WriteCharDescription(FILE *File, CHAR_DESC CharDesc) {
   int Type;
   int NumSetsToWrite = 0;
 
@@ -181,22 +188,27 @@ void WriteCharDescription(FILE *File, CHAR_DESC CharDesc) {
 
 
 /*---------------------------------------------------------------------------*/
-CHAR_DESC ReadCharDescription(FILE *File) {
-/*
- **	Parameters:
- **		File	open text file to read character description from
- **	Globals: none
- **	Operation: Read a character description from File, and return
- **		a data structure containing this information.  The data
- **		is formatted as follows:
- **			NumberOfSets
- **				ShortNameForSet1 Set1
- **				ShortNameForSet2 Set2
- **				...
- **	Return: Character description read from File.
- **	Exceptions: ILLEGAL_NUM_SETS
- **	History: Wed May 23 17:32:48 1990, DSJ, Created.
+/**
+ * Read a character description from File, and return
+ * a data structure containing this information.  The data
+ * is formatted as follows:
+ * @verbatim
+     NumberOfSets
+             ShortNameForSet1 Set1
+             ShortNameForSet2 Set2
+             ...
+   @endverbatim
+ *
+ * Globals: 
+ * - none
+ *
+ * @param File open text file to read character description from
+ * @return Character description read from File.
+ * @note Exceptions: 
+ * - ILLEGAL_NUM_SETS
+ * @note History: Wed May 23 17:32:48 1990, DSJ, Created.
  */
+CHAR_DESC ReadCharDescription(FILE *File) {
   int NumSetsToRead;
   char ShortName[FEAT_NAME_SIZE];
   CHAR_DESC CharDesc;
@@ -220,16 +232,19 @@ CHAR_DESC ReadCharDescription(FILE *File) {
 
 /*---------------------------------------------------------------------------*/
 int ShortNameToFeatureType(const char *ShortName) {
-/*
- **	Parameters:
- **		ShortName	short name of a feature type
- **	Globals: none
- **	Operation: Search thru all features currently defined and return
- **		the feature type for the feature with the specified short
- **		name.  Trap an error if the specified name is not found.
- **	Return: Feature type which corresponds to ShortName.
- **	Exceptions: ILLEGAL_SHORT_NAME
- **	History: Wed May 23 15:36:05 1990, DSJ, Created.
+/**
+ * Search thru all features currently defined and return
+ * the feature type for the feature with the specified short
+ * name.  Trap an error if the specified name is not found.
+ *
+ * Globals: 
+ * - none
+ *
+ * @param ShortName short name of a feature type
+ * @return Feature type which corresponds to ShortName.
+ * @note Exceptions: 
+ * - ILLEGAL_SHORT_NAME
+ * @note History: Wed May 23 15:36:05 1990, DSJ, Created.
  */
   int i;
 
