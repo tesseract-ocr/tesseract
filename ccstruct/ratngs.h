@@ -319,9 +319,9 @@ class WERD_CHOICE {
 };
 
 // Make WERD_CHOICE listable.
-ELISTIZEH (WERD_CHOICE)
+CLISTIZEH (WERD_CHOICE)
 typedef GenericVector<BLOB_CHOICE_LIST *> BLOB_CHOICE_LIST_VECTOR;
-typedef GenericVector<WERD_CHOICE_LIST *> WERD_CHOICE_LIST_VECTOR;
+typedef GenericVector<WERD_CHOICE_CLIST *> WERD_CHOICE_LIST_VECTOR;
 
 typedef void (*POLY_TESTER) (const STRING&, PBLOB *, DENORM *, BOOL8,
                              char *, inT32, BLOB_CHOICE_LIST *);
