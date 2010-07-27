@@ -79,7 +79,7 @@ EXTERN STRING_VAR (chs_bl,
 "Baseline chars");
 EXTERN STRING_VAR (chs_non_ambig_desc, "gq", "Reliable descender chars");
 
-/*************************************************************************
+/**
  * re_estimate_x_ht()
  *
  * Walk the blobs in the word together with the text string and reject map.
@@ -97,35 +97,37 @@ EXTERN STRING_VAR (chs_non_ambig_desc, "gq", "Reliable descender chars");
  *
  * A) Try to re-estimatate x-ht and caps ht from confirmed pts in word.
  *
- *    FOR each non reject blob
- *       IF char is baseline posn ambiguous
- *			Remove ambiguity by comparing its posn with respect to baseline.
- *		IF char is a confirmed x-ht char
- *			Add x-ht posn to confirmed_x_ht pts for word
- *    IF char is a confirmed caps-ht char
- *			Add blob_ht to caps ht pts for word
- *
- *    IF Std Dev of caps hts < 2  (AND # samples > 0)
- *		Use mean as caps ht estimate (Dont use median as we can expect a
- *			fair variation between the heights of the NON_AMBIG_CAPS_HT_CHS)
- *    IF Std Dev of caps hts >= 2  (AND # samples > 0)
- *			Suspect small caps font.
- *			Look for 2 clusters,	each with Std Dev < 2.
- *			IF 2 clusters found
- *			Pick the smaller median as the caps ht estimate of the smallcaps.
- *
- *    IF failed to estimate a caps ht
- *       Use the median caps ht if there is one,
- *		ELSE use the caps ht estimate of the previous word. NO!!!
- *
- *
- *    IF there are confirmed x-height chars
- *			Estimate confirmed x-height as the median value
- *    ELSE IF there is a confirmed caps ht
- *			Estimate confirmed x-height as a fraction of confirmed caps ht value
- *		ELSE
- *			Use the value for the previous word or the row value if this is the
- *			first word in the block. NO!!!
+ * @verbatim
+     FOR each non reject blob
+        IF char is baseline posn ambiguous
+ 			Remove ambiguity by comparing its posn with respect to baseline.
+ 		IF char is a confirmed x-ht char
+ 			Add x-ht posn to confirmed_x_ht pts for word
+     IF char is a confirmed caps-ht char
+ 			Add blob_ht to caps ht pts for word
+ 
+     IF Std Dev of caps hts < 2  (AND # samples > 0)
+ 		Use mean as caps ht estimate (Dont use median as we can expect a
+ 			fair variation between the heights of the NON_AMBIG_CAPS_HT_CHS)
+     IF Std Dev of caps hts >= 2  (AND # samples > 0)
+ 			Suspect small caps font.
+ 			Look for 2 clusters,	each with Std Dev < 2.
+ 			IF 2 clusters found
+ 			Pick the smaller median as the caps ht estimate of the smallcaps.
+ 
+     IF failed to estimate a caps ht
+        Use the median caps ht if there is one,
+ 		ELSE use the caps ht estimate of the previous word. NO!!!
+ 
+ 
+     IF there are confirmed x-height chars
+ 			Estimate confirmed x-height as the median value
+     ELSE IF there is a confirmed caps ht
+ 			Estimate confirmed x-height as a fraction of confirmed caps ht value
+ 		ELSE
+ 			Use the value for the previous word or the row value if this is the
+ 			first word in the block. NO!!!
+   @endverbatim
  *
  * B) Add in case ambiguous blobs based on confirmed x-ht/caps ht, changing case
  *    as necessary. Reestimate caps ht and x-ht as in A, using the extended
@@ -133,7 +135,7 @@ EXTERN STRING_VAR (chs_non_ambig_desc, "gq", "Reliable descender chars");
  *
  * C) If word contains rejects, and x-ht estimate significantly differs from
  *    original estimate, return TRUE so that the word can be rematched
- *************************************************************************/
+ */
 
 void re_estimate_x_ht(                     //improve for 1 word
                       WERD_RES *word_res,  //word to do
@@ -496,12 +498,12 @@ void re_estimate_x_ht(                     //improve for 1 word
 }
 
 
-/*************************************************************************
+namespace tesseract {
+/**
  * check_block_occ()
  * Checks word for coarse block occupancy, rejecting more chars and flipping
  * case of case ambiguous chars as required.
- *************************************************************************/
-namespace tesseract {
+ */
 void Tesseract::check_block_occ(WERD_RES *word_res) {
   PBLOB_IT blob_it;
   STRING new_string;
@@ -580,12 +582,12 @@ void Tesseract::check_block_occ(WERD_RES *word_res) {
 }
 }  // namespace tesseract
 
-/*************************************************************************
+/**
  * check_blob_occ()
  *
  * Checks blob for position relative to position above baseline
- * Return 0 for reject, or (possibly case shifted) confirmed char
- *************************************************************************/
+ * @return 0 for reject, or (possibly case shifted) confirmed char
+ */
 
 void check_blob_occ(char* proposed_char,
                     inT16 blob_ht_above_baseline,
@@ -804,12 +806,12 @@ void est_ambigs(                          //xht ambig ht stats
 }
 
 
-/*************************************************************************
+/**
  * dodgy_blob()
  * Returns true if the blob has more than one outline, one above the other.
  * These are dodgy as the top blob could be noise, causing the bounding box xht
  * to be misleading
- *************************************************************************/
+ */
 
 BOOL8 dodgy_blob(PBLOB *blob) {
   OUTLINE_IT outline_it = blob->out_list ();

@@ -169,14 +169,16 @@ inT16 blob_count(WERD *w) {
 }
 
 
-/**********************************************************************
+/**
  * recog_pseudo_word
  *
  * Make a word from the selected blobs and run Tess on them.
- **********************************************************************/
+ *
+ * @param block_list recognise blobs
+ * @param selection_box within this box
+ */
 namespace tesseract {
-void Tesseract::recog_pseudo_word(                         // recognize blobs
-                                  BLOCK_LIST *block_list,  // blocks to check
+void Tesseract::recog_pseudo_word(BLOCK_LIST *block_list,
                                   TBOX &selection_box) {
   WERD *word;
   ROW *pseudo_row;               // row of word
@@ -191,16 +193,18 @@ void Tesseract::recog_pseudo_word(                         // recognize blobs
 }
 
 
-/**********************************************************************
+/**
  * recog_interactive
  *
  * Recognize a single word in interactive mode.
- **********************************************************************/
-BOOL8 Tesseract::recog_interactive(            //recognize blobs
-                                   BLOCK *block,    //block
-                                   ROW *row,   //row of word
-                                   WERD *word  //word to recognize
-                       ) {
+ *
+ * @param block block
+ * @param row row of word
+ * @param word word to recognise
+ */
+BOOL8 Tesseract::recog_interactive(BLOCK *block,
+                                   ROW *row,
+                                   WERD *word) {
   WERD_RES word_res(word);
   inT16 char_qual;
   inT16 good_char_qual;
@@ -219,23 +223,23 @@ BOOL8 Tesseract::recog_interactive(            //recognize blobs
 }
 
 
-/**********************************************************************
+/**
  * recog_all_words()
  *
  * Walk the current block list applying the specified word processor function
  * to all words
- **********************************************************************/
+ *
+ * @param page_res page structure
+ * @param monitor progress monitor
+ * @param target_word_box specifies just to extract a rectangle
+ * @param dopasses 0 - all, 1 just pass 1, 2 passes 2 and higher
+ */
 
-void Tesseract::recog_all_words(                            // process words
-                                PAGE_RES *page_res,         // page structure
-                                                            // progress monitor
+void Tesseract::recog_all_words(PAGE_RES *page_res,
                                 volatile ETEXT_DESC *monitor,
-                                        // specifies just to extract a rectangle
                                 TBOX *target_word_box,
-                                //0 - all, 1 just pass 1, 2 passes 2 and higher
-                                inT16 dopasses
-                               ) {
-                                 // reset page iterator
+                                inT16 dopasses) {
+  // reset page iterator
   static PAGE_RES_IT page_res_it;
   inT16 chars_in_word;
   inT16 rejects_in_word;
@@ -587,11 +591,11 @@ if (dopasses==1) return;
 }
 
 
-/**********************************************************************
+/**
  * classify_word_pass1
  *
  * Baseline normalize the word and pass it to Tess.
- **********************************************************************/
+ */
 
 void Tesseract::classify_word_pass1(                 //recog one word
                                     WERD_RES *word,  //word to do
@@ -744,11 +748,11 @@ void Tesseract::classify_word_pass1(                 //recog one word
   }
 }
 
-/**********************************************************************
+/**
  * classify_word_pass2
  *
  * Control what to do with the word in pass 2
- **********************************************************************/
+ */
 
 void Tesseract::classify_word_pass2(WERD_RES *word, BLOCK* block, ROW *row) {
   BOOL8 done_this_pass = FALSE;
@@ -937,11 +941,11 @@ void Tesseract::classify_word_pass2(WERD_RES *word, BLOCK* block, ROW *row) {
 }
 
 
-/**********************************************************************
+/**
  * match_word_pass2
  *
  * Baseline normalize the word and pass it to Tess.
- **********************************************************************/
+ */
 
 void Tesseract::match_word_pass2(                 //recog one word
                                  WERD_RES *word,  //word to do
@@ -1053,14 +1057,14 @@ void Tesseract::match_word_pass2(                 //recog one word
 }  // namespace tesseract
 
 
-/*************************************************************************
+namespace tesseract {
+/**
  * fix_rep_char()
  * The word is a repeated char. Find the repeated char character. Make a reject
  * string which rejects any char other than the voted char. Set the word to done
  * to stop rematching it.
  *
- *************************************************************************/
-namespace tesseract {
+ */
 void Tesseract::fix_rep_char(WERD_RES *word_res) {
   struct REP_CH {
     UNICHAR_ID unichar_id;
@@ -1127,11 +1131,11 @@ static int is_simple_quote(const char* signed_str, int length) {
                         *(str + 2) == 0x99)));
 }
 
-/**********************************************************************
+/**
  * fix_quotes
  *
  * Change pairs of quotes to double quotes.
- **********************************************************************/
+ */
 void Tesseract::fix_quotes(WERD_CHOICE *choice,  //choice to fix
                            WERD *word,    //word to do //char choices
                            BLOB_CHOICE_LIST_CLIST *blob_choices) {
@@ -1176,12 +1180,12 @@ void Tesseract::fix_quotes(WERD_CHOICE *choice,  //choice to fix
 }
 
 
-/**********************************************************************
+/**
  * fix_hyphens
  *
  * Change pairs of hyphens to a single hyphen if the bounding boxes touch
  * Typically a long dash which has been segmented.
- **********************************************************************/
+ */
 void Tesseract::fix_hyphens(               //crunch double hyphens
                             WERD_CHOICE *choice,  //choice to fix
                             WERD *word,    //word to do //char choices
@@ -1230,11 +1234,11 @@ void Tesseract::fix_hyphens(               //crunch double hyphens
 }  // namespace tesseract
 
 
-/**********************************************************************
+/**
  * merge_blobs
  *
  * Add the outlines from blob2 to blob1. Blob2 is emptied but not deleted.
- **********************************************************************/
+ */
 
 void merge_blobs(               //combine 2 blobs
                  PBLOB *blob1,  //dest blob
@@ -1307,13 +1311,13 @@ void choice_dump_tester(                           //dump chars in word
 }
 */
 
-/*************************************************************************
+/**
  * make_bln_copy()
  *
  * Generate a baseline normalised copy of the source word. The copy is done so
  * that whatever format the original word is in, a polygonal bln version is
  * generated as output.
- *************************************************************************/
+ */
 
 WERD *make_bln_copy(WERD *src_word, ROW *row, BLOCK* block,
                     float x_height, DENORM *denorm) {
@@ -1527,11 +1531,11 @@ BOOL8 check_debug_pt(WERD_RES *word, int location) {
 }
 
 
-/**********************************************************************
+/**
  * set_word_fonts
  *
  * Get the fonts for the word.
- **********************************************************************/
+ */
 namespace tesseract {
 void Tesseract::set_word_fonts(
     WERD_RES *word,  // word to adapt to
@@ -1625,11 +1629,11 @@ void Tesseract::set_word_fonts(
 }
 
 
-/**********************************************************************
+/**
  * font_recognition_pass
  *
  * Smooth the fonts for the document.
- **********************************************************************/
+ */
 
 void Tesseract::font_recognition_pass(  //good chars in word
                                       PAGE_RES_IT &page_res_it) {
@@ -1753,11 +1757,11 @@ void Tesseract::font_recognition_pass(  //good chars in word
 }  // namespace tesseract
 
 
-/**********************************************************************
+/**
  * add_in_one_row
  *
  * Add into the stats for one row.
- **********************************************************************/
+ */
 //dead code?
 void add_in_one_row(               //good chars in word
                     ROW_RES *row,  //current row
@@ -1781,11 +1785,11 @@ void add_in_one_row(               //good chars in word
 }
 
 
-/**********************************************************************
+/**
  * find_modal_font
  *
  * Find the modal font and remove from the stats.
- **********************************************************************/
+ */
 //make static?
 void find_modal_font(                  //good chars in word
                      STATS *fonts,     //font stats
