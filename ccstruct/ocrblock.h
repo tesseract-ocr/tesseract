@@ -39,53 +39,68 @@ class BLOCK:public ELIST_LINK, public PDBLK
       skew_(1.0f, 0.0f) {
     hand_poly = NULL;
   }
-  BLOCK(const char *name,  // filename
-        BOOL8 prop,        // proportional
-        inT16 kern,        // kerning
-        inT16 space,       // spacing
-        inT16 xmin,        // bottom left
+  BLOCK(const char *name,  //< filename
+        BOOL8 prop,        //< proportional
+        inT16 kern,        //< kerning
+        inT16 space,       //< spacing
+        inT16 xmin,        //< bottom left
         inT16 ymin,
-        inT16 xmax,        // top right
+        inT16 xmax,        //< top right
         inT16 ymax);
 
   ~BLOCK () {
   }
 
-  // set space size etc.
-  void set_stats(BOOL8 prop,        // proportional
-                 inT16 kern,        // inter char size
-                 inT16 space,       // inter word size
-                 inT16 ch_pitch) {  // pitch if fixed
+  /**
+   * set space size etc.
+   * @param prop proportional
+   * @param kern inter char size
+   * @param space inter word size
+   * @param ch_pitch pitch if fixed
+   */
+  void set_stats(BOOL8 prop,
+                 inT16 kern,
+                 inT16 space,
+                 inT16 ch_pitch) {
     proportional = prop;
     kerning = (inT8) kern;
     spacing = space;
     pitch = ch_pitch;
   }
-  void set_xheight(inT32 height) {  // set char size
+  /// set char size
+  void set_xheight(inT32 height) {
     xheight = height;
   }
-  void set_font_class(inT16 font) {  // set font class
+  /// set font class
+  void set_font_class(inT16 font) {
     font_class = font;
   }
-  BOOL8 prop() const {  // return proportional
+  /// return proportional
+  BOOL8 prop() const {
     return proportional;
   }
-  inT32 fixed_pitch() const {  // return pitch
+  /// return pitch
+  inT32 fixed_pitch() const {
     return pitch;
   }
-  inT16 kern() const {  // return kerning
+  /// return kerning
+  inT16 kern() const {
     return kerning;
   }
-  inT16 font() const {  // return font class
+  /// return font class
+  inT16 font() const {
     return font_class;
   }
-  inT16 space() const {  // return spacing
+  /// return spacing
+  inT16 space() const {
     return spacing;
   }
-  const char *name() const {  // return filename
+  /// return filename
+  const char *name() const {
     return filename.string ();
   }
-  inT32 x_height() const {  // return xheight
+  /// return xheight
+  inT32 x_height() const {
     return xheight;
   }
   float cell_over_xheight() const {
@@ -94,10 +109,12 @@ class BLOCK:public ELIST_LINK, public PDBLK
   void set_cell_over_xheight(float ratio) {
     cell_over_xheight_ = ratio;
   }
-  ROW_LIST *row_list() {  // get rows
+  /// get rows
+  ROW_LIST *row_list() {
     return &rows;
   }
-  C_BLOB_LIST *blob_list() {  // get blobs
+  /// get blobs
+  C_BLOB_LIST *blob_list() {
     return &c_blobs;
   }
   C_BLOB_LIST *reject_blobs() {
@@ -131,17 +148,23 @@ class BLOCK:public ELIST_LINK, public PDBLK
 
   void rotate(const FCOORD& rotation);
 
-  void sort_rows();  // decreasing y order
+  /// decreasing y order
+  void sort_rows();
 
-  void compress();  // shrink white space
+  /// shrink white space
+  void compress();
 
-  void check_pitch();  // check proportional
+  /// check proportional
+  void check_pitch();
 
-  void compress(const ICOORD vec);  // shrink white spaceand move by vector
+  /// shrink white space and move by vector
+  void compress(const ICOORD vec);
 
-  void print(FILE *fp, BOOL8 dump);  // dump whole table
+  /// dump whole table
+  void print(FILE *fp, BOOL8 dump);
 
-  void prep_serialise() {  // set ptrs to counts
+  /// set ptrs to counts
+  void prep_serialise() {
     filename.prep_serialise();
     rows.prep_serialise();
     c_blobs.prep_serialise();
@@ -159,7 +182,8 @@ class BLOCK:public ELIST_LINK, public PDBLK
     rightside.dump(f);
   }
 
-  void de_dump(FILE *f) {  // read external bits
+  /// read external bits
+  void de_dump(FILE *f) {
     filename.de_dump(f);
     rows.de_dump(f);
     c_blobs.de_dump(f);
@@ -173,21 +197,21 @@ class BLOCK:public ELIST_LINK, public PDBLK
   BLOCK& operator=(const BLOCK & source);
 
  private:
-  BOOL8 proportional;          // proportional
-  inT8 kerning;                // inter blob gap
-  inT16 spacing;               // inter word gap
-  inT16 pitch;                 // pitch of non-props
-  inT16 font_class;            // correct font class
-  inT32 xheight;               // height of chars
-  float cell_over_xheight_;    // Ratio of cell height to xheight.
-  STRING filename;             // name of block
-  ROW_LIST rows;               // rows in block
-  C_BLOB_LIST c_blobs;         // before textord
-  C_BLOB_LIST rej_blobs;       // duff stuff
-  FCOORD re_rotation_;         // How to transform coords back to image.
-  FCOORD classify_rotation_;   // Apply this before classifying.
-  FCOORD skew_;                // Direction of true horizontal.
-  ICOORD median_size_;         // Median size of blobs.
+  BOOL8 proportional;          //< proportional
+  inT8 kerning;                //< inter blob gap
+  inT16 spacing;               //< inter word gap
+  inT16 pitch;                 //< pitch of non-props
+  inT16 font_class;            //< correct font class
+  inT32 xheight;               //< height of chars
+  float cell_over_xheight_;    //< Ratio of cell height to xheight.
+  STRING filename;             //< name of block
+  ROW_LIST rows;               //< rows in block
+  C_BLOB_LIST c_blobs;         //< before textord
+  C_BLOB_LIST rej_blobs;       //< duff stuff
+  FCOORD re_rotation_;         //< How to transform coords back to image.
+  FCOORD classify_rotation_;   //< Apply this before classifying.
+  FCOORD skew_;                //< Direction of true horizontal.
+  ICOORD median_size_;         //< Median size of blobs.
 };
 
 int decreasing_top_order(const void *row1, const void *row2);

@@ -93,11 +93,11 @@ enum CMD_EVENTS
   RECOG_PSEUDO
 };
 
-/**********************************************************************
+/*
  *
  *  Some global data
  *
- **********************************************************************/
+ */
 
 ScrollView* image_win;
 VariablesEditor* ve;
@@ -163,7 +163,7 @@ EXTERN INT_VAR(editor_word_width, 655, "Word window width");
 
 EXTERN double_VAR(editor_smd_scale_factor, 1.0, "Scaling for smd image");
 
-/**********************************************************************
+/**
  *  add_word()
  *
  *  Inserts the a word into a specified block list. The list is searched for a
@@ -175,13 +175,13 @@ EXTERN double_VAR(editor_smd_scale_factor, 1.0, "Scaling for smd image");
  *  If neither the row nor the block are found, then the word's old block is
  *  copied with only the word's row. It is added to the block list in the
  *  correct Y order.
- **********************************************************************/
+ */
 
 void add_word(                            // to block list
-              WERD *word,                  // word to be added
-              ROW *src_row,                // source row
-              BLOCK *src_block,            // source block
-              BLOCK_LIST *dest_block_list  // add to this
+              WERD *word,                  //< word to be added
+              ROW *src_row,                //< source row
+              BLOCK *src_block,            //< source block
+              BLOCK_LIST *dest_block_list  //< add to this
              ) {
   BLOCK_IT block_it(dest_block_list);
   BLOCK *block;                  // current block
@@ -291,12 +291,6 @@ void add_word(                            // to block list
 }
 
 
-/**********************************************************************
- *  bln_word_window_handle()
- *
- *  Return a WINDOW for the word window, creating it if necessary
- **********************************************************************/
-
 class BlnEventHandler : public SVEventHandler {
  public:
   void Notify(const SVEvent* sv_event) {
@@ -307,6 +301,11 @@ class BlnEventHandler : public SVEventHandler {
   }
 };
 
+/**
+ *  bln_word_window_handle()
+ *
+ *  @return a WINDOW for the word window, creating it if necessary
+ */
 ScrollView* bln_word_window_handle() {  // return handle
                                  // not opened yet
   if (bln_word_window == NULL) {
@@ -321,12 +320,12 @@ ScrollView* bln_word_window_handle() {  // return handle
   return bln_word_window;
 }
 
-/**********************************************************************
+/**
  *  build_image_window()
  *
  *  Destroy the existing image window if there is one.  Work out how big the
  *  new window needs to be. Create it and re-display.
- **********************************************************************/
+ */
 
 void build_image_window(TBOX page_bounding_box) {
   if (image_win != NULL) { delete image_win; }
@@ -341,11 +340,11 @@ void build_image_window(TBOX page_bounding_box) {
 }
 
 
-/**********************************************************************
+/**
  *  build_menu()
  *
  *  Construct the menu tree used by the command window
- **********************************************************************/
+ */
 namespace tesseract {
 SVMenuNode *Tesseract::build_menu_new() {
 
@@ -424,11 +423,11 @@ SVMenuNode *Tesseract::build_menu_new() {
 }  // namespace tesseract
 
 
-/**********************************************************************
+/**
  *  display_bln_lines()
  *
  *  Display normalised baseline, x-height, ascender limit and descender limit
- **********************************************************************/
+ */
 
 void display_bln_lines(ScrollView* window,
                        ScrollView::Color colour,
@@ -448,12 +447,12 @@ void display_bln_lines(ScrollView* window,
 }
 
 
-/**********************************************************************
+/**
  *  do_new_source()
  *
  *  Change to another source file.  Automatically tidy page first
  *
- **********************************************************************/
+ */
 namespace tesseract {
 void Tesseract::do_new_source(           // serialise
                   ) {
@@ -497,11 +496,11 @@ void Tesseract::do_new_source(           // serialise
 }  // namespace tesseract
 
 
-/**********************************************************************
+/**
  *  do_re_display()
  *
  *  Redisplay page
- **********************************************************************/
+ */
 
 void
                                  // function to call
@@ -546,11 +545,11 @@ BLOCK *, ROW *, WERD *)) {
 }
 
 
-/**********************************************************************
+/**
  *  do_tidy_cmd()
  *
  *  Tidy TARGET page
- **********************************************************************/
+ */
 
 const TBOX do_tidy_cmd() {  // tidy
   ICOORD shift_vector;
@@ -578,11 +577,11 @@ const TBOX do_tidy_cmd() {  // tidy
 }
 
 
-/**********************************************************************
+/**
  *  do_view_cmd()
  *
  *  View TARGET/View SOURCE command
- **********************************************************************/
+ */
 
 void do_view_cmd() {
   viewing_source = !viewing_source;
@@ -604,13 +603,13 @@ void do_view_cmd() {
 }
 
 
-/**********************************************************************
+/**
  *  do_write_file()
  *
  *  Serialise a block list to file
  *
  *  If writing image, tidy page and move to(0,0) first
- **********************************************************************/
+ */
 
 void do_write_file(           // serialise
                   ) {
@@ -663,13 +662,13 @@ void do_write_file(           // serialise
 
 }
 
-/**********************************************************************
+/**
  *  notify()
  *
  *  Event handler that processes incoming events, either forwarding
  *  them to process_cmd_win_event or process_image_event.
  *
- **********************************************************************/
+ */
 
 void PGEventHandler::Notify(const SVEvent* event) {
   char myval = '0';
@@ -692,13 +691,13 @@ ve->Notify(event);
 }
 
 
-/**********************************************************************
+/**
  *  pgeditor_main()
  *
  *  Top level editor operation:
  *  Setup a new window and an according event handler
  *
- **********************************************************************/
+ */
 
 namespace tesseract {
 void Tesseract::pgeditor_main(BLOCK_LIST *blocks) {
@@ -732,11 +731,11 @@ void Tesseract::pgeditor_main(BLOCK_LIST *blocks) {
 }  // namespace tesseract
 
 
-/**********************************************************************
+/**
  * pgeditor_msg()
  *
  * Display a message - in the command window if there is one, or to stdout
- **********************************************************************/
+ */
 
 void pgeditor_msg( // message display
                   const char *msg) {
@@ -744,11 +743,11 @@ void pgeditor_msg( // message display
 }
 
 
-/**********************************************************************
+/**
  * pgeditor_read_file()
  *
  * Deserialise source file
- **********************************************************************/
+ */
 
 namespace tesseract {
 void Tesseract::pgeditor_read_file(                   // of serialised file
@@ -771,11 +770,11 @@ void Tesseract::pgeditor_read_file(                   // of serialised file
 }
 }  // namespace tesseract
 
-/**********************************************************************
+/**
  * pgeditor_show_point()
  *
  * Display the coordinates of a point in the command window
- **********************************************************************/
+ */
 
 void pgeditor_show_point( // display coords
                          SVEvent *event) {
@@ -783,12 +782,12 @@ void pgeditor_show_point( // display coords
 }
 
 
-/**********************************************************************
+/**
  *  pgeditor_write_file()
  *
  *  Serialise a block list to file
  *
- **********************************************************************/
+ */
 
 void pgeditor_write_file(                   // serialise
                          char *name,         // file name
@@ -819,12 +818,12 @@ void pgeditor_write_file(                   // serialise
 }
 
 
-/**********************************************************************
+/**
  *  process_cmd_win_event()
  *
  *  Process a command returned from the command window
  * (Just call the appropriate command handler)
- **********************************************************************/
+ */
 
 namespace tesseract {
 BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
@@ -952,7 +951,7 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
 }
 
 
-/**********************************************************************
+/**
  * process_image_event()
  *
  * User has done something in the image window - mouse down or up.  Work out
@@ -960,7 +959,7 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
  * If DOWN - just remember where it was.
  * If UP - for each word in the selected area do the operation defined by
  * the current mode.
- **********************************************************************/
+ */
 void Tesseract::process_image_event( // action in image win
                                     const SVEvent &event) {
   static ICOORD down;
@@ -1057,16 +1056,16 @@ void Tesseract::process_image_event( // action in image win
 }  // namespace tesseract
 
 
-/**********************************************************************
+/**
  * re_scale_and_move_bln_word()
  *
  * Scale and move a bln word so that it fits in a specified bounding box.
  * Scale by width or height to generate the largest image
- **********************************************************************/
+ */
 
 float re_scale_and_move_bln_word(                 // put bln word in       box
-                                 WERD *norm_word,  // BL normalised word
-                                 const TBOX &box    // destination box
+                                 WERD *norm_word,  //< BL normalised word
+                                 const TBOX &box   //< destination box
                                 ) {
   TBOX norm_box = norm_word->bounding_box();
   float width_scale_factor;
@@ -1087,14 +1086,14 @@ float re_scale_and_move_bln_word(                 // put bln word in       box
 }
 
 
-/**********************************************************************
+/**
  * re_segment_word()
  *
  * If all selected blobs are in the same row, remove them from their current
  * word(s) and put them in a new word.  Insert the new word in the row at the
  * appropriate point. Delete any empty words.
  *
- **********************************************************************/
+ */
 
 void re_segment_word(                        // break/join words
                      BLOCK_LIST *block_list,  // blocks to check
@@ -1178,9 +1177,8 @@ void re_segment_word(                        // break/join words
   }
 }
 
-
-void block_space_stat(                        // show space stats
-                      BLOCK_LIST *block_list,  // blocks to check
+/// show space stats
+void block_space_stat(BLOCK_LIST *block_list,  // blocks to check
                       TBOX &selection_box) {
   BLOCK_IT block_it(block_list);
   BLOCK *block;
@@ -1275,9 +1273,8 @@ void block_space_stat(                        // show space stats
   }
 }
 
-
-void row_space_stat(                        // show space stats
-                    BLOCK_LIST *block_list,  // blocks to check
+/// show space stats
+void row_space_stat(BLOCK_LIST *block_list,  // blocks to check
                     TBOX &selection_box) {
   BLOCK_IT block_it(block_list);
   BLOCK *block;
@@ -1380,12 +1377,12 @@ void row_space_stat(                        // show space stats
 }
 
 
-/**********************************************************************
+/**
  * show_point()
  *
  * Show coords of point, blob bounding box, word bounding box and offset from
  * row baseline
- **********************************************************************/
+ */
 
 void show_point(                        // display posn of bloba word
                 BLOCK_LIST *block_list,  // blocks to check
@@ -1480,7 +1477,7 @@ void show_point(                        // display posn of bloba word
  * WERD PROCESSOR FUNCTIONS
  * ========================
  *
- * These routines are invoked by one or mode of:
+ * These routines are invoked by one or more of:
  *    process_all_words()
  *    process_selected_words()
  * or
@@ -1489,12 +1486,12 @@ void show_point(                        // display posn of bloba word
  * for each word to be processed
  **********************************************************************/
 
-/**********************************************************************
+/**
  * word_blank_and_set_display()  Word processor
  *
  * Blank display of word then redisplay word according to current display mode
  * settings
- **********************************************************************/
+ */
 
 BOOL8 word_blank_and_set_display(              // display a word
                                  BLOCK *block,  // block holding word
@@ -1506,11 +1503,11 @@ BOOL8 word_blank_and_set_display(              // display a word
 }
 
 
-/**********************************************************************
+/**
  * word_bln_display()
  *
  * Normalise word and display in word window
- **********************************************************************/
+ */
 
 BOOL8 word_bln_display(           // bln & display
                        BLOCK *,    // block holding word
@@ -1530,11 +1527,11 @@ BOOL8 word_bln_display(           // bln & display
 }
 
 
-/**********************************************************************
+/**
  * word_change_text()
  *
  * Change the correct text of a word
- **********************************************************************/
+ */
 
 BOOL8 word_change_text(              // change correct text
                        BLOCK *block,  // block holding word
@@ -1556,11 +1553,11 @@ BOOL8 word_change_text(              // change correct text
 }
 
 
-/**********************************************************************
+/**
  * word_copy()
  *
  * Copy a word to other display list
- **********************************************************************/
+ */
 
 BOOL8 word_copy(              // copy a word
                 BLOCK *block,  // block holding word
@@ -1576,11 +1573,11 @@ BOOL8 word_copy(              // copy a word
 }
 
 
-/**********************************************************************
+/**
  * word_delete()
  *
  * Delete a word
- **********************************************************************/
+ */
 
 BOOL8 word_delete(                    // delete a word
                   BLOCK *block,        // block holding word
@@ -1612,11 +1609,11 @@ BOOL8 word_delete(                    // delete a word
 }
 
 
-/**********************************************************************
+/**
  *  word_display()  Word Processor
  *
  *  Display a word according to its display modes
- **********************************************************************/
+ */
 
 BOOL8 word_display(           // display a word
                    BLOCK *,    // block holding word
@@ -1760,16 +1757,16 @@ BOOL8 word_display(           // display a word
 }
 
 
-/**********************************************************************
+/**
  * word_dumper()
  *
  * Dump members to the debug window
- **********************************************************************/
+ */
 
 BOOL8 word_dumper(              // dump word
-                  BLOCK *block,  // block holding word
-                  ROW *row,      // row holding word
-                  WERD *word     // word to be processed
+                  BLOCK *block,  //< block holding word
+                  ROW *row,      //< row holding word
+                  WERD *word     //< word to be processed
                  ) {
 
   if (block != NULL) {
@@ -1784,16 +1781,16 @@ BOOL8 word_dumper(              // dump word
 }
 
 
-/**********************************************************************
+/**
  * word_set_display()  Word processor
  *
  * Display word according to current display mode settings
- **********************************************************************/
+ */
 
 BOOL8 word_set_display(              // display a word
-                       BLOCK *block,  // block holding word
-                       ROW *row,      // row holding word
-                       WERD *word     // word to be processed
+                       BLOCK *block,  //< block holding word
+                       ROW *row,      //< row holding word
+                       WERD *word     //< word to be processed
                       ) {
   TBOX word_bb;                   // word bounding box
 
@@ -1808,16 +1805,16 @@ BOOL8 word_set_display(              // display a word
 }
 
 
-/**********************************************************************
+/**
  * word_toggle_seg()
  *
  * Toggle the correct segmentation flag
- **********************************************************************/
+ */
 
 BOOL8 word_toggle_seg(           // toggle seg flag
-                      BLOCK *,    // block holding word
-                      ROW *,      // row holding word
-                      WERD *word  // word to be processed
+                      BLOCK *,    //< block holding word
+                      ROW *,      //< row holding word
+                      WERD *word  //< word to be processed
                      ) {
   word->set_flag(W_SEGMENTED, !word->flag(W_SEGMENTED));
   *current_image_changed = TRUE;

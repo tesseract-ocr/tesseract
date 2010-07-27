@@ -52,15 +52,17 @@
 
 namespace tesseract {
 
-// Minimum believable resolution.
+/// Minimum believable resolution.
 const int kMinCredibleResolution = 70;
-// Default resolution used if input in not believable.
+/// Default resolution used if input in not believable.
 const int kDefaultResolution = 300;
 
-// Segment the page according to the current value of tessedit_pageseg_mode.
-// If the pix_binary_ member is not NULL, it is used as the source image,
-// and copied to image, otherwise it just uses image as the input.
-// On return the blocks list owns all the constructed page layout.
+/**
+ * Segment the page according to the current value of tessedit_pageseg_mode.
+ * If the pix_binary_ member is not NULL, it is used as the source image,
+ * and copied to image, otherwise it just uses image as the input.
+ * On return the blocks list owns all the constructed page layout.
+ */
 int Tesseract::SegmentPage(const STRING* input_file,
                            IMAGE* image, BLOCK_LIST* blocks) {
   int width = image->get_xsize();
@@ -162,16 +164,22 @@ int Tesseract::SegmentPage(const STRING* input_file,
   return 0;
 }
 
-// Auto page segmentation. Divide the page image into blocks of uniform
-// text linespacing and images.
-// Width, height and resolution are derived from the input image.
-// If the pix is non-NULL, then it is assumed to be the input, and it is
-// copied to the image, otherwise the image is used directly.
-// The output goes in the blocks list with corresponding TO_BLOCKs in the
-// to_blocks list.
-// If single_column is true, then no attempt is made to divide the image
-// into columns, but multiple blocks are still made if the text is of
-// non-uniform linespacing.
+/**
+ * Auto page segmentation. Divide the page image into blocks of uniform
+ * text linespacing and images.
+ *
+ * Width, height and resolution are derived from the input image.
+ *
+ * If the pix is non-NULL, then it is assumed to be the input, and it is
+ * copied to the image, otherwise the image is used directly.
+ *
+ * The output goes in the blocks list with corresponding TO_BLOCKs in the
+ * to_blocks list.
+ *
+ * If single_column is true, then no attempt is made to divide the image
+ * into columns, but multiple blocks are still made if the text is of
+ * non-uniform linespacing.
+ */
 int Tesseract::AutoPageSeg(int width, int height, int resolution,
                            bool single_column, IMAGE* image,
                            BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks) {
