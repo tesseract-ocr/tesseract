@@ -555,6 +555,6 @@ class TESSDLL_API TessBaseAPI {
   /* @} */
 };
 
-}   * namespace tesseract.
+} // namespace tesseract.
 
-#endif   * TESSERACT_CCMAIN_BASEAPI_H__
+#endif // TESSERACT_CCMAIN_BASEAPI_H__
