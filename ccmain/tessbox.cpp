@@ -30,24 +30,25 @@
 
 #define EXTERN
 
-/**********************************************************************
+/**
  * tess_segment_pass1
  *
  * Segment a word using the pass1 conditions of the tess segmenter.
- **********************************************************************/
+ * @param word bln word to do
+ * @param denorm de-normaliser
+ * @param matcher matcher function
+ * @param raw_choice raw result
+ * @param blob_choices list of blob lists
+ * @param outword bln word output
+ */
 
 namespace tesseract {
-WERD_CHOICE *Tesseract::tess_segment_pass1(                 //recog one word
-                                           WERD *word,      //bln word to do
-                                           DENORM *denorm,  //de-normaliser
-                                                            //matcher function
+WERD_CHOICE *Tesseract::tess_segment_pass1(WERD *word,
+                                           DENORM *denorm,
                                            POLY_MATCHER matcher,
-                                                            //raw result
                                            WERD_CHOICE *&raw_choice,
-                                                            //list of blob lists
                                            BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                           WERD *&outword   //bln word output
-                                          ) {
+                                           WERD *&outword) {
   WERD_CHOICE *result;           //return value
   int saved_enable_assoc = 0;
   int saved_chop_enable = 0;
@@ -73,23 +74,24 @@ WERD_CHOICE *Tesseract::tess_segment_pass1(                 //recog one word
 }
 
 
-/**********************************************************************
+/**
  * tess_segment_pass2
  *
  * Segment a word using the pass2 conditions of the tess segmenter.
- **********************************************************************/
+ * @param word bln word to do
+ * @param denorm de-normaliser
+ * @param matcher matcher function
+ * @param raw_choice raw result
+ * @param blob_choices list of blob lists
+ * @param outword bln word output
+ */
 
-WERD_CHOICE *Tesseract::tess_segment_pass2(                 //recog one word
-                                           WERD *word,      //bln word to do
-                                           DENORM *denorm,  //de-normaliser
-                                                            //matcher function
+WERD_CHOICE *Tesseract::tess_segment_pass2(WERD *word,
+                                           DENORM *denorm,
                                            POLY_MATCHER matcher,
-                                                            //raw result
                                            WERD_CHOICE *&raw_choice,
-                                                            //list of blob lists
                                            BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                           WERD *&outword   //bln word output
-                                          ) {
+                                           WERD *&outword) {
   WERD_CHOICE *result;           //return value
   int saved_enable_assoc = 0;
   int saved_chop_enable = 0;
@@ -114,7 +116,7 @@ WERD_CHOICE *Tesseract::tess_segment_pass2(                 //recog one word
 }
 
 
-/**********************************************************************
+/**
  * correct_segment_pass2
  *
  * Segment a word correctly using the pass2 conditions of the tess segmenter.
@@ -122,62 +124,60 @@ WERD_CHOICE *Tesseract::tess_segment_pass2(                 //recog one word
  * If the correct segmentation cannot be found, the tester is called
  * with the segmentation found by tess and all the correct flags set to
  * false and all strings are NULL.
- **********************************************************************/
+ * @param word bln word to do
+ * @param denorm de-normaliser
+ * @param matcher matcher function
+ * @param tester tester function
+ * @param raw_choice raw result
+ * @param blob_choices list of blob lists
+ * @param outword bln word output
+ */
 
-WERD_CHOICE *Tesseract::correct_segment_pass2(              //recog one word
-                                              WERD *word,   //bln word to do
-                                                            //de-normaliser
+WERD_CHOICE *Tesseract::correct_segment_pass2(WERD *word,
                                               DENORM *denorm,
-                                                            //matcher function
                                               POLY_MATCHER matcher,
-                                                            //tester function
                                               POLY_TESTER tester,
-                                                            //raw result
                                               WERD_CHOICE *&raw_choice,
-                                                            //list of blob lists
                                               BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                                            //bln word output
-                                              WERD *&outword
-                                             ) {
+                                              WERD *&outword) {
   set_pass2();
   return recog_word (word, denorm, matcher, NULL, tester, TRUE,
     raw_choice, blob_choices, outword);
 }
 
 
-/**********************************************************************
+/**
  * test_segment_pass2
  *
  * Segment a word correctly using the pass2 conditions of the tess segmenter.
  * Then call the tester on all words used by tess in its search.
  * Do this only on words where the correct segmentation could be found.
- **********************************************************************/
-WERD_CHOICE *Tesseract::test_segment_pass2(               //recog one word
-                                           WERD *word,    //bln word to do
-                                                          //de-normaliser
+ * @param word bln word to do
+ * @param denorm de-normaliser
+ * @param matcher matcher function
+ * @param tester tester function
+ * @param raw_choice raw result
+ * @param blob_choices list of blob lists
+ * @param outword bln word output
+ */
+WERD_CHOICE *Tesseract::test_segment_pass2(WERD *word,
                                            DENORM *denorm,
-                                                          //matcher function
                                            POLY_MATCHER matcher,
-                                                          //tester function
                                            POLY_TESTER tester,
-                                                          //raw result
                                            WERD_CHOICE *&raw_choice,
-                                                          //list of blob lists
                                            BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                                          //bln word output
-                                           WERD *&outword
-                                          ) {
+                                           WERD *&outword) {
   set_pass2();
   return recog_word (word, denorm, matcher, tester, NULL, TRUE,
     raw_choice, blob_choices, outword);
 }
 
 
-/**********************************************************************
+/**
  * tess_acceptable_word
  *
  * Return true if the word is regarded as "good enough".
- **********************************************************************/
+ */
 BOOL8 Tesseract::tess_acceptable_word(
     WERD_CHOICE *word_choice,  // after context
     WERD_CHOICE *raw_choice) {  // before context
@@ -185,15 +185,15 @@ BOOL8 Tesseract::tess_acceptable_word(
 }
 
 
-/**********************************************************************
+/**
  * tess_adaptable_word
  *
  * Return true if the word is regarded as "good enough".
- **********************************************************************/
-BOOL8 Tesseract::tess_adaptable_word(  // test adaptability
-    WERD *word,                        // word to test
-    WERD_CHOICE *best_choice,          // after context
-    WERD_CHOICE *raw_choice            // before context
+ */
+BOOL8 Tesseract::tess_adaptable_word(  //< test adaptability
+    WERD *word,                        //< word to test
+    WERD_CHOICE *best_choice,          //< after context
+    WERD_CHOICE *raw_choice            //< before context
                                      ) {
   TWERD *tessword = make_tess_word(word, NULL);
   int result = (tessword && best_choice && raw_choice &&
@@ -203,12 +203,12 @@ BOOL8 Tesseract::tess_adaptable_word(  // test adaptability
 }
 
 
-/**********************************************************************
+/**
  * tess_cn_matcher
  *
  * Match a blob using the Tess Char Normalized (non-adaptive) matcher
  * only.
- **********************************************************************/
+ */
 
 void Tesseract::tess_cn_matcher(                           //call tess
                                 PBLOB *pblob,              //previous blob
@@ -234,12 +234,12 @@ void Tesseract::tess_cn_matcher(                           //call tess
 }
 
 
-/**********************************************************************
+/**
  * tess_bn_matcher
  *
  * Match a blob using the Tess Baseline Normalized (adaptive) matcher
  * only.
- **********************************************************************/
+ */
 
 void Tesseract::tess_bn_matcher(                           //call tess
                                 PBLOB *pblob,              //previous blob
@@ -264,11 +264,11 @@ void Tesseract::tess_bn_matcher(                           //call tess
 }
 
 
-/**********************************************************************
+/**
  * tess_default_matcher
  *
  * Match a blob using the default functionality of the Tess matcher.
- **********************************************************************/
+ */
 
 void Tesseract::tess_default_matcher(                       //call tess
                                      PBLOB *pblob,          //previous blob
@@ -297,11 +297,11 @@ void Tesseract::tess_default_matcher(                       //call tess
 }  // namespace tesseract
 
 
-/**********************************************************************
+/**
  * tess_training_tester
  *
  * Matcher tester function which actually trains tess.
- **********************************************************************/
+ */
 
 void tess_training_tester(                           //call tess
                           const STRING& filename,    //filename to output
@@ -330,11 +330,11 @@ void tess_training_tester(                           //call tess
 }
 
 
-/**********************************************************************
+/**
  * tess_adapter
  *
  * Adapt to the word using the Tesseract mechanism.
- **********************************************************************/
+ */
 
 namespace tesseract {
 void Tesseract::tess_adapter(                         //adapt to word
@@ -357,11 +357,11 @@ void Tesseract::tess_adapter(                         //adapt to word
 }
 
 
-/**********************************************************************
+/**
  * tess_add_doc_word
  *
  * Add the given word to the document dictionary
- **********************************************************************/
+ */
 void Tesseract::tess_add_doc_word(WERD_CHOICE *word_choice) {
   getDict().add_document_word(*word_choice);
 }

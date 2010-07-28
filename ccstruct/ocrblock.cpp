@@ -26,17 +26,17 @@
 #define BLOCK_LABEL_HEIGHT  150  //char height of block id
 
 ELISTIZE_S (BLOCK)
-/**********************************************************************
+/**
  * BLOCK::BLOCK
  *
  * Constructor for a simple rectangular block.
- **********************************************************************/
-BLOCK::BLOCK(const char *name,                //filename
-             BOOL8 prop,                      //proportional
-             inT16 kern,                      //kerning
-             inT16 space,                     //spacing
-             inT16 xmin,                      //bottom left
-             inT16 ymin, inT16 xmax,          //top right
+ */
+BLOCK::BLOCK(const char *name,                //< filename
+             BOOL8 prop,                      //< proportional
+             inT16 kern,                      //< kerning
+             inT16 space,                     //< spacing
+             inT16 xmin,                      //< bottom left
+             inT16 ymin, inT16 xmax,          //< top right
              inT16 ymax)
   : PDBLK (xmin, ymin, xmax, ymax),
     filename(name),
@@ -61,11 +61,11 @@ BLOCK::BLOCK(const char *name,                //filename
   right_it.add_to_end (new ICOORDELT (xmax, ymax));
 }
 
-/**********************************************************************
+/**
  * decreasing_top_order
  *
  * Sort Comparator: Return <0 if row1 top < row2 top
- **********************************************************************/
+ */
 
 int decreasing_top_order(  //
                          const void *row1,
@@ -75,21 +75,21 @@ int decreasing_top_order(  //
 }
 
 
-/**********************************************************************
+/**
  * BLOCK::rotate
  *
  * Rotate the polygon by the given rotation and recompute the bounding_box.
- **********************************************************************/
+ */
 void BLOCK::rotate(const FCOORD& rotation) {
   poly_block()->rotate(rotation);
   box = *poly_block()->bounding_box();
 }
 
-/**********************************************************************
+/**
  * BLOCK::sort_rows
  *
  * Order rows so that they are in order of decreasing Y coordinate
- **********************************************************************/
+ */
 
 void BLOCK::sort_rows() {  // order on "top"
   ROW_IT row_it(&rows);
@@ -98,12 +98,12 @@ void BLOCK::sort_rows() {  // order on "top"
 }
 
 
-/**********************************************************************
+/**
  * BLOCK::compress
  *
  * Delete space between the rows. (And maybe one day, compress the rows)
  * Fill space of block from top down, left aligning rows.
- **********************************************************************/
+ */
 
 void BLOCK::compress() {  // squash it up
   #define           ROW_SPACING 5
@@ -136,12 +136,12 @@ void BLOCK::compress() {  // squash it up
 }
 
 
-/**********************************************************************
+/**
  * BLOCK::check_pitch
  *
  * Check whether the block is fixed or prop, set the flag, and set
  * the pitch if it is fixed.
- **********************************************************************/
+ */
 
 void BLOCK::check_pitch() {  // check prop
   //      tprintf("Missing FFT fixed pitch stuff!\n");
@@ -149,11 +149,11 @@ void BLOCK::check_pitch() {  // check prop
 }
 
 
-/**********************************************************************
+/**
  * BLOCK::compress
  *
  * Compress and move in a single operation.
- **********************************************************************/
+ */
 
 void BLOCK::compress(                  // squash it up
                      const ICOORD vec  // and move
@@ -163,15 +163,15 @@ void BLOCK::compress(                  // squash it up
 }
 
 
-/**********************************************************************
+/**
  * BLOCK::print
  *
  * Print the info on a block
- **********************************************************************/
+ */
 
 void BLOCK::print(            //print list of sides
-                  FILE *,     //file to print on
-                  BOOL8 dump  //print full detail
+                  FILE *,     //< file to print on
+                  BOOL8 dump  //< print full detail
                  ) {
   ICOORDELT_IT it = &leftside;   //iterator
 
@@ -195,11 +195,11 @@ void BLOCK::print(            //print list of sides
   }
 }
 
-/**********************************************************************
+/**
  * BLOCK::operator=
  *
  * Assignment - duplicate the block structure, but with an EMPTY row list.
- **********************************************************************/
+ */
 
 BLOCK & BLOCK::operator= (       //assignment
 const BLOCK & source             //from this
