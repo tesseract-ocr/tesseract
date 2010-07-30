@@ -18,9 +18,9 @@
 #ifndef ADAPTIVE_H
 #define ADAPTIVE_H
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "oldlist.h"
 #include "intproto.h"
 #include <stdio.h>
@@ -75,9 +75,9 @@ typedef struct
 } ADAPT_TEMPLATES_STRUCT;
 typedef ADAPT_TEMPLATES_STRUCT *ADAPT_TEMPLATES;
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Public Function Prototypes
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #define NumNonEmptyClassesIn(Template) ((Template)->NumNonEmptyClasses)
 
 #define IsEmptyAdaptedClass(Class) ((Class)->NumPermConfigs == 0 &&      \
