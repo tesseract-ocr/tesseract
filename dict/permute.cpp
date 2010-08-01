@@ -112,7 +112,7 @@ BOOL_VAR(doc_dict_enable, 1, "Enable Document Dictionary ");
 BOOL_VAR(ngram_permuter_activated, FALSE,
          "Activate character-level n-gram-based permuter");
 
-STRING_VAR(global_user_words_suffix, "", "A list of user-provided words.");
+STRING_VAR(global_user_words_suffix, "user-words", "A list of user-provided words.");
 
 // This is an ugly way to incorporate segmentation cost in word rating.
 // See comments in incorporate_segcost.
