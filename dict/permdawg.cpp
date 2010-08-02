@@ -68,12 +68,12 @@ namespace tesseract {
 
 static const float kPermDawgRatingPad = 5.0;
 
-/**********************************************************************
- * adjust_word
+/**
+ * @name adjust_word
  *
  * Assign an adjusted value to a string that is a word. The value
  * that this word choice has is based on case and punctuation rules.
- **********************************************************************/
+ */
 void Dict::adjust_word(WERD_CHOICE *word,
                        float *certainty_array) {
   float adjust_factor;
@@ -114,12 +114,23 @@ void Dict::adjust_word(WERD_CHOICE *word,
     tprintf(" --> %4.2f\n", new_rating);
 }
 
-/**********************************************************************
- * go_deeper_dawg_fxn
+/**
+ * @name go_deeper_dawg_fxn
  *
  * If the choice being composed so far could be a dictionary word
  * keep exploring choices.
- **********************************************************************/
+ *
+ * There are two modes for deciding whether to go deeper: regular dawg
+ * permuter mode and the special ambigs mode. If *limit is <= 0.0 the
+ * function switches to the ambigs mode (this is the case when
+ * dawg_permute_and_select() function is called from NoDangerousAmbigs()) and
+ * only searches for the first choice that has a rating better than *limit
+ * (in this case ratings are fake, since the real ratings can not be < 0).
+ * Modification of the hyphen state is turned off in the ambigs mode.
+ * When in the regular dawg permuter mode, the function explores all the
+ * possible words and chooses the one with the best rating. The letters with
+ * ratings that are far worse than the ones seen so far are pruned out.
+ */
 void Dict::go_deeper_dawg_fxn(
     const char *debug, const BLOB_CHOICE_LIST_VECTOR &char_choices,
     int char_choice_index,
@@ -129,16 +140,6 @@ void Dict::go_deeper_dawg_fxn(
   DawgArgs *more_args = reinterpret_cast<DawgArgs*>(void_more_args);
   int word_index = word->length() - 1;
 
-  // There are two modes for deciding whether to go deeper: regular dawg
-  // permuter mode and the special ambigs mode. If *limit is <= 0.0 the
-  // function switches to the ambigs mode (this is the case when
-  // dawg_permute_and_select() function is called from NoDangerousAmbigs()) and
-  // only searches for the first choice that has a rating better than *limit
-  // (in this case ratings are fake, since the real ratings can not be < 0).
-  // Modification of the hyphen state is turned off in the ambigs mode.
-  // When in the regular dawg permuter mode, the function explores all the
-  // possible words and chooses the one with the best rating. The letters with
-  // ratings that are far worse than the ones seen so far are pruned out.
   bool ambigs_mode = (*limit <= 0.0);
   if (ambigs_mode) {
     if (best_choice->rating() < *limit) return;
@@ -282,7 +283,7 @@ void Dict::go_deeper_dawg_fxn(
   }
 }
 
-/**********************************************************************
+/**
  * dawg_permute_and_select
  *
  * Recursively explore all the possible character combinations in
@@ -290,7 +291,7 @@ void Dict::go_deeper_dawg_fxn(
  * dawgs in the dawgs_ vector in parallel and discard invalid words.
  *
  * Allocate and return a WERD_CHOICE with the best valid word found.
- * **********************************************************************/
+ */
 WERD_CHOICE *Dict::dawg_permute_and_select(
     const BLOB_CHOICE_LIST_VECTOR &char_choices, float rating_limit) {
   WERD_CHOICE *best_choice = new WERD_CHOICE();
@@ -325,9 +326,11 @@ WERD_CHOICE *Dict::dawg_permute_and_select(
   return best_choice;
 }
 
-// Fill the given active_dawgs vector with dawgs that could contain the
-// beginning of the word. If hyphenated() returns true, copy the entries
-// from hyphen_active_dawgs_ instead.
+/**
+ * Fill the given active_dawgs vector with dawgs that could contain the
+ * beginning of the word. If hyphenated() returns true, copy the entries
+ * from hyphen_active_dawgs_ instead.
+ */
 void Dict::init_active_dawgs(DawgInfoVector *active_dawgs) {
   int i;
   if (hyphenated()) {
@@ -351,8 +354,10 @@ void Dict::init_active_dawgs(DawgInfoVector *active_dawgs) {
   }
 }
 
-// If hyphenated() returns true, copy the entries from hyphen_constraints_
-// into the given constraints vector.
+/** 
+ * If hyphenated() returns true, copy the entries from hyphen_constraints_
+ * into the given constraints vector.
+ */
 void Dict::init_constraints(DawgInfoVector *constraints) {
   if (hyphenated()) {
     *constraints = hyphen_constraints_;
