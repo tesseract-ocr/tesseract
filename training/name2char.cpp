@@ -14,9 +14,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
 ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
 					Include Files and Type Defines
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 #include "name2char.h"
 #include "matchdefs.h"
 #include "danerror.h"
@@ -24,10 +24,10 @@
 
 #define ILLEGALCHARNAME		6001
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
 		  		Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
-/* character ID (ascii code) to character name mapping */
+-----------------------------------------------------------------------------*/
+/** character ID (ascii code) to character name mapping */
 static const char	*NameList[]={
 	"!bang",
 	  "\"doubleq",
@@ -91,26 +91,24 @@ static const char	*NameList[]={
   };
 
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
 							Public Code
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
-CLASS_ID NameToChar (
-     char	CharName[])
-
-/*
-**	Parameters:
-**		CharName	character name to convert to a character
-**	Globals:
-**		NameList	lookup table for name to char mapping
-**	Operation:
-**		This routine converts the specified character name to
-**		an ascii character.
-**	Return: Ascii character that corresponds to the character name.
-**	Exceptions: ILLEGALCHARNAME
-**	History: Sat Aug 26 12:26:54 1989, DSJ, Created.
-*/
-
+/**
+ * This routine converts the specified character name to
+ * an ascii character.
+ *
+ * @param CharName	character name to convert to a character
+ *
+ * Globals:
+ * - NameList	lookup table for name to char mapping
+ *
+ * @return Ascii character that corresponds to the character name.
+ * @note Exceptions: ILLEGALCHARNAME
+ * @note History: Sat Aug 26 12:26:54 1989, DSJ, Created.
+ */
+CLASS_ID NameToChar (char CharName[])
 {
 	int	i;
 

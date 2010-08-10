@@ -30,9 +30,11 @@ namespace tesseract {
 
 class TabFind;
 
-// The StrokeWidth class holds all the normal and large blobs.
-// It is used to find good large blobs and move them to the normal blobs
-// by virtue of having a reasonable strokewidth compatible neighbour.
+/**
+ * The StrokeWidth class holds all the normal and large blobs.
+ * It is used to find good large blobs and move them to the normal blobs
+ * by virtue of having a reasonable strokewidth compatible neighbour.
+ */
 class StrokeWidth : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
  public:
   StrokeWidth(int gridsize, const ICOORD& bleft, const ICOORD& tright);

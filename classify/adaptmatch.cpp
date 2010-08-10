@@ -757,6 +757,12 @@ void Classify::PrintAdaptiveStatistics(FILE *File) {
  * of the first pass.  Learning is enabled (unless it
  * is disabled for the whole program).
  *
+ * @note this is somewhat redundant, it simply says that if learning is
+ * enabled then it will remain enabled on the first pass.  If it is
+ * disabled, then it will remain disabled.  This is only put here to
+ * make it very clear that learning is controlled directly by the global
+ * setting of EnableLearning. 
+ *
  * Globals:
  * - #EnableLearning
  * set to TRUE by this routine
@@ -765,11 +771,6 @@ void Classify::PrintAdaptiveStatistics(FILE *File) {
  * @note History: Mon Apr 15 16:39:29 1991, DSJ, Created.
  */
 void Classify::SettupPass1() {
-  /* Note: this is somewhat redundant, it simply says that if learning is
-  enabled then it will remain enabled on the first pass.  If it is
-  disabled, then it will remain disabled.  This is only put here to
-  make it very clear that learning is controlled directly by the global
-    setting of EnableLearning. */
   EnableLearning = classify_enable_learning;
 
   getDict().SettupStopperPass1();
@@ -1393,35 +1394,29 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine extracts character normalized features
+ * from the unknown character and matches them against the
+ * specified set of templates.  The classes which match
+ * are added to Results.
+ *
+ * @param Blob blob to be classified
+ * @param LineStats statistics for text line Blob is in
+ * @param Templates templates to classify unknown against
+ * @param Results place to put match results
+ *
+ * Globals:
+ * - CharNormCutoffs expected num features for each class
+ * - AllProtosOn mask that enables all protos
+ * - AllConfigsOn mask that enables all configs
+ *
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 16:02:52 1991, DSJ, Created.
+ */
 int Classify::CharNormClassifier(TBLOB *Blob,
                                  LINE_STATS *LineStats,
                                  INT_TEMPLATES Templates,
                                  ADAPT_RESULTS *Results) {
-/*
- **                         Parameters:
- **                         Blob
-              blob to be classified
-**                          LineStats
-              statistics for text line Blob is in
-**                          Templates
-              templates to classify unknown against
-**                          Results
-              place to put match results
-**                          Globals:
-**                          CharNormCutoffs
-              expected num features for each class
-**                          AllProtosOn
-              mask that enables all protos
-**                          AllConfigsOn
-              mask that enables all configs
-**                          Operation: This routine extracts character normalized features
-**                          from the unknown character and matches them against the
-**                          specified set of templates.  The classes which match
-**                          are added to Results.
-**                          Return: none
-**                          Exceptions: none
-**                          History: Tue Mar 12 16:02:52 1991, DSJ, Created.
-*/
   int NumFeatures;
   int NumClasses;
   INT_FEATURE_ARRAY IntFeatures;
@@ -1454,22 +1449,21 @@ int Classify::CharNormClassifier(TBLOB *Blob,
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine computes a rating which reflects the
+ * likelihood that the blob being classified is a noise
+ * blob.  NOTE: assumes that the blob length has already been
+ * computed and placed into Results.
+ *
+ * @param Results results to add noise classification to
+ *
+ * Globals:
+ * - matcher_avg_noise_size avg. length of a noise blob
+ *
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 18:36:52 1991, DSJ, Created.
+ */
 void Classify::ClassifyAsNoise(ADAPT_RESULTS *Results) {
-/*
- **                         Parameters:
-**                          Results
-              results to add noise classification to
-**                          Globals:
-**                          matcher_avg_noise_size
-              avg. length of a noise blob
-**                          Operation: This routine computes a rating which reflects the
-**                          likelihood that the blob being classified is a noise
-**                          blob.  NOTE: assumes that the blob length has already been
-**                          computed and placed into Results.
-**                          Return: none
-**                          Exceptions: none
-**                          History: Tue Mar 12 18:36:52 1991, DSJ, Created.
-*/
   register FLOAT32 Rating;
 
   Rating = Results->BlobLength / matcher_avg_noise_size;
@@ -1478,7 +1472,7 @@ void Classify::ClassifyAsNoise(ADAPT_RESULTS *Results) {
 
   AddNewResult (Results, NO_CLASS, Rating, 0);
 }                                /* ClassifyAsNoise */
-}  // namespace tesserct
+}  // namespace tesseract
 
 
 /*---------------------------------------------------------------------------*/
@@ -1570,23 +1564,20 @@ void Classify::ConvertMatchesToChoices(ADAPT_RESULTS *Results,
 
 /*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
+/**
+ *
+ * @param Blob blob whose classification is being debugged
+ * @param LineStats statistics for text line blob is in
+ * @param Results results of match being debugged
+ *
+ * Globals: none
+ *
+ * @note Exceptions: none
+ * @note History: Wed Mar 13 16:44:41 1991, DSJ, Created.
+ */
 void Classify::DebugAdaptiveClassifier(TBLOB *Blob,
                                        LINE_STATS *LineStats,
                                        ADAPT_RESULTS *Results) {
-/*
- **                         Parameters:
- **                         Blob
-              blob whose classification is being debugged
-**                          LineStats
-              statistics for text line blob is in
-**                          Results
-              results of match being debugged
-**                          Globals: none
-**                          Operation:
-**                          Return: none
-**                          Exceptions: none
-**                          History: Wed Mar 13 16:44:41 1991, DSJ, Created.
-*/
   const char *Prompt =
     "Left-click in IntegerMatch Window to continue or right click to debug...";
   const char *DebugMode = "All Templates";
@@ -1639,37 +1630,32 @@ void Classify::DebugAdaptiveClassifier(TBLOB *Blob,
 #endif
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine performs an adaptive classification.
+ * If we have not yet adapted to enough classes, a simple
+ * classification to the pre-trained templates is performed.
+ * Otherwise, we match the blob against the adapted templates.
+ * If the adapted templates do not match well, we try a
+ * match against the pre-trained templates.  If an adapted
+ * template match is found, we do a match to any pre-trained
+ * templates which could be ambiguous.  The results from all
+ * of these classifications are merged together into Results.
+ *
+ * @param Blob blob to be classified
+ * @param LineStats statistics for text line Blob is in
+ * @param Results place to put match results
+ *
+ * Globals:
+ * - PreTrainedTemplates built-in training templates
+ * - AdaptedTemplates templates adapted for this page
+ * - matcher_great_threshold rating limit for a great match
+ *
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 08:50:11 1991, DSJ, Created.
+ */
 void Classify::DoAdaptiveMatch(TBLOB *Blob,
                      LINE_STATS *LineStats,
                      ADAPT_RESULTS *Results) {
-  /*
-   **                         Parameters:
-   **                         Blob
-   blob to be classified
-   **                          LineStats
-   statistics for text line Blob is in
-   **                          Results
-   place to put match results
-   **                          Globals:
-   **                          PreTrainedTemplates
-   built-in training templates
-   **                          AdaptedTemplates
-   templates adapted for this page
-   **                          matcher_great_threshold
-   rating limit for a great match
-   **                          Operation: This routine performs an adaptive classification.
-   **                          If we have not yet adapted to enough classes, a simple
-   **                          classification to the pre-trained templates is performed.
-   **                          Otherwise, we match the blob against the adapted templates.
-   **                          If the adapted templates do not match well, we try a
-   **                          match against the pre-trained templates.  If an adapted
-   **                          template match is found, we do a match to any pre-trained
-   **                          templates which could be ambiguous.  The results from all
-   **                          of these classifications are merged together into Results.
-   **                          Return: none
-   **                          Exceptions: none
-   **                          History: Tue Mar 12 08:50:11 1991, DSJ, Created.
-   */
   UNICHAR_ID *Ambiguities;
 
   AdaptiveMatcherCalls++;
@@ -1706,41 +1692,38 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob,
 }   /* DoAdaptiveMatch */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine tries to estimate how tight the adaptation
+ * threshold should be set for each character in the current
+ * word.  In general, the routine tries to set tighter
+ * thresholds for a character when the current set of templates
+ * would have made an error on that character.  It tries
+ * to set a threshold tight enough to eliminate the error.
+ * Two different sets of rules can be used to determine the
+ * desired thresholds.
+ *
+ * @param Word current word
+ * @param LineStats line stats for row word is in
+ * @param BestChoice best choice for current word with context
+ * @param BestRawChoice best choice for current word without context
+ * @param[out] Thresholds array of thresholds to be filled in
+ *
+ * Globals:
+ * - classify_enable_new_adapt_rules
+ * - matcher_good_threshold
+ * - matcher_perfect_threshold
+ * - matcher_rating_margin
+ *
+ * @return none (results are returned in Thresholds)
+ * @note Exceptions: none
+ * @note History: Fri May 31 09:22:08 1991, DSJ, Created.
+ */
 void
 Classify::GetAdaptThresholds (TWERD * Word,
                               LINE_STATS * LineStats,
                               const WERD_CHOICE& BestChoice,
                               const WERD_CHOICE& BestRawChoice,
                               FLOAT32 Thresholds[]) {
-  /*
-   **                           Parameters:
-   **                           Word
-   current word
-   **                            LineStats
-   line stats for row word is in
-   **                            BestChoice
-   best choice for current word with context
-   **                            BestRawChoice
-   best choice for current word without context
-   **                            Thresholds
-   array of thresholds to be filled in
-   **                            Globals:
-   **                            classify_enable_new_adapt_rules
-   **                            matcher_good_threshold
-   **                            matcher_perfect_threshold
-   **                            matcher_rating_margin
-   **                            Operation: This routine tries to estimate how tight the adaptation
-   **                            threshold should be set for each character in the current
-   **                            word.  In general, the routine tries to set tighter
-   **                            thresholds for a character when the current set of templates
-   **                            would have made an error on that character.  It tries
-   **                            to set a threshold tight enough to eliminate the error.
-   **                            Two different sets of rules can be used to determine the
-   **                            desired thresholds.
-   **                            Return: none (results are returned in Thresholds)
-   **                            Exceptions: none
-   **                            History: Fri May 31 09:22:08 1991, DSJ, Created.
-   */
   TBLOB *Blob;
   const char* BestChoice_string = BestChoice.unichar_string().string();
   const char* BestChoice_lengths = BestChoice.unichar_lengths().string();
@@ -1782,29 +1765,26 @@ Classify::GetAdaptThresholds (TWERD * Word,
 }                              /* GetAdaptThresholds */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine matches blob to the built-in templates
+ * to find out if there are any classes other than the correct
+ * class which are potential ambiguities.
+ *
+ * @param Blob blob to get classification ambiguities for
+ * @param LineStats statistics for text line blob is in
+ * @param CorrectClass correct class for Blob
+ *
+ * Globals:
+ * - CurrentRatings used by qsort compare routine
+ * - PreTrainedTemplates built-in templates
+ *
+ * @return String containing all possible ambiguous classes.
+ * @note Exceptions: none
+ * @note History: Fri Mar 15 08:08:22 1991, DSJ, Created.
+ */
 UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
                                      LINE_STATS *LineStats,
                                      CLASS_ID CorrectClass) {
-  /*
-   **                           Parameters:
-   **                           Blob
-   blob to get classification ambiguities for
-   **                            LineStats
-   statistics for text line blob is in
-   **                            CorrectClass
-   correct class for Blob
-   **                            Globals:
-   **                            CurrentRatings
-   used by qsort compare routine
-   **                            PreTrainedTemplates
-   built-in templates
-   **                            Operation: This routine matches blob to the built-in templates
-   **                            to find out if there are any classes other than the correct
-   **                            class which are potential ambiguities.
-   **                            Return: String containing all possible ambiguous classes.
-   **                            Exceptions: none
-   **                            History: Fri Mar 15 08:08:22 1991, DSJ, Created.
-   */
   ADAPT_RESULTS *Results = new ADAPT_RESULTS();
   UNICHAR_ID *Ambiguities;
   int i;
@@ -1839,39 +1819,37 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
 }                              /* GetAmbiguities */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine sets up the feature extractor to extract
+ * baseline normalized pico-features.
+ *
+ * The extracted pico-features are converted
+ * to integer form and placed in IntFeatures.  CharNormArray
+ * is filled with 0's to indicate to the matcher that no
+ * character normalization adjustment needs to be done.
+ *
+ * The total length of all blob outlines
+ * in baseline normalized units is also returned.
+ *
+ * @param Blob blob to extract features from
+ * @param LineStats statistics about text row blob is in
+ * @param Templates used to compute char norm adjustments
+ * @param IntFeatures array to fill with integer features
+ * @param CharNormArray array to fill with dummy char norm adjustments
+ * @param BlobLength length of blob in baseline-normalized units
+ *
+ * Globals: none
+ *
+ * @return Number of pico-features returned (0 if an error occurred)
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 17:55:18 1991, DSJ, Created.
+ */
 int GetBaselineFeatures(TBLOB *Blob,
                         LINE_STATS *LineStats,
                         INT_TEMPLATES Templates,
                         INT_FEATURE_ARRAY IntFeatures,
                         CLASS_NORMALIZATION_ARRAY CharNormArray,
                         inT32 *BlobLength) {
-  /*
-   **                           Parameters:
-   **                           Blob
-   blob to extract features from
-   **                            LineStats
-   statistics about text row blob is in
-   **                            Templates
-   used to compute char norm adjustments
-   **                            IntFeatures
-   array to fill with integer features
-   **                            CharNormArray
-   array to fill with dummy char norm adjustments
-   **                            BlobLength
-   length of blob in baseline-normalized units
-   **                            Globals: none
-   **                            Operation: This routine sets up the feature extractor to extract
-   **                            baseline normalized pico-features.
-   **                            The extracted pico-features are converted
-   **                            to integer form and placed in IntFeatures.  CharNormArray
-   **                            is filled with 0's to indicate to the matcher that no
-   **                            character normalization adjustment needs to be done.
-   **                            The total length of all blob outlines
-   **                            in baseline normalized units is also returned.
-   **                            Return: Number of pico-features returned (0 if an error occurred)
-   **                            Exceptions: none
-   **                            History: Tue Mar 12 17:55:18 1991, DSJ, Created.
-   */
   FEATURE_SET Features;
   int NumFeatures;
 
@@ -1896,33 +1874,28 @@ int GetBaselineFeatures(TBLOB *Blob,
   return NumFeatures;
 }                              /* GetBaselineFeatures */
 
+/**
+ * This routine classifies Blob against both sets of
+ * templates for the specified class and returns the best
+ * rating found.
+ *
+ * @param Blob blob to get best rating for
+ * @param LineStats statistics about text line blob is in
+ * @param ClassId class blob is to be compared to
+ *
+ * Globals:
+ * - PreTrainedTemplates built-in templates
+ * - AdaptedTemplates current set of adapted templates
+ * - AllProtosOn dummy mask to enable all protos
+ * - AllConfigsOn dummy mask to enable all configs
+ *
+ * @return Best rating for match of Blob to ClassId.
+ * @note Exceptions: none
+ * @note History: Tue Apr  9 09:01:24 1991, DSJ, Created.
+ */
 FLOAT32 Classify::GetBestRatingFor(TBLOB *Blob,
                                    LINE_STATS *LineStats,
                                    CLASS_ID ClassId) {
-  /*
-   **                           Parameters:
-   **                           Blob
-   blob to get best rating for
-   **                            LineStats
-   statistics about text line blob is in
-   **                            ClassId
-   class blob is to be compared to
-   **                            Globals:
-   **                            PreTrainedTemplates
-   built-in templates
-   **                            AdaptedTemplates
-   current set of adapted templates
-   **                            AllProtosOn
-   dummy mask to enable all protos
-   **                            AllConfigsOn
-   dummy mask to enable all configs
-   **                            Operation: This routine classifies Blob against both sets of
-   **                            templates for the specified class and returns the best
-   **                            rating found.
-   **                            Return: Best rating for match of Blob to ClassId.
-   **                            Exceptions: none
-   **                            History: Tue Apr  9 09:01:24 1991, DSJ, Created.
-   */
   int NumCNFeatures, NumBLFeatures;
   INT_FEATURE_ARRAY CNFeatures, BLFeatures;
   INT_RESULT_STRUCT CNResult, BLResult;
@@ -1971,84 +1944,72 @@ FLOAT32 Classify::GetBestRatingFor(TBLOB *Blob,
 }                              /* GetBestRatingFor */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine sets up the feature extractor to extract
+ * character normalization features and character normalized
+ * pico-features.  The extracted pico-features are converted
+ * to integer form and placed in IntFeatures.  The character
+ * normalization features are matched to each class in
+ * templates and the resulting adjustment factors are returned
+ * in CharNormArray.  The total length of all blob outlines
+ * in baseline normalized units is also returned.
+ *
+ * @param Blob blob to extract features from
+ * @param LineStats statistics about text row blob is in
+ * @param Templates used to compute char norm adjustments
+ * @param IntFeatures array to fill with integer features
+ * @param CharNormArray array to fill with char norm adjustments
+ * @param BlobLength length of blob in baseline-normalized units
+ *
+ * Globals: none
+ *
+ * @return Number of pico-features returned (0 if an error occurred)
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 17:55:18 1991, DSJ, Created.
+ */
 int Classify::GetCharNormFeatures(TBLOB *Blob,
                                   LINE_STATS *LineStats,
                                   INT_TEMPLATES Templates,
                                   INT_FEATURE_ARRAY IntFeatures,
                                   CLASS_NORMALIZATION_ARRAY CharNormArray,
                                   inT32 *BlobLength) {
-  /*
-   **                           Parameters:
-   **                           Blob
-   blob to extract features from
-   **                            LineStats
-   statistics about text row blob is in
-   **                            Templates
-   used to compute char norm adjustments
-   **                            IntFeatures
-   array to fill with integer features
-   **                            CharNormArray
-   array to fill with char norm adjustments
-   **                            BlobLength
-   length of blob in baseline-normalized units
-   **                            Globals: none
-   **                            Operation: This routine sets up the feature extractor to extract
-   **                            character normalization features and character normalized
-   **                            pico-features.  The extracted pico-features are converted
-   **                            to integer form and placed in IntFeatures.  The character
-   **                            normalization features are matched to each class in
-   **                            templates and the resulting adjustment factors are returned
-   **                            in CharNormArray.  The total length of all blob outlines
-   **                            in baseline normalized units is also returned.
-   **                            Return: Number of pico-features returned (0 if an error occurred)
-   **                            Exceptions: none
-   **                            History: Tue Mar 12 17:55:18 1991, DSJ, Created.
-   */
   return (GetIntCharNormFeatures (Blob, LineStats, Templates,
                                   IntFeatures, CharNormArray, BlobLength));
 }                              /* GetCharNormFeatures */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine calls the integer (Hardware) feature
+ * extractor if it has not been called before for this blob.
+ * The results from the feature extractor are placed into
+ * globals so that they can be used in other routines without
+ * re-extracting the features.
+ * It then copies the baseline features into the IntFeatures
+ * array provided by the caller.
+ *
+ * @param Blob blob to extract features from
+ * @param LineStats statistics about text row blob is in
+ * @param Templates used to compute char norm adjustments
+ * @param IntFeatures array to fill with integer features
+ * @param CharNormArray array to fill with dummy char norm adjustments
+ * @param BlobLength length of blob in baseline-normalized units
+ *
+ * Globals:
+ * - FeaturesHaveBeenExtracted TRUE if fx has been done
+ * - BaselineFeatures holds extracted baseline feat
+ * - CharNormFeatures holds extracted char norm feat
+ * - FXInfo holds misc. FX info
+ *
+ * @return Number of features extracted or 0 if an error occured.
+ * @note Exceptions: none
+ * @note History: Tue May 28 10:40:52 1991, DSJ, Created.
+ */
 int GetIntBaselineFeatures(TBLOB *Blob,
                            LINE_STATS *LineStats,
                            INT_TEMPLATES Templates,
                            INT_FEATURE_ARRAY IntFeatures,
                            CLASS_NORMALIZATION_ARRAY CharNormArray,
                            inT32 *BlobLength) {
-  /*
-   **                           Parameters:
-   **                           Blob
-   blob to extract features from
-   **                            LineStats
-   statistics about text row blob is in
-   **                            Templates
-   used to compute char norm adjustments
-   **                            IntFeatures
-   array to fill with integer features
-   **                            CharNormArray
-   array to fill with dummy char norm adjustments
-   **                            BlobLength
-   length of blob in baseline-normalized units
-   **                            Globals:
-   **                            FeaturesHaveBeenExtracted
-   TRUE if fx has been done
-   **                            BaselineFeatures
-   holds extracted baseline feat
-   **                            CharNormFeatures
-   holds extracted char norm feat
-   **                            FXInfo
-   holds misc. FX info
-   **                            Operation: This routine calls the integer (Hardware) feature
-   **                            extractor if it has not been called before for this blob.
-   **                            The results from the feature extractor are placed into
-   **                            globals so that they can be used in other routines without
-   **                            re-extracting the features.
-   **                            It then copies the baseline features into the IntFeatures
-   **                            array provided by the caller.
-   **                            Return: Number of features extracted or 0 if an error occured.
-   **                            Exceptions: none
-   **                            History: Tue May 28 10:40:52 1991, DSJ, Created.
-   */
   register INT_FEATURE Src, Dest, End;
 
   if (!FeaturesHaveBeenExtracted) {
@@ -2072,46 +2033,40 @@ int GetIntBaselineFeatures(TBLOB *Blob,
 }                              /* GetIntBaselineFeatures */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine calls the integer (Hardware) feature
+ * extractor if it has not been called before for this blob.
+ *
+ * The results from the feature extractor are placed into
+ * globals so that they can be used in other routines without
+ * re-extracting the features.
+ *
+ * It then copies the char norm features into the IntFeatures
+ * array provided by the caller.
+ *
+ * @param Blob blob to extract features from
+ * @param LineStats statistics about text row blob is in
+ * @param Templates used to compute char norm adjustments
+ * @param IntFeatures array to fill with integer features
+ * @param CharNormArray array to fill with dummy char norm adjustments
+ * @param BlobLength length of blob in baseline-normalized units
+ *
+ * Globals:
+ * - FeaturesHaveBeenExtracted TRUE if fx has been done
+ * - BaselineFeatures holds extracted baseline feat
+ * - CharNormFeatures holds extracted char norm feat
+ * - FXInfo holds misc. FX info
+ *
+ * @return Number of features extracted or 0 if an error occured.
+ * @note Exceptions: none
+ * @note History: Tue May 28 10:40:52 1991, DSJ, Created.
+ */
 int Classify::GetIntCharNormFeatures(TBLOB *Blob,
                                      LINE_STATS *LineStats,
                                      INT_TEMPLATES Templates,
                                      INT_FEATURE_ARRAY IntFeatures,
                                      CLASS_NORMALIZATION_ARRAY CharNormArray,
                                      inT32 *BlobLength) {
-  /*
-   **                           Parameters:
-   **                           Blob
-   blob to extract features from
-   **                            LineStats
-   statistics about text row blob is in
-   **                            Templates
-   used to compute char norm adjustments
-   **                            IntFeatures
-   array to fill with integer features
-   **                            CharNormArray
-   array to fill with dummy char norm adjustments
-   **                            BlobLength
-   length of blob in baseline-normalized units
-   **                            Globals:
-   **                            FeaturesHaveBeenExtracted
-   TRUE if fx has been done
-   **                            BaselineFeatures
-   holds extracted baseline feat
-   **                            CharNormFeatures
-   holds extracted char norm feat
-   **                            FXInfo
-   holds misc. FX info
-   **                            Operation: This routine calls the integer (Hardware) feature
-   **                            extractor if it has not been called before for this blob.
-   **                            The results from the feature extractor are placed into
-   **                            globals so that they can be used in other routines without
-   **                            re-extracting the features.
-   **                            It then copies the char norm features into the IntFeatures
-   **                            array provided by the caller.
-   **                            Return: Number of features extracted or 0 if an error occured.
-   **                            Exceptions: none
-   **                            History: Tue May 28 10:40:52 1991, DSJ, Created.
-   */
   register INT_FEATURE Src, Dest, End;
   FEATURE NormFeature;
   FLOAT32 Baseline, Scale;
@@ -2147,36 +2102,29 @@ int Classify::GetIntCharNormFeatures(TBLOB *Blob,
 }                              /* GetIntCharNormFeatures */
 
 /*---------------------------------------------------------------------------*/
+/**
+ *
+ * @param Templates adapted templates to add new config to
+ * @param ClassId class id to associate with new config
+ * @param NumFeatures number of features in IntFeatures
+ * @param Features features describing model for new config
+ * @param FloatFeatures floating-pt representation of features
+ *
+ * Globals:
+ * - AllProtosOn mask to enable all protos
+ * - AllConfigsOff mask to disable all configs
+ * - TempProtoMask defines old protos matched in new config
+ * 
+ * @return The id of the new config created, a negative integer in
+ * case of error.
+ * @note Exceptions: none
+ * @note History: Fri Mar 15 08:49:46 1991, DSJ, Created.
+ */
 int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
-                           CLASS_ID ClassId,
-                           int NumFeatures,
-                           INT_FEATURE_ARRAY Features,
-                           FEATURE_SET FloatFeatures) {
-  /*
-   **                           Parameters:
-   **                           Templates
-   adapted templates to add new config to
-   **                            ClassId
-   class id to associate with new config
-   **                            NumFeatures
-   number of features in IntFeatures
-   **                            Features
-   features describing model for new config
-   **                            FloatFeatures
-   floating-pt representation of features
-   **                            Globals:
-   **                            AllProtosOn
-   mask to enable all protos
-   **                            AllConfigsOff
-   mask to disable all configs
-   **                            TempProtoMask
-   defines old protos matched in new config
-   **                            Operation:
-   **                            Return: The id of the new config created, a negative integer in
-   **                                                    case of error.
-   **                            Exceptions: none
-   **                            History: Fri Mar 15 08:49:46 1991, DSJ, Created.
-   */
+                                     CLASS_ID ClassId,
+                                     int NumFeatures,
+                                     INT_FEATURE_ARRAY Features,
+                                     FEATURE_SET FloatFeatures) {
   INT_CLASS IClass;
   ADAPT_CLASS Class;
   PROTO_ID OldProtos[MAX_NUM_PROTOS];
@@ -2244,36 +2192,32 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
 }  // namespace tesseract
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine finds sets of sequential bad features
+ * that all have the same angle and converts each set into
+ * a new temporary proto.  The temp proto is added to the
+ * proto pruner for IClass, pushed onto the list of temp
+ * protos in Class, and added to TempProtoMask.
+ *
+ * @param Features floating-pt features describing new character
+ * @param NumBadFeat number of bad features to turn into protos
+ * @param BadFeat feature id's of bad features
+ * @param IClass integer class templates to add new protos to
+ * @param Class adapted class templates to add new protos to
+ * @param TempProtoMask proto mask to add new protos to
+ *
+ * Globals: none
+ *
+ * @return Max proto id in class after all protos have been added.
+ * Exceptions: none
+ * History: Fri Mar 15 11:39:38 1991, DSJ, Created.
+ */
 PROTO_ID
 MakeNewTempProtos(FEATURE_SET Features,
                   int NumBadFeat,
                   FEATURE_ID BadFeat[],
                   INT_CLASS IClass,
                   ADAPT_CLASS Class, BIT_VECTOR TempProtoMask) {
-  /*
-   **                           Parameters:
-   **                           Features
-   floating-pt features describing new character
-   **                            NumBadFeat
-   number of bad features to turn into protos
-   **                            BadFeat
-   feature id's of bad features
-   **                            IClass
-   integer class templates to add new protos to
-   **                            Class
-   adapted class templates to add new protos to
-   **                            TempProtoMask
-   proto mask to add new protos to
-   **                            Globals: none
-   **                            Operation: This routine finds sets of sequential bad features
-   **                            that all have the same angle and converts each set into
-   **                            a new temporary proto.  The temp proto is added to the
-   **                            proto pruner for IClass, pushed onto the list of temp
-   **                            protos in Class, and added to TempProtoMask.
-   **                            Return: Max proto id in class after all protos have been added.
-   **                            Exceptions: none
-   **                            History: Fri Mar 15 11:39:38 1991, DSJ, Created.
-   */
   FEATURE_ID *ProtoStart;
   FEATURE_ID *ProtoEnd;
   FEATURE_ID *LastBad;
@@ -2345,29 +2289,24 @@ MakeNewTempProtos(FEATURE_SET Features,
 
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ *
+ * @param Templates current set of adaptive templates
+ * @param ClassId class containing config to be made permanent
+ * @param ConfigId config to be made permanent
+ * @param Blob current blob being adapted to
+ * @param LineStats statistics about text line Blob is in
+ * 
+ * Globals: none
+ *
+ * @note Exceptions: none
+ * @note History: Thu Mar 14 15:54:08 1991, DSJ, Created.
+ */
 void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
                              CLASS_ID ClassId,
                              int ConfigId,
                              TBLOB *Blob,
                              LINE_STATS *LineStats) {
-  /*
-   **                           Parameters:
-   **                           Templates
-   current set of adaptive templates
-   **                            ClassId
-   class containing config to be made permanent
-   **                            ConfigId
-   config to be made permanent
-   **                            Blob
-   current blob being adapted to
-   **                            LineStats
-   statistics about text line Blob is in
-   **                            Globals: none
-   **                            Operation:
-   **                            Return: none
-   **                            Exceptions: none
-   **                            History: Thu Mar 14 15:54:08 1991, DSJ, Created.
-   */
   UNICHAR_ID *Ambigs;
   TEMP_CONFIG Config;
   ADAPT_CLASS Class;
@@ -2403,19 +2342,21 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
 }  // namespace tesseract
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine converts TempProto to be permanent if
+ * its proto id is used by the configuration specified in
+ * ProtoKey.
+ * 
+ * @param TempProto temporary proto to compare to key
+ * @param ProtoKey defines which protos to make permanent
+ * 
+ * Globals: none
+ * 
+ * @return TRUE if TempProto is converted, FALSE otherwise
+ * @note Exceptions: none
+ * @note History: Thu Mar 14 18:49:54 1991, DSJ, Created.
+ */
 int MakeTempProtoPerm(void *item1, void *item2) {
-  /*
-   ** Parameters:
-   ** TempProto temporary proto to compare to key
-   ** ProtoKey defines which protos to make permanent
-   ** Globals: none
-   ** Operation: This routine converts TempProto to be permanent if
-   **            its proto id is used by the configuration specified in
-   **            ProtoKey.
-   ** Return: TRUE if TempProto is converted, FALSE otherwise
-   ** Exceptions: none
-   ** History: Thu Mar 14 18:49:54 1991, DSJ, Created.
-   */
   ADAPT_CLASS Class;
   TEMP_CONFIG Config;
   TEMP_PROTO TempProto;
@@ -2440,17 +2381,18 @@ int MakeTempProtoPerm(void *item1, void *item2) {
 }                              /* MakeTempProtoPerm */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine returns the number of blobs in Word.
+ *
+ * @param Word word to count blobs in
+ *
+ * Globals: none
+ *
+ * @return Number of blobs in Word.
+ * @note Exceptions: none
+ * @note History: Thu Mar 14 08:30:27 1991, DSJ, Created.
+ */
 int NumBlobsIn(TWERD *Word) {
-  /*
-   **                           Parameters:
-   **                           Word
-   word to count blobs in
-   **                            Globals: none
-   **                            Operation: This routine returns the number of blobs in Word.
-   **                            Return: Number of blobs in Word.
-   **                            Exceptions: none
-   **                            History: Thu Mar 14 08:30:27 1991, DSJ, Created.
-   */
   register TBLOB *Blob;
   register int NumBlobs;
 
@@ -2465,18 +2407,18 @@ int NumBlobsIn(TWERD *Word) {
 }                              /* NumBlobsIn */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine returns the number of OUTER outlines
+ * in Blob.
+ *
+ * @param Blob blob to count outlines in
+ *
+ * Globals: none
+ * @return Number of outer outlines in Blob.
+ * @note Exceptions: none
+ * @note History: Mon Jun 10 15:46:20 1991, DSJ, Created.
+ */
 int NumOutlinesInBlob(TBLOB *Blob) {
-  /*
-   **                           Parameters:
-   **                           Blob
-   blob to count outlines in
-   **                            Globals: none
-   **                            Operation: This routine returns the number of OUTER outlines
-   **                            in Blob.
-   **                            Return: Number of outer outlines in Blob.
-   **                            Exceptions: none
-   **                            History: Mon Jun 10 15:46:20 1991, DSJ, Created.
-   */
   register TESSLINE *Outline;
   register int NumOutlines;
 
@@ -2492,19 +2434,18 @@ int NumOutlinesInBlob(TBLOB *Blob) {
 
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ * This routine writes the matches in Results to File.
+ *
+ * @param File open text file to write Results to
+ * @param Results match results to write to File
+ *
+ * Globals: none
+ *
+ * @note Exceptions: none
+ * @note History: Mon Mar 18 09:24:53 1991, DSJ, Created.
+ */
 void Classify::PrintAdaptiveMatchResults(FILE *File, ADAPT_RESULTS *Results) {
-  /*
-   **                           Parameters:
-   **                           File
-   open text file to write Results to
-   **                            Results
-   match results to write to File
-   **                            Globals: none
-   **                            Operation: This routine writes the matches in Results to File.
-   **                            Return: none
-   **                            Exceptions: none
-   **                            History: Mon Mar 18 09:24:53 1991, DSJ, Created.
-   */
   for (int i = 0; i < Results->NumMatches; ++i) {
     cprintf("%s(%d) %.2f  ",
             unicharset.debug_str(Results->Classes[i]).string(),
@@ -2515,23 +2456,22 @@ void Classify::PrintAdaptiveMatchResults(FILE *File, ADAPT_RESULTS *Results) {
 }                              /* PrintAdaptiveMatchResults */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine steps thru each matching class in Results
+ * and removes it from the match list if its rating
+ * is worse than the BestRating plus a pad.  In other words,
+ * all good matches get moved to the front of the classes
+ * array.
+ *
+ * @param Results contains matches to be filtered
+ *
+ * Globals:
+ * - matcher_bad_match_pad defines a "bad match"
+ * 
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 13:51:03 1991, DSJ, Created.
+ */
 void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
-  /*
-   **                           Parameters:
-   **                           Results
-   contains matches to be filtered
-   **                            Globals:
-   **                            matcher_bad_match_pad
-   defines a "bad match"
-   **                            Operation: This routine steps thru each matching class in Results
-   **                            and removes it from the match list if its rating
-   **                            is worse than the BestRating plus a pad.  In other words,
-   **                            all good matches get moved to the front of the classes
-   **                            array.
-   **                            Return: none
-   **                            Exceptions: none
-   **                            History: Tue Mar 12 13:51:03 1991, DSJ, Created.
-   */
   int Next, NextGood;
   FLOAT32 *Rating = Results->Ratings;
   CLASS_ID *Match = Results->Classes;
@@ -2573,23 +2513,22 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
 }                              /* RemoveBadMatches */
 
 /*----------------------------------------------------------------------------*/
+/**
+ * This routine steps thru each matching class in Results
+ * and removes it from the match list if its rating
+ * is worse than the BestRating plus a pad.  In other words,
+ * all good matches get moved to the front of the classes
+ * array.
+ *
+ * @parm Results contains matches to be filtered
+ *
+ * Globals:
+ * - matcher_bad_match_pad defines a "bad match"
+ * 
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 13:51:03 1991, DSJ, Created.
+ */
 void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
-  /*
-   **                           Parameters:
-   **                           Results
-   contains matches to be filtered
-   **                            Globals:
-   **                            matcher_bad_match_pad
-   defines a "bad match"
-   **                            Operation: This routine steps thru each matching class in Results
-   **                            and removes it from the match list if its rating
-   **                            is worse than the BestRating plus a pad.  In other words,
-   **                            all good matches get moved to the front of the classes
-   **                            array.
-   **                            Return: none
-   **                            Exceptions: none
-   **                            History: Tue Mar 12 13:51:03 1991, DSJ, Created.
-   */
   int Next, NextGood;
   int punc_count;              /*no of garbage characters */
   int digit_count;
@@ -2624,21 +2563,20 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
 }  // namespace tesseract
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine resets the internal thresholds inside
+ * the integer matcher to correspond to the specified
+ * threshold.
+ *
+ * @param Threshold threshold for creating new templates
+ *
+ * Globals:
+ * - matcher_good_threshold default good match rating
+ *
+ * @note Exceptions: none
+ * @note History: Tue Apr  9 08:33:13 1991, DSJ, Created.
+ */
 void SetAdaptiveThreshold(FLOAT32 Threshold) {
-  /*
-   **                           Parameters:
-   **                           Threshold
-   threshold for creating new templates
-   **                            Globals:
-   **                            matcher_good_threshold
-   default good match rating
-   **                            Operation: This routine resets the internal thresholds inside
-   **                            the integer matcher to correspond to the specified
-   **                            threshold.
-   **                            Return: none
-   **                            Exceptions: none
-   **                            History: Tue Apr  9 08:33:13 1991, DSJ, Created.
-   */
   if (Threshold == matcher_good_threshold) {
     /* the blob was probably classified correctly - use the default rating
        threshold */
@@ -2654,39 +2592,31 @@ void SetAdaptiveThreshold(FLOAT32 Threshold) {
 
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ * This routine compares Blob to both sets of templates
+ * (adaptive and pre-trained) and then displays debug
+ * information for the config which matched best.
+ *
+ * @param Blob blob to show best matching config for
+ * @param LineStats statistics for text line Blob is in
+ * @param ClassId class whose configs are to be searched
+ * @param AdaptiveOn TRUE if adaptive configs are enabled
+ * @param PreTrainedOn TRUE if pretrained configs are enabled
+ *
+ * Globals:
+ * - PreTrainedTemplates built-in training
+ * - AdaptedTemplates adaptive templates
+ * - AllProtosOn dummy proto mask
+ * - AllConfigsOn dummy config mask
+ *
+ * @note Exceptions: none
+ * @note History: Fri Mar 22 08:43:52 1991, DSJ, Created.
+ */
 void Classify::ShowBestMatchFor(TBLOB *Blob,
                                 LINE_STATS *LineStats,
                                 CLASS_ID ClassId,
                                 BOOL8 AdaptiveOn,
                                 BOOL8 PreTrainedOn) {
-  /*
-   **                           Parameters:
-   **                           Blob
-   blob to show best matching config for
-   **                            LineStats
-   statistics for text line Blob is in
-   **                            ClassId
-   class whose configs are to be searched
-   **                            AdaptiveOn
-   TRUE if adaptive configs are enabled
-   **                            PreTrainedOn
-   TRUE if pretrained configs are enabled
-   **                            Globals:
-   **                            PreTrainedTemplates
-   built-in training
-   **                            AdaptedTemplates
-   adaptive templates
-   **                            AllProtosOn
-   dummy proto mask
-   **                            AllConfigsOn
-   dummy config mask
-   **                            Operation: This routine compares Blob to both sets of templates
-   **        (adaptive and pre-trained) and then displays debug
-   **                            information for the config which matched best.
-   **                            Return: none
-   **                            Exceptions: none
-   **                            History: Fri Mar 22 08:43:52 1991, DSJ, Created.
-   */
   int NumCNFeatures = 0, NumBLFeatures = 0;
   INT_FEATURE_ARRAY CNFeatures, BLFeatures;
   INT_RESULT_STRUCT CNResult, BLResult;

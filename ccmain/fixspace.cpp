@@ -57,17 +57,18 @@ EXTERN STRING_VAR (numeric_punctuation, ".,",
 #define PERFECT_WERDS   999
 #define MAXSPACING      128      /*max expected spacing in pix */
 
-/*************************************************************************
- * fix_fuzzy_spaces()
+namespace tesseract {
+/**
+ * @name fix_fuzzy_spaces()
  * Walk over the page finding sequences of words joined by fuzzy spaces. Extract
  * them as a sublist, process the sublist to find the optimal arrangement of
  * spaces then replace the sublist in the ROW_RES.
- *************************************************************************/
-namespace tesseract {
-void Tesseract::fix_fuzzy_spaces(                       //find fuzzy words
-                                                        //progress monitor
-                                 volatile ETEXT_DESC *monitor,
-                                                        //count of words in doc
+ *
+ * @param monitor progress monitor
+ * @param word_count count of words in doc
+ * @param[out] page_res
+ */
+void Tesseract::fix_fuzzy_spaces(volatile ETEXT_DESC *monitor,
                                  inT32 word_count,
                                  PAGE_RES *page_res) {
   BLOCK_RES_IT block_res_it;     //iterators
@@ -83,19 +84,17 @@ void Tesseract::fix_fuzzy_spaces(                       //find fuzzy words
   block_res_it.set_to_list (&page_res->block_res_list);
   word_index = 0;
   for (block_res_it.mark_cycle_pt ();
-  !block_res_it.cycled_list (); block_res_it.forward ()) {
+       !block_res_it.cycled_list (); block_res_it.forward ()) {
     row_res_it.set_to_list (&block_res_it.data ()->row_res_list);
     for (row_res_it.mark_cycle_pt ();
-    !row_res_it.cycled_list (); row_res_it.forward ()) {
+         !row_res_it.cycled_list (); row_res_it.forward ()) {
       word_res_it_from.set_to_list (&row_res_it.data ()->word_res_list);
       while (!word_res_it_from.at_last ()) {
         word_res = word_res_it_from.data ();
         while (!word_res_it_from.at_last () &&
-          !(word_res->combination ||
-          word_res_it_from.data_relative (1)->
-          word->flag (W_FUZZY_NON) ||
-          word_res_it_from.data_relative (1)->
-        word->flag (W_FUZZY_SP))) {
+               !(word_res->combination ||
+               word_res_it_from.data_relative (1)->word->flag (W_FUZZY_NON) ||
+               word_res_it_from.data_relative (1)->word->flag (W_FUZZY_SP))) {
           fix_sp_fp_word(word_res_it_from, row_res_it.data()->row,
                          block_res_it.data()->block);
           word_res = word_res_it_from.forward ();
@@ -119,10 +118,8 @@ void Tesseract::fix_fuzzy_spaces(                       //find fuzzy words
             monitor->progress = 90 + 5 * word_index / word_count;
           }
           while (!word_res_it_to.at_last () &&
-            (word_res_it_to.data_relative (1)->
-            word->flag (W_FUZZY_NON) ||
-            word_res_it_to.data_relative (1)->
-          word->flag (W_FUZZY_SP))) {
+                 (word_res_it_to.data_relative (1)->word->flag (W_FUZZY_NON) ||
+                 word_res_it_to.data_relative (1)->word->flag (W_FUZZY_SP))) {
             if (check_debug_pt (word_res, 60))
               debug_fix_space_level.set_value (10);
             if (word_res->word->gblob_list ()->empty ())
@@ -143,9 +140,7 @@ void Tesseract::fix_fuzzy_spaces(                       //find fuzzy words
                                  block_res_it.data()->block);
             new_length = fuzzy_space_words.length ();
             word_res_it_from.add_list_before (&fuzzy_space_words);
-            for (;
-              (!word_res_it_from.at_last () &&
-            (new_length > 0)); new_length--) {
+            for (; (!word_res_it_from.at_last () && (new_length > 0)); new_length--) {
               word_res_it_from.forward ();
             }
           }
@@ -160,8 +155,7 @@ void Tesseract::fix_fuzzy_spaces(                       //find fuzzy words
   }
 }
 
-void Tesseract::fix_fuzzy_space_list(  //space explorer
-                                     WERD_RES_LIST &best_perm,
+void Tesseract::fix_fuzzy_space_list(WERD_RES_LIST &best_perm,
                                      ROW *row,
                                      BLOCK* block) {
   inT16 best_score;
@@ -225,8 +219,8 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
 }
 
 
-/*************************************************************************
- * eval_word_spacing()
+/**
+ * @name eval_word_spacing()
  * The basic measure is the number of characters in contextually confirmed
  * words. (I.e the word is done)
  * If all words are contextually confirmed the evaluation is deemed perfect.
@@ -249,7 +243,7 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
  * confirmation.  Thus "PS7a71 3/7a" scores 1 (neither word is contexutally
  * confirmed. The only score is from the joined 1. "PS7a713/7a" scores 2.
  *
- *************************************************************************/
+ */
 inT16 Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_res_it(&word_res_list);
   inT16 total_score = 0;
@@ -292,14 +286,13 @@ inT16 Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
       word_len = word->reject_map.length ();
       current_word_ok_so_far = FALSE;
       if (!((prev_char_1 &&
-        digit_or_numeric_punct (word, 0)) ||
-        (prev_char_digit &&
-        ((word_done &&
-        (word->best_choice->unichar_lengths().string()[0] == 1 &&
-         word->best_choice->unichar_string()[0] == '1')) ||
-        (!word_done &&
-         STRING(conflict_set_I_l_1).contains(
-             word->best_choice->unichar_string ()[0])))))) {
+          digit_or_numeric_punct (word, 0)) ||
+          (prev_char_digit &&
+          ((word_done &&
+          (word->best_choice->unichar_lengths().string()[0] == 1 &&
+          word->best_choice->unichar_string()[0] == '1')) ||
+          (!word_done &&
+          STRING(conflict_set_I_l_1).contains(word->best_choice->unichar_string ()[0])))))) {
         total_score += prev_word_score;
         if (prev_word_done)
           done_word_count++;
@@ -307,8 +300,8 @@ inT16 Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
       }
 
       if ((current_word_ok_so_far) &&
-        (!tessedit_test_uniform_wd_spacing ||
-        ((word->best_choice->permuter () == NUMBER_PERM) ||
+          (!tessedit_test_uniform_wd_spacing ||
+          ((word->best_choice->permuter () == NUMBER_PERM) ||
       uniformly_spaced (word)))) {
         prev_word_done = TRUE;
         prev_word_score = word_len;
@@ -354,7 +347,7 @@ inT16 Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
     }
     /* Find next word */
     do
-    word_res_it.forward ();
+      word_res_it.forward ();
     while (word_res_it.data ()->part_of_combo);
   }
   while (!word_res_it.at_first ());
@@ -384,8 +377,8 @@ BOOL8 Tesseract::digit_or_numeric_punct(WERD_RES *word, int char_position) {
 }  // namespace tesseract
 
 
-/*************************************************************************
- * transform_to_next_perm()
+/**
+ * @name transform_to_next_perm()
  * Examines the current word list to find the smallest word gap size. Then walks
  * the word list closing any gaps of this size by either inserted new
  * combination words, or extending existing ones.
@@ -394,7 +387,7 @@ BOOL8 Tesseract::digit_or_numeric_punct(WERD_RES *word, int char_position) {
  *
  * If there are no more gaps then it DELETES the entire list and returns the
  * empty list to cause termination.
- *************************************************************************/
+ */
 void transform_to_next_perm(WERD_RES_LIST &words) {
   WERD_RES_IT word_it(&words);
   WERD_RES_IT prev_word_it(&words);
@@ -422,8 +415,8 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
   if (min_gap < MAX_INT16) {
     prev_right = -1;             //back to start
     word_it.set_to_list (&words);
-    for (;                       //cant use cycle pt due to inserted combos at start of list
-    (prev_right < 0) || !word_it.at_first (); word_it.forward ()) {
+    //cant use cycle pt due to inserted combos at start of list
+    for (; (prev_right < 0) || !word_it.at_first (); word_it.forward ()) {
       word = word_it.data ();
       if (!word->part_of_combo) {
         box = word->word->bounding_box ();
@@ -510,7 +503,7 @@ void dump_words(WERD_RES_LIST &perm, inT16 score, inT16 mode, BOOL8 improved) {
       }
 
       for (word_res_it.mark_cycle_pt ();
-      !word_res_it.cycled_list (); word_res_it.forward ()) {
+           !word_res_it.cycled_list (); word_res_it.forward ()) {
         if (!word_res_it.data ()->part_of_combo)
           tprintf("%s/%1d ",
                   word_res_it.data()->best_choice->unichar_string().string(),
@@ -521,7 +514,7 @@ void dump_words(WERD_RES_LIST &perm, inT16 score, inT16 mode, BOOL8 improved) {
     else if (improved) {
       tprintf ("FIX SPACING \"%s\" => \"", initial_str.string ());
       for (word_res_it.mark_cycle_pt ();
-      !word_res_it.cycled_list (); word_res_it.forward ()) {
+           !word_res_it.cycled_list (); word_res_it.forward ()) {
         if (!word_res_it.data ()->part_of_combo)
           tprintf ("%s/%1d ",
                    word_res_it.data()->best_choice->unichar_string().string(),
@@ -534,16 +527,15 @@ void dump_words(WERD_RES_LIST &perm, inT16 score, inT16 mode, BOOL8 improved) {
 }
 
 
-/*************************************************************************
- * uniformly_spaced()
+/**
+ * @name uniformly_spaced()
  * Return true if one of the following are true:
- *    - All inter-char gaps are the same width
- *	- The largest gap is no larger than twice the mean/median of the others
- *	- The largest gap is < 64/5 = 13 and all others are <= 0
+ * - All inter-char gaps are the same width
+ * - The largest gap is no larger than twice the mean/median of the others
+ * - The largest gap is < 64/5 = 13 and all others are <= 0
  * **** REMEMBER - WE'RE NOW WORKING WITH A BLN WERD !!!
- *************************************************************************/
-BOOL8 uniformly_spaced(  //sensible word
-                       WERD_RES *word) {
+ */
+BOOL8 uniformly_spaced(WERD_RES *word) {
   PBLOB_IT blob_it;
   TBOX box;
   inT16 prev_right = -MAX_INT16;
@@ -564,10 +556,10 @@ BOOL8 uniformly_spaced(  //sensible word
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
     box = blob_it.data ()->bounding_box ();
     if ((prev_right > -MAX_INT16) &&
-      (!fixsp_ignore_punct ||
-      (!punct_chars.contains (word->best_choice->unichar_string()
-                              [offset - word->best_choice->unichar_lengths()[i - 1]]) &&
-    !punct_chars.contains (word->best_choice->unichar_string()[offset])))) {
+        (!fixsp_ignore_punct ||
+        (!punct_chars.contains (word->best_choice->unichar_string()
+                                [offset - word->best_choice->unichar_lengths()[i - 1]]) &&
+        !punct_chars.contains (word->best_choice->unichar_string()[offset])))) {
       gap = box.left () - prev_right;
       if (gap < max_gap)
         gap_stats.add (gap, 1);
@@ -639,14 +631,14 @@ BOOL8 fixspace_thinks_word_done(WERD_RES *word) {
 }
 
 
-/*************************************************************************
- * fix_sp_fp_word()
+namespace tesseract {
+/**
+ * @name fix_sp_fp_word()
  * Test the current word to see if it can be split by deleting noise blobs. If
- * so, do the buisiness.
+ * so, do the business.
  * Return with the iterator pointing to the same place if the word is unchanged,
  * or the last of the replacement words.
- *************************************************************************/
-namespace tesseract {
+ */
 void Tesseract::fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row,
                                BLOCK* block) {
   WERD_RES *word_res;
@@ -730,11 +722,11 @@ void Tesseract::fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row,
 }  // namespace tesseract
 
 
-/*************************************************************************
+/**
  * break_noisiest_blob_word()
  * Find the word with the blob which looks like the worst noise.
  * Break the word into two, deleting the noise blob.
- *************************************************************************/
+ */
 void break_noisiest_blob_word(WERD_RES_LIST &words) {
   WERD_RES_IT word_it(&words);
   WERD_RES_IT worst_word_it;
@@ -947,14 +939,14 @@ void fixspace_dbg(WERD_RES *word) {
 }
 
 
-/*************************************************************************
+/**
  * fp_eval_word_spacing()
  * Evaluation function for fixed pitch word lists.
  *
  * Basically, count the number of "nice" characters - those which are in tess
  * acceptable words or in dict words and are not rejected.
  * Penalise any potential noise chars
- *************************************************************************/
+ */
 namespace tesseract {
 inT16 Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_it(&word_res_list);

@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
 ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 #include "mergenf.h"
 #include "general.h"
 #include "efio.h"
@@ -37,9 +37,9 @@
 #include <math.h>
 
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Variables
------------------------------------------------------------------------------**/
+-----------------------------------------------------------------------------*/
 /*-------------------once in subfeat---------------------------------*/
 double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");
 
@@ -54,30 +54,32 @@ double_VAR(training_orthogonal_bbox_pad, 2.5, "Orthogonal bounding box pad ...")
 
 double_VAR(training_angle_pad, 45.0, "Angle pad ...");
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 //int row_number;     /* kludge due to linking problems */
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
+/**
+ * Compare protos p1 and p2 and return an estimate of the
+ * worst evidence rating that will result for any part of p1
+ * that is compared to p2.  In other words, if p1 were broken
+ * into pico-features and each pico-feature was matched to p2,
+ * what is the worst evidence rating that will be achieved for
+ * any pico-feature.
+ *
+ * @param p1, p2    protos to be compared
+ *
+ * Globals: none
+ *
+ * @return Worst possible result when matching p1 to p2.
+ * @note Exceptions: none
+ * @note History: Mon Nov 26 08:27:53 1990, DSJ, Created.
+ */
 FLOAT32 CompareProtos(PROTO p1, PROTO p2) {
-/*
-**  Parameters:
-**    p1, p2    protos to be compared
-**  Globals: none
-**  Operation: Compare protos p1 and p2 and return an estimate of the
-**    worst evidence rating that will result for any part of p1
-**    that is compared to p2.  In other words, if p1 were broken
-**    into pico-features and each pico-feature was matched to p2,
-**    what is the worst evidence rating that will be achieved for
-**    any pico-feature.
-**  Return: Worst possible result when matching p1 to p2.
-**  Exceptions: none
-**  History: Mon Nov 26 08:27:53 1990, DSJ, Created.
-*/
   FEATURE Feature;
   FLOAT32 WorstEvidence = WORST_EVIDENCE;
   FLOAT32 Evidence;
@@ -129,27 +131,26 @@ FLOAT32 CompareProtos(PROTO p1, PROTO p2) {
 } /* CompareProtos */
 
 /*---------------------------------------------------------------------------*/
-void ComputeMergedProto (
-     PROTO  p1,
-   PROTO  p2,
-     FLOAT32  w1,
-   FLOAT32  w2,
-     PROTO  MergedProto)
-
-/*
-**  Parameters:
-**    p1, p2    protos to be merged
-**    w1, w2    weight of each proto
-**    MergedProto place to put resulting merged proto
-**  Globals: none
-**  Operation: This routine computes a proto which is the weighted
-**    average of protos p1 and p2.  The new proto is returned
-**    in MergedProto.
-**  Return: none (results are returned in MergedProto)
-**  Exceptions: none
-**  History: Mon Nov 26 08:15:08 1990, DSJ, Created.
-*/
-
+/**
+ * This routine computes a proto which is the weighted
+ * average of protos p1 and p2.  The new proto is returned
+ * in MergedProto.
+ *
+ * @param p1, p2    protos to be merged
+ * @param w1, w2    weight of each proto
+ * @param MergedProto place to put resulting merged proto
+ *
+ * Globals: none
+ *
+ * @return none (results are returned in MergedProto)
+ * @note Exceptions: none
+ * @note History: Mon Nov 26 08:15:08 1990, DSJ, Created.
+ */
+void ComputeMergedProto (PROTO  p1,
+                         PROTO  p2,
+                         FLOAT32  w1,
+                         FLOAT32  w2,
+                         PROTO  MergedProto)
 {
   FLOAT32 TotalWeight;
 
@@ -165,22 +166,24 @@ void ComputeMergedProto (
 } /* ComputeMergedProto */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine searches thru all of the prototypes in
+ * Class and returns the id of the proto which would provide
+ * the best approximation of Prototype.  If no close
+ * approximation can be found, NO_PROTO is returned.
+ *
+ * @param Class   class to search for matching old proto in
+ * @param NumMerged # of protos merged into each proto of Class
+ * @param  Prototype new proto to find match for
+ *
+ * Globals: none
+ *
+ * @return Id of closest proto in Class or NO_PROTO.
+ * @note Exceptions: none
+ * @note History: Sat Nov 24 11:42:58 1990, DSJ, Created.
+ */
 int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
                              PROTOTYPE  *Prototype) {
-/*
-**  Parameters:
-**    Class   class to search for matching old proto in
-**    NumMerged[] # of protos merged into each proto of Class
-**    Prototype new proto to find match for
-**  Globals: none
-**  Operation: This routine searches thru all of the prototypes in
-**    Class and returns the id of the proto which would provide
-**    the best approximation of Prototype.  If no close
-**    approximation can be found, NO_PROTO is returned.
-**  Return: Id of closest proto in Class or NO_PROTO.
-**  Exceptions: none
-**  History: Sat Nov 24 11:42:58 1990, DSJ, Created.
-*/
   PROTO_STRUCT  NewProto;
   PROTO_STRUCT  MergedProto;
   int   Pid;
@@ -209,18 +212,19 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
 } /* FindClosestExistingProto */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This fills in the fields of the New proto based on the
+ * fields of the Old proto.
+ *
+ * @param New new proto to be filled in
+ * @param Old old proto to be converted
+ * 
+ *  Globals: none
+ * 
+ * Exceptions: none
+ * History: Mon Nov 26 09:45:39 1990, DSJ, Created.
+ */
 void MakeNewFromOld(PROTO New, PROTOTYPE *Old) {
-/*
-**  Parameters:
-**    New new proto to be filled in
-**    Old old proto to be converted
-**  Globals: none
-**  Operation: This fills in the fields of the New proto based on the
-**    fields of the Old proto.
-**  Return: none
-**  Exceptions: none
-**  History: Mon Nov 26 09:45:39 1990, DSJ, Created.
-*/
   New->X = CenterX(Old->Mean);
   New->Y = CenterY(Old->Mean);
   New->Length = LengthOf(Old->Mean);
@@ -230,11 +234,11 @@ void MakeNewFromOld(PROTO New, PROTOTYPE *Old) {
 
 /*-------------------once in subfeat---------------------------------*/
 
-/**********************************************************************
-* SubfeatureEvidence
-*
-* Compare a feature to a prototype. Print the result.
-**********************************************************************/
+/**
+ * @name SubfeatureEvidence
+ *
+ * Compare a feature to a prototype. Print the result.
+ */
 FLOAT32 SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
   float       Distance;
   float       Dangle;
@@ -251,14 +255,14 @@ FLOAT32 SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
   return (EvidenceOf (Distance * Distance + Dangle * Dangle));
 }
 
-/**********************************************************************
-* EvidenceOf
-*
-* Return the new type of evidence number corresponding to this
-* distance value.  This number is no longer based on the chi squared
-* approximation.  The equation that represents the transform is:
-*       1 / (1 + (sim / midpoint) ^ curl)
-**********************************************************************/
+/**
+ * @name EvidenceOf
+ *
+ * Return the new type of evidence number corresponding to this
+ * distance value.  This number is no longer based on the chi squared
+ * approximation.  The equation that represents the transform is:
+ *       1 / (1 + (sim / midpoint) ^ curl)
+ */
 FLOAT32 EvidenceOf (
   register FLOAT32   Similarity)
 {
@@ -277,24 +281,24 @@ FLOAT32 EvidenceOf (
 }
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine returns TRUE if Feature would be matched
+ * by a fast match table built from Proto.
+ *
+ * @param Feature   feature to be "fast matched" to proto
+ * @param Proto   proto being "fast matched" against
+ *
+ * Globals:
+ * - training_tangent_bbox_pad    bounding box pad tangent to proto
+ * - training_orthogonal_bbox_pad bounding box pad orthogonal to proto
+ *
+ * @return TRUE if feature could match Proto.
+ * @note Exceptions: none
+ * @note History: Wed Nov 14 17:19:58 1990, DSJ, Created.
+ */
 BOOL8 DummyFastMatch (
      FEATURE  Feature,
      PROTO  Proto)
-
-/*
-**  Parameters:
-**    Feature   feature to be "fast matched" to proto
-**    Proto   proto being "fast matched" against
-**  Globals:
-**    training_tangent_bbox_pad    bounding box pad tangent to proto
-**    training_orthogonal_bbox_pad bounding box pad orthogonal to proto
-**  Operation: This routine returns TRUE if Feature would be matched
-**    by a fast match table built from Proto.
-**  Return: TRUE if feature could match Proto.
-**  Exceptions: none
-**  History: Wed Nov 14 17:19:58 1990, DSJ, Created.
-*/
-
 {
   FRECT   BoundingBox;
   FLOAT32 MaxAngleError;
@@ -318,23 +322,25 @@ BOOL8 DummyFastMatch (
 } /* DummyFastMatch */
 
 /*----------------------------------------------------------------------------*/
+/**
+ * This routine computes a bounding box that encloses the
+ * specified proto along with some padding.  The
+ * amount of padding is specified as separate distances
+ * in the tangential and orthogonal directions.
+ *
+ * @param Proto   proto to compute bounding box for
+ * @param TangentPad  amount of pad to add in direction of segment
+ * @param OrthogonalPad amount of pad to add orthogonal to segment
+ * @param[out] BoundingBox place to put results
+ *
+ * Globals: none
+ *
+ * @return none (results are returned in BoundingBox)
+ * @note Exceptions: none
+ * @note History: Wed Nov 14 14:55:30 1990, DSJ, Created.
+ */
 void ComputePaddedBoundingBox (PROTO  Proto, FLOAT32  TangentPad,
                                FLOAT32  OrthogonalPad, FRECT  *BoundingBox) {
-/*
-**  Parameters:
-**    Proto   proto to compute bounding box for
-**    TangentPad  amount of pad to add in direction of segment
-**    OrthogonalPad amount of pad to add orthogonal to segment
-**    BoundingBox place to put results
-**  Globals: none
-**  Operation: This routine computes a bounding box that encloses the
-**    specified proto along with some padding.  The
-**    amount of padding is specified as separate distances
-**    in the tangential and orthogonal directions.
-**  Return: none (results are returned in BoundingBox)
-**  Exceptions: none
-**  History: Wed Nov 14 14:55:30 1990, DSJ, Created.
-*/
   FLOAT32 Pad, Length, Angle;
   FLOAT32 CosOfAngle, SinOfAngle;
 
@@ -354,15 +360,16 @@ void ComputePaddedBoundingBox (PROTO  Proto, FLOAT32  TangentPad,
 } /* ComputePaddedBoundingBox */
 
 /*--------------------------------------------------------------------------*/
+/**
+ * Return TRUE if point (X,Y) is inside of Rectangle.
+ *
+ * Globals: none
+ *
+ * @return TRUE if point (X,Y) is inside of Rectangle.
+ * @note Exceptions: none
+ * @note History: Wed Nov 14 17:26:35 1990, DSJ, Created.
+ */
 BOOL8 PointInside(FRECT *Rectangle, FLOAT32 X, FLOAT32  Y) {
-/*
-**  Parameters:
-**  Globals: none
-**  Operation: Return TRUE if point (X,Y) is inside of Rectangle.
-**  Return:  Return TRUE if point (X,Y) is inside of Rectangle.
-**  Exceptions: none
-**  History: Wed Nov 14 17:26:35 1990, DSJ, Created.
-*/
   if (X < Rectangle->MinX) return (FALSE);
   if (X > Rectangle->MaxX) return (FALSE);
   if (Y < Rectangle->MinY) return (FALSE);

@@ -41,13 +41,15 @@ class WorkingPartSet_LIST;
 ELIST2IZEH(ColPartition)
 CLISTIZEH(ColPartition)
 
-// ColPartition is a partition of a horizontal slice of the page.
-// It starts out as a collection of blobs at a particular y-coord in the grid,
-// but ends up (after merging and uniquing) as an approximate text line.
-// ColPartitions are also used to hold a partitioning of the page into
-// columns, each representing one column. Although a ColPartition applies
-// to a given y-coordinate range, eventually, a ColPartitionSet of ColPartitions
-// emerges, which represents the columns over a wide y-coordinate range.
+/**
+ * ColPartition is a partition of a horizontal slice of the page.
+ * It starts out as a collection of blobs at a particular y-coord in the grid,
+ * but ends up (after merging and uniquing) as an approximate text line.
+ * ColPartitions are also used to hold a partitioning of the page into
+ * columns, each representing one column. Although a ColPartition applies
+ * to a given y-coordinate range, eventually, a ColPartitionSet of ColPartitions
+ * emerges, which represents the columns over a wide y-coordinate range.
+ */
 class ColPartition : public ELIST2_LINK {
  public:
   ColPartition() {
@@ -55,11 +57,15 @@ class ColPartition : public ELIST2_LINK {
     // TODO(rays) change deep_copy in elst.h line 955 to take a callback copier
     // and eliminate CLASSNAME##_copier.
   }
-  // blob_type is the blob_region_type_ of the blobs in this partition.
-  // Vertical is the direction of logical vertical on the possibly skewed image.
+  /**
+   * @param blob_type is the blob_region_type_ of the blobs in this partition.
+   * @param vertical is the direction of logical vertical on the possibly skewed image.
+   */
   ColPartition(BlobRegionType blob_type, const ICOORD& vertical);
-  // Constructs a fake ColPartition with no BLOBNBOXes.
-  // Used for making horizontal line ColPartitions and types it accordingly.
+  /**
+   * Constructs a fake ColPartition with no BLOBNBOXes.
+   * Used for making horizontal line ColPartitions and types it accordingly.
+   */
   ColPartition(const ICOORD& vertical,
                int left, int bottom, int right, int top);
 

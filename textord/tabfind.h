@@ -37,120 +37,160 @@ typedef ResultCallback1<bool, int> WidthCallback;
 
 struct AlignedBlobParams;
 
-// Pixel resolution of column width estimates.
+/** Pixel resolution of column width estimates. */
 const int kColumnWidthFactor = 20;
 
-// The TabFind class contains code to find tab-stops and maintain the
-// vectors_ list of tab vectors.
-// Also provides an interface to find neighbouring blobs
-// in the grid of BLOBNBOXes that is used by multiple subclasses.
-// Searching is a complex operation because of the need to enforce
-// rule/separator lines, and tabstop boundaries, (when available), so
-// as the holder of the list of TabVectors this class provides the functions.
+/**
+ * The TabFind class contains code to find tab-stops and maintain the
+ * vectors_ list of tab vectors.
+ * Also provides an interface to find neighbouring blobs
+ * in the grid of BLOBNBOXes that is used by multiple subclasses.
+ * Searching is a complex operation because of the need to enforce
+ * rule/separator lines, and tabstop boundaries, (when available), so
+ * as the holder of the list of TabVectors this class provides the functions.
+ */
 class TabFind : public AlignedBlob {
  public:
   TabFind(int gridsize, const ICOORD& bleft, const ICOORD& tright,
           TabVector_LIST* vlines, int vertical_x, int vertical_y);
   virtual ~TabFind();
 
-  // Insert a list of blobs into the given grid (not necessarily this).
-  // If take_ownership is true, then the blobs are removed from the source list.
-  // See InsertBlob for the other arguments.
+  /**
+   * Insert a list of blobs into the given grid (not necessarily this).
+   * If take_ownership is true, then the blobs are removed from the source list.
+   * See InsertBlob for the other arguments.
+   */
   void InsertBlobList(bool h_spread, bool v_spread, bool large,
                       BLOBNBOX_LIST* blobs, bool take_ownership,
                       BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>* grid);
 
-  // Insert a single blob into the given grid (not necessarily this).
-  // If h_spread, then all cells covered horizontally by the box are
-  // used, otherwise, just the bottom-left. Similarly for v_spread.
-  // If large, then insert only if the bounding box doesn't intersect
-  // anything else already in the grid. Returns true if the blob was inserted.
-  // A side effect is that the left and right rule edges of the blob are
-  // set according to the tab vectors in this (not grid).
+  /**
+   * Insert a single blob into the given grid (not necessarily this).
+   * If h_spread, then all cells covered horizontally by the box are
+   * used, otherwise, just the bottom-left. Similarly for v_spread.
+   * If large, then insert only if the bounding box doesn't intersect
+   * anything else already in the grid. Returns true if the blob was inserted.
+   * A side effect is that the left and right rule edges of the blob are
+   * set according to the tab vectors in this (not grid).
+   */
   bool InsertBlob(bool h_spread, bool v_spread, bool large, BLOBNBOX* blob,
                   BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>* grid);
 
-  // Find the gutter width and distance to inner neighbour for the given blob.
+  /**
+   * Find the gutter width and distance to inner neighbour for the given blob.
+   */
   void GutterWidthAndNeighbourGap(int tab_x, int mean_height,
                                   int max_gutter, bool left,
                                   BLOBNBOX* bbox, int* gutter_width,
                                   int* neighbour_gap);
 
-  // Find the next adjacent (to left or right) blob on this text line,
-  // with the constraint that it must vertically significantly overlap
-  // the input box.
+  /**
+   * Find the next adjacent (to left or right) blob on this text line,
+   * with the constraint that it must vertically significantly overlap
+   * the input box.
+   */
   BLOBNBOX* AdjacentBlob(const BLOBNBOX* bbox,
                          bool right_to_left, int gap_limit);
 
-  // Compute and return, but do not set the type as being BRT_TEXT or
-  // BRT_UNKNOWN according to how well it forms a text line.
+  /**
+   * Compute and return, but do not set the type as being BRT_TEXT or
+   * BRT_UNKNOWN according to how well it forms a text line.
+   */
   BlobRegionType ComputeBlobType(BLOBNBOX* blob);
 
-  // Return the x-coord that corresponds to the right edge for the given
-  // box. If there is a rule line to the right that vertically overlaps it,
-  // then return the x-coord of the rule line, otherwise return the right
-  // edge of the page. For details see RightTabForBox below.
+  /**
+   * Return the x-coord that corresponds to the right edge for the given
+   * box. If there is a rule line to the right that vertically overlaps it,
+   * then return the x-coord of the rule line, otherwise return the right
+   * edge of the page. For details see RightTabForBox below.
+   */
   int RightEdgeForBox(const TBOX& box, bool crossing, bool extended);
-  // As RightEdgeForBox, but finds the left Edge instead.
+  /**
+   * As RightEdgeForBox, but finds the left Edge instead.
+   */
   int LeftEdgeForBox(const TBOX& box, bool crossing, bool extended);
 
-  // Compute the rotation required to deskew, and its inverse rotation.
+  /**
+   * Compute the rotation required to deskew, and its inverse rotation.
+   */
   void ComputeDeskewVectors(FCOORD* deskew, FCOORD* reskew);
 
-  // Return true if the given width is close to one of the common
-  // widths in column_widths_.
+  /**
+   * Return true if the given width is close to one of the common
+   * widths in column_widths_.
+   */
   bool CommonWidth(int width);
-  // Return true if the sizes are more than a
-  // factor of 2 different.
+  /**
+   * Return true if the sizes are more than a
+   * factor of 2 different.
+   */
   static bool DifferentSizes(int size1, int size2);
 
-  // Return a callback for testing CommonWidth.
+  /**
+   * Return a callback for testing CommonWidth.
+   */
   WidthCallback* WidthCB() {
     return width_cb_;
   }
 
-  // Return the coords at which to draw the image backdrop.
+  /**
+   * Return the coords at which to draw the image backdrop.
+   */
   const ICOORD& image_origin() const {
     return image_origin_;
   }
 
  protected:
+  /**
   // Accessors
+   */
   TabVector_LIST* get_vectors() {
     return &vectors_;
   }
 
+  /**
   // Top-level function to find TabVectors in an input page block.
+   */
   void FindTabVectors(int resolution, TabVector_LIST* hlines,
                       BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
                       FCOORD* reskew, FCOORD* rerotate);
 
+  /**
   // Top-level function to not find TabVectors in an input page block,
   // but setup for single column mode.
+   */
   void DontFindTabVectors(int resolution, BLOBNBOX_LIST* image_blobs,
                           TO_BLOCK* block, FCOORD* reskew);
 
-  // Return the TabVector that corresponds to the right edge for the given
-  // box. If there is a TabVector to the right that vertically overlaps it,
-  // then return it, otherwise return NULL. Note that Right and Left refer
-  // to the position of the TabVector, not its type, ie RightTabForBox
-  // returns the nearest TabVector to the right of the box, regardless of
-  // its type.
-  // If a TabVector crosses right through the box (as opposed to grazing one
-  // edge or missing entirely), then crossing false will ignore such a line.
-  // Crossing true will return the line for BOTH left and right edges.
-  // If extended is true, then TabVectors are considered to extend to their
-  // extended_start/end_y, otherwise, just the startpt_ and endpt_.
-  // These functions make use of an internal iterator to the vectors_ list
-  // for speed when used repeatedly on neighbouring boxes. The caveat is
-  // that the iterator must be updated whenever the list is modified.
+  /**
+   * Return the TabVector that corresponds to the right edge for the given
+   * box. If there is a TabVector to the right that vertically overlaps it,
+   * then return it, otherwise return NULL. Note that Right and Left refer
+   * to the position of the TabVector, not its type, ie RightTabForBox
+   * returns the nearest TabVector to the right of the box, regardless of
+   * its type.
+   * If a TabVector crosses right through the box (as opposed to grazing one
+   * edge or missing entirely), then crossing false will ignore such a line.
+   * Crossing true will return the line for BOTH left and right edges.
+   * If extended is true, then TabVectors are considered to extend to their
+   * extended_start/end_y, otherwise, just the startpt_ and endpt_.
+   * These functions make use of an internal iterator to the vectors_ list
+   * for speed when used repeatedly on neighbouring boxes. The caveat is
+   * that the iterator must be updated whenever the list is modified.
+   */
   TabVector* RightTabForBox(const TBOX& box, bool crossing, bool extended);
-  // As RightTabForBox, but finds the left TabVector instead.
+  /**
+   * As RightTabForBox, but finds the left TabVector instead.
+   */
   TabVector* LeftTabForBox(const TBOX& box, bool crossing, bool extended);
-  // Helper function to setup search limits for *TabForBox.
+  /**
+   * Helper function to setup search limits for *TabForBox.
+   */
   void SetupTabSearch(int x, int y, int* min_key, int* max_key);
 
-  // Display the tab vectors found in this grid.
+  /**
+   * Display the tab vectors found in this grid.
+   */
   ScrollView* DisplayTabVectors(ScrollView* tab_win);
 
  private:
@@ -264,35 +304,43 @@ class TabFind : public AlignedBlob {
   void AddPartnerVector(BLOBNBOX* left_blob, BLOBNBOX* right_blob,
                         TabVector* left, TabVector* right);
 
-  // Remove separators and unused tabs from the main vectors_ list
-  // to the dead_vectors_ list.
+  /**
+   * Remove separators and unused tabs from the main vectors_ list
+   * to the dead_vectors_ list.
+   */
   void CleanupTabs();
 
-  // Deskew the tab vectors and blobs, computing the rotation and resetting
-  // the storked vertical_skew_. The deskew inverse is returned in reskew.
+  /**
+   * Deskew the tab vectors and blobs, computing the rotation and resetting
+   * the storked vertical_skew_. The deskew inverse is returned in reskew.
+   */
   void Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
               TO_BLOCK* block, FCOORD* reskew);
 
-  // Restart everything and rotate the input blobs ready for vertical text.
+  /**
+   * Restart everything and rotate the input blobs ready for vertical text.
+   */
   void ResetForVerticalText(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
                             TO_BLOCK* block, FCOORD* rerotate);
 
-  // Compute and apply constraints to the end positions of TabVectors so
-  // that where possible partners end at the same y coordinate.
+  /**
+   * Compute and apply constraints to the end positions of TabVectors so
+   * that where possible partners end at the same y coordinate.
+   */
   void ApplyTabConstraints();
 
  protected:
-  ICOORD vertical_skew_;          // Estimate of true vertical in this image.
-  int resolution_;                // Of source image in pixels per inch.
+  ICOORD vertical_skew_;          //< Estimate of true vertical in this image.
+  int resolution_;                //< Of source image in pixels per inch.
  private:
   ICOORD image_origin_;           // Top-left of image in deskewed coords
-  TabVector_LIST vectors_;        // List of rule line and tabstops.
-  TabVector_IT v_it_;             // Iterator for searching vectors_.
-  TabVector_LIST dead_vectors_;   // Separators and unpartnered tab vectors.
-  ICOORDELT_LIST column_widths_;  // List of commonly occurring widths.
-  // Callback to test an int for being a common width.
+  TabVector_LIST vectors_;        //< List of rule line and tabstops.
+  TabVector_IT v_it_;             //< Iterator for searching vectors_.
+  TabVector_LIST dead_vectors_;   //< Separators and unpartnered tab vectors.
+  ICOORDELT_LIST column_widths_;  //< List of commonly occurring widths.
+  /** Callback to test an int for being a common width. */
   WidthCallback* width_cb_;
-  // Instance of the base class that contains only candidate tab stops.
+  /** Instance of the base class that contains only candidate tab stops. */
   BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>* tab_grid_;
 };
 

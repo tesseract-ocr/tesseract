@@ -258,9 +258,8 @@ void re_estimate_x_ht(                     //improve for 1 word
 
   /* Now make some estimates */
 
-  if ((est_x_ht > 0) ||
-    (est_caps_ht > 0) ||
-  ((ambig_lc_x_est > 0) && (ambig_lc_x_est != ambig_uc_caps_est))) {
+  if ((est_x_ht > 0) || (est_caps_ht > 0) ||
+      ((ambig_lc_x_est > 0) && (ambig_lc_x_est != ambig_uc_caps_est))) {
     /* There is some sensible data to go on so make the most of it. */
     if (debug_x_ht_level >= 20)
       tprintf ("Mode20:C: Sensible Data\n", ambig_lc_x_est);
@@ -268,7 +267,7 @@ void re_estimate_x_ht(                     //improve for 1 word
       est_x_ht_certain = TRUE;
       if (est_caps_ht == 0) {
         if ((ambig_uc_caps_est > ambig_lc_x_est) &&
-          (ambig_uc_caps_est > est_x_ht + x_ht_ok_variation))
+            (ambig_uc_caps_est > est_x_ht + x_ht_ok_variation))
           est_caps_ht = ambig_uc_caps_est;
         else
           est_caps_ht = est_x_ht / x_ht_fraction_of_caps_ht;
@@ -371,10 +370,10 @@ void re_estimate_x_ht(                     //improve for 1 word
         tprintf ("Mode20:J: No comment due to no rejects\n");
     }
     else if (x_ht_limit_flip_trials &&
-      ((max_blob_ht < marginally_above_x_ht) ||
-      ((ambig_lc_x_est > 0) &&
-      (ambig_lc_x_est == ambig_uc_caps_est) &&
-    (ambig_lc_x_est < marginally_above_x_ht)))) {
+             ((max_blob_ht < marginally_above_x_ht) ||
+             ((ambig_lc_x_est > 0) &&
+             (ambig_lc_x_est == ambig_uc_caps_est) &&
+             (ambig_lc_x_est < marginally_above_x_ht)))) {
       no_comment = TRUE;
       if (debug_x_ht_level >= 20)
         tprintf ("Mode20:K: No comment as close to xht %f < %f\n",
@@ -401,7 +400,7 @@ void re_estimate_x_ht(                     //improve for 1 word
     */
     else {
       if (max_blob_ht <
-      (bln_x_height + bln_x_height / x_ht_fraction_of_caps_ht) / 2.0) {
+          (bln_x_height + bln_x_height / x_ht_fraction_of_caps_ht) / 2.0) {
         trial = TRUE;
         est_x_ht = x_ht_fraction_of_caps_ht * max_blob_ht;
         est_caps_ht = max_blob_ht;
@@ -423,9 +422,9 @@ void re_estimate_x_ht(                     //improve for 1 word
   /* Sanity check - reject word if fails */
 
   if (!no_comment &&
-    ((est_x_ht > 2 * bln_x_height) ||
-    (est_x_ht / word_res->denorm.scale () <= min_sane_x_ht_pixels) ||
-  (est_caps_ht <= est_x_ht) || (est_caps_ht >= 2.5 * est_x_ht))) {
+      ((est_x_ht > 2 * bln_x_height) ||
+       (est_x_ht / word_res->denorm.scale () <= min_sane_x_ht_pixels) ||
+       (est_caps_ht <= est_x_ht) || (est_caps_ht >= 2.5 * est_x_ht))) {
     no_comment = TRUE;
     if (!trial && rej_use_xht) {
       if (debug_x_ht_level >= 2) {
@@ -485,7 +484,7 @@ void re_estimate_x_ht(                     //improve for 1 word
 
   #ifndef SECURE_NAMES
   if (((*trial_x_ht > 0) && (debug_x_ht_level >= 3)) ||
-  (debug_x_ht_level >= 5)) {
+      (debug_x_ht_level >= 5)) {
     tprintf ("%s ", word_str);
     word_res->reject_map.print (debug_fp);
     tprintf
@@ -699,7 +698,7 @@ void improve_estimate(WERD_RES *word_res,
        !blob_it.cycled_list (); blob_it.forward (),
            offset += word_res->best_choice->unichar_lengths()[i++]) {
     if ((STRING (chs_ambig_caps_x).contains (word_str[offset])) &&
-    (!dodgy_blob (blob_it.data ()))) {
+        (!dodgy_blob (blob_it.data ()))) {
       blob_box = blob_it.data ()->bounding_box ();
       blob_ht_above_baseline = blob_box.top () - bln_baseline_offset;
       strncpy(temp_char, word_str + offset,

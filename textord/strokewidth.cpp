@@ -33,12 +33,14 @@
 
 namespace tesseract {
 
-// Allowed proportional change in stroke width to be the same font.
+/** Allowed proportional change in stroke width to be the same font. */
 const double kStrokeWidthFractionTolerance = 0.125;
-// Allowed constant change in stroke width to be the same font.
-// Really 1.5 pixels.
+/**
+ * Allowed constant change in stroke width to be the same font. 
+ * Really 1.5 pixels.
+ */
 const double kStrokeWidthTolerance = 1.5;
-// Maximum height in inches of the largest possible text.
+/** Maximum height in inches of the largest possible text. */
 const double kMaxTextSize = 2.0;
 
 StrokeWidth::StrokeWidth(int gridsize,
@@ -49,7 +51,7 @@ StrokeWidth::StrokeWidth(int gridsize,
 StrokeWidth::~StrokeWidth() {
 }
 
-// Puts the block blobs (normal and large) into the grid.
+/** Puts the block blobs (normal and large) into the grid. */
 void StrokeWidth::InsertBlobs(TO_BLOCK* block, TabFind* line_grid) {
   // Insert the blobs into this grid using the separator lines in line_grid.
   line_grid->InsertBlobList(true, false, false, &block->blobs, false, this);
@@ -57,8 +59,10 @@ void StrokeWidth::InsertBlobs(TO_BLOCK* block, TabFind* line_grid) {
                             false, this);
 }
 
-// Moves the large blobs that have good stroke-width neighbours to the normal
-// blobs list.
+/**
+ * Moves the large blobs that have good stroke-width neighbours to the normal
+ * blobs list.
+ */
 void StrokeWidth::MoveGoodLargeBlobs(int resolution, TO_BLOCK* block) {
   BLOBNBOX_IT large_it = &block->large_blobs;
   BLOBNBOX_IT blob_it = &block->blobs;
@@ -78,7 +82,7 @@ void StrokeWidth::MoveGoodLargeBlobs(int resolution, TO_BLOCK* block) {
   }
 }
 
-// Displays the blobs green or red according to whether they are good or not.
+/** Displays the blobs green or red according to whether they are good or not. */
 ScrollView* StrokeWidth::DisplayGoodBlobs(const char* window_name,
                                           ScrollView* window) {
 #ifndef GRAPHICS_DISABLED
@@ -108,7 +112,7 @@ ScrollView* StrokeWidth::DisplayGoodBlobs(const char* window_name,
   return window;
 }
 
-// Handles a click event in a display window.
+/** Handles a click event in a display window. */
 void StrokeWidth::HandleClick(int x, int y) {
   BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>::HandleClick(x, y);
   // Run a radial search for blobs that overlap.
@@ -128,8 +132,10 @@ void StrokeWidth::HandleClick(int x, int y) {
   }
 }
 
-// Returns true if there is at least one side neighbour that has a similar
-// stroke width and is not on the other side of a rule line.
+/**
+ * Returns true if there is at least one side neighbour that has a similar
+ * stroke width and is not on the other side of a rule line.
+ */
 bool StrokeWidth::GoodTextBlob(BLOBNBOX* blob) {
   double h_width = blob->horz_stroke_width();
   double v_width = blob->vert_stroke_width();
