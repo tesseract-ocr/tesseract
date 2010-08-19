@@ -726,6 +726,7 @@ WERD_CHOICE *Dict::permute_compound_words(
       current_word.rating() <= rating_limit) {
     permute_subword(char_choices, rating_limit, first_index,
                     x - 1, &current_word);
+    current_word.populate_unichars(getUnicharset());
     best_choice = new WERD_CHOICE(current_word);
     best_choice->set_permuter(COMPOUND_PERM);
   }
