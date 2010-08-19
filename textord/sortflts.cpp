@@ -22,11 +22,11 @@
 #include          "notdll.h"
 
 ELISTIZE (SORTED_FLOAT)
-/**********************************************************************
- * SORTED_FLOATS::add
+/**
+ * @name SORTED_FLOATS::add
  *
  * Add a new entry to the sorted lsit of floats.
- **********************************************************************/
+ */
 void SORTED_FLOATS::add(  //add new entry
                         float value,
                         inT32 key) {
@@ -46,11 +46,11 @@ void SORTED_FLOATS::add(  //add new entry
 }
 
 
-/**********************************************************************
- * SORTED_FLOATS::remove
+/**
+ * @name SORTED_FLOATS::remove
  *
  * Remove an entry from the sorted lsit of floats.
- **********************************************************************/
+ */
 
 void SORTED_FLOATS::remove(  //remove the entry
                            inT32 key) {
@@ -65,11 +65,11 @@ void SORTED_FLOATS::remove(  //remove the entry
 }
 
 
-/**********************************************************************
- * SORTED_FLOATS::operator[]
+/**
+ * @name SORTED_FLOATS::operator[]
  *
  * Return the floating point value of the given index into the list.
- **********************************************************************/
+ */
 
 float
 SORTED_FLOATS::operator[] (      //get an entry

@@ -106,11 +106,11 @@ double_VAR(textord_xheight_error_margin, 0.1, "Accepted variation");
 
 #define MAX_HEIGHT_MODES  12
 
-/**********************************************************************
- * make_single_row
+/**
+ * @name make_single_row
  *
  * Arrange the blobs into a single row.
- **********************************************************************/
+ */
 float make_single_row(ICOORD page_tr, TO_BLOCK* block, TO_BLOCK_LIST* blocks,
                       tesseract::Tesseract* tess) {
   BLOBNBOX_IT blob_it = &block->blobs;
@@ -152,11 +152,11 @@ float make_single_row(ICOORD page_tr, TO_BLOCK* block, TO_BLOCK_LIST* blocks,
   return gradient;
 }
 
-/**********************************************************************
- * make_rows
+/**
+ * @name make_rows
  *
  * Arrange the blobs into rows.
- **********************************************************************/
+ */
 float make_rows(                             //make rows
                 ICOORD page_tr,              //top right
                 BLOCK_LIST *blocks,          //block list
@@ -204,11 +204,11 @@ float make_rows(                             //make rows
 }
 
 
-/**********************************************************************
- * make_initial_textrows
+/**
+ * @name make_initial_textrows
  *
  * Arrange the good blobs into rows of text.
- **********************************************************************/
+ */
 void make_initial_textrows(                  //find lines
                            ICOORD page_tr,
                            TO_BLOCK *block,  //block to do
@@ -244,11 +244,11 @@ void make_initial_textrows(                  //find lines
 }
 
 
-/**********************************************************************
- * fit_lms_line
+/**
+ * @name fit_lms_line
  *
  * Fit an LMS line to a row.
- **********************************************************************/
+ */
 void fit_lms_line(             //sort function
                   TO_ROW *row  //row to fit
                  ) {
@@ -267,12 +267,12 @@ void fit_lms_line(             //sort function
 }
 
 
-/**********************************************************************
- * compute_page_skew
+/**
+ * @name compute_page_skew
  *
  * Compute the skew over a full page by averaging the gradients over
  * all the lines. Get the error of the same row.
- **********************************************************************/
+ */
 void compute_page_skew(                        //get average gradient
                        TO_BLOCK_LIST *blocks,  //list of blocks
                        float &page_m,          //average gradient
@@ -291,7 +291,7 @@ void compute_page_skew(                        //get average gradient
   row_count = 0;
   blob_count = 0;
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-  block_it.forward ()) {
+       block_it.forward ()) {
     row_count += block_it.data ()->get_rows ()->length ();
     //count up rows
     row_it.set_to_list (block_it.data ()->get_rows ());
@@ -311,7 +311,7 @@ void compute_page_skew(                        //get average gradient
 
   row_index = 0;
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-  block_it.forward ()) {
+       block_it.forward ()) {
     row_it.set_to_list (block_it.data ()->get_rows ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
@@ -338,10 +338,10 @@ void compute_page_skew(                        //get average gradient
   if (row_index == 0) {
                                  //desperate
     for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-    block_it.forward ()) {
+         block_it.forward ()) {
       row_it.set_to_list (block_it.data ()->get_rows ());
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
-      row_it.forward ()) {
+           row_it.forward ()) {
         row = row_it.data ();
         gradients[row_index] = row->line_m ();
         errors[row_index] = row->line_error ();
@@ -363,8 +363,10 @@ void compute_page_skew(                        //get average gradient
 const double kNoiseSize = 0.5;  // Fraction of xheight.
 const int kMinSize = 8;  // Min pixels to be xheight.
 
-// Return true if the dot looks like it is part of the i.
-// Doesn't work for any other diacritical.
+/**
+ * Return true if the dot looks like it is part of the i.
+ * Doesn't work for any other diacritical.
+ */
 static bool dot_of_i(BLOBNBOX* dot, BLOBNBOX* i, TO_ROW* row) {
   const TBOX& ibox = i->bounding_box();
   const TBOX& dotbox = dot->bounding_box();
@@ -497,11 +499,11 @@ static void vigorous_noise_removal(TO_BLOCK* block) {
   }
 }
 
-/**********************************************************************
+/**
  * cleanup_rows
  *
  * Remove overlapping rows and fit all the blobs to what's left.
- **********************************************************************/
+ */
 void cleanup_rows(                   //find lines
                   ICOORD page_tr,    //top right
                   TO_BLOCK *block,   //block to do
@@ -603,11 +605,11 @@ void cleanup_rows(                   //find lines
 }
 
 
-/**********************************************************************
+/**
  * delete_non_dropout_rows
  *
  * Compute the linespacing and offset.
- **********************************************************************/
+ */
 void delete_non_dropout_rows(                   //find lines
                              TO_BLOCK *block,   //block to do
                              float gradient,    //global skew
@@ -690,12 +692,12 @@ void delete_non_dropout_rows(                   //find lines
 }
 
 
-/**********************************************************************
- * find_best_dropout_row
+/**
+ * @name find_best_dropout_row
  *
  * Delete this row if it has a neighbour with better dropout characteristics.
  * TRUE is returned if the row should be deleted.
- **********************************************************************/
+ */
 BOOL8 find_best_dropout_row(                    //find neighbours
                             TO_ROW *row,        //row to test
                             inT32 distance,     //dropout dist
@@ -770,12 +772,12 @@ BOOL8 find_best_dropout_row(                    //find neighbours
 }
 
 
-/**********************************************************************
- * deskew_block_coords
+/**
+ * @name deskew_block_coords
  *
  * Compute the bounding box of all the blobs in the block
  * if they were deskewed without actually doing it.
- **********************************************************************/
+ */
 TBOX deskew_block_coords(                  //block box
                         TO_BLOCK *block,  //block to do
                         float gradient    //global skew
@@ -806,12 +808,12 @@ TBOX deskew_block_coords(                  //block box
 }
 
 
-/**********************************************************************
- * compute_line_occupation
+/**
+ * @name compute_line_occupation
  *
  * Compute the pixel projection back on the y axis given the global
  * skew. Also compute the 1st derivative.
- **********************************************************************/
+ */
 void compute_line_occupation(                    //project blobs
                              TO_BLOCK *block,    //block to do
                              float gradient,     //global skew
@@ -873,11 +875,11 @@ void compute_line_occupation(                    //project blobs
 }
 
 
-/**********************************************************************
+/**
  * compute_occupation_threshold
  *
  * Compute thresholds for textline or not for the occupation array.
- **********************************************************************/
+ */
 void compute_occupation_threshold(                    //project blobs
                                   inT32 low_window,   //below result point
                                   inT32 high_window,  //above result point
@@ -954,11 +956,11 @@ void compute_occupation_threshold(                    //project blobs
 }
 
 
-/**********************************************************************
- * compute_dropout_distances
+/**
+ * @name compute_dropout_distances
  *
  * Compute the distance from each coordinate to the nearest dropout.
- **********************************************************************/
+ */
 void compute_dropout_distances(                    //project blobs
                                inT32 *occupation,  //input projection
                                inT32 *thresholds,  //output thresholds
@@ -999,13 +1001,13 @@ void compute_dropout_distances(                    //project blobs
 }
 
 
-/**********************************************************************
- * expand_rows
+/**
+ * @name expand_rows
  *
  * Expand each row to the least of its allowed size and touching its
  * neighbours. If the expansion would entirely swallow a neighbouring row
  * then do so.
- **********************************************************************/
+ */
 void expand_rows(                   //find lines
                  ICOORD page_tr,    //top right
                  TO_BLOCK *block,   //block to do
@@ -1158,11 +1160,11 @@ void expand_rows(                   //find lines
 }
 
 
-/**********************************************************************
+/**
  * adjust_row_limits
  *
  * Change the limits of rows to suit the default fractions.
- **********************************************************************/
+ */
 void adjust_row_limits(                 //tidy limits
                        TO_BLOCK *block  //block to do
                       ) {
@@ -1191,11 +1193,11 @@ void adjust_row_limits(                 //tidy limits
 }
 
 
-/**********************************************************************
- * compute_row_stats
+/**
+ * @name compute_row_stats
  *
  * Compute the linespacing and offset.
- **********************************************************************/
+ */
 void compute_row_stats(                  //find lines
                        TO_BLOCK *block,  //block to do
                        BOOL8 testing_on  //correct orientation
@@ -1281,8 +1283,8 @@ void compute_row_stats(                  //find lines
 }
 
 
-/**********************************************************************
- * compute_block_xheight
+/**
+ * @name compute_block_xheight
  *
  * Compute the xheight of the individual rows, then correlate them
  * and interpret ascenderless lines, correcting xheights.
@@ -1309,7 +1311,7 @@ void compute_row_stats(                  //find lines
  * averages to correct xheight values of the rows in ROW_DESCENDERS_FOUND,
  * ROW_UNKNOWN and ROW_INVALID categories.
  *
- * **********************************************************************/
+ */
 void compute_block_xheight(TO_BLOCK *block, float gradient,
                            tesseract::Tesseract *tess) {
   TO_ROW *row;                          // current row
@@ -1411,14 +1413,14 @@ void compute_block_xheight(TO_BLOCK *block, float gradient,
   }
 }
 
-/**********************************************************************
- * compute_row_xheight
+/**
+ * @name compute_row_xheight
  *
  * Estimate the xheight of this row.
  * Compute the ascender rise and descender drop at the same time.
  * Set xheigh_evidence to the number of blobs with the chosen xheight
  * that appear in this row.
- **********************************************************************/
+ */
 void compute_row_xheight(TO_ROW *row,          // row to do
                          float gradient,       // global skew
                          int block_line_size,
@@ -1452,12 +1454,12 @@ void compute_row_xheight(TO_ROW *row,          // row to do
   }
 }
 
-/**********************************************************************
- * fill_heights
+/**
+ * @name fill_heights
  *
  * Fill the given heights with heights of the blobs that are legal
  * candidates for estimating xheight.
- **********************************************************************/
+ */
 void fill_heights(TO_ROW *row, float gradient, int min_height,
                   int max_height, STATS *heights, STATS *floating_heights) {
   float xcentre;                 // centre of blob
@@ -1503,8 +1505,8 @@ void fill_heights(TO_ROW *row, float gradient, int min_height,
   } while (!blob_it.at_first());
 }
 
-/**********************************************************************
- * compute_xheight_from_modes
+/**
+ * @name compute_xheight_from_modes
  *
  * Given a STATS object heights, looks for two most frequently occurring
  * heights that look like xheight and xheight + ascrise. If found, sets
@@ -1517,7 +1519,7 @@ void fill_heights(TO_ROW *row, float gradient, int min_height,
  * that sit far above the baseline could represent valid ascenders, but
  * it is highly unlikely that such a character's height will be an xheight
  * (e.g.  -, ', =, ^, `, ", ', etc)
- **********************************************************************/
+ */
 int compute_xheight_from_modes(
     STATS *heights, STATS *floating_heights, int min_height,
     int max_height, float *xheight, float *ascrise) {
@@ -1599,8 +1601,8 @@ int compute_xheight_from_modes(
   return best_count;
 }
 
-/**********************************************************************
- * compute_row_descdrop
+/**
+ * @name compute_row_descdrop
  *
  * Estimates the descdrop of this row. This function looks for
  * "significant" descenders of lowercase letters (those that could
@@ -1610,7 +1612,7 @@ int compute_xheight_from_modes(
  * with descenders is close to the expected fraction of the total
  * number of blobs in the row, the function returns the descender
  * height, returns 0 otherwise.
- **********************************************************************/
+ */
 inT32 compute_row_descdrop(TO_ROW *row, float gradient,
                            int xheight_blob_count, STATS *asc_heights) {
   // Count how many potential ascenders are in this row.
@@ -1665,12 +1667,12 @@ inT32 compute_row_descdrop(TO_ROW *row, float gradient,
 }
 
 
-/**********************************************************************
- * compute_height_modes
+/**
+ * @name compute_height_modes
  *
  * Find the top maxmodes values in the input array and put their
  * indices in the output in the order in which they occurred.
- **********************************************************************/
+ */
 inT32 compute_height_modes(                   //find lines
                            STATS *heights,    //stats to search
                            inT32 min_height,  //bottom of range
@@ -1731,12 +1733,12 @@ inT32 compute_height_modes(                   //find lines
 }
 
 
-/**********************************************************************
- * correct_row_xheight
+/**
+ * @name correct_row_xheight
  *
  * Adjust the xheight etc of this row if not within reasonable limits
  * of the average for the block.
- **********************************************************************/
+ */
 void correct_row_xheight(TO_ROW *row, float xheight,
                          float ascrise, float descdrop) {
   ROW_CATEGORY row_category = get_row_category(row);
@@ -1819,12 +1821,12 @@ static int CountOverlaps(const TBOX& box, int min_height,
   return overlaps;
 }
 
-/**********************************************************************
- * separate_underlines
+/**
+ * @name separate_underlines
  *
  * Test wide objects for being potential underlines. If they are then
  * put them in a separate list in the block.
- **********************************************************************/
+ */
 void separate_underlines(                  //make rough chars
                          TO_BLOCK *block,  //block to do
                          float gradient,   //skew angle
@@ -1926,11 +1928,11 @@ void separate_underlines(                  //make rough chars
 }
 
 
-/**********************************************************************
- * pre_associate_blobs
+/**
+ * @name pre_associate_blobs
  *
  * Associate overlapping blobs and fake chop wide blobs.
- **********************************************************************/
+ */
 void pre_associate_blobs(                  //make rough chars
                          ICOORD page_tr,   //top right
                          TO_BLOCK *block,  //block to do
@@ -2012,11 +2014,11 @@ void pre_associate_blobs(                  //make rough chars
 }
 
 
-/**********************************************************************
- * fit_parallel_rows
+/**
+ * @name fit_parallel_rows
  *
  * Re-fit the rows in the block to the given gradient.
- **********************************************************************/
+ */
 void fit_parallel_rows(                   //find lines
                        TO_BLOCK *block,   //block to do
                        float gradient,    //gradient to fit
@@ -2052,13 +2054,13 @@ void fit_parallel_rows(                   //find lines
 }
 
 
-/**********************************************************************
- * fit_parallel_lms
+/**
+ * @name fit_parallel_lms
  *
  * Fit an LMS line to a row.
  * Make the fit parallel to the given gradient and set the
  * row accordingly.
- **********************************************************************/
+ */
 void fit_parallel_lms(                 //sort function
                       float gradient,  //forced gradient
                       TO_ROW *row      //row to fit
@@ -2089,11 +2091,11 @@ void fit_parallel_lms(                 //sort function
 }
 
 
-/**********************************************************************
- * make_spline_rows
+/**
+ * @name make_spline_rows
  *
  * Re-fit the rows in the block to the given gradient.
- **********************************************************************/
+ */
 void make_spline_rows(                   //find lines
                       TO_BLOCK *block,   //block to do
                       float gradient,    //gradient to fit
@@ -2143,13 +2145,13 @@ void make_spline_rows(                   //find lines
 }
 
 
-/**********************************************************************
- * make_baseline_spline
+/**
+ * @name make_baseline_spline
  *
  * Fit an LMS line to a row.
  * Make the fit parallel to the given gradient and set the
  * row accordingly.
- **********************************************************************/
+ */
 void make_baseline_spline(                 //sort function
                           TO_ROW *row,     //row to fit
                           TO_BLOCK *block  //block it came from
@@ -2213,13 +2215,13 @@ void make_baseline_spline(                 //sort function
 }
 
 
-/**********************************************************************
- * segment_baseline
+/**
+ * @name segment_baseline
  *
  * Divide the baseline up into segments which require a different
  * quadratic fitted to them.
  * Return TRUE if enough blobs were far enough away to need a quadratic.
- **********************************************************************/
+ */
 BOOL8
 segment_baseline (               //split baseline
 TO_ROW * row,                    //row to fit
@@ -2312,13 +2314,13 @@ inT32 xstarts[]                  //coords of segments
 }
 
 
-/**********************************************************************
- * linear_spline_baseline
+/**
+ * @name linear_spline_baseline
  *
  * Divide the baseline up into segments which require a different
  * quadratic fitted to them.
- * Return TRUE if enough blobs were far enough away to need a quadratic.
- **********************************************************************/
+ * @return TRUE if enough blobs were far enough away to need a quadratic.
+ */
 double *
 linear_spline_baseline (         //split baseline
 TO_ROW * row,                    //row to fit
@@ -2406,12 +2408,12 @@ inT32 xstarts[]                  //coords of segments
 }
 
 
-/**********************************************************************
- * assign_blobs_to_rows
+/**
+ * @name assign_blobs_to_rows
  *
  * Make enough rows to allocate all the given blobs to one.
  * If a block skew is given, use that, else attempt to track it.
- **********************************************************************/
+ */
 void assign_blobs_to_rows(                      //find lines
                           TO_BLOCK *block,      //block to do
                           float *gradient,      //block skew
@@ -2603,11 +2605,11 @@ void assign_blobs_to_rows(                      //find lines
 }
 
 
-/**********************************************************************
- * most_overlapping_row
+/**
+ * @name most_overlapping_row
  *
  * Return the row which most overlaps the blob.
- **********************************************************************/
+ */
 OVERLAP_STATE most_overlapping_row(                    //find best row
                                    TO_ROW_IT *row_it,  //iterator
                                    TO_ROW *&best_row,  //output row
@@ -2699,11 +2701,11 @@ OVERLAP_STATE most_overlapping_row(                    //find best row
 }
 
 
-/**********************************************************************
- * blob_x_order
+/**
+ * @name blob_x_order
  *
  * Sort function to sort blobs in x from page left.
- **********************************************************************/
+ */
 int blob_x_order(                    //sort function
                  const void *item1,  //items to compare
                  const void *item2) {
@@ -2721,11 +2723,11 @@ int blob_x_order(                    //sort function
 }
 
 
-/**********************************************************************
- * row_y_order
+/**
+ * @name row_y_order
  *
  * Sort function to sort rows in y from page top.
- **********************************************************************/
+ */
 int row_y_order(                    //sort function
                 const void *item1,  //items to compare
                 const void *item2) {
@@ -2743,11 +2745,11 @@ int row_y_order(                    //sort function
 }
 
 
-/**********************************************************************
- * row_spacing_order
+/**
+ * @name row_spacing_order
  *
  * Qsort style function to compare 2 TO_ROWS based on their spacing value.
- **********************************************************************/
+ */
 int row_spacing_order(                    //sort function
                       const void *item1,  //items to compare
                       const void *item2) {
@@ -2764,12 +2766,12 @@ int row_spacing_order(                    //sort function
     return 0;
 }
 
-/**********************************************************************
- * make_repeated_chars
+/**
+ * @name make_repeated_chars
  *
  * Mark textord_repeat_threshold or more adjacent chars which are the
  * same as repeated chars.
- **********************************************************************/
+ */
 void mark_repeated_chars(TO_ROW *row, float block_xheight,
                          tesseract::Tesseract *tess) {
   ROW *real_row = NULL;          //output row

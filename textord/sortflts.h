@@ -46,16 +46,27 @@ ELISTIZEH (SORTED_FLOAT)
 class SORTED_FLOATS
 {
   public:
-    SORTED_FLOATS() {  //empty constructor
+    /** empty constructor */
+    SORTED_FLOATS() {
       it.set_to_list (&list);
     }
-    void add(              //add sample
-             float value,  //sample float
-             inT32 key);   //retrieval key
-    void remove(             //delete sample
-                inT32 key);  //key to delete
-    float operator[] (           //index to list
-      inT32 index);              //item to get
+    /**
+     * add sample
+     * @param value sample float
+     * @param key retrieval key
+     */
+    void add(float value,
+             inT32 key);
+    /**
+     * delete sample
+     * @param key key to delete
+     */
+    void remove(inT32 key);
+    /**
+     * index to list
+     * @param index item to get
+     */
+    float operator[] (inT32 index);
 
   private:
     SORTED_FLOAT_LIST list;      //list of floats
