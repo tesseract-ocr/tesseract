@@ -1,12 +1,19 @@
 #!/bin/bash
+
+# Windows relevant files
 winlist="tessdll.dll tessdll.lib tesseract.exe dlltest.exe cntraining.exe mftraining.exe unicharset_extractor.exe wordlist2dawg.exe java/ScrollView.jar tessdata/configs/* tessdata/tessconfigs/*"
 windeps="glut32.dll jpeg62.dll libimage.dll libpng13.dll librle3.dll libtiff3.dll zlib1.dll leptonlib.dll lib/leptonlib.lib include/*.h dlltest/* tesseract.vcproj tesseract.sln StdAfx.cpp StdAfx.h tessdll.cpp tessdll.h tessdll.vcproj"
-ver=`ls -1rt *[0-9].tar.gz |tail -1`
-ver=${ver%.tar.gz}
-for l in eng deu fra ita spa nld por vie 
+
+#ver=`ls -1rt *[0-9].tar.gz |tail -1`
+#ver=${ver%.tar.gz}
+ver="tesseract-3.00"
+
+for l in tessdata/*.traineddata
 do
-        chmod 644 tessdata/$l.*
-        tar --group root --owner root -chozf $ver.$l.tar.gz tessdata/$l.*
+	echo  Creating language package for `basename "$l" .traineddata`...
+	chmod 644 ${l%%.*}.*
+        tar --group root --owner root -chozf $ver.`basename "$l" .traineddata`.tar.gz ${l%%.*}.*
 done
+
 tar chozf $ver.exe.tar.gz $winlist
 tar chozf $ver.windep.tar.gz $windeps

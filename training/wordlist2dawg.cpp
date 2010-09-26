@@ -33,7 +33,7 @@ static const int kMaxNumEdges =  10000000;
 
 int main(int argc, char** argv) {
   if (!(argc == 4 || (argc == 5 && strcmp(argv[1], "-t") == 0))) {
-    printf("Usage: %s [-t] word_list_file dawg_file unicharset_file", argv[0]);
+    printf("Usage: %s [-t] word_list_file dawg_file unicharset_file\n", argv[0]);
     return 1;
   }
   tesseract::Classify classify;
