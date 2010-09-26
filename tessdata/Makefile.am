@@ -20,7 +20,6 @@ data_DATA = bul.traineddata \
   lit.traineddata \
   nld.traineddata \
   nor.traineddata \
-  osd.traineddata \
   pol.traineddata \
   por.traineddata \
   ron.traineddata \
