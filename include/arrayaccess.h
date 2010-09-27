@@ -48,7 +48,7 @@
 
 
 #if 1   /* Inline Accessors */
-#ifndef COMPILER_MSVC
+#ifndef _MSC_VER
 
     /*--------------------------------------------------*
      *                     1 bit access                 *
@@ -80,7 +80,7 @@
     ({l_uint32 *_TEMP_WORD_PTR_; \
      _TEMP_WORD_PTR_ = (l_uint32 *)(pdata) + ((n) >> 4); \
      *_TEMP_WORD_PTR_ &= ~(0xc0000000 >> (2 * ((n) & 15))); \
-     *_TEMP_WORD_PTR_ |= ((val) << (30 - 2 * ((n) & 15))); \
+     *_TEMP_WORD_PTR_ |= (((val) & 3) << (30 - 2 * ((n) & 15))); \
     })
 
 #define  CLEAR_DATA_DIBIT(pdata, n) \
@@ -97,7 +97,7 @@
     ({l_uint32 *_TEMP_WORD_PTR_; \
      _TEMP_WORD_PTR_ = (l_uint32 *)(pdata) + ((n) >> 3); \
      *_TEMP_WORD_PTR_ &= ~(0xf0000000 >> (4 * ((n) & 7))); \
-     *_TEMP_WORD_PTR_ |= ((val) << (28 - 4 * ((n) & 7))); \
+     *_TEMP_WORD_PTR_ |= (((val) & 15) << (28 - 4 * ((n) & 7))); \
     })
 
 #define  CLEAR_DATA_QBIT(pdata, n) \
@@ -154,7 +154,7 @@
              (*((l_uint32 *)(pdata) + (n)) = (val))
 
 
-#endif  /* COMPILER_MSVC */
+#endif  /* ! _MSC_VER */
 #endif  /* Inline Accessors */
 
 
@@ -162,7 +162,7 @@
     /*--------------------------------------------------*
      *  Slower, using function calls for all accessors  *
      *--------------------------------------------------*/
-#if 0 || COMPILER_MSVC
+#if 0 || defined(_MSC_VER)
 #define  GET_DATA_BIT(pdata, n)               l_getDataBit(pdata, n)
 #define  SET_DATA_BIT(pdata, n)               l_setDataBit(pdata, n)
 #define  CLEAR_DATA_BIT(pdata, n)             l_clearDataBit(pdata, n)

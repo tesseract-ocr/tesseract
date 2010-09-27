@@ -30,7 +30,7 @@ enum {
 };
 
 
-struct Bmf
+struct L_Bmf
 {
     struct Pixa  *pixa;        /* pixa of bitmaps for 93 characters        */
     l_int32       size;        /* font size (in points at 300 ppi)         */
@@ -46,6 +46,6 @@ struct Bmf
     l_int32      *baselinetab; /* table mapping ascii --> baseline offset  */
     l_int32      *widthtab;    /* table mapping ascii --> char width       */
 };
-typedef struct Bmf BMF;
+typedef struct L_Bmf L_BMF;
 
 #endif  /* LEPTONICA_BMF_H */

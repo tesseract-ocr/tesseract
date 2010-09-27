@@ -34,34 +34,43 @@
  *       struct PixTiling
  *       struct FPix
  *       struct DPix
+ *       struct PixComp
+ *       struct PixaComp
  *
  *   Contains definitions for:
- *       colors for RGB
- *       colormap conversion flags
- *       rasterop bit flags
- *       structure access flags (for insert, copy, clone, copy-clone)
- *       sorting flags (by type and direction)
- *       blending flags
- *       graphics pixel setting flags
- *       size filtering flags
- *       rotation and shear flags
- *       affine transform order flags                        *
- *       grayscale filling flags
- *       dithering flags
- *       distance flags
- *       statistical measures
- *       set selection flags
- *       text orientation flags
- *       edge orientation flags
- *       line orientation flags
- *       scan direction flags
- *       thinning flags
- *       runlength flags
- *       edge filter flags
- *       handling negative values in conversion to unsigned int
- *       relative to zero flags
+ *       Colors for RGB
+ *       Perceptual color weights
+ *       Colormap conversion flags
+ *       Rasterop bit flags
+ *       Structure access flags (for insert, copy, clone, copy-clone)
+ *       Sorting flags (by type and direction)
+ *       Blending flags
+ *       Graphics pixel setting flags
+ *       Size filtering flags
+ *       Color component selection flags
+ *       Rotation and shear flags
+ *       Affine transform order flags
+ *       Grayscale filling flags
+ *       Dithering flags
+ *       Distance flags
+ *       Statistical measures
+ *       Set selection flags
+ *       Text orientation flags
+ *       Edge orientation flags
+ *       Line orientation flags
+ *       Scan direction flags
+ *       Horizontal warp
+ *       Pixel selection for resampling
+ *       Thinning flags
+ *       Runlength flags
+ *       Edge filter flags
+ *       Handling negative values in conversion to unsigned int
+ *       Subpixel color component ordering in LCD display
+ *       Relative to zero flags
  *       HSV histogram flags
- *       region flags (inclusion, exclusion)
+ *       Region flags (inclusion, exclusion)
+ *       Flags for adding text to a pix
+ *       Flags for selecting display program
  */
 
 
@@ -89,10 +98,10 @@ typedef struct Pix PIX;
 
 struct PixColormap
 {
-        void        *array;     /* colormap table (array of RGBA_QUAD)     */
-        l_int32      depth;     /* of pix (1, 2, 4 or 8 bpp)               */
-        l_int32      nalloc;    /* number of color entries allocated       */
-        l_int32      n;         /* number of color entries used            */
+    void            *array;     /* colormap table (array of RGBA_QUAD)     */
+    l_int32          depth;     /* of pix (1, 2, 4 or 8 bpp)               */
+    l_int32          nalloc;    /* number of color entries allocated       */
+    l_int32          n;         /* number of color entries used            */
 };
 typedef struct PixColormap  PIXCMAP;
 
@@ -135,14 +144,29 @@ enum {
     L_ALPHA_CHANNEL = 3
 };
 
-static const l_int32  L_RED_SHIFT = 
+static const l_int32  L_RED_SHIFT =
        8 * (sizeof(l_uint32) - 1 - COLOR_RED);           /* 24 */
-static const l_int32  L_GREEN_SHIFT = 
+static const l_int32  L_GREEN_SHIFT =
        8 * (sizeof(l_uint32) - 1 - COLOR_GREEN);         /* 16 */
-static const l_int32  L_BLUE_SHIFT = 
+static const l_int32  L_BLUE_SHIFT =
        8 * (sizeof(l_uint32) - 1 - COLOR_BLUE);          /*  8 */
-static const l_int32  L_ALPHA_SHIFT = 
+static const l_int32  L_ALPHA_SHIFT =
        8 * (sizeof(l_uint32) - 1 - L_ALPHA_CHANNEL);     /*  0 */
+
+
+/*-------------------------------------------------------------------------*
+ *                       Perceptual color weights                          *
+ *-------------------------------------------------------------------------*/
+/*  Notes:
+ *      (1) These numbers are ad-hoc, but they do add up to 1.
+ *          Unlike, for example, the weighting factor for conversion
+ *          of RGB to luminance, or more specifically to Y in the
+ *          YUV colorspace.  Those numbers come from the
+ *          International Telecommunications Union, via ITU-R.
+ */
+static const l_float32  L_RED_WEIGHT =   0.3;
+static const l_float32  L_GREEN_WEIGHT = 0.5;
+static const l_float32  L_BLUE_WEIGHT =  0.2;
 
 
 /*-------------------------------------------------------------------------*
@@ -355,7 +379,6 @@ struct Pixaa
 typedef struct Pixaa PIXAA;
 
 
-
 /*-------------------------------------------------------------------------*
  *                    Basic rectangle and rectangle arrays                 *
  *-------------------------------------------------------------------------*/
@@ -483,6 +506,43 @@ typedef struct DPix DPIX;
 
 
 /*-------------------------------------------------------------------------*
+ *                        PixComp: compressed pix                          *
+ *-------------------------------------------------------------------------*/
+struct PixComp
+{
+    l_int32              w;           /* width in pixels                   */
+    l_int32              h;           /* height in pixels                  */
+    l_int32              d;           /* depth in bits                     */
+    l_uint32             xres;        /* image res (ppi) in x direction    */
+                                      /*   (use 0 if unknown)              */
+    l_uint32             yres;        /* image res (ppi) in y direction    */
+                                      /*   (use 0 if unknown)              */
+    l_int32              comptype;    /* compressed format (IFF_TIFF_G4,   */
+                                      /*   IFF_PNG, IFF_JFIF_JPEG)         */
+    char                *text;        /* text string associated with pix   */
+    l_int32              cmapflag;    /* flag (1 for cmap, 0 otherwise)    */
+    l_uint8             *data;        /* the compressed image data         */
+    l_int32              size;        /* size of the data array            */
+};
+typedef struct PixComp PIXC;
+
+
+/*-------------------------------------------------------------------------*
+ *                     PixaComp: array of compressed pix                   *
+ *-------------------------------------------------------------------------*/
+#define  PIXACOMP_VERSION_NUMBER      1
+
+struct PixaComp
+{
+    l_int32              n;           /* number of PixComp in ptr array    */
+    l_int32              nalloc;      /* number of PixComp ptrs allocated  */
+    struct PixComp     **pixc;        /* the array of ptrs to PixComp      */
+    struct Boxa         *boxa;        /* array of boxes                    */
+};
+typedef struct PixaComp PIXAC;
+
+
+/*-------------------------------------------------------------------------*
  *                         Access and storage flags                        *
  *-------------------------------------------------------------------------*/
 /*
@@ -590,6 +650,18 @@ enum {
     L_SELECT_IF_GT = 2,           /* save if value is more than threshold  */
     L_SELECT_IF_LTE = 3,          /* save if value is <= to the threshold  */
     L_SELECT_IF_GTE = 4           /* save if value is >= to the threshold  */
+};
+
+
+/*-------------------------------------------------------------------------*
+ *                     Color component selection flags                     *
+ *-------------------------------------------------------------------------*/
+enum {
+    L_SELECT_RED = 1,             /* use red component                     */
+    L_SELECT_GREEN = 2,           /* use green component                   */
+    L_SELECT_BLUE = 3,            /* use blue component                    */
+    L_SELECT_MIN = 4,             /* use min color component               */
+    L_SELECT_MAX = 5              /* use max color component               */
 };
 
 
@@ -725,6 +797,29 @@ enum {
 
 
 /*-------------------------------------------------------------------------*
+ *                            Horizontal warp                              *
+ *-------------------------------------------------------------------------*/
+enum {
+    L_WARP_TO_LEFT = 1,      /* increasing stretch or contraction to left  */
+    L_WARP_TO_RIGHT = 2      /* increasing stretch or contraction to right */
+};
+
+enum {
+    L_LINEAR_WARP = 1,       /* stretch or contraction grows linearly      */
+    L_QUADRATIC_WARP = 2     /* stretch or contraction grows quadratically */
+};
+
+
+/*-------------------------------------------------------------------------*
+ *                      Pixel selection for resampling                     *
+ *-------------------------------------------------------------------------*/
+enum {
+    L_INTERPOLATED = 1,      /* linear interpolation from src pixels       */
+    L_SAMPLED = 2            /* nearest src pixel sampling only            */
+};
+
+
+/*-------------------------------------------------------------------------*
  *                             Thinning flags                              *
  *-------------------------------------------------------------------------*/
 enum {
@@ -761,6 +856,17 @@ enum {
 
 
 /*-------------------------------------------------------------------------*
+ *             Subpixel color component ordering in LCD display            *
+ *-------------------------------------------------------------------------*/
+enum {
+    L_SUBPIXEL_ORDER_RGB = 1,   /* sensor order left-to-right RGB          */
+    L_SUBPIXEL_ORDER_BGR = 2,   /* sensor order left-to-right BGR          */
+    L_SUBPIXEL_ORDER_VRGB = 3,  /* sensor order top-to-bottom RGB          */
+    L_SUBPIXEL_ORDER_VBGR = 4   /* sensor order top-to-bottom BGR          */
+};
+
+
+/*-------------------------------------------------------------------------*
  *                         Relative to zero flags                          *
  *-------------------------------------------------------------------------*/
 enum {
@@ -789,5 +895,25 @@ enum {
 };
 
 
-#endif  /* LEPTONICA_PIX_H */
+/*-------------------------------------------------------------------------*
+ *                    Flags for adding text to a pix                       *
+ *-------------------------------------------------------------------------*/
+enum {
+    L_ADD_ABOVE = 1,           /* Add text above the image                 */
+    L_ADD_AT_TOP = 2,          /* Add text over the top of the image       */
+    L_ADD_AT_BOTTOM = 3,       /* Add text over the bottom of the image    */
+    L_ADD_BELOW = 4            /* Add text below the image                 */
+};
 
+
+/*-------------------------------------------------------------------------*
+ *                   Flags for selecting display program                   *
+ *-------------------------------------------------------------------------*/
+enum {
+    L_DISPLAY_WITH_XV = 1,      /* Use xv with pixDisplay()                */
+    L_DISPLAY_WITH_XLI = 2,     /* Use xli with pixDisplay()               */
+    L_DISPLAY_WITH_XZGV = 3,    /* Use xzgv with pixDisplay()              */
+    L_DISPLAY_WITH_IV = 4       /* Use irfvanview with pixDisplay()        */
+};
+
+#endif  /* LEPTONICA_PIX_H */

@@ -1,5 +1,5 @@
 /*====================================================================*
- -  Copyright (C) 2001 Leptonica.  All rights reserved.
+ -  Copyright (C) 2008 Leptonica.  All rights reserved.
  -  This software is distributed in the hope that it will be
  -  useful, but with NO WARRANTY OF ANY KIND.
  -  No author or distributor accepts responsibility to anyone for the
@@ -13,33 +13,11 @@
  -  or altered from any source or modified source distribution.
  *====================================================================*/
 
-#ifndef  LEPTONICA_ALLTYPES_H
-#define  LEPTONICA_ALLTYPES_H
+#ifndef  LEPTONICA_FREETYPE_H
+#define  LEPTONICA_FREETYPE_H
 
-#include "environ.h"
+#define  LEPTONICA_FT_RESOLUTION 96
 
-    /* imaging */
-#include "array.h"
-#include "arrayaccess.h"
-#include "bbuffer.h"
-#include "bmf.h"
-#include "ccbord.h"
-#include "dewarp.h"
-#include "gplot.h"
-#include "heap.h"
-#include "jbclass.h"
-#include "list.h"
-#include "morph.h"
-#include "pix.h"
-#include "ptra.h"
-#include "queue.h"
-#include "regutils.h"
-#include "stack.h"
-#include "watershed.h"
+typedef struct ft_library_st FT_LIBRARY;
 
-    /* i/o */
-#include <stdio.h>
-#include "imageio.h"
-
-#endif /* LEPTONICA_ALLTYPES_H */
-
+#endif  /* LEPTONICA_FREETYPE_H */

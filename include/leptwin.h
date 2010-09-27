@@ -1,5 +1,5 @@
 /*====================================================================*
- -  Copyright (C) 2001 Leptonica.  All rights reserved.
+ -  Copyright (C) 2010 Leptonica.  All rights reserved.
  -  This software is distributed in the hope that it will be
  -  useful, but with NO WARRANTY OF ANY KIND.
  -  No author or distributor accepts responsibility to anyone for the
@@ -13,33 +13,22 @@
  -  or altered from any source or modified source distribution.
  *====================================================================*/
 
-#ifndef  LEPTONICA_ALLTYPES_H
-#define  LEPTONICA_ALLTYPES_H
+#ifdef _WIN32
+#ifndef  LEPTONICA_LEPTWIN_H
+#define  LEPTONICA_LEPTWIN_H
 
-#include "environ.h"
+#include "allheaders.h"
+#include <windows.h>
 
-    /* imaging */
-#include "array.h"
-#include "arrayaccess.h"
-#include "bbuffer.h"
-#include "bmf.h"
-#include "ccbord.h"
-#include "dewarp.h"
-#include "gplot.h"
-#include "heap.h"
-#include "jbclass.h"
-#include "list.h"
-#include "morph.h"
-#include "pix.h"
-#include "ptra.h"
-#include "queue.h"
-#include "regutils.h"
-#include "stack.h"
-#include "watershed.h"
+#ifdef __cplusplus
+extern "C" {
+#endif  /* __cplusplus */
 
-    /* i/o */
-#include <stdio.h>
-#include "imageio.h"
+LEPT_DLL extern HBITMAP pixGetWindowsHBITMAP( PIX *pixs );
 
-#endif /* LEPTONICA_ALLTYPES_H */
+#ifdef __cplusplus
+}
+#endif  /* __cplusplus */
 
+#endif /* LEPTONICA_LEPTWIN_H */
+#endif /* _WIN32 */
