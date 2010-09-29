@@ -1,3 +1,22 @@
+2010-09-21 - V3.00
+  * Preparations for thread safety:
+     * Changed TessBaseAPI methods to be non-static
+     * Created a class hierarchy for the directories to hold instance data,
+       and began moving code into the classes.
+     * Moved thresholding code to a separate class.
+  * Added major new page layout analysis module.
+  * Added HOCR output.
+  * Added Leptonica as main image I/O and handling. Currently optional,
+    but in future releases linking with Leptonica will be mandatory.
+  * Ambiguity table rewritten to allow definite replacements in place
+    of fix_quotes.
+  * Added TessdataManager to combine data files into a single file.
+  * Some dead code deleted.
+  * VC++6 no longer supported. It can't cope with the use of templates.
+  * Many more languages added. 
+  * Doxygenation of most of the function header comments.
+
+
 2010-07-19  gettextize  <bug-gnu-gettext@gnu.org>
 
 	* m4/gettext.m4: New file, from gettext-0.17.
