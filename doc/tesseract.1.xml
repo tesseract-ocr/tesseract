@@ -1,42 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<?asciidoc-toc?>
+<?asciidoc-numbered?>
 <refentry lang="en">
 <refmeta>
 <refentrytitle>tesseract</refentrytitle>
 <manvolnum>1</manvolnum>
+<refmiscinfo class="source">&nbsp;</refmiscinfo>
+<refmiscinfo class="manual">&nbsp;</refmiscinfo>
 </refmeta>
 <refnamediv>
     <refname>tesseract</refname>
     <refpurpose>command-line OCR engine</refpurpose>
 </refnamediv>
-<refsynopsisdiv id="synopsis">
+<refsynopsisdiv id="_synopsis">
 <simpara><emphasis role="strong">tesseract</emphasis> <emphasis>imagename</emphasis> <emphasis>textbase</emphasis> [<emphasis>configfile</emphasis>] [<emphasis>-l lang</emphasis>]</simpara>
 </refsynopsisdiv>
-<refsect1 id="description">
+<refsect1 id="_description">
 <title>DESCRIPTION</title>
 <simpara>tesseract(1) is a commercial quality OCR engine originally developed at HP
 between 1985 and 1995. In 1995, this engine was among the top 3 evaluated by
 UNLV. It was open-sourced by HP and UNLV in 2005, and has been developed
 by Google since then.</simpara>
 </refsect1>
-<refsect1 id="options">
+<refsect1 id="_options">
 <title>OPTIONS</title>
 <simpara><emphasis>imagename</emphasis>
-The name of the input image</simpara>
+        The name of the input image</simpara>
 <simpara><emphasis>textbase</emphasis>
-The basename of the output file (to which the appropriate extension
-will be appended)</simpara>
+        The basename of the output file (to which the appropriate extension
+        will be appended)</simpara>
 <simpara><emphasis>configfile</emphasis>
-The config to use. A config is a plaintext file which contains a list
-of variables and their values, one per line, with a space separating
-variable from value.</simpara>
+        The config to use. A config is a plaintext file which contains a list
+        of variables and their values, one per line, with a space separating
+        variable from value.</simpara>
 <simpara><emphasis>-l lang</emphasis>
-The language to use. If none is specified, English is assumed.
-Tesseract uses 3-character ISO 639-2 language codes. (See LANGUAGES)</simpara>
+        The language to use. If none is specified, English is assumed.
+        Tesseract uses 3-character ISO 639-2 language codes. (See LANGUAGES)</simpara>
 <simpara><emphasis>-v</emphasis>
-Returns the current version of the tesseract(1) executable.</simpara>
+        Returns the current version of the tesseract(1) executable.</simpara>
 </refsect1>
-<refsect1 id="languages">
+<refsect1 id="_languages">
 <title>LANGUAGES</title>
 <simpara>There are currently language packs available for the following languages:</simpara>
 <informaltable
@@ -50,7 +54,7 @@ rowsep="1" colsep="1"
 <colspec colname="col_2" colwidth="85*"/>
 <thead>
 <row>
-<entry align="left" valign="top">Code</entry>
+<entry align="left" valign="top">Code   </entry>
 <entry align="left" valign="top">Name</entry>
 </row>
 </thead>
@@ -199,46 +203,41 @@ rowsep="1" colsep="1"
 </tgroup>
 </informaltable>
 </refsect1>
-<refsect1 id="history">
+<refsect1 id="_history">
 <title>HISTORY</title>
-<simpara>
-The engine was developed at Hewlett Packard Laboratories Bristol and at 
-Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more 
-changes made in 1996 to port to Windows, and some C++izing in 1998. A lot 
-of the code was written in C, and then some more was written in C++. Since 
-then all the code has been converted to at least compile with a C++ compiler. 
-Currently it builds under Linux with gcc4.0, gcc4.1 and under Windows with 
-VC++6 and VC++Express. The C+\+ code makes heavy use of a list system using 
-macros. This predates stl, was portable before stl, and is more efficient 
-than stl lists, but has the big negative that if you do get a segmentation 
-violation, it is hard to debug. Another "feature" of the C/C++ split is 
-that the C++ data structures get converted to C data structures to call 
-the low-level C code. This is ugly, and the C++izing of the C code
-is a step towards eliminating the conversion, but it has not happened yet.
-</simpara>
-<simpara>
-The most important changes in version 2.00 were that Tesseract can now 
-recognize 6 languages, is fully UTF8 capable, and is fully trainable. See 
-<ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract</ulink> 
-for more information on training.</simpara>
-<simpara>Tesseract was included in UNLV&#8217;s Fourth Annual Test of OCR 
-Accuracy. See 
-<ulink url="http://www.isri.unlv.edu/downloads/AT-1995.pdf">http://www.isri.unlv.edu/downloads/AT-1995.pdf</ulink>. 
-With Tesseract 2.00, scripts are now included to allow anyone to reproduce 
-some of these tests.
-See 
-<ulink url="http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract</ulink> 
-for more details.</simpara>
-<simpara>Tesseract 3.00 adds a number of new languages, including Chinese, 
-Japanese, and Korean. It also introduces a new, single-file based system of 
-managing language data. For further details, see the file ReleaseNotes 
-included with the distribution.</simpara>
+<simpara>The engine was developed at Hewlett Packard Laboratories Bristol and at
+Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more
+changes made in 1996 to port to Windows, and some C++izing in 1998. A
+lot of the code was written in C, and then some more was written in C++.
+Since then all the code has been converted to at least compile with a
+C+\+ compiler. Currently it builds under Linux with gcc4.0, gcc4.1 and
+under Windows with VC<literal>6 and VC</literal>Express. The C+\+ code makes heavy use of
+a list system using macros. This predates stl, was portable before stl, and
+is more efficient than stl lists, but has the big negative that if you do get
+a segmentation violation, it is hard to debug. Another "feature" of the
+C/C<literal> split is that the C+\+ data structures get converted to C data
+structures to call the low-level C code. This is ugly, and the C</literal>izing of
+the C code is a step towards eliminating the conversion, but it has not
+happened yet.</simpara>
+<simpara>The most important changes in version 2.00 were that Tesseract can now
+recognize 6 languages, is fully UTF8 capable, and is fully trainable. See
+<ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract</ulink> for more
+information on training.</simpara>
+<simpara>Tesseract was included in UNLV&#8217;s Fourth Annual Test of OCR Accuracy.
+See <ulink url="http://www.isri.unlv.edu/downloads/AT-1995.pdf">http://www.isri.unlv.edu/downloads/AT-1995.pdf</ulink>. With Tesseract 2.00,
+scripts are now included to allow anyone to reproduce some of these tests.
+See <ulink url="http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract</ulink> for more
+details.</simpara>
+<simpara>Tesseract 3.00 adds a number of new languages, including Chinese, Japanese,
+and Korean. It also introduces a new, single-file based system of managing
+language data. For further details, see the file ReleaseNotes included with
+the distribution.</simpara>
 </refsect1>
-<refsect1 id="see_also">
+<refsect1 id="_see_also">
 <title>SEE ALSO</title>
 <simpara>tesseract(1)</simpara>
 </refsect1>
-<refsect1 id="copying">
+<refsect1 id="_copying">
 <title>COPYING</title>
 <simpara>Licensed under the Apache License, Version 2.0</simpara>
 </refsect1>

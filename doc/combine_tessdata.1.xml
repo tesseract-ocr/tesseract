@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<?asciidoc-toc?>
+<?asciidoc-numbered?>
 <refentry lang="en">
 <refmeta>
 <refentrytitle>combine_tessdata</refentrytitle>
 <manvolnum>1</manvolnum>
+<refmiscinfo class="source">&nbsp;</refmiscinfo>
+<refmiscinfo class="manual">&nbsp;</refmiscinfo>
 </refmeta>
 <refnamediv>
     <refname>combine_tessdata</refname>
     <refpurpose>combine/extract/overwrite Tesseract data</refpurpose>
 </refnamediv>
-<refsynopsisdiv id="synopsis">
+<refsynopsisdiv id="_synopsis">
 <simpara><emphasis role="strong">combine_tessdata</emphasis> [<emphasis>OPTION</emphasis>] <emphasis>FILE</emphasis>&#8230;</simpara>
 </refsynopsisdiv>
-<refsect1 id="description">
+<refsect1 id="_description">
 <title>DESCRIPTION</title>
 <simpara>combine_tessdata(1) is the main program to combine/extract/overwrite
 tessdata components in [lang].traineddata files.</simpara>
@@ -39,52 +43,34 @@ and unichar ambigs, plus all the original DAWGs, classifier templates, etc.</sim
 have the appropriate file suffixes (extensions) indicating their tessdata
 component type (.unicharset for the unicharset, .unicharambigs for unichar
 ambigs, etc). See k*FileSuffix variable in ccutil/tessdatamanager.h.</simpara>
-<simpara>Specify option -u to unpack all the components to the specified path</simpara>
+<simpara>Specify option -u to unpack all the components to the specified path:</simpara>
 <literallayout class="monospaced">combine_tessdata -u tessdata/eng.traineddata /home/$USER/temp/eng.</literallayout>
 <simpara>This will create  /home/$USER/temp/eng.* files with individual tessdata
 components from tessdata/eng.traineddata.</simpara>
 </refsect1>
-<refsect1 id="options">
+<refsect1 id="_options">
 <title>OPTIONS</title>
-<variablelist>
-<varlistentry>
-<term>
-<emphasis role="strong">-e</emphasis> <emphasis>.traineddata</emphasis> <emphasis>FILE</emphasis>&#8230;
-</term>
-<listitem>
-<simpara>
-Extracts the specified components from the .traineddata file
-</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>
-<emphasis role="strong">-o</emphasis> <emphasis>.traineddata</emphasis> <emphasis>FILE</emphasis>&#8230;
-</term>
-<listitem>
-<simpara>
-Overwrites the specified components of the .traineddata file
-with those provided on the comand line.
-</simpara>
-</listitem>
-</varlistentry>
-</variablelist>
+<simpara><emphasis role="strong">-e</emphasis> <emphasis>.traineddata</emphasis> <emphasis>FILE</emphasis>&#8230;:
+    Extracts the specified components from the .traineddata file</simpara>
+<simpara><emphasis role="strong">-o</emphasis> <emphasis>.traineddata</emphasis> <emphasis>FILE</emphasis>&#8230;:
+    Overwrites the specified components of the .traineddata file
+    with those provided on the comand line.</simpara>
 <simpara><emphasis role="strong">-u</emphasis> <emphasis>.traineddata</emphasis> <emphasis>PATH PREFIX</emphasis>
-Unpacks the .traineddata using the provided prefix.</simpara>
+    Unpacks the .traineddata using the provided prefix.</simpara>
 </refsect1>
-<refsect1 id="caveats">
+<refsect1 id="_caveats">
 <title>CAVEATS</title>
 <simpara><emphasis>Prefix</emphasis> refers to the full file prefix, including period (.)</simpara>
 </refsect1>
-<refsect1 id="history">
+<refsect1 id="_history">
 <title>HISTORY</title>
 <simpara>combine_tessdata(1) first appeared in version 3.00 of Tesseract</simpara>
 </refsect1>
-<refsect1 id="see_also">
+<refsect1 id="_see_also">
 <title>SEE ALSO</title>
 <simpara>tesseract(1)</simpara>
 </refsect1>
-<refsect1 id="copying">
+<refsect1 id="_copying">
 <title>COPYING</title>
 <simpara>Copyright (C) 2009, Google Inc.
 Licensed under the Apache License, Version 2.0</simpara>
