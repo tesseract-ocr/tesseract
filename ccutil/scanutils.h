@@ -19,13 +19,20 @@
 #ifndef SCANUTILS_H
 #define SCANUTILS_H
 
-#ifdef EMBEDDED
-
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <klibc/extern.h>
 #include <sys/stat.h>
+
+// Parse a file stream according to the given format. See the fscanf manpage
+// for more information, as this function attempts to mimic its behavior.
+// Note that scientific floating-point notation is not supported.
+// This variant is used to ensure correct reading regardless of locale.
+int tess_fscanf(FILE* stream, const char *format, ...);
+
+#ifdef EMBEDDED
+
+#include <klibc/extern.h>
 
 // Attempts to parse the given file stream s as an integer of the base
 // 'base'. Returns the first successfully parsed integer as a uintmax_t, or
@@ -34,12 +41,12 @@ uintmax_t streamtoumax(FILE* s, int base);
 
 // Parse a file stream according to the given format. See the fscanf manpage
 // for more information, as this function attempts to mimic its behavior.
-// Note that scientific loating-point notation is not supported.
+// Note that scientific floating-point notation is not supported.
 int fscanf(FILE* stream, const char *format, ...);
 
 // Parse a file stream according to the given format. See the fscanf manpage
 // for more information, as this function attempts to mimic its behavior.
-// Note that scientific loating-point notation is not supported.
+// Note that scientific floating-point notation is not supported.
 int vfscanf(FILE* stream, const char *format, va_list ap);
 
 // Create a file at the specified path. See the creat manpage for more 

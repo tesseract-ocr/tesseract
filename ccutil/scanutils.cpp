@@ -47,7 +47,7 @@ enum Ranks {
   RANK_LONG = 1,
   RANK_LONGLONG = 2,
   RANK_PTR      = INT_MAX // Special value used for pointers
-  RANK_PTR      = 3 // Special value used for pointers
+//  RANK_PTR      = 3 // Special value used for pointers
 };
 
 const enum Ranks kMinRank = RANK_CHAR;
@@ -214,19 +214,48 @@ double strtofloat(const char* s)
   return minus ? -f : f;
 }
 
+static int tess_vfscanf(FILE* stream, const char *format, va_list ap);
+
+int tess_fscanf(FILE* stream, const char *format, ...)
+{
+  va_list ap;
+  int rv;
+
+  va_start(ap, format);
+  rv = tess_vfscanf(stream, format, ap);
+  va_end(ap);
+
+  return rv;
+}
+
+#ifdef EMBEDDED
 int fscanf(FILE* stream, const char *format, ...)
 {
   va_list ap;
   int rv;
 
   va_start(ap, format);
-  rv = vfscanf(stream, format, ap);
+  rv = tess_vfscanf(stream, format, ap);
   va_end(ap);
 
   return rv;
 }
 
-int vfscanf(FILE* stream, const char *format, va_list ap)
+int vfscanf(FILE* stream, const char *format, ...)
+{
+  va_list ap;
+  int rv;
+
+  va_start(ap, format);
+  rv = tess_vfscanf(stream, format, ap);
+  va_end(ap);
+
+  return rv;
+}
+#endif
+
+static
+int tess_vfscanf(FILE* stream, const char *format, va_list ap)
 {
   const char *p = format;
   char ch;
@@ -253,6 +282,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
   int matchinv = 0;   // Is match map inverted?
   unsigned char range_start = 0;
   off_t start_off = ftell(stream);
+  double fval;
 
   // Skip leading spaces
   SkipSpace(stream);
@@ -414,7 +444,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
                 break;
               }
 
-              double fval = streamtofloat(stream);
+              fval = streamtofloat(stream);
               switch(rank) {
                 case RANK_INT:
                   *va_arg(ap, float *) = static_cast<float>(fval);
@@ -539,7 +569,9 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
   return converted;
 }
 
+#ifdef EMBEDDED
 int creat(const char *pathname, mode_t mode)
 {
   return open(pathname, O_CREAT | O_TRUNC | O_WRONLY, mode);
 }
+#endif

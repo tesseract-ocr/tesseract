@@ -87,7 +87,7 @@ PARAM_DESC *ReadParamDesc(FILE *File, uinT16 N) {
       ParamDesc[i].NonEssential = FALSE;
     else
       ParamDesc[i].NonEssential = TRUE;
-    if (fscanf (File, "%f%f", &(ParamDesc[i].Min), &(ParamDesc[i].Max)) !=
+    if (tess_fscanf (File, "%f%f", &(ParamDesc[i].Min), &(ParamDesc[i].Max)) !=
       2)
       DoError (ILLEGALMINMAXSPEC, "Illegal min or max specification");
     ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
@@ -289,7 +289,7 @@ ReadNFloats (FILE * File, uinT16 N, FLOAT32 Buffer[]) {
     Buffer = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
 
   for (i = 0; i < N; i++) {
-    NumFloatsRead = fscanf (File, "%f", &(Buffer[i]));
+    NumFloatsRead = tess_fscanf (File, "%f", &(Buffer[i]));
     if (NumFloatsRead != 1) {
       if ((NumFloatsRead == EOF) && (i == 0))
         return (NULL);
