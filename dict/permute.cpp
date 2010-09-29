@@ -292,15 +292,17 @@ void Dict::init_permute() {
                        DAWG_TYPE_NUMBER, lang, NUMBER_PERM);
   }
   if (((STRING &)global_user_words_suffix).length() > 0) {
-    Trie *trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
-                              MAX_USER_EDGES, getUnicharset().size());
     name = getImage()->getCCUtil()->language_data_path_prefix;
     name += global_user_words_suffix;
-    if (!trie_ptr->read_word_list(name.string(), getUnicharset())) {
-      tprintf("Error: failed to load %s\n", name.string());
-      exit(1);
+    if (exists_file(name.string())) {
+      Trie *trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
+                                MAX_USER_EDGES, getUnicharset().size());
+      if (!trie_ptr->read_word_list(name.string(), getUnicharset())) {
+        tprintf("Error: failed to load %s\n", name.string());
+        exit(1);
+      }
+      dawgs_ += trie_ptr;
     }
-    dawgs_ += trie_ptr;
   }
   document_words_ = new Trie(DAWG_TYPE_WORD, lang, DOC_DAWG_PERM,
                              MAX_DOC_EDGES, getUnicharset().size());

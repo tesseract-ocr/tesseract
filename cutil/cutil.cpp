@@ -87,3 +87,14 @@ FILE *open_file(const char *filename, const char *mode) {
   }
   return (thisfile);
 }
+
+/// Check whether the file exists
+bool exists_file(const char *filename) {
+  bool exists = false;
+  FILE *f = NULL;
+  if ((f = fopen(filename, "r")) != NULL) {
+    fclose(f);
+    exists = true;
+  }
+  return exists;
+}

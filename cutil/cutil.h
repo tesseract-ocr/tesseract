@@ -120,6 +120,8 @@ long long_rand(long limit);
 
 FILE *open_file(const char *filename, const char *mode);
 
+bool exists_file(const char *filename);
+
 /* util.c
 long long_rand
   _ARGS ((long limit));
