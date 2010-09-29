@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<refentry lang="en">
+<refmeta>
+<refentrytitle>tesseract</refentrytitle>
+<manvolnum>1</manvolnum>
+</refmeta>
+<refnamediv>
+    <refname>tesseract</refname>
+    <refpurpose>command-line OCR engine</refpurpose>
+</refnamediv>
+<refsynopsisdiv id="synopsis">
+<simpara><emphasis role="strong">tesseract</emphasis> <emphasis>imagename</emphasis> <emphasis>textbase</emphasis> [<emphasis>configfile</emphasis>] [<emphasis>-l lang</emphasis>]</simpara>
+</refsynopsisdiv>
+<refsect1 id="description">
+<title>DESCRIPTION</title>
+<simpara>tesseract(1) is a commercial quality OCR engine originally developed at HP
+between 1985 and 1995. In 1995, this engine was among the top 3 evaluated by
+UNLV. It was open-sourced by HP and UNLV in 2005, and has been developed
+by Google since then.</simpara>
+</refsect1>
+<refsect1 id="options">
+<title>OPTIONS</title>
+<simpara><emphasis>imagename</emphasis>
+The name of the input image</simpara>
+<simpara><emphasis>textbase</emphasis>
+The basename of the output file (to which the appropriate extension
+will be appended)</simpara>
+<simpara><emphasis>configfile</emphasis>
+The config to use. A config is a plaintext file which contains a list
+of variables and their values, one per line, with a space separating
+variable from value.</simpara>
+<simpara><emphasis>-l lang</emphasis>
+The language to use. If none is specified, English is assumed.
+Tesseract uses 3-character ISO 639-2 language codes. (See LANGUAGES)</simpara>
+<simpara><emphasis>-v</emphasis>
+Returns the current version of the tesseract(1) executable.</simpara>
+</refsect1>
+<refsect1 id="languages">
+<title>LANGUAGES</title>
+<simpara>There are currently language packs available for the following languages:</simpara>
+<informaltable
+frame="all"
+rowsep="1" colsep="1"
+>
+<?dbhtml table-width="40%"?>
+<?dbfo table-width="40%"?>
+<tgroup cols="2">
+<colspec colname="col_1" colwidth="85*"/>
+<colspec colname="col_2" colwidth="85*"/>
+<thead>
+<row>
+<entry align="left" valign="top">Code</entry>
+<entry align="left" valign="top">Name</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry align="left" valign="top"><simpara>bul</simpara></entry>
+<entry align="left" valign="top"><simpara>Bulgarian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>cat</simpara></entry>
+<entry align="left" valign="top"><simpara>Catalan</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>ces</simpara></entry>
+<entry align="left" valign="top"><simpara>Czech</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>chi_sim</simpara></entry>
+<entry align="left" valign="top"><simpara>Simplified Chinese</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>chi_tra</simpara></entry>
+<entry align="left" valign="top"><simpara>Traditional Chinese</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>dan</simpara></entry>
+<entry align="left" valign="top"><simpara>Danish</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>dan-frak</simpara></entry>
+<entry align="left" valign="top"><simpara>Danish (Fraktur)</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>deu</simpara></entry>
+<entry align="left" valign="top"><simpara>German</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>ell</simpara></entry>
+<entry align="left" valign="top"><simpara>Greek</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>eng</simpara></entry>
+<entry align="left" valign="top"><simpara>English</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>fin</simpara></entry>
+<entry align="left" valign="top"><simpara>Finnish</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>fra</simpara></entry>
+<entry align="left" valign="top"><simpara>French</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>hun</simpara></entry>
+<entry align="left" valign="top"><simpara>Hungarian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>ind</simpara></entry>
+<entry align="left" valign="top"><simpara>Indonesian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>ita</simpara></entry>
+<entry align="left" valign="top"><simpara>Italian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>jpn</simpara></entry>
+<entry align="left" valign="top"><simpara>Japanese</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>kor</simpara></entry>
+<entry align="left" valign="top"><simpara>Korean</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>lav</simpara></entry>
+<entry align="left" valign="top"><simpara>Latvian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>lit</simpara></entry>
+<entry align="left" valign="top"><simpara>Lithuanian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>nld</simpara></entry>
+<entry align="left" valign="top"><simpara>Dutch</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>nor</simpara></entry>
+<entry align="left" valign="top"><simpara>Norwegian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>pol</simpara></entry>
+<entry align="left" valign="top"><simpara>Polish</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>por</simpara></entry>
+<entry align="left" valign="top"><simpara>Portuguese</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>ron</simpara></entry>
+<entry align="left" valign="top"><simpara>Romanian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>rus</simpara></entry>
+<entry align="left" valign="top"><simpara>Russian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>slk</simpara></entry>
+<entry align="left" valign="top"><simpara>Slovakian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>slv</simpara></entry>
+<entry align="left" valign="top"><simpara>Slovenian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>spa</simpara></entry>
+<entry align="left" valign="top"><simpara>Spanish</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>srp</simpara></entry>
+<entry align="left" valign="top"><simpara>Serbian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>swe</simpara></entry>
+<entry align="left" valign="top"><simpara>Swedish</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>tgl</simpara></entry>
+<entry align="left" valign="top"><simpara>Tagalog</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>tha</simpara></entry>
+<entry align="left" valign="top"><simpara>Thai</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>tur</simpara></entry>
+<entry align="left" valign="top"><simpara>Turkish</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>ukr</simpara></entry>
+<entry align="left" valign="top"><simpara>Ukrainian</simpara></entry>
+</row>
+<row>
+<entry align="left" valign="top"><simpara>vie</simpara></entry>
+<entry align="left" valign="top"><simpara>Vietnamese</simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</refsect1>
+<refsect1 id="history">
+<title>HISTORY</title>
+<simpara>
+The engine was developed at Hewlett Packard Laboratories Bristol and at 
+Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more 
+changes made in 1996 to port to Windows, and some C++izing in 1998. A lot 
+of the code was written in C, and then some more was written in C++. Since 
+then all the code has been converted to at least compile with a C++ compiler. 
+Currently it builds under Linux with gcc4.0, gcc4.1 and under Windows with 
+VC++6 and VC++Express. The C+\+ code makes heavy use of a list system using 
+macros. This predates stl, was portable before stl, and is more efficient 
+than stl lists, but has the big negative that if you do get a segmentation 
+violation, it is hard to debug. Another "feature" of the C/C++ split is 
+that the C++ data structures get converted to C data structures to call 
+the low-level C code. This is ugly, and the C++izing of the C code
+is a step towards eliminating the conversion, but it has not happened yet.
+</simpara>
+<simpara>
+The most important changes in version 2.00 were that Tesseract can now 
+recognize 6 languages, is fully UTF8 capable, and is fully trainable. See 
+<ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract</ulink> 
+for more information on training.</simpara>
+<simpara>Tesseract was included in UNLV&#8217;s Fourth Annual Test of OCR 
+Accuracy. See 
+<ulink url="http://www.isri.unlv.edu/downloads/AT-1995.pdf">http://www.isri.unlv.edu/downloads/AT-1995.pdf</ulink>. 
+With Tesseract 2.00, scripts are now included to allow anyone to reproduce 
+some of these tests.
+See 
+<ulink url="http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract</ulink> 
+for more details.</simpara>
+<simpara>Tesseract 3.00 adds a number of new languages, including Chinese, 
+Japanese, and Korean. It also introduces a new, single-file based system of 
+managing language data. For further details, see the file ReleaseNotes 
+included with the distribution.</simpara>
+</refsect1>
+<refsect1 id="see_also">
+<title>SEE ALSO</title>
+<simpara>tesseract(1)</simpara>
+</refsect1>
+<refsect1 id="copying">
+<title>COPYING</title>
+<simpara>Licensed under the Apache License, Version 2.0</simpara>
+</refsect1>
+</refentry>
