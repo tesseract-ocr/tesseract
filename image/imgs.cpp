@@ -1596,7 +1596,7 @@ void IMAGE::FromPix(const Pix* src_pix) {
     // Binary images just flip the data bit.
     for (int y = height - 1 ; y >= 0; --y) {
       for (int x = 0; x < width; ++x)
-        line.pixels[x] = GET_DATA_BIT(data, x) ^ 1;
+        line.pixels[x] = GET_DATA_BIT((void *)data, x) ^ 1;
       this->put_line(0, y, width, &line, 0);
       data += pixGetWpl(pix);
     }
@@ -1606,7 +1606,7 @@ void IMAGE::FromPix(const Pix* src_pix) {
     // Greyscale just copies the bytes in the right order.
     for (int y = height - 1 ; y >= 0; --y) {
       for (int x = 0; x < width; ++x)
-        line.pixels[x] = GET_DATA_BYTE(data, x);
+        line.pixels[x] = GET_DATA_BYTE((void *)data, x);
       this->put_line(0, y, width, &line, 0);
       data += pixGetWpl(pix);
     }
@@ -1616,9 +1616,9 @@ void IMAGE::FromPix(const Pix* src_pix) {
     // Put the colors in the correct places in the line buffer.
     for (int y = height - 1 ; y >= 0; --y) {
       for (int x = 0; x < width; ++x, ++data) {
-        line[x][RED_PIX] = GET_DATA_BYTE(data, COLOR_RED);
-        line[x][GREEN_PIX] = GET_DATA_BYTE(data, COLOR_GREEN);
-        line[x][BLUE_PIX] = GET_DATA_BYTE(data, COLOR_BLUE);
+        line[x][RED_PIX] = GET_DATA_BYTE((void *)data, COLOR_RED);
+        line[x][GREEN_PIX] = GET_DATA_BYTE((void *)data, COLOR_GREEN);
+        line[x][BLUE_PIX] = GET_DATA_BYTE((void *)data, COLOR_BLUE);
       }
       this->put_line(0, y, width, &line, 0);
     }
