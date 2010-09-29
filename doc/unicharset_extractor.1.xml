@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<?asciidoc-toc?>
+<?asciidoc-numbered?>
+<refentry lang="en">
+<refmeta>
+<refentrytitle>unicharset_extractor</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&nbsp;</refmiscinfo>
+<refmiscinfo class="manual">&nbsp;</refmiscinfo>
+</refmeta>
+<refnamediv>
+    <refname>unicharset_extractor</refname>
+    <refpurpose>extract unicharset from Tesseract boxfiles</refpurpose>
+</refnamediv>
+<refsynopsisdiv id="_synopsis">
+<simpara><emphasis role="strong">unicharset_extractor</emphasis> <emphasis>FILE</emphasis>&#8230;</simpara>
+</refsynopsisdiv>
+<refsect1 id="_description">
+<title>DESCRIPTION</title>
+<simpara>Tesseract needs to know the set of possible characters it can output.
+To generate the unicharset data file, use the unicharset_extractor
+program on the same training pages bounding box files as used for
+clustering:</simpara>
+<literallayout class="monospaced">*unicharset_extractor* fontfile_1.box fontfile_2.box ...</literallayout>
+<simpara>Tesseract needs to have access to character properties isalpha,
+isdigit, isupper, islower, ispunctuation. This data must be encoded
+in the unicharset data file. Each line of this file corresponds to
+one character. The character in UTF-8 is followed by a hexadecimal
+number representing a binary mask that encodes the properties. Each
+bit corresponds to a property. If the bit is set to 1, it means that
+the property is true. The bit ordering is (from least significant bit
+to most significant bit): isalpha, islower, isupper, isdigit.
+(See unicharset(5))</simpara>
+<simpara>If your system supports the wctype functions, these values will be set
+automatically by unicharset_extractor and there is no need to edit the
+unicharset file. On some older systems (eg Windows 95), the unicharset
+file must be edited by hand to add these property description codes.</simpara>
+<simpara><emphasis role="strong">NOTE</emphasis> The unicharset file must be regenerated whenever inttemp, normproto
+and pffmtable are generated (i.e. they must all be recreated when the box
+file is changed) as they have to be in sync. This is made easier than in
+previous versions by running unicharset_extractor before mftraining and
+cntraining, and giving the unicharset to mftraining.</simpara>
+</refsect1>
+<refsect1 id="_see_also">
+<title>SEE ALSO</title>
+<simpara>tesseract(1), unicharset(5)</simpara>
+</refsect1>
+<refsect1 id="_copying">
+<title>COPYING</title>
+<simpara>Copyright (C) 2009, Google Inc.
+Licensed under the Apache License, Version 2.0</simpara>
+</refsect1>
+</refentry>
