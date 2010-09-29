@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="wordlist2dawg"
 	ProjectGUID="{5B6DC93B-30BE-4E8E-A396-3970A83CB74B}"
 	RootNamespace="wordlist2dawg"
@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="ws2_32.lib user32.lib ..\lib\leptonlib.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlib.lib"
 				OutputFile="..\wordlist2dawg.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -141,7 +141,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../ccutil,../cutil,../dict,../viewer,../ccstruct,../image,../classify"
+				AdditionalIncludeDirectories="../ccutil;../cutil;../dict;../viewer;../ccstruct;../image;../classify;..\vs2008\include;..\vs2008\include\leptonica"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -169,7 +169,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib user32.lib ..\lib\leptonlibd.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlibd.lib"
 				OutputFile=".\../bin.dbg/wordlist2dawg.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

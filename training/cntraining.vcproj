@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="cntraining"
 	ProjectGUID="{1AC769A4-E98E-48B9-B87B-90D7837031FA}"
 	RootNamespace="cntraining"
@@ -75,7 +75,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="ws2_32.lib user32.lib ..\lib\leptonlib.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlib.lib"
 				OutputFile="..\cntraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -138,7 +138,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../ccutil,../ccstruct,../classify,../cutil,../training,../viewer,../dict"
+				AdditionalIncludeDirectories="../ccutil;../ccstruct;../classify;../cutil;../training;../viewer;../dict;..\vs2008\include;..\vs2008\include\leptonica"
 				PreprocessorDefinitions="_DEBUG;TRAINING;WIN32;_WINDOWS;__NT__;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				RuntimeLibrary="3"
@@ -164,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib user32.lib ..\lib\leptonlibd.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlibd.lib"
 				OutputFile=".\../bin.dbg/cntraining.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

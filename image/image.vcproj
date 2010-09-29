@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="image"
 	ProjectGUID="{2C106C68-62EE-43D2-B372-3BDFF6125AD1}"
 	RootNamespace="image"
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil,..\viewer,..\include"
+				AdditionalIncludeDirectories="..\ccutil;..\viewer;..\vs2008\include;..\vs2008\include\leptonica"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil,..\viewer,..\include"
+				AdditionalIncludeDirectories="..\ccutil,..\viewer,..\vs2008\include,..\vs2008\include\leptonica"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="mftraining"
 	ProjectGUID="{EC8A9E75-C66E-4320-9D91-97F53ED7021B}"
 	RootNamespace="mftraining"
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../ccutil,../ccstruct,../classify,../cutil,../training,../viewer,../dict,../image"
+				AdditionalIncludeDirectories="../ccutil;../ccstruct;../classify;../cutil;../training;../viewer;../dict;../image;..\vs2008\include;..\vs2008\include\leptonica"
 				PreprocessorDefinitions="_DEBUG;TRAINING;WIN32;_WINDOWS;__NT__;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				RuntimeLibrary="3"
@@ -71,7 +71,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib ws2_32.lib ..\lib\leptonlibd.lib"
+				AdditionalDependencies="user32.lib ws2_32.lib ..\vs2008\lib\leptonlibd.lib"
 				OutputFile=".\../bin.dbg/mftraining.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -164,7 +164,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="user32.lib ws2_32.lib ..\lib\leptonlib.lib"
+				AdditionalDependencies="user32.lib ws2_32.lib ..\vs2008\lib\leptonlib.lib"
 				OutputFile="..\mftraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
