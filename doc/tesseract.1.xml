@@ -43,165 +43,428 @@ by Google since then.</simpara>
 <refsect1 id="_languages">
 <title>LANGUAGES</title>
 <simpara>There are currently language packs available for the following languages:</simpara>
-<informaltable
-frame="all"
-rowsep="1" colsep="1"
->
-<?dbhtml table-width="40%"?>
-<?dbfo table-width="40%"?>
-<tgroup cols="2">
-<colspec colname="col_1" colwidth="85*"/>
-<colspec colname="col_2" colwidth="85*"/>
-<thead>
+<informaltable tabstyle="horizontal" frame="none" colsep="0" rowsep="0"><tgroup cols="2"><colspec colwidth="15*"/><colspec colwidth="85*"/><tbody valign="top">
 <row>
-<entry align="left" valign="top">Code     </entry>
-<entry align="left" valign="top">Name</entry>
-</row>
-</thead>
-<tbody>
-<row>
-<entry align="left" valign="top"><simpara>bul</simpara></entry>
-<entry align="left" valign="top"><simpara>Bulgarian</simpara></entry>
+<entry>
+<simpara>
+bul
+</simpara>
+</entry>
+<entry>
+<simpara>
+Bulgarian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>cat</simpara></entry>
-<entry align="left" valign="top"><simpara>Catalan</simpara></entry>
+<entry>
+<simpara>
+cat
+</simpara>
+</entry>
+<entry>
+<simpara>
+Catalan
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>ces</simpara></entry>
-<entry align="left" valign="top"><simpara>Czech</simpara></entry>
+<entry>
+<simpara>
+ces
+</simpara>
+</entry>
+<entry>
+<simpara>
+Czech
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>chi_sim</simpara></entry>
-<entry align="left" valign="top"><simpara>Simplified Chinese</simpara></entry>
+<entry>
+<simpara>
+chi_sim
+</simpara>
+</entry>
+<entry>
+<simpara>
+Simplified Chinese
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>chi_tra</simpara></entry>
-<entry align="left" valign="top"><simpara>Traditional Chinese</simpara></entry>
+<entry>
+<simpara>
+chi_tra
+</simpara>
+</entry>
+<entry>
+<simpara>
+Traditional Chinese
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>dan</simpara></entry>
-<entry align="left" valign="top"><simpara>Danish</simpara></entry>
+<entry>
+<simpara>
+dan
+</simpara>
+</entry>
+<entry>
+<simpara>
+Danish
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>dan-frak</simpara></entry>
-<entry align="left" valign="top"><simpara>Danish (Fraktur)</simpara></entry>
+<entry>
+<simpara>
+dan-frak
+</simpara>
+</entry>
+<entry>
+<simpara>
+Danish (Fraktur)
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>deu</simpara></entry>
-<entry align="left" valign="top"><simpara>German</simpara></entry>
+<entry>
+<simpara>
+deu
+</simpara>
+</entry>
+<entry>
+<simpara>
+German
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>ell</simpara></entry>
-<entry align="left" valign="top"><simpara>Greek</simpara></entry>
+<entry>
+<simpara>
+ell
+</simpara>
+</entry>
+<entry>
+<simpara>
+Greek
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>eng</simpara></entry>
-<entry align="left" valign="top"><simpara>English</simpara></entry>
+<entry>
+<simpara>
+eng
+</simpara>
+</entry>
+<entry>
+<simpara>
+English
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>fin</simpara></entry>
-<entry align="left" valign="top"><simpara>Finnish</simpara></entry>
+<entry>
+<simpara>
+fin
+</simpara>
+</entry>
+<entry>
+<simpara>
+Finnish
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>fra</simpara></entry>
-<entry align="left" valign="top"><simpara>French</simpara></entry>
+<entry>
+<simpara>
+fra
+</simpara>
+</entry>
+<entry>
+<simpara>
+French
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>hun</simpara></entry>
-<entry align="left" valign="top"><simpara>Hungarian</simpara></entry>
+<entry>
+<simpara>
+hun
+</simpara>
+</entry>
+<entry>
+<simpara>
+Hungarian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>ind</simpara></entry>
-<entry align="left" valign="top"><simpara>Indonesian</simpara></entry>
+<entry>
+<simpara>
+ind
+</simpara>
+</entry>
+<entry>
+<simpara>
+Indonesian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>ita</simpara></entry>
-<entry align="left" valign="top"><simpara>Italian</simpara></entry>
+<entry>
+<simpara>
+ita
+</simpara>
+</entry>
+<entry>
+<simpara>
+Italian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>jpn</simpara></entry>
-<entry align="left" valign="top"><simpara>Japanese</simpara></entry>
+<entry>
+<simpara>
+jpn
+</simpara>
+</entry>
+<entry>
+<simpara>
+Japanese
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>kor</simpara></entry>
-<entry align="left" valign="top"><simpara>Korean</simpara></entry>
+<entry>
+<simpara>
+kor
+</simpara>
+</entry>
+<entry>
+<simpara>
+Korean
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>lav</simpara></entry>
-<entry align="left" valign="top"><simpara>Latvian</simpara></entry>
+<entry>
+<simpara>
+lav
+</simpara>
+</entry>
+<entry>
+<simpara>
+Latvian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>lit</simpara></entry>
-<entry align="left" valign="top"><simpara>Lithuanian</simpara></entry>
+<entry>
+<simpara>
+lit
+</simpara>
+</entry>
+<entry>
+<simpara>
+Lithuanian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>nld</simpara></entry>
-<entry align="left" valign="top"><simpara>Dutch</simpara></entry>
+<entry>
+<simpara>
+nld
+</simpara>
+</entry>
+<entry>
+<simpara>
+Dutch
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>nor</simpara></entry>
-<entry align="left" valign="top"><simpara>Norwegian</simpara></entry>
+<entry>
+<simpara>
+nor
+</simpara>
+</entry>
+<entry>
+<simpara>
+Norwegian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>pol</simpara></entry>
-<entry align="left" valign="top"><simpara>Polish</simpara></entry>
+<entry>
+<simpara>
+pol
+</simpara>
+</entry>
+<entry>
+<simpara>
+Polish
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>por</simpara></entry>
-<entry align="left" valign="top"><simpara>Portuguese</simpara></entry>
+<entry>
+<simpara>
+por
+</simpara>
+</entry>
+<entry>
+<simpara>
+Portuguese
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>ron</simpara></entry>
-<entry align="left" valign="top"><simpara>Romanian</simpara></entry>
+<entry>
+<simpara>
+ron
+</simpara>
+</entry>
+<entry>
+<simpara>
+Romanian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>rus</simpara></entry>
-<entry align="left" valign="top"><simpara>Russian</simpara></entry>
+<entry>
+<simpara>
+rus
+</simpara>
+</entry>
+<entry>
+<simpara>
+Russian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>slk</simpara></entry>
-<entry align="left" valign="top"><simpara>Slovakian</simpara></entry>
+<entry>
+<simpara>
+slk
+</simpara>
+</entry>
+<entry>
+<simpara>
+Slovakian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>slv</simpara></entry>
-<entry align="left" valign="top"><simpara>Slovenian</simpara></entry>
+<entry>
+<simpara>
+slv
+</simpara>
+</entry>
+<entry>
+<simpara>
+Slovenian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>spa</simpara></entry>
-<entry align="left" valign="top"><simpara>Spanish</simpara></entry>
+<entry>
+<simpara>
+spa
+</simpara>
+</entry>
+<entry>
+<simpara>
+Spanish
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>srp</simpara></entry>
-<entry align="left" valign="top"><simpara>Serbian</simpara></entry>
+<entry>
+<simpara>
+srp
+</simpara>
+</entry>
+<entry>
+<simpara>
+Serbian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>swe</simpara></entry>
-<entry align="left" valign="top"><simpara>Swedish</simpara></entry>
+<entry>
+<simpara>
+swe
+</simpara>
+</entry>
+<entry>
+<simpara>
+Swedish
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>tgl</simpara></entry>
-<entry align="left" valign="top"><simpara>Tagalog</simpara></entry>
+<entry>
+<simpara>
+tgl
+</simpara>
+</entry>
+<entry>
+<simpara>
+Tagalog
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>tha</simpara></entry>
-<entry align="left" valign="top"><simpara>Thai</simpara></entry>
+<entry>
+<simpara>
+tha
+</simpara>
+</entry>
+<entry>
+<simpara>
+Thai
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>tur</simpara></entry>
-<entry align="left" valign="top"><simpara>Turkish</simpara></entry>
+<entry>
+<simpara>
+tur
+</simpara>
+</entry>
+<entry>
+<simpara>
+Turkish
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>ukr</simpara></entry>
-<entry align="left" valign="top"><simpara>Ukrainian</simpara></entry>
+<entry>
+<simpara>
+ukr
+</simpara>
+</entry>
+<entry>
+<simpara>
+Ukrainian
+</simpara>
+</entry>
 </row>
 <row>
-<entry align="left" valign="top"><simpara>vie</simpara></entry>
-<entry align="left" valign="top"><simpara>Vietnamese</simpara></entry>
+<entry>
+<simpara>
+vie
+</simpara>
+</entry>
+<entry>
+<simpara>
+Vietnamese
+</simpara>
+</entry>
 </row>
-</tbody>
-</tgroup>
-</informaltable>
+</tbody></tgroup></informaltable>
 </refsect1>
 <refsect1 id="_history">
 <title>HISTORY</title>
