@@ -115,7 +115,7 @@ int OtsuStats(const int* histogram, int* H_out, int* omega0_out) {
   double mu_T = 0.0;
   for (int i = 0; i < kHistogramSize; ++i) {
     H += histogram[i];
-    mu_T += i * histogram[i];
+    mu_T += static_cast<double>(i) * histogram[i];
   }
 
   // Now maximize sig_sq_B over t.
