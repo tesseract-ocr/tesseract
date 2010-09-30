@@ -47,7 +47,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..,../..,../../image,../../ccutil,../../ccmain,../../api"
+				AdditionalIncludeDirectories="..;../..;../../image;../../ccutil;../../ccmain;../../api;..\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -137,7 +137,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..,../..,../../image,../../ccutil,../../ccmain,../../api"
+				AdditionalIncludeDirectories="..;../..;../../image;../../ccutil;../../ccmain;../../api;..\vs2008\include;..\include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

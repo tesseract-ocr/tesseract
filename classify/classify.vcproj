@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="classify"
 	ProjectGUID="{C7C7FBB5-7082-428C-8F81-8FBA7A37AC85}"
 	RootNamespace="classify"
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil,..\cutil,..\viewer,..\image,..\ccstruct,..\dict"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\vs2008\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil,..\cutil,..\viewer,..\image,..\ccstruct,..\dict"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;&quot;C:\usr\projects\tesseract-ocr\vs2008\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

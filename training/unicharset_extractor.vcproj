@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="unicharset_extractor"
 	ProjectGUID="{06878883-8785-4C71-89B6-47CEDA3CD300}"
+	RootNamespace="unicharset_extractor"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"
 	>
@@ -47,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../ccutil"
+				AdditionalIncludeDirectories="../ccutil;..\vs2008\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -73,7 +74,8 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="user32.lib"
+				AdditionalDependencies="user32.lib ..\vs2008\Release\ccutil.lib"
+				ShowProgress="0"
 				OutputFile="..\unicharset_extractor.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
