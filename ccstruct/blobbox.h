@@ -456,7 +456,9 @@ class TO_BLOCK:public ELIST_LINK
     }
 
     // Draw the blobs on on the various lists in the block in different colors.
+#ifndef GRAPHICS_DISABLED
     void plot_graded_blobs(ScrollView* to_win);
+#endif
 
     BLOBNBOX_LIST blobs;         //medium size
     BLOBNBOX_LIST underlines;    //underline blobs
@@ -549,9 +551,10 @@ void vertical_coutline_projection(                     //project outlines
                                   C_OUTLINE *outline,  //outline to project
                                   STATS *stats         //output
                                  );
+#ifndef GRAPHICS_DISABLED
 void plot_blob_list(ScrollView* win,                   // window to draw in
                     BLOBNBOX_LIST *list,               // blob list
                     ScrollView::Color body_colour,     // colour to draw
                     ScrollView::Color child_colour);   // colour of child
-
+#endif //GRAPHICS_DISABLED
 #endif

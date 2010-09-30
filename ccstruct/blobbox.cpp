@@ -776,6 +776,7 @@ TO_BLOCK::~TO_BLOCK() {
   clear_blobnboxes(&large_blobs);
 }
 
+#ifndef GRAPHICS_DISABLED
 // Draw the blobs on the various lists in the block in different colors.
 void TO_BLOCK::plot_graded_blobs(ScrollView* to_win) {
   plot_blob_list(to_win, &noise_blobs, ScrollView::CORAL, ScrollView::BLUE);
@@ -802,4 +803,5 @@ void plot_blob_list(ScrollView* win,                   // window to draw in
   }
 }
 
+#endif //GRAPHICS_DISABLED
 
