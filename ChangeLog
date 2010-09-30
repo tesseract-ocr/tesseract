@@ -5,7 +5,7 @@
        and began moving code into the classes.
      * Moved thresholding code to a separate class.
   * Added major new page layout analysis module.
-  * Added HOCR output.
+  * Added HOCR output (issues 221, 263: thanks to amkryukov).
   * Added Leptonica as main image I/O and handling. Currently optional,
     but in future releases linking with Leptonica will be mandatory.
   * Ambiguity table rewritten to allow definite replacements in place
@@ -15,7 +15,20 @@
   * VC++6 no longer supported. It can't cope with the use of templates.
   * Many more languages added. 
   * Doxygenation of most of the function header comments.
-
+  * Added man pages.
+  * Added bash completion script (issue 247: thanks to neskiem)
+  * Fix integer overview in thresholding (issue 366: thanks to Cyanide.Drake)
+  * Add Danish Fraktur support (issues 300, 360: thanks to 
+    dsl602230@vip.cybercity.dk)
+  * Fix file pointer leak (issue 359, thanks to yukihiro.nakadaira)
+  * Fix an error using user-words (Issue 345: thanks to max.markin)
+  * Fix a memory leak in tablefind.cpp (Issue 342, thanks to zdravco)
+  * Fix a segfault due to double fclose (Issue 320, thanks to souther)
+  * Fix an automake error (Issue 318, thanks to ichanjz)
+  * Fix a Win32 crash on fileFormatIsTiff() (Issues 304, 316, 317, 330, 347,
+    349, 352: thanks to nguyenq87, max.markin, zdenop)
+  * Fixed a number of errors in newer (stricter) versions of VC++ (Issues 
+    301, among others)
 
 2010-07-19  gettextize  <bug-gnu-gettext@gnu.org>
 
