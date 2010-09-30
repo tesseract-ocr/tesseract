@@ -55,7 +55,7 @@ components from tessdata/eng.traineddata.</simpara>
 <simpara><emphasis role="strong">-o</emphasis> <emphasis>.traineddata</emphasis> <emphasis>FILE</emphasis>&#8230;:
     Overwrites the specified components of the .traineddata file
     with those provided on the comand line.</simpara>
-<simpara><emphasis role="strong">-u</emphasis> <emphasis>.traineddata</emphasis> <emphasis>PATH PREFIX</emphasis>
+<simpara><emphasis role="strong">-u</emphasis> <emphasis>.traineddata</emphasis> <emphasis>PATHPREFIX</emphasis>
     Unpacks the .traineddata using the provided prefix.</simpara>
 </refsect1>
 <refsect1 id="_caveats">
