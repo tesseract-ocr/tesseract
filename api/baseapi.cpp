@@ -17,6 +17,16 @@
  *
  **********************************************************************/
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#ifdef HAVE_LIBLEPT
+// Include leptonica library only if autoconf (or makefile etc) tell us to.
+#include "allheaders.h"
+#endif
+
 #include "baseapi.h"
 
 #include "thresholder.h"
@@ -47,16 +57,6 @@
 #include "osdetect.h"
 #include "chopper.h"
 #include "matchtab.h"
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
-#ifdef HAVE_LIBLEPT
-// Include leptonica library only if autoconf (or makefile etc) tell us to.
-#include "allheaders.h"
-#endif
 
 namespace tesseract {
 

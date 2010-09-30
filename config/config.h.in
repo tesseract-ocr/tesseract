@@ -12,10 +12,6 @@
 /* Disable graphics */
 #undef DISABLE_GRAPHICS
 
-/* Define to 1 if translation of program messages to the user's native
-   language is requested. */
-#undef ENABLE_NLS
-
 /* Define to 1 if you have the `acos' function. */
 #undef HAVE_ACOS
 
@@ -24,18 +20,6 @@
 
 /* Define to 1 if you have the `asin' function. */
 #undef HAVE_ASIN
-
-/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
-   CoreFoundation framework. */
-#undef HAVE_CFLOCALECOPYCURRENT
-
-/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
-   the CoreFoundation framework. */
-#undef HAVE_CFPREFERENCESCOPYAPPVALUE
-
-/* Define if the GNU dcgettext() function is already present or preinstalled.
-   */
-#undef HAVE_DCGETTEXT
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -48,12 +32,6 @@
 
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
-
-/* Define if the GNU gettext() function is already present or preinstalled. */
-#undef HAVE_GETTEXT
-
-/* Define if you have the iconv() function and it works. */
-#undef HAVE_ICONV
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -164,9 +142,6 @@
    */
 #undef LT_OBJDIR
 
-/* Disable NLS */
-#undef NO_GETTEXT
-
 /* Name of package */
 #undef PACKAGE
 
@@ -239,9 +214,11 @@
 #define GRAPHICS_DISABLED
 #endif
 
+/* Not used yet
 #ifndef NO_GETTEXT
 #define USING_GETTEXT
 #endif
+*/
 
 /* config_auto.h: end */
 #endif

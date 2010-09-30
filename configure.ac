@@ -85,19 +85,20 @@ fi
 
 localedir='${prefix}/share/locale'
 
-AC_ARG_ENABLE([nls],
-    [  --enable-nls         Enable nls (gettext) (default).],
-    [enable_nls=$enableval],
-    [enable_nls="yes"])
-AC_MSG_RESULT($enable_nls)
-if test "$enable_nls" = "yes"; then
-  AM_GNU_GETTEXT_VERSION([0.17])
-  AM_GNU_GETTEXT([external])  
-  AC_SUBST(localedir)
-else
-  AC_DEFINE([NO_GETTEXT], [], [Disable NLS])
-fi
-AM_CONDITIONAL([USING_GETTEXT], [test "$enable_nls" = "yes"])
+# Not used yet, so disable
+#AC_ARG_ENABLE([gettext],
+#    [  --enable-gettext         Enable gettext (default).],
+#    [enable_gettext=$enableval],
+#    [enable_gettext="yes"])
+#AC_MSG_RESULT($enable_gettext)
+#if test "$enable_gettext" = "yes"; then
+#  AM_GNU_GETTEXT_VERSION([0.17])
+#  AM_GNU_GETTEXT([external])  
+#  AC_SUBST(localedir)
+#else
+#  AC_DEFINE([NO_GETTEXT], [], [Disable Gettext])
+#fi
+#AM_CONDITIONAL([USING_GETTEXT], [test "$enable_gettext" = "yes"])
 
 # Always look into a "gnu" directory.
 curwd=`pwd`
@@ -354,9 +355,9 @@ fi
 
 # Output files
 AC_CONFIG_FILES(Makefile)
-if test "$enable_nls" = "yes"; then
-AC_CONFIG_FILES(po/Makefile.in)
-fi
+#if test "$enable_gettext" = "yes"; then
+#AC_CONFIG_FILES(po/Makefile.in)
+#fi
 AC_CONFIG_FILES(api/Makefile)
 AC_CONFIG_FILES(ccmain/Makefile)
 AC_CONFIG_FILES(ccstruct/Makefile)
@@ -419,9 +420,11 @@ AH_BOTTOM([
 #define GRAPHICS_DISABLED
 #endif
 
+/* Not used yet
 #ifndef NO_GETTEXT
 #define USING_GETTEXT
 #endif
+*/
 
 /* config_auto.h: end */
 #endif
