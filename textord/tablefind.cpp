@@ -123,6 +123,8 @@ void ColumnFinder::GetCleanPartitions(TO_BLOCK* block) {
     }
     if (!clean_part->IsEmpty())
       clean_part_grid_.InsertBBox(true, true, clean_part);
+    else
+      delete clean_part;
   }
 
 // TODO(rays) This is the previous period blob code. Neither is completely
