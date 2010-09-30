@@ -254,6 +254,7 @@ int vfscanf(FILE* stream, const char *format, ...)
 }
 #endif
 
+#ifndef _MSV_VER
 static
 int tess_vfscanf(FILE* stream, const char *format, va_list ap)
 {
@@ -568,6 +569,7 @@ int tess_vfscanf(FILE* stream, const char *format, va_list ap)
 
   return converted;
 }
+#endif
 
 #ifdef EMBEDDED
 int creat(const char *pathname, mode_t mode)

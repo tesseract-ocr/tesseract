@@ -167,7 +167,11 @@ FEATURE ReadFeature(FILE *File, FEATURE_DESC FeatureDesc) {
 
   Feature = NewFeature (FeatureDesc);
   for (i = 0; i < Feature->Type->NumParams; i++) {
+#ifndef _MSC_VER
     if (tess_fscanf (File, "%f", &(Feature->Params[i])) != 1)
+#else
+    if (fscanf (File, "%f", &(Feature->Params[i])) != 1)
+#endif
       DoError (ILLEGAL_FEATURE_PARAM, "Illegal feature parameter spec");
 #ifndef __MSW32__
     assert (!isnan(Feature->Params[i]));

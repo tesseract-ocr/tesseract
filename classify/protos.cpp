@@ -377,7 +377,11 @@ void ReadProtos(register FILE *File, CLASS_TYPE Class) {
 
   for (Pid = 0; Pid < NumProtos; Pid++) {
     Proto = ProtoIn (Class, Pid);
+#ifndef _MSC_VER
     tess_fscanf (File, "%f %f %f %f %f %f %f\n",
+#else
+    fscanf (File, "%f %f %f %f %f %f %f\n",
+#endif
       &Proto->X,
       &Proto->Y,
       &Proto->Length,
