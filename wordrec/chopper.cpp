@@ -27,11 +27,6 @@
           I n c l u d e s
 ----------------------------------------------------------------------*/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include <math.h>
 
 #include "chopper.h"
@@ -56,6 +51,11 @@
 #include "unicharset.h"
 #include "wordclass.h"
 #include "wordrec.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 INT_VAR (repair_unchopped_blobs, 1, "Fix blobs that aren't chopped");
 

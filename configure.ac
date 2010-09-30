@@ -19,7 +19,7 @@ AC_CANONICAL_HOST
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
 PACKAGE_YEAR=2010
-PACKAGE_DATE="05/29"
+PACKAGE_DATE="09/30"
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -90,13 +90,14 @@ AC_ARG_ENABLE([nls],
     [enable_nls=$enableval],
     [enable_nls="yes"])
 AC_MSG_RESULT($enable_nls)
-if test "$enable_nls" = "no"; then
-  AC_DEFINE([DISABLE_NLS], [], [Disable NLS])
-else
+if test "$enable_nls" = "yes"; then
   AM_GNU_GETTEXT_VERSION([0.17])
   AM_GNU_GETTEXT([external])  
   AC_SUBST(localedir)
+else
+  AC_DEFINE([NO_GETTEXT], [], [Disable NLS])
 fi
+AM_CONDITIONAL([USING_GETTEXT], [test "$enable_nls" = "yes"])
 
 # Always look into a "gnu" directory.
 curwd=`pwd`
@@ -352,7 +353,10 @@ fi
 # AC_DEFINE_UNQUOTED(TESSERACT_VERSION,["${PACKAGE_VERSION}"],[version string])
 
 # Output files
-AC_CONFIG_FILES(Makefile po/Makefile.in)
+AC_CONFIG_FILES(Makefile)
+if test "$enable_nls" = "yes"; then
+AC_CONFIG_FILES(po/Makefile.in)
+fi
 AC_CONFIG_FILES(api/Makefile)
 AC_CONFIG_FILES(ccmain/Makefile)
 AC_CONFIG_FILES(ccstruct/Makefile)
@@ -415,8 +419,8 @@ AH_BOTTOM([
 #define GRAPHICS_DISABLED
 #endif
 
-#ifndef DISABLE_NLS
-#define USE_NLS
+#ifndef NO_GETTEXT
+#define USING_GETTEXT
 #endif
 
 /* config_auto.h: end */

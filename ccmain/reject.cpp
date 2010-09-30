@@ -24,11 +24,6 @@
 
 #include "mfcpch.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include          "tessvars.h"
 #ifdef __UNIX__
 #include          <assert.h>
@@ -57,6 +52,11 @@
 //}
 #include "tesseractclass.h"
 #include          "notdll.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 CLISTIZEH (STRING) CLISTIZE (STRING)
 #define EXTERN

@@ -17,17 +17,17 @@
  *
  **********************************************************************/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "mfcpch.h"
 #include          <string.h>
 #ifdef __UNIX__
 #include          <assert.h>
 #endif
 #include          "coutln.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 ELISTIZE_S (C_OUTLINE)
 ICOORD C_OUTLINE::step_coords[4] = {

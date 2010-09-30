@@ -17,17 +17,17 @@
  *
  **********************************************************************/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "mfcpch.h"
 #include          "varable.h"
 #include          "ocrrow.h"
 #include          "polyblob.h"
 //#include                                                      "lapoly.h"
 #include          "polyaprx.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #define EXTERN
 

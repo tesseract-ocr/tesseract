@@ -18,18 +18,8 @@
  **********************************************************************/
 #include "mfcpch.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
-#endif
-
-#ifdef HAVE_LIBLEPT
-// Include leptonica library only if autoconf (or makefile etc) tell us to.
-#include "allheaders.h"
 #endif
 
 #include "applybox.h"
@@ -56,6 +46,16 @@
 #define SECURE_NAMES
 #ifndef SECURE_NAMES
 #include          "wordstats.h"
+#endif
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#ifdef HAVE_LIBLEPT
+// Include leptonica library only if autoconf (or makefile etc) tell us to.
+#include "allheaders.h"
 #endif
 
 #define EXTERN

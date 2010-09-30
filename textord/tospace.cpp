@@ -1,14 +1,14 @@
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "mfcpch.h"
 #include "tovars.h"
 #include "drawtord.h"
 #include "tospace.h"
 #include "ndminx.h"
 #include "statistc.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 BOOL_VAR(tosp_old_to_method, FALSE, "Space stats use prechopping?");
 BOOL_VAR(tosp_only_use_prop_rows, TRUE,

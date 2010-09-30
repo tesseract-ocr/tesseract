@@ -27,11 +27,6 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "chop.h"
 #include "outlines.h"
 #include "olutil.h"
@@ -41,6 +36,11 @@
 #include "const.h"
 
 #include <math.h>
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 /*----------------------------------------------------------------------
               V a r i a b l e s

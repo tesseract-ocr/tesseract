@@ -27,11 +27,6 @@
           I n c l u d e s
 ---------------------------------------------------------------------*/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include <assert.h>
 
 #include "bestfirst.h"
@@ -54,6 +49,11 @@
 #include "unicharset.h"
 #include "wordclass.h"
 #include "wordrec.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 void call_caller();
 

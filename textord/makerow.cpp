@@ -17,11 +17,6 @@
  *
  **********************************************************************/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "mfcpch.h"
 #ifdef __UNIX__
 #include          <assert.h>
@@ -40,6 +35,11 @@
 #include          "tprintf.h"
 #include          "tesseractclass.h"
 #include          "tovars.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 BOOL_VAR(textord_heavy_nr, FALSE, "Vigorously remove noise");
 BOOL_VAR(textord_show_initial_rows, FALSE, "Display row accumulation");

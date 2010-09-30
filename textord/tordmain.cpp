@@ -16,11 +16,6 @@
  ** limitations under the License.
  *
  **********************************************************************/
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "mfcpch.h"
 #ifdef __UNIX__
 #include <assert.h>
@@ -40,6 +35,11 @@
 #include "tordmain.h"
 #include "secname.h"
 #include "tesseractclass.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 // Some of the code in this file is dependent upon leptonica. If you don't
 // have it, you don't get this functionality.

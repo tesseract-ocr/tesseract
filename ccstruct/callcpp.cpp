@@ -17,27 +17,27 @@
  *
  **********************************************************************/
 
+#include "mfcpch.h"
+#include "errcode.h"
+#ifdef __UNIX__
+#include <assert.h>
+#include <stdarg.h>
+#endif
+#include <time.h>
+#include "memry.h"
+#include "scrollview.h"
+//#include          "evnts.h"
+#include "varable.h"
+#include "callcpp.h"
+#include "tprintf.h"
+//#include                                      "strace.h"
+#include "host.h"
+#include "unichar.h"
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
-#include "mfcpch.h"
-#include          "errcode.h"
-#ifdef __UNIX__
-#include          <assert.h>
-#include <stdarg.h>
-#endif
-#include          <time.h>
-#include          "memry.h"
-#include          "scrollview.h"
-//#include          "evnts.h"
-#include          "varable.h"
-#include          "callcpp.h"
-#include          "tprintf.h"
-//#include                                      "strace.h"
-#include          "host.h"
-#include "unichar.h"
 
 //extern "C" {
 

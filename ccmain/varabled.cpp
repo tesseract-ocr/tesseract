@@ -19,6 +19,13 @@
 //
 // The variables editor is used to edit all the variables used within
 // tesseract from the ui.
+#ifdef WIN32
+#else
+#include <stdlib.h>
+#include <stdio.h>
+#endif
+
+#include <map>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -28,13 +35,6 @@
 #ifndef GRAPHICS_DISABLED
 #include "varabled.h"
 
-#ifdef WIN32
-#else
-#include <stdlib.h>
-#include <stdio.h>
-#endif
-
-#include <map>
 
 #include "scrollview.h"
 #include "svmnode.h"

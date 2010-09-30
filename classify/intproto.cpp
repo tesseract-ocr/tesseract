@@ -18,11 +18,6 @@
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "helpers.h"
 #include "intproto.h"
 #include "picofeat.h"
@@ -43,6 +38,11 @@
 #include <assert.h>
 #ifdef __UNIX__
 #include <unistd.h>
+#endif
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
 #endif
 
 /* match debug display constants*/

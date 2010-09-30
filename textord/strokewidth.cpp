@@ -17,11 +17,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
@@ -30,6 +25,11 @@
 #include "blobbox.h"
 #include "tabfind.h"
 #include "tordmain.h"  // For SetBlobStrokeWidth.
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 namespace tesseract {
 

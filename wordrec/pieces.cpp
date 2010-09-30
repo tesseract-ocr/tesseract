@@ -25,11 +25,6 @@
 /*----------------------------------------------------------------------
           I n c l u d e s
 ----------------------------------------------------------------------*/
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "pieces.h"
 
 #include "blobs.h"
@@ -41,6 +36,11 @@
 #include "ratngs.h"
 #include "wordclass.h"
 #include "wordrec.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 /*----------------------------------------------------------------------
           M a c r o s

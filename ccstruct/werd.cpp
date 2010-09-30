@@ -18,14 +18,14 @@
  **********************************************************************/
 
 #include "mfcpch.h"
+#include          "blckerr.h"
+#include          "linlsq.h"
+#include          "werd.h"
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
-#include          "blckerr.h"
-#include          "linlsq.h"
-#include          "werd.h"
 
 #define FIRST_COLOUR    ScrollView::RED      //< first rainbow colour
 

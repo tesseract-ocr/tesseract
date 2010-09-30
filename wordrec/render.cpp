@@ -22,11 +22,6 @@
  ** limitations under the License.
  *
  *********************************************************************************/
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "render.h"
 #include "blobs.h"
 
@@ -36,6 +31,11 @@
 #include <math.h>
 
 #include "vecfuncs.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 /*----------------------------------------------------------------------
               V a r i a b l e s

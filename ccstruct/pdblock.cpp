@@ -17,16 +17,16 @@
  *
  **********************************************************************/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "mfcpch.h"
 #include          <stdlib.h>
 #include          "blckerr.h"
 #include          "pdblock.h"
 #include          "svshowim.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #include          "hpddef.h"     //must be last (handpd.dll)
 

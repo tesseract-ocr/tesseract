@@ -21,11 +21,6 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include          "pgedit.h"
 
 #include          <ctype.h>
@@ -49,6 +44,11 @@
 #include "tesseractclass.h"
 
 #include          "blread.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #ifndef GRAPHICS_DISABLED
 #define ASC_HEIGHT     (2 * bln_baseline_offset + bln_x_height)

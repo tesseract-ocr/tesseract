@@ -12,9 +12,6 @@
 /* Disable graphics */
 #undef DISABLE_GRAPHICS
 
-/* Disable NLS */
-#undef DISABLE_NLS
-
 /* Define to 1 if translation of program messages to the user's native
    language is requested. */
 #undef ENABLE_NLS
@@ -167,6 +164,9 @@
    */
 #undef LT_OBJDIR
 
+/* Disable NLS */
+#undef NO_GETTEXT
+
 /* Name of package */
 #undef PACKAGE
 
@@ -239,8 +239,8 @@
 #define GRAPHICS_DISABLED
 #endif
 
-#ifndef DISABLE_NLS
-#define USE_NLS
+#ifndef NO_GETTEXT
+#define USING_GETTEXT
 #endif
 
 /* config_auto.h: end */

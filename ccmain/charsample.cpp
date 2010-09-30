@@ -20,11 +20,6 @@
 
 #include "mfcpch.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include <stdio.h>
 #include          <ctype.h>
 #include          <math.h>
@@ -42,6 +37,11 @@
 #include          "secname.h"
 #include          "notdll.h"
 #include          "tesseractclass.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 extern inT32 demo_word;          // Hack for demos
 

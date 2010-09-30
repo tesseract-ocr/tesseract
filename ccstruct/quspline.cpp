@@ -18,14 +18,14 @@
  **********************************************************************/
 
 #include "mfcpch.h"
+#include          "memry.h"
+#include          "quadlsq.h"
+#include          "quspline.h"
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
-#include          "memry.h"
-#include          "quadlsq.h"
-#include          "quspline.h"
 
 #define QSPLINE_PRECISION 16     //no of steps to draw
 

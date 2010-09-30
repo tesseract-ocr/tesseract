@@ -25,11 +25,6 @@
 
 #include "mfcpch.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #ifdef __UNIX__
 #include          <assert.h>
 #endif
@@ -50,6 +45,11 @@
 #include          "matmatch.h"
 #include          "secname.h"
 #include          "tesseractclass.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 inT32 demo_word = 0;
 

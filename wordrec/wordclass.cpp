@@ -25,11 +25,6 @@
 /*----------------------------------------------------------------------
           I N C L U D E S
 ----------------------------------------------------------------------*/
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include <stdio.h>
 #ifdef __UNIX__
 #include <assert.h>
@@ -49,6 +44,11 @@
 #include "callcpp.h"
 #include <assert.h>
 #include "wordrec.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 extern TBLOB *newblob();
 

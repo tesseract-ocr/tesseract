@@ -19,11 +19,6 @@
 
 #include          "mfcpch.h"     //precompiled headers
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include          <stdio.h>
 #include          <stdarg.h>
 #include          "strngs.h"
@@ -32,6 +27,11 @@
 //#include                                      "ipeerr.h"
 #include          "tprintf.h"
 #include          "ccutil.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #define MAX_MSG_LEN     1024
 

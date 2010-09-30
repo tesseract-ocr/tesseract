@@ -16,14 +16,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
                           Include Files and Type Defines
-----------------------------------------------------------------------------**/
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
+----------------------------------------------------------------------------*/
 #include "intmatcher.h"
 #include "intproto.h"
 #include "tordvars.h"
@@ -33,12 +28,17 @@
 #include "classify.h"
 #include <math.h>
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #define CLASS_MASK_SIZE ((MAX_NUM_CLASSES*NUM_BITS_PER_CLASS \
 		+BITS_PER_WERD-1)/BITS_PER_WERD)
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
                     Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #define  SE_TABLE_BITS    9
 #define  SE_TABLE_SIZE  512
 #define TEMPLATE_CACHE 2
@@ -153,9 +153,9 @@ int set_proto_bits;
 int config_shifts;
 int set_config_bits;
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
 int Classify::ClassPruner(INT_TEMPLATES IntTemplates,

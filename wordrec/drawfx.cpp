@@ -17,15 +17,15 @@
  *
  **********************************************************************/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "mfcpch.h"
 #include          "debugwin.h"
 #include          "werd.h"
 #include          "drawfx.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #ifndef GRAPHICS_DISABLED
 #define FXDEMOWIN     "FXDemo"

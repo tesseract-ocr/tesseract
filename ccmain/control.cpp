@@ -20,11 +20,6 @@
 
 #include          "mfcpch.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include          "mainblk.h"
 #include          <string.h>
 #include          <math.h>
@@ -58,6 +53,11 @@
 #include "adaptmatch.h"
 #include "globals.h"
 #include "tesseractclass.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #define MIN_FONT_ROW_COUNT  8
 #define MAX_XHEIGHT_DIFF  3

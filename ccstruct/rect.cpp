@@ -17,13 +17,13 @@
  *
  **********************************************************************/
 
+#include          "mfcpch.h"     //precompiled headers
+#include          "rect.h"
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
-#include          "mfcpch.h"     //precompiled headers
-#include          "rect.h"
 
 /**********************************************************************
  * TBOX::TBOX()  Constructor from 2 ICOORDS

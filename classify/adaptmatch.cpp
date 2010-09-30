@@ -19,11 +19,6 @@
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include <ctype.h>
 #include "adaptmatch.h"
 #include "normfeat.h"
@@ -56,6 +51,11 @@
 #include <math.h>
 #ifdef __UNIX__
 #include <assert.h>
+#endif
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
 #endif
 
 #define ADAPT_TEMPLATE_SUFFIX ".a"

@@ -18,17 +18,17 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include          "charcut.h"
 #include          "imgs.h"
 #include          "svshowim.h"
 //#include          "evnts.h"
 #include          "notdll.h"
 #include	  "scrollview.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #define LARGEST(a,b) ( (a) > (b) ? (a) : (b) )
 #define SMALLEST(a,b) ( (a) > (b) ? (b) : (a) )

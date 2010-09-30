@@ -22,11 +22,6 @@
  ** limitations under the License.
  *
  *********************************************************************************/
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #ifdef __UNIX__
 #include <assert.h>
 #endif
@@ -34,6 +29,11 @@
 #include "plotedges.h"
 #include "render.h"
 #include "split.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #ifndef GRAPHICS_DISABLED
 

@@ -18,11 +18,6 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include          <stdlib.h>
 #include          <math.h>
 #include          <string.h>
@@ -42,6 +37,11 @@
 #include          "matmatch.h"
 #include          "secname.h"
 #include "svshowim.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #define EXTERN
 

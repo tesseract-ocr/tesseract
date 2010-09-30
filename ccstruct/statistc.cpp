@@ -17,11 +17,6 @@
  *
  **********************************************************************/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include          "mfcpch.h"     //precompiled headers
 #include          <string.h>
 #include          <math.h>
@@ -30,6 +25,11 @@
 //#include                                      "ipeerr.h"
 #include          "tprintf.h"
 #include          "statistc.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #define SEED1       0x1234       //default seeds
 #define SEED2       0x5678

@@ -17,17 +17,17 @@
  *
  **********************************************************************/
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "mfcpch.h"
 #include          <stdlib.h>
 #include          "statistc.h"
 #include          "memry.h"
 #include          "statistc.h"
 #include          "lmedsq.h"
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #define EXTERN
 
