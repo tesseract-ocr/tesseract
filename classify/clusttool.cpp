@@ -294,7 +294,7 @@ ReadNFloats (FILE * File, uinT16 N, FLOAT32 Buffer[]) {
     Buffer = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
 
   for (i = 0; i < N; i++) {
-#ifndef _MSV_VER
+#ifndef _MSC_VER
     NumFloatsRead = tess_fscanf (File, "%f", &(Buffer[i]));
 #else
     NumFloatsRead = fscanf (File, "%f", &(Buffer[i]));
