@@ -526,6 +526,7 @@ DLLSYM BOOL8 read_variables_file(const char *file,  // name to read
   inT16 nameoffset;              // offset for real name
   FILE *fp;                      // file pointer
                                  // iterators
+  bool ret;
 
   if (*file == PLUS) {
     flag = PLUS;                 // file has flag
@@ -543,8 +544,9 @@ DLLSYM BOOL8 read_variables_file(const char *file,  // name to read
     tprintf("read_variables_file: Can't open %s\n", file + nameoffset);
     return TRUE;                 // can't open it
   }
-  return read_variables_from_fp(fp, -1, global_only);
+  ret = read_variables_from_fp(fp, -1, global_only);
   fclose(fp);
+  return ret;
 }
 
 bool read_variables_from_fp(FILE *fp, inT64 end_offset, bool global_only) {
@@ -634,7 +636,7 @@ bool set_variable(const char *variable, const char* value) {
     if (!double_it.cycled_list()
         && sscanf(value, "%lf", &doubleval) == 1) {
 #endif
-      foundit = true;        // found the varaible
+      foundit = true;        // found the variable
       double_it.data()->set_value(doubleval);
     }
   }

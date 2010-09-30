@@ -894,6 +894,7 @@ const char *Tesseract::char_ambiguities(char c) {
     while (fscanf (cs_file, "%s", buff) == 1) {
       cs_it.add_after_then_move (new STRING (buff));
     }
+    fclose (cs_file);
     read_conflict_sets = TRUE;
     cs_it.move_to_first ();
     if (tessedit_rejection_debug) {
