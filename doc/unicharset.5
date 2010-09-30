@@ -1,0 +1,81 @@
+'\" t
+.\"     Title: unicharset
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 09/30/2010
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "UNICHARSET" "5" "09/30/2010" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+unicharset \- character properties for use by Tesseract
+.SH "DESCRIPTION"
+.sp
+Tesseract needs to have access to the character properties isalpha, isdigit, isupper, islower, ispunctuation\&. This data must be encoded in the unicharset data file\&. Each line of this file corresponds to one character\&. The character in UTF\-8 is followed by a hexadecimal number representing a binary mask that encodes the properties\&. Each bit corresponds to a property\&. If the bit is set to 1, it means that the property is true\&. The bit ordering is (from least significant bit to most significant bit): isalpha, islower, isupper, isdigit, ispunctuation\&.
+.sp
+Each line in the unicharset file has four space\-separated fields:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+[character] [properties] [script] [id]
+.fi
+.if n \{\
+.RE
+.\}
+.SH "EXAMPLE"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+; 10 Common 46
+b 3 Latin 59
+W 5 Latin 40
+7 8 Common 66
+= 0 Common 93
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+";" is a punctuation character\&. Its properties are thus represented by the binary number 10000 (10 in hexadecimal)\&.
+.sp
+"b" is an alphabetic character and a lower case character\&. Its properties are thus represented by the binary number 00011 (3 in hexadecimal)\&.
+.sp
+"W" is an alphabetic character and an upper case character\&. Its properties are thus represented by the binary number 00101 (5 in hexadecimal)\&.
+.sp
+"7" is just a digit\&. Its properties are thus represented by the binary number 01000 (8 in hexadecimal)\&.
+.sp
+"=" is not punctuation nor a digit nor an alphabetic character\&. Its properties are thus represented by the binary number 00000 (0 in hexadecimal)\&.
+.sp
+Japanese or Chinese alphabetic character properties are represented by the binary number 00001 (1 in hexadecimal): they are alphabetic, but neither upper nor lower case\&.
+.sp
+The last two columns represent the type of script (Latin, Common, Greek, Cyrillic, Han, null) and id code of the character\&.
+.SH "HISTORY"
+.sp
+The unicharset format first appeared with Tesseract 2\&.00, which was the first version to support languages other than English\&. The unicharset file contained only the first two fields, and the "ispunctuation" property was absent (punctuation was regarded as "0", as "=" is in the above example\&.
+.SH "SEE ALSO"
+.sp
+tesseract(1), unicharset_extractor(1)

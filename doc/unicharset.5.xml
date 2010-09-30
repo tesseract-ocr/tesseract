@@ -23,9 +23,9 @@ number representing a binary mask that encodes the properties.
 Each bit corresponds to a property. If the bit is set to 1, it
 means that the property is true. The bit ordering is (from least
 significant bit to most significant bit): isalpha, islower, isupper,
-isdigit.</simpara>
-<simpara>Each line in the unicharset file has four space-separated fields:
-   [character] [properties] [script] [id]</simpara>
+isdigit, ispunctuation.</simpara>
+<simpara>Each line in the unicharset file has four space-separated fields:</simpara>
+<literallayout class="monospaced">[character] [properties] [script] [id]</literallayout>
 </refsect1>
 <refsect1 id="_example">
 <title>EXAMPLE</title>

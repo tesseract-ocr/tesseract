@@ -1,0 +1,62 @@
+'\" t
+.\"     Title: unicharset_extractor
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 09/30/2010
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "UNICHARSET_EXTRACTOR" "1" "09/30/2010" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+unicharset_extractor \- extract unicharset from Tesseract boxfiles
+.SH "SYNOPSIS"
+.sp
+\fBunicharset_extractor\fR \fIFILE\fR\&...
+.SH "DESCRIPTION"
+.sp
+Tesseract needs to know the set of possible characters it can output\&. To generate the unicharset data file, use the unicharset_extractor program on the same training pages bounding box files as used for clustering:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+unicharset_extractor fontfile_1\&.box fontfile_2\&.box \&.\&.\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Tesseract needs to have access to character properties isalpha, isdigit, isupper, islower, ispunctuation\&. This data must be encoded in the unicharset data file\&. Each line of this file corresponds to one character\&. The character in UTF\-8 is followed by a hexadecimal number representing a binary mask that encodes the properties\&. Each bit corresponds to a property\&. If the bit is set to 1, it means that the property is true\&. The bit ordering is (from least significant bit to most significant bit): isalpha, islower, isupper, isdigit, ispunctuation\&. (See unicharset(5))
+.sp
+If your system supports the wctype functions, these values will be set automatically by unicharset_extractor and there is no need to edit the unicharset file\&. On some older systems (eg Windows 95), the unicharset file must be edited by hand to add these property description codes\&.
+.sp
+\fBNOTE\fR The unicharset file must be regenerated whenever inttemp, normproto and pffmtable are generated (i\&.e\&. they must all be recreated when the box file is changed) as they have to be in sync\&. This is made easier than in previous versions by running unicharset_extractor before mftraining and cntraining, and giving the unicharset to mftraining\&.
+.SH "SEE ALSO"
+.sp
+tesseract(1), unicharset(5)
+.SH "HISTORY"
+.sp
+unicharset_extractor first appeared in Tesseract 2\&.00\&.
+.SH "COPYING"
+.sp
+Copyright \(co 2006, Google Inc\&. Licensed under the Apache License, Version 2\&.0
