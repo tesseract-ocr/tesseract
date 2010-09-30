@@ -16538,6 +16538,14 @@ ac_config_files="$ac_config_files tessdata/tessconfigs/Makefile"
 
 ac_config_files="$ac_config_files testing/Makefile"
 
+ac_config_files="$ac_config_files vs2008/Makefile"
+
+ac_config_files="$ac_config_files vs2008/dlltest/Makefile"
+
+ac_config_files="$ac_config_files vs2008/include/Makefile"
+
+ac_config_files="$ac_config_files vs2008/include/leptonica/Makefile"
+
 if test "$enable_graphics" = "yes"; then
 ac_config_files="$ac_config_files java/Makefile"
 
@@ -17656,6 +17664,10 @@ do
     "tessdata/configs/Makefile") CONFIG_FILES="$CONFIG_FILES tessdata/configs/Makefile" ;;
     "tessdata/tessconfigs/Makefile") CONFIG_FILES="$CONFIG_FILES tessdata/tessconfigs/Makefile" ;;
     "testing/Makefile") CONFIG_FILES="$CONFIG_FILES testing/Makefile" ;;
+    "vs2008/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/Makefile" ;;
+    "vs2008/dlltest/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/dlltest/Makefile" ;;
+    "vs2008/include/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/include/Makefile" ;;
+    "vs2008/include/leptonica/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/include/leptonica/Makefile" ;;
     "java/Makefile") CONFIG_FILES="$CONFIG_FILES java/Makefile" ;;
     "java/com/Makefile") CONFIG_FILES="$CONFIG_FILES java/com/Makefile" ;;
     "java/com/google/Makefile") CONFIG_FILES="$CONFIG_FILES java/com/google/Makefile" ;;
