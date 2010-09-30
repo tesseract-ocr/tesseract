@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<?asciidoc-toc?>
+<?asciidoc-numbered?>
+<refentry lang="en">
+<refmeta>
+<refentrytitle>cntraining</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="source">&nbsp;</refmiscinfo>
+<refmiscinfo class="manual">&nbsp;</refmiscinfo>
+</refmeta>
+<refnamediv>
+    <refname>cntraining</refname>
+    <refpurpose>character normalization training for Tesseract</refpurpose>
+</refnamediv>
+<refsynopsisdiv id="_synopsis">
+<simpara><emphasis role="strong">cntraining</emphasis> <emphasis>FILE</emphasis>&#8230;</simpara>
+</refsynopsisdiv>
+<refsect1 id="_description">
+<title>DESCRIPTION</title>
+<simpara>cntraining takes a list of .tr files, from which it generates the
+normproto data file (the character normalization sensitivity prototypes).</simpara>
+</refsect1>
+<refsect1 id="_see_also">
+<title>SEE ALSO</title>
+<simpara>tesseract(1), mftraining(1)</simpara>
+<simpara><ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</ulink></simpara>
+</refsect1>
+<refsect1 id="_copying">
+<title>COPYING</title>
+<simpara>Copyright (c) Hewlett-Packard Company, 1988
+Licensed under the Apache License, Version 2.0</simpara>
+</refsect1>
+</refentry>
