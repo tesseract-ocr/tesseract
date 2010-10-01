@@ -275,7 +275,6 @@ data_DATA = bul.traineddata \
   vie.traineddata
 
 SUBDIRS = configs tessconfigs
-EXTRA_DIST = makedummies
 all: all-recursive
 
 .SUFFIXES:
@@ -645,79 +644,6 @@ uninstall-am: uninstall-dataDATA
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-recursive uninstall uninstall-am uninstall-dataDATA
 
-
-bul.traineddata : makedummies
-	touch bul.traineddata
-cat.traineddata : makedummies
-	touch cat.traineddata
-ces.traineddata : makedummies
-	touch ces.traineddata
-chi_sim.traineddata : makedummies
-	touch chi_sim.traineddata
-chi_tra.traineddata : makedummies
-	touch chi_tra.traineddata
-dan.traineddata : makedummies
-	touch dan.traineddata
-dan-frak.traineddata : makedummies
-	touch dan-frak.traineddata
-deu.traineddata : makedummies
-	touch deu.traineddata
-ell.traineddata : makedummies
-	touch ell.traineddata
-eng.traineddata : makedummies
-	touch eng.traineddata
-fin.traineddata : makedummies
-	touch fin.traineddata
-fra.traineddata : makedummies
-	touch fra.traineddata
-hun.traineddata : makedummies
-	touch hun.traineddata
-ind.traineddata : makedummies
-	touch ind.traineddata
-ita.traineddata : makedummies
-	touch ita.traineddata
-jpn.traineddata : makedummies
-	touch jpn.traineddata
-kor.traineddata : makedummies
-	touch kor.traineddata
-lav.traineddata : makedummies
-	touch lav.traineddata
-lit.traineddata : makedummies
-	touch lit.traineddata
-nld.traineddata : makedummies
-	touch nld.traineddata
-nor.traineddata : makedummies
-	touch nor.traineddata
-osd.traineddata : makedummies
-	touch osd.traineddata
-pol.traineddata : makedummies
-	touch pol.traineddata
-por.traineddata : makedummies
-	touch por.traineddata
-ron.traineddata : makedummies
-	touch ron.traineddata
-rus.traineddata : makedummies
-	touch rus.traineddata
-slk.traineddata : makedummies
-	touch slk.traineddata
-slv.traineddata : makedummies
-	touch slv.traineddata
-spa.traineddata : makedummies
-	touch spa.traineddata
-srp.traineddata : makedummies
-	touch srp.traineddata
-swe.traineddata : makedummies
-	touch swe.traineddata
-tgl.traineddata : makedummies
-	touch tgl.traineddata
-tha.traineddata : makedummies
-	touch tha.traineddata
-tur.traineddata : makedummies
-	touch tur.traineddata
-ukr.traineddata : makedummies
-	touch ukr.traineddata
-vie.traineddata : makedummies
-	touch vie.traineddata
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
