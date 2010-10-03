@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="cntraining"
 	ProjectGUID="{1AC769A4-E98E-48B9-B87B-90D7837031FA}"
 	RootNamespace="cntraining"
@@ -76,7 +76,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlib.lib"
-				OutputFile="..\cntraining.exe"
+				OutputFile="..\bin\cntraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="false"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="mftraining"
 	ProjectGUID="{EC8A9E75-C66E-4320-9D91-97F53ED7021B}"
 	RootNamespace="mftraining"
@@ -165,7 +165,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="user32.lib ws2_32.lib ..\vs2008\lib\leptonlib.lib"
-				OutputFile="..\mftraining.exe"
+				OutputFile="..\bin\mftraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="false"

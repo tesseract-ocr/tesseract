@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="combine_tessdata"
 	ProjectGUID="{3FB6B4AB-F35C-4E04-8EF7-B68906E50C6D}"
 	RootNamespace="combine_tessdata"
@@ -76,7 +76,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlib.lib"
-				OutputFile="..\combine_tessdata.exe"
+				OutputFile="..\bin\combine_tessdata.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="false"

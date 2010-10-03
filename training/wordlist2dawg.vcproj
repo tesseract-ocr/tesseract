@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="wordlist2dawg"
 	ProjectGUID="{5B6DC93B-30BE-4E8E-A396-3970A83CB74B}"
 	RootNamespace="wordlist2dawg"
@@ -77,7 +77,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlib.lib"
-				OutputFile="..\wordlist2dawg.exe"
+				OutputFile="..\bin\wordlist2dawg.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\./wordlist2dawg.pdb"
@@ -92,6 +92,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"

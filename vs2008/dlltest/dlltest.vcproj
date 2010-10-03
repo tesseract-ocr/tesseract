@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="dlltest"
 	ProjectGUID="{F8B1406B-1643-4402-B07A-8ADD9A52C01E}"
 	RootNamespace="dlltest"
@@ -74,7 +74,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="user32.lib ../tessdll.lib"
-				OutputFile=".\../../dlltest.exe"
+				OutputFile="..\..\bin\dlltest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\../dlltest.pdb"
@@ -164,7 +164,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib ../bin.dbg/tessdll.lib"
-				OutputFile="../../bin.dbg/dlltest.exe"
+				OutputFile="..\..\bin.dbg\dlltest.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="tessdll"
 	ProjectGUID="{CB522274-3353-41AE-A700-F365FC79DEDD}"
 	RootNamespace="tessdll"
@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlibd.lib"
-				OutputFile="../bin.dbg/tessdll.dll"
+				OutputFile="..\..\bin.dbg\tessdll.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -172,7 +172,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlib.lib"
-				OutputFile="..\tessdll.dll"
+				OutputFile="..\..\bin\tessdll.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\./tessdll.pdb"
