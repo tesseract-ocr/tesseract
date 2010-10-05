@@ -29,6 +29,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="xcopy $(SolutionDir)\lib\leptonlib.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -127,6 +128,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="xcopy $(SolutionDir)\lib\leptonlibd.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
