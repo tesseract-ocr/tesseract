@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="tesseract"
 	ProjectGUID="{47519557-3296-407A-BE51-8175C77B0868}"
 	RootNamespace="tesseract"
@@ -29,7 +29,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="xcopy $(SolutionDir)\lib\leptonlib.dll $(TargetDir)"
+				CommandLine="xcopy /Y $(SolutionDir)\lib\leptonlib.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -82,7 +82,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlib.lib"
-				OutputFile="..\bin\tesseract.exe"
+				OutputFile=".\bin\tesseract.exe"
 				Version="3.00"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -128,7 +128,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="xcopy $(SolutionDir)\lib\leptonlibd.dll $(TargetDir)"
+				CommandLine="xcopy /Y $(SolutionDir)\lib\leptonlibd.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -180,7 +180,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlibd.lib"
-				OutputFile="../bin.dbg/tesseract.exe"
+				OutputFile=".\bin.dbg\tesseract.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"

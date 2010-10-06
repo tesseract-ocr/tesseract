@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\../bin.dbg"
+			OutputDirectory=".\bin.dbg"
 			IntermediateDirectory=".\mftrain.Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -39,7 +39,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\../bin.dbg/mftraining.tlb"
+				TypeLibraryName=".\bin.dbg\mftraining.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -72,11 +72,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib ws2_32.lib ..\vs2008\lib\leptonlibd.lib"
-				OutputFile=".\../bin.dbg/mftraining.exe"
+				OutputFile=".\bin.dbg\mftraining.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\../bin.dbg/mftraining.pdb"
+				ProgramDatabaseFile=".\bin.dbg\mftraining.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -94,7 +94,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\../bin.dbg/mftraining.bsc"
+				OutputFile=".\bin.dbg\mftraining.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -165,7 +165,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="user32.lib ws2_32.lib ..\vs2008\lib\leptonlib.lib"
-				OutputFile="..\bin\mftraining.exe"
+				OutputFile=".\bin\mftraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="false"
@@ -203,33 +203,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\commontraining.cpp"
+			RelativePath="..\training\commontraining.cpp"
 			>
 		</File>
 		<File
-			RelativePath="mergenf.cpp"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="mftraining.cpp"
+			RelativePath="..\training\mergenf.cpp"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
@@ -251,7 +229,29 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="name2char.cpp"
+			RelativePath="..\training\mftraining.cpp"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					AdditionalIncludeDirectories=""
+					PreprocessorDefinitions=""
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\training\name2char.cpp"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="dlltest"
 	ProjectGUID="{F8B1406B-1643-4402-B07A-8ADD9A52C01E}"
 	RootNamespace="dlltest"
@@ -74,7 +74,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="user32.lib ../tessdll.lib"
-				OutputFile="..\..\bin\dlltest.exe"
+				OutputFile=".\..\bin\dlltest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\../dlltest.pdb"
@@ -109,7 +109,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\../bin.dbg"
+			OutputDirectory=".\bin.dbg"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -131,7 +131,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\../bin.dbg/dlltest.tlb"
+				TypeLibraryName=".\bin.dbg\dlltest.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -164,11 +164,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib ../bin.dbg/tessdll.lib"
-				OutputFile="..\..\bin.dbg\dlltest.exe"
+				OutputFile=".\..\bin.dbg\dlltest.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\../bin.dbg/dlltest.pdb"
+				ProgramDatabaseFile=".\bin.dbg\dlltest.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -186,7 +186,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\../bin.dbg/dlltest.bsc"
+				OutputFile=".\bin.dbg\dlltest.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"

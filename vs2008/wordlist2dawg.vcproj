@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="unicharset_extractor"
-	ProjectGUID="{06878883-8785-4C71-89B6-47CEDA3CD300}"
-	RootNamespace="unicharset_extractor"
+	Name="wordlist2dawg"
+	ProjectGUID="{5B6DC93B-30BE-4E8E-A396-3970A83CB74B}"
+	RootNamespace="wordlist2dawg"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="131072"
 	>
@@ -19,7 +19,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".."
-			IntermediateDirectory=".\uce.Release"
+			IntermediateDirectory=".\w2d.Release"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -41,22 +41,24 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\./unicharset_extractor.tlb"
+				TypeLibraryName=".\./wordlist2dawg.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../ccutil;..\vs2008\include"
+				AdditionalIncludeDirectories="../ccutil;../cutil;../dict;../viewer;../ccstruct;../image;../classify;..\vs2008\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				PrecompiledHeaderFile=".\uce.Release/unicharset_extractor.pch"
-				AssemblerListingLocation=".\uce.Release/"
-				ObjectFile=".\uce.Release/"
-				ProgramDataBaseFileName=".\uce.Release/"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="mfcpch.h"
+				PrecompiledHeaderFile=".\w2d.Release/wordlist2dawg.pch"
+				AssemblerListingLocation=".\w2d.Release/"
+				ObjectFile=".\w2d.Release/"
+				ProgramDataBaseFileName=".\w2d.Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
@@ -74,13 +76,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="user32.lib ..\vs2008\Release\ccutil.lib"
-				ShowProgress="0"
-				OutputFile="..\bin\unicharset_extractor.exe"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlib.lib"
+				OutputFile=".\bin\wordlist2dawg.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ProgramDatabaseFile=".\./unicharset_extractor.pdb"
+				ProgramDatabaseFile=".\./wordlist2dawg.pdb"
 				SubSystem="1"
+				OptimizeReferences="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -90,6 +92,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -97,7 +100,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\./unicharset_extractor.bsc"
+				OutputFile=".\./wordlist2dawg.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -111,8 +114,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\../bin.dbg"
-			IntermediateDirectory=".\uce.Debug"
+			OutputDirectory=".\bin.dbg"
+			IntermediateDirectory=".\w2d.Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -133,21 +136,23 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\../bin.dbg/unicharset_extractor.tlb"
+				TypeLibraryName=".\bin.dbg\wordlist2dawg.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../ccutil"
+				AdditionalIncludeDirectories="../ccutil;../cutil;../dict;../viewer;../ccstruct;../image;../classify;..\vs2008\include;..\vs2008\include\leptonica"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\uce.Debug/unicharset_extractor.pch"
-				AssemblerListingLocation=".\uce.Debug/"
-				ObjectFile=".\uce.Debug/"
-				ProgramDataBaseFileName=".\uce.Debug/"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="mfcpch.h"
+				PrecompiledHeaderFile=".\w2d.Debug/wordlist2dawg.pch"
+				AssemblerListingLocation=".\w2d.Debug/"
+				ObjectFile=".\w2d.Debug/"
+				ProgramDataBaseFileName=".\w2d.Debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
@@ -165,12 +170,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib"
-				OutputFile=".\../bin.dbg/unicharset_extractor.exe"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlibd.lib"
+				OutputFile=".\bin.dbg\wordlist2dawg.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\../bin.dbg/unicharset_extractor.pdb"
+				ProgramDatabaseFile=".\bin.dbg\wordlist2dawg.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -188,7 +193,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\../bin.dbg/unicharset_extractor.bsc"
+				OutputFile=".\bin.dbg\wordlist2dawg.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -209,7 +214,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="unicharset_extractor.cpp"
+				RelativePath="..\training\wordlist2dawg.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -218,6 +223,7 @@
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -227,6 +233,7 @@
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -236,19 +243,15 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath="..\classify\adaptmatch.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ccutil\ambigs.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\basedir.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\bits16.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\boxread.h"
+				RelativePath="..\ccstruct\ccstruct.h"
 				>
 			</File>
 			<File
@@ -256,11 +259,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\clst.h"
+				RelativePath="..\classify\classify.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\debugwin.h"
+				RelativePath="..\cutil\cutil_class.h"
+				>
+			</File>
+			<File
+				RelativePath="..\dict\dict.h"
 				>
 			</File>
 			<File
@@ -268,127 +275,31 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\elst2.h"
+				RelativePath="..\viewer\grphics.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\errcode.h"
+				RelativePath="..\image\image.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\fileerr.h"
+				RelativePath="..\dict\lookdawg.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\globaloc.h"
+				RelativePath="..\dict\makedawg.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\hashfn.h"
+				RelativePath="..\ccstruct\ratngs.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\host.h"
+				RelativePath="..\dict\reduce.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\hosthplb.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\lsterr.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\mainblk.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\memblk.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\memry.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\memryerr.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\mfcpch.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\ndminx.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\notdll.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\nwmain.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\ocrclass.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\ocrshell.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\platform.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\scanutils.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\secname.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\serialis.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\stderr.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\strngs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\tessclas.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\tessopt.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\tprintf.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\unichar.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\unicharmap.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\unicharset.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\varable.h"
+				RelativePath="..\cutil\variables.h"
 				>
 			</File>
 		</Filter>

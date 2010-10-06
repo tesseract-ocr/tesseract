@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cntraining", "..\training\cntraining.vcproj", "{1AC769A4-E98E-48B9-B87B-90D7837031FA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cntraining", "cntraining.vcproj", "{1AC769A4-E98E-48B9-B87B-90D7837031FA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0BDEFC56-679F-436E-A089-81FCAEBA50F3} = {0BDEFC56-679F-436E-A089-81FCAEBA50F3}
 		{2C106C68-62EE-43D2-B372-3BDFF6125AD1} = {2C106C68-62EE-43D2-B372-3BDFF6125AD1}
@@ -18,7 +18,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dlltest", "dlltest\dlltest.
 		{CB522274-3353-41AE-A700-F365FC79DEDD} = {CB522274-3353-41AE-A700-F365FC79DEDD}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mftraining", "..\training\mftraining.vcproj", "{EC8A9E75-C66E-4320-9D91-97F53ED7021B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mftraining", "mftraining.vcproj", "{EC8A9E75-C66E-4320-9D91-97F53ED7021B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0BDEFC56-679F-436E-A089-81FCAEBA50F3} = {0BDEFC56-679F-436E-A089-81FCAEBA50F3}
 		{2C106C68-62EE-43D2-B372-3BDFF6125AD1} = {2C106C68-62EE-43D2-B372-3BDFF6125AD1}
@@ -57,12 +57,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tesseract", "tesseract.vcpr
 		{D67B17CC-4AE5-4356-91F6-00E265942A56} = {D67B17CC-4AE5-4356-91F6-00E265942A56}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unicharset_extractor", "..\training\unicharset_extractor.vcproj", "{06878883-8785-4C71-89B6-47CEDA3CD300}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unicharset_extractor", "unicharset_extractor.vcproj", "{06878883-8785-4C71-89B6-47CEDA3CD300}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DF2FA86F-A663-4805-AED7-2F81D9EAC796} = {DF2FA86F-A663-4805-AED7-2F81D9EAC796}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wordlist2dawg", "..\training\wordlist2dawg.vcproj", "{5B6DC93B-30BE-4E8E-A396-3970A83CB74B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wordlist2dawg", "wordlist2dawg.vcproj", "{5B6DC93B-30BE-4E8E-A396-3970A83CB74B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0BDEFC56-679F-436E-A089-81FCAEBA50F3} = {0BDEFC56-679F-436E-A089-81FCAEBA50F3}
 		{2C106C68-62EE-43D2-B372-3BDFF6125AD1} = {2C106C68-62EE-43D2-B372-3BDFF6125AD1}
@@ -73,27 +73,27 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wordlist2dawg", "..\trainin
 		{D67B17CC-4AE5-4356-91F6-00E265942A56} = {D67B17CC-4AE5-4356-91F6-00E265942A56}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccutil", "..\ccutil\ccutil.vcproj", "{DF2FA86F-A663-4805-AED7-2F81D9EAC796}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccutil", "ccutil.vcproj", "{DF2FA86F-A663-4805-AED7-2F81D9EAC796}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "viewer", "..\viewer\viewer.vcproj", "{CE11FF6E-60D3-4E61-AFE2-F8F501100238}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "viewer", "viewer.vcproj", "{CE11FF6E-60D3-4E61-AFE2-F8F501100238}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cutil", "..\cutil\cutil.vcproj", "{0BDEFC56-679F-436E-A089-81FCAEBA50F3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cutil", "cutil.vcproj", "{0BDEFC56-679F-436E-A089-81FCAEBA50F3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "image", "..\image\image.vcproj", "{2C106C68-62EE-43D2-B372-3BDFF6125AD1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "image", "image.vcproj", "{2C106C68-62EE-43D2-B372-3BDFF6125AD1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccstruct", "..\ccstruct\ccstruct.vcproj", "{1D62F8BB-31D7-4BBF-A4DA-619A29675D06}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccstruct", "ccstruct.vcproj", "{1D62F8BB-31D7-4BBF-A4DA-619A29675D06}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dict", "..\dict\dict.vcproj", "{D67B17CC-4AE5-4356-91F6-00E265942A56}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dict", "dict.vcproj", "{D67B17CC-4AE5-4356-91F6-00E265942A56}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "classify", "..\classify\classify.vcproj", "{C7C7FBB5-7082-428C-8F81-8FBA7A37AC85}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "classify", "classify.vcproj", "{C7C7FBB5-7082-428C-8F81-8FBA7A37AC85}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wordrec", "..\wordrec\wordrec.vcproj", "{C2342D39-FD84-4448-A050-7FF3B4A33F3D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wordrec", "wordrec.vcproj", "{C2342D39-FD84-4448-A050-7FF3B4A33F3D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "textord", "..\textord\textord.vcproj", "{D5C6C872-4561-452D-BCFA-EF9441F95309}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "textord", "textord.vcproj", "{D5C6C872-4561-452D-BCFA-EF9441F95309}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccmain", "..\ccmain\ccmain.vcproj", "{EFE93017-B435-46EA-9199-1C83A869595A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ccmain", "ccmain.vcproj", "{EFE93017-B435-46EA-9199-1C83A869595A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "combine_tessdata", "..\training\combine_tessdata.vcproj", "{3FB6B4AB-F35C-4E04-8EF7-B68906E50C6D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "combine_tessdata", "combine_tessdata.vcproj", "{3FB6B4AB-F35C-4E04-8EF7-B68906E50C6D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DF2FA86F-A663-4805-AED7-2F81D9EAC796} = {DF2FA86F-A663-4805-AED7-2F81D9EAC796}
 	EndProjectSection

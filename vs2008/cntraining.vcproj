@@ -76,7 +76,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlib.lib"
-				OutputFile="..\bin\cntraining.exe"
+				OutputFile=".\bin\cntraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="false"
@@ -111,7 +111,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\../bin.dbg"
+			OutputDirectory=".\bin.dbg"
 			IntermediateDirectory=".\cntrain.Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -132,7 +132,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\../bin.dbg/cntraining.tlb"
+				TypeLibraryName=".\bin.dbg\cntraining.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -166,11 +166,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlibd.lib"
-				OutputFile=".\../bin.dbg/cntraining.exe"
+				OutputFile=".\bin.dbg\cntraining.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\../bin.dbg/cntraining.pdb"
+				ProgramDatabaseFile=".\bin.dbg\cntraining.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -188,7 +188,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\../bin.dbg/cntraining.bsc"
+				OutputFile=".\bin.dbg\cntraining.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -205,7 +205,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="cntraining.cpp"
+			RelativePath="..\training\cntraining.cpp"
 			>
 			<FileConfiguration
 				Name="Release|Win32"
@@ -227,11 +227,11 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\commontraining.cpp"
+			RelativePath="..\training\commontraining.cpp"
 			>
 		</File>
 		<File
-			RelativePath="name2char.cpp"
+			RelativePath="..\training\name2char.cpp"
 			>
 			<FileConfiguration
 				Name="Release|Win32"

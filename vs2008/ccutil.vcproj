@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="ccstruct"
-	ProjectGUID="{1D62F8BB-31D7-4BBF-A4DA-619A29675D06}"
-	RootNamespace="ccstruct"
+	Name="ccutil"
+	ProjectGUID="{DF2FA86F-A663-4805-AED7-2F81D9EAC796}"
+	RootNamespace="ccutil"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\vs2008\include"
+				AdditionalIncludeDirectories="..\vs2008\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\vs2008\include"
+				AdditionalIncludeDirectories="..\vs2008\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -151,7 +151,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\blobbox.cpp"
+				RelativePath="..\ccutil\ambigs.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\basedir.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -173,7 +177,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\blobs.cpp"
+				RelativePath="..\ccutil\bits16.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -195,7 +199,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\blread.cpp"
+				RelativePath="..\ccutil\boxread.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -217,7 +221,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\callcpp.cpp"
+				RelativePath="..\ccutil\ccutil.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\clst.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -239,11 +247,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\ccstruct.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\coutln.cpp"
+				RelativePath="..\ccutil\debugwin.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -265,11 +269,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\detlinefit.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\genblob.cpp"
+				RelativePath="..\ccutil\elst.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -291,7 +291,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\labls.cpp"
+				RelativePath="..\ccutil\elst2.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -313,7 +313,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\linlsq.cpp"
+				RelativePath="..\ccutil\errcode.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -335,7 +335,95 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\lmedsq.cpp"
+				RelativePath="..\ccutil\globaloc.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccutil\hashfn.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccutil\mainblk.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccutil\memblk.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccutil\memry.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -379,7 +467,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\mod128.cpp"
+				RelativePath="..\ccutil\ocrshell.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -401,7 +489,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\normalis.cpp"
+				RelativePath="..\ccutil\serialis.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -423,7 +511,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\ocrblock.cpp"
+				RelativePath="..\ccutil\strngs.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -445,7 +533,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\ocrrow.cpp"
+				RelativePath="..\ccutil\tessdatamanager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\tessopt.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -467,33 +559,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\otsuthr.cpp"
+				RelativePath="..\ccutil\tordvars.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\pageres.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\pdblock.cpp"
+				RelativePath="..\ccutil\tprintf.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -515,337 +585,19 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\points.cpp"
+				RelativePath="..\ccutil\unichar.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\polyaprx.cpp"
+				RelativePath="..\ccutil\unicharmap.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\polyblk.cpp"
+				RelativePath="..\ccutil\unicharset.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\polyblob.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\polyvert.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\poutline.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\quadlsq.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\quadratc.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\quspline.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\ratngs.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\rect.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\rejctmap.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\statistc.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\stepblob.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\vecfuncs.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\werd.cpp"
+				RelativePath="..\ccutil\varable.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -873,155 +625,183 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\blckerr.h"
+				RelativePath="..\ccutil\ambigs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\blobbox.h"
+				RelativePath="..\ccutil\basedir.h"
 				>
 			</File>
 			<File
-				RelativePath=".\blobs.h"
+				RelativePath="..\ccutil\bits16.h"
 				>
 			</File>
 			<File
-				RelativePath=".\blread.h"
+				RelativePath="..\ccutil\boxread.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ccstruct.h"
+				RelativePath="..\ccutil\callback.h"
 				>
 			</File>
 			<File
-				RelativePath=".\coutln.h"
+				RelativePath="..\ccutil\ccutil.h"
 				>
 			</File>
 			<File
-				RelativePath=".\crakedge.h"
+				RelativePath="..\ccutil\clst.h"
 				>
 			</File>
 			<File
-				RelativePath=".\detlinefit.h"
+				RelativePath="..\ccutil\debugwin.h"
 				>
 			</File>
 			<File
-				RelativePath=".\genblob.h"
+				RelativePath="..\ccutil\elst.h"
 				>
 			</File>
 			<File
-				RelativePath=".\hpddef.h"
+				RelativePath="..\ccutil\elst2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\hpdsizes.h"
+				RelativePath="..\ccutil\errcode.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ipoints.h"
+				RelativePath="..\ccutil\fileerr.h"
 				>
 			</File>
 			<File
-				RelativePath=".\labls.h"
+				RelativePath="..\ccutil\genericvector.h"
 				>
 			</File>
 			<File
-				RelativePath=".\linlsq.h"
+				RelativePath="..\ccutil\globaloc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lmedsq.h"
+				RelativePath="..\ccutil\hashfn.h"
 				>
 			</File>
 			<File
-				RelativePath=".\mod128.h"
+				RelativePath="..\ccutil\helpers.h"
 				>
 			</File>
 			<File
-				RelativePath=".\normalis.h"
+				RelativePath="..\ccutil\host.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ocrblock.h"
+				RelativePath="..\ccutil\hosthplb.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ocrrow.h"
+				RelativePath="..\ccutil\lsterr.h"
 				>
 			</File>
 			<File
-				RelativePath=".\otsuthr.h"
+				RelativePath="..\ccutil\mainblk.h"
 				>
 			</File>
 			<File
-				RelativePath=".\pageres.h"
+				RelativePath="..\ccutil\memblk.h"
 				>
 			</File>
 			<File
-				RelativePath=".\pdblock.h"
+				RelativePath="..\ccutil\memry.h"
 				>
 			</File>
 			<File
-				RelativePath=".\points.h"
+				RelativePath="..\ccutil\memryerr.h"
 				>
 			</File>
 			<File
-				RelativePath=".\polyaprx.h"
+				RelativePath="..\ccutil\mfcpch.h"
 				>
 			</File>
 			<File
-				RelativePath=".\polyblk.h"
+				RelativePath="..\ccutil\ndminx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\polyblob.h"
+				RelativePath="..\ccutil\notdll.h"
 				>
 			</File>
 			<File
-				RelativePath=".\polyvert.h"
+				RelativePath="..\ccutil\nwmain.h"
 				>
 			</File>
 			<File
-				RelativePath=".\poutline.h"
+				RelativePath="..\ccutil\ocrclass.h"
 				>
 			</File>
 			<File
-				RelativePath=".\quadlsq.h"
+				RelativePath="..\ccutil\ocrshell.h"
 				>
 			</File>
 			<File
-				RelativePath=".\quadratc.h"
+				RelativePath="..\ccutil\platform.h"
 				>
 			</File>
 			<File
-				RelativePath=".\quspline.h"
+				RelativePath="..\ccutil\qrsequence.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ratngs.h"
+				RelativePath="..\ccutil\secname.h"
 				>
 			</File>
 			<File
-				RelativePath=".\rect.h"
+				RelativePath="..\ccutil\serialis.h"
 				>
 			</File>
 			<File
-				RelativePath=".\rejctmap.h"
+				RelativePath="..\ccutil\stderr.h"
 				>
 			</File>
 			<File
-				RelativePath=".\statistc.h"
+				RelativePath="..\ccutil\strngs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\stepblob.h"
+				RelativePath="..\ccutil\tessclas.h"
 				>
 			</File>
 			<File
-				RelativePath=".\vecfuncs.h"
+				RelativePath="..\ccutil\tessdatamanager.h"
 				>
 			</File>
 			<File
-				RelativePath=".\werd.h"
+				RelativePath="..\ccutil\tessopt.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\tordvars.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\tprintf.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\unichar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\unicharmap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\unicharset.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\unicity_table.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\varable.h"
 				>
 			</File>
 		</Filter>

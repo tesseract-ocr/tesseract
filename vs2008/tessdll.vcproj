@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="tessdll"
 	ProjectGUID="{CB522274-3353-41AE-A700-F365FC79DEDD}"
 	RootNamespace="tessdll"
@@ -113,7 +113,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\."
+			OutputDirectory="..\bin\"
 			IntermediateDirectory=".\dll.Release"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -172,7 +172,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlib.lib"
-				OutputFile="..\..\bin\tessdll.dll"
+				OutputFile=".\bin\tessdll.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\./tessdll.pdb"

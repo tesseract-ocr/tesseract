@@ -155,19 +155,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\scrollview.cpp"
+				RelativePath="..\viewer\scrollview.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\svmnode.cpp"
+				RelativePath="..\viewer\svmnode.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\svpaint.cpp"
+				RelativePath="..\viewer\svpaint.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\svutil.cpp"
+				RelativePath="..\viewer\svutil.cpp"
 				>
 			</File>
 		</Filter>
@@ -177,15 +177,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\scrollview.h"
+				RelativePath="..\viewer\scrollview.h"
 				>
 			</File>
 			<File
-				RelativePath=".\svmnode.h"
+				RelativePath="..\viewer\svmnode.h"
 				>
 			</File>
 			<File
-				RelativePath=".\svutil.h"
+				RelativePath="..\viewer\svutil.h"
 				>
 			</File>
 		</Filter>

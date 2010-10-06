@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="cutil"
-	ProjectGUID="{0BDEFC56-679F-436E-A089-81FCAEBA50F3}"
-	RootNamespace="cutil"
+	Name="wordrec"
+	ProjectGUID="{C2342D39-FD84-4448-A050-7FF3B4A33F3D}"
+	RootNamespace="wordrec"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil,..\viewer"
+				AdditionalIncludeDirectories="..\ccutil,..\cutil,..\viewer,..\image,..\ccstruct,..\dict,..\classify"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil,..\viewer"
+				AdditionalIncludeDirectories="..\ccutil,..\cutil,..\viewer,..\image,..\ccstruct,..\dict,..\classify"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -151,55 +151,115 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\bitvec.cpp"
+				RelativePath="..\wordrec\associate.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\cutil.cpp"
+				RelativePath="..\wordrec\badwords.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\cutil_class.cpp"
+				RelativePath="..\wordrec\bestfirst.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\danerror.cpp"
+				RelativePath="..\wordrec\chop.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\efio.cpp"
+				RelativePath="..\wordrec\chopper.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\emalloc.cpp"
+				RelativePath="..\wordrec\closed.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\freelist.cpp"
+				RelativePath="..\wordrec\drawfx.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\globals.cpp"
+				RelativePath="..\wordrec\findseam.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\listio.cpp"
+				RelativePath="..\wordrec\gradechop.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\oldheap.cpp"
+				RelativePath="..\wordrec\heuristic.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\oldlist.cpp"
+				RelativePath="..\wordrec\makechop.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\structures.cpp"
+				RelativePath="..\wordrec\matchtab.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\tessarray.cpp"
+				RelativePath="..\wordrec\matrix.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\metrics.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\mfvars.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\olutil.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\outlines.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\pieces.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\plotedges.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\plotseg.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\render.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\seam.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\split.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\tally.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\tessinit.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\tface.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\wordclass.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\wordrec.cpp"
 				>
 			</File>
 		</Filter>
@@ -209,71 +269,119 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\bitvec.h"
+				RelativePath="..\wordrec\associate.h"
 				>
 			</File>
 			<File
-				RelativePath=".\callcpp.h"
+				RelativePath="..\wordrec\badwords.h"
 				>
 			</File>
 			<File
-				RelativePath=".\const.h"
+				RelativePath="..\wordrec\bestfirst.h"
 				>
 			</File>
 			<File
-				RelativePath=".\cutil.h"
+				RelativePath="..\wordrec\chop.h"
 				>
 			</File>
 			<File
-				RelativePath=".\cutil_class.h"
+				RelativePath="..\wordrec\chopper.h"
 				>
 			</File>
 			<File
-				RelativePath=".\danerror.h"
+				RelativePath="..\wordrec\closed.h"
 				>
 			</File>
 			<File
-				RelativePath=".\efio.h"
+				RelativePath="..\wordrec\drawfx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\emalloc.h"
+				RelativePath="..\wordrec\findseam.h"
 				>
 			</File>
 			<File
-				RelativePath=".\freelist.h"
+				RelativePath="..\wordrec\gradechop.h"
 				>
 			</File>
 			<File
-				RelativePath=".\funcdefs.h"
+				RelativePath="..\wordrec\heuristic.h"
 				>
 			</File>
 			<File
-				RelativePath=".\general.h"
+				RelativePath="..\wordrec\makechop.h"
 				>
 			</File>
 			<File
-				RelativePath=".\globals.h"
+				RelativePath="..\wordrec\matchtab.h"
 				>
 			</File>
 			<File
-				RelativePath=".\listio.h"
+				RelativePath="..\wordrec\matrix.h"
 				>
 			</File>
 			<File
-				RelativePath=".\oldheap.h"
+				RelativePath="..\wordrec\measure.h"
 				>
 			</File>
 			<File
-				RelativePath=".\oldlist.h"
+				RelativePath="..\wordrec\metrics.h"
 				>
 			</File>
 			<File
-				RelativePath=".\structures.h"
+				RelativePath="..\wordrec\mfvars.h"
 				>
 			</File>
 			<File
-				RelativePath=".\tessarray.h"
+				RelativePath="..\wordrec\olutil.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\outlines.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\pieces.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\plotedges.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\plotseg.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\render.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\seam.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\split.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\tally.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\tessinit.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\tface.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\wordclass.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wordrec\wordrec.h"
 				>
 			</File>
 		</Filter>

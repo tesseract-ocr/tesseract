@@ -151,7 +151,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\bitstrm.cpp"
+				RelativePath="..\image\bitstrm.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -171,7 +171,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\image.cpp"
+				RelativePath="..\image\image.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -191,7 +191,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\imgbmp.cpp"
+				RelativePath="..\image\imgbmp.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -211,7 +211,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\imgio.cpp"
+				RelativePath="..\image\imgio.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -231,7 +231,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\imgs.cpp"
+				RelativePath="..\image\imgs.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -251,7 +251,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\imgtiff.cpp"
+				RelativePath="..\image\imgtiff.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -293,7 +293,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\svshowim.cpp"
+				RelativePath="..\image\svshowim.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -321,43 +321,43 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\bitstrm.h"
+				RelativePath="..\image\bitstrm.h"
 				>
 			</File>
 			<File
-				RelativePath=".\image.h"
+				RelativePath="..\image\image.h"
 				>
 			</File>
 			<File
-				RelativePath=".\img.h"
+				RelativePath="..\image\img.h"
 				>
 			</File>
 			<File
-				RelativePath=".\imgbmp.h"
+				RelativePath="..\image\imgbmp.h"
 				>
 			</File>
 			<File
-				RelativePath=".\imgerrs.h"
+				RelativePath="..\image\imgerrs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\imgio.h"
+				RelativePath="..\image\imgio.h"
 				>
 			</File>
 			<File
-				RelativePath=".\imgs.h"
+				RelativePath="..\image\imgs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\imgtiff.h"
+				RelativePath="..\image\imgtiff.h"
 				>
 			</File>
 			<File
-				RelativePath=".\imgunpk.h"
+				RelativePath="..\image\imgunpk.h"
 				>
 			</File>
 			<File
-				RelativePath=".\svshowim.h"
+				RelativePath="..\image\svshowim.h"
 				>
 			</File>
 		</Filter>

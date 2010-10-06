@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="ccutil"
-	ProjectGUID="{DF2FA86F-A663-4805-AED7-2F81D9EAC796}"
-	RootNamespace="ccutil"
+	Name="textord"
+	ProjectGUID="{D5C6C872-4561-452D-BCFA-EF9441F95309}"
+	RootNamespace="textord"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\vs2008\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\classify;..\wordrec;..\ccmain;..\dict;..\api;..\vs2008\include;..\vs2008\include\leptonica"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -105,8 +105,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\vs2008\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\ccutil,..\cutil,..\viewer,..\image,..\ccstruct,..\classify,..\wordrec,..\ccmain,..\dict,..\api,..\vs2008\include;..\vs2008\include\leptonica"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -151,33 +151,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\ambigs.cpp"
+				RelativePath="..\textord\alignedblob.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\basedir.cpp"
+				RelativePath="..\textord\bbgrid.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\bits16.cpp"
+				RelativePath="..\textord\blkocc.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -199,7 +181,19 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\boxread.cpp"
+				RelativePath="..\textord\colfind.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\colpartition.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\colpartitionset.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\drawedg.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -221,11 +215,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\ccutil.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\clst.cpp"
+				RelativePath="..\textord\drawtord.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -247,7 +237,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\debugwin.cpp"
+				RelativePath="..\textord\edgblob.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -269,7 +259,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\elst.cpp"
+				RelativePath="..\textord\edgloop.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -291,7 +281,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\elst2.cpp"
+				RelativePath="..\textord\fpchop.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -313,7 +303,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\errcode.cpp"
+				RelativePath="..\textord\gap_map.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -335,7 +325,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\globaloc.cpp"
+				RelativePath="..\textord\imagefind.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\linefind.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\makerow.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -357,95 +355,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\hashfn.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\mainblk.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\memblk.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\memry.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\mfcpch.cpp"
+				RelativePath="..\ccutil\mfcpch.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -467,7 +377,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\ocrshell.cpp"
+				RelativePath="..\textord\oldbasel.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -489,7 +399,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\serialis.cpp"
+				RelativePath="..\textord\pagesegmain.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\pithsync.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -511,7 +425,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\strngs.cpp"
+				RelativePath="..\textord\pitsync1.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -533,11 +447,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\tessdatamanager.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\tessopt.cpp"
+				RelativePath="..\textord\scanedg.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -559,11 +469,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\tordvars.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\tprintf.cpp"
+				RelativePath="..\textord\sortflts.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -585,19 +491,23 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\unichar.cpp"
+				RelativePath="..\textord\strokewidth.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\unicharmap.cpp"
+				RelativePath="..\textord\tabfind.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\unicharset.cpp"
+				RelativePath="..\textord\tablefind.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\varable.cpp"
+				RelativePath="..\textord\tabvector.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\topitch.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -617,6 +527,120 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\textord\tordmain.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\textord\tospace.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\textord\tovars.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\textord\underlin.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\textord\wordseg.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\textord\workingpartset.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
@@ -625,183 +649,135 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\ambigs.h"
+				RelativePath="..\textord\alignedblob.h"
 				>
 			</File>
 			<File
-				RelativePath=".\basedir.h"
+				RelativePath="..\textord\bbgrid.h"
 				>
 			</File>
 			<File
-				RelativePath=".\bits16.h"
+				RelativePath="..\textord\blkocc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\boxread.h"
+				RelativePath="..\textord\blobcmpl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\callback.h"
+				RelativePath="..\textord\colfind.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ccutil.h"
+				RelativePath="..\textord\colpartition.h"
 				>
 			</File>
 			<File
-				RelativePath=".\clst.h"
+				RelativePath="..\textord\colpartitionset.h"
 				>
 			</File>
 			<File
-				RelativePath=".\debugwin.h"
+				RelativePath="..\textord\drawedg.h"
 				>
 			</File>
 			<File
-				RelativePath=".\elst.h"
+				RelativePath="..\textord\drawtord.h"
 				>
 			</File>
 			<File
-				RelativePath=".\elst2.h"
+				RelativePath="..\textord\edgblob.h"
 				>
 			</File>
 			<File
-				RelativePath=".\errcode.h"
+				RelativePath="..\textord\edgloop.h"
 				>
 			</File>
 			<File
-				RelativePath=".\fileerr.h"
+				RelativePath="..\textord\fpchop.h"
 				>
 			</File>
 			<File
-				RelativePath=".\genericvector.h"
+				RelativePath="..\textord\gap_map.h"
 				>
 			</File>
 			<File
-				RelativePath=".\globaloc.h"
+				RelativePath="..\textord\imagefind.h"
 				>
 			</File>
 			<File
-				RelativePath=".\hashfn.h"
+				RelativePath="..\textord\linefind.h"
 				>
 			</File>
 			<File
-				RelativePath=".\helpers.h"
+				RelativePath="..\textord\makerow.h"
 				>
 			</File>
 			<File
-				RelativePath=".\host.h"
+				RelativePath="..\textord\oldbasel.h"
 				>
 			</File>
 			<File
-				RelativePath=".\hosthplb.h"
+				RelativePath="..\textord\pithsync.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lsterr.h"
+				RelativePath="..\textord\pitsync1.h"
 				>
 			</File>
 			<File
-				RelativePath=".\mainblk.h"
+				RelativePath="..\textord\scanedg.h"
 				>
 			</File>
 			<File
-				RelativePath=".\memblk.h"
+				RelativePath="..\textord\sortflts.h"
 				>
 			</File>
 			<File
-				RelativePath=".\memry.h"
+				RelativePath="..\textord\strokewidth.h"
 				>
 			</File>
 			<File
-				RelativePath=".\memryerr.h"
+				RelativePath="..\textord\tabfind.h"
 				>
 			</File>
 			<File
-				RelativePath=".\mfcpch.h"
+				RelativePath="..\textord\tablefind.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ndminx.h"
+				RelativePath="..\textord\tabvector.h"
 				>
 			</File>
 			<File
-				RelativePath=".\notdll.h"
+				RelativePath="..\textord\tessout.h"
 				>
 			</File>
 			<File
-				RelativePath=".\nwmain.h"
+				RelativePath="..\textord\topitch.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ocrclass.h"
+				RelativePath="..\textord\tordmain.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ocrshell.h"
+				RelativePath="..\textord\tospace.h"
 				>
 			</File>
 			<File
-				RelativePath=".\platform.h"
+				RelativePath="..\textord\tovars.h"
 				>
 			</File>
 			<File
-				RelativePath=".\qrsequence.h"
+				RelativePath="..\textord\underlin.h"
 				>
 			</File>
 			<File
-				RelativePath=".\secname.h"
+				RelativePath="..\textord\wordseg.h"
 				>
 			</File>
 			<File
-				RelativePath=".\serialis.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stderr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\strngs.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tessclas.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tessdatamanager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tessopt.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tordvars.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tprintf.h"
-				>
-			</File>
-			<File
-				RelativePath=".\unichar.h"
-				>
-			</File>
-			<File
-				RelativePath=".\unicharmap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\unicharset.h"
-				>
-			</File>
-			<File
-				RelativePath=".\unicity_table.h"
-				>
-			</File>
-			<File
-				RelativePath=".\varable.h"
+				RelativePath="..\textord\workingpartset.h"
 				>
 			</File>
 		</Filter>

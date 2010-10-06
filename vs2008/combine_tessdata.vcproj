@@ -76,7 +76,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
 				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlib.lib"
-				OutputFile="..\bin\combine_tessdata.exe"
+				OutputFile=".\bin\combine_tessdata.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="false"
@@ -111,7 +111,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\../bin.dbg"
+			OutputDirectory=".\bin.dbg"
 			IntermediateDirectory=".\combine.Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -132,7 +132,7 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\../bin.dbg/combine_tessdata.tlb"
+				TypeLibraryName=".\bin.dbg\combine_tessdata.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -165,11 +165,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlibd.lib"
-				OutputFile=".\../bin.dbg/combine_tessdata.exe"
+				OutputFile=".\bin.dbg\combine_tessdata.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\../bin.dbg/combine_tessdata.pdb"
+				ProgramDatabaseFile=".\bin.dbg\combine_tessdata.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -187,7 +187,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\../bin.dbg/combine_tessdata.bsc"
+				OutputFile=".\bin.dbg\combine_tessdata.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -204,7 +204,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="combine_tessdata.cpp"
+			RelativePath="..\training\combine_tessdata.cpp"
 			>
 			<FileConfiguration
 				Name="Release|Win32"

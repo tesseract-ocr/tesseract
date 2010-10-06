@@ -151,131 +151,131 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\adaptive.cpp"
+				RelativePath="..\classify\adaptive.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\adaptmatch.cpp"
+				RelativePath="..\classify\adaptmatch.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\baseline.cpp"
+				RelativePath="..\classify\baseline.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\blobclass.cpp"
+				RelativePath="..\classify\blobclass.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\chartoname.cpp"
+				RelativePath="..\classify\chartoname.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\classify.cpp"
+				RelativePath="..\classify\classify.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\cluster.cpp"
+				RelativePath="..\classify\cluster.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\clusttool.cpp"
+				RelativePath="..\classify\clusttool.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\cutoffs.cpp"
+				RelativePath="..\classify\cutoffs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\extract.cpp"
+				RelativePath="..\classify\extract.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\featdefs.cpp"
+				RelativePath="..\classify\featdefs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\flexfx.cpp"
+				RelativePath="..\classify\flexfx.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\float2int.cpp"
+				RelativePath="..\classify\float2int.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fpoint.cpp"
+				RelativePath="..\classify\fpoint.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\fxdefs.cpp"
+				RelativePath="..\classify\fxdefs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\hideedge.cpp"
+				RelativePath="..\classify\hideedge.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\intfx.cpp"
+				RelativePath="..\classify\intfx.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\intmatcher.cpp"
+				RelativePath="..\classify\intmatcher.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\intproto.cpp"
+				RelativePath="..\classify\intproto.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\kdtree.cpp"
+				RelativePath="..\classify\kdtree.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\mf.cpp"
+				RelativePath="..\classify\mf.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\mfdefs.cpp"
+				RelativePath="..\classify\mfdefs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\mfoutline.cpp"
+				RelativePath="..\classify\mfoutline.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\mfx.cpp"
+				RelativePath="..\classify\mfx.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\normfeat.cpp"
+				RelativePath="..\classify\normfeat.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\normmatch.cpp"
+				RelativePath="..\classify\normmatch.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ocrfeatures.cpp"
+				RelativePath="..\classify\ocrfeatures.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\outfeat.cpp"
+				RelativePath="..\classify\outfeat.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\picofeat.cpp"
+				RelativePath="..\classify\picofeat.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\protos.cpp"
+				RelativePath="..\classify\protos.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\speckle.cpp"
+				RelativePath="..\classify\speckle.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\xform2d.cpp"
+				RelativePath="..\classify\xform2d.cpp"
 				>
 			</File>
 		</Filter>
@@ -285,139 +285,139 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\adaptive.h"
+				RelativePath="..\classify\adaptive.h"
 				>
 			</File>
 			<File
-				RelativePath=".\adaptmatch.h"
+				RelativePath="..\classify\adaptmatch.h"
 				>
 			</File>
 			<File
-				RelativePath=".\baseline.h"
+				RelativePath="..\classify\baseline.h"
 				>
 			</File>
 			<File
-				RelativePath=".\blobclass.h"
+				RelativePath="..\classify\blobclass.h"
 				>
 			</File>
 			<File
-				RelativePath=".\chartoname.h"
+				RelativePath="..\classify\chartoname.h"
 				>
 			</File>
 			<File
-				RelativePath=".\classify.h"
+				RelativePath="..\classify\classify.h"
 				>
 			</File>
 			<File
-				RelativePath=".\cluster.h"
+				RelativePath="..\classify\cluster.h"
 				>
 			</File>
 			<File
-				RelativePath=".\clusttool.h"
+				RelativePath="..\classify\clusttool.h"
 				>
 			</File>
 			<File
-				RelativePath=".\cutoffs.h"
+				RelativePath="..\classify\cutoffs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\extern.h"
+				RelativePath="..\classify\extern.h"
 				>
 			</File>
 			<File
-				RelativePath=".\extract.h"
+				RelativePath="..\classify\extract.h"
 				>
 			</File>
 			<File
-				RelativePath=".\featdefs.h"
+				RelativePath="..\classify\featdefs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\flexfx.h"
+				RelativePath="..\classify\flexfx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\float2int.h"
+				RelativePath="..\classify\float2int.h"
 				>
 			</File>
 			<File
-				RelativePath=".\fpoint.h"
+				RelativePath="..\classify\fpoint.h"
 				>
 			</File>
 			<File
-				RelativePath=".\fxdefs.h"
+				RelativePath="..\classify\fxdefs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\fxid.h"
+				RelativePath="..\classify\fxid.h"
 				>
 			</File>
 			<File
-				RelativePath=".\hideedge.h"
+				RelativePath="..\classify\hideedge.h"
 				>
 			</File>
 			<File
-				RelativePath=".\intfx.h"
+				RelativePath="..\classify\intfx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\intmatcher.h"
+				RelativePath="..\classify\intmatcher.h"
 				>
 			</File>
 			<File
-				RelativePath=".\intproto.h"
+				RelativePath="..\classify\intproto.h"
 				>
 			</File>
 			<File
-				RelativePath=".\kdtree.h"
+				RelativePath="..\classify\kdtree.h"
 				>
 			</File>
 			<File
-				RelativePath=".\mf.h"
+				RelativePath="..\classify\mf.h"
 				>
 			</File>
 			<File
-				RelativePath=".\mfdefs.h"
+				RelativePath="..\classify\mfdefs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\mfoutline.h"
+				RelativePath="..\classify\mfoutline.h"
 				>
 			</File>
 			<File
-				RelativePath=".\mfx.h"
+				RelativePath="..\classify\mfx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\normfeat.h"
+				RelativePath="..\classify\normfeat.h"
 				>
 			</File>
 			<File
-				RelativePath=".\normmatch.h"
+				RelativePath="..\classify\normmatch.h"
 				>
 			</File>
 			<File
-				RelativePath=".\ocrfeatures.h"
+				RelativePath="..\classify\ocrfeatures.h"
 				>
 			</File>
 			<File
-				RelativePath=".\outfeat.h"
+				RelativePath="..\classify\outfeat.h"
 				>
 			</File>
 			<File
-				RelativePath=".\picofeat.h"
+				RelativePath="..\classify\picofeat.h"
 				>
 			</File>
 			<File
-				RelativePath=".\protos.h"
+				RelativePath="..\classify\protos.h"
 				>
 			</File>
 			<File
-				RelativePath=".\speckle.h"
+				RelativePath="..\classify\speckle.h"
 				>
 			</File>
 			<File
-				RelativePath=".\xform2d.h"
+				RelativePath="..\classify\xform2d.h"
 				>
 			</File>
 		</Filter>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
-	Name="dict"
-	ProjectGUID="{D67B17CC-4AE5-4356-91F6-00E265942A56}"
-	RootNamespace="dict"
+	Version="9.00"
+	Name="cutil"
+	ProjectGUID="{0BDEFC56-679F-436E-A089-81FCAEBA50F3}"
+	RootNamespace="cutil"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\image;..\viewer;..\ccstruct;..\vs2008\include"
+				AdditionalIncludeDirectories="..\ccutil,..\viewer"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\image;..\viewer;..\ccstruct;..\vs2008\include"
+				AdditionalIncludeDirectories="..\ccutil,..\viewer"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -151,51 +151,55 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\choices.cpp"
+				RelativePath="..\cutil\bitvec.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\context.cpp"
+				RelativePath="..\cutil\cutil.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\conversion.cpp"
+				RelativePath="..\cutil\cutil_class.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\dawg.cpp"
+				RelativePath="..\cutil\danerror.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\dict.cpp"
+				RelativePath="..\cutil\efio.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\hyphen.cpp"
+				RelativePath="..\cutil\emalloc.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\permdawg.cpp"
+				RelativePath="..\cutil\freelist.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\permngram.cpp"
+				RelativePath="..\cutil\globals.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\permute.cpp"
+				RelativePath="..\cutil\listio.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\states.cpp"
+				RelativePath="..\cutil\oldheap.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\stopper.cpp"
+				RelativePath="..\cutil\oldlist.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\trie.cpp"
+				RelativePath="..\cutil\structures.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\cutil\tessarray.cpp"
 				>
 			</File>
 		</Filter>
@@ -205,55 +209,71 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\choicearr.h"
+				RelativePath="..\cutil\bitvec.h"
 				>
 			</File>
 			<File
-				RelativePath=".\choices.h"
+				RelativePath="..\cutil\callcpp.h"
 				>
 			</File>
 			<File
-				RelativePath=".\context.h"
+				RelativePath="..\cutil\const.h"
 				>
 			</File>
 			<File
-				RelativePath=".\conversion.h"
+				RelativePath="..\cutil\cutil.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dawg.h"
+				RelativePath="..\cutil\cutil_class.h"
 				>
 			</File>
 			<File
-				RelativePath=".\dict.h"
+				RelativePath="..\cutil\danerror.h"
 				>
 			</File>
 			<File
-				RelativePath=".\matchdefs.h"
+				RelativePath="..\cutil\efio.h"
 				>
 			</File>
 			<File
-				RelativePath=".\permdawg.h"
+				RelativePath="..\cutil\emalloc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\permngram.h"
+				RelativePath="..\cutil\freelist.h"
 				>
 			</File>
 			<File
-				RelativePath=".\permute.h"
+				RelativePath="..\cutil\funcdefs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\states.h"
+				RelativePath="..\cutil\general.h"
 				>
 			</File>
 			<File
-				RelativePath=".\stopper.h"
+				RelativePath="..\cutil\globals.h"
 				>
 			</File>
 			<File
-				RelativePath=".\trie.h"
+				RelativePath="..\cutil\listio.h"
+				>
+			</File>
+			<File
+				RelativePath="..\cutil\oldheap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\cutil\oldlist.h"
+				>
+			</File>
+			<File
+				RelativePath="..\cutil\structures.h"
+				>
+			</File>
+			<File
+				RelativePath="..\cutil\tessarray.h"
 				>
 			</File>
 		</Filter>
