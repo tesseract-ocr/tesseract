@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlibd.lib"
-				OutputFile=".\..\bin.dbg\tessdll.dll"
+				OutputFile=".\bin.dbg\tessdll.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
