@@ -1,5 +1,6 @@
-
 ; (C) Copyright 2010, Sergey Bronnikov
+; impoved by Zdenko Podobn√Ω (C) 2010
+;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
@@ -17,8 +18,8 @@
 ; - improve localization
 
 
-  !define VERSION 3.0
-  !define PRODUCT_NAME "tesseract"
+  !define VERSION 3.00.1
+  !define PRODUCT_NAME "Tesseract-OCR"
   !define PRODUCT_VERSION "${VERSION}"
   !define PRODUCT_PUBLISHER ""
   !define PRODUCT_WEB_SITE "http://code.google.com/p/tesseract-ocr"
@@ -30,9 +31,9 @@
   Caption "Tesseract-OCR ${VERSION}"
   ;Icon "icon_1.ico"
   ;UninstallIcon "install_icon.ico"
-  BrandingText /TRIMCENTER "                  (c) 2010 tesseract   "
+  BrandingText /TRIMCENTER "(c) 2010 Tesseract-OCR "
   InstallDir "$PROGRAMFILES\Tesseract-OCR"
-  InstallDirRegKey HKCU "Software\tesseract-ocr" ""
+  InstallDirRegKey HKCU "Software\Tesseract-OCR" ""
   ShowInstDetails show
   XPStyle on
   SpaceTexts
@@ -44,10 +45,13 @@
   !else
     OutFile tesseract-ocr-setup.exe
   !endif
- 
+  !include "MUI.nsh"
+  #!include MUI2.nsh
+  !include "LogicLib.nsh"
+  !include "EnvVarUpdate.nsh"
+  
 Function .onInit
-  ; unsupported? !insertmacro MUI_LANGDLL_DISPLAY
-  MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to install tesseract-ocr?" \
+  MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to install ${PRODUCT_NAME} ${VERSION}?" \
     /SD IDYES IDNO no IDYES yes
   no:
     SetSilent silent
@@ -62,10 +66,21 @@ Function .onInit
                     ; '0' if everything closed normal, and '-1' if some error occured.
     ;IfFileExists $INSTDIR\loadmain.exe PathGood
   done:
+      # check if tesseract is not installed
+      readRegStr $R0 HKCU "Software\Tesseract-OCR" "CurrentVersion"
+	  StrCmp $R0 "" done2
+
+	  MessageBox MB_YESNO|MB_ICONEXCLAMATION "Tesseract-ocr version $R0 is installed! Do you want to uninstall it first?" \
+	     /SD IDYES IDNO done2 IDYES yes2
+	  yes2:
+		readRegStr $R1 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString"
+		ClearErrors
+		ExecWait '$R1 _?=$INSTDIR'
+	  done2:
 FunctionEnd
 
 Function un.onInit
-  ;!insertmacro MUI_UNGETLANGUAGE
+   ;!insertmacro MUI_UNGETLANGUAGE
 FunctionEnd
 
 Function .onInstFailed
@@ -77,7 +92,6 @@ Function ShowReadme
   BringToFront
 FunctionEnd
 
-  !include "MUI.nsh"
 ;MUI Settings
   !define MUI_ABORTWARNING
   ;!define MUI_ICON "install_icon.ico"
@@ -142,7 +156,7 @@ FunctionEnd
   ;!insertmacro MUI_LANGUAGE "Serbian"
   ;!insertmacro MUI_LANGUAGE "SerbianLatin"
   ;!insertmacro MUI_LANGUAGE "SimpChinese"
-  ;!insertmacro MUI_LANGUAGE "Slovak"
+  !insertmacro MUI_LANGUAGE "Slovak"
   ;!insertmacro MUI_LANGUAGE "Slovenian"
   !insertmacro MUI_LANGUAGE "Spanish"
   !insertmacro MUI_LANGUAGE "SpanishInternational"
@@ -163,12 +177,11 @@ InstProgressFlags smooth colored
 Section "Tesseract-OCR" SecDummy
   SetOutPath "$INSTDIR"
   ;files inclided in distribution
-  File dlltest.exe
   File leptonlib.dll
-  File tessdll.dll
-  File tessdll.lib
   File tesseract.exe
   CreateDirectory "$INSTDIR\tessdata"
+  SetOutPath "$INSTDIR\tessdata"  
+  File tessdata\eng.traineddata  
   CreateDirectory "$INSTDIR\tessdata\configs"
   SetOutPath "$INSTDIR\tessdata\configs"
   File tessdata\configs\ambigs.train
@@ -205,9 +218,25 @@ Section "Tesseract-OCR" SecDummy
   File doc\README
   File doc\ReleaseNotes
   ;Store installation folder
-  WriteRegStr HKCU "Software\tesseract-ocr" "" $INSTDIR
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "tesseract-ocr" "C:\Program Files\Tesseract-OCR\tesseract.exe"
+  WriteRegStr HKCU "Software\Tesseract-OCR" "InstallDir" $INSTDIR
+  WriteRegStr HKCU "Software\Tesseract-OCR" "CurrentVersion" "${VERSION}"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "Tesseract-OCR" "C:\Program Files\Tesseract-OCR\tesseract.exe"
 
+  ; include for some of the windows messages defines
+  !include "winmessages.nsh"
+  ; HKLM (all users) vs HKCU (current user) defines
+  !define env_hklm 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
+  !define env_hkcu 'HKCU "Environment"'
+
+   ; set variable
+   ; append bin path to user PATH environment variable
+   ReadRegStr $0 HKCU "Environment" "PATH"
+   WriteRegExpandStr HKCU "Environment" "PATH" "$INSTDIR;$INSTDIR\training;$0"
+   #${EnvVarUpdate} $0 "PATH" "A" "HKLM" "$0;$INSTDIR" # this command destroys long variables like path...
+   ${EnvVarUpdate} $0 "TESSDATA_PREFIX" "A" "HKCU" "$INSTDIR\" 
+   ; make sure windows knows about the change
+   SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+   
   ; Would be nice to download language files during installation (as Google Chrome do)
   ; Download language files
   ;StrCpy $2 "$INSTDIR\$1"
@@ -233,6 +262,11 @@ Section "Tesseract-OCR" SecDummy
   ;ExecShell "open" "http://code.google.com/p/tesseract-ocr/"
   ;ExecShell "open" '"$INSTDIR"' 
   ;BringToFront
+  ; Register to Add/Remove program in control panel
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayName" "${PRODUCT_NAME} ${VERSION} - open source OCR engine"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
+  
 SectionEnd
 
 ;Section "Help" SecHelp
@@ -242,16 +276,16 @@ SectionEnd
   ;File "COPYING"
 ;SectionEnd
 
-;Section "Languages support" SecLanguage
-;SectionEnd
-
 Section "Shortcuts creation" SecCS
   CreateDirectory "$SMPROGRAMS\Tesseract-OCR"
-  CreateShortCut  "$SMPROGRAMS\Tesseract-OCR\tesseract-ocr.lnk" "$INSTDIR\tesseract.exe" "" "$INSTDIR\tesseract.exe" 0
+  CreateShortCut  "$SMPROGRAMS\Tesseract-OCR\Tesseract-OCR.lnk" "$INSTDIR\tesseract.exe" "" "$INSTDIR\tesseract.exe" 0
   CreateShortCut  "$SMPROGRAMS\Tesseract-OCR\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   ;CreateShortCut "$DESKTOP\Tesseract-OCR.lnk" "$INSTDIR\tesseract.exe" "" "$INSTDIR\tesseract.exe" 0
   ;CreateShortCut "$QUICKLAUNCH\.lnk" "$INSTDIR\tesseract.exe" "" "$INSTDIR\tesseract.exe" 0
 SectionEnd
+
+;Section "Languages support" SecLanguage
+;SectionEnd
 
 ;--------------------------------
 ;Descriptions
@@ -269,13 +303,17 @@ SectionEnd
   ;LangString DESC_SecHelp ${LANG_ITALIAN} "Guida di informazioni."
   LangString DESC_SecCS    ${LANG_ITALIAN} "Aggiungere collegamenti al menu Start."
 
-  LangString DESC_SecDummy ${LANG_SPANISH} "Los archivos de instalaciÛn."
-  ;LangString DESC_SecHelp ${LANG_SPANISH} "InformaciÛn de ayuda."
-  LangString DESC_SecCS    ${LANG_SPANISH} "AÒadir accesos directos al men˙ Inicio."
+  LangString DESC_SecDummy ${LANG_SLOVAK} "S√∫bory in≈°tal√°cie."
+  ;LangString DESC_SecHelp ${LANG_ENGLISH} "Help information."
+  LangString DESC_SecCS    ${LANG_SLOVAK} "Prida≈• odkaz do Start menu."
+  
+  LangString DESC_SecDummy ${LANG_SPANISH} "Los archivos de instalaci√≥n."
+  ;LangString DESC_SecHelp ${LANG_SPANISH} "Informaci√≥n de ayuda."
+  LangString DESC_SecCS    ${LANG_SPANISH} "A≈Ñadir accesos directos al men√∫ Inicio."
 
-  LangString DESC_SecDummy ${LANG_SPANISHINTERNATIONAL} "Los archivos de instalaciÛn."
-  ;LangString DESC_SecHelp ${LANG_SPANISHINTERNATIONAL} "InformaciÛn de ayuda."
-  LangString DESC_SecCS    ${LANG_SPANISHINTERNATIONAL} "AÒadir accesos directos al men˙ Inicio."
+  LangString DESC_SecDummy ${LANG_SPANISHINTERNATIONAL} "Los archivos de instalaci√≥n."
+  ;LangString DESC_SecHelp ${LANG_SPANISHINTERNATIONAL} "Informaci√≥n de ayuda."
+  LangString DESC_SecCS    ${LANG_SPANISHINTERNATIONAL} "A≈Ñadir accesos directos al men√∫ Inicio."
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -290,8 +328,15 @@ Section "Uninstall"
   !define MUI_FINISHPAGE_SHOWREADME
   !define MUI_FINISHPAGE_SHOWREADME_TEXT "Create desktop shortcut"
   !define MUI_FINISHPAGE_SHOWREADME_FUNCTION CreateDeskShortcut
-  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Run\tesseract-ocr"
-  DeleteRegKey /ifempty HKCU "Software\tesseract-ocr"
+  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Run\Tesseract-OCR"
+  DeleteRegKey /ifempty HKCU "Software\Tesseract-OCR"
+  ; delete variable
+  ${un.EnvVarUpdate} $0 "PATH" "R" "HKCU" $INSTDIR
+  ${un.EnvVarUpdate} $0 "PATH" "R" "HKCU" "$INSTDIR\training"
+  DeleteRegValue ${env_hklm} "TESSDATA_PREFIX"
+  ; make sure windows knows about the change
+  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+
   Delete "$INSTDIR\*.*"  
   Delete "$SMPROGRAMS\Tesseract-OCR\*.*"
   Delete "$INSTDIR\training\*.*"
@@ -308,6 +353,10 @@ Section "Uninstall"
   ;Delete "$QUICKLAUNCH\Tesseract-OCR.lnk" 
   RMDir "$INSTDIR"
   RMDir "$SMPROGRAMS\Tesseract-OCR"
+
+  ; remove the Add/Remove information
+  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+  
 SectionEnd
 
 Function PageReinstall
