@@ -1,5 +1,5 @@
 ; (C) Copyright 2010, Sergey Bronnikov
-; impoved by Zdenko Podobný (C) 2010
+; Contrib: Zdenko Podobný (C) 2010
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 ; - replace hardcoded program name to variables (NAME and LONGNAME)
 ; - place shortcuts in program files for all users
 
-  !define VERSION 3.00.1
+  !define VERSION 3.00
   !define PRODUCT_NAME "Tesseract-OCR"
   !define PRODUCT_VERSION "${VERSION}"
   !define PRODUCT_PUBLISHER ""
@@ -156,8 +156,6 @@ Section "Tesseract-OCR" SecDummy
   File tesseract.exe
   File gzip.exe  # for exctracting language data
   CreateDirectory "$INSTDIR\tessdata"
-  SetOutPath "$INSTDIR\tessdata"  
-  File tessdata\eng.traineddata  
   CreateDirectory "$INSTDIR\tessdata\configs"
   SetOutPath "$INSTDIR\tessdata\configs"
   File tessdata\configs\ambigs.train
@@ -241,7 +239,13 @@ Section "Shortcuts creation" SecCS
 SectionEnd
 
 ; Download language files
-SectionGroup "Additional language data" SecGrp_ALD
+SectionGroup "Language data" SecGrp_LD
+	Section "English language data" SecLang_eng
+	SectionIn RO	
+  	SetOutPath "$INSTDIR\tessdata"  
+	File tessdata\eng.traineddata
+	SectionEnd
+	
 	Section /o "Download and install Bulgarian language data" SecLang_bul
 	!insertmacro Download_Lang_Data bul.traineddata.gz
 	SectionEnd
@@ -467,7 +471,7 @@ Function .onInit
 	ExecWait '$R1 _?=$INSTDIR'
   SkipUnInstall:
 	  
-  MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to install ${PRODUCT_NAME} ${VERSION} with English language data?" \
+  MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to install ${PRODUCT_NAME} ${VERSION}?" \
     /SD IDYES IDNO no IDYES yes
   no:
     SetSilent silent
