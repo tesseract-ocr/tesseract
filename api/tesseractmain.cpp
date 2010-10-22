@@ -246,35 +246,49 @@ int main(int argc, char **argv) {
   int page = page_number;
   int npages = 0;
   bool is_tiff = fileFormatIsTiff(fp);
-  if (is_tiff) {
-    int tiffstat = tiffGetCount(fp, &npages);
-    if (tiffstat == 1) {
-      fprintf (stderr, _("Error reading file %s!\n"), argv[1]);
-      fclose(fp);
-      exit(1);
+  if (is_tiff)
+    {
+      int tiffstat = tiffGetCount(fp, &npages);
+      if (tiffstat == 1)
+        {
+          fprintf(stderr, _("Error reading file %s!\n"), argv[1]);
+          fclose(fp);
+          exit(1);
+        }
+      else
+        {
+          fprintf(stderr, _("Number of found pages: %d.\n"), npages);
+        }
     }
-    //fprintf (stderr, "%d pages\n", npages);
-  }
   fclose(fp);
   fp = NULL;
 
   Pix *pix;
-  if (is_tiff) {
-    for (; (pix = pixReadTiff(argv[1], page)) != NULL; ++page) {
-      if (page > 0)
-        tprintf(_("Page %d\n"), page);
-      char page_str[kMaxIntSize];
-      snprintf(page_str, kMaxIntSize - 1, "%d", page);
-      api.SetVariable("applybox_page", page_str);
-
-      // Run tesseract on the page!
-      TesseractImage(argv[1], NULL, pix, page, &api, &text_out);
-      pixDestroy(&pix);
-      if (tessedit_page_number >= 0 || npages == 1) {
-        break;
-      }
+  if (is_tiff)
+    {
+      for (; page < npages; ++page)
+        {
+          pix = pixReadTiff(argv[1], page);
+          if (!pix)
+            continue;
+          if (npages > 1)
+            {
+              tprintf(_("Page %d\n"), page);
+            }
+          char page_str[kMaxIntSize];
+          snprintf(page_str, kMaxIntSize - 1, "%d", page);
+          api.SetVariable("applybox_page", page_str);
+          // Run tesseract on the page!
+          TesseractImage(argv[1], NULL, pix, page, &api, &text_out);
+          pixDestroy(&pix);
+          if (tessedit_page_number >= 0 || npages == 1)
+            {
+              break;
+            }
+        }
     }
-  } else {
+  else
+    {
     // The file is not a tiff file, so use the general pixRead function.
     // If the image fails to read, try it as a list of filenames.
     PIX* pix = pixRead(argv[1]);
