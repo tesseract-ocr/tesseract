@@ -337,6 +337,8 @@ Pix* TessBaseAPI::GetThresholdedImage() {
   if (tesseract_->pix_binary() == NULL)
     Threshold(tesseract_->mutable_pix_binary());
   return pixClone(tesseract_->pix_binary());
+#else
+  return NULL;
 #endif
 }
 
@@ -410,6 +412,8 @@ Boxa* TessBaseAPI::GetRegions(Pixa** pixa) {
     boxaAddBox(boxa, lbox, L_INSERT);
   }
   return boxa;
+#else
+  return NULL;
 #endif
 }
 
@@ -484,6 +488,8 @@ Boxa* TessBaseAPI::GetTextlines(Pixa** pixa, int** blockids) {
     }
   }
   return boxa;
+#else
+  return NULL;
 #endif
 }
 
@@ -529,6 +535,8 @@ Boxa* TessBaseAPI::GetWords(Pixa** pixa) {
     }
   }
   return boxa;
+#else
+  return NULL;
 #endif  // HAVE_LIBLEPT
 }
 

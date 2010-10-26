@@ -194,7 +194,7 @@ Section "Tesseract-OCR" SecDummy
   ;Store installation folder
   WriteRegStr HKCU "Software\Tesseract-OCR" "InstallDir" $INSTDIR
   WriteRegStr HKCU "Software\Tesseract-OCR" "CurrentVersion" "${VERSION}"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "Tesseract-OCR" "$INSTDIR\tesseract.exe"
+  ;WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "Tesseract-OCR" "$INSTDIR\tesseract.exe"
 
   ; include for some of the windows messages defines
   !include "winmessages.nsh"
@@ -419,7 +419,7 @@ Section "Uninstall"
   !define MUI_FINISHPAGE_SHOWREADME
   !define MUI_FINISHPAGE_SHOWREADME_TEXT "Create desktop shortcut"
   !define MUI_FINISHPAGE_SHOWREADME_FUNCTION CreateDeskShortcut
-  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Run\Tesseract-OCR"
+  ;DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Run\Tesseract-OCR"
   DeleteRegKey /ifempty HKCU "Software\Tesseract-OCR"
   ; delete variable
   ${un.EnvVarUpdate} $0 "PATH" "R" "HKCU" $INSTDIR
