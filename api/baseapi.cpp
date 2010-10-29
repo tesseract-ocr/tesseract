@@ -827,13 +827,24 @@ char* TessBaseAPI::GetHOCRText(int page_id) {
       AddBoxTohOCR(word->word->bounding_box(), image_height_, &hocr_str);
       hocr_str.add_str_int("<span class='xocr_word' id='xword_", page_id);
       hocr_str.add_str_int("_", wcnt++);
- 	    hocr_str.add_str_int("' title=\"x_wconf ", choice->certainty());
+      hocr_str.add_str_int("' title=\"x_wconf ", choice->certainty());
       hocr_str += "\">";
       if (word->bold > 0)
         hocr_str += "<strong>";
       if (word->italic > 0)
         hocr_str += "<em>";
-      hocr_str += choice->unichar_string();
+            int i;
+	  // escape special characters
+      for (i = 0;
+        choice->unichar_string()[i] != '\0';
+        i++) { 
+          if (choice->unichar_string()[i] == '<') { hocr_str += "&lt;"; }
+          else if (choice->unichar_string()[i] == '>') { hocr_str += "&gt;"; }
+          else if (choice->unichar_string()[i] == '&') { hocr_str += "&amp;"; }
+          else if (choice->unichar_string()[i] == '"') { hocr_str += "&quot;"; }
+          else if (choice->unichar_string()[i] == '\'') { hocr_str += "&#39;"; }
+          else { hocr_str += choice->unichar_string()[i]; }
+      }
       if (word->italic > 0)
         hocr_str += "</em>";
       if (word->bold > 0)
