@@ -219,8 +219,8 @@ int main(int argc, char **argv) {
   tesseract::TessBaseAPI  api;
 
   api.SetOutputName(argv[2]);
+  api.SetPageSegMode(tesseract::PSM_AUTO);  
   api.Init(argv[0], lang, &(argv[arg]), argc-arg, false);
-  api.SetPageSegMode(tesseract::PSM_AUTO);
 
   tprintf (_("Tesseract Open Source OCR Engine"));
 #if defined(HAVE_LIBLEPT)
