@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="tesseract"
 	ProjectGUID="{47519557-3296-407A-BE51-8175C77B0868}"
 	RootNamespace="tesseract"
@@ -29,7 +29,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="xcopy /Y &quot;$(SolutionDir)lib\leptonlibd.dll&quot; &quot;$(TargetDir)&quot;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -51,16 +51,15 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\api;..\ccmain;..\ccutil;..\ccstruct;..\classify;..\cutil;..\dict;..\display;..\image;..\textord;..\viewer;..\wordrec;..\pageseg;.;include;include\leptonica"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough="mfcpch.h"
-				PrecompiledHeaderFile=".\tess.Release/tesseract.pch"
 				AssemblerListingLocation=".\tess.Release/"
 				ObjectFile=".\tess.Release/"
 				ProgramDataBaseFileName=".\tess.Release/"
@@ -80,12 +79,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlib.lib"
-				OutputFile=".\bin\tesseract.exe"
+				AdditionalOptions="/NODEFAULTLIB:library /LTCG"
+				AdditionalDependencies="ws2_32.lib user32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib leptonlib-static-mtdll.lib"
+				OutputFile=".\bin\$(ProjectName).exe"
 				Version="3.00"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories=".\lib"
 				ProgramDatabaseFile=".\./tesseract.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"

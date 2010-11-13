@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="mftraining"
 	ProjectGUID="{EC8A9E75-C66E-4320-9D91-97F53ED7021B}"
 	RootNamespace="mftraining"
@@ -135,6 +135,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../ccutil,../ccstruct,../classify,../cutil,../training,../viewer,../dict,../image"
@@ -164,10 +165,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="user32.lib ws2_32.lib ..\vs2008\lib\leptonlib.lib"
+				AdditionalDependencies="user32.lib ws2_32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib leptonlib-static-mtdll.lib"
 				OutputFile=".\bin\mftraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\vs2008\lib"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
