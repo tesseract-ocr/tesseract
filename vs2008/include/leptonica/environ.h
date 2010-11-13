@@ -83,7 +83,7 @@ typedef uintptr_t l_uintptr_t;
  *               Manual Configuration Only: NOT AUTO_CONF             *
  *--------------------------------------------------------------------*/
 /*
- *  Leptonica provides interfaces to link to four external image I/O
+ *  Leptonica provides interfaces to link to five external image I/O
  *  libraries, plus zlib.  Setting any of these to 0 here causes
  *  non-functioning stubs to be linked.
  */
@@ -94,6 +94,7 @@ typedef uintptr_t l_uintptr_t;
 #define  HAVE_LIBZ        1
 #define  HAVE_LIBGIF      1
 #define  HAVE_LIBUNGIF    0
+#define  HAVE_LIBWEBP     0
 #endif  /* ~HAVE_CONFIG_H */
 
 /*

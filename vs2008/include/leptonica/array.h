@@ -103,5 +103,11 @@ enum {
     L_QUADRATIC_INTERP = 2      /* quadratic  */
 };
 
+    /* Flags for added borders in Numa */
+enum {
+    L_EXTENDED_BORDER = 1,      /* extended with same value           */
+    L_MIRRORED_BORDER = 2       /* mirrored                           */
+};
+
 
 #endif  /* LEPTONICA_ARRAY_H */

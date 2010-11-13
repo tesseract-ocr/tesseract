@@ -31,16 +31,19 @@
  *     to the input image.
  */
 
+#define  DEWARP_VERSION_NUMBER      1
 
 struct L_Dewarp
 {
     struct Pix     *pixs;        /* source pix, 1 bpp                       */
     struct Pix     *pixd;        /* dewarped pix; 1, 8 or 32 bpp            */
     struct FPix    *sampvdispar; /* sampled vertical disparity array        */
+    struct FPix    *samphdispar; /* sampled horizontal disparity array      */
     struct FPix    *fullvdispar; /* full vertical disparity array           */
     struct FPix    *fullhdispar; /* full horiztontal disparity array        */
     struct Numa    *naflats;     /* sorted flat location of each line       */
     struct Numa    *nacurves;    /* sorted curvature of each line           */
+    l_int32         pageno;      /* page number; important for reuse        */
     l_int32         sampling;    /* sampling factor of disparity array      */
     l_int32         minlines;    /* min number of long lines required       */
     l_int32         applyhoriz;  /* flag for estimating horiz. disparity    */
@@ -48,7 +51,6 @@ struct L_Dewarp
     l_int32         ny;          /* number of sampling pts in y direction   */
     l_int32         extraw;      /* extra width required for hor. disparity */
     l_int32         success;     /* sets to 1 if model build succeeds       */
-
 };
 typedef struct L_Dewarp L_DEWARP;
 

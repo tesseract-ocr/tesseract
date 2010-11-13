@@ -47,7 +47,11 @@
  */
 
 
-#if 1   /* Inline Accessors */
+    /* Use the inline accessors (except with _MSC_VER), because they
+     * are faster.  */
+#define  USE_INLINE_ACCESSORS    1
+
+#if USE_INLINE_ACCESSORS
 #ifndef _MSC_VER
 
     /*--------------------------------------------------*
@@ -155,14 +159,14 @@
 
 
 #endif  /* ! _MSC_VER */
-#endif  /* Inline Accessors */
+#endif  /* USE_INLINE_ACCESSORS */
 
 
 
     /*--------------------------------------------------*
      *  Slower, using function calls for all accessors  *
      *--------------------------------------------------*/
-#if 0 || defined(_MSC_VER)
+#if !USE_INLINE_ACCESSORS || defined(_MSC_VER)
 #define  GET_DATA_BIT(pdata, n)               l_getDataBit(pdata, n)
 #define  SET_DATA_BIT(pdata, n)               l_setDataBit(pdata, n)
 #define  CLEAR_DATA_BIT(pdata, n)             l_clearDataBit(pdata, n)
@@ -184,7 +188,7 @@
 
 #define  GET_DATA_FOUR_BYTES(pdata, n)         l_getDataFourBytes(pdata, n)
 #define  SET_DATA_FOUR_BYTES(pdata, n, val)    l_setDataFourBytes(pdata, n, val)
-#endif
+#endif  /* !USE_INLINE_ACCESSORS || _MSC_VER */
 
 
 #endif /* LEPTONICA_ARRAY_ACCESS_H */

@@ -16,9 +16,14 @@
 #ifndef  LEPTONICA_ALLTYPES_H
 #define  LEPTONICA_ALLTYPES_H
 
+    /* Standard */
+#include <stdio.h>
+#include <stdlib.h>
+
+    /* General and configuration defs */
 #include "environ.h"
 
-    /* imaging */
+    /* Imaging */
 #include "array.h"
 #include "arrayaccess.h"
 #include "bbuffer.h"
@@ -27,6 +32,7 @@
 #include "dewarp.h"
 #include "gplot.h"
 #include "heap.h"
+#include "imageio.h"
 #include "jbclass.h"
 #include "list.h"
 #include "morph.h"
@@ -34,12 +40,10 @@
 #include "ptra.h"
 #include "queue.h"
 #include "regutils.h"
+#include "sudoku.h"
 #include "stack.h"
 #include "watershed.h"
 
-    /* i/o */
-#include <stdio.h>
-#include "imageio.h"
 
 #endif /* LEPTONICA_ALLTYPES_H */
 

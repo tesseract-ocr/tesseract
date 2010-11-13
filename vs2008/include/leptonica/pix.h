@@ -472,6 +472,8 @@ typedef struct PixTiling PIXTILING;
 /*-------------------------------------------------------------------------*
  *                       FPix: pix with float array                        *
  *-------------------------------------------------------------------------*/
+#define  FPIX_VERSION_NUMBER      1
+
 struct FPix
 {
     l_int32              w;           /* width in pixels                   */
@@ -490,6 +492,8 @@ typedef struct FPix FPIX;
 /*-------------------------------------------------------------------------*
  *                       DPix: pix with double array                       *
  *-------------------------------------------------------------------------*/
+#define  DPIX_VERSION_NUMBER      1
+
 struct DPix
 {
     l_int32              w;           /* width in pixels                   */
@@ -781,7 +785,8 @@ enum {
     L_HORIZONTAL_LINE = 0,     /* horizontal line                          */
     L_POS_SLOPE_LINE = 1,      /* 45 degree line with positive slope       */
     L_VERTICAL_LINE = 2,       /* vertical line                            */
-    L_NEG_SLOPE_LINE = 3       /* 45 degree line with negative slope       */
+    L_NEG_SLOPE_LINE = 3,      /* 45 degree line with negative slope       */
+    L_OBLIQUE_LINE = 4         /* neither horizontal nor vertical */
 };
 
 

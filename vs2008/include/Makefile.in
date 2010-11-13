@@ -215,8 +215,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = leptonica
-EXTRA_DIST = gif_lib.h jconfig.h jerror.h jmorecfg.h jpeglib.h pngconf.h \
-	png.h stdint.h tif_config.h tiffconf.h tiff.h tiffio.h 
+EXTRA_DIST = stdint.h
 
 all: all-recursive
 
