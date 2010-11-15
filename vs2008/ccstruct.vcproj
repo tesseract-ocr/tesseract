@@ -142,6 +142,70 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Release.dynamic|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\vs2008\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -172,6 +236,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\blobs.cpp"
@@ -187,6 +260,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -216,6 +298,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\callcpp.cpp"
@@ -231,6 +322,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -264,6 +364,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\detlinefit.cpp"
@@ -283,6 +392,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -312,6 +430,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\linlsq.cpp"
@@ -327,6 +454,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -356,6 +492,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccutil\mfcpch.cpp"
@@ -371,6 +516,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -400,6 +554,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\normalis.cpp"
@@ -415,6 +578,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -444,6 +616,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\ocrrow.cpp"
@@ -459,6 +640,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -492,6 +682,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\pdblock.cpp"
@@ -507,6 +706,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -536,6 +744,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\polyaprx.cpp"
@@ -551,6 +768,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -580,6 +806,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\polyblob.cpp"
@@ -595,6 +830,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -624,6 +868,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\poutline.cpp"
@@ -639,6 +892,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -668,6 +930,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\quadratc.cpp"
@@ -683,6 +954,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -712,6 +992,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\ratngs.cpp"
@@ -727,6 +1016,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -756,6 +1054,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\rejctmap.cpp"
@@ -771,6 +1078,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -800,6 +1116,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\stepblob.cpp"
@@ -815,6 +1140,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -844,6 +1178,15 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccstruct\werd.cpp"
@@ -859,6 +1202,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+						PrecompiledHeaderThrough="mfcpch.h"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release.dynamic|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
