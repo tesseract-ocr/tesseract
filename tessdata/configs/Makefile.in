@@ -198,8 +198,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-data_DATA = inter makebox box.train unlv ambigs.train api_config kannada box.train.stderr logfile digits
-EXTRA_DIST = inter makebox box.train unlv ambigs.train api_config kannada box.train.stderr logfile digits
+data_DATA = inter makebox box.train unlv ambigs.train api_config kannada box.train.stderr logfile digits hocr
+EXTRA_DIST = inter makebox box.train unlv ambigs.train api_config kannada box.train.stderr logfile digits hocr
 all: all-am
 
 .SUFFIXES:
