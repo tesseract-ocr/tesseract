@@ -31,7 +31,7 @@
 // Remove newline (if any) at the end of the string.
 inline void chomp_string(char *str) {
   int last_index = strlen(str) - 1;
-  if (str[last_index] == '\n') {
+  if (last_index >= 0 && str[last_index] == '\n') {
     str[last_index] = '\0';
   }
 }

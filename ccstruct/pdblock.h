@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        pdblock.h  (Formerly pdblk.h)
  * Description: Page block class definition.
- * Author:					Ray Smith
- * Created:					Thu Mar 14 17:32:01 GMT 1991
+ * Author:      Ray Smith
+ * Created:     Thu Mar 14 17:32:01 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@
 #ifndef           PDBLOCK_H
 #define           PDBLOCK_H
 
+#include          "clst.h"
 #include          "img.h"
 #include          "strngs.h"
 #include          "polyblk.h"
@@ -27,10 +28,11 @@
 #include          "hpddef.h"     //must be last (handpd.dll)
 
 class DLLSYM PDBLK;              //forward decl
+struct Pix;
 
 CLISTIZEH (PDBLK)
 ///page block
-class DLLSYM PDBLK
+class PDBLK
 {
   friend class BLOCK_RECT_IT;    //< block iterator
 
@@ -40,19 +42,19 @@ class DLLSYM PDBLK
       hand_poly = NULL;
       index_ = 0;
     }
-	///simple constructor
+    ///simple constructor
     PDBLK(inT16 xmin,  //< bottom left
           inT16 ymin,
           inT16 xmax,  //< top right
           inT16 ymax);
 
-	///set vertex lists
-	///@param left list of left vertices
-	///@param right list of right vertices
+    ///set vertex lists
+    ///@param left list of left vertices
+    ///@param right list of right vertices
     void set_sides(ICOORDELT_LIST *left,
                    ICOORDELT_LIST *right);
 
-	///destructor
+    ///destructor
     ~PDBLK () {
       if (hand_poly) delete hand_poly;
     }
@@ -60,11 +62,11 @@ class DLLSYM PDBLK
     POLY_BLOCK *poly_block() {
       return hand_poly;
     }
-	///set the poly block
+    ///set the poly block
     void set_poly_block(POLY_BLOCK *blk) {
       hand_poly = blk;
     }
-	///get box
+    ///get box
     void bounding_box(ICOORD &bottom_left,        //bottom left
                       ICOORD &top_right) const {  //topright
       bottom_left = box.botleft ();
@@ -82,28 +84,31 @@ class DLLSYM PDBLK
       index_ = value;
     }
 
-	///is pt inside block
+    ///is pt inside block
     BOOL8 contains(ICOORD pt);
 
-	/// reposition block
+    /// reposition block
     void move(const ICOORD vec);  // by vector
 
-	///draw histogram
-	///@param window window to draw in
-	///@param serial serial number
-	///@param colour colour to draw in
+    // Returns a binary Pix mask with a 1 pixel for every pixel within the
+    // block. Rotates the coordinate system by rerotation prior to rendering.
+    Pix* render_mask(const FCOORD& rerotation);
+    ///draw histogram
+    ///@param window window to draw in
+    ///@param serial serial number
+    ///@param colour colour to draw in
     void plot(ScrollView* window,
               inT32 serial,
               ScrollView::Color colour);
 
-	///show image
-	///@param image image to show
-	///@param window window to show in
+    ///show image
+    ///@param image image to show
+    ///@param window window to show in
     void show(IMAGE *image,
               ScrollView* window);
 
-	///assignment
-	///@param source from this
+    ///assignment
+    ///@param source from this
     PDBLK & operator= (const PDBLK & source);
 
   protected:
@@ -121,24 +126,25 @@ class DLLSYM BLOCK_RECT_IT       //rectangle iterator
     ///@param blkptr block to iterate
     BLOCK_RECT_IT(PDBLK *blkptr);
 
+    NEWDELETE2 (BLOCK_RECT_IT)
     ///start (new) block
-    NEWDELETE2 (BLOCK_RECT_IT) void set_to_block (
+    void set_to_block (
       PDBLK * blkptr);           //block to iterate
 
-	///start iteration
+    ///start iteration
     void start_block();
 
-	///next rectangle
+    ///next rectangle
     void forward();
 
-	///test end
+    ///test end
     BOOL8 cycled_rects() {
       return left_it.cycled_list () && right_it.cycled_list ();
     }
 
-	///current rectangle
-	///@param bleft bottom left
-	///@param tright top right
+    ///current rectangle
+    ///@param bleft bottom left
+    ///@param tright top right
     void bounding_box(ICOORD &bleft,
                       ICOORD &tright) {
                                  //bottom left
@@ -166,17 +172,18 @@ class DLLSYM BLOCK_LINE_IT
       block = blkptr;            //remember block
     }
 
+    NEWDELETE2 (BLOCK_LINE_IT)
     ///start (new) block
-	///@param blkptr block to start
-    NEWDELETE2 (BLOCK_LINE_IT) void set_to_block (PDBLK * blkptr) {
+      ///@param blkptr block to start
+    void set_to_block (PDBLK * blkptr) {
       block = blkptr;            //remember block
                                  //set iterator
       rect_it.set_to_block (blkptr);
     }
 
-	///get a line
-	///@param y line to get
-	///@param xext output extent
+    ///get a line
+    ///@param y line to get
+    ///@param xext output extent
     inT16 get_line(inT16 y,
                    inT16 &xext);
 

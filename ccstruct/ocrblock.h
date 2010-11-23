@@ -37,6 +37,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
     : re_rotation_(1.0f, 0.0f),
       classify_rotation_(1.0f, 0.0f),
       skew_(1.0f, 0.0f) {
+    right_to_left_ = false;
     hand_poly = NULL;
   }
   BLOCK(const char *name,  //< filename
@@ -78,6 +79,12 @@ class BLOCK:public ELIST_LINK, public PDBLK
   /// return proportional
   BOOL8 prop() const {
     return proportional;
+  }
+  bool right_to_left() const {
+    return right_to_left_;
+  }
+  void set_right_to_left(bool value) {
+    right_to_left_ = value;
   }
   /// return pitch
   inT32 fixed_pitch() const {
@@ -146,6 +153,10 @@ class BLOCK:public ELIST_LINK, public PDBLK
     median_size_.set_y(y);
   }
 
+  Pix* render_mask() {
+    return PDBLK::render_mask(re_rotation_);
+  }
+
   void rotate(const FCOORD& rotation);
 
   /// decreasing y order
@@ -198,6 +209,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
 
  private:
   BOOL8 proportional;          //< proportional
+  bool right_to_left_;         //< major script is right to left.
   inT8 kerning;                //< inter blob gap
   inT16 spacing;               //< inter word gap
   inT16 pitch;                 //< pitch of non-props
@@ -215,5 +227,25 @@ class BLOCK:public ELIST_LINK, public PDBLK
 };
 
 int decreasing_top_order(const void *row1, const void *row2);
+
+// A function to print segmentation stats for the given block list.
+void PrintSegmentationStats(BLOCK_LIST* block_list);
+
+// Extracts blobs fromo the given block list and adds them to the output list.
+// The block list must have been created by performing a page segmentation.
+void ExtractBlobsFromSegmentation(BLOCK_LIST* blocks,
+                                  C_BLOB_LIST* output_blob_list);
+
+// Refreshes the words in the block_list by using blobs in the
+// new_blobs list.
+// Block list must have word segmentation in it.
+// It consumes the blobs provided in the new_blobs list. The blobs leftover in
+// the new_blobs list after the call weren't matched to any blobs of the words
+// in block list.
+// The output not_found_blobs is a list of blobs from the original segmentation
+// in the block_list for which no corresponding new blobs were found.
+void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
+                                  C_BLOB_LIST* new_blobs,
+                                  C_BLOB_LIST* not_found_blobs);
 
 #endif

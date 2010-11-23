@@ -25,19 +25,11 @@
 #ifndef WERDCLASSH
 #define WERDCLASSH
 
+#include "blobs.h"
 #include "callcpp.h"
 #include "ratngs.h"
 #include "states.h"
-#include "tessclas.h"
 
-/*----------------------------------------------------------------------
-            Variables
-----------------------------------------------------------------------*/
-extern inT16 first_pass;
-
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
 void write_text_files(TWERD *word,
                       char *raw_choice,
                       int same_row,

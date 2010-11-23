@@ -32,22 +32,13 @@
 #define TO_WIN_YPOS     0
 #define TO_WIN_NAME     "Textord"
                                  //title of window
-#define DEBUG_WIN_NAME    "TODebug"
-#define DEBUG_XPOS      0
-#define DEBUG_YPOS      120
-#define DEBUG_XSIZE     80
-#define DEBUG_YSIZE     32
-#define YMAX        3508
-#define XMAX        2550
 
 #define EXTERN
 
 EXTERN BOOL_VAR (textord_show_fixed_cuts, FALSE,
 "Draw fixed pitch cell boundaries");
-EXTERN STRING_VAR (to_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
 
 EXTERN ScrollView* to_win = NULL;
-EXTERN FILE *to_debug = NULL;
 
 /**********************************************************************
  * create_to_win
@@ -69,21 +60,6 @@ void close_to_win() {
     to_win->Update();
   }
 }
-
-
-/**********************************************************************
- * create_todebug_win
- *
- * Create the to window used to show the fit.
- **********************************************************************/
-
-void create_todebug_win() {  //make gradients win
-  if (strcmp (to_debugfile.string (), DEBUG_WIN_NAME) != 0)
-    //              create_debug_window();
-    //      else
-    to_debug = fopen (to_debugfile.string (), "w");
-}
-
 
 
 /**********************************************************************

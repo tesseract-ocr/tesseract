@@ -21,9 +21,9 @@
 #include "ambigs.h"
 #include "helpers.h"
 
-INT_VAR(global_ambigs_debug_level, 0, "Debug level for unichar ambiguities");
-BOOL_VAR(use_definite_ambigs_for_classifier, 0,
-         "Use definite ambiguities when running character classifier");
+#ifdef WIN32
+#define strtok_r strtok_s
+#endif
 
 namespace tesseract {
 
@@ -37,15 +37,23 @@ AmbigSpec::AmbigSpec() {
 
 ELISTIZE(AmbigSpec);
 
-void UnicharAmbigs::LoadUnicharAmbigs(FILE *AmbigFile, inT64 end_offset,
+void UnicharAmbigs::LoadUnicharAmbigs(FILE *AmbigFile,
+                                      inT64 end_offset,
+                                      int debug_level,
+                                      bool use_ambigs_for_adaption,
                                       UNICHARSET *unicharset) {
-  int i;
+  int i, j;
+  UnicharIdVector *adaption_ambigs_entry;
   for (i = 0; i < unicharset->size(); ++i) {
     replace_ambigs_.push_back(NULL);
     dang_ambigs_.push_back(NULL);
     one_to_one_definite_ambigs_.push_back(NULL);
+    if (use_ambigs_for_adaption) {
+      ambigs_for_adaption_.push_back(NULL);
+      reverse_ambigs_for_adaption_.push_back(NULL);
+    }
   }
-  if (global_ambigs_debug_level) tprintf("Reading ambiguities\n");
+  if (debug_level) tprintf("Reading ambiguities\n");
 
   int TestAmbigPartSize;
   int ReplacementAmbigPartSize;
@@ -75,10 +83,10 @@ void UnicharAmbigs::LoadUnicharAmbigs(FILE *AmbigFile, inT64 end_offset,
   while ((end_offset < 0 || ftell(AmbigFile) < end_offset) &&
          fgets(buffer, kBufferSize, AmbigFile) != NULL) {
     chomp_string(buffer);
-    if (global_ambigs_debug_level > 2) tprintf("read line %s\n", buffer);
+    if (debug_level > 2) tprintf("read line %s\n", buffer);
     ++line_num;
-    if (!ParseAmbiguityLine(line_num, version, *unicharset, buffer,
-                            &TestAmbigPartSize, TestUnicharIds,
+    if (!ParseAmbiguityLine(line_num, version, debug_level, *unicharset,
+                            buffer, &TestAmbigPartSize, TestUnicharIds,
                             &ReplacementAmbigPartSize,
                             ReplacementString, &type)) continue;
     // Construct AmbigSpec and add it to the appropriate AmbigSpec_LIST.
@@ -89,7 +97,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(FILE *AmbigFile, inT64 end_offset,
                     ambig_spec, unicharset);
 
     // Update one_to_one_definite_ambigs_.
-    if (use_definite_ambigs_for_classifier && TestAmbigPartSize == 1 &&
+    if (TestAmbigPartSize == 1 &&
         ReplacementAmbigPartSize == 1 && type == DEFINITE_AMBIG) {
       if (one_to_one_definite_ambigs_[TestUnicharIds[0]] == NULL) {
         one_to_one_definite_ambigs_[TestUnicharIds[0]] = new UnicharIdVector();
@@ -97,10 +105,56 @@ void UnicharAmbigs::LoadUnicharAmbigs(FILE *AmbigFile, inT64 end_offset,
       one_to_one_definite_ambigs_[TestUnicharIds[0]]->push_back(
           ambig_spec->correct_ngram_id);
     }
+    // Update ambigs_for_adaption_.
+    if (use_ambigs_for_adaption) {
+      for (i = 0; i < TestAmbigPartSize; ++i) {
+        if (ambigs_for_adaption_[TestUnicharIds[i]] == NULL) {
+          ambigs_for_adaption_[TestUnicharIds[i]] = new UnicharIdVector();
+        }
+        adaption_ambigs_entry = ambigs_for_adaption_[TestUnicharIds[i]];
+        const char *tmp_ptr = ReplacementString;
+        const char *tmp_ptr_end = ReplacementString + strlen(ReplacementString);
+        int step = unicharset->step(tmp_ptr);
+        while (step > 0) {
+          UNICHAR_ID id_to_insert = unicharset->unichar_to_id(tmp_ptr, step);
+          ASSERT_HOST(id_to_insert != INVALID_UNICHAR_ID);
+          // Add the new unichar id to adaption_ambigs_entry (only if the
+          // vector does not already contain it) keeping it in sorted order.
+          for (j = 0; j < adaption_ambigs_entry->size() &&
+               (*adaption_ambigs_entry)[j] > id_to_insert; ++j);
+          if (j < adaption_ambigs_entry->size()) {
+            if ((*adaption_ambigs_entry)[j] != id_to_insert) {
+              adaption_ambigs_entry->insert(id_to_insert, j);
+            }
+          } else {
+            adaption_ambigs_entry->push_back(id_to_insert);
+          }
+          // Update tmp_ptr and step.
+          tmp_ptr += step;
+          step = tmp_ptr < tmp_ptr_end ? unicharset->step(tmp_ptr) : 0;
+        }
+      }
+    }
   }
   delete[] buffer;
+
+  // Fill in reverse_ambigs_for_adaption from ambigs_for_adaption vector.
+  if (use_ambigs_for_adaption) {
+    for (i = 0; i < ambigs_for_adaption_.size(); ++i) {
+      adaption_ambigs_entry = ambigs_for_adaption_[i];
+      if (adaption_ambigs_entry == NULL) continue;
+      for (j = 0; j < adaption_ambigs_entry->size(); ++j) {
+        UNICHAR_ID ambig_id = (*adaption_ambigs_entry)[j];
+        if (reverse_ambigs_for_adaption_[ambig_id] == NULL) {
+          reverse_ambigs_for_adaption_[ambig_id] = new UnicharIdVector();
+        }
+        reverse_ambigs_for_adaption_[ambig_id]->push_back(i);
+      }
+    }
+  }
+
   // Print what was read from the input file.
-  if (global_ambigs_debug_level > 2) {
+  if (debug_level > 1) {
     for (int tbl = 0; tbl < 2; ++tbl) {
       const UnicharAmbigsVector &print_table =
         (tbl == 0) ? replace_ambigs_ : dang_ambigs_;
@@ -122,11 +176,30 @@ void UnicharAmbigs::LoadUnicharAmbigs(FILE *AmbigFile, inT64 end_offset,
         }
       }
     }
+    if (use_ambigs_for_adaption) {
+      for (int vec_id = 0; vec_id < 2; ++vec_id) {
+        const GenericVector<UnicharIdVector *> &vec = (vec_id == 0) ?
+          ambigs_for_adaption_ : reverse_ambigs_for_adaption_;
+        for (i = 0; i < vec.size(); ++i) {
+          adaption_ambigs_entry = vec[i];
+          if (adaption_ambigs_entry != NULL) {
+            tprintf("%sAmbigs for adaption for %s:\n",
+                    (vec_id == 0) ? "" : "Reverse ",
+                    unicharset->debug_str(i).string());
+            for (j = 0; j < adaption_ambigs_entry->size(); ++j) {
+              tprintf("%s ", unicharset->debug_str(
+                  (*adaption_ambigs_entry)[j]).string());
+            }
+            tprintf("\n");
+          }
+        }
+      }
+    }
   }
 }
 
 bool UnicharAmbigs::ParseAmbiguityLine(
-    int line_num, int version, const UNICHARSET &unicharset,
+    int line_num, int version, int debug_level, const UNICHARSET &unicharset,
     char *buffer, int *TestAmbigPartSize, UNICHAR_ID *TestUnicharIds,
     int *ReplacementAmbigPartSize, char *ReplacementString, int *type) {
   int i;
@@ -134,7 +207,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(
   char *next_token;
   if (!(token = strtok_r(buffer, kAmbigDelimiters, &next_token)) ||
       !sscanf(token, "%d", TestAmbigPartSize) || TestAmbigPartSize <= 0) {
-    if (global_ambigs_debug_level) tprintf(kIllegalMsg, line_num);
+    if (debug_level) tprintf(kIllegalMsg, line_num);
     return false;
   }
   if (*TestAmbigPartSize > MAX_AMBIG_SIZE) {
@@ -144,7 +217,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(
   for (i = 0; i < *TestAmbigPartSize; ++i) {
     if (!(token = strtok_r(NULL, kAmbigDelimiters, &next_token))) break;
     if (!unicharset.contains_unichar(token)) {
-      if (global_ambigs_debug_level) tprintf(kIllegalUnicharMsg, token);
+      if (debug_level) tprintf(kIllegalUnicharMsg, token);
       break;
     }
     TestUnicharIds[i] = unicharset.unichar_to_id(token);
@@ -155,7 +228,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(
       !(token = strtok_r(NULL, kAmbigDelimiters, &next_token)) ||
       !sscanf(token, "%d", ReplacementAmbigPartSize) ||
         *ReplacementAmbigPartSize <= 0) {
-    if (global_ambigs_debug_level) tprintf(kIllegalMsg, line_num);
+    if (debug_level) tprintf(kIllegalMsg, line_num);
     return false;
   }
   if (*ReplacementAmbigPartSize > MAX_AMBIG_SIZE) {
@@ -167,12 +240,12 @@ bool UnicharAmbigs::ParseAmbiguityLine(
     if (!(token = strtok_r(NULL, kAmbigDelimiters, &next_token))) break;
     strcat(ReplacementString, token);
     if (!unicharset.contains_unichar(token)) {
-      if (global_ambigs_debug_level) tprintf(kIllegalUnicharMsg, token);
+      if (debug_level) tprintf(kIllegalUnicharMsg, token);
       break;
     }
   }
   if (i != *ReplacementAmbigPartSize) {
-    if (global_ambigs_debug_level) tprintf(kIllegalMsg, line_num);
+    if (debug_level) tprintf(kIllegalMsg, line_num);
     return false;
   }
   if (version > 0) {
@@ -187,7 +260,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(
     // has limited support for ngram unichar (e.g. dawg permuter).
     if (!(token = strtok_r(NULL, kAmbigDelimiters, &next_token)) ||
         !sscanf(token, "%d", type)) {
-      if (global_ambigs_debug_level) tprintf(kIllegalMsg, line_num);
+      if (debug_level) tprintf(kIllegalMsg, line_num);
       return false;
     }
   }
@@ -226,7 +299,7 @@ void UnicharAmbigs::InsertIntoTable(
   if (ReplacementAmbigPartSize > 1) {
     unicharset->set_isngram(ambig_spec->correct_ngram_id, true);
   }
-  // Add the corresponding fragments of the correct ngram to unicharset.
+  // Add the corresponding fragments of the wrong ngram to unicharset.
   int i;
   for (i = 0; i < TestAmbigPartSize; ++i) {
     UNICHAR_ID unichar_id;
@@ -248,7 +321,7 @@ void UnicharAmbigs::InsertIntoTable(
     table[TestUnicharIds[0]] = new AmbigSpec_LIST();
   }
   table[TestUnicharIds[0]]->add_sorted(
-      AmbigSpec::compare_ambig_specs, ambig_spec);
+      AmbigSpec::compare_ambig_specs, false, ambig_spec);
 }
 
 }  // namespace tesseract

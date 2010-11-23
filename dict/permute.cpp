@@ -42,91 +42,23 @@
 #include "permute.h"
 
 #include "callcpp.h"
-#include "context.h"
-#include "conversion.h"
+#include "ccutil.h"
+#include "dict.h"
 #include "freelist.h"
+#include "helpers.h"
+#include "image.h"
 #include "globals.h"
 #include "ndminx.h"
-#include "permdawg.h"
 #include "permngram.h"
 #include "ratngs.h"
 #include "stopper.h"
-#include "tordvars.h"
 #include "tprintf.h"
 #include "trie.h"
-#include "varable.h"
+#include "params.h"
 #include "unicharset.h"
-#include "dict.h"
-#include "image.h"
-#include "ccutil.h"
-
-int permutation_count;           // Used in metrics.cpp.
-/*----------------------------------------------------------------------
-              V a r i a b l e s
-----------------------------------------------------------------------*/
-// TODO(tkielbus) Choose a value for the MAX_NUM_EDGES constant
-// (or make it dynamic)
-#define MAX_NUM_EDGES          2000000
-#define MAX_DOC_EDGES          250000
-#define MAX_USER_EDGES         50000
-                                 /* Weights for adjustment */
-#define NON_WERD               1.25
-#define GARBAGE_STRING         1.5
-#define MAX_PERM_LENGTH        128
-
-// debugging flags
-INT_VAR(fragments_debug, 0, "Debug character fragments");
-
-BOOL_VAR(segment_debug, 0, "Debug the whole segmentation process");
-
-BOOL_VAR(permute_debug, 0, "Debug char permutation process");
 
 
-// control parameters
-double_VAR(bestrate_pruning_factor, 2.0,
-           "Multiplying factor of current best rate to prune other hypotheses");
-
-BOOL_VAR(permute_script_word, 0,
-         "Turn on word script consistency permuter");
-
-BOOL_VAR(segment_segcost_rating, 0,
-         "incorporate segmentation cost in word rating?");
-
-double_VAR(segment_reward_script, 0.95,
-           "Score multipler for script consistency within a word. "
-           "Being a 'reward' factor, it should be <= 1. "
-           "Smaller value implies bigger reward.");
-
-double_VAR(segment_penalty_dict_nonword, NON_WERD,
-           "Score multiplier for glyph fragment segmentations which do not "
-           "match a dictionary word (lower is better).");
-
-double_VAR(segment_penalty_garbage, GARBAGE_STRING,
-           "Score multiplier for poorly cased strings that are not in the "
-           "dictionary and generally look like garbage (lower is better).");
-
-BOOL_VAR(save_doc_words, 0, "Save Document Words");
-
-BOOL_VAR(doc_dict_enable, 1, "Enable Document Dictionary ");
-
-BOOL_VAR(ngram_permuter_activated, FALSE,
-         "Activate character-level n-gram-based permuter");
-
-STRING_VAR(global_user_words_suffix, "user-words", "A list of user-provided words.");
-
-// This is an ugly way to incorporate segmentation cost in word rating.
-// See comments in incorporate_segcost.
-float wordseg_rating_adjust_factor;
-
-int permute_only_top = 0;
-
-#define SIM_CERTAINTY_SCALE  -10.0   /*< Similarity matcher values */
-#define SIM_CERTAINTY_OFFSET -10.0   /*< Similarity matcher values */
-#define SIMILARITY_FLOOR     100.0   /*< Worst E*L product to stop on */
-
-// TODO(daria): If hyphens are different in different languages and can be
-// inferred from training data we should load their values dynamically.
-static const char kHyphenSymbol[] = "-";
+namespace tesseract {
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -153,314 +85,91 @@ WERD_CHOICE *get_best_delete_other(WERD_CHOICE *choice1,
   }
 }
 
-
 /**
- * good_choice
- *
- * Return TRUE if a good answer is found for the unknown blob rating.
+ * Returns the n-th choice in the given blob_list (top-K choices).
+ * If n > K, the last choice is returned.
  */
-int good_choice(const WERD_CHOICE &choice) {
-  register float certainty;
-  if (tord_similarity_enable) {
-    if ((choice.rating() + 1) * choice.certainty() > SIMILARITY_FLOOR)
-      return false;
-    certainty =
-      SIM_CERTAINTY_OFFSET + choice.rating() * SIM_CERTAINTY_SCALE;
-  } else {
-    certainty = choice.certainty();
-  }
-
-  return (certainty > tord_certainty_threshold) ? true : false;
-}
-
-
-namespace tesseract {
-/**
- * add_document_word
- *
- * Add a word found on this document to the document specific
- * dictionary.
- */
-void Dict::add_document_word(const WERD_CHOICE &best_choice) {
-  // Do not add hyphenated word parts to the document dawg.
-  // hyphen_word_ will be non-NULL after the set_hyphen_word() is
-  // called when the first part of the hyphenated word is
-  // discovered and while the second part of the word is recognized.
-  // hyphen_word_ is cleared in cc_recg() before the next word on
-  // the line is recognized.
-  if (hyphen_word_) return;
-
-  char filename[CHARS_PER_LINE];
-  FILE *doc_word_file;
-  int stringlen = best_choice.length();
-
-  if (!doc_dict_enable || valid_word(best_choice) ||
-      CurrentWordAmbig() || stringlen < 2)
-    return;
-
-  if (!good_choice(best_choice) || stringlen == 2) {
-    if (best_choice.certainty() < permuter_pending_threshold)
-      return;
-
-    if (!pending_words_->word_in_dawg(best_choice)) {
-      if (stringlen > 2 ||
-          (stringlen == 2 &&
-           getUnicharset().get_isupper(best_choice.unichar_id(0)) &&
-           getUnicharset().get_isupper(best_choice.unichar_id(1)))) {
-        pending_words_->add_word_to_dawg(best_choice);
-      }
-      return;
-    }
-  }
-
-  if (save_doc_words) {
-    strcpy(filename, getImage()->getCCUtil()->imagefile.string());
-    strcat (filename, ".doc");
-    doc_word_file = open_file (filename, "a");
-    fprintf (doc_word_file, "%s\n",
-             best_choice.debug_string(getUnicharset()).string());
-    fclose(doc_word_file);
-  }
-  document_words_->add_word_to_dawg(best_choice);
-}
-
-
-/**
- * adjust_non_word
- *
- * Assign an adjusted value to a string that is a non-word.  The value
- * that this word choice has is based on case and punctuation rules.
- * The adjustment value applied is stored in adjust_factor upon return.
- */
-void Dict::adjust_non_word(WERD_CHOICE *word, float *adjust_factor) {
-  float new_rating;
-  if (permute_debug)
-    cprintf("Non-word: %s %4.2f ",
-            word->debug_string(getUnicharset()).string(), word->rating());
-
-  new_rating = word->rating() + RATING_PAD;
-  if (Context::case_ok(*word, getUnicharset()) && valid_punctuation(*word)) {
-    new_rating *= segment_penalty_dict_nonword;
-    *adjust_factor = segment_penalty_dict_nonword;
-    if (permute_debug) tprintf(", W");
-  } else {
-    new_rating *= segment_penalty_garbage;
-    *adjust_factor = segment_penalty_garbage;
-    if (permute_debug) {
-      if (!Context::case_ok(*word, getUnicharset())) tprintf(", C");
-      if (!valid_punctuation(*word)) tprintf(", P");
-    }
-  }
-  new_rating -= RATING_PAD;
-  word->set_rating(new_rating);
-  if (permute_debug)
-    cprintf (" %4.2f --> %4.2f\n", *adjust_factor, new_rating);
-}
-
-
-/**
- * init_permute
- *
- * Initialize anything that needs to be set up for the permute
- * functions.
- */
-void Dict::init_permute() {
-  STRING name;
-  STRING &lang = getImage()->getCCUtil()->lang;
-
-  if (dawgs_.length() != 0) end_permute();
-
-  hyphen_unichar_id_ = getUnicharset().unichar_to_id(kHyphenSymbol);
-  TessdataManager &tessdata_manager =
-    getImage()->getCCUtil()->tessdata_manager;
-
-  // Load dawgs_.
-  if (global_load_punc_dawg &&
-      tessdata_manager.SeekToStart(TESSDATA_PUNC_DAWG)) {
-    dawgs_ += new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                               DAWG_TYPE_PUNCTUATION, lang, PUNC_PERM);
-  }
-  if (global_load_system_dawg &&
-      tessdata_manager.SeekToStart(TESSDATA_SYSTEM_DAWG)) {
-    dawgs_ += new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                               DAWG_TYPE_WORD, lang, SYSTEM_DAWG_PERM);
-  }
-  if (global_load_number_dawg &&
-      tessdata_manager.SeekToStart(TESSDATA_NUMBER_DAWG)) {
-    dawgs_ +=
-      new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                       DAWG_TYPE_NUMBER, lang, NUMBER_PERM);
-  }
-  if (((STRING &)global_user_words_suffix).length() > 0) {
-    name = getImage()->getCCUtil()->language_data_path_prefix;
-    name += global_user_words_suffix;
-    if (exists_file(name.string())) {
-      Trie *trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
-                                MAX_USER_EDGES, getUnicharset().size());
-      if (!trie_ptr->read_word_list(name.string(), getUnicharset())) {
-        tprintf("Error: failed to load %s\n", name.string());
-        exit(1);
-      }
-      dawgs_ += trie_ptr;
-    }
-  }
-  document_words_ = new Trie(DAWG_TYPE_WORD, lang, DOC_DAWG_PERM,
-                             MAX_DOC_EDGES, getUnicharset().size());
-  dawgs_ += document_words_;
-
-  // This dawg is temporary and should not be searched by letter_is_ok.
-  pending_words_ = new Trie(DAWG_TYPE_WORD, lang, NO_PERM,
-                            MAX_DOC_EDGES, getUnicharset().size());
-
-  // The frequent words dawg is only searched when a word
-  // is found in any of the other dawgs.
-  if (tessdata_manager.SeekToStart(TESSDATA_FREQ_DAWG)) {
-    freq_dawg_ = new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                                  DAWG_TYPE_WORD, lang, FREQ_DAWG_PERM);
-  }
-
-  // Construct a list of corresponding successors for each dawg. Each entry i
-  // in the successors_ vector is a vector of integers that represent the
-  // indices into the dawgs_ vector of the successors for dawg i.
-  successors_.reserve(dawgs_.length());
-  for (int i = 0; i < dawgs_.length(); ++i) {
-    const Dawg *dawg = dawgs_[i];
-    SuccessorList *lst = new SuccessorList();
-    for (int j = 0; j < dawgs_.length(); ++j) {
-      const Dawg *other = dawgs_[j];
-      if (dawg->lang() == other->lang() &&
-          kDawgSuccessors[dawg->type()][other->type()]) *lst += j;
-    }
-    successors_ += lst;
-  }
-}
-
-void Dict::end_permute() {
-  if (dawgs_.length() == 0)
-    return;  // Not safe to call twice.
-  dawgs_.delete_data_pointers();
-  successors_.delete_data_pointers();
-  dawgs_.clear();
-  successors_.clear();
-  document_words_ = NULL;
-  if (pending_words_ != NULL) delete pending_words_;
-  pending_words_ = NULL;
-  if (freq_dawg_ != NULL) delete freq_dawg_;
-  freq_dawg_ = NULL;
-}
-
-
-/**
- * permute_all
- *
- * Permute all the characters together using all of the different types
- * of permuters/selectors available.  Each of the characters must have
- * a non-NULL choice list.
- *
- * Note: order of applying permuters does matter, since the latter
- * permuter will be recorded if the resulting word ratings are the same.
- */
-WERD_CHOICE *Dict::permute_all(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                               float rating_limit,
-                               WERD_CHOICE *raw_choice) {
-  WERD_CHOICE *result1;
-  WERD_CHOICE *result2 = NULL;
-  BOOL8 any_alpha;
-  float top_choice_rating_limit = rating_limit;
-
-  // Initialize result1 from the result of permute_top_choice.
-  result1 = permute_top_choice(char_choices, &top_choice_rating_limit,
-                               raw_choice, &any_alpha);
-
-  // Enforce script consistency within a word on some scripts
-  if (permute_script_word &&
-      !word_script_eq(char_choices, getUnicharset().common_sid()) &&
-      !word_script_eq(char_choices, getUnicharset().latin_sid())) {
-    result2 = permute_script_words(char_choices);
-    // TODO(dsl): incorporate segmentation cost into word rating.
-    // This should only be turned on for scripts that we have a segmentation
-    // cost model for, such as CJK.
-    if (segment_segcost_rating)
-      incorporate_segcost(result2);
-    result1 = get_best_delete_other(result1, result2);
-  }
-
-  // Permute character fragments if necessary.
-  if (result1 == NULL || result1->fragment_mark()) {
-    result2 = top_fragments_permute_and_select(char_choices,
-                                               top_choice_rating_limit);
-    result1 = get_best_delete_other(result1, result2);
-  }
-
-  // TODO(daria): update ngram permuter code.
-  if (ngram_permuter_activated) {
-    tprintf("Error: ngram permuter functionality is not available\n");
-    exit(1);
-    // A_CHOICE *ngram_choice =
-    //  ngram_permute_and_select(old_char_choices, rating_limit, word_dawg_);
-    // return ngram_choice;
-  }
-
-  if (result1 == NULL)
-    return (NULL);
-  if (permute_only_top)
-    return result1;
-
-  result2 = dawg_permute_and_select(char_choices, rating_limit);
-  result1 = get_best_delete_other(result1, result2);
-
-  result2 = permute_compound_words(char_choices, rating_limit);
-  result1 = get_best_delete_other(result1, result2);
-
-  return (result1);
+BLOB_CHOICE* get_nth_choice(BLOB_CHOICE_LIST* blob_list, int n) {
+  BLOB_CHOICE_IT c_it(blob_list);
+  while (n-- > 0 && !c_it.at_last())
+    c_it.forward();
+  return c_it.data();
 }
 
 /** Returns the top choice char id.  A helper function to make code cleaner. */
 UNICHAR_ID get_top_choice_uid(BLOB_CHOICE_LIST *blob_list) {
-  BLOB_CHOICE_IT blob_choice_it;
-  blob_choice_it.set_to_list(blob_list);
+  if (!blob_list) return INVALID_UNICHAR_ID;
+  BLOB_CHOICE_IT blob_choice_it(blob_list);
   return (blob_choice_it.data()) ? blob_choice_it.data()->unichar_id()
                                  : INVALID_UNICHAR_ID;
 }
 
 /**
- * Return the "dominant" script ID for the word.  By "dominant", the script
- * must account for at least half the characters.  Otherwise, it returns 0.
+ * Returns the rank (starting at 0) of a given unichar ID in the char
+ * choice list, or -1 if not found.
  */
-int get_top_word_script(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                        const UNICHARSET &unicharset) {
-  int max_script = unicharset.get_script_table_size();
-  int *sid = new int[max_script];
-  int x;
-  for (x = 0; x < max_script; x++) sid[x] = 0;
-  for (x = 0; x < char_choices.length(); ++x) {
-    BLOB_CHOICE_IT blob_choice_it;
-    blob_choice_it.set_to_list(char_choices.get(x));
-    sid[blob_choice_it.data()->script_id()]++;
+int find_choice_by_uid(BLOB_CHOICE_LIST *blob_list, UNICHAR_ID target_uid) {
+  BLOB_CHOICE_IT c_it(blob_list);
+  int pos = 0;
+  while (1) {
+    if (c_it.data()->unichar_id() == target_uid) return pos;
+    if (c_it.at_last()) break;
+    c_it.forward();
+    pos++;
   }
-  // Note that high script ID overrides lower one on a tie, thus biasing
-  // towards non-Common script (if sorted that way in unicharset file).
-  int max_sid = 0;
-  for (x = 1; x < max_script; x++)
-    if (sid[x] >= sid[max_sid]) max_sid = x;
-  if (sid[max_sid] < char_choices.length() / 2)
-    max_sid = unicharset.null_sid();
-  delete[] sid;
-  return max_sid;
+  return -1;
 }
 
 /**
- * Checks whether the dominant word script, if there is one, matches
- * the given target script ID.
+ * Returns a WERD formed by taking the specified position (nth choice) string
+ * from char_choices starting at the given position.
+ * For example, if start_pos=2, pos_str="0121" will form a word using the
+ * 1st choice of char 3, 2nd choice of char 4, 3rd choice of char 5, 2nd choice
+ * of char 6.  If n > number of choice, the closest (last) one is used.
  */
-bool Dict::word_script_eq(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                          int target_sid) {
-  int max_sid = get_top_word_script(char_choices, getUnicharset());
-  // If "Latin" is not a loaded script, then latin_sid() would return 0.
-  // max_sid could also be 0 if there is no dominant script.
-  // This is faster than
-  // strcmp(getUnicharset().get_script_from_script_id(max_sid), "Latin")
-  return (max_sid > 0 && max_sid == target_sid);
+WERD_CHOICE* get_choice_from_posstr(const BLOB_CHOICE_LIST_VECTOR &char_choices,
+                                    int start_pos,
+                                    const char* pos_str,
+                                    float *certainties) {
+  int pos_str_len = strlen(pos_str);
+  WERD_CHOICE* wchoice = new WERD_CHOICE();
+  if (start_pos + pos_str_len > char_choices.length()) {
+    wchoice->make_bad();
+    return wchoice;
+  }
+  for (int x = 0; x < pos_str_len; x++) {
+    int pos = pos_str[x]-'0';
+    if (pos < 0) pos = 0;   // use the top choice by default, eg. '.'
+    if (pos >= 10)
+      tprintf("PosStr[%d](%d)=%c  %d\n", x, pos_str_len, pos_str[x], pos);
+    ASSERT_HOST(pos < 10);
+    BLOB_CHOICE* blob_it = get_nth_choice(char_choices.get(start_pos+x), pos);
+    wchoice->set_permuter(NO_PERM);
+    wchoice->append_unichar_id(blob_it->unichar_id(), 1,
+                               blob_it->rating(),
+                               blob_it->certainty());
+    if (certainties != NULL) certainties[x] = blob_it->certainty();
+  }
+  return wchoice;
+}
+
+/**
+ * Given a WERD_CHOICE, find the corresponding position string from
+ * char_choices.  Pos_str must have been allocated already.
+ * This is the reverse of get_choice_from_posstr.
+ */
+void get_posstr_from_choice(const BLOB_CHOICE_LIST_VECTOR &char_choices,
+                            WERD_CHOICE* word_choice,
+                            int start_pos,
+                            char* pos_str) {
+  for (int i = 0; i < word_choice->length(); i++) {
+    UNICHAR_ID target_id = word_choice->unichar_id(i);
+    BLOB_CHOICE_LIST* blob_choice_list = char_choices.get(start_pos + i);
+    int pos = find_choice_by_uid(blob_choice_list, target_id);
+    if (pos < 0) pos = 0;
+    pos_str[i] = pos + '0';
+  }
+  pos_str[word_choice->length()] = '\0';
 }
 
 /**
@@ -470,27 +179,14 @@ bool Dict::word_script_eq(const BLOB_CHOICE_LIST_VECTOR &char_choices,
  * If not match is found, a NULL is returned.
  */
 BLOB_CHOICE* find_choice_by_type(
-    BLOB_CHOICE_LIST *char_choices,
+    BLOB_CHOICE_LIST *blob_choices,
     char target_type,
     const UNICHARSET &unicharset) {
-  BLOB_CHOICE_IT c_it;
-  c_it.set_to_list(char_choices);
+  BLOB_CHOICE_IT c_it(blob_choices);
   for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
-    bool found = false;
-    UNICHAR_ID unichar_id = c_it.data()->unichar_id();
-    switch (target_type) {
-      case '*': found = true;  break;
-      case 'A': found = unicharset.get_isupper(unichar_id); break;
-      case 'a': found = unicharset.get_islower(unichar_id); break;
-      case '0': found = unicharset.get_isdigit(unichar_id); break;
-      case 'p': found = unicharset.get_ispunctuation(unichar_id); break;
-      case 'x': found = !unicharset.get_isupper(unichar_id) &&
-                        !unicharset.get_islower(unichar_id) &&
-                        !unicharset.get_isdigit(unichar_id) &&
-                        !unicharset.get_ispunctuation(unichar_id);
-                break;
-    }
-    if (found) return c_it.data();
+    if (c_it.data() &&
+        unicharset.get_chartype(c_it.data()->unichar_id()) == target_type)
+      return c_it.data();
   }
   return NULL;
 }
@@ -508,12 +204,11 @@ BLOB_CHOICE* find_choice_by_type(
  *   find_choice_by_script(cchoice, han_sid, 0, common_sid);
  */
 BLOB_CHOICE* find_choice_by_script(
-    BLOB_CHOICE_LIST *char_choices,
+    BLOB_CHOICE_LIST *blob_choices,
     int target_sid,
     int backup_sid,
     int secondary_sid) {
-  BLOB_CHOICE_IT c_it;
-  c_it.set_to_list(char_choices);
+  BLOB_CHOICE_IT c_it(blob_choices);
   for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
     bool found = false;
     if (c_it.data()->script_id() == 0) continue;
@@ -522,7 +217,7 @@ BLOB_CHOICE* find_choice_by_script(
     if (found) return c_it.data();
   }
   if (secondary_sid > 0) {
-    c_it.set_to_list(char_choices);
+    c_it.set_to_list(blob_choices);
     for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
       if (c_it.data()->script_id() == 0) continue;
       if (c_it.data()->script_id() == secondary_sid)
@@ -532,37 +227,466 @@ BLOB_CHOICE* find_choice_by_script(
   return NULL;
 }
 
+
+PermuterState::PermuterState() {
+  char_choices_ = NULL;
+  adjust_factor_ = 1.0f;
+  allow_collision_ = false;
+  word_length_ = 0;
+  debug_ = false;
+}
+
+void PermuterState::Init(const BLOB_CHOICE_LIST_VECTOR& char_choices,
+                         const UNICHARSET& unicharset,
+                         float default_bias,
+                         bool debug) {
+  ASSERT_HOST(char_choices.length() < MAX_PERM_LENGTH);
+  char_choices_ = &char_choices;
+  word_length_ = char_choices.length();
+  for (int i = 0; i < word_length_; ++i)
+    perm_state_[i] = kPosFree;
+  perm_state_[word_length_] = '\0';
+  // Skip fragment choice and the mark positions so they remain unchanged.
+  for (int i = 0; i < word_length_; ++i) {
+    UNICHAR_ID unichar_id = get_top_choice_uid(char_choices.get(i));
+    if (unicharset.get_fragment(unichar_id) != NULL)
+      perm_state_[i] = '1';
+  }
+  adjust_factor_ = default_bias;
+  allow_collision_ = false;
+  debug_ = debug;
+}
+
+// Promote char positions specified in pos_str with given weight.
+// For example, AddPreference(5, "234", 0.95f)
+// would promote the 3rd, 4th and 5th choice for character 5, 6, 7
+// (starting at 0) in the word with a rating adjustment of 0.95.
+void PermuterState::AddPreference(int start_pos, char* pos_str, float weight) {
+  ASSERT_HOST(char_choices_ != NULL);
+  ASSERT_HOST(start_pos + strlen(pos_str) - 1 < word_length_);
+  if (debug_) {
+    tprintf("Copy over %s -> %s @ %d ", pos_str, perm_state_, start_pos);
+  }
+  // copy over preferred position without the terminating null
+  if (!allow_collision_) {
+    int len = strlen(pos_str);
+    for (int i = 0; i < len; ++i)
+      if (position_marked(start_pos + i)) return;
+  }
+  strncpy(&perm_state_[start_pos], pos_str, strlen(pos_str));
+  adjust_factor_ *= weight;
+  if (debug_) tprintf("==> %s %f\n", perm_state_, adjust_factor_);
+}
+
+// Promote the input blob_choice at specified position with given weight.
+void PermuterState::AddPreference(int char_pos, BLOB_CHOICE* blob_choice,
+                                  float weight) {
+  ASSERT_HOST(char_choices_ != NULL);
+  ASSERT_HOST(char_pos < word_length_);
+  // avoid collision (but this doesn't work if the first choice is favored!
+  if (!allow_collision_ && position_marked(char_pos)) return;
+
+  if (debug_) {
+    tprintf("Set UID %d -> %s @ %d ",
+            blob_choice->unichar_id(), perm_state_, char_pos);
+  }
+  int pos = find_choice_by_uid(char_choices_->get(char_pos),
+                               blob_choice->unichar_id());
+  perm_state_[char_pos] = pos + '0';
+  adjust_factor_ *= weight;
+  if (debug_) tprintf("==> %s %f\n", perm_state_, adjust_factor_);
+}
+
+// Get the best word permutation so far.  Caller should destroy WERD_CHOICE.
+WERD_CHOICE* PermuterState::GetPermutedWord(float *certainties,
+                                            float *adjust_factor) {
+  ASSERT_HOST(char_choices_ != NULL);
+  WERD_CHOICE *word_choice = get_choice_from_posstr(*char_choices_,
+                                                    0, perm_state_,
+                                                    certainties);
+  float rating = word_choice->rating() * adjust_factor_;
+  word_choice->set_rating(rating);
+  *adjust_factor = adjust_factor_;
+  return word_choice;
+}
+
+
+/**********************************************************************
+ * permute_all
+ *
+ * Permute all the characters together using all of the different types
+ * of permuters/selectors available.  Each of the characters must have
+ * a non-NULL choice list.
+ *
+ * Note: order of applying permuters does matter, since the latter
+ * permuter will be recorded if the resulting word ratings are the same.
+ *
+ * Note: the function assumes that best_choice and raw_choice are not NULL.
+ *
+ * Note: Since permuter_all maybe called recursively (through permuter_
+ * compound_words), there must be a separate instance of permuter_state
+ * for each invocation.
+ **********************************************************************/
+WERD_CHOICE *Dict::permute_all(const BLOB_CHOICE_LIST_VECTOR &char_choices,
+                               const WERD_CHOICE *best_choice,
+                               WERD_CHOICE *raw_choice) {
+  WERD_CHOICE *result1 = NULL;
+  WERD_CHOICE *result2 = NULL;
+  BOOL8 any_alpha;
+  float top_choice_rating_limit = best_choice->rating();
+  int word_script_id = get_top_word_script(char_choices, getUnicharset());
+
+  PermuterState permuter_state;
+  if (getUnicharset().han_sid() != getUnicharset().null_sid() &&
+      word_script_id == getUnicharset().han_sid()) {
+    permuter_state.Init(char_choices, getUnicharset(), 1.0f, permute_debug);
+
+    result1 = get_top_choice_word(char_choices);
+
+    // Note that we no longer need the returned word from these permuters,
+    // except to delete the memory.  The word choice from all permutations
+    // is returned by permuter_state.GetpermutedWord() at the end.
+    if (permute_fixed_length_dawg) {
+      result2 = permute_fixed_length_words(char_choices, &permuter_state);
+      delete result2;
+    }
+    if (permute_chartype_word) {
+      result2 = permute_chartype_words(char_choices, &permuter_state);
+      delete result2;
+    }
+    if (permute_script_word) {
+      result2 = permute_script_words(char_choices, &permuter_state);
+      delete result2;
+    }
+
+    float certainties[MAX_PERM_LENGTH];
+    float adjust_factor;
+    result2 = permuter_state.GetPermutedWord(certainties, &adjust_factor);
+    LogNewChoice(adjust_factor, certainties, false, result2);
+    result1 = get_best_delete_other(result1, result2);
+
+    if (ngram_permuter_activated &&
+        (best_choice->rating() == WERD_CHOICE::kBadRating ||
+         best_choice->permuter() == TOP_CHOICE_PERM) &&
+        result1->permuter() == TOP_CHOICE_PERM) {
+      result2 = ngram_permute_and_select(char_choices, best_choice->rating(),
+                                         segment_reward_ngram_best_choice);
+      result1 = get_best_delete_other(result1, result2);
+    }
+
+    if (segment_segcost_rating) incorporate_segcost(result1);
+  } else {
+    result1 = permute_top_choice(char_choices, &top_choice_rating_limit,
+                                 raw_choice, &any_alpha);
+    if (result1 == NULL)
+      return (NULL);
+    if (permute_only_top)
+      return result1;
+
+    if (permute_chartype_word) {
+      permuter_state.Init(char_choices, getUnicharset(),
+                          segment_penalty_garbage, permute_debug);
+      result2 = permute_chartype_words(char_choices, &permuter_state);
+      result1 = get_best_delete_other(result1, result2);
+    }
+
+    // Permute character fragments if necessary.
+    if (result1 == NULL || result1->fragment_mark()) {
+      result2 = top_fragments_permute_and_select(char_choices,
+                                                 top_choice_rating_limit);
+      result1 = get_best_delete_other(result1, result2);
+    }
+
+    result2 = dawg_permute_and_select(char_choices, best_choice->rating());
+    result1 = get_best_delete_other(result1, result2);
+
+    result2 = permute_compound_words(char_choices, best_choice->rating());
+    result1 = get_best_delete_other(result1, result2);
+
+    if (ngram_permuter_activated &&
+        best_choice->permuter() < SYSTEM_DAWG_PERM &&
+        result1->permuter() < SYSTEM_DAWG_PERM) {
+      result2 = ngram_permute_and_select(char_choices, best_choice->rating(),
+                                         segment_penalty_ngram_best_choice);
+      result1 = get_best_delete_other(result1, result2);
+    }
+  }
+  return result1;
+}
+
 /**
  * Incorporate segmentation cost into the word rating.  This is done
- * through a mutliplier wordseg_rating_adjust_factor which is determined
+ * through a multiplier wordseg_rating_adjust_factor_ which is determined
  * in bestfirst.cpp during state evaluation.  This is not the cleanest
  * way to do this.  It would be better to reorganize the SEARCH_STATE
  * to keep track of associated states, or do the rating adjustment
  * outside the permuter in evalaute_state.
  */
 void Dict::incorporate_segcost(WERD_CHOICE *word) {
-  if (!word || wordseg_rating_adjust_factor <= 0) return;
+  if (!word || wordseg_rating_adjust_factor_ <= 0) return;
 
   float old_rating = word->rating();
-  float new_rating = old_rating * wordseg_rating_adjust_factor;
+  float new_rating = old_rating * wordseg_rating_adjust_factor_;
   word->set_rating(new_rating);
   if (permute_debug)
     tprintf("Permute segadjust %f * %f --> %f\n",
-            old_rating, wordseg_rating_adjust_factor, new_rating);
+            old_rating, wordseg_rating_adjust_factor_, new_rating);
+}
+
+
+/**
+ * Perform search on fixed-length dictionaries within a word.
+ * This is used for non-space delimited languages like CJK when a "word"
+ * corresponds to a "phrase" consisted of multiple short words.
+ * It iterates over every character position looking for longest matches
+ * against a set of fixed-length dawgs.  Each dictionary hit is rewarded
+ * with a rating bonus.
+ * Note: this is very slow as it is performed on every segmentation state.
+ */
+WERD_CHOICE* Dict::permute_fixed_length_words(
+    const BLOB_CHOICE_LIST_VECTOR &char_choices,
+    PermuterState *permuter_state) {
+  if (permute_debug)
+    print_char_choices_list("\n\nPermute FixedLength Word",
+                            char_choices, getUnicharset(), false);
+  WERD_CHOICE* best_choice = new WERD_CHOICE(char_choices.length());
+  const int max_dict_len = max_fixed_length_dawgs_wdlen_;
+  const int min_dict_len = 2;
+  char posstr[256];
+  int match_score = 0;
+  int anchor_pos = 0;
+  while (anchor_pos < char_choices.length()) {
+     // search from longest phrase to shortest, stop when we find a match
+     WERD_CHOICE* part_choice = NULL;
+     int step = max_dict_len;
+     while (step >= min_dict_len) {
+       int end_pos = anchor_pos + step - 1;
+       if (end_pos < char_choices.length()) {
+         part_choice = dawg_permute_and_select(char_choices,
+                                               200.0,   // rate limit
+                                               step,
+                                               anchor_pos);
+         if (part_choice->length() == step) {
+           if (permute_debug)
+             tprintf("match found at pos=%d len=%d\n%s\n", anchor_pos, step,
+                     part_choice->unichar_string().string());
+           break;
+         }
+         delete part_choice;
+         part_choice = NULL;
+       }
+       step--;
+     }
+
+     if (part_choice && step > 1) {   // found lexicon match
+       part_choice->populate_unichars(getUnicharset());
+       get_posstr_from_choice(char_choices, part_choice, anchor_pos, posstr);
+       float adjust_factor = pow(0.95, 1.0 + step*2.0/char_choices.length());
+       if (permuter_state)
+         permuter_state->AddPreference(anchor_pos, posstr, adjust_factor);
+       match_score += step - 1;   // single chars don't count
+       if (permute_debug)
+         tprintf("Promote word rating %d-len%d\n%s\n", anchor_pos, step,
+                 part_choice->unichar_string().string());
+     } else {     // no lexicon match
+       step = 1;
+       part_choice =
+         get_choice_from_posstr(char_choices, anchor_pos, "0", NULL);
+       if (permute_debug)
+         tprintf("Single char %d %s\n", anchor_pos,
+                 part_choice->unichar_string().string());
+     }
+     if (part_choice && part_choice->length() > 0)
+       (*best_choice) += (*part_choice);
+     if (part_choice) delete part_choice;
+     anchor_pos += step;
+  }
+
+  if (match_score > 0) {
+    float adjust_factor = pow(0.8,    // 1.0/segment_penalty_dict_nonword,
+                              match_score * 2.0 / char_choices.length());
+    float adjusted_score = best_choice->rating() * adjust_factor;
+    if (permute_debug)
+      tprintf("Adjusting score %f @ %d -> %f\n",
+              best_choice->rating(), match_score, adjusted_score);
+    best_choice->set_rating(adjusted_score);
+  }
+  best_choice->populate_unichars(getUnicharset());
+  if (permute_debug)
+    tprintf("Found Best CJK word %f: %s\n",
+            best_choice->rating(), best_choice->unichar_string().string());
+  return best_choice;
+}
+
+
+/**********************************************************************
+ * Returns the dominant chartype for the word.  Only the "main" chartype
+ * of each character is used, and a consistent chartype is defined by
+ * the majority chartype from non-ambiguous character positions.
+ * If pos_chartypes is not NULL, then the "main" chartype at each pos
+ * is also returned.  The caller must allocate and deallocate the space.
+ **********************************************************************/
+char Dict::top_word_chartype(const BLOB_CHOICE_LIST_VECTOR &char_choices,
+                             char* pos_chartypes) {
+  const UNICHARSET &unicharset = getUnicharset();
+  const int hist_size = 128;   // to contain 'A','a','0','x','p'
+  int chprop[hist_size];
+  int x;
+  for (x = 0; x < hist_size; x++) chprop[x] = 0;
+  for (x = 0; x < char_choices.length(); ++x) {
+    UNICHAR_ID unichar_id = get_top_choice_uid(char_choices.get(x));
+    char ctype = unicharset.get_chartype(unichar_id);
+    if (pos_chartypes) pos_chartypes[x] = ctype;
+    if (ctype == 0 || ctype == 'p') continue;
+    if (getUnicharAmbigs().OneToOneDefiniteAmbigs(unichar_id) != NULL) continue;
+    chprop[ctype]++;
+    if (x == 0 && ctype == 'A')  // first-cap also counts as lower
+      chprop['a']++;
+  }
+  int max_prop = 0;
+  for (x = 1; x < hist_size; x++)
+    if (chprop[x] >= chprop[max_prop]) max_prop = x;
+  return (chprop[max_prop] > 0) ? max_prop : 0;
+}
+
+/**********************************************************************
+ * Promote consistent character type based on neighboring characters.
+ * For each character position, if the top choice property is inconsistent
+ * with that of the word or previous character, then its likely
+ * subsitutions, as defined by DangAmbigs, will be examined and the one
+ * with a matching property will be selected.
+ **********************************************************************/
+WERD_CHOICE* Dict::permute_chartype_words(
+    const BLOB_CHOICE_LIST_VECTOR &char_choices,
+    PermuterState *permuter_state) {
+
+  if (char_choices.length() >= MAX_PERM_LENGTH)
+    return NULL;
+  // Store main character property of top choice at every position
+  char pos_chartypes[MAX_PERM_LENGTH];
+  char word_type = top_word_chartype(char_choices, pos_chartypes);
+  if (word_type == 0 || word_type == 'p')
+    return NULL;     // skip if word type is punctuation or unknown
+  if (permute_debug) {
+    tprintf("\n\nPermuteCharType[%c]\n", word_type);
+    print_char_choices_list("", char_choices, getUnicharset(), true);
+  }
+
+  WERD_CHOICE *current_word = new WERD_CHOICE();
+  BLOB_CHOICE_IT blob_choice_it;
+  const UNICHARSET& unicharset = getUnicharset();
+  bool replaced = false;        // has any character choice been replaced
+  int prev_unambig_type = 0;    // the last chartype of an unambiguous char
+  for (int x = 0; x < char_choices.length(); ++x) {
+    BLOB_CHOICE_LIST* pos_choice = char_choices.get(x);
+    UNICHAR_ID unichar_id = get_top_choice_uid(pos_choice);
+    if (unichar_id == 0) {
+      delete current_word;
+      return NULL;
+    }
+    blob_choice_it.set_to_list(pos_choice);
+    BLOB_CHOICE *first_choice = blob_choice_it.data();
+    ASSERT_HOST(first_choice != NULL);
+
+    const UnicharIdVector* ambig_uids =
+        getUnicharAmbigs().OneToOneDefiniteAmbigs(unichar_id);
+    bool is_ambiguous = (ambig_uids != NULL);
+    bool is_punct = unicharset.get_ispunctuation(unichar_id);
+    bool is_consistent = is_punct ||
+        unicharset.get_chartype(unichar_id) == prev_unambig_type ||
+        unicharset.get_chartype(unichar_id) == word_type;
+    bool is_fragment = getUnicharset().get_fragment(unichar_id) != NULL;
+    if (permute_debug)
+      tprintf("char[%d]:%s is_ambig %c   is_punct %c  is_consistent %c\n",
+              x, unicharset.id_to_unichar(unichar_id),
+              is_ambiguous?'T':'F', is_punct?'T':'F', is_consistent?'T':'F');
+
+    if (is_fragment) {
+      // Ignore any fragmented characters by skipping them to next choice
+      // (originally first choice).
+      first_choice = get_nth_choice(pos_choice, 1);
+      ASSERT_HOST(first_choice != NULL);
+    } else if (is_ambiguous && !is_consistent) {
+      // Check every confusable blob choice where the top choice is inconsistent
+      // with the character type of the previous unambiguous character.
+      if (permute_debug) {
+        tprintf("Checking %s r%g  PrevCharType %c\n",
+                unicharset.id_to_unichar(unichar_id),
+                first_choice->rating(), prev_unambig_type);
+        print_ratings_list("\t", pos_choice, getUnicharset());
+      }
+      BLOB_CHOICE* c_it = NULL;
+      if (c_it == NULL) {
+        c_it = find_choice_by_type(pos_choice, word_type, unicharset);
+      }
+
+      // Prefer a character choice whose type is the same as the previous
+      // unambiguous character and the confusion appears in the ambig list.
+      if (c_it == NULL && prev_unambig_type > 0) {
+        c_it = find_choice_by_type(pos_choice, prev_unambig_type, unicharset);
+        if (c_it &&
+            UnicharIdArrayUtils::find_in(*ambig_uids, c_it->unichar_id()) < 0)
+          c_it = NULL;
+      }
+
+      // Otherwise, perfer a punctuation
+      if (c_it == NULL) {
+        c_it = find_choice_by_type(pos_choice, 'p', unicharset);
+        if (c_it &&
+            UnicharIdArrayUtils::find_in(*ambig_uids, c_it->unichar_id()) < 0)
+          c_it = NULL;
+      }
+
+      // save any preference other than the top choice
+      if (c_it != NULL) {
+        if (permute_debug) {
+          tprintf("Replacing %s r%g ==> %s r%g\n",
+                  unicharset.id_to_unichar(unichar_id), first_choice->rating(),
+                  unicharset.id_to_unichar(c_it->unichar_id()), c_it->rating());
+          tprintf("\n\nPermuteCharType[%c]\n", word_type);
+          print_char_choices_list("", char_choices, getUnicharset(), false);
+        }
+        if (permuter_state)
+          permuter_state->AddPreference(x, c_it, segment_reward_chartype);
+        first_choice = c_it;
+        replaced = true;
+      }
+    } else if (!is_ambiguous && !is_punct) {
+      // keep the last unambiguous character type
+      prev_unambig_type = pos_chartypes[x];
+    }
+    current_word->append_unichar_id(first_choice->unichar_id(), 1,
+                                    first_choice->rating(),
+                                    first_choice->certainty());
+  }
+  // All permuter choices should go through adjust_non_word so the choice
+  // rating would be adjusted on the same scale.
+  float certainties[MAX_PERM_LENGTH + 1];
+  adjust_non_word(current_word, certainties, permute_debug);
+  current_word->populate_unichars(unicharset);
+  if (replaced) {
+    // Apply a reward multiplier on rating if an chartype permutation is made.
+    float rating = current_word->rating();
+    current_word->set_rating(rating * segment_reward_chartype);
+    if (permute_debug)
+      current_word->print("<== permute_chartype_word **");
+  }
+  return current_word;
 }
 
 /**
  * Try flipping characters in a word to get better script consistency.
  * Similar to how upper/lower case checking is done in top_choice_permuter,
  * this permuter tries to suggest a more script-consistent choice AND
- * modifieds the rating.  So it combines both the case_ok check and
+ * modifies the rating.  So it combines both the case_ok check and
  * adjust_non_word functionality.  However, instead of penalizing an
  * inconsistent word with a > 1 multiplier, we reward the script-consistent
  * choice with a < 1 multiplier.
  */
 WERD_CHOICE* Dict::permute_script_words(
-    const BLOB_CHOICE_LIST_VECTOR &char_choices) {
-  if (char_choices.length() > MAX_WERD_LENGTH)
+    const BLOB_CHOICE_LIST_VECTOR &char_choices,
+    PermuterState *permuter_state) {
+  if (char_choices.length() >= MAX_WERD_LENGTH)
     return NULL;
 
   int word_sid = get_top_word_script(char_choices, getUnicharset());
@@ -576,19 +700,32 @@ WERD_CHOICE* Dict::permute_script_words(
                             permute_debug > 1);
   }
 
-  WERD_CHOICE *current_word = new WERD_CHOICE(MAX_WERD_LENGTH);
+  WERD_CHOICE *current_word = new WERD_CHOICE();
   BLOB_CHOICE_IT blob_choice_it;
   bool replaced = false;
   bool prev_is_consistent = false;
   for (int x = 0; x < char_choices.length(); ++x) {
     blob_choice_it.set_to_list(char_choices.get(x));
     BLOB_CHOICE *first_choice = blob_choice_it.data();
-    if (!first_choice) return NULL;
+    if (!first_choice) {
+      delete current_word;
+      return NULL;
+    }
     UNICHAR_ID unichar_id = first_choice->unichar_id();
-    bool sid_consistent = (first_choice->script_id() == word_sid);
-    bool this_is_punct = getUnicharset().get_ispunctuation(unichar_id);
+    if (unichar_id == 0) {
+      delete current_word;
+      return NULL;
+    }
+    bool sid_consistent = (getUnicharset().get_script(unichar_id) == word_sid);
+    bool this_is_punct = getUnicharset().get_chartype(unichar_id) == 'p';
+    bool is_fragment = getUnicharset().get_fragment(unichar_id) != NULL;
 
-    if (!sid_consistent && !this_is_punct && prev_is_consistent) {
+    if (is_fragment) {
+      // Ignore any fragmented characters by skipping them to next choice
+      // (originally first choice).
+      first_choice = get_nth_choice(char_choices.get(x), 1);
+      ASSERT_HOST(first_choice != NULL);
+    } else if (!sid_consistent && !this_is_punct && prev_is_consistent) {
       // If the previous char is CJK, we prefer a cjk over non-cjk char
       if (permute_debug) {
         tprintf("Checking %s r%g\n", getUnicharset().id_to_unichar(unichar_id),
@@ -598,40 +735,40 @@ WERD_CHOICE* Dict::permute_script_words(
       // prefer a script consistent choice
       BLOB_CHOICE* c_it = find_choice_by_script(char_choices.get(x),
                                                 word_sid, 0, 0);
-      // make this a separate check
       // otherwise, prefer a punctuation
       if (c_it == NULL)
         c_it = find_choice_by_type(char_choices.get(x), 'p', getUnicharset());
 
       if (c_it != NULL) {
         if (permute_debug)
-          tprintf("Replacing %d r%g ==> %d r%g\n",
-                  first_choice->unichar_id(), first_choice->rating(),
-                  c_it->unichar_id(), c_it->rating());
+          tprintf("Replacing %s r%g ==> %s r%g\n",
+                  getUnicharset().id_to_unichar(unichar_id),
+                  first_choice->rating(),
+                  getUnicharset().id_to_unichar(c_it->unichar_id()),
+                  c_it->rating());
+        if (permuter_state)
+          permuter_state->AddPreference(x, c_it, segment_reward_script);
         first_choice = c_it;
         replaced = true;
       }
     }
-    current_word->append_unichar_id_space_allocated(
-      first_choice->unichar_id(), 1,
-      first_choice->rating(), first_choice->certainty());
+    current_word->append_unichar_id(first_choice->unichar_id(), 1,
+                                    first_choice->rating(),
+                                    first_choice->certainty());
     prev_is_consistent = sid_consistent;
   }
-  if (replaced) {
-    // When we replace a word choice (usually top choice) with
-    // another for the sake of script consistency, we need to improve its
-    // rating so that it will replace the best choice.  How much we modify
-    // the rating determines how strong is the script consistency constraint.
-    // We need a more consistent solution for all contextual constraints
-    // like case, punct pattern, script, etc.  Right now, this does the same
-    // thing as adjust_non_words for case and punctuation rules.
-    float rating = current_word->rating();
-    rating *= segment_reward_script;
-    current_word->set_rating(rating);
-  }
+  // All permuter choices should go through adjust_non_word so the choice
+  // rating would be adjusted on the same scale.
+  float certainties[MAX_PERM_LENGTH + 1];
+  adjust_non_word(current_word, certainties, permute_debug);
   current_word->populate_unichars(getUnicharset());
-  if (permute_debug && replaced)
-    current_word->print("<== permute_script_word **");
+  if (replaced) {
+    // Apply a reward multiplier on rating if an script permutation is made.
+    float rating = current_word->rating();
+    current_word->set_rating(rating * segment_reward_script);
+    if (permute_debug)
+      current_word->print("<== permute_script_word **");
+  }
   return current_word;
 }
 
@@ -640,28 +777,27 @@ WERD_CHOICE* Dict::permute_script_words(
  *
  * Permute these characters together according to each of the different
  * permuters that are enabled.
+ * Returns true if best_choice was updated.
  */
-void Dict::permute_characters(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                              float limit,
+bool Dict::permute_characters(const BLOB_CHOICE_LIST_VECTOR &char_choices,
                               WERD_CHOICE *best_choice,
                               WERD_CHOICE *raw_choice) {
   float old_raw_choice_rating = raw_choice->rating();
-  permutation_count++;           /* Global counter */
-  if (tord_display_ratings > 1) {
-    cprintf("\nchar_choices in permute_characters:\n");
+  if (permute_debug) {
+    tprintf("\n\n\n##### Permute_Characters #######\n");
     print_char_choices_list("\n==> Input CharChoices", char_choices,
-                            getUnicharset(), true);
+                            getUnicharset(), segment_debug > 1);
+    tprintf("\n");
   }
 
   if (char_choices.length() == 1 &&
-      get_top_choice_uid(char_choices.get(0)) == 0)
-    return;
-  WERD_CHOICE *this_choice = permute_all(char_choices, limit, raw_choice);
+      get_top_choice_uid(char_choices.get(0)) == 0) return false;
+  WERD_CHOICE *this_choice = permute_all(char_choices, best_choice, raw_choice);
 
   if (raw_choice->rating() < old_raw_choice_rating) {
     // Populate unichars_ and unichar_lengths_ of raw_choice. This is
     // needed for various components that still work with unichars rather
-    // than unichar ids (e.g. AdaptToWord).
+    // than unichar ids (e.g. LearnWord).
     raw_choice->populate_unichars(getUnicharset());
   }
   if (this_choice && this_choice->rating() < best_choice->rating()) {
@@ -671,12 +807,16 @@ void Dict::permute_characters(const BLOB_CHOICE_LIST_VECTOR &char_choices,
     // than unichar ids (dawg, *_ok functions, various hard-coded hacks).
     best_choice->populate_unichars(getUnicharset());
 
-    if (tord_display_ratings) {
-      cprintf("permute_characters: %s\n",
+    if (permute_debug) {
+      best_choice->print("\n**** Populate BestChoice");
+      cprintf("populate best_choice\n\t%s\n",
               best_choice->debug_string(getUnicharset()).string());
     }
+    delete this_choice;
+    return true;
   }
   delete this_choice;
+  return false;
 }
 
 /**
@@ -728,7 +868,6 @@ WERD_CHOICE *Dict::permute_compound_words(
       current_word.rating() <= rating_limit) {
     permute_subword(char_choices, rating_limit, first_index,
                     x - 1, &current_word);
-    current_word.populate_unichars(getUnicharset());
     best_choice = new WERD_CHOICE(current_word);
     best_choice->set_permuter(COMPOUND_PERM);
   }
@@ -743,7 +882,7 @@ WERD_CHOICE *Dict::permute_compound_words(
  * and the start and end of the word.  Call the standard word permute
  * function on a set of choices covering only part of the original
  * word.  When it is done reclaim the memory that was used in the
- * excercise.
+ * exercise.
  */
 void Dict::permute_subword(const BLOB_CHOICE_LIST_VECTOR &char_choices,
                            float rating_limit,
@@ -765,13 +904,12 @@ void Dict::permute_subword(const BLOB_CHOICE_LIST_VECTOR &char_choices,
   }
 
   if (!subchoices.empty()) {
-    bool old_segment_dawg_debug = segment_dawg_debug;
-    if (segment_debug) segment_dawg_debug.set_value(true);
-    best_choice = permute_all(subchoices, rating_limit, &raw_choice);
+    WERD_CHOICE initial_choice;
+    initial_choice.make_bad();
+    initial_choice.set_rating(rating_limit);
 
-    if (segment_debug) {
-      segment_dawg_debug.set_value(old_segment_dawg_debug);
-    }
+    best_choice = permute_all(subchoices, &initial_choice, &raw_choice);
+
     if (best_choice && best_choice->length() > 0) {
       *current_word += *best_choice;
     } else {
@@ -789,8 +927,30 @@ void Dict::permute_subword(const BLOB_CHOICE_LIST_VECTOR &char_choices,
              current_word->debug_string(getUnicharset()).string(),
              current_word->rating(), current_word->certainty());
   }
+  current_word->populate_unichars(getUnicharset());
 
   EnableChoiceAccum();
+}
+
+/**
+ * Return the top choice for each character as the choice for the word.
+ */
+WERD_CHOICE *Dict::get_top_choice_word(
+    const BLOB_CHOICE_LIST_VECTOR &char_choices) {
+  WERD_CHOICE *top_word = new WERD_CHOICE(MAX_PERM_LENGTH);
+  float certainties[MAX_PERM_LENGTH];
+  top_word->set_permuter(TOP_CHOICE_PERM);
+  for (int x = 0; x < char_choices.length(); x++) {
+    BLOB_CHOICE_IT blob_choice_it;
+    blob_choice_it.set_to_list(char_choices.get(x));
+    BLOB_CHOICE *top_choice = blob_choice_it.data();
+    top_word->append_unichar_id_space_allocated(top_choice->unichar_id(), 1,
+                                                top_choice->rating(),
+                                                top_choice->certainty());
+    certainties[x] = top_choice->certainty();
+  }
+  LogNewChoice(1.0, certainties, true, top_word);
+  return top_word;
 }
 
 /**
@@ -824,7 +984,6 @@ WERD_CHOICE *Dict::permute_top_choice(
   int x;
   BOOL8 char_alpha;
   float first_rating = 0;
-  float adjust_factor;
 
   float certainties[MAX_PERM_LENGTH + 1];
   float lower_certainties[MAX_PERM_LENGTH + 1];
@@ -979,7 +1138,7 @@ WERD_CHOICE *Dict::permute_top_choice(
 
     if (word.rating() > bestrate_pruning_factor * *rating_limit) {
       if (permute_debug)
-        tprintf("\n***** Aborting high-cost word: %g > limit %g \n",
+        tprintf("\n***** Aborting high-cost word: %g > limit %g\n",
                 word.rating(), bestrate_pruning_factor * *rating_limit);
       return (NULL);
     }
@@ -993,23 +1152,16 @@ WERD_CHOICE *Dict::permute_top_choice(
 
   if (word.rating() < raw_choice->rating()) {
     *raw_choice = word;
-    LogNewChoice(*raw_choice, 1.0, certainties, true);
+    LogNewChoice(1.0, certainties, true, raw_choice);
   }
-
-  if (ngram_permuter_activated)
-    return NULL;
-
   float rating = word.rating();
-  adjust_non_word(&word, &adjust_factor);
-  LogNewChoice(word, adjust_factor, certainties, false);
+  adjust_non_word(&word, certainties, permute_debug);
 
   float lower_rating = lower_word.rating();
-  adjust_non_word(&lower_word, &adjust_factor);
-  LogNewChoice(lower_word, adjust_factor, lower_certainties, false);
+  adjust_non_word(&lower_word, lower_certainties, permute_debug);
 
   float upper_rating = capital_word.rating();
-  adjust_non_word(&capital_word, &adjust_factor);
-  LogNewChoice(capital_word, adjust_factor, upper_certainties, false);
+  adjust_non_word(&capital_word, upper_certainties, permute_debug);
 
   WERD_CHOICE *best_choice = &word;
   *rating_limit = rating;
@@ -1129,88 +1281,6 @@ const char* Dict::choose_il1(const char *first_char,
     }
   }
   return first_char;
-}
-
-/**
- * Check all the DAWGs to see if this word is in any of them.
- */
-int Dict::valid_word(const WERD_CHOICE &word, bool numbers_ok) {
-  const WERD_CHOICE *word_ptr = &word;
-  WERD_CHOICE temp_word;
-  if (hyphenated()) {
-    copy_hyphen_info(&temp_word);
-    temp_word += word;
-    word_ptr = &temp_word;
-  }
-  if (word_ptr->length() == 0) return NO_PERM;
-  // Allocate vectors for holding current and updated
-  // active_dawgs and constraints and initialize them.
-  DawgInfoVector *active_dawgs = new DawgInfoVector[2];
-  DawgInfoVector *constraints = new DawgInfoVector[2];
-  init_active_dawgs(&(active_dawgs[0]));
-  init_constraints(&(constraints[0]));
-  DawgArgs dawg_args(&(active_dawgs[0]), &(constraints[0]),
-                     &(active_dawgs[1]), &(constraints[1]), 0.0);
-  int last_index = word_ptr->length() - 1;
-  // Call leter_is_okay for each letter in the word.
-  for (int i = hyphen_base_size(); i <= last_index; ++i) {
-    if (!((this->*letter_is_okay_)(&dawg_args, i, word_ptr,
-                                   i == last_index))) break;
-    // Swap active_dawgs, constraints with the corresponding updated vector.
-    if (dawg_args.updated_active_dawgs == &(active_dawgs[1])) {
-      dawg_args.updated_active_dawgs = &(active_dawgs[0]);
-      dawg_args.updated_constraints = &(constraints[0]);
-      ++(dawg_args.active_dawgs);
-      ++(dawg_args.constraints);
-    } else {
-      ++(dawg_args.updated_active_dawgs);
-      ++(dawg_args.updated_constraints);
-      dawg_args.active_dawgs = &(active_dawgs[0]);
-      dawg_args.constraints = &(constraints[0]);
-    }
-  }
-  delete[] active_dawgs;
-  delete[] constraints;
-  if (dawg_args.permuter == SYSTEM_DAWG_PERM ||
-      dawg_args.permuter == DOC_DAWG_PERM ||
-      dawg_args.permuter == USER_DAWG_PERM ||
-      (numbers_ok && dawg_args.permuter == NUMBER_PERM)){
-    return dawg_args.permuter;
-  } else {
-    return NO_PERM;
-  }
-}
-
-/**
- * @return true if the word contains a valid punctuation pattern.
- *
- * @note Since the domains of punctuation symbols and symblos
- * used in numbers are not disjoint, a valid number might contain
- * an invalid punctuation pattern (e.g. .99).
- */
-bool Dict::valid_punctuation(const WERD_CHOICE &word) {
-  if (word.length() == 0) return NO_PERM;
-  int i;
-  WERD_CHOICE new_word;
-  int last_index = word.length() - 1;
-  int new_len = 0;
-  for (i = 0; i <= last_index; ++i) {
-    UNICHAR_ID unichar_id = (word.unichar_id(i));
-    if (getUnicharset().get_ispunctuation(unichar_id)) {
-      new_word.append_unichar_id(unichar_id, 1, 0.0, 0.0);
-    } else if (!getUnicharset().get_isalpha(unichar_id) &&
-               !getUnicharset().get_isdigit(unichar_id)) {
-      return false;  // neither punc, nor alpha, nor digit
-    } else if ((new_len = new_word.length()) == 0 ||
-               new_word.unichar_id(new_len-1) != Dawg::kPatternUnicharID) {
-      new_word.append_unichar_id(Dawg::kPatternUnicharID, 1, 0.0, 0.0);
-    }
-  }
-  for (i = 0; i < dawgs_.size(); ++i) {
-    if (dawgs_[i]->type() == DAWG_TYPE_PUNCTUATION &&
-        dawgs_[i]->word_in_dawg(new_word)) return true;
-  }
-  return false;
 }
 
 /**
@@ -1377,9 +1447,10 @@ WERD_CHOICE *Dict::top_fragments_permute_and_select(
   word.set_permuter(TOP_CHOICE_PERM);
   float certainties[MAX_PERM_LENGTH];
   this->go_deeper_fxn_ = &tesseract::Dict::go_deeper_top_fragments_fxn;
+  int attempts_left = max_permuter_attempts;
   permute_choices((fragments_debug > 1) ? "fragments_debug" : NULL,
                   frag_char_choices, 0, NULL, &word, certainties,
-                  &rating_limit, best_choice, NULL);
+                  &rating_limit, best_choice, &attempts_left, NULL);
 
   frag_char_choices.delete_data_pointers();
   return best_choice;
@@ -1400,10 +1471,11 @@ void Dict::permute_choices(
     float certainties[],
     float *limit,
     WERD_CHOICE *best_choice,
+    int *attempts_left,
     void *more_args) {
   if (debug) {
     tprintf("%s permute_choices: char_choice_index=%d"
-            " limit=%4.2f rating=%4.2f, certainty=%4.2f word=%s\n",
+            " limit=%g rating=%g, certainty=%g word=%s\n",
             debug, char_choice_index, *limit, word->rating(),
             word->certainty(), word->debug_string(getUnicharset()).string());
   }
@@ -1412,10 +1484,14 @@ void Dict::permute_choices(
     blob_choice_it.set_to_list(char_choices.get(char_choice_index));
     for (blob_choice_it.mark_cycle_pt(); !blob_choice_it.cycled_list();
          blob_choice_it.forward()) {
+      (*attempts_left)--;
       append_choices(debug, char_choices, *(blob_choice_it.data()),
                      char_choice_index, prev_char_frag_info, word,
-                     certainties, limit, best_choice, more_args);
-
+                     certainties, limit, best_choice, attempts_left, more_args);
+      if (*attempts_left <= 0) {
+        if (debug) tprintf("permute_choices(): attempts_left is 0\n");
+        break;
+      }
     }
   }
 }
@@ -1423,8 +1499,8 @@ void Dict::permute_choices(
 /**
  * append_choices
  *
- * Check to see whether or not the next choice is worth appending to
- * the word being generated. If so then keep going deeper into the word.
+ * Checks to see whether or not the next choice is worth appending to
+ * the word being generated. If so then keeps going deeper into the word.
  *
  * This function assumes that Dict::go_deeper_fxn_ is set.
  */
@@ -1438,6 +1514,7 @@ void Dict::append_choices(
     float certainties[],
     float *limit,
     WERD_CHOICE *best_choice,
+    int *attempts_left,
     void *more_args) {
   int word_ending =
     (char_choice_index == char_choices.length() - 1) ? true : false;
@@ -1453,7 +1530,7 @@ void Dict::append_choices(
   if (char_frag_info.unichar_id == INVALID_UNICHAR_ID) {
     permute_choices(debug, char_choices, char_choice_index + 1,
                     &char_frag_info, word, certainties, limit,
-                    best_choice, more_args);
+                    best_choice, attempts_left, more_args);
     return;
   }
 
@@ -1469,7 +1546,7 @@ void Dict::append_choices(
   // Explore the next unichar.
   (this->*go_deeper_fxn_)(debug, char_choices, char_choice_index,
                           &char_frag_info, word_ending, word, certainties,
-                          limit, best_choice, more_args);
+                          limit, best_choice, attempts_left, more_args);
 
   // Remove the unichar we added to explore other choices in it's place.
   word->remove_last_unichar_id();
@@ -1481,15 +1558,16 @@ void Dict::append_choices(
 /**
  * go_deeper_top_fragments_fxn
  *
- * If the choice being composed so far could be better
- * than best_choice keep exploring choices.
+ * While the choice being composed so far could be better
+ * than best_choice keeps exploring char_choices.
+ * If the end of the word is reached and the word is better than
+ * best_choice, copies word to best_choice and logs the new word choice.
  */
 void Dict::go_deeper_top_fragments_fxn(
     const char *debug, const BLOB_CHOICE_LIST_VECTOR &char_choices,
-    int char_choice_index,
-    const CHAR_FRAGMENT_INFO *prev_char_frag_info,
-    bool word_ending, WERD_CHOICE *word, float certainties[],
-    float *limit, WERD_CHOICE *best_choice, void *more_args) {
+    int char_choice_index, const CHAR_FRAGMENT_INFO *prev_char_frag_info,
+    bool word_ending, WERD_CHOICE *word, float certainties[], float *limit,
+    WERD_CHOICE *best_choice, int *attempts_left, void *more_args) {
   if (word->rating() < *limit) {
     if (word_ending) {
       if (fragments_debug > 1) {
@@ -1497,18 +1575,12 @@ void Dict::go_deeper_top_fragments_fxn(
                 word->debug_string(getUnicharset()).string());
       }
       *limit = word->rating();
-
-      float adjust_factor;
-      adjust_non_word(word, &adjust_factor);
-      LogNewChoice(*word, adjust_factor, certainties, false);
-
-      if (word->rating() < best_choice->rating()) {
-        *best_choice = *word;
-      }
+      adjust_non_word(word, certainties, permute_debug);
+      update_best_choice(*word, best_choice);
     } else {  // search the next letter
       permute_choices(debug, char_choices, char_choice_index + 1,
                       prev_char_frag_info, word, certainties, limit,
-                      best_choice, more_args);
+                      best_choice, attempts_left, more_args);
     }
   } else {
     if (fragments_debug > 1) {

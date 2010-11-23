@@ -27,10 +27,13 @@
 #ifndef           OCRCLASS_H
 #define           OCRCLASS_H
 
-#include          <time.h>
 #ifdef __MSW32__
 #include          <windows.h>
+#include          "gettimeofday.h"
+#else
+#include          <sys/time.h>
 #endif
+#include          <time.h>
 #include          "host.h"
 
 /*Maximum lengths of various strings*/
@@ -292,54 +295,46 @@ typedef struct                   /*single character */
  **********************************************************************/
 typedef bool (*CANCEL_FUNC)(void* cancel_this, int words);
 
-typedef struct ETEXT_STRUCT      /*output header */
+class ETEXT_DESC                 /*output header */
 {
+ public:
   inT16 count;                   /*chars in this buffer(0) */
   inT16 progress;                /*percent complete increasing (0-100) */
   inT8 more_to_come;             /*true if not last */
-  inT8 ocr_alive;                /*ocr sets to 1, HP 0 */
+  volatile inT8 ocr_alive;       /*ocr sets to 1, HP 0 */
   inT8 err_code;                 /*for errcode use */
   CANCEL_FUNC cancel;            /*returns true to cancel */
   void* cancel_this;             /*this or other data for cancel*/
-  clock_t end_time;              /*time to stop if not 0*/
+  struct timeval end_time;       /*time to stop. expected to be set only by call
+                                   to set_deadline_msecs()*/
   EANYCODE_CHAR text[1];         /*character data */
-} ETEXT_DESC;                    /*output header */
 
-#ifdef __MSW32__
-/**********************************************************************
- * ESHM_INFO
- * This data structure is used internally to the API to hold the handles
- * to the operating system tools used for interprocess communications.
- * API users do not access this structure directly.
- **********************************************************************/
-typedef struct                   /*shared mem info */
-{
-  HANDLE shm_hand;               /*handle to shm */
-  HANDLE mutex;                  /*alive check */
-  HANDLE ocr_sem;                /*ocr semaphore */
-  HANDLE hp_sem;                 /*hp semaphore */
-  void *shm_mem;                 /*shared memory */
-  inT32 shm_size;                /*size of shm */
-} ESHM_INFO;                     /*shared mem info */
-#elif defined (__MAC__)
-typedef struct                   /*shared mem info */
-{
-  Boolean mutex;                 /*alive check */
-  Boolean ocr_sem;               /*ocr semaphore */
-  Boolean hp_sem;                /*hp semaphore */
-  void *shm_mem;                 /*shared memory */
-  inT32 shm_size;                /*size of shm */
-  inT16 language;
+  ETEXT_DESC() : count(0), progress(0), more_to_come(0), ocr_alive(0),
+                   err_code(0), cancel(NULL), cancel_this(NULL) {
+    end_time.tv_sec = 0;
+    end_time.tv_usec = 0;
+  }
 
-  // Process management information follows:
-  ProcessSerialNumber IPEProcess;
-  ProcessSerialNumber OCRProcess;
-} ESHM_INFO;
-#elif defined (__UNIX__)
-typedef struct                   /*shared mem info */
-{
-  void *shm_mem;                 /*shared memory */
-  inT32 shm_size;                /*size of shm */
-} ESHM_INFO;
-#endif
+  // Sets the end time to be deadline_msecs milliseconds from now.
+  void set_deadline_msecs(inT32 deadline_msecs) {
+    gettimeofday(&end_time, NULL);
+    inT32 deadline_secs = deadline_msecs / 1000;
+    end_time.tv_sec += deadline_secs;
+    end_time.tv_usec += (deadline_msecs -  deadline_secs * 1000) * 1000;
+    if (end_time.tv_usec > 1000000) {
+      end_time.tv_usec -= 1000000;
+      ++end_time.tv_sec;
+    }
+  }
+
+  // Returns false if we've not passed the end_time, or have not set a deadline.
+  bool deadline_exceeded() const {
+    if (end_time.tv_sec == 0 && end_time.tv_usec == 0) return false;
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    return (now.tv_sec > end_time.tv_sec || (now.tv_sec == end_time.tv_sec &&
+                                             now.tv_usec > end_time.tv_usec));
+  }
+};
+
 #endif

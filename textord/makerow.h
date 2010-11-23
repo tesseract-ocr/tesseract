@@ -20,13 +20,12 @@
 #ifndef           MAKEROW_H
 #define           MAKEROW_H
 
-#include          "varable.h"
+#include          "params.h"
 #include          "ocrblock.h"
-#include          "tessclas.h"
+#include          "blobs.h"
 #include          "blobbox.h"
 #include          "statistc.h"
 #include          "notdll.h"
-#include          "tesseractclass.h"
 
 enum OVERLAP_STATE
 {
@@ -88,12 +87,6 @@ extern double_VAR_H (textord_linespace_iqrlimit, 0.2,
 extern double_VAR_H (textord_width_limit, 8,
 "Max width of blobs to make rows");
 extern double_VAR_H (textord_chop_width, 1.5, "Max width before chopping");
-extern double_VAR_H (textord_merge_desc, 0.25,
-"Fraction of linespace for desc drop");
-extern double_VAR_H (textord_merge_x, 0.5,
-"Fraction of linespace for x height");
-extern double_VAR_H (textord_merge_asc, 0.25,
-"Fraction of linespace for asc height");
 extern double_VAR_H (textord_minxh, 0.25,
 "fraction of linesize for min xheight");
 extern double_VAR_H (textord_min_linesize, 1.25,
@@ -115,12 +108,15 @@ extern double_VAR_H (textord_ascx_ratio_max, 1.7, "Max cap/xheight");
 extern double_VAR_H (textord_descx_ratio_min, 0.15, "Min desc/xheight");
 extern double_VAR_H (textord_descx_ratio_max, 0.6, "Max desc/xheight");
 extern double_VAR_H (textord_xheight_error_margin, 0.1, "Accepted variation");
+extern INT_VAR_H (textord_lms_line_trials, 12, "Number of linew fits to do");
+extern BOOL_VAR_H (textord_new_initial_xheight, TRUE,
+"Use test xheight mechanism");
 
-inline void get_min_max_xheight(double block_linesize,
+inline void get_min_max_xheight(int block_linesize,
                                 int *min_height, int *max_height) {
   *min_height = static_cast<inT32>(floor(block_linesize * textord_minxh));
   if (*min_height < textord_min_xheight) *min_height = textord_min_xheight;
-  *max_height = static_cast<inT32>(ceil(block_linesize * 3));
+  *max_height = static_cast<inT32>(ceil(block_linesize * 3.0));
 }
 
 inline ROW_CATEGORY get_row_category(const TO_ROW *row) {
@@ -137,37 +133,23 @@ void fill_heights(TO_ROW *row, float gradient, int min_height,
                   int max_height, STATS *heights, STATS *floating_heights);
 
 float make_single_row(ICOORD page_tr, TO_BLOCK* block,
-                      TO_BLOCK_LIST* blocks, tesseract::Tesseract* tess);
-float make_rows(                             //make rows
-                ICOORD page_tr,              //top right
-                BLOCK_LIST *blocks,          //block list
-                TO_BLOCK_LIST *land_blocks,  //rotated for landscape
-                TO_BLOCK_LIST *port_blocks,  //output list
-                tesseract::Tesseract* tess
-               );
-void make_initial_textrows(                  //find lines
-                           ICOORD page_tr,
-                           TO_BLOCK *block,  //block to do
-                           FCOORD rotation,  //for drawing
-                           BOOL8 testing_on  //correct orientation
-                          );
-void fit_lms_line(             //sort function
-                  TO_ROW *row  //row to fit
-                 );
-void compute_page_skew(                        //get average gradient
-                       TO_BLOCK_LIST *blocks,  //list of blocks
-                       float &page_m,          //average gradient
-                       float &page_err         //average error
-                      );
-void cleanup_rows(                   //find lines
-                  ICOORD page_tr,    //top right
-                  TO_BLOCK *block,   //block to do
-                  float gradient,    //gradient to fit
-                  FCOORD rotation,   //for drawing
-                  inT32 block_edge,  //edge of block
-                  BOOL8 testing_on,  //correct orientation
-                  tesseract::Tesseract* tess
-                 );
+                      TO_BLOCK_LIST* blocks);
+float make_rows(ICOORD page_tr,              // top right
+                TO_BLOCK_LIST *port_blocks);
+void make_initial_textrows(ICOORD page_tr,
+                           TO_BLOCK *block,  // block to do
+                           FCOORD rotation,  // for drawing
+                           BOOL8 testing_on);  // correct orientation
+void fit_lms_line(TO_ROW *row);
+void compute_page_skew(TO_BLOCK_LIST *blocks,  // list of blocks
+                       float &page_m,          // average gradient
+                       float &page_err);       // average error
+void cleanup_rows_making(ICOORD page_tr,     // top right
+                         TO_BLOCK *block,    // block to do
+                         float gradient,     // gradient to fit
+                         FCOORD rotation,    // for drawing
+                         inT32 block_edge,   // edge of block
+                         BOOL8 testing_on);  // correct orientation
 void delete_non_dropout_rows(                   //find lines
                              TO_BLOCK *block,   //block to do
                              float gradient,    //global skew
@@ -222,79 +204,45 @@ void compute_row_stats(                  //find lines
                        TO_BLOCK *block,  //block to do
                        BOOL8 testing_on  //correct orientation
                       );
-void compute_block_xheight(                  //find lines
-                           TO_BLOCK *block,  //block to do
-                           float gradient,   //global skew
-                           tesseract::Tesseract* tess
-                          );
 float median_block_xheight(                  //find lines
                            TO_BLOCK *block,  //block to do
                            float gradient    //global skew
                           );
-void compute_row_xheight(                   //find lines
-                         TO_ROW *row,       //row to do
-                         float gradient,    //global skew
-                         int block_height,  //a guess of block xheight
-                         tesseract::Tesseract* tess
-                        );
 
 int compute_xheight_from_modes(
-    STATS *heights, STATS *floating_heights, int min_height,
+    STATS *heights, STATS *floating_heights, bool cap_only, int min_height,
     int max_height, float *xheight, float *ascrise);
 
-inT32 compute_row_descdrop(                 // find lines
-                           TO_ROW *row,     // row to do
+inT32 compute_row_descdrop(TO_ROW *row,     // row to do
                            float gradient,  // global skew
                            int xheight_blob_count,
-                           STATS *heights
-                          );
-inT32 compute_height_modes(                   //find lines
-                           STATS *heights,    //stats to search
-                           inT32 min_height,  //bottom of range
-                           inT32 max_height,  //top of range
-                           inT32 *modes,      //output array
-                           inT32 maxmodes     //size of modes
-                          );
-void correct_row_xheight(                //fix bad values
-                         TO_ROW *row,    //row to fix
-                         float xheight,  //average values
+                           STATS *heights);
+inT32 compute_height_modes(STATS *heights,    // stats to search
+                           inT32 min_height,  // bottom of range
+                           inT32 max_height,  // top of range
+                           inT32 *modes,      // output array
+                           inT32 maxmodes);   // size of modes
+void correct_row_xheight(TO_ROW *row,    // row to fix
+                         float xheight,  // average values
                          float ascrise,
                          float descdrop);
-void separate_underlines(                  //make rough chars
-                         TO_BLOCK *block,  //block to do
-                         float gradient,   //skew angle
-                         FCOORD rotation,  //inverse landscape
-                         BOOL8 testing_on  //correct orientation
-                        );
-void pre_associate_blobs(                  //make rough chars
-                         ICOORD page_tr,   //top right
-                         TO_BLOCK *block,  //block to do
-                         FCOORD rotation,  //inverse landscape
-                         BOOL8 testing_on  //correct orientation
-                        );
-void fit_parallel_rows(                   //find lines
-                       TO_BLOCK *block,   //block to do
-                       float gradient,    //gradient to fit
-                       FCOORD rotation,   //for drawing
-                       inT32 block_edge,  //edge of block
-                       BOOL8 testing_on   //correct orientation
-                      );
-void fit_parallel_lms(                 //sort function
-                      float gradient,  //forced gradient
-                      TO_ROW *row      //row to fit
-                     );
-void make_spline_rows(                   //find lines
-                      TO_BLOCK *block,   //block to do
-                      float gradient,    //gradient to fit
-                      FCOORD rotation,   //for drawing
-                      inT32 block_edge,  //edge of block
-                      BOOL8 testing_on,  //correct orientation
-                      tesseract::Tesseract* tess
-                     );
-void make_baseline_spline(                 //sort function
-                          TO_ROW *row,     //row to fit
-                          TO_BLOCK *block  //block it came from
-                         );
+void separate_underlines(TO_BLOCK *block,  // block to do
+                         float gradient,   // skew angle
+                         FCOORD rotation,  // inverse landscape
+                         BOOL8 testing_on);  // correct orientation
+void pre_associate_blobs( ICOORD page_tr,   // top right
+                         TO_BLOCK *block,  // block to do
+                         FCOORD rotation,  // inverse landscape
+                         BOOL8 testing_on);  // correct orientation
+void fit_parallel_rows(TO_BLOCK *block,   // block to do
+                       float gradient,    // gradient to fit
+                       FCOORD rotation,   // for drawing
+                       inT32 block_edge,  // edge of block
+                       BOOL8 testing_on);  // correct orientation
+void fit_parallel_lms(float gradient,  // forced gradient
+                      TO_ROW *row);      // row to fit
+void make_baseline_spline(TO_ROW *row,     // row to fit
+                          TO_BLOCK *block);  // block it came from
 BOOL8 segment_baseline (         //split baseline
 TO_ROW * row,                    //row to fit
 TO_BLOCK * block,                //block it came from
@@ -333,6 +281,5 @@ int row_spacing_order(                    //sort function
                       const void *item1,  //items to compare
                       const void *item2);
 
-void mark_repeated_chars(TO_ROW *row, float block_xheight,
-                         tesseract::Tesseract *tess);
+void mark_repeated_chars(TO_ROW *row);
 #endif

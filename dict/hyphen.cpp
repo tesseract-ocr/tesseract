@@ -24,8 +24,6 @@
 
 #include "dict.h"
 
-INT_VAR(hyphen_debug_level, 0, "Debug level for hyphenated words.");
-
 namespace tesseract {
 
 // Unless the previous word was the last one on the line, and the current

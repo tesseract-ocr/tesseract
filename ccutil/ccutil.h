@@ -23,7 +23,7 @@
 #include "errcode.h"
 #include "strngs.h"
 #include "tessdatamanager.h"
-#include "varable.h"
+#include "params.h"
 #include "unicharset.h"
 
 #ifdef WIN32
@@ -54,20 +54,18 @@ class CCUtilMutex {
 class CCUtil {
  public:
   CCUtil();
-  ~CCUtil();
+  virtual ~CCUtil();
 
  public:
+  // Read the arguments and set up the data path.
   void main_setup(
                   const char *argv0,        // program name
                   const char *basename      // name of image
                  );
- public:
+  ParamsVectors *params() { return &params_; }
+
   STRING datadir;        // dir for data files
   STRING imagebasename;  // name of image
-
-  BOOL_VAR_H (m_print_variables, FALSE,
-                   "Print initial values of all variables");
-  STRING_VAR_H (m_data_sub_dir, "tessdata/", "Directory for data files");
   STRING lang;
   STRING language_data_path_prefix;
   TessdataManager tessdata_manager;
@@ -75,9 +73,27 @@ class CCUtil {
   UnicharAmbigs unichar_ambigs;
   STRING imagefile;  // image file name
   STRING directory;  // main directory
+
+ private:
+  ParamsVectors params_;
+
+ public:
+  // Member parameters.
+  // These have to be declared and initialized after params_ member, since
+  // params_ should be initialized before parameters are added to it.
+  STRING_VAR_H(m_data_sub_dir, "tessdata/", "Directory for data files");
+  #ifdef __MSW32__
+  STRING_VAR_H(tessedit_module_name, "tessdll.dll",
+               "Module colocated with tessdata dir");
+  #endif
+  INT_VAR_H(ambigs_debug_level, 0, "Debug level for unichar ambiguities");
+  BOOL_VAR_H(use_definite_ambigs_for_classifier, 0,
+             "Use definite ambiguities when running character classifier");
+  BOOL_VAR_H(use_ambigs_for_adaption, 0,
+             "Use ambigs for deciding whether to adapt to a character");
 };
 
-extern CCUtilMutex tprintfMutex;
+extern CCUtilMutex tprintfMutex;  // should remain global
 }  // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_CCUTIL_H__

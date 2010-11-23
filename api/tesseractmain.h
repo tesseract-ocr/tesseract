@@ -20,41 +20,10 @@
 #ifndef           TESSERACTMAIN_H
 #define           TESSERACTMAIN_H
 
-#include          "varable.h"
-#include          "tessclas.h"
+#include          "params.h"
+#include          "blobs.h"
 #include          "notdll.h"
 
-extern BOOL_VAR_H(tessedit_create_boxfile, FALSE, "Output text with boxes");
-extern BOOL_VAR_H(tessedit_read_image, TRUE, "Ensure the image is read");
-extern INT_VAR_H(tessedit_serial_unlv, 0,
-        "0->Whole page, 1->serial no adapt, 2->serial with adapt");
-extern INT_VAR_H(tessedit_page_number, -1,
-        "-1 -> All pages, else specific page to process");
-extern BOOL_VAR_H(tessedit_write_images, FALSE,
-                  "Capture the image from the IPE");
-extern BOOL_VAR_H(tessedit_debug_to_screen, FALSE, "Dont use debug file");
-
-/**
- * run from api
- * @param arg0 program name
- * @param lang language
- */
-inT32 api_main(const char *arg0,
-               uinT16 lang);
-/**
- * setup dummy engine info
- * @param lang user language
- * @param name of engine
- * @param version of engine
- */
-inT16 setup_info(uinT16 lang,
-                 const char *name,
-                 const char *version);
-/**
- * read dummy image info
- * @param im_out read dummy image info
- */
-inT16 read_image(IMAGE *im_out);
 #ifdef __MSW32__
 /**
  * main for windows command line

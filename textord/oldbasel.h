@@ -20,10 +20,9 @@
 #ifndef           OLDBASEL_H
 #define           OLDBASEL_H
 
-#include          "varable.h"
+#include          "params.h"
 #include          "blobbox.h"
 #include          "notdll.h"
-#include          "tesseractclass.h"
 
 extern BOOL_VAR_H (textord_really_old_xheight, FALSE,
 "Use original wiseowl xheight");
@@ -43,35 +42,6 @@ extern INT_VAR_H (oldbl_holed_losscount, 10,
 extern double_VAR_H (oldbl_dot_error_size, 1.26, "Max aspect ratio of a dot");
 extern double_VAR_H (textord_oldbl_jumplimit, 0.15,
 "X fraction for new partition");
-void make_old_baselines(                  //make splines
-                        TO_BLOCK *block,  //block to do
-                        BOOL8 testing_on, //correct orientation
-                        float gradient,
-                        tesseract::Tesseract *tess
-                       );
-void correlate_lines(                 //cleanup lines
-                     TO_BLOCK *block, //block to do
-                     float gradient,
-                     tesseract::Tesseract* tess
-                    );
-void correlate_neighbours(                  //fix bad rows
-                          TO_BLOCK *block,  /*block rows are in */
-                          TO_ROW **rows,    /*rows of block */
-                          int rowcount,     /*no of rows to do */
-                          tesseract::Tesseract* tess
-                         );
-int correlate_with_stats(                //fix xheights
-                         TO_ROW **rows,  /*rows of block */
-                         int rowcount,   /*no of rows to do */
-                         TO_BLOCK *block  /*block rows are in */
-                        );
-void find_textlines(                  //get baseline
-                    TO_BLOCK *block,  //block row is in
-                    TO_ROW *row,      //row to do
-                    int degree,       //required approximation
-                    QSPLINE *spline,  //starting spline
-                    tesseract::Tesseract *tess
-                   );
 int get_blob_coords(                    //get boxes
                     TO_ROW *row,        //row to use
                     inT32 lineheight,   //block level
@@ -124,6 +94,8 @@ register float diff,             /*diff from spline */
 float partdiffs[],               /*diff on all parts */
 int lastpart,                    /*last assigned partition */
 float jumplimit,                 /*new part threshold */
+float* drift,
+float* last_delta,
 int *partcount                   /*no of partitions */
 );
 int partition_coords (           //find relevant coords

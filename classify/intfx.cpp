@@ -21,6 +21,8 @@
 #include "intfx.h"
 #include "intmatcher.h"
 #include "const.h"
+#include "helpers.h"
+#include "ccutil.h"
 #ifdef __UNIX__
 #endif
 
@@ -28,7 +30,7 @@
           Private Function Prototypes
 ----------------------------------------------------------------------------**/
 int SaveFeature();
-uinT8 TableLookup();
+uinT8 BinaryAnglePlusPi(inT32 Y, inT32 X);
 uinT8 MySqrt2();
 void ClipRadius();
 
@@ -49,27 +51,58 @@ INT_VAR(classify_radius_gyr_max_exp, 8,
 ----------------------------------------------------------------------------**/
 #define  ATAN_TABLE_SIZE    64
 
+// Look up table for arc tangent containing:
+//    atan(0.0) ... atan(ATAN_TABLE_SIZE - 1 / ATAN_TABLE_SIZE)
+// The entries are in binary degrees where a full circle is 256 binary degrees.
 static uinT8 AtanTable[ATAN_TABLE_SIZE];
+// Guards write access to AtanTable so we dont create it more than once.
+tesseract::CCUtilMutex atan_table_mutex;
+
 
 /**----------------------------------------------------------------------------
             Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
 void InitIntegerFX() {
-  int i;
-
-  for (i = 0; i < ATAN_TABLE_SIZE; i++)
-    AtanTable[i] =
-      (uinT8) (atan ((i / (float) ATAN_TABLE_SIZE)) * 128.0 / PI + 0.5);
-
+  static bool atan_table_init = false;
+  atan_table_mutex.Lock();
+  if (!atan_table_init) {
+    for (int i = 0; i < ATAN_TABLE_SIZE; i++) {
+      AtanTable[i] =
+          (uinT8) (atan ((i / (float) ATAN_TABLE_SIZE)) * 128.0 / PI + 0.5);
+    }
+    atan_table_init = true;
+  }
+  atan_table_mutex.Unlock();
 }
 
 
 /*--------------------------------------------------------------------------*/
+// Extract a set of standard-sized features from Blobs and write them out in
+// two formats: baseline normalized and character normalized.
+//
+// We presume the Blobs are already scaled so that x-height=128 units
+//
+// Standard Features:
+//   We take all outline segments longer than 7 units and chop them into
+//   standard-sized segments of approximately 13 = (64 / 5) units.
+//   When writing these features out, we output their center and angle as
+//   measured counterclockwise from the vector <-1, 0>
+//
+// Baseline Normalized Output:
+//   We center the grapheme by aligning the x-coordinate of its centroid with
+//   x=0 and subtracting 128 from the y-coordinate.
+//
+// Character Normalized Output:
+//   We align the grapheme's centroid at the origin and scale it asymmetrically
+//   in x and y so that the result is vaguely square.
+//
 int ExtractIntFeat(TBLOB *Blob,
+                   const DENORM& denorm,
                    INT_FEATURE_ARRAY BLFeat,
                    INT_FEATURE_ARRAY CNFeat,
-                   INT_FX_RESULT Results) {
+                   INT_FX_RESULT Results,
+                   inT32 *FeatureOutlineArray) {
 
   TESSLINE *OutLine;
   EDGEPT *Loop, *LoopStart, *Segment;
@@ -78,6 +111,10 @@ int ExtractIntFeat(TBLOB *Blob,
   inT32 Xsum, Ysum;
   uinT32 Ix, Iy, LengthSum;
   uinT16 n;
+  // n - the number of features to extract from a given outline segment.
+  //   We extract features from every outline segment longer than ~6 units.
+  //   We chop these long segments into standard-sized features approximately
+  //   13 (= 64 / 5) units in length.
   uinT8 Theta;
   uinT16 NumBLFeatures, NumCNFeatures;
   uinT8 RxInv, RyInv;            /* x.xxxxxxx  *  2^Exp  */
@@ -95,7 +132,10 @@ int ExtractIntFeat(TBLOB *Blob,
   Results->NumBL = 0;
   Results->NumCN = 0;
 
-  /* find Xmean, Ymean */
+  // Calculate the centroid (Xmean, Ymean) for the blob.
+  //   We use centroid (instead of center of bounding box or center of smallest
+  //   enclosing circle) so the algorithm will not be too greatly influenced by
+  //   small amounts of information at the edge of a character's bounding box.
   NumBLFeatures = 0;
   NumCNFeatures = 0;
   OutLine = Blob->outlines;
@@ -117,10 +157,10 @@ int ExtractIntFeat(TBLOB *Blob,
       NormY = Loop->pos.y;
 
       n = 1;
-      if (!is_hidden_edge (Segment)) {
+      if (!Segment->IsHidden()) {
         DeltaX = NormX - LastX;
         DeltaY = NormY - LastY;
-        Length = MySqrt (DeltaX, DeltaY);
+        Length = MySqrt(DeltaX, DeltaY);
         n = ((Length << 2) + Length + 32) >> 6;
         if (n != 0) {
           Xsum += ((LastX << 1) + DeltaX) * (int) Length;
@@ -145,8 +185,17 @@ int ExtractIntFeat(TBLOB *Blob,
   Results->Xmean = Xmean;
   Results->Ymean = Ymean;
 
-  /* extract Baseline normalized features,     */
-  /* and find 2nd moments & radius of gyration */
+  // Extract Baseline normalized features,
+  // and find 2nd moments (Ix, Iy) & radius of gyration (Rx, Ry).
+  //
+  //   Ix = Sum y^2 dA, where:
+  //     Ix: the second moment of area about the axis x
+  //     dA = 1 for our standard-sized piece of outline
+  //      y: the perependicular distance to the x axis
+  //   Rx = sqrt(Ix / A)
+  //      Note: 1 <= Rx <= height of blob / 2
+  //   Ry = sqrt(Iy / A)
+  //      Note: 1 <= Ry <=  width of blob / 2
   Ix = 0;
   Iy = 0;
   NumBLFeatures = 0;
@@ -166,22 +215,27 @@ int ExtractIntFeat(TBLOB *Blob,
       NormY = Loop->pos.y;
 
       n = 1;
-      if (!is_hidden_edge (Segment)) {
+      if (!Segment->IsHidden()) {
         DeltaX = NormX - LastX;
         DeltaY = NormY - LastY;
-        Length = MySqrt (DeltaX, DeltaY);
+        Length = MySqrt(DeltaX, DeltaY);
         n = ((Length << 2) + Length + 32) >> 6;
         if (n != 0) {
-          Theta = TableLookup (DeltaY, DeltaX);
+          Theta = BinaryAnglePlusPi(DeltaY, DeltaX);
           dX = (DeltaX << 8) / n;
           dY = (DeltaY << 8) / n;
           pfX = (LastX << 8) + (dX >> 1);
           pfY = (LastY << 8) + (dY >> 1);
           Ix += ((pfY >> 8) - Ymean) * ((pfY >> 8) - Ymean);
+          // TODO(eger): Hmmm... Xmean is not necessarily 0.
+          //   Figure out if we should center against Xmean for these
+          //   features, and if so fix Iy & SaveFeature().
           Iy += (pfX >> 8) * (pfX >> 8);
-          if (SaveFeature (BLFeat, NumBLFeatures, (inT16) (pfX >> 8),
-            (inT16) ((pfY >> 8) - 128),
-            Theta) == FALSE)
+          if (SaveFeature(BLFeat,
+                          NumBLFeatures,
+                          (inT16) (pfX >> 8),
+                          (inT16) ((pfY >> 8) - 128),
+                          Theta) == FALSE)
             return FALSE;
           NumBLFeatures++;
           for (i = 1; i < n; i++) {
@@ -189,9 +243,11 @@ int ExtractIntFeat(TBLOB *Blob,
             pfY += dY;
             Ix += ((pfY >> 8) - Ymean) * ((pfY >> 8) - Ymean);
             Iy += (pfX >> 8) * (pfX >> 8);
-            if (SaveFeature
-              (BLFeat, NumBLFeatures, (inT16) (pfX >> 8),
-              (inT16) ((pfY >> 8) - 128), Theta) == FALSE)
+            if (SaveFeature(BLFeat,
+                            NumBLFeatures,
+                            (inT16) (pfX >> 8),
+                            (inT16) ((pfY >> 8) - 128),
+                            Theta) == FALSE)
               return FALSE;
             NumBLFeatures++;
           }
@@ -224,9 +280,23 @@ int ExtractIntFeat(TBLOB *Blob,
   }
   Results->NumBL = NumBLFeatures;
 
-  /* extract character normalized features */
+  // Extract character normalized features
+  //
+  //   Rescale the co-ordinates to "equalize" distribution in X and Y, making
+  //   all of the following unichars be sized to look similar:  , ' 1 i
+  //
+  //   We calculate co-ordinates relative to the centroid, and then scale them
+  //   as follows (accomplishing a scale of up to 102.4 / dimension):
+  //     y *= 51.2 / Rx    [ y scaled by 0.0 ... 102.4 / height of glyph  ]
+  //     x *= 51.2 / Ry    [ x scaled by 0.0 ... 102.4 / width of glyph ]
+  //   Although tempting to think so, this does not guarantee that our range
+  //   is within [-102.4...102.4] x [-102.4...102.4] because (Xmean, Ymean)
+  //   is the centroid, not the center of the bounding box.  Instead, we can
+  //   only bound the result to [-204 ... 204] x [-204 ... 204]
+  //
   NumCNFeatures = 0;
   OutLine = Blob->outlines;
+  int OutLineIndex = -1;
   while (OutLine != NULL) {
     LoopStart = OutLine->loop;
     Loop = LoopStart;
@@ -234,6 +304,8 @@ int ExtractIntFeat(TBLOB *Blob,
     LastY = (Loop->pos.y - Ymean) * RxInv;
     LastX >>= (inT8) RyExp;
     LastY >>= (inT8) RxExp;
+    OutLineIndex++;
+
     /* Check for bad loops */
     if ((Loop == NULL) || (Loop->next == NULL) || (Loop->next == LoopStart))
       return FALSE;
@@ -246,28 +318,39 @@ int ExtractIntFeat(TBLOB *Blob,
       NormY >>= (inT8) RxExp;
 
       n = 1;
-      if (!is_hidden_edge (Segment)) {
+      if (!Segment->IsHidden()) {
         DeltaX = NormX - LastX;
         DeltaY = NormY - LastY;
-        Length = MySqrt (DeltaX, DeltaY);
+        Length = MySqrt(DeltaX, DeltaY);
         n = ((Length << 2) + Length + 32) >> 6;
         if (n != 0) {
-          Theta = TableLookup (DeltaY, DeltaX);
+          Theta = BinaryAnglePlusPi(DeltaY, DeltaX);
           dX = (DeltaX << 8) / n;
           dY = (DeltaY << 8) / n;
           pfX = (LastX << 8) + (dX >> 1);
           pfY = (LastY << 8) + (dY >> 1);
-          if (SaveFeature (CNFeat, NumCNFeatures, (inT16) (pfX >> 8),
-            (inT16) ((pfY >> 8)), Theta) == FALSE)
+          if (SaveFeature(CNFeat,
+                          NumCNFeatures,
+                          (inT16) (pfX >> 8),
+                          (inT16) (pfY >> 8),
+                          Theta) == FALSE)
             return FALSE;
+          if (FeatureOutlineArray) {
+            FeatureOutlineArray[NumCNFeatures] = OutLineIndex;
+          }
           NumCNFeatures++;
           for (i = 1; i < n; i++) {
             pfX += dX;
             pfY += dY;
-            if (SaveFeature
-              (CNFeat, NumCNFeatures, (inT16) (pfX >> 8),
-              (inT16) ((pfY >> 8)), Theta) == FALSE)
+            if (SaveFeature(CNFeat,
+                            NumCNFeatures,
+                            (inT16) (pfX >> 8),
+                            (inT16) (pfY >> 8),
+                            Theta) == FALSE)
               return FALSE;
+            if (FeatureOutlineArray) {
+              FeatureOutlineArray[NumCNFeatures] = OutLineIndex;
+            }
             NumCNFeatures++;
           }
         }
@@ -287,7 +370,10 @@ int ExtractIntFeat(TBLOB *Blob,
 
 
 /*--------------------------------------------------------------------------*/
-uinT8 TableLookup(inT32 Y, inT32 X) {
+// Return the "binary angle" [0..255]
+//    made by vector <X, Y> as measured counterclockwise from <-1, 0>
+// The order of the arguments follows the convention of atan2(3)
+uinT8 BinaryAnglePlusPi(inT32 Y, inT32 X) {
   inT16 Angle;
   uinT16 Ratio;
   uinT32 AbsX, AbsY;
@@ -312,17 +398,17 @@ uinT8 TableLookup(inT32 Y, inT32 X) {
     if (Y >= 0)
       if (AbsX > AbsY)
         Angle = Angle;
-  else
-    Angle = 64 - Angle;
-  else if (AbsX > AbsY)
-    Angle = 256 - Angle;
-  else
-    Angle = 192 + Angle;
+      else
+        Angle = 64 - Angle;
+    else if (AbsX > AbsY)
+      Angle = 256 - Angle;
+    else
+      Angle = 192 + Angle;
   else if (Y >= 0)
-  if (AbsX > AbsY)
-    Angle = 128 - Angle;
-  else
-    Angle = 64 + Angle;
+    if (AbsX > AbsY)
+      Angle = 128 - Angle;
+    else
+      Angle = 64 + Angle;
   else if (AbsX > AbsY)
     Angle = 128 + Angle;
   else
@@ -351,20 +437,8 @@ int SaveFeature(INT_FEATURE_ARRAY FeatureArray,
   X = X + 128;
   Y = Y + 128;
 
-  if (X > 255)
-    Feature->X = 255;
-  else if (X < 0)
-    Feature->X = 0;
-  else
-    Feature->X = X;
-
-  if (Y > 255)
-    Feature->Y = 255;
-  else if (Y < 0)
-    Feature->Y = 0;
-  else
-    Feature->Y = Y;
-
+  Feature->X = ClipToRange<inT16>(X, 0, 255);
+  Feature->Y = ClipToRange<inT16>(Y, 0, 255);
   Feature->Theta = Theta;
 
   return TRUE;
@@ -372,11 +446,15 @@ int SaveFeature(INT_FEATURE_ARRAY FeatureArray,
 
 
 /*---------------------------------------------------------------------------*/
+// Return floor(sqrt(min(emm, x)^2 + min(emm, y)^2))
+//    where emm = EvidenceMultMask.
 uinT16 MySqrt(inT32 X, inT32 Y) {
   register uinT16 SqRoot;
   register uinT32 Square;
   register uinT16 BitLocation;
   register uinT32 Sum;
+  const uinT32 EvidenceMultMask =
+    ((1 << IntegerMatcher::kIntEvidenceTruncBits) - 1);
 
   if (X < 0)
     X = -X;
@@ -390,7 +468,7 @@ uinT16 MySqrt(inT32 X, inT32 Y) {
 
   Sum = X * X + Y * Y;
 
-  BitLocation = 1024;
+  BitLocation = (EvidenceMultMask + 1) << 1;
   SqRoot = 0;
   do {
     Square = (SqRoot | BitLocation) * (SqRoot | BitLocation);
@@ -405,6 +483,8 @@ uinT16 MySqrt(inT32 X, inT32 Y) {
 
 
 /*--------------------------------------------------------------------------*/
+// Return two integers which can be used to express the sqrt(I/N):
+//   sqrt(I/N) = 51.2 * 2^(*Exp) / retval
 uinT8 MySqrt2(uinT16 N, uinT32 I, uinT8 *Exp) {
   register inT8 k;
   register uinT32 N2;

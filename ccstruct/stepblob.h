@@ -23,12 +23,17 @@
 #include          "coutln.h"
 #include          "rect.h"
 
+struct Pix;
+
 class C_BLOB:public ELIST_LINK
 {
   public:
     C_BLOB() {
     }
     explicit C_BLOB(C_OUTLINE_LIST *outline_list);
+    // Simpler constructor to build a blob from a single outline that has
+    // already been fully initialized.
+    explicit C_BLOB(C_OUTLINE* outline);
 
     // Build and return a fake blob containing a single fake outline with no
     // steps.
@@ -47,6 +52,9 @@ class C_BLOB:public ELIST_LINK
 
     void move(const ICOORD vec);  // repostion blob by vector
     void rotate(const FCOORD& rotation);  // Rotate by given vector.
+
+    // Returns a Pix rendering of the blob. pixDestroy after use.
+    Pix* render();
 
     void plot(                       //draw one
               ScrollView* window,         //window to draw in

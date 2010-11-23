@@ -22,7 +22,7 @@
 
 #include "blobs.h"
 #include "ratngs.h"
-#include "varable.h"
+#include "params.h"
 
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
@@ -70,7 +70,7 @@ void AddLargeSpeckleTo(BLOB_CHOICE_LIST *Choices) {
   if (Choices->length() == 0) {
     blob_choice =
       new BLOB_CHOICE(0, speckle_small_certainty + speckle_large_penalty,
-                      speckle_small_certainty, -1, NULL);
+                      speckle_small_certainty, -1, -1, NULL);
     temp_it.add_to_end(blob_choice);
     return;
   }
@@ -81,7 +81,7 @@ void AddLargeSpeckleTo(BLOB_CHOICE_LIST *Choices) {
   blob_choice = temp_it.data();  // pick the worst choice
   temp_it.add_to_end(
       new BLOB_CHOICE(0, blob_choice->rating() + speckle_large_penalty,
-                      blob_choice->certainty(), -1, NULL));
+                      blob_choice->certainty(), -1, -1, NULL));
 }                                /* AddLargeSpeckleTo */
 
 
@@ -97,16 +97,15 @@ void AddLargeSpeckleTo(BLOB_CHOICE_LIST *Choices) {
  * History: Mon Mar 11 10:06:49 1991, DSJ, Created.
  *
  * @param Blob blob to test against speckle criteria
- * @param Row text row that blob is in
  *
  * @return TRUE if Blob is speckle, FALSE otherwise.
  */
-BOOL8 LargeSpeckle(TBLOB *Blob, TEXTROW *Row) {
+BOOL8 LargeSpeckle(TBLOB *Blob) {
   double speckle_size;
   TPOINT TopLeft;
   TPOINT BottomRight;
 
-  speckle_size = RowHeight (Row) * speckle_large_max_size;
+  speckle_size = BASELINE_SCALE * speckle_large_max_size;
   blob_bounding_box(Blob, &TopLeft, &BottomRight);
 
   if (TopLeft.y - BottomRight.y < speckle_size &&

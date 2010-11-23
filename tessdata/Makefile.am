@@ -1,4 +1,14 @@
-#datadir = @datadir@/tessdata
+datadir = @datadir@/tessdata
+data_DATA = eng.cube.bigrams \
+	eng.cube.lm \
+	eng.cube.params \
+	eng.cube.word-freq \
+	eng.traineddata \
+	eng.cube.fold \
+	eng.cube.nn \
+	eng.cube.size \
+	eng.tesseract_cube.nn 
+
 #data_DATA = bul.traineddata \
 #  cat.traineddata \
 #  ces.traineddata \

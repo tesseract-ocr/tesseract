@@ -22,24 +22,15 @@
 #ifdef __UNIX__
 #include          <unistd.h>
 #include          <signal.h>
+#else
+#include          <io.h>
 #endif
 #include          <stdlib.h>
 #include          "basedir.h"
-#include          "mainblk.h"
 #include          "ccutil.h"
 
 #define VARDIR        "configs/" /*variables files */
 #define EXTERN
-
-/*
-EXTERN DLLSYM STRING datadir;    //dir for data files
-                                 //name of image
-EXTERN DLLSYM STRING imagebasename;
-EXTERN BOOL_VAR (m_print_variables, FALSE,
-"Print initial values of all variables");
-EXTERN STRING_VAR (m_data_sub_dir, "tessdata/", "Directory for data files");
-EXTERN INT_VAR (memgrab_size, 0, "Preallocation size for batch use");*/
-
 
 const ERRCODE NO_PATH =
 "Warning:explicit path for executable will not be used for configs";
@@ -57,6 +48,10 @@ void CCUtil::main_setup(                 /*main demo program */
                 const char *basename     //name of image
                ) {
   imagebasename = basename;      /*name of image */
+  STRING dll_module_name;
+  #ifdef __MSW32__
+  dll_module_name = tessedit_module_name;
+  #endif
 
   // TESSDATA_PREFIX Environment variable overrules everything.
   // Compiled in -DTESSDATA_PREFIX is next.
@@ -71,7 +66,7 @@ void CCUtil::main_setup(                 /*main demo program */
 #undef _STR
 #else
     if (argv0 != NULL) {
-      if (getpath(argv0, datadir) < 0)
+      if (getpath(argv0, dll_module_name, datadir) < 0)
 #ifdef __UNIX__
         CANTOPENFILE.error("main", ABORT, "%s to get path", argv0);
 #else

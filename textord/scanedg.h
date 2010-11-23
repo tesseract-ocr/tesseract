@@ -20,55 +20,50 @@
 #ifndef           SCANEDG_H
 #define           SCANEDG_H
 
-#include          "varable.h"
+#include          "params.h"
 #include          "scrollview.h"
 #include          "img.h"
 #include          "pdblock.h"
 #include          "crakedge.h"
 
-DLLSYM void block_edges(                      //get edges in a block
-                        IMAGE *t_image,       //threshold image
-                        PDBLK *block,         //block in image
-                        ICOORD page_tr        //corner of page
-                       );
-void make_margins(                         //get a line
-                  PDBLK *block,            //block in image
-                  BLOCK_LINE_IT *line_it,  //for old style
-                  uinT8 *pixels,           //pixels to strip
-                  uinT8 margin,            //white-out pixel
-                  inT16 left,              //block edges
+class C_OUTLINE_IT;
+
+struct CrackPos {
+  CRACKEDGE** free_cracks;   // Freelist for fast allocation.
+  int x;                     // Position of new edge.
+  int y;
+};
+
+void block_edges(IMAGE *t_image,       // thresholded image
+                 PDBLK *block,         // block in image
+                 C_OUTLINE_IT* outline_it);
+void make_margins(PDBLK *block,            // block in image
+                  BLOCK_LINE_IT *line_it,  // for old style
+                  uinT8 *pixels,           // pixels to strip
+                  uinT8 margin,            // white-out pixel
+                  inT16 left,              // block edges
                   inT16 right,
-                  inT16 y                  //line coord
-                 );
-void whiteout_block(                 //clean it
-                    IMAGE *t_image,  //threshold image
-                    PDBLK *block     //block in image
-                   );
-void line_edges (                //scan for edges
-inT16 x,                         //coord of line start
-inT16 y,                         //coord of line
-inT16 xext,                      //width of line
-uinT8 uppercolour,               //start of prev line
-uinT8 * bwpos,                   //thresholded line
-CRACKEDGE ** prevline            //edges in progress
-);
-CRACKEDGE *h_edge (              //horizontal edge
-inT16 x,                         //xposition
-inT16 y,                         //y position
-inT8 sign,                       //sign of edge
-CRACKEDGE * join                 //edge to join to
-);
-CRACKEDGE *v_edge (              //vertical edge
-inT16 x,                         //xposition
-inT16 y,                         //y position
-inT8 sign,                       //sign of edge
-CRACKEDGE * join                 //edge to join to
-);
-void join_edges(                   //join edge fragments
-                CRACKEDGE *edge1,  //edges to join
-                CRACKEDGE *edge2   //no specific order
-               );
-void free_crackedges(                  //really free them
-                     CRACKEDGE *start  //start of loop
-                    );
+                  inT16 y);                // line coord                 );
+void whiteout_block(IMAGE *t_image,        // thresholded image
+                    PDBLK *block);         // block in image
+void line_edges(inT16 x,                     // coord of line start
+                inT16 y,                     // coord of line
+                inT16 xext,                  // width of line
+                uinT8 uppercolour,           // start of prev line
+                uinT8 * bwpos,               // thresholded line
+                CRACKEDGE ** prevline,       // edges in progress
+                CRACKEDGE **free_cracks,
+                C_OUTLINE_IT* outline_it);
+CRACKEDGE *h_edge(int sign,                  // sign of edge
+                  CRACKEDGE * join,          // edge to join to
+                  CrackPos* pos);
+CRACKEDGE *v_edge(int sign,                  // sign of edge
+                  CRACKEDGE * join,          // edge to join to
+                  CrackPos* pos);
+void join_edges(CRACKEDGE *edge1,            // edges to join
+                CRACKEDGE *edge2,            // no specific order
+                CRACKEDGE **free_cracks,
+                C_OUTLINE_IT* outline_it);
+void free_crackedges(CRACKEDGE *start);
+
 #endif

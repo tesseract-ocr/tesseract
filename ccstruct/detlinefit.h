@@ -67,6 +67,14 @@ class DetLineFit {
   // points, and the upper quartile error.
   double Fit(ICOORD* pt1, ICOORD* pt2);
 
+  // Backwards compatible fit returning a gradient and constant.
+  // Deprecated. Prefer Fit(ICOORD*, ICOORD*) where possible, but use this
+  // function in preference to the LMS class.
+  double Fit(float* m, float* c);
+
+  // Backwards compatible constrained fit with a supplied gradient.
+  double ConstrainedFit(double m, float* c);
+
  private:
   double ComputeErrors(const ICOORD start, const ICOORD end, int* distances);
 

@@ -82,12 +82,12 @@ void set_properties(UNICHARSET *unicharset, const char* const c_string) {
     if (iswlower(wc)) {
       unicharset->set_islower(id, 1);
       unicharset->set_other_case(id, wc_to_unichar_id(*unicharset,
-		                                              towupper(wc)));
+                                                      towupper(wc)));
     }
     if (iswupper(wc)) {
       unicharset->set_isupper(id, 1);
       unicharset->set_other_case(id, wc_to_unichar_id(*unicharset,
-		                                              towlower(wc)));
+                                                      towlower(wc)));
     }
   }
   if (iswdigit(wc))
@@ -142,7 +142,9 @@ int main(int argc, char** argv) {
 
     int x_min, y_min, x_max, y_max;
     char c_string[kBoxReadBufSize];
-    while (read_next_box(box_file, c_string, &x_min, &y_min, &x_max, &y_max)) {
+    int line_number = 0;
+    while (read_next_box(&line_number, box_file, c_string,
+                         &x_min, &y_min, &x_max, &y_max)) {
       unicharset.unichar_insert(c_string);
       set_properties(&unicharset, c_string);
     }

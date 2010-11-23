@@ -21,9 +21,8 @@
 #define TESSERACT_TEXTORD_COLFIND_H__
 
 #include "tabfind.h"
-#include "tablefind.h"
 #include "imagefind.h"
-#include "colpartition.h"
+#include "colpartitiongrid.h"
 #include "colpartitionset.h"
 #include "ocrblock.h"
 
@@ -35,6 +34,8 @@ struct Boxa;
 struct Pixa;
 
 namespace tesseract {
+
+extern BOOL_VAR_H(textord_tabfind_find_tables, false, "run table detection");
 
 class StrokeWidth;
 class LineSpacing;
@@ -54,26 +55,65 @@ class ColumnFinder : public TabFind {
   // vlines is a (possibly empty) list of TabVector and vertical_x and y are
   // the sum logical vertical vector produced by LineFinder::FindVerticalLines.
   ColumnFinder(int gridsize, const ICOORD& bleft, const ICOORD& tright,
-               TabVector_LIST* vlines, TabVector_LIST* hlines,
+               int resolution, TabVector_LIST* vlines, TabVector_LIST* hlines,
                int vertical_x, int vertical_y);
   virtual ~ColumnFinder();
+
+  // ======================================================================
+  // The main function of ColumnFinder is broken into pieces to facilitate
+  // optional insertion of orientation and script detection in an efficient
+  // way. The calling sequence IS MANDATORY however, whether or not
+  // OSD is being used:
+  // 1. Construction.
+  // 2. IsVerticallyAlignedText.
+  // 3. CorrectOrientation.
+  // 4. FindBlocks.
+  // 5. Destruction. Use of a single column finder for multiple images does not
+  //    make sense.
+  // TODO(rays) break up column finder further into smaller classes, as
+  // there is a lot more to it than column finding now.
+  // ======================================================================
+
+  // Tests for vertical alignment of text (returning true if so), and
+  // generates a list of blobs for orientation and script detection. Note that
+  // the vertical alignment may be due to text whose writing direction is
+  // vertical, like say Japanese, or due to text whose writing direction is
+  // horizontal but whose text appears vertically aligned because the image is
+  // not the right way up.
+  bool IsVerticallyAlignedText(TO_BLOCK* block, BLOBNBOX_CLIST* osd_blobs);
+
+  // Rotates the blobs and the TabVectors so that the gross writing direction
+  // (text lines) are horizontal and lines are read down the page.
+  // Applied rotation stored in rotation_.
+  // A second rotation is calculated for application during recognition to
+  // make the rotated blobs upright for recognition.
+  // Subsequent rotation stored in text_rotation_.
+  //
+  // Arguments:
+  //   vertical_text_lines is true if the text lines are vertical.
+  //   recognition_rotation [0..3] is the number of anti-clockwise 90 degree
+  //   rotations from osd required for the text to be upright and readable.
+  void CorrectOrientation(TO_BLOCK* block, bool vertical_text_lines,
+                          int recognition_rotation);
 
   // Finds the text and image blocks, returning them in the blocks and to_blocks
   // lists. (Each TO_BLOCK points to the basic BLOCK and adds more information.)
   // If boxa and pixa are not NULL, they are assumed to be the output of
   // ImageFinder::FindImages, and are used to generate image blocks.
   // The input boxa and pixa are destroyed.
-  // Imageheight and resolution should be the pixel height and resolution in
-  // pixels per inch of the original image.
+  // Imageheight should be the pixel height of the original image.
   // The input block is the result of a call to find_components, and contains
   // the blobs found in the image. These blobs will be removed and placed
   // in the output blocks, while unused ones will be deleted.
   // If single_column is true, the input is treated as single column, but
   // it is still divided into blocks of equal line spacing/text size.
   // Returns -1 if the user requested retry with more debug info.
-  int FindBlocks(int imageheight, int resolution, bool single_column,
+  int FindBlocks(bool single_column, int imageheight,
                  TO_BLOCK* block, Boxa* boxa, Pixa* pixa,
                  BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
+
+  // Get the rotation required to deskew, and its inverse rotation.
+  void GetDeskewVectors(FCOORD* deskew, FCOORD* reskew);
 
  private:
   // Displays the blob and block bounding boxes in a window called Blocks.
@@ -167,26 +207,28 @@ class ColumnFinder : public TabFind {
   bool BiggestUnassignedRange(const bool* any_columns_possible,
                               int* start, int* end);
   // Finds the modal compatible column_set_ index within the given range.
-  int RangeModalColumnSet(bool** possible_column_sets,
+  int RangeModalColumnSet(int** column_set_costs, const int* assigned_costs,
                           int start, int end);
   // Given that there are many column_set_id compatible columns in the range,
   // shrinks the range to the longest contiguous run of compatibility, allowing
   // gaps where no columns are possible, but not where competing columns are
   // possible.
-  void ShrinkRangeToLongestRun(bool** possible_column_sets,
-                              const bool* any_columns_possible,
-                              int column_set_id,
-                              int* best_start, int* best_end);
+  void ShrinkRangeToLongestRun(int** column_set_costs,
+                               const int* assigned_costs,
+                               const bool* any_columns_possible,
+                               int column_set_id,
+                               int* best_start, int* best_end);
   // Moves start in the direction of step, upto, but not including end while
   // the only incompatible regions are no more than kMaxIncompatibleColumnCount
   // in size, and the compatible regions beyond are bigger.
-  void ExtendRangePastSmallGaps(bool** possible_column_sets,
+  void ExtendRangePastSmallGaps(int** column_set_costs,
+                                const int* assigned_costs,
                                 const bool* any_columns_possible,
                                 int column_set_id,
                                 int step, int end, int* start);
   // Assigns the given column_set_id to the part_sets_ in the given range.
   void AssignColumnToRange(int column_set_id, int start, int end,
-                           bool** assigned_column_sets);
+                           int** column_set_costs, int* assigned_costs);
 
   // Computes the mean_column_gap_.
   void ComputeMeanColumnGap();
@@ -209,150 +251,14 @@ class ColumnFinder : public TabFind {
   void GridInsertUnknowns();
   // Add horizontal line separators as partitions.
   void GridInsertHLinePartitions();
-  // Improves the margins of the ColPartitions in the grid by calling
-  // FindPartitionMargins on each.
-  void GridFindMargins();
-  // Improves the margins of the ColPartitions in the list by calling
-  // FindPartitionMargins on each.
-  void ListFindMargins(ColPartition_LIST* parts);
-  // Improves the margins of the ColPartition by searching for
-  // neighbours that vertically overlap significantly.
-  void FindPartitionMargins(ColPartitionSet* columns, ColPartition* part);
-  // Starting at x, and going in the specified direction, upto x_limit, finds
-  // the margin for the given y range by searching sideways,
-  // and ignoring not_this.
-  int FindMargin(int x, bool right_to_left, int x_limit,
-                 int y_bottom, int y_top, const ColPartition* not_this);
+  // Add vertical line separators as partitions.
+  void GridInsertVLinePartitions();
   // For every ColPartition in the grid, sets its type based on position
   // in the columns.
   void SetPartitionTypes();
-
-  //////// Functions that manipulate ColPartitions in the part_grid_ /////
-  //////// to find chains of partner partitions of the same type.  ///////
-
-  // For every ColPartition in the grid, finds its upper and lower neighbours.
-  void FindPartitionPartners();
-  // Finds the best partner in the given direction for the given partition.
-  // Stores the result with AddPartner.
-  void FindPartitionPartners(bool upper, ColPartition* part);
-  // For every ColPartition with multiple partners in the grid, reduces the
-  // number of partners to 0 or 1.
-  void RefinePartitionPartners();
   // Only images remain with multiple types in a run of partners.
   // Sets the type of all in the group to the maximum of the group.
   void SmoothPartnerRuns();
-
-  //////// Functions that manipulate ColPartitions in the part_grid_ /////
-  //////// to find tables.                                          ///////
-
-  // Copy cleaned partitions from part_grid_ to clean_part_grid_ and
-  // insert dot-like noise into period_grid_
-  void GetCleanPartitions(TO_BLOCK* block);
-
-  // High level function to perform table detection
-  void LocateTables();
-
-  // Get Column segments from best_columns_
-  void GetColumnBlocks(ColSegment_LIST *col_segments);
-
-  // Group Column segments into consecutive single column regions.
-  void GroupColumnBlocks(ColSegment_LIST *current_segments,
-                        ColSegment_LIST *col_segments);
-
-  // Check if two boxes are consecutive within the same column
-  bool ConsecutiveBoxes(const TBOX &b1, const TBOX &b2);
-
-  // Set left, right and top, bottom spacings of each colpartition.
-  // Left/right spacings are w.r.t the column boundaries
-  // Top/bottom spacings are w.r.t. previous and next colpartitions
-  void SetPartitionSpacings();
-
-  // Set spacing and closest neighbors above and below a given colpartition.
-  void SetVerticalSpacing(ColPartition* part);
-
-  // Set global spacing estimates
-  void SetGlobalSpacings();
-
-  // Mark partitions as table rows/cells.
-  void GridMarkTablePartitions();
-
-  // Check if the partition has at lease one large gap between words or no
-  // significant gap at all
-  bool HasWideOrNoInterWordGap(ColPartition* part);
-
-  // Check if a period lies in the inter-wrod gap in the parition boxes
-  bool LiesInGap(BLOBNBOX* period, BLOBNBOX_CLIST* boxes);
-
-  // Filter individual text partitions marked as table partitions
-  // consisting of paragraph endings, small section headings, and
-  // headers and footers.
-  void FilterFalseAlarms();
-
-  // Mark all ColPartitions as table cells that have a table cell above
-  // and below them
-  void SmoothTablePartitionRuns();
-
-  // Set the ratio of candidate table partitions in each column
-  void SetColumnsType(ColSegment_LIST* col_segments);
-
-  // Move Column Blocks to col_seg_grid_
-  void MoveColSegmentsToGrid(ColSegment_LIST *segments,
-                             ColSegmentGrid *col_seg_grid);
-
-  // Merge Column Blocks that were split due to the presence of a table
-  void GridMergeColumnBlocks();
-
-  // Merge table cells into table columns
-  void GetTableColumns(ColSegment_LIST *table_columns);
-
-  // Get Column segments from best_columns_
-  void GetTableRegions(ColSegment_LIST *table_columns,
-                       ColSegment_LIST *table_regions);
-
-  // Merge table regions corresponding to tables spanning multiple columns
-  void GridMergeTableRegions();
-  bool BelongToOneTable(const TBOX &box1, const TBOX &box2);
-
-  // Adjust table boundaries by building a tight bounding box around all
-  // ColPartitions contained in it.
-  void AdjustTableBoundaries();
-
-  // Checks whether the horizontal line belong to the table by looking at the
-  // side spacing of extra ColParitions that will be included in the table
-  // due to expansion
-  bool HLineBelongsToTable(ColPartition* part, const TBOX& table_box);
-
-  // Look for isolated column headers above the given table box and
-  // include them in the table
-  void IncludeLeftOutColumnHeaders(TBOX& table_box);
-
-  // Remove false alarms consiting of a single column
-  void DeleteSingleColumnTables();
-
-  // Return true if at least one gap larger than the global x-height
-  // exists in the horizontal projection
-  bool GapInXProjection(int* xprojection, int length);
-
-  // Displays Colpartitions marked as table row. Overlays them on top of
-  // part_grid_.
-  void DisplayColSegments(ColSegment_LIST *cols, ScrollView* win,
-                          ScrollView::Color color);
-
-  // Displays the colpartitions using a new coloring on an existing window.
-  // Note: This method is only for debug purpose during development and
-  // would not be part of checked in code
-  void DisplayColPartitions(ScrollView* win,
-                            ScrollView::Color color);
-
-  // Write ColParitions and Tables to a PIX image
-  // Note: This method is only for debug purpose during development and
-  // would not be part of checked in code
-  void WriteToPix();
-
-  // Merge all colpartitions in table regions to make them a single
-  // colpartition and revert types of isolated table cells not
-  // assigned to any table to their original types.
-  void MakeTableBlocks();
 
   //////// Functions that make the final output blocks             ///////
 
@@ -366,10 +272,15 @@ class ColumnFinder : public TabFind {
   // Transform the grid of partitions to the output blocks.
   void TransformToBlocks(BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
 
-  // Reskew the completed blocks to put them back to the original coords.
-  // (Blob outlines are not corrected for skew.)
-  // Rotate blobs and blocks individually so text line direction is
-  // horizontal. Record appropriate inverse transformations and required
+  // Undo the deskew that was done in FindTabVectors, as recognition is done
+  // without correcting blobs or blob outlines for skew.
+  // Reskew the completed blocks to put them back to the original rotated coords
+  // that were created by CorrectOrientation.
+  // Blocks that were identified as vertical text (relative to the rotated
+  // coordinates) are further rotated so the text lines are horizontal.
+  // blob polygonal outlines are rotated to match the position of the blocks
+  // that they are in, and their bounding boxes are recalculated to be accurate.
+  // Record appropriate inverse transformations and required
   // classifier transformation in the blocks.
   void RotateAndReskewBlocks(TO_BLOCK_LIST* to_blocks);
 
@@ -378,16 +289,22 @@ class ColumnFinder : public TabFind {
   // the block from the to_blocks list that contains them.
   void MoveSmallBlobs(BLOBNBOX_LIST* bblobs, TO_BLOCK_LIST* to_blocks);
 
+  // The minimum gutter width to apply for finding columns.
+  // Modified when vertical text is detected to prevent detection of
+  // vertical text lines as columns.
+  int min_gutter_width_;
   // The mean gap between columns over the page.
   int mean_column_gap_;
-  // Estimate of median x-height over the page
-  int global_median_xheight_;
-  // Estimate of median ledding on the page
-  int global_median_ledding_;
+  // The rotation vector needed to convert original coords to deskewed.
+  FCOORD deskew_;
   // The rotation vector needed to convert deskewed back to original coords.
   FCOORD reskew_;
+  // The rotation vector used to rotate vertically oriented pages.
+  FCOORD rotation_;
   // The rotation vector needed to convert the rotated back to original coords.
   FCOORD rerotate_;
+  // The additional rotation vector needed to rotate text for recognition.
+  FCOORD text_rotation_;
   // The part_sets_ are the initial text-line-like partition of the grid,
   // and is a vector of ColPartitionSets.
   PartSetVector part_sets_;
@@ -397,20 +314,10 @@ class ColumnFinder : public TabFind {
   // A simple array of pointers to the best assigned column division at
   // each grid y coordinate.
   ColPartitionSet** best_columns_;
+  // The grid used for creating initial partitions with strokewidth.
+  StrokeWidth* stroke_width_;
   // The grid used to hold ColPartitions after the columns have been determined.
   ColPartitionGrid part_grid_;
-  // Grid to hold cleaned colpartitions after removing all
-  // colpartitions that consist of only noise blobs, and removing
-  // noise blobs from remaining colpartitions.
-  ColPartitionGrid clean_part_grid_;
-  // Grid to hold periods, commas, i-dots etc.
-  BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> period_grid_;
-  // List of period blobs extracted from small and noise blobs
-  BLOBNBOX_LIST period_blobs_;
-  // Grid of page column blocks
-  ColSegmentGrid col_seg_grid_;
-  // Grid of detected tables
-  ColSegmentGrid table_grid_;
   // List of ColPartitions that are no longer needed after they have been
   // turned into regions, but are kept around because they are referenced
   // by the part_grid_.

@@ -21,8 +21,7 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "fxdefs.h"
-#include "varable.h"
+#include "params.h"
 /**----------------------------------------------------------------------------
           Variables
 ----------------------------------------------------------------------------**/
@@ -32,13 +31,10 @@ extern double_VAR_H(classify_min_slope, 0.414213562,
                     "Slope below which lines are called horizontal");
 extern double_VAR_H(classify_max_slope, 2.414213562,
                     "Slope above which lines are called vertical");
-extern double_VAR_H(classify_noise_segment_length, 0.00,
-                    "Length below which outline segments"
-                    "are treated as noise");
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, LINE_STATS *LineStats);
+CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM& denorm);
 
 #endif

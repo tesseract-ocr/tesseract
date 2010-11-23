@@ -42,26 +42,28 @@
  **********************************************************************/
 
 #define is_split_outline(outline,split)          \
-(point_in_outline (split->point1, outline) &&  \
-	point_in_outline (split->point2, outline))    \
+(outline->Contains(split->point1->pos) &&  \
+	outline->Contains(split->point2->pos))    \
 
 
 /*----------------------------------------------------------------------
         Public Function Prototypes
 ----------------------------------------------------------------------*/
-void apply_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
+void apply_seam(TBLOB *blob, TBLOB *other_blob, bool italic_blob, SEAM *seam);
 
-void divide_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location);
+void form_two_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+                    const TPOINT& location);
 
-void form_two_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location);
-
-void make_double_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
+void make_double_split(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+                       SEAM *seam);
 
 void make_single_split(TESSLINE *outlines, SPLIT *split);
 
-void make_split_blobs(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
+void make_split_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+                      SEAM *seam);
 
-void make_triple_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
+void make_triple_split(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+                       SEAM *seam);
 
 void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam);
 

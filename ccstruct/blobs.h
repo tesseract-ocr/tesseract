@@ -29,17 +29,224 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include                   "vecfuncs.h"
-#include  "tessclas.h"
+#include "rect.h"
+#include "vecfuncs.h"
+
+class C_BLOB;
+class DENORM;
+class ROW;
+class WERD;
 
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
+#define EDGEPTFLAGS     4        /*concavity,length etc. */
+
 typedef struct
 {                                /* Widths of pieces */
   int num_chars;
   int widths[1];
 } WIDTH_RECORD;
+
+struct TPOINT {
+  void operator+=(const TPOINT& other) {
+    x += other.x;
+    y += other.y;
+  }
+  void operator/=(int divisor) {
+    x /= divisor;
+    y /= divisor;
+  }
+
+  inT16 x;                       // absolute x coord.
+  inT16 y;                       // absolute y coord.
+};
+typedef TPOINT VECTOR;           // structure for coordinates.
+
+struct EDGEPT {
+  EDGEPT() : next(NULL), prev(NULL) {
+    memset(flags, 0, EDGEPTFLAGS * sizeof(flags[0]));
+  }
+  EDGEPT(const EDGEPT& src) : next(NULL), prev(NULL) {
+    CopyFrom(src);
+  }
+  EDGEPT& operator=(const EDGEPT& src) {
+    CopyFrom(src);
+    return *this;
+  }
+  // Copies the data elements, but leaves the pointers untouched.
+  void CopyFrom(const EDGEPT& src) {
+    pos = src.pos;
+    vec = src.vec;
+    memcpy(flags, src.flags, EDGEPTFLAGS * sizeof(flags[0]));
+  }
+  // Accessors to hide or reveal a cut edge from feature extractors.
+  void Hide() {
+    flags[0] = true;
+  }
+  void Reveal() {
+    flags[0] = false;
+  }
+  bool IsHidden() const {
+    return flags[0] != 0;
+  }
+
+  TPOINT pos;                    // position
+  VECTOR vec;                    // vector to next point
+  // TODO(rays) Remove flags and replace with
+  // is_hidden, runlength, dir, and fixed. The only use
+  // of the flags other than is_hidden is in polyaprx.cpp.
+  char flags[EDGEPTFLAGS];       // concavity, length etc
+  EDGEPT* next;                  // anticlockwise element
+  EDGEPT* prev;                  // clockwise element
+};
+
+struct TESSLINE {
+  TESSLINE() : is_hole(false), loop(NULL), next(NULL) {}
+  TESSLINE(const TESSLINE& src) : loop(NULL), next(NULL) {
+    CopyFrom(src);
+  }
+  ~TESSLINE() {
+    Clear();
+  }
+  TESSLINE& operator=(const TESSLINE& src) {
+    CopyFrom(src);
+    return *this;
+  }
+  // Consume the circular list of EDGEPTs to make a TESSLINE.
+  static TESSLINE* BuildFromOutlineList(EDGEPT* outline);
+  // Copies the data and the outline, but leaves next untouched.
+  void CopyFrom(const TESSLINE& src);
+  // Deletes owned data.
+  void Clear();
+  // Rotates by the given rotation in place.
+  void Rotate(const FCOORD rotation);
+  // Moves by the given vec in place.
+  void Move(const ICOORD vec);
+  // Scales by the given factor in place.
+  void Scale(float factor);
+  // Sets up the start and vec members of the loop from the pos members.
+  void SetupFromPos();
+  // Recomputes the bounding box from the points in the loop.
+  void ComputeBoundingBox();
+  // Computes the min and max cross product of the outline points with the
+  // given vec and returns the results in min_xp and max_xp. Geometrically
+  // this is the left and right edge of the outline perpendicular to the
+  // given direction, but to get the distance units correct, you would
+  // have to divide by the modulus of vec.
+  void MinMaxCrossProduct(const TPOINT vec, int* min_xp, int* max_xp) const;
+
+  TBOX bounding_box() const;
+  // Returns true if the point is contained within the outline box.
+  bool Contains(const TPOINT& pt) {
+    return topleft.x <= pt.x && pt.x <= botright.x &&
+           botright.y <= pt.y && pt.y <= topleft.y;
+  }
+
+  void plot(ScrollView* window, ScrollView::Color color,
+            ScrollView::Color child_color);
+
+  int BBArea() const {
+    return (botright.x - topleft.x) * (topleft.y - botright.y);
+  }
+
+  TPOINT topleft;                // Top left of loop.
+  TPOINT botright;               // Bottom right of loop.
+  TPOINT start;                  // Start of loop.
+  bool is_hole;                  // True if this is a hole/child outline.
+  EDGEPT *loop;                  // Edgeloop.
+  TESSLINE *next;                // Next outline in blob.
+};                               // Outline structure.
+
+struct TBLOB {
+  TBLOB() : outlines(NULL), next(NULL) {}
+  TBLOB(const TBLOB& src) : outlines(NULL), next(NULL) {
+    CopyFrom(src);
+  }
+  ~TBLOB() {
+    Clear();
+  }
+  TBLOB& operator=(const TBLOB& src) {
+    CopyFrom(src);
+    return *this;
+  }
+  // Factory to build a TBLOB from a C_BLOB with polygonal
+  // approximation along the way.
+  static TBLOB* PolygonalCopy(C_BLOB* src);
+  // Copies the data and the outlines, but leaves next untouched.
+  void CopyFrom(const TBLOB& src);
+  // Deletes owned data.
+  void Clear();
+  // Rotates by the given rotation in place.
+  void Rotate(const FCOORD rotation);
+  // Moves by the given vec in place.
+  void Move(const ICOORD vec);
+  // Scales by the given factor in place.
+  void Scale(float factor);
+  // Recomputes the bounding boxes of the outlines.
+  void ComputeBoundingBoxes();
+
+  // Returns the number of outlines.
+  int NumOutlines() const;
+
+  TBOX bounding_box() const;
+
+  void plot(ScrollView* window, ScrollView::Color color,
+            ScrollView::Color child_color);
+
+  int BBArea() const {
+    int total_area = 0;
+    for (TESSLINE* outline = outlines; outline != NULL; outline = outline->next)
+      total_area += outline->BBArea();
+    return total_area;
+  }
+
+  TESSLINE *outlines;            // List of outlines in blob.
+  TBLOB *next;                   // Next blob in block.
+};                               // Blob structure.
+
+int count_blobs(TBLOB *blobs);
+
+struct TWERD {
+  TWERD() : blobs(NULL), latin_script(false), next(NULL) {}
+  TWERD(const TWERD& src) : blobs(NULL), next(NULL) {
+    CopyFrom(src);
+  }
+  ~TWERD() {
+    Clear();
+  }
+  TWERD& operator=(const TWERD& src) {
+    CopyFrom(src);
+    return *this;
+  }
+  // Factory to build a TWERD from a (C_BLOB) WERD, with polygonal
+  // approximation along the way.
+  static TWERD* PolygonalCopy(WERD* src);
+  // Normalize in-place and record the normalization in the DENORM.
+  void Normalize(ROW* row, float x_height, bool numeric_mode, DENORM* denorm);
+  // Copies the data and the blobs, but leaves next untouched.
+  void CopyFrom(const TWERD& src);
+  // Deletes owned data.
+  void Clear();
+  // Recomputes the bounding boxes of the blobs.
+  void ComputeBoundingBoxes();
+
+  // Returns the number of blobs in the word.
+  int NumBlobs() const {
+    return count_blobs(blobs);
+  }
+  TBOX bounding_box() const;
+
+  // Merges the blobs from start to end, not including end, and deletes
+  // the blobs between start and end.
+  void MergeBlobs(int start, int end);
+
+  void plot(ScrollView* window);
+
+  TBLOB* blobs;                  // blobs in word.
+  bool latin_script;             // This word is in a latin-based script.
+  TWERD* next;                   // next word.
+};
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -55,13 +262,17 @@ if (w) memfree (w)
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
+// TODO(rays) This will become a member of TBLOB when TBLOB's definition
+// moves to blobs.h
+TBOX TBLOB_bounding_box(const TBLOB* blob);
+
 void blob_origin(TBLOB *blob,      /*blob to compute on */
                  TPOINT *origin);  /*return value */
 
                                  /*blob to compute on */
-void blob_bounding_box(TBLOB *blob,
-                       register TPOINT *topleft,  /*bounding box */
-                       register TPOINT *botright);
+void blob_bounding_box(const TBLOB *blob,
+                       TPOINT *topleft,  // Bounding box.
+                       TPOINT *botright);
 
 void blobs_bounding_box(TBLOB *blobs, TPOINT *topleft, TPOINT *botright); 
 
@@ -71,49 +282,9 @@ void blobs_origin(TBLOB *blobs,     /*blob to compute on */
                                  /*blob to compute on */
 WIDTH_RECORD *blobs_widths(TBLOB *blobs); 
 
-int count_blobs(TBLOB *blobs); 
+bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT* location);
 
-void delete_word(TWERD *word); 
+void divide_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+                  const TPOINT& location);
 
-void delete_edgepts(register EDGEPT *edgepts); 
-
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define	_ARGS(s) s
-#else
-# define	_ARGS(s) ()
-#endif*/
-
-/* blobs.c
-void blob_origin
-  _ARGS((BLOB *blob,
-  TPOINT *origin));
-
-void blob_bounding_box
-  _ARGS((BLOB *blob,
-  TPOINT *topleft,
-  TPOINT *botright));
-
-void blobs_bounding_box
-  _ARGS((BLOB *blobs,
-  TPOINT *topleft,
-  TPOINT *botright));
-
-void blobs_origin
-  _ARGS((BLOB *blobs,
-  TPOINT *origin));
-
-WIDTH_RECORD *blobs_widths
-  _ARGS((BLOB *blobs));
-
-int count_blobs
-  _ARGS((BLOB *blobs));
-
-void delete_word
-  _ARGS((TWERD *word));
-
-void delete_edgepts
-  _ARGS((EDGEPT *edgepts));
-#undef _ARGS
-*/
 #endif

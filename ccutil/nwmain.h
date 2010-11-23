@@ -21,7 +21,7 @@
 #define RUNMAIN_H
 
 #include          "host.h"
-#include          "varable.h"
+#include          "params.h"
 #include          "notdll.h"     //must be last include
 
 #define DECLARE_MAIN(ARGC,ARGV)\

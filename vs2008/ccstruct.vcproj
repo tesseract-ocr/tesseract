@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\vs2008\include"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\vs2008\include;..\vs2008\include\leptonica;..\vs2008\port"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -106,7 +106,7 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\vs2008\include"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\vs2008\include\leptonica;..\vs2008\port"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -170,7 +170,7 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\vs2008\include"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\vs2008\include;..\vs2008\include\leptonica;..\vs2008\port"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -309,6 +309,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\ccstruct\boxword.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\ccstruct\callcpp.cpp"
 				>
 				<FileConfiguration
@@ -379,38 +383,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccstruct\genblob.cpp"
+				RelativePath="..\ccstruct\dppoint.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccstruct\labls.cpp"
+				RelativePath="..\ccstruct\genblob.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -472,35 +449,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccstruct\lmedsq.cpp"
+				RelativePath="..\ccstruct\matrix.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccutil\mfcpch.cpp"
@@ -910,6 +860,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\ccstruct\publictypes.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\ccstruct\quadlsq.cpp"
 				>
 				<FileConfiguration
@@ -1096,6 +1050,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\ccstruct\seam.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ccstruct\split.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\ccstruct\statistc.cpp"
 				>
 				<FileConfiguration
@@ -1242,6 +1204,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ccstruct\boxword.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ccstruct\ccstruct.h"
 				>
 			</File>
@@ -1255,6 +1221,10 @@
 			</File>
 			<File
 				RelativePath="..\ccstruct\detlinefit.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccstruct\dppoint.h"
 				>
 			</File>
 			<File
@@ -1274,15 +1244,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccstruct\labls.h"
-				>
-			</File>
-			<File
 				RelativePath="..\ccstruct\linlsq.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccstruct\lmedsq.h"
+				RelativePath="..\ccstruct\matrix.h"
 				>
 			</File>
 			<File
@@ -1338,6 +1304,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ccstruct\publictypes.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ccstruct\quadlsq.h"
 				>
 			</File>
@@ -1359,6 +1329,14 @@
 			</File>
 			<File
 				RelativePath="..\ccstruct\rejctmap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccstruct\seam.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccstruct\split.h"
 				>
 			</File>
 			<File

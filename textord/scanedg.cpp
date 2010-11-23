@@ -19,7 +19,6 @@
 
 #include "mfcpch.h"
 #include          "edgloop.h"
-//#include                                      "dirtab.h"
 #include          "scanedg.h"
 
 #define WHITE_PIX     1          /*thresholded colours */
@@ -27,65 +26,54 @@
                                  /*W->B->W */
 #define FLIP_COLOUR(pix)  (1-(pix))
 
-#define EWSIZE        4          /*edge operator size */
-
-#define XMARGIN       2          //margin needed
-#define YMARGIN       3          //by edge detector
-
-                                 /*local freelist */
-static CRACKEDGE *free_cracks = NULL;
-
 /**********************************************************************
  * block_edges
  *
  * Extract edges from a PDBLK.
  **********************************************************************/
 
-DLLSYM void block_edges(                      //get edges in a block
-                        IMAGE *t_image,       //threshold image
-                        PDBLK *block,         //block in image
-                        ICOORD page_tr        //corner of page
-                       ) {
-  uinT8 margin;                  //margin colour
-  inT16 x;                       //line coords
-  inT16 y;                       //current line
-  ICOORD bleft;                  //bounding box
+void block_edges(IMAGE *t_image,       // thresholded image
+                 PDBLK *block,         // block in image
+                 C_OUTLINE_IT* outline_it) {
+  uinT8 margin;                  // margin colour
+  inT16 x;                       // line coords
+  inT16 y;                       // current line
+  ICOORD bleft;                  // bounding box
   ICOORD tright;
-  ICOORD block_bleft;            //bounding box
+  ICOORD block_bleft;            // bounding box
   ICOORD block_tright;
-  int xindex;                    //index to pixel
-  BLOCK_LINE_IT line_it = block; //line iterator
-  IMAGELINE bwline;              //thresholded line
-                                 //lines in progress
+  int xindex;                    // index to pixel
+  BLOCK_LINE_IT line_it = block; // line iterator
+  IMAGELINE bwline;              // thresholded line
+                                 // lines in progress
   CRACKEDGE **ptrline = new CRACKEDGE*[t_image->get_xsize()+1];
-  block->bounding_box (bleft, tright); // block box
+  CRACKEDGE *free_cracks = NULL;
+
+  block->bounding_box(bleft, tright);  // block box
   block_bleft = bleft;
   block_tright = tright;
-  for (x = tright.x () - bleft.x (); x >= 0; x--)
+  for (x = tright.x() - bleft.x(); x >= 0; x--)
     ptrline[x] = NULL;           //no lines in progress
 
-  bwline.init (t_image->get_xsize());
+  bwline.init(t_image->get_xsize());
 
   margin = WHITE_PIX;
 
-  for (y = tright.y () - 1; y >= bleft.y () - 1; y--) {
-    if (y >= block_bleft.y () && y < block_tright.y ()) {
-      t_image->get_line (bleft.x (), y, tright.x () - bleft.x (), &bwline,
-        0);
-      make_margins (block, &line_it, bwline.pixels, margin, bleft.x (),
-        tright.x (), y);
-    }
-    else {
-      x = tright.x () - bleft.x ();
+  for (y = tright.y() - 1; y >= bleft.y() - 1; y--) {
+    if (y >= block_bleft.y() && y < block_tright.y()) {
+      t_image->get_line(bleft.x(), y, tright.x() - bleft.x(), &bwline, 0);
+      make_margins(block, &line_it, bwline.pixels, margin, bleft.x(),
+                   tright.x(), y);
+    } else {
+      x = tright.x() - bleft.x();
       for (xindex = 0; xindex < x; xindex++)
         bwline.pixels[xindex] = margin;
     }
-    line_edges (bleft.x (), y, tright.x () - bleft.x (),
-      margin, bwline.pixels, ptrline);
+    line_edges(bleft.x(), y, tright.x() - bleft.x(),
+               margin, bwline.pixels, ptrline, &free_cracks, outline_it);
   }
 
-  free_crackedges(free_cracks);  //really free them
-  free_cracks = NULL;
+  free_crackedges(free_cracks);  // really free them
   delete[] ptrline;
 }
 
@@ -187,87 +175,81 @@ void whiteout_block(                 //clean it
  * When edges close into loops, send them for approximation.
  **********************************************************************/
 
-void
-line_edges (                     //scan for edges
-inT16 x,                         //coord of line start
-inT16 y,                         //coord of line
-inT16 xext,                      //width of line
-uinT8 uppercolour,               //start of prev line
-uinT8 * bwpos,                   //thresholded line
-CRACKEDGE ** prevline            //edges in progress
-) {
-  int xpos;                      //current x coord
-  int xmax;                      //max x coord
-  int colour;                    //of current pixel
-  int prevcolour;                //of previous pixel
-  CRACKEDGE *current;            //current h edge
-  CRACKEDGE *newcurrent;         //new h edge
+void line_edges(inT16 x,                         // coord of line start
+                inT16 y,                         // coord of line
+                inT16 xext,                      // width of line
+                uinT8 uppercolour,               // start of prev line
+                uinT8 * bwpos,                   // thresholded line
+                CRACKEDGE ** prevline,           // edges in progress
+                CRACKEDGE **free_cracks,
+                C_OUTLINE_IT* outline_it) {
+  CrackPos pos = {free_cracks, x, y };
+  int xmax;                      // max x coord
+  int colour;                    // of current pixel
+  int prevcolour;                // of previous pixel
+  CRACKEDGE *current;            // current h edge
+  CRACKEDGE *newcurrent;         // new h edge
 
-  xmax = x + xext;               //max allowable coord
-  prevcolour = uppercolour;      //forced plain margin
-  current = NULL;                //nothing yet
+  xmax = x + xext;               // max allowable coord
+  prevcolour = uppercolour;      // forced plain margin
+  current = NULL;                // nothing yet
 
-                                 //do each pixel
-  for (xpos = x; xpos < xmax; xpos++, prevline++) {
-    colour = *bwpos++;           //current pixel
+                                 // do each pixel
+  for (; pos.x < xmax; pos.x++, prevline++) {
+    colour = *bwpos++;           // current pixel
     if (*prevline != NULL) {
-                                 //changed above
-                                 //change colour
-      uppercolour = FLIP_COLOUR (uppercolour);
+                                 // changed above
+                                 // change colour
+      uppercolour = FLIP_COLOUR(uppercolour);
       if (colour == prevcolour) {
         if (colour == uppercolour) {
-                                 //finish a line
-          join_edges(current, *prevline);
-          current = NULL;        //no edge now
+                                 // finish a line
+          join_edges(current, *prevline, free_cracks, outline_it);
+          current = NULL;        // no edge now
+        } else {
+                                 // new horiz edge
+          current = h_edge(uppercolour - colour, *prevline, &pos);
         }
-        else
-                                 //new horiz edge
-          current = h_edge (xpos, y, uppercolour - colour, *prevline);
-        *prevline = NULL;        //no change this time
-      }
-      else {
+        *prevline = NULL;        // no change this time
+      } else {
         if (colour == uppercolour)
-          *prevline = v_edge (xpos, y, colour - prevcolour, *prevline);
-                                 //8 vs 4 connection
+          *prevline = v_edge(colour - prevcolour, *prevline, &pos);
+                                 // 8 vs 4 connection
         else if (colour == WHITE_PIX) {
-          join_edges(current, *prevline);
-          current = h_edge (xpos, y, uppercolour - colour, NULL);
-          *prevline = v_edge (xpos, y, colour - prevcolour, current);
+          join_edges(current, *prevline, free_cracks, outline_it);
+          current = h_edge(uppercolour - colour, NULL, &pos);
+          *prevline = v_edge(colour - prevcolour, current, &pos);
+        } else {
+          newcurrent = h_edge(uppercolour - colour, *prevline, &pos);
+          *prevline = v_edge(colour - prevcolour, current, &pos);
+          current = newcurrent;  // right going h edge
         }
-        else {
-          newcurrent = h_edge (xpos, y, uppercolour - colour, *prevline);
-          *prevline = v_edge (xpos, y, colour - prevcolour, current);
-          current = newcurrent;  //right going h edge
-        }
-        prevcolour = colour;     //remember new colour
+        prevcolour = colour;     // remember new colour
       }
-    }
-    else {
+    } else {
       if (colour != prevcolour) {
-        *prevline = current =
-          v_edge (xpos, y, colour - prevcolour, current);
+        *prevline = current = v_edge(colour - prevcolour, current, &pos);
         prevcolour = colour;
       }
       if (colour != uppercolour)
-        current = h_edge (xpos, y, uppercolour - colour, current);
+        current = h_edge(uppercolour - colour, current, &pos);
       else
-        current = NULL;          //no edge now
+        current = NULL;          // no edge now
     }
   }
   if (current != NULL) {
-                                 //out of block
-    if (*prevline != NULL) {     //got one to join to?
-      join_edges(current, *prevline);
-      *prevline = NULL;          //tidy now
+                                 // out of block
+    if (*prevline != NULL) {     // got one to join to?
+      join_edges(current, *prevline, free_cracks, outline_it);
+      *prevline = NULL;          // tidy now
+    } else {
+                                 // fake vertical
+      *prevline = v_edge(FLIP_COLOUR(prevcolour)-prevcolour, current, &pos);
     }
-    else {
-                                 //fake vertical
-      *prevline = v_edge (xpos, y, FLIP_COLOUR(prevcolour)-prevcolour, current);
-    }
-  }
-  else if (*prevline != NULL)
+  } else if (*prevline != NULL) {
                                  //continue fake
-    *prevline = v_edge (xpos, y, FLIP_COLOUR(prevcolour)-prevcolour, *prevline);
+    *prevline = v_edge(FLIP_COLOUR(prevcolour)-prevcolour, *prevline, &pos);
+  }
 }
 
 
@@ -277,53 +259,44 @@ CRACKEDGE ** prevline            //edges in progress
  * Create a new horizontal CRACKEDGE and join it to the given edge.
  **********************************************************************/
 
-CRACKEDGE *
-h_edge (                         //horizontal edge
-inT16 x,                         //xposition
-inT16 y,                         //y position
-inT8 sign,                       //sign of edge
-CRACKEDGE * join                 //edge to join to
-) {
-  CRACKEDGE *newpt;              //return value
+CRACKEDGE *h_edge(int sign,                       // sign of edge
+                  CRACKEDGE* join,                // edge to join to
+                  CrackPos* pos) {
+  CRACKEDGE *newpt;              // return value
 
-  //      check_mem("h_edge",JUSTCHECKS);
-  if (free_cracks != NULL) {
-    newpt = free_cracks;
-    free_cracks = newpt->next;   //get one fast
-  }
-  else {
+  if (*pos->free_cracks != NULL) {
+    newpt = *pos->free_cracks;
+    *pos->free_cracks = newpt->next;  // get one fast
+  } else {
     newpt = new CRACKEDGE;
   }
-  newpt->pos.set_y (y + 1);      //coords of pt
-  newpt->stepy = 0;              //edge is horizontal
+  newpt->pos.set_y(pos->y + 1);       // coords of pt
+  newpt->stepy = 0;              // edge is horizontal
 
   if (sign > 0) {
-    newpt->pos.set_x (x + 1);    //start location
+    newpt->pos.set_x(pos->x + 1);     // start location
     newpt->stepx = -1;
     newpt->stepdir = 0;
-  }
-  else {
-    newpt->pos.set_x (x);        //start location
+  } else {
+    newpt->pos.set_x(pos->x);        // start location
     newpt->stepx = 1;
     newpt->stepdir = 2;
   }
 
   if (join == NULL) {
-    newpt->next = newpt;         //ptrs to other ends
+    newpt->next = newpt;         // ptrs to other ends
     newpt->prev = newpt;
-  }
-  else {
-    if (newpt->pos.x () + newpt->stepx == join->pos.x ()
-    && newpt->pos.y () == join->pos.y ()) {
-      newpt->prev = join->prev;  //update other ends
+  } else {
+    if (newpt->pos.x() + newpt->stepx == join->pos.x()
+    && newpt->pos.y() == join->pos.y()) {
+      newpt->prev = join->prev;  // update other ends
       newpt->prev->next = newpt;
-      newpt->next = join;        //join up
+      newpt->next = join;        // join up
       join->prev = newpt;
-    }
-    else {
-      newpt->next = join->next;  //update other ends
+    } else {
+      newpt->next = join->next;  // update other ends
       newpt->next->prev = newpt;
-      newpt->prev = join;        //join up
+      newpt->prev = join;        // join up
       join->next = newpt;
     }
   }
@@ -337,32 +310,26 @@ CRACKEDGE * join                 //edge to join to
  * Create a new vertical CRACKEDGE and join it to the given edge.
  **********************************************************************/
 
-CRACKEDGE *
-v_edge (                         //vertical edge
-inT16 x,                         //xposition
-inT16 y,                         //y position
-inT8 sign,                       //sign of edge
-CRACKEDGE * join                 //edge to join to
-) {
-  CRACKEDGE *newpt;              //return value
+CRACKEDGE *v_edge(int sign,                       // sign of edge
+                  CRACKEDGE* join,
+                  CrackPos* pos) {
+  CRACKEDGE *newpt;              // return value
 
-  if (free_cracks != NULL) {
-    newpt = free_cracks;
-    free_cracks = newpt->next;   //get one fast
-  }
-  else {
+  if (*pos->free_cracks != NULL) {
+    newpt = *pos->free_cracks;
+    *pos->free_cracks = newpt->next;  // get one fast
+  } else {
     newpt = new CRACKEDGE;
   }
-  newpt->pos.set_x (x);          //coords of pt
-  newpt->stepx = 0;              //edge is vertical
+  newpt->pos.set_x(pos->x);           // coords of pt
+  newpt->stepx = 0;              // edge is vertical
 
   if (sign > 0) {
-    newpt->pos.set_y (y);        //start location
+    newpt->pos.set_y(pos->y);         // start location
     newpt->stepy = 1;
     newpt->stepdir = 3;
-  }
-  else {
-    newpt->pos.set_y (y + 1);    //start location
+  } else {
+    newpt->pos.set_y(pos->y + 1);     // start location
     newpt->stepy = -1;
     newpt->stepdir = 1;
   }
@@ -370,19 +337,17 @@ CRACKEDGE * join                 //edge to join to
   if (join == NULL) {
     newpt->next = newpt;         //ptrs to other ends
     newpt->prev = newpt;
-  }
-  else {
-    if (newpt->pos.x () == join->pos.x ()
-    && newpt->pos.y () + newpt->stepy == join->pos.y ()) {
-      newpt->prev = join->prev;  //update other ends
+  } else {
+    if (newpt->pos.x() == join->pos.x()
+    && newpt->pos.y() + newpt->stepy == join->pos.y()) {
+      newpt->prev = join->prev;  // update other ends
       newpt->prev->next = newpt;
-      newpt->next = join;        //join up
+      newpt->next = join;        // join up
       join->prev = newpt;
-    }
-    else {
-      newpt->next = join->next;  //update other ends
+    } else {
+      newpt->next = join->next;  // update other ends
       newpt->next->prev = newpt;
-      newpt->prev = join;        //join up
+      newpt->prev = join;        // join up
       join->next = newpt;
     }
   }
@@ -397,37 +362,28 @@ CRACKEDGE * join                 //edge to join to
  * closed loop is formed.
  **********************************************************************/
 
-void join_edges(                   //join edge fragments
-                CRACKEDGE *edge1,  //edges to join
-                CRACKEDGE *edge2   //no specific order
-               ) {
-  CRACKEDGE *tempedge;           //for exchanging
-
-  if (edge1->pos.x () + edge1->stepx != edge2->pos.x ()
-  || edge1->pos.y () + edge1->stepy != edge2->pos.y ()) {
-    tempedge = edge1;
-    edge1 = edge2;               //swap araound
+void join_edges(CRACKEDGE *edge1,  // edges to join
+                CRACKEDGE *edge2,   // no specific order
+                CRACKEDGE **free_cracks,
+                C_OUTLINE_IT* outline_it) {
+  if (edge1->pos.x() + edge1->stepx != edge2->pos.x()
+  || edge1->pos.y() + edge1->stepy != edge2->pos.y()) {
+    CRACKEDGE *tempedge = edge1;
+    edge1 = edge2;               // swap araound
     edge2 = tempedge;
   }
 
-  //      tprintf("Joining %x=(%d,%d)+(%d,%d)->%x<-%x ",
-  //              edge1,edge1->pos.x(),edge1->pos.y(),edge1->stepx,edge1->stepy,
-  //              edge1->next,edge1->prev);
-  //      tprintf("to %x=(%d,%d)+(%d,%d)->%x<-%x\n",
-  //              edge2,edge2->pos.x(),edge2->pos.y(),edge2->stepx,edge2->stepy,
-  //              edge2->next,edge2->prev);
   if (edge1->next == edge2) {
-                                 //already closed
-    complete_edge(edge1);  //approximate it
-                                 //attach freelist to end
-    edge1->prev->next = free_cracks;
-    free_cracks = edge1;         //and free list
-  }
-  else {
-                                 //update opposite ends
+                                 // already closed
+    complete_edge(edge1, outline_it);
+                                 // attach freelist to end
+    edge1->prev->next = *free_cracks;
+    *free_cracks = edge1;         // and free list
+  } else {
+                                 // update opposite ends
     edge2->prev->next = edge1->next;
     edge1->next->prev = edge2->prev;
-    edge1->next = edge2;         //make joins
+    edge1->next = edge2;         // make joins
     edge2->prev = edge1;
   }
 }
@@ -439,14 +395,12 @@ void join_edges(                   //join edge fragments
  * Really free the CRACKEDGEs by giving them back to delete.
  **********************************************************************/
 
-void free_crackedges(                  //really free them
-                     CRACKEDGE *start  //start of loop
-                    ) {
-  CRACKEDGE *current;            //current edge to free
-  CRACKEDGE *next;               //next one to free
+void free_crackedges(CRACKEDGE *start) {
+  CRACKEDGE *current;            // current edge to free
+  CRACKEDGE *next;               // next one to free
 
   for (current = start; current != NULL; current = next) {
     next = current->next;
-    delete current;              //delete them all
+    delete current;              // delete them all
   }
 }

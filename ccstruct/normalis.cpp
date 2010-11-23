@@ -70,16 +70,20 @@ float DENORM::scale_at_x(float src_x) const {  // In normalized coords.
 float DENORM::yshift_at_x(float src_x) const {  // In normalized coords.
   if (segments != 0) {
     const DENORM_SEG* seg = binary_search_segment(src_x);
-    if (seg->ycoord == -MAX_INT32) {
-      if (base_is_row)
-        return source_row->base_line(x(src_x));
-      else
-        return m * x(src_x) + c;
-    } else {
+    if (seg->ycoord != -MAX_INT32) {
       return seg->ycoord;
     }
   }
-  return source_row->base_line(x(src_x));
+  return yshift_at_orig_x(x(src_x));
+}
+
+// Returns the y-shift at the original (un-normalized) x, assuming
+// no segments.
+float DENORM::yshift_at_orig_x(float orig_x) const {
+  if (base_is_row && source_row != NULL)
+    return source_row->base_line(orig_x);
+  else
+    return m * orig_x + c;
 }
 
 /**********************************************************************
@@ -124,24 +128,12 @@ DENORM::DENORM(float x,              //from same pieces
                DENORM_SEG *seg_pts,  //actual segments
                BOOL8 using_row,      //as baseline
                ROW *src) {
+  Init();
   x_centre = x;                  //just copy
   scale_factor = scaling;
   source_row = src;
-  if (seg_count > 0) {
-    segs = new DENORM_SEG[seg_count];
-    for (segments = 0; segments < seg_count; segments++)
-      segs[segments] = seg_pts[segments];
-    // It is possible, if infrequent that the segments may be out of order.
-    // since we are searching with a binary search, keep them in order.
-    qsort(segs, segments, sizeof(DENORM_SEG),
-          reinterpret_cast<int(*)(const void*, const void*)>(
-              &compare_seg_by_xstart));
-  }
-  else {
-    segments = 0;
-    segs = NULL;
-  }
-  base_is_row = using_row;
+  set_segments(seg_pts, seg_count);
+  base_is_row = src != NULL && using_row;
   m = line_m;
   c = line_c;
   block_ = NULL;
@@ -155,24 +147,33 @@ DENORM::DENORM(const DENORM &src) {
 }
 
 
-DENORM & DENORM::operator= (const DENORM & src) {
+DENORM & DENORM::operator=(const DENORM & src) {
   x_centre = src.x_centre;
   scale_factor = src.scale_factor;
   source_row = src.source_row;
-  if (segments > 0)
-    delete[]segs;
-  if (src.segments > 0) {
-    segs = new DENORM_SEG[src.segments];
-    for (segments = 0; segments < src.segments; segments++)
-      segs[segments] = src.segs[segments];
-  }
-  else {
-    segments = 0;
-    segs = NULL;
-  }
+  set_segments(src.segs, src.segments);
   base_is_row = src.base_is_row;
   m = src.m;
   c = src.c;
   block_ = src.block_;
   return *this;
 }
+
+void DENORM::set_segments(const DENORM_SEG* src_segs, int seg_count) {
+  if (segments > 0)
+    delete [] segs;
+  if (seg_count > 0) {
+    segs = new DENORM_SEG[seg_count];
+    for (segments = 0; segments < seg_count; segments++)
+      segs[segments] = src_segs[segments];
+    // It is possible, if infrequent that the segments may be out of order.
+    // since we are searching with a binary search, keep them in order.
+    qsort(segs, segments, sizeof(DENORM_SEG),
+          reinterpret_cast<int(*)(const void*, const void*)>(
+              &compare_seg_by_xstart));
+  } else {
+    segments = 0;
+    segs = NULL;
+  }
+}
+

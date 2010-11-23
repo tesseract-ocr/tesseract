@@ -66,22 +66,4 @@ typedef inT16 BOUNDS_RECT[4];
 	outline->botright.y <= MAX (split->point1->pos.y,split->point2->pos.y) && \
 	outline->topleft.y  >= MIN (split->point1->pos.y,split->point2->pos.y))
 
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-PRIORITY full_split_priority(SPLIT *split, inT16 xmin, inT16 xmax);
-
-PRIORITY grade_center_of_blob(register BOUNDS_RECT rect);
-
-PRIORITY grade_overlap(register BOUNDS_RECT rect);
-
-PRIORITY grade_split_length(register SPLIT *split);
-
-PRIORITY grade_sharpness(register SPLIT *split);
-
-PRIORITY grade_width_change(register BOUNDS_RECT rect);
-
-void set_outline_bounds(register EDGEPT *point1,
-                        register EDGEPT *point2,
-                        BOUNDS_RECT rect);
 #endif

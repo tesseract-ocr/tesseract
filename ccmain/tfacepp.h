@@ -20,15 +20,12 @@
 #ifndef           TFACEPP_H
 #define           TFACEPP_H
 
-#include          "varable.h"
 #include          "tstruct.h"
 #include          "ratngs.h"
-#include          "tessclas.h"
+#include          "blobs.h"
 #include          "notdll.h"
 #include          "tesseractclass.h"
 
-extern BOOL_VAR_H (tessedit_override_permuter, TRUE,
-"According to dict_word");
 void call_tester(                     //call a tester
                  TBLOB *tessblob,     //blob to test
                  BOOL8 correct_blob,  //true if good

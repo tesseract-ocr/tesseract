@@ -21,9 +21,13 @@
 #define TESSERACT_CCUTIL_BOXREAD_H__
 
 #include <stdio.h>
+#include "strngs.h"
 
 // Size of buffer used to read a line from a box file.
-const int kBoxReadBufSize = 256;
+const int kBoxReadBufSize = 1024;
+
+// Open the boxfile based on the given image filename.
+FILE* OpenBoxFile(const STRING& fname);
 
 // read_next_box factors out the code to interpret a line of a box
 // file so that applybox and unicharset_extractor interpret the same way.
@@ -33,12 +37,12 @@ const int kBoxReadBufSize = 256;
 // space or tab between fields.
 // utf8_str must be at least kBoxReadBufSize in length.
 // If there are page numbers in the file, it reads them all.
-bool read_next_box(FILE* box_file, char* utf8_str,
+bool read_next_box(int *line_number, FILE* box_file, char* utf8_str,
                    int* x_min, int* y_min, int* x_max, int* y_max);
 // As read_next_box above, but get a specific page number. (0-based)
 // Use -1 to read any page number. Files without page number all
 // read as if they are page 0.
-bool read_next_box(int page, FILE* box_file, char* utf8_str,
+bool read_next_box(int page, int *line_number, FILE* box_file, char* utf8_str,
                    int* x_min, int* y_min, int* x_max, int* y_max);
 
 #endif  // TESSERACT_CCUTIL_BOXREAD_H__

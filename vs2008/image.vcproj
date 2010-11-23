@@ -46,7 +46,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -110,7 +110,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -379,37 +379,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\ccutil\mfcpch.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>

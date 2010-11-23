@@ -112,7 +112,8 @@ ADAPT_CLASS NewAdaptedClass() {
 
   Class = (ADAPT_CLASS) Emalloc (sizeof (ADAPT_CLASS_STRUCT));
   Class->NumPermConfigs = 0;
-  Class->TempProtos = NIL;
+  Class->MaxNumTimesSeen = 0;
+  Class->TempProtos = NIL_LIST;
 
   Class->PermProtos = NewBitVector (MAX_NUM_PROTOS);
   Class->PermConfigs = NewBitVector (MAX_NUM_CONFIGS);
@@ -218,7 +219,7 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId) {
   Config->NumTimesSeen = 1;
   Config->MaxProtoId = MaxProtoId;
   Config->ProtoVectorSize = WordsInVectorOfSize (NumProtos);
-  Config->ContextsSeen = NIL;
+  Config->ContextsSeen = NIL_LIST;
   zero_all_bits (Config->Protos, Config->ProtoVectorSize);
 
   return (Config);
@@ -318,7 +319,7 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
 
   /* then read in the list of temporary protos */
   fread ((char *) &NumTempProtos, sizeof (int), 1, File);
-  Class->TempProtos = NIL;
+  Class->TempProtos = NIL_LIST;
   for (i = 0; i < NumTempProtos; i++) {
     TempProto =
       (TEMP_PROTO) alloc_struct (sizeof (TEMP_PROTO_STRUCT),

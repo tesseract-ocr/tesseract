@@ -21,13 +21,13 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "fxdefs.h"
 #include "featdefs.h"
 #include <stdio.h>
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-CHAR_DESC ExtractFlexFeatures(TBLOB *Blob, LINE_STATS *LineStats);
+CHAR_DESC ExtractFlexFeatures(const FEATURE_DEFS_STRUCT &FeatureDefs,
+                              TBLOB *Blob, const DENORM& denorm);
 
 #endif

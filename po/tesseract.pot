@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: tesseract 3.00\n"
+"Project-Id-Version: tesseract 3.01\n"
 "Report-Msgid-Bugs-To: joregan@gmail.com\n"
-"POT-Creation-Date: 2010-07-19 03:05+0100\n"
+"POT-Creation-Date: 2010-09-23 18:46-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,69 +15,51 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: api/tesseractmain.cpp:148
+#: api/tesseractmain.cpp:127
 #, c-format
 msgid "Error: Must have a unlv zone file %s to read!\n"
 msgstr ""
 
-#: api/tesseractmain.cpp:187
+#: api/tesseractmain.cpp:169
 #, c-format
 msgid "Error: -l must be arg3, not %d\n"
 msgstr ""
 
-#: api/tesseractmain.cpp:221
-msgid "Tesseract Open Source OCR Engine"
+#: api/tesseractmain.cpp:202
+msgid "Tesseract Open Source OCR Engine with Leptonica\n"
 msgstr ""
 
-#: api/tesseractmain.cpp:223
-msgid " with Leptonica\n"
-msgstr ""
-
-#: api/tesseractmain.cpp:225
-msgid " with LibTiff\n"
-msgstr ""
-
-#: api/tesseractmain.cpp:237
+#: api/tesseractmain.cpp:213
 #, c-format
 msgid "Image file %s cannot be opened!\n"
 msgstr ""
 
-#: api/tesseractmain.cpp:248
+#: api/tesseractmain.cpp:222
 #, c-format
 msgid "Error reading file %s!\n"
 msgstr ""
 
-#: api/tesseractmain.cpp:261 api/tesseractmain.cpp:325
+#: api/tesseractmain.cpp:233
 #, c-format
 msgid "Page %d\n"
 msgstr ""
 
-#: api/tesseractmain.cpp:280
+#: api/tesseractmain.cpp:252
 #, c-format
 msgid "File %s cannot be opened!\n"
 msgstr ""
 
-#: api/tesseractmain.cpp:289
+#: api/tesseractmain.cpp:261
 #, c-format
 msgid "Image file %s cannot be read!\n"
 msgstr ""
 
-#: api/tesseractmain.cpp:293
+#: api/tesseractmain.cpp:265
 #, c-format
 msgid "Page %d : %s\n"
 msgstr ""
 
-#: api/tesseractmain.cpp:321 api/tesseractmain.cpp:349
-#, c-format
-msgid "Read of file %s failed.\n"
-msgstr ""
-
-#: api/tesseractmain.cpp:353
-#, c-format
-msgid "Read of image %s"
-msgstr ""
-
-#: api/tesseractmain.cpp:370
+#: api/tesseractmain.cpp:285
 #, c-format
 msgid "Cannot create output file %s\n"
 msgstr ""

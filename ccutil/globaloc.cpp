@@ -75,9 +75,9 @@ void err_exit() {
 }
 
 
-void signal_termination_handler(  //The real signal
-                                int sig) {
-  tprintf ("Signal_termination_handler called with signal %d\n", sig);
+void signal_termination_handler(int sig) {
+  const ERRCODE SIGNAL_HANDLER_ERR = "Signal_termination_handler called";
+  SIGNAL_HANDLER_ERR.error("signal_termination_handler", ABORT, "Code %d", sig);
   switch (sig) {
     case SIGABRT:
       signal_exit (-1);          //use abort code

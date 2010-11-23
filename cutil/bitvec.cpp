@@ -28,11 +28,6 @@
 #include "tprintf.h"
 
 /*-----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
------------------------------------------------------------------------------*/
-static int BitVectorCount = 0;
-
-/*-----------------------------------------------------------------------------
               Public Code
 -----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
@@ -74,15 +69,14 @@ void FreeBitVector(BIT_VECTOR BitVector) {
  */
   if (BitVector) {
     Efree(BitVector);
-    BitVectorCount--;
-  } else {
-    tprintf("%6d BITVECTOR elements in use\n", BitVectorCount);
   }
 }                                /* FreeBitVector */
 
 
-                                 /*hamming_distance(array1,array2,length) computes the hamming distance
-   between two bit strings */
+/**
+ * hamming_distance(array1,array2,length) computes the hamming distance
+ * between two bit strings.
+ */
 /*--------------------------------------------------------------------------*/
 int hamming_distance(uinT32* array1, uinT32* array2, int length) {
   register uinT32 diff;   /*bit difference */
@@ -115,7 +109,6 @@ int hamming_distance(uinT32* array1, uinT32* array2, int length) {
  * @note History: Tue Oct 23 16:51:27 1990, DSJ, Created.
  */
 BIT_VECTOR NewBitVector(int NumBits) {
-  BitVectorCount++;
   return ((BIT_VECTOR) Emalloc(sizeof(uinT32) *
     WordsInVectorOfSize(NumBits)));
 }                                /* NewBitVector */

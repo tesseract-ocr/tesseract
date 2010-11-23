@@ -35,35 +35,5 @@
 
 typedef HEAP *SEAM_QUEUE;
 typedef ARRAY SEAM_PILE;
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-void junk_worst_seam(SEAM_QUEUE seams, SEAM *new_seam, float new_priority);
 
-void choose_best_seam(SEAM_QUEUE seam_queue,
-                      SEAM_PILE *seam_pile,
-                      SPLIT *split,
-                      PRIORITY priority,
-                      SEAM **seam_result,
-                      TBLOB *blob);
-
-void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam);
-
-inT16 constrained_split(SPLIT *split, TBLOB *blob);
-
-void delete_seam_pile(SEAM_PILE seam_pile);
-
-SEAM *pick_good_seam(TBLOB *blob);
-
-PRIORITY seam_priority(SEAM *seam, inT16 xmin, inT16 xmax);
-
-void try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
-inT16 num_points,
-SEAM_QUEUE seam_queue,
-SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob);
-
-void try_vertical_splits (EDGEPT * points[MAX_NUM_POINTS],
-inT16 num_points,
-SEAM_QUEUE seam_queue,
-SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob);
 #endif

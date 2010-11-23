@@ -32,11 +32,25 @@
 
 namespace tesseract {
 
+// Number of colors in the color1, color2 arrays.
+const int kRGBRMSColors = 4;
 
 class ColPartition;
 class ColPartitionSet;
+class ColPartitionGrid;
 class WorkingPartSet;
 class WorkingPartSet_LIST;
+
+// An enum to indicate how a partition sits on the columns.
+// The order of flowing/heading/pullout must be kept consistent with
+// PolyBlockType.
+enum ColumnSpanningType {
+  CST_NOISE,        // Strictly between columns.
+  CST_FLOWING,      // Strictly within a single column.
+  CST_HEADING,      // Spans multiple columns.
+  CST_PULLOUT,      // Touches multiple columns, but doesn't span them.
+  CST_COUNT         // Number of entries.
+};
 
 ELIST2IZEH(ColPartition)
 CLISTIZEH(ColPartition)
@@ -63,11 +77,13 @@ class ColPartition : public ELIST2_LINK {
    */
   ColPartition(BlobRegionType blob_type, const ICOORD& vertical);
   /**
-   * Constructs a fake ColPartition with no BLOBNBOXes.
-   * Used for making horizontal line ColPartitions and types it accordingly.
+   * Constructs a fake ColPartition with no BLOBNBOXes to represent a
+   * horizontal or vertical line, given a type and a bounding box.
    */
-  ColPartition(const ICOORD& vertical,
-               int left, int bottom, int right, int top);
+  static ColPartition* MakeLinePartition(BlobRegionType blob_type,
+                                         const ICOORD& vertical,
+                                         int left, int bottom,
+                                         int right, int top);
 
   // Constructs and returns a fake ColPartition with a single fake BLOBNBOX,
   // all made from a single TBOX.
@@ -103,11 +119,29 @@ class ColPartition : public ELIST2_LINK {
   int median_size() const {
     return median_size_;
   }
+  void set_median_size(int size) {
+    median_size_ = size;
+  }
+  int median_width() const {
+    return median_width_;
+  }
+  void set_median_width(int width) {
+    median_width_ = width;
+  }
   BlobRegionType blob_type() const {
     return blob_type_;
   }
   void set_blob_type(BlobRegionType t) {
     blob_type_ = t;
+  }
+  BlobTextFlowType flow() const {
+    return flow_;
+  }
+  void set_flow(BlobTextFlowType f) {
+    flow_ = f;
+  }
+  int good_blob_score() const {
+    return good_blob_score_;
   }
   bool good_width() const {
     return good_width_;
@@ -136,6 +170,12 @@ class ColPartition : public ELIST2_LINK {
   BLOBNBOX_CLIST* boxes() {
     return &boxes_;
   }
+  int boxes_count() const {
+    return boxes_.length();
+  }
+  void set_vertical(const ICOORD& v) {
+    vertical_ = v;
+  }
   ColPartition_CLIST* upper_partners() {
     return &upper_partners_;
   }
@@ -144,6 +184,9 @@ class ColPartition : public ELIST2_LINK {
   }
   void set_working_set(WorkingPartSet* working_set) {
     working_set_ = working_set;
+  }
+  bool desperately_merged() const {
+    return desperately_merged_;
   }
   ColPartitionSet* column_set() const {
     return column_set_;
@@ -216,6 +259,21 @@ class ColPartition : public ELIST2_LINK {
   void set_space_to_right(int space) {
     space_to_right_ = space;
   }
+  uinT8* color1() {
+    return color1_;
+  }
+  uinT8* color2() {
+    return color2_;
+  }
+  bool owns_blobs() const {
+    return owns_blobs_;
+  }
+  void set_owns_blobs(bool owns_blobs) {
+    // Do NOT change ownership flag when there are blobs in the list.
+    // Immediately set the ownership flag when creating copies.
+    ASSERT_HOST(boxes_.empty());
+    owns_blobs_ = owns_blobs;
+  }
 
   // Inline quasi-accessors that require some computation.
 
@@ -226,6 +284,10 @@ class ColPartition : public ELIST2_LINK {
   // Returns the middle y-coord of the median top and bottom.
   int MedianY() const {
     return (median_top_ + median_bottom_) / 2;
+  }
+  // Returns the middle x-coord of the bounding box.
+  int MidX() const {
+    return (bounding_box_.left() + bounding_box_.right()) / 2;
   }
   // Returns the sort key at any given x,y.
   int SortKey(int x, int y) const {
@@ -269,8 +331,12 @@ class ColPartition : public ELIST2_LINK {
     return LeftAtY(y) - 1 <= x && x <= RightAtY(y) + 1;
   }
   // Returns true if there are no blobs in the list.
-  bool IsEmpty() {
+  bool IsEmpty() const {
     return boxes_.empty();
+  }
+  // Returns true if there is a single blob in the list.
+  bool IsSingleton() const {
+    return boxes_.singleton();
   }
   // Returns true if this and other overlap horizontally by bounding box.
   bool HOverlaps(const ColPartition& other) const {
@@ -285,9 +351,16 @@ class ColPartition : public ELIST2_LINK {
            right_margin_ >= other.bounding_box_.right();
   }
   // Returns the vertical overlap (by median) of this and other.
+  // WARNING! Only makes sense on horizontal partitions!
   int VOverlap(const ColPartition& other) const {
     return MIN(median_top_, other.median_top_) -
            MAX(median_bottom_, other.median_bottom_);
+  }
+  // Returns the horizontal overlap (by median) of this and other.
+  // WARNING! Only makes sense on vertical partitions!
+  int HOverlap(const ColPartition& other) const {
+    return MIN(median_right_, other.median_right_) -
+           MAX(median_left_, other.median_left_);
   }
   // Returns true if this and other overlap significantly vertically.
   bool VOverlaps(const ColPartition& other) const {
@@ -297,25 +370,48 @@ class ColPartition : public ELIST2_LINK {
     return overlap * 3 > height;
   }
   // Returns true if the region types (aligned_text_) match.
+  // Lines never match anything, as they should never be merged or chained.
   bool TypesMatch(const ColPartition& other) const {
     return TypesMatch(blob_type_, other.blob_type_);
   }
   static bool TypesMatch(BlobRegionType type1, BlobRegionType type2) {
-    return type1 == type2 ||
-           (type1 < BRT_UNKNOWN && type2 < BRT_UNKNOWN);
+    return (type1 == type2 || type1 == BRT_UNKNOWN || type2 == BRT_UNKNOWN) &&
+           !BLOBNBOX::IsLineType(type1) && !BLOBNBOX::IsLineType(type2);
   }
 
   // Returns true if partitions is of horizontal line type
-  bool IsLineType() {
-    return POLY_BLOCK::IsLineType(type_);
+  bool IsLineType() const {
+    return PTIsLineType(type_);
   }
   // Returns true if partitions is of image type
-  bool IsImageType() {
-    return POLY_BLOCK::IsImageType(type_);
+  bool IsImageType() const {
+    return PTIsImageType(type_);
   }
   // Returns true if partitions is of text type
-  bool IsTextType() {
-    return POLY_BLOCK::IsTextType(type_);
+  bool IsTextType() const {
+    return PTIsTextType(type_);
+  }
+  // Returns true if the partition is of an exclusively vertical type.
+  bool IsVerticalType() const {
+    return blob_type_ == BRT_VERT_TEXT || blob_type_ == BRT_VLINE;
+  }
+  // Returns true if the partition is of a definite horizontal type.
+  bool IsHorizontalType() const {
+    return blob_type_ == BRT_TEXT || blob_type_ == BRT_HLINE;
+  }
+  // Returns true is the partition is of a type that cannot be merged.
+  bool IsUnMergeableType() const {
+    return BLOBNBOX::UnMergeableType(blob_type_) || type_ == PT_NOISE;
+  }
+  // Returns true if this partition is a vertical line
+  // TODO(nbeato): Use PartitionType enum when Ray's code is submitted.
+  bool IsVerticalLine() const {
+    return IsVerticalType() && IsLineType();
+  }
+  // Returns true if this partition is a horizontal line
+  // TODO(nbeato): Use PartitionType enum when Ray's code is submitted.
+  bool IsHorizontalLine() const {
+    return IsHorizontalType() && IsLineType();
   }
 
   // Adds the given box to the partition, updating the partition bounds.
@@ -323,9 +419,23 @@ class ColPartition : public ELIST2_LINK {
   // recorded twice, and the boxes are kept in increasing left position.
   void AddBox(BLOBNBOX* box);
 
+  // Removes the given box from the partition, updating the bounds.
+  void RemoveBox(BLOBNBOX* box);
+
+  // Returns the tallest box in the partition, as measured perpendicular to the
+  // presumed flow of text.
+  BLOBNBOX* BiggestBox();
+
+  // Returns the bounding box excluding the given box.
+  TBOX BoundsWithoutBox(BLOBNBOX* box);
+
   // Claims the boxes in the boxes_list by marking them with a this owner
   // pointer. If a box is already owned, then run Unique on it.
   void ClaimBoxes(WidthCallback* cb);
+
+  // NULL the owner of the blobs in this partition, so they can be deleted
+  // independently of the ColPartition.
+  void DisownBoxes();
 
   // Delete the boxes that this partition owns.
   void DeleteBoxes();
@@ -341,6 +451,21 @@ class ColPartition : public ELIST2_LINK {
   // Returns true if the left and right edges are approximately equal.
   bool MatchingColumns(const ColPartition& other) const;
 
+  // Returns true if the sizes match for two text partitions,
+  // taking orientation into account
+  bool MatchingSizes(const ColPartition& other) const;
+
+  // Returns true if there is no tabstop violation in merging this and other.
+  bool ConfirmNoTabViolation(const ColPartition& other) const;
+
+  // Returns true if other has a similar stroke width to this.
+  bool MatchingStrokeWidth(const ColPartition& other,
+                           double fractional_tolerance,
+                           double constant_tolerance) const;
+  // Returns true if candidate is an acceptable diacritic base char merge
+  // with this as the diacritic.
+  bool OKDiacriticMerge(const ColPartition& candidate, bool debug) const;
+
   // Sets the sort key using either the tab vector, or the bounding box if
   // the tab vector is NULL. If the tab_vector lies inside the bounding_box,
   // use the edge of the box as a key any way.
@@ -351,6 +476,11 @@ class ColPartition : public ELIST2_LINK {
   // true, copies the box instead and uses that as a key.
   void CopyLeftTab(const ColPartition& src, bool take_box);
   void CopyRightTab(const ColPartition& src, bool take_box);
+
+  // Returns the left rule line x coord of the leftmost blob.
+  int LeftBlobRule() const;
+  // Returns the right rule line x coord of the rightmost blob.
+  int RightBlobRule() const;
 
   // Add a partner above if upper, otherwise below.
   // Add them uniquely and keep the list sorted by box left.
@@ -369,6 +499,22 @@ class ColPartition : public ELIST2_LINK {
   // Shares out any common boxes amongst the partitions, ensuring that no
   // box stays in both. Returns true if anything was done.
   bool Unique(ColPartition* other, WidthCallback* cb);
+  // Returns true if the overlap between this and the merged pair of
+  // merge candidates is sufficiently trivial to be allowed.
+  // The merged box can graze the edge of this by the ok_box_overlap
+  // if that exceeds the margin to the median top and bottom.
+  bool OKMergeOverlap(const ColPartition& merge1, const ColPartition& merge2,
+                      int ok_box_overlap, bool debug);
+
+  // Find the blob at which to split this to minimize the overlap with the
+  // given box. Returns the first blob to go in the second partition.
+  BLOBNBOX* OverlapSplitBlob(const TBOX& box);
+
+  // Split this partition keeping the first half in this and returning
+  // the second half.
+  // Splits by putting the split_blob and the blobs that follow
+  // in the second half, and the rest in the first half.
+  ColPartition* SplitAtBlob(BLOBNBOX* split_blob);
 
   // Splits this partition at the given x coordinate, returning the right
   // half and keeping the left half in this.
@@ -377,14 +523,37 @@ class ColPartition : public ELIST2_LINK {
   // Recalculates all the coordinate limits of the partition.
   void ComputeLimits();
 
+  // Returns the number of boxes that overlap the given box.
+  int CountOverlappingBoxes(const TBOX& box);
+
   // Computes and sets the type_, first_column_, last_column_ and column_set_.
-  void SetPartitionType(ColPartitionSet* columns);
+  // resolution refers to the ppi resolution of the image.
+  void SetPartitionType(int resolution, ColPartitionSet* columns);
+
+  // Returns the PartitionType from the current BlobRegionType and a column
+  // flow spanning type ColumnSpanningType, generated by
+  // ColPartitionSet::SpanningType, that indicates how the partition sits
+  // in the columns.
+  PolyBlockType PartitionType(ColumnSpanningType flow) const;
 
   // Returns the first and last column touched by this partition.
-  void ColumnRange(ColPartitionSet* columns, int* first_col, int* last_col);
+  // resolution refers to the ppi resolution of the image.
+  void ColumnRange(int resolution, ColPartitionSet* columns,
+                   int* first_col, int* last_col);
 
   // Sets the internal flags good_width_ and good_column_.
   void SetColumnGoodness(WidthCallback* cb);
+
+  // Determines whether the blobs in this partition mostly represent
+  // a leader (fixed pitch sequence) and sets the member blobs accordingly.
+  // Note that height is assumed to have been tested elsewhere, and that this
+  // function will find most fixed-pitch text as leader without a height filter.
+  // Leader detection is limited to sequences of identical width objects,
+  // such as .... or ----, so patterns, such as .-.-.-.-. will not be found.
+  bool MarkAsLeaderIfMonospaced();
+
+  // Sets all blobs with the partition blob type and flow.
+  void SetBlobTypes();
 
   // Adds this ColPartition to a matching WorkingPartSet if one can be found,
   // otherwise starts a new one in the appropriate column, ending the previous.
@@ -414,19 +583,42 @@ class ColPartition : public ELIST2_LINK {
   // Returns a copy of everything except the list of boxes. The resulting
   // ColPartition is only suitable for keeping in a column candidate list.
   ColPartition* ShallowCopy() const;
+  // Returns a copy of everything with a shallow copy of the blobs.
+  // The blobs are still owned by their original parent, so they are
+  // treated as read-only.
+  ColPartition* CopyButDontOwnBlobs();
 
   // Provides a color for BBGrid to draw the rectangle.
   ScrollView::Color  BoxColor() const;
 
   // Prints debug information on this.
-  void Print();
+  void Print() const;
+  // Prints debug information on the colors.
+  void PrintColors();
 
   // Sets the types of all partitions in the run to be the max of the types.
   void SmoothPartnerRun(int working_set_count);
 
   // Cleans up the partners of the given type so that there is at most
   // one partner. This makes block creation simpler.
-  void RefinePartners(PolyBlockType type);
+  // If get_desperate is true, goes to more desperate merge methods
+  // to merge flowing text before breaking partnerships.
+  void RefinePartners(PolyBlockType type, bool get_desparate,
+                      ColPartitionGrid* grid);
+
+  // Returns true if this column partition is in the same column as
+  // part. This function will only work after the SetPartitionType function
+  // has been called on both column partitions. This is useful for
+  // doing a SideSearch when you want things in the same page column.
+  bool IsInSameColumnAs(const ColPartition& part) const;
+
+  // Sets the column bounds. Primarily used in testing.
+  void set_first_column(int column) {
+    first_column_ = column;
+  }
+  void set_last_column(int column) {
+    last_column_ = column;
+  }
 
  private:
   // enum to refer to the entries in a neigbourhood of lines.
@@ -442,7 +634,10 @@ class ColPartition : public ELIST2_LINK {
   };
 
   // Cleans up the partners above if upper is true, else below.
-  void RefinePartnersInternal(bool upper);
+  // If get_desperate is true, goes to more desperate merge methods
+  // to merge flowing text before breaking partnerships.
+  void RefinePartnersInternal(bool upper, bool get_desperate,
+                              ColPartitionGrid* grid);
   // Restricts the partners to only desirable types. For text and BRT_HLINE this
   // means the same type_ , and for image types it means any image type.
   void RefinePartnersByType(bool upper, ColPartition_CLIST* partners);
@@ -451,9 +646,15 @@ class ColPartition : public ELIST2_LINK {
   // Also if we have this<->a and a<->this, then gets rid of this<->a, as
   // this has multiple partners.
   void RefinePartnerShortcuts(bool upper, ColPartition_CLIST* partners);
-  // Keeps the partner with the longest sequence of singleton matching partners.
-  // Converts all others to pullout.
-  void RefineFlowingTextPartners(bool upper, ColPartition_CLIST* partners);
+  // If multiple text partners can be merged, then do so.
+  // If desperate is true, then an increase in overlap with the merge is
+  // allowed. If the overlap increases, then the desperately_merged_ flag
+  // is set, indicating that the textlines probably need to be regenerated
+  // by aggressive line fitting/splitting, as there are probably vertically
+  // joined blobs that cross textlines.
+  void RefineTextPartnersByMerge(bool upper, bool desperate,
+                                 ColPartition_CLIST* partners,
+                                 ColPartitionGrid* grid);
   // Keep the partner with the biggest overlap.
   void RefinePartnersByOverlap(bool upper, ColPartition_CLIST* partners);
 
@@ -528,9 +729,18 @@ class ColPartition : public ELIST2_LINK {
   int median_bottom_;
   int median_top_;
   // Median height of blobs in this partition.
+  // TODO(rays) rename median_height_.
   int median_size_;
+  // Median left and right of blobs in this partition.
+  int median_left_;
+  int median_right_;
+  // Median width of blobs in this partition.
+  int median_width_;
   // blob_region_type_ for the blobs in this partition.
   BlobRegionType blob_type_;
+  BlobTextFlowType flow_;  // Quality of text flow.
+  // Total of GoodTextBlob results for all blobs in the partition.
+  int good_blob_score_;
   // True if this partition has a common width.
   bool good_width_;
   // True if this is a good column candidate.
@@ -562,6 +772,9 @@ class ColPartition : public ELIST2_LINK {
   // True when the partition's ownership has been taken from the grid and
   // placed in a working set, or, after that, in the good_parts_ list.
   bool block_owned_;
+  // Flag to indicate that this partition was subjected to a desperate merge,
+  // and therefore the textlines need rebuilding.
+  bool desperately_merged_;
   // The first and last column that this partition applies to.
   // Flowing partitions (see type_) will have an equal first and last value
   // of the form 2n + 1, where n is the zero-based index into the partitions
@@ -592,15 +805,16 @@ class ColPartition : public ELIST2_LINK {
   int space_below_;      // Distance from nearest_neighbor_below
   int space_to_left_;    // Distance from the left edge of the column
   int space_to_right_;   // Distance from the right edge of the column
+  // Color foreground/background data.
+  uinT8 color1_[kRGBRMSColors];
+  uinT8 color2_[kRGBRMSColors];
+  bool owns_blobs_;  // Does the partition own its blobs?
 };
 
 // Typedef it now in case it becomes a class later.
-typedef BBGrid<ColPartition,
-               ColPartition_CLIST,
-               ColPartition_C_IT> ColPartitionGrid;
 typedef GridSearch<ColPartition,
-               ColPartition_CLIST,
-               ColPartition_C_IT> ColPartitionGridSearch;
+                   ColPartition_CLIST,
+                   ColPartition_C_IT> ColPartitionGridSearch;
 
 }  // namespace tesseract.
 

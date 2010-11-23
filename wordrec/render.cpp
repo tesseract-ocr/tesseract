@@ -132,9 +132,6 @@ void render_outline(void *window,
     render_edgepts (window, outline->loop, color);
   /* Add on next outlines */
   render_outline (window, outline->next, color);
-
-  /* Add on child outlines */
-  render_outline(window, outline->child, Grey);
 }
 
 #endif  // GRAPHICS_DISABLED

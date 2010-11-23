@@ -23,7 +23,6 @@
 #endif
 #include          "stderr.h"
 #include          "blobbox.h"
-#include          "lmedsq.h"
 #include          "statistc.h"
 #include          "drawtord.h"
 #include          "tovars.h"

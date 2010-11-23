@@ -71,12 +71,12 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libtesseract_wordrec_la_LIBADD =
-am_libtesseract_wordrec_la_OBJECTS = associate.lo badwords.lo \
-	bestfirst.lo chop.lo chopper.lo closed.lo drawfx.lo \
-	findseam.lo gradechop.lo heuristic.lo makechop.lo matchtab.lo \
-	matrix.lo metrics.lo mfvars.lo olutil.lo outlines.lo pieces.lo \
-	plotedges.lo plotseg.lo render.lo seam.lo split.lo tally.lo \
-	tessinit.lo tface.lo wordclass.lo wordrec.lo
+am_libtesseract_wordrec_la_OBJECTS = associate.lo bestfirst.lo chop.lo \
+	chopper.lo closed.lo drawfx.lo findseam.lo gradechop.lo \
+	heuristic.lo language_model.lo makechop.lo matchtab.lo \
+	olutil.lo outlines.lo pieces.lo plotedges.lo plotseg.lo \
+	render.lo segsearch.lo tally.lo tface.lo wordclass.lo \
+	wordrec.lo
 libtesseract_wordrec_la_OBJECTS =  \
 	$(am_libtesseract_wordrec_la_OBJECTS)
 libtesseract_wordrec_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -251,7 +251,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -274,23 +273,22 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/image -I$(top_srcdir)/dict \
     -I$(top_srcdir)/viewer
 
-EXTRA_DIST = wordrec.vcproj
 include_HEADERS = \
-    associate.h badwords.h bestfirst.h chop.h \
+    associate.h bestfirst.h chop.h \
     chopper.h closed.h drawfx.h findseam.h gradechop.h \
-    heuristic.h makechop.h matchtab.h matrix.h measure.h metrics.h \
-    mfvars.h olutil.h outlines.h pieces.h plotedges.h \
-    plotseg.h render.h seam.h split.h tally.h tessinit.h tface.h \
+    language_model.h makechop.h matchtab.h measure.h \
+    olutil.h outlines.h pieces.h plotedges.h \
+    plotseg.h render.h tally.h \
     wordclass.h wordrec.h
 
 lib_LTLIBRARIES = libtesseract_wordrec.la
 libtesseract_wordrec_la_SOURCES = \
-    associate.cpp badwords.cpp bestfirst.cpp chop.cpp chopper.cpp \
+    associate.cpp bestfirst.cpp chop.cpp chopper.cpp \
     closed.cpp drawfx.cpp findseam.cpp gradechop.cpp \
-    heuristic.cpp makechop.cpp matchtab.cpp matrix.cpp metrics.cpp \
-    mfvars.cpp olutil.cpp outlines.cpp pieces.cpp \
-    plotedges.cpp plotseg.cpp render.cpp seam.cpp split.cpp \
-    tally.cpp tessinit.cpp tface.cpp wordclass.cpp wordrec.cpp
+    heuristic.cpp language_model.cpp makechop.cpp matchtab.cpp \
+    olutil.cpp outlines.cpp pieces.cpp \
+    plotedges.cpp plotseg.cpp render.cpp segsearch.cpp \
+    tally.cpp tface.cpp wordclass.cpp wordrec.cpp
 
 libtesseract_wordrec_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 all: all-recursive
@@ -368,7 +366,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/associate.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/badwords.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bestfirst.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chopper.Plo@am__quote@
@@ -377,21 +374,17 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/findseam.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gradechop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/heuristic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/language_model.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/makechop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/matchtab.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/matrix.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/metrics.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mfvars.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/olutil.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/outlines.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pieces.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plotedges.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plotseg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/render.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/seam.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/split.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/segsearch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tally.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tessinit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wordclass.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wordrec.Plo@am__quote@

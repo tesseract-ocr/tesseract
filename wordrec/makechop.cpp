@@ -27,6 +27,7 @@
 ----------------------------------------------------------------------*/
 
 #include "makechop.h"
+#include "blobs.h"
 #include "render.h"
 #include "structures.h"
 #ifdef __UNIX__
@@ -48,70 +49,19 @@
  * Split this blob into two blobs by applying the splits included in
  * the seam description.
  **********************************************************************/
-void apply_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
-  check_outline_mem();
+void apply_seam(TBLOB *blob, TBLOB *other_blob, bool italic_blob, SEAM *seam) {
   if (seam->split1 == NULL) {
-    divide_blobs (blob, other_blob, seam->location);
+    divide_blobs(blob, other_blob, italic_blob, seam->location);
   }
   else if (seam->split2 == NULL) {
-    make_split_blobs(blob, other_blob, seam);
+    make_split_blobs(blob, other_blob, italic_blob, seam);
   }
   else if (seam->split3 == NULL) {
-    make_double_split(blob, other_blob, seam);
+    make_double_split(blob, other_blob, italic_blob, seam);
   }
   else {
-    make_triple_split(blob, other_blob, seam);
+    make_triple_split(blob, other_blob, italic_blob, seam);
   }
-
-  check_outline_mem();
-}
-
-
-/**********************************************************************
- * divide_blobs
- *
- * Create two blobs by grouping the outlines in the appropriate blob.
- * The outlines that are beyond the location point are moved to the
- * other blob.  The ones whose x location is less than that point are
- * retained in the original blob.
- **********************************************************************/
-void divide_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location) {
-  TESSLINE *outline;
-  TESSLINE *outline1 = NULL;
-  TESSLINE *outline2 = NULL;
-
-  outline = blob->outlines;
-  blob->outlines = NULL;
-
-  while (outline != NULL) {
-    if ((outline->topleft.x + outline->botright.x) / 2 < location) {
-      /* Outline is in 1st blob */
-      if (outline1) {
-        outline1->next = outline;
-      }
-      else {
-        blob->outlines = outline;
-      }
-      outline1 = outline;
-    }
-    else {
-      /* Outline is in 2nd blob */
-      if (outline2) {
-        outline2->next = outline;
-      }
-      else {
-        other_blob->outlines = outline;
-      }
-      outline2 = outline;
-    }
-
-    outline = outline->next;
-  }
-
-  if (outline1)
-    outline1->next = NULL;
-  if (outline2)
-    outline2->next = NULL;
 }
 
 
@@ -121,25 +71,16 @@ void divide_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location) {
  * Group the outlines from the first blob into both of them. Do so
  * according to the information about the split.
  **********************************************************************/
-void form_two_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location) {
+void form_two_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+                    const TPOINT& location) {
   setup_blob_outlines(blob);
 
-  divide_blobs(blob, other_blob, location);
+  divide_blobs(blob, other_blob, italic_blob, location);
 
   eliminate_duplicate_outlines(blob);
   eliminate_duplicate_outlines(other_blob);
 
   correct_blob_order(blob, other_blob);
-
-#ifndef GRAPHICS_DISABLED
-  if (chop_debug > 2) {
-    display_blob(blob, Red);
-    #ifdef __UNIX__
-    sleep (1);
-    #endif
-    display_blob(other_blob, Cyan);
-  }
-#endif
 }
 
 
@@ -149,10 +90,11 @@ void form_two_blobs(TBLOB *blob, TBLOB *other_blob, inT32 location) {
  * Create two blobs out of one by splitting the original one in half.
  * Return the resultant blobs for classification.
  **********************************************************************/
-void make_double_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
-  make_single_split (blob->outlines, seam->split1);
-  make_single_split (blob->outlines, seam->split2);
-  form_two_blobs (blob, other_blob, seam->location);
+void make_double_split(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+                       SEAM *seam) {
+  make_single_split(blob->outlines, seam->split1);
+  make_single_split(blob->outlines, seam->split2);
+  form_two_blobs(blob, other_blob, italic_blob, seam->location);
 }
 
 
@@ -170,17 +112,15 @@ void make_single_split(TESSLINE *outlines, SPLIT *split) {
   while (outlines->next != NULL)
     outlines = outlines->next;
 
-  outlines->next = newoutline ();
+  outlines->next = new TESSLINE;
   outlines->next->loop = split->point1;
-  outlines->next->child = NULL;
-  setup_outline (outlines->next);
+  outlines->next->ComputeBoundingBox();
 
   outlines = outlines->next;
 
-  outlines->next = newoutline ();
+  outlines->next = new TESSLINE;
   outlines->next->loop = split->point2;
-  outlines->next->child = NULL;
-  setup_outline (outlines->next);
+  outlines->next->ComputeBoundingBox();
 
   outlines->next->next = NULL;
 }
@@ -192,10 +132,11 @@ void make_single_split(TESSLINE *outlines, SPLIT *split) {
  * Create two blobs out of one by splitting the original one in half.
  * Return the resultant blobs for classification.
  **********************************************************************/
-void make_split_blobs(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
-  make_single_split (blob->outlines, seam->split1);
+void make_split_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+                      SEAM *seam) {
+  make_single_split(blob->outlines, seam->split1);
 
-  form_two_blobs (blob, other_blob, seam->location);
+  form_two_blobs (blob, other_blob, italic_blob, seam->location);
 }
 
 
@@ -207,12 +148,13 @@ void make_split_blobs(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
  * the outlines. Three of the starting outlines will produce two ending
  * outlines. Return the resultant blobs for classification.
  **********************************************************************/
-void make_triple_split(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
-  make_single_split (blob->outlines, seam->split1);
-  make_single_split (blob->outlines, seam->split2);
-  make_single_split (blob->outlines, seam->split3);
+void make_triple_split(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+                       SEAM *seam) {
+  make_single_split(blob->outlines, seam->split1);
+  make_single_split(blob->outlines, seam->split2);
+  make_single_split(blob->outlines, seam->split3);
 
-  form_two_blobs (blob, other_blob, seam->location);
+  form_two_blobs(blob, other_blob, italic_blob, seam->location);
 }
 
 
@@ -237,7 +179,8 @@ void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
   while (outline->next)
     outline = outline->next;
   outline->next = other_blob->outlines;
-  oldblob(other_blob);
+  other_blob->outlines = NULL;
+  delete other_blob;
 
   if (seam->split1 == NULL) {
   }
@@ -256,8 +199,6 @@ void undo_seam(TBLOB *blob, TBLOB *other_blob, SEAM *seam) {
 
   setup_blob_outlines(blob);
   eliminate_duplicate_outlines(blob);
-
-  check_outline_mem();
 }
 
 
@@ -273,15 +214,13 @@ void undo_single_split(TBLOB *blob, SPLIT *split) {
   /* Modify edge points */
   unsplit_outlines (split->point1, split->point2);
 
-  outline1 = newoutline ();
+  outline1 = new TESSLINE;
   outline1->next = blob->outlines;
   blob->outlines = outline1;
   outline1->loop = split->point1;
-  outline1->child = NULL;
 
-  outline2 = newoutline ();
+  outline2 = new TESSLINE;
   outline2->next = blob->outlines;
   blob->outlines = outline2;
   outline2->loop = split->point2;
-  outline2->child = NULL;
 }

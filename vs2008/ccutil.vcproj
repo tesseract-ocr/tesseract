@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\vs2008\include"
+				AdditionalIncludeDirectories="..\vs2008\include;..\vs2008\port"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -106,7 +106,7 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\vs2008\include"
+				AdditionalIncludeDirectories="..\vs2008\include;..\vs2008\port"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -170,7 +170,7 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\vs2008\include"
+				AdditionalIncludeDirectories="..\vs2008\include;..\vs2008\port"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -658,35 +658,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccutil\ocrshell.cpp"
+				RelativePath="..\ccutil\params.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccutil\serialis.cpp"
@@ -755,41 +728,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\tessopt.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\ccutil\tordvars.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\ccutil\tprintf.cpp"
 				>
 				<FileConfiguration
@@ -832,37 +770,6 @@
 				RelativePath="..\ccutil\unicharset.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\ccutil\varable.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -883,10 +790,6 @@
 			</File>
 			<File
 				RelativePath="..\ccutil\boxread.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\callback.h"
 				>
 			</File>
 			<File
@@ -919,6 +822,10 @@
 			</File>
 			<File
 				RelativePath="..\ccutil\genericvector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\port\gettimeofday.h"
 				>
 			</File>
 			<File
@@ -986,11 +893,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ccutil\params.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ccutil\platform.h"
 				>
 			</File>
 			<File
 				RelativePath="..\ccutil\qrsequence.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\scanutils.h"
 				>
 			</File>
 			<File
@@ -1043,10 +958,6 @@
 			</File>
 			<File
 				RelativePath="..\ccutil\unicity_table.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\varable.h"
 				>
 			</File>
 		</Filter>

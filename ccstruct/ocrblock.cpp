@@ -47,6 +47,7 @@ BLOCK::BLOCK(const char *name,                //< filename
   ICOORDELT_IT right_it = &rightside;
 
   proportional = prop;
+  right_to_left_ = false;
   kerning = kern;
   spacing = space;
   font_class = -1;               //not assigned
@@ -216,4 +217,118 @@ const BLOCK & source             //from this
   classify_rotation_ = source.classify_rotation_;
   skew_ = source.skew_;
   return *this;
+}
+
+/**********************************************************************
+ * PrintSegmentationStats
+ *
+ * Prints segmentation stats for the given block list.
+ **********************************************************************/
+
+void PrintSegmentationStats(BLOCK_LIST* block_list) {
+  int num_blocks = 0;
+  int num_rows = 0;
+  int num_words = 0;
+  int num_blobs = 0;
+  BLOCK_IT block_it(block_list);
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+    BLOCK* block = block_it.data();
+    ++num_blocks;
+    ROW_IT row_it(block->row_list());
+    for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+      ++num_rows;
+      ROW* row = row_it.data();
+      // Iterate over all werds in the row.
+      WERD_IT werd_it(row->word_list());
+      for (werd_it.mark_cycle_pt(); !werd_it.cycled_list(); werd_it.forward()) {
+        WERD* werd = werd_it.data();
+        ++num_words;
+        num_blobs += werd->cblob_list()->length();
+      }
+    }
+  }
+  tprintf("Block list stats:\nBlocks = %d\nRows = %d\nWords = %d\nBlobs = %d\n",
+          num_blocks, num_rows, num_words, num_blobs);
+}
+
+/**********************************************************************
+ * ExtractBlobsFromSegmentation
+ *
+ * Extracts blobs from the given block list and adds them to the output list.
+ * The block list must have been created by performing a page segmentation.
+ **********************************************************************/
+
+void ExtractBlobsFromSegmentation(BLOCK_LIST* blocks,
+                                  C_BLOB_LIST* output_blob_list) {
+  C_BLOB_IT return_list_it(output_blob_list);
+  BLOCK_IT block_it(blocks);
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+    BLOCK* block = block_it.data();
+    ROW_IT row_it(block->row_list());
+    for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+      ROW* row = row_it.data();
+      // Iterate over all werds in the row.
+      WERD_IT werd_it(row->word_list());
+      for (werd_it.mark_cycle_pt(); !werd_it.cycled_list(); werd_it.forward()) {
+        WERD* werd = werd_it.data();
+        return_list_it.move_to_last();
+        return_list_it.add_list_after(werd->cblob_list());
+        return_list_it.move_to_last();
+        return_list_it.add_list_after(werd->rej_cblob_list());
+      }
+    }
+  }
+}
+
+/**********************************************************************
+ * RefreshWordBlobsFromNewBlobs()
+ *
+ * Refreshes the words in the block_list by using blobs in the
+ * new_blobs list.
+ * Block list must have word segmentation in it.
+ * It consumes the blobs provided in the new_blobs list. The blobs leftover in
+ * the new_blobs list after the call weren't matched to any blobs of the words
+ * in block list.
+ * The output not_found_blobs is a list of blobs from the original segmentation
+ * in the block_list for which no corresponding new blobs were found.
+ **********************************************************************/
+
+void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
+                                  C_BLOB_LIST* new_blobs,
+                                  C_BLOB_LIST* not_found_blobs) {
+  // Now iterate over all the blobs in the segmentation_block_list_, and just
+  // replace the corresponding c-blobs inside the werds.
+  BLOCK_IT block_it(block_list);
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+    BLOCK* block = block_it.data();
+    // Iterate over all rows in the block.
+    ROW_IT row_it(block->row_list());
+    for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+      ROW* row = row_it.data();
+      // Iterate over all werds in the row.
+      WERD_IT werd_it(row->word_list());
+      WERD_LIST new_words;
+      WERD_IT new_words_it(&new_words);
+      for (werd_it.mark_cycle_pt(); !werd_it.cycled_list(); werd_it.forward()) {
+        WERD* werd = werd_it.extract();
+        WERD* new_werd = werd->ConstructWerdWithNewBlobs(new_blobs,
+                                                         not_found_blobs);
+        if (new_werd) {
+          // Insert this new werd into the actual row's werd-list. Remove the
+          // existing one.
+          new_words_it.add_after_then_move(new_werd);
+          delete werd;
+        } else {
+          // Reinsert the older word back, for lack of better options.
+          // This is critical since dropping the words messes up segmentation:
+          // eg. 1st word in the row might otherwise have W_FUZZY_NON turned on.
+          new_words_it.add_after_then_move(werd);
+        }
+      }
+      // Get rid of the old word list & replace it with the new one.
+      row->word_list()->clear();
+      werd_it.move_to_first();
+      werd_it.add_list_after(&new_words);
+    }
+  }
 }

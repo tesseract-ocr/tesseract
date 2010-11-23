@@ -8,13 +8,15 @@ AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"\
     -I$(top_srcdir)/textord 
 
 include_HEADERS = \
-    baseapi.h tesseractmain.h
+    apitypes.h baseapi.h pageiterator.h resultiterator.h tesseractmain.h
 
 lib_LTLIBRARIES = libtesseract_api.la
-libtesseract_api_la_SOURCES = baseapi.cpp
+libtesseract_api_la_SOURCES = baseapi.cpp pageiterator.cpp resultiterator.cpp
 libtesseract_api_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 libtesseract_api_la_LIBADD = \
     ../ccmain/libtesseract_main.la \
+    ../cube/libtesseract_cube.la \
+    ../neural_networks/runtime/libtesseract_neural.la \
     ../textord/libtesseract_textord.la \
     ../wordrec/libtesseract_wordrec.la \
     ../classify/libtesseract_classify.la \

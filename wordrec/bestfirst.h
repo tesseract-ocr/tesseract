@@ -38,7 +38,6 @@
 #include "seam.h"
 #include "states.h"
 #include "stopper.h"
-#include "tessclas.h"
 
 /*----------------------------------------------------------------------
               T y p e s
@@ -56,14 +55,8 @@ struct SEARCH_RECORD
   float segcost_bias;
   WERD_CHOICE *best_choice;
   WERD_CHOICE *raw_choice;
+  BLOB_CHOICE_LIST_VECTOR *best_char_choices;
 };
-
-/*----------------------------------------------------------------------
-              V a r i a b l e s
----------------------------------------------------------------------*/
-extern INT_VAR_H(wordrec_num_seg_states, 30, "Segmentation states");
-
-extern double_VAR_H(wordrec_worst_state, 1, "Worst segmentation state");
 
 
 /*----------------------------------------------------------------------
@@ -71,24 +64,7 @@ extern double_VAR_H(wordrec_worst_state, 1, "Worst segmentation state");
 ----------------------------------------------------------------------*/
 int chunks_width(WIDTH_RECORD *width_record, int start_chunk, int last_chunk);
 int chunks_gap(WIDTH_RECORD *width_record, int last_chunk);
-
-void delete_search(SEARCH_RECORD *the_search);
-
-SEARCH_RECORD *new_search(CHUNKS_RECORD *chunks_record,
-                          int num_joints,
-                          WERD_CHOICE *best_choice,
-                          WERD_CHOICE *raw_choice,
-                          STATE *state);
-
 STATE *pop_queue(HEAP *queue);
-
-void push_queue(HEAP *queue, STATE *state,
-                FLOAT32 worst_priority, FLOAT32 priority);
-
 void replace_char_widths(CHUNKS_RECORD *chunks_record, SEARCH_STATE state);
 
-// Joins blobs between index x and y, hides corresponding seams and
-// returns classification of the resulting merged blob.
-BLOB_CHOICE_LIST *join_blobs_and_classify(TBLOB *blobs, SEAMS seam_list,
-                                          int x, int y, int fx);
 #endif

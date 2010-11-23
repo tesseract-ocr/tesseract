@@ -131,18 +131,4 @@
 #define within_range(x,x0,x1) \
 	(((x0 <= x) && (x <= x1)) || ((x1 <= x) && (x <= x0)))
 
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-int crosses_outline(EDGEPT *p0,  /* Start of line */
-                    EDGEPT *p1,  /* End of line */
-                    EDGEPT *outline);
-
-int is_crossed(TPOINT a0, TPOINT a1, TPOINT b0, TPOINT b1); 
-
-int is_same_edgept(EDGEPT *p1, EDGEPT *p2); 
-
-EDGEPT *near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1); 
-
-void reverse_outline(EDGEPT *outline); 
 #endif

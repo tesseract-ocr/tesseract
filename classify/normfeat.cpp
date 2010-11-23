@@ -19,116 +19,64 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "normfeat.h"
-#include "mfoutline.h"
+
 #include "intfx.h"
+#include "featdefs.h"
+#include "mfoutline.h"
 
-#include "ocrfeatures.h"         //Debug
-#include <stdio.h>               //Debug
-#include "efio.h"                //Debug
-//#include "christydbg.h"
-
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
 /**----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
+
+// Return the length of the outline in baseline normalized form.
 FLOAT32 ActualOutlineLength(FEATURE Feature) {
-/*
- **	Parameters:
- **		Feature		normalization feature
- **	Globals: none
- **	Operation: This routine returns the length that the outline
- **		would have been if it were baseline normalized instead
- **		of character normalized.
- **	Return: Baseline normalized length of outline.
- **	Exceptions: none
- **	History: Thu Dec 20 14:50:57 1990, DSJ, Created.
- */
   return (Feature->Params[CharNormLength] * LENGTH_COMPRESSION);
-
-}                                /* ActualOutlineLength */
+}
 
 
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
-/*
- **	Parameters:
- **		Blob		blob to extract char norm feature from
- **		LineStats	statistics on text row blob is in
- **	Globals: none
- **	Operation: Compute a feature whose parameters describe how a
- **		character will be affected by the character normalization
- **		algorithm.  The feature parameters are:
- **			y position of center of mass in baseline coordinates
- **			total length of outlines in baseline coordinates
- **				divided by a scale factor
- **			radii of gyration about the center of mass in
- **				baseline coordinates
- **	Return: Character normalization feature for Blob.
- **	Exceptions: none
- **	History: Wed May 23 18:06:38 1990, DSJ, Created.
- */
-  FEATURE_SET FeatureSet;
-  FEATURE Feature;
-  FLOAT32 Scale;
-  FLOAT32 Baseline;
-  LIST Outlines;
+// Return the character normalization feature for a blob.
+//
+// The features returned are in a scale where the x-height has been
+// normalized to live in the region y = [-0.25 .. 0.25].  Example ranges
+// for English below are based on the Linux font collection on 2009-12-04:
+//
+//   Params[CharNormY]
+//     The y coordinate of the grapheme's centroid.
+//     English: [-0.27, 0.71]
+//
+//   Params[CharNormLength]
+//     The length of the grapheme's outline (tiny segments discarded),
+//     divided by 10.0=LENGTH_COMPRESSION.
+//     English: [0.16, 0.85]
+//
+//   Params[CharNormRx]
+//     The radius of gyration about the x axis, as measured from CharNormY.
+//     English: [0.011, 0.34]
+//
+//   Params[CharNormRy]
+//     The radius of gyration about the y axis, as measured from
+//     the x center of the grapheme's bounding box.
+//     English: [0.011, 0.31]
+//
+FEATURE_SET ExtractCharNormFeatures(TBLOB *blob, const DENORM& denorm) {
+  FEATURE_SET feature_set = NewFeatureSet(1);
+  FEATURE feature = NewFeature(&CharNormDesc);
+
   INT_FEATURE_ARRAY blfeatures;
   INT_FEATURE_ARRAY cnfeatures;
   INT_FX_RESULT_STRUCT FXInfo;
 
-  /* allocate the feature and feature set - note that there is always one
-     and only one char normalization feature for any blob */
-  FeatureSet = NewFeatureSet (1);
-  Feature = NewFeature (&CharNormDesc);
-  AddFeature(FeatureSet, Feature);
+  ExtractIntFeat(blob, denorm, blfeatures, cnfeatures, &FXInfo);
 
-  /* compute the normalization statistics for this blob */
-  Outlines = ConvertBlob (Blob);
-#ifdef DEBUG_NORMFEAT
-  FILE* OFile;
-  OFile = fopen ("nfOutline.logCPP", "r");
-  if (OFile == NULL)
-  {
-    OFile = Efopen ("nfOutline.logCPP", "w");
-    WriteOutlines(OFile, Outlines);
-  }
-  else
-  {
-    fclose (OFile);
-    OFile = Efopen ("nfOutline.logCPP", "a");
-  }
-  WriteOutlines(OFile, Outlines);
-  fclose (OFile);
-#endif
+  feature->Params[CharNormY] =
+      MF_SCALE_FACTOR * (FXInfo.Ymean - BASELINE_OFFSET);
+  feature->Params[CharNormLength] =
+      MF_SCALE_FACTOR * FXInfo.Length / LENGTH_COMPRESSION;
+  feature->Params[CharNormRx] = MF_SCALE_FACTOR * FXInfo.Rx;
+  feature->Params[CharNormRy] = MF_SCALE_FACTOR * FXInfo.Ry;
 
-  ExtractIntFeat(Blob, blfeatures, cnfeatures, &FXInfo);
-  Baseline = BaselineAt (LineStats, FXInfo.Xmean);
-  Scale = ComputeScaleFactor (LineStats);
-  Feature->Params[CharNormY] = (FXInfo.Ymean - Baseline) * Scale;
-  Feature->Params[CharNormLength] =
-    FXInfo.Length * Scale / LENGTH_COMPRESSION;
-  Feature->Params[CharNormRx] = FXInfo.Rx * Scale;
-  Feature->Params[CharNormRy] = FXInfo.Ry * Scale;
+  AddFeature(feature_set, feature);
 
-#ifdef DEBUG_NORMFEAT
-  FILE* File;
-  File = fopen ("nfFeatSet.logCPP", "r");
-  if (File == NULL)
-  {
-    File = Efopen ("nfFeatSet.logCPP", "w");
-    WriteFeatureSet(File, FeatureSet);
-  }
-  else
-  {
-    fclose (File);
-    File = Efopen ("nfFeatSet.logCPP", "a");
-  }
-  WriteFeatureSet(File, FeatureSet);
-  fclose (File);
-#endif
-  FreeOutlines(Outlines);
-  return (FeatureSet);
+  return feature_set;
 }                                /* ExtractCharNormFeatures */

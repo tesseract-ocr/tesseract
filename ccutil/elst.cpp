@@ -124,8 +124,8 @@ void ELIST::assign_to_sublist(                           //to this list
  *  Return count of elements on list
  **********************************************************************/
 
-inT32 ELIST::length() {  //count elements
-  ELIST_ITERATOR it(this);
+inT32 ELIST::length() const {  // count elements
+  ELIST_ITERATOR it(const_cast<ELIST*>(this));
   inT32 count = 0;
 
   #ifndef NDEBUG
@@ -190,8 +190,14 @@ const void *, const void *)) {
 // Comparision function is the same as used by sort, i.e. uses double
 // indirection. Time is O(1) to add to beginning or end.
 // Time is linear to add pre-sorted items to an empty list.
-void ELIST::add_sorted(int comparator(const void*, const void*),
-                       ELIST_LINK* new_link) {
+// If unique is set to true and comparator() returns 0 (an entry with the
+// same information as the one contained in new_link is already in the
+// list) - new_link is not added to the list and the function returns the
+// pointer to the identical entry that already exists in the list
+// (otherwise the function returns new_link).
+ELIST_LINK *ELIST::add_sorted_and_find(
+    int comparator(const void*, const void*),
+    bool unique, ELIST_LINK* new_link) {
   // Check for adding at the end.
   if (last == NULL || comparator(&last, &new_link) < 0) {
     if (last == NULL) {
@@ -206,14 +212,19 @@ void ELIST::add_sorted(int comparator(const void*, const void*),
     ELIST_ITERATOR it(this);
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       ELIST_LINK* link = it.data();
-      if (comparator(&link, &new_link) > 0)
+      int compare = comparator(&link, &new_link);
+      if (compare > 0) {
         break;
+      } else if (unique && compare == 0) {
+        return link;
+      }
     }
     if (it.cycled_list())
       it.add_to_end(new_link);
     else
       it.add_before_then_move(new_link);
   }
+  return new_link;
 }
 
 /***********************************************************************

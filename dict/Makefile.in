@@ -71,9 +71,9 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libtesseract_dict_la_LIBADD =
-am_libtesseract_dict_la_OBJECTS = choices.lo context.lo conversion.lo \
-	dawg.lo dict.lo hyphen.lo permdawg.lo permngram.lo permute.lo \
-	states.lo stopper.lo trie.lo
+am_libtesseract_dict_la_OBJECTS = context.lo dawg.lo dict.lo hyphen.lo \
+	permdawg.lo permngram.lo permute.lo states.lo stopper.lo \
+	trie.lo
 libtesseract_dict_la_OBJECTS = $(am_libtesseract_dict_la_OBJECTS)
 libtesseract_dict_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -246,7 +246,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -266,15 +265,13 @@ SUBDIRS =
 AM_CPPFLAGS = -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/viewer -I$(top_srcdir)/image
 
-EXTRA_DIST = dict.vcproj
 include_HEADERS = \
-    choicearr.h choices.h context.h conversion.h \
     dawg.h dict.h matchdefs.h \
-    permdawg.h permngram.h permute.h states.h stopper.h trie.h
+    permngram.h permute.h states.h stopper.h trie.h
 
 lib_LTLIBRARIES = libtesseract_dict.la
 libtesseract_dict_la_SOURCES = \
-    choices.cpp context.cpp conversion.cpp \
+    context.cpp \
     dawg.cpp dict.cpp hyphen.cpp \
     permdawg.cpp permngram.cpp permute.cpp states.cpp stopper.cpp trie.cpp
 
@@ -353,9 +350,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/choices.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/context.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/conversion.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dawg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dict.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hyphen.Plo@am__quote@

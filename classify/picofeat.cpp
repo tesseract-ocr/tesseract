@@ -19,16 +19,17 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "picofeat.h"
-#include "mfoutline.h"
-#include "hideedge.h"
+
+#include "classify.h"
+#include "efio.h"
+#include "featdefs.h"
 #include "fpoint.h"
-#include "varable.h"
+#include "mfoutline.h"
+#include "ocrfeatures.h"
+#include "params.h"
 
 #include <math.h>
-
-#include "ocrfeatures.h"         //Debug
-#include <stdio.h>               //Debug
-#include "efio.h"                //Debug
+#include <stdio.h>
 
 /*---------------------------------------------------------------------------
           Variables
@@ -51,7 +52,8 @@ void NormalizePicoX(FEATURE_SET FeatureSet);
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
+namespace tesseract {
+FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
 /*
  **	Parameters:
  **		Blob		blob to extract pico-features from
@@ -69,11 +71,9 @@ FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   FEATURE_SET FeatureSet;
   FLOAT32 XScale, YScale;
 
-  FeatureSet = NewFeatureSet (MAX_PICO_FEATURES);
-
-  Outlines = ConvertBlob (Blob);
-
-  NormalizeOutlines(Outlines, LineStats, &XScale, &YScale);
+  FeatureSet = NewFeatureSet(MAX_PICO_FEATURES);
+  Outlines = ConvertBlob(Blob);
+  NormalizeOutlines(Outlines, &XScale, &YScale);
   RemainingOutlines = Outlines;
   iterate(RemainingOutlines) {
     Outline = (MFOUTLINE) first_node (RemainingOutlines);
@@ -115,6 +115,7 @@ FEATURE_SET ExtractPicoFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   return (FeatureSet);
 
 }                                /* ExtractPicoFeatures */
+}  // namespace tesseract
 
 /**----------------------------------------------------------------------------
               Private Code

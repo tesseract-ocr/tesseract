@@ -16,14 +16,6 @@
  ** limitations under the License.
  *
  **********************************************************************/
-/**
- * @file     charcut.h  
- * @note     Formerly charclip.h
- * @brief    Code for character clipping
- * @author   Phil Cheatle
- * @date     Created Wed Nov 11 08:35:15 GMT 1992
- *
- */
 
 #ifndef           CHARCUT_H
 #define           CHARCUT_H
@@ -43,6 +35,8 @@ class ScrollView;
  * some rows may be unoccupied - signified by max < min. The page coordinate of
  * the row defined by min[0] and max[0] is held in row_offset.
  */
+
+const int kPixWordMargin = 3;  // how far outside word BB to grow
 
 class PIXROW:public ELIST_LINK
 {
@@ -126,11 +120,6 @@ class PIXROW:public ELIST_LINK
 };
 
 ELISTIZEH (PIXROW)
-extern INT_VAR_H (pix_word_margin, 3, "How far outside word BB to grow");
-extern BOOL_VAR_H (show_char_clipping, TRUE, "Show clip image window?");
-extern INT_VAR_H (net_image_width, 40, "NN input image width");
-extern INT_VAR_H (net_image_height, 36, "NN input image height");
-extern INT_VAR_H (net_image_x_height, 22, "NN input image x_height");
 void char_clip_word(
                     WERD *word,                 ///< word to be processed
                     IMAGE &bin_image,           ///< whole image

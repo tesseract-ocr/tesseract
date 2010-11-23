@@ -25,38 +25,57 @@
 #include "tprintf.h"
 #include "unichar.h"
 #include "unicharset.h"
-#include "varable.h"
+#include "params.h"
 
 static const int ISALPHA_MASK = 0x1;
 static const int ISLOWER_MASK = 0x2;
 static const int ISUPPER_MASK = 0x4;
 static const int ISDIGIT_MASK = 0x8;
 static const int ISPUNCTUATION_MASK = 0x10;
+// Y coordinate threshold for determining cap-height vs x-height.
+// TODO(rays) Bring the global definition down to the ccutil library level,
+// so this constant is relative to some other constants.
+static const int kMeanlineThreshold = 220;
+// Let C be the number of alpha chars for which all tops exceed
+// kMeanlineThreshold, and X the number of alpha chars for which all tops
+// are below kMeanlineThreshold, then if X > C * kMinXHeightFraction or
+// more than half the alpha characters have upper or lower case, then
+// the unicharset "has x-height".
+const double kMinXHeightFraction = 0.25;
+
+UNICHARSET::UNICHAR_PROPERTIES::UNICHAR_PROPERTIES() {
+  Init();
+}
+void UNICHARSET::UNICHAR_PROPERTIES::Init() {
+  isalpha = false;
+  islower = false;
+  isupper = false;
+  isdigit = false;
+  ispunctuation = false;
+  isngram = false;
+  enabled = false;
+  min_bottom = 0;
+  max_bottom = MAX_UINT8;
+  min_top = 0;
+  max_top = MAX_UINT8;
+  script_id = 0;
+  other_case = 0;
+  fragment = NULL;
+}
 
 UNICHARSET::UNICHARSET() :
     unichars(NULL),
     ids(),
     size_used(0),
     size_reserved(0),
-    script_table(0),
+    script_table(NULL),
     script_table_size_used(0),
-    script_table_size_reserved(0),
-    null_script("NULL"),
-    null_sid_(0),
-    common_sid_(0),
-    latin_sid_(0),
-    cyrillic_sid_(0),
-    greek_sid_(0),
-    han_sid_(0) {}
+    null_script("NULL") {
+  clear();
+}
 
 UNICHARSET::~UNICHARSET() {
-  if (size_reserved > 0) {
-    for (int i = 0; i < script_table_size_used; ++i)
-      delete[] script_table[i];
-    delete[] script_table;
-    delete_pointers_in_unichars();
-    delete[] unichars;
-  }
+  clear();
 }
 
 void UNICHARSET::reserve(int unichars_number) {
@@ -66,7 +85,6 @@ void UNICHARSET::reserve(int unichars_number) {
       memcpy(&unichars_new[i], &unichars[i], sizeof(UNICHAR_SLOT));
     for (int j = size_used; j < unichars_number; ++j) {
       unichars_new[j].properties.script_id = add_script(null_script);
-      unichars_new[j].properties.fragment = NULL;
     }
     delete[] unichars;
     unichars = unichars_new;
@@ -146,6 +164,7 @@ STRING UNICHARSET::debug_utf8_str(const char* str) {
 // Return a STRING containing debug information on the unichar, including
 // the id_to_unichar, its hex unicodes and the properties.
 STRING UNICHARSET::debug_str(UNICHAR_ID id) const {
+  if (id == INVALID_UNICHAR_ID) return STRING(id_to_unichar(id));
   const CHAR_FRAGMENT *fragment = this->get_fragment(id);
   if (fragment) {
     STRING base = debug_str(fragment->get_unichar());
@@ -153,7 +172,6 @@ STRING UNICHARSET::debug_str(UNICHAR_ID id) const {
                                     fragment->get_total());
   }
   const char* str = id_to_unichar(id);
-  if (id == INVALID_UNICHAR_ID) return STRING(str);
   STRING result = debug_utf8_str(str);
   // Append a for lower alpha, A for upper alpha, and x if alpha but neither.
   if (get_isalpha(id)) {
@@ -175,7 +193,29 @@ STRING UNICHARSET::debug_str(UNICHAR_ID id) const {
   return result;
 }
 
+unsigned int UNICHARSET::get_properties(UNICHAR_ID id) const {
+  unsigned int properties = 0;
+  if (this->get_isalpha(id))
+    properties |= ISALPHA_MASK;
+  if (this->get_islower(id))
+    properties |= ISLOWER_MASK;
+  if (this->get_isupper(id))
+    properties |= ISUPPER_MASK;
+  if (this->get_isdigit(id))
+    properties |= ISDIGIT_MASK;
+  if (this->get_ispunctuation(id))
+    properties |= ISPUNCTUATION_MASK;
+  return properties;
+}
 
+char UNICHARSET::get_chartype(UNICHAR_ID id) const {
+  if (this->get_isupper(id)) return 'A';
+  if (this->get_islower(id)) return 'a';
+  if (this->get_isalpha(id)) return 'x';
+  if (this->get_isdigit(id)) return '0';
+  if (this->get_ispunctuation(id)) return 'p';
+  return 0;
+}
 
 void UNICHARSET::unichar_insert(const char* const unichar_repr) {
   if (!ids.contains(unichar_repr)) {
@@ -192,12 +232,6 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr) {
     }
 
     strcpy(unichars[size_used].representation, unichar_repr);
-    this->set_isalpha(size_used, false);
-    this->set_islower(size_used, false);
-    this->set_isupper(size_used, false);
-    this->set_isdigit(size_used, false);
-    this->set_ispunctuation(size_used, false);
-    this->set_isngram(size_used, false);
     this->set_script(size_used, null_script);
     // If the given unichar_repr represents a fragmented character, set
     // fragment property to a pointer to CHAR_FRAGMENT class instance with
@@ -235,27 +269,19 @@ bool UNICHARSET::eq(UNICHAR_ID unichar_id,
 bool UNICHARSET::save_to_file(FILE *file) const {
   fprintf(file, "%d\n", this->size());
   for (UNICHAR_ID id = 0; id < this->size(); ++id) {
-    unsigned int properties = 0;
-
-    if (this->get_isalpha(id))
-      properties |= ISALPHA_MASK;
-    if (this->get_islower(id))
-      properties |= ISLOWER_MASK;
-    if (this->get_isupper(id))
-      properties |= ISUPPER_MASK;
-    if (this->get_isdigit(id))
-      properties |= ISDIGIT_MASK;
-    if (this->get_ispunctuation(id))
-      properties |= ISPUNCTUATION_MASK;
-
+    int min_bottom, max_bottom, min_top, max_top;
+    get_top_bottom(id, &min_bottom, &max_bottom, &min_top, &max_top);
+    unsigned int properties = this->get_properties(id);
     if (strcmp(this->id_to_unichar(id), " ") == 0)
       fprintf(file, "%s %x %s %d\n", "NULL", properties,
               this->get_script_from_script_id(this->get_script(id)),
               this->get_other_case(id));
     else
-      fprintf(file, "%s %x %s %d\n", this->id_to_unichar(id), properties,
+      fprintf(file, "%s %x %d,%d,%d,%d %s %d\t# %s\n",
+              this->id_to_unichar(id), properties,
+              min_bottom, max_bottom, min_top, max_top,
               this->get_script_from_script_id(this->get_script(id)),
-              this->get_other_case(id));
+              this->get_other_case(id), this->debug_str(id).string());
   }
   return true;
 }
@@ -277,8 +303,15 @@ bool UNICHARSET::load_from_file(FILE *file) {
 
     strcpy(script, null_script);
     this->unichars[id].properties.other_case = id;
+    int min_bottom = 0;
+    int max_bottom = MAX_UINT8;
+    int min_top = 0;
+    int max_top = MAX_UINT8;
     if (fgets(buffer, sizeof (buffer), file) == NULL ||
-        (sscanf(buffer, "%s %x %63s %d", unichar, &properties,
+        (sscanf(buffer, "%s %x %d,%d,%d,%d %63s %d", unichar, &properties,
+                &min_bottom, &max_bottom, &min_top, &max_top,
+                script, &(this->unichars[id].properties.other_case)) != 8 &&
+         sscanf(buffer, "%s %x %63s %d", unichar, &properties,
                 script, &(this->unichars[id].properties.other_case)) != 4 &&
          sscanf(buffer, "%s %x %63s", unichar, &properties, script) != 3 &&
          sscanf(buffer, "%s %x", unichar, &properties) != 2)) {
@@ -289,15 +322,52 @@ bool UNICHARSET::load_from_file(FILE *file) {
     else
       this->unichar_insert(unichar);
 
-    this->set_isalpha(id, (properties & ISALPHA_MASK) != 0);
-    this->set_islower(id, (properties & ISLOWER_MASK) != 0);
-    this->set_isupper(id, (properties & ISUPPER_MASK) != 0);
-    this->set_isdigit(id, (properties & ISDIGIT_MASK) != 0);
-    this->set_ispunctuation(id, (properties & ISPUNCTUATION_MASK) != 0);
+    this->set_isalpha(id, properties & ISALPHA_MASK);
+    this->set_islower(id, properties & ISLOWER_MASK);
+    this->set_isupper(id, properties & ISUPPER_MASK);
+    this->set_isdigit(id, properties & ISDIGIT_MASK);
+    this->set_ispunctuation(id, properties & ISPUNCTUATION_MASK);
     this->set_isngram(id, false);
     this->set_script(id, script);
     this->unichars[id].properties.enabled = true;
+    this->set_top_bottom(id, min_bottom, max_bottom, min_top, max_top);
   }
+  post_load_setup();
+  return true;
+}
+
+// Sets up internal data after loading the file, based on the char
+// properties. Called from load_from_file, but also needs to be run
+// during set_unicharset_properties.
+void UNICHARSET::post_load_setup() {
+  // Number of alpha chars with the case property minus those without,
+  // in order to determine that half the alpha chars have case.
+  int net_case_alphas = 0;
+  int x_height_alphas = 0;
+  int cap_height_alphas = 0;
+  top_bottom_set_ = false;
+  for (UNICHAR_ID id = 0; id < size_used; ++id) {
+    int min_bottom = 0;
+    int max_bottom = MAX_UINT8;
+    int min_top = 0;
+    int max_top = MAX_UINT8;
+    get_top_bottom(id, &min_bottom, &max_bottom, &min_top, &max_top);
+    if (min_top > 0)
+      top_bottom_set_ = true;
+    if (get_isalpha(id)) {
+      if (get_islower(id) || get_isupper(id))
+        ++net_case_alphas;
+      else
+        --net_case_alphas;
+      if (min_top < kMeanlineThreshold && max_top < kMeanlineThreshold)
+        ++x_height_alphas;
+      else if (min_top > kMeanlineThreshold && max_top > kMeanlineThreshold)
+        ++cap_height_alphas;
+    }
+  }
+  script_has_upper_lower_ = net_case_alphas > 0;
+  script_has_xheight_ = script_has_upper_lower_ ||
+      x_height_alphas > cap_height_alphas * kMinXHeightFraction;
 
   null_sid_ = get_script_id_from_name(null_script);
   ASSERT_HOST(null_sid_ == 0);
@@ -306,7 +376,31 @@ bool UNICHARSET::load_from_file(FILE *file) {
   cyrillic_sid_ = get_script_id_from_name("Cyrillic");
   greek_sid_ = get_script_id_from_name("Greek");
   han_sid_ = get_script_id_from_name("Han");
-  return true;
+  hiragana_sid_ = get_script_id_from_name("Hiragana");
+  katakana_sid_ = get_script_id_from_name("Katakana");
+
+  // Compute default script.
+  int* script_counts = new int[script_table_size_used];
+  memset(script_counts, 0, sizeof(*script_counts) * script_table_size_used);
+  for (int id = 0; id < size_used; ++id)
+    ++script_counts[get_script(id)];
+  default_sid_ = 0;
+  for (int s = 1; s < script_table_size_used; ++s) {
+    if (script_counts[s] > script_counts[default_sid_] && s != common_sid_)
+      default_sid_ = s;
+  }
+  delete [] script_counts;
+}
+
+// Returns true if any script entry in the unicharset is for a
+// right_to_left language.
+bool UNICHARSET::any_right_to_left() const {
+  for (int id = 0; id < script_table_size_used; ++id) {
+    if (strcmp(script_table[id], "Arabic") == 0 ||
+        strcmp(script_table[id], "Hebrew") == 0)
+      return true;
+  }
+  return false;
 }
 
 // Set a whitelist and/or blacklist of characters to recognize.
@@ -325,7 +419,9 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
       ch_step = step(whitelist + w_ind);
       if (ch_step > 0) {
         UNICHAR_ID u_id = unichar_to_id(whitelist + w_ind, ch_step);
-        unichars[u_id].properties.enabled = true;
+        if (u_id != INVALID_UNICHAR_ID) {
+          unichars[u_id].properties.enabled = true;
+        }
       } else {
         ch_step = 1;
       }
@@ -337,7 +433,9 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
       ch_step = step(blacklist + b_ind);
       if (ch_step > 0) {
         UNICHAR_ID u_id = unichar_to_id(blacklist + b_ind, ch_step);
-        unichars[u_id].properties.enabled = false;
+        if (u_id != INVALID_UNICHAR_ID) {
+          unichars[u_id].properties.enabled = false;
+        }
       } else {
         ch_step = 1;
       }

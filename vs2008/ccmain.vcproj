@@ -41,12 +41,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\classify;..\wordrec;..\textord;..\vs2008\include;..\vs2008\include\leptonica"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\classify;..\wordrec;..\textord;..\vs2008\include;..\vs2008\include\leptonica;..\cube;..\neural_networks\runtime;..\vs2008\port"
+				PreprocessorDefinitions="USE_STD_NAMESPACE;WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -106,11 +106,11 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\classify;..\wordrec;..\textord;..\vs2008\include;..\vs2008\include\leptonica"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\classify;..\wordrec;..\textord;..\vs2008\include;..\vs2008\include\leptonica;..\neural_networks\runtime;..\cube;..\vs2008\port"
+				PreprocessorDefinitions="USE_STD_NAMESPACE;WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -170,8 +170,8 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\classify;..\wordrec;..\textord;..\vs2008\include;..\vs2008\include\leptonica"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\classify;..\wordrec;..\textord;..\vs2008\include;..\vs2008\include\leptonica;..\cube;..\neural_networks\runtime;..\vs2008\port"
+				PreprocessorDefinitions="USE_STD_NAMESPACE;WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -244,91 +244,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccmain\ambigsrecog.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\ccmain\applybox.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\ccmain\blobcmp.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\ccmain\callnet.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -384,34 +300,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccmain\charsample.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\ccmain\control.cpp"
 				>
 				<FileConfiguration
@@ -440,35 +328,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccmain\docqual.cpp"
+				RelativePath="..\ccmain\cube_control.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccmain\expandblob.cpp"
+				RelativePath="..\ccmain\cube_reco_context.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ccmain\docqual.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -552,6 +420,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\port\gettimeofday.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\ccmain\imgscale.cpp"
 				>
 				<FileConfiguration
@@ -575,65 +447,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\ccmain\matmatch.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\ccutil\mfcpch.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
@@ -695,6 +508,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\ccmain\pagesegmain.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\ccmain\pagewalk.cpp"
 				>
 				<FileConfiguration
@@ -723,32 +540,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccmain\paircmp.cpp"
+				RelativePath="..\ccmain\paramsd.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccmain\pgedit.cpp"
@@ -780,6 +573,10 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccmain\recogtraining.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\ccmain\reject.cpp"
@@ -892,6 +689,10 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccmain\tesseract_cube_combiner.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\ccmain\tesseractclass.cpp"
@@ -1034,37 +835,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccmain\varabled.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\ccmain\werdit.cpp"
 				>
 				<FileConfiguration
@@ -1099,27 +869,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\ccmain\adaptions.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccmain\applybox.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccmain\blobcmp.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccmain\callnet.h"
-				>
-			</File>
-			<File
 				RelativePath="..\ccmain\charcut.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccmain\charsample.h"
 				>
 			</File>
 			<File
@@ -1127,11 +877,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccmain\docqual.h"
+				RelativePath="..\ccmain\cube_reco_context.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccmain\expandblob.h"
+				RelativePath="..\ccmain\docqual.h"
 				>
 			</File>
 			<File
@@ -1139,15 +889,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccmain\fixxht.h"
+				RelativePath=".\port\gettimeofday.h"
 				>
 			</File>
 			<File
 				RelativePath="..\ccmain\imgscale.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccmain\matmatch.h"
 				>
 			</File>
 			<File
@@ -1159,11 +905,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccmain\pagewalk.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccmain\paircmp.h"
+				RelativePath="..\ccmain\paramsd.h"
 				>
 			</File>
 			<File
@@ -1191,11 +933,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccmain\tesseractclass.h"
+				RelativePath="..\ccmain\tesseract_cube_combiner.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ccmain\tessio.h"
+				RelativePath="..\ccmain\tesseractclass.h"
 				>
 			</File>
 			<File
@@ -1216,10 +958,6 @@
 			</File>
 			<File
 				RelativePath="..\ccmain\tstruct.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccmain\varabled.h"
 				>
 			</File>
 			<File

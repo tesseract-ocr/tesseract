@@ -20,7 +20,7 @@
 #ifndef           TOVARS_H
 #define           TOVARS_H
 
-#include          "varable.h"
+#include          "params.h"
 #include          "notdll.h"
 
 extern BOOL_VAR_H (textord_show_initial_words, FALSE,
@@ -34,16 +34,10 @@ extern BOOL_VAR_H (textord_blocksall_prop, FALSE,
 extern BOOL_VAR_H (textord_blocksall_testing, FALSE,
 "Dump stats when moaning");
 extern BOOL_VAR_H (textord_test_mode, FALSE, "Do current test");
-extern BOOL_VAR_H (textord_repeat_extraction, TRUE, "Extract repeated chars");
 extern INT_VAR_H (textord_dotmatrix_gap, 3,
 "Max pixel gap for broken pixed pitch");
-extern INT_VAR_H (textord_repeat_threshold, 4,
-"Min multiple for repeated char");
 extern INT_VAR_H (textord_debug_block, 0, "Block to do debug on");
 extern INT_VAR_H (textord_pitch_range, 2, "Max range test on pitch");
-extern double_VAR_H (textord_repeat_rating, 6, "Min rating for equal blobs");
-extern double_VAR_H(textord_repch_width_variance, 0.2,
-"Max width change of gap/blob for repeated chars");
 extern double_VAR_H (textord_wordstats_smooth_factor, 0.05,
 "Smoothing gap stats");
 extern double_VAR_H (textord_width_smooth_factor, 0.10,

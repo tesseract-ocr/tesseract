@@ -35,7 +35,7 @@
  * BASICS:
  * -------
  * first_node        - Macro to return the first list node (not the cell).
- * rest              - Macro the return the second list cell
+ * list_rest         - Macro the return the second list cell
  * pop               - Destroy one list cell
  * push              - Create one list cell and set the node and next fields
  *
@@ -70,7 +70,7 @@
  * join              - Concatenates list 1 and list 2.
  * delete_d          - Removes the requested elements from the list.
  * transform_d       - Modifies the list by applying a function to each node.
- * insert            - Add a new element into this spot in a list. (not NIL)
+ * insert            - Add a new element into this spot in a list. (not NIL_LIST)
  * push_last         - Add a new element onto the end of a list.
  * reverse_d         - Reverse a list and destroy the old one.
  *
@@ -118,12 +118,12 @@
 #define LIST_H
 
 #include "cutil.h"
-#include "callback.h"
+#include "tesscallback.h"
 
 /*----------------------------------------------------------------------
                   T y p e s
 ----------------------------------------------------------------------*/
-#define NIL  (LIST) 0
+#define NIL_LIST  (LIST) 0
 struct list_rec
 {
   struct list_rec *node;
@@ -135,8 +135,8 @@ typedef list_rec *LIST;
                   M a c r o s
 ----------------------------------------------------------------------*/
 /* Predefinitions */
-#define rest(l)  ((l) ? (l)->next : NIL)
-#define first_node(l) ((l) ? (l)->node : NIL)
+#define list_rest(l)  ((l) ? (l)->next : NIL_LIST)
+#define first_node(l) ((l) ? (l)->node : NIL_LIST)
 
 /**********************************************************************
  *  c o p y   f i r s t
@@ -153,11 +153,11 @@ typedef list_rec *LIST;
  *  i t e r a t e
  *
  *  Visit each node in the list.  Replace the old list with the list
- *  minus the head.  Continue until the list is NIL.
+ *  minus the head.  Continue until the list is NIL_LIST.
  **********************************************************************/
 
 #define iterate(l)             \
-for (; (l) != NIL; (l) = rest (l))
+for (; (l) != NIL_LIST; (l) = list_rest (l))
 
 /**********************************************************************
  *  i t e r a t e   l i s t
@@ -168,7 +168,7 @@ for (; (l) != NIL; (l) = rest (l))
  **********************************************************************/
 
 #define iterate_list(x,l)  \
-for ((x)=(l); (x)!=0; (x)=rest(x))
+for ((x)=(l); (x)!=0; (x)=list_rest(x))
 
 /**********************************************************************
  * j o i n   o n
@@ -205,11 +205,11 @@ for ((x)=(l); (x)!=0; (x)=rest(x))
  *
  *  Return the contents of the second list element.
  *
- *  #define second_node(l)    first_node (rest (l))
+ *  #define second_node(l)    first_node (list_rest (l))
  **********************************************************************/
 
 #define second_node(l)              \
-first_node (rest (l))
+first_node (list_rest (l))
 
 /**********************************************************************
  *  s e t   r e s t
@@ -227,11 +227,11 @@ first_node (rest (l))
  *
  *  Return the contents of the third list element.
  *
- *  #define third(l)     first_node (rest (rest (l)))
+ *  #define third(l)     first_node (list_rest (list_rest (l)))
  **********************************************************************/
 
 #define third(l)               \
-first_node (rest (rest (l)))
+first_node (list_rest (list_rest (l)))
 
 /*----------------------------------------------------------------------
           Public Funtion Prototypes
@@ -241,7 +241,7 @@ int count(LIST var_list);
 LIST delete_d(LIST list, void *key, int_compare is_equal);
 
 LIST delete_d(LIST list, void *key,
-              ResultCallback2<int, void*, void*>* is_equal);
+              TessResultCallback2<int, void*, void*>* is_equal);
 
 LIST destroy(LIST list);
 
@@ -273,7 +273,7 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare);
 
 LIST search(LIST list, void *key, int_compare is_equal);
 
-LIST search(LIST list, void *key, ResultCallback2<int, void*, void*>*);
+LIST search(LIST list, void *key, TessResultCallback2<int, void*, void*>*);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

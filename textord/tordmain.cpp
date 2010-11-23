@@ -22,19 +22,18 @@
 #endif
 #include "stderr.h"
 #include "globaloc.h"
-#include "tessout.h"
 #include "blread.h"
 #include "blobbox.h"
+#include "ccstruct.h"
 #include "edgblob.h"
 #include "drawtord.h"
 #include "makerow.h"
 #include "wordseg.h"
-#include "ocrclass.h"
 #include "genblob.h"
 #include "imgs.h"
+#include "textord.h"
 #include "tordmain.h"
 #include "secname.h"
-#include "tesseractclass.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -55,154 +54,26 @@ const ERRCODE BLOCKLESS_BLOBS = "Warning:some blobs assigned to no block";
 #undef EXTERN
 #define EXTERN
 
-EXTERN BOOL_VAR (textord_no_rejects, FALSE, "Don't remove noise blobs");
-EXTERN BOOL_VAR (textord_show_blobs, FALSE, "Display unsorted blobs");
-EXTERN BOOL_VAR (textord_show_boxes, FALSE, "Display unsorted blobs");
-EXTERN BOOL_VAR (textord_new_initial_xheight, TRUE,
-"Use test xheight mechanism");
-EXTERN BOOL_VAR (textord_exit_after, FALSE, "Exit after completing textord");
-EXTERN INT_VAR (textord_max_noise_size, 7, "Pixel size of noise");
-EXTERN double_VAR (textord_blob_size_bigile, 95,
-"Percentile for large blobs");
-EXTERN double_VAR (textord_noise_area_ratio, 0.7,
-"Fraction of bounding box for noise");
-EXTERN double_VAR (textord_blob_size_smallile, 20,
-"Percentile for small blobs");
-EXTERN double_VAR (textord_initialx_ile, 0.75,
-"Ile of sizes for xheight guess");
-EXTERN double_VAR (textord_initialasc_ile, 0.90,
-"Ile of sizes for xheight guess");
-EXTERN INT_VAR (textord_noise_sizefraction, 10,
-"Fraction of size for maxima");
-EXTERN double_VAR (textord_noise_sizelimit, 0.5,
-"Fraction of x for big t count");
-EXTERN INT_VAR (textord_noise_translimit, 16, "Transitions for normal blob");
-EXTERN double_VAR (textord_noise_normratio, 2.0,
-"Dot to norm ratio for deletion");
-EXTERN BOOL_VAR (textord_noise_rejwords, TRUE, "Reject noise-like words");
-EXTERN BOOL_VAR (textord_noise_rejrows, TRUE, "Reject noise-like rows");
-EXTERN double_VAR (textord_noise_syfract, 0.2,
-"xh fract error for norm blobs");
-EXTERN double_VAR (textord_noise_sxfract, 0.4,
-"xh fract width error for norm blobs");
-EXTERN double_VAR(textord_noise_hfract, 1.0/64,
-"Height fraction to discard outlines as speckle noise");
-EXTERN INT_VAR (textord_noise_sncount, 1, "super norm blobs to save row");
-EXTERN double_VAR (textord_noise_rowratio, 6.0,
-"Dot to norm ratio for deletion");
-
-EXTERN BOOL_VAR (textord_noise_debug, FALSE, "Debug row garbage detector");
-EXTERN double_VAR (textord_blshift_maxshift, 0.00, "Max baseline shift");
-EXTERN double_VAR (textord_blshift_xfraction, 9.99,
-"Min size of baseline shift");
-EXTERN STRING_EVAR (tessedit_image_ext, ".tif", "Externsion for image file");
-
-#ifndef EMBEDDED
-EXTERN clock_t previous_cpu;
-#endif
-
-extern BOOL_VAR_H (polygon_tess_approximation, TRUE,
-"Do tess poly instead of grey scale");
-
 #define MAX_NEAREST_DIST  600    //for block skew stats
-#define MAX_BLOB_TRANSITIONS100  //for nois stats
-
-extern IMAGE page_image;         //must be defined somewhere
-extern BOOL_VAR_H (interactive_mode, TRUE, "Run interactively?");
-extern /*"C" */ ETEXT_DESC *global_monitor;     //progress monitor
-
-/**********************************************************************
- * find_components
- *
- * Find the C_OUTLINEs of the connected components in each block, put them
- * in C_BLOBs, and filter them by size, putting the different size
- * grades on different lists in the matching TO_BLOCK in port_blocks.
- **********************************************************************/
-
-void find_components(
-                       BLOCK_LIST *blocks,
-                       TO_BLOCK_LIST *land_blocks,
-                       TO_BLOCK_LIST *port_blocks,
-                       TBOX *page_box) {
-  BLOCK *block;                  //current block
-  PDBLK_CLIST pd_blocks;         //copy of list
-  BLOCK_IT block_it = blocks;    //iterator
-  PDBLK_C_IT pd_it = &pd_blocks; //iterator
-  IMAGE thresh_image;            //thresholded
-
-  int width = page_image.get_xsize();
-  int height = page_image.get_ysize();
-  if (width > MAX_INT16 || height > MAX_INT16) {
-    tprintf("Input image too large! (%d, %d)\n", width, height);
-    return;  // Can't handle it.
-  }
-
-  ICOORD page_tr(width, height);
-  block_it.set_to_list (blocks);
-  if (global_monitor != NULL)
-    global_monitor->ocr_alive = TRUE;
-
-  set_global_loc_code(LOC_EDGE_PROG);
-  if (!page_image.white_high ())
-    invert_image(&page_image);
-
-#ifndef EMBEDDED
-  previous_cpu = clock ();
-#endif
-
-  for (block_it.mark_cycle_pt(); !block_it.cycled_list();
-       block_it.forward()) {
-    block = block_it.data();
-    if (block->poly_block() == NULL ||
-        block->poly_block()->IsText()) {
-#ifndef GRAPHICS_DISABLED
-      extract_edges(NULL, &page_image, &page_image, page_tr, block);
-#else
-      extract_edges(&page_image, &page_image, page_tr, block);
-#endif
-      *page_box += block->bounding_box ();
-    }
-  }
-  if (global_monitor != NULL) {
-    global_monitor->ocr_alive = TRUE;
-    global_monitor->progress = 10;
-  }
-
-  assign_blobs_to_blocks2(blocks, land_blocks, port_blocks);
-  if (global_monitor != NULL)
-    global_monitor->ocr_alive = TRUE;
-  filter_blobs (page_box->topright (), land_blocks, textord_test_landscape);
-#ifndef EMBEDDED
-  previous_cpu = clock ();
-#endif
-  filter_blobs (page_box->topright (), port_blocks, !textord_test_landscape);
-  if (global_monitor != NULL)
-    global_monitor->ocr_alive = TRUE;
-}
 
 /**********************************************************************
  * SetBlobStrokeWidth
  *
  * Set the horizontal and vertical stroke widths in the blob.
  **********************************************************************/
-void SetBlobStrokeWidth(bool debug, BLOBNBOX* blob) {
+void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
 #ifdef HAVE_LIBLEPT
   // Cut the blob rectangle into a Pix.
-  // TODO(rays) make the page_image a Pix so this is more direct.
+  int pix_height = pixGetHeight(pix);
   const TBOX& box = blob->bounding_box();
-  IMAGE blob_im;
   int width = box.width();
   int height = box.height();
-  blob_im.create(width, height, 1);
-  copy_sub_image(&page_image, box.left(), box.bottom(), width, height,
-                 &blob_im, 0, 0, false);
-  Pix* pix = blob_im.ToPix();
-  Pix* dist_pix = pixDistanceFunction(pix, 4, 8, L_BOUNDARY_BG);
-  if (debug) {
-    pixWrite("cutpix.png", pix, IFF_PNG);
-    pixWrite("distpix.png", dist_pix, IFF_PNG);
-  }
-  pixDestroy(&pix);
+  Box* blob_pix_box = boxCreate(box.left(), pix_height - box.top(),
+                                width, height);
+  Pix* pix_blob = pixClipRectangle(pix, blob_pix_box, NULL);
+  boxDestroy(&blob_pix_box);
+  Pix* dist_pix = pixDistanceFunction(pix_blob, 4, 8, L_BOUNDARY_BG);
+  pixDestroy(&pix_blob);
   // Compute the stroke widths.
   uinT32* data = pixGetData(dist_pix);
   int wpl = pixGetWpl(dist_pix);
@@ -232,9 +103,6 @@ void SetBlobStrokeWidth(bool debug, BLOBNBOX* blob) {
       pixel = next_pixel;
     }
   }
-  if (debug) {
-    h_stats.print(stderr, true);
-  }
   // Vertical width of stroke.
   STATS v_stats(0, height + 1);
   for (int x = 0; x < width; ++x) {
@@ -261,9 +129,6 @@ void SetBlobStrokeWidth(bool debug, BLOBNBOX* blob) {
       pixel = next_pixel;
     }
   }
-  if (debug) {
-    v_stats.print(stderr, true);
-  }
   pixDestroy(&dist_pix);
   // Store the horizontal and vertical width in the blob, keeping both
   // widths if there is enough information, otherwse only the one with
@@ -271,18 +136,6 @@ void SetBlobStrokeWidth(bool debug, BLOBNBOX* blob) {
   // If there are insufficent samples, store zero, rather than using
   // 2*area/perimeter, as the numbers that gives do not match the numbers
   // from the distance method.
-  if (debug) {
-    tprintf("box=%d,%d->%d,%d, hcount=%d, vcount=%d, target=%d\n",
-            box.left(), box.bottom(), box.right(), box.top(),
-            h_stats.get_total(), v_stats.get_total(), (width+height) /4);
-    tprintf("hstats median=%f, lq=%f, uq=%f, sd=%f\n",
-            h_stats.median(), h_stats.ile(0.25f), h_stats.ile(0.75f),
-            h_stats.sd());
-    tprintf("vstats median=%f, lq=%f, uq=%f, sd=%f\n",
-            v_stats.median(), v_stats.ile(0.25f), v_stats.ile(0.75f),
-            v_stats.sd());
-
-  }
   if (h_stats.get_total() >= (width + height) / 4) {
     blob->set_horz_stroke_width(h_stats.ile(0.5f));
     if (v_stats.get_total() >= (width + height) / 4)
@@ -316,11 +169,9 @@ void SetBlobStrokeWidth(bool debug, BLOBNBOX* blob) {
  * Make a list of TO_BLOCKs for portrait and landscape orientation.
  **********************************************************************/
 
-void assign_blobs_to_blocks2(                             // split into groups
+void assign_blobs_to_blocks2(Pix* pix,
                              BLOCK_LIST *blocks,          // blocks to process
-                             TO_BLOCK_LIST *land_blocks,  // ** unused **
-                             TO_BLOCK_LIST *port_blocks   // output list
-                            ) {
+                             TO_BLOCK_LIST *port_blocks) {  // output list
   BLOCK *block;                  // current block
   BLOBNBOX *newblob;             // created blob
   C_BLOB *blob;                  // current blob
@@ -332,7 +183,7 @@ void assign_blobs_to_blocks2(                             // split into groups
   TO_BLOCK *port_block;          // created block
 
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
-    block = block_it.data ();
+    block = block_it.data();
     port_block = new TO_BLOCK(block);
 
     // Convert the good outlines to block->blob_list
@@ -341,7 +192,7 @@ void assign_blobs_to_blocks2(                             // split into groups
     for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
       blob = blob_it.extract();
       newblob = new BLOBNBOX(blob);  // Convert blob to BLOBNBOX.
-      SetBlobStrokeWidth(false, newblob);
+      SetBlobStrokeWidth(pix, newblob);
       port_box_it.add_after_then_move(newblob);
     }
 
@@ -353,7 +204,7 @@ void assign_blobs_to_blocks2(                             // split into groups
     for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
       blob = blob_it.extract();
       newblob = new BLOBNBOX(blob);  // Convert blob to BLOBNBOX.
-      SetBlobStrokeWidth(false, newblob);
+      SetBlobStrokeWidth(pix, newblob);
       port_box_it.add_after_then_move(newblob);
     }
 
@@ -361,6 +212,39 @@ void assign_blobs_to_blocks2(                             // split into groups
   }
 }
 
+namespace tesseract {
+/**********************************************************************
+ * find_components
+ *
+ * Find the C_OUTLINEs of the connected components in each block, put them
+ * in C_BLOBs, and filter them by size, putting the different size
+ * grades on different lists in the matching TO_BLOCK in to_blocks.
+ **********************************************************************/
+
+void Textord::find_components(Pix* pix, BLOCK_LIST *blocks,
+                              TO_BLOCK_LIST *to_blocks) {
+  int width = pixGetWidth(pix);
+  int height = pixGetHeight(pix);
+  if (width > MAX_INT16 || height > MAX_INT16) {
+    tprintf("Input image too large! (%d, %d)\n", width, height);
+    return;  // Can't handle it.
+  }
+
+  set_global_loc_code(LOC_EDGE_PROG);
+
+  BLOCK_IT block_it(blocks);    // iterator
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list();
+       block_it.forward()) {
+    BLOCK* block = block_it.data();
+    if (block->poly_block() == NULL || block->poly_block()->IsText()) {
+      extract_edges(pix, block);
+    }
+  }
+
+  assign_blobs_to_blocks2(pix, blocks, to_blocks);
+  ICOORD page_tr(width, height);
+  filter_blobs(page_tr, to_blocks, !textord_test_landscape);
+}
 
 /**********************************************************************
  * filter_blobs
@@ -368,27 +252,26 @@ void assign_blobs_to_blocks2(                             // split into groups
  * Sort the blobs into sizes in all the blocks for later work.
  **********************************************************************/
 
-void filter_blobs(                        //split into groups
-                  ICOORD page_tr,         //top right
-                  TO_BLOCK_LIST *blocks,  //output list
-                  BOOL8 testing_on        //for plotting
-                 ) {
-  TO_BLOCK_IT block_it = blocks; //destination iterator
-  TO_BLOCK *block;               //created block
+void Textord::filter_blobs(ICOORD page_tr,         // top right
+                           TO_BLOCK_LIST *blocks,  // output list
+                           BOOL8 testing_on) {     // for plotting
+  TO_BLOCK_IT block_it = blocks;          // destination iterator
+  TO_BLOCK *block;                        // created block
 
   if (to_win != NULL)
     to_win->Clear();
-  for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-  block_it.forward ()) {
-    block = block_it.data ();
-    block->line_size = filter_noise_blobs (&block->blobs,
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list();
+       block_it.forward()) {
+    block = block_it.data();
+    block->line_size = filter_noise_blobs(&block->blobs,
       &block->noise_blobs,
       &block->small_blobs,
       &block->large_blobs);
-    block->line_spacing =
-      block->line_size * (textord_merge_desc + textord_merge_x +
-      textord_merge_asc +
-      textord_merge_asc) / textord_merge_x;
+    block->line_spacing = block->line_size *
+        (tesseract::CCStruct::kDescenderFraction +
+         tesseract::CCStruct::kXHeightFraction +
+         2 * tesseract::CCStruct::kAscenderFraction) /
+         tesseract::CCStruct::kXHeightFraction;
     block->line_size *= textord_min_linesize;
     block->max_blob_size = block->line_size * textord_excess_blobsize;
 #ifndef GRAPHICS_DISABLED
@@ -400,15 +283,14 @@ void filter_blobs(                        //split into groups
     if (textord_show_boxes && testing_on) {
       if (to_win == NULL)
         create_to_win(page_tr);
-      plot_box_list (to_win, &block->noise_blobs, ScrollView::WHITE);
-      plot_box_list (to_win, &block->small_blobs, ScrollView::WHITE);
-      plot_box_list (to_win, &block->large_blobs, ScrollView::WHITE);
-      plot_box_list (to_win, &block->blobs, ScrollView::WHITE);
+      plot_box_list(to_win, &block->noise_blobs, ScrollView::WHITE);
+      plot_box_list(to_win, &block->small_blobs, ScrollView::WHITE);
+      plot_box_list(to_win, &block->large_blobs, ScrollView::WHITE);
+      plot_box_list(to_win, &block->blobs, ScrollView::WHITE);
     }
 #endif
   }
 }
-
 
 /**********************************************************************
  * filter_noise_blobs
@@ -416,60 +298,11 @@ void filter_blobs(                        //split into groups
  * Move small blobs to a separate list.
  **********************************************************************/
 
-float filter_noise_blobs(                            //separate noise
-                         BLOBNBOX_LIST *src_list,    //origonal list
-                         BLOBNBOX_LIST *noise_list,  //noise list
-                         BLOBNBOX_LIST *small_list,  //small blobs
-                         BLOBNBOX_LIST *large_list   //large blobs
-                        ) {
-  inT16 height;                  //height of blob
-  inT16 width;                   //of blob
-  BLOBNBOX_IT src_it = src_list; //iterators
-  BLOBNBOX_IT noise_it = noise_list;
-  BLOBNBOX_IT small_it = small_list;
-  BLOBNBOX_IT large_it = large_list;
-  STATS size_stats (0, MAX_NEAREST_DIST);
-  //blob heights
-  if (textord_new_initial_xheight)
-    return filter_noise_blobs2 (src_list, noise_list, small_list, large_list);
-  float min_y;                   //size limits
-  float max_y;
-  float max_x;
-
-  for (src_it.mark_cycle_pt (); !src_it.cycled_list (); src_it.forward ()) {
-    if (src_it.data ()->bounding_box ().height () < textord_max_noise_size)
-      noise_it.add_after_then_move (src_it.extract ());
-  }
-  for (src_it.mark_cycle_pt (); !src_it.cycled_list (); src_it.forward ()) {
-    size_stats.add (src_it.data ()->bounding_box ().height (), 1);
-  }
-  min_y = floor (size_stats.ile (textord_blob_size_smallile / 100.0));
-  max_y = ceil (size_stats.ile (textord_blob_size_bigile / 100.0));
-  max_x = ceil (size_stats.ile (0.5) * textord_width_limit);
-  for (src_it.mark_cycle_pt (); !src_it.cycled_list (); src_it.forward ()) {
-    height = src_it.data ()->bounding_box ().height ();
-    width = src_it.data ()->bounding_box ().width ();
-    if (height < min_y)
-      small_it.add_after_then_move (src_it.extract ());
-    else if (height > max_y || width > max_x)
-      large_it.add_after_then_move (src_it.extract ());
-  }
-  return size_stats.ile (textord_initialx_ile);
-}
-
-
-/**********************************************************************
- * filter_noise_blobs2
- *
- * Move small blobs to a separate list.
- **********************************************************************/
-
-float filter_noise_blobs2(                            //separate noise
-                          BLOBNBOX_LIST *src_list,    //origonal list
-                          BLOBNBOX_LIST *noise_list,  //noise list
-                          BLOBNBOX_LIST *small_list,  //small blobs
-                          BLOBNBOX_LIST *large_list   //large blobs
-                         ) {
+float Textord::filter_noise_blobs(
+    BLOBNBOX_LIST *src_list,      // original list
+    BLOBNBOX_LIST *noise_list,    // noise list
+    BLOBNBOX_LIST *small_list,    // small blobs
+    BLOBNBOX_LIST *large_list) {  // large blobs
   inT16 height;                  //height of blob
   inT16 width;                   //of blob
   BLOBNBOX *blob;                //current blob
@@ -497,10 +330,11 @@ float filter_noise_blobs2(                            //separate noise
     size_stats.add (src_it.data ()->bounding_box ().height (), 1);
   }
   initial_x = size_stats.ile (textord_initialx_ile);
-  max_y =
-    ceil (initial_x *
-    (textord_merge_desc + textord_merge_x +
-    2 * textord_merge_asc) / textord_merge_x);
+  max_y = ceil(initial_x *
+               (tesseract::CCStruct::kDescenderFraction +
+                tesseract::CCStruct::kXHeightFraction +
+                2 * tesseract::CCStruct::kAscenderFraction) /
+               tesseract::CCStruct::kXHeightFraction);
   min_y = floor (initial_x / 2);
   max_x = ceil (initial_x * textord_width_limit);
   small_it.move_to_first ();
@@ -526,47 +360,11 @@ float filter_noise_blobs2(                            //separate noise
   max_height = size_stats.ile (textord_initialasc_ile);
   //      printf("max_y=%g, min_y=%g, initial_x=%g, max_height=%g,",
   //              max_y,min_y,initial_x,max_height);
-  max_height *= textord_merge_x / (textord_merge_x + textord_merge_asc);
+  max_height *= tesseract::CCStruct::kXHeightCapRatio;
   if (max_height > initial_x)
     initial_x = max_height;
   //      printf(" ret=%g\n",initial_x);
   return initial_x;
-}
-
-
-/**********************************************************************
- * textord_page
- *
- * Textord the list of blobs and return a list of proper blocks.
- **********************************************************************/
-
-void textord_page(                             //make rows & words
-                  ICOORD page_tr,              //top right
-                  BLOCK_LIST *blocks,          //block list
-                  TO_BLOCK_LIST *land_blocks,  //rotated for landscape
-                  TO_BLOCK_LIST *port_blocks,  //output list
-                  tesseract::Tesseract* tess
-                 ) {
-  float gradient;                //global skew
-
-  set_global_loc_code(LOC_TEXT_ORD_ROWS);
-  gradient = make_rows (page_tr, blocks, land_blocks, port_blocks, tess);
-  if (global_monitor != NULL) {
-    global_monitor->ocr_alive = TRUE;
-    global_monitor->progress = 20;
-  }
-  set_global_loc_code(LOC_TEXT_ORD_WORDS);
-  make_words(page_tr, gradient, blocks, land_blocks, port_blocks, tess);
-  if (global_monitor != NULL) {
-    global_monitor->ocr_alive = TRUE;
-    global_monitor->progress = 30;
-  }
-  cleanup_blocks(blocks);  //remove empties
-#ifndef GRAPHICS_DISABLED
-  close_to_win();
-#endif
-  if (textord_exit_after && !interactive_mode)
-    exit (0);
 }
 
 /**********************************************************************
@@ -575,33 +373,52 @@ void textord_page(                             //make rows & words
  * Delete empty blocks, rows from the page.
  **********************************************************************/
 
-void cleanup_blocks(                    //remove empties
-                    BLOCK_LIST *blocks  //list
-                   ) {
+void Textord::cleanup_blocks(                    //remove empties
+                             BLOCK_LIST *blocks  //list
+                            ) {
   BLOCK_IT block_it = blocks;    //iterator
   ROW_IT row_it;                 //row iterator
 
+  int num_rows = 0;
+  int num_rows_all = 0;
+  int num_blocks = 0;
+  int num_blocks_all = 0;
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-  block_it.forward ()) {
+       block_it.forward ()) {
+    num_rows = 0;
+    num_rows_all = 0;
     row_it.set_to_list (block_it.data ()->row_list ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
+      ++num_rows_all;
       clean_small_noise_from_words(row_it.data());
       if ((textord_noise_rejrows
-        && !row_it.data ()->word_list ()->empty ()
-        && clean_noise_from_row (row_it.data ()))
-        || row_it.data ()->word_list ()->empty ())
+           && !row_it.data ()->word_list ()->empty ()
+           && clean_noise_from_row (row_it.data ()))
+          || row_it.data ()->word_list ()->empty ())
         delete row_it.extract ();//lose empty row
       else {
         if (textord_noise_rejwords)
           clean_noise_from_words (row_it.data ());
         if (textord_blshift_maxshift >= 0)
-          tweak_row_baseline (row_it.data ());
+          tweak_row_baseline(row_it.data(),
+                             textord_blshift_maxshift,
+                             textord_blshift_xfraction);
+        ++num_rows;
       }
     }
-    if (block_it.data ()->row_list ()->empty ()) {
-      delete block_it.extract ();//lose empty block
+    if (block_it.data()->row_list()->empty() &&
+        (block_it.data()->poly_block() == NULL ||
+         block_it.data()->poly_block()->IsText())) {
+      delete block_it.extract();  // Lose empty text blocks but not other types.
+    } else {
+      ++num_blocks;
     }
+    ++num_blocks_all;
+    if (textord_noise_debug)
+      tprintf("cleanup_blocks: # rows = %d / %d\n", num_rows, num_rows_all);
   }
+  if (textord_noise_debug)
+    tprintf("cleanup_blocks: # blocks = %d / %d\n", num_blocks, num_blocks_all);
 }
 
 
@@ -611,9 +428,9 @@ void cleanup_blocks(                    //remove empties
  * Move blobs of words from rows of garbage into the reject blobs list.
  **********************************************************************/
 
-BOOL8 clean_noise_from_row(          //remove empties
-                           ROW *row  //row to clean
-                          ) {
+BOOL8 Textord::clean_noise_from_row(          //remove empties
+                                    ROW *row  //row to clean
+                                   ) {
   BOOL8 testing_on;
   TBOX blob_box;                  //bounding box
   C_BLOB *blob;                  //current blob
@@ -678,7 +495,7 @@ BOOL8 clean_noise_from_row(          //remove empties
         blob_box.width () >
         blob_box.height ()? blob_box.width () : blob_box.height ();
       if (blob_size >= textord_noise_sizelimit * row->x_height ()
-      && blob_size < row->x_height () * 2) {
+          && blob_size < row->x_height () * 2) {
         trans_threshold = blob_size / textord_noise_sizefraction;
         trans_count = blob->count_transitions (trans_threshold);
         if (trans_count < textord_noise_translimit)
@@ -713,16 +530,15 @@ BOOL8 clean_noise_from_row(          //remove empties
     && dot_count > norm_count * textord_noise_rowratio && dot_count > 2;
 }
 
-
 /**********************************************************************
  * clean_noise_from_words
  *
  * Move blobs of words from rows of garbage into the reject blobs list.
  **********************************************************************/
 
-void clean_noise_from_words(          //remove empties
-                            ROW *row  //row to clean
-                           ) {
+void Textord::clean_noise_from_words(          //remove empties
+                                     ROW *row  //row to clean
+                                    ) {
   TBOX blob_box;                  //bounding box
   inT8 *word_dud;                //was it chucked
   C_BLOB *blob;                  //current blob
@@ -833,7 +649,7 @@ void clean_noise_from_words(          //remove empties
 
 // Remove outlines that are a tiny fraction in either width or height
 // of the word height.
-void clean_small_noise_from_words(ROW *row) {
+void Textord::clean_small_noise_from_words(ROW *row) {
   WERD_IT word_it(row->word_list());
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     WERD* word = word_it.data();
@@ -864,7 +680,7 @@ void clean_small_noise_from_words(ROW *row) {
     }
   }
 }
-
+}  // tesseract
 
 /**********************************************************************
  * tweak_row_baseline
@@ -873,10 +689,10 @@ void clean_small_noise_from_words(ROW *row) {
  * close enough.
  **********************************************************************/
 
-void tweak_row_baseline(          //remove empties
-                        ROW *row  //row to clean
-                       ) {
-  TBOX blob_box;                  //bounding box
+void tweak_row_baseline(ROW *row,
+                        double blshift_maxshift,
+                        double blshift_xfraction) {
+  TBOX blob_box;                 //bounding box
   C_BLOB *blob;                  //current blob
   WERD *word;                    //current word
   inT32 blob_count;              //no of blobs
@@ -922,9 +738,8 @@ void tweak_row_baseline(          //remove empties
         ydiff = -ydiff / row->x_height ();
       else
         ydiff = ydiff / row->x_height ();
-      if (ydiff < textord_blshift_maxshift
-        && blob_box.height () / row->x_height () >
-      textord_blshift_xfraction) {
+      if (ydiff < blshift_maxshift
+        && blob_box.height () / row->x_height () > blshift_xfraction) {
         if (xstarts[dest_index] >= x_centre)
           xstarts[dest_index] = blob_box.left ();
         coeffs[dest_index * 3] = 0;
@@ -981,7 +796,6 @@ void tweak_row_baseline(          //remove empties
   free_mem(coeffs);
 }
 
-
 /**********************************************************************
  * blob_y_order
  *
@@ -1011,4 +825,3 @@ inT32 blob_y_order(              //sort function
       return 0;
   }
 }
-

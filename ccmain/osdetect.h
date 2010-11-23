@@ -2,6 +2,7 @@
 // File:        osdetect.h
 // Description: Orientation and script detection.
 // Author:      Samuel Charron
+//              Ranjith Unnikrishnan
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +26,7 @@
 class TO_BLOCK_LIST;
 class BLOBNBOX;
 class BLOB_CHOICE_LIST;
+class BLOBNBOX_CLIST;
 
 namespace tesseract {
 class Tesseract;
@@ -34,8 +36,10 @@ class Tesseract;
 const int kMaxNumberOfScripts = 116 + 1 + 2 + 1;
 
 struct OSBestResult {
-  int orientation;
-  const char* script;
+  OSBestResult() : orientation_id(0), script_id(0), sconfidence(0.0),
+                   oconfidence(0.0) {}
+  int orientation_id;
+  int script_id;
   float sconfidence;
   float oconfidence;
 };
@@ -48,7 +52,16 @@ struct OSResults {
       orientations[i] = 0;
     }
   }
+  void update_best_orientation();
+  void set_best_orientation(int orientation_id);
+  void update_best_script(int orientation_id);
+
+  // Array holding scores for each orientation id [0,3].
+  // Orientation ids [0..3] map to [0, 270, 180, 90] degree orientations of the
+  // page respectively, where the values refer to the amount of clockwise
+  // rotation to be applied to the page for the text to be upright and readable.
   float orientations[4];
+  // Script confidence scores for each of 4 possible orientations.
   float scripts_na[4][kMaxNumberOfScripts];
 
   UNICHARSET* unicharset;
@@ -59,7 +72,6 @@ class OrientationDetector {
  public:
   OrientationDetector(OSResults*);
   bool detect_blob(BLOB_CHOICE_LIST* scores);
-  void update_best_orientation();
   int get_orientation();
  private:
   OSResults* osr_;
@@ -69,7 +81,6 @@ class ScriptDetector {
  public:
   ScriptDetector(OSResults*, tesseract::Tesseract* tess);
   void detect_blob(BLOB_CHOICE_LIST* scores);
-  void update_best_script(int);
   void get_script() ;
   bool must_stop(int orientation);
  private:
@@ -88,15 +99,25 @@ class ScriptDetector {
   tesseract::Tesseract* tess_;
 };
 
-bool orientation_and_script_detection(STRING& filename,
-                                      OSResults*,
-                                      tesseract::Tesseract*);
+int orientation_and_script_detection(STRING& filename,
+                                     OSResults*,
+                                     tesseract::Tesseract*);
 
-bool os_detect(TO_BLOCK_LIST* port_blocks,
-               OSResults* osr,
-               tesseract::Tesseract* tess);
+int os_detect(TO_BLOCK_LIST* port_blocks,
+              OSResults* osr,
+              tesseract::Tesseract* tess);
+
+int os_detect_blobs(BLOBNBOX_CLIST* blob_list,
+                    OSResults* osr,
+                    tesseract::Tesseract* tess);
 
 bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
                     ScriptDetector* s, OSResults*,
                     tesseract::Tesseract* tess);
+
+// Helper method to convert an orientation index to its value in degrees.
+// The value represents the amount of clockwise rotation in degrees that must be
+// applied for the text to be upright (readable).
+const int OrientationIdToValue(const int& id);
+
 #endif  // TESSERACT_CCMAIN_OSDETECT_H__

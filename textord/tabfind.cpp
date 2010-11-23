@@ -45,8 +45,10 @@ const int kMinColumnWidth = 200;
 const double kMinFractionalLinesInColumn = 0.125;
 // Fraction of height used as alignment tolerance for aligned tabs.
 const double kAlignedFraction = 0.03125;
-// Fraction of height used as a minimum gap for aligned blobs.
-const double kAlignedGapFraction = 0.75;
+// Minimum gutter width in absolute inch (multiplied by resolution)
+const double kMinGutterWidthAbsolute = 0.02;
+// Maximum gutter width (in absolute inch) that we care about
+const double kMaxGutterWidthAbsolute = 2.00;
 // Multiplier of new y positions in running average for skew estimation.
 const double kSmoothFactor = 0.25;
 // Min coverage for a good baseline between vectors
@@ -68,24 +70,30 @@ const int kMaxTextLineBlobRatio = 5;
 const int kMinTextLineBlobRatio = 3;
 // Fraction of box area covered by image to make a blob image.
 const double kMinImageArea = 0.5;
+// Upto 30 degrees is allowed for rotations of diacritic blobs.
+// Keep this value slightly larger than kCosSmallAngle in blobbox.cpp
+// so that the assert there never fails.
+const double kCosMaxSkewAngle = 0.866025;
 
 BOOL_VAR(textord_tabfind_show_initialtabs, false, "Show tab candidates");
 BOOL_VAR(textord_tabfind_show_finaltabs, false, "Show tab vectors");
-BOOL_VAR(textord_tabfind_vertical_text, true, "Enable vertical detection");
+double_VAR(textord_tabfind_aligned_gap_fraction, 0.75,
+           "Fraction of height used as a minimum gap for aligned blobs.");
 
 TabFind::TabFind(int gridsize, const ICOORD& bleft, const ICOORD& tright,
-                 TabVector_LIST* vlines, int vertical_x, int vertical_y)
+                 TabVector_LIST* vlines, int vertical_x, int vertical_y,
+                 int resolution)
   : AlignedBlob(gridsize, bleft, tright),
+    resolution_(resolution),
     image_origin_(0, tright.y() - 1),
     tab_grid_(new BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>(gridsize,
                                                                   bleft,
                                                                   tright)) {
-  resolution_ = 0;
   width_cb_ = NULL;
   v_it_.set_to_list(&vectors_);
   v_it_.add_list_after(vlines);
   SetVerticalSkewAndParellelize(vertical_x, vertical_y);
-  width_cb_ = NewPermanentCallback(this, &TabFind::CommonWidth);
+  width_cb_ = NewPermanentTessCallback(this, &TabFind::CommonWidth);
 }
 
 TabFind::~TabFind() {
@@ -141,6 +149,8 @@ bool TabFind::InsertBlob(bool h_spread, bool v_spread, bool large,
   blob->set_right_rule(RightEdgeForBox(box, false, false));
   blob->set_left_crossing_rule(LeftEdgeForBox(box, true, false));
   blob->set_right_crossing_rule(RightEdgeForBox(box, true, false));
+  if (blob->joined_to_prev())
+    return false;
   if (large) {
     // Search the grid to see what intersects it.
     // Setup a Rectangle search for overlapping this blob.
@@ -267,68 +277,6 @@ int TabFind::LeftEdgeForBox(const TBOX& box, bool crossing, bool extended) {
   return v == NULL ? bleft_.x() : v->XAtY((box.top() + box.bottom()) / 2);
 }
 
-// Return true if the given width is close to one of the common
-// widths in column_widths_.
-bool TabFind::CommonWidth(int width) {
-  width /= kColumnWidthFactor;
-  ICOORDELT_IT it(&column_widths_);
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    ICOORDELT* w = it.data();
-    if (NearlyEqual<int>(width, w->x(), 1))
-      return true;
-  }
-  return false;
-}
-
-// Return true if the sizes are more than a
-// factor of 2 different.
-bool TabFind::DifferentSizes(int size1, int size2) {
-  return size1 > size2 * 2 || size2 > size1 * 2;
-}
-
-///////////////// PROTECTED functions (used by ColumnFinder). //////////////
-
-// Top-level function to find TabVectors in an input page block.
-void TabFind::FindTabVectors(int resolution, TabVector_LIST* hlines,
-                             BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
-                             FCOORD* reskew, FCOORD* rerotate) {
-  resolution_ = resolution;
-  *rerotate = FCOORD(1.0f, 0.0f);
-  FindInitialTabVectors(image_blobs, block);
-  if (textord_tabfind_vertical_text && TextMostlyVertical()) {
-    ResetForVerticalText(hlines, image_blobs, block, rerotate);
-    FindInitialTabVectors(image_blobs, block);
-  }
-  TabVector::MergeSimilarTabVectors(vertical_skew_, &vectors_, this);
-  SortVectors();
-  CleanupTabs();
-  Deskew(hlines, image_blobs, block, reskew);
-  ApplyTabConstraints();
-  if (textord_tabfind_show_finaltabs) {
-    ScrollView* tab_win = MakeWindow(640, 50, "FinalTabs");
-    if (textord_debug_images) {
-      tab_win->Image(AlignedBlob::textord_debug_pix().string(),
-                     image_origin_.x(), image_origin_.y());
-    } else {
-      DisplayBoxes(tab_win);
-      DisplayTabs("FinalTabs", tab_win);
-    }
-    tab_win = DisplayTabVectors(tab_win);
-  }
-}
-
-// Top-level function to not find TabVectors in an input page block,
-// but setup for single column mode.
-void TabFind::DontFindTabVectors(int resolution, BLOBNBOX_LIST* image_blobs,
-                                 TO_BLOCK* block, FCOORD* reskew) {
-  resolution_ = resolution;
-  InsertBlobList(false, false, false, image_blobs, false, this);
-  InsertBlobList(true, false, false, &block->blobs, false, this);
-  ComputeBlobGoodness();
-  reskew->set_x(1);
-  reskew->set_y(0);
-}
-
 // This comment documents how this function works.
 // For its purpose and arguments, see the comment in tabfind.h.
 // TabVectors are stored sorted by perpendicular distance of middle from
@@ -430,6 +378,72 @@ TabVector* TabFind::LeftTabForBox(const TBOX& box, bool crossing,
   return best_v;
 }
 
+// Return true if the given width is close to one of the common
+// widths in column_widths_.
+bool TabFind::CommonWidth(int width) {
+  width /= kColumnWidthFactor;
+  ICOORDELT_IT it(&column_widths_);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    ICOORDELT* w = it.data();
+    if (NearlyEqual<int>(width, w->x(), 1))
+      return true;
+  }
+  return false;
+}
+
+// Return true if the sizes are more than a
+// factor of 2 different.
+bool TabFind::DifferentSizes(int size1, int size2) {
+  return size1 > size2 * 2 || size2 > size1 * 2;
+}
+
+// Return true if the sizes are more than a
+// factor of 5 different.
+bool TabFind::VeryDifferentSizes(int size1, int size2) {
+  return size1 > size2 * 5 || size2 > size1 * 5;
+}
+
+///////////////// PROTECTED functions (used by ColumnFinder). //////////////
+
+// Top-level function to find TabVectors in an input page block.
+// Returns false if the detected skew angle is impossible.
+bool TabFind::FindTabVectors(TabVector_LIST* hlines,
+                             BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
+                             int min_gutter_width,
+                             FCOORD* deskew, FCOORD* reskew) {
+  FindInitialTabVectors(image_blobs, block, min_gutter_width);
+  TabVector::MergeSimilarTabVectors(vertical_skew_, &vectors_, this);
+  SortVectors();
+  CleanupTabs();
+  if (!Deskew(hlines, image_blobs, block, deskew, reskew))
+    return false;  // Skew angle is too large.
+  ApplyTabConstraints();
+  if (textord_tabfind_show_finaltabs) {
+    ScrollView* tab_win = MakeWindow(640, 50, "FinalTabs");
+    if (textord_debug_images) {
+      tab_win->Image(AlignedBlob::textord_debug_pix().string(),
+                     image_origin_.x(), image_origin_.y());
+    } else {
+      DisplayBoxes(tab_win);
+      DisplayTabs("FinalTabs", tab_win);
+    }
+    tab_win = DisplayTabVectors(tab_win);
+  }
+  return true;
+}
+
+// Top-level function to not find TabVectors in an input page block,
+// but setup for single column mode.
+void TabFind::DontFindTabVectors(BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
+                                 FCOORD* deskew, FCOORD* reskew) {
+  InsertBlobList(false, false, false, image_blobs, false, this);
+  InsertBlobList(true, false, false, &block->blobs, false, this);
+  deskew->set_x(1.0f);
+  deskew->set_y(0.0f);
+  reskew->set_x(1.0f);
+  reskew->set_y(0.0f);
+}
+
 // Helper function to setup search limits for *TabForBox.
 void TabFind::SetupTabSearch(int x, int y, int* min_key, int* max_key) {
   int key1 = TabVector::SortKey(vertical_skew_, x, (y + tright_.y()) / 2);
@@ -456,7 +470,8 @@ ScrollView* TabFind::DisplayTabVectors(ScrollView* tab_win) {
 // First part of FindTabVectors, which may be used twice if the text
 // is mostly of vertical alignment.
 void TabFind::FindInitialTabVectors(BLOBNBOX_LIST* image_blobs,
-                                    TO_BLOCK* block) {
+                                    TO_BLOCK* block,
+                                    int min_gutter_width) {
   if (textord_tabfind_show_initialtabs) {
     ScrollView* line_win = MakeWindow(0, 0, "VerticalLines");
     line_win = DisplayTabVectors(line_win);
@@ -464,7 +479,7 @@ void TabFind::FindInitialTabVectors(BLOBNBOX_LIST* image_blobs,
   // Prepare the grid.
   InsertBlobList(false, false, false, image_blobs, false, this);
   InsertBlobList(true, false, false, &block->blobs, false, this);
-  ScrollView* initial_win = FindTabBoxes();
+  ScrollView* initial_win = FindTabBoxes(min_gutter_width);
   FindAllTabVectors();
   if (textord_tabfind_show_initialtabs)
     initial_win = DisplayTabVectors(initial_win);
@@ -473,19 +488,18 @@ void TabFind::FindInitialTabVectors(BLOBNBOX_LIST* image_blobs,
   SortVectors();
   EvaluateTabs();
   ComputeColumnWidths(initial_win);
-  if (textord_tabfind_vertical_text)
-    MarkVerticalText();
+  MarkVerticalText();
 }
 
 // For each box in the grid, decide whether it is a candidate tab-stop,
 // and if so add it to the tab_grid_.
-ScrollView* TabFind::FindTabBoxes() {
+ScrollView* TabFind::FindTabBoxes(int min_gutter_width) {
   // For every bbox in the grid, determine whether it uses a tab on an edge.
   GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> gsearch(this);
   gsearch.StartFullSearch();
   BLOBNBOX* bbox;
   while ((bbox = gsearch.NextFullSearch()) != NULL) {
-    if (TestBoxForTabs(bbox)) {
+    if (TestBoxForTabs(bbox, min_gutter_width)) {
       // If it is any kind of tab, insert it into the tab grid.
       tab_grid_->InsertBBox(false, false, bbox);
     }
@@ -499,7 +513,7 @@ ScrollView* TabFind::FindTabBoxes() {
   return tab_win;
 }
 
-bool TabFind::TestBoxForTabs(BLOBNBOX* bbox) {
+bool TabFind::TestBoxForTabs(BLOBNBOX* bbox, int min_gutter_width) {
   GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> radsearch(this);
   TBOX box = bbox->bounding_box();
   // If there are separator lines, get the column edges.
@@ -520,8 +534,16 @@ bool TabFind::TestBoxForTabs(BLOBNBOX* bbox) {
   // Compute a search radius based on a multiple of the height.
   int radius = (height * kTabRadiusFactor + gridsize_ - 1) / gridsize_;
   radsearch.StartRadSearch((left_x + right_x)/2, (top_y + bottom_y)/2, radius);
-  int target_right = left_x - height * kAlignedGapFraction;
-  int target_left = right_x + height * kAlignedGapFraction;
+  // In Vertical Page mode, once we have an estimate of the vertical line
+  // spacing, the minimum amount of gutter space before a possible tab is
+  // increased under the assumption that column partition is always larger
+  // than line spacing.
+  int min_spacing =
+      static_cast<int>(height * textord_tabfind_aligned_gap_fraction);
+  if (min_gutter_width > min_spacing)
+    min_spacing = min_gutter_width;
+  int target_right = left_x - min_spacing;
+  int target_left = right_x + min_spacing;
   // We will be evaluating whether the left edge could be a left tab, and
   // whether the right edge could be a right tab.
   // A box can be a tab if its bool is_(left/right)_tab remains true, meaning
@@ -538,6 +560,16 @@ bool TabFind::TestBoxForTabs(BLOBNBOX* bbox) {
   int maybe_right_tab_up = 0;
   int maybe_left_tab_down = 0;
   int maybe_right_tab_down = 0;
+  if (bbox->leader_on_left()) {
+    is_left_tab = false;
+    maybe_left_tab_up = -MAX_INT32;
+    maybe_left_tab_down = -MAX_INT32;
+  }
+  if (bbox->leader_on_right()) {
+    is_right_tab = false;
+    maybe_right_tab_up = -MAX_INT32;
+    maybe_right_tab_down = -MAX_INT32;
+  }
   int alignment_tolerance = static_cast<int>(resolution_ * kAlignedFraction);
   BLOBNBOX* neighbour = NULL;
   while ((neighbour = radsearch.NextRadSearch()) != NULL) {
@@ -902,53 +934,41 @@ void TabFind::SetBlobRegionType(BLOBNBOX* blob) {
 // Mark blobs as being in a vertical text line where that is the case.
 // Returns true if the majority of the image is vertical text lines.
 void TabFind::MarkVerticalText() {
-  TabVector_IT it(&vectors_);
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    TabVector* v = it.data();
-    TabVector* partner = v->VerticalTextlinePartner();
-    if (partner != NULL) {
-      TabVector* left = v->IsLeftTab() ? v : partner;
-      TabVector* right = v->IsLeftTab() ? partner : v;
-      // Setup a rectangle search to mark the text as vertical.
-      TBOX box;
-      box.set_left(MIN(left->startpt().x(), left->endpt().x()));
-      box.set_right(MAX(right->startpt().x(), right->endpt().x()));
-      box.set_bottom(MIN(left->startpt().y(), right->startpt().y()));
-      box.set_top(MAX(left->endpt().y(), right->endpt().y()));
-
-      GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> rsearch(this);
-      rsearch.StartRectSearch(box);
-      BLOBNBOX* blob = NULL;
-      while ((blob = rsearch.NextRectSearch()) != NULL) {
-        if (blob->region_type() < BRT_UNKNOWN)
-          continue;
-        const TBOX& blob_box = blob->bounding_box();
-        if ((LeftTabForBox(blob_box, false, false) == left ||
-             LeftTabForBox(blob_box, true, false) == left) &&
-            (RightTabForBox(blob_box, false, false) == right ||
-             RightTabForBox(blob_box, true, false) == right)) {
-          blob->set_region_type(BRT_VERT_TEXT);
-        }
-      }
+  if (textord_debug_tabfind)
+    tprintf("Checking for vertical lines\n");
+  BlobGridSearch gsearch(this);
+  gsearch.StartFullSearch();
+  BLOBNBOX* blob = NULL;
+  while ((blob = gsearch.NextFullSearch()) != NULL) {
+    if (blob->region_type() < BRT_UNKNOWN)
+      continue;
+    if (blob->UniquelyVertical()) {
+      blob->set_region_type(BRT_VERT_TEXT);
     }
   }
 }
 
-// Returns true if the majority of the image is vertical text lines.
-bool TabFind::TextMostlyVertical() {
-  int vertical_boxes = 0;
-  int horizontal_boxes = 0;
-  // Count vertical bboxes in the grid.
-  GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> gsearch(this);
-  gsearch.StartFullSearch();
-  BLOBNBOX* bbox;
-  while ((bbox = gsearch.NextFullSearch()) != NULL) {
-    if (bbox->region_type() == BRT_VERT_TEXT)
-      ++vertical_boxes;
-    else
-      ++horizontal_boxes;
+int TabFind::FindMedianGutterWidth(TabVector_LIST *lines) {
+  TabVector_IT it(lines);
+  int prev_right = -1;
+  int max_gap = static_cast<int>(kMaxGutterWidthAbsolute * resolution_);
+  STATS gaps(0, max_gap);
+  STATS heights(0, max_gap);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    TabVector* v = it.data();
+    TabVector* partner = v->GetSinglePartner();
+    if (!v->IsLeftTab() || v->IsSeparator() || !partner) continue;
+    heights.add(partner->startpt().x() - v->startpt().x(), 1);
+    if (prev_right > 0 && v->startpt().x() > prev_right) {
+      gaps.add(v->startpt().x() - prev_right, 1);
+    }
+    prev_right = partner->startpt().x();
   }
-  return vertical_boxes > horizontal_boxes;
+  if (textord_debug_tabfind)
+    tprintf("TabGutter total %d  median_gap %.2f  median_hgt %.2f\n",
+            gaps.get_total(), gaps.median(), heights.median());
+  if (gaps.get_total() < kMinLinesInColumn) return 0;
+  return static_cast<int>(gaps.median());
 }
 
 // If this box looks like it is on a textline in the given direction,
@@ -1343,7 +1363,8 @@ void TabFind::CleanupTabs() {
   }
 }
 
-static void RotateBlobList(const FCOORD& rotation, BLOBNBOX_LIST* blobs) {
+// Apply the given rotation to the given list of blobs.
+void TabFind::RotateBlobList(const FCOORD& rotation, BLOBNBOX_LIST* blobs) {
   BLOBNBOX_IT it(blobs);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     it.data()->rotate_box(rotation);
@@ -1351,22 +1372,23 @@ static void RotateBlobList(const FCOORD& rotation, BLOBNBOX_LIST* blobs) {
 }
 
 // Recreate the grid with deskewed BLOBNBOXes.
-void TabFind::Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
-                     TO_BLOCK* block, FCOORD* reskew) {
-  FCOORD deskew;
-  ComputeDeskewVectors(&deskew, reskew);
-  RotateBlobList(deskew, image_blobs);
-  RotateBlobList(deskew, &block->blobs);
-  RotateBlobList(deskew, &block->small_blobs);
-  RotateBlobList(deskew, &block->noise_blobs);
-#ifdef HAVE_LIBLEPT
+// Returns false if the detected skew angle is impossible.
+bool TabFind::Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
+                     TO_BLOCK* block, FCOORD* deskew, FCOORD* reskew) {
+  ComputeDeskewVectors(deskew, reskew);
+  if (deskew->x() < kCosMaxSkewAngle)
+    return false;
+  RotateBlobList(*deskew, image_blobs);
+  RotateBlobList(*deskew, &block->blobs);
+  RotateBlobList(*deskew, &block->small_blobs);
+  RotateBlobList(*deskew, &block->noise_blobs);
   if (textord_debug_images) {
     // Rotate the debug pix and arrange for it to be drawn at the correct
     // pixel offset.
     Pix* pix_grey = pixRead(AlignedBlob::textord_debug_pix().string());
     int width = pixGetWidth(pix_grey);
     int height = pixGetHeight(pix_grey);
-    float angle = atan2(deskew.y(), deskew.x());
+    float angle = atan2(deskew->y(), deskew->x());
     // Positive angle is clockwise to pixRotate.
     Pix* pix_rot = pixRotate(pix_grey, -angle, L_ROTATE_AREA_MAP,
                              L_BRING_IN_WHITE, width, height);
@@ -1374,7 +1396,7 @@ void TabFind::Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
     // has just been rotated about its center.
     ICOORD center_offset(width / 2, height / 2);
     ICOORD new_center_offset(center_offset);
-    new_center_offset.rotate(deskew);
+    new_center_offset.rotate(*deskew);
     image_origin_ += new_center_offset - center_offset;
     // The image grew as it was rotated, so offset the (top/left) origin
     // by half the change in size. y is opposite to x because it is drawn
@@ -1386,77 +1408,75 @@ void TabFind::Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
     pixDestroy(&pix_grey);
     pixDestroy(&pix_rot);
   }
-#endif  // HAVE_LIBLEPT
 
   // Rotate the horizontal vectors. The vertical vectors don't need
   // rotating as they can just be refitted.
   TabVector_IT h_it(hlines);
   for (h_it.mark_cycle_pt(); !h_it.cycled_list(); h_it.forward()) {
     TabVector* h = h_it.data();
-    h->Rotate(deskew);
+    h->Rotate(*deskew);
+  }
+  TabVector_IT d_it(&dead_vectors_);
+  for (d_it.mark_cycle_pt(); !d_it.cycled_list(); d_it.forward()) {
+    TabVector* d = d_it.data();
+    d->Rotate(*deskew);
   }
   SetVerticalSkewAndParellelize(0, 1);
   // Rebuild the grid to the new size.
   TBOX grid_box(bleft_, tright_);
-  grid_box.rotate_large(deskew);
+  grid_box.rotate_large(*deskew);
   Init(gridsize(), grid_box.botleft(), grid_box.topright());
+  tab_grid_->Init(gridsize(), grid_box.botleft(), grid_box.topright());
   InsertBlobList(false, false, false, image_blobs, false, this);
   InsertBlobList(true, false, false, &block->blobs, false, this);
+  return true;
 }
 
-static void ResetBlobList(BLOBNBOX_LIST* blobs) {
-  BLOBNBOX_IT it(blobs);
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-    BLOBNBOX* blob = it.data();
-    blob->set_left_tab_type(TT_NONE);
-    blob->set_right_tab_type(TT_NONE);
-    blob->set_region_type(BRT_UNKNOWN);
-  }
-}
-
-// Restart everything and rotate the input blobs ready for vertical text.
-void TabFind::ResetForVerticalText(TabVector_LIST* hlines,
-                                   BLOBNBOX_LIST* image_blobs,
-                                   TO_BLOCK* block, FCOORD* rerotate) {
-  // Rotate anti-clockwise, so vertical CJK text is still in reading order.
-  FCOORD derotate(0.0f, 1.0f);
-  *rerotate = FCOORD(0.0f, -1.0f);
-  RotateBlobList(derotate, image_blobs);
-  RotateBlobList(derotate, &block->blobs);
-  RotateBlobList(derotate, &block->small_blobs);
-  RotateBlobList(derotate, &block->noise_blobs);
-  ResetBlobList(&block->blobs);
-
+// Flip the vertical and horizontal lines and rotate the grid ready
+// for working on the rotated image.
+// This also makes parameter adjustments for FindInitialTabVectors().
+void TabFind::ResetForVerticalText(const FCOORD& rotate, const FCOORD& rerotate,
+                                   TabVector_LIST* horizontal_lines,
+                                   int* min_gutter_width) {
   // Rotate the horizontal and vertical vectors and swap them over.
-  // Only the separators are kept, and existing tabs are deleted.
-  // Note that to retain correct relative orientation, vertical and
-  // horizontal lines must be rotated in opposite directions!
+  // Only the separators are kept and rotated; other tabs are used
+  // to estimate the gutter width then thrown away.
   TabVector_LIST ex_verticals;
   TabVector_IT ex_v_it(&ex_verticals);
+  TabVector_LIST vlines;
+  TabVector_IT v_it(&vlines);
   while (!v_it_.empty()) {
     TabVector* v = v_it_.extract();
     if (v->IsSeparator()) {
-      v->Rotate(*rerotate);
+      v->Rotate(rotate);
       ex_v_it.add_after_then_move(v);
     } else {
-      delete v;
+      v_it.add_after_then_move(v);
     }
     v_it_.forward();
   }
-  TabVector_IT h_it(hlines);
+
+  // Adjust the min gutter width for better tabbox selection
+  // in 2nd call to FindInitialTabVectors().
+  int median_gutter = FindMedianGutterWidth(&vlines);
+  if (median_gutter > *min_gutter_width)
+    *min_gutter_width = median_gutter;
+
+  TabVector_IT h_it(horizontal_lines);
   for (h_it.mark_cycle_pt(); !h_it.cycled_list(); h_it.forward()) {
     TabVector* h = h_it.data();
-    h->Rotate(derotate);
+    h->Rotate(rotate);
   }
-  v_it_.add_list_after(hlines);
+  v_it_.add_list_after(horizontal_lines);
   v_it_.move_to_first();
-  h_it.set_to_list(hlines);
+  h_it.set_to_list(horizontal_lines);
   h_it.add_list_after(&ex_verticals);
 
   // Rebuild the grid to the new size.
-  TBOX grid_box(bleft_, tright_);
-  grid_box.rotate_large(derotate);
+  TBOX grid_box(bleft(), tright());
+  grid_box.rotate_large(rotate);
   Init(gridsize(), grid_box.botleft(), grid_box.topright());
+  tab_grid_->Init(gridsize(), grid_box.botleft(), grid_box.topright());
   column_widths_.clear();
 }
 
@@ -1464,8 +1484,8 @@ void TabFind::ResetForVerticalText(TabVector_LIST* hlines,
 void TabFind::ComputeDeskewVectors(FCOORD* deskew, FCOORD* reskew) {
   double length = vertical_skew_ % vertical_skew_;
   length = sqrt(length);
-  deskew->set_x(vertical_skew_.y() / length);
-  deskew->set_y(vertical_skew_.x() / length);
+  deskew->set_x(static_cast<float>(vertical_skew_.y() / length));
+  deskew->set_y(static_cast<float>(vertical_skew_.x() / length));
   reskew->set_x(deskew->x());
   reskew->set_y(-deskew->y());
 }
@@ -1512,4 +1532,3 @@ void TabFind::ApplyTabConstraints() {
 }
 
 }  // namespace tesseract.
-

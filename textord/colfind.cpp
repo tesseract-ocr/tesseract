@@ -29,8 +29,8 @@
 #include "strokewidth.h"
 #include "blobbox.h"
 #include "scrollview.h"
-#include "tessvars.h"
-#include "varable.h"
+#include "tablefind.h"
+#include "params.h"
 #include "workingpartset.h"
 
 // Include automatically generated configuration file if running autoconf.
@@ -40,12 +40,12 @@
 
 namespace tesseract {
 
-// Minimum width to be considered when making columns.
+// Minimum width (in pixels) to be considered when making columns.
+// TODO(rays) convert to inches, dependent on resolution.
 const int kMinColumnWidth = 100;
-// When assigning columns, the max number of misfits that can be ignored.
+// When assigning columns, the max number of misfit grid rows/ColPartitionSets
+// that can be ignored.
 const int kMaxIncompatibleColumnCount = 2;
-// Max vertical distance of neighbouring ColPartition for it to be a partner.
-const double kMaxPartitionSpacing = 1.75;
 // Min fraction of ColPartition height to be overlapping for margin purposes.
 const double kMarginOverlapFraction = 0.25;
 // Max fraction of mean_column_gap_ for the gap between two partitions within a
@@ -53,16 +53,18 @@ const double kMarginOverlapFraction = 0.25;
 const double kHorizontalGapMergeFraction = 0.5;
 // Min fraction of grid size to not be considered likely noise.
 const double kMinNonNoiseFraction = 0.5;
+// Minimum gutter width as a fraction of gridsize
+const double kMinGutterWidthGrid = 0.5;
 // Search radius to use for finding large neighbours of smaller blobs.
 const int kSmallBlobSearchRadius = 2;
 
-BOOL_VAR(textord_tabfind_show_strokewidths, false, "Show stroke widths");
 BOOL_VAR(textord_tabfind_show_initial_partitions,
          false, "Show partition bounds");
 INT_VAR(textord_tabfind_show_partitions, 0,
         "Show partition bounds, waiting if >1");
 BOOL_VAR(textord_tabfind_show_columns, false, "Show column bounds");
 BOOL_VAR(textord_tabfind_show_blocks, false, "Show final block bounds");
+BOOL_VAR(textord_tabfind_find_tables, false, "run table detection");
 
 ScrollView* ColumnFinder::blocks_win_ = NULL;
 
@@ -74,21 +76,17 @@ ScrollView* ColumnFinder::blocks_win_ = NULL;
 // the sum logical vertical vector produced by LineFinder::FindVerticalLines.
 ColumnFinder::ColumnFinder(int gridsize,
                            const ICOORD& bleft, const ICOORD& tright,
+                           int resolution,
                            TabVector_LIST* vlines, TabVector_LIST* hlines,
                            int vertical_x, int vertical_y)
-  : TabFind(gridsize, bleft, tright, vlines, vertical_x, vertical_y),
+  : TabFind(gridsize, bleft, tright, vlines, vertical_x, vertical_y,
+            resolution),
+    min_gutter_width_(static_cast<int>(kMinGutterWidthGrid * gridsize)),
     mean_column_gap_(tright.x() - bleft.x()),
-    global_median_xheight_(0), global_median_ledding_(0),
-    reskew_(1.0f, 0.0f), rerotate_(1.0f, 0.0f),
-    best_columns_(NULL) {
+    reskew_(1.0f, 0.0f), rotation_(1.0f, 0.0f), rerotate_(1.0f, 0.0f),
+    best_columns_(NULL), stroke_width_(NULL) {
   TabVector_IT h_it(&horizontal_lines_);
   h_it.add_list_after(hlines);
-}
-
-// Templated helper function used to create destructor callbacks for the
-// BBGrid::ClearGridData() method.
-template <typename T> void DeleteObject(T *object) {
-  delete object;
 }
 
 ColumnFinder::~ColumnFinder() {
@@ -96,10 +94,8 @@ ColumnFinder::~ColumnFinder() {
   if (best_columns_ != NULL) {
     delete [] best_columns_;
   }
-  // ColPartitions and ColSegments created by this class for storage in grids
-  // need to be deleted explicitly.
-  clean_part_grid_.ClearGridData(&DeleteObject<ColPartition>);
-  col_seg_grid_.ClearGridData(&DeleteObject<ColSegment>);
+  if (stroke_width_ != NULL)
+    delete stroke_width_;
 
   // The ColPartitions are destroyed automatically, but any boxes in
   // the noise_parts_ list are owned and need to be deleted explicitly.
@@ -127,23 +123,108 @@ ColumnFinder::~ColumnFinder() {
   }
 }
 
+// Tests for vertical alignment of text (returning true if so), and generates a
+// list of blobs for orientation and script detection.
+bool ColumnFinder::IsVerticallyAlignedText(TO_BLOCK* block,
+                                           BLOBNBOX_CLIST* osd_blobs) {
+  // Test page-wide writing direction.
+  if (stroke_width_ != NULL)
+    delete stroke_width_;
+  stroke_width_ = new StrokeWidth(gridsize(), bleft(), tright());
+  min_gutter_width_ = static_cast<int>(kMinGutterWidthGrid * gridsize());
+  // TODO(rays) experiment with making broken CJK fixing dependent on the
+  // language, and keeping the merged blobs on output instead of exploding at
+  // ColPartition::MakeBlock.
+  bool result = stroke_width_->TestVerticalTextDirection(true, block, this,
+                                                         osd_blobs);
+  return result;
+}
+
+// Rotates the blobs and the TabVectors so that the gross writing direction
+// (text lines) are horizontal and lines are read down the page.
+// Applied rotation stored in rotation_.
+// A second rotation is calculated for application during recognition to
+// make the rotated blobs upright for recognition.
+// Subsequent rotation stored in text_rotation_.
+//
+// Arguments:
+//   vertical_text_lines true if the text lines are vertical.
+//   recognition_rotation [0..3] is the number of anti-clockwise 90 degree
+//   rotations from osd required for the text to be upright and readable.
+void ColumnFinder::CorrectOrientation(TO_BLOCK* block,
+                                      bool vertical_text_lines,
+                                      int recognition_rotation) {
+  const FCOORD anticlockwise90(0.0f, 1.0f);
+  const FCOORD clockwise90(0.0f, -1.0f);
+  const FCOORD rotation180(-1.0f, 0.0f);
+  const FCOORD norotation(1.0f, 0.0f);
+
+  text_rotation_ = norotation;
+  // Rotate the page to make the text upright, as implied by
+  // recognition_rotation.
+  rotation_ = norotation;
+  if (recognition_rotation == 1) {
+    rotation_ = anticlockwise90;
+  } else if (recognition_rotation == 2) {
+    rotation_ = rotation180;
+  } else if (recognition_rotation == 3) {
+    rotation_ = clockwise90;
+  }
+  // We infer text writing direction to be vertical if there are several
+  // vertical text lines detected, and horizontal if not. But if the page
+  // orientation was determined to be 90 or 270 degrees, the true writing
+  // direction is the opposite of what we inferred.
+  if (recognition_rotation & 1) {
+    vertical_text_lines = !vertical_text_lines;
+  }
+  // If we still believe the writing direction is vertical, we use the
+  // convention of rotating the page ccw 90 degrees to make the text lines
+  // horizontal, and mark the blobs for rotation cw 90 degrees for
+  // classification so that the text order is correct after recognition.
+  if (vertical_text_lines) {
+    rotation_.rotate(anticlockwise90);
+    text_rotation_.rotate(clockwise90);
+  }
+  // Set rerotate_ to the inverse of rotation_.
+  rerotate_ = FCOORD(rotation_.x(), -rotation_.y());
+  if (rotation_.x() != 1.0f || rotation_.y() != 0.0f) {
+    // Rotate all the blobs and tab vectors.
+    RotateBlobList(rotation_, &block->large_blobs);
+    RotateBlobList(rotation_, &block->blobs);
+    RotateBlobList(rotation_, &block->small_blobs);
+    RotateBlobList(rotation_, &block->noise_blobs);
+    TabFind::ResetForVerticalText(rotation_, rerotate_, &horizontal_lines_,
+                                  &min_gutter_width_);
+    // Re-mark all the blobs with the correct orientation.
+    stroke_width_->CorrectForRotation(rotation_, block, this);
+  }
+  if (textord_debug_tabfind) {
+    tprintf("Vertical=%d, orientation=%d, final rotation=(%f, %f)+(%f,%f)\n",
+            vertical_text_lines, recognition_rotation,
+            rotation_.x(), rotation_.y(),
+            text_rotation_.x(), text_rotation_.y());
+  }
+}
+
 // Finds the text and image blocks, returning them in the blocks and to_blocks
 // lists. (Each TO_BLOCK points to the basic BLOCK and adds more information.)
 // If boxa and pixa are not NULL, they are assumed to be the output of
 // ImageFinder::FindImages, and are used to generate image blocks.
 // The input boxa and pixa are destroyed.
-// Imageheight and resolution should be the pixel height and resolution in
-// pixels per inch of the original image.
+// Imageheight should be the pixel height of the original image.
 // The input block is the result of a call to find_components, and contains
 // the blobs found in the image. These blobs will be removed and placed
 // in the output blocks, while unused ones will be deleted.
 // If single_column is true, the input is treated as single column, but
 // it is still divided into blocks of equal line spacing/text size.
 // Returns -1 if the user requested retry with more debug info.
-int ColumnFinder::FindBlocks(int imageheight, int resolution,
-                             bool single_column, TO_BLOCK* block,
+int ColumnFinder::FindBlocks(bool single_column, int imageheight,
+                             TO_BLOCK* block,
                              Boxa* boxa, Pixa* pixa,
                              BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks) {
+  stroke_width_->FindLeaderPartitions(block, this);
+  delete stroke_width_;
+  stroke_width_ = NULL;
 #ifdef HAVE_LIBLEPT
   if (boxa != NULL) {
     // Convert the boxa/pixa to fake blobs aligned on the grid.
@@ -155,21 +236,20 @@ int ColumnFinder::FindBlocks(int imageheight, int resolution,
   // Decide which large blobs should be included in the grid as potential
   // characters.
   // A subsidiary grid used to decide which large blobs to use.
+  // NOTE: This seemingly anomalous use of StrokeWidth is the old API, and
+  // will go away entirely with the upcoming change to ImageFinder.
   StrokeWidth* stroke_width = new StrokeWidth(gridsize(), bleft(), tright());
-  stroke_width->InsertBlobs(block, this);
-  if (textord_tabfind_show_strokewidths) {
-    stroke_width->DisplayGoodBlobs("GoodStrokewidths", NULL);
-  }
-  stroke_width->MoveGoodLargeBlobs(resolution, block);
+  stroke_width->InsertBlobsOld(block, this);
+  stroke_width->MoveGoodLargeBlobs(resolution_, block);
   delete stroke_width;
 
   if (single_column) {
     // No tab stops needed. Just the grid that FindTabVectors makes.
-    DontFindTabVectors(resolution, &image_bblobs_, block, &reskew_);
+    DontFindTabVectors(&image_bblobs_, block, &deskew_, &reskew_);
   } else {
     // Find the tab stops.
-    FindTabVectors(resolution, &horizontal_lines_, &image_bblobs_, block,
-                   &reskew_, &rerotate_);
+    FindTabVectors(&horizontal_lines_, &image_bblobs_, block,
+                   min_gutter_width_, &deskew_, &reskew_);
   }
 
   // Find the columns.
@@ -214,14 +294,15 @@ int ColumnFinder::FindBlocks(int imageheight, int resolution,
   GridSplitPartitions();
   // Resolve unknown partitions by adding to an existing partition, fixing
   // the type, or declaring them noise.
-  GridFindMargins();
-  ListFindMargins(&unknown_parts_);
+  part_grid_.GridFindMargins(best_columns_);
+  part_grid_.ListFindMargins(best_columns_, &unknown_parts_);
   GridInsertUnknowns();
   GridMergePartitions();
   // Add horizontal line separators as partitions.
   GridInsertHLinePartitions();
+  GridInsertVLinePartitions();
   // Recompute margins based on a local neighbourhood search.
-  GridFindMargins();
+  part_grid_.GridFindMargins(best_columns_);
   SetPartitionTypes();
   if (textord_tabfind_show_initial_partitions) {
     ScrollView* part_win = MakeWindow(100, 300, "InitialPartitions");
@@ -229,17 +310,23 @@ int ColumnFinder::FindBlocks(int imageheight, int resolution,
     DisplayTabVectors(part_win);
   }
 
-  // Copy cleaned partitions from part_grid_ to clean_part_grid_ and
-  // insert dot-like noise into period_grid_
-  GetCleanPartitions(block);
-
-  // Get Table Regions
-  LocateTables();
+  if (textord_tabfind_find_tables) {
+    TableFinder table_finder;
+    table_finder.Init(gridsize(), bleft(), tright());
+    table_finder.set_resolution(resolution_);
+    table_finder.set_left_to_right_language(!block->block->right_to_left());
+    // Copy cleaned partitions from part_grid_ to clean_part_grid_ and
+    // insert dot-like noise into period_grid_
+    table_finder.InsertCleanPartitions(&part_grid_, block);
+    // Get Table Regions
+    table_finder.LocateTables(&part_grid_, best_columns_, WidthCB(), reskew_);
+  }
 
   // Build the partitions into chains that belong in the same block and
   // refine into one-to-one links, then smooth the types within each chain.
-  FindPartitionPartners();
-  RefinePartitionPartners();
+  part_grid_.FindPartitionPartners();
+  part_grid_.FindFigureCaptions();
+  part_grid_.RefinePartitionPartners(true);
   SmoothPartnerRuns();
   if (textord_tabfind_show_partitions) {
     ScrollView* window = MakeWindow(400, 300, "Partitions");
@@ -262,6 +349,13 @@ int ColumnFinder::FindBlocks(int imageheight, int resolution,
   if (textord_debug_tabfind) {
     tprintf("Found %d blocks, %d to_blocks\n",
             blocks->length(), to_blocks->length());
+  }
+  // Copy the right_to_left flag from the source block to the created blocks.
+  // TODO(rays) fix block ordering if the input block is right_to_left.
+  BLOCK_IT blk_it(blocks);
+  for (blk_it.mark_cycle_pt(); !blk_it.cycled_list(); blk_it.forward()) {
+    BLOCK* new_block = blk_it.data();
+    new_block->set_right_to_left(block->block->right_to_left());
   }
 
   DisplayBlocks(blocks);
@@ -289,6 +383,13 @@ int ColumnFinder::FindBlocks(int imageheight, int resolution,
     } while (waiting);
   }
   return result;
+}
+
+// Get the rotation required to deskew, and its inverse rotation.
+void ColumnFinder::GetDeskewVectors(FCOORD* deskew, FCOORD* reskew) {
+  *reskew = reskew_;
+  *deskew = reskew_;
+  deskew->set_y(-deskew->y());
 }
 
 //////////////// PRIVATE CODE /////////////////////////
@@ -343,7 +444,6 @@ void ColumnFinder::DisplayColumnBounds(PartSetVector* sets) {
 // The output is a list of C_BLOBs for the images, but the C_OUTLINEs
 // contain no data.
 void ColumnFinder::ExtractImageBlobs(int image_height, Boxa* boxa, Pixa* pixa) {
-#ifdef HAVE_LIBLEPT
   BLOBNBOX_IT bb_it(&image_bblobs_);
   // Iterate the connected components in the image regions mask.
   int nboxes = boxaGetCount(boxa);
@@ -393,7 +493,6 @@ void ColumnFinder::ExtractImageBlobs(int image_height, Boxa* boxa, Pixa* pixa) {
     }
     pixDestroy(&pix);
   }
-#endif  // HAVE_LIBLEPT
 }
 
 ////// Functions involved in making the initial ColPartitions. /////
@@ -564,7 +663,7 @@ void ColumnFinder::InsertSmallBlobsAsUnknowns(bool filter,
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX* blob = blob_it.data();
     TBOX box = blob->bounding_box();
-    bool good_blob = !filter ||
+    bool good_blob = !filter || blob->flow() == BTFT_LEADER ||
                      box.width() > noise_blob_size ||
                      box.height() > noise_blob_size;
     if (!good_blob) {
@@ -587,7 +686,6 @@ void ColumnFinder::InsertSmallBlobsAsUnknowns(bool filter,
     }
     if (good_blob) {
       blob_it.extract();
-      blob->set_noise_flag(true);
       InsertBlob(true, true, false, blob, this);
       if (WithinTestRegion(2, box.left(), box.bottom()))
         tprintf("Starting small partition with box (%d,%d)->(%d,%d)\n",
@@ -596,7 +694,11 @@ void ColumnFinder::InsertSmallBlobsAsUnknowns(bool filter,
       int unk_right_margin = tright().x();
       TabVector* unk_right_line = NULL;
       bool unk_edge_is_left = false;
-      ColPartition* unk_partition = StartPartition(BRT_TEXT, bleft().x(), blob,
+      BlobRegionType start_type = blob->region_type();
+      if (!BLOBNBOX::IsLineType(start_type))
+        start_type = BRT_TEXT;
+      ColPartition* unk_partition = StartPartition(start_type, bleft().x(),
+                                                   blob,
                                                    &unk_right_line,
                                                    &unk_right_margin,
                                                    &unk_edge_is_left);
@@ -824,6 +926,8 @@ void ColumnFinder::PrintColumnCandidates(const char* title) {
 // greedy algorithm is used instead. The algorithm repeatedly finds the modal
 // compatible column in an unassigned region and uses that with the extra
 // tweak of extending the modal region over small breaks in compatibility.
+// Where modal regions overlap, the boundary is chosen so as to minimize
+// the cost in terms of ColPartitions not fitting an approved column.
 void ColumnFinder::AssignColumns() {
   int set_count = part_sets_.size();
   ASSERT_HOST(set_count == gridheight());
@@ -832,17 +936,18 @@ void ColumnFinder::AssignColumns() {
   for (int y = 0; y < set_count; ++y)
     best_columns_[y] = NULL;
   int column_count = column_sets_.size();
-  // possible_column_sets[part_sets_ index][column_sets_ index] is
-  // true if the partition set is compatible with the column set.
-  // assigned_column_sets[part_sets_ index][column_sets_ index] is true
-  // if the partition set has been assigned the column. (Multiple bits
-  // true is possible.)
+  // column_set_costs[part_sets_ index][column_sets_ index] is
+  // < MAX_INT32 if the partition set is compatible with the column set,
+  // in which case its value is the cost for that set used in deciding
+  // which competing set to assign.
   // any_columns_possible[part_sets_ index] is true if any of
-  // possible_column_sets[part_sets_ index][*] is true.
+  // possible_column_sets[part_sets_ index][*] is < MAX_INT32.
+  // assigned_costs[part_sets_ index] is set to the column_set_costs
+  // of the assigned column_sets_ index or MAX_INT32 if none is set.
   // On return the best_columns_ member is set.
   bool* any_columns_possible = new bool[set_count];
-  bool** possible_column_sets = new bool*[set_count];
-  bool** assigned_column_sets = new bool*[set_count];
+  int* assigned_costs = new int[set_count];
+  int** column_set_costs = new int*[set_count];
   // Set possible column_sets to indicate whether each set is compatible
   // with each column.
   for (int part_i = 0; part_i < set_count; ++part_i) {
@@ -850,18 +955,21 @@ void ColumnFinder::AssignColumns() {
     bool debug = line_set != NULL &&
                  WithinTestRegion(2, line_set->bounding_box().left(),
                                   line_set->bounding_box().bottom());
-    possible_column_sets[part_i] = new bool[column_count];
-    assigned_column_sets[part_i] = new bool[column_count];
+    column_set_costs[part_i] = new int[column_count];
     any_columns_possible[part_i] = false;
+    assigned_costs[part_i] = MAX_INT32;
     for (int col_i = 0; col_i < column_count; ++col_i) {
-      assigned_column_sets[part_i][col_i] = false;
       if (line_set != NULL &&
           column_sets_.get(col_i)->CompatibleColumns(debug, line_set,
                                                      WidthCB())) {
-        possible_column_sets[part_i][col_i] = true;
+        column_set_costs[part_i][col_i] =
+            column_sets_.get(col_i)->UnmatchedWidth(line_set);
         any_columns_possible[part_i] = true;
       } else {
-        possible_column_sets[part_i][col_i] = false;
+        column_set_costs[part_i][col_i] = MAX_INT32;
+        if (debug)
+          tprintf("Set id %d did not match at y=%d, lineset =%p\n",
+                  col_i, part_i, line_set);
       }
     }
   }
@@ -872,46 +980,48 @@ void ColumnFinder::AssignColumns() {
     if (textord_debug_tabfind >= 2)
       tprintf("Biggest unassigned range = %d- %d\n", start, end);
     // Find the modal column_set_id in the range.
-    int column_set_id = RangeModalColumnSet(possible_column_sets, start, end);
+    int column_set_id = RangeModalColumnSet(column_set_costs,
+                                            assigned_costs, start, end);
     if (textord_debug_tabfind >= 2) {
       tprintf("Range modal column id = %d\n", column_set_id);
       column_sets_.get(column_set_id)->Print();
     }
     // Now find the longest run of the column_set_id in the range.
-    ShrinkRangeToLongestRun(possible_column_sets, any_columns_possible,
+    ShrinkRangeToLongestRun(column_set_costs, assigned_costs,
+                            any_columns_possible,
                             column_set_id, &start, &end);
     if (textord_debug_tabfind >= 2)
       tprintf("Shrunk range = %d- %d\n", start, end);
     // Extend the start and end past the longest run, while there are
     // only small gaps in compatibility that can be overcome by larger
     // regions of compatibility beyond.
-    ExtendRangePastSmallGaps(possible_column_sets, any_columns_possible,
+    ExtendRangePastSmallGaps(column_set_costs, assigned_costs,
+                             any_columns_possible,
                              column_set_id, -1, -1, &start);
     --end;
-    ExtendRangePastSmallGaps(possible_column_sets, any_columns_possible,
+    ExtendRangePastSmallGaps(column_set_costs, assigned_costs,
+                             any_columns_possible,
                              column_set_id, 1, set_count, &end);
     ++end;
     if (textord_debug_tabfind)
       tprintf("Column id %d applies to range = %d - %d\n",
               column_set_id, start, end);
     // Assign the column to the range, which now may overlap with other ranges.
-    AssignColumnToRange(column_set_id, start, end,
-                        assigned_column_sets);
+    AssignColumnToRange(column_set_id, start, end, column_set_costs,
+                        assigned_costs);
   }
   // If anything remains unassigned, the whole lot is unassigned, so
   // arbitrarily assign id 0.
   if (best_columns_[0] == NULL) {
-    AssignColumnToRange(0, 0, gridheight_, assigned_column_sets);
+    AssignColumnToRange(0, 0, gridheight_, column_set_costs, assigned_costs);
   }
   // Free memory.
   for (int i = 0; i < set_count; ++i) {
-    delete [] possible_column_sets[i];
-    delete [] assigned_column_sets[i];
+    delete [] column_set_costs[i];
   }
+  delete [] assigned_costs;
   delete [] any_columns_possible;
-  delete [] possible_column_sets;
-  delete [] assigned_column_sets;
-  // TODO(rays) Now resolve overlapping assignments.
+  delete [] column_set_costs;
 }
 
 // Finds the biggest range in part_sets_ that has no assigned column, but
@@ -950,13 +1060,14 @@ bool ColumnFinder::BiggestUnassignedRange(const bool* any_columns_possible,
 }
 
 // Finds the modal compatible column_set_ index within the given range.
-int ColumnFinder::RangeModalColumnSet(bool** possible_column_sets,
+int ColumnFinder::RangeModalColumnSet(int** column_set_costs,
+                                      const int* assigned_costs,
                                       int start, int end) {
   int column_count = column_sets_.size();
   STATS column_stats(0, column_count);
   for (int part_i = start; part_i < end; ++part_i) {
     for (int col_j = 0; col_j < column_count; ++col_j) {
-      if (possible_column_sets[part_i][col_j])
+      if (column_set_costs[part_i][col_j] < assigned_costs[part_i])
         column_stats.add(col_j, 1);
     }
   }
@@ -968,7 +1079,8 @@ int ColumnFinder::RangeModalColumnSet(bool** possible_column_sets,
 // shrinks the range to the longest contiguous run of compatibility, allowing
 // gaps where no columns are possible, but not where competing columns are
 // possible.
-void ColumnFinder::ShrinkRangeToLongestRun(bool** possible_column_sets,
+void ColumnFinder::ShrinkRangeToLongestRun(int** column_set_costs,
+                                           const int* assigned_costs,
                                            const bool* any_columns_possible,
                                            int column_set_id,
                                            int* best_start, int* best_end) {
@@ -982,7 +1094,7 @@ void ColumnFinder::ShrinkRangeToLongestRun(bool** possible_column_sets,
   for (int start = orig_start; start < orig_end; start = end) {
     // Find the first possible
     while (start < orig_end) {
-      if (possible_column_sets[start][column_set_id] ||
+      if (column_set_costs[start][column_set_id] < assigned_costs[start] ||
           !any_columns_possible[start])
         break;
       ++start;
@@ -990,7 +1102,7 @@ void ColumnFinder::ShrinkRangeToLongestRun(bool** possible_column_sets,
     // Find the first past the end.
     end = start + 1;
     while (end < orig_end) {
-      if (!possible_column_sets[end][column_set_id] &&
+      if (column_set_costs[end][column_set_id] >= assigned_costs[start] &&
           any_columns_possible[end])
           break;
       ++end;
@@ -1006,7 +1118,8 @@ void ColumnFinder::ShrinkRangeToLongestRun(bool** possible_column_sets,
 // Moves start in the direction of step, upto, but not including end while
 // the only incompatible regions are no more than kMaxIncompatibleColumnCount
 // in size, and the compatible regions beyond are bigger.
-void ColumnFinder::ExtendRangePastSmallGaps(bool** possible_column_sets,
+void ColumnFinder::ExtendRangePastSmallGaps(int** column_set_costs,
+                                            const int* assigned_costs,
                                             const bool* any_columns_possible,
                                             int column_set_id,
                                             int step, int end, int* start) {
@@ -1023,7 +1136,7 @@ void ColumnFinder::ExtendRangePastSmallGaps(bool** possible_column_sets,
     barrier_size = 0;
     int i;
     for (i = *start + step; i != end; i += step) {
-      if (possible_column_sets[i][column_set_id])
+      if (column_set_costs[i][column_set_id] < assigned_costs[i])
         break;  // We are back on.
       // Locations where none are possible don't count.
       if (any_columns_possible[i])
@@ -1041,7 +1154,7 @@ void ColumnFinder::ExtendRangePastSmallGaps(bool** possible_column_sets,
     // Now find the size of the good region on the other side.
     good_size = 1;
     for (i += step; i != end; i += step) {
-      if (possible_column_sets[i][column_set_id])
+      if (column_set_costs[i][column_set_id] < assigned_costs[i])
         ++good_size;
       else if (any_columns_possible[i])
         break;
@@ -1049,17 +1162,18 @@ void ColumnFinder::ExtendRangePastSmallGaps(bool** possible_column_sets,
     if (textord_debug_tabfind > 2)
       tprintf("At %d, good size = %d\n", i, good_size);
     // If we had enough good ones we can extend the start and keep looking.
-    if (good_size > barrier_size)
+    if (good_size >= barrier_size)
       *start = i - step;
-  } while (good_size > barrier_size);
+  } while (good_size >= barrier_size);
 }
 
 // Assigns the given column_set_id to the given range.
 void ColumnFinder::AssignColumnToRange(int column_set_id, int start, int end,
-                                       bool** assigned_column_sets) {
+                                       int** column_set_costs,
+                                       int* assigned_costs) {
   ColPartitionSet* column_set = column_sets_.get(column_set_id);
   for (int i = start; i < end; ++i) {
-    assigned_column_sets[i][column_set_id] = true;
+    assigned_costs[i] = column_set_costs[i][column_set_id];
     best_columns_[i] = column_set;
   }
 }
@@ -1136,7 +1250,7 @@ void ColumnFinder::GridSplitPartitions() {
     int first_col = -1;
     int last_col = -1;
     // Find which columns the partition spans.
-    part->ColumnRange(column_set, &first_col, &last_col);
+    part->ColumnRange(resolution_, column_set, &first_col, &last_col);
     if (first_col > 0)
       --first_col;
     // Convert output column indices to physical column indices.
@@ -1342,7 +1456,7 @@ void ColumnFinder::GridInsertUnknowns() {
     int first_col = -1;
     int last_col = -1;
     // Find which columns the partition spans.
-    part->ColumnRange(columns, &first_col, &last_col);
+    part->ColumnRange(resolution_, columns, &first_col, &last_col);
     // Convert output column indices to physical column indices.
     // Twiddle with first and last_col to get the desired effect with
     // in-between columns:
@@ -1468,107 +1582,71 @@ void ColumnFinder::GridInsertHLinePartitions() {
     TabVector* hline = hline_it.data();
     int top = MAX(hline->startpt().y(), hline->endpt().y());
     int bottom = MIN(hline->startpt().y(), hline->endpt().y());
+    top += hline->mean_width();
     if (top == bottom) {
       if (bottom > 0)
         --bottom;
       else
         ++top;
     }
-    ColPartition* part = new ColPartition(vertical_skew_,
-                                          hline->startpt().x(), bottom,
-                                          hline->endpt().x(), top);
-    part_grid_.InsertBBox(true, true, part);
+    ColPartition* part = ColPartition::MakeLinePartition(
+        BRT_HLINE, vertical_skew_,
+        hline->startpt().x(), bottom, hline->endpt().x(), top);
+    part->set_type(PT_HORZ_LINE);
+    bool any_image = false;
+    ColPartitionGridSearch part_search(&part_grid_);
+    part_search.SetUniqueMode(true);
+    part_search.StartRectSearch(part->bounding_box());
+    ColPartition* covered;
+    while ((covered = part_search.NextRectSearch()) != NULL) {
+      if (covered->IsImageType()) {
+        any_image = true;
+        break;
+      }
+    }
+    if (!any_image)
+      part_grid_.InsertBBox(true, true, part);
+    else
+      delete part;
   }
 }
 
-// Improves the margins of the ColPartitions in the grid by calling
-// FindPartitionMargins on each.
-void ColumnFinder::GridFindMargins() {
-  // Iterate the ColPartitions in the grid.
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
-    gsearch(&part_grid_);
-  gsearch.StartFullSearch();
-  ColPartition* part;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
-    // Set up a rectangle search x-bounded by the column and y by the part.
-    ColPartitionSet* columns = best_columns_[gsearch.GridY()];
-    FindPartitionMargins(columns, part);
-  }
-}
-
-// Improves the margins of the ColPartitions in the list by calling
-// FindPartitionMargins on each.
-void ColumnFinder::ListFindMargins(ColPartition_LIST* parts) {
-  ColPartition_IT part_it(parts);
-  for (part_it.mark_cycle_pt(); !part_it.cycled_list(); part_it.forward()) {
-    ColPartition* part = part_it.data();
-    TBOX part_box = part->bounding_box();
-    // Get the columns from the y grid coord.
-    int grid_x, grid_y;
-    GridCoords(part_box.left(), part_box.bottom(), &grid_x, &grid_y);
-    ColPartitionSet* columns = best_columns_[grid_y];
-    FindPartitionMargins(columns, part);
-  }
-}
-
-// Improves the margins of the ColPartition by searching for
-// neighbours that vertically overlap significantly.
-void ColumnFinder::FindPartitionMargins(ColPartitionSet* columns,
-                                        ColPartition* part) {
-  // Set up a rectangle search x-bounded by the column and y by the part.
-  ASSERT_HOST(columns != NULL);
-  TBOX box = part->bounding_box();
-  int y = part->MidY();
-  // Initial left margin is based on the column, if there is one.
-  ColPartition* column = columns->ColumnContaining(box.left(), y);
-  int left_margin = column != NULL ? column->LeftAtY(y) : bleft_.x();
-  left_margin -= kColumnWidthFactor;
-  // Search for ColPartitions that reduce the margin.
-  left_margin = FindMargin(box.left()+ box.height(), true, left_margin,
-                           box.bottom(), box.top(), part);
-  part->set_left_margin(left_margin);
-  column = columns->ColumnContaining(box.right(), y);
-  int right_margin = column != NULL ? column->RightAtY(y) : tright_.x();
-  right_margin += kColumnWidthFactor;
-  // Search for ColPartitions that reduce the margin.
-  right_margin = FindMargin(box.right() - box.height(), false, right_margin,
-                            box.bottom(), box.top(), part);
-  part->set_right_margin(right_margin);
-}
-
-// Starting at x, and going in the specified direction, upto x_limit, finds
-// the margin for the given y range by searching sideways,
-// and ignoring not_this.
-int ColumnFinder::FindMargin(int x, bool right_to_left, int x_limit,
-                             int y_bottom, int y_top,
-                             const ColPartition* not_this) {
-  int height = y_top - y_bottom;
-  int target_overlap = static_cast<int>(height * kMarginOverlapFraction);
-  // Iterate the ColPartitions in the grid.
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
-    side_search(&part_grid_);
-  side_search.StartSideSearch(x, y_bottom, y_top);
-  ColPartition* part;
-  while ((part = side_search.NextSideSearch(right_to_left)) != NULL) {
-    // Ignore itself.
-    if (part == not_this)
+// Add horizontal line separators as partitions.
+void ColumnFinder::GridInsertVLinePartitions() {
+  TabVector_IT vline_it(dead_vectors());
+  for (vline_it.mark_cycle_pt(); !vline_it.cycled_list(); vline_it.forward()) {
+    TabVector* vline = vline_it.data();
+    if (!vline->IsSeparator())
       continue;
-    // Must overlap by enough.
-    TBOX box = part->bounding_box();
-    int y_overlap = MIN(y_top, box.top()) - MAX(y_bottom, box.bottom());
-    if (y_overlap < target_overlap)
-      continue;
-    // Must be going the right way.
-    int x_edge = right_to_left ? box.right() : box.left();
-    if ((x_edge < x) != right_to_left)
-      continue;
-    // If we have gone past x_limit, then x_limit will do.
-    if ((x_edge < x_limit) == right_to_left)
-      break;
-    // It reduces x limit, so save the new one.
-    x_limit = x_edge;
+    int left = MIN(vline->startpt().x(), vline->endpt().x());
+    int right = MAX(vline->startpt().x(), vline->endpt().x());
+    right += vline->mean_width();
+    if (left == right) {
+      if (left > 0)
+        --left;
+      else
+        ++right;
+    }
+    ColPartition* part = ColPartition::MakeLinePartition(
+        BRT_VLINE, vertical_skew_,
+        left, vline->startpt().y(), right, vline->endpt().y());
+    part->set_type(PT_VERT_LINE);
+    bool any_image = false;
+    ColPartitionGridSearch part_search(&part_grid_);
+    part_search.SetUniqueMode(true);
+    part_search.StartRectSearch(part->bounding_box());
+    ColPartition* covered;
+    while ((covered = part_search.NextRectSearch()) != NULL) {
+      if (covered->IsImageType()) {
+        any_image = true;
+        break;
+      }
+    }
+    if (!any_image)
+      part_grid_.InsertBBox(true, true, part);
+    else
+      delete part;
   }
-  return x_limit;
 }
 
 // For every ColPartition in the grid, sets its type based on position
@@ -1579,85 +1657,7 @@ void ColumnFinder::SetPartitionTypes() {
   gsearch.StartFullSearch();
   ColPartition* part;
   while ((part = gsearch.NextFullSearch()) != NULL) {
-    part->SetPartitionType(best_columns_[gsearch.GridY()]);
-  }
-}
-
-//////// Functions that manipulate ColPartitions in the part_grid_ /////
-//////// to find chains of partner partitions of the same type.  ///////
-
-// For every ColPartition in the grid, finds its upper and lower neighbours.
-void ColumnFinder::FindPartitionPartners() {
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
-    gsearch(&part_grid_);
-  gsearch.StartFullSearch();
-  ColPartition* part;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
-    FindPartitionPartners(true, part);
-    FindPartitionPartners(false, part);
-  }
-}
-
-// Finds the best partner in the given direction for the given partition.
-// Stores the result with AddPartner.
-void ColumnFinder::FindPartitionPartners(bool upper, ColPartition* part) {
-  if (part->type() == PT_NOISE)
-    return;  // Noise is not allowed to partner anything.
-  const TBOX& box = part->bounding_box();
-  int top = part->median_top();
-  int bottom = part->median_bottom();
-  int height = top - bottom;
-  int mid_y = (bottom + top) / 2;
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
-    vsearch(&part_grid_);
-  // Search down for neighbour below
-  vsearch.StartVerticalSearch(box.left(), box.right(), part->MidY());
-  ColPartition* neighbour;
-  ColPartition* best_neighbour = NULL;
-  int best_dist = MAX_INT32;
-  while ((neighbour = vsearch.NextVerticalSearch(!upper)) != NULL) {
-    if (neighbour == part || neighbour->type() == PT_NOISE)
-      continue;  // Noise is not allowed to partner anything.
-    int neighbour_bottom = neighbour->median_bottom();
-    int neighbour_top = neighbour->median_top();
-    int neighbour_y = (neighbour_bottom + neighbour_top) / 2;
-    if (upper != (neighbour_y > mid_y))
-      continue;
-    if (!part->HOverlaps(*neighbour) && !part->HCompatible(*neighbour))
-      continue;
-    if (!part->TypesMatch(*neighbour)) {
-      if (best_neighbour == NULL)
-        best_neighbour = neighbour;
-      continue;
-    }
-    int dist = upper ? neighbour_bottom - top : bottom - neighbour_top;
-    if (dist <= kMaxPartitionSpacing * height) {
-      if (dist < best_dist) {
-        best_dist = dist;
-        best_neighbour = neighbour;
-      }
-    } else {
-      break;
-    }
-  }
-  if (best_neighbour != NULL)
-    part->AddPartner(upper, best_neighbour);
-}
-
-// For every ColPartition with multiple partners in the grid, reduces the
-// number of partners to 0 or 1.
-void ColumnFinder::RefinePartitionPartners() {
-  // Refine in type order so that chasing multple partners can be done
-  // before eliminating type mis-matching partners.
-  for (int type = PT_UNKNOWN + 1; type <= PT_COUNT; type++) {
-    // Iterate the ColPartitions in the grid.
-    GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
-      gsearch(&part_grid_);
-    gsearch.StartFullSearch();
-    ColPartition* part;
-    while ((part = gsearch.NextFullSearch()) != NULL) {
-      part->RefinePartners(static_cast<PolyBlockType>(type));
-    }
+    part->SetPartitionType(resolution_, best_columns_[gsearch.GridY()]);
   }
 }
 
@@ -1768,46 +1768,72 @@ void ColumnFinder::TransformToBlocks(BLOCK_LIST* blocks,
   }
 }
 
-// Reskew the completed blocks to put them back to the original coords.
-// (Blob outlines are not corrected for skew.)
-// Rotate blobs and blocks individually so text line direction is
-// horizontal. Record appropriate inverse transformations and required
+// Undo the deskew that was done in FindTabVectors, as recognition is done
+// without correcting blobs or blob outlines for skew.
+// Reskew the completed blocks to put them back to the original rotated coords
+// that were created by CorrectOrientation.
+// Blocks that were identified as vertical text (relative to the rotated
+// coordinates) are further rotated so the text lines are horizontal.
+// blob polygonal outlines are rotated to match the position of the blocks
+// that they are in, and their bounding boxes are recalculated to be accurate.
+// Record appropriate inverse transformations and required
 // classifier transformation in the blocks.
 void ColumnFinder::RotateAndReskewBlocks(TO_BLOCK_LIST* blocks) {
+  int text_blocks = 0;
+  int image_blocks = 0;
+  int other_blocks = 0;
   TO_BLOCK_IT it(blocks);
   int block_index = 1;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     TO_BLOCK* to_block = it.data();
     BLOCK* block = to_block->block;
-    block->set_index(block_index++);
+    if (block->poly_block()->IsText())
+      ++text_blocks;
+    else if (PTIsImageType(block->poly_block()->isA()))
+      ++image_blocks;
+    else
+      ++other_blocks;
     BLOBNBOX_IT blob_it(&to_block->blobs);
-    // ColPartition::MakeBlock stored the inverse rotation that must be
-    // applied to small vertical blocks to go back to the original image
-    // coords at the end of recognition, but did not actually do any rotations,
-    // so now blocks must actually be rotated to make them horizontal by the
-    // inverse of that stored inverse rotation. This is of course a no-op
-    // for normal blocks.
-    FCOORD block_rotation = block->re_rotation();
-    block_rotation.set_y(-block_rotation.y());
-    block->poly_block()->rotate(block_rotation);
-    // The final stored inverse coordinate rotation (block->re_rotation_)
-    // is the sum of rerotate_ (for gross vertical pages) and the current
-    // block->re_rotation_ (for small vertical text regions).
-    // We will execute the inverse of that on all the blobs.
-    FCOORD blob_rotation = block->re_rotation();
-    blob_rotation.rotate(rerotate_);
-    block->set_re_rotation(blob_rotation);
-    blob_rotation.set_y(-blob_rotation.y());
-    // TODO(rays) determine classify rotation by orientation detection.
-    // In the mean time, it works for Chinese and English photo credits
-    // to set a classify rotation to the stored block rerotation only if
-    // the block rotation to do (before skew) is 0.
-    if (block_rotation.y() == 0.0f) {
-      block->set_classify_rotation(block->re_rotation());
+    // The text_rotation_ tells us the gross page text rotation that needs
+    // to be applied for classification
+    // TODO(rays) find block-level classify rotation by orientation detection.
+    // In the mean time, assume that "up" for text printed in the minority
+    // direction (PT_VERTICAL_TEXT) is perpendicular to the line of reading.
+    // Accomplish this by zero-ing out the text rotation.  This covers the
+    // common cases of image credits in documents written in Latin scripts
+    // and page headings for predominantly vertically written CJK books.
+    FCOORD classify_rotation(text_rotation_);
+    FCOORD block_rotation(1.0f, 0.0f);
+    if (block->poly_block()->isA() == PT_VERTICAL_TEXT) {
+      // Vertical text needs to be 90 degrees rotated relative to the rest.
+      // If the rest has a 90 degree rotation already, use the inverse, making
+      // the vertical text the original way up. Otherwise use 90 degrees
+      // clockwise.
+      if (rerotate_.x() == 0.0f)
+        block_rotation = rerotate_;
+      else
+        block_rotation = FCOORD(0.0f, -1.0f);
+      block->rotate(block_rotation);
+      classify_rotation = FCOORD(1.0f, 0.0f);
     }
-    // Blocks must also be rotated back by the skew angle.
+    block_rotation.rotate(rotation_);
+    // block_rotation is now what we have done to the blocks. Now do the same
+    // thing to the blobs, but save the inverse rotation in the block.
+    FCOORD blob_rotation(block_rotation);
+    block_rotation.set_y(-block_rotation.y());
+    block->set_re_rotation(block_rotation);
+    block->set_classify_rotation(classify_rotation);
+    if (textord_debug_tabfind) {
+      tprintf("Blk %d, type %d rerotation(%.2f, %.2f), char(%.2f,%.2f), box:",
+              block_index, block->poly_block()->isA(),
+              block->re_rotation().x(), block->re_rotation().y(),
+              classify_rotation.x(), classify_rotation.y());
+    }
+    block->set_index(block_index++);
+    // Blocks are created on the deskewed blob outlines in TransformToBlocks()
+    // so we need to reskew them back to page coordinates.
     block->rotate(reskew_);
-    // Save the skew in the block.
+    // Save the skew angle in the block for baseline computations.
     block->set_skew(reskew_);
     // Rotate all the blobs if needed and recompute the bounding boxes.
     // Compute the block median blob width and height as we go.
@@ -1815,7 +1841,7 @@ void ColumnFinder::RotateAndReskewBlocks(TO_BLOCK_LIST* blocks) {
     STATS heights(0, block->bounding_box().height());
     for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
       BLOBNBOX* blob = blob_it.data();
-      if (blob_rotation.y() != 0.0f) {
+      if (blob_rotation.x() != 1.0f || blob_rotation.y() != 0.0f) {
         blob->cblob()->rotate(blob_rotation);
       }
       blob->compute_bounding_box();

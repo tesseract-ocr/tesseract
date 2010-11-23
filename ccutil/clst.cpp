@@ -160,8 +160,8 @@ void CLIST::assign_to_sublist(                           //to this list
  *  Return count of elements on list
  **********************************************************************/
 
-inT32 CLIST::length() {  //count elements
-  CLIST_ITERATOR it(this);
+inT32 CLIST::length() const {  //count elements
+  CLIST_ITERATOR it(const_cast<CLIST*>(this));
   inT32 count = 0;
 
   #ifndef NDEBUG
@@ -169,7 +169,7 @@ inT32 CLIST::length() {  //count elements
     NULL_OBJECT.error ("CLIST::length", ABORT, NULL);
   #endif
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
     count++;
   return count;
 }
@@ -225,7 +225,8 @@ const void *, const void *)) {
 // indirection. Time is O(1) to add to beginning or end.
 // Time is linear to add pre-sorted items to an empty list.
 // If unique, then don't add duplicate entries.
-void CLIST::add_sorted(int comparator(const void*, const void*),
+// Returns true if the element was added to the list.
+bool CLIST::add_sorted(int comparator(const void*, const void*),
                        bool unique, void* new_data) {
   // Check for adding at the end.
   if (last == NULL || comparator(&last->data, &new_data) < 0) {
@@ -238,13 +239,14 @@ void CLIST::add_sorted(int comparator(const void*, const void*),
       last->next = new_element;
     }
     last = new_element;
+    return true;
   } else if (!unique || last->data != new_data) {
     // Need to use an iterator.
     CLIST_ITERATOR it(this);
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       void* data = it.data();
       if (data == new_data && unique)
-        return;
+        return false;
       if (comparator(&data, &new_data) > 0)
         break;
     }
@@ -252,6 +254,37 @@ void CLIST::add_sorted(int comparator(const void*, const void*),
       it.add_to_end(new_data);
     else
       it.add_before_then_move(new_data);
+    return true;
+  }
+  return false;
+}
+
+// Assuming that the minuend and subtrahend are already sorted with
+// the same comparison function, shallow clears this and then copies
+// the set difference minuend - subtrahend to this, being the elements
+// of minuend that do not compare equal to anything in subtrahend.
+// If unique is true, any duplicates in minuend are also eliminated.
+void CLIST::set_subtract(int comparator(const void*, const void*),
+                         bool unique,
+                         CLIST* minuend, CLIST* subtrahend) {
+  shallow_clear();
+  CLIST_ITERATOR m_it(minuend);
+  CLIST_ITERATOR s_it(subtrahend);
+  // Since both lists are sorted, finding the subtras that are not
+  // minus is a case of a parallel iteration.
+  for (m_it.mark_cycle_pt(); !m_it.cycled_list(); m_it.forward()) {
+    void* minu = m_it.data();
+    void* subtra = NULL;
+    if (!s_it.empty()) {
+      subtra = s_it.data();
+      while (!s_it.at_last() &&
+             comparator(&subtra, &minu) < 0) {
+        s_it.forward();
+        subtra = s_it.data();
+      }
+    }
+    if (subtra == NULL || comparator(&subtra, &minu) != 0)
+      add_sorted(comparator, unique, minu);
   }
 }
 

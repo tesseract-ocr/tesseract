@@ -35,6 +35,4 @@ void ClearCharNormArray(INT_TEMPLATES Templates,
                         CLASS_NORMALIZATION_ARRAY CharNormArray);
 }  // namespace tesseract.
 
-void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures);
-
 #endif

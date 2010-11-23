@@ -25,8 +25,10 @@
 #ifndef VECFUNCS_H
 #define VECFUNCS_H
 
-#include "tessclas.h"
 #include <math.h>
+#include "blobs.h"
+
+class EDGEPT;
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -75,17 +77,4 @@
 ----------------------------------------------------------------------*/
 int direction(EDGEPT *point); 
 
-/*
-#if defined(__STDC__) || defined(__cplusplus) || MAC_OR_DOS
-# define	_ARGS(s) s
-#else
-# define	_ARGS(s) ()
-#endif*/
-
-/* vecfuncs.c
-int direction
-  _ARGS((EDGEPT *point));
-
-#undef _ARGS
-*/
 #endif

@@ -35,37 +35,43 @@
   feature consists of a number of parameters.  All features within a
   feature set contain the same number of parameters.*/
 
-typedef struct
-{
+struct CHAR_DESC_STRUCT {
   uinT32 NumFeatureSets;
   FEATURE_SET FeatureSets[NUM_FEATURE_TYPES];
-} CHAR_DESC_STRUCT;
+};
 typedef CHAR_DESC_STRUCT *CHAR_DESC;
 
-typedef struct
-{
+struct FEATURE_DEFS_STRUCT {
   uinT32 NumFeatureTypes;
-  FEATURE_DESC FeatureDesc[NUM_FEATURE_TYPES];
-  FEATURE_EXT_STRUCT* FeatureExtractors[NUM_FEATURE_TYPES];
+  const FEATURE_DESC_STRUCT* FeatureDesc[NUM_FEATURE_TYPES];
+  const FEATURE_EXT_STRUCT* FeatureExtractors[NUM_FEATURE_TYPES];
   int FeatureEnabled[NUM_FEATURE_TYPES];
-} FEATURE_DEFS_STRUCT;
+};
 typedef FEATURE_DEFS_STRUCT *FEATURE_DEFS;
 
 /*----------------------------------------------------------------------
     Generic functions for manipulating character descriptions
 ----------------------------------------------------------------------*/
+void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs);
+
 void FreeCharDescription(CHAR_DESC CharDesc);
 
-CHAR_DESC NewCharDescription();
+CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs);
 
-void WriteCharDescription(FILE *File, CHAR_DESC CharDesc);
+void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
+                          FILE *File, CHAR_DESC CharDesc);
 
-CHAR_DESC ReadCharDescription(FILE *File);
+CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
+                              FILE *File);
 
-int ShortNameToFeatureType(const char *ShortName);
+int ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
+                           const char *ShortName);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
-extern FEATURE_DEFS_STRUCT FeatureDefs;
+extern const FEATURE_DESC_STRUCT MicroFeatureDesc;
+extern const FEATURE_DESC_STRUCT PicoFeatDesc;
+extern const FEATURE_DESC_STRUCT CharNormDesc;
+extern const FEATURE_DESC_STRUCT OutlineFeatDesc;
 #endif

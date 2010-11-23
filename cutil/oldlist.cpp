@@ -33,8 +33,8 @@
   This file contains a set of general purpose list manipulation routines.
   These routines can be used in a wide variety of ways to provide several
   different popular data structures. A new list can be created by declaring
-  a variable of type 'LIST', and can be initialized with the value 'NIL'.
-  All of these routines check for the NIL condition before dereferencing
+  a variable of type 'LIST', and can be initialized with the value 'NIL_LIST'.
+  All of these routines check for the NIL_LIST condition before dereferencing
   pointers.  NOTE:  There is a users' manual available in printed form from
   Mark Seaman at (303) 350-4492 at Greeley Hard Copy.
 
@@ -53,7 +53,7 @@
   To implement LISP like functions use:
 
   first_node           CAR                              x = (int) first_node (l);
-  rest            CDR                              l = rest (l);
+  rest            CDR                              l = list_rest (l);
   push            CONS                             l = push (l, (LIST) this);
   last            LAST                             x = last (l);
   concat          APPEND                           l = concat (r, s);
@@ -77,8 +77,8 @@
 
   The following rules of closure exist for the functions provided.
   a = first_node (push (a, b))
-  b = rest (push (a, b))
-  a = push (pop (a), a))        For all a <> NIL
+  b = list_rest (push (a, b))
+  a = push (pop (a), a))        For all a <> NIL_LIST
   a = reverse (reverse (a))
 
 ******************************************************************************/
@@ -95,7 +95,7 @@
               M a c r o s
 ----------------------------------------------------------------------*/
 #define add_on(l,x)     l = push (l,first_node (x))
-#define next_one(l)     l = rest (l)
+#define next_one(l)     l = list_rest (l)
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -123,25 +123,25 @@ int count(LIST var_list) {
  *  NULL is supplied for is_equal, the is_key routine will be used.
  **********************************************************************/
 LIST delete_d(LIST list, void *key, int_compare is_equal) {
-  LIST result = NIL;
-  LIST last_one = NIL;
+  LIST result = NIL_LIST;
+  LIST last_one = NIL_LIST;
 
   if (is_equal == NULL)
     is_equal = is_same;
 
-  while (list != NIL) {
+  while (list != NIL_LIST) {
     if (!(*is_equal) (first_node (list), key)) {
-      if (last_one == NIL) {
+      if (last_one == NIL_LIST) {
         last_one = list;
-        list = rest (list);
+        list = list_rest (list);
         result = last_one;
-        set_rest(last_one, NIL);
+        set_rest(last_one, NIL_LIST);
       }
       else {
         set_rest(last_one, list);
         last_one = list;
-        list = rest (list);
-        set_rest(last_one, NIL);
+        list = list_rest (list);
+        set_rest(last_one, NIL_LIST);
       }
     }
     else {
@@ -152,23 +152,23 @@ LIST delete_d(LIST list, void *key, int_compare is_equal) {
 }
 
 LIST delete_d(LIST list, void *key,
-              ResultCallback2<int, void*, void*>* is_equal) {
-  LIST result = NIL;
-  LIST last_one = NIL;
+              TessResultCallback2<int, void*, void*>* is_equal) {
+  LIST result = NIL_LIST;
+  LIST last_one = NIL_LIST;
 
-  while (list != NIL) {
+  while (list != NIL_LIST) {
     if (!(*is_equal).Run (first_node (list), key)) {
-      if (last_one == NIL) {
+      if (last_one == NIL_LIST) {
         last_one = list;
-        list = rest (list);
+        list = list_rest (list);
         result = last_one;
-        set_rest(last_one, NIL);
+        set_rest(last_one, NIL_LIST);
       }
       else {
         set_rest(last_one, list);
         last_one = list;
-        list = rest (list);
-        set_rest(last_one, NIL);
+        list = list_rest (list);
+        set_rest(last_one, NIL_LIST);
       }
     }
     else {
@@ -187,12 +187,12 @@ LIST delete_d(LIST list, void *key,
 LIST destroy(LIST list) {
   LIST next;
 
-  while (list != NIL) {
-    next = rest (list);
+  while (list != NIL_LIST) {
+    next = list_rest (list);
     free_cell(list);
     list = next;
   }
-  return (NIL);
+  return (NIL_LIST);
 }
 
 
@@ -205,7 +205,7 @@ void destroy_nodes(LIST list, void_dest destructor) {
   if (destructor == NULL)
     destructor = memfree;
 
-  while (list != NIL) {
+  while (list != NIL_LIST) {
     (*destructor) (first_node (list));
     list = pop (list);
   }
@@ -221,12 +221,12 @@ void destroy_nodes(LIST list, void_dest destructor) {
 void insert(LIST list, void *node) {
   LIST element;
 
-  if (list != NIL) {
-    element = push (NIL, node);
-    set_rest (element, rest (list));
+  if (list != NIL_LIST) {
+    element = push (NIL_LIST, node);
+    set_rest (element, list_rest (list));
     set_rest(list, element);
     node = first_node (list);
-    list->node = first_node (rest (list));
+    list->node = first_node (list_rest (list));
     list->next->node = (LIST) node;
   }
 }
@@ -262,7 +262,7 @@ int is_same(void *item1, void *item2) {
  *  first list updated.
  **********************************************************************/
 LIST join(LIST list1, LIST list2) {
-  if (list1 == NIL)
+  if (list1 == NIL_LIST)
     return (list2);
   set_rest (last (list1), list2);
   return (list1);
@@ -275,8 +275,8 @@ LIST join(LIST list1, LIST list2) {
  *  Return the last list item (this is list type).
  **********************************************************************/
 LIST last(LIST var_list) {
-  while (rest (var_list) != NIL)
-    var_list = rest (var_list);
+  while (list_rest (var_list) != NIL_LIST)
+    var_list = list_rest (var_list);
   return (var_list);
 }
 
@@ -305,9 +305,9 @@ void *nth_cell(LIST var_list, int item_num) {
 LIST pop(LIST list) {
   LIST temp;
 
-  temp = rest (list);
+  temp = list_rest (list);
 
-  if (list != NIL) {
+  if (list != NIL_LIST) {
     free_cell(list);
   }
   return (temp);
@@ -338,13 +338,13 @@ LIST push(LIST list, void *element) {
 LIST push_last(LIST list, void *item) {
   LIST t;
 
-  if (list != NIL) {
+  if (list != NIL_LIST) {
     t = last (list);
-    t->next = push (NIL, item);
+    t->next = push (NIL_LIST, item);
     return (list);
   }
   else
-    return (push (NIL, item));
+    return (push (NIL_LIST, item));
 }
 
 
@@ -355,7 +355,7 @@ LIST push_last(LIST list, void *item) {
  *  destroyed.
  **********************************************************************/
 LIST reverse(LIST list) {
-  LIST newlist = NIL;
+  LIST newlist = NIL_LIST;
 
   iterate (list) copy_first (list, newlist);
   return (newlist);
@@ -405,7 +405,7 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
 /**********************************************************************
  *   s e a r c h
  *
- *  Search list, return NIL if not found. Return the list starting from
+ *  Search list, return NIL_LIST if not found. Return the list starting from
  *  the item if found.  The compare routine "is_equal" is passed in as
  *  the third paramter to this routine.   If the value NULL is supplied
  *  for is_equal, the is_key routine will be used.
@@ -416,11 +416,11 @@ LIST search(LIST list, void *key, int_compare is_equal) {
 
   iterate (list) if ((*is_equal) (first_node (list), key))
   return (list);
-  return (NIL);
+  return (NIL_LIST);
 }
 
-LIST search(LIST list, void *key, ResultCallback2<int, void*, void*>* is_equal) {
+LIST search(LIST list, void *key, TessResultCallback2<int, void*, void*>* is_equal) {
   iterate (list) if ((*is_equal).Run(first_node (list), key))
   return (list);
-  return (NIL);
+  return (NIL_LIST);
 }

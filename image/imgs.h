@@ -21,7 +21,7 @@
 #define           IMGS_H
 
 #include          "img.h"
-#include          "varable.h"
+#include          "params.h"
 
 extern INT_VAR_H (image_default_resolution, 300, "Image resolution dpi");
 

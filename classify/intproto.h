@@ -48,6 +48,7 @@
 #define NUM_CP_BUCKETS    24
 #define CLASSES_PER_CP    32
 #define NUM_BITS_PER_CLASS  2
+#define CLASS_PRUNER_CLASS_MASK (~(~0 << NUM_BITS_PER_CLASS))
 #define CLASSES_PER_CP_WERD (CLASSES_PER_CP / NUM_BITS_PER_CLASS)
 #define PROTOS_PER_PP_WERD  BITS_PER_WERD
 #define BITS_PER_CP_VECTOR  (CLASSES_PER_CP * NUM_BITS_PER_CLASS)
@@ -229,7 +230,8 @@ void AddProtoToClassPruner(PROTO Proto,
                            CLASS_ID ClassId,
                            INT_TEMPLATES Templates);
 
-void AddProtoToProtoPruner(PROTO Proto, int ProtoId, INT_CLASS Class);
+void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
+                           INT_CLASS Class, bool debug);
 
 int BucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets);
 
@@ -238,8 +240,6 @@ int CircBucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets);
 void UpdateMatchDisplay();
 
 void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class);
-
-void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class);
 
 void DisplayIntFeature(INT_FEATURE Feature, FLOAT32 Evidence);
 

@@ -20,14 +20,13 @@
 #ifndef           POLYAPRX_H
 #define           POLYAPRX_H
 
-#include          "tessclas.h"
+#include          "blobs.h"
 #include          "poutline.h"
 #include          "coutln.h"
 
-OUTLINE *tesspoly_outline(                       //old approximation
-                          C_OUTLINE *c_outline,  //input
-                          float                  //xheight
-                         );
+// convert a chain-coded input to the old OUTLINE approximation
+OUTLINE *tesspoly_outline(C_OUTLINE *c_outline);
+TESSLINE* ApproximateOutline(C_OUTLINE *c_outline);
 EDGEPT *edgesteps_to_edgepts (   //convert outline
 C_OUTLINE * c_outline,           //input
 EDGEPT edgepts[]                 //output is array
@@ -44,8 +43,4 @@ void cutline(                //recursive refine
              EDGEPT *last,
              int area        /*area of object */
             );
-#define fixed_dist      20       //really an int_variable
-#define point_diff(p,p1,p2) (p).x = (p1).x - (p2).x ; (p).y = (p1).y - (p2).y
-#define CROSS(a,b) ((a).x * (b).y - (a).y * (b).x)
-#define LENGTH(a) ((a).x * (a).x + (a).y * (a).y)
 #endif

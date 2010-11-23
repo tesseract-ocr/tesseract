@@ -38,14 +38,17 @@ class BLOB_CHOICE: public ELIST_LINK
       rating_ = MAX_FLOAT32;
       certainty_ = -MAX_FLOAT32;
       script_id_ = -1;
+      language_model_state_ = NULL;
     }
     BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
                 float src_rating,          // rating
                 float src_cert,            // certainty
-                inT8 src_config,           // config (font)
+                inT16 src_config,          // config (font)
+                inT16 src_config2,         // 2nd choice config.
                 int script_id);            // script
     BLOB_CHOICE(const BLOB_CHOICE &other);
     ~BLOB_CHOICE() {}
+
     UNICHAR_ID unichar_id() const {
       return unichar_id_;
     }
@@ -55,11 +58,17 @@ class BLOB_CHOICE: public ELIST_LINK
     float certainty() const {
       return certainty_;
     }
-    inT8 config() const {
+    inT16 config() const {
       return config_;
+    }
+    inT16 config2() const {
+      return config2_;
     }
     int script_id() const {
       return script_id_;
+    }
+    void *language_model_state() {
+      return language_model_state_;
     }
 
     void set_unichar_id(UNICHAR_ID newunichar_id) {
@@ -71,11 +80,17 @@ class BLOB_CHOICE: public ELIST_LINK
     void set_certainty(float newrat) {
       certainty_ = newrat;
     }
-    void set_config(inT8 newfont) {
+    void set_config(inT16 newfont) {
       config_ = newfont;
+    }
+    void set_config2(inT16 newfont) {
+      config2_ = newfont;
     }
     void set_script(int newscript_id) {
       script_id_ = newscript_id;
+    }
+    void set_language_model_state(void *language_model_state) {
+      language_model_state_ = language_model_state;
     }
 
     static BLOB_CHOICE* deep_copy(const BLOB_CHOICE* src) {
@@ -83,15 +98,26 @@ class BLOB_CHOICE: public ELIST_LINK
       *choice = *src;
       return choice;
     }
+    void print(const UNICHARSET *unicharset) {
+      tprintf("r%.2f c%.2f : %d %s", rating_, certainty_, unichar_id_,
+              (unicharset == NULL) ? "" :
+              unicharset->debug_str(unichar_id_).string());
+    }
 
     NEWDELETE
  private:
   UNICHAR_ID unichar_id_;          // unichar id
-  char config_;                    // char config (font)
+  inT16 config_;                    // char config (font)
+  inT16 config2_;                   // 2nd choice config (font)
   inT16 junk2_;
   float rating_;                   // size related
   float certainty_;                // absolute
   int script_id_;
+  // Stores language model information about this BLOB_CHOICE. Used during
+  // the segmentation search for BLOB_CHOICEs in BLOB_CHOICE_LISTs that are
+  // recorded in the ratings matrix.
+  // The pointer is owned/managed by the segmentation search.
+  void *language_model_state_;
 };
 
 // Make BLOB_CHOICE listable.
@@ -99,21 +125,25 @@ ELISTIZEH (BLOB_CHOICE) CLISTIZEH (BLOB_CHOICE_LIST)
 
 // Permuter codes used in WERD_CHOICEs.
 enum PermuterType {
-  NO_PERM,           // 0
-  PUNC_PERM,         // 1
-  TOP_CHOICE_PERM,   // 2
-  LOWER_CASE_PERM,   // 3
-  UPPER_CASE_PERM,   // 4
-  NUMBER_PERM,       // 5
-  SYSTEM_DAWG_PERM,  // 6
-  DOC_DAWG_PERM,     // 7
-  USER_DAWG_PERM,    // 8
-  FREQ_DAWG_PERM,    // 9
-  COMPOUND_PERM,     // 10
+  NO_PERM,            // 0
+  PUNC_PERM,          // 1
+  TOP_CHOICE_PERM,    // 2
+  LOWER_CASE_PERM,    // 3
+  UPPER_CASE_PERM,    // 4
+  NGRAM_PERM,         // 5
+  NUMBER_PERM,        // 6
+  USER_PATTERN_PERM,  // 7
+  SYSTEM_DAWG_PERM,   // 8
+  DOC_DAWG_PERM,      // 9
+  USER_DAWG_PERM,     // 10
+  FREQ_DAWG_PERM,     // 11
+  COMPOUND_PERM,      // 12
 };
 
 class WERD_CHOICE {
  public:
+  static const float kBadRating;
+
   WERD_CHOICE() { this->init(8); }
   WERD_CHOICE(int reserved) { this->init(reserved); }
   WERD_CHOICE(const char *src_string,
@@ -168,6 +198,10 @@ class WERD_CHOICE {
     assert(index < length_);
     unichar_ids_[index] = unichar_id;
   }
+  inline void set_fragment_length(char flen, int index) {
+    assert(index < length_);
+    fragment_lengths_[index] = flen;
+  }
   inline void set_rating(float new_val) {
     rating_ = new_val;
   }
@@ -179,6 +213,13 @@ class WERD_CHOICE {
   }
   inline void set_fragment_mark(bool new_fragment_mark) {
     fragment_mark_ = new_fragment_mark;
+  }
+  // Note: this function should only be used if all the fields
+  // are populated manually with set_* functions (rather than
+  // (copy)constructors and append_* functions).
+  inline void set_length(int len) {
+    ASSERT_HOST(reserved_ >= len);
+    length_ = len;
   }
   void set_blob_choices(BLOB_CHOICE_LIST_CLIST *blob_choices);
 
@@ -219,7 +260,7 @@ class WERD_CHOICE {
   /// Set the fields in this choice to be default (bad) values.
   inline void make_bad() {
     length_ = 0;
-    rating_ = MAX_FLOAT32;
+    rating_ = kBadRating;
     certainty_ = -MAX_FLOAT32;
     fragment_mark_ = false;
     unichar_string_ = "";
@@ -322,9 +363,6 @@ class WERD_CHOICE {
 CLISTIZEH (WERD_CHOICE)
 typedef GenericVector<BLOB_CHOICE_LIST *> BLOB_CHOICE_LIST_VECTOR;
 typedef GenericVector<WERD_CHOICE_CLIST *> WERD_CHOICE_LIST_VECTOR;
-
-typedef void (*POLY_TESTER) (const STRING&, PBLOB *, DENORM *, BOOL8,
-                             char *, inT32, BLOB_CHOICE_LIST *);
 
 void print_ratings_list(const char *msg, BLOB_CHOICE_LIST *ratings);
 void print_ratings_list(

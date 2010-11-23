@@ -20,48 +20,12 @@
 #ifndef           WERDIT_H
 #define           WERDIT_H
 
-#include          "varable.h"
-#include          "ocrblock.h"
+#include          "pageres.h"
 #include          "notdll.h"
 
-class WERDIT
-{
-  public:
-    WERDIT() {
-    }                            //empty contructor
-    WERDIT(                          //empty contructor
-           BLOCK_LIST *blocklist) {  //blocks on page
-      start_page(blocklist);  //ready to scan
-    }
-
-    void start_page(                         //get ready
-                    BLOCK_LIST *blocklist);  //blocks on page
-
-    WERD *forward();  //get next word
-    WERD *next_word() {  //get next word
-      return word_it.data ();    //already at next
-    }
-    ROW *row() {  //get current row
-      return word_it.cycled_list ()? NULL : row_it.data ();
-    }
-    ROW *next_row() {  //get next row
-      return row_it.data_relative (1);
-    }
-    BLOCK *block() {  //get current block
-      return block_it.data ();
-    }
-
-  private:
-    BLOCK_IT block_it;           //iterators
-    ROW_IT row_it;
-    WERD_IT word_it;
-};
-
-//extern BOOL_VAR_H(wordit_linearc,FALSE,"Pass poly of linearc to Tess");
-WERD *make_pseudo_word(                         //make fake word
-                       BLOCK_LIST *block_list,  //blocks to check //block of selection
+WERD *make_pseudo_word(PAGE_RES* page_res,  // blocks to check
                        TBOX &selection_box,
                        BLOCK *&pseudo_block,
-                       ROW *&pseudo_row         //row of selection
-                      );
+                       ROW *&pseudo_row);
+
 #endif

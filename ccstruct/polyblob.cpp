@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-#include          "varable.h"
+#include          "params.h"
 #include          "ocrrow.h"
 #include          "polyblob.h"
 //#include                                                      "lapoly.h"
@@ -30,9 +30,6 @@
 #endif
 
 #define EXTERN
-
-EXTERN BOOL_VAR (polygon_tess_approximation, TRUE,
-"Do tess poly instead of greyscale");
 
 ELISTIZE_S (PBLOB)
 /**********************************************************************
@@ -146,56 +143,41 @@ PBLOB::PBLOB(                            //constructor
 /**********************************************************************
  * approximate_outline_list
  *
- * Convert a list of outlines to polygonal form.
+ * Convert a list of chain-coded outlines (srclist) to polygonal form.
  **********************************************************************/
 
-static void approximate_outline_list(                          //do list of outlines
-                                     C_OUTLINE_LIST *srclist,  //list to convert
-                                     OUTLINE_LIST *destlist,   //desstination list
-                                     float xheight             //height of line
-                                    ) {
-  C_OUTLINE *src_outline;        //outline from src list
-  OUTLINE *dest_outline;         //result
-  C_OUTLINE_IT src_it = srclist; //source iterator
-  OUTLINE_IT dest_it = destlist; //iterator
+static void approximate_outline_list(C_OUTLINE_LIST *srclist,
+                                     OUTLINE_LIST *destlist) {
+  C_OUTLINE *src_outline;         // outline from src list
+  OUTLINE *dest_outline;          // result
+  C_OUTLINE_IT src_it = srclist;  // source iterator
+  OUTLINE_IT dest_it = destlist;  // iterator
 
   do {
     src_outline = src_it.data ();
-    //              if (polygon_tess_approximation)
-    dest_outline = tesspoly_outline (src_outline, xheight);
-    //              else
-    //                      dest_outline=greypoly_outline(src_outline,xheight);
+    dest_outline = tesspoly_outline(src_outline);
     if (dest_outline != NULL) {
-      dest_it.add_after_then_move (dest_outline);
-      if (!src_outline->child ()->empty ())
-                                 //do child list
-        approximate_outline_list (src_outline->child (), dest_outline->child (), xheight);
+      dest_it.add_after_then_move(dest_outline);
+      if (!src_outline->child()->empty())
+        // do child list
+        approximate_outline_list(src_outline->child(), dest_outline->child());
     }
-    src_it.forward ();
+    src_it.forward();
   }
-  while (!src_it.at_first ());
+  while (!src_it.at_first());
 }
 
 
 /**********************************************************************
  * PBLOB::PBLOB
  *
- * Constructor to build a PBLOB from a C_BLOB by polygonal approximation.
+ * Constructor to build a PBLOB (polygonal blob) from a C_BLOB
+ * (chain-coded blob) by polygonal approximation.
  **********************************************************************/
 
-PBLOB::PBLOB(                //constructor
-             C_BLOB *cblob,  //compact blob
-             float xheight   //height of line
-            ) {
-  TBOX bbox;                      //bounding box
-
+PBLOB::PBLOB(C_BLOB *cblob) {
   if (!cblob->out_list ()->empty ()) {
-                                 //get bounding box
-    bbox = cblob->bounding_box ();
-    if (bbox.height () > xheight)
-      xheight = bbox.height ();  //max of line and blob
-                                 //copy it
-    approximate_outline_list (cblob->out_list (), &outlines, xheight);
+    approximate_outline_list (cblob->out_list (), &outlines);
   }
 }
 
@@ -253,12 +235,12 @@ PBLOB *PBLOB::baseline_normalise(                //normalize blob
   float x_centre = (blob_box.left () + blob_box.right ()) / 2.0;
   PBLOB *bn_blob;                //copied blob
 
-  *denorm = DENORM (x_centre, bln_x_height / row->x_height (), row);
+  *denorm = DENORM (x_centre, kBlnXHeight / row->x_height (), row);
   bn_blob = new PBLOB;           //get one
   *bn_blob = *this;              //deep copy
   bn_blob->move (FCOORD (-denorm->origin (), -row->base_line (x_centre)));
   bn_blob->scale (denorm->scale ());
-  bn_blob->move (FCOORD (0.0, bln_baseline_offset));
+  bn_blob->move (FCOORD (0.0, kBlnBaselineOffset));
   return bn_blob;
 }
 
@@ -269,18 +251,12 @@ PBLOB *PBLOB::baseline_normalise(                //normalize blob
  * DeBaseline Normalise the blob properly with the given denorm.
  **********************************************************************/
 
-void PBLOB::baseline_denormalise(                      // Tess style BL Norm
-                                 const DENORM *denorm  //antidote
-                                ) {
-  float blob_x_left;           // Left edge of blob.
-  TBOX blob_box;                  //blob bounding box
-
-  move(FCOORD (0.0f, 0.0f - bln_baseline_offset));
-  blob_box = bounding_box ();
-  blob_x_left = blob_box.left ();
-  scale (1.0 / denorm->scale_at_x (blob_x_left));
-  move (FCOORD (denorm->origin (),
-    denorm->yshift_at_x (blob_x_left)));
+void PBLOB::baseline_denormalise(const DENORM *denorm ) {
+  move(FCOORD(0.0f, 0.0f - kBlnBaselineOffset));
+  TBOX blob_box = bounding_box();
+  float blob_x_centre = (blob_box.left() + blob_box.right()) / 2.0f;
+  scale(1.0 / denorm->scale_at_x(blob_x_centre));
+  move(FCOORD(denorm->origin(), denorm->yshift_at_x(blob_x_centre)));
 }
 
 

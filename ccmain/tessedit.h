@@ -20,9 +20,8 @@
 #ifndef           TESSEDIT_H
 #define           TESSEDIT_H
 
-#include          "tessclas.h"
-#include          "ocrclass.h"
-#include                    "pgedit.h"
+#include          "blobs.h"
+#include          "pgedit.h"
 #include          "notdll.h"
 
                                  //progress monitor

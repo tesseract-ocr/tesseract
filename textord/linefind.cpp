@@ -32,9 +32,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-#ifdef HAVE_LIBLEPT
 #include "allheaders.h"
-#endif
 
 BOOL_VAR(textord_tabfind_show_vlines, false, "Show vertical rule lines");
 
@@ -59,7 +57,6 @@ const int kLineFindGridSize = 50;
 void LineFinder::FindVerticalLines(int resolution,  Pix* pix,
                                    int* vertical_x, int* vertical_y,
                                    TabVector_LIST* vectors) {
-#ifdef HAVE_LIBLEPT
   Pix* line_pix;
   Boxa* boxes = GetVLineBoxes(resolution, pix, &line_pix);
   C_BLOB_LIST line_cblobs;
@@ -101,7 +98,6 @@ void LineFinder::FindVerticalLines(int resolution,  Pix* pix,
     TabVector::MergeSimilarTabVectors(vertical, vectors, NULL);
   }
   pixDestroy(&line_pix);
-#endif
 }
 
 // Finds horizontal line objects in the given pix.
@@ -111,7 +107,6 @@ void LineFinder::FindVerticalLines(int resolution,  Pix* pix,
 // having no boxes, as there is no need to refit or merge separator lines.
 void LineFinder::FindHorizontalLines(int resolution,  Pix* pix,
                                      TabVector_LIST* vectors) {
-#ifdef HAVE_LIBLEPT
   Pix* line_pix;
   Boxa* boxes = GetHLineBoxes(resolution, pix, &line_pix);
   C_BLOB_LIST line_cblobs;
@@ -162,7 +157,6 @@ void LineFinder::FindHorizontalLines(int resolution,  Pix* pix,
     }
   }
   pixDestroy(&line_pix);
-#endif
 }
 
 // Converts the Boxa array to a list of C_BLOB, getting rid of severely
@@ -172,7 +166,6 @@ void LineFinder::FindHorizontalLines(int resolution,  Pix* pix,
 // bounding boxes. The Boxa is consumed and destroyed.
 void LineFinder::ConvertBoxaToBlobs(int image_width, int image_height,
                                     Boxa** boxes, C_BLOB_LIST* blobs) {
-#ifdef HAVE_LIBLEPT
   C_OUTLINE_LIST outlines;
   C_OUTLINE_IT ol_it = &outlines;
   // Iterate the boxes to convert to outlines.
@@ -202,7 +195,6 @@ void LineFinder::ConvertBoxaToBlobs(int image_width, int image_height,
   blob_it.add_list_after(block.blob_list());
   // The boxes aren't needed any more.
   boxaDestroy(boxes);
-#endif
 }
 
 // Finds vertical lines in the given list of BLOBNBOXes. bleft and tright
@@ -269,7 +261,6 @@ void LineFinder::FindLineVectors(const ICOORD& bleft, const ICOORD& tright,
 // The input resolution overrides any resolution set in src_pix.
 // The output line_pix contains just all the detected lines.
 Boxa* LineFinder::GetVLineBoxes(int resolution, Pix* src_pix, Pix** line_pix) {
-#ifdef HAVE_LIBLEPT
   // Remove any parts of 1 inch/kThinLineFraction wide or more, by opening
   // away the thin lines and subtracting what's left.
   // This is very generous and will leave in even quite wide lines.
@@ -294,9 +285,6 @@ Boxa* LineFinder::GetVLineBoxes(int resolution, Pix* src_pix, Pix** line_pix) {
   Boxa* boxa = pixConnComp(pixt1, NULL, 8);
   *line_pix = pixt1;
   return boxa;
-#else
-  return NULL;
-#endif
 }
 
 // Get a set of bounding boxes of possible horizontal lines in the image.
@@ -307,7 +295,6 @@ Boxa* LineFinder::GetVLineBoxes(int resolution, Pix* src_pix, Pix** line_pix) {
 // This transformation allows a simple x/y flip to reverse it in tesseract
 // coordinates and it is faster to flip the lines than rotate the image.
 Boxa* LineFinder::GetHLineBoxes(int resolution, Pix* src_pix, Pix** line_pix) {
-#ifdef HAVE_LIBLEPT
   // Remove any parts of 1 inch/kThinLineFraction high or more, by opening
   // away the thin lines and subtracting what's left.
   // This is very generous and will leave in even quite wide lines.
@@ -345,9 +332,6 @@ Boxa* LineFinder::GetHLineBoxes(int resolution, Pix* src_pix, Pix** line_pix) {
     boxaReplaceBox(boxa, i, box);
   }
   return boxa;
-#else
-  return NULL;
-#endif
 }
 
 }  // namespace tesseract.

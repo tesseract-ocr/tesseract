@@ -18,7 +18,7 @@
 #ifndef   INTMATCHER_H
 #define   INTMATCHER_H
 
-#include "varable.h"
+#include "params.h"
 
 // Character fragments could be present in the trained templaes
 // but turned on/off on the language-by-language basis or depending
@@ -38,28 +38,22 @@ extern INT_VAR_H(classify_integer_matcher_multiplier, 14,
 #include "intproto.h"
 #include "cutoffs.h"
 
-typedef struct
-{
+struct INT_RESULT_STRUCT {
   FLOAT32 Rating;
   uinT8 Config;
   uinT8 Config2;
   uinT16 FeatureMisses;
-}
+};
+
+typedef INT_RESULT_STRUCT *INT_RESULT;
 
 
-INT_RESULT_STRUCT, *INT_RESULT;
-
-typedef struct
-{
+struct CP_RESULT_STRUCT {
   FLOAT32 Rating;
   INT_RESULT_STRUCT IMResult;
   CLASS_ID Class;
-}
+};
 
-
-CP_RESULT_STRUCT;
-
-/*typedef CLASS_ID CLASS_PRUNER_RESULTS [MAX_NUM_CLASSES];	*/
 typedef CP_RESULT_STRUCT CLASS_PRUNER_RESULTS[MAX_NUM_CLASSES];
 
 typedef uinT8 CLASS_NORMALIZATION_ARRAY[MAX_NUM_CLASSES];
@@ -78,56 +72,138 @@ extern INT_VAR_H(classify_adapt_feature_thresh, 230,
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
 
-void IntegerMatcher(INT_CLASS ClassTemplate,
-                    BIT_VECTOR ProtoMask,
-                    BIT_VECTOR ConfigMask,
+#define  SE_TABLE_BITS    9
+#define  SE_TABLE_SIZE  512
+
+struct ScratchEvidence {
+  uinT8 feature_evidence_[MAX_NUM_CONFIGS];
+  int sum_feature_evidence_[MAX_NUM_CONFIGS];
+  uinT8 proto_evidence_[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
+
+  void Clear(const INT_CLASS class_template);
+  void ClearFeatureEvidence(const INT_CLASS class_template);
+  void NormalizeSums(INT_CLASS ClassTemplate, inT16 NumFeatures,
+                     inT32 used_features);
+  void UpdateSumOfProtoEvidences(
+    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask, inT16 NumFeatures);
+};
+
+
+class IntegerMatcher {
+ public:
+  // Integer Matcher Theta Fudge (0-255).
+  static const int kIntThetaFudge = 128;
+  // Bits in Similarity to Evidence Lookup (8-9).
+  static const int kEvidenceTableBits = 9;
+  // Integer Evidence Truncation Bits (8-14).
+  static const int kIntEvidenceTruncBits = 14;
+  // Similarity to Evidence Table Exponential Multiplier.
+  static const float kSEExponentialMultiplier;
+  // Center of Similarity Curve.
+  static const float kSimilarityCenter;
+
+  IntegerMatcher() : classify_debug_level_(0) {}
+
+  void Init(tesseract::IntParam *classify_debug_level,
+            int classify_integer_matcher_multiplier);
+
+  void SetBaseLineMatch();
+  void SetCharNormMatch(int integer_matcher_multiplier);
+
+  void Match(INT_CLASS ClassTemplate,
+             BIT_VECTOR ProtoMask,
+             BIT_VECTOR ConfigMask,
+             uinT16 BlobLength,
+             inT16 NumFeatures,
+             INT_FEATURE_ARRAY Features,
+             uinT8 NormalizationFactor,
+             INT_RESULT Result,
+             int AdaptFeatureThreshold,
+             int Debug,
+             bool SeparateDebugWindows);
+
+  int FindGoodProtos(INT_CLASS ClassTemplate,
+                     BIT_VECTOR ProtoMask,
+                     BIT_VECTOR ConfigMask,
+                     uinT16 BlobLength,
+                     inT16 NumFeatures,
+                     INT_FEATURE_ARRAY Features,
+                     PROTO_ID *ProtoArray,
+                     int AdaptProtoThreshold,
+                     int Debug);
+
+  int FindBadFeatures(INT_CLASS ClassTemplate,
+                      BIT_VECTOR ProtoMask,
+                      BIT_VECTOR ConfigMask,
+                      uinT16 BlobLength,
+                      inT16 NumFeatures,
+                      INT_FEATURE_ARRAY Features,
+                      FEATURE_ID *FeatureArray,
+                      int AdaptFeatureThreshold,
+                      int Debug);
+
+ private:
+  int UpdateTablesForFeature(
+      INT_CLASS ClassTemplate,
+      BIT_VECTOR ProtoMask,
+      BIT_VECTOR ConfigMask,
+      int FeatureNum,
+      INT_FEATURE Feature,
+      ScratchEvidence *evidence,
+      int Debug);
+
+  int FindBestMatch(INT_CLASS ClassTemplate,
+                    const ScratchEvidence &tables,
                     uinT16 BlobLength,
-                    inT16 NumFeatures,
-                    INT_FEATURE_ARRAY Features,
                     uinT8 NormalizationFactor,
-                    INT_RESULT Result,
-                    int Debug);
+                    INT_RESULT Result);
 
-int FindGoodProtos(INT_CLASS ClassTemplate,
-                   BIT_VECTOR ProtoMask,
-                   BIT_VECTOR ConfigMask,
-                   uinT16 BlobLength,
-                   inT16 NumFeatures,
-                   INT_FEATURE_ARRAY Features,
-                   PROTO_ID *ProtoArray,
-                   int Debug);
+#ifndef GRAPHICS_DISABLED
+  void DebugFeatureProtoError(
+      INT_CLASS ClassTemplate,
+      BIT_VECTOR ProtoMask,
+      BIT_VECTOR ConfigMask,
+      const ScratchEvidence &tables,
+      inT16 NumFeatures,
+      int Debug);
 
-int FindBadFeatures(INT_CLASS ClassTemplate,
-                    BIT_VECTOR ProtoMask,
-                    BIT_VECTOR ConfigMask,
-                    uinT16 BlobLength,
-                    inT16 NumFeatures,
-                    INT_FEATURE_ARRAY Features,
-                    FEATURE_ID *FeatureArray,
-                    int Debug);
+  void DisplayProtoDebugInfo(
+      INT_CLASS ClassTemplate,
+      BIT_VECTOR ProtoMask,
+      BIT_VECTOR ConfigMask,
+      const ScratchEvidence &tables,
+      bool SeparateDebugWindows);
 
-void InitIntegerMatcher();
+  void DisplayFeatureDebugInfo(
+      INT_CLASS ClassTemplate,
+      BIT_VECTOR ProtoMask,
+      BIT_VECTOR ConfigMask,
+      inT16 NumFeatures,
+      INT_FEATURE_ARRAY Features,
+      int AdaptFeatureThreshold,
+      int Debug,
+      bool SeparateDebugWindows);
 
-void PrintIntMatcherStats(FILE *f);
+  void DebugBestMatch(int BestMatch,
+                      INT_RESULT Result,
+                      uinT16 BlobLength,
+                      uinT8 NormalizationFactor);
+#endif
 
-void SetProtoThresh(FLOAT32 Threshold);
 
-void SetFeatureThresh(FLOAT32 Threshold);
-
-void SetBaseLineMatch();
-
-void SetCharNormMatch();
+ private:
+  uinT8 similarity_evidence_table_[SE_TABLE_SIZE];
+  uinT32 evidence_table_mask_;
+  uinT32 mult_trunc_shift_bits_;
+  uinT32 table_trunc_shift_bits_;
+  inT16 local_matcher_multiplier_;
+  tesseract::IntParam *classify_debug_level_;
+  uinT32 evidence_mult_mask_;
+};
 
 /**----------------------------------------------------------------------------
           Private Function Prototypes
 ----------------------------------------------------------------------------**/
-void IMClearTables (INT_CLASS ClassTemplate,
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-uinT8 ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX]);
-
-void IMClearFeatureEvidenceTable (uinT8 FeatureEvidence[MAX_NUM_CONFIGS],
-int NumConfigs);
-
 void IMDebugConfiguration(INT_FEATURE FeatureNum,
                           uinT16 ActualProtoNum,
                           uinT8 Evidence,
@@ -138,68 +214,9 @@ void IMDebugConfigurationSum(INT_FEATURE FeatureNum,
                              uinT8 *FeatureEvidence,
                              inT32 ConfigCount);
 
-int IMUpdateTablesForFeature (INT_CLASS ClassTemplate,
-BIT_VECTOR ProtoMask,
-BIT_VECTOR ConfigMask,
-int FeatureNum,
-INT_FEATURE Feature,
-uinT8 FeatureEvidence[MAX_NUM_CONFIGS],
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-uinT8
-ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX],
-int Debug);
-
-#ifndef GRAPHICS_DISABLED
-void IMDebugFeatureProtoError (INT_CLASS ClassTemplate,
-BIT_VECTOR ProtoMask,
-BIT_VECTOR ConfigMask,
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-uinT8
-ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX],
-inT16 NumFeatures, int Debug);
-
-void IMDisplayProtoDebugInfo (INT_CLASS ClassTemplate,
-BIT_VECTOR ProtoMask,
-BIT_VECTOR ConfigMask,
-uinT8
-ProtoEvidence[MAX_NUM_PROTOS][MAX_PROTO_INDEX],
-int Debug);
-
-void IMDisplayFeatureDebugInfo(INT_CLASS ClassTemplate,
-                               BIT_VECTOR ProtoMask,
-                               BIT_VECTOR ConfigMask,
-                               inT16 NumFeatures,
-                               INT_FEATURE_ARRAY Features,
-                               int Debug);
-#endif
-
-void IMUpdateSumOfProtoEvidences (INT_CLASS ClassTemplate,
-BIT_VECTOR ConfigMask,
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-uinT8
-ProtoEvidence[MAX_NUM_PROTOS]
-[MAX_PROTO_INDEX], inT16 NumFeatures);
-
-void IMNormalizeSumOfEvidences (INT_CLASS ClassTemplate,
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-inT16 NumFeatures, inT32 used_features);
-
-int IMFindBestMatch (INT_CLASS ClassTemplate,
-int SumOfFeatureEvidence[MAX_NUM_CONFIGS],
-uinT16 BlobLength,
-uinT8 NormalizationFactor, INT_RESULT Result);
-
-#ifndef GRAPHICS_DISABLED
-void IMDebugBestMatch(int BestMatch,
-                      INT_RESULT Result,
-                      uinT16 BlobLength,
-                      uinT8 NormalizationFactor);
-#endif
-
 void HeapSort (int n, register int ra[], register int rb[]);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
-extern uinT32 EvidenceMultMask;
 #endif

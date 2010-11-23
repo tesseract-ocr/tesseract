@@ -27,62 +27,18 @@
 #include "config_auto.h"
 #endif
 
-#define MINEDGELENGTH   8        //min decent length
+#define MINEDGELENGTH   8        // min decent length
 
-#define EXTERN
-
-EXTERN double_VAR (edges_threshold_greyfraction, 0.07,
-"Min edge diff for grad vector");
-EXTERN BOOL_VAR (edges_show_paths, FALSE, "Draw raw outlines");
-EXTERN BOOL_VAR (edges_show_needles, FALSE, "Draw edge needles");
-EXTERN INT_VAR (edges_maxedgelength, 16000, "Max steps in any outline");
-
-#ifndef GRAPHICS_DISABLED
-static ScrollView* edge_win;          //window
-#endif
-static C_OUTLINE_IT *outline_it; //iterator
-static int short_edges;          //no of short ones
-static int long_edges;           //no of long ones
-
-/**********************************************************************
- * get_outlines
- *
- * Run the edge detector over the block and return a list of outlines.
- **********************************************************************/
-
-DLLSYM void get_outlines(                      //edge detect
-#ifndef GRAPHICS_DISABLED
-                         ScrollView* window,        //window for output
-#endif
-                         IMAGE *image,         //image to scan
-                         IMAGE *t_image,       //thresholded image
-                         ICOORD page_tr,       //corner of page
-                         PDBLK *block,         //block to scan
-                         C_OUTLINE_IT *out_it  //output iterator
-                        ) {
-#ifndef GRAPHICS_DISABLED
-  edge_win = window;             //set statics
-#endif
-  outline_it = out_it;
-  block_edges(t_image, block, page_tr);
-  out_it->move_to_first ();
-#ifndef GRAPHICS_DISABLED
-  if (window != NULL)
-//    overlap_picture_ops(TRUE);  //update window
-  ScrollView::Update();
-#endif
-}
-
+INT_VAR(edges_maxedgelength, 16000, "Max steps in any outline");
 
 /**********************************************************************
  * complete_edge
  *
- * Complete the edge by cleaning it up andapproximating it.
+ * Complete the edge by cleaning it up.
  **********************************************************************/
 
-void complete_edge(                  //clean and approximate
-                   CRACKEDGE *start  //start of loop
-                  ) {
+void complete_edge(CRACKEDGE *start,  //start of loop
+                   C_OUTLINE_IT* outline_it) {
   ScrollView::Color colour;                 //colour to draw in
   inT16 looplength;              //steps in loop
   ICOORD botleft;                //bounding box
@@ -91,12 +47,6 @@ void complete_edge(                  //clean and approximate
 
                                  //check length etc.
   colour = check_path_legal (start);
-#ifndef GRAPHICS_DISABLED
-  if (edges_show_paths) {
-                                 //in red
-    draw_raw_edge(edge_win, start, colour);
-  }
-#endif
 
   if (colour == ScrollView::RED || colour == ScrollView::BLUE) {
     looplength = loop_bounding_box (start, botleft, topright);
@@ -150,14 +100,10 @@ ScrollView::Color check_path_legal(                  //certify outline
   if ((chainsum != 4 && chainsum != -4)
   || edgept != start || length < MINEDGELENGTH) {
     if (edgept != start) {
-      long_edges++;
-      return ScrollView::YELLOW;
-    }
-    else if (length < MINEDGELENGTH) {
-      short_edges++;
-      return ScrollView::MAGENTA;
-    }
-    else {
+     return ScrollView::YELLOW;
+    } else if (length < MINEDGELENGTH) {
+     return ScrollView::MAGENTA;
+    } else {
       ED_ILLEGAL_SUM.error ("check_path_legal", TESSLOG, "chainsum=%d",
         chainsum);
       return ScrollView::GREEN;

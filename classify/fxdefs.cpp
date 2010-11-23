@@ -25,51 +25,20 @@
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 -----------------------------------------------------------------------------*/
-/** flag to control learn mode vs. classify mode */
-int ExtractMode;
-
 // Definitions of extractors separated from feature definitions.
-DefineFeatureExt (MicroFeatureExt, ExtractMicros)
-DefineFeatureExt (PicoFeatExt, NULL)
-DefineFeatureExt (CharNormExt, ExtractCharNormFeatures)
-DefineFeatureExt (OutlineFeatExt, NULL)
+const FEATURE_EXT_STRUCT MicroFeatureExt = { ExtractMicros };
+const FEATURE_EXT_STRUCT PicoFeatExt = { NULL };
+const FEATURE_EXT_STRUCT OutlineFeatExt = { NULL };
+const FEATURE_EXT_STRUCT CharNormExt = { ExtractCharNormFeatures };
 
-FEATURE_EXT_STRUCT* ExtractorDefs[NUM_FEATURE_TYPES] = {
+const FEATURE_EXT_STRUCT* ExtractorDefs[NUM_FEATURE_TYPES] = {
   &MicroFeatureExt,
   &PicoFeatExt,
   &OutlineFeatExt,
   &CharNormExt
 };
 
-
-/*-----------------------------------------------------------------------------
-              Public Code
------------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-void SetupExtractors() {
+void SetupExtractors(FEATURE_DEFS_STRUCT *FeatureDefs) {
   for (int i = 0; i < NUM_FEATURE_TYPES; ++i)
-    FeatureDefs.FeatureExtractors[i] = ExtractorDefs[i];
+    FeatureDefs->FeatureExtractors[i] = ExtractorDefs[i];
 }
-
-/**
- * This routine copies the relavent fields from the
- * Row struct to the LineStats struct.
- *
- * Globals: 
- * - none
- *
- * @param Row text row to get line statistics from
- * @param[out] LineStats place to put line statistics
- *
- * @note History: Mon Mar 11 10:38:43 1991, DSJ, Created.
- */
-void GetLineStatsFromRow(TEXTROW *Row, LINE_STATS *LineStats) {
-  LineStats->Baseline = &(Row->baseline);
-  LineStats->XHeightLine = &(Row->xheight);
-  LineStats->xheight = Row->lineheight;
-  LineStats->AscRise = Row->ascrise;
-  LineStats->DescDrop = Row->descdrop;
-  LineStats->TextRow = Row;      /* kludge - only needed by fx for */
-  /* fast matcher - remove later */
-
-}                                /* GetLineStatsFromRow */

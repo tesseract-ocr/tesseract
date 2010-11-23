@@ -103,6 +103,104 @@ double DetLineFit::Fit(ICOORD* pt1, ICOORD* pt2) {
   return best_uq > 0.0 ? sqrt(best_uq) : best_uq;
 }
 
+// Backwards compatible fit returning a gradient and constant.
+// Deprecated. Prefer Fit(ICOORD*, ICOORD*) where possible, but use this
+// function in preference to the LMS class.
+double DetLineFit::Fit(float* m, float* c) {
+  ICOORD start, end;
+  double error = Fit(&start, &end);
+  if (end.x() != start.x()) {
+    *m = static_cast<float>(end.y() - start.y()) / (end.x() - start.x());
+    *c = start.y() - *m * start.x();
+  } else {
+    *m = 0.0f;
+    *c = 0.0f;
+  }
+  return error;
+}
+
+// Helper function to compute a fictitious end point that is on a line
+// of a given gradient through the given start.
+ICOORD ComputeEndFromGradient(const ICOORD& start, double m) {
+  if (m > 1.0 || m < -1.0) {
+    // dy dominates. Force it to have the opposite sign of start.y() and
+    // compute dx based on dy being as large as possible
+    int dx = static_cast<int>(floor(MAX_INT16 / m));
+    if (dx < 0) ++dx;  // Truncate towards 0.
+    if (start.y() > 0) dx = - dx;  // Force dy to be opposite to start.y().
+    // Constrain dx so the result fits in an inT16.
+    while (start.x() + dx > MAX_INT16 || start.x() + dx < -MAX_INT16)
+      dx /= 2;
+    if (-1 <= dx && dx <= 1) {
+      return ICOORD(start.x(), start.y() + 1);  // Too steep for anything else.
+    }
+    int y = start.y() + static_cast<int>(floor(dx * m + 0.5));
+    ASSERT_HOST(-MAX_INT16 <= y && y <= MAX_INT16);
+    return ICOORD(start.x() + dx, y);
+  } else {
+    // dx dominates. Force it to have the opposite sign of start.x() and
+    // compute dy based on dx being as large as possible.
+    int dy = static_cast<int>(floor(MAX_INT16 * m));
+    if (dy < 0) ++dy;  // Truncate towards 0.
+    if (start.x() > 0) dy = - dy;  // Force dx to be opposite to start.x().
+    // Constrain dy so the result fits in an inT16.
+    while (start.y() + dy > MAX_INT16 || start.y() + dy < -MAX_INT16)
+      dy /= 2;
+    if (-1 <= dy && dy <= 1) {
+      return ICOORD(start.x() + 1, start.y());  // Too flat for anything else.
+    }
+    int x = start.x() + static_cast<int>(floor(dy / m + 0.5));
+    ASSERT_HOST(-MAX_INT16 <= x && x <= MAX_INT16);
+    return ICOORD(x, start.y() + dy);
+  }
+}
+
+// Backwards compatible constrained fit with a supplied gradient.
+double DetLineFit::ConstrainedFit(double m, float* c) {
+  ICOORDELT_IT it(&pt_list_);
+  // Do something sensible with no points.
+  if (pt_list_.empty()) {
+    *c = 0.0f;
+    return 0.0;
+  }
+  // Count the points and find the first and last kNumEndPoints.
+  // Put the ends in a single array to make their use easier later.
+  ICOORD* pts[kNumEndPoints * 2];
+  int pt_count = 0;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    if (pt_count < kNumEndPoints) {
+      pts[pt_count] = it.data();
+      pts[kNumEndPoints + pt_count] = pts[pt_count];
+    } else {
+      for (int i = 1; i < kNumEndPoints; ++i)
+        pts[kNumEndPoints + i - 1] = pts[kNumEndPoints + i];
+      pts[kNumEndPoints * 2 - 1] = it.data();
+    }
+    ++pt_count;
+  }
+  while (pt_count < kNumEndPoints) {
+    pts[pt_count] = NULL;
+    pts[kNumEndPoints + pt_count++] = NULL;
+  }
+  int* distances = new int[pt_count];
+  double best_uq = -1.0;
+  // Iterate each pair of points and find the best fitting line.
+  for (int i = 0; i < kNumEndPoints * 2; ++i) {
+    ICOORD* start = pts[i];
+    if (start == NULL) continue;
+    ICOORD end = ComputeEndFromGradient(*start, m);
+    // Compute the upper quartile error from the line.
+    double dist = ComputeErrors(*start, end, distances);
+    if (dist < best_uq || best_uq < 0.0) {
+      best_uq = dist;
+      *c = start->y() - start->x() * m;
+    }
+  }
+  delete [] distances;
+  // Finally compute the square root to return the true distance.
+  return best_uq > 0.0 ? sqrt(best_uq) : best_uq;
+}
+
 // Comparator function used by the nth_item funtion.
 static int CompareInts(const void *p1, const void *p2) {
   const int* i1 = reinterpret_cast<const int*>(p1);

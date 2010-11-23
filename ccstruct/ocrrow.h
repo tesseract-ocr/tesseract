@@ -28,7 +28,7 @@ class TO_ROW;
 
 class ROW:public ELIST_LINK
 {
-  friend void tweak_row_baseline(ROW *);
+  friend void tweak_row_baseline(ROW *, double, double);
   public:
     ROW() {
     }                            //empty constructor

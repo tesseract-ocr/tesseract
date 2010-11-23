@@ -27,15 +27,12 @@
 ----------------------------------------------------------------------*/
 #include "states.h"
 #include "structures.h"
-#include "tordvars.h"
 #include "callcpp.h"
 
 /*-------------------------------------------------------------------------
             Variables
 --------------------------------------------------------------------------*/
-#define STATEBLOCK 100           /* Cells per block */
-makestructure (newstate, free_state, printstate, STATE,
-freestate, STATEBLOCK, "STATE", statecount);
+makestructure(newstate, free_state, STATE);
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -104,9 +101,6 @@ void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
   unsigned int mask;             /* Bit mask */
   inT16 num_pieces = 0;
   /* Preset mask */
-  if (tord_debug_8)
-    print_state ("bin_to_pieces = ", state, num_joints);
-
   mask = ((num_joints > 32) ?
     (1 << (num_joints - 1 - 32)) : (1 << (num_joints - 1)));
 
@@ -120,8 +114,6 @@ void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
       ((state->part2 & mask) ? TRUE : FALSE) :
     ((state->part1 & mask) ? TRUE : FALSE)) {
       pieces[++num_pieces] = 0;
-      if (tord_debug_8)
-        cprintf ("[%d]=%d ", num_pieces - 1, pieces[num_pieces - 1]);
     }
     /* Next mask value */
     mask = ((mask == 1) ? (1 << 31) : (mask >> 1));
@@ -129,8 +121,6 @@ void bin_to_pieces(STATE *state, int num_joints, PIECES_STATE pieces) {
   pieces[num_pieces]++;
   pieces[++num_pieces] = 0;
   ASSERT_HOST (num_pieces < MAX_NUM_CHUNKS + 2);
-  if (tord_debug_8)
-    new_line();
 }
 
 
@@ -267,118 +257,5 @@ void set_n_ones(STATE *state, int n) {
     state->part2 = ~0;
     state->part1 = ~0;
     state->part1 >>= 64 - n;
-  }
-}
-
-
-/**
- * compare_states
- *
- * Compare the 2 states at the given blob index. Return 1 if the given
- * blob is a fragment compared to reality, 2 if correct, 4 if a join,
- * and 5 if both a join and a fragment.
- * On return the blob index is set to the corresponding index in the
- * correct string.
- */
-int compare_states(STATE *true_state, STATE *this_state, int *blob_index) {
-  int blob_count;                //number found
-  int true_index;                //index of true blob
-  int index;                     //current
-  int result = 0;                //return value
-  uinT32 mask;
-
-  if (true_state->part1 == this_state->part1
-    && true_state->part2 == this_state->part2)
-    return 2;
-  if (*blob_index == 0) {
-    if (bits_in_states > 32) {
-      for (mask = 1 << (bits_in_states - 33); mask != 0; mask >>= 1) {
-        if (this_state->part1 & mask) {
-          if (true_state->part1 & mask)
-            return 2;
-          else
-            return 1;
-        }
-        else if (true_state->part1 & mask)
-          return 4;
-      }
-      index = 31;
-    }
-    else
-      index = bits_in_states - 1;
-    for (mask = 1 << index; mask != 0; mask >>= 1) {
-      if (this_state->part2 & mask) {
-        if (true_state->part2 & mask)
-          return 2;
-        else
-          return 1;
-      }
-      else if (true_state->part2 & mask)
-        return 4;
-    }
-    return 2;
-  }
-  else {
-    blob_count = 0;
-    true_index = 0;
-    if (bits_in_states > 32) {
-      for (mask = 1 << (bits_in_states - 33); mask != 0; mask >>= 1) {
-        if (true_state->part1 & mask)
-          true_index++;
-        if (this_state->part1 & mask) {
-          blob_count++;
-          if (blob_count == *blob_index) {
-            if ((true_state->part1 & mask) == 0)
-              result = 1;
-            break;
-          }
-        }
-      }
-      if (blob_count == *blob_index) {
-        for (mask >>= 1; mask != 0; mask >>= 1) {
-          if (this_state->part1 & mask) {
-            if ((true_state->part1 & mask) && result == 0)
-              return 2;
-            else
-              return result | 1;
-          }
-          else if (true_state->part1 & mask)
-            result |= 4;
-        }
-      }
-      index = 31;
-    }
-    else
-      index = bits_in_states - 1;
-    mask = 1 << index;
-    if (blob_count < *blob_index) {
-      for (; mask != 0; mask >>= 1) {
-        if (true_state->part2 & mask)
-          true_index++;
-        if (this_state->part2 & mask) {
-          blob_count++;
-          if (blob_count == *blob_index) {
-            if ((true_state->part2 & mask) == 0)
-              result = 1;
-            break;
-          }
-        }
-      }
-      if (blob_count != *blob_index)
-        return 2;
-      mask >>= 1;
-    }
-    *blob_index = true_index;
-    for (; mask != 0; mask >>= 1) {
-      if (this_state->part2 & mask) {
-        if ((true_state->part2 & mask) && result == 0)
-          return 2;
-        else
-          return result | 1;
-      }
-      else if (true_state->part2 & mask)
-        result |= 4;
-    }
-    return result == 0 ? 2 : result;
   }
 }

@@ -24,8 +24,7 @@
 #include          "ocrrow.h"
 #include          "werd.h"
 #include          "rect.h"
-#include          "pagewalk.h"
-#include          "varable.h"
+#include          "params.h"
 #include          "notdll.h"
 #include          "tesseractclass.h"
 
@@ -45,7 +44,6 @@ class PGEventHandler : public SVEventHandler {
 };
 
 extern BLOCK_LIST *current_block_list;
-extern BOOL8 *current_image_changed;
 extern STRING_VAR_H (editor_image_win_name, "EditorImage",
 "Editor image window name");
 extern INT_VAR_H (editor_image_xpos, 590, "Editor image X Pos");
@@ -71,14 +69,8 @@ extern INT_VAR_H (editor_word_height, 240, "Word window height");
 extern INT_VAR_H (editor_word_width, 655, "Word window width");
 extern double_VAR_H (editor_smd_scale_factor, 1.0, "Scaling for smd image");
 
-void add_word(                             //to block list
-              WERD *word,                  //word to be added
-              ROW *src_row,                //source row
-              BLOCK *src_block,            //source block
-              BLOCK_LIST *dest_block_list  //add to this
-             );
 ScrollView* bln_word_window_handle();  //return handle
-void build_image_window(TBOX page_bounding_box);
+void build_image_window(int width, int height);
 void display_bln_lines(ScrollView window,
                        ScrollView::Color colour,
                        float scale_factor,
@@ -86,86 +78,11 @@ void display_bln_lines(ScrollView window,
                        float minx,
                        float maxx);
                                  //function to call
-void do_re_display (BOOL8 word_painter (
-BLOCK *, ROW *, WERD *));
-const TBOX do_tidy_cmd();  //tidy
-void do_view_cmd();
-void do_write_file(            //serialise
-                   char *name  //file name
-                  );
 void pgeditor_msg(  //message display
                   const char *msg);
 void pgeditor_show_point(  //display coords
                          SVEvent *event);
-void pgeditor_write_file(                    //serialise
-                         char *name,         //file name
-                         BLOCK_LIST *blocks  //block list to write
-                        );
                                  //put bln word in       box
-float re_scale_and_move_bln_word(WERD *norm_word,  //BL normalised word
-                                 const TBOX &box    //destination box
-                                );
-void re_segment_word(                         //break/join words
-                     BLOCK_LIST *block_list,  //blocks to check
-                     TBOX &selection_box);
-void block_space_stat(                         //show space stats
-                      BLOCK_LIST *block_list,  //blocks to check
-                      TBOX &selection_box);
-void row_space_stat(                         //show space stats
-                    BLOCK_LIST *block_list,  //blocks to check
-                    TBOX &selection_box);
-void show_point(                         //display posn of bloba word
-                BLOCK_LIST *block_list,  //blocks to check
-                float x,
-                float y);
-                                 //display a word
-BOOL8 word_blank_and_set_display(BLOCK *block,  //block holding word
-                                 ROW *row,      //row holding word
-                                 WERD *word     //word to be processed
-                                );
-BOOL8 word_bln_display(            //bln & display
-                       BLOCK *,    //block holding word
-                       ROW *row,   //row holding word
-                       WERD *word  //word to be processed
-                      );
-BOOL8 word_change_text(               //change correct text
-                       BLOCK *block,  //block holding word
-                       ROW *row,      //row holding word
-                       WERD *word     //word to be processed
-                      );
-BOOL8 word_copy(               //copy a word
-                BLOCK *block,  //block holding word
-                ROW *row,      //row holding word
-                WERD *word     //word to be processed
-               );
-BOOL8 word_delete(                     //delete a word
-                  BLOCK *block,        //block holding word
-                  ROW *row,            //row holding word
-                  WERD *word,          //word to be processed
-                  BLOCK_IT &block_it,  //block list iterator
-                  ROW_IT &row_it,      //row list iterator
-                  WERD_IT &word_it     //word list iterator
-                 );
-BOOL8 word_display(            // display a word
-                   BLOCK *,    //block holding word
-                   ROW *row,   //row holding word
-                   WERD *word  //word to be processed
-                  );
-BOOL8 word_dumper(               //dump word
-                  BLOCK *block,  //block holding word
-                  ROW *row,      //row holding word
-                  WERD *word     //word to be processed
-                 );
-BOOL8 word_set_display(               //display a word
-                       BLOCK *block,  //block holding word
-                       ROW *row,      //row holding word
-                       WERD *word     //word to be processed
-                      );
-BOOL8 word_toggle_seg(            //toggle seg flag
-                      BLOCK *,    //block holding word
-                      ROW *,      //row holding word
-                      WERD *word  //word to be processed
-                     );
-void do_check_mem(  //do it
-                  inT32 level);
+void show_point(PAGE_RES* page_res, float x, float y);
+
 #endif

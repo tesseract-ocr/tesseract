@@ -27,397 +27,109 @@
 #include          "tstruct.h"
 #include          "tfacep.h"
 #include          "reject.h"
+#include          "tesscallback.h"
 #include          "tessvars.h"
 #include          "genblob.h"
 #include          "secname.h"
 #include          "globals.h"
 #include          "tesseractclass.h"
 
-#define EXTERN
+namespace tesseract{
 
-EXTERN STRING_VAR (outlines_odd, "%| ", "Non standard number of outlines");
-EXTERN STRING_VAR (outlines_2, "ij!?%\":;",
-"Non standard number of outlines");
-EXTERN BOOL_VAR (docqual_excuse_outline_errs, FALSE,
-"Allow outline errs in unrejection?");
-EXTERN BOOL_VAR (tessedit_good_quality_unrej, TRUE,
-"Reduce rejection on good docs");
-EXTERN BOOL_VAR (tessedit_use_reject_spaces, TRUE, "Reject spaces?");
-EXTERN double_VAR (tessedit_reject_doc_percent, 65.00,
-"%rej allowed before rej whole doc");
-EXTERN double_VAR (tessedit_reject_block_percent, 45.00,
-"%rej allowed before rej whole block");
-EXTERN double_VAR (tessedit_reject_row_percent, 40.00,
-"%rej allowed before rej whole row");
-EXTERN double_VAR (tessedit_whole_wd_rej_row_percent, 70.00,
-"%of row rejects in whole word rejects which prevents whole row rejection");
-EXTERN BOOL_VAR (tessedit_preserve_blk_rej_perfect_wds, TRUE,
-"Only rej partially rejected words in block rejection");
-EXTERN BOOL_VAR (tessedit_preserve_row_rej_perfect_wds, TRUE,
-"Only rej partially rejected words in row rejection");
-EXTERN BOOL_VAR (tessedit_dont_blkrej_good_wds, FALSE,
-"Use word segmentation quality metric");
-EXTERN BOOL_VAR (tessedit_dont_rowrej_good_wds, FALSE,
-"Use word segmentation quality metric");
-EXTERN INT_VAR (tessedit_preserve_min_wd_len, 2,
-"Only preserve wds longer than this");
-EXTERN BOOL_VAR (tessedit_row_rej_good_docs, TRUE,
-"Apply row rejection to good docs");
-EXTERN double_VAR (tessedit_good_doc_still_rowrej_wd, 1.1,
-"rej good doc wd if more than this fraction rejected");
-EXTERN BOOL_VAR (tessedit_reject_bad_qual_wds, TRUE,
-"Reject all bad quality wds");
-EXTERN BOOL_VAR (tessedit_debug_doc_rejection, FALSE, "Page stats");
-EXTERN BOOL_VAR (tessedit_debug_quality_metrics, FALSE,
-"Output data to debug file");
-EXTERN BOOL_VAR (bland_unrej, FALSE, "unrej potential with no checks");
-EXTERN double_VAR (quality_rowrej_pc, 1.1,
-"good_quality_doc gte good char limit");
+// A little class to provide the callbacks as we have no pre-bound args.
+struct DocQualCallbacks {
+  explicit DocQualCallbacks(WERD_RES* word0)
+    : word(word0), match_count(0), accepted_match_count(0) {}
 
-EXTERN BOOL_VAR (unlv_tilde_crunching, TRUE,
-"Mark v.bad words for tilde crunch");
-EXTERN BOOL_VAR (crunch_early_merge_tess_fails, TRUE, "Before word crunch?");
-EXTERN BOOL_EVAR (crunch_early_convert_bad_unlv_chs, FALSE,
-"Take out ~^ early?");
+  void CountMatchingBlobs(int index) {
+    ++match_count;
+  }
 
-EXTERN double_VAR (crunch_terrible_rating, 80.0, "crunch rating lt this");
-EXTERN BOOL_VAR (crunch_terrible_garbage, TRUE, "As it says");
-EXTERN double_VAR (crunch_poor_garbage_cert, -9.0,
-"crunch garbage cert lt this");
-EXTERN double_VAR (crunch_poor_garbage_rate, 60,
-"crunch garbage rating lt this");
+  void CountAcceptedBlobs(int index) {
+    if (word->reject_map[index].accepted())
+      ++accepted_match_count;
+    ++match_count;
+  }
 
-EXTERN double_VAR (crunch_pot_poor_rate, 40,
-"POTENTIAL crunch rating lt this");
-EXTERN double_VAR (crunch_pot_poor_cert, -8.0,
-"POTENTIAL crunch cert lt this");
-EXTERN BOOL_VAR (crunch_pot_garbage, TRUE, "POTENTIAL crunch garbage");
+  void AcceptIfGoodQuality(int index) {
+    if (word->reject_map[index].accept_if_good_quality())
+      word->reject_map[index].setrej_quality_accept();
+  }
 
-EXTERN double_VAR (crunch_del_rating, 60, "POTENTIAL crunch rating lt this");
-EXTERN double_VAR (crunch_del_cert, -10.0, "POTENTIAL crunch cert lt this");
-EXTERN double_VAR (crunch_del_min_ht, 0.7, "Del if word ht lt xht x this");
-EXTERN double_VAR (crunch_del_max_ht, 3.0, "Del if word ht gt xht x this");
-EXTERN double_VAR (crunch_del_min_width, 3.0,
-"Del if word width lt xht x this");
-EXTERN double_VAR (crunch_del_high_word, 1.5,
-"Del if word gt xht x this above bl");
-EXTERN double_VAR (crunch_del_low_word, 0.5,
-"Del if word gt xht x this below bl");
-EXTERN double_VAR (crunch_small_outlines_size, 0.6, "Small if lt xht x this");
-
-EXTERN INT_VAR (crunch_rating_max, 10, "For adj length in rating per ch");
-EXTERN INT_VAR (crunch_pot_indicators, 1,
-"How many potential indicators needed");
-
-EXTERN BOOL_VAR (crunch_leave_ok_strings, TRUE,
-"Dont touch sensible strings");
-EXTERN BOOL_VAR (crunch_accept_ok, TRUE, "Use acceptability in okstring");
-EXTERN BOOL_VAR (crunch_leave_accept_strings, FALSE,
-"Dont pot crunch sensible strings");
-EXTERN BOOL_VAR (crunch_include_numerals, FALSE, "Fiddle alpha figures");
-EXTERN INT_VAR (crunch_leave_lc_strings, 4,
-"Dont crunch words with long lower case strings");
-EXTERN INT_VAR (crunch_leave_uc_strings, 4,
-"Dont crunch words with long lower case strings");
-EXTERN INT_VAR (crunch_long_repetitions, 3,
-"Crunch words with long repetitions");
-
-EXTERN INT_VAR (crunch_debug, 0, "As it says");
-
-static BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2);
-static void unrej_good_chs(WERD_RES *word, ROW *row);
+  WERD_RES* word;
+  inT16 match_count;
+  inT16 accepted_match_count;
+};
 
 /*************************************************************************
  * word_blob_quality()
- * How many blobs in the outword are identical to those of the inword?
- * ASSUME blobs in both initial word and outword are in ascending order of
+ * How many blobs in the box_word are identical to those of the inword?
+ * ASSUME blobs in both initial word and box_word are in ascending order of
  * left hand blob edge.
  *************************************************************************/
-inT16 word_blob_quality(  //Blob seg changes
-                        WERD_RES *word,
-                        ROW *row) {
-  WERD *bln_word;                //BL norm init word
-  TWERD *tessword;               //tess format
-  WERD *init_word;               //BL norm init word
-  PBLOB_IT outword_it;
-  PBLOB_IT initial_it;
-  inT16 i;
-  inT16 init_blobs_left;
-  inT16 match_count = 0;
-  BOOL8 matched;
-  TBOX out_box;
-  PBLOB *test_blob;
-  DENORM denorm;
-  float bln_xht;
-
-  if (word->word->gblob_list ()->empty ())
+inT16 Tesseract::word_blob_quality(WERD_RES *word, ROW *row) {
+  if (word->bln_boxes == NULL ||
+      word->rebuild_word == NULL || word->rebuild_word->blobs == NULL)
     return 0;
-                                 //xht used for blnorm
-  bln_xht = bln_x_height / word->denorm.scale ();
-  bln_word = make_bln_copy(word->word, row, NULL, bln_xht, &denorm);
-  /*
-    NOTE: Need to convert to tess format and back again to ensure that the
-    same float -> int rounding of coords is done to source wd as out wd before
-    comparison
-  */
-  tessword = make_tess_word(bln_word, NULL);  // Convert word.
-  init_word = make_ed_word(tessword, bln_word);
-  delete bln_word;
-  delete_word(tessword);
-  if (init_word == NULL) {
-    // Conversion failed.
-    return 0;
-  }
 
-  initial_it.set_to_list(init_word->blob_list());
-  init_blobs_left = initial_it.length();
-  outword_it.set_to_list(word->outword->blob_list());
-
-  for (outword_it.mark_cycle_pt();
-       !outword_it.cycled_list(); outword_it.forward()) {
-    out_box = outword_it.data()->bounding_box();
-
-    // Skip any initial blobs LEFT of current outword blob.
-    while (!initial_it.at_last() &&
-           (initial_it.data()->bounding_box().left() < out_box.left())) {
-      initial_it.forward();
-      init_blobs_left--;
-    }
-
-    /* See if current outword blob matches any initial blob with the same left
-      coord. (Normally only one but possibly more - in unknown order) */
-
-    i = 0;
-    matched = FALSE;
-    do {
-      test_blob = initial_it.data_relative (i++);
-      matched = crude_match_blobs (test_blob, outword_it.data ());
-      if (matched)
-        match_count++;
-    }
-    while (!matched &&
-           (init_blobs_left - i > 0) &&
-           (i < 129) &&
-           !initial_it.at_last() &&
-           test_blob->bounding_box().left() == out_box.left());
-  }
-  delete init_word;
-  return match_count;
+  DocQualCallbacks cb(word);
+  word->bln_boxes->ProcessMatchedBlobs(
+      *word->rebuild_word,
+      NewPermanentTessCallback(&cb, &DocQualCallbacks::CountMatchingBlobs));
+  return cb.match_count;
 }
 
-
-/*************************************************************************
- * crude_match_blobs()
- * Check bounding boxes are the same and the number of outlines are the same.
- *************************************************************************/
-static BOOL8 crude_match_blobs(PBLOB *blob1, PBLOB *blob2) {
-  TBOX box1 = blob1->bounding_box();
-  TBOX box2 = blob2->bounding_box();
-
-  if (box1.contains(box2) &&
-      box2.contains(box1) &&
-      (blob1->out_list()->length() == blob1->out_list()->length()))
-    return TRUE;
-  else
-    return FALSE;
-}
-
-
-inT16 word_outline_errs(WERD_RES *word) {
-  PBLOB_IT outword_it;
+inT16 Tesseract::word_outline_errs(WERD_RES *word) {
   inT16 i = 0;
   inT16 err_count = 0;
 
-  outword_it.set_to_list(word->outword->blob_list());
+  TBLOB* blob = word->rebuild_word->blobs;
 
-  for (outword_it.mark_cycle_pt();
-       !outword_it.cycled_list(); outword_it.forward()) {
+  for (; blob != NULL; blob = blob->next) {
     err_count += count_outline_errs(word->best_choice->unichar_string()[i],
-                                    outword_it.data()->out_list()->length());
+                                    blob->NumOutlines());
     i++;
   }
   return err_count;
 }
-
 
 /*************************************************************************
  * word_char_quality()
  * Combination of blob quality and outline quality - how many good chars are
  * there? - I.e chars which pass the blob AND outline tests.
  *************************************************************************/
-void word_char_quality(WERD_RES *word,
-                       ROW *row,
-                       inT16 *match_count,
-                       inT16 *accepted_match_count) {
-  WERD *bln_word;                // BL norm init word
-  TWERD *tessword;               // tess format
-  WERD *init_word;               // BL norm init word
-  PBLOB_IT outword_it;
-  PBLOB_IT initial_it;
-  inT16 i;
-  inT16 init_blobs_left;
-  BOOL8 matched;
-  TBOX out_box;
-  PBLOB *test_blob;
-  DENORM denorm;
-  float bln_xht;
-  inT16 j = 0;
-
-  *match_count = 0;
-  *accepted_match_count = 0;
-  if (word->word->gblob_list ()->empty ())
+void Tesseract::word_char_quality(WERD_RES *word,
+                                  ROW *row,
+                                  inT16 *match_count,
+                                  inT16 *accepted_match_count) {
+  if (word->bln_boxes == NULL ||
+      word->rebuild_word == NULL || word->rebuild_word->blobs == NULL)
     return;
 
-                                 // xht used for blnorm
-  bln_xht = bln_x_height / word->denorm.scale();
-  bln_word = make_bln_copy(word->word, row, NULL, bln_xht, &denorm);
-  /*
-    NOTE: Need to convert to tess format and back again to ensure that the
-    same float -> int rounding of coords is done to source wd as out wd before
-    comparison
-  */
-  tessword = make_tess_word(bln_word, NULL);  // Convert word.
-  init_word = make_ed_word(tessword, bln_word);
-  delete bln_word;
-  delete_word(tessword);
-  if (init_word == NULL)
-    return;
-
-  initial_it.set_to_list(init_word->blob_list());
-  init_blobs_left = initial_it.length();
-  outword_it.set_to_list(word->outword->blob_list());
-
-  for (outword_it.mark_cycle_pt();
-  !outword_it.cycled_list(); outword_it.forward()) {
-    out_box = outword_it.data()->bounding_box();
-
-    /* Skip any initial blobs LEFT of current outword blob */
-    while (!initial_it.at_last() &&
-           (initial_it.data()->bounding_box().left() < out_box.left())) {
-           initial_it.forward();
-      init_blobs_left--;
-    }
-
-    /* See if current outword blob matches any initial blob with the same left
-      coord. (Normally only one but possibly more - in unknown order) */
-
-    i = 0;
-    matched = FALSE;
-    do {
-      test_blob = initial_it.data_relative(i++);
-      matched = crude_match_blobs(test_blob, outword_it.data());
-      if (matched &&
-        (count_outline_errs (word->best_choice->unichar_string()[j],
-        outword_it.data ()->out_list ()->length ())
-      == 0)) {
-        (*match_count)++;
-        if (word->reject_map[j].accepted ())
-          (*accepted_match_count)++;
-      }
-    }
-    while (!matched &&
-           (init_blobs_left - i > 0) &&
-           (i < 129) &&
-           !initial_it.at_last() &&
-           test_blob->bounding_box().left() == out_box.left());
-    j++;
-  }
-  delete init_word;
+  DocQualCallbacks cb(word);
+  word->bln_boxes->ProcessMatchedBlobs(
+      *word->rebuild_word,
+      NewPermanentTessCallback(&cb, &DocQualCallbacks::CountAcceptedBlobs));
+  *match_count = cb.match_count;
+  *accepted_match_count = cb.accepted_match_count;
 }
-
 
 /*************************************************************************
  * unrej_good_chs()
  * Unreject POTENTIAL rejects if the blob passes the blob and outline checks
  *************************************************************************/
-static void unrej_good_chs(WERD_RES *word, ROW *row) {
-  WERD *bln_word;                // BL norm init word
-  TWERD *tessword;               // tess format
-  WERD *init_word;               // BL norm init word
-  PBLOB_IT outword_it;
-  PBLOB_IT initial_it;
-  inT16 i;
-  inT16 init_blobs_left;
-  BOOL8 matched;
-  TBOX out_box;
-  PBLOB *test_blob;
-  DENORM denorm;
-  float bln_xht;
-  inT16 j = 0;
-
-  if (word->word->gblob_list ()->empty ())
+void Tesseract::unrej_good_chs(WERD_RES *word, ROW *row) {
+  if (word->bln_boxes == NULL ||
+      word->rebuild_word == NULL || word->rebuild_word->blobs == NULL)
     return;
 
-                                 // xht used for blnorm
-  bln_xht = bln_x_height / word->denorm.scale ();
-  bln_word = make_bln_copy(word->word, row, NULL, bln_xht, &denorm);
-  /*
-    NOTE: Need to convert to tess format and back again to ensure that the
-    same float -> int rounding of coords is done to source wd as out wd before
-    comparison
-  */
-  tessword = make_tess_word(bln_word, NULL);  // Convert word
-  init_word = make_ed_word(tessword, bln_word);
-  delete bln_word;
-  delete_word(tessword);
-  if (init_word == NULL)
-    return;
-
-  initial_it.set_to_list (init_word->blob_list ());
-  init_blobs_left = initial_it.length ();
-  outword_it.set_to_list (word->outword->blob_list ());
-
-  for (outword_it.mark_cycle_pt ();
-  !outword_it.cycled_list (); outword_it.forward ()) {
-    out_box = outword_it.data ()->bounding_box ();
-
-    /* Skip any initial blobs LEFT of current outword blob */
-    while (!initial_it.at_last () &&
-    (initial_it.data ()->bounding_box ().left () < out_box.left ())) {
-      initial_it.forward ();
-      init_blobs_left--;
-    }
-
-    /* See if current outword blob matches any initial blob with the same left
-      coord. (Normally only one but possibly more - in unknown order) */
-
-    i = 0;
-    matched = FALSE;
-    do {
-      test_blob = initial_it.data_relative (i++);
-      matched = crude_match_blobs (test_blob, outword_it.data ());
-      if (matched &&
-        (word->reject_map[j].accept_if_good_quality ()) &&
-        (docqual_excuse_outline_errs ||
-        (count_outline_errs (word->best_choice->unichar_string()[j],
-        outword_it.data ()->out_list ()->
-        length ()) == 0)))
-        word->reject_map[j].setrej_quality_accept ();
-    }
-    while (!matched &&
-      (init_blobs_left - i > 0) &&
-      (i < 129) &&
-      !initial_it.at_last () &&
-      test_blob->bounding_box ().left () == out_box.left ());
-    j++;
-  }
-  delete init_word;
+  DocQualCallbacks cb(word);
+  word->bln_boxes->ProcessMatchedBlobs(
+      *word->rebuild_word,
+      NewPermanentTessCallback(&cb, &DocQualCallbacks::AcceptIfGoodQuality));
 }
 
-
-void print_boxes(WERD *word) {
-  PBLOB_IT it;
-  TBOX box;
-
-  it.set_to_list (word->blob_list ());
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-    box = it.data ()->bounding_box ();
-    box.print ();
-  }
-}
-
-
-inT16 count_outline_errs(char c, inT16 outline_count) {
+inT16 Tesseract::count_outline_errs(char c, inT16 outline_count) {
   int expected_outline_count;
 
   if (STRING (outlines_odd).contains (c))
@@ -429,20 +141,11 @@ inT16 count_outline_errs(char c, inT16 outline_count) {
   return abs (outline_count - expected_outline_count);
 }
 
-
-namespace tesseract {
 void Tesseract::quality_based_rejection(PAGE_RES_IT &page_res_it,
                                         BOOL8 good_quality_doc) {
   if ((tessedit_good_quality_unrej && good_quality_doc))
     unrej_good_quality_words(page_res_it);
   doc_and_block_rejection(page_res_it, good_quality_doc);
-
-  page_res_it.restart_page ();
-  while (page_res_it.word () != NULL) {
-    insert_rej_cblobs(page_res_it.word());
-    page_res_it.forward();
-  }
-
   if (unlv_tilde_crunching) {
     tilde_crunch(page_res_it);
     tilde_delete(page_res_it);
@@ -542,7 +245,7 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
 
   BOOL8 rej_word;
   BOOL8 prev_word_rejected;
-  inT16 char_quality;
+  inT16 char_quality = 0;
   inT16 accepted_char_quality;
 
   if ((page_res_it.page_res->rej_count * 100.0 /
@@ -833,10 +536,10 @@ void Tesseract::tilde_crunch(PAGE_RES_IT &page_res_it) {
     page_res_it.forward ();
   }
 }
-}  // namespace tesseract
 
 
-BOOL8 terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level) {
+BOOL8 Tesseract::terrible_word_crunch(WERD_RES *word,
+                                      GARBAGE_LEVEL garbage_level) {
   float rating_per_ch;
   int adjusted_len;
   int crunch_mode = 0;
@@ -873,7 +576,6 @@ BOOL8 terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level) {
     return FALSE;
 }
 
-namespace tesseract {
 BOOL8 Tesseract::potential_word_crunch(WERD_RES *word,
                                        GARBAGE_LEVEL garbage_level,
                                        BOOL8 ok_dict_word) {
@@ -1022,36 +724,30 @@ void Tesseract::convert_bad_unlv_chs(WERD_RES *word_res) {
   }
 }
 
+// Callback helper for merge_tess_fails returns a space if both
+// arguments are space, otherwise INVALID_UNICHAR_ID.
+UNICHAR_ID Tesseract::BothSpaces(UNICHAR_ID id1, UNICHAR_ID id2) {
+  if (id1 == id2 && id1 == unicharset.unichar_to_id(" "))
+    return id1;
+  else
+    return INVALID_UNICHAR_ID;
+}
+
 // Change pairs of tess failures to a single one
 void Tesseract::merge_tess_fails(WERD_RES *word_res) {
-  PBLOB_IT blob_it;              //blobs
-  int len = word_res->best_choice->length();
-  bool modified = false;
-
-  ASSERT_HOST (word_res->reject_map.length () == len);
-  ASSERT_HOST (word_res->outword->blob_list ()->length () == len);
-
-  UNICHAR_ID unichar_space = unicharset.unichar_to_id(" ");
-  blob_it = word_res->outword->blob_list ();
-  int i = 0;
-  while (i < word_res->best_choice->length()-1) {
-    if ((word_res->best_choice->unichar_id(i) == unichar_space) &&
-        (word_res->best_choice->unichar_id(i+1) == unichar_space)) {
-      modified = true;
-      word_res->best_choice->remove_unichar_id(i);
-      word_res->reject_map.remove_pos (i);
-      merge_blobs (blob_it.data_relative (1), blob_it.data ());
-      delete blob_it.extract (); //get rid of spare
-    } else {
-      i++;
-    }
-    blob_it.forward ();
-  }
-  len = word_res->best_choice->length();
-  ASSERT_HOST (word_res->reject_map.length () == len);
-  ASSERT_HOST (word_res->outword->blob_list ()->length () == len);
-  if (modified) {
-    word_res->best_choice->populate_unichars(unicharset);
+  if (word_res->ConditionalBlobMerge(
+      unicharset,
+      NewPermanentTessCallback(this, &Tesseract::BothSpaces), NULL,
+      word_res->best_choice->blob_choices())) {
+    tprintf("Post:bc len=%d, rejmap=%d, boxword=%d, chopword=%d, rebuild=%d\n",
+            word_res->best_choice->length(),
+            word_res->reject_map.length(),
+            word_res->box_word->length(),
+            word_res->chopped_word->NumBlobs(),
+            word_res->rebuild_word->NumBlobs());
+    int len = word_res->best_choice->length();
+    ASSERT_HOST(word_res->reject_map.length() == len);
+    ASSERT_HOST(word_res->box_word->length() == len);
   }
 }
 
@@ -1252,7 +948,6 @@ GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
       return G_OK;
   }
 }
-}  // namespace tesseract
 
 
 /*************************************************************************
@@ -1271,7 +966,7 @@ GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
  *          >75% of the outline BBs have longest dimension < 0.5xht
  *************************************************************************/
 
-CRUNCH_MODE word_deletable(WERD_RES *word, inT16 &delete_mode) {
+CRUNCH_MODE Tesseract::word_deletable(WERD_RES *word, inT16 &delete_mode) {
   int word_len = word->reject_map.length ();
   float rating_per_ch;
   TBOX box;                       //BB of word
@@ -1286,13 +981,13 @@ CRUNCH_MODE word_deletable(WERD_RES *word, inT16 &delete_mode) {
     return CR_DELETE;
   }
 
-  box = word->outword->bounding_box ();
-  if (box.height () < crunch_del_min_ht * bln_x_height) {
+  box = word->rebuild_word->bounding_box();
+  if (box.height () < crunch_del_min_ht * kBlnXHeight) {
     delete_mode = 4;
     return CR_DELETE;
   }
 
-  if (noise_outlines (word->outword)) {
+  if (noise_outlines(word->rebuild_word)) {
     delete_mode = 5;
     return CR_DELETE;
   }
@@ -1314,23 +1009,23 @@ CRUNCH_MODE word_deletable(WERD_RES *word, inT16 &delete_mode) {
     return CR_LOOSE_SPACE;
   }
 
-  if (box.top () < bln_baseline_offset - crunch_del_low_word * bln_x_height) {
+  if (box.top () < kBlnBaselineOffset - crunch_del_low_word * kBlnXHeight) {
     delete_mode = 9;
     return CR_LOOSE_SPACE;
   }
 
   if (box.bottom () >
-  bln_baseline_offset + crunch_del_high_word * bln_x_height) {
+  kBlnBaselineOffset + crunch_del_high_word * kBlnXHeight) {
     delete_mode = 10;
     return CR_LOOSE_SPACE;
   }
 
-  if (box.height () > crunch_del_max_ht * bln_x_height) {
+  if (box.height () > crunch_del_max_ht * kBlnXHeight) {
     delete_mode = 11;
     return CR_LOOSE_SPACE;
   }
 
-  if (box.width () < crunch_del_min_width * bln_x_height) {
+  if (box.width () < crunch_del_min_width * kBlnXHeight) {
     delete_mode = 3;
     return CR_LOOSE_SPACE;
   }
@@ -1339,7 +1034,7 @@ CRUNCH_MODE word_deletable(WERD_RES *word, inT16 &delete_mode) {
   return CR_NONE;
 }
 
-inT16 failure_count(WERD_RES *word) {
+inT16 Tesseract::failure_count(WERD_RES *word) {
   const char *str = word->best_choice->unichar_string().string();
   int tess_rejs = 0;
 
@@ -1351,134 +1046,25 @@ inT16 failure_count(WERD_RES *word) {
 }
 
 
-BOOL8 noise_outlines(WERD *word) {
-  PBLOB_IT blob_it;
-  OUTLINE_IT outline_it;
-  TBOX box;                       //BB of outline
+BOOL8 Tesseract::noise_outlines(TWERD *word) {
+  TBOX box;                       // BB of outline
   inT16 outline_count = 0;
   inT16 small_outline_count = 0;
   inT16 max_dimension;
-  float small_limit = bln_x_height * crunch_small_outlines_size;
+  float small_limit = kBlnXHeight * crunch_small_outlines_size;
 
-  blob_it.set_to_list (word->blob_list ());
-  for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
-    outline_it.set_to_list (blob_it.data ()->out_list ());
-    for (outline_it.mark_cycle_pt ();
-    !outline_it.cycled_list (); outline_it.forward ()) {
+  for (TBLOB* blob = word->blobs; blob != NULL; blob = blob->next) {
+    for (TESSLINE* ol = blob->outlines; ol != NULL; ol = ol->next) {
       outline_count++;
-      box = outline_it.data ()->bounding_box ();
-      if (box.height () > box.width ())
-        max_dimension = box.height ();
+      box = ol->bounding_box();
+      if (box.height() > box.width())
+        max_dimension = box.height();
       else
-        max_dimension = box.width ();
+        max_dimension = box.width();
       if (max_dimension < small_limit)
         small_outline_count++;
     }
   }
   return (small_outline_count >= outline_count);
-}
-
-
-/*************************************************************************
- * insert_rej_cblobs()
- * Put rejected word blobs back into the outword.
- * NOTE!!! AFTER THIS THE CHOICES LIST WILL NOT HAVE THE CORRECT NUMBER
- * OF ELEMENTS.
- *************************************************************************/
-namespace tesseract {
-void Tesseract::insert_rej_cblobs(WERD_RES *word) {
-  PBLOB_IT blob_it;              //blob iterator
-  PBLOB_IT rej_blob_it;
-  const STRING *word_str;
-  const STRING *word_lengths;
-  int old_len;
-  int rej_len;
-  char new_str[512 * UNICHAR_LEN];
-  char new_lengths[512];
-  REJMAP new_map;
-  int i = 0;                     //new_str index
-  int j = 0;                     //old_str index
-  int i_offset = 0;              //new_str offset
-  int j_offset = 0;              //old_str offset
-  int new_len;
-
-  gblob_sort_list (word->outword->rej_blob_list (), TRUE);
-  rej_blob_it.set_to_list (word->outword->rej_blob_list ());
-  if (rej_blob_it.empty ())
-    return;
-  rej_len = rej_blob_it.length ();
-  blob_it.set_to_list (word->outword->blob_list ());
-  word_str = &(word->best_choice->unichar_string());
-  word_lengths = &(word->best_choice->unichar_lengths());
-  old_len = word->best_choice->length();
-  ASSERT_HOST (word->reject_map.length () == old_len);
-  ASSERT_HOST (blob_it.length () == old_len);
-  if ((old_len + rej_len) > 511)
-    return;                      //Word is garbage anyway prevent abort
-  new_map.initialise (old_len + rej_len);
-
-  while (!rej_blob_it.empty ()) {
-    if ((j >= old_len) ||
-      (rej_blob_it.data ()->bounding_box ().left () <=
-    blob_it.data ()->bounding_box ().left ())) {
-      /* Insert reject blob */
-      if (j >= old_len)
-        blob_it.add_to_end (rej_blob_it.extract ());
-      else
-        blob_it.add_before_stay_put (rej_blob_it.extract ());
-      if (!rej_blob_it.empty ())
-        rej_blob_it.forward ();
-      new_str[i_offset] = ' ';
-      new_lengths[i] = 1;
-      new_map[i].setrej_rej_cblob ();
-      i_offset += new_lengths[i++];
-    }
-    else {
-      strncpy(new_str + i_offset, &(*word_str)[j_offset],
-              (*word_lengths)[j]);
-      new_lengths[i] = (*word_lengths)[j];
-      new_map[i] = word->reject_map[j];
-      i_offset += new_lengths[i++];
-      j_offset += (*word_lengths)[j++];
-      blob_it.forward ();
-    }
-  }
-  /* Add any extra normal blobs to strings */
-  while (j < word_lengths->length ()) {
-    strncpy(new_str + i_offset, &(*word_str)[j_offset],
-            (*word_lengths)[j]);
-    new_lengths[i] = (*word_lengths)[j];
-    new_map[i] = word->reject_map[j];
-    i_offset += new_lengths[i++];
-    j_offset += (*word_lengths)[j++];
-  }
-  new_str[i_offset] = '\0';
-  new_lengths[i] = 0;
-  /*
-    tprintf(
-          "\nOld len %d; New len %d; New str \"%s\"; New map \"%s\"\n",
-          old_len, i, new_str, new_map );
-  */
-  ASSERT_HOST (i == blob_it.length ());
-  ASSERT_HOST (i == old_len + rej_len);
-  word->reject_map = new_map;
-
-  // Update word->best_choice if needed.
-  if (strcmp(new_str, word->best_choice->unichar_string().string()) != 0 ||
-      strcmp(new_lengths, word->best_choice->unichar_lengths().string()) != 0) {
-    WERD_CHOICE *new_choice =
-      new WERD_CHOICE(new_str, new_lengths,
-                      word->best_choice->rating(),
-                      word->best_choice->certainty(),
-                      word->best_choice->permuter(),
-                      getDict().getUnicharset());
-   new_choice->populate_unichars(getDict().getUnicharset());
-   delete word->best_choice;
-   word->best_choice = new_choice;
-  }
-  new_len = word->best_choice->length();
-  ASSERT_HOST (word->reject_map.length () == new_len);
-  ASSERT_HOST (word->outword->blob_list ()->length () == new_len);
-
 }
 }  // namespace tesseract

@@ -25,9 +25,6 @@
 #include "matchdefs.h"
 #include "xform2d.h"
 
-/* maximum size of a bulge for length=1 is sqrt(2)/3 */
-#define BULGENORMALIZER   0.942809041
-
 /* definition of a list of micro-features */
 typedef LIST MICROFEATURES;
 

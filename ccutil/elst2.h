@@ -110,12 +110,12 @@ class DLLSYM ELIST2
       void (*zapper) (ELIST2_LINK *));
     //ptr to zapper functn
 
-    bool empty() {  //is list empty?
+    bool empty() const {  //is list empty?
       return !last;
     }
 
-    bool singleton() {
-      return last ? (last == last->next) : FALSE;
+    bool singleton() const {
+      return last ? (last == last->next) : false;
     }
 
     void shallow_copy(                      //dangerous!!
@@ -131,7 +131,7 @@ class DLLSYM ELIST2
                            ELIST2_ITERATOR *start_it,  //from list start
                            ELIST2_ITERATOR *end_it);   //from list end
 
-    inT32 length();  //# elements in list
+    inT32 length() const;  // # elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -179,13 +179,13 @@ class DLLSYM ELIST2_ITERATOR
   ELIST2_LINK *prev;             //prev element
   ELIST2_LINK *current;          //current element
   ELIST2_LINK *next;             //next element
-  bool ex_current_was_last;     //current extracted
+  BOOL8 ex_current_was_last;     //current extracted
   //was end of list
-  bool ex_current_was_cycle_pt; //current extracted
+  BOOL8 ex_current_was_cycle_pt; //current extracted
   //was cycle point
   ELIST2_LINK *cycle_pt;         //point we are cycling
   //the list to.
-  bool started_cycling;         //Have we moved off
+  BOOL8 started_cycling;         //Have we moved off
   //the start?
 
   ELIST2_LINK *extract_sublist(                             //from this current...
@@ -246,7 +246,7 @@ class DLLSYM ELIST2_ITERATOR
 
     void mark_cycle_pt();  //remember current
 
-    bool empty() {  //is list empty?
+    BOOL8 empty() {  //is list empty?
     #ifndef NDEBUG
       if (!list)
         NO_LIST.error ("ELIST2_ITERATOR::empty", ABORT, NULL);
@@ -254,15 +254,15 @@ class DLLSYM ELIST2_ITERATOR
       return list->empty ();
     }
 
-    bool current_extracted() {  //current extracted?
+    BOOL8 current_extracted() {  //current extracted?
       return !current;
     }
 
-    bool at_first();  //Current is first?
+    BOOL8 at_first();  //Current is first?
 
-    bool at_last();  //Current is last?
+    BOOL8 at_last();  //Current is last?
 
-    bool cycled_list();  //Completed a cycle?
+    BOOL8 cycled_list();  //Completed a cycle?
 
     void add_to_end(                         //add at end &
                     ELIST2_LINK *new_link);  //dont move
@@ -750,7 +750,7 @@ inline void ELIST2_ITERATOR::mark_cycle_pt() {
  *
  **********************************************************************/
 
-inline bool ELIST2_ITERATOR::at_first() {
+inline BOOL8 ELIST2_ITERATOR::at_first() {
   #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("ELIST2_ITERATOR::at_first", ABORT, NULL);
@@ -772,7 +772,7 @@ inline bool ELIST2_ITERATOR::at_first() {
  *
  **********************************************************************/
 
-inline bool ELIST2_ITERATOR::at_last() {
+inline BOOL8 ELIST2_ITERATOR::at_last() {
   #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("ELIST2_ITERATOR::at_last", ABORT, NULL);
@@ -794,7 +794,7 @@ inline bool ELIST2_ITERATOR::at_last() {
  *
  **********************************************************************/
 
-inline bool ELIST2_ITERATOR::cycled_list() {
+inline BOOL8 ELIST2_ITERATOR::cycled_list() {
   #ifndef NDEBUG
   if (!this)
     NULL_OBJECT.error ("ELIST2_ITERATOR::cycled_list", ABORT, NULL);

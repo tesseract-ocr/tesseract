@@ -3,14 +3,6 @@
 #ifdef __MSW32__
 #define SIGNED
 #define snprintf _snprintf
-#define read _read
-#define write _write
-#define close _close
-#define lseek _lseek
-#define open _open
-#define ultoa _ultoa
-#define ltoa _ltoa
-#define strtok_r(s, d, p) strtok(s, d)
 #if (_MSC_VER <= 1400)
 #define vsnprintf _vsnprintf
 #endif

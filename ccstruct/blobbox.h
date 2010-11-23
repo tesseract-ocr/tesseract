@@ -20,15 +20,11 @@
 #ifndef           BLOBBOX_H
 #define           BLOBBOX_H
 
-#include          "varable.h"
 #include          "clst.h"
 #include          "elst2.h"
 #include          "werd.h"
 #include          "ocrblock.h"
 #include          "statistc.h"
-
-extern double_VAR_H (textord_error_weight, 3,
-"Weighting for error in believability");
 
 enum PITCH_TYPE
 {
@@ -53,10 +49,12 @@ enum TabType {
 
 // The possible region types of a BLOBNBOX.
 // Note: keep all the text types > BRT_UNKNOWN and all the image types less.
-// Keep in sync with kBlobTypes in colpartition.cpp and BoxColor below.
+// Keep in sync with kBlobTypes in colpartition.cpp and BoxColor, and the
+// *Type static functions below.
 enum BlobRegionType {
   BRT_NOISE,      // Neither text nor image.
   BRT_HLINE,      // Horizontal separator line.
+  BRT_VLINE,      // Vertical separator line.
   BRT_RECTIMAGE,  // Rectangular image.
   BRT_POLYIMAGE,  // Non-rectangular image.
   BRT_UNKNOWN,    // Not determined yet.
@@ -65,6 +63,46 @@ enum BlobRegionType {
 
   BRT_COUNT       // Number of possibilities.
 };
+
+// enum for elements of arrays that refer to neighbours.
+enum BlobNeighbourDir {
+  BND_LEFT,
+  BND_BELOW,
+  BND_RIGHT,
+  BND_ABOVE,
+  BND_COUNT
+};
+
+// BlobTextFlowType indicates the quality of neighbouring information
+// related to a chain of connected components, either horizontally or
+// vertically. Also used by ColPartition for the collection of blobs
+// within, which should all have the same value in most cases.
+enum BlobTextFlowType {
+  BTFT_NONE,           // No text flow set yet.
+  BTFT_NONTEXT,        // Flow too poor to be likely text.
+  BTFT_NEIGHBOURS,     // Neighbours support flow in this direction.
+  BTFT_CHAIN,          // There is a weak chain of text in this direction.
+  BTFT_STRONG_CHAIN,   // There is a strong chain of text in this direction.
+  BTFT_TEXT_ON_IMAGE,  // There is a strong chain of text on an image.
+  BTFT_LEADER,         // Leader dots/dashes etc.
+  BTFT_COUNT
+};
+
+// Returns true if type1 dominates type2 in a merge. Mostly determined by the
+// ordering of the enum, but NONTEXT dominates everything else, and LEADER
+// dominates nothing.
+// The function is anti-symmetric (t1 > t2) === !(t2 > t1), except that
+// this cannot be true if t1 == t2, so the result is undefined.
+inline bool DominatesInMerge(BlobTextFlowType type1, BlobTextFlowType type2) {
+  // NONTEXT dominates everything.
+  if (type1 == BTFT_NONTEXT) return true;
+  if (type2 == BTFT_NONTEXT) return false;
+  // LEADER always loses.
+  if (type1 == BTFT_LEADER) return false;
+  if (type2 == BTFT_LEADER) return true;
+  // With those out of the way, the ordering of the enum determines the result.
+  return type1 >= type2;
+}
 
 namespace tesseract {
 class ColPartition;
@@ -76,46 +114,84 @@ class BLOBNBOX:public ELIST_LINK
 {
   public:
     BLOBNBOX() {
-      blob_ptr = NULL;
-      cblob_ptr = NULL;
-      area = 0;
-      Init();
+      ConstructionInit();
     }
     explicit BLOBNBOX(PBLOB *srcblob) {
+      box = srcblob->bounding_box();
+      ConstructionInit();
       blob_ptr = srcblob;
-      cblob_ptr = NULL;
-      box = srcblob->bounding_box ();
-      area = (int) srcblob->area ();
-      Init();
+      area = static_cast<int>(srcblob->area());
     }
     explicit BLOBNBOX(C_BLOB *srcblob) {
-      blob_ptr = NULL;
+      box = srcblob->bounding_box();
+      ConstructionInit();
       cblob_ptr = srcblob;
-      box = srcblob->bounding_box ();
-      area = (int) srcblob->area ();
-      Init();
+      area = static_cast<int>(srcblob->area());
+    }
+    static BLOBNBOX* RealBlob(C_OUTLINE* outline) {
+      C_BLOB* blob = new C_BLOB(outline);
+      return new BLOBNBOX(blob);
     }
 
-    void rotate_box(FCOORD vec) {
-      box.rotate(vec);
-    }
+    void rotate_box(FCOORD rotation);
+    void rotate(FCOORD rotation);
     void translate_box(ICOORD v) {
-      box.move(v);
+      if (IsDiacritic()) {
+        box.move(v);
+        base_char_top_ += v.y();
+        base_char_bottom_ += v.y();
+      } else {
+        box.move(v);
+        set_diacritic_box(box);
+      }
     }
     void merge(BLOBNBOX *nextblob);
+    void really_merge(BLOBNBOX* other);
     void chop(                        // fake chop blob
               BLOBNBOX_IT *start_it,  // location of this
               BLOBNBOX_IT *blob_it,   // iterator
               FCOORD rotation,        // for landscape
               float xheight);         // line height
 
+    void NeighbourGaps(int gaps[BND_COUNT]) const;
+    void MinMaxGapsClipped(int* h_min, int* h_max,
+                           int* v_min, int* v_max) const;
+    int GoodTextBlob() const;
+
+    // Returns true, and sets vert_possible/horz_possible if the blob has some
+    // feature that makes it individually appear to flow one way.
+    // eg if it has a high aspect ratio, yet has a complex shape, such as a
+    // joined word in Latin, Arabic, or Hindi, rather than being a -, I, l, 1.
+    bool DefiniteIndividualFlow();
+
+    // Returns true if there is no tabstop violation in merging this and other.
+    bool ConfirmNoTabViolation(const BLOBNBOX& other) const;
+
+    // Returns true if other has a similar stroke width to this.
+    bool MatchingStrokeWidth(const BLOBNBOX& other,
+                             double fractional_tolerance,
+                             double constant_tolerance) const;
+
+    // Returns a bounding box of the outline contained within the
+    // given horizontal range.
+    TBOX BoundsWithinLimits(int left, int right);
+
     // Simple accessors.
     const TBOX& bounding_box() const {
       return box;
     }
+    // Set the bounding box. Use with caution.
+    // Normally use compute_bounding_box instead.
+    void set_bounding_box(const TBOX& new_box) {
+      box = new_box;
+      base_char_top_ = box.top();
+      base_char_bottom_ = box.bottom();
+    }
     void compute_bounding_box() {
       box = cblob_ptr != NULL ? cblob_ptr->bounding_box()
                               : blob_ptr->bounding_box();
+      base_char_top_ = box.top();
+      base_char_bottom_ = box.bottom();
     }
     const TBOX& reduced_box() const {
       return red_box;
@@ -163,6 +239,24 @@ class BLOBNBOX:public ELIST_LINK
     void set_region_type(BlobRegionType new_type) {
       region_type_ = new_type;
     }
+    BlobTextFlowType flow() const {
+      return flow_;
+    }
+    void set_flow(BlobTextFlowType value) {
+      flow_ = value;
+    }
+    bool vert_possible() const {
+      return vert_possible_;
+    }
+    void set_vert_possible(bool value) {
+      vert_possible_ = value;
+    }
+    bool horz_possible() const {
+      return horz_possible_;
+    }
+    void set_horz_possible(bool value) {
+      horz_possible_ = value;
+    }
     int left_rule() const {
       return left_rule_;
     }
@@ -199,40 +293,80 @@ class BLOBNBOX:public ELIST_LINK
     void set_vert_stroke_width(float width) {
       vert_stroke_width_ = width;
     }
+    float area_stroke_width() const {
+      return area_stroke_width_;
+    }
     tesseract::ColPartition* owner() const {
       return owner_;
     }
     void set_owner(tesseract::ColPartition* new_owner) {
       owner_ = new_owner;
     }
-    void set_noise_flag(bool flag) {
-      noise_flag_ = flag;
+    bool leader_on_left() const {
+      return leader_on_left_;
     }
-    bool noise_flag() const {
-      return noise_flag_;
+    void set_leader_on_left(bool flag) {
+      leader_on_left_ = flag;
     }
+    bool leader_on_right() const {
+      return leader_on_right_;
+    }
+    void set_leader_on_right(bool flag) {
+      leader_on_right_ = flag;
+    }
+    BLOBNBOX* neighbour(BlobNeighbourDir n) const {
+      return neighbours_[n];
+    }
+    bool good_stroke_neighbour(BlobNeighbourDir n) const {
+      return good_stroke_neighbours_[n];
+    }
+    void set_neighbour(BlobNeighbourDir n, BLOBNBOX* neighbour, bool good) {
+      neighbours_[n] = neighbour;
+      good_stroke_neighbours_[n] = good;
+    }
+    bool IsDiacritic() const {
+      return base_char_top_ != box.top() || base_char_bottom_ != box.bottom();
+    }
+    int base_char_top() const {
+      return base_char_top_;
+    }
+    int base_char_bottom() const {
+      return base_char_bottom_;
+    }
+    void set_diacritic_box(const TBOX& diacritic_box) {
+      base_char_top_ = diacritic_box.top();
+      base_char_bottom_ = diacritic_box.bottom();
+    }
+    bool UniquelyVertical() const {
+      return vert_possible_ && !horz_possible_;
+    }
+    bool UniquelyHorizontal() const {
+      return horz_possible_ && !vert_possible_;
+    }
+
+    // Returns true if the region type is text.
+    static bool IsTextType(BlobRegionType type) {
+      return type == BRT_TEXT || type == BRT_VERT_TEXT;
+    }
+    // Returns true if the region type is image.
+    static bool IsImageType(BlobRegionType type) {
+      return type == BRT_RECTIMAGE || type == BRT_POLYIMAGE;
+    }
+    // Returns true if the region type is line.
+    static bool IsLineType(BlobRegionType type) {
+      return type == BRT_HLINE || type == BRT_VLINE;
+    }
+    // Returns true if the region type cannot be merged.
+    static bool UnMergeableType(BlobRegionType type) {
+      return IsLineType(type) || IsImageType(type);
+    }
+
+    static ScrollView::Color TextlineColor(BlobRegionType region_type,
+                                           BlobTextFlowType flow_type);
 
 #ifndef GRAPHICS_DISABLED
     // Keep in sync with BlobRegionType.
-    ScrollView::Color BoxColor() const {
-      switch (region_type_) {
-      case BRT_HLINE:
-        return ScrollView::YELLOW;
-      case BRT_RECTIMAGE:
-        return ScrollView::RED;
-      case BRT_POLYIMAGE:
-        return ScrollView::ORANGE;
-      case BRT_UNKNOWN:
-        return ScrollView::CYAN;
-      case BRT_VERT_TEXT:
-        return ScrollView::GREEN;
-      case BRT_TEXT:
-        return ScrollView::BLUE;
-      case BRT_NOISE:
-      default:
-        return ScrollView::GREY;
-      }
-    }
+    ScrollView::Color BoxColor() const;
 
     void plot(ScrollView* window,                // window to draw in
               ScrollView::Color blob_colour,     // for outer bits
@@ -244,27 +378,53 @@ class BLOBNBOX:public ELIST_LINK
     }
 #endif
 
-    NEWDELETE2(BLOBNBOX)
+  NEWDELETE2(BLOBNBOX)
 
- private:
-  // Initializes the bulk of the members to default values.
-  void Init() {
+  // Initializes the bulk of the members to default values for use at
+  // construction time.
+  void ConstructionInit() {
+    blob_ptr = NULL;
+    cblob_ptr = NULL;
+    area = 0;
+    area_stroke_width_ = 0.0f;
+    horz_stroke_width_ = 0.0f;
+    vert_stroke_width_ = 0.0f;
+    ReInit();
+  }
+  // Initializes members set by StrokeWidth and beyond, without discarding
+  // stored area and strokewidth values, which are expensive to calculate.
+  void ReInit() {
     joined = false;
     reduced = false;
     repeated_set_ = 0;
     left_tab_type_ = TT_NONE;
     right_tab_type_ = TT_NONE;
     region_type_ = BRT_UNKNOWN;
+    flow_ = BTFT_NONE;
     left_rule_ = 0;
     right_rule_ = 0;
     left_crossing_rule_ = 0;
     right_crossing_rule_ = 0;
-    horz_stroke_width_ = 0.0f;
-    vert_stroke_width_ = 0.0f;
+    if (area_stroke_width_ == 0.0f && area > 0 && cblob() != NULL)
+      area_stroke_width_ = 2.0f * area / cblob()->perimeter();
     owner_ = NULL;
-    noise_flag_ = false;
+    base_char_top_ = box.top();
+    base_char_bottom_ = box.bottom();
+    horz_possible_ = false;
+    vert_possible_ = false;
+    leader_on_left_ = false;
+    leader_on_right_ = false;
+    ClearNeighbours();
   }
 
+  void ClearNeighbours() {
+    for (int n = 0; n < BND_COUNT; ++n) {
+      neighbours_[n] = NULL;
+      good_stroke_neighbours_[n] = false;
+    }
+  }
+
+ private:
   PBLOB *blob_ptr;              // poly blob
   C_BLOB *cblob_ptr;            // edgestep blob
   TBOX box;                     // bounding box
@@ -276,22 +436,32 @@ class BLOBNBOX:public ELIST_LINK
   TabType left_tab_type_;       // Indicates tab-stop assessment
   TabType right_tab_type_;      // Indicates tab-stop assessment
   BlobRegionType region_type_;  // Type of region this blob belongs to
+  BlobTextFlowType flow_;       // Quality of text flow.
   inT16 left_rule_;             // x-coord of nearest but not crossing rule line
   inT16 right_rule_;            // x-coord of nearest but not crossing rule line
   inT16 left_crossing_rule_;    // x-coord of nearest or crossing rule line
   inT16 right_crossing_rule_;   // x-coord of nearest or crossing rule line
+  inT16 base_char_top_;         // y-coord of top/bottom of diacritic base,
+  inT16 base_char_bottom_;      // if it exists else top/bottom of this blob.
   float horz_stroke_width_;     // Median horizontal stroke width
   float vert_stroke_width_;     // Median vertical stroke width
+  float area_stroke_width_;     // Stroke width from area/perimeter ratio.
   tesseract::ColPartition* owner_;  // Who will delete me when I am not needed
-  // Was the blob flagged as noise in the initial filtering step
-  bool noise_flag_;
+  BLOBNBOX* neighbours_[BND_COUNT];
+  bool good_stroke_neighbours_[BND_COUNT];
+  bool horz_possible_;           // Could be part of horizontal flow.
+  bool vert_possible_;           // Could be part of vertical flow.
+  bool leader_on_left_;          // There is a leader to the left.
+  bool leader_on_right_;         // There is a leader to the right.
 };
 
-class TO_ROW:public ELIST2_LINK
+class TO_ROW: public ELIST2_LINK
 {
   public:
+    static const int kErrorWeight = 3;
+
     TO_ROW() {
-      num_repeated_sets_ = -1;
+      clear();
     }                            //empty
     TO_ROW(                 //constructor
            BLOBNBOX *blob,  //from first blob
@@ -359,7 +529,7 @@ class TO_ROW:public ELIST2_LINK
       para_c = new_c;
       para_error = new_error;
       credibility =
-        (float) (blobs.length () - textord_error_weight * new_error);
+        (float) (blobs.length () - kErrorWeight * new_error);
       y_origin = (float) (new_c / sqrt (1 + gradient * gradient));
       //real intercept
     }
@@ -413,6 +583,8 @@ class TO_ROW:public ELIST2_LINK
     STATS projection;            // vertical projection
 
   private:
+    void clear();  // clear all values to reasonable defaults
+
     BLOBNBOX_LIST blobs;         //blobs in row
     float y_min;                 //coords
     float y_max;
@@ -432,14 +604,43 @@ ELIST2IZEH (TO_ROW)
 class TO_BLOCK:public ELIST_LINK
 {
   public:
-    TO_BLOCK() {
+    TO_BLOCK() : pitch_decision(PITCH_DUNNO) {
+      clear();
     }                            //empty
     TO_BLOCK(                    //constructor
              BLOCK *src_block);  //real block
     ~TO_BLOCK();
 
+    void clear();  // clear all scalar members.
+
     TO_ROW_LIST *get_rows() {  //access function
       return &row_list;
+    }
+
+    // Rotate all the blobnbox lists and the underlying block. Then update the
+    // median size statistic from the blobs list.
+    void rotate(const FCOORD& rotation) {
+      BLOBNBOX_LIST* blobnbox_list[] = {&blobs, &underlines, &noise_blobs,
+                                        &small_blobs, &large_blobs, NULL};
+      for (BLOBNBOX_LIST** list = blobnbox_list; *list != NULL; ++list) {
+        BLOBNBOX_IT it(*list);
+        for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+          it.data()->rotate(rotation);
+        }
+      }
+      // Rotate the block
+      ASSERT_HOST(block->poly_block() != NULL);
+      block->rotate(rotation);
+      // Update the median size statistic from the blobs list.
+      STATS widths(0, block->bounding_box().width());
+      STATS heights(0, block->bounding_box().height());
+      BLOBNBOX_IT blob_it(&blobs);
+      for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+        widths.add(blob_it.data()->bounding_box().width(), 1);
+        heights.add(blob_it.data()->bounding_box().height(), 1);
+      }
+      block->set_median_size(static_cast<int>(widths.median() + 0.5),
+                             static_cast<int>(heights.median() + 0.5));
     }
 
     void print_rows() {  //debug info
@@ -468,6 +669,11 @@ class TO_BLOCK:public ELIST_LINK
     BLOCK *block;                //real block
     PITCH_TYPE pitch_decision;   //how strong is decision
     float line_spacing;          //estimate
+    // line_size is a lower-bound estimate of the font size in pixels of
+    // the text in the block (with ascenders and descenders), being a small
+    // (1.25) multiple of the median height of filtered blobs.
+    // In most cases the font size will be bigger, but it will be closer
+    // if the text is allcaps, or in a no-x-height script.
     float line_size;             //estimate
     float max_blob_size;         //line assignment limit
     float baseline_offset;       //phase shift

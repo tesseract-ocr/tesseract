@@ -30,10 +30,10 @@
 #include "chop.h"
 #include "outlines.h"
 #include "olutil.h"
-#include "tordvars.h"
 #include "callcpp.h"
 #include "plotedges.h"
 #include "const.h"
+#include "wordrec.h"
 
 #include <math.h>
 
@@ -42,55 +42,7 @@
 #include "config_auto.h"
 #endif
 
-/*----------------------------------------------------------------------
-              V a r i a b l e s
-----------------------------------------------------------------------*/
-INT_VAR(chop_debug, 0, "Chop debug");
-
-BOOL_VAR(chop_enable, 1, "Chop enable");
-
-BOOL_VAR(chop_vertical_creep, 0, "Vertical creep");
-
-INT_VAR(chop_split_length, 10000, "Split Length");
-
-INT_VAR(chop_same_distance, 2, "Same distance");
-
-INT_VAR(chop_min_outline_points, 6, "Min Number of Points on Outline");
-
-INT_VAR(chop_inside_angle, -50, "Min Inside Angle Bend");
-
-INT_VAR(chop_min_outline_area, 2000, "Min Outline Area");
-
-double_VAR(chop_split_dist_knob, 0.5, "Split length adjustment");
-
-double_VAR(chop_overlap_knob, 0.9, "Split overlap adjustment");
-
-double_VAR(chop_center_knob, 0.15, "Split center adjustment");
-
-double_VAR(chop_sharpness_knob, 0.06, "Split sharpness adjustment");
-
-double_VAR(chop_width_change_knob, 5.0, "Width change adjustment");
-
-double_VAR(chop_ok_split, 100.0, "OK split limit");
-
-double_VAR(chop_good_split, 50.0, "Good split limit");
-
-INT_VAR(chop_x_y_weight, 3, "X / Y  length weight");
-
-/*----------------------------------------------------------------------
-              M a c r o s
-----------------------------------------------------------------------*/
-/**
- * @name length_product
- *
- * Compute the product of the length of two vectors.  The
- * vectors must be of type POINT.   This product is used in computing
- * angles.
- */
-#define length_product(p1,p2)                                      \
-(sqrt ((((float) (p1).x * (p1).x + (float) (p1).y * (p1).y) *    \
-			((float) (p2).x * (p2).x + (float) (p2).y * (p2).y))))
-
+namespace tesseract {
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
@@ -100,8 +52,8 @@ INT_VAR(chop_x_y_weight, 3, "X / Y  length weight");
  * Assign a priority to and edge point that might be used as part of a
  * split. The argument should be of type EDGEPT.
  */
-PRIORITY point_priority(EDGEPT *point) {
-  return ((PRIORITY) point_bend_angle (point));
+PRIORITY Wordrec::point_priority(EDGEPT *point) {
+  return (PRIORITY)angle_change(point->prev, point, point->next);
 }
 
 
@@ -110,7 +62,7 @@ PRIORITY point_priority(EDGEPT *point) {
  *
  * Add an edge point to a POINT_GROUP containg a list of other points.
  */
-void add_point_to_list(POINT_GROUP point_list, EDGEPT *point) {
+void Wordrec::add_point_to_list(POINT_GROUP point_list, EDGEPT *point) {
   HEAPENTRY data;
 
   if (SizeOfHeap (point_list) < MAX_NUM_POINTS - 2) {
@@ -132,7 +84,7 @@ void add_point_to_list(POINT_GROUP point_list, EDGEPT *point) {
  * Return the change in angle (degrees) of the line segments between
  * points one and two, and two and three.
  */
-int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
+int Wordrec::angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   VECTOR vector1;
   VECTOR vector2;
 
@@ -145,7 +97,7 @@ int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   vector2.x = point3->pos.x - point2->pos.x;
   vector2.y = point3->pos.y - point2->pos.y;
   /* Use cross product */
-  length = length_product (vector1, vector2);
+  length = (float)sqrt((float)LENGTH(vector1) * LENGTH(vector2));
   if ((int) length == 0)
     return (0);
   angle = static_cast<int>(floor(asin(CROSS (vector1, vector2) /
@@ -168,7 +120,7 @@ int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
  * Return TRUE if one of the pieces resulting from this split would
  * less than some number of edge points.
  */
-int is_little_chunk(EDGEPT *point1, EDGEPT *point2) {
+int Wordrec::is_little_chunk(EDGEPT *point1, EDGEPT *point2) {
   EDGEPT *p = point1;            /* Iterator */
   int counter = 0;
 
@@ -203,7 +155,7 @@ int is_little_chunk(EDGEPT *point1, EDGEPT *point2) {
  *
  * Test the area defined by a split accross this outline.
  */
-int is_small_area(EDGEPT *point1, EDGEPT *point2) {
+int Wordrec::is_small_area(EDGEPT *point1, EDGEPT *point2) {
   EDGEPT *p = point1->next;      /* Iterator */
   int area = 0;
   TPOINT origin;
@@ -227,9 +179,9 @@ int is_small_area(EDGEPT *point1, EDGEPT *point2) {
  * Choose the edge point that is closest to the critical point.  This
  * point may not be exactly vertical from the critical point.
  */
-EDGEPT *pick_close_point(EDGEPT *critical_point,
-                         EDGEPT *vertical_point,
-                         int *best_dist) {
+EDGEPT *Wordrec::pick_close_point(EDGEPT *critical_point,
+                                  EDGEPT *vertical_point,
+                                  int *best_dist) {
   EDGEPT *best_point = NULL;
   int this_distance;
   int found_better;
@@ -265,7 +217,7 @@ EDGEPT *pick_close_point(EDGEPT *critical_point,
  * each of these points assign a priority.  Sort these points using a
  * heap structure so that they can be visited in order.
  */
-void prioritize_points(TESSLINE *outline, POINT_GROUP points) {
+void Wordrec::prioritize_points(TESSLINE *outline, POINT_GROUP points) {
   EDGEPT *this_point;
   EDGEPT *local_min = NULL;
   EDGEPT *local_max = NULL;
@@ -274,13 +226,6 @@ void prioritize_points(TESSLINE *outline, POINT_GROUP points) {
   local_min = this_point;
   local_max = this_point;
   do {
-    if (tord_debug_5)
-      cprintf ("(%3d,%3d)  min=%3d, max=%3d, dir=%2d, ang=%2.0f\n",
-        this_point->pos.x, this_point->pos.y,
-        (local_min ? local_min->pos.y : 999),
-      (local_max ? local_max->pos.y : 999),
-      direction (this_point), point_priority (this_point));
-
     if (this_point->vec.y < 0) {
                                  /* Look for minima */
       if (local_max != NULL)
@@ -331,7 +276,7 @@ void prioritize_points(TESSLINE *outline, POINT_GROUP points) {
  * Return the new value for the local minimum.  If a point is saved then
  * the local minimum is reset to NULL.
  */
-void new_min_point(EDGEPT *local_min, POINT_GROUP points) {
+void Wordrec::new_min_point(EDGEPT *local_min, POINT_GROUP points) {
   inT16 dir;
 
   dir = direction (local_min);
@@ -355,7 +300,7 @@ void new_min_point(EDGEPT *local_min, POINT_GROUP points) {
  * Return the new value for the local minimum.  If a point is saved then
  * the local minimum is reset to NULL.
  */
-void new_max_point(EDGEPT *local_max, POINT_GROUP points) {
+void Wordrec::new_max_point(EDGEPT *local_max, POINT_GROUP points) {
   inT16 dir;
 
   dir = direction (local_max);
@@ -382,8 +327,8 @@ void new_max_point(EDGEPT *local_max, POINT_GROUP points) {
  * the split point.  Ensure that the point being returned is not right
  * next to the split point.  Return the edge point as a result.
  */
-void vertical_projection_point(EDGEPT *split_point, EDGEPT *target_point,
-                               EDGEPT** best_point) {
+void Wordrec::vertical_projection_point(EDGEPT *split_point, EDGEPT *target_point,
+                                        EDGEPT** best_point) {
   EDGEPT *p;                     /* Iterator */
   EDGEPT *this_edgept;           /* Iterator */
   int x = split_point->pos.x;    /* X value of vertical */
@@ -416,3 +361,5 @@ void vertical_projection_point(EDGEPT *split_point, EDGEPT *target_point,
   }
   while (p != target_point);
 }
+
+}  // namespace tesseract

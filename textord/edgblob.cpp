@@ -333,27 +333,18 @@ void OL_BUCKETS::extract_children(                     // recursive count
  * Run the edge detector over the block and return a list of blobs.
  */
 
-void extract_edges(                 // find blobs
-#ifndef GRAPHICS_DISABLED
-                   ScrollView* window,   // window for output
-#endif
-                   IMAGE *image,    // image to scan
-                   IMAGE *t_image,  // thresholded image
-                   ICOORD page_tr,  // corner of page
-                   BLOCK *block     // block to scan
-                  ) {
-  ICOORD bleft;                  // block box
-  ICOORD tright;
+void extract_edges(Pix* pix,  // thresholded image
+                   BLOCK *block) {  // block to scan
   C_OUTLINE_LIST outlines;       // outlines in block
-                                 // iterator
   C_OUTLINE_IT out_it = &outlines;
 
-#ifndef GRAPHICS_DISABLED
-  get_outlines(window, image, t_image, page_tr, (PDBLK *) block, &out_it);
-#else
-  get_outlines(image, t_image, page_tr, (PDBLK *) block, &out_it);
-#endif
-                                 // block box
+  // TODO(rays) move the pix all the way down to the bottom.
+  IMAGE image;
+  image.FromPix(pix);
+
+  block_edges(&image, block, &out_it);
+  ICOORD bleft;                  // block box
+  ICOORD tright;
   block->bounding_box(bleft, tright);
                                  // make blobs
   outlines_to_blobs(block, bleft, tright, &outlines);

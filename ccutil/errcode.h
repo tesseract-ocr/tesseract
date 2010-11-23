@@ -24,8 +24,8 @@
 
 /*Control parameters for error()*/
 #define DBG         -1           /*log without alert */
-#define TESSLOG         0            /*alert user */
-#define EXIT        1            /*exit after erro */
+#define TESSLOG     0            /*alert user */
+#define TESSEXIT    1            /*exit after erro */
 #define ABORT       2            /*abort after error */
 
 /* Explicit Error Abort codes */

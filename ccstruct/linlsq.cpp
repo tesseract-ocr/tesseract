@@ -31,9 +31,8 @@ const ERRCODE EMPTY_LLSQ = "Can't delete from an empty LLSQ";
 
 #define EXTERN
 
-EXTERN double_VAR (pdlsq_posdir_ratio, 4e-6, "Mult of dir to cf pos");
-EXTERN double_VAR (pdlsq_threshold_angleavg, 0.1666666,
-"Frac of pi for simple fit");
+const double kPdlsqPosdirRatio = 4e-6f;  // Mult of dir to cf pos
+const double kPdlsqThresholdAngleAvg = 0.166666f; // Frac of pi for simple fit
 
 /**********************************************************************
  * LLSQ::clear
@@ -192,11 +191,11 @@ float PDLSQ::fit(                 //get fit
 
   if (pos.n > 0) {
     a = pos.sigxy - pos.sigx * pos.sigy / pos.n
-      + pdlsq_posdir_ratio * dir.sigxy;
+      + kPdlsqPosdirRatio * dir.sigxy;
     b =
       pos.sigxx - pos.sigyy + (pos.sigy * pos.sigy -
       pos.sigx * pos.sigx) / pos.n +
-      pdlsq_posdir_ratio * (dir.sigxx - dir.sigyy);
+      kPdlsqPosdirRatio * (dir.sigxx - dir.sigyy);
     if (dir.sigy != 0 || dir.sigx != 0)
       avg_angle = atan2 (dir.sigy, dir.sigx);
     else
@@ -214,8 +213,8 @@ float PDLSQ::fit(                 //get fit
       error += M_PI;
       angle -= M_PI;
     }
-    if (error > M_PI * pdlsq_threshold_angleavg
-      || error < -M_PI * pdlsq_threshold_angleavg)
+    if (error > M_PI * kPdlsqThresholdAngleAvg ||
+        error < -M_PI * kPdlsqThresholdAngleAvg)
       angle = avg_angle;         //go simple
                                  //convert direction
     ang = (inT16) (angle * MODULUS / (2 * M_PI));
@@ -227,7 +226,7 @@ float PDLSQ::fit(                 //get fit
     //                      a,b,angle,r);
     error = dir.sigxx * sinx * sinx + dir.sigyy * cosx * cosx
       - 2 * dir.sigxy * sinx * cosx;
-    error *= pdlsq_posdir_ratio;
+    error *= kPdlsqPosdirRatio;
     error += sinx * sinx * pos.sigxx + cosx * cosx * pos.sigyy
       - 2 * sinx * cosx * pos.sigxy
       - 2 * r * (sinx * pos.sigx - cosx * pos.sigy) + r * r * pos.n;

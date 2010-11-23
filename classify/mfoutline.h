@@ -21,12 +21,11 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "general.h"
+#include "host.h"
 #include "oldlist.h"
 #include "fpoint.h"
-#include "fxdefs.h"
 #include "baseline.h"
-#include "varable.h"
+#include "params.h"
 
 #define NORMAL_X_HEIGHT   (0.5)
 #define NORMAL_BASELINE   (0.0)
@@ -35,13 +34,9 @@ typedef LIST MFOUTLINE;
 
 typedef enum {
   north, south, east, west, northeast, northwest, southeast, southwest
-}
+} DIRECTION;
 
-
-DIRECTION;
-
-typedef struct
-{
+typedef struct {
   FPOINT Point;
   FLOAT32 Slope;
   unsigned Padding:20;
@@ -49,77 +44,36 @@ typedef struct
   BOOL8 ExtremityMark:TRUE;
   DIRECTION Direction:4;
   DIRECTION PreviousDirection:4;
-}
-
-
-MFEDGEPT;
+} MFEDGEPT;
 
 typedef enum {
   outer, hole
-}
+} OUTLINETYPE;
 
-
-OUTLINETYPE;
-
-typedef struct
-{
+typedef struct {
   FLOAT64 Mx, My;                /* first moment of all outlines */
   FLOAT64 L;                     /* total length of all outlines */
   FLOAT64 x, y;                  /* center of mass of all outlines */
   FLOAT64 Ix, Iy;                /* second moments about center of mass axes */
   FLOAT64 Rx, Ry;                /* radius of gyration about center of mass axes */
-}
-
-
-OUTLINE_STATS;
+} OUTLINE_STATS;
 
 typedef enum {
   baseline, character
-}
-
-
-NORM_METHOD;
-
-/*----------------------------------------------------------------------------
-            Variables
-------------------------------------------------------------------------------*/
-/* control knobs used to control normalization of outlines */
-extern INT_VAR_H(classify_norm_method, character,
-                 "Normalization Method   ...");
-/* PREV DEFAULT "baseline" */
-extern double_VAR_H(classify_char_norm_range, 0.2,
-                    "Character Normalization Range ...");
-extern double_VAR_H(classify_min_norm_scale_x, 0.0,
-                    "Min char x-norm scale ...");
-/* PREV DEFAULT 0.1 */
-extern double_VAR_H(classify_max_norm_scale_x, 0.325,
-                    "Max char x-norm scale ...");
-/* PREV DEFAULT 0.3 */
-extern double_VAR_H(classify_min_norm_scale_y, 0.0,
-                    "Min char y-norm scale ...");
-/* PREV DEFAULT 0.1 */
-extern double_VAR_H(classify_max_norm_scale_y, 0.325,
-                    "Max char y-norm scale ...");
-/* PREV DEFAULT 0.3 */
+} NORM_METHOD;
 
 /**----------------------------------------------------------------------------
           Macros
 ----------------------------------------------------------------------------**/
 #define AverageOf(A,B)    (((A) + (B)) / 2)
 
-/* macro for computing the baseline of a row of text at an x position */
-#define BaselineAt(L,X) (BASELINE_OFFSET)
-
 /* macro for computing the scale factor to use to normalize characters */
-#define ComputeScaleFactor(L)						\
-(NORMAL_X_HEIGHT / ((classify_baseline_normalized)?			\
-				(BASELINE_SCALE):					\
-				((L)->xheight)))
+#define MF_SCALE_FACTOR  (NORMAL_X_HEIGHT / BASELINE_SCALE)
 
 /* macros for manipulating micro-feature outlines */
-#define DegenerateOutline(O)  (((O) == NIL) || ((O) == rest(O)))
+#define DegenerateOutline(O)  (((O) == NIL_LIST) || ((O) == list_rest(O)))
 #define PointAt(O)    ((MFEDGEPT *) first_node (O))
-#define NextPointAfter(E) (rest (E))
+#define NextPointAfter(E) (list_rest (E))
 #define MakeOutlineCircular(O)  (set_rest (last (O), (O)))
 
 /* macros for manipulating micro-feature outline edge points */
@@ -158,15 +112,7 @@ MFEDGEPT *NewEdgePoint();
 MFOUTLINE NextExtremity(MFOUTLINE EdgePoint);
 
 void NormalizeOutline(MFOUTLINE Outline,
-                      LINE_STATS *LineStats,
                       FLOAT32 XOrigin);
-
-void NormalizeOutlines(LIST Outlines,
-                       LINE_STATS *LineStats,
-                       FLOAT32 *XScale,
-                       FLOAT32 *YScale);
-
-void SettupBlobConversion(TBLOB *Blob);
 
 void SmearExtremities(MFOUTLINE Outline, FLOAT32 XScale, FLOAT32 YScale);
 

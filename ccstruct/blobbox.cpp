@@ -18,17 +18,45 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-#include          "blobbox.h"
+#include "blobbox.h"
+#include "helpers.h"
 
 #define PROJECTION_MARGIN 10     //arbitrary
 #define EXTERN
 
-EXTERN double_VAR (textord_error_weight, 3,
-"Weighting for error in believability");
-EXTERN BOOL_VAR (pitsync_projection_fix, TRUE,
-"Fix bug in projection profile");
-
 ELISTIZE (BLOBNBOX) ELIST2IZE (TO_ROW) ELISTIZE (TO_BLOCK)
+
+// Upto 30 degrees is allowed for rotations of diacritic blobs.
+const double kCosSmallAngle = 0.866;
+// Min aspect ratio for a joined word to indicate an obvious flow direction.
+const double kDefiniteAspectRatio = 2.0;
+// Multiple of short length in perimeter to make a joined word.
+const double kComplexShapePerimeterRatio = 1.5;
+
+void BLOBNBOX::rotate(FCOORD rotation) {
+  cblob_ptr->rotate(rotation);
+  rotate_box(rotation);
+  compute_bounding_box();
+}
+
+// Rotate the box by the angle given by rotation.
+// If the blob is a diacritic, then only small rotations for skew
+// correction can be applied.
+void BLOBNBOX::rotate_box(FCOORD rotation) {
+  if (IsDiacritic()) {
+    ASSERT_HOST(rotation.x() >= kCosSmallAngle)
+    ICOORD top_pt((box.left() + box.right()) / 2, base_char_top_);
+    ICOORD bottom_pt(top_pt.x(), base_char_bottom_);
+    top_pt.rotate(rotation);
+    base_char_top_ = top_pt.y();
+    bottom_pt.rotate(rotation);
+    base_char_bottom_ = bottom_pt.y();
+    box.rotate(rotation);
+  } else {
+    box.rotate(rotation);
+    set_diacritic_box(box);
+  }
+}
 /**********************************************************************
  * BLOBNBOX::merge
  *
@@ -38,7 +66,19 @@ void BLOBNBOX::merge(                    //merge blobs
                      BLOBNBOX *nextblob  //blob to join with
                     ) {
   box += nextblob->box;          //merge boxes
+  set_diacritic_box(box);
   nextblob->joined = TRUE;
+}
+
+
+// Merge this with other, taking the outlines from other.
+// Other is not deleted, but left for the caller to handle.
+void BLOBNBOX::really_merge(BLOBNBOX* other) {
+  if (cblob_ptr != NULL && other->cblob_ptr != NULL) {
+    C_OUTLINE_IT ol_it(cblob_ptr->out_list());
+    ol_it.add_list_after(other->cblob_ptr->out_list());
+  }
+  compute_bounding_box();
 }
 
 
@@ -88,10 +128,7 @@ void BLOBNBOX::chop(                        //chop blobs
             rightx,
             /*rotation, */ test_ymin, test_ymax);
         blob_it.forward ();
-        if (test_ymin < ymin)
-          ymin = test_ymin;
-        if (test_ymax > ymax)
-          ymax = test_ymax;
+        UpdateRange(test_ymin, test_ymax, &ymin, &ymax);
       }
       while (blob != end_it->data ());
       if (ymin < ymax) {
@@ -107,6 +144,8 @@ void BLOBNBOX::chop(                        //chop blobs
                                  //box is all it has
           newblob->box = TBOX (bl, tr);
                                  //stay on current
+          newblob->base_char_top_ = tr.y();
+          newblob->base_char_bottom_ = bl.y();
           end_it->add_after_stay_put (newblob);
         }
       }
@@ -114,6 +153,201 @@ void BLOBNBOX::chop(                        //chop blobs
   }
 }
 
+// Returns the box gaps between this and its neighbours_ in an array
+// indexed by BlobNeighbourDir.
+void BLOBNBOX::NeighbourGaps(int gaps[BND_COUNT]) const {
+  for (int dir = 0; dir < BND_COUNT; ++dir) {
+    gaps[dir] = MAX_INT16;
+    BLOBNBOX* neighbour = neighbours_[dir];
+    if (neighbour != NULL) {
+      TBOX n_box = neighbour->bounding_box();
+      if (dir == BND_LEFT || dir == BND_RIGHT) {
+        gaps[dir] = box.x_gap(n_box);
+      } else {
+        gaps[dir] = box.y_gap(n_box);
+      }
+    }
+  }
+}
+// Returns the min and max horizontal and vertical gaps (from NeighbourGaps)
+// modified so that if the max exceeds the max dimension of the blob, and
+// the min is less, the max is replaced with the min.
+// The objective is to catch cases where there is only a single neighbour
+// and avoid reporting the other gap as a ridiculously large number
+void BLOBNBOX::MinMaxGapsClipped(int* h_min, int* h_max,
+                                 int* v_min, int* v_max) const {
+  int max_dimension = MAX(box.width(), box.height());
+  int gaps[BND_COUNT];
+  NeighbourGaps(gaps);
+  *h_min = MIN(gaps[BND_LEFT], gaps[BND_RIGHT]);
+  *h_max = MAX(gaps[BND_LEFT], gaps[BND_RIGHT]);
+  if (*h_max > max_dimension && *h_min < max_dimension) *h_max = *h_min;
+  *v_min = MIN(gaps[BND_ABOVE], gaps[BND_BELOW]);
+  *v_max = MAX(gaps[BND_ABOVE], gaps[BND_BELOW]);
+  if (*v_max > max_dimension && *v_min < max_dimension) *v_max = *v_min;
+}
+
+// Returns positive if there is at least one side neighbour that has a similar
+// stroke width and is not on the other side of a rule line.
+int BLOBNBOX::GoodTextBlob() const {
+  int score = 0;
+  for (int dir = 0; dir < BND_COUNT; ++dir) {
+    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    if (good_stroke_neighbour(bnd))
+      ++score;
+  }
+  return score;
+}
+
+// Returns true, and sets vert_possible/horz_possible if the blob has some
+// feature that makes it individually appear to flow one way.
+// eg if it has a high aspect ratio, yet has a complex shape, such as a
+// joined word in Latin, Arabic, or Hindi, rather than being a -, I, l, 1 etc.
+bool BLOBNBOX::DefiniteIndividualFlow() {
+  int box_perimeter = 2 * (box.height() + box.width());
+  if (box.width() > box.height() * kDefiniteAspectRatio) {
+    // Attempt to distinguish a wide joined word from a dash.
+    // If it is a dash, then its perimeter is approximately
+    // 2 * (box width + stroke width), but more if the outline is noisy,
+    // so perimeter - 2*(box width + stroke width) should be close to zero.
+    // A complex shape such as a joined word should have a much larger value.
+    int perimeter = cblob()->perimeter();
+    if (vert_stroke_width() > 0)
+      perimeter -= 2 * vert_stroke_width();
+    else
+      perimeter -= 4 * cblob()->area() / perimeter;
+    perimeter -= 2 * box.width();
+    // Use a multiple of the box perimeter as a threshold.
+    if (perimeter > kComplexShapePerimeterRatio * box_perimeter) {
+      set_vert_possible(false);
+      set_horz_possible(true);
+      return true;
+    }
+  }
+  if (box.height() > box.width() * kDefiniteAspectRatio) {
+    // As above, but for a putative vertical word vs a I/1/l.
+    int perimeter = cblob()->perimeter();
+    if (horz_stroke_width() > 0)
+      perimeter -= 2 * horz_stroke_width();
+    else
+      perimeter -= 4 * cblob()->area() / perimeter;
+    perimeter -= 2 * box.height();
+    if (perimeter > kComplexShapePerimeterRatio * box_perimeter) {
+      set_vert_possible(true);
+      set_horz_possible(false);
+      return true;
+    }
+  }
+  return false;
+}
+
+// Returns true if there is no tabstop violation in merging this and other.
+bool BLOBNBOX::ConfirmNoTabViolation(const BLOBNBOX& other) const {
+  if (box.left() < other.box.left() && box.left() < other.left_rule_)
+    return false;
+  if (other.box.left() < box.left() && other.box.left() < left_rule_)
+    return false;
+  if (box.right() > other.box.right() && box.right() > other.right_rule_)
+    return false;
+  if (other.box.right() > box.right() && other.box.right() > right_rule_)
+    return false;
+  return true;
+}
+
+// Returns true if other has a similar stroke width to this.
+bool BLOBNBOX::MatchingStrokeWidth(const BLOBNBOX& other,
+                                   double fractional_tolerance,
+                                   double constant_tolerance) const {
+  // The perimeter-based width is used as a backup in case there is
+  // no information in the blob.
+  double p_width = area_stroke_width();
+  double n_p_width = other.area_stroke_width();
+  float h_tolerance = horz_stroke_width_ * fractional_tolerance
+                     + constant_tolerance;
+  float v_tolerance = vert_stroke_width_ * fractional_tolerance
+                     + constant_tolerance;
+  double p_tolerance = p_width * fractional_tolerance
+                     + constant_tolerance;
+  bool h_zero = horz_stroke_width_ == 0.0f || other.horz_stroke_width_ == 0.0f;
+  bool v_zero = vert_stroke_width_ == 0.0f || other.vert_stroke_width_ == 0.0f;
+  bool h_ok = !h_zero && NearlyEqual(horz_stroke_width_,
+                                     other.horz_stroke_width_, h_tolerance);
+  bool v_ok = !v_zero && NearlyEqual(vert_stroke_width_,
+                                     other.vert_stroke_width_, v_tolerance);
+  bool p_ok = h_zero && v_zero && NearlyEqual(p_width, n_p_width, p_tolerance);
+  // For a match, at least one of the horizontal and vertical widths
+  // must match, and the other one must either match or be zero.
+  // Only if both are zero will we look at the perimeter metric.
+  return p_ok || ((v_ok || h_ok) && (h_ok || h_zero) && (v_ok || v_zero));
+}
+
+// Returns a bounding box of the outline contained within the
+// given horizontal range.
+TBOX BLOBNBOX::BoundsWithinLimits(int left, int right) {
+  FCOORD no_rotation(1.0f, 0.0f);
+  float top, bottom;
+  if (cblob_ptr != NULL) {
+    find_cblob_limits(cblob_ptr, static_cast<float>(left),
+                      static_cast<float>(right), no_rotation,
+                      bottom, top);
+  } else {
+    find_blob_limits(blob_ptr, static_cast<float>(left),
+                     static_cast<float>(right), no_rotation,
+                     bottom, top);
+  }
+
+  if (top < bottom) {
+    top = box.top();
+    bottom = box.bottom();
+  }
+  FCOORD bot_left(left, bottom);
+  FCOORD top_right(right, top);
+  TBOX shrunken_box(bot_left);
+  TBOX shrunken_box2(top_right);
+  shrunken_box += shrunken_box2;
+  return shrunken_box;
+}
+
+#ifndef GRAPHICS_DISABLED
+ScrollView::Color BLOBNBOX::TextlineColor(BlobRegionType region_type,
+                                          BlobTextFlowType flow_type) {
+  switch (region_type) {
+    case BRT_HLINE:
+      return ScrollView::BROWN;
+    case BRT_VLINE:
+      return ScrollView::DARK_GREEN;
+    case BRT_RECTIMAGE:
+      return ScrollView::RED;
+    case BRT_POLYIMAGE:
+      return ScrollView::ORANGE;
+    case BRT_UNKNOWN:
+      return flow_type == BTFT_NONTEXT ? ScrollView::CYAN : ScrollView::WHITE;
+    case BRT_VERT_TEXT:
+      if (flow_type == BTFT_STRONG_CHAIN || flow_type == BTFT_TEXT_ON_IMAGE)
+        return ScrollView::GREEN;
+      if (flow_type == BTFT_CHAIN)
+        return ScrollView::LIME_GREEN;
+      return ScrollView::YELLOW;
+    case BRT_TEXT:
+      if (flow_type == BTFT_STRONG_CHAIN)
+        return ScrollView::BLUE;
+      if (flow_type == BTFT_TEXT_ON_IMAGE)
+        return ScrollView::LIGHT_BLUE;
+      if (flow_type == BTFT_CHAIN)
+        return ScrollView::MEDIUM_BLUE;
+      if (flow_type == BTFT_LEADER)
+        return ScrollView::WHEAT;
+      return ScrollView::MAGENTA;
+    default:
+      return ScrollView::GREY;
+  }
+}
+
+// Keep in sync with BlobRegionType.
+ScrollView::Color BLOBNBOX::BoxColor() const {
+  return TextlineColor(region_type_, flow_);
+}
+#endif
 
 /**********************************************************************
  * find_blob_limits
@@ -152,26 +386,15 @@ void find_blob_limits(                  //get y limits
       if ((pos.x () < leftx && pos.x () + vec.x () > leftx)
       || (pos.x () > leftx && pos.x () + vec.x () < leftx)) {
         testy = pos.y () + vec.y () * (leftx - pos.x ()) / vec.x ();
-        //intercept of boundary
-        if (testy < ymin)
-          ymin = testy;
-        if (testy > ymax)
-          ymax = testy;
+        UpdateRange(testy, &ymin, &ymax);
       }
       if (pos.x () >= leftx && pos.x () <= rightx) {
-        if (pos.y () > ymax)
-          ymax = pos.y ();
-        if (pos.y () < ymin)
-          ymin = pos.y ();
+        UpdateRange(pos.y(), &ymin, &ymax);
       }
       if ((pos.x () > rightx && pos.x () + vec.x () < rightx)
       || (pos.x () < rightx && pos.x () + vec.x () > rightx)) {
         testy = pos.y () + vec.y () * (rightx - pos.x ()) / vec.x ();
-        //intercept of boundary
-        if (testy < ymin)
-          ymin = testy;
-        if (testy > ymax)
-          ymax = testy;
+        UpdateRange(testy, &ymin, &ymax);
       }
     }
   }
@@ -208,10 +431,7 @@ void find_cblob_limits(                  //get y limits
     for (stepindex = 0; stepindex < outline->pathlength (); stepindex++) {
                                  //inside
       if (pos.x () >= leftx && pos.x () <= rightx) {
-        if (pos.y () > ymax)
-          ymax = pos.y ();
-        if (pos.y () < ymin)
-          ymin = pos.y ();
+        UpdateRange(pos.y(), &ymin, &ymax);
       }
       vec = outline->step (stepindex);
       vec.rotate (rotation);
@@ -249,10 +469,7 @@ void find_cblob_vlimits(               //get y limits
     for (stepindex = 0; stepindex < outline->pathlength (); stepindex++) {
                                  //inside
       if (pos.x () >= leftx && pos.x () <= rightx) {
-        if (pos.y () > ymax)
-          ymax = pos.y ();
-        if (pos.y () < ymin)
-          ymin = pos.y ();
+        UpdateRange(pos.y(), &ymin, &ymax);
       }
       vec = outline->step (stepindex);
       pos += vec;                //move to next
@@ -289,10 +506,7 @@ void find_cblob_hlimits(                //get x limits
     for (stepindex = 0; stepindex < outline->pathlength (); stepindex++) {
                                  //inside
       if (pos.y () >= bottomy && pos.y () <= topy) {
-        if (pos.x () > xmax)
-          xmax = pos.x ();
-        if (pos.x () < xmin)
-          xmin = pos.x ();
+        UpdateRange(pos.x(), &xmin, &xmax);
       }
       vec = outline->step (stepindex);
       pos += vec;                //move to next
@@ -351,7 +565,7 @@ PBLOB *rotate_cblob(                 //rotate it
   OUTLINE_IT out_it;
   POLYPT_IT poly_it;             //outline pts
 
-  copy = new PBLOB (blob, xheight);
+  copy = new PBLOB (blob);
   out_it.set_to_list (copy->out_list ());
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
                                  //get points
@@ -458,7 +672,12 @@ BLOBNBOX * blob,                 //first blob
 float top,                       //corrected top
 float bottom,                    //of row
 float row_size                   //ideal
-): y_min(bottom), y_max(top), initial_y_min(bottom), num_repeated_sets_(-1) {
+) {
+  clear();
+  y_min = bottom;
+  y_max = top;
+  initial_y_min = bottom;
+
   float diff;                    //in size
   BLOBNBOX_IT it = &blobs;       //list of blobs
 
@@ -569,6 +788,46 @@ void TO_ROW::compute_vertical_projection() {  //project whole row
     else if (blob->cblob () != NULL)
       vertical_cblob_projection (blob->cblob (), &projection);
   }
+}
+
+
+/**********************************************************************
+ * TO_ROW::clear
+ *
+ * Zero out all scalar members.
+ **********************************************************************/
+void TO_ROW::clear() {
+  all_caps = 0;
+  used_dm_model = 0;
+  projection_left = 0;
+  projection_right = 0;
+  pitch_decision = PITCH_DUNNO;
+  fixed_pitch = 0.0;
+  fp_space = 0.0;
+  fp_nonsp = 0.0;
+  pr_space = 0.0;
+  pr_nonsp = 0.0;
+  spacing = 0.0;
+  xheight = 0.0;
+  xheight_evidence = 0;
+  ascrise = 0.0;
+  descdrop = 0.0;
+  min_space = 0;
+  max_nonspace = 0;
+  space_threshold = 0;
+  kern_size = 0.0;
+  space_size = 0.0;
+  y_min = 0.0;
+  y_max = 0.0;
+  initial_y_min = 0.0;
+  m = 0.0;
+  c = 0.0;
+  error = 0.0;
+  para_c = 0.0;
+  para_error = 0.0;
+  y_origin = 0.0;
+  credibility = 0.0;
+  num_repeated_sets_ = -1;
 }
 
 
@@ -722,16 +981,9 @@ void vertical_coutline_projection(                     //project outlines
   for (stepindex = 0; stepindex < length; stepindex++) {
     step = outline->step (stepindex);
     if (step.x () > 0) {
-      if (pitsync_projection_fix)
-        stats->add (pos.x (), -pos.y ());
-      else
-        stats->add (pos.x (), pos.y ());
-    }
-    else if (step.x () < 0) {
-      if (pitsync_projection_fix)
-        stats->add (pos.x () - 1, pos.y ());
-      else
-        stats->add (pos.x () - 1, -pos.y ());
+     stats->add (pos.x (), -pos.y ());
+    } else if (step.x () < 0) {
+      stats->add (pos.x () - 1, pos.y ());
     }
     pos += step;
   }
@@ -751,6 +1003,7 @@ void vertical_coutline_projection(                     //project outlines
 TO_BLOCK::TO_BLOCK(                  //make a block
                    BLOCK *src_block  //real block
                   ) {
+  clear();
   block = src_block;
 }
 
@@ -766,6 +1019,32 @@ static void clear_blobnboxes(BLOBNBOX_LIST* boxes) {
       delete box->cblob();
   }
 }
+
+/**********************************************************************
+ * TO_BLOCK::clear
+ *
+ * Zero out all scalar members.
+ **********************************************************************/
+void TO_BLOCK::clear() {
+  block = NULL;
+  pitch_decision = PITCH_DUNNO;
+  line_spacing = 0.0;
+  line_size = 0.0;
+  max_blob_size = 0.0;
+  baseline_offset = 0.0;
+  xheight = 0.0;
+  fixed_pitch = 0.0;
+  kern_size = 0.0;
+  space_size = 0.0;
+  min_space = 0;
+  max_nonspace = 0;
+  fp_space = 0.0;
+  fp_nonsp = 0.0;
+  pr_space = 0.0;
+  pr_nonsp = 0.0;
+  key_row = NULL;
+}
+
 
 TO_BLOCK::~TO_BLOCK() {
   // Any residual BLOBNBOXes at this stage own their blobs, so delete them.
@@ -802,6 +1081,4 @@ void plot_blob_list(ScrollView* win,                   // window to draw in
     it.data()->plot(win, body_colour, child_colour);
   }
 }
-
 #endif //GRAPHICS_DISABLED
-

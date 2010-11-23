@@ -25,46 +25,11 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include "tessclas.h"
 #include "const.h"
 #include "unicharset.h"
 #include "strngs.h"
 
 #include <stdio.h>
 
-/*----------------------------------------------------------------------
-              V a r i a b l e s
-----------------------------------------------------------------------*/
-//extern IMAGE            info;                                                 /*image info record*/
-//extern TBLOB *pageblobs;         /*first blob on page */
-//extern TEXTBLOCK *pageblocks;    /*first block on page */
-//                                 /*class definitions */
-///* extern char classes[CLASSIZE][CLASSLENGTH]; */
-//extern int resolution;           /*scanner res in dpi */
-//extern int acts[MAXPROC];        /*action flags */
-//extern int debugs[MAXPROC];      /*debug flags */
-//extern int plots[MAXPROC];       /*plot flags */
-//extern int corners[4];           /*corners of scan window */
-//                                 /*image file name */
-//extern char imagefile[FILENAMESIZE];
-//                                 /* main directory */
-//extern char directory[FILENAMESIZE];
-//extern char *debugfile;          /* debug file name */
-
-//extern int plots_fx;
-//extern int plots_ocr;
-
-//extern int debugs_fx;
-//extern int debugs_ocr;
-
-//extern int acts_fx;
-//extern int acts_ocr;
-
-//extern char *demodir;
-//extern FILE *debugfp;            /*debug log file */
-
-//extern UNICHARSET unicharset; /* The UNICHARSET variable that Tesseract uses internally */
-
-//extern STRING language_data_path_prefix;
 
 #endif

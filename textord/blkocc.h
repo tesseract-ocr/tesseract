@@ -25,7 +25,7 @@
 #ifndef           BLKOCC_H
 #define           BLKOCC_H
 
-#include                   "varable.h"
+#include                   "params.h"
 #include                   "polyblob.h"
 #include          "elst.h"
 #include          "notdll.h"

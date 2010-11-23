@@ -66,7 +66,7 @@ class ImageThresholder {
   virtual void GetImageSizes(int* left, int* top, int* width, int* height,
                              int* imagewidth, int* imageheight);
 
-  /// Return true if HAVE_LIBLEPT and this thresholder implements the Pix
+  /// Return true if this thresholder implements the Pix
   /// interface.
   virtual bool HasThresholdToPix() const;
 
@@ -75,11 +75,15 @@ class ImageThresholder {
     return image_bytespp_ >= 3;
   }
 
+  /// Returns true if the source image is binary.
+  bool IsBinary() const {
+    return image_bytespp_ == 0;
+  }
+
   /// Threshold the source image as efficiently as possible to the output
   /// tesseract IMAGE class.
   virtual void ThresholdToIMAGE(IMAGE* image);
 
-#ifdef HAVE_LIBLEPT
   /// Pix vs raw, which to use?
   /// Implementations should provide the ability to source and target Pix
   /// where possible. A future version of Tesseract may choose to use Pix
@@ -101,7 +105,13 @@ class ImageThresholder {
   /// the layout analysis that uses it will only be available with Leptonica,
   /// so there is no raw equivalent.
   Pix* GetPixRect();
-#endif
+
+  /// Get a clone/copy of the source image rectangle, reduced to greyscale.
+  /// The returned Pix must be pixDestroyed.
+  /// This function will be used in the future by the page layout analysis, and
+  /// the layout analysis that uses it will only be available with Leptonica,
+  /// so there is no raw equivalent.
+  Pix* GetPixRectGrey();
 
  protected:
   // ----------------------------------------------------------------------
@@ -133,7 +143,6 @@ class ImageThresholder {
   /// output IMAGE.
   void CopyBinaryRectRawToIMAGE(IMAGE* image) const;
 
-#ifdef HAVE_LIBLEPT
   /// Otsu threshold the rectangle, taking everything except the image buffer
   /// pointer from the class, to the output Pix.
   void OtsuThresholdRectToPix(const unsigned char* imagedata,
@@ -152,14 +161,11 @@ class ImageThresholder {
 
   /// Cut out the requested rectangle of the binary image to the output IMAGE.
   void CopyBinaryRectPixToIMAGE(IMAGE* image) const;
-#endif
 
  protected:
-#ifdef HAVE_LIBLEPT
   /// Clone or other copy of the source Pix.
   /// The pix will always be PixDestroy()ed on destruction of the class.
   Pix*                 pix_;
-#endif
   /// Exactly one of pix_ and image_data_ is not NULL.
   const unsigned char* image_data_;     //< Raw source image.
 
@@ -177,5 +183,4 @@ class ImageThresholder {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_CCMAIN_THRESHOLDER_H__
-
 

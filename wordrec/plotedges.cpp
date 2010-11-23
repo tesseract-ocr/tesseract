@@ -76,7 +76,7 @@ void display_edgepts(LIST outlines) {
  **********************************************************************/
 void draw_blob_edges(TBLOB *blob) {
   TESSLINE *ol;
-  LIST edge_list = NIL;
+  LIST edge_list = NIL_LIST;
 
   if (wordrec_display_splits) {
     for (ol = blob->outlines; ol != NULL; ol = ol->next)

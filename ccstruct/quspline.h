@@ -37,7 +37,7 @@ class QSPLINE
                                   QSPLINE *,
                                   float);
   friend void make_holed_baseline(TBOX *, int, QSPLINE *, QSPLINE *, float);
-  friend void tweak_row_baseline(ROW *);
+  friend void tweak_row_baseline(ROW *, double, double);
   public:
     QSPLINE() {  //empty constructor
       segments = 0;

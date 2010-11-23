@@ -26,40 +26,19 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 
-#include "context.h"
-#include "conversion.h"
 #include "cutil.h"
 #include "dawg.h"
 #include "freelist.h"
 #include "globals.h"
 #include "ndminx.h"
-#include "permdawg.h"
 #include "permute.h"
 #include "stopper.h"
-#include "tordvars.h"
 #include "tprintf.h"
-#include "varable.h"
+#include "params.h"
 
 #include <ctype.h>
 #include "dict.h"
 #include "image.h"
-
-/*----------------------------------------------------------------------
-              V a r i a b l e s
-----------------------------------------------------------------------*/
-BOOL_VAR(segment_dawg_debug, 0, "Debug mode for word segmentation");
-
-double_VAR(segment_penalty_dict_case_bad, OK_WERD,
-           "Default score multiplier for word matches, which may have "
-           "case issues (lower is better).");
-
-double_VAR(segment_penalty_dict_case_ok, GOOD_WERD,
-           "Score multiplier for word matches that have good case "
-           "(lower is better).");
-
-double_VAR(segment_penalty_dict_frequent_word, FREQ_WERD,
-           "Score multiplier for word matches which have good case and are "
-           "frequent in the given language (lower is better).");
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -67,52 +46,6 @@ double_VAR(segment_penalty_dict_frequent_word, FREQ_WERD,
 namespace tesseract {
 
 static const float kPermDawgRatingPad = 5.0;
-
-/**
- * @name adjust_word
- *
- * Assign an adjusted value to a string that is a word. The value
- * that this word choice has is based on case and punctuation rules.
- */
-void Dict::adjust_word(WERD_CHOICE *word,
-                       float *certainty_array) {
-  float adjust_factor;
-  float new_rating = word->rating();
-
-  if (segment_dawg_debug) {
-    tprintf("Word: %s %4.2f ",
-            word->debug_string(getUnicharset()).string(), word->rating());
-  }
-
-  new_rating += RATING_PAD;
-  if (Context::case_ok(*word, getUnicharset())) {
-    if (freq_dawg_ != NULL && freq_dawg_->word_in_dawg(*word)) {
-      word->set_permuter(FREQ_DAWG_PERM);
-      new_rating *= segment_penalty_dict_frequent_word;
-      adjust_factor = segment_penalty_dict_frequent_word;
-      if (segment_dawg_debug)
-        tprintf(", F, %4.2f ", (double)segment_penalty_dict_frequent_word);
-    } else {
-      new_rating *= segment_penalty_dict_case_ok;
-      adjust_factor = segment_penalty_dict_case_ok;
-      if (segment_dawg_debug)
-        tprintf(", %4.2f ", (double)segment_penalty_dict_case_ok);
-    }
-  } else {
-    new_rating *= segment_penalty_dict_case_bad;
-    adjust_factor = segment_penalty_dict_case_bad;
-    if (segment_dawg_debug) {
-      tprintf(", C %4.2f ", (double)segment_penalty_dict_case_bad);
-    }
-  }
-  new_rating -= RATING_PAD;
-  word->set_rating(new_rating);
-
-  LogNewChoice(*word, adjust_factor, certainty_array, false);
-
-  if (segment_dawg_debug)
-    tprintf(" --> %4.2f\n", new_rating);
-}
 
 /**
  * @name go_deeper_dawg_fxn
@@ -133,15 +66,14 @@ void Dict::adjust_word(WERD_CHOICE *word,
  */
 void Dict::go_deeper_dawg_fxn(
     const char *debug, const BLOB_CHOICE_LIST_VECTOR &char_choices,
-    int char_choice_index,
-    const CHAR_FRAGMENT_INFO *prev_char_frag_info,
-    bool word_ending, WERD_CHOICE *word, float certainties[],
-    float *limit, WERD_CHOICE *best_choice, void *void_more_args) {
+    int char_choice_index, const CHAR_FRAGMENT_INFO *prev_char_frag_info,
+    bool word_ending, WERD_CHOICE *word, float certainties[], float *limit,
+    WERD_CHOICE *best_choice, int *attempts_left, void *void_more_args) {
   DawgArgs *more_args = reinterpret_cast<DawgArgs*>(void_more_args);
+  word_ending = (char_choice_index == more_args->end_char_choice_index);
   int word_index = word->length() - 1;
 
-  bool ambigs_mode = (*limit <= 0.0);
-  if (ambigs_mode) {
+  if (ambigs_mode(*limit)) {
     if (best_choice->rating() < *limit) return;
   } else {
     // Prune bad subwords
@@ -151,7 +83,7 @@ void Dict::go_deeper_dawg_fxn(
       float permdawg_limit = more_args->rating_array[word_index] *
         more_args->rating_margin + kPermDawgRatingPad;
       if (permdawg_limit < word->rating()) {
-        if (segment_dawg_debug) {
+        if (permute_debug && dawg_debug_level) {
           tprintf("early pruned word rating=%4.2f,"
                   " permdawg_limit=%4.2f, word=%s\n", word->rating(),
                   permdawg_limit, word->debug_string(getUnicharset()).string());
@@ -161,15 +93,27 @@ void Dict::go_deeper_dawg_fxn(
     }
   }
   // Deal with hyphens
-  if (word_ending && has_hyphen_end(*word) && !ambigs_mode) {
-    if (segment_dawg_debug)
-      tprintf("new hyphen choice = %s\n",
-              word->debug_string(getUnicharset()).string());
-    word->set_permuter(more_args->permuter);
-    adjust_word(word, certainties);
-    set_hyphen_word(*word, *(more_args->active_dawgs),
-                    *(more_args->constraints));
-    update_best_choice(*word, best_choice);
+  if (word_ending && more_args->sought_word_length == kAnyWordLength &&
+      has_hyphen_end(*word) && !ambigs_mode(*limit)) {
+    // Copy more_args->active_dawgs to clean_active_dawgs removing
+    // dawgs of type DAWG_TYPE_PATTERN.
+    DawgInfoVector clean_active_dawgs;
+    const DawgInfoVector &active_dawgs = *(more_args->active_dawgs);
+    for (int i = 0; i < active_dawgs.size(); ++i) {
+      if (dawgs_[active_dawgs[i].dawg_index]->type() != DAWG_TYPE_PATTERN) {
+        clean_active_dawgs += active_dawgs[i];
+      }
+    }
+    if (clean_active_dawgs.size() > 0) {
+      if (permute_debug && dawg_debug_level)
+        tprintf("new hyphen choice = %s\n",
+                word->debug_string(getUnicharset()).string());
+      word->set_permuter(more_args->permuter);
+      adjust_word(word, certainties, permute_debug);
+      set_hyphen_word(*word, *(more_args->active_dawgs),
+                      *(more_args->constraints));
+      update_best_choice(*word, best_choice);
+    }
   } else {  // Look up char in DAWG
     // TODO(daria): update the rest of the code that specifies alternative
     // letter_is_okay_ functions (e.g. TessCharNgram class) to work with
@@ -180,7 +124,7 @@ void Dict::go_deeper_dawg_fxn(
     UNICHAR_ID orig_uch_id = word->unichar_id(word_index);
     bool checked_unigrams = false;
     if (getUnicharset().get_isngram(orig_uch_id)) {
-      if (segment_dawg_debug) {
+      if (permute_debug && dawg_debug_level) {
         tprintf("checking unigrams in an ngram %s\n",
                 getUnicharset().debug_str(orig_uch_id).string());
       }
@@ -196,10 +140,13 @@ void Dict::go_deeper_dawg_fxn(
       DawgInfoVector unigram_constraints = *(more_args->constraints);
       DawgInfoVector unigram_updated_active_dawgs;
       DawgInfoVector unigram_updated_constraints;
-      DawgArgs unigram_dawg_args(&unigram_active_dawgs, &unigram_constraints,
+      DawgArgs unigram_dawg_args(&unigram_active_dawgs,
+                                 &unigram_constraints,
                                  &unigram_updated_active_dawgs,
-                                 &unigram_updated_constraints, 0.0);
-      unigram_dawg_args.permuter = more_args->permuter;
+                                 &unigram_updated_constraints, 0.0,
+                                 more_args->permuter,
+                                 more_args->sought_word_length,
+                                 more_args->end_char_choice_index);
       // Check unigrams in the ngram with letter_is_okay().
       while (unigrams_ok && ngram_ptr < ngram_str_end) {
         int step = getUnicharset().step(ngram_ptr);
@@ -209,13 +156,14 @@ void Dict::go_deeper_dawg_fxn(
         ++num_unigrams;
         word->append_unichar_id(uch_id, 1, 0.0, 0.0);
         unigrams_ok = unigrams_ok && (this->*letter_is_okay_)(
-            &unigram_dawg_args, word_index+num_unigrams-1, word,
+            &unigram_dawg_args,
+            word->unichar_id(word_index+num_unigrams-1),
             word_ending && (ngram_ptr == ngram_str_end));
         (*unigram_dawg_args.active_dawgs) =
           *(unigram_dawg_args.updated_active_dawgs);
         (*unigram_dawg_args.constraints) =
           *(unigram_dawg_args.updated_constraints);
-        if (segment_dawg_debug) {
+        if (permute_debug && dawg_debug_level) {
           tprintf("unigram %s is %s\n",
                   getUnicharset().debug_str(uch_id).string(),
                   unigrams_ok ? "OK" : "not OK");
@@ -235,26 +183,27 @@ void Dict::go_deeper_dawg_fxn(
       }
     }
 
-    // Check which dawgs from dawgs_ vector contain the word
+    // Check which dawgs from the dawgs_ vector contain the word
     // up to and including the current unichar.
-    if (checked_unigrams ||
-        (this->*letter_is_okay_)(more_args, word_index, word, word_ending)) {
+    if (checked_unigrams || (this->*letter_is_okay_)(
+        more_args, word->unichar_id(word_index), word_ending)) {
       // Add a new word choice
       if (word_ending) {
-        if (segment_dawg_debug) {
+        if (permute_debug && dawg_debug_level) {
           tprintf("found word = %s\n",
                   word->debug_string(getUnicharset()).string());
         }
         WERD_CHOICE *adjusted_word = word;
         WERD_CHOICE hyphen_tail_word;
-        if (!ambigs_mode && hyphen_base_size() > 0) {
+        if (hyphen_base_size() > 0) {
           hyphen_tail_word = *word;
           remove_hyphen_head(&hyphen_tail_word);
           adjusted_word = &hyphen_tail_word;
         }
         adjusted_word->set_permuter(more_args->permuter);
-        if (!ambigs_mode) {
-          adjust_word(adjusted_word, &certainties[hyphen_base_size()]);
+        if (!ambigs_mode(*limit)) {
+          adjust_word(adjusted_word, &certainties[hyphen_base_size()],
+                      permute_debug);
         }
         update_best_choice(*adjusted_word, best_choice);
       } else {  // search the next letter
@@ -267,7 +216,7 @@ void Dict::go_deeper_dawg_fxn(
         ++(more_args->constraints);
         permute_choices(debug, char_choices, char_choice_index + 1,
                         prev_char_frag_info, word, certainties, limit,
-                        best_choice, more_args);
+                        best_choice, attempts_left, more_args);
         // Restore previous state to explore another letter in this position.
         --(more_args->updated_active_dawgs);
         --(more_args->updated_constraints);
@@ -275,7 +224,7 @@ void Dict::go_deeper_dawg_fxn(
         --(more_args->constraints);
       }
     } else {
-      if (segment_dawg_debug) {
+      if (permute_debug && dawg_debug_level) {
         tprintf("last unichar not OK at index %d in %s\n",
                 word_index, word->debug_string(getUnicharset()).string());
       }
@@ -290,22 +239,39 @@ void Dict::go_deeper_dawg_fxn(
  * the given char_choices. Use go_deeper_dawg_fxn() to search all the
  * dawgs in the dawgs_ vector in parallel and discard invalid words.
  *
+ * If sought_word_length is not kAnyWordLength, the function only searches
+ * for a valid word formed by the given char_choices in one fixed length
+ * dawg (that contains words of length sought_word_length) starting at the
+ * start_char_choice_index.
+ *
  * Allocate and return a WERD_CHOICE with the best valid word found.
  */
 WERD_CHOICE *Dict::dawg_permute_and_select(
-    const BLOB_CHOICE_LIST_VECTOR &char_choices, float rating_limit) {
+    const BLOB_CHOICE_LIST_VECTOR &char_choices, float rating_limit,
+    int sought_word_length, int start_char_choice_index) {
   WERD_CHOICE *best_choice = new WERD_CHOICE();
   best_choice->make_bad();
   best_choice->set_rating(rating_limit);
   if (char_choices.length() == 0) return best_choice;
   DawgInfoVector *active_dawgs = new DawgInfoVector[char_choices.length() + 1];
   DawgInfoVector *constraints =  new DawgInfoVector[char_choices.length() + 1];
-  init_active_dawgs(&(active_dawgs[0]));
+  init_active_dawgs(sought_word_length, &(active_dawgs[0]),
+                    ambigs_mode(rating_limit));
   init_constraints(&(constraints[0]));
+  int end_char_choice_index = (sought_word_length == kAnyWordLength) ?
+    char_choices.length()-1 : start_char_choice_index+sought_word_length-1;
+  // Need to skip accumulating word choices if we are only searching a part of
+  // the word (e.g. for the phrase search in non-space delimited languages).
+  // Also need to skip accumulating choices if char_choices are expanded
+  // with ambiguities.
+  bool re_enable_choice_accum = ChoiceAccumEnabled();
+  if (sought_word_length != kAnyWordLength ||
+      ambigs_mode(rating_limit)) DisableChoiceAccum();
   DawgArgs dawg_args(&(active_dawgs[0]), &(constraints[0]),
                      &(active_dawgs[1]), &(constraints[1]),
                      (segment_penalty_dict_case_bad /
-                      segment_penalty_dict_case_ok));
+                      segment_penalty_dict_case_ok),
+                     NO_PERM, sought_word_length, end_char_choice_index);
   WERD_CHOICE word(MAX_WERD_LENGTH);
   copy_hyphen_info(&word);
   // Discard rating and certainty of the hyphen base (if any).
@@ -318,57 +284,16 @@ WERD_CHOICE *Dict::dawg_permute_and_select(
   }
   float certainties[MAX_WERD_LENGTH];
   this->go_deeper_fxn_ = &tesseract::Dict::go_deeper_dawg_fxn;
-  permute_choices(segment_dawg_debug ? "segment_dawg_debug" : NULL,
-                  char_choices, 0, NULL, &word, certainties,
-                  &rating_limit, best_choice, &dawg_args);
+  int attempts_left = max_permuter_attempts;
+  permute_choices((permute_debug && dawg_debug_level) ?
+                  "permute_dawg_debug" : NULL,
+                  char_choices, start_char_choice_index, NULL, &word,
+                  certainties, &rating_limit, best_choice, &attempts_left,
+                  &dawg_args);
   delete[] active_dawgs;
   delete[] constraints;
+  if (re_enable_choice_accum) EnableChoiceAccum();
   return best_choice;
-}
-
-/**
- * Fill the given active_dawgs vector with dawgs that could contain the
- * beginning of the word. If hyphenated() returns true, copy the entries
- * from hyphen_active_dawgs_ instead.
- */
-void Dict::init_active_dawgs(DawgInfoVector *active_dawgs) {
-  int i;
-  if (hyphenated()) {
-    *active_dawgs = hyphen_active_dawgs_;
-    if (dawg_debug_level >= 3) {
-      for (i = 0; i < hyphen_active_dawgs_.size(); ++i) {
-        tprintf("Adding hyphen beginning dawg [%d, " REFFORMAT "]\n",
-                hyphen_active_dawgs_[i].dawg_index,
-                hyphen_active_dawgs_[i].ref);
-      }
-    }
-  } else {
-    for (i = 0; i < dawgs_.length(); ++i) {
-      if (kBeginningDawgsType[(dawgs_[i])->type()]) {
-        *active_dawgs += DawgInfo(i, NO_EDGE);
-        if (dawg_debug_level >= 3) {
-          tprintf("Adding beginning dawg [%d, " REFFORMAT "]\n", i, NO_EDGE);
-        }
-      }
-    }
-  }
-}
-
-/** 
- * If hyphenated() returns true, copy the entries from hyphen_constraints_
- * into the given constraints vector.
- */
-void Dict::init_constraints(DawgInfoVector *constraints) {
-  if (hyphenated()) {
-    *constraints = hyphen_constraints_;
-    if (dawg_debug_level >= 3) {
-      for (int i = 0; i < hyphen_constraints_.size(); ++i) {
-        tprintf("Adding hyphen constraint [%d, " REFFORMAT "]\n",
-                hyphen_constraints_[i].dawg_index,
-                hyphen_constraints_[i].ref);
-      }
-    }
-  }
 }
 
 }  // namespace tesseract

@@ -22,16 +22,13 @@
 #ifdef __UNIX__
 #include          <unistd.h>
 #include                    <fcntl.h>
+#else
+#include          <io.h>
 #endif
 #include          <stdlib.h>
 #include          "basedir.h"
-#include          "varable.h"
+#include          "params.h"
 #include          "notdll.h"     //must be last include
-
-#ifdef __MSW32__
-STRING_VAR(tessedit_module_name, "tessdll.dll",
-        "Module colocated with tessdata dir");
-#endif
 
 /**********************************************************************
  * getpath
@@ -42,6 +39,7 @@ STRING_VAR(tessedit_module_name, "tessdll.dll",
 
 DLLSYM inT8 getpath(                   //get dir name of code
                     const char *code,  //executable to locate
+                    const STRING &dll_module_name,
                     STRING &path       //output path name
                    ) {
   char directory[MAX_PATH];      //main directory
@@ -96,7 +94,7 @@ DLLSYM inT8 getpath(                   //get dir name of code
     // Attempt to get the path of the most relevant module. If the dll
     // is being used, this will be the dll. Otherwise GetModuleHandle will
     // return NULL and default to the path of the executable.
-    if (GetModuleFileName(GetModuleHandle(tessedit_module_name.string()),
+    if (GetModuleFileName(GetModuleHandle(dll_module_name.string()),
                           directory, MAX_PATH - 1) == 0) {
       return -1;
     }

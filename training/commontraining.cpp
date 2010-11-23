@@ -31,6 +31,7 @@
 
 #define round(x,frag)(floor(x/frag+.5)*frag)
 
+
 // Global Variables.
 char	*Directory = NULL;
 
@@ -39,21 +40,14 @@ const char *OutputUnicharsetFile = NULL;
 
 const char *InputFontInfoFile = NULL;
 
-// globals used to control what information is saved in the output file
-BOOL8		ShowSignificantProtos = TRUE;
-BOOL8		ShowInsignificantProtos = FALSE;
-
 FLOAT32 RoundingAccuracy = 0.0f;
 
 char CTFontName[MAXNAMESIZE];
 
 const char* test_ch = "";
 
-// The unicharset used during training
-UNICHARSET unicharset_training;
-
 /*---------------------------------------------------------------------------*/
-void ParseArguments(int argc, char **argv)
+void ParseArguments(int argc, char **argv) {
 /*
  **	Parameters:
  **		argc	number of command line arguments to parse
@@ -68,8 +62,6 @@ void ParseArguments(int argc, char **argv)
  **		This routine parses the command line arguments that were
  **		passed to the program.  The legal arguments are:
  **			-d		"turn off display of samples"
- **			-p		"turn off significant protos"
- **			-n		"turn off insignificant proto"
  **			-S [ spherical | elliptical | mixed | automatic ]
  **			-M MinSamples	"min samples per prototype (%)"
  **			-B MaxIllegal	"max illegal chars per cluster (%)"
@@ -84,25 +76,13 @@ void ParseArguments(int argc, char **argv)
  **	Exceptions: Illegal options terminate the program.
  **	History: 7/24/89, DSJ, Created.
  */
-
-{
-  int		Option;
-  int		ParametersRead;
-  BOOL8		Error;
+  int    Option;
+  int    ParametersRead;
+  BOOL8  Error;
 
   Error = FALSE;
-  while (( Option = tessopt( argc, argv, "F:O:U:R:D:C:I:M:B:S:n:p" )) != EOF )
-  {
-    switch ( Option )
-    {
-      case 'n':
-        sscanf(tessoptarg,"%d", &ParametersRead);
-        ShowInsignificantProtos = ParametersRead;
-        break;
-      case 'p':
-        sscanf(tessoptarg,"%d", &ParametersRead);
-        ShowSignificantProtos = ParametersRead;
-        break;
+  while ((Option = tessopt(argc, argv, "F:O:U:R:D:C:I:M:B:S")) != EOF) {
+    switch (Option) {
       case 'C':
         ParametersRead = sscanf( tessoptarg, "%lf", &(Config.Confidence) );
         if ( ParametersRead != 1 ) Error = TRUE;
@@ -253,16 +233,93 @@ LABELEDLIST NewLabeledList (
   LabeledList = (LABELEDLIST) Emalloc (sizeof (LABELEDLISTNODE));
   LabeledList->Label = (char*)Emalloc (strlen (Label)+1);
   strcpy (LabeledList->Label, Label);
-  LabeledList->List = NIL;
+  LabeledList->List = NIL_LIST;
   LabeledList->SampleCount = 0;
+  LabeledList->font_sample_count = 0;
   return (LabeledList);
 
 }	/* NewLabeledList */
 
 /*---------------------------------------------------------------------------*/
+void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
+                         const char *feature_name, int max_samples,
+                         float linear_spread, float circular_spread,
+                         UNICHARSET* unicharset,
+                         FILE* file, LIST* training_samples) {
+/*
+**  Parameters:
+**    file    open text file to read samples from
+**  Globals: none
+**  Operation:
+**    This routine reads training samples from a file and
+**    places them into a data structure which organizes the
+**    samples by FontName and CharName.  It then returns this
+**    data structure.
+**  Return: none
+**  Exceptions: none
+**  History: Fri Aug 18 13:11:39 1989, DSJ, Created.
+**       Tue May 17 1998 simplifications to structure, illiminated
+**        font, and feature specification levels of structure.
+*/
+  char    unichar[UNICHAR_LEN + 1];
+  LABELEDLIST char_sample;
+  FEATURE_SET feature_samples;
+  CHAR_DESC char_desc;
+  int   i;
+  int feature_type = ShortNameToFeatureType(feature_defs, feature_name);
+  // Description of feature of type feature_type.
+  const FEATURE_DESC_STRUCT* f_desc = feature_defs.FeatureDesc[feature_type];
+
+  // Zero out the font_sample_count for all the classes.
+  LIST it = *training_samples;
+  iterate(it) {
+    char_sample = reinterpret_cast<LABELEDLIST>(first_node(it));
+    char_sample->font_sample_count = 0;
+  }
+
+  while (fscanf(file, "%s %s", CTFontName, unichar) == 2) {
+    if (unicharset != NULL && !unicharset->contains_unichar(unichar)) {
+      unicharset->unichar_insert(unichar);
+      if (unicharset->size() > MAX_NUM_CLASSES) {
+        tprintf("Error: Size of unicharset in training is "
+                "greater than MAX_NUM_CLASSES\n");
+        exit(1);
+      }
+    }
+    char_sample = FindList(*training_samples, unichar);
+    if (char_sample == NULL) {
+      char_sample = NewLabeledList(unichar);
+      *training_samples = push(*training_samples, char_sample);
+    }
+    char_desc = ReadCharDescription(feature_defs, file);
+    feature_samples = char_desc->FeatureSets[feature_type];
+    if (char_sample->font_sample_count < max_samples || max_samples <= 0) {
+      for (int feature = 0; feature < feature_samples->NumFeatures; ++feature) {
+        FEATURE f = feature_samples->Features[feature];
+        for (int dim =0; dim < f->Type->NumParams; ++dim)
+          f->Params[dim] += f_desc->ParamDesc[dim].Circular
+              ? UniformRandomNumber(-circular_spread, circular_spread)
+              : UniformRandomNumber(-linear_spread, linear_spread);
+      }
+      char_sample->List = push(char_sample->List, feature_samples);
+      char_sample->SampleCount++;
+      char_sample->font_sample_count++;
+    } else {
+      FreeFeatureSet(feature_samples);
+    }
+    for (i = 0; i < char_desc->NumFeatureSets; i++) {
+      if (feature_type != i)
+        FreeFeatureSet(char_desc->FeatureSets[i]);
+    }
+    free(char_desc);
+  }
+}  // ReadTrainingSamples
+
+/*---------------------------------------------------------------------------*/
 void WriteTrainingSamples (
-    char	*Directory,
-    LIST	CharList,
+    const FEATURE_DEFS_STRUCT &FeatureDefs,
+    char *Directory,
+    LIST CharList,
     const char* program_feature_type)
 
 /*
@@ -279,7 +336,7 @@ void WriteTrainingSamples (
  */
 
 {
-  LABELEDLIST	CharSample;
+  LABELEDLIST	char_sample;
   FEATURE_SET	FeatureSet;
   LIST		FeatureList;
   FILE		*File;
@@ -288,7 +345,7 @@ void WriteTrainingSamples (
 
   iterate (CharList)		// iterate thru all of the fonts
   {
-    CharSample = (LABELEDLIST) first_node (CharList);
+    char_sample = (LABELEDLIST) first_node (CharList);
 
     // construct the full pathname for the current samples file
     strcpy (Filename, "");
@@ -299,7 +356,7 @@ void WriteTrainingSamples (
     }
     strcat (Filename, CTFontName);
     strcat (Filename, "/");
-    strcat (Filename, CharSample->Label);
+    strcat (Filename, char_sample->Label);
     strcat (Filename, ".");
     strcat (Filename, program_feature_type);
     printf ("\nWriting %s ...", Filename);
@@ -313,7 +370,7 @@ void WriteTrainingSamples (
       WriteOldParamDesc(
           File,
           FeatureDefs.FeatureDesc[ShortNameToFeatureType(
-              program_feature_type)]);
+              FeatureDefs, program_feature_type)]);
     }
     else
     {
@@ -322,7 +379,7 @@ void WriteTrainingSamples (
     }
 
     // append samples onto the file
-    FeatureList = CharSample->List;
+    FeatureList = char_sample->List;
     NumSamples = 0;
     iterate (FeatureList)
     {
@@ -351,7 +408,7 @@ void FreeTrainingSamples (
  */
 
 {
-  LABELEDLIST	CharSample;
+  LABELEDLIST	char_sample;
   FEATURE_SET	FeatureSet;
   LIST		FeatureList;
 
@@ -359,14 +416,14 @@ void FreeTrainingSamples (
   // 	printf ("FreeTrainingSamples...\n");
   iterate (CharList) 		/* iterate thru all of the fonts */
   {
-    CharSample = (LABELEDLIST) first_node (CharList);
-    FeatureList = CharSample->List;
+    char_sample = (LABELEDLIST) first_node (CharList);
+    FeatureList = char_sample->List;
     iterate (FeatureList)	/* iterate thru all of the classes */
     {
       FeatureSet = (FEATURE_SET) first_node (FeatureList);
       FreeFeatureSet (FeatureSet);
     }
-    FreeLabeledList (CharSample);
+    FreeLabeledList (char_sample);
   }
   destroy (CharList);
 
@@ -398,12 +455,13 @@ void FreeLabeledList (
 
 /*---------------------------------------------------------------------------*/
 CLUSTERER *SetUpForClustering(
-    LABELEDLIST	CharSample,
+    const FEATURE_DEFS_STRUCT &FeatureDefs,
+    LABELEDLIST	char_sample,
     const char* program_feature_type)
 
 /*
  **	Parameters:
- **		CharSample: LABELEDLIST that holds all the feature information for a
+ **		char_sample: LABELEDLIST that holds all the feature information for a
  **		given character.
  **	Globals:
  **		None
@@ -427,17 +485,12 @@ CLUSTERER *SetUpForClustering(
   inT32		CharID;
   LIST FeatureList = NULL;
   FEATURE_SET FeatureSet = NULL;
-  FEATURE_DESC FeatureDesc = NULL;
-  //	PARAM_DESC* ParamDesc;
 
-  FeatureDesc =
-    FeatureDefs.FeatureDesc[ShortNameToFeatureType(program_feature_type)];
-  N = FeatureDesc->NumParams;
-  //	ParamDesc = ConvertToPARAMDESC(FeatureDesc->ParamDesc, N);
-  Clusterer = MakeClusterer(N,FeatureDesc->ParamDesc);
-  //	free(ParamDesc);
+  int desc_index = ShortNameToFeatureType(FeatureDefs, program_feature_type);
+  N = FeatureDefs.FeatureDesc[desc_index]->NumParams;
+  Clusterer = MakeClusterer(N, FeatureDefs.FeatureDesc[desc_index]->ParamDesc);
 
-  FeatureList = CharSample->List;
+  FeatureList = char_sample->List;
   CharID = 0;
   iterate(FeatureList)
   {
@@ -560,7 +613,7 @@ LIST RemoveInsignificantProtos(
     int N)
 
 {
-  LIST NewProtoList = NIL;
+  LIST NewProtoList = NIL_LIST;
   LIST pProtoList;
   PROTOTYPE* Proto;
   PROTOTYPE* NewProto;
@@ -682,9 +735,7 @@ void FreeLabeledClassList (
 }	/* FreeLabeledClassList */
 
 /** SetUpForFloat2Int **************************************************/
-void SetUpForFloat2Int(
-    LIST LabeledClassList)
-{
+void SetUpForFloat2Int(const UNICHARSET& unicharset, LIST LabeledClassList) {
   MERGE_CLASS	MergeClass;
   CLASS_TYPE		Class;
   int				NumProtos;
@@ -703,8 +754,7 @@ void SetUpForFloat2Int(
   {
     UnicityTableEqEq<int>   font_set;
     MergeClass = (MERGE_CLASS) first_node (LabeledClassList);
-    Class = &TrainingData[unicharset_training.unichar_to_id(
-        MergeClass->Label)];
+    Class = &TrainingData[unicharset.unichar_to_id(MergeClass->Label)];
     NumProtos = MergeClass->Class->NumProtos;
     NumConfigs = MergeClass->Class->NumConfigs;
     font_set.move(&MergeClass->Class->font_set);
@@ -766,12 +816,12 @@ void FreeNormProtoList (
     LIST	CharList)
 
 {
-  LABELEDLIST	CharSample;
+  LABELEDLIST	char_sample;
 
   iterate (CharList) 		/* iterate thru all of the fonts */
   {
-    CharSample = (LABELEDLIST) first_node (CharList);
-    FreeLabeledList (CharSample);
+    char_sample = (LABELEDLIST) first_node (CharList);
+    FreeLabeledList (char_sample);
   }
   destroy (CharList);
 

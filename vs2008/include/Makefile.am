@@ -1,2 +1,2 @@
 SUBDIRS = leptonica
-EXTRA_DIST = stdint.h 
+EXTRA_DIST =  stdint.h

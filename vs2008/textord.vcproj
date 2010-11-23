@@ -263,6 +263,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\textord\colpartitiongrid.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\textord\colpartitionset.cpp"
 				>
 			</File>
@@ -554,10 +558,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\textord\pagesegmain.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\textord\pithsync.cpp"
 				>
 				<FileConfiguration
@@ -694,7 +694,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\textord\tablerecog.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\textord\tabvector.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\textord.cpp"
 				>
 			</File>
 			<File
@@ -918,6 +926,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\textord\colpartitiongrid.h"
+				>
+			</File>
+			<File
 				RelativePath="..\textord\colpartitionset.h"
 				>
 			</File>
@@ -990,11 +1002,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\textord\tablerecog.h"
+				>
+			</File>
+			<File
 				RelativePath="..\textord\tabvector.h"
 				>
 			</File>
 			<File
-				RelativePath="..\textord\tessout.h"
+				RelativePath="..\textord\textord.h"
 				>
 			</File>
 			<File

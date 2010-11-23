@@ -27,7 +27,7 @@
 
 #include "callcpp.h"
 #include "oldlist.h"
-#include "tessclas.h"
+#include "blobs.h"
 #include "split.h"
 
 /*----------------------------------------------------------------------

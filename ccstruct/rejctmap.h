@@ -46,14 +46,8 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #endif
 #include          "memry.h"
 #include          "bits16.h"
-#include                   "varable.h"
+#include                   "params.h"
 #include          "notdll.h"
-
-extern BOOL_VAR_H (rejword_only_set_if_accepted, TRUE,
-"Mimic old reject_word");
-extern BOOL_VAR_H (rejmap_allow_more_good_qual, FALSE,
-"Use initial good qual setting");
-extern BOOL_VAR_H (rej_use_1Il_rej, TRUE, "1Il rejection enabled");
 
 enum REJ_FLAGS
 {

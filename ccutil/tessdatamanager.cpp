@@ -28,23 +28,16 @@
 #include "serialis.h"
 #include "strngs.h"
 #include "tprintf.h"
-#include "varable.h"
-
-BOOL_VAR(global_load_system_dawg, true, "Load system word dawg.");
-BOOL_VAR(global_load_freq_dawg, true, "Load frequent word dawg.");
-BOOL_VAR(global_load_punc_dawg, true, "Load dawg with punctuation patterns.");
-BOOL_VAR(global_load_number_dawg, true, "Load dawg with number patterns.");
-
-INT_VAR(global_tessdata_manager_debug_level, 0,
-        "Debug level for TessdataManager functions.");
+#include "params.h"
 
 namespace tesseract {
 
-void TessdataManager::Init(const char *data_file_name) {
+void TessdataManager::Init(const char *data_file_name, int debug_level) {
   int i;
+  debug_level_ = debug_level;
   data_file_ = fopen(data_file_name, "rb");
   if (data_file_ == NULL) {
-    tprintf("Error openning data file %s\n", data_file_name);
+    tprintf("Error opening data file %s\n", data_file_name);
     exit(1);
   }
   fread(&actual_tessdata_num_entries_, sizeof(inT32), 1, data_file_);
@@ -60,7 +53,7 @@ void TessdataManager::Init(const char *data_file_name) {
       offset_table_[i] = reverse64(offset_table_[i]);
     }
   }
-  if (global_tessdata_manager_debug_level) {
+  if (debug_level_) {
     tprintf("TessdataManager loaded %d types of tesseract data files.\n",
             actual_tessdata_num_entries_);
     for (i = 0; i < actual_tessdata_num_entries_; ++i) {
@@ -124,8 +117,8 @@ bool TessdataManager::CombineDataFiles(
   fseek(output_file,
         sizeof(inT32) + sizeof(inT64) * TESSDATA_NUM_ENTRIES, SEEK_SET);
 
-  TessdataType type;
-  bool text_file;
+  TessdataType type = TESSDATA_NUM_ENTRIES;
+  bool text_file = false;
   FILE *file_ptr[TESSDATA_NUM_ENTRIES];
 
   // Load individual tessdata components from files.
@@ -167,8 +160,8 @@ bool TessdataManager::OverwriteComponents(
     int num_new_components) {
   int i;
   inT64 offset_table[TESSDATA_NUM_ENTRIES];
-  TessdataType type;
-  bool text_file;
+  TessdataType type = TESSDATA_NUM_ENTRIES;
+  bool text_file = false;
   FILE *file_ptr[TESSDATA_NUM_ENTRIES];
   for (i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
     offset_table[i] = -1;
@@ -235,8 +228,8 @@ bool TessdataManager::TessdataTypeFromFileName(
 }
 
 bool TessdataManager::ExtractToFile(const char *filename) {
-  TessdataType type;
-  bool text_file;
+  TessdataType type = TESSDATA_NUM_ENTRIES;
+  bool text_file = false;
   ASSERT_HOST(tesseract::TessdataManager::TessdataTypeFromFileName(
       filename, &type, &text_file));
   if (!SeekToStart(type)) return false;

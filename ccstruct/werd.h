@@ -20,13 +20,12 @@
 #ifndef           WERD_H
 #define           WERD_H
 
-#include          "varable.h"
+#include          "params.h"
 #include          "bits16.h"
 #include          "strngs.h"
 #include          "blckerr.h"
 #include          "stepblob.h"
 #include          "polyblob.h"
-//#include                                                      "larcblob.h"
 
 enum WERD_FLAGS
 {
@@ -37,7 +36,8 @@ enum WERD_FLAGS
   W_EOL,                         //< end of line
   W_NORMALIZED,                  //< flags
   W_POLYGON,                     //< approximation
-  W_LINEARC,                     //< linearc approx
+  W_SCRIPT_HAS_XHEIGHT,          //< x-height concept makes sense.
+  W_SCRIPT_IS_LATIN,             //< Special case latin for y. splitting.
   W_DONT_CHOP,                   //< fixed pitch chopped
   W_REP_CHAR,                    //< repeated character
   W_FUZZY_SP,                    //< fuzzy space
@@ -57,221 +57,185 @@ enum DISPLAY_FLAGS
 
 class ROW;                       //forward decl
 
-class WERD:public ELIST_LINK
-{
+class WERD : public ELIST2_LINK {
   public:
-    WERD() {
-    }                            //empty constructor
-    WERD(                         //constructor
-         C_BLOB_LIST *blob_list,  //blobs in word
-         uinT8 blanks,            //blanks in front
-         const char *text);       //correct text
-    WERD(                        //constructor
-         PBLOB_LIST *blob_list,  //blobs in word
-         uinT8 blanks,           //blanks in front
-         const char *text);      //correct text
-    WERD(                        //constructor
-         PBLOB_LIST *blob_list,  //blobs in word
-         WERD *clone);           //use these flags etc.
-    WERD(                         //constructor
-         C_BLOB_LIST *blob_list,  //blobs in word
-         WERD *clone);            //use these flags etc.
-    ~WERD () {                   //destructor
-      if (flags.bit (W_POLYGON)) {
-                                 //use right     destructor
-        ((PBLOB_LIST *) & cblobs)->clear ();
-                                 //use right     destructor
-        ((PBLOB_LIST *) & rej_cblobs)->clear ();
+    WERD() {}
+    // WERD constructed with:
+    //   blob_list - blobs of the word (we take this list's contents)
+    //   blanks - number of blanks before the word
+    //   text - correct text (outlives WERD)
+    WERD(C_BLOB_LIST *blob_list, uinT8 blanks, const char *text);
+    WERD(PBLOB_LIST *blob_list, uinT8 blanks, const char *text);
+
+    // WERD constructed from:
+    //   blob_list - blobs in the word
+    //   clone - werd to clone flags, etc from.
+    WERD(PBLOB_LIST *blob_list, WERD *clone);
+    WERD(C_BLOB_LIST *blob_list, WERD *clone);
+
+    // Construct a WERD from a single_blob and clone the flags from this.
+    // W_BOL and W_EOL flags are set according to the given values.
+    WERD* ConstructFromSingleBlob(bool bol, bool eol, C_BLOB* blob);
+
+    ~WERD() {
+      if (flags.bit(W_POLYGON)) {
+        //  use right destructor for PBLOBs
+        ((PBLOB_LIST *) &cblobs)->clear();
+        ((PBLOB_LIST *) &rej_cblobs)->clear();
       }
-      //              else if (flags.bit(W_LINEARC))
-      //                      ((LARC_BLOB_LIST*)&cblobs)->clear();                            //use right     destructor
     }
 
-    WERD *poly_copy(                 //make copy as poly
-                    float xheight);  //row xheight
-    WERD *larc_copy(                 //make copy as larc
-                    float xheight);  //row xheight
+    // assignment
+    WERD & operator= (const WERD &source);
 
-                                 //get DUFF compact blobs
-    C_BLOB_LIST *rej_cblob_list() {
-      if (flags.bit (W_POLYGON))
-        WRONG_WORD.error ("WERD::rej_cblob_list", ABORT, NULL);
+    // This method returns a new werd constructed using the blobs in the input
+    // all_blobs list, which correspond to the blobs in this werd object. The
+    // blobs used to construct the new word are consumed and removed from the
+    // input all_blobs list.
+    // Returns NULL if the word couldn't be constructed.
+    // Returns original blobs for which no matches were found in the output list
+    // orphan_blobs (appends).
+    WERD *ConstructWerdWithNewBlobs(C_BLOB_LIST *all_blobs,
+                                    C_BLOB_LIST *orphan_blobs);
+
+    WERD *poly_copy();  // make a copy
+
+    // Accessors for reject / DUFF blobs in various formats
+    C_BLOB_LIST *rej_cblob_list() {  // compact format
+      if (flags.bit(W_POLYGON))
+        WRONG_WORD.error("WERD::rej_cblob_list", ABORT, NULL);
       return &rej_cblobs;
     }
-
-                                 //get DUFF poly blobs
-    PBLOB_LIST *rej_blob_list() {
-      if (!flags.bit (W_POLYGON))
-        WRONG_WORD.error ("WERD::rej_blob_list", ABORT, NULL);
-      return (PBLOB_LIST *) (&rej_cblobs);
+    PBLOB_LIST *rej_blob_list() {  // poly format
+      if (!flags.bit(W_POLYGON))
+        WRONG_WORD.error("WERD::rej_blob_list", ABORT, NULL);
+      return (PBLOB_LIST *)(&rej_cblobs);
     }
 
-    C_BLOB_LIST *cblob_list() {  //get compact blobs
-      if (flags.bit (W_POLYGON) || flags.bit (W_LINEARC))
-        WRONG_WORD.error ("WERD::cblob_list", ABORT, NULL);
+    // Accessors for good blobs in various formats.
+    C_BLOB_LIST *cblob_list() {  // get compact blobs
+      if (flags.bit(W_POLYGON))
+        WRONG_WORD.error("WERD::cblob_list", ABORT, NULL);
       return &cblobs;
     }
-    PBLOB_LIST *blob_list() {  //get poly blobs
-      if (!flags.bit (W_POLYGON))
-        WRONG_WORD.error ("WERD::blob_list", ABORT, NULL);
-                                 //make it right type
-      return (PBLOB_LIST *) (&cblobs);
+    PBLOB_LIST *blob_list() {  // get poly blobs
+      if (!flags.bit(W_POLYGON))
+        WRONG_WORD.error("WERD::blob_list", ABORT, NULL);
+      return (PBLOB_LIST *)(&cblobs);
     }
-    //      LARC_BLOB_LIST                          *larc_blob_list()                                       //get poly blobs
-    //      {
-    //              if (!flags.bit(W_LINEARC))
-    //                      WRONG_WORD.error("WERD::larc_blob_list",ABORT,NULL);
-    //              return (LARC_BLOB_LIST*)(&cblobs);                                              //make it right type
-    //      }
-    PBLOB_LIST *gblob_list() {  //get generic blobs
-                                 //make it right type
-      return (PBLOB_LIST *) (&cblobs);
+    PBLOB_LIST *gblob_list() {  // get generic blobs
+      return (PBLOB_LIST *)(&cblobs);
     }
 
-    const char *text() const {  //correct text
-      return correct.string ();
-    }
-    uinT8 space() {  //access function
+    uinT8 space() {  // access function
       return blanks;
     }
-    void set_blanks(  //set blanks
-                    uinT8 new_blanks) {
+    void set_blanks(uinT8 new_blanks) {
       blanks = new_blanks;
     }
-
-    void set_text(                         //replace correct text
-                  const char *new_text) {  //with this
-      correct = new_text;
+    int script_id() const {
+      return script_id_;
+    }
+    void set_script_id(int id) {
+      script_id_ = id;
     }
 
-    TBOX bounding_box();  //compute bounding box
+    TBOX bounding_box();  // compute bounding box
 
-    BOOL8 flag(                          //test flag
-               WERD_FLAGS mask) const {  //flag to test
-      return flags.bit (mask);
-    }
-    void set_flag(                  //set flag value
-                  WERD_FLAGS mask,  //flag to test
-                  BOOL8 value) {    //value to set
-      flags.set_bit (mask, value);
-    }
+    const char *text() const { return correct.string(); }
+    void set_text(const char *new_text) { correct = new_text; }
 
-    BOOL8 display_flag(                     //test display flag
-                       uinT8 flag) const {  //flag to test
-      return disp_flags.bit (flag);
+    BOOL8 flag(WERD_FLAGS mask) const { return flags.bit(mask); }
+    void set_flag(WERD_FLAGS mask, BOOL8 value) { flags.set_bit(mask, value); }
+
+    BOOL8 display_flag(uinT8 flag) const { return disp_flags.bit(flag); }
+    void set_display_flag(uinT8 flag, BOOL8 value) {
+      disp_flags.set_bit(flag, value);
     }
 
-    void set_display_flag(                //set display flag
-                          uinT8 flag,     //flag to set
-                          BOOL8 value) {  //value to set
-      disp_flags.set_bit (flag, value);
-    }
+    WERD *shallow_copy();  // shallow copy word
 
-    WERD *shallow_copy();  //shallow copy word
+    // reposition word by vector
+    void move(const ICOORD vec);
 
-    void move(                    // reposition word
-              const ICOORD vec);  // by vector
+    // scale word by multiplier
+    void scale(const float f);
 
-    void scale(                   // scale word
-               const float vec);  // by multiplier
+    // join other's blobs onto this werd, emptying out other.
+    void join_on(WERD* other);
 
-    void join_on(                //append word
-                 WERD *&other);  //Deleting other
+    // copy other's blobs onto this word, leaving other intact.
+    void copy_on(WERD* other);
 
-    void copy_on(                //copy blobs
-                 WERD *&other);  //from other
+    // Normalize a word to tesseract coordinates, (x centered at 0, y between
+    // (bln_baseline_offset)..(bln_baseline_offset + bln_x_height)
+    //   - usually 64..192)
+    // Optionally return an antidote (denorm) to undo this normalization.
+    // If xheight is given, we use that instead of row's xheight.
+    void baseline_normalize(ROW *row, DENORM *denorm, bool numeric_mode);
+    void baseline_normalize_x(ROW *row, float x_height,
+                              DENORM *denorm, bool numeric_mode);
 
-    void baseline_normalise (    // Tess style BL Norm
-                                 //optional antidote
-      ROW * row, DENORM * denorm = NULL);
+    // return word to original coordinates
+    void baseline_denormalize(const DENORM *antidote);
 
-    void baseline_normalise_x (  //Use non standard xht
-      ROW * row, float x_height, //Weird value to use
-      DENORM * denorm = NULL);   //optional antidote
+    // tprintf word metadata (but not blob innards)
+    void print();
 
-    void baseline_denormalise(  //un-normalise
-                              const DENORM *denorm);
+    // plot word on window in a uniform colour
+    void plot(ScrollView *window, ScrollView::Color colour);
 
-    void print(            //print
-               FILE *fp);  //file to print on
+    // Get the next color in the (looping) rainbow.
+    static ScrollView::Color NextColor(ScrollView::Color colour);
 
-    void plot (                  //draw one
-      ScrollView* window,             //window to draw in
-                                 //uniform colour
-      ScrollView::Color colour, BOOL8 solid = FALSE);
+    // plot word on window in a rainbow of colours
+    void plot(ScrollView *window);
 
-    void plot (                  //draw one
-                                 //in rainbow colours
-      ScrollView* window, BOOL8 solid = FALSE);
+    // plot rejected blobs in a rainbow of colours
+    void plot_rej_blobs(ScrollView *window);
 
-    void plot_rej_blobs (        //draw one
-                                 //in rainbow colours
-      ScrollView* window, BOOL8 solid = FALSE);
-
-    WERD & operator= (           //assign words
-      const WERD & source);      //from this
-
-    void prep_serialise() {  //set ptrs to counts
-      correct.prep_serialise ();
-      if (flags.bit (W_POLYGON))
-        ((PBLOB_LIST *) (&cblobs))->prep_serialise ();
-      //              else if (flags.bit(W_LINEARC))
-      //                      ((LARC_BLOB_LIST*)(&cblobs))->prep_serialise();
+    void prep_serialise() {  // set ptrs to counts
+      correct.prep_serialise();
+      if (flags.bit(W_POLYGON))
+        ((PBLOB_LIST *)(&cblobs))->prep_serialise();
       else
-        cblobs.prep_serialise ();
-      rej_cblobs.prep_serialise ();
+        cblobs.prep_serialise();
+      rej_cblobs.prep_serialise();
     }
 
-    void dump(  //write external bits
-              FILE *f) {
-      correct.dump (f);
-      if (flags.bit (W_POLYGON))
-        ((PBLOB_LIST *) (&cblobs))->dump (f);
-      //              else if (flags.bit(W_LINEARC))
-      //                      ((LARC_BLOB_LIST*)(&cblobs))->dump( f );
+    // write external bits
+    void dump(FILE *f) {
+      correct.dump(f);
+      if (flags.bit(W_POLYGON))
+        ((PBLOB_LIST *)(&cblobs))->dump(f);
       else
-        cblobs.dump (f);
-      rej_cblobs.dump (f);
+        cblobs.dump(f);
+      rej_cblobs.dump(f);
     }
 
-    void de_dump(  //read external bits
-                 FILE *f) {
-      correct.de_dump (f);
-      if (flags.bit (W_POLYGON))
-        ((PBLOB_LIST *) (&cblobs))->de_dump (f);
-      //              else if (flags.bit(W_LINEARC))
-      //                      ((LARC_BLOB_LIST*)(&cblobs))->de_dump( f );
+    // read external bits
+    void de_dump(FILE *f) {
+      correct.de_dump(f);
+      if (flags.bit(W_POLYGON))
+        ((PBLOB_LIST *)(&cblobs))->de_dump(f);
       else
-        cblobs.de_dump (f);
-      rej_cblobs.de_dump (f);
+        cblobs.de_dump(f);
+      rej_cblobs.de_dump(f);
     }
 
     make_serialise (WERD) private:
-    uinT8 blanks;                //no of blanks
-    uinT8 dummy;                 //padding
-    BITS16 flags;                //flags about word
-    BITS16 disp_flags;           //display flags
-    inT16 dummy2;                //padding
-    STRING correct;              //correct text
-    C_BLOB_LIST cblobs;          //compacted blobs
-    C_BLOB_LIST rej_cblobs;      //DUFF blobs
+    uinT8 blanks;                // no of blanks
+    uinT8 dummy;                 // padding
+    BITS16 flags;                // flags about word
+    BITS16 disp_flags;           // display flags
+    inT16 script_id_;            // From unicharset.
+    STRING correct;              // correct text
+    C_BLOB_LIST cblobs;          // compacted blobs
+    C_BLOB_LIST rej_cblobs;      // DUFF blobs
 };
 
-ELISTIZEH_S (WERD)
-#include          "ocrrow.h"     //placed here due to
-extern BOOL_VAR_H (bln_numericmode, 0, "Optimize for numbers");
-extern INT_VAR_H (bln_x_height, 128, "Baseline Normalisation X-height");
-extern INT_VAR_H (bln_baseline_offset, 64,
-"Baseline Norm. offset of baseline");
-//void                                                          poly_linearc_outlines(                  //do list of outlines
-//LARC_OUTLINE_LIST                             *srclist,                                                       //list to convert
-//OUTLINE_LIST                                  *destlist                                                       //desstination list
-//);
-//OUTLINE                                                       *poly_larcline(                                 //draw it
-//LARC_OUTLINE                                  *srcline                                                                //one to approximate
-//);
-int word_comparator(                     //sort blobs
-                    const void *word1p,  //ptr to ptr to word1
-                    const void *word2p   //ptr to ptr to word2
-                   );
+ELIST2IZEH_S (WERD)
+#include          "ocrrow.h"     // placed here due to
+// compare words by increasing order of left edge, suitable for qsort(3)
+int word_comparator(const void *word1p, const void *word2p);
 #endif

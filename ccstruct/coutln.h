@@ -38,6 +38,7 @@ enum C_OUTLINE_FLAGS
 };
 
 class DLLSYM C_OUTLINE;          //forward declaration
+struct Pix;
 
 ELISTIZEH_S (C_OUTLINE)
 class DLLSYM C_OUTLINE:public ELIST_LINK
@@ -148,6 +149,10 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
     // On entry, *it must be an iterator pointing to this. If this gets deleted
     // then this is extracted from *it, so an iteration can continue.
     void RemoveSmallRecursive(int min_size, C_OUTLINE_IT* it);
+
+    // Renders the outline to the given pix, with left and top being
+    // the coords of the upper-left corner of the pix.
+    void render(int left, int top, Pix* pix);
 
     void plot(                       //draw one
               ScrollView* window,         //window to draw in

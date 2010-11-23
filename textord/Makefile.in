@@ -73,12 +73,12 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libtesseract_textord_la_LIBADD =
 am_libtesseract_textord_la_OBJECTS = alignedblob.lo bbgrid.lo \
 	blkocc.lo colfind.lo colpartition.lo colpartitionset.lo \
-	drawedg.lo drawtord.lo edgblob.lo edgloop.lo fpchop.lo \
-	gap_map.lo imagefind.lo linefind.lo makerow.lo oldbasel.lo \
-	pagesegmain.lo pithsync.lo pitsync1.lo scanedg.lo sortflts.lo \
-	strokewidth.lo tabfind.lo tablefind.lo tabvector.lo topitch.lo \
-	tordmain.lo tospace.lo tovars.lo underlin.lo wordseg.lo \
-	workingpartset.lo
+	colpartitiongrid.lo drawedg.lo drawtord.lo edgblob.lo \
+	edgloop.lo fpchop.lo gap_map.lo imagefind.lo linefind.lo \
+	makerow.lo oldbasel.lo pithsync.lo pitsync1.lo scanedg.lo \
+	sortflts.lo strokewidth.lo tabfind.lo tablefind.lo \
+	tabvector.lo tablerecog.lo textord.lo topitch.lo tordmain.lo \
+	tospace.lo tovars.lo underlin.lo wordseg.lo workingpartset.lo
 libtesseract_textord_la_OBJECTS =  \
 	$(am_libtesseract_textord_la_OBJECTS)
 libtesseract_textord_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -253,7 +253,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -276,25 +275,28 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict
 
-EXTRA_DIST = textord.vcproj
 include_HEADERS = \
-    alignedblob.h bbgrid.h blkocc.h blobcmpl.h \
+    alignedblob.h bbgrid.h blkocc.h \
     colfind.h colpartition.h colpartitionset.h \
+    colpartitiongrid.h \
     drawedg.h drawtord.h edgblob.h edgloop.h \
     fpchop.h gap_map.h imagefind.h linefind.h makerow.h oldbasel.h \
     pithsync.h pitsync1.h scanedg.h sortflts.h strokewidth.h \
-    tabfind.h tablefind.h tabvector.h tessout.h \
-    topitch.h tordmain.h tospace.h tovars.h \
+    tabfind.h tablefind.h tabvector.h \
+    tablerecog.h textord.h \
+    topitch.h tordmain.h tovars.h \
     underlin.h wordseg.h workingpartset.h
 
 lib_LTLIBRARIES = libtesseract_textord.la
 libtesseract_textord_la_SOURCES = \
     alignedblob.cpp bbgrid.cpp blkocc.cpp \
     colfind.cpp colpartition.cpp colpartitionset.cpp \
+    colpartitiongrid.cpp \
     drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \
     fpchop.cpp gap_map.cpp imagefind.cpp linefind.cpp makerow.cpp oldbasel.cpp \
-    pagesegmain.cpp pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp strokewidth.cpp \
+    pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp strokewidth.cpp \
     tabfind.cpp tablefind.cpp tabvector.cpp \
+    tablerecog.cpp textord.cpp \
     topitch.cpp tordmain.cpp tospace.cpp tovars.cpp \
     underlin.cpp wordseg.cpp workingpartset.cpp
 
@@ -378,6 +380,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blkocc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colfind.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colpartition.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colpartitiongrid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colpartitionset.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drawedg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drawtord.Plo@am__quote@
@@ -389,7 +392,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linefind.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/makerow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/oldbasel.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pagesegmain.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pithsync.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pitsync1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scanedg.Plo@am__quote@
@@ -397,7 +399,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strokewidth.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tabfind.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablefind.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablerecog.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tabvector.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/textord.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/topitch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tordmain.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tospace.Plo@am__quote@

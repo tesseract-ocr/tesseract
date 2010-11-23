@@ -20,7 +20,7 @@
 #ifndef           DRAWFX_H
 #define           DRAWFX_H
 
-#include          "varable.h"
+#include          "params.h"
 #include          "notdll.h"
 #include	  "scrollview.h"
 

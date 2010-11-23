@@ -436,10 +436,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\ocrclass.h"
-				>
-			</File>
-			<File
 				RelativePath="..\ccutil\ocrshell.h"
 				>
 			</File>

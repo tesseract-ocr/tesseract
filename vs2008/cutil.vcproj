@@ -244,10 +244,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\cutil\globals.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\cutil\listio.cpp"
 				>
 			</File>
@@ -307,14 +303,6 @@
 			</File>
 			<File
 				RelativePath="..\cutil\freelist.h"
-				>
-			</File>
-			<File
-				RelativePath="..\cutil\funcdefs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\cutil\general.h"
 				>
 			</File>
 			<File

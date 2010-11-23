@@ -19,17 +19,21 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "outfeat.h"
-#include "mfoutline.h"
 
-#include "ocrfeatures.h"         //Debug
-#include <stdio.h>               //Debug
-#include "efio.h"                //Debug
+#include "classify.h"
+#include "efio.h"
+#include "featdefs.h"
+#include "mfoutline.h"
+#include "ocrfeatures.h"
+
+#include <stdio.h>
 
 /**----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
+namespace tesseract {
+FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
 /*
  **	Parameters:
  **		Blob		blob to extract pico-features from
@@ -54,7 +58,7 @@ FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
 
   Outlines = ConvertBlob (Blob);
 
-  NormalizeOutlines(Outlines, LineStats, &XScale, &YScale);
+  NormalizeOutlines(Outlines, &XScale, &YScale);
   RemainingOutlines = Outlines;
   iterate(RemainingOutlines) {
     Outline = (MFOUTLINE) first_node (RemainingOutlines);
@@ -65,6 +69,7 @@ FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob, LINE_STATS *LineStats) {
   FreeOutlines(Outlines);
   return (FeatureSet);
 }                                /* ExtractOutlineFeatures */
+}  // namespace tesseract
 
 /**----------------------------------------------------------------------------
               Private Code

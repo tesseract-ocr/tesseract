@@ -46,6 +46,10 @@ class DLLSYM TBOX  {  // bounding box
       return ((left () >= right ()) || (top () <= bottom ()));
     }
 
+    bool operator==(const TBOX& other) {
+      return bot_left == other.bot_left && top_right == other.top_right;
+    }
+
     inT16 top() const {  // coord of top
       return top_right.y ();
     }
@@ -192,6 +196,22 @@ class DLLSYM TBOX  {  // bounding box
     // Do boxes overlap on x axis.
     bool x_overlap(const TBOX &box) const;
 
+    // Return the horizontal gap between the boxes. If the boxes
+    // overlap horizontally then the return value is negative, indicating
+    // the amount of the overlap.
+    int x_gap(const TBOX& box) const {
+      return MAX(bot_left.x(), box.bot_left.x()) -
+             MIN(top_right.x(), box.top_right.x());
+    }
+
+    // Return the vertical gap between the boxes. If the boxes
+    // overlap vertically then the return value is negative, indicating
+    // the amount of the overlap.
+    int y_gap(const TBOX& box) const {
+      return MAX(bot_left.y(), box.bot_left.y()) -
+             MIN(top_right.y(), box.top_right.y());
+    }
+
     // Do boxes overlap on x axis by more than
     // half of the width of the narrower box.
     bool major_x_overlap(const TBOX &box) const;
@@ -206,11 +226,25 @@ class DLLSYM TBOX  {  // bounding box
     // fraction of current box's area covered by other
     double overlap_fraction(const TBOX &box) const;
 
+    // fraction of the current box's projected area covered by the other's
+    double x_overlap_fraction(const TBOX& box) const;
+
+    // fraction of the current box's projected area covered by the other's
+    double y_overlap_fraction(const TBOX& box) const;
+
     TBOX intersection(  // shared area box
                      const TBOX &box) const;
 
     TBOX bounding_union(  // box enclosing both
                        const TBOX &box) const;
+
+    // Sets the box boundaries to the given coordinates.
+    void set_to_given_coords(int x_min, int y_min, int x_max, int y_max) {
+      bot_left.set_x(x_min);
+      bot_left.set_y(y_min);
+      top_right.set_x(x_max);
+      top_right.set_y(y_max);
+    }
 
     void print() const {  // print
       tprintf("Bounding box=(%d,%d)->(%d,%d)\n",
@@ -233,7 +267,7 @@ class DLLSYM TBOX  {  // bounding box
     friend DLLSYM TBOX & operator+= (TBOX &, const TBOX &);
     // in place union
     friend DLLSYM TBOX & operator-= (TBOX &, const TBOX &);
-    // in place intrsection
+    // in place intersection
 
     void serialise_asc(  // convert to ascii
                        FILE *f);
@@ -379,4 +413,49 @@ inline bool TBOX::major_y_overlap(const TBOX &box) const {
   }
   return (overlap >= box.height() / 2 || overlap >= this->height() / 2);
 }
+
+/**********************************************************************
+ * TBOX::x_overlap_fraction() Calculates the horizontal overlap of the
+ *                            given boxes as a fraction of this boxes
+ *                            width.
+ *
+ **********************************************************************/
+
+inline double TBOX::x_overlap_fraction(const TBOX& other) const {
+  int low = MAX(left(), other.left());
+  int high = MIN(right(), other.right());
+  int width = right() - left();
+  if (width == 0) {
+    int x = left();
+    if (other.left() <= x && x <= other.right())
+      return 1.0;
+    else
+      return 0.0;
+  } else {
+    return MAX(0, static_cast<double>(high - low) / width);
+  }
+}
+
+/**********************************************************************
+ * TBOX::y_overlap_fraction() Calculates the vertical overlap of the
+ *                            given boxes as a fraction of this boxes
+ *                            height.
+ *
+ **********************************************************************/
+
+inline double TBOX::y_overlap_fraction(const TBOX& other) const {
+  int low = MAX(bottom(), other.bottom());
+  int high = MIN(top(), other.top());
+  int height = top() - bottom();
+  if (height == 0) {
+    int y = bottom();
+    if (other.bottom() <= y && y <= other.top())
+      return 1.0;
+    else
+      return 0.0;
+  } else {
+    return MAX(0, static_cast<double>(high - low) / height);
+  }
+}
+
 #endif

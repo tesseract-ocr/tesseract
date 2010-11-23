@@ -92,7 +92,7 @@ const char *format, ...          //special message
     case DBG:
     case TESSLOG:
       return;                    //report only
-    case EXIT:
+    case TESSEXIT:
       //err_exit();
     case ABORT:
       // Create a deliberate segv as the stack trace is more useful that way.

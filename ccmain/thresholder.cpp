@@ -230,6 +230,11 @@ void ImageThresholder::ThresholdToPix(Pix** pix) {
   }
 }
 
+// Common initialization shared between SetImage methods.
+void ImageThresholder::Init() {
+  SetRectangle(0, 0, image_width_, image_height_);
+}
+
 // Get a clone/copy of the source image rectangle.
 // The returned Pix must be pixDestroyed.
 // This function will be used in the future by the page layout analysis, and
@@ -253,12 +258,24 @@ Pix* ImageThresholder::GetPixRect() {
   RawRectToPix(&raw_pix);
   return raw_pix;
 }
-#endif
 
-// Common initialization shared between SetImage methods.
-void ImageThresholder::Init() {
-  SetRectangle(0, 0, image_width_, image_height_);
+// Get a clone/copy of the source image rectangle, reduced to greyscale.
+// The returned Pix must be pixDestroyed.
+// This function will be used in the future by the page layout analysis, and
+// the layout analysis that uses it will only be available with Leptonica,
+// so there is no raw equivalent.
+Pix* ImageThresholder::GetPixRectGrey() {
+  Pix* pix = GetPixRect();  // May have to be reduced to grey.
+  int depth = pixGetDepth(pix);
+  if (depth != 8) {
+    Pix* result = depth < 8 ? pixConvertTo8(pix, false)
+                            : pixConvertRGBToLuminance(pix);
+    pixDestroy(&pix);
+    return result;
+  }
+  return pix;
 }
+#endif
 
 // Otsu threshold the rectangle, taking everything except the image buffer
 // pointer from the class, to the output IMAGE.

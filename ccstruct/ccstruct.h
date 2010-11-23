@@ -22,16 +22,20 @@
 #include "cutil.h"
 #include "image.h"
 
-class PBLOB;
-class DENORM;
-class WERD;
-class BLOB_CHOICE_LIST;
-
 namespace tesseract {
 class CCStruct : public CUtil {
  public:
   CCStruct();
   ~CCStruct();
+
+  // Globally accessible constants.
+  // APPROXIMATIONS of the fractions of the character cell taken by
+  // the descenders, ascenders, and x-height.
+  static const double kDescenderFraction;  // = 0.25;
+  static const double kXHeightFraction;    // = 0.5;
+  static const double kAscenderFraction;   // = 0.25;
+  // Derived value giving the x-height as a fraction of cap-height.
+  static const double kXHeightCapRatio;    // = XHeight/(XHeight + Ascender).
 
  protected:
   Image image_;
@@ -40,13 +44,5 @@ class CCStruct : public CUtil {
 class Tesseract;
 }  // namespace tesseract
 
-typedef void (tesseract::Tesseract::*POLY_MATCHER)
-  (PBLOB *, PBLOB *, PBLOB *, WERD *,
-   DENORM *, BLOB_CHOICE_LIST *, const char*);
-/*
-  typedef void (tesseract::Tesseract::*POLY_TESTER)
-  (const STRING&, PBLOB *, DENORM *, BOOL8, char *,
-  inT32, BLOB_CHOICE_LIST *);
-*/
 
 #endif  // TESSERACT_CCSTRUCT_CCSTRUCT_H__

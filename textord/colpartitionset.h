@@ -85,6 +85,11 @@ class ColPartitionSet : public ELIST_LINK {
   // in this.
   bool CompatibleColumns(bool debug, ColPartitionSet* other, WidthCallback* cb);
 
+  // Returns the total width of all blobs in the part_set that do not lie
+  // within an approved column. Used as a cost measure for using this
+  // column set over another that might be compatible.
+  int UnmatchedWidth(ColPartitionSet* part_set);
+
   // Return true if this ColPartitionSet makes a legal column candidate by
   // having legal individual partitions and non-overlapping adjacent pairs.
   bool LegalColumnCandidate();
@@ -95,16 +100,19 @@ class ColPartitionSet : public ELIST_LINK {
   // Display the edges of the columns at the given y coords.
   void DisplayColumnEdges(int y_bottom, int y_top, ScrollView* win);
 
-  // Return the PolyBlockType that best explains the columns overlapped
+  // Return the ColumnSpanningType that best explains the columns overlapped
   // by the given coords(left,right,y), with the given margins.
   // Also return the first and last column index touched by the coords and
-  // the leftmost and rightmost spanned columns.
+  // the leftmost spanned column.
   // Column indices are 2n + 1 for real colums (0 based) and even values
   // represent the gaps in between columns, with 0 being left of the leftmost.
-  PolyBlockType SpanningType(BlobRegionType type, int left, int right, int y,
-                             int left_margin, int right_margin,
-                             int* first_col, int* last_col,
-                             int* first_spanned_col, int* last_spanned_col);
+  // resolution refers to the ppi resolution of the image. It may be 0 if only
+  // the first_col and last_col are required.
+  ColumnSpanningType SpanningType(int resolution,
+                                  int left, int right, int y,
+                                  int left_margin, int right_margin,
+                                  int* first_col, int* last_col,
+                                  int* first_spanned_col);
 
   // The column_set has changed. Close down all in-progress WorkingPartSets in
   // columns that do not match and start new ones for the new columns in this.

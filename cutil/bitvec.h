@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    bitvec.h
- **	Purpose:     Routines for manipulating bit vectors
- **	Author:      Dan Johnson
- **	History:     Wed Mar  7 17:52:45 1990, DSJ, Created.
+ **    Filename:    bitvec.h
+ **    Purpose:     Routines for manipulating bit vectors
+ **    Author:      Dan Johnson
+ **    History:     Wed Mar  7 17:52:45 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ **    (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
+// TODO(rays) Rename BITSINLONG to BITSINuinT32, and use sizeof.
 #define BITSINLONG      32       /**< no of bits in a long */
 typedef uinT32 *BIT_VECTOR;
 
@@ -31,26 +32,26 @@ typedef uinT32 *BIT_VECTOR;
 -----------------------------------------------------------------------------*/
 #define zero_all_bits(array,length) \
 {\
-	register int			index;						/*temporary index*/\
+    register int            index;                        /*temporary index*/\
 \
 for (index=0;index<length;index++)\
-	array[index]=0;										/*zero all bits*/\
+    array[index]=0;                                        /*zero all bits*/\
 }
 
 #define set_all_bits(array,length) \
 {\
-	register int			index;						/*temporary index*/\
+    register int            index;                        /*temporary index*/\
 \
 for (index=0;index<length;index++)\
-	array[index]= ~0;									/*set all bits*/\
+    array[index]= ~0;                                    /*set all bits*/\
 }
 
 #define copy_all_bits(source,dest,length) \
 {\
-	register int			index;						/*temporary index*/\
+    register int            index;                        /*temporary index*/\
 \
 for (index=0;index<length;index++)\
-	dest[index]=source[index];							/*copy all bits*/\
+    dest[index]=source[index];                            /*copy all bits*/\
 }
 
 #define SET_BIT(array,bit) (array[bit/BITSINLONG]|=1<<(bit&(BITSINLONG-1)))
@@ -72,29 +73,5 @@ void FreeBitVector(BIT_VECTOR BitVector);
 int hamming_distance(uinT32* array1, uinT32* array2, int length);
 
 BIT_VECTOR NewBitVector(int NumBits);
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif*/
 
-/* bitvec.c
-BIT_VECTOR ExpandBitVector
-  _ARGS((BIT_VECTOR Vector,
-  int NewNumBits));
-
-void FreeBitVector
-  _ARGS((BIT_VECTOR BitVector));
-
-int hamming_distance
-  _ARGS((unsigned long *array1,
-  unsigned long *array2,
-  int length));
-
-BIT_VECTOR NewBitVector
-  _ARGS((int NumBits));
-
-#undef _ARGS
-*/
 #endif

@@ -130,6 +130,14 @@ class DLLSYM STRING
     inline const char* GetCStr() const {
       return ((const char *)data_) + sizeof(STRING_HEADER);
     };
+    inline bool InvariantOk() const {
+#if STRING_IS_PROTECTED
+      return (GetHeader()->used_ == 0) ?
+        (string() == NULL) : (GetHeader()->used_ == (strlen(string()) + 1));
+#else
+      return true;
+#endif
+    }
 
     // Ensure string has requested capacity as optimization
     // to avoid unnecessary reallocations.

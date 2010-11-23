@@ -20,7 +20,7 @@
 #ifndef           TPRINTF_H
 #define           TPRINTF_H
 
-#include                   "varable.h"
+#include                   "params.h"
 
 extern DLLSYM STRING_VAR_H (debug_file, "", "File to send tprintf output to");
 extern DLLSYM BOOL_VAR_H (debug_window_on, TRUE,

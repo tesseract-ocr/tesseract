@@ -20,7 +20,7 @@
 #ifndef           FPCHOP_H
 #define           FPCHOP_H
 
-#include          "varable.h"
+#include          "params.h"
 #include          "blobbox.h"
 #include          "notdll.h"
 #include          "notdll.h"

@@ -28,15 +28,9 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "tessclas.h"
 #include "oldlist.h"
 #include "freelist.h"
 #include "danerror.h"
-
-#define NUM_DATA_TYPES 20
-
-extern int max_data_types;
-extern void_void memory_print_functions[NUM_DATA_TYPES];
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -49,7 +43,7 @@ extern void_void memory_print_functions[NUM_DATA_TYPES];
  * for each new data type.
  **********************************************************************/
 
-#define makestructure(newfunc,old,print,type,nextfree,blocksize,typestring,usecount)                \
+#define makestructure(newfunc, old, type)                \
 type *newfunc()                                                                  \
 {                                                                            \
 	return new type; \
@@ -62,51 +56,9 @@ void old(type* deadelement)                                                     
 	delete deadelement; \
 }                                                                            \
 
-
-/**********************************************************************
- * newstructure
- *
- * Allocate a chunk of memory for a particular data type.
- **********************************************************************/
-
-#define newstructure(name,type,nextfree,blocksize,errorstring,usecount)\
-type *name()											/*returns a new type*/\
-{\
-	return new type;\
-}
-
-/**********************************************************************
- * oldstructure
- *
- * Returns a structure to the freelist
- **********************************************************************/
-
-#define oldstructure(name,type,nextfree,stringtype,usecount)\
-\
-type *name(type* deadelement)\
-{\
-	type                    *returnelement;				/*return next ptr*/\
-\
-	returnelement=deadelement->next;					/*return link*/\
-	delete deadelement;  \
-	return returnelement;\
-}
-
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-extern TBLOB *newblob();
-extern TBLOB *oldblob(TBLOB *);
-
-extern TESSLINE *newoutline();
-extern void oldoutline(TESSLINE *);
-
-extern EDGEPT *newedgept();
-extern EDGEPT *oldedgept(EDGEPT *);
-
-extern TWERD *newword();
-extern void oldword(TWERD *);
-
 extern LIST new_cell();
 extern void free_cell(LIST);
 #endif

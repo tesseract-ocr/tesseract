@@ -31,16 +31,10 @@
 #endif
 
 #include "wordclass.h"
-#include "fxid.h"
-#include "tordvars.h"
 #include "associate.h"
 #include "render.h"
-#include "metrics.h"
 #include "matchtab.h"
-//#include "tfacepp.h"
 #include "permute.h"
-#include "context.h"
-#include "badwords.h"
 #include "callcpp.h"
 #include <assert.h>
 #include "wordrec.h"
@@ -49,22 +43,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
-extern TBLOB *newblob();
-
-/*----------------------------------------------------------------------
-            Variables
-----------------------------------------------------------------------*/
-inT16 first_pass;
-
-/*----------------------------------------------------------------------
-          C o n s t a n t s
-----------------------------------------------------------------------*/
-
-#define BOLD_ON              "&dB(s3B"
-#define BOLD_OFF             "&d@(s0B"
-#define UNDERLINE_ON         "&dD"
-#define UNDERLINE_OFF        "&d@"
 
 /*----------------------------------------------------------------------
           F u n c t i o n s
@@ -77,35 +55,24 @@ namespace tesseract {
  * table. Attempt to recognize this blob as a character. The recognition
  * rating for this blob will be stored as a part of the blob. This value
  * will also be returned to the caller.
- *
- * @param pblob Previous blob
  * @param blob Current blob
- * @param nlob Next blob
- * @param row The row to process
  * @param string The string to display in ScrollView
  * @param color The colour to use when displayed with ScrollView
  */
-BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *pblob,
-                                         TBLOB *blob,
-                                         TBLOB *nblob,
-                                         TEXTROW *row, 
-                                         const char *string,
-                                         C_COL color) {
+BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob,
+                                         const char *string, C_COL color) {
   BLOB_CHOICE_LIST *choices = NULL;
-  chars_classified++;            /* Global value */
-  if (tord_blob_skip)
-    return (NULL);
 #ifndef GRAPHICS_DISABLED
   if (wordrec_display_all_blobs)
     display_blob(blob, color);
 #endif
-  choices = get_match(blob);
+  choices = blob_match_table.get_match(blob);
   if (choices == NULL) {
-    choices = call_matcher(pblob, blob, nblob, NULL, row);
-    put_match(blob, choices);
+    choices = call_matcher(blob);
+    blob_match_table.put_match(blob, choices);
   }
 #ifndef GRAPHICS_DISABLED
-  if (tord_display_ratings && string)
+  if (classify_debug_level && string)
     print_ratings_list(string, choices, getDict().getUnicharset());
 
   if (wordrec_blob_pause)
@@ -113,6 +80,16 @@ BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *pblob,
 #endif
 
   return (choices);
+}
+
+// Returns a valid BLOB_CHOICE_LIST representing the given result.
+BLOB_CHOICE_LIST *Wordrec::fake_classify_blob(UNICHAR_ID class_id,
+                                              float rating, float certainty) {
+  BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();  // matcher result
+  BLOB_CHOICE *choice = new BLOB_CHOICE(class_id, rating, certainty, -1, -1, 0);
+  BLOB_CHOICE_IT temp_it(ratings);
+  temp_it.add_after_stay_put(choice);
+  return ratings;
 }
 
 /**
@@ -127,54 +104,8 @@ void Wordrec::update_blob_classifications(
   int index = 0;
   for (; tblob != NULL && index < choices.length();
        tblob = tblob->next, index++) {
-    add_to_match(tblob, choices.get(index));
+    blob_match_table.add_to_match(tblob, choices.get(index));
   }
 }
 
 }  // namespace tesseract;
-
-
-/**
- * @name write_text_files
- *
- * Write an answer to the output file that is the raw guess (without
- * context) directly from the classifier.
- */
-void write_text_files(TWERD *word,
-                      char *raw_choice,
-                      int same_row,
-                      int good_word,
-                      int firstpass) {
-  int x;
-  /* Raw output */
-  if (tord_write_raw_output) {
-    if (same_row)
-      fprintf (rawfile, "\n");
-    if (raw_choice && strlen (raw_choice)) {
-      fprintf (rawfile, "%s ", raw_choice);
-      fflush(rawfile);
-    }
-  }
-  /* Text file output */
-  if (tord_write_output) {
-    if (same_row)
-      fprintf (textfile, "\n");
-    if (word->guess && strlen (word->guess)) {
-      for (x = 0; x < word->blanks; x++)
-        fprintf (textfile, " ");
-      if (!firstpass)
-        fprintf(textfile, BOLD_ON);
-      if (!good_word)
-        fprintf(textfile, UNDERLINE_ON);
-      fprintf (textfile, "%s", word->guess);
-      if (!good_word)
-        fprintf(textfile, UNDERLINE_OFF);
-      if (!firstpass)
-        fprintf(textfile, BOLD_OFF);
-      fflush(textfile);
-    }
-  }
-  /* Global counters */
-  character_count += (word->guess ? strlen (word->guess) : 0);
-  word_count++;
-}

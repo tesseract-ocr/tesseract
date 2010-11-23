@@ -23,18 +23,16 @@
 #endif
 #include          "stderr.h"
 #include          "blobbox.h"
-#include          "lmedsq.h"
 #include          "statistc.h"
 #include          "drawtord.h"
 #include          "makerow.h"
 #include          "pitsync1.h"
 #include          "pithsync.h"
-#include          "blobcmpl.h"
 #include          "tovars.h"
 #include          "wordseg.h"
 #include          "topitch.h"
 #include          "secname.h"
-#include          "tesseractclass.h"
+#include          "helpers.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -74,14 +72,11 @@ EXTERN double_VAR (textord_balance_factor, 1.0,
  * result for each row in the TO_ROW class.
  **********************************************************************/
 
-void compute_fixed_pitch(                             //determine pitch
-                         ICOORD page_tr,              //top right
-                         TO_BLOCK_LIST *port_blocks,  //input list
-                         float gradient,              //page skew
-                         FCOORD rotation,             //for drawing
-                         BOOL8 testing_on,            //correct orientation
-                         tesseract::Tesseract* tess
-                        ) {
+void compute_fixed_pitch(ICOORD page_tr,              // top right
+                         TO_BLOCK_LIST *port_blocks,  // input list
+                         float gradient,              // page skew
+                         FCOORD rotation,             // for drawing
+                         BOOL8 testing_on) {          // correct orientation
   TO_BLOCK_IT block_it;          //iterator
   TO_BLOCK *block;               //current block;
   TO_ROW_IT row_it;              //row iterator
@@ -101,7 +96,7 @@ void compute_fixed_pitch(                             //determine pitch
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
   block_it.forward ()) {
     block = block_it.data ();
-    compute_block_pitch(block, rotation, block_index, testing_on, tess);
+    compute_block_pitch(block, rotation, block_index, testing_on);
     block_index++;
   }
 
@@ -309,14 +304,11 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
  * Decide whether each block is fixed pitch individually.
  **********************************************************************/
 
-void compute_block_pitch(                    //process each block
-                         TO_BLOCK *block,    //input list
-                         FCOORD rotation,    //for drawing
-                         inT32 block_index,  //block number
-                         BOOL8 testing_on,   //correct orientation
-                         tesseract::Tesseract* tess
-                        ) {
-  TBOX block_box;                 //bounding box
+void compute_block_pitch(TO_BLOCK *block,     // input list
+                         FCOORD rotation,     // for drawing
+                         inT32 block_index,   // block number
+                         BOOL8 testing_on) {  // correct orientation
+   TBOX block_box;                 //bounding box
 
   block_box = block->block->bounding_box ();
   if (testing_on && textord_debug_pitch_test) {
@@ -336,8 +328,7 @@ void compute_block_pitch(                    //process each block
   block->pr_space = block->pr_nonsp * textord_spacesize_ratioprop;
   if (!block->get_rows ()->empty ()) {
     ASSERT_HOST (block->xheight > 0);
-    if (textord_repeat_extraction)
-      find_repeated_chars(block, textord_show_initial_words &&testing_on, tess);
+    find_repeated_chars(block, textord_show_initial_words && testing_on);
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words && testing_on)
       //overlap_picture_ops(TRUE);
@@ -771,7 +762,7 @@ BOOL8 row_pitch_stats(                  //find line stats
         cluster_stats[gap_index + 1].get_total ());
     tprintf ("\n");
   }
-  qsort (gaps, cluster_count, sizeof (float), sort_floats2);
+  qsort (gaps, cluster_count, sizeof (float), sort_floats);
 
   //Try to find proportional non-space and space for row.
   lower = row->xheight * words_default_prop_nonspace;
@@ -1756,39 +1747,14 @@ void print_pitch_sd(                        //find fp cells
     occupation, res2, initial_pitch, row->fixed_pitch, row->all_caps);
 }
 
-
-/**********************************************************************
- * sort_floats
- *
- * qsort function to sort 2 floats.
- **********************************************************************/
-
-int sort_floats2(                   //qsort function
-                 const void *arg1,  //ptrs to floats
-                 const void *arg2) {
-  float diff;                    //difference
-
-  diff = *((float *) arg1) - *((float *) arg2);
-  if (diff > 0)
-    return 1;
-  else if (diff < 0)
-    return -1;
-  else
-    return 0;
-}
-
-
 /**********************************************************************
  * find_repeated_chars
  *
- * Find 4 or more adjacent chars which are the same and put them
+ * Extract marked leader blobs and put them
  * into words in advance of fixed pitch checking and word generation.
  **********************************************************************/
-void find_repeated_chars(                  //search for equal chars
-                         TO_BLOCK *block,  //block to search
-                         BOOL8 testing_on,  //dbug mode
-                         tesseract::Tesseract* tess
-                        ) {
+void find_repeated_chars(TO_BLOCK *block,       // Block to search.
+                         BOOL8 testing_on) {    // Debug mode.
   TO_ROW *row;
   BLOBNBOX_IT box_it;
   BLOBNBOX_IT search_it;         // forward search
@@ -1804,7 +1770,7 @@ void find_repeated_chars(                  //search for equal chars
     box_it.set_to_list(row->blob_list());
     if (box_it.empty())  continue; // no blobs in this row
     if (!row->rep_chars_marked()) {
-      mark_repeated_chars(row, block->xheight, tess);
+      mark_repeated_chars(row);
     }
     if (row->num_repeated_sets() == 0) continue;  // nothing to do for this row
     word_it.set_to_list(&row->rep_words);
@@ -1823,21 +1789,14 @@ void find_repeated_chars(                  //search for equal chars
         // After the call to make_real_word() all the blobs from this
         // repeated set will be removed from the blob list. box_it will be
         // set to point to the blob after the end of the extracted sequence.
-        word = make_real_word(&box_it, blobcount,
-                              box_it.at_first(), false, false, 1);
-#ifndef GRAPHICS_DISABLED
-        if (testing_on) {
-          word_box = word->bounding_box();
-          tprintf("Found repeated word of %d blobs from (%d,%d)->(%d,%d)\n",
-                  blobcount, word_box.left(), word_box.bottom(),
-                  word_box.right(), word_box.top());
-          //perimeter_color_index(to_win, RED);
-          to_win->Pen(255,0,0);
-          //interior_style(to_win, INT_HOLLOW, TRUE);
-          to_win->Rectangle(word_box.left(), word_box.bottom(),
-                            word_box.right(), word_box.top());
+        word = make_real_word(&box_it, blobcount, box_it.at_first(), 1);
+        if (!box_it.empty() && box_it.data()->joined_to_prev()) {
+          tprintf("Bad box joined to prev at");
+          box_it.data()->bounding_box().print();
+          tprintf("After repeated word:");
+          word->bounding_box().print();
         }
-#endif
+        ASSERT_HOST(box_it.empty() || !box_it.data()->joined_to_prev());
         word->set_flag(W_REP_CHAR, true);
         word->set_flag(W_DONT_CHOP, true);
         word_it.add_after_then_move(word);

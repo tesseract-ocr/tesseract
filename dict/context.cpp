@@ -22,68 +22,20 @@
  ** limitations under the License.
  *
  *********************************************************************************/
-#include "context.h"
 
-#include "callcpp.h"
-#include "ccutil.h"
 #include "dict.h"
-#include "globals.h"
-#include "image.h"
-#include "ratngs.h"
-#include "tordvars.h"
+#include "tprintf.h"
 #include "unicharset.h"
-
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <math.h>
-
-// Initialize probability_in_context to point to a default implementation (a
-// main program can override this).
-PROBABILITY_IN_CONTEXT_FUNCTION probability_in_context = &def_probability_in_context;
-
-double def_probability_in_context(const char* context,
-                                  int context_bytes,
-                                  const char* character,
-                                  int character_bytes) {
-  (void) context;
-  (void) context_bytes;
-  (void) character;
-  (void) character_bytes;
-  return 0.0;
-}
-
-/*----------------------------------------------------------------------
-              V a r i a b l e s
-----------------------------------------------------------------------*/
-static FILE *choice_file = NULL; /* File to save choices */
-
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-/**********************************************************************
- * close_choices
- *
- * Close the choices file.
- **********************************************************************/
-void close_choices() {
-  if (choice_file)
-    fclose(choice_file);
-}
 
 namespace tesseract {
 
-/**********************************************************************
- * case_ok
- *
- * Check a string to see if it matches a set of lexical rules.
- **********************************************************************/
-int Context::case_ok(const WERD_CHOICE &word,
-                     const UNICHARSET &unicharset) {
-  static int case_state_table[6][4] = { {
-                                 /*  0. Begining of word         */
-    /*    P   U   L   D                                     */
-    /* -1. Error on case            */
+static const int kMinAbsoluteGarbageWordLength = 10;
+static const float kMinAbsoluteGarbageAlphanumFrac = 0.5f;
+
+const int case_state_table[6][4] = { {
+                                  /*  0. Begining of word        */
+    /*    P   U   L   D                                          */
+                                  /* -1. Error on case           */
       0, 1, 5, 4
     },
     {                            /*  1. After initial capital    */
@@ -103,10 +55,10 @@ int Context::case_ok(const WERD_CHOICE &word,
     },
   };
 
-  register int last_state = 0;
-  register int state = 0;
-  register int x;
-
+int Dict::case_ok(const WERD_CHOICE &word, const UNICHARSET &unicharset) {
+  int last_state = 0;
+  int state = 0;
+  int x;
   for (x = 0; x < word.length(); ++x) {
     UNICHAR_ID ch_id = word.unichar_id(x);
     if (unicharset.get_isupper(ch_id))
@@ -117,37 +69,22 @@ int Context::case_ok(const WERD_CHOICE &word,
       state = case_state_table[state][3];
     else
       state = case_state_table[state][0];
-
-    if (tord_debug_3)
-      tprintf("Case state = %d, char = %s\n", state,
-              unicharset.id_to_unichar(ch_id));
-    if (state == -1) {
-                                 /* Handle ACCRONYMs */
-#if 0
-      if (word[x] == 's' &&
-        !isalpha (word[x + 1]) && !isdigit (word[x + 1]))
-        state = last_state;
-      else
-#endif
-        return (FALSE);
-    }
-
+    if (state == -1) return false;
     last_state = state;
   }
-  return state != 5;             /*single lower is bad */
+  return state != 5; // single lower is bad
 }
-}  // namespace tesseract
 
-
-/**********************************************************************
- * write_choice_line
- *
- * Write a blank line to the choices file.  This will indicate that
- * there is a new word that is following.
- **********************************************************************/
-void write_choice_line() {
-  if (choice_file) {
-    fprintf (choice_file, "\n");
-    fflush(choice_file);
+bool Dict::absolute_garbage(const WERD_CHOICE &word,
+                            const UNICHARSET &unicharset) {
+  if (word.length() < kMinAbsoluteGarbageWordLength) return false;
+  int num_alphanum = 0;
+  for (int x = 0; x < word.length(); ++x) {
+    num_alphanum += (unicharset.get_isalpha(word.unichar_id(x)) ||
+                     unicharset.get_isdigit(word.unichar_id(x)));
   }
+  return (static_cast<float>(num_alphanum) /
+          static_cast<float>(word.length()) < kMinAbsoluteGarbageAlphanumFrac);
 }
+
+}  // namespace tesseract

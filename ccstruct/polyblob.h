@@ -30,13 +30,13 @@ const int kBlnBaselineOffset = 64;  // offset for baseline normalization
 
 class PBLOB : public ELIST_LINK {
   public:
-    PBLOB() {
-    }                            //empty constructor
-    PBLOB(                              //constructor
-          OUTLINE_LIST *outline_list);  //in random order
-    PBLOB(                //constructor
-          C_BLOB *cblob,  //polygonal approx
-          float xheight);
+    PBLOB() {}
+
+    // Create from a list of polygonal outlines.
+    PBLOB(OUTLINE_LIST *outline_list);
+
+    // Create from a chain-coded form.
+    PBLOB(C_BLOB *cblob);
 
     OUTLINE_LIST *out_list() {  //get outline list
       return &outlines;

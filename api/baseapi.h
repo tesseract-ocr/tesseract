@@ -17,28 +17,38 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCMAIN_BASEAPI_H__
-#define TESSERACT_CCMAIN_BASEAPI_H__
+#ifndef TESSERACT_API_BASEAPI_H__
+#define TESSERACT_API_BASEAPI_H__
 
+// To avoid collision with other typenames include the ABSOLUTE MINIMUM
+// complexity of includes here. Use forward declarations wherever possible
+// and hide includes of complex types in baseapi.cpp.
+#include "apitypes.h"
 #include "thresholder.h"
+#include "unichar.h"
 
 class PAGE_RES;
 class PAGE_RES_IT;
 class BLOCK_LIST;
+class DENORM;
 class IMAGE;
+class PBLOB;
+class ROW;
 class STRING;
+class WERD;
 struct Pix;
 struct Box;
 struct Pixa;
 struct Boxa;
-struct ETEXT_STRUCT;
+class ETEXT_DESC;
 struct OSResults;
-struct TBOX;
+class TBOX;
 
 #define MAX_NUM_INT_FEATURES 512
 struct INT_FEATURE_STRUCT;
 typedef INT_FEATURE_STRUCT *INT_FEATURE;
 typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
+struct TBLOB;
 
 #ifdef TESSDLL_EXPORTS
 #define TESSDLL_API __declspec(dllexport)
@@ -51,37 +61,21 @@ typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 
 namespace tesseract {
 
+class CubeRecoContext;
+class Dawg;
 class Dict;
+class PageIterator;
+class ResultIterator;
 class Tesseract;
 class Trie;
-class CubeRecoContext;
-class TesseractCubeCombiner;
-class CubeObject;
-class CubeLineObject;
-class Dawg;
 
-typedef int (Dict::*DictFunc)(void* void_dawg_args, int char_index,
-                              const void *word, bool word_end);
+typedef int (Dict::*DictFunc)(void* void_dawg_args,
+                              UNICHAR_ID unichar_id, bool word_end);
+typedef double (Dict::*ProbabilityInContextFunc)(const char* context,
+                                                 int context_bytes,
+                                                 const char* character,
+                                                 int character_bytes);
 
-enum PageSegMode {
-  PSM_AUTO,           ///< Fully automatic page segmentation.
-  PSM_SINGLE_COLUMN,  ///< Assume a single column of text of variable sizes.
-  PSM_SINGLE_BLOCK,   ///< Assume a single uniform block of text. (Default.)
-  PSM_SINGLE_LINE,    ///< Treat the image as a single text line.
-  PSM_SINGLE_WORD,    ///< Treat the image as a single word.
-  PSM_SINGLE_CHAR,    ///< Treat the image as a single character.
-
-  PSM_COUNT           ///< Number of enum entries.
-};
-
-/**
- * The values in the AccuracyVSpeed enum provide hints for how the engine
- * should trade speed for accuracy. There is no guarantee of any effect.
- */
-enum AccuracyVSpeed {
-  AVS_FASTEST = 0,         ///< Fastest speed, but lowest accuracy.
-  AVS_MOST_ACCURATE = 100  ///< Greatest accuracy, but slowest speed.
-};
 
 /**
  * Base class for all tesseract APIs.
@@ -106,47 +100,66 @@ class TESSDLL_API TessBaseAPI {
   void SetOutputName(const char* name);
 
   /**
-   * Set the value of an internal "variable" (of either old or new types).
-   * Supply the name of the variable and the value as a string, just as
+   * Set the value of an internal "parameter."
+   * Supply the name of the parameter and the value as a string, just as
    * you would in a config file.
    * Returns false if the name lookup failed.
    * Eg SetVariable("tessedit_char_blacklist", "xyz"); to ignore x, y and z.
    * Or SetVariable("bln_numericmode", "1"); to set numeric-only mode.
    * SetVariable may be used before Init, but settings will revert to
    * defaults on End().
+   * TODO(rays) Add a command-line option to dump the parameters to stdout
+   * and add a pointer to it in the FAQ
    */
-  bool SetVariable(const char* variable, const char* value);
+  bool SetVariable(const char* name, const char* value);
+  // Same as above, but the parameter is set only if it is one of the "init"
+  // parameters (defined with *_INIT_* macro).
+  bool SetVariableIfInit(const char *name, const char *value);
+
+  // Returns true if the parameter was found among Tesseract parameters.
+  // Fills in value with the value of the parameter.
+  bool GetIntVariable(const char *name, int *value) const;
+  bool GetBoolVariable(const char *name, bool *value) const;
+  bool GetDoubleVariable(const char *name, double *value) const;
+  // Returns the pointer to the string that represents the value of the
+  // parameter if it was found among Tesseract parameters.
+  const char *GetStringVariable(const char *name) const;
+
+  // Print Tesseract parameters to the given file.
+  void PrintVariables(FILE *fp) const;
 
   /**
-   * Eventually instances will be thread-safe and totally independent,
-   * but for now, they all point to the same underlying engine,
-   * and are NOT RE-ENTRANT OR THREAD-SAFE. For now:
-   * it is safe to Init multiple TessBaseAPIs in the same language, use them
-   * sequentially, and End or delete them all, but once one is Ended, you can't
-   * do anything other than End the others. After End, it is safe to Init
-   * again on the same one.
+   * Instances are now mostly thread-safe and totally independent,
+   * but some global parameters remain. Basically it is safe to use multiple
+   * TessBaseAPIs in different threads in parallel, UNLESS:
+   * you use SetVariable on some of the Params in classify and textord.
+   * If you do, then the effect will be to change it for all your instances.
    *
    * Start tesseract. Returns zero on success and -1 on failure.
    * NOTE that the only members that may be called before Init are those
    * listed above here in the class definition.
    *
-   * The datapath must be the name of the data directory (no ending /) or
-   * some other file in which the data directory resides (for instance argv[0].)
+   * The datapath must be the name of the parent directory of tessdata and
+   * must end in / . Any name after the last / will be stripped.
    * The language is (usually) an ISO 639-3 string or NULL will default to eng.
    * It is entirely safe (and eventually will be efficient too) to call
    * Init multiple times on the same instance to change language, or just
    * to reset the classifier.
-   * WARNING: On changing languages, all Variables are reset back to their
-   * default values. If you have a rare need to set a Variable that controls
+   * WARNING: On changing languages, all Tesseract parameters are reset
+   * back to their default values. (Which may vary between languages.)
+   * If you have a rare need to set a Variable that controls
    * initialization for a second call to Init you should explicitly
    * call End() and then use SetVariable before Init. This is only a very
-   * rare use case, since there are very few uses that require any variables
+   * rare use case, since there are very few uses that require any parameters
    * to be set before Init.
    */
-  int Init(const char* datapath, const char* language,
-           char **configs, int configs_size, bool configs_global_only);
+  int Init(const char* datapath, const char* language, OcrEngineMode mode,
+           char **configs, int configs_size, bool configs_init_only);
+  int Init(const char* datapath, const char* language, OcrEngineMode oem) {
+    return Init(datapath, language, oem, NULL, 0, false);
+  }
   int Init(const char* datapath, const char* language) {
-    return Init(datapath, language, 0, 0, false);
+    return Init(datapath, language, OEM_DEFAULT, NULL, 0, false);
   }
 
   /**
@@ -157,41 +170,30 @@ class TESSDLL_API TessBaseAPI {
    */
   int InitLangMod(const char* datapath, const char* language);
 
-  /**
-   * Init everything except the language model. Used to allow initialization for
-   * the specified language without any available dawg models.
-   */
-  int InitWithoutLangModel(const char* datapath, const char* language);
+  // Init only for page layout analysis. Use only for calls to SetImage and
+  // AnalysePage. Calls that attempt recognition will generate an error.
+  void InitForAnalysePage();
 
   /**
    * Read a "config" file containing a set of variable, value pairs.
    * Searches the standard places: tessdata/configs, tessdata/tessconfigs
    * and also accepts a relative or absolute path name.
+   * If init_only is true, only sets the parameters marked with a special
+   * INIT flag, which are typically of functional/algorithmic effect
+   * rather than debug effect. Used to separate debug settings from
+   * working settings.
    */
-  void ReadConfigFile(const char* filename, bool global_only);
+  void ReadConfigFile(const char* filename, bool init_only);
 
   /**
    * Set the current page segmentation mode. Defaults to PSM_SINGLE_BLOCK.
-   * The mode is stored as an INT_VARIABLE so it can also be modified by
+   * The mode is stored as an IntParam so it can also be modified by
    * ReadConfigFile or SetVariable("tessedit_pageseg_mode", mode as string).
    */
   void SetPageSegMode(PageSegMode mode);
 
   /** Return the current page segmentation mode. */
   PageSegMode GetPageSegMode() const;
-
-  /**
-   * Set the hint for trading accuracy against speed.
-   * Default is AVS_FASTEST, which is the old behaviour.
-   * Note that this is only a hint. Depending on the language and/or
-   * build configuration, speed and accuracy may not be tradeable.
-   * Also note that despite being an enum, any value in the range
-   * AVS_FASTEST to AVS_MOST_ACCURATE can be provided, and may or may not
-   * have an effect, depending on the implementation.
-   * The mode is stored as an INT_VARIABLE so it can also be modified by
-   * ReadConfigFile or SetVariable("tessedit_accuracyvspeed", mode as string).
-   */
-  void SetAccuracyVSpeed(AccuracyVSpeed mode);
 
   /**
    * Recognize a rectangle from an image and return the result as a string.
@@ -267,7 +269,7 @@ class TESSDLL_API TessBaseAPI {
    * delete it when it it is replaced or the API is destructed.
    */
   void SetThresholder(ImageThresholder* thresholder) {
-    if (thresholder_ != 0)
+    if (thresholder_ != NULL)
       delete thresholder_;
     thresholder_ = thresholder;
     ClearResults();
@@ -291,8 +293,8 @@ class TESSDLL_API TessBaseAPI {
    * Get the textlines as a leptonica-style
    * Boxa, Pixa pair, in reading order.
    * Can be called before or after Recognize.
-   * If blockids is not NULL, the block-id of each line is also returned as an
-   * array of one element per line. delete [] after use.
+   * If blockids is not NULL, the block-id of each line is also returned
+   * as an array of one element per line. delete [] after use.
    */
   Boxa* GetTextlines(Pixa** pixa, int** blockids);
 
@@ -303,6 +305,22 @@ class TESSDLL_API TessBaseAPI {
    */
   Boxa* GetWords(Pixa** pixa);
 
+  // Gets the individual connected (text) components (created
+  // after pages segmentation step, but before recognition)
+  // as a leptonica-style Boxa, Pixa pair, in reading order.
+  // Can be called before or after Recognize.
+  // Note: the caller is responsible for calling boxaDestroy()
+  // on the returned Boxa array and pixaDestroy() on cc array.
+  Boxa* GetConnectedComponents(Pixa** cc);
+
+  // Get the given level kind of components (block, textline, word etc.) as a
+  // leptonica-style Boxa, Pixa pair, in reading order.
+  // Can be called before or after Recognize.
+  // If blockids is not NULL, the block-id of each component is also returned
+  // as an array of one element per component. delete [] after use.
+  Boxa* GetComponentImages(PageIteratorLevel level,
+                           Pixa** pixa, int** blockids);
+
   /**
    * Dump the internal binary image to a PGM file.
    * @deprecated Use GetThresholdedImage and write the image using pixWrite
@@ -310,13 +328,24 @@ class TESSDLL_API TessBaseAPI {
    */
   void DumpPGM(const char* filename);
 
+  // Runs page layout analysis in the mode set by SetPageSegMode.
+  // May optionally be called prior to Recognize to get access to just
+  // the page layout results. Returns an iterator to the results.
+  // Returns NULL on error.
+  // The returned iterator must be deleted after use.
+  // WARNING! This class points to data held within the TessBaseAPI class, and
+  // therefore can only be used while the TessBaseAPI class still exists and
+  // has not been subjected to a call of Init, SetImage, Recognize, Clear, End
+  // DetectOS, or anything else that changes the internal PAGE_RES.
+  PageIterator* AnalyseLayout();
+
   /**
    * Recognize the image from SetAndThresholdImage, generating Tesseract
    * internal structures. Returns 0 on success.
    * Optional. The Get*Text functions below will call Recognize if needed.
    * After Recognize, the output is kept internally until the next SetImage.
    */
-  int Recognize(ETEXT_STRUCT* monitor);
+  int Recognize(ETEXT_DESC* monitor);
 
   /**
    * Methods to retrieve information after SetAndThresholdImage(),
@@ -324,7 +353,15 @@ class TESSDLL_API TessBaseAPI {
    */
 
   /** Variant on Recognize used for testing chopper. */
-  int RecognizeForChopTest(struct ETEXT_STRUCT* monitor);
+  int RecognizeForChopTest(ETEXT_DESC* monitor);
+
+  // Get an iterator to the results of LayoutAnalysis and/or Recognize.
+  // The returned iterator must be deleted after use.
+  // WARNING! This class points to data held within the TessBaseAPI class, and
+  // therefore can only be used while the TessBaseAPI class still exists and
+  // has not been subjected to a call of Init, SetImage, Recognize, Clear, End
+  // DetectOS, or anything else that changes the internal PAGE_RES.
+  ResultIterator* GetIterator();
 
   /**
    * The recognized text is returned as a char* which is coded
@@ -334,16 +371,15 @@ class TESSDLL_API TessBaseAPI {
   /**
    * Make a HTML-formatted string with hOCR markup from the internal
    * data structures.
-   * STL removed from original patch submission and refactored by rays.
-   * page_id is 1-based and will appear in the output.
+   * page_number is 0-based but will appear in the output as 1-based.
    */
- char* GetHOCRText(int page_id);
+  char* GetHOCRText(int page_number);
   /**
    * The recognized text is returned as a char* which is coded in the same
    * format as a box file used in training. Returned string must be freed with
    * the delete [] operator.
    * Constructs coordinates in the original image - not just the rectangle.
-   * page_number is a 0-base page index that will appear in the box file.
+   * page_number is a 0-based page index that will appear in the box file.
    */
   char* GetBoxText(int page_number);
   /**
@@ -388,8 +424,13 @@ class TESSDLL_API TessBaseAPI {
 
   bool GetTextDirection(int* out_offset, float* out_slope);
 
-  /** Set the letter_is_okay function to point somewhere else. */
+  /** Sets Dict::letter_is_okay_ function to point to the given function. */
   void SetDictFunc(DictFunc f);
+
+  /** Sets Dict::probability_in_context_ function to point to the given
+   * function.
+   */
+  void SetProbabilityInContextFunc(ProbabilityInContextFunc f);
 
   /**
    * Estimates the Orientation And Script of the image.
@@ -398,8 +439,26 @@ class TESSDLL_API TessBaseAPI {
   bool DetectOS(OSResults*);
 
   /** This method returns the features associated with the input image. */
-  void GetFeatures(INT_FEATURE_ARRAY int_features,
-                   int* num_features);
+  void GetFeaturesForBlob(TBLOB* blob, const DENORM& denorm,
+                          INT_FEATURE_ARRAY int_features,
+                          int* num_features, int* FeatureOutlineIndex);
+
+  // This method returns the row to which a box of specified dimensions would
+  // belong. If no good match is found, it returns NULL.
+  static ROW* FindRowForBox(BLOCK_LIST* blocks, int left, int top,
+                            int right, int bottom);
+
+  // Method to run adaptive classifier on a blob.
+  // It returns at max num_max_matches results.
+  void RunAdaptiveClassifier(TBLOB* blob, const DENORM& denorm,
+                             int num_max_matches,
+                             int* unichar_ids,
+                             char* configs,
+                             float* ratings,
+                             int* num_matches_returned);
+
+  // This method returns the string form of the specified unichar.
+  const char* GetUnichar(int unichar_id);
 
   /** Return the pointer to the i-th dawg loaded into tesseract_ object. */
   const Dawg *GetDawg(int i) const;
@@ -410,6 +469,42 @@ class TESSDLL_API TessBaseAPI {
   /** Return the language used in the last valid initialization. */
   const char* GetLastInitLanguage() const;
 
+  // Returns a ROW object created from the input row specification.
+  static ROW *MakeTessOCRRow(float baseline, float xheight,
+                             float descender, float ascender);
+
+  // Returns a TBLOB corresponding to the entire input image.
+  static TBLOB *MakeTBLOB(Pix *pix);
+
+  // This method baseline normalizes a TBLOB in-place. The input row is used
+  // for normalization. The denorm is an optional parameter in which the
+  // normalization-antidote is returned.
+  static void NormalizeTBLOB(TBLOB *tblob, ROW *row,
+                             bool numeric_mode, DENORM *denorm);
+
+  Tesseract* const tesseract() const {
+    return tesseract_;
+  }
+
+  // Return a pointer to underlying CubeRecoContext object if present.
+  CubeRecoContext *GetCubeRecoContext() const;
+
+  void set_min_orientation_margin(double margin);
+
+  // Return text orientation of each block as determined by an earlier run
+  // of layout analysis.
+  void GetBlockTextOrientations(int** block_orientation,
+                                bool** vertical_writing);
+
+  /** Find lines from the image making the BLOCK_LIST. */
+  BLOCK_LIST* FindLinesCreateBlockList();
+
+  /**
+   * Delete a block list.
+   * This is to keep BLOCK_LIST pointer opaque
+   * and let go of including the other headers.
+   */
+  static void DeleteBlockList(BLOCK_LIST* block_list);
  /* @} */
 
  protected:
@@ -441,17 +536,7 @@ class TESSDLL_API TessBaseAPI {
   int TextLength(int* blob_count);
 
   /** @defgroup ocropusAddOns ocropus add-ons */
-
   /* @{ */
-  /** Find lines from the image making the BLOCK_LIST. */
-  BLOCK_LIST* FindLinesCreateBlockList();
-
-  /**
-   * Delete a block list.
-   * This is to keep BLOCK_LIST pointer opaque
-   * and let go of including the other headers.
-   */
-  static void DeleteBlockList(BLOCK_LIST* block_list);
 
   /**
    * Adapt to recognize the current image as the given character.
@@ -465,9 +550,8 @@ class TESSDLL_API TessBaseAPI {
                         float ascender);
 
   /** Recognize text doing one pass only, using settings for a given pass. */
-  /*static*/ PAGE_RES* RecognitionPass1(BLOCK_LIST* block_list);
-  /*static*/ PAGE_RES* RecognitionPass2(BLOCK_LIST* block_list,
-                                    PAGE_RES* pass1_result);
+  PAGE_RES* RecognitionPass1(BLOCK_LIST* block_list);
+  PAGE_RES* RecognitionPass2(BLOCK_LIST* block_list, PAGE_RES* pass1_result);
 
   /**
    * Extract the OCR results, costs (penalty points for uncertainty),
@@ -482,67 +566,25 @@ class TESSDLL_API TessBaseAPI {
                                     int** y1,
                                     PAGE_RES* page_res);
 
-  /**
-   * Call the Cube OCR engine. Takes the Region, line and word segmentation
-   * information from Tesseract as inputs. Makes changes or populates the
-   * output PAGE_RES object which contains the recogntion results.
-   * The behavior of this function depends on the
-   * current language and the value of the tessedit_accuracyvspeed:
-   * For English (and other Latin based scripts):
-   *    If the accuracyvspeed flag is set to any value other than AVS_FASTEST,
-   *    Cube uses the word information passed by Tesseract.
-   *    Cube will run on a subset of the words segmented and recognized by
-   *    Tesseract. The value of the accuracyvspeed and the Tesseract
-   *    confidence of a word determines whether Cube runs on it or not and
-   *    whether Cube's results override Tesseract's
-   * For Arabic & Hindi:
-   *    Cube uses the Region information passed by Tesseract. It then performs
-   *    its own line segmentation. This will change once Tesseract's line
-   *    segmentation works for Arabic. Cube then segments each line into
-   *    phrases. Each phrase is then recognized in phrase mode which allows
-   *    spaces in the results.
-   *    Note that at this point, the line segmentation algorithm might have
-   *    some problems with ill spaced Arabic document.
-   */
-  int Cube();
-  /** Run Cube on the lines extracted by Tesseract. */
-  int RunCubeOnLines();
-  /**
-   * Run Cube on a subset of the words already present in the page_res_ object
-   * The subset, and whether Cube overrides the results is determined by
-   * the SpeedVsAccuracy flag
-   */
-  int CubePostProcessWords();
-  /** Create a Cube line object for each line */
-  CubeLineObject **CreateLineObjects(Pixa* pixa_lines);
-  /**
-   * Create a TBox array corresponding to the phrases in the array of
-   * line objects
-   */
-  TBOX *CreatePhraseBoxes(Boxa* boxa_lines, CubeLineObject **line_objs,
-                          int *phrase_cnt);
-  /** Recognize the phrases saving the results to the page_res_ object */
-  bool RecognizePhrases(int line_cnt, int phrase_cnt,
-                        CubeLineObject **line_objs, TBOX *phrase_boxes);
-  /** Recognize a single phrase saving the results to the page_res_ object */
-  bool RecognizePhrase(CubeObject *phrase, PAGE_RES_IT *result);
-  /** Create the necessary Cube Objects */
-  bool CreateCubeObjects();
-  /* @} */
+  const PAGE_RES* GetPageRes() const {
+    return page_res_;
+  };
 
  protected:
-   Tesseract*        tesseract_;       ///< The underlying data object.
-   ImageThresholder* thresholder_;     ///< Image thresholding module.
-   bool              threshold_done_;  ///< Image has been passed to page_image.
-   BLOCK_LIST*       block_list_;      ///< The page layout.
-   PAGE_RES*         page_res_;        ///< The page-level data.
-   STRING*           input_file_;      ///< Name used by training code.
-   STRING*           output_file_;     ///< Name used by debug code.
-   STRING*           datapath_;        ///< Current location of tessdata.
-   STRING*           language_;        ///< Last initialized language.
+  Tesseract*        tesseract_;       ///< The underlying data object.
+  Tesseract*        osd_tesseract_;   ///< For orientation & script detection.
+  ImageThresholder* thresholder_;     ///< Image thresholding module.
+  BLOCK_LIST*       block_list_;      ///< The page layout.
+  PAGE_RES*         page_res_;        ///< The page-level data.
+  STRING*           input_file_;      ///< Name used by training code.
+  STRING*           output_file_;     ///< Name used by debug code.
+  STRING*           datapath_;        ///< Current location of tessdata.
+  STRING*           language_;        ///< Last initialized language.
+  OcrEngineMode last_oem_requested_;  ///< Last ocr language mode requested.
+  bool          recognition_done_;    ///< page_res_ contains recognition data.
 
-  /** 
-   * @defgroup ThresholderParams 
+  /**
+   * @defgroup ThresholderParams
    * Parameters saved from the Thresholder. Needed to rebuild coordinates.
    */
   /* @{ */
@@ -555,6 +597,6 @@ class TESSDLL_API TessBaseAPI {
   /* @} */
 };
 
-} // namespace tesseract.
+}  // namespace tesseract.
 
-#endif // TESSERACT_CCMAIN_BASEAPI_H__
+#endif  // TESSERACT_API_BASEAPI_H__

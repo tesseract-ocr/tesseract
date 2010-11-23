@@ -224,10 +224,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\classify\baseline.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\classify\blobclass.cpp"
 				>
 			</File>
@@ -273,10 +269,6 @@
 			</File>
 			<File
 				RelativePath="..\classify\fxdefs.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\classify\hideedge.cpp"
 				>
 			</File>
 			<File
@@ -354,10 +346,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\classify\adaptmatch.h"
-				>
-			</File>
-			<File
 				RelativePath="..\classify\baseline.h"
 				>
 			</File>
@@ -411,14 +399,6 @@
 			</File>
 			<File
 				RelativePath="..\classify\fxdefs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\classify\fxid.h"
-				>
-			</File>
-			<File
-				RelativePath="..\classify\hideedge.h"
 				>
 			</File>
 			<File

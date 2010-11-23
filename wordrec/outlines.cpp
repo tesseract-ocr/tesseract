@@ -29,11 +29,13 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "outlines.h"
+#include "wordrec.h"
 
 #ifdef __UNIX__
 #include <assert.h>
 #endif
 
+namespace tesseract {
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
@@ -43,9 +45,9 @@
  * Check to see if this line crosses over this outline.  If it does
  * return TRUE.
  **********************************************************************/
-int crosses_outline(EDGEPT *p0,         /* Start of line */
-                    EDGEPT *p1,         /* End of line */
-                    EDGEPT *outline) {  /* Outline to check */
+int Wordrec::crosses_outline(EDGEPT *p0,         /* Start of line */
+                             EDGEPT *p1,         /* End of line */
+                             EDGEPT *outline) {  /* Outline to check */
   EDGEPT *pt = outline;
   do {
     if (is_crossed (p0->pos, p1->pos, pt->pos, pt->next->pos))
@@ -65,7 +67,7 @@ int crosses_outline(EDGEPT *p0,         /* Start of line */
  * point of intersection lies on both of the line segments. If it does
  * then these two segments cross.
  **********************************************************************/
-int is_crossed(TPOINT a0, TPOINT a1, TPOINT b0, TPOINT b1) {
+int Wordrec::is_crossed(TPOINT a0, TPOINT a1, TPOINT b0, TPOINT b1) {
   int b0a1xb0b1, b0b1xb0a0;
   int a1b1xa1a0, a1a0xa1b0;
 
@@ -99,7 +101,7 @@ int is_crossed(TPOINT a0, TPOINT a1, TPOINT b0, TPOINT b1) {
  *
  * Return true if the points are identical.
  **********************************************************************/
-int is_same_edgept(EDGEPT *p1, EDGEPT *p2) {
+int Wordrec::is_same_edgept(EDGEPT *p1, EDGEPT *p2) {
   return (p1 == p2);
 }
 
@@ -110,7 +112,8 @@ int is_same_edgept(EDGEPT *p1, EDGEPT *p2) {
  * Find the point on a line segment that is closest to a point not on
  * the line segment.  Return that point.
  **********************************************************************/
-EDGEPT *near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1) {
+EDGEPT *Wordrec::near_point(EDGEPT *point,
+                            EDGEPT *line_pt_0, EDGEPT *line_pt_1) {
   TPOINT p;
 
   float slope;
@@ -153,7 +156,7 @@ EDGEPT *near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1) {
  * counter-clockwise and vice versa.  Do this by swapping each of the
  * next and prev fields of each edge point.
  **********************************************************************/
-void reverse_outline(EDGEPT *outline) {
+void Wordrec::reverse_outline(EDGEPT *outline) {
   EDGEPT *edgept = outline;
   EDGEPT *temp;
 
@@ -170,3 +173,5 @@ void reverse_outline(EDGEPT *outline) {
   }
   while (edgept != outline);
 }
+
+}  // namespace tesseract

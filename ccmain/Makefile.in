@@ -72,13 +72,13 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libtesseract_main_la_DEPENDENCIES =  \
 	../wordrec/libtesseract_wordrec.la
-am_libtesseract_main_la_OBJECTS = adaptions.lo ambigsrecog.lo \
-	applybox.lo blobcmp.lo callnet.lo charcut.lo charsample.lo \
-	control.lo docqual.lo expandblob.lo fixspace.lo fixxht.lo \
-	imgscale.lo matmatch.lo osdetect.lo output.lo pagewalk.lo \
-	paircmp.lo pgedit.lo reject.lo scaleimg.lo tessbox.lo \
-	tessedit.lo tesseractclass.lo tessvars.lo tfacepp.lo \
-	thresholder.lo tstruct.lo varabled.lo werdit.lo
+am_libtesseract_main_la_OBJECTS = adaptions.lo applybox.lo charcut.lo \
+	control.lo cube_control.lo cube_reco_context.lo docqual.lo \
+	fixspace.lo fixxht.lo imgscale.lo osdetect.lo output.lo \
+	pagesegmain.lo pagewalk.lo paramsd.lo pgedit.lo reject.lo \
+	scaleimg.lo recogtraining.lo tesseract_cube_combiner.lo \
+	tessbox.lo tessedit.lo tesseractclass.lo tessvars.lo \
+	tfacepp.lo thresholder.lo tstruct.lo werdit.lo
 libtesseract_main_la_OBJECTS = $(am_libtesseract_main_la_OBJECTS)
 libtesseract_main_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -251,7 +251,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -269,35 +268,37 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = 
 AM_CPPFLAGS = \
+    -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/ccops -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
+    -I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube \
     -I$(top_srcdir)/textord
 
-EXTRA_DIST = tessembedded.cpp ccmain.vcproj
+EXTRA_DIST = tessembedded.cpp
 include_HEADERS = \
-    adaptions.h applybox.h blobcmp.h \
-    callnet.h charcut.h charsample.h control.h \
-    docqual.h expandblob.h fixspace.h fixxht.h \
-    imgscale.h matmatch.h osdetect.h output.h \
-    pagewalk.h paircmp.h pgedit.h reject.h scaleimg.h \
+    charcut.h control.h cube_reco_context.h \
+    docqual.h fixspace.h \
+    imgscale.h osdetect.h output.h \
+    paramsd.h pgedit.h reject.h scaleimg.h \
     tessbox.h tessedit.h tessembedded.h tesseractclass.h \
-    tessio.h tessvars.h tfacep.h tfacepp.h thresholder.h tstruct.h \
-    varabled.h werdit.h
+    tesseract_cube_combiner.h \
+    tessvars.h tfacep.h tfacepp.h thresholder.h tstruct.h \
+    werdit.h
 
 lib_LTLIBRARIES = libtesseract_main.la
 libtesseract_main_la_SOURCES = \
-    adaptions.cpp ambigsrecog.cpp applybox.cpp \
-    blobcmp.cpp \
-    callnet.cpp charcut.cpp charsample.cpp control.cpp \
-    docqual.cpp expandblob.cpp fixspace.cpp fixxht.cpp \
-    imgscale.cpp matmatch.cpp osdetect.cpp output.cpp \
-    pagewalk.cpp paircmp.cpp pgedit.cpp reject.cpp scaleimg.cpp \
+    adaptions.cpp applybox.cpp \
+    charcut.cpp control.cpp cube_control.cpp cube_reco_context.cpp \
+    docqual.cpp fixspace.cpp fixxht.cpp \
+    imgscale.cpp osdetect.cpp output.cpp pagesegmain.cpp \
+    pagewalk.cpp paramsd.cpp pgedit.cpp reject.cpp scaleimg.cpp \
+    recogtraining.cpp tesseract_cube_combiner.cpp \
     tessbox.cpp tessedit.cpp tesseractclass.cpp tessvars.cpp \
     tfacepp.cpp thresholder.cpp tstruct.cpp \
-    varabled.cpp werdit.cpp
+    werdit.cpp
 
 libtesseract_main_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la
@@ -378,34 +379,32 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adaptions.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ambigsrecog.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/applybox.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blobcmp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/callnet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/charcut.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/charsample.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cube_control.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cube_reco_context.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/docqual.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/expandblob.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fixspace.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fixxht.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imgscale.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/matmatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/osdetect.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/output.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pagesegmain.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pagewalk.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/paircmp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/paramsd.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pgedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/recogtraining.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reject.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scaleimg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tessbox.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tessedit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tesseract_cube_combiner.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tesseractclass.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tessvars.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tfacepp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thresholder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tstruct.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/varabled.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/werdit.Plo@am__quote@
 
 .cpp.o:

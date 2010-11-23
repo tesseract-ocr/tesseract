@@ -17,45 +17,23 @@
  *
  **********************************************************************/
 
-#ifndef           TFACEP_H
-#define           TFACEP_H
+#ifndef TFACEP_H
+#define TFACEP_H
 
-#include          "hosthplb.h"
-#include          "tessclas.h"
-#include          "tessarray.h"
-#include          "tstruct.h"
-#include          "notdll.h"
-#include "choices.h"
+#include "hosthplb.h"
+#include "blobs.h"
+#include "tessarray.h"
+#include "tstruct.h"
+#include "notdll.h"
 #include "oldlist.h"
-#include "tface.h"
 #include "permute.h"
-#include "adaptmatch.h"
 #include "blobclass.h"
 #include "stopper.h"
 #include "associate.h"
 #include "chop.h"
-#include "expandblob.h"
-#include "tordvars.h"
-#include "metrics.h"
-#include "tface.h"
-#include "badwords.h"
 #include "structures.h"
 
 typedef void (*TESS_TESTER) (TBLOB *, BOOL8, char *, inT32, LIST);
-typedef LIST (*TESS_MATCHER) (TBLOB *, TBLOB *, TBLOB *, void *, TEXTROW *);
+typedef LIST (*TESS_MATCHER) (TBLOB *, TBLOB *, TBLOB *);
 
-extern TEXTROW normalized_row;
-extern int display_ratings;
-
-#if 0
-#define strsave(s)    \
-	((s) ?  \
-	((char*) strcpy ((char*)alloc_string (strlen(s)+1), s))  :  \
-	(NULL))
-#endif
-
-#define BOLD_ON				"&dB(s3B"
-#define BOLD_OFF			"&d@(s0B"
-#define UNDERLINE_ON		"&dD"
-#define UNDERLINE_OFF		"&d@"
 #endif

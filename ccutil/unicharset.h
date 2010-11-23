@@ -24,7 +24,7 @@
 #include "strngs.h"
 #include "unichar.h"
 #include "unicharmap.h"
-#include "varable.h"
+#include "params.h"
 
 class CHAR_FRAGMENT {
  public:
@@ -56,6 +56,7 @@ class CHAR_FRAGMENT {
   // Returns the string that represents a fragment
   // with the given unichar, pos and total.
   static STRING to_string(const char *unichar, int pos, int total) {
+    if (total == 1) return STRING(unichar);
     STRING result = "";
     result += kSeparator;
     result += unichar;
@@ -185,20 +186,33 @@ class UNICHARSET {
 
   // Clear the UNICHARSET (all the previous data is lost).
   void clear() {
-    if (size_reserved > 0) {
+    if (script_table != NULL) {
       for (int i = 0; i < script_table_size_used; ++i)
         delete[] script_table[i];
       delete[] script_table;
-      script_table = 0;
-      script_table_size_reserved = 0;
+      script_table = NULL;
       script_table_size_used = 0;
+    }
+    if (unichars != NULL) {
       delete_pointers_in_unichars();
       delete[] unichars;
-      unichars = 0;
-      size_reserved = 0;
-      size_used = 0;
+      unichars = NULL;
     }
+    script_table_size_reserved = 0;
+    size_reserved = 0;
+    size_used = 0;
     ids.clear();
+    top_bottom_set_ = false;
+    script_has_upper_lower_ = false;
+    script_has_xheight_ = false;
+    null_sid_ = 0;
+    common_sid_ = 0;
+    latin_sid_ = 0;
+    cyrillic_sid_ = 0;
+    greek_sid_ = 0;
+    han_sid_ = 0;
+    hiragana_sid_ = 0;
+    katakana_sid_ = 0;
   }
 
   // Return the size of the set (the number of different UNICHAR it holds).
@@ -237,6 +251,15 @@ class UNICHARSET {
   // Loads the UNICHARSET from the given file. The previous data is lost.
   // Returns true if the operation is successful.
   bool load_from_file(FILE *file);
+
+  // Sets up internal data after loading the file, based on the char
+  // properties. Called from load_from_file, but also needs to be run
+  // during set_unicharset_properties.
+  void post_load_setup();
+
+  // Returns true if any script entry in the unicharset is for a
+  // right_to_left language.
+  bool any_right_to_left() const;
 
   // Set a whitelist and/or blacklist of characters to recognize.
   // An empty or NULL whitelist enables everything (minus any blacklist).
@@ -318,12 +341,54 @@ class UNICHARSET {
     return unichars[unichar_id].properties.isngram;
   }
 
+  // Returns true if the ids have useful min/max top/bottom values.
+  bool top_bottom_useful() const {
+    return top_bottom_set_;
+  }
+  // Returns the min and max bottom and top of the given unichar in
+  // baseline-normalized coordinates, ie, where the baseline is
+  // kBlnBaselineOffset and the meanline is kBlnBaselineOffset + kBlnXHeight
+  // (See polyblob.h for the definitions).
+  void get_top_bottom(UNICHAR_ID unichar_id,
+                      int* min_bottom, int* max_bottom,
+                      int* min_top, int* max_top) const {
+    *min_bottom = unichars[unichar_id].properties.min_bottom;
+    *max_bottom = unichars[unichar_id].properties.max_bottom;
+    *min_top = unichars[unichar_id].properties.min_top;
+    *max_top = unichars[unichar_id].properties.max_top;
+  }
+  void set_top_bottom(UNICHAR_ID unichar_id,
+                      int min_bottom, int max_bottom,
+                      int min_top, int max_top) {
+    unichars[unichar_id].properties.min_bottom =
+        static_cast<uinT8>(ClipToRange(min_bottom, 0, MAX_UINT8));
+    unichars[unichar_id].properties.max_bottom =
+        static_cast<uinT8>(ClipToRange(max_bottom, 0, MAX_UINT8));
+    unichars[unichar_id].properties.min_top =
+        static_cast<uinT8>(ClipToRange(min_top, 0, MAX_UINT8));
+    unichars[unichar_id].properties.max_top =
+        static_cast<uinT8>(ClipToRange(max_top, 0, MAX_UINT8));
+  }
+
   // Return the script name of the given unichar.
   // The returned pointer will always be the same for the same script, it's
   // managed by unicharset and thus MUST NOT be deleted
   int get_script(UNICHAR_ID unichar_id) const {
     return unichars[unichar_id].properties.script_id;
   }
+
+  // Return the character properties, eg. alpha/upper/lower/digit/punct,
+  // as a bit field of unsigned int.
+  unsigned int get_properties(UNICHAR_ID unichar_id) const;
+
+  // Return the character property as a single char.  If a character has
+  // multiple attributes, the main property is defined by the following order:
+  //   upper_case : 'A'
+  //   lower_case : 'a'
+  //   alpha      : 'x'
+  //   digit      : '0'
+  //   punctuation: 'p'
+  char get_chartype(UNICHAR_ID unichar_id) const;
 
   // Get other_case unichar id in the properties for the given unichar id.
   UNICHAR_ID get_other_case(UNICHAR_ID unichar_id) const {
@@ -371,6 +436,16 @@ class UNICHARSET {
   // Return the ispunctuation property of the given unichar representation.
   bool get_ispunctuation(const char* const unichar_repr) const {
     return get_ispunctuation(unichar_to_id(unichar_repr));
+  }
+
+  // Return the character properties, eg. alpha/upper/lower/digit/punct,
+  // of the given unichar representation
+  unsigned int get_properties(const char* const unichar_repr) const {
+    return get_properties(unichar_to_id(unichar_repr));
+  }
+
+  char get_chartype(const char* const unichar_repr) const {
+    return get_chartype(unichar_to_id(unichar_repr));
   }
 
   // Return the script name of the given unichar representation.
@@ -475,10 +550,28 @@ class UNICHARSET {
   int cyrillic_sid() const { return cyrillic_sid_; }
   int greek_sid() const { return greek_sid_; }
   int han_sid() const { return han_sid_; }
+  int hiragana_sid() const { return hiragana_sid_; }
+  int katakana_sid() const { return katakana_sid_; }
+  int default_sid() const { return default_sid_; }
+
+  // Returns true if the unicharset has the concept of upper/lower case.
+  bool script_has_upper_lower() const {
+    return script_has_upper_lower_;
+  }
+  // Returns true if the unicharset has the concept of x-height.
+  // script_has_xheight can be true even if script_has_upper_lower is not,
+  // when the script has a sufficiently predominant top line with ascenders,
+  // such as Devanagari and Thai.
+  bool script_has_xheight() const {
+    return script_has_xheight_;
+  }
 
  private:
 
   struct UNICHAR_PROPERTIES {
+    UNICHAR_PROPERTIES();
+    void Init();
+
     bool  isalpha;
     bool  islower;
     bool  isupper;
@@ -486,6 +579,14 @@ class UNICHARSET {
     bool  ispunctuation;
     bool  isngram;
     bool  enabled;
+    // Possible limits of the top and bottom of the bounding box in
+    // baseline-normalized coordinates, ie, where the baseline is
+    // kBlnBaselineOffset and the meanline is kBlnBaselineOffset + kBlnXHeight
+    // (See polyblob.h for the definitions).
+    uinT8 min_bottom;
+    uinT8 max_bottom;
+    uinT8 min_top;
+    uinT8 max_top;
     int   script_id;
     UNICHAR_ID other_case;  // id of the corresponding upper/lower case unichar
 
@@ -509,6 +610,13 @@ class UNICHARSET {
   int script_table_size_used;
   int script_table_size_reserved;
   const char* null_script;
+  // True if the unichars have their tops/bottoms set.
+  bool top_bottom_set_;
+  // True if the unicharset has significant upper/lower case chars.
+  bool script_has_upper_lower_;
+  // True if the unicharset has a significant mean-line with significant
+  // ascenders above that.
+  bool script_has_xheight_;
 
   // A few convenient script name-to-id mapping without using hash.
   // These are initialized when unicharset file is loaded.  Anything
@@ -519,6 +627,10 @@ class UNICHARSET {
   int cyrillic_sid_;
   int greek_sid_;
   int han_sid_;
+  int hiragana_sid_;
+  int katakana_sid_;
+  // The most frequently occurring script in the charset.
+  int default_sid_;
 };
 
 #endif  // TESSERACT_CCUTIL_UNICHARSET_H__

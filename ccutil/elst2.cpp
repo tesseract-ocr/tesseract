@@ -100,8 +100,8 @@ void ELIST2::assign_to_sublist(                            //to this list
  *  Return count of elements on list
  **********************************************************************/
 
-inT32 ELIST2::length() {  //count elements
-  ELIST2_ITERATOR it(this);
+inT32 ELIST2::length() const {  // count elements
+  ELIST2_ITERATOR it(const_cast<ELIST2*>(this));
   inT32 count = 0;
 
   #ifndef NDEBUG

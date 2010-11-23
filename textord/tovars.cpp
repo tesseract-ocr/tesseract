@@ -18,7 +18,8 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-#include          "tovars.h"
+#include "tovars.h"
+#include "params.h"
 
 #define EXTERN
 
@@ -31,16 +32,10 @@ EXTERN BOOL_VAR (textord_blocksall_prop, FALSE,
 "Moan about fixed pitch blocks");
 EXTERN BOOL_VAR (textord_blocksall_testing, FALSE, "Dump stats when moaning");
 EXTERN BOOL_VAR (textord_test_mode, FALSE, "Do current test");
-EXTERN BOOL_VAR (textord_repeat_extraction, TRUE, "Extract repeated chars");
 EXTERN INT_VAR (textord_dotmatrix_gap, 3,
 "Max pixel gap for broken pixed pitch");
-EXTERN INT_VAR (textord_repeat_threshold, 4,
-"Min multiple for repeated char");
 EXTERN INT_VAR (textord_debug_block, 0, "Block to do debug on");
 EXTERN INT_VAR (textord_pitch_range, 2, "Max range test on pitch");
-EXTERN double_VAR (textord_repeat_rating, 6, "Min rating for equal blobs");
-EXTERN double_VAR(textord_repch_width_variance, 0.2,
-"Max width change of gap/blob for repeated chars");
 EXTERN double_VAR (textord_wordstats_smooth_factor, 0.05,
 "Smoothing gap stats");
 EXTERN double_VAR (textord_width_smooth_factor, 0.10,

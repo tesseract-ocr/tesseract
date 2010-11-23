@@ -46,6 +46,19 @@ POLY_BLOCK::POLY_BLOCK(ICOORDELT_LIST *points, PolyBlockType t) {
   type = t;
 }
 
+// Initialize from box coordinates.
+POLY_BLOCK::POLY_BLOCK(const TBOX& box, PolyBlockType t) {
+  vertices.clear();
+  ICOORDELT_IT v = &vertices;
+  v.move_to_first();
+  v.add_to_end(new ICOORDELT(box.left(), box.top()));
+  v.add_to_end(new ICOORDELT(box.left(), box.top() + box.height()));
+  v.add_to_end(new ICOORDELT(box.left() + box.width(),
+                             box.top() + box.height()));
+  v.add_to_end(new ICOORDELT(box.left(), box.top() + box.height()));
+  compute_bb();
+  type = t;
+}
 
 /**
  * @name POLY_BLOCK::compute_bb
@@ -196,7 +209,7 @@ void POLY_BLOCK::rotate(FCOORD rotation) {
  * POLY_BLOCK::move
  *
  * Move the POLY_BLOCK.
- * @param shift cos, sin of angle
+ * @param shift x,y translation vector
  */
 
 void POLY_BLOCK::move(ICOORD shift) {
@@ -393,24 +406,24 @@ void POLY_BLOCK::de_serialise_asc(FILE *f) {
 
 /// Returns a color to draw the given type.
 ScrollView::Color POLY_BLOCK::ColorForPolyBlockType(PolyBlockType type) {
+  // Keep kPBColors in sync with PolyBlockType.
   const ScrollView::Color kPBColors[PT_COUNT] = {
-    ScrollView::WHITE,
-    ScrollView::BLUE,
-    ScrollView::CYAN,
-    ScrollView::MEDIUM_BLUE,
-    ScrollView::MAGENTA,
-    ScrollView::YELLOW,
-    ScrollView::RED,
-    ScrollView::MAROON,
-    ScrollView::ORANGE,
-    ScrollView::GREEN,
-    ScrollView::LIME_GREEN,
-    ScrollView::DARK_GREEN,
-    ScrollView::GREY
+    ScrollView::WHITE,        // Type is not yet known. Keep as the 1st element.
+    ScrollView::BLUE,         // Text that lives inside a column.
+    ScrollView::CYAN,         // Text that spans more than one column.
+    ScrollView::MEDIUM_BLUE,  // Text that is in a cross-column pull-out region.
+    ScrollView::MAGENTA,      // Partition belonging to a table region.
+    ScrollView::GREEN,        // Text-line runs vertically.
+    ScrollView::LIGHT_BLUE,   // Text that belongs to an image.
+    ScrollView::RED,          // Image that lives inside a column.
+    ScrollView::YELLOW,       // Image that spans more than one column.
+    ScrollView::ORANGE,       // Image in a cross-column pull-out region.
+    ScrollView::BROWN,        // Horizontal Line.
+    ScrollView::DARK_GREEN,   // Vertical Line.
+    ScrollView::GREY          // Lies outside of any column.
   };
   if (type >= 0 && type < PT_COUNT) {
     return kPBColors[type];
   }
   return ScrollView::WHITE;
 }
-

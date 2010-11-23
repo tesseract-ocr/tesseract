@@ -23,16 +23,14 @@
 #endif
 
 #include "imagefind.h"
-#include "varable.h"
+#include "params.h"
 
 // This entire file is dependent upon leptonica. If you don't have it,
 // you don't get this functionality.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-#ifdef HAVE_LIBLEPT
 #include "allheaders.h"
-#endif
 
 BOOL_VAR(textord_tabfind_show_images, false, "Show image blobs");
 
@@ -57,7 +55,6 @@ void ImageFinder::FindImages(Pix* pix, Boxa** boxa, Pixa** pixa) {
   *boxa = NULL;
   *pixa = NULL;
 
-#ifdef HAVE_LIBLEPT
   if (pixGetWidth(pix) < kMinImageFindSize ||
       pixGetHeight(pix) < kMinImageFindSize)
     return;  // Not worth looking at small images.
@@ -139,10 +136,8 @@ void ImageFinder::FindImages(Pix* pix, Boxa** boxa, Pixa** pixa) {
                 img_pix, 0, 0);
     pixDestroy(&img_pix);
   }
-#endif
 }
 
-#ifdef HAVE_LIBLEPT
 // Scans horizontally on x=[x_start,x_end), starting with y=*y_start,
 // stepping y+=y_step, until y=y_end. *ystart is input/output.
 // If the number of black pixels in a row, pix_count fits this pattern:
@@ -205,7 +200,6 @@ static bool VScanForEdge(uinT32* data, int wpl, int y_start, int y_end,
   }
   return false;      // Never found max_count.
 }
-#endif
 
 // Returns true if there is a rectangle in the source pix, such that all
 // pixel rows and column slices outside of it have less than
@@ -221,7 +215,6 @@ bool ImageFinder::pixNearlyRectangular(Pix* pix,
                                        double max_skew_gradient,
                                        int* x_start, int* y_start,
                                        int* x_end, int* y_end) {
-#ifdef HAVE_LIBLEPT
   *x_start = 0;
   *x_end = pixGetWidth(pix);
   *y_start = 0;
@@ -280,12 +273,8 @@ bool ImageFinder::pixNearlyRectangular(Pix* pix,
   // All edges must satisfy the condition of sharp gradient in pixel density
   // in order for the full rectangle to be present.
   return left_done && right_done && top_done && bottom_done;
-#else
-  return false;
-#endif
 }
 
-#ifdef HAVE_LIBLEPT
 // Scanning rows horizontally on x=[x_start, x_end), returns the first y row
 // starting at y_start, stepping by y_step to y_end in which there is
 // any black pixel.
@@ -315,14 +304,12 @@ static int VScanForBlack(uinT32* data, int wpl, int x_start, int x_end,
   }
   return x_end;
 }
-#endif
 
 // Given an input pix, and a bounding rectangle, the sides of the rectangle
 // are shrunk inwards until they bound any black pixels found within the
 // original rectangle.
 void ImageFinder::BoundsWithinRect(Pix* pix, int* x_start, int* y_start,
                                    int* x_end, int* y_end) {
-#ifdef HAVE_LIBLEPT
   // This can probably be done with a lot less code using pixClipRect and
   // pixConnComp, but this code is probably a lot faster, given that most
   // uses will be applied to a solid black region.
@@ -332,6 +319,8 @@ void ImageFinder::BoundsWithinRect(Pix* pix, int* x_start, int* y_start,
   if (*x_end > width) *x_end = width;
   if (*y_start < 0) *y_start = 0;
   if (*y_end > height) *y_end = height;
+  if (*y_end <= *y_start || *x_end <= *x_start)
+    return;  // Nothing to do.
 
   uinT32* data = pixGetData(pix);
   int wpl = pixGetWpl(pix);
@@ -343,7 +332,6 @@ void ImageFinder::BoundsWithinRect(Pix* pix, int* x_start, int* y_start,
   *x_start = VScanForBlack(data, wpl, *x_start, *x_end, *y_start, *y_end, 1);
   *x_end = VScanForBlack(data, wpl, *x_end - 1, *x_start - 1,
                          *y_start, *y_end, -1) + 1;
-#endif
 }
 
 }  // namespace tesseract.

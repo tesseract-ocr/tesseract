@@ -22,42 +22,18 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "ocrfeatures.h"
-#include "tessclas.h"
-#include "fxdefs.h"
 
 #define LENGTH_COMPRESSION  (10.0)
 
-typedef enum
-{ CharNormY, CharNormLength, CharNormRx, CharNormRy }
-NORM_PARAM_NAME;
+typedef enum {
+  CharNormY, CharNormLength, CharNormRx, CharNormRy
+} NORM_PARAM_NAME;
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-FLOAT32 ActualOutlineLength(FEATURE Feature); 
+FLOAT32 ActualOutlineLength(FEATURE Feature);
 
-FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, LINE_STATS *LineStats); 
+FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, const DENORM& denorm);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define        _ARGS(s) s
-#else
-# define        _ARGS(s) ()
-#endif*/
-
-/* normfeat.c
-FLOAT32 ActualOutlineLength
-    _ARGS((FEATURE Feature));
-
-FEATURE_SET ExtractCharNormFeatures
-    _ARGS((BLOB *Blob,
-  LINE_STATS *LineStats));
-
-#undef _ARGS
-*/
-
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
-extern FEATURE_DESC_STRUCT CharNormDesc;
 #endif

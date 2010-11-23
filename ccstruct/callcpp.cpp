@@ -18,50 +18,24 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-#include "errcode.h"
+#include          "errcode.h"
 #ifdef __UNIX__
-#include <assert.h>
+#include          <assert.h>
 #include <stdarg.h>
 #endif
-#include <time.h>
-#include "memry.h"
-#include "scrollview.h"
-//#include          "evnts.h"
-#include "varable.h"
-#include "callcpp.h"
-#include "tprintf.h"
-//#include                                      "strace.h"
-#include "host.h"
+#include          <time.h>
+#include          "memry.h"
+#include          "scrollview.h"
+#include          "params.h"
+#include          "callcpp.h"
+#include          "tprintf.h"
+#include          "host.h"
 #include "unichar.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
-//extern "C" {
-
-INT_VAR (tess_cp_mapping0, 0, "Mappings for class pruner distance");
-INT_VAR (tess_cp_mapping1, 1, "Mappings for class pruner distance");
-INT_VAR (tess_cp_mapping2, 2, "Mappings for class pruner distance");
-INT_VAR (tess_cp_mapping3, 3, "Mappings for class pruner distance");
-INT_VAR (record_matcher_output, 0, "Record detailed matcher info");
-INT_VAR (il1_adaption_test, 0, "Dont adapt to i/I at beginning of word");
-double_VAR (permuter_pending_threshold, 0.0,
-"Worst conf for using pending dictionary");
-//Global matcher info from the class pruner.
-inT32 cp_maps[4];
-//Global info to control writes of matcher info
-char blob_answer[UNICHAR_LEN + 1]; //correct char
-char *word_answer;                 //correct word
-inT32 bits_in_states;              //no of bits in states
-
-void setup_cp_maps() {
-  cp_maps[0] = tess_cp_mapping0;
-  cp_maps[1] = tess_cp_mapping1;
-  cp_maps[2] = tess_cp_mapping2;
-  cp_maps[3] = tess_cp_mapping3;
-}
 
 void
 cprintf (                        //Trace printf
@@ -172,6 +146,3 @@ void reverse16(void *ptr) {
   *cptr = *(cptr + 1);
   *(cptr + 1) = tmp;
 }
-
-
-//};

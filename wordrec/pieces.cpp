@@ -29,7 +29,6 @@
 
 #include "blobs.h"
 #include "freelist.h"
-#include "hideedge.h"
 #include "matchtab.h"
 #include "ndminx.h"
 #include "plotseg.h"
@@ -70,173 +69,6 @@
 /*----------------------------------------------------------------------
           F u n c t i o n s
 ----------------------------------------------------------------------*/
-/**********************************************************************
- * break_pieces
- *
- * Break up the blobs in this chain so that they are all independent.
- * This operation should undo the affect of join_pieces.
- **********************************************************************/
-void break_pieces(TBLOB *blobs, SEAMS seams, inT16 start, inT16 end) {
-  TESSLINE *outline = blobs->outlines;
-  TBLOB *next_blob;
-  inT16 x;
-
-  for (x = start; x < end; x++)
-    reveal_seam ((SEAM *) array_value (seams, x));
-
-  next_blob = blobs->next;
-
-  while (outline && next_blob) {
-    if (outline->next == next_blob->outlines) {
-      outline->next = NULL;
-      outline = next_blob->outlines;
-      next_blob = next_blob->next;
-    }
-    else {
-      outline = outline->next;
-    }
-  }
-}
-
-
-/**********************************************************************
- * join_pieces
- *
- * Join a group of base level pieces into a single blob that can then
- * be classified.
- **********************************************************************/
-void join_pieces(TBLOB *piece_blobs, SEAMS seams, inT16 start, inT16 end) {
-  TBLOB *next_blob;
-  TBLOB *blob;
-  inT16 x;
-  TESSLINE *outline;
-  SEAM *seam;
-
-  for (x = 0, blob = piece_blobs; x < start; x++)
-    blob = blob->next;
-  next_blob = blob->next;
-  outline = blob->outlines;
-  if (!outline)
-    return;
-
-  while (x < end) {
-    seam = (SEAM *) array_value (seams, x);
-    if (x - seam->widthn >= start && x + seam->widthp < end)
-      hide_seam(seam);
-    while (outline->next)
-      outline = outline->next;
-    outline->next = next_blob->outlines;
-    next_blob = next_blob->next;
-
-    x++;
-  }
-}
-
-
-/**********************************************************************
- * hide_seam
- *
- * Change the edge points that are referenced by this seam to make
- * them hidden edges.
- **********************************************************************/
-void hide_seam(SEAM *seam) {
-  if (seam == NULL || seam->split1 == NULL)
-    return;
-  hide_edge_pair (seam->split1->point1, seam->split1->point2);
-
-  if (seam->split2 == NULL)
-    return;
-  hide_edge_pair (seam->split2->point1, seam->split2->point2);
-
-  if (seam->split3 == NULL)
-    return;
-  hide_edge_pair (seam->split3->point1, seam->split3->point2);
-}
-
-
-/**********************************************************************
- * hide_edge_pair
- *
- * Change the edge points that are referenced by this seam to make
- * them hidden edges.
- **********************************************************************/
-void hide_edge_pair(EDGEPT *pt1, EDGEPT *pt2) {
-  EDGEPT *edgept;
-
-  edgept = pt1;
-  do {
-    hide_edge(edgept);
-    edgept = edgept->next;
-  }
-  while (!exact_point (edgept, pt2) && edgept != pt1);
-  if (edgept == pt1) {
-    /*              cprintf("Hid entire outline at (%d,%d)!!\n",
-       edgept->pos.x,edgept->pos.y);                                */
-  }
-  edgept = pt2;
-  do {
-    hide_edge(edgept);
-    edgept = edgept->next;
-  }
-  while (!exact_point (edgept, pt1) && edgept != pt2);
-  if (edgept == pt2) {
-    /*              cprintf("Hid entire outline at (%d,%d)!!\n",
-       edgept->pos.x,edgept->pos.y);                                */
-  }
-}
-
-
-/**********************************************************************
- * reveal_seam
- *
- * Change the edge points that are referenced by this seam to make
- * them hidden edges.
- **********************************************************************/
-void reveal_seam(SEAM *seam) {
-  if (seam == NULL || seam->split1 == NULL)
-    return;
-  reveal_edge_pair (seam->split1->point1, seam->split1->point2);
-
-  if (seam->split2 == NULL)
-    return;
-  reveal_edge_pair (seam->split2->point1, seam->split2->point2);
-
-  if (seam->split3 == NULL)
-    return;
-  reveal_edge_pair (seam->split3->point1, seam->split3->point2);
-}
-
-
-/**********************************************************************
- * reveal_edge_pair
- *
- * Change the edge points that are referenced by this seam to make
- * them hidden edges.
- **********************************************************************/
-void reveal_edge_pair(EDGEPT *pt1, EDGEPT *pt2) {
-  EDGEPT *edgept;
-
-  edgept = pt1;
-  do {
-    reveal_edge(edgept);
-    edgept = edgept->next;
-  }
-  while (!exact_point (edgept, pt2) && edgept != pt1);
-  if (edgept == pt1) {
-    /*              cprintf("Hid entire outline at (%d,%d)!!\n",
-       edgept->pos.x,edgept->pos.y);                                */
-  }
-  edgept = pt2;
-  do {
-    reveal_edge(edgept);
-    edgept = edgept->next;
-  }
-  while (!exact_point (edgept, pt1) && edgept != pt2);
-  if (edgept == pt2) {
-    /*              cprintf("Hid entire outline at (%d,%d)!!\n",
-       edgept->pos.x,edgept->pos.y);                                */
-  }
-}
 
 
 /**********************************************************************
@@ -279,29 +111,23 @@ BLOB_CHOICE_LIST *Wordrec::classify_piece(TBLOB *pieces,
                                           SEAMS seams,
                                           inT16 start,
                                           inT16 end) {
-  STATE current_state;
   BLOB_CHOICE_LIST *choices;
-  TBLOB *pblob;
   TBLOB *blob;
-  TBLOB *nblob;
   inT16 x;
-  SEARCH_STATE chunk_groups;
-
-  set_n_ones (&current_state, array_count (seams));
 
   join_pieces(pieces, seams, start, end);
-  for (blob = pieces, pblob = NULL, x = 0; x < start; x++) {
-    pblob = blob;
+  for (blob = pieces, x = 0; x < start; x++) {
     blob = blob->next;
   }
-  for (nblob = blob->next; x < end; x++)
-    nblob = nblob->next;
-  choices = classify_blob (pblob, blob, nblob, NULL, "pieces:", White);
+  choices = classify_blob(blob, "pieces:", White);
 
   break_pieces(blob, seams, start, end);
 #ifndef GRAPHICS_DISABLED
   if (wordrec_display_segmentations > 2) {
-    chunk_groups = bin_to_chunks (&current_state, array_count (seams));
+    STATE current_state;
+    SEARCH_STATE chunk_groups;
+    set_n_ones (&current_state, array_count(seams));
+    chunk_groups = bin_to_chunks(&current_state, array_count(seams));
     display_segmentation(pieces, chunk_groups);
     window_wait(segm_window);
     memfree(chunk_groups);
@@ -332,10 +158,13 @@ BLOB_CHOICE_LIST *Wordrec::get_piece_rating(MATRIX *ratings,
                              start,
                              end);
     ratings->put(start, end, choices);
+    if (wordrec_debug_level > 0) {
+      tprintf("get_piece_rating(): updated ratings matrix\n");
+      ratings->print(getDict().getUnicharset());
+    }
   }
   return (choices);
 }
-}  // namespace tesseract
 
 
 /**********************************************************************
@@ -344,8 +173,7 @@ BLOB_CHOICE_LIST *Wordrec::get_piece_rating(MATRIX *ratings,
  * Set up and initialize an array that holds the bounds of a set of
  * blobs.
  **********************************************************************/
-BOUNDS_LIST record_blob_bounds(TBLOB *blobs) {
-  TBLOB *blob;
+BOUNDS_LIST Wordrec::record_blob_bounds(TBLOB *blobs) {
   BOUNDS_LIST bounds;
   TPOINT topleft;
   TPOINT botright;
@@ -353,7 +181,7 @@ BOUNDS_LIST record_blob_bounds(TBLOB *blobs) {
 
   bounds = (BOUNDS_LIST) memalloc (count_blobs (blobs) * sizeof (BOUNDS));
 
-  iterate_blobs(blob, blobs) {
+  for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
     blob_bounding_box(blob, &topleft, &botright);
     set_bounds_entry(bounds, x, topleft, botright);
     x++;
@@ -370,7 +198,7 @@ BOUNDS_LIST record_blob_bounds(TBLOB *blobs) {
  * matrix is created.  The indices correspond to the starting and
  * ending initial piece number.
  **********************************************************************/
-MATRIX *record_piece_ratings(TBLOB *blobs) {
+MATRIX *Wordrec::record_piece_ratings(TBLOB *blobs) {
   BOUNDS_LIST bounds;
   inT16 num_blobs;
   inT16 x;
@@ -391,7 +219,7 @@ MATRIX *record_piece_ratings(TBLOB *blobs) {
       bounds_of_piece(bounds, x, y, &tp_topleft, &tp_botright);
       topleft = *(unsigned int *) &tp_topleft;
       botright = *(unsigned int *) &tp_botright;
-      choices = get_match_by_bounds (topleft, botright);
+      choices = blob_match_table.get_match_by_bounds (topleft, botright);
       if (choices != NULL) {
         ratings->put(x, y, choices);
       }
@@ -400,3 +228,5 @@ MATRIX *record_piece_ratings(TBLOB *blobs) {
   memfree(bounds);
   return (ratings);
 }
+
+}  // namespace tesseract

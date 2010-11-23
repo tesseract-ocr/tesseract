@@ -22,10 +22,6 @@
  ** limitations under the License.
  *
  *********************************************************************************/
-/*----------------------------------------------------------------------
-              I n c l u d e s
-----------------------------------------------------------------------*/
-
 #include "matchtab.h"
 
 #include "blobs.h"
@@ -34,25 +30,6 @@
 #include "freelist.h"
 #include "ratngs.h"
 
-/*----------------------------------------------------------------------
-              T y p e s
-----------------------------------------------------------------------*/
-typedef struct _MATCH_
-{
-  int topleft;
-  int botright;
-  BLOB_CHOICE_LIST *rating;
-} MATCH;
-
-/*----------------------------------------------------------------------
-              V a r i a b l e s
-----------------------------------------------------------------------*/
-MATCH *match_table;
-//?int   missed_count = 0;
-
-/*----------------------------------------------------------------------
-              M a c r o s
-----------------------------------------------------------------------*/
 #define NUM_MATCH_ENTRIES 500    /* Entries in match_table */
 
 /**********************************************************************
@@ -61,49 +38,55 @@ MATCH *match_table;
  * Test an element in the blob match table to see if it is blank.
  * Return a non-zero value if it is blank.
  **********************************************************************/
-
 #define blank_entry(match_table,x)  \
-(! (match_table[x].topleft | match_table[x].botright))
+  (! (match_table[x].topleft | match_table[x].botright))
 
-/*----------------------------------------------------------------------
-          Public Function Code
-----------------------------------------------------------------------*/
+
+namespace tesseract {
+
+BlobMatchTable::BlobMatchTable()
+  : been_initialized_(false), match_table_(NULL) {
+  init_match_table();
+}
+
+BlobMatchTable::~BlobMatchTable() {
+  end_match_table();
+}
+
 /**********************************************************************
  * init_match_table
  *
  * Create and clear a match table to be used to speed up the splitter.
  **********************************************************************/
-static int been_initialized = 0;
-void init_match_table() {
+void BlobMatchTable::init_match_table() {
   int x;
 
-  if (been_initialized) {
+  if (been_initialized_) {
     /* Reclaim old choices */
     for (x = 0; x < NUM_MATCH_ENTRIES; x++) {
-      if ((!blank_entry (match_table, x)) && match_table[x].rating)
-        match_table[x].rating->clear();
-        delete match_table[x].rating;
+      if ((!blank_entry(match_table_, x)) && match_table_[x].rating)
+        match_table_[x].rating->clear();
+        delete match_table_[x].rating;
     }
-  }
-  else {
+  } else {
     /* Allocate memory once */
-    been_initialized = 1;
-    match_table = new MATCH[NUM_MATCH_ENTRIES];
+    been_initialized_ = true;
+    match_table_ = new MATCH[NUM_MATCH_ENTRIES];
   }
   /* Initialize the table */
   for (x = 0; x < NUM_MATCH_ENTRIES; x++) {
-    match_table[x].topleft = 0;
-    match_table[x].botright = 0;
-    match_table[x].rating = NULL;
+    match_table_[x].topleft = 0;
+    match_table_[x].botright = 0;
+    match_table_[x].rating = NULL;
   }
 }
 
-void end_match_table() {
-  if (been_initialized) {
+void BlobMatchTable::end_match_table() {
+  if (been_initialized_) {
     init_match_table();
-    delete[] match_table;
-    match_table = NULL;
-    been_initialized = 0;
+    delete[] match_table_;
+    match_table_ = NULL;
+    been_initialized_ = false;
   }
 }
 
@@ -114,7 +97,7 @@ void end_match_table() {
  * Put a new blob and its corresponding match ratings into the match
  * table.
  **********************************************************************/
-void put_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
+void BlobMatchTable::put_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
   unsigned int topleft;
   unsigned int botright;
   unsigned int start;
@@ -130,19 +113,18 @@ void put_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
   /* Look for empty */
   x = start;
   do {
-    if (blank_entry (match_table, x)) {
+    if (blank_entry (match_table_, x)) {
       /* Add this entry */
-      match_table[x].topleft = topleft;
-      match_table[x].botright = botright;
-      // Copy ratings to match_table[x].rating
-      match_table[x].rating = new BLOB_CHOICE_LIST();
-      match_table[x].rating->deep_copy(ratings, &BLOB_CHOICE::deep_copy);
+      match_table_[x].topleft = topleft;
+      match_table_[x].botright = botright;
+      // Copy ratings to match_table_[x].rating
+      match_table_[x].rating = new BLOB_CHOICE_LIST();
+      match_table_[x].rating->deep_copy(ratings, &BLOB_CHOICE::deep_copy);
       return;
     }
     if (++x >= NUM_MATCH_ENTRIES)
       x = 0;
-  }
-  while (x != start);
+  } while (x != start);
 
   cprintf ("error: Match table is full\n");
 }
@@ -154,7 +136,7 @@ void put_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
  * Look up this blob in the match table to see if it needs to be
  * matched.  If it is not present then NULL is returned.
  **********************************************************************/
-BLOB_CHOICE_LIST *get_match(TBLOB *blob) {
+BLOB_CHOICE_LIST *BlobMatchTable::get_match(TBLOB *blob) {
   unsigned int topleft;
   unsigned int botright;
   TPOINT tp_topleft;
@@ -173,8 +155,8 @@ BLOB_CHOICE_LIST *get_match(TBLOB *blob) {
  * Look up this blob in the match table to see if it needs to be
  * matched.  If it is not present then NULL is returned.
  **********************************************************************/
-BLOB_CHOICE_LIST *get_match_by_bounds(unsigned int topleft,
-                                      unsigned int botright) {
+BLOB_CHOICE_LIST *BlobMatchTable::get_match_by_bounds(unsigned int topleft,
+                                                      unsigned int botright) {
   unsigned int start;
   int x;
   /* Do starting hash */
@@ -183,19 +165,18 @@ BLOB_CHOICE_LIST *get_match_by_bounds(unsigned int topleft,
   x = start;
   do {
     /* Not found when blank */
-    if (blank_entry (match_table, x))
+    if (blank_entry (match_table_, x))
       break;
     /* Is this the match ? */
-    if (match_table[x].topleft == topleft &&
-        match_table[x].botright == botright) {
+    if (match_table_[x].topleft == topleft &&
+        match_table_[x].botright == botright) {
       BLOB_CHOICE_LIST *blist = new BLOB_CHOICE_LIST();
-      blist->deep_copy(match_table[x].rating, &BLOB_CHOICE::deep_copy);
+      blist->deep_copy(match_table_[x].rating, &BLOB_CHOICE::deep_copy);
       return blist;
     }
     if (++x >= NUM_MATCH_ENTRIES)
       x = 0;
-  }
-  while (x != start);
+  } while (x != start);
   return NULL;
 }
 
@@ -212,7 +193,7 @@ BLOB_CHOICE_LIST *get_match_by_bounds(unsigned int topleft,
  * The entries that appear in the new ratings list and not in the
  * old one are added to the old ratings list in the match_table.
  **********************************************************************/
-void add_to_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
+void BlobMatchTable::add_to_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
   unsigned int topleft;
   unsigned int botright;
   TPOINT tp_topleft;
@@ -227,15 +208,15 @@ void add_to_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
   /* Search for match */
   x = start;
   do {
-    if (blank_entry(match_table, x)) {
+    if (blank_entry(match_table_, x)) {
       fprintf(stderr, "Can not update uninitialized entry in match_table\n");
-      ASSERT_HOST(!blank_entry(match_table, x));
+      ASSERT_HOST(!blank_entry(match_table_, x));
     }
-    if (match_table[x].topleft == topleft &&
-        match_table[x].botright == botright) {
-      // Copy new ratings to match_table[x].rating.
+    if (match_table_[x].topleft == topleft &&
+        match_table_[x].botright == botright) {
+      // Copy new ratings to match_table_[x].rating.
       BLOB_CHOICE_IT it;
-      it.set_to_list(match_table[x].rating);
+      it.set_to_list(match_table_[x].rating);
       BLOB_CHOICE_IT new_it;
       new_it.set_to_list(ratings);
       assert(it.length() <= new_it.length());
@@ -251,6 +232,7 @@ void add_to_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
     }
     if (++x >= NUM_MATCH_ENTRIES)
       x = 0;
-  }
-  while (x != start);
+  } while (x != start);
 }
+
+}  // namespace tesseract

@@ -21,9 +21,18 @@
 #define TESSERACT_TEXTORD_TABFIND_H__
 
 #include "alignedblob.h"
-#include "callback.h"
+#include "tesscallback.h"
 #include "tabvector.h"
 #include "linefind.h"
+
+extern BOOL_VAR_H(textord_tabfind_force_vertical_text, false,
+       "Force using vertical text page mode");
+extern BOOL_VAR_H(textord_tabfind_vertical_horizontal_mix, true,
+       "find horizontal lines such as headers in vertical page mode");
+extern double_VAR_H(textord_tabfind_vertical_text_ratio, 0.5,
+       "Fraction of textlines deemed vertical to use vertical page mode");
+extern double_VAR_H(textord_tabfind_aligned_gap_fraction, 0.75,
+       "Fraction of height used as a minimum gap for aligned blobs.");
 
 class BLOBNBOX;
 class BLOBNBOX_LIST;
@@ -33,7 +42,7 @@ struct Pix;
 
 namespace tesseract {
 
-typedef ResultCallback1<bool, int> WidthCallback;
+typedef TessResultCallback1<bool, int> WidthCallback;
 
 struct AlignedBlobParams;
 
@@ -52,7 +61,8 @@ const int kColumnWidthFactor = 20;
 class TabFind : public AlignedBlob {
  public:
   TabFind(int gridsize, const ICOORD& bleft, const ICOORD& tright,
-          TabVector_LIST* vlines, int vertical_x, int vertical_y);
+          TabVector_LIST* vlines, int vertical_x, int vertical_y,
+          int resolution);
   virtual ~TabFind();
 
   /**
@@ -111,58 +121,6 @@ class TabFind : public AlignedBlob {
   int LeftEdgeForBox(const TBOX& box, bool crossing, bool extended);
 
   /**
-   * Compute the rotation required to deskew, and its inverse rotation.
-   */
-  void ComputeDeskewVectors(FCOORD* deskew, FCOORD* reskew);
-
-  /**
-   * Return true if the given width is close to one of the common
-   * widths in column_widths_.
-   */
-  bool CommonWidth(int width);
-  /**
-   * Return true if the sizes are more than a
-   * factor of 2 different.
-   */
-  static bool DifferentSizes(int size1, int size2);
-
-  /**
-   * Return a callback for testing CommonWidth.
-   */
-  WidthCallback* WidthCB() {
-    return width_cb_;
-  }
-
-  /**
-   * Return the coords at which to draw the image backdrop.
-   */
-  const ICOORD& image_origin() const {
-    return image_origin_;
-  }
-
- protected:
-  /**
-  // Accessors
-   */
-  TabVector_LIST* get_vectors() {
-    return &vectors_;
-  }
-
-  /**
-  // Top-level function to find TabVectors in an input page block.
-   */
-  void FindTabVectors(int resolution, TabVector_LIST* hlines,
-                      BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
-                      FCOORD* reskew, FCOORD* rerotate);
-
-  /**
-  // Top-level function to not find TabVectors in an input page block,
-  // but setup for single column mode.
-   */
-  void DontFindTabVectors(int resolution, BLOBNBOX_LIST* image_blobs,
-                          TO_BLOCK* block, FCOORD* reskew);
-
-  /**
    * Return the TabVector that corresponds to the right edge for the given
    * box. If there is a TabVector to the right that vertically overlaps it,
    * then return it, otherwise return NULL. Note that Right and Left refer
@@ -183,9 +141,62 @@ class TabFind : public AlignedBlob {
    * As RightTabForBox, but finds the left TabVector instead.
    */
   TabVector* LeftTabForBox(const TBOX& box, bool crossing, bool extended);
+
   /**
-   * Helper function to setup search limits for *TabForBox.
+   * Return true if the given width is close to one of the common
+   * widths in column_widths_.
    */
+  bool CommonWidth(int width);
+  /**
+   * Return true if the sizes are more than a
+   * factor of 2 different.
+   */
+  static bool DifferentSizes(int size1, int size2);
+  /**
+   * Return true if the sizes are more than a
+   * factor of 5 different.
+   */
+  static bool VeryDifferentSizes(int size1, int size2);
+
+  /**
+   * Return a callback for testing CommonWidth.
+   */
+  WidthCallback* WidthCB() {
+    return width_cb_;
+  }
+
+  /**
+   * Return the coords at which to draw the image backdrop.
+   */
+  const ICOORD& image_origin() const {
+    return image_origin_;
+  }
+
+ protected:
+  /**
+  // Accessors
+   */
+  TabVector_LIST* vectors() {
+    return &vectors_;
+  }
+  TabVector_LIST* dead_vectors() {
+    return &dead_vectors_;
+  }
+
+  /**
+   * Top-level function to find TabVectors in an input page block.
+   * Returns false if the detected skew angle is impossible.
+   */
+  bool FindTabVectors(TabVector_LIST* hlines,
+                      BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
+                      int min_gutter_width,
+                      FCOORD* deskew, FCOORD* reskew);
+
+  // Top-level function to not find TabVectors in an input page block,
+  // but setup for single column mode.
+  void DontFindTabVectors(BLOBNBOX_LIST* image_blobs,
+                          TO_BLOCK* block, FCOORD* deskew, FCOORD* reskew);
+  // Helper function to setup search limits for *TabForBox.
   void SetupTabSearch(int x, int y, int* min_key, int* max_key);
 
   /**
@@ -193,18 +204,33 @@ class TabFind : public AlignedBlob {
    */
   ScrollView* DisplayTabVectors(ScrollView* tab_win);
 
- private:
   // First part of FindTabVectors, which may be used twice if the text
-  // is mostly of vertical alignment.
-  void FindInitialTabVectors(BLOBNBOX_LIST* image_blobs, TO_BLOCK* block);
+  // is mostly of vertical alignment.  If find_vertical_text flag is
+  // true, this finds vertical textlines in possibly rotated blob space.
+  // In other words, when the page has mostly vertical lines and is rotated,
+  // setting this to true will find horizontal lines on the page.
+  void FindInitialTabVectors(BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
+                             int min_gutter_width);
 
+  // Apply the given rotation to the given list of blobs.
+  static void RotateBlobList(const FCOORD& rotation, BLOBNBOX_LIST* blobs);
+
+  // Flip the vertical and horizontal lines and rotate the grid ready
+  // for working on the rotated image.
+  // The min_gutter_width will be adjusted to the median gutter width between
+  // vertical tabs to set a better threshold for tabboxes in the 2nd pass.
+  void ResetForVerticalText(const FCOORD& rotate, const FCOORD& rerotate,
+                            TabVector_LIST* horizontal_lines,
+                            int* min_gutter_width);
+
+ private:
   // For each box in the grid, decide whether it is a candidate tab-stop,
   // and if so add it to the tab_grid_.
-  ScrollView* FindTabBoxes();
+  ScrollView* FindTabBoxes(int min_gutter_width);
 
   // Return true if this box looks like a candidate tab stop, and set
   // the appropriate tab type(s) to TT_UNCONFIRMED.
-  bool TestBoxForTabs(BLOBNBOX* bbox);
+  bool TestBoxForTabs(BLOBNBOX* bbox, int min_gutter_width);
 
   // Fills the list of TabVector with the tabstops found in the grid,
   // and estimates the logical vertical direction.
@@ -250,8 +276,10 @@ class TabFind : public AlignedBlob {
   // Mark blobs as being in a vertical text line where that is the case.
   void MarkVerticalText();
 
-  // Returns true if the majority of the image is vertical text lines.
-  bool TextMostlyVertical();
+  // Returns the median gutter width between pairs of matching tab vectors
+  // assuming they are sorted left-to-right.  If there are too few data
+  // points (< kMinLinesInColumn), then 0 is returned.
+  int FindMedianGutterWidth(TabVector_LIST* tab_vectors);
 
   // If this box looks like it is on a textline in the given direction,
   // return the width of the textline-like group of blobs, and the number
@@ -313,15 +341,13 @@ class TabFind : public AlignedBlob {
   /**
    * Deskew the tab vectors and blobs, computing the rotation and resetting
    * the storked vertical_skew_. The deskew inverse is returned in reskew.
+   * Returns false if the detected skew angle is impossible.
    */
-  void Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
-              TO_BLOCK* block, FCOORD* reskew);
+  bool Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
+              TO_BLOCK* block, FCOORD* deskew, FCOORD* reskew);
 
-  /**
-   * Restart everything and rotate the input blobs ready for vertical text.
-   */
-  void ResetForVerticalText(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
-                            TO_BLOCK* block, FCOORD* rerotate);
+  // Compute the rotation required to deskew, and its inverse rotation.
+  void ComputeDeskewVectors(FCOORD* deskew, FCOORD* reskew);
 
   /**
    * Compute and apply constraints to the end positions of TabVectors so
@@ -333,7 +359,7 @@ class TabFind : public AlignedBlob {
   ICOORD vertical_skew_;          //< Estimate of true vertical in this image.
   int resolution_;                //< Of source image in pixels per inch.
  private:
-  ICOORD image_origin_;           // Top-left of image in deskewed coords
+  ICOORD image_origin_;           //< Top-left of image in deskewed coords
   TabVector_LIST vectors_;        //< List of rule line and tabstops.
   TabVector_IT v_it_;             //< Iterator for searching vectors_.
   TabVector_LIST dead_vectors_;   //< Separators and unpartnered tab vectors.
@@ -347,4 +373,3 @@ class TabFind : public AlignedBlob {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_TEXTORD_TABFIND_H__
-

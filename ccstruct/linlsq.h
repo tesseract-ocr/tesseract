@@ -22,7 +22,7 @@
 
 #include          "points.h"
 #include          "mod128.h"
-#include          "varable.h"
+#include          "params.h"
 
 class LLSQ
 {

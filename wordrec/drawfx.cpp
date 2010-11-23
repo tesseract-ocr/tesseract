@@ -35,7 +35,7 @@
 #define FXDEMOYSIZE     256
 #define BLN_MAX       512        //max coord for bln
 #define WERDWIDTH       (BLN_MAX*20)
-#define DECENT_WERD_WIDTH (5*bln_x_height)
+#define DECENT_WERD_WIDTH (5*kBlnXHeight)
                                  //title of window
 #define DEBUG_WIN_NAME    "FXDebug"
 #define DEBUG_XPOS      0
@@ -75,8 +75,9 @@ void create_fx_win() {  //make features win
 void clear_fx_win() {  //make features win
   fx_win->Clear();
   fx_win->Pen(64,64,64);
-  fx_win->Line(-WERDWIDTH, bln_baseline_offset, WERDWIDTH, bln_baseline_offset);
-  fx_win->Line(-WERDWIDTH, bln_x_height + bln_baseline_offset, WERDWIDTH, bln_x_height + bln_baseline_offset);
+  fx_win->Line(-WERDWIDTH, kBlnBaselineOffset, WERDWIDTH, kBlnBaselineOffset);
+  fx_win->Line(-WERDWIDTH, kBlnXHeight + kBlnBaselineOffset, WERDWIDTH,
+               kBlnXHeight + kBlnBaselineOffset);
 }
 
 #endif  // GRAPHICS_DISABLED

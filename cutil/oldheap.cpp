@@ -108,7 +108,7 @@ int HeapPop(HEAP *Heap, FLOAT32 *Key, void *out_ptr) {
   }
   Heap->Entry[Hole].Key = HoleKey;
   Heap->Entry[Hole].Data = Heap->Entry[Heap->FirstFree].Data;
-  return (OK);
+  return (TESS_HEAP_OK);
 }                                /* HeapPop */
 
 
@@ -161,9 +161,17 @@ int HeapPopWorst(HEAP *Heap, FLOAT32 *Key, void *out_ptr) {
     Hole = Father;
     Father = FATHER (Hole);
   }
-  return (OK);
+  return (TESS_HEAP_OK);
 }                                /* HeapPop */
 
+
+// Pushes data onto the heap only if there is free space left.
+// Returns true if data was added to the heap, false if the heap was full.
+bool HeapPushCheckSize(HEAP *Heap, FLOAT32 Key, void *Data) {
+  if (Heap->FirstFree > Heap->Size) return false;
+  HeapPush(Heap, Key, Data);
+  return true;
+}
 
 /*---------------------------------------------------------------------------*/
 /** 
@@ -296,7 +304,7 @@ int GetTopOfHeap(HEAP *Heap, HEAPENTRY *Entry) {
   }
   Heap->Entry[Hole].Key = HoleKey;
   Heap->Entry[Hole].Data = Heap->Entry[Heap->FirstFree].Data;
-  return (OK);
+  return (TESS_HEAP_OK);
 }                                /* GetTopOfHeap */
 
 

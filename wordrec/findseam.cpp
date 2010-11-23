@@ -32,6 +32,7 @@
 #include "outlines.h"
 #include "freelist.h"
 #include "seam.h"
+#include "wordrec.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -119,7 +120,7 @@ if (seam)\
  **********************************************************************/
 
 #define pop_next_seam(seams,seam,priority)  \
-(HeapPop (seams,&priority,&seam) == OK)   \
+(HeapPop (seams,&priority,&seam) == TESS_HEAP_OK)   \
 
 
 /**********************************************************************
@@ -137,12 +138,15 @@ if (seam)\
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
+namespace tesseract {
+
 /**********************************************************************
  * junk_worst_seam
  *
  * Delete the worst seam from the queue because it is full.
  **********************************************************************/
-void junk_worst_seam(SEAM_QUEUE seams, SEAM *new_seam, float new_priority) {
+void Wordrec::junk_worst_seam(SEAM_QUEUE seams, SEAM *new_seam,
+                              float new_priority) {
   SEAM *seam;
   float priority;
 
@@ -171,12 +175,12 @@ void junk_worst_seam(SEAM_QUEUE seams, SEAM *new_seam, float new_priority) {
  * a split of NULL, then no further splits can be supplied by the
  * caller.
  **********************************************************************/
-void choose_best_seam(SEAM_QUEUE seam_queue,
-                      SEAM_PILE *seam_pile,
-                      SPLIT *split,
-                      PRIORITY priority,
-                      SEAM **seam_result,
-                      TBLOB *blob) {
+void Wordrec::choose_best_seam(SEAM_QUEUE seam_queue,
+                               SEAM_PILE *seam_pile,
+                               SPLIT *split,
+                               PRIORITY priority,
+                               SEAM **seam_result,
+                               TBLOB *blob) {
   SEAM *seam;
   TPOINT topleft;
   TPOINT botright;
@@ -185,9 +189,10 @@ void choose_best_seam(SEAM_QUEUE seam_queue,
   /* Add seam of split */
   my_priority = priority;
   if (split != NULL) {
-    seam = new_seam (my_priority,
-      (split->point1->pos.x + split->point1->pos.x) / 2,
-      split, NULL, NULL);
+    TPOINT split_point = split->point1->pos;
+    split_point += split->point2->pos;
+    split_point /= 2;
+    seam = new_seam(my_priority, split_point, split, NULL, NULL);
     if (chop_debug > 1)
       print_seam ("Partial priority    ", seam);
     add_seam_to_queue (seam_queue, seam, (float) my_priority);
@@ -253,7 +258,8 @@ void choose_best_seam(SEAM_QUEUE seam_queue,
  * from this union should be added to the seam queue.  The return value
  * tells whether or not any additional seams were added to the queue.
  **********************************************************************/
-void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam) {
+void Wordrec::combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile,
+                           SEAM *seam) {
   register inT16 x;
   register inT16 dist;
   inT16 bottom1, top1;
@@ -284,7 +290,7 @@ void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam) {
   }
   array_loop(seam_pile, x) {
     this_one = (SEAM *) array_value (seam_pile, x);
-    dist = seam->location - this_one->location;
+    dist = seam->location.x - this_one->location.x;
     if (-SPLIT_CLOSENESS < dist &&
       dist < SPLIT_CLOSENESS &&
     seam->priority + this_one->priority < chop_ok_split) {
@@ -336,7 +342,7 @@ void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam) {
  * Constrain this split to obey certain rules.  It must not cross any
  * inner outline.  It must not cut off a small chunk of the outline.
  **********************************************************************/
-inT16 constrained_split(SPLIT *split, TBLOB *blob) {
+inT16 Wordrec::constrained_split(SPLIT *split, TBLOB *blob) {
   TESSLINE *outline;
 
   if (is_little_chunk (split->point1, split->point2))
@@ -358,7 +364,7 @@ inT16 constrained_split(SPLIT *split, TBLOB *blob) {
  * Delete the seams that are held in the seam pile.  Destroy the splits
  * that are referenced by these seams.
  **********************************************************************/
-void delete_seam_pile(SEAM_PILE seam_pile) {
+void Wordrec::delete_seam_pile(SEAM_PILE seam_pile) {
   inT16 x;
 
   array_loop(seam_pile, x) {
@@ -367,14 +373,13 @@ void delete_seam_pile(SEAM_PILE seam_pile) {
   array_free(seam_pile);
 }
 
-
 /**********************************************************************
  * pick_good_seam
  *
  * Find and return a good seam that will split this blob into two pieces.
  * Work from the outlines provided.
  **********************************************************************/
-SEAM *pick_good_seam(TBLOB *blob) {
+SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
   SEAM_QUEUE seam_queue;
   SEAM_PILE seam_pile;
   POINT_GROUP point_heap;
@@ -396,7 +401,7 @@ SEAM *pick_good_seam(TBLOB *blob) {
   for (outline = blob->outlines; outline; outline = outline->next)
     prioritize_points(outline, point_heap);
 
-  while (HeapPop (point_heap, &priority, &edge) == OK) {
+  while (HeapPop (point_heap, &priority, &edge) == TESS_HEAP_OK) {
     if (num_points < MAX_NUM_POINTS)
       points[num_points++] = (EDGEPT *) edge;
   }
@@ -453,7 +458,7 @@ SEAM *pick_good_seam(TBLOB *blob) {
  *
  * Assign a full priority value to the seam.
  **********************************************************************/
-PRIORITY seam_priority(SEAM *seam, inT16 xmin, inT16 xmax) {
+PRIORITY Wordrec::seam_priority(SEAM *seam, inT16 xmin, inT16 xmax) {
   PRIORITY priority;
 
   if (seam->split1 == NULL)
@@ -491,11 +496,12 @@ PRIORITY seam_priority(SEAM *seam, inT16 xmin, inT16 xmax) {
  * together.  See if any of them are suitable for use.  Use a seam
  * queue and seam pile that have already been initialized and used.
  **********************************************************************/
-void
-try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
-inT16 num_points,
-SEAM_QUEUE seam_queue,
-SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
+void Wordrec::try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
+                               inT16 num_points,
+                               SEAM_QUEUE seam_queue,
+                               SEAM_PILE * seam_pile,
+                               SEAM ** seam,
+                               TBLOB * blob) {
   inT16 x;
   inT16 y;
   SPLIT *split;
@@ -532,11 +538,12 @@ SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
  * if any of them are suitable for use.  Use a seam queue and seam pile
  * that have already been initialized and used.
  **********************************************************************/
-void
-try_vertical_splits (EDGEPT * points[MAX_NUM_POINTS],
-inT16 num_points,
-SEAM_QUEUE seam_queue,
-SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
+void Wordrec::try_vertical_splits (EDGEPT * points[MAX_NUM_POINTS],
+                                   inT16 num_points,
+                                   SEAM_QUEUE seam_queue,
+                                   SEAM_PILE * seam_pile,
+                                   SEAM ** seam,
+                                   TBLOB * blob) {
   EDGEPT *vertical_point = NULL;
   SPLIT *split;
   inT16 x;
@@ -566,4 +573,6 @@ SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob) {
       choose_best_seam(seam_queue, seam_pile, split, priority, seam, blob);
     }
   }
+}
+
 }

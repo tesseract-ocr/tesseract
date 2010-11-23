@@ -75,8 +75,16 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
+libtesseract_tessopt_la_LIBADD =
+am_libtesseract_tessopt_la_OBJECTS = tessopt.lo
+libtesseract_tessopt_la_OBJECTS =  \
+	$(am_libtesseract_tessopt_la_OBJECTS)
+libtesseract_tessopt_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(libtesseract_tessopt_la_LDFLAGS) $(LDFLAGS) -o \
+	$@
 libtesseract_training_la_LIBADD =
-am_libtesseract_training_la_OBJECTS = name2char.lo commontraining.lo
+am_libtesseract_training_la_OBJECTS = commontraining.lo
 libtesseract_training_la_OBJECTS =  \
 	$(am_libtesseract_training_la_OBJECTS)
 libtesseract_training_la_LINK = $(LIBTOOL) --tag=CXX \
@@ -87,13 +95,14 @@ PROGRAMS = $(bin_PROGRAMS)
 am_cntraining_OBJECTS = cntraining.$(OBJEXT)
 cntraining_OBJECTS = $(am_cntraining_OBJECTS)
 cntraining_DEPENDENCIES = libtesseract_training.la \
-	../textord/libtesseract_textord.la \
+	libtesseract_tessopt.la ../textord/libtesseract_textord.la \
 	../classify/libtesseract_classify.la \
 	../dict/libtesseract_dict.la \
 	../ccstruct/libtesseract_ccstruct.la \
 	../image/libtesseract_image.la ../cutil/libtesseract_cutil.la \
 	../viewer/libtesseract_viewer.la \
-	../ccmain/libtesseract_main.la \
+	../ccmain/libtesseract_main.la ../cube/libtesseract_cube.la \
+	../neural_networks/runtime/libtesseract_neural.la \
 	../wordrec/libtesseract_wordrec.la \
 	../ccutil/libtesseract_ccutil.la
 am_combine_tessdata_OBJECTS = combine_tessdata.$(OBJEXT)
@@ -102,26 +111,30 @@ combine_tessdata_DEPENDENCIES = ../ccutil/libtesseract_ccutil.la
 am_mftraining_OBJECTS = mftraining.$(OBJEXT) mergenf.$(OBJEXT)
 mftraining_OBJECTS = $(am_mftraining_OBJECTS)
 mftraining_DEPENDENCIES = libtesseract_training.la \
-	../textord/libtesseract_textord.la \
+	libtesseract_tessopt.la ../textord/libtesseract_textord.la \
 	../classify/libtesseract_classify.la \
 	../dict/libtesseract_dict.la \
 	../ccstruct/libtesseract_ccstruct.la \
 	../image/libtesseract_image.la ../cutil/libtesseract_cutil.la \
 	../viewer/libtesseract_viewer.la \
-	../ccmain/libtesseract_main.la \
+	../ccmain/libtesseract_main.la ../cube/libtesseract_cube.la \
+	../neural_networks/runtime/libtesseract_neural.la \
 	../wordrec/libtesseract_wordrec.la \
 	../ccutil/libtesseract_ccutil.la
 am_unicharset_extractor_OBJECTS = unicharset_extractor.$(OBJEXT)
 unicharset_extractor_OBJECTS = $(am_unicharset_extractor_OBJECTS)
-unicharset_extractor_DEPENDENCIES = ../ccutil/libtesseract_ccutil.la
+unicharset_extractor_DEPENDENCIES = libtesseract_tessopt.la \
+	../ccutil/libtesseract_ccutil.la
 am_wordlist2dawg_OBJECTS = wordlist2dawg.$(OBJEXT)
 wordlist2dawg_OBJECTS = $(am_wordlist2dawg_OBJECTS)
-wordlist2dawg_DEPENDENCIES = ../classify/libtesseract_classify.la \
+wordlist2dawg_DEPENDENCIES = libtesseract_tessopt.la \
+	../classify/libtesseract_classify.la \
 	../dict/libtesseract_dict.la \
 	../ccstruct/libtesseract_ccstruct.la \
 	../image/libtesseract_image.la ../cutil/libtesseract_cutil.la \
 	../viewer/libtesseract_viewer.la \
-	../ccmain/libtesseract_main.la \
+	../ccmain/libtesseract_main.la ../cube/libtesseract_cube.la \
+	../neural_networks/runtime/libtesseract_neural.la \
 	../wordrec/libtesseract_wordrec.la \
 	../textord/libtesseract_textord.la \
 	../ccutil/libtesseract_ccutil.la
@@ -138,13 +151,14 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libtesseract_training_la_SOURCES) $(cntraining_SOURCES) \
+SOURCES = $(libtesseract_tessopt_la_SOURCES) \
+	$(libtesseract_training_la_SOURCES) $(cntraining_SOURCES) \
 	$(combine_tessdata_SOURCES) $(mftraining_SOURCES) \
 	$(unicharset_extractor_SOURCES) $(wordlist2dawg_SOURCES)
-DIST_SOURCES = $(libtesseract_training_la_SOURCES) \
-	$(cntraining_SOURCES) $(combine_tessdata_SOURCES) \
-	$(mftraining_SOURCES) $(unicharset_extractor_SOURCES) \
-	$(wordlist2dawg_SOURCES)
+DIST_SOURCES = $(libtesseract_tessopt_la_SOURCES) \
+	$(libtesseract_training_la_SOURCES) $(cntraining_SOURCES) \
+	$(combine_tessdata_SOURCES) $(mftraining_SOURCES) \
+	$(unicharset_extractor_SOURCES) $(wordlist2dawg_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -298,7 +312,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -323,17 +336,18 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/textord
 
-EXTRA_DIST = unicharset_extractor.vcproj wordlist2dawg.vcproj \
-    cntraining.vcproj mftraining.vcproj
-
 include_HEADERS = \
-    commontraining.h mergenf.h name2char.h
+    commontraining.h mergenf.h tessopt.h
 
-lib_LTLIBRARIES = libtesseract_training.la
+lib_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 libtesseract_training_la_SOURCES = \
-    name2char.cpp commontraining.cpp
+    commontraining.cpp
+
+libtesseract_tessopt_la_SOURCES = \
+    tessopt.cpp
 
 libtesseract_training_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+libtesseract_tessopt_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 combine_tessdata_SOURCES = combine_tessdata.cpp
 combine_tessdata_LDADD = \
     ../ccutil/libtesseract_ccutil.la
@@ -341,6 +355,7 @@ combine_tessdata_LDADD = \
 cntraining_SOURCES = cntraining.cpp
 cntraining_LDADD = \
     libtesseract_training.la \
+    libtesseract_tessopt.la \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
@@ -349,12 +364,15 @@ cntraining_LDADD = \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
+    ../cube/libtesseract_cube.la \
+    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 
 mftraining_SOURCES = mftraining.cpp mergenf.cpp
 mftraining_LDADD = \
     libtesseract_training.la \
+    libtesseract_tessopt.la \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
@@ -363,15 +381,19 @@ mftraining_LDADD = \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
+    ../cube/libtesseract_cube.la \
+    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
 unicharset_extractor_LDADD = \
-    ../ccutil/libtesseract_ccutil.la
+    libtesseract_tessopt.la \
+     ../ccutil/libtesseract_ccutil.la
 
 wordlist2dawg_SOURCES = wordlist2dawg.cpp
 wordlist2dawg_LDADD = \
+    libtesseract_tessopt.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
     ../ccstruct/libtesseract_ccstruct.la \
@@ -379,6 +401,8 @@ wordlist2dawg_LDADD = \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
+    ../cube/libtesseract_cube.la \
+    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../textord/libtesseract_textord.la \
     ../ccutil/libtesseract_ccutil.la
@@ -448,6 +472,8 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
+libtesseract_tessopt.la: $(libtesseract_tessopt_la_OBJECTS) $(libtesseract_tessopt_la_DEPENDENCIES) 
+	$(libtesseract_tessopt_la_LINK) -rpath $(libdir) $(libtesseract_tessopt_la_OBJECTS) $(libtesseract_tessopt_la_LIBADD) $(LIBS)
 libtesseract_training.la: $(libtesseract_training_la_OBJECTS) $(libtesseract_training_la_DEPENDENCIES) 
 	$(libtesseract_training_la_LINK) -rpath $(libdir) $(libtesseract_training_la_OBJECTS) $(libtesseract_training_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
@@ -520,7 +546,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/commontraining.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mergenf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mftraining.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/name2char.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tessopt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unicharset_extractor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wordlist2dawg.Po@am__quote@
 

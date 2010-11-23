@@ -38,26 +38,6 @@
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 /**********************************************************************
- * check_outline_mem
- *
- * Check the memory allocator for outlines.
- **********************************************************************/
-void check_outline_mem() { 
-  TESSLINE *outline;
-
-  outline = newoutline ();
-  outline->next = newoutline ();
-  oldoutline (outline->next);
-  oldoutline(outline); 
-
-  outline = newoutline ();
-  outline->next = newoutline ();
-  oldoutline (outline->next);
-  oldoutline(outline); 
-}
-
-
-/**********************************************************************
  * correct_blob_order
  *
  * Check to see if the blobs are in the correct order.  If they are not
@@ -97,47 +77,14 @@ void eliminate_duplicate_outlines(TBLOB *blob) {
 
       if (same_outline_bounds (outline, other_outline)) {
         last_outline->next = other_outline->next;
-        oldoutline(other_outline); 
+        // This doesn't leak - the outlines share the EDGEPTs.
+        other_outline->loop = NULL;
+        delete other_outline;
         other_outline = last_outline;
       }
     }
   }
 }
-
-
-/**********************************************************************
- * setup_outline
- *
- * Create a new outline structure from this
- **********************************************************************/
-void setup_outline(TESSLINE *outline) { 
-  register EDGEPT *this_edge;
-  register int minx = MAX_INT32;
-  register int miny = MAX_INT32;
-  register int maxx = -MAX_INT32;
-  register int maxy = -MAX_INT32;
-
-  /* Find boundaries */
-  this_edge = outline->loop;
-  do {
-    if (this_edge->pos.x < minx)
-      minx = this_edge->pos.x;
-    if (this_edge->pos.y < miny)
-      miny = this_edge->pos.y;
-    if (this_edge->pos.x > maxx)
-      maxx = this_edge->pos.x;
-    if (this_edge->pos.y > maxy)
-      maxy = this_edge->pos.y;
-    this_edge = this_edge->next;
-  }
-  while (this_edge != outline->loop);
-  /* Reset bounds */
-  outline->topleft.x = minx;
-  outline->topleft.y = maxy;
-  outline->botright.x = maxx;
-  outline->botright.y = miny;
-}
-
 
 /**********************************************************************
  * setup_blob_outlines
@@ -148,6 +95,6 @@ void setup_blob_outlines(TBLOB *blob) {
   TESSLINE *outline;
 
   for (outline = blob->outlines; outline; outline = outline->next) {
-    setup_outline(outline); 
+    outline->ComputeBoundingBox();
   }
 }

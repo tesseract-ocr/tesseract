@@ -39,11 +39,6 @@
 #include          "reject.h"
 #include          "tesseractclass.h"
 
-#define EXTERN
-
-EXTERN BOOL_VAR (tessedit_override_permuter, TRUE, "According to dict_word");
-
-
 #define MAX_UNDIVIDED_LENGTH 24
 
 
@@ -55,70 +50,52 @@ EXTERN BOOL_VAR (tessedit_override_permuter, TRUE, "According to dict_word");
  * Convert the output back to editor form.
  **********************************************************************/
 namespace tesseract {
-WERD_CHOICE *Tesseract::recog_word(                     //recog one owrd
-                                   WERD *word,          //word to do
-                                   DENORM *denorm,      //de-normaliser
-                                                        //matcher function
-                                   POLY_MATCHER matcher,
-                                   POLY_TESTER tester,  //tester function
-                                   POLY_TESTER trainer, //trainer function
-                                   BOOL8 testing,       //true if answer driven
-                                                        //raw result
-                                   WERD_CHOICE *&raw_choice,
-                                                        //list of blob lists
-                                   BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                   WERD *&outword       //bln word output
-                                  ) {
-  WERD_CHOICE *word_choice;
-  uinT8 perm_type;
-  uinT8 real_dict_perm_type;
-
-  if (word->blob_list ()->empty ()) {
-    word_choice = new WERD_CHOICE("", NULL, 10.0f, -1.0f,
-                                  TOP_CHOICE_PERM, unicharset);
-    raw_choice = new WERD_CHOICE("", NULL, 10.0f, -1.0f,
-                                 TOP_CHOICE_PERM, unicharset);
-    outword = word->poly_copy (denorm->row ()->x_height ());
+void Tesseract::recog_word(WERD_RES *word,
+                           BLOB_CHOICE_LIST_CLIST *blob_choices) {
+  ASSERT_HOST(word->chopped_word->blobs != NULL);
+  recog_word_recursive(word, blob_choices);
+  word->SetupBoxWord();
+  if ((word->best_choice->length() != word->box_word->length()) ||
+      (word->best_choice->length() != blob_choices->length())) {
+    tprintf("recog_word ASSERT FAIL String:\"%s\"; "
+            "Strlen=%d; #Blobs=%d; #Choices=%d\n",
+            word->best_choice->debug_string(unicharset).string(),
+            word->best_choice->length(), word->box_word->length(),
+            blob_choices->length());
   }
-  else
-    word_choice = recog_word_recursive (word, denorm, matcher, tester,
-      trainer, testing, raw_choice,
-      blob_choices, outword);
-  if ((word_choice->length() != outword->blob_list()->length()) ||
-      (word_choice->length() != blob_choices->length())) {
-    tprintf
-      ("recog_word ASSERT FAIL String:\"%s\"; Strlen=%d; #Blobs=%d; #Choices=%d\n",
-      word_choice->debug_string(unicharset).string(),
-      word_choice->length(), outword->blob_list()->length(),
-      blob_choices->length());
-  }
-  ASSERT_HOST(word_choice->length() == outword->blob_list()->length());
-  ASSERT_HOST(word_choice->length() == blob_choices->length());
-
-  /* Copy any reject blobs into the outword */
-  outword->rej_blob_list()->deep_copy(word->rej_blob_list(), &PBLOB::deep_copy);
-
+  ASSERT_HOST(word->best_choice->length() == word->box_word->length());
+  ASSERT_HOST(word->best_choice->length() == blob_choices->length());
   if (tessedit_override_permuter) {
     /* Override the permuter type if a straight dictionary check disagrees. */
-    perm_type = word_choice->permuter();
+    uinT8 perm_type = word->best_choice->permuter();
     if ((perm_type != SYSTEM_DAWG_PERM) &&
         (perm_type != FREQ_DAWG_PERM) && (perm_type != USER_DAWG_PERM)) {
-      real_dict_perm_type = dict_word(*word_choice);
+      uinT8 real_dict_perm_type = dict_word(*word->best_choice);
       if (((real_dict_perm_type == SYSTEM_DAWG_PERM) ||
            (real_dict_perm_type == FREQ_DAWG_PERM) ||
            (real_dict_perm_type == USER_DAWG_PERM)) &&
-          (alpha_count(word_choice->unichar_string().string(),
-                      word_choice->unichar_lengths().string()) > 0)) {
-        word_choice->set_permuter (real_dict_perm_type);  // use dict perm
+          (alpha_count(word->best_choice->unichar_string().string(),
+                       word->best_choice->unichar_lengths().string()) > 0)) {
+        word->best_choice->set_permuter(real_dict_perm_type);  // use dict perm
       }
     }
-    if (tessedit_rejection_debug && perm_type != word_choice->permuter ()) {
-      tprintf ("Permuter Type Flipped from %d to %d\n",
-        perm_type, word_choice->permuter ());
+    if (tessedit_rejection_debug &&
+        perm_type != word->best_choice->permuter()) {
+      tprintf("Permuter Type Flipped from %d to %d\n",
+              perm_type, word->best_choice->permuter());
     }
   }
-  assert ((word_choice == NULL) == (raw_choice == NULL));
-  return word_choice;
+  // Factored out from control.cpp
+  ASSERT_HOST((word->best_choice == NULL) == (word->raw_choice == NULL));
+  if (word->best_choice == NULL || word->best_choice->length() == 0 ||
+      strspn(word->best_choice->unichar_string().string(), " ") ==
+        word->best_choice->length()) {
+    word->tess_failed = true;
+    word->reject_map.initialise(word->box_word->length());
+    word->reject_map.rej_word_tess_failure();
+  } else {
+    word->tess_failed = false;
+  }
 }
 
 
@@ -128,105 +105,65 @@ WERD_CHOICE *Tesseract::recog_word(                     //recog one owrd
  * Convert the word to tess form and pass it to the tess segmenter.
  * Convert the output back to editor form.
  **********************************************************************/
-WERD_CHOICE *
-Tesseract::recog_word_recursive(
-    WERD *word,                            // word to do
-    DENORM *denorm,                        // de-normaliser
-    POLY_MATCHER matcher,                  // matcher function
-    POLY_TESTER tester,                    // tester function
-    POLY_TESTER trainer,                   // trainer function
-    BOOL8 testing,                         // true if answer driven
-    WERD_CHOICE *&raw_choice,              // raw result
-    BLOB_CHOICE_LIST_CLIST *blob_choices,  // list of blob lists
-    WERD *&outword                         // bln word output
-    ) {
-  inT32 initial_blob_choice_len;
-  inT32 word_length;                      // no of blobs
-  STRING word_string;                     // converted from tess
-  STRING word_string_lengths;
-  BLOB_CHOICE_LIST_VECTOR *tess_ratings;  // tess results
-  TWERD *tessword;                        // tess format
-  BLOB_CHOICE_LIST_C_IT blob_choices_it;  // iterator
+void Tesseract::recog_word_recursive(WERD_RES *word,
+                                     BLOB_CHOICE_LIST_CLIST *blob_choices) {
+  int word_length = word->chopped_word->NumBlobs();  // no of blobs
+  if (word_length > MAX_UNDIVIDED_LENGTH) {
+    return split_and_recog_word(word, blob_choices);
+  }
+  int initial_blob_choice_len = blob_choices->length();
+  BLOB_CHOICE_LIST_VECTOR* tess_ratings = cc_recog(word);
 
-  tess_matcher = matcher;           // install matcher
-  tess_tester = testing ? tester : NULL;
-  tess_trainer = testing ? trainer : NULL;
-  tess_denorm = denorm;
-  tess_word = word;
-  //      blob_matchers[1]=call_matcher;
-  if (word->blob_list ()->length () > MAX_UNDIVIDED_LENGTH) {
-    return split_and_recog_word (word, denorm, matcher, tester, trainer,
-      testing, raw_choice, blob_choices,
-      outword);
-  } else {
+  // Put BLOB_CHOICE_LISTs from tess_ratings into blob_choices.
+  BLOB_CHOICE_LIST_C_IT blob_choices_it(blob_choices);
+  for (int i = 0; i < tess_ratings->length(); ++i) {
+    blob_choices_it.add_to_end(tess_ratings->get(i));
+  }
+  delete tess_ratings;
+
+  word_length = word->rebuild_word->NumBlobs();  // No of blobs in output.
+  // Pad raw_choice with spaces if needed.
+  if (word->raw_choice->length() < word_length) {
     UNICHAR_ID space_id = unicharset.unichar_to_id(" ");
-    WERD_CHOICE *best_choice = new WERD_CHOICE();
-    raw_choice = new WERD_CHOICE();
-    initial_blob_choice_len = blob_choices->length();
-    tessword = make_tess_word (word, NULL);
-    tess_ratings = cc_recog(tessword, best_choice, raw_choice,
-                            testing && tester != NULL,
-                            testing && trainer != NULL,
-                            word->flag(W_EOL));
+    while (word->raw_choice->length() < word_length) {
+      word->raw_choice->append_unichar_id(space_id, 1, 0.0,
+                                          word->raw_choice->certainty());
+    }
+    word->raw_choice->populate_unichars(unicharset);
+  }
 
-    outword = make_ed_word (tessword, word);  // convert word
-    if (outword == NULL) {
-      outword = word->poly_copy (denorm->row ()->x_height ());
+  // Do sanity checks and minor fixes on best_choice.
+  if (word->best_choice->length() > word_length) {
+    word->best_choice->make_bad();  // should never happen
+    tprintf("recog_word: Discarded long string \"%s\""
+            " (%d characters vs %d blobs)\n",
+            word->best_choice->unichar_string().string(),
+            word->best_choice->length(), word_length);
+    tprintf("Word is at:");
+    word->word->bounding_box().print();
+  }
+  if (blob_choices->length() - initial_blob_choice_len != word_length) {
+    word->best_choice->make_bad();  // force rejection
+    tprintf("recog_word: Choices list len:%d; blob lists len:%d\n",
+            blob_choices->length(), word_length);
+    blob_choices_it.set_to_list(blob_choices);  // list of lists
+    while (blob_choices->length() - initial_blob_choice_len < word_length) {
+      blob_choices_it.add_to_end(new BLOB_CHOICE_LIST());  // add a fake one
+      tprintf("recog_word: Added dummy choice list\n");
     }
-    delete_word(tessword);  // get rid of it
-    word_length = outword->blob_list()->length();  // no of blobs
-
-    // Put BLOB_CHOICE_LISTs from tess_ratings into blob_choices.
-    blob_choices_it.set_to_list(blob_choices);
-    for (int i = 0; i < tess_ratings->length(); ++i) {
-      blob_choices_it.add_to_end(tess_ratings->get(i));
+    while (blob_choices->length() - initial_blob_choice_len > word_length) {
+      blob_choices_it.move_to_last(); // should never happen
+      delete blob_choices_it.extract();
+      tprintf("recog_word: Deleted choice list\n");
     }
-    delete tess_ratings;
-
-    // Pad raw_choice with spaces if needed.
-    if (raw_choice->length() < word_length) {
-      while (raw_choice->length() < word_length) {
-        raw_choice->append_unichar_id(space_id, 1, 0.0,
-                                      raw_choice->certainty());
-      }
-      raw_choice->populate_unichars(unicharset);
+  }
+  if (word->best_choice->length() < word_length) {
+    UNICHAR_ID space_id = unicharset.unichar_to_id(" ");
+    while (word->best_choice->length() < word_length) {
+      word->best_choice->append_unichar_id(space_id, 1, 0.0,
+                                           word->best_choice->certainty());
     }
-
-    // Do sanity checks and minor fixes on best_choice.
-    if (best_choice->length() > word_length) {
-      tprintf("recog_word: Discarded long string \"%s\""
-              " (%d characters vs %d blobs)\n",
-              best_choice->unichar_string().string (),
-              best_choice->length(), word_length);
-      best_choice->make_bad();  // should never happen
-      tprintf("Word is at (%g,%g)\n",
-              denorm->origin(),
-              denorm->y(word->bounding_box().bottom(), 0.0));
-    }
-    if (blob_choices->length() - initial_blob_choice_len != word_length) {
-      best_choice->make_bad();  // force rejection
-      tprintf ("recog_word: Choices list len:%d; blob lists len:%d\n",
-        blob_choices->length(), word_length);
-      blob_choices_it.set_to_list(blob_choices);  // list of lists
-      while (blob_choices->length() - initial_blob_choice_len < word_length) {
-        blob_choices_it.add_to_end(new BLOB_CHOICE_LIST());  // add a fake one
-        tprintf("recog_word: Added dummy choice list\n");
-      }
-      while (blob_choices->length() - initial_blob_choice_len > word_length) {
-        blob_choices_it.move_to_last(); // should never happen
-        delete blob_choices_it.extract();
-        tprintf("recog_word: Deleted choice list\n");
-      }
-    }
-    if (best_choice->length() < word_length) {
-      while (best_choice->length() < word_length) {
-        best_choice->append_unichar_id(space_id, 1, 0.0,
-                                       best_choice->certainty());
-      }
-      best_choice->populate_unichars(unicharset);
-    }
-
-    return best_choice;
+    word->best_choice->populate_unichars(unicharset);
   }
 }
 
@@ -234,143 +171,76 @@ Tesseract::recog_word_recursive(
 /**********************************************************************
  * split_and_recog_word
  *
- * Convert the word to tess form and pass it to the tess segmenter.
- * Convert the output back to editor form.
+ * Split the word into 2 smaller pieces at the largest gap.
+ * Recognize the pieces and stick the results back together.
  **********************************************************************/
 
-WERD_CHOICE *
-Tesseract::split_and_recog_word(                        //recog one owrd
-                                WERD *word,             //word to do
-                                DENORM *denorm,         //de-normaliser
-                                POLY_MATCHER matcher,   //matcher function
-                                POLY_TESTER tester,     //tester function
-                                POLY_TESTER trainer,    //trainer function
-                                BOOL8 testing,          //true if answer driven
-                                                        //raw result
-                                WERD_CHOICE *&raw_choice,
-                                                        //list of blob lists
-                                BLOB_CHOICE_LIST_CLIST *blob_choices,
-                                WERD *&outword          //bln word output
-                               ) {
-  //   inT32                                                      outword1_len;
-  //   inT32                                                      outword2_len;
-  WERD *first_word;              //poly copy of word
-  WERD *second_word;             //fabricated word
-  WERD *outword2;                //2nd output word
-  PBLOB *blob;
-  WERD_CHOICE *result;           //return value
-  WERD_CHOICE *result2;          //output of 2nd word
-  WERD_CHOICE *raw_choice2;      //raw version of 2nd
-  float gap;                     //blob gap
-  float bestgap;                 //biggest gap
-  PBLOB_LIST new_blobs;          //list of gathered blobs
-  PBLOB_IT blob_it;
-                                 //iterator
-  PBLOB_IT new_blob_it = &new_blobs;
-
-  first_word = word->poly_copy (denorm->row ()->x_height ());
-  blob_it.set_to_list (first_word->blob_list ());
-  bestgap = (float) -MAX_INT32;
-  while (!blob_it.at_last ()) {
-    blob = blob_it.data ();
-                                 //gap to next
-    gap = (float) blob_it.data_relative(1)->bounding_box().left() -
-        blob->bounding_box().right();
-    blob_it.forward ();
-    if (gap > bestgap) {
-      bestgap = gap;             //find biggest
-      new_blob_it = blob_it;     //save position
+void Tesseract::split_and_recog_word(WERD_RES *word,
+                                     BLOB_CHOICE_LIST_CLIST *blob_choices) {
+  // Find the biggest blob gap in the chopped_word.
+  int bestgap = -MAX_INT32;
+  TPOINT best_split_pt;
+  TBLOB* best_end = NULL;
+  TBLOB* prev_blob = NULL;
+  for (TBLOB* blob = word->chopped_word->blobs; blob != NULL;
+       blob = blob->next) {
+    if (prev_blob != NULL) {
+      TBOX prev_box = prev_blob->bounding_box();
+      TBOX blob_box = blob->bounding_box();
+      int gap = blob_box.left() - prev_box.right();
+      if (gap > bestgap) {
+        bestgap = gap;
+        best_end = prev_blob;
+        best_split_pt.x = (prev_box.right() + blob_box.left()) / 2;
+        best_split_pt.y = (prev_box.top() + prev_box.bottom() +
+                           blob_box.top() + blob_box.bottom()) / 4;
+      }
     }
+    prev_blob = blob;
   }
-                                 //take 2nd half
-  new_blobs.assign_to_sublist (&new_blob_it, &blob_it);
-                                 //make it a word
-  second_word = new WERD (&new_blobs, 1, NULL);
-  ASSERT_HOST (word->blob_list ()->length () ==
-    first_word->blob_list ()->length () +
-    second_word->blob_list ()->length ());
+  ASSERT_HOST(best_end != NULL);
 
-  result = recog_word_recursive (first_word, denorm, matcher,
-    tester, trainer, testing, raw_choice,
-    blob_choices, outword);
-  delete first_word;             //done that one
-  result2 = recog_word_recursive (second_word, denorm, matcher,
-    tester, trainer, testing, raw_choice2,
-    blob_choices, outword2);
-  delete second_word;            //done that too
-  *result += *result2;           //combine ratings
-  delete result2;
-  *raw_choice += *raw_choice2;
-  delete raw_choice2;            //finished with it
-  //   outword1_len= outword->blob_list()->length();
-  //   outword2_len= outword2->blob_list()->length();
-  outword->join_on (outword2);   //join words
-  delete outword2;
-  //   if ( outword->blob_list()->length() != outword1_len + outword2_len )
-  //      tprintf( "Split&Recog: part1len=%d; part2len=%d; combinedlen=%d\n",
-  //                                outword1_len, outword2_len, outword->blob_list()->length() );
-  //   ASSERT_HOST( outword->blob_list()->length() == outword1_len + outword2_len );
-  return result;
+  // Make a copy of the word to put the 2nd half in.
+  WERD_RES* word2 = new WERD_RES(*word);
+  // Blow away the copied chopped_word, as we want to work with the blobs
+  // from the input chopped_word so the seam_arrays can be merged.
+  delete word2->chopped_word;
+  word2->chopped_word = new TWERD;
+  word2->chopped_word->blobs = best_end->next;
+  best_end->next = NULL;
+  // Make a new seamarray on both words.
+  free_seam_list(word->seam_array);
+  word->seam_array = start_seam_list(word->chopped_word->blobs);
+  word2->seam_array = start_seam_list(word2->chopped_word->blobs);
+  // Recognize the first part of the word.
+  recog_word_recursive(word, blob_choices);
+  // Recognize the second part of the word.
+  recog_word_recursive(word2, blob_choices);
+  // Tack the word2 outputs onto the end of the word outputs.
+  // New blobs might have appeared on the end of word1.
+  for (best_end = word->chopped_word->blobs; best_end->next != NULL;
+       best_end = best_end->next);
+  best_end->next = word2->chopped_word->blobs;
+  TBLOB* blob;
+  for (blob = word->rebuild_word->blobs; blob->next != NULL; blob = blob->next);
+  blob->next = word2->rebuild_word->blobs;
+  word2->chopped_word->blobs = NULL;
+  word2->rebuild_word->blobs = NULL;
+  // Copy the seams onto the end of the word1 seam_array.
+  // Since the seam list is one element short, an empty seam marking the
+  // end of the last blob in the first word is needed first.
+  word->seam_array = add_seam(word->seam_array,
+                              new_seam(0.0, best_split_pt, NULL, NULL, NULL));
+  for (int i = 0; i < array_count(word2->seam_array); ++i) {
+    SEAM* seam = reinterpret_cast<SEAM*>(array_value(word2->seam_array, i));
+    array_value(word2->seam_array, i) = NULL;
+    word->seam_array = add_seam(word->seam_array, seam);
+  }
+  word->best_state += word2->best_state;
+  // Append the word choices.
+  *word->best_choice += *word2->best_choice;
+  *word->raw_choice += *word2->raw_choice;
+  delete word2;
 }
 
 }  // namespace tesseract
-
-/**********************************************************************
- * call_tester
- *
- * Called from Tess with a blob in tess form.
- * Convert the blob to editor form.
- * Call the tester setup by the segmenter in tess_tester.
- **********************************************************************/
-#if 0  // dead code
-void call_tester(                     //call a tester
-                 const STRING& filename,
-                 TBLOB *tessblob,     //blob to test
-                 BOOL8 correct_blob,  //true if good
-                 char *text,          //source text
-                 inT32 count,         //chars in text
-                 LIST result          //output of matcher
-                ) {
-  PBLOB *blob;                   //converted blob
-  BLOB_CHOICE_LIST ratings;      //matcher result
-
-  blob = make_ed_blob (tessblob);//convert blob
-  if (blob == NULL)
-    return;
-                                 //make it right type
-  convert_choice_list(result, ratings);
-  if (tess_tester != NULL)
-    (*tess_tester) (filename, blob, tess_denorm, correct_blob, text, count, &ratings);
-  delete blob;                   //don't need that now
-}
-#endif
-
-/**********************************************************************
- * call_train_tester
- *
- * Called from Tess with a blob in tess form.
- * Convert the blob to editor form.
- * Call the trainer setup by the segmenter in tess_trainer.
- **********************************************************************/
-#if 0  // dead code
-void call_train_tester(                     //call a tester
-                       const STRING& filename,
-                       TBLOB *tessblob,     //blob to test
-                       BOOL8 correct_blob,  //true if good
-                       char *text,          //source text
-                       inT32 count,         //chars in text
-                       LIST result          //output of matcher
-                      ) {
-  PBLOB *blob;                   //converted blob
-  BLOB_CHOICE_LIST ratings;      //matcher result
-
-  blob = make_ed_blob (tessblob);//convert blob
-  if (blob == NULL)
-    return;
-                                 //make it right type
-  convert_choice_list(result, ratings);
-  if (tess_trainer != NULL)
-    (*tess_trainer) (filename, blob, tess_denorm, correct_blob, text, count, &ratings);
-  delete blob;                   //don't need that now
-}
-#endif

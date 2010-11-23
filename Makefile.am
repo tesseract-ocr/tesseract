@@ -1,6 +1,6 @@
 # TODO(luc) Add 'doc' to this list when ready
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = ccstruct ccutil classify cutil dict image textord viewer wordrec ccmain training tessdata testing java api vs2008
+SUBDIRS = ccstruct ccutil classify cube cutil dict image neural_networks/runtime textord viewer wordrec ccmain training tessdata testing java api
 #if USING_GETTEXT
 #SUBDIRS += po
 #AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"

@@ -17,22 +17,9 @@
  *
  **********************************************************************/
 
+#include <stdio.h>
+
 #include "mfcpch.h"
-#include          "tessvars.h"
+#include  "tessvars.h"
 
-#define EXTERN
-
-EXTERN INT_VAR (tessedit_adapt_kludge, 0,
-"Use acceptable result or dangambigs");
-EXTERN BOOL_VAR (interactive_mode, FALSE, "Run interactively?");
-EXTERN BOOL_VAR (edit_variables, FALSE, "Variables Editor Window?");
-// xiaofan EXTERN STRING_VAR(file_type,".bl","Filename extension");
-EXTERN STRING_VAR (file_type, ".tif", "Filename extension");
-INT_VAR (testedit_match_debug, 0, "Integer match debug ctrl");
-EXTERN INT_VAR (tessedit_dangambigs_chop, FALSE,
-"Use UnicharAmbigs to direct chop");
-EXTERN INT_VAR (tessedit_dangambigs_assoc, FALSE,
-"Use UnicharAmbigs to direct assoc");
-
-EXTERN IMAGE page_image;         //image of page
-EXTERN FILE *debug_fp = stderr;           //write debug stuff here
+FILE *debug_fp = stderr;  // write debug stuff here

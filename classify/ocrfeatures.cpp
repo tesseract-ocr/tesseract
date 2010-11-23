@@ -99,7 +99,7 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
 
 
 /*---------------------------------------------------------------------------*/
-FEATURE NewFeature(FEATURE_DESC FeatureDesc) {
+FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
 /*
  **	Parameters:
  **		FeatureDesc	description of feature to be created.
@@ -146,7 +146,7 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
 
 
 /*---------------------------------------------------------------------------*/
-FEATURE ReadFeature(FILE *File, FEATURE_DESC FeatureDesc) {
+FEATURE ReadFeature(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 /*
  **	Parameters:
  **		File		open text file to read feature from
@@ -167,13 +167,9 @@ FEATURE ReadFeature(FILE *File, FEATURE_DESC FeatureDesc) {
 
   Feature = NewFeature (FeatureDesc);
   for (i = 0; i < Feature->Type->NumParams; i++) {
-#ifndef _MSC_VER
-    if (tess_fscanf (File, "%f", &(Feature->Params[i])) != 1)
-#else
     if (fscanf (File, "%f", &(Feature->Params[i])) != 1)
-#endif
       DoError (ILLEGAL_FEATURE_PARAM, "Illegal feature parameter spec");
-#ifndef __MSW32__
+#ifndef WIN32
     assert (!isnan(Feature->Params[i]));
 #endif
   }
@@ -183,7 +179,7 @@ FEATURE ReadFeature(FILE *File, FEATURE_DESC FeatureDesc) {
 
 
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ReadFeatureSet(FILE *File, FEATURE_DESC FeatureDesc) {
+FEATURE_SET ReadFeatureSet(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 /*
  **	Parameters:
  **		File		open text file to read new feature set from
@@ -234,10 +230,10 @@ void WriteFeature(FILE *File, FEATURE Feature) {
   int i;
 
   for (i = 0; i < Feature->Type->NumParams; i++) {
-#ifndef __MSW32__
+#ifndef WIN32
     assert (!isnan(Feature->Params[i]));
 #endif
-	fprintf (File, " %12g", Feature->Params[i]);
+    fprintf (File, " %12g", Feature->Params[i]);
   }
   fprintf (File, "\n");
 
@@ -270,7 +266,7 @@ void WriteFeatureSet(FILE *File, FEATURE_SET FeatureSet) {
 
 
 /*---------------------------------------------------------------------------*/
-void WriteOldParamDesc(FILE *File, FEATURE_DESC FeatureDesc) {
+void WriteOldParamDesc(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 /*
  **	Parameters:
  **		File		open text file to write FeatureDesc to

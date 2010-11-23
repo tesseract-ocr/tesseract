@@ -47,8 +47,12 @@ const int kSimilarRaggedDist = 50;
 const int kMaxFillinMultiple = 11;
 // Min fraction of mean gutter size to allow a gutter on a good tab blob.
 const double kMinGutterFraction = 0.5;
-// Max fraction of mean blob width allowed for vertical gaps in vertical text.
-const double kVerticalTextGapFraction = 0.5;
+
+double_VAR(textord_tabvector_vertical_gap_fraction, 0.5,
+  "max fraction of mean blob width allowed for vertical gaps in vertical text");
+
+double_VAR(textord_tabvector_vertical_box_ratio, 0.5,
+  "Fraction of box matches required to declare a line vertical");
 
 ELISTIZE(TabConstraint)
 
@@ -194,7 +198,7 @@ TabVector* TabVector::FitVector(TabAlignment alignment, ICOORD vertical,
 TabVector::TabVector(const TabVector& src, TabAlignment alignment,
                      const ICOORD& vertical_skew, BLOBNBOX* blob)
   : extended_ymin_(src.extended_ymin_), extended_ymax_(src.extended_ymax_),
-    sort_key_(0), percent_score_(0),
+    sort_key_(0), percent_score_(0), mean_width_(0),
     needs_refit_(true), needs_evaluation_(true), alignment_(alignment),
     top_constraints_(NULL), bottom_constraints_(NULL) {
   BLOBNBOX_C_IT it(&boxes_);
@@ -212,6 +216,21 @@ TabVector::TabVector(const TabVector& src, TabAlignment alignment,
                       (startpt_.y() + endpt_.y()) / 2);
   if (textord_debug_tabfind > 3)
     Print("Constructed a new tab vector:");
+}
+
+// Copies basic attributes of a tab vector for simple operations.
+// Copies things such startpt, endpt, range.
+// Does not copy things such as partners, boxes, or constraints.
+// This is useful if you only need vector information for processing, such
+// as in the table detection code.
+TabVector* TabVector::ShallowCopy() const {
+  TabVector* copy = new TabVector();
+  copy->startpt_ = startpt_;
+  copy->endpt_ = endpt_;
+  copy->alignment_ = alignment_;
+  copy->extended_ymax_ = extended_ymax_;
+  copy->extended_ymin_ = extended_ymin_;
+  return copy;
 }
 
 // Extend this vector to include the supplied blob if it doesn't
@@ -250,10 +269,18 @@ void TabVector::SetYEnd(int end_y) {
   endpt_.set_y(end_y);
 }
 
-// Rotate the ends by the given vector.
+// Rotate the ends by the given vector. Auto flip start and end if needed.
 void TabVector::Rotate(const FCOORD& rotation) {
   startpt_.rotate(rotation);
   endpt_.rotate(rotation);
+  int dx = endpt_.x() - startpt_.x();
+  int dy = endpt_.y() - startpt_.y();
+  if ((dy < 0 && abs(dy) > abs(dx)) || (dx < 0 && abs(dx) > abs(dy))) {
+    // Need to flip start/end.
+    ICOORD tmp = startpt_;
+    startpt_ = endpt_;
+    endpt_ = tmp;
+  }
 }
 
 // Setup the initial constraints, being the limits of
@@ -488,10 +515,11 @@ void TabVector::Print(const char* prefix) {
   if (this == NULL) {
     tprintf("%s <null>\n", prefix);
   } else {
-    tprintf("%s %s (%d,%d)->(%d,%d) s=%d, sort key=%d, boxes=%d, partners=%d\n",
+    tprintf("%s %s (%d,%d)->(%d,%d) w=%d s=%d, sort key=%d, boxes=%d,"
+            " partners=%d\n",
             prefix, kAlignmentNames[alignment_],
             startpt_.x(), startpt_.y(), endpt_.x(), endpt_.y(),
-            percent_score_, sort_key_,
+            mean_width_, percent_score_, sort_key_,
             boxes_.length(), partners_.length());
   }
 }
@@ -550,6 +578,7 @@ void TabVector::FitAndEvaluateIfNeeded(const ICOORD& vertical,
 // A second pass then further filters boxes by requiring that the gutter
 // width be a minimum fraction of the mean gutter along the line.
 void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
+  bool debug = false;
   needs_evaluation_ = false;
   int length = endpt_.y() - startpt_.y();
   if (length == 0 || boxes_.empty()) {
@@ -582,6 +611,11 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
     BLOBNBOX* bbox = it.data();
     const TBOX& box = bbox->bounding_box();
     int mid_y = (box.top() + box.bottom()) / 2;
+    if (TabFind::WithinTestRegion(2, XAtY(box.bottom()), box.bottom())) {
+      if (!debug)
+        Print("Starting evaluation");
+      debug = true;
+    }
     // A good box is one where the nearest neighbour on the inside is closer
     // than half the distance to the nearest neighbour on the outside
     // (of the putative column).
@@ -617,10 +651,11 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
         double size2 = sqrt(static_cast<double>(box.area()));
         if (vertical_gap < kMaxFillinMultiple * MIN(size1, size2))
           good_length += vertical_gap;
-        if (TabFind::WithinTestRegion(2, tab_x, mid_y))
+        if (debug) {
           tprintf("Box and prev good, gap=%d, target %g, goodlength=%d\n",
                   vertical_gap, kMaxFillinMultiple * MIN(size1, size2),
                   good_length);
+        }
       } else {
         // Adjust the start to the first good box.
         SetYStart(box.bottom());
@@ -628,7 +663,7 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
       prev_good_box = &box;
     } else {
       // Get rid of boxes that are not good.
-      if (TabFind::WithinTestRegion(2, tab_x, mid_y)) {
+      if (debug) {
         tprintf("Bad Box (%d,%d)->(%d,%d) with gutter %d, ndist %d\n",
                 box.left(), box.bottom(), box.right(), box.top(),
                 gutter_width, neighbour_gap);
@@ -636,6 +671,9 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
       it.extract();
       deleted_a_box = true;
     }
+  }
+  if (debug) {
+    Print("Evaluating:");
   }
   // If there are any good boxes, do it again, except this time get rid of
   // boxes that have a gutter that is a small fraction of the mean gutter.
@@ -697,14 +735,23 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
 }
 
 // (Re)Fit a line to the stored points. Returns false if the line
-// is degenerate.
+// is degenerate. Althougth the TabVector code mostly doesn't care about the
+// direction of lines, XAtY would give silly results for a horizontal line.
+// The class is mostly aimed at use for vertical lines representing
+// horizontal tab stops.
 bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
   needs_refit_ = false;
-  if (boxes_.empty() && !force_parallel) {
+  if (boxes_.empty()) {
     // Don't refit something with no boxes, as that only happens
     // in Evaluate, and we don't want to end up with a zero vector.
-    // If we are forcing parallel, then that is OK.
-    return false;
+    if (!force_parallel)
+      return false;
+    // If we are forcing parallel, then we just need to set the sort_key_.
+    ICOORD midpt = startpt_;
+    midpt += endpt_;
+    midpt /= 2;
+    sort_key_ = SortKey(vertical, midpt.x(), midpt.y());
+    return startpt_.y() != endpt_.y();
   }
   if (!force_parallel && !IsRagged()) {
     // Use a fitted line as the vertical.
@@ -734,9 +781,13 @@ bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
   BLOBNBOX_C_IT it(&boxes_);
   // Choose a line parallel to the vertical such that all boxes are on the
   // correct side of it.
+  mean_width_ = 0;
+  int width_count = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX* bbox = it.data();
     TBOX box = bbox->bounding_box();
+    mean_width_ += box.width();
+    ++width_count;
     int x1 = IsRightTab() ? box.right() : box.left();
     // Test both the bottom and the top, as one will be more extreme, depending
     // on the direction of skew.
@@ -757,11 +808,8 @@ bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
     if (it.at_last())
       end_y = top_y;
   }
-  if (boxes_.empty()) {
-    ICOORD midpt = startpt_;
-    midpt += endpt_;
-    midpt /= 2;
-    sort_key_ = SortKey(vertical, midpt.x(), midpt.y());
+  if (width_count > 0) {
+    mean_width_ = (mean_width_ + width_count - 1) / width_count;
   }
   endpt_ = startpt_ + vertical;
   needs_evaluation_ = true;
@@ -776,6 +824,15 @@ bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
   return false;
 }
 
+// Returns the singleton partner if there is one, or NULL otherwise.
+TabVector* TabVector::GetSinglePartner() {
+  if (!partners_.singleton())
+    return NULL;
+  TabVector_C_IT partner_it(&partners_);
+  TabVector* partner = partner_it.data();
+  return partner;
+}
+
 // Return the partner of this TabVector if the vector qualifies as
 // being a vertical text line, otherwise NULL.
 TabVector* TabVector::VerticalTextlinePartner() {
@@ -787,6 +844,10 @@ TabVector* TabVector::VerticalTextlinePartner() {
   BLOBNBOX_C_IT box_it2(&partner->boxes_);
   // Count how many boxes are also in the other list.
   // At the same time, gather the mean width and median vertical gap.
+  if (textord_debug_tabfind > 1) {
+    Print("Testing for vertical text");
+    partner->Print("           partner");
+  }
   int num_matched = 0;
   int num_unmatched = 0;
   int total_widths = 0;
@@ -815,33 +876,27 @@ TabVector* TabVector::VerticalTextlinePartner() {
     total_widths += box.width();
     prev_bbox = bbox;
   }
+  double avg_width = total_widths * 1.0 / (num_unmatched + num_matched);
+  double max_gap = textord_tabvector_vertical_gap_fraction * avg_width;
+  int min_box_match = static_cast<int>((num_matched + num_unmatched) *
+                                       textord_tabvector_vertical_box_ratio);
+  bool is_vertical = (gaps.get_total() > 0 &&
+                      num_matched >= min_box_match &&
+                      gaps.median() <= max_gap);
   if (textord_debug_tabfind > 1) {
-    Print("Testing for vertical text");
-    tprintf("gaps=%d, matched=%d, unmatched=%d, median gap=%.2f, width=%.2f\n",
-            gaps.get_total(), num_matched, num_unmatched,
-            gaps.median(),
-            total_widths * 1.0 / (num_unmatched + num_matched));
+    tprintf("gaps=%d, matched=%d, unmatched=%d, min_match=%d "
+            "median gap=%.2f, width=%.2f max_gap=%.2f Vertical=%s\n",
+            gaps.get_total(), num_matched, num_unmatched, min_box_match,
+            gaps.median(), avg_width, max_gap, is_vertical?"Yes":"No");
   }
-  if (gaps.get_total() == 0 || num_matched <= num_unmatched) {
-    return NULL;
-  }
-  // It qualifies if the median gap is less than kVerticalTextGapFraction *
-  // mean width.
-  if (gaps.median() >= total_widths * kVerticalTextGapFraction /
-      (num_unmatched + num_matched)) {
-    return NULL;
-  }
-  if (textord_debug_tabfind > 1) {
-    tprintf("Vertical text found\n");
-  }
-  return partner;
+  return (is_vertical) ? partner : NULL;
 }
 
 // The constructor is private.
 TabVector::TabVector(int extended_ymin, int extended_ymax,
                      TabAlignment alignment, BLOBNBOX_CLIST* boxes)
   : extended_ymin_(extended_ymin), extended_ymax_(extended_ymax),
-    sort_key_(0), percent_score_(0),
+    sort_key_(0), percent_score_(0), mean_width_(0),
     needs_refit_(true), needs_evaluation_(true), alignment_(alignment),
     top_constraints_(NULL), bottom_constraints_(NULL) {
   BLOBNBOX_C_IT it(&boxes_);
@@ -884,4 +939,3 @@ void TabVector::Delete(TabVector* replacement) {
 
 
 }  // namespace tesseract.
-

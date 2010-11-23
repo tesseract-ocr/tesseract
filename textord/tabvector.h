@@ -26,8 +26,6 @@
 #include "rect.h"
 #include "bbgrid.h"
 
-#undef TA_CENTER
-
 class BLOBNBOX;
 class ScrollView;
 
@@ -35,12 +33,18 @@ CLISTIZEH(BLOBNBOX)
 
 namespace tesseract {
 
+
+extern double_VAR_H(textord_tabvector_vertical_gap_fraction, 0.5,
+  "Max fraction of mean blob width allowed for vertical gaps in vertical text");
+extern double_VAR_H(textord_tabvector_vertical_box_ratio, 0.5,
+  "Fraction of box matches required to declare a line vertical");
+
 // The alignment type that a tab vector represents.
 // Keep this enum synced with kAlignmentNames in tabvector.cpp.
 enum TabAlignment {
   TA_LEFT_ALIGNED,
   TA_LEFT_RAGGED,
-  TA_CENTER,
+  TA_CENTER_JUSTIFIED,
   TA_RIGHT_ALIGNED,
   TA_RIGHT_RAGGED,
   TA_SEPARATOR,
@@ -53,6 +57,7 @@ class TabFind;
 class TabVector;
 class TabConstraint;
 typedef BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> BlobGrid;
+typedef GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> BlobGridSearch;
 
 ELIST2IZEH(TabVector)
 CLISTIZEH(TabVector)
@@ -133,6 +138,13 @@ class TabVector : public ELIST2_LINK {
   TabVector(const TabVector& src, TabAlignment alignment,
             const ICOORD& vertical_skew, BLOBNBOX* blob);
 
+  // Copies basic attributes of a tab vector for simple operations.
+  // Copies things such startpt, endpt, range, width.
+  // Does not copy things such as partners, boxes, or constraints.
+  // This is useful if you only need vector information for processing, such
+  // as in the table detection code.
+  TabVector* ShallowCopy() const;
+
   // Simple accessors.
   const ICOORD& startpt() const {
     return startpt_;
@@ -149,6 +161,9 @@ class TabVector : public ELIST2_LINK {
   int sort_key() const {
     return sort_key_;
   }
+  int mean_width() const {
+    return mean_width_;
+  }
   void set_top_constraints(TabConstraint_LIST* constraints) {
     top_constraints_ = constraints;
   }
@@ -157,6 +172,12 @@ class TabVector : public ELIST2_LINK {
   }
   TabVector_CLIST* partners() {
     return &partners_;
+  }
+  void set_startpt(const ICOORD& start) {
+    startpt_ = start;
+  }
+  void set_endpt(const ICOORD& end) {
+    endpt_ = end;
   }
 
   // Inline quasi-accessors that require some computation.
@@ -196,6 +217,10 @@ class TabVector : public ELIST2_LINK {
   // Return true if this is a separator.
   bool IsSeparator() const {
     return alignment_ == TA_SEPARATOR;
+  }
+  // Return true if this is a center aligned tab stop.
+  bool IsCenterTab() const {
+    return alignment_ == TA_CENTER_JUSTIFIED;
   }
   // Return true if this is a ragged tab top, either left or right.
   bool IsRagged() const {
@@ -323,12 +348,20 @@ class TabVector : public ELIST2_LINK {
   void Evaluate(const ICOORD& vertical, TabFind* finder);
 
   // (Re)Fit a line to the stored points. Returns false if the line
-  // is degenerate.
+  // is degenerate. Althougth the TabVector code mostly doesn't care about the
+  // direction of lines, XAtY would give silly results for a horizontal line.
+  // The class is mostly aimed at use for vertical lines representing
+  // horizontal tab stops.
   bool Fit(ICOORD vertical, bool force_parallel);
 
   // Return the partner of this TabVector if the vector qualifies as
   // being a vertical text line, otherwise NULL.
   TabVector* VerticalTextlinePartner();
+
+  // Return the matching tabvector if there is exactly one partner, or
+  // NULL otherwise.  This can be used after matching is done, eg. by
+  // VerticalTextlinePartner(), without checking if the line is vertical.
+  TabVector* GetSinglePartner();
 
  private:
   // Constructor is private as the static factory is the external way
@@ -354,6 +387,8 @@ class TabVector : public ELIST2_LINK {
   int sort_key_;
   // Result of Evaluate 0-100. Coverage of line with good boxes.
   int percent_score_;
+  // The mean width of the blobs. Meaningful only for separator lines.
+  int mean_width_;
   // True if the boxes_ list has been modified, so a refit is needed.
   bool needs_refit_;
   // True if a fit has been done, so re-evaluation is needed.
@@ -373,5 +408,3 @@ class TabVector : public ELIST2_LINK {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_TEXTORD_TABVECTOR_H__
-
-

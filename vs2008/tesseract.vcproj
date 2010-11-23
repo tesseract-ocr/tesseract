@@ -54,14 +54,14 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\api;..\ccmain;..\ccutil;..\ccstruct;..\classify;..\cutil;..\dict;..\display;..\image;..\textord;..\viewer;..\wordrec;..\pageseg;.;include;include\leptonica"
+				AdditionalIncludeDirectories="..\api;..\ccmain;..\ccutil;..\ccstruct;..\classify;..\cutil;..\dict;..\display;..\image;..\textord;..\viewer;..\wordrec;..\pageseg;.;include;include\leptonica;..\vs2008\port"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\tesseract.Release/"
-				ObjectFile=".\tess.Release/"
+				ObjectFile=".\tesseract.Release/"
 				ProgramDataBaseFileName=".\tesseract.Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -82,7 +82,7 @@
 				AdditionalOptions="/NODEFAULTLIB:library /LTCG"
 				AdditionalDependencies="ws2_32.lib user32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib leptonlib-static-mtdll.lib"
 				OutputFile=".\bin\$(ProjectName).exe"
-				Version="3.00"
+				Version="3.01"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=".\lib"
@@ -119,7 +119,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\bin.dbg"
-			IntermediateDirectory=".\tess.Debug"
+			IntermediateDirectory=".\tesseract.Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -128,7 +128,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="xcopy /Y &quot;$(SolutionDir)lib\leptonlibd.dll&quot; &quot;$(TargetDir)&quot;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -151,16 +151,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\api,..\ccmain,..\ccutil,..\ccstruct,..\classify,..\cutil,..\dict,..\display,..\image,..\textord,..\viewer,..\wordrec,..\pageseg,.,include,include\leptonica"
+				AdditionalIncludeDirectories="..\api,..\ccmain,..\ccutil,..\ccstruct,..\classify,..\cutil,..\dict,..\display,..\image,..\textord,..\viewer,..\wordrec,..\pageseg,.,include,include\leptonica;..\vs2008\port"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough="mfcpch.h"
-				PrecompiledHeaderFile=".\tess.Debug/tesseract.pch"
+				PrecompiledHeaderFile=".\tesseract.Debug/tesseract.pch"
 				AssemblerListingLocation=".\tesseract.Debug/"
-				ObjectFile=".\tess.Debug/"
+				ObjectFile=".\tesseract.Debug/"
 				ProgramDataBaseFileName=".\tesseract.Debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -212,6 +212,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="xcopy /Y &quot;$(SolutionDir)lib\leptonlibd.dll&quot; &quot;$(TargetDir)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -252,14 +253,14 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\api;..\ccmain;..\ccutil;..\ccstruct;..\classify;..\cutil;..\dict;..\display;..\image;..\textord;..\viewer;..\wordrec;..\pageseg;.;include;include\leptonica"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT"
+				AdditionalIncludeDirectories="..\api;..\ccmain;..\ccutil;..\ccstruct;..\classify;..\cutil;..\dict;..\display;..\image;..\textord;..\viewer;..\wordrec;..\pageseg;.;include;include\leptonica;..\vs2008\port"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\tesseract.rd/"
-				ObjectFile=".\tess.Release/"
+				ObjectFile=".\tesseract.rd/"
 				ProgramDataBaseFileName=".\tesseract.rd/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -280,7 +281,7 @@
 				AdditionalOptions="/NODEFAULTLIB:library /LTCG"
 				AdditionalDependencies="ws2_32.lib user32.lib leptonlib.lib"
 				OutputFile=".\bin.rd\$(ProjectName).exe"
-				Version="3.00"
+				Version="3.01"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=".\lib"
@@ -342,14 +343,14 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\api\pageiterator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\api\resultiterator.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\api\tesseractmain.cpp"
@@ -362,6 +363,14 @@
 			>
 			<File
 				RelativePath="..\api\baseapi.h"
+				>
+			</File>
+			<File
+				RelativePath="..\api\pageiterator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\api\resultiterator.h"
 				>
 			</File>
 			<File

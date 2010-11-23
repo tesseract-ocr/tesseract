@@ -29,12 +29,9 @@
 
 #define MAX_AMBIG_SIZE    10
 
-extern INT_VAR_H(global_ambigs_debug_level, 0,
-                 "Debug level for unichar ambiguities");
-extern BOOL_VAR_H(use_definite_ambigs_for_classifier, 0,
-                  "Use definite ambiguities when running character classifier");
-
 namespace tesseract {
+
+typedef GenericVector<UNICHAR_ID> UnicharIdVector;
 
 static const int kUnigramAmbigsBufferSize = 1000;
 static const char kAmbigNgramSeparator[] = { ' ', '\0' };
@@ -73,6 +70,15 @@ class UnicharIdArrayUtils {
     }
     if (*ptr1 == INVALID_UNICHAR_ID && *ptr2 == INVALID_UNICHAR_ID) return 0;
     return *ptr1 == INVALID_UNICHAR_ID ? -1 : 1;
+  }
+
+  // Look uid in the vector of uids.  If found, the index of the matched
+  // element is returned.  Otherwise, it returns -1.
+  static inline int find_in(const UnicharIdVector& uid_vec,
+                            const UNICHAR_ID uid) {
+    for (int i = 0; i < uid_vec.size(); ++i)
+      if (uid_vec[i] == uid) return i;
+    return -1;
   }
 
   // Copies UNICHAR_IDs from dst to src. Returns the number of ids copied.
@@ -131,7 +137,6 @@ ELISTIZEH(AmbigSpec);
 // AMBIG_TABLE[i] stores a set of ambiguities whose
 // wrong ngram starts with unichar id i.
 typedef GenericVector<AmbigSpec_LIST *> UnicharAmbigsVector;
-typedef GenericVector<UNICHAR_ID> UnicharIdVector;
 
 class UnicharAmbigs {
  public:
@@ -155,18 +160,39 @@ class UnicharAmbigs {
   // one_to_one_definite_ambigs_. This vector is also indexed by the class id
   // of the wrong part of the ambiguity and each entry contains a vector of
   // unichar ids that are ambiguous to it.
-  void LoadUnicharAmbigs(FILE *ambigs_file, inT64 end_offset,
-                         UNICHARSET *unicharset);
+  void LoadUnicharAmbigs(FILE *ambigs_file, inT64 end_offset, int debug_level,
+                         bool use_ambigs_for_adaption, UNICHARSET *unicharset);
 
-  // Return definite 1-1 ambigs.
-  const UnicharIdVector *OneToOneDefiniteAmbigs(UNICHAR_ID unichar_id) const {
+  // Returns definite 1-1 ambigs for the given unichar id.
+  inline const UnicharIdVector *OneToOneDefiniteAmbigs(
+      UNICHAR_ID unichar_id) const {
     if (one_to_one_definite_ambigs_.empty()) return NULL;
     return one_to_one_definite_ambigs_[unichar_id];
   }
 
+  // Returns a pointer to the vector with all unichar ids that appear in the
+  // 'correct' part of the ambiguity pair when the given unichar id appears
+  // in the 'wrong' part of the ambiguity. E.g. if DangAmbigs file consist of
+  // m->rn,rn->m,m->iii, UnicharAmbigsForAdaption() called with unichar id of
+  // m will return a pointer to a vector with unichar ids of r,n,i.
+  inline const UnicharIdVector *AmbigsForAdaption(
+      UNICHAR_ID unichar_id) const {
+    if (ambigs_for_adaption_.empty()) return NULL;
+    return ambigs_for_adaption_[unichar_id];
+  }
+
+  // Similar to the above, but return the vector of unichar ids for which
+  // the given unichar_id is an ambiguity (appears in the 'wrong' part of
+  // some ambiguity pair).
+  inline const UnicharIdVector *ReverseAmbigsForAdaption(
+      UNICHAR_ID unichar_id) const {
+    if (reverse_ambigs_for_adaption_.empty()) return NULL;
+    return reverse_ambigs_for_adaption_[unichar_id];
+  }
+
  private:
 
-  bool ParseAmbiguityLine(int line_num, int version,
+  bool ParseAmbiguityLine(int line_num, int version, int debug_level,
                           const UNICHARSET &unicharset, char *buffer,
                           int *TestAmbigPartSize, UNICHAR_ID *TestUnicharIds,
                           int *ReplacementAmbigPartSize,
@@ -179,6 +205,8 @@ class UnicharAmbigs {
   UnicharAmbigsVector dang_ambigs_;
   UnicharAmbigsVector replace_ambigs_;
   GenericVector<UnicharIdVector *> one_to_one_definite_ambigs_;
+  GenericVector<UnicharIdVector *> ambigs_for_adaption_;
+  GenericVector<UnicharIdVector *> reverse_ambigs_for_adaption_;
 };
 
 }  // namespace tesseract

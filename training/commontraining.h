@@ -17,20 +17,16 @@
 #include "oldlist.h"
 #include "cluster.h"
 #include "intproto.h"
-
+#include "featdefs.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Macros ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 #define MAXNAMESIZE     80
-#define MINSD_ANGLE     (1.0f / 64.0f)
-
 
 //////////////////////////////////////////////////////////////////////////////
 // Globals ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-extern BOOL8 ShowSignificantProtos;
-extern BOOL8 ShowInsignificantProtos;
 extern BOOL8 ShowAllSamples;
 
 // Must be defined in the file that "implements" commonTraining facilities.
@@ -48,9 +44,6 @@ extern const char *OutputUnicharsetFile;
 
 extern const char *InputFontInfoFile;
 
-// The unicharset used during training
-extern UNICHARSET unicharset_training;
-
 //////////////////////////////////////////////////////////////////////////////
 // Structs ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -58,6 +51,7 @@ typedef struct
 {
   char  *Label;
   int   SampleCount;
+  int   font_sample_count;
   LIST  List;
 }
 LABELEDLISTNODE, *LABELEDLIST;
@@ -87,9 +81,16 @@ LABELEDLIST FindList(
 LABELEDLIST NewLabeledList(
     const char  *Label);
 
+void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
+                         const char *feature_name, int max_samples,
+                         float linear_spread, float circular_spread,
+                         UNICHARSET* unicharset,
+                         FILE* file, LIST* training_samples);
+
 void WriteTrainingSamples(
-    char        *Directory,
-    LIST        CharList,
+    const FEATURE_DEFS_STRUCT &FeatureDefs,
+    char *Directory,
+    LIST CharList,
     const char  *program_feature_type);
 
 void FreeTrainingSamples(
@@ -102,6 +103,7 @@ void FreeLabeledClassList(
     LIST        ClassListList);
 
 CLUSTERER *SetUpForClustering(
+    const FEATURE_DEFS_STRUCT &FeatureDefs,
     LABELEDLIST CharSample,
     const char  *program_feature_type);
 
@@ -130,8 +132,7 @@ MERGE_CLASS NewLabeledClass(
 void FreeTrainingSamples(
     LIST        CharList);
 
-void SetUpForFloat2Int(
-    LIST        LabeledClassList);
+void SetUpForFloat2Int(const UNICHARSET& unicharset, LIST LabeledClassList);
 
 void Normalize(
     float       *Values);

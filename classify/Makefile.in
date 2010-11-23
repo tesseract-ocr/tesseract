@@ -72,12 +72,12 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libtesseract_classify_la_LIBADD =
 am_libtesseract_classify_la_OBJECTS = adaptive.lo adaptmatch.lo \
-	baseline.lo blobclass.lo chartoname.lo classify.lo cluster.lo \
-	clusttool.lo cutoffs.lo extract.lo featdefs.lo flexfx.lo \
-	float2int.lo fpoint.lo fxdefs.lo hideedge.lo intfx.lo \
-	intmatcher.lo intproto.lo kdtree.lo mf.lo mfdefs.lo \
-	mfoutline.lo mfx.lo normfeat.lo normmatch.lo ocrfeatures.lo \
-	outfeat.lo picofeat.lo protos.lo speckle.lo xform2d.lo
+	blobclass.lo chartoname.lo classify.lo cluster.lo clusttool.lo \
+	cutoffs.lo extract.lo featdefs.lo flexfx.lo float2int.lo \
+	fpoint.lo fxdefs.lo intfx.lo intmatcher.lo intproto.lo \
+	kdtree.lo mf.lo mfdefs.lo mfoutline.lo mfx.lo normfeat.lo \
+	normmatch.lo ocrfeatures.lo outfeat.lo picofeat.lo protos.lo \
+	speckle.lo xform2d.lo
 libtesseract_classify_la_OBJECTS =  \
 	$(am_libtesseract_classify_la_OBJECTS)
 libtesseract_classify_la_LINK = $(LIBTOOL) --tag=CXX \
@@ -252,7 +252,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -274,13 +273,12 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/dict \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer
 
-EXTRA_DIST = classify.vcproj
 include_HEADERS = \
-    adaptive.h adaptmatch.h baseline.h blobclass.h chartoname.h \
+    adaptive.h baseline.h blobclass.h chartoname.h \
     classify.h cluster.h clusttool.h cutoffs.h \
     extern.h extract.h \
-    featdefs.h flexfx.h float2int.h fpoint.h fxdefs.h fxid.h \
-    hideedge.h intfx.h intmatcher.h intproto.h kdtree.h \
+    featdefs.h flexfx.h float2int.h fpoint.h fxdefs.h \
+    intfx.h intmatcher.h intproto.h kdtree.h \
     mf.h mfdefs.h mfoutline.h mfx.h \
     normfeat.h normmatch.h \
     ocrfeatures.h outfeat.h picofeat.h protos.h \
@@ -288,11 +286,11 @@ include_HEADERS = \
 
 lib_LTLIBRARIES = libtesseract_classify.la
 libtesseract_classify_la_SOURCES = \
-    adaptive.cpp adaptmatch.cpp baseline.cpp blobclass.cpp \
+    adaptive.cpp adaptmatch.cpp blobclass.cpp \
     chartoname.cpp classify.cpp cluster.cpp clusttool.cpp cutoffs.cpp \
     extract.cpp \
     featdefs.cpp flexfx.cpp float2int.cpp fpoint.cpp fxdefs.cpp \
-    hideedge.cpp intfx.cpp intmatcher.cpp intproto.cpp kdtree.cpp \
+    intfx.cpp intmatcher.cpp intproto.cpp kdtree.cpp \
     mf.cpp mfdefs.cpp mfoutline.cpp mfx.cpp \
     normfeat.cpp normmatch.cpp \
     ocrfeatures.cpp outfeat.cpp picofeat.cpp protos.cpp \
@@ -375,7 +373,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adaptive.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adaptmatch.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/baseline.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blobclass.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chartoname.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/classify.Plo@am__quote@
@@ -388,7 +385,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/float2int.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fpoint.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fxdefs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hideedge.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/intfx.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/intmatcher.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/intproto.Plo@am__quote@

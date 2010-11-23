@@ -20,7 +20,6 @@
 #define TESSERACT_CUTIL_CUTIL_CLASS_H__
 
 #include "ccutil.h"
-#include "tessclas.h"
 #include "const.h"
 #include "strngs.h"
 
@@ -31,29 +30,6 @@ class CUtil : public CCUtil {
   CUtil();
   ~CUtil();
   void read_variables(const char *filename, bool global_only);
- public:
-  TBLOB *pageblobs;                /*first blob on page */
-  TEXTBLOCK *pageblocks;           /*first block on page */
-
-  int resolution;                  /*scanner res in dpi */
-  int acts[MAXPROC];               /*action flags */
-  int debugs[MAXPROC];             /*debug flags */
-  int plots[MAXPROC];              /*plot flags */
-
-  int corners[4];                  /*corners of scan window */
-
-  char *debugfile;                 /* debug file name */
-
-  int plots_fx;
-  int plots_ocr;
-
-  int debugs_fx;
-  int debugs_ocr;
-
-  int acts_fx;
-  int acts_ocr;
-
-  char *demodir;                   /*demo home directory */
 };
 
 }  // namespace tesseract

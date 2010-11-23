@@ -23,12 +23,14 @@
 #include          "mfcpch.h"     //precompiled headers
 #include          <stdarg.h>
 #include          "debugwin.h"
+#include          "params.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
+// Should remain a global parameter, since this is only used for debug editor.
 DLLSYM INT_VAR (debug_lines, 256, "Number of lines in debug window");
 
 #ifndef GRAPHICS_DISABLED
@@ -41,12 +43,14 @@ DLLSYM INT_VAR (debug_lines, 256, "Number of lines in debug window");
 #define scrl_SCROLLER   101
 #define text_FLOWED     100
 
+// Should remain a global variable, since this is only used for debug editor.
 static LCommander *pCommander = NULL;
 #endif
 
                                  //NT implementation
 #if defined(__MSW32__) && !defined(_CONSOLE)
 
+#include          <io.h>
 #define ID_DEBUG_MSG       32779
 
 /**********************************************************************
@@ -407,80 +411,7 @@ DEBUG_WIN::~DEBUG_WIN (
 void
 DEBUG_WIN::dprintf (             //debug printf
 const char *format, ...          //special message
-) {
-  #if 0
-  LTextEdit *pTextEdit;
-  va_list args;                  //variable args
-  static char msg[1024];
-
-  inT32 i;
-  inT32 OriginalLength;
-  inT32 NewLength;
-  TEHandle hTextEdit;
-  char *pTempBuffer;
-  CharsHandle hChar;
-  char *pOriginalText;
-  inT32 StringLength;
-
-  pTextEdit = (LTextEdit *) pWindow->FindPaneByID (text_FLOWED);
-  if (pTextEdit == NULL)
-    DebugStr ("\pwhoops");
-
-  // get a C String from the format and args passed in
-
-  va_start(args, format);  //variable list
-  vsprintf(msg, format, args);  //Format into msg
-  va_end(args);
-
-  StringLength = strlen (msg);
-
-  // get the handle for the text
-
-  hTextEdit = pTextEdit->GetMacTEH ();
-  if (hTextEdit == NULL)
-    DebugStr ("\pDEBUG_WIN,WriteCharsToConsole()");
-
-  // get a pointer to the characters and the length of the character stream
-
-  hChar = TEGetText (hTextEdit);
-  if (hChar == NULL)
-    DebugStr ("\pDEBUG_WIN,WriteCharsToConsole()");
-
-  pOriginalText = *hChar;        // get pointer to existing text
-
-                                 // get the length of the original data
-  OriginalLength = (*hTextEdit)->teLength;
-
-  // setup a temporary buffer for the new text
-
-  NewLength = OriginalLength + StringLength;
-
-  pTempBuffer = NewPtr (NewLength);
-  if (pTempBuffer == NULL)
-    DebugStr ("\pDEBUG_WIN,WriteCharsToConsole()");
-
-  // copy the original data into the new buffer
-
-  for (i = 0; i < OriginalLength; i++)
-    pTempBuffer[i] = pOriginalText[i];
-
-  // append the new data onto the end of the original buffer
-
-  for (i = 0; i < StringLength; i++) {
-    if (msg[i] == '\n')
-      pTempBuffer[i + OriginalLength] = '\r';
-    else
-      pTempBuffer[i + OriginalLength] = msg[i];
-  }
-
-  // put the new text into the text edit item
-
-  TESetText(pTempBuffer, NewLength, hTextEdit);
-
-  // clean up
-
-  DisposePtr(pTempBuffer);
-  #endif
+) { 
 }
 #endif                           //Mac Implmentation
 
@@ -504,4 +435,3 @@ void await_destruction() {
 
 
 #endif
-

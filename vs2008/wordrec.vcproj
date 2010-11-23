@@ -220,10 +220,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\wordrec\badwords.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\wordrec\bestfirst.cpp"
 				>
 			</File>
@@ -256,23 +252,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\wordrec\language_model.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\wordrec\makechop.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\wordrec\matchtab.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\matrix.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\metrics.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\mfvars.cpp"
 				>
 			</File>
 			<File
@@ -300,19 +288,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\wordrec\seam.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\split.cpp"
+				RelativePath="..\wordrec\segsearch.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\wordrec\tally.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\tessinit.cpp"
 				>
 			</File>
 			<File
@@ -335,10 +315,6 @@
 			>
 			<File
 				RelativePath="..\wordrec\associate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\badwords.h"
 				>
 			</File>
 			<File
@@ -370,7 +346,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\wordrec\heuristic.h"
+				RelativePath="..\wordrec\language_model.h"
 				>
 			</File>
 			<File
@@ -382,19 +358,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\wordrec\matrix.h"
-				>
-			</File>
-			<File
 				RelativePath="..\wordrec\measure.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\metrics.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\mfvars.h"
 				>
 			</File>
 			<File
@@ -422,23 +386,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\wordrec\seam.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\split.h"
-				>
-			</File>
-			<File
 				RelativePath="..\wordrec\tally.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\tessinit.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\tface.h"
 				>
 			</File>
 			<File

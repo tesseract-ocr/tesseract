@@ -18,10 +18,12 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "mfdefs.h"
 #include "mf.h"
-#include "fxdefs.h"
+
+#include "featdefs.h"
+#include "mfdefs.h"
 #include "mfx.h"
+
 #include <math.h>
 
 /**----------------------------------------------------------------------------
@@ -31,11 +33,11 @@
               Private Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractMicros(TBLOB *Blob, LINE_STATS *LineStats) {
+FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM& denorm) {
 /*
  **	Parameters:
  **		Blob		blob to extract micro-features from
- **		LineStats	statistics on text row blob is in
+ **		denorm  control parameter to feature extractor.
  **	Globals: none
  **	Operation: Call the old micro-feature extractor and then copy
  **		the features into the new format.  Then deallocate the
@@ -50,7 +52,7 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, LINE_STATS *LineStats) {
   FEATURE Feature;
   MICROFEATURE OldFeature;
 
-  OldFeatures = (MICROFEATURES) BlobMicroFeatures (Blob, LineStats);
+  OldFeatures = (MICROFEATURES)BlobMicroFeatures(Blob, denorm);
   if (OldFeatures == NULL)
     return NULL;
   NumFeatures = count (OldFeatures);
@@ -65,19 +67,18 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, LINE_STATS *LineStats) {
     Feature->Params[MFYPosition] = OldFeature[YPOSITION];
     Feature->Params[MFLength] = OldFeature[MFLENGTH];
 
-    // Bulge features should not be used
-    // anymore and are therefore set to 0.
-//     ParamOf (Feature, MFBulge1) = FirstBulgeOf (OldFeature);
-//     ParamOf (Feature, MFBulge2) = SecondBulgeOf (OldFeature);
+    // Bulge features are deprecated and should not be used.  Set to 0.
     Feature->Params[MFBulge1] = 0.0f;
     Feature->Params[MFBulge2] = 0.0f;
-#ifndef __MSW32__
+
+#ifndef WIN32
     // Assert that feature parameters are well defined.
     int i;
     for (i = 0; i < Feature->Type->NumParams; i++) {
-      assert(!isnan(Feature->Params[i]));
+      assert (!isnan(Feature->Params[i]));
     }
 #endif
+
     AddFeature(FeatureSet, Feature);
   }
   FreeMicroFeatures(OldFeatures);

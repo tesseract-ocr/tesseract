@@ -124,7 +124,18 @@ void* ScrollView::MessageReceiver(void* a) {
           cur->parameter[strlen(p)] = '\0';
         }
         cur->type = static_cast<SVEventType>(ev_type);
-        cur->y = cur->window->TranslateYCoordinate(cur->y);
+        // Correct selection coordinates so x,y is the min pt and size is +ve.
+        if (cur->x_size > 0)
+          cur->x -= cur->x_size;
+        else
+          cur->x_size = -cur->x_size;
+        if (cur->y_size > 0)
+          cur->y -= cur->y_size;
+        else
+          cur->y_size = -cur->y_size;
+        // Returned y will be the bottom-left if y is reversed.
+        if (cur->window->y_axis_is_reversed_)
+          cur->y = cur->window->TranslateYCoordinate(cur->y + cur->y_size);
         cur->counter = counter_event_id;
         // Increase by 2 since we will also create an SVET_ANY event from cur,
         // which will have a counter_id of cur + 1 (and thus gets processed

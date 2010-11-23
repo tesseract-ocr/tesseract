@@ -19,37 +19,20 @@
 #ifndef           POLYBLK_H
 #define           POLYBLK_H
 
-#include          "rect.h"
-#include          "points.h"
-#include          "scrollview.h"
-#include          "elst.h"
+#include "publictypes.h"
+#include "elst.h"
+#include "points.h"
+#include "rect.h"
+#include "scrollview.h"
 
 #include          "hpddef.h"     // must be last (handpd.dll)
-
-// Possible types for a POLY_BLOCK or ColPartition. Must be kept in sync with
-// kPBColors. Used extensively by ColPartition, but polyblk is a lower-level
-// file.
-enum PolyBlockType {
-  PT_UNKNOWN,        // Type is not yet known. Keep as the first element.
-  PT_FLOWING_TEXT,   // Text that lives inside a column.
-  PT_HEADING_TEXT,   // Text that spans more than one column.
-  PT_PULLOUT_TEXT,   // Text that is in a cross-column pull-out region.
-  PT_TABLE,          // Partition belonging to a table region.
-  PT_VERTICAL_TEXT,  // Text-line runs vertically.
-  PT_FLOWING_IMAGE,  // Image that lives inside a column.
-  PT_HEADING_IMAGE,  // Image that spans more than one column.
-  PT_PULLOUT_IMAGE,  // Image that is in a cross-column pull-out region.
-  PT_FLOWING_LINE,   // H-Line that lives inside a column.
-  PT_HEADING_LINE,   // H-Line that spans more than one column.
-  PT_PULLOUT_LINE,   // H-Line that is in a cross-column pull-out region.
-  PT_NOISE,          // Lies outside of any column.
-  PT_COUNT
-};
 
 class DLLSYM POLY_BLOCK {
  public:
   POLY_BLOCK() {
   }
+  // Initialize from box coordinates.
+  POLY_BLOCK(const TBOX& box, PolyBlockType type);
   POLY_BLOCK(ICOORDELT_LIST *points, PolyBlockType type);
   ~POLY_BLOCK () {
   }
@@ -69,7 +52,7 @@ class DLLSYM POLY_BLOCK {
   }
 
   bool IsText() const {
-    return IsTextType(type);
+    return PTIsTextType(type);
   }
 
   // Rotate about the origin by the given rotation. (Analogous to
@@ -111,23 +94,6 @@ class DLLSYM POLY_BLOCK {
 
   // Returns a color to draw the given type.
   static ScrollView::Color ColorForPolyBlockType(PolyBlockType type);
-
-  // Returns true if PolyBlockType is of horizontal line type
-  static bool IsLineType(PolyBlockType type) {
-    return (type == PT_FLOWING_LINE) || (type == PT_HEADING_LINE) ||
-        (type == PT_PULLOUT_LINE);
-  }
-  // Returns true if PolyBlockType is of image type
-  static bool IsImageType(PolyBlockType type) {
-    return (type == PT_FLOWING_IMAGE) || (type == PT_HEADING_IMAGE) ||
-           (type == PT_PULLOUT_IMAGE);
-  }
-  // Returns true if PolyBlockType is of text type
-  static bool IsTextType(PolyBlockType type) {
-    return (type == PT_FLOWING_TEXT) || (type == PT_HEADING_TEXT) ||
-           (type == PT_PULLOUT_TEXT) || (type == PT_TABLE) ||
-           (type == PT_VERTICAL_TEXT);
-  }
 
  private:
   ICOORDELT_LIST vertices;     // vertices

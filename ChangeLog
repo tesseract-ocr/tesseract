@@ -1,3 +1,38 @@
+2010-09-22 - V3.01
+  * Thread-safety! Moved all critical globals and statics to
+    members of the appropriate class. Tesseract is now
+    thread-safe (multiple instances can be used in parallel
+    in multiple threads.) with the minor exception that some
+    control parameters are still global and affect all threads.
+  * Added Cube, a new recognizer for Arabic. Cube can also be
+    used in combination with normal Tesseract for other languages
+    with an improvement in accuracy at the cost of (much) lower speed.
+    There is no training module for Cube yet.
+  * OcrEngineMode in Init replaces AccuracyVSpeed to control cube.
+  * Greatly improved segmentation search with consequent accuracy and
+    speed improvements, especially for Chinese.
+  * Added PageIterator and ResultIterator as cleaner ways to get the
+    full results out of Tesseract, that are not currently provided
+    by any of the TessBaseAPI::Get* methods.
+    All other methods, such as the ETEXT_STRUCT in particular are
+    deprecated and will be deleted in the future.
+  * ApplyBoxes totally rewritten to make training easier.
+    It can now cope with touching/overlapping training characters,
+    and a new boxfile format allows word boxes instead of character
+    boxes, BUT to use that you have to have already boostrapped the
+    language with character boxes. "Cyclic dependency" on traineddata.
+  * Auto orientation and script detection added to page layout analysis.
+  * Deleted *lots* of dead code.
+  * Fixxht module replaced with scalable data-driven module.
+  * Output font characteristics accuracy improved.
+  * Removed the double conversion at each classification.
+  * Upgraded oldest structs to be classes and deprecated PBLOB.
+  * Removed non-deterministic baseline fit.
+  * Added fixed length dawgs for Chinese.
+  * Handling of vertical text improved.
+  * Handling of leader dots improved.
+  * Table detection greatly improved.
+
 2010-09-21 - V3.00
   * Preparations for thread safety:
      * Changed TessBaseAPI methods to be non-static

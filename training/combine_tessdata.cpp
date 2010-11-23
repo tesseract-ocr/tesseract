@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
                            strcmp(argv[1], "-u") == 0)) {
     // Initialize TessdataManager with the data in the given traineddata file.
     tesseract::TessdataManager tm;
-    tm.Init(argv[2]);
+    tm.Init(argv[2], 0);
     printf("Extracting tessdata components from %s\n", argv[2]);
     if (strcmp(argv[1], "-e") == 0) {
       for (i = 3; i < argc; ++i) {
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
 
     // Initialize TessdataManager with the data in the given traineddata file.
     tesseract::TessdataManager tm;
-    tm.Init(traineddata_filename.string());
+    tm.Init(traineddata_filename.string(), 0);
 
     // Write the updated traineddata file.
     tm.OverwriteComponents(new_traineddata_filename, argv+3, argc-3);

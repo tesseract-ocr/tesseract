@@ -18,12 +18,12 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-#include          "charcut.h"
-#include          "imgs.h"
-#include          "svshowim.h"
-//#include          "evnts.h"
-#include          "notdll.h"
-#include	  "scrollview.h"
+#include "charcut.h"
+#include "imgs.h"
+#include "scrollview.h"
+#include "svshowim.h"
+#include "notdll.h"
+#include "helpers.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -34,10 +34,6 @@
 #define SMALLEST(a,b) ( (a) > (b) ? (b) : (a) )
 #define BUG_OFFSET 1
 #define EXTERN
-
-EXTERN INT_VAR (pix_word_margin, 3, "How far outside word BB to grow");
-
-extern IMAGE page_image;
 
 ELISTIZE (PIXROW)
 /*************************************************************************
@@ -58,8 +54,8 @@ PIXROW::PIXROW(inT16 pos, inT16 count, PBLOB *blob) {
 
   row_offset = pos;
   row_count = count;
-  min = (inT16 *) alloc_mem (count * sizeof (inT16));
-  max = (inT16 *) alloc_mem (count * sizeof (inT16));
+  min = (inT16 *) alloc_mem(count * sizeof(inT16));
+  max = (inT16 *) alloc_mem(count * sizeof(inT16));
   outline_list = blob->out_list ();
   outline_it.set_to_list (outline_list);
 
@@ -67,27 +63,21 @@ PIXROW::PIXROW(inT16 pos, inT16 count, PBLOB *blob) {
     min[i] = MAX_INT16 - 1;
     max[i] = -MAX_INT16 + 1;
     y_coord = row_offset + i + 0.5;
-    for (outline_it.mark_cycle_pt ();
-    !outline_it.cycled_list (); outline_it.forward ()) {
-      pts_list = outline_it.data ()->polypts ();
-      pts_it.set_to_list (pts_list);
-      for (pts_it.mark_cycle_pt ();
-      !pts_it.cycled_list (); pts_it.forward ()) {
-        pt = pts_it.data ()->pos;
-        vec = pts_it.data ()->vec;
-        if ((vec.y () != 0) &&
-          (((pt.y () <= y_coord) && (pt.y () + vec.y () >= y_coord))
-          || ((pt.y () >= y_coord)
-        && (pt.y () + vec.y () <= y_coord)))) {
+    for (outline_it.mark_cycle_pt();
+         !outline_it.cycled_list(); outline_it.forward()) {
+      pts_list = outline_it.data()->polypts();
+      pts_it.set_to_list(pts_list);
+      for (pts_it.mark_cycle_pt(); !pts_it.cycled_list(); pts_it.forward()) {
+        pt = pts_it.data()->pos;
+        vec = pts_it.data()->vec;
+        if ((vec.y() != 0) &&
+            (((pt.y() <= y_coord) && (pt.y() + vec.y() >= y_coord))
+             || ((pt.y() >= y_coord) && (pt.y() + vec.y() <= y_coord)))) {
           /* The segment crosses y_coord so find x-point and check for min/max. */
-          x_coord = (inT16) floor ((y_coord -
-            pt.y ()) * vec.x () / vec.y () +
-            pt.x () + 0.5);
-          if (x_coord < min[i])
-            min[i] = x_coord;
-          x_coord--;             //to get pix to left of line
-          if (x_coord > max[i])
-            max[i] = x_coord;
+          x_coord = (inT16) floor((y_coord - pt.y()) * vec.x() / vec.y() +
+                                  pt.x() + 0.5);
+          //  x_coord - 1  to get pix to left of line
+          UpdateRange<inT16>(x_coord, x_coord - 1, &min[i], &max[i]);
         }
       }
     }
@@ -154,20 +144,14 @@ TBOX PIXROW::bounding_box() const {
   for (i = 0; i < row_count; i++) {
     y_coord = row_offset + i;
     if (min[i] <= max[i]) {
-      if (y_coord < min_y)
-        min_y = y_coord;
-      if (y_coord + 1 > max_y)
-        max_y = y_coord + 1;
-      if (min[i] < min_x)
-        min_x = min[i];
-      if (max[i] + 1 > max_x)
-        max_x = max[i] + 1;
+      UpdateRange<inT16>(y_coord, y_coord + 1, &min_y, &max_y);
+      UpdateRange<inT16>(min[i], max[i] + 1, &min_x, &max_x);
     }
   }
   if (min_x > max_x || min_y > max_y)
-    return TBOX ();
+    return TBOX();
   else
-    return TBOX (ICOORD (min_x, min_y), ICOORD (max_x, max_y));
+    return TBOX(ICOORD(min_x, min_y), ICOORD(max_x, max_y));
 }
 
 
@@ -479,10 +463,10 @@ void char_clip_word(                            //
 
   /* Define region for max pixrow expansion */
   pix_box = word_box;
-  pix_box.move_bottom_edge (-pix_word_margin);
-  pix_box.move_top_edge (pix_word_margin);
-  pix_box.move_left_edge (-pix_word_margin);
-  pix_box.move_right_edge (pix_word_margin);
+  pix_box.move_bottom_edge (-kPixWordMargin);
+  pix_box.move_top_edge (kPixWordMargin);
+  pix_box.move_left_edge (-kPixWordMargin);
+  pix_box.move_right_edge (kPixWordMargin);
   pix_box -= TBOX (ICOORD (0, 0 + BUG_OFFSET),
     ICOORD (bin_image.get_xsize (),
     bin_image.get_ysize () - BUG_OFFSET));

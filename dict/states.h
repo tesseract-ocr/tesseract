@@ -28,7 +28,7 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "general.h"
+#include "host.h"
 
 /*----------------------------------------------------------------------
               T y p e s
@@ -66,47 +66,6 @@ void print_state(const char *label, STATE *state, int num_joints);
 
 void set_n_ones(STATE *state, int n);
 
-int compare_states(STATE *true_state, STATE *this_state, int *blob_index);
-
 extern void free_state(STATE *);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define	_ARGS(s) s
-#else
-# define	_ARGS(s) ()
-#endif*/
-
-/* states.c
-void insert_new_chunk
-  _ARGS((STATE *state,
-  int index));
-
-SEARCH_STATE bin_to_chunks
-  _ARGS((STATE *state,
-  int num_joints));
-
-STATE *new_state
-  _ARGS((STATE *oldstate));
-
-int ones_in_state
-  _ARGS((STATE *state,
-  int num_joints));
-
-void print_state
-  _ARGS((char *label,
-  STATE *state,
-  int num_joints));
-
-void set_n_ones
-  _ARGS((STATE *state,
-  int n));
-int compare_states
-  _ARGS((
-STATE *true_state,
-STATE *this_state,
-int*   blob_index));
-
-#undef _ARGS
-*/
 #endif

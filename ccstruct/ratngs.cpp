@@ -18,16 +18,15 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-
 #include "ratngs.h"
+
 #include "callcpp.h"
 #include "genericvector.h"
 #include "unicharset.h"
 
-extern FILE *matcher_fp;
-
 ELISTIZE (BLOB_CHOICE) CLISTIZE (BLOB_CHOICE_LIST) CLISTIZE (WERD_CHOICE)
-//extern FILE* matcher_fp;
+
+const float WERD_CHOICE::kBadRating = 100000.0;
 
 /**
  * BLOB_CHOICE::BLOB_CHOICE
@@ -37,14 +36,17 @@ ELISTIZE (BLOB_CHOICE) CLISTIZE (BLOB_CHOICE_LIST) CLISTIZE (WERD_CHOICE)
 BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, //< character id
                          float src_rating,          //< rating
                          float src_cert,            //< certainty
-                         inT8 src_config,           //< config (font)
+                         inT16 src_config,          //< config (font)
+                         inT16 src_config2,         //< 2nd choice config.
                          int src_script_id          //< script
                         ) {
   unichar_id_ = src_unichar_id;
   rating_ = src_rating;
   certainty_ = src_cert;
   config_ = src_config;
+  config2_ = src_config2;
   script_id_ = src_script_id;
+  language_model_state_ = NULL;
 }
 
 /**
@@ -57,7 +59,9 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) {
   rating_ = other.rating();
   certainty_ = other.certainty();
   config_ = other.config();
+  config2_ = other.config2();
   script_id_ = other.script_id();
+  language_model_state_ = NULL;
 }
 
 /**
@@ -69,12 +73,12 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) {
 WERD_CHOICE::WERD_CHOICE(const char *src_string,
                          const UNICHARSET &unicharset) {
   STRING src_lengths;
-  int len = strlen(src_string);
   const char *ptr = src_string;
+  const char *end = src_string + strlen(src_string);
   int step = unicharset.step(ptr);
-  for (; ptr < src_string + len && step > 0;
+  for (; ptr < end && step > 0;
        step = unicharset.step(ptr), src_lengths += step, ptr += step);
-  if (step != 0 && ptr == src_string + len) {
+  if (step != 0 && ptr == end) {
     this->init(src_string, src_lengths.string(),
                0.0, 0.0, NO_PERM, unicharset);
   } else {  // there must have been an invalid unichar in the string
@@ -395,13 +399,8 @@ void print_ratings_list(const char *msg,
   BLOB_CHOICE_IT c_it;
   c_it.set_to_list(ratings);
   for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
-    tprintf("r%.2f c%.2f : %d %s",
-            c_it.data()->rating(), c_it.data()->certainty(),
-            c_it.data()->unichar_id(),
-            current_unicharset.debug_str(c_it.data()->unichar_id()).string());
-    if (!c_it.at_last()) {
-      tprintf("\n");
-    }
+    c_it.data()->print(&current_unicharset);
+    if (!c_it.at_last()) tprintf("\n");
   }
   tprintf("\n");
   fflush(stdout);
@@ -423,11 +422,8 @@ void print_ratings_list(const char *msg, BLOB_CHOICE_LIST *ratings) {
   BLOB_CHOICE_IT c_it;
   c_it.set_to_list(ratings);
   for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
-    tprintf("r%.2f c%.2f : %d", c_it.data()->rating(),
-            c_it.data()->certainty(), c_it.data()->unichar_id());
-    if (!c_it.at_last()) {
-      tprintf("\n");
-    }
+    c_it.data()->print(NULL);
+    if (!c_it.at_last()) tprintf("\n");
   }
   tprintf("\n");
   fflush(stdout);
@@ -447,9 +443,6 @@ void print_ratings_info(FILE *fp,
                         BLOB_CHOICE_LIST *ratings,
                         const UNICHARSET &current_unicharset) {
   inT32 index;                    // to list
-  inT32 best_index;               // to list
-  FLOAT32 best_rat;               // rating
-  FLOAT32 best_cert;              // certainty
   const char* first_char = NULL;  // character
   FLOAT32 first_rat;              // rating
   FLOAT32 first_cert;             // certainty
@@ -478,25 +471,12 @@ void print_ratings_info(FILE *fp,
     first_rat = -1;
     first_cert = -1;
   }
-  best_index = -1;
-  best_rat = -1;
-  best_cert = -1;
-  for (index = 0, c_it.mark_cycle_pt(); !c_it.cycled_list();
-       c_it.forward(), index++) {
-    if (strcmp(current_unicharset.id_to_unichar(c_it.data()->unichar_id()),
-               blob_answer) == 0) {
-      best_index = index;
-      best_rat = c_it.data()->rating();
-      best_cert = -c_it.data()->certainty();
-    }
-  }
   if (first_char != NULL && (*first_char == '\0' || *first_char == ' '))
     first_char = NULL;
   if (sec_char != NULL && (*sec_char == '\0' || *sec_char == ' '))
     sec_char = NULL;
-  fprintf(matcher_fp,
-          " " INT32FORMAT " " INT32FORMAT " %g %g %s %g %g %s %g %g\n",
-          ratings->length(), best_index, best_rat, best_cert,
+  tprintf(" " INT32FORMAT " %s %g %g %s %g %g\n",
+          ratings->length(),
           first_char != NULL ? first_char : "~",
           first_rat, first_cert, sec_char != NULL ? sec_char : "~",
           sec_rat, sec_cert);
@@ -513,9 +493,9 @@ void print_char_choices_list(const char *msg,
   for (int x = 0; x < char_choices.length(); ++x) {
     BLOB_CHOICE_IT c_it;
     c_it.set_to_list(char_choices.get(x));
-    tprintf("char[%d]: %s\n", x,
+    tprintf("\nchar[%d]: %s\n", x,
             current_unicharset.debug_str( c_it.data()->unichar_id()).string());
     if (detailed)
-      print_ratings_list("  ", char_choices.get(x), current_unicharset);
+      print_ratings_list("", char_choices.get(x), current_unicharset);
   }
 }

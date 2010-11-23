@@ -24,7 +24,7 @@
 #include <assert.h>
 #endif
 #include "host.h"
-#include "varable.h"
+#include "params.h"
 #include "unichar.h"
 
 class ScrollView;
@@ -80,27 +80,6 @@ typedef enum {
   Green_YELLOW
 } C_COL;                         /*starbase colours */
 
-#define INTEL       0x4949
-#define MOTO        0x4d4d
-
-extern INT_VAR_H (tess_cp_mapping0, 0, "Mappings for class pruner distance");
-extern INT_VAR_H (tess_cp_mapping1, 1, "Mappings for class pruner distance");
-extern INT_VAR_H (tess_cp_mapping2, 2, "Mappings for class pruner distance");
-extern INT_VAR_H (tess_cp_mapping3, 3, "Mappings for class pruner distance");
-extern INT_VAR_H (record_matcher_output, 0, "Record detailed matcher info");
-extern INT_VAR_H (il1_adaption_test, 0,
-"Dont adapt to i/I at beginning of word");
-extern double_VAR_H (permuter_pending_threshold, 0.0,
-"Worst conf for using pending dictionary");
-
-//Global matcher info from the class pruner.
-extern inT32 cp_maps[4];
-//Global info to control writes of matcher info
-extern char blob_answer[UNICHAR_LEN + 1];         //correct char
-extern char *word_answer;        //correct word
-extern inT32 bits_in_states;     //no of bits in states
-
-void setup_cp_maps();
 void cprintf (                   //Trace printf
 const char *format, ...          //special message
 );

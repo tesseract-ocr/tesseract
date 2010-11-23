@@ -18,55 +18,15 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "general.h"
+#include "host.h"
 #include "danerror.h"
-#include "callcpp.h"
+#include "tprintf.h"
 #include "globaloc.h"
 #ifdef __UNIX__
 #include "assert.h"
 #endif
 
 #include <stdio.h>
-#include <setjmp.h>
-
-#define MAXTRAPDEPTH    100
-
-#define ERRORTRAPDEPTH    1000
-
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
-static jmp_buf ErrorTrapStack[MAXTRAPDEPTH];
-static VOID_PROC ProcTrapStack[MAXTRAPDEPTH];
-static inT32 CurrentTrapDepth = 0;
-
-/**----------------------------------------------------------------------------
-              Public Code
-----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
-void ReleaseErrorTrap() {
-/*
- **	Parameters:
- **		None
- **	Globals:
- **		CurrentTrapDepth	number of traps on the stack
- **	Operation:
- **		This routine removes the current error trap from the
- **		error trap stack, thus returning control to the previous
- **		error trap.  If the error trap stack is empty, nothing is
- **		done.
- **	Return:
- **		None
- **	Exceptions:
- **		None
- **	History:
- **		4/3/89, DSJ, Created.
- */
-  if (CurrentTrapDepth > 0) {
-    CurrentTrapDepth--;
-  }
-}                                /* ReleaseErrorTrap */
-
 
 /*---------------------------------------------------------------------------*/
 void DoError(int Error, const char *Message) {
@@ -90,55 +50,8 @@ void DoError(int Error, const char *Message) {
  **		4/3/89, DSJ, Created.
  */
   if (Message != NULL) {
-    cprintf ("\nError: %s!\n", Message);
+    tprintf("\nError: %s!\n", Message);
   }
 
-  if (CurrentTrapDepth <= 0) {
-    cprintf ("\nFatal error: No error trap defined!\n");
-
-    /* SPC 20/4/94
-       There used to be a call to abort() here. I've changed it to call into the
-       C++ error code to generate a meaningful status code
-     */
-    signal_termination_handler(Error);
-  }
-
-  if (ProcTrapStack[CurrentTrapDepth - 1] != DO_NOTHING)
-    (*ProcTrapStack[CurrentTrapDepth - 1]) ();
-
-  longjmp (ErrorTrapStack[CurrentTrapDepth - 1], 1);
+  signal_termination_handler(Error);
 }                                /* DoError */
-
-
-/**----------------------------------------------------------------------------
-              Private Code
-----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
-jmp_buf &PushErrorTrap(VOID_PROC Procedure) {
-/*
- **	Parameters:
- **		Procedure		trap procedure to execute
- **	Globals:
- **		ErrorTrapStack		stack of error traps
- **		CurrentTrapDepth	number of traps on the stack
- **	Operation:
- **		This routine pushes a new error trap onto the top of
- **		the error trap stack.  This new error trap can then be
- **		used in a call to setjmp.  This trap is then in effect
- **		until ReleaseErrorTrap is called.  WARNING: a procedure
- **		that calls PushErrorTrap should never exit before calling
- **		ReleaseErrorTrap.
- **	Return:
- **		Pointer to a new error trap buffer
- **	Exceptions:
- **		Traps an error if the error trap stack is already full
- **	History:
- **		3/17/89, DSJ, Created.
- **		9/12/90, DSJ, Added trap procedure parameter.
- */
-  if (CurrentTrapDepth >= MAXTRAPDEPTH)
-    DoError (ERRORTRAPDEPTH, "Error trap depth exceeded");
-  ProcTrapStack[CurrentTrapDepth] = Procedure;
-  return ErrorTrapStack[CurrentTrapDepth++];
-
-}                                /* PushErrorTrap */

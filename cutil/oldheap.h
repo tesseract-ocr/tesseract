@@ -21,32 +21,24 @@
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-#include "general.h"
+#include "host.h"
 #include "cutil.h"
 
 #define HEAPFULL      3000
 
-#define OK          0
 #define EMPTY -1
+#define TESS_HEAP_OK   0
 
-typedef struct
-{
+struct HEAPENTRY {
   FLOAT32 Key;
   void *Data;
-}
+};
 
-
-HEAPENTRY;
-
-typedef struct
-{
+struct HEAP {
   inT32 Size;
   inT32 FirstFree;
   HEAPENTRY Entry[1];
-}
-
-
-HEAP;
+};
 
 /*-----------------------------------------------------------------------------
             Macros
@@ -83,44 +75,6 @@ int GetTopOfHeap(HEAP *Heap, HEAPENTRY *Entry);
 
 void FreeHeapData(HEAP *Heap, void_dest destructor);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define        _ARGS(s) s
-#else
-# define        _ARGS(s) ()
-#endif*/
+bool HeapPushCheckSize(HEAP *Heap, FLOAT32 Key, void *Data);
 
-/* heap.c
-HEAP *MakeHeap
-    _ARGS((int Size));
-
-int HeapPop
-    _ARGS((HEAP *Heap,
-  FLOAT32 *Key,
-  char **Data));
-
-int HeapPopWorst
-    _ARGS((HEAP *Heap,
-  FLOAT32 *Key,
-  char **Data));
-
-void HeapPush
-    _ARGS((HEAP *Heap,
-  FLOAT32 Key,
-  char *Data));
-
-void HeapStore
-    _ARGS((HEAP *Heap,
-  HEAPENTRY *Entry));
-
-int GetTopOfHeap
-    _ARGS((HEAP *Heap,
-  HEAPENTRY *Entry));
-
-void FreeHeapData
-    _ARGS((HEAP *Heap,
-  void (*Deallocator )()));
-
-#undef _ARGS
-*/
 #endif

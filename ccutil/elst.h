@@ -137,20 +137,16 @@ class DLLSYM ELIST
       last = NULL;
     }
 
-    virtual ~ELIST() {
-      // Empty
-    }
-
     void internal_clear (        //destroy all links
                                  //ptr to zapper functn
       void (*zapper) (ELIST_LINK *));
 
-    bool empty() {  //is list empty?
+    bool empty() const {  //is list empty?
       return !last;
     }
 
-    bool singleton() {
-      return last ? (last == last->next) : FALSE;
+    bool singleton() const {
+      return last ? (last == last->next) : false;
     }
 
     void shallow_copy(                     //dangerous!!
@@ -166,7 +162,7 @@ class DLLSYM ELIST
                            ELIST_ITERATOR *start_it,  //from list start
                            ELIST_ITERATOR *end_it);   //from list end
 
-    inT32 length();  //# elements in list
+    inT32 length() const;  // # elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -177,8 +173,20 @@ class DLLSYM ELIST
     // Comparision function is the same as used by sort, i.e. uses double
     // indirection. Time is O(1) to add to beginning or end.
     // Time is linear to add pre-sorted items to an empty list.
-    void add_sorted(int comparator(const void*, const void*),
-                    ELIST_LINK* new_link);
+    // If unique is set to true and comparator() returns 0 (an entry with the
+    // same information as the one contained in new_link is already in the
+    // list) - new_link is not added to the list and the function returns the
+    // pointer to the identical entry that already exists in the list
+    // (otherwise the function returns new_link).
+    ELIST_LINK *add_sorted_and_find(int comparator(const void*, const void*),
+                                    bool unique, ELIST_LINK* new_link);
+
+    // Same as above, but returns true if the new entry was inserted, false
+    // if the identical entry already existed in the list.
+    bool add_sorted(int comparator(const void*, const void*),
+                    bool unique, ELIST_LINK* new_link) {
+      return (add_sorted_and_find(comparator, unique, new_link) == new_link);
+    }
 
     void internal_dump (         //serialise each elem
       FILE * f,                  //to this file
