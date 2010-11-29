@@ -16544,8 +16544,6 @@ ac_config_files="$ac_config_files testing/Makefile"
 
 ac_config_files="$ac_config_files vs2008/Makefile"
 
-ac_config_files="$ac_config_files vs2008/dlltest/Makefile"
-
 ac_config_files="$ac_config_files vs2008/include/Makefile"
 
 ac_config_files="$ac_config_files vs2008/include/leptonica/Makefile"
