@@ -214,7 +214,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = leptonica
-EXTRA_DIST = stdint.h 
+EXTRA_DIST = stdint.h version.h
 
 all: all-recursive
 

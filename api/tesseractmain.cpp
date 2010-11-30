@@ -41,6 +41,7 @@
 #include "baseapi.h"
 #include "strngs.h"
 #include "tprintf.h"
+#include "tesseractmain.h"
 
 /**********************************************************************
  *  main()
