@@ -286,6 +286,7 @@ void SquishedDawg::read_squished_dawg(FILE *file,
   int unicharset_size;
   fread(&unicharset_size, sizeof(inT32), 1, file);
   fread(&num_edges_, sizeof(inT32), 1, file);
+  ASSERT_HOST(num_edges_ > 0);  // DAWG should not be empty
 
   if (swap) {
     unicharset_size = reverse32(unicharset_size);

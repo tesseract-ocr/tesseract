@@ -379,6 +379,8 @@ class SquishedDawg : public Dawg {
   }
   ~SquishedDawg();
 
+  int NumEdges() { return num_edges_; }
+
   /// Returns the edge that corresponds to the letter out of this node.
   EDGE_REF edge_char_of(NODE_REF node, UNICHAR_ID unichar_id,
                         bool word_end) const;
