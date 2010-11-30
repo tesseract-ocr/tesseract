@@ -49,8 +49,7 @@ class ICOORD
     }
 
     ///access function
-    NEWDELETE2 (ICOORD) inT16 x () const
-    {
+    inT16 x() const {
       return xcoord;
     }
     ///access_function
@@ -148,11 +147,6 @@ class ICOORD
     void setup_render(ICOORD* major_step, ICOORD* minor_step,
                       int* major, int* minor) const;
 
-    ///serialise to ascii
-    void serialise_asc(FILE *f);
-    ///serialise from ascii
-    void de_serialise_asc(FILE *f);
-
   protected:
     inT16 xcoord;                //< x value
     inT16 ycoord;                //< y value
@@ -177,38 +171,15 @@ class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
       ycoord = yin;
     }
 
-    /* Note that prep_serialise() dump() and de_dump() dont need to do anything
-    more than terminate recursion. */
-
-    ///set ptrs to counts
-    void prep_serialise() const {
-    }
-
-    ///write external bits
-    void dump(FILE *) const {
-    }
-
-    ///read external bits
-    void de_dump(FILE *) {
-    }
-
-    ///serialise to ascii
-    make_serialise(ICOORDELT)
-
     static ICOORDELT* deep_copy(const ICOORDELT* src) {
       ICOORDELT* elt = new ICOORDELT;
       *elt = *src;
       return elt;
     }
 
-    ///serialise to ascii
-    void serialise_asc(FILE * f);
-    ///deserialise from ascii
-    void de_serialise_asc(FILE *f);
-
 };
 
-ELISTIZEH_S (ICOORDELT)
+ELISTIZEH (ICOORDELT)
 class DLLSYM FCOORD
 {
   public:

@@ -25,9 +25,6 @@
 #include          "normalis.h"
 #include          "stepblob.h"
 
-const int kBlnXHeight = 128;  // x-height for baseline normalisation
-const int kBlnBaselineOffset = 64;  // offset for baseline normalization
-
 class PBLOB : public ELIST_LINK {
   public:
     PBLOB() {}
@@ -45,12 +42,6 @@ class PBLOB : public ELIST_LINK {
     TBOX bounding_box();  //compute bounding box
     float area();  //get area of blob
 
-    PBLOB *baseline_normalise(                  //normalise single blob
-                              ROW *row,         //row it came from
-                              DENORM *denorm);  //inverse mapping out
-    void baseline_denormalise(                        //denormalise
-                              const DENORM *denorm);  //antidote
-
     void plot(                       //draw one
               ScrollView* window,         //window to draw in
               ScrollView::Color blob_colour,    //for outer bits
@@ -65,23 +56,6 @@ class PBLOB : public ELIST_LINK {
                const FCOORD vec);  // by FLOAT vector
     void rotate();  // Rotate 90 deg anti
     void rotate(const FCOORD& rotation);  // Rotate by given rotation.
-
-    void prep_serialise() {  //set ptrs to counts
-      outlines.prep_serialise ();
-    }
-
-    void dump(  //write external bits
-              FILE *f) {
-      outlines.dump (f);
-    }
-
-    void de_dump(  //read external bits
-                 FILE *f) {
-      outlines.de_dump (f);
-    }
-
-                                 //assignment
-    make_serialise(PBLOB)
 
     PBLOB& operator=(const PBLOB & source) {
       if (!outlines.empty ())
@@ -101,5 +75,5 @@ class PBLOB : public ELIST_LINK {
     OUTLINE_LIST outlines;       //master elements
 };
 
-ELISTIZEH_S (PBLOB)
+ELISTIZEH (PBLOB)
 #endif

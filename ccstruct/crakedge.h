@@ -23,17 +23,15 @@
 #include          "points.h"
 #include          "mod128.h"
 
-class CRACKEDGE
-{
-  public:
-    ICOORD pos;                  /*position of crack */
-    inT8 stepx;                  //edge step
-    inT8 stepy;
-    inT8 stepdir;                //chaincode
-    CRACKEDGE *prev;             /*previous point */
-    CRACKEDGE *next;             /*next point */
+class CRACKEDGE {
+ public:
+  CRACKEDGE() {}
 
-    NEWDELETE2 (CRACKEDGE) CRACKEDGE () {
-    }                            //empty constructor
+  ICOORD pos;                  /*position of crack */
+  inT8 stepx;                  //edge step
+  inT8 stepy;
+  inT8 stepdir;                //chaincode
+  CRACKEDGE *prev;             /*previous point */
+  CRACKEDGE *next;             /*next point */
 };
 #endif

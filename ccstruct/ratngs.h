@@ -104,7 +104,6 @@ class BLOB_CHOICE: public ELIST_LINK
               unicharset->debug_str(unichar_id_).string());
     }
 
-    NEWDELETE
  private:
   UNICHAR_ID unichar_id_;          // unichar id
   inT16 config_;                    // char config (font)
@@ -314,6 +313,12 @@ class WERD_CHOICE {
     this->string_and_lengths(current_unicharset, &unichar_string_,
                              &unichar_lengths_);
   }
+  /// Undoes populate_unichars, so that unichar_string_ and unichar_lengths_
+  /// are empty.
+  void depopulate_unichars() {
+    unichar_string_ = "";
+    unichar_lengths_ = "";
+  }
   /// This function should only be called if populate_unichars()
   /// was called and WERD_CHOICE did not change since then.
   const STRING &unichar_string() const {
@@ -336,7 +341,7 @@ class WERD_CHOICE {
 
   WERD_CHOICE& operator= (const WERD_CHOICE& source);
 
-  NEWDELETE private:
+ private:
   UNICHAR_ID *unichar_ids_;  // unichar ids that represent the text of the word
   char *fragment_lengths_;   // number of fragments in each unichar
   int reserved_;             // size of the above arrays
@@ -360,9 +365,9 @@ class WERD_CHOICE {
 };
 
 // Make WERD_CHOICE listable.
-CLISTIZEH (WERD_CHOICE)
+ELISTIZEH (WERD_CHOICE)
 typedef GenericVector<BLOB_CHOICE_LIST *> BLOB_CHOICE_LIST_VECTOR;
-typedef GenericVector<WERD_CHOICE_CLIST *> WERD_CHOICE_LIST_VECTOR;
+typedef GenericVector<WERD_CHOICE_LIST *> WERD_CHOICE_LIST_VECTOR;
 
 void print_ratings_list(const char *msg, BLOB_CHOICE_LIST *ratings);
 void print_ratings_list(

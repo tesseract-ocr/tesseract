@@ -98,8 +98,6 @@ class WERD : public ELIST2_LINK {
     WERD *ConstructWerdWithNewBlobs(C_BLOB_LIST *all_blobs,
                                     C_BLOB_LIST *orphan_blobs);
 
-    WERD *poly_copy();  // make a copy
-
     // Accessors for reject / DUFF blobs in various formats
     C_BLOB_LIST *rej_cblob_list() {  // compact format
       if (flags.bit(W_POLYGON))
@@ -167,18 +165,6 @@ class WERD : public ELIST2_LINK {
     // copy other's blobs onto this word, leaving other intact.
     void copy_on(WERD* other);
 
-    // Normalize a word to tesseract coordinates, (x centered at 0, y between
-    // (bln_baseline_offset)..(bln_baseline_offset + bln_x_height)
-    //   - usually 64..192)
-    // Optionally return an antidote (denorm) to undo this normalization.
-    // If xheight is given, we use that instead of row's xheight.
-    void baseline_normalize(ROW *row, DENORM *denorm, bool numeric_mode);
-    void baseline_normalize_x(ROW *row, float x_height,
-                              DENORM *denorm, bool numeric_mode);
-
-    // return word to original coordinates
-    void baseline_denormalize(const DENORM *antidote);
-
     // tprintf word metadata (but not blob innards)
     void print();
 
@@ -194,36 +180,7 @@ class WERD : public ELIST2_LINK {
     // plot rejected blobs in a rainbow of colours
     void plot_rej_blobs(ScrollView *window);
 
-    void prep_serialise() {  // set ptrs to counts
-      correct.prep_serialise();
-      if (flags.bit(W_POLYGON))
-        ((PBLOB_LIST *)(&cblobs))->prep_serialise();
-      else
-        cblobs.prep_serialise();
-      rej_cblobs.prep_serialise();
-    }
-
-    // write external bits
-    void dump(FILE *f) {
-      correct.dump(f);
-      if (flags.bit(W_POLYGON))
-        ((PBLOB_LIST *)(&cblobs))->dump(f);
-      else
-        cblobs.dump(f);
-      rej_cblobs.dump(f);
-    }
-
-    // read external bits
-    void de_dump(FILE *f) {
-      correct.de_dump(f);
-      if (flags.bit(W_POLYGON))
-        ((PBLOB_LIST *)(&cblobs))->de_dump(f);
-      else
-        cblobs.de_dump(f);
-      rej_cblobs.de_dump(f);
-    }
-
-    make_serialise (WERD) private:
+ private:
     uinT8 blanks;                // no of blanks
     uinT8 dummy;                 // padding
     BITS16 flags;                // flags about word
@@ -234,7 +191,7 @@ class WERD : public ELIST2_LINK {
     C_BLOB_LIST rej_cblobs;      // DUFF blobs
 };
 
-ELIST2IZEH_S (WERD)
+ELIST2IZEH (WERD)
 #include          "ocrrow.h"     // placed here due to
 // compare words by increasing order of left edge, suitable for qsort(3)
 int word_comparator(const void *word1p, const void *word2p);

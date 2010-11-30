@@ -28,16 +28,20 @@
 ----------------------------------------------------------------------*/
 #include "mfcpch.h"
 #include "blobs.h"
+#include "ccstruct.h"
 #include "cutil.h"
 #include "emalloc.h"
 #include "helpers.h"
 #include "ndminx.h"
 #include "normalis.h"
+#include "ocrblock.h"
 #include "ocrrow.h"
 #include "points.h"
 #include "polyaprx.h"
 #include "structures.h"
 #include "werd.h"
+
+using tesseract::CCStruct;
 
 // A Vector representing the "vertical" direction when measuring the
 // divisiblity of blobs into multiple blobs just by separating outlines.
@@ -98,6 +102,16 @@ void TESSLINE::Clear() {
     this_edge = next_edge;
   } while (this_edge != loop);
   loop = NULL;
+}
+
+// Normalize in-place using the DENORM.
+void TESSLINE::Normalize(const DENORM& denorm) {
+  EDGEPT* pt = loop;
+  do {
+    denorm.LocalNormTransform(pt->pos, &pt->pos);
+    pt = pt->next;
+  } while (pt != loop);
+  SetupFromPos();
 }
 
 // Rotates by the given rotation in place.
@@ -271,6 +285,18 @@ void TBLOB::Clear() {
     delete outlines;
   }
 }
+// Normalize in-place using the DENORM.
+void TBLOB::Normalize(const DENORM& denorm) {
+  // TODO(rays) outline->Normalize is more accurate, but breaks tests due
+  // the changes it makes. Reinstate this code with a retraining.
+#if 0
+  for (TESSLINE* outline = outlines; outline != NULL; outline = outline->next) {
+    outline->Normalize(denorm);
+  }
+#else
+  denorm.LocalNormBlob(this);
+#endif
+}
 
 // Rotates by the given rotation in place.
 void TBLOB::Rotate(const FCOORD rotation) {
@@ -343,43 +369,33 @@ TWERD* TWERD::PolygonalCopy(WERD* src) {
 }
 
 // Normalize in-place and record the normalization in the DENORM.
-void TWERD::Normalize(ROW* row, float x_height, bool numeric_mode,
-                      DENORM* denorm) {
-  TBOX word_box = bounding_box();
-  DENORM antidote((word_box.left() + word_box.right()) / 2.0,
-                  kBlnXHeight / x_height, row);
-  if (row == NULL) {
-    antidote = DENORM(antidote.origin(), antidote.scale(), 0.0,
-                      word_box.bottom(), 0, NULL, false, NULL);
-  }
+void TWERD::SetupBLNormalize(const BLOCK* block, const ROW* row,
+                             float x_height, bool numeric_mode,
+                             DENORM* denorm) const {
   int num_segments = 0;
-  DENORM_SEG *segs = new DENORM_SEG[NumBlobs()];
-  for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
-    TBOX blob_box = blob->bounding_box();
-    ICOORD translation(-static_cast<int>(floor(antidote.origin() + 0.5)),
-                       -blob_box.bottom());
-    float factor = antidote.scale();
-    if (numeric_mode) {
+  DENORM_SEG* segs = NULL;
+  if (numeric_mode) {
+    segs = new DENORM_SEG[NumBlobs()];
+    for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
+      TBOX blob_box = blob->bounding_box();
+      float factor = kBlnXHeight / x_height;
       factor = ClipToRange(kBlnXHeight * 4.0f / (3 * blob_box.height()),
                            factor, factor * 1.5f);
-      segs[num_segments].xstart = blob->bounding_box().left();
+      segs[num_segments].xstart = blob_box.left();
       segs[num_segments].ycoord = blob_box.bottom();
       segs[num_segments++].scale_factor = factor;
-    } else {
-      float blob_x_center = (blob_box.left() + blob_box.right()) / 2.0;
-      float y_shift = antidote.yshift_at_orig_x(blob_x_center);
-      translation.set_y(-static_cast<int>(floor(y_shift + 0.5)));
     }
-    blob->Move(translation);
-    blob->Scale(factor);
-    blob->Move(ICOORD(0, kBlnBaselineOffset));
   }
-  if (num_segments > 0) {
-    antidote.set_segments(segs, num_segments);
-  }
+  denorm->SetupBLNormalize(block, row, x_height, bounding_box(),
+                           num_segments, segs);
   delete [] segs;
-  if (denorm != NULL)
-    *denorm = antidote;
+}
+
+// Normalize in-place using the DENORM.
+void TWERD::Normalize(const DENORM& denorm) {
+  for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
+    blob->Normalize(denorm);
+  }
 }
 
 // Copies the data and the blobs, but leaves next untouched.
@@ -689,3 +705,4 @@ void divide_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
   if (outline2)
     outline2->next = NULL;
 }
+

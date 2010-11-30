@@ -29,7 +29,7 @@
 
 class OUTLINE;                   //forward declaration
 
-ELISTIZEH_S (OUTLINE)
+ELISTIZEH (OUTLINE)
 class OUTLINE:public ELIST_LINK
 {
   public:
@@ -87,26 +87,6 @@ class OUTLINE:public ELIST_LINK
     void plot(                 //draw one
               ScrollView* window,   //window to draw in
               ScrollView::Color colour);  //colour to draw it
-
-    void prep_serialise() {  //set ptrs to counts
-      outline.prep_serialise ();
-      children.prep_serialise ();
-    }
-
-    void dump(  //write external bits
-              FILE *f) {
-      outline.dump (f);
-      children.dump (f);
-    }
-
-    void de_dump(  //read external bits
-                 FILE *f) {
-      outline.de_dump (f);
-      children.de_dump (f);
-    }
-
-                                 //assignment
-    make_serialise(OUTLINE)
 
     OUTLINE& operator=(const OUTLINE& source);
 

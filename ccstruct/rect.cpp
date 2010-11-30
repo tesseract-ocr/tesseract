@@ -230,29 +230,3 @@ const TBOX & op2) {
   }
   return op1;
 }
-
-
-/**********************************************************************
- * TBOX::serialise_asc()  Convert to ascii file.
- *
- **********************************************************************/
-
-void TBOX::serialise_asc(         //convert to ascii
-                        FILE *f  //file to use
-                       ) {
-  bot_left.serialise_asc (f);
-  top_right.serialise_asc (f);
-}
-
-
-/**********************************************************************
- * TBOX::de_serialise_asc()  Convert from ascii file.
- *
- **********************************************************************/
-
-void TBOX::de_serialise_asc(         //convert from ascii
-                           FILE *f  //file to use
-                          ) {
-  bot_left.de_serialise_asc (f);
-  top_right.de_serialise_asc (f);
-}

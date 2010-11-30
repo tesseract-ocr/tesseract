@@ -139,7 +139,7 @@ inT16 POLY_BLOCK::winding_number(const ICOORD &point) {
 }
 
 
-/// @return true if other is inside this.
+/// @Returns true if other is inside this.
 bool POLY_BLOCK::contains(POLY_BLOCK *other) {
   inT16 count;                   // winding count
   ICOORDELT_IT it = &vertices;   // iterator
@@ -283,7 +283,7 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
 #endif
 
 
-/// @return true if the polygons of other and this overlap.
+/// @Returns true if the polygons of other and this overlap.
 bool POLY_BLOCK::overlap(POLY_BLOCK *other) {
   inT16 count;                   // winding count
   ICOORDELT_IT it = &vertices;   // iterator
@@ -373,34 +373,6 @@ int lessthan(const void *first, const void *second) {
     return (1);
   else
     return (0);
-}
-
-
-/**
- * @name POLY_BLOCK::serialise_asc
- *
- * Convert to ascii file.
- * @param f file to use
- */
-
-void POLY_BLOCK::serialise_asc(FILE *f) {
-  vertices.serialise_asc (f);
-  box.serialise_asc (f);
-  serialise_INT32(f, type);
-}
-
-
-/**
- * @name POLY_BLOCK::de_serialise_asc
- *
- * Converto from ascii file.
- * @param f file to use
- */
-
-void POLY_BLOCK::de_serialise_asc(FILE *f) {
-  vertices.de_serialise_asc (f);
-  box.de_serialise_asc (f);
-  type = (PolyBlockType) de_serialise_INT32 (f);
 }
 
 

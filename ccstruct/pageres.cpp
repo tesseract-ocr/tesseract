@@ -241,9 +241,8 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset,
     return false;
   }
   chopped_word = TWERD::PolygonalCopy(word);
-  chopped_word->Normalize(row, x_height, numeric_mode, &denorm);
-  if (block != NULL)
-    denorm.set_block(block);
+  chopped_word->SetupBLNormalize(block, row, x_height, numeric_mode, &denorm);
+  chopped_word->Normalize(denorm);
   bln_boxes = tesseract::BoxWord::CopyFromNormalized(NULL, chopped_word);
   seam_array = start_seam_list(chopped_word->blobs);
   best_choice = new WERD_CHOICE;

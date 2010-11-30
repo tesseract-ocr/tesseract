@@ -378,8 +378,6 @@ class BLOBNBOX:public ELIST_LINK
     }
 #endif
 
-  NEWDELETE2(BLOBNBOX)
-
   // Initializes the bulk of the members to default values for use at
   // construction time.
   void ConstructionInit() {
@@ -556,7 +554,7 @@ class TO_ROW: public ELIST2_LINK
     }
 
                                  // true when dead
-    NEWDELETE2 (TO_ROW) BOOL8 merged;
+    BOOL8 merged;
     BOOL8 all_caps;              // had no ascenders
     BOOL8 used_dm_model;         // in guessing pitch
     inT16 projection_left;       // start of projection
@@ -689,7 +687,7 @@ class TO_BLOCK:public ELIST_LINK
     float pr_nonsp;              //non sp if prop
     TO_ROW *key_row;             //starting row
 
-    NEWDELETE2 (TO_BLOCK) private:
+   private:
     TO_ROW_LIST row_list;        //temporary rows
 };
 

@@ -269,11 +269,6 @@ class DLLSYM TBOX  {  // bounding box
     friend DLLSYM TBOX & operator-= (TBOX &, const TBOX &);
     // in place intersection
 
-    void serialise_asc(  // convert to ascii
-                       FILE *f);
-    void de_serialise_asc(  // convert from ascii
-                          FILE *f);
-
   private:
     ICOORD bot_left;             // bottom left corner
     ICOORD top_right;            // top right corner

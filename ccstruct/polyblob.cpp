@@ -31,7 +31,7 @@
 
 #define EXTERN
 
-ELISTIZE_S (PBLOB)
+ELISTIZE (PBLOB)
 /**********************************************************************
  * position_outline
  *
@@ -218,45 +218,6 @@ float PBLOB::area() {  //area
     total += outline->area ();
   }
   return total;
-}
-
-
-/**********************************************************************
- * PBLOB::baseline_normalise
- *
- * Baseline normalize a blob
- **********************************************************************/
-
-PBLOB *PBLOB::baseline_normalise(                //normalize blob
-                                 ROW *row,       //row it came from
-                                 DENORM *denorm  //inverse mapping
-                                ) {
-  TBOX blob_box = bounding_box ();
-  float x_centre = (blob_box.left () + blob_box.right ()) / 2.0;
-  PBLOB *bn_blob;                //copied blob
-
-  *denorm = DENORM (x_centre, kBlnXHeight / row->x_height (), row);
-  bn_blob = new PBLOB;           //get one
-  *bn_blob = *this;              //deep copy
-  bn_blob->move (FCOORD (-denorm->origin (), -row->base_line (x_centre)));
-  bn_blob->scale (denorm->scale ());
-  bn_blob->move (FCOORD (0.0, kBlnBaselineOffset));
-  return bn_blob;
-}
-
-
-/**********************************************************************
- * PBLOB::baseline_denormalise
- *
- * DeBaseline Normalise the blob properly with the given denorm.
- **********************************************************************/
-
-void PBLOB::baseline_denormalise(const DENORM *denorm ) {
-  move(FCOORD(0.0f, 0.0f - kBlnBaselineOffset));
-  TBOX blob_box = bounding_box();
-  float blob_x_centre = (blob_box.left() + blob_box.right()) / 2.0f;
-  scale(1.0 / denorm->scale_at_x(blob_x_centre));
-  move(FCOORD(denorm->origin(), denorm->yshift_at_x(blob_x_centre)));
 }
 
 

@@ -26,7 +26,7 @@
 #include "config_auto.h"
 #endif
 
-ELISTIZE_S (C_BLOB)
+ELISTIZE (C_BLOB)
 /**********************************************************************
  * position_outline
  *

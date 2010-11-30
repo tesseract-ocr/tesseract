@@ -32,6 +32,7 @@
 #include "rect.h"
 #include "vecfuncs.h"
 
+class BLOCK;
 class C_BLOB;
 class DENORM;
 class ROW;
@@ -119,6 +120,8 @@ struct TESSLINE {
   void CopyFrom(const TESSLINE& src);
   // Deletes owned data.
   void Clear();
+  // Normalize in-place using the DENORM.
+  void Normalize(const DENORM& denorm);
   // Rotates by the given rotation in place.
   void Rotate(const FCOORD rotation);
   // Moves by the given vec in place.
@@ -177,6 +180,8 @@ struct TBLOB {
   void CopyFrom(const TBLOB& src);
   // Deletes owned data.
   void Clear();
+  // Normalize in-place using the DENORM.
+  void Normalize(const DENORM& denorm);
   // Rotates by the given rotation in place.
   void Rotate(const FCOORD rotation);
   // Moves by the given vec in place.
@@ -222,8 +227,13 @@ struct TWERD {
   // Factory to build a TWERD from a (C_BLOB) WERD, with polygonal
   // approximation along the way.
   static TWERD* PolygonalCopy(WERD* src);
-  // Normalize in-place and record the normalization in the DENORM.
-  void Normalize(ROW* row, float x_height, bool numeric_mode, DENORM* denorm);
+  // Setup for Baseline normalization, recording the normalization in the
+  // DENORM, but doesn't do any normalization.
+  void SetupBLNormalize(const BLOCK* block, const ROW* row,
+                        float x_height, bool numeric_mode,
+                        DENORM* denorm) const;
+  // Normalize in-place using the DENORM.
+  void Normalize(const DENORM& denorm);
   // Copies the data and the blobs, but leaves next untouched.
   void CopyFrom(const TWERD& src);
   // Deletes owned data.

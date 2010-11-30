@@ -61,23 +61,6 @@ class C_BLOB:public ELIST_LINK
               ScrollView::Color blob_colour,    //for outer bits
               ScrollView::Color child_colour);  //for holes
 
-    void prep_serialise() {  //set ptrs to counts
-      outlines.prep_serialise ();
-    }
-
-    void dump(  //write external bits
-              FILE *f) {
-      outlines.dump (f);
-    }
-
-    void de_dump(  //read external bits
-                 FILE *f) {
-      outlines.de_dump (f);
-    }
-
-                                 //assignment
-    make_serialise(C_BLOB)
-
     C_BLOB& operator= (const C_BLOB & source) {
       if (!outlines.empty ())
         outlines.clear();
@@ -95,5 +78,5 @@ class C_BLOB:public ELIST_LINK
     C_OUTLINE_LIST outlines;     //master elements
 };
 
-ELISTIZEH_S (C_BLOB)
+ELISTIZEH (C_BLOB)
 #endif

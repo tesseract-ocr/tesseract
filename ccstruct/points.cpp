@@ -23,7 +23,7 @@
 #include          "serialis.h"
 #include          "points.h"
 
-ELISTIZE_S (ICOORDELT)           //turn to list
+ELISTIZE (ICOORDELT)           //turn to list
 bool FCOORD::normalise() {  //Convert to unit vec
   float len = length ();
 
@@ -82,34 +82,4 @@ void ICOORD::setup_render(ICOORD* major_step, ICOORD* minor_step,
     *major = abs_y;
     *minor = abs_x;
   }
-}
-
-
-void ICOORD::serialise_asc(         //convert to ascii
-                           FILE *f  //file to write
-                          ) {
-  serialise_INT32(f, xcoord);
-  serialise_INT32(f, ycoord);
-}
-
-
-void ICOORD::de_serialise_asc(         //convert from ascii
-                              FILE *f  //file to write
-                             ) {
-  xcoord = (inT16) de_serialise_INT32 (f);
-  ycoord = (inT16) de_serialise_INT32 (f);
-}
-
-
-void ICOORDELT::serialise_asc(         //convert to ascii
-                              FILE *f  //file to write
-                             ) {
-  ((ICOORD *) this)->serialise_asc (f);
-}
-
-
-void ICOORDELT::de_serialise_asc(         //convert from ascii
-                                 FILE *f  //file to write
-                                ) {
-  ((ICOORD *) this)->de_serialise_asc (f);
 }

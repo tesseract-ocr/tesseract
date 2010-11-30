@@ -126,7 +126,6 @@ class DLLSYM BLOCK_RECT_IT       //rectangle iterator
     ///@param blkptr block to iterate
     BLOCK_RECT_IT(PDBLK *blkptr);
 
-    NEWDELETE2 (BLOCK_RECT_IT)
     ///start (new) block
     void set_to_block (
       PDBLK * blkptr);           //block to iterate
@@ -172,7 +171,6 @@ class DLLSYM BLOCK_LINE_IT
       block = blkptr;            //remember block
     }
 
-    NEWDELETE2 (BLOCK_LINE_IT)
     ///start (new) block
       ///@param blkptr block to start
     void set_to_block (PDBLK * blkptr) {

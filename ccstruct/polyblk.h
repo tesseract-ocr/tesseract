@@ -76,20 +76,6 @@ class DLLSYM POLY_BLOCK {
   // test_pt outside this.
   inT16 winding_number(const ICOORD &test_pt);
 
-  // Serialization.
-  void prep_serialise() {
-    vertices.prep_serialise();
-  }
-  void dump(FILE *f) {
-    vertices.dump(f);
-  }
-  void de_dump(FILE *f) {
-    vertices.de_dump(f);
-  }
-  make_serialise(POLY_BLOCK)
-  void serialise_asc(FILE * f);
-  void de_serialise_asc(FILE *f);
-
   // Static utility functions to handle the PolyBlockType.
 
   // Returns a color to draw the given type.
@@ -107,8 +93,6 @@ class DLLSYM PB_LINE_IT {
   PB_LINE_IT(POLY_BLOCK *blkptr) {
     block = blkptr;
   }
-
-  NEWDELETE2(PB_LINE_IT)
 
   void set_to_block(POLY_BLOCK * blkptr) {
     block = blkptr;

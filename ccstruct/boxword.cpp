@@ -60,7 +60,6 @@ void BoxWord::CopyFrom(const BoxWord& src) {
 // back to the original image coordinates.
 BoxWord* BoxWord::CopyFromNormalized(const DENORM* denorm,
                                      TWERD* tessword) {
-  const BLOCK* block = denorm != NULL ? denorm->block() : NULL;
   BoxWord* boxword = new BoxWord();
   // Count the blobs.
   boxword->length_ = 0;
@@ -79,12 +78,10 @@ BoxWord* BoxWord::CopyFromNormalized(const DENORM* denorm,
         if (!edgept->IsHidden() || !edgept->prev->IsHidden()) {
           ICOORD pos(edgept->pos.x, edgept->pos.y);
           if (denorm != NULL) {
-            FCOORD denormed(denorm->x(edgept->pos.x),
-                            denorm->y(edgept->pos.y, edgept->pos.x));
-            if (block != NULL)
-              denormed.rotate(block->re_rotation());
-            pos.set_x(static_cast<inT16>(floor(denormed.x() + 0.5)));
-            pos.set_y(static_cast<inT16>(floor(denormed.y() + 0.5)));
+            TPOINT denormed;
+            denorm->DenormTransform(edgept->pos, &denormed);
+            pos.set_x(denormed.x);
+            pos.set_y(denormed.y);
           }
           TBOX pt_box(pos, pos);
           blob_box += pt_box;
@@ -146,7 +143,10 @@ void BoxWord::ClipToOriginalWord(const BLOCK* block, WERD* original_word) {
                            kBoxClipTolerance))
         box.set_bottom(original_box.bottom());
     }
-    boxes_[i] = box.intersection(original_word->bounding_box());
+    original_box = original_word->bounding_box();
+    if (block != NULL)
+      original_box.rotate(block->re_rotation());
+    boxes_[i] = box.intersection(original_box);
   }
   ComputeBoundingBox();
 }

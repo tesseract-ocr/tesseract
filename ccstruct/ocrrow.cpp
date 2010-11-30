@@ -26,7 +26,7 @@
 #include "config_auto.h"
 #endif
 
-ELISTIZE_S (ROW)
+ELISTIZE (ROW)
 /**********************************************************************
  * ROW::ROW
  *

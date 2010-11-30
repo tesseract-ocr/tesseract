@@ -40,7 +40,7 @@ enum C_OUTLINE_FLAGS
 class DLLSYM C_OUTLINE;          //forward declaration
 struct Pix;
 
-ELISTIZEH_S (C_OUTLINE)
+ELISTIZEH (C_OUTLINE)
 class DLLSYM C_OUTLINE:public ELIST_LINK
 {
   public:
@@ -157,26 +157,6 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
     void plot(                       //draw one
               ScrollView* window,         //window to draw in
               ScrollView::Color colour) const;  //colour to draw it
-
-    void prep_serialise() {  //set ptrs to counts
-      children.prep_serialise ();
-    }
-
-    void dump(  //write external bits
-              FILE *f) {
-                                 //stepcount = # bytes
-      serialise_bytes (f, (void *) steps, step_mem());
-      children.dump (f);
-    }
-
-    void de_dump(  //read external bits
-                 FILE *f) {
-      steps = (uinT8 *) de_serialise_bytes (f, step_mem());
-      children.de_dump (f);
-    }
-
-                                 //assignment
-    make_serialise (C_OUTLINE)
 
     C_OUTLINE& operator=(const C_OUTLINE& source);
 

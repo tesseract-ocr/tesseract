@@ -26,7 +26,7 @@
 
 class BLOCK;                     //forward decl
 
-ELISTIZEH_S (BLOCK)
+ELISTIZEH (BLOCK)
 class BLOCK:public ELIST_LINK, public PDBLK
 //page block
 {
@@ -173,37 +173,6 @@ class BLOCK:public ELIST_LINK, public PDBLK
 
   /// dump whole table
   void print(FILE *fp, BOOL8 dump);
-
-  /// set ptrs to counts
-  void prep_serialise() {
-    filename.prep_serialise();
-    rows.prep_serialise();
-    c_blobs.prep_serialise();
-    rej_blobs.prep_serialise();
-    leftside.prep_serialise();
-    rightside.prep_serialise();
-  }
-
-  void dump(FILE *f) {
-    filename.dump(f);
-    rows.dump(f);
-    c_blobs.dump(f);
-    rej_blobs.dump(f);
-    leftside.dump(f);
-    rightside.dump(f);
-  }
-
-  /// read external bits
-  void de_dump(FILE *f) {
-    filename.de_dump(f);
-    rows.de_dump(f);
-    c_blobs.de_dump(f);
-    rej_blobs.de_dump(f);
-    leftside.de_dump(f);
-    rightside.de_dump(f);
-  }
-
-  make_serialise(BLOCK)
 
   BLOCK& operator=(const BLOCK & source);
 

@@ -20,4 +20,4 @@
 #include "mfcpch.h"
 #include          "polyvert.h"
 
-ELIST2IZE_S (POLYPT)
+ELIST2IZE (POLYPT)

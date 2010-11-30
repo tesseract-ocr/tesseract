@@ -25,7 +25,7 @@
 
 #define BLOCK_LABEL_HEIGHT  150  //char height of block id
 
-ELISTIZE_S (BLOCK)
+ELISTIZE (BLOCK)
 /**
  * BLOCK::BLOCK
  *

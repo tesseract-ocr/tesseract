@@ -25,7 +25,7 @@
 #include "config_auto.h"
 #endif
 
-ELISTIZE_S (OUTLINE)
+ELISTIZE (OUTLINE)
 /**********************************************************************
  * OUTLINE::OUTLINE
  *

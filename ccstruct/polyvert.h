@@ -35,24 +35,13 @@ class POLYPT:public ELIST2_LINK
       vec = vector;              //just copy
     }
 
-    void prep_serialise() {  //set ptrs to counts
-    }
-    void dump(  //write external bits
-              FILE *) {
-    }
-    void de_dump(  //read external bits
-                 FILE *) {
-    }
-
     static POLYPT* deep_copy(const POLYPT* src) {
       return new POLYPT(*src);
     }
                                  //really simple
-    make_serialise (POLYPT)
-
     FCOORD pos;
     FCOORD vec;                  //vector to next
 };
 
-ELIST2IZEH_S (POLYPT)
+ELIST2IZEH (POLYPT)
 #endif
