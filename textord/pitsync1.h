@@ -68,7 +68,7 @@ class FPSEGPT:public ELIST_LINK
     }
 
                                  //faked split point
-    NEWDELETE2 (FPSEGPT) BOOL8 faked;
+    BOOL8 faked;
     BOOL8 terminal;              //successful end
     inT16 fake_count;            //total fakes to here
 

@@ -336,4 +336,3 @@ Boxa* LineFinder::GetHLineBoxes(int resolution, Pix* src_pix, Pix** line_pix) {
 
 }  // namespace tesseract.
 
-

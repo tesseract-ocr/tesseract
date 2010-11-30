@@ -1049,6 +1049,26 @@ static void CountNeighbourTypes(BLOBNBOX_CLIST* neighbours,
 // is clear-cut based on a distance margin. Good for isolating vertical
 // text from neighbouring horizontal text.
 void StrokeWidth::SimplifyObviousNeighbours(BLOBNBOX* blob) {
+  // Case 1: We have text that is likely several characters, blurry and joined
+  //         together.
+  if ((blob->bounding_box().width() > 3 * blob->area_stroke_width() &&
+       blob->bounding_box().height() > 3 * blob->area_stroke_width())) {
+    // The blob is complex (not stick-like).
+    if (blob->bounding_box().width() > 4 * blob->bounding_box().height()) {
+      // Horizontal conjoined text.
+      blob->set_neighbour(BND_ABOVE, NULL, false);
+      blob->set_neighbour(BND_BELOW, NULL, false);
+      return;
+    }
+    if (blob->bounding_box().height() > 4 * blob->bounding_box().width()) {
+      // Vertical conjoined text.
+      blob->set_neighbour(BND_LEFT, NULL, false);
+      blob->set_neighbour(BND_RIGHT, NULL, false);
+      return;
+    }
+  }
+
+  // Case 2: This blob is likely a single character.
   int margin = gridsize() / 2;
   int h_min, h_max, v_min, v_max;
   blob->MinMaxGapsClipped(&h_min, &h_max, &v_min, &v_max);

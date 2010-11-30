@@ -213,7 +213,7 @@ ScrollView* AlignedBlob::DisplayTabs(const char* window_name,
     }
   }
   tab_win->Update();
-#endif 
+#endif
   return tab_win;
 }
 
