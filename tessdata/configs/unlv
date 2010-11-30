@@ -1,4 +1,2 @@
 tessedit_write_unlv 1
-tessedit_write_output 0
-tessedit_write_txt_map 0
-tessedit_pageseg_mode 2
+tessedit_pageseg_mode 6

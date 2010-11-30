@@ -1,3 +1,4 @@
+disable_character_fragments T
 file_type                   .bl
 textord_fast_pitch_test	T
 tessedit_single_match	0
