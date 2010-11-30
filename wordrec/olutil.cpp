@@ -81,6 +81,8 @@ void eliminate_duplicate_outlines(TBLOB *blob) {
         other_outline->loop = NULL;
         delete other_outline;
         other_outline = last_outline;
+        // If it is part of a cut, then it can't be a hole any more.
+        outline->is_hole = false;
       }
     }
   }

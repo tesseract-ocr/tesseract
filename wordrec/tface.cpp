@@ -148,8 +148,8 @@ BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
     TBOX box = tessblob->bounding_box();
     int src_width = box.width();
     int src_height = box.height();
-    src_width = static_cast<int>(src_width / denorm_.scale() + 0.5);
-    src_height = static_cast<int>(src_height / denorm_.scale() + 0.5);
+    src_width = static_cast<int>(src_width / denorm_.y_scale() + 0.5);
+    src_height = static_cast<int>(src_height / denorm_.y_scale() + 0.5);
     int x_middle = (box.left() + box.right()) / 2;
     int y_middle = (box.top() + box.bottom()) / 2;
     rotated_blob = new TBLOB(*tessblob);

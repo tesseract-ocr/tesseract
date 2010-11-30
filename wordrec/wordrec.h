@@ -87,10 +87,8 @@ class FRAGMENT:public ELIST_LINK
     ICOORD tail;                 //coords of end
     EDGEPT *headpt;              //start point
     EDGEPT *tailpt;              //end point
-
-    NEWDELETE2 (FRAGMENT)
 };
-ELISTIZEH (FRAGMENT)
+ELISTIZEH(FRAGMENT)
 
 
 class Wordrec : public Classify {

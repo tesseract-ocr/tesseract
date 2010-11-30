@@ -55,11 +55,11 @@ void AssociateUtils::ComputeStats(int col, int row,
     // normalizing factor so we are not dependent on xheight calculation.
     // In the normalized coord. xheight * scale == BASELINE_SCALE(128),
     // so add proportionally scaled ascender zone to get full text height.
-    normalizing_height = denorm->scale() *
+    normalizing_height = denorm->y_scale() *
       (denorm->row()->x_height() + denorm->row()->ascenders());
     if (debug_level > 0) {
       tprintf("normalizing height = %g (scale %g xheight %g ascenders %g)\n",
-              normalizing_height, denorm->scale(), denorm->row()->x_height(),
+              normalizing_height, denorm->y_scale(), denorm->row()->x_height(),
               denorm->row()->ascenders());
     }
   }

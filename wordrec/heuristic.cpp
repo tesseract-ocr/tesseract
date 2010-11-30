@@ -233,7 +233,7 @@ FLOAT32 Wordrec::width_priority(CHUNKS_RECORD *chunks_record,
     // normalizing factor so we are not dependent on xheight calculation.
     // In the normalized coord. xheight * scale == BASELINE_SCALE(128),
     // so add proportionally scaled ascender zone to get full text height.
-    normalizing_height = denorm_.scale() *
+    normalizing_height = denorm_.y_scale() *
         (denorm_.row()->x_height() + denorm_.row()->ascenders());
     if (segment_adjust_debug > 1)
       tprintf("WidthPriority: %f %f normalizing height = %f\n",
