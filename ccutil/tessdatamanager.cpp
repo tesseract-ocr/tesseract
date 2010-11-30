@@ -32,13 +32,13 @@
 
 namespace tesseract {
 
-void TessdataManager::Init(const char *data_file_name, int debug_level) {
+bool TessdataManager::Init(const char *data_file_name, int debug_level) {
   int i;
   debug_level_ = debug_level;
   data_file_ = fopen(data_file_name, "rb");
   if (data_file_ == NULL) {
     tprintf("Error opening data file %s\n", data_file_name);
-    exit(1);
+    return false;
   }
   fread(&actual_tessdata_num_entries_, sizeof(inT32), 1, data_file_);
   bool swap = (actual_tessdata_num_entries_ > kMaxNumTessdataEntries);
@@ -60,6 +60,7 @@ void TessdataManager::Init(const char *data_file_name, int debug_level) {
       tprintf("Offset for type %d is %lld\n", i, offset_table_[i]);
     }
   }
+  return true;
 }
 
 void TessdataManager::CopyFile(FILE *input_file, FILE *output_file,

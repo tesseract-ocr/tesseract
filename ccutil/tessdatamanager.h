@@ -124,8 +124,11 @@ class TessdataManager {
   ~TessdataManager() {}
   int DebugLevel() { return debug_level_; }
 
-  /** Opens the given data file and reads the offset table. */
-  void Init(const char *data_file_name, int debug_level);
+  /**
+   * Opens the given data file and reads the offset table.
+   * Returns true on success.
+   */
+  bool Init(const char *data_file_name, int debug_level);
 
   /** Returns data file pointer. */
   inline FILE *GetDataFilePtr() const { return data_file_; }

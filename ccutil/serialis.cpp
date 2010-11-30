@@ -21,69 +21,6 @@
 #include "serialis.h"
 #include "scanutils.h"
 
-/* **************************************************************************
-
-These are the only routines that write/read data to/from the serialisation.
-
-"serialise_bytes" and "de_serialise_bytes" are used to serialise NON class
-items.  The "make_serialise" macro generates "serialise" and "de_serialise"
-member functions for the class name specified in the macro parameter.
-
-************************************************************************** */
-
-DLLSYM void *de_serialise_bytes(FILE *f, int size) {
-  void *ptr;
-
-  ptr = alloc_mem (size);
-  /*
-  printf( "De_serialising bytes\n" );
-  printf( "  Addr: %d    Size: %d\n", int(ptr), size );
-  */
-  if (fread (ptr, size, 1, f) != 1)
-    READFAILED.error ("de_serialise_bytes", ABORT, NULL);
-  return ptr;
-}
-
-
-DLLSYM void serialise_bytes(FILE *f, void *ptr, int size) {
-  /*
-  printf( "Serialising bytes\n" );
-  printf( "  Addr: %d    Size: %d\n", int(ptr), size );
-  */
-  if (fwrite (ptr, size, 1, f) != 1)
-    WRITEFAILED.error ("serialise_bytes", ABORT, NULL);
-}
-
-
-DLLSYM void serialise_INT32(FILE *f, inT32 the_int) {
-  if (fprintf (f, INT32FORMAT "\n", the_int) < 0)
-    WRITEFAILED.error ("serialise_INT32", ABORT, NULL);
-}
-
-
-DLLSYM inT32 de_serialise_INT32(FILE *f) {
-  inT32 the_int;
-
-  if (fscanf (f, INT32FORMAT, &the_int) != 1)
-    READFAILED.error ("de_serialise_INT32", ABORT, NULL);
-  return the_int;
-}
-
-
-DLLSYM void serialise_FLOAT64(FILE *f, double the_float) {
-  if (fprintf (f, "%g\n", the_float) < 0)
-    WRITEFAILED.error ("serialise_FLOAT64", ABORT, NULL);
-}
-
-
-DLLSYM double de_serialise_FLOAT64(FILE *f) {
-  double the_float;
-
-  if (fscanf (f, "%lg", &the_float) != 1)
-    READFAILED.error ("de_serialise_FLOAT64", ABORT, NULL);
-  return the_float;
-}
-
 // Byte swap an inT64 or uinT64.
 DLLSYM uinT64 reverse64(uinT64 num) {
   return ((uinT64)reverse32((uinT32)(num & 0xffffffff)) << 32)

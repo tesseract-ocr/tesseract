@@ -77,12 +77,6 @@ class DLLSYM ELIST2_LINK
     const ELIST2_LINK &) {
       prev = next = NULL;
     }
-
-    /* NOTE that none of the serialise member functions are required for
-    ELIST2_LINKs as they are never serialised.  (We demand that the derived
-    class terminates recursion - just to make sure that it defines the member
-    functions anyway.)
-    */
 };
 
 /**********************************************************************
@@ -145,24 +139,6 @@ class DLLSYM ELIST2
     void add_sorted(int comparator(const void*, const void*),
                     ELIST2_LINK* new_link);
 
-    void internal_dump (         //serialise each elem
-      FILE * f,                  //to this file
-      void element_serialiser (  //using this function
-      FILE *, ELIST2_LINK *));
-
-    void internal_de_dump (      //de_serial each elem
-      FILE * f,                  //from this file
-                                 //using this function
-      ELIST2_LINK * element_de_serialiser (
-      FILE *));
-
-    void prep_serialise();  //change last to count
-
-    /*  Note that dump() and de_dump() are not required as calls to dump/de_dump a
-      list class should be handled by a class derived from this.
-
-      make_serialise is not required for a similar reason.
-    */
 };
 
 /***********************************************************************
@@ -912,8 +888,6 @@ will NOT work correctly for classes derived from this.
 
 The macro generates:
   - An element deletion function:      CLASSNAME##_zapper
-  - An element serialiser function"    CLASSNAME##_serialiser
-  - An element de-serialiser function" CLASSNAME##_de_serialiser
   - An E_LIST2 subclass:	CLASSNAME##_LIST
   - An E_LIST2_ITERATOR subclass:
               CLASSNAME##_IT
@@ -921,21 +895,16 @@ The macro generates:
 NOTE: Generated names are DELIBERATELY designed to clash with those for
 ELISTIZE but NOT with those for CLISTIZE and CLIST2IZE
 
-Four macros are provided: ELIST2IZE, ELIST2IZE_S, ELIST2IZEH and ELIST2IZEH_S
+Two macros are provided: ELIST2IZE and ELIST2IZEH
 The ...IZEH macros just define the class names for use in .h files
 The ...IZE macros define the code use in .c files
-The _S versions define lists which can be serialised.  They assume that
-the make_serialise() macro is used in the list element class derived from
-ELIST2_LINK to define serialise() and de_serialise() members for the list
-elements.
 ***********************************************************************/
 
 /***********************************************************************
-  ELIST2IZEH( CLASSNAME )  and  ELIST2IZEH_S( CLASSNAME ) MACROS
+  ELIST2IZEH( CLASSNAME ) MACRO
 
-These macros are constructed from 3 fragments ELIST2IZEH_A, ELIST2IZEH_B and
-ELIST2IZEH_C.  ELIST2IZEH is simply a concatenation of these parts.
-ELIST2IZEH_S has some additional bits thrown in the gaps.
+ELIST2IZEH is a concatenation of 3 fragments ELIST2IZEH_A, ELIST2IZEH_B and
+ELIST2IZEH_C.
 ***********************************************************************/
 
 #define ELIST2IZEH_A( CLASSNAME )													\
@@ -1033,34 +1002,9 @@ ELIST2IZEH_B( CLASSNAME )																		\
 																										\
 ELIST2IZEH_C( CLASSNAME )
 
-#define ELIST2IZEH_S( CLASSNAME )													\
-																										\
-ELIST2IZEH_A( CLASSNAME )																		\
-																										\
-extern DLLSYM void			CLASSNAME##_serialiser(										\
-FILE*						f,																	\
-ELIST2_LINK*				element);														\
-																										\
-extern DLLSYM ELIST2_LINK*	CLASSNAME##_de_serialiser(								\
-FILE*						f);																\
-																										\
-ELIST2IZEH_B( CLASSNAME )																		\
-																										\
-	void					dump(						/* dump to file */   \
-	FILE*					f)																	\
-	{ ELIST2::internal_dump( f, &CLASSNAME##_serialiser );}						\
-																										\
-	void					de_dump(					/* get from file */  \
-	FILE*					f)																	\
-	{ ELIST2::internal_de_dump( f, &CLASSNAME##_de_serialiser );}				\
-																										\
-make_serialise( CLASSNAME##_LIST )													\
-																										\
-ELIST2IZEH_C( CLASSNAME )
 
 /***********************************************************************
-  ELIST2IZE( CLASSNAME )  and   ELIST2IZE_S( CLASSNAME )  MACROS
-ELIST2IZE_S is a simple extension to ELIST2IZE
+  ELIST2IZE( CLASSNAME ) MACRO
 ***********************************************************************/
 
 #define ELIST2IZE( CLASSNAME )                                                \
@@ -1091,31 +1035,4 @@ void CLASSNAME##_LIST::deep_copy(const CLASSNAME##_LIST* src_list, \
     to_it.add_after_then_move((*copier)(from_it.data())); \
 }
 
-#define ELIST2IZE_S(CLASSNAME) \
-\
-ELIST2IZE(CLASSNAME) \
-\
-/***********************************************************************		\
-*							CLASSNAME##_serialiser																			\
-*																										\
-*  A function which can serialise an element												\
-*  This is passed to the generic dump member function so that when a list is  \
-*  serialised the elements on the list are properly serialised.					\
-**********************************************************************/			\
-\
-DLLSYM void	CLASSNAME##_serialiser(FILE* f, ELIST2_LINK* element) { \
-  reinterpret_cast<CLASSNAME*>(element)->serialise(f); \
-} \
-\
-/***********************************************************************		\
-*							CLASSNAME##_de_serialiser																		\
-*																										\
-*  A function which can de-serialise an element											\
-*  This is passed to the generic de-dump member function so that when a list  \
-*  is de-serialised the elements on the list are properly de-serialised.		\
-**********************************************************************/			\
-\
-DLLSYM ELIST2_LINK* CLASSNAME##_de_serialiser(FILE* f) { \
-  return reinterpret_cast<ELIST2_LINK*>(CLASSNAME::de_serialise(f)); \
-}
 #endif

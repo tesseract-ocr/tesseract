@@ -299,37 +299,6 @@ void STRING::add_str_int(const char* str, int number) {
   *this += num_buffer;
 }
 
-void STRING::prep_serialise() {
-  // WARNING
-  // This method should only be called on a shallow bitwise copy
-  // by the serialise() method (see serialis.h).
-  FixHeader();
-  data_ = (STRING_HEADER *)GetHeader()->used_;
-}
-
-
-void STRING::dump(FILE* f) {
-  FixHeader();
-  serialise_bytes (f, data_, GetHeader()->used_);
-}
-
-void STRING::de_dump(FILE* f) {
-  char *instring;            //input from read
-  fprintf(stderr, "de_dump\n");
-  instring = (char *)de_serialise_bytes(f, (ptrdiff_t)data_);
-  int len = strlen(instring) + 1;
-
-  char* this_cstr = AllocData(len, len);
-  STRING_HEADER* this_header = GetHeader();
-
-  memcpy(this_cstr, instring, len);
-  this_header->used_ = len;
-
-  free_mem(instring);
-  assert(InvariantOk());
-}
-
-
 STRING & STRING::operator=(const char* cstr) {
   STRING_HEADER* this_header = GetHeader();
   if (cstr) {

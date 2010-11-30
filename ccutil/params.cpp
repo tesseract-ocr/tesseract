@@ -144,6 +144,44 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   return (sp || ip || bp || dp);
 }
 
+bool ParamUtils::GetParamAsString(const char *name,
+                                  const ParamsVectors* member_params,
+                                  STRING *value) {
+  // Look for the parameter among string parameters.
+  StringParam *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
+                                           member_params->string_params);
+  if (sp) {
+    *value = sp->string();
+    return true;
+  }
+  // Look for the parameter among int parameters.
+  IntParam *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
+                                     member_params->int_params);
+  if (ip) {
+    char buf[128];
+    snprintf(buf, sizeof(buf), "%d", inT32(*ip));
+    *value = buf;
+    return true;
+  }
+  // Look for the parameter among bool parameters.
+  BoolParam *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
+                                       member_params->bool_params);
+  if (bp != NULL) {
+    *value = BOOL8(*bp) ? "1": "0";
+    return true;
+  }
+  // Look for the parameter among double parameters.
+  DoubleParam *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
+                                           member_params->double_params);
+  if (dp != NULL) {
+    char buf[128];
+    snprintf(buf, sizeof(buf), "%g", double(*dp));
+    *value = buf;
+    return true;
+  }
+  return false;
+}
+
 void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
   int v, i;
   int num_iterations = (member_params == NULL) ? 1 : 2;

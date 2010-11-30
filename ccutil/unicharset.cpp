@@ -286,7 +286,7 @@ bool UNICHARSET::save_to_file(FILE *file) const {
   return true;
 }
 
-bool UNICHARSET::load_from_file(FILE *file) {
+bool UNICHARSET::load_from_file(FILE *file, bool skip_fragments) {
   int unicharset_size;
   char buffer[256];
 
@@ -317,6 +317,13 @@ bool UNICHARSET::load_from_file(FILE *file) {
          sscanf(buffer, "%s %x", unichar, &properties) != 2)) {
       return false;
     }
+    // Skip fragments if needed.
+    CHAR_FRAGMENT *frag = NULL;
+    if (skip_fragments && (frag = CHAR_FRAGMENT::parse_from_string(unichar))) {
+      delete frag;
+      continue;
+    }
+    // Insert unichar into unicharset and set its properties.
     if (strcmp(unichar, "NULL") == 0)
       this->unichar_insert(" ");
     else

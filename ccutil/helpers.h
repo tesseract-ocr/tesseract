@@ -104,6 +104,11 @@ inline int DivRounded(int a, int b) {
   return a >= 0 ? (a + b / 2) / b : (a - b / 2) / b;
 }
 
+// Return a double cast to int with rounding.
+inline int IntCastRounded(double x) {
+  return x >= 0.0 ? static_cast<int>(x + 0.5) : -static_cast<int>(-x + 0.5);
+}
+
 // Reverse the order of bytes in a n byte quantity for big/little-endian switch.
 inline void ReverseN(void* ptr, int num_bytes) {
   char *cptr = reinterpret_cast<char *>(ptr);

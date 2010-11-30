@@ -240,17 +240,21 @@ class UNICHARSET {
   // Opens the file indicated by filename and loads the UNICHARSET
   // from the given file. The previous data is lost.
   // Returns true if the operation is successful.
-  bool load_from_file(const char* const filename) {
+  bool load_from_file(const char* const filename, bool skip_fragments) {
     FILE* file = fopen(filename, "r");
     if (file == NULL) return false;
-    bool result = load_from_file(file);
+    bool result = load_from_file(file, skip_fragments);
     fclose(file);
     return result;
+  }
+  bool load_from_file(const char* const filename) {
+    return load_from_file(filename, false);
   }
 
   // Loads the UNICHARSET from the given file. The previous data is lost.
   // Returns true if the operation is successful.
-  bool load_from_file(FILE *file);
+  bool load_from_file(FILE *file, bool skip_fragments);
+  bool load_from_file(FILE *file) { return load_from_file(file, false); }
 
   // Sets up internal data after loading the file, based on the char
   // properties. Called from load_from_file, but also needs to be run

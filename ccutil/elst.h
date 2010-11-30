@@ -103,17 +103,6 @@ class DLLSYM ELIST_LINK
     const ELIST_LINK &) {
       next = NULL;
     }
-
-    void serialise_asc(  //serialise to ascii
-                       FILE *f);
-    void de_serialise_asc(  //de-serialise from ascii
-                          FILE *f);
-
-    /* NOTE that none of the serialise member functions are required for
-    ELIST_LINKS as they are never serialised.  (We demand that the derived
-    class terminates recursion - just to make sure that it defines the member
-    functions anyway.)
-    */
 };
 
 /**********************************************************************
@@ -188,24 +177,6 @@ class DLLSYM ELIST
       return (add_sorted_and_find(comparator, unique, new_link) == new_link);
     }
 
-    void internal_dump (         //serialise each elem
-      FILE * f,                  //to this file
-      void element_serialiser (  //using this function
-      FILE *, ELIST_LINK *));
-
-    void internal_de_dump (      //de_serial each elem
-      FILE * f,                  //from this file
-                                 //using this function
-      ELIST_LINK * element_de_serialiser (
-      FILE *));
-
-    void prep_serialise();  //change last to count
-
-    /*  Note that dump() and de_dump() are not required as calls to dump/de_dump a
-      list class should be handled by a class derived from this.
-
-      make_serialise is not required for a similar reason.
-    */
 };
 
 /***********************************************************************
@@ -893,7 +864,7 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 #define QUOTE_IT( parm ) #parm
 
 /***********************************************************************
-  ELISTIZE( CLASSNAME ) MACROS
+  ELISTIZE( CLASSNAME ) MACRO
   ============================
 
 CLASSNAME is assumed to be the name of a class which has a baseclass of
@@ -904,29 +875,22 @@ will NOT work correctly for classes derived from this.
 
 The macros generate:
   - An element deletion function:      CLASSNAME##_zapper
-  - An element serialiser function"    CLASSNAME##_serialiser
-  - An element de-serialiser function" CLASSNAME##_de_serialiser
   - An E_LIST subclass: CLASSNAME##_LIST
   - An E_LIST_ITERATOR subclass:       CLASSNAME##_IT
 
 NOTE: Generated names are DELIBERATELY designed to clash with those for
 ELIST2IZE but NOT with those for CLISTIZE and CLIST2IZE
 
-Four macros are provided: ELISTIZE, ELISTIZE_S, ELISTIZEH and ELISTIZEH_S
+Two macros are provided: ELISTIZE and ELISTIZEH.
 The ...IZEH macros just define the class names for use in .h files
 The ...IZE macros define the code use in .c files
-The _S versions define lists which can be serialised.  They assume that
-the make_serialise() macro is used in the list element class derived from
-ELIST_LINK to define serialise() and de_serialise() members for the list
-elements.
 ***********************************************************************/
 
 /***********************************************************************
-  ELISTIZEH( CLASSNAME )  and  ELISTIZEH_S( CLASSNAME ) MACROS
+  ELISTIZEH( CLASSNAME )  MACRO
 
-These macros are constructed from 3 fragments ELISTIZEH_A, ELISTIZEH_B and
-ELISTIZEH_C.  ELISTIZEH is simply a concatenation of these parts.
-ELISTIZEH_S has some additional bits thrown in the gaps.
+ELISTIZEH is a concatenation of 3 fragments ELISTIZEH_A, ELISTIZEH_B and
+ELISTIZEH_C.
 ***********************************************************************/
 
 #define ELISTIZEH_A(CLASSNAME)                                               \
@@ -1020,39 +984,9 @@ ELISTIZEH_B( CLASSNAME )                                                        
                                                                                                         \
 ELISTIZEH_C( CLASSNAME )
 
-#define ELISTIZEH_S( CLASSNAME )                                                        \
-                                                                                                        \
-ELISTIZEH_A( CLASSNAME )                                                                        \
-                                                                                                        \
-extern DLLSYM void          CLASSNAME##_serialiser(                                     \
-FILE*                       f,                                                                  \
-ELIST_LINK*                 element);                                                       \
-                                                                                                        \
-extern DLLSYM ELIST_LINK*   CLASSNAME##_de_serialiser(                                  \
-FILE*                       f);                                                             \
-                                                                                                        \
-ELISTIZEH_B( CLASSNAME )                                                                        \
-                                                                                                        \
-    void                    dump(                       /* dump to file */   \
-    FILE*                   f)                                                                  \
-    { ELIST::internal_dump( f, &CLASSNAME##_serialiser );}                      \
-                                                                                                        \
-    void                    de_dump(                    /* get from file */  \
-    FILE*                   f)                                                                  \
-    { ELIST::internal_de_dump( f, &CLASSNAME##_de_serialiser );}                \
-                                                                                                        \
-    void                    serialise_asc(              /*dump to ascii*/       \
-    FILE*                   f);                                                                 \
-    void                    de_serialise_asc(           /*de-dump from ascii*/\
-    FILE*                   f);                                                                 \
-                                                                                                        \
-make_serialise( CLASSNAME##_LIST )                                                  \
-                                                                                                        \
-ELISTIZEH_C( CLASSNAME )
 
 /***********************************************************************
-  ELISTIZE( CLASSNAME )  and   ELISTIZE_S( CLASSNAME )  MACROS
-ELISTIZE_S is a simple extension to ELISTIZE
+  ELISTIZE( CLASSNAME ) MACRO
 ***********************************************************************/
 
 #define ELISTIZE(CLASSNAME)                                                 \
@@ -1081,57 +1015,4 @@ void CLASSNAME##_LIST::deep_copy(const CLASSNAME##_LIST* src_list,          \
     to_it.add_after_then_move((*copier)(from_it.data()));                   \
 }
 
-#define ELISTIZE_S(CLASSNAME)                                               \
-                                                                            \
-ELISTIZE(CLASSNAME)                                                         \
-                                                                            \
-void                  CLASSNAME##_LIST::serialise_asc(FILE* f) {            \
-  CLASSNAME##_IT      it(this);                                             \
-                                                                            \
-  serialise_INT32(f, length());                                             \
-  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())                 \
-      it.data()->serialise_asc(f);                /*serialise the list*/    \
-}                                                                           \
-                                                                            \
-void                  CLASSNAME##_LIST::de_serialise_asc(FILE* f) {         \
-  inT32               len;                        /*length to retrive*/     \
-  CLASSNAME##_IT      it;                                                   \
-  CLASSNAME*          new_elt = NULL;               /*list element*/        \
-                                                                            \
-  len = de_serialise_INT32(f);                                              \
-  it.set_to_list(this);                                                     \
-  for (; len > 0; len--) {                                                  \
-    new_elt = new CLASSNAME;                                                \
-    new_elt->de_serialise_asc(f);                                           \
-    it.add_to_end(new_elt);                     /*put on the list*/         \
-  }                                                                         \
-  return;                                                                   \
-}                                                                           \
-                                                                            \
-                                                                            \
-/***********************************************************************   \
-*                           CLASSNAME##_serialiser                         \
-*                                                                          \
-*  A function which can serialise an element                               \
-*  This is passed to the generic dump member function so that when a list is  \
-*  serialised the elements on the list are properly serialised.            \
-**********************************************************************/    \
-                                                                           \
-DLLSYM void CLASSNAME##_serialiser(FILE* f, ELIST_LINK* element) {         \
-  reinterpret_cast<CLASSNAME*>(element)->serialise(f);                     \
-}                                                                          \
-                                                                           \
-                                                                           \
-                                                                           \
-/***********************************************************************   \
-*                           CLASSNAME##_de_serialiser                      \
-*                                                                          \
-*  A function which can de-serialise an element                            \
-*  This is passed to the generic de-dump member function so that when a list  \
-*  is de-serialised the elements on the list are properly de-serialised.   \
-**********************************************************************/    \
-                                                                           \
-DLLSYM ELIST_LINK* CLASSNAME##_de_serialiser(FILE* f) {                  \
-  return (ELIST_LINK*) CLASSNAME::de_serialise(f);                       \
-}
 #endif

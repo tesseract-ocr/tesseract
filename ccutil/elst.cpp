@@ -22,31 +22,6 @@
 #include "elst.h"
 
 /***********************************************************************
- *  MEMBER FUNCTIONS OF CLASS: ELIST_LINK
- *  =====================================
- **********************************************************************/
-
-/***********************************************************************
- *							ELIST_LINK::serialise_asc
- *
- *  Generates an error as it should never be called.
- **********************************************************************/
-
-void ELIST_LINK::serialise_asc(  //default serialise
-                               FILE *f) {
-  SERIALISE_LINKS.error ("ELIST_LINK::serialise_asc", ABORT,
-    "Don't call this, override!");
-}
-
-
-void ELIST_LINK::de_serialise_asc(  //default de_serialise
-                                  FILE *f) {
-  SERIALISE_LINKS.error ("ELIST_LINK::de_serialise_asc", ABORT,
-    "Don't call this, override!");
-}
-
-
-/***********************************************************************
  *  MEMBER FUNCTIONS OF CLASS: ELIST
  *  ================================
  **********************************************************************/
@@ -226,91 +201,6 @@ ELIST_LINK *ELIST::add_sorted_and_find(
   }
   return new_link;
 }
-
-/***********************************************************************
- *							ELIST::prep_serialise
- *
- *  Replace the last member with a count of elements for serialisation.
- *  This is used on list objects which are members of objects being
- *  serialised.  The containing object has been shallow copied and this member
- *  function is invoked on the COPY.
- **********************************************************************/
-
-void ELIST::prep_serialise() {
-  ELIST_ITERATOR this_it(this);
-  inT32 count = 0;
-
-  #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST::prep_serialise", ABORT, NULL);
-  #endif
-
-  count = 0;
-  if (!empty ())
-    for (this_it.mark_cycle_pt ();
-    !this_it.cycled_list (); this_it.forward ())
-  count++;
-  last = (ELIST_LINK *) count;
-}
-
-
-/***********************************************************************
- *							ELIST::internal_dump
- *
- *  Cause each element on the list to be serialised by walking the list and
- *  calling the element_serialiser function for each element.  The
- *  element_serialiser simply does the appropriate coercion of the element to
- *  its real type and then invokes the elements serialise function
- **********************************************************************/
-
-void
-ELIST::internal_dump (FILE * f,
-void element_serialiser (FILE *, ELIST_LINK *)) {
-  ELIST_ITERATOR this_it(this);
-
-  #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST::internal_dump", ABORT, NULL);
-  #endif
-
-  if (!empty ())
-    for (this_it.mark_cycle_pt ();
-    !this_it.cycled_list (); this_it.forward ())
-  element_serialiser (f, this_it.data ());
-}
-
-
-/***********************************************************************
- *							ELIST::internal_de_dump
- *
- *  Cause each element on the list to be de_serialised by extracting the count
- *  of elements on the list, (held in the last member of the dumped version of
- *  the list object), and then de-serialising that number of list elements,
- *  adding each to the end of the reconstructed list.
- **********************************************************************/
-
-void
-ELIST::internal_de_dump (FILE * f,
-ELIST_LINK * element_de_serialiser (FILE *)) {
-  inT32 count = (ptrdiff_t) last;
-  ELIST_ITERATOR this_it;
-  ELIST_LINK *de_serialised_element;
-
-  #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST::internal_de_dump", ABORT, NULL);
-  #endif
-
-  last = NULL;
-  this_it.set_to_list (this);
-  for (; count > 0; count--) {
-    de_serialised_element = element_de_serialiser (f);
-                                 //ignore old ptr
-    de_serialised_element->next = NULL;
-    this_it.add_to_end (de_serialised_element);
-  }
-}
-
 
 /***********************************************************************
  *  MEMBER FUNCTIONS OF CLASS: ELIST_ITERATOR
