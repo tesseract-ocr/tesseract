@@ -220,7 +220,7 @@ void Tesseract::make_reject_map(      //make rej map for wd //detailed results
     and the whole of any words which are very small
   */
   else if (tessedit_reject_mode == 5) {
-    if (kBlnXHeight / word->denorm.scale () <= min_sane_x_ht_pixels)
+    if (kBlnXHeight / word->denorm.y_scale() <= min_sane_x_ht_pixels)
       word->reject_map.rej_word_small_xht ();
     else {
       one_ell_conflict(word, TRUE);
@@ -820,7 +820,7 @@ void Tesseract::flip_hyphens(WERD_RES *word_res) {
     else
       next_left = blob->next->bounding_box().left();
     // Dont touch small or touching blobs - it is too dangerous.
-    if ((out_box.width() > 8 * word_res->denorm.scale()) &&
+    if ((out_box.width() > 8 * word_res->denorm.x_scale()) &&
         (out_box.left() > prev_right) && (out_box.right() < next_left)) {
       aspect_ratio = out_box.width() / (float) out_box.height();
       if (unicharset.eq(best_choice->unichar_id(i), ".")) {

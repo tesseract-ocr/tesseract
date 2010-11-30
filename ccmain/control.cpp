@@ -345,7 +345,7 @@ void Tesseract::recog_all_words(PAGE_RES* page_res,
   set_global_loc_code(LOC_FUZZY_SPACE);
 
   if (!tessedit_test_adaption && tessedit_fix_fuzzy_spaces
-      && !tessedit_word_for_word)
+      && !tessedit_word_for_word && !right_to_left())
     fix_fuzzy_spaces(monitor, stats_.word_count, page_res);
 
   // ****************** Pass 4 *******************
@@ -455,6 +455,10 @@ void Tesseract::recog_all_words(PAGE_RES* page_res,
   PageSegMode pageseg_mode = static_cast<PageSegMode>(
       static_cast<int>(tessedit_pageseg_mode));
   textord_.CleanupSingleRowResult(pageseg_mode, page_res);
+
+  if (monitor != NULL) {
+    monitor->progress = 100;
+  }
 }
 
 

@@ -109,8 +109,10 @@ bool Tesseract::init_tesseract_lang_data(
 
   // Initialize TessdataManager.
   STRING tessdata_path = language_data_path_prefix + kTrainedDataSuffix;
-  tessdata_manager.Init(tessdata_path.string(),
-                        tessdata_manager_debug_level);
+  if (!tessdata_manager.Init(tessdata_path.string(),
+                             tessdata_manager_debug_level)) {
+    return false;
+  }
 
   // If a language specific config file (lang.config) exists, load it in.
   if (tessdata_manager.SeekToStart(TESSDATA_LANG_CONFIG)) {

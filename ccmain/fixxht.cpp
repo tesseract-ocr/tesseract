@@ -154,11 +154,11 @@ float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res) {
   if (debug_x_ht_level >= 20) {
     tprintf("Median xht=%f\n", new_xht);
     tprintf("Mode20:A: New x-height = %f (norm), %f (orig)\n",
-            new_xht, new_xht / word_res->denorm.scale());
+            new_xht, new_xht / word_res->denorm.y_scale());
   }
   // The xheight must change by at least x_ht_min_change to be used.
   if (fabs(new_xht - kBlnXHeight) >= x_ht_min_change)
-    return new_xht / word_res->denorm.scale();
+    return new_xht / word_res->denorm.y_scale();
   else
     return 0.0f;
 }

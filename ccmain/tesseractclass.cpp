@@ -75,14 +75,9 @@ Tesseract::Tesseract()
                 " a character composed form fragments", this->params()),
     BOOL_MEMBER(tessedit_adaption_debug, false, "Generate and print debug"
                 " information for adaption", this->params()),
-    BOOL_MEMBER(applybox_rebalance, TRUE, "Drop dead", this->params()),
     INT_MEMBER(applybox_debug, 1, "Debug level", this->params()),
     INT_MEMBER(applybox_page, 0,
                "Page number to apply boxes from", this->params()),
-    STRING_MEMBER(applybox_test_exclusions, "",
-                  "Chars ignored for testing", this->params()),
-    double_MEMBER(applybox_error_band, 0.15,
-                  "Err band as fract of xht", this->params()),
     STRING_MEMBER(applybox_exposure_pattern, ".exp", "Exposure value follows"
                   " this pattern in the image filename. The name of the image"
                   " files are expected to be in the form"
@@ -94,10 +89,6 @@ Tesseract::Tesseract()
     BOOL_MEMBER(applybox_learn_ngrams_mode, false, "Each bounding box"
                 " is assumed to contain ngrams. Only learn the ngrams"
                 " whose outlines overlap horizontally.", this->params()),
-    BOOL_MEMBER(tessedit_print_text, false,
-                "Write text to stdout", this->params()),
-    BOOL_MEMBER(tessedit_draw_words, false,
-                "Draw source words", this->params()),
     BOOL_MEMBER(tessedit_draw_outwords, false,
                 "Draw output words", this->params()),
     BOOL_MEMBER(tessedit_training_tess, false,
@@ -277,12 +268,6 @@ Tesseract::Tesseract()
                "Min change in xht before actually trying it", this->params()),
     BOOL_MEMBER(tessedit_write_block_separators, false,
                 "Write block separators in output", this->params()),
-    BOOL_MEMBER(tessedit_write_raw_output, false,
-                "Write raw stuff to name.raw", this->params()),
-    BOOL_MEMBER(tessedit_write_output, false,
-                "Write text to name.txt", this->params()),
-    BOOL_MEMBER(tessedit_write_ratings, false,
-                "Return ratings in IPEOCRAPI data", this->params()),
     BOOL_MEMBER(tessedit_write_rep_codes, false,
                 "Write repetition char code", this->params()),
     BOOL_MEMBER(tessedit_write_unlv, false,
@@ -351,18 +336,12 @@ Tesseract::Tesseract()
                "Reject any x-ht lt or eq than this", this->params()),
     BOOL_MEMBER(tessedit_create_boxfile, false,
                 "Output text with boxes", this->params()),
-    BOOL_MEMBER(tessedit_read_image, true,
-                "Ensure the image is read", this->params()),
-    INT_MEMBER(tessedit_serial_unlv, 0, "0->Whole page, 1->serial"
-               " no adapt, 2->serial with adapt", this->params()),
     INT_MEMBER(tessedit_page_number, -1, "-1 -> All pages"
                " , else specifc page to process", this->params()),
     BOOL_MEMBER(tessedit_write_images, false,
                 "Capture the image from the IPE", this->params()),
     BOOL_MEMBER(interactive_mode, false, "Run interactively?", this->params()),
     STRING_MEMBER(file_type, ".tif", "Filename extension", this->params()),
-    INT_MEMBER(testedit_match_debug, 0,
-               "Integer match debug ctrl", this->params()),
     BOOL_MEMBER(tessedit_override_permuter, true,
                 "According to dict_word", this->params()),
     INT_INIT_MEMBER(tessdata_manager_debug_level, 0, "Debug level for"

@@ -562,11 +562,8 @@ class Tesseract : public Wordrec {
              " a character composed form fragments");
   BOOL_VAR_H(tessedit_adaption_debug, false,
              "Generate and print debug information for adaption");
-  BOOL_VAR_H(applybox_rebalance, true, "Drop dead");
   INT_VAR_H(applybox_debug, 1, "Debug level");
   INT_VAR_H(applybox_page, 0, "Page number to apply boxes from");
-  STRING_VAR_H(applybox_test_exclusions, "", "Chars ignored for testing");
-  double_VAR_H(applybox_error_band, 0.15, "Err band as fract of xht");
   STRING_VAR_H(applybox_exposure_pattern, ".exp",
                "Exposure value follows this pattern in the image"
                " filename. The name of the image files are expected"
@@ -578,8 +575,6 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(applybox_learn_ngrams_mode, false,
              "Each bounding box is assumed to contain ngrams. Only"
              " learn the ngrams whose outlines overlap horizontally.");
-  BOOL_VAR_H(tessedit_print_text, false, "Write text to stdout");
-  BOOL_VAR_H(tessedit_draw_words, false, "Draw source words");
   BOOL_VAR_H(tessedit_draw_outwords, false, "Draw output words");
   BOOL_VAR_H(tessedit_training_tess, false, "Call Tess to learn blobs");
   BOOL_VAR_H(tessedit_dump_choices, false, "Dump char choices");
@@ -706,11 +701,6 @@ class Tesseract : public Wordrec {
   INT_VAR_H(x_ht_min_change, 8, "Min change in xht before actually trying it");
   BOOL_VAR_H(tessedit_write_block_separators, false,
              "Write block separators in output");
-  BOOL_VAR_H(tessedit_write_raw_output, false,
-             "Write raw stuff to name.raw");
-  BOOL_VAR_H(tessedit_write_output, false, "Write text to name.txt");
-  BOOL_VAR_H(tessedit_write_ratings, false,
-             "Return ratings in IPEOCRAPI data");
   BOOL_VAR_H(tessedit_write_rep_codes, false,
              "Write repetition char code");
   BOOL_VAR_H(tessedit_write_unlv, false, "Write .unlv output file");
@@ -755,15 +745,11 @@ class Tesseract : public Wordrec {
   STRING_VAR_H(conflict_set_I_l_1, "Il1[]", "Il1 conflict set");
   INT_VAR_H(min_sane_x_ht_pixels, 8, "Reject any x-ht lt or eq than this");
   BOOL_VAR_H(tessedit_create_boxfile, false, "Output text with boxes");
-  BOOL_VAR_H(tessedit_read_image, true, "Ensure the image is read");
-  INT_VAR_H(tessedit_serial_unlv, 0,
-            "0->Whole page, 1->serial no adapt, 2->serial with adapt");
   INT_VAR_H(tessedit_page_number, -1,
             "-1 -> All pages, else specifc page to process");
   BOOL_VAR_H(tessedit_write_images, false, "Capture the image from the IPE");
   BOOL_VAR_H(interactive_mode, false, "Run interactively?");
   STRING_VAR_H(file_type, ".tif", "Filename extension");
-  INT_VAR_H(testedit_match_debug, 0, "Integer match debug ctrl");
   BOOL_VAR_H(tessedit_override_permuter, true, "According to dict_word");
   INT_VAR_H(tessdata_manager_debug_level, 0,
             "Debug level for TessdataManager functions.");

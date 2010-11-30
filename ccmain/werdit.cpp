@@ -1,4 +1,3 @@
-
 /**********************************************************************
  * File:        werdit.cpp  (Formerly wordit.c)
  * Description: An iterator for passing over all the words in a document.

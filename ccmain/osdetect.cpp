@@ -280,57 +280,42 @@ int os_detect_blobs(BLOBNBOX_CLIST* blob_list, OSResults* osr,
 bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
                     ScriptDetector* s, OSResults* osr,
                     tesseract::Tesseract* tess) {
-  C_BLOB*   blob = bbox->cblob();
-  TBOX      box = blob->bounding_box();
-
-  int       x_mid = (box.left() + box.right()) / 2.0f;
-  int       y_mid = (box.bottom() + box.top()) / 2.0f;
-
-  PBLOB     pblob(blob);
-
+  tess->tess_cn_matching.set_value(true); // turn it on
+  tess->tess_bn_matching.set_value(false);
+  C_BLOB* blob = bbox->cblob();
+  TBLOB* tblob = TBLOB::PolygonalCopy(blob);
+  TBOX box = tblob->bounding_box();
+  FCOORD current_rotation(1.0f, 0.0f);
+  FCOORD rotation90(0.0f, 1.0f);
   BLOB_CHOICE_LIST ratings[4];
   // Test the 4 orientations
   for (int i = 0; i < 4; ++i) {
-    // normalize the blob
+    // Normalize the blob. Set the origin to the place we want to be the
+    // bottom-middle after rotation.
+    // Scaling is to make the rotated height the x-height.
     float scaling = static_cast<float>(kBlnXHeight) / box.height();
-    DENORM denorm(x_mid, scaling, 0.0, box.bottom(), 0, NULL, false, NULL);
-    pblob.move(FCOORD(-x_mid, -box.bottom()));
-    pblob.scale(scaling);
-    pblob.move(FCOORD(0.0f, kBlnBaselineOffset));
-
-    {
-      // List of choices given by the classifier
-      tess->tess_cn_matching.set_value(true); // turn it on
-      tess->tess_bn_matching.set_value(false);
-      // Convert blob
-      TBLOB* tessblob = make_tess_blob(&pblob);
-      // Classify
-      tess->set_denorm(&denorm);
-      tess->AdaptiveClassifier(tessblob, ratings + i, NULL);
-      delete tessblob;
+    float x_origin = (box.left() + box.right()) / 2.0f;
+    float y_origin = (box.bottom() + box.top()) / 2.0f;
+    if (i == 0 || i == 2) {
+      // Rotation is 0 or 180.
+      y_origin = i == 0 ? box.bottom() : box.top();
+    } else {
+      // Rotation is 90 or 270.
+      scaling = static_cast<float>(kBlnXHeight) / box.width();
+      x_origin = i == 1 ? box.left() : box.right();
     }
-    // undo normalize
-    pblob.move(FCOORD(0.0f, -kBlnBaselineOffset));
-    pblob.scale(1.0f / scaling);
-    pblob.move(FCOORD(x_mid, box.bottom()));
-
-    // center the blob
-    pblob.move(FCOORD(-x_mid, -y_mid));
-
-    // TODO(rays) Although we should now get the correct image coords with
-    // the DENORM, there is nothing to tell the classifier to rotate the
-    // image or to actually rotate the image for it.
-    // Rotate it
-    pblob.rotate();
-
-    // Re-compute the mid
-    box = pblob.bounding_box();
-    x_mid = (box.left() + box.right()) / 2;
-    y_mid = (box.top() + box.bottom()) / 2;
-
-    // re-center in the new mid
-    pblob.move(FCOORD(x_mid, y_mid));
+    DENORM denorm;
+    denorm.SetupNormalization(NULL, NULL, &current_rotation, NULL, NULL, 0,
+                              x_origin, y_origin, scaling, scaling,
+                              0.0f, static_cast<float>(kBlnBaselineOffset));
+    TBLOB* rotated_blob = new TBLOB(*tblob);
+    rotated_blob->Normalize(denorm);
+    tess->set_denorm(&denorm);
+    tess->AdaptiveClassifier(rotated_blob, ratings + i, NULL);
+    delete rotated_blob;
+    current_rotation.rotate(rotation90);
   }
+  delete tblob;
 
   bool stop = o->detect_blob(ratings);
   s->detect_blob(ratings);
