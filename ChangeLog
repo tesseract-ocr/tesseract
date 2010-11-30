@@ -1,4 +1,7 @@
-2010-09-22 - V3.01
+2010-11-29 - V3.01
+  * Removed old/dead serialise/deserialze methods on *LISTIZED classes.
+  * Total rewrite of DENORM to better encapsulate operation and make
+    for potential to extract features from images.
   * Thread-safety! Moved all critical globals and statics to
     members of the appropriate class. Tesseract is now
     thread-safe (multiple instances can be used in parallel

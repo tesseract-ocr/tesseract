@@ -23,11 +23,10 @@ in this distribution is now licensed under the Apache License:
 Other Dependencies and Licenses:
 ================================
 The Aspirin/MIGRAINES system is no longer required.
-
-Tesseract can also make use of the libtiff library. (www.libtiff.org) See
-http://code.google.com/p/tesseract-ocr/wiki/FAQ for details.
-Without libtiff, Tesseract can only read uncompressed and G3 compressed
-TIFF files.
+Libtiff is no longer required as a direct dependency.
+Instead, Leptonica is required. (www.leptonica.com)
+See http://code.google.com/p/tesseract-ocr/wiki/FAQ for details.
+As of 3.01, Tesseract no longer compiles without Leptonica.
 
 Installing and Running Tesseract
 All Users Do NOT Ignore!
@@ -93,14 +92,11 @@ at Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some
 more changes made in 1996 to port to Windows, and some C++izing in 1998.
 A lot of the code was written in C, and then some more was written in C++.
 Since then all the code has been converted to at least compile with a C++
-compiler. Currently it builds under Linux with gcc2.95 and under Windows
-with VC++6. The C++ code makes heavy use of a list system using macros.
+compiler. Currently it builds under Linux with gcc4.4.3 and under Windows
+with VC++2008. The C++ code makes heavy use of a list system using macros.
 This predates stl, was portable before stl, and is more efficent than stl
 lists, but has the big negative that if you do get a segmentation violation,
-it is hard to debug. Another "feature" of the C/C++ split is that the C++
-data structures get converted to C data structures to call the low-level C
-code. This is ugly, and the C++izing of the C code is a step towards
-eliminating the conversion, but it has not happened yet.
+it is hard to debug.
 
 The most recent change is that Tesseract can now recognize 6 languages, is fully UTF8 capable, and is fully trainable. See TrainingTesseract for more information on training.
 

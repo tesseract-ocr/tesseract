@@ -2807,7 +2807,7 @@ GENERIC_LIBRARY_NAME=tesseract
 
 # Release versioning
 GENERIC_MAJOR_VERSION=3
-GENERIC_MINOR_VERSION=0
+GENERIC_MINOR_VERSION=1
 GENERIC_MICRO_VERSION=0
 
 # API version (often = GENERIC_MAJOR_VERSION.GENERIC_MINOR_VERSION)
@@ -17669,7 +17669,6 @@ do
     "tessdata/tessconfigs/Makefile") CONFIG_FILES="$CONFIG_FILES tessdata/tessconfigs/Makefile" ;;
     "testing/Makefile") CONFIG_FILES="$CONFIG_FILES testing/Makefile" ;;
     "vs2008/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/Makefile" ;;
-    "vs2008/dlltest/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/dlltest/Makefile" ;;
     "vs2008/include/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/include/Makefile" ;;
     "vs2008/include/leptonica/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/include/leptonica/Makefile" ;;
     "java/Makefile") CONFIG_FILES="$CONFIG_FILES java/Makefile" ;;
