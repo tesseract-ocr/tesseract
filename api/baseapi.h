@@ -91,6 +91,11 @@ class TESSDLL_API TessBaseAPI {
   virtual ~TessBaseAPI();
 
   /**
+   * Returns the version identifier as a static string. Do not delete.
+   */
+  static const char* Version();
+
+  /**
    * Set the name of the input file. Needed only for training and
    * reading a UNLV zone file.
    */
@@ -127,6 +132,8 @@ class TESSDLL_API TessBaseAPI {
 
   // Print Tesseract parameters to the given file.
   void PrintVariables(FILE *fp) const;
+  // Get value of named variable as a string, if it exists.
+  bool GetVariableAsString(const char *name, STRING *val);
 
   /**
    * Instances are now mostly thread-safe and totally independent,
@@ -355,6 +362,41 @@ class TESSDLL_API TessBaseAPI {
   /** Variant on Recognize used for testing chopper. */
   int RecognizeForChopTest(ETEXT_DESC* monitor);
 
+  /**
+   * Recognizes all the pages in the named file, as a multi-page tiff or
+   * list of filenames, or single image, and gets the appropriate kind of text
+   * according to parameters: tessedit_create_boxfile,
+   * tessedit_make_boxes_from_boxes, tessedit_write_unlv, tessedit_create_hocr.
+   * Calls ProcessPage on each page in the input file, which may be a
+   * multi-page tiff, single-page other file format, or a plain text list of
+   * images to read. If tessedit_page_number is non-negative, processing begins
+   * at that page of a multi-page tiff file, or filelist.
+   * The text is returned in text_out. Returns false on error.
+   * If non-zero timeout_millisec terminates processing after the timeout on
+   * a single page.
+   * If non-NULL and non-empty, and some page fails for some reason,
+   * the page is reprocessed with the retry_config config file. Useful
+   * for interactively debugging a bad page.
+   */
+  bool ProcessPages(const char* filename,
+                    const char* retry_config, int timeout_millisec,
+                    STRING* text_out);
+
+  /**
+   * Recognizes a single page for ProcessPages, appending the text to text_out.
+   * The pix is the image processed - filename and page_index are metadata
+   * used by side-effect processes, such as reading a box file or formatting
+   * as hOCR.
+   * If non-zero timeout_millisec terminates processing after the timeout.
+   * If non-NULL and non-empty, and some page fails for some reason,
+   * the page is reprocessed with the retry_config config file. Useful
+   * for interactively debugging a bad page.
+   * The text is returned in text_out. Returns false on error.
+   */
+  bool ProcessPage(Pix* pix, int page_index, const char* filename,
+                   const char* retry_config, int timeout_millisec,
+                   STRING* text_out);
+
   // Get an iterator to the results of LayoutAnalysis and/or Recognize.
   // The returned iterator must be deleted after use.
   // WARNING! This class points to data held within the TessBaseAPI class, and
@@ -397,6 +439,18 @@ class TESSDLL_API TessBaseAPI {
    * delimited words in GetUTF8Text.
    */
   int* AllWordConfidences();
+
+  /**
+   * Applies the given word to the adaptive classifier if possible.
+   * The word must be SPACE-DELIMITED UTF-8 - l i k e t h i s , so it can
+   * tell the boundaries of the graphemes.
+   * Assumes that SetImage/SetRectangle have been used to set the image
+   * to the given word. The mode arg should be PSM_SINGLE_WORD or
+   * PSM_CIRCLE_WORD, as that will be used to control layout analysis.
+   * The currently set PageSegMode is preserved.
+   * Returns false if adaption was not possible for some reason.
+   */
+  bool AdaptToWordStr(PageSegMode mode, const char* wordstr);
 
   /**
    * Free up recognition results and any stored image data, without actually

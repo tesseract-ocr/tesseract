@@ -28,6 +28,13 @@
 #else
 #error "Sorry: Tesseract no longer compiles without leptonica!"
 #endif
+#ifdef USE_NLS
+#include <libintl.h>
+#include <locale.h>
+#define _(x) gettext(x)
+#else
+#define _(x) (x)
+#endif
 
 #include "baseapi.h"
 
@@ -64,6 +71,12 @@ const char kUNLVSuspect = '^';
 // Filename used for input image file, from which to derive a name to search
 // for a possible UNLV zone file, if none is specified by SetInputName.
 const char* kInputFile = "noname.tif";
+// Temp file used for storing current parameters before applying retry values.
+const char* kOldVarsFile = "failed_vars.txt";
+// Max string length of an int.
+const int kMaxIntSize = 22;
+// Buffer size for leptonica to discover image file format.
+const int kImageHeaderSize = 32;
 
 TessBaseAPI::TessBaseAPI()
   : tesseract_(NULL),
@@ -86,6 +99,13 @@ TessBaseAPI::TessBaseAPI()
 
 TessBaseAPI::~TessBaseAPI() {
   End();
+}
+
+/**
+ * Returns the version identifier as a static string. Do not delete.
+ */
+const char* TessBaseAPI::Version() {
+  return VERSION;
 }
 
 // Set the name of the input file. Needed only for training and
@@ -143,6 +163,11 @@ bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
   if (p == NULL) return false;
   *value = (double)(*p);
   return true;
+}
+
+// Get value of named variable as a string, if it exists.
+bool TessBaseAPI::GetVariableAsString(const char *name, STRING *val) {
+  return ParamUtils::GetParamAsString(name, tesseract_->params(), val);
 }
 
 // Print Tesseract parameters to the given file.
@@ -568,6 +593,198 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
   return 0;
 }
 
+
+// Recognizes all the pages in the named file, as a multi-page tiff or
+// list of filenames, or single image, and gets the appropriate kind of text
+// according to parameters: tessedit_create_boxfile,
+// tessedit_make_boxes_from_boxes, tessedit_write_unlv, tessedit_create_hocr.
+// Calls ProcessPage on each page in the input file, which may be a
+// multi-page tiff, single-page other file format, or a plain text list of
+// images to read. If tessedit_page_number is non-negative, processing begins
+// at that page of a multi-page tiff file, or filelist.
+// The text is returned in text_out. Returns false on error.
+// If non-zero timeout_millisec terminates processing after the timeout on
+// a single page.
+// If non-NULL and non-empty, and some page fails for some reason,
+// the page is reprocessed with the retry_config config file. Useful
+// for interactively debugging a bad page.
+bool TessBaseAPI::ProcessPages(const char* filename,
+                               const char* retry_config, int timeout_millisec,
+                               STRING* text_out) {
+  int page = tesseract_->tessedit_page_number;
+  if (page < 0)
+    page = 0;
+  int npages = 1;
+  FILE* fp = fopen(filename, "rb");
+  if (fp == NULL) {
+    tprintf(_("Image file %s cannot be opened!\n"), filename);
+    return false;
+  }
+  // Find the image file type without incurring errors.
+  bool is_tiff = false;
+  l_uint8 header_buffer[kImageHeaderSize];
+  l_int32 image_type = IFF_UNKNOWN;
+  if (fread(header_buffer, 1, kImageHeaderSize, fp) == kImageHeaderSize &&
+      findFileFormatBuffer(header_buffer, &image_type) == 0 &&
+      image_type == IFF_TIFF) {
+    rewind(fp);
+    int tiffstat = tiffGetCount(fp, &npages);
+    if (tiffstat == 1) {
+      fprintf(stderr, _("Error reading file %s!\n"), filename);
+      fclose(fp);
+      return false;
+    }
+    is_tiff = true;
+  }
+  fclose(fp);
+
+  if (tesseract_->tessedit_create_hocr) {
+    *text_out =
+        "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\""
+        " \"http://www.w3.org/TR/html4/loose.dtd\">\n"
+        "<html>\n<head>\n<title></title>\n"
+        "<meta http-equiv=\"Content-Type\" content=\"text/html;"
+        "charset=utf-8\" >\n<meta name='ocr-system' content='tesseract'>\n"
+        "</head>\n<body>\n";
+  } else {
+    *text_out = "";
+  }
+
+  bool success = true;
+  Pix *pix;
+  if (is_tiff) {
+    for (; page < npages && (pix = pixReadTiff(filename, page)) != NULL;
+         ++page) {
+      if (page > 0)
+        tprintf(_("Page %d\n"), page);
+      char page_str[kMaxIntSize];
+      snprintf(page_str, kMaxIntSize - 1, "%d", page);
+      SetVariable("applybox_page", page_str);
+      success &= ProcessPage(pix, page, filename, retry_config,
+                             timeout_millisec, text_out);
+      pixDestroy(&pix);
+      if (tesseract_->tessedit_page_number >= 0 || npages == 1) {
+        break;
+      }
+    }
+  } else if (image_type == IFF_UNKNOWN) {
+    // The file is not an image file, so try it as a list of filenames.
+    FILE* fimg = fopen(filename, "r");
+    if (fimg == NULL) {
+      tprintf(_("File %s cannot be opened!\n"), filename);
+      fclose(fimg);
+      return false;
+    }
+    char pagename[MAX_PATH];
+    // Skip to the requested page number.
+    for (int i = 0; i < page &&
+         fgets(pagename, sizeof(pagename), fimg) != NULL;
+         ++i);
+    while (fgets(pagename, sizeof(pagename), fimg) != NULL) {
+      chomp_string(pagename);
+      pix = pixRead(pagename);
+      if (pix == NULL) {
+        tprintf(_("Image file %s cannot be read!\n"), pagename);
+        fclose(fimg);
+        return false;
+      }
+      tprintf(_("Page %d : %s\n"), page, pagename);
+      success &= ProcessPage(pix, page, pagename, retry_config,
+                             timeout_millisec, text_out);
+      pixDestroy(&pix);
+      ++page;
+    }
+    fclose(fimg);
+  } else {
+    // The file is not a tiff file, so use the general pixRead function.
+    pix = pixRead(filename);
+    if (pix == NULL) {
+      tprintf(_("Image file %s cannot be read!\n"), filename);
+      return false;
+    }
+    success &= ProcessPage(pix, 0, filename, retry_config,
+                           timeout_millisec, text_out);
+    pixDestroy(&pix);
+  }
+  if (tesseract_->tessedit_create_hocr)
+    *text_out += "</body>\n</html>\n";
+  return success;
+}
+
+
+// Recognizes a single page for ProcessPages, appending the text to text_out.
+// The pix is the image processed - filename and page_index are metadata
+// used by side-effect processes, such as reading a box file or formatting
+// as hOCR.
+// If non-zero timeout_millisec terminates processing after the timeout.
+// If non-NULL and non-empty, and some page fails for some reason,
+// the page is reprocessed with the retry_config config file. Useful
+// for interactively debugging a bad page.
+// The text is returned in text_out. Returns false on error.
+bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
+                              const char* retry_config, int timeout_millisec,
+                              STRING* text_out) {
+  SetInputName(filename);
+  SetImage(pix);
+  bool failed = false;
+  if (timeout_millisec > 0) {
+    // Running with a timeout.
+    ETEXT_DESC monitor;
+    monitor.cancel = NULL;
+    monitor.cancel_this = NULL;
+    monitor.set_deadline_msecs(timeout_millisec);
+    // Now run the main recognition.
+    failed = Recognize(&monitor) < 0;
+  } else if (tesseract_->tessedit_pageseg_mode == PSM_OSD_ONLY ||
+             tesseract_->tessedit_pageseg_mode == PSM_AUTO_ONLY) {
+    // Disabled character recognition.
+    PageIterator* it = AnalyseLayout();
+    if (it == NULL) {
+      failed = true;
+    } else {
+      delete it;
+      return true;
+    }
+  } else {
+    // Normal layout and character recognition with no timeout.
+    failed = Recognize(NULL) < 0;
+  }
+  if (tesseract_->tessedit_write_images) {
+    Pix* page_pix = GetThresholdedImage();
+    pixWrite("tessinput.tif", page_pix, IFF_TIFF_G4);
+  }
+  if (failed && retry_config != NULL && retry_config[0] != '\0') {
+    // Save current config variables before switching modes.
+    FILE* fp = fopen(kOldVarsFile, "w");
+    PrintVariables(fp);
+    fclose(fp);
+    // Switch to alternate mode for retry.
+    ReadConfigFile(retry_config, false);
+    SetImage(pix);
+    Recognize(NULL);
+    // Restore saved config variables.
+    ReadConfigFile(kOldVarsFile, false);
+  }
+  // Get text only if successful.
+  if (!failed) {
+    char* text;
+    if (tesseract_->tessedit_create_boxfile ||
+        tesseract_->tessedit_make_boxes_from_boxes) {
+      text = GetBoxText(page_index);
+    } else if (tesseract_->tessedit_write_unlv) {
+      text = GetUNLVText();
+    } else if (tesseract_->tessedit_create_hocr) {
+      text = GetHOCRText(page_index);
+    } else {
+      text = GetUTF8Text();
+    }
+    *text_out += text;
+    delete [] text;
+    return true;
+  }
+  return false;
+}
+
 // Get an iterator to the results of LayoutAnalysis and/or Recognize.
 // The returned iterator must be deleted after use.
 // WARNING! This class points to data held within the TessBaseAPI class, and
@@ -761,57 +978,6 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
   return ret;
 }
 
-static int ConvertWordToBoxText(WERD_RES *word,
-                                ROW_RES* row,
-                                int left,
-                                int bottom,
-                                int image_width,
-                                int image_height,
-                                int page_number,
-                                char* word_str) {
-  // Copy the output word and denormalize it back to image coords.
-  // Can box_word be NULL?
-  ASSERT_HOST(word->box_word != NULL);
-  int length = word->box_word->length();
-  int output_size = 0;
-
-  if (length > 0) {
-    for (int index = 0, offset = 0; index < length;
-         offset += word->best_choice->unichar_lengths()[index++]) {
-      TBOX blob_box = word->box_word->BlobBox(index);
-      if (word->tess_failed ||
-          blob_box.left() < 0 ||
-          blob_box.right() > image_width ||
-          blob_box.bottom() < 0 ||
-          blob_box.top() > image_height) {
-        // Bounding boxes can be illegal when tess fails on a word.
-        blob_box -= word->word->bounding_box();  // Intersect with original.
-        if (blob_box.null_box()) {
-          blob_box = word->word->bounding_box();  // Use original as backup.
-        }
-      }
-
-      // A single classification unit can be composed of several UTF-8
-      // characters. Append each of them to the result.
-      for (int sub = 0;
-           sub < word->best_choice->unichar_lengths()[index]; ++sub) {
-        char ch = word->best_choice->unichar_string()[offset + sub];
-        // Tesseract uses space for recognition failure. Fix to a reject
-        // character, kTesseractReject so we don't create illegal box files.
-        if (ch == ' ')
-          ch = kTesseractReject;
-        word_str[output_size++] = ch;
-      }
-      sprintf(word_str + output_size, " %d %d %d %d %d\n",
-              blob_box.left() + left, blob_box.bottom() + bottom,
-              blob_box.right() + left, blob_box.top() + bottom,
-              page_number);
-      output_size += strlen(word_str + output_size);
-    }
-  }
-  return output_size;
-}
-
 // The 5 numbers output for each box (the usual 4 and a page number.)
 const int kNumbersPerBlob = 5;
 // The number of bytes taken by each number. Since we use inT16 for ICOORD,
@@ -835,7 +1001,6 @@ const int kMaxBytesPerLine = kNumbersPerBlob * (kBytesPer64BitNumber + 1) + 1 +
 // as a UTF8 box file and must be freed with the delete [] operator.
 // page_number is a 0-base page index that will appear in the box file.
 char* TessBaseAPI::GetBoxText(int page_number) {
-  int bottom = image_height_ - (rect_top_ + rect_height_);
   if (tesseract_ == NULL ||
       (!recognition_done_ && Recognize(NULL) < 0))
     return NULL;
@@ -843,20 +1008,31 @@ char* TessBaseAPI::GetBoxText(int page_number) {
   int utf8_length = TextLength(&blob_count);
   int total_length = blob_count * kBytesPerBoxFileLine + utf8_length +
       kMaxBytesPerLine;
-  PAGE_RES_IT   page_res_it(page_res_);
   char* result = new char[total_length];
-  char* ptr = result;
-  for (page_res_it.restart_page(); page_res_it.word () != NULL;
-       page_res_it.forward()) {
-    WERD_RES *word = page_res_it.word();
-    ptr += ConvertWordToBoxText(word, page_res_it.row(), rect_left_, bottom,
-                                image_width_, image_height_,
-                                page_number, ptr);
-    // Just in case...
-    if (ptr - result + kMaxBytesPerLine > total_length)
-      break;
-  }
-  *ptr = '\0';
+  int output_length = 0;
+  ResultIterator* it = GetIterator();
+  do {
+    int left, top, right, bottom;
+    if (it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom)) {
+      char* text = it->GetUTF8Text(RIL_SYMBOL);
+      // Tesseract uses space for recognition failure. Fix to a reject
+      // character, kTesseractReject so we don't create illegal box files.
+      for (int i = 0; text[i] != '\0'; ++i) {
+        if (text[i] == ' ')
+          text[i] = kTesseractReject;
+      }
+      snprintf(result + output_length, total_length - output_length,
+               "%s %d %d %d %d %d\n",
+               text, left, image_height_ - bottom,
+               right, image_height_ - top, page_number);
+      output_length += strlen(result + output_length);
+      delete [] text;
+      // Just in case...
+      if (output_length + kMaxBytesPerLine > total_length)
+        break;
+    }
+  } while (it->Next(RIL_SYMBOL));
+  delete it;
   return result;
 }
 
@@ -1010,6 +1186,67 @@ int* TessBaseAPI::AllWordConfidences() {
   }
   conf[n_word] = -1;
   return conf;
+}
+
+/**
+   * Applies the given word to the adaptive classifier if possible.
+   * The word must be SPACE-DELIMITED UTF-8 - l i k e t h i s , so it can
+   * tell the boundaries of the graphemes.
+   * Assumes that SetImage/SetRectangle have been used to set the image
+   * to the given word. The mode arg should be PSM_SINGLE_WORD or
+   * PSM_CIRCLE_WORD, as that will be used to control layout analysis.
+   * The currently set PageSegMode is preserved.
+   * Returns false if adaption was not possible for some reason.
+ */
+bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
+  bool success = true;
+  PageSegMode current_psm = GetPageSegMode();
+  SetPageSegMode(mode);
+  char* text = GetUTF8Text();
+  if (text != NULL) {
+    PAGE_RES_IT it(page_res_);
+    WERD_RES* word_res = it.word();
+    if (word_res != NULL) {
+      word_res->word->set_text(wordstr);
+    } else {
+      success = false;
+    }
+    // Check to see if text matches wordstr.
+    int w = 0;
+    int t = 0;
+    for (t = 0; text[t] != '\0'; ++t) {
+      if (text[t] == '\n' || text[t] == ' ')
+        continue;
+      while (wordstr[w] != '\0' && wordstr[w] == ' ')
+        ++w;
+      if (text[t] != wordstr[w])
+        break;
+      ++w;
+    }
+    if (text[t] != '\0' || wordstr[w] != '\0') {
+      // No match.
+      delete page_res_;
+      page_res_ = tesseract_->SetupApplyBoxes(block_list_);
+      tesseract_->ReSegmentByClassification(page_res_);
+      tesseract_->TidyUp(page_res_);
+      PAGE_RES_IT pr_it(page_res_);
+      if (pr_it.word() == NULL)
+        success = false;
+      else
+        word_res = pr_it.word();
+    } else {
+      word_res->BestChoiceToCorrectText(tesseract_->unicharset);
+    }
+    if (success) {
+      tesseract_->EnableLearning = true;
+      tesseract_->LearnWord(NULL, NULL, word_res);
+    }
+    delete [] text;
+  } else {
+    success = false;
+  }
+  SetPageSegMode(current_psm);
+  return success;
 }
 
 // Free up recognition results and any stored image data, without actually
@@ -1383,7 +1620,14 @@ void TessBaseAPI::NormalizeTBLOB(TBLOB *tblob, ROW *row,
                                  bool numeric_mode, DENORM *denorm) {
   TWERD word;
   word.blobs = tblob;
-  word.Normalize(row, row->x_height(), numeric_mode, denorm);
+  if (denorm != NULL) {
+    word.SetupBLNormalize(NULL, row, row->x_height(), numeric_mode, denorm);
+    word.Normalize(*denorm);
+  } else {
+    DENORM normer;
+    word.SetupBLNormalize(NULL, row, row->x_height(), numeric_mode, &normer);
+    word.Normalize(normer);
+  }
   word.blobs = NULL;
 }
 

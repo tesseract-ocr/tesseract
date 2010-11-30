@@ -203,12 +203,6 @@ bool PageIterator::BoundingBox(PageIteratorLevel level,
         box = it_->word()->box_word->BlobBox(blob_index_);
       else
         box = cblob_it_->data()->bounding_box();
-      // Intersect with the word box.
-      const TBOX& word_box = it_->word()->word->bounding_box();
-      if (box.overlap(word_box))
-        box -= word_box;
-      else
-        box = word_box;
   }
   if (level != RIL_SYMBOL || cblob_it_ != NULL)
     box.rotate(it_->block()->block->re_rotation());
