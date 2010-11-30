@@ -16,88 +16,312 @@
  ** limitations under the License.
  *
  **********************************************************************/
+#include "mfcpch.h"  // Precompiled header include must be first.
+
+#include "normalis.h"
 
 #include <stdlib.h>
 
-#include "mfcpch.h"
+#include "allheaders.h"
+#include "blobs.h"
+#include "ocrblock.h"
 #include "werd.h"
-#include "normalis.h"
 
 
-/**********************************************************************
- * DENORM::binary_search_segment
- *
- * Find the segment to use for the given x.
- **********************************************************************/
-
-const DENORM_SEG *DENORM::binary_search_segment(float src_x) const {
-  int bottom, top, middle;       //binary search
-
-  bottom = 0;
-  top = segments;
-  do {
-    middle = (bottom + top) / 2;
-    if (segs[middle].xstart > src_x)
-      top = middle;
-    else
-      bottom = middle;
-  }
-  while (top - bottom > 1);
-  return &segs[bottom];
+DENORM::DENORM() {
+  Init();
 }
 
-/**********************************************************************
- * DENORM::scale_at_x
- *
- * Return scaling at a given (normalized) x coord.
- **********************************************************************/
-
-float DENORM::scale_at_x(float src_x) const {  // In normalized coords.
-  if (segments != 0) {
-    const DENORM_SEG* seg = binary_search_segment(src_x);
-    if (seg->scale_factor > 0.0)
-      return seg->scale_factor;
-  }
-  return scale_factor;
+// TODO(rays) Abolish all non-default constructors.
+DENORM::DENORM(float x, float scaling, ROW *src) {
+  Init();
+  x_origin_ = x;              // just copy
+  y_origin_ = 0.0f;
+  x_scale_ = y_scale_ = scaling;
+  row_ = src;
 }
 
-/**********************************************************************
- * DENORM::yshift_at_x
- *
- * Return yshift at a given (normalized) x coord.
- **********************************************************************/
+DENORM::DENORM(float x,              // from same pieces
+               float scaling,
+               double line_m,        // default line: y = mx + c
+               double line_c,
+               inT16 seg_count,      // no of segments
+               DENORM_SEG *seg_pts,  // actual segments
+               BOOL8 using_row,      // as baseline
+               ROW *src) {
+  Init();
+  x_origin_ = x;                  // just copy
+  y_origin_ = line_c;
+  ASSERT_HOST(line_m == 0.0);
+  x_scale_ = y_scale_ = scaling;
+  SetSegments(seg_pts, seg_count);
+}
 
-float DENORM::yshift_at_x(float src_x) const {  // In normalized coords.
-  if (segments != 0) {
-    const DENORM_SEG* seg = binary_search_segment(src_x);
+
+DENORM::DENORM(const DENORM &src) {
+  num_segs_ = 0;
+  segs_ = NULL;
+  rotation_ = NULL;
+  *this = src;
+}
+
+
+DENORM & DENORM::operator=(const DENORM & src) {
+  Clear();
+  inverse_ = src.inverse_;
+  pix_ = src.pix_;
+  block_ = src.block_;
+  row_ = src.row_;
+  if (src.rotation_ == NULL)
+    rotation_ = NULL;
+  else
+    rotation_ = new FCOORD(*src.rotation_);
+  predecessor_ = src.predecessor_;
+  SetSegments(src.segs_, src.num_segs_);
+  x_origin_ = src.x_origin_;
+  y_origin_ = src.y_origin_;
+  x_scale_ = src.x_scale_;
+  y_scale_ = src.y_scale_;
+  final_xshift_ = src.final_xshift_;
+  final_yshift_ = src.final_yshift_;
+  return *this;
+}
+
+DENORM::~DENORM() {
+  Clear();
+}
+
+// Setup for a baseline normalization. If there are segs, then they
+// are used, otherwise, if there is a row, that is used, otherwise the
+// bottom of the word_box is used for the baseline.
+void DENORM::SetupBLNormalize(const BLOCK* block, const ROW* row,
+                              float x_height, const TBOX& word_box,
+                              int num_segs, const DENORM_SEG* segs) {
+  float scale = kBlnXHeight / x_height;
+  float x_origin = (word_box.left() + word_box.right()) / 2.0f;
+  float y_origin = 0.0f;
+  if (num_segs == 0 && row == NULL) {
+    y_origin = word_box.bottom();
+  }
+  SetupNormalization(block, row, NULL, NULL, segs, num_segs,
+                     x_origin, y_origin, scale, scale,
+                     0.0f, static_cast<float>(kBlnBaselineOffset));
+}
+
+// Initializes the denorm for a transformation. For details see the large
+// comment in normalis.h.
+// Arguments:
+// block: if not NULL, then this is the first transformation, and
+//        block->re_rotation() needs to be used after the Denorm
+//        transformation to get back to the image coords.
+// row: if not NULL, then row->baseline(x) is added to the y_origin, unless
+//      segs is not NULL and num_segs > 0, in which case they are used.
+// rotation: if not NULL, apply this rotation after translation to the
+//           origin and scaling. (Usually a classify rotation.)
+// predecessor: if not NULL, then predecessor has been applied to the
+//              input space and needs to be undone to complete the inverse.
+// segs: if not NULL and num_segs > 0, then the segs provide the y_origin
+//       and the y_scale at a given source x.
+// num_segs: the number of segs.
+// The above pointers are not owned by this DENORM and are assumed to live
+// longer than this denorm, except rotation, which is deep copied on input.
+//
+// x_origin: The x origin which will be mapped to final_xshift in the result.
+// y_origin: The y origin which will be mapped to final_yshift in the result.
+//           Added to result of row->baseline(x) if not NULL.
+//
+// x_scale: scale factor for the x-coordinate.
+// y_scale: scale factor for the y-coordinate. Ignored if segs is given.
+// Note that these scale factors apply to the same x and y system as the
+// x-origin and y-origin apply, ie after any block rotation, but before
+// the rotation argument is applied.
+//
+// final_xshift: The x component of the final translation.
+// final_yshift: The y component of the final translation.
+void DENORM::SetupNormalization(const BLOCK* block,
+                                const ROW* row,
+                                const FCOORD* rotation,
+                                const DENORM* predecessor,
+                                const DENORM_SEG* segs, int num_segs,
+                                float x_origin, float y_origin,
+                                float x_scale, float y_scale,
+                                float final_xshift, float final_yshift) {
+  Clear();
+  block_ = block;
+  row_ = row;
+  if (rotation == NULL)
+    rotation_ = NULL;
+  else
+    rotation_ = new FCOORD(*rotation);
+  predecessor_ = predecessor;
+  SetSegments(segs, num_segs);
+  x_origin_ = x_origin;
+  y_origin_ = y_origin;
+  x_scale_ = x_scale;
+  y_scale_ = y_scale;
+  final_xshift_ = final_xshift;
+  final_yshift_ = final_yshift;
+}
+
+// Transforms the given coords one step forward to normalized space, without
+// using any block rotation or predecessor.
+void DENORM::LocalNormTransform(const TPOINT& pt, TPOINT* transformed) const {
+  FCOORD src_pt(pt.x, pt.y);
+  FCOORD float_result;
+  LocalNormTransform(src_pt, &float_result);
+  transformed->x = IntCastRounded(float_result.x());
+  transformed->y = IntCastRounded(float_result.y());
+}
+void DENORM::LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const {
+  FCOORD translated(pt.x() - x_origin_, pt.y() - YOriginAtOrigX(pt.x()));
+  translated.set_x(translated.x() * x_scale_);
+  translated.set_y(translated.y() * YScaleAtOrigX(pt.x()));
+  if (rotation_ != NULL)
+    translated.rotate(*rotation_);
+  transformed->set_x(translated.x() + final_xshift_);
+  transformed->set_y(translated.y() + final_yshift_);
+}
+
+// Transforms the given coords forward to normalized space using the
+// full transformation sequence defined by the block rotation, the
+// predecessors, deepest first, and finally this.
+void DENORM::NormTransform(const TPOINT& pt, TPOINT* transformed) const {
+  FCOORD src_pt(pt.x, pt.y);
+  FCOORD float_result;
+  NormTransform(src_pt, &float_result);
+  transformed->x = IntCastRounded(float_result.x());
+  transformed->y = IntCastRounded(float_result.y());
+}
+void DENORM::NormTransform(const FCOORD& pt, FCOORD* transformed) const {
+  FCOORD src_pt(pt);
+  if (predecessor_ != NULL) {
+    predecessor_->NormTransform(pt, &src_pt);
+  } else if (block_ != NULL) {
+    FCOORD fwd_rotation(block_->re_rotation().x(), -block_->re_rotation().y());
+    src_pt.rotate(fwd_rotation);
+  }
+  LocalNormTransform(src_pt, transformed);
+}
+
+// Transforms the given coords one step back to source space, without
+// using to any block rotation or predecessor.
+void DENORM::LocalDenormTransform(const TPOINT& pt, TPOINT* original) const {
+  FCOORD src_pt(pt.x, pt.y);
+  FCOORD float_result;
+  LocalDenormTransform(src_pt, &float_result);
+  original->x = IntCastRounded(float_result.x());
+  original->y = IntCastRounded(float_result.y());
+}
+void DENORM::LocalDenormTransform(const FCOORD& pt, FCOORD* original) const {
+  FCOORD rotated(pt.x() - final_xshift_, pt.y() - final_yshift_);
+  if (rotation_ != NULL) {
+    FCOORD inverse_rotation(rotation_->x(), -rotation_->y());
+    rotated.rotate(inverse_rotation);
+  }
+  original->set_x(rotated.x() / x_scale_ + x_origin_);
+  float y_scale = y_scale_;
+  if (num_segs_ > 0)
+    y_scale = YScaleAtOrigX(original->x());
+  original->set_y(rotated.y() / y_scale + YOriginAtOrigX(original->x()));
+}
+
+// Transforms the given coords all the way back to source image space using
+// the full transformation sequence defined by this and its predecesors
+// recursively, shallowest first, and finally any block re_rotation.
+void DENORM::DenormTransform(const TPOINT& pt, TPOINT* original) const {
+  FCOORD src_pt(pt.x, pt.y);
+  FCOORD float_result;
+  DenormTransform(src_pt, &float_result);
+  original->x = IntCastRounded(float_result.x());
+  original->y = IntCastRounded(float_result.y());
+}
+void DENORM::DenormTransform(const FCOORD& pt, FCOORD* original) const {
+  LocalDenormTransform(pt, original);
+  if (predecessor_ != NULL) {
+    predecessor_->DenormTransform(*original, original);
+  } else if (block_ != NULL) {
+    original->rotate(block_->re_rotation());
+  }
+}
+
+// Normalize a blob using blob transformations. Less accurate, but
+// more accurately copies the old way.
+void DENORM::LocalNormBlob(TBLOB* blob) const {
+  TBOX blob_box = blob->bounding_box();
+  float x_center = (blob_box.left() + blob_box.right()) / 2.0f;
+  ICOORD translation(-IntCastRounded(x_origin_),
+                     -IntCastRounded(YOriginAtOrigX(x_center)));
+  blob->Move(translation);
+  // Note that the old way of scaling only allowed for a single
+  // scale factor.
+  blob->Scale(YScaleAtOrigX(x_center));
+  if (rotation_ != NULL)
+    blob->Rotate(*rotation_);
+  translation.set_x(IntCastRounded(final_xshift_));
+  translation.set_y(IntCastRounded(final_yshift_));
+  blob->Move(translation);
+}
+
+// ============== Private Code ======================
+
+// Free allocated memory and clear pointers.
+void DENORM::Clear() {
+  if (segs_ != NULL) {
+    delete [] segs_;
+    segs_ = NULL;
+    num_segs_ = 0;
+  }
+  if (rotation_ != NULL) {
+    delete rotation_;
+    rotation_ = NULL;
+  }
+}
+
+// Setup default values.
+void DENORM::Init() {
+  inverse_ = false;
+  pix_ = NULL;
+  block_ = NULL;
+  row_ = NULL;
+  rotation_ = NULL;
+  predecessor_ = NULL;
+  segs_ = NULL;
+  num_segs_ = 0;
+  x_origin_ = 0.0f;
+  y_origin_ = 0.0f;
+  x_scale_ = 1.0f;
+  y_scale_ = 1.0f;
+  final_xshift_ = 0.0f;
+  final_yshift_ = static_cast<float>(kBlnBaselineOffset);
+}
+
+// Returns the y-origin at the original (un-normalized) x.
+float DENORM::YOriginAtOrigX(float orig_x) const {
+  if (num_segs_ > 0) {
+    const DENORM_SEG* seg = BinarySearchSegment(orig_x);
     if (seg->ycoord != -MAX_INT32) {
       return seg->ycoord;
     }
   }
-  return yshift_at_orig_x(x(src_x));
-}
-
-// Returns the y-shift at the original (un-normalized) x, assuming
-// no segments.
-float DENORM::yshift_at_orig_x(float orig_x) const {
-  if (base_is_row && source_row != NULL)
-    return source_row->base_line(orig_x);
+  if (row_ != NULL)
+    return row_->base_line(orig_x) + y_origin_;
   else
-    return m * orig_x + c;
+    return y_origin_;
 }
 
-/**********************************************************************
- * DENORM::x
- *
- * Denormalise an x coordinate.
- **********************************************************************/
-
-float DENORM::x(float src_x) const {
-  return src_x / scale_at_x(src_x) + x_centre;
+// Returns the y-scale at the original (un-normalized) x.
+float DENORM::YScaleAtOrigX(float orig_x) const {
+  if (num_segs_ > 0) {
+    const DENORM_SEG* seg = BinarySearchSegment(orig_x);
+    if (seg->scale_factor > 0.0)
+      return seg->scale_factor;
+  }
+  return y_scale_;
 }
+
 
 // Compare two segments by xstart for use with qsort(3) and bsearch(3)
-static int compare_seg_by_xstart(const DENORM_SEG* a, const DENORM_SEG* b) {
+static int CompareSegByXStart(const DENORM_SEG* a, const DENORM_SEG* b) {
   if (a->xstart < b->xstart)
     return -1;
   else if (a->xstart > b->xstart)
@@ -105,75 +329,36 @@ static int compare_seg_by_xstart(const DENORM_SEG* a, const DENORM_SEG* b) {
   return 0;
 }
 
-/**********************************************************************
- * DENORM::y
- *
- * Denormalise a y coordinate.
- **********************************************************************/
-
-float DENORM::y(                  //convert y coord
-                float src_y,      //coord to convert
-                float src_x_centre  //x location for base
-               ) const {
-  return (src_y - kBlnBaselineOffset) / scale_at_x(src_x_centre)
-    + yshift_at_x(src_x_centre);
-}
-
-
-DENORM::DENORM(float x,              //from same pieces
-               float scaling,
-               double line_m,        //default line
-               double line_c,
-               inT16 seg_count,      //no of segments
-               DENORM_SEG *seg_pts,  //actual segments
-               BOOL8 using_row,      //as baseline
-               ROW *src) {
-  Init();
-  x_centre = x;                  //just copy
-  scale_factor = scaling;
-  source_row = src;
-  set_segments(seg_pts, seg_count);
-  base_is_row = src != NULL && using_row;
-  m = line_m;
-  c = line_c;
-  block_ = NULL;
-}
-
-
-DENORM::DENORM(const DENORM &src) {
-  segments = 0;
-  segs = NULL;
-  *this = src;
-}
-
-
-DENORM & DENORM::operator=(const DENORM & src) {
-  x_centre = src.x_centre;
-  scale_factor = src.scale_factor;
-  source_row = src.source_row;
-  set_segments(src.segs, src.segments);
-  base_is_row = src.base_is_row;
-  m = src.m;
-  c = src.c;
-  block_ = src.block_;
-  return *this;
-}
-
-void DENORM::set_segments(const DENORM_SEG* src_segs, int seg_count) {
-  if (segments > 0)
-    delete [] segs;
+// Deep copy the array of segments for use as a y_origin and y_scale.
+void DENORM::SetSegments(const DENORM_SEG* new_segs, int seg_count) {
+  if (segs_ != NULL)
+    delete [] segs_;
   if (seg_count > 0) {
-    segs = new DENORM_SEG[seg_count];
-    for (segments = 0; segments < seg_count; segments++)
-      segs[segments] = src_segs[segments];
+    segs_ = new DENORM_SEG[seg_count];
+    memcpy(segs_, new_segs, seg_count * sizeof(new_segs[0]));
     // It is possible, if infrequent that the segments may be out of order.
     // since we are searching with a binary search, keep them in order.
-    qsort(segs, segments, sizeof(DENORM_SEG),
+    qsort(segs_, num_segs_, sizeof(segs_[0]),
           reinterpret_cast<int(*)(const void*, const void*)>(
-              &compare_seg_by_xstart));
+              &CompareSegByXStart));
   } else {
-    segments = 0;
-    segs = NULL;
+    num_segs_ = 0;
+    segs_ = NULL;
   }
 }
 
+// Finds the appropriate segment for a given original x-coord
+const DENORM_SEG* DENORM::BinarySearchSegment(float orig_x) const {
+  int bottom, top, middle;       // binary search
+  bottom = 0;
+  top = num_segs_;
+  do {
+    middle = (bottom + top) / 2;
+    if (segs_[middle].xstart > orig_x)
+      top = middle;
+    else
+      bottom = middle;
+  }
+  while (top - bottom > 1);
+  return &segs_[bottom];
+}
