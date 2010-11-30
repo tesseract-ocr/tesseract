@@ -182,6 +182,7 @@ class Classify : public CCStruct {
   void AdaptToChar(TBLOB *Blob,
                    CLASS_ID ClassId,
                    FLOAT32 Threshold);
+  void DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class);
   int AdaptableWord(TWERD *Word,
                   const WERD_CHOICE &BestChoiceWord,
                   const WERD_CHOICE &RawChoiceWord);
@@ -225,6 +226,9 @@ class Classify : public CCStruct {
 
   void ResetFeaturesHaveBeenExtracted();
   bool AdaptiveClassifierIsFull() { return NumAdaptationsFailed > 0; }
+  bool LooksLikeGarbage(TBLOB *blob);
+  void RefreshDebugWindow(ScrollView **win, const char *msg,
+                          int y_offset, const TBOX &wbox);
   /* float2int.cpp ************************************************************/
   void ComputeIntCharNormArray(FEATURE NormFeature,
                                INT_TEMPLATES Templates,
@@ -234,7 +238,8 @@ class Classify : public CCStruct {
   INT_TEMPLATES ReadIntTemplates(FILE *File);
   void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
                          const UNICHARSET& target_unicharset);
-  CLASS_ID GetClassToDebug(const char *Prompt);
+  CLASS_ID GetClassToDebug(const char *Prompt, bool* adaptive_on,
+                           bool* pretrained_on);
   void ShowMatchDisplay();
   /* font detection ***********************************************************/
   UnicityTable<FontInfo>& get_fontinfo_table() {
@@ -306,9 +311,14 @@ class Classify : public CCStruct {
             "Threshold for good protos during adaptive 0-255");
   INT_VAR_H(classify_adapt_feature_threshold, 230,
             "Threshold for good features during adaptive 0-255");
-  BOOL_VAR_H(disable_character_fragments, FALSE,
+  BOOL_VAR_H(disable_character_fragments, TRUE,
              "Do not include character fragments in the"
              " results of the classifier");
+  double_VAR_H(classify_character_fragments_garbage_certainty_threshold, -3.0,
+               "Exclude fragments that do not match any whole character"
+               " with at least this certainty");
+  BOOL_VAR_H(classify_debug_character_fragments, FALSE,
+             "Bring up graphical debugging windows for fragments training");
   BOOL_VAR_H(matcher_debug_separate_windows, FALSE,
              "Use two different windows for debugging the matching: "
              "One for the protos and one for the features.");
@@ -382,6 +392,8 @@ class Classify : public CCStruct {
   CLASS_CUTOFF_ARRAY CharNormCutoffs;
   CLASS_CUTOFF_ARRAY BaselineCutoffs;
   ScrollView* learn_debug_win_;
+  ScrollView* learn_fragmented_word_debug_win_;
+  ScrollView* learn_fragments_debug_win_;
 };
 }  // namespace tesseract
 

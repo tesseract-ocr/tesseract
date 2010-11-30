@@ -213,6 +213,25 @@ void Classify::AdaptiveClassifier(TBLOB *Blob,
   delete Results;
 }                                /* AdaptiveClassifier */
 
+// If *win is NULL, sets it to a new ScrollView() object with title msg.
+// Clears the window and draws baselines.
+void Classify::RefreshDebugWindow(ScrollView **win, const char *msg,
+                                  int y_offset, const TBOX &wbox) {
+  const int kSampleSpaceWidth = 500;
+  if (*win == NULL) {
+    *win = new ScrollView(msg, 100, y_offset, kSampleSpaceWidth * 2, 200,
+                          kSampleSpaceWidth * 2, 200, true);
+  }
+  (*win)->Clear();
+  (*win)->Pen(64, 64, 64);
+  (*win)->Line(-kSampleSpaceWidth, kBlnBaselineOffset,
+               kSampleSpaceWidth, kBlnBaselineOffset);
+  (*win)->Line(-kSampleSpaceWidth, kBlnXHeight + kBlnBaselineOffset,
+               kSampleSpaceWidth, kBlnXHeight + kBlnBaselineOffset);
+  (*win)->ZoomToRectangle(wbox.left(), wbox.top(),
+                          wbox.right(), wbox.bottom());
+}
+
 // Learns the given word using its chopped_word, seam_array, denorm,
 // box_word, best_state, and correct_text to learn both correctly and
 // incorrectly segmented blobs. If filename is not NULL, then LearnBlob
@@ -241,23 +260,63 @@ void Classify::LearnWord(const char* filename, const char *rejmap,
   }
   int start_blob = 0;
   char prev_map_char = '0';
-    for (int ch = 0; ch < word_len; ++ch) {
+
+  if (classify_debug_character_fragments) {
+    if (learn_fragmented_word_debug_win_ != NULL) {
+      window_wait(learn_fragmented_word_debug_win_);
+    }
+    RefreshDebugWindow(&learn_fragments_debug_win_, "LearnPieces", 400,
+                       word->chopped_word->bounding_box());
+    RefreshDebugWindow(&learn_fragmented_word_debug_win_, "LearnWord", 200,
+                       word->chopped_word->bounding_box());
+    word->chopped_word->plot(learn_fragmented_word_debug_win_);
+    ScrollView::Update();
+  }
+
+  for (int ch = 0; ch < word_len; ++ch) {
+    if (classify_debug_character_fragments) {
+      tprintf("\nLearning %s\n",  word->correct_text[ch].string());
+    }
     char rej_map_char = rejmap != NULL ? *rejmap++ : '1';
-    char next_map_char = ch + 1 < word_len
-                       ? (rejmap != NULL ? *rejmap : '1')
-                       : '0';
+
     if (word->correct_text[ch].length() > 0 && rej_map_char == '1') {
       float threshold = thresholds != NULL ? thresholds[ch] : 0.0f;
+
+      if (word->best_state[ch] > 1 && !disable_character_fragments) {
+        // Check that the character breaks into meaningful fragments
+        // that each match a whole character with at least
+        // classify_character_fragments_garbage_certainty_threshold
+        bool garbage = false;
+        TBLOB* frag_blob = word->chopped_word->blobs;
+        for (int i = 0; i < start_blob; ++i) frag_blob = frag_blob->next;
+        int frag;
+        for (frag = 0; frag < word->best_state[ch]; ++frag) {
+          if (classify_character_fragments_garbage_certainty_threshold < 0) {
+            garbage |= LooksLikeGarbage(frag_blob);
+          }
+          frag_blob = frag_blob->next;
+        }
+        // Learn the fragments.
+        if (!garbage) {
+          for (frag = 0; frag < word->best_state[ch]; ++frag) {
+            STRING frag_str = CHAR_FRAGMENT::to_string(
+                word->correct_text[ch].string(), frag, word->best_state[ch]);
+            LearnPieces(filename, start_blob + frag, 1,
+                        threshold, CST_FRAGMENT, frag_str.string(), word);
+          }
+        }
+      }
+
       LearnPieces(filename, start_blob, word->best_state[ch],
                   threshold, CST_WHOLE, word->correct_text[ch].string(), word);
+
+      // TODO(rays): re-enable this part of the code when we switch to the
+      // new classifier that needs to see examples of garbage.
+      /*
+      char next_map_char = ch + 1 < word_len
+                           ? (rejmap != NULL ? *rejmap : '1')
+                           : '0';
       if (word->best_state[ch] > 1) {
-        // Blob includes fragments, so learn them.
-        for (int frag = 0; frag < word->best_state[ch]; ++frag) {
-          STRING frag_str = CHAR_FRAGMENT::to_string(
-              word->correct_text[ch].string(), frag, word->best_state[ch]);
-          LearnPieces(filename, start_blob + frag, 1,
-                      threshold, CST_FRAGMENT, frag_str.string(), word);
-        }
         // If the next blob is good, make junk with the rightmost fragment.
         if (ch + 1 < word_len && word->correct_text[ch + 1].length() > 0 &&
             next_map_char == '1') {
@@ -282,6 +341,7 @@ void Classify::LearnWord(const char* filename, const char *rejmap,
                     word->best_state[ch] + word->best_state[ch + 1],
                     threshold, CST_NGRAM, joined_text.string(), word);
       }
+      */
     }
     start_blob += word->best_state[ch];
     prev_map_char = rej_map_char;
@@ -301,32 +361,33 @@ void Classify::LearnWord(const char* filename, const char *rejmap,
 void Classify::LearnPieces(const char* filename, int start, int length,
                            float threshold, CharSegmentationType segmentation,
                            const char* correct_text, WERD_RES *word) {
-  // TODO(daria) Remove/modify this if when we want to train and/or adapt
-  // on fragments and/or n-grams.
-  if (segmentation != CST_WHOLE)
+  // TODO(daria) Remove/modify this if/when we want
+  // to train and/or adapt to n-grams.
+  if (segmentation != CST_WHOLE &&
+      (segmentation != CST_FRAGMENT || disable_character_fragments))
     return;
 
-  join_pieces(word->chopped_word->blobs, word->seam_array,
-              start, start + length - 1);
+  if (length > 1) {
+    join_pieces(word->chopped_word->blobs, word->seam_array,
+                start, start + length - 1);
+  }
   TBLOB* blob = word->chopped_word->blobs;
   for (int i = 0; i < start; ++i)
     blob = blob->next;
+
+  // Draw debug windows showing the blob that is being learned if needed.
   if (strcmp(classify_learn_debug_str.string(), correct_text) == 0) {
-    const int kSampleSpaceWidth = 500;
-    if (learn_debug_win_ == NULL) {
-      learn_debug_win_ = new ScrollView(classify_learn_debug_str.string(),
-                                        100, 400, kSampleSpaceWidth * 2, 200,
-                                        kSampleSpaceWidth* 2, 200, true);
-    }
-    learn_debug_win_->Clear();
-    learn_debug_win_->Pen(64, 64, 64);
-    learn_debug_win_->Line(-kSampleSpaceWidth, kBlnBaselineOffset,
-                           kSampleSpaceWidth, kBlnBaselineOffset);
-    learn_debug_win_->Line(-kSampleSpaceWidth, kBlnXHeight + kBlnBaselineOffset,
-                           kSampleSpaceWidth, kBlnXHeight + kBlnBaselineOffset);
+    RefreshDebugWindow(&learn_debug_win_, "LearnPieces", 600,
+                       word->chopped_word->bounding_box());
     blob->plot(learn_debug_win_, ScrollView::GREEN, ScrollView::BROWN);
     learn_debug_win_->Update();
     window_wait(learn_debug_win_);
+  }
+  if (classify_debug_character_fragments && segmentation == CST_FRAGMENT) {
+    ASSERT_HOST(learn_fragments_debug_win_ != NULL);  // set up in LearnWord
+    blob->plot(learn_fragments_debug_win_,
+               ScrollView::BLUE, ScrollView::BROWN);
+    learn_fragments_debug_win_->Update();
   }
 
   if (filename != NULL) {
@@ -694,6 +755,8 @@ void Classify::InitAdaptedClass(TBLOB *Blob,
   if (classify_learning_debug_level >= 1) {
     cprintf ("Added new class '%s' with class id %d and %d protos.\n",
              unicharset.id_to_unichar(ClassId), ClassId, NumFeatures);
+    if (classify_learning_debug_level > 1)
+      DisplayAdaptedChar(Blob, IClass);
   }
 
   if (IsEmptyAdaptedClass(Class))
@@ -811,6 +874,7 @@ void Classify::AdaptToChar(TBLOB *Blob,
   FEATURE_SET FloatFeatures;
   int NewTempConfigId;
 
+  ResetFeaturesHaveBeenExtracted();
   NumCharsAdaptedTo++;
   if (!LegalClassId (ClassId))
     return;
@@ -859,9 +923,12 @@ void Classify::AdaptToChar(TBLOB *Blob,
       }
     }
     else {
-      if (classify_learning_debug_level >= 1)
+      if (classify_learning_debug_level >= 1) {
         cprintf ("Found poor match to temp config %d = %4.1f%%.\n",
           IntResult.Config, (1.0 - IntResult.Rating) * 100.0);
+        if (classify_learning_debug_level > 2)
+          DisplayAdaptedChar(Blob, IClass);
+      }
       NewTempConfigId = MakeNewTemporaryConfig(AdaptedTemplates,
                                                ClassId,
                                                NumFeatures,
@@ -875,30 +942,45 @@ void Classify::AdaptToChar(TBLOB *Blob,
       }
 
 #ifndef GRAPHICS_DISABLED
-      if (classify_learning_debug_level >= 1) {
-        im_.Match(IClass, AllProtosOn, AllConfigsOn,
-                  NumFeatures, NumFeatures, IntFeatures, 0,
-                  &IntResult, classify_adapt_feature_threshold,
-                  NO_DEBUG, matcher_debug_separate_windows);
-        cprintf ("Best match to temp config %d = %4.1f%%.\n",
-          IntResult.Config, (1.0 - IntResult.Rating) * 100.0);
-        if (classify_learning_debug_level >= 2) {
-          uinT32 ConfigMask;
-          ConfigMask = 1 << IntResult.Config;
-          ShowMatchDisplay();
-          im_.Match(IClass, AllProtosOn, (BIT_VECTOR)&ConfigMask,
-                    NumFeatures, NumFeatures, IntFeatures, 0,
-                    &IntResult, classify_adapt_feature_threshold,
-                    6 | 0x19, matcher_debug_separate_windows);
-          UpdateMatchDisplay();
-          GetClassToDebug ("Adapting");
-        }
+      if (classify_learning_debug_level > 1) {
+        DisplayAdaptedChar(Blob, IClass);
       }
 #endif
     }
     FreeFeatureSet(FloatFeatures);
   }
 }                                /* AdaptToChar */
+
+void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
+#ifndef GRAPHICS_DISABLED
+  int bloblength = 0;
+  INT_FEATURE_ARRAY features;
+  CLASS_NORMALIZATION_ARRAY norm_array;
+  int num_features = GetBaselineFeatures(blob, PreTrainedTemplates, features,
+                                         norm_array, &bloblength);
+  INT_RESULT_STRUCT IntResult;
+
+  im_.Match(int_class, AllProtosOn, AllConfigsOn,
+            num_features, num_features, features, 0,
+            &IntResult, classify_adapt_feature_threshold,
+            NO_DEBUG, matcher_debug_separate_windows);
+  cprintf ("Best match to temp config %d = %4.1f%%.\n",
+    IntResult.Config, (1.0 - IntResult.Rating) * 100.0);
+  if (classify_learning_debug_level >= 2) {
+    uinT32 ConfigMask;
+    ConfigMask = 1 << IntResult.Config;
+    ShowMatchDisplay();
+    im_.Match(int_class, AllProtosOn, (BIT_VECTOR)&ConfigMask,
+              num_features, num_features, features, 0,
+              &IntResult, classify_adapt_feature_threshold,
+              6 | 0x19, matcher_debug_separate_windows);
+    UpdateMatchDisplay();
+    bool adaptive_on = true;
+    bool pretrained_on = false;
+    GetClassToDebug("Adapting", &adaptive_on, &pretrained_on);
+  }
+#endif
+}
 
 
 /*---------------------------------------------------------------------------*/
@@ -1405,47 +1487,29 @@ void Classify::DebugAdaptiveClassifier(TBLOB *Blob,
   const char *DebugMode = "All Templates";
   CLASS_ID LastClass = Results->best_match.id;
   CLASS_ID ClassId;
-  BOOL8 AdaptiveOn = TRUE;
-  BOOL8 PreTrainedOn = TRUE;
+  bool adaptive_on = true;
+  bool pretrained_on = true;
 
   ShowMatchDisplay();
   cprintf ("\nDebugging class = %s  (%s) ...\n",
            unicharset.id_to_unichar(LastClass), DebugMode);
-  ShowBestMatchFor(Blob, LastClass, AdaptiveOn, PreTrainedOn);
+  ShowBestMatchFor(Blob, LastClass, adaptive_on, pretrained_on);
   UpdateMatchDisplay();
 
-  while ((ClassId = GetClassToDebug (Prompt)) != 0) {
-#if 0
-    switch (ClassId) {
-      case 'b':
-        AdaptiveOn = TRUE;
-        PreTrainedOn = FALSE;
-        DebugMode = "Adaptive Templates Only";
-        break;
-
-      case 'c':
-        AdaptiveOn = FALSE;
-        PreTrainedOn = TRUE;
-        DebugMode = "PreTrained Templates Only";
-        break;
-
-      case 'a':
-        AdaptiveOn = TRUE;
-        PreTrainedOn = TRUE;
-        DebugMode = "All Templates";
-        break;
-
-      default:
-        LastClass = ClassId;
-        break;
-    }
-#endif
+  while ((ClassId = GetClassToDebug(Prompt, &adaptive_on,
+                                    &pretrained_on)) != 0) {
+    if (!pretrained_on)
+      DebugMode = "Adaptive Templates Only";
+    else if (!adaptive_on)
+      DebugMode = "PreTrained Templates Only";
+    else
+      DebugMode = "All Templates";
     LastClass = ClassId;
 
     ShowMatchDisplay();
     cprintf ("\nDebugging class = %d = %s  (%s) ...\n",
              LastClass, unicharset.id_to_unichar(LastClass), DebugMode);
-    ShowBestMatchFor(Blob, LastClass, AdaptiveOn, PreTrainedOn);
+    ShowBestMatchFor(Blob, LastClass, adaptive_on, pretrained_on);
     UpdateMatchDisplay();
   }
 }                                /* DebugAdaptiveClassifier */
@@ -1492,7 +1556,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob,
          !tess_bn_matching) ||
         Results->NumMatches == 0) {
       CharNormClassifier(Blob, PreTrainedTemplates, Results);
-    } else if (Ambiguities && *Ambiguities >= 0) {
+    } else if (Ambiguities && *Ambiguities >= 0 && !tess_bn_matching) {
       AmbigClassifier(Blob,
                       PreTrainedTemplates,
                       Ambiguities,
@@ -1838,6 +1902,30 @@ int Classify::GetIntBaselineFeatures(TBLOB *Blob,
 
 void Classify::ResetFeaturesHaveBeenExtracted() {
   FeaturesHaveBeenExtracted = FALSE;
+}
+
+// Returns true if the given blob looks too dissimilar to any character
+// present in the classifier templates.
+bool Classify::LooksLikeGarbage(TBLOB *blob) {
+  BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();
+  AdaptiveClassifier(blob, ratings, NULL);
+  BLOB_CHOICE_IT ratings_it(ratings);
+  const UNICHARSET &unicharset = getDict().getUnicharset();
+  if (classify_debug_character_fragments) {
+    print_ratings_list("======================\nLooksLikeGarbage() got ",
+                       ratings, unicharset);
+  }
+  for (ratings_it.mark_cycle_pt(); !ratings_it.cycled_list();
+       ratings_it.forward()) {
+    if (unicharset.get_fragment(ratings_it.data()->unichar_id()) != NULL) {
+      continue;
+    }
+    delete ratings;
+    return (ratings_it.data()->certainty() <
+            classify_character_fragments_garbage_certainty_threshold);
+  }
+  delete ratings;
+  return true;  // no whole characters in ratings
 }
 
 /*---------------------------------------------------------------------------*/

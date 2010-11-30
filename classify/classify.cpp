@@ -131,9 +131,15 @@ Classify::Classify()
     INT_MEMBER(classify_adapt_feature_threshold, 230,
                "Threshold for good features during adaptive 0-255",
                this->params()),
-    BOOL_MEMBER(disable_character_fragments, FALSE,
+    BOOL_MEMBER(disable_character_fragments, TRUE,
                 "Do not include character fragments in the"
                 " results of the classifier", this->params()),
+    double_MEMBER(classify_character_fragments_garbage_certainty_threshold,
+                  -3.0, "Exclude fragments that do not look like whole"
+                  " characters from training and adaption", this->params()),
+    BOOL_MEMBER(classify_debug_character_fragments, FALSE,
+                "Bring up graphical debugging windows for fragments training",
+                this->params()),
     BOOL_MEMBER(matcher_debug_separate_windows, FALSE,
                 "Use two different windows for debugging the matching: "
                 "One for the protos and one for the features.", this->params()),
@@ -186,11 +192,15 @@ Classify::Classify()
   FeaturesHaveBeenExtracted = false;
   FeaturesOK = true;
   learn_debug_win_ = NULL;
+  learn_fragmented_word_debug_win_ = NULL;
+  learn_fragments_debug_win_ = NULL;
 }
 
 Classify::~Classify() {
   EndAdaptiveClassifier();
   delete learn_debug_win_;
+  delete learn_fragmented_word_debug_win_;
+  delete learn_fragments_debug_win_;
 }
 
 }  // namespace tesseract

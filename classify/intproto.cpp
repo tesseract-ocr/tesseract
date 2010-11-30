@@ -142,10 +142,6 @@ void FillPPCircularBits(uinT32
 void FillPPLinearBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                       int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug);
 
-#ifndef GRAPHICS_DISABLED
-CLASS_ID GetClassToDebug(const char *Prompt);
-#endif
-
 void GetCPPadsForLevel(int Level,
                        FLOAT32 *EndPad,
                        FLOAT32 *SidePad,
@@ -1495,7 +1491,8 @@ void FillPPLinearBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 /*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
 namespace tesseract {
-CLASS_ID Classify::GetClassToDebug(const char *Prompt) {
+CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
+                                   bool* pretrained_on) {
 /*
  ** Parameters:
  **   Prompt  prompt to print while waiting for input from window
@@ -1514,11 +1511,19 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt) {
     ev = IntMatchWindow->AwaitEvent(SVET_ANY);
     ev_type = ev->type;
     if (ev_type == SVET_POPUP) {
-      // TODO(rays) must return which menu item was selected, but
-      // that can't be done in this CL without dragging in a lot of
-      // other changes.
-      if (unicharset.contains_unichar(ev->parameter))
+      if (unicharset.contains_unichar(ev->parameter)) {
+        if (ev->command_id == IDA_ADAPTIVE) {
+          *adaptive_on = true;
+          *pretrained_on = false;
+        } else if (ev->command_id == IDA_STATIC) {
+          *adaptive_on = false;
+          *pretrained_on = true;
+        } else {
+          *adaptive_on = true;
+          *pretrained_on = true;
+        }
         return unicharset.unichar_to_id(ev->parameter);
+      }
       tprintf("Char class '%s' not found in unicharset",
               ev->parameter);
     }
