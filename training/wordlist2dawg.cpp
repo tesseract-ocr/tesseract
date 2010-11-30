@@ -71,8 +71,12 @@ int main(int argc, char** argv) {
     }
     printf("Reducing Trie to SquishedDawg\n");
     tesseract::SquishedDawg *dawg = trie.trie_to_dawg();
-    printf("Writing squished DAWG to '%s'\n", dawg_filename);
-    dawg->write_squished_dawg(dawg_filename);
+    if (dawg->NumEdges() > 0) {
+      printf("Writing squished DAWG to '%s'\n", dawg_filename);
+      dawg->write_squished_dawg(dawg_filename);
+    } else {
+      printf("Dawg is empty, skip producing the output file\n");
+    }
     delete dawg;
   } else if (argc == 5) {
     printf("Loading dawg DAWG from '%s'\n", dawg_filename);

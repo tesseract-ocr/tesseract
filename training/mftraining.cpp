@@ -206,7 +206,7 @@ int main (int argc, char **argv) {
   }
 
   UNICHARSET unicharset_training;
-  if (!unicharset_training.load_from_file(InputUnicharsetFile)) {
+  if (!unicharset_training.load_from_file(InputUnicharsetFile, true)) {
     fprintf(stderr, "Failed to load unicharset from file %s\n"
             "Building unicharset for mftraining from scratch...\n",
             InputUnicharsetFile);
