@@ -19,7 +19,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".."
-			IntermediateDirectory=".\w2d.Release"
+			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -57,9 +57,6 @@
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile=""
-				AssemblerListingLocation=".\w2d.Release/"
-				ObjectFile=".\w2d.Release/"
-				ProgramDataBaseFileName=".\w2d.Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
@@ -117,7 +114,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\bin.dbg"
-			IntermediateDirectory=".\w2d.Debug"
+			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -150,11 +147,6 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="mfcpch.h"
-				PrecompiledHeaderFile=".\w2d.Debug/wordlist2dawg.pch"
-				AssemblerListingLocation=".\w2d.Debug/"
-				ObjectFile=".\w2d.Debug/"
-				ProgramDataBaseFileName=".\w2d.Debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
@@ -210,7 +202,7 @@
 		<Configuration
 			Name="Release.dynamic|Win32"
 			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -248,9 +240,6 @@
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				PrecompiledHeaderFile=""
-				AssemblerListingLocation=".\w2d.rd/"
-				ObjectFile=".\w2d.Release/"
-				ProgramDataBaseFileName=".\w2d.rd/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>

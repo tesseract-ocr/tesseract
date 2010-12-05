@@ -16542,12 +16542,6 @@ ac_config_files="$ac_config_files tessdata/tessconfigs/Makefile"
 
 ac_config_files="$ac_config_files testing/Makefile"
 
-ac_config_files="$ac_config_files vs2008/Makefile"
-
-ac_config_files="$ac_config_files vs2008/include/Makefile"
-
-ac_config_files="$ac_config_files vs2008/include/leptonica/Makefile"
-
 if test "$enable_graphics" = "yes"; then
 ac_config_files="$ac_config_files java/Makefile"
 

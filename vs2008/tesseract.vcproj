@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\."
-			IntermediateDirectory=".\tesseract.Release"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -60,9 +60,6 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				AssemblerListingLocation=".\tesseract.Release/"
-				ObjectFile=".\tesseract.Release/"
-				ProgramDataBaseFileName=".\tesseract.Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
@@ -118,8 +115,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\bin.dbg"
-			IntermediateDirectory=".\tesseract.Debug"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -157,11 +154,6 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough="mfcpch.h"
-				PrecompiledHeaderFile=".\tesseract.Debug/tesseract.pch"
-				AssemblerListingLocation=".\tesseract.Debug/"
-				ObjectFile=".\tesseract.Debug/"
-				ProgramDataBaseFileName=".\tesseract.Debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
@@ -218,7 +210,7 @@
 		<Configuration
 			Name="Release.dynamic|Win32"
 			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -259,9 +251,6 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				AssemblerListingLocation=".\tesseract.rd/"
-				ObjectFile=".\tesseract.rd/"
-				ProgramDataBaseFileName=".\tesseract.rd/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
