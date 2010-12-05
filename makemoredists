@@ -1,19 +1,35 @@
 #!/bin/bash
+# Requirement: tesseract directory name must be "tesseract-ocr" otherwise
+# script will not work
 
-# Windows relevant files
-winlist="tessdll.dll tessdll.lib tesseract.exe dlltest.exe cntraining.exe mftraining.exe unicharset_extractor.exe wordlist2dawg.exe java/ScrollView.jar tessdata/configs/* tessdata/tessconfigs/*"
-windeps="glut32.dll jpeg62.dll libimage.dll libpng13.dll librle3.dll libtiff3.dll zlib1.dll leptonlib.dll lib/leptonlib.lib include/*.h dlltest/* tesseract.vcproj tesseract.sln StdAfx.cpp StdAfx.h tessdll.cpp tessdll.h tessdll.vcproj"
+# get version information
+version=`grep PACKAGE_VERSION= configure | sed -e "s/PACKAGE_VERSION=//" | sed -e "s/'//g"`
+ver=tesseract-ocr-$version
+excld="exclude.txt"
+cd ..
+echo Output for $ver is in `pwd`...
 
-#ver=`ls -1rt *[0-9].tar.gz |tail -1`
-#ver=${ver%.tar.gz}
-ver="tesseract-3.00"
+# create language files packages
+if [ -f $excld ] 
+then
+	echo Removing $excld...
+	rm -f $excld
+fi
 
-for l in tessdata/*.traineddata
+for l in tesseract-ocr/tessdata/*.traineddata
 do
 	echo  Creating language package for `basename "$l" .traineddata`...
 	chmod 644 ${l%%.*}.*
         tar --group root --owner root -chozf $ver.`basename "$l" .traineddata`.tar.gz ${l%%.*}.*
+	echo ${l%%.*}.* | tr " " "\n" >>$excld
 done
 
-tar chozf $ver.exe.tar.gz $winlist
-tar chozf $ver.windep.tar.gz $windeps
+# create linux source package
+tar -chozf tesseract-ocr-3.01.tar.gz --exclude=.svn  --exclude=vs2008 -X $excld tesseract-ocr/*
+rm -f $excld
+
+# Windows build relevant files
+name=$ver-vs2008
+# Let's be nice and use common windows packager ;-)
+zip $name.zip tesseract-ocr/vs2008/* tesseract-ocr/vs2008/include/* tesseract-ocr/vs2008/include/leptonica/* tesseract-ocr/vs2008/lib/* tesseract-ocr/vs2008/port/*
+
