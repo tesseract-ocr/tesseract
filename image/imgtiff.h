@@ -23,6 +23,10 @@
 #include          "host.h"
 #include          "bitstrm.h"
 
+// CountTiffPages
+// Returns the number of pages in the file if it is a tiff file, otherwise 0.
+int CountTiffPages(FILE* fp);
+
 inT8 open_tif_image(               //read header
                     int fd,        //file to read
                     inT32 *xsize,  //size of image

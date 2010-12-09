@@ -52,6 +52,7 @@
 #include "edgblob.h"
 #include "tessbox.h"
 #include "imgs.h"
+#include "imgtiff.h"
 #include "makerow.h"
 #include "tstruct.h"
 #include "permute.h"
@@ -79,8 +80,6 @@ const char* kInputFile = "noname.tif";
 const char* kOldVarsFile = "failed_vars.txt";
 // Max string length of an int.
 const int kMaxIntSize = 22;
-// Buffer size for leptonica to discover image file format.
-const int kImageHeaderSize = 32;
 
 TessBaseAPI::TessBaseAPI()
   : tesseract_(NULL),
@@ -618,28 +617,13 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   int page = tesseract_->tessedit_page_number;
   if (page < 0)
     page = 0;
-  int npages = 1;
   FILE* fp = fopen(filename, "rb");
   if (fp == NULL) {
     tprintf(_("Image file %s cannot be opened!\n"), filename);
     return false;
   }
-  // Find the image file type without incurring errors.
-  bool is_tiff = false;
-  l_uint8 header_buffer[kImageHeaderSize];
-  l_int32 image_type = IFF_UNKNOWN;
-  if (fread(header_buffer, 1, kImageHeaderSize, fp) == kImageHeaderSize &&
-      findFileFormatBuffer(header_buffer, &image_type) == 0 &&
-      image_type == IFF_TIFF) {
-    rewind(fp);
-    int tiffstat = tiffGetCount(fp, &npages);
-    if (tiffstat == 1) {
-      fprintf(stderr, _("Error reading file %s!\n"), filename);
-      fclose(fp);
-      return false;
-    }
-    is_tiff = true;
-  }
+  // Find the number of pages if a tiff file, or zero otherwise.
+  int npages = CountTiffPages(fp);
   fclose(fp);
 
   if (tesseract_->tessedit_create_hocr) {
@@ -656,7 +640,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
 
   bool success = true;
   Pix *pix;
-  if (is_tiff) {
+  if (npages > 0) {
     for (; page < npages && (pix = pixReadTiff(filename, page)) != NULL;
          ++page) {
       if (page > 0)
@@ -671,44 +655,42 @@ bool TessBaseAPI::ProcessPages(const char* filename,
         break;
       }
     }
-  } else if (image_type == IFF_UNKNOWN) {
-    // The file is not an image file, so try it as a list of filenames.
-    FILE* fimg = fopen(filename, "r");
-    if (fimg == NULL) {
-      tprintf(_("File %s cannot be opened!\n"), filename);
-      fclose(fimg);
-      return false;
-    }
-    char pagename[MAX_PATH];
-    // Skip to the requested page number.
-    for (int i = 0; i < page &&
-         fgets(pagename, sizeof(pagename), fimg) != NULL;
-         ++i);
-    while (fgets(pagename, sizeof(pagename), fimg) != NULL) {
-      chomp_string(pagename);
-      pix = pixRead(pagename);
-      if (pix == NULL) {
-        tprintf(_("Image file %s cannot be read!\n"), pagename);
-        fclose(fimg);
-        return false;
-      }
-      tprintf(_("Page %d : %s\n"), page, pagename);
-      success &= ProcessPage(pix, page, pagename, retry_config,
-                             timeout_millisec, text_out);
-      pixDestroy(&pix);
-      ++page;
-    }
-    fclose(fimg);
   } else {
     // The file is not a tiff file, so use the general pixRead function.
     pix = pixRead(filename);
-    if (pix == NULL) {
-      tprintf(_("Image file %s cannot be read!\n"), filename);
-      return false;
+    if (pix != NULL) {
+      success &= ProcessPage(pix, 0, filename, retry_config,
+                             timeout_millisec, text_out);
+      pixDestroy(&pix);
+    } else {
+      // The file is not an image file, so try it as a list of filenames.
+      FILE* fimg = fopen(filename, "r");
+      if (fimg == NULL) {
+        tprintf(_("File %s cannot be opened!\n"), filename);
+        return false;
+      }
+      tprintf(_("Reading %s as a list of filenames...\n"), filename);
+      char pagename[MAX_PATH];
+      // Skip to the requested page number.
+      for (int i = 0; i < page &&
+           fgets(pagename, sizeof(pagename), fimg) != NULL;
+           ++i);
+      while (fgets(pagename, sizeof(pagename), fimg) != NULL) {
+        chomp_string(pagename);
+        pix = pixRead(pagename);
+        if (pix == NULL) {
+          tprintf(_("Image file %s cannot be read!\n"), pagename);
+          fclose(fimg);
+          return false;
+        }
+        tprintf(_("Page %d : %s\n"), page, pagename);
+        success &= ProcessPage(pix, page, pagename, retry_config,
+                               timeout_millisec, text_out);
+        pixDestroy(&pix);
+        ++page;
+      }
+      fclose(fimg);
     }
-    success &= ProcessPage(pix, 0, filename, retry_config,
-                           timeout_millisec, text_out);
-    pixDestroy(&pix);
   }
   if (tesseract_->tessedit_create_hocr)
     *text_out += "</body>\n</html>\n";

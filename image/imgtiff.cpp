@@ -180,6 +180,45 @@ const uinT8 long_black_lengths[LONG_CODE_SIZE] = {
   12, 12, 12, 12, 12, 12, 12, 12
 };
 
+// CountTiffPages
+// Returns the number of pages in the file if it is a tiff file, otherwise 0.
+// WARNING: requires __MOTO__ to be #defined on a big-endian system.
+int CountTiffPages(FILE* fp) {
+  if (fp == NULL) return 0;
+  // Read header
+  inT16 filetype = 0;
+  if (fread(&filetype, sizeof(filetype), 1, fp) != 1 ||
+      (filetype != INTEL && filetype != MOTO)) {
+    return 0;
+  }
+  fseek(fp, 4L, SEEK_SET);
+  int npages = 0;
+  do {
+    inT32 start;                   // Start of tiff directory.
+    if (fread(&start, sizeof(start), 1, fp) != 1) {
+      return npages;
+    }
+    if (filetype != __NATIVE__)
+      ReverseN(&start, sizeof(start));
+    if (start <= 0) {
+      return npages;
+    }
+    fseek(fp, start, SEEK_SET);
+    inT16 entries;                 // No of tiff entries.
+    if (fread(&entries, sizeof(entries), 1, fp) != 1) {
+      return npages;
+    }
+    if (filetype != __NATIVE__)
+      ReverseN(&entries, sizeof(entries));
+    // Skip the tags and get to the next start.
+    fseek(fp, entries * sizeof(TIFFENTRY), SEEK_CUR);
+    ++npages;
+  } while (1);
+  return 0;
+}
+
+// TODO(rays) The rest of this file is redundant and should be deleted.
+
 /**********************************************************************
  * open_tif_image
  *
