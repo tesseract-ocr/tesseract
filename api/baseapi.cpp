@@ -632,7 +632,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
         " \"http://www.w3.org/TR/html4/loose.dtd\">\n"
         "<html>\n<head>\n<title></title>\n"
         "<meta http-equiv=\"Content-Type\" content=\"text/html;"
-        "charset=utf-8\" >\n<meta name='ocr-system' content='tesseract'>\n"
+        "charset=utf-8\" />\n<meta name='ocr-system' content='tesseract'/>\n"
         "</head>\n<body>\n";
   } else {
     *text_out = "";
