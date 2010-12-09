@@ -42,9 +42,6 @@
 
 // Some of the code in this file is dependent upon leptonica. If you don't
 // have it, you don't get this functionality.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 #ifdef HAVE_LIBLEPT
 #include "allheaders.h"
 #endif

@@ -514,9 +514,9 @@ PageIterator* TessBaseAPI::AnalyseLayout() {
     if (block_list_->empty())
       return NULL;  // The page was empty.
     page_res_ = new PAGE_RES(block_list_, NULL);
-  // TODO(rays) Support transmission of image scaling and resolution through
-  // ImageThresholder, so it can be used here in place of literal 1, 300.
-    return new PageIterator(page_res_, tesseract_, 1, 300,
+    return new PageIterator(page_res_, tesseract_,
+                            thresholder_->GetScaleFactor(),
+                            thresholder_->GetScaledYResolution(),
                             rect_left_, rect_top_, rect_width_, rect_height_);
   }
   return NULL;
@@ -798,9 +798,9 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
 ResultIterator* TessBaseAPI::GetIterator() {
   if (tesseract_ == NULL || page_res_ == NULL)
     return NULL;
-  // TODO(rays) Support transmission of image scaling and resolution through
-  // ImageThresholder, so it can be used here in place of literal 1, 300.
-  return new ResultIterator(page_res_, tesseract_, 1, 300,
+  return new ResultIterator(page_res_, tesseract_,
+                            thresholder_->GetScaleFactor(),
+                            thresholder_->GetScaledYResolution(),
                             rect_left_, rect_top_, rect_width_, rect_height_);
 }
 
@@ -952,17 +952,15 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
         hocr_str += "<strong>";
       if (word->italic > 0)
         hocr_str += "<em>";
-	  int i;
+      int i;
       // escape special characters
-      for (i = 0;
-        choice->unichar_string()[i] != '\0';
-        i++) {
-          if (choice->unichar_string()[i] == '<') { hocr_str += "&lt;"; }
-          else if (choice->unichar_string()[i] == '>') { hocr_str += "&gt;"; }
-          else if (choice->unichar_string()[i] == '&') { hocr_str += "&amp;"; }
-          else if (choice->unichar_string()[i] == '"') { hocr_str += "&quot;"; }
-          else if (choice->unichar_string()[i] == '\'') { hocr_str += "&#39;"; }
-          else { hocr_str += choice->unichar_string()[i]; }
+      for (i = 0; choice->unichar_string()[i] != '\0'; i++) {
+        if (choice->unichar_string()[i] == '<') hocr_str += "&lt;";
+        else if (choice->unichar_string()[i] == '>') hocr_str += "&gt;";
+        else if (choice->unichar_string()[i] == '&') hocr_str += "&amp;";
+        else if (choice->unichar_string()[i] == '"') hocr_str += "&quot;";
+        else if (choice->unichar_string()[i] == '\'') hocr_str += "&#39;";
+        else hocr_str += choice->unichar_string()[i];
       }
       if (word->italic > 0)
         hocr_str += "</em>";
@@ -973,7 +971,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
         hocr_str += " ";
     }
   }
-  if (block != NULL) 
+  if (block != NULL)
     hocr_str += "</span>\n</p>\n</div>\n";
   hocr_str += "</div>\n";
 
@@ -1206,6 +1204,7 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
   bool success = true;
   PageSegMode current_psm = GetPageSegMode();
   SetPageSegMode(mode);
+  SetVariable("classify_enable_learning", "0");
   char* text = GetUTF8Text();
   if (text != NULL) {
     PAGE_RES_IT it(page_res_);

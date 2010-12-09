@@ -107,6 +107,7 @@ void Textord::make_old_baselines(TO_BLOCK *block,   // block to do
     }
   }
   correlate_lines(block, gradient);
+  block->block->set_xheight(block->xheight);
 }
 
 

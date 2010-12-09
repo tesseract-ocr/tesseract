@@ -97,6 +97,7 @@ class ResultIterator : public PageIterator {
                                  bool* is_underlined,
                                  bool* is_monospace,
                                  bool* is_serif,
+                                 bool* is_smallcaps,
                                  int* pointsize,
                                  int* font_id) const;
 
@@ -105,6 +106,21 @@ class ResultIterator : public PageIterator {
 
   // Returns true if the current word is numeric.
   bool WordIsNumeric() const;
+
+  // ============= Functions that refer to symbols only ============.
+
+  // Returns true if the current symbol is a superscript.
+  // If iterating at a higher level object than symbols, eg words, then
+  // this will return the attributes of the first symbol in that word.
+  bool SymbolIsSuperscript() const;
+  // Returns true if the current symbol is a subscript.
+  // If iterating at a higher level object than symbols, eg words, then
+  // this will return the attributes of the first symbol in that word.
+  bool SymbolIsSubscript() const;
+  // Returns true if the current symbol is a dropcap.
+  // If iterating at a higher level object than symbols, eg words, then
+  // this will return the attributes of the first symbol in that word.
+  bool SymbolIsDropcap() const;
 };
 
 // Class to iterate over the classifier choices for a single RIL_SYMBOL.

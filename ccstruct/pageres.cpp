@@ -208,6 +208,7 @@ void WERD_RES::CopySimpleFields(const WERD_RES& source) {
   tess_would_adapt = source.tess_would_adapt;
   done = source.done;
   unlv_crunch_mode = source.unlv_crunch_mode;
+  small_caps = source.small_caps;
   italic = source.italic;
   bold = source.bold;
   font1 = source.font1;
@@ -299,6 +300,13 @@ void WERD_RES::SetupBoxWord() {
   rebuild_word->ComputeBoundingBoxes();
   box_word = tesseract::BoxWord::CopyFromNormalized(&denorm, rebuild_word);
   box_word->ClipToOriginalWord(denorm.block(), word);
+}
+
+// Sets up the script positions in the output boxword using the best_choice
+// to get the unichars, and the unicharset to get the target positions.
+void WERD_RES::SetScriptPositions(const UNICHARSET& unicharset) {
+  box_word->SetScriptPositions(unicharset, small_caps, rebuild_word,
+                               best_choice);
 }
 
 // Classifies the word with some already-calculated BLOB_CHOICEs.

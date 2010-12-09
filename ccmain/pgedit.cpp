@@ -76,7 +76,29 @@ enum CMD_EVENTS
   REFRESH_CMD_EVENT,
   QUIT_CMD_EVENT,
   RECOG_WERDS,
-  RECOG_PSEUDO
+  RECOG_PSEUDO,
+  SHOW_SUBSCRIPT_CMD_EVENT,
+  SHOW_SUPERSCRIPT_CMD_EVENT,
+  SHOW_ITALIC_CMD_EVENT,
+  SHOW_BOLD_CMD_EVENT,
+  SHOW_UNDERLINE_CMD_EVENT,
+  SHOW_FIXEDPITCH_CMD_EVENT,
+  SHOW_SERIF_CMD_EVENT,
+  SHOW_SMALLCAPS_CMD_EVENT,
+  SHOW_DROPCAPS_CMD_EVENT,
+};
+
+enum ColorationMode {
+  CM_RAINBOW,
+  CM_SUBSCRIPT,
+  CM_SUPERSCRIPT,
+  CM_ITALIC,
+  CM_BOLD,
+  CM_UNDERLINE,
+  CM_FIXEDPITCH,
+  CM_SERIF,
+  CM_SMALLCAPS,
+  CM_DROPCAPS
 };
 
 /*
@@ -99,6 +121,7 @@ CMD_EVENTS mode = CHANGE_DISP_CMD_EVENT;  // selected words op
 // These variables should remain global, since they are only used for the
 // debug mode (in which only a single Tesseract thread/instance will be exist).
 BITS16 word_display_mode;
+static ColorationMode color_mode = CM_RAINBOW;
 BOOL8 display_image = FALSE;
 BOOL8 display_blocks = FALSE;
 BOOL8 display_baselines = FALSE;
@@ -253,6 +276,16 @@ SVMenuNode *Tesseract::build_menu_new() {
   parent_menu->AddChild("Polygonal Approx", POLYGONAL_CMD_EVENT, FALSE);
   parent_menu->AddChild("Baseline Normalized", BL_NORM_CMD_EVENT, FALSE);
   parent_menu->AddChild("Edge Steps", BITMAP_CMD_EVENT, TRUE);
+  parent_menu->AddChild("Subscripts", SHOW_SUBSCRIPT_CMD_EVENT);
+  parent_menu->AddChild("Superscripts", SHOW_SUPERSCRIPT_CMD_EVENT);
+  parent_menu->AddChild("Italics", SHOW_ITALIC_CMD_EVENT);
+  parent_menu->AddChild("Bold", SHOW_BOLD_CMD_EVENT);
+  parent_menu->AddChild("Underline", SHOW_UNDERLINE_CMD_EVENT);
+  parent_menu->AddChild("FixedPitch", SHOW_FIXEDPITCH_CMD_EVENT);
+  parent_menu->AddChild("Serifs", SHOW_SERIF_CMD_EVENT);
+  parent_menu->AddChild("SmallCaps", SHOW_SMALLCAPS_CMD_EVENT);
+  parent_menu->AddChild("DropCaps", SHOW_DROPCAPS_CMD_EVENT);
+
 
   parent_menu = root_menu_item->AddChild("OTHER");
 
@@ -368,7 +401,8 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
   char msg[160];
   BOOL8 exit = FALSE;
 
-  switch(cmd_event) {
+  color_mode = CM_RAINBOW;
+  switch (cmd_event) {
     case NULL_CMD_EVENT:
       break;
 
@@ -432,6 +466,42 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
       break;
     case BASELINES_CMD_EVENT:
       display_baselines =(new_value[0] == 'T');
+      do_re_display(&tesseract::Tesseract::word_display);
+      break;
+    case SHOW_SUBSCRIPT_CMD_EVENT:
+      color_mode = CM_SUBSCRIPT;
+      do_re_display(&tesseract::Tesseract::word_display);
+      break;
+    case SHOW_SUPERSCRIPT_CMD_EVENT:
+      color_mode = CM_SUPERSCRIPT;
+      do_re_display(&tesseract::Tesseract::word_display);
+      break;
+    case SHOW_ITALIC_CMD_EVENT:
+      color_mode = CM_ITALIC;
+      do_re_display(&tesseract::Tesseract::word_display);
+      break;
+    case SHOW_BOLD_CMD_EVENT:
+      color_mode = CM_BOLD;
+      do_re_display(&tesseract::Tesseract::word_display);
+      break;
+    case SHOW_UNDERLINE_CMD_EVENT:
+      color_mode = CM_UNDERLINE;
+      do_re_display(&tesseract::Tesseract::word_display);
+      break;
+    case SHOW_FIXEDPITCH_CMD_EVENT:
+      color_mode = CM_FIXEDPITCH;
+      do_re_display(&tesseract::Tesseract::word_display);
+      break;
+    case SHOW_SERIF_CMD_EVENT:
+      color_mode = CM_SERIF;
+      do_re_display(&tesseract::Tesseract::word_display);
+      break;
+    case SHOW_SMALLCAPS_CMD_EVENT:
+      color_mode = CM_SMALLCAPS;
+      do_re_display(&tesseract::Tesseract::word_display);
+      break;
+    case SHOW_DROPCAPS_CMD_EVENT:
+      color_mode = CM_DROPCAPS;
       do_re_display(&tesseract::Tesseract::word_display);
       break;
     case REFRESH_CMD_EVENT:
@@ -649,11 +719,63 @@ BOOL8 Tesseract::word_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
   float shift;                   // from bot left
   C_BLOB_IT c_it;                // cblob iterator
 
+  if (color_mode != CM_RAINBOW && word_res->box_word != NULL) {
+    BoxWord* box_word = word_res->box_word;
+    int length = box_word->length();
+    int font_id = word_res->font1;
+    if (font_id < 0) font_id = 0;
+    const UnicityTable<FontInfo> &font_table = get_fontinfo_table();
+    FontInfo font_info = font_table.get(font_id);
+    for (int i = 0; i < length; ++i) {
+      ScrollView::Color color = ScrollView::GREEN;
+      switch (color_mode) {
+        case CM_SUBSCRIPT:
+          if (box_word->BlobPosition(i) == SP_SUBSCRIPT)
+            color = ScrollView::RED;
+          break;
+        case CM_SUPERSCRIPT:
+          if (box_word->BlobPosition(i) == SP_SUPERSCRIPT)
+            color = ScrollView::RED;
+          break;
+        case CM_ITALIC:
+          if (font_info.is_italic())
+            color = ScrollView::RED;
+          break;
+        case CM_BOLD:
+          if (font_info.is_bold())
+            color = ScrollView::RED;
+          break;
+        case CM_FIXEDPITCH:
+          if (font_info.is_fixed_pitch())
+            color = ScrollView::RED;
+          break;
+        case CM_SERIF:
+          if (font_info.is_serif())
+            color = ScrollView::RED;
+          break;
+        case CM_SMALLCAPS:
+          if (word_res->small_caps)
+            color = ScrollView::RED;
+          break;
+        case CM_DROPCAPS:
+          if (box_word->BlobPosition(i) == SP_DROPCAP)
+            color = ScrollView::RED;
+          break;
+          // TODO(rays) underline is currently completely unsupported.
+        case CM_UNDERLINE:
+        default:
+          break;
+      }
+      image_win->Pen(color);
+      TBOX box = box_word->BlobBox(i);
+      image_win->Rectangle(box.left(), box.bottom(), box.right(), box.top());
+    }
+    return true;
+  }
   /*
     Note the double coercions of(COLOUR)((inT32)editor_image_word_bb_color)
     etc. are to keep the compiler happy.
   */
-
                                  // display bounding box
   if (word->display_flag(DF_BOX)) {
     word->bounding_box().plot(image_win,

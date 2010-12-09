@@ -760,5 +760,5 @@ void plot_blob_list(ScrollView* win,                   // window to draw in
                     BLOBNBOX_LIST *list,               // blob list
                     ScrollView::Color body_colour,     // colour to draw
                     ScrollView::Color child_colour);   // colour of child
-#endif //GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
 #endif

@@ -17,15 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
-#ifdef HAVE_LIBLEPT
-// Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"
-#endif
 
 #include "thresholder.h"
 
@@ -37,13 +29,11 @@
 namespace tesseract {
 
 ImageThresholder::ImageThresholder()
-  :
-#ifdef HAVE_LIBLEPT
-    pix_(NULL),
-#endif
+  : pix_(NULL),
     image_data_(NULL),
     image_width_(0), image_height_(0),
-    image_bytespp_(0), image_bytespl_(0) {
+    image_bytespp_(0), image_bytespl_(0),
+    scale_(1), yres_(300) {
   SetRectangle(0, 0, 0, 0);
 }
 
@@ -53,21 +43,17 @@ ImageThresholder::~ImageThresholder() {
 
 // Destroy the Pix if there is one, freeing memory.
 void ImageThresholder::Clear() {
-#ifdef HAVE_LIBLEPT
   if (pix_ != NULL) {
     pixDestroy(&pix_);
     pix_ = NULL;
   }
-#endif
   image_data_ = NULL;
 }
 
 // Return true if no image has been set.
 bool ImageThresholder::IsEmpty() const {
-#ifdef HAVE_LIBLEPT
   if (pix_ != NULL)
     return false;
-#endif
   return image_data_ == NULL;
 }
 
@@ -84,16 +70,16 @@ bool ImageThresholder::IsEmpty() const {
 void ImageThresholder::SetImage(const unsigned char* imagedata,
                                 int width, int height,
                                 int bytes_per_pixel, int bytes_per_line) {
-#ifdef HAVE_LIBLEPT
   if (pix_ != NULL)
     pixDestroy(&pix_);
   pix_ = NULL;
-#endif
   image_data_ = imagedata;
   image_width_ = width;
   image_height_ = height;
   image_bytespp_ = bytes_per_pixel;
   image_bytespl_ = bytes_per_line;
+  scale_ = 1;
+  yres_ = 300;
   Init();
 }
 
@@ -121,55 +107,6 @@ void ImageThresholder::GetImageSizes(int* left, int* top,
   *imageheight = image_height_;
 }
 
-// Return true if HAVE_LIBLEPT and this thresholder implements the Pix
-// interface.
-bool ImageThresholder::HasThresholdToPix() const {
-#ifdef HAVE_LIBLEPT
-  return true;
-#else
-  return false;
-#endif
-}
-
-// Threshold the source image as efficiently as possible to the output
-// tesseract IMAGE class.
-void ImageThresholder::ThresholdToIMAGE(IMAGE* image) {
-#ifdef HAVE_LIBLEPT
-  if (pix_ != NULL) {
-    if (image_bytespp_ == 0) {
-      // We have a binary image, so it just has to be converted.
-      CopyBinaryRectPixToIMAGE(image);
-    } else {
-      if (image_bytespp_ == 4) {
-        // Color data can just be passed direct.
-        const uinT32* data = pixGetData(pix_);
-        OtsuThresholdRectToIMAGE(reinterpret_cast<const uinT8*>(data),
-                                 image_bytespp_, image_bytespl_, image);
-      } else {
-        // Convert 8-bit to IMAGE and then pass its
-        // buffer to the raw interface to complete the conversion.
-        IMAGE temp_image;
-        temp_image.FromPix(pix_);
-        OtsuThresholdRectToIMAGE(temp_image.get_buffer(),
-                                 image_bytespp_,
-                                 COMPUTE_IMAGE_XDIM(temp_image.get_xsize(),
-                                                    temp_image.get_bpp()),
-                                 image);
-      }
-    }
-    return;
-  }
-#endif
-  if (image_bytespp_ > 0) {
-    // Threshold grey or color.
-    OtsuThresholdRectToIMAGE(image_data_, image_bytespp_, image_bytespl_,
-                             image);
-  } else {
-    CopyBinaryRectRawToIMAGE(image);
-  }
-}
-
-#ifdef HAVE_LIBLEPT
 // NOTE: Opposite to SetImage for raw images, SetImage for Pix clones its
 // input, so the source pix may be pixDestroyed immediately after.
 void ImageThresholder::SetImage(const Pix* pix) {
@@ -191,6 +128,8 @@ void ImageThresholder::SetImage(const Pix* pix) {
   depth = pixGetDepth(pix_);
   image_bytespp_ = depth / 8;
   image_bytespl_ = pixGetWpl(pix_) * sizeof(l_uint32);
+  scale_ = 1;
+  yres_ = pixGetYRes(src);
   Init();
 }
 
@@ -275,74 +214,7 @@ Pix* ImageThresholder::GetPixRectGrey() {
   }
   return pix;
 }
-#endif
 
-// Otsu threshold the rectangle, taking everything except the image buffer
-// pointer from the class, to the output IMAGE.
-void ImageThresholder::OtsuThresholdRectToIMAGE(const unsigned char* imagedata,
-                                                int bytes_per_pixel,
-                                                int bytes_per_line,
-                                                IMAGE* image) const {
-  int* thresholds;
-  int* hi_values;
-  OtsuThreshold(imagedata, bytes_per_pixel, bytes_per_line,
-                rect_left_, rect_top_, rect_width_, rect_height_,
-                &thresholds, &hi_values);
-
-  // Threshold the image to the given IMAGE.
-  ThresholdRectToIMAGE(imagedata, bytes_per_pixel, bytes_per_line,
-                       thresholds, hi_values, image);
-  delete [] thresholds;
-  delete [] hi_values;
-}
-
-// Threshold the given grey or color image into the tesseract global
-// image ready for recognition. Requires thresholds and hi_value
-// produced by OtsuThreshold in otsuthr.cpp.
-void ImageThresholder::ThresholdRectToIMAGE(const unsigned char* imagedata,
-                                            int bytes_per_pixel,
-                                            int bytes_per_line,
-                                            const int* thresholds,
-                                            const int* hi_values,
-                                            IMAGE* image) const {
-  IMAGELINE line;
-  image->create(rect_width_, rect_height_, 1);
-  line.init(rect_width_);
-  // For each line in the image, fill the IMAGELINE class and put it into the
-  // output IMAGE. Note that Tesseract stores images with the
-  // bottom at y=0 and 0 is black, so we need 2 kinds of inversion.
-  const unsigned char* data = imagedata + rect_top_* bytes_per_line +
-                              rect_left_ * bytes_per_pixel;
-  for (int y = rect_height_ - 1 ; y >= 0; --y) {
-    const unsigned char* pix = data;
-    for (int x = 0; x < rect_width_; ++x, pix += bytes_per_pixel) {
-      line.pixels[x] = 1;
-      for (int ch = 0; ch < bytes_per_pixel; ++ch) {
-        if (hi_values[ch] >= 0 &&
-            (pix[ch] > thresholds[ch]) == (hi_values[ch] == 0)) {
-          line.pixels[x] = 0;
-          break;
-        }
-      }
-    }
-    image->put_line(0, y, rect_width_, &line, 0);
-    data += bytes_per_line;
-  }
-}
-
-// Cut out the requested rectangle of the binary image to the output IMAGE.
-void ImageThresholder::CopyBinaryRectRawToIMAGE(IMAGE* image) const {
-  IMAGE rect_image;
-  rect_image.capture(const_cast<unsigned char*>(image_data_),
-                     image_width_, rect_top_ + rect_height_, 1);
-  image->create(rect_width_, rect_height_, 1);
-  // copy_sub_image uses coords starting at the bottom, so the y coord of the
-  // copy is the bottom of the rect_image.
-  copy_sub_image(&rect_image, rect_left_, 0, rect_width_, rect_height_,
-                 image, 0, 0, false);
-}
-
-#ifdef HAVE_LIBLEPT
 // Otsu threshold the rectangle, taking everything except the image buffer
 // pointer from the class, to the output Pix.
 void ImageThresholder::OtsuThresholdRectToPix(const unsigned char* imagedata,
@@ -437,22 +309,6 @@ void ImageThresholder::RawRectToPix(Pix** pix) const {
     }
   }
 }
-
-// Cut out the requested rectangle of the binary image to the output IMAGE.
-void ImageThresholder::CopyBinaryRectPixToIMAGE(IMAGE* image) const {
-  if (IsFullImage()) {
-    // Just poke it directly into the tess image.
-    image->FromPix(pix_);
-  } else {
-    // Crop to the given rectangle.
-    Box* box = boxCreate(rect_left_, rect_top_, rect_width_, rect_height_);
-    Pix* cropped = pixClipRectangle(pix_, box, NULL);
-    image->FromPix(cropped);
-    pixDestroy(&cropped);
-    boxDestroy(&box);
-  }
-}
-#endif
 
 }  // namespace tesseract.
 

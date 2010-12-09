@@ -17,7 +17,7 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
+#include          "mfcpch.h"     // precompiled headers
 #include          "rect.h"
 
 // Include automatically generated configuration file if running autoconf.

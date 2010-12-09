@@ -569,7 +569,7 @@ static void SwitchWordOrDiscard(bool accept_new_word, WERD_RES* word,
     word->raw_choice = new_word->raw_choice;
     new_word->raw_choice = NULL;
     word->reject_map = new_word->reject_map;
-    word->done = new_word->done;
+    word->CopySimpleFields(*new_word);
   } else {
     // The new_word is no better, so destroy it and cleanup.
     new_word->ClearResults();
@@ -664,6 +664,26 @@ void Tesseract::classify_word_pass2(WERD_RES *word, BLOCK* block, ROW *row) {
     }
     if (accept_new_xht)
       done_this_pass = true;
+    // Test for small caps. Word capheight must be close to block xheight,
+    // and word must contain no lower case letters, and at least one upper case.
+    double small_cap_xheight = block->x_height() * kXHeightCapRatio;
+    double small_cap_delta = (block->x_height() - small_cap_xheight) / 2.0;
+    if (unicharset.script_has_xheight() &&
+        small_cap_xheight - small_cap_delta <= word->x_height &&
+        word->x_height <= small_cap_xheight + small_cap_delta) {
+      // Scan for upper/lower.
+      int num_upper = 0;
+      int num_lower = 0;
+      for (int i = 0; i < word->best_choice->length(); ++i) {
+        if (unicharset.get_isupper(word->best_choice->unichar_id(i)))
+          ++num_upper;
+        else if (unicharset.get_islower(word->best_choice->unichar_id(i)))
+          ++num_lower;
+      }
+      if (num_upper > 0 && num_lower == 0)
+        word->small_caps = true;
+    }
+    word->SetScriptPositions(unicharset);
 
     set_global_subloc_code(SUBLOC_NORM);
   }

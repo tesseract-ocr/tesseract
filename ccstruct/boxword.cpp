@@ -29,6 +29,12 @@ namespace tesseract {
 // tolerance. Otherwise, the blob may be chopped and we have to just use
 // the word bounding box.
 const int kBoxClipTolerance = 2;
+// Min offset in baseline-normalized coords to make a character a subscript.
+const int kMinSubscriptOffset = 20;
+// Min offset in baseline-normalized coords to make a character a superscript.
+const int kMinSuperscriptOffset = 20;
+// Max y of bottom of a drop-cap blob.
+const int kMaxDropCapBottom = -128;
 
 BoxWord::BoxWord() : length_(0) {
 }
@@ -95,20 +101,35 @@ BoxWord* BoxWord::CopyFromNormalized(const DENORM* denorm,
   return boxword;
 }
 
-BoxWord* BoxWord::CopyFromPBLOBs(PBLOB_LIST* blobs) {
-  BoxWord* boxword = new BoxWord();
-  // Count the blobs.
-  boxword->length_ = blobs->length();
+// Sets up the script_pos_ member using the tessword to get the bln
+// bounding boxes, the best_choice to get the unichars, and the unicharset
+// to get the target positions. If small_caps is true, sub/super are not
+// considered, but dropcaps are.
+void BoxWord::SetScriptPositions(const UNICHARSET& unicharset, bool small_caps,
+                                 TWERD* tessword, WERD_CHOICE* best_choice) {
   // Allocate memory.
-  boxword->boxes_.reserve(boxword->length_);
-  // Copy the boxes.
-  PBLOB_IT pb_it(blobs);
-  int i = 0;
-  for (pb_it.mark_cycle_pt(); !pb_it.cycled_list(); pb_it.forward(), ++i) {
-    boxword->boxes_.push_back(pb_it.data()->bounding_box());
+  script_pos_.init_to_size(length_, SP_NORMAL);
+
+  int blob_index = 0;
+  for (TBLOB* tblob = tessword->blobs; tblob != NULL; tblob = tblob->next,
+       ++blob_index) {
+    int class_id = best_choice->unichar_id(blob_index);
+    TBOX blob_box = tblob->bounding_box();
+    int top = blob_box.top();
+    int bottom = blob_box.bottom();
+    int min_bottom, max_bottom, min_top, max_top;
+    unicharset.get_top_bottom(class_id, &min_bottom, &max_bottom,
+                              &min_top, &max_top);
+    if (bottom <= kMaxDropCapBottom) {
+      script_pos_[blob_index] = SP_DROPCAP;
+    } else if (!small_caps) {
+      if (top + kMinSubscriptOffset < min_top) {
+        script_pos_[blob_index] = SP_SUBSCRIPT;
+      } else if (bottom - kMinSuperscriptOffset > max_bottom) {
+        script_pos_[blob_index] = SP_SUPERSCRIPT;
+      }
+    }
   }
-  boxword->ComputeBoundingBox();
-  return boxword;
 }
 
 // Clean up the bounding boxes from the polygonal approximation by

@@ -18,7 +18,7 @@
 **********************************************************************/
 
 #include "mfcpch.h"
-//#define USE_VLD //Uncomment for Visual Leak Detector.
+// #define USE_VLD //Uncomment for Visual Leak Detector.
 #if (defined _MSC_VER && defined USE_VLD)
 #include <vld.h>
 #endif
@@ -178,9 +178,8 @@ int WINAPI WinMain(  //main for windows //command line
   argsin[1] = strdup (lpszCmdLine);
   /*allocate memory for the args. There can never be more than half*/
   /*the total number of characters in the arguments.*/
-  argv =
-          (char **) malloc (((strlen (argsin[0]) + strlen (argsin[1])) / 2 + 1) *
-                            sizeof (char *));
+  argv = (char **)malloc(((strlen(argsin[0]) + strlen(argsin[1])) / 2 + 1) *
+                         sizeof(char *));
 
   /*now construct argv as it should be for C.*/
   argc = parse_args (2, argsin, argv);

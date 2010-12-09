@@ -153,6 +153,7 @@ const char* ResultIterator::WordFontAttributes(bool* is_bold,
                                                bool* is_underlined,
                                                bool* is_monospace,
                                                bool* is_serif,
+                                               bool* is_smallcaps,
                                                int* pointsize,
                                                int* font_id) const {
   if (it_->word() == NULL) return NULL;  // Already at the end!
@@ -165,6 +166,7 @@ const char* ResultIterator::WordFontAttributes(bool* is_bold,
   *is_underlined = false;  // TODO(rays) fix this!
   *is_monospace = font_info.is_fixed_pitch();
   *is_serif = font_info.is_serif();
+  *is_smallcaps = it_->word()->small_caps;
   // The font size is calculated from a multiple of the x-height
   // that came from the block.
   float row_height = it_->row()->row->x_height() *
@@ -190,6 +192,33 @@ bool ResultIterator::WordIsNumeric() const {
   if (it_->word() == NULL) return false;  // Already at the end!
   int permuter = it_->word()->best_choice->permuter();
   return permuter == NUMBER_PERM;
+}
+
+// Returns true if the current symbol is a superscript.
+// If iterating at a higher level object than symbols, eg words, then
+// this will return the attributes of the first symbol in that word.
+bool ResultIterator::SymbolIsSuperscript() const {
+  if (cblob_it_ == NULL && it_->word() != NULL)
+    return it_->word()->box_word->BlobPosition(blob_index_) == SP_SUPERSCRIPT;
+  return false;
+}
+
+// Returns true if the current symbol is a subscript.
+// If iterating at a higher level object than symbols, eg words, then
+// this will return the attributes of the first symbol in that word.
+bool ResultIterator::SymbolIsSubscript() const {
+  if (cblob_it_ == NULL && it_->word() != NULL)
+    return it_->word()->box_word->BlobPosition(blob_index_) == SP_SUBSCRIPT;
+  return false;
+}
+
+// Returns true if the current symbol is a dropcap.
+// If iterating at a higher level object than symbols, eg words, then
+// this will return the attributes of the first symbol in that word.
+bool ResultIterator::SymbolIsDropcap() const {
+  if (cblob_it_ == NULL && it_->word() != NULL)
+    return it_->word()->box_word->BlobPosition(blob_index_) == SP_DROPCAP;
+  return false;
 }
 
 ChoiceIterator::ChoiceIterator(const ResultIterator& result_it) {

@@ -194,6 +194,7 @@ class WERD_RES : public ELIST_LINK {
   BOOL8 tess_accepted;         //Tess thinks its ok?
   BOOL8 tess_would_adapt;      //Tess would adapt?
   BOOL8 done;                  //ready for output?
+  bool small_caps;             // Word appears to be small caps.
   inT8 italic;
   inT8 bold;
   inT8 font1;                  //primary font
@@ -239,6 +240,7 @@ class WERD_RES : public ELIST_LINK {
     tess_would_adapt = FALSE;
     done = FALSE;
     unlv_crunch_mode = CR_NONE;
+    small_caps = false;
     italic = FALSE;
     bold = FALSE;
     font1 = -1;
@@ -282,6 +284,10 @@ class WERD_RES : public ELIST_LINK {
 
   // Sets/replaces the box_word with one made from the rebuild_word.
   void SetupBoxWord();
+
+  // Sets up the script positions in the output boxword using the best_choice
+  // to get the unichars, and the unicharset to get the target positions.
+  void SetScriptPositions(const UNICHARSET& unicharset);
 
   // Classifies the word with some already-calculated BLOB_CHOICEs.
   // The choices are an array of blob_count pointers to BLOB_CHOICE,

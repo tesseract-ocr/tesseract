@@ -519,8 +519,26 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID>& target_text,
   for (int i = 0; i < word_length; ++i)
     choices[i].delete_data_pointers();
   delete [] choices;
-  if (word_res->best_state.empty())
-    return false;
+  if (word_res->best_state.empty()) {
+    // Build the original segmentation and if it is the same length as the
+    // truth, assume it will do.
+    int blob_count = 1;
+    for (int s = 0; s < array_count(word_res->seam_array); ++s) {
+      SEAM* seam =
+          reinterpret_cast<SEAM*>(array_value(word_res->seam_array, s));
+      if (seam->split1 == NULL) {
+        word_res->best_state.push_back(blob_count);
+        blob_count = 1;
+      } else {
+        ++blob_count;
+      }
+    }
+    word_res->best_state.push_back(blob_count);
+    if (word_res->best_state.size() != target_text.size()) {
+      word_res->best_state.clear();  // No good. Original segmentation bad size.
+      return false;
+    }
+  }
   word_res->correct_text.clear();
   for (int i = 0; i < target_text.size(); ++i) {
     word_res->correct_text.push_back(
