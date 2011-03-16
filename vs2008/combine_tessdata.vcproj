@@ -156,7 +156,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlibd.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\libleptd.lib"
 				OutputFile=".\bin.dbg\combine_tessdata.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

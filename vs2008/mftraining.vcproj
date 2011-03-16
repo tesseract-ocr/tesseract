@@ -67,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib ws2_32.lib ..\vs2008\lib\leptonlibd.lib"
+				AdditionalDependencies="user32.lib ws2_32.lib ..\vs2008\lib\libleptd.lib"
 				OutputFile=".\bin.dbg\mftraining.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -157,7 +157,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="user32.lib ws2_32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib leptonlib-static-mtdll.lib"
+				AdditionalDependencies="user32.lib ws2_32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib liblept-static-mtdll.lib"
 				OutputFile=".\bin\mftraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -247,7 +247,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="user32.lib ws2_32.lib leptonlib.lib"
+				AdditionalDependencies="user32.lib ws2_32.lib liblept.lib"
 				OutputFile=".\bin.rd\mftraining.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

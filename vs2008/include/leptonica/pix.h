@@ -33,6 +33,7 @@
  *       struct Pixacc
  *       struct PixTiling
  *       struct FPix
+ *       struct FPixa
  *       struct DPix
  *       struct PixComp
  *       struct PixaComp
@@ -51,6 +52,7 @@
  *       Rotation and shear flags
  *       Affine transform order flags
  *       Grayscale filling flags
+ *       Flags for setting to white or black
  *       Dithering flags
  *       Distance flags
  *       Statistical measures
@@ -84,9 +86,9 @@ struct Pix
     l_uint32             d;           /* depth in bits                     */
     l_uint32             wpl;         /* 32-bit words/line                 */
     l_uint32             refcount;    /* reference count (1 if no clones)  */
-    l_uint32             xres;        /* image res (ppi) in x direction    */
+    l_int32              xres;        /* image res (ppi) in x direction    */
                                       /* (use 0 if unknown)                */
-    l_uint32             yres;        /* image res (ppi) in y direction    */
+    l_int32              yres;        /* image res (ppi) in y direction    */
                                       /* (use 0 if unknown)                */
     l_int32              informat;    /* input file format, IFF_*          */
     char                *text;        /* text string associated with pix   */
@@ -489,6 +491,16 @@ struct FPix
 typedef struct FPix FPIX;
 
 
+struct FPixa
+{
+    l_int32             n;            /* number of Pix in ptr array        */
+    l_int32             nalloc;       /* number of Pix ptrs allocated      */
+    l_uint32            refcount;     /* reference count (1 if no clones)  */
+    struct FPix       **fpix;         /* the array of ptrs to fpix         */
+};
+typedef struct FPixa FPIXA;
+
+
 /*-------------------------------------------------------------------------*
  *                       DPix: pix with double array                       *
  *-------------------------------------------------------------------------*/
@@ -517,16 +529,16 @@ struct PixComp
     l_int32              w;           /* width in pixels                   */
     l_int32              h;           /* height in pixels                  */
     l_int32              d;           /* depth in bits                     */
-    l_uint32             xres;        /* image res (ppi) in x direction    */
+    l_int32              xres;        /* image res (ppi) in x direction    */
                                       /*   (use 0 if unknown)              */
-    l_uint32             yres;        /* image res (ppi) in y direction    */
+    l_int32              yres;        /* image res (ppi) in y direction    */
                                       /*   (use 0 if unknown)              */
     l_int32              comptype;    /* compressed format (IFF_TIFF_G4,   */
                                       /*   IFF_PNG, IFF_JFIF_JPEG)         */
     char                *text;        /* text string associated with pix   */
     l_int32              cmapflag;    /* flag (1 for cmap, 0 otherwise)    */
     l_uint8             *data;        /* the compressed image data         */
-    l_int32              size;        /* size of the data array            */
+    size_t               size;        /* size of the data array            */
 };
 typedef struct PixComp PIXC;
 
@@ -703,11 +715,20 @@ enum {
 
 
 /*-------------------------------------------------------------------------*
- *                         Grayscale fill flags                            *
+ *                       Grayscale filling flags                           *
  *-------------------------------------------------------------------------*/
 enum {
     L_FILL_WHITE = 1,           /* fill white pixels (e.g, in fg map)      */
     L_FILL_BLACK = 2            /* fill black pixels (e.g., in bg map)     */
+};
+
+
+/*-------------------------------------------------------------------------*
+ *                   Flags for setting to white or black                   *
+ *-------------------------------------------------------------------------*/
+enum {
+    L_SET_WHITE = 1,           /* set pixels to white                      */
+    L_SET_BLACK = 2            /* set pixels to black                      */
 };
 
 

@@ -76,8 +76,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/NODEFAULTLIB:library /LTCG"
-				AdditionalDependencies="ws2_32.lib user32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib leptonlib-static-mtdll.lib"
+				AdditionalOptions="/LTCG /NODEFAULTLIB:library"
+				AdditionalDependencies="ws2_32.lib user32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib liblept-static-mtdll.lib"
 				OutputFile=".\bin\$(ProjectName).exe"
 				Version="3.01"
 				LinkIncremental="1"
@@ -171,7 +171,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib user32.lib lib\leptonlibd.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib lib\libleptd.lib"
 				OutputFile=".\bin.dbg\tesseract.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -204,7 +204,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /Y &quot;$(SolutionDir)lib\leptonlibd.dll&quot; &quot;$(TargetDir)&quot;"
+				CommandLine="xcopy /Y &quot;$(SolutionDir)lib\liblept168d.dll&quot; &quot;$(TargetDir)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -268,7 +268,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library /LTCG"
-				AdditionalDependencies="ws2_32.lib user32.lib leptonlib.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib liblept.lib"
 				OutputFile=".\bin.rd\$(ProjectName).exe"
 				Version="3.01"
 				LinkIncremental="1"
@@ -302,7 +302,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /Y &quot;$(SolutionDir)lib\leptonlib.dll&quot; &quot;$(TargetDir)&quot;"
+				CommandLine="xcopy /Y &quot;$(SolutionDir)lib\liblept168.dll&quot; &quot;$(TargetDir)&quot;"
 			/>
 		</Configuration>
 	</Configurations>

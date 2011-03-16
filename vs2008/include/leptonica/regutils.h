@@ -32,98 +32,90 @@
  *       Case 1: distance_reg generate
  *           This generates golden files in /tmp for the reg test.
  *
- *       Case 2: distance_reg outfile.txt
+ *       Case 2: distance_reg compare
  *           This runs the test against the set of golden files.  It
  *           appends to 'outfile.txt' either "SUCCESS" or "FAILURE",
  *           as well as the details of any parts of the test that failed.
+ *           It writes to a temporary file stream (fp)
  *
- *       Case 3: distance_reg
- *           This runs the test against the set of golden files.  The
- *           minimal output, which in case 2 went to a file, is
- *           instead sent to stderr.  In addition, this displays
+ *       Case 3: distance_reg [display]
+ *           This runs the test but makes no comparison of the output
+ *           against the set of golden files.  In addition, this displays
  *           images and plots that are specified in the test under
- *           control of the @display variable.  The @display is
- *           only enabled when the regression test is called without
- *           any arguments (case 3).
+ *           control of the display variable.  Display is enabled only
+ *           for this case.  Using 'display' on the command line is optional.
  *
  *   Regression tests follow the pattern given below.  In an actual
  *   case, comparisons of pix and of files can occur in any order.
  *   We give a specific order here for clarity.
  *
- *       l_int32       success, display, count;
- *       FILE         *fp;  // stream only opened for case 2
- *       L_REGPARAMS  *rp;  // needed for either convenient argument
- *                          // passthrough to subroutines or for
- *                          // automated "write and check"
+ *       L_REGPARAMS  *rp;  // holds data required by the test functions
  *
  *       // Setup variables; optionally open stream
- *       if (regTestSetup(argc, argv, &fp, &display, &success, &rp))
+ *       if (regTestSetup(argc, argv, &rp))
  *           return 1;
  *
- *       // Test pairs of generated pix for identity.  Here we label
- *       // the count on the golden files (0 and 1) explicitly.
- *       regTestComparePix(fp, argv, pix1, pix2, 0, &success);
- *       regTestComparePix(fp, argv, pix1, pix2, 1, &success);
+ *       // Test pairs of generated pix for identity.  This compares
+ *       // two pix; no golden file is generated.
+ *       regTestComparePix(rp, pix1, pix2);
  *
- *       // Test pairs of generated pix for similarity.  These
- *       // generate or test against golden files 2 and 3.
- *       regTestCompareSimilarPix(fp, argv, pix1, pix2, 15, 0.001, 2,
- *                                &success, 0);
- *       regTestCompareSimilarPix(fp, argv, pix1, pix2, 15, 0.0005, 3,
- *                                &success, 0);
+ *       // Test pairs of generated pix for similarity.  This compares
+ *       // two pix; no golden file is generated.  The last arg determines
+ *       // if stats are to be written to stderr.
+ *       regTestCompareSimilarPix(rp, pix1, pix2, 15, 0.001, 0);
  *
  *       // Generation of <newfile*> outputs and testing for identity
  *       // These files can be anything, of course.
- *       regTestCheckFile(fp, argv, <newfile0>, 4, &success);
- *       regTestCheckFile(fp, argv, <newfile1>, 5, &success);
+ *       regTestCheckFile(rp, <newfile0>);
+ *       regTestCheckFile(rp, <newfile1>);
  *
  *       // Test pairs of output golden files for identity.  Here we
  *       // are comparing golden files 4 and 5.
- *       regTestCompareFiles(fp, argv, 4, 5, &success);
+ *       regTestCompareFiles(rp, 4, 5);
  *
  *       // "Write and check".  This writes a pix using a canonical
- *       // formulation for the local filename and either (a) generates a
- *       // golden file if requested or (b) tests the local file
- *       // against a golden file.  Here we are generating or testing
- *       // golden files 6 and 7, which are pix that have been
- *       // compressed with png and jpeg, respectively.  Each time that
- *       // regTestWritePixAndCheck() is called, the count is increased
- *       // by 1 and embedded in the local filename (and, if generating,
- *       // in the golden filename as well).
- *       count = 6;  // initialize it
- *       regTestWritePixAndCheck(pix1, IFF_PNG, &count, rp);
- *       regTestWritePixAndCheck(pix2, IFF_JFIF_JPEG, &count, rp);
+ *       // formulation for the local filename and either:
+ *       //     case 1: generates a golden file
+ *       //     case 2: compares the local file with a golden file
+ *       //     case 3: generates local files and displays
+ *       // Here we write the pix compressed with png and jpeg, respectively;
+ *       // Then check against the golden file.  The internal @index
+ *       // is incremented; it is embedded in the local filename and,
+ *       // if generating, in the golden file as well.
+ *       regTestWritePixAndCheck(rp, pix1, IFF_PNG);
+ *       regTestWritePixAndCheck(rp, pix2, IFF_JFIF_JPEG);
  *
- *       // Display when reg test called with only one argument
- *       pixDisplayWithTitle(pix1, 100, 100, NULL, display);
+ *       // Display if reg test was called in 'display' mode
+ *       pixDisplayWithTitle(pix1, 100, 100, NULL, rp->display);
  *
  *       // Clean up and output result
- *       regTestCleanup(argc, argv, fp, success, rp);
- *
- *  Note that the optional returned regparams (defined below) can be
- *  used to pass the parameters cleanly through to subroutines; e.g.,
- *
- *        TestAll(Pix *pixs, L_RegParams *rp) {
- *            ...
- *            regTestCheckFile(rp->fp, rp->argv, fname, n, &rp->success);
- *            ...
- *        }
- * 
+ *       regTestCleanup(rp);
  */
 
-#include <stdio.h>
 
 /*-------------------------------------------------------------------------*
  *                     Regression test parameter packer                    *
  *-------------------------------------------------------------------------*/
 struct L_RegParams
 {
-    FILE          *fp;
-    char         **argv;
-    l_int32        success;
-    l_int32        display;
+    FILE    *fp;        /* stream to temporary output file for compare mode */
+    char    *testname;  /* name of test, without '_reg'                     */
+    char    *tempfile;  /* name of temp file for compare mode output        */
+    l_int32  mode;      /* generate, compare or display                     */
+    l_int32  index;     /* index into saved files for this test; 0-based    */
+    l_int32  success;   /* overall result of the test                       */
+    l_int32  display;   /* 1 if in display mode; 0 otherwise                */
+    L_TIMER  tstart;    /* marks beginning of the reg test                  */
 };
 typedef struct L_RegParams  L_REGPARAMS;
+
+
+    /* Running modes for the test */
+enum {
+    L_REG_GENERATE = 0,
+    L_REG_COMPARE = 1,
+    L_REG_DISPLAY = 2
+};
 
 
 #endif  /* LEPTONICA_REGUTILS_H */

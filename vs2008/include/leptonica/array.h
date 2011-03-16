@@ -23,6 +23,7 @@
  *      struct Numa2d
  *      struct NumaHash
  *      struct Sarray
+ *      struct L_Bytea
  *
  *  Contains definitions for:
  *      Numa interpolation flags
@@ -91,6 +92,17 @@ struct Sarray
     char           **array;     /* string array                        */
 };
 typedef struct Sarray SARRAY;
+
+
+    /* Byte array (analogous to C++ "string") */
+struct L_Bytea
+{
+    size_t           nalloc;    /* number of bytes allocated in data array  */
+    size_t           size;      /* number of bytes presently used           */
+    l_int32          refcount;  /* reference count (1 if no clones)         */
+    l_uint8         *data;      /* data array                               */
+};
+typedef struct L_Bytea L_BYTEA;
 
 
 /*------------------------------------------------------------------------* 

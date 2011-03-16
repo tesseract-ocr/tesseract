@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="ws2_32.lib user32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib leptonlib-static-mtdll.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib liblept-static-mtdll.lib"
 				OutputFile=".\bin\wordlist2dawg.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -164,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\leptonlibd.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\libleptd.lib"
 				OutputFile=".\bin.dbg\wordlist2dawg.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -257,7 +257,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/NODEFAULTLIB:library"
-				AdditionalDependencies="ws2_32.lib user32.lib leptonlib.lib"
+				AdditionalDependencies="ws2_32.lib user32.lib liblept.lib"
 				OutputFile=".\bin.rd\wordlist2dawg.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
