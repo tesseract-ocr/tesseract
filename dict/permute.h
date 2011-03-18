@@ -65,9 +65,6 @@ extern double_VAR_H(segment_reward_ngram_best_choice, 0.99,
                     "Score multipler for ngram permuter's best choice"
                     " (only used in the Han script path).");
 
-extern BOOL_VAR_H(ngram_permuter_activated, false,
-                  "Activate character-level n-gram-based permuter");
-
 extern INT_VAR_H(max_permuter_attempts, 100000,
                  "Maximum number of different character choices to consider"
                  " during permutation. This limit is especially useful when"

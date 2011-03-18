@@ -49,7 +49,6 @@
 #include "image.h"
 #include "globals.h"
 #include "ndminx.h"
-#include "permngram.h"
 #include "ratngs.h"
 #include "stopper.h"
 #include "tprintf.h"
@@ -365,15 +364,6 @@ WERD_CHOICE *Dict::permute_all(const BLOB_CHOICE_LIST_VECTOR &char_choices,
     LogNewChoice(adjust_factor, certainties, false, result2);
     result1 = get_best_delete_other(result1, result2);
 
-    if (ngram_permuter_activated &&
-        (best_choice->rating() == WERD_CHOICE::kBadRating ||
-         best_choice->permuter() == TOP_CHOICE_PERM) &&
-        result1->permuter() == TOP_CHOICE_PERM) {
-      result2 = ngram_permute_and_select(char_choices, best_choice->rating(),
-                                         segment_reward_ngram_best_choice);
-      result1 = get_best_delete_other(result1, result2);
-    }
-
     if (segment_segcost_rating) incorporate_segcost(result1);
   } else {
     result1 = permute_top_choice(char_choices, &top_choice_rating_limit,
@@ -402,14 +392,6 @@ WERD_CHOICE *Dict::permute_all(const BLOB_CHOICE_LIST_VECTOR &char_choices,
 
     result2 = permute_compound_words(char_choices, best_choice->rating());
     result1 = get_best_delete_other(result1, result2);
-
-    if (ngram_permuter_activated &&
-        best_choice->permuter() < SYSTEM_DAWG_PERM &&
-        result1->permuter() < SYSTEM_DAWG_PERM) {
-      result2 = ngram_permute_and_select(char_choices, best_choice->rating(),
-                                         segment_penalty_ngram_best_choice);
-      result1 = get_best_delete_other(result1, result2);
-    }
   }
   return result1;
 }

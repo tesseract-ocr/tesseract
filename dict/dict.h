@@ -451,13 +451,6 @@ class Dict {
   /// Returns true if the word looks like an absolute garbage
   /// (e.g. image mistakenly recognized as text).
   bool absolute_garbage(const WERD_CHOICE &word, const UNICHARSET &unicharset);
-  /* permngram.cpp ***********************************************************/
-  WERD_CHOICE *ngram_permute_and_select(
-      const BLOB_CHOICE_LIST_VECTOR &char_choices,
-      float rating_limit, float adjust_factor);
-  float compute_ngram_cost(float certainty, float denom,
-                         const char *str, const char *context,
-                         const UNICHARSET &unicharset);
 
   /* dict.cpp ****************************************************************/
 
@@ -532,8 +525,6 @@ class Dict {
   int def_letter_is_okay(void* void_dawg_args,
                          UNICHAR_ID unichar_id, bool word_end);
 
-  int new_letter_is_okay(void* void_dawg_args,
-                         UNICHAR_ID unichar_id, bool word_end);
   int (Dict::*letter_is_okay_)(void* void_dawg_args,
                                UNICHAR_ID unichar_id, bool word_end);
   /// Calls letter_is_okay_ member function.
@@ -544,7 +535,8 @@ class Dict {
 
 
   /// Probability in context function used by the ngram permuter.
-  double (Dict::*probability_in_context_)(const char* context,
+  double (Dict::*probability_in_context_)(const char* lang,
+                                          const char* context,
                                           int context_bytes,
                                           const char* character,
                                           int character_bytes);
@@ -553,13 +545,15 @@ class Dict {
                               int context_bytes,
                               const char* character,
                               int character_bytes) {
-    return (this->*probability_in_context_)(context, context_bytes,
-                                            character, character_bytes);
+    return (this->*probability_in_context_)(
+        getImage()->getCCUtil()->lang.string(),
+        context, context_bytes,
+        character, character_bytes);
   }
 
   /// Default (no-op) implementation of probability in context function.
   double def_probability_in_context(
-      const char* context, int context_bytes,
+      const char* lang, const char* context, int context_bytes,
       const char* character, int character_bytes) {
     (void) context;
     (void) context_bytes;
@@ -567,7 +561,8 @@ class Dict {
     (void) character_bytes;
     return 0.0;
   }
-  double ngram_probability_in_context(const char* context,
+  double ngram_probability_in_context(const char* lang,
+                                      const char* context,
                                       int context_bytes,
                                       const char* character,
                                       int character_bytes);
@@ -779,16 +774,10 @@ class Dict {
   INT_VAR_H(dawg_debug_level, 0, "Set to 1 for general debug info"
             ", to 2 for more details, to 3 to see all the debug messages");
   INT_VAR_H(hyphen_debug_level, 0, "Debug level for hyphenated words.");
-  INT_VAR_H(ngram_permuter_debug_level, 0,
-            "Debug level for the ngram permuter.");
-  double_VAR_H(ngram_permuter_nonmatch_score, -40.0,
-               "Average classifier score of a non-matching unichar.");
   INT_VAR_H(max_viterbi_list_size, 10, "Maximum size of viterbi list.");
   BOOL_VAR_H(use_only_first_uft8_step, false,
              "Use only the first UTF8 step of the given string"
              " when computing log probabilities.");
-  double_VAR_H(ngram_model_scale_factor, 1.0, "Relative strength of the"
-               " ngram model relative to the character classifier ");
   double_VAR_H(certainty_scale, 20.0, "Certainty scaling factor");
   double_VAR_H(stopper_nondict_certainty_base, -2.50,
                "Certainty threshold for non-dict words");
