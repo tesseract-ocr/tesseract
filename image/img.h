@@ -61,24 +61,6 @@ class DLLSYM IMAGE
       IMAGE & source);
 
     /** 
-     * get file header
-     * @param name name of image
-     */
-    inT8 read_header(const char *name);
-
-    /** 
-     * get rest of image
-     * @param buflines size of buffer
-     */
-    inT8 read(inT32 buflines);
-
-    /** 
-     * write image
-     * @param name name to write
-     */
-    inT8 write(const char *name);
-
-    /** 
      * create blank image
      * @param x x size required
      * @param y y size required

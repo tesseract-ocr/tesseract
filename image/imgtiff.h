@@ -21,67 +21,9 @@
 #define           IMGTIFF_H
 
 #include          "host.h"
-#include          "bitstrm.h"
 
 // CountTiffPages
 // Returns the number of pages in the file if it is a tiff file, otherwise 0.
 int CountTiffPages(FILE* fp);
 
-inT8 open_tif_image(               //read header
-                    int fd,        //file to read
-                    inT32 *xsize,  //size of image
-                    inT32 *ysize,
-                    inT8 *bpp,     //bits per pixel
-                    inT8 *photo,   //interpretation
-                    inT32 *res     //resolution
-                   );
-inT8 read_tif_image(                //read whole image
-                    int fd,         //file to read
-                    uinT8 *pixels,  //pixels of image
-                    inT32 xsize,    //size of image
-                    inT32 ysize,
-                    inT8 bpp,       //bits per pixel
-                    inT32           //bytes per line
-                   );
-inT32 read_eol(                    //read end of line
-               R_BITSTREAM *bits,  //bitstream to read
-               uinT16 &code        //current code
-              );
-inT8 write_moto_tif(                //write whole image
-                    int fd,         //file to write on
-                    uinT8 *pixels,  //image pixels
-                    inT32 xsize,    //size of image
-                    inT32 ysize,
-                    inT8 bpp,       //bits per pixel
-                    inT8 photo,
-                    inT32 res       //resolution
-                   );
-inT8 write_intel_tif(                //write whole image
-                     int fd,         //file to write on
-                     uinT8 *pixels,  //image pixels
-                     inT32 xsize,    //size of image
-                     inT32 ysize,
-                     inT8 bpp,       //bits per pixel
-                     inT8 photo,
-                     inT32 res       //resolution
-                    );
-inT8 write_inverse_tif(                //write whole image
-                       int fd,         //file to write on
-                       uinT8 *pixels,  //image pixels
-                       inT32 xsize,    //size of image
-                       inT32 ysize,
-                       inT8 bpp,       //bits per pixel
-                       inT8 photo,
-                       inT32 res       //resolution
-                      );
-inT8 write_tif_image(                //write whole image
-                     int fd,         //file to write on
-                     uinT8 *pixels,  //image pixels
-                     inT32 xsize,    //size of image
-                     inT32 ysize,
-                     inT8 bpp,       //bits per pixel
-                     inT32 res,      //resolution
-                     inT16 type,     //format type
-                     inT16 photo     //metric interp
-                    );
 #endif
