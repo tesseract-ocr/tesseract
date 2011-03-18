@@ -1091,7 +1091,7 @@ BOOL8 count_pitch_stats(                       //find lines
       blob_box = blob->bounding_box ();
       if ((blob_box.left () - joined_box.right () < dm_gap
         && !blob_it.at_first ())
-        || (blob->cblob () == NULL && blob->blob () == NULL))
+        || blob->cblob() == NULL)
         joined_box += blob_box;  //merge blobs
       else {
         blob_width = joined_box.width ();

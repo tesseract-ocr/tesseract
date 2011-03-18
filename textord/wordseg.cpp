@@ -607,11 +607,8 @@ WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
                      BOOL8 bol,            //start of line
                      uinT8 blanks          //no of blanks
                     ) {
-  OUTLINE_IT out_it;             // outlines
   C_OUTLINE_IT cout_it;
-  PBLOB_LIST blobs;              // blobs in word
   C_BLOB_LIST cblobs;
-  PBLOB_IT blob_it = &blobs;     // iterator
   C_BLOB_IT cblob_it = &cblobs;
   WERD *word;                    // new word
   BLOBNBOX *bblob;               // current blob
@@ -620,13 +617,7 @@ WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
   for (blobindex = 0; blobindex < blobcount; blobindex++) {
     bblob = box_it->extract();
     if (bblob->joined_to_prev()) {
-      if (bblob->blob() != NULL) {
-        out_it.set_to_list(blob_it.data()->out_list());
-        out_it.move_to_last();
-        out_it.add_list_after(bblob->blob()->out_list());
-        delete bblob->blob();
-      }
-      else if (bblob->cblob() != NULL) {
+      if (bblob->cblob() != NULL) {
         cout_it.set_to_list(cblob_it.data()->out_list());
         cout_it.move_to_last();
         cout_it.add_list_after(bblob->cblob()->out_list());
@@ -634,9 +625,7 @@ WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
       }
     }
     else {
-      if (bblob->blob() != NULL)
-        blob_it.add_after_then_move(bblob->blob());
-      else if (bblob->cblob() != NULL)
+      if (bblob->cblob() != NULL)
         cblob_it.add_after_then_move(bblob->cblob());
     }
     delete bblob;
@@ -646,10 +635,7 @@ WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
   if (blanks < 1)
     blanks = 1;
 
-  if (blob_it.empty())
-    word = new WERD(&cblobs, blanks, NULL);
-  else
-    word = new WERD(&blobs, blanks, NULL);
+  word = new WERD(&cblobs, blanks, NULL);
 
   if (bol)
     word->set_flag(W_BOL, TRUE);

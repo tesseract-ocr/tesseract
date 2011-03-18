@@ -25,23 +25,6 @@
 #include          "notdll.h"
 #include          "notdll.h"
 
-class OUTLINE_FRAG:public ELIST_LINK
-{
-  public:
-    OUTLINE_FRAG() {
-    }                            //empty constructor
-                                 //head of fragment
-    OUTLINE_FRAG(POLYPT_IT *head_it, POLYPT_IT *tail_it);  //tail of fragment
-                                 //other end
-    OUTLINE_FRAG(OUTLINE_FRAG *head, float tail_y);
-
-    POLYPT_LIST polypts;         //only if a head
-    OUTLINE_FRAG *other_end;     //head if a tail
-    float ycoord;                //coord of cut pt
-
-  private:
-};
-
 class C_OUTLINE_FRAG:public ELIST_LINK
 {
   public:
@@ -75,7 +58,8 @@ class C_OUTLINE_FRAG:public ELIST_LINK
   private:
 };
 
-ELISTIZEH (OUTLINE_FRAG) ELISTIZEH (C_OUTLINE_FRAG)
+ELISTIZEH(C_OUTLINE_FRAG)
+
 extern
 INT_VAR_H (textord_fp_chop_error, 2,
 "Max allowed bending of chop cells");
@@ -98,60 +82,8 @@ void split_to_blob(                                 //split the blob
                    BLOBNBOX *blob,                  //blob to split
                    inT16 chop_coord,                //place to chop
                    float pitch_error,               //allowed deviation
-                   OUTLINE_LIST *left_outlines,     //left half of chop
                    C_OUTLINE_LIST *left_coutlines,  //for cblobs
-                   OUTLINE_LIST *right_outlines,    //right half of chop
                    C_OUTLINE_LIST *right_coutlines);
-void fixed_chop_blob(                              //split the blob
-                     PBLOB *blob,                  //blob to split
-                     inT16 chop_coord,             //place to chop
-                     float pitch_error,            //allowed deviation
-                     OUTLINE_LIST *left_outlines,  //left half of chop
-                     OUTLINE_LIST *right_outlines  //right half of chop
-                    );
-void fixed_split_outline(                      //chop the outline
-                         OUTLINE *srcline,     //source outline
-                         inT16 chop_coord,     //place to chop
-                         float pitch_error,    //allowed deviation
-                         OUTLINE_IT *left_it,  //left half of chop
-                         OUTLINE_IT *right_it  //right half of chop
-                        );
-BOOL8 fixed_chop_outline(                                //chop the outline
-                         OUTLINE *srcline,               //source outline
-                         inT16 chop_coord,               //place to chop
-                         float pitch_error,              //allowed deviation
-                         OUTLINE_FRAG_LIST *left_frags,  //left half of chop
-                         OUTLINE_FRAG_LIST *right_frags  //right half of chop
-                        );
-void save_chop_fragment(                          //chop the outline
-                        POLYPT_IT *head_it,       //head of fragment
-                        POLYPT_IT *tail_it,       //tail of fragment
-                        OUTLINE_FRAG_LIST *frags  //fragment list
-                       );
-void add_frag_to_list(                          //ordered add
-                      OUTLINE_FRAG *frag,       //fragment to add
-                      OUTLINE_FRAG_LIST *frags  //fragment list
-                     );
-void insert_chop_pt(                  //make chop
-                    POLYPT_IT *it,    //iterator
-                    inT16 chop_coord  //required chop pt
-                   );
-FCOORD find_chop_coords(                  //make chop
-                        POLYPT_IT *it,    //iterator
-                        inT16 chop_coord  //required chop pt
-                       );
-void insert_extra_pt(               //make extra
-                     POLYPT_IT *it  //iterator
-                    );
-void close_chopped_fragments(                           //chop the outline
-                             OUTLINE_FRAG_LIST *frags,  //list to clear
-                             OUTLINE_LIST *children,    //potential children
-                             OUTLINE_IT *dest_it        //output list
-                            );
-void join_chopped_fragments(                       //join pieces
-                            OUTLINE_FRAG *bottom,  //bottom of cut
-                            OUTLINE_FRAG *top      //top of cut
-                           );
 void fixed_chop_cblob(                                //split the blob
                       C_BLOB *blob,                   //blob to split
                       inT16 chop_coord,               //place to chop

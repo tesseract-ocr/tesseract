@@ -26,7 +26,6 @@
 #define           BLKOCC_H
 
 #include                   "params.h"
-#include                   "polyblob.h"
 #include          "elst.h"
 #include          "notdll.h"
 #include          "notdll.h"
@@ -255,20 +254,12 @@ extern INT_VAR_H (blockocc_asc_height, 255,
 extern INT_VAR_H (blockocc_band_count, 4, "Number of bands used");
 extern double_VAR_H (textord_underline_threshold, 0.9,
 "Fraction of width occupied");
-BOOL8 test_underline(                   //look for underlines
-                     BOOL8 testing_on,  //drawing blob
-                     PBLOB *blob,       //blob to test
-                     float baseline,    //coords of baseline
-                     float xheight      //height of line
-                    );
+
 BOOL8 test_underline(                   //look for underlines
                      BOOL8 testing_on,  //drawing blob
                      C_BLOB *blob,      //blob to test
                      inT16 baseline,    //coords of baseline
                      inT16 xheight      //height of line
                     );
-void block_occ (PBLOB * blob,    //blob to do
-float occs[]                     //output histogram
-);
 
 #endif

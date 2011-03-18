@@ -113,14 +113,6 @@ inT16 vertical_torow_projection(                   //project whole row
                                 TO_ROW *row,       //row to do
                                 STATS *projection  //output
                                );
-void vertical_blob_projection(              //project outlines
-                              PBLOB *blob,  //blob to project
-                              STATS *stats  //output
-                             );
-void vertical_outline_projection(                   //project outlines
-                                 OUTLINE *outline,  //outline to project
-                                 STATS *stats       //output
-                                );
 void vertical_cblob_projection(               //project outlines
                                C_BLOB *blob,  //blob to project
                                STATS *stats   //output

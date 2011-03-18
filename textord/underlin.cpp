@@ -46,8 +46,6 @@ void restore_underlined_blobs(                 //get chop points
   ICOORDELT_LIST chop_cells;     //blobs to cut out
                                  //real underlines
   BLOBNBOX_LIST residual_underlines;
-  OUTLINE_LIST left_outlines;    //in current blob
-  OUTLINE_LIST right_outlines;   //for next blob
   C_OUTLINE_LIST left_coutlines;
   C_OUTLINE_LIST right_coutlines;
   ICOORDELT_IT cell_it = &chop_cells;
@@ -72,65 +70,44 @@ void restore_underlined_blobs(                 //get chop points
       if (cell_it.data ()->y () - chop_coord > textord_fp_chop_error + 1) {
         split_to_blob (u_line, chop_coord,
           textord_fp_chop_error + 0.5,
-          &left_outlines, &left_coutlines,
-          &right_outlines, &right_coutlines);
-        if (!left_outlines.empty ())
-          ru_it.
-            add_after_then_move (new
-            BLOBNBOX (new PBLOB (&left_outlines)));
-        else if (!left_coutlines.empty ())
-          ru_it.
-              add_after_then_move (new
-              BLOBNBOX (new
-              C_BLOB (&left_coutlines)));
-                                 //right edge of lbob
+          &left_coutlines,
+          &right_coutlines);
+        if (!left_coutlines.empty()) {
+          ru_it.add_after_then_move(new BLOBNBOX(new C_BLOB(&left_coutlines)));
+        }
         chop_coord = cell_it.data ()->y ();
-        split_to_blob (NULL, chop_coord,
-          textord_fp_chop_error + 0.5,
-          &left_outlines, &left_coutlines,
-          &right_outlines, &right_coutlines);
-        if (!left_outlines.empty ())
-          row->insert_blob (new BLOBNBOX (new PBLOB (&left_outlines)));
-        else if (!left_coutlines.empty ())
-          row->
-              insert_blob (new BLOBNBOX (new C_BLOB (&left_coutlines)));
-        else {
-          ASSERT_HOST(FALSE);
-          fprintf (stderr,
+        split_to_blob(NULL, chop_coord, textord_fp_chop_error + 0.5,
+                      &left_coutlines, &right_coutlines);
+        if (!left_coutlines.empty()) {
+          row->insert_blob(new BLOBNBOX(new C_BLOB(&left_coutlines)));
+        } else {
+          fprintf(stderr,
             "Error:no outlines after chopping from %d to %d from (%d,%d)->(%d,%d)\n",
             cell_it.data ()->x (), cell_it.data ()->y (),
             blob_box.left (), blob_box.bottom (),
             blob_box.right (), blob_box.top ());
+          ASSERT_HOST(FALSE);
         }
         u_line = NULL;           //no more blobs to add
       }
-      delete cell_it.extract ();
+      delete cell_it.extract();
     }
-    if (!right_outlines.empty () || !right_coutlines.empty ()) {
-      split_to_blob (NULL, blob_box.right (),
-        textord_fp_chop_error + 0.5,
-        &left_outlines, &left_coutlines,
-        &right_outlines, &right_coutlines);
-      if (!left_outlines.empty ())
-        ru_it.
-          add_after_then_move (new BLOBNBOX (new PBLOB (&left_outlines)));
-      else if (!left_coutlines.empty ())
-        ru_it.
-            add_after_then_move (new
-            BLOBNBOX (new C_BLOB (&left_coutlines)));
+    if (!right_coutlines.empty ()) {
+      split_to_blob(NULL, blob_box.right(), textord_fp_chop_error + 0.5,
+                    &left_coutlines, &right_coutlines);
+      if (!left_coutlines.empty())
+        ru_it.add_after_then_move(new BLOBNBOX(new C_BLOB(&left_coutlines)));
     }
     if (u_line != NULL) {
-      if (u_line->blob() != NULL)
-        delete u_line->blob();
       if (u_line->cblob() != NULL)
         delete u_line->cblob();
       delete u_line;
     }
   }
-  if (!ru_it.empty ()) {
-    ru_it.move_to_first ();
-    for (ru_it.mark_cycle_pt (); !ru_it.cycled_list (); ru_it.forward ()) {
-      under_it.add_after_then_move (ru_it.extract ());
+  if (!ru_it.empty()) {
+    ru_it.move_to_first();
+    for (ru_it.mark_cycle_pt(); !ru_it.cycled_list(); ru_it.forward()) {
+      under_it.add_after_then_move(ru_it.extract());
     }
   }
 }

@@ -29,7 +29,6 @@
 #include "drawtord.h"
 #include "makerow.h"
 #include "wordseg.h"
-#include "genblob.h"
 #include "imgs.h"
 #include "textord.h"
 #include "tordmain.h"

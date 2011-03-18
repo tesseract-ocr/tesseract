@@ -899,11 +899,8 @@ ROW *Textord::make_prop_words(
   BOOL8 prev_gap_was_a_space = FALSE;
   BOOL8 break_at_next_gap = FALSE;
   ROW *real_row;                 //output row
-  OUTLINE_IT out_it;             //outlines
   C_OUTLINE_IT cout_it;
-  PBLOB_LIST blobs;              //blobs in word
   C_BLOB_LIST cblobs;
-  PBLOB_IT blob_it = &blobs;     //iterator
   C_BLOB_IT cblob_it = &cblobs;
   WERD_LIST words;
   WERD_IT word_it;               //new words
@@ -934,7 +931,6 @@ ROW *Textord::make_prop_words(
   }
 
   prev_x = -MAX_INT16;
-  blob_it.set_to_list (&blobs);
   cblob_it.set_to_list (&cblobs);
   box_it.set_to_list (row->blob_list ());
   word_it.set_to_list (&words);
@@ -994,23 +990,14 @@ ROW *Textord::make_prop_words(
       bblob = box_it.data ();
       blob_box = bblob->bounding_box ();
       if (bblob->joined_to_prev ()) {
-        if (bblob->blob () != NULL) {
-          out_it.set_to_list (blob_it.data ()->out_list ());
-          out_it.move_to_last ();
-          out_it.add_list_after (bblob->blob ()->out_list ());
-          delete bblob->blob ();
-        }
-        else if (bblob->cblob () != NULL) {
+        if (bblob->cblob () != NULL) {
           cout_it.set_to_list (cblob_it.data ()->out_list ());
           cout_it.move_to_last ();
           cout_it.add_list_after (bblob->cblob ()->out_list ());
           delete bblob->cblob ();
         }
-      }
-      else {
-        if (bblob->blob () != NULL)
-          blob_it.add_after_then_move (bblob->blob ());
-        else if (bblob->cblob () != NULL)
+      } else {
+        if (bblob->cblob() != NULL)
           cblob_it.add_after_then_move (bblob->cblob ());
         prev_x = blob_box.right ();
       }
@@ -1018,8 +1005,7 @@ ROW *Textord::make_prop_words(
       bblob = box_it.data ();
       blob_box = bblob->bounding_box ();
 
-      if (!bblob->joined_to_prev () &&
-      (bblob->blob () != NULL || bblob->cblob () != NULL)) {
+      if (!bblob->joined_to_prev() && bblob->cblob() != NULL) {
         /* Real Blob - not multiple outlines or pre-chopped */
         prev_gap = current_gap;
         prev_within_xht_gap = current_within_xht_gap;
@@ -1048,15 +1034,8 @@ ROW *Textord::make_prop_words(
                               break_at_next_gap) ||
             box_it.at_first()) {
           /* Form a new word out of the blobs collected */
-          if (!blob_it.empty ()) {
-            word = new WERD (&blobs, prev_blanks, NULL);
-            //make real word
-            word_count++;
-          }
-          else {
-            word = new WERD (&cblobs, prev_blanks, NULL);
-            word_count++;
-          }
+          word = new WERD (&cblobs, prev_blanks, NULL);
+          word_count++;
           word_it.add_after_then_move (word);
           if (bol) {
             word->set_flag (W_BOL, TRUE);
@@ -1725,41 +1704,23 @@ void Textord::mark_gap(
 #endif
 
 float Textord::find_mean_blob_spacing(WERD *word) {
-  PBLOB_IT blob_it;
   C_BLOB_IT cblob_it;
   TBOX blob_box;
   inT32 gap_sum = 0;
   inT16 gap_count = 0;
   inT16 prev_right;
 
-  if (word->flag (W_POLYGON)) {
-    blob_it.set_to_list (word->blob_list ());
-    if (!blob_it.empty ()) {
-      blob_it.mark_cycle_pt ();
-      prev_right = blob_it.data ()->bounding_box ().right ();
-      //first blob
-      blob_it.forward ();
-      for (; !blob_it.cycled_list (); blob_it.forward ()) {
-        blob_box = blob_it.data ()->bounding_box ();
-        gap_sum += blob_box.left () - prev_right;
-        gap_count++;
-        prev_right = blob_box.right ();
-      }
-    }
-  }
-  else {
-    cblob_it.set_to_list (word->cblob_list ());
-    if (!cblob_it.empty ()) {
-      cblob_it.mark_cycle_pt ();
-      prev_right = cblob_it.data ()->bounding_box ().right ();
-      //first blob
-      cblob_it.forward ();
-      for (; !cblob_it.cycled_list (); cblob_it.forward ()) {
-        blob_box = cblob_it.data ()->bounding_box ();
-        gap_sum += blob_box.left () - prev_right;
-        gap_count++;
-        prev_right = blob_box.right ();
-      }
+  cblob_it.set_to_list (word->cblob_list ());
+  if (!cblob_it.empty ()) {
+    cblob_it.mark_cycle_pt ();
+    prev_right = cblob_it.data ()->bounding_box ().right ();
+    //first blob
+    cblob_it.forward ();
+    for (; !cblob_it.cycled_list (); cblob_it.forward ()) {
+      blob_box = cblob_it.data ()->bounding_box ();
+      gap_sum += blob_box.left () - prev_right;
+      gap_count++;
+      prev_right = blob_box.right ();
     }
   }
   if (gap_count > 0)
@@ -1823,11 +1784,10 @@ TBOX Textord::reduced_box_next(
   if (blob->red_box_set ()) {
     reduced_box = blob->reduced_box ();
     do {
-      it->forward ();
-      blob = it->data ();
+      it->forward();
+      blob = it->data();
     }
-                                 //until next real blob
-    while ((blob->blob () == NULL && blob->cblob () == NULL) || blob->joined_to_prev ());
+    while (blob->cblob() == NULL || blob->joined_to_prev());
     return reduced_box;
   }
   head_blob = blob;
@@ -1836,7 +1796,7 @@ TBOX Textord::reduced_box_next(
   do {
     it->forward ();
     blob = it->data ();
-    if (blob->blob () == NULL && blob->cblob () == NULL)
+    if (blob->cblob() == NULL)
                                  //was pre-chopped
       full_box += blob->bounding_box ();
     else if (blob->joined_to_prev ()) {
@@ -1846,7 +1806,7 @@ TBOX Textord::reduced_box_next(
     }
   }
                                  //until next real blob
-  while ((blob->blob () == NULL && blob->cblob () == NULL) || blob->joined_to_prev ());
+  while (blob->cblob() == NULL || blob->joined_to_prev());
 
   if ((reduced_box.width () > 0) &&
     ((reduced_box.left () + tosp_near_lh_edge * reduced_box.width ())
@@ -1906,22 +1866,8 @@ TBOX Textord::reduced_box_for_blob(
   */
   left_limit = (float) MAX_INT32;
   junk = (float) -MAX_INT32;
-  if (blob->blob () != NULL)
-                                 //blob to test
-    find_blob_limits (blob->blob (),
-      (float) -MAX_INT16,        //rotated lower limit
-      -(baseline + 1.1 * row->xheight),
-    //rotated upper limit
-      FCOORD (0.0, 1.0),         //90deg anticlock rot
-      left_limit, junk);         //min y max_y
-  else
-                                 //blob to test
-    find_cblob_hlimits (blob->cblob (),
-                                 //rotated lower limit
-      (baseline + 1.1 * row->xheight), (float) MAX_INT16,
-    //rotated upper limit
-    //                                                              FCOORD( 0.0, 1.0 ),             //90deg anticlock rot
-      left_limit, junk);         //min y max_y
+  find_cblob_hlimits(blob->cblob(), (baseline + 1.1 * row->xheight),
+                     static_cast<float>(MAX_INT16), left_limit, junk);
   if (left_limit > junk)
     *left_above_xht = MAX_INT16; //No area above xht
   else
@@ -1932,20 +1878,8 @@ TBOX Textord::reduced_box_for_blob(
   */
   left_limit = (float) MAX_INT32;
   junk = (float) -MAX_INT32;
-  if (blob->blob () != NULL)
-                                 //blob to test
-    find_blob_limits (blob->blob (),
-      (float) -MAX_INT16,        //rotated lower limit
-      -baseline,                 //rotated upper limit
-      FCOORD (0.0, 1.0),         //90deg anticlock rot
-      left_limit, junk);         //min y max_y
-  else
-                                 //blob to test
-    find_cblob_hlimits (blob->cblob (),
-      baseline,                  //rotated upper limit
-      (float) MAX_INT16,         //rotated lower limit
-    //                                                              FCOORD( 0.0, 1.0 ),             //90deg anticlock rot
-      left_limit, junk);         //min y max_y
+  find_cblob_hlimits(blob->cblob(), baseline, static_cast<float>(MAX_INT16),
+                     left_limit, junk);
 
   if (left_limit > junk)
     return TBOX ();               //no area within xht so return empty box
@@ -1954,22 +1888,8 @@ TBOX Textord::reduced_box_for_blob(
   */
   junk = (float) MAX_INT32;
   right_limit = (float) -MAX_INT32;
-  if (blob->blob () != NULL)
-                                 //blob to test
-    find_blob_limits (blob->blob (),
-      -(baseline + row->xheight),
-    //rotated lower limit
-      (float) MAX_INT16,         //rotated upper limit
-      FCOORD (0.0, 1.0),         //90deg anticlock rot
-      junk, right_limit);        //min y max_y
-  else
-                                 //blob to test
-    find_cblob_hlimits (blob->cblob (),
-      (float) -MAX_INT16,        //rotated upper limit
-      (baseline + row->xheight),
-    //rotated lower limit
-    //                                                              FCOORD( 0.0, 1.0 ),             //90deg anticlock rot
-      junk, right_limit);        //min y max_y
+  find_cblob_hlimits(blob->cblob(), static_cast<float>(-MAX_INT16),
+                     (baseline + row->xheight), junk, right_limit);
   if (junk > right_limit)
     return TBOX ();               //no area within xht so return empty box
 

@@ -297,15 +297,11 @@ void plot_word_decisions(              //draw words
           blob_box.left (), blob_box.top ());
       }
     }
-    if (!blob->joined_to_prev ())
-      prev_x = blob_box.right ();
-    if (blob->blob () != NULL)
-                                 //draw it
-      blob->blob ()->plot (win, colour, colour);
+    if (!blob->joined_to_prev())
+      prev_x = blob_box.right();
     if (blob->cblob () != NULL)
       blob->cblob ()->plot (win, colour, colour);
-    if (!blob->joined_to_prev ()
-      && (blob->blob () != NULL || blob->cblob () != NULL))
+    if (!blob->joined_to_prev() && blob->cblob() != NULL)
       blob_count++;
   }
   if (pitch > 0 && textord_show_fixed_cuts && blob_count > 0)
