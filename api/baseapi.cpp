@@ -54,7 +54,6 @@
 #include "imgs.h"
 #include "imgtiff.h"
 #include "makerow.h"
-#include "tstruct.h"
 #include "permute.h"
 #include "otsuthr.h"
 #include "osdetect.h"
