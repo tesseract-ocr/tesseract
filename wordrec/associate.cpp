@@ -27,6 +27,7 @@
 
 #include "associate.h"
 #include "baseline.h"
+#include "normalis.h"
 
 namespace tesseract {
 

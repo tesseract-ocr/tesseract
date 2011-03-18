@@ -18,9 +18,10 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-#include          "debugwin.h"
-#include          "werd.h"
 #include          "drawfx.h"
+#include          "debugwin.h"
+#include          "normalis.h"
+#include          "werd.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
