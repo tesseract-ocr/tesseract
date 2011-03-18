@@ -352,7 +352,7 @@ class UNICHARSET {
   // Returns the min and max bottom and top of the given unichar in
   // baseline-normalized coordinates, ie, where the baseline is
   // kBlnBaselineOffset and the meanline is kBlnBaselineOffset + kBlnXHeight
-  // (See polyblob.h for the definitions).
+  // (See normalis.h for the definitions).
   void get_top_bottom(UNICHAR_ID unichar_id,
                       int* min_bottom, int* max_bottom,
                       int* min_top, int* max_top) const {
@@ -586,7 +586,7 @@ class UNICHARSET {
     // Possible limits of the top and bottom of the bounding box in
     // baseline-normalized coordinates, ie, where the baseline is
     // kBlnBaselineOffset and the meanline is kBlnBaselineOffset + kBlnXHeight
-    // (See polyblob.h for the definitions).
+    // (See normalis.h for the definitions).
     uinT8 min_bottom;
     uinT8 max_bottom;
     uinT8 min_top;
