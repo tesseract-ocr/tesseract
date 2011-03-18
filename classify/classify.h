@@ -26,6 +26,7 @@
 #include "featdefs.h"
 #include "intfx.h"
 #include "intmatcher.h"
+#include "normalis.h"
 #include "ratngs.h"
 #include "ocrfeatures.h"
 #include "unicity_table.h"
