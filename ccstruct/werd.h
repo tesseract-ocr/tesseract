@@ -22,10 +22,10 @@
 
 #include          "params.h"
 #include          "bits16.h"
+#include          "elst2.h"
 #include          "strngs.h"
 #include          "blckerr.h"
 #include          "stepblob.h"
-#include          "polyblob.h"
 
 enum WERD_FLAGS
 {
@@ -35,7 +35,6 @@ enum WERD_FLAGS
   W_BOL,                         //< start of line
   W_EOL,                         //< end of line
   W_NORMALIZED,                  //< flags
-  W_POLYGON,                     //< approximation
   W_SCRIPT_HAS_XHEIGHT,          //< x-height concept makes sense.
   W_SCRIPT_IS_LATIN,             //< Special case latin for y. splitting.
   W_DONT_CHOP,                   //< fixed pitch chopped
@@ -65,12 +64,10 @@ class WERD : public ELIST2_LINK {
     //   blanks - number of blanks before the word
     //   text - correct text (outlives WERD)
     WERD(C_BLOB_LIST *blob_list, uinT8 blanks, const char *text);
-    WERD(PBLOB_LIST *blob_list, uinT8 blanks, const char *text);
 
     // WERD constructed from:
     //   blob_list - blobs in the word
     //   clone - werd to clone flags, etc from.
-    WERD(PBLOB_LIST *blob_list, WERD *clone);
     WERD(C_BLOB_LIST *blob_list, WERD *clone);
 
     // Construct a WERD from a single_blob and clone the flags from this.
@@ -78,11 +75,6 @@ class WERD : public ELIST2_LINK {
     WERD* ConstructFromSingleBlob(bool bol, bool eol, C_BLOB* blob);
 
     ~WERD() {
-      if (flags.bit(W_POLYGON)) {
-        //  use right destructor for PBLOBs
-        ((PBLOB_LIST *) &cblobs)->clear();
-        ((PBLOB_LIST *) &rej_cblobs)->clear();
-      }
     }
 
     // assignment
@@ -100,29 +92,12 @@ class WERD : public ELIST2_LINK {
 
     // Accessors for reject / DUFF blobs in various formats
     C_BLOB_LIST *rej_cblob_list() {  // compact format
-      if (flags.bit(W_POLYGON))
-        WRONG_WORD.error("WERD::rej_cblob_list", ABORT, NULL);
       return &rej_cblobs;
-    }
-    PBLOB_LIST *rej_blob_list() {  // poly format
-      if (!flags.bit(W_POLYGON))
-        WRONG_WORD.error("WERD::rej_blob_list", ABORT, NULL);
-      return (PBLOB_LIST *)(&rej_cblobs);
     }
 
     // Accessors for good blobs in various formats.
     C_BLOB_LIST *cblob_list() {  // get compact blobs
-      if (flags.bit(W_POLYGON))
-        WRONG_WORD.error("WERD::cblob_list", ABORT, NULL);
       return &cblobs;
-    }
-    PBLOB_LIST *blob_list() {  // get poly blobs
-      if (!flags.bit(W_POLYGON))
-        WRONG_WORD.error("WERD::blob_list", ABORT, NULL);
-      return (PBLOB_LIST *)(&cblobs);
-    }
-    PBLOB_LIST *gblob_list() {  // get generic blobs
-      return (PBLOB_LIST *)(&cblobs);
     }
 
     uinT8 space() {  // access function
@@ -155,9 +130,6 @@ class WERD : public ELIST2_LINK {
 
     // reposition word by vector
     void move(const ICOORD vec);
-
-    // scale word by multiplier
-    void scale(const float f);
 
     // join other's blobs onto this werd, emptying out other.
     void join_on(WERD* other);

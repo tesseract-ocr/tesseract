@@ -20,33 +20,8 @@
 #ifndef           GENBLOB_H
 #define           GENBLOB_H
 
-#include          "polyblob.h"
-#include          "hosthplb.h"
-#include          "rect.h"
-#include          "notdll.h"
+// Sort function to sort blobs by ascending left edge.
+int c_blob_comparator(const void *blob1p,  // ptr to ptr to blob1
+                      const void *blob2p);
 
-int blob_comparator(                     //sort blobs
-                    const void *blob1p,  //ptr to ptr to blob1
-                    const void *blob2p   //ptr to ptr to blob2
-                   );
-int c_blob_comparator(                     //sort blobs
-                      const void *blob1p,  //ptr to ptr to blob1
-                      const void *blob2p   //ptr to ptr to blob2
-                     );
-TBOX gblob_bounding_box(                 //Get bounding box
-                       PBLOB *blob,     //generic blob
-                       BOOL8 polygonal  //is blob polygonal?
-                      );
-void gblob_sort_list(                        //Sort a gblob list
-                     PBLOB_LIST *blob_list,  //generic blob list
-                     BOOL8 polygonal         //is list polygonal?
-                    );
-OUTLINE_LIST *gblob_out_list(                 //Get outline list
-                             PBLOB *blob,     //generic blob
-                             BOOL8 polygonal  //is blob polygonal?
-                            );
-TBOX goutline_bounding_box(                   //Get bounding box
-                          OUTLINE *outline,  //generic outline
-                          BOOL8 polygonal    //is outline polygonal?
-                         );
 #endif

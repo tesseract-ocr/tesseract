@@ -23,6 +23,7 @@
 #include "boxword.h"
 #include "elst.h"
 #include "genericvector.h"
+#include "normalis.h"
 #include "ocrblock.h"
 #include "ocrrow.h"
 #include "ratngs.h"

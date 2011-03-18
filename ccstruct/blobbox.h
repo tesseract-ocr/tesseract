@@ -116,12 +116,6 @@ class BLOBNBOX:public ELIST_LINK
     BLOBNBOX() {
       ConstructionInit();
     }
-    explicit BLOBNBOX(PBLOB *srcblob) {
-      box = srcblob->bounding_box();
-      ConstructionInit();
-      blob_ptr = srcblob;
-      area = static_cast<int>(srcblob->area());
-    }
     explicit BLOBNBOX(C_BLOB *srcblob) {
       box = srcblob->bounding_box();
       ConstructionInit();
@@ -188,8 +182,7 @@ class BLOBNBOX:public ELIST_LINK
       base_char_bottom_ = box.bottom();
     }
     void compute_bounding_box() {
-      box = cblob_ptr != NULL ? cblob_ptr->bounding_box()
-                              : blob_ptr->bounding_box();
+      box = cblob_ptr->bounding_box();
       base_char_top_ = box.top();
       base_char_bottom_ = box.bottom();
     }
@@ -214,9 +207,6 @@ class BLOBNBOX:public ELIST_LINK
     }
     void set_repeated_set(int set_id) {
       repeated_set_ = set_id;
-    }
-    PBLOB *blob() const {
-      return blob_ptr;
     }
     C_BLOB *cblob() const {
       return cblob_ptr;
@@ -371,8 +361,6 @@ class BLOBNBOX:public ELIST_LINK
     void plot(ScrollView* window,                // window to draw in
               ScrollView::Color blob_colour,     // for outer bits
               ScrollView::Color child_colour) {  // for holes
-      if (blob_ptr != NULL)
-        blob_ptr->plot(window, blob_colour, child_colour);
       if (cblob_ptr != NULL)
         cblob_ptr->plot(window, blob_colour, child_colour);
     }
@@ -381,7 +369,6 @@ class BLOBNBOX:public ELIST_LINK
   // Initializes the bulk of the members to default values for use at
   // construction time.
   void ConstructionInit() {
-    blob_ptr = NULL;
     cblob_ptr = NULL;
     area = 0;
     area_stroke_width_ = 0.0f;
@@ -423,7 +410,6 @@ class BLOBNBOX:public ELIST_LINK
   }
 
  private:
-  PBLOB *blob_ptr;              // poly blob
   C_BLOB *cblob_ptr;            // edgestep blob
   TBOX box;                     // bounding box
   TBOX red_box;                 // bounding box
@@ -694,13 +680,6 @@ class TO_BLOCK:public ELIST_LINK
 ELISTIZEH (TO_BLOCK)
 extern double_VAR_H (textord_error_weight, 3,
 "Weighting for error in believability");
-void find_blob_limits(                  //get y limits
-                      PBLOB *blob,      //blob to search
-                      float leftx,      //x limits
-                      float rightx,
-                      FCOORD rotation,  //for landscape
-                      float &ymin,      //output y limits
-                      float &ymax);
 void find_cblob_limits(                  //get y limits
                        C_BLOB *blob,     //blob to search
                        float leftx,      //x limits
@@ -720,15 +699,6 @@ void find_cblob_hlimits(                //get x limits
                         float topy,
                         float &xmin,    //output x limits
                         float &xymax);
-PBLOB *rotate_blob(                 //get y limits
-                   PBLOB *blob,     //blob to search
-                   FCOORD rotation  //vector to rotate by
-                  );
-PBLOB *rotate_cblob(                 //rotate it
-                    C_BLOB *blob,    //blob to search
-                    float xheight,   //for poly approx
-                    FCOORD rotation  //for landscape
-                   );
 C_BLOB *crotate_cblob(                 //rotate it
                       C_BLOB *blob,    //blob to search
                       FCOORD rotation  //for landscape
@@ -739,14 +709,6 @@ TBOX box_next(                 //get bounding box
 TBOX box_next_pre_chopped(                 //get bounding box
                          BLOBNBOX_IT *it  //iterator to blobds
                         );
-void vertical_blob_projection(              //project outlines
-                              PBLOB *blob,  //blob to project
-                              STATS *stats  //output
-                             );
-                                 //project outlines
-void vertical_outline_projection(OUTLINE *outline,  //outline to project
-                                 STATS *stats       //output
-                                );
 void vertical_cblob_projection(               //project outlines
                                C_BLOB *blob,  //blob to project
                                STATS *stats   //output

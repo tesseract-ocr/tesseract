@@ -9,7 +9,7 @@ include_HEADERS = \
     linlsq.h matrix.h mod128.h normalis.h \
     ocrblock.h ocrrow.h otsuthr.h \
     pageres.h pdblock.h points.h polyaprx.h polyblk.h \
-    polyblob.h polyvert.h poutline.h publictypes.h \
+    publictypes.h \
     quadlsq.h quadratc.h quspline.h ratngs.h rect.h rejctmap.h \
     seam.h split.h statistc.h stepblob.h vecfuncs.h werd.h
 
@@ -20,7 +20,7 @@ libtesseract_ccstruct_la_SOURCES = \
     linlsq.cpp matrix.cpp mod128.cpp normalis.cpp \
     ocrblock.cpp ocrrow.cpp otsuthr.cpp \
     pageres.cpp pdblock.cpp points.cpp polyaprx.cpp polyblk.cpp \
-    polyblob.cpp polyvert.cpp poutline.cpp publictypes.cpp \
+    publictypes.cpp \
     quadlsq.cpp quadratc.cpp quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \
     seam.cpp split.cpp statistc.cpp stepblob.cpp \
     vecfuncs.cpp werd.cpp

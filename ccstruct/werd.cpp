@@ -116,57 +116,6 @@ WERD::WERD(C_BLOB_LIST *blob_list, uinT8 blank_count, const char *text)
 /**
  * WERD::WERD
  *
- * Constructor to build a WERD from a list of BLOBs.
- * The BLOBs are not copied so the source list is emptied.
- */
-
-WERD::WERD(PBLOB_LIST *blob_list,          //< In word order
-           uinT8 blank_count,              //< Blanks in front
-           const char *text)               //< Ccorrect text
-  : flags(0),
-    script_id_(0),
-    correct(text) {
-  PBLOB_IT start_it = blob_list; //iterator
-  PBLOB_IT end_it = blob_list;   //another
-
-  while (!end_it.at_last ())
-    end_it.forward ();           //move to last
-  ((PBLOB_LIST *) (&cblobs))->assign_to_sublist (&start_it, &end_it);
-  //move to our list
-                                 //it's a polygon
-  flags.set_bit (W_POLYGON, TRUE);
-  blanks = blank_count;
-  //      fprintf(stderr,"Wrong constructor!!!!\n");
-}
-
-
-/**
- * WERD::WERD
- *
- * Constructor to build a WERD from a list of BLOBs.
- * The BLOBs are not copied so the source list is emptied.
- */
-
-WERD::WERD(PBLOB_LIST * blob_list,          //< In word order
-           WERD * clone)                    //< Source of flags
-  : flags(clone->flags),
-    script_id_(clone->script_id_),
-    correct(clone->correct) {
-  PBLOB_IT start_it = blob_list; //iterator
-  PBLOB_IT end_it = blob_list;   //another
-
-  while (!end_it.at_last ())
-    end_it.forward ();           //move to last
-  ((PBLOB_LIST *) (&cblobs))->assign_to_sublist (&start_it, &end_it);
-  //move to our list
-  blanks = clone->blanks;
-  //      fprintf(stderr,"Wrong constructor!!!!\n");
-}
-
-
-/**
- * WERD::WERD
- *
  * Constructor to build a WERD from a list of C_BLOBs.
  * The C_BLOBs are not copied so the source list is emptied.
  */
@@ -221,16 +170,9 @@ TBOX WERD::bounding_box() {
     box += rej_cblob_it.data()->bounding_box();
   }
 
-  if (flags.bit(W_POLYGON)) {  // polygons
-    PBLOB_IT it = (PBLOB_LIST *)(&cblobs);
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-      box += it.data()->bounding_box();
-    }
-  } else {
-    C_BLOB_IT it = &cblobs;    // blobs of WERD
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-      box += it.data()->bounding_box();
-    }
+  C_BLOB_IT it = &cblobs;    // blobs of WERD
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    box += it.data()->bounding_box();
   }
   return box;
 }
@@ -244,36 +186,11 @@ TBOX WERD::bounding_box() {
  */
 
 void WERD::move(const ICOORD vec) {
-  PBLOB_IT blob_it((PBLOB_LIST *)&cblobs);
   C_BLOB_IT cblob_it(&cblobs);  // cblob iterator
 
-  if (flags.bit(W_POLYGON)) {
-    for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward())
-      blob_it.data()->move(vec);
-  } else {
-    for (cblob_it.mark_cycle_pt(); !cblob_it.cycled_list(); cblob_it.forward())
-      cblob_it.data()->move(vec);
-  }
+  for (cblob_it.mark_cycle_pt(); !cblob_it.cycled_list(); cblob_it.forward())
+    cblob_it.data()->move(vec);
 }
-
-
-/**
- * WERD::scale
- *
- * Scale WERD by multiplier
- */
-
-void WERD::scale(const float f) {
-  PBLOB_IT blob_it((PBLOB_LIST *)&cblobs);
-
-  if (flags.bit(W_POLYGON)) {
-    for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward())
-      blob_it.data()->scale(f);
-  } else {
-    CANT_SCALE_EDGESTEPS.error("WERD::scale", ABORT, NULL);
-  }
-}
-
 
 /**
  * WERD::join_on
@@ -282,8 +199,8 @@ void WERD::scale(const float f) {
  */
 
 void WERD::join_on(WERD* other) {
-  PBLOB_IT blob_it((PBLOB_LIST *)&cblobs);
-  PBLOB_IT src_it((PBLOB_LIST *)&other->cblobs);
+  C_BLOB_IT blob_it(&cblobs);
+  C_BLOB_IT src_it(&other->cblobs);
   C_BLOB_IT rej_cblob_it(&rej_cblobs);
   C_BLOB_IT src_rej_it(&other->rej_cblobs);
 
@@ -306,30 +223,15 @@ void WERD::join_on(WERD* other) {
 
 void WERD::copy_on(WERD* other) {
   bool reversed = other->bounding_box().left() < bounding_box().left();
-  if (flags.bit(W_POLYGON)) {
-    PBLOB_IT blob_it((PBLOB_LIST *) & cblobs);
-    // blob iterator
-    PBLOB_LIST blobs;
+  C_BLOB_IT c_blob_it(&cblobs);
+  C_BLOB_LIST c_blobs;
 
-    blobs.deep_copy(reinterpret_cast<PBLOB_LIST*>(&other->cblobs),
-                    &PBLOB::deep_copy);
-    if (reversed) {
-      blob_it.add_list_before(&blobs);
-    } else {
-      blob_it.move_to_last();
-      blob_it.add_list_after(&blobs);
-    }
+  c_blobs.deep_copy(&other->cblobs, &C_BLOB::deep_copy);
+  if (reversed) {
+    c_blob_it.add_list_before(&c_blobs);
   } else {
-    C_BLOB_IT c_blob_it(&cblobs);
-    C_BLOB_LIST c_blobs;
-
-    c_blobs.deep_copy(&other->cblobs, &C_BLOB::deep_copy);
-    if (reversed) {
-      c_blob_it.add_list_before(&c_blobs);
-    } else {
-      c_blob_it.move_to_last();
-      c_blob_it.add_list_after(&c_blobs);
-    }
+    c_blob_it.move_to_last();
+    c_blob_it.add_list_after(&c_blobs);
   }
   if (!other->rej_cblobs.empty()) {
     C_BLOB_IT rej_c_blob_it(&rej_cblobs);
@@ -361,7 +263,6 @@ void WERD::print() {
   tprintf("   W_EOL = %s\n", flags.bit(W_EOL) ? "TRUE" : "FALSE ");
   tprintf("   W_NORMALIZED = %s\n",
           flags.bit(W_NORMALIZED) ? "TRUE" : "FALSE ");
-  tprintf("   W_POLYGON = %s\n", flags.bit(W_POLYGON) ? "TRUE" : "FALSE ");
   tprintf("   W_SCRIPT_HAS_XHEIGHT = %s\n",
           flags.bit(W_SCRIPT_HAS_XHEIGHT) ? "TRUE" : "FALSE ");
   tprintf("   W_SCRIPT_IS_LATIN = %s\n",
@@ -384,16 +285,9 @@ void WERD::print() {
 
 #ifndef GRAPHICS_DISABLED
 void WERD::plot(ScrollView *window, ScrollView::Color colour) {
-  if (flags.bit(W_POLYGON)) {  // polygon blobs
-    PBLOB_IT it = (PBLOB_LIST *)(&cblobs);
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-      it.data()->plot(window, colour, colour);
-    }
-  } else {  // chain code blobs
-    C_BLOB_IT it = &cblobs;
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-      it.data()->plot(window, colour, colour);
-    }
+  C_BLOB_IT it = &cblobs;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    it.data()->plot(window, colour, colour);
   }
   plot_rej_blobs(window);
 }
@@ -418,18 +312,10 @@ ScrollView::Color WERD::NextColor(ScrollView::Color colour) {
 
 void WERD::plot(ScrollView* window) {
   ScrollView::Color colour = FIRST_COLOUR;
-  if (flags.bit(W_POLYGON)) {
-    PBLOB_IT it = (PBLOB_LIST *)(&cblobs);
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-      it.data()->plot(window, colour, CHILD_COLOUR);
-      colour = NextColor(colour);
-    }
-  } else {
-    C_BLOB_IT it = &cblobs;
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-      it.data()->plot(window, colour, CHILD_COLOUR);
-      colour = NextColor(colour);
-    }
+  C_BLOB_IT it = &cblobs;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    it.data()->plot(window, colour, CHILD_COLOUR);
+    colour = NextColor(colour);
   }
   plot_rej_blobs(window);
 }
@@ -444,16 +330,9 @@ void WERD::plot(ScrollView* window) {
 
 #ifndef GRAPHICS_DISABLED
 void WERD::plot_rej_blobs(ScrollView *window) {
-  if (flags.bit(W_POLYGON)) {
-    PBLOB_IT it = (PBLOB_LIST *)(&rej_cblobs);
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-      it.data()->plot(window, ScrollView::GREY, ScrollView::GREY);
-    }
-  } else {
-    C_BLOB_IT it = &rej_cblobs;
-    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
-      it.data()->plot(window, ScrollView::GREY, ScrollView::GREY);
-    }
+  C_BLOB_IT it = &rej_cblobs;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    it.data()->plot(window, ScrollView::GREY, ScrollView::GREY);
   }
 }
 #endif
@@ -489,26 +368,13 @@ WERD & WERD::operator= (const WERD & source) {
   script_id_ = source.script_id_;
   dummy = source.dummy;
   correct = source.correct;
-  if (flags.bit(W_POLYGON)) {
-    if (!cblobs.empty())
-      reinterpret_cast<PBLOB_LIST*>(&cblobs)->clear();
-    reinterpret_cast<PBLOB_LIST*>(&cblobs)->deep_copy(
-      reinterpret_cast<const PBLOB_LIST*>(&source.cblobs), &PBLOB::deep_copy);
+  if (!cblobs.empty())
+    cblobs.clear();
+  cblobs.deep_copy(&source.cblobs, &C_BLOB::deep_copy);
 
-    if (!rej_cblobs.empty())
-      reinterpret_cast<PBLOB_LIST*>(&rej_cblobs)->clear();
-    reinterpret_cast<PBLOB_LIST*>(&rej_cblobs)->deep_copy(
-      reinterpret_cast<const PBLOB_LIST*>(&source.rej_cblobs),
-      &PBLOB::deep_copy);
-  } else {
-    if (!cblobs.empty())
-      cblobs.clear();
-    cblobs.deep_copy(&source.cblobs, &C_BLOB::deep_copy);
-
-    if (!rej_cblobs.empty())
-      rej_cblobs.clear();
-    rej_cblobs.deep_copy(&source.rej_cblobs, &C_BLOB::deep_copy);
-  }
+  if (!rej_cblobs.empty())
+    rej_cblobs.clear();
+  rej_cblobs.deep_copy(&source.rej_cblobs, &C_BLOB::deep_copy);
   return *this;
 }
 

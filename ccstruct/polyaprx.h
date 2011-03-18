@@ -21,11 +21,9 @@
 #define           POLYAPRX_H
 
 #include          "blobs.h"
-#include          "poutline.h"
 #include          "coutln.h"
 
 // convert a chain-coded input to the old OUTLINE approximation
-OUTLINE *tesspoly_outline(C_OUTLINE *c_outline);
 TESSLINE* ApproximateOutline(C_OUTLINE *c_outline);
 EDGEPT *edgesteps_to_edgepts (   //convert outline
 C_OUTLINE * c_outline,           //input

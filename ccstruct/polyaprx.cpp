@@ -55,53 +55,6 @@ const int par2 = 6750 / (approx_dist * approx_dist);
  * Approximate an outline from chain codes form using the old tess algorithm.
  **********************************************************************/
 
-#ifndef NO_PBLOB_POLY
-// TODO(rays) This code is scheduled for deletion, but first all dependencies
-// have to be removed or rewritten. NO_BLOB_POLY is used for finding the
-// dependencies.
-OUTLINE *tesspoly_outline(C_OUTLINE *c_outline) {
-  EDGEPT *edgept;                //converted steps
-  EDGEPT *startpt;               //start of outline
-  TBOX loop_box;                  //bounding box
-  inT32 area;                    //loop area
-  FCOORD pos;                    //vertex
-  FCOORD vec;                    //vector
-  POLYPT_LIST polypts;           //output polygon
-  POLYPT *polypt;                //converted point
-  POLYPT_IT poly_it = &polypts;  //iterator
-  EDGEPT stack_edgepts[FASTEDGELENGTH];  // converted path
-  EDGEPT* edgepts = stack_edgepts;
-
-  // Use heap memory if the stack buffer is not big enough.
-  if (c_outline->pathlength() > FASTEDGELENGTH)
-    edgepts = new EDGEPT[c_outline->pathlength()];
-
-  loop_box = c_outline->bounding_box ();
-  area = loop_box.height ();
-  if (!poly_wide_objects_better && loop_box.width () > area)
-    area = loop_box.width ();
-  area *= area;
-  edgept = edgesteps_to_edgepts (c_outline, edgepts);
-  fix2(edgepts, area);
-  edgept = poly2 (edgepts, area);/*2nd approximation */
-  startpt = edgept;
-  do {
-    pos = FCOORD(edgept->pos.x, edgept->pos.y);
-    vec = FCOORD(edgept->vec.x, edgept->vec.y);
-    polypt = new POLYPT(pos, vec);
-                                 //add to list
-    poly_it.add_after_then_move(polypt);
-    edgept = edgept->next;
-  }
-  while (edgept != startpt);
-  if (edgepts != stack_edgepts)
-    delete [] edgepts;
-  if (poly_it.length() <= 2)
-    return NULL;
-  else
-    return new OUTLINE(&poly_it);
-}
-#endif
 
 TESSLINE* ApproximateOutline(C_OUTLINE* c_outline) {
   EDGEPT *edgept;                // converted steps

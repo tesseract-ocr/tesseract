@@ -110,7 +110,7 @@ void BLOBNBOX::chop(                        //chop blobs
 
                                  //get no of chops
   blobcount = (inT16) floor (box.width () / xheight);
-  if (blobcount > 1 && (blob_ptr != NULL || cblob_ptr != NULL)) {
+  if (blobcount > 1 && cblob_ptr != NULL) {
                                  //width of each
     blobwidth = (float) (box.width () + 1) / blobcount;
     for (blobindex = blobcount - 1, rightx = box.right ();
@@ -120,12 +120,8 @@ void BLOBNBOX::chop(                        //chop blobs
       blob_it = *start_it;
       do {
         blob = blob_it.data ();
-        if (blob->blob_ptr != NULL)
-          find_blob_limits (blob->blob_ptr, rightx - blobwidth, rightx,
-            rotation, test_ymin, test_ymax);
-        else
-          find_cblob_vlimits (blob->cblob_ptr, rightx - blobwidth,
-            rightx,
+        find_cblob_vlimits(blob->cblob_ptr, rightx - blobwidth,
+                           rightx,
             /*rotation, */ test_ymin, test_ymax);
         blob_it.forward ();
         UpdateRange(test_ymin, test_ymax, &ymin, &ymax);
@@ -290,10 +286,6 @@ TBOX BLOBNBOX::BoundsWithinLimits(int left, int right) {
     find_cblob_limits(cblob_ptr, static_cast<float>(left),
                       static_cast<float>(right), no_rotation,
                       bottom, top);
-  } else {
-    find_blob_limits(blob_ptr, static_cast<float>(left),
-                     static_cast<float>(right), no_rotation,
-                     bottom, top);
   }
 
   if (top < bottom) {
@@ -348,59 +340,6 @@ ScrollView::Color BLOBNBOX::BoxColor() const {
   return TextlineColor(region_type_, flow_);
 }
 #endif
-
-/**********************************************************************
- * find_blob_limits
- *
- * Scan the outlines of the blob to locate the y min and max
- * between the given x limits.
- **********************************************************************/
-
-void find_blob_limits(                  //get y limits
-                      PBLOB *blob,      //blob to search
-                      float leftx,      //x limits
-                      float rightx,
-                      FCOORD rotation,  //for landscape
-                      float &ymin,      //output y limits
-                      float &ymax) {
-  float testy;                   //y intercept
-  FCOORD pos;                    //rotated
-  FCOORD vec;
-  POLYPT *polypt;                //current point
-                                 //outlines
-  OUTLINE_IT out_it = blob->out_list ();
-  POLYPT_IT poly_it;             //outline pts
-
-  ymin = (float) MAX_INT32;
-  ymax = (float) -MAX_INT32;
-  for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
-                                 //get points
-    poly_it.set_to_list (out_it.data ()->polypts ());
-    for (poly_it.mark_cycle_pt (); !poly_it.cycled_list ();
-    poly_it.forward ()) {
-      polypt = poly_it.data ();
-      pos = polypt->pos;
-      pos.rotate (rotation);
-      vec = polypt->vec;
-      vec.rotate (rotation);
-      if ((pos.x () < leftx && pos.x () + vec.x () > leftx)
-      || (pos.x () > leftx && pos.x () + vec.x () < leftx)) {
-        testy = pos.y () + vec.y () * (leftx - pos.x ()) / vec.x ();
-        UpdateRange(testy, &ymin, &ymax);
-      }
-      if (pos.x () >= leftx && pos.x () <= rightx) {
-        UpdateRange(pos.y(), &ymin, &ymax);
-      }
-      if ((pos.x () > rightx && pos.x () + vec.x () < rightx)
-      || (pos.x () < rightx && pos.x () + vec.x () > rightx)) {
-        testy = pos.y () + vec.y () * (rightx - pos.x ()) / vec.x ();
-        UpdateRange(testy, &ymin, &ymax);
-      }
-    }
-  }
-}
-
-
 /**********************************************************************
  * find_cblob_limits
  *
@@ -514,75 +453,6 @@ void find_cblob_hlimits(                //get x limits
   }
 }
 
-
-/**********************************************************************
- * rotate_blob
- *
- * Poly copy the blob and rotate the copy by the given vector.
- **********************************************************************/
-
-PBLOB *rotate_blob(                 //get y limits
-                   PBLOB *blob,     //blob to search
-                   FCOORD rotation  //vector to rotate by
-                  ) {
-  PBLOB *copy;                   //copy of blob
-  POLYPT *polypt;                //current point
-  OUTLINE_IT out_it;
-  POLYPT_IT poly_it;             //outline pts
-
-  copy = new PBLOB;
-  *copy = *blob;                 //deep copy
-  out_it.set_to_list (copy->out_list ());
-  for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
-                                 //get points
-    poly_it.set_to_list (out_it.data ()->polypts ());
-    for (poly_it.mark_cycle_pt (); !poly_it.cycled_list ();
-    poly_it.forward ()) {
-      polypt = poly_it.data ();
-                                 //rotate it
-      polypt->pos.rotate (rotation);
-      polypt->vec.rotate (rotation);
-    }
-    out_it.data ()->compute_bb ();
-  }
-  return copy;
-}
-
-
-/**********************************************************************
- * rotate_cblob
- *
- * Poly copy the blob and rotate the copy by the given vector.
- **********************************************************************/
-
-PBLOB *rotate_cblob(                 //rotate it
-                    C_BLOB *blob,    //blob to search
-                    float xheight,   //for poly approx
-                    FCOORD rotation  //for landscape
-                   ) {
-  PBLOB *copy;                   //copy of blob
-  POLYPT *polypt;                //current point
-  OUTLINE_IT out_it;
-  POLYPT_IT poly_it;             //outline pts
-
-  copy = new PBLOB (blob);
-  out_it.set_to_list (copy->out_list ());
-  for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
-                                 //get points
-    poly_it.set_to_list (out_it.data ()->polypts ());
-    for (poly_it.mark_cycle_pt (); !poly_it.cycled_list ();
-    poly_it.forward ()) {
-      polypt = poly_it.data ();
-                                 //rotate it
-      polypt->pos.rotate (rotation);
-      polypt->vec.rotate (rotation);
-    }
-    out_it.data ()->compute_bb ();
-  }
-  return copy;
-}
-
-
 /**********************************************************************
  * crotate_cblob
  *
@@ -625,12 +495,12 @@ TBOX box_next(                 //get bounding box
   do {
     it->forward ();
     blob = it->data ();
-    if (blob->blob () == NULL && blob->cblob () == NULL)
+    if (blob->cblob() == NULL)
                                  //was pre-chopped
       result += blob->bounding_box ();
   }
                                  //until next real blob
-  while ((blob->blob () == NULL && blob->cblob () == NULL) || blob->joined_to_prev ());
+  while ((blob->cblob() == NULL) || blob->joined_to_prev());
   return result;
 }
 
@@ -782,11 +652,9 @@ void TO_ROW::compute_vertical_projection() {  //project whole row
   projection_left = row_box.left () - PROJECTION_MARGIN;
   projection_right = row_box.right () + PROJECTION_MARGIN;
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
-    blob = blob_it.data ();
-    if (blob->blob () != NULL)
-      vertical_blob_projection (blob->blob (), &projection);
-    else if (blob->cblob () != NULL)
-      vertical_cblob_projection (blob->cblob (), &projection);
+    blob = blob_it.data();
+    if (blob->cblob() != NULL)
+      vertical_cblob_projection(blob->cblob(), &projection);
   }
 }
 
@@ -828,114 +696,6 @@ void TO_ROW::clear() {
   y_origin = 0.0;
   credibility = 0.0;
   num_repeated_sets_ = -1;
-}
-
-
-/**********************************************************************
- * vertical_blob_projection
- *
- * Compute the vertical projection of a blob from its outlines
- * and add to the given STATS.
- **********************************************************************/
-
-void vertical_blob_projection(              //project outlines
-                              PBLOB *blob,  //blob to project
-                              STATS *stats  //output
-                             ) {
-                                 //outlines of blob
-  OUTLINE_IT out_it = blob->out_list ();
-
-  for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
-    vertical_outline_projection (out_it.data (), stats);
-  }
-}
-
-
-/**********************************************************************
- * vertical_outline_projection
- *
- * Compute the vertical projection of a outline from its outlines
- * and add to the given STATS.
- **********************************************************************/
-
-void vertical_outline_projection(                   //project outlines
-                                 OUTLINE *outline,  //outline to project
-                                 STATS *stats       //output
-                                ) {
-  POLYPT *polypt;                //current point
-  inT32 xcoord;                  //current pixel coord
-  float end_x;                   //end of vec
-  POLYPT_IT poly_it = outline->polypts ();
-  OUTLINE_IT out_it = outline->child ();
-  float ymean;                   //amount to add
-  float width;                   //amount of x
-
-  for (poly_it.mark_cycle_pt (); !poly_it.cycled_list (); poly_it.forward ()) {
-    polypt = poly_it.data ();
-    end_x = polypt->pos.x () + polypt->vec.x ();
-    if (polypt->vec.x () > 0) {
-      for (xcoord = (inT32) floor (polypt->pos.x ());
-      xcoord < end_x; xcoord++) {
-        if (polypt->pos.x () < xcoord) {
-          width = (float) xcoord;
-          ymean =
-            polypt->vec.y () * (xcoord -
-            polypt->pos.x ()) / polypt->vec.x () +
-            polypt->pos.y ();
-        }
-        else {
-          width = polypt->pos.x ();
-          ymean = polypt->pos.y ();
-        }
-        if (end_x > xcoord + 1) {
-          width -= xcoord + 1;
-          ymean +=
-            polypt->vec.y () * (xcoord + 1 -
-            polypt->pos.x ()) / polypt->vec.x () +
-            polypt->pos.y ();
-        }
-        else {
-          width -= end_x;
-          ymean += polypt->pos.y () + polypt->vec.y ();
-        }
-        ymean = ymean * width / 2;
-        stats->add (xcoord, (inT32) floor (ymean + 0.5));
-      }
-    }
-    else if (polypt->vec.x () < 0) {
-      for (xcoord = (inT32) floor (end_x);
-      xcoord < polypt->pos.x (); xcoord++) {
-        if (polypt->pos.x () > xcoord + 1) {
-          width = xcoord + 1.0f;
-          ymean =
-            polypt->vec.y () * (xcoord + 1 -
-            polypt->pos.x ()) / polypt->vec.x () +
-            polypt->pos.y ();
-        }
-        else {
-          width = polypt->pos.x ();
-          ymean = polypt->pos.y ();
-        }
-        if (end_x < xcoord) {
-          width -= xcoord;
-          ymean +=
-            polypt->vec.y () * (xcoord -
-            polypt->pos.x ()) / polypt->vec.x () +
-            polypt->pos.y ();
-        }
-        else {
-          width -= end_x;
-          ymean += polypt->pos.y () + polypt->vec.y ();
-        }
-        ymean = ymean * width / 2;
-        stats->add (xcoord, (inT32) floor (ymean + 0.5));
-      }
-    }
-  }
-
-  for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
-    vertical_outline_projection (out_it.data (), stats);
-  }
 }
 
 
@@ -1013,8 +773,6 @@ static void clear_blobnboxes(BLOBNBOX_LIST* boxes) {
   // have to delete them explicitly.
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX* box = it.data();
-    if (box->blob() != NULL)
-      delete box->blob();
     if (box->cblob() != NULL)
       delete box->cblob();
   }
