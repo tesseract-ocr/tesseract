@@ -150,7 +150,6 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
   char map_chs[32];              //Only for unlv_tilde_crunch
   int txt_index = 0;
   BOOL8 need_reject = FALSE;
-  PBLOB_IT blob_it;              //blobs
   UNICHAR_ID space = unicharset.unichar_to_id(" ");
   if ((word->unlv_crunch_mode != CR_NONE ||
        word->best_choice->length() == 0) &&

@@ -36,9 +36,7 @@
 #include "tessvars.h"
 #include "pgedit.h"
 #include "reject.h"
-#include "charcut.h"
 #include "fixspace.h"
-#include "genblob.h"
 #include "docqual.h"
 #include "control.h"
 #include "secname.h"
@@ -60,12 +58,6 @@
 const char* const kBackUpConfigFile = "tempconfigdata.config";
 // Multiple of x-height to make a repeated word have spaces in it.
 const double kRepcharGapThreshold = 0.5;
-
-CLISTIZEH (PBLOB) CLISTIZE (PBLOB)
-/* DEBUGGING */
-inT16 blob_count(WERD *w) {
-  return w->blob_list ()->length ();
-}
 
 
 /**
@@ -974,23 +966,6 @@ void Tesseract::fix_hyphens(WERD_RES *word_res,
 }  // namespace tesseract
 
 
-/**
- * merge_blobs
- *
- * Add the outlines from blob2 to blob1. Blob2 is emptied but not deleted.
- */
-
-void merge_blobs(               //combine 2 blobs
-                 PBLOB *blob1,  //dest blob
-                 PBLOB *blob2   //source blob
-                ) {
-  OUTLINE_IT outline_it = blob1->out_list ();
-  //iterator
-
-  outline_it.move_to_last ();    //go to end
-                                 //do it
-  outline_it.add_list_after (blob2->out_list ());
-}
 
 namespace tesseract {
 

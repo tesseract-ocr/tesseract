@@ -135,8 +135,8 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
     block->set_right_to_left(right_to_left());
     block_it.add_to_end(block);
   } else {
-    // UNLV file present. Use PSM_SINGLE_COLUMN.
-    pageseg_mode = PSM_SINGLE_COLUMN;
+    // UNLV file present. Use PSM_SINGLE_BLOCK.
+    pageseg_mode = PSM_SINGLE_BLOCK;
   }
   bool single_column = !PSM_COL_FIND_ENABLED(pageseg_mode);
   bool osd_enabled = PSM_OSD_ENABLED(pageseg_mode);

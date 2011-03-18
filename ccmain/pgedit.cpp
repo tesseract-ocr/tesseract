@@ -31,7 +31,6 @@
 #include          <ctype.h>
 #include          <math.h>
 
-#include          "genblob.h"
 #include          "tordmain.h"
 #include          "statistc.h"
 #include          "debugwin.h"

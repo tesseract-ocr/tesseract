@@ -23,7 +23,6 @@
 #include "hosthplb.h"
 #include "blobs.h"
 #include "tessarray.h"
-#include "tstruct.h"
 #include "notdll.h"
 #include "oldlist.h"
 #include "permute.h"

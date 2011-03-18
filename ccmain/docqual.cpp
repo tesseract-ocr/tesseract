@@ -24,12 +24,10 @@
 #include "mfcpch.h"
 #include          <ctype.h>
 #include          "docqual.h"
-#include          "tstruct.h"
 #include          "tfacep.h"
 #include          "reject.h"
 #include          "tesscallback.h"
 #include          "tessvars.h"
-#include          "genblob.h"
 #include          "secname.h"
 #include          "globals.h"
 #include          "tesseractclass.h"

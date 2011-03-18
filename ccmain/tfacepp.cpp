@@ -32,7 +32,6 @@
 #include          "reject.h"
 #include          "werd.h"
 #include          "tfacep.h"
-#include          "tstruct.h"
 #include          "tfacepp.h"
 #include          "tessvars.h"
 #include          "globals.h"

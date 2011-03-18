@@ -20,7 +20,6 @@
 #ifndef           TFACEPP_H
 #define           TFACEPP_H
 
-#include          "tstruct.h"
 #include          "ratngs.h"
 #include          "blobs.h"
 #include          "notdll.h"

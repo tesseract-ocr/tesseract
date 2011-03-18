@@ -35,7 +35,6 @@
 #include          "memry.h"
 #include          "reject.h"
 #include          "tfacep.h"
-#include          "charcut.h"
 #include          "imgs.h"
 #include          "control.h"
 #include          "docqual.h"

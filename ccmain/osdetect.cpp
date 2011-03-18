@@ -31,7 +31,6 @@
 #include "tabvector.h"
 #include "tesseractclass.h"
 #include "textord.h"
-#include "tstruct.h"
 
 const int kMinCharactersToTry = 50;
 const int kMaxCharactersToTry = 5 * kMinCharactersToTry;

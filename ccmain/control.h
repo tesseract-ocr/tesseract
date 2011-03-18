@@ -42,21 +42,4 @@ enum ACCEPTABLE_WERD_TYPE
   AC_UC_ABBREV                   ///< A.B.C.
 };
 
-typedef BOOL8 (*BLOB_REJECTOR) (PBLOB *, BLOB_CHOICE_IT *, void *);
-
-/**
- * combine 2 blobs
- * @param blob1 dest blob
- * @param blob2 source blob
- */
-void merge_blobs(PBLOB *blob1, PBLOB *blob2);
-/** dump chars in word */
-void choice_dump_tester(
-                        PBLOB *,                   ///< blob
-                        DENORM *,                  ///< de-normaliser
-                        BOOL8 correct,             ///< ly segmented
-                        char *text,                ///< correct text
-                        inT32 count,               ///< chars in text
-                        BLOB_CHOICE_LIST *ratings  ///< list of results
-                       );
 #endif

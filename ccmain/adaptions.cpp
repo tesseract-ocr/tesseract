@@ -33,7 +33,6 @@
 #include          "tessbox.h"
 #include          "tessvars.h"
 #include          "memry.h"
-#include          "charcut.h"
 #include          "imgs.h"
 #include          "scaleimg.h"
 #include          "reject.h"

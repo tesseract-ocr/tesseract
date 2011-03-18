@@ -23,9 +23,9 @@
 #include <ctype.h>
 #include "reject.h"
 #include "statistc.h"
-#include "genblob.h"
 #include "control.h"
 #include "fixspace.h"
+#include "genblob.h"
 #include "tessvars.h"
 #include "tessbox.h"
 #include "secname.h"
@@ -90,7 +90,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
         if (!word_res_it_from.at_last()) {
           word_res_it_to = word_res_it_from;
           prevent_null_wd_fixsp =
-            word_res->word->gblob_list()->empty();
+            word_res->word->cblob_list()->empty();
           if (check_debug_pt(word_res, 60))
             debug_fix_space_level.set_value(10);
           word_res_it_to.forward();
@@ -108,13 +108,13 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
                   word_res_it_to.data_relative(1)->word->flag(W_FUZZY_SP))) {
             if (check_debug_pt(word_res, 60))
               debug_fix_space_level.set_value(10);
-            if (word_res->word->gblob_list()->empty())
+            if (word_res->word->cblob_list()->empty())
               prevent_null_wd_fixsp = TRUE;
             word_res = word_res_it_to.forward();
           }
           if (check_debug_pt(word_res, 60))
             debug_fix_space_level.set_value(10);
-          if (word_res->word->gblob_list()->empty())
+          if (word_res->word->cblob_list()->empty())
             prevent_null_wd_fixsp = TRUE;
           if (prevent_null_wd_fixsp) {
             word_res_it_from = word_res_it_to;
@@ -634,13 +634,11 @@ void Tesseract::fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row,
   if (blob_index < 0)
     return;
 
-  #ifndef SECURE_NAMES
   if (debug_fix_space_level > 1) {
     tprintf("FP fixspace working on \"%s\"\n",
             word_res->best_choice->unichar_string().string());
   }
-  #endif
-  gblob_sort_list((PBLOB_LIST *)word_res->word->rej_cblob_list(), FALSE);
+  word_res->word->rej_cblob_list()->sort(c_blob_comparator);
   sub_word_list_it.add_after_stay_put(word_res_it.extract());
   fix_noisy_space_list(sub_word_list, row, block);
   new_length = sub_word_list.length();
@@ -881,7 +879,7 @@ void fixspace_dbg(WERD_RES *word) {
   box.print();
   tprintf(" \"%s\" ", word->best_choice->unichar_string().string());
   tprintf("Blob count: %d (word); %d/%d (rebuild word)\n",
-          word->word->gblob_list()->length(),
+          word->word->cblob_list()->length(),
           word->rebuild_word->NumBlobs(),
           word->box_word->length());
   word->reject_map.print(debug_fp);
@@ -911,7 +909,6 @@ namespace tesseract {
 inT16 Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_it(&word_res_list);
   WERD_RES *word;
-  PBLOB_IT blob_it;
   inT16 word_length;
   inT16 score = 0;
   inT16 i;
