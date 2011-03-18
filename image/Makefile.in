@@ -71,8 +71,8 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libtesseract_image_la_LIBADD =
-am_libtesseract_image_la_OBJECTS = bitstrm.lo image.lo imgbmp.lo \
-	imgio.lo imgs.lo imgtiff.lo svshowim.lo
+am_libtesseract_image_la_OBJECTS = image.lo imgs.lo imgtiff.lo \
+	svshowim.lo
 libtesseract_image_la_OBJECTS = $(am_libtesseract_image_la_OBJECTS)
 libtesseract_image_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -264,12 +264,12 @@ top_srcdir = @top_srcdir@
 SUBDIRS = 
 AM_CPPFLAGS = -I$(top_srcdir)/ccutil -I$(top_srcdir)/viewer
 include_HEADERS = \
-    bitstrm.h image.h img.h imgbmp.h imgerrs.h imgio.h imgs.h \
+    image.h img.h imgerrs.h imgs.h \
     imgtiff.h imgunpk.h svshowim.h
 
 lib_LTLIBRARIES = libtesseract_image.la
 libtesseract_image_la_SOURCES = \
-    bitstrm.cpp image.cpp imgbmp.cpp imgio.cpp imgs.cpp imgtiff.cpp svshowim.cpp
+    image.cpp imgs.cpp imgtiff.cpp svshowim.cpp
 
 libtesseract_image_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 all: all-recursive
@@ -346,10 +346,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bitstrm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imgbmp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imgio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imgs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imgtiff.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/svshowim.Plo@am__quote@
