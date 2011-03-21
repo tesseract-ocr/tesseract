@@ -33,18 +33,18 @@ const float WERD_CHOICE::kBadRating = 100000.0;
  *
  * Constructor to build a BLOB_CHOICE from a char, rating and certainty.
  */
-BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, //< character id
-                         float src_rating,          //< rating
-                         float src_cert,            //< certainty
-                         inT16 src_config,          //< config (font)
-                         inT16 src_config2,         //< 2nd choice config.
-                         int src_script_id          //< script
+BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
+                         float src_rating,         // rating
+                         float src_cert,           // certainty
+                         inT16 src_fontinfo_id,     // font
+                         inT16 src_fontinfo_id2,    // 2nd choice font
+                         int src_script_id         // script
                         ) {
   unichar_id_ = src_unichar_id;
   rating_ = src_rating;
   certainty_ = src_cert;
-  config_ = src_config;
-  config2_ = src_config2;
+  fontinfo_id_ = src_fontinfo_id;
+  fontinfo_id2_ = src_fontinfo_id2;
   script_id_ = src_script_id;
   language_model_state_ = NULL;
 }
@@ -58,8 +58,8 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) {
   unichar_id_ = other.unichar_id();
   rating_ = other.rating();
   certainty_ = other.certainty();
-  config_ = other.config();
-  config2_ = other.config2();
+  fontinfo_id_ = other.fontinfo_id();
+  fontinfo_id2_ = other.fontinfo_id2();
   script_id_ = other.script_id();
   language_model_state_ = NULL;
 }

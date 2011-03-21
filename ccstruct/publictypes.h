@@ -53,7 +53,6 @@ enum PolyBlockType {
   PT_COUNT
 };
 
-
 // Returns true if PolyBlockType is of horizontal line type
 inline bool PTIsLineType(PolyBlockType type) {
   return type == PT_HORZ_LINE || type == PT_VERT_LINE;
@@ -74,6 +73,60 @@ inline bool PTIsTextType(PolyBlockType type) {
 extern const char* kPolyBlockNames[];
 
 namespace tesseract {
+//  +------------------+  Orientation Example:
+//  | 1 Aaaa Aaaa Aaaa |  ====================
+//  | Aaa aa aaa aa    |  To left is a diagram of some (1) English and
+//  | aaaaaa A aa aaa. |  (2) Chinese text and a (3) photo credit.
+//  |                2 |
+//  |   #######  c c C |  Upright Latin characters are represented as A and a.
+//  |   #######  c c c |  '<' represents a latin character rotated
+//  | < #######  c c c |      anti-clockwise 90 degrees.
+//  | < #######  c   c |
+//  | < #######  .   c |  Upright Chinese characters are represented C and c.
+//  | 3 #######      c |
+//  +------------------+  NOTA BENE: enum values here should match goodoc.proto
+
+// If you orient your head so that "up" aligns with Orientation,
+// then the characters will appear "right side up" and readable.
+//
+// In the example above, both the English and Chinese paragraphs are oriented
+// so their "up" is the top of the page (page up).  The photo credit is read
+// with one's head turned leftward ("up" is to page left).
+//
+// The values of this enum match the convention of Tesseract's osdetect.h
+enum Orientation {
+  ORIENTATION_PAGE_UP = 0,
+  ORIENTATION_PAGE_RIGHT = 1,
+  ORIENTATION_PAGE_DOWN = 2,
+  ORIENTATION_PAGE_LEFT = 3,
+};
+
+// The grapheme clusters within a line of text are laid out logically
+// in this direction, judged when looking at the text line rotated so that
+// its Orientation is "page up".
+//
+// For English text, the writing direction is left-to-right.  For the
+// Chinese text in the above example, the writing direction is top-to-bottom.
+enum WritingDirection {
+  WRITING_DIRECTION_LEFT_TO_RIGHT = 0,
+  WRITING_DIRECTION_RIGHT_TO_LEFT = 1,
+  WRITING_DIRECTION_TOP_TO_BOTTOM = 2,
+};
+
+// The text lines are read in the given sequence.
+//
+// In English, the order is top-to-bottom.
+// In Chinese, vertical text lines are read right-to-left.  Mongolian is
+// written in vertical columns top to bottom like Chinese, but the lines
+// order left-to right.
+//
+// Note that only some combinations make sense.  For example,
+// WRITING_DIRECTION_LEFT_TO_RIGHT implies TEXTLINE_ORDER_TOP_TO_BOTTOM
+enum TextlineOrder {
+  TEXTLINE_ORDER_LEFT_TO_RIGHT = 0,
+  TEXTLINE_ORDER_RIGHT_TO_LEFT = 1,
+  TEXTLINE_ORDER_TOP_TO_BOTTOM = 2,
+};
 
 // Possible modes for page layout analysis. These *must* be kept in order
 // of decreasing amount of layout analysis to be done, except for OSD_ONLY,

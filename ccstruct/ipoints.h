@@ -476,4 +476,9 @@ inline void FCOORD::rotate(  //rotate by vector
   ycoord = ycoord * vec.x () + xcoord * vec.y ();
   xcoord = tmp;
 }
+
+inline void FCOORD::unrotate(const FCOORD& vec) {
+  rotate(FCOORD(vec.x(), -vec.y()));
+}
+
 #endif

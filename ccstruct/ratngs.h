@@ -34,17 +34,18 @@ class BLOB_CHOICE: public ELIST_LINK
   public:
     BLOB_CHOICE() {
       unichar_id_ = INVALID_UNICHAR_ID;
-      config_ = '\0';
+      fontinfo_id_ = -1;
+      fontinfo_id2_ = -1;
       rating_ = MAX_FLOAT32;
       certainty_ = -MAX_FLOAT32;
       script_id_ = -1;
       language_model_state_ = NULL;
     }
-    BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
+    BLOB_CHOICE(UNICHAR_ID src_unichar_id,  // character id
                 float src_rating,          // rating
                 float src_cert,            // certainty
-                inT16 src_config,          // config (font)
-                inT16 src_config2,         // 2nd choice config.
+                inT16 src_fontinfo_id,      // font
+                inT16 src_fontinfo_id2,     // 2nd choice font
                 int script_id);            // script
     BLOB_CHOICE(const BLOB_CHOICE &other);
     ~BLOB_CHOICE() {}
@@ -58,17 +59,23 @@ class BLOB_CHOICE: public ELIST_LINK
     float certainty() const {
       return certainty_;
     }
-    inT16 config() const {
-      return config_;
+    inT16 fontinfo_id() const {
+      return fontinfo_id_;
     }
-    inT16 config2() const {
-      return config2_;
+    inT16 fontinfo_id2() const {
+      return fontinfo_id2_;
     }
     int script_id() const {
       return script_id_;
     }
     void *language_model_state() {
       return language_model_state_;
+    }
+    inT16 xgap_before() {
+      return xgap_before_;
+    }
+    inT16 xgap_after() {
+      return xgap_after_;
     }
 
     void set_unichar_id(UNICHAR_ID newunichar_id) {
@@ -80,11 +87,11 @@ class BLOB_CHOICE: public ELIST_LINK
     void set_certainty(float newrat) {
       certainty_ = newrat;
     }
-    void set_config(inT16 newfont) {
-      config_ = newfont;
+    void set_fontinfo_id(inT16 newfont) {
+      fontinfo_id_ = newfont;
     }
-    void set_config2(inT16 newfont) {
-      config2_ = newfont;
+    void set_fontinfo_id2(inT16 newfont) {
+      fontinfo_id2_ = newfont;
     }
     void set_script(int newscript_id) {
       script_id_ = newscript_id;
@@ -92,7 +99,12 @@ class BLOB_CHOICE: public ELIST_LINK
     void set_language_model_state(void *language_model_state) {
       language_model_state_ = language_model_state;
     }
-
+    void set_xgap_before(inT16 gap) {
+      xgap_before_ = gap;
+    }
+    void set_xgap_after(inT16 gap) {
+      xgap_after_ = gap;
+    }
     static BLOB_CHOICE* deep_copy(const BLOB_CHOICE* src) {
       BLOB_CHOICE* choice = new BLOB_CHOICE;
       *choice = *src;
@@ -106,17 +118,18 @@ class BLOB_CHOICE: public ELIST_LINK
 
  private:
   UNICHAR_ID unichar_id_;          // unichar id
-  inT16 config_;                    // char config (font)
-  inT16 config2_;                   // 2nd choice config (font)
-  inT16 junk2_;
-  float rating_;                   // size related
-  float certainty_;                // absolute
+  inT16 fontinfo_id_;              // char font information
+  inT16 fontinfo_id2_;             // 2nd choice font information
+  float rating_;                  // size related
+  float certainty_;               // absolute
   int script_id_;
   // Stores language model information about this BLOB_CHOICE. Used during
   // the segmentation search for BLOB_CHOICEs in BLOB_CHOICE_LISTs that are
   // recorded in the ratings matrix.
   // The pointer is owned/managed by the segmentation search.
   void *language_model_state_;
+  inT16 xgap_before_;
+  inT16 xgap_after_;
 };
 
 // Make BLOB_CHOICE listable.
@@ -231,7 +244,7 @@ class WERD_CHOICE {
     reserved_ *= 2;
   }
 
-  /// Initializes WERD_CHOICE - reseves length slots in unichar_ids_ and
+  /// Initializes WERD_CHOICE - reserves length slots in unichar_ids_ and
   /// fragment_length_ arrays. Sets other values to default (blank) values.
   inline void init(int reserved) {
     reserved_ = reserved;

@@ -211,10 +211,10 @@ void WERD_RES::CopySimpleFields(const WERD_RES& source) {
   small_caps = source.small_caps;
   italic = source.italic;
   bold = source.bold;
-  font1 = source.font1;
-  font1_count = source.font1_count;
-  font2 = source.font2;
-  font2_count = source.font2_count;
+  fontinfo_id = source.fontinfo_id;
+  fontinfo_id_count = source.fontinfo_id_count;
+  fontinfo_id2 = source.fontinfo_id2;
+  fontinfo_id2_count = source.fontinfo_id2_count;
   x_height = source.x_height;
   caps_height = source.caps_height;
   guessed_x_ht = source.guessed_x_ht;
@@ -229,7 +229,8 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset,
                                    bool numeric_mode, ROW *row, BLOCK* block) {
   ClearResults();
   if (word->cblob_list()->empty()) {
-    tprintf("Initial word empty!\n");
+    // Empty words occur when all the blobs have been moved to the rej_blobs
+    // list, which seems to occur frequently in junk.
     chopped_word = new TWERD;
     rebuild_word = new TWERD;
     bln_boxes = new tesseract::BoxWord;

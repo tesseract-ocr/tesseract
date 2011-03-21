@@ -283,6 +283,9 @@ class DLLSYM FCOORD
     ///rotate
     ///@param vec by vector
     void rotate(const FCOORD vec);
+    // unrotate - undo a rotate(vec)
+    // @param vec by vector
+    void unrotate(const FCOORD &vec);
     ///divide
     friend FCOORD & operator/= (FCOORD &, float);
 

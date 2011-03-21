@@ -180,7 +180,15 @@ class WERD_RES : public ELIST_LINK {
   // text to the training system without the need for a unicharset. There
   // is one entry in the vector for each blob in rebuild_word and box_word.
   GenericVector<STRING> correct_text;
-  WERD_CHOICE *best_choice;       // tess output
+  // The truth_* fields below are used by the blamer to determine the source
+  // of errors.
+  // The truth_word (in the original image coordinate space) contains ground
+  // truth bounding boxes for this WERD_RES.
+  tesseract::BoxWord* truth_word;
+  // The truth_text contains ground truth unichar for each
+  // of the bounding boxes in truth_word.
+  GenericVector<STRING> truth_text;
+  WERD_CHOICE *best_choice;    // tess output
   WERD_CHOICE *raw_choice;     // top choice permuter
   WERD_CHOICE *ep_choice;      // ep text TODO(rays) delete this.
   REJMAP reject_map;           // best_choice rejects
@@ -192,19 +200,19 @@ class WERD_RES : public ELIST_LINK {
     - The best_choice string contained ALL blanks;
     - The best_choice string was zero length
   */
-  BOOL8 tess_accepted;         //Tess thinks its ok?
-  BOOL8 tess_would_adapt;      //Tess would adapt?
-  BOOL8 done;                  //ready for output?
-  bool small_caps;             // Word appears to be small caps.
+  BOOL8 tess_accepted;          // Tess thinks its ok?
+  BOOL8 tess_would_adapt;       // Tess would adapt?
+  BOOL8 done;                   // ready for output?
+  bool small_caps;             // word appears to be small caps
   inT8 italic;
   inT8 bold;
-  inT8 font1;                  //primary font
-  inT8 font1_count;            //no of voters
-  inT8 font2;                  //secondary font
-  inT8 font2_count;            //no of voters
+  inT16 fontinfo_id;            // primary font id (should be at least inT16)
+  inT8 fontinfo_id_count;       // number of votes
+  inT16 fontinfo_id2;           // secondary font id (should be at least inT16)
+  inT8 fontinfo_id2_count;      // number of votes
   CRUNCH_MODE unlv_crunch_mode;
-  float x_height;              //Post match estimate
-  float caps_height;           //Post match estimate
+  float x_height;              // post match estimate
+  float caps_height;           // post match estimate
   BOOL8 guessed_x_ht;
   BOOL8 guessed_caps_ht;
   /*
@@ -244,10 +252,10 @@ class WERD_RES : public ELIST_LINK {
     small_caps = false;
     italic = FALSE;
     bold = FALSE;
-    font1 = -1;
-    font1_count = 0;
-    font2 = -1;
-    font2_count = 0;
+    fontinfo_id = -1;
+    fontinfo_id_count = 0;
+    fontinfo_id2 = -1;
+    fontinfo_id2_count = 0;
     x_height = 0.0;
     caps_height = 0.0;
     guessed_x_ht = TRUE;
