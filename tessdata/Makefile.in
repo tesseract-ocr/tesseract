@@ -222,6 +222,7 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
+lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -266,6 +267,12 @@ data_DATA = ara.cube.bigrams \
 	fin.traineddata \
 	fra.traineddata \
 	heb.traineddata \
+  hin.cube.bigrams \
+  hin.cube.lm \
+  hin.cube.params \
+  hin.cube.word-freq \
+  hin.tesseract_cube.nn \
+  hin.traineddata \
 	hrv.traineddata \
 	hun.traineddata \
 	ind.traineddata \

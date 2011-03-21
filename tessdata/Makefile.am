@@ -28,6 +28,12 @@ data_DATA = ara.cube.bigrams \
 	fin.traineddata \
 	fra.traineddata \
 	heb.traineddata \
+  hin.cube.bigrams \
+  hin.cube.lm \
+  hin.cube.params \
+  hin.cube.word-freq \
+  hin.tesseract_cube.nn \
+  hin.traineddata \
 	hrv.traineddata \
 	hun.traineddata \
 	ind.traineddata \
