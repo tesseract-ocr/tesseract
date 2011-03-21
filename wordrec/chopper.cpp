@@ -357,12 +357,13 @@ void Wordrec::modify_blob_choice(BLOB_CHOICE_LIST *answer,
     unichar_id = 1;
   }
   BLOB_CHOICE_IT answer_it(answer);
-  BLOB_CHOICE *modified_blob = new BLOB_CHOICE(unichar_id,
-                                               answer_it.data()->rating(),
-                                               answer_it.data()->certainty(),
-                                               answer_it.data()->config(),
-                                               answer_it.data()->config2(),
-                                               answer_it.data()->script_id());
+  BLOB_CHOICE *modified_blob =
+      new BLOB_CHOICE(unichar_id,
+                      answer_it.data()->rating(),
+                      answer_it.data()->certainty(),
+                      answer_it.data()->fontinfo_id(),
+                      answer_it.data()->fontinfo_id2(),
+                      answer_it.data()->script_id());
   answer->clear();
   answer_it.set_to_list(answer);
   answer_it.add_after_then_move(modified_blob);

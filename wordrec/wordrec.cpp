@@ -124,7 +124,8 @@ Wordrec::Wordrec() :
   best_certainties[0] = NULL;
   best_certainties[1] = NULL;
   character_widths = NULL;
-  language_model_ = new LanguageModel(&(getDict()),
+  language_model_ = new LanguageModel(&get_fontinfo_table(),
+                                      &(getDict()),
                                       &(prev_word_best_choice_));
   pass2_seg_states = 0;
   num_joints = 0;

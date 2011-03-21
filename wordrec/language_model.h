@@ -24,6 +24,7 @@
 #include "associate.h"
 #include "dawg.h"
 #include "dict.h"
+#include "intproto.h"
 #include "matrix.h"
 #include "oldheap.h"
 #include "params.h"
@@ -39,7 +40,8 @@ struct LanguageModelConsistencyInfo {
     : punc_ref(NO_EDGE), num_punc(0), invalid_punc(false),
       num_non_first_upper(0), num_lower(0),
       script_id(0), inconsistent_script(false),
-      num_alphas(0), num_digits(0), num_other(0) {}
+      num_alphas(0), num_digits(0), num_other(0),
+      num_inconsistent_spaces(0), inconsistent_font(false) {}
   inline int NumInconsistentPunc() const {
     return invalid_punc ? num_punc : 0;
   }
@@ -54,6 +56,9 @@ struct LanguageModelConsistencyInfo {
     return (NumInconsistentPunc() == 0 && NumInconsistentCase() == 0 &&
             NumInconsistentChartype() == 0 && !inconsistent_script);
   }
+  inline int  NumInconsistentSpaces() const {
+    return num_inconsistent_spaces;
+  }
 
   EDGE_REF punc_ref;
   int num_punc;
@@ -65,6 +70,8 @@ struct LanguageModelConsistencyInfo {
   int num_alphas;
   int num_digits;
   int num_other;
+  int num_inconsistent_spaces;
+  bool inconsistent_font;
 };
 
 
@@ -199,6 +206,7 @@ ELISTIZEH(ViterbiStateEntry);
 struct LanguageModelState {
   LanguageModelState(int col, int row) : contained_in_col(col),
       contained_in_row(row), viterbi_state_entries_prunable_length(0),
+      viterbi_state_entries_length(0),
       viterbi_state_entries_prunable_max_cost(MAX_FLOAT32) {}
   ~LanguageModelState() {}
 
@@ -212,6 +220,8 @@ struct LanguageModelState {
   ViterbiStateEntry_LIST viterbi_state_entries;
   // Number and max cost of prunable paths in viterbi_state_entries.
   int viterbi_state_entries_prunable_length;
+  // Total number of entries in viterbi_state_entries.
+  int viterbi_state_entries_length;
   float viterbi_state_entries_prunable_max_cost;
 
   // TODO(daria): add font consistency checking.
@@ -273,7 +283,8 @@ class LanguageModel {
   static const LanguageModelFlagsType kJustClassifiedFlag = 0x80;
   static const LanguageModelFlagsType kAllChangedFlag = 0xff;
 
-  LanguageModel(Dict *dict, WERD_CHOICE **prev_word_best_choice);
+  LanguageModel(const UnicityTable<FontInfo> *fontinfo_table,
+                Dict *dict, WERD_CHOICE **prev_word_best_choice);
   ~LanguageModel();
 
   // Updates data structures that are used for the duration of the segmentation
@@ -293,10 +304,12 @@ class LanguageModel {
   // the ratings matrix) a its parent. Updates pain_points if new
   // problematic points are found in the segmentation graph.
   //
-  // At most language_model_max_viterbi_list_size are kept in each
+  // At most language_model_viterbi_list_size are kept in each
   // LanguageModelState.viterbi_state_entries list.
-  // The entries that represent dictionary word paths are kept at the
-  // front of the list and do not count towards the size limit.
+  // At most language_model_viterbi_list_max_num_prunable of those are prunable
+  // (non-dictionary) paths.
+  // The entries that represent dictionary word paths are kept at the front
+  // of the list.
   // The list ordered by cost that is computed collectively by several
   // language model components (currently dawg and ngram components).
   //
@@ -422,7 +435,7 @@ class LanguageModel {
   }
 
   // Finds the first non-fragmented character in the given BLOB_CHOICE_LIST
-  // and update cert if its certainty is less than the one recorded in cert.
+  // and updates cert if its certainty is less than the one recorded in cert.
   // Sets fragmented if the first choice in BLOB_CHOICE_LIST is a fragment.
   inline void GetPieceCertainty(BLOB_CHOICE_LIST *blist,
                                 float *cert, bool *fragmented) {
@@ -461,11 +474,15 @@ class LanguageModel {
                               language_model_penalty_case) +
             ComputeAdjustment(consistency_info.NumInconsistentChartype(),
                               language_model_penalty_chartype) +
+            ComputeAdjustment(consistency_info.NumInconsistentSpaces(),
+                              language_model_penalty_spacing) +
             (consistency_info.inconsistent_script ?
-             language_model_penalty_script : 0.0f));
+             language_model_penalty_script : 0.0f) +
+            (consistency_info.inconsistent_font ?
+             language_model_penalty_font : 0.0f));
   }
 
-  // Returns an andjusted ratings sum that includes inconsistency penalties.
+  // Returns an adjusted ratings sum that includes inconsistency penalties.
   inline float ComputeConsistencyAdjustedRatingsSum(
       float ratings_sum,
       const LanguageModelDawgInfo *dawg_info,
@@ -475,7 +492,7 @@ class LanguageModel {
   }
 
   // Returns an adjusted ratings sum that includes inconsistency penalties,
-  // penalties for non-dicionary paths and paths with dips in ngram
+  // penalties for non-dictionary paths and paths with dips in ngram
   // probability.
   float ComputeAdjustedPathCost(
       float ratings_sum, int length, float dawg_score,
@@ -493,7 +510,7 @@ class LanguageModel {
                        UNICHAR_ID unichar_id, bool word_end);
 
   // Finds the first lower and upper case character in curr_list.
-  // If none found, choses the first character in the list.
+  // If none found, chooses the first character in the list.
   void GetTopChoiceLowerUpper(LanguageModelFlagsType changed,
                               BLOB_CHOICE_LIST *curr_list,
                               BLOB_CHOICE **first_lower,
@@ -581,8 +598,9 @@ class LanguageModel {
   // Fills the given consistenty_info based on parent_vse.consistency_info
   // and on the consistency of the given unichar_id with parent_vse.
   void FillConsistencyInfo(
-      bool word_end, UNICHAR_ID unichar_id,
+      int curr_col, bool word_end, BLOB_CHOICE *b,
       ViterbiStateEntry *parent_vse, BLOB_CHOICE *parent_b,
+      CHUNKS_RECORD *chunks_record,
       LanguageModelConsistencyInfo *consistency_info);
 
   // Constructs WERD_CHOICE by recording unichar_ids of the BLOB_CHOICEs
@@ -650,7 +668,8 @@ class LanguageModel {
   }
 
   // Returns true if the path with such top_choice_flags and dawg_info
-  // could be pruned out (i.e. is neither a dictionary nor a top choice path).
+  // could be pruned out (i.e. is neither a system/user/frequent dictionary
+  // nor a top choice path).
   // In non-space delimited languages all paths can be "somewhat" dictionary
   // words. In such languages we can not do dictionary-driven path prunning,
   // so paths with non-empty dawg_info are considered prunable.
@@ -658,7 +677,10 @@ class LanguageModel {
                            const LanguageModelDawgInfo *dawg_info) {
     if (top_choice_flags) return false;
     if (dawg_info != NULL &&
-        dict_->GetMaxFixedLengthDawgIndex() < 0) return false;
+        (dawg_info->permuter == SYSTEM_DAWG_PERM ||
+         dawg_info->permuter == USER_DAWG_PERM ||
+         dawg_info->permuter == FREQ_DAWG_PERM) &&
+         dict_->GetMaxFixedLengthDawgIndex() < 0) return false;
     return true;
   }
 
@@ -694,14 +716,16 @@ class LanguageModel {
              "Turn on/off the use of character ngram model");
   INT_VAR_H(language_model_ngram_order, 8,
             "Maximum order of the character ngram model");
-  INT_VAR_H(language_model_max_viterbi_list_size, 10,
-            "Maximum size of viterbi lists recorded in BLOB_CHOICEs"
-            "(excluding entries that represent dictionary word paths)");
+  INT_VAR_H(language_model_viterbi_list_max_num_prunable, 10,
+            "Maximum number of prunable (those for which PrunablePath() is true)"
+            "entries in each viterbi list recorded in BLOB_CHOICEs");
+  INT_VAR_H(language_model_viterbi_list_max_size, 500,
+            "Maximum size of viterbi lists recorded in BLOB_CHOICEs");
   double_VAR_H(language_model_ngram_small_prob, 0.000001,
                "To avoid overly small denominators use this as the floor"
                " of the probability returned by the ngram model");
   double_VAR_H(language_model_ngram_nonmatch_score, -40.0,
-               "Average classifier score of a non-matching unichar.");
+               "Average classifier score of a non-matching unichar");
   BOOL_VAR_H(language_model_ngram_use_only_first_uft8_step, false,
              "Use only the first UTF8 step of the given string"
              " when computing log probabilities");
@@ -726,6 +750,10 @@ class LanguageModel {
                "Penalty for inconsistent script");
   double_VAR_H(language_model_penalty_chartype, 0.3,
                "Penalty for inconsistent character type");
+  double_VAR_H(language_model_penalty_font, 0.00,
+               "Penalty for inconsistent font");
+  double_VAR_H(language_model_penalty_spacing, 0.05,
+               "Penalty for inconsistent spacing");
   double_VAR_H(language_model_penalty_increment, 0.01, "Penalty increment");
 
  protected:
@@ -740,9 +768,13 @@ class LanguageModel {
 
   // The following variables are set at construction time.
 
+  // Pointer to fontinfo table (not owned by LanguageModel).
+  const UnicityTable<FontInfo> *fontinfo_table_;
+
   // Pointer to Dict class, that is used for querying the dictionaries
   // (the pointer is not owned by LanguageModel).
   Dict *dict_;
+
   // DENORM computed by Tesseract (not owned by LanguageModel).
   const DENORM *denorm_;
   // TODO(daria): the following variables should become LanguageModel params
@@ -757,7 +789,7 @@ class LanguageModel {
 
   // The following variables are initialized with InitForWord().
 
-  // String representation of the classificaion of the previous word
+  // String representation of the classification of the previous word
   // (since this is only used by the character ngram model component,
   // only the last language_model_ngram_order of the word are stored).
   STRING prev_word_str_;

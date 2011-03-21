@@ -23,6 +23,7 @@
 #include "language_model.h"
 
 #include "dawg.h"
+#include "intproto.h"
 #include "matrix.h"
 #include "params.h"
 
@@ -38,7 +39,8 @@ const float LanguageModel::kMaxAvgNgramCost = 25.0f;
 const int LanguageModel::kMinFixedLengthDawgLength = 2;
 const float LanguageModel::kLooseMaxCharWhRatio = 2.5f;
 
-LanguageModel::LanguageModel(Dict *dict,
+LanguageModel::LanguageModel(const UnicityTable<FontInfo> *fontinfo_table,
+                             Dict *dict,
                              WERD_CHOICE **prev_word_best_choice_ptr)
   : INT_MEMBER(language_model_debug_level, 0, "Language model debug level",
                dict->getImage()->getCCUtil()->params()),
@@ -48,9 +50,13 @@ LanguageModel::LanguageModel(Dict *dict,
     INT_INIT_MEMBER(language_model_ngram_order, 8,
                     "Maximum order of the character ngram model",
                     dict->getImage()->getCCUtil()->params()),
-    INT_INIT_MEMBER(language_model_max_viterbi_list_size, 10,
-                    "Maximum size of viterbi lists recorded in BLOB_CHOICEs"
-                    "(excluding entries that represent dictionary word paths)",
+    INT_INIT_MEMBER(language_model_viterbi_list_max_num_prunable, 10,
+                    "Maximum number of prunable (those for which"
+                    " PrunablePath() is true) entries in each viterbi list"
+                    " recorded in BLOB_CHOICEs",
+                    dict->getImage()->getCCUtil()->params()),
+    INT_INIT_MEMBER(language_model_viterbi_list_max_size, 500,
+                    "Maximum size of viterbi lists recorded in BLOB_CHOICEs",
                     dict->getImage()->getCCUtil()->params()),
     double_INIT_MEMBER(language_model_ngram_small_prob, 0.000001,
                        "To avoid overly small denominators use this as the "
@@ -92,11 +98,20 @@ LanguageModel::LanguageModel(Dict *dict,
     double_INIT_MEMBER(language_model_penalty_chartype, 0.3,
                        "Penalty for inconsistent character type",
                        dict->getImage()->getCCUtil()->params()),
+    // TODO(daria, rays): enable font consistency checking
+    // after improving font analysis.
+    double_INIT_MEMBER(language_model_penalty_font, 0.00,
+                       "Penalty for inconsistent font",
+                       dict->getImage()->getCCUtil()->params()),
+    double_INIT_MEMBER(language_model_penalty_spacing, 0.05,
+                       "Penalty for inconsistent spacing",
+                       dict->getImage()->getCCUtil()->params()),
     double_INIT_MEMBER(language_model_penalty_increment, 0.01,
                        "Penalty increment",
                        dict->getImage()->getCCUtil()->params()),
-  dict_(dict), denorm_(NULL), fixed_pitch_(false),
-  max_char_wh_ratio_(0.0), acceptable_choice_found_(false) {
+  fontinfo_table_(fontinfo_table), dict_(dict), denorm_(NULL),
+  fixed_pitch_(false), max_char_wh_ratio_(0.0),
+  acceptable_choice_found_(false) {
   ASSERT_HOST(dict_ != NULL);
   dawg_args_ = new DawgArgs(NULL, NULL, new DawgInfoVector(),
                             new DawgInfoVector(),
@@ -267,11 +282,11 @@ LanguageModelFlagsType LanguageModel::UpdateState(
         vit.set_to_list(&(parent_lms->viterbi_state_entries));
         int vit_counter = 0;
         for (vit.mark_cycle_pt(); !vit.cycled_list(); vit.forward()) {
-          // Skip pruned entries and do not look at prunable entries if we have
-          // already examined language_model_max_viterbi_list_size of them.
+          // Skip pruned entries and do not look at prunable entries if already
+          // examined language_model_viterbi_list_max_num_prunable of those.
           if (PrunablePath(vit.data()->top_choice_flags,
                            vit.data()->dawg_info) &&
-              (++vit_counter > language_model_max_viterbi_list_size ||
+              (++vit_counter > language_model_viterbi_list_max_num_prunable ||
                (language_model_ngram_on && vit.data()->ngram_info->pruned))) {
             continue;
           }
@@ -303,7 +318,7 @@ bool LanguageModel::ProblematicPath(const ViterbiStateEntry &vse,
     }
     return true;
   }
-  // The path is problematic if it does not represent a dicionary word,
+  // The path is problematic if it does not represent a dictionary word,
   // while its parent does.
   if (vse.dawg_info == NULL &&
       (vse.parent_vse == NULL || vse.parent_vse->dawg_info != NULL)) {
@@ -388,6 +403,31 @@ LanguageModelFlagsType LanguageModel::AddViterbiStateEntry(
       }
     }
   }
+  // Check whether the list is full.
+  if (b->language_model_state() != NULL &&
+      (reinterpret_cast<LanguageModelState *>(
+          b->language_model_state())->viterbi_state_entries_length >=
+          language_model_viterbi_list_max_size)) {
+    if (language_model_debug_level > 1) {
+      tprintf("AddViterbiStateEntry: viterbi list is full!\n");
+    }
+
+    /* TODO(antonova): remove
+    language_model_debug_level.set_value(5);
+    vit.set_to_list(&(reinterpret_cast<LanguageModelState *>(
+        b->language_model_state())->viterbi_state_entries));
+    for (vit.mark_cycle_pt(); !vit.cycled_list(); vit.forward()) {
+      PrintViterbiStateEntry("", vit.data(), b, chunks_record);
+    }
+    tprintf("Ratings:\n");
+    chunks_record->ratings->print(dict_->getUnicharset());
+    ASSERT_HOST(false);
+    }*/
+
+
+    return 0x0;
+  }
+
   LanguageModelFlagsType changed = 0x0;
   float optimistic_cost = 0.0f;
   if (!language_model_ngram_on) optimistic_cost += b->rating();
@@ -404,8 +444,8 @@ LanguageModelFlagsType LanguageModel::AddViterbiStateEntry(
 
   // Check consistency of the path and set the relevant consistency_info.
   LanguageModelConsistencyInfo consistency_info;
-  FillConsistencyInfo(word_end, b->unichar_id(), parent_vse, parent_b,
-                      &consistency_info);
+  FillConsistencyInfo(curr_col, word_end, b, parent_vse, parent_b,
+                      chunks_record, &consistency_info);
 
   // Invoke Dawg language model component.
   LanguageModelDawgInfo *dawg_info =
@@ -427,7 +467,7 @@ LanguageModelFlagsType LanguageModel::AddViterbiStateEntry(
     ASSERT_HOST(ngram_info != NULL);
   }
 
-  // Prune non-top choice paths with incosistent scripts.
+  // Prune non-top choice paths with inconsistent scripts.
   if (consistency_info.inconsistent_script) {
     if (!(top_choice_flags & kSmallestRatingFlag)) changed = 0x0;
     if (ngram_info != NULL) ngram_info->pruned = true;
@@ -466,11 +506,11 @@ LanguageModelFlagsType LanguageModel::AddViterbiStateEntry(
     reinterpret_cast<LanguageModelState *>(b->language_model_state());
 
   // Discard this entry if it represents a prunable path and
-  // language_model_max_viterbi_list_size such entries with a lower
+  // language_model_viterbi_list_max_num_prunable such entries with a lower
   // cost have already been recorded.
   if (PrunablePath(top_choice_flags, dawg_info) &&
       (lms->viterbi_state_entries_prunable_length >=
-       language_model_max_viterbi_list_size) &&
+       language_model_viterbi_list_max_num_prunable) &&
       cost >= lms->viterbi_state_entries_prunable_max_cost) {
     if (language_model_debug_level > 1) {
       tprintf("Discarded ViterbiEntry with high cost %g max cost %g\n",
@@ -488,16 +528,17 @@ LanguageModelFlagsType LanguageModel::AddViterbiStateEntry(
   updated_flags_.push_back(&(new_vse->updated));
   lms->viterbi_state_entries.add_sorted(ViterbiStateEntry::Compare,
                                         false, new_vse);
+  lms->viterbi_state_entries_length++;
   if (PrunablePath(top_choice_flags, dawg_info)) {
     lms->viterbi_state_entries_prunable_length++;
   }
 
   // Update lms->viterbi_state_entries_prunable_max_cost and clear
-  // top_choice_flags of enties with ratings_sum than new_vse->ratings_sum.
+  // top_choice_flags of entries with ratings_sum than new_vse->ratings_sum.
   if ((lms->viterbi_state_entries_prunable_length >=
-       language_model_max_viterbi_list_size) || top_choice_flags) {
+       language_model_viterbi_list_max_num_prunable) || top_choice_flags) {
     ASSERT_HOST(!lms->viterbi_state_entries.empty());
-    int prunable_counter = language_model_max_viterbi_list_size;
+    int prunable_counter = language_model_viterbi_list_max_num_prunable;
     vit.set_to_list(&(lms->viterbi_state_entries));
     for (vit.mark_cycle_pt(); !vit.cycled_list(); vit.forward()) {
       ViterbiStateEntry *curr_vse = vit.data();
@@ -873,12 +914,15 @@ float LanguageModel::ComputeDenom(BLOB_CHOICE_LIST *curr_list) {
 }
 
 void LanguageModel::FillConsistencyInfo(
+    int curr_col,
     bool word_end,
-    UNICHAR_ID unichar_id,
+    BLOB_CHOICE *b,
     ViterbiStateEntry *parent_vse,
     BLOB_CHOICE *parent_b,
+    CHUNKS_RECORD *chunks_record,
     LanguageModelConsistencyInfo *consistency_info) {
   const UNICHARSET &unicharset = dict_->getUnicharset();
+  UNICHAR_ID unichar_id = b->unichar_id();
   if (parent_vse != NULL) *consistency_info = parent_vse->consistency_info;
 
   // Check punctuation validity.
@@ -966,6 +1010,80 @@ void LanguageModel::FillConsistencyInfo(
     consistency_info->num_digits++;
   } else if (!unicharset.get_ispunctuation(unichar_id)) {
     consistency_info->num_other++;
+  }
+
+  // Check font and spacing consistency.
+  if (parent_b != NULL) {
+    int fontinfo_id = -1;
+    if (parent_b->fontinfo_id() == b->fontinfo_id() ||
+        parent_b->fontinfo_id2() == b->fontinfo_id()) {
+      fontinfo_id = b->fontinfo_id();
+    } else if (parent_b->fontinfo_id() == b->fontinfo_id2() ||
+                parent_b->fontinfo_id2() == b->fontinfo_id2()) {
+      fontinfo_id = b->fontinfo_id2();
+    }
+    if(language_model_debug_level > 1) {
+      tprintf("pfont %s pfont %s font %s font2 %s common %s(%d)\n",
+              (parent_b->fontinfo_id() >= 0) ?
+                  fontinfo_table_->get(parent_b->fontinfo_id()).name : "" ,
+              (parent_b->fontinfo_id2() >= 0) ?
+                  fontinfo_table_->get(parent_b->fontinfo_id2()).name : "",
+              (b->fontinfo_id() >= 0) ?
+                  fontinfo_table_->get(b->fontinfo_id()).name : "",
+              (fontinfo_id >= 0) ? fontinfo_table_->get(fontinfo_id).name : "",
+              (fontinfo_id >= 0) ? fontinfo_table_->get(fontinfo_id).name : "",
+              fontinfo_id);
+    }
+    bool expected_gap_found = false;
+    float expected_gap;
+    int temp_gap;
+    if (fontinfo_id >= 0) {  // found a common font
+      if (fontinfo_table_->get(fontinfo_id).get_spacing(
+          parent_b->unichar_id(), unichar_id, &temp_gap)) {
+        expected_gap = temp_gap;
+        expected_gap_found = true;
+      }
+    } else {
+      consistency_info->inconsistent_font = true;
+      // Get an average of the expected gaps in each font
+      int num_addends = 0;
+      expected_gap = 0;
+      int temp_fid;
+      for (int i = 0; i < 4; ++i) {
+        if (i == 0) {
+          temp_fid = parent_b->fontinfo_id();
+        } else if (i == 1) {
+          temp_fid = parent_b->fontinfo_id2();
+        } else if (i == 2) {
+          temp_fid = b->fontinfo_id();
+        } else {
+          temp_fid = b->fontinfo_id2();
+        }
+        if (temp_fid >= 0 && fontinfo_table_->get(temp_fid).get_spacing(
+            parent_b->unichar_id(), unichar_id, &temp_gap)) {
+          expected_gap += temp_gap;
+          num_addends++;
+        }
+      }
+      expected_gap_found = (num_addends > 0);
+      if (num_addends > 0) expected_gap /= static_cast<float>(num_addends);
+    }
+    if (expected_gap_found) {
+      float actual_gap =
+          static_cast<float>(AssociateUtils::GetChunksGap(
+              chunks_record->chunk_widths, curr_col-1));
+      float gap_ratio = expected_gap / actual_gap;
+      // TODO(daria): find a good way to tune this heuristic estimate.
+      if (gap_ratio < 1/2 || gap_ratio > 2) {
+        consistency_info->num_inconsistent_spaces++;
+      }
+      if(language_model_debug_level > 1) {
+        tprintf("spacing for %s(%d) %s(%d) col %d: expected %g actual %g\n",
+                unicharset.id_to_unichar(parent_b->unichar_id()),
+                parent_b->unichar_id(), unicharset.id_to_unichar(unichar_id),
+                unichar_id, curr_col, expected_gap, actual_gap);
+      }
+    }
   }
 }
 
@@ -1165,7 +1283,7 @@ WERD_CHOICE *LanguageModel::ConstructWord(
   // they are covered by the previous word from fixed length dawgs.
   int fixed_length_num_unichars_to_skip = 0;
 
-  // Re-compute the variance of the width-to-hight ratios (since we now
+  // Re-compute the variance of the width-to-height ratios (since we now
   // can compute the mean over the whole word).
   float full_wh_ratio_mean = 0.0f;
   if (vse->associate_stats.full_wh_ratio_var != 0.0f) {
@@ -1233,7 +1351,7 @@ WERD_CHOICE *LanguageModel::ConstructWord(
     curr_vse = curr_vse->parent_vse;
   }
   ASSERT_HOST(i == 0);  // check that we recorded all the unichar ids
-  // Re-adjust shape cost to include the updated width-to-hight variance.
+  // Re-adjust shape cost to include the updated width-to-height variance.
   if (full_wh_ratio_mean != 0.0f) {
     vse->associate_stats.shape_cost += vse->associate_stats.full_wh_ratio_var;
   }
@@ -1338,7 +1456,7 @@ void LanguageModel::GeneratePainPointsFromColumn(
 void LanguageModel::GenerateNgramModelPainPointsFromColumn(
     int col, int row, HEAP *pain_points, CHUNKS_RECORD *chunks_record) {
   // Find the first top choice path recorded for this cell.
-  // If this path is prunned - generate a pain point.
+  // If this path is pruned - generate a pain point.
   ASSERT_HOST(chunks_record->ratings->get(col, row) != NULL);
   BLOB_CHOICE_IT bit(chunks_record->ratings->get(col, row));
   bool fragmented = false;
@@ -1374,7 +1492,7 @@ void LanguageModel::GenerateNgramModelPainPointsFromColumn(
                 vse->parent_b->unichar_id())) {
           // If the dip in the ngram probability is due to punctuation in the
           // middle of the word - go two unichars back to combine this
-          // puntuation mark with the previous character on the path.
+          // punctuation mark with the previous character on the path.
           LanguageModelState *pp_lms = reinterpret_cast<LanguageModelState *>(
               vse->parent_vse->parent_b->language_model_state());
           GeneratePainPoint(pp_lms->contained_in_col, col-1, false,
@@ -1680,8 +1798,8 @@ void LanguageModel::GeneratePainPoint(
                         chunks_record, &associate_stats);
   // For fixed-pitch fonts/languages: if the current combined blob overlaps
   // the next blob on the right and it is ok to extend the blob, try expending
-  // the blob untill there is no overlap with the next blob on the right or
-  // until the width-to-hight ratio becomes too large.
+  // the blob until there is no overlap with the next blob on the right or
+  // until the width-to-height ratio becomes too large.
   if (ok_to_extend) {
     while (associate_stats.bad_fixed_pitch_right_gap &&
            row+1 < chunks_record->ratings->dimension() &&
