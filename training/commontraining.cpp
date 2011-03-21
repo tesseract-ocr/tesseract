@@ -39,6 +39,7 @@ const char *InputUnicharsetFile = NULL;
 const char *OutputUnicharsetFile = NULL;
 
 const char *InputFontInfoFile = NULL;
+const char *InputXHeightsFile = NULL;
 
 FLOAT32 RoundingAccuracy = 0.0f;
 
@@ -71,6 +72,7 @@ void ParseArguments(int argc, char **argv) {
  **			-R RoundingAccuracy
  **			-U InputUnicharsetFile
  **			-O OutputUnicharsetFile
+ **			-X InputXHeightsFile
 
  **	Return: none
  **	Exceptions: Illegal options terminate the program.
@@ -81,7 +83,7 @@ void ParseArguments(int argc, char **argv) {
   BOOL8  Error;
 
   Error = FALSE;
-  while ((Option = tessopt(argc, argv, "F:O:U:R:D:C:I:M:B:S")) != EOF) {
+  while ((Option = tessopt(argc, argv, "F:O:U:R:D:C:I:M:B:S:X:")) != EOF) {
     switch (Option) {
       case 'C':
         ParametersRead = sscanf( tessoptarg, "%lf", &(Config.Confidence) );
@@ -135,6 +137,10 @@ void ParseArguments(int argc, char **argv) {
       case 'F':
         InputFontInfoFile = tessoptarg;
         break;
+      case 'X':
+        InputXHeightsFile = tessoptarg;
+        printf("InputXHeightsFile %s\n", InputXHeightsFile);
+        break;
       case '?':
         Error = TRUE;
         break;
@@ -147,6 +153,7 @@ void ParseArguments(int argc, char **argv) {
       fprintf (stderr, "\t[-C Confidence] [-D Directory]\n");
       fprintf (stderr, "\t[-U InputUnicharsetFile] [-O OutputUnicharsetFile]\n");
       fprintf (stderr, "\t[-F FontInfoFile]\n");
+      fprintf (stderr, "\t[-X InputXHeightsFile]\n");
       fprintf (stderr, "\t[ TrainingPage ... ]\n");
       exit (2);
     }

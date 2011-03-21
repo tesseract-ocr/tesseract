@@ -96,11 +96,18 @@ PARAMDESC *ConvertToPARAMDESC(
 void WritePFFMTable(INT_TEMPLATES Templates, const UNICHARSET& unicharset,
                     const char* filename);
 
+void InitXHeights(const char *filename,
+                  const UnicityTable<FontInfo> &fontinfo_table,
+                  int xheights[]);
+
+void AddSpacingInfo(const char *filename, int fontinfo_id,
+                    const UNICHARSET &unicharset, const int xheights[],
+                     UnicityTable<FontInfo> *fontinfo_table);
+
 // global variable to hold configuration parameters to control clustering
 // -M 0.40   -B 0.05   -I 1.0   -C 1e-6.
 CLUSTERCONFIG Config =
 { elliptical, 0.625, 0.05, 1.0, 1e-6, 0 };
-
 
 /*----------------------------------------------------------------------------
             Public Code
@@ -216,6 +223,7 @@ int main (int argc, char **argv) {
   }
 
 
+  // Populate fontinfo_table with font properties.
   if (InputFontInfoFile != NULL) {
     FILE* f = fopen(InputFontInfoFile, "r");
     if (f == NULL) {
@@ -239,16 +247,17 @@ int main (int argc, char **argv) {
           classify->get_fontinfo_table().push_back(fontinfo);
         } else {
           fprintf(stderr, "Font %s already defined\n", fontinfo.name);
-          delete classify;
-          return 1;
         }
       }
       fclose(f);
     }
   }
 
+  int *xheights = new int[classify->get_fontinfo_table().size()];
+  InitXHeights(InputXHeightsFile, classify->get_fontinfo_table(), xheights);
+
   while ((PageName = GetNextFilename(argc, argv)) != NULL) {
-    printf ("Reading %s ...\n", PageName);
+    tprintf ("Reading %s ...\n", PageName);
     char *short_name = strrchr(PageName, '/');
     if (short_name == NULL)
       short_name = PageName;
@@ -271,35 +280,35 @@ int main (int argc, char **argv) {
     int fontinfo_id;
     FontInfo fontinfo;
     fontinfo.name = short_name;
-    fontinfo.properties = 0;  // Not used to lookup in the table
+    fontinfo.properties = 0;  // not used to lookup in the table
     if (!classify->get_fontinfo_table().contains(fontinfo)) {
       fontinfo_id = classify->get_fontinfo_table().push_back(fontinfo);
-      printf("%s has no defined properties.\n", short_name);
+      tprintf("%s has no defined properties.\n", short_name);
+      ASSERT_HOST(!"Missing font_properties entry is a fatal error!");
     } else {
       fontinfo_id = classify->get_fontinfo_table().get_id(fontinfo);
-      // Update the properties field
+      // Update the properties field.
       fontinfo = classify->get_fontinfo_table().get(fontinfo_id);
       delete[] short_name;
     }
+
     TrainingPage = Efopen (PageName, "r");
     LIST char_list = NIL_LIST;
     ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE,
                         0, 1.0f / 128.0f, 1.0f / 64.0f, &unicharset_training,
                         TrainingPage, &char_list);
     fclose (TrainingPage);
-    //WriteTrainingSamples (Directory, CharList);
     pCharList = char_list;
     iterate(pCharList) {
-      //Cluster
+      // Cluster.
       CharSample = (LABELEDLIST) first_node (pCharList);
-//    printf ("\nClustering %s ...", CharSample->Label);
       Clusterer =
         SetUpForClustering(FeatureDefs, CharSample, PROGRAM_FEATURE_TYPE);
       Config.MagicSamples = CharSample->SampleCount;
       ProtoList = ClusterSamples(Clusterer, &Config);
       CleanUpUnusedData(ProtoList);
 
-      //Merge
+      // Merge.
       MergeInsignificantProtos(ProtoList, CharSample->Label,
                                Clusterer, &Config);
       if (strcmp(test_ch, CharSample->Label) == 0)
@@ -319,7 +328,7 @@ int main (int argc, char **argv) {
       iterate (pProtoList) {
         Prototype = (PROTOTYPE *) first_node (pProtoList);
 
-        // see if proto can be approximated by existing proto
+        // See if proto can be approximated by existing proto.
         Pid = FindClosestExistingProto(MergeClass->Class,
                                        MergeClass->NumMerged, Prototype);
         if (Pid == NO_PROTO) {
@@ -341,6 +350,16 @@ int main (int argc, char **argv) {
       FreeProtoList (&ProtoList);
     }
     FreeTrainingSamples(char_list);
+
+    // If there is a file with [lang].[fontname].exp[num].fontinfo present,
+    // write font spacing information to fontinfo_table.
+    int pagename_len = strlen(PageName);
+    char *fontinfo_file_name = new char[pagename_len + 7];
+    strncpy(fontinfo_file_name, PageName, pagename_len-2);  // remove "tr"
+    strcpy(fontinfo_file_name+pagename_len-2, "fontinfo");  // add "fontinfo"
+    AddSpacingInfo(fontinfo_file_name, fontinfo_id, unicharset_training,
+                   xheights, &(classify->get_fontinfo_table()));
+    delete[] fontinfo_file_name;
   }
   WriteMicrofeat(Directory, ClassList);
   SetUpForFloat2Int(unicharset_training, ClassList);
@@ -475,7 +494,7 @@ void WritePFFMTable(INT_TEMPLATES Templates, const UNICHARSET& unicharset,
     if (strcmp(unichar, " ") == 0) {
       unichar = "NULL";
     } else if (Class->NumConfigs == 0) {
-      cprintf("Error: no configs for class %s in mftraining\n", unichar);
+      tprintf("Error: no configs for class %s in mftraining\n", unichar);
     }
     for (int ConfigId = 0; ConfigId < Class->NumConfigs; ConfigId++) {
       // Todo: Test with min instead of max
@@ -487,3 +506,73 @@ void WritePFFMTable(INT_TEMPLATES Templates, const UNICHARSET& unicharset,
   }
   fclose(fp);
 } // WritePFFMTable
+
+/*--------------------------------------------------------------------------*/
+// Reads xheights for various fonts from filename and records them into
+// xheights[] keyed by fontinfo_id (xheights[] is assumed to have
+// fontinfo_table->size() slots allocated).
+void InitXHeights(const char *filename,
+                   const UnicityTable<FontInfo> &fontinfo_table,
+                   int xheights[]) {
+  for (int i = 0; i < fontinfo_table.size(); ++i) xheights[i] = -1;
+  if (filename == NULL) return;
+  FILE *f = fopen(filename, "r");
+  if (f == NULL) {
+    fprintf(stderr, "Failed to load font xheights from %s\n", filename);
+    return;
+  }
+  tprintf("Reading x-heights from %s ...\n", filename);
+  FontInfo fontinfo;
+  fontinfo.properties = 0;  // not used to lookup in the table
+  char buffer[1024];
+  int xht;
+  while (!feof(f)) {
+    ASSERT_HOST(fscanf(f, "%1024s %d\n", buffer, &xht) == 2);
+    fontinfo.name = buffer;
+    if (!fontinfo_table.contains(fontinfo)) continue;
+    int fontinfo_id = fontinfo_table.get_id(fontinfo);
+    xheights[fontinfo_id] = xht;
+  }
+}  // InitXHeights
+
+/*--------------------------------------------------------------------------*/
+// Reads spacing stats from filename and adds them to fontinfo_table.
+void AddSpacingInfo(const char *filename,
+                     int fontinfo_id,
+                     const UNICHARSET &unicharset,
+                     const int xheights[],
+                     UnicityTable<FontInfo> *fontinfo_table) {
+  FILE* fontinfo_file = fopen(filename, "r");
+  if (fontinfo_file == NULL) return;
+  tprintf("Reading spacing from %s ...\n", filename);
+  int scale = kBlnXHeight / xheights[fontinfo_id];
+  int num_unichars;
+  char uch[UNICHAR_LEN];
+  char kerned_uch[UNICHAR_LEN];
+  int x_gap, x_gap_before, x_gap_after, num_kerned;
+  ASSERT_HOST(fscanf(fontinfo_file, "%d\n", &num_unichars) == 1);
+  FontInfo *fi = fontinfo_table->get_mutable(fontinfo_id);
+  fi->init_spacing(unicharset.size());
+  FontSpacingInfo *spacing = NULL;
+  for (int l = 0; l < num_unichars; ++l) {
+    ASSERT_HOST(fscanf(fontinfo_file, "%s %d %d %d",
+                       uch, &x_gap_before,
+                       &x_gap_after, &num_kerned) == 4);
+    bool valid = unicharset.contains_unichar(uch);
+    if (valid) {
+      spacing = new FontSpacingInfo();
+      spacing->x_gap_before = static_cast<inT16>(x_gap_before * scale);
+      spacing->x_gap_after = static_cast<inT16>(x_gap_after * scale);
+    }
+    for (int k = 0; k < num_kerned; ++k) {
+      ASSERT_HOST(fscanf(fontinfo_file, "%s %d", kerned_uch, &x_gap) == 2);
+      if (!valid || !unicharset.contains_unichar(kerned_uch)) continue;
+      spacing->kerned_unichar_ids.push_back(
+          unicharset.unichar_to_id(kerned_uch));
+      spacing->kerned_x_gaps.push_back(static_cast<inT16>(x_gap * scale));
+    }
+    if (valid) fi->add_spacing(unicharset.unichar_to_id(uch), spacing);
+  }
+  fclose(fontinfo_file);
+}  // AddSpacingInfo
+
