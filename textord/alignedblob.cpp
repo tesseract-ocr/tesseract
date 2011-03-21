@@ -56,6 +56,10 @@ const int kMinRaggedTabs = 5;
 const int kMinAlignedTabs = 4;
 // Constant number of pixels minimum height of a vertical line.
 const int kVLineMinLength = 500;
+// Minimum gradient for a vertical tab vector. Used to prune away junk
+// tab vectors with what would be a ridiculously large skew angle.
+// Value corresponds to tan(90 - max allowed skew angle)
+const double kMinTabGradient = 4.0;
 // Tolerance to skew on top of current estimate of skew. Divide x or y length
 // by kMaxSkewFactor to get the y or x skew distance.
 // If the angle is small, the angle in degrees is roughly 60/kMaxSkewFactor.
@@ -89,6 +93,7 @@ void AlignedBlob::IncrementDebugPix() {
 // type of tab stop to be found.
 AlignedBlobParams::AlignedBlobParams(int vertical_x, int vertical_y,
                                      int height, int v_gap_multiple,
+                                     int min_gutter_width,
                                      int resolution, TabAlignment align0)
   : right_tab(align0 == TA_RIGHT_RAGGED || align0 == TA_RIGHT_ALIGNED),
     ragged(align0 == TA_LEFT_RAGGED || align0 == TA_RIGHT_RAGGED),
@@ -118,6 +123,8 @@ AlignedBlobParams::AlignedBlobParams(int vertical_x, int vertical_y,
     min_points = kMinAlignedTabs;
   }
   min_gutter = static_cast<int>(height * gutter_fraction + 0.5);
+  if (min_gutter < min_gutter_width)
+    min_gutter = min_gutter_width;
   // Fit the vertical vector into an ICOORD, which is 16 bit.
   set_vertical(vertical_x, vertical_y);
 }
@@ -234,11 +241,19 @@ TabVector* AlignedBlob::FindVerticalAlignment(AlignedBlobParams align_params,
   pt_count += AlignTabs(align_params, true, bbox, &good_points, &ext_start_y);
   BLOBNBOX_C_IT it(&good_points);
   it.move_to_last();
-  int end_y = it.data()->bounding_box().top();
+  TBOX box = it.data()->bounding_box();
+  int end_y = box.top();
+  int end_x = align_params.right_tab ? box.right() : box.left();
   it.move_to_first();
-  int start_y = it.data()->bounding_box().bottom();
+  box = it.data()->bounding_box();
+  int start_x = align_params.right_tab ? box.right() : box.left();
+  int start_y = box.bottom();
+  // Acceptable tab vectors must have a mininum number of points,
+  // have a minimum acceptable length, and have a minimum gradient.
+  // The gradient corresponds to the skew angle.
   if (pt_count >= align_params.min_points &&
-      end_y - start_y >= align_params.min_length) {
+      end_y - start_y >= align_params.min_length &&
+      end_y - start_y >= abs(end_x - start_x) * kMinTabGradient) {
     int confirmed_points = 0;
     // Count existing confirmed points to see if vector is acceptable.
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -275,6 +290,7 @@ TabVector* AlignedBlob::FindVerticalAlignment(AlignedBlobParams align_params,
                                                &good_points,
                                                vertical_x, vertical_y);
       if (WithinTestRegion(2, box.left(), box.bottom())) {
+        tprintf("Box was %d, %d\n", box.left(), box.bottom());
         result->Print("After fitting");
       }
       return result;

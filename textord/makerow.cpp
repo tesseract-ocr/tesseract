@@ -1581,8 +1581,8 @@ int compute_xheight_from_modes(
     tprintf("min_height=%d, max_height=%d, mode=%d, count=%d, total=%d\n",
             min_height, max_height, blob_index, blob_count,
             heights->get_total());
-    heights->print(NULL, true);
-    floating_heights->print(NULL, true);
+    heights->print();
+    floating_heights->print();
   }
   if (blob_count == 0) return 0;
   int modes[MAX_HEIGHT_MODES];  // biggest piles
@@ -1716,7 +1716,7 @@ inT32 compute_row_descdrop(TO_ROW *row, float gradient,
   if (textord_debug_xheights) {
     tprintf("Descdrop: %d (potential ascenders %d, descenders %d)\n",
             descdrop, num_potential_asc, blob_count);
-    heights.print(NULL, true);
+    heights.print();
   }
   return descdrop;
 }

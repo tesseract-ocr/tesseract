@@ -286,7 +286,7 @@ inT32 row_words(                  //compute space size
       lower = gaps[1];
       if (testing_on && textord_show_initial_words) {
         tprintf ("Had to switch most common from lower to upper!!\n");
-        gap_stats.print (stdout, TRUE);
+        gap_stats.print();
       }
     }
     else {
@@ -299,7 +299,7 @@ inT32 row_words(                  //compute space size
     if (gaps[1] < gaps[0]) {
       if (testing_on && textord_show_initial_words) {
         tprintf ("Had to switch most common from lower to upper!!\n");
-        gap_stats.print (stdout, TRUE);
+        gap_stats.print();
       }
       lower = gaps[1];
       upper = gaps[0];
@@ -320,7 +320,7 @@ inT32 row_words(                  //compute space size
       tprintf ("Disagreement between block and row at %g!!\n",
         row->intercept ());
       tprintf ("Lower=%g, upper=%g, Stats:\n", lower, upper);
-      gap_stats.print (stdout, TRUE);
+      gap_stats.print();
     }
   }
   row->min_space =
@@ -333,11 +333,11 @@ inT32 row_words(                  //compute space size
   if (testing_on && textord_show_initial_words) {
     if (testing_row) {
       tprintf ("GAP STATS\n");
-      gap_stats.print (stdout, TRUE);
+      gap_stats.print();
       tprintf ("SPACE stats\n");
-      cluster_stats[2].print (stdout, FALSE);
+      cluster_stats[2].print_summary();
       tprintf ("NONSPACE stats\n");
-      cluster_stats[1].print (stdout, FALSE);
+      cluster_stats[1].print_summary();
     }
     tprintf ("Row at %g has minspace=%d(%g), max_non=%d(%g)\n",
       row->intercept (), row->min_space, upper,
@@ -489,11 +489,11 @@ inT32 row_words2(                  //compute space size
   if (testing_on) {
     if (testing_row) {
       tprintf ("GAP STATS\n");
-      gap_stats.print (stdout, TRUE);
+      gap_stats.print();
       tprintf ("SPACE stats\n");
-      cluster_stats[2].print (stdout, FALSE);
+      cluster_stats[2].print_summary();
       tprintf ("NONSPACE stats\n");
-      cluster_stats[1].print (stdout, FALSE);
+      cluster_stats[1].print_summary();
     }
     tprintf ("Row at %g has minspace=%d(%g), max_non=%d(%g)\n",
       row->intercept (), row->min_space, upper,

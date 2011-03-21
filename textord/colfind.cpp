@@ -196,7 +196,7 @@ void ColumnFinder::CorrectOrientation(TO_BLOCK* block,
     TabFind::ResetForVerticalText(rotation_, rerotate_, &horizontal_lines_,
                                   &min_gutter_width_);
     // Re-mark all the blobs with the correct orientation.
-    stroke_width_->CorrectForRotation(rotation_, block, this);
+    stroke_width_->CorrectForRotation(rotation_, block);
   }
   if (textord_debug_tabfind) {
     tprintf("Vertical=%d, orientation=%d, final rotation=(%f, %f)+(%f,%f)\n",

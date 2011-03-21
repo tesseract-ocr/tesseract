@@ -73,12 +73,13 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libtesseract_textord_la_LIBADD =
 am_libtesseract_textord_la_OBJECTS = alignedblob.lo bbgrid.lo \
 	blkocc.lo colfind.lo colpartition.lo colpartitionset.lo \
-	colpartitiongrid.lo drawedg.lo drawtord.lo edgblob.lo \
-	edgloop.lo fpchop.lo gap_map.lo imagefind.lo linefind.lo \
-	makerow.lo oldbasel.lo pithsync.lo pitsync1.lo scanedg.lo \
-	sortflts.lo strokewidth.lo tabfind.lo tablefind.lo \
-	tabvector.lo tablerecog.lo textord.lo topitch.lo tordmain.lo \
-	tospace.lo tovars.lo underlin.lo wordseg.lo workingpartset.lo
+	colpartitiongrid.lo devanagari_processing.lo drawedg.lo \
+	drawtord.lo edgblob.lo edgloop.lo fpchop.lo gap_map.lo \
+	imagefind.lo linefind.lo makerow.lo oldbasel.lo pithsync.lo \
+	pitsync1.lo scanedg.lo sortflts.lo strokewidth.lo tabfind.lo \
+	tablefind.lo tabvector.lo tablerecog.lo textord.lo topitch.lo \
+	tordmain.lo tospace.lo tovars.lo underlin.lo wordseg.lo \
+	workingpartset.lo
 libtesseract_textord_la_OBJECTS =  \
 	$(am_libtesseract_textord_la_OBJECTS)
 libtesseract_textord_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -280,7 +281,7 @@ include_HEADERS = \
     alignedblob.h bbgrid.h blkocc.h \
     colfind.h colpartition.h colpartitionset.h \
     colpartitiongrid.h \
-    drawedg.h drawtord.h edgblob.h edgloop.h \
+    devanagari_processing.h drawedg.h drawtord.h edgblob.h edgloop.h \
     fpchop.h gap_map.h imagefind.h linefind.h makerow.h oldbasel.h \
     pithsync.h pitsync1.h scanedg.h sortflts.h strokewidth.h \
     tabfind.h tablefind.h tabvector.h \
@@ -292,7 +293,7 @@ lib_LTLIBRARIES = libtesseract_textord.la
 libtesseract_textord_la_SOURCES = \
     alignedblob.cpp bbgrid.cpp blkocc.cpp \
     colfind.cpp colpartition.cpp colpartitionset.cpp \
-    colpartitiongrid.cpp \
+    colpartitiongrid.cpp devanagari_processing.cpp \
     drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \
     fpchop.cpp gap_map.cpp imagefind.cpp linefind.cpp makerow.cpp oldbasel.cpp \
     pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp strokewidth.cpp \
@@ -383,6 +384,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colpartition.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colpartitiongrid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colpartitionset.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/devanagari_processing.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drawedg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/drawtord.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/edgblob.Plo@am__quote@

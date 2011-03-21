@@ -200,8 +200,7 @@ bool StrokeWidth::TestVerticalTextDirection(bool cjk_merge, TO_BLOCK* block,
 }
 
 // Corrects the data structures for the given rotation.
-void StrokeWidth::CorrectForRotation(const FCOORD& rotation, TO_BLOCK* block,
-                                     TabFind* line_grid) {
+void StrokeWidth::CorrectForRotation(const FCOORD& rotation, TO_BLOCK* block) {
   noise_density_->Rotate(rotation);
   Init(noise_density_->gridsize(), noise_density_->bleft(),
        noise_density_->tright());

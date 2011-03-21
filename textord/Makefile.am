@@ -9,7 +9,7 @@ include_HEADERS = \
     alignedblob.h bbgrid.h blkocc.h \
     colfind.h colpartition.h colpartitionset.h \
     colpartitiongrid.h \
-    drawedg.h drawtord.h edgblob.h edgloop.h \
+    devanagari_processing.h drawedg.h drawtord.h edgblob.h edgloop.h \
     fpchop.h gap_map.h imagefind.h linefind.h makerow.h oldbasel.h \
     pithsync.h pitsync1.h scanedg.h sortflts.h strokewidth.h \
     tabfind.h tablefind.h tabvector.h \
@@ -21,7 +21,7 @@ lib_LTLIBRARIES = libtesseract_textord.la
 libtesseract_textord_la_SOURCES = \
     alignedblob.cpp bbgrid.cpp blkocc.cpp \
     colfind.cpp colpartition.cpp colpartitionset.cpp \
-    colpartitiongrid.cpp \
+    colpartitiongrid.cpp devanagari_processing.cpp \
     drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \
     fpchop.cpp gap_map.cpp imagefind.cpp linefind.cpp makerow.cpp oldbasel.cpp \
     pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp strokewidth.cpp \

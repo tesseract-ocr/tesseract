@@ -67,8 +67,7 @@ class StrokeWidth : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
                                  BLOBNBOX_CLIST* osd_blobs);
 
   // Corrects the data structures for the given rotation.
-  void CorrectForRotation(const FCOORD& rotation, TO_BLOCK* block,
-                          TabFind* line_grid);
+  void CorrectForRotation(const FCOORD& rotation, TO_BLOCK* block);
 
   // Finds leader partitions and inserts them into the give grid.
   void FindLeaderPartitions(TO_BLOCK* block, TabFind* line_grid);
@@ -177,4 +176,3 @@ class StrokeWidth : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_TEXTORD_STROKEWIDTH_H__
-

@@ -47,6 +47,12 @@ const int kSimilarRaggedDist = 50;
 const int kMaxFillinMultiple = 11;
 // Min fraction of mean gutter size to allow a gutter on a good tab blob.
 const double kMinGutterFraction = 0.5;
+// Multiple of 1/n lines as a minimum gutter in evaluation.
+const double kLineCountReciprocal = 4.0;
+// Constant add-on for minimum gutter for aligned tabs.
+const double kMinAlignedGutter = 0.25;
+// Constant add-on for minimum gutter for ragged tabs.
+const double kMinRaggedGutter = 2.0;
 
 double_VAR(textord_tabvector_vertical_gap_fraction, 0.5,
   "max fraction of mean blob width allowed for vertical gaps in vertical text");
@@ -727,10 +733,34 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
     if (deleted_a_box) {
       needs_refit_ = true;
       FitAndEvaluateIfNeeded(vertical, finder);
+      if (boxes_.empty())
+        return;
+    }
+    // Test the gutter over the whole vector, instead of just at the boxes.
+    int required_shift;
+    int gutter_width = finder->GutterWidth(startpt_.y(), endpt_.y(), *this,
+                                           &required_shift);
+    double min_gutter_width = kLineCountReciprocal / boxes_.length();
+    min_gutter_width += IsRagged() ? kMinRaggedGutter : kMinAlignedGutter;
+    min_gutter_width *= mean_height;
+    if (gutter_width < min_gutter_width) {
+      if (debug) {
+        tprintf("Rejecting bad tab Vector with %d gutter vs %g min\n",
+                gutter_width, min_gutter_width);
+      }
+      boxes_.shallow_clear();
+      percent_score_ = 0;
+    } else if (debug) {
+      tprintf("Final gutter %d, vs limit of %g, required shift = %d\n",
+              gutter_width, min_gutter_width, required_shift);
     }
   } else {
     // There are no good boxes left, so score is 0.
     percent_score_ = 0;
+  }
+
+  if (debug) {
+    Print("Evaluation complete:");
   }
 }
 

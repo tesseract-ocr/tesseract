@@ -86,6 +86,12 @@ class TabFind : public AlignedBlob {
   bool InsertBlob(bool h_spread, bool v_spread, bool large, BLOBNBOX* blob,
                   BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>* grid);
 
+
+  // Returns the gutter width of the given TabVector between the given y limits.
+  // Also returns x-shift to be added to the vector to clear any intersecting
+  // blobs. The shift is deducted from the returned gutter.
+  int GutterWidth(int bottom_y, int top_y, const TabVector& v,
+                  int* required_shift);
   /**
    * Find the gutter width and distance to inner neighbour for the given blob.
    */
@@ -209,8 +215,8 @@ class TabFind : public AlignedBlob {
   // true, this finds vertical textlines in possibly rotated blob space.
   // In other words, when the page has mostly vertical lines and is rotated,
   // setting this to true will find horizontal lines on the page.
-  void FindInitialTabVectors(BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
-                             int min_gutter_width);
+  ScrollView* FindInitialTabVectors(BLOBNBOX_LIST* image_blobs,
+                                    int min_gutter_width, TO_BLOCK* block);
 
   // Apply the given rotation to the given list of blobs.
   static void RotateBlobList(const FCOORD& rotation, BLOBNBOX_LIST* blobs);
@@ -234,10 +240,11 @@ class TabFind : public AlignedBlob {
 
   // Fills the list of TabVector with the tabstops found in the grid,
   // and estimates the logical vertical direction.
-  void FindAllTabVectors();
+  void FindAllTabVectors(int min_gutter_width);
   // Helper for FindAllTabVectors finds the vectors of a particular type.
   int FindTabVectors(int search_size_multiple,
                      TabAlignment alignment,
+                     int min_gutter_width,
                      TabVector_LIST* vectors,
                      int* vertical_x, int* vertical_y);
   // Finds a vector corresponding to a tabstop running through the
@@ -247,7 +254,7 @@ class TabFind : public AlignedBlob {
   // vertical_x and y are updated with an estimate of the real
   // vertical direction. (skew finding.)
   // Returns NULL if no decent tabstop can be found.
-  TabVector* FindTabVector(int search_size_multiple,
+  TabVector* FindTabVector(int search_size_multiple, int min_gutter_width,
                            TabAlignment alignment,
                            BLOBNBOX* bbox,
                            int* vertical_x, int* vertical_y);

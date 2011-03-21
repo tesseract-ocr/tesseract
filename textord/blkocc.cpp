@@ -104,7 +104,7 @@ BOOL8 test_underline(                   //look for underlines
   if (desc_occ == 0 && x_occ == 0 && asc_occ == 0) {
     tprintf ("Bottom=%d, top=%d, base=%d, x=%d\n",
       blob_box.bottom (), blob_box.top (), baseline, xheight);
-    projection.print (stdout, TRUE);
+    projection.print();
   }
   if (desc_occ > x_occ + x_occ
     && desc_occ > blob_width * textord_underline_threshold)

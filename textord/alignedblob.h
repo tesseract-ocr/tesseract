@@ -50,7 +50,7 @@ struct AlignedBlobParams {
   // resolution is the original image resolution, and align0 indicates the
   // type of tab stop to be found.
   AlignedBlobParams(int vertical_x, int vertical_y, int height,
-                    int v_gap_multiple, int resolution,
+                    int v_gap_multiple, int min_gutter_width, int resolution,
                     TabAlignment alignment0);
   // Constructor to set the parameters for finding vertical lines.
   // Vertical_x and vertical_y are the current estimates of the true vertical
