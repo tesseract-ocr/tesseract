@@ -668,7 +668,6 @@ void Tesseract::fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row,
   old_word_res->combination = TRUE;   // Kludge to force deep copy
   *new_word_res = *old_word_res;      // deep copy
   old_word_res->combination = FALSE;  // Undo kludge
-  new_word_res->combination = FALSE;  // Undo kludge
   current_perm_it.add_to_end(new_word_res);
 
   break_noisiest_blob_word(current_perm);
@@ -754,7 +753,9 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
     new_rej_cblob_it.add_after_then_move(rej_cblob_it.extract());
   }
 
-  worst_word_it.add_before_then_move(new WERD_RES(new_word));
+  WERD_RES* new_word_res = new WERD_RES(new_word);
+  new_word_res->combination = TRUE;
+  worst_word_it.add_before_then_move(new_word_res);
 
   word_res->ClearResults();
 }

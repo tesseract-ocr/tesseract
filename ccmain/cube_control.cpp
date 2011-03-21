@@ -196,7 +196,7 @@ static WERD_CHOICE *create_werd_choice(
 /**********************************************************************
  * init_cube_objects
  *
- * Instantitates Tesseract object's CubeRecoContext and TesseractCubeCombiner.
+ * Instantiates Tesseract object's CubeRecoContext and TesseractCubeCombiner.
  * Returns false if cube context could not be created or if load_combiner is
  * true, but the combiner could not be loaded.
  **********************************************************************/
@@ -260,7 +260,10 @@ void Tesseract::run_cube(
        page_res_it.forward()) {
     WERD_RES* word = page_res_it.word();
     TBOX word_box = word->word->bounding_box();
-    const BLOCK* block = word->denorm.block();
+    // TODO(rays): Instead of page_res_it.block()->block maybe use
+    //             word->denorm.block() once TODO in
+    //             Tesseract::recog_all_words() is addressed.
+    const BLOCK* block = page_res_it.block()->block;
     if (block != NULL && (block->re_rotation().x() != 1.0f ||
           block->re_rotation().y() != 0.0f)) {
       // TODO(rays) We have to rotate the bounding box to get the true coords.

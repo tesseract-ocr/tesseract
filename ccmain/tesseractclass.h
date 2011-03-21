@@ -22,11 +22,13 @@
 #define TESSERACT_CCMAIN_TESSERACTCLASS_H__
 
 #include "allheaders.h"
+#include "genericvector.h"
 #include "params.h"
 #include "wordrec.h"
 #include "ocrclass.h"
 #include "control.h"
 #include "docqual.h"
+#include "devanagari_processing.h"
 #include "textord.h"
 
 class PAGE_RES;
@@ -159,6 +161,12 @@ class Tesseract : public Wordrec {
     return pixGetHeight(pix_binary_);
   }
 
+  const ShiroRekhaSplitter& splitter() const {
+    return splitter_;
+  }
+  ShiroRekhaSplitter* mutable_splitter() {
+    return &splitter_;
+  }
   const Textord& textord() const {
     return textord_;
   }
@@ -171,6 +179,24 @@ class Tesseract : public Wordrec {
   }
 
   void SetBlackAndWhitelist();
+
+  // Perform steps to prepare underlying binary image/other data structures for
+  // page segmentation. Uses the strategy specified in the global variable
+  // pageseg_devanagari_split_strategy for perform splitting while preparing for
+  // page segmentation.
+  void PrepareForPageseg();
+
+  // Perform steps to prepare underlying binary image/other data structures for
+  // Tesseract OCR. The current segmentation is required by this method.
+  // Uses the strategy specified in the global variable
+  // ocr_devanagari_split_strategy for performing splitting while preparing for
+  // Tesseract ocr.
+  void PrepareForTessOCR(BLOCK_LIST* block_list,
+                         Tesseract* osd_tess, OSResults* osr);
+
+  // Perform steps to prepare underlying binary image/other data structures for
+  // Cube OCR.
+  void PrepareForCubeOCR();
 
   int SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
                   Tesseract* osd_tess, OSResults* osr);
@@ -228,11 +254,12 @@ class Tesseract : public Wordrec {
   void fix_hyphens(WERD_RES* word_res,
                    BLOB_CHOICE_LIST_CLIST *blob_choices);
   void set_word_fonts(
-      WERD_RES *word,  // word to adapt to
+      WERD_RES *word,  // set fonts of this word
       BLOB_CHOICE_LIST_CLIST *blob_choices);  // detailed results
   void font_recognition_pass(  //good chars in word
                              PAGE_RES_IT &page_res_it);
   BOOL8 check_debug_pt(WERD_RES *word, int location);
+
   //// cube_control.cpp ///////////////////////////////////////////////////
   bool init_cube_objects(bool load_combiner,
                          TessdataManager *tessdata_manager);
@@ -267,11 +294,14 @@ class Tesseract : public Wordrec {
                      OcrEngineMode oem,
                      char **configs,
                      int configs_size,
-                     bool configs_init_only);
+                     const GenericVector<STRING> *vars_vec,
+                     const GenericVector<STRING> *vars_values,
+                     bool set_only_init_params);
   int init_tesseract(const char *datapath,
                      const char *language,
                      OcrEngineMode oem) {
-    return init_tesseract(datapath, NULL, language, oem, NULL, 0, false);
+    return init_tesseract(datapath, NULL, language, oem,
+                          NULL, 0, NULL, NULL, false);
   }
 
   int init_tesseract_lm(const char *arg0,
@@ -287,7 +317,9 @@ class Tesseract : public Wordrec {
                                 OcrEngineMode oem,
                                 char **configs,
                                 int configs_size,
-                                bool configs_init_only);
+                                const GenericVector<STRING> *vars_vec,
+                                const GenericVector<STRING> *vars_values,
+                                bool set_only_init_params);
 
   //// pgedit.h //////////////////////////////////////////////////////////
   SVMenuNode *build_menu_new();
@@ -555,6 +587,14 @@ class Tesseract : public Wordrec {
                "Whitelist of chars to recognize");
   BOOL_VAR_H(tessedit_ambigs_training, false,
              "Perform training for ambiguities");
+  INT_VAR_H(pageseg_devanagari_split_strategy,
+            tesseract::ShiroRekhaSplitter::NO_SPLIT,
+            "Whether to use the top-line splitting process for Devanagari "
+            "documents while performing page-segmentation.");
+  INT_VAR_H(ocr_devanagari_split_strategy,
+            tesseract::ShiroRekhaSplitter::NO_SPLIT,
+            "Whether to use the top-line splitting process for Devanagari "
+            "documents while performing ocr.");
   STRING_VAR_H(tessedit_write_params_to_file, "",
                "Write all parameters to the given file.");
   BOOL_VAR_H(tessedit_adapt_to_char_fragments, true,
@@ -781,6 +821,9 @@ class Tesseract : public Wordrec {
   STRING word_config_;
   Pix* pix_binary_;
   Pix* pix_grey_;
+  // The shiro-rekha splitter object which is used to split top-lines in
+  // Devanagari words to provide a better word and grapheme segmentation.
+  ShiroRekhaSplitter splitter_;
   // The boolean records if the currently set
   // pix_binary_ member has been modified due to any processing so that this
   // may hurt Cube's recognition phase.

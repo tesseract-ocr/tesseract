@@ -97,7 +97,9 @@ void Tesseract::read_config_file(const char *filename, bool init_only) {
 bool Tesseract::init_tesseract_lang_data(
     const char *arg0, const char *textbase, const char *language,
     OcrEngineMode oem, char **configs, int configs_size,
-    bool configs_init_only) {
+    const GenericVector<STRING> *vars_vec,
+    const GenericVector<STRING> *vars_values,
+    bool set_only_init_params) {
   // Set the basename, compute the data directory.
   main_setup(arg0, textbase);
 
@@ -129,7 +131,20 @@ bool Tesseract::init_tesseract_lang_data(
   // language-specific variables from [lang].traineddata file, so that custom
   // config files can override values in [lang].traineddata file.
   for (int i = 0; i < configs_size; ++i) {
-    read_config_file(configs[i], configs_init_only);
+    read_config_file(configs[i], set_only_init_params);
+  }
+
+  // Set params specified in vars_vec (done after setting params from config
+  // files, so that params in vars_vec can override those from files).
+  if (vars_vec != NULL && vars_values != NULL) {
+    for (int i = 0; i < vars_vec->size(); ++i) {
+      if (!ParamUtils::SetParam((*vars_vec)[i].string(),
+                                (*vars_values)[i].string(),
+                                set_only_init_params, this->params())) {
+        tprintf("Error setting param %s\n", (*vars_vec)[i].string());
+        exit(1);
+      }
+    }
   }
 
   if (((STRING &)tessedit_write_params_to_file).length() > 0) {
@@ -192,9 +207,12 @@ bool Tesseract::init_tesseract_lang_data(
 int Tesseract::init_tesseract(
     const char *arg0, const char *textbase, const char *language,
     OcrEngineMode oem, char **configs, int configs_size,
-    bool configs_init_only) {
+    const GenericVector<STRING> *vars_vec,
+    const GenericVector<STRING> *vars_values,
+    bool set_only_init_params) {
   if (!init_tesseract_lang_data(arg0, textbase, language, oem, configs,
-                                configs_size, configs_init_only)) {
+                                configs_size, vars_vec, vars_values,
+                                set_only_init_params)) {
     return -1;
   }
   // If only Cube will be used, skip loading Tesseract classifier's
@@ -216,8 +234,8 @@ int Tesseract::init_tesseract(
 int Tesseract::init_tesseract_lm(const char *arg0,
                    const char *textbase,
                    const char *language) {
-  if (!init_tesseract_lang_data(arg0, textbase, language,
-                                OEM_TESSERACT_ONLY, NULL, 0, false))
+  if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY,
+                                NULL, 0, NULL, NULL, false))
     return -1;
   getDict().Load();
   tessdata_manager.End();

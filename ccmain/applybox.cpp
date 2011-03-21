@@ -486,7 +486,7 @@ bool Tesseract::ConvertStringToUnichars(const char* utf8,
 // Returns false if the re-segmentation fails.
 // Uses brute-force combination of up to kMaxGroupSize adjacent blobs, and
 // applies a full search on the classifier results to find the best classified
-// segmentation. As a compromise to obtain better recall, 1-1 ambigiguity
+// segmentation. As a compromise to obtain better recall, 1-1 ambiguity
 // substitutions ARE used.
 bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID>& target_text,
                                  WERD_RES* word_res) {

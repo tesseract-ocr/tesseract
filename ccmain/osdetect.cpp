@@ -403,7 +403,7 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
     int prev_id = -1;
     int prev_script;
     int prev_class_id = -1;
-    int prev_config = -1;
+    int prev_fontinfo_id = -1;
     const char* prev_unichar = "";
     const char* unichar = "";
     float next_best_score = -1.0;
@@ -427,7 +427,7 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
         prev_script = choice->script_id();
         prev_unichar = unichar;
         prev_class_id = choice->unichar_id();
-        prev_config = choice->config();
+        prev_fontinfo_id = choice->fontinfo_id();
       } else if (-choice->certainty() < prev_score + kNonAmbiguousMargin) {
         ++script_count;
         next_best_score = -choice->certainty();
@@ -451,11 +451,9 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
 
       // Workaround for Fraktur
       if (prev_id == latin_id_) {
-        int font_set_id = tess_->PreTrainedTemplates->
-            Class[prev_class_id]->font_set_id;
-        if (font_set_id >= 0 && prev_config >= 0) {
-          FontInfo fi = tess_->get_fontinfo_table().get(
-              tess_->get_fontset_table().get(font_set_id).configs[prev_config]);
+        if (prev_fontinfo_id >= 0) {
+          const FontInfo &fi =
+              tess_->get_fontinfo_table().get(prev_fontinfo_id);
           //printf("Font: %s i:%i b:%i f:%i s:%i k:%i (%s)\n", fi.name,
           //       fi.is_italic(), fi.is_bold(), fi.is_fixed_pitch(),
           //       fi.is_serif(), fi.is_fraktur(),

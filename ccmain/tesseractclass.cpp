@@ -68,6 +68,14 @@ Tesseract::Tesseract()
                   "Whitelist of chars to recognize", this->params()),
     BOOL_INIT_MEMBER(tessedit_ambigs_training, false,
                 "Perform training for ambiguities", this->params()),
+    INT_MEMBER(pageseg_devanagari_split_strategy,
+              tesseract::ShiroRekhaSplitter::NO_SPLIT,
+              "Whether to use the top-line splitting process for Devanagari "
+              "documents while performing page-segmentation.", this->params()),
+    INT_MEMBER(ocr_devanagari_split_strategy,
+              tesseract::ShiroRekhaSplitter::NO_SPLIT,
+              "Whether to use the top-line splitting process for Devanagari "
+              "documents while performing ocr.", this->params()),
     STRING_MEMBER(tessedit_write_params_to_file, "",
                   "Write all parameters to the given file.", this->params()),
     BOOL_MEMBER(tessedit_adapt_to_char_fragments, true,
@@ -383,6 +391,7 @@ void Tesseract::Clear() {
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);
   orig_image_changed_ = false;
+  splitter_.Clear();
 }
 
 void Tesseract::SetBlackAndWhitelist() {
@@ -391,4 +400,61 @@ void Tesseract::SetBlackAndWhitelist() {
                                      tessedit_char_whitelist.string());
 }
 
+// Perform steps to prepare underlying binary image/other data structures for
+// page segmentation.
+void Tesseract::PrepareForPageseg() {
+  // Perform shiro-rekha (top-line) splitting and replace the current image by
+  // the newly splitted image.
+  splitter_.set_orig_pix(pix_binary());
+  splitter_.set_pageseg_split_strategy(
+      (ShiroRekhaSplitter::SplitStrategy)
+      ((inT32)pageseg_devanagari_split_strategy));
+  if (splitter_.Split(true)) {
+    ASSERT_HOST(splitter_.splitted_image());
+    splitter_.CopySplittedImageTo(NULL, &pix_binary_);
+    orig_image_changed_ = true;
+  }
+}
+
+// Perform steps to prepare underlying binary image/other data structures for
+// OCR. The current segmentation is required by this method.
+void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
+                                  Tesseract* osd_tess, OSResults* osr) {
+  // Creating blobs to OCR.
+  // Utilize the segmentation information available.
+  splitter_.set_segmentation_block_list(block_list);
+  splitter_.set_ocr_split_strategy(
+      (ShiroRekhaSplitter::SplitStrategy)
+      ((inT32)ocr_devanagari_split_strategy));
+  if (splitter_.Split(false)) {
+    ASSERT_HOST(splitter_.splitted_image());
+    splitter_.CopySplittedImageTo(NULL, &pix_binary_);
+    orig_image_changed_ = true;
+    // If the split strategies used before pageseg and ocr are the same, the
+    // segmentation obtained from the second round can be used going forward.
+    // Otherwise, the page-segmentation (& importantly, the word segmentation)
+    // of first round is used.
+    if (splitter_.HasDifferentSplitStrategies()) {
+      // Refresh the segmentation with new blobs.
+      BLOCK_LIST new_segmentation;
+      SegmentPage(NULL, &new_segmentation, osd_tess, osr);
+      C_BLOB_LIST new_blobs;
+      ExtractBlobsFromSegmentation(&new_segmentation, &new_blobs);
+      splitter_.RefreshSegmentationWithNewBlobs(&new_blobs);
+    } else {
+      block_list->clear();
+      SegmentPage(NULL, block_list, osd_tess, osr);
+    }
+  }
+}
+
+// Perform steps to prepare underlying binary image/other data structures for
+// Cube OCR.
+void Tesseract::PrepareForCubeOCR() {
+  if (orig_image_changed_) {
+    // Revert to the original image as Cube likes them more.
+    splitter_.CopyOriginalImageTo(NULL, &pix_binary_);
+    orig_image_changed_ = false;
+  }
+}
 }  // namespace tesseract

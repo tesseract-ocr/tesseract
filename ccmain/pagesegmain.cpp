@@ -102,8 +102,7 @@ static Pix* RemoveEnclosingCircle(Pix* pixs) {
 
 /**
  * Segment the page according to the current value of tessedit_pageseg_mode.
- * If the pix_binary_ member is not NULL, it is used as the source image,
- * and copied to image, otherwise it just uses image as the input.
+ * pix_binary_ is used as the source image and should not be NULL.
  * On return the blocks list owns all the constructed page layout.
  */
 int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
@@ -169,7 +168,8 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
   }
 
   if (blocks->empty()) {
-    tprintf("Empty page\n");
+    if (textord_debug_tabfind)
+      tprintf("Empty page\n");
     return 0;  // AutoPageSeg found an empty page.
   }
 

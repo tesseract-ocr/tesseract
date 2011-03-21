@@ -721,7 +721,7 @@ BOOL8 Tesseract::word_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
   if (color_mode != CM_RAINBOW && word_res->box_word != NULL) {
     BoxWord* box_word = word_res->box_word;
     int length = box_word->length();
-    int font_id = word_res->font1;
+    int font_id = word_res->fontinfo_id;
     if (font_id < 0) font_id = 0;
     const UnicityTable<FontInfo> &font_table = get_fontinfo_table();
     FontInfo font_info = font_table.get(font_id);

@@ -737,12 +737,15 @@ void Tesseract::merge_tess_fails(WERD_RES *word_res) {
       unicharset,
       NewPermanentTessCallback(this, &Tesseract::BothSpaces), NULL,
       word_res->best_choice->blob_choices())) {
-    tprintf("Post:bc len=%d, rejmap=%d, boxword=%d, chopword=%d, rebuild=%d\n",
-            word_res->best_choice->length(),
-            word_res->reject_map.length(),
-            word_res->box_word->length(),
-            word_res->chopped_word->NumBlobs(),
-            word_res->rebuild_word->NumBlobs());
+    if (crunch_debug) {
+      tprintf("Post:bc len=%d, rejmap=%d, boxword=%d, chopword=%d,"
+              " rebuild=%d\n",
+              word_res->best_choice->length(),
+              word_res->reject_map.length(),
+              word_res->box_word->length(),
+              word_res->chopped_word->NumBlobs(),
+              word_res->rebuild_word->NumBlobs());
+    }
     int len = word_res->best_choice->length();
     ASSERT_HOST(word_res->reject_map.length() == len);
     ASSERT_HOST(word_res->box_word->length() == len);
