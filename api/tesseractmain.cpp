@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
   api.SetOutputName(output);
   api.SetPageSegMode(pagesegmode);
   api.Init(argv[0], lang, tesseract::OEM_DEFAULT,
-           &(argv[arg]), argc - arg, false);
+           &(argv[arg]), argc - arg, NULL, NULL, false);
 
   tprintf(_("Tesseract Open Source OCR Engine v%s with Leptonica\n"),
            tesseract::TessBaseAPI::Version());

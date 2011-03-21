@@ -95,6 +95,7 @@ TessBaseAPI::TessBaseAPI()
     language_(NULL),
     last_oem_requested_(OEM_DEFAULT),
     recognition_done_(false),
+    truth_cb_(NULL),
     rect_left_(0), rect_top_(0), rect_width_(0), rect_height_(0),
     image_width_(0), image_height_(0) {
 }
@@ -130,11 +131,6 @@ void TessBaseAPI::SetOutputName(const char* name) {
 bool TessBaseAPI::SetVariable(const char* name, const char* value) {
   if (tesseract_ == NULL) tesseract_ = new Tesseract;
   return ParamUtils::SetParam(name, value, false, tesseract_->params());
-}
-
-bool TessBaseAPI::SetVariableIfInit(const char* name, const char* value) {
-  if (tesseract_ == NULL) tesseract_ = new Tesseract;
-  return ParamUtils::SetParam(name, value, true, tesseract_->params());
 }
 
 bool TessBaseAPI::GetIntVariable(const char *name, int *value) const {
@@ -185,7 +181,9 @@ void TessBaseAPI::PrintVariables(FILE *fp) const {
 // Returns 0 on success and -1 on initialization failure.
 int TessBaseAPI::Init(const char* datapath, const char* language,
                       OcrEngineMode oem, char **configs, int configs_size,
-                      bool configs_init_only) {
+                      const GenericVector<STRING> *vars_vec,
+                      const GenericVector<STRING> *vars_values,
+                      bool set_only_init_params) {
   // If the datapath, OcrEngineMode or the language have changed - start again.
   // Note that the language_ field stores the last requested language that was
   // initialized successfully, while tesseract_->lang stores the language
@@ -206,7 +204,8 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
     tesseract_ = new Tesseract;
     if (tesseract_->init_tesseract(
             datapath, output_file_ != NULL ? output_file_->string() : NULL,
-            language, oem, configs, configs_size, configs_init_only) != 0) {
+            language, oem, configs, configs_size, vars_vec, vars_values,
+            set_only_init_params) != 0) {
       return -1;
     }
   }
@@ -305,6 +304,7 @@ void TessBaseAPI::ClearAdaptiveClassifier() {
   if (tesseract_ == NULL)
     return;
   tesseract_->ResetAdaptiveClassifier();
+  tesseract_->getDict().ResetDocumentDictionary();
 }
 
 // Provide an image for Tesseract to recognize. Format is as
@@ -542,6 +542,8 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     tesseract_->CorrectClassifyWords(page_res_);
     return 0;
   }
+  if (truth_cb_ != NULL) truth_cb_->Run(image_height_, page_res_);
+
   if (tesseract_->interactive_mode) {
     tesseract_->pgeditor_main(rect_width_, rect_height_, page_res_);
     // The page_res is invalid after an interactive session, so cleanup
@@ -1391,6 +1393,8 @@ int TessBaseAPI::FindLines() {
     return -1;
   }
 
+  tesseract_->PrepareForPageseg();
+
   Tesseract* osd_tess = osd_tesseract_;
   OSResults osr;
   if (PSM_OSD_ENABLED(tesseract_->tessedit_pageseg_mode) && osd_tess == NULL) {
@@ -1400,7 +1404,7 @@ int TessBaseAPI::FindLines() {
       osd_tesseract_ = new Tesseract;
       if (osd_tesseract_->init_tesseract(
           datapath_->string(), NULL, "osd", OEM_TESSERACT_ONLY,
-          NULL, 0, false) == 0) {
+          NULL, 0, NULL, NULL, false) == 0) {
         osd_tess = osd_tesseract_;
       } else {
         tprintf("Warning: Auto orientation and script detection requested,"
@@ -1413,6 +1417,16 @@ int TessBaseAPI::FindLines() {
 
   if (tesseract_->SegmentPage(input_file_, block_list_, osd_tess, &osr) < 0)
     return -1;
+  // If OCR is to be run using Tesseract, OCR-able blobs are required for
+  // training, or interactive mode is needed, prepare data and images for ocr.
+  if (tesseract_->interactive_mode ||
+      tesseract_->tessedit_train_from_boxes ||
+      tesseract_->tessedit_ambigs_training ||
+      tesseract_->tessedit_ocr_engine_mode == OEM_TESSERACT_ONLY ||
+      tesseract_->tessedit_ocr_engine_mode ==
+      OEM_TESSERACT_CUBE_COMBINED) {
+    tesseract_->PrepareForTessOCR(block_list_, osd_tess, &osr);
+  }
   return 0;
 }
 
@@ -1686,7 +1700,7 @@ void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
   }
 
   if (blob->outlines)
-    tesseract_->AdaptToChar(blob, id, threshold);
+    tesseract_->AdaptToChar(blob, id, kUnknownFontinfoId, threshold);
   delete blob;
 }
 
@@ -1867,7 +1881,6 @@ ROW* TessBaseAPI::FindRowForBox(BLOCK_LIST* blocks,
 void TessBaseAPI::RunAdaptiveClassifier(TBLOB* blob, const DENORM& denorm,
                                         int num_max_matches,
                                         int* unichar_ids,
-                                        char* configs,
                                         float* ratings,
                                         int* num_matches_returned) {
   BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
@@ -1881,7 +1894,6 @@ void TessBaseAPI::RunAdaptiveClassifier(TBLOB* blob, const DENORM& denorm,
        choices_it.forward()) {
     BLOB_CHOICE* choice = choices_it.data();
     unichar_ids[index] = choice->unichar_id();
-    configs[index] = choice->config();
     ratings[index] = choice->rating();
     ++index;
   }

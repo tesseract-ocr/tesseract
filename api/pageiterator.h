@@ -147,6 +147,17 @@ class PageIterator {
   bool Baseline(PageIteratorLevel level,
                 int* x1, int* y1, int* x2, int* y2) const;
 
+  // Returns orientation for the block the iterator points to.
+  //   orientation, writing_direction, textline_order: see publictypes.h
+  //   deskew_angle: after rotating the block so the text orientation is
+  //                 upright, how many radians does one have to rotate the
+  //                 block anti-clockwise for it to be level?
+  //                   -Pi/4 <= deskew_angle <= Pi/4
+  void Orientation(tesseract::Orientation *orientation,
+                   tesseract::WritingDirection *writing_direction,
+                   tesseract::TextlineOrder *textline_order,
+                   float *deskew_angle);
+
  protected:
   // Sets up the internal data for iterating the blobs of a new word, then
   // moves the iterator to the given offset.

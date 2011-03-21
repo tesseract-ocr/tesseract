@@ -24,8 +24,10 @@
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
 #include "apitypes.h"
+#include "genericvector.h"
 #include "thresholder.h"
 #include "unichar.h"
+#include "tesscallback.h"
 
 class PAGE_RES;
 class PAGE_RES_IT;
@@ -71,11 +73,12 @@ class Trie;
 
 typedef int (Dict::*DictFunc)(void* void_dawg_args,
                               UNICHAR_ID unichar_id, bool word_end);
-typedef double (Dict::*ProbabilityInContextFunc)(const char* context,
+typedef double (Dict::*ProbabilityInContextFunc)(const char* lang,
+                                                 const char* context,
                                                  int context_bytes,
                                                  const char* character,
                                                  int character_bytes);
-
+typedef TessCallback2<int, PAGE_RES *> TruthCallback;
 
 /**
  * Base class for all tesseract APIs.
@@ -115,11 +118,10 @@ class TESSDLL_API TessBaseAPI {
    * defaults on End().
    * TODO(rays) Add a command-line option to dump the parameters to stdout
    * and add a pointer to it in the FAQ
+   *
+   * Note: Must be called after Init().
    */
   bool SetVariable(const char* name, const char* value);
-  // Same as above, but the parameter is set only if it is one of the "init"
-  // parameters (defined with *_INIT_* macro).
-  bool SetVariableIfInit(const char *name, const char *value);
 
   // Returns true if the parameter was found among Tesseract parameters.
   // Fills in value with the value of the parameter.
@@ -161,12 +163,15 @@ class TESSDLL_API TessBaseAPI {
    * to be set before Init.
    */
   int Init(const char* datapath, const char* language, OcrEngineMode mode,
-           char **configs, int configs_size, bool configs_init_only);
+           char **configs, int configs_size,
+           const GenericVector<STRING> *vars_vec,
+           const GenericVector<STRING> *vars_values,
+           bool set_only_init_params);
   int Init(const char* datapath, const char* language, OcrEngineMode oem) {
-    return Init(datapath, language, oem, NULL, 0, false);
+    return Init(datapath, language, oem, NULL, 0, NULL, NULL, false);
   }
   int Init(const char* datapath, const char* language) {
-    return Init(datapath, language, OEM_DEFAULT, NULL, 0, false);
+    return Init(datapath, language, OEM_DEFAULT, NULL, 0, NULL, NULL, false);
   }
 
   /**
@@ -507,7 +512,6 @@ class TESSDLL_API TessBaseAPI {
   void RunAdaptiveClassifier(TBLOB* blob, const DENORM& denorm,
                              int num_max_matches,
                              int* unichar_ids,
-                             char* configs,
                              float* ratings,
                              int* num_matches_returned);
 
@@ -539,6 +543,8 @@ class TESSDLL_API TessBaseAPI {
   Tesseract* const tesseract() const {
     return tesseract_;
   }
+
+  void InitTruthCallback(TruthCallback *cb) { truth_cb_ = cb; }
 
   // Return a pointer to underlying CubeRecoContext object if present.
   CubeRecoContext *GetCubeRecoContext() const;
@@ -635,7 +641,8 @@ class TESSDLL_API TessBaseAPI {
   STRING*           datapath_;        ///< Current location of tessdata.
   STRING*           language_;        ///< Last initialized language.
   OcrEngineMode last_oem_requested_;  ///< Last ocr language mode requested.
-  bool          recognition_done_;    ///< page_res_ contains recognition data.
+  bool          recognition_done_;   ///< page_res_ contains recognition data.
+  TruthCallback *truth_cb_;           /// fxn for setting truth_* in WERD_RES
 
   /**
    * @defgroup ThresholderParams

@@ -342,6 +342,52 @@ bool PageIterator::Baseline(PageIteratorLevel level,
   return true;
 }
 
+void PageIterator::Orientation(tesseract::Orientation *orientation,
+                               tesseract::WritingDirection *writing_direction,
+                               tesseract::TextlineOrder *textline_order,
+                               float *deskew_angle) {
+  BLOCK* block = it_->block()->block;
+
+  // Orientation
+  FCOORD up_in_image(0.0, 1.0);
+  up_in_image.unrotate(block->classify_rotation());
+  up_in_image.rotate(block->re_rotation());
+
+  if (up_in_image.x() == 0.0F) {
+    if (up_in_image.y() > 0.0F) {
+      *orientation = ORIENTATION_PAGE_UP;
+    } else {
+      *orientation = ORIENTATION_PAGE_DOWN;
+    }
+  } else if (up_in_image.x() > 0.0F) {
+    *orientation = ORIENTATION_PAGE_RIGHT;
+  } else {
+    *orientation = ORIENTATION_PAGE_LEFT;
+  }
+
+  // Writing direction
+  bool is_vertical_text = (block->classify_rotation().x() == 0.0);
+  bool right_to_left = block->right_to_left();
+  *writing_direction =
+      is_vertical_text
+          ? WRITING_DIRECTION_TOP_TO_BOTTOM
+          : (right_to_left
+                ? WRITING_DIRECTION_RIGHT_TO_LEFT
+                : WRITING_DIRECTION_LEFT_TO_RIGHT);
+
+  // Textline Order
+  bool is_mongolian = false;  // TODO(eger): fix me
+  *textline_order = is_vertical_text
+      ? (is_mongolian
+         ? TEXTLINE_ORDER_LEFT_TO_RIGHT
+         : TEXTLINE_ORDER_RIGHT_TO_LEFT)
+      : TEXTLINE_ORDER_TOP_TO_BOTTOM;
+
+  // Deskew angle
+  FCOORD skew = block->skew();  // true horizontal for textlines
+  *deskew_angle = -skew.angle();
+}
+
 // Sets up the internal data for iterating the blobs of a new word, then
 // moves the iterator to the given offset.
 void PageIterator::BeginWord(int offset) {

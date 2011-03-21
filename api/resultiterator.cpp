@@ -157,7 +157,7 @@ const char* ResultIterator::WordFontAttributes(bool* is_bold,
                                                int* pointsize,
                                                int* font_id) const {
   if (it_->word() == NULL) return NULL;  // Already at the end!
-  *font_id = it_->word()->font1;
+  *font_id = it_->word()->fontinfo_id;
   if (*font_id < 0) return NULL;  // No font available.
   const UnicityTable<FontInfo> &font_table = tesseract_->get_fontinfo_table();
   FontInfo font_info = font_table.get(*font_id);
