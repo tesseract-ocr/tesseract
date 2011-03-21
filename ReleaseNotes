@@ -32,6 +32,10 @@ Tesseract release notes Oct 1 2010 - V3.01
   * Handling of vertical text improved.
   * Handling of leader dots improved.
   * Table detection greatly improved.
+  * Fixed a couple of memory leaks.
+  * Fixed font labels on output text. (Not brilliant, but a lot better than before.)
+  * Cleanup and more bug fixes
+	* Special treatments for Hindi.
 
 Tesseract release notes Sep 30 2010 - V3.00
   * Preparations for thread safety:

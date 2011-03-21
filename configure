@@ -17662,9 +17662,6 @@ do
     "tessdata/configs/Makefile") CONFIG_FILES="$CONFIG_FILES tessdata/configs/Makefile" ;;
     "tessdata/tessconfigs/Makefile") CONFIG_FILES="$CONFIG_FILES tessdata/tessconfigs/Makefile" ;;
     "testing/Makefile") CONFIG_FILES="$CONFIG_FILES testing/Makefile" ;;
-    "vs2008/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/Makefile" ;;
-    "vs2008/include/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/include/Makefile" ;;
-    "vs2008/include/leptonica/Makefile") CONFIG_FILES="$CONFIG_FILES vs2008/include/leptonica/Makefile" ;;
     "java/Makefile") CONFIG_FILES="$CONFIG_FILES java/Makefile" ;;
     "java/com/Makefile") CONFIG_FILES="$CONFIG_FILES java/com/Makefile" ;;
     "java/com/google/Makefile") CONFIG_FILES="$CONFIG_FILES java/com/google/Makefile" ;;
