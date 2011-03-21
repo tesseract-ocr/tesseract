@@ -47,6 +47,14 @@ const char Trie::kPuncPatternUnicode[] = "\u2003";
 const char Trie::kLowerPatternUnicode[] = "\u2004";
 const char Trie::kUpperPatternUnicode[] = "\u2005";
 
+// Reset the Trie to empty.
+void Trie::clear() {
+  nodes_.delete_data_pointers();
+  nodes_.clear();
+  num_edges_ = 0;
+  new_dawg_node();  // Need to allocate node 0.
+}
+
 bool Trie::edge_char_of(NODE_REF node_ref, NODE_REF next_node,
                         int direction, bool word_end, UNICHAR_ID unichar_id,
                         EDGE_RECORD **edge_ptr, EDGE_INDEX *edge_index) const {
@@ -224,9 +232,7 @@ void Trie::add_word_to_dawg(const WERD_CHOICE &word,
   }
   if (add_failed) {
     tprintf("Re-initializing document dictionary...\n");
-    nodes_.delete_data_pointers();
-    num_edges_ = 0;
-    new_dawg_node();  // need to allocate node 0
+    clear();
   }
 }
 

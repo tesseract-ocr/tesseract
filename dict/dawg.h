@@ -326,21 +326,6 @@ class DawgInfoVector : public GenericVector<DawgInfo> {
     }
     return true;
   }
-  /// Removes an entry that equals to the given DawgInfo.
-  /// This function assumes that the entries in the vector are unique.
-  /// Returns true if an entry was found and removed.
-  inline bool remove(const DawgInfo &info) {
-    for (int i = 0; i < size_used_; ++i) {
-      if (data_[i] == info) {
-        for (int j = i + 1; j < size_used_; ++j) {
-          data_[j-1] = data_[j];
-        }
-        size_used_--;
-        return true;
-      }
-    }
-    return false;
-  }
 };
 
 //

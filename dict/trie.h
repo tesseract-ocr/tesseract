@@ -88,6 +88,9 @@ class Trie : public Dawg {
   }
   ~Trie() { nodes_.delete_data_pointers(); }
 
+  // Reset the Trie to empty.
+  void clear();
+
   /** Returns the edge that corresponds to the letter out of this node. */
   EDGE_REF edge_char_of(NODE_REF node_ref, UNICHAR_ID unichar_id,
                         bool word_end) const {

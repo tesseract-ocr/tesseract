@@ -459,6 +459,14 @@ class Dict {
   void Load();
   void End();
 
+  // Resets the document dictionary analogous to ResetAdaptiveClassifier.
+  void ResetDocumentDictionary() {
+    if (pending_words_ != NULL)
+      pending_words_->clear();
+    if (document_words_ != NULL)
+      document_words_->clear();
+  }
+
   /**
    * Returns the maximal permuter code (from ccstruct/ratngs.h) if in light
    * of the current state the letter at word_index in the given word
