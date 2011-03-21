@@ -43,10 +43,16 @@ typedef struct
   PROTO_ID MaxProtoId;
   LIST ContextsSeen;
   BIT_VECTOR Protos;
+  int FontinfoId;  // font information inferred from pre-trained templates
 } TEMP_CONFIG_STRUCT;
 typedef TEMP_CONFIG_STRUCT *TEMP_CONFIG;
 
-typedef UNICHAR_ID *PERM_CONFIG;
+typedef struct
+{
+  UNICHAR_ID *Ambigs;
+  int FontinfoId;  // font information inferred from pre-trained templates
+} PERM_CONFIG_STRUCT;
+typedef PERM_CONFIG_STRUCT *PERM_CONFIG;
 
 typedef union
 {
@@ -116,7 +122,7 @@ void free_adapted_class(ADAPT_CLASS adapt_class);
 
 void free_adapted_templates(ADAPT_TEMPLATES templates);
 
-TEMP_CONFIG NewTempConfig(int MaxProtoId);
+TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId);
 
 TEMP_PROTO NewTempProto();
 

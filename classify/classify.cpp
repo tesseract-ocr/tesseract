@@ -45,6 +45,10 @@ bool compare_font_set(const FontSet& fs1, const FontSet& fs2) {
 }
 
 void delete_callback(FontInfo f) {
+  if (f.spacing_vec != NULL) {
+    f.spacing_vec->delete_data_pointers();
+    delete f.spacing_vec;
+  }
   delete[] f.name;
 }
 void delete_callback_fs(FontSet fs) {

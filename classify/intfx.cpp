@@ -374,7 +374,7 @@ int ExtractIntFeat(TBLOB *Blob,
 //    made by vector <X, Y> as measured counterclockwise from <-1, 0>
 // The order of the arguments follows the convention of atan2(3)
 uinT8 BinaryAnglePlusPi(inT32 Y, inT32 X) {
-  inT16 Angle;
+  inT16 Angle, Atan;
   uinT16 Ratio;
   uinT32 AbsX, AbsY;
 
@@ -393,26 +393,26 @@ uinT8 BinaryAnglePlusPi(inT32 Y, inT32 X) {
     Ratio = AbsX * ATAN_TABLE_SIZE / AbsY;
   if (Ratio >= ATAN_TABLE_SIZE)
     Ratio = ATAN_TABLE_SIZE - 1;
-  Angle = AtanTable[Ratio];
+  Atan = AtanTable[Ratio];
   if (X >= 0)
     if (Y >= 0)
       if (AbsX > AbsY)
-        Angle = Angle;
+        Angle = Atan;
       else
-        Angle = 64 - Angle;
+        Angle = 64 - Atan;
     else if (AbsX > AbsY)
-      Angle = 256 - Angle;
+      Angle = 256 - Atan;
     else
-      Angle = 192 + Angle;
+      Angle = 192 + Atan;
   else if (Y >= 0)
     if (AbsX > AbsY)
-      Angle = 128 - Angle;
+      Angle = 128 - Atan;
     else
-      Angle = 64 + Angle;
+      Angle = 64 + Atan;
   else if (AbsX > AbsY)
-    Angle = 128 + Angle;
+    Angle = 128 + Atan;
   else
-    Angle = 192 - Angle;
+    Angle = 192 - Atan;
 
   /* reverse angles to match old feature extractor:   Angle += PI */
   Angle += 128;

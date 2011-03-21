@@ -45,23 +45,21 @@
 #endif
 
 /* match debug display constants*/
-#define DISPLAY_OFFSET  (0.5  * INT_CHAR_NORM_RANGE)
 #define PROTO_PRUNER_SCALE  (4.0)
 
-#define INT_DESCENDER (0.0  * INT_CHAR_NORM_RANGE - DISPLAY_OFFSET)
-#define INT_BASELINE  (0.25 * INT_CHAR_NORM_RANGE - DISPLAY_OFFSET)
-#define INT_XHEIGHT (0.75 * INT_CHAR_NORM_RANGE - DISPLAY_OFFSET)
-#define INT_CAPHEIGHT (1.0  * INT_CHAR_NORM_RANGE - DISPLAY_OFFSET)
+#define INT_DESCENDER (0.0  * INT_CHAR_NORM_RANGE)
+#define INT_BASELINE  (0.25 * INT_CHAR_NORM_RANGE)
+#define INT_XHEIGHT (0.75 * INT_CHAR_NORM_RANGE)
+#define INT_CAPHEIGHT (1.0  * INT_CHAR_NORM_RANGE)
 
-#define INT_XCENTER (0.5  * INT_CHAR_NORM_RANGE - DISPLAY_OFFSET)
-#define INT_YCENTER (0.5  * INT_CHAR_NORM_RANGE - DISPLAY_OFFSET)
+#define INT_XCENTER (0.5  * INT_CHAR_NORM_RANGE)
+#define INT_YCENTER (0.5  * INT_CHAR_NORM_RANGE)
 #define INT_XRADIUS (0.2  * INT_CHAR_NORM_RANGE)
 #define INT_YRADIUS (0.2  * INT_CHAR_NORM_RANGE)
-#define INT_MIN_X (- DISPLAY_OFFSET)
-#define INT_MIN_Y (- DISPLAY_OFFSET)
-#define INT_MAX_X (  DISPLAY_OFFSET)
-#define INT_MAX_Y (  DISPLAY_OFFSET)
-#define DOUBLE_OFFSET 0.095
+#define INT_MIN_X 0
+#define INT_MIN_Y 0
+#define INT_MAX_X INT_CHAR_NORM_RANGE
+#define INT_MAX_Y INT_CHAR_NORM_RANGE
 
 /** define pad used to snap near horiz/vertical protos to horiz/vertical */
 #define HV_TOLERANCE  (0.0025)   /* approx 0.9 degrees */
@@ -147,7 +145,7 @@ void GetCPPadsForLevel(int Level,
                        FLOAT32 *SidePad,
                        FLOAT32 *AnglePad);
 
-C_COL GetMatchColorFor(FLOAT32 Evidence);
+ScrollView::Color GetMatchColorFor(FLOAT32 Evidence);
 
 void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill);
 
@@ -158,12 +156,13 @@ void InitTableFiller(FLOAT32 EndPad,
                      TABLE_FILLER *Filler);
 
 #ifndef GRAPHICS_DISABLED
-void RenderIntFeature(void *window, INT_FEATURE Feature, C_COL Color);
+void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
+                      ScrollView::Color color);
 
-void RenderIntProto(void *window,
+void RenderIntProto(ScrollView *window,
                     INT_CLASS Class,
                     PROTO_ID ProtoId,
-                    C_COL Color);
+                    ScrollView::Color color);
 #endif
 
 int TruncateParam(FLOAT32 Param, int Min, int Max, char *Id);
@@ -488,7 +487,7 @@ void UpdateMatchDisplay() {
  ** History: Thu Mar 21 15:40:19 1991, DSJ, Created.
  */
   if (IntMatchWindow != NULL)
-    c_make_current(IntMatchWindow);
+    IntMatchWindow->Update();
 }                                /* ClearMatchDisplay */
 #endif
 
@@ -650,12 +649,10 @@ void DisplayIntFeature(INT_FEATURE Feature, FLOAT32 Evidence) {
  ** Exceptions: none
  ** History: Thu Mar 21 14:45:04 1991, DSJ, Created.
  */
-  C_COL Color;
-
-  Color = GetMatchColorFor(Evidence);
-  RenderIntFeature(IntMatchWindow, Feature, Color);
+  ScrollView::Color color = GetMatchColorFor(Evidence);
+  RenderIntFeature(IntMatchWindow, Feature, color);
   if (FeatureDisplayWindow) {
-    RenderIntFeature(FeatureDisplayWindow, Feature, Color);
+    RenderIntFeature(FeatureDisplayWindow, Feature, color);
   }
 }                                /* DisplayIntFeature */
 
@@ -675,12 +672,10 @@ void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence) {
  ** Exceptions: none
  ** History: Thu Mar 21 14:45:04 1991, DSJ, Created.
  */
-  C_COL Color;
-
-  Color = GetMatchColorFor(Evidence);
-  RenderIntProto(IntMatchWindow, Class, ProtoId, Color);
+  ScrollView::Color color = GetMatchColorFor(Evidence);
+  RenderIntProto(IntMatchWindow, Class, ProtoId, color);
   if (ProtoDisplayWindow) {
-    RenderIntProto(ProtoDisplayWindow, Class, ProtoId, Color);
+    RenderIntProto(ProtoDisplayWindow, Class, ProtoId, color);
   }
 }                                /* DisplayIntProto */
 #endif
@@ -809,6 +804,66 @@ bool write_info(FILE* f, const FontInfo& fi) {
   if (fwrite(&size, sizeof(size), 1, f) != 1) return false;
   if (fwrite(fi.name, sizeof(*fi.name), size, f) != size) return false;
   if (fwrite(&fi.properties, sizeof(fi.properties), 1, f) != 1) return false;
+  return true;
+}
+
+bool read_spacing_info(FILE *f, FontInfo* fi, bool swap) {
+  inT32 vec_size, kern_size;
+  if (fread(&vec_size, sizeof(vec_size), 1, f) != 1) return false;
+  if (swap) Reverse32(&vec_size);
+  ASSERT_HOST(vec_size >= 0);
+  if (vec_size == 0) return true;
+  fi->init_spacing(vec_size);
+  for (int i = 0; i < vec_size; ++i) {
+    FontSpacingInfo *fs = new FontSpacingInfo();
+    if (fread(&fs->x_gap_before, sizeof(fs->x_gap_before), 1, f) != 1 ||
+        fread(&fs->x_gap_after, sizeof(fs->x_gap_after), 1, f) != 1 ||
+        fread(&kern_size, sizeof(kern_size), 1, f) != 1) {
+      return false;
+    }
+    if (swap) {
+      ReverseN(&(fs->x_gap_before), sizeof(fs->x_gap_before));
+      ReverseN(&(fs->x_gap_after), sizeof(fs->x_gap_after));
+      Reverse32(&kern_size);
+    }
+    if (kern_size < 0) {  // indication of a NULL entry in fi->spacing_vec
+      delete fs;
+      continue;
+    }
+    if (kern_size > 0 && (!fs->kerned_unichar_ids.DeSerialize(swap, f) ||
+                          !fs->kerned_x_gaps.DeSerialize(swap, f))) {
+      return false;
+    }
+    fi->add_spacing(i, fs);
+  }
+  return true;
+}
+
+bool write_spacing_info(FILE* f, const FontInfo& fi) {
+  inT32 vec_size = (fi.spacing_vec == NULL) ? 0 : fi.spacing_vec->size();
+  if (fwrite(&vec_size,  sizeof(vec_size), 1, f) != 1) return false;
+  inT16 x_gap_invalid = -1;
+  for (int i = 0; i < vec_size; ++i) {
+    FontSpacingInfo *fs = fi.spacing_vec->get(i);
+    inT32 kern_size = (fs == NULL) ? -1 : fs->kerned_x_gaps.size();
+    if (fs == NULL) {
+      if (fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
+          fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
+          fwrite(&kern_size, sizeof(kern_size), 1, f) != 1) {
+        return false;
+      }
+    } else {
+      if (fwrite(&(fs->x_gap_before), sizeof(fs->x_gap_before), 1, f) != 1 ||
+          fwrite(&(fs->x_gap_after), sizeof(fs->x_gap_after), 1, f) != 1 ||
+          fwrite(&kern_size, sizeof(kern_size), 1, f) != 1) {
+        return false;
+      }
+    }
+    if (kern_size > 0 && (!fs->kerned_unichar_ids.Serialize(f) ||
+                          !fs->kerned_x_gaps.Serialize(f))) {
+      return false;
+    }
+  }
   return true;
 }
 
@@ -1130,6 +1185,11 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   }
   if (version_id >= 4) {
     this->fontinfo_table_.read(File, NewPermanentTessCallback(read_info), swap);
+    if (version_id >= 5) {
+      this->fontinfo_table_.read(File,
+                                 NewPermanentTessCallback(read_spacing_info),
+                                 swap);
+    }
     this->fontset_table_.read(File, NewPermanentTessCallback(read_set), swap);
   }
 
@@ -1156,52 +1216,18 @@ void Classify::ShowMatchDisplay() {
  ** Exceptions: none
  ** History: Thu Mar 21 15:47:33 1991, DSJ, Created.
  */
-  void *window;
-  /* Size of drawable */
   InitIntMatchWindowIfReqd();
   c_clear_window(IntMatchWindow);
   if (ProtoDisplayWindow) {
-    c_clear_window(ProtoDisplayWindow);
+    ProtoDisplayWindow->Clear();
   }
   if (FeatureDisplayWindow) {
-    c_clear_window(FeatureDisplayWindow);
+    FeatureDisplayWindow->Clear();
   }
+  ClearFeatureSpaceWindow(
+      static_cast<NORM_METHOD>(static_cast<int>(classify_norm_method)),
+      IntMatchWindow);
 
-  window = IntMatchWindow;
-  c_line_color_index(window, Grey);
-  /* Default size of drawing */
-  if (classify_norm_method == baseline) {
-    c_move (window, -1000.0, INT_BASELINE);
-    c_draw (window, 1000.0, INT_BASELINE);
-    c_move (window, -1000.0, INT_DESCENDER);
-    c_draw (window, 1000.0, INT_DESCENDER);
-    c_move (window, -1000.0, INT_XHEIGHT);
-    c_draw (window, 1000.0, INT_XHEIGHT);
-    c_move (window, -1000.0, INT_CAPHEIGHT);
-    c_draw (window, 1000.0, INT_CAPHEIGHT);
-    c_move (window, INT_MIN_X, -1000.0);
-    c_draw (window, INT_MIN_X, 1000.0);
-    c_move (window, INT_MAX_X, -1000.0);
-    c_draw (window, INT_MAX_X, 1000.0);
-  }
-  else {
-    c_move (window, INT_XCENTER - INT_XRADIUS, INT_YCENTER - INT_YRADIUS);
-    c_draw (window, INT_XCENTER + INT_XRADIUS, INT_YCENTER - INT_YRADIUS);
-    c_move (window, INT_XCENTER - INT_XRADIUS, INT_YCENTER + INT_YRADIUS);
-    c_draw (window, INT_XCENTER + INT_XRADIUS, INT_YCENTER + INT_YRADIUS);
-    c_move (window, INT_XCENTER - INT_XRADIUS, INT_YCENTER - INT_YRADIUS);
-    c_draw (window, INT_XCENTER - INT_XRADIUS, INT_YCENTER + INT_YRADIUS);
-    c_move (window, INT_XCENTER + INT_XRADIUS, INT_YCENTER - INT_YRADIUS);
-    c_draw (window, INT_XCENTER + INT_XRADIUS, INT_YCENTER + INT_YRADIUS);
-    c_move(window, INT_MIN_X, INT_MIN_Y);
-    c_draw(window, INT_MIN_X, INT_MAX_Y);
-    c_move(window, INT_MIN_X, INT_MIN_Y);
-    c_draw(window, INT_MAX_X, INT_MIN_Y);
-    c_move(window, INT_MAX_X, INT_MAX_Y);
-    c_draw(window, INT_MIN_X, INT_MAX_Y);
-    c_move(window, INT_MAX_X, INT_MAX_Y);
-    c_draw(window, INT_MAX_X, INT_MIN_Y);
-  }
   IntMatchWindow->ZoomToRectangle(INT_MIN_X, INT_MIN_Y,
                                   INT_MAX_X, INT_MAX_Y);
   if (ProtoDisplayWindow) {
@@ -1213,6 +1239,29 @@ void Classify::ShowMatchDisplay() {
                                           INT_MAX_X, INT_MAX_Y);
   }
 }                                /* ShowMatchDisplay */
+
+// Clears the given window and draws the featurespace guides for the
+// appropriate normalization method.
+void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window) {
+  window->Clear();
+
+  window->Pen(ScrollView::GREY);
+  // Draw the feature space limit rectangle.
+  window->Rectangle(0, 0, INT_MAX_X, INT_MAX_Y);
+  if (norm_method == baseline) {
+    window->SetCursor(0, INT_DESCENDER);
+    window->DrawTo(INT_MAX_X, INT_DESCENDER);
+    window->SetCursor(0, INT_BASELINE);
+    window->DrawTo(INT_MAX_X, INT_BASELINE);
+    window->SetCursor(0, INT_XHEIGHT);
+    window->DrawTo(INT_MAX_X, INT_XHEIGHT);
+    window->SetCursor(0, INT_CAPHEIGHT);
+    window->DrawTo(INT_MAX_X, INT_CAPHEIGHT);
+  } else {
+    window->Rectangle(INT_XCENTER - INT_XRADIUS, INT_YCENTER - INT_YRADIUS,
+                      INT_XCENTER + INT_XRADIUS, INT_YCENTER + INT_YRADIUS);
+  }
+}
 #endif
 
 /*---------------------------------------------------------------------------*/
@@ -1233,7 +1282,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
   int i, j;
   INT_CLASS Class;
   int unicharset_size = target_unicharset.size();
-  int version_id = -4;  // When negated by the reader -1 becomes +1 etc.
+  int version_id = -5;  // When negated by the reader -1 becomes +1 etc.
 
   if (Templates->NumClasses != unicharset_size) {
     cprintf("Warning: executing WriteIntTemplates() with %d classes in"
@@ -1283,6 +1332,8 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
 
   /* Write the fonts info tables */
   this->fontinfo_table_.write(File, NewPermanentTessCallback(write_info));
+  this->fontinfo_table_.write(File,
+                              NewPermanentTessCallback(write_spacing_info));
   this->fontset_table_.write(File, NewPermanentTessCallback(write_set));
 }                                /* WriteIntTemplates */
 } // namespace tesseract
@@ -1588,7 +1639,7 @@ void GetCPPadsForLevel(int Level,
 
 
 /*---------------------------------------------------------------------------*/
-C_COL GetMatchColorFor(FLOAT32 Evidence) {
+ScrollView::Color GetMatchColorFor(FLOAT32 Evidence) {
 /*
  ** Parameters:
  **   Evidence  evidence value to return color for
@@ -1603,13 +1654,13 @@ C_COL GetMatchColorFor(FLOAT32 Evidence) {
   assert (Evidence <= 1.0);
 
   if (Evidence >= 0.90)
-    return White;
+    return ScrollView::WHITE;
   else if (Evidence >= 0.75)
-    return Green;
+    return ScrollView::GREEN;
   else if (Evidence >= 0.50)
-    return Red;
+    return ScrollView::RED;
   else
-    return Blue;
+    return ScrollView::BLUE;
 }                                /* GetMatchColorFor */
 
 
@@ -1839,7 +1890,8 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 
 /*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-void RenderIntFeature(void *window, INT_FEATURE Feature, C_COL Color) {
+void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
+                      ScrollView::Color color) {
 /*
  ** Parameters:
  **   ShapeList shape list to add feature rendering to
@@ -1853,20 +1905,27 @@ void RenderIntFeature(void *window, INT_FEATURE Feature, C_COL Color) {
  */
   FLOAT32 X, Y, Dx, Dy, Length;
 
-  c_line_color_index(window, Color);
+  window->Pen(color);
   assert(Feature != NULL);
-  assert(Color != 0);
+  assert(color != 0);
 
-  X = Feature->X - DISPLAY_OFFSET;
-  Y = Feature->Y - DISPLAY_OFFSET;
+  X = Feature->X;
+  Y = Feature->Y;
   Length = GetPicoFeatureLength() * 0.7 * INT_CHAR_NORM_RANGE;
-  Dx = (Length / 2.0) * cos((Feature->Theta / 256.0) * 2.0 * PI);
-  Dy = (Length / 2.0) * sin((Feature->Theta / 256.0) * 2.0 * PI);
+  // The -PI has no significant effect here, but the value of Theta is computed
+  // using BinaryAnglePlusPi in intfx.cpp.
+  Dx = (Length / 2.0) * cos((Feature->Theta / 256.0) * 2.0 * PI - PI);
+  Dy = (Length / 2.0) * sin((Feature->Theta / 256.0) * 2.0 * PI - PI);
+  float x_offset = Dy / 4.0;
+  float y_offset = -Dx / 4.0;
 
-  c_move(window, X - Dx, Y - Dy);
-  c_draw(window, X + Dx, Y + Dy);
-  c_move(window, X - Dx - Dy * DOUBLE_OFFSET, Y - Dy + Dx * DOUBLE_OFFSET);
-  c_draw(window, X + Dx - Dy * DOUBLE_OFFSET, Y + Dy + Dx * DOUBLE_OFFSET);
+  window->SetCursor(X - Dx, Y - Dy);
+  window->DrawTo(X + Dx, Y + Dy);
+  // Draw another copy of the feature offset perpendicualar to its direction.
+  X += x_offset;
+  Y += y_offset;
+  window->SetCursor(X - Dx, Y - Dy);
+  window->DrawTo(X + Dx, Y + Dy);
 }                                /* RenderIntFeature */
 
 
@@ -1887,10 +1946,10 @@ void RenderIntFeature(void *window, INT_FEATURE Feature, C_COL Color) {
  * @note Exceptions: none
  * @note History: Thu Mar 21 10:21:09 1991, DSJ, Created.
  */
-void RenderIntProto(void *window,
+void RenderIntProto(ScrollView *window,
                     INT_CLASS Class,
                     PROTO_ID ProtoId,
-                    C_COL Color) {
+                    ScrollView::Color color) {
   PROTO_SET ProtoSet;
   INT_PROTO Proto;
   int ProtoSetIndex;
@@ -1904,8 +1963,8 @@ void RenderIntProto(void *window,
   assert(ProtoId >= 0);
   assert(Class != NULL);
   assert(ProtoId < Class->NumProtos);
-  assert(Color != 0);
-  c_line_color_index(window, Color);
+  assert(color != 0);
+  window->Pen(color);
 
   ProtoSet = Class->ProtoSets[SetForProto(ProtoId)];
   ProtoSetIndex = IndexForProto(ProtoId);
@@ -1927,13 +1986,15 @@ void RenderIntProto(void *window,
       UpdateRange(Bucket, &Ymin, &Ymax);
     }
   }
-  X = (Xmin + Xmax + 1) / 2.0 * PROTO_PRUNER_SCALE - DISPLAY_OFFSET;
-  Y = (Ymin + Ymax + 1) / 2.0 * PROTO_PRUNER_SCALE - DISPLAY_OFFSET;
-  Dx = (Length / 2.0) * cos((Proto->Angle / 256.0) * 2.0 * PI);
-  Dy = (Length / 2.0) * sin((Proto->Angle / 256.0) * 2.0 * PI);
+  X = (Xmin + Xmax + 1) / 2.0 * PROTO_PRUNER_SCALE;
+  Y = (Ymin + Ymax + 1) / 2.0 * PROTO_PRUNER_SCALE;
+  // The -PI has no significant effect here, but the value of Theta is computed
+  // using BinaryAnglePlusPi in intfx.cpp.
+  Dx = (Length / 2.0) * cos((Proto->Angle / 256.0) * 2.0 * PI - PI);
+  Dy = (Length / 2.0) * sin((Proto->Angle / 256.0) * 2.0 * PI - PI);
 
-  c_move(window, X - Dx, Y - Dy);
-  c_draw(window, X + Dx, Y + Dy);
+  window->SetCursor(X - Dx, Y - Dy);
+  window->DrawTo(X + Dx, Y + Dy);
 }                                /* RenderIntProto */
 #endif
 
@@ -1977,9 +2038,7 @@ int TruncateParam(FLOAT32 Param, int Min, int Max, char *Id) {
  */
 void InitIntMatchWindowIfReqd() {
   if (IntMatchWindow == NULL) {
-    IntMatchWindow = c_create_window("IntMatchWindow", 50, 200,
-                                     520, 520,
-                                     -130.0, 130.0, -130.0, 130.0);
+    IntMatchWindow = CreateFeatureSpaceWindow("IntMatchWindow", 50, 200);
     SVMenuNode* popup_menu = new SVMenuNode();
 
     popup_menu->AddChild("Debug Adapted classes", IDA_ADAPTIVE,
@@ -1998,10 +2057,9 @@ void InitIntMatchWindowIfReqd() {
  */
 void InitProtoDisplayWindowIfReqd() {
   if (ProtoDisplayWindow == NULL) {
-    ProtoDisplayWindow = c_create_window("ProtoDisplayWindow", 50, 200,
-                                         520, 520,
-                                         -130.0, 130.0, -130.0, 130.0);
-  }
+    ProtoDisplayWindow = CreateFeatureSpaceWindow("ProtoDisplayWindow",
+                                                  550, 200);
+ }
 }
 
 /**
@@ -2010,8 +2068,13 @@ void InitProtoDisplayWindowIfReqd() {
  */
 void InitFeatureDisplayWindowIfReqd() {
   if (FeatureDisplayWindow == NULL) {
-    FeatureDisplayWindow = c_create_window("FeatureDisplayWindow", 50, 200,
-                                           520, 520,
-                                           -130.0, 130.0, -130.0, 130.0);
+    FeatureDisplayWindow = CreateFeatureSpaceWindow("FeatureDisplayWindow",
+                                                    50, 700);
   }
+}
+
+// Creates a window of the appropriate size for displaying elements
+// in feature space.
+ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos) {
+  return new ScrollView(name, xpos, ypos, 520, 520, 260, 260, true);
 }

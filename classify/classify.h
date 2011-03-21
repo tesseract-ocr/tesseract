@@ -37,6 +37,9 @@ class WERD_RES;
 struct ADAPT_RESULTS;
 struct NORM_PROTOS;
 
+static const int kUnknownFontinfoId = -1;
+static const int kBlankFontinfoId = -2;
+
 namespace tesseract {
 
 // How segmented is a blob. In this enum, character refers to a classifiable
@@ -63,6 +66,7 @@ class Classify : public CCStruct {
 
   /* adaptive.cpp ************************************************************/
   ADAPT_TEMPLATES NewAdaptedTemplates(bool InitFromUnicharset);
+  int GetFontinfoId(ADAPT_CLASS Class, uinT8 ConfigId);
   int ClassPruner(INT_TEMPLATES IntTemplates,
                             inT16 NumFeatures,
                             INT_FEATURE_ARRAY Features,
@@ -108,13 +112,16 @@ class Classify : public CCStruct {
   void InitAdaptiveClassifier(bool load_pre_trained_templates);
   void InitAdaptedClass(TBLOB *Blob,
                         CLASS_ID ClassId,
+                        int FontinfoId,
                         ADAPT_CLASS Class,
                         ADAPT_TEMPLATES Templates);
   void AdaptToPunc(TBLOB *Blob,
                    CLASS_ID ClassId,
+                   int FontinfoId,
                    FLOAT32 Threshold);
   void AmbigClassifier(TBLOB *Blob,
                        INT_TEMPLATES Templates,
+                       ADAPT_CLASS *Classes,
                        UNICHAR_ID *Ambiguities,
                        ADAPT_RESULTS *Results);
   void MasterMatcher(INT_TEMPLATES templates,
@@ -129,11 +136,13 @@ class Classify : public CCStruct {
                      ADAPT_RESULTS* final_results);
   void ConvertMatchesToChoices(ADAPT_RESULTS *Results,
                                BLOB_CHOICE_LIST *Choices);
-  void AddNewResult(ADAPT_RESULTS *Results,
-                    CLASS_ID ClassId,
-                    FLOAT32 Rating,
-                    int ConfigId,
-                    int config2);
+  void AddNewResult(ADAPT_RESULTS *results,
+                    CLASS_ID class_dd,
+                    FLOAT32 rating,
+                    int config,
+                    int config2,
+                    int fontinfo_id,
+                    int fontinfo_id2);
   int GetAdaptiveFeatures(TBLOB *Blob,
                           INT_FEATURE_ARRAY IntFeatures,
                           FEATURE_SET *FloatFeatures);
@@ -155,6 +164,7 @@ class Classify : public CCStruct {
                              BIT_VECTOR TempProtoMask);
   int MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
                              CLASS_ID ClassId,
+                             int FontinfoId,
                              int NumFeatures,
                              INT_FEATURE_ARRAY Features,
                              FEATURE_SET FloatFeatures);
@@ -182,6 +192,7 @@ class Classify : public CCStruct {
                        ADAPT_RESULTS *Results);
   void AdaptToChar(TBLOB *Blob,
                    CLASS_ID ClassId,
+                   int FontinfoId,
                    FLOAT32 Threshold);
   void DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class);
   int AdaptableWord(TWERD *Word,

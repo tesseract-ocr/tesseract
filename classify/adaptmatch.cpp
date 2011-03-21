@@ -80,6 +80,8 @@ struct ScoredClass {
   FLOAT32 rating;
   inT16 config;
   inT16 config2;
+  inT16 fontinfo_id;
+  inT16 fontinfo_id2;
 };
 
 struct ADAPT_RESULTS {
@@ -100,6 +102,8 @@ struct ADAPT_RESULTS {
      best_match.rating = WORST_POSSIBLE_RATING;
      best_match.config = 0;
      best_match.config2 = 0;
+     best_match.fontinfo_id = kBlankFontinfoId;
+     best_match.fontinfo_id2 = kBlankFontinfoId;
   }
 };
 
@@ -403,9 +407,11 @@ void Classify::LearnPieces(const char* filename, int start, int length,
     }
     UNICHAR_ID class_id = unicharset.unichar_to_id(correct_text);
     if (classify_learning_debug_level >= 1)
-      tprintf("Adapting to char = %s, thr= %g\n",
-               unicharset.id_to_unichar(class_id), threshold);
-    AdaptToChar(blob, class_id, threshold);
+      tprintf("Adapting to char = %s, thr= %g font_id= %d\n",
+              unicharset.id_to_unichar(class_id), threshold, word->fontinfo_id);
+    // If filename is not NULL we are doing recognition
+    // (as opposed to training), so we must have already set word fonts.
+    AdaptToChar(blob, class_id, word->fontinfo_id, threshold);
   }
 
   break_pieces(blob, word->seam_array, start, start + length - 1);
@@ -680,6 +686,7 @@ void Classify::SettupPass2() {
  *
  * @param Blob blob to model new class after
  * @param ClassId id of the class to be initialized
+ * @param FontinfoId font information inferred from pre-trained templates
  * @param Class adapted class to be initialized
  * @param Templates adapted templates to add new class to
  *
@@ -693,6 +700,7 @@ void Classify::SettupPass2() {
  */
 void Classify::InitAdaptedClass(TBLOB *Blob,
                                 CLASS_ID ClassId,
+                                int FontinfoId,
                                 ADAPT_CLASS Class,
                                 ADAPT_TEMPLATES Templates) {
   FEATURE_SET Features;
@@ -712,8 +720,8 @@ void Classify::InitAdaptedClass(TBLOB *Blob,
     return;
   }
 
-  Config = NewTempConfig (NumFeatures - 1);
-  TempConfigFor (Class, 0) = Config;
+  Config = NewTempConfig(NumFeatures - 1, FontinfoId);
+  TempConfigFor(Class, 0) = Config;
 
   /* this is a kludge to construct cutoffs for adapted templates */
   if (Templates == AdaptedTemplates)
@@ -851,6 +859,7 @@ int Classify::AdaptableWord(TWERD *Word,
  * @param Blob blob to add to templates for ClassId
  * @param LineStats statistics about text line blob is in
  * @param ClassId class to add blob to
+ * @param FontinfoId font information from pre-trained templates
  * @param Threshold minimum match rating to existing template
  *
  * Globals:
@@ -864,6 +873,7 @@ int Classify::AdaptableWord(TWERD *Word,
  */
 void Classify::AdaptToChar(TBLOB *Blob,
                            CLASS_ID ClassId,
+                           int FontinfoId,
                            FLOAT32 Threshold) {
   int NumFeatures;
   INT_FEATURE_ARRAY IntFeatures;
@@ -882,7 +892,7 @@ void Classify::AdaptToChar(TBLOB *Blob,
   Class = AdaptedTemplates->Class[ClassId];
   assert(Class != NULL);
   if (IsEmptyAdaptedClass(Class)) {
-    InitAdaptedClass(Blob, ClassId, Class, AdaptedTemplates);
+    InitAdaptedClass(Blob, ClassId, FontinfoId, Class, AdaptedTemplates);
   }
   else {
     IClass = ClassForClassId (AdaptedTemplates->Templates, ClassId);
@@ -892,10 +902,20 @@ void Classify::AdaptToChar(TBLOB *Blob,
       return;
 
     im_.SetBaseLineMatch();
-    im_.Match(IClass, AllProtosOn, AllConfigsOn,
+    // Only match configs with the matching font.
+    BIT_VECTOR MatchingFontConfigs = NewBitVector(MAX_NUM_PROTOS);
+    for (int cfg = 0; cfg < IClass->NumConfigs; ++cfg) {
+      if (GetFontinfoId(Class, cfg) == FontinfoId) {
+        SET_BIT(MatchingFontConfigs, cfg);
+      } else {
+        reset_bit(MatchingFontConfigs, cfg);
+      }
+    }
+    im_.Match(IClass, AllProtosOn, MatchingFontConfigs,
               NumFeatures, NumFeatures, IntFeatures, 0,
               &IntResult, classify_adapt_feature_threshold,
               NO_DEBUG, matcher_debug_separate_windows);
+    FreeBitVector(MatchingFontConfigs);
 
     SetAdaptiveThreshold(Threshold);
 
@@ -931,10 +951,10 @@ void Classify::AdaptToChar(TBLOB *Blob,
       }
       NewTempConfigId = MakeNewTemporaryConfig(AdaptedTemplates,
                                                ClassId,
+                                               FontinfoId,
                                                NumFeatures,
                                                IntFeatures,
                                                FloatFeatures);
-
       if (NewTempConfigId >= 0 &&
           TempConfigReliable(ClassId, TempConfigFor(Class, NewTempConfigId))) {
         MakePermanent(AdaptedTemplates, ClassId, NewTempConfigId, Blob);
@@ -988,6 +1008,7 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
  * @param Blob blob to add to templates for ClassId
  * @param LineStats statistics about text line blob is in
  * @param ClassId class to add blob to
+ * @param FontinfoId font information from pre-trained teamples
  * @param Threshold minimum match rating to existing template
  *
  * Globals:
@@ -998,6 +1019,7 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
  */
 void Classify::AdaptToPunc(TBLOB *Blob,
                            CLASS_ID ClassId,
+                           int FontinfoId,
                            FLOAT32 Threshold) {
   ADAPT_RESULTS *Results = new ADAPT_RESULTS();
   int i;
@@ -1021,7 +1043,7 @@ void Classify::AdaptToPunc(TBLOB *Blob,
       cprintf ("Adapting to punc = %s, thr= %g\n",
                unicharset.id_to_unichar(ClassId), Threshold);
     #endif
-    AdaptToChar(Blob, ClassId, Threshold);
+    AdaptToChar(Blob, ClassId, FontinfoId, Threshold);
   }
   delete Results;
 }                                /* AdaptToPunc */
@@ -1045,8 +1067,10 @@ void Classify::AdaptToPunc(TBLOB *Blob,
  * @param[out] results results to add new result to
  * @param class_id class of new result
  * @param rating rating of new result
- * @param config_id config id of new result
- * @param config2_id config id of 2nd choice result
+ * @param config config id of new result
+ * @param config2 config id of 2nd choice result
+ * @param fontinfo_id font information of the new result
+ * @param fontinfo_id2 font information of the 2nd choice result
  *
  * @note Exceptions: none
  * @note History: Tue Mar 12 18:19:29 1991, DSJ, Created.
@@ -1054,10 +1078,13 @@ void Classify::AdaptToPunc(TBLOB *Blob,
 void Classify::AddNewResult(ADAPT_RESULTS *results,
                             CLASS_ID class_id,
                             FLOAT32 rating,
-                            int config_id,
-                            int config2_id) {
+                            int config,
+                            int config2,
+                            int fontinfo_id,
+                            int fontinfo_id2) {
   ScoredClass *old_match = FindScoredUnichar(results, class_id);
-  ScoredClass match = {class_id, rating, config_id, config2_id};
+  ScoredClass match =
+      { class_id, rating, config, config2, fontinfo_id, fontinfo_id2 };
 
   if (rating > results->best_match.rating + matcher_bad_match_pad ||
       (old_match && rating >= old_match->rating))
@@ -1108,6 +1135,7 @@ void Classify::AddNewResult(ADAPT_RESULTS *results,
  */
 void Classify::AmbigClassifier(TBLOB *Blob,
                                INT_TEMPLATES Templates,
+                               ADAPT_CLASS *Classes,
                                UNICHAR_ID *Ambiguities,
                                ADAPT_RESULTS *Results) {
   int NumFeatures;
@@ -1142,9 +1170,11 @@ void Classify::AmbigClassifier(TBLOB *Blob,
                IntResult.Config,
                IntResult.Rating * 100.0);
 
+    assert(Classes != NULL);
     AddNewResult(Results, ClassId, IntResult.Rating,
-                 IntResult.Config, IntResult.Config2);
-
+                 IntResult.Config, IntResult.Config2,
+                 GetFontinfoId(Classes[ClassId], IntResult.Config),
+                 GetFontinfoId(Classes[ClassId], IntResult.Config2));
     Ambiguities++;
 
     NumAmbigClassesTried++;
@@ -1213,8 +1243,18 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
     int_result.Rating += miss_penalty;
     if (int_result.Rating > WORST_POSSIBLE_RATING)
       int_result.Rating = WORST_POSSIBLE_RATING;
-    AddNewResult(final_results, class_id, int_result.Rating,
-                 int_result.Config, int_result.Config2);
+    if (classes != NULL) {
+      AddNewResult(final_results, class_id, int_result.Rating,
+                   int_result.Config, int_result.Config2,
+                   GetFontinfoId(classes[class_id], int_result.Config),
+                   GetFontinfoId(classes[class_id], int_result.Config2));
+    } else {
+      AddNewResult(final_results, class_id, int_result.Rating,
+                   int_result.Config, int_result.Config2,
+                   kBlankFontinfoId, kBlankFontinfoId);
+
+    }
+
     // Add unichars ambiguous with class_id with the same rating as class_id.
     if (use_definite_ambigs_for_classifier) {
       const UnicharIdVector *definite_ambigs =
@@ -1239,8 +1279,17 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
             ambig_match->rating = int_result.Rating;
           }
         } else {
-          AddNewResult(final_results, ambig_class_id, int_result.Rating,
-                       int_result.Config, int_result.Config2);
+          if (classes != NULL) {
+            AddNewResult(
+                final_results, ambig_class_id, int_result.Rating,
+                int_result.Config, int_result.Config2,
+                GetFontinfoId(classes[class_id], int_result.Config),
+                GetFontinfoId(classes[class_id], int_result.Config2));
+          } else {
+            AddNewResult(final_results, ambig_class_id, int_result.Rating,
+                         int_result.Config, int_result.Config2,
+                         kBlankFontinfoId, kBlankFontinfoId);
+          }
         }
       }
     }
@@ -1302,7 +1351,8 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
     return (NULL);
   /* this is a bug - maybe should return "" */
 
-  return Templates->Class[ClassId]->Config[Results->best_match.config].Perm;
+  return Templates->Class[ClassId]->
+      Config[Results->best_match.config].Perm->Ambigs;
 }                                /* BaselineClassifier */
 
 
@@ -1377,7 +1427,8 @@ void Classify::ClassifyAsNoise(ADAPT_RESULTS *Results) {
   Rating *= Rating;
   Rating /= 1.0 + Rating;
 
-  AddNewResult(Results, NO_CLASS, Rating, -1, -1);
+  AddNewResult(Results, NO_CLASS, Rating, -1, -1,
+               kBlankFontinfoId, kBlankFontinfoId);
 }                                /* ClassifyAsNoise */
 }  // namespace tesseract
 
@@ -1395,7 +1446,8 @@ ScoredClass *FindScoredUnichar(ADAPT_RESULTS *results, UNICHAR_ID id) {
 // Retrieve the current rating for a unichar id if we have rated it, defaulting
 // to WORST_POSSIBLE_RATING.
 ScoredClass ScoredUnichar(ADAPT_RESULTS *results, UNICHAR_ID id) {
-  ScoredClass poor_result = {id, WORST_POSSIBLE_RATING, -1, -1};
+  ScoredClass poor_result =
+      {id, WORST_POSSIBLE_RATING, -1, -1, kBlankFontinfoId, kBlankFontinfoId};
   ScoredClass *entry = FindScoredUnichar(results, id);
   return (entry == NULL) ? poor_result : *entry;
 }
@@ -1439,6 +1491,22 @@ void Classify::ConvertMatchesToChoices(ADAPT_RESULTS *Results,
 
   for (int i = 0; i < Results->NumMatches; i++) {
     ScoredClass next = Results->match[i];
+    int fontinfo_id = next.fontinfo_id;
+    int fontinfo_id2 = next.fontinfo_id2;
+    if (fontinfo_id == kBlankFontinfoId) {
+      // ScoredClass next must have come from pre-trained templates,
+      // so we infer its font information from fontset_table.
+      int font_set_id = PreTrainedTemplates->Class[next.id]->font_set_id;
+      if (font_set_id >= 0) {
+        const FontSet &fs = fontset_table_.get(font_set_id);
+        if (next.config >= 0 && next.config < fs.size) {
+          fontinfo_id = fs.configs[next.config];
+        }
+        if (next.config2 >= 0 && next.config2 < fs.size) {
+          fontinfo_id2 = fs.configs[next.config2];
+        }
+      }
+    }
     bool current_is_frag = (unicharset.get_fragment(next.id) != NULL);
     if (temp_it.length()+1 == MAX_MATCHES &&
         !contains_nonfrag && current_is_frag) {
@@ -1458,8 +1526,8 @@ void Classify::ConvertMatchesToChoices(ADAPT_RESULTS *Results,
       Certainty *= -(getDict().certainty_scale);
     }
     temp_it.add_to_end(new BLOB_CHOICE(next.id, Rating, Certainty,
-                                       next.config, next.config2,
-                                       unicharset.get_script(next.id)));
+                                        fontinfo_id, fontinfo_id2,
+                                        unicharset.get_script(next.id)));
     contains_nonfrag |= !current_is_frag;  // update contains_nonfrag
     choices_length++;
     if (choices_length >= MAX_MATCHES) break;
@@ -1559,6 +1627,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob,
     } else if (Ambiguities && *Ambiguities >= 0 && !tess_bn_matching) {
       AmbigClassifier(Blob,
                       PreTrainedTemplates,
+                      AdaptedTemplates->Class,
                       Ambiguities,
                       Results);
     }
@@ -1567,7 +1636,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob,
   // Force the blob to be classified as noise
   // if the results contain only fragments.
   // TODO(daria): verify that this is better than
-  // just adding a NULL classificaiton.
+  // just adding a NULL classification.
   if (!Results->HasNonfragment) {
     Results->NumMatches = 0;
   }
@@ -2006,6 +2075,7 @@ int Classify::GetIntCharNormFeatures(TBLOB *Blob,
  *
  * @param Templates adapted templates to add new config to
  * @param ClassId class id to associate with new config
+ * @param FontinfoId font information inferred from pre-trained templates
  * @param NumFeatures number of features in IntFeatures
  * @param Features features describing model for new config
  * @param FloatFeatures floating-pt representation of features
@@ -2017,6 +2087,7 @@ int Classify::GetIntCharNormFeatures(TBLOB *Blob,
  */
 int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
                            CLASS_ID ClassId,
+                           int FontinfoId,
                            int NumFeatures,
                            INT_FEATURE_ARRAY Features,
                            FEATURE_SET FloatFeatures) {
@@ -2077,13 +2148,15 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
 
   ConfigId = AddIntConfig(IClass);
   ConvertConfig(TempProtoMask, ConfigId, IClass);
-  Config = NewTempConfig(MaxProtoId);
+  Config = NewTempConfig(MaxProtoId, FontinfoId);
   TempConfigFor(Class, ConfigId) = Config;
   copy_all_bits(TempProtoMask, Config->Protos, Config->ProtoVectorSize);
 
   if (classify_learning_debug_level >= 1)
-    cprintf("Making new temp config %d using %d old and %d new protos.\n",
-             ConfigId, NumOldProtos, MaxProtoId - OldMaxProtoId);
+    cprintf("Making new temp config %d fontinfo id %d"
+            " using %d old and %d new protos.\n",
+            ConfigId, Config->FontinfoId,
+            NumOldProtos, MaxProtoId - OldMaxProtoId);
 
   return ConfigId;
 }                              /* MakeNewTemporaryConfig */
@@ -2215,23 +2288,33 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
     Templates->NumPermClasses++;
   Class->NumPermConfigs++;
 
+  // Initialize permanent config.
+  Ambigs = GetAmbiguities(Blob, ClassId);
+  PERM_CONFIG Perm = (PERM_CONFIG) alloc_struct(sizeof(PERM_CONFIG_STRUCT),
+                                                "PERM_CONFIG_STRUCT");
+  Perm->Ambigs = Ambigs;
+  Perm->FontinfoId = Config->FontinfoId;
+
+  // Free memory associated with temporary config (since ADAPTED_CONFIG
+  // is a union we need to clean up before we record permanent config).
   ProtoKey.Templates = Templates;
   ProtoKey.ClassId = ClassId;
   ProtoKey.ConfigId = ConfigId;
-  Class->TempProtos = delete_d(Class->TempProtos, &ProtoKey,
-                               MakeTempProtoPerm);
+  Class->TempProtos = delete_d(Class->TempProtos, &ProtoKey, MakeTempProtoPerm);
   FreeTempConfig(Config);
 
-  Ambigs = GetAmbiguities(Blob, ClassId);
-  PermConfigFor(Class, ConfigId) = Ambigs;
+  // Record permanent config.
+  PermConfigFor(Class, ConfigId) = Perm;
 
   if (classify_learning_debug_level >= 1) {
-    cprintf("Making config %d permanent with ambiguities '",
-            ConfigId, Ambigs);
+    tprintf("Making config %d for %s (ClassId %d) permanent:"
+            " fontinfo id %d, ambiguities '",
+            ConfigId, getDict().getUnicharset().debug_str(ClassId).string(),
+            ClassId, PermConfigFor(Class, ConfigId)->FontinfoId);
     for (UNICHAR_ID *AmbigsPointer = Ambigs;
-         *AmbigsPointer >= 0; ++AmbigsPointer)
-      cprintf("%s", unicharset.id_to_unichar(*AmbigsPointer));
-    cprintf("'.\n");
+        *AmbigsPointer >= 0; ++AmbigsPointer)
+      tprintf("%s", unicharset.id_to_unichar(*AmbigsPointer));
+    tprintf("'.\n");
   }
 }                              /* MakePermanent */
 }  // namespace tesseract
