@@ -44,7 +44,10 @@ class UnicityTable {
   int size() const;
 
   /// Return the object from an id.
-  T get(int id) const;
+  const T &get(int id) const;
+
+  // Return the pointer to an object with the given id.
+  T *get_mutable(int id);
 
   /// Return the id of the T object.
   /// This method NEEDS a compare_callback to be passed to
@@ -126,10 +129,14 @@ void UnicityTable<T>::reserve(int size) {
 
 // Return the object from an id.
 template <typename T>
-T UnicityTable<T>::get(int id) const {
+const T &UnicityTable<T>::get(int id) const {
   return table_.get(id);
 }
-
+// Returns the pointer to the object with the given id.
+template <typename T>
+T *UnicityTable<T>::get_mutable(int id) {
+  return &(table_.get(id));
+}
 // Return true if the id is valid
 template <typename T>
 T UnicityTable<T>::contains_id(int id) const {

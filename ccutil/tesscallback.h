@@ -1005,4 +1005,234 @@ NewPermanentTessCallback(R (*function)(A1,A2,A3)) {
   return new _TessFunctionResultCallback_0_3<false,R,A1,A2,A3>(function);
 }
 
+// Specified by TR1 [4.7.2] Reference modifications.
+template <class T> struct remove_reference;
+template<typename T> struct remove_reference { typedef T type; };
+template<typename T> struct remove_reference<T&> { typedef T type; };
+
+// Identity<T>::type is a typedef of T. Useful for preventing the
+// compiler from inferring the type of an argument in templates.
+template <typename T>
+struct Identity {
+  typedef T type;
+};
+
+template <bool del, class R, class T, class P1, class A1, class A2>
+class _ConstTessMemberResultCallback_1_2
+  : public TessResultCallback2<R,A1,A2> {
+ public:
+  typedef TessResultCallback2<R,A1,A2> base;
+  typedef R (T::*MemberSignature)(P1,A1,A2) const;
+
+ private:
+   T* object_;
+  MemberSignature member_;
+  typename remove_reference<P1>::type p1_;
+
+ public:
+  inline _ConstTessMemberResultCallback_1_2(T* object,
+                                            MemberSignature member, P1 p1)
+    : object_(object), member_(member), p1_(p1) { }
+
+  virtual R Run(A1 a1, A2 a2) {
+    if (!del) {
+      R result = (object_->*member_)(p1_,a1,a2);
+      return result;
+    } else {
+      R result = (object_->*member_)(p1_,a1,a2);
+      //  zero out the pointer to ensure segfault if used again
+      member_ = NULL;
+      delete this;
+      return result;
+    }
+  }
+};
+
+template <bool del, class T, class P1, class A1, class A2>
+class _ConstTessMemberResultCallback_1_2<del, void, T, P1, A1, A2>
+  : public TessCallback2<A1,A2> {
+ public:
+  typedef TessCallback2<A1,A2> base;
+  typedef void (T::*MemberSignature)(P1,A1,A2) const;
+
+ private:
+   T* object_;
+  MemberSignature member_;
+  typename remove_reference<P1>::type p1_;
+
+ public:
+  inline _ConstTessMemberResultCallback_1_2(T* object,
+                                            MemberSignature member, P1 p1)
+    : object_(object), member_(member), p1_(p1) { }
+
+  virtual void Run(A1 a1, A2 a2) {
+    if (!del) {
+      (object_->*member_)(p1_,a1,a2);
+    } else {
+      (object_->*member_)(p1_,a1,a2);
+      //  zero out the pointer to ensure segfault if used again
+      member_ = NULL;
+      delete this;
+    }
+  }
+};
+
+#ifndef SWIG
+template <class T1, class T2, class R, class P1, class A1, class A2>
+inline typename _ConstTessMemberResultCallback_1_2<true,R,T1,P1,A1,A2>::base*
+NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2) , typename Identity<P1>::type p1) {
+  return new _ConstTessMemberResultCallback_1_2<true,R,T1,P1,A1,A2>(obj, member, p1);
+}
+#endif
+
+#ifndef SWIG
+template <class T1, class T2, class R, class P1, class A1, class A2>
+inline typename _ConstTessMemberResultCallback_1_2<false,R,T1,P1,A1,A2>::base*
+NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,A1,A2) , typename Identity<P1>::type p1) {
+  return new _ConstTessMemberResultCallback_1_2<false,R,T1,P1,A1,A2>(obj, member, p1);
+}
+#endif
+
+template <bool del, class R, class T, class P1, class A1, class A2>
+class _TessMemberResultCallback_1_2 : public TessResultCallback2<R,A1,A2> {
+ public:
+  typedef TessResultCallback2<R,A1,A2> base;
+  typedef R (T::*MemberSignature)(P1,A1,A2) ;
+
+ private:
+   T* object_;
+  MemberSignature member_;
+  typename remove_reference<P1>::type p1_;
+
+ public:
+  inline _TessMemberResultCallback_1_2(T* object,
+                                        MemberSignature member, P1 p1)
+    : object_(object), member_(member), p1_(p1) { }
+
+  virtual R Run(A1 a1, A2 a2) {
+    if (!del) {
+      R result = (object_->*member_)(p1_,a1,a2);
+      return result;
+    } else {
+      R result = (object_->*member_)(p1_,a1,a2);
+      //  zero out the pointer to ensure segfault if used again
+      member_ = NULL;
+      delete this;
+      return result;
+    }
+  }
+};
+
+template <bool del, class T, class P1, class A1, class A2>
+class _TessMemberResultCallback_1_2<del, void, T, P1, A1, A2>
+  : public TessCallback2<A1,A2> {
+ public:
+  typedef TessCallback2<A1,A2> base;
+  typedef void (T::*MemberSignature)(P1,A1,A2) ;
+
+ private:
+   T* object_;
+  MemberSignature member_;
+  typename remove_reference<P1>::type p1_;
+
+ public:
+  inline _TessMemberResultCallback_1_2(T* object,
+                                        MemberSignature member, P1 p1)
+    : object_(object), member_(member), p1_(p1) { }
+
+  virtual void Run(A1 a1, A2 a2) {
+    if (!del) {
+      (object_->*member_)(p1_,a1,a2);
+    } else {
+      (object_->*member_)(p1_,a1,a2);
+      //  zero out the pointer to ensure segfault if used again
+      member_ = NULL;
+      delete this;
+    }
+  }
+};
+
+#ifndef SWIG
+template <class T1, class T2, class R, class P1, class A1, class A2>
+inline typename _TessMemberResultCallback_1_2<true,R,T1,P1,A1,A2>::base*
+NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2) , typename Identity<P1>::type p1) {
+  return new _TessMemberResultCallback_1_2<true,R,T1,P1,A1,A2>(obj, member, p1);
+}
+#endif
+
+#ifndef SWIG
+template <class T1, class T2, class R, class P1, class A1, class A2>
+inline typename _TessMemberResultCallback_1_2<false,R,T1,P1,A1,A2>::base*
+NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,A1,A2) , typename Identity<P1>::type p1) {
+  return new _TessMemberResultCallback_1_2<false,R,T1,P1,A1,A2>(obj, member, p1);
+}
+#endif
+
+template <bool del, class R, class P1, class A1, class A2>
+class _TessFunctionResultCallback_1_2 : public TessCallback2<A1,A2> {
+ public:
+  typedef TessCallback2<A1,A2> base;
+  typedef R (*FunctionSignature)(P1,A1,A2);
+
+ private:
+  FunctionSignature function_;
+  typename remove_reference<P1>::type p1_;
+
+ public:
+  inline _TessFunctionResultCallback_1_2(FunctionSignature function, P1 p1)
+    : function_(function), p1_(p1) { }
+
+  virtual R Run(A1 a1, A2 a2) {
+    if (!del) {
+      R result = (*function_)(p1_,a1,a2);
+      return result;
+    } else {
+      R result = (*function_)(p1_,a1,a2);
+      //  zero out the pointer to ensure segfault if used again
+      function_ = NULL;
+      delete this;
+      return result;
+    }
+  }
+};
+
+template <bool del, class P1, class A1, class A2>
+class _TessFunctionResultCallback_1_2<del, void, P1, A1, A2>
+  : public TessCallback2<A1,A2> {
+ public:
+  typedef TessCallback2<A1,A2> base;
+  typedef void (*FunctionSignature)(P1,A1,A2);
+
+ private:
+  FunctionSignature function_;
+  typename remove_reference<P1>::type p1_;
+
+ public:
+  inline _TessFunctionResultCallback_1_2(FunctionSignature function, P1 p1)
+    : function_(function), p1_(p1) { }
+
+  virtual void Run(A1 a1, A2 a2) {
+    if (!del) {
+      (*function_)(p1_,a1,a2);
+    } else {
+      (*function_)(p1_,a1,a2);
+      //  zero out the pointer to ensure segfault if used again
+      function_ = NULL;
+      delete this;
+    }
+  }
+};
+
+template <class R, class P1, class A1, class A2>
+inline typename _TessFunctionResultCallback_1_2<true,R,P1,A1,A2>::base*
+NewTessCallback(R (*function)(P1,A1,A2), typename Identity<P1>::type p1) {
+  return new _TessFunctionResultCallback_1_2<true,R,P1,A1,A2>(function, p1);
+}
+
+template <class R, class P1, class A1, class A2>
+inline typename _TessFunctionResultCallback_1_2<false,R,P1,A1,A2>::base*
+NewPermanentTessCallback(R (*function)(P1,A1,A2), typename Identity<P1>::type p1) {
+  return new _TessFunctionResultCallback_1_2<false,R,P1,A1,A2>(function, p1);
+}
+
 #endif /* _TESS_CALLBACK_SPECIALIZATIONS_H */
