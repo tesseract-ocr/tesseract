@@ -398,6 +398,9 @@ class ScrollView {
   int y_size_;
   // # of created windows (used to assign an id to each ScrollView* for svmap).
   static int nr_created_windows_;
+  // Serial number of sent images to ensure that the viewer knows they
+  // are distinct.
+  static int image_index_;
 
   // The stream through which the c++ client is connected to the server.
   static SVNetwork* stream_;

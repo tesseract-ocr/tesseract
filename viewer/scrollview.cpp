@@ -247,6 +247,7 @@ int table_colors[ScrollView::GREEN_YELLOW+1][4]= {
 
 SVNetwork* ScrollView::stream_ = NULL;
 int ScrollView::nr_created_windows_ = 0;
+int ScrollView::image_index_ = 0;
 
 /// Calls Initialize with all arguments given.
 ScrollView::ScrollView(const char* name, int x_pos, int y_pos, int x_size,
@@ -769,8 +770,9 @@ void ScrollView::Image(PIX* image, int x_pos, int y_pos) {
   int width = image->w;
   int height = image->h;
   l_uint32 bpp = image->d;
+  ++image_index_;
   // PIX* do not have a unique identifier/name associated, so name them "lept".
-  SendMsg("createImage('%s',%d,%d,%d)", "lept", width, height, bpp);
+  SendMsg("createImage('lept%d',%d,%d,%d)", image_index_, width, height, bpp);
 
   if (bpp == 32) {
     Transfer32bppImage(image);
@@ -780,7 +782,7 @@ void ScrollView::Image(PIX* image, int x_pos, int y_pos) {
     TransferBinaryImage(image);
   }
   // PIX* do not have a unique identifier/name associated, so name them "lept".
-  SendMsg("drawImage('%s',%d,%d)", "lept", x_pos, y_pos);
+  SendMsg("drawImage('lept%d',%d,%d)", image_index_, x_pos, y_pos);
 }
 
 // Sends each pixel as hex value like html, e.g. #00FF00 for green.
