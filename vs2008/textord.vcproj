@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="textord"
 	ProjectGUID="{D5C6C872-4561-452D-BCFA-EF9441F95309}"
 	RootNamespace="textord"
@@ -268,6 +268,10 @@
 			</File>
 			<File
 				RelativePath="..\textord\colpartitionset.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\devanagari_processing.cpp"
 				>
 			</File>
 			<File
@@ -931,6 +935,10 @@
 			</File>
 			<File
 				RelativePath="..\textord\colpartitionset.h"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\devanagari_processing.h"
 				>
 			</File>
 			<File
