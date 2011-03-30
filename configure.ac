@@ -328,8 +328,14 @@ AC_PATH_LIBTIFF(,
   AC_MSG_WARN([TIFF support is disabled]) ])
 
 # Check location of leptonica/liblept headers.
+AC_MSG_CHECKING(for leptonica)
+AC_ARG_VAR(LIBLEPT_HEADERSDIR,[Leptonica headers directory])
+
 have_lept=no
-for incd in /usr/local/include /usr/include
+if test "$LIBLEPT_HEADERSDIR" = "" ; then
+  LIBLEPT_HEADERSDIR="/usr/local/include /usr/include"
+fi
+for incd in $LIBLEPT_HEADERSDIR
 do
   for lept in . leptonica liblept
   do
@@ -340,9 +346,11 @@ do
   done
 done
 if test "$have_lept" = yes ; then
-AC_CHECK_LIB(lept,pixCreate)
+  AC_MSG_RESULT(yes)
+  AC_CHECK_LIB(lept,pixCreate)
+else
+  AC_MSG_ERROR([leptonica not found])
 fi
-
 
 # ----------------------------------------
 # Final Tasks and Output
