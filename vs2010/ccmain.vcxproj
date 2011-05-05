@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{EFE93017-B435-46EA-9199-1C83A869595A}</ProjectGuid>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <Keyword>ManagedCProj</Keyword>
+    <RootNamespace>ccmain</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CLRSupport>false</CLRSupport>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CLRSupport>false</CLRSupport>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;__MSW32__;_LIB;USE_STD_NAMESPACE;HAVE_LIBLEPT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\classify;..\wordrec;..\textord;include;include\leptonica;..\cube;..\neural_networks\runtime;port;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;__MSW32__;_LIB;USE_STD_NAMESPACE;HAVE_LIBLEPT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\classify;..\wordrec;..\textord;include;include\leptonica;..\cube;..\neural_networks\runtime;port;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ccmain\control.h" />
+    <ClInclude Include="..\ccmain\cube_reco_context.h" />
+    <ClInclude Include="..\ccmain\docqual.h" />
+    <ClInclude Include="..\ccmain\fixspace.h" />
+    <ClInclude Include="..\ccmain\imgscale.h" />
+    <ClInclude Include="..\ccmain\osdetect.h" />
+    <ClInclude Include="..\ccmain\output.h" />
+    <ClInclude Include="..\ccmain\paramsd.h" />
+    <ClInclude Include="..\ccmain\pgedit.h" />
+    <ClInclude Include="..\ccmain\reject.h" />
+    <ClInclude Include="..\ccmain\scaleimg.h" />
+    <ClInclude Include="..\ccmain\tessbox.h" />
+    <ClInclude Include="..\ccmain\tessedit.h" />
+    <ClInclude Include="..\ccmain\tessembedded.h" />
+    <ClInclude Include="..\ccmain\tesseractclass.h" />
+    <ClInclude Include="..\ccmain\tesseract_cube_combiner.h" />
+    <ClInclude Include="..\ccmain\tessvars.h" />
+    <ClInclude Include="..\ccmain\tfacep.h" />
+    <ClInclude Include="..\ccmain\tfacepp.h" />
+    <ClInclude Include="..\ccmain\thresholder.h" />
+    <ClInclude Include="..\ccmain\werdit.h" />
+    <ClInclude Include="..\ccutil\ambigs.h" />
+    <ClInclude Include="..\ccutil\basedir.h" />
+    <ClInclude Include="..\ccutil\bits16.h" />
+    <ClInclude Include="..\ccutil\boxread.h" />
+    <ClInclude Include="..\ccutil\ccutil.h" />
+    <ClInclude Include="..\ccutil\clst.h" />
+    <ClInclude Include="..\ccutil\debugwin.h" />
+    <ClInclude Include="..\ccutil\elst.h" />
+    <ClInclude Include="..\ccutil\elst2.h" />
+    <ClInclude Include="..\ccutil\errcode.h" />
+    <ClInclude Include="..\ccutil\fileerr.h" />
+    <ClInclude Include="..\ccutil\genericvector.h" />
+    <ClInclude Include="..\ccutil\globaloc.h" />
+    <ClInclude Include="..\ccutil\hashfn.h" />
+    <ClInclude Include="..\ccutil\helpers.h" />
+    <ClInclude Include="..\ccutil\host.h" />
+    <ClInclude Include="..\ccutil\hosthplb.h" />
+    <ClInclude Include="..\ccutil\lsterr.h" />
+    <ClInclude Include="..\ccutil\memblk.h" />
+    <ClInclude Include="..\ccutil\memry.h" />
+    <ClInclude Include="..\ccutil\memryerr.h" />
+    <ClInclude Include="..\ccutil\mfcpch.h" />
+    <ClInclude Include="..\ccutil\ndminx.h" />
+    <ClInclude Include="..\ccutil\notdll.h" />
+    <ClInclude Include="..\ccutil\nwmain.h" />
+    <ClInclude Include="..\ccutil\ocrclass.h" />
+    <ClInclude Include="..\ccutil\params.h" />
+    <ClInclude Include="..\ccutil\platform.h" />
+    <ClInclude Include="..\ccutil\qrsequence.h" />
+    <ClInclude Include="..\ccutil\secname.h" />
+    <ClInclude Include="..\ccutil\serialis.h" />
+    <ClInclude Include="..\ccutil\sorthelper.h" />
+    <ClInclude Include="..\ccutil\stderr.h" />
+    <ClInclude Include="..\ccutil\strngs.h" />
+    <ClInclude Include="..\ccutil\tesscallback.h" />
+    <ClInclude Include="..\ccutil\tessdatamanager.h" />
+    <ClInclude Include="..\ccutil\tprintf.h" />
+    <ClInclude Include="..\ccutil\unichar.h" />
+    <ClInclude Include="..\ccutil\unicharmap.h" />
+    <ClInclude Include="..\ccutil\unicharset.h" />
+    <ClInclude Include="..\ccutil\unicity_table.h" />
+    <ClInclude Include="port\gettimeofday.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ccmain\adaptions.cpp" />
+    <ClCompile Include="..\ccmain\applybox.cpp" />
+    <ClCompile Include="..\ccmain\control.cpp" />
+    <ClCompile Include="..\ccmain\cube_control.cpp" />
+    <ClCompile Include="..\ccmain\cube_reco_context.cpp" />
+    <ClCompile Include="..\ccmain\docqual.cpp" />
+    <ClCompile Include="..\ccmain\fixspace.cpp" />
+    <ClCompile Include="..\ccmain\fixxht.cpp" />
+    <ClCompile Include="..\ccmain\imgscale.cpp" />
+    <ClCompile Include="..\ccmain\osdetect.cpp" />
+    <ClCompile Include="..\ccmain\output.cpp" />
+    <ClCompile Include="..\ccmain\pagesegmain.cpp" />
+    <ClCompile Include="..\ccmain\pagewalk.cpp" />
+    <ClCompile Include="..\ccmain\paramsd.cpp" />
+    <ClCompile Include="..\ccmain\pgedit.cpp" />
+    <ClCompile Include="..\ccmain\recogtraining.cpp" />
+    <ClCompile Include="..\ccmain\reject.cpp" />
+    <ClCompile Include="..\ccmain\scaleimg.cpp" />
+    <ClCompile Include="..\ccmain\tessbox.cpp" />
+    <ClCompile Include="..\ccmain\tessedit.cpp" />
+    <ClCompile Include="..\ccmain\tesseractclass.cpp" />
+    <ClCompile Include="..\ccmain\tesseract_cube_combiner.cpp" />
+    <ClCompile Include="..\ccmain\tessvars.cpp" />
+    <ClCompile Include="..\ccmain\tfacepp.cpp" />
+    <ClCompile Include="..\ccmain\thresholder.cpp" />
+    <ClCompile Include="..\ccmain\werdit.cpp" />
+    <ClCompile Include="..\ccutil\ambigs.cpp" />
+    <ClCompile Include="..\ccutil\basedir.cpp" />
+    <ClCompile Include="..\ccutil\bits16.cpp" />
+    <ClCompile Include="..\ccutil\boxread.cpp" />
+    <ClCompile Include="..\ccutil\ccutil.cpp" />
+    <ClCompile Include="..\ccutil\clst.cpp" />
+    <ClCompile Include="..\ccutil\debugwin.cpp" />
+    <ClCompile Include="..\ccutil\elst.cpp" />
+    <ClCompile Include="..\ccutil\elst2.cpp" />
+    <ClCompile Include="..\ccutil\errcode.cpp" />
+    <ClCompile Include="..\ccutil\globaloc.cpp" />
+    <ClCompile Include="..\ccutil\hashfn.cpp" />
+    <ClCompile Include="..\ccutil\mainblk.cpp" />
+    <ClCompile Include="..\ccutil\memblk.cpp" />
+    <ClCompile Include="..\ccutil\memry.cpp" />
+    <ClCompile Include="..\ccutil\mfcpch.cpp" />
+    <ClCompile Include="..\ccutil\params.cpp" />
+    <ClCompile Include="..\ccutil\serialis.cpp" />
+    <ClCompile Include="..\ccutil\strngs.cpp" />
+    <ClCompile Include="..\ccutil\tessdatamanager.cpp" />
+    <ClCompile Include="..\ccutil\tprintf.cpp" />
+    <ClCompile Include="..\ccutil\unichar.cpp" />
+    <ClCompile Include="..\ccutil\unicharmap.cpp" />
+    <ClCompile Include="..\ccutil\unicharset.cpp" />
+    <ClCompile Include="port\gettimeofday.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
