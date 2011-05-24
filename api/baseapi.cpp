@@ -927,7 +927,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
       hocr_str.add_str_int("<span class='ocr_word' id='word_", page_id);
       hocr_str.add_str_int("_", wcnt);
       AddBoxTohOCR(word->word->bounding_box(), image_height_, &hocr_str);
-      hocr_str.add_str_int("<span class='xocr_word' id='xword_", page_id);
+      hocr_str.add_str_int("<span class='ocrx_word' id='xword_", page_id);
       hocr_str.add_str_int("_", wcnt++);
       hocr_str.add_str_int("' title=\"x_wconf ", choice->certainty());
       hocr_str += "\">";
