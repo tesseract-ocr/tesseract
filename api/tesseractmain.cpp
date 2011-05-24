@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
 #endif
-  if (argc == 2 && strcmp(argv[1], "-v") == 0) {
+  if ((argc == 2 && strcmp(argv[1], "-v") == 0) || (argc == 2 && strcmp(argv[1], "--version") == 0)) {
     fprintf(stderr, "tesseract-%s\n", tesseract::TessBaseAPI::Version());
     exit(1);
   }

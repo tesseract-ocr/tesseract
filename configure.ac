@@ -18,8 +18,8 @@ AC_CANONICAL_HOST
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
-PACKAGE_YEAR=2010
-PACKAGE_DATE="09/30"
+PACKAGE_YEAR=2011
+PACKAGE_DATE="05/24"
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -347,7 +347,7 @@ do
 done
 if test "$have_lept" = yes ; then
   AC_MSG_RESULT(yes)
-  AC_CHECK_LIB(lept,pixCreate)
+  AC_CHECK_LIB(lept,pixCreate,[], AC_MSG_ERROR([leptonica library missing]))
 else
   AC_MSG_ERROR([leptonica not found])
 fi
