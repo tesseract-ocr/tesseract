@@ -1,5 +1,5 @@
 file_type                   .bl
-tessedit_use_nn				F
+#tessedit_use_nn				F
 textord_fast_pitch_test	T
 tessedit_single_match	0
 tessedit_zero_rejection T
@@ -11,5 +11,5 @@ edges_childarea 0.65
 edges_boxarea 0.9
 tessedit_resegment_from_boxes T
 tessedit_train_from_boxes T
-textord_repeat_extraction F
+#textord_repeat_extraction F
 textord_no_rejects T
