@@ -25,11 +25,14 @@ do
 done
 
 # create linux source package
-tar -chozf tesseract-ocr-3.01.tar.gz --exclude=.svn  --exclude=vs2008 -X $excld tesseract-ocr/*
+tar -chzf tesseract-ocr-$version.tar.gz --exclude=.svn --exclude=vs2008 --exclude=vs2010 -X $excld tesseract-ocr/*
 rm -f $excld
 
 # Windows build relevant files
-name=$ver-vs2008
+name=$ver-win_vs
 # Let's be nice and use common windows packager ;-)
-zip $name.zip tesseract-ocr/vs2008/* tesseract-ocr/vs2008/include/* tesseract-ocr/vs2008/include/leptonica/* tesseract-ocr/vs2008/lib/* tesseract-ocr/vs2008/port/*
+zip $name.zip tesseract-ocr/vs2008/* tesseract-ocr/vs2008/include/* tesseract-ocr/vs2008/include/leptonica/* tesseract-ocr/vs2008/port/* tesseract-ocr/vs2008/lib/* tesseract-ocr/vs2010/* tesseract-ocr/vs2010/include/* tesseract-ocr/vs2010/include/leptonica/* tesseract-ocr/vs2010/port/*
 
+# create doc
+doxygen tesseract-ocr/doc/Doxyfile
+tar -chzf $ver-doc-html.tar.gz tesseract-ocr/doc/html/*
