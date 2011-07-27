@@ -7,8 +7,8 @@
 # ----------------------------------------
 
 AC_PREREQ(2.50)
+AC_INIT([tesseract], [3.01], [theraysmith@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
-AC_INIT(tesseract, 3.01, theraysmith@gmail.com)
 AC_REVISION($Id: configure.ac,v 1.4 2007/02/02 22:38:17 theraysmith Exp $)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(api/tesseractmain.cpp)
@@ -322,10 +322,11 @@ AC_CHECK_FUNCS(acos asin)
 # [ no_jpeg=yes
 #   AC_MSG_WARN([JPEG support is disabled]) ])
 
-# Search LIBTIFF library
-AC_PATH_LIBTIFF(,
-[ no_libtiff=yes
-  AC_MSG_WARN([TIFF support is disabled]) ])
+dnl ------------------------------------------------------------
+dnl check for libtiff
+dnl ------------------------------------------------------------
+AC_CHECK_LIB(tiff, TIFFReadScanline)
+AC_CHECK_HEADER(tiffio.h,LIBTIFF='yes',AC_MSG_WARN([TIFF support is disabled]))
 
 # Check location of leptonica/liblept headers.
 AC_MSG_CHECKING(for leptonica)

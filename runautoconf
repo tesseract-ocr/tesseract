@@ -27,28 +27,34 @@
 #
 # All the rest is auto-generated.
 
-echo "Running libtoolize"
-libtoolize
+bail_out()
+{
+	echo 
+	echo "  Something went wrong, bailing out!" 
+	echo 
+	exit 1
+}
 
 # --- Step 1: Generate aclocal.m4 from:
 #             . acinclude.m4 
 #             . config/*.m4 (these files are referenced in acinclude.m4)
 
-echo "Running aclocal"
-aclocal
+mkdir -p config
 
-# --- Step 2: Generate config.h.in from:
+echo "Running aclocal"
+aclocal -I config || bail_out
+
+# --- Step 2: 
+
+echo "Running libtoolize"
+libtoolize -f -c || bail_out
+libtoolize --automake || bail_out
+
+# --- Step 3: Generate config.h.in from:
 #             . configure.ac (look for AM_CONFIG_HEADER tag or AC_CONFIG_HEADER tag)
 
 echo "Running autoheader"
-autoheader
-
-# --- Step 3: Generate configure and include/miaconfig.h from:
-#             . configure.ac
-#
-
-echo "Running autoconf"
-autoconf
+autoheader -f || bail_out
 
 # --- Step 4: Generate Makefile.in, src/Makefile.in, and a whole bunch of
 #             files in config (config.guess, config.sub, depcomp,
@@ -61,8 +67,16 @@ autoconf
 # they are copied from the system so they can be used in a distribution.
 
 echo "Running automake --add-missing --copy"
-automake --add-missing --copy
+automake --add-missing -c  > /dev/null || bail_out
 
+# --- Step 5: Generate configure and include/miaconfig.h from:
+#             . configure.ac
+#
+
+echo "Running autoconf"
+autoconf || bail_out
+
+echo ""
 echo "All done."
 echo "To build the software now, do something like:"
 echo ""
