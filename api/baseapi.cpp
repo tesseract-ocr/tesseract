@@ -1310,7 +1310,7 @@ bool TessBaseAPI::GetTextDirection(int* out_offset, float* out_slope) {
   BLOCK_IT block_it(block_list_);
   block_it.move_to_first();
   ROW_LIST* rows = block_it.data()->row_list();
-  if (rows->length() != 1) {
+  if (rows->length() < 1) {
     return false;
   }
 
