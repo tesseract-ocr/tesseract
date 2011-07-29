@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 #endif
   if ((argc == 2 && strcmp(argv[1], "-v") == 0) || (argc == 2 && strcmp(argv[1], "--version") == 0)) {
     fprintf(stderr, "tesseract-%s\n", tesseract::TessBaseAPI::Version());
-    exit(1);
+    exit(0);
   }
   // Make the order of args a bit more forgiving than it used to be.
   const char* lang = "eng";
@@ -109,6 +109,21 @@ int main(int argc, char **argv) {
   tprintf(_("Tesseract Open Source OCR Engine v%s with Leptonica\n"),
            tesseract::TessBaseAPI::Version());
 
+  
+  FILE* fin = fopen(image, "r");
+  if (fin == NULL) {
+    printf("Cannot open input file: %s\n", image);
+    exit(2);
+  } 
+  fclose(fin);
+  
+  PIX   *pixs;
+  if ((pixs = pixRead(image)) == NULL) {
+    printf("Unsupported image type.\n");
+    exit(3);
+  }
+  pixDestroy(&pixs);
+
   STRING text_out;
   if (!api.ProcessPages(image, NULL, 0, &text_out)) {
     tprintf(_("Error during processing.\n"));
@@ -122,7 +137,6 @@ int main(int argc, char **argv) {
   FILE* fout = fopen(outfile.string(), "w");
   if (fout == NULL) {
     tprintf(_("Cannot create output file %s\n"), outfile.string());
-    fclose(fout);
     exit(1);
   }
   fwrite(text_out.string(), 1, text_out.length(), fout);
@@ -133,7 +147,7 @@ int main(int argc, char **argv) {
 
 #ifdef __MSW32__
 
-char szAppName[] = "Tessedit";   //app name
+char szAppName[] = "Tesseract";   //app name
 int initialized = 0;
 
 /**********************************************************************
