@@ -1,13 +1,12 @@
-# TODO(luc) Add 'doc' to this list when ready
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = ccstruct ccutil classify cube cutil dict image neural_networks/runtime textord viewer wordrec ccmain training tessdata testing java api
+SUBDIRS = ccstruct ccutil classify cube cutil dict image neural_networks/runtime textord viewer wordrec ccmain training tessdata testing java api doc
 #if USING_GETTEXT
 #SUBDIRS += po
 #AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"
 #endif
 
 EXTRA_DIST = config/config.rpath  eurotext.tif phototest.tif ReleaseNotes \
-      acinclude.m4 config configure.ac runautoconf tesseract.spec doc contrib
+      acinclude.m4 config configure.ac runautoconf tesseract.spec contrib
 
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
 
@@ -19,6 +18,6 @@ dist-hook:
 	rm -rf `find $(distdir) -name .svn`
 	rm -rf `find $(distdir) -name .deps`
 # Also remove extra files not needed in a distribution
-	rm -rf `find $(distdir) -name configure.ac`
+#	rm -rf `find $(distdir) -name configure.ac`
 	rm -rf `find $(distdir) -name acinclude.m4`
-	rm -rf `find $(distdir) -name aclocal.m4`
+#	rm -rf `find $(distdir) -name aclocal.m4`

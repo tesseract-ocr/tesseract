@@ -4,8 +4,9 @@ wiki ReadMe, which is located at:
 
 Introduction
 ============
+
 This package contains the Tesseract Open Source OCR Engine.
-Orignally developed at Hewlett Packard Laboratories Bristol and
+Originally developed at Hewlett Packard Laboratories Bristol and
 at Hewlett Packard Co, Greeley Colorado, all the code
 in this distribution is now licensed under the Apache License:
 
@@ -20,52 +21,73 @@ in this distribution is now licensed under the Apache License:
 ** limitations under the License.
 
 
-Other Dependencies and Licenses:
-================================
-The Aspirin/MIGRAINES system is no longer required.
+Dependencies and Licenses:
+==========================
+
+Leptonica is required. (www.leptonica.com). Tesseract no longer compiles
+without Leptonica.
 Libtiff is no longer required as a direct dependency.
-Instead, Leptonica is required. (www.leptonica.com)
-See http://code.google.com/p/tesseract-ocr/wiki/FAQ for details.
-As of 3.01, Tesseract no longer compiles without Leptonica.
+
 
 Installing and Running Tesseract
 All Users Do NOT Ignore!
 The tarballs are split into pieces.
 
-tesseract-2.04.tar.gz contains all the source code.
+tesseract-x.xx.tar.gz contains all the source code.
 
-tesseract-2.00.<lang>.tar.gz contains the language data files for <lang>. You need at least one of these or tesseract will not work.
+tesseract-x.xx.<lang>.tar.gz contains the language data files for <lang>.
+You need at least one of these or Tesseract will not work.
 
-Note that tesseract-2.04.tar.gz unpacks to the tesseract-2.04 directory. tesseract-2.00.<lang>.tar.gz unpacks to the tessdata directory which belongs inside your tesseract-2.04 directory. It is therefore best to download them into your tesseract-2.04 directory, so you can use unpack here or equivalent. You can unpack as many of the language packs as you care to, as they all contain different files. Note that if you are using make install you should unpack your language data to your source tree before you run make install. If you unpack them as root to the destination directory of make install, then the user ids and access permissions might be messed up.
+Note that tesseract-x.xx.tar.gz unpacks to the tesseract-ocr directory.
+tesseract-x.xx.<lang>.tar.gz unpacks to the tessdata directory which 
+belongs inside your tesseract-ocr directory. It is therefore best to 
+download them into your tesseract-x.xx directory, so you can use unpack 
+here or equivalent. You can unpack as many of the language packs as you 
+care to, as they all contain different files. Note that if you are using
+make install you should unpack your language data to your source tree 
+before you run make install. If you unpack them as root to the 
+destination directory of make install, then the user ids and access
+permissions might be messed up.
 
-boxtiff-2.01.<lang>.tar.gz contains data that was used in training for those that want to do their own training. Most users should NOT download these files.
+boxtiff-2.xx.<lang>.tar.gz contains data that was used in training for 
+those that want to do their own training. Most users should NOT download
+these files.
 
-Instructions for using the training tools are documented separately at TrainingTesseract and for testing at TestingTesseract. 
+Instructions for using the training tools are documented separately at 
+Tesseract wiki http://code.google.com/p/tesseract-ocr/w/list
 
-Without Additional Libraries, Image format support is limited!
 
-Without additional libraries, Tesseract can only read uncompressed TIFF. (And some versions of BMP) Upto version 2.04, you can add libtiff-dev. See the FAQ question on compressed TIFF for installation instructions. Version 3.00 will support additional formats via Leptonica, but requires more libraries to be added.
 Windows:
+--------
 
-There is no windows installer! (Still looking for volunteers to create one.) There are windows executables: tesseract-2.04.exe.tar.gz (It is not for the 'exe' language.) They are built with VC++ express 2008 and come with absolutely no warranty. If they work for you then great, otherwise get Visual C++ Express 2008 with service pack 1 and build from the source. You can also try tesseract-2.01.exe.tar.gz, which is built with VC++6, and may work better if your windows is old, but note that this is an older version of Tesseract.
+Please use installer (for 3.00 and above). Tesseract is library with 
+command line interface. If you need GUI, please check AddOns wiki page
+http://code.google.com/p/tesseract-ocr/wiki/AddOns#GUI
 
-If you are building from the sources, there are still (up to v2.04) .dsw and .dsp files for vc++6, but the recommended build platform is now VC++ Express 2008. There are also .sln and .vcproj files for VC++ Express 2008, but these files are not backward compatible with any previous version - not even VC++ Express 2005. Note that the executables produced with the newer compiler are smaller, faster, and, believe it or not, more accurate. (See TestingTesseract.)
+If you are building from the sources, the recommended build platform is 
+VC++ Express 2008 (optionally 2010).
 
-New with 2.04: the executables are built with static linking, so they stand more chance of working out of the box on more windows systems.
+The executables are built with static linking, so they stand more chance
+of working out of the box on more windows systems.
 
-The executable must reside in the same directory as the tessdata directory. (The Visual Studio projects build the release executable directly to the correct place!)
+The executable must reside in the same directory as the tessdata 
+directory or you need to set up environment variable TESSDATA_PREFIX.
+Installer will set it up for you.
 
 The command line is:
 
-tesseract <image.tif> <output> [-l <langid>]
+tesseract imagename outputbase [-l lang] [-psm pagesegmode] [configfiles...]
 
-For interfacing to other applications, there is a DLL included with the executables, but you may be better off building it yourself. The DLL is NOT built for static C-Runtime, so you will probably need VC++ Express 2008 to run it.
+If you need interface to other applications, please check wrapper section
+on AddOns wiki page:
+http://code.google.com/p/tesseract-ocr/wiki/AddOns#Tesseract_3.0x
 
-The dll has been updated to allow input of non-binary images. (Thanks to Glen of Jetsoft.)
 
 Non-Windows (or Cygwin):
+------------------------
 
-You have to tell Tesseract through a standard unix mechanism where to find its data directory. You must either:
+You have to tell Tesseract through a standard unix mechanism where to 
+find its data directory. You must either:
 
 ./configure
 make
@@ -77,13 +99,15 @@ export TESSDATA_PREFIX="directory in which your tessdata resides/"
 
 In either case the command line is:
 
-tesseract <image.tif> <output> [-l <langid>]
+tesseract imagename outputbase [-l lang] [-psm pagesegmode] [configfiles...]
 
-New there is a tesseract.spec for making rpms. (Thanks to Andrew Ziem for the help.) It might work with your OS if you know how to do that.
+New there is a tesseract.spec for making rpms. (Thanks to Andrew Ziem for
+the help.) It might work with your OS if you know how to do that.
 
-If you are linking to the libraries, as Ocropus does, there is now a single master library called libtesseract_full.a.
+If you are linking to the libraries, as Ocropus does, please link to
+libtesseract_api.
 
-Libtiff support should now be properly working via configure, but note that you need libtiff-dev, as that contains the header files required to compile the code that uses it. 
+
 
 History:
 ========
@@ -94,38 +118,24 @@ A lot of the code was written in C, and then some more was written in C++.
 Since then all the code has been converted to at least compile with a C++
 compiler. Currently it builds under Linux with gcc4.4.3 and under Windows
 with VC++2008. The C++ code makes heavy use of a list system using macros.
-This predates stl, was portable before stl, and is more efficent than stl
+This predates stl, was portable before stl, and is more efficient than stl
 lists, but has the big negative that if you do get a segmentation violation,
 it is hard to debug.
 
-The most recent change is that Tesseract can now recognize 6 languages, is fully UTF8 capable, and is fully trainable. See TrainingTesseract for more information on training.
+The most recent change is that Tesseract can now recognize 6 languages, 
+is fully UTF8 capable, and is fully trainable. See TrainingTesseract for
+more information on training.
 
-Tesseract was included in UNLV's Fourth Annual Test of OCR Accuracy. See http://www.isri.unlv.edu/downloads/AT-1995.pdf. With Tesseract 2.00, scripts are now included to allow anyone to reproduce some of these tests. See TestingTesseract for more details. 
-
-
-Directory Structure (ordered by dependency):
-============================================
-ccmain     Top-level code. The main program resides in tesseractmain.cpp.
-display    An "editor" to view and operate on the internal structures.
-           (Requires a working viewer - batteries not included.)
-wordrec    The word-level recognizer.
-textord    The module that organizes(orders) text into lines and words.
-classify   The low-level character classifiers.
-ccstruct   Classes to hold information about a page as it is being processed.
-viewer     The client side of a client server viewing system.
-           Unfortunately, at this time, the server side is not available.
-image      Image class and processing functions.
-dict       Language model code.
-cutil      Code for file I/O, lists, heaps etc, from the old C code.
-ccutil     Somewhat newer code for lists, memory allocation etc from the
-           old C++ code.
+Tesseract was included in UNLV's Fourth Annual Test of OCR Accuracy. 
+Results were available on http://www.isri.unlv.edu/downloads/AT-1995.pdf.
+With Tesseract 2.00, scripts were included to allow anyone to reproduce 
+some of these tests. See TestingTesseract for more details. 
 
 
 About the Engine
 ================
-This code is a raw OCR engine. It has NO PAGE LAYOUT ANALYSIS, NO OUTPUT
-FORMATTING, and NO UI. It can only process an image of a single column
-and create text from it. It can detect fixed pitch vs proportional text.
+This code is a raw OCR engine. It has limited PAGE LAYOUT ANALYSIS, simple
+OUTPUT FORMATTING (txt, hocr/html), and NO UI. 
 Having said that, in 1995, this engine was in the top 3 in terms of character
 accuracy, and it compiles and runs on both Linux and Windows.
 As of 2.0, Tesseract is fully unicode (UTF-8) enabled, and can recognize 6

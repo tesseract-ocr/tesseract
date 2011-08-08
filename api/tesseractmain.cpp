@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
   textdomain (PACKAGE);
 #endif
   if ((argc == 2 && strcmp(argv[1], "-v") == 0) || (argc == 2 && strcmp(argv[1], "--version") == 0)) {
-    fprintf(stderr, "tesseract-%s\n", tesseract::TessBaseAPI::Version());
+    fprintf(stderr, "tesseract %s\n", tesseract::TessBaseAPI::Version());
     exit(0);
   }
   // Make the order of args a bit more forgiving than it used to be.
