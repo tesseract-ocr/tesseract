@@ -26,6 +26,7 @@
 #include "cube_utils.h"
 #include "ndminx.h"
 #include "unicharset.h"
+#include "cube_const.h"
 
 namespace tesseract {
 

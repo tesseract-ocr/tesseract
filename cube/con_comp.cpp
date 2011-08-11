@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "con_comp.h"
-#include "const.h"
+#include "cube_const.h"
 
 namespace tesseract {
 

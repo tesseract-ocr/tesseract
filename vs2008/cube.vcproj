@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="cube"
 	ProjectGUID="{CC778B5F-7B9B-4466-9E9A-B8222C6FF16F}"
 	RootNamespace="cube"
@@ -402,11 +402,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\cube\const.h"
+				RelativePath="..\cube\conv_net_classifier.h"
 				>
 			</File>
 			<File
-				RelativePath="..\cube\conv_net_classifier.h"
+				RelativePath="..\cube\cube_const.h"
 				>
 			</File>
 			<File

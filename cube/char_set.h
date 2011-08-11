@@ -35,6 +35,7 @@
 #include "string_32.h"
 #include "tessdatamanager.h"
 #include "unicharset.h"
+#include "cube_const.h"
 
 namespace tesseract {
 

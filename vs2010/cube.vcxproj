@@ -57,7 +57,7 @@
     <ClInclude Include="..\cube\classifier_base.h" />
     <ClInclude Include="..\cube\classifier_factory.h" />
     <ClInclude Include="..\cube\con_comp.h" />
-    <ClInclude Include="..\cube\const.h" />
+    <ClInclude Include="..\cube\cube_const.h" />
     <ClInclude Include="..\cube\conv_net_classifier.h" />
     <ClInclude Include="..\cube\cube_line_object.h" />
     <ClInclude Include="..\cube\cube_line_segmenter.h" />

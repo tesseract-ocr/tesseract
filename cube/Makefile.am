@@ -12,7 +12,7 @@ include_HEADERS = \
     altlist.h beam_search.h bmp_8.h cached_file.h \
     char_altlist.h char_bigrams.h char_samp.h char_samp_enum.h \
     char_samp_set.h char_set.h classifier_base.h classifier_factory.h \
-    con_comp.h const.h conv_net_classifier.h cube_line_object.h \
+    con_comp.h cube_const.h conv_net_classifier.h cube_line_object.h \
     cube_line_segmenter.h cube_object.h cube_search_object.h \
     cube_tuning_params.h cube_utils.h feature_base.h feature_bmp.h \
     feature_chebyshev.h feature_hybrid.h hybrid_neural_net_classifier.h \
