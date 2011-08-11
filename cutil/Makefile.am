@@ -8,7 +8,7 @@ include_HEADERS = \
 
 lib_LTLIBRARIES = libtesseract_cutil.la
 libtesseract_cutil_la_SOURCES = \
-    bitvec.cpp cutil.cpp cutil_class.cpp danerror.cpp efio.cpp \
+    bitvec.cpp callcpp.cpp cutil.cpp cutil_class.cpp danerror.cpp efio.cpp \
     emalloc.cpp freelist.cpp listio.cpp oldheap.cpp \
     oldlist.cpp structures.cpp tessarray.cpp
 

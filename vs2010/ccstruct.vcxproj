@@ -56,7 +56,6 @@
     <ClCompile Include="..\ccstruct\blobs.cpp" />
     <ClCompile Include="..\ccstruct\blread.cpp" />
     <ClCompile Include="..\ccstruct\boxword.cpp" />
-    <ClCompile Include="..\ccstruct\callcpp.cpp" />
     <ClCompile Include="..\ccstruct\ccstruct.cpp" />
     <ClCompile Include="..\ccstruct\coutln.cpp" />
     <ClCompile Include="..\ccstruct\detlinefit.cpp" />

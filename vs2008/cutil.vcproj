@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="cutil"
 	ProjectGUID="{0BDEFC56-679F-436E-A089-81FCAEBA50F3}"
 	RootNamespace="cutil"
@@ -217,6 +217,10 @@
 			>
 			<File
 				RelativePath="..\cutil\bitvec.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\cutil\callcpp.cpp"
 				>
 			</File>
 			<File

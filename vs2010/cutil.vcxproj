@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\cutil\bitvec.cpp" />
+    <ClCompile Include="..\cutil\callcpp.cpp" />
     <ClCompile Include="..\cutil\cutil.cpp" />
     <ClCompile Include="..\cutil\cutil_class.cpp" />
     <ClCompile Include="..\cutil\danerror.cpp" />

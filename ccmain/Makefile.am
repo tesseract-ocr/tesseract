@@ -9,14 +9,12 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube \
     -I$(top_srcdir)/textord
 
-EXTRA_DIST = tessembedded.cpp
-
 include_HEADERS = \
     control.h cube_reco_context.h \
     docqual.h fixspace.h \
     imgscale.h osdetect.h output.h \
     paramsd.h pgedit.h reject.h scaleimg.h \
-    tessbox.h tessedit.h tessembedded.h tesseractclass.h \
+    tessbox.h tessedit.h tesseractclass.h \
     tesseract_cube_combiner.h \
     tessvars.h tfacep.h tfacepp.h thresholder.h \
     werdit.h

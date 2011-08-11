@@ -93,7 +93,6 @@
     <ClInclude Include="..\ccmain\scaleimg.h" />
     <ClInclude Include="..\ccmain\tessbox.h" />
     <ClInclude Include="..\ccmain\tessedit.h" />
-    <ClInclude Include="..\ccmain\tessembedded.h" />
     <ClInclude Include="..\ccmain\tesseractclass.h" />
     <ClInclude Include="..\ccmain\tesseract_cube_combiner.h" />
     <ClInclude Include="..\ccmain\tessvars.h" />

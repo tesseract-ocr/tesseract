@@ -313,37 +313,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccstruct\callcpp.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\ccstruct\ccstruct.cpp"
 				>
 			</File>

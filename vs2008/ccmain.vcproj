@@ -869,10 +869,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccmain\tessembedded.h"
-				>
-			</File>
-			<File
 				RelativePath="..\ccmain\tesseract_cube_combiner.h"
 				>
 			</File>

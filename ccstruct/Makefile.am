@@ -15,7 +15,7 @@ include_HEADERS = \
 
 lib_LTLIBRARIES = libtesseract_ccstruct.la
 libtesseract_ccstruct_la_SOURCES = \
-    blobbox.cpp blobs.cpp blread.cpp boxword.cpp callcpp.cpp ccstruct.cpp coutln.cpp \
+    blobbox.cpp blobs.cpp blread.cpp boxword.cpp ccstruct.cpp coutln.cpp \
     detlinefit.cpp dppoint.cpp genblob.cpp \
     linlsq.cpp matrix.cpp mod128.cpp normalis.cpp \
     ocrblock.cpp ocrrow.cpp otsuthr.cpp \
