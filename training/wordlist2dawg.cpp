@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
   } else if (argc == 7) {
     // Place words of different lengths in separate Dawgs.
     char str[CHARS_PER_LINE];
-    FILE *word_file = fopen(wordlist_filename, "r");
+    FILE *word_file = fopen(wordlist_filename, "rb");
     if (word_file == NULL) {
       tprintf("Failed to open wordlist file %s\n", wordlist_filename);
       exit(1);

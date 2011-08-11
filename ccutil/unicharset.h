@@ -226,7 +226,7 @@ class UNICHARSET {
   // Opens the file indicated by filename and saves unicharset to that file.
   // Returns true if the operation is successful.
   bool save_to_file(const char * const filename) const {
-    FILE* file = fopen(filename, "w+");
+    FILE* file = fopen(filename, "w+b");
     if (file == NULL) return false;
     bool result = save_to_file(file);
     fclose(file);
@@ -241,7 +241,7 @@ class UNICHARSET {
   // from the given file. The previous data is lost.
   // Returns true if the operation is successful.
   bool load_from_file(const char* const filename, bool skip_fragments) {
-    FILE* file = fopen(filename, "r");
+    FILE* file = fopen(filename, "rb");
     if (file == NULL) return false;
     bool result = load_from_file(file, skip_fragments);
     fclose(file);

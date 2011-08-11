@@ -440,7 +440,7 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
 void TessBaseAPI::DumpPGM(const char* filename) {
   if (tesseract_ == NULL)
     return;
-  FILE *fp = fopen(filename, "w");
+  FILE *fp = fopen(filename, "wb");
   Pix* pix = tesseract_->pix_binary();
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
@@ -644,7 +644,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   if (npages > 0) {
     for (; page < npages && (pix = pixReadTiff(filename, page)) != NULL;
          ++page) {
-      if (page > 0)
+      if (page >= 0)
         tprintf(_("Page %d\n"), page);
       char page_str[kMaxIntSize];
       snprintf(page_str, kMaxIntSize - 1, "%d", page);
@@ -665,7 +665,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
       pixDestroy(&pix);
     } else {
       // The file is not an image file, so try it as a list of filenames.
-      FILE* fimg = fopen(filename, "r");
+      FILE* fimg = fopen(filename, "rb");
       if (fimg == NULL) {
         tprintf(_("File %s cannot be opened!\n"), filename);
         return false;
@@ -742,7 +742,7 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
   }
   if (failed && retry_config != NULL && retry_config[0] != '\0') {
     // Save current config variables before switching modes.
-    FILE* fp = fopen(kOldVarsFile, "w");
+    FILE* fp = fopen(kOldVarsFile, "wb");
     PrintVariables(fp);
     fclose(fp);
     // Switch to alternate mode for retry.

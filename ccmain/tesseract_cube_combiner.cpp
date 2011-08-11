@@ -57,7 +57,7 @@ bool TesseractCubeCombiner::LoadCombinerNet() {
                           ".tesseract_cube.nn";
 
   // Return false if file does not exist
-  FILE *fp = fopen(net_file_name.c_str(), "r");
+  FILE *fp = fopen(net_file_name.c_str(), "rb");
   if (fp == NULL)
     return false;
   else

@@ -92,7 +92,7 @@ FILE *open_file(const char *filename, const char *mode) {
 bool exists_file(const char *filename) {
   bool exists = false;
   FILE *f = NULL;
-  if ((f = fopen(filename, "r")) != NULL) {
+  if ((f = fopen(filename, "rb")) != NULL) {
     fclose(f);
     exists = true;
   }

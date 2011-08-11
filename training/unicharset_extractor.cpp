@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
   for (; tessoptind < argc; ++tessoptind) {
     printf("Extracting unicharset from %s\n", argv[tessoptind]);
 
-    FILE* box_file = fopen(argv[tessoptind], "r");
+    FILE* box_file = fopen(argv[tessoptind], "rb");
     if (box_file == NULL) {
       printf("Cannot open box file %s\n", argv[tessoptind]);
       return -1;

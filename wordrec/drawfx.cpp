@@ -95,5 +95,5 @@ void create_fxdebug_win() {  //make gradients win
   //                      DEBUG_XPOS,DEBUG_YPOS,
   //                      DEBUG_XSIZE,DEBUG_YSIZE);
   //      else
-  //              fx_debug=fopen(fx_debugfile.string(),"w");
+  //              fx_debug=fopen(fx_debugfile.string(),"wb");
 }

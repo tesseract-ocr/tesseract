@@ -267,7 +267,7 @@ unsigned char *CubeUtils::GetImageData(Pix *pix, int left, int top,
 // read file contents to a string
 bool CubeUtils::ReadFileToString(const string &file_name, string *str) {
   str->clear();
-  FILE *fp = fopen(file_name.c_str(), "r");
+  FILE *fp = fopen(file_name.c_str(), "rb");
   if (fp == NULL) {
     return false;
   }

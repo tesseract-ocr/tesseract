@@ -69,13 +69,13 @@ void Tesseract::read_config_file(const char *filename, bool init_only) {
   path += "configs/";
   path += filename;
   FILE* fp;
-  if ((fp = fopen(path.string(), "r")) != NULL) {
+  if ((fp = fopen(path.string(), "rb")) != NULL) {
     fclose(fp);
   } else {
     path = datadir;
     path += "tessconfigs/";
     path += filename;
-    if ((fp = fopen(path.string(), "r")) != NULL) {
+    if ((fp = fopen(path.string(), "rb")) != NULL) {
       fclose(fp);
     } else {
       path = filename;
@@ -148,7 +148,7 @@ bool Tesseract::init_tesseract_lang_data(
   }
 
   if (((STRING &)tessedit_write_params_to_file).length() > 0) {
-    FILE *params_file = fopen(tessedit_write_params_to_file.string(), "w");
+    FILE *params_file = fopen(tessedit_write_params_to_file.string(), "wb");
     if (params_file != NULL) {
       ParamUtils::PrintParams(params_file, this->params());
       fclose(params_file);

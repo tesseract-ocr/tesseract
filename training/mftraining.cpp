@@ -225,7 +225,7 @@ int main (int argc, char **argv) {
 
   // Populate fontinfo_table with font properties.
   if (InputFontInfoFile != NULL) {
-    FILE* f = fopen(InputFontInfoFile, "r");
+    FILE* f = fopen(InputFontInfoFile, "rb");
     if (f == NULL) {
       fprintf(stderr, "Failed to load font_properties\n");
     } else {
@@ -292,7 +292,7 @@ int main (int argc, char **argv) {
       delete[] short_name;
     }
 
-    TrainingPage = Efopen (PageName, "r");
+    TrainingPage = Efopen (PageName, "rb");
     LIST char_list = NIL_LIST;
     ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE,
                         0, 1.0f / 128.0f, 1.0f / 64.0f, &unicharset_training,
@@ -371,11 +371,7 @@ int main (int argc, char **argv) {
     strcat (Filename, "/");
   }
   strcat (Filename, "inttemp");
-#ifdef __UNIX__
-  OutFile = Efopen (Filename, "w");
-#else
   OutFile = Efopen (Filename, "wb");
-#endif
   classify->WriteIntTemplates(OutFile, IntTemplates, unicharset_training);
   fclose (OutFile);
   strcpy (Filename, "");
@@ -425,7 +421,7 @@ void WriteMicrofeat(
     strcat (Filename, "/");
   }
   strcat (Filename, "Microfeat");
-  File = Efopen (Filename, "w");
+  File = Efopen (Filename, "wb");
   printf ("\nWriting Merged %s ...", Filename);
   iterate(ClassList)
   {
@@ -516,7 +512,7 @@ void InitXHeights(const char *filename,
                    int xheights[]) {
   for (int i = 0; i < fontinfo_table.size(); ++i) xheights[i] = -1;
   if (filename == NULL) return;
-  FILE *f = fopen(filename, "r");
+  FILE *f = fopen(filename, "rb");
   if (f == NULL) {
     fprintf(stderr, "Failed to load font xheights from %s\n", filename);
     return;
@@ -542,7 +538,7 @@ void AddSpacingInfo(const char *filename,
                      const UNICHARSET &unicharset,
                      const int xheights[],
                      UnicityTable<FontInfo> *fontinfo_table) {
-  FILE* fontinfo_file = fopen(filename, "r");
+  FILE* fontinfo_file = fopen(filename, "rb");
   if (fontinfo_file == NULL) return;
   tprintf("Reading spacing from %s ...\n", filename);
   int scale = kBlnXHeight / xheights[fontinfo_id];

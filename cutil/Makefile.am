@@ -1,5 +1,5 @@
 SUBDIRS =
-AM_CPPFLAGS = -I$(top_srcdir)/ccutil
+AM_CPPFLAGS = -I$(top_srcdir)/ccutil -I$(top_srcdir)/viewer
 
 include_HEADERS = \
     bitvec.h callcpp.h const.h cutil.h cutil_class.h danerror.h efio.h \

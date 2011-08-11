@@ -187,7 +187,7 @@ bool CubeTuningParams::Load(string tuning_params_file) {
 
 // Save the parameters to a file
 bool CubeTuningParams::Save(string file_name) {
-  FILE *params_file = fopen(file_name.c_str(), "w");
+  FILE *params_file = fopen(file_name.c_str(), "wb");
   if (params_file == NULL) {
     fprintf(stderr, "Cube ERROR (CubeTuningParams::Save): error opening file "
             "%s for write.\n", file_name.c_str());

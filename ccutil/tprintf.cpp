@@ -64,7 +64,7 @@ const char *format, ...          //special message
   va_end(args);
 
   if (debugfp == NULL && strlen (debug_file.string ()) > 0)
-    debugfp = fopen (debug_file.string (), "w");
+    debugfp = fopen (debug_file.string (), "wb");
   else if (debugfp != NULL && strlen (debug_file.string ()) == 0) {
     fclose(debugfp);
     debugfp = NULL;

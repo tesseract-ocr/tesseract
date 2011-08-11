@@ -223,7 +223,7 @@ bool HybridNeuralNetCharClassifier::LoadFoldingSets(
   fold_file_name += ".cube.fold";
 
   // folding sets are optional
-  FILE *fp = fopen(fold_file_name.c_str(), "r");
+  FILE *fp = fopen(fold_file_name.c_str(), "rb");
   if (fp == NULL) {
     return true;
   }
@@ -316,7 +316,7 @@ bool HybridNeuralNetCharClassifier::LoadNets(const string &data_file_path,
   hybrid_net_file += ".cube.hybrid";
 
   // neural network is optional
-  FILE *fp = fopen(hybrid_net_file.c_str(), "r");
+  FILE *fp = fopen(hybrid_net_file.c_str(), "rb");
   if (fp == NULL) {
     return true;
   }

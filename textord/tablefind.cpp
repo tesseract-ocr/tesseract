@@ -2028,7 +2028,7 @@ void TableFinder::WriteToPix(const FCOORD& reskew) {
 
   BOXA* table_array = boxaCreate(num_boxes);
   // text file containing detected table bounding boxes
-  FILE* fptr = fopen("tess-table.txt", "w");
+  FILE* fptr = fopen("tess-table.txt", "wb");
   GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT>
       table_search(&table_grid_);
   table_search.StartFullSearch();

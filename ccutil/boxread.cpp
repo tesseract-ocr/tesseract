@@ -35,7 +35,7 @@ FILE* OpenBoxFile(const STRING& fname) {
 
   filename += ".box";
   FILE* box_file = NULL;
-  if (!(box_file = fopen(filename.string(), "r"))) {
+  if (!(box_file = fopen(filename.string(), "rb"))) {
     CANTOPENFILE.error("read_next_box", TESSEXIT,
                        "Cant open box file %s",
                        filename.string());

@@ -370,10 +370,10 @@ void WriteTrainingSamples (
 
     /* if file does not exist, create a new one with an appropriate
        header; otherwise append samples to the existing file */
-    File = fopen (Filename, "r");
+    File = fopen (Filename, "rb");
     if (File == NULL)
     {
-      File = Efopen (Filename, "w");
+      File = Efopen (Filename, "wb");
       WriteOldParamDesc(
           File,
           FeatureDefs.FeatureDesc[ShortNameToFeatureType(
@@ -382,7 +382,7 @@ void WriteTrainingSamples (
     else
     {
       fclose (File);
-      File = Efopen (Filename, "a");
+      File = Efopen (Filename, "ab");
     }
 
     // append samples onto the file

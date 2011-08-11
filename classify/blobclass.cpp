@@ -91,7 +91,7 @@ void LearnBlob(const FEATURE_DEFS_STRUCT &FeatureDefs, const STRING& filename,
   // the name of the file is the name of the image plus TRAIN_SUFFIX
   if (FeatureFile == NULL) {
     Filename += TRAIN_SUFFIX;
-    FeatureFile = Efopen(Filename.string(), "w");
+    FeatureFile = Efopen(Filename.string(), "wb");
     cprintf("TRAINING ... Font name = %s\n", CurrFontName.string());
   }
 

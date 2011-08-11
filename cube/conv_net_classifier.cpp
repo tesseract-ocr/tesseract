@@ -227,7 +227,7 @@ bool ConvNetCharClassifier::LoadFoldingSets(const string &data_file_path,
   fold_file_name += ".cube.fold";
 
   // folding sets are optional
-  FILE *fp = fopen(fold_file_name.c_str(), "r");
+  FILE *fp = fopen(fold_file_name.c_str(), "rb");
   if (fp == NULL) {
     return true;
   }
@@ -320,7 +320,7 @@ bool ConvNetCharClassifier::LoadNets(const string &data_file_path,
   char_net_file += ".cube.nn";
 
   // neural network is optional
-  FILE *fp = fopen(char_net_file.c_str(), "r");
+  FILE *fp = fopen(char_net_file.c_str(), "rb");
   if (fp == NULL) {
     return true;
   }

@@ -325,7 +325,7 @@ void ParamsEditor::WriteParams(char *filename,
   FILE *fp;                      // input file
   char msg_str[255];
                                  // if file exists
-  if ((fp = fopen (filename, "r")) != NULL) {
+  if ((fp = fopen (filename, "rb")) != NULL) {
     fclose(fp);
     sprintf (msg_str, "Overwrite file " "%s" "? (Y/N)", filename);
     int a = sv_window_->ShowYesNoDialog(msg_str);
@@ -333,7 +333,7 @@ void ParamsEditor::WriteParams(char *filename,
   }
 
 
-  fp = fopen (filename, "w");  // can we write to it?
+  fp = fopen (filename, "wb");  // can we write to it?
   if (fp == NULL) {
     sv_window_->AddMessage("Cant write to file " "%s" "", filename);
     return;

@@ -94,7 +94,7 @@ CharSampSet * CharSampSet::FromCharDumpFile(string file_name) {
   FILE *fp;
   unsigned int val32;
   // open the file
-  fp = fopen(file_name.c_str(), "r");
+  fp = fopen(file_name.c_str(), "rb");
   if (fp == NULL) {
     return NULL;
   }
@@ -123,7 +123,7 @@ FILE *CharSampSet::CreateCharDumpFile(string file_name) {
   FILE *fp;
   unsigned int val32;
   // create the file
-  fp =  fopen(file_name.c_str(), "w");
+  fp =  fopen(file_name.c_str(), "wb");
   if (!fp) {
     return NULL;
   }

@@ -78,16 +78,16 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   iterate(RemainingOutlines) {
     Outline = (MFOUTLINE) first_node (RemainingOutlines);
     /*---------Debug--------------------------------------------------*
-    OFile = fopen ("f:/ims/debug/pfOutline.logCPP", "r");
+    OFile = fopen ("f:/ims/debug/pfOutline.logCPP", "rb");
     if (OFile == NULL)
     {
-      OFile = Efopen ("f:/ims/debug/pfOutline.logCPP", "w");
+      OFile = Efopen ("f:/ims/debug/pfOutline.logCPP", "wb");
       WriteOutline(OFile, Outline);
     }
     else
     {
       fclose (OFile);
-      OFile = Efopen ("f:/ims/debug/pfOutline.logCPP", "a");
+      OFile = Efopen ("f:/ims/debug/pfOutline.logCPP", "ab");
     }
     WriteOutline(OFile, Outline);
     fclose (OFile);
@@ -97,16 +97,16 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   if (classify_norm_method == baseline)
     NormalizePicoX(FeatureSet);
   /*---------Debug--------------------------------------------------*
-  File = fopen ("f:/ims/debug/pfFeatSet.logCPP", "r");
+  File = fopen ("f:/ims/debug/pfFeatSet.logCPP", "rb");
   if (File == NULL)
   {
-    File = Efopen ("f:/ims/debug/pfFeatSet.logCPP", "w");
+    File = Efopen ("f:/ims/debug/pfFeatSet.logCPP", "wb");
     WriteFeatureSet(File, FeatureSet);
   }
   else
   {
     fclose (File);
-    File = Efopen ("f:/ims/debug/pfFeatSet.logCPP", "a");
+    File = Efopen ("f:/ims/debug/pfFeatSet.logCPP", "ab");
   }
   WriteFeatureSet(File, FeatureSet);
   fclose (File);

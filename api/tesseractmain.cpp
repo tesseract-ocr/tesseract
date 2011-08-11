@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
            tesseract::TessBaseAPI::Version());
 
   
-  FILE* fin = fopen(image, "r");
+  FILE* fin = fopen(image, "rb");
   if (fin == NULL) {
     printf("Cannot open input file: %s\n", image);
     exit(2);
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
   api.GetBoolVariable("tessedit_create_boxfile", &output_box);
   STRING outfile = output;
   outfile += output_hocr ? ".html" : output_box ? ".box" : ".txt";
-  FILE* fout = fopen(outfile.string(), "w");
+  FILE* fout = fopen(outfile.string(), "wb");
   if (fout == NULL) {
     tprintf(_("Cannot create output file %s\n"), outfile.string());
     exit(1);

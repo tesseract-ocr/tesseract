@@ -52,7 +52,7 @@ bool CachedFile::Open() {
     return true;
   }
 
-  fp_ = fopen(file_name_.c_str(), "r");
+  fp_ = fopen(file_name_.c_str(), "rb");
   if (fp_ == NULL) {
     return false;
   }

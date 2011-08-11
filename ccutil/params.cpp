@@ -58,7 +58,7 @@ bool ParamUtils::ReadParamsFile(const char *file, bool init_only,
     nameoffset = 0;
   }
 
-  fp = fopen(file + nameoffset, "r");
+  fp = fopen(file + nameoffset, "rb");
   if (fp == NULL) {
     tprintf("read_params_file: Can't open %s\n", file + nameoffset);
     return true;

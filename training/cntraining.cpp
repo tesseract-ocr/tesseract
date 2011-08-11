@@ -155,7 +155,7 @@ int main (
   int num_fonts = 0;
   while ((PageName = GetNextFilename(argc, argv)) != NULL) {
     printf("Reading %s ...\n", PageName);
-    TrainingPage = Efopen(PageName, "r");
+    TrainingPage = Efopen(PageName, "rb");
     ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE,
                         100, 1.0f / 64.0f, 0.0f, NULL, TrainingPage, &CharList);
     fclose(TrainingPage);
@@ -238,7 +238,7 @@ void WriteNormProtos (
   }
   strcat (Filename, "normproto");
   printf ("\nWriting %s ...", Filename);
-  File = Efopen (Filename, "w");
+  File = Efopen (Filename, "wb");
   fprintf(File,"%0d\n",Clusterer->SampleSize);
   WriteParamDesc(File,Clusterer->SampleSize,Clusterer->ParamDesc);
   iterate(LabeledProtoList)
