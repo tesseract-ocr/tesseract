@@ -18,7 +18,9 @@
  **********************************************************************/
 
 #ifdef WIN32
+#ifndef __GNUC__
 #include <windows.h>
+#endif  /* __GNUC__ */
 #else
 #include <unistd.h>
 #endif
@@ -26,16 +28,14 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
+#include <string>
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
-#ifdef HAVE_LIBLEPT
-// Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"
-#endif
-
 #include "tesseractclass.h"
 #include "img.h"
 #include "blobbox.h"

@@ -25,12 +25,17 @@
 #define TESSERACT_VIEWER_SVUTIL_H__
 
 #ifdef WIN32
+#ifndef __GNUC__
 #include <windows.h>
 #define snprintf _snprintf
 #if (_MSC_VER <= 1400)
 #define vsnprintf _vsnprintf
 #endif
 #pragma warning(disable:4786)
+#else
+#include "platform.h"
+#include <windows.h>
+#endif
 #else
 #include <pthread.h>
 #include <semaphore.h>
@@ -129,7 +134,7 @@ class SVNetwork {
   /// Stores the messages which are supposed to go out.
   std::string msg_buffer_out_;
 
-  bool has_content; // Win32 (strtok)
+  bool has_content;  // Win32 (strtok)
   /// Where we are at in our msg_buffer_in_
   char* buffer_ptr_;  // Unix (strtok_r)
 };

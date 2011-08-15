@@ -24,8 +24,8 @@
  *
  *********************************************************************************/
 
-#ifndef DAWG_H
-#define DAWG_H
+#ifndef DICT_DAWG_H_
+#define DICT_DAWG_H_
 
 /*----------------------------------------------------------------------
               I n c l u d e s
@@ -35,11 +35,13 @@
 #include "ratngs.h"
 #include "params.h"
 
+#ifndef __GNUC__
 #ifdef __MSW32__
 #define NO_EDGE                (inT64) 0xffffffffffffffffi64
+#endif  /*__MSW32__*/
 #else
 #define NO_EDGE                (inT64) 0xffffffffffffffffll
-#endif
+#endif /*__GNUC__*/
 
 /*----------------------------------------------------------------------
               T y p e s
@@ -481,4 +483,4 @@ class SquishedDawg : public Dawg {
 
 }  // namespace tesseract
 
-#endif
+#endif  // DICT_DAWG_H_

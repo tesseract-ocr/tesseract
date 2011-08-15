@@ -1,10 +1,12 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        gettimeofday.h
-// Description: Header file for gettimeofday.c (source postgresql.org)
+// File:        strtok_r.h
+// Description: Header file for strtok_r.cpp
+// source: https://github.com/heimdal/heimdal/blob/master/lib/roken/
+//              strtok_r.c
 // Author:      zdenop
-// Created:     Fri Nov 19 21:05:06 CET 2010
+// Created:     Fri Aug 12 23:55:06 CET 2011
 //
-// (C) Copyright 2010, Google Inc.
+// (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -20,12 +22,6 @@
 #ifndef VS2008_PORT_GETTIMEOFDAY_H_
 #define VS2008_PORT_GETTIMEOFDAY_H_
 
-#ifdef __MSW32__
-#include          <winsock.h>    // timeval is defined in here.
-#endif
-
-typedef struct  timezone tz;
-
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
+char *strtok_r(char *s1, const char *s2, char **lasts);
 
 #endif  // VS2008_PORT_GETTIMEOFDAY_H_

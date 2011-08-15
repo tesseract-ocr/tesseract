@@ -24,12 +24,14 @@
  * structure alignment upto 8.
  **********************************************************************/
 
-#ifndef           OCRCLASS_H
-#define           OCRCLASS_H
+#ifndef            CCUTIL_OCRCLASS_H_
+#define            CCUTIL_OCRCLASS_H_
 
+#ifndef __GNUC__
 #ifdef __MSW32__
 #include          <windows.h>
 #include          "gettimeofday.h"
+#endif
 #else
 #include          <sys/time.h>
 #endif
@@ -126,8 +128,7 @@ OR these together for enhancement in ocr_append_char*/
 #define EUC_SUPERSCRIPT   16     /*superscript char */
 
 /*enum for character rendering direction*/
-enum OCR_CHAR_DIRECTION
-{
+enum OCR_CHAR_DIRECTION {
   OCR_CDIR_RIGHT_LEFT,           /*right to left horizontal */
   OCR_CDIR_LEFT_RIGHT,           /*left to right horizontal */
   OCR_CDIR_TOP_BOTTOM,           /*top to bottom vertical */
@@ -135,29 +136,27 @@ enum OCR_CHAR_DIRECTION
 };
 
 /*enum for line rendering direction*/
-enum OCR_LINE_DIRECTION
-{
+enum OCR_LINE_DIRECTION {
   OCR_LDIR_DOWN_RIGHT,           /*horizontal lines go down */
   /*vertical lines go right */
   OCR_LDIR_UP_LEFT               /*horizontal lines go up */
 };
 
 /*enum for newline type*/
-enum OCR_NEWLINE_TYPE
-{
+enum OCR_NEWLINE_TYPE {
   OCR_NL_NONE,                   /*not a newline */
   OCR_NL_NEWLINE,                /*this is a newline but not new para */
   OCR_NL_NEWPARA                 /*this is a newline and a new para */
 };
 
-/*error codes that can be returned from the API functions other than OKAY and HPERR*/
+/*error codes that can be returned from the API functions other than OKAY
+and HPERR*/
 #define OCR_API_NO_MEM    (-2)   /*filled output buffer */
 #define OCR_API_BAD_CHAR  (-3)   /*whitespace sent to ocr_append_char */
 #define OCR_API_BAD_STATE (-4)   /*invalid call sequence */
 
 /*error codes used for passing errors back to the HP side*/
-enum OCR_ERR_CODE
-{
+enum OCR_ERR_CODE {
   OCR_ERR_NONE,                  /*no error */
   OCR_ERR_CLEAN_EXIT,            /*no error */
   OCR_ERR_NO_MEM,                /*out of memory */
@@ -187,8 +186,7 @@ enum OCR_ERR_CODE
  * The name may be either a valid font on the system or the empty string.
  **********************************************************************/
 
-typedef struct                   /*font description */
-{
+typedef struct {                  /*font description */
   uinT16 language;               /*default language */
   uinT8 font_family;             /*serif/not, fixed/not */
   uinT8 char_set;                /*character set standard */
@@ -204,8 +202,7 @@ typedef struct                   /*font description */
  * can recognize.
  **********************************************************************/
 
-typedef struct                   /*startup info */
-{
+typedef struct {                  /*startup info */
   inT32 protocol;                /*interface version */
   uinT32 font_count;             /*number of fonts */
   uinT16 language;               /*default language */
@@ -225,8 +222,7 @@ typedef struct                   /*startup info */
  * The top leftmost pixel is in the most significant bit of the first byte.
  **********************************************************************/
 
-typedef struct                   /*bitmap strip */
-{
+typedef struct {                  /*bitmap strip */
   inT16 x_size;                  /*width in pixels */
   inT16 y_size;                  /*of full image */
   inT16 strip_size;              /*of this strip */
@@ -258,15 +254,15 @@ typedef struct                   /*bitmap strip */
  * version.
  **********************************************************************/
 
-typedef struct                   /*single character */
-{
-// It should be noted that the format for char_code for version 2.0 and beyond is UTF8
-// which means that ASCII characters will come out as one structure but other characters
-// will be returned in two or more instances of this structure with a single byte of the
-// UTF8 code in each, but each will have the same bounding box.
-// Programs which want to handle languagues with different characters sets will need to
-// handle extended characters appropriately, but *all* code needs to be prepared to
-// receive UTF8 coded characters for characters such as bullet and fancy quotes.
+typedef struct {                  /*single character */
+// It should be noted that the format for char_code for version 2.0 and beyond
+// is UTF8 which means that ASCII characters will come out as one structure but
+// other characters will be returned in two or more instances of this structure
+// with a single byte of the  UTF8 code in each, but each will have the same
+// bounding box. Programs which want to handle languagues with different
+// characters sets will need to handle extended characters appropriately, but
+// *all* code needs to be prepared to receive UTF8 coded characters for
+// characters such as bullet and fancy quotes.
   uinT16 char_code;              /*character itself */
   inT16 left;                    /*of char (-1) */
   inT16 right;                   /*of char (-1) */
@@ -295,19 +291,18 @@ typedef struct                   /*single character */
  **********************************************************************/
 typedef bool (*CANCEL_FUNC)(void* cancel_this, int words);
 
-class ETEXT_DESC                 /*output header */
-{
+class ETEXT_DESC {             // output header
  public:
-  inT16 count;                   /*chars in this buffer(0) */
-  inT16 progress;                /*percent complete increasing (0-100) */
-  inT8 more_to_come;             /*true if not last */
-  volatile inT8 ocr_alive;       /*ocr sets to 1, HP 0 */
-  inT8 err_code;                 /*for errcode use */
-  CANCEL_FUNC cancel;            /*returns true to cancel */
-  void* cancel_this;             /*this or other data for cancel*/
-  struct timeval end_time;       /*time to stop. expected to be set only by call
-                                   to set_deadline_msecs()*/
-  EANYCODE_CHAR text[1];         /*character data */
+  inT16 count;                 // chars in this buffer(0)
+  inT16 progress;              // percent complete increasing (0-100)
+  inT8 more_to_come;           // true if not last
+  volatile inT8 ocr_alive;     // ocr sets to 1, HP 0
+  inT8 err_code;               // for errcode use
+  CANCEL_FUNC cancel;          // returns true to cancel
+  void* cancel_this;           // this or other data for cancel
+  struct timeval end_time;     // time to stop. expected to be set only by call
+                               // to set_deadline_msecs()
+  EANYCODE_CHAR text[1];       // character data
 
   ETEXT_DESC() : count(0), progress(0), more_to_come(0), ocr_alive(0),
                    err_code(0), cancel(NULL), cancel_this(NULL) {
@@ -337,4 +332,4 @@ class ETEXT_DESC                 /*output header */
   }
 };
 
-#endif
+#endif  // CCUTIL_OCRCLASS_H_
