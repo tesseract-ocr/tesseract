@@ -1,4 +1,3 @@
-ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = ccstruct ccutil classify cube cutil dict image neural_networks/runtime textord viewer wordrec ccmain training tessdata testing java api doc
 #if USING_GETTEXT
 #SUBDIRS += po
@@ -6,7 +5,7 @@ SUBDIRS = ccstruct ccutil classify cube cutil dict image neural_networks/runtime
 #endif
 
 EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
-      acinclude.m4 configure.ac runautoconf tesseract.spec contrib
+      acinclude.m4 config configure.ac runautoconf tesseract.spec contrib
 
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
 
