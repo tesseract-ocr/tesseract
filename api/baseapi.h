@@ -113,13 +113,14 @@ class TESSDLL_API TessBaseAPI {
    * you would in a config file.
    * Returns false if the name lookup failed.
    * Eg SetVariable("tessedit_char_blacklist", "xyz"); to ignore x, y and z.
-   * Or SetVariable("bln_numericmode", "1"); to set numeric-only mode.
+   * Or SetVariable("classify_bln_numeric_mode", "1"); to set numeric-only mode.
    * SetVariable may be used before Init, but settings will revert to
    * defaults on End().
    * TODO(rays) Add a command-line option to dump the parameters to stdout
    * and add a pointer to it in the FAQ
    *
-   * Note: Must be called after Init().
+   * Note: Must be called after Init(). Only works for non-init variables
+   * (init variables should be passed to Init()).
    */
   bool SetVariable(const char* name, const char* value);
 
