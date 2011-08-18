@@ -1162,7 +1162,6 @@ int IntegerMatcher::FindBestMatch(
  */
   int BestMatch = 0;
   int Best2Match = 0;
-  assert(ClassTemplate->NumConfigs > 0);
   Result->Config = 0;
   Result->Config2 = 0;
 
