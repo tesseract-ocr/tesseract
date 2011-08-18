@@ -74,7 +74,7 @@ void WriteProtos(
 ----------------------------------------------------------------------------**/
 /* global variable to hold configuration parameters to control clustering */
 //-M 0.025   -B 0.05   -I 0.8   -C 1e-3
-CLUSTERCONFIG  Config =
+CLUSTERCONFIG  CNConfig =
 {
   elliptical, 0.025, 0.05, 0.8, 1e-3, 0
 };
@@ -140,6 +140,9 @@ int main (
 */
 
 {
+  // Set the global Config parameters before parsing the command line.
+  Config = CNConfig;
+
   char  *PageName;
   FILE  *TrainingPage;
   LIST  CharList = NIL_LIST;
@@ -226,19 +229,19 @@ void WriteNormProtos (
 
 {
   FILE    *File;
-  char    Filename[MAXNAMESIZE];
+  STRING Filename;
   LABELEDLIST LabeledProto;
   int N;
 
-  strcpy (Filename, "");
+  Filename = "";
   if (Directory != NULL)
   {
-    strcat (Filename, Directory);
-    strcat (Filename, "/");
+    Filename += Directory;
+    Filename += "/";
   }
-  strcat (Filename, "normproto");
-  printf ("\nWriting %s ...", Filename);
-  File = Efopen (Filename, "wb");
+  Filename += "normproto";
+  printf ("\nWriting %s ...", Filename.string());
+  File = Efopen (Filename.string(), "wb");
   fprintf(File,"%0d\n",Clusterer->SampleSize);
   WriteParamDesc(File,Clusterer->SampleSize,Clusterer->ParamDesc);
   iterate(LabeledProtoList)

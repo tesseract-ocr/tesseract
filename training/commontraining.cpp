@@ -33,6 +33,10 @@
 
 
 // Global Variables.
+// global variable to hold configuration parameters to control clustering
+// -M 0.625   -B 0.05   -I 1.0   -C 1e-6.
+CLUSTERCONFIG Config = { elliptical, 0.625, 0.05, 1.0, 1e-6, 0 };
+
 char	*Directory = NULL;
 
 const char *InputUnicharsetFile = NULL;

@@ -104,11 +104,6 @@ void AddSpacingInfo(const char *filename, int fontinfo_id,
                     const UNICHARSET &unicharset, const int xheights[],
                      UnicityTable<FontInfo> *fontinfo_table);
 
-// global variable to hold configuration parameters to control clustering
-// -M 0.40   -B 0.05   -I 1.0   -C 1e-6.
-CLUSTERCONFIG Config =
-{ elliptical, 0.625, 0.05, 1.0, 1e-6, 0 };
-
 /*----------------------------------------------------------------------------
             Public Code
 -----------------------------------------------------------------------------*/
@@ -199,7 +194,7 @@ int main (int argc, char **argv) {
   MERGE_CLASS  MergeClass;
   INT_TEMPLATES  IntTemplates;
   LIST pCharList, pProtoList;
-  char Filename[MAXNAMESIZE];
+  STRING Filename;
   tesseract::Classify *classify = new tesseract::Classify();
   FEATURE_DEFS_STRUCT FeatureDefs;
   InitFeatureDefs(&FeatureDefs);
@@ -221,7 +216,6 @@ int main (int argc, char **argv) {
     // Space character needed to represent NIL_LIST classification.
     unicharset_training.unichar_insert(" ");
   }
-
 
   // Populate fontinfo_table with font properties.
   if (InputFontInfoFile != NULL) {
@@ -365,23 +359,23 @@ int main (int argc, char **argv) {
   SetUpForFloat2Int(unicharset_training, ClassList);
   IntTemplates = classify->CreateIntTemplates(TrainingData,
                                               unicharset_training);
-  strcpy (Filename, "");
+  Filename = "";
   if (Directory != NULL) {
-    strcat (Filename, Directory);
-    strcat (Filename, "/");
+    Filename += Directory;
+    Filename += "/";
   }
-  strcat (Filename, "inttemp");
-  OutFile = Efopen (Filename, "wb");
+  Filename += "inttemp";
+  OutFile = Efopen (Filename.string(), "wb");
   classify->WriteIntTemplates(OutFile, IntTemplates, unicharset_training);
   fclose (OutFile);
-  strcpy (Filename, "");
+  Filename = "";
   if (Directory != NULL) {
-    strcat (Filename, Directory);
-    strcat (Filename, "/");
+    Filename += Directory;
+    Filename += "/";
   }
-  strcat (Filename, "pffmtable");
+  Filename += "pffmtable";
   // Now create pffmtable.
-  WritePFFMTable(IntTemplates, unicharset_training, Filename);
+  WritePFFMTable(IntTemplates, unicharset_training, Filename.string());
   // Write updated unicharset to a file.
   if (!unicharset_training.save_to_file(OutputUnicharsetFile)) {
     fprintf(stderr, "Failed to save unicharset to file %s\n",
@@ -411,18 +405,18 @@ void WriteMicrofeat(
 
 {
   FILE    *File;
-  char    Filename[MAXNAMESIZE];
+  STRING Filename;
   MERGE_CLASS MergeClass;
 
-  strcpy (Filename, "");
+  Filename = "";
   if (Directory != NULL)
   {
-    strcat (Filename, Directory);
-    strcat (Filename, "/");
+    Filename += Directory;
+    Filename += "/";
   }
-  strcat (Filename, "Microfeat");
-  File = Efopen (Filename, "wb");
-  printf ("\nWriting Merged %s ...", Filename);
+  Filename += "Microfeat";
+  File = Efopen (Filename.string(), "wb");
+  printf ("\nWriting Merged %s ...", Filename.string());
   iterate(ClassList)
   {
     MergeClass = (MERGE_CLASS) first_node (ClassList);
@@ -571,4 +565,3 @@ void AddSpacingInfo(const char *filename,
   }
   fclose(fontinfo_file);
 }  // AddSpacingInfo
-
