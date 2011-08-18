@@ -19,7 +19,6 @@
 
 #include "mfcpch.h"
 #include          "drawfx.h"
-#include          "debugwin.h"
 #include          "normalis.h"
 #include          "werd.h"
 
@@ -90,10 +89,4 @@ void clear_fx_win() {  //make features win
  **********************************************************************/
 
 void create_fxdebug_win() {  //make gradients win
-  //      if (strcmp(fx_debugfile.string(),DEBUG_WIN_NAME)==0)
-  //              fx_debug=create_debug_window(fx_debugfile.string(),
-  //                      DEBUG_XPOS,DEBUG_YPOS,
-  //                      DEBUG_XSIZE,DEBUG_YSIZE);
-  //      else
-  //              fx_debug=fopen(fx_debugfile.string(),"wb");
 }

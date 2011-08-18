@@ -6,7 +6,7 @@ EXTRA_DIST = mfcpch.cpp scanutils.cpp scanutils.h
 include_HEADERS = \
     ambigs.h basedir.h bits16.h boxread.h \
     tesscallback.h ccutil.h clst.h \
-    debugwin.h elst2.h elst.h errcode.h \
+    elst2.h elst.h errcode.h \
     fileerr.h genericvector.h globaloc.h \
     hashfn.h helpers.h host.h hosthplb.h lsterr.h \
     memblk.h memry.h memryerr.h mfcpch.h \
@@ -20,7 +20,7 @@ include_HEADERS = \
 lib_LTLIBRARIES = libtesseract_ccutil.la
 libtesseract_ccutil_la_SOURCES = \
     ambigs.cpp basedir.cpp bits16.cpp boxread.cpp \
-    ccutil.cpp clst.cpp debugwin.cpp \
+    ccutil.cpp clst.cpp \
     elst2.cpp elst.cpp errcode.cpp \
     globaloc.cpp hashfn.cpp \
     mainblk.cpp memblk.cpp memry.cpp \

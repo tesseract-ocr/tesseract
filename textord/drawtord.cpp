@@ -21,7 +21,6 @@
 #include          "pithsync.h"
 #include          "topitch.h"
 #include          "drawtord.h"
-#include          "debugwin.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

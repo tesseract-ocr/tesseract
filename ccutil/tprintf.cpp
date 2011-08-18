@@ -28,8 +28,6 @@
 #include          <stdarg.h>
 #include          "strngs.h"
 #include          "params.h"
-#include              "debugwin.h"
-//#include                                      "ipeerr.h"
 #include          "tprintf.h"
 #include          "ccutil.h"
 
@@ -37,9 +35,7 @@
 
 #define EXTERN
 // Since tprintf is protected by a mutex, these parameters can rmain global.
-DLLSYM STRING_VAR (debug_file, "", "File to send tprintf output to");
-DLLSYM BOOL_VAR (debug_window_on, FALSE,
-"Send tprintf to window unless file set");
+DLLSYM STRING_VAR(debug_file, "", "File to send tprintf output to");
 
 DLLSYM void
 tprintf (                        //Trace printf
@@ -49,7 +45,6 @@ const char *format, ...          //special message
   va_list args;                  //variable args
   static FILE *debugfp = NULL;   //debug file
                                  //debug window
-  static DEBUG_WIN *debugwin = NULL;
   inT32 offset = 0;              //into message
   static char msg[MAX_MSG_LEN + 1];
 
@@ -63,29 +58,16 @@ const char *format, ...          //special message
   #endif
   va_end(args);
 
-  if (debugfp == NULL && strlen (debug_file.string ()) > 0)
+  if (debugfp == NULL && strlen (debug_file.string ()) > 0) {
     debugfp = fopen (debug_file.string (), "wb");
-  else if (debugfp != NULL && strlen (debug_file.string ()) == 0) {
+  } else if (debugfp != NULL && strlen (debug_file.string ()) == 0) {
     fclose(debugfp);
     debugfp = NULL;
   }
   if (debugfp != NULL)
-    fprintf (debugfp, "%s", msg);
-  else {
-
-    if (debug_window_on) {
-      if (debugwin == NULL)
-                                 //in pixels
-        debugwin = new DEBUG_WIN ("Debug Window", DEBUG_WIN_XPOS, DEBUG_WIN_YPOS,
-                                 //in pixels
-          DEBUG_WIN_XSIZE, DEBUG_WIN_YSIZE,
-          debug_lines);
-      debugwin->dprintf (msg);
-    }
-    else {
-      fprintf (stderr, "%s", msg);
-    }
-  }
+    fprintf(debugfp, "%s", msg);
+  else
+    fprintf(stderr, "%s", msg);
   tesseract::tprintfMutex.Unlock();
 }
 
