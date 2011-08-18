@@ -29,8 +29,8 @@
 #define strtok_r strtok_s
 #else
 #include "strtok_r.h"
-#endif /* __GNUC__ */
-#endif /* WIN32 */
+#endif  /* __GNUC__ */
+#endif  /* WIN32 */
 
 namespace tesseract {
 

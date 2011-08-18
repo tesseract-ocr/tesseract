@@ -122,7 +122,8 @@ This predates stl, was portable before stl, and is more efficient than stl
 lists, but has the big negative that if you do get a segmentation violation,
 it is hard to debug.
 
-The most recent change is that Tesseract can now recognize 6 languages, 
+The most recent change is that Tesseract can now recognize 39 languages,
+including Arabic, Hindi, Vietnamese, plus 3 Fraktur variants 
 is fully UTF8 capable, and is fully trainable. See TrainingTesseract for
 more information on training.
 
@@ -138,7 +139,7 @@ This code is a raw OCR engine. It has limited PAGE LAYOUT ANALYSIS, simple
 OUTPUT FORMATTING (txt, hocr/html), and NO UI. 
 Having said that, in 1995, this engine was in the top 3 in terms of character
 accuracy, and it compiles and runs on both Linux and Windows.
-As of 2.0, Tesseract is fully unicode (UTF-8) enabled, and can recognize 6
+As of 3.01, Tesseract is fully unicode (UTF-8) enabled, and can recognize 39
 languages "out of the box." Code and documentation is provided for the brave
 to train in other languages. See code.google.com/p/tesseract-ocr for more
 information on training.

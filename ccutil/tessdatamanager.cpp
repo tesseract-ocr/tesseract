@@ -128,7 +128,6 @@ bool TessdataManager::CombineDataFiles(
         kTessdataFileSuffixes[i], &type, &text_file));
     STRING filename = language_data_path_prefix;
     filename += kTessdataFileSuffixes[i];
-    // file_ptr[i] =  fopen(filename.string(), text_file ? "r" : "rb");
     file_ptr[i] =  fopen(filename.string(), "rb");
     if (file_ptr[i] != NULL) {
       offset_table[type] = ftell(output_file);
@@ -182,7 +181,6 @@ bool TessdataManager::OverwriteComponents(
   // Open the files with the new components.
   for (i = 0; i < num_new_components; ++i) {
     TessdataTypeFromFileName(component_filenames[i], &type, &text_file);
-    // file_ptr[type] = fopen(component_filenames[i], text_file ? "r" : "rb");
     file_ptr[type] = fopen(component_filenames[i], "rb");
   }
 
