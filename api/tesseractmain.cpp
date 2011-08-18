@@ -54,7 +54,8 @@ int main(int argc, char **argv) {
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
 #endif
-  if ((argc == 2 && strcmp(argv[1], "-v") == 0) || (argc == 2 && strcmp(argv[1], "--version") == 0)) {
+  if ((argc == 2 && strcmp(argv[1], "-v") == 0) ||
+      (argc == 2 && strcmp(argv[1], "--version") == 0)) {
     fprintf(stderr, "tesseract %s\n", tesseract::TessBaseAPI::Version());
     exit(0);
   }
@@ -104,19 +105,31 @@ int main(int argc, char **argv) {
   api.SetOutputName(output);
   api.Init(argv[0], lang, tesseract::OEM_DEFAULT,
            &(argv[arg]), argc - arg, NULL, NULL, false);
-  api.SetPageSegMode(pagesegmode);
-  
+  // We have 2 possible sources of pagesegmode: a config file and
+  // the command line. For backwards compatability reasons, the
+  // default in tesseract is tesseract::PSM_SINGLE_BLOCK, but the
+  // default for this program is tesseract::PSM_AUTO. We will let
+  // the config file take priority, so the command-line default
+  // can take priority over the tesseract default, so we use the
+  // value from the command line only if the retrieved mode
+  // is still tesseract::PSM_SINGLE_BLOCK, indicating no change
+  // in any config file. Therefore the only way to force
+  // tesseract::PSM_SINGLE_BLOCK is from the command line.
+  // It would be simpler if we could set the value before Init,
+  // but that doesn't work.
+  if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
+    api.SetPageSegMode(pagesegmode);
   tprintf(_("Tesseract Open Source OCR Engine v%s with Leptonica\n"),
            tesseract::TessBaseAPI::Version());
 
-  
+
   FILE* fin = fopen(image, "rb");
   if (fin == NULL) {
     printf("Cannot open input file: %s\n", image);
     exit(2);
-  } 
+  }
   fclose(fin);
-  
+
   PIX   *pixs;
   if ((pixs = pixRead(image)) == NULL) {
     printf("Unsupported image type.\n");
