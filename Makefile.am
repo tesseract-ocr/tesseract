@@ -5,8 +5,8 @@ SUBDIRS = ccstruct ccutil classify cube cutil dict image neural_networks/runtime
 #AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"
 #endif
 
-EXTRA_DIST = config/config.rpath  eurotext.tif phototest.tif ReleaseNotes \
-      acinclude.m4 config configure.ac runautoconf tesseract.spec contrib
+EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
+      acinclude.m4 configure.ac runautoconf tesseract.spec contrib
 
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
 
