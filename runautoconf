@@ -47,8 +47,8 @@ aclocal -I config || bail_out
 # --- Step 2: 
 
 echo "Running libtoolize"
-libtoolize -f -c || bail_out
-libtoolize --automake || bail_out
+libtoolize -f -c || glibtoolize -f -c || bail_out
+libtoolize --automake || glibtoolize --automake || bail_out
 
 # --- Step 3: Generate config.h.in from:
 #             . configure.ac (look for AM_CONFIG_HEADER tag or AC_CONFIG_HEADER tag)
