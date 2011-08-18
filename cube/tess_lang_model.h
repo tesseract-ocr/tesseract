@@ -20,8 +20,6 @@
 #ifndef TESS_LANG_MODEL_H
 #define TESS_LANG_MODEL_H
 
-#undef EXIT
-
 #include <string>
 
 #include "char_altlist.h"
