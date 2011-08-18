@@ -33,7 +33,6 @@
 
 #include          "tordmain.h"
 #include          "statistc.h"
-#include          "debugwin.h"
 #include          "svshowim.h"
 #include          "paramsd.h"
 #include          "string.h"
