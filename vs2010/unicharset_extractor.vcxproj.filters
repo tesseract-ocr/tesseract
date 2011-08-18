@@ -38,9 +38,6 @@
     <ClInclude Include="..\ccutil\clst.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ccutil\debugwin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\ccutil\elst.h">
       <Filter>Header Files</Filter>
     </ClInclude>

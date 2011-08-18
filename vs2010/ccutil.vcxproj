@@ -17,7 +17,6 @@
     <ClCompile Include="..\ccutil\boxread.cpp" />
     <ClCompile Include="..\ccutil\ccutil.cpp" />
     <ClCompile Include="..\ccutil\clst.cpp" />
-    <ClCompile Include="..\ccutil\debugwin.cpp" />
     <ClCompile Include="..\ccutil\elst.cpp" />
     <ClCompile Include="..\ccutil\elst2.cpp" />
     <ClCompile Include="..\ccutil\errcode.cpp" />
@@ -43,7 +42,6 @@
     <ClInclude Include="..\ccutil\boxread.h" />
     <ClInclude Include="..\ccutil\ccutil.h" />
     <ClInclude Include="..\ccutil\clst.h" />
-    <ClInclude Include="..\ccutil\debugwin.h" />
     <ClInclude Include="..\ccutil\elst.h" />
     <ClInclude Include="..\ccutil\elst2.h" />
     <ClInclude Include="..\ccutil\errcode.h" />

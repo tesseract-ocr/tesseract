@@ -352,10 +352,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\debugwin.h"
-				>
-			</File>
-			<File
 				RelativePath="..\ccutil\elst.h"
 				>
 			</File>

@@ -54,7 +54,7 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				BrowseInformation="0"
-				WarningLevel="3"
+				WarningLevel="0"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -140,7 +140,7 @@
 				MinimalRebuild="true"
 				RuntimeLibrary="3"
 				BrowseInformation="1"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 				ShowIncludes="false"
@@ -231,7 +231,7 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				BrowseInformation="0"
-				WarningLevel="3"
+				WarningLevel="0"
 				SuppressStartupBanner="true"
 			/>
 			<Tool

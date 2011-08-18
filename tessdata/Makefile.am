@@ -1,6 +1,6 @@
 datadir = @datadir@/tessdata
-data_DATA =  *.traineddata \
-    *.cube.*
+data_DATA =  $(wildcard *.traineddata) \
+    $(wildcard *.cube.*)
 
 SUBDIRS = configs tessconfigs
 

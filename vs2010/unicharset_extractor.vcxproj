@@ -207,7 +207,6 @@
     <ClInclude Include="..\ccutil\boxread.h" />
     <ClInclude Include="..\ccutil\ccutil.h" />
     <ClInclude Include="..\ccutil\clst.h" />
-    <ClInclude Include="..\ccutil\debugwin.h" />
     <ClInclude Include="..\ccutil\elst.h" />
     <ClInclude Include="..\ccutil\elst2.h" />
     <ClInclude Include="..\ccutil\errcode.h" />

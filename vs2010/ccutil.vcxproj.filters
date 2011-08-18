@@ -66,9 +66,6 @@
     <ClCompile Include="..\ccutil\elst.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ccutil\debugwin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\ccutil\clst.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,9 +102,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ccutil\clst.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ccutil\debugwin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ccutil\elst.h">

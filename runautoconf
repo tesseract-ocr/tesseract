@@ -67,7 +67,7 @@ autoheader -f || bail_out
 # they are copied from the system so they can be used in a distribution.
 
 echo "Running automake --add-missing --copy"
-automake --add-missing -c  > /dev/null || bail_out
+automake --add-missing -c  -Wno-portability > /dev/null || bail_out
 
 # --- Step 5: Generate configure and include/miaconfig.h from:
 #             . configure.ac
