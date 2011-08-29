@@ -8,8 +8,14 @@ AM_CPPFLAGS = \
 include_HEADERS = \
     input_file_buffer.h neural_net.h neuron.h
 
+if !USING_MULTIPLELIBS
+noinst_LTLIBRARIES = libtesseract_neural.la
+else
 lib_LTLIBRARIES = libtesseract_neural.la
+libtesseract_neural_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+endif
+
 libtesseract_neural_la_SOURCES = \
     input_file_buffer.cpp neural_net.cpp neuron.cpp sigmoid_table.cpp
 
-libtesseract_neural_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+

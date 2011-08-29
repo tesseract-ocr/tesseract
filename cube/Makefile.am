@@ -21,7 +21,13 @@ include_HEADERS = \
     tuning_params.h word_altlist.h word_list_lang_model.h word_size_model.h \
     word_unigrams.h
 
+if !USING_MULTIPLELIBS
+noinst_LTLIBRARIES = libtesseract_cube.la
+else
 lib_LTLIBRARIES = libtesseract_cube.la
+libtesseract_cube_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+endif
+
 libtesseract_cube_la_SOURCES = \
     altlist.cpp beam_search.cpp bmp_8.cpp cached_file.cpp \
     char_altlist.cpp char_bigrams.cpp char_samp.cpp char_samp_enum.cpp \
@@ -34,5 +40,3 @@ libtesseract_cube_la_SOURCES = \
     tess_lang_mod_edge.cpp tess_lang_model.cpp \
     word_altlist.cpp word_list_lang_model.cpp word_size_model.cpp \
     word_unigrams.cpp
-
-libtesseract_cube_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

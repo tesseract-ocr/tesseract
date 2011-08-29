@@ -19,7 +19,13 @@ include_HEADERS = \
     tessvars.h tfacep.h tfacepp.h thresholder.h \
     werdit.h
 
+if !USING_MULTIPLELIBS
+noinst_LTLIBRARIES = libtesseract_main.la
+else
 lib_LTLIBRARIES = libtesseract_main.la
+libtesseract_main_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+endif
+
 libtesseract_main_la_SOURCES = \
     adaptions.cpp applybox.cpp \
     control.cpp cube_control.cpp cube_reco_context.cpp \
@@ -32,4 +38,3 @@ libtesseract_main_la_SOURCES = \
     werdit.cpp
 libtesseract_main_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la
-libtesseract_main_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

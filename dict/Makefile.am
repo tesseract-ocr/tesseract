@@ -6,10 +6,16 @@ include_HEADERS = \
     dawg.h dict.h matchdefs.h \
     permute.h states.h stopper.h trie.h
 
+if !USING_MULTIPLELIBS
+noinst_LTLIBRARIES = libtesseract_dict.la
+else
 lib_LTLIBRARIES = libtesseract_dict.la
+libtesseract_dict_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+endif
+
 libtesseract_dict_la_SOURCES = \
     context.cpp \
     dawg.cpp dict.cpp hyphen.cpp \
     permdawg.cpp permute.cpp states.cpp stopper.cpp trie.cpp
 
-libtesseract_dict_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+

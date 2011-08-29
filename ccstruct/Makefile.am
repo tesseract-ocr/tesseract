@@ -13,7 +13,13 @@ include_HEADERS = \
     quadlsq.h quadratc.h quspline.h ratngs.h rect.h rejctmap.h \
     seam.h split.h statistc.h stepblob.h vecfuncs.h werd.h
 
+if !USING_MULTIPLELIBS
+noinst_LTLIBRARIES = libtesseract_ccstruct.la
+else
 lib_LTLIBRARIES = libtesseract_ccstruct.la
+libtesseract_ccstruct_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+endif
+
 libtesseract_ccstruct_la_SOURCES = \
     blobbox.cpp blobs.cpp blread.cpp boxword.cpp ccstruct.cpp coutln.cpp \
     detlinefit.cpp dppoint.cpp genblob.cpp \
@@ -24,5 +30,3 @@ libtesseract_ccstruct_la_SOURCES = \
     quadlsq.cpp quadratc.cpp quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \
     seam.cpp split.cpp statistc.cpp stepblob.cpp \
     vecfuncs.cpp werd.cpp
-
-libtesseract_ccstruct_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

@@ -5,8 +5,13 @@ include_HEADERS = \
     image.h img.h imgerrs.h imgs.h \
     imgtiff.h imgunpk.h svshowim.h
 
+if !USING_MULTIPLELIBS
+noinst_LTLIBRARIES = libtesseract_image.la
+else
 lib_LTLIBRARIES = libtesseract_image.la
+libtesseract_image_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+endif
+
 libtesseract_image_la_SOURCES = \
     image.cpp imgs.cpp imgtiff.cpp svshowim.cpp
 
-libtesseract_image_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)

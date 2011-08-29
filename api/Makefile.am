@@ -10,9 +10,14 @@ AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"\
 include_HEADERS = \
     apitypes.h baseapi.h pageiterator.h resultiterator.h tesseractmain.h
 
+if !USING_MULTIPLELIBS
+noinst_LTLIBRARIES = libtesseract_api.la
+else
 lib_LTLIBRARIES = libtesseract_api.la
-libtesseract_api_la_SOURCES = baseapi.cpp pageiterator.cpp resultiterator.cpp
 libtesseract_api_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+endif
+
+libtesseract_api_la_SOURCES = baseapi.cpp pageiterator.cpp resultiterator.cpp
 libtesseract_api_la_LIBADD = \
     ../ccmain/libtesseract_main.la \
     ../cube/libtesseract_cube.la \
@@ -29,6 +34,7 @@ libtesseract_api_la_LIBADD = \
 
 bin_PROGRAMS = tesseract
 tesseract_SOURCES = tesseractmain.cpp
+if USING_MULTIPLELIBS
 tesseract_LDADD = \
     libtesseract_api.la \
     ../ccmain/libtesseract_main.la \
@@ -41,4 +47,8 @@ tesseract_LDADD = \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccutil/libtesseract_ccutil.la
+else
+tesseract_LDADD = \
+    libtesseract.la
+endif
 

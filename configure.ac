@@ -100,6 +100,13 @@ localedir='${prefix}/share/locale'
 #fi
 #AM_CONDITIONAL([USING_GETTEXT], [test "$enable_gettext" = "yes"])
 
+AC_ARG_ENABLE([multiple-libraries],
+    [  --enable-multiple-libraries         Enable multiple libraries (default).],
+    [enable_mlibs=$enableeval],
+    [enable_mlibs="yes"])
+AC_MSG_RESULT($enable_mlibs)
+AM_CONDITIONAL([USING_MULTIPLELIBS], [test "$enable_mlibs" = "yes"])
+
 # Always look into a "gnu" directory.
 curwd=`pwd`
 if test -d $curwd/gnu/include ; then

@@ -13,7 +13,13 @@ include_HEADERS = \
     plotseg.h render.h tally.h \
     wordclass.h wordrec.h
 
+if !USING_MULTIPLELIBS
+noinst_LTLIBRARIES = libtesseract_wordrec.la
+else
 lib_LTLIBRARIES = libtesseract_wordrec.la
+libtesseract_wordrec_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+endif
+
 libtesseract_wordrec_la_SOURCES = \
     associate.cpp bestfirst.cpp chop.cpp chopper.cpp \
     closed.cpp drawfx.cpp findseam.cpp gradechop.cpp \
@@ -21,4 +27,5 @@ libtesseract_wordrec_la_SOURCES = \
     olutil.cpp outlines.cpp pieces.cpp \
     plotedges.cpp plotseg.cpp render.cpp segsearch.cpp \
     tally.cpp tface.cpp wordclass.cpp wordrec.cpp
-libtesseract_wordrec_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+
+

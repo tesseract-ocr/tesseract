@@ -17,7 +17,13 @@ include_HEADERS = \
     unichar.h unicharmap.h unicharset.h unicity_table.h \
     params.h
 
+if !USING_MULTIPLELIBS
+noinst_LTLIBRARIES = libtesseract_ccutil.la
+else
 lib_LTLIBRARIES = libtesseract_ccutil.la
+libtesseract_ccutil_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+endif
+
 libtesseract_ccutil_la_SOURCES = \
     ambigs.cpp basedir.cpp bits16.cpp boxread.cpp \
     ccutil.cpp clst.cpp \
@@ -29,4 +35,4 @@ libtesseract_ccutil_la_SOURCES = \
     unichar.cpp unicharmap.cpp unicharset.cpp \
     params.cpp
 
-libtesseract_ccutil_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+
