@@ -33,10 +33,7 @@
 #include "config_auto.h"
 #endif
 
-#ifdef HAVE_LIBLEPT
-// Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"
-#endif
 
 #include          "stderr.h"
 #include          "tprintf.h"
@@ -1495,8 +1492,6 @@ void IMAGE::check_legal_access(            //check coords are legal
     BADIMAGESEEK.error ("IMAGE::check_legal_access", ABORT, "(%d,%d)", x, y);
 }
 
-#ifdef HAVE_LIBLEPT
-// ONLY available if you have Leptonica installed.
 /**********************************************************************
  * ToPix
  *
@@ -1627,7 +1622,6 @@ void IMAGE::FromPix(const Pix* src_pix) {
   if (destroy_this_pix != NULL)
     pixDestroy(&destroy_this_pix);
 }
-#endif  // HAVE_LIBLEPT
 
 /*************************************************************************
  * convolver()

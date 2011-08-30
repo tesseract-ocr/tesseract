@@ -48,12 +48,10 @@ const int kMaxMsgSize = 4096;
 const int kMaxIntPairSize = 45;  // Holds %d,%d, for upto 64 bit.
 
 #include "scrollview.h"
-
 #include "svutil.h"
 
-#ifdef HAVE_LIBLEPT
 #include "allheaders.h"
-#endif
+
 
 struct SVPolyLineBuffer {
   bool empty;  // Independent indicator to allow SendMsg to call SendPolygon.
@@ -764,7 +762,6 @@ void ScrollView::ZoomToRectangle(int x1, int y1, int x2, int y2) {
           MIN(x1, x2), MIN(y1, y2), MAX(x1, x2), MAX(y1, y2));
 }
 
-#ifdef HAVE_LIBLEPT
 // Send an image of type PIX.
 void ScrollView::Image(PIX* image, int x_pos, int y_pos) {
   int width = image->w;
@@ -839,7 +836,6 @@ void ScrollView::TransferBinaryImage(PIX* image) {
   }
   delete [] pixel_data;
 }
-#endif
 
 // Escapes the ' character with a \, so it can be processed by LUA.
 // Note: The caller will have to make sure he deletes the newly allocated item.

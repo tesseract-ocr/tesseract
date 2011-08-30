@@ -225,7 +225,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../ccutil,../ccstruct,../classify,../cutil,../training,../viewer,../dict,../image"
-				PreprocessorDefinitions="TRAINING;WIN32;_WINDOWS;__NT__;__MSW32__;_CRT_SECURE_NO_WARNINGS;HAVE_LIBLEPT;LEPTONLIB_IMPORTS"
+				PreprocessorDefinitions="TRAINING;WIN32;_WINDOWS;__NT__;__MSW32__;_CRT_SECURE_NO_WARNINGS;;LEPTONLIB_IMPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

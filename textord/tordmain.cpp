@@ -39,11 +39,7 @@
 #include "config_auto.h"
 #endif
 
-// Some of the code in this file is dependent upon leptonica. If you don't
-// have it, you don't get this functionality.
-#ifdef HAVE_LIBLEPT
 #include "allheaders.h"
-#endif
 
 const ERRCODE BLOCKLESS_BLOBS = "Warning:some blobs assigned to no block";
 
@@ -58,7 +54,6 @@ const ERRCODE BLOCKLESS_BLOBS = "Warning:some blobs assigned to no block";
  * Set the horizontal and vertical stroke widths in the blob.
  **********************************************************************/
 void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
-#ifdef HAVE_LIBLEPT
   // Cut the blob rectangle into a Pix.
   int pix_height = pixGetHeight(pix);
   const TBOX& box = blob->bounding_box();
@@ -149,13 +144,6 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
       blob->set_vert_stroke_width(0.0f);
     }
   }
-#else
-  // Without leptonica present, use the 2*area/perimeter as an approximation.
-  float width = 2.0f * blob->cblob()->area();
-  width /= blob->cblob()->perimeter();
-  blob->set_horz_stroke_width(width);
-  blob->set_vert_stroke_width(width);
-#endif
 }
 
 

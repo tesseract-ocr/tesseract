@@ -225,14 +225,14 @@ int ColumnFinder::FindBlocks(bool single_column, int imageheight,
   stroke_width_->FindLeaderPartitions(block, this);
   delete stroke_width_;
   stroke_width_ = NULL;
-#ifdef HAVE_LIBLEPT
+
   if (boxa != NULL) {
     // Convert the boxa/pixa to fake blobs aligned on the grid.
     ExtractImageBlobs(imageheight, boxa, pixa);
     boxaDestroy(&boxa);
     pixaDestroy(&pixa);
   }
-#endif
+
   // Decide which large blobs should be included in the grid as potential
   // characters.
   // A subsidiary grid used to decide which large blobs to use.

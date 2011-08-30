@@ -31,15 +31,13 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-#ifdef HAVE_LIBLEPT
+
 #include "allheaders.h"
-#endif
 
 class BLOCK;
 
 namespace tesseract {
 
-#ifdef HAVE_LIBLEPT
 // Helper function to return a scaled Pix with one pixel per grid cell,
 // set (black) where the given outline enters the corresponding grid cell,
 // and clear where the outline does not touch the grid cell.
@@ -51,7 +49,6 @@ Pix* TraceOutlineOnReducedPix(C_OUTLINE* outline, int gridsize,
 // As TraceOutlineOnReducedPix above, but on a BLOCK instead of a C_OUTLINE.
 Pix* TraceBlockOnReducedPix(BLOCK* block, int gridsize,
                             ICOORD bleft, int* left, int* bottom);
-#endif
 
 template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch;
 
@@ -178,7 +175,7 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class BBGrid
   // WARNING: InsertBBox may invalidate an active GridSearch. Call
   // RepositionIterator() on any GridSearches that are active on this grid.
   void InsertBBox(bool h_spread, bool v_spread, BBC* bbox);
-#ifdef HAVE_LIBLEPT
+
   // Using a pix from TraceOutlineOnReducedPix or TraceBlockOnReducedPix, in
   // which each pixel corresponds to a grid cell, insert a bbox into every
   // place in the grid where the corresponding pixel is 1. The Pix is handled
@@ -189,7 +186,7 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class BBGrid
   // WARNING: InsertPixPtBBox may invalidate an active GridSearch. Call
   // RepositionIterator() on any GridSearches that are active on this grid.
   void InsertPixPtBBox(int left, int bottom, Pix* pix, BBC* bbox);
-#endif
+
   // Remove the bbox from the grid.
   // WARNING: Any GridSearch operating on this grid could be invalidated!
   // If a GridSearch is operating, call GridSearch::RemoveBBox() instead.
@@ -477,7 +474,6 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertBBox(bool h_spread, bool v_spread,
   }
 }
 
-#ifdef HAVE_LIBLEPT
 // Using a pix from TraceOutlineOnReducedPix or TraceBlockOnReducedPix, in
 // which each pixel corresponds to a grid cell, insert a bbox into every
 // place in the grid where the corresponding pixel is 1. The Pix is handled
@@ -502,7 +498,6 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::InsertPixPtBBox(int left, int bottom,
     }
   }
 }
-#endif
 
 // Remove the bbox from the grid.
 // WARNING: Any GridSearch operating on this grid could be invalidated!

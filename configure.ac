@@ -19,7 +19,7 @@ AC_CANONICAL_HOST
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
 PACKAGE_YEAR=2011
-PACKAGE_DATE="05/24"
+PACKAGE_DATE="08/25"
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -272,9 +272,6 @@ AC_LANG_CPLUSPLUS
 # which causes unnecessary warnings with Visual C++.
 # Comment it out for now.
 #AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(z,deflate)
-AC_CHECK_LIB(png,png_read_png)
-AC_CHECK_LIB(jpeg,jpeg_read_scanlines)
 AC_CHECK_LIB(pthread,sem_init)
 
 # ----------------------------------------
@@ -323,17 +320,6 @@ AC_CHECK_FUNCS(acos asin)
 # ----------------------------------------
 # Test auxilliary packages
 # ----------------------------------------
-
-# Search JPEG library - not needed at the moment
-# AC_PATH_JPEG(,
-# [ no_jpeg=yes
-#   AC_MSG_WARN([JPEG support is disabled]) ])
-
-dnl ------------------------------------------------------------
-dnl check for libtiff
-dnl ------------------------------------------------------------
-AC_CHECK_LIB(tiff, TIFFReadScanline)
-AC_CHECK_HEADER(tiffio.h,LIBTIFF='yes',AC_MSG_WARN([TIFF support is disabled]))
 
 # Check location of leptonica/liblept headers.
 AC_MSG_CHECKING(for leptonica)

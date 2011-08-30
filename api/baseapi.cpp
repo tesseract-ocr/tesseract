@@ -22,12 +22,8 @@
 #include "config_auto.h"
 #endif
 
-#ifdef HAVE_LIBLEPT
-// Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"
-#else
-#error "Sorry: Tesseract no longer compiles without leptonica!"
-#endif
+
 #ifdef USE_NLS
 #include <libintl.h>
 #include <locale.h>

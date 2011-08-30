@@ -153,8 +153,6 @@ IntGrid* IntGrid::NeighbourhoodSum() const {
   return sumgrid;
 }
 
-
-#ifdef HAVE_LIBLEPT
 // Make a Pix of the correct scaled size for the TraceOutline functions.
 Pix* GridReducedPix(const TBOX& box, int gridsize,
                     ICOORD bleft, int* left, int* bottom) {
@@ -232,7 +230,6 @@ Pix* TraceBlockOnReducedPix(BLOCK* block, int gridsize,
   }
   return pix;
 }
-#endif
 
 }  // namespace tesseract.
 

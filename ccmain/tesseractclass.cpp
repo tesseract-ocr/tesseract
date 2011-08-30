@@ -28,10 +28,7 @@
 #include "config_auto.h"
 #endif
 
-#ifdef HAVE_LIBLEPT
-// Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"
-#endif
 
 namespace tesseract {
 
@@ -382,12 +379,10 @@ Tesseract::~Tesseract() {
 }
 
 void Tesseract::Clear() {
-#ifdef HAVE_LIBLEPT
   if (pix_binary_ != NULL)
     pixDestroy(&pix_binary_);
   if (pix_grey_ != NULL)
     pixDestroy(&pix_grey_);
-#endif
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);
   orig_image_changed_ = false;

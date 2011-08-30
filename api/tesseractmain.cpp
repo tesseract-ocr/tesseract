@@ -34,9 +34,7 @@
 #else
 #define _(x) (x)
 #endif
-#ifndef HAVE_LIBLEPT
-#error "Sorry: Tesseract no longer compiles or runs without Leptonica!";
-#endif
+
 #include "allheaders.h"
 #include "baseapi.h"
 #include "strngs.h"

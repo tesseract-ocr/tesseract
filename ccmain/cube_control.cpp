@@ -12,10 +12,7 @@
 #include "config_auto.h"
 #endif
 
-#ifdef HAVE_LIBLEPT
-// Include leptonica library only if autoconf (or makefile etc) tell us to.
 #include "allheaders.h"
-#endif
 
 #include "cube_object.h"
 #include "cube_reco_context.h"

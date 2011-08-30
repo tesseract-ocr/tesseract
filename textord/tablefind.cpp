@@ -26,9 +26,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-#ifdef HAVE_LIBLEPT
+
 #include "allheaders.h"
-#endif
+
 #include "colpartitionset.h"
 #include "tablerecog.h"
 
@@ -1993,7 +1993,6 @@ void TableFinder::DisplayColPartitionConnections(
 // Note: This method is only for debug purpose during development and
 // would not be part of checked in code
 void TableFinder::WriteToPix(const FCOORD& reskew) {
-#ifdef HAVE_LIBLEPT
   // Input file must be named test1.tif
   PIX* pix = pixRead("test1.tif");
   if (!pix) {
@@ -2061,7 +2060,6 @@ void TableFinder::WriteToPix(const FCOORD& reskew) {
   boxaDestroy(&table_array);
   pixDestroy(&pix);
   pixDestroy(&out);
-#endif
 }
 
 // Merge all colpartitions in table regions to make them a single

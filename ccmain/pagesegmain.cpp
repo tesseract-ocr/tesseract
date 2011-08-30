@@ -234,7 +234,6 @@ int Tesseract::AutoPageSeg(int resolution, bool single_column,
   // The blocks made by the ColumnFinder. Moved to blocks before return.
   BLOCK_LIST found_blocks;
 
-#ifdef HAVE_LIBLEPT
   if (pix_binary_ != NULL) {
     if (textord_debug_images) {
       Pix* grey_pix = pixCreate(pixGetWidth(pix_binary_),
@@ -267,7 +266,7 @@ int Tesseract::AutoPageSeg(int resolution, bool single_column,
     if (single_column)
       v_lines.clear();
   }
-#endif
+
   TO_BLOCK_LIST port_blocks;
   // The rest of the algorithm uses the usual connected components.
   textord_.find_components(pix_binary_, blocks, &port_blocks);
