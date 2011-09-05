@@ -173,7 +173,7 @@
     </ProjectReference>
     <Lib>
       <AdditionalLibraryDirectories>..\vs2008\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;liblept-static-mtdll-debug.lib;libpng-static-mtdll.lib;libjpeg-static-mtdll.lib;libtiff-static-mtdll.lib;giflib-static-mtdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;libpng-static-mtdll.lib;libjpeg-static-mtdll.lib;libtiff-static-mtdll.lib;giflib-static-mtdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -194,7 +194,7 @@
     </ProjectReference>
     <Lib>
       <AdditionalLibraryDirectories>..\vs2008\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;liblept-static-mtdll.lib;giflib-static-mtdll.lib;libjpeg-static-mtdll.lib;libpng-static-mtdll.lib;libtiff-static-mtdll.lib;zlib-static-mtdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;giflib-static-mtdll.lib;libjpeg-static-mtdll.lib;libpng-static-mtdll.lib;libtiff-static-mtdll.lib;zlib-static-mtdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
