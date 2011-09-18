@@ -197,8 +197,7 @@ class GenericVector {
   }
   // Searches the array (assuming sorted in ascending order, using sort()) for
   // an element equal to target and returns the index of the best candidate.
-  // The return value is the largest index i such that data_[i] > target is
-  // false.
+  // The return value is the largest index i such that data_[i] <= target or 0.
   int binary_search(const T& target) const {
     int bottom = 0;
     int top = size_used_;
