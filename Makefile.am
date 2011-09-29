@@ -11,6 +11,10 @@ EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
 
 lib_LTLIBRARIES = libtesseract.la
+libtesseract_la_SOURCES =
+# Dummy C++ source to cause C++ linking.
+# see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
+nodist_EXTRA_libtesseract_la_SOURCES = dummy.cxx
 libtesseract_la_LIBADD = \
     api/libtesseract_api.la \
     ccmain/libtesseract_main.la \
