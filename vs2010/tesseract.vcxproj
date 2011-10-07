@@ -137,7 +137,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;user32.lib;liblept-static-mtdll-debug.lib;libpng-static-mtdll.lib;libjpeg-static-mtdll.lib;libtiff-static-mtdll.lib;giflib-static-mtdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;user32.lib;liblept-static-mtdll-debug.lib;libpng-static-mtdll-debug.lib;libjpeg-static-mtdll-debug.lib;libtiff-static-mtdll-debug.lib;giflib-static-mtdll-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(TargetPath)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
