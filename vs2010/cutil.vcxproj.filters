@@ -51,6 +51,9 @@
     <ClCompile Include="..\cutil\tessarray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\cutil\callcpp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cutil\bitvec.h">

@@ -149,9 +149,6 @@
     <ClInclude Include="..\cube\con_comp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\cube\const.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\cube\conv_net_classifier.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -225,6 +222,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\cube\word_unigrams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cube\cube_const.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

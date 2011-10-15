@@ -224,9 +224,6 @@
     <ClCompile Include="..\ccstruct\ccstruct.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ccstruct\callcpp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\ccstruct\boxword.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

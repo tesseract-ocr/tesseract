@@ -38,7 +38,6 @@
 #include "allheaders.h"
 #include "baseapi.h"
 #include "strngs.h"
-#include "tprintf.h"
 #include "tesseractmain.h"
 
 /**********************************************************************
@@ -117,7 +116,7 @@ int main(int argc, char **argv) {
   // but that doesn't work.
   if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
     api.SetPageSegMode(pagesegmode);
-  tprintf(_("Tesseract Open Source OCR Engine v%s with Leptonica\n"),
+  printf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
            tesseract::TessBaseAPI::Version());
 
 
@@ -137,7 +136,7 @@ int main(int argc, char **argv) {
 
   STRING text_out;
   if (!api.ProcessPages(image, NULL, 0, &text_out)) {
-    tprintf(_("Error during processing.\n"));
+    printf("Error during processing.\n");
   }
   bool output_hocr = false;
   api.GetBoolVariable("tessedit_create_hocr", &output_hocr);
@@ -147,7 +146,7 @@ int main(int argc, char **argv) {
   outfile += output_hocr ? ".html" : output_box ? ".box" : ".txt";
   FILE* fout = fopen(outfile.string(), "wb");
   if (fout == NULL) {
-    tprintf(_("Cannot create output file %s\n"), outfile.string());
+    printf("Cannot create output file %s\n", outfile.string());
     exit(1);
   }
   fwrite(text_out.string(), 1, text_out.length(), fout);

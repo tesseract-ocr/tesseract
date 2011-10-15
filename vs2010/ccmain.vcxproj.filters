@@ -54,9 +54,6 @@
     <ClInclude Include="..\ccmain\tessedit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ccmain\tessembedded.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\ccmain\tesseractclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
