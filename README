@@ -89,6 +89,7 @@ Non-Windows (or Cygwin):
 You have to tell Tesseract through a standard unix mechanism where to 
 find its data directory. You must either:
 
+./autogen.sh
 ./configure
 make
 make install

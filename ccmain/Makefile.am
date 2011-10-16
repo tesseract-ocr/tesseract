@@ -3,8 +3,7 @@ AM_CPPFLAGS = \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
-    -I$(top_srcdir)/ccops -I$(top_srcdir)/dict \
-    -I$(top_srcdir)/classify \
+    -I$(top_srcdir)/classify  -I$(top_srcdir)/dict \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube \
     -I$(top_srcdir)/textord
@@ -24,6 +23,17 @@ noinst_LTLIBRARIES = libtesseract_main.la
 else
 lib_LTLIBRARIES = libtesseract_main.la
 libtesseract_main_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+libtesseract_main_la_LIBADD = \
+	../wordrec/libtesseract_wordrec.la \
+	../textord/libtesseract_textord.la \
+    ../ccutil/libtesseract_ccutil.la \
+	../ccstruct/libtesseract_ccstruct.la \
+	../viewer/libtesseract_viewer.la \
+	../dict/libtesseract_dict.la \
+	../classify/libtesseract_classify.la \
+	../cutil/libtesseract_cutil.la \
+	../cube/libtesseract_cube.la 
+
 endif
 
 libtesseract_main_la_SOURCES = \
@@ -36,5 +46,3 @@ libtesseract_main_la_SOURCES = \
     tessbox.cpp tessedit.cpp tesseractclass.cpp tessvars.cpp \
     tfacepp.cpp thresholder.cpp \
     werdit.cpp
-libtesseract_main_la_LIBADD = \
-    ../wordrec/libtesseract_wordrec.la

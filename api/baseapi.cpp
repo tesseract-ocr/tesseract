@@ -36,7 +36,6 @@
 
 #include "resultiterator.h"
 #include "thresholder.h"
-#include "tesseractmain.h"
 #include "tesseractclass.h"
 #include "pageres.h"
 #include "tessvars.h"

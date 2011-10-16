@@ -20,6 +20,13 @@ noinst_LTLIBRARIES = libtesseract_classify.la
 else
 lib_LTLIBRARIES = libtesseract_classify.la
 libtesseract_classify_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+libtesseract_classify_la_LIBADD = \
+	../ccutil/libtesseract_ccutil.la \
+	../cutil/libtesseract_cutil.la \
+	../ccstruct/libtesseract_ccstruct.la \
+	../dict/libtesseract_dict.la \
+	../image/libtesseract_image.la \
+	../viewer/libtesseract_viewer.la
 endif
 
 libtesseract_classify_la_SOURCES = \

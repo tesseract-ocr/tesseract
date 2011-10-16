@@ -19,7 +19,7 @@ AC_CANONICAL_HOST
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
 PACKAGE_YEAR=2011
-PACKAGE_DATE="08/25"
+PACKAGE_DATE="10/16"
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -83,7 +83,17 @@ if test "$enable_graphics" = "no"; then
   AC_DEFINE([DISABLE_GRAPHICS], [], [Disable graphics])
 fi
 
-localedir='${prefix}/share/locale'
+# check whether to build multiple libraries
+AC_MSG_CHECKING(--enable-multiple-libraries argument)
+AC_ARG_ENABLE([multiple-libraries],
+    [  --enable-multiple-libraries         Enable multiple libraries.],
+    [enable_mlibs=$enableval],
+    [enable_mlibs="no"])
+AC_MSG_RESULT($enable_mlibs)
+AM_CONDITIONAL([USING_MULTIPLELIBS], [test "$enable_mlibs" = "yes"])
+
+
+#localedir='${prefix}/share/locale'
 
 # Not used yet, so disable
 #AC_ARG_ENABLE([gettext],
@@ -99,13 +109,6 @@ localedir='${prefix}/share/locale'
 #  AC_DEFINE([NO_GETTEXT], [], [Disable Gettext])
 #fi
 #AM_CONDITIONAL([USING_GETTEXT], [test "$enable_gettext" = "yes"])
-
-AC_ARG_ENABLE([multiple-libraries],
-    [  --enable-multiple-libraries         Enable multiple libraries (default).],
-    [enable_mlibs=$enableeval],
-    [enable_mlibs="yes"])
-AC_MSG_RESULT($enable_mlibs)
-AM_CONDITIONAL([USING_MULTIPLELIBS], [test "$enable_mlibs" = "yes"])
 
 # Always look into a "gnu" directory.
 curwd=`pwd`

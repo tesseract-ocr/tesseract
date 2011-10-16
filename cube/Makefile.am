@@ -26,6 +26,16 @@ noinst_LTLIBRARIES = libtesseract_cube.la
 else
 lib_LTLIBRARIES = libtesseract_cube.la
 libtesseract_cube_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+libtesseract_cube_la_LIBADD = \
+	../ccstruct/libtesseract_ccstruct.la \
+	../ccutil/libtesseract_ccutil.la \
+	../neural_networks/runtime/libtesseract_neural.la \
+	../image/libtesseract_image.la \
+	../viewer/libtesseract_viewer.la \
+	../wordrec/libtesseract_wordrec.la \
+	../cutil/libtesseract_cutil.la \
+	../classify/libtesseract_classify.la \
+	../dict/libtesseract_dict.la 
 endif
 
 libtesseract_cube_la_SOURCES = \

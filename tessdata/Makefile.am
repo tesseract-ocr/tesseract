@@ -1,6 +1,4 @@
 datadir = @datadir@/tessdata
-data_DATA =  $(wildcard *.traineddata) \
-    $(wildcard *.cube.*)
-
+data_DATA = ./ara.traineddata ./bul.traineddata ./cat.traineddata ./ces.traineddata ./chi_sim.traineddata ./chi_tra.traineddata ./dan-frak.traineddata ./dan.traineddata ./deu-frak.traineddata ./deu.traineddata ./ell.traineddata ./eng.traineddata ./fin.traineddata ./fra.traineddata ./heb.traineddata ./hin.traineddata ./hrv.traineddata ./hun.traineddata ./ind.traineddata ./ita.traineddata ./jpn.traineddata ./kor.traineddata ./lav.traineddata ./lit.traineddata ./nld.traineddata ./nor.traineddata ./osd.traineddata ./pol.traineddata ./por.traineddata ./ron.traineddata ./rus.traineddata ./slk-frak.traineddata ./slk.traineddata ./slv.traineddata ./spa.traineddata ./srp.traineddata ./swe.traineddata ./tgl.traineddata ./tha.traineddata ./tur.traineddata ./ukr.traineddata ./vie.traineddata \
+./ara.cube.bigrams ./ara.cube.fold ./ara.cube.lm ./ara.cube.nn ./ara.cube.params ./ara.cube.size ./ara.cube.word-freq ./eng.cube.bigrams ./eng.cube.fold ./eng.cube.lm ./eng.cube.nn ./eng.cube.params ./eng.cube.size ./eng.cube.word-freq ./hin.cube.bigrams ./hin.cube.fold ./hin.cube.lm ./hin.cube.nn ./hin.cube.params ./hin.cube.word-freq
 SUBDIRS = configs tessconfigs
-

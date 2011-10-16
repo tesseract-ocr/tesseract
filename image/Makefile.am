@@ -10,6 +10,9 @@ noinst_LTLIBRARIES = libtesseract_image.la
 else
 lib_LTLIBRARIES = libtesseract_image.la
 libtesseract_image_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
+libtesseract_image_la_LIBADD = \
+	../ccutil/libtesseract_ccutil.la \
+	../viewer/libtesseract_viewer.la
 endif
 
 libtesseract_image_la_SOURCES = \

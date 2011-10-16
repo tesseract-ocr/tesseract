@@ -1,15 +1,12 @@
-If you have checked out Tesseract from Subversion, you must generate the configure script.
+If you have checked out Tesseract from Subversion, you must generate the 
+configure script.
+
+If you have tesseract 3.0x installation in your system, please remove it
+before new build.
 
 So, the steps for making Tesseract are:
 
-  * ./runautoconf  # ignore warnings
+  * ./autogen.sh
   * ./configure
   * make
   * make install
-
-Note that ./runautoconf may generate some warnings:
-
- -- quoting in some /usr/share/.../... .m4 files
- -- old uses of datarootdir
-
-They don't seem to hurt anything.  We haven't found a good way of eliminating them yet.

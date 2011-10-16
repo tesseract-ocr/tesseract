@@ -18,7 +18,6 @@
 #include "mf.h"
 #include "clusttool.h"
 #include "cluster.h"
-#include "mergenf.h"
 #include "tessopt.h"
 #include "featdefs.h"
 #include "efio.h"
