@@ -16,8 +16,7 @@ in this distribution is now licensed under the Apache License:
 
 Other Dependencies and Licenses:
 ================================
-The Aspirin/MIGRAINES system is no longer used.
 
-Tesseract can also make use of the libtiff library. (www.libtiff.org)
-Without libtiff, Tesseract can only read uncompressed and G3 compressed
-TIFF files.
+Tesseract use Leptonica library (http://leptonica.com/) with a very weakly
+restricted copyright license (http://leptonica.com/about-the-license.html)
+
