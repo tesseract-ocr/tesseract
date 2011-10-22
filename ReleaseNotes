@@ -1,4 +1,4 @@
-Tesseract release notes Oct 1 2010 - V3.01
+= Tesseract release notes Oct 21 2011 - V3.01 =
   * Thread-safety! Moved all critical globals and statics to
     members of the appropriate class. Tesseract is now
     thread-safe (multiple instances can be used in parallel

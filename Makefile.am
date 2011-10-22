@@ -6,7 +6,7 @@ SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networ
 #endif
 
 EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
-      aclocal.m4 config configure.ac runautoconf tesseract.spec contrib
+      aclocal.m4 config configure.ac autogen.sh tesseract.spec contrib
 
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
 
