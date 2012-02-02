@@ -23,101 +23,21 @@
 #include          <stddef.h>
 #include          "host.h"
 
-#define JUSTCHECKS      0        /*just check consistency */
-#define MEMCHECKS     1          /*report totals */
-#define FULLMEMCHECKS   2        /*report on all blocks */
+// allocate string
+extern char *alloc_string(inT32 count);
+// free a string.
+extern void free_string(char *string);
+// allocate memory
+extern void *alloc_struct(inT32 count, const char *name = NULL);
+// free a structure.
+extern void free_struct(void *deadstruct, inT32, const char *name = NULL);
+// get some memory
+extern void *alloc_mem(inT32 count);
+// get some memory initialized to 0.
+extern void *alloc_big_zeros(inT32 count);
+// free mem from alloc_mem
+extern void free_mem(void *oldchunk);
+// free mem from alloc_big_zeros
+extern void free_big_mem(void *oldchunk);
 
-/**********************************************************************
- * ALLOC_2D_ARRAY
- * DEPRECATED! Use GENERIC_2D_ARRAY instead.
- * Create a dynamic 2D array.
- **********************************************************************/
-
-#define ALLOC_2D_ARRAY(x,y,mem,ptrs,type)				/*make 2d array*/\
-{ \
-	inT32					TMP_i; \
-	mem=(type*)alloc_mem((x)*(y)*sizeof(type));			/*get memory*/\
-	ptrs=(type**)alloc_mem((x)*sizeof(type*));			/*get ptrs*/\
-	for (TMP_i=0;TMP_i<(x);TMP_i++)\
-		ptrs[TMP_i]=mem+(y)*TMP_i;						/*set ptrs*/\
-} \
-
-/**********************************************************************
- * FREE_2D_ARRAY
- *
- * Destroy a 2D array created by ALLOC_2D_ARRAY
- **********************************************************************/
-
-#define FREE_2D_ARRAY(mem,ptrs)							/*free a 2D array*/\
-{ \
-	free_mem(mem);										/*free the memory*/\
-	free_mem(ptrs);										/*and the ptrs*/\
-} \
-
-/**********************************************************************
- * ALLOC_BIG_2D_ARRAY
- *
- * Create a dynamic 2D array. Use a memory allocator that allows
- * allocation of bigger chunks.
- **********************************************************************/
-
-#define ALLOC_BIG_2D_ARRAY(x,y,mem,ptrs,type)			/*make 2d array*/\
-{ \
-	inT32					TMP_i; \
-	mem=(type*)alloc_big_mem((x)*(y)*sizeof(type));		/*get memory*/\
-	ptrs=(type**)alloc_big_mem((x)*sizeof(type*));		/*get ptrs*/\
-	for (TMP_i=0;TMP_i<(x);TMP_i++)\
-		ptrs[TMP_i]=mem+(y)*TMP_i;						/*set ptrs*/\
-} \
-
-/**********************************************************************
- * FREE_BIG_2D_ARRAY
- *
- * Destroy a 2D array created by ALLOC_BIG_2D_ARRAY
- **********************************************************************/
-
-#define FREE_BIG_2D_ARRAY(mem,ptrs)						/*free a 2D array*/\
-{ \
-	free_big_mem(mem);									/*free the memory*/\
-	free_big_mem(ptrs);									/*and the ptrs*/\
-} \
-
-extern DLLSYM void check_mem(                     //check consistency
-                             const char *string,  //context message
-                             inT8 level           //level of check
-                            );
-                                 //allocate string
-extern DLLSYM char *alloc_string(inT32 count  //no of chars required
-                                );
-extern DLLSYM void free_string(              //free a string
-                               char *string  //string to free
-                              );
-                                 //allocate memory
-extern DLLSYM void *alloc_struct (
-inT32 count,                     //no of chars required
-const char *name = NULL          //class name
-);
-extern DLLSYM void free_struct ( //free a structure
-void *deadstruct,                //structure to free
-inT32 count,                     //no of bytes
-const char *name = NULL          //class name
-);
-extern DLLSYM void *alloc_mem_p(             //allocate permanent space
-                                inT32 count  //block size to allocate
-                               );
-extern DLLSYM void *alloc_mem(             //get some memory
-                              inT32 count  //no of bytes to get
-                             );
-                                 //get some memory
-extern DLLSYM void *alloc_big_mem(inT32 count  //no of bytes to get
-                                 );
-                                 //get some memory
-extern DLLSYM void *alloc_big_zeros(inT32 count  //no of bytes to get
-                                   );
-extern DLLSYM void free_mem(                //free mem from alloc_mem
-                            void *oldchunk  //chunk to free
-                           );
-extern DLLSYM void free_big_mem(                //free mem from alloc_mem
-                                void *oldchunk  //chunk to free
-                               );
 #endif
