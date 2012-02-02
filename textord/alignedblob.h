@@ -80,7 +80,7 @@ struct AlignedBlobParams {
 // The AlignedBlob class contains code to find vertically aligned blobs.
 // This is factored out into a separate class, so it can be used by both
 // vertical line finding (LineFind) and tabstop finding (TabFind).
-class AlignedBlob : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
+class AlignedBlob : public BlobGrid {
  public:
   AlignedBlob(int gridsize, const ICOORD& bleft, const ICOORD& tright);
   virtual ~AlignedBlob();

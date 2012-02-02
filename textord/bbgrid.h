@@ -123,8 +123,7 @@ class IntGrid : public GridBase {
   IntGrid* NeighbourhoodSum() const;
 
   int GridCellValue(int grid_x, int grid_y) const {
-    ASSERT_HOST(grid_x >= 0 && grid_x < gridwidth());
-    ASSERT_HOST(grid_y >= 0 && grid_y < gridheight());
+    ClipGridCoords(&grid_x, &grid_y);
     return grid_[grid_y * gridwidth_ + grid_x];
   }
   void SetGridCell(int grid_x, int grid_y, int value) {
@@ -132,6 +131,16 @@ class IntGrid : public GridBase {
     ASSERT_HOST(grid_y >= 0 && grid_y < gridheight());
     grid_[grid_y * gridwidth_ + grid_x] = value;
   }
+  // Returns true if more than half the area of the rect is covered by grid
+  // cells that are over the theshold.
+  bool RectMostlyOverThreshold(const TBOX& rect, int threshold) const;
+
+  // Returns true if any cell value in the given rectangle is zero.
+  bool AnyZeroInRect(const TBOX& rect) const;
+
+  // Returns a full-resolution binary pix in which each cell over the given
+  // threshold is filled as a black square. pixDestroy after use.
+  Pix* ThresholdToPix(int threshold) const;
 
  private:
   int* grid_;  // 2-d array of ints.
@@ -365,6 +374,24 @@ int SortByBoxLeft(const void* void1, const void* void2) {
   if (result != 0)
     return result;
   result = p1->bounding_box().right() - p2->bounding_box().right();
+  if (result != 0)
+    return result;
+  result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
+  if (result != 0)
+    return result;
+  return p1->bounding_box().top() - p2->bounding_box().top();
+}
+
+// Sort function to sort a BBC by bounding_box().right() in right-to-left order.
+template<class BBC>
+int SortRightToLeft(const void* void1, const void* void2) {
+  // The void*s are actually doubly indirected, so get rid of one level.
+  const BBC* p1 = *reinterpret_cast<const BBC* const *>(void1);
+  const BBC* p2 = *reinterpret_cast<const BBC* const *>(void2);
+  int result = p2->bounding_box().right() - p1->bounding_box().right();
+  if (result != 0)
+    return result;
+  result = p2->bounding_box().left() - p1->bounding_box().left();
   if (result != 0)
     return result;
   result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
@@ -859,6 +886,9 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::RemoveBBox() {
 
 template<class BBC, class BBC_CLIST, class BBC_C_IT>
 void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::RepositionIterator() {
+  // Something was deleted, so we have little choice but to clear the
+  // returns list.
+  returns_.shallow_clear();
   // Reset the iterator back to one past the previous return.
   // If the previous_return_ is no longer in the list, then
   // next_return_ serves as a backup.

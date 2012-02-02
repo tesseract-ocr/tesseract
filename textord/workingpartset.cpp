@@ -108,9 +108,11 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
         ColPartition* next_block_part = part_it_.data();
         const TBOX& part_box = part->bounding_box();
         const TBOX& next_box = next_block_part->bounding_box();
+
         // In addition to the same type, the next box must not be above the
         // current box, nor (if image) too far below.
-        if (next_block_part->type() == part->type() &&
+        PolyBlockType type = part->type(), next_type = next_block_part->type();
+        if (ColPartition::TypesSimilar(type, next_type) &&
             next_box.bottom() <= part_box.top() &&
             (text_block ||
              part_box.bottom() - next_box.top() < part_box.height()))
@@ -139,4 +141,3 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
 }
 
 }  // namespace tesseract.
-

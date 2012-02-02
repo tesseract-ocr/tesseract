@@ -50,6 +50,13 @@ class Textord {
   // than one, clean up and leave only the best.
   void CleanupSingleRowResult(PageSegMode pageseg_mode, PAGE_RES* page_res);
 
+  bool use_cjk_fp_model() const {
+    return use_cjk_fp_model_;
+  }
+  void set_use_cjk_fp_model(bool flag) {
+    use_cjk_fp_model_ = flag;
+  }
+
   // tospace.cpp ///////////////////////////////////////////
   void to_spacing(
       ICOORD page_tr,        //topright of page
@@ -64,12 +71,15 @@ class Textord {
   // tordmain.cpp ///////////////////////////////////////////
   void find_components(Pix* pix, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
   void filter_blobs(ICOORD page_tr, TO_BLOCK_LIST *blocks, BOOL8 testing_on);
+
  private:
   // For underlying memory management and other utilities.
   CCStruct* ccstruct_;
 
   // The size of the input image.
   ICOORD page_tr_;
+
+  bool use_cjk_fp_model_;
 
   // makerow.cpp ///////////////////////////////////////////
   // Make the textlines inside each block.

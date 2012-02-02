@@ -419,12 +419,11 @@ void empty_buckets(                     // find blobs
     out_it.set_to_list(&outlines);
     do {
       parent_it = bucket_it;     // find outermost
-      do
-      bucket_it.forward();
-      while (!bucket_it.at_first()
-        && !(*parent_it.data() < *bucket_it.data()));
-    }
-    while (!bucket_it.at_first());
+      do {
+        bucket_it.forward();
+      } while (!bucket_it.at_first() &&
+               !(*parent_it.data() < *bucket_it.data()));
+    } while (!bucket_it.at_first());
 
                                  // move to new list
     out_it.add_after_then_move(parent_it.extract());

@@ -29,6 +29,7 @@
 #include          "pitsync1.h"
 #include          "tovars.h"
 #include          "topitch.h"
+#include          "cjkpitch.h"
 #include          "textord.h"
 #include          "fpchop.h"
 #include          "wordseg.h"
@@ -101,7 +102,6 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST* real_rows) {
  *
  * Arrange the blobs into words.
  */
-
 void make_words(tesseract::Textord *textord,
                 ICOORD page_tr,                // top right
                 float gradient,                // page skew
@@ -110,8 +110,12 @@ void make_words(tesseract::Textord *textord,
   TO_BLOCK_IT block_it;          // iterator
   TO_BLOCK *block;               // current block
 
-  compute_fixed_pitch(page_tr, port_blocks, gradient, FCOORD(0.0f, -1.0f),
-                      !(BOOL8) textord_test_landscape);
+  if (textord->use_cjk_fp_model()) {
+    compute_fixed_pitch_cjk(page_tr, port_blocks);
+  } else {
+    compute_fixed_pitch(page_tr, port_blocks, gradient, FCOORD(0.0f, -1.0f),
+                        !(BOOL8) textord_test_landscape);
+  }
   textord->to_spacing(page_tr, port_blocks);
   block_it.set_to_list(port_blocks);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
@@ -525,24 +529,26 @@ void make_real_words(
     row = row_it.data ();
     if (row->blob_list ()->empty () && !row->rep_words.empty ()) {
       real_row = make_rep_words (row, block);
-    }
-    else if (!row->blob_list()->empty()) {
+    } else if (!row->blob_list()->empty()) {
       // In a fixed pitch document, some lines may be detected as fixed pitch
       // while others don't, and will go through different path.
       // For non-space delimited language like CJK, fixed pitch chop always
       // leave the entire line as one word.  We can force consistent chopping
       // with force_make_prop_words flag.
+      POLY_BLOCK* pb = block->block->poly_block();
       if (textord_chopper_test) {
         real_row = textord->make_blob_words (row, rotation);
       } else if (textord_force_make_prop_words ||
-          row->pitch_decision == PITCH_DEF_PROP ||
-          row->pitch_decision == PITCH_CORR_PROP) {
+                 (pb != NULL && !pb->IsText()) ||
+                 row->pitch_decision == PITCH_DEF_PROP ||
+                 row->pitch_decision == PITCH_CORR_PROP) {
         real_row = textord->make_prop_words (row, rotation);
       } else if (row->pitch_decision == PITCH_DEF_FIXED ||
                  row->pitch_decision == PITCH_CORR_FIXED) {
         real_row = fixed_pitch_words (row, rotation);
-      } else
+      } else {
         ASSERT_HOST(FALSE);
+      }
     }
     if (real_row != NULL) {
                                  //put row in block

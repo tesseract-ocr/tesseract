@@ -20,6 +20,7 @@
 #ifndef TESSERACT_TEXTORD_TABVECTOR_H__
 #define TESSERACT_TEXTORD_TABVECTOR_H__
 
+#include "blobgrid.h"
 #include "clst.h"
 #include "elst.h"
 #include "elst2.h"
@@ -28,8 +29,6 @@
 
 class BLOBNBOX;
 class ScrollView;
-
-CLISTIZEH(BLOBNBOX)
 
 namespace tesseract {
 
@@ -56,8 +55,6 @@ enum TabAlignment {
 class TabFind;
 class TabVector;
 class TabConstraint;
-typedef BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> BlobGrid;
-typedef GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> BlobGridSearch;
 
 ELIST2IZEH(TabVector)
 CLISTIZEH(TabVector)
@@ -179,6 +176,12 @@ class TabVector : public ELIST2_LINK {
   void set_endpt(const ICOORD& end) {
     endpt_ = end;
   }
+  bool intersects_other_lines() const {
+    return intersects_other_lines_;
+  }
+  void set_intersects_other_lines(bool value) {
+    intersects_other_lines_ = value;
+  }
 
   // Inline quasi-accessors that require some computation.
 
@@ -256,6 +259,21 @@ class TabVector : public ELIST2_LINK {
     x = endpt_.y();
     endpt_.set_y(endpt_.x());
     endpt_.set_x(x);
+  }
+
+  // Reflect the tab vector in the y-axis.
+  void ReflectInYAxis() {
+    startpt_.set_x(-startpt_.x());
+    endpt_.set_x(-endpt_.x());
+    sort_key_ = -sort_key_;
+    if (alignment_ == TA_LEFT_ALIGNED)
+      alignment_ = TA_RIGHT_ALIGNED;
+    else if (alignment_ == TA_RIGHT_ALIGNED)
+      alignment_ = TA_LEFT_ALIGNED;
+    if (alignment_ == TA_LEFT_RAGGED)
+      alignment_ = TA_RIGHT_RAGGED;
+    else if (alignment_ == TA_RIGHT_RAGGED)
+      alignment_ = TA_LEFT_RAGGED;
   }
 
   // Separate function to compute the sort key for a given coordinate pair.
@@ -393,6 +411,8 @@ class TabVector : public ELIST2_LINK {
   bool needs_refit_;
   // True if a fit has been done, so re-evaluation is needed.
   bool needs_evaluation_;
+  // True if a separator line intersects at least 2 other lines.
+  bool intersects_other_lines_;
   // The type of this TabVector.
   TabAlignment alignment_;
   // The list of boxes whose edges are aligned at this TabVector.

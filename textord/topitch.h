@@ -107,6 +107,7 @@ BOOL8 find_row_pitch(                    //find lines
                     );
 BOOL8 fixed_pitch_row(                   //find lines
                       TO_ROW *row,       //row to do
+                      BLOCK* block,
                       inT32 block_index  //block_number
                      );
 BOOL8 count_pitch_stats(                       //find lines

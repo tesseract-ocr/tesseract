@@ -312,6 +312,9 @@ void compute_page_skew(                        //get average gradient
   blob_count = 0;
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
        block_it.forward ()) {
+    POLY_BLOCK* pb = block_it.data()->block->poly_block();
+    if (pb != NULL && !pb->IsText())
+      continue;  // Pretend non-text blocks don't exist.
     row_count += block_it.data ()->get_rows ()->length ();
     //count up rows
     row_it.set_to_list (block_it.data ()->get_rows ());
@@ -332,6 +335,9 @@ void compute_page_skew(                        //get average gradient
   row_index = 0;
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
        block_it.forward ()) {
+    POLY_BLOCK* pb = block_it.data()->block->poly_block();
+    if (pb != NULL && !pb->IsText())
+      continue;  // Pretend non-text blocks don't exist.
     row_it.set_to_list (block_it.data ()->get_rows ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
@@ -359,6 +365,9 @@ void compute_page_skew(                        //get average gradient
                                  //desperate
     for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
          block_it.forward ()) {
+      POLY_BLOCK* pb = block_it.data()->block->poly_block();
+      if (pb != NULL && !pb->IsText())
+        continue;  // Pretend non-text blocks don't exist.
       row_it.set_to_list (block_it.data ()->get_rows ());
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
            row_it.forward ()) {
@@ -593,8 +602,11 @@ void Textord::cleanup_rows_fitting(ICOORD page_tr,    // top right
   if (textord_heavy_nr) {
     vigorous_noise_removal(block);
   }
-  separate_underlines(block, gradient, rotation, testing_on);
-  pre_associate_blobs(page_tr, block, rotation, testing_on);
+  POLY_BLOCK* pb = block->block->poly_block();
+  if (pb == NULL || pb->IsText()) {
+    separate_underlines(block, gradient, rotation, testing_on);
+    pre_associate_blobs(page_tr, block, rotation, testing_on);
+  }
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_final_rows && testing_on) {

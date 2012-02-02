@@ -21,8 +21,9 @@
 #ifndef TESSERACT_TEXTORD_LINEFIND_H__
 #define TESSERACT_TEXTORD_LINEFIND_H__
 
-struct Pix;
 struct Boxa;
+struct Pix;
+struct Pixa;
 class C_BLOB_LIST;
 class BLOBNBOX_LIST;
 class ICOORD;
@@ -38,7 +39,8 @@ class TabVector_LIST;
 class LineFinder {
  public:
   /**
-   * Finds vertical line objects in the given pix.
+   * Finds vertical and horizontal line objects in the given pix and removes
+   * them.
    *
    * Uses the given resolution to determine size thresholds instead of any
    * that may be present in the pix.
@@ -46,24 +48,21 @@ class LineFinder {
    * The output vertical_x and vertical_y contain a sum of the output vectors,
    * thereby giving the mean vertical direction.
    *
-   * The output vectors are owned by the list and Frozen (cannot refit) by
-   * having no boxes, as there is no need to refit or merge separator lines.
-   */
-  static void FindVerticalLines(int resolution,  Pix* pix,
-                                int* vertical_x, int* vertical_y,
-                                TabVector_LIST* vectors);
-
-  /**
-   * Finds horizontal line objects in the given pix.
-   *
-   * Uses the given resolution to determine size thresholds instead of any
-   * that may be present in the pix.
+   * If pix_music_mask != NULL, and music is detected, a mask of the staves
+   * and anything that is connected (bars, notes etc.) will be returned in
+   * pix_music_mask, the mask subtracted from pix, and the lines will not
+   * appear in v_lines or h_lines.
    *
    * The output vectors are owned by the list and Frozen (cannot refit) by
    * having no boxes, as there is no need to refit or merge separator lines.
+   *
+   * The detected lines are removed from the pix.
    */
-  static void FindHorizontalLines(int resolution,  Pix* pix,
-                                  TabVector_LIST* vectors);
+  static void FindAndRemoveLines(int resolution,  bool debug, Pix* pix,
+                                 int* vertical_x, int* vertical_y,
+                                 Pix** pix_music_mask,
+                                 TabVector_LIST* v_lines,
+                                 TabVector_LIST* h_lines);
 
   /**
    * Converts the Boxa array to a list of C_BLOB, getting rid of severely
@@ -78,43 +77,71 @@ class LineFinder {
                                  Boxa** boxes, C_BLOB_LIST* blobs);
 
  private:
-  /**
-   * Finds vertical lines in the given list of BLOBNBOXes. bleft and tright
-   * are the bounds of the image on which the input line_bblobs were found.
-   *
-   * The input line_bblobs list is const really.
-   *
-   * The output vertical_x and vertical_y are the total of all the vectors.
-   * The output list of TabVector makes no reference to the input BLOBNBOXes.
-   */
+  // Finds vertical line objects in pix_vline and removes them from src_pix.
+  // Uses the given resolution to determine size thresholds instead of any
+  // that may be present in the pix.
+  // The output vertical_x and vertical_y contain a sum of the output vectors,
+  // thereby giving the mean vertical direction.
+  // The output vectors are owned by the list and Frozen (cannot refit) by
+  // having no boxes, as there is no need to refit or merge separator lines.
+  // If no good lines are found, pix_vline is destroyed.
+  static void FindAndRemoveVLines(int resolution,
+                                  Pix* pix_intersections,
+                                  int* vertical_x, int* vertical_y,
+                                  Pix** pix_vline, Pix* pix_non_vline,
+                                  Pix* src_pix, TabVector_LIST* vectors);
+
+
+  // Finds horizontal line objects in pix_vline and removes them from src_pix.
+  // Uses the given resolution to determine size thresholds instead of any
+  // that may be present in the pix.
+  // The output vertical_x and vertical_y contain a sum of the output vectors,
+  // thereby giving the mean vertical direction.
+  // The output vectors are owned by the list and Frozen (cannot refit) by
+  // having no boxes, as there is no need to refit or merge separator lines.
+  // If no good lines are found, pix_hline is destroyed.
+  static void FindAndRemoveHLines(int resolution,
+                                  Pix* pix_intersections,
+                                  int vertical_x, int vertical_y,
+                                  Pix** pix_hline, Pix* pix_non_hline,
+                                  Pix* src_pix, TabVector_LIST* vectors);
+
+  // Finds vertical lines in the given list of BLOBNBOXes. bleft and tright
+  // are the bounds of the image on which the input line_bblobs were found.
+  // The input line_bblobs list is const really.
+  // The output vertical_x and vertical_y are the total of all the vectors.
+  // The output list of TabVector makes no reference to the input BLOBNBOXes.
   static void FindLineVectors(const ICOORD& bleft, const ICOORD& tright,
                               BLOBNBOX_LIST* line_bblobs,
                               int* vertical_x, int* vertical_y,
                               TabVector_LIST* vectors);
 
-  /**
-   * Get a set of bounding boxes of possible vertical lines in the image.
-   *
-   * The input resolution overrides any resolution set in src_pix.
-   *
-   * The output line_pix contains just all the detected lines.
-   */
-  static Boxa* GetVLineBoxes(int resolution, Pix* src_pix, Pix** line_pix);
+  // Most of the heavy lifting of line finding. Given src_pix and its separate
+  // resolution, returns image masks:
+  // Returns image masks:
+  // pix_vline           candidate vertical lines.
+  // pix_non_vline       pixels that didn't look like vertical lines.
+  // pix_hline           candidate horizontal lines.
+  // pix_non_hline       pixels that didn't look like horizontal lines.
+  // pix_intersections   pixels where vertical and horizontal lines meet.
+  // pix_music_mask      candidate music staves.
+  // This function promises to initialize all the output (2nd level) pointers,
+  // but any of the returns that are empty will be NULL on output.
+  // None of the input (1st level) pointers may be NULL except pix_music_mask,
+  // which will disable music detection, and pixa_display, which is for debug.
+  static void GetLineMasks(int resolution, Pix* src_pix,
+                           Pix** pix_vline, Pix** pix_non_vline,
+                           Pix** pix_hline, Pix** pix_non_hline,
+                           Pix** pix_intersections, Pix** pix_music_mask,
+                           Pixa* pixa_display);
 
-  /**
-   * Get a set of bounding boxes of possible horizontal lines in the image.
-   *
-   * The input resolution overrides any resolution set in src_pix.
-   *
-   * The output line_pix contains just all the detected lines.
-   *
-   * The output boxes undergo the transformation (x,y)->(height-y,x) so the
-   * lines can be found with a vertical line finder afterwards.
-   *
-   * This transformation allows a simple x/y flip to reverse it in tesseract
-   * coordinates and it is faster to flip the lines than rotate the image.
-   */
-  static Boxa* GetHLineBoxes(int resolution, Pix* src_pix, Pix** line_pix);
+  // Returns a list of boxes corresponding to the candidate line segments. Sets
+  // the line_crossings member of the boxes so we can later determin the number
+  // of intersections touched by a full line.
+  static void GetLineBoxes(bool horizontal_lines,
+                           Pix* pix_lines, Pix* pix_intersections,
+                           C_BLOB_LIST* line_cblobs,
+                           BLOBNBOX_LIST* line_bblobs);
 };
 
 }  // namespace tesseract.

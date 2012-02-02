@@ -6,14 +6,15 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict
 
 include_HEADERS = \
-    alignedblob.h bbgrid.h blkocc.h \
-    colfind.h colpartition.h colpartitionset.h \
+    alignedblob.h bbgrid.h blkocc.h blobgrid.h \
+    ccnontextdetect.h cjkpitch.h colfind.h colpartition.h colpartitionset.h \
     colpartitiongrid.h \
     devanagari_processing.h drawedg.h drawtord.h edgblob.h edgloop.h \
+    equationdetectbase.h \
     fpchop.h gap_map.h imagefind.h linefind.h makerow.h oldbasel.h \
     pithsync.h pitsync1.h scanedg.h sortflts.h strokewidth.h \
     tabfind.h tablefind.h tabvector.h \
-    tablerecog.h textord.h \
+    tablerecog.h textlineprojection.h textord.h \
     topitch.h tordmain.h tovars.h \
     underlin.h wordseg.h workingpartset.h
 
@@ -34,13 +35,14 @@ libtesseract_textord_la_LIBADD = \
 endif
 
 libtesseract_textord_la_SOURCES = \
-    alignedblob.cpp bbgrid.cpp blkocc.cpp \
-    colfind.cpp colpartition.cpp colpartitionset.cpp \
+    alignedblob.cpp bbgrid.cpp blkocc.cpp blobgrid.cpp \
+    ccnontextdetect.cpp cjkpitch.cpp colfind.cpp colpartition.cpp colpartitionset.cpp \
     colpartitiongrid.cpp devanagari_processing.cpp \
     drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \
+    equationdetectbase.cpp \
     fpchop.cpp gap_map.cpp imagefind.cpp linefind.cpp makerow.cpp oldbasel.cpp \
     pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp strokewidth.cpp \
     tabfind.cpp tablefind.cpp tabvector.cpp \
-    tablerecog.cpp textord.cpp \
+    tablerecog.cpp textlineprojection.cpp textord.cpp \
     topitch.cpp tordmain.cpp tospace.cpp tovars.cpp \
     underlin.cpp wordseg.cpp workingpartset.cpp

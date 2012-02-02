@@ -90,7 +90,18 @@ class ColPartition : public ELIST2_LINK {
   // WARNING: Despite being on C_LISTs, the BLOBNBOX owns the C_BLOB and
   // the ColPartition owns the BLOBNBOX!!!
   // Call DeleteBoxes before deleting the ColPartition.
-  static ColPartition* FakePartition(const TBOX& box);
+  static ColPartition* FakePartition(const TBOX& box,
+                                     PolyBlockType block_type,
+                                     BlobRegionType blob_type,
+                                     BlobTextFlowType flow);
+
+  // Constructs and returns a ColPartition with the given real BLOBNBOX,
+  // and sets it up to be a "big" partition (single-blob partition bigger
+  // than the surrounding text that may be a dropcap, two or more vertically
+  // touching characters, or some graphic element.
+  // If the given list is not NULL, the partition is also added to the list.
+  static ColPartition* MakeBigPartition(BLOBNBOX* box,
+                                        ColPartition_LIST* big_part_list);
 
   ~ColPartition();
 
@@ -115,6 +126,12 @@ class ColPartition : public ELIST2_LINK {
   }
   int median_bottom() const {
     return median_bottom_;
+  }
+  int median_left() const {
+    return median_left_;
+  }
+  int median_right() const {
+    return median_right_;
   }
   int median_size() const {
     return median_size_;
@@ -184,6 +201,12 @@ class ColPartition : public ELIST2_LINK {
   }
   void set_working_set(WorkingPartSet* working_set) {
     working_set_ = working_set;
+  }
+  bool block_owned() const {
+    return block_owned_;
+  }
+  void set_block_owned(bool owned) {
+    block_owned_ = owned;
   }
   bool desperately_merged() const {
     return desperately_merged_;
@@ -342,32 +365,38 @@ class ColPartition : public ELIST2_LINK {
   bool HOverlaps(const ColPartition& other) const {
     return bounding_box_.x_overlap(other.bounding_box_);
   }
-  // Returns true if this and other can be combined without putting a
-  // horizontal step in either left or right edge.
-  bool HCompatible(const ColPartition& other) const {
-    return left_margin_ <= other.bounding_box_.left() &&
-           bounding_box_.left() >= other.left_margin_ &&
-           bounding_box_.right() <= other.right_margin_ &&
-           right_margin_ >= other.bounding_box_.right();
+  // Returns true if this and other's bounding boxes overlap vertically.
+  // TODO(rays) Make HOverlaps and VOverlaps truly symmetric.
+  bool VOverlaps(const ColPartition& other) const {
+    return bounding_box_.y_gap(other.bounding_box_) < 0;
   }
   // Returns the vertical overlap (by median) of this and other.
   // WARNING! Only makes sense on horizontal partitions!
-  int VOverlap(const ColPartition& other) const {
+  int VCoreOverlap(const ColPartition& other) const {
     return MIN(median_top_, other.median_top_) -
            MAX(median_bottom_, other.median_bottom_);
   }
   // Returns the horizontal overlap (by median) of this and other.
   // WARNING! Only makes sense on vertical partitions!
-  int HOverlap(const ColPartition& other) const {
+  int HCoreOverlap(const ColPartition& other) const {
     return MIN(median_right_, other.median_right_) -
            MAX(median_left_, other.median_left_);
   }
   // Returns true if this and other overlap significantly vertically.
-  bool VOverlaps(const ColPartition& other) const {
-    int overlap = VOverlap(other);
+  // WARNING! Only makes sense on horizontal partitions!
+  bool VSignificantCoreOverlap(const ColPartition& other) const {
+    int overlap = VCoreOverlap(other);
     int height = MIN(median_top_ - median_bottom_,
                      other.median_top_ - other.median_bottom_);
     return overlap * 3 > height;
+  }
+  // Returns true if this and other can be combined without putting a
+  // horizontal step in either left or right edge of the resulting block.
+  bool WithinSameMargins(const ColPartition& other) const {
+    return left_margin_ <= other.bounding_box_.left() &&
+           bounding_box_.left() >= other.left_margin_ &&
+           bounding_box_.right() <= other.right_margin_ &&
+           right_margin_ >= other.bounding_box_.right();
   }
   // Returns true if the region types (aligned_text_) match.
   // Lines never match anything, as they should never be merged or chained.
@@ -377,6 +406,13 @@ class ColPartition : public ELIST2_LINK {
   static bool TypesMatch(BlobRegionType type1, BlobRegionType type2) {
     return (type1 == type2 || type1 == BRT_UNKNOWN || type2 == BRT_UNKNOWN) &&
            !BLOBNBOX::IsLineType(type1) && !BLOBNBOX::IsLineType(type2);
+  }
+
+  // Returns true if the types are similar to each other.
+  static bool TypesSimilar(PolyBlockType type1, PolyBlockType type2) {
+    return (type1 == type2 ||
+            (type1 == PT_FLOWING_TEXT && type2 == PT_INLINE_EQUATION) ||
+            (type2 == PT_FLOWING_TEXT && type1 == PT_INLINE_EQUATION));
   }
 
   // Returns true if partitions is of horizontal line type
@@ -430,8 +466,8 @@ class ColPartition : public ELIST2_LINK {
   TBOX BoundsWithoutBox(BLOBNBOX* box);
 
   // Claims the boxes in the boxes_list by marking them with a this owner
-  // pointer. If a box is already owned, then run Unique on it.
-  void ClaimBoxes(WidthCallback* cb);
+  // pointer.
+  void ClaimBoxes();
 
   // NULL the owner of the blobs in this partition, so they can be deleted
   // independently of the ColPartition.
@@ -439,6 +475,12 @@ class ColPartition : public ELIST2_LINK {
 
   // Delete the boxes that this partition owns.
   void DeleteBoxes();
+
+  // Reflects the partition in the y-axis, assuming that its blobs have
+  // already been done. Corrects only a limited part of the members, since
+  // this function is assumed to be used shortly after initial creation, which
+  // is before a lot of the members are used.
+  void ReflectInYAxis();
 
   // Returns true if this is a legal partition - meaning that the conditions
   // left_margin <= bounding_box left
@@ -450,6 +492,9 @@ class ColPartition : public ELIST2_LINK {
 
   // Returns true if the left and right edges are approximately equal.
   bool MatchingColumns(const ColPartition& other) const;
+
+  // Returns true if the colors match for two text partitions.
+  bool MatchingTextColor(const ColPartition& other) const;
 
   // Returns true if the sizes match for two text partitions,
   // taking orientation into account
@@ -482,6 +527,19 @@ class ColPartition : public ELIST2_LINK {
   // Returns the right rule line x coord of the rightmost blob.
   int RightBlobRule() const;
 
+  // Returns the density value for a particular BlobSpecialTextType.
+  float SpecialBlobsDensity(const BlobSpecialTextType type) const;
+  // Returns the number of blobs for a  particular BlobSpecialTextType.
+  int SpecialBlobsCount(const BlobSpecialTextType type);
+  // Set the density value for a particular BlobSpecialTextType, should ONLY be
+  // used for debugging or testing. In production code, use
+  // ComputeSpecialBlobsDensity instead.
+  void SetSpecialBlobsDensity(
+      const BlobSpecialTextType type, const float density);
+  // Compute the SpecialTextType density of blobs, where we assume
+  // that the SpecialTextType in the boxes_ has been set.
+  void ComputeSpecialBlobsDensity();
+
   // Add a partner above if upper, otherwise below.
   // Add them uniquely and keep the list sorted by box left.
   // Partnerships are added symmetrically to partner and this.
@@ -496,9 +554,6 @@ class ColPartition : public ELIST2_LINK {
   // Merge with the other partition and delete it.
   void Absorb(ColPartition* other, WidthCallback* cb);
 
-  // Shares out any common boxes amongst the partitions, ensuring that no
-  // box stays in both. Returns true if anything was done.
-  bool Unique(ColPartition* other, WidthCallback* cb);
   // Returns true if the overlap between this and the merged pair of
   // merge candidates is sufficiently trivial to be allowed.
   // The merged box can graze the edge of this by the ok_box_overlap
@@ -551,9 +606,19 @@ class ColPartition : public ELIST2_LINK {
   // Leader detection is limited to sequences of identical width objects,
   // such as .... or ----, so patterns, such as .-.-.-.-. will not be found.
   bool MarkAsLeaderIfMonospaced();
+  // Given the result of TextlineProjection::EvaluateColPartition, (positive for
+  // horizontal text, negative for vertical text, and near zero for non-text),
+  // sets the blob_type_ and flow_ for this partition to indicate whether it
+  // is strongly or weakly vertical or horizontal text, or non-text.
+  void SetRegionAndFlowTypesFromProjectionValue(int value);
 
-  // Sets all blobs with the partition blob type and flow.
+  // Sets all blobs with the partition blob type and flow, but never overwrite
+  // leader blobs, as we need to be able to identify them later.
   void SetBlobTypes();
+
+  // Returns true if a decent baseline can be fitted through the blobs.
+  // Works for both horizontal and vertical text.
+  bool HasGoodBaseline();
 
   // Adds this ColPartition to a matching WorkingPartSet if one can be found,
   // otherwise starts a new one in the appropriate column, ending the previous.
@@ -578,6 +643,13 @@ class ColPartition : public ELIST2_LINK {
   static TO_BLOCK* MakeBlock(const ICOORD& bleft, const ICOORD& tright,
                              ColPartition_LIST* block_parts,
                              ColPartition_LIST* used_parts);
+
+  // Constructs a block from the given list of vertical text partitions.
+  // Currently only creates rectangular blocks.
+  static TO_BLOCK* MakeVerticalTextBlock(const ICOORD& bleft,
+                                         const ICOORD& tright,
+                                         ColPartition_LIST* block_parts,
+                                         ColPartition_LIST* used_parts);
 
 
   // Returns a copy of everything except the list of boxes. The resulting
@@ -769,6 +841,8 @@ class ColPartition : public ELIST2_LINK {
   ColPartition_CLIST lower_partners_;
   // The WorkingPartSet it lives in while blocks are being made.
   WorkingPartSet* working_set_;
+  // Flag is true when AddBox is sorting vertically, false otherwise.
+  bool last_add_was_vertical_;
   // True when the partition's ownership has been taken from the grid and
   // placed in a working set, or, after that, in the good_parts_ list.
   bool block_owned_;
@@ -809,6 +883,8 @@ class ColPartition : public ELIST2_LINK {
   uinT8 color1_[kRGBRMSColors];
   uinT8 color2_[kRGBRMSColors];
   bool owns_blobs_;  // Does the partition own its blobs?
+  // The density of special blobs.
+  float special_blobs_densities_[BSTT_COUNT];
 };
 
 // Typedef it now in case it becomes a class later.

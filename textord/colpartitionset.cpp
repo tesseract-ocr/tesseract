@@ -66,79 +66,13 @@ ColPartition* ColPartitionSet::ColumnContaining(int x, int y) {
   return NULL;
 }
 
-// Insert the ColPartitions in our list into the given grid.
-void ColPartitionSet::ReturnParts(ColPartition_LIST* parts) {
-  ColPartition_IT it(parts);
-  it.add_list_before(&parts_);
-}
-
-// Merge any significantly overlapping partitions within the this and other,
-// and unique the boxes so that no two partitions use the same box.
-// Return true if any changes were made to either set.
-bool ColPartitionSet::MergeOverlaps(ColPartitionSet* other, WidthCallback* cb) {
-  bool debug = TabFind::WithinTestRegion(2, bounding_box_.left(),
-                                         bounding_box_.bottom()) ||
-               TabFind::WithinTestRegion(2, other->bounding_box_.left(),
-                                         other->bounding_box_.bottom());
-  if (debug) {
-    tprintf("Considering merge on:\n");
-    Print();
-    other->Print();
+// Extract all the parts from the list, relinquishing ownership.
+void ColPartitionSet::RelinquishParts() {
+  ColPartition_IT it(&parts_);
+  while (!it.empty()) {
+    it.extract();
+    it.forward();
   }
-  ColPartition_IT it1(&parts_);
-  ColPartition_IT it2(&other->parts_);
-  bool any_merged = false;
-  it1.mark_cycle_pt();
-  it2.mark_cycle_pt();
-  // Iterate the two lists in parallel, using the fact that they are
-  // sorted by x-coord to keep the iterators in sync.
-  while (!it1.cycled_list() && !it2.cycled_list()) {
-    any_merged = false;
-    ColPartition* part1 = it1.data();
-    ColPartition* part2 = it2.data();
-    if (debug) {
-      tprintf("Vover=%d, HOver=%d, Hcompatible=%d, typesmatch=%d\n",
-              part1->VOverlaps(*part2), part1->HOverlaps(*part2),
-              part1->HCompatible(*part2), part1->TypesMatch(*part2));
-    }
-    if (part1->VOverlaps(*part2) &&
-        part1->HCompatible(*part2) && part1->TypesMatch(*part2)) {
-      // Partitions seem to be mergeable, so absorb part1 into part2.
-      part1->Absorb(it2.extract(), cb);
-      any_merged = true;
-      it1.forward();
-      it2.forward();
-    } else if (part1->HOverlaps(*part2) && part1->TypesMatch(*part2) &&
-               part1->Unique(part2, cb)) {
-      // Unique moved some boxes, so check to see in either partition was
-      // left empty. If not, any_merged is not set true.
-      if (part1->IsEmpty()) {
-        any_merged = true;
-        delete it1.extract();
-        it1.forward();
-        continue;
-      }
-      if (part2->IsEmpty()) {
-        any_merged = true;
-        delete it2.extract();
-        it2.forward();
-        continue;
-      }
-    }
-    if (!any_merged) {
-      // Move on the iterator that point to the leftmost partition.
-      if (part1->IsLeftOf(*part2)) {
-        it1.forward();
-      } else {
-        it2.forward();
-      }
-    }
-  }
-  if (any_merged) {
-    ComputeCoverage();
-    other->ComputeCoverage();
-  }
-  return any_merged;
 }
 
 // Attempt to improve this by adding partitions or expanding partitions.
@@ -245,13 +179,13 @@ void ColPartitionSet::AddToColumnSetsIfUnique(PartSetVector* column_sets,
   }
   for (int i = 0; i < column_sets->size(); ++i) {
     ColPartitionSet* columns = column_sets->get(i);
-    // In ordering the column set candidates, total_coverage_ is king,
-    // followed by good_column_count_ and then total column_count.
-    bool better = total_coverage_ > columns->total_coverage_;
-    if (total_coverage_ == columns->total_coverage_) {
+    // In ordering the column set candidates, good_coverage_ is king,
+    // followed by good_column_count_ and then bad_coverage_.
+    bool better = good_coverage_ > columns->good_coverage_;
+    if (good_coverage_ == columns->good_coverage_) {
       better = good_column_count_ > columns->good_column_count_;
       if (good_column_count_ == columns->good_column_count_) {
-          better = parts_.length() > columns->parts_.length();
+          better = bad_coverage_ > columns->bad_coverage_;
       }
     }
     if (better) {
@@ -278,7 +212,7 @@ void ColPartitionSet::AddToColumnSetsIfUnique(PartSetVector* column_sets,
 bool ColPartitionSet::CompatibleColumns(bool debug, ColPartitionSet* other,
                                         WidthCallback* cb) {
   if (debug) {
-    tprintf("CompatibleColumns testing compability\n");
+    tprintf("CompatibleColumns testing compatibility\n");
     Print();
     other->Print();
   }
@@ -295,7 +229,7 @@ bool ColPartitionSet::CompatibleColumns(bool debug, ColPartitionSet* other,
         tprintf("CompatibleColumns ignoring image partition\n");
         part->Print();
       }
-      continue;  // Image partitions are irrelevant to column compability.
+      continue;  // Image partitions are irrelevant to column compatibility.
     }
     int y = part->MidY();
     int left = part->bounding_box().left();
@@ -331,30 +265,15 @@ bool ColPartitionSet::CompatibleColumns(bool debug, ColPartitionSet* other,
       ColPartition* next_left_col = ColumnContaining(next_left, y);
       if (right_col == next_left_col) {
         // There is a column break in this column.
-        // Check for the difference between different column layout and
-        // a pull-out block.
-        int part_box_width = part->bounding_box().width();
-        int part_margin_width = part->right_margin() - part->left_margin();
-        int next_box_width = next_part->bounding_box().width();
-        int next_margin_width = next_part->right_margin() -
-                                next_part->left_margin();
-        int next_right = next_part->bounding_box().right();
-        if (part_box_width < next_margin_width &&
-            next_box_width < part_margin_width) {
+        // This can be due to a figure caption within a column, a pull-out
+        // block, or a simple broken textline that remains to be merged:
+        // all allowed, or a change in column layout: not allowed.
+        // If both partitions are of good width, then it is likely
+        // a change in column layout, otherwise probably an allowed situation.
+        if (part->good_width() && next_part->good_width()) {
           if (debug) {
-            tprintf("CompatibleColumns false due to equal sized columns\n");
-            tprintf("part1 %d-%d = %d, part2 %d-%d = %d\n",
-                    left, right, part->ColumnWidth(),
-                    next_left, next_right, next_part->ColumnWidth());
-            right_col->Print();
-          }
-          return false;  // Must be a new column layout as they are equal size.
-        }
-        ColPartition* next_right_col = ColumnContaining(next_right, y);
-        if (left_col == right_col && next_right_col == next_left_col) {
-          // Column completely contains both. Not allowed.
-          if (debug) {
-            tprintf("CompatibleColumns false due to containing 2 partitions\n");
+            int next_right = next_part->bounding_box().right();
+            tprintf("CompatibleColumns false due to 2 parts of good width\n");
             tprintf("part1 %d-%d, part2 %d-%d\n",
                     left, right, next_left, next_right);
             right_col->Print();
@@ -654,8 +573,9 @@ void ColPartitionSet::AccumulateColumnWidthsAndGaps(int* total_width,
 // Provide debug output for this ColPartitionSet and all the ColPartitions.
 void ColPartitionSet::Print() {
   ColPartition_IT it(&parts_);
-  tprintf("Partition set of %d parts, %d good, coverage=%d (%d,%d)->(%d,%d)\n",
-          it.length(), good_column_count_, total_coverage_,
+  tprintf("Partition set of %d parts, %d good, coverage=%d+%d"
+          " (%d,%d)->(%d,%d)\n",
+          it.length(), good_column_count_, good_coverage_, bad_coverage_,
           bounding_box_.left(), bounding_box_.bottom(),
           bounding_box_.right(), bounding_box_.top());
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -669,13 +589,7 @@ void ColPartitionSet::Print() {
 // Add the given partition to the list in the appropriate place.
 void ColPartitionSet::AddPartition(ColPartition* new_part,
                                    ColPartition_IT* it) {
-  bounding_box_ += new_part->bounding_box();
-  if (new_part->good_column() || new_part->good_width()) {
-    total_coverage_ += new_part->ColumnWidth();
-    ++good_column_count_;
-    if (new_part->good_width())
-      ++good_column_count_;
-  }
+  AddPartitionCoverageAndBox(*new_part);
   int new_right = new_part->right_key();
   if (it->data()->left_key() >= new_right)
     it->add_before_stay_put(new_part);
@@ -683,22 +597,50 @@ void ColPartitionSet::AddPartition(ColPartition* new_part,
     it->add_after_stay_put(new_part);
 }
 
-// Compute the coverage and good column count.
+// Compute the coverage and good column count. Coverage is the amount of the
+// width of the page (in pixels) that is covered by ColPartitions, which are
+// used to provide candidate column layouts.
+// Coverage is split into good and bad. Good coverage is provided by
+// ColPartitions of a frequent width (according to the callback function
+// provided by TabFinder::WidthCB, which accesses stored statistics on the
+// widths of ColParititions) and bad coverage is provided by all other
+// ColPartitions, even if they have tab vectors at both sides. Thus:
+// |-----------------------------------------------------------------|
+// |        Double     width    heading                              |
+// |-----------------------------------------------------------------|
+// |-------------------------------| |-------------------------------|
+// |   Common width ColParition    | |  Common width ColPartition    |
+// |-------------------------------| |-------------------------------|
+// the layout with two common-width columns has better coverage than the
+// double width heading, because the coverage is "good," even though less in
+// total coverage than the heading, because the heading coverage is "bad."
 void ColPartitionSet::ComputeCoverage() {
   // Count the number of good columns and sum their width.
   ColPartition_IT it(&parts_);
   good_column_count_ = 0;
-  total_coverage_ = 0;
+  good_coverage_ = 0;
+  bad_coverage_ = 0;
   bounding_box_ = TBOX();
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     ColPartition* part = it.data();
-    bounding_box_ += part->bounding_box();
-    if (part->good_column() || part->good_width()) {
-      total_coverage_ += part->ColumnWidth();
+    AddPartitionCoverageAndBox(*part);
+  }
+}
+
+// Adds the coverage, column count and box for a single partition,
+// without adding it to the list. (Helper factored from ComputeCoverage.)
+void ColPartitionSet::AddPartitionCoverageAndBox(const ColPartition& part) {
+  bounding_box_ += part.bounding_box();
+  int coverage = part.ColumnWidth();
+  if (part.good_width()) {
+    good_coverage_ += coverage;
+    good_column_count_ += 2;
+  } else {
+    if (part.blob_type() < BRT_UNKNOWN)
+      coverage /= 2;
+    if (part.good_column())
       ++good_column_count_;
-      if (part->good_width())
-        ++good_column_count_;
-    }
+    bad_coverage_ += coverage;
   }
 }
 

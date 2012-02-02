@@ -153,6 +153,61 @@ IntGrid* IntGrid::NeighbourhoodSum() const {
   return sumgrid;
 }
 
+// Returns true if more than half the area of the rect is covered by grid
+// cells that are over the theshold.
+bool IntGrid::RectMostlyOverThreshold(const TBOX& rect, int threshold) const {
+  int min_x, min_y, max_x, max_y;
+  GridCoords(rect.left(), rect.bottom(), &min_x, &min_y);
+  GridCoords(rect.right(), rect.top(), &max_x, &max_y);
+  int total_area = 0;
+  for (int y = min_y; y <= max_y; ++y) {
+    for (int x = min_x; x <= max_x; ++x) {
+      int value = GridCellValue(x, y);
+      if (value > threshold) {
+        TBOX cell_box(x * gridsize_, y * gridsize_,
+                      (x + 1) * gridsize_, (y + 1) * gridsize_);
+        cell_box &= rect;  // This is in-place box intersection.
+        total_area += cell_box.area();
+      }
+    }
+  }
+  return total_area * 2 > rect.area();
+}
+
+// Returns true if any cell value in the given rectangle is zero.
+bool IntGrid::AnyZeroInRect(const TBOX& rect) const {
+  int min_x, min_y, max_x, max_y;
+  GridCoords(rect.left(), rect.bottom(), &min_x, &min_y);
+  GridCoords(rect.right(), rect.top(), &max_x, &max_y);
+  for (int y = min_y; y <= max_y; ++y) {
+    for (int x = min_x; x <= max_x; ++x) {
+      if (GridCellValue(x, y) == 0)
+        return true;
+    }
+  }
+  return false;
+}
+
+// Returns a full-resolution binary pix in which each cell over the given
+// threshold is filled as a black square. pixDestroy after use.
+// Edge cells, which have a zero 4-neighbour, are not marked.
+Pix* IntGrid::ThresholdToPix(int threshold) const {
+  Pix* pix = pixCreate(tright().x() - bleft().x(),
+                       tright().y() - bleft().y(), 1);
+  int cellsize = gridsize();
+  for (int y = 0; y < gridheight(); ++y) {
+    for (int x = 0; x < gridwidth(); ++x) {
+      if (GridCellValue(x, y) > threshold &&
+          GridCellValue(x - 1, y) > 0 && GridCellValue(x + 1, y) > 0 &&
+              GridCellValue(x, y - 1) > 0 && GridCellValue(x, y + 1) > 0) {
+        pixRasterop(pix, x * cellsize, tright().y() - ((y + 1) * cellsize),
+                    cellsize, cellsize, PIX_SET, NULL, 0, 0);
+      }
+    }
+  }
+  return pix;
+}
+
 // Make a Pix of the correct scaled size for the TraceOutline functions.
 Pix* GridReducedPix(const TBOX& box, int gridsize,
                     ICOORD bleft, int* left, int* bottom) {
@@ -232,4 +287,3 @@ Pix* TraceBlockOnReducedPix(BLOCK* block, int gridsize,
 }
 
 }  // namespace tesseract.
-

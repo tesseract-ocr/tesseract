@@ -80,16 +80,6 @@ class ShiroRekhaSplitter {
   // splitting. If false, the ocr_split_strategy_ is used.
   bool Split(bool split_for_pageseg);
 
-  // This method changes the input page image and pix_binary to be the same as
-  // the splitted image owned by this object.
-  // Any of the parameters can be NULL.
-  void CopySplittedImageTo(IMAGE* page_image, Pix** pix_binary) const;
-
-  // This method changes the input page image and pix_binary to be the same as
-  // the original image provided to this object.
-  // Any of the parameters can be NULL.
-  void CopyOriginalImageTo(IMAGE* page_image, Pix** pix_binary) const;
-
   // Clears the memory held by this object.
   void Clear();
 
@@ -212,5 +202,6 @@ class ShiroRekhaSplitter {
                         // performed before CCs are run through splitting.
 };
 
-}
+}  // namespace tesseract.
+
 #endif  // TESSERACT_TEXTORD_DEVNAGARI_PROCESSING_H_

@@ -165,36 +165,6 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg) {
   return true;
 }
 
-// This method changes the input page image and pix_binary to be the same as
-// the splitted image owned by this object.
-// Any of the parameters can be NULL.
-void ShiroRekhaSplitter::CopySplittedImageTo(IMAGE* page_image,
-                                             Pix** pix_binary) const {
-  ASSERT_HOST(splitted_image_);
-  if (pix_binary) {
-    pixDestroy(pix_binary);
-    *pix_binary = pixClone(splitted_image_);
-  }
-  if (page_image) {
-    page_image->FromPix(splitted_image_);
-  }
-}
-
-// This method changes the input page image and pix_binary to be the same as
-// the original image provided to this object.
-// Any of the parameters can be NULL.
-void ShiroRekhaSplitter::CopyOriginalImageTo(IMAGE* page_image,
-                                             Pix** pix_binary) const {
-  ASSERT_HOST(orig_pix_);
-  if (pix_binary) {
-    pixDestroy(pix_binary);
-    *pix_binary = pixClone(orig_pix_);
-  }
-  if (page_image) {
-    page_image->FromPix(orig_pix_);
-  }
-}
-
 // Method to perform a close operation on the input image. The xheight
 // estimate decides the size of sel used.
 void ShiroRekhaSplitter::PerformClose(Pix* pix, int xheight_estimate) {
@@ -395,7 +365,8 @@ void ShiroRekhaSplitter::RefreshSegmentationWithNewBlobs(
   C_BLOB_LIST not_found_blobs;
   RefreshWordBlobsFromNewBlobs(segmentation_block_list_,
                                new_blobs,
-                               &not_found_blobs);
+                               ((devanagari_split_debugimage && debug_image_) ?
+                                &not_found_blobs : NULL));
 
   if (devanagari_split_debuglevel > 0) {
     tprintf("After refreshing blobs:\n");
@@ -525,4 +496,4 @@ void PixelHistogram::ConstructHorizontalCountHist(Pix* pix) {
   numaDestroy(&counts);
 }
 
-}
+}  // namespace tesseract.

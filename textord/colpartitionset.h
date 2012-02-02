@@ -66,13 +66,8 @@ class ColPartitionSet : public ELIST_LINK {
   // Return the bounding boxes of columns at the given y-range
   void GetColumnBoxes(int y_bottom, int y_top, ColSegment_LIST *segments);
 
-  // Move the parts to the output list, giving up ownership.
-  void ReturnParts(ColPartition_LIST* parts);
-
-  // Merge any significantly overlapping partitions within the this and other,
-  // and unique the boxes so that no two partitions use the same box.
-  // Return true if any changes were made to either set.
-  bool MergeOverlaps(ColPartitionSet* other, WidthCallback* cb);
+  // Extract all the parts from the list, relinquishing ownership.
+  void RelinquishParts();
 
   // Attempt to improve this by adding partitions or expanding partitions.
   void ImproveColumnCandidate(WidthCallback* cb, PartSetVector* src_sets);
@@ -133,15 +128,37 @@ class ColPartitionSet : public ELIST_LINK {
   // Add the given partition to the list in the appropriate place.
   void AddPartition(ColPartition* new_part, ColPartition_IT* it);
 
-  // Compute the coverage and good column count.
+  // Compute the coverage and good column count. Coverage is the amount of the
+  // width of the page (in pixels) that is covered by ColPartitions, which are
+  // used to provide candidate column layouts.
+  // Coverage is split into good and bad. Good coverage is provided by
+  // ColPartitions of a frequent width (according to the callback function
+  // provided by TabFinder::WidthCB, which accesses stored statistics on the
+  // widths of ColParititions) and bad coverage is provided by all other
+  // ColPartitions, even if they have tab vectors at both sides. Thus:
+  // |-----------------------------------------------------------------|
+  // |        Double     width    heading                              |
+  // |-----------------------------------------------------------------|
+  // |-------------------------------| |-------------------------------|
+  // |   Common width ColParition    | |  Common width ColPartition    |
+  // |-------------------------------| |-------------------------------|
+  // the layout with two common-width columns has better coverage than the
+  // double width heading, because the coverage is "good," even though less in
+  // total coverage than the heading, because the heading coverage is "bad."
   void ComputeCoverage();
+
+  // Adds the coverage, column count and box for a single partition,
+  // without adding it to the list. (Helper factored from ComputeCoverage.)
+  void AddPartitionCoverageAndBox(const ColPartition& part);
 
   // The partitions in this column candidate.
   ColPartition_LIST parts_;
   // The number of partitions that have a frequent column width.
   int good_column_count_;
-  // Total width of all the ColPartitions.
-  int total_coverage_;
+  // Total width of all the good ColPartitions.
+  int good_coverage_;
+  // Total width of all the bad ColPartitions.
+  int bad_coverage_;
   // Bounding box of all partitions in the set.
   TBOX bounding_box_;
 };

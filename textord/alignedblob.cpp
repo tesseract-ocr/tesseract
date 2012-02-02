@@ -39,11 +39,11 @@ namespace tesseract {
 // Fraction of resolution used as alignment tolerance for aligned tabs.
 const double kAlignedFraction = 0.03125;
 // Fraction of resolution used as alignment tolerance for ragged tabs.
-const double kRaggedFraction = 0.5;
+const double kRaggedFraction = 2.5;
 // Fraction of height used as a minimum gutter gap for aligned blobs.
 const double kAlignedGapFraction = 0.75;
 // Fraction of height used as a minimum gutter gap for ragged tabs.
-const double kRaggedGapFraction = 3.0;
+const double kRaggedGapFraction = 1.0;
 // Constant number of pixels used as alignment tolerance for line finding.
 const int kVLineAlignment = 3;
 // Constant number of pixels used as gutter gap tolerance for line finding.
@@ -163,7 +163,7 @@ void AlignedBlobParams::set_vertical(int vertical_x, int vertical_y) {
 
 AlignedBlob::AlignedBlob(int gridsize,
                          const ICOORD& bleft, const ICOORD& tright)
-  : BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>(gridsize, bleft, tright) {
+  : BlobGrid(gridsize, bleft, tright) {
 }
 
 AlignedBlob::~AlignedBlob() {
@@ -196,24 +196,24 @@ ScrollView* AlignedBlob::DisplayTabs(const char* window_name,
     int bottom_y = box.bottom();
     TabType tabtype = bbox->left_tab_type();
     if (tabtype != TT_NONE) {
-      if (tabtype == TT_UNCONFIRMED)
+      if (tabtype == TT_MAYBE_ALIGNED)
         tab_win->Pen(ScrollView::BLUE);
+      else if (tabtype == TT_MAYBE_RAGGED)
+        tab_win->Pen(ScrollView::YELLOW);
       else if (tabtype == TT_CONFIRMED)
         tab_win->Pen(ScrollView::GREEN);
-      else if (tabtype == TT_FAKE)
-        tab_win->Pen(ScrollView::YELLOW);
       else
         tab_win->Pen(ScrollView::GREY);
       tab_win->Line(left_x, top_y, left_x, bottom_y);
     }
     tabtype = bbox->right_tab_type();
     if (tabtype != TT_NONE) {
-      if (tabtype == TT_UNCONFIRMED)
+      if (tabtype == TT_MAYBE_ALIGNED)
         tab_win->Pen(ScrollView::MAGENTA);
+      else if (tabtype == TT_MAYBE_RAGGED)
+        tab_win->Pen(ScrollView::ORANGE);
       else if (tabtype == TT_CONFIRMED)
         tab_win->Pen(ScrollView::RED);
-      else if (tabtype == TT_FAKE)
-        tab_win->Pen(ScrollView::ORANGE);
       else
         tab_win->Pen(ScrollView::GREY);
       tab_win->Line(right_x, top_y, right_x, bottom_y);
@@ -222,6 +222,17 @@ ScrollView* AlignedBlob::DisplayTabs(const char* window_name,
   tab_win->Update();
 #endif
   return tab_win;
+}
+
+// Helper returns true if the total number of line_crossings of all the blobs
+// in the list is at least 2.
+static bool AtLeast2LineCrossings(BLOBNBOX_CLIST* blobs) {
+  BLOBNBOX_C_IT it(blobs);
+  int total_crossings = 0;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    total_crossings += it.data()->line_crossings();
+  }
+  return total_crossings >= 2;
 }
 
 // Finds a vector corresponding to a set of vertically aligned blob edges
@@ -237,11 +248,13 @@ TabVector* AlignedBlob::FindVerticalAlignment(AlignedBlobParams align_params,
   int ext_start_y, ext_end_y;
   BLOBNBOX_CLIST good_points;
   // Search up and then down from the starting bbox.
+  TBOX box = bbox->bounding_box();
+  bool debug = WithinTestRegion(2, box.left(), box.bottom());
   int pt_count = AlignTabs(align_params, false, bbox, &good_points, &ext_end_y);
   pt_count += AlignTabs(align_params, true, bbox, &good_points, &ext_start_y);
   BLOBNBOX_C_IT it(&good_points);
   it.move_to_last();
-  TBOX box = it.data()->bounding_box();
+  box = it.data()->bounding_box();
   int end_y = box.top();
   int end_x = align_params.right_tab ? box.right() : box.left();
   it.move_to_first();
@@ -251,9 +264,14 @@ TabVector* AlignedBlob::FindVerticalAlignment(AlignedBlobParams align_params,
   // Acceptable tab vectors must have a mininum number of points,
   // have a minimum acceptable length, and have a minimum gradient.
   // The gradient corresponds to the skew angle.
-  if (pt_count >= align_params.min_points &&
+  // Ragged tabs don't need to satisfy the gradient condition, as they
+  // will always end up parallel to the vertical direction.
+  bool at_least_2_crossings = AtLeast2LineCrossings(&good_points);
+  if ((pt_count >= align_params.min_points &&
       end_y - start_y >= align_params.min_length &&
-      end_y - start_y >= abs(end_x - start_x) * kMinTabGradient) {
+      (align_params.ragged ||
+          end_y - start_y >= abs(end_x - start_x) * kMinTabGradient)) ||
+      at_least_2_crossings) {
     int confirmed_points = 0;
     // Count existing confirmed points to see if vector is acceptable.
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -270,7 +288,7 @@ TabVector* AlignedBlob::FindVerticalAlignment(AlignedBlobParams align_params,
     if (!align_params.ragged ||
         confirmed_points + confirmed_points < pt_count) {
       const TBOX& box = bbox->bounding_box();
-      if (WithinTestRegion(2, box.left(), box.bottom())) {
+      if (debug) {
         tprintf("Confirming tab vector of %d pts starting at %d,%d\n",
                 pt_count, box.left(), box.bottom());
       }
@@ -282,6 +300,9 @@ TabVector* AlignedBlob::FindVerticalAlignment(AlignedBlobParams align_params,
         } else {
           bbox->set_left_tab_type(align_params.confirmed_type);
         }
+        if (debug) {
+          bbox->bounding_box().print();
+        }
       }
       // Now make the vector and return it.
       TabVector* result = TabVector::FitVector(align_params.alignment,
@@ -289,12 +310,21 @@ TabVector* AlignedBlob::FindVerticalAlignment(AlignedBlobParams align_params,
                                                ext_start_y, ext_end_y,
                                                &good_points,
                                                vertical_x, vertical_y);
-      if (WithinTestRegion(2, box.left(), box.bottom())) {
+      result->set_intersects_other_lines(at_least_2_crossings);
+      if (debug) {
         tprintf("Box was %d, %d\n", box.left(), box.bottom());
         result->Print("After fitting");
       }
       return result;
+    } else if (debug) {
+      tprintf("Ragged tab used too many used points: %d out of %d\n",
+              confirmed_points, pt_count);
     }
+  } else if (debug) {
+    tprintf("Tab vector failed basic tests: pt count %d vs min %d, "
+            "length %d vs min %d, min grad %g\n",
+            pt_count, align_params.min_points, end_y - start_y,
+            align_params.min_length, abs(end_x - start_x) * kMinTabGradient);
   }
   return NULL;
 }
@@ -310,13 +340,18 @@ int AlignedBlob::AlignTabs(const AlignedBlobParams& params,
   BLOBNBOX_C_IT it(good_points);
 
   TBOX box = bbox->bounding_box();
+  bool debug = WithinTestRegion(2, box.left(), box.bottom());
+  if (debug) {
+    tprintf("Starting alignment run at blob:");
+    box.print();
+  }
   int x_start = params.right_tab ? box.right() : box.left();
   while (bbox != NULL) {
     // Add the blob to the list if the appropriate side is a tab candidate,
     // or if we are working on a ragged tab.
-    if (((params.right_tab && bbox->right_tab_type() != TT_NONE) ||
-         (!params.right_tab && bbox->left_tab_type() != TT_NONE) ||
-         params.ragged) &&
+    TabType type = params.right_tab ? bbox->right_tab_type()
+                                    : bbox->left_tab_type();
+    if (((type != TT_NONE && type != TT_MAYBE_RAGGED) || params.ragged) &&
         (it.empty() || it.data() != bbox)) {
       if (top_to_bottom)
         it.add_before_then_move(bbox);
@@ -334,6 +369,10 @@ int AlignedBlob::AlignTabs(const AlignedBlobParams& params,
       if (!params.ragged)
         x_start = params.right_tab ? box.right() : box.left();
     }
+  }
+  if (debug) {
+    tprintf("Alignment run ended with %d pts at blob:", ptcount);
+    box.print();
   }
   return ptcount;
 }
@@ -417,15 +456,12 @@ BLOBNBOX* AlignedBlob::FindAlignedBlob(const AlignedBlobParams& p,
     // waiting for a sequence of blobs in a line to end.
     // NextVerticalSearch alone does not guarantee this, as there may be
     // more than one blob in a grid cell. See comment in AlignTabs.
-    if ((n_y < start_y) != top_to_bottom || n_y == start_y)
+    if ((n_y < start_y) != top_to_bottom || nbox.y_overlap(box))
       continue;  // Only look in the required direction.
-    if (result != NULL &&
-        ((top_to_bottom && n_y < result->bounding_box().bottom()) ||
-         (!top_to_bottom && n_y > result->bounding_box().top())))
+    if (result != NULL && result->bounding_box().y_gap(nbox) > gridsize())
       return result;  // This result is clear.
-    if (backup_result != NULL && p.ragged &&
-        ((top_to_bottom && n_y < backup_result->bounding_box().bottom()) ||
-         (!top_to_bottom && n_y > backup_result->bounding_box().top())))
+    if (backup_result != NULL && p.ragged && result == NULL &&
+        backup_result->bounding_box().y_gap(nbox) > gridsize())
       return backup_result;  // This result is clear.
 
     // If the neighbouring blob is the wrong side of a separator line, then it
@@ -446,7 +482,7 @@ BLOBNBOX* AlignedBlob::FindAlignedBlob(const AlignedBlobParams& p,
         n_right > x_at_n_y + p.r_align_tolerance &&
         (p.ragged || n_left < x_at_n_y + p.gutter_fraction * nbox.height())) {
       // In the gutter so end of line.
-      if (bbox->right_tab_type() >= TT_UNCONFIRMED)
+      if (bbox->right_tab_type() >= TT_MAYBE_ALIGNED)
         bbox->set_right_tab_type(TT_DELETED);
       *end_y = top_to_bottom ? nbox.top() : nbox.bottom();
       if (WithinTestRegion(2, x_start, start_y))
@@ -458,7 +494,7 @@ BLOBNBOX* AlignedBlob::FindAlignedBlob(const AlignedBlobParams& p,
         n_right > x_at_n_y - p.min_gutter &&
         (p.ragged || n_right > x_at_n_y - p.gutter_fraction * nbox.height())) {
       // In the gutter so end of line.
-      if (bbox->left_tab_type() >= TT_UNCONFIRMED)
+      if (bbox->left_tab_type() >= TT_MAYBE_ALIGNED)
         bbox->set_left_tab_type(TT_DELETED);
       *end_y = top_to_bottom ? nbox.top() : nbox.bottom();
       if (WithinTestRegion(2, x_start, start_y))
@@ -476,15 +512,23 @@ BLOBNBOX* AlignedBlob::FindAlignedBlob(const AlignedBlobParams& p,
         tprintf("aligned, seeking%d, l=%d, r=%d\n",
                 p.right_tab, neighbour->left_tab_type(),
                 neighbour->right_tab_type());
-      if ((p.right_tab && neighbour->right_tab_type() != TT_NONE) ||
-          (!p.right_tab && neighbour->left_tab_type() != TT_NONE)) {
+      TabType n_type = p.right_tab ? neighbour->right_tab_type()
+                                   : neighbour->left_tab_type();
+      if (n_type != TT_NONE && (p.ragged || n_type != TT_MAYBE_RAGGED)) {
         if (result == NULL) {
           result = neighbour;
         } else {
-          // Keep the closest neighbour.
-          int old_y = (result->bounding_box().top() +
-                       result->bounding_box().bottom()) / 2;
-          if (abs(n_y - start_y) < abs(old_y - start_y))
+          // Keep the closest neighbour by Euclidean distance.
+          // This prevents it from picking a tab blob in another column.
+          const TBOX& old_box = result->bounding_box();
+          int x_diff = p.right_tab ? old_box.right() : old_box.left();
+          x_diff -= x_at_n_y;
+          int y_diff = (old_box.top() + old_box.bottom()) / 2 - start_y;
+          int old_dist = x_diff * x_diff + y_diff * y_diff;
+          x_diff = n_x - x_at_n_y;
+          y_diff = n_y - start_y;
+          int new_dist = x_diff * x_diff + y_diff * y_diff;
+          if (new_dist < old_dist)
             result = neighbour;
         }
       } else if (backup_result == NULL) {

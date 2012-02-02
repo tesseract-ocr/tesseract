@@ -26,6 +26,7 @@
 #include "colfind.h"
 #include "colpartitionset.h"
 #include "detlinefit.h"
+#include "statistc.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -52,7 +53,7 @@ const double kLineCountReciprocal = 4.0;
 // Constant add-on for minimum gutter for aligned tabs.
 const double kMinAlignedGutter = 0.25;
 // Constant add-on for minimum gutter for ragged tabs.
-const double kMinRaggedGutter = 2.0;
+const double kMinRaggedGutter = 1.5;
 
 double_VAR(textord_tabvector_vertical_gap_fraction, 0.5,
   "max fraction of mean blob width allowed for vertical gaps in vertical text");
@@ -205,7 +206,8 @@ TabVector::TabVector(const TabVector& src, TabAlignment alignment,
                      const ICOORD& vertical_skew, BLOBNBOX* blob)
   : extended_ymin_(src.extended_ymin_), extended_ymax_(src.extended_ymax_),
     sort_key_(0), percent_score_(0), mean_width_(0),
-    needs_refit_(true), needs_evaluation_(true), alignment_(alignment),
+    needs_refit_(true), needs_evaluation_(true), intersects_other_lines_(false),
+    alignment_(alignment),
     top_constraints_(NULL), bottom_constraints_(NULL) {
   BLOBNBOX_C_IT it(&boxes_);
   it.add_to_end(blob);
@@ -236,6 +238,7 @@ TabVector* TabVector::ShallowCopy() const {
   copy->alignment_ = alignment_;
   copy->extended_ymax_ = extended_ymax_;
   copy->extended_ymin_ = extended_ymin_;
+  copy->intersects_other_lines_ = intersects_other_lines_;
   return copy;
 }
 
@@ -373,6 +376,9 @@ void TabVector::MergeSimilarTabVectors(const ICOORD& vertical,
           v1->Print("by deleting");
         }
         v2->MergeWith(vertical, it1.extract());
+        if (textord_debug_tabfind) {
+          v2->Print("Producing");
+        }
         ICOORD merged_vector = v2->endpt();
         merged_vector -= v2->startpt();
         if (abs(merged_vector.x()) > 100) {
@@ -604,13 +610,19 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
     ++height_count;
   }
   mean_height /= height_count;
+  int max_gutter = kGutterMultiple * mean_height;
+  if (IsRagged()) {
+    // Ragged edges face a tougher test in that the gap must always be within
+    // the height of the blob.
+    max_gutter = kGutterToNeighbourRatio * mean_height;
+  }
 
+  STATS gutters(0, max_gutter + 1);
   // Evaluate the boxes for their goodness, calculating the coverage as we go.
   // Remove boxes that are not good and shorten the list to the first and
   // last good boxes.
-  bool deleted_a_box = false;
-  int mean_gutter = 0;
-  int gutter_count = 0;
+  int num_deleted_boxes = 0;
+  bool text_on_image = false;
   int good_length = 0;
   const TBOX* prev_good_box = NULL;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -618,8 +630,10 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
     const TBOX& box = bbox->bounding_box();
     int mid_y = (box.top() + box.bottom()) / 2;
     if (TabFind::WithinTestRegion(2, XAtY(box.bottom()), box.bottom())) {
-      if (!debug)
+      if (!debug) {
+        tprintf("After already deleting %d boxes, ", num_deleted_boxes);
         Print("Starting evaluation");
+      }
       debug = true;
     }
     // A good box is one where the nearest neighbour on the inside is closer
@@ -627,17 +641,11 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
     // (of the putative column).
     bool left = IsLeftTab();
     int tab_x = XAtY(mid_y);
-    int max_gutter = kGutterMultiple * mean_height;
-    if (IsRagged()) {
-      // Ragged edges face a tougher test in that the gap must always be within
-      // the height of the blob.
-      max_gutter = kGutterToNeighbourRatio * mean_height;
-    }
     int gutter_width;
     int neighbour_gap;
     finder->GutterWidthAndNeighbourGap(tab_x, mean_height, max_gutter, left,
                                        bbox, &gutter_width, &neighbour_gap);
-    if (TabFind::WithinTestRegion(2, tab_x, mid_y)) {
+    if (debug) {
       tprintf("Box (%d,%d)->(%d,%d) has gutter %d, ndist %d\n",
               box.left(), box.bottom(), box.right(), box.top(),
               gutter_width, neighbour_gap);
@@ -646,8 +654,7 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
     if (neighbour_gap * kGutterToNeighbourRatio <= gutter_width) {
       // A good box contributes its height to the good_length.
       good_length += box.top() - box.bottom();
-      mean_gutter += gutter_width;
-      ++gutter_count;
+      gutters.add(gutter_width, 1);
       // Two good boxes together contribute the gap between them
       // to the good_length as well, as long as the gap is not
       // too big.
@@ -667,6 +674,8 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
         SetYStart(box.bottom());
       }
       prev_good_box = &box;
+      if (bbox->flow() == BTFT_TEXT_ON_IMAGE)
+        text_on_image = true;
     } else {
       // Get rid of boxes that are not good.
       if (debug) {
@@ -675,7 +684,7 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
                 gutter_width, neighbour_gap);
       }
       it.extract();
-      deleted_a_box = true;
+      ++num_deleted_boxes;
     }
   }
   if (debug) {
@@ -684,8 +693,10 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
   // If there are any good boxes, do it again, except this time get rid of
   // boxes that have a gutter that is a small fraction of the mean gutter.
   // This filters out ends that run into a coincidental gap in the text.
-  if (gutter_count > 0) {
-    mean_gutter /= gutter_count;
+  int search_top = endpt_.y();
+  int search_bottom = startpt_.y();
+  int median_gutter = IntCastRounded(gutters.median());
+  if (gutters.get_total() > 0) {
     prev_good_box = NULL;
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       BLOBNBOX* bbox = it.data();
@@ -706,21 +717,23 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
       finder->GutterWidthAndNeighbourGap(tab_x, mean_height, max_gutter, left,
                                          bbox, &gutter_width, &neighbour_gap);
       // Now we can make the test.
-      if (gutter_width >= mean_gutter * kMinGutterFraction) {
+      if (gutter_width >= median_gutter * kMinGutterFraction) {
         if (prev_good_box == NULL) {
           // Adjust the start to the first good box.
           SetYStart(box.bottom());
+          search_bottom = box.top();
         }
         prev_good_box = &box;
+        search_top = box.bottom();
       } else {
         // Get rid of boxes that are not good.
-        if (TabFind::WithinTestRegion(2, tab_x, mid_y)) {
+        if (debug) {
           tprintf("Bad Box (%d,%d)->(%d,%d) with gutter %d, mean gutter %d\n",
                   box.left(), box.bottom(), box.right(), box.top(),
-                  gutter_width, mean_gutter);
+                  gutter_width, median_gutter);
         }
         it.extract();
-        deleted_a_box = true;
+        ++num_deleted_boxes = true;
       }
     }
   }
@@ -730,7 +743,7 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
     // Compute the percentage of the vector that is occupied by good boxes.
     int length = endpt_.y() - startpt_.y();
     percent_score_ = 100 * good_length / length;
-    if (deleted_a_box) {
+    if (num_deleted_boxes > 0) {
       needs_refit_ = true;
       FitAndEvaluateIfNeeded(vertical, finder);
       if (boxes_.empty())
@@ -738,11 +751,19 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
     }
     // Test the gutter over the whole vector, instead of just at the boxes.
     int required_shift;
-    int gutter_width = finder->GutterWidth(startpt_.y(), endpt_.y(), *this,
-                                           &required_shift);
+    if (search_bottom > search_top) {
+      search_bottom = startpt_.y();
+      search_top = endpt_.y();
+    }
     double min_gutter_width = kLineCountReciprocal / boxes_.length();
     min_gutter_width += IsRagged() ? kMinRaggedGutter : kMinAlignedGutter;
     min_gutter_width *= mean_height;
+    int max_gutter_width = IntCastRounded(min_gutter_width) + 1;
+    if (median_gutter > max_gutter_width)
+      max_gutter_width = median_gutter;
+    int gutter_width = finder->GutterWidth(search_bottom, search_top, *this,
+                                           text_on_image, max_gutter_width,
+                                           &required_shift);
     if (gutter_width < min_gutter_width) {
       if (debug) {
         tprintf("Rejecting bad tab Vector with %d gutter vs %g min\n",

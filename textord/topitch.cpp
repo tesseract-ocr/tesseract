@@ -112,9 +112,11 @@ void compute_fixed_pitch(ICOORD page_tr,              // top right
   }
 
   block_index = 1;
-  for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-  block_it.forward ()) {
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list();
+       block_it.forward()) {
     block = block_it.data ();
+    POLY_BLOCK* pb = block->block->poly_block();
+    if (pb != NULL && !pb->IsText()) continue;  // Non-text doesn't exist!
     row_it.set_to_list (block->get_rows ());
     row_index = 1;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
@@ -166,9 +168,11 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
     block_stats.set_range (0, maxwidth);
     like_stats.set_range (0, maxwidth);
     block_index = 1;
-    for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-    block_it.forward ()) {
-      block = block_it.data ();
+    for (block_it.mark_cycle_pt(); !block_it.cycled_list();
+         block_it.forward()) {
+      block = block_it.data();
+      POLY_BLOCK* pb = block->block->poly_block();
+      if (pb != NULL && !pb->IsText()) continue;  // Non text doesn't exist!
       row_index = 1;
       row_it.set_to_list (block->get_rows ());
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
@@ -568,7 +572,8 @@ BOOL8 try_rows_fixed(                    //find line stats
     row = row_it.data ();
     ASSERT_HOST (row->xheight > 0);
     maxwidth = (inT32) ceil (row->xheight * textord_words_maxspace);
-    if (row->fixed_pitch > 0 && fixed_pitch_row (row, block_index)) {
+    if (row->fixed_pitch > 0 &&
+        fixed_pitch_row(row, block->block, block_index)) {
       if (row->fixed_pitch == 0) {
         lower = row->pr_nonsp;
         upper = row->pr_space;
@@ -971,9 +976,9 @@ BOOL8 find_row_pitch(                    //find lines
  * The larger threshold is the word gap threshold.
  **********************************************************************/
 
-BOOL8 fixed_pitch_row(                   //find lines
-                      TO_ROW *row,       //row to do
-                      inT32 block_index  //block_number
+BOOL8 fixed_pitch_row(TO_ROW *row,       // row to do
+                      BLOCK* block,
+                      inT32 block_index  // block_number
                      ) {
   const char *res_string;        //pitch result
   inT16 mid_cuts;                //no of cheap cuts
@@ -984,7 +989,8 @@ BOOL8 fixed_pitch_row(                   //find lines
   non_space = row->fp_nonsp;
   if (non_space > row->fixed_pitch)
     non_space = row->fixed_pitch;
-  if (textord_all_prop) {
+  POLY_BLOCK* pb = block != NULL ? block->poly_block() : NULL;
+  if (textord_all_prop || (pb != NULL && !pb->IsText())) {
     // Set the decision to definitely proportional.
     pitch_sd = textord_words_def_prop * row->fixed_pitch;
     row->pitch_decision = PITCH_DEF_PROP;
@@ -1755,6 +1761,10 @@ void print_pitch_sd(                        //find fp cells
  **********************************************************************/
 void find_repeated_chars(TO_BLOCK *block,       // Block to search.
                          BOOL8 testing_on) {    // Debug mode.
+  POLY_BLOCK* pb = block->block->poly_block();
+  if (pb != NULL && !pb->IsText())
+    return;  // Don't find repeated chars in non-text blocks.
+
   TO_ROW *row;
   BLOBNBOX_IT box_it;
   BLOBNBOX_IT search_it;         // forward search

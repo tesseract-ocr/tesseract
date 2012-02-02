@@ -45,6 +45,7 @@ namespace tesseract {
 typedef TessResultCallback1<bool, int> WidthCallback;
 
 struct AlignedBlobParams;
+class ColPartitionGrid;
 
 /** Pixel resolution of column width estimates. */
 const int kColumnWidthFactor = 20;
@@ -67,30 +68,40 @@ class TabFind : public AlignedBlob {
 
   /**
    * Insert a list of blobs into the given grid (not necessarily this).
-   * If take_ownership is true, then the blobs are removed from the source list.
    * See InsertBlob for the other arguments.
+   * It would seem to make more sense to swap this and grid, but this way
+   * around allows grid to not be derived from TabFind, eg a ColPartitionGrid,
+   * while the grid that provides the tab stops(this) has to be derived from
+   * TabFind.
    */
-  void InsertBlobList(bool h_spread, bool v_spread, bool large,
-                      BLOBNBOX_LIST* blobs, bool take_ownership,
-                      BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>* grid);
+  void InsertBlobsToGrid(bool h_spread, bool v_spread,
+                         BLOBNBOX_LIST* blobs,
+                         BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>* grid);
 
   /**
    * Insert a single blob into the given grid (not necessarily this).
    * If h_spread, then all cells covered horizontally by the box are
    * used, otherwise, just the bottom-left. Similarly for v_spread.
-   * If large, then insert only if the bounding box doesn't intersect
-   * anything else already in the grid. Returns true if the blob was inserted.
    * A side effect is that the left and right rule edges of the blob are
    * set according to the tab vectors in this (not grid).
    */
-  bool InsertBlob(bool h_spread, bool v_spread, bool large, BLOBNBOX* blob,
+  bool InsertBlob(bool h_spread, bool v_spread, BLOBNBOX* blob,
                   BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>* grid);
-
+  // Calls SetBlobRuleEdges for all the blobs in the given block.
+  void SetBlockRuleEdges(TO_BLOCK* block);
+  // Sets the left and right rule and crossing_rules for the blobs in the given
+  // list by finding the next outermost tabvectors for each blob.
+  void SetBlobRuleEdges(BLOBNBOX_LIST* blobs);
 
   // Returns the gutter width of the given TabVector between the given y limits.
   // Also returns x-shift to be added to the vector to clear any intersecting
   // blobs. The shift is deducted from the returned gutter.
+  // If ignore_unmergeables is true, then blobs of UnMergeableType are
+  // ignored as if they don't exist. (Used for text on image.)
+  // max_gutter_width is used as the maximum width worth searching for in case
+  // there is nothing near the TabVector.
   int GutterWidth(int bottom_y, int top_y, const TabVector& v,
+                  bool ignore_unmergeables, int max_gutter_width,
                   int* required_shift);
   /**
    * Find the gutter width and distance to inner neighbour for the given blob.
@@ -99,20 +110,6 @@ class TabFind : public AlignedBlob {
                                   int max_gutter, bool left,
                                   BLOBNBOX* bbox, int* gutter_width,
                                   int* neighbour_gap);
-
-  /**
-   * Find the next adjacent (to left or right) blob on this text line,
-   * with the constraint that it must vertically significantly overlap
-   * the input box.
-   */
-  BLOBNBOX* AdjacentBlob(const BLOBNBOX* bbox,
-                         bool right_to_left, int gap_limit);
-
-  /**
-   * Compute and return, but do not set the type as being BRT_TEXT or
-   * BRT_UNKNOWN according to how well it forms a text line.
-   */
-  BlobRegionType ComputeBlobType(BLOBNBOX* blob);
 
   /**
    * Return the x-coord that corresponds to the right edge for the given
@@ -192,16 +189,24 @@ class TabFind : public AlignedBlob {
   /**
    * Top-level function to find TabVectors in an input page block.
    * Returns false if the detected skew angle is impossible.
+   * Applies the detected skew angle to deskew the tabs, blobs and part_grid.
    */
   bool FindTabVectors(TabVector_LIST* hlines,
                       BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
                       int min_gutter_width,
+                      ColPartitionGrid* part_grid,
                       FCOORD* deskew, FCOORD* reskew);
 
   // Top-level function to not find TabVectors in an input page block,
   // but setup for single column mode.
   void DontFindTabVectors(BLOBNBOX_LIST* image_blobs,
                           TO_BLOCK* block, FCOORD* deskew, FCOORD* reskew);
+
+  // Cleans up the lists of blobs in the block ready for use by TabFind.
+  // Large blobs that look like text are moved to the main blobs list.
+  // Main blobs that are superseded by the image blobs are deleted.
+  void TidyBlobs(TO_BLOCK* block);
+
   // Helper function to setup search limits for *TabForBox.
   void SetupTabSearch(int x, int y, int* min_key, int* max_key);
 
@@ -229,14 +234,32 @@ class TabFind : public AlignedBlob {
                             TabVector_LIST* horizontal_lines,
                             int* min_gutter_width);
 
+  // Clear the grid and get rid of the tab vectors, but not separators,
+  // ready to start again.
+  void Reset();
+
+  // Reflect the separator tab vectors and the grids in the y-axis.
+  // Can only be called after Reset!
+  void ReflectInYAxis();
+
  private:
   // For each box in the grid, decide whether it is a candidate tab-stop,
-  // and if so add it to the tab_grid_.
+  // and if so add it to the left and right tab boxes.
   ScrollView* FindTabBoxes(int min_gutter_width);
 
   // Return true if this box looks like a candidate tab stop, and set
   // the appropriate tab type(s) to TT_UNCONFIRMED.
   bool TestBoxForTabs(BLOBNBOX* bbox, int min_gutter_width);
+
+  // Returns true if there is nothing in the rectangle of width min_gutter to
+  // the left of bbox.
+  bool ConfirmRaggedLeft(BLOBNBOX* bbox, int min_gutter);
+  // Returns true if there is nothing in the rectangle of width min_gutter to
+  // the right of bbox.
+  bool ConfirmRaggedRight(BLOBNBOX* bbox, int min_gutter);
+  // Returns true if there is nothing in the given search_box that vertically
+  // overlaps target_box other than target_box itself.
+  bool NothingYOverlapsInBox(const TBOX& search_box, const TBOX& target_box);
 
   // Fills the list of TabVector with the tabstops found in the grid,
   // and estimates the logical vertical direction.
@@ -272,13 +295,17 @@ class TabFind : public AlignedBlob {
   // Trace textlines from one side to the other of each tab vector, saving
   // the most frequent column widths found in a list so that a given width
   // can be tested for being a common width with a simple callback function.
-  void ComputeColumnWidths(ScrollView* tab_win);
+  void ComputeColumnWidths(ScrollView* tab_win,
+                           ColPartitionGrid* part_grid);
 
-  // Set the region_type_ member for all the blobs in the grid.
-  void ComputeBlobGoodness();
+  // Find column width and pair-up tab vectors with existing ColPartitions.
+  void ApplyPartitionsToColumnWidths(ColPartitionGrid* part_grid,
+                                     STATS* col_widths);
 
-  // Set the region_type_ member of the blob, if not already known.
-  void SetBlobRegionType(BLOBNBOX* blob);
+  // Helper makes the list of common column widths in column_widths_ from the
+  // input col_widths. Destroys the content of col_widths by repeatedly
+  // finding the mode and erasing the peak.
+  void MakeColumnWidths(int col_widths_size, STATS* col_widths);
 
   // Mark blobs as being in a vertical text line where that is the case.
   void MarkVerticalText();
@@ -288,48 +315,14 @@ class TabFind : public AlignedBlob {
   // points (< kMinLinesInColumn), then 0 is returned.
   int FindMedianGutterWidth(TabVector_LIST* tab_vectors);
 
-  // If this box looks like it is on a textline in the given direction,
-  // return the width of the textline-like group of blobs, and the number
-  // of blobs found.
-  // For more detail see FindTextlineSegment below.
-  int FindTextlineWidth(bool right_to_left, BLOBNBOX* bbox, int* blob_count);
-
-  // Search from the given tabstop bbox to the next opposite
-  // tabstop bbox on the same text line, which may be itself.
-  // Returns true if the search is successful, and sets
-  // start_pt, end_pt to the fitted baseline, width to the measured
-  // width of the text line (column width estimate.)
-  bool TraceTextline(BLOBNBOX* bbox, ICOORD* start_pt, ICOORD* end_pt,
-                     int* left_edge, int* right_edge);
-
-  // Search from the given bbox in the given direction until the next tab
-  // vector is found or a significant horizontal gap is found.
-  // Returns the width of the line if the search is successful, (defined
-  // as good coverage of the width and a good fitting baseline) and sets
-  // start_pt, end_pt to the fitted baseline, left_blob, right_blob to
-  // the ends of the line. Returns zero otherwise.
-  // Sets blob_count to the number of blobs found on the line.
-  // On input, either both left_vector and right_vector should be NULL,
-  // indicating a basic search, or both left_vector and right_vector should
-  // be not NULL and one of *left_vector and *right_vector should be not NULL,
-  // in which case the search is strictly between tab vectors and will return
-  // zero if a gap is found before the opposite tab vector is reached, or a
-  // conflicting tab vector is found.
-  // If ignore_images is true, then blobs with aligned_text() < 0 are treated
-  // as if they do not exist.
-  int FindTextlineSegment(bool right_to_lefts, bool ignore_images,
-                          BLOBNBOX* bbox, int* blob_count,
-                          ICOORD* start_pt, ICOORD* end_pt,
-                          TabVector** left_vector, TabVector** right_vector,
-                          BLOBNBOX** left_blob, BLOBNBOX** right_blob);
-
   // Find the next adjacent (to left or right) blob on this text line,
   // with the constraint that it must vertically significantly overlap
   // the [top_y, bottom_y] range.
   // If ignore_images is true, then blobs with aligned_text() < 0 are treated
   // as if they do not exist.
   BLOBNBOX* AdjacentBlob(const BLOBNBOX* bbox,
-                         bool right_to_left, bool ignore_images,
+                         bool look_left, bool ignore_images,
+                         double min_overlap_fraction,
                          int gap_limit, int top_y, int bottom_y);
 
   // Add a bi-directional partner relationship between the left
@@ -373,8 +366,9 @@ class TabFind : public AlignedBlob {
   ICOORDELT_LIST column_widths_;  //< List of commonly occurring widths.
   /** Callback to test an int for being a common width. */
   WidthCallback* width_cb_;
-  /** Instance of the base class that contains only candidate tab stops. */
-  BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>* tab_grid_;
+  // Sets of bounding boxes that are candidate tab stops.
+  GenericVector<BLOBNBOX*> left_tab_boxes_;
+  GenericVector<BLOBNBOX*> right_tab_boxes_;
 };
 
 }  // namespace tesseract.

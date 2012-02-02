@@ -27,7 +27,7 @@
 namespace tesseract {
 
 Textord::Textord(CCStruct* ccstruct)
-    : ccstruct_(ccstruct),
+    : ccstruct_(ccstruct), use_cjk_fp_model_(false),
       // makerow.cpp ///////////////////////////////////////////
       BOOL_MEMBER(textord_single_height_mode, false,
                   "Script has no xheight, so use a single mode",
@@ -317,6 +317,13 @@ void Textord::TextordPage(PageSegMode pageseg_mode,
                      to_block->get_rows(), to_block->block->row_list());
   }
   cleanup_blocks(blocks);  // Remove empties.
+
+  // Compute the margins for each row in the block, to be used later for
+  // paragraph detection.
+  BLOCK_IT b_it(blocks);
+  for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
+    b_it.data()->compute_row_margins();
+  }
 #ifndef GRAPHICS_DISABLED
   close_to_win();
 #endif
