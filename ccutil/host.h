@@ -150,15 +150,6 @@ typedef unsigned char BOOL8;
 #define MIN_FLOAT32 ((float)1.17549435e-38)
 
 // Defines
-
-#ifndef OKAY
-#define OKAY            0
-#endif
-
-#ifndef HPERR
-#define HPERR           -1
-#endif
-
 #ifndef TRUE
 #define TRUE            1
 #endif

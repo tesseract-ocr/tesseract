@@ -23,10 +23,12 @@
 #include          "host.h"
 
 /*Control parameters for error()*/
-#define DBG         -1           /*log without alert */
-#define TESSLOG     0            /*alert user */
-#define TESSEXIT    1            /*exit after erro */
-#define ABORT       2            /*abort after error */
+enum TessErrorLogCode {
+  DBG =     -1,           /*log without alert */
+  TESSLOG =  0,            /*alert user */
+  TESSEXIT = 1,            /*exit after erro */
+  ABORT =    2            /*abort after error */
+};
 
 /* Explicit Error Abort codes */
 #define NO_ABORT_CODE      0
@@ -64,18 +66,17 @@
 #define SUBSUBLOC_TESS    1
 #define SUBSUBLOC_NN    2
 
-class DLLSYM ERRCODE             //error handler class
-{
-  const char *message;           //error message
-  public:
-    void error (                 //error print function
-      const char *caller,        //function location
-      inT8 action,               //action to take
-      const char *format, ...    //fprintf format
-      ) const;
-    ERRCODE(const char *string) {
-      message = string;
-    }                            //initialize with string
+class DLLSYM ERRCODE {           // error handler class
+  const char *message;           // error message
+ public:
+  void error(                  // error print function
+    const char *caller,        // function location
+    TessErrorLogCode action,   // action to take
+    const char *format, ...    // fprintf format
+  ) const;
+  ERRCODE(const char *string) {
+    message = string;
+  }                            // initialize with string
 };
 
 const ERRCODE ASSERT_FAILED = "Assert failed";

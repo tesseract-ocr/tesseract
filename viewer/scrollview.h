@@ -31,6 +31,8 @@
 
 #ifndef TESSERACT_VIEWER_SCROLLVIEW_H__
 #define TESSERACT_VIEWER_SCROLLVIEW_H__
+// TODO(rays) Move ScrollView into the tesseract namespace.
+#ifndef OCR_SCROLLVIEW_H__
 
 #include <stdio.h>
 
@@ -412,4 +414,5 @@ class ScrollView {
 #endif  // GRAPHICS_DISABLED
 };
 
+#endif  // OCR_SCROLLVIEW_H__
 #endif  // TESSERACT_VIEWER_SCROLLVIEW_H__

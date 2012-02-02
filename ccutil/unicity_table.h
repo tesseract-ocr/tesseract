@@ -85,7 +85,7 @@ class UnicityTable {
   /// The Callback given must be permanent since they will be called more than
   /// once. The given callback will be deleted at the end.
   /// Returns false on read/write error.
-  bool write(FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb);
+  bool write(FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const;
   /// swap is used to switch the endianness.
   bool read(FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb, bool swap);
 
@@ -187,8 +187,8 @@ void UnicityTable<T>::clear() {
 }
 
 template <typename T>
-bool UnicityTable<T>::write(FILE* f,
-                            TessResultCallback2<bool, FILE*, T const &>* cb) {
+bool UnicityTable<T>::write(
+    FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const {
   return table_.write(f, cb);
 }
 

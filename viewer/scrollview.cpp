@@ -52,7 +52,6 @@ const int kMaxIntPairSize = 45;  // Holds %d,%d, for upto 64 bit.
 
 #include "allheaders.h"
 
-
 struct SVPolyLineBuffer {
   bool empty;  // Independent indicator to allow SendMsg to call SendPolygon.
   std::vector<int> xcoords;

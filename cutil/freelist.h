@@ -40,6 +40,4 @@ int *memrealloc(void *ptr, int size, int oldsize);
 
 void memfree(void *element);
 
-void mem_tidy(int level);
-
 #endif

@@ -31,7 +31,7 @@
 #include          "tprintf.h"
 #include          "ccutil.h"
 
-#define MAX_MSG_LEN     1024
+#define MAX_MSG_LEN     65536
 
 #define EXTERN
 // Since tprintf is protected by a mutex, these parameters can rmain global.

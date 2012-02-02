@@ -105,10 +105,6 @@ class DLLSYM CLIST
       last = from_list->last;
     }
 
-                                 //ptr to copier functn
-    void internal_deep_copy (void *(*copier) (void *),
-      const CLIST * list);       //list being copied
-
     void assign_to_sublist(                           //to this list
                            CLIST_ITERATOR *start_it,  //from list start
                            CLIST_ITERATOR *end_it);   //from list end
@@ -897,10 +893,6 @@ public:																			\
 void						deep_clear()				/* delete elements */	\
 	{ CLIST::internal_deep_clear( &CLASSNAME##_c1_zapper ); }					\
 																				\
-void						deep_copy(					/* become a deep */		\
-	const CLASSNAME##_CLIST*list)						/* copy of src list*/	\
-	{ CLIST::internal_deep_copy( &CLASSNAME##_c1_copier, list ); }				\
-																				\
 void						operator=(					/* prevent assign */	\
 	const CLASSNAME##_CLIST&)													\
 	{ DONT_ASSIGN_LISTS.error( QUOTE_IT( CLASSNAME##_CLIST ),					\
@@ -979,27 +971,5 @@ void*						link)						/*link to delete*/		\
 {																				\
 delete (CLASSNAME *) link;														\
 }																				\
-																				\
-																				\
-																				\
-/***********************************************************************		\
-*							CLASSNAME##_c1_copier								\
-*																				\
-*  A function which can generate a new, deep copy of a CLASSNAME element.		\
-*  This is passed to the generic deep copy list member function so that when	\
-*  a list is copied the elements on the list are properly copied from the		\
-*  base class, even though we dont use a virtual function.						\
-*																				\
-**********************************************************************/			\
-																				\
-DLLSYM void*				CLASSNAME##_c1_copier(		/*deep copy a link*/	\
-void*						old_element)				/*source link*/			\
-{																				\
-	CLASSNAME*			new_element;										\
-																				\
-new_element = new CLASSNAME;													\
-*new_element = *((CLASSNAME*) old_element);									\
-return (void*) new_element;														\
-}
 
 #endif

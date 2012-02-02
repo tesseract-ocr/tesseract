@@ -1,29 +1,43 @@
+2012-02-01 - v3.02
+  * Moved ResultIterator/PageIterator to ccmain.
+  * Added Right-to-left/Bidi capability in the output iterators for Hebrew/Arabic.
+  * Added paragraph detection in layout analysis/post OCR.
+  * Fixed inconsistent xheight during training and over-chopping.
+  * Added simultaneous multi-language capability.
+  * Refactored top-level word recognition module.
+  * Added experimental equation detector.
+  * Improved handling of resolution from input images.
+  * Blamer module added for error analysis.
+  * Cleaned up externally used namespace by removing includes from baseapi.h.
+  * Removed dead memory mangagement code.
+  * Tidied up constraints on control parameters.
+  * Added support for ShapeTable in classifier and training.
+  * Refactored class pruner.
+  * Fixed training leaks and randomness.
+  * Major improvements to layout analysis for better image detection, diacritic detection, better textline finding, better tabstop finding.
+  * Improved line detection and removal.
+  * Added fixed pitch chopper for CJK.
+  * Added UNICHARSET to WERD_CHOICE to make mult-language handling easier.
+  * Fixed problems with internally scaled images.
+  * Added page and bbox to string in tr files to identify source of training data better.
+  * Fixes to Hindi Shiroreka splitter.
+  * Added word bigram correction.
+  * Reduced stack memory consumption and eliminated some ugly typedefs.
+  * Added new uniform classifier API.
+  * Added new training error counter.
+  * Fixed endian bug in dawg reader.
+  * Many other fixes, including the way in which the chopper finds chops and messes with the outline while it does so.
+
 2010-11-29 - V3.01
   * Removed old/dead serialise/deserialze methods on *LISTIZED classes.
   * Total rewrite of DENORM to better encapsulate operation and make
     for potential to extract features from images.
-  * Thread-safety! Moved all critical globals and statics to
-    members of the appropriate class. Tesseract is now
-    thread-safe (multiple instances can be used in parallel
-    in multiple threads.) with the minor exception that some
-    control parameters are still global and affect all threads.
-  * Added Cube, a new recognizer for Arabic. Cube can also be
-    used in combination with normal Tesseract for other languages
-    with an improvement in accuracy at the cost of (much) lower speed.
-    There is no training module for Cube yet.
-  * OcrEngineMode in Init replaces AccuracyVSpeed to control cube.
-  * Greatly improved segmentation search with consequent accuracy and
-    speed improvements, especially for Chinese.
-  * Added PageIterator and ResultIterator as cleaner ways to get the
-    full results out of Tesseract, that are not currently provided
-    by any of the TessBaseAPI::Get* methods.
-    All other methods, such as the ETEXT_STRUCT in particular are
-    deprecated and will be deleted in the future.
-  * ApplyBoxes totally rewritten to make training easier.
-    It can now cope with touching/overlapping training characters,
-    and a new boxfile format allows word boxes instead of character
-    boxes, BUT to use that you have to have already boostrapped the
-    language with character boxes. "Cyclic dependency" on traineddata.
+  * Thread-safety! Moved all critical globals and statics to members of the appropriate class. Tesseract is now thread-safe (multiple instances can be used in parallel in multiple threads.) with the minor exception that some control parameters are still global and affect all threads.
+  * Added Cube, a new recognizer for Arabic. Cube can also be used in combination with normal Tesseract for other languages with an improvement in accuracy at the cost of (much) lower speed. *There is no training module for Cube yet.*
+  * `OcrEngineMode` in `Init` replaces `AccuracyVSpeed` to control cube.
+  * Greatly improved segmentation search with consequent accuracy and speed improvements, especially for Chinese.
+  * Added `PageIterator` and `ResultIterator` as cleaner ways to get the full results out of Tesseract, that are not currently provided by any of the `TessBaseAPI::Get*` methods. All other methods, such as the `ETEXT_STRUCT` in particular are deprecated and will be deleted in the future.
+  * ApplyBoxes totally rewritten to make training easier. It can now cope with touching/overlapping training characters, and a new boxfile format allows word boxes instead of character boxes, BUT to use that you have to have already boostrapped the language with character boxes. "Cyclic dependency" on traineddata.
   * Auto orientation and script detection added to page layout analysis.
   * Deleted *lots* of dead code.
   * Fixxht module replaced with scalable data-driven module.
@@ -35,6 +49,11 @@
   * Handling of vertical text improved.
   * Handling of leader dots improved.
   * Table detection greatly improved.
+  * Fixed a couple of memory leaks.
+  * Fixed font labels on output text. (Not perfect, but a lot better than before.)
+  * Cleanup and more bug fixes
+  * Special treatments for Hindi.
+  * Support for build in VS2010 with Microsoft Windows SDK for Windows 7 (thanks to Michael Lutz)
 
 2010-09-21 - V3.00
   * Preparations for thread safety:

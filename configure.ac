@@ -7,7 +7,7 @@
 # ----------------------------------------
 
 AC_PREREQ(2.50)
-AC_INIT([tesseract], [3.01], [theraysmith@gmail.com])
+AC_INIT([tesseract], [3.02], [theraysmith@gmail.com])
 AC_CONFIG_MACRO_DIR([m4])
 AC_REVISION($Id: configure.ac,v 1.4 2007/02/02 22:38:17 theraysmith Exp $)
 AC_CONFIG_AUX_DIR(config)
@@ -18,8 +18,8 @@ AC_CANONICAL_HOST
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
-PACKAGE_YEAR=2011
-PACKAGE_DATE="10/16"
+PACKAGE_YEAR=2012
+PACKAGE_DATE="02/01"
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -35,7 +35,7 @@ GENERIC_LIBRARY_NAME=tesseract
 
 # Release versioning
 GENERIC_MAJOR_VERSION=3
-GENERIC_MINOR_VERSION=1
+GENERIC_MINOR_VERSION=2
 GENERIC_MICRO_VERSION=0
 
 # API version (often = GENERIC_MAJOR_VERSION.GENERIC_MINOR_VERSION)

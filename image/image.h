@@ -26,6 +26,9 @@ class CCUtil;
 class Image {
  public:
   Image(CCUtil* ccutil_ptr);
+  const CCUtil* getCCUtil() const {
+    return ccutil_ptr_;
+  }
   CCUtil* getCCUtil() {
     return ccutil_ptr_;
   }

@@ -40,7 +40,8 @@ tesseract::ParamsVectors *GlobalParams() {
 
 namespace tesseract {
 
-bool ParamUtils::ReadParamsFile(const char *file, bool init_only,
+bool ParamUtils::ReadParamsFile(const char *file,
+                                SetParamConstraint constraint,
                                 ParamsVectors *member_params) {
   char flag;                     // file flag
   inT16 nameoffset;              // offset for real name
@@ -63,11 +64,12 @@ bool ParamUtils::ReadParamsFile(const char *file, bool init_only,
     tprintf("read_params_file: Can't open %s\n", file + nameoffset);
     return true;
   }
-  return ReadParamsFromFp(fp, -1, init_only, member_params);
+  return ReadParamsFromFp(fp, -1, constraint, member_params);
   fclose(fp);
 }
 
-bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset, bool init_only,
+bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset,
+                                  SetParamConstraint constraint,
                                   ParamsVectors *member_params) {
   char line[MAX_PATH];           // input line
   bool anyerr = false;           // true if any error
@@ -89,7 +91,7 @@ bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset, bool init_only,
           valptr++;              // find end of blanks
         while (*valptr == ' ' || *valptr == '\t');
       }
-      foundit = SetParam(line, valptr, init_only, member_params);
+      foundit = SetParam(line, valptr, constraint, member_params);
 
       if (!foundit) {
         anyerr = true;         // had an error
@@ -102,24 +104,25 @@ bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset, bool init_only,
 }
 
 bool ParamUtils::SetParam(const char *name, const char* value,
-                          bool init_only, ParamsVectors *member_params) {
+                          SetParamConstraint constraint,
+                          ParamsVectors *member_params) {
   // Look for the parameter among string parameters.
   StringParam *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
                                            member_params->string_params);
-  if (sp != NULL && (!init_only || sp->is_init())) sp->set_value(value);
+  if (sp != NULL && sp->constraint_ok(constraint)) sp->set_value(value);
   if (*value == '\0') return (sp != NULL);
 
   // Look for the parameter among int parameters.
   int intval;
   IntParam *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
                                      member_params->int_params);
-  if (ip && (!init_only || ip->is_init()) &&
+  if (ip && ip->constraint_ok(constraint) &&
       sscanf(value, INT32FORMAT, &intval) == 1) ip->set_value(intval);
 
   // Look for the parameter among bool parameters.
   BoolParam *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
                                        member_params->bool_params);
-  if (bp != NULL && (!init_only || bp->is_init())) {
+  if (bp != NULL && bp->constraint_ok(constraint)) {
     if (*value == 'T' || *value == 't' ||
         *value == 'Y' || *value == 'y' || *value == '1') {
       bp->set_value(true);
@@ -133,7 +136,7 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   double doubleval;
   DoubleParam *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
                                            member_params->double_params);
-  if (dp != NULL && (!init_only || dp->is_init())) {
+  if (dp != NULL && dp->constraint_ok(constraint)) {
 #ifdef EMBEDDED
       doubleval = strtofloat(value);
 #else

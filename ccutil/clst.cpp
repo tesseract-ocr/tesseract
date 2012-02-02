@@ -93,36 +93,6 @@ void CLIST::shallow_clear() {  //destroy all links
   }
 }
 
-
-/***********************************************************************
- *							CLIST::internal_deep_copy
- *
- *  Used during explict deep copy of a list.  The "copier" function passed
- *  allows each element to be correctly deep copied (assuming that each class
- *  in the inheritance hierarchy does properly deep copies its members).  The
- *  function passing technique is as for "internal_clear".
- **********************************************************************/
-
-void
-                                 //ptr to copier functn
-CLIST::internal_deep_copy (void *(*copier) (void *),
-const CLIST * list) {            //list being copied
-  CLIST_ITERATOR from_it ((CLIST *) list);
-  CLIST_ITERATOR to_it(this);
-
-  #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST::internal_deep_copy", ABORT, NULL);
-  if (!list)
-    BAD_PARAMETER.error ("CLIST::internal_deep_copy", ABORT,
-      "source list is NULL");
-  #endif
-
-  for (from_it.mark_cycle_pt (); !from_it.cycled_list (); from_it.forward ())
-    to_it.add_after_then_move (copier (from_it.data ()));
-}
-
-
 /***********************************************************************
  *							CLIST::assign_to_sublist
  *

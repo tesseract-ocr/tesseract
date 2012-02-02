@@ -18,9 +18,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <string>
-#include <algorithm>
-
 #include "ambigs.h"
 #include "helpers.h"
 
@@ -314,7 +311,7 @@ void UnicharAmbigs::InsertIntoTable(
       unichar_id = ambig_spec->correct_ngram_id;
     } else {
       STRING frag_str = CHAR_FRAGMENT::to_string(
-          ReplacementString, i, TestAmbigPartSize);
+          ReplacementString, i, TestAmbigPartSize, false);
       unicharset->unichar_insert(frag_str.string());
       unichar_id = unicharset->unichar_to_id(frag_str.string());
     }

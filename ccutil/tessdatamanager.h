@@ -41,6 +41,10 @@ static const char kFreqDawgFileSuffix[] = "freq-dawg";
 static const char kFixedLengthDawgsFileSuffix[] = "fixed-length-dawgs";
 static const char kCubeUnicharsetFileSuffix[] = "cube-unicharset";
 static const char kCubeSystemDawgFileSuffix[] = "cube-word-dawg";
+static const char kShapeTableFileSuffix[] = "shapetable";
+static const char kBigramDawgFileSuffix[] = "bigram-dawg";
+static const char kUnambigDawgFileSuffix[] = "unambig-dawg";
+static const char kParamsTrainingModelFileSuffix[] = "params-training-model";
 
 namespace tesseract {
 
@@ -58,6 +62,10 @@ enum TessdataType {
   TESSDATA_FIXED_LENGTH_DAWGS,  // 10
   TESSDATA_CUBE_UNICHARSET,     // 11
   TESSDATA_CUBE_SYSTEM_DAWG,    // 12
+  TESSDATA_SHAPE_TABLE,         // 13
+  TESSDATA_BIGRAM_DAWG,         // 14
+  TESSDATA_UNAMBIG_DAWG,        // 15
+  TESSDATA_PARAMS_TRAINING_MODEL,  // 16
 
   TESSDATA_NUM_ENTRIES
 };
@@ -80,6 +88,10 @@ static const char * const kTessdataFileSuffixes[] = {
   kFixedLengthDawgsFileSuffix,  // 10
   kCubeUnicharsetFileSuffix,    // 11
   kCubeSystemDawgFileSuffix,    // 12
+  kShapeTableFileSuffix,        // 13
+  kBigramDawgFileSuffix,        // 14
+  kUnambigDawgFileSuffix,       // 15
+  kParamsTrainingModelFileSuffix,  // 16
 };
 
 /**
@@ -100,6 +112,10 @@ static const bool kTessdataFileIsText[] = {
   false,                        // 10
   true,                         // 11
   false,                        // 12
+  false,                        // 13
+  false,                        // 14
+  false,                        // 15
+  false,                        // 16
 };
 
 /**
@@ -173,6 +189,9 @@ class TessdataManager {
       fclose(data_file_);
       data_file_ = NULL;
     }
+  }
+  bool swap() const {
+    return swap_;
   }
 
   /** Writes the number of entries and the given offset table to output_file. */
@@ -260,6 +279,8 @@ class TessdataManager {
   inT32 actual_tessdata_num_entries_;
   FILE *data_file_;  ///< pointer to the data file.
   int debug_level_;
+  // True if the bytes need swapping.
+  bool swap_;
 };
 
 

@@ -31,8 +31,9 @@
 // Remove newline (if any) at the end of the string.
 inline void chomp_string(char *str) {
   int last_index = strlen(str) - 1;
-  if (last_index >= 0 && str[last_index] == '\n') {
-    str[last_index] = '\0';
+  while (last_index >= 0 &&
+         (str[last_index] == '\n' || str[last_index] == '\r')) {
+    str[last_index--] = '\0';
   }
 }
 
@@ -87,6 +88,18 @@ inline void UpdateRange(const T1& x_lo, const T1& x_hi,
     *upper_bound = x_hi;
 }
 
+// Intersect the range [*lower2, *upper2] with the range [lower1, upper1],
+// putting the result back in [*lower2, *upper2].
+// If non-intersecting ranges are given, we end up with *lower2 > *upper2.
+template<typename T>
+inline void IntersectRange(const T& lower1, const T& upper1,
+                           T* lower2, T* upper2) {
+  if (lower1 > *lower2)
+    *lower2 = lower1;
+  if (upper1 < *upper2)
+    *upper2 = upper1;
+}
+
 // Proper modulo arithmetic operator. Returns a mod b that works for -ve a.
 // For any integer a and positive b, returns r : 0<=r<b and a=n*b + r for
 // some integer n.
@@ -99,8 +112,8 @@ inline int Modulo(int a, int b) {
 // counting at 0. With simple rounding 1/3 = 0, 0/3 = 0 -1/3 = 0, -2/3 = 0,
 // -3/3 = 0 and -4/3 = -1.
 // I want 1/3 = 0, 0/3 = 0, -1/3 = 0, -2/3 = -1, -3/3 = -1 and -4/3 = -1.
-// Results with b negative are not defined.
 inline int DivRounded(int a, int b) {
+  if (b < 0) return -DivRounded(a, -b);
   return a >= 0 ? (a + b / 2) / b : (a - b / 2) / b;
 }
 

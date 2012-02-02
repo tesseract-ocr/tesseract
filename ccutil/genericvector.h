@@ -71,6 +71,7 @@ class GenericVector {
 
   // Return the object from an index.
   T &get(int index) const;
+  T &back() const;
   T &operator[](int index) const;
 
   // Return the index of the T object.
@@ -87,6 +88,10 @@ class GenericVector {
   // Push an element in the end of the array
   int push_back(T object);
   void operator+=(T t);
+
+  // Push an element in the end of the array if the same
+  // element is not already contained in the array.
+  int push_back_new(T object);
 
   // Push an element in the front of the array
   // Note: This function is O(n)
@@ -127,7 +132,7 @@ class GenericVector {
   void delete_data_pointers();
 
   // This method clears the current object, then, does a shallow copy of
-  // its argument, and finally invalidate its argument.
+  // its argument, and finally invalidates its argument.
   // Callbacks are moved to the current object;
   void move(GenericVector<T>* from);
 
@@ -197,7 +202,10 @@ class GenericVector {
   }
   // Searches the array (assuming sorted in ascending order, using sort()) for
   // an element equal to target and returns the index of the best candidate.
-  // The return value is the largest index i such that data_[i] <= target or 0.
+  // The return value is conceptually the largest index i such that
+  // data_[i] <= target or 0 if target < the whole vector.
+  // NOTE that this function uses operator> so really the return value is
+  // the largest index i such that data_[i] > target is false.
   int binary_search(const T& target) const {
     int bottom = 0;
     int top = size_used_;
@@ -328,13 +336,13 @@ class PointerVector : public GenericVector<T*> {
   // Copy must be deep, as the pointers will be automatically deleted on
   // destruction.
   PointerVector(const PointerVector& other) {
-    init(other.size());
+    this->init(other.size());
     this->operator+=(other);
   }
   PointerVector<T>& operator+=(const PointerVector& other) {
-    reserve(this->size_used_ + other.size_used_);
+    this->reserve(this->size_used_ + other.size_used_);
     for (int i = 0; i < other.size(); ++i) {
-      push_back(new T(*other.data_[i]));
+      this->push_back(new T(*other.data_[i]));
     }
     return *this;
   }
@@ -358,6 +366,28 @@ class PointerVector : public GenericVector<T*> {
     for (int i = size; i < GenericVector<T*>::size_used_; ++i)
       delete GenericVector<T*>::data_[i];
     GenericVector<T*>::truncate(size);
+  }
+
+  // Compact the vector by deleting elements for which delete_cb returns
+  // true. delete_cb is a permanent callback and will be deleted.
+  void compact(TessResultCallback1<bool, const T*>* delete_cb) {
+    int new_size = 0;
+    int old_index = 0;
+    // Until the callback returns true, the elements stay the same.
+    while (old_index < GenericVector<T*>::size_used_ &&
+           !delete_cb->Run(GenericVector<T*>::data_[old_index++]))
+      ++new_size;
+    // Now just copy anything else that gets false from delete_cb.
+    for (; old_index < GenericVector<T*>::size_used_; ++old_index) {
+      if (!delete_cb->Run(GenericVector<T*>::data_[old_index])) {
+        GenericVector<T*>::data_[new_size++] =
+            GenericVector<T*>::data_[old_index];
+      } else {
+        delete GenericVector<T*>::data_[old_index];
+      }
+    }
+    GenericVector<T*>::size_used_ = new_size;
+    delete delete_cb;
   }
 
   // Clear the array, calling the clear callback function if any.
@@ -399,7 +429,7 @@ class PointerVector : public GenericVector<T*> {
         item = new T;
         if (!item->DeSerialize(swap, fp)) return false;
       }
-      push_back(item);
+      this->push_back(item);
     }
     return true;
   }
@@ -488,6 +518,12 @@ T &GenericVector<T>::operator[](int index) const {
  return data_[index];
 }
 
+template <typename T>
+T &GenericVector<T>::back() const {
+  ASSERT_HOST(size_used_ > 0);
+  return data_[size_used_ - 1];
+}
+
 // Return the object from an index.
 template <typename T>
 void GenericVector<T>::set(T t, int index) {
@@ -553,6 +589,14 @@ int GenericVector<T>::push_back(T object) {
   index = size_used_++;
   data_[index] = object;
   return index;
+}
+
+template <typename T>
+int GenericVector<T>::push_back_new(T object) {
+  int index = get_index(object);
+  if (index >= 0)
+    return index;
+  return push_back(object);
 }
 
 // Add an element in the array (front)
@@ -739,7 +783,7 @@ bool GenericVector<T>::DeSerializeClasses(bool swap, FILE* fp) {
 }
 
 // This method clear the current object, then, does a shallow copy of
-// its argument, and finally invalindate its argument.
+// its argument, and finally invalidates its argument.
 template <typename T>
 void GenericVector<T>::move(GenericVector<T>* from) {
   this->clear();

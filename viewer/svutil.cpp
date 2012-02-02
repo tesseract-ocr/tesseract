@@ -42,6 +42,7 @@ struct addrinfo {
 #ifdef __linux__
 #include <sys/prctl.h>
 #endif
+#include <unistd.h>
 #endif
 
 #include <cstdlib>

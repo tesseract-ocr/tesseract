@@ -23,7 +23,6 @@ void sv_show_sub_image(IMAGE*    source,         // Image to show.
                        ScrollView*    window,         // Window to draw in.
                        inT32     xpos,           // Place to show bottom-left.
                        inT32     ypos) {         // Y position.
-
   Pix* pix;
   if (xstart != 0 || ystart != 0 ||
       xext != source->get_xsize() || yext != source->get_ysize()) {

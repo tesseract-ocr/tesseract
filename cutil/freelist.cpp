@@ -11,57 +11,22 @@
 **************************************************************************/
 #include "freelist.h"
 
-#include <memory.h>
-
-#include "danerror.h"
-#include "memry.h"
-#include "tprintf.h"
+#include <stdlib.h>
 
 
-/**********************************************************************
- * memalloc
- *
- * Memory allocator with protection.
- **********************************************************************/
+// With improvements in OS memory allocators, internal memory management is
+// no longer required, so these functions all map to their malloc-family
+// equivalents.
+
+
 int *memalloc(int size) {
-  return ((int *) alloc_mem (size));
+  return static_cast<int*>(malloc(static_cast<size_t>(size)));
 }
 
-
-/**********************************************************************
- * memrealloc
- *
- * Memory allocator with protection.
- **********************************************************************/
 int *memrealloc(void *ptr, int size, int oldsize) {
-  int shiftsize;
-  int *newbuf;
-
-  shiftsize = size > oldsize ? oldsize : size;
-  newbuf = (int *) alloc_mem (size);
-  memcpy(newbuf, ptr, shiftsize);
-  free_mem(ptr);
-  return newbuf;
+  return static_cast<int*>(realloc(ptr, static_cast<size_t>(size)));
 }
 
-
-/**********************************************************************
- * memfree
- *
- * Memory allocator with protection.
- **********************************************************************/
 void memfree(void *element) {
-  if (element) {
-    free_mem(element);
-  }
-}
-
-
-/**********************************************************************
- * mem_tidy
- *
- * Do nothing.
- **********************************************************************/
-void mem_tidy(int level) {
-  check_mem ("Old tidy", level);
+  free(element);
 }
