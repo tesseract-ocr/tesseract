@@ -37,11 +37,12 @@
 #endif
 #include <locale.h>
 
+#include "boxread.h"
+#include "rect.h"
+#include "strngs.h"
+#include "tessopt.h"
 #include "unichar.h"
 #include "unicharset.h"
-#include "strngs.h"
-#include "boxread.h"
-#include "tessopt.h"
 
 static const char* const kUnicharsetFileName = "unicharset";
 
@@ -140,13 +141,12 @@ int main(int argc, char** argv) {
       return -1;
     }
 
-    int x_min, y_min, x_max, y_max;
-    char c_string[kBoxReadBufSize];
+    TBOX box;
+    STRING unichar_string;
     int line_number = 0;
-    while (read_next_box(&line_number, box_file, c_string,
-                         &x_min, &y_min, &x_max, &y_max)) {
-      unicharset.unichar_insert(c_string);
-      set_properties(&unicharset, c_string);
+    while (ReadNextBox(&line_number, box_file, &unichar_string, &box)) {
+      unicharset.unichar_insert(unichar_string.string());
+      set_properties(&unicharset, unichar_string.string());
     }
   }
 

@@ -32,22 +32,34 @@
 #include "trie.h"
 #include "unicharset.h"
 
-static const int kMaxNumEdges =  10000000;
+static const int kMaxNumEdges =  30000000;
 
 int main(int argc, char** argv) {
   int min_word_length;
   int max_word_length;
   if (!(argc == 4 || (argc == 5 && strcmp(argv[1], "-t") == 0) ||
-        (argc == 7 && strcmp(argv[1], "-l") == 0 &&
+      (argc == 6 && strcmp(argv[1], "-r") == 0) ||
+      (argc == 7 && strcmp(argv[1], "-l") == 0 &&
          sscanf(argv[2], "%d", &min_word_length) == 1 &&
          sscanf(argv[3], "%d", &max_word_length) == 1))) {
-    printf("Usage: %s [-t | -l min_len max_len] word_list_file"
-           " dawg_file unicharset_file", argv[0]);
+    printf("Usage: %s [-t | -r [reverse policy] |"
+           " -l min_len max_len] word_list_file"
+           " dawg_file unicharset_file\n", argv[0]);
     return 1;
   }
   tesseract::Classify *classify = new tesseract::Classify();
   int argv_index = 0;
   if (argc == 5) ++argv_index;
+  tesseract::Trie::RTLReversePolicy reverse_policy =
+      tesseract::Trie::RRP_DO_NO_REVERSE;
+  if (argc == 6) {
+    ++argv_index;
+    int tmp_int;
+    sscanf(argv[++argv_index], "%d", &tmp_int);
+    reverse_policy = static_cast<tesseract::Trie::RTLReversePolicy>(tmp_int);
+    tprintf("Set reverse_policy to %s\n",
+            tesseract::Trie::get_reverse_policy_name(reverse_policy));
+  }
   if (argc == 7) argv_index += 3;
   const char* wordlist_filename = argv[++argv_index];
   const char* dawg_filename = argv[++argv_index];
@@ -59,14 +71,14 @@ int main(int argc, char** argv) {
     return 1;
   }
   const UNICHARSET &unicharset = classify->getDict().getUnicharset();
-  if (argc == 4) {
+  if (argc == 4 || argc == 6) {
     tesseract::Trie trie(
         // the first 3 arguments are not used in this case
         tesseract::DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM,
         kMaxNumEdges, unicharset.size(),
         classify->getDict().dawg_debug_level);
     tprintf("Reading word list from '%s'\n", wordlist_filename);
-    if (!trie.read_word_list(wordlist_filename, unicharset)) {
+    if (!trie.read_word_list(wordlist_filename, unicharset, reverse_policy)) {
       tprintf("Failed to read word list from '%s'\n", wordlist_filename);
       exit(1);
     }
@@ -113,13 +125,28 @@ int main(int argc, char** argv) {
     }
     while (fgets(str, CHARS_PER_LINE, word_file) != NULL) {
       chomp_string(str);  // remove newline
+      int badpos;
+      if (!unicharset.encodable_string(str, &badpos)) {
+        tprintf("String '%s' not compatible with unicharset. "
+                "Bad chars here: '%s'\n", str, str + badpos);
+        continue;
+      }
       WERD_CHOICE word(str, unicharset);
+      if ((reverse_policy == tesseract::Trie::RRP_REVERSE_IF_HAS_RTL &&
+          word.has_rtl_unichar_id()) ||
+          reverse_policy == tesseract::Trie::RRP_FORCE_REVERSE) {
+        word.reverse_and_mirror_unichar_ids();
+      }
       if (word.length() >= min_word_length &&
           word.length() <= max_word_length &&
           !word.contains_unichar_id(INVALID_UNICHAR_ID)) {
         tesseract::Trie *curr_trie = trie_vec[word.length()-min_word_length];
         if (!curr_trie->word_in_dawg(word)) {
-          curr_trie->add_word_to_dawg(word);
+          if (!curr_trie->add_word_to_dawg(word)) {
+            tprintf("Failed to add the following word to dawg:\n");
+            word.print();
+            exit(1);
+          }
           if (classify->getDict().dawg_debug_level > 1) {
             tprintf("Added word %s of length %d\n", str, word.length());
           }

@@ -40,6 +40,8 @@
 
 #define PROGRAM_FEATURE_TYPE "cn"
 
+DECLARE_STRING_PARAM_FLAG(D);
+
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
@@ -52,7 +54,7 @@ int main (
 ----------------------------------------------------------------------------**/
 
 void WriteNormProtos (
-     char  *Directory,
+     const char  *Directory,
      LIST  LabeledProtoList,
    CLUSTERER *Clusterer);
 
@@ -84,9 +86,7 @@ CLUSTERCONFIG  CNConfig =
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-int main (
-     int  argc,
-     char  **argv)
+int main(int  argc, char* argv[])
 
 /*
 **  Parameters:
@@ -143,7 +143,7 @@ int main (
   // Set the global Config parameters before parsing the command line.
   Config = CNConfig;
 
-  char  *PageName;
+  const char  *PageName;
   FILE  *TrainingPage;
   LIST  CharList = NIL_LIST;
   CLUSTERER  *Clusterer = NULL;
@@ -154,13 +154,13 @@ int main (
   FEATURE_DEFS_STRUCT FeatureDefs;
   InitFeatureDefs(&FeatureDefs);
 
-  ParseArguments(argc, argv);
+  ParseArguments(&argc, &argv);
   int num_fonts = 0;
   while ((PageName = GetNextFilename(argc, argv)) != NULL) {
     printf("Reading %s ...\n", PageName);
     TrainingPage = Efopen(PageName, "rb");
     ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE,
-                        100, 1.0f / 64.0f, 0.0f, NULL, TrainingPage, &CharList);
+                        100, NULL, TrainingPage, &CharList);
     fclose(TrainingPage);
     ++num_fonts;
   }
@@ -194,12 +194,14 @@ int main (
     AddToNormProtosList(&NormProtoList, ProtoList, CharSample->Label);
   }
   FreeTrainingSamples(CharList);
-  if (Clusterer == NULL) // To avoid a SIGSEGV
+  if (Clusterer == NULL) { // To avoid a SIGSEGV
+    fprintf(stderr, "Error: NULL clusterer!\n");
     return 1;
-  WriteNormProtos (Directory, NormProtoList, Clusterer);
-  FreeClusterer(Clusterer);
-  FreeProtoList(&ProtoList);
+  }
+  WriteNormProtos(FLAGS_D.c_str(), NormProtoList, Clusterer);
   FreeNormProtoList(NormProtoList);
+  FreeProtoList(&ProtoList);
+  FreeClusterer(Clusterer);
   printf ("\n");
   return 0;
 }  // main
@@ -211,7 +213,7 @@ int main (
 
 /*----------------------------------------------------------------------------*/
 void WriteNormProtos (
-     char  *Directory,
+     const char  *Directory,
      LIST  LabeledProtoList,
    CLUSTERER *Clusterer)
 

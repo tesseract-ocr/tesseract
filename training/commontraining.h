@@ -19,31 +19,41 @@
 #include "intproto.h"
 #include "featdefs.h"
 
-//////////////////////////////////////////////////////////////////////////////
-// Macros ////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-#define MAXNAMESIZE     80
+// Macros to merge tesseract params with command-line flags.
+#ifdef USE_STD_NAMESPACE
+#include "params.h"
+#  define INT_PARAM_FLAG(name, val, comment) \
+    INT_VAR(FLAGS_##name, val, comment)
+#  define DECLARE_INT_PARAM_FLAG(name) extern INT_VAR_H(FLAGS_##name, 0, "")
+#  define STRING_PARAM_FLAG(name, val, comment) \
+    STRING_VAR(FLAGS_##name, val, comment)
+#  define DECLARE_STRING_PARAM_FLAG(name) \
+    extern STRING_VAR_H(FLAGS_##name, "", "")
+#  define c_str string
+#else
+#include "base/commandlineflags.h"
+#  define INT_PARAM_FLAG(name, val, comment) \
+    DEFINE_int32(name, val, comment)
+#  define DECLARE_INT_PARAM_FLAG(name) DECLARE_int32(name)
+#  define STRING_PARAM_FLAG(name, val, comment) \
+    DEFINE_string(name, val, comment)
+#  define DECLARE_STRING_PARAM_FLAG(name) DECLARE_string(name)
+#endif
+
+namespace tesseract {
+class Classify;
+class MasterTrainer;
+class ShapeTable;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // Globals ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-extern BOOL8 ShowAllSamples;
+
+extern FEATURE_DEFS_STRUCT feature_defs;
 
 // Must be defined in the file that "implements" commonTraining facilities.
 extern CLUSTERCONFIG Config;
-extern FLOAT32 RoundingAccuracy;
-
-extern char CTFontName[MAXNAMESIZE];
-// globals used for parsing command line arguments
-extern char *Directory;
-
-extern const char* test_ch;
-
-extern const char *InputUnicharsetFile;
-extern const char *OutputUnicharsetFile;
-
-extern const char *InputFontInfoFile;
-extern const char *InputXHeightsFile;
 
 //////////////////////////////////////////////////////////////////////////////
 // Structs ///////////////////////////////////////////////////////////////////
@@ -69,11 +79,34 @@ typedef MERGE_CLASS_NODE* MERGE_CLASS;
 //////////////////////////////////////////////////////////////////////////////
 // Functions /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-void ParseArguments(
-    int         argc,
-    char        **argv);
+void ParseArguments(int* argc, char*** argv);
 
-char *GetNextFilename(int Argc, char** argv);
+namespace tesseract {
+// Helper loads shape table from the given file.
+ShapeTable* LoadShapeTable(const STRING& file_prefix);
+// Helper to write the shape_table.
+void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table);
+
+// Creates a MasterTraininer and loads the training data into it:
+// Initializes feature_defs and IntegerFX.
+// Loads the shape_table if shape_table != NULL.
+// Loads initial unicharset from -U command-line option.
+// If FLAGS_input_trainer is set, loads the majority of data from there, else:
+//   Loads font info from -F option.
+//   Loads xheights from -X option.
+//   Loads samples from .tr files in remaining command-line args.
+//   Deletes outliers and computes canonical samples.
+//   If FLAGS_output_trainer is set, saves the trainer for future use.
+// Computes canonical and cloud features.
+// If shape_table is not NULL, but failed to load, make a fake flat one,
+// as shape clustering was not run.
+MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
+                                bool replication,
+                                ShapeTable** shape_table,
+                                STRING* file_prefix);
+}  // namespace tesseract.
+
+const char *GetNextFilename(int argc, const char* const * argv);
 
 LABELEDLIST FindList(
     LIST        List,
@@ -84,7 +117,6 @@ LABELEDLIST NewLabeledList(
 
 void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
                          const char *feature_name, int max_samples,
-                         float linear_spread, float circular_spread,
                          UNICHARSET* unicharset,
                          FILE* file, LIST* training_samples);
 
@@ -125,15 +157,16 @@ void MergeInsignificantProtos(
 
 MERGE_CLASS FindClass(
     LIST        List,
-    char        *Label);
+    const char        *Label);
 
 MERGE_CLASS NewLabeledClass(
-    char        *Label);
+    const char        *Label);
 
 void FreeTrainingSamples(
     LIST        CharList);
 
-void SetUpForFloat2Int(const UNICHARSET& unicharset, LIST LabeledClassList);
+CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
+                                LIST LabeledClassList);
 
 void Normalize(
     float       *Values);
