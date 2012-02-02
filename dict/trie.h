@@ -61,6 +61,12 @@ namespace tesseract {
  */
 class Trie : public Dawg {
  public:
+  enum RTLReversePolicy {
+    RRP_DO_NO_REVERSE,
+    RRP_REVERSE_IF_HAS_RTL,
+    RRP_FORCE_REVERSE,
+  };
+
   // Minimum number of concrete characters at the beginning of user patterns.
   static const int kSaneNumConcreteChars = 4;
   // Various unicode whitespace characters are used to denote unichar patterns,
@@ -72,6 +78,9 @@ class Trie : public Dawg {
   static const char kPuncPatternUnicode[];
   static const char kLowerPatternUnicode[];
   static const char kUpperPatternUnicode[];
+
+  static const char *get_reverse_policy_name(
+      RTLReversePolicy reverse_policy);
 
   // max_num_edges argument allows limiting the amount of memory this
   // Trie can consume (if a new word insert would cause the Trie to
@@ -86,7 +95,7 @@ class Trie : public Dawg {
     new_dawg_node();  // need to allocate node 0
     initialized_patterns_ = false;
   }
-  ~Trie() { nodes_.delete_data_pointers(); }
+  virtual ~Trie() { nodes_.delete_data_pointers(); }
 
   // Reset the Trie to empty.
   void clear();
@@ -149,8 +158,11 @@ class Trie : public Dawg {
   SquishedDawg *trie_to_dawg();
 
   // Inserts the list of words from the given file into the Trie.
+  // If reverse is true, calls WERD_CHOICE::reverse_unichar_ids_if_rtl()
+  // on each word before inserting it into the Trie.
   bool read_word_list(const char *filename,
-                      const UNICHARSET &unicharset);
+                      const UNICHARSET &unicharset,
+                      Trie::RTLReversePolicy reverse);
 
   // Inserts the list of patterns from the given file into the Trie.
   // The pattern list file should contain one pattern per line in UTF-8 format.
@@ -225,10 +237,13 @@ class Trie : public Dawg {
   // whether the unichar id with the corresponding index in the word is allowed
   // to repeat an unlimited number of times. For each entry that is true, MARKER
   // flag of the corresponding edge created for this unichar id is set to true).
-  void add_word_to_dawg(const WERD_CHOICE &word,
+  //
+  // Return true if add succeeded, false otherwise (e.g. when a word contained
+  // an invalid unichar id or the trie was getting too large and was cleared).
+  bool add_word_to_dawg(const WERD_CHOICE &word,
                         const GenericVector<bool> *repetitions);
-  void add_word_to_dawg(const WERD_CHOICE &word) {
-    add_word_to_dawg(word, NULL);
+  bool add_word_to_dawg(const WERD_CHOICE &word) {
+    return add_word_to_dawg(word, NULL);
   }
 
  protected:
@@ -377,11 +392,11 @@ class Trie : public Dawg {
   UNICHAR_ID character_class_to_pattern(char ch);
 
   // Member variables
-  TRIE_NODES nodes_;              ///< vector of nodes in the Trie
-  uinT64 num_edges_;              ///< sum of all edges (forward and backward)
-  uinT64 max_num_edges_;          ///< maximum number of edges allowed
-  uinT64 deref_direction_mask_;   ///< mask for EDGE_REF to extract direction
-  uinT64 deref_node_index_mask_;  ///< mask for EDGE_REF to extract node index
+  TRIE_NODES nodes_;              // vector of nodes in the Trie
+  uinT64 num_edges_;              // sum of all edges (forward and backward)
+  uinT64 max_num_edges_;          // maximum number of edges allowed
+  uinT64 deref_direction_mask_;   // mask for EDGE_REF to extract direction
+  uinT64 deref_node_index_mask_;  // mask for EDGE_REF to extract node index
   // Variables for translating character class codes denoted in user patterns
   // file to the unichar ids used to represent them in a Trie.
   bool initialized_patterns_;

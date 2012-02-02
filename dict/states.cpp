@@ -241,6 +241,19 @@ void print_state(const char *label, STATE *state, int num_joints) {
   new_line();
 }
 
+// Prints out the number of fragments in each segment in a state to
+// toappend.
+void print_state(STATE *state, int num_joints, STRING *toappend) {
+  PIECES_STATE pieces;
+  bin_to_pieces(state, num_joints, pieces);
+  for (int i = 0; pieces[i] > 0; i++) {
+   if (i > 0) {
+     toappend->add_str_int(" ", pieces[i]);
+   } else {
+     toappend->add_str_int("", pieces[i]);
+   }
+  }
+}
 
 /**
  * set_n_ones

@@ -16,7 +16,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include <stdio.h>
+
 #include "dict.h"
+#include "unicodes.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
@@ -41,6 +44,8 @@ Dict::Dict(Image* image_ptr)
                        getImage()->getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_freq_dawg, true, "Load frequent word dawg.",
                        getImage()->getCCUtil()->params()),
+      BOOL_INIT_MEMBER(load_unambig_dawg, true, "Load unambiguous word dawg.",
+                       getImage()->getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_punc_dawg, true, "Load dawg with punctuation"
                        " patterns.", getImage()->getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_number_dawg, true, "Load dawg with number"
@@ -48,6 +53,8 @@ Dict::Dict(Image* image_ptr)
       BOOL_INIT_MEMBER(load_fixed_length_dawgs, true, "Load fixed length dawgs"
                        " (e.g. for non-space delimited languages)",
                        getImage()->getCCUtil()->params()),
+      BOOL_INIT_MEMBER(load_bigram_dawg, false, "Load dawg with special word "
+                       "bigrams.", getImage()->getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_frequent_word, 1.0,
                     "Score multiplier for word matches which have good case and"
                     "are frequent in the given language (lower is better).",
@@ -70,6 +77,9 @@ Dict::Dict(Image* image_ptr)
                     "Score multiplier for poorly cased strings that are not in"
                     " the dictionary and generally look like garbage (lower is"
                     " better).", getImage()->getCCUtil()->params()),
+      STRING_MEMBER(output_ambig_words_file, "",
+                    "Output file for ambiguities found in the dictionary",
+                    getImage()->getCCUtil()->params()),
       INT_MEMBER(dawg_debug_level, 0, "Set to 1 for general debug info"
                  ", to 2 for more details, to 3 to see all the debug messages",
                  getImage()->getCCUtil()->params()),
@@ -104,6 +114,12 @@ Dict::Dict(Image* image_ptr)
                   "Make AcceptableChoice() always return false. Useful"
                   " when there is a need to explore all segmentations",
                   getImage()->getCCUtil()->params()),
+      double_MEMBER(stopper_ambiguity_threshold_gain, 8.0,
+                    "Gain factor for ambiguity threshold.",
+                    getImage()->getCCUtil()->params()),
+      double_MEMBER(stopper_ambiguity_threshold_offset, 1.5,
+                    "Certainty offset for ambiguity threshold.",
+                    getImage()->getCCUtil()->params()),
       BOOL_MEMBER(save_raw_choices, false, "Save all explored raw choices",
                   getImage()->getCCUtil()->params()),
       INT_MEMBER(tessedit_truncate_wordchoice_log, 10,
@@ -130,6 +146,11 @@ Dict::Dict(Image* image_ptr)
       BOOL_MEMBER(segment_segcost_rating, 0,
                   "incorporate segmentation cost in word rating?",
                   getImage()->getCCUtil()->params()),
+      BOOL_MEMBER(segment_nonalphabetic_script, false,
+                 "Don't use any alphabetic-specific tricks."
+                 "Set to true in the traineddata config file for"
+                 " scripts that are cursive or inherently fixed-pitch",
+                 getImage()->getCCUtil()->params()),
       double_MEMBER(segment_reward_script, 0.95,
                     "Score multipler for script consistency within a word. "
                     "Being a 'reward' factor, it should be <= 1. "
@@ -144,10 +165,10 @@ Dict::Dict(Image* image_ptr)
       double_MEMBER(segment_reward_chartype, 0.97,
                     "Score multipler for char type consistency within a word. ",
                     getImage()->getCCUtil()->params()),
-     double_MEMBER(segment_reward_ngram_best_choice, 0.99,
-                   "Score multipler for ngram permuter's best choice"
-                   " (only used in the Han script path).",
-                   getImage()->getCCUtil()->params()),
+      double_MEMBER(segment_reward_ngram_best_choice, 0.99,
+                    "Score multipler for ngram permuter's best choice"
+                    " (only used in the Han script path).",
+                    getImage()->getCCUtil()->params()),
       BOOL_MEMBER(save_doc_words, 0, "Save Document Words",
                   getImage()->getCCUtil()->params()),
       BOOL_MEMBER(doc_dict_enable, 1, "Enable Document Dictionary ",
@@ -182,14 +203,17 @@ Dict::Dict(Image* image_ptr)
   hyphen_unichar_id_ = INVALID_UNICHAR_ID;
   document_words_ = NULL;
   pending_words_ = NULL;
+  bigram_dawg_ = NULL;
   freq_dawg_ = NULL;
   punc_dawg_ = NULL;
   max_fixed_length_dawgs_wdlen_ = -1;
   wordseg_rating_adjust_factor_ = -1.0f;
+  output_ambig_words_file_ = NULL;
 }
 
 Dict::~Dict() {
   if (hyphen_word_ != NULL) delete hyphen_word_;
+  if (output_ambig_words_file_ != NULL) fclose(output_ambig_words_file_);
 }
 
 void Dict::Load() {
@@ -199,6 +223,10 @@ void Dict::Load() {
   if (dawgs_.length() != 0) this->End();
 
   hyphen_unichar_id_ = getUnicharset().unichar_to_id(kHyphenSymbol);
+
+  LoadEquivalenceList(kHyphenLikeUTF8);
+  LoadEquivalenceList(kApostropheLikeUTF8);
+
   TessdataManager &tessdata_manager =
     getImage()->getCCUtil()->tessdata_manager;
 
@@ -219,11 +247,25 @@ void Dict::Load() {
       new SquishedDawg(tessdata_manager.GetDataFilePtr(),
                        DAWG_TYPE_NUMBER, lang, NUMBER_PERM, dawg_debug_level);
   }
-  if (tessdata_manager.SeekToStart(TESSDATA_FREQ_DAWG)) {
+  if (load_bigram_dawg && tessdata_manager.SeekToStart(TESSDATA_BIGRAM_DAWG)) {
+    bigram_dawg_ = new SquishedDawg(tessdata_manager.GetDataFilePtr(),
+                                    DAWG_TYPE_WORD, // doesn't actually matter.
+                                    lang,
+                                    COMPOUND_PERM,  // doesn't actually matter.
+                                    dawg_debug_level);
+  }
+  if (load_freq_dawg && tessdata_manager.SeekToStart(TESSDATA_FREQ_DAWG)) {
     freq_dawg_ = new SquishedDawg(tessdata_manager.GetDataFilePtr(),
                                   DAWG_TYPE_WORD, lang, FREQ_DAWG_PERM,
                                   dawg_debug_level);
     dawgs_ += freq_dawg_;
+  }
+  if (load_unambig_dawg &&
+      tessdata_manager.SeekToStart(TESSDATA_UNAMBIG_DAWG)) {
+    unambig_dawg_ = new SquishedDawg(tessdata_manager.GetDataFilePtr(),
+                                     DAWG_TYPE_WORD, lang, SYSTEM_DAWG_PERM,
+                                     dawg_debug_level);
+    dawgs_ += unambig_dawg_;
   }
 
   if (((STRING &)user_words_suffix).length() > 0) {
@@ -232,7 +274,8 @@ void Dict::Load() {
                               dawg_debug_level);
     name = getImage()->getCCUtil()->language_data_path_prefix;
     name += user_words_suffix;
-    if (!trie_ptr->read_word_list(name.string(), getUnicharset())) {
+    if (!trie_ptr->read_word_list(name.string(), getUnicharset(),
+                                  Trie::RRP_REVERSE_IF_HAS_RTL)) {
       tprintf("Error: failed to load %s\n", name.string());
       exit(1);
     }
@@ -295,6 +338,7 @@ void Dict::End() {
   dawgs_.delete_data_pointers();
   successors_.delete_data_pointers();
   dawgs_.clear();
+  delete bigram_dawg_;
   successors_.clear();
   document_words_ = NULL;
   max_fixed_length_dawgs_wdlen_ = -1;
@@ -304,12 +348,38 @@ void Dict::End() {
   }
 }
 
+// Create unicharset adaptations of known, short lists of UTF-8 equivalent
+// characters (think all hyphen-like symbols).  The first version of the
+// list is taken as equivalent for matching against the dictionary.
+void Dict::LoadEquivalenceList(const char *unichar_strings[]) {
+  equivalent_symbols_.push_back(GenericVectorEqEq<UNICHAR_ID>());
+  const UNICHARSET &unicharset = getUnicharset();
+  GenericVectorEqEq<UNICHAR_ID> *equiv_list = &equivalent_symbols_.back();
+  for (int i = 0; unichar_strings[i] != 0; i++) {
+    UNICHAR_ID unichar_id = unicharset.unichar_to_id(unichar_strings[i]);
+    if (unichar_id != INVALID_UNICHAR_ID) {
+      equiv_list->push_back(unichar_id);
+    }
+  }
+}
+
+// Normalize all hyphen and apostrophes to the canonicalized one for
+// matching; pass everything else through as is.
+UNICHAR_ID Dict::NormalizeUnicharIdForMatch(UNICHAR_ID unichar_id) const {
+  for (int i = 0; i < equivalent_symbols_.size(); i++) {
+    if (equivalent_symbols_[i].contains(unichar_id)) {
+      return equivalent_symbols_[i][0];
+    }
+  }
+  return unichar_id;
+}
+
 // Returns true if in light of the current state unichar_id is allowed
 // according to at least one of the dawgs in the dawgs_ vector.
 // See more extensive comments in dict.h where this function is declared.
 int Dict::def_letter_is_okay(void* void_dawg_args,
                              UNICHAR_ID unichar_id,
-                             bool word_end) {
+                             bool word_end) const {
   DawgArgs *dawg_args = reinterpret_cast<DawgArgs*>(void_dawg_args);
 
   if (dawg_debug_level >= 3) {
@@ -484,7 +554,7 @@ int Dict::def_letter_is_okay(void* void_dawg_args,
 void Dict::ProcessPatternEdges(const Dawg *dawg, const DawgInfo &info,
                                UNICHAR_ID unichar_id, bool word_end,
                                DawgArgs *dawg_args,
-                               PermuterType *curr_perm) {
+                               PermuterType *curr_perm) const {
   NODE_REF node = GetStartingNode(dawg, info.ref);
   // Try to find the edge corresponding to the exact unichar_id and to all the
   // edges corresponding to the character class of unichar_id.
@@ -572,7 +642,7 @@ void Dict::WriteFixedLengthDawgs(
 // from hyphen_active_dawgs_ instead.
 void Dict::init_active_dawgs(int sought_word_length,
                              DawgInfoVector *active_dawgs,
-                             bool ambigs_mode) {
+                             bool ambigs_mode) const {
   int i;
   if (sought_word_length != kAnyWordLength) {
     // Only search one fixed word length dawg.
@@ -604,7 +674,7 @@ void Dict::init_active_dawgs(int sought_word_length,
 
 // If hyphenated() returns true, copy the entries from hyphen_constraints_
 // into the given constraints vector.
-void Dict::init_constraints(DawgInfoVector *constraints) {
+void Dict::init_constraints(DawgInfoVector *constraints) const {
   if (hyphenated()) {
     *constraints = hyphen_constraints_;
     if (dawg_debug_level >= 3) {
@@ -670,7 +740,7 @@ void Dict::add_document_word(const WERD_CHOICE &best_choice) {
     strcat(filename, ".doc");
     doc_word_file = open_file (filename, "a");
     fprintf(doc_word_file, "%s\n",
-            best_choice.debug_string(getUnicharset()).string());
+            best_choice.debug_string().string());
     fclose(doc_word_file);
   }
   document_words_->add_word_to_dawg(best_choice);
@@ -693,7 +763,7 @@ void Dict::adjust_word(WERD_CHOICE *word,
   float new_rating = word->rating();
   if (debug) {
     tprintf("%sWord: %s %4.2f ", nonword ? "Non-" : "",
-            word->debug_string(getUnicharset()).string(), word->rating());
+            word->debug_string().string(), word->rating());
   }
   new_rating += kRatingPad;
   if (nonword) {  // non-dictionary word
@@ -733,9 +803,9 @@ void Dict::adjust_word(WERD_CHOICE *word,
   LogNewChoice(adjust_factor, certainty_array, false, word);
 }
 
-int Dict::valid_word(const WERD_CHOICE &word, bool numbers_ok) {
+int Dict::valid_word(const WERD_CHOICE &word, bool numbers_ok) const {
   const WERD_CHOICE *word_ptr = &word;
-  WERD_CHOICE temp_word;
+  WERD_CHOICE temp_word(word.unicharset());
   if (hyphenated()) {
     copy_hyphen_info(&temp_word);
     temp_word += word;
@@ -775,10 +845,40 @@ int Dict::valid_word(const WERD_CHOICE &word, bool numbers_ok) {
     dawg_args.permuter : NO_PERM;
 }
 
+bool Dict::valid_bigram(const WERD_CHOICE &word1,
+                        const WERD_CHOICE &word2) const {
+  if (bigram_dawg_ == NULL) return false;
+
+  // Extract the core word from the middle of each word with any digits
+  //         replaced with question marks.
+  int w1start, w1end, w2start, w2end;
+  word1.punct_stripped(&w1start, &w1end);
+  word2.punct_stripped(&w2start, &w2end);
+
+  // We don't want to penalize a single guillemet, hyphen, etc.
+  // But our bigram list doesn't have any information about punctuation.
+  if (w1start >= w1end) return word1.length() < 3;
+  if (w2start >= w2end) return word2.length() < 3;
+
+  const UNICHARSET& uchset = getUnicharset();
+  STRING bigram_string;
+  for (int i = w1start; i < w1end; i++) {
+    UNICHAR_ID ch = NormalizeUnicharIdForMatch(word1.unichar_id(i));
+    bigram_string += uchset.get_isdigit(ch) ? "?" : uchset.id_to_unichar(ch);
+  }
+  bigram_string += " ";
+  for (int i = w2start; i < w2end; i++) {
+    UNICHAR_ID ch = NormalizeUnicharIdForMatch(word2.unichar_id(i));
+    bigram_string += uchset.get_isdigit(ch) ? "?" : uchset.id_to_unichar(ch);
+  }
+  WERD_CHOICE normalized_word(bigram_string.string(), uchset);
+  return bigram_dawg_->word_in_dawg(normalized_word);
+}
+
 bool Dict::valid_punctuation(const WERD_CHOICE &word) {
   if (word.length() == 0) return NO_PERM;
   int i;
-  WERD_CHOICE new_word;
+  WERD_CHOICE new_word(word.unicharset());
   int last_index = word.length() - 1;
   int new_len = 0;
   for (i = 0; i <= last_index; ++i) {

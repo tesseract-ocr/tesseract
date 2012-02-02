@@ -34,6 +34,7 @@
 #include "elst.h"
 #include "ratngs.h"
 #include "params.h"
+#include "tesscallback.h"
 
 #ifndef __GNUC__
 #ifdef __MSW32__
@@ -141,6 +142,11 @@ class Dawg {
   int check_for_words(const char *filename,
                       const UNICHARSET &unicharset,
                       bool enable_wildcard) const;
+
+  // For each word in the Dawg, call the given (permanent) callback with the
+  // text (UTF-8) version of the word.
+  void iterate_words(const UNICHARSET &unicharset,
+                     TessCallback1<const char *> *cb) const;
 
   // Pure virtual function that should be implemented by the derived classes.
 
@@ -267,6 +273,11 @@ class Dawg {
   /// can modify it and work without having to copy WERD_CHOICEs.
   bool match_words(WERD_CHOICE *word, inT32 index,
                    NODE_REF node, UNICHAR_ID wildcard) const;
+
+  // Recursively iterate over all words in a dawg (see public iterate_words).
+  void iterate_words_rec(const WERD_CHOICE &word_so_far,
+                         NODE_REF to_explore,
+                         TessCallback1<const char *> *cb) const;
 
   // Member Variables.
   DawgType type_;

@@ -27,6 +27,8 @@
 #include "states.h"
 #include "unichar.h"
 
+class WERD_CHOICE;
+
 typedef uinT8 BLOB_WIDTH;
 
 struct DANGERR_INFO {
@@ -50,13 +52,36 @@ struct CHAR_CHOICE {
   float Certainty;
 };
 
-struct VIABLE_CHOICE_STRUCT {
+class VIABLE_CHOICE_STRUCT {
+ public:
+  VIABLE_CHOICE_STRUCT();
+  explicit VIABLE_CHOICE_STRUCT(int length);
+  ~VIABLE_CHOICE_STRUCT();
+
+  // Fill in the data with these values.
+  void Init(const WERD_CHOICE& word_choice,
+            const PIECES_STATE& pieces_state,
+            const float certainties[],
+            FLOAT32 adjust_factor);
+
+  int Length;
   float Rating;
   float Certainty;
   FLOAT32 AdjustFactor;
-  int Length;
   bool ComposedFromCharFragments;
-  CHAR_CHOICE Blob[1];
+  CHAR_CHOICE *Blob;
+
+  // segmentation_state: for each choice, how many consecutive blobs
+  //     does it use?
+  uinT8 *segmentation_state;
+
+ private:
+  // Disallow assignment and copy construction
+  VIABLE_CHOICE_STRUCT(const VIABLE_CHOICE_STRUCT &other)
+      : Length(0), Blob(NULL), segmentation_state(NULL) {}
+  VIABLE_CHOICE_STRUCT &operator=(const VIABLE_CHOICE_STRUCT &other) {
+    return *this;
+  }
 };
 
 typedef VIABLE_CHOICE_STRUCT *VIABLE_CHOICE;

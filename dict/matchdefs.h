@@ -28,7 +28,7 @@
 /* define the maximum number of classes defined for any matcher
   and the maximum class id for any matcher. This must be changed
   if more different classes need to be classified */
-#define MAX_NUM_CLASSES   8192
+#define MAX_NUM_CLASSES   12288
 #define MAX_CLASS_ID    (MAX_NUM_CLASSES - 1)
 
 /** a CLASS_ID is the ascii character to be associated with a class */

@@ -51,7 +51,7 @@ void Dict::set_hyphen_word(const WERD_CHOICE &word,
                            const DawgInfoVector &active_dawgs,
                            const DawgInfoVector &constraints) {
   if (hyphen_word_ == NULL) {
-    hyphen_word_ = new WERD_CHOICE();
+    hyphen_word_ = new WERD_CHOICE(word.unicharset());
     hyphen_word_->make_bad();
   }
   if (hyphen_word_->rating() > word.rating()) {

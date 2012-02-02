@@ -89,15 +89,16 @@ struct DawgArgs {
 
 class Dict {
  public:
-  // Gain factor for ambiguity threshold.
-  static const float kStopperAmbiguityThresholdGain;
-  // Certainty offset for ambiguity threshold.
-  static const float kStopperAmbiguityThresholdOffset;
-
   Dict(Image* image_ptr);
   ~Dict();
+  const Image* getImage() const {
+    return image_ptr_;
+  }
   Image* getImage() {
     return image_ptr_;
+  }
+  const UNICHARSET& getUnicharset() const {
+    return getImage()->getCCUtil()->unicharset;
   }
   UNICHARSET& getUnicharset() {
     return getImage()->getCCUtil()->unicharset;
@@ -114,17 +115,17 @@ class Dict {
   /* hyphen.cpp ************************************************************/
 
   /// Returns true if we've recorded the beginning of a hyphenated word.
-  inline bool hyphenated() { return
+  inline bool hyphenated() const { return
     !last_word_on_line_ && hyphen_word_ && GetMaxFixedLengthDawgIndex() < 0;
   }
   /// Size of the base word (the part on the line before) of a hyphenated word.
-  inline int hyphen_base_size() {
+  inline int hyphen_base_size() const {
     return this->hyphenated() ? hyphen_word_->length() : 0;
   }
   /// If this word is hyphenated copy the base word (the part on
   /// the line before) of a hyphenated word into the given word.
   /// This function assumes that word is not NULL.
-  inline void copy_hyphen_info(WERD_CHOICE *word) {
+  inline void copy_hyphen_info(WERD_CHOICE *word) const {
     if (this->hyphenated()) {
       *word = *hyphen_word_;
       if (hyphen_debug_level) word->print("copy_hyphen_info: ");
@@ -133,19 +134,19 @@ class Dict {
   /// Erase the unichar ids corresponding to the portion of the word
   /// from the previous line. The word is not changed if it is not
   /// split between lines and hyphenated.
-  inline void remove_hyphen_head(WERD_CHOICE *word) {
+  inline void remove_hyphen_head(WERD_CHOICE *word) const {
     if (this->hyphenated()) {
       word->remove_unichar_ids(0, hyphen_word_->length());
       if (hyphen_debug_level) hyphen_word_->print("remove_hyphen_head: ");
     }
   }
   /// Check whether the word has a hyphen at the end.
-  inline bool has_hyphen_end(UNICHAR_ID unichar_id, bool first_pos) {
+  inline bool has_hyphen_end(UNICHAR_ID unichar_id, bool first_pos) const {
     return (last_word_on_line_ && !first_pos &&
             unichar_id == hyphen_unichar_id_);
   }
   /// Same as above, but check the unichar at the end of the word.
-  inline bool has_hyphen_end(const WERD_CHOICE &word) {
+  inline bool has_hyphen_end(const WERD_CHOICE &word) const {
     int word_index = word.length() - 1;
     return has_hyphen_end(word.unichar_id(word_index), word_index == 0);
   }
@@ -171,12 +172,14 @@ class Dict {
   /// from hyphen_active_dawgs_ instead.
   void init_active_dawgs(int sought_word_length,
                          DawgInfoVector *active_dawgs,
-                         bool ambigs_mode);
+                         bool ambigs_mode) const;
   /// If hyphenated() returns true, copy the entries from hyphen_constraints_
   /// into the given constraints vector.
-  void init_constraints(DawgInfoVector *constraints);
+  void init_constraints(DawgInfoVector *constraints) const;
   /// Returns true if we are operating in ambigs mode.
-  inline bool ambigs_mode(float rating_limit) { return rating_limit <= 0.0; }
+  inline bool ambigs_mode(float rating_limit) {
+    return rating_limit <= 0.0;
+  }
   /// Recursively explore all the possible character combinations in
   /// the given char_choices. Use go_deeper_dawg_fxn() to explore all the
   /// dawgs in the dawgs_ vector in parallel and discard invalid words.
@@ -316,6 +319,15 @@ class Dict {
                         bool fix_replaceable,
                         BLOB_CHOICE_LIST_VECTOR *Choices,
                         bool *modified_blobs);
+  double StopperAmbigThreshold(double f1, double f2) {
+    return (f2 - f1) * stopper_ambiguity_threshold_gain -
+        stopper_ambiguity_threshold_offset;
+  }
+  // If the certainty of any chunk in Choice (item1) is not ambiguous with the
+  // corresponding chunk in the best choice (item2), frees Choice and
+  // returns true.
+  int FreeBadChoice(void *item1,   // VIABLE_CHOICE Choice
+                    void *item2);  // EXPANDED_CHOICE *BestChoice
   /// Replaces the corresponding wrong ngram in werd_choice with the correct
   /// one. We indicate that this newly inserted ngram unichar is composed from
   /// several fragments and modify the corresponding entries in blob_choices to
@@ -401,7 +413,7 @@ class Dict {
   /// and Certainties.
   void FillViableChoice(const WERD_CHOICE &WordChoice,
                         FLOAT32 AdjustFactor, const float Certainties[],
-                        bool SameString, VIABLE_CHOICE ViableChoice);
+                        VIABLE_CHOICE ViableChoice);
   /// Returns true if there are no alternative choices for the current word
   /// or if all alternatives have an adjust factor worse than Threshold.
   bool AlternativeChoicesWorseThan(FLOAT32 Threshold);
@@ -467,6 +479,15 @@ class Dict {
       document_words_->clear();
   }
 
+  // Create unicharset adaptations of known, short lists of UTF-8 equivalent
+  // characters (think all hyphen-like symbols).  The first version of the
+  // list is taken as equivalent for matching against the dictionary.
+  void LoadEquivalenceList(const char *unichar_strings[]);
+
+  // Normalize all hyphen and apostrophes to the canonicalized one for
+  // matching; pass everything else through as is.  See LoadEquivalenceList().
+  UNICHAR_ID NormalizeUnicharIdForMatch(UNICHAR_ID unichar_id) const;
+
   /**
    * Returns the maximal permuter code (from ccstruct/ratngs.h) if in light
    * of the current state the letter at word_index in the given word
@@ -531,13 +552,13 @@ class Dict {
 
   //
   int def_letter_is_okay(void* void_dawg_args,
-                         UNICHAR_ID unichar_id, bool word_end);
+                         UNICHAR_ID unichar_id, bool word_end) const;
 
   int (Dict::*letter_is_okay_)(void* void_dawg_args,
-                               UNICHAR_ID unichar_id, bool word_end);
+                               UNICHAR_ID unichar_id, bool word_end) const;
   /// Calls letter_is_okay_ member function.
   int LetterIsOkay(void* void_dawg_args,
-                   UNICHAR_ID unichar_id, bool word_end) {
+                   UNICHAR_ID unichar_id, bool word_end) const {
     return (this->*letter_is_okay_)(void_dawg_args, unichar_id, word_end);
   }
 
@@ -581,6 +602,8 @@ class Dict {
   inline const Dawg *GetDawg(int index) const { return dawgs_[index]; }
   /// Return the points to the punctuation dawg.
   inline const Dawg *GetPuncDawg() const { return punc_dawg_; }
+  /// Return the points to the unambiguous words dawg.
+  inline const Dawg *GetUnambigDawg() const { return unambig_dawg_; }
   /// Return the pointer to the Dawg that contains words of length word_length.
   inline const Dawg *GetFixedLengthDawg(int word_length) const {
     if (word_length > max_fixed_length_dawgs_wdlen_) return NULL;
@@ -603,7 +626,7 @@ class Dict {
   /// leading punctuation is found this would ensure that we are not
   /// expecting any particular trailing punctuation after the word).
   inline bool ConstraintsOk(const DawgInfoVector &constraints,
-                            int word_end, DawgType current_dawg_type) {
+                            int word_end, DawgType current_dawg_type) const {
     if (!word_end) return true;
     if (current_dawg_type == DAWG_TYPE_PUNCTUATION) return true;
     for (int c = 0; c < constraints.length(); ++c) {
@@ -627,7 +650,8 @@ class Dict {
   /// edges were found.
   void ProcessPatternEdges(const Dawg *dawg, const DawgInfo &info,
                            UNICHAR_ID unichar_id, bool word_end,
-                           DawgArgs *dawg_args, PermuterType *current_permuter);
+                           DawgArgs *dawg_args,
+                           PermuterType *current_permuter) const;
 
   /// Read/Write/Access special purpose dawgs which contain words
   /// only of a certain length (used for phrase search for
@@ -649,23 +673,25 @@ class Dict {
       int num_dawgs, int debug_level, FILE *output_file);
 
   /// Check all the DAWGs to see if this word is in any of them.
-  inline bool valid_word_permuter(uinT8 perm, bool numbers_ok) {
+  inline static bool valid_word_permuter(uinT8 perm, bool numbers_ok) {
     return (perm == SYSTEM_DAWG_PERM || perm == FREQ_DAWG_PERM ||
             perm == DOC_DAWG_PERM || perm == USER_DAWG_PERM ||
             perm == USER_PATTERN_PERM || (numbers_ok && perm == NUMBER_PERM));
   }
-  int valid_word(const WERD_CHOICE &word, bool numbers_ok);
-  int valid_word(const WERD_CHOICE &word) {
+  int valid_word(const WERD_CHOICE &word, bool numbers_ok) const;
+  int valid_word(const WERD_CHOICE &word) const {
     return valid_word(word, false);  // return NO_PERM for words with digits
   }
-  int valid_word_or_number(const WERD_CHOICE &word) {
+  int valid_word_or_number(const WERD_CHOICE &word) const {
     return valid_word(word, true);  // return NUMBER_PERM for valid numbers
   }
   /// This function is used by api/tesseract_cube_combiner.cpp
-  int valid_word(const char *string) {
+  int valid_word(const char *string) const {
     WERD_CHOICE word(string, getUnicharset());
     return valid_word(word);
   }
+  // Do the two WERD_CHOICEs form a meaningful bigram?
+  bool valid_bigram(const WERD_CHOICE &word1, const WERD_CHOICE &word2) const;
   /// Returns true if the word contains a valid punctuation pattern.
   /// Note: Since the domains of punctuation symbols and symblos
   /// used in numbers are not disjoint, a valid number might contain
@@ -691,6 +717,8 @@ class Dict {
   inline void SetWordsegRatingAdjustFactor(float f) {
     wordseg_rating_adjust_factor_ = f;
   }
+  // Accessor for best_choices_.
+  const LIST &getBestChoices() { return best_choices_; }
 
  private:
   /** Private member variables. */
@@ -723,15 +751,27 @@ class Dict {
   DawgInfoVector hyphen_active_dawgs_;
   DawgInfoVector hyphen_constraints_;
   bool last_word_on_line_;
+  // List of lists of "equivalent" UNICHAR_IDs for the purposes of dictionary
+  // matching.  The first member of each list is taken as canonical.  For
+  // example, the first list contains hyphens and dashes with the first symbol
+  // being the ASCII hyphen minus.
+  GenericVector<GenericVectorEqEq<UNICHAR_ID> > equivalent_symbols_;
   // Dawgs.
   DawgVector dawgs_;
   SuccessorListsVector successors_;
   Trie *pending_words_;
+  // bigram_dawg_ points to a dawg of two-word bigrams which always supercede if
+  // any of them are present on the best choices list for a word pair.
+  // the bigrams are stored as space-separated words where:
+  // (1) leading and trailing punctuation has been removed from each word and
+  // (2) any digits have been replaced with '?' marks.
+  Dawg *bigram_dawg_;
   /// The following pointers are only cached for convenience.
   /// The dawgs will be deleted when dawgs_ vector is destroyed.
   // TODO(daria): need to support multiple languages in the future,
   // so maybe will need to maintain a list of dawgs of each kind.
   Dawg *freq_dawg_;
+  Dawg *unambig_dawg_;
   Dawg *punc_dawg_;
   Trie *document_words_;
   /// Maximum word length of fixed-length word dawgs.
@@ -740,6 +780,8 @@ class Dict {
   /// Current segmentation cost adjust factor for word rating.
   /// See comments in incorporate_segcost.
   float wordseg_rating_adjust_factor_;
+  // File for recording ambiguities discovered during dictionary search.
+  FILE *output_ambig_words_file_;
 
  public:
   /// Variable members.
@@ -750,11 +792,14 @@ class Dict {
                "A list of user-provided patterns.");
   BOOL_VAR_H(load_system_dawg, true, "Load system word dawg.");
   BOOL_VAR_H(load_freq_dawg, true, "Load frequent word dawg.");
+  BOOL_VAR_H(load_unambig_dawg, true, "Load unambiguous word dawg.");
   BOOL_VAR_H(load_punc_dawg, true,
              "Load dawg with punctuation patterns.");
   BOOL_VAR_H(load_number_dawg, true, "Load dawg with number patterns.");
   BOOL_VAR_H(load_fixed_length_dawgs, true,  "Load fixed length"
              " dawgs (e.g. for non-space delimited languages)");
+  BOOL_VAR_H(load_bigram_dawg, false,
+             "Load dawg with special word bigrams.");
   double_VAR_H(segment_penalty_dict_frequent_word, 1.0,
                "Score multiplier for word matches which have good case and"
                "are frequent in the given language (lower is better).");
@@ -779,6 +824,8 @@ class Dict {
                "Score multiplier for poorly cased strings that are not in"
                " the dictionary and generally look like garbage (lower is"
                " better).");
+  STRING_VAR_H(output_ambig_words_file, "",
+               "Output file for ambiguities found in the dictionary");
   INT_VAR_H(dawg_debug_level, 0, "Set to 1 for general debug info"
             ", to 2 for more details, to 3 to see all the debug messages");
   INT_VAR_H(hyphen_debug_level, 0, "Debug level for hyphenated words.");
@@ -801,6 +848,10 @@ class Dict {
   BOOL_VAR_H(stopper_no_acceptable_choices, false,
              "Make AcceptableChoice() always return false. Useful"
              " when there is a need to explore all segmentations");
+  double_VAR_H(stopper_ambiguity_threshold_gain, 8.0,
+               "Gain factor for ambiguity threshold.");
+  double_VAR_H(stopper_ambiguity_threshold_offset, 1.5,
+               "Certainty offset for ambiguity threshold.");
   BOOL_VAR_H(save_raw_choices, false, "Save all explored raw choices");
   INT_VAR_H(tessedit_truncate_wordchoice_log, 10, "Max words to keep in list");
   STRING_VAR_H(word_to_debug, "", "Word for which stopper debug information"
@@ -816,6 +867,10 @@ class Dict {
              "Turn on word script consistency permuter");
   BOOL_VAR_H(segment_segcost_rating, 0,
              "incorporate segmentation cost in word rating?");
+  BOOL_VAR_H(segment_nonalphabetic_script, false,
+             "Don't use any alphabetic-specific tricks."
+             "Set to true in the traineddata config file for"
+             " scripts that are cursive or inherently fixed-pitch");
   double_VAR_H(segment_reward_script, 0.95,
                "Score multipler for script consistency within a word. "
                "Being a 'reward' factor, it should be <= 1. "

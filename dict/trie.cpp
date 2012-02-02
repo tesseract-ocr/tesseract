@@ -40,12 +40,26 @@
 
 namespace tesseract {
 
+const char kDoNotReverse[] = "RRP_DO_NO_REVERSE";
+const char kReverseIfHasRTL[] = "RRP_REVERSE_IF_HAS_RTL";
+const char kForceReverse[] = "RRP_FORCE_REVERSE";
+
+const char * const RTLReversePolicyNames[] = {
+  kDoNotReverse,
+  kReverseIfHasRTL,
+  kForceReverse
+};
+
 const char Trie::kAlphaPatternUnicode[] = "\u2000";
 const char Trie::kDigitPatternUnicode[] = "\u2001";
 const char Trie::kAlphanumPatternUnicode[] = "\u2002";
 const char Trie::kPuncPatternUnicode[] = "\u2003";
 const char Trie::kLowerPatternUnicode[] = "\u2004";
 const char Trie::kUpperPatternUnicode[] = "\u2005";
+
+const char *Trie::get_reverse_policy_name(RTLReversePolicy reverse_policy) {
+  return RTLReversePolicyNames[reverse_policy];
+}
 
 // Reset the Trie to empty.
 void Trie::clear() {
@@ -156,10 +170,15 @@ void Trie::add_word_ending(EDGE_RECORD *edge_ptr,
   *edge_ptr |= (WERD_END_FLAG << flag_start_bit_);
 }
 
-void Trie::add_word_to_dawg(const WERD_CHOICE &word,
+bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
                             const GenericVector<bool> *repetitions) {
-  if (word.length() <= 0) return;  // can't add empty words
+  if (word.length() <= 0) return false;  // can't add empty words
   if (repetitions != NULL) ASSERT_HOST(repetitions->size() == word.length());
+  // Make sure the word does not contain invalid unchar ids.
+  for (int i = 0; i < word.length(); ++i) {
+    if (word.unichar_id(i) < 0 ||
+        word.unichar_id(i) >= unicharset_size_) return false;
+  }
 
   EDGE_RECORD *edge_ptr;
   NODE_REF last_node = 0;
@@ -233,6 +252,9 @@ void Trie::add_word_to_dawg(const WERD_CHOICE &word,
   if (add_failed) {
     tprintf("Re-initializing document dictionary...\n");
     clear();
+    return false;
+  } else {
+    return true;
   }
 }
 
@@ -244,7 +266,8 @@ NODE_REF Trie::new_dawg_node() {
 }
 
 bool Trie::read_word_list(const char *filename,
-                          const UNICHARSET &unicharset) {
+                          const UNICHARSET &unicharset,
+                          Trie::RTLReversePolicy reverse_policy) {
   FILE *word_file;
   char string[CHARS_PER_LINE];
   int  word_count = 0;
@@ -254,6 +277,11 @@ bool Trie::read_word_list(const char *filename,
   while (fgets(string, CHARS_PER_LINE, word_file) != NULL) {
     chomp_string(string);  // remove newline
     WERD_CHOICE word(string, unicharset);
+    if ((reverse_policy == RRP_REVERSE_IF_HAS_RTL &&
+        word.has_rtl_unichar_id()) ||
+        reverse_policy == RRP_FORCE_REVERSE) {
+      word.reverse_and_mirror_unichar_ids();
+    }
     ++word_count;
     if (debug_level_ && word_count % 10000 == 0)
       tprintf("Read %d words so far\n", word_count);
@@ -290,6 +318,7 @@ void Trie::initialize_patterns(UNICHARSET *unicharset) {
   unicharset->unichar_insert(kUpperPatternUnicode);
   upper_pattern_ = unicharset->unichar_to_id(kUpperPatternUnicode);
   initialized_patterns_ = true;
+  unicharset_size_ = unicharset->size();
 }
 
 void Trie::unichar_id_to_patterns(UNICHAR_ID unichar_id,
@@ -351,7 +380,7 @@ bool Trie::read_pattern_list(const char *filename,
     chomp_string(string);  // remove newline
     // Parse the pattern and construct a unichar id vector.
     // Record the number of repetitions of each unichar in the parallel vector.
-    WERD_CHOICE word;
+    WERD_CHOICE word(&unicharset);
     GenericVector<bool> repetitions_vec;
     const char *str_ptr = string;
     int step = unicharset.step(str_ptr);
@@ -397,7 +426,7 @@ bool Trie::read_pattern_list(const char *filename,
     // Insert the pattern into the trie.
     if (debug_level_ > 2) {
       tprintf("Inserting expanded user pattern %s\n",
-              word.debug_string(unicharset).string());
+              word.debug_string().string());
     }
     if (!this->word_in_dawg(word)) {
       this->add_word_to_dawg(word, &repetitions_vec);

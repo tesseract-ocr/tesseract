@@ -86,7 +86,7 @@ void Dict::go_deeper_dawg_fxn(
         if (permute_debug && dawg_debug_level) {
           tprintf("early pruned word rating=%4.2f,"
                   " permdawg_limit=%4.2f, word=%s\n", word->rating(),
-                  permdawg_limit, word->debug_string(getUnicharset()).string());
+                  permdawg_limit, word->debug_string().string());
         }
         return;
       }
@@ -106,8 +106,7 @@ void Dict::go_deeper_dawg_fxn(
     }
     if (clean_active_dawgs.size() > 0) {
       if (permute_debug && dawg_debug_level)
-        tprintf("new hyphen choice = %s\n",
-                word->debug_string(getUnicharset()).string());
+        tprintf("new hyphen choice = %s\n", word->debug_string().string());
       word->set_permuter(more_args->permuter);
       adjust_word(word, certainties, permute_debug);
       set_hyphen_word(*word, *(more_args->active_dawgs),
@@ -190,11 +189,26 @@ void Dict::go_deeper_dawg_fxn(
       // Add a new word choice
       if (word_ending) {
         if (permute_debug && dawg_debug_level) {
-          tprintf("found word = %s\n",
-                  word->debug_string(getUnicharset()).string());
+          tprintf("found word = %s\n", word->debug_string().string());
+        }
+        if (ambigs_mode(*limit) &&
+            strcmp(output_ambig_words_file.string(), "") != 0) {
+          if (output_ambig_words_file_ == NULL) {
+            output_ambig_words_file_ =
+                fopen(output_ambig_words_file.string(), "w+");
+            if (output_ambig_words_file_ == NULL) {
+              tprintf("Failed to open output_ambig_words_file %s\n",
+                      output_ambig_words_file.string());
+              exit(1);
+            }
+          }
+          STRING word_str;
+          word->string_and_lengths(&word_str, NULL);
+          word_str += " ";
+          fprintf(output_ambig_words_file_, word_str.string());
         }
         WERD_CHOICE *adjusted_word = word;
-        WERD_CHOICE hyphen_tail_word;
+        WERD_CHOICE hyphen_tail_word(&getUnicharset());
         if (hyphen_base_size() > 0) {
           hyphen_tail_word = *word;
           remove_hyphen_head(&hyphen_tail_word);
@@ -226,7 +240,7 @@ void Dict::go_deeper_dawg_fxn(
     } else {
       if (permute_debug && dawg_debug_level) {
         tprintf("last unichar not OK at index %d in %s\n",
-                word_index, word->debug_string(getUnicharset()).string());
+                word_index, word->debug_string().string());
       }
     }
   }
@@ -249,7 +263,7 @@ void Dict::go_deeper_dawg_fxn(
 WERD_CHOICE *Dict::dawg_permute_and_select(
     const BLOB_CHOICE_LIST_VECTOR &char_choices, float rating_limit,
     int sought_word_length, int start_char_choice_index) {
-  WERD_CHOICE *best_choice = new WERD_CHOICE();
+  WERD_CHOICE *best_choice = new WERD_CHOICE(&getUnicharset());
   best_choice->make_bad();
   best_choice->set_rating(rating_limit);
   if (char_choices.length() == 0) return best_choice;
@@ -272,7 +286,7 @@ WERD_CHOICE *Dict::dawg_permute_and_select(
                      (segment_penalty_dict_case_bad /
                       segment_penalty_dict_case_ok),
                      NO_PERM, sought_word_length, end_char_choice_index);
-  WERD_CHOICE word(MAX_WERD_LENGTH);
+  WERD_CHOICE word(&getUnicharset(), MAX_WERD_LENGTH);
   copy_hyphen_info(&word);
   // Discard rating and certainty of the hyphen base (if any).
   word.set_rating(0.0);

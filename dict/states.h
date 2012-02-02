@@ -29,6 +29,7 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "host.h"
+#include "strngs.h"
 
 /*----------------------------------------------------------------------
               T y p e s
@@ -63,6 +64,8 @@ STATE *new_state(STATE *oldstate);
 int ones_in_state(STATE *state, int num_joints);
 
 void print_state(const char *label, STATE *state, int num_joints);
+
+void print_state(STATE *state, int num_joints, STRING *toappend);
 
 void set_n_ones(STATE *state, int n);
 

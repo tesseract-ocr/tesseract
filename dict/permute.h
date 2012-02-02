@@ -133,6 +133,8 @@ class PermuterState {
  private:
   static const char kPosFree = '.';
 
+  const UNICHARSET *unicharset_;
+
   const BLOB_CHOICE_LIST_VECTOR *char_choices_;   // reference pointer only
                             // does not need to be allocated or freed
   char perm_state_[MAX_PERM_LENGTH];   // handles upto MAX_PERM_LENGTH-1 states

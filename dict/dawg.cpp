@@ -98,6 +98,32 @@ int Dawg::check_for_words(const char *filename,
   return misses;
 }
 
+void Dawg::iterate_words(const UNICHARSET &unicharset,
+                         TessCallback1<const char *> *cb) const {
+  WERD_CHOICE word(&unicharset);
+  iterate_words_rec(word, 0, cb);
+}
+
+void Dawg::iterate_words_rec(const WERD_CHOICE &word_so_far,
+                             NODE_REF to_explore,
+                             TessCallback1<const char *> *cb) const {
+  NodeChildVector children;
+  this->unichar_ids_of(to_explore, &children);
+  for (int i = 0; i < children.size(); i++) {
+    WERD_CHOICE next_word(word_so_far);
+    next_word.append_unichar_id(children[i].unichar_id, 1, 0.0, 0.0);
+    if (this->end_of_word(children[i].edge_ref)) {
+      STRING s;
+      next_word.string_and_lengths(&s, NULL);
+      cb->Run(s.string());
+    }
+    NODE_REF next = next_node(children[i].edge_ref);
+    if (next != 0) {
+      iterate_words_rec(next_word, next, cb);
+    }
+  }
+}
+
 bool Dawg::match_words(WERD_CHOICE *word, inT32 index,
                        NODE_REF node, UNICHAR_ID wildcard) const {
   EDGE_REF edge;
@@ -286,12 +312,12 @@ void SquishedDawg::read_squished_dawg(FILE *file,
   int unicharset_size;
   fread(&unicharset_size, sizeof(inT32), 1, file);
   fread(&num_edges_, sizeof(inT32), 1, file);
-  ASSERT_HOST(num_edges_ > 0);  // DAWG should not be empty
 
   if (swap) {
     unicharset_size = reverse32(unicharset_size);
     num_edges_ = reverse32(num_edges_);
   }
+  ASSERT_HOST(num_edges_ > 0);  // DAWG should not be empty
   Dawg::init(type, lang, perm, unicharset_size, debug_level);
 
   edges_ = (EDGE_ARRAY) memalloc(sizeof(EDGE_RECORD) * num_edges_);
@@ -318,13 +344,13 @@ NODE_MAP SquishedDawg::build_node_map(inT32 *num_nodes) const {
 
   node_map = (NODE_MAP) malloc(sizeof(EDGE_REF) * num_edges_);
 
-  for (edge=0; edge < num_edges_; edge++)       // init all slots
+  for (edge = 0; edge < num_edges_; edge++)       // init all slots
     node_map [edge] = -1;
 
   node_counter = num_forward_edges(0);
 
   *num_nodes   = 0;
-  for (edge=0; edge < num_edges_; edge++) {     // search all slots
+  for (edge = 0; edge < num_edges_; edge++) {     // search all slots
 
     if (forward_edge(edge)) {
       (*num_nodes)++;                          // count nodes links
@@ -332,6 +358,7 @@ NODE_MAP SquishedDawg::build_node_map(inT32 *num_nodes) const {
       num_edges = num_forward_edges(edge);
       if (edge != 0) node_counter += num_edges;
       edge += num_edges;
+      if (edge >= num_edges_) break;
       if (backward_edge(edge)) while (!last_edge(edge++));
       edge--;
     }
@@ -369,7 +396,7 @@ void SquishedDawg::write_squished_dawg(FILE *file) {
     tprintf("%d edges in DAWG\n", num_edges);
   }
 
-  for (edge=0; edge<num_edges_; edge++) {
+  for (edge = 0; edge < num_edges_; edge++) {
     if (forward_edge(edge)) {  // write forward edges
       do {
         old_index = next_node_from_edge_rec(edges_[edge]);
@@ -379,6 +406,7 @@ void SquishedDawg::write_squished_dawg(FILE *file) {
         set_next_node(edge, old_index);
       } while (!last_edge(edge++));
 
+      if (edge >= num_edges_) break;
       if (backward_edge(edge))  // skip back links
         while (!last_edge(edge++));
 
