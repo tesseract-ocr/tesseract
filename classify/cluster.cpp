@@ -20,6 +20,7 @@
 #include "cluster.h"
 #include "emalloc.h"
 #include "helpers.h"
+#include "matrix.h"
 #include "tprintf.h"
 #include "danerror.h"
 #include "freelist.h"
@@ -137,7 +138,7 @@ const double FTable[FTABLE_Y][FTABLE_X] = {
   dimension of any feature. Since most features are calculated from numbers
   with a precision no better than 1 in 128, the variance should never be
   less than the square of this number for parameters whose range is 1. */
-#define MINVARIANCE     0.0001
+#define MINVARIANCE     0.0004
 
 /* define the absolute minimum number of samples which must be present in
   order to accurately test hypotheses about underlying probability
@@ -145,7 +146,6 @@ const double FTable[FTABLE_Y][FTABLE_X] = {
   before a statistical analysis is attempted; this number should be
   equal to MINSAMPLES but can be set to a lower number for early testing
   when very few samples are available. */
-#define MINBUCKETS      5
 #define MINSAMPLESPERBUCKET 5
 #define MINSAMPLES    (MINBUCKETS * MINSAMPLESPERBUCKET)
 #define MINSAMPLESNEEDED  1
@@ -222,7 +222,6 @@ static const FLOAT64 kNormalMean = BUCKETTABLESIZE / 2;
 /* define lookup tables used to compute the number of histogram buckets
   that should be used for a given number of samples. */
 #define LOOKUPTABLESIZE   8
-#define MAXBUCKETS      39
 #define MAXDEGREESOFFREEDOM MAXBUCKETS
 
 static const uinT32 kCountTable[LOOKUPTABLESIZE] = {
@@ -349,8 +348,7 @@ BOOL8 DistributionOK(BUCKETS *Buckets);
 
 void FreeStatistics(STATISTICS *Statistics);
 
-void FreeBuckets(CLUSTERER* clusterer,
-                 BUCKETS *Buckets);
+void FreeBuckets(BUCKETS *Buckets);
 
 void FreeCluster(CLUSTER *Cluster);
 
@@ -425,10 +423,11 @@ MakeClusterer (inT16 SampleSize, const PARAM_DESC ParamDesc[]) {
   // allocate a kd tree to hold the samples
   Clusterer->KDTree = MakeKDTree (SampleSize, ParamDesc);
 
-  // keep a list of histogram buckets to minimize recomputing them
-  Clusterer->bucket_cache[0] = NIL_LIST;
-  Clusterer->bucket_cache[1] = NIL_LIST;
-  Clusterer->bucket_cache[2] = NIL_LIST;
+  // Initialize cache of histogram buckets to minimize recomputing them.
+  for (int d = 0; d < DISTRIBUTION_COUNT; ++d) {
+    for (int c = 0; c < MAXBUCKETS + 1 - MINBUCKETS; ++c)
+      Clusterer->bucket_cache[d][c] = NULL;
+  }
 
   return Clusterer;
 }                                // MakeClusterer
@@ -448,8 +447,8 @@ Exceptions:	ALREADYCLUSTERED	MakeSample can't be called after
       ClusterSamples has been called
 History:	5/29/89, DSJ, Created.
 *****************************************************************************/
-SAMPLE *
-MakeSample (CLUSTERER * Clusterer, FLOAT32 Feature[], inT32 CharID) {
+SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
+                   inT32 CharID) {
   SAMPLE *Sample;
   int i;
 
@@ -537,9 +536,13 @@ void FreeClusterer(CLUSTERER *Clusterer) {
       FreeKDTree (Clusterer->KDTree);
     if (Clusterer->Root != NULL)
       FreeCluster (Clusterer->Root);
-    iterate (Clusterer->ProtoList) {
-      ((PROTOTYPE *) (first_node (Clusterer->ProtoList)))->Cluster = NULL;
+    // Free up all used buckets structures.
+    for (int d = 0; d < DISTRIBUTION_COUNT; ++d) {
+      for (int c = 0; c < MAXBUCKETS + 1 - MINBUCKETS; ++c)
+        if (Clusterer->bucket_cache[d][c] != NULL)
+          FreeBuckets(Clusterer->bucket_cache[d][c]);
     }
+
     memfree(Clusterer);
   }
 }                                // FreeClusterer
@@ -662,6 +665,8 @@ FLOAT32 StandardDeviation(PROTOTYPE *Proto, uinT16 Dimension) {
         case uniform:
         case D_random:
           return (Proto->Variance.Elliptical[Dimension]);
+        case DISTRIBUTION_COUNT:
+          ASSERT_HOST(!"Distribution count not allowed!");
       }
   }
   return 0.0f;
@@ -1033,7 +1038,6 @@ PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
                              Config->Confidence);
       break;
   }
-  FreeBuckets(Clusterer, Buckets);
   FreeStatistics(Statistics);
   return Proto;
 }                                // MakePrototype
@@ -1339,10 +1343,6 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
     FreePrototype(Proto);
     Proto = NULL;
   }
-  if (UniformBuckets != NULL)
-    FreeBuckets(Clusterer, UniformBuckets);
-  if (RandomBuckets != NULL)
-    FreeBuckets(Clusterer, RandomBuckets);
   return (Proto);
 }                                // MakeMixedProto
 
@@ -1623,6 +1623,7 @@ PROTOTYPE *NewSimpleProto(inT16 N, CLUSTER *Cluster) {
   Proto->Distrib = NULL;
 
   Proto->Significant = TRUE;
+  Proto->Merged = FALSE;
   Proto->Style = spherical;
   Proto->NumSamples = Cluster->SampleCount;
   Proto->Cluster = Cluster;
@@ -1705,17 +1706,18 @@ BUCKETS *GetBuckets(CLUSTERER* clusterer,
                     DISTRIBUTION Distribution,
                     uinT32 SampleCount,
                     FLOAT64 Confidence) {
-  // search for an old bucket structure with the same number of buckets
-  LIST *bucket_cache = clusterer->bucket_cache;
+  // Get an old bucket structure with the same number of buckets.
   uinT16 NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
-  BUCKETS *Buckets = (BUCKETS *) first_node(search(
-      bucket_cache[(int)Distribution], &NumberOfBuckets,
-      NumBucketsMatch));
+  BUCKETS *Buckets =
+      clusterer->bucket_cache[Distribution][NumberOfBuckets - MINBUCKETS];
 
-  // if a matching bucket structure is found, delete it from the list
-  if (Buckets != NULL) {
-    bucket_cache[(int) Distribution] =
-        delete_d(bucket_cache[(int) Distribution], Buckets, ListEntryMatch);
+  // If a matching bucket structure is not found, make one and save it.
+  if (Buckets == NULL) {
+    Buckets = MakeBuckets(Distribution, SampleCount, Confidence);
+    clusterer->bucket_cache[Distribution][NumberOfBuckets - MINBUCKETS] =
+        Buckets;
+  } else {
+    // Just adjust the existing buckets.
     if (SampleCount != Buckets->SampleCount)
       AdjustBuckets(Buckets, SampleCount);
     if (Confidence != Buckets->Confidence) {
@@ -1725,9 +1727,6 @@ BUCKETS *GetBuckets(CLUSTERER* clusterer,
           Confidence);
     }
     InitBuckets(Buckets);
-  } else {
-    // otherwise create a new structure
-    Buckets = MakeBuckets(Distribution, SampleCount, Confidence);
   }
   return Buckets;
 }                                // GetBuckets
@@ -1770,14 +1769,14 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
   BOOL8 Symmetrical;
 
   // allocate memory needed for data structure
-  Buckets = (BUCKETS *) Emalloc(sizeof(BUCKETS));
-  Buckets->NumberOfBuckets = OptimumNumberOfBuckets (SampleCount);
+  Buckets = reinterpret_cast<BUCKETS*>(Emalloc(sizeof(BUCKETS)));
+  Buckets->NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
   Buckets->SampleCount = SampleCount;
   Buckets->Confidence = Confidence;
-  Buckets->Count =
-    (uinT32 *) Emalloc(Buckets->NumberOfBuckets * sizeof (uinT32));
-  Buckets->ExpectedCount =
-    (FLOAT32 *) Emalloc(Buckets->NumberOfBuckets * sizeof (FLOAT32));
+  Buckets->Count = reinterpret_cast<uinT32*>(
+      Emalloc(Buckets->NumberOfBuckets * sizeof(uinT32)));
+  Buckets->ExpectedCount = reinterpret_cast<FLOAT32*>(
+      Emalloc(Buckets->NumberOfBuckets * sizeof(FLOAT32)));
 
   // initialize simple fields
   Buckets->Distribution = Distribution;
@@ -2246,23 +2245,16 @@ void FreeStatistics(STATISTICS *Statistics) {
 
 
 //---------------------------------------------------------------------------
-void FreeBuckets(CLUSTERER* clusterer, BUCKETS *buckets) {
+void FreeBuckets(BUCKETS *buckets) {
 /*
  **  Parameters:
- **      clusterer->bucket_cache
- **           distribution-indexed cache of old bucket structures.
  **      buckets  pointer to data structure to be freed
  **  Operation:
- **      This routine places the specified histogram data structure
- **      at the front of a list of histograms so that it can be reused
- **      later if necessary.  A separate list is maintained for each
- **      different type of distribution.
+ **      This routine properly frees the memory used by a BUCKETS.
  */
-  LIST *bucket_cache = clusterer->bucket_cache;
-  if (buckets != NULL) {
-    int dist = (int)buckets->Distribution;
-    bucket_cache[dist] = (LIST) push(bucket_cache[dist], buckets);
-  }
+  Efree(buckets->Count);
+  Efree(buckets->ExpectedCount);
+  Efree(buckets);
 }                                // FreeBuckets
 
 
@@ -2640,8 +2632,10 @@ CLUSTER * Cluster, FLOAT32 MaxIllegal)
       }
       NumCharInCluster--;
       PercentIllegal = (FLOAT32) NumIllegalInCluster / NumCharInCluster;
-      if (PercentIllegal > MaxIllegal)
+      if (PercentIllegal > MaxIllegal) {
+        destroy(SearchState);
         return (TRUE);
+      }
     }
   }
   return (FALSE);
@@ -2652,17 +2646,10 @@ CLUSTER * Cluster, FLOAT32 MaxIllegal)
 // The return value is the sum of norms of the off-diagonal terms of the
 // product of a and inv. (A measure of the error.)
 double InvertMatrix(const float* input, int size, float* inv) {
-  double** U;  // The upper triangular array.
-  double* Umem;
-  double** U_inv;  // The inverse of U.
-  double* U_invmem;
-  double** L;  // The lower triangular array.
-  double* Lmem;
-
   // Allocate memory for the 2D arrays.
-  ALLOC_2D_ARRAY(size, size, Umem, U, double);
-  ALLOC_2D_ARRAY(size, size, U_invmem, U_inv, double);
-  ALLOC_2D_ARRAY(size, size, Lmem, L, double);
+  GENERIC_2D_ARRAY<double> U(size, size, 0.0);
+  GENERIC_2D_ARRAY<double> U_inv(size, size, 0.0);
+  GENERIC_2D_ARRAY<double> L(size, size, 0.0);
 
   // Initialize the working matrices. U starts as input, L as I and U_inv as O.
   int row;

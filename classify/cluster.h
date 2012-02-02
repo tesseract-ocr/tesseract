@@ -21,6 +21,11 @@
 #include "kdtree.h"
 #include "oldlist.h"
 
+struct BUCKETS;
+
+#define MINBUCKETS      5
+#define MAXBUCKETS      39
+
 /*----------------------------------------------------------------------
           Types
 ----------------------------------------------------------------------*/
@@ -51,7 +56,7 @@ typedef struct {                 // parameters to control clustering
 } CLUSTERCONFIG;
 
 typedef enum {
-  normal, uniform, D_random
+  normal, uniform, D_random, DISTRIBUTION_COUNT
 } DISTRIBUTION;
 
 typedef union {
@@ -86,7 +91,8 @@ typedef struct {
   CLUSTER *Root;                 // ptr to root cluster of cluster tree
   LIST ProtoList;                // list of prototypes
   inT32 NumChar;                 // # of characters represented by samples
-  LIST bucket_cache[3];  // cache of reusable histograms by distribution type
+  // cache of reusable histograms by distribution type and number of buckets.
+  BUCKETS* bucket_cache[DISTRIBUTION_COUNT][MAXBUCKETS + 1 - MINBUCKETS];
 } CLUSTERER;
 
 typedef struct {
@@ -103,7 +109,7 @@ typedef struct {
 --------------------------------------------------------------------------*/
 CLUSTERER *MakeClusterer (inT16 SampleSize, const PARAM_DESC ParamDesc[]);
 
-SAMPLE *MakeSample (CLUSTERER * Clusterer, FLOAT32 Feature[], inT32 CharID);
+SAMPLE *MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature, inT32 CharID);
 
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);
 

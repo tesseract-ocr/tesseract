@@ -114,8 +114,6 @@ MFOUTLINE NextExtremity(MFOUTLINE EdgePoint);
 void NormalizeOutline(MFOUTLINE Outline,
                       FLOAT32 XOrigin);
 
-void SmearExtremities(MFOUTLINE Outline, FLOAT32 XScale, FLOAT32 YScale);
-
 /*----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/

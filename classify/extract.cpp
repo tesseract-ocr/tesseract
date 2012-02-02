@@ -30,15 +30,6 @@ typedef CHAR_FEATURES (*CF_FUNC) ();
 void ExtractorStub(); 
 
 /*-----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
------------------------------------------------------------------------------*/
-/** tables to keep track of the different low level feature extractors */
-#define NUM_FX        3
-#define DEFAULT_FX      2
-
-int CurrentFx = DEFAULT_FX;
-
-/*-----------------------------------------------------------------------------
               Public Code
 -----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/

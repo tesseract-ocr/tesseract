@@ -112,11 +112,15 @@ void LearnBlob(const FEATURE_DEFS_STRUCT &FeatureDefs, FILE* FeatureFile,
     return;
   }
 
-  // label the features with a class name and font name
-  fprintf (FeatureFile, "\n%s %s ", FontName, BlobText);
+  if (ValidCharDescription(FeatureDefs, CharDesc)) {
+    // label the features with a class name and font name
+    fprintf(FeatureFile, "\n%s %s\n", FontName, BlobText);
 
-  // write micro-features to file and clean up
-  WriteCharDescription(FeatureDefs, FeatureFile, CharDesc);
+    // write micro-features to file and clean up
+    WriteCharDescription(FeatureDefs, FeatureFile, CharDesc);
+  } else {
+    tprintf("Blob learned was invalid!\n");
+  }
   FreeCharDescription(CharDesc);
 
 }                                // LearnBlob

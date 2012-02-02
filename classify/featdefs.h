@@ -25,6 +25,10 @@
 
 /* Enumerate the different types of features currently defined. */
 #define NUM_FEATURE_TYPES 4
+extern const char* kMicroFeatureType;
+extern const char* kCNFeatureType;
+extern const char* kIntFeatureType;
+extern const char* kGeoFeatureType;
 
 /* define error traps which can be triggered by this module.*/
 #define ILLEGAL_SHORT_NAME  2000
@@ -58,6 +62,9 @@ void FreeCharDescription(CHAR_DESC CharDesc);
 
 CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs);
 
+bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
+                          CHAR_DESC CharDesc);
+
 void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
                           FILE *File, CHAR_DESC CharDesc);
 
@@ -74,4 +81,6 @@ extern const FEATURE_DESC_STRUCT MicroFeatureDesc;
 extern const FEATURE_DESC_STRUCT PicoFeatDesc;
 extern const FEATURE_DESC_STRUCT CharNormDesc;
 extern const FEATURE_DESC_STRUCT OutlineFeatDesc;
+extern const FEATURE_DESC_STRUCT IntFeatDesc;
+extern const FEATURE_DESC_STRUCT GeoFeatDesc;
 #endif

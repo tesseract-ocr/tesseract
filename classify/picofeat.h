@@ -24,6 +24,22 @@
 #include "ocrfeatures.h"
 #include "params.h"
 
+// Enum for the order/type of params in IntFeatDesc.
+enum IntParams {
+  IntX,   // x-position (0-255).
+  IntY,   // y-position (0-255).
+  IntDir  // Direction (0-255, circular).
+};
+
+// Enum for the order/type of params in GeoFeatDesc.
+enum GeoParams {
+  GeoBottom,   // Bounding box bottom in baseline space (0-255).
+  GeoTop,      // Bounding box top in baseline space (0-255).
+  GeoWidth,    // Bounding box width in baseline space (0-255).
+
+  GeoCount     // Number of geo features.
+};
+
 typedef enum
 { PicoFeatY, PicoFeatDir, PicoFeatX }
 PICO_FEAT_PARAM_NAME;
@@ -41,6 +57,9 @@ extern double_VAR_H(classify_pico_feature_length, 0.05, "Pico Feature Length");
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
 #define GetPicoFeatureLength()  (PicoFeatureLength)
+
+FEATURE_SET ExtractIntCNFeatures(TBLOB *Blob, const DENORM& denorm);
+FEATURE_SET ExtractIntGeoFeatures(TBLOB *Blob, const DENORM& denorm);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

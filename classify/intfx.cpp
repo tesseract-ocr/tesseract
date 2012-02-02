@@ -23,8 +23,12 @@
 #include "const.h"
 #include "helpers.h"
 #include "ccutil.h"
+#include "statistc.h"
+#include "trainingsample.h"
 #ifdef __UNIX__
 #endif
+
+using tesseract::TrainingSample;
 
 /**----------------------------------------------------------------------------
           Private Function Prototypes
@@ -55,6 +59,10 @@ INT_VAR(classify_radius_gyr_max_exp, 8,
 //    atan(0.0) ... atan(ATAN_TABLE_SIZE - 1 / ATAN_TABLE_SIZE)
 // The entries are in binary degrees where a full circle is 256 binary degrees.
 static uinT8 AtanTable[ATAN_TABLE_SIZE];
+// Look up table for cos and sin to turn the intfx feature angle to a vector.
+// Also protected by atan_table_mutex.
+static float cos_table[INT_CHAR_NORM_RANGE];
+static float sin_table[INT_CHAR_NORM_RANGE];
 // Guards write access to AtanTable so we dont create it more than once.
 tesseract::CCUtilMutex atan_table_mutex;
 
@@ -71,9 +79,44 @@ void InitIntegerFX() {
       AtanTable[i] =
           (uinT8) (atan ((i / (float) ATAN_TABLE_SIZE)) * 128.0 / PI + 0.5);
     }
+    for (int i = 0; i < INT_CHAR_NORM_RANGE; ++i) {
+      cos_table[i] = cos(i * 2 * PI / INT_CHAR_NORM_RANGE + PI);
+      sin_table[i] = sin(i * 2 * PI / INT_CHAR_NORM_RANGE + PI);
+    }
     atan_table_init = true;
   }
   atan_table_mutex.Unlock();
+}
+
+// Returns a vector representing the direction of a feature with the given
+// theta direction in an INT_FEATURE_STRUCT.
+FCOORD FeatureDirection(uinT8 theta) {
+  return FCOORD(cos_table[theta], sin_table[theta]);
+}
+
+TrainingSample* GetIntFeatures(tesseract::NormalizationMode mode,
+                               TBLOB *blob, const DENORM& denorm) {
+  INT_FEATURE_ARRAY blfeatures;
+  INT_FEATURE_ARRAY cnfeatures;
+  INT_FX_RESULT_STRUCT fx_info;
+  ExtractIntFeat(blob, denorm, blfeatures, cnfeatures, &fx_info, NULL);
+  TrainingSample* sample = NULL;
+  if (mode == tesseract::NM_CHAR_ANISOTROPIC) {
+    int num_features = fx_info.NumCN;
+    if (num_features > 0) {
+      sample = TrainingSample::CopyFromFeatures(fx_info, cnfeatures,
+                                                num_features);
+    }
+  } else if (mode == tesseract::NM_BASELINE) {
+    int num_features = fx_info.NumBL;
+    if (num_features > 0) {
+      sample = TrainingSample::CopyFromFeatures(fx_info, blfeatures,
+                                                num_features);
+    }
+  } else {
+    ASSERT_HOST(!"Unsupported normalization mode!");
+  }
+  return sample;
 }
 
 
@@ -101,7 +144,7 @@ int ExtractIntFeat(TBLOB *Blob,
                    const DENORM& denorm,
                    INT_FEATURE_ARRAY BLFeat,
                    INT_FEATURE_ARRAY CNFeat,
-                   INT_FX_RESULT Results,
+                   INT_FX_RESULT_STRUCT* Results,
                    inT32 *FeatureOutlineArray) {
 
   TESSLINE *OutLine;
@@ -131,6 +174,8 @@ int ExtractIntFeat(TBLOB *Blob,
   Results->Ry = 0;
   Results->NumBL = 0;
   Results->NumCN = 0;
+  Results->YBottom = MAX_UINT8;
+  Results->YTop = 0;
 
   // Calculate the centroid (Xmean, Ymean) for the blob.
   //   We use centroid (instead of center of bounding box or center of smallest
@@ -200,6 +245,8 @@ int ExtractIntFeat(TBLOB *Blob,
   Iy = 0;
   NumBLFeatures = 0;
   OutLine = Blob->outlines;
+  int min_x = 0;
+  int max_x = 0;
   while (OutLine != NULL) {
     LoopStart = OutLine->loop;
     Loop = LoopStart;
@@ -213,6 +260,11 @@ int ExtractIntFeat(TBLOB *Blob,
       Loop = Loop->next;
       NormX = Loop->pos.x - Xmean;
       NormY = Loop->pos.y;
+      if (NormY < Results->YBottom)
+        Results->YBottom = ClipToRange(NormY, 0, MAX_UINT8);
+      if (NormY > Results->YTop)
+        Results->YTop = ClipToRange(NormY, 0, MAX_UINT8);
+      UpdateRange(NormX, &min_x, &max_x);
 
       n = 1;
       if (!Segment->IsHidden()) {
@@ -261,6 +313,7 @@ int ExtractIntFeat(TBLOB *Blob,
     while (Loop != LoopStart);
     OutLine = OutLine->next;
   }
+  Results->Width = max_x - min_x;
   if (Ix == 0)
     Ix = 1;
   if (Iy == 0)
@@ -440,6 +493,7 @@ int SaveFeature(INT_FEATURE_ARRAY FeatureArray,
   Feature->X = ClipToRange<inT16>(X, 0, 255);
   Feature->Y = ClipToRange<inT16>(Y, 0, 255);
   Feature->Theta = Theta;
+  Feature->CP_misses = 0;
 
   return TRUE;
 }

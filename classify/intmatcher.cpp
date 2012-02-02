@@ -23,8 +23,11 @@
 #include "intproto.h"
 #include "callcpp.h"
 #include "scrollview.h"
+#include "float2int.h"
 #include "globals.h"
+#include "helpers.h"
 #include "classify.h"
+#include "shapetable.h"
 #include <math.h>
 
 // Include automatically generated configuration file if running autoconf.
@@ -35,6 +38,11 @@
 /*----------------------------------------------------------------------------
                     Global Data Definitions and Declarations
 ----------------------------------------------------------------------------*/
+// Parameters of the sigmoid used to convert similarity to evidence in the
+// similarity_evidence_table_ that is used to convert distance metric to an
+// 8 bit evidence value in the secondary matcher. (See IntMatcher::Init).
+const float IntegerMatcher::kSEExponentialMultiplier = 0.0;
+const float IntegerMatcher::kSimilarityCenter = 0.0075;
 
 static const uinT8 offset_table[256] = {
   255, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
@@ -89,275 +97,360 @@ static const uinT8 next_table[256] = {
   0xf8, 0xfc, 0xfc, 0xfe
 };
 
-struct ClassPrunerData {
-  int *class_count_;
-  int *norm_count_;
-  int *sort_key_;
-  int *sort_index_;
-  int max_classes_;
+namespace tesseract {
 
-  ClassPrunerData(int max_classes) {
-    // class_count_ and friends are referenced by indexing off of data in
-    //   class pruner word sized chunks.  Each pruner word is of sized
-    //   BITS_PER_WERD and each entry is NUM_BITS_PER_CLASS, so there are
-    //   BITS_PER_WERD / NUM_BITS_PER_CLASS entries.
-    //   See Classify::ClassPruner in intmatcher.cpp.
-    max_classes_ = RoundUp(
+// Encapsulation of the intermediate data and computations made by the class
+// pruner. The class pruner implements a simple linear classifier on binary
+// features by heavily quantizing the feature space, and applying
+// NUM_BITS_PER_CLASS (2)-bit weights to the features. Lack of resolution in
+// weights is compensated by a non-constant bias that is dependent on the
+// number of features present.
+class ClassPruner {
+ public:
+  ClassPruner(int max_classes) {
+    // The unrolled loop in ComputeScores means that the array sizes need to
+    // be rounded up so that the array is big enough to accommodate the extra
+    // entries accessed by the unrolling. Each pruner word is of sized
+    // BITS_PER_WERD and each entry is NUM_BITS_PER_CLASS, so there are
+    // BITS_PER_WERD / NUM_BITS_PER_CLASS entries.
+    // See ComputeScores.
+    max_classes_ = max_classes;
+    rounded_classes_ = RoundUp(
         max_classes, WERDS_PER_CP_VECTOR * BITS_PER_WERD / NUM_BITS_PER_CLASS);
-    class_count_ = new int[max_classes_];
-    norm_count_ = new int[max_classes_];
-    sort_key_ = new int[max_classes_ + 1];
-    sort_index_ = new int[max_classes_ + 1];
-    for (int i = 0; i < max_classes_; i++) {
+    class_count_ = new int[rounded_classes_];
+    norm_count_ = new int[rounded_classes_];
+    sort_key_ = new int[rounded_classes_ + 1];
+    sort_index_ = new int[rounded_classes_ + 1];
+    for (int i = 0; i < rounded_classes_; i++) {
       class_count_[i] = 0;
     }
+    pruning_threshold_ = 0;
+    num_features_ = 0;
+    num_classes_ = 0;
   }
 
-  ~ClassPrunerData() {
+  ~ClassPruner() {
     delete []class_count_;
     delete []norm_count_;
     delete []sort_key_;
     delete []sort_index_;
   }
 
-};
+  // Computes the scores for every class in the character set, by summing the
+  // weights for each feature and stores the sums internally in class_count_.
+  void ComputeScores(const INT_TEMPLATES_STRUCT* int_templates,
+                     int num_features, const INT_FEATURE_STRUCT* features) {
+    num_features_ = num_features;
+    int num_pruners = int_templates->NumClassPruners;
+    for (int f = 0; f < num_features; ++f) {
+      const INT_FEATURE_STRUCT* feature = &features[f];
+      // Quantize the feature to NUM_CP_BUCKETS*NUM_CP_BUCKETS*NUM_CP_BUCKETS.
+      int x = feature->X * NUM_CP_BUCKETS >> 8;
+      int y = feature->Y * NUM_CP_BUCKETS >> 8;
+      int theta = feature->Theta * NUM_CP_BUCKETS >> 8;
+      int class_id = 0;
+      // Each CLASS_PRUNER_STRUCT only covers CLASSES_PER_CP(32) classes, so
+      // we need a collection of them, indexed by pruner_set.
+      for (int pruner_set = 0; pruner_set < num_pruners; ++pruner_set) {
+        // Look up quantized feature in a 3-D array, an array of weights for
+        // each class.
+        const uinT32* pruner_word_ptr =
+            int_templates->ClassPruners[pruner_set]->p[x][y][theta];
+        for (int word = 0; word < WERDS_PER_CP_VECTOR; ++word) {
+          uinT32 pruner_word = *pruner_word_ptr++;
+          // This inner loop is unrolled to speed up the ClassPruner.
+          // Currently gcc would not unroll it unless it is set to O3
+          // level of optimization or -funroll-loops is specified.
+          /*
+          uinT32 class_mask = (1 << NUM_BITS_PER_CLASS) - 1;
+          for (int bit = 0; bit < BITS_PER_WERD/NUM_BITS_PER_CLASS; bit++) {
+            class_count_[class_id++] += pruner_word & class_mask;
+            pruner_word >>= NUM_BITS_PER_CLASS;
+          }
+          */
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+          pruner_word >>= NUM_BITS_PER_CLASS;
+          class_count_[class_id++] += pruner_word & CLASS_PRUNER_CLASS_MASK;
+        }
+      }
+    }
+  }
 
-const float IntegerMatcher::kSEExponentialMultiplier = 0.0;
-const float IntegerMatcher::kSimilarityCenter = 0.0075;
+  // Adjusts the scores according to the number of expected features. Used
+  // in lieu of a constant bias, this penalizes classes that expect more
+  // features than there are present. Thus an actual c will score higher for c
+  // than e, even though almost all the features match e as well as c, because
+  // e expects more features to be present.
+  void AdjustForExpectedNumFeatures(const uinT16* expected_num_features,
+                                    int cutoff_strength) {
+    for (int class_id = 0; class_id < max_classes_; ++class_id) {
+      if (num_features_ < expected_num_features[class_id]) {
+        int deficit = expected_num_features[class_id] - num_features_;
+        class_count_[class_id] -= class_count_[class_id] * deficit /
+          (num_features_ * cutoff_strength + deficit);
+      }
+    }
+  }
+
+  // Zeros the scores for classes disabled in the unicharset.
+  // Implements the black-list to recognize a subset of the character set.
+  void DisableDisabledClasses(const UNICHARSET& unicharset) {
+    for (int class_id = 0; class_id < max_classes_; ++class_id) {
+      if (!unicharset.get_enabled(class_id))
+        class_count_[class_id] = 0;  // This char is disabled!
+    }
+  }
+
+  // Zeros the scores of fragments.
+  void DisableFragments(const UNICHARSET& unicharset) {
+    for (int class_id = 0; class_id < max_classes_; ++class_id) {
+      // Do not include character fragments in the class pruner
+      // results if disable_character_fragments is true.
+      if (unicharset.get_fragment(class_id)) {
+        class_count_[class_id] = 0;
+      }
+    }
+  }
+
+  // Normalizes the counts for xheight, putting the normalized result in
+  // norm_count_. Applies a simple subtractive penalty for incorrect vertical
+  // position provided by the normalization_factors array, indexed by
+  // character class, and scaled by the norm_multiplier.
+  void NormalizeForXheight(int norm_multiplier,
+                           const uinT8* normalization_factors) {
+    for (int class_id = 0; class_id < max_classes_; class_id++) {
+      norm_count_[class_id] = class_count_[class_id] -
+          ((norm_multiplier * normalization_factors[class_id]) >> 8);
+    }
+  }
+
+  // The nop normalization copies the class_count_ array to norm_count_.
+  void NoNormalization() {
+    for (int class_id = 0; class_id < max_classes_; class_id++) {
+      norm_count_[class_id] = class_count_[class_id];
+    }
+  }
+
+  // Prunes the classes using <the maximum count> * pruning_factor/256 as a
+  // threshold for keeping classes. If max_of_non_fragments, then ignore
+  // fragments in computing the maximum count.
+  void PruneAndSort(int pruning_factor, bool max_of_non_fragments,
+                    const UNICHARSET& unicharset) {
+    int max_count = 0;
+    for (int c = 0; c < max_classes_; ++c) {
+      if (norm_count_[c] > max_count &&
+          // This additional check is added in order to ensure that
+          // the classifier will return at least one non-fragmented
+          // character match.
+          // TODO(daria): verify that this helps accuracy and does not
+          // hurt performance.
+          (!max_of_non_fragments || !unicharset.get_fragment(c))) {
+        max_count = norm_count_[c];
+      }
+    }
+    // Prune Classes.
+    pruning_threshold_ = (max_count * pruning_factor) >> 8;
+    // Select Classes.
+    if (pruning_threshold_ < 1)
+      pruning_threshold_ = 1;
+    num_classes_ = 0;
+    for (int class_id = 0; class_id < max_classes_; class_id++) {
+      if (norm_count_[class_id] >= pruning_threshold_) {
+          ++num_classes_;
+        sort_index_[num_classes_] = class_id;
+        sort_key_[num_classes_] = norm_count_[class_id];
+      }
+    }
+
+    // Sort Classes using Heapsort Algorithm.
+    if (num_classes_ > 1)
+      HeapSort(num_classes_, sort_key_, sort_index_);
+  }
+
+  // Prints debug info on the class pruner matches for the pruned classes only.
+  void DebugMatch(const Classify& classify,
+                  const INT_TEMPLATES_STRUCT* int_templates,
+                  const INT_FEATURE_STRUCT* features) const {
+    int num_pruners = int_templates->NumClassPruners;
+    int max_num_classes = int_templates->NumClasses;
+    for (int f = 0; f < num_features_; ++f) {
+      const INT_FEATURE_STRUCT* feature = &features[f];
+      tprintf("F=%3d(%d,%d,%d),", f, feature->X, feature->Y, feature->Theta);
+      // Quantize the feature to NUM_CP_BUCKETS*NUM_CP_BUCKETS*NUM_CP_BUCKETS.
+      int x = feature->X * NUM_CP_BUCKETS >> 8;
+      int y = feature->Y * NUM_CP_BUCKETS >> 8;
+      int theta = feature->Theta * NUM_CP_BUCKETS >> 8;
+      int class_id = 0;
+      for (int pruner_set = 0; pruner_set < num_pruners; ++pruner_set) {
+        // Look up quantized feature in a 3-D array, an array of weights for
+        // each class.
+        const uinT32* pruner_word_ptr =
+            int_templates->ClassPruners[pruner_set]->p[x][y][theta];
+        for (int word = 0; word < WERDS_PER_CP_VECTOR; ++word) {
+          uinT32 pruner_word = *pruner_word_ptr++;
+          for (int word_class = 0; word_class < 16 &&
+               class_id < max_num_classes; ++word_class, ++class_id) {
+            if (norm_count_[class_id] >= pruning_threshold_) {
+              tprintf(" %s=%d,",
+                      classify.ClassIDToDebugStr(int_templates,
+                                                 class_id, 0).string(),
+                      pruner_word & CLASS_PRUNER_CLASS_MASK);
+            }
+            pruner_word >>= NUM_BITS_PER_CLASS;
+          }
+        }
+        tprintf("\n");
+      }
+    }
+  }
+
+  // Prints a summary of the pruner result.
+  void SummarizeResult(const Classify& classify,
+                       const INT_TEMPLATES_STRUCT* int_templates,
+                       const uinT16* expected_num_features,
+                       int norm_multiplier,
+                       const uinT8* normalization_factors) const {
+    tprintf("CP:%d classes, %d features:\n", num_classes_, num_features_);
+    for (int i = 0; i < num_classes_; ++i) {
+      int class_id = sort_index_[num_classes_ - i];
+      STRING class_string = classify.ClassIDToDebugStr(int_templates,
+                                                       class_id, 0);
+      tprintf("%s:Initial=%d, E=%d, Xht-adj=%d, N=%d, Rat=%.2f\n",
+              class_string.string(),
+              class_count_[class_id],
+              expected_num_features[class_id],
+              (norm_multiplier * normalization_factors[class_id]) >> 8,
+              sort_key_[num_classes_ - i],
+              100.0 - 100.0 * sort_key_[num_classes_ - i] /
+                (CLASS_PRUNER_CLASS_MASK * num_features_));
+    }
+  }
+
+  // Copies the pruned, sorted classes into the output results and returns
+  // the number of classes.
+  int SetupResults(CP_RESULT_STRUCT* results) const {
+    for (int c = 0; c < num_classes_; ++c) {
+      results[c].Class = sort_index_[num_classes_ - c];
+      results[c].Rating = 1.0 - sort_key_[num_classes_ - c] /
+        (static_cast<float>(CLASS_PRUNER_CLASS_MASK) * num_features_);
+    }
+    return num_classes_;
+  }
+
+ private:
+  // Array[rounded_classes_] of initial counts for each class.
+  int *class_count_;
+  // Array[rounded_classes_] of modified counts for each class after normalizing
+  // for expected number of features, disabled classes, fragments, and xheights.
+  int *norm_count_;
+  // Array[rounded_classes_ +1] of pruned counts that gets sorted
+  int *sort_key_;
+  // Array[rounded_classes_ +1] of classes corresponding to sort_key_.
+  int *sort_index_;
+  // Number of classes in this class pruner.
+  int max_classes_;
+  // Rounded up number of classes used for array sizes.
+  int rounded_classes_;
+  // Threshold count applied to prune classes.
+  int pruning_threshold_;
+  // The number of features used to compute the scores.
+  int num_features_;
+  // Final number of pruned classes.
+  int num_classes_;
+};
 
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
-namespace tesseract {
-int Classify::ClassPruner(INT_TEMPLATES IntTemplates,
-                          inT16 NumFeatures,
-                          INT_FEATURE_ARRAY Features,
-                          CLASS_NORMALIZATION_ARRAY NormalizationFactors,
-                          CLASS_CUTOFF_ARRAY ExpectedNumFeatures,
-                          CLASS_PRUNER_RESULTS Results) {
+// Runs the class pruner from int_templates on the given features, returning
+// the number of classes output in results.
+//    int_templates          Class pruner tables
+//    num_features           Number of features in blob
+//    features               Array of features
+//    normalization_factors  Array of fudge factors from blob
+//                           normalization process (by CLASS_INDEX)
+//    expected_num_features  Array of expected number of features
+//                           for each class (by CLASS_INDEX)
+//    results                Sorted Array of pruned classes. Must be an array
+//                           of size at least int_templates->NumClasses.
+int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
+                           int num_features,
+                           const INT_FEATURE_STRUCT* features,
+                           const uinT8* normalization_factors,
+                           const uinT16* expected_num_features,
+                           CP_RESULT_STRUCT* results) {
 /*
- **      Parameters:
- **              IntTemplates           Class pruner tables
- **              NumFeatures            Number of features in blob
- **              Features               Array of features
- **              NormalizationFactors   Array of fudge factors from blob
- **                                     normalization process
- **                                     (by CLASS_INDEX)
- **              ExpectedNumFeatures    Array of expected number of features
- **                                     for each class
- **                                     (by CLASS_INDEX)
- **              Results                Sorted Array of pruned classes
- **                                     (by CLASS_ID)
- **      Operation:
- **              Prune the classes using a modified fast match table.
- **              Return a sorted list of classes along with the number
- **              of pruned classes in that list.
- **      Return: Number of pruned classes.
- **      Exceptions: none
- **      History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
+ **  Operation:
+ **    Prunes the classes using a modified fast match table.
+ **    Returns a sorted list of classes along with the number
+ **      of pruned classes in that list.
+ **  Return: Number of pruned classes.
+ **  Exceptions: none
+ **  History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
  */
-  uinT32 PrunerWord;
-  inT32 class_index;             //index to class
-  int Word;
-  uinT32 *BasePrunerAddress;
-  uinT32 feature_address;        //current feature index
-  INT_FEATURE feature;           //current feature
-  CLASS_PRUNER *ClassPruner;
-  int PrunerSet;
-  int NumPruners;
-  inT32 feature_index;           //current feature
+  ClassPruner pruner(int_templates->NumClasses);
+  // Compute initial match scores for all classes.
+  pruner.ComputeScores(int_templates, num_features, features);
+  // Adjust match scores for number of expected features.
+  pruner.AdjustForExpectedNumFeatures(expected_num_features,
+                                      classify_cp_cutoff_strength);
+  // Apply disabled classes in unicharset - only works without a shape_table.
+  if (shape_table_ == NULL)
+    pruner.DisableDisabledClasses(unicharset);
+  // If fragments are disabled, remove them, also only without a shape table.
+  if (disable_character_fragments && shape_table_ == NULL)
+    pruner.DisableFragments(unicharset);
 
-  int MaxNumClasses = IntTemplates->NumClasses;
-  ClassPrunerData data(IntTemplates->NumClasses);
-  int *ClassCount = data.class_count_;
-  int *NormCount = data.norm_count_;
-  int *SortKey = data.sort_key_;
-  int *SortIndex = data.sort_index_;
-
-  int out_class;
-  int MaxCount;
-  int NumClasses;
-  FLOAT32 max_rating;            //max allowed rating
-  CLASS_ID class_id;
-
-  /* Update Class Counts */
-  NumPruners = IntTemplates->NumClassPruners;
-  for (feature_index = 0; feature_index < NumFeatures; feature_index++) {
-    feature = &Features[feature_index];
-    feature_address = (((feature->X * NUM_CP_BUCKETS >> 8) * NUM_CP_BUCKETS +
-                        (feature->Y * NUM_CP_BUCKETS >> 8)) * NUM_CP_BUCKETS +
-                       (feature->Theta * NUM_CP_BUCKETS >> 8)) << 1;
-    ClassPruner = IntTemplates->ClassPruner;
-    class_index = 0;
-
-    for (PrunerSet = 0; PrunerSet < NumPruners; PrunerSet++, ClassPruner++) {
-      BasePrunerAddress = (uinT32 *) (*ClassPruner) + feature_address;
-
-      for (Word = 0; Word < WERDS_PER_CP_VECTOR; Word++) {
-        PrunerWord = *BasePrunerAddress++;
-        // This inner loop is unrolled to speed up the ClassPruner.
-        // Currently gcc would not unroll it unless it is set to O3
-        // level of optimization or -funroll-loops is specified.
-        /*
-        uinT32 class_mask = (1 << NUM_BITS_PER_CLASS) - 1;
-        for (int bit = 0; bit < BITS_PER_WERD/NUM_BITS_PER_CLASS; bit++) {
-          ClassCount[class_index++] += PrunerWord & class_mask;
-          PrunerWord >>= NUM_BITS_PER_CLASS;
-        }
-        */
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-        PrunerWord >>= NUM_BITS_PER_CLASS;
-        ClassCount[class_index++] += PrunerWord & CLASS_PRUNER_CLASS_MASK;
-      }
-    }
+  // If we have good x-heights, apply the given normalization factors.
+  if (normalization_factors != NULL) {
+    pruner.NormalizeForXheight(classify_class_pruner_multiplier,
+                               normalization_factors);
+  } else {
+    pruner.NoNormalization();
   }
+  // Do the actual pruning and sort the short-list.
+  pruner.PruneAndSort(classify_class_pruner_threshold,
+                      shape_table_ == NULL, unicharset);
 
-  /* Adjust Class Counts for Number of Expected Features */
-  for (class_id = 0; class_id < MaxNumClasses; class_id++) {
-    if (NumFeatures < ExpectedNumFeatures[class_id]) {
-      int deficit = ExpectedNumFeatures[class_id] - NumFeatures;
-      ClassCount[class_id] -= ClassCount[class_id] * deficit /
-        (NumFeatures * classify_cp_cutoff_strength + deficit);
-    }
-    if (!unicharset.get_enabled(class_id))
-      ClassCount[class_id] = 0;  // This char is disabled!
-
-    // Do not include character fragments in the class pruner
-    // results if disable_character_fragments is true.
-    if (disable_character_fragments && unicharset.get_fragment(class_id)) {
-      ClassCount[class_id] = 0;
-    }
+  if (classify_debug_level > 2) {
+    pruner.DebugMatch(*this, int_templates, features);
   }
-
-  /* Adjust Class Counts for Normalization Factors */
-  MaxCount = 0;
-  for (class_id = 0; class_id < MaxNumClasses; class_id++) {
-    NormCount[class_id] = ClassCount[class_id]
-      - ((classify_class_pruner_multiplier * NormalizationFactors[class_id])
-          >> 8);
-    if (NormCount[class_id] > MaxCount &&
-        // This additional check is added in order to ensure that
-        // the classifier will return at least one non-fragmented
-        // character match.
-        // TODO(daria): verify that this helps accuracy and does not
-        // hurt performance.
-        !unicharset.get_fragment(class_id)) {
-      MaxCount = NormCount[class_id];
-    }
-  }
-
-  /* Prune Classes */
-  MaxCount *= classify_class_pruner_threshold;
-  MaxCount >>= 8;
-  /* Select Classes */
-  if (MaxCount < 1)
-    MaxCount = 1;
-  NumClasses = 0;
-  for (class_id = 0; class_id < MaxNumClasses; class_id++) {
-    if (NormCount[class_id] >= MaxCount) {
-      NumClasses++;
-      SortIndex[NumClasses] = class_id;
-      SortKey[NumClasses] = NormCount[class_id];
-    }
-  }
-
-  /* Sort Classes using Heapsort Algorithm */
-  if (NumClasses > 1)
-    HeapSort(NumClasses, SortKey, SortIndex);
-
   if (classify_debug_level > 1) {
-    cprintf ("CP:%d classes, %d features:\n", NumClasses, NumFeatures);
-    for (class_id = 0; class_id < NumClasses; class_id++) {
-      cprintf ("%s:C=%d, E=%d, N=%d, Rat=%d\n",
-               unicharset.debug_str(SortIndex[NumClasses - class_id]).string(),
-               ClassCount[SortIndex[NumClasses - class_id]],
-               ExpectedNumFeatures[SortIndex[NumClasses - class_id]],
-               SortKey[NumClasses - class_id],
-               1010 - 1000 * SortKey[NumClasses - class_id] /
-                 (CLASS_PRUNER_CLASS_MASK * NumFeatures));
-    }
-    if (classify_debug_level > 2) {
-      NumPruners = IntTemplates->NumClassPruners;
-      for (feature_index = 0; feature_index < NumFeatures;
-      feature_index++) {
-        cprintf ("F=%3d,", feature_index);
-        feature = &Features[feature_index];
-        feature_address =
-          (((feature->X * NUM_CP_BUCKETS >> 8) * NUM_CP_BUCKETS +
-          (feature->Y * NUM_CP_BUCKETS >> 8)) * NUM_CP_BUCKETS +
-          (feature->Theta * NUM_CP_BUCKETS >> 8)) << 1;
-        ClassPruner = IntTemplates->ClassPruner;
-        class_index = 0;
-        for (PrunerSet = 0; PrunerSet < NumPruners;
-        PrunerSet++, ClassPruner++) {
-          BasePrunerAddress = (uinT32 *) (*ClassPruner)
-            + feature_address;
-
-          for (Word = 0; Word < WERDS_PER_CP_VECTOR; Word++) {
-            PrunerWord = *BasePrunerAddress++;
-            for (class_id = 0; class_id < 16; class_id++, class_index++) {
-              if (NormCount[class_index] >= MaxCount)
-                cprintf (" %s=%d,",
-                  unicharset.id_to_unichar(class_index),
-                  PrunerWord & CLASS_PRUNER_CLASS_MASK);
-              PrunerWord >>= NUM_BITS_PER_CLASS;
-            }
-          }
-        }
-        cprintf ("\n");
-      }
-      cprintf ("Adjustments:");
-      for (class_id = 0; class_id < MaxNumClasses; class_id++) {
-        if (NormCount[class_id] > MaxCount)
-          cprintf(" %s=%d,",
-            unicharset.id_to_unichar(class_id),
-            -((classify_class_pruner_multiplier *
-               NormalizationFactors[class_id]) >> 8));
-      }
-      cprintf ("\n");
-    }
+    pruner.SummarizeResult(*this, int_templates, expected_num_features,
+                           classify_class_pruner_multiplier,
+                           normalization_factors);
   }
-
-  /* Set Up Results */
-  max_rating = 0.0f;
-  for (class_id = 0, out_class = 0; class_id < NumClasses; class_id++) {
-    Results[out_class].Class = SortIndex[NumClasses - class_id];
-    Results[out_class].Rating =
-      1.0 - SortKey[NumClasses - class_id] /
-      (static_cast<float>(CLASS_PRUNER_CLASS_MASK) * NumFeatures);
-    out_class++;
-  }
-  NumClasses = out_class;
-  return NumClasses;
+  // Convert to the expected output format.
+  return pruner.SetupResults(results);
 }
 
 }  // namespace tesseract
@@ -366,10 +459,8 @@ int Classify::ClassPruner(INT_TEMPLATES IntTemplates,
 void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                            BIT_VECTOR ProtoMask,
                            BIT_VECTOR ConfigMask,
-                           uinT16 BlobLength,
                            inT16 NumFeatures,
-                           INT_FEATURE_ARRAY Features,
-                           uinT8 NormalizationFactor,
+                           const INT_FEATURE_STRUCT* Features,
                            INT_RESULT Result,
                            int AdaptFeatureThreshold,
                            int Debug,
@@ -436,12 +527,11 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
   tables->UpdateSumOfProtoEvidences(ClassTemplate, ConfigMask, NumFeatures);
   tables->NormalizeSums(ClassTemplate, NumFeatures, NumFeatures);
 
-  BestMatch = FindBestMatch(ClassTemplate, *tables, BlobLength,
-                            NormalizationFactor, Result);
+  BestMatch = FindBestMatch(ClassTemplate, *tables, Result);
 
 #ifndef GRAPHICS_DISABLED
   if (PrintMatchSummaryOn(Debug))
-    DebugBestMatch(BestMatch, Result, BlobLength, NormalizationFactor);
+    DebugBestMatch(BestMatch, Result);
 
   if (MatchDebuggingOn(Debug))
     cprintf("Match Complete --------------------------------------------\n");
@@ -718,7 +808,7 @@ int IntegerMatcher::UpdateTablesForFeature(
     BIT_VECTOR ProtoMask,
     BIT_VECTOR ConfigMask,
     int FeatureNum,
-    INT_FEATURE Feature,
+    const INT_FEATURE_STRUCT* Feature,
     ScratchEvidence *tables,
     int Debug) {
 /*
@@ -1048,7 +1138,7 @@ void IntegerMatcher::DisplayFeatureDebugInfo(
     BIT_VECTOR ProtoMask,
     BIT_VECTOR ConfigMask,
     inT16 NumFeatures,
-    INT_FEATURE_ARRAY Features,
+    const INT_FEATURE_STRUCT* Features,
     int AdaptFeatureThreshold,
     int Debug,
     bool SeparateDebugWindows) {
@@ -1146,8 +1236,6 @@ void ScratchEvidence::NormalizeSums(
 int IntegerMatcher::FindBestMatch(
     INT_CLASS ClassTemplate,
     const ScratchEvidence &tables,
-    uinT16 BlobLength,
-    uinT8 NormalizationFactor,
     INT_RESULT Result) {
 /*
  **      Parameters:
@@ -1168,7 +1256,7 @@ int IntegerMatcher::FindBestMatch(
   /* Find best match */
   for (int ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++) {
     int rating = tables.sum_feature_evidence_[ConfigNum];
-    if (*classify_debug_level_ > 1)
+    if (*classify_debug_level_ > 2)
       cprintf("Config %d, rating=%d\n", ConfigNum, rating);
     if (rating > BestMatch) {
       if (BestMatch > 0) {
@@ -1186,31 +1274,28 @@ int IntegerMatcher::FindBestMatch(
   }
 
   /* Compute Certainty Rating */
-  Result->Rating = ((65536.0 - BestMatch) / 65536.0 * BlobLength +
-    local_matcher_multiplier_ * NormalizationFactor / 256.0) /
-    (BlobLength + local_matcher_multiplier_);
+  Result->Rating = (65536.0 - BestMatch) / 65536.0;
 
   return BestMatch;
+}
+
+// Applies the CN normalization factor to the given rating and returns
+// the modified rating.
+float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
+                                        int normalization_factor) {
+  return (rating * blob_length +
+    local_matcher_multiplier_ * normalization_factor / 256.0) /
+    (blob_length + local_matcher_multiplier_);
 }
 
 /*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
 // Print debug information about the best match for the current class.
 void IntegerMatcher::DebugBestMatch(
-    int BestMatch, INT_RESULT Result, uinT16 BlobLength,
-    uinT8 NormalizationFactor) {
-  cprintf("Rating          = %5.1f%%     Best Config   = %3d\n",
-          100.0 * ((*Result).Rating), (int) ((*Result).Config));
-  cprintf
-    ("Matcher Error   = %5.1f%%     Blob Length   = %3d     Weight = %4.1f%%\n",
-    100.0 * (65536.0 - BestMatch) / 65536.0, (int) BlobLength,
-    100.0 * BlobLength / (BlobLength + local_matcher_multiplier_));
-  cprintf
-    ("Char Norm Error = %5.1f%%     Norm Strength = %3d     Weight = %4.1f%%\n",
-    100.0 * NormalizationFactor / 256.0,
-    local_matcher_multiplier_,
-    100.0 * local_matcher_multiplier_ /
-        (BlobLength + local_matcher_multiplier_));
+    int BestMatch, INT_RESULT Result) {
+  tprintf("Rating = %5.1f%%  Best Config = %3d, Distance = %5.1f\n",
+          100.0 * Result->Rating, Result->Config,
+          100.0 * (65536.0 - BestMatch) / 65536.0);
 }
 #endif
 

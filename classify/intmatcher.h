@@ -56,8 +56,6 @@ struct CP_RESULT_STRUCT {
 
 typedef CP_RESULT_STRUCT CLASS_PRUNER_RESULTS[MAX_NUM_CLASSES];
 
-typedef uinT8 CLASS_NORMALIZATION_ARRAY[MAX_NUM_CLASSES];
-
 /*----------------------------------------------------------------------------
             Variables
 -----------------------------------------------------------------------------*/
@@ -113,14 +111,17 @@ class IntegerMatcher {
   void Match(INT_CLASS ClassTemplate,
              BIT_VECTOR ProtoMask,
              BIT_VECTOR ConfigMask,
-             uinT16 BlobLength,
              inT16 NumFeatures,
-             INT_FEATURE_ARRAY Features,
-             uinT8 NormalizationFactor,
+             const INT_FEATURE_STRUCT* Features,
              INT_RESULT Result,
              int AdaptFeatureThreshold,
              int Debug,
              bool SeparateDebugWindows);
+
+  // Applies the CN normalization factor to the given rating and returns
+  // the modified rating.
+  float ApplyCNCorrection(float rating, int blob_length,
+                          int normalization_factor);
 
   int FindGoodProtos(INT_CLASS ClassTemplate,
                      BIT_VECTOR ProtoMask,
@@ -148,14 +149,12 @@ class IntegerMatcher {
       BIT_VECTOR ProtoMask,
       BIT_VECTOR ConfigMask,
       int FeatureNum,
-      INT_FEATURE Feature,
+      const INT_FEATURE_STRUCT* Feature,
       ScratchEvidence *evidence,
       int Debug);
 
   int FindBestMatch(INT_CLASS ClassTemplate,
                     const ScratchEvidence &tables,
-                    uinT16 BlobLength,
-                    uinT8 NormalizationFactor,
                     INT_RESULT Result);
 
 #ifndef GRAPHICS_DISABLED
@@ -179,15 +178,12 @@ class IntegerMatcher {
       BIT_VECTOR ProtoMask,
       BIT_VECTOR ConfigMask,
       inT16 NumFeatures,
-      INT_FEATURE_ARRAY Features,
+      const INT_FEATURE_STRUCT* Features,
       int AdaptFeatureThreshold,
       int Debug,
       bool SeparateDebugWindows);
 
-  void DebugBestMatch(int BestMatch,
-                      INT_RESULT Result,
-                      uinT16 BlobLength,
-                      uinT8 NormalizationFactor);
+  void DebugBestMatch(int BestMatch, INT_RESULT Result);
 #endif
 
 

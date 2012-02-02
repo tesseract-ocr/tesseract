@@ -102,7 +102,6 @@ CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM& denorm) {
       Outline = (MFOUTLINE) first_node (RemainingOutlines);
       FindDirectionChanges(Outline, classify_min_slope, classify_max_slope);
       MarkDirectionChanges(Outline);
-      SmearExtremities(Outline, XScale, YScale);
       MicroFeatures = ConvertToMicroFeatures (Outline, MicroFeatures);
     }
     FreeOutlines(Outlines);

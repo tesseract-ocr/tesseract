@@ -76,7 +76,8 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
     EdgePoint = NextPoint;
   } while (EdgePoint != StartPoint);
 
-  MakeOutlineCircular(MFOutline);
+  if (MFOutline != NULL)
+    MakeOutlineCircular(MFOutline);
   return MFOutline;
 }
 
@@ -95,7 +96,8 @@ LIST ConvertOutlines(TESSLINE *outline,
 
   while (outline != NULL) {
     mf_outline = ConvertOutline(outline);
-    mf_outlines = push(mf_outlines, mf_outline);
+    if (mf_outline != NULL)
+      mf_outlines = push(mf_outlines, mf_outline);
     outline = outline->next;
   }
   return mf_outlines;
@@ -403,54 +405,6 @@ void Classify::NormalizeOutlines(LIST Outlines,
   }
 }                                /* NormalizeOutlines */
 }  // namespace tesseract
-
-/*---------------------------------------------------------------------------*/
-void SmearExtremities(MFOUTLINE Outline, FLOAT32 XScale, FLOAT32 YScale) {
-/*
- ** Parameters:
- **   Outline   outline whose extremities are to be smeared
- **   XScale    factor used to normalize outline in x dir
- **   YScale    factor used to normalize outline in y dir
- ** Globals: none
- ** Operation:
- **   This routine smears the extremities of the specified outline.
- **   It does this by adding a random number between
- **   -0.5 and 0.5 pixels (that is why X/YScale are needed) to
- **   the x and y position of the point.  This is done so that
- **   the discrete nature of the original scanned image does not
- **   affect the statistical clustering used during training.
- ** Return: none
- ** Exceptions: none
- ** History: 1/11/90, DSJ, Created.
- */
-  MFEDGEPT *Current;
-  MFOUTLINE EdgePoint;
-  FLOAT32 MinXSmear;
-  FLOAT32 MaxXSmear;
-  FLOAT32 MinYSmear;
-  FLOAT32 MaxYSmear;
-
-  if (Outline != NIL_LIST) {
-    MinXSmear = -0.5 * XScale;
-    MaxXSmear = 0.5 * XScale;
-    MinYSmear = -0.5 * YScale;
-    MaxYSmear = 0.5 * YScale;
-    EdgePoint = Outline;
-    do {
-      Current = PointAt (EdgePoint);
-      if (Current->ExtremityMark) {
-        Current->Point.x +=
-          UniformRandomNumber(MinXSmear, MaxXSmear);
-        Current->Point.y +=
-          UniformRandomNumber(MinYSmear, MaxYSmear);
-      }
-
-      EdgePoint = NextPointAfter (EdgePoint);
-    }
-    while (EdgePoint != Outline);
-  }
-}                                /* SmearExtremities */
-
 
 /**----------------------------------------------------------------------------
               Private Code

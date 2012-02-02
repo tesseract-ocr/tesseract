@@ -25,7 +25,6 @@
 #include "matchdefs.h"
 #include "mfoutline.h"
 #include "protos.h"
-#include "callcpp.h"
 #include "scrollview.h"
 #include "unicharset.h"
 
@@ -72,11 +71,9 @@
  * The position of the the bits recorded for each class in the
  * 4th dimension is determined by using CPrunerWordIndexFor(c),
  * where c is the corresponding class id. */
-typedef uinT32 CLASS_PRUNER_STRUCT
-[NUM_CP_BUCKETS][NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
-
-typedef
-uinT32 (*CLASS_PRUNER)[NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
+struct CLASS_PRUNER_STRUCT {
+  uinT32 p[NUM_CP_BUCKETS][NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
+};
 
 typedef struct
 {
@@ -103,86 +100,6 @@ PROTO_SET_STRUCT, *PROTO_SET;
 
 typedef uinT32 CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
 
-// Struct for information about spacing between characters in a particular font.
-struct FontSpacingInfo {
-  inT16 x_gap_before;
-  inT16 x_gap_after;
-  GenericVector<UNICHAR_ID> kerned_unichar_ids;
-  GenericVector<inT16> kerned_x_gaps;
-};
-
-/*
- * font_properties contains properties about boldness, italicness, fixed pitch,
- * serif, fraktur
- */
-struct FontInfo {
-  FontInfo() : name(NULL), spacing_vec(NULL) {}
-  ~FontInfo() {}
-  // Reserves unicharset_size spots in spacing_vec.
-  void init_spacing(int unicharset_size) {
-    spacing_vec = new GenericVector<FontSpacingInfo *>();
-    spacing_vec->init_to_size(unicharset_size, NULL);
-  }
-  // Adds the given pointer to FontSpacingInfo to spacing_vec member
-  // (FontInfo class takes ownership of the pointer).
-  // Note: init_spacing should be called before calling this function.
-  void add_spacing(UNICHAR_ID uch_id, FontSpacingInfo *spacing_info) {
-    ASSERT_HOST(spacing_vec != NULL && spacing_vec->size() > uch_id);
-    (*spacing_vec)[uch_id] = spacing_info;
-  }
-
-  // Returns the pointer to FontSpacingInfo for the given UNICHAR_ID.
-  const FontSpacingInfo *get_spacing(UNICHAR_ID uch_id) const {
-    return (spacing_vec == NULL || spacing_vec->size() <= uch_id) ?
-        NULL : (*spacing_vec)[uch_id];
-  }
-
-  // Fills spacing with the value of the x gap expected between the two given
-  // UNICHAR_IDs. Returns true on success.
-  bool get_spacing(UNICHAR_ID prev_uch_id,
-                   UNICHAR_ID uch_id,
-                   int *spacing) const {
-    const FontSpacingInfo *prev_fsi = this->get_spacing(prev_uch_id);
-    const FontSpacingInfo *fsi = this->get_spacing(uch_id);
-    if (prev_fsi == NULL || fsi == NULL) return false;
-    int i = 0;
-    for (; i < prev_fsi->kerned_unichar_ids.size(); ++i) {
-      if (prev_fsi->kerned_unichar_ids[i] == uch_id) break;
-    }
-    if (i < prev_fsi->kerned_unichar_ids.size()) {
-      *spacing = prev_fsi->kerned_x_gaps[i];
-    } else {
-      *spacing = prev_fsi->x_gap_after + fsi->x_gap_before;
-    }
-    return true;
-  }
-
-  bool is_italic() const { return properties & 1; }
-  bool is_bold() const { return (properties & 2) != 0; }
-  bool is_fixed_pitch() const { return (properties & 4) != 0; }
-  bool is_serif() const { return (properties & 8) != 0; }
-  bool is_fraktur() const { return (properties & 16) != 0; }
-
-  char* name;
-  uinT32 properties;
-  // Horizontal spacing between characters (indexed by UNICHAR_ID).
-  GenericVector<FontSpacingInfo *> *spacing_vec;
-};
-
-// Every class (character) owns a FontSet that represents all the fonts that can
-// render this character.
-// Since almost all the characters from the same script share the same set of
-// fonts, the sets are shared over multiple classes (see
-// Classify::fontset_table_). Thus, a class only store an id to a set.
-// Because some fonts cannot render just one character of a set, there are a
-// lot of FontSet that differ only by one font. Rather than storing directly
-// the FontInfo in the FontSet structure, it's better to share FontInfos among
-// FontSets (Classify::fontinfo_table_).
-struct FontSet {
-  int           size;
-  int*          configs;  // FontInfo ids
-};
-
 
 typedef struct
 {
@@ -203,7 +120,7 @@ typedef struct
   int NumClasses;
   int NumClassPruners;
   INT_CLASS Class[MAX_NUM_CLASSES];
-  CLASS_PRUNER ClassPruner[MAX_NUM_CLASS_PRUNERS];
+  CLASS_PRUNER_STRUCT* ClassPruners[MAX_NUM_CLASS_PRUNERS];
 }
 
 
@@ -232,6 +149,7 @@ typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 enum IntmatcherDebugAction {
   IDA_ADAPTIVE,
   IDA_STATIC,
+  IDA_SHAPE_INDEX,
   IDA_BOTH
 };
 
@@ -255,7 +173,7 @@ enum IntmatcherDebugAction {
 #define ClassForClassId(T,c) ((T)->Class[c])
 #define ClassPrunersFor(T)  ((T)->ClassPruner)
 #define CPrunerIdFor(c)   ((c) / CLASSES_PER_CP)
-#define CPrunerFor(T,c)   ((T)->ClassPruner [CPrunerIdFor (c)])
+#define CPrunerFor(T,c)   ((T)->ClassPruners[CPrunerIdFor(c)])
 #define CPrunerWordIndexFor(c)  (((c) % CLASSES_PER_CP) / CLASSES_PER_CP_WERD)
 #define CPrunerBitIndexFor(c) (((c) % CLASSES_PER_CP) % CLASSES_PER_CP_WERD)
 #define CPrunerMaskFor(L,c) (((L)+1) << CPrunerBitIndexFor (c) * NUM_BITS_PER_CLASS)
@@ -300,7 +218,7 @@ void UpdateMatchDisplay();
 
 void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class);
 
-void DisplayIntFeature(INT_FEATURE Feature, FLOAT32 Evidence);
+void DisplayIntFeature(const INT_FEATURE_STRUCT* Feature, FLOAT32 Evidence);
 
 void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence);
 

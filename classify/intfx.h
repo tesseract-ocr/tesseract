@@ -23,31 +23,43 @@
 ----------------------------------------------------------------------------**/
 #include "blobs.h"
 #include "intproto.h"
+#include "normalis.h"
 #include <math.h>
 
 class DENORM;
 
-typedef struct
-{
-  inT32 Length;                  /* total length of all outlines   */
-  inT16 Xmean, Ymean;            /* center of mass of all outlines */
-  inT16 Rx, Ry;                  /* radius of gyration             */
-  inT16 NumBL, NumCN;            /* number of features extracted   */
+namespace tesseract {
+class TrainingSample;
 }
 
-
-INT_FX_RESULT_STRUCT, *INT_FX_RESULT;
+struct INT_FX_RESULT_STRUCT {
+  inT32 Length;                  // total length of all outlines
+  inT16 Xmean, Ymean;            // center of mass of all outlines
+  inT16 Rx, Ry;                  // radius of gyration
+  inT16 NumBL, NumCN;            // number of features extracted
+  inT16 Width;                   // Width of blob in BLN coords.
+  uinT8 YBottom;                 // Bottom of blob in BLN coords.
+  uinT8 YTop;                    // Top of blob in BLN coords.
+};
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
 void InitIntegerFX();
 
+// Returns a vector representing the direction of a feature with the given
+// theta direction in an INT_FEATURE_STRUCT.
+FCOORD FeatureDirection(uinT8 theta);
+
+tesseract::TrainingSample* GetIntFeatures(
+    tesseract::NormalizationMode mode, TBLOB *blob,
+    const DENORM& denorm);
+
 int ExtractIntFeat(TBLOB *Blob,
                    const DENORM& denorm,
                    INT_FEATURE_ARRAY BLFeat,
                    INT_FEATURE_ARRAY CNFeat,
-                   INT_FX_RESULT Results,
+                   INT_FX_RESULT_STRUCT* Results,
                    inT32 *FeatureOutlineArray = 0);
 
 uinT8 BinaryAnglePlusPi(inT32 Y, inT32 X);

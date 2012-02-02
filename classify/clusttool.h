@@ -52,8 +52,6 @@ void WriteProtoList(
      BOOL8	WriteSigProtos,
      BOOL8	WriteInsigProtos);
 
-FLOAT32 UniformRandomNumber(FLOAT32 MMin, FLOAT32 MMax);
-
 //--------------Global Data Definitions and Declarations---------------------
 // define errors that can be trapped
 #define ILLEGALSAMPLESIZE 5000

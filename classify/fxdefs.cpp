@@ -27,15 +27,16 @@
 -----------------------------------------------------------------------------*/
 // Definitions of extractors separated from feature definitions.
 const FEATURE_EXT_STRUCT MicroFeatureExt = { ExtractMicros };
-const FEATURE_EXT_STRUCT PicoFeatExt = { NULL };
-const FEATURE_EXT_STRUCT OutlineFeatExt = { NULL };
 const FEATURE_EXT_STRUCT CharNormExt = { ExtractCharNormFeatures };
+const FEATURE_EXT_STRUCT IntFeatExt = { ExtractIntCNFeatures };
+const FEATURE_EXT_STRUCT GeoFeatExt = { ExtractIntGeoFeatures };
 
+// MUST be kept in-sync with DescDefs in featdefs.cpp.
 const FEATURE_EXT_STRUCT* ExtractorDefs[NUM_FEATURE_TYPES] = {
   &MicroFeatureExt,
-  &PicoFeatExt,
-  &OutlineFeatExt,
-  &CharNormExt
+  &CharNormExt,
+  &IntFeatExt,
+  &GeoFeatExt
 };
 
 void SetupExtractors(FEATURE_DEFS_STRUCT *FeatureDefs) {

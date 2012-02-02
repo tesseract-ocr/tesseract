@@ -27,6 +27,7 @@
 #include "mfoutline.h"
 #include "ocrfeatures.h"
 #include "params.h"
+#include "trainingsample.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -221,3 +222,59 @@ void NormalizePicoX(FEATURE_SET FeatureSet) {
     Feature->Params[PicoFeatX] -= Origin;
   }
 }                                /* NormalizePicoX */
+
+/*---------------------------------------------------------------------------*/
+FEATURE_SET ExtractIntCNFeatures(TBLOB *blob, const DENORM& denorm) {
+/*
+ ** Parameters:
+ **   blob    blob to extract features from
+ **   denorm  normalization/denormalization parameters.
+ ** Return: Integer character-normalized features for blob.
+ ** Exceptions: none
+ ** History: 8/8/2011, rays, Created.
+ */
+  tesseract::TrainingSample* sample = GetIntFeatures(
+      tesseract::NM_CHAR_ANISOTROPIC, blob, denorm);
+  if (sample == NULL) return NULL;
+
+  int num_features = sample->num_features();
+  const INT_FEATURE_STRUCT* features = sample->features();
+  FEATURE_SET feature_set = NewFeatureSet(num_features);
+  for (int f = 0; f < num_features; ++f) {
+    FEATURE feature = NewFeature(&IntFeatDesc);
+
+    feature->Params[IntX] = features[f].X;
+    feature->Params[IntY] = features[f].Y;
+    feature->Params[IntDir] = features[f].Theta;
+    AddFeature(feature_set, feature);
+  }
+  delete sample;
+
+  return feature_set;
+}                                /* ExtractIntCNFeatures */
+
+/*---------------------------------------------------------------------------*/
+FEATURE_SET ExtractIntGeoFeatures(TBLOB *blob, const DENORM& denorm) {
+/*
+ ** Parameters:
+ **   blob    blob to extract features from
+ **   denorm  normalization/denormalization parameters.
+ ** Return: Geometric (top/bottom/width) features for blob.
+ ** Exceptions: none
+ ** History: 8/8/2011, rays, Created.
+ */
+  tesseract::TrainingSample* sample = GetIntFeatures(
+      tesseract::NM_CHAR_ANISOTROPIC, blob, denorm);
+  if (sample == NULL) return NULL;
+
+  FEATURE_SET feature_set = NewFeatureSet(1);
+  FEATURE feature = NewFeature(&IntFeatDesc);
+
+  feature->Params[GeoBottom] = sample->geo_feature(GeoBottom);
+  feature->Params[GeoTop] = sample->geo_feature(GeoTop);
+  feature->Params[GeoWidth] = sample->geo_feature(GeoWidth);
+  AddFeature(feature_set, feature);
+  delete sample;
+
+  return feature_set;
+}                                /* ExtractIntGeoFeatures */

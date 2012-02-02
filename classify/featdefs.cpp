@@ -30,64 +30,85 @@
 #define ILLEGAL_NUM_SETS  3001
 
 #define PICO_FEATURE_LENGTH 0.05
-#define MAX_OUTLINE_FEATURES  100
 
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 -----------------------------------------------------------------------------*/
-/* define all of the parameters for the MicroFeature type*/
-StartParamDesc (MicroFeatureParams)
-DefineParam (0, 0, -0.5, 0.5)
-DefineParam (0, 0, -0.25, 0.75)
-DefineParam (0, 1, 0.0, 1.0)
-DefineParam (1, 0, 0.0, 1.0)
+const char* kMicroFeatureType = "mf";
+const char* kCNFeatureType = "cn";
+const char* kIntFeatureType = "if";
+const char* kGeoFeatureType = "tb";
+
+// Define all of the parameters for the MicroFeature type.
+StartParamDesc(MicroFeatureParams)
+DefineParam(0, 0, -0.5, 0.5)
+DefineParam(0, 0, -0.25, 0.75)
+DefineParam(0, 1, 0.0, 1.0)
+DefineParam(1, 0, 0.0, 1.0)
 DefineParam (0, 1, -0.5, 0.5)
 DefineParam (0, 1, -0.5, 0.5)
 EndParamDesc
-/* now define the feature type itself (see features.h for info about each
-  parameter).*/
-DefineFeature (MicroFeatureDesc, 5, 1, 4, 50, "Micro", "mf", MicroFeatureParams)
+// Now define the feature type itself (see features.h for parameters).
+DefineFeature(MicroFeatureDesc, 5, 1, kMicroFeatureType, MicroFeatureParams)
 
-// define all of the parameters for the PicoFeature type
-/* define knob that can be used to adjust pico-feature length */
-FLOAT32 PicoFeatureLength = PICO_FEATURE_LENGTH;
-StartParamDesc (PicoFeatParams)
-DefineParam (0, 0, -0.25, 0.75)
-DefineParam (1, 0, 0.0, 1.0)
-DefineParam (0, 0, -0.5, 0.5)
-EndParamDesc
-/* now define the feature type itself (see features.h for info about each
-  parameter).*/
-DefineFeature (PicoFeatDesc, 2, 1, 1, MAX_UINT8, "Pico", "pf", PicoFeatParams)
-
-/* define all of the parameters for the NormFeat type*/
+// Define all of the parameters for the NormFeat type.
 StartParamDesc (CharNormParams)
-DefineParam (0, 0, -0.25, 0.75)
-DefineParam (0, 1, 0.0, 1.0)
-DefineParam (0, 0, 0.0, 1.0)
-DefineParam (0, 0, 0.0, 1.0)
+DefineParam(0, 0, -0.25, 0.75)
+DefineParam(0, 1, 0.0, 1.0)
+DefineParam(0, 0, 0.0, 1.0)
+DefineParam(0, 0, 0.0, 1.0)
 EndParamDesc
-/* now define the feature type itself (see features.h for info about each
-  parameter).*/
-DefineFeature (CharNormDesc, 4, 0, 1, 1, "CharNorm", "cn", CharNormParams)
+// Now define the feature type itself (see features.h for parameters).
+DefineFeature(CharNormDesc, 4, 0, kCNFeatureType, CharNormParams)
 
-// define all of the parameters for the OutlineFeature type
-StartParamDesc (OutlineFeatParams)
-DefineParam (0, 0, -0.5, 0.5)
-DefineParam (0, 0, -0.25, 0.75)
-DefineParam (0, 0, 0.0, 1.0)
-DefineParam (1, 0, 0.0, 1.0)
+// Define all of the parameters for the IntFeature type
+StartParamDesc(IntFeatParams)
+DefineParam(0, 0, 0.0, 255.0)
+DefineParam(0, 0, 0.0, 255.0)
+DefineParam(1, 0, 0.0, 255.0)
 EndParamDesc
-/* now define the feature type itself (see features.h for info about each
-  parameter).*/
-DefineFeature (OutlineFeatDesc, 3, 1, 1, MAX_OUTLINE_FEATURES, "Outline",
-               "of", OutlineFeatParams)
+// Now define the feature type itself (see features.h for parameters).
+DefineFeature(IntFeatDesc, 2, 1, kIntFeatureType, IntFeatParams)
 
+// Define all of the parameters for the GeoFeature type
+StartParamDesc(GeoFeatParams)
+DefineParam(0, 0, 0.0, 255.0)
+DefineParam(0, 0, 0.0, 255.0)
+DefineParam(0, 0, 0.0, 255.0)
+EndParamDesc
+// Now define the feature type itself (see features.h for parameters).
+DefineFeature(GeoFeatDesc, 3, 0, kGeoFeatureType, GeoFeatParams)
+
+// Other features used for training the adaptive classifier, but not used
+// during normal training, therefore not in the DescDefs array.
+
+// Define all of the parameters for the PicoFeature type
+// define knob that can be used to adjust pico-feature length.
+FLOAT32 PicoFeatureLength = PICO_FEATURE_LENGTH;
+StartParamDesc(PicoFeatParams)
+DefineParam(0, 0, -0.25, 0.75)
+DefineParam(1, 0, 0.0, 1.0)
+DefineParam(0, 0, -0.5, 0.5)
+EndParamDesc
+// Now define the feature type itself (see features.h for parameters).
+DefineFeature(PicoFeatDesc, 2, 1, "pf", PicoFeatParams)
+
+// Define all of the parameters for the OutlineFeature type.
+StartParamDesc(OutlineFeatParams)
+DefineParam(0, 0, -0.5, 0.5)
+DefineParam(0, 0, -0.25, 0.75)
+DefineParam(0, 0, 0.0, 1.0)
+DefineParam(1, 0, 0.0, 1.0)
+EndParamDesc
+// Now define the feature type itself (see features.h for parameters).
+DefineFeature(OutlineFeatDesc, 3, 1, "of", OutlineFeatParams)
+
+// MUST be kept in-sync with ExtractorDefs in fxdefs.cpp.
 static const FEATURE_DESC_STRUCT *DescDefs[NUM_FEATURE_TYPES] = {
   &MicroFeatureDesc,
-  &PicoFeatDesc,
-  &OutlineFeatDesc,
-  &CharNormDesc
+  &CharNormDesc,
+  &IntFeatDesc,
+  &GeoFeatDesc
 };
 
 /*-----------------------------------------------------------------------------
@@ -188,6 +209,27 @@ void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
   }
 }                                /* WriteCharDescription */
 
+// Return whether all of the fields of the given feature set
+// are well defined (not inf or nan).
+bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
+                          CHAR_DESC CharDesc) {
+  bool anything_written = false;
+  bool well_formed = true;
+  for (int Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
+    if (CharDesc->FeatureSets[Type]) {
+      for (int i = 0; i < CharDesc->FeatureSets[Type]->NumFeatures; i++) {
+        FEATURE feat = CharDesc->FeatureSets[Type]->Features[i];
+        for (int p = 0; p < feat->Type->NumParams; p++) {
+          if (isnan(feat->Params[p]) || isinf(feat->Params[p]))
+            well_formed = false;
+          else
+            anything_written = true;
+        }
+      }
+    }
+  }
+  return anything_written && well_formed;
+}                                /* ValidCharDescription */
 
 /*---------------------------------------------------------------------------*/
 /**

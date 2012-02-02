@@ -100,11 +100,9 @@ const PARAM_DESC Name[] = {
 Macro for describing a new feature.  The parameters of the macro
 are as follows:
 
-DefineFeature (Name, NumLinear, NumCircular,
-          MinFeatPerChar, MaxFeatPerChar,
-          LongName, ShortName, ParamName)
+DefineFeature (Name, NumLinear, NumCircular, ShortName, ParamName)
 ----------------------------------------------------------------------*/
-#define DefineFeature(Name, NL, NC, Min, Max, LN, SN, PN)		\
+#define DefineFeature(Name, NL, NC, SN, PN)		\
 const FEATURE_DESC_STRUCT Name = {				\
 	((NL) + (NC)), SN, PN};
 

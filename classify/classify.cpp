@@ -17,49 +17,19 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "classify.h"
+#include "fontinfo.h"
 #include "intproto.h"
 #include "mfoutline.h"
 #include "scrollview.h"
+#include "shapetable.h"
 #include "unicity_table.h"
 #include <string.h>
 
-namespace {
-
-// Compare FontInfo structures.
-bool compare_fontinfo(const FontInfo& fi1, const FontInfo& fi2) {
-  // The font properties are required to be the same for two font with the same
-  // name, so there is no need to test them.
-  // Consequently, querying the table with only its font name as information is
-  // enough to retrieve its properties.
-  return strcmp(fi1.name, fi2.name) == 0;
-}
-// Compare FontSet structures.
-bool compare_font_set(const FontSet& fs1, const FontSet& fs2) {
-  if (fs1.size != fs2.size)
-    return false;
-  for (int i = 0; i < fs1.size; ++i) {
-    if (fs1.configs[i] != fs2.configs[i])
-      return false;
-  }
-  return true;
-}
-
-void delete_callback(FontInfo f) {
-  if (f.spacing_vec != NULL) {
-    f.spacing_vec->delete_data_pointers();
-    delete f.spacing_vec;
-  }
-  delete[] f.name;
-}
-void delete_callback_fs(FontSet fs) {
-  delete[] fs.configs;
-}
-
-}
-
 namespace tesseract {
 Classify::Classify()
-  : INT_MEMBER(tessedit_single_match, FALSE,
+  : BOOL_MEMBER(prioritize_division, FALSE,
+                "Prioritize blob division over chopping", this->params()),
+    INT_MEMBER(tessedit_single_match, FALSE,
                "Top choice only from CP", this->params()),
     BOOL_MEMBER(classify_enable_learning, true,
                 "Enable adaptive classifier", this->params()),
@@ -120,10 +90,6 @@ Classify::Classify()
                   "Penalty to apply when a non-alnum is vertically out of "
                   "its expected textline position",
                   this->params()),
-    BOOL_MEMBER(classify_enable_int_fx, 1, "Enable integer fx",
-                this->params()),
-    BOOL_MEMBER(classify_enable_new_adapt_rules, 1,
-                "Enable new adaptation rules", this->params()),
     double_MEMBER(rating_scale, 1.5, "Rating scaling factor", this->params()),
     double_MEMBER(certainty_scale, 20.0, "Certainty scaling factor",
                   this->params()),
@@ -149,28 +115,29 @@ Classify::Classify()
                 "One for the protos and one for the features.", this->params()),
     STRING_MEMBER(classify_learn_debug_str, "", "Class str to debug learning",
                   this->params()),
-    INT_INIT_MEMBER(classify_class_pruner_threshold, 229,
-                    "Class Pruner Threshold 0-255:        ", this->params()),
-    INT_INIT_MEMBER(classify_class_pruner_multiplier, 30,
-                    "Class Pruner Multiplier 0-255:       ", this->params()),
-    INT_INIT_MEMBER(classify_cp_cutoff_strength, 7,
-                    "Class Pruner CutoffStrength:         ", this->params()),
-    INT_INIT_MEMBER(classify_integer_matcher_multiplier, 14,
-                    "Integer Matcher Multiplier  0-255:   ", this->params()),
+    INT_MEMBER(classify_class_pruner_threshold, 229,
+               "Class Pruner Threshold 0-255", this->params()),
+    INT_MEMBER(classify_class_pruner_multiplier, 30,
+               "Class Pruner Multiplier 0-255:       ", this->params()),
+    INT_MEMBER(classify_cp_cutoff_strength, 7,
+               "Class Pruner CutoffStrength:         ", this->params()),
+    INT_MEMBER(classify_integer_matcher_multiplier, 14,
+               "Integer Matcher Multiplier  0-255:   ", this->params()),
     EnableLearning(true),
     INT_MEMBER(il1_adaption_test, 0, "Dont adapt to i/I at beginning of word",
                this->params()),
     BOOL_MEMBER(classify_bln_numeric_mode, 0,
                 "Assume the input is numbers [0-9].", this->params()),
+    shape_table_(NULL),
     dict_(&image_) {
   fontinfo_table_.set_compare_callback(
-      NewPermanentTessCallback(compare_fontinfo));
+      NewPermanentTessCallback(CompareFontInfo));
   fontinfo_table_.set_clear_callback(
-      NewPermanentTessCallback(delete_callback));
+      NewPermanentTessCallback(FontInfoDeleteCallback));
   fontset_table_.set_compare_callback(
-      NewPermanentTessCallback(compare_font_set));
+      NewPermanentTessCallback(CompareFontSet));
   fontset_table_.set_clear_callback(
-      NewPermanentTessCallback(delete_callback_fs));
+      NewPermanentTessCallback(FontSetDeleteCallback));
   AdaptedTemplates = NULL;
   PreTrainedTemplates = NULL;
   AllProtosOn = NULL;
@@ -198,6 +165,9 @@ Classify::Classify()
   learn_debug_win_ = NULL;
   learn_fragmented_word_debug_win_ = NULL;
   learn_fragments_debug_win_ = NULL;
+
+  CharNormCutoffs = new uinT16[MAX_NUM_CLASSES];
+  BaselineCutoffs = new uinT16[MAX_NUM_CLASSES];
 }
 
 Classify::~Classify() {
@@ -205,6 +175,8 @@ Classify::~Classify() {
   delete learn_debug_win_;
   delete learn_fragmented_word_debug_win_;
   delete learn_fragments_debug_win_;
+  delete[] CharNormCutoffs;
+  delete[] BaselineCutoffs;
 }
 
 }  // namespace tesseract

@@ -22,6 +22,7 @@
 #include "normmatch.h"
 #include "mfoutline.h"
 #include "classify.h"
+#include "helpers.h"
 #include "picofeat.h"
 
 #define MAX_INT_CHAR_NORM (INT_CHAR_NORM_RANGE - 1)
@@ -33,63 +34,44 @@
 namespace tesseract {
 
 /**
- * For each class in Templates, clear the corresponding
- * entry in CharNormArray.  CharNormArray is indexed by class
- * indicies (as obtained from Templates) rather than class id's.
+ * For each class in the unicharset, clears the corresponding
+ * entry in char_norm_array.  char_norm_array is indexed by unichar_id.
  *
  * Globals: 
  * - none
  *
- * @param Templates specifies classes currently defined
- * @param CharNormArray array to be cleared
+ * @param char_norm_array array to be cleared
  *
  * @note Exceptions: none
  * @note History: Wed Feb 20 11:20:54 1991, DSJ, Created.
  */
-void ClearCharNormArray(INT_TEMPLATES Templates,
-                        CLASS_NORMALIZATION_ARRAY CharNormArray) {
-  int i;
-
-  for (i = 0; i < Templates->NumClasses; i++) {
-    CharNormArray[i] = 0;
-  }
-
+void Classify::ClearCharNormArray(uinT8* char_norm_array) {
+  memset(char_norm_array, 0, sizeof(*char_norm_array) * unicharset.size());
 }                                /* ClearCharNormArray */
 
 
 /*---------------------------------------------------------------------------*/
 /** 
- * For each class in Templates, compute the match between
- * NormFeature and the normalization protos for that class.
- * Convert this number to the range from 0 - 255 and store it
- * into CharNormArray.  CharNormArray is indexed by class
- * indicies (as obtained from Templates) rather than class id's.
+ * For each class in unicharset, computes the match between
+ * norm_feature and the normalization protos for that class.
+ * Converts this number to the range from 0 - 255 and stores it
+ * into char_norm_array.  CharNormArray is indexed by unichar_id.
  *
  * Globals: 
  * - none
  *
- * @param NormFeature character normalization feature
- * @param Templates specifies classes currently defined
- * @param[out] CharNormArray place to put results
+ * @param norm_feature character normalization feature
+ * @param[out] char_norm_array place to put results of size unicharset.size()
  *
  * @note Exceptions: none
  * @note History: Wed Feb 20 11:20:54 1991, DSJ, Created.
  */
-void Classify::ComputeIntCharNormArray(
-  FEATURE NormFeature, INT_TEMPLATES Templates,
-  CLASS_NORMALIZATION_ARRAY CharNormArray) {
-  int i;
-  int NormAdjust;
-
-  for (i = 0; i < Templates->NumClasses; i++) {
-    NormAdjust = (int) (INT_CHAR_NORM_RANGE *
-      ComputeNormMatch (i, NormFeature, FALSE));
-    if (NormAdjust < 0)
-      NormAdjust = 0;
-    else if (NormAdjust > MAX_INT_CHAR_NORM)
-      NormAdjust = MAX_INT_CHAR_NORM;
-
-    CharNormArray[i] = NormAdjust;
+void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
+                                       uinT8* char_norm_array) {
+  for (int i = 0; i < unicharset.size(); i++) {
+    int norm_adjust = static_cast<int>(INT_CHAR_NORM_RANGE *
+      ComputeNormMatch(i, norm_feature, FALSE));
+    char_norm_array[i] = ClipToRange(norm_adjust, 0, MAX_INT_CHAR_NORM);
   }
 }                                /* ComputeIntCharNormArray */
 

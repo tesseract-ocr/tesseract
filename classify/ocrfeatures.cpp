@@ -231,12 +231,11 @@ void WriteFeature(FILE *File, FEATURE Feature) {
 
   for (i = 0; i < Feature->Type->NumParams; i++) {
 #ifndef WIN32
-    assert (!isnan(Feature->Params[i]));
+    assert(!isnan(Feature->Params[i]));
 #endif
-    fprintf (File, " %12g", Feature->Params[i]);
+    fprintf(File, " %g", Feature->Params[i]);
   }
-  fprintf (File, "\n");
-
+  fprintf(File, "\n");
 }                                /* WriteFeature */
 
 

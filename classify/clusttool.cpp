@@ -213,6 +213,8 @@ PROTOTYPE *ReadPrototype(FILE *File, uinT16 N) {
               Proto->Magnitude.Elliptical[i] = 1.0 /
                 (2.0 * Proto->Variance.Elliptical[i]);
               break;
+            case DISTRIBUTION_COUNT:
+              ASSERT_HOST(!"Distribution count not allowed!");
           }
           Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
         }
@@ -374,6 +376,8 @@ void WritePrototype(FILE *File, uinT16 N, PROTOTYPE *Proto) {
         case D_random:
           fprintf (File, " %9s", "random");
           break;
+        case DISTRIBUTION_COUNT:
+          ASSERT_HOST(!"Distribution count not allowed!");
       }
       fprintf (File, "\n\t");
       WriteNFloats (File, N, Proto->Variance.Elliptical);
@@ -392,13 +396,10 @@ Return:		None
 Exceptions:	None
 History:	6/6/89, DSJ, Created.
 ****************************************************************************/
-void
-WriteNFloats (FILE * File, uinT16 N, FLOAT32 Array[]) {
-  int i;
-
-  for (i = 0; i < N; i++)
-    fprintf (File, " %9.6f", Array[i]);
-  fprintf (File, "\n");
+void WriteNFloats(FILE * File, uinT16 N, FLOAT32 Array[]) {
+  for (int i = 0; i < N; i++)
+    fprintf(File, " %9.6f", Array[i]);
+  fprintf(File, "\n");
 }                                // WriteNFloats
 
 
@@ -479,29 +480,3 @@ void WriteProtoList(
     }
 }	/* WriteProtoList */
 
-/** UniformRandomNumber ********************************************************
-Parameters:	MMin	lower range of uniform distribution
-      MMax	upper range of uniform distribution
-Globals:	None
-Operation:	This routine computes a random number which comes from a
-      uniform distribution over the range from MMin to MMax.
-Return:		Uniform random number
-Exceptions:	None
-History:	6/6/89, DSJ, Created.
-*******************************************************************************/
-FLOAT32 UniformRandomNumber(FLOAT32 MMin, FLOAT32 MMax) {
-  double fake_drand48();
-  FLOAT32 RandomNumber;
-
-  RandomNumber = fake_drand48 ();
-  return (MMin + (RandomNumber * (MMax - MMin)));
-}                                // UniformRandomNumber
-
-
-/** drand48 *************************************************************
-Cheap replacement for drand48 which is not available on the PC.
-**********************************************************************/
-
-double fake_drand48() {
-  return rand () / (RAND_MAX + 1.0);
-}

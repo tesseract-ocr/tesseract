@@ -51,8 +51,11 @@ typedef struct
 } PROTO_STRUCT;
 typedef PROTO_STRUCT *PROTO;
 
-typedef struct
-{
+struct CLASS_STRUCT {
+  CLASS_STRUCT()
+    : NumProtos(0), MaxNumProtos(0), Prototypes(NULL),
+      NumConfigs(0), MaxNumConfigs(0), Configurations(NULL) {
+  }
   inT16 NumProtos;
   inT16 MaxNumProtos;
   PROTO Prototypes;
@@ -60,7 +63,7 @@ typedef struct
   inT16 MaxNumConfigs;
   CONFIGS Configurations;
   UnicityTableEqEq<int> font_set;
-} CLASS_STRUCT;
+};
 typedef CLASS_STRUCT *CLASS_TYPE;
 typedef CLASS_STRUCT *CLASSES;
 

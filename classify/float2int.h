@@ -27,12 +27,4 @@
 #define INT_FEAT_RANGE    256
 #define BASELINE_Y_SHIFT  (0.25)
 
-/*-----------------------------------------------------------------------------
-          Public Function Prototypes
------------------------------------------------------------------------------*/
-namespace tesseract {
-void ClearCharNormArray(INT_TEMPLATES Templates,
-                        CLASS_NORMALIZATION_ARRAY CharNormArray);
-}  // namespace tesseract.
-
 #endif

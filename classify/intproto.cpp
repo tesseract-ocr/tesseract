@@ -18,19 +18,6 @@
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-#include "helpers.h"
-#include "intproto.h"
-#include "picofeat.h"
-#include "mfoutline.h"
-#include "emalloc.h"
-#include "const.h"
-#include "ndminx.h"
-#include "svmnode.h"
-#include "globals.h"
-#include "classify.h"
-#include "genericvector.h"
-
-//extern GetPicoFeatureLength();
 
 #include <math.h>
 #include <stdio.h>
@@ -39,10 +26,28 @@
 #include <unistd.h>
 #endif
 
+#include "classify.h"
+#include "const.h"
+#include "emalloc.h"
+#include "fontinfo.h"
+#include "genericvector.h"
+#include "globals.h"
+#include "helpers.h"
+#include "intproto.h"
+#include "mfoutline.h"
+#include "ndminx.h"
+#include "picofeat.h"
+#include "shapetable.h"
+#include "svmnode.h"
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+using tesseract::FontInfo;
+using tesseract::FontSet;
+using tesseract::FontSpacingInfo;
 
 /* match debug display constants*/
 #define PROTO_PRUNER_SCALE  (4.0)
@@ -126,7 +131,7 @@ FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets);
 FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets);
 
 void DoFill(FILL_SPEC *FillSpec,
-            CLASS_PRUNER Pruner,
+            CLASS_PRUNER_STRUCT* Pruner,
             register uinT32 ClassMask,
             register uinT32 ClassCount,
             register uinT32 WordIndex);
@@ -218,7 +223,6 @@ double_VAR(classify_pp_side_pad, 2.5, "Proto Pruner Side Pad");
  */
 void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
   int Pruner;
-  uinT32 *Word;
 
   assert (LegalClassId (ClassId));
   if (ClassId != Templates->NumClasses) {
@@ -231,13 +235,8 @@ void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
 
   if (Templates->NumClasses > MaxNumClassesIn (Templates)) {
     Pruner = Templates->NumClassPruners++;
-    Templates->ClassPruner[Pruner] =
-      (CLASS_PRUNER) Emalloc (sizeof (CLASS_PRUNER_STRUCT));
-
-    for (Word = reinterpret_cast<uinT32*>(Templates->ClassPruner[Pruner]);
-         Word < reinterpret_cast<uinT32*>(Templates->ClassPruner[Pruner]) +
-                WERDS_PER_CP;
-         *Word++ = 0);
+    Templates->ClassPruners[Pruner] = new CLASS_PRUNER_STRUCT;
+    memset(Templates->ClassPruners[Pruner], 0, sizeof(CLASS_PRUNER_STRUCT));
   }
 }                                /* AddIntClass */
 
@@ -296,14 +295,14 @@ int AddIntProto(INT_CLASS Class) {
 
     ProtoSet = (PROTO_SET) Emalloc(sizeof(PROTO_SET_STRUCT));
     Class->ProtoSets[ProtoSetId] = ProtoSet;
-    for (Word = reinterpret_cast<uinT32*>(ProtoSet->ProtoPruner);
-         Word < reinterpret_cast<uinT32*>(ProtoSet->ProtoPruner) + WERDS_PER_PP;
-         *Word++ = 0);
+    memset(ProtoSet, 0, sizeof(*ProtoSet));
 
     /* reallocate space for the proto lengths and install in class */
     Class->ProtoLengths =
       (uinT8 *)Erealloc(Class->ProtoLengths,
                         MaxNumIntProtosIn(Class) * sizeof(uinT8));
+    memset(&Class->ProtoLengths[Index], 0,
+           sizeof(*Class->ProtoLengths) * (MaxNumIntProtosIn(Class) - Index));
   }
 
   /* initialize proto so its length is zero and it isn't in any configs */
@@ -335,7 +334,7 @@ void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
  */
 #define MAX_LEVEL     2
 {
-  CLASS_PRUNER Pruner;
+  CLASS_PRUNER_STRUCT* Pruner;
   uinT32 ClassMask;
   uinT32 ClassCount;
   uinT32 WordIndex;
@@ -636,7 +635,7 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
 
 /*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-void DisplayIntFeature(INT_FEATURE Feature, FLOAT32 Evidence) {
+void DisplayIntFeature(const INT_FEATURE_STRUCT* Feature, FLOAT32 Evidence) {
 /*
  ** Parameters:
  **   Feature   pico-feature to be displayed
@@ -697,7 +696,6 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   INT_CLASS Class;
   PROTO_SET ProtoSet;
   int i;
-  register uinT32 *Word;
 
   assert(MaxNumConfigs <= MAX_NUM_CONFIGS);
 
@@ -713,17 +711,20 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   for (i = 0; i < Class->NumProtoSets; i++) {
     /* allocate space for a proto set, install in class, and initialize */
     ProtoSet = (PROTO_SET) Emalloc(sizeof(PROTO_SET_STRUCT));
+    memset(ProtoSet, 0, sizeof(*ProtoSet));
     Class->ProtoSets[i] = ProtoSet;
-    for (Word = reinterpret_cast<uinT32*>(ProtoSet->ProtoPruner);
-         Word < reinterpret_cast<uinT32*>(ProtoSet->ProtoPruner) + WERDS_PER_PP;
-         *Word++ = 0);
 
     /* allocate space for the proto lengths and install in class */
   }
   if (MaxNumIntProtosIn (Class) > 0) {
     Class->ProtoLengths =
       (uinT8 *)Emalloc(MaxNumIntProtosIn (Class) * sizeof (uinT8));
+    memset(Class->ProtoLengths, 0,
+           MaxNumIntProtosIn(Class) * sizeof(*Class->ProtoLengths));
+  } else {
+    Class->ProtoLengths = NULL;
   }
+  memset(Class->ConfigLengths, 0, sizeof(Class->ConfigLengths));
 
   return (Class);
 
@@ -776,119 +777,10 @@ void free_int_templates(INT_TEMPLATES templates) {
   for (i = 0; i < templates->NumClasses; i++)
     free_int_class(templates->Class[i]);
   for (i = 0; i < templates->NumClassPruners; i++)
-    Efree(templates->ClassPruner[i]);
+    delete templates->ClassPruners[i];
   Efree(templates);
 }
 
-
-/*---------------------------------------------------------------------------*/
-// Code to read/write Classify::font*table structures.
-namespace {
-bool read_info(FILE* f, FontInfo* fi, bool swap) {
-  inT32 size;
-  if (fread(&size, sizeof(size), 1, f) != 1) return false;
-  if (swap)
-    Reverse32(&size);
-  char* font_name = new char[size + 1];
-  fi->name = font_name;
-  if (fread(font_name, sizeof(*font_name), size, f) != size) return false;
-  font_name[size] = '\0';
-  if (fread(&fi->properties, sizeof(fi->properties), 1, f) != 1) return false;
-  if (swap)
-    Reverse32(&fi->properties);
-  return true;
-}
-
-bool write_info(FILE* f, const FontInfo& fi) {
-  inT32 size = strlen(fi.name);
-  if (fwrite(&size, sizeof(size), 1, f) != 1) return false;
-  if (fwrite(fi.name, sizeof(*fi.name), size, f) != size) return false;
-  if (fwrite(&fi.properties, sizeof(fi.properties), 1, f) != 1) return false;
-  return true;
-}
-
-bool read_spacing_info(FILE *f, FontInfo* fi, bool swap) {
-  inT32 vec_size, kern_size;
-  if (fread(&vec_size, sizeof(vec_size), 1, f) != 1) return false;
-  if (swap) Reverse32(&vec_size);
-  ASSERT_HOST(vec_size >= 0);
-  if (vec_size == 0) return true;
-  fi->init_spacing(vec_size);
-  for (int i = 0; i < vec_size; ++i) {
-    FontSpacingInfo *fs = new FontSpacingInfo();
-    if (fread(&fs->x_gap_before, sizeof(fs->x_gap_before), 1, f) != 1 ||
-        fread(&fs->x_gap_after, sizeof(fs->x_gap_after), 1, f) != 1 ||
-        fread(&kern_size, sizeof(kern_size), 1, f) != 1) {
-      return false;
-    }
-    if (swap) {
-      ReverseN(&(fs->x_gap_before), sizeof(fs->x_gap_before));
-      ReverseN(&(fs->x_gap_after), sizeof(fs->x_gap_after));
-      Reverse32(&kern_size);
-    }
-    if (kern_size < 0) {  // indication of a NULL entry in fi->spacing_vec
-      delete fs;
-      continue;
-    }
-    if (kern_size > 0 && (!fs->kerned_unichar_ids.DeSerialize(swap, f) ||
-                          !fs->kerned_x_gaps.DeSerialize(swap, f))) {
-      return false;
-    }
-    fi->add_spacing(i, fs);
-  }
-  return true;
-}
-
-bool write_spacing_info(FILE* f, const FontInfo& fi) {
-  inT32 vec_size = (fi.spacing_vec == NULL) ? 0 : fi.spacing_vec->size();
-  if (fwrite(&vec_size,  sizeof(vec_size), 1, f) != 1) return false;
-  inT16 x_gap_invalid = -1;
-  for (int i = 0; i < vec_size; ++i) {
-    FontSpacingInfo *fs = fi.spacing_vec->get(i);
-    inT32 kern_size = (fs == NULL) ? -1 : fs->kerned_x_gaps.size();
-    if (fs == NULL) {
-      if (fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
-          fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
-          fwrite(&kern_size, sizeof(kern_size), 1, f) != 1) {
-        return false;
-      }
-    } else {
-      if (fwrite(&(fs->x_gap_before), sizeof(fs->x_gap_before), 1, f) != 1 ||
-          fwrite(&(fs->x_gap_after), sizeof(fs->x_gap_after), 1, f) != 1 ||
-          fwrite(&kern_size, sizeof(kern_size), 1, f) != 1) {
-        return false;
-      }
-    }
-    if (kern_size > 0 && (!fs->kerned_unichar_ids.Serialize(f) ||
-                          !fs->kerned_x_gaps.Serialize(f))) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool read_set(FILE* f, FontSet* fs, bool swap) {
-  if (fread(&fs->size, sizeof(fs->size), 1, f) != 1) return false;
-  if (swap)
-    Reverse32(&fs->size);
-  fs->configs = new int[fs->size];
-  for (int i = 0; i < fs->size; ++i) {
-    if (fread(&fs->configs[i], sizeof(fs->configs[i]), 1, f) != 1) return false;
-    if (swap)
-      Reverse32(&fs->configs[i]);
-  }
-  return true;
-}
-
-bool write_set(FILE* f, const FontSet& fs) {
-  if (fwrite(&fs.size, sizeof(fs.size), 1, f) != 1) return false;
-  for (int i = 0; i < fs.size; ++i) {
-    if (fwrite(&fs.configs[i], sizeof(fs.configs[i]), 1, f) != 1) return false;
-  }
-  return true;
-}
-
-}  // namespace.
 
 namespace tesseract {
 INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
@@ -909,7 +801,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   int unicharset_size;
   int version_id = 0;
   INT_TEMPLATES Templates;
-  CLASS_PRUNER Pruner;
+  CLASS_PRUNER_STRUCT* Pruner;
   INT_CLASS Class;
   uinT8 *Lengths;
   PROTO_SET ProtoSet;
@@ -919,11 +811,11 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   CLASS_ID class_id, max_class_id;
   inT16 *IndexFor = new inT16[MAX_NUM_CLASSES];
   CLASS_ID *ClassIdFor = new CLASS_ID[MAX_NUM_CLASSES];
-  CLASS_PRUNER *TempClassPruner = new CLASS_PRUNER[MAX_NUM_CLASS_PRUNERS];
+  CLASS_PRUNER_STRUCT **TempClassPruner =
+      new CLASS_PRUNER_STRUCT*[MAX_NUM_CLASS_PRUNERS];
   uinT32 SetBitsForMask =           // word with NUM_BITS_PER_CLASS
     (1 << NUM_BITS_PER_CLASS) - 1;  // set starting at bit 0
   uinT32 Mask, NewMask, ClassBits;
-  uinT32 *Word;
   int MaxNumConfigs = MAX_NUM_CONFIGS;
   int WerdsPerConfigVec = WERDS_PER_CONFIG_VEC;
 
@@ -979,9 +871,9 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
 
   /* then read in the class pruners */
   for (i = 0; i < Templates->NumClassPruners; i++) {
-    Pruner = (CLASS_PRUNER) Emalloc(sizeof(CLASS_PRUNER_STRUCT));
+    Pruner = new CLASS_PRUNER_STRUCT;
     if ((nread =
-         fread((char *) Pruner, 1, sizeof(CLASS_PRUNER_STRUCT),
+         fread(Pruner, 1, sizeof(CLASS_PRUNER_STRUCT),
                 File)) != sizeof(CLASS_PRUNER_STRUCT))
       cprintf("Bad read of inttemp!\n");
     if (swap) {
@@ -989,7 +881,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
         for (y = 0; y < NUM_CP_BUCKETS; y++) {
           for (z = 0; z < NUM_CP_BUCKETS; z++) {
             for (w = 0; w < WERDS_PER_CP_VECTOR; w++) {
-              Reverse32(&Pruner[x][y][z][w]);
+              Reverse32(&Pruner->p[x][y][z][w]);
             }
           }
         }
@@ -998,7 +890,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     if (version_id < 2) {
       TempClassPruner[i] = Pruner;
     } else {
-      Templates->ClassPruner[i] = Pruner;
+      Templates->ClassPruners[i] = Pruner;
     }
   }
 
@@ -1010,11 +902,8 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
       if (ClassIdFor[i] > max_class_id)
         max_class_id = ClassIdFor[i];
     for (i = 0; i <= CPrunerIdFor(max_class_id); i++) {
-      Templates->ClassPruner[i] =
-        (CLASS_PRUNER) Emalloc(sizeof(CLASS_PRUNER_STRUCT));
-      for (Word = (uinT32 *) (Templates->ClassPruner[i]);
-           Word < (uinT32 *) (Templates->ClassPruner[i]) + WERDS_PER_CP;
-           *Word++ = 0);
+      Templates->ClassPruners[i] = new CLASS_PRUNER_STRUCT;
+      memset(Templates->ClassPruners[i], 0, sizeof(CLASS_PRUNER_STRUCT));
     }
     // Convert class pruners from the old format (indexed by class index)
     // to the new format (indexed by class id).
@@ -1024,7 +913,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
         for (y = 0; y < NUM_CP_BUCKETS; y++)
           for (z = 0; z < NUM_CP_BUCKETS; z++)
             for (w = 0; w < WERDS_PER_CP_VECTOR; w++) {
-              if (TempClassPruner[i][x][y][z][w] == 0)
+              if (TempClassPruner[i]->p[x][y][z][w] == 0)
                 continue;
               for (b = 0; b < BITS_PER_WERD; b += NUM_BITS_PER_CLASS) {
                 bit_number = i * BITS_PER_CP_VECTOR + w * BITS_PER_WERD + b;
@@ -1033,7 +922,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
                 class_id = ClassIdFor[bit_number / NUM_BITS_PER_CLASS];
                 // Single out NUM_BITS_PER_CLASS bits relating to class_id.
                 Mask = SetBitsForMask << b;
-                ClassBits = TempClassPruner[i][x][y][z][w] & Mask;
+                ClassBits = TempClassPruner[i]->p[x][y][z][w] & Mask;
                 // Move these bits to the new position in which they should
                 // appear (indexed corresponding to the class_id).
                 new_i = CPrunerIdFor(class_id);
@@ -1047,13 +936,13 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
                 // Copy bits relating to class_id to the correct position
                 // in Templates->ClassPruner.
                 NewMask = SetBitsForMask << new_b;
-                Templates->ClassPruner[new_i][x][y][z][new_w] &= ~NewMask;
-                Templates->ClassPruner[new_i][x][y][z][new_w] |= ClassBits;
+                Templates->ClassPruners[new_i]->p[x][y][z][new_w] &= ~NewMask;
+                Templates->ClassPruners[new_i]->p[x][y][z][new_w] |= ClassBits;
               }
             }
     }
     for (i = 0; i < Templates->NumClassPruners; i++) {
-      Efree (TempClassPruner[i]);
+      delete TempClassPruner[i];
     }
   }
 
@@ -1217,7 +1106,6 @@ void Classify::ShowMatchDisplay() {
  ** History: Thu Mar 21 15:47:33 1991, DSJ, Created.
  */
   InitIntMatchWindowIfReqd();
-  c_clear_window(IntMatchWindow);
   if (ProtoDisplayWindow) {
     ProtoDisplayWindow->Clear();
   }
@@ -1227,7 +1115,6 @@ void Classify::ShowMatchDisplay() {
   ClearFeatureSpaceWindow(
       static_cast<NORM_METHOD>(static_cast<int>(classify_norm_method)),
       IntMatchWindow);
-
   IntMatchWindow->ZoomToRectangle(INT_MIN_X, INT_MIN_Y,
                                   INT_MAX_X, INT_MAX_Y);
   if (ProtoDisplayWindow) {
@@ -1299,7 +1186,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
 
   /* then write out the class pruners */
   for (i = 0; i < Templates->NumClassPruners; i++)
-    fwrite(Templates->ClassPruner[i],
+    fwrite(Templates->ClassPruners[i],
            sizeof(CLASS_PRUNER_STRUCT), 1, File);
 
   /* then write out each class */
@@ -1385,7 +1272,7 @@ FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
 
 /*---------------------------------------------------------------------------*/
 void DoFill(FILL_SPEC *FillSpec,
-            CLASS_PRUNER Pruner,
+            CLASS_PRUNER_STRUCT* Pruner,
             register uinT32 ClassMask,
             register uinT32 ClassCount,
             register uinT32 WordIndex) {
@@ -1421,11 +1308,11 @@ void DoFill(FILL_SPEC *FillSpec,
   for (Y = FillSpec->YStart; Y <= FillSpec->YEnd; Y++)
     for (Angle = FillSpec->AngleStart;
          TRUE; CircularIncrement (Angle, NUM_CP_BUCKETS)) {
-      OldWord = Pruner[X][Y][Angle][WordIndex];
+      OldWord = Pruner->p[X][Y][Angle][WordIndex];
       if (ClassCount > (OldWord & ClassMask)) {
         OldWord &= ~ClassMask;
         OldWord |= ClassCount;
-        Pruner[X][Y][Angle][WordIndex] = OldWord;
+        Pruner->p[X][Y][Angle][WordIndex] = OldWord;
       }
       if (Angle == FillSpec->AngleEnd)
         break;
@@ -1543,7 +1430,7 @@ void FillPPLinearBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 #ifndef GRAPHICS_DISABLED
 namespace tesseract {
 CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
-                                   bool* pretrained_on) {
+                                   bool* pretrained_on, int* shape_id) {
 /*
  ** Parameters:
  **   Prompt  prompt to print while waiting for input from window
@@ -1557,26 +1444,57 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
   tprintf("%s\n", Prompt);
   SVEvent* ev;
   SVEventType ev_type;
+  int unichar_id = INVALID_UNICHAR_ID;
   // Wait until a click or popup event.
   do {
     ev = IntMatchWindow->AwaitEvent(SVET_ANY);
     ev_type = ev->type;
     if (ev_type == SVET_POPUP) {
-      if (unicharset.contains_unichar(ev->parameter)) {
-        if (ev->command_id == IDA_ADAPTIVE) {
-          *adaptive_on = true;
-          *pretrained_on = false;
-        } else if (ev->command_id == IDA_STATIC) {
+      if (ev->command_id == IDA_SHAPE_INDEX) {
+        if (shape_table_ != NULL) {
+          *shape_id = atoi(ev->parameter);
           *adaptive_on = false;
           *pretrained_on = true;
+          if (*shape_id >= 0 && *shape_id < shape_table_->NumShapes()) {
+            int font_id;
+            shape_table_->GetFirstUnicharAndFont(*shape_id, &unichar_id,
+                                                 &font_id);
+            tprintf("Shape %d, first unichar=%d, font=%d\n",
+                    *shape_id, unichar_id, font_id);
+            return unichar_id;
+          }
+          tprintf("Shape index '%s' not found in shape table\n", ev->parameter);
         } else {
-          *adaptive_on = true;
-          *pretrained_on = true;
+          tprintf("No shape table loaded!\n");
         }
-        return unicharset.unichar_to_id(ev->parameter);
+      } else {
+        if (unicharset.contains_unichar(ev->parameter)) {
+          unichar_id = unicharset.unichar_to_id(ev->parameter);
+          if (ev->command_id == IDA_ADAPTIVE) {
+            *adaptive_on = true;
+            *pretrained_on = false;
+            *shape_id = -1;
+          } else if (ev->command_id == IDA_STATIC) {
+            *adaptive_on = false;
+            *pretrained_on = true;
+          } else {
+            *adaptive_on = true;
+            *pretrained_on = true;
+          }
+          if (ev->command_id == IDA_ADAPTIVE || shape_table_ == NULL) {
+            *shape_id = -1;
+            return unichar_id;
+          }
+          for (int s = 0; s < shape_table_->NumShapes(); ++s) {
+            if (shape_table_->GetShape(s).ContainsUnichar(unichar_id)) {
+              tprintf("%s\n", shape_table_->DebugStr(s).string());
+            }
+          }
+        } else {
+          tprintf("Char class '%s' not found in unicharset",
+                  ev->parameter);
+        }
       }
-      tprintf("Char class '%s' not found in unicharset",
-              ev->parameter);
     }
     delete ev;
   } while (ev_type != SVET_CLICK);
@@ -1916,15 +1834,8 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
   // using BinaryAnglePlusPi in intfx.cpp.
   Dx = (Length / 2.0) * cos((Feature->Theta / 256.0) * 2.0 * PI - PI);
   Dy = (Length / 2.0) * sin((Feature->Theta / 256.0) * 2.0 * PI - PI);
-  float x_offset = Dy / 4.0;
-  float y_offset = -Dx / 4.0;
 
-  window->SetCursor(X - Dx, Y - Dy);
-  window->DrawTo(X + Dx, Y + Dy);
-  // Draw another copy of the feature offset perpendicualar to its direction.
-  X += x_offset;
-  Y += y_offset;
-  window->SetCursor(X - Dx, Y - Dy);
+  window->SetCursor(X, Y);
   window->DrawTo(X + Dx, Y + Dy);
 }                                /* RenderIntFeature */
 
@@ -2047,6 +1958,8 @@ void InitIntMatchWindowIfReqd() {
                          "x", "Class to debug");
     popup_menu->AddChild("Debug Both", IDA_BOTH,
                          "x", "Class to debug");
+    popup_menu->AddChild("Debug Shape Index", IDA_SHAPE_INDEX,
+                         "0", "Index to debug");
     popup_menu->BuildMenu(IntMatchWindow, false);
   }
 }

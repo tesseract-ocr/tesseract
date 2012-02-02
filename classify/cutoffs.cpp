@@ -39,7 +39,7 @@
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
-void Classify::ReadNewCutoffs(FILE *CutoffFile, inT64 end_offset,
+void Classify::ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
                               CLASS_CUTOFF_ARRAY Cutoffs) {
 /*
  **	Parameters:
@@ -59,6 +59,11 @@ void Classify::ReadNewCutoffs(FILE *CutoffFile, inT64 end_offset,
   int Cutoff;
   int i;
 
+  if (shape_table_ != NULL) {
+    if (!shapetable_cutoffs_.DeSerialize(swap, CutoffFile)) {
+      tprintf("Error during read of shapetable pffmtable!\n");
+    }
+  }
   for (i = 0; i < MAX_NUM_CLASSES; i++)
     Cutoffs[i] = MAX_CUTOFF;
 

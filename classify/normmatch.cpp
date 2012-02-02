@@ -70,7 +70,8 @@ const double kWidthErrorWeighting = 0.125;
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
-FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId, FEATURE Feature,
+FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
+                                   const FEATURE_STRUCT& feature,
                                    BOOL8 DebugMatch) {
 /*
  **	Parameters:
@@ -96,12 +97,12 @@ FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId, FEATURE Feature,
   /* handle requests for classification as noise */
   if (ClassId == NO_CLASS) {
     /* kludge - clean up constants and make into control knobs later */
-    Match = (Feature->Params[CharNormLength] *
-      Feature->Params[CharNormLength] * 500.0 +
-      Feature->Params[CharNormRx] *
-      Feature->Params[CharNormRx] * 8000.0 +
-      Feature->Params[CharNormRy] *
-      Feature->Params[CharNormRy] * 8000.0);
+    Match = (feature.Params[CharNormLength] *
+      feature.Params[CharNormLength] * 500.0 +
+      feature.Params[CharNormRx] *
+      feature.Params[CharNormRx] * 8000.0 +
+      feature.Params[CharNormRy] *
+      feature.Params[CharNormRy] * 8000.0);
     return (1.0 - NormEvidenceOf (Match));
   }
 
@@ -109,38 +110,48 @@ FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId, FEATURE Feature,
   Protos = NormProtos->Protos[ClassId];
 
   if (DebugMatch) {
-    cprintf ("\nFeature = ");
-    WriteFeature(stdout, Feature);
+    tprintf("\nChar norm for class %s\n", unicharset.id_to_unichar(ClassId));
   }
 
   ProtoId = 0;
   iterate(Protos) {
     Proto = (PROTOTYPE *) first_node (Protos);
-    Delta = Feature->Params[CharNormY] - Proto->Mean[CharNormY];
+    Delta = feature.Params[CharNormY] - Proto->Mean[CharNormY];
     Match = Delta * Delta * Proto->Weight.Elliptical[CharNormY];
-    Delta = Feature->Params[CharNormRx] - Proto->Mean[CharNormRx];
+    if (DebugMatch) {
+      tprintf("YMiddle: Proto=%g, Delta=%g, Var=%g, Dist=%g\n",
+              Proto->Mean[CharNormY], Delta,
+              Proto->Weight.Elliptical[CharNormY], Match);
+    }
+    Delta = feature.Params[CharNormRx] - Proto->Mean[CharNormRx];
     Match += Delta * Delta * Proto->Weight.Elliptical[CharNormRx];
+    if (DebugMatch) {
+      tprintf("Height: Proto=%g, Delta=%g, Var=%g, Dist=%g\n",
+              Proto->Mean[CharNormRx], Delta,
+              Proto->Weight.Elliptical[CharNormRx], Match);
+    }
     // Ry is width! See intfx.cpp.
-    Delta = Feature->Params[CharNormRy] - Proto->Mean[CharNormRy];
+    Delta = feature.Params[CharNormRy] - Proto->Mean[CharNormRy];
+    if (DebugMatch) {
+      tprintf("Width: Proto=%g, Delta=%g, Var=%g\n",
+              Proto->Mean[CharNormRy], Delta,
+              Proto->Weight.Elliptical[CharNormRy]);
+    }
     Delta = Delta * Delta * Proto->Weight.Elliptical[CharNormRy];
     Delta *= kWidthErrorWeighting;
     Match += Delta;
+    if (DebugMatch) {
+      tprintf("Total Dist=%g, scaled=%g, sigmoid=%g, penalty=%g\n",
+              Match, Match / classify_norm_adj_midpoint,
+              NormEvidenceOf(Match), 256 * (1 - NormEvidenceOf(Match)));
+    }
 
     if (Match < BestMatch)
       BestMatch = Match;
 
-    if (DebugMatch) {
-      cprintf ("Proto %1d = ", ProtoId);
-      WriteNFloats (stdout, NormProtos->NumParams, Proto->Mean);
-      cprintf ("      var = ");
-      WriteNFloats (stdout, NormProtos->NumParams,
-        Proto->Variance.Elliptical);
-      cprintf ("    match = ");
-      PrintNormMatch (stdout, NormProtos->NumParams, Proto, Feature);
-    }
     ProtoId++;
   }
-  return (1.0 - NormEvidenceOf (BestMatch));
+  return 1.0 - NormEvidenceOf(BestMatch);
 }                                /* ComputeNormMatch */
 
 void Classify::FreeNormProtos() {
@@ -230,7 +241,7 @@ NORM_PROTOS *Classify::ReadNormProtos(FILE *File, inT64 end_offset) {
  */
   NORM_PROTOS *NormProtos;
   int i;
-  char unichar[UNICHAR_LEN + 1];
+  char unichar[2 * UNICHAR_LEN + 1];
   UNICHAR_ID unichar_id;
   LIST Protos;
   int NumProtos;
@@ -256,8 +267,12 @@ NORM_PROTOS *Classify::ReadNormProtos(FILE *File, inT64 end_offset) {
         Protos =
             push_last (Protos, ReadPrototype (File, NormProtos->NumParams));
       NormProtos->Protos[unichar_id] = Protos;
-    } else
-      cprintf("Error: unichar %s in normproto file is not in unichar set.\n");
+    } else {
+      cprintf("Error: unichar %s in normproto file is not in unichar set.\n",
+              unichar);
+      for (i = 0; i < NumProtos; i++)
+        FreePrototype(ReadPrototype (File, NormProtos->NumParams));
+    }
     SkipNewline(File);
   }
   return (NormProtos);
