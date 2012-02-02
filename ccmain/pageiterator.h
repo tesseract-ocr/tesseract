@@ -18,10 +18,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_API_PAGEITERATOR_H__
-#define TESSERACT_API_PAGEITERATOR_H__
+#ifndef TESSERACT_CCMAIN_PAGEITERATOR_H__
+#define TESSERACT_CCMAIN_PAGEITERATOR_H__
 
-#include "apitypes.h"
+#include "publictypes.h"
 
 class C_BLOB_IT;
 class PBLOB_IT;
@@ -72,10 +72,27 @@ class PageIterator {
   PageIterator(const PageIterator& src);
   const PageIterator& operator=(const PageIterator& src);
 
+  // Are we positioned at the same location as other?
+  bool PositionedAtSameWord(const PAGE_RES_IT* other) const;
+
   // ============= Moving around within the page ============.
 
   // Moves the iterator to point to the start of the page to begin an iteration.
-  void Begin();
+  virtual void Begin();
+
+  // Moves the iterator to the beginning of the paragraph.
+  // This class implements this functionality by moving it to the zero indexed
+  // blob of the first (leftmost) word on the first row of the paragraph.
+  virtual void RestartParagraph();
+
+  // Return whether this iterator points anywhere in the first textline of a
+  // paragraph.
+  bool IsWithinFirstTextlineOfParagraph() const;
+
+  // Moves the iterator to the beginning of the text line.
+  // This class implements this functionality by moving it to the zero indexed
+  // blob of the first (leftmost) word of the row.
+  virtual void RestartRow();
 
   // Moves to the start of the next object at the given level in the
   // page hierarchy, and returns false if the end of the page was reached.
@@ -86,17 +103,43 @@ class PageIterator {
   // Calls to Next with different levels may be freely intermixed.
   // This function iterates words in right-to-left scripts correctly, if
   // the appropriate language has been loaded into Tesseract.
-  bool Next(PageIteratorLevel level);
+  virtual bool Next(PageIteratorLevel level);
 
   // Returns true if the iterator is at the start of an object at the given
-  // level. Possible uses include determining if a call to Next(RIL_WORD)
-  // moved to the start of a RIL_PARA.
-  bool IsAtBeginningOf(PageIteratorLevel level) const;
+  // level.
+  //
+  // For instance, suppose an iterator it is pointed to the first symbol of the
+  // first word of the third line of the second paragraph of the first block in
+  // a page, then:
+  //   it.IsAtBeginningOf(RIL_BLOCK) = false
+  //   it.IsAtBeginningOf(RIL_PARA) = false
+  //   it.IsAtBeginningOf(RIL_TEXTLINE) = true
+  //   it.IsAtBeginningOf(RIL_WORD) = true
+  //   it.IsAtBeginningOf(RIL_SYMBOL) = true
+  virtual bool IsAtBeginningOf(PageIteratorLevel level) const;
 
   // Returns whether the iterator is positioned at the last element in a
   // given level. (e.g. the last word in a line, the last line in a block)
-  bool IsAtFinalElement(PageIteratorLevel level,
-                        PageIteratorLevel element) const;
+  //
+  //     Here's some two-paragraph example
+  //   text.  It starts off innocuously
+  //   enough but quickly turns bizarre.
+  //     The author inserts a cornucopia
+  //   of words to guard against confused
+  //   references.
+  //
+  // Now take an iterator it pointed to the start of "bizarre."
+  //  it.IsAtFinalElement(RIL_PARA, RIL_SYMBOL) = false
+  //  it.IsAtFinalElement(RIL_PARA, RIL_WORD) = true
+  //  it.IsAtFinalElement(RIL_BLOCK, RIL_WORD) = false
+  virtual bool IsAtFinalElement(PageIteratorLevel level,
+                                PageIteratorLevel element) const;
+
+  // Returns whether this iterator is positioned
+  //   before other:   -1
+  //   equal to other:  0
+  //   after other:     1
+  int Cmp(const PageIterator &other) const;
 
   // ============= Accessing data ==============.
   // Coordinate system:
@@ -120,12 +163,21 @@ class PageIterator {
   // the image to include more foreground pixels. See GetImage below.
   bool BoundingBox(PageIteratorLevel level,
                    int* left, int* top, int* right, int* bottom) const;
+  // Returns the bounding rectangle of the object in a coordinate system of the
+  // working image rectangle having its origin at (rect_left_, rect_top_) with
+  // respect to the original image and is scaled by a factor scale_.
+  bool BoundingBoxInternal(PageIteratorLevel level,
+                           int* left, int* top, int* right, int* bottom) const;
+
+  // Returns whether there is no object of a given level.
+  bool Empty(PageIteratorLevel level) const;
 
   // Returns the type of the current block. See apitypes.h for PolyBlockType.
   PolyBlockType BlockType() const;
 
   // Returns a binary image of the current object at the given level.
-  // The position and size match the return from BoundingBox.
+  // The position and size match the return from BoundingBoxInternal, and so
+  // this could be upscaled with respect to the original input image.
   // Use pixDestroy to delete the image after use.
   Pix* GetBinaryImage(PageIteratorLevel level) const;
 
@@ -156,7 +208,38 @@ class PageIterator {
   void Orientation(tesseract::Orientation *orientation,
                    tesseract::WritingDirection *writing_direction,
                    tesseract::TextlineOrder *textline_order,
-                   float *deskew_angle);
+                   float *deskew_angle) const;
+
+  // Returns information about the current paragraph, if available.
+  //
+  //   justification -
+  //     LEFT if ragged right, or fully justified and script is left-to-right.
+  //     RIGHT if ragged left, or fully justified and script is right-to-left.
+  //     unknown if it looks like source code or we have very few lines.
+  //   is_list_item -
+  //     true if we believe this is a member of an ordered or unordered list.
+  //   is_crown -
+  //     true if the first line of the paragraph is aligned with the other
+  //     lines of the paragraph even though subsequent paragraphs have first
+  //     line indents.  This typically indicates that this is the continuation
+  //     of a previous paragraph or that it is the very first paragraph in
+  //     the chapter.
+  //   first_line_indent -
+  //     For LEFT aligned paragraphs, the first text line of paragraphs of
+  //     this kind are indented this many pixels from the left edge of the
+  //     rest of the paragraph.
+  //     for RIGHT aligned paragraphs, the first text line of paragraphs of
+  //     this kind are indented this many pixels from the right edge of the
+  //     rest of the paragraph.
+  //     NOTE 1: This value may be negative.
+  //     NOTE 2: if *is_crown == true, the first line of this paragraph is
+  //             actually flush, and first_line_indent is set to the "common"
+  //             first_line_indent for subsequent paragraphs in this block
+  //             of text.
+  void ParagraphInfo(tesseract::ParagraphJustification *justification,
+                     bool *is_list_item,
+                     bool *is_crown,
+                     int *first_line_indent) const;
 
  protected:
   // Sets up the internal data for iterating the blobs of a new word, then
@@ -192,4 +275,4 @@ class PageIterator {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_API_PAGEITERATOR_H__
+#endif  // TESSERACT_CCMAIN_PAGEITERATOR_H__
