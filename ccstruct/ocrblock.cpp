@@ -18,10 +18,11 @@
  **********************************************************************/
 
 #include "mfcpch.h"
-#include          <stdlib.h>
-#include          "blckerr.h"
-#include          "ocrblock.h"
-#include          "tprintf.h"
+#include <stdlib.h>
+#include "blckerr.h"
+#include "ocrblock.h"
+#include "stepblob.h"
+#include "tprintf.h"
 
 #define BLOCK_LABEL_HEIGHT  150  //char height of block id
 
@@ -83,6 +84,17 @@ int decreasing_top_order(  //
  */
 void BLOCK::rotate(const FCOORD& rotation) {
   poly_block()->rotate(rotation);
+  box = *poly_block()->bounding_box();
+}
+
+/**
+ * BLOCK::reflect_polygon_in_y_axis
+ *
+ * Reflects the polygon in the y-axis and recompute the bounding_box.
+ * Does nothing to any contained rows/words/blobs etc.
+ */
+void BLOCK::reflect_polygon_in_y_axis() {
+  poly_block()->reflect_in_y_axis();
   box = *poly_block()->bounding_box();
 }
 
@@ -217,6 +229,166 @@ const BLOCK & source             //from this
   classify_rotation_ = source.classify_rotation_;
   skew_ = source.skew_;
   return *this;
+}
+
+// This function is for finding the approximate (horizontal) distance from
+// the x-coordinate of the left edge of a symbol to the left edge of the
+// text block which contains it.  We are passed:
+//   segments - output of PB_LINE_IT::get_line() which contains x-coordinate
+//       intervals for the scan line going through the symbol's y-coordinate.
+//       Each element of segments is of the form (x()=start_x, y()=length).
+//   x - the x coordinate of the symbol we're interested in.
+//   margin - return value, the distance from x,y to the left margin of the
+//       block containing it.
+// If all segments were to the right of x, we return false and 0.
+bool LeftMargin(ICOORDELT_LIST *segments, int x, int *margin) {
+  bool found = false;
+  *margin = 0;
+  if (segments->empty())
+    return found;
+  ICOORDELT_IT seg_it(segments);
+  for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
+    int cur_margin = x - seg_it.data()->x();
+    if (cur_margin >= 0) {
+      if (!found) {
+        *margin = cur_margin;
+      } else if (cur_margin < *margin) {
+        *margin = cur_margin;
+      }
+      found = true;
+    }
+  }
+  return found;
+}
+
+// This function is for finding the approximate (horizontal) distance from
+// the x-coordinate of the right edge of a symbol to the right edge of the
+// text block which contains it.  We are passed:
+//   segments - output of PB_LINE_IT::get_line() which contains x-coordinate
+//       intervals for the scan line going through the symbol's y-coordinate.
+//       Each element of segments is of the form (x()=start_x, y()=length).
+//   x - the x coordinate of the symbol we're interested in.
+//   margin - return value, the distance from x,y to the right margin of the
+//       block containing it.
+// If all segments were to the left of x, we return false and 0.
+bool RightMargin(ICOORDELT_LIST *segments, int x, int *margin) {
+  bool found = false;
+  *margin = 0;
+  if (segments->empty())
+    return found;
+  ICOORDELT_IT seg_it(segments);
+  for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
+    int cur_margin = seg_it.data()->x() + seg_it.data()->y() - x;
+    if (cur_margin >= 0) {
+      if (!found) {
+        *margin = cur_margin;
+      } else if (cur_margin < *margin) {
+        *margin = cur_margin;
+      }
+      found = true;
+    }
+  }
+  return found;
+}
+
+// Compute the distance from the left and right ends of each row to the
+// left and right edges of the block's polyblock.  Illustration:
+//  ____________________________   _______________________
+//  |  Howdy neighbor!         |  |rectangular blocks look|
+//  |  This text is  written to|  |more like stacked pizza|
+//  |illustrate how useful poly-  |boxes.                 |
+//  |blobs  are   in -----------  ------   The    polyblob|
+//  |dealing    with|     _________     |for a BLOCK  rec-|
+//  |harder   layout|   /===========\   |ords the possibly|
+//  |issues.        |    |  _    _  |   |skewed    pseudo-|
+//  |  You  see this|    | |_| \|_| |   |rectangular      |
+//  |text is  flowed|    |      }   |   |boundary     that|
+//  |around  a  mid-|     \   ____  |   |forms the  ideal-|
+//  |cloumn portrait._____ \       /  __|ized  text margin|
+//  |  Polyblobs     exist| \    /   |from which we should|
+//  |to account for insets|  |   |   |measure    paragraph|
+//  |which make  otherwise|  -----   |indentation.        |
+//  -----------------------          ----------------------
+//
+// If we identify a drop-cap, we measure the left margin for the lines
+// below the first line relative to one space past the drop cap.  The
+// first line's margin and those past the drop cap area are measured
+// relative to the enclosing polyblock.
+//
+// TODO(rays): Before this will work well, we'll need to adjust the
+//             polyblob tighter around the text near images, as in:
+//             UNLV_AUTO:mag.3G0  page 2
+//             UNLV_AUTO:mag.3G4  page 16
+void BLOCK::compute_row_margins() {
+  if (row_list()->empty() || row_list()->singleton()) {
+    return;
+  }
+
+  // If Layout analysis was not called, default to this.
+  POLY_BLOCK rect_block(bounding_box(), PT_FLOWING_TEXT);
+  POLY_BLOCK *pblock = &rect_block;
+  if (poly_block() != NULL) {
+    pblock = poly_block();
+  }
+
+  // Step One: Determine if there is a drop-cap.
+  //           TODO(eger): Fix up drop cap code for RTL languages.
+  ROW_IT r_it(row_list());
+  ROW *first_row = r_it.data();
+  ROW *second_row = r_it.data_relative(1);
+
+  // initialize the bottom of a fictitious drop cap far above the first line.
+  int drop_cap_bottom = first_row->bounding_box().top() +
+                        first_row->bounding_box().height();
+  int drop_cap_right = first_row->bounding_box().left();
+  int mid_second_line = second_row->bounding_box().top() -
+                        second_row->bounding_box().height() / 2;
+  WERD_IT werd_it(r_it.data()->word_list());  // words of line one
+  if (!werd_it.empty()) {
+    C_BLOB_IT cblob_it(werd_it.data()->cblob_list());
+    for (cblob_it.mark_cycle_pt(); !cblob_it.cycled_list();
+         cblob_it.forward()) {
+      TBOX bbox = cblob_it.data()->bounding_box();
+      if (bbox.bottom() <= mid_second_line) {
+        // we found a real drop cap
+        first_row->set_has_drop_cap(true);
+        if (drop_cap_bottom >  bbox.bottom())
+          drop_cap_bottom = bbox.bottom();
+        if (drop_cap_right < bbox.right())
+          drop_cap_right = bbox.right();
+      }
+    }
+  }
+
+  // Step Two: Calculate the margin from the text of each row to the block
+  //           (or drop-cap) boundaries.
+  PB_LINE_IT lines(pblock);
+  r_it.set_to_list(row_list());
+  for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {
+    ROW *row = r_it.data();
+    TBOX row_box = row->bounding_box();
+    int left_y = row->base_line(row_box.left()) + row->x_height();
+    int left_margin;
+    ICOORDELT_LIST *segments = lines.get_line(left_y);
+    LeftMargin(segments, row_box.left(), &left_margin);
+    delete segments;
+
+    if (row_box.top() >= drop_cap_bottom) {
+      int drop_cap_distance = row_box.left() - row->space() - drop_cap_right;
+      if (drop_cap_distance < 0)
+        drop_cap_distance = 0;
+      if (drop_cap_distance < left_margin)
+        left_margin = drop_cap_distance;
+    }
+
+    int right_y = row->base_line(row_box.right()) + row->x_height();
+    int right_margin;
+    segments = lines.get_line(right_y);
+    RightMargin(segments, row_box.right(), &right_margin);
+    delete segments;
+    row->set_lmargin(left_margin);
+    row->set_rmargin(right_margin);
+  }
 }
 
 /**********************************************************************

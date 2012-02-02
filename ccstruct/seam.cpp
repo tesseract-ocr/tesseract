@@ -72,6 +72,29 @@ bool point_in_seam(SEAM *seam, SPLIT *split) {
           point_in_split(seam->split3, split->point1, split->point2));
 }
 
+/**
+ * @name point_used_by_split
+ *
+ * Return whether this particular EDGEPT * is used in a given split.
+ * @returns TRUE if the edgept is used by the split.
+ */
+bool point_used_by_split(SPLIT *split, EDGEPT *point) {
+  if (split == NULL) return false;
+  return point == split->point1 || point == split->point2;
+}
+
+/**
+ * @name point_used_by_seam
+ *
+ * Return whether this particular EDGEPT * is used in a given seam.
+ * @returns TRUE if the edgept is used by the seam.
+ */
+bool point_used_by_seam(SEAM *seam, EDGEPT *point) {
+  if (seam == NULL) return false;
+  return point_used_by_split(seam->split1, point) ||
+      point_used_by_split(seam->split2, point) ||
+      point_used_by_split(seam->split3, point);
+}
 
 /**
  * @name add_seam
@@ -152,28 +175,20 @@ void delete_seam(void *arg) {  //SEAM  *seam)
 SEAMS start_seam_list(TBLOB *blobs) {
   TBLOB *blob;
   SEAMS seam_list;
-  TPOINT topleft;
-  TPOINT botright;
   TPOINT location;
   /* Seam slot per char */
   seam_list = new_seam_list ();
 
   for (blob = blobs; blob->next != NULL; blob = blob->next) {
-
-    blob_bounding_box(blob, &topleft, &botright);
-    location.x = botright.x;
-    location.y = botright.y + topleft.y;
-    blob_bounding_box (blob->next, &topleft, &botright);
-    location.x += topleft.x;
-    location.y += botright.y + topleft.y;
-    location.x /= 2;
-    location.y /= 4;
-
-    seam_list = add_seam (seam_list,
-      new_seam (0.0, location, NULL, NULL, NULL));
+    TBOX bbox = blob->bounding_box();
+    TBOX nbox = blob->next->bounding_box();
+    location.x = (bbox.right() + nbox.left()) / 2;
+    location.y = (bbox.bottom() + bbox.top() + nbox.bottom() + nbox.top()) / 4;
+    seam_list = add_seam(seam_list,
+        new_seam(0.0, location, NULL, NULL, NULL));
   }
 
-  return (seam_list);
+  return seam_list;
 }
 
 /**

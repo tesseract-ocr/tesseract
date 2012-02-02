@@ -28,9 +28,9 @@
 
 enum PITCH_TYPE
 {
-  PITCH_DUNNO,                   //insufficient data
-  PITCH_DEF_FIXED,               //definitely fixed
-  PITCH_MAYBE_FIXED,             //could be
+  PITCH_DUNNO,                   // insufficient data
+  PITCH_DEF_FIXED,               // definitely fixed
+  PITCH_MAYBE_FIXED,             // could be
   PITCH_DEF_PROP,
   PITCH_MAYBE_PROP,
   PITCH_CORR_FIXED,
@@ -38,13 +38,16 @@ enum PITCH_TYPE
 };
 
 // The possible tab-stop types of each side of a BLOBNBOX.
+// The ordering is important, as it is used for deleting dead-ends in the
+// search. ALIGNED, CONFIRMED and VLINE should remain greater than the
+// non-aligned, unset, or deleted members.
 enum TabType {
-  TT_NONE,         // Not a tab.
-  TT_DELETED,      // Not a tab after detailed analysis.
-  TT_UNCONFIRMED,  // Initial designation of a tab-stop candidate.
-  TT_FAKE,         // Added by interpolation.
-  TT_CONFIRMED,    // Aligned with neighbours.
-  TT_VLINE         // Detected as a vertical line.
+  TT_NONE,           // Not a tab.
+  TT_DELETED,        // Not a tab after detailed analysis.
+  TT_MAYBE_RAGGED,   // Initial designation of a tab-stop candidate.
+  TT_MAYBE_ALIGNED,  // Initial designation of a tab-stop candidate.
+  TT_CONFIRMED,      // Aligned with neighbours.
+  TT_VLINE           // Detected as a vertical line.
 };
 
 // The possible region types of a BLOBNBOX.
@@ -65,6 +68,7 @@ enum BlobRegionType {
 };
 
 // enum for elements of arrays that refer to neighbours.
+// NOTE: keep in this order, so ^2 can be used to flip direction.
 enum BlobNeighbourDir {
   BND_LEFT,
   BND_BELOW,
@@ -72,6 +76,21 @@ enum BlobNeighbourDir {
   BND_ABOVE,
   BND_COUNT
 };
+
+// enum for special type of text characters, such as math symbol or italic.
+enum BlobSpecialTextType {
+  BSTT_NONE,  // No special.
+  BSTT_ITALIC,  // Italic style.
+  BSTT_DIGIT,  // Digit symbols.
+  BSTT_MATH,  // Mathmatical symobls (not including digit).
+  BSTT_UNCLEAR,  // Characters with low recognition rate.
+  BSTT_SKIP,  // Characters that we skip labeling (usually too small).
+  BSTT_COUNT
+};
+
+inline BlobNeighbourDir DirOtherWay(BlobNeighbourDir dir) {
+  return static_cast<BlobNeighbourDir>(dir ^ 2);
+}
 
 // BlobTextFlowType indicates the quality of neighbouring information
 // related to a chain of connected components, either horizontally or
@@ -89,14 +108,10 @@ enum BlobTextFlowType {
 };
 
 // Returns true if type1 dominates type2 in a merge. Mostly determined by the
-// ordering of the enum, but NONTEXT dominates everything else, and LEADER
-// dominates nothing.
+// ordering of the enum, LEADER is weak and dominates nothing.
 // The function is anti-symmetric (t1 > t2) === !(t2 > t1), except that
 // this cannot be true if t1 == t2, so the result is undefined.
 inline bool DominatesInMerge(BlobTextFlowType type1, BlobTextFlowType type2) {
-  // NONTEXT dominates everything.
-  if (type1 == BTFT_NONTEXT) return true;
-  if (type2 == BTFT_NONTEXT) return false;
   // LEADER always loses.
   if (type1 == BTFT_LEADER) return false;
   if (type2 == BTFT_LEADER) return true;
@@ -127,8 +142,17 @@ class BLOBNBOX:public ELIST_LINK
       return new BLOBNBOX(blob);
     }
 
-    void rotate_box(FCOORD rotation);
+    // Rotates the box and the underlying blob.
     void rotate(FCOORD rotation);
+
+    // Methods that act on the box without touching the underlying blob.
+    // Reflect the box in the y-axis, leaving the underlying blob untouched.
+    void reflect_box_in_y_axis();
+    // Rotates the box by the angle given by rotation.
+    // If the blob is a diacritic, then only small rotations for skew
+    // correction can be applied.
+    void rotate_box(FCOORD rotation);
+    // Moves just the box by the given vector.
     void translate_box(ICOORD v) {
       if (IsDiacritic()) {
         box.move(v);
@@ -150,7 +174,17 @@ class BLOBNBOX:public ELIST_LINK
     void NeighbourGaps(int gaps[BND_COUNT]) const;
     void MinMaxGapsClipped(int* h_min, int* h_max,
                            int* v_min, int* v_max) const;
+    void CleanNeighbours();
+    // Returns positive if there is at least one side neighbour that has a
+    // similar stroke width and is not on the other side of a rule line.
     int GoodTextBlob() const;
+    // Returns the number of side neighbours that are of type BRT_NOISE.
+    int NoisyNeighbours() const;
+
+    // Returns true if the blob is noise and has no owner.
+    bool DeletableNoise() const {
+      return owner() == NULL && region_type() == BRT_NOISE;
+    }
 
     // Returns true, and sets vert_possible/horz_possible if the blob has some
     // feature that makes it individually appear to flow one way.
@@ -228,6 +262,12 @@ class BLOBNBOX:public ELIST_LINK
     }
     void set_region_type(BlobRegionType new_type) {
       region_type_ = new_type;
+    }
+    BlobSpecialTextType special_text_type() const {
+      return spt_type_;
+    }
+    void set_special_text_type(BlobSpecialTextType new_type) {
+      spt_type_ = new_type;
     }
     BlobTextFlowType flow() const {
       return flow_;
@@ -323,10 +363,23 @@ class BLOBNBOX:public ELIST_LINK
     int base_char_bottom() const {
       return base_char_bottom_;
     }
+    int line_crossings() const {
+      return line_crossings_;
+    }
+    void set_line_crossings(int value) {
+      line_crossings_ = value;
+    }
     void set_diacritic_box(const TBOX& diacritic_box) {
       base_char_top_ = diacritic_box.top();
       base_char_bottom_ = diacritic_box.bottom();
     }
+    BLOBNBOX* base_char_blob() const {
+      return base_char_blob_;
+    }
+    void set_base_char_blob(BLOBNBOX* blob) {
+      base_char_blob_ = blob;
+    }
+
     bool UniquelyVertical() const {
       return vert_possible_ && !horz_possible_;
     }
@@ -350,11 +403,29 @@ class BLOBNBOX:public ELIST_LINK
     static bool UnMergeableType(BlobRegionType type) {
       return IsLineType(type) || IsImageType(type);
     }
+    // Helper to call CleanNeighbours on all blobs on the list.
+    static void CleanNeighbours(BLOBNBOX_LIST* blobs);
+    // Helper to delete all the deletable blobs on the list.
+    static void DeleteNoiseBlobs(BLOBNBOX_LIST* blobs);
+
+#ifndef GRAPHICS_DISABLED
+    // Helper to draw all the blobs on the list in the given body_colour,
+    // with child outlines in the child_colour.
+    static void PlotBlobs(BLOBNBOX_LIST* list,
+                          ScrollView::Color body_colour,
+                          ScrollView::Color child_colour,
+                          ScrollView* win);
+    // Helper to draw only DeletableNoise blobs (unowned, BRT_NOISE) on the
+    // given list in the given body_colour, with child outlines in the
+    // child_colour.
+    static void PlotNoiseBlobs(BLOBNBOX_LIST* list,
+                               ScrollView::Color body_colour,
+                               ScrollView::Color child_colour,
+                               ScrollView* win);
 
     static ScrollView::Color TextlineColor(BlobRegionType region_type,
                                            BlobTextFlowType flow_type);
 
-#ifndef GRAPHICS_DISABLED
     // Keep in sync with BlobRegionType.
     ScrollView::Color BoxColor() const;
 
@@ -386,6 +457,7 @@ class BLOBNBOX:public ELIST_LINK
     right_tab_type_ = TT_NONE;
     region_type_ = BRT_UNKNOWN;
     flow_ = BTFT_NONE;
+    spt_type_ = BSTT_SKIP;
     left_rule_ = 0;
     right_rule_ = 0;
     left_crossing_rule_ = 0;
@@ -395,6 +467,8 @@ class BLOBNBOX:public ELIST_LINK
     owner_ = NULL;
     base_char_top_ = box.top();
     base_char_bottom_ = box.bottom();
+    line_crossings_ = 0;
+    base_char_blob_ = NULL;
     horz_possible_ = false;
     vert_possible_ = false;
     leader_on_left_ = false;
@@ -427,10 +501,13 @@ class BLOBNBOX:public ELIST_LINK
   inT16 right_crossing_rule_;   // x-coord of nearest or crossing rule line
   inT16 base_char_top_;         // y-coord of top/bottom of diacritic base,
   inT16 base_char_bottom_;      // if it exists else top/bottom of this blob.
+  int line_crossings_;          // Number of line intersections touched.
+  BLOBNBOX* base_char_blob_;    // The blob that was the base char.
   float horz_stroke_width_;     // Median horizontal stroke width
   float vert_stroke_width_;     // Median vertical stroke width
   float area_stroke_width_;     // Stroke width from area/perimeter ratio.
   tesseract::ColPartition* owner_;  // Who will delete me when I am not needed
+  BlobSpecialTextType spt_type_;   // Special text type.
   BLOBNBOX* neighbours_[BND_COUNT];
   bool good_stroke_neighbours_[BND_COUNT];
   bool horz_possible_;           // Could be part of horizontal flow.
@@ -556,6 +633,8 @@ class TO_ROW: public ELIST2_LINK
     int xheight_evidence;        // number of blobs of height xheight
     float ascrise;               // ascenders
     float descdrop;              // descenders
+    float body_size;             // of CJK characters.  Assumed to be
+                                 // xheight+ascrise for non-CJK text.
     inT32 min_space;             // min size for real space
     inT32 max_nonspace;          // max size of non-space
     inT32 space_threshold;       // space vs nonspace
@@ -640,8 +719,19 @@ class TO_BLOCK:public ELIST_LINK
       }
     }
 
-    // Draw the blobs on on the various lists in the block in different colors.
+    // Reorganizes the blob lists with a different definition of small, medium
+    // and large, compared to the original definition.
+    // Height is still the primary filter key, but medium width blobs of small
+    // height become medium, and very wide blobs of small height stay small.
+    void ReSetAndReFilterBlobs();
+
+    // Deletes noise blobs from all lists where not owned by a ColPartition.
+    void DeleteUnownedNoise();
+
 #ifndef GRAPHICS_DISABLED
+    // Draw the noise blobs from all lists in red.
+    void plot_noise_blobs(ScrollView* to_win);
+    // Draw the blobs on on the various lists in the block in different colors.
     void plot_graded_blobs(ScrollView* to_win);
 #endif
 

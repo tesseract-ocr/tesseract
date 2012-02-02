@@ -32,14 +32,26 @@ const double kCosSmallAngle = 0.866;
 const double kDefiniteAspectRatio = 2.0;
 // Multiple of short length in perimeter to make a joined word.
 const double kComplexShapePerimeterRatio = 1.5;
+// Min multiple of linesize for medium-sized blobs in ReFilterBlobs.
+const double kMinMediumSizeRatio = 0.25;
+// Max multiple of linesize for medium-sized blobs in ReFilterBlobs.
+const double kMaxMediumSizeRatio = 4.0;
 
+// Rotates the box and the underlying blob.
 void BLOBNBOX::rotate(FCOORD rotation) {
   cblob_ptr->rotate(rotation);
   rotate_box(rotation);
   compute_bounding_box();
 }
 
-// Rotate the box by the angle given by rotation.
+// Reflect the box in the y-axis, leaving the underlying blob untouched.
+void BLOBNBOX::reflect_box_in_y_axis() {
+  int left = -box.right();
+  box.set_right(-box.left());
+  box.set_left(left);
+}
+
+// Rotates the box by the angle given by rotation.
 // If the blob is a diacritic, then only small rotations for skew
 // correction can be applied.
 void BLOBNBOX::rotate_box(FCOORD rotation) {
@@ -57,6 +69,7 @@ void BLOBNBOX::rotate_box(FCOORD rotation) {
     set_diacritic_box(box);
   }
 }
+
 /**********************************************************************
  * BLOBNBOX::merge
  *
@@ -183,6 +196,17 @@ void BLOBNBOX::MinMaxGapsClipped(int* h_min, int* h_max,
   if (*v_max > max_dimension && *v_min < max_dimension) *v_max = *v_min;
 }
 
+// NULLs out any neighbours that are DeletableNoise to remove references.
+void BLOBNBOX::CleanNeighbours() {
+  for (int dir = 0; dir < BND_COUNT; ++dir) {
+    BLOBNBOX* neighbour = neighbours_[dir];
+    if (neighbour != NULL && neighbour->DeletableNoise()) {
+      neighbours_[dir] = NULL;
+      good_stroke_neighbours_[dir] = false;
+    }
+  }
+}
+
 // Returns positive if there is at least one side neighbour that has a similar
 // stroke width and is not on the other side of a rule line.
 int BLOBNBOX::GoodTextBlob() const {
@@ -193,6 +217,18 @@ int BLOBNBOX::GoodTextBlob() const {
       ++score;
   }
   return score;
+}
+
+// Returns the number of side neighbours that are of type BRT_NOISE.
+int BLOBNBOX::NoisyNeighbours() const {
+  int count = 0;
+  for (int dir = 0; dir < BND_COUNT; ++dir) {
+    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    BLOBNBOX* blob = neighbour(bnd);
+    if (blob != NULL && blob->region_type() == BRT_NOISE)
+      ++count;
+  }
+  return count;
 }
 
 // Returns true, and sets vert_possible/horz_possible if the blob has some
@@ -281,7 +317,8 @@ bool BLOBNBOX::MatchingStrokeWidth(const BLOBNBOX& other,
 // given horizontal range.
 TBOX BLOBNBOX::BoundsWithinLimits(int left, int right) {
   FCOORD no_rotation(1.0f, 0.0f);
-  float top, bottom;
+  float top = box.top();
+  float bottom = box.bottom();
   if (cblob_ptr != NULL) {
     find_cblob_limits(cblob_ptr, static_cast<float>(left),
                       static_cast<float>(right), no_rotation,
@@ -300,7 +337,54 @@ TBOX BLOBNBOX::BoundsWithinLimits(int left, int right) {
   return shrunken_box;
 }
 
+// Helper to call CleanNeighbours on all blobs on the list.
+void BLOBNBOX::CleanNeighbours(BLOBNBOX_LIST* blobs) {
+  BLOBNBOX_IT blob_it(blobs);
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+    blob_it.data()->CleanNeighbours();
+  }
+}
+
+// Helper to delete all the deletable blobs on the list.
+void BLOBNBOX::DeleteNoiseBlobs(BLOBNBOX_LIST* blobs) {
+  BLOBNBOX_IT blob_it(blobs);
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+    BLOBNBOX* blob = blob_it.data();
+    if (blob->DeletableNoise()) {
+      delete blob->cblob();
+      delete blob_it.extract();
+    }
+  }
+}
+
 #ifndef GRAPHICS_DISABLED
+// Helper to draw all the blobs on the list in the given body_colour,
+// with child outlines in the child_colour.
+void BLOBNBOX::PlotBlobs(BLOBNBOX_LIST* list,
+                         ScrollView::Color body_colour,
+                         ScrollView::Color child_colour,
+                         ScrollView* win) {
+  BLOBNBOX_IT it(list);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    it.data()->plot(win, body_colour, child_colour);
+  }
+}
+
+// Helper to draw only DeletableNoise blobs (unowned, BRT_NOISE) on the
+// given list in the given body_colour, with child outlines in the
+// child_colour.
+void BLOBNBOX::PlotNoiseBlobs(BLOBNBOX_LIST* list,
+                              ScrollView::Color body_colour,
+                              ScrollView::Color child_colour,
+                              ScrollView* win) {
+  BLOBNBOX_IT it(list);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    BLOBNBOX* blob = it.data();
+    if (blob->DeletableNoise())
+      blob->plot(win, body_colour, child_colour);
+  }
+}
+
 ScrollView::Color BLOBNBOX::TextlineColor(BlobRegionType region_type,
                                           BlobTextFlowType flow_type) {
   switch (region_type) {
@@ -329,6 +413,8 @@ ScrollView::Color BLOBNBOX::TextlineColor(BlobRegionType region_type,
         return ScrollView::MEDIUM_BLUE;
       if (flow_type == BTFT_LEADER)
         return ScrollView::WHEAT;
+      if (flow_type == BTFT_NONTEXT)
+        return ScrollView::PINK;
       return ScrollView::MAGENTA;
     default:
       return ScrollView::GREY;
@@ -678,6 +764,7 @@ void TO_ROW::clear() {
   spacing = 0.0;
   xheight = 0.0;
   xheight_evidence = 0;
+  body_size = 0.0;
   ascrise = 0.0;
   descdrop = 0.0;
   min_space = 0;
@@ -813,15 +900,97 @@ TO_BLOCK::~TO_BLOCK() {
   clear_blobnboxes(&large_blobs);
 }
 
+// Helper function to divide the input blobs over noise, small, medium
+// and large lists. Blobs small in height and (small in width or large in width)
+// go in the noise list. Dash (-) candidates go in the small list, and
+// medium and large are by height.
+// SIDE-EFFECT: reset all blobs to initial state by calling Init().
+static void SizeFilterBlobs(int min_height, int max_height,
+                            BLOBNBOX_LIST* src_list,
+                            BLOBNBOX_LIST* noise_list,
+                            BLOBNBOX_LIST* small_list,
+                            BLOBNBOX_LIST* medium_list,
+                            BLOBNBOX_LIST* large_list) {
+  BLOBNBOX_IT noise_it(noise_list);
+  BLOBNBOX_IT small_it(small_list);
+  BLOBNBOX_IT medium_it(medium_list);
+  BLOBNBOX_IT large_it(large_list);
+  for (BLOBNBOX_IT src_it(src_list); !src_it.empty(); src_it.forward()) {
+    BLOBNBOX* blob = src_it.extract();
+    blob->ReInit();
+    int width = blob->bounding_box().width();
+    int height = blob->bounding_box().height();
+    if (height < min_height  &&
+        (width < min_height || width > max_height))
+      noise_it.add_after_then_move(blob);
+    else if (height > max_height)
+      large_it.add_after_then_move(blob);
+    else if (height < min_height)
+      small_it.add_after_then_move(blob);
+    else
+      medium_it.add_after_then_move(blob);
+  }
+}
+
+// Reorganize the blob lists with a different definition of small, medium
+// and large, compared to the original definition.
+// Height is still the primary filter key, but medium width blobs of small
+// height become small, and very wide blobs of small height stay noise, along
+// with small dot-shaped blobs.
+void TO_BLOCK::ReSetAndReFilterBlobs() {
+  int min_height = IntCastRounded(kMinMediumSizeRatio * line_size);
+  int max_height = IntCastRounded(kMaxMediumSizeRatio * line_size);
+  BLOBNBOX_LIST noise_list;
+  BLOBNBOX_LIST small_list;
+  BLOBNBOX_LIST medium_list;
+  BLOBNBOX_LIST large_list;
+  SizeFilterBlobs(min_height, max_height, &blobs,
+                  &noise_list, &small_list, &medium_list, &large_list);
+  SizeFilterBlobs(min_height, max_height, &large_blobs,
+                  &noise_list, &small_list, &medium_list, &large_list);
+  SizeFilterBlobs(min_height, max_height, &small_blobs,
+                  &noise_list, &small_list, &medium_list, &large_list);
+  SizeFilterBlobs(min_height, max_height, &noise_blobs,
+                  &noise_list, &small_list, &medium_list, &large_list);
+  BLOBNBOX_IT blob_it(&blobs);
+  blob_it.add_list_after(&medium_list);
+  blob_it.set_to_list(&large_blobs);
+  blob_it.add_list_after(&large_list);
+  blob_it.set_to_list(&small_blobs);
+  blob_it.add_list_after(&small_list);
+  blob_it.set_to_list(&noise_blobs);
+  blob_it.add_list_after(&noise_list);
+}
+
+// Deletes noise blobs from all lists where not owned by a ColPartition.
+void TO_BLOCK::DeleteUnownedNoise() {
+  BLOBNBOX::CleanNeighbours(&blobs);
+  BLOBNBOX::CleanNeighbours(&small_blobs);
+  BLOBNBOX::CleanNeighbours(&noise_blobs);
+  BLOBNBOX::CleanNeighbours(&large_blobs);
+  BLOBNBOX::DeleteNoiseBlobs(&blobs);
+  BLOBNBOX::DeleteNoiseBlobs(&small_blobs);
+  BLOBNBOX::DeleteNoiseBlobs(&noise_blobs);
+  BLOBNBOX::DeleteNoiseBlobs(&large_blobs);
+}
+
 #ifndef GRAPHICS_DISABLED
+// Draw the noise blobs from all lists in red.
+void TO_BLOCK::plot_noise_blobs(ScrollView* win) {
+  BLOBNBOX::PlotNoiseBlobs(&noise_blobs, ScrollView::RED, ScrollView::RED, win);
+  BLOBNBOX::PlotNoiseBlobs(&small_blobs, ScrollView::RED, ScrollView::RED, win);
+  BLOBNBOX::PlotNoiseBlobs(&large_blobs, ScrollView::RED, ScrollView::RED, win);
+  BLOBNBOX::PlotNoiseBlobs(&blobs, ScrollView::RED, ScrollView::RED, win);
+}
+
 // Draw the blobs on the various lists in the block in different colors.
-void TO_BLOCK::plot_graded_blobs(ScrollView* to_win) {
-  plot_blob_list(to_win, &noise_blobs, ScrollView::CORAL, ScrollView::BLUE);
-  plot_blob_list(to_win, &small_blobs,
-                 ScrollView::GOLDENROD, ScrollView::YELLOW);
-  plot_blob_list(to_win, &large_blobs,
-                 ScrollView::DARK_GREEN, ScrollView::YELLOW);
-  plot_blob_list(to_win, &blobs, ScrollView::WHITE, ScrollView::BROWN);
+void TO_BLOCK::plot_graded_blobs(ScrollView* win) {
+  BLOBNBOX::PlotBlobs(&noise_blobs, ScrollView::CORAL, ScrollView::BLUE, win);
+  BLOBNBOX::PlotBlobs(&small_blobs, ScrollView::GOLDENROD, ScrollView::YELLOW,
+                      win);
+  BLOBNBOX::PlotBlobs(&large_blobs, ScrollView::DARK_GREEN, ScrollView::YELLOW,
+                      win);
+  BLOBNBOX::PlotBlobs(&blobs, ScrollView::WHITE, ScrollView::BROWN, win);
 }
 
 /**********************************************************************

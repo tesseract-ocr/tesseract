@@ -152,7 +152,11 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
 
     // Renders the outline to the given pix, with left and top being
     // the coords of the upper-left corner of the pix.
-    void render(int left, int top, Pix* pix);
+    void render(int left, int top, Pix* pix) const;
+
+    // Renders just the outline to the given pix (no fill), with left and top
+    // being the coords of the upper-left corner of the pix.
+    void render_outline(int left, int top, Pix* pix) const;
 
     void plot(                       //draw one
               ScrollView* window,         //window to draw in

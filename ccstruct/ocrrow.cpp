@@ -42,13 +42,18 @@ float ascenders,                 //ascender size
 float descenders,                //descender drop
 inT16 kern,                      //char gap
 inT16 space                      //word gap
-):
-baseline(spline_size, xstarts, coeffs) {
+)
+    : baseline(spline_size, xstarts, coeffs),
+      para_(NULL) {
   kerning = kern;                //just store stuff
   spacing = space;
   xheight = x_height;
   ascrise = ascenders;
+  bodysize = 0.0f;
   descdrop = descenders;
+  has_drop_cap_ = false;
+  lmargin_ = 0;
+  rmargin_ = 0;
 }
 
 
@@ -63,13 +68,17 @@ ROW::ROW(                 //constructor
          TO_ROW *to_row,  //source row
          inT16 kern,      //char gap
          inT16 space      //word gap
-        ) {
+        ) : para_(NULL) {
   kerning = kern;                //just store stuff
   spacing = space;
   xheight = to_row->xheight;
+  bodysize = to_row->body_size;
   ascrise = to_row->ascrise;
   descdrop = to_row->descdrop;
   baseline = to_row->baseline;
+  has_drop_cap_ = false;
+  lmargin_ = 0;
+  rmargin_ = 0;
 }
 
 
@@ -148,12 +157,14 @@ void ROW::move(                  // reposition row
 void ROW::print(          //print
                 FILE *fp  //file to print on
                ) {
-  tprintf ("Kerning= %d\n", kerning);
-  tprintf ("Spacing= %d\n", spacing);
-  bound_box.print ();
-  tprintf ("Xheight= %f\n", xheight);
-  tprintf ("Ascrise= %f\n", ascrise);
-  tprintf ("Descdrop= %f\n", descdrop);
+  tprintf("Kerning= %d\n", kerning);
+  tprintf("Spacing= %d\n", spacing);
+  bound_box.print();
+  tprintf("Xheight= %f\n", xheight);
+  tprintf("Ascrise= %f\n", ascrise);
+  tprintf("Descdrop= %f\n", descdrop);
+  tprintf("has_drop_cap= %d\n", has_drop_cap_);
+  tprintf("lmargin= %d, rmargin= %d\n", lmargin_, rmargin_);
 }
 
 
@@ -204,18 +215,21 @@ void ROW::plot(               //draw it
  * Assign rows by duplicating the row structure but NOT the WERDLIST
  **********************************************************************/
 
-ROW & ROW::operator= (           //assignment
-const ROW & source               //from this
-) {
+ROW & ROW::operator= (const ROW & source) {
   this->ELIST_LINK::operator= (source);
   kerning = source.kerning;
   spacing = source.spacing;
   xheight = source.xheight;
+  bodysize = source.bodysize;
   ascrise = source.ascrise;
   descdrop = source.descdrop;
   if (!words.empty ())
     words.clear ();
   baseline = source.baseline;    //QSPLINES must do =
   bound_box = source.bound_box;
+  has_drop_cap_ = source.has_drop_cap_;
+  lmargin_ = source.lmargin_;
+  rmargin_ = source.rmargin_;
+  para_ = source.para_;
   return *this;
 }

@@ -29,6 +29,7 @@
 #include "mfcpch.h"
 #include "blobs.h"
 #include "ccstruct.h"
+#include "clst.h"
 #include "cutil.h"
 #include "emalloc.h"
 #include "helpers.h"
@@ -46,15 +47,18 @@ using tesseract::CCStruct;
 // A Vector representing the "vertical" direction when measuring the
 // divisiblity of blobs into multiple blobs just by separating outlines.
 // See divisible_blob below for the use.
-const TPOINT kDivisibleVerticalUpright = {0, 1};
+const TPOINT kDivisibleVerticalUpright(0, 1);
 // A vector representing the "vertical" direction for italic text for use
 // when separating outlines. Using it actually deteriorates final accuracy,
 // so it is only used for ApplyBoxes chopping to get a better segmentation.
-const TPOINT kDivisibleVerticalItalic = {1, 5};
+const TPOINT kDivisibleVerticalItalic(1, 5);
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
+
+CLISTIZE(EDGEPT);
+
 // Consume the circular list of EDGEPTs to make a TESSLINE.
 TESSLINE* TESSLINE::BuildFromOutlineList(EDGEPT* outline) {
   TESSLINE* result = new TESSLINE;
@@ -262,6 +266,36 @@ TBLOB* TBLOB::PolygonalCopy(C_BLOB* src) {
   return tblob;
 }
 
+// Normalizes the blob for classification only if needed.
+// (Normally this means a non-zero classify rotation.)
+// If no Normalization is needed, then NULL is returned, and the denorm is
+// unchanged. Otherwise a new TBLOB is returned and the denorm points to
+// a new DENORM. In this case, both the TBLOB and DENORM must be deleted.
+TBLOB* TBLOB::ClassifyNormalizeIfNeeded(const DENORM** denorm) const {
+  TBLOB* rotated_blob = NULL;
+  // If necessary, copy the blob and rotate it. The rotation is always
+  // +/- 90 degrees, as 180 was already taken care of.
+  if ((*denorm)->block() != NULL &&
+      (*denorm)->block()->classify_rotation().y() != 0.0) {
+    TBOX box = bounding_box();
+    int x_middle = (box.left() + box.right()) / 2;
+    int y_middle = (box.top() + box.bottom()) / 2;
+    rotated_blob = new TBLOB(*this);
+    const FCOORD& rotation = (*denorm)->block()->classify_rotation();
+    DENORM* norm = new DENORM;
+    // Move the rotated blob back to the same y-position so that we
+    // can still distinguish similar glyphs with differeny y-position.
+    float target_y = kBlnBaselineOffset +
+        (rotation.y() > 0 ? x_middle - box.left() : box.right() - x_middle);
+    norm->SetupNormalization(NULL, NULL, &rotation, *denorm, NULL, 0,
+                             x_middle, y_middle, 1.0f, 1.0f, 0.0f, target_y);
+    //                             x_middle, y_middle, 1.0f, 1.0f, 0.0f, y_middle);
+    rotated_blob->Normalize(*norm);
+    *denorm = norm;
+  }
+  return rotated_blob;
+}
+
 // Copies the data and the outline, but leaves next untouched.
 void TBLOB::CopyFrom(const TBLOB& src) {
   Clear();
@@ -289,7 +323,7 @@ void TBLOB::Clear() {
 void TBLOB::Normalize(const DENORM& denorm) {
   // TODO(rays) outline->Normalize is more accurate, but breaks tests due
   // the changes it makes. Reinstate this code with a retraining.
-#if 0
+#if 1
   for (TESSLINE* outline = outlines; outline != NULL; outline = outline->next) {
     outline->Normalize(denorm);
   }
@@ -334,11 +368,20 @@ int TBLOB::NumOutlines() const {
   return result;
 }
 
+/**********************************************************************
+ * TBLOB::bounding_box()
+ *
+ * Compute the bounding_box of a compound blob, defined to be the
+ * bounding box of the union of all top-level outlines in the blob.
+ **********************************************************************/
 TBOX TBLOB::bounding_box() const {
-  TPOINT topleft;
-  TPOINT botright;
-  blob_bounding_box(this, &topleft, &botright);
-  TBOX box(topleft.x, botright.y, botright.x, topleft.y);
+  if (outlines == NULL)
+    return TBOX(0, 0, 0, 0);
+  TESSLINE *outline = outlines;
+  TBOX box = outline->bounding_box();
+  for (outline = outline->next; outline != NULL; outline = outline->next) {
+    box += outline->bounding_box();
+  }
   return box;
 }
 
@@ -482,90 +525,9 @@ void TWERD::plot(ScrollView* window) {
  **********************************************************************/
 void blob_origin(TBLOB *blob,       /*blob to compute on */
                  TPOINT *origin) {  /*return value */
-  TPOINT topleft;                /*bounding box */
-  TPOINT botright;
-
-                                 /*find bounding box */
-  blob_bounding_box(blob, &topleft, &botright); 
-                                 /*centre of box */
-  origin->x = (topleft.x + botright.x) / 2;
-  origin->y = (topleft.y + botright.y) / 2;
+  TBOX bbox = blob->bounding_box();
+  *origin = (bbox.topleft() + bbox.botright()) / 2;
 }
-
-
-/**********************************************************************
- * blob_bounding_box
- *
- * Compute the bounding_box of a compound blob, define to be the
- * max coordinate value of the bounding boxes of all the top-level
- * outlines in the box.
- **********************************************************************/
-void blob_bounding_box(const TBLOB *blob,         // blob to compute on.
-                       TPOINT *topleft,           // bounding box.
-                       TPOINT *botright) {
-  register TESSLINE *outline;    // Current outline.
-
-  if (blob == NULL || blob->outlines == NULL) {
-    topleft->x = topleft->y = 0;
-    *botright = *topleft;        // Default value.
-  } else {
-    outline = blob->outlines;
-    *topleft = outline->topleft;
-    *botright = outline->botright;
-    for (outline = outline->next; outline != NULL; outline = outline->next) {
-      UpdateRange(outline->topleft.x, outline->botright.x,
-                  &topleft->x, &botright->x);
-      UpdateRange(outline->botright.y, outline->topleft.y,
-                  &botright->y, &topleft->y);
-    }
-  }
-}
-
-
-/**********************************************************************
- * blobs_bounding_box
- *
- * Return the smallest extreme point that contain this word.
- **********************************************************************/
-void blobs_bounding_box(TBLOB *blobs, TPOINT *topleft, TPOINT *botright) { 
-  TPOINT tl;
-  TPOINT br;
-  /* Start with first blob */
-  blob_bounding_box(blobs, topleft, botright); 
-
-  for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) { 
-    blob_bounding_box(blob, &tl, &br); 
-
-    if (tl.x < topleft->x)
-      topleft->x = tl.x;
-    if (tl.y > topleft->y)
-      topleft->y = tl.y;
-    if (br.x > botright->x)
-      botright->x = br.x;
-    if (br.y < botright->y)
-      botright->y = br.y;
-  }
-}
-
-
-/**********************************************************************
- * blobs_origin
- *
- * Compute the origin of a compound blob, define to be the centre
- * of the bounding box.
- **********************************************************************/
-void blobs_origin(TBLOB *blobs,      /*blob to compute on */
-                  TPOINT *origin) {  /*return value */
-  TPOINT topleft;                /*bounding box */
-  TPOINT botright;
-
-                                 /*find bounding box */
-  blobs_bounding_box(blobs, &topleft, &botright); 
-                                 /*center of box */
-  origin->x = (topleft.x + botright.x) / 2;
-  origin->y = (topleft.y + botright.y) / 2;
-}
-
 
 /**********************************************************************
  * blobs_widths
@@ -585,18 +547,18 @@ WIDTH_RECORD *blobs_widths(TBLOB *blobs) {  /*blob to compute on */
   width_record = (WIDTH_RECORD *) memalloc (sizeof (int) * num_blobs * 2);
   width_record->num_chars = num_blobs;
 
-  blob_bounding_box(blobs, &topleft, &botright); 
-  width_record->widths[i++] = botright.x - topleft.x;
+  TBOX bbox = blobs->bounding_box();
+  width_record->widths[i++] = bbox.width();
   /* First width */
-  blob_end = botright.x;
+  blob_end = bbox.right();
 
   for (TBLOB* blob = blobs->next; blob != NULL; blob = blob->next) {
-    blob_bounding_box(blob, &topleft, &botright); 
-    width_record->widths[i++] = topleft.x - blob_end;
-    width_record->widths[i++] = botright.x - topleft.x;
-    blob_end = botright.x;
+    TBOX curbox = blob->bounding_box();
+    width_record->widths[i++] = curbox.left() - blob_end;
+    width_record->widths[i++] = curbox.width();
+    blob_end = curbox.right();
   }
-  return (width_record);
+  return width_record;
 }
 
 
@@ -630,8 +592,9 @@ bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT* location) {
        outline1 = outline1->next) {
     if (outline1->is_hole)
       continue;  // Holes do not count as separable.
-    TPOINT mid_pt1 = {(outline1->topleft.x + outline1->botright.x) / 2,
-                      (outline1->topleft.y + outline1->botright.y) / 2};
+    TPOINT mid_pt1(
+      static_cast<inT16>((outline1->topleft.x + outline1->botright.x) / 2),
+      static_cast<inT16>((outline1->topleft.y + outline1->botright.y) / 2));
     int mid_prod1 = CROSS(mid_pt1, vertical);
     int min_prod1, max_prod1;
     outline1->MinMaxCrossProduct(vertical, &min_prod1, &max_prod1);
@@ -639,15 +602,16 @@ bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT* location) {
          outline2 = outline2->next) {
       if (outline2->is_hole)
         continue;  // Holes do not count as separable.
-      TPOINT mid_pt2 = {  (outline2->topleft.x + outline2->botright.x) / 2,
-                        (outline2->topleft.y + outline2->botright.y) / 2};
+      TPOINT mid_pt2(
+        static_cast<inT16>((outline2->topleft.x + outline2->botright.x) / 2),
+        static_cast<inT16>((outline2->topleft.y + outline2->botright.y) / 2));
       int mid_prod2 = CROSS(mid_pt2, vertical);
       int min_prod2, max_prod2;
       outline2->MinMaxCrossProduct(vertical, &min_prod2, &max_prod2);
       int mid_gap = abs(mid_prod2 - mid_prod1);
       int overlap = MIN(max_prod1, max_prod2) - MAX(min_prod1, min_prod2);
-      if (mid_gap - overlap / 2 > max_gap) {
-        max_gap = mid_gap - overlap / 2;
+      if (mid_gap - overlap / 4 > max_gap) {
+        max_gap = mid_gap - overlap / 4;
         *location = mid_pt1;
         *location += mid_pt2;
         *location /= 2;
@@ -679,8 +643,9 @@ void divide_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
   int location_prod = CROSS(location, vertical);
 
   while (outline != NULL) {
-    TPOINT mid_pt = {(outline->topleft.x + outline->botright.x) / 2,
-                     (outline->topleft.y + outline->botright.y) / 2};
+    TPOINT mid_pt(
+      static_cast<inT16>((outline->topleft.x + outline->botright.x) / 2),
+      static_cast<inT16>((outline->topleft.y + outline->botright.y) / 2));
     int mid_prod = CROSS(mid_pt, vertical);
     if (mid_prod < location_prod) {
       // Outline is in left blob.
@@ -705,4 +670,3 @@ void divide_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
   if (outline2)
     outline2->next = NULL;
 }
-

@@ -21,6 +21,7 @@
 #define           OCRBLOCK_H
 
 #include          "img.h"
+#include          "ocrpara.h"
 #include          "ocrrow.h"
 #include          "pdblock.h"
 
@@ -120,6 +121,14 @@ class BLOCK:public ELIST_LINK, public PDBLK
   ROW_LIST *row_list() {
     return &rows;
   }
+  // Compute the margins between the edges of each row and this block's
+  // polyblock, and store the results in the rows.
+  void compute_row_margins();
+
+  // get paragraphs
+  PARA_LIST *para_list() {
+    return &paras_;
+  }
   /// get blobs
   C_BLOB_LIST *blob_list() {
     return &c_blobs;
@@ -157,6 +166,10 @@ class BLOCK:public ELIST_LINK, public PDBLK
     return PDBLK::render_mask(re_rotation_);
   }
 
+  // Reflects the polygon in the y-axis and recomputes the bounding_box.
+  // Does nothing to any contained rows/words/blobs etc.
+  void reflect_polygon_in_y_axis();
+
   void rotate(const FCOORD& rotation);
 
   /// decreasing y order
@@ -187,6 +200,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
   float cell_over_xheight_;    //< Ratio of cell height to xheight.
   STRING filename;             //< name of block
   ROW_LIST rows;               //< rows in block
+  PARA_LIST paras_;            //< paragraphs of block
   C_BLOB_LIST c_blobs;         //< before textord
   C_BLOB_LIST rej_blobs;       //< duff stuff
   FCOORD re_rotation_;         //< How to transform coords back to image.

@@ -28,6 +28,36 @@ ELISTIZE (BLOB_CHOICE) CLISTIZE (BLOB_CHOICE_LIST) CLISTIZE (WERD_CHOICE)
 
 const float WERD_CHOICE::kBadRating = 100000.0;
 
+static const char kPermuterTypeNoPerm[] = "None";
+static const char kPermuterTypePuncPerm[] = "Punctuation";
+static const char kPermuterTypeTopPerm[] = "Top Choice";
+static const char kPermuterTypeLowerPerm[] = "Top Lower Case";
+static const char kPermuterTypeUpperPerm[] = "Top Upper Case";
+static const char kPermuterTypeNgramPerm[] = "Ngram";
+static const char kPermuterTypeNumberPerm[] = "Number";
+static const char kPermuterTypeUserPatPerm[] = "User Pattern";
+static const char kPermuterTypeSysDawgPerm[] = "System Dictionary";
+static const char kPermuterTypeDocDawgPerm[] = "Document Dictionary";
+static const char kPermuterTypeUserDawgPerm[] = "User Dictionary";
+static const char kPermuterTypeFreqDawgPerm[] = "Frequent Words Dictionary";
+static const char kPermuterTypeCompoundPerm[] = "Compound";
+
+static const char * const kPermuterTypeNames[] = {
+    kPermuterTypeNoPerm,        // 0
+    kPermuterTypePuncPerm,      // 1
+    kPermuterTypeTopPerm,       // 2
+    kPermuterTypeLowerPerm,     // 3
+    kPermuterTypeUpperPerm,     // 4
+    kPermuterTypeNgramPerm,     // 5
+    kPermuterTypeNumberPerm,    // 6
+    kPermuterTypeUserPatPerm,   // 7
+    kPermuterTypeSysDawgPerm,   // 8
+    kPermuterTypeDocDawgPerm,   // 9
+    kPermuterTypeUserDawgPerm,  // 10
+    kPermuterTypeFreqDawgPerm,  // 11
+    kPermuterTypeCompoundPerm   // 12
+};
+
 /**
  * BLOB_CHOICE::BLOB_CHOICE
  *
@@ -38,7 +68,10 @@ BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
                          float src_cert,           // certainty
                          inT16 src_fontinfo_id,     // font
                          inT16 src_fontinfo_id2,    // 2nd choice font
-                         int src_script_id         // script
+                         int src_script_id,        // script
+                         inT16 min_xheight,        // min xheight allowed
+                         inT16 max_xheight,        // max xheight by this char
+                         bool adapted              // adapted match or not
                         ) {
   unichar_id_ = src_unichar_id;
   rating_ = src_rating;
@@ -47,6 +80,9 @@ BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
   fontinfo_id2_ = src_fontinfo_id2;
   script_id_ = src_script_id;
   language_model_state_ = NULL;
+  min_xheight_ = min_xheight;
+  max_xheight_ = max_xheight;
+  adapted_ = adapted;
 }
 
 /**
@@ -62,6 +98,9 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) {
   fontinfo_id2_ = other.fontinfo_id2();
   script_id_ = other.script_id();
   language_model_state_ = NULL;
+  min_xheight_ = other.min_xheight_;
+  max_xheight_ = other.max_xheight_;
+  adapted_ = other.adapted_;
 }
 
 /**
@@ -71,7 +110,8 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) {
  * The function assumes that src_string is not NULL.
  */
 WERD_CHOICE::WERD_CHOICE(const char *src_string,
-                         const UNICHARSET &unicharset) {
+                         const UNICHARSET &unicharset)
+    : unicharset_(&unicharset){
   STRING src_lengths;
   const char *ptr = src_string;
   const char *end = src_string + strlen(src_string);
@@ -80,7 +120,7 @@ WERD_CHOICE::WERD_CHOICE(const char *src_string,
        step = unicharset.step(ptr), src_lengths += step, ptr += step);
   if (step != 0 && ptr == end) {
     this->init(src_string, src_lengths.string(),
-               0.0, 0.0, NO_PERM, unicharset);
+               0.0, 0.0, NO_PERM);
   } else {  // there must have been an invalid unichar in the string
     this->init(8);
     this->make_bad();
@@ -101,8 +141,7 @@ void WERD_CHOICE::init(const char *src_string,
                        const char *src_lengths,
                        float src_rating,
                        float src_certainty,
-                       uinT8 src_permuter,
-                       const UNICHARSET &unicharset) {
+                       uinT8 src_permuter) {
   int src_string_len = strlen(src_string);
   if (src_string_len == 0) {
     this->init(8);
@@ -113,7 +152,7 @@ void WERD_CHOICE::init(const char *src_string,
     for (int i = 0; i < length_; ++i) {
       int unichar_length = src_lengths ? src_lengths[i] : 1;
       unichar_ids_[i] =
-          unicharset.unichar_to_id(src_string+offset, unichar_length);
+          unicharset_->unichar_to_id(src_string+offset, unichar_length);
       fragment_lengths_[i] = 1;
       offset += unichar_length;
     }
@@ -132,6 +171,9 @@ WERD_CHOICE::~WERD_CHOICE() {
   delete_blob_choices();
 }
 
+const char *WERD_CHOICE::permuter_name() const {
+  return kPermuterTypeNames[permuter_];
+}
 
 /**
  * WERD_CHOICE::set_blob_choices
@@ -178,19 +220,85 @@ void WERD_CHOICE::remove_unichar_ids(int start, int num) {
 }
 
 /**
+ * reverse_and_mirror_unichar_ids
+ *
+ * Reverses and mirrors unichars in unichar_ids.
+ * Note: this function does not change unichar_string_, it only modifies
+ * unichar_ids array.
+ */
+void WERD_CHOICE::reverse_and_mirror_unichar_ids() {
+  for (int i = 0; i < length_/2; ++i) {
+    UNICHAR_ID tmp_id = unichar_ids_[i];
+    unichar_ids_[i] = unicharset_->get_mirror(unichar_ids_[length_-1-i]);
+    unichar_ids_[length_-1-i] = unicharset_->get_mirror(tmp_id);
+  }
+  if (length_ % 2 != 0) {
+    unichar_ids_[length_/2] = unicharset_->get_mirror(unichar_ids_[length_/2]);
+  }
+}
+
+/**
+ * punct_stripped
+ *
+ * Returns the half-open interval of unichar_id indices [start, end) which
+ * enclose the core portion of this word -- the part after stripping
+ * punctuation from the left and right.
+ */
+void WERD_CHOICE::punct_stripped(int *start, int *end) const {
+  *start = 0;
+  *end = length() - 1;
+  while (*start < length() &&
+         unicharset()->get_ispunctuation(unichar_id(*start))) {
+    (*start)++;
+  }
+  while (*end > -1 &&
+         unicharset()->get_ispunctuation(unichar_id(*end))) {
+    (*end)--;
+  }
+  (*end)++;
+}
+
+WERD_CHOICE WERD_CHOICE::shallow_copy(int start, int end) const {
+  ASSERT_HOST(start >= 0 && start <= length_);
+  ASSERT_HOST(end >= 0 && end <= length_);
+  if (end < start) { end = start; }
+  WERD_CHOICE retval(unicharset_, end - start);
+  for (int i = start; i < end; i++) {
+    retval.append_unichar_id_space_allocated(
+        unichar_ids_[i], fragment_lengths_[i], 0.0f, 0.0f);
+  }
+  return retval;
+}
+
+/**
+ * has_rtl_unichar_id
+ *
+ * Returns true if unichar_ids contain at least one "strongly" RTL unichar.
+ */
+bool WERD_CHOICE::has_rtl_unichar_id() const {
+  int i;
+  for (i = 0; i < length_; ++i) {
+    UNICHARSET::Direction dir = unicharset_->get_direction(unichar_ids_[i]);
+    if (dir == UNICHARSET::U_RIGHT_TO_LEFT ||
+        dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * string_and_lengths
  *
  * Populates the given word_str with unichars from unichar_ids and
  * and word_lengths_str with the corresponding unichar lengths.
- * Uses current_unicharset to make unichar id -> unichar conversions.
  */
-void WERD_CHOICE::string_and_lengths(const UNICHARSET &current_unicharset,
-                                     STRING *word_str,
+void WERD_CHOICE::string_and_lengths(STRING *word_str,
                                      STRING *word_lengths_str) const {
   *word_str = "";
   if (word_lengths_str != NULL) *word_lengths_str = "";
   for (int i = 0; i < length_; ++i) {
-    const char *ch = current_unicharset.id_to_unichar(unichar_ids_[i]);
+    const char *ch = unicharset_->id_to_unichar_ext(unichar_ids_[i]);
     *word_str += ch;
     if (word_lengths_str != NULL) {
       *word_lengths_str += strlen(ch);
@@ -230,6 +338,7 @@ WERD_CHOICE & WERD_CHOICE::operator+= (const WERD_CHOICE & second) {
   //   word_lengths = NULL;
   //   delete_blob_choices();
   // } else {
+  ASSERT_HOST(unicharset_ == second.unicharset_);
   while (reserved_ < length_ + second.length()) {
     this->double_the_size();
   }
@@ -291,6 +400,7 @@ WERD_CHOICE& WERD_CHOICE::operator=(const WERD_CHOICE& source) {
     this->double_the_size();
   }
 
+  unicharset_ = source.unicharset_;
   const UNICHAR_ID *other_unichar_ids = source.unichar_ids();
   const char *other_fragment_lengths = source.fragment_lengths();
   for (int i = 0; i < source.length(); ++i) {
@@ -374,6 +484,24 @@ const void WERD_CHOICE::print(const char *msg) const {
   }
   tprintf("\n");
   fflush(stdout);
+}
+
+bool EqualIgnoringCaseAndTerminalPunct(const WERD_CHOICE &word1,
+                                       const WERD_CHOICE &word2) {
+  const UNICHARSET *uchset = word1.unicharset();
+  if (word2.unicharset() != uchset) return false;
+  int w1start, w1end;
+  word1.punct_stripped(&w1start, &w1end);
+  int w2start, w2end;
+  word2.punct_stripped(&w2start, &w2end);
+  if (w1end - w1start != w2end - w2start) return false;
+  for (int i = 0; i < w1end - w1start; i++) {
+    if (uchset->to_lower(word1.unichar_id(w1start + i)) !=
+        uchset->to_lower(word2.unichar_id(w2start + i))) {
+        return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -498,4 +626,28 @@ void print_char_choices_list(const char *msg,
     if (detailed)
       print_ratings_list("", char_choices.get(x), current_unicharset);
   }
+}
+
+/**
+ * print_word_alternates_list
+ */
+void print_word_alternates_list(
+    WERD_CHOICE *word,
+    GenericVector<WERD_CHOICE *> *alternates,
+    bool needs_populate_unichars) {
+  if (!word || !alternates) return;
+  if (needs_populate_unichars) {
+    word->populate_unichars();
+    for (int i = 0; i < alternates->size(); ++i) {
+      alternates->get(i)->populate_unichars();
+    }
+  }
+
+  STRING alternates_str;
+  for (int i = 0; i < alternates->size(); i++) {
+    if (i > 0) alternates_str += "\", \"";
+    alternates_str += alternates->get(i)->unichar_string();
+  }
+  tprintf("Alternates for \"%s\": {\"%s\"}\n",
+          word->unichar_string().string(), alternates_str.string());
 }

@@ -51,7 +51,8 @@ enum DISPLAY_FLAGS
   DF_TEXT,                       //< Correct ascii
   DF_POLYGONAL,                  //< Polyg approx
   DF_EDGE_STEP,                  //< Edge steps
-  DF_BN_POLYGONAL                //< BL normalisd polyapx
+  DF_BN_POLYGONAL,               //< BL normalisd polyapx
+  DF_BLAMER                      //< Blamer information
 };
 
 class ROW;                       //forward decl

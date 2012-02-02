@@ -41,6 +41,8 @@ enum PolyBlockType {
   PT_FLOWING_TEXT,   // Text that lives inside a column.
   PT_HEADING_TEXT,   // Text that spans more than one column.
   PT_PULLOUT_TEXT,   // Text that is in a cross-column pull-out region.
+  PT_EQUATION,       // Partition belonging to an equation region.
+  PT_INLINE_EQUATION,  // Partition has inline equation.
   PT_TABLE,          // Partition belonging to a table region.
   PT_VERTICAL_TEXT,  // Text-line runs vertically.
   PT_CAPTION_TEXT,   // Text that belongs to an image.
@@ -66,7 +68,8 @@ inline bool PTIsImageType(PolyBlockType type) {
 inline bool PTIsTextType(PolyBlockType type) {
   return type == PT_FLOWING_TEXT || type == PT_HEADING_TEXT ||
          type == PT_PULLOUT_TEXT || type == PT_TABLE ||
-         type == PT_VERTICAL_TEXT || type == PT_CAPTION_TEXT;
+         type == PT_VERTICAL_TEXT || type == PT_CAPTION_TEXT ||
+         type == PT_INLINE_EQUATION;
 }
 
 // String name for each block type. Keep in sync with PolyBlockType.
@@ -165,15 +168,41 @@ enum PageSegMode {
 // enum of the elements of the page hierarchy, used in ResultIterator
 // to provide functions that operate on each level without having to
 // have 5x as many functions.
-// NOTE: At present RIL_PARA and RIL_BLOCK are equivalent as there is
-// no paragraph internally yet.
-// TODO(rays) Add paragraph detection.
 enum PageIteratorLevel {
   RIL_BLOCK,     // Block of text/image/separator line.
   RIL_PARA,      // Paragraph within a block.
   RIL_TEXTLINE,  // Line within a paragraph.
   RIL_WORD,      // Word within a textline.
   RIL_SYMBOL     // Symbol/character within a word.
+};
+
+// JUSTIFICATION_UNKNONW
+//   The alignment is not clearly one of the other options.  This could happen
+//   for example if there are only one or two lines of text or the text looks
+//   like source code or poetry.
+//
+// NOTA BENE: Fully justified paragraphs (text aligned to both left and right
+//    margins) are marked by Tesseract with JUSTIFICATION_LEFT if their text
+//    is written with a left-to-right script and with JUSTIFICATION_RIGHT if
+//    their text is written in a right-to-left script.
+//
+// Interpretation for text read in vertical lines:
+//   "Left" is wherever the starting reading position is.
+//
+// JUSTIFICATION_LEFT
+//   Each line, except possibly the first, is flush to the same left tab stop.
+//
+// JUSTIFICATION_CENTER
+//   The text lines of the paragraph are centered about a line going
+//   down through their middle of the text lines.
+//
+// JUSTIFICATION_RIGHT
+//   Each line, except possibly the first, is flush to the same right tab stop.
+enum ParagraphJustification {
+  JUSTIFICATION_UNKNOWN,
+  JUSTIFICATION_LEFT,
+  JUSTIFICATION_CENTER,
+  JUSTIFICATION_RIGHT,
 };
 
 // When Tesseract/Cube is initialized we can choose to instantiate/load/run

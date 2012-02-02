@@ -452,6 +452,8 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
     }
     if (!found) {
       not_found_it.add_after_then_move(werd_blob);
+    } else {
+      delete werd_blob;
     }
   }
   // Iterate over all not found blobs. Some of them may be due to
@@ -462,7 +464,6 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
        not_found_it.forward()) {
     C_BLOB* not_found = not_found_it.data();
     TBOX not_found_box = not_found->bounding_box();
-    bool found = false;
     C_BLOB_IT existing_blobs_it(new_blobs_it);
     for (existing_blobs_it.mark_cycle_pt(); !existing_blobs_it.cycled_list();
          existing_blobs_it.forward()) {
@@ -472,8 +473,8 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
            a_blob_box.major_overlap(not_found_box)) &&
            not_found_box.y_overlap(a_blob_box) > 0.8) {
         // Already taken care of.
-        found = true;
-        not_found_it.extract();
+        delete not_found_it.extract();
+        break;
       }
     }
   }
@@ -487,6 +488,10 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
   WERD* new_werd = NULL;
   if (!new_werd_blobs.empty()) {
     new_werd = new WERD(&new_werd_blobs, this);
+  } else {
+    // Add the blobs back to this word so that it can be reused.
+    C_BLOB_IT this_list_it(cblob_list());
+    this_list_it.add_list_after(&not_found_blobs);
   }
   return new_werd;
 }

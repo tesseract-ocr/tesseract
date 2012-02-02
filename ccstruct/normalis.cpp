@@ -24,7 +24,9 @@
 
 #include "allheaders.h"
 #include "blobs.h"
+#include "helpers.h"
 #include "ocrblock.h"
+#include "unicharset.h"
 #include "werd.h"
 
 
@@ -254,12 +256,62 @@ void DENORM::LocalNormBlob(TBLOB* blob) const {
   blob->Move(translation);
   // Note that the old way of scaling only allowed for a single
   // scale factor.
-  blob->Scale(YScaleAtOrigX(x_center));
+  float scale = YScaleAtOrigX(x_center);
+  if (scale != 1.0f)
+    blob->Scale(scale);
   if (rotation_ != NULL)
     blob->Rotate(*rotation_);
   translation.set_x(IntCastRounded(final_xshift_));
   translation.set_y(IntCastRounded(final_yshift_));
   blob->Move(translation);
+}
+
+// Fills in the x-height range accepted by the given unichar_id, given its
+// bounding box in the usual baseline-normalized coordinates, with some
+// initial crude x-height estimate (such as word size) and this denoting the
+// transformation that was used. Returns false, and an empty range if the
+// bottom is a mis-fit. Returns true and empty [0, 0] range if the bottom
+// fits, but the top is impossible.
+bool DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
+                          const TBOX& bbox,
+                          inT16* min_xht, inT16* max_xht) const {
+  // Clip the top and bottom to the limit of normalized feature space.
+  int top = ClipToRange<int>(bbox.top(), 0, kBlnCellHeight - 1);
+  int bottom = ClipToRange<int>(bbox.bottom(), 0, kBlnCellHeight - 1);
+  // A tolerance of yscale corresponds to 1 pixel in the image.
+  double tolerance = y_scale();
+  int min_bottom, max_bottom, min_top, max_top;
+  unicharset.get_top_bottom(unichar_id, &min_bottom, &max_bottom,
+                            &min_top, &max_top);
+  // Default returns indicate a mis-fit.
+  *min_xht = 0;
+  *max_xht = 0;
+  // Chars with a misfitting bottom might be sub/superscript/dropcap, or might
+  // just be wrongly classified. Return an empty range so they have to be
+  // good to be considered.
+  if (bottom < min_bottom - tolerance || bottom > max_bottom + tolerance) {
+    return false;
+  }
+  // To help very high cap/xheight ratio fonts accept the correct x-height,
+  // and to allow the large caps in small caps to accept the xheight of the
+  // small caps, add kBlnBaselineOffset to chars with a maximum max.
+  if (max_top == kBlnCellHeight - 1)
+    max_top += kBlnBaselineOffset;
+  int height = top - kBlnBaselineOffset;
+  double min_height = min_top - kBlnBaselineOffset - tolerance;
+  double max_height = max_top - kBlnBaselineOffset + tolerance;
+  if (min_height <= 0.0) {
+    if (height <= 0 || max_height > 0)
+      *max_xht = MAX_INT16;  // Anything will do.
+  } else if (height > 0) {
+    int result = IntCastRounded(height * kBlnXHeight / y_scale() / min_height);
+    *max_xht = static_cast<inT16>(ClipToRange(result, 0, MAX_INT16));
+  }
+  if (max_height > 0.0 && height > 0) {
+    int result = IntCastRounded(height * kBlnXHeight / y_scale() / max_height);
+    *min_xht = static_cast<inT16>(ClipToRange(result, 0, MAX_INT16));
+  }
+  return true;
 }
 
 // ============== Private Code ======================

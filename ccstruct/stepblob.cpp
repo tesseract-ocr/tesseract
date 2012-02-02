@@ -340,11 +340,29 @@ static void render_outline_list(C_OUTLINE_LIST *list,
   }
 }
 
+static void render_outline_list_outline(C_OUTLINE_LIST *list,
+                                        int left, int top, Pix* pix) {
+  C_OUTLINE_IT it(list);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    C_OUTLINE* outline = it.data();
+    outline->render_outline(left, top, pix);
+  }
+}
+
 // Returns a Pix rendering of the blob. pixDestroy after use.
 Pix* C_BLOB::render() {
   TBOX box = bounding_box();
   Pix* pix = pixCreate(box.width(), box.height(), 1);
   render_outline_list(&outlines, box.left(), box.top(), pix);
+  return pix;
+}
+
+// Returns a Pix rendering of the outline of the blob. (no fill).
+// pixDestroy after use.
+Pix* C_BLOB::render_outline() {
+  TBOX box = bounding_box();
+  Pix* pix = pixCreate(box.width(), box.height(), 1);
+  render_outline_list_outline(&outlines, box.left(), box.top(), pix);
   return pix;
 }
 

@@ -31,9 +31,21 @@ struct Pix;
 class ROW;                          // Forward decl
 class BLOCK;
 class FCOORD;
-struct TBLOB;
+class TBLOB;
 class TBOX;
-struct TPOINT;
+class TPOINT;
+class UNICHARSET;
+
+namespace tesseract {
+// Possible normalization methods. Use NEGATIVE values as these also
+// double up as markers for the last sub-classifier.
+enum NormalizationMode {
+  NM_BASELINE = -3,         // The original BL normalization mode.
+  NM_CHAR_ISOTROPIC = -2,   // Character normalization but isotropic.
+  NM_CHAR_ANISOTROPIC = -1  // The original CN normalization mode.
+};
+
+}  // namespace tesseract.
 
 class DENORM_SEG {
  public:
@@ -219,6 +231,15 @@ class DENORM {
   // more accurately copies the old way.
   void LocalNormBlob(TBLOB* blob) const;
 
+  // Fills in the x-height range accepted by the given unichar_id, given its
+  // bounding box in the usual baseline-normalized coordinates, with some
+  // initial crude x-height estimate (such as word size) and this denoting the
+  // transformation that was used. Returns false, and an empty range if the
+  // bottom is a mis-fit. Returns true and empty [0, 0] range if the bottom
+  // fits, but the top is impossible.
+  bool XHeightRange(int unichar_id, const UNICHARSET& unicharset,
+                    const TBOX& bbox, inT16* min_xht, inT16* max_xht) const;
+
   Pix* pix() const {
     return pix_;
   }
@@ -235,6 +256,9 @@ class DENORM {
     if (predecessor_ != NULL)
       return predecessor_->RootDenorm();
     return this;
+  }
+  const DENORM* predecessor() const {
+    return predecessor_;
   }
   // Accessors - perhaps should not be needed.
   float x_scale() const {

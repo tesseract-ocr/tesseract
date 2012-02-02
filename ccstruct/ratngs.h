@@ -40,13 +40,19 @@ class BLOB_CHOICE: public ELIST_LINK
       certainty_ = -MAX_FLOAT32;
       script_id_ = -1;
       language_model_state_ = NULL;
+      min_xheight_ = 0;
+      max_xheight_ = 0;
+      adapted_ = false;
     }
     BLOB_CHOICE(UNICHAR_ID src_unichar_id,  // character id
                 float src_rating,          // rating
                 float src_cert,            // certainty
                 inT16 src_fontinfo_id,      // font
                 inT16 src_fontinfo_id2,     // 2nd choice font
-                int script_id);            // script
+                int script_id,             // script
+                inT16 min_xheight,         // min xheight in image pixel units
+                inT16 max_xheight,         // max xheight allowed by this char
+                bool adapted);             // adapted match or not
     BLOB_CHOICE(const BLOB_CHOICE &other);
     ~BLOB_CHOICE() {}
 
@@ -71,11 +77,20 @@ class BLOB_CHOICE: public ELIST_LINK
     void *language_model_state() {
       return language_model_state_;
     }
-    inT16 xgap_before() {
+    inT16 xgap_before() const {
       return xgap_before_;
     }
-    inT16 xgap_after() {
+    inT16 xgap_after() const {
       return xgap_after_;
+    }
+    inT16 min_xheight() const {
+      return min_xheight_;
+    }
+    inT16 max_xheight() const {
+      return max_xheight_;
+    }
+    bool adapted() const {
+      return adapted_;
     }
 
     void set_unichar_id(UNICHAR_ID newunichar_id) {
@@ -105,6 +120,9 @@ class BLOB_CHOICE: public ELIST_LINK
     void set_xgap_after(inT16 gap) {
       xgap_after_ = gap;
     }
+    void set_adapted(bool adapted) {
+      adapted_ = adapted;
+    }
     static BLOB_CHOICE* deep_copy(const BLOB_CHOICE* src) {
       BLOB_CHOICE* choice = new BLOB_CHOICE;
       *choice = *src;
@@ -130,6 +148,10 @@ class BLOB_CHOICE: public ELIST_LINK
   void *language_model_state_;
   inT16 xgap_before_;
   inT16 xgap_after_;
+  // X-height range (in image pixels) that this classification supports.
+  inT16 min_xheight_;
+  inT16 max_xheight_;
+  bool adapted_;  // true if this is a match from adapted templates
 };
 
 // Make BLOB_CHOICE listable.
@@ -156,24 +178,30 @@ class WERD_CHOICE {
  public:
   static const float kBadRating;
 
-  WERD_CHOICE() { this->init(8); }
-  WERD_CHOICE(int reserved) { this->init(reserved); }
+  WERD_CHOICE(const UNICHARSET *unicharset)
+    : unicharset_(unicharset) { this->init(8); }
+  WERD_CHOICE(const UNICHARSET *unicharset, int reserved)
+    : unicharset_(unicharset) { this->init(reserved); }
   WERD_CHOICE(const char *src_string,
               const char *src_lengths,
               float src_rating,
               float src_certainty,
               uinT8 src_permuter,
-              const UNICHARSET &unicharset) {
+              const UNICHARSET &unicharset)
+    : unicharset_(&unicharset) {
     this->init(src_string, src_lengths, src_rating,
-               src_certainty, src_permuter, unicharset);
+               src_certainty, src_permuter);
   }
-  WERD_CHOICE (const char *src_string, const UNICHARSET &unicharset);
-  WERD_CHOICE(const WERD_CHOICE &word) {
+  WERD_CHOICE(const char *src_string, const UNICHARSET &unicharset);
+  WERD_CHOICE(const WERD_CHOICE &word) : unicharset_(word.unicharset_) {
     this->init(word.length());
     this->operator=(word);
   }
   ~WERD_CHOICE();
 
+  const UNICHARSET *unicharset() const {
+    return unicharset_;
+  }
   inline int length() const {
     return length_;
   }
@@ -200,6 +228,7 @@ class WERD_CHOICE {
   inline uinT8 permuter() const {
     return permuter_;
   }
+  const char *permuter_name() const;
   inline bool fragment_mark() const {
     return fragment_mark_;
   }
@@ -237,25 +266,37 @@ class WERD_CHOICE {
 
   /// Make more space in unichar_id_ and fragment_lengths_ arrays.
   inline void double_the_size() {
-    unichar_ids_ = GenericVector<UNICHAR_ID>::double_the_size_memcpy(
-        reserved_, unichar_ids_);
-    fragment_lengths_ = GenericVector<char>::double_the_size_memcpy(
-        reserved_, fragment_lengths_);
-    reserved_ *= 2;
+    if (reserved_ > 0) {
+      unichar_ids_ = GenericVector<UNICHAR_ID>::double_the_size_memcpy(
+          reserved_, unichar_ids_);
+      fragment_lengths_ = GenericVector<char>::double_the_size_memcpy(
+          reserved_, fragment_lengths_);
+      reserved_ *= 2;
+    } else {
+      unichar_ids_ = new UNICHAR_ID[1];
+      fragment_lengths_ = new char[1];
+      reserved_ = 1;
+    }
   }
 
   /// Initializes WERD_CHOICE - reserves length slots in unichar_ids_ and
   /// fragment_length_ arrays. Sets other values to default (blank) values.
   inline void init(int reserved) {
     reserved_ = reserved;
-    unichar_ids_ = new UNICHAR_ID[reserved];
-    fragment_lengths_ = new char[reserved];
+    if (reserved > 0) {
+      unichar_ids_ = new UNICHAR_ID[reserved];
+      fragment_lengths_ = new char[reserved];
+    } else {
+      unichar_ids_ = NULL;
+      fragment_lengths_ = NULL;
+    }
     length_ = 0;
     rating_ = 0.0;
     certainty_ = MAX_FLOAT32;
     permuter_ = NO_PERM;
     fragment_mark_ = false;
     blob_choices_ = NULL;
+    unichars_in_script_order_ = false;  // Tesseract is strict left-to-right.
     unichar_string_ = "";
     unichar_lengths_ = "";
   }
@@ -267,7 +308,7 @@ class WERD_CHOICE {
   /// in src_string are assumed to all be of length 1.
   void init(const char *src_string, const char *src_lengths,
             float src_rating, float src_certainty,
-            uinT8 src_permuter, const UNICHARSET &current_unicharset);
+            uinT8 src_permuter);
 
   /// Set the fields in this choice to be default (bad) values.
   inline void make_bad() {
@@ -308,13 +349,26 @@ class WERD_CHOICE {
   bool contains_unichar_id(UNICHAR_ID unichar_id) const;
   void remove_unichar_ids(int index, int num);
   inline void remove_last_unichar_id() { --length_; }
-  inline void remove_unichar_id(int index) { this->remove_unichar_ids(index, 1); }
-  void string_and_lengths(const UNICHARSET &current_unicharset,
-                          STRING *word_str, STRING *word_lengths_str) const;
-  const STRING debug_string(const UNICHARSET &current_unicharset) const {
+  inline void remove_unichar_id(int index) {
+    this->remove_unichar_ids(index, 1);
+  }
+  bool has_rtl_unichar_id() const;
+  void reverse_and_mirror_unichar_ids();
+
+  // Returns the half-open interval of unichar_id indices [start, end) which
+  // enclose the core portion of this word -- the part after stripping
+  // punctuation from the left and right.
+  void punct_stripped(int *start_core, int *end_core) const;
+
+  // Return a copy of this WERD_CHOICE with the choices [start, end).
+  // The result is useful only for checking against a dictionary.
+  WERD_CHOICE shallow_copy(int start, int end) const;
+
+  void string_and_lengths(STRING *word_str, STRING *word_lengths_str) const;
+  const STRING debug_string() const {
     STRING word_str;
     for (int i = 0; i < length_; ++i) {
-      word_str += current_unicharset.debug_str(unichar_ids_[i]);
+      word_str += unicharset_->debug_str(unichar_ids_[i]);
       word_str += " ";
     }
     return word_str;
@@ -322,16 +376,28 @@ class WERD_CHOICE {
   /// Since this function walks over the whole word to convert unichar ids
   /// to unichars, it is best to call it once, e.g. after all changes to
   /// unichar_ids_ in WERD_CHOICE are finished.
-  void populate_unichars(const UNICHARSET &current_unicharset) {
-    this->string_and_lengths(current_unicharset, &unichar_string_,
-                             &unichar_lengths_);
+  void populate_unichars() {
+    this->string_and_lengths(&unichar_string_, &unichar_lengths_);
   }
+
   /// Undoes populate_unichars, so that unichar_string_ and unichar_lengths_
   /// are empty.
   void depopulate_unichars() {
     unichar_string_ = "";
     unichar_lengths_ = "";
   }
+
+  // Call this to override the default (strict left to right graphemes)
+  // with the fact that some engine produces a "reading order" set of
+  // Graphemes for each word.
+  bool set_unichars_in_script_order(bool in_script_order) {
+    return unichars_in_script_order_ = in_script_order;
+  }
+
+  bool unichars_in_script_order() const {
+    return unichars_in_script_order_;
+  }
+
   /// This function should only be called if populate_unichars()
   /// was called and WERD_CHOICE did not change since then.
   const STRING &unichar_string() const {
@@ -339,6 +405,7 @@ class WERD_CHOICE {
            unichar_string_.length() >= length_);  // sanity check
     return unichar_string_;
   }
+
   /// This function should only be called if populate_unichars()
   /// was called and WERD_CHOICE did not change since then.
   const STRING &unichar_lengths() const {
@@ -355,6 +422,7 @@ class WERD_CHOICE {
   WERD_CHOICE& operator= (const WERD_CHOICE& source);
 
  private:
+  const UNICHARSET *unicharset_;
   UNICHAR_ID *unichar_ids_;  // unichar ids that represent the text of the word
   char *fragment_lengths_;   // number of fragments in each unichar
   int reserved_;             // size of the above arrays
@@ -367,10 +435,17 @@ class WERD_CHOICE {
                              // contained a fragment
   BLOB_CHOICE_LIST_CLIST *blob_choices_;  // best choices for each blob
 
+  // Normally, the blob_choices_ represent the recognition results in order
+  // from left-to-right.  However, some engines (say Cube) may return
+  // recognition results in the order of the script's major reading direction
+  // (for Arabic, that is right-to-left).
+  bool unichars_in_script_order_;
+
   // The following variables are only populated by calling populate_unichars().
   // They are not synchronized with the values in unichar_ids otherwise.
   STRING unichar_string_;
   STRING unichar_lengths_;
+
   bool unichar_info_present;
 
  private:
@@ -382,6 +457,12 @@ ELISTIZEH (WERD_CHOICE)
 typedef GenericVector<BLOB_CHOICE_LIST *> BLOB_CHOICE_LIST_VECTOR;
 typedef GenericVector<WERD_CHOICE_LIST *> WERD_CHOICE_LIST_VECTOR;
 
+// Utilities for comparing WERD_CHOICEs
+
+bool EqualIgnoringCaseAndTerminalPunct(const WERD_CHOICE &word1,
+                                       const WERD_CHOICE &word2);
+
+// Utilities for debug printing.
 void print_ratings_list(const char *msg, BLOB_CHOICE_LIST *ratings);
 void print_ratings_list(
     const char *msg,                      // intro message
@@ -401,5 +482,9 @@ void print_char_choices_list(
     const UNICHARSET &current_unicharset,
     BOOL8 detailed
     );
+void print_word_alternates_list(
+    WERD_CHOICE *word,
+    GenericVector<WERD_CHOICE *> *alternates,
+    bool needs_populate_unichars);
 
 #endif

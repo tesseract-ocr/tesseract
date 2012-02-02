@@ -99,11 +99,11 @@ class ICOORD
     }
 
     ///test equality
-    BOOL8 operator== (const ICOORD & other) {
+    BOOL8 operator== (const ICOORD & other) const {
       return xcoord == other.xcoord && ycoord == other.ycoord;
     }
     ///test inequality
-    BOOL8 operator!= (const ICOORD & other) {
+    BOOL8 operator!= (const ICOORD & other) const {
       return xcoord != other.xcoord || ycoord != other.ycoord;
     }
     ///rotate 90 deg anti
@@ -146,6 +146,12 @@ class ICOORD
     /// accumulator >= major subtract major and also move by minor_step.
     void setup_render(ICOORD* major_step, ICOORD* minor_step,
                       int* major, int* minor) const;
+
+    // Writes to the given file. Returns false in case of error.
+    bool Serialize(FILE* fp) const;
+    // Reads from the given file. Returns false in case of error.
+    // If swap is true, assumes a big/little-endian swap is needed.
+    bool DeSerialize(bool swap, FILE* fp);
 
   protected:
     inT16 xcoord;                //< x value

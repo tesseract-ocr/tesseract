@@ -4,11 +4,12 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer
 
 include_HEADERS = \
-    blckerr.h blobbox.h blobs.h blread.h boxword.h ccstruct.h coutln.h crakedge.h \
-    detlinefit.h dppoint.h genblob.h hpddef.h hpdsizes.h ipoints.h \
+    blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
+    detlinefit.h dppoint.h fontinfo.h genblob.h hpddef.h hpdsizes.h ipoints.h \
     linlsq.h matrix.h mod128.h normalis.h \
-    ocrblock.h ocrrow.h otsuthr.h \
-    pageres.h pdblock.h points.h polyaprx.h polyblk.h \
+    ocrblock.h ocrpara.h ocrrow.h otsuthr.h \
+    pageres.h params_training_featdef.h \
+    pdblock.h points.h polyaprx.h polyblk.h \
     publictypes.h \
     quadlsq.h quadratc.h quspline.h ratngs.h rect.h rejctmap.h \
     seam.h split.h statistc.h stepblob.h vecfuncs.h werd.h
@@ -26,10 +27,10 @@ libtesseract_ccstruct_la_LIBADD = \
 endif
 
 libtesseract_ccstruct_la_SOURCES = \
-    blobbox.cpp blobs.cpp blread.cpp boxword.cpp ccstruct.cpp coutln.cpp \
-    detlinefit.cpp dppoint.cpp genblob.cpp \
+    blobbox.cpp blobs.cpp blread.cpp boxread.cpp boxword.cpp ccstruct.cpp coutln.cpp \
+    detlinefit.cpp dppoint.cpp fontinfo.cpp genblob.cpp \
     linlsq.cpp matrix.cpp mod128.cpp normalis.cpp \
-    ocrblock.cpp ocrrow.cpp otsuthr.cpp \
+    ocrblock.cpp ocrpara.cpp ocrrow.cpp otsuthr.cpp \
     pageres.cpp pdblock.cpp points.cpp polyaprx.cpp polyblk.cpp \
     publictypes.cpp \
     quadlsq.cpp quadratc.cpp quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \

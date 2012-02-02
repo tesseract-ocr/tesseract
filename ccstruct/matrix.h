@@ -101,9 +101,11 @@ class GENERIC_2D_ARRAY {
   int dim1() const { return dim1_; }
   int dim2() const { return dim2_; }
 
-  // Expression to select a specific location in the matrix.
+  // Expression to select a specific location in the matrix. The matrix is
+  // stored COLUMN-major, so the left-most index is the most significant.
+  // This allows [][] access to use indices in the same order as (,).
   int index(int column, int row) const {
-    return (row * dim1_ + column);
+    return (column * dim2_ + row);
   }
 
   // Put a list element into the matrix at a specific location.
@@ -121,6 +123,11 @@ class GENERIC_2D_ARRAY {
   }
   T& operator()(int column, int row) {
     return array_[this->index(column, row)];
+  }
+  // Allow access using array[column][row]. NOTE that the indices are
+  // in the same left-to-right order as the () indexing.
+  T* operator[](int column) {
+    return &array_[this->index(column, 0)];
   }
 
   // Delete objects pointed to by array_[i].
@@ -188,7 +195,7 @@ class MATRIX : public GENERIC_MATRIX<BLOB_CHOICE_LIST *> {
   MATRIX(int dimension) : GENERIC_MATRIX<BLOB_CHOICE_LIST *>(dimension,
                                                              NOT_CLASSIFIED) {}
   // Print a shortened version of the contents of the matrix.
-  void print(const UNICHARSET &unicharset);
+  void print(const UNICHARSET &unicharset) const;
 };
 
 struct MATRIX_COORD {

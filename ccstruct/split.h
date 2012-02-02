@@ -72,6 +72,8 @@ void delete_split(SPLIT *split);
 
 EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev);
 
+void remove_edgept(EDGEPT *point);
+
 SPLIT *new_split(EDGEPT *point1, EDGEPT *point2);
 
 void print_split(SPLIT *split);

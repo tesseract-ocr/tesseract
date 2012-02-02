@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        ocrrow.h  (Formerly row.h)
  * Description: Code for the ROW class.
- * Author:		Ray Smith
- * Created:		Tue Oct 08 15:58:04 BST 1991
+ * Author:      Ray Smith
+ * Created:     Tue Oct 08 15:58:04 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,11 +20,14 @@
 #ifndef           OCRROW_H
 #define           OCRROW_H
 
-#include          <stdio.h>
-#include          "quspline.h"
-#include          "werd.h"
+#include <stdio.h>
+
+#include "quspline.h"
+#include "werd.h"
 
 class TO_ROW;
+
+class PARA;
 
 class ROW:public ELIST_LINK
 {
@@ -64,6 +67,12 @@ class ROW:public ELIST_LINK
     inT32 kern() const {  //return kerning
       return kerning;
     }
+    float body_size() const {  //return body size
+      return bodysize;
+    }
+    void set_body_size(float new_size) {  // set body size
+      bodysize = new_size;
+    }
     inT32 space() const {  //return spacing
       return spacing;
     }
@@ -75,6 +84,33 @@ class ROW:public ELIST_LINK
     }
     TBOX bounding_box() const {  //return bounding box
       return bound_box;
+    }
+
+    void set_lmargin(inT16 lmargin) {
+      lmargin_ = lmargin;
+    }
+    void set_rmargin(inT16 rmargin) {
+      rmargin_ = rmargin;
+    }
+    inT16 lmargin() const {
+      return lmargin_;
+    }
+    inT16 rmargin() const {
+      return rmargin_;
+    }
+
+    void set_has_drop_cap(bool has) {
+      has_drop_cap_ = has;
+    }
+    bool has_drop_cap() const {
+      return has_drop_cap_;
+    }
+
+    void set_para(PARA *p) {
+      para_ = p;
+    }
+    PARA *para() const {
+      return para_;
     }
 
     void recalc_bounding_box();  //recalculate BB
@@ -104,12 +140,22 @@ class ROW:public ELIST_LINK
   private:
     inT32 kerning;               //inter char gap
     inT32 spacing;               //inter word gap
-    TBOX bound_box;               //bounding box
+    TBOX bound_box;              //bounding box
     float xheight;               //height of line
     float ascrise;               //size of ascenders
     float descdrop;              //-size of descenders
+    float bodysize;              //CJK character size. (equals to
+                                 //xheight+ascrise by default)
     WERD_LIST words;             //words
     QSPLINE baseline;            //baseline spline
+
+    // These get set after blocks have been determined.
+    bool has_drop_cap_;
+    inT16 lmargin_;   // Distance to left polyblock margin.
+    inT16 rmargin_;   // Distance to right polyblock margin.
+
+    // This gets set during paragraph analysis.
+    PARA *para_;      // Paragraph of which this row is part.
 };
 
 ELISTIZEH (ROW)

@@ -28,7 +28,7 @@
 #include <math.h>
 #include "blobs.h"
 
-struct EDGEPT;
+class EDGEPT;
 
 /*----------------------------------------------------------------------
               M a c r o s

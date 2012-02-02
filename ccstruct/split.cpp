@@ -62,7 +62,7 @@ void delete_split(SPLIT *split) {
  *
  * Create an EDGEPT and hook it into an existing list of edge points.
  **********************************************************************/
-EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) { 
+EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) {
   EDGEPT *this_edgept;
   /* Create point */
   this_edgept = new EDGEPT;
@@ -82,6 +82,20 @@ EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) {
   return (this_edgept);
 }
 
+/**********************************************************************
+ * remove_edgept
+ *
+ * Remove a given EDGEPT from its list and delete it.
+ **********************************************************************/
+void remove_edgept(EDGEPT *point) {
+  EDGEPT *prev = point->prev;
+  EDGEPT *next = point->next;
+  prev->next = next;
+  next->prev = prev;
+  prev->vec.x = next->pos.x - prev->pos.x;
+  prev->vec.y = next->pos.y - prev->pos.y;
+  delete point;
+}
 
 /**********************************************************************
  * new_split

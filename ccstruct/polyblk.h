@@ -58,6 +58,8 @@ class DLLSYM POLY_BLOCK {
   // Rotate about the origin by the given rotation. (Analogous to
   // multiplying by a complex number.
   void rotate(FCOORD rotation);
+  // Reflect the coords of the polygon in the y-axis. (Flip the sign of x.)
+  void reflect_in_y_axis();
   // Move by adding shift to all coordinates.
   void move(ICOORD shift);
 

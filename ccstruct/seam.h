@@ -94,6 +94,10 @@ bool point_in_split(SPLIT *split, EDGEPT *point1, EDGEPT *point2);
 
 bool point_in_seam(SEAM *seam, SPLIT *split);
 
+bool point_used_by_split(SPLIT *split, EDGEPT *point);
+
+bool point_used_by_seam(SEAM *seam, EDGEPT *point);
+
 SEAMS add_seam(SEAMS seam_list, SEAM *seam);
 
 void combine_seams(SEAM *dest_seam, SEAM *source_seam);

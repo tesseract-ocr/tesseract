@@ -172,6 +172,19 @@ void TBOX::plot(                      //paint box
 }
 #endif
 
+// Writes to the given file. Returns false in case of error.
+bool TBOX::Serialize(FILE* fp) const {
+  if (!bot_left.Serialize(fp)) return false;
+  if (!top_right.Serialize(fp)) return false;
+  return true;
+}
+// Reads from the given file. Returns false in case of error.
+// If swap is true, assumes a big/little-endian swap is needed.
+bool TBOX::DeSerialize(bool swap, FILE* fp) {
+  if (!bot_left.DeSerialize(swap, fp)) return false;
+  if (!top_right.DeSerialize(swap, fp)) return false;
+  return true;
+}
 
 /**********************************************************************
  * operator+=
@@ -200,15 +213,12 @@ const TBOX & op2) {
 
 
 /**********************************************************************
- * operator-=
+ * operator&=
  *
  * Reduce one box to intersection with the other  (In place intersection)
  **********************************************************************/
 
-DLLSYM TBOX &
-operator-= (                     //inplace intersection
-TBOX & op1,                       //operands
-const TBOX & op2) {
+TBOX& operator&=(TBOX& op1, const TBOX& op2) {
   if (op1.overlap (op2)) {
     if (op2.bot_left.x () > op1.bot_left.x ())
       op1.bot_left.set_x (op2.bot_left.x ());
@@ -229,4 +239,16 @@ const TBOX & op2) {
     op1.top_right.set_y (-MAX_INT16);
   }
   return op1;
+}
+
+bool TBOX::x_almost_equal(const TBOX &box, int tolerance) const {
+  return (abs(left() - box.left()) <= tolerance &&
+           abs(right() - box.right()) <= tolerance);
+}
+
+bool TBOX::almost_equal(const TBOX &box, int tolerance) const {
+  return (abs(left() - box.left()) <= tolerance &&
+          abs(right() - box.right()) <= tolerance &&
+          abs(top() - box.top()) <= tolerance &&
+          abs(bottom() - box.bottom()) <= tolerance);
 }

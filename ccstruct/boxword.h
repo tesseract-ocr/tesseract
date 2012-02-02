@@ -85,6 +85,9 @@ class BoxWord {
   // Recomputes the bounding box.
   void DeleteBox(int index);
 
+  // Deletes all the boxes stored in BoxWord.
+  void DeleteAllBoxes();
+
   // This and other putatively are the same, so call the (permanent) callback
   // for each blob index where the bounding boxes match.
   // The callback is deleted on completion.

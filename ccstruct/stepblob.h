@@ -55,6 +55,9 @@ class C_BLOB:public ELIST_LINK
 
     // Returns a Pix rendering of the blob. pixDestroy after use.
     Pix* render();
+    // Returns a Pix rendering of the outline of the blob. (no fill).
+    // pixDestroy after use.
+    Pix* render_outline();
 
     void plot(                       //draw one
               ScrollView* window,         //window to draw in

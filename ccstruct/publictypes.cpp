@@ -25,6 +25,8 @@ const char* kPolyBlockNames[] = {
   "Flowing Text",
   "Heading Text",
   "Pullout Text",
+  "Equation",
+  "Inline Equation",
   "Table",
   "Vertical Text",
   "Caption Text",

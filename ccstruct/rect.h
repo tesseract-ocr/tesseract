@@ -23,8 +23,8 @@
 #include <math.h>
 #include "points.h"
 #include "ndminx.h"
-#include "tprintf.h"
 #include "scrollview.h"
+#include "tprintf.h"
 
 class DLLSYM TBOX  {  // bounding box
   public:
@@ -46,7 +46,7 @@ class DLLSYM TBOX  {  // bounding box
       return ((left () >= right ()) || (top () <= bottom ()));
     }
 
-    bool operator==(const TBOX& other) {
+    bool operator==(const TBOX& other) const {
       return bot_left == other.bot_left && top_right == other.top_right;
     }
 
@@ -113,6 +113,14 @@ class DLLSYM TBOX  {  // bounding box
         return width () * height ();
       else
         return 0;
+    }
+
+    // Pads the box on either side by the supplied x,y pad amounts.
+    // NO checks for exceeding any bounds like 0 or an image size.
+    void pad(int xpad, int ypad) {
+      ICOORD pad(xpad, ypad);
+      bot_left -= pad;
+      top_right += pad;
     }
 
     void move_bottom_edge(                  // move one edge
@@ -232,6 +240,12 @@ class DLLSYM TBOX  {  // bounding box
     // fraction of the current box's projected area covered by the other's
     double y_overlap_fraction(const TBOX& box) const;
 
+    // Returns true if the boxes are almost equal on x axis.
+    bool x_almost_equal(const TBOX &box, int tolerance) const;
+
+    // Returns true if the boxes are almost equal
+    bool almost_equal(const TBOX &box, int tolerance) const;
+
     TBOX intersection(  // shared area box
                      const TBOX &box) const;
 
@@ -251,6 +265,15 @@ class DLLSYM TBOX  {  // bounding box
               left(), bottom(), right(), top());
     }
 
+    // Same as print(), but appends debug information to the given string
+    // instead of printing it to stdout.
+    void append_debug(STRING *str) const {
+      char buffer[256];
+      sprintf(buffer, "Bounding box=(%d,%d)->(%d,%d)\n",
+              left(), bottom(), right(), top());
+      *str += buffer;
+    }
+
 #ifndef GRAPHICS_DISABLED
     void plot(                    // use current settings
               ScrollView* fd) const {  // where to paint
@@ -263,10 +286,15 @@ class DLLSYM TBOX  {  // bounding box
               ScrollView::Color fill_colour,           // colour for inside
               ScrollView::Color border_colour) const;  // colour for border
 #endif
+    // Writes to the given file. Returns false in case of error.
+    bool Serialize(FILE* fp) const;
+    // Reads from the given file. Returns false in case of error.
+    // If swap is true, assumes a big/little-endian swap is needed.
+    bool DeSerialize(bool swap, FILE* fp);
 
-    friend DLLSYM TBOX & operator+= (TBOX &, const TBOX &);
+    friend TBOX& operator+=(TBOX&, const TBOX&);
     // in place union
-    friend DLLSYM TBOX & operator-= (TBOX &, const TBOX &);
+    friend TBOX& operator&=(TBOX&, const TBOX&);
     // in place intersection
 
   private:

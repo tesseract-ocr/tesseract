@@ -29,6 +29,7 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
+#include "clst.h"
 #include "rect.h"
 #include "vecfuncs.h"
 
@@ -50,6 +51,10 @@ typedef struct
 } WIDTH_RECORD;
 
 struct TPOINT {
+  TPOINT(): x(0), y(0) {}
+  TPOINT(inT16 vx, inT16 vy) : x(vx), y(vy) {}
+  TPOINT(const ICOORD &ic) : x(ic.x()), y(ic.y()) {}
+
   void operator+=(const TPOINT& other) {
     x += other.x;
     y += other.y;
@@ -101,6 +106,9 @@ struct EDGEPT {
   EDGEPT* next;                  // anticlockwise element
   EDGEPT* prev;                  // clockwise element
 };
+
+// For use in chop and findseam to keep a list of which EDGEPTs were inserted.
+CLISTIZEH(EDGEPT);
 
 struct TESSLINE {
   TESSLINE() : is_hole(false), loop(NULL), next(NULL) {}
@@ -176,6 +184,12 @@ struct TBLOB {
   // Factory to build a TBLOB from a C_BLOB with polygonal
   // approximation along the way.
   static TBLOB* PolygonalCopy(C_BLOB* src);
+  // Normalizes the blob for classification only if needed.
+  // (Normally this means a non-zero classify rotation.)
+  // If no Normalization is needed, then NULL is returned, and the denorm is
+  // unchanged. Otherwise a new TBLOB is returned and the denorm points to
+  // a new DENORM. In this case, both the TBLOB and DENORM must be deleted.
+  TBLOB* ClassifyNormalizeIfNeeded(const DENORM** denorm) const;
   // Copies the data and the outlines, but leaves next untouched.
   void CopyFrom(const TBLOB& src);
   // Deletes owned data.
@@ -274,23 +288,12 @@ if (w) memfree (w)
 ----------------------------------------------------------------------*/
 // TODO(rays) This will become a member of TBLOB when TBLOB's definition
 // moves to blobs.h
-TBOX TBLOB_bounding_box(const TBLOB* blob);
 
-void blob_origin(TBLOB *blob,      /*blob to compute on */
-                 TPOINT *origin);  /*return value */
-
-                                 /*blob to compute on */
-void blob_bounding_box(const TBLOB *blob,
-                       TPOINT *topleft,  // Bounding box.
-                       TPOINT *botright);
-
-void blobs_bounding_box(TBLOB *blobs, TPOINT *topleft, TPOINT *botright); 
-
-void blobs_origin(TBLOB *blobs,     /*blob to compute on */
-                  TPOINT *origin);  /*return value */
+// Returns the center of blob's bounding box in origin.
+void blob_origin(TBLOB *blob, TPOINT *origin);
 
                                  /*blob to compute on */
-WIDTH_RECORD *blobs_widths(TBLOB *blobs); 
+WIDTH_RECORD *blobs_widths(TBLOB *blobs);
 
 bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT* location);
 

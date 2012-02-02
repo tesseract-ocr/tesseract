@@ -33,7 +33,7 @@
 #include "unicharset.h"
 
 // Print the best guesses out of the match rating matrix.
-void MATRIX::print(const UNICHARSET &unicharset) {
+void MATRIX::print(const UNICHARSET &unicharset) const {
   tprintf("Ratings Matrix (top choices)\n");
   int row, col;
   for (col = 0; col < this->dimension(); ++col) tprintf("\t%d", col);

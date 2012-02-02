@@ -209,6 +209,13 @@ void BoxWord::DeleteBox(int index) {
   ComputeBoundingBox();
 }
 
+// Deletes all the boxes stored in BoxWord.
+void BoxWord::DeleteAllBoxes() {
+  length_ = 0;
+  boxes_.clear();
+  bbox_ = TBOX();
+}
+
 // Computes the bounding box of the word.
 void BoxWord::ComputeBoundingBox() {
   bbox_ = TBOX();
