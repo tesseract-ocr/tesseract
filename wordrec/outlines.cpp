@@ -110,10 +110,12 @@ int Wordrec::is_same_edgept(EDGEPT *p1, EDGEPT *p2) {
  * near_point
  *
  * Find the point on a line segment that is closest to a point not on
- * the line segment.  Return that point.
+ * the line segment.  Return that point in near_pt.  Returns whether
+ * near_pt was newly created.
  **********************************************************************/
-EDGEPT *Wordrec::near_point(EDGEPT *point,
-                            EDGEPT *line_pt_0, EDGEPT *line_pt_1) {
+bool Wordrec::near_point(EDGEPT *point,
+                         EDGEPT *line_pt_0, EDGEPT *line_pt_1,
+                         EDGEPT **near_pt) {
   TPOINT p;
 
   float slope;
@@ -141,11 +143,14 @@ EDGEPT *Wordrec::near_point(EDGEPT *point,
   }
 
   if (is_on_line (p, line_pt_0->pos, line_pt_1->pos) &&
-    (!same_point (p, line_pt_0->pos)) && (!same_point (p, line_pt_1->pos)))
+    (!same_point (p, line_pt_0->pos)) && (!same_point (p, line_pt_1->pos))) {
     /* Intersection on line */
-    return (make_edgept (p.x, p.y, line_pt_1, line_pt_0));
-  else                           /* Intersection not on line */
-    return (closest (point, line_pt_0, line_pt_1));
+    *near_pt = make_edgept(p.x, p.y, line_pt_1, line_pt_0);
+    return true;
+  } else {                           /* Intersection not on line */
+    *near_pt = closest(point, line_pt_0, line_pt_1);
+    return false;
+  }
 }
 
 

@@ -24,10 +24,12 @@
 #include "associate.h"
 #include "dawg.h"
 #include "dict.h"
+#include "fontinfo.h"
 #include "intproto.h"
 #include "matrix.h"
 #include "oldheap.h"
 #include "params.h"
+#include "pageres.h"
 
 namespace tesseract {
 
@@ -113,8 +115,9 @@ struct LanguageModelDawgInfo {
 // Struct for storing additional information used by Ngram language model
 // component.
 struct LanguageModelNgramInfo {
-  LanguageModelNgramInfo(const char *c, int l, bool p, float nc)
-    : context(c), context_unichar_step_len(l), pruned(p), ngram_cost(nc) {}
+  LanguageModelNgramInfo(const char *c, int l, bool p, float np, float nc)
+    : context(c), context_unichar_step_len(l), pruned(p), ngram_prob(np),
+      ngram_cost(nc) {}
   STRING context;  // context string
   // Length of the context measured by advancing using UNICHAR::utf8_step()
   // (should be at most the order of the character ngram model used).
@@ -124,7 +127,9 @@ struct LanguageModelNgramInfo {
   // a dictionary match or a top choice. Thus ngram_info is still computed
   // for them in order to calculate the combined cost.
   bool pruned;
-  // -[ ln(P_classifier(path)) + scale_factor * ln(P_ngram_model(path))
+  // -ln(P_ngram_model(path))
+  float ngram_prob;
+  // -[ ln(P_classifier(path)) + scale_factor * ln(P_ngram_model(path)) ]
   float ngram_cost;
 };
 
@@ -132,21 +137,23 @@ struct LanguageModelNgramInfo {
 // explored by Viterbi search.
 struct ViterbiStateEntry : public ELIST_LINK {
   ViterbiStateEntry(BLOB_CHOICE *pb, ViterbiStateEntry *pe,
-                    BLOB_CHOICE *b, float c,
+                    BLOB_CHOICE *b, float c, float ol,
                     const LanguageModelConsistencyInfo &ci,
                     const AssociateStats &as,
                     LanguageModelFlagsType tcf,
                     LanguageModelDawgInfo *d, LanguageModelNgramInfo *n)
     : cost(c), parent_b(pb), parent_vse(pe), ratings_sum(b->rating()),
-      min_certainty(b->certainty()), length(1), consistency_info(ci),
-      associate_stats(as), top_choice_flags(tcf), dawg_info(d), ngram_info(n),
-      updated(true) {
+      min_certainty(b->certainty()), adapted(b->adapted()), length(1),
+      outline_length(ol), consistency_info(ci), associate_stats(as),
+      top_choice_flags(tcf), dawg_info(d), ngram_info(n), updated(true) {
     if (pe != NULL) {
       ratings_sum += pe->ratings_sum;
       if (pe->min_certainty < min_certainty) {
         min_certainty = pe->min_certainty;
       }
+      adapted += pe->adapted;
       length += pe->length;
+      outline_length += pe->outline_length;
     }
   }
   ~ViterbiStateEntry() {
@@ -181,7 +188,9 @@ struct ViterbiStateEntry : public ELIST_LINK {
   // by this ViterbiStateEntry.
   float ratings_sum;  // sum of ratings of character on the path
   float min_certainty;  // minimum certainty on the path
+  int adapted;  // number of BLOB_CHOICES from adapted templates
   int length;  // number of characters on the path
+  float outline_length;  // length of the outline so far
   LanguageModelConsistencyInfo consistency_info;  // path consistency info
   AssociateStats associate_stats;  // character widths/gaps/seams
 
@@ -283,16 +292,16 @@ class LanguageModel {
   static const LanguageModelFlagsType kJustClassifiedFlag = 0x80;
   static const LanguageModelFlagsType kAllChangedFlag = 0xff;
 
-  LanguageModel(const UnicityTable<FontInfo> *fontinfo_table,
-                Dict *dict, WERD_CHOICE **prev_word_best_choice);
+  LanguageModel(const UnicityTable<FontInfo> *fontinfo_table, Dict *dict);
   ~LanguageModel();
 
   // Updates data structures that are used for the duration of the segmentation
   // search on the current word;
-  void InitForWord(const WERD_CHOICE *prev_word, const DENORM *denorm,
+  void InitForWord(const WERD_CHOICE *prev_word,
                    bool fixed_pitch, float best_choice_cert,
-                   float max_char_wh_ratio,
-                   HEAP *pain_points, CHUNKS_RECORD *chunks_record);
+                   float max_char_wh_ratio, float rating_cert_scale,
+                   HEAP *pain_points, CHUNKS_RECORD *chunks_record,
+                   BlamerBundle *blamer_bundle, bool debug_blamer);
   // Resets all the "updated" flags used by the Viterbi search that were
   // "registered" during the update of the ratings matrix.
   void CleanUp();
@@ -324,7 +333,8 @@ class LanguageModel {
       HEAP *pain_points,
       BestPathByColumn *best_path_by_column[],
       CHUNKS_RECORD *chunks_record,
-      BestChoiceBundle *best_choice_bundle);
+      BestChoiceBundle *best_choice_bundle,
+      BlamerBundle *blamer_bundle);
 
   // Generates pain points from the problematic top choice paths when the
   // segmentation search is guided by the character ngram model.
@@ -381,8 +391,8 @@ class LanguageModel {
   // sqrt(dict_parent_path_length) * |worst_piece_cert|
   //
   // The priority is further lowered if fragmented is true.
-  //
-  void GeneratePainPoint(int col, int row, bool ok_to_extend,
+  // Reurns true if a new pain point was added to pain_points.
+  bool GeneratePainPoint(int col, int row, bool ok_to_extend,
                          float priority_adjustment,
                          float worst_piece_cert,
                          bool fragmented,
@@ -413,9 +423,31 @@ class LanguageModel {
     ASSERT_HOST(*cert < 0.0f);
   }
 
+  // Returns outline length of the given blob is computed as:
+  // rating_cert_scale * rating / certainty
+  // Since from Wordrec::SegSearch() in segsearch.cpp
+  // rating_cert_scale = -1.0 * getDict().certainty_scale / rating_scale
+  // And from Classify::ConvertMatchesToChoices() in adaptmatch.cpp
+  // Rating = Certainty = next.rating
+  // Rating *= rating_scale * Results->BlobLength
+  // Certainty *= -(getDict().certainty_scale)
+  inline float ComputeOutlineLength(BLOB_CHOICE *b) {
+    return rating_cert_scale_ * b->rating() / b->certainty();
+  }
+
  protected:
 
-  inline static float CertaintyScore(float cert) { return (-1.0f / cert); }
+  inline float CertaintyScore(float cert) {
+    if (language_model_use_sigmoidal_certainty) {
+      // cert is assumed to be between 0 and -dict_->certainty_scale.
+      // If you enable language_model_use_sigmoidal_certainty, you
+      // need to adjust language_model_ngram_nonmatch_score as well.
+      cert = -cert / dict_->certainty_scale;
+      return 1.0f / (1.0f + exp(10.0f * cert));
+    } else {
+      return (-1.0f / cert);
+    }
+  }
 
   inline bool NonAlphaOrDigitMiddle(int col, int row, int dimension,
                                     UNICHAR_ID unichar_id) {
@@ -533,7 +565,8 @@ class LanguageModel {
       HEAP *pain_points,
       BestPathByColumn *best_path_by_column[],
       CHUNKS_RECORD *chunks_record,
-      BestChoiceBundle *best_choice_bundle);
+      BestChoiceBundle *best_choice_bundle,
+      BlamerBundle *blamer_bundle);
 
   // Pretty print information in the given ViterbiStateEntry.
   void PrintViterbiStateEntry(const char *msg,
@@ -588,8 +621,8 @@ class LanguageModel {
   // unicharset might contain ngrams and glyphs composed from multiple UTF8
   // characters).
   float ComputeNgramCost(const char *unichar, float certainty, float denom,
-                         const char *context,
-                         int *unichar_step_len, bool *found_small_prob);
+                         const char *context, int *unichar_step_len,
+                         bool *found_small_prob, float *ngram_prob);
 
   // Computes the normalization factors for the classifier confidences
   // (used by ComputeNgramCost()).
@@ -614,7 +647,14 @@ class LanguageModel {
                         ViterbiStateEntry *vse,
                         HEAP *pain_points,
                         CHUNKS_RECORD *chunks_record,
-                        BestChoiceBundle *best_choice_bundle);
+                        BestChoiceBundle *best_choice_bundle,
+                        BlamerBundle *blamer_bundle);
+
+  // Fills the given floats array with raw features extracted from the
+  // path represented by the given ViterbiStateEntry.
+  // See ccstruct/params_training_featdef.h for feature information.
+  void ExtractRawFeaturesFromPath(const ViterbiStateEntry &vse,
+                                  float *features);
 
   // Constructs a WERD_CHOICE by tracing parent pointers starting with
   // the given LanguageModelStateEntry. Returns the constructed word.
@@ -629,7 +669,9 @@ class LanguageModel {
                              BLOB_CHOICE_LIST_VECTOR *best_char_choices,
                              float certainties[],
                              float *dawg_score,
-                             STATE *state);
+                             STATE *state,
+                             BlamerBundle *blamer_bundle,
+                             bool *truth_path);
 
   // This function is used for non-space delimited languages when looking
   // for word endings recorded while trying to separate the path into words.
@@ -663,7 +705,8 @@ class LanguageModel {
       col, row,
       (parent_vse != NULL) ? &(parent_vse->associate_stats) : NULL,
       (parent_vse != NULL) ? parent_vse->length : 0,
-      fixed_pitch_, max_char_wh_ratio, denorm_,
+      fixed_pitch_, max_char_wh_ratio,
+      chunks_record->word_res != NULL ? &chunks_record->word_res->denorm : NULL,
       chunks_record, language_model_debug_level, associate_stats);
   }
 
@@ -682,25 +725,6 @@ class LanguageModel {
          dawg_info->permuter == FREQ_DAWG_PERM) &&
          dict_->GetMaxFixedLengthDawgIndex() < 0) return false;
     return true;
-  }
-
-  // Returns true if the given script id indicates a path that might consist
-  // of non-space delimited words (e.g. when dealing with Chinese and Japanese
-  // languages), and fixed length dawgs were loaded.
-  //
-  // TODO(daria): generate fixed length dawgs for Thai.
-  inline bool UseFixedLengthDawgs(int script_id) {
-    if (dict_->GetMaxFixedLengthDawgIndex() < 0) return false;
-    if ((dict_->getUnicharset().han_sid() !=
-         dict_->getUnicharset().null_sid()) &&
-        script_id == dict_->getUnicharset().han_sid()) return true;
-    if ((dict_->getUnicharset().hiragana_sid() !=
-         dict_->getUnicharset().null_sid()) &&
-        script_id == dict_->getUnicharset().hiragana_sid()) return true;
-    if ((dict_->getUnicharset().katakana_sid() !=
-         dict_->getUnicharset().null_sid()) &&
-        script_id == dict_->getUnicharset().katakana_sid()) return true;
-    return false;
   }
 
   // Returns true if the given ViterbiStateEntry represents an acceptable path.
@@ -732,6 +756,9 @@ class LanguageModel {
   double_VAR_H(language_model_ngram_scale_factor, 0.03,
                "Strength of the character ngram model relative to the"
                " character classifier ");
+  BOOL_VAR_H(language_model_ngram_space_delimited_language, true,
+             "Words are delimited by space");
+
   INT_VAR_H(language_model_min_compound_length, 3,
             "Minimum length of compound words");
   INT_VAR_H(language_model_fixed_length_choices_depth, 3,
@@ -755,6 +782,8 @@ class LanguageModel {
   double_VAR_H(language_model_penalty_spacing, 0.05,
                "Penalty for inconsistent spacing");
   double_VAR_H(language_model_penalty_increment, 0.01, "Penalty increment");
+  BOOL_VAR_H(language_model_use_sigmoidal_certainty, false,
+             "Use sigmoidal score for certainty");
 
  protected:
   // Member Variables.
@@ -765,6 +794,8 @@ class LanguageModel {
   // List of pointers to updated flags used by Viterbi search to mark
   // recently updated ViterbiStateEntries.
   GenericVector<bool *> updated_flags_;
+  // Scaling for recovering blob outline length from rating and certainty.
+  float rating_cert_scale_;
 
   // The following variables are set at construction time.
 
@@ -775,8 +806,6 @@ class LanguageModel {
   // (the pointer is not owned by LanguageModel).
   Dict *dict_;
 
-  // DENORM computed by Tesseract (not owned by LanguageModel).
-  const DENORM *denorm_;
   // TODO(daria): the following variables should become LanguageModel params
   // when the old code in bestfirst.cpp and heuristic.cpp is deprecated.
   //
@@ -813,6 +842,8 @@ class LanguageModel {
   // ambiguous (i.e. there are best choices in the best choice list that have
   // ratings close to the very best one) and will be less likely to mis-adapt.
   bool acceptable_choice_found_;
+  // Set to true if a choice representing correct segmentation was explored.
+  bool correct_segmentation_explored_;
 
 };
 

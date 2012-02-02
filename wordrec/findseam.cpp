@@ -182,8 +182,6 @@ void Wordrec::choose_best_seam(SEAM_QUEUE seam_queue,
                                SEAM **seam_result,
                                TBLOB *blob) {
   SEAM *seam;
-  TPOINT topleft;
-  TPOINT botright;
   char str[80];
   float my_priority;
   /* Add seam of split */
@@ -201,11 +199,11 @@ void Wordrec::choose_best_seam(SEAM_QUEUE seam_queue,
       return;
   }
 
-  blob_bounding_box(blob, &topleft, &botright);
+  TBOX bbox = blob->bounding_box();
   /* Queue loop */
   while (pop_next_seam (seam_queue, seam, my_priority)) {
     /* Set full priority */
-    my_priority = seam_priority (seam, topleft.x, botright.x);
+    my_priority = seam_priority (seam, bbox.left(), bbox.right());
     if (chop_debug) {
       sprintf (str, "Full my_priority %0.0f,  ", my_priority);
       print_seam(str, seam);
@@ -386,6 +384,7 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
   PRIORITY priority;
   EDGEPT *edge;
   EDGEPT *points[MAX_NUM_POINTS];
+  EDGEPT_CLIST new_points;
   SEAM *seam = NULL;
   TESSLINE *outline;
   inT16 num_points = 0;
@@ -412,8 +411,8 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
   create_seam_queue(seam_queue);
 
   try_point_pairs(points, num_points, seam_queue, &seam_pile, &seam, blob);
-
-  try_vertical_splits(points, num_points, seam_queue, &seam_pile, &seam, blob);
+  try_vertical_splits(points, num_points, &new_points,
+                      seam_queue, &seam_pile, &seam, blob);
 
   if (seam == NULL) {
     choose_best_seam(seam_queue, &seam_pile, NULL, BAD_PRIORITY, &seam, blob);
@@ -422,6 +421,15 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
     choose_best_seam (seam_queue, &seam_pile, NULL, seam->priority,
       &seam, blob);
   }
+
+  EDGEPT_C_IT it(&new_points);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    EDGEPT *inserted_point = it.data();
+    if (!point_used_by_seam(seam, inserted_point)) {
+      remove_edgept(inserted_point);
+    }
+  }
+
   delete_seam_queue(seam_queue);
   delete_seam_pile(seam_pile);
 
@@ -521,9 +529,6 @@ void Wordrec::try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
         priority = partial_split_priority (split);
 
         choose_best_seam(seam_queue, seam_pile, split, priority, seam, blob);
-
-        if (*seam && (*seam)->priority < chop_good_split)
-          return;
       }
     }
   }
@@ -537,13 +542,17 @@ void Wordrec::try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
  * Try all the splits that are produced by vertical projection to see
  * if any of them are suitable for use.  Use a seam queue and seam pile
  * that have already been initialized and used.
+ * Return in new_points a collection of points that were inserted into
+ * the blob while examining vertical splits and which may safely be
+ * removed once a seam is chosen if they are not part of the seam.
  **********************************************************************/
-void Wordrec::try_vertical_splits (EDGEPT * points[MAX_NUM_POINTS],
-                                   inT16 num_points,
-                                   SEAM_QUEUE seam_queue,
-                                   SEAM_PILE * seam_pile,
-                                   SEAM ** seam,
-                                   TBLOB * blob) {
+void Wordrec::try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
+                                  inT16 num_points,
+                                  EDGEPT_CLIST *new_points,
+                                  SEAM_QUEUE seam_queue,
+                                  SEAM_PILE * seam_pile,
+                                  SEAM ** seam,
+                                  TBLOB * blob) {
   EDGEPT *vertical_point = NULL;
   SPLIT *split;
   inT16 x;
@@ -551,14 +560,10 @@ void Wordrec::try_vertical_splits (EDGEPT * points[MAX_NUM_POINTS],
   TESSLINE *outline;
 
   for (x = 0; x < num_points; x++) {
-
-    if (*seam != NULL && (*seam)->priority < chop_good_split)
-      return;
-
     vertical_point = NULL;
     for (outline = blob->outlines; outline; outline = outline->next) {
-      vertical_projection_point (points[x],
-        outline->loop, &vertical_point);
+      vertical_projection_point(points[x], outline->loop,
+                                &vertical_point, new_points);
     }
 
     if (vertical_point &&

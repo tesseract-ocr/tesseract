@@ -52,12 +52,15 @@ void AssociateUtils::ComputeStats(int col, int row,
   float normalizing_height = BASELINE_SCALE;
   // TODO(rays/daria) Can unicharset.script_has_xheight be useful here?
   if (fixed_pitch && denorm != NULL && denorm->row() != NULL) {
-    // For fixed pitch language like CJK, we use the full text height as the
-    // normalizing factor so we are not dependent on xheight calculation.
-    // In the normalized coord. xheight * scale == BASELINE_SCALE(128),
-    // so add proportionally scaled ascender zone to get full text height.
-    normalizing_height = denorm->y_scale() *
-      (denorm->row()->x_height() + denorm->row()->ascenders());
+    // For fixed pitch language like CJK, we use the full text height
+    // as the normalizing factor so we are not dependent on xheight
+    // calculation.
+    if (denorm->row()->body_size() > 0.0f) {
+      normalizing_height = denorm->y_scale() * denorm->row()->body_size();
+    } else {
+      normalizing_height = denorm->y_scale() *
+          (denorm->row()->x_height() + denorm->row()->ascenders());
+    }
     if (debug_level > 0) {
       tprintf("normalizing height = %g (scale %g xheight %g ascenders %g)\n",
               normalizing_height, denorm->y_scale(), denorm->row()->x_height(),
@@ -67,9 +70,8 @@ void AssociateUtils::ComputeStats(int col, int row,
   float wh_ratio =
     GetChunksWidth(chunks_record->chunk_widths, col, row) / normalizing_height;
   if (debug_level) tprintf("wh_ratio %g\n", wh_ratio);
-  if (!fixed_pitch) {
-    if (wh_ratio > max_char_wh_ratio) stats->bad_shape = true;
-  } else {
+  if (wh_ratio > max_char_wh_ratio) stats->bad_shape = true;
+  if (fixed_pitch) {
     bool end_row = (row == (chunks_record->ratings->dimension() - 1));
 
     // Ensure that the blob has gaps on the left and the right sides

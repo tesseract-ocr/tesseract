@@ -26,6 +26,7 @@
 #include "intproto.h"
 #include "matrix.h"
 #include "params.h"
+#include "params_training_featdef.h"
 
 namespace tesseract {
 
@@ -40,76 +41,81 @@ const int LanguageModel::kMinFixedLengthDawgLength = 2;
 const float LanguageModel::kLooseMaxCharWhRatio = 2.5f;
 
 LanguageModel::LanguageModel(const UnicityTable<FontInfo> *fontinfo_table,
-                             Dict *dict,
-                             WERD_CHOICE **prev_word_best_choice_ptr)
+                             Dict *dict)
   : INT_MEMBER(language_model_debug_level, 0, "Language model debug level",
                dict->getImage()->getCCUtil()->params()),
     BOOL_INIT_MEMBER(language_model_ngram_on, false,
                      "Turn on/off the use of character ngram model",
                      dict->getImage()->getCCUtil()->params()),
-    INT_INIT_MEMBER(language_model_ngram_order, 8,
-                    "Maximum order of the character ngram model",
-                    dict->getImage()->getCCUtil()->params()),
-    INT_INIT_MEMBER(language_model_viterbi_list_max_num_prunable, 10,
-                    "Maximum number of prunable (those for which"
-                    " PrunablePath() is true) entries in each viterbi list"
-                    " recorded in BLOB_CHOICEs",
-                    dict->getImage()->getCCUtil()->params()),
-    INT_INIT_MEMBER(language_model_viterbi_list_max_size, 500,
-                    "Maximum size of viterbi lists recorded in BLOB_CHOICEs",
-                    dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_ngram_small_prob, 0.000001,
-                       "To avoid overly small denominators use this as the "
-                       "floor of the probability returned by the ngram model.",
-                       dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_ngram_nonmatch_score, -40.0,
-                       "Average classifier score of a non-matching unichar.",
-                       dict->getImage()->getCCUtil()->params()),
-    BOOL_INIT_MEMBER(language_model_ngram_use_only_first_uft8_step, false,
-                     "Use only the first UTF8 step of the given string"
-                     " when computing log probabilities.",
-                     dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_ngram_scale_factor, 0.03,
-                       "Strength of the character ngram model relative to the"
-                       " character classifier ",
-                       dict->getImage()->getCCUtil()->params()),
-    INT_INIT_MEMBER(language_model_min_compound_length, 3,
-                    "Minimum length of compound words",
-                    dict->getImage()->getCCUtil()->params()),
-    INT_INIT_MEMBER(language_model_fixed_length_choices_depth, 3,
-                    "Depth of blob choice lists to explore"
-                    " when fixed length dawgs are on",
-                    dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_penalty_non_freq_dict_word, 0.1,
-                       "Penalty for words not in the frequent word dictionary",
-                       dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_penalty_non_dict_word, 0.15,
-                       "Penalty for non-dictionary words",
-                    dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_penalty_punc, 0.2,
-                       "Penalty for inconsistent punctuation",
-                       dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_penalty_case, 0.1,
-                       "Penalty for inconsistent case",
-                       dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_penalty_script, 0.5,
-                       "Penalty for inconsistent script",
-                       dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_penalty_chartype, 0.3,
-                       "Penalty for inconsistent character type",
-                       dict->getImage()->getCCUtil()->params()),
+    INT_MEMBER(language_model_ngram_order, 8,
+               "Maximum order of the character ngram model",
+               dict->getImage()->getCCUtil()->params()),
+    INT_MEMBER(language_model_viterbi_list_max_num_prunable, 10,
+               "Maximum number of prunable (those for which"
+               " PrunablePath() is true) entries in each viterbi list"
+               " recorded in BLOB_CHOICEs",
+               dict->getImage()->getCCUtil()->params()),
+    INT_MEMBER(language_model_viterbi_list_max_size, 500,
+               "Maximum size of viterbi lists recorded in BLOB_CHOICEs",
+               dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_ngram_small_prob, 0.000001,
+                  "To avoid overly small denominators use this as the "
+                  "floor of the probability returned by the ngram model.",
+                  dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_ngram_nonmatch_score, -40.0,
+                  "Average classifier score of a non-matching unichar.",
+                  dict->getImage()->getCCUtil()->params()),
+    BOOL_MEMBER(language_model_ngram_use_only_first_uft8_step, false,
+                "Use only the first UTF8 step of the given string"
+                " when computing log probabilities.",
+                dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_ngram_scale_factor, 0.03,
+                  "Strength of the character ngram model relative to the"
+                  " character classifier ",
+                  dict->getImage()->getCCUtil()->params()),
+    BOOL_MEMBER(language_model_ngram_space_delimited_language, true,
+                "Words are delimited by space",
+                dict->getImage()->getCCUtil()->params()),
+    INT_MEMBER(language_model_min_compound_length, 3,
+               "Minimum length of compound words",
+               dict->getImage()->getCCUtil()->params()),
+    INT_MEMBER(language_model_fixed_length_choices_depth, 3,
+               "Depth of blob choice lists to explore"
+               " when fixed length dawgs are on",
+               dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_penalty_non_freq_dict_word, 0.1,
+                  "Penalty for words not in the frequent word dictionary",
+                  dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_penalty_non_dict_word, 0.15,
+                  "Penalty for non-dictionary words",
+                  dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_penalty_punc, 0.2,
+                  "Penalty for inconsistent punctuation",
+                  dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_penalty_case, 0.1,
+                  "Penalty for inconsistent case",
+                  dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_penalty_script, 0.5,
+                  "Penalty for inconsistent script",
+                  dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_penalty_chartype, 0.3,
+                  "Penalty for inconsistent character type",
+                  dict->getImage()->getCCUtil()->params()),
     // TODO(daria, rays): enable font consistency checking
     // after improving font analysis.
-    double_INIT_MEMBER(language_model_penalty_font, 0.00,
-                       "Penalty for inconsistent font",
-                       dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_penalty_spacing, 0.05,
-                       "Penalty for inconsistent spacing",
-                       dict->getImage()->getCCUtil()->params()),
-    double_INIT_MEMBER(language_model_penalty_increment, 0.01,
-                       "Penalty increment",
-                       dict->getImage()->getCCUtil()->params()),
-  fontinfo_table_(fontinfo_table), dict_(dict), denorm_(NULL),
+    double_MEMBER(language_model_penalty_font, 0.00,
+                  "Penalty for inconsistent font",
+                  dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_penalty_spacing, 0.05,
+                  "Penalty for inconsistent spacing",
+                  dict->getImage()->getCCUtil()->params()),
+    double_MEMBER(language_model_penalty_increment, 0.01,
+                  "Penalty increment",
+                  dict->getImage()->getCCUtil()->params()),
+    BOOL_INIT_MEMBER(language_model_use_sigmoidal_certainty, false,
+                     "Use sigmoidal score for certainty",
+                     dict->getImage()->getCCUtil()->params()),
+  fontinfo_table_(fontinfo_table), dict_(dict),
   fixed_pitch_(false), max_char_wh_ratio_(0.0),
   acceptable_choice_found_(false) {
   ASSERT_HOST(dict_ != NULL);
@@ -133,13 +139,15 @@ LanguageModel::~LanguageModel() {
 }
 
 void LanguageModel::InitForWord(
-    const WERD_CHOICE *prev_word, const DENORM *denorm,
+    const WERD_CHOICE *prev_word,
     bool fixed_pitch, float best_choice_cert, float max_char_wh_ratio,
-    HEAP *pain_points, CHUNKS_RECORD *chunks_record) {
-  denorm_ = denorm;
+    float rating_cert_scale, HEAP *pain_points, CHUNKS_RECORD *chunks_record,
+    BlamerBundle *blamer_bundle, bool debug_blamer) {
   fixed_pitch_ = fixed_pitch;
   max_char_wh_ratio_ = max_char_wh_ratio;
+  rating_cert_scale_ = rating_cert_scale;
   acceptable_choice_found_ = false;
+  correct_segmentation_explored_ = false;
 
   // For each cell, generate a "pain point" if the cell is not classified
   // and has a left or right neighbor that was classified.
@@ -180,31 +188,95 @@ void LanguageModel::InitForWord(
   max_penalty_adjust_ = (dict_->segment_penalty_dict_nonword -
                          dict_->segment_penalty_dict_case_ok);
 
-  // The rest of the function contains ngram-model specific initialization.
-  if (!language_model_ngram_on) return;
-
   // Fill prev_word_str_ with the last language_model_ngram_order
   // unichars from prev_word.
-  // Assume that populate_unichars() has been called on a valid
-  // prev_word_best_choice_, which is the case, since it points
-  // to the final result of the classification of the previous word.
-  if (prev_word != NULL && prev_word->unichar_string() != NULL) {
-    prev_word_str_ = prev_word->unichar_string();
+  // Assume that populate_unichars() has been called on a valid prev_word,
+  // which is the case, since it points to the final result of the
+  // classification of the previous word.
+  if (language_model_ngram_on) {
+    if (prev_word != NULL && prev_word->unichar_string() != NULL) {
+      prev_word_str_ = prev_word->unichar_string();
+      if (language_model_ngram_space_delimited_language) prev_word_str_ += ' ';
+    } else {
+      prev_word_str_ += ' ';
+    }
+    const char *str_ptr = prev_word_str_.string();
+    const char *str_end = str_ptr + prev_word_str_.length();
+    int step;
+    prev_word_unichar_step_len_ = 0;
+    while (str_ptr != str_end && (step = UNICHAR::utf8_step(str_ptr))) {
+      str_ptr += step;
+      ++prev_word_unichar_step_len_;
+    }
+    ASSERT_HOST(str_ptr == str_end);
   }
-  prev_word_str_ += ' ';
-  const char *str_ptr = prev_word_str_.string();
-  const char *str_end = str_ptr + prev_word_str_.length();
-  int step;
-  prev_word_unichar_step_len_ = 0;
-  while (str_ptr != str_end && (step = UNICHAR::utf8_step(str_ptr))) {
-    str_ptr += step;
-    ++prev_word_unichar_step_len_;
+
+  // Initialize blamer-related information: map character boxes recorded in
+  // blamer_bundle->norm_truth_word to the corresponding i,j indices in the
+  // ratings matrix. We expect this step to succeed, since when running the
+  // chopper we checked that the correct chops are present.
+  if (blamer_bundle != NULL &&
+      blamer_bundle->incorrect_result_reason == IRR_CORRECT &&
+      blamer_bundle->truth_has_char_boxes) {
+    STRING blamer_debug;
+    blamer_debug += "Blamer computing correct_segmentation_cols\n";
+    int curr_box_col = 0;
+    int next_box_col = 0;
+    TBLOB *blob = chunks_record->chunks;
+    inT16 next_box_x = (blob != NULL) ? blob->bounding_box().right() : 0;
+    for (int truth_idx = 0;
+        blob != NULL && truth_idx < blamer_bundle->norm_truth_word.length();
+        blob = blob->next) {
+      ++next_box_col;
+      inT16 curr_box_x = next_box_x;
+      if (blob->next != NULL) next_box_x = blob->next->bounding_box().right();
+      inT16 truth_x = blamer_bundle->norm_truth_word.BlobBox(truth_idx).right();
+      blamer_debug.add_str_int("Box x coord vs. truth: ", curr_box_x);
+      blamer_debug.add_str_int(" ", truth_x);
+      blamer_debug += "\n";
+      if (curr_box_x > (truth_x + blamer_bundle->norm_box_tolerance)) {
+        break;  // failed to find a matching box
+      } else if (curr_box_x >=
+                  (truth_x - blamer_bundle->norm_box_tolerance) &&  // matched
+                  (blob->next == NULL ||  // next box can't be included
+                   next_box_x > truth_x + blamer_bundle->norm_box_tolerance)) {
+        blamer_bundle->correct_segmentation_cols.push_back(curr_box_col);
+        blamer_bundle->correct_segmentation_rows.push_back(next_box_col-1);
+        ++truth_idx;
+        blamer_debug.add_str_int("col=", curr_box_col);
+        blamer_debug.add_str_int(" row=", next_box_col-1);
+        blamer_debug += "\n";
+        curr_box_col = next_box_col;
+      }
+    }
+    if (blob != NULL ||  // trailing blobs
+        blamer_bundle->correct_segmentation_cols.length() !=
+        blamer_bundle->norm_truth_word.length()) {
+      blamer_debug.add_str_int("Blamer failed to find correct segmentation"
+          " (tolerance=", blamer_bundle->norm_box_tolerance);
+      if (blob == NULL) blamer_debug += " blob == NULL";
+      blamer_debug += ")\n";
+      blamer_debug.add_str_int(
+          " path length ", blamer_bundle->correct_segmentation_cols.length());
+      blamer_debug.add_str_int(" vs. truth ",
+                               blamer_bundle->norm_truth_word.length());
+      blamer_debug += "\n";
+      blamer_bundle->SetBlame(IRR_UNKNOWN, blamer_debug, NULL, debug_blamer);
+      blamer_bundle->correct_segmentation_cols.clear();
+      blamer_bundle->correct_segmentation_rows.clear();
+    }
+  } // end if (blamer_bundle != NULL)
+
+  // Start a new hypothesis list for this run of segmentation search.
+  if (blamer_bundle != NULL) {
+    blamer_bundle->params_training_bundle.StartHypothesisList();
   }
-  ASSERT_HOST(str_ptr == str_end);
 }
 
 void LanguageModel::CleanUp() {
-  for (int i = 0; i < updated_flags_.size(); ++i) *(updated_flags_[i]) = false;
+  for (int i = 0; i < updated_flags_.size(); ++i) {
+    *(updated_flags_[i]) = false;
+  }
   updated_flags_.clear();
 }
 
@@ -228,7 +300,8 @@ LanguageModelFlagsType LanguageModel::UpdateState(
     HEAP *pain_points,
     BestPathByColumn *best_path_by_column[],
     CHUNKS_RECORD *chunks_record,
-    BestChoiceBundle *best_choice_bundle) {
+    BestChoiceBundle *best_choice_bundle,
+    BlamerBundle *blamer_bundle) {
   if (language_model_debug_level > 0) {
     tprintf("\nUpdateState: col=%d row=%d (changed=0x%x parent=%p)\n",
             curr_col, curr_row, changed, parent_list);
@@ -267,9 +340,9 @@ LanguageModelFlagsType LanguageModel::UpdateState(
 
     if (parent_list == NULL) {  // process the beginning of a word
       new_changed |= AddViterbiStateEntry(
-          top_choice_flags, denom, word_end, curr_col, curr_row, c_it.data(),
-          NULL, NULL, pain_points, best_path_by_column,
-          chunks_record, best_choice_bundle);
+          top_choice_flags, denom, word_end, curr_col, curr_row,
+          c_it.data(), NULL, NULL, pain_points, best_path_by_column,
+          chunks_record, best_choice_bundle, blamer_bundle);
     } else {  // get viterbi entries from each of the parent BLOB_CHOICEs
       BLOB_CHOICE_IT p_it(parent_list);
       for (p_it.mark_cycle_pt(); !p_it.cycled_list(); p_it.forward()) {
@@ -298,7 +371,8 @@ LanguageModelFlagsType LanguageModel::UpdateState(
           new_changed |= AddViterbiStateEntry(
               top_choice_flags, denom, word_end, curr_col, curr_row,
               c_it.data(), p_it.data(), vit.data(), pain_points,
-              best_path_by_column, chunks_record, best_choice_bundle);
+              best_path_by_column, chunks_record,
+              best_choice_bundle, blamer_bundle);
         }
       }  // done looking at parents for this c_it.data()
     }
@@ -387,7 +461,8 @@ LanguageModelFlagsType LanguageModel::AddViterbiStateEntry(
     HEAP *pain_points,
     BestPathByColumn *best_path_by_column[],
     CHUNKS_RECORD *chunks_record,
-    BestChoiceBundle *best_choice_bundle) {
+    BestChoiceBundle *best_choice_bundle,
+    BlamerBundle *blamer_bundle) {
   ViterbiStateEntry_IT vit;
   if (language_model_debug_level > 0) {
     tprintf("\nAddViterbiStateEntry for unichar %s rating=%.4f"
@@ -411,20 +486,6 @@ LanguageModelFlagsType LanguageModel::AddViterbiStateEntry(
     if (language_model_debug_level > 1) {
       tprintf("AddViterbiStateEntry: viterbi list is full!\n");
     }
-
-    /* TODO(antonova): remove
-    language_model_debug_level.set_value(5);
-    vit.set_to_list(&(reinterpret_cast<LanguageModelState *>(
-        b->language_model_state())->viterbi_state_entries));
-    for (vit.mark_cycle_pt(); !vit.cycled_list(); vit.forward()) {
-      PrintViterbiStateEntry("", vit.data(), b, chunks_record);
-    }
-    tprintf("Ratings:\n");
-    chunks_record->ratings->print(dict_->getUnicharset());
-    ASSERT_HOST(false);
-    }*/
-
-
     return 0x0;
   }
 
@@ -523,7 +584,7 @@ LanguageModelFlagsType LanguageModel::AddViterbiStateEntry(
 
   // Create the new ViterbiStateEntry and add it to lms->viterbi_state_entries
   ViterbiStateEntry *new_vse = new ViterbiStateEntry(
-      parent_b, parent_vse, b, cost, consistency_info,
+      parent_b, parent_vse, b, cost, ComputeOutlineLength(b), consistency_info,
       associate_stats, top_choice_flags, dawg_info, ngram_info);
   updated_flags_.push_back(&(new_vse->updated));
   lms->viterbi_state_entries.add_sorted(ViterbiStateEntry::Compare,
@@ -583,10 +644,10 @@ LanguageModelFlagsType LanguageModel::AddViterbiStateEntry(
     }
   }
 
-  // Update best choice is needed.
+  // Update best choice if needed.
   if (word_end) {
-    UpdateBestChoice(b, new_vse, pain_points,
-                     chunks_record, best_choice_bundle);
+    UpdateBestChoice(b, new_vse, pain_points, chunks_record,
+                     best_choice_bundle, blamer_bundle);
   }
 
   // Update stats in best_path_by_column.
@@ -636,8 +697,8 @@ void LanguageModel::PrintViterbiStateEntry(
   if (language_model_debug_level > 3) {
     STRING wd_str;
     WERD_CHOICE *wd = ConstructWord(b, vse, chunks_record,
-                                    NULL, NULL, NULL, NULL);
-    wd->string_and_lengths(dict_->getUnicharset(), &wd_str, NULL);
+                                    NULL, NULL, NULL, NULL, NULL, NULL);
+    wd->string_and_lengths(&wd_str, NULL);
     delete wd;
     tprintf(" str=%s", wd_str.string());
   }
@@ -685,9 +746,12 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
     const BLOB_CHOICE &b,
     const ViterbiStateEntry *parent_vse,
     LanguageModelFlagsType *changed) {
+  bool use_fixed_length_dawgs = !fixed_length_beginning_active_dawgs_->empty();
+
   // Initialize active_dawgs and constraints from parent_vse if it is not NULL,
   // otherwise use beginning_active_dawgs_ and beginning_constraints_.
-  if (parent_vse == NULL) {
+  if (parent_vse == NULL ||
+      (use_fixed_length_dawgs && parent_vse->dawg_info == NULL)) {
     dawg_args_->active_dawgs = beginning_active_dawgs_;
     dawg_args_->constraints = beginning_constraints_;
     dawg_args_->permuter = NO_PERM;
@@ -697,7 +761,6 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
     dawg_args_->constraints = parent_vse->dawg_info->constraints;
     dawg_args_->permuter = parent_vse->dawg_info->permuter;
   }
-  bool use_fixed_length_dawgs = UseFixedLengthDawgs(script_id);
 
   // Deal with hyphenated words.
   if (!use_fixed_length_dawgs && word_end &&
@@ -801,17 +864,24 @@ LanguageModelNgramInfo *LanguageModel::GenerateNgramInfo(
   // Compute p(unichar | parent context).
   int unichar_step_len = 0;
   bool pruned = false;
+  float ngram_prob;
   float ngram_cost = ComputeNgramCost(unichar, certainty, denom,
                                       pcontext_ptr, &unichar_step_len,
-                                      &pruned);
+                                      &pruned, &ngram_prob);
   // First attempt to normalize ngram_cost for strings of different
   // lengths - we multiply ngram_cost by P(char | context) as many times
   // as the number of chunks occupied by char. This makes the ngram costs
   // of all the paths ending at the current BLOB_CHOICE comparable.
   // TODO(daria): it would be worth looking at different ways of normalization.
-  if (curr_row > curr_col) ngram_cost += (curr_row - curr_col) * ngram_cost;
+  if (curr_row > curr_col) {
+    ngram_cost += (curr_row - curr_col) * ngram_cost;
+    ngram_prob += (curr_row - curr_col) * ngram_prob;
+  }
   // Add the ngram_cost of the parent.
-  if (parent_vse != NULL) ngram_cost += parent_vse->ngram_info->ngram_cost;
+  if (parent_vse != NULL) {
+    ngram_cost += parent_vse->ngram_info->ngram_cost;
+    ngram_prob += parent_vse->ngram_info->ngram_prob;
+  }
 
   // Shorten parent context string by unichar_step_len unichars.
   int num_remove = (unichar_step_len + pcontext_unichar_step_len -
@@ -828,7 +898,7 @@ LanguageModelNgramInfo *LanguageModel::GenerateNgramInfo(
 
   // Construct and return the new LanguageModelNgramInfo.
   LanguageModelNgramInfo *ngram_info = new LanguageModelNgramInfo(
-      pcontext_ptr, pcontext_unichar_step_len, pruned, ngram_cost);
+      pcontext_ptr, pcontext_unichar_step_len, pruned, ngram_prob, ngram_cost);
   ngram_info->context += unichar;
   ngram_info->context_unichar_step_len += unichar_step_len;
   assert(ngram_info->context_unichar_step_len <= language_model_ngram_order);
@@ -840,7 +910,8 @@ float LanguageModel::ComputeNgramCost(const char *unichar,
                                       float denom,
                                       const char *context,
                                       int *unichar_step_len,
-                                      bool *found_small_prob) {
+                                      bool *found_small_prob,
+                                      float *ngram_prob) {
   const char *context_ptr = context;
   char *modified_context = NULL;
   char *modified_context_end = NULL;
@@ -875,18 +946,17 @@ float LanguageModel::ComputeNgramCost(const char *unichar,
       *modified_context_end = '\0';
     }
   }
+  prob /= static_cast<float>(*unichar_step_len);  // normalize
   if (prob < language_model_ngram_small_prob) {
     if (language_model_debug_level > 0) tprintf("Found small prob %g\n", prob);
     *found_small_prob = true;
-    if (prob < MIN_FLOAT32) prob = MIN_FLOAT32;
   }
-  float cost = -(log(CertaintyScore(certainty) / denom) +
-                 language_model_ngram_scale_factor *
-                 log(prob / static_cast<float>(*unichar_step_len)));
+  *ngram_prob = -1.0*log(prob);
+  float cost = -1.0*log(CertaintyScore(certainty)/denom) +
+      *ngram_prob * language_model_ngram_scale_factor;
   if (language_model_debug_level > 1) {
     tprintf("-log [ p(%s) * p(%s | %s) ] = -log(%g*%g) = %g\n", unichar,
-            unichar, context_ptr, CertaintyScore(certainty)/denom,
-            prob/static_cast<float>(*unichar_step_len), cost);
+            unichar, context_ptr, CertaintyScore(certainty)/denom, prob, cost);
   }
   if (modified_context != NULL) delete[] modified_context;
   return cost;
@@ -989,16 +1059,11 @@ void LanguageModel::FillConsistencyInfo(
       (parent_vse->consistency_info.script_id !=
        dict_->getUnicharset().common_sid())) {
     int parent_script_id = parent_vse->consistency_info.script_id;
-    // If we are dealing with Han script, unichars from Common
-    // script are only ok at the beginning and the end of words.
-    bool han_inconsistent =
-      (IsHan(parent_script_id) && !word_end &&
-       (consistency_info->script_id == dict_->getUnicharset().common_sid()));
     // If script_id is Common, use script id of the parent instead.
     if (consistency_info->script_id == dict_->getUnicharset().common_sid()) {
       consistency_info->script_id = parent_script_id;
     }
-    if (consistency_info->script_id != parent_script_id || han_inconsistent) {
+    if (consistency_info->script_id != parent_script_id) {
       consistency_info->inconsistent_script = true;
     }
   }
@@ -1124,7 +1189,8 @@ void LanguageModel::UpdateBestChoice(
     ViterbiStateEntry *vse,
     HEAP *pain_points,
     CHUNKS_RECORD *chunks_record,
-    BestChoiceBundle *best_choice_bundle) {
+    BestChoiceBundle *best_choice_bundle,
+    BlamerBundle *blamer_bundle) {
   int i;
   BLOB_CHOICE_LIST_VECTOR temp_best_char_choices(vse->length);
   for (i = 0; i < vse->length; ++i) {
@@ -1137,31 +1203,38 @@ void LanguageModel::UpdateBestChoice(
   // and 1.0 for dictionary words. For non-space delimited languages
   // this number will be in the [0.0, 1.0] range.
   float dawg_score;
+  bool truth_path;
   WERD_CHOICE *word = ConstructWord(b, vse, chunks_record,
                                     &temp_best_char_choices, certainties,
-                                    &dawg_score, &temp_state);
+                                    &dawg_score, &temp_state,
+                                    blamer_bundle, &truth_path);
   ASSERT_HOST(word != NULL);
+  bool not_blaming =
+      (blamer_bundle == NULL || !blamer_bundle->segsearch_is_looking_for_blame);
 
   // Log new segmentation (for dict_->LogNewChoice()).
-  PIECES_STATE pieces_widths;
-  bin_to_pieces(&temp_state, chunks_record->ratings->dimension() - 1,
-                pieces_widths);
-  dict_->LogNewSegmentation(pieces_widths);
+  if (not_blaming) {
+    PIECES_STATE pieces_widths;
+    bin_to_pieces(&temp_state, chunks_record->ratings->dimension() - 1,
+                  pieces_widths);
+    dict_->LogNewSegmentation(pieces_widths);
+  }
 
   if (language_model_debug_level > 0) {
     STRING word_str;
-    word->string_and_lengths(dict_->getUnicharset(), &word_str, NULL);
+    word->string_and_lengths(&word_str, NULL);
     tprintf("UpdateBestChoice() constructed word %s\n", word_str.string());
     if (language_model_debug_level > 2) word->print();
   };
 
   // Update raw_choice if needed.
   if ((vse->top_choice_flags & kSmallestRatingFlag) &&
-      word->rating() < best_choice_bundle->raw_choice->rating()) {
+      word->rating() < best_choice_bundle->raw_choice->rating() &&
+      not_blaming) {
     dict_->LogNewChoice(1.0, certainties, true, word);
     *(best_choice_bundle->raw_choice) = *word;
     best_choice_bundle->raw_choice->set_permuter(TOP_CHOICE_PERM);
-    best_choice_bundle->raw_choice->populate_unichars(dict_->getUnicharset());
+    best_choice_bundle->raw_choice->populate_unichars();
     if (language_model_debug_level > 0) tprintf("Updated raw choice\n");
   }
 
@@ -1187,7 +1260,8 @@ void LanguageModel::UpdateBestChoice(
   // TODO(daria): re-write AcceptableChoice() and NoDangerousAmbig()
   // to fit better into the new segmentation search.
   word->set_rating(vse->cost);
-  if (word->rating() < best_choice_bundle->best_choice->rating()) {
+  if (word->rating() < best_choice_bundle->best_choice->rating() &&
+      not_blaming) {
     dict_->LogNewChoice(vse->cost / (language_model_ngram_on ?
                                      vse->ngram_info->ngram_cost :
                                      vse->ratings_sum),
@@ -1204,8 +1278,7 @@ void LanguageModel::UpdateBestChoice(
       }
       // Update best_choice_bundle.
       *(best_choice_bundle->best_choice) = *word;
-      best_choice_bundle->best_choice->populate_unichars(
-          dict_->getUnicharset());
+      best_choice_bundle->best_choice->populate_unichars();
       best_choice_bundle->updated = true;
       best_choice_bundle->best_char_choices->delete_data_pointers();
       best_choice_bundle->best_char_choices->clear();
@@ -1233,12 +1306,75 @@ void LanguageModel::UpdateBestChoice(
       best_choice_bundle->best_vse = vse;
       best_choice_bundle->best_b = b;
       best_choice_bundle->fixpt = fixpt;
+
+      if (blamer_bundle != NULL) {
+        blamer_bundle->best_choice_is_dict_and_top_choice =
+            (vse->dawg_info != NULL &&
+             dict_->GetMaxFixedLengthDawgIndex() < 0 &&
+             (vse->top_choice_flags));
+      }
+    }
+  }
+  if (blamer_bundle != NULL) {
+    // Record the current hypothesis in params_training_bundle.
+    ParamsTrainingHypothesis &hyp =
+        blamer_bundle->params_training_bundle.AddHypothesis();
+    word->string_and_lengths(&(hyp.str), NULL);
+    ExtractRawFeaturesFromPath(*vse, hyp.features);
+    if (truth_path &&  // update best truth path rating
+        word->rating() < blamer_bundle->best_correctly_segmented_rating) {
+      blamer_bundle->best_correctly_segmented_rating = word->rating();
     }
   }
 
   // Clean up.
   delete[] certainties;
   delete word;
+}
+
+void LanguageModel::ExtractRawFeaturesFromPath(const ViterbiStateEntry &vse,
+                                            float *features) {
+  for (int f = 0; f < PTRAIN_NUM_RAW_FEATURE_TYPES; ++f) features[f] = 0.0;
+  // Dictionary-related features.
+  if (vse.dawg_info != NULL) {
+    features[PTRAIN_RAW_FEATURE_DICT_MATCH_TYPE] = vse.dawg_info->permuter;
+
+    // Mark as unambiguous if unambig_dawg is found among active dawgs.
+    for (int d = 0; d < vse.dawg_info->active_dawgs->size(); ++d) {
+      if (dict_->GetDawg(vse.dawg_info->active_dawgs->get(d).dawg_index) ==
+          dict_->GetUnambigDawg()) {
+        features[PTRAIN_RAW_FEATURE_UNAMBIG_DICT_MATCH] = 1.0;
+        break;
+      }
+    }
+  }
+  if (vse.associate_stats.shape_cost > 0) {
+    features[PTRAIN_RAW_FEATURE_SHAPE_COST] = vse.associate_stats.shape_cost;
+  }
+  if (language_model_ngram_on) {
+    ASSERT_HOST(vse.ngram_info != NULL);
+    features[PTRAIN_RAW_FEATURE_NGRAM_PROB] = vse.ngram_info->ngram_prob;
+  }
+  // Consistency-related features.
+  features[PTRAIN_RAW_FEATURE_NUM_BAD_PUNC] =
+      vse.consistency_info.NumInconsistentPunc();
+  features[PTRAIN_RAW_FEATURE_NUM_BAD_CASE] =
+      vse.consistency_info.NumInconsistentCase();
+  features[PTRAIN_RAW_FEATURE_NUM_BAD_CHAR_TYPE] =
+      vse.consistency_info.NumInconsistentChartype();
+  features[PTRAIN_RAW_FEATURE_NUM_BAD_SPACING] =
+      vse.consistency_info.NumInconsistentSpaces();
+  features[PTRAIN_RAW_FEATURE_NUM_BAD_SCRIPT] =
+      vse.consistency_info.inconsistent_script;
+  features[PTRAIN_RAW_FEATURE_NUM_BAD_FONT] =
+      vse.consistency_info.inconsistent_font;
+  // Classifier-related features.
+  features[PTRAIN_RAW_FEATURE_WORST_CERT] = vse.min_certainty;
+  features[PTRAIN_RAW_FEATURE_RATING] = vse.ratings_sum;
+  features[PTRAIN_RAW_FEATURE_ADAPTED] = vse.adapted;
+  // Normalization-related features.
+  features[PTRAIN_RAW_FEATURE_NUM_UNICHARS] = vse.length;
+  features[PTRAIN_RAW_FEATURE_OUTLINE_LEN] = vse.outline_length;
 }
 
 WERD_CHOICE *LanguageModel::ConstructWord(
@@ -1248,11 +1384,16 @@ WERD_CHOICE *LanguageModel::ConstructWord(
     BLOB_CHOICE_LIST_VECTOR *best_char_choices,
     float certainties[],
     float *dawg_score,
-    STATE *state) {
+    STATE *state,
+    BlamerBundle *blamer_bundle,
+    bool *truth_path) {
   uinT64 state_uint = 0x0;
-  // Construct a WERD_CHOICE by tracing parent pointers.
-  WERD_CHOICE *word = new WERD_CHOICE(vse->length);
-  word->set_length(vse->length);
+  if (truth_path != NULL) {
+    *truth_path =
+        (blamer_bundle != NULL &&
+         !blamer_bundle->correct_segmentation_cols.empty() &&
+         vse->length == blamer_bundle->correct_segmentation_cols.length());
+  }
   const uinT64 kHighestBitOn = 0x8000000000000000LL;
   BLOB_CHOICE *curr_b = b;
   LanguageModelState *curr_lms =
@@ -1293,7 +1434,19 @@ WERD_CHOICE *LanguageModel::ConstructWord(
     vse->associate_stats.full_wh_ratio_var = 0.0f;
   }
 
+  // Construct a WERD_CHOICE by tracing parent pointers.
+  WERD_CHOICE *word = new WERD_CHOICE(chunks_record->word_res->uch_set,
+                                      vse->length);
+  word->set_length(vse->length);
   for (i = (vse->length-1); i >= 0; --i) {
+    if (blamer_bundle != NULL && truth_path != NULL && *truth_path) {
+      if ((blamer_bundle->correct_segmentation_cols[i] !=
+           curr_lms->contained_in_col) ||
+           (blamer_bundle->correct_segmentation_rows[i] !=
+               curr_lms->contained_in_row)) {
+        *truth_path = false;
+      }
+    }
     word->set_unichar_id(curr_b->unichar_id(), i);
     word->set_fragment_length(1, i);
     if (certainties != NULL) certainties[i] = curr_b->certainty();
@@ -1772,7 +1925,7 @@ void LanguageModel::GeneratePainPointsFromBestChoice(
   }
 }
 
-void LanguageModel::GeneratePainPoint(
+bool LanguageModel::GeneratePainPoint(
     int col, int row, bool ok_to_extend, float priority,
     float worst_piece_cert, bool fragmented, float best_choice_cert,
     float max_char_wh_ratio,
@@ -1780,7 +1933,7 @@ void LanguageModel::GeneratePainPoint(
     CHUNKS_RECORD *chunks_record, HEAP *pain_points) {
   if (col < 0 || row >= chunks_record->ratings->dimension() ||
       chunks_record->ratings->get(col, row) != NOT_CLASSIFIED) {
-    return;
+    return false;
   }
   if (language_model_debug_level > 3) {
     tprintf("\nGenerating pain point for col=%d row=%d priority=%g parent=",
@@ -1813,7 +1966,7 @@ void LanguageModel::GeneratePainPoint(
     if (language_model_debug_level > 3) {
       tprintf("Discarded pain point with a bad shape\n");
     }
-    return;
+    return false;
   }
 
   // Compute pain point priority.
@@ -1846,9 +1999,11 @@ void LanguageModel::GeneratePainPoint(
     if (language_model_debug_level) {
       tprintf("Added pain point with priority %g\n", priority);
     }
+    return true;
   } else {
     delete pain_point;
     if (language_model_debug_level) tprintf("Pain points heap is full\n");
+    return false;
   }
 }
 

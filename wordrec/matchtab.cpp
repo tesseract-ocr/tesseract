@@ -28,19 +28,10 @@
 #include "callcpp.h"
 #include "elst.h"
 #include "freelist.h"
+#include "helpers.h"
 #include "ratngs.h"
 
 #define NUM_MATCH_ENTRIES 500    /* Entries in match_table */
-
-/**********************************************************************
- * blank_entry
- *
- * Test an element in the blob match table to see if it is blank.
- * Return a non-zero value if it is blank.
- **********************************************************************/
-#define blank_entry(match_table,x)  \
-  (! (match_table[x].topleft | match_table[x].botright))
-
 
 namespace tesseract {
 
@@ -59,25 +50,21 @@ BlobMatchTable::~BlobMatchTable() {
  * Create and clear a match table to be used to speed up the splitter.
  **********************************************************************/
 void BlobMatchTable::init_match_table() {
-  int x;
-
   if (been_initialized_) {
     /* Reclaim old choices */
-    for (x = 0; x < NUM_MATCH_ENTRIES; x++) {
-      if ((!blank_entry(match_table_, x)) && match_table_[x].rating)
+    for (int x = 0; x < NUM_MATCH_ENTRIES; x++) {
+      if (!IsEmpty(x)) {
         match_table_[x].rating->clear();
         delete match_table_[x].rating;
+        // Reinitialize the entry.
+        match_table_[x].box = TBOX();
+        match_table_[x].rating = NULL;
+      }
     }
   } else {
     /* Allocate memory once */
-    been_initialized_ = true;
     match_table_ = new MATCH[NUM_MATCH_ENTRIES];
-  }
-  /* Initialize the table */
-  for (x = 0; x < NUM_MATCH_ENTRIES; x++) {
-    match_table_[x].topleft = 0;
-    match_table_[x].botright = 0;
-    match_table_[x].rating = NULL;
+    been_initialized_ = true;
   }
 }
 
@@ -98,25 +85,17 @@ void BlobMatchTable::end_match_table() {
  * table.
  **********************************************************************/
 void BlobMatchTable::put_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
-  unsigned int topleft;
-  unsigned int botright;
-  unsigned int start;
-  TPOINT tp_topleft;
-  TPOINT tp_botright;
-  int x;
+  if (!blob) return;
   /* Hash into table */
-  blob_bounding_box(blob, &tp_topleft, &tp_botright);
-  topleft = *(unsigned int *) &tp_topleft;
-  botright = *(unsigned int *) &tp_botright;
-  start = (topleft * botright) % NUM_MATCH_ENTRIES;
+  TBOX bbox(blob->bounding_box());
+  int start = Hash(bbox);
 
   /* Look for empty */
-  x = start;
+  int x = start;
   do {
-    if (blank_entry (match_table_, x)) {
+    if (IsEmpty(x)) {
       /* Add this entry */
-      match_table_[x].topleft = topleft;
-      match_table_[x].botright = botright;
+      match_table_[x].box = bbox;
       // Copy ratings to match_table_[x].rating
       match_table_[x].rating = new BLOB_CHOICE_LIST();
       match_table_[x].rating->deep_copy(ratings, &BLOB_CHOICE::deep_copy);
@@ -137,39 +116,47 @@ void BlobMatchTable::put_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
  * matched.  If it is not present then NULL is returned.
  **********************************************************************/
 BLOB_CHOICE_LIST *BlobMatchTable::get_match(TBLOB *blob) {
-  unsigned int topleft;
-  unsigned int botright;
-  TPOINT tp_topleft;
-  TPOINT tp_botright;
-  /* Do starting hash */
-  blob_bounding_box(blob, &tp_topleft, &tp_botright);
-  topleft = *(unsigned int *) &tp_topleft;
-  botright = *(unsigned int *) &tp_botright;
-  return (get_match_by_bounds (topleft, botright));
+  return get_match_by_box(blob->bounding_box());
 }
 
+/**********************************************************************
+ * Hash
+ *
+ * The hash function we use to translate a bounding box to a starting
+ * hash position in our array.
+ **********************************************************************/
+int BlobMatchTable::Hash(const TBOX &box) const {
+  int topleft = (box.top() << 16) + box.left();
+  int botright = (box.bottom() << 16) + box.right();
+  return Modulo(topleft + botright, NUM_MATCH_ENTRIES);
+}
 
 /**********************************************************************
- * get_match_by_bounds
+ * IsEmpty
+ *
+ * Returns whether the idx entry in the array is still empty.
+ **********************************************************************/
+bool BlobMatchTable::IsEmpty(int idx) const {
+  return TBOX() == match_table_[idx].box &&
+      NULL == match_table_[idx].rating;
+}
+
+/**********************************************************************
+ * get_match_by_box
  *
  * Look up this blob in the match table to see if it needs to be
  * matched.  If it is not present then NULL is returned.
  **********************************************************************/
-BLOB_CHOICE_LIST *BlobMatchTable::get_match_by_bounds(unsigned int topleft,
-                                                      unsigned int botright) {
-  unsigned int start;
-  int x;
-  /* Do starting hash */
-  start = (topleft * botright) % NUM_MATCH_ENTRIES;
+BLOB_CHOICE_LIST *BlobMatchTable::get_match_by_box(const TBOX &box) {
+  int start = Hash(box);
+  int x = start;
   /* Search for match */
-  x = start;
   do {
     /* Not found when blank */
-    if (blank_entry (match_table_, x))
+    if (IsEmpty(x))
       break;
     /* Is this the match ? */
-    if (match_table_[x].topleft == topleft &&
-        match_table_[x].botright == botright) {
+    if (match_table_[x].box == box) {
       BLOB_CHOICE_LIST *blist = new BLOB_CHOICE_LIST();
       blist->deep_copy(match_table_[x].rating, &BLOB_CHOICE::deep_copy);
       return blist;
@@ -194,26 +181,15 @@ BLOB_CHOICE_LIST *BlobMatchTable::get_match_by_bounds(unsigned int topleft,
  * old one are added to the old ratings list in the match_table.
  **********************************************************************/
 void BlobMatchTable::add_to_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings) {
-  unsigned int topleft;
-  unsigned int botright;
-  TPOINT tp_topleft;
-  TPOINT tp_botright;
-  blob_bounding_box(blob, &tp_topleft, &tp_botright);
-  topleft = *(unsigned int *) &tp_topleft;
-  botright = *(unsigned int *) &tp_botright;
-  unsigned int start;
-  int x;
-  /* Do starting hash */
-  start = (topleft * botright) % NUM_MATCH_ENTRIES;
-  /* Search for match */
-  x = start;
+  TBOX bbox = blob->bounding_box();
+  int start = Hash(bbox);
+  int x = start;
   do {
-    if (blank_entry(match_table_, x)) {
+    if (IsEmpty(x)) {
       fprintf(stderr, "Can not update uninitialized entry in match_table\n");
-      ASSERT_HOST(!blank_entry(match_table_, x));
+      ASSERT_HOST(!IsEmpty(x));
     }
-    if (match_table_[x].topleft == topleft &&
-        match_table_[x].botright == botright) {
+    if (match_table_[x].box == bbox) {
       // Copy new ratings to match_table_[x].rating.
       BLOB_CHOICE_IT it;
       it.set_to_list(match_table_[x].rating);

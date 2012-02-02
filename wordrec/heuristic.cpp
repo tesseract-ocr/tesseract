@@ -233,11 +233,12 @@ FLOAT32 Wordrec::width_priority(CHUNKS_RECORD *chunks_record,
     // normalizing factor so we are not dependent on xheight calculation.
     // In the normalized coord. xheight * scale == BASELINE_SCALE(128),
     // so add proportionally scaled ascender zone to get full text height.
-    normalizing_height = denorm_.y_scale() *
-        (denorm_.row()->x_height() + denorm_.row()->ascenders());
+    const DENORM& denorm = chunks_record->word_res->denorm;
+    normalizing_height = denorm.y_scale() *
+        (denorm.row()->x_height() + denorm.row()->ascenders());
     if (segment_adjust_debug > 1)
       tprintf("WidthPriority: %f %f normalizing height = %f\n",
-              denorm_.row()->x_height(), denorm_.row()->ascenders(),
+              denorm.row()->x_height(), denorm.row()->ascenders(),
               normalizing_height);
     // Impose additional segmentation penalties if blob widths or gaps
     // distribution don't fit a fixed-pitch model.

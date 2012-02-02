@@ -59,8 +59,10 @@ namespace tesseract {
  * @param string The string to display in ScrollView
  * @param color The colour to use when displayed with ScrollView
  */
-BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob,
-                                         const char *string, C_COL color) {
+BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob, const DENORM& denorm,
+                                         const char *string, C_COL color,
+                                         BlamerBundle *blamer_bundle) {
+  fflush(stdout);
   BLOB_CHOICE_LIST *choices = NULL;
 #ifndef GRAPHICS_DISABLED
   if (wordrec_display_all_blobs)
@@ -68,8 +70,56 @@ BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob,
 #endif
   choices = blob_match_table.get_match(blob);
   if (choices == NULL) {
-    choices = call_matcher(blob);
+    choices = call_matcher(&denorm, blob);
     blob_match_table.put_match(blob, choices);
+    // If a blob with the same bounding box as one of the truth character
+    // bounding boxes is not classified as the corresponding truth character
+    // blame character classifier for incorrect answer.
+    if (blamer_bundle != NULL && blamer_bundle->truth_has_char_boxes &&
+        blamer_bundle->incorrect_result_reason == IRR_CORRECT) {
+      for (int b = 0; b < blamer_bundle->norm_truth_word.length(); ++b) {
+        const TBOX &truth_box = blamer_bundle->norm_truth_word.BlobBox(b);
+        const TBOX &blob_box = blob->bounding_box();
+        // Note that we are more strict on the bounding box boundaries here
+        // than in other places (chopper, segmentation search), since we do
+        // not have the ability to check the previous and next bounding box.
+        if (blob_box.x_almost_equal(truth_box,
+                                    blamer_bundle->norm_box_tolerance/2)) {
+          BLOB_CHOICE_IT choices_it(choices);
+          bool found = false;
+          bool incorrect_adapted = false;
+          UNICHAR_ID incorrect_adapted_id = INVALID_UNICHAR_ID;
+          const char *truth_str = blamer_bundle->truth_text[b].string();
+          for (choices_it.mark_cycle_pt(); !choices_it.cycled_list();
+              choices_it.forward()) {
+            if (strcmp(truth_str, getDict().getUnicharset().get_normed_unichar(
+                choices_it.data()->unichar_id())) == 0) {
+              found = true;
+              break;
+            } else if (choices_it.data()->adapted()) {
+              incorrect_adapted = true;
+              incorrect_adapted_id = choices_it.data()->unichar_id();
+            }
+          }  // end choices_it for loop
+          if (!found) {
+            STRING debug = "unichar ";
+            debug += truth_str;
+            debug += " not found in classification list";
+            blamer_bundle->SetBlame(IRR_CLASSIFIER, debug,
+                                    NULL, wordrec_debug_blamer);
+          } else if (incorrect_adapted) {
+            STRING debug = "better rating for adapted ";
+            debug += getDict().getUnicharset().id_to_unichar(
+                incorrect_adapted_id);
+            debug += " than for correct ";
+            debug += truth_str;
+            blamer_bundle->SetBlame(IRR_ADAPTION, debug,
+                                    NULL, wordrec_debug_blamer);
+          }
+          break;
+        }
+      }  // end iterating over blamer_bundle->norm_truth_word
+    }
   }
 #ifndef GRAPHICS_DISABLED
   if (classify_debug_level && string)
@@ -86,7 +136,8 @@ BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob,
 BLOB_CHOICE_LIST *Wordrec::fake_classify_blob(UNICHAR_ID class_id,
                                               float rating, float certainty) {
   BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();  // matcher result
-  BLOB_CHOICE *choice = new BLOB_CHOICE(class_id, rating, certainty, -1, -1, 0);
+  BLOB_CHOICE *choice =
+      new BLOB_CHOICE(class_id, rating, certainty, -1, -1, 0, 0, 0, false);
   BLOB_CHOICE_IT temp_it(ratings);
   temp_it.add_after_stay_put(choice);
   return ratings;

@@ -140,45 +140,18 @@ int Wordrec::dict_word(const WERD_CHOICE &word) {
  * Called from Tess with a blob in tess form.
  * The blob may need rotating to the correct orientation for classification.
  */
-BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
-  TBLOB* rotated_blob = NULL;
-  // If necessary, copy the blob and rotate it.
-  if (denorm_.block() != NULL &&
-      denorm_.block()->classify_rotation().y() != 0.0) {
-    TBOX box = tessblob->bounding_box();
-    int src_width = box.width();
-    int src_height = box.height();
-    src_width = static_cast<int>(src_width / denorm_.y_scale() + 0.5);
-    src_height = static_cast<int>(src_height / denorm_.y_scale() + 0.5);
-    int x_middle = (box.left() + box.right()) / 2;
-    int y_middle = (box.top() + box.bottom()) / 2;
-    rotated_blob = new TBLOB(*tessblob);
-    rotated_blob->Move(ICOORD(-x_middle, -y_middle));
-    rotated_blob->Rotate(denorm_.block()->classify_rotation());
-    tessblob = rotated_blob;
-    ICOORD median_size = denorm_.block()->median_size();
-    int tolerance = median_size.x() / 8;
-    // TODO(dsl/rays) find a better normalization solution. In the mean time
-    // make it work for CJK by normalizing for Cap height in the same way
-    // as is applied in compute_block_xheight when the row is presumed to
-    // be ALLCAPS, i.e. the x-height is the fixed fraction
-    // blob height * CCStruct::kXHeightFraction /
-    // (CCStruct::kXHeightFraction + CCStruct::kXAscenderFraction)
-    if (NearlyEqual(src_width, static_cast<int>(median_size.x()), tolerance) &&
-        NearlyEqual(src_height, static_cast<int>(median_size.y()), tolerance)) {
-      float target_height = kBlnXHeight *
-          (CCStruct::kXHeightFraction + CCStruct::kAscenderFraction) /
-          CCStruct::kXHeightFraction;
-      rotated_blob->Scale(target_height / box.width());
-      rotated_blob->Move(ICOORD(0,
-                                kBlnBaselineOffset -
-                                rotated_blob->bounding_box().bottom()));
-    }
+BLOB_CHOICE_LIST *Wordrec::call_matcher(const DENORM* denorm, TBLOB *tessblob) {
+  // Rotate the blob for classification if necessary.
+  TBLOB* rotated_blob = tessblob->ClassifyNormalizeIfNeeded(&denorm);
+  if (rotated_blob == NULL) {
+    rotated_blob = tessblob;
   }
   BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();  // matcher result
-  AdaptiveClassifier(tessblob, ratings, NULL);
-  if (rotated_blob != NULL)
+  AdaptiveClassifier(rotated_blob, *denorm, ratings, NULL);
+  if (rotated_blob != tessblob) {
     delete rotated_blob;
+    delete denorm;
+  }
   return ratings;
 }
 

@@ -25,6 +25,9 @@
 namespace tesseract {
 Wordrec::Wordrec() :
   // control parameters
+  BOOL_MEMBER(merge_fragments_in_matrix, TRUE,
+              "Merge the fragments in the ratings matrix and delete them"
+              " after merging", params()),
   BOOL_MEMBER(wordrec_no_block, FALSE, "Don't output block information",
               params()),
   BOOL_MEMBER(wordrec_enable_assoc, TRUE, "Associator Enable",
@@ -103,7 +106,11 @@ Wordrec::Wordrec() :
                 params()),
   INT_MEMBER(wordrec_debug_level, 0,
              "Debug level for wordrec", params()),
-  BOOL_INIT_MEMBER(enable_new_segsearch, false,
+  BOOL_MEMBER(wordrec_debug_blamer, false,
+              "Print blamer debug messages", params()),
+  BOOL_MEMBER(wordrec_run_blamer, false,
+              "Try to set the blame for errors", params()),
+  BOOL_MEMBER(enable_new_segsearch, true,
                    "Enable new segmentation search path.", params()),
   INT_MEMBER(segsearch_debug_level, 0,
              "SegSearch debug level", params()),
@@ -119,18 +126,19 @@ Wordrec::Wordrec() :
   double_MEMBER(segsearch_max_fixed_pitch_char_wh_ratio, 2.0,
                 "Maximum character width-to-height ratio for"
                 " fixed-pitch fonts",
-                params()) {
-  states_before_best = NULL;
-  best_certainties[0] = NULL;
-  best_certainties[1] = NULL;
-  character_widths = NULL;
+                params()),
+  BOOL_MEMBER(save_alt_choices, false,
+              "Save alternative paths found during chopping"
+              " and segmentation search",
+              params()) {
+  prev_word_best_choice_ = NULL;
   language_model_ = new LanguageModel(&get_fontinfo_table(),
-                                      &(getDict()),
-                                      &(prev_word_best_choice_));
+                                      &(getDict()));
   pass2_seg_states = 0;
   num_joints = 0;
   num_pushed = 0;
   num_popped = 0;
+  fill_lattice_ = NULL;
 }
 
 Wordrec::~Wordrec() {
@@ -145,6 +153,47 @@ void Wordrec::CopyCharChoices(const BLOB_CHOICE_LIST_VECTOR &from,
     BLOB_CHOICE_LIST *cc_list = new BLOB_CHOICE_LIST();
     cc_list->deep_copy(from[i], &BLOB_CHOICE::deep_copy);
     to->push_back(cc_list);
+  }
+}
+
+bool Wordrec::ChoiceIsCorrect(const UNICHARSET &uni_set,
+                              const WERD_CHOICE *choice,
+                              const GenericVector<STRING> &truth_text) {
+  if (choice == NULL) return false;
+  int i;
+  STRING truth_str;
+  for (i = 0; i < truth_text.length(); ++i) truth_str += truth_text[i];
+  STRING normed_choice_str;
+  for (i = 0; i < choice->length(); ++i) {
+    normed_choice_str += uni_set.get_normed_unichar(choice->unichar_id(i));
+  }
+  return (truth_str == normed_choice_str);
+}
+
+void Wordrec::SaveAltChoices(const LIST &best_choices, WERD_RES *word) {
+  ASSERT_HOST(word->alt_choices.empty());
+  ASSERT_HOST(word->alt_states.empty());
+  LIST list_it;
+  iterate_list(list_it, best_choices) {
+    VIABLE_CHOICE choice =
+        reinterpret_cast<VIABLE_CHOICE>(first_node(list_it));
+    CHAR_CHOICE *char_choice = &(choice->Blob[0]);
+    WERD_CHOICE *alt_choice = new WERD_CHOICE(word->uch_set, choice->Length);
+    word->alt_states.push_back(GenericVector<int>(choice->Length));
+    GenericVector<int> &alt_state = word->alt_states.back();
+    for (int i = 0; i < choice->Length; char_choice++, i++) {
+      alt_choice->append_unichar_id_space_allocated(
+          char_choice->Class, 1, 0, 0);
+      alt_state.push_back(choice->segmentation_state[i]);
+    }
+    alt_choice->set_rating(choice->Rating);
+    alt_choice->set_certainty(choice->Certainty);
+    word->alt_choices.push_back(alt_choice);
+    alt_choice->populate_unichars();
+    if (wordrec_debug_level > 0) {
+      tprintf("SaveAltChoices: %s %g\n",
+              alt_choice->unichar_string().string(), alt_choice->rating());
+    }
   }
 }
 

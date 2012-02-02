@@ -30,14 +30,15 @@
 
 namespace tesseract {
 
-typedef struct _MATCH_
-{
-  int topleft;
-  int botright;
+struct MATCH {
+  MATCH() : rating(NULL) {}
+  TBOX box;
   BLOB_CHOICE_LIST *rating;
-} MATCH;
+};
 
-
+// A class for mapping rectangular bounding boxes to choice lists.
+// Only meant to be used at the word level, as we have a limit of
+// 500 recognition lists for all subsequences of blobs.
 class BlobMatchTable {
  public:
   BlobMatchTable();
@@ -47,11 +48,14 @@ class BlobMatchTable {
   void end_match_table();
   void put_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings);
   BLOB_CHOICE_LIST *get_match(TBLOB *blob);
-  BLOB_CHOICE_LIST *get_match_by_bounds(unsigned int topleft,
-                                        unsigned int botright);
+  BLOB_CHOICE_LIST *get_match_by_box(const TBOX &box);
   void add_to_match(TBLOB *blob, BLOB_CHOICE_LIST *ratings);
 
  private:
+  int Hash(const TBOX &box) const;
+  // Returns whether the idx entry in the array is still empty.
+  bool IsEmpty(int idx) const;
+
   bool been_initialized_;
   MATCH* match_table_;
 };

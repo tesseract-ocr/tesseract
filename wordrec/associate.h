@@ -29,6 +29,8 @@
 #include "split.h"
 #include "states.h"
 
+class WERD_RES;
+
 typedef inT16 BLOB_WEIGHTS[MAX_NUM_CHUNKS];
 
 // Each unichar evaluated.
@@ -49,6 +51,7 @@ typedef EVALUATION_RECORD EVALUATION_ARRAY[MAX_NUM_CHUNKS];
 struct CHUNKS_RECORD {
   MATRIX *ratings;
   TBLOB *chunks;
+  WERD_RES* word_res;  // Borrowed pointer - do not delete!
   SEAMS splits;
   int x_height;
   WIDTH_RECORD *chunk_widths;

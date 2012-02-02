@@ -325,12 +325,16 @@ void Wordrec::new_max_point(EDGEPT *local_max, POINT_GROUP points) {
  * point.  This is done by iterating through the edge points until the
  * X value of the point being looked at is greater than the X value of
  * the split point.  Ensure that the point being returned is not right
- * next to the split point.  Return the edge point as a result.
+ * next to the split point.  Return the edge point in *best_point as
+ * a result, and any points that were newly created are also saved on
+ * the new_points list.
  */
 void Wordrec::vertical_projection_point(EDGEPT *split_point, EDGEPT *target_point,
-                                        EDGEPT** best_point) {
+                                        EDGEPT** best_point,
+                                        EDGEPT_CLIST *new_points) {
   EDGEPT *p;                     /* Iterator */
   EDGEPT *this_edgept;           /* Iterator */
+  EDGEPT_C_IT new_point_it(new_points);
   int x = split_point->pos.x;    /* X value of vertical */
   int best_dist = LARGE_DISTANCE;/* Best point found */
 
@@ -346,7 +350,9 @@ void Wordrec::vertical_projection_point(EDGEPT *split_point, EDGEPT *target_poin
       !same_point (split_point->pos, p->next->pos)
     && (*best_point == NULL || !same_point ((*best_point)->pos, p->pos))) {
 
-      this_edgept = near_point (split_point, p, p->next);
+      if (near_point(split_point, p, p->next, &this_edgept)) {
+        new_point_it.add_before_then_move(this_edgept);
+      }
 
       if (*best_point == NULL)
         best_dist = edgept_dist (split_point, this_edgept);

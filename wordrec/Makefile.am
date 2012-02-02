@@ -9,8 +9,8 @@ include_HEADERS = \
     associate.h bestfirst.h chop.h \
     chopper.h closed.h drawfx.h findseam.h gradechop.h \
     language_model.h makechop.h matchtab.h measure.h \
-    olutil.h outlines.h pieces.h plotedges.h \
-    plotseg.h render.h tally.h \
+    olutil.h outlines.h plotedges.h \
+    plotseg.h render.h \
     wordclass.h wordrec.h
 
 if !USING_MULTIPLELIBS
@@ -34,6 +34,6 @@ libtesseract_wordrec_la_SOURCES = \
     heuristic.cpp language_model.cpp makechop.cpp matchtab.cpp \
     olutil.cpp outlines.cpp pieces.cpp \
     plotedges.cpp plotseg.cpp render.cpp segsearch.cpp \
-    tally.cpp tface.cpp wordclass.cpp wordrec.cpp
+    tface.cpp wordclass.cpp wordrec.cpp
 
 

@@ -36,7 +36,8 @@ void Wordrec::SegSearch(CHUNKS_RECORD *chunks_record,
                         WERD_CHOICE *best_choice,
                         BLOB_CHOICE_LIST_VECTOR *best_char_choices,
                         WERD_CHOICE *raw_choice,
-                        STATE *output_best_state) {
+                        STATE *output_best_state,
+                        BlamerBundle *blamer_bundle) {
   int row, col = 0;
   if (segsearch_debug_level > 0) {
     tprintf("Starting SegSearch on ratings matrix:\n");
@@ -45,6 +46,14 @@ void Wordrec::SegSearch(CHUNKS_RECORD *chunks_record,
   // Start with a fresh best_choice since rating adjustments
   // used by the chopper and the new segmentation search are not compatible.
   best_choice->set_rating(WERD_CHOICE::kBadRating);
+  // TODO(antonova): Due to the fact that we currently do not re-start the
+  // segmentation search from the best choice the chopper found, sometimes
+  // the the segmentation search does not find the best path (that chopper
+  // did discover) and does not have a chance to adapt to it. As soon as we
+  // transition to using new-style language model penalties in the chopper
+  // this issue will be resolved. But for how we are forced clear the
+  // accumulator choices.
+  //
   // Clear best choice accumulator (that is used for adaption), so that
   // choices adjusted by chopper do not interfere with the results from the
   // segmentation search.
@@ -65,11 +74,16 @@ void Wordrec::SegSearch(CHUNKS_RECORD *chunks_record,
     best_path_by_column[col].best_vse = NULL;
   }
 
-  language_model_->InitForWord(prev_word_best_choice_, &denorm_,
+  // Compute scaling factor that will help us recover blob outline length
+  // from classifier rating and certainty for the blob.
+  float rating_cert_scale = -1.0 * getDict().certainty_scale / rating_scale;
+
+  language_model_->InitForWord(prev_word_best_choice_,
                                assume_fixed_pitch_char_segment,
                                best_choice->certainty(),
-                               segsearch_max_char_wh_ratio,
-                               pain_points, chunks_record);
+                               segsearch_max_char_wh_ratio, rating_cert_scale,
+                               pain_points, chunks_record, blamer_bundle,
+                               wordrec_debug_blamer);
 
   MATRIX_COORD *pain_point;
   float pain_point_priority;
@@ -83,7 +97,7 @@ void Wordrec::SegSearch(CHUNKS_RECORD *chunks_record,
   // pairs are inserted into the lists. Next, the entries in pending[1] are
   // considered, and so on. It is important that during the update the
   // children are considered in the non-decreasing order of their column, since
-  // this guarantess that all the parents would be up to date before an update
+  // this guarantees that all the parents would be up to date before an update
   // of a child is done.
   SEG_SEARCH_PENDING_LIST *pending =
     new SEG_SEARCH_PENDING_LIST[ratings->dimension()];
@@ -97,13 +111,14 @@ void Wordrec::SegSearch(CHUNKS_RECORD *chunks_record,
     }
   }
   UpdateSegSearchNodes(0, &pending, &best_path_by_column, chunks_record,
-                       pain_points, &best_choice_bundle);
+                       pain_points, &best_choice_bundle, blamer_bundle);
 
   // Keep trying to find a better path by fixing the "pain points".
   int num_futile_classifications = 0;
-  while (!(language_model_->AcceptableChoiceFound() ||
-           num_futile_classifications >=
-           segsearch_max_futile_classifications)) {
+  STRING blamer_debug;
+  while (!SegSearchDone(num_futile_classifications) ||
+         (blamer_bundle != NULL &&
+          blamer_bundle->segsearch_is_looking_for_blame)) {
     // Get the next valid "pain point".
     int pop;
     while (true) {
@@ -120,84 +135,39 @@ void Wordrec::SegSearch(CHUNKS_RECORD *chunks_record,
       if (segsearch_debug_level > 0) tprintf("Pain points queue is empty\n");
       break;
     }
-    if (segsearch_debug_level > 0) {
-      tprintf("Classifying pain point priority=%.4f, col=%d, row=%d\n",
-              pain_point_priority, pain_point->col, pain_point->row);
-    }
-    BLOB_CHOICE_LIST *classified = classify_piece(
-        chunks_record->chunks, chunks_record->splits,
-        pain_point->col, pain_point->row);
-    ratings->put(pain_point->col, pain_point->row, classified);
+    ProcessSegSearchPainPoint(pain_point_priority, *pain_point,
+                              best_choice_bundle.best_choice, &pending,
+                              chunks_record, pain_points, blamer_bundle);
 
-    if (segsearch_debug_level > 0) {
-      print_ratings_list("Updated ratings matrix with a new entry:",
-                         ratings->get(pain_point->col, pain_point->row),
-                         getDict().getUnicharset());
-      chunks_record->ratings->print(getDict().getUnicharset());
-    }
-
-    // Insert initial "pain points" to join the newly classified blob
-    // with its left and right neighbors.
-    if (!classified->empty()) {
-      float worst_piece_cert;
-      bool fragmented;
-      if (pain_point->col > 0) {
-        language_model_->GetWorstPieceCertainty(
-            pain_point->col-1, pain_point->row, chunks_record->ratings,
-            &worst_piece_cert, &fragmented);
-        language_model_->GeneratePainPoint(
-            pain_point->col-1, pain_point->row, false,
-            LanguageModel::kInitialPainPointPriorityAdjustment,
-            worst_piece_cert, fragmented, best_choice->certainty(),
-            segsearch_max_char_wh_ratio, NULL, NULL,
-            chunks_record, pain_points);
-      }
-      if (pain_point->row+1 < ratings->dimension()) {
-        language_model_->GetWorstPieceCertainty(
-            pain_point->col, pain_point->row+1, chunks_record->ratings,
-            &worst_piece_cert, &fragmented);
-        language_model_->GeneratePainPoint(
-            pain_point->col, pain_point->row+1, true,
-            LanguageModel::kInitialPainPointPriorityAdjustment,
-            worst_piece_cert, fragmented, best_choice->certainty(),
-            segsearch_max_char_wh_ratio, NULL, NULL,
-            chunks_record, pain_points);
-      }
-    }
-
-    // Record a pending entry with the pain_point and each of its parents.
-    int parent_row = pain_point->col - 1;
-    if (parent_row < 0) {  // this node has no parents
-      pending[pain_point->col].add_sorted(
-          SEG_SEARCH_PENDING::compare, true,
-          new SEG_SEARCH_PENDING(pain_point->row, NULL,
-                                 LanguageModel::kAllChangedFlag));
-    } else {
-      for (int parent_col = 0; parent_col < pain_point->col; ++parent_col) {
-        if (ratings->get(parent_col, parent_row) != NOT_CLASSIFIED) {
-          pending[pain_point->col].add_sorted(
-              SEG_SEARCH_PENDING::compare, true,
-              new SEG_SEARCH_PENDING(pain_point->row,
-                                     ratings->get(parent_col, parent_row),
-                                     LanguageModel::kAllChangedFlag));
-        }
-      }
-    }
     UpdateSegSearchNodes(pain_point->col, &pending, &best_path_by_column,
-                         chunks_record, pain_points, &best_choice_bundle);
+                         chunks_record, pain_points, &best_choice_bundle,
+                         blamer_bundle);
     if (!best_choice_bundle.updated) ++num_futile_classifications;
 
     if (segsearch_debug_level > 0) {
       tprintf("num_futile_classifications %d\n", num_futile_classifications);
     }
 
-    // Clean up
-    best_choice_bundle.updated = false;
+    best_choice_bundle.updated = false;  // reset updated
     delete pain_point;  // done using this pain point
-  }
+
+    // See if it's time to terminate SegSearch or time for starting a guided
+    // search for the true path to find the blame for the incorrect best_choice.
+    if (SegSearchDone(num_futile_classifications) && blamer_bundle != NULL &&
+        blamer_bundle->incorrect_result_reason == IRR_CORRECT &&
+        !blamer_bundle->segsearch_is_looking_for_blame &&
+        blamer_bundle->truth_has_char_boxes &&
+        !ChoiceIsCorrect(getDict().getUnicharset(),
+                         best_choice, blamer_bundle->truth_text)) {
+      InitBlamerForSegSearch(best_choice_bundle.best_choice, chunks_record,
+                             pain_points, blamer_bundle, &blamer_debug);
+    }
+  }  // end while loop exploring alternative paths
+  FinishBlamerForSegSearch(best_choice_bundle.best_choice,
+                           blamer_bundle, &blamer_debug);
 
   if (segsearch_debug_level > 0) {
-    tprintf("Done with SegSearch (AcceptableChoiceFound: %d\n",
+    tprintf("Done with SegSearch (AcceptableChoiceFound: %d)\n",
             language_model_->AcceptableChoiceFound());
   }
 
@@ -219,7 +189,8 @@ void Wordrec::UpdateSegSearchNodes(
     BestPathByColumn *best_path_by_column[],
     CHUNKS_RECORD *chunks_record,
     HEAP *pain_points,
-    BestChoiceBundle *best_choice_bundle) {
+    BestChoiceBundle *best_choice_bundle,
+    BlamerBundle *blamer_bundle) {
   MATRIX *ratings = chunks_record->ratings;
   for (int col = starting_col; col < ratings->dimension(); ++col) {
     if (segsearch_debug_level > 0) {
@@ -240,8 +211,8 @@ void Wordrec::UpdateSegSearchNodes(
       LanguageModelFlagsType new_changed =
         language_model_->UpdateState(p->changed, col, p->child_row,
                                      current_node, p->parent, pain_points,
-                                     best_path_by_column,
-                                     chunks_record, best_choice_bundle);
+                                     best_path_by_column, chunks_record,
+                                     best_choice_bundle, blamer_bundle);
       if (new_changed) {
         // Since the language model state of this entry changed, add all the
         // pairs with it as a parent and each of its children to pending, so
@@ -281,6 +252,172 @@ void Wordrec::UpdateSegSearchNodes(
   }
 
   language_model_->CleanUp();
+}
+
+void Wordrec::ProcessSegSearchPainPoint(float pain_point_priority,
+                                        const MATRIX_COORD &pain_point,
+                                        const WERD_CHOICE *best_choice,
+                                        SEG_SEARCH_PENDING_LIST *pending[],
+                                        CHUNKS_RECORD *chunks_record,
+                                        HEAP *pain_points,
+                                        BlamerBundle *blamer_bundle) {
+  if (segsearch_debug_level > 0) {
+    tprintf("Classifying pain point priority=%.4f, col=%d, row=%d\n",
+            pain_point_priority, pain_point.col, pain_point.row);
+  }
+  MATRIX *ratings = chunks_record->ratings;
+  BLOB_CHOICE_LIST *classified = classify_piece(
+      chunks_record->chunks, chunks_record->word_res->denorm,
+      chunks_record->splits,
+      pain_point.col, pain_point.row, blamer_bundle);
+  ratings->put(pain_point.col, pain_point.row, classified);
+
+  if (segsearch_debug_level > 0) {
+    print_ratings_list("Updated ratings matrix with a new entry:",
+                       ratings->get(pain_point.col, pain_point.row),
+                       getDict().getUnicharset());
+    ratings->print(getDict().getUnicharset());
+  }
+
+  // Insert initial "pain points" to join the newly classified blob
+  // with its left and right neighbors.
+  if (!classified->empty()) {
+    float worst_piece_cert;
+    bool fragmented;
+    if (pain_point.col > 0) {
+      language_model_->GetWorstPieceCertainty(
+          pain_point.col-1, pain_point.row, chunks_record->ratings,
+          &worst_piece_cert, &fragmented);
+      language_model_->GeneratePainPoint(
+          pain_point.col-1, pain_point.row, false,
+          LanguageModel::kInitialPainPointPriorityAdjustment,
+          worst_piece_cert, fragmented, best_choice->certainty(),
+          segsearch_max_char_wh_ratio, NULL, NULL,
+          chunks_record, pain_points);
+    }
+    if (pain_point.row+1 < ratings->dimension()) {
+      language_model_->GetWorstPieceCertainty(
+          pain_point.col, pain_point.row+1, chunks_record->ratings,
+          &worst_piece_cert, &fragmented);
+      language_model_->GeneratePainPoint(
+          pain_point.col, pain_point.row+1, true,
+          LanguageModel::kInitialPainPointPriorityAdjustment,
+          worst_piece_cert, fragmented, best_choice->certainty(),
+          segsearch_max_char_wh_ratio, NULL, NULL,
+          chunks_record, pain_points);
+    }
+  }
+
+  // Record a pending entry with the pain_point and each of its parents.
+  int parent_row = pain_point.col - 1;
+  if (parent_row < 0) {  // this node has no parents
+    (*pending)[pain_point.col].add_sorted(
+        SEG_SEARCH_PENDING::compare, true,
+        new SEG_SEARCH_PENDING(pain_point.row, NULL,
+                               LanguageModel::kAllChangedFlag));
+  } else {
+    for (int parent_col = 0; parent_col < pain_point.col; ++parent_col) {
+      if (ratings->get(parent_col, parent_row) != NOT_CLASSIFIED) {
+        (*pending)[pain_point.col].add_sorted(
+            SEG_SEARCH_PENDING::compare, true,
+            new SEG_SEARCH_PENDING(pain_point.row,
+                                   ratings->get(parent_col, parent_row),
+                                   LanguageModel::kAllChangedFlag));
+      }
+    }
+  }
+}
+
+void Wordrec::InitBlamerForSegSearch(const WERD_CHOICE *best_choice,
+                                     CHUNKS_RECORD *chunks_record,
+                                     HEAP *pain_points,
+                                     BlamerBundle *blamer_bundle,
+                                     STRING *blamer_debug) {
+  blamer_bundle->segsearch_is_looking_for_blame = true;
+  if (wordrec_debug_blamer) {
+    tprintf("segsearch starting to look for blame\n");
+  }
+  // Clear pain points heap.
+  int pop;
+  float pain_point_priority;
+  MATRIX_COORD *pain_point;
+  while ((pop = HeapPop(pain_points, &pain_point_priority,
+                         &pain_point)) != EMPTY) {
+    delete pain_point;
+  }
+  // Fill pain points for any unclassifed blob corresponding to the
+  // correct segmentation state.
+  *blamer_debug += "Correct segmentation:\n";
+  for (int idx = 0;
+        idx < blamer_bundle->correct_segmentation_cols.length(); ++idx) {
+    blamer_debug->add_str_int(
+        "col=", blamer_bundle->correct_segmentation_cols[idx]);
+    blamer_debug->add_str_int(
+        " row=", blamer_bundle->correct_segmentation_rows[idx]);
+    *blamer_debug += "\n";
+    if (chunks_record->ratings->get(
+        blamer_bundle->correct_segmentation_cols[idx],
+        blamer_bundle->correct_segmentation_rows[idx]) == NOT_CLASSIFIED) {
+      if (!language_model_->GeneratePainPoint(
+          blamer_bundle->correct_segmentation_cols[idx],
+          blamer_bundle->correct_segmentation_rows[idx],
+          false, -1.0, -1.0, false, -1.0, segsearch_max_char_wh_ratio,
+          NULL, NULL, chunks_record, pain_points)) {
+        blamer_bundle->segsearch_is_looking_for_blame = false;
+        *blamer_debug += "\nFailed to insert pain point\n";
+        blamer_bundle->SetBlame(IRR_SEGSEARCH_HEUR, *blamer_debug, best_choice,
+                                wordrec_debug_blamer);
+        break;
+      }
+    }
+  }  // end for blamer_bundle->correct_segmentation_cols/rows
+}
+
+void Wordrec::FinishBlamerForSegSearch(const WERD_CHOICE *best_choice,
+                                       BlamerBundle *blamer_bundle,
+                                       STRING *blamer_debug) {
+  // If we are still looking for blame (i.e. best_choice is incorrect, but a
+  // path representing the correct segmentation could be constructed), we can
+  // blame segmentation search pain point prioritization if the rating of the
+  // path corresponding to the correct segmentation is better than that of
+  // best_choice (i.e. language model would have done the correct thing, but
+  // because of poor pain point prioritization the correct segmentation was
+  // never explored). Otherwise we blame the tradeoff between the language model
+  // and the classifier, since even after exploring the path corresponding to
+  // the correct segmentation incorrect best_choice would have been chosen.
+  // One special case when we blame the classifier instead is when best choice
+  // is incorrect, but it is a dictionary word and it classifier's top choice.
+  if (blamer_bundle != NULL && blamer_bundle->segsearch_is_looking_for_blame) {
+    blamer_bundle->segsearch_is_looking_for_blame = false;
+    if (blamer_bundle->best_choice_is_dict_and_top_choice) {
+      *blamer_debug = "Best choice is: incorrect, top choice, dictionary word";
+      *blamer_debug += " with permuter ";
+      *blamer_debug += best_choice->permuter_name();
+      blamer_bundle->SetBlame(IRR_CLASSIFIER, *blamer_debug, best_choice,
+                              wordrec_debug_blamer);
+    } else if (blamer_bundle->best_correctly_segmented_rating <
+        best_choice->rating()) {
+      *blamer_debug += "Correct segmentation state was not explored";
+      blamer_bundle->SetBlame(IRR_SEGSEARCH_PP, *blamer_debug, best_choice,
+                              wordrec_debug_blamer);
+    } else {
+      if (blamer_bundle->best_correctly_segmented_rating >=
+          WERD_CHOICE::kBadRating) {
+        *blamer_debug += "Correct segmentation paths were pruned by LM\n";
+      } else {
+        char debug_buffer[256];
+        *blamer_debug += "Best correct segmentation rating ";
+        sprintf(debug_buffer, "%g",
+                blamer_bundle->best_correctly_segmented_rating);
+        *blamer_debug += debug_buffer;
+        *blamer_debug += " vs. best choice rating ";
+        sprintf(debug_buffer, "%g", best_choice->rating());
+        *blamer_debug += debug_buffer;
+      }
+      blamer_bundle->SetBlame(IRR_CLASS_LM_TRADEOFF, *blamer_debug, best_choice,
+                              wordrec_debug_blamer);
+    }
+  }
 }
 
 }  // namespace tesseract

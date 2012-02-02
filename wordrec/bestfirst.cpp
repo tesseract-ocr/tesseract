@@ -36,9 +36,9 @@
 #include "dict.h"
 #include "freelist.h"
 #include "globals.h"
+#include "helpers.h"
 #include "pageres.h"
 #include "permute.h"
-#include "pieces.h"
 #include "plotseg.h"
 #include "ratngs.h"
 #include "states.h"
@@ -54,6 +54,24 @@
 #endif
 
 void call_caller();
+
+static void log_state(const char * message,
+                      int num_joints,
+                      STATE *state) {
+  STRING segstate;
+  print_state(state, num_joints, &segstate);
+  tprintf("%20s [%40s]\n", message, segstate.string());
+}
+
+static void log_state(const char * message,
+                      int num_joints,
+                      STATE *state,
+                      float priority) {
+  STRING segstate;
+  print_state(state, num_joints, &segstate);
+  tprintf("%20s [%40s], priority %8.3f\n", message,
+          segstate.string(), priority);
+}
 
 /**/
 /*----------------------------------------------------------------------
@@ -86,8 +104,8 @@ void Wordrec::best_first_search(CHUNKS_RECORD *chunks_record,
   // we give the best choice a poor rating to force the processed raw choice
   // to be promoted to best choice.
   the_search->best_choice->set_rating(WERD_CHOICE::kBadRating);
-  evaluate_state(chunks_record, the_search, fixpt);
-  if (wordrec_debug_level) {
+  evaluate_state(chunks_record, the_search, fixpt, word->blamer_bundle);
+  if (wordrec_debug_level > 1) {
     tprintf("\n\n\n =========== BestFirstSearch ==============\n");
     word->best_choice->print("**Initial BestChoice**");
   }
@@ -95,21 +113,23 @@ void Wordrec::best_first_search(CHUNKS_RECORD *chunks_record,
   FLOAT32 worst_priority = 2.0f * prioritize_state(chunks_record, the_search);
   if (worst_priority < wordrec_worst_state)
     worst_priority = wordrec_worst_state;
-  if (wordrec_debug_level) {
-    print_state("BestFirstSearch", best_state, num_joints);
+  if (wordrec_debug_level > 1) {
+    log_state("BestFirstSearch", num_joints, best_state);
   }
 
   guided_state = *state;
   do {
                                  /* Look for answer */
+    STATE orig_state = *the_search->this_state;
     if (!hash_lookup (the_search->closed_states, the_search->this_state)) {
       guided_state = *(the_search->this_state);
-      keep_going = evaluate_state(chunks_record, the_search, fixpt);
+      keep_going = evaluate_state(chunks_record, the_search, fixpt,
+                                  word->blamer_bundle);
       hash_add (the_search->closed_states, the_search->this_state);
 
       if (!keep_going ||
           (the_search->num_states > wordrec_num_seg_states)) {
-        if (wordrec_debug_level)
+        if (wordrec_debug_level > 1)
           tprintf("Breaking best_first_search on keep_going %s numstates %d\n",
                   ((keep_going) ? "T" :"F"), the_search->num_states);
         free_state (the_search->this_state);
@@ -119,7 +139,7 @@ void Wordrec::best_first_search(CHUNKS_RECORD *chunks_record,
       FLOAT32 new_worst_priority = 2.0f * prioritize_state(chunks_record,
                                                            the_search);
       if (new_worst_priority < worst_priority) {
-        if (wordrec_debug_level)
+        if (wordrec_debug_level > 1)
           tprintf("Lowering WorstPriority %f --> %f\n",
                   worst_priority, new_worst_priority);
         // Tighten the threshold for admitting new paths as better search
@@ -130,19 +150,21 @@ void Wordrec::best_first_search(CHUNKS_RECORD *chunks_record,
       expand_node(worst_priority, chunks_record, the_search);
     }
 
+    if (wordrec_debug_level > 1) {
+      log_state("Done with", the_search->num_joints, &orig_state);
+    }
     free_state (the_search->this_state);
     num_popped++;
     the_search->this_state = pop_queue (the_search->open_states);
-    if (wordrec_debug_level && !the_search->this_state)
+    if (wordrec_debug_level > 1 && !the_search->this_state)
       tprintf("No more states to evalaute after %d evals", num_popped);
-  }
-  while (the_search->this_state);
+  } while (the_search->this_state);
 
   state->part1 = the_search->best_state->part1;
   state->part2 = the_search->best_state->part2;
-  if (wordrec_debug_level) {
+  if (wordrec_debug_level > 1) {
     tprintf("\n\n\n =========== BestFirstSearch ==============\n");
-            // best_choice->debug_string(getDict().getUnicharset()).string());
+            // best_choice->debug_string().string());
     word->best_choice->print("**Final BestChoice**");
   }
   // save the best_state stats
@@ -179,7 +201,8 @@ void Wordrec::delete_search(SEARCH_RECORD *the_search) {
  * this to find the word list that corresponds to it.
  */
 BLOB_CHOICE_LIST_VECTOR *Wordrec::evaluate_chunks(CHUNKS_RECORD *chunks_record,
-                                                  SEARCH_STATE search_state) {
+                                                  SEARCH_STATE search_state,
+                                                  BlamerBundle *blamer_bundle) {
   BLOB_CHOICE_LIST_VECTOR *char_choices = new BLOB_CHOICE_LIST_VECTOR();
   BLOB_CHOICE_LIST *blob_choices;
   BLOB_CHOICE_IT blob_choice_it;
@@ -199,8 +222,9 @@ BLOB_CHOICE_LIST_VECTOR *Wordrec::evaluate_chunks(CHUNKS_RECORD *chunks_record,
     // Classify if needed.
     blob_choices = get_piece_rating(chunks_record->ratings,
                                     chunks_record->chunks,
+                                    chunks_record->word_res->denorm,
                                     chunks_record->splits,
-                                    x, y);
+                                    x, y, blamer_bundle);
 
     if (blob_choices == NULL) {
       delete char_choices;
@@ -231,7 +255,8 @@ BLOB_CHOICE_LIST_VECTOR *Wordrec::evaluate_chunks(CHUNKS_RECORD *chunks_record,
  */
 inT16 Wordrec::evaluate_state(CHUNKS_RECORD *chunks_record,
                               SEARCH_RECORD *the_search,
-                              DANGERR *fixpt) {
+                              DANGERR *fixpt,
+                              BlamerBundle *blamer_bundle) {
   BLOB_CHOICE_LIST_VECTOR *char_choices;
   SEARCH_STATE chunk_groups;
   float rating_limit = the_search->best_choice->rating();
@@ -242,9 +267,13 @@ inT16 Wordrec::evaluate_state(CHUNKS_RECORD *chunks_record,
   chunk_groups = bin_to_chunks(the_search->this_state,
                                the_search->num_joints);
   bin_to_pieces (the_search->this_state, the_search->num_joints, widths);
+  if (wordrec_debug_level > 1) {
+    log_state("Evaluating state", the_search->num_joints,
+              the_search->this_state);
+  }
   getDict().LogNewSegmentation(widths);
 
-  char_choices = evaluate_chunks(chunks_record, chunk_groups);
+  char_choices = evaluate_chunks(chunks_record, chunk_groups, blamer_bundle);
   getDict().SetWordsegRatingAdjustFactor(-1.0f);
   bool updated_best_choice = false;
   if (char_choices != NULL && char_choices->length() > 0) {
@@ -460,7 +489,6 @@ BLOB_CHOICE_LIST_VECTOR *Wordrec::rebuild_current_state(
   return char_choices;
 }
 
-
 /**
  * @name expand_node
  *
@@ -472,7 +500,6 @@ void Wordrec::expand_node(FLOAT32 worst_priority,
                           CHUNKS_RECORD *chunks_record,
                           SEARCH_RECORD *the_search) {
   STATE old_state;
-  int nodes_added = 0;
   int x;
   uinT32 mask = 1 << (the_search->num_joints - 1 - 32);
 
@@ -490,14 +517,16 @@ void Wordrec::expand_node(FLOAT32 worst_priority,
     the_search->this_state->part1 = mask ^ old_state.part1;
     if (!hash_lookup (the_search->closed_states, the_search->this_state)) {
       FLOAT32 new_merit = prioritize_state(chunks_record, the_search);
-      if (wordrec_debug_level) {
-        cprintf ("....checking state: %8.3f ", new_merit);
-        print_state ("", the_search->this_state, num_joints);
-      }
       if (new_merit < worst_priority) {
+        if (wordrec_debug_level > 1)
+          log_state("Pushing segstate", the_search->num_joints,
+                    the_search->this_state, new_merit);
         push_queue(the_search->open_states, the_search->this_state,
-                   worst_priority, new_merit, wordrec_debug_level > 0);
-        nodes_added++;
+                   worst_priority, new_merit, wordrec_debug_level > 1);
+      } else {
+        if (wordrec_debug_level > 1)
+          log_state("Ignore weak segstate", the_search->num_joints,
+                    the_search->this_state, new_merit);
       }
     }
     mask >>= 1;
@@ -515,14 +544,16 @@ void Wordrec::expand_node(FLOAT32 worst_priority,
     the_search->this_state->part2 = mask ^ old_state.part2;
     if (!hash_lookup (the_search->closed_states, the_search->this_state)) {
       FLOAT32 new_merit = prioritize_state(chunks_record, the_search);
-      if (wordrec_debug_level) {
-        cprintf ("....checking state: %8.3f ", new_merit);
-        print_state ("", the_search->this_state, num_joints);
-      }
       if (new_merit < worst_priority) {
+        if (wordrec_debug_level > 1)
+          log_state("Pushing segstate", the_search->num_joints,
+                    the_search->this_state, new_merit);
         push_queue(the_search->open_states, the_search->this_state,
-                   worst_priority, new_merit, wordrec_debug_level > 0);
-        nodes_added++;
+                   worst_priority, new_merit, wordrec_debug_level > 1);
+      } else {
+        if (wordrec_debug_level > 1)
+          log_state("Ignoring weak segstate", the_search->num_joints,
+                    the_search->this_state, new_merit);
       }
     }
     mask >>= 1;
@@ -604,7 +635,6 @@ void Wordrec::push_queue(HEAP *queue, STATE *state, FLOAT32 worst_priority,
       if (debug) tprintf("Heap is Full\n");
       return;
     }
-    if (debug) tprintf("\tpushing %d node  %f\n", num_pushed, priority);
     entry.Data = (char *) new_state (state);
     num_pushed++;
     entry.Key = priority;
@@ -654,6 +684,8 @@ BLOB_CHOICE* Wordrec::rebuild_fragments(
     BLOB_CHOICE_LIST_VECTOR *old_choices) {
   float rating = 0.0f;
   float certainty = 0.0f;
+  inT16 min_xheight = -MAX_INT16;
+  inT16 max_xheight = MAX_INT16;
   for (int fragment_pieces = expanded_fragment_lengths[choice_index] - 1;
        fragment_pieces >= 0; --fragment_pieces, --choice_index) {
     // Get a pointer to the classifier results from the old_choices.
@@ -663,18 +695,20 @@ BLOB_CHOICE* Wordrec::rebuild_fragments(
     // Update rating and certainty of the character being composed.
     CHAR_FRAGMENT fragment;
     fragment.set_all(unichar, fragment_pieces,
-                     expanded_fragment_lengths[choice_index]);
+                     expanded_fragment_lengths[choice_index], false);
     BLOB_CHOICE_IT choice_it(current_choices);
     for (choice_it.mark_cycle_pt(); !choice_it.cycled_list();
         choice_it.forward()) {
+      BLOB_CHOICE* choice = choice_it.data();
       const CHAR_FRAGMENT *current_fragment =
-          getDict().getUnicharset().get_fragment(
-              choice_it.data()->unichar_id());
+          getDict().getUnicharset().get_fragment(choice->unichar_id());
       if (current_fragment && fragment.equals(current_fragment)) {
-        rating += choice_it.data()->rating();
-        if (choice_it.data()->certainty() < certainty) {
-          certainty = choice_it.data()->certainty();
+        rating += choice->rating();
+        if (choice->certainty() < certainty) {
+          certainty = choice->certainty();
         }
+        IntersectRange(choice->min_xheight(), choice->max_xheight(),
+                       &min_xheight, &max_xheight);
         break;
       }
     }
@@ -686,7 +720,8 @@ BLOB_CHOICE* Wordrec::rebuild_fragments(
     ASSERT_HOST(!choice_it.cycled_list());  // Be sure we found the fragment.
   }
   return new BLOB_CHOICE(getDict().getUnicharset().unichar_to_id(unichar),
-                         rating, certainty, -1, -1, 0);
+                         rating, certainty, -1, -1, 0,
+                         min_xheight, max_xheight, false);
 }
 
 // Creates a joined copy of the blobs between x and y (inclusive) and
@@ -725,7 +760,8 @@ BLOB_CHOICE_LIST *Wordrec::join_blobs_and_classify(
   }
   // Get the choices for the blob by classification if necessary.
   if (choices == NULL) {
-    choices = classify_blob(blob, "rebuild", Orange);
+    choices = classify_blob(blob, word->denorm, "rebuild", Orange,
+                            word->blamer_bundle);
   }
   // Undo join_pieces to restore the chopped word to its fully chopped state.
   if (x != y)
