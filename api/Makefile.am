@@ -6,7 +6,7 @@ AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"\
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
 
 include_HEADERS = \
-    apitypes.h baseapi.h pageiterator.h resultiterator.h tesseractmain.h
+    apitypes.h baseapi.h tesseractmain.h
 lib_LTLIBRARIES = 
 
 if !USING_MULTIPLELIBS
@@ -28,7 +28,7 @@ libtesseract_api_la_LIBADD = \
     $(top_srcdir)/viewer/libtesseract_viewer.la \
     $(top_srcdir)/ccutil/libtesseract_ccutil.la
 endif
-libtesseract_api_la_SOURCES = baseapi.cpp pageiterator.cpp resultiterator.cpp
+libtesseract_api_la_SOURCES = baseapi.cpp
 
 lib_LTLIBRARIES += libtesseract.la
 libtesseract_la_LDFLAGS =

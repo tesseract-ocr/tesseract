@@ -22,8 +22,10 @@
 
 #include "publictypes.h"
 
-// The types used by the API and Page/ResultIterator can be found in
-// ccstruct/publictypes.h.
+// The types used by the API and Page/ResultIterator can be found in:
+//   ccstruct/publictypes.h
+//   ccmain/resultiterator.h
+//   ccmain/pageiterator.h
 // API interfaces and API users should be sure to include this file, rather
 // than the lower-level one, and lower-level code should be sure to include
 // only the lower-level file.
