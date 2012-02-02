@@ -358,8 +358,7 @@ void CubeUtils::UTF32ToUTF8(const char_32 *utf32_str, string *str) {
   }
 }
 
-bool CubeUtils::IsCaseInvariant(const char_32 *str32, CharSet *char_set,
-                                UNICHARSET *unicharset) {
+bool CubeUtils::IsCaseInvariant(const char_32 *str32, CharSet *char_set) {
   bool all_one_case = true;
   bool capitalized;
   bool prev_upper;
@@ -370,20 +369,18 @@ bool CubeUtils::IsCaseInvariant(const char_32 *str32, CharSet *char_set,
   bool cur_lower;
 
   string str8;
-  if (!char_set || !unicharset || !char_set->SharedUnicharset()) {
-    // If cube char_set or tesseract unicharset are missing, or
-    // unicharset is not shared, then use C-locale-dependent functions
+  if (!char_set) {
+    // If cube char_set is missing, use C-locale-dependent functions
     // on UTF8 characters to determine case properties.
-    UTF32ToUTF8(str32, &str8);
-    first_upper = isupper(str8[0]);
-    first_lower = islower(str8[0]);
+    first_upper = isupper(str32[0]);
+    first_lower = islower(str32[0]);
     if (first_upper)
       capitalized = true;
     prev_upper = first_upper;
-    prev_lower = islower(str8[0]);
-    for (int c = 1; c < str8.length(); ++c) {
-      cur_upper = isupper(str8[c]);
-      cur_lower = islower(str8[c]);
+    prev_lower = islower(str32[0]);
+    for (int c = 1; str32[c] != 0; ++c) {
+      cur_upper = isupper(str32[c]);
+      cur_lower = islower(str32[c]);
       if ((prev_upper && cur_lower) || (prev_lower && cur_upper))
         all_one_case = false;
       if (cur_upper)
@@ -392,17 +389,18 @@ bool CubeUtils::IsCaseInvariant(const char_32 *str32, CharSet *char_set,
       prev_lower = cur_lower;
     }
   } else {
+    UNICHARSET *unicharset = char_set->InternalUnicharset();
     // Use UNICHARSET functions to determine case properties
-    first_upper = unicharset->get_isupper(char_set->UnicharID(str32[0]));
-    first_lower = unicharset->get_islower(char_set->UnicharID(str32[0]));
+    first_upper = unicharset->get_isupper(char_set->ClassID(str32[0]));
+    first_lower = unicharset->get_islower(char_set->ClassID(str32[0]));
     if (first_upper)
       capitalized = true;
     prev_upper = first_upper;
-    prev_lower = unicharset->get_islower(char_set->UnicharID(str32[0]));
+    prev_lower = unicharset->get_islower(char_set->ClassID(str32[0]));
 
     for (int c = 1; c < StrLen(str32); ++c) {
-      cur_upper = unicharset->get_isupper(char_set->UnicharID(str32[c]));
-      cur_lower = unicharset->get_islower(char_set->UnicharID(str32[c]));
+      cur_upper = unicharset->get_isupper(char_set->ClassID(str32[c]));
+      cur_lower = unicharset->get_islower(char_set->ClassID(str32[c]));
       if ((prev_upper && cur_lower) || (prev_lower && cur_upper))
         all_one_case = false;
       if (cur_upper)
@@ -414,11 +412,11 @@ bool CubeUtils::IsCaseInvariant(const char_32 *str32, CharSet *char_set,
   return all_one_case || capitalized;
 }
 
-char_32 *CubeUtils::ToLower(const char_32 *str32, CharSet *char_set,
-                            UNICHARSET *unicharset) {
-  if (!char_set || !unicharset || !char_set->SharedUnicharset()) {
+char_32 *CubeUtils::ToLower(const char_32 *str32, CharSet *char_set) {
+  if (!char_set) {
     return NULL;
   }
+  UNICHARSET *unicharset = char_set->InternalUnicharset();
   int len = StrLen(str32);
   char_32 *lower = new char_32[len + 1];
   if (!lower)
@@ -430,9 +428,8 @@ char_32 *CubeUtils::ToLower(const char_32 *str32, CharSet *char_set,
       return NULL;
     }
     // convert upper-case characters to lower-case
-    if (unicharset->get_isupper(char_set->UnicharID(ch))) {
-      UNICHAR_ID uid_lower =
-          unicharset->get_other_case(char_set->UnicharID(ch));
+    if (unicharset->get_isupper(char_set->ClassID(ch))) {
+      UNICHAR_ID uid_lower = unicharset->get_other_case(char_set->ClassID(ch));
       const char_32 *str32_lower = char_set->ClassString(uid_lower);
       // expect lower-case version of character to be a single character
       if (!str32_lower || StrLen(str32_lower) != 1) {
@@ -448,11 +445,11 @@ char_32 *CubeUtils::ToLower(const char_32 *str32, CharSet *char_set,
   return lower;
 }
 
-char_32 *CubeUtils::ToUpper(const char_32 *str32, CharSet *char_set,
-                            UNICHARSET *unicharset) {
-  if (!char_set || !unicharset || !char_set->SharedUnicharset()) {
+char_32 *CubeUtils::ToUpper(const char_32 *str32, CharSet *char_set) {
+  if (!char_set) {
     return NULL;
   }
+  UNICHARSET *unicharset = char_set->InternalUnicharset();
   int len = StrLen(str32);
   char_32 *upper = new char_32[len + 1];
   if (!upper)
@@ -464,9 +461,8 @@ char_32 *CubeUtils::ToUpper(const char_32 *str32, CharSet *char_set,
       return NULL;
     }
     // convert lower-case characters to upper-case
-    if (unicharset->get_islower(char_set->UnicharID(ch))) {
-      UNICHAR_ID uid_upper =
-          unicharset->get_other_case(char_set->UnicharID(ch));
+    if (unicharset->get_islower(char_set->ClassID(ch))) {
+      UNICHAR_ID uid_upper = unicharset->get_other_case(char_set->ClassID(ch));
       const char_32 *str32_upper = char_set->ClassString(uid_upper);
       // expect upper-case version of character to be a single character
       if (!str32_upper || StrLen(str32_upper) != 1) {

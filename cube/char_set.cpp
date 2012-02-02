@@ -78,10 +78,16 @@ CharSet *CharSet::Create(TessdataManager *tessdata_manager,
   // map its unichars to tesseract's; if only one unicharset exists,
   // just load it.
   bool loaded;
-  if (cube_unicharset_exists)
-    loaded = char_set->LoadSupportedCharList(charset_fp, tess_unicharset);
-  else
+  if (cube_unicharset_exists) {
+    char_set->cube_unicharset_.load_from_file(charset_fp);
+    loaded = tessdata_manager->SeekToStart(TESSDATA_CUBE_UNICHARSET);
+    loaded = loaded && char_set->LoadSupportedCharList(
+        tessdata_manager->GetDataFilePtr(), tess_unicharset);
+    char_set->unicharset_ = &char_set->cube_unicharset_;
+  } else {
     loaded = char_set->LoadSupportedCharList(charset_fp, NULL);
+    char_set->unicharset_ = tess_unicharset;
+  }
   if (!loaded) {
     delete char_set;
     return false;

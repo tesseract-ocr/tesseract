@@ -242,6 +242,16 @@ int CubeObject::WordCost(const char *str) {
   return cost;
 }
 
+// Recognizes a single character and returns the list of results.
+CharAltList *CubeObject::RecognizeChar() {
+  if (char_samp_ == NULL) return NULL;
+  CharAltList* alt_list = NULL;
+  CharClassifier *char_classifier = cntxt_->Classifier();
+  ASSERT_HOST(char_classifier != NULL);
+  alt_list = char_classifier->Classify(char_samp_);
+  return alt_list;
+}
+
 // Normalize the input word bitmap to have a minimum aspect ratio
 bool CubeObject::Normalize() {
   // create a cube search object

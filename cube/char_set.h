@@ -116,6 +116,10 @@ class CharSet {
   static CharSet *Create(TessdataManager *tessdata_manager,
                          UNICHARSET *tess_unicharset);
 
+  // Return the UNICHARSET cube is using for recognition internally --
+  // ClassId() returns unichar_id's in this unicharset.
+  UNICHARSET *InternalUnicharset() { return unicharset_; }
+
  private:
   // Hash table configuration params. Determined emperically on
   // the supported languages so far (Eng, Ara, Hin). Might need to be
@@ -155,6 +159,13 @@ class CharSet {
   string_32  **class_strings_;
   // map from class id to secondary (tesseract's) unicharset's ids
   int *unicharset_map_;
+  // A unicharset which is filled in with a Tesseract-style UNICHARSET for
+  // cube's data if our unicharset is different from tesseract's.
+  UNICHARSET cube_unicharset_;
+  // This points to either the tess_unicharset we're passed or cube_unicharset_,
+  // depending upon whether we just have one unicharset or one for each
+  // tesseract and cube, respectively.
+  UNICHARSET *unicharset_;
   // has the char set been initialized flag
   bool init_;
 };

@@ -61,13 +61,12 @@ class CharBigrams {
   static CharBigrams *Create(const string &data_file_path,
                              const string &lang);
   // Top-level function to return the mean character bigram cost of a
-  // sequence of characters.  If char_set and unicharset are not NULL
-  // and cube and tesseract share the same unicharset, use
+  // sequence of characters.  If char_set is not NULL, use
   // tesseract functions to return a case-invariant cost.
   // This avoids unnecessarily penalizing all-one-case words or
   // capitalized words (first-letter upper-case and remaining letters
   // lower-case).
-  int Cost(const char_32 *str, CharSet *char_set, UNICHARSET *unicharset) const;
+  int Cost(const char_32 *str, CharSet *char_set) const;
 
  protected:
   // Returns the character bigram cost of two characters.

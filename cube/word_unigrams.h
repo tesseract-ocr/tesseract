@@ -49,7 +49,7 @@ class WordUnigrams {
   // case-invariant cost is computed in those cases, assuming the word
   // meets a minimum length.
   int Cost(const char_32 *str32, LangModel *lang_mod,
-           CharSet *char_set, UNICHARSET *unicharset) const;
+           CharSet *char_set) const;
  protected:
   // Compute the word unigram cost of a UTF-8 string with binary
   // search of sorted words_ array.

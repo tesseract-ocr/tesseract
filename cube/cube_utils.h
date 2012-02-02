@@ -69,24 +69,18 @@ class CubeUtils {
   static void UTF32ToUTF8(const char_32 *utf32_str, string *str);
   // Returns true if input word has either 1) all-one-case, or 2)
   // first character upper-case, and remaining characters lower-case.
-  // If char_set and unicharset are not NULL, uses tesseract's unicharset
-  // functions to determine case properties. Otherwise, uses
-  // C-locale-dependent functions, which may be unreliable on
-  // non-ASCII characters.
-  static bool IsCaseInvariant(const char_32 *str32, CharSet *char_set,
-                              UNICHARSET *unicharset);
+  // If char_set is not NULL, uses tesseract's unicharset functions
+  // to determine case properties. Otherwise, uses C-locale-dependent
+  // functions, which may be unreliable on non-ASCII characters.
+  static bool IsCaseInvariant(const char_32 *str32, CharSet *char_set);
   // Returns char_32 pointer to the lower-case-transformed version of
-  // the input string or NULL on error. If char_set or unicharset are
-  // NULL, or tesseract and cube do not share unicharsets, returns
-  // NULL. Return array must be freed by caller.
-  static char_32 *ToLower(const char_32 *str32, CharSet *char_set,
-                          UNICHARSET *unicharset);
+  // the input string or NULL on error. If char_set is NULL returns NULL.
+  // Return array must be freed by caller.
+  static char_32 *ToLower(const char_32 *str32, CharSet *char_set);
   // Returns char_32 pointer to the upper-case-transformed version of
-  // the input string or NULL on error. If char_set or unicharset are
-  // NULL, or tesseract and cube do not share unicharsets, returns
-  // NULL. Return array must be freed by caller.
-  static char_32 *ToUpper(const char_32 *str32, CharSet *char_set,
-                          UNICHARSET *unicharset);
+  // the input string or NULL on error. If char_set is NULL returns NULL.
+  // Return array must be freed by caller.
+  static char_32 *ToUpper(const char_32 *str32, CharSet *char_set);
  private:
   static unsigned char *GetImageData(IMAGE *img,
                                      int left, int top, int wid, int hgt);

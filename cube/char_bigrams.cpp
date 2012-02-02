@@ -25,7 +25,6 @@
 #include "char_bigrams.h"
 #include "cube_utils.h"
 #include "ndminx.h"
-#include "unicharset.h"
 #include "cube_const.h"
 
 namespace tesseract {
@@ -167,21 +166,20 @@ int CharBigrams::PairCost(char_32 ch1, char_32 ch2) const {
   return bigram_table_.char_bigram[ch1].bigram[ch2].cost;
 }
 
-int CharBigrams::Cost(const char_32 *char_32_ptr, CharSet *char_set,
-                      UNICHARSET *unicharset) const {
+int CharBigrams::Cost(const char_32 *char_32_ptr, CharSet *char_set) const {
   if (!char_32_ptr || char_32_ptr[0] == 0) {
     return bigram_table_.worst_cost;
   }
   int cost = MeanCostWithSpaces(char_32_ptr);
   if (CubeUtils::StrLen(char_32_ptr) >= kMinLengthCaseInvariant &&
-      CubeUtils::IsCaseInvariant(char_32_ptr, char_set, unicharset)) {
-    char_32 *lower_32 = CubeUtils::ToLower(char_32_ptr, char_set, unicharset);
+      CubeUtils::IsCaseInvariant(char_32_ptr, char_set)) {
+    char_32 *lower_32 = CubeUtils::ToLower(char_32_ptr, char_set);
     if (lower_32 && lower_32[0] != 0) {
       int cost_lower = MeanCostWithSpaces(lower_32);
       cost = MIN(cost, cost_lower);
       delete [] lower_32;
     }
-    char_32 *upper_32 = CubeUtils::ToUpper(char_32_ptr, char_set, unicharset);
+    char_32 *upper_32 = CubeUtils::ToUpper(char_32_ptr, char_set);
     if (upper_32 && upper_32[0] != 0) {
       int cost_upper = MeanCostWithSpaces(upper_32);
       cost = MIN(cost, cost_upper);

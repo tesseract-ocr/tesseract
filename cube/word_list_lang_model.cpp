@@ -121,11 +121,11 @@ void WordListLangModel::WordVariants(const CharSet &char_set,
                                      string_32 prefix_str32,
                                      WERD_CHOICE *word_so_far,
                                      string_32 str32,
-                                     vector<WERD_CHOICE> *word_variants) {
+                                     vector<WERD_CHOICE *> *word_variants) {
   int str_len = str32.length();
   if (str_len == 0) {
     if (word_so_far->length() > 0) {
-      word_variants->push_back(*word_so_far);
+      word_variants->push_back(new WERD_CHOICE(*word_so_far));
     }
   } else {
     // Try out all the possible prefixes of the str32.
@@ -151,11 +151,15 @@ void WordListLangModel::WordVariants(const CharSet &char_set,
 // Compute all the variants of a 32-bit string in terms of the class-ids
 // This is needed for languages that have ligatures. A word can then have more
 // than one spelling in terms of the class-ids
-void WordListLangModel::WordVariants(const CharSet &char_set, string_32 str32,
-                                     vector<WERD_CHOICE> *word_variants) {
+void WordListLangModel::WordVariants(const CharSet &char_set,
+                                     const UNICHARSET *uchset, string_32 str32,
+                                     vector<WERD_CHOICE *> *word_variants) {
+  for (int i = 0; i < word_variants->size(); i++) {
+    delete (*word_variants)[i];
+  }
   word_variants->clear();
   string_32 prefix_str32;
-  WERD_CHOICE word_so_far;
+  WERD_CHOICE word_so_far(uchset);
   WordVariants(char_set, prefix_str32, &word_so_far, str32, word_variants);
 }
 
@@ -179,21 +183,23 @@ bool WordListLangModel::AddString32(const char_32 *char_32_ptr) {
     return false;
   }
   // get all the word variants
-  vector<WERD_CHOICE> word_variants;
-  WordVariants(*(cntxt_->CharacterSet()), char_32_ptr, &word_variants);
+  vector<WERD_CHOICE *> word_variants;
+  WordVariants(*(cntxt_->CharacterSet()), cntxt_->TessUnicharset(),
+               char_32_ptr, &word_variants);
 
   if (word_variants.size() > 0) {
     // find the shortest variant
     int shortest_word = 0;
     for (int word = 1; word < word_variants.size(); word++) {
-      if (word_variants[shortest_word].length() >
-          word_variants[word].length()) {
+      if (word_variants[shortest_word]->length() >
+          word_variants[word]->length()) {
         shortest_word = word;
       }
     }
     // only add the shortest grapheme interpretation of string to the word list
-    dawg_->add_word_to_dawg(word_variants[shortest_word]);
+    dawg_->add_word_to_dawg(*word_variants[shortest_word]);
   }
+  for (int i = 0; i < word_variants.size(); i++) { delete word_variants[i]; }
   return true;
 }
 

@@ -245,13 +245,11 @@ WordAltList *BeamSearch::CreateWordAltList(SearchObject *srch_obj) {
       int cost = 0;
       // char bigram cost
       int bigram_cost = !bigrams ? 0 :
-          bigrams->Cost(ch_buff, cntxt_->CharacterSet(),
-                        &cntxt_->TesseractObject()->unicharset);
+          bigrams->Cost(ch_buff, cntxt_->CharacterSet());
       // word unigram cost
       int unigram_cost = !word_unigrams ? 0 :
           word_unigrams->Cost(ch_buff, cntxt_->LangMod(),
-                              cntxt_->CharacterSet(),
-                              &cntxt_->TesseractObject()->unicharset);
+                              cntxt_->CharacterSet());
       // overall cost
       cost = static_cast<int>(
           (size_cost * cntxt_->Params()->SizeWgt()) +

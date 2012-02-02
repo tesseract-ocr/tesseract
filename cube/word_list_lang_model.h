@@ -63,8 +63,9 @@ class WordListLangModel : public LangModel {
   // Compute all the variants of a 32-bit string in terms of the class-ids.
   // This is needed for languages that have ligatures. A word can then have
   // more than one spelling in terms of the class-ids.
-  static void WordVariants(const CharSet &char_set, string_32 str32,
-                           vector<WERD_CHOICE> *word_variants);
+  static void WordVariants(const CharSet &char_set, const UNICHARSET *uchset,
+                           string_32 str32,
+                           vector<WERD_CHOICE *> *word_variants);
  private:
   // constants needed to configure the language model
   static const int kMaxEdge = 512;
@@ -78,9 +79,11 @@ class WordListLangModel : public LangModel {
   // Cleanup
   void Cleanup();
   // Recursive helper function for WordVariants().
-  static void WordVariants(const CharSet &char_set,
-                           string_32 prefix_str32, WERD_CHOICE *word_so_far,
-                           string_32 str32, vector<WERD_CHOICE> *word_variants);
+  static void WordVariants(
+      const CharSet &char_set,
+      string_32 prefix_str32, WERD_CHOICE *word_so_far,
+      string_32 str32,
+      vector<WERD_CHOICE *> *word_variants);
 };
 }  // tesseract
 

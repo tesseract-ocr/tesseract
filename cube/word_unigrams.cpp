@@ -25,7 +25,6 @@
 #include "const.h"
 #include "cube_utils.h"
 #include "ndminx.h"
-#include "unicharset.h"
 #include "word_unigrams.h"
 
 namespace tesseract {
@@ -150,8 +149,7 @@ WordUnigrams *WordUnigrams::Create(const string &data_file_path,
 // cost.
 int WordUnigrams::Cost(const char_32 *key_str32,
                        LangModel *lang_mod,
-                       CharSet *char_set,
-                       UNICHARSET *unicharset) const {
+                       CharSet *char_set) const {
   if (!key_str32)
     return 0;
   // convert string to UTF8 to split into space-separated words
@@ -206,15 +204,15 @@ int WordUnigrams::Cost(const char_32 *key_str32,
     // if case invariant, get costs of all-upper-case and all-lower-case
     // versions and return the min cost
     if (clean_len >= kMinLengthNumOrCaseInvariant &&
-        CubeUtils::IsCaseInvariant(clean_str32, char_set, unicharset)) {
-      char_32 *lower_32 = CubeUtils::ToLower(clean_str32, char_set, unicharset);
+        CubeUtils::IsCaseInvariant(clean_str32, char_set)) {
+      char_32 *lower_32 = CubeUtils::ToLower(clean_str32, char_set);
       if (lower_32) {
         string lower_8;
         CubeUtils::UTF32ToUTF8(lower_32, &lower_8);
         word_cost = MIN(word_cost, CostInternal(lower_8.c_str()));
         delete [] lower_32;
       }
-      char_32 *upper_32 = CubeUtils::ToUpper(clean_str32, char_set, unicharset);
+      char_32 *upper_32 = CubeUtils::ToUpper(clean_str32, char_set);
       if (upper_32) {
         string upper_8;
         CubeUtils::UTF32ToUTF8(upper_32, &upper_8);

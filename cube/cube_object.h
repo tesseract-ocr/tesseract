@@ -64,7 +64,6 @@
 //
 //         // Call this once you are done recognizing all words with
 //         // for the current language
-//         tess_obj->end_tesseract();
 //         delete tess_obj;
 //
 // Note that if the language supports "Italics" (see the CubeRecoContext), the
@@ -110,6 +109,8 @@ class CubeObject {
   // recognition of a language model that allows only the specified word.
   // The alternate list(s) will be permanently modified.
   int WordCost(const char *str);
+  // Recognizes a single character and returns the list of results.
+  CharAltList *RecognizeChar();
 
   // Returns the BeamSearch object that resulted from the last call to
   // RecognizeWord
