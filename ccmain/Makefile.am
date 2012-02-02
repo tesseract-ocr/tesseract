@@ -9,10 +9,11 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/textord
 
 include_HEADERS = \
-    control.h cube_reco_context.h \
-    docqual.h fixspace.h \
-    imgscale.h osdetect.h output.h \
-    paramsd.h pgedit.h reject.h scaleimg.h \
+    control.h cube_reco_context.h cubeclassifier.h \
+    docqual.h equationdetect.h fixspace.h \
+    imgscale.h ltrresultiterator.h mutableiterator.h osdetect.h output.h \
+    pageiterator.h paragraphs.h paragraphs_internal.h paramsd.h pgedit.h \
+    reject.h resultiterator.h scaleimg.h \
     tessbox.h tessedit.h tesseractclass.h \
     tesseract_cube_combiner.h \
     tessvars.h tfacep.h tfacepp.h thresholder.h \
@@ -38,11 +39,13 @@ endif
 
 libtesseract_main_la_SOURCES = \
     adaptions.cpp applybox.cpp \
-    control.cpp cube_control.cpp cube_reco_context.cpp \
-    docqual.cpp fixspace.cpp fixxht.cpp \
-    imgscale.cpp osdetect.cpp output.cpp pagesegmain.cpp \
-    pagewalk.cpp paramsd.cpp pgedit.cpp reject.cpp scaleimg.cpp \
-    recogtraining.cpp tesseract_cube_combiner.cpp \
+    control.cpp cube_control.cpp cube_reco_context.cpp cubeclassifier.cpp \
+    docqual.cpp equationdetect.cpp fixspace.cpp fixxht.cpp \
+    imgscale.cpp ltrresultiterator.cpp \
+    osdetect.cpp output.cpp pageiterator.cpp pagesegmain.cpp \
+    pagewalk.cpp paragraphs.cpp paramsd.cpp pgedit.cpp recogtraining.cpp \
+    reject.cpp resultiterator.cpp scaleimg.cpp \
+    tesseract_cube_combiner.cpp \
     tessbox.cpp tessedit.cpp tesseractclass.cpp tessvars.cpp \
     tfacepp.cpp thresholder.cpp \
     werdit.cpp

@@ -56,6 +56,7 @@ class CubeRecoContext {
   // accessor functions
   inline const string & Lang() const { return lang_; }
   inline CharSet *CharacterSet() const { return char_set_; }
+  const UNICHARSET *TessUnicharset() const { return tess_unicharset_; }
   inline CharClassifier *Classifier() const { return char_classifier_; }
   inline WordSizeModel *SizeModel() const { return word_size_model_; }
   inline CharBigrams *Bigrams() const { return char_bigrams_; }
@@ -135,6 +136,7 @@ class CubeRecoContext {
   bool loaded_;
   string lang_;
   CharSet *char_set_;
+  UNICHARSET *tess_unicharset_;
   WordSizeModel *word_size_model_;
   CharClassifier *char_classifier_;
   CharBigrams *char_bigrams_;

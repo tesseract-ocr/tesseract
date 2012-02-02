@@ -38,7 +38,7 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
   if (tessedit_ambigs_training) {
     tessedit_tess_adaption_mode.set_value(0);    // turn off adaption
     tessedit_enable_doc_dict.set_value(0);       // turn off document dictionary
-    save_best_choices.set_value(1);              // save individual char choices
+    save_blob_choices.set_value(1);              // save individual char choices
     getDict().save_raw_choices.set_value(1);     // save raw choices
     getDict().permute_only_top.set_value(true);  // use only top choice permuter
     tessedit_ok_mode.set_value(0);               // turn off context checking
@@ -56,22 +56,24 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
 
 // Copies the bounding box from page_res_it->word() to the given TBOX.
 bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
+  while (page_res_it->block() != NULL) {
+    if (page_res_it->word() != NULL)
+      break;
+    page_res_it->forward();
+  }
+
   if (page_res_it->word() != NULL) {
     *tbox = page_res_it->word()->word->bounding_box();
     page_res_it->forward();
-    return true;
-  } else {
-    return false;
-  }
-}
 
-// Reads the next box from the given box file into TBOX.
-bool read_b(int applybox_page, int *line_number, FILE *box_file,
-            char *label, TBOX *bbox) {
-  int x_min, y_min, x_max, y_max;
-  if (read_next_box(applybox_page, line_number, box_file, label,
-                    &x_min, &y_min, &x_max, &y_max)) {
-    bbox->set_to_given_coords(x_min, y_min, x_max, y_max);
+    // If tbox->left() is negative, the training image has vertical text and
+    // all the coordinates of bounding boxes of page_res are rotated by 90
+    // degrees in a counterclockwise direction. We need to rotate the TBOX back
+    // in order to compare with the TBOXes of box files.
+    if (tbox->left() < 0) {
+      tbox->rotate(FCOORD(0.0, -1.0));
+    }
+
     return true;
   } else {
     return false;
@@ -97,27 +99,29 @@ void Tesseract::recog_training_segmented(const STRING &fname,
   PAGE_RES_IT page_res_it;
   page_res_it.page_res = page_res;
   page_res_it.restart_page();
-  char label[kBoxReadBufSize];
+  STRING label;
 
   // Process all the words on this page.
   TBOX tbox;  // tesseract-identified box
   TBOX bbox;  // box from the box file
   bool keep_going;
   int line_number = 0;
+  int examined_words = 0;
   do {
     keep_going = read_t(&page_res_it, &tbox);
-    keep_going &= read_b(applybox_page, &line_number, box_file, label, &bbox);
+    keep_going &= ReadNextBox(applybox_page, &line_number, box_file, &label,
+                              &bbox);
     // Align bottom left points of the TBOXes.
     while (keep_going &&
            !NearlyEqual<int>(tbox.bottom(), bbox.bottom(), kMaxBoxEdgeDiff)) {
       keep_going = (bbox.bottom() < tbox.bottom()) ?
           read_t(&page_res_it, &tbox) :
-            read_b(applybox_page, &line_number, box_file, label, &bbox);
+            ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
     }
     while (keep_going &&
            !NearlyEqual<int>(tbox.left(), bbox.left(), kMaxBoxEdgeDiff)) {
       keep_going = (bbox.left() > tbox.left()) ? read_t(&page_res_it, &tbox) :
-        read_b(applybox_page, &line_number, box_file, label, &bbox);
+          ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
     }
     // OCR the word if top right points of the TBOXes are similar.
     if (keep_going &&
@@ -126,9 +130,30 @@ void Tesseract::recog_training_segmented(const STRING &fname,
         ambigs_classify_and_output(page_res_it.prev_word(),
                                    page_res_it.prev_row(),
                                    page_res_it.prev_block(),
-                                   label, output_file);
+                                   label.string(), output_file);
+        examined_words++;
     }
   } while (keep_going);
+
+  // Set up scripts on all of the words that did not get sent to
+  // ambigs_classify_and_output.  They all should have, but if all the
+  // werd_res's don't get uch_sets, tesseract will crash when you try
+  // to iterate over them. :-(
+  int total_words = 0;
+  for (page_res_it.restart_page(); page_res_it.block() != NULL;
+       page_res_it.forward()) {
+    if (page_res_it.word()) {
+      if (page_res_it.word()->uch_set == NULL)
+        page_res_it.word()->SetupFake(unicharset);
+      total_words++;
+    }
+  }
+  if (examined_words < 0.85 * total_words) {
+    tprintf("TODO(antonova): clean up recog_training_segmented; "
+            " It examined only a small fraction of the ambigs image.\n");
+  }
+  tprintf("recog_training_segmented: examined %d / %d words.\n",
+          examined_words, total_words);
 }
 
 // Runs classify_word_pass1() on the current word. Outputs Tesseract's
@@ -142,7 +167,8 @@ void Tesseract::ambigs_classify_and_output(WERD_RES *werd_res,
                                            FILE *output_file) {
   int offset;
   // Classify word.
-  classify_word_pass1(werd_res, row_res->row, block_res->block);
+  fflush(stdout);
+  classify_word_pass1(block_res->block, row_res->row, werd_res);
   WERD_CHOICE *best_choice = werd_res->best_choice;
   ASSERT_HOST(best_choice != NULL);
   ASSERT_HOST(best_choice->blob_choices() != NULL);
@@ -151,7 +177,7 @@ void Tesseract::ambigs_classify_and_output(WERD_RES *werd_res,
   int label_num_unichars = 0;
   int step = 1;  // should be non-zero on the first iteration
   for (offset = 0; label[offset] != '\0' && step > 0;
-       step = getDict().getUnicharset().step(label + offset),
+       step = werd_res->uch_set->step(label + offset),
        offset += step, ++label_num_unichars);
   if (step == 0) {
     tprintf("Not outputting illegal unichar %s\n", label);

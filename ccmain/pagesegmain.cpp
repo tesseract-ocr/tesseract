@@ -28,28 +28,27 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
-#include <string>
-
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
 #include "allheaders.h"
-#include "tesseractclass.h"
-#include "img.h"
 #include "blobbox.h"
-#include "linefind.h"
-#include "imagefind.h"
-#include "colfind.h"
-#include "tabvector.h"
 #include "blread.h"
-#include "wordseg.h"
+#include "colfind.h"
+#include "equationdetect.h"
+#include "imagefind.h"
+#include "img.h"
+#include "linefind.h"
 #include "makerow.h"
 #include "osdetect.h"
+#include "tabvector.h"
+#include "tesseractclass.h"
+#include "tessvars.h"
 #include "textord.h"
 #include "tordmain.h"
-#include "tessvars.h"
+#include "wordseg.h"
 
 namespace tesseract {
 
@@ -110,10 +109,6 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
   ASSERT_HOST(pix_binary_ != NULL);
   int width = pixGetWidth(pix_binary_);
   int height = pixGetHeight(pix_binary_);
-  int resolution = pixGetXRes(pix_binary_);
-  // Zero resolution messes up the algorithms, so make sure it is credible.
-  if (resolution < kMinCredibleResolution)
-    resolution = kDefaultResolution;
   // Get page segmentation mode.
   PageSegMode pageseg_mode = static_cast<PageSegMode>(
       static_cast<int>(tessedit_pageseg_mode));
@@ -145,7 +140,7 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
   TO_BLOCK_LIST to_blocks;
   if (osd_enabled || PSM_BLOCK_FIND_ENABLED(pageseg_mode)) {
     auto_page_seg_ret_val =
-        AutoPageSeg(resolution, single_column, osd_enabled, osd_only,
+        AutoPageSeg(single_column, osd_enabled, osd_only,
                     blocks, &to_blocks, osd_tess, osr);
     if (osd_only)
       return auto_page_seg_ret_val;
@@ -175,29 +170,29 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
 
   textord_.TextordPage(pageseg_mode, width, height, pix_binary_,
                        blocks, &to_blocks);
-  SetupWordScripts(blocks);
   return auto_page_seg_ret_val;
 }
 
-// TODO(rays) This is a hack to set all the words with a default script.
-// In the future this will be set by a preliminary pass over the document.
-void Tesseract::SetupWordScripts(BLOCK_LIST* blocks) {
-  int script = unicharset.default_sid();
-  bool has_x_height = unicharset.script_has_xheight();
-  bool is_latin = script == unicharset.latin_sid();
-  BLOCK_IT b_it(blocks);
-  for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
-    ROW_IT r_it(b_it.data()->row_list());
-    for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {
-      WERD_IT w_it(r_it.data()->word_list());
-      for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
-        WERD* word = w_it.data();
-        word->set_script_id(script);
-        word->set_flag(W_SCRIPT_HAS_XHEIGHT, has_x_height);
-        word->set_flag(W_SCRIPT_IS_LATIN, is_latin);
-      }
-    }
+// Helper writes a grey image to a file for use by scrollviewer.
+// Normally for speed we don't display the image in the layout debug windows.
+// If textord_debug_images is true, we draw the image as a background to some
+// of the debug windows. printable determines whether these
+// images are optimized for printing instead of screen display.
+static void WriteDebugBackgroundImage(bool printable, Pix* pix_binary) {
+  Pix* grey_pix = pixCreate(pixGetWidth(pix_binary),
+                            pixGetHeight(pix_binary), 8);
+  // Printable images are light grey on white, but for screen display
+  // they are black on dark grey so the other colors show up well.
+  if (printable) {
+    pixSetAll(grey_pix);
+    pixSetMasked(grey_pix, pix_binary, 192);
+  } else {
+    pixSetAllArbitrary(grey_pix, 64);
+    pixSetMasked(grey_pix, pix_binary, 0);
   }
+  AlignedBlob::IncrementDebugPix();
+  pixWrite(AlignedBlob::textord_debug_pix().string(), grey_pix, IFF_PNG);
+  pixDestroy(&grey_pix);
 }
 
 
@@ -214,119 +209,50 @@ void Tesseract::SetupWordScripts(BLOCK_LIST* blocks) {
  * into columns, but multiple blocks are still made if the text is of
  * non-uniform linespacing.
  *
- * If osd is true, then orientation and script detection is performed as well.
- * If only_osd is true, then only orientation and script detection is
- * performed. If osr is desired, the osr_tess must be another Tesseract
- * that was initialized especially for osd, and the results will be output
- * into osr.
+ * If osd (orientation and script detection) is true then that is performed
+ * as well. If only_osd is true, then only orientation and script detection is
+ * performed. If osd is desired, (osd or only_osd) then osr_tess must be
+ * another Tesseract that was initialized especially for osd, and the results
+ * will be output into osr (orientation and script result).
  */
-int Tesseract::AutoPageSeg(int resolution, bool single_column,
-                           bool osd, bool only_osd,
+int Tesseract::AutoPageSeg(bool single_column, bool osd, bool only_osd,
                            BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks,
                            Tesseract* osd_tess, OSResults* osr) {
-  int vertical_x = 0;
-  int vertical_y = 1;
-  TabVector_LIST v_lines;
-  TabVector_LIST h_lines;
-  ICOORD bleft(0, 0);
-  Boxa* boxa = NULL;
-  Pixa* pixa = NULL;
+  if (textord_debug_images) {
+    WriteDebugBackgroundImage(textord_debug_printable, pix_binary_);
+  }
+  Pix* photomask_pix = NULL;
+  Pix* musicmask_pix = NULL;
   // The blocks made by the ColumnFinder. Moved to blocks before return.
   BLOCK_LIST found_blocks;
+  TO_BLOCK_LIST temp_blocks;
 
-  if (pix_binary_ != NULL) {
-    if (textord_debug_images) {
-      Pix* grey_pix = pixCreate(pixGetWidth(pix_binary_),
-                                pixGetHeight(pix_binary_), 8);
-      // Printable images are light grey on white, but for screen display
-      // they are black on dark grey so the other colors show up well.
-      if (textord_debug_printable) {
-        pixSetAll(grey_pix);
-        pixSetMasked(grey_pix, pix_binary_, 192);
-      } else {
-        pixSetAllArbitrary(grey_pix, 64);
-        pixSetMasked(grey_pix, pix_binary_, 0);
-      }
-      AlignedBlob::IncrementDebugPix();
-      pixWrite(AlignedBlob::textord_debug_pix().string(), grey_pix, IFF_PNG);
-      pixDestroy(&grey_pix);
-    }
-    if (tessedit_dump_pageseg_images) {
-      pixWrite("tessinput.png", pix_binary_, IFF_PNG);
-    }
-    // Leptonica is used to find the lines and image regions in the input.
-    LineFinder::FindVerticalLines(resolution, pix_binary_,
-                                  &vertical_x, &vertical_y, &v_lines);
-    LineFinder::FindHorizontalLines(resolution, pix_binary_, &h_lines);
-    if (tessedit_dump_pageseg_images)
-      pixWrite("tessnolines.png", pix_binary_, IFF_PNG);
-    ImageFinder::FindImages(pix_binary_, &boxa, &pixa);
-    if (tessedit_dump_pageseg_images)
-      pixWrite("tessnoimages.png", pix_binary_, IFF_PNG);
-    if (single_column)
-      v_lines.clear();
-  }
-
-  TO_BLOCK_LIST port_blocks;
-  // The rest of the algorithm uses the usual connected components.
-  textord_.find_components(pix_binary_, blocks, &port_blocks);
-
-  TO_BLOCK_IT to_block_it(&port_blocks);
-  ASSERT_HOST(!to_block_it.empty());
-  for (to_block_it.mark_cycle_pt(); !to_block_it.cycled_list();
-       to_block_it.forward()) {
+  ColumnFinder* finder = SetupPageSegAndDetectOrientation(
+      single_column, osd, only_osd, blocks, osd_tess, osr,
+      &temp_blocks, &photomask_pix, &musicmask_pix);
+  if (finder != NULL) {
+    TO_BLOCK_IT to_block_it(&temp_blocks);
     TO_BLOCK* to_block = to_block_it.data();
-    TBOX blkbox = to_block->block->bounding_box();
-    if (to_block->line_size >= 2) {
-      // Note: if there are multiple blocks, then v_lines, boxa, and pixa
-      // are empty on the next iteration, but in this case, we assume
-      // that there aren't any interesting line separators or images, since
-      // it means that we have a pre-defined unlv zone file.
-      ColumnFinder finder(static_cast<int>(to_block->line_size),
-                          blkbox.botleft(), blkbox.topright(), resolution,
-                          &v_lines, &h_lines, vertical_x, vertical_y);
-      BLOBNBOX_CLIST osd_blobs;
-      int osd_orientation = 0;
-      bool vertical_text = finder.IsVerticallyAlignedText(to_block, &osd_blobs);
-      if (osd && osd_tess != NULL && osr != NULL) {
-        os_detect_blobs(&osd_blobs, osr, osd_tess);
-        if (only_osd) continue;
-        osd_orientation = osr->best_result.orientation_id;
-        double osd_score = osr->orientations[osd_orientation];
-        double osd_margin = min_orientation_margin * 2;
-        // tprintf("Orientation scores:");
-        for (int i = 0; i < 4; ++i) {
-          if (i != osd_orientation &&
-              osd_score - osr->orientations[i] < osd_margin) {
-            osd_margin = osd_score - osr->orientations[i];
-          }
-          // tprintf(" %d:%f", i, osr->orientations[i]);
-        }
-        // tprintf("\n");
-        if (osd_margin < min_orientation_margin) {
-          // Margin insufficient - dream up a suitable default.
-          if (vertical_text && (osd_orientation & 1))
-            osd_orientation = 3;
-          else
-            osd_orientation = 0;
-          tprintf("Score margin insufficient:%.2f, using %d as a default\n",
-                  osd_margin, osd_orientation);
-        }
-      }
-      osd_blobs.shallow_clear();
-      finder.CorrectOrientation(to_block, vertical_text, osd_orientation);
-      if (finder.FindBlocks(single_column, pixGetHeight(pix_binary_),
-                            to_block, boxa, pixa, &found_blocks, to_blocks) < 0)
-        return -1;
-      finder.GetDeskewVectors(&deskew_, &reskew_);
-      boxa = NULL;
-      pixa = NULL;
+    if (musicmask_pix != NULL) {
+      // TODO(rays) pass the musicmask_pix into FindBlocks and mark music
+      // blocks separately. For now combine with photomask_pix.
+      pixOr(photomask_pix, photomask_pix, musicmask_pix);
     }
+    if (equ_detect_) {
+      finder->SetEquationDetect(equ_detect_);
+    }
+    if (finder->FindBlocks(single_column, scaled_color_, scaled_factor_,
+                           to_block, photomask_pix,
+                           &found_blocks, to_blocks) < 0) {
+      pixDestroy(&photomask_pix);
+      pixDestroy(&musicmask_pix);
+      return -1;
+    }
+    finder->GetDeskewVectors(&deskew_, &reskew_);
+    delete finder;
   }
-  boxaDestroy(&boxa);
-  pixaDestroy(&pixa);
-  if (only_osd) return 0;
-
+  pixDestroy(&photomask_pix);
+  pixDestroy(&musicmask_pix);
   blocks->clear();
   BLOCK_IT block_it(blocks);
   // Move the found blocks to the input/output blocks.
@@ -337,6 +263,118 @@ int Tesseract::AutoPageSeg(int resolution, bool single_column,
     unlink(AlignedBlob::textord_debug_pix().string());
   }
   return 0;
+}
+
+/**
+ * Sets up auto page segmentation, determines the orientation, and corrects it.
+ * Somewhat arbitrary chunk of functionality, factored out of AutoPageSeg to
+ * facilitate testing.
+ * photo_mask_pix is a pointer to a NULL pointer that will be filled on return
+ * with the leptonica photo mask, which must be pixDestroyed by the caller.
+ * to_blocks is an empty list that will be filled with (usually a single)
+ * block that is used during layout analysis. This ugly API is required
+ * because of the possibility of a unlv zone file.
+ * TODO(rays) clean this up.
+ * See AutoPageSeg for other arguments.
+ * The returned ColumnFinder must be deleted after use.
+ */
+ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
+    bool single_column, bool osd, bool only_osd,
+    BLOCK_LIST* blocks, Tesseract* osd_tess, OSResults* osr,
+    TO_BLOCK_LIST* to_blocks, Pix** photo_mask_pix, Pix** music_mask_pix) {
+  int vertical_x = 0;
+  int vertical_y = 1;
+  TabVector_LIST v_lines;
+  TabVector_LIST h_lines;
+  ICOORD bleft(0, 0);
+
+  ASSERT_HOST(pix_binary_ != NULL);
+  if (tessedit_dump_pageseg_images) {
+    pixWrite("tessinput.png", pix_binary_, IFF_PNG);
+  }
+  // Leptonica is used to find the rule/separator lines in the input.
+  LineFinder::FindAndRemoveLines(source_resolution_,
+                                 textord_tabfind_show_vlines, pix_binary_,
+                                 &vertical_x, &vertical_y, music_mask_pix,
+                                 &v_lines, &h_lines);
+  if (tessedit_dump_pageseg_images)
+    pixWrite("tessnolines.png", pix_binary_, IFF_PNG);
+  // Leptonica is used to find a mask of the photo regions in the input.
+  *photo_mask_pix = ImageFind::FindImages(pix_binary_);
+  if (tessedit_dump_pageseg_images)
+    pixWrite("tessnoimages.png", pix_binary_, IFF_PNG);
+  if (single_column)
+    v_lines.clear();
+
+  // The rest of the algorithm uses the usual connected components.
+  textord_.find_components(pix_binary_, blocks, to_blocks);
+
+  TO_BLOCK_IT to_block_it(to_blocks);
+  // There must be exactly one input block.
+  // TODO(rays) handle new textline finding with a UNLV zone file.
+  ASSERT_HOST(to_blocks->singleton());
+  TO_BLOCK* to_block = to_block_it.data();
+  TBOX blkbox = to_block->block->bounding_box();
+  ColumnFinder* finder = NULL;
+
+  if (to_block->line_size >= 2) {
+    finder = new ColumnFinder(static_cast<int>(to_block->line_size),
+                              blkbox.botleft(), blkbox.topright(),
+                              source_resolution_,
+                              &v_lines, &h_lines, vertical_x, vertical_y);
+
+    finder->SetupAndFilterNoise(*photo_mask_pix, to_block);
+
+    if (equ_detect_) {
+      equ_detect_->LabelSpecialText(to_block);
+    }
+
+    BLOBNBOX_CLIST osd_blobs;
+    // osd_orientation is the number of 90 degree rotations to make the
+    // characters upright. (See osdetect.h for precise definition.)
+    // We want the text lines horizontal, (vertical text indicates vertical
+    // textlines) which may conflict (eg vertically written CJK).
+    int osd_orientation = 0;
+    bool vertical_text = finder->IsVerticallyAlignedText(to_block, &osd_blobs);
+    if (osd && osd_tess != NULL && osr != NULL) {
+      os_detect_blobs(&osd_blobs, osr, osd_tess);
+      if (only_osd) {
+        delete finder;
+        return NULL;
+      }
+      osd_orientation = osr->best_result.orientation_id;
+      double osd_score = osr->orientations[osd_orientation];
+      double osd_margin = min_orientation_margin * 2;
+      for (int i = 0; i < 4; ++i) {
+        if (i != osd_orientation &&
+            osd_score - osr->orientations[i] < osd_margin) {
+          osd_margin = osd_score - osr->orientations[i];
+        }
+      }
+      if (osd_margin < min_orientation_margin) {
+        // The margin is weak.
+        int best_script_id = osr->best_result.script_id;
+        bool cjk = (best_script_id == osd_tess->unicharset.han_sid()) ||
+            (best_script_id == osd_tess->unicharset.hiragana_sid()) ||
+            (best_script_id == osd_tess->unicharset.katakana_sid());
+
+        if (!cjk && !vertical_text && osd_orientation == 2) {
+          // upside down latin text is improbable with such a weak margin.
+          tprintf("OSD: Weak margin (%.2f), horiz textlines, not CJK: "
+                  "Don't rotate.\n", osd_margin);
+          osd_orientation = 0;
+        } else {
+          tprintf("OSD: Weak margin (%.2f) for %d blob text block, "
+                  "but using orientation anyway: %d\n",
+                  osd_blobs.length(), osd_margin, osd_orientation);
+        }
+      }
+    }
+    osd_blobs.shallow_clear();
+    finder->CorrectOrientation(to_block, vertical_text, osd_orientation);
+  }
+
+  return finder;
 }
 
 }  // namespace tesseract.

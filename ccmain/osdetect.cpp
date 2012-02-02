@@ -22,6 +22,7 @@
 #include "blobbox.h"
 #include "blread.h"
 #include "colfind.h"
+#include "fontinfo.h"
 #include "imagefind.h"
 #include "linefind.h"
 #include "oldlist.h"
@@ -113,6 +114,49 @@ void OSResults::update_best_script(int orientation) {
       (first / second - 1.0) / (kScriptAcceptRatio - 1.0);
 }
 
+int OSResults::get_best_script(int orientation_id) const {
+  int max_id = -1;
+  for (int j = 0; j < kMaxNumberOfScripts; ++j) {
+    const char *script = unicharset->get_script_from_script_id(j);
+    if (strcmp(script, "Common") && strcmp(script, "NULL")) {
+      if (max_id == -1 ||
+          scripts_na[orientation_id][j] > scripts_na[orientation_id][max_id])
+        max_id = j;
+    }
+  }
+  return max_id;
+}
+
+// Print the script scores for all possible orientations.
+void OSResults::print_scores(void) const {
+  for (int i = 0; i < 4; ++i) {
+    printf("Orientation id #%d", i);
+    print_scores(i);
+  }
+}
+
+// Print the script scores for the given candidate orientation.
+void OSResults::print_scores(int orientation_id) const {
+  for (int j = 0; j < kMaxNumberOfScripts; ++j) {
+    if (scripts_na[orientation_id][j]) {
+      printf("%12s\t: %f\n", unicharset->get_script_from_script_id(j),
+             scripts_na[orientation_id][j]);
+    }
+  }
+}
+
+// Accumulate scores with given OSResults instance and update the best script.
+void OSResults::accumulate(const OSResults& osr) {
+  for (int i = 0; i < 4; ++i) {
+    orientations[i] += osr.orientations[i];
+    for (int j = 0; j < kMaxNumberOfScripts; ++j)
+      scripts_na[i][j] += osr.scripts_na[i][j];
+  }
+  unicharset = osr.unicharset;
+  update_best_orientation();
+  update_best_script(best_result.orientation_id);
+}
+
 // Detect and erase horizontal/vertical lines and picture regions from the
 // image, so that non-text blobs are removed from consideration.
 void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *blocks,
@@ -123,18 +167,18 @@ void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *blocks,
   int vertical_y = 1;
   tesseract::TabVector_LIST v_lines;
   tesseract::TabVector_LIST h_lines;
-  Boxa* boxa = NULL;
-  Pixa* pixa = NULL;
   const int kMinCredibleResolution = 70;
   int resolution = (kMinCredibleResolution > pixGetXRes(pix)) ?
       kMinCredibleResolution : pixGetXRes(pix);
 
-  tesseract::LineFinder::FindVerticalLines(resolution, pix, &vertical_x,
-                                           &vertical_y, &v_lines);
-  tesseract::LineFinder::FindHorizontalLines(resolution, pix, &h_lines);
-  tesseract::ImageFinder::FindImages(pix, &boxa, &pixa);
-  pixaDestroy(&pixa);
-  boxaDestroy(&boxa);
+  tesseract::LineFinder::FindAndRemoveLines(resolution, false, pix,
+                                            &vertical_x, &vertical_y,
+                                            NULL, &v_lines, &h_lines);
+  Pix* im_pix = tesseract::ImageFind::FindImages(pix);
+  if (im_pix != NULL) {
+    pixSubtract(pix, pix, im_pix);
+    pixDestroy(&im_pix);
+  }
   tess->mutable_textord()->find_components(tess->pix_binary(),
                                            blocks, to_blocks);
 }
@@ -309,8 +353,7 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
                               0.0f, static_cast<float>(kBlnBaselineOffset));
     TBLOB* rotated_blob = new TBLOB(*tblob);
     rotated_blob->Normalize(denorm);
-    tess->set_denorm(&denorm);
-    tess->AdaptiveClassifier(rotated_blob, ratings + i, NULL);
+    tess->AdaptiveClassifier(rotated_blob, denorm, ratings + i, NULL);
     delete rotated_blob;
     current_rotation.rotate(rotation90);
   }
@@ -452,7 +495,7 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
       // Workaround for Fraktur
       if (prev_id == latin_id_) {
         if (prev_fontinfo_id >= 0) {
-          const FontInfo &fi =
+          const tesseract::FontInfo &fi =
               tess_->get_fontinfo_table().get(prev_fontinfo_id);
           //printf("Font: %s i:%i b:%i f:%i s:%i k:%i (%s)\n", fi.name,
           //       fi.is_italic(), fi.is_bold(), fi.is_fixed_pitch(),

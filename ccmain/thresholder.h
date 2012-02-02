@@ -79,11 +79,32 @@ class ImageThresholder {
   int GetScaleFactor() const {
     return scale_;
   }
+
+  // Set the resolution of the source image in pixels per inch.
+  // This should be called right after SetImage(), and will let us return
+  // appropriate font sizes for the text.
+  void SetSourceYResolution(int ppi) {
+    yres_ = ppi;
+    estimated_res_ = ppi;
+  }
   int GetSourceYResolution() const {
     return yres_;
   }
   int GetScaledYResolution() const {
     return scale_ * yres_;
+  }
+  // Set the resolution of the source image in pixels per inch, as estimated
+  // by the thresholder from the text size found during thresholding.
+  // This value will be used to set internal size thresholds during recognition
+  // and will not influence the output "point size." The default value is
+  // the same as the source resolution. (yres_)
+  void SetEstimatedResolution(int ppi) {
+    estimated_res_ = ppi;
+  }
+  // Returns the estimated resolution, including any active scaling.
+  // This value will be used to set internal size thresholds during recognition.
+  int GetScaledEstimatedResolution() const {
+    return scale_ * estimated_res_;
   }
 
   /// Pix vs raw, which to use?
@@ -157,7 +178,8 @@ class ImageThresholder {
   int                  image_bytespl_;  //< Bytes per line of source image/pix.
   // Limits of image rectangle to be processed.
   int                  scale_;          //< Scale factor from original image.
-  int                  yres_;           //< y pixels/inch in source image
+  int                  yres_;           //< y pixels/inch in source image.
+  int                  estimated_res_;  //< Resolution estimate from text size.
   int                  rect_left_;
   int                  rect_top_;
   int                  rect_width_;
@@ -167,4 +189,3 @@ class ImageThresholder {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_CCMAIN_THRESHOLDER_H__
-

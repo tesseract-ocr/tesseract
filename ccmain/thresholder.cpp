@@ -33,7 +33,7 @@ ImageThresholder::ImageThresholder()
     image_data_(NULL),
     image_width_(0), image_height_(0),
     image_bytespp_(0), image_bytespl_(0),
-    scale_(1), yres_(300) {
+    scale_(1), yres_(300), estimated_res_(300) {
   SetRectangle(0, 0, 0, 0);
 }
 
@@ -79,7 +79,7 @@ void ImageThresholder::SetImage(const unsigned char* imagedata,
   image_bytespp_ = bytes_per_pixel;
   image_bytespl_ = bytes_per_line;
   scale_ = 1;
-  yres_ = 300;
+  estimated_res_ = yres_ = 300;
   Init();
 }
 
@@ -129,7 +129,7 @@ void ImageThresholder::SetImage(const Pix* pix) {
   image_bytespp_ = depth / 8;
   image_bytespl_ = pixGetWpl(pix_) * sizeof(l_uint32);
   scale_ = 1;
-  yres_ = pixGetYRes(src);
+  estimated_res_ = yres_ = pixGetYRes(src);
   Init();
 }
 

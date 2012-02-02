@@ -64,7 +64,8 @@ namespace tesseract {
 // Read a "config" file containing a set of variable, value pairs.
 // Searches the standard places: tessdata/configs, tessdata/tessconfigs
 // and also accepts a relative or absolute path name.
-void Tesseract::read_config_file(const char *filename, bool init_only) {
+void Tesseract::read_config_file(const char *filename,
+                                 SetParamConstraint constraint) {
   STRING path = datadir;
   path += "configs/";
   path += filename;
@@ -81,7 +82,7 @@ void Tesseract::read_config_file(const char *filename, bool init_only) {
       path = filename;
     }
   }
-  ParamUtils::ReadParamsFile(path.string(), init_only, this->params());
+  ParamUtils::ReadParamsFile(path.string(), constraint, this->params());
 }
 
 // Returns false if a unicharset file for the specified language was not found
@@ -99,7 +100,7 @@ bool Tesseract::init_tesseract_lang_data(
     OcrEngineMode oem, char **configs, int configs_size,
     const GenericVector<STRING> *vars_vec,
     const GenericVector<STRING> *vars_values,
-    bool set_only_init_params) {
+    bool set_only_non_debug_params) {
   // Set the basename, compute the data directory.
   main_setup(arg0, textbase);
 
@@ -121,17 +122,19 @@ bool Tesseract::init_tesseract_lang_data(
     ParamUtils::ReadParamsFromFp(
         tessdata_manager.GetDataFilePtr(),
         tessdata_manager.GetEndOffset(TESSDATA_LANG_CONFIG),
-        false, this->params());
+        SET_PARAM_CONSTRAINT_NONE, this->params());
     if (tessdata_manager_debug_level) {
       tprintf("Loaded language config file\n");
     }
   }
 
+  SetParamConstraint set_params_constraint = set_only_non_debug_params ?
+      SET_PARAM_CONSTRAINT_NON_DEBUG_ONLY : SET_PARAM_CONSTRAINT_NONE;
   // Load tesseract variables from config files. This is done after loading
   // language-specific variables from [lang].traineddata file, so that custom
   // config files can override values in [lang].traineddata file.
   for (int i = 0; i < configs_size; ++i) {
-    read_config_file(configs[i], set_only_init_params);
+    read_config_file(configs[i], set_params_constraint);
   }
 
   // Set params specified in vars_vec (done after setting params from config
@@ -140,7 +143,7 @@ bool Tesseract::init_tesseract_lang_data(
     for (int i = 0; i < vars_vec->size(); ++i) {
       if (!ParamUtils::SetParam((*vars_vec)[i].string(),
                                 (*vars_values)[i].string(),
-                                set_only_init_params, this->params())) {
+                                set_params_constraint, this->params())) {
         tprintf("Error setting param %s\n", (*vars_vec)[i].string());
         exit(1);
       }
@@ -169,6 +172,15 @@ bool Tesseract::init_tesseract_lang_data(
             static_cast<int>(tessedit_ocr_engine_mode));
   }
 
+  // If we are only loading the config file (and so not planning on doing any
+  // recognition) then there's nothing else do here.
+  if (tessedit_init_config_only) {
+    if (tessdata_manager_debug_level) {
+      tprintf("Returning after loading config file\n");
+    }
+    return true;
+  }
+
   // Load the unicharset
   if (!tessdata_manager.SeekToStart(TESSDATA_UNICHARSET) ||
       !unicharset.load_from_file(tessdata_manager.GetDataFilePtr())) {
@@ -178,8 +190,8 @@ bool Tesseract::init_tesseract_lang_data(
     tprintf("Error: Size of unicharset is greater than MAX_NUM_CLASSES\n");
     return false;
   }
-  right_to_left_ = unicharset.any_right_to_left();
   if (tessdata_manager_debug_level) tprintf("Loaded unicharset\n");
+  right_to_left_ = unicharset.major_right_to_left();
 
   if (!tessedit_ambigs_training &&
       tessdata_manager.SeekToStart(TESSDATA_AMBIGS)) {
@@ -204,16 +216,150 @@ bool Tesseract::init_tesseract_lang_data(
   return true;
 }
 
+// Helper returns true if the given string is in the vector of strings.
+static bool IsStrInList(const STRING& str,
+                        const GenericVector<STRING>& str_list) {
+  for (int i = 0; i < str_list.size(); ++i) {
+    if (str_list[i] == str)
+      return true;
+  }
+  return false;
+}
+
+// Parse a string of the form [~]<lang>[+[~]<lang>]*.
+// Langs with no prefix get appended to to_load, provided they
+// are not in there already.
+// Langs with ~ prefix get appended to not_to_load, provided they are not in
+// there already.
+void Tesseract::ParseLanguageString(const char* lang_str,
+                                    GenericVector<STRING>* to_load,
+                                    GenericVector<STRING>* not_to_load) {
+  STRING remains(lang_str);
+  while (remains.length() > 0) {
+    // Find the start of the lang code and which vector to add to.
+    const char* start = remains.string();
+    while (*start == '+')
+      ++start;
+    GenericVector<STRING>* target = to_load;
+    if (*start == '~') {
+      target = not_to_load;
+      ++start;
+    }
+    // Find the index of the end of the lang code in string start.
+    int end = strlen(start);
+    const char* plus = strchr(start, '+');
+    if (plus != NULL && plus - start < end)
+      end = plus - start;
+    STRING lang_code(start);
+    lang_code.truncate_at(end);
+    STRING next(start + end);
+    remains = next;
+    // Check whether lang_code is already in the target vector and add.
+    if (!IsStrInList(lang_code, *target)) {
+      if (tessdata_manager_debug_level)
+        tprintf("Adding language '%s' to list\n", lang_code.string());
+      target->push_back(lang_code);
+    }
+  }
+}
+
+// Initialize for potentially a set of languages defined by the language
+// string and recursively any additional languages required by any language
+// traineddata file (via tessedit_load_sublangs in its config) that is loaded.
+// See init_tesseract_internal for args.
 int Tesseract::init_tesseract(
     const char *arg0, const char *textbase, const char *language,
     OcrEngineMode oem, char **configs, int configs_size,
     const GenericVector<STRING> *vars_vec,
     const GenericVector<STRING> *vars_values,
-    bool set_only_init_params) {
+    bool set_only_non_debug_params) {
+  GenericVector<STRING> langs_to_load;
+  GenericVector<STRING> langs_not_to_load;
+  ParseLanguageString(language, &langs_to_load, &langs_not_to_load);
+
+  sub_langs_.delete_data_pointers();
+  sub_langs_.clear();
+  // Find the first loadable lang and load into this.
+  // Add any languages that this language requires
+  bool loaded_primary = false;
+  // Load the rest into sub_langs_.
+  for (int lang_index = 0; lang_index < langs_to_load.size(); ++lang_index) {
+    if (!IsStrInList(langs_to_load[lang_index], langs_not_to_load)) {
+      const char *lang_str = langs_to_load[lang_index].string();
+      Tesseract *tess_to_init;
+      if (!loaded_primary) {
+        tess_to_init = this;
+      } else {
+        tess_to_init = new Tesseract;
+      }
+
+      int result = tess_to_init->init_tesseract_internal(
+          arg0, textbase, lang_str, oem, configs, configs_size,
+          vars_vec, vars_values, set_only_non_debug_params);
+
+      if (!loaded_primary) {
+        if (result < 0) {
+          tprintf("Failed loading language '%s'\n", lang_str);
+        } else {
+          if (tessdata_manager_debug_level)
+            tprintf("Loaded language '%s' as main language\n", lang_str);
+          ParseLanguageString(tess_to_init->tessedit_load_sublangs.string(),
+                              &langs_to_load, &langs_not_to_load);
+          loaded_primary = true;
+        }
+      } else {
+        if (result < 0) {
+          tprintf("Failed loading language '%s'\n", lang_str);
+          delete tess_to_init;
+        } else {
+          if (tessdata_manager_debug_level)
+            tprintf("Loaded language '%s' as secondary language\n", lang_str);
+          sub_langs_.push_back(tess_to_init);
+          // Add any languages that this language requires
+          ParseLanguageString(tess_to_init->tessedit_load_sublangs.string(),
+                              &langs_to_load, &langs_not_to_load);
+        }
+      }
+    }
+  }
+  if (!loaded_primary) {
+    tprintf("Tesseract couldn't load any languages!\n");
+    return -1;  // Couldn't load any language!
+  }
+  SetupUniversalFontIds();
+  return 0;
+}
+
+// Common initialization for a single language.
+// arg0 is the datapath for the tessdata directory, which could be the
+// path of the tessdata directory with no trailing /, or (if tessdata
+// lives in the same directory as the executable, the path of the executable,
+// hence the name arg0.
+// textbase is an optional output file basename (used only for training)
+// language is the language code to load.
+// oem controls which engine(s) will operate on the image
+// configs (argv) is an array of config filenames to load variables from.
+// May be NULL.
+// configs_size (argc) is the number of elements in configs.
+// vars_vec is an optional vector of variables to set.
+// vars_values is an optional corresponding vector of values for the variables
+// in vars_vec.
+// If set_only_init_params is true, then only the initialization variables
+// will be set.
+int Tesseract::init_tesseract_internal(
+    const char *arg0, const char *textbase, const char *language,
+    OcrEngineMode oem, char **configs, int configs_size,
+    const GenericVector<STRING> *vars_vec,
+    const GenericVector<STRING> *vars_values,
+    bool set_only_non_debug_params) {
   if (!init_tesseract_lang_data(arg0, textbase, language, oem, configs,
                                 configs_size, vars_vec, vars_values,
-                                set_only_init_params)) {
+                                set_only_non_debug_params)) {
     return -1;
+  }
+  if (tessedit_init_config_only) {
+    tessdata_manager.End();
+    return 0;
   }
   // If only Cube will be used, skip loading Tesseract classifier's
   // pre-trained templates.
@@ -228,6 +374,46 @@ int Tesseract::init_tesseract(
   program_editup(textbase, init_tesseract_classifier, init_dict);
   tessdata_manager.End();
   return 0;                      //Normal exit
+}
+
+// Helper builds the all_fonts table by adding new fonts from new_fonts.
+static void CollectFonts(const UnicityTable<FontInfo>& new_fonts,
+                         UnicityTable<FontInfo>* all_fonts) {
+  for (int i = 0; i < new_fonts.size(); ++i) {
+    // UnicityTable uniques as we go.
+    all_fonts->push_back(new_fonts.get(i));
+  }
+}
+
+// Helper assigns an id to lang_fonts using the index in all_fonts table.
+static void AssignIds(const UnicityTable<FontInfo>& all_fonts,
+                      UnicityTable<FontInfo>* lang_fonts) {
+  for (int i = 0; i < lang_fonts->size(); ++i) {
+    int index = all_fonts.get_id(lang_fonts->get(i));
+    lang_fonts->get_mutable(i)->universal_id = index;
+  }
+}
+
+// Set the universal_id member of each font to be unique among all
+// instances of the same font loaded.
+void Tesseract::SetupUniversalFontIds() {
+  // Note that we can get away with bitwise copying FontInfo in
+  // all_fonts, as it is a temporary structure and we avoid setting the
+  // delete callback.
+  UnicityTable<FontInfo> all_fonts;
+  all_fonts.set_compare_callback(NewPermanentTessCallback(CompareFontInfo));
+
+  // Create the universal ID table.
+  CollectFonts(get_fontinfo_table(), &all_fonts);
+  for (int i = 0; i < sub_langs_.size(); ++i) {
+    CollectFonts(sub_langs_[i]->get_fontinfo_table(), &all_fonts);
+  }
+  // Assign ids from the table to each font table.
+  AssignIds(all_fonts, &get_fontinfo_table());
+  for (int i = 0; i < sub_langs_.size(); ++i) {
+    AssignIds(all_fonts, &sub_langs_[i]->get_fontinfo_table());
+  }
+  font_table_size_ = all_fonts.size();
 }
 
 // init the LM component

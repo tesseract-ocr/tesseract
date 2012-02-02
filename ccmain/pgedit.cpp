@@ -31,19 +31,16 @@
 #include          <ctype.h>
 #include          <math.h>
 
-#include          "tordmain.h"
-#include          "statistc.h"
-#include          "svshowim.h"
-#include          "paramsd.h"
-#include          "string.h"
-
-#include          "scrollview.h"
-#include          "svmnode.h"
-
-#include          "control.h"
+#include "blread.h"
+#include "control.h"
+#include "svshowim.h"
+#include "paramsd.h"
+#include "pageres.h"
+#include "tordmain.h"
+#include "scrollview.h"
+#include "svmnode.h"
+#include "statistc.h"
 #include "tesseractclass.h"
-
-#include          "blread.h"
 
 #ifndef GRAPHICS_DISABLED
 #define ASC_HEIGHT     (2 * kBlnBaselineOffset + kBlnXHeight)
@@ -62,6 +59,7 @@ enum CMD_EVENTS
   SHOW_POINT_CMD_EVENT,
   SHOW_BLN_WERD_CMD_EVENT,
   DEBUG_WERD_CMD_EVENT,
+  BLAMER_CMD_EVENT,
   BOUNDING_BOX_CMD_EVENT,
   CORRECT_TEXT_CMD_EVENT,
   POLYGONAL_CMD_EVENT,
@@ -115,6 +113,8 @@ FILE *debug_window = NULL;                // opened on demand
 ScrollView* bln_word_window = NULL;       // baseline norm words
 
 CMD_EVENTS mode = CHANGE_DISP_CMD_EVENT;  // selected words op
+
+bool recog_done = false;                  // recog_all_words was called
 
 // These variables should remain global, since they are only used for the
 // debug mode (in which only a single Tesseract thread/instance will be exist).
@@ -195,8 +195,8 @@ void build_image_window(int width, int height) {
                              editor_image_xpos, editor_image_ypos,
                              width + 1,
                              height + editor_image_menuheight + 1,
-                             width + 1,
-                             height + 1,
+                             width,
+                             height,
                              true);
 }
 
@@ -269,6 +269,7 @@ SVMenuNode *Tesseract::build_menu_new() {
 
   parent_menu = root_menu_item->AddChild("DISPLAY");
 
+  parent_menu->AddChild("Blamer", BLAMER_CMD_EVENT, FALSE);
   parent_menu->AddChild("Bounding Boxes", BOUNDING_BOX_CMD_EVENT, FALSE);
   parent_menu->AddChild("Correct Text", CORRECT_TEXT_CMD_EVENT, FALSE);
   parent_menu->AddChild("Polygonal Approx", POLYGONAL_CMD_EVENT, FALSE);
@@ -333,11 +334,11 @@ void Tesseract::do_re_display(
  */
 
 void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
-
   current_page_res = page_res;
   if (current_page_res->block_res_list.empty())
     return;
 
+  recog_done = false;
   stillRunning = true;
 
   build_image_window(width, height);
@@ -400,6 +401,28 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
   BOOL8 exit = FALSE;
 
   color_mode = CM_RAINBOW;
+
+  // Run recognition on the full page if needed.
+  switch (cmd_event) {
+    case BLAMER_CMD_EVENT:
+    case SHOW_SUBSCRIPT_CMD_EVENT:
+    case SHOW_SUPERSCRIPT_CMD_EVENT:
+    case SHOW_ITALIC_CMD_EVENT:
+    case SHOW_BOLD_CMD_EVENT:
+    case SHOW_UNDERLINE_CMD_EVENT:
+    case SHOW_FIXEDPITCH_CMD_EVENT:
+    case SHOW_SERIF_CMD_EVENT:
+    case SHOW_SMALLCAPS_CMD_EVENT:
+    case SHOW_DROPCAPS_CMD_EVENT:
+      if (!recog_done) {
+        recog_all_words(current_page_res, NULL, NULL, NULL, 0);
+        recog_done = true;
+      }
+      break;
+    default:
+      break;
+  }
+
   switch (cmd_event) {
     case NULL_CMD_EVENT:
       break;
@@ -421,6 +444,14 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
         word_display_mode.turn_on_bit(DF_BOX);
       else
         word_display_mode.turn_off_bit(DF_BOX);
+      mode = CHANGE_DISP_CMD_EVENT;
+      break;
+    case BLAMER_CMD_EVENT:
+      if (new_value[0] == 'T')
+        word_display_mode.turn_on_bit(DF_BLAMER);
+      else
+        word_display_mode.turn_off_bit(DF_BLAMER);
+      do_re_display(&tesseract::Tesseract::word_display);
       mode = CHANGE_DISP_CMD_EVENT;
       break;
     case CORRECT_TEXT_CMD_EVENT:
@@ -691,7 +722,9 @@ BOOL8 Tesseract:: word_blank_and_set_display(BLOCK* block, ROW* row,
 BOOL8 Tesseract::word_bln_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
   TWERD *bln_word = word_res->chopped_word;
   if (bln_word == NULL) {
-    word_res->SetupForRecognition(unicharset, false, row, block);
+    word_res->SetupForTessRecognition(unicharset, this, BestPix(), false,
+                                      this->textord_use_cjk_fp_model,
+                                      row, block);
     bln_word = word_res->chopped_word;
   }
   bln_word_window_handle()->Clear();
@@ -720,10 +753,8 @@ BOOL8 Tesseract::word_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
   if (color_mode != CM_RAINBOW && word_res->box_word != NULL) {
     BoxWord* box_word = word_res->box_word;
     int length = box_word->length();
-    int font_id = word_res->fontinfo_id;
-    if (font_id < 0) font_id = 0;
-    const UnicityTable<FontInfo> &font_table = get_fontinfo_table();
-    FontInfo font_info = font_table.get(font_id);
+    if (word_res->fontinfo == NULL) return false;
+    const FontInfo& font_info = *word_res->fontinfo;
     for (int i = 0; i < length; ++i) {
       ScrollView::Color color = ScrollView::GREEN;
       switch (color_mode) {
@@ -806,25 +837,56 @@ BOOL8 Tesseract::word_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
     displayed_something = TRUE;
   }
 
-  // display correct text
+  // Display correct text and blamer information.
+  STRING text;
+  STRING blame;
   if (word->display_flag(DF_TEXT) && word->text() != NULL) {
+    text = word->text();
+  }
+  if (word->display_flag(DF_BLAMER) &&
+      !(word_res->blamer_bundle != NULL &&
+        word_res->blamer_bundle->incorrect_result_reason == IRR_CORRECT)) {
+    text = "";
+    const BlamerBundle *blamer_bundle = word_res->blamer_bundle;
+    if (blamer_bundle == NULL) {
+      text += "NULL";
+    } else {
+      for (int i = 0; i < blamer_bundle->truth_text.length(); ++i) {
+        text += blamer_bundle->truth_text[i];
+      }
+    }
+    text += " -> ";
+    STRING best_choice_str;
+    if (word_res->best_choice == NULL) {
+      best_choice_str = "NULL";
+    } else {
+      word_res->best_choice->string_and_lengths(&best_choice_str, NULL);
+    }
+    text += best_choice_str;
+    IncorrectResultReason reason = (blamer_bundle == NULL) ?
+        IRR_PAGE_LAYOUT : blamer_bundle->incorrect_result_reason;
+    ASSERT_HOST(reason < IRR_NUM_REASONS)
+    blame += " [";
+    blame += BlamerBundle::IncorrectReasonName(reason);
+    blame += "]";
+  }
+  if (text.length() > 0) {
     word_bb = word->bounding_box();
-    ScrollView::Color c =(ScrollView::Color)
-       ((inT32) editor_image_blob_bb_color);
-    image_win->Pen(c);
+    image_win->Pen(ScrollView::RED);
     word_height = word_bb.height();
-    image_win->TextAttributes("Times", 0.75 * word_height,
-                              false, false, false);
-    if (word_height < word_bb.width())
-      shift = 0.25 * word_height;
-    else
-      shift = 0.0f;
-
+    int text_height = 0.50 * word_height;
+    if (text_height > 20) text_height = 20;
+    image_win->TextAttributes("Arial", text_height, false, false, false);
+    shift = (word_height < word_bb.width()) ? 0.25 * word_height : 0.0f;
     image_win->Text(word_bb.left() + shift,
-                    word_bb.bottom() + 0.25 * word_height, word->text());
+                    word_bb.bottom() + 0.25 * word_height, text.string());
+    if (blame.length() > 0) {
+      image_win->Text(word_bb.left() + shift,
+                      word_bb.bottom() + 0.25 * word_height - text_height,
+                      blame.string());
+    }
 
-    if (strlen(word->text()) > 0)
-      displayed_something = TRUE;
+    displayed_something = TRUE;
   }
 
   if (!displayed_something)      // display BBox anyway
@@ -849,6 +911,11 @@ BOOL8 Tesseract::word_dumper(BLOCK* block, ROW* row, WERD_RES* word_res) {
   row->print(NULL);
   tprintf("\nWord data...\n");
   word_res->word->print();
+  if (word_res->blamer_bundle != NULL && wordrec_debug_blamer &&
+      word_res->blamer_bundle->incorrect_result_reason != IRR_CORRECT) {
+    tprintf("Current blamer debug: %s\n",
+            word_res->blamer_bundle->debug.string());
+  }
   return TRUE;
 }
 
@@ -866,6 +933,7 @@ BOOL8 Tesseract::word_set_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
   word->set_display_flag(DF_EDGE_STEP, word_display_mode.bit(DF_EDGE_STEP));
   word->set_display_flag(DF_BN_POLYGONAL,
     word_display_mode.bit(DF_BN_POLYGONAL));
+  word->set_display_flag(DF_BLAMER, word_display_mode.bit(DF_BLAMER));
   return word_display(block, row, word_res);
 }
 }  // namespace tesseract

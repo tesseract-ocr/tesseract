@@ -139,6 +139,7 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
                               char newline_type,  // type of newline
                               BOOL8 force_eol) {  // override tilde crunch?
   WERD_RES *word = page_res_it.word();
+  const UNICHARSET &uchset = *word->uch_set;
   STRING repetition_code;
   const STRING *wordstr;
   STRING wordstr_lengths;
@@ -150,7 +151,7 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
   char map_chs[32];              //Only for unlv_tilde_crunch
   int txt_index = 0;
   BOOL8 need_reject = FALSE;
-  UNICHAR_ID space = unicharset.unichar_to_id(" ");
+  UNICHAR_ID space = uchset.unichar_to_id(" ");
   if ((word->unlv_crunch_mode != CR_NONE ||
        word->best_choice->length() == 0) &&
       !tessedit_zero_kelvin_rejection && !tessedit_word_for_word) {
@@ -219,7 +220,7 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
     txt_chs[txt_index] = '\0';
     map_chs[txt_index] = '\0';
     ep_chars[ep_chars_index] = '\0';  // terminate string
-    word->ep_choice = new WERD_CHOICE(ep_chars, unicharset);
+    word->ep_choice = new WERD_CHOICE(ep_chars, uchset);
 
     if (force_eol)
       stats_.write_results_empty_block = true;
@@ -247,10 +248,9 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
       BLOB_CHOICE_LIST_C_IT blob_choices_it(word->best_choice->blob_choices());
       if (!blob_choices_it.empty()) delete blob_choices_it.extract();
     }
-    word->best_choice->populate_unichars(getDict().getUnicharset());
+    word->best_choice->populate_unichars();
     word->reject_map.remove_pos (0);
-    delete word->box_word;
-    word->box_word = new BoxWord;
+    word->box_word->DeleteBox(0);
   }
   if (newline_type ||
     (word->word->flag (W_REP_CHAR) && tessedit_write_rep_codes))
@@ -273,14 +273,14 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
   check_debug_pt (word, 120);
   if (tessedit_rejection_debug) {
     tprintf ("Dict word: \"%s\": %d\n",
-             word->best_choice->debug_string(unicharset).string(),
+             word->best_choice->debug_string().string(),
              dict_word(*(word->best_choice)));
   }
   if (word->word->flag (W_REP_CHAR) && tessedit_write_rep_codes) {
     repetition_code = "|^~R";
     wordstr_lengths = "\001\001\001\001";
-    repetition_code += unicharset.id_to_unichar(get_rep_char (word));
-    wordstr_lengths += strlen(unicharset.id_to_unichar(get_rep_char (word)));
+    repetition_code += uchset.id_to_unichar(get_rep_char(word));
+    wordstr_lengths += strlen(uchset.id_to_unichar(get_rep_char(word)));
     wordstr = &repetition_code;
   } else {
     if (tessedit_zero_rejection) {
@@ -355,7 +355,7 @@ UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) {  // what char is repeated?
   if (i < word->reject_map.length()) {
     return word->best_choice->unichar_id(i);
   } else {
-    return unicharset.unichar_to_id(unrecognised_char.string());
+    return word->uch_set->unichar_to_id(unrecognised_char.string());
   }
 }
 
@@ -372,6 +372,7 @@ UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) {  // what char is repeated?
 void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
   int len = word_res->reject_map.length();
   const WERD_CHOICE &word = *(word_res->best_choice);
+  const UNICHARSET &uchset = *word.unicharset();
   int i;
   float rating_per_ch;
 
@@ -388,12 +389,12 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
 
   /* NOW FOR LEVELS 1 and 2 Find some stuff to unreject*/
 
-  if (safe_dict_word(word) &&
+  if (safe_dict_word(word_res) &&
       (count_alphas(word) > suspect_short_words)) {
     /* Unreject alphas in dictionary words */
     for (i = 0; i < len; ++i) {
       if (word_res->reject_map[i].rejected() &&
-          unicharset.get_isalpha(word.unichar_id(i)))
+          uchset.get_isalpha(word.unichar_id(i)))
         word_res->reject_map[i].setrej_minimal_rej_accept();
     }
   }
@@ -407,7 +408,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
     /* Unreject any Tess Acceptable word - but NOT tess reject chs*/
     for (i = 0; i < len; ++i) {
       if (word_res->reject_map[i].rejected() &&
-          (!unicharset.eq(word.unichar_id(i), " ")))
+          (!uchset.eq(word.unichar_id(i), " ")))
         word_res->reject_map[i].setrej_minimal_rej_accept();
     }
   }
@@ -441,9 +442,10 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
     }
   }
 
-  if ((acceptable_word_string(word.unichar_string().string(),
-                              word.unichar_lengths().string()) !=
-       AC_UNACCEPTABLE) ||
+  if (acceptable_word_string(*word_res->uch_set,
+                             word.unichar_string().string(),
+                             word.unichar_lengths().string()) !=
+                                 AC_UNACCEPTABLE ||
       acceptable_number_string(word.unichar_string().string(),
                                word.unichar_lengths().string())) {
     if (word_res->reject_map.length() > suspect_short_words) {
@@ -463,7 +465,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
 inT16 Tesseract::count_alphas(const WERD_CHOICE &word) {
   int count = 0;
   for (int i = 0; i < word.length(); ++i) {
-    if (unicharset.get_isalpha(word.unichar_id(i)))
+    if (word.unicharset()->get_isalpha(word.unichar_id(i)))
       count++;
   }
   return count;
@@ -473,8 +475,8 @@ inT16 Tesseract::count_alphas(const WERD_CHOICE &word) {
 inT16 Tesseract::count_alphanums(const WERD_CHOICE &word) {
   int count = 0;
   for (int i = 0; i < word.length(); ++i) {
-    if (unicharset.get_isalpha(word.unichar_id(i)) ||
-        unicharset.get_isdigit(word.unichar_id(i)))
+    if (word.unicharset()->get_isalpha(word.unichar_id(i)) ||
+        word.unicharset()->get_isdigit(word.unichar_id(i)))
       count++;
   }
   return count;
@@ -493,7 +495,7 @@ BOOL8 Tesseract::acceptable_number_string(const char *s,
     s++;
 
   for (; *s != '\0'; s += *(lengths++)) {
-    if (unicharset.get_isdigit (s, *lengths))
+    if (unicharset.get_isdigit(s, *lengths))
       prev_digit = TRUE;
     else if (prev_digit &&
              (*lengths == 1 && ((*s == '.') || (*s == ',') || (*s == '-'))))

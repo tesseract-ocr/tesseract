@@ -204,7 +204,8 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word = word_it.data();
     if ((!word->part_of_combo) && (word->box_word == NULL)) {
-      classify_word_pass2(word, block, row);
+      classify_word_and_language(&Tesseract::classify_word_pass2,
+                                 block, row, word);
     }
     prev_word_best_choice_ = word->best_choice;
   }
@@ -347,7 +348,7 @@ BOOL8 Tesseract::digit_or_numeric_punct(WERD_RES *word, int char_position) {
   for (i = 0, offset = 0; i < char_position;
        offset += word->best_choice->unichar_lengths()[i++]);
   return (
-      unicharset.get_isdigit(
+      word->uch_set->get_isdigit(
           word->best_choice->unichar_string().string() + offset,
           word->best_choice->unichar_lengths()[i]) ||
       (word->best_choice->permuter() == NUMBER_PERM &&
@@ -771,6 +772,9 @@ inT16 Tesseract::worst_noise_blob(WERD_RES *word_res,
   float small_limit = kBlnXHeight * fixsp_small_outlines_size;
   float non_noise_limit = kBlnXHeight * 0.8;
 
+  if (word_res->rebuild_word == NULL)
+    return -1;  // Can't handle cube words.
+
   TBLOB* blob = word_res->rebuild_word->blobs;
   // Normalised.
   int blob_count = word_res->box_word->length();
@@ -917,15 +921,17 @@ inT16 Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word = word_it.data();
+    if (word->rebuild_word == NULL)
+      continue;  // Can't handle cube words.
     word_length = word->reject_map.length();
     if (word->done ||
         word->tess_accepted ||
         word->best_choice->permuter() == SYSTEM_DAWG_PERM ||
         word->best_choice->permuter() == FREQ_DAWG_PERM ||
         word->best_choice->permuter() == USER_DAWG_PERM ||
-        safe_dict_word(*word->best_choice) > 0) {
+        safe_dict_word(word) > 0) {
       TBLOB* blob = word->rebuild_word->blobs;
-      UNICHAR_ID space = getDict().getUnicharset().unichar_to_id(" ");
+      UNICHAR_ID space = word->uch_set->unichar_to_id(" ");
       for (i = 0; i < word->best_choice->length() && blob != NULL;
            ++i, blob = blob->next) {
         if (word->best_choice->unichar_id(i) == space ||

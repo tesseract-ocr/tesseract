@@ -23,6 +23,8 @@
 #pragma warning(disable:4800)  // int/bool warnings
 #endif
 
+#include <math.h>
+
 #include "mfcpch.h"
 #ifdef __UNIX__
 #include          <assert.h>
@@ -58,7 +60,7 @@ void Tesseract::recog_word(WERD_RES *word,
       (word->best_choice->length() != blob_choices->length())) {
     tprintf("recog_word ASSERT FAIL String:\"%s\"; "
             "Strlen=%d; #Blobs=%d; #Choices=%d\n",
-            word->best_choice->debug_string(unicharset).string(),
+            word->best_choice->debug_string().string(),
             word->best_choice->length(), word->box_word->length(),
             blob_choices->length());
   }
@@ -128,7 +130,7 @@ void Tesseract::recog_word_recursive(WERD_RES *word,
       word->raw_choice->append_unichar_id(space_id, 1, 0.0,
                                           word->raw_choice->certainty());
     }
-    word->raw_choice->populate_unichars(unicharset);
+    word->raw_choice->populate_unichars();
   }
 
   // Do sanity checks and minor fixes on best_choice.
@@ -162,7 +164,7 @@ void Tesseract::recog_word_recursive(WERD_RES *word,
       word->best_choice->append_unichar_id(space_id, 1, 0.0,
                                            word->best_choice->certainty());
     }
-    word->best_choice->populate_unichars(unicharset);
+    word->best_choice->populate_unichars();
   }
 }
 
@@ -198,6 +200,7 @@ void Tesseract::split_and_recog_word(WERD_RES *word,
     prev_blob = blob;
   }
   ASSERT_HOST(best_end != NULL);
+  ASSERT_HOST(best_end->next != NULL);
 
   // Make a copy of the word to put the 2nd half in.
   WERD_RES* word2 = new WERD_RES(*word);
@@ -211,6 +214,67 @@ void Tesseract::split_and_recog_word(WERD_RES *word,
   free_seam_list(word->seam_array);
   word->seam_array = start_seam_list(word->chopped_word->blobs);
   word2->seam_array = start_seam_list(word2->chopped_word->blobs);
+  BlamerBundle *orig_bb = word->blamer_bundle;
+  STRING blamer_debug;
+  // Try to adjust truth information.
+  if (orig_bb != NULL) {
+    // Find truth boxes that correspond to the split in the blobs.
+    int b;
+    int begin2_truth_index = -1;
+    if (orig_bb->incorrect_result_reason != IRR_NO_TRUTH &&
+        orig_bb->truth_has_char_boxes) {
+      int end1_x = best_end->bounding_box().right();
+      int begin2_x = word2->chopped_word->blobs->bounding_box().left();
+      blamer_debug = "Looking for truth split at";
+      blamer_debug.add_str_int(" end1_x ", end1_x);
+      blamer_debug.add_str_int(" begin2_x ", begin2_x);
+      blamer_debug += "\nnorm_truth_word boxes:\n";
+      if (orig_bb->norm_truth_word.length() > 1) {
+        orig_bb->norm_truth_word.BlobBox(0).append_debug(&blamer_debug);
+        for (b = 1; b < orig_bb->norm_truth_word.length(); ++b) {
+          orig_bb->norm_truth_word.BlobBox(b).append_debug(&blamer_debug);
+          if ((abs(end1_x - orig_bb->norm_truth_word.BlobBox(b-1).right()) <
+              orig_bb->norm_box_tolerance) &&
+              (abs(begin2_x - orig_bb->norm_truth_word.BlobBox(b).left()) <
+              orig_bb->norm_box_tolerance)) {
+            begin2_truth_index = b;
+            blamer_debug += "Split found\n";
+            break;
+          }
+        }
+      }
+    }
+    // Populate truth information in word and word2 with the first and second
+    // part of the original truth.
+    word->blamer_bundle = new BlamerBundle();
+    word2->blamer_bundle = new BlamerBundle();
+    if (begin2_truth_index > 0) {
+      word->blamer_bundle->truth_has_char_boxes = true;
+      word->blamer_bundle->norm_box_tolerance = orig_bb->norm_box_tolerance;
+      word2->blamer_bundle->truth_has_char_boxes = true;
+      word2->blamer_bundle->norm_box_tolerance = orig_bb->norm_box_tolerance;
+      BlamerBundle *curr_bb = word->blamer_bundle;
+      for (b = 0; b < orig_bb->norm_truth_word.length(); ++b) {
+        if (b == begin2_truth_index) curr_bb = word2->blamer_bundle;
+        curr_bb->norm_truth_word.InsertBox(
+            b, orig_bb->norm_truth_word.BlobBox(b));
+        curr_bb->truth_word.InsertBox(b, orig_bb->truth_word.BlobBox(b));
+        curr_bb->truth_text.push_back(orig_bb->truth_text[b]);
+      }
+    } else if (orig_bb->incorrect_result_reason == IRR_NO_TRUTH) {
+      word->blamer_bundle->incorrect_result_reason = IRR_NO_TRUTH;
+      word2->blamer_bundle->incorrect_result_reason = IRR_NO_TRUTH;
+    } else {
+      blamer_debug += "Truth split not found";
+      blamer_debug += orig_bb->truth_has_char_boxes ?
+          "\n" : " (no truth char boxes)\n";
+      word->blamer_bundle->SetBlame(IRR_NO_TRUTH_SPLIT, blamer_debug,
+                                    NULL, wordrec_debug_blamer);
+      word2->blamer_bundle->SetBlame(IRR_NO_TRUTH_SPLIT, blamer_debug,
+                                     NULL, wordrec_debug_blamer);
+    }
+  }
+
   // Recognize the first part of the word.
   recog_word_recursive(word, blob_choices);
   // Recognize the second part of the word.
@@ -239,6 +303,75 @@ void Tesseract::split_and_recog_word(WERD_RES *word,
   // Append the word choices.
   *word->best_choice += *word2->best_choice;
   *word->raw_choice += *word2->raw_choice;
+
+  // How many alt choices from each should we try to get?
+  const int kAltsPerPiece = 2;
+  // When do we start throwing away extra alt choices?
+  const int kTooManyAltChoices = 100;
+
+  if (word->alt_choices.size() > 0 && word2->alt_choices.size() > 0) {
+    // Construct the cartesian product of the alt choices of word(1) and word2.
+    int num_first_alt_choices = word->alt_choices.size();
+    // Nota Bene: For the main loop here, we leave in place word1-only
+    // alt_choices in
+    //   word->alt_choices[0] .. word_alt_choices[num_first_alt_choices - 1]
+    // These will get fused with the best choices for word2 below.
+    for (int j = 1; j < word2->alt_choices.size() &&
+         (j <= kAltsPerPiece || word->alt_choices.size() < kTooManyAltChoices);
+         j++) {
+      for (int i = 0; i < num_first_alt_choices &&
+           (i <= kAltsPerPiece ||
+            word->alt_choices.size() < kTooManyAltChoices);
+           i++) {
+        WERD_CHOICE *wc = new WERD_CHOICE(*word->alt_choices[i]);
+        *wc += *word2->alt_choices[j];
+        word->alt_choices.push_back(wc);
+
+        word->alt_states.push_back(GenericVector<int>());
+        GenericVector<int> &alt_state = word->alt_states.back();
+        alt_state += word->alt_states[i];
+        alt_state += word2->alt_states[j];
+      }
+    }
+    // Now that we've filled in as many alternates as we want, paste the best
+    // choice for word2 onto the original word alt_choices.
+    for (int i = 0; i < num_first_alt_choices; i++) {
+      *word->alt_choices[i] += *word2->alt_choices[0];
+      word->alt_states[i] += word2->alt_states[0];
+    }
+  }
+
+  // Restore the pointer to original blamer bundle and combine blamer
+  // information recorded in the splits.
+  if (orig_bb != NULL) {
+    IncorrectResultReason irr = orig_bb->incorrect_result_reason;
+    if (irr != IRR_NO_TRUTH_SPLIT) blamer_debug = "";
+    if (word->blamer_bundle->incorrect_result_reason != IRR_CORRECT &&
+        word->blamer_bundle->incorrect_result_reason != IRR_NO_TRUTH &&
+        word->blamer_bundle->incorrect_result_reason != IRR_NO_TRUTH_SPLIT) {
+      blamer_debug += "Blame from part 1: ";
+      blamer_debug += word->blamer_bundle->debug;
+      irr = word->blamer_bundle->incorrect_result_reason;
+    }
+    if (word2->blamer_bundle->incorrect_result_reason != IRR_CORRECT &&
+        word2->blamer_bundle->incorrect_result_reason != IRR_NO_TRUTH &&
+        word2->blamer_bundle->incorrect_result_reason != IRR_NO_TRUTH_SPLIT) {
+      blamer_debug += "Blame from part 2: ";
+      blamer_debug += word2->blamer_bundle->debug;
+      if (irr == IRR_CORRECT) {
+        irr = word2->blamer_bundle->incorrect_result_reason;
+      } else if (irr != word2->blamer_bundle->incorrect_result_reason) {
+        irr = IRR_UNKNOWN;
+      }
+    }
+    delete word->blamer_bundle;
+    word->blamer_bundle = orig_bb;
+    word->blamer_bundle->incorrect_result_reason = irr;
+    if (irr != IRR_CORRECT && irr != IRR_NO_TRUTH) {
+      word->blamer_bundle->SetBlame(irr, blamer_debug, NULL,
+                                    wordrec_debug_blamer);
+    }
+  }
   delete word2;
 }
 

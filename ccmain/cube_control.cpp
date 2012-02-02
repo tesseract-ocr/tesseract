@@ -157,13 +157,16 @@ static WERD_CHOICE *create_werd_choice(
                                        CharSet* cube_char_set
                                        ) {
   // Insert unichar ids into WERD_CHOICE
-  WERD_CHOICE *werd_choice = new WERD_CHOICE(num_chars);
+  WERD_CHOICE *werd_choice = new WERD_CHOICE(&unicharset, num_chars);
+  // within a word, cube recognizes the word in reading order.
+  werd_choice->set_unichars_in_script_order(true);
   ASSERT_HOST(werd_choice != NULL);
   UNICHAR_ID uch_id;
   for (int i = 0; i < num_chars; ++i) {
     uch_id = cube_char_set->UnicharID(char_samples[i]->StrLabel());
     if (uch_id != INVALID_UNICHAR_ID)
-      werd_choice->append_unichar_id_space_allocated(uch_id, 1, 0.0, certainty);
+      werd_choice->append_unichar_id_space_allocated(
+          uch_id, 1, 0.0, certainty);
   }
 
   BLOB_CHOICE *blob_choice;
@@ -179,12 +182,12 @@ static WERD_CHOICE *create_werd_choice(
     choices_list_it.set_to_list(choices_list);
     // Add a single BLOB_CHOICE to the list
     blob_choice = new BLOB_CHOICE(werd_choice->unichar_id(i),
-                                  0.0, certainty, -1, -1, 0);
+                                  0.0, certainty, -1, -1, 0, 0, 0, false);
     choices_list_it.add_after_then_move(blob_choice);
     // Add list to the clist
     blob_choices_it.add_to_end(choices_list);
   }
-  werd_choice->populate_unichars(unicharset);
+  werd_choice->populate_unichars();
   werd_choice->set_certainty(certainty);
   werd_choice->set_blob_choices(blob_choices);
   return werd_choice;
@@ -231,87 +234,140 @@ bool Tesseract::init_cube_objects(bool load_combiner,
 }
 
 /**********************************************************************
- * run_cube
+ * run_cube_combiner
  *
- * Iterate through tesseract's results and call cube on each word.
- * If the combiner is present, optionally run the tesseract-cube
- * combiner on each word.
+ * Iterates through tesseract's results and calls cube on each word,
+ * combining the results with the existing tesseract result.
  **********************************************************************/
-void Tesseract::run_cube(
-                         PAGE_RES *page_res  // page structure
-                         ) {
-  ASSERT_HOST(cube_cntxt_ != NULL);
-  if (!pix_binary_) {
-    if (cube_debug_level > 0)
-      tprintf("Tesseract::run_cube(): NULL binary image.\n");
-    return;
-  }
-  if (!page_res)
+void Tesseract::run_cube_combiner(PAGE_RES *page_res) {
+  if (page_res == NULL || tess_cube_combiner_ == NULL)
     return;
   PAGE_RES_IT page_res_it(page_res);
-  page_res_it.restart_page();
-
   // Iterate through the word results and call cube on each word.
-  CubeObject *cube_obj;
   for (page_res_it.restart_page(); page_res_it.word () != NULL;
        page_res_it.forward()) {
     WERD_RES* word = page_res_it.word();
-    TBOX word_box = word->word->bounding_box();
-    // TODO(rays): Instead of page_res_it.block()->block maybe use
-    //             word->denorm.block() once TODO in
-    //             Tesseract::recog_all_words() is addressed.
-    const BLOCK* block = page_res_it.block()->block;
-    if (block != NULL && (block->re_rotation().x() != 1.0f ||
-          block->re_rotation().y() != 0.0f)) {
-      // TODO(rays) We have to rotate the bounding box to get the true coords.
-      // This will be achieved in the future via DENORM.
-      // In the mean time, cube can't process this word.
-      if (cube_debug_level > 0) {
-        tprintf("Cube can't process rotated word at:");
-        word_box.print();
-      }
-      if (word->best_choice == NULL)
-        page_res_it.DeleteCurrentWord();  // Nobody has an answer.
+    // Skip cube entirely if tesseract's certainty is greater than threshold.
+    int combiner_run_thresh = convert_prob_to_tess_certainty(
+        cube_cntxt_->Params()->CombinerRunThresh());
+    if (word->best_choice->certainty() >= combiner_run_thresh) {
       continue;
     }
-    cube_obj = new tesseract::CubeObject(cube_cntxt_, pix_binary_,
-                                         word_box.left(),
-                                         pix_binary_->h - word_box.top(),
-                                         word_box.width(), word_box.height());
-    cube_recognize(cube_obj, &page_res_it);
+    // Use the same language as Tesseract used for the word.
+    Tesseract* lang_tess = word->tesseract;
+
+    // Setup a trial WERD_RES in which to classify with cube.
+    WERD_RES cube_word;
+    cube_word.InitForRetryRecognition(*word);
+    CubeObject *cube_obj = lang_tess->cube_recognize_word(
+        page_res_it.block()->block, &cube_word);
+    if (cube_obj != NULL)
+      lang_tess->cube_combine_word(cube_obj, &cube_word, word);
     delete cube_obj;
   }
 }
 
 /**********************************************************************
- * cube_recognize
+ * cube_word_pass1
  *
- * Call cube on the current word, optionally run the tess-cube combiner, and
- * modify the tesseract result if cube wins. If cube fails to run, or
- * if tesseract wins, leave the tesseract result unchanged. If the
- * combiner is not instantiated, always use cube's result.
- *
+ * Recognizes a single word using (only) cube. Compatible with
+ * Tesseract's classify_word_pass1/classify_word_pass2.
  **********************************************************************/
-void Tesseract::cube_recognize(
-                               CubeObject *cube_obj,
-                               PAGE_RES_IT *page_res_it
-                               ) {
-  // Retrieve tesseract's data structure for the current word.
-  WERD_RES *tess_werd_res = page_res_it->word();
-  if (!tess_werd_res->best_choice && tess_cube_combiner_ != NULL) {
-    if (cube_debug_level > 0)
-      tprintf("Cube WARNING (Tesseract::cube_recognize): Cannot run combiner "
-              "without a tess result.\n");
+void Tesseract::cube_word_pass1(BLOCK* block, ROW *row, WERD_RES *word) {
+  CubeObject *cube_obj = cube_recognize_word(block, word);
+  delete cube_obj;
+}
+
+/**********************************************************************
+ * cube_recognize_word
+ *
+ * Cube recognizer to recognize a single word as with classify_word_pass1
+ * but also returns the cube object in case the combiner is needed.
+ **********************************************************************/
+CubeObject* Tesseract::cube_recognize_word(BLOCK* block, WERD_RES* word) {
+  if (!cube_binary_ || !cube_cntxt_) {
+    if (cube_debug_level > 0 && !cube_binary_)
+      tprintf("Tesseract::run_cube(): NULL binary image.\n");
+    word->SetupFake(unicharset);
+    return NULL;
+  }
+  TBOX word_box = word->word->bounding_box();
+  if (block != NULL && (block->re_rotation().x() != 1.0f ||
+        block->re_rotation().y() != 0.0f)) {
+    // TODO(rays) We have to rotate the bounding box to get the true coords.
+    // This will be achieved in the future via DENORM.
+    // In the mean time, cube can't process this word.
+    if (cube_debug_level > 0) {
+      tprintf("Cube can't process rotated word at:");
+      word_box.print();
+    }
+    word->SetupFake(unicharset);
+    return NULL;
+  }
+  CubeObject* cube_obj = new tesseract::CubeObject(
+      cube_cntxt_, cube_binary_, word_box.left(),
+      pixGetHeight(cube_binary_) - word_box.top(),
+      word_box.width(), word_box.height());
+  if (!cube_recognize(cube_obj, block, word)) {
+    delete cube_obj;
+    return NULL;
+  }
+  return cube_obj;
+}
+
+/**********************************************************************
+ * cube_combine_word
+ *
+ * Combines the cube and tesseract results for a single word, leaving the
+ * result in tess_word.
+ **********************************************************************/
+void Tesseract::cube_combine_word(CubeObject* cube_obj, WERD_RES* cube_word,
+                                  WERD_RES* tess_word) {
+  float combiner_prob = tess_cube_combiner_->CombineResults(tess_word,
+                                                            cube_obj);
+  // If combiner probability is greater than tess/cube combiner
+  // classifier threshold, i.e. tesseract wins, then just return the
+  // tesseract result unchanged, as the combiner knows nothing about how
+  // correct the answer is. If cube and tesseract agree, then improve the
+  // scores before returning.
+  WERD_CHOICE* tess_best = tess_word->best_choice;
+  WERD_CHOICE* cube_best = cube_word->best_choice;
+  if (cube_debug_level || classify_debug_level) {
+    tprintf("Combiner prob = %g vs threshold %g\n",
+            combiner_prob, cube_cntxt_->Params()->CombinerClassifierThresh());
+  }
+  if (combiner_prob >=
+      cube_cntxt_->Params()->CombinerClassifierThresh()) {
+    if (tess_best->unichar_string() == cube_best->unichar_string()) {
+      // Cube and tess agree, so improve the scores.
+      tess_best->set_rating(tess_best->rating() / 2);
+      tess_best->set_certainty(tess_best->certainty() / 2);
+    }
     return;
   }
+  // Cube wins.
+  // It is better for the language combiner to have all tesseract scores,
+  // so put them in the cube result.
+  cube_best->set_rating(tess_best->rating());
+  cube_best->set_certainty(tess_best->certainty());
+  if (cube_debug_level || classify_debug_level) {
+    tprintf("Cube INFO: tesseract result replaced by cube: %s -> %s\n",
+            tess_best->unichar_string().string(),
+            cube_best->unichar_string().string());
+  }
+  tess_word->ConsumeWordResults(cube_word);
+}
 
-  // Skip cube entirely if combiner is present but tesseract's
-  // certainty is greater than threshold.
-  int combiner_run_thresh = convert_prob_to_tess_certainty(
-      cube_cntxt_->Params()->CombinerRunThresh());
-  if (tess_cube_combiner_ != NULL &&
-      (tess_werd_res->best_choice->certainty() >= combiner_run_thresh)) {
-    return;
+/**********************************************************************
+ * cube_recognize
+ *
+ * Call cube on the current word, and write the result to word.
+ * Sets up a fake result and returns false if something goes wrong.
+ **********************************************************************/
+bool Tesseract::cube_recognize(CubeObject *cube_obj, BLOCK* block,
+                               WERD_RES *word) {
+  if (!word->SetupForCubeRecognition(unicharset, this, block)) {
+    return false;  // Graphics block.
   }
 
   // Run cube
@@ -319,26 +375,11 @@ void Tesseract::cube_recognize(
   if (!cube_alt_list || cube_alt_list->AltCount() <= 0) {
     if (cube_debug_level > 0) {
       tprintf("Cube returned nothing for word at:");
-      tess_werd_res->word->bounding_box().print();
+      word->word->bounding_box().print();
     }
-    if (tess_werd_res->best_choice == NULL) {
-      // Nobody has recognized it, so pretend it doesn't exist.
-      if (cube_debug_level > 0) {
-        tprintf("Deleted word not recognized by cube and/or tesseract at:");
-        tess_werd_res->word->bounding_box().print();
-      }
-      page_res_it->DeleteCurrentWord();
-    }
-    return;
+    word->SetupFake(unicharset);
+    return false;
   }
-
-  // At this point we *could* run the combiner and bail out if
-  // Tesseract wins, but that would require instantiating a new
-  // CubeObject to avoid losing the original recognition results
-  // (e.g., beam search lattice) stored with the CubeObject. Instead,
-  // we first extract the state we need from the current recognition
-  // and then reuse the CubeObject so that the combiner does not need
-  // to recompute the image's connected components, segmentation, etc.
 
   // Get cube's best result and its probability, mapped to tesseract's
   // certainty range
@@ -357,14 +398,15 @@ void Tesseract::cube_recognize(
       && cube_debug_level > 0) {
     tprintf("Cube WARNING (Tesseract::cube_recognize): Cannot extract "
             "cube state.\n");
-    return;
+    word->SetupFake(unicharset);
+    return false;
   }
 
   // Convert cube's character bounding boxes to a BoxWord.
   BoxWord cube_box_word;
-  TBOX tess_word_box = tess_werd_res->word->bounding_box();
-  if (tess_werd_res->denorm.block() != NULL)
-    tess_word_box.rotate(tess_werd_res->denorm.block()->re_rotation());
+  TBOX tess_word_box = word->word->bounding_box();
+  if (word->denorm.block() != NULL)
+    tess_word_box.rotate(word->denorm.block()->re_rotation());
   bool box_word_success = create_cube_box_word(char_boxes, num_chars,
                                                tess_word_box,
                                                &cube_box_word);
@@ -374,7 +416,8 @@ void Tesseract::cube_recognize(
       tprintf("Cube WARNING (Tesseract::cube_recognize): Could not "
               "create cube BoxWord\n");
     }
-    return;
+    word->SetupFake(unicharset);
+    return false;
   }
 
   // Create cube's best choice.
@@ -388,36 +431,19 @@ void Tesseract::cube_recognize(
       tprintf("Cube WARNING (Tesseract::cube_recognize): Could not "
               "create cube WERD_CHOICE\n");
     }
-    return;
+    word->SetupFake(unicharset);
+    return false;
   }
-
-  // Run combiner if present, now that we're free to reuse the CubeObject.
-  if (tess_cube_combiner_ != NULL) {
-    float combiner_prob = tess_cube_combiner_->CombineResults(tess_werd_res,
-                                                              cube_obj);
-    // If combiner probability is greater than tess/cube combiner
-    // classifier threshold, i.e. tesseract wins, then reset the WERD_RES
-    // certainty to the combiner certainty and return. Note that when
-    // tesseract and cube agree, the combiner probability is 1.0, so
-    // the final WERD_RES certainty will be maximized to 0.0.
-    if (combiner_prob >=
-        cube_cntxt_->Params()->CombinerClassifierThresh()) {
-      float combiner_certainty = convert_prob_to_tess_certainty(combiner_prob);
-      tess_werd_res->best_choice->set_certainty(combiner_certainty);
-      delete cube_werd_choice;
-      return;
-    }
-    if (cube_debug_level > 5) {
-      tprintf("Cube INFO: tesseract result replaced by cube: "
-              "%s -> %s\n",
-              tess_werd_res->best_choice->unichar_string().string(),
-              cube_best_str.c_str());
-    }
+  if (cube_debug_level || classify_debug_level) {
+    tprintf("Cube result: %s r=%g, c=%g\n",
+            cube_werd_choice->unichar_string().string(),
+            cube_werd_choice->rating(),
+            cube_werd_choice->certainty());
   }
 
   // Fill tesseract result's fields with cube results
-  fill_werd_res(cube_box_word, cube_werd_choice, cube_best_str.c_str(),
-                page_res_it);
+  fill_werd_res(cube_box_word, cube_werd_choice, cube_best_str.c_str(), word);
+  return true;
 }
 
 /**********************************************************************
@@ -429,16 +455,14 @@ void Tesseract::cube_recognize(
 void Tesseract::fill_werd_res(const BoxWord& cube_box_word,
                               WERD_CHOICE* cube_werd_choice,
                               const char* cube_best_str,
-                              PAGE_RES_IT *page_res_it) {
-  WERD_RES *tess_werd_res = page_res_it->word();
-
+                              WERD_RES* tess_werd_res) {
   // Replace tesseract results's best choice with cube's
-  delete tess_werd_res->best_choice;
   tess_werd_res->best_choice = cube_werd_choice;
+  tess_werd_res->raw_choice = new WERD_CHOICE(*cube_werd_choice);
 
   delete tess_werd_res->box_word;
   tess_werd_res->box_word = new BoxWord(cube_box_word);
-  tess_werd_res->box_word->ClipToOriginalWord(page_res_it->block()->block,
+  tess_werd_res->box_word->ClipToOriginalWord(tess_werd_res->denorm.block(),
                                               tess_werd_res->word);
   // Fill text and remaining fields
   tess_werd_res->word->set_text(cube_best_str);

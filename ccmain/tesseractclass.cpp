@@ -19,16 +19,18 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "tesseractclass.h"
+
+#include "allheaders.h"
 #include "cube_reco_context.h"
-#include "tesseract_cube_combiner.h"
+#include "edgblob.h"
+#include "equationdetect.h"
 #include "globals.h"
+#include "tesseract_cube_combiner.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
-#include "allheaders.h"
 
 namespace tesseract {
 
@@ -63,7 +65,7 @@ Tesseract::Tesseract()
                   "Blacklist of chars not to recognize", this->params()),
     STRING_MEMBER(tessedit_char_whitelist, "",
                   "Whitelist of chars to recognize", this->params()),
-    BOOL_INIT_MEMBER(tessedit_ambigs_training, false,
+    BOOL_MEMBER(tessedit_ambigs_training, false,
                 "Perform training for ambiguities", this->params()),
     INT_MEMBER(pageseg_devanagari_split_strategy,
               tesseract::ShiroRekhaSplitter::NO_SPLIT,
@@ -80,6 +82,7 @@ Tesseract::Tesseract()
                 " a character composed form fragments", this->params()),
     BOOL_MEMBER(tessedit_adaption_debug, false, "Generate and print debug"
                 " information for adaption", this->params()),
+    INT_MEMBER(bidi_debug, 0, "Debug level for BiDi", this->params()),
     INT_MEMBER(applybox_debug, 1, "Debug level", this->params()),
     INT_MEMBER(applybox_page, 0,
                "Page number to apply boxes from", this->params()),
@@ -94,7 +97,7 @@ Tesseract::Tesseract()
     BOOL_MEMBER(applybox_learn_ngrams_mode, false, "Each bounding box"
                 " is assumed to contain ngrams. Only learn the ngrams"
                 " whose outlines overlap horizontally.", this->params()),
-    BOOL_MEMBER(tessedit_draw_outwords, false,
+    BOOL_MEMBER(tessedit_display_outwords, false,
                 "Draw output words", this->params()),
     BOOL_MEMBER(tessedit_training_tess, false,
                 "Call Tess to learn blobs", this->params()),
@@ -114,6 +117,12 @@ Tesseract::Tesseract()
                 "Output font info per char", this->params()),
     BOOL_MEMBER(tessedit_debug_block_rejection, false,
                 "Block and Row stats", this->params()),
+    BOOL_MEMBER(tessedit_enable_bigram_correction, false,
+                "Enable correction based on the word bigram dictionary.",
+                this->params()),
+    INT_MEMBER(tessedit_bigram_debug, 0,
+               "Amount of debug output for bigram correction.",
+               this->params()),
     INT_MEMBER(debug_x_ht_level, 0, "Reestimate debug", this->params()),
     BOOL_MEMBER(debug_acceptable_wds, false,
                 "Dump word pass/fail chk", this->params()),
@@ -145,13 +154,15 @@ Tesseract::Tesseract()
                 "Log matcher activity", this->params()),
     INT_MEMBER(tessedit_test_adaption_mode, 3,
                "Adaptation decision algorithm for tess", this->params()),
-    BOOL_MEMBER(save_best_choices, false,
+    BOOL_MEMBER(save_blob_choices, false,
                 "Save the results of the recognition step (blob_choices)"
                 " within the corresponding WERD_CHOICE", this->params()),
     BOOL_MEMBER(test_pt, false, "Test for point", this->params()),
     double_MEMBER(test_pt_x, 99999.99, "xcoord", this->params()),
     double_MEMBER(test_pt_y, 99999.99, "ycoord", this->params()),
-    INT_MEMBER(cube_debug_level, 1, "Print cube debug info.", this->params()),
+    INT_MEMBER(paragraph_debug_level, 0, "Print paragraph debug info.",
+               this->params()),
+    INT_MEMBER(cube_debug_level, 0, "Print cube debug info.", this->params()),
     STRING_MEMBER(outlines_odd, "%| ", "Non standard number of outlines",
                   this->params()),
     STRING_MEMBER(outlines_2, "ij!?%\":;",
@@ -345,28 +356,49 @@ Tesseract::Tesseract()
                " , else specifc page to process", this->params()),
     BOOL_MEMBER(tessedit_write_images, false,
                 "Capture the image from the IPE", this->params()),
-    BOOL_MEMBER(interactive_mode, false, "Run interactively?", this->params()),
+    BOOL_MEMBER(interactive_display_mode, false, "Run interactively?",
+                this->params()),
     STRING_MEMBER(file_type, ".tif", "Filename extension", this->params()),
     BOOL_MEMBER(tessedit_override_permuter, true,
                 "According to dict_word", this->params()),
-    INT_INIT_MEMBER(tessdata_manager_debug_level, 0, "Debug level for"
-                    " TessdataManager functions.", this->params()),
-    double_MEMBER(min_orientation_margin, 12.0,
+    INT_MEMBER(tessdata_manager_debug_level, 0, "Debug level for"
+               " TessdataManager functions.", this->params()),
+    STRING_MEMBER(tessedit_load_sublangs, "",
+                  "List of languages to load with this one", this->params()),
+    double_MEMBER(min_orientation_margin, 7.0,
                   "Min acceptable orientation margin", this->params()),
+    BOOL_MEMBER(textord_tabfind_show_vlines, false, "Debug line finding",
+                this->params()),
+    BOOL_MEMBER(textord_use_cjk_fp_model, FALSE, "Use CJK fixed pitch model",
+                this->params()),
+    BOOL_INIT_MEMBER(tessedit_init_config_only, false,
+                     "Only initialize with the config file. Useful if the "
+                     "instance is not going to be used for OCR but say only "
+                     "for layout analysis.", this->params()),
+    BOOL_MEMBER(textord_equation_detect, false, "Turn on equation detector",
+                this->params()),
     backup_config_file_(NULL),
     pix_binary_(NULL),
+    cube_binary_(NULL),
     pix_grey_(NULL),
-    orig_image_changed_(false),
+    source_resolution_(0),
     textord_(this),
     right_to_left_(false),
+    scaled_color_(NULL),
+    scaled_factor_(-1),
     deskew_(1.0f, 0.0f),
     reskew_(1.0f, 0.0f),
+    most_recently_used_(this),
+    font_table_size_(0),
     cube_cntxt_(NULL),
-    tess_cube_combiner_(NULL) {
+    tess_cube_combiner_(NULL),
+    equ_detect_(NULL) {
 }
 
 Tesseract::~Tesseract() {
   Clear();
+  end_tesseract();
+  sub_langs_.delete_data_pointers();
   // Delete cube objects.
   if (cube_cntxt_ != NULL) {
     delete cube_cntxt_;
@@ -379,77 +411,124 @@ Tesseract::~Tesseract() {
 }
 
 void Tesseract::Clear() {
-  if (pix_binary_ != NULL)
-    pixDestroy(&pix_binary_);
-  if (pix_grey_ != NULL)
-    pixDestroy(&pix_grey_);
+  pixDestroy(&pix_binary_);
+  pixDestroy(&cube_binary_);
+  pixDestroy(&pix_grey_);
+  pixDestroy(&scaled_color_);
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);
-  orig_image_changed_ = false;
   splitter_.Clear();
+  scaled_factor_ = -1;
+  ResetFeaturesHaveBeenExtracted();
+  for (int i = 0; i < sub_langs_.size(); ++i)
+    sub_langs_[i]->Clear();
+}
+
+void Tesseract::SetEquationDetect(EquationDetect* detector) {
+  equ_detect_ = detector;
+  equ_detect_->SetLangTesseract(this);
+}
+
+// Clear all memory of adaption for this and all subclassifiers.
+void Tesseract::ResetAdaptiveClassifier() {
+  ResetAdaptiveClassifierInternal();
+  for (int i = 0; i < sub_langs_.size(); ++i) {
+    sub_langs_[i]->ResetAdaptiveClassifierInternal();
+  }
+}
+
+// Clear the document dictionary for this and all subclassifiers.
+void Tesseract::ResetDocumentDictionary() {
+  getDict().ResetDocumentDictionary();
+  for (int i = 0; i < sub_langs_.size(); ++i) {
+    sub_langs_[i]->getDict().ResetDocumentDictionary();
+  }
 }
 
 void Tesseract::SetBlackAndWhitelist() {
   // Set the white and blacklists (if any)
   unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
                                      tessedit_char_whitelist.string());
+  // Black and white lists should apply to all loaded classifiers.
+  for (int i = 0; i < sub_langs_.size(); ++i) {
+    sub_langs_[i]->unicharset.set_black_and_whitelist(
+        tessedit_char_blacklist.string(), tessedit_char_whitelist.string());
+  }
 }
 
 // Perform steps to prepare underlying binary image/other data structures for
 // page segmentation.
 void Tesseract::PrepareForPageseg() {
+  textord_.set_use_cjk_fp_model(textord_use_cjk_fp_model);
+  pixDestroy(&cube_binary_);
+  cube_binary_ = pixClone(pix_binary());
+  // Find the max splitter strategy over all langs.
+  ShiroRekhaSplitter::SplitStrategy max_pageseg_strategy =
+      static_cast<ShiroRekhaSplitter::SplitStrategy>(
+      static_cast<inT32>(pageseg_devanagari_split_strategy));
+  for (int i = 0; i < sub_langs_.size(); ++i) {
+    ShiroRekhaSplitter::SplitStrategy pageseg_strategy =
+        static_cast<ShiroRekhaSplitter::SplitStrategy>(
+        static_cast<inT32>(sub_langs_[i]->pageseg_devanagari_split_strategy));
+    if (pageseg_strategy > max_pageseg_strategy)
+      max_pageseg_strategy = pageseg_strategy;
+    // Clone the cube image to all the sub langs too.
+    pixDestroy(&sub_langs_[i]->cube_binary_);
+    sub_langs_[i]->cube_binary_ = pixClone(pix_binary());
+    pixDestroy(&sub_langs_[i]->pix_binary_);
+    sub_langs_[i]->pix_binary_ = pixClone(pix_binary());
+  }
   // Perform shiro-rekha (top-line) splitting and replace the current image by
   // the newly splitted image.
   splitter_.set_orig_pix(pix_binary());
-  splitter_.set_pageseg_split_strategy(
-      (ShiroRekhaSplitter::SplitStrategy)
-      ((inT32)pageseg_devanagari_split_strategy));
+  splitter_.set_pageseg_split_strategy(max_pageseg_strategy);
   if (splitter_.Split(true)) {
     ASSERT_HOST(splitter_.splitted_image());
-    splitter_.CopySplittedImageTo(NULL, &pix_binary_);
-    orig_image_changed_ = true;
+    pixDestroy(&pix_binary_);
+    pix_binary_ = pixClone(splitter_.splitted_image());
   }
 }
 
 // Perform steps to prepare underlying binary image/other data structures for
 // OCR. The current segmentation is required by this method.
+// Note that this method resets pix_binary_ to the original binarized image,
+// which may be different from the image actually used for OCR depending on the
+// value of devanagari_ocr_split_strategy.
 void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
                                   Tesseract* osd_tess, OSResults* osr) {
-  // Creating blobs to OCR.
+  // Find the max splitter strategy over all langs.
+  ShiroRekhaSplitter::SplitStrategy max_ocr_strategy =
+      static_cast<ShiroRekhaSplitter::SplitStrategy>(
+      static_cast<inT32>(ocr_devanagari_split_strategy));
+  for (int i = 0; i < sub_langs_.size(); ++i) {
+    ShiroRekhaSplitter::SplitStrategy ocr_strategy =
+        static_cast<ShiroRekhaSplitter::SplitStrategy>(
+        static_cast<inT32>(sub_langs_[i]->ocr_devanagari_split_strategy));
+    if (ocr_strategy > max_ocr_strategy)
+      max_ocr_strategy = ocr_strategy;
+  }
   // Utilize the segmentation information available.
   splitter_.set_segmentation_block_list(block_list);
-  splitter_.set_ocr_split_strategy(
-      (ShiroRekhaSplitter::SplitStrategy)
-      ((inT32)ocr_devanagari_split_strategy));
-  if (splitter_.Split(false)) {
-    ASSERT_HOST(splitter_.splitted_image());
-    splitter_.CopySplittedImageTo(NULL, &pix_binary_);
-    orig_image_changed_ = true;
-    // If the split strategies used before pageseg and ocr are the same, the
-    // segmentation obtained from the second round can be used going forward.
-    // Otherwise, the page-segmentation (& importantly, the word segmentation)
-    // of first round is used.
-    if (splitter_.HasDifferentSplitStrategies()) {
-      // Refresh the segmentation with new blobs.
-      BLOCK_LIST new_segmentation;
-      SegmentPage(NULL, &new_segmentation, osd_tess, osr);
-      C_BLOB_LIST new_blobs;
-      ExtractBlobsFromSegmentation(&new_segmentation, &new_blobs);
-      splitter_.RefreshSegmentationWithNewBlobs(&new_blobs);
-    } else {
-      block_list->clear();
-      SegmentPage(NULL, block_list, osd_tess, osr);
-    }
+  splitter_.set_ocr_split_strategy(max_ocr_strategy);
+  // Run the splitter for OCR
+  bool split_for_ocr = splitter_.Split(false);
+  // Restore pix_binary to the binarized original pix for future reference.
+  ASSERT_HOST(splitter_.orig_pix());
+  pixDestroy(&pix_binary_);
+  pix_binary_ = pixClone(splitter_.orig_pix());
+  // If the pageseg and ocr strategies are different, refresh the block list
+  // (from the last SegmentImage call) with blobs from the real image to be used
+  // for OCR.
+  if (splitter_.HasDifferentSplitStrategies()) {
+    BLOCK block("", TRUE, 0, 0, 0, 0, pixGetWidth(pix_binary_),
+                pixGetHeight(pix_binary_));
+    Pix* pix_for_ocr = split_for_ocr ? splitter_.splitted_image() :
+        splitter_.orig_pix();
+    extract_edges(pix_for_ocr, &block);
+    splitter_.RefreshSegmentationWithNewBlobs(block.blob_list());
   }
+  // The splitter isn't needed any more after this, so save memory by clearing.
+  splitter_.Clear();
 }
 
-// Perform steps to prepare underlying binary image/other data structures for
-// Cube OCR.
-void Tesseract::PrepareForCubeOCR() {
-  if (orig_image_changed_) {
-    // Revert to the original image as Cube likes them more.
-    splitter_.CopyOriginalImageTo(NULL, &pix_binary_);
-    orig_image_changed_ = false;
-  }
-}
 }  // namespace tesseract

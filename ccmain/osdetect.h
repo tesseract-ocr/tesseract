@@ -45,7 +45,7 @@ struct OSBestResult {
 };
 
 struct OSResults {
-  OSResults() {
+  OSResults() : unicharset(NULL) {
     for (int i = 0; i < 4; ++i) {
       for (int j = 0; j < kMaxNumberOfScripts; ++j)
         scripts_na[i][j] = 0;
@@ -53,8 +53,19 @@ struct OSResults {
     }
   }
   void update_best_orientation();
+  // Set the estimate of the orientation to the given id.
   void set_best_orientation(int orientation_id);
+  // Update/Compute the best estimate of the script assuming the given
+  // orientation id.
   void update_best_script(int orientation_id);
+  // Return the index of the script with the highest score for this orientation.
+  int get_best_script(int orientation_id) const;
+  // Accumulate scores with given OSResults instance and update the best script.
+  void accumulate(const OSResults& osr);
+
+  // Print statistics.
+  void print_scores(void) const;
+  void print_scores(int orientation_id) const;
 
   // Array holding scores for each orientation id [0,3].
   // Orientation ids [0..3] map to [0, 270, 180, 90] degree orientations of the

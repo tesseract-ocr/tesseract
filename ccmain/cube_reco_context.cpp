@@ -109,6 +109,7 @@ bool CubeRecoContext::GetDataFilePath(string *path) const {
 bool CubeRecoContext::Load(TessdataManager *tessdata_manager,
                            UNICHARSET *tess_unicharset) {
   ASSERT_HOST(tess_obj_ != NULL);
+  tess_unicharset_ = tess_unicharset;
   string data_file_path;
 
   // Get the data file path.

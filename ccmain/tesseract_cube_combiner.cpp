@@ -148,8 +148,7 @@ bool TesseractCubeCombiner::ComputeCombinerFeatures(const string &tess_str,
   bool cube_best_bigram_cost_valid = true;
   if (cube_cntxt_->Bigrams())
     cube_best_bigram_cost = cube_cntxt_->Bigrams()->
-        Cost(cube_best_str32, cube_cntxt_->CharacterSet(),
-             &cube_cntxt_->TesseractObject()->unicharset);
+        Cost(cube_best_str32, cube_cntxt_->CharacterSet());
   else
     cube_best_bigram_cost_valid = false;
   CubeUtils::UTF32ToUTF8(cube_best_str32, &cube_best_str);
@@ -191,8 +190,7 @@ bool TesseractCubeCombiner::ComputeCombinerFeatures(const string &tess_str,
   int tess_bigram_cost_valid = true;
   if (cube_cntxt_->Bigrams())
     tess_bigram_cost = cube_cntxt_->Bigrams()->
-        Cost(tess_str32.c_str(), cube_cntxt_->CharacterSet(),
-             &cube_cntxt_->TesseractObject()->unicharset);
+        Cost(tess_str32.c_str(), cube_cntxt_->CharacterSet());
   else
     tess_bigram_cost_valid = false;
 
