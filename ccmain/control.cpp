@@ -559,20 +559,14 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
           if (tessedit_bigram_debug > 1) {
             STRING bigrams_list;
             const int kMaxChoicesToPrint = 20;
-            int num_choices_printed = 0;
             for (int i = 0; i < overrides_word1.size() &&
-                 num_choices_printed < kMaxChoicesToPrint; i++) {
-              for (int j = 0; j < overrides_word2.size() &&
-                   num_choices_printed < kMaxChoicesToPrint; j++) {
-                if (i > 0 || j > 0) { bigrams_list += ", "; }
-                WERD_CHOICE *p1 = overrides_word1[i];
-                WERD_CHOICE *p2 = overrides_word2[j];
-                bigrams_list +=
-                    p1->unichar_string() + " " + p2->unichar_string();
-                num_choices_printed++;
-                if (num_choices_printed == kMaxChoicesToPrint) {
-                  bigrams_list += " ...";
-                }
+                 i < kMaxChoicesToPrint; i++) {
+              if (i > 0) { bigrams_list += ", "; }
+              WERD_CHOICE *p1 = overrides_word1[i];
+              WERD_CHOICE *p2 = overrides_word2[i];
+              bigrams_list += p1->unichar_string() + " " + p2->unichar_string();
+              if (i == kMaxChoicesToPrint) {
+                bigrams_list += " ...";
               }
             }
             choices_description = "There were many choices: {";
