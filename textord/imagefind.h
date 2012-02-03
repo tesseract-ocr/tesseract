@@ -85,7 +85,7 @@ class ImageFind {
                                       const uinT8* point);
 
   // Returns the leptonica combined code for the given RGB triplet.
-  static uinT32 RGB(uinT32 r, uinT32 g, uinT32 b);
+  static uinT32 ComposeRGB(uinT32 r, uinT32 g, uinT32 b);
 
   // Returns the input value clipped to a uinT8.
   static uinT8 ClipToByte(double pixel);

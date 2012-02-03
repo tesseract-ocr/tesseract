@@ -363,7 +363,7 @@ double ImageFind::ColorDistanceFromLine(const uinT8* line1,
 
 
 // Returns the leptonica combined code for the given RGB triplet.
-uinT32 ImageFind::RGB(uinT32 r, uinT32 g, uinT32 b) {
+uinT32 ImageFind::ComposeRGB(uinT32 r, uinT32 g, uinT32 b) {
   l_uint32 result;
   composeRGBPixel(r, g, b, &result);
   return result;
@@ -495,11 +495,11 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
   }
   if (color_map1 != NULL) {
     pixSetInRectArbitrary(color_map1, scaled_box,
-                          RGB(color1[COLOR_RED],
+                          ComposeRGB(color1[COLOR_RED],
                               color1[COLOR_GREEN],
                               color1[COLOR_BLUE]));
     pixSetInRectArbitrary(color_map2, scaled_box,
-                          RGB(color2[COLOR_RED],
+                          ComposeRGB(color2[COLOR_RED],
                               color2[COLOR_GREEN],
                               color2[COLOR_BLUE]));
     pixSetInRectArbitrary(rms_map, scaled_box, color1[L_ALPHA_CHANNEL]);
