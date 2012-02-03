@@ -255,6 +255,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\textord\blobgrid.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\ccnontextdetect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\cjkpitch.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\textord\colfind.cpp"
 				>
 			</File>
@@ -397,6 +409,10 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\textord\equationdetectbase.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\textord\fpchop.cpp"
@@ -706,6 +722,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\textord\textlineprojection.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\textord\textord.cpp"
 				>
 			</File>
@@ -922,6 +942,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\textord\blobgrid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\ccnontextdetect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\cjkpitch.h"
+				>
+			</File>
+			<File
 				RelativePath="..\textord\colfind.h"
 				>
 			</File>
@@ -955,6 +987,10 @@
 			</File>
 			<File
 				RelativePath="..\textord\edgloop.h"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\equationdetectbase.h"
 				>
 			</File>
 			<File
@@ -1015,6 +1051,10 @@
 			</File>
 			<File
 				RelativePath="..\textord\tabvector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\textord\textlineprojection.h"
 				>
 			</File>
 			<File

@@ -19,6 +19,11 @@
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
+#include "mathfix.h"
+#endif
+
+#ifdef __MINGW32__
+#include <limits.h>
 #endif
 
 #include <float.h>

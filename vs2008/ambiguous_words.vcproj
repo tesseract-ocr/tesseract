@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="libtesseract_training"
-	ProjectGUID="{454A6BAE-5F8A-461A-B8C3-5AAA531006F3}"
-	RootNamespace="libtesseract_training"
+	Name="ambiguous_words"
+	ProjectGUID="{BC6095A2-3F80-4403-A693-3BC0EA636193}"
+	RootNamespace="ambiguous_words"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -19,9 +19,9 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)"
-			ConfigurationType="4"
-			CharacterSet="2"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -41,13 +41,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\dict;..\viewer;..\ccstruct;..\image;..\classify;..\vs2008\include\leptonica;..\vs2008\include"
-				PreprocessorDefinitions="USE_STD_NAMESPACE;WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;;LEPTONLIB_IMPORTS"
+				AdditionalIncludeDirectories="..\api;..\ccstruct;..\ccmain;..\ccutil;..\dict;..\viewer;..\image;..\cutil;..\vs2008\include\leptonica;..\textord;..\vs2008\port;..\wordrec;..\classify"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;__MSW32__"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
-				WarningLevel="4"
+				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -60,10 +60,18 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib user32.lib lib\libleptd.lib"
+				LinkIncremental="2"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -73,6 +81,9 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -81,9 +92,9 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)"
-			ConfigurationType="4"
-			CharacterSet="2"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -105,13 +116,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\dict;..\viewer;..\ccstruct;..\image;..\classify;..\vs2008\include\leptonica;..\vs2008\include"
-				PreprocessorDefinitions="USE_STD_NAMESPACE;WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;"
+				AdditionalIncludeDirectories="..\api;..\ccstruct;..\ccmain;..\ccutil;..\dict;..\viewer;..\image;..\cutil;..\vs2008\include\leptonica;..\textord;..\vs2008\port;..\wordrec;..\classify"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NDEBUG;__MSW32__;_CRT_SECURE_NO_WARNINGS;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough=""
-				WarningLevel="0"
+				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -124,10 +134,21 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib user32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib liblept-static-mtdll.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="./lib"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -139,68 +160,7 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release.dynamic|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)"
-			ConfigurationType="4"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\dict;..\viewer;..\ccstruct;..\image;..\classify;..\vs2008\include\leptonica;..\vs2008\include"
-				PreprocessorDefinitions="USE_STD_NAMESPACE;WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough=""
-				WarningLevel="0"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -216,7 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\training\commontraining.cpp"
+				RelativePath="..\training\ambiguous_words.cpp"
 				>
 			</File>
 		</Filter>
@@ -225,10 +185,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\training\commontraining.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

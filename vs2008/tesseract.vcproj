@@ -314,34 +314,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="..\api\baseapi.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\api\pageiterator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\api\resultiterator.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\api\tesseractmain.cpp"
 				>
 			</File>
@@ -350,18 +322,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
-			<File
-				RelativePath="..\api\baseapi.h"
-				>
-			</File>
-			<File
-				RelativePath="..\api\pageiterator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\api\resultiterator.h"
-				>
-			</File>
 			<File
 				RelativePath="..\api\tesseractmain.h"
 				>

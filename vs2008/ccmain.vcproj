@@ -308,6 +308,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ccmain\cubeclassifier.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\ccmain\docqual.cpp"
 				>
 				<FileConfiguration
@@ -334,6 +338,10 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccmain\equationdetect.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\ccmain\fixspace.cpp"
@@ -424,6 +432,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\ccmain\ltrresultiterator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\ccmain\osdetect.cpp"
 				>
 				<FileConfiguration
@@ -480,6 +492,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\ccmain\pageiterator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\ccmain\pagesegmain.cpp"
 				>
 			</File>
@@ -510,6 +526,10 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccmain\paragraphs.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\ccmain\paramsd.cpp"
@@ -577,6 +597,10 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccmain\resultiterator.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\ccmain\scaleimg.cpp"
@@ -821,7 +845,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ccmain\cubeclassifier.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ccmain\docqual.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccmain\equationdetect.h"
 				>
 			</File>
 			<File
@@ -837,11 +869,31 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ccmain\ltrresultiterator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccmain\mutableiterator.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ccmain\osdetect.h"
 				>
 			</File>
 			<File
 				RelativePath="..\ccmain\output.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccmain\pageiterator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccmain\paragraphs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccmain\paragraphs_internal.h"
 				>
 			</File>
 			<File
@@ -854,6 +906,10 @@
 			</File>
 			<File
 				RelativePath="..\ccmain\reject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccmain\resultiterator.h"
 				>
 			</File>
 			<File

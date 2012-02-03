@@ -282,35 +282,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccutil\boxread.cpp"
+				RelativePath="..\ccutil\bitvector.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\ccutil\ccutil.cpp"
@@ -503,38 +476,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccutil\mainblk.cpp"
+				RelativePath="..\ccutil\indexmapbidi.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release.dynamic|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="mfcpch.h"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ccutil\memblk.cpp"
+				RelativePath="..\ccutil\mainblk.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -739,6 +685,10 @@
 				RelativePath="..\ccutil\unicharset.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\ccutil\unicodes.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -758,7 +708,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\boxread.h"
+				RelativePath="..\ccutil\bitvector.h"
 				>
 			</File>
 			<File
@@ -814,6 +764,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ccutil\indexmapbidi.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ccutil\lsterr.h"
 				>
 			</File>
@@ -822,15 +776,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\ccutil\memblk.h"
-				>
-			</File>
-			<File
 				RelativePath="..\ccutil\memry.h"
-				>
-			</File>
-			<File
-				RelativePath="..\ccutil\memryerr.h"
 				>
 			</File>
 			<File
@@ -923,6 +869,10 @@
 			</File>
 			<File
 				RelativePath="..\ccutil\unicity_table.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccutil\unicodes.h"
 				>
 			</File>
 		</Filter>

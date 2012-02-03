@@ -309,6 +309,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\ccstruct\boxread.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\ccstruct\boxword.cpp"
 				>
 			</File>
@@ -353,6 +357,10 @@
 			</File>
 			<File
 				RelativePath="..\ccstruct\dppoint.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\ccstruct\fontinfo.cpp"
 				>
 			</File>
 			<File
@@ -544,6 +552,10 @@
 						PrecompiledHeaderThrough="mfcpch.h"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ccstruct\ocrpara.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\ccstruct\ocrrow.cpp"
@@ -1080,6 +1092,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ccstruct\boxread.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ccstruct\boxword.h"
 				>
 			</File>
@@ -1101,6 +1117,10 @@
 			</File>
 			<File
 				RelativePath="..\ccstruct\dppoint.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccstruct\fontinfo.h"
 				>
 			</File>
 			<File
@@ -1140,6 +1160,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\ccstruct\ocrpara.h"
+				>
+			</File>
+			<File
 				RelativePath="..\ccstruct\ocrrow.h"
 				>
 			</File>
@@ -1149,6 +1173,10 @@
 			</File>
 			<File
 				RelativePath="..\ccstruct\pageres.h"
+				>
+			</File>
+			<File
+				RelativePath="..\ccstruct\params_training_featdef.h"
 				>
 			</File>
 			<File

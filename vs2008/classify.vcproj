@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\vs2008\include"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\vs2008\include;..\vs2008\include\leptonica"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -106,7 +106,7 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\vs2008\include"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\vs2008\include;..\vs2008\include\leptonica"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -170,7 +170,7 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\vs2008\include"
+				AdditionalIncludeDirectories="..\ccutil;..\cutil;..\viewer;..\image;..\ccstruct;..\dict;..\vs2008\include;..\vs2008\include\leptonica"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -248,6 +248,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\classify\errorcounter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\classify\extract.cpp"
 				>
 			</File>
@@ -272,6 +276,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\classify\intfeaturedist.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\intfeaturemap.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\intfeaturespace.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\classify\intfx.cpp"
 				>
 			</File>
@@ -285,6 +301,14 @@
 			</File>
 			<File
 				RelativePath="..\classify\kdtree.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\mastertrainer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\mathfix.h"
 				>
 			</File>
 			<File
@@ -328,7 +352,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\classify\sampleiterator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\shapetable.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\classify\speckle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\tessclassifier.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\trainingsample.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\trainingsampleset.cpp"
 				>
 			</File>
 			<File
@@ -374,6 +418,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\classify\errorcounter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\classify\extern.h"
 				>
 			</File>
@@ -402,6 +450,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\classify\intfeaturedist.h"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\intfeaturemap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\intfeaturespace.h"
+				>
+			</File>
+			<File
 				RelativePath="..\classify\intfx.h"
 				>
 			</File>
@@ -415,6 +475,10 @@
 			</File>
 			<File
 				RelativePath="..\classify\kdtree.h"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\mastertrainer.h"
 				>
 			</File>
 			<File
@@ -458,7 +522,31 @@
 				>
 			</File>
 			<File
+				RelativePath="..\classify\sampleiterator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\shapeclassifier.h"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\shapetable.h"
+				>
+			</File>
+			<File
 				RelativePath="..\classify\speckle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\tessclassifier.h"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\trainingsample.h"
+				>
+			</File>
+			<File
+				RelativePath="..\classify\trainingsampleset.h"
 				>
 			</File>
 			<File

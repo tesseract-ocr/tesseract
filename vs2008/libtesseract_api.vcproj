@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="wordrec"
-	ProjectGUID="{C2342D39-FD84-4448-A050-7FF3B4A33F3D}"
-	RootNamespace="wordrec"
+	Name="libtesseract_api"
+	ProjectGUID="{89AAECF3-691E-4E5C-AF6C-09D37E59B96F}"
+	RootNamespace="libtesseract_api"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ccutil,..\cutil,..\viewer,..\image,..\ccstruct,..\dict,..\classify"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\api;..\ccstruct;..\ccmain;..\ccutil;..\dict;..\viewer;..\image;..\cutil;..\vs2008\include\leptonica;..\textord;..\vs2008\port;..\wordrec;..\classify;..\vs2008\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;;LEPTONLIB_IMPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -106,13 +106,14 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil,..\cutil,..\viewer,..\image,..\ccstruct,..\dict,..\classify"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\vs2008\include;..\vs2008\include\leptonica"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="0"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -170,13 +171,14 @@
 				AdditionalOptions="/wd4244 /wd4018 /wd4305 /wd4800 /wd4996"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ccutil,..\cutil,..\viewer,..\image,..\ccstruct,..\dict,..\classify"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\api;..\ccmain;..\ccutil;..\ccstruct;..\classify;..\cutil;..\dict;..\display;..\image;..\textord;..\viewer;..\wordrec;..\pageseg;.;include;include\leptonica;..\vs2008\port"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="0"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -216,91 +218,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\wordrec\associate.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\bestfirst.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\chop.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\chopper.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\closed.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\drawfx.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\findseam.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\gradechop.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\heuristic.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\language_model.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\makechop.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\matchtab.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\olutil.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\outlines.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\pieces.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\plotedges.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\plotseg.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\render.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\segsearch.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\tface.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\wordclass.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\wordrec.cpp"
+				RelativePath="..\api\baseapi.cpp"
 				>
 			</File>
 		</Filter>
@@ -310,79 +228,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\wordrec\associate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\bestfirst.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\chop.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\chopper.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\closed.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\drawfx.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\findseam.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\gradechop.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\language_model.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\makechop.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\matchtab.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\measure.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\olutil.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\outlines.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\plotedges.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\plotseg.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\render.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\wordclass.h"
-				>
-			</File>
-			<File
-				RelativePath="..\wordrec\wordrec.h"
+				RelativePath="..\api\baseapi.h"
 				>
 			</File>
 		</Filter>

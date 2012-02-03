@@ -21,7 +21,11 @@
 #define TESSERACT_CCMAIN_PARAGRAPHS_INTERNAL_H_
 
 #include "paragraphs.h"
+#ifdef _MSC_VER
+#include <string>
+#else
 #include "strings.h"
+#endif
 
 // NO CODE OUTSIDE OF paragraphs.cpp AND TESTS SHOULD NEED TO ACCESS
 // DATA STRUCTURES OR FUNCTIONS IN THIS FILE.
