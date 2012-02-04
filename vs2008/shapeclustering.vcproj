@@ -62,6 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib user32.lib ..\vs2008\lib\libleptd.lib"
+				OutputFile=".\bin.dbg\$(ProjectName).exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -117,7 +118,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\api;..\ccstruct;..\ccmain;..\ccutil;..\dict;..\viewer;..\image;..\cutil;..\vs2008\include\leptonica;..\textord;..\vs2008\port;..\wordrec;..\classify"
-				PreprocessorDefinitions="USE_STD_NAMESPACE;WIN32;NDEBUG;_CONSOLE;NDEBUG;__MSW32__;_CRT_SECURE_NO_WARNINGS;"
+				PreprocessorDefinitions="USE_STD_NAMESPACE;WIN32;NDEBUG;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -136,9 +137,88 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib user32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib liblept-static-mtdll.lib"
+				OutputFile=".\bin\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="./lib"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release.dynamic|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\api;..\ccstruct;..\ccmain;..\ccutil;..\dict;..\viewer;..\image;..\cutil;..\vs2008\include\leptonica;..\textord;..\vs2008\port;..\wordrec;..\classify"
+				PreprocessorDefinitions="USE_STD_NAMESPACE;WIN32;NDEBUG;_CONSOLE;__MSW32__;_CRT_SECURE_NO_WARNINGS;"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib user32.lib liblept.lib"
+				OutputFile=".\bin.rd\$(ProjectName).exe"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="./lib"
+				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

@@ -30,9 +30,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef           VS2008_INCLUDE_STDINT_H_
-#define           VS2008_INCLUDE_STDINT_H_
-
 #ifndef __GNUC__
 #ifndef _MSC_VER  // [
 #error "Use this header only with Microsoft Visual C++ compilers!"
@@ -249,7 +246,6 @@ typedef uint64_t  uintmax_t;
 
 #endif  // __STDC_CONSTANT_MACROS ]
 
-#endif  // _MSC_STDINT_H_ ]
 #endif  // __GNUC__
+#endif  // _MSC_STDINT_H_ ]
 
-#endif  // VS2008_INCLUDE_STDINT_H_

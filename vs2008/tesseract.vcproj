@@ -79,7 +79,6 @@
 				AdditionalOptions="/LTCG /NODEFAULTLIB:library"
 				AdditionalDependencies="ws2_32.lib user32.lib zlib-static-mtdll.lib libpng-static-mtdll.lib libjpeg-static-mtdll.lib libtiff-static-mtdll.lib giflib-static-mtdll.lib liblept-static-mtdll.lib"
 				OutputFile=".\bin\$(ProjectName).exe"
-				Version="3.01"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=".\lib"
