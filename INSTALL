@@ -7,7 +7,8 @@ unlimited permission to copy, distribute and modify it.
 Basic Installation
 ==================
 
-   These are generic installation instructions.
+   These are generic installation instructions. First you need to run
+`./autogen.sh', that creates `configure' script.
 
    The `configure' shell script attempts to guess correct values for
 various system-dependent variables used during compilation.  It uses

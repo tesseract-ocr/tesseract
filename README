@@ -21,15 +21,16 @@ in this distribution is now licensed under the Apache License:
 ** limitations under the License.
 
 
-Dependencies and Licenses:
-==========================
+Dependencies and Licenses
+=========================
 
 Leptonica is required. (www.leptonica.com). Tesseract no longer compiles
 without Leptonica.
-Libtiff is no longer required as a direct dependency.
 
 
 Installing and Running Tesseract
+--------------------------------
+
 All Users Do NOT Ignore!
 The tarballs are split into pieces.
 
@@ -57,8 +58,8 @@ Instructions for using the training tools are documented separately at
 Tesseract wiki http://code.google.com/p/tesseract-ocr/w/list
 
 
-Windows:
---------
+Windows
+-------
 
 Please use installer (for 3.00 and above). Tesseract is library with 
 command line interface. If you need GUI, please check AddOns wiki page
@@ -83,8 +84,8 @@ on AddOns wiki page:
 http://code.google.com/p/tesseract-ocr/wiki/AddOns#Tesseract_3.0x
 
 
-Non-Windows (or Cygwin):
-------------------------
+Non-Windows (or Cygwin)
+-----------------------
 
 You have to tell Tesseract through a standard unix mechanism where to 
 find its data directory. You must either:
@@ -110,8 +111,8 @@ libtesseract_api.
 
 
 
-History:
-========
+History
+=======
 The engine was developed at Hewlett Packard Laboratories Bristol and
 at Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some
 more changes made in 1996 to port to Windows, and some C++izing in 1998.
