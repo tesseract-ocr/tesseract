@@ -107,7 +107,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\vs2008\include;..\vs2008\include\leptonica"
+				AdditionalIncludeDirectories="..\api;..\ccmain;..\ccutil;..\ccstruct;..\classify;..\cutil;..\dict;..\display;..\image;..\textord;..\viewer;..\wordrec;..\pageseg;.;include;include\leptonica;..\vs2008\port"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;__MSW32__;_CRT_SECURE_NO_WARNINGS;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
