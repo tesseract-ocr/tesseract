@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: tesseract
-.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\"    Author: [see the "AUTHOR" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 09/30/2010
+.\"      Date: 02/09/2012
 .\"    Manual: \ \&
 .\"    Source: \ \&
 .\"  Language: English
 .\"
-.TH "TESSERACT" "1" "09/30/2010" "\ \&" "\ \&"
+.TH "TESSERACT" "1" "02/09/2012" "\ \&" "\ \&"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -31,320 +31,109 @@
 tesseract \- command\-line OCR engine
 .SH "SYNOPSIS"
 .sp
-\fBtesseract\fR \fIimagename\fR \fItextbase\fR [\fIconfigfile\fR] [\fI\-l lang\fR]
+\fBtesseract\fR \fIimagename\fR \fIoutbase\fR [\fI\-l lang\fR] [\fI\-psm N\fR] [\fIconfigfile\fR \&...]
 .SH "DESCRIPTION"
 .sp
-tesseract(1) is a commercial quality OCR engine originally developed at HP between 1985 and 1995\&. In 1995, this engine was among the top 3 evaluated by UNLV\&. It was open\-sourced by HP and UNLV in 2005, and has been developed by Google since then\&.
+tesseract(1) is a commercial quality OCR engine originally developed at HP between 1985 and 1995\&. In 1995, this engine was among the top 3 evaluated by UNLV\&. It was open\-sourced by HP and UNLV in 2005, and has been developed at Google since then\&.
 .SH "OPTIONS"
+.PP
+\fIimagename\fR
+.RS 4
+The name of the input image\&. Most image file formats (anything readable by Leptonica) are supported\&.
+.RE
+.PP
+\fIoutbase\fR
+.RS 4
+The basename of the output file (to which the appropriate extension will be appended)\&. By default the output will be named
+\fIoutbase\&.txt\fR\&.
+.RE
+.PP
+\fI\-l lang\fR
+.RS 4
+The language to use\&. If none is specified, English is assumed\&. Multiple languages may be specified, separated by plus characters\&. Tesseract uses 3\-character ISO 639\-2 language codes\&. (See LANGUAGES)
+.RE
+.PP
+\fI\-psm N\fR
+.RS 4
+Set Tesseract to only run a subset of layout analysis and assume a certain form of image\&. The options for
+\fBN\fR
+are:
 .sp
-\fIimagename\fR The name of the input image
+.if n \{\
+.RS 4
+.\}
+.nf
+0 = Orientation and script detection (OSD) only\&.
+1 = Automatic page segmentation with OSD\&.
+2 = Automatic page segmentation, but no OSD, or OCR\&.
+3 = Fully automatic page segmentation, but no OSD\&. (Default)
+4 = Assume a single column of text of variable sizes\&.
+5 = Assume a single uniform block of vertically aligned text\&.
+6 = Assume a single uniform block of text\&.
+7 = Treat the image as a single text line\&.
+8 = Treat the image as a single word\&.
+9 = Treat the image as a single word in a circle\&.
+10 = Treat the image as a single character\&.
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fI\-v\fR
+.RS 4
+Returns the current version of the tesseract(1) executable\&.
+.RE
+.PP
+\fIconfigfile\fR
+.RS 4
+The name of a config to use\&. A config is a plaintext file which contains a list of variables and their values, one per line, with a space separating variable from value\&. Interesting config files include:
+
 .sp
-\fItextbase\fR The basename of the output file (to which the appropriate extension will be appended)
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+hocr \- Output in hOCR format instead of as a text file\&.
+.RE
+.RE
 .sp
-\fIconfigfile\fR The config to use\&. A config is a plaintext file which contains a list of variables and their values, one per line, with a space separating variable from value\&.
-.sp
-\fI\-l lang\fR The language to use\&. If none is specified, English is assumed\&. Tesseract uses 3\-character ISO 639\-2 language codes\&. (See LANGUAGES)
-.sp
-\fI\-v\fR Returns the current version of the tesseract(1) executable\&.
+\fBNota Bene:\fR The options \fI\-l lang\fR and \fI\-psm N\fR must occur before any \fIconfigfile\fR\&.
 .SH "LANGUAGES"
 .sp
 There are currently language packs available for the following languages:
-.TS
-tab(:);
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt
-lt lt.
-T{
 .sp
-bul
-T}:T{
+\fBara\fR (Arabic), \fBaze\fR (Azerbauijani), \fBbul\fR (Bulgarian), \fBcat\fR (Catalan), \fBces\fR (Czech), \fBchi_sim\fR (Simplified Chinese), \fBchi_tra\fR (Traditional Chinese), \fBchr\fR (Cherokee), \fBdan\fR (Danish), \fBdan\-frak\fR (Danish (Fraktur)), \fBdeu\fR (German), \fBell\fR (Greek), \fBeng\fR (English), \fBenm\fR (Old English), \fBepo\fR (Esperanto), \fBest\fR (Estonian), \fBfin\fR (Finnish), \fBfra\fR (French), \fBfrm\fR (Old French), \fBglg\fR (Galician), \fBheb\fR (Hebrew), \fBhin\fR (Hindi), \fBhrv\fR (Croation), \fBhun\fR (Hungarian), \fBind\fR (Indonesian), \fBita\fR (Italian), \fBjpn\fR (Japanese), \fBkor\fR (Korean), \fBlav\fR (Latvian), \fBlit\fR (Lithuanian), \fBnld\fR (Dutch), \fBnor\fR (Norwegian), \fBpol\fR (Polish), \fBpor\fR (Portuguese), \fBron\fR (Romanian), \fBrus\fR (Russian), \fBslk\fR (Slovakian), \fBslv\fR (Slovenian), \fBsqi\fR (Albanian), \fBspa\fR (Spanish), \fBsrp\fR (Serbian), \fBswe\fR (Swedish), \fBtam\fR (Tamil), \fBtel\fR (Telugu), \fBtgl\fR (Tagalog), \fBtha\fR (Thai), \fBtur\fR (Turkish), \fBukr\fR (Ukrainian), \fBvie\fR (Vietnamese)
 .sp
-Bulgarian
-T}
-T{
-.sp
-cat
-T}:T{
-.sp
-Catalan
-T}
-T{
-.sp
-ces
-T}:T{
-.sp
-Czech
-T}
-T{
-.sp
-chi_sim
-T}:T{
-.sp
-Simplified Chinese
-T}
-T{
-.sp
-chi_tra
-T}:T{
-.sp
-Traditional Chinese
-T}
-T{
-.sp
-dan
-T}:T{
-.sp
-Danish
-T}
-T{
-.sp
-dan\-frak
-T}:T{
-.sp
-Danish (Fraktur)
-T}
-T{
-.sp
-deu
-T}:T{
-.sp
-German
-T}
-T{
-.sp
-ell
-T}:T{
-.sp
-Greek
-T}
-T{
-.sp
-eng
-T}:T{
-.sp
-English
-T}
-T{
-.sp
-fin
-T}:T{
-.sp
-Finnish
-T}
-T{
-.sp
-fra
-T}:T{
-.sp
-French
-T}
-T{
-.sp
-hun
-T}:T{
-.sp
-Hungarian
-T}
-T{
-.sp
-ind
-T}:T{
-.sp
-Indonesian
-T}
-T{
-.sp
-ita
-T}:T{
-.sp
-Italian
-T}
-T{
-.sp
-jpn
-T}:T{
-.sp
-Japanese
-T}
-T{
-.sp
-kor
-T}:T{
-.sp
-Korean
-T}
-T{
-.sp
-lav
-T}:T{
-.sp
-Latvian
-T}
-T{
-.sp
-lit
-T}:T{
-.sp
-Lithuanian
-T}
-T{
-.sp
-nld
-T}:T{
-.sp
-Dutch
-T}
-T{
-.sp
-nor
-T}:T{
-.sp
-Norwegian
-T}
-T{
-.sp
-pol
-T}:T{
-.sp
-Polish
-T}
-T{
-.sp
-por
-T}:T{
-.sp
-Portuguese
-T}
-T{
-.sp
-ron
-T}:T{
-.sp
-Romanian
-T}
-T{
-.sp
-rus
-T}:T{
-.sp
-Russian
-T}
-T{
-.sp
-slk
-T}:T{
-.sp
-Slovakian
-T}
-T{
-.sp
-slv
-T}:T{
-.sp
-Slovenian
-T}
-T{
-.sp
-spa
-T}:T{
-.sp
-Spanish
-T}
-T{
-.sp
-srp
-T}:T{
-.sp
-Serbian
-T}
-T{
-.sp
-swe
-T}:T{
-.sp
-Swedish
-T}
-T{
-.sp
-tgl
-T}:T{
-.sp
-Tagalog
-T}
-T{
-.sp
-tha
-T}:T{
-.sp
-Thai
-T}
-T{
-.sp
-tur
-T}:T{
-.sp
-Turkish
-T}
-T{
-.sp
-ukr
-T}:T{
-.sp
-Ukrainian
-T}
-T{
-.sp
-vie
-T}:T{
-.sp
-Vietnamese
-T}
-.TE
-.sp 1
+To use a non\-standard language pack named \fBfoo\&.traineddata\fR, set the \fBTESSDATA_PREFIX\fR environment variable so the file can be found at \fBTESSDATA_PREFIX\fR/tessdata/\fBfoo\fR\&.traineddata and give Tesseract the argument \fI\-l foo\fR\&.
 .SH "HISTORY"
 .sp
-The engine was developed at Hewlett Packard Laboratories Bristol and at Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more changes made in 1996 to port to Windows, and some C++izing in 1998\&. A lot of the code was written in C, and then some more was written in C++\&. Since then all the code has been converted to at least compile with a C++ compiler\&. Currently it builds under Linux with gcc4\&.0, gcc4\&.1 and under Windows with VC++6 and VC++Express\&. The C++ code makes heavy use of a list system using macros\&. This predates stl, was portable before stl, and is more efficient than stl lists, but has the big negative that if you do get a segmentation violation, it is hard to debug\&. Another "feature" of the C/C++ split is that the C++ data structures get converted to C data structures to call the low\-level C code\&. This is ugly, and the C++izing of the C code is a step towards eliminating the conversion, but it has not happened yet\&.
+The engine was developed at Hewlett Packard Laboratories Bristol and at Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more changes made in 1996 to port to Windows, and some C++izing in 1998\&. A lot of the code was written in C, and then some more was written in C++\&. The C\e++ code makes heavy use of a list system using macros\&. This predates stl, was portable before stl, and is more efficient than stl lists, but has the big negative that if you do get a segmentation violation, it is hard to debug\&.
 .sp
-The most important changes in version 2\&.00 were that Tesseract can now recognize 6 languages, is fully UTF8 capable, and is fully trainable\&. See \m[blue]\fBhttp://code\&.google\&.com/p/tesseract\-ocr/wiki/TrainingTesseract\fR\m[] for more information on training\&.
+Version 2\&.00 brought Unicode (UTF\-8) support, six languages, and the ability to train Tesseract\&.
 .sp
 Tesseract was included in UNLV\(cqs Fourth Annual Test of OCR Accuracy\&. See \m[blue]\fBhttp://www\&.isri\&.unlv\&.edu/downloads/AT\-1995\&.pdf\fR\m[]\&. With Tesseract 2\&.00, scripts are now included to allow anyone to reproduce some of these tests\&. See \m[blue]\fBhttp://code\&.google\&.com/p/tesseract\-ocr/wiki/TestingTesseract\fR\m[] for more details\&.
 .sp
-Tesseract 3\&.00 adds a number of new languages, including Chinese, Japanese, and Korean\&. It also introduces a new, single\-file based system of managing language data\&. For further details, see the file ReleaseNotes included with the distribution\&.
+Tesseract 3\&.00 adds a number of new languages, including Chinese, Japanese, and Korean\&. It also introduces a new, single\-file based system of managing language data\&.
+.sp
+Tesseract 3\&.02 adds BiDirectional text support, the ability to recognize multiple languages in a single image, and improved layout analysis\&.
+.sp
+For further details, see the file ReleaseNotes included with the distribution\&.
+.SH "RESOURCES"
+.sp
+Main web site: \m[blue]\fBhttp://code\&.google\&.com/p/tesseract\-ocr/\fR\m[] Information on training: \m[blue]\fBhttp://code\&.google\&.com/p/tesseract\-ocr/wiki/TrainingTesseract3\fR\m[]
 .SH "SEE ALSO"
 .sp
-tesseract(1)
+ambiguous_words(1), cntraining(1), combine_tessdata(1), dawg2wordlist(1), shape_training(1), mftraining(1), unicharambigs(5), unicharset(5), unicharset_extractor(1), wordlist2dawg(1)
+.SH "AUTHOR"
+.sp
+Tesseract development was led at Hewlett\-Packard and Google by Ray Smith\&. The development team has included:
+.sp
+Ahmad Abdulkader, Chris Newton, Dan Johnson, Dar\-Shyang Lee, David Eger, Eric Wiseblatt, Faisal Shafait, Hiroshi Takenaka, Joe Liu, Joern Wanke, Mark Seaman, Mickey Namiki, Nicholas Beato, Oded Fuhrmann, Phil Cheatle, Pingping Xiu, Pong Eksombatchai (Chantat), Ranjith Unnikrishnan, Raquel Romano, Ray Smith, Rika Antonova, Robert Moss, Samuel Charron, Sheelagh Lloyd, Shobhit Saxena, and Thomas Kielbus\&.
 .SH "COPYING"
 .sp
 Licensed under the Apache License, Version 2\&.0

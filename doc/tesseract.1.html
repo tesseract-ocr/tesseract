@@ -582,422 +582,154 @@ TESSERACT(1) Manual Page
 <div id="content">
 <h2 id="_synopsis">SYNOPSIS</h2>
 <div class="sectionbody">
-<div class="paragraph"><p><strong>tesseract</strong> <em>imagename</em> <em>textbase</em> [<em>configfile</em>] [<em>-l lang</em>]</p></div>
+<div class="paragraph"><p><strong>tesseract</strong> <em>imagename</em> <em>outbase</em> [<em>-l lang</em>] [<em>-psm N</em>] [<em>configfile</em> &#8230;]</p></div>
 </div>
 <h2 id="_description">DESCRIPTION</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>tesseract(1) is a commercial quality OCR engine originally developed at HP
 between 1985 and 1995. In 1995, this engine was among the top 3 evaluated by
 UNLV. It was open-sourced by HP and UNLV in 2005, and has been developed
-by Google since then.</p></div>
+at Google since then.</p></div>
 </div>
 <h2 id="_options">OPTIONS</h2>
 <div class="sectionbody">
-<div class="paragraph"><p><em>imagename</em>
-        The name of the input image</p></div>
-<div class="paragraph"><p><em>textbase</em>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+<em>imagename</em>
+</dt>
+<dd>
+<p>
+        The name of the input image.  Most image file formats (anything
+        readable by Leptonica) are supported.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>outbase</em>
+</dt>
+<dd>
+<p>
         The basename of the output file (to which the appropriate extension
-        will be appended)</p></div>
-<div class="paragraph"><p><em>configfile</em>
-        The config to use. A config is a plaintext file which contains a list
-        of variables and their values, one per line, with a space separating
-        variable from value.</p></div>
-<div class="paragraph"><p><em>-l lang</em>
+        will be appended).  By default the output will be named <em>outbase.txt</em>.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>-l lang</em>
+</dt>
+<dd>
+<p>
         The language to use. If none is specified, English is assumed.
-        Tesseract uses 3-character ISO 639-2 language codes. (See LANGUAGES)</p></div>
-<div class="paragraph"><p><em>-v</em>
-        Returns the current version of the tesseract(1) executable.</p></div>
+        Multiple languages may be specified, separated by plus characters.
+        Tesseract uses 3-character ISO 639-2 language codes. (See LANGUAGES)
+</p>
+</dd>
+<dt class="hdlist1">
+<em>-psm N</em>
+</dt>
+<dd>
+<p>
+        Set Tesseract to only run a subset of layout analysis and assume a certain form of image.  The options for <strong>N</strong> are:
+</p>
+<div class="literalblock">
+<div class="content">
+<pre><tt>0 = Orientation and script detection (OSD) only.
+1 = Automatic page segmentation with OSD.
+2 = Automatic page segmentation, but no OSD, or OCR.
+3 = Fully automatic page segmentation, but no OSD. (Default)
+4 = Assume a single column of text of variable sizes.
+5 = Assume a single uniform block of vertically aligned text.
+6 = Assume a single uniform block of text.
+7 = Treat the image as a single text line.
+8 = Treat the image as a single word.
+9 = Treat the image as a single word in a circle.
+10 = Treat the image as a single character.</tt></pre>
+</div></div>
+</dd>
+<dt class="hdlist1">
+<em>-v</em>
+</dt>
+<dd>
+<p>
+        Returns the current version of the tesseract(1) executable.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>configfile</em>
+</dt>
+<dd>
+<p>
+        The name of a config to use. A config is a plaintext file which
+        contains a list of variables and their values, one per line, with a
+        space separating variable from value.  Interesting config files
+        include:<br />
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+hocr - Output in hOCR format instead of as a text file.
+</p>
+</li>
+</ul></div>
+</dd>
+</dl></div>
+<div class="paragraph"><p><strong>Nota Bene:</strong>   The options <em>-l lang</em> and <em>-psm N</em> must occur
+before any <em>configfile</em>.</p></div>
 </div>
 <h2 id="_languages">LANGUAGES</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>There are currently language packs available for the following languages:</p></div>
-<div class="hdlist"><table>
-<tr>
-<td class="hdlist1">
-bul
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Bulgarian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-cat
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Catalan
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-ces
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Czech
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-chi_sim
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Simplified Chinese
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-chi_tra
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Traditional Chinese
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-dan
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Danish
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-dan-frak
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Danish (Fraktur)
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-deu
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-German
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-ell
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Greek
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-eng
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-English
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-fin
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Finnish
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-fra
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-French
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-hun
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Hungarian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-ind
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Indonesian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-ita
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Italian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-jpn
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Japanese
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-kor
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Korean
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-lav
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Latvian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-lit
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Lithuanian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-nld
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Dutch
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-nor
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Norwegian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-pol
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Polish
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-por
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Portuguese
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-ron
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Romanian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-rus
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Russian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-slk
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Slovakian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-slv
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Slovenian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-spa
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Spanish
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-srp
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Serbian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-swe
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Swedish
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-tgl
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Tagalog
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-tha
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Thai
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-tur
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Turkish
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-ukr
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Ukrainian
-</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-vie
-<br />
-</td>
-<td class="hdlist2">
-<p style="margin-top: 0;">
-Vietnamese
-</p>
-</td>
-</tr>
-</table></div>
+<div class="paragraph"><p><strong>ara</strong> (Arabic),
+<strong>aze</strong> (Azerbauijani),
+<strong>bul</strong> (Bulgarian),
+<strong>cat</strong> (Catalan),
+<strong>ces</strong> (Czech),
+<strong>chi_sim</strong> (Simplified Chinese),
+<strong>chi_tra</strong> (Traditional Chinese),
+<strong>chr</strong> (Cherokee),
+<strong>dan</strong> (Danish),
+<strong>dan-frak</strong> (Danish (Fraktur)),
+<strong>deu</strong> (German),
+<strong>ell</strong> (Greek),
+<strong>eng</strong> (English),
+<strong>enm</strong> (Old English),
+<strong>epo</strong> (Esperanto),
+<strong>est</strong> (Estonian),
+<strong>fin</strong> (Finnish),
+<strong>fra</strong> (French),
+<strong>frm</strong> (Old French),
+<strong>glg</strong> (Galician),
+<strong>heb</strong> (Hebrew),
+<strong>hin</strong> (Hindi),
+<strong>hrv</strong> (Croation),
+<strong>hun</strong> (Hungarian),
+<strong>ind</strong> (Indonesian),
+<strong>ita</strong> (Italian),
+<strong>jpn</strong> (Japanese),
+<strong>kor</strong> (Korean),
+<strong>lav</strong> (Latvian),
+<strong>lit</strong> (Lithuanian),
+<strong>nld</strong> (Dutch),
+<strong>nor</strong> (Norwegian),
+<strong>pol</strong> (Polish),
+<strong>por</strong> (Portuguese),
+<strong>ron</strong> (Romanian),
+<strong>rus</strong> (Russian),
+<strong>slk</strong> (Slovakian),
+<strong>slv</strong> (Slovenian),
+<strong>sqi</strong> (Albanian),
+<strong>spa</strong> (Spanish),
+<strong>srp</strong> (Serbian),
+<strong>swe</strong> (Swedish),
+<strong>tam</strong> (Tamil),
+<strong>tel</strong> (Telugu),
+<strong>tgl</strong> (Tagalog),
+<strong>tha</strong> (Thai),
+<strong>tur</strong> (Turkish),
+<strong>ukr</strong> (Ukrainian),
+<strong>vie</strong> (Vietnamese)</p></div>
+<div class="paragraph"><p>To use a non-standard language pack named <strong>foo.traineddata</strong>, set the
+<strong>TESSDATA_PREFIX</strong> environment variable so the file can be found at
+<strong>TESSDATA_PREFIX</strong>/tessdata/<strong>foo</strong>.traineddata and give Tesseract the
+argument <em>-l foo</em>.</p></div>
 </div>
 <h2 id="_history">HISTORY</h2>
 <div class="sectionbody">
@@ -1005,20 +737,12 @@ Vietnamese
 Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more
 changes made in 1996 to port to Windows, and some C++izing in 1998. A
 lot of the code was written in C, and then some more was written in C++.
-Since then all the code has been converted to at least compile with a
-C++ compiler. Currently it builds under Linux with gcc4.0, gcc4.1 and
-under Windows with VC++6 and VC++Express. The C++ code makes heavy use of
-a list system using macros. This predates stl, was portable before stl, and
-is more efficient than stl lists, but has the big negative that if you do get
-a segmentation violation, it is hard to debug. Another "feature" of the
-C/C++ split is that the C++ data structures get converted to C data
-structures to call the low-level C code. This is ugly, and the C++izing of
-the C code is a step towards eliminating the conversion, but it has not
-happened yet.</p></div>
-<div class="paragraph"><p>The most important changes in version 2.00 were that Tesseract can now
-recognize 6 languages, is fully UTF8 capable, and is fully trainable. See
-<a href="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract</a> for more
-information on training.</p></div>
+The C\++ code makes heavy use of a list system using macros. This predates
+stl, was portable before stl, and is more efficient than stl lists, but has
+the big negative that if you do get a segmentation violation, it is hard to
+debug.</p></div>
+<div class="paragraph"><p>Version 2.00 brought Unicode (UTF-8) support, six languages, and the ability
+to train Tesseract.</p></div>
 <div class="paragraph"><p>Tesseract was included in UNLV&#8217;s Fourth Annual Test of OCR Accuracy.
 See <a href="http://www.isri.unlv.edu/downloads/AT-1995.pdf">http://www.isri.unlv.edu/downloads/AT-1995.pdf</a>. With Tesseract 2.00,
 scripts are now included to allow anyone to reproduce some of these tests.
@@ -1026,12 +750,32 @@ See <a href="http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract">http:
 details.</p></div>
 <div class="paragraph"><p>Tesseract 3.00 adds a number of new languages, including Chinese, Japanese,
 and Korean. It also introduces a new, single-file based system of managing
-language data. For further details, see the file ReleaseNotes included with
-the distribution.</p></div>
+language data.</p></div>
+<div class="paragraph"><p>Tesseract 3.02 adds BiDirectional text support, the ability to recognize
+multiple languages in a single image, and improved layout analysis.</p></div>
+<div class="paragraph"><p>For further details, see the file ReleaseNotes included with the distribution.</p></div>
+</div>
+<h2 id="_resources">RESOURCES</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Main web site: <a href="http://code.google.com/p/tesseract-ocr/">http://code.google.com/p/tesseract-ocr/</a><br />
+Information on training: <a href="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</a></p></div>
 </div>
 <h2 id="_see_also">SEE ALSO</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>tesseract(1)</p></div>
+<div class="paragraph"><p>ambiguous_words(1), cntraining(1), combine_tessdata(1), dawg2wordlist(1),
+shape_training(1), mftraining(1), unicharambigs(5), unicharset(5),
+unicharset_extractor(1), wordlist2dawg(1)</p></div>
+</div>
+<h2 id="_author">AUTHOR</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Tesseract development was led at Hewlett-Packard and Google by Ray Smith.
+The development team has included:</p></div>
+<div class="paragraph"><p>Ahmad Abdulkader, Chris Newton, Dan Johnson, Dar-Shyang Lee, David Eger,
+Eric Wiseblatt, Faisal Shafait, Hiroshi Takenaka, Joe Liu, Joern Wanke,
+Mark Seaman, Mickey Namiki, Nicholas Beato, Oded Fuhrmann, Phil Cheatle,
+Pingping Xiu, Pong Eksombatchai (Chantat), Ranjith Unnikrishnan, Raquel
+Romano, Ray Smith, Rika Antonova, Robert Moss, Samuel Charron, Sheelagh
+Lloyd, Shobhit Saxena, and Thomas Kielbus.</p></div>
 </div>
 <h2 id="_copying">COPYING</h2>
 <div class="sectionbody">
@@ -1041,7 +785,7 @@ the distribution.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2010-09-29 19:55:57 IST
+Last updated 2012-02-09 14:18:49 PDT
 </div>
 </div>
 </body>

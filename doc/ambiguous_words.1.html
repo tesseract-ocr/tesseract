@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="generator" content="AsciiDoc 8.5.2" />
-<title>CNTRAINING(1)</title>
+<title>AMBIGUOUS_WORDS(1)</title>
 <style type="text/css">
 /* Debug borders */
 p, li, dt, dd, div, pre, h1, h2, h3, h4, h5, h6 {
@@ -570,47 +570,34 @@ footnotes: function () {
 <body>
 <div id="header">
 <h1>
-CNTRAINING(1) Manual Page
+AMBIGUOUS_WORDS(1) Manual Page
 </h1>
 <h2>NAME</h2>
 <div class="sectionbody">
-<p>cntraining -
-   character normalization training for Tesseract
+<p>ambiguous_words -
+   generate sets of words Tesseract is likely to find ambiguous
 </p>
 </div>
 </div>
 <div id="content">
 <h2 id="_synopsis">SYNOPSIS</h2>
 <div class="sectionbody">
-<div class="paragraph"><p><strong>cntraining</strong> [-D <em>dir</em>] <em>FILE</em>&#8230;</p></div>
+<div class="paragraph"><p><strong>ambiguous_words</strong> [-l lang] <em>TESSDATADIR</em> <em>WORDLIST</em> <em>AMBIGUOUSFILE</em></p></div>
 </div>
 <h2 id="_description">DESCRIPTION</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>cntraining takes a list of .tr files, from which it generates the
-<strong>normproto</strong> data file (the character normalization sensitivity
-prototypes).</p></div>
-</div>
-<h2 id="_options">OPTIONS</h2>
-<div class="sectionbody">
-<div class="dlist"><dl>
-<dt class="hdlist1">
--D <em>dir</em>
-</dt>
-<dd>
-<p>
-        Directory to write output files to.
-</p>
-</dd>
-</dl></div>
+<div class="paragraph"><p>ambiguous_words(1) runs Tesseract in a special mode, and for each word
+in word list, produces a set of words which Tesseract thinks might be
+ambiguous with it.   <em>TESSDATADIR</em> must be set to the absolute path of
+a directory containing <em>tessdata/lang.traineddata</em>.</p></div>
 </div>
 <h2 id="_see_also">SEE ALSO</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>tesseract(1), shapeclustering(1), mftraining(1)</p></div>
-<div class="paragraph"><p><a href="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</a></p></div>
+<div class="paragraph"><p>tesseract(1)</p></div>
 </div>
 <h2 id="_copying">COPYING</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Copyright (c) Hewlett-Packard Company, 1988
+<div class="paragraph"><p>Copyright (C) 2012 Google, Inc.
 Licensed under the Apache License, Version 2.0</p></div>
 </div>
 <h2 id="_author">AUTHOR</h2>
@@ -622,7 +609,7 @@ at Hewlett Packard (1985-1995) and Google (2006-present).</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-02-09 11:37:31 PDT
+Last updated 2012-02-07 13:38:29 PDT
 </div>
 </div>
 </body>

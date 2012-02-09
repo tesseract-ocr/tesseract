@@ -15,8 +15,9 @@
 </refnamediv>
 <refsect1 id="_description">
 <title>DESCRIPTION</title>
-<simpara>The unicharset file is used by Tesseract to represent possible
-ambiguities between characters, or groups of characters.</simpara>
+<simpara>The unicharambigs file (a component of traineddata, see combine_tessdata(1) )
+is used by Tesseract to represent possible ambiguities between characters,
+or groups of characters.</simpara>
 <simpara>The file contains a number of lines, laid out as follow:</simpara>
 <literallayout class="monospaced">[num] &lt;TAB&gt; [char(s)] &lt;TAB&gt; [num] &lt;TAB&gt; [char(s)] &lt;TAB&gt; [num]</literallayout>
 <informaltable tabstyle="horizontal" frame="none" colsep="0" rowsep="0"><tgroup cols="2"><colspec colwidth="15*"/><colspec colwidth="85*"/><tbody valign="top">
@@ -113,5 +114,10 @@ letters in the unicharset.</simpara>
 <refsect1 id="_see_also">
 <title>SEE ALSO</title>
 <simpara>tesseract(1), unicharset(5)</simpara>
+</refsect1>
+<refsect1 id="_author">
+<title>AUTHOR</title>
+<simpara>The Tesseract OCR engine was written by Ray Smith and his research groups
+at Hewlett Packard (1985-1995) and Google (2006-present).</simpara>
 </refsect1>
 </refentry>

@@ -14,7 +14,7 @@
     <refpurpose>extract unicharset from Tesseract boxfiles</refpurpose>
 </refnamediv>
 <refsynopsisdiv id="_synopsis">
-<simpara><emphasis role="strong">unicharset_extractor</emphasis> <emphasis>FILE</emphasis>&#8230;</simpara>
+<simpara><emphasis role="strong">unicharset_extractor</emphasis> <emphasis>[-D dir]</emphasis> <emphasis>FILE</emphasis>&#8230;</simpara>
 </refsynopsisdiv>
 <refsect1 id="_description">
 <title>DESCRIPTION</title>
@@ -23,16 +23,11 @@ To generate the unicharset data file, use the unicharset_extractor
 program on the same training pages bounding box files as used for
 clustering:</simpara>
 <literallayout class="monospaced">unicharset_extractor fontfile_1.box fontfile_2.box ...</literallayout>
-<simpara>Tesseract needs to have access to character properties isalpha,
-isdigit, isupper, islower, ispunctuation. This data must be encoded
-in the unicharset data file. Each line of this file corresponds to
-one character. The character in UTF-8 is followed by a hexadecimal
-number representing a binary mask that encodes the properties. Each
-bit corresponds to a property. If the bit is set to 1, it means that
-the property is true. The bit ordering is (from least significant bit
-to most significant bit): isalpha, islower, isupper, isdigit,
-ispunctuation.
-(See unicharset(5))</simpara>
+<simpara>The unicharset will be put into the file <emphasis>dir/unicharset</emphasis>, or simply
+<emphasis>./unicharset</emphasis> if no output directory is provided.</simpara>
+<simpara>Tesseract also needs to have access to character properties isalpha,
+isdigit, isupper, islower, ispunctuation. all of this auxilury data
+and more is encoded in this file. (See unicharset(5))</simpara>
 <simpara>If your system supports the wctype functions, these values will be set
 automatically by unicharset_extractor and there is no need to edit the
 unicharset file. On some older systems (eg Windows 95), the unicharset
@@ -46,6 +41,7 @@ cntraining, and giving the unicharset to mftraining.</simpara>
 <refsect1 id="_see_also">
 <title>SEE ALSO</title>
 <simpara>tesseract(1), unicharset(5)</simpara>
+<simpara><ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</ulink></simpara>
 </refsect1>
 <refsect1 id="_history">
 <title>HISTORY</title>
@@ -53,7 +49,12 @@ cntraining, and giving the unicharset to mftraining.</simpara>
 </refsect1>
 <refsect1 id="_copying">
 <title>COPYING</title>
-<simpara>Copyright &#169; 2006, Google Inc.
+<simpara>Copyright (C) 2006, Google Inc.
 Licensed under the Apache License, Version 2.0</simpara>
+</refsect1>
+<refsect1 id="_author">
+<title>AUTHOR</title>
+<simpara>The Tesseract OCR engine was written by Ray Smith and his research groups
+at Hewlett Packard (1985-1995) and Google (2006-present).</simpara>
 </refsect1>
 </refentry>
