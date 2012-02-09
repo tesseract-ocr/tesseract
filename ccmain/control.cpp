@@ -535,8 +535,10 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
                                             *overrides_word1[best_idx]) &&
           EqualIgnoringCaseAndTerminalPunct(*w->best_choice,
                                             *overrides_word2[best_idx])) {
-        tprintf("Top choice \"%s %s\" verified (sans case) by bigram model.\n",
-                orig_w1_str.string(), orig_w2_str.string());
+        if (tessedit_bigram_debug > 1) {
+          tprintf("Top choice \"%s %s\" verified (sans case) by bigram "
+                  "model.\n", orig_w1_str.string(), orig_w2_str.string());
+        }
         continue;
       }
       STRING new_w1_str = overrides_word1[best_idx]->unichar_string();
