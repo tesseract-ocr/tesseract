@@ -2326,14 +2326,16 @@ void InitializeRowInfo(const MutableIterator &it, RowInfo *info) {
 
   info->text = "";
   char *text = it.GetUTF8Text(RIL_TEXTLINE);
-  int num_nonws_chars = strlen(text);  // strip trailing space
-  while (num_nonws_chars > 0 && isspace(text[num_nonws_chars - 1]))
-    num_nonws_chars--;
-  if (num_nonws_chars > 0) {
+  int trailing_ws_idx = strlen(text);  // strip trailing space
+  while (trailing_ws_idx > 0 &&
+         text[trailing_ws_idx - 1] < 128 &&   // isspace() only takes ASCII
+         isspace(text[trailing_ws_idx - 1]))
+    trailing_ws_idx--;
+  if (trailing_ws_idx > 0) {
     int lspaces = info->pix_ldistance / info->average_interword_space;
     for (int i = 0; i < lspaces; i++)
       info->text += ' ';
-    for (int i = 0; i < num_nonws_chars; i++)
+    for (int i = 0; i < trailing_ws_idx; i++)
       info->text += text[i];
   }
   delete []text;
