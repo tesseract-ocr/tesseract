@@ -236,7 +236,7 @@ void WriteNormProtos (
   int N;
 
   Filename = "";
-  if (Directory != NULL)
+  if (Directory != NULL && Directory[0] != '\0')
   {
     Filename += Directory;
     Filename += "/";
