@@ -28,7 +28,7 @@
 #include <math.h>
 #include <float.h>  // for _isnan(), _finite() on VC++
 #define isnan(x) _isnan(x)
-#define isinf(x) _finite(x)
+#define isinf(x) (!_finite(x))
 #define fmax max //VC++ does not implement all the provisions of C99 Standard
 inline float roundf(float num) { return num > 0 ? floorf(num + 0.5f) : ceilf(num - 0.5f); }
 
