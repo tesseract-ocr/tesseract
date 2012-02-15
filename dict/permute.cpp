@@ -464,7 +464,6 @@ WERD_CHOICE* Dict::permute_fixed_length_words(
      }
 
      if (part_choice && step > 1) {   // found lexicon match
-       part_choice->populate_unichars();
        get_posstr_from_choice(char_choices, part_choice, anchor_pos, posstr);
        float adjust_factor = pow(0.95, 1.0 + step*2.0/char_choices.length());
        if (permuter_state)
@@ -496,7 +495,6 @@ WERD_CHOICE* Dict::permute_fixed_length_words(
               best_choice->rating(), match_score, adjusted_score);
     best_choice->set_rating(adjusted_score);
   }
-  best_choice->populate_unichars();
   if (permute_debug)
     tprintf("Found Best CJK word %f: %s\n",
             best_choice->rating(), best_choice->unichar_string().string());
@@ -649,7 +647,6 @@ WERD_CHOICE* Dict::permute_chartype_words(
   // All permuter choices should go through adjust_non_word so the choice
   // rating would be adjusted on the same scale.
   adjust_non_word(current_word, certainties, permute_debug);
-  current_word->populate_unichars();
   if (replaced) {
     // Apply a reward multiplier on rating if an chartype permutation is made.
     float rating = current_word->rating();
@@ -748,7 +745,6 @@ WERD_CHOICE* Dict::permute_script_words(
   // All permuter choices should go through adjust_non_word so the choice
   // rating would be adjusted on the same scale.
   adjust_non_word(current_word, certainties, permute_debug);
-  current_word->populate_unichars();
   if (replaced) {
     // Apply a reward multiplier on rating if an script permutation is made.
     float rating = current_word->rating();
@@ -769,7 +765,6 @@ WERD_CHOICE* Dict::permute_script_words(
 bool Dict::permute_characters(const BLOB_CHOICE_LIST_VECTOR &char_choices,
                               WERD_CHOICE *best_choice,
                               WERD_CHOICE *raw_choice) {
-  float old_raw_choice_rating = raw_choice->rating();
   if (permute_debug) {
     tprintf("\n\n\n##### Permute_Characters #######\n");
     print_char_choices_list("\n==> Input CharChoices", char_choices,
@@ -781,18 +776,8 @@ bool Dict::permute_characters(const BLOB_CHOICE_LIST_VECTOR &char_choices,
       get_top_choice_uid(char_choices.get(0)) == 0) return false;
   WERD_CHOICE *this_choice = permute_all(char_choices, best_choice, raw_choice);
 
-  if (raw_choice->rating() < old_raw_choice_rating) {
-    // Populate unichars_ and unichar_lengths_ of raw_choice. This is
-    // needed for various components that still work with unichars rather
-    // than unichar ids (e.g. LearnWord).
-    raw_choice->populate_unichars();
-  }
   if (this_choice && this_choice->rating() < best_choice->rating()) {
     *best_choice = *this_choice;
-    // Populate unichars_ and unichar_lengths_ of best_choice. This is
-    // needed for various components that still work with unichars rather
-    // than unichar ids (dawg, *_ok functions, various hard-coded hacks).
-    best_choice->populate_unichars();
 
     if (permute_debug) {
       best_choice->print("\n**** Populate BestChoice");
@@ -914,8 +899,6 @@ void Dict::permute_subword(const BLOB_CHOICE_LIST_VECTOR &char_choices,
              current_word->debug_string().string(),
              current_word->rating(), current_word->certainty());
   }
-  current_word->populate_unichars();
-
   EnableChoiceAccum();
 }
 

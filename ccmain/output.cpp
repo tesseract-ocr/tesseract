@@ -248,7 +248,6 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
       BLOB_CHOICE_LIST_C_IT blob_choices_it(word->best_choice->blob_choices());
       if (!blob_choices_it.empty()) delete blob_choices_it.extract();
     }
-    word->best_choice->populate_unichars();
     word->reject_map.remove_pos (0);
     word->box_word->DeleteBox(0);
   }

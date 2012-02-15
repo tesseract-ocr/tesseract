@@ -297,8 +297,6 @@ class WERD_CHOICE {
     fragment_mark_ = false;
     blob_choices_ = NULL;
     unichars_in_script_order_ = false;  // Tesseract is strict left-to-right.
-    unichar_string_ = "";
-    unichar_lengths_ = "";
   }
 
   /// Helper function to build a WERD_CHOICE from the given string,
@@ -316,8 +314,6 @@ class WERD_CHOICE {
     rating_ = kBadRating;
     certainty_ = -MAX_FLOAT32;
     fragment_mark_ = false;
-    unichar_string_ = "";
-    unichar_lengths_ = "";
   }
 
   /// This function assumes that there is enough space reserved
@@ -373,19 +369,6 @@ class WERD_CHOICE {
     }
     return word_str;
   }
-  /// Since this function walks over the whole word to convert unichar ids
-  /// to unichars, it is best to call it once, e.g. after all changes to
-  /// unichar_ids_ in WERD_CHOICE are finished.
-  void populate_unichars() {
-    this->string_and_lengths(&unichar_string_, &unichar_lengths_);
-  }
-
-  /// Undoes populate_unichars, so that unichar_string_ and unichar_lengths_
-  /// are empty.
-  void depopulate_unichars() {
-    unichar_string_ = "";
-    unichar_lengths_ = "";
-  }
 
   // Call this to override the default (strict left to right graphemes)
   // with the fact that some engine produces a "reading order" set of
@@ -398,19 +381,17 @@ class WERD_CHOICE {
     return unichars_in_script_order_;
   }
 
-  /// This function should only be called if populate_unichars()
-  /// was called and WERD_CHOICE did not change since then.
+  // Returns a UTF-8 string equivalent to the current choice
+  // of UNICHAR IDs.
   const STRING &unichar_string() const {
-    assert(unichar_string_.length() <= 0 ||
-           unichar_string_.length() >= length_);  // sanity check
+    this->string_and_lengths(&unichar_string_, &unichar_lengths_);
     return unichar_string_;
   }
 
-  /// This function should only be called if populate_unichars()
-  /// was called and WERD_CHOICE did not change since then.
+  // Returns the lengths, one byte each, representing the number of bytes
+  // required in the unichar_string for each UNICHAR_ID.
   const STRING &unichar_lengths() const {
-    assert(unichar_lengths_.length() <= 0 ||
-           unichar_lengths_.length() == length_);  // sanity check
+    this->string_and_lengths(&unichar_string_, &unichar_lengths_);
     return unichar_lengths_;
   }
   const void print() const { this->print(""); }
@@ -441,10 +422,10 @@ class WERD_CHOICE {
   // (for Arabic, that is right-to-left).
   bool unichars_in_script_order_;
 
-  // The following variables are only populated by calling populate_unichars().
-  // They are not synchronized with the values in unichar_ids otherwise.
-  STRING unichar_string_;
-  STRING unichar_lengths_;
+  // The following variables are populated and passed by reference any
+  // time unichar_string() or unichar_lengths() are called.
+  mutable STRING unichar_string_;
+  mutable STRING unichar_lengths_;
 
   bool unichar_info_present;
 
@@ -484,7 +465,6 @@ void print_char_choices_list(
     );
 void print_word_alternates_list(
     WERD_CHOICE *word,
-    GenericVector<WERD_CHOICE *> *alternates,
-    bool needs_populate_unichars);
+    GenericVector<WERD_CHOICE *> *alternates);
 
 #endif

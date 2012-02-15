@@ -189,7 +189,6 @@ void Wordrec::SaveAltChoices(const LIST &best_choices, WERD_RES *word) {
     alt_choice->set_rating(choice->Rating);
     alt_choice->set_certainty(choice->Certainty);
     word->alt_choices.push_back(alt_choice);
-    alt_choice->populate_unichars();
     if (wordrec_debug_level > 0) {
       tprintf("SaveAltChoices: %s %g\n",
               alt_choice->unichar_string().string(), alt_choice->rating());

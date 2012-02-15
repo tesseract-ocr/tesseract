@@ -249,7 +249,6 @@ static void MakeWordChoice(const BLOB_CHOICE_LIST_VECTOR& char_choices,
     word_choice->append_unichar_id(bc->unichar_id(), 1,
                                    bc->rating(), bc->certainty());
   }
-  word_choice->populate_unichars();
 }
 
 // Tests the chopper by exhaustively running chop_one_blob.
@@ -776,7 +775,6 @@ void Tesseract::CorrectClassifyWords(PAGE_RES* page_res) {
       UNICHAR_ID char_id = unicharset.unichar_to_id(tokens[0].string());
       choice->append_unichar_id_space_allocated(char_id, 1, 0.0f, 0.0f);
     }
-    choice->populate_unichars();
     if (word_res->best_choice != NULL)
       delete word_res->best_choice;
     word_res->best_choice = choice;

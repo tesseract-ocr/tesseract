@@ -190,9 +190,6 @@ void LanguageModel::InitForWord(
 
   // Fill prev_word_str_ with the last language_model_ngram_order
   // unichars from prev_word.
-  // Assume that populate_unichars() has been called on a valid prev_word,
-  // which is the case, since it points to the final result of the
-  // classification of the previous word.
   if (language_model_ngram_on) {
     if (prev_word != NULL && prev_word->unichar_string() != NULL) {
       prev_word_str_ = prev_word->unichar_string();
@@ -1234,7 +1231,6 @@ void LanguageModel::UpdateBestChoice(
     dict_->LogNewChoice(1.0, certainties, true, word);
     *(best_choice_bundle->raw_choice) = *word;
     best_choice_bundle->raw_choice->set_permuter(TOP_CHOICE_PERM);
-    best_choice_bundle->raw_choice->populate_unichars();
     if (language_model_debug_level > 0) tprintf("Updated raw choice\n");
   }
 
@@ -1278,7 +1274,6 @@ void LanguageModel::UpdateBestChoice(
       }
       // Update best_choice_bundle.
       *(best_choice_bundle->best_choice) = *word;
-      best_choice_bundle->best_choice->populate_unichars();
       best_choice_bundle->updated = true;
       best_choice_bundle->best_char_choices->delete_data_pointers();
       best_choice_bundle->best_char_choices->clear();

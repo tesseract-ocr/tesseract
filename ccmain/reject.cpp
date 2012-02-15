@@ -847,9 +847,6 @@ void Tesseract::flip_hyphens(WERD_RES *word_res) {
     }
     prev_right = out_box.right();
   }
-  if (modified) {
-    best_choice->populate_unichars();
-  }
 }
 
 // Note: After running this function word_res->best_choice->blob_choices()
@@ -974,9 +971,6 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
         i--;
       }
     }
-  }
-  if (modified) {
-    best_choice->populate_unichars();
   }
 }
 

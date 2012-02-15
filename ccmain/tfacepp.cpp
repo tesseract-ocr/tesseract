@@ -130,7 +130,6 @@ void Tesseract::recog_word_recursive(WERD_RES *word,
       word->raw_choice->append_unichar_id(space_id, 1, 0.0,
                                           word->raw_choice->certainty());
     }
-    word->raw_choice->populate_unichars();
   }
 
   // Do sanity checks and minor fixes on best_choice.
@@ -164,7 +163,6 @@ void Tesseract::recog_word_recursive(WERD_RES *word,
       word->best_choice->append_unichar_id(space_id, 1, 0.0,
                                            word->best_choice->certainty());
     }
-    word->best_choice->populate_unichars();
   }
 }
 

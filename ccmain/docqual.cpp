@@ -684,9 +684,6 @@ void Tesseract::convert_bad_unlv_chs(WERD_RES *word_res) {
         word_res->reject_map[i].setrej_unlv_rej ();
     }
   }
-  if (modified) {
-    word_res->best_choice->populate_unichars();
-  }
 }
 
 GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {

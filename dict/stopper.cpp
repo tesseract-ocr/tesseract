@@ -703,7 +703,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
       }  // end searching AmbigSpec_LIST
     }  // end searching best_choice
   }  // end searching replace and dangerous ambigs
-  if (modified_best_choice) best_choice->populate_unichars();
+
   // If any ambiguities were found permute the constructed ambig_blob_choices
   // to see if an alternative dictionary word can be found.
   if (ambigs_found) {

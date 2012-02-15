@@ -187,7 +187,6 @@ static WERD_CHOICE *create_werd_choice(
     // Add list to the clist
     blob_choices_it.add_to_end(choices_list);
   }
-  werd_choice->populate_unichars();
   werd_choice->set_certainty(certainty);
   werd_choice->set_blob_choices(blob_choices);
   return werd_choice;

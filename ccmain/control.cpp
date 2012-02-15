@@ -420,7 +420,6 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
 
   WERD_RES *w_prev = NULL;
   WERD_RES *w = word_it.word();
-  if (w && w->best_choice) w->best_choice->populate_unichars();
   while (1) {
     w_prev = w;
     while (word_it.forward() != NULL &&
@@ -429,8 +428,6 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
     }
     if (!word_it.word()) break;
     w = word_it.word();
-    if (w && w->best_choice)
-      w->best_choice->populate_unichars();
     if (!w || !w_prev || w->uch_set != w_prev->uch_set) {
       continue;
     }
@@ -490,11 +487,10 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
     }
     if (tessedit_bigram_debug > 1) {
       if (w_prev->alt_choices.size() > 1) {
-        print_word_alternates_list(w_prev->best_choice, &w_prev->alt_choices,
-                                   false);
+        print_word_alternates_list(w_prev->best_choice, &w_prev->alt_choices);
       }
       if (w->alt_choices.size() > 1) {
-        print_word_alternates_list(w->best_choice, &w->alt_choices, false);
+        print_word_alternates_list(w->best_choice, &w->alt_choices);
       }
     }
     float best_rating = 0.0;
@@ -1244,7 +1240,6 @@ void Tesseract::fix_rep_char(PAGE_RES_IT* page_res_it) {
   } else {
     // Just correct existing classification.
     CorrectRepcharChoices(best_choice, word_res);
-    word_res->best_choice->populate_unichars();
     word_res->reject_map.initialise(word.length());
   }
 }

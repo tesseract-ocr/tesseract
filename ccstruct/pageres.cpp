@@ -563,7 +563,6 @@ void WERD_RES::FakeClassifyWord(int blob_count, BLOB_CHOICE** choices) {
     bc_it.add_after_then_move(choice_list);
   }
   best_choice->set_blob_choices(word_choices);
-  best_choice->populate_unichars();
   delete raw_choice;
   raw_choice = new WERD_CHOICE(*best_choice);
   reject_map.initialise(blob_count);
@@ -633,10 +632,6 @@ bool WERD_RES::ConditionalBlobMerge(
   }
   delete class_cb;
   delete box_cb;
-  if (modified) {
-    best_choice->populate_unichars();
-    raw_choice->populate_unichars();
-  }
   return modified;
 }
 

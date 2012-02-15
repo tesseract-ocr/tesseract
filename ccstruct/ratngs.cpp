@@ -223,8 +223,6 @@ void WERD_CHOICE::remove_unichar_ids(int start, int num) {
  * reverse_and_mirror_unichar_ids
  *
  * Reverses and mirrors unichars in unichar_ids.
- * Note: this function does not change unichar_string_, it only modifies
- * unichar_ids array.
  */
 void WERD_CHOICE::reverse_and_mirror_unichar_ids() {
   for (int i = 0; i < length_/2; ++i) {
@@ -358,8 +356,6 @@ WERD_CHOICE & WERD_CHOICE::operator+= (const WERD_CHOICE & second) {
              second.permuter() != permuter_) {
     permuter_ = COMPOUND_PERM;
   }
-  unichar_string_ += second.unichar_string();
-  unichar_lengths_ += second.unichar_lengths();
 
   // Append a deep copy of second blob_choices if it exists.
   if (second.blob_choices_ != NULL) {
@@ -412,8 +408,6 @@ WERD_CHOICE& WERD_CHOICE::operator=(const WERD_CHOICE& source) {
   certainty_ = source.certainty();
   permuter_ = source.permuter();
   fragment_mark_ = source.fragment_mark();
-  unichar_string_ = source.unichar_string();
-  unichar_lengths_ = source.unichar_lengths();
 
   // Delete existing blob_choices
   this->delete_blob_choices();
@@ -633,15 +627,8 @@ void print_char_choices_list(const char *msg,
  */
 void print_word_alternates_list(
     WERD_CHOICE *word,
-    GenericVector<WERD_CHOICE *> *alternates,
-    bool needs_populate_unichars) {
+    GenericVector<WERD_CHOICE *> *alternates) {
   if (!word || !alternates) return;
-  if (needs_populate_unichars) {
-    word->populate_unichars();
-    for (int i = 0; i < alternates->size(); ++i) {
-      alternates->get(i)->populate_unichars();
-    }
-  }
 
   STRING alternates_str;
   for (int i = 0; i < alternates->size(); i++) {
