@@ -12,9 +12,7 @@
 // limitations under the License.
 //
 ///////////////////////////////////////////////////////////////////////
-#if defined __WIN32__ || defined _MSC_VER
 #include <ctime>
-#endif
 
 #include "errorcounter.h"
 
