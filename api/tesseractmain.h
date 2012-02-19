@@ -24,7 +24,7 @@
 #include          "blobs.h"
 #include          "notdll.h"
 
-#ifdef __MSW32__
+#ifdef _WIN32
 /**
  * main for windows command line
  */

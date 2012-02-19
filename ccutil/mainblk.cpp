@@ -49,7 +49,7 @@ void CCUtil::main_setup(                 /*main demo program */
                ) {
   imagebasename = basename;      /*name of image */
   STRING dll_module_name;
-  #ifdef __MSW32__
+  #ifdef _WIN32
   dll_module_name = tessedit_module_name;
   #endif
 

@@ -87,7 +87,7 @@ DLLSYM inT8 getpath(                   //get dir name of code
   }
   return -1;
   #endif
-  #ifdef __MSW32__
+  #ifdef _WIN32
   char *path_end;                //end of dir
 
   if (code == NULL) {

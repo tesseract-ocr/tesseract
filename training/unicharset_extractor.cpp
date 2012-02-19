@@ -30,7 +30,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-#if defined(HAVE_WCHAR_T) || defined(__MSW32__) || defined(GOOGLE3)
+#if defined(HAVE_WCHAR_T) || defined(_WIN32) || defined(GOOGLE3)
 #include <wchar.h>
 #include <wctype.h>
 #define USING_WCTYPE

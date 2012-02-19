@@ -44,7 +44,7 @@
 #endif
 
 
-class DLLSYM STRING
+class CCUTIL_API STRING
 {
   public:
     STRING();

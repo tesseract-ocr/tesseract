@@ -29,7 +29,7 @@
 //*#include "c.h"
 
 //#include <sys/time.h>
-#ifdef __MSW32__
+#ifdef _WIN32
 #include          <winsock.h>    // timeval is defined in here.
 #endif
 

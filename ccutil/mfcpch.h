@@ -4,7 +4,7 @@
 //
 // For Unix and mac the file does nothing. It needs to be included in all cpp
 // files for compatibility with the PC pre-compiled header mechanism.
-#ifdef __MSW32__
+#ifdef _WIN32
 #ifndef _AFXDLL
 #define WIN32_LEAN_AND_MEAN
 #define STRICT 1

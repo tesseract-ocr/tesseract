@@ -57,7 +57,7 @@
 #include "osdetect.h"
 #include "params.h"
 
-#ifdef __MSW32__
+#ifdef _WIN32
 #include "version.h"
 #endif
 

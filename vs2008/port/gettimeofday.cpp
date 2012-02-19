@@ -26,7 +26,7 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-#ifdef __MSW32__
+#ifdef _WIN32
 #include          <winsock.h>    // timeval is defined in here.
 #endif
 

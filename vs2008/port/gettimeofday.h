@@ -20,7 +20,7 @@
 #ifndef VS2008_PORT_GETTIMEOFDAY_H_
 #define VS2008_PORT_GETTIMEOFDAY_H_
 
-#ifdef __MSW32__
+#ifdef _WIN32
 #include          <winsock.h>    // timeval is defined in here.
 #endif
 

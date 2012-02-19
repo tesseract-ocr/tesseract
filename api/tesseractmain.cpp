@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
   return 0;                      // Normal exit
 }
 
-#ifdef __MSW32__
+#ifdef _WIN32
 
 char szAppName[] = "Tesseract";   //app name
 int initialized = 0;

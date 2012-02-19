@@ -55,7 +55,7 @@ const char *format, ...          // special message
   if (format != NULL) {
     msgptr += sprintf (msgptr, ":");
     va_start(args, format);  //variable list
-    #ifdef __MSW32__
+    #ifdef _WIN32
                                  //print remainder
     msgptr += _vsnprintf (msgptr, MAX_MSG - 2 - (msgptr - msg), format, args);
     msg[MAX_MSG - 2] = '\0';     //ensure termination

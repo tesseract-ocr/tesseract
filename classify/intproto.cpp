@@ -390,7 +390,7 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
   ProtoSet = Class->ProtoSets[SetForProto (ProtoId)];
 
   Angle = Proto->Angle;
-#ifndef __MSW32__
+#ifndef _WIN32
   assert(!isnan(Angle));
 #endif
 

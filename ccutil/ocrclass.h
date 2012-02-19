@@ -28,7 +28,7 @@
 #define            CCUTIL_OCRCLASS_H_
 
 #ifndef __GNUC__
-#ifdef __MSW32__
+#ifdef _WIN32
 #include          <windows.h>
 #include          "gettimeofday.h"
 #endif

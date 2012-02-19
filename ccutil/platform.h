@@ -21,7 +21,7 @@
 #define TESSERACT_CCUTIL_PLATFORM_H__
 
 #define DLLSYM
-#ifdef __MSW32__
+#ifdef _WIN32
 #ifdef __GNUC__
 #define ultoa _ultoa
 typedef struct _BLOB {
@@ -33,7 +33,7 @@ typedef struct _BLOB {
 #define snprintf _snprintf
 #if (_MSC_VER <= 1400)
 #define vsnprintf _vsnprintf
-#endif /* __MSW32__ */
+#endif /* _WIN32 */
 #else
 #define __UNIX__
 #include <limits.h>

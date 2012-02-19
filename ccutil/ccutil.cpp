@@ -8,7 +8,7 @@ CCUtil::CCUtil() :
   params_(),
   STRING_INIT_MEMBER(m_data_sub_dir,
                      "tessdata/", "Directory for data files", &params_),
-#ifdef __MSW32__
+#ifdef _WIN32
   STRING_INIT_MEMBER(tessedit_module_name, "tessdll.dll",
                      "Module colocated with tessdata dir", &params_),
 #endif
