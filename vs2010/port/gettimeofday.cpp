@@ -26,21 +26,16 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-//*#include "c.h"
-
-//#include <sys/time.h>
 #ifdef _WIN32
 #include          <winsock.h>    // timeval is defined in here.
 #endif
 
 /* FILETIME of Jan 1 1970 00:00:00. */
-//static const unsigned __int64 epoch = UINT64CONST(116444736000000000);
 static const unsigned __int64 epoch = 11644473600000000Ui64;
 
-struct timezone
-{
- int  tz_minuteswest; /* minutes W of Greenwich */
- int  tz_dsttime;     /* type of dst correction */
+struct timezone {
+  int  tz_minuteswest; /* minutes W of Greenwich */
+  int  tz_dsttime;     /* type of dst correction */
 };
 
 /*
@@ -50,19 +45,18 @@ struct timezone
  * elapsed_time().
  */
 int
-gettimeofday(struct timeval * tp, struct timezone * tzp)
-{
-	FILETIME	file_time;
-	SYSTEMTIME	system_time;
-	ULARGE_INTEGER ularge;
+gettimeofday(struct timeval * tp, struct timezone * tzp) {
+  FILETIME file_time;
+  SYSTEMTIME system_time;
+  ULARGE_INTEGER ularge;
 
-	GetSystemTime(&system_time);
-	SystemTimeToFileTime(&system_time, &file_time);
-	ularge.LowPart = file_time.dwLowDateTime;
-	ularge.HighPart = file_time.dwHighDateTime;
+  GetSystemTime(&system_time);
+  SystemTimeToFileTime(&system_time, &file_time);
+  ularge.LowPart = file_time.dwLowDateTime;
+  ularge.HighPart = file_time.dwHighDateTime;
 
-	tp->tv_sec = (long) ((ularge.QuadPart - epoch) / 10000000L);
-	tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
+  tp->tv_sec = (long)((ularge.QuadPart - epoch) / 10000000L);
+  tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
 
-	return 0;
+  return 0;
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        gettimeofday.h
-// Description: Header file for gettimeofday.c (source postgreslq.org)
+// Description: Header file for gettimeofday.c (source postgresql.org)
 // Author:      zdenop
 // Created:     Fri Nov 19 21:05:06 CET 2010
 //
@@ -17,6 +17,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifndef VS2008_PORT_GETTIMEOFDAY_H_
+#define VS2008_PORT_GETTIMEOFDAY_H_
+
 #ifdef _WIN32
 #include          <winsock.h>    // timeval is defined in here.
 #endif
@@ -24,3 +27,5 @@
 typedef struct  timezone tz;
 
 int gettimeofday(struct timeval * tp, struct timezone * tzp);
+
+#endif  // VS2008_PORT_GETTIMEOFDAY_H_
