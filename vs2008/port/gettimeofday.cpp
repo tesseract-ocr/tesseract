@@ -1,62 +1,31 @@
-/*
- * gettimeofday.c
- *    Win32 gettimeofday() replacement
- *
- * $PostgreSQL: pgsql/src/port/gettimeofday.c,v 1.9 2006/03/04 04:44:07 momjian Exp $
- *
- * Copyright (c) 2003 SRA, Inc.
- * Copyright (c) 2003 SKC, Inc.
- *
- * Permission to use, copy, modify, and distribute this software and
- * its documentation for any purpose, without fee, and without a
- * written agreement is hereby granted, provided that the above
- * copyright notice and this paragraph and the following two
- * paragraphs appear in all copies.
- *
- * IN NO EVENT SHALL THE AUTHOR BE LIABLE TO ANY PARTY FOR DIRECT,
- * INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
- * LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
- * DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * THE AUTHOR SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS
- * IS" BASIS, AND THE AUTHOR HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE,
- * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
- */
+///////////////////////////////////////////////////////////////////////
+// File:        gettimeofday.cpp
+// Description: Implementation of gettimeofday based on leptonica
+// Author:      tomp2010, zdenop
+// Created:     Tue Feb 21 21:38:00 CET 2012
+//
+// (C) Copyright 2012, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////
 
-#ifdef _WIN32
-#include          <winsock.h>    // timeval is defined in here.
-#endif
+#include "gettimeofday.h"
 
-/* FILETIME of Jan 1 1970 00:00:00. */
-static const unsigned __int64 epoch = 11644473600000000Ui64;
+int gettimeofday(struct timeval *tp, struct timezone *tzp) {
+  l_int32 sec, usec;
+  if (tp == NULL)
+    return -1;
 
-struct timezone {
-  int  tz_minuteswest; /* minutes W of Greenwich */
-  int  tz_dsttime;     /* type of dst correction */
-};
-
-/*
- * timezone information is stored outside the kernel so tzp isn't used anymore.
- *
- * Note: this function is not for Win32 high precision timing purpose. See
- * elapsed_time().
- */
-int
-gettimeofday(struct timeval * tp, struct timezone * tzp) {
-  FILETIME file_time;
-  SYSTEMTIME system_time;
-  ULARGE_INTEGER ularge;
-
-  GetSystemTime(&system_time);
-  SystemTimeToFileTime(&system_time, &file_time);
-  ularge.LowPart = file_time.dwLowDateTime;
-  ularge.HighPart = file_time.dwHighDateTime;
-
-  tp->tv_sec = (long)((ularge.QuadPart - epoch) / 10000000L);
-  tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
-
+  l_getCurrentTime(&sec, &usec);
+  tp->tv_sec = sec;
+  tp->tv_usec = usec;
   return 0;
 }

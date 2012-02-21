@@ -19,9 +19,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef VS2008_PORT_GETTIMEOFDAY_H_
-#define VS2008_PORT_GETTIMEOFDAY_H_
+#ifndef VS2008_PORT_STRTOK_R_H_
+#define VS2008_PORT_STRTOK_R_H_
 
 char *strtok_r(char *s1, const char *s2, char **lasts);
 
-#endif  // VS2008_PORT_GETTIMEOFDAY_H_
+#endif  // VS2008_PORT_STRTOK_R_H_
