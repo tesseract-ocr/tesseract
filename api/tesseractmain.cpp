@@ -100,8 +100,14 @@ int main(int argc, char **argv) {
   tesseract::TessBaseAPI  api;
 
   api.SetOutputName(output);
-  api.Init(argv[0], lang, tesseract::OEM_DEFAULT,
+
+  int rc = api.Init(argv[0], lang, tesseract::OEM_DEFAULT,
            &(argv[arg]), argc - arg, NULL, NULL, false);
+  if (rc) {
+    fprintf(stderr, "Could not initialize tesseract.\n");
+    exit(1);
+  }
+   
   // We have 2 possible sources of pagesegmode: a config file and
   // the command line. For backwards compatability reasons, the
   // default in tesseract is tesseract::PSM_SINGLE_BLOCK, but the
