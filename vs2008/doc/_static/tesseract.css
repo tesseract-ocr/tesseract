@@ -1,0 +1,341 @@
+@import url("default.css");
+
+/* tesseract custom styles */
+
+div.body {
+  font-family: 'Droid Serif', Georgia, serif;
+  background-color: #FFFFE4;
+}
+
+div.sphinxsidebar {
+  width: 330px;
+}
+
+div.sphinxsidebarwrapper {
+  padding-top: 0;  /* to get feynman diagram to align at top correctly */
+}
+
+div.bodywrapper {
+  margin: 0 0 0 330px;
+}
+
+div.footer {
+  padding: 10px, 0, 0, 0;
+}
+
+div.body h1, 
+div.body h2, 
+div.body h3, 
+div.body h4, 
+div.body h5, 
+div.body h6 {
+  font-family: 'Droid Sans', sans-serif;
+}
+
+pre {
+  font-family: 'Ubuntu Mono', monospace;
+  font-size: 110%;
+  white-space: pre-wrap;
+}
+
+sub,
+sup
+{
+  font-size: 70%;
+}
+
+.caption {
+  font-weight: bold;
+  margin-bottom: 1.5em;
+}
+
+div.document
+li.toctree-l1 {
+  margin-bottom: 0.5em;
+}
+
+div.sphinxsidebar ul {
+  list-style: square outside none;
+}
+
+div.sphinxsidebar a.current {
+  color: yellow;
+}
+
+div.body p,
+div.body dd,
+div.body li {
+  text-align: left;
+}
+
+div.legend {
+  width: 75%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: -1em;
+}
+
+div.legend pre {
+  text-align: left;
+}
+
+tt {
+  font-size: 100%;
+}
+
+pre {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+dt {
+  font-weight: bold;
+}
+
+/* -- hyperlink styles ------------------------------------------------------ */
+
+a:visited {
+  color: #7C3578;
+}
+
+a.external,
+a.external:visited {
+  border-bottom: 1px dashed;
+}
+
+a.external:hover {
+   text-decoration: none;
+   border-bottom: none;
+}
+
+/* ----- */
+
+div.admonition.tip {
+  border-width: 1px;
+  border-style: solid;
+}
+
+div.container.subtitle {
+  font-size: 160%;
+  font-family: 'Droid Sans', sans-serif;
+  font-weight: normal;
+  margin-bottom: 0.5em;
+}
+
+blockquote.epigraph {
+  border-style: solid;
+  border-width: 1px;
+  margin:1em;
+  padding: 0 1em;
+}
+
+/* table definitions from Python 2.6 docs basic.css */
+
+table.docutils {
+  border: 1px solid #dce;
+  border-collapse: collapse;
+}
+
+table.docutils td {
+/*  padding: 2px 5px 2px 5px; */
+  border: 1px solid #dce;
+  background-color: #eef;
+}
+
+table.docutils th {
+  border: 1px solid #cac;
+  background-color: #ede;
+}
+
+th {
+  text-align: left;
+  padding-right: 5px;
+}
+
+th.head {
+  text-align: center;
+}
+
+th.head p {
+  text-align: center;
+}
+
+/* modified p style within tables, normally 
+   padding-top: 0;
+   margin-bottom: 1em;
+*/
+
+table.docutils td,
+table.docutils th,
+table p {
+  padding: 0.25em;
+  margin-bottom: 0em;
+}
+
+table div {
+  padding: 0.25em;
+  margin-bottom: 0em;
+}
+
+table div div  {
+  padding: 0em;
+}
+
+table .line-block {
+  margin-bottom: 0em;
+}
+
+td {
+  border-width: 1px;
+  border-style: solid;
+}
+
+table.centered {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.centercells td,
+table.centercells th
+{
+  text-align: center;
+  vertical-align: middle;
+}
+
+table caption {
+  font-weight: bold;
+  margin-bottom: 0.50em;
+}
+
+/* custom text roles */
+
+.filesystem {
+  font-family: 'Ubuntu Mono', monospace;
+  font-size: 110%; /* this breaks IE8 wrapping calculations in sidebar? */
+}
+
+.italic {
+  font-style: italic;
+}
+
+em.bold-italic {
+  font-weight: bold;
+}
+
+.underline {
+  border-bottom: 1px solid;
+}
+
+img.border {
+  border-width: 1px;
+  border-style: solid;
+}
+
+li img {
+  margin-bottom: 0.75em;
+}
+
+/* Standard (after modifications) Sphinx inline roles */
+/*
+
+.command,
+.kbd,
+.makevar,
+.program,
+.regexp
+{
+  font-family: 'Ubuntu Mono', monospace;
+  font-size: 110%;
+}
+*/
+
+.kbd,
+.makevar,
+.program,
+.regexp
+{
+  font-family: 'Ubuntu Mono', monospace;
+  font-size: 110%;
+  white-space: pre-wrap;
+  background-color: #ecf0f3;
+  padding: 0 1px 0 1px;
+}
+
+
+.command,
+.makevar,
+.program
+ {
+  font-weight: bold;
+}
+
+.command {
+  font-family: 'Ubuntu Mono', monospace;
+  font-size: 110%;
+  white-space: pre-wrap;
+}
+
+em.guilabel {
+  font-family: 'Droid Sans', sans-serif;
+  font-style: normal;
+  font-weight: bold;
+}
+
+em.menuselection {
+  font-family: 'Droid Sans', sans-serif;
+  font-style: italic;
+  font-weight: bold;
+}
+
+/* definition */
+em.dfn {
+  font-style: italic;
+}
+
+/* glossary term */
+em.std-term {
+  font-style: italic;
+}
+
+tt {
+  font-family: 'Ubuntu Mono', monospace;
+  font-size: 110%;
+}
+
+tt.file {
+  white-space: pre-wrap;
+}
+
+/* for "optional" parts of files */
+tt.file em {
+  font-style: italic;
+}
+
+/* sort-filter-table.css stuff */
+
+/* Striping */
+tr.alternate td {
+  background-color:#FCFFEE;
+}
+
+/* for docutil generated TOC */
+div.body
+div.contents
+p
+{
+  margin: 0;
+}
+
+/* for collapsible sidebar */
+div#sidebarbutton {
+  background-color: #267FA5;
+}
+
+/* TODO list colors */
+div.admonition-todo {
+  color: #B83373;
+}
+
+div.admonition-todo p.admonition-title{
+  color: #5032B3;
+}

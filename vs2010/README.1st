@@ -1,4 +1,0 @@
-This is solution for building tesseeract 3.01 (tested on svn revision 581) with MS VS2010.
-Microsoft Windows SDK for Windows 7 is required.
-
-This solution depends on libs located in vs2008\lib (located in tesseract svn source tree).

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="tesseract_versionnumbers"
+	InheritedPropertySheets=".\leptonica_versionnumbers.vsprops"
+	>
+	<UserMacro
+		Name="LIBTESS_VERSION"
+		Value="302"
+	/>
+	<UserMacro
+		Name="LIBTESS_VERSION_R"
+		Value="3,2,0,0"
+	/>
+	<UserMacro
+		Name="LIBTESS_NUMBER"
+		Value="3.02"
+	/>
+</VisualStudioPropertySheet>

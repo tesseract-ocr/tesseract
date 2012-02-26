@@ -1,0 +1,188 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Overview &mdash; Visual Studio 2008 Developer Notes for Tesseract-OCR</title>
+    
+    <link rel="stylesheet" href="_static/tesseract.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.02',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="Visual Studio 2008 Developer Notes for Tesseract-OCR" href="index.html" />
+    <link rel="next" title="Setting up Tesseract-OCR" href="setup.html" />
+    <link rel="prev" title="Visual Studio 2008 Developer Notes for Tesseract-OCR" href="index.html" />
+ 
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="setup.html" title="Setting up Tesseract-OCR"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="index.html" title="Visual Studio 2008 Developer Notes for Tesseract-OCR"
+             accesskey="P">previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>The recommended audience for this document are developers who want to
+use Microsoft Visual Studio 2008 with <a class="reference external" href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR</a>. If you simply want to <em>run</em>
+<span class="filesystem">tesseract</span> or its various language training applications, then see the
+<a class="reference external" href="http://code.google.com/p/tesseract-ocr/wiki/ReadMe">ReadMe</a>. You&#8217;ll
+find instructions there on how to download tesseract&#8217;s Windows
+installer.</p>
+<p><strong>Tesseract-OCR</strong> consists of:</p>
+<ul>
+<li><p class="first"><span class="filesystem">libtesseract</span> &#8211; the static (or dynamic) library that does all the
+actual work. As of February 2012 it consists of 260+ <span class="filesystem">C++</span> files
+along with 290+ header files.</p>
+</li>
+<li><p class="first"><span class="filesystem">tesseract.exe</span> &#8211; the command-line OCR engine. It&#8217;s built from a
+single, small <span class="filesystem">C++</span> file that just calls functions in
+<span class="filesystem">libtesseract</span>. There currently isn&#8217;t very much documentation on how
+to use <span class="filesystem">tesseract.exe</span>, but you can look at what&#8217;s there in the
+repository&#8217;s <a class="reference external" href="http://code.google.com/p/tesseract-ocr/source/browse/#svn%2Ftrunk%2Fdoc">doc</a>
+subdirectory.</p>
+</li>
+<li><p class="first">Language packs &#8211; needed by <span class="filesystem">tesseract.exe</span> in order to recognize
+particular languages.</p>
+</li>
+</ul>
+<ul id="training-applications">
+<li><p class="first">Language training applications &#8211; used to teach <span class="filesystem">tesseract.exe</span> new
+languages. Each has their own (very brief) man page in the <a class="reference external" href="http://code.google.com/p/tesseract-ocr/source/browse/#svn%2Ftrunk%2Fdoc">doc</a>
+subdirectory and include:</p>
+<ul>
+<li><p class="first"><span class="filesystem">ambiguous_words.exe</span> &#8211; generate sets of words Tesseract is likely
+to find ambiguous</p>
+</li>
+<li><p class="first"><span class="filesystem">classifier_tester</span> &#8211; tests a Tesseract character classifier on
+data as formatted for training</p>
+</li>
+<li><p class="first"><span class="filesystem">cntraining.exe</span> &#8211; character normalization training</p>
+</li>
+<li><p class="first"><span class="filesystem">combine_tessdata.exe</span> &#8211; combine/extract/overwrite Tesseract data</p>
+</li>
+<li><p class="first"><span class="filesystem">dawg2wordlist.exe</span> &#8211; convert a Tesseract DAWG to a wordlist</p>
+</li>
+<li><p class="first"><span class="filesystem">mftraining.exe</span> &#8211; feature training</p>
+</li>
+<li><p class="first"><span class="filesystem">shapeclustering.exe</span> &#8211; shape clustering training</p>
+</li>
+<li><p class="first"><span class="filesystem">unicharset_extractor.exe</span> &#8211; extract unicharset from Tesseract
+boxfiles</p>
+</li>
+<li><p class="first"><span class="filesystem">wordlist2dawg.exe</span> &#8211; convert a wordlist to a DAWG</p>
+</li>
+</ul>
+<p>Their use is described in the <a class="reference external" href="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">TrainingTesseract3</a>
+Wiki page.</p>
+</li>
+</ul>
+<p>This document explains how to:</p>
+<ul>
+<li><p class="first"><a class="reference internal" href="setup.html"><em>Setup</em></a> the proper directory structure required to use
+the supplied Visual Studio 2008 Solution</p>
+</li>
+</ul>
+<ul>
+<li><p class="first"><a class="reference internal" href="building.html"><em>Build</em></a> <span class="filesystem">libtesseract</span>, <span class="filesystem">tesseract.exe</span>, and the
+training apps</p>
+</li>
+<li><p class="first"><a class="reference internal" href="programming.html"><em>Write</em></a> programs that link with <span class="filesystem">libtesseract</span></p>
+</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setting up <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming with <span class="filesystem">libtesseract</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Handy free tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Maintaining the VS2008 directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vs2010-notes.html">Using Visual Studio 2010</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versions.html">Version Notes</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="setup.html" title="Setting up Tesseract-OCR"
+             >next</a></li>
+        <li class="right" >
+          <a href="index.html" title="Visual Studio 2008 Developer Notes for Tesseract-OCR"
+             >previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

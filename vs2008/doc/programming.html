@@ -1,0 +1,548 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Programming with libtesseract &mdash; Visual Studio 2008 Developer Notes for Tesseract-OCR</title>
+    
+    <link rel="stylesheet" href="_static/tesseract.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.02',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="Visual Studio 2008 Developer Notes for Tesseract-OCR" href="index.html" />
+    <link rel="next" title="Handy free tools" href="tools.html" />
+    <link rel="prev" title="Building Tesseract-OCR" href="building.html" />
+ 
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="tools.html" title="Handy free tools"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="building.html" title="Building Tesseract-OCR"
+             accesskey="P">previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="programming-with-libtesseract">
+<h1>Programming with <span class="filesystem">libtesseract</span><a class="headerlink" href="#programming-with-libtesseract" title="Permalink to this headline">¶</a></h1>
+<p>To use <span class="filesystem">libtesseract</span> in your own application you need to include
+<strong>Leptonica</strong>’s <span class="filesystem">allheaders.h</span>, and <strong>Tesseract-OCR</strong>’s <span class="filesystem">baseapi.h</span> and
+<span class="filesystem">strngs.h</span>.</p>
+<p><strong>Tesseract-OCR</strong> uses <span class="filesystem">liblept</span> mainly for image I/O, but you can also use
+any of <strong>Leptonica</strong>’s <em>many</em> image processing functions on <tt class="docutils literal"><span class="pre">PIX</span></tt>,
+while at the same time calling <tt class="docutils literal"><span class="pre">TessBaseAPI</span></tt> methods. See the
+<a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/">Leptonica documentation</a>
+for more details.</p>
+<p>There doesn&#8217;t seem to be any documentation on <span class="filesystem">api\baseapi.h</span>, but it
+has extensive comments. You can also look at the <a class="reference internal" href="#apitest"><em>APITest Sample</em></a> and
+<a class="reference internal" href="#apiexamples"><em>APIExamples</em></a> projects.</p>
+<p>See the <a class="reference internal" href="#apitest"><em>APITest Sample</em></a> project for an example of which compiler and
+linker settings you need for various build configurations. The easiest
+way to begin a new application is to just make a copy of the <span class="filesystem">APITest</span>
+directory. See <a class="reference internal" href="maintenance.html#copying-a-project"><em>this step</em></a> for detailed
+instructions (skip the last step about adding <em class="guilabel">Project
+Dependencies</em>).</p>
+<p>If you want to manually set the required settings, then here&#8217;s the list
+of things to do:</p>
+<ol class="arabic">
+<li><p class="first">Add the following <em class="guilabel">Preprocessor Definitions</em> when compiling
+any files that include <span class="filesystem">baseapi.h</span> and you are linking with the
+static library versions of <span class="filesystem">libtesseract</span>:</p>
+<div class="highlight-none"><div class="highlight"><pre>USE_STD_NAMESPACE
+</pre></div>
+</div>
+<p>If you are linking with the DLL versions of <span class="filesystem">libtesseract</span> instead
+add:</p>
+<div class="highlight-none"><div class="highlight"><pre>USE_STD_NAMESPACE;TESSDLL_IMPORTS;CCUTIL_IMPORTS;LIBLEPT_IMPORTS
+</pre></div>
+</div>
+</li>
+<li><p class="first">Be sure to add the following to <em class="guilabel">Additional Include
+Directories</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>C:\BuildFolder\include
+C:\BuildFolder\include\leptonica
+
+C:\BuildFolder\include\tesseract or
+
+&lt;tesseract-3.0x dir&gt; (all its sub-directories that contain header files)
+</pre></div>
+</div>
+</li>
+<li><p class="first">Add <span class="filesystem">C:\BuildFolder\lib</span> to your <em class="guilabel">Additional Library
+Directories</em>.</p>
+</li>
+<li><p class="first">In the <span class="filesystem">C:\BuildFolder\include</span> directory are two Visual Studio
+Property Sheet files:</p>
+<div class="highlight-none"><div class="highlight"><pre>tesseract_versionnumbers.vsprops
+leptonica_versionnumbers.vsprops
+</pre></div>
+</div>
+<p>Using <span class="filesystem">tesseract_versionnumbers.vsprops</span> (which automatically inherits
+<span class="filesystem">leptonica_versionnumbers.vsprops</span>) can make it easier to specify the
+libraries you need to import. For example, when creating a staticly
+linked debug executable you can say:</p>
+<div class="highlight-none"><div class="highlight"><pre>zlib$(ZLIB_VERSION)-static-mtdll-debug.lib
+libpng$(LIBPNG_VERSION)-static-mtdll-debug.lib
+libjpeg$(LIBJPEG_VERSION)-static-mtdll-debug.lib
+giflib$(GIFLIB_VERSION)-static-mtdll-debug.lib
+libtiff$(LIBTIFF_VERSION)-static-mtdll-debug.lib
+liblept$(LIBLEPT_VERSION)-static-mtdll-debug.lib
+libtesseract$(LIBTESS_VERSION)-static-debug.lib
+</pre></div>
+</div>
+<p>to make your application less dependent on library version numbers.</p>
+<p>To add the Property Sheet to a Project, open its <em class="guilabel">Properties
+Pages</em> Dialog, and set the <em class="guilabel">Configuration Properties |
+General | Inherited Project Property Sheets</em> item to:</p>
+<div class="highlight-none"><div class="highlight"><pre>..\..\..\include\tesseract_versionnumbers.vsprops
+</pre></div>
+</div>
+<p>Choosing <em class="menuselection"><span class="accelerator">V</span>iew ‣ Oth<span class="accelerator">e</span>r Windows ‣ Property
+<span class="accelerator">M</span>anager</em> from the menubar will let you see the Properties attached
+to each Project&#8217;s configurations.</p>
+</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The DLL versions of <span class="filesystem">libtesseract</span> currently only export the
+<tt class="docutils literal"><span class="pre">TessBaseAPI</span></tt> C++ class from <span class="filesystem">baseapi.h</span>, there is no C function
+interface yet.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The DLL versions of <span class="filesystem">libtesseract</span> currently only export the
+<tt class="docutils literal"><span class="pre">TessBaseAPI</span></tt> and <tt class="docutils literal"><span class="pre">STRING</span></tt> classes. In theory, all you need is
+are those classes. However, if you find yourself having to manipulate
+other &#8220;internal&#8221; tesseract objects then you currently have to link
+with the <strong>static library</strong> versions of <span class="filesystem">libtesseract</span>.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The Release versions of <span class="filesystem">liblept</span>, by design, <em>never</em> print out any
+possibly helpful messages to the console. Therefore, it is highly
+recommended that you do your initial development using the Debug
+versions of <span class="filesystem">liblept</span>. See <a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/leptonica/README.html#compile-time-control-over-stderr-output">Compile-time control over stderr output</a>
+for details.</p>
+</div>
+<p>&lt;&lt;&lt;Need to add the URL of the zip file that contains include &amp; lib
+directory contents for those people who don&#8217;t want to build libtesseract
+themselves&gt;&gt;&gt;</p>
+<div class="section" id="debugging-tips">
+<h2>Debugging Tips<a class="headerlink" href="#debugging-tips" title="Permalink to this headline">¶</a></h2>
+<p>Before debugging programs written with <span class="filesystem">libtesseract</span>, you should first
+download the latest Leptonica sources (currently
+<span class="filesystem">leptonica-1.68.tar.gz</span>) and VS2008 source package (<span class="filesystem">vs2008-1.68.zip</span>)
+from:</p>
+<ul>
+<li><p class="first"><a class="reference external" href="http://code.google.com/p/leptonica/downloads/detail?name=leptonica-1.68.tar.gz">http://code.google.com/p/leptonica/downloads/detail?name=leptonica-1.68.tar.gz</a></p>
+</li>
+<li><p class="first"><a class="reference external" href="http://code.google.com/p/leptonica/downloads/detail?name=vs2008-1.68.zip">http://code.google.com/p/leptonica/downloads/detail?name=vs2008-1.68.zip</a></p>
+</li>
+</ul>
+<p>Unpack them to <span class="filesystem">C:\BuildFolder</span> to get the following directory structure:</p>
+<div class="highlight-none"><div class="highlight"><pre>C:\BuildFolder\
+  include\
+  lib\
+  leptonica-1.68\
+     vs2008\
+  tesseract-3.02\
+     vs2008\
+  testing\
+     tessdata\
+</pre></div>
+</div>
+<p>(see <a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/vs2008/building-liblept.html">Building the liblept library</a>
+for more information)</p>
+<p><strong>Tesseract-OCR</strong> uses <strong>Leptonica</strong> &#8220;under the hood&#8221; for all (most? some?)
+of its image processing operations. Having the source available (and
+compiling it in debug mode) will make it easier to see what&#8217;s really
+going on.</p>
+<p>You might want to add
+<span class="filesystem">C:\BuildFolder\leptonica-1.68\vs2008\leptonica.vcproj</span> and
+<span class="filesystem">C:\BuildFolder\tesseract-3.02\vs2008\libtesseract\libtesseract.vcproj</span>
+to your solution by right-clicking it and choosing <em class="menuselection">A<span class="accelerator">d</span>d ‣
+<span class="accelerator">E</span>xisting Project...</em>. This seems to make VS2008&#8217;s Intellisense <a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/vs2008/building-other-programs.html#intellisense-and-liblept">work
+better</a>
+when finding &#8220;external&#8221; source files.</p>
+<p>Definitely create a <tt class="docutils literal"><span class="pre">TESSDATA_PREFIX``x</span> <span class="pre">environment</span> <span class="pre">variable</span> <span class="pre">so</span> <span class="pre">that</span> <span class="pre">it</span>
+<span class="pre">contains</span> <span class="pre">the</span> <span class="pre">absolute</span> <span class="pre">path</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">directory</span> <span class="pre">that</span> <span class="pre">contains</span> <span class="pre">the</span>
+<span class="pre">``tessdata</span></tt> directory. Otherwise you&#8217;ll have to put a <tt class="docutils literal"><span class="pre">tessdata</span></tt>
+directory in every temporary build folder which quickly becomes painful
+(especially since tessdata has gotten very big &#8212; 600MB!).</p>
+</div>
+<div class="section" id="apitest-sample">
+<span id="apitest"></span><h2>APITest Sample<a class="headerlink" href="#apitest-sample" title="Permalink to this headline">¶</a></h2>
+<p>The <em class="guilabel">APITest</em> Solution contains the minimal settings needed to
+link with <span class="filesystem">libtesseract</span>. It demonstrates the typical situation, where
+the &#8220;external&#8221; application&#8217;s source files reside <em>outside</em> of the
+<span class="filesystem">tesseract-3.0x</span> directory tree.</p>
+<p>To build the <span class="filesystem">vs2008\APITest</span> Solution, first copy it to your
+<span class="filesystem">C:\BuildFolder</span> directory. This should now look like:</p>
+<div class="highlight-none"><div class="highlight"><pre>C:\BuildFolder\
+
+  include\
+     leptonica\
+     tesseract\
+
+     leptonica_versionnumbers.vsprops
+     tesseract_versionnumbers.vsprops
+
+  lib\
+     giflib416-static-mtdll-debug.lib
+     giflib416-static-mtdll.lib
+     libjpeg8c-static-mtdll-debug.lib
+     libjpeg8c-static-mtdll.lib
+     liblept168-static-mtdll-debug.lib
+     liblept168-static-mtdll.lib
+     liblept168.dll
+     liblept168.lib
+     liblept168d.dll
+     liblept168d.lib
+     libpng143-static-mtdll-debug.lib
+     libpng143-static-mtdll.lib
+     libtesseract302.dll
+     libtesseract302.lib
+     libtesseract302d.dll
+     libtesseract302d.lib
+     libtesseract302-static.lib
+     libtesseract302-static-debug.lib
+     libtiff394-static-mtdll-debug.lib
+     libtiff394-static-mtdll.lib
+     zlib125-static-mtdll-debug.lib
+     zlib125-static-mtdll.lib
+
+  tesseract-3.02\
+
+  APITest\
+     baseapitester\
+        baseapitester.cpp
+        baseapitester.rc
+        baseapitester.vcproj
+        resource.h
+        stdafx.cpp
+        stdafx.h
+        targetver.h
+     APITest.sln
+</pre></div>
+</div>
+<p>The <em class="guilabel">APITest</em> contains just the <em class="guilabel">baseapitester</em>
+project. This was created using the VS2008 <em class="guilabel">Win32 Console
+Application</em> Project Wizard and then just copying most of
+<span class="filesystem">tesseractmain.cpp</span> and making minor edits. Its settings correctly refer
+to the &#8220;public&#8221; <span class="filesystem">include</span> and <span class="filesystem">lib</span> directories using relative paths.</p>
+<p>It assumes that the <span class="filesystem">C:\BuildFolder\include</span> directory has been
+properly setup. See <a class="reference internal" href="setup.html#copying-headers"><em>this</em></a> for more details.</p>
+<p>The <span class="filesystem">C:\BuildFolder\lib</span> directory will automatically get
+<span class="filesystem">libtesseract</span> copied to it whenever it is built.</p>
+<p>The <span class="filesystem">include\tesseract_versionnumbers.vsprops</span> Property Sheet is used
+to avoid explicit library version number dependencies. Precompiled
+headers are used. <em class="guilabel">LIB_Release</em>, <em class="guilabel">LIB_Debug</em>,
+<em class="guilabel">DLL_Release</em>, and <em class="guilabel">DLL_Debug</em> build configurations
+are supported.</p>
+<p>The following are the compiler command lines and linker options
+used. See <a class="reference external" href="http://msdn.microsoft.com/en-us/library/9s7c9wdw(v=vs.90).aspx">Compiling a C/C++ Program | Compiler Options</a> for a
+detailed explanation of these options.</p>
+<p id="apitest-lib-release"><em class="guilabel">LIB_Release</em> C/C++ <em class="guilabel">Command Line</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>/O2
+/I &quot;.&quot; /I &quot;..\..\include&quot; /I &quot;..\..\include\leptonica&quot;
+/I &quot;..\..\include\tesseract&quot;
+/D &quot;WIN32&quot; /D &quot;_WINDOWS&quot; /D &quot;NDEBUG&quot;
+/D &quot;USE_STD_NAMESPACE&quot; /D &quot;_MBCS&quot;
+/FD /EHsc /MD /Yc&quot;stdafx.h&quot;
+/Fp&quot;LIB_Release\baseapitester.pch&quot; /Fo&quot;LIB_Release\\&quot;
+/Fd&quot;LIB_Release\vc90.pdb&quot;
+/W3 /nologo /c
+/wd4244 /wd4305 /wd4018 /wd4267 /wd4996 /wd4800 /wd4005 /wd4355 /wd4099 /wd4566
+/errorReport:prompt
+</pre></div>
+</div>
+<p><em class="guilabel">LIB_Release</em> Linker <em class="guilabel">Additional Dependencies</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>ws2_32.lib
+user32.lib
+zlib$(ZLIB_VERSION)-static-mtdll.lib
+libpng$(LIBPNG_VERSION)-static-mtdll.lib
+libjpeg$(LIBJPEG_VERSION)-static-mtdll.lib
+giflib$(GIFLIB_VERSION)-static-mtdll.lib
+libtiff$(LIBTIFF_VERSION)-static-mtdll.lib
+liblept$(LIBLEPT_VERSION)-static-mtdll.lib
+libtesseract$(LIBTESS_VERSION)-static.lib
+</pre></div>
+</div>
+<p><em class="guilabel">LIB_Debug</em> C/C++ <em class="guilabel">Command Line</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>/Od
+/I &quot;.&quot; /I &quot;..\..\include&quot; /I &quot;..\..\include\leptonica&quot;
+/I &quot;..\..\include\tesseract&quot;
+/D &quot;WIN32&quot; /D &quot;_WINDOWS&quot; /D &quot;_DEBUG&quot;
+/D &quot;USE_STD_NAMESPACE&quot; /D &quot;_MBCS&quot;
+/FD /EHsc /RTC1 /MDd /Yc&quot;stdafx.h&quot;
+/Fp&quot;LIB_Debug\baseapitesterd.pch&quot; /Fo&quot;LIB_Debug\\&quot;
+/Fd&quot;LIB_Debug\vc90.pdb&quot;
+/W3 /nologo /c /Z7
+/wd4244 /wd4305 /wd4018 /wd4267 /wd4996 /wd4800 /wd4005 /wd4355 /wd4099 /wd4566
+/errorReport:prompt
+</pre></div>
+</div>
+<p><em class="guilabel">LIB_Debug</em> Linker <em class="guilabel">Additional Dependencies</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>ws2_32.lib
+user32.lib
+zlib$(ZLIB_VERSION)-static-mtdll-debug.lib
+libpng$(LIBPNG_VERSION)-static-mtdll-debug.lib
+libjpeg$(LIBJPEG_VERSION)-static-mtdll-debug.lib
+giflib$(GIFLIB_VERSION)-static-mtdll-debug.lib
+libtiff$(LIBTIFF_VERSION)-static-mtdll-debug.lib
+liblept$(LIBLEPT_VERSION)-static-mtdll-debug.lib
+libtesseract$(LIBTESS_VERSION)-static-debug.lib
+</pre></div>
+</div>
+<p><em class="guilabel">DLL_Release</em> C/C++ <em class="guilabel">Command Line</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>/O2
+/I &quot;.&quot; /I &quot;..\..\include&quot; /I &quot;..\..\include\leptonica&quot;
+/I &quot;..\..\include\tesseract&quot;
+/D &quot;WIN32&quot; /D &quot;_WINDOWS&quot; /D &quot;NDEBUG&quot;
+/D &quot;USE_STD_NAMESPACE&quot; /D &quot;_MBCS&quot;
+/D &quot;TESSDLL_IMPORTS&quot; /D &quot;CCUTIL_IMPORTS&quot; /D &quot;LIBLEPT_IMPORTS&quot;
+/FD /EHsc /MD /Yc&quot;stdafx.h&quot;
+/Fp&quot;DLL_Release\baseapitester-dll.pch&quot; /Fo&quot;DLL_Release\\&quot;
+/Fd&quot;DLL_Release\vc90.pdb&quot;
+/W3 /nologo /c
+/wd4244 /wd4305 /wd4018 /wd4267 /wd4996 /wd4800 /wd4005 /wd4355 /wd4099 /wd4566
+/errorReport:prompt
+</pre></div>
+</div>
+<p><em class="guilabel">DLL_Release</em> Linker <em class="guilabel">Additional Dependencies</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>ws2_32.lib
+user32.lib
+liblept$(LIBLEPT_VERSION).lib
+libtesseract$(LIBTESS_VERSION).lib
+</pre></div>
+</div>
+<p><em class="guilabel">DLL_Debug</em> C/C++ <em class="guilabel">Command Line</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>/Od
+/I &quot;.&quot; /I &quot;..\..\include&quot; /I &quot;..\..\include\leptonica&quot;
+/I &quot;..\..\include\tesseract&quot;
+/D &quot;WIN32&quot; /D &quot;_WINDOWS&quot; /D &quot;_DEBUG&quot;
+/D &quot;USE_STD_NAMESPACE&quot; /D &quot;_MBCS&quot;
+/D &quot;TESSDLL_IMPORTS&quot; /D &quot;CCUTIL_IMPORTS&quot; /D &quot;LIBLEPT_IMPORTS&quot;
+/FD /EHsc /RTC1 /MDd /Yc&quot;stdafx.h&quot;
+/Fp&quot;DLL_Debug\baseapitester-dlld.pch&quot; /Fo&quot;DLL_Debug\\&quot;
+/Fd&quot;DLL_Debug\vc90.pdb&quot;
+/W3 /nologo /c /Z7
+/wd4244 /wd4305 /wd4018 /wd4267 /wd4996 /wd4800 /wd4005 /wd4355 /wd4099 /wd4566
+/errorReport:prompt
+</pre></div>
+</div>
+<p><em class="guilabel">DLL_Debug</em> Linker <em class="guilabel">Additional Dependencies</em>:</p>
+<div class="highlight-none"><div class="highlight"><pre>ws2_32.lib
+user32.lib
+liblept$(LIBLEPT_VERSION)d.lib
+libtesseract$(LIBTESS_VERSION)d.lib
+</pre></div>
+</div>
+</div>
+<div class="section" id="apiexamples">
+<span id="id1"></span><h2>APIExamples<a class="headerlink" href="#apiexamples" title="Permalink to this headline">¶</a></h2>
+<p>&lt;&lt;&lt;NEEDS WORK&gt;&gt;&gt;</p>
+<p>Currently two Projects are in this solution:</p>
+<ul>
+<li><p class="first">preprocessing &#8211; Demonstrates how to use <strong>Leptonica</strong>’s image
+processing functions to clean up images <em>before</em> calling
+<tt class="docutils literal"><span class="pre">TessBaseAPI::SetImage()</span></tt>.</p>
+</li>
+<li><p class="first">getinfo &#8211; Demonstrates calling various <tt class="docutils literal"><span class="pre">TessBaseAPI</span></tt> methods to get
+back information on the OCR process.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="tesseractocr-preprocessor-definitions">
+<h2><strong>Tesseract-OCR</strong> preprocessor definitions<a class="headerlink" href="#tesseractocr-preprocessor-definitions" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">HAVE_CONFIG_H</span></tt></dt>
+<dd><p class="first">Only defined when building under Linux. This causes the inclusion of
+<span class="filesystem">config_auto.h</span>, which is only auto-generated during the <span class="filesystem">./configure</span>
+process and thus <em>not</em> visible on Windows.</p>
+<p class="last">This is what sets the <tt class="docutils literal"><span class="pre">VERSION</span></tt> macro (and lots of other
+configuration related macros).</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">TESSDLL_EXPORTS</span></tt></dt>
+<dd>Only used when <em>building</em> DLL versions of <span class="filesystem">libtesseract</span>.</dd>
+<dt><tt class="docutils literal"><span class="pre">TESSDLL_IMPORTS</span></tt></dt>
+<dd><p class="first">Should be defined when building apps that link to a DLL version of
+<span class="filesystem">libtesseract</span>. Used as follows in <span class="filesystem">baseapi.h</span>:</p>
+<div class="highlight-none"><div class="highlight"><pre>#ifdef TESSDLL_EXPORTS
+#define TESSDLL_API __declspec(dllexport)
+#elif defined(TESSDLL_IMPORTS)
+#define TESSDLL_API __declspec(dllimport)
+#else
+#define TESSDLL_API
+#endif
+</pre></div>
+</div>
+<p class="last">If you don&#8217;t define this then you&#8217;ll get &#8220;undefined external symbol&#8221;
+errors.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">TESSDLL_API</span></tt></dt>
+<dd>Used to mark classes for export (visibility) in DLL versions of
+<span class="filesystem">libtesseract</span>. Currently <em>only</em> used with the <tt class="docutils literal"><span class="pre">TestBaseAPI</span></tt> class.</dd>
+<dt><tt class="docutils literal"><span class="pre">CCUTIL_EXPORTS</span></tt></dt>
+<dd>Only used when <em>building</em> DLL versions of <span class="filesystem">libtesseract</span>.</dd>
+<dt><tt class="docutils literal"><span class="pre">CCUTIL_IMPORTS</span></tt></dt>
+<dd><p class="first">Should be defined when building apps that link to a DLL version of
+<span class="filesystem">libtesseract</span>. Used as follows in <span class="filesystem">strngs.h</span>:</p>
+<div class="highlight-none"><div class="highlight"><pre>#ifdef CCUTIL_EXPORTS
+#define CCUTIL_API __declspec(dllexport)
+#elif defined(CCUTIL_IMPORTS)
+#define CCUTIL_API __declspec(dllimport)
+#else
+#define CCUTIL_API
+#endif
+</pre></div>
+</div>
+<p class="last">If you don&#8217;t define this then you&#8217;ll get &#8220;undefined external symbol STRING&#8221;
+errors.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">LIBLEPT_IMPORTS</span></tt></dt>
+<dd><p class="first">Should be defined when building apps that link to a DLL version of
+<strong>Leptonica</strong>. Used as follows in environ.h:</p>
+<div class="highlight-none"><div class="highlight"><pre>#if defined(LIBLEPT_EXPORTS) || defined(LEPTONLIB_EXPORTS)
+#define LEPT_DLL __declspec(dllexport)
+#elif defined(LIBLEPT_IMPORTS) || defined(LEPTONLIB_IMPORTS)
+#define LEPT_DLL __declspec(dllimport)
+#else
+#define LEPT_DLL
+#endif
+</pre></div>
+</div>
+<p class="last">If you don&#8217;t define this then you&#8217;ll get &#8220;undefined external symbol&#8221;
+errors.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">USE_STD_NAMESPACE</span></tt></dt>
+<dd><p class="first">Causes the following to be done:</p>
+<div class="last highlight-none"><div class="highlight"><pre>#ifdef USE_STD_NAMESPACE
+using std::string;
+using std::vector;
+#endif
+</pre></div>
+</div>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">_WIN32</span></tt></dt>
+<dd><p class="first">Used to indicate that the build target is Windows 32-bit or
+64-bit (<tt class="docutils literal"><span class="pre">WIN32</span></tt> and <tt class="docutils literal"><span class="pre">WINDOWS</span></tt> are also added by the New Project
+Wizards).</p>
+<p class="last">See <a class="reference external" href="http://msdn.microsoft.com/en-us/library/b0084kay(v=vs.90).aspx">C/C+ Preprocessor Reference | The Preprocessor | Macros |
+Predefined Macros</a> for
+the complete list for Visual Studio 2008.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">_MSC_VER</span></tt></dt>
+<dd>Used to check specifically for building with the VC++ compiler (as
+opposed to the MinGW gcc compiler).</dd>
+<dt><tt class="docutils literal"><span class="pre">_USRDLL</span></tt></dt>
+<dd>Only defined when building the DLL versions of <span class="filesystem">libtesseract</span>.</dd>
+<dt><tt class="docutils literal"><span class="pre">_MBCS</span></tt></dt>
+<dd>Automatically defined when <em class="guilabel">Configuration Properties |
+General | Character Set</em> is set to <em class="guilabel">Use Multi-Byte
+Character Set</em>.</dd>
+<dt><tt class="docutils literal"><span class="pre">DLLSYM</span></tt></dt>
+<dd><a class="reference external" href="http://groups.google.com/group/tesseract-dev/msg/5e0f7f7fab27b463">Obsolete</a>
+and can be ignored.</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setting up <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Programming with <span class="filesystem">libtesseract</span></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#debugging-tips">Debugging Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#apitest-sample">APITest Sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#apiexamples">APIExamples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tesseractocr-preprocessor-definitions"><strong>Tesseract-OCR</strong> preprocessor definitions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Handy free tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Maintaining the VS2008 directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vs2010-notes.html">Using Visual Studio 2010</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versions.html">Version Notes</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="tools.html" title="Handy free tools"
+             >next</a></li>
+        <li class="right" >
+          <a href="building.html" title="Building Tesseract-OCR"
+             >previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

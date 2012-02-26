@@ -1,0 +1,14 @@
+{# -*- mode: jinja-html-mumamo;-*- #}
+{% extends "default/layout.html" %}
+
+{%- block extrahead %}
+{{ super() }}
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block rootrellink %}
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a>{{ reldelim1 }}</li>
+  {{ super() }}
+{% endblock %}

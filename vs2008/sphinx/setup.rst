@@ -1,0 +1,278 @@
+:version: $RCSfile: index.rst,v $ $Revision: 76e0bf38aaba $ $Date: 2011/03/22 00:48:41 $
+
+.. default-role:: fs
+
+===========================
+ Setting up |Tesseractocr|
+===========================
+
+The Visual Studio 2008 Solutions included with |Tesseractocr|, rely on
+*relative paths* to reference files and directories --- including
+locations that are *outside* of the `tesseract-3.0x` tree. It is
+therefore vitally important to correctly set up the directories for the
+various components. This section describes how to do this.
+
+
+.. _directory-setup:
+
+Initial "Build" directory setup
+===============================
+
+First create an empty directory where you will unpack all the required
+downloads. Assume you call this directory `C:\\BuildFolder`.
+
+.. _download-leptonica:
+
+1. Download the |Leptonica| 1.68 pre-built binary package
+   (`leptonica-1.68-win32-lib-include-dirs.zip`) from:
+
+      http://code.google.com/p/leptonica/downloads/detail?name=leptonica-1.68-win32-lib-include-dirs.zip
+
+   and unpack it to `C:\\BuildFolder`.
+
+2. |Leptonica|, even on Windows as of v1.68, still requires a few unix
+   utilities (like `rm`, `diff`, `sleep`). The easiest way to deal with
+   this is to follow the instructions at `Installing Cygwin coreutils
+   <http://tpgit.github.com/UnOfficialLeptDocs/vs2008/installing-cygwin.html>`_.
+
+At this point, if all you want to do is link with `libtesseract` you can
+`download <http://code.google.com/p/tesseract-ocr/downloads/list>`_ the
+file that just contains the "public" |Tesseractocr| headers along with
+the precompiled library binaries for Windows. Unpack it to
+`C:\\BuildFolder` and you'll now have::
+
+   C:\BuildFolder\
+
+     include\
+        leptonica\
+        tesseract\
+
+        leptonica_versionnumbers.vsprops
+        tesseract_versionnumbers.vsprops
+        
+     lib\
+        giflib416-static-mtdll-debug.lib
+        giflib416-static-mtdll.lib
+        libjpeg8c-static-mtdll-debug.lib
+        libjpeg8c-static-mtdll.lib
+        liblept168-static-mtdll-debug.lib
+        liblept168-static-mtdll.lib
+        liblept168.dll
+        liblept168.lib
+        liblept168d.dll
+        liblept168d.lib
+        libpng143-static-mtdll-debug.lib
+        libpng143-static-mtdll.lib
+        libtesseract302.dll
+        libtesseract302.lib
+        libtesseract302d.dll
+        libtesseract302d.lib
+        libtesseract302-static.lib
+        libtesseract302-static-debug.lib
+        libtiff394-static-mtdll-debug.lib
+        libtiff394-static-mtdll.lib
+        zlib125-static-mtdll-debug.lib
+        zlib125-static-mtdll.lib
+
+and you can skip the rest of this page and go directly to
+:doc:`programming`.
+
+The recommended action, however, is to download the |Tesseractocr|
+sources and build them yourself. Therefore...
+
+3. Download the |Tesseractocr| Visual Studio 2008 source files from the
+   `downloads page
+   <http://code.google.com/p/tesseract-ocr/downloads/list>`_. If, for
+   example, you'd like to build v3.02 you would use the following link:
+
+      http://code.google.com/p/tesseract-ocr/downloads/detail?name=tesseract-ocr-3.02-vs2008.zip
+
+   Unpack the file to `C:\\BuildFolder`
+
+You would now have the following directory structure::
+
+   C:\BuildFolder\
+
+     include\
+        leptonica\
+
+        leptonica_versionnumbers.vsprops
+        tesseract_versionnumbers.vsprops
+        
+     lib\
+        giflib416-static-mtdll-debug.lib
+        giflib416-static-mtdll.lib
+        libjpeg8c-static-mtdll-debug.lib
+        libjpeg8c-static-mtdll.lib
+        liblept168-static-mtdll-debug.lib
+        liblept168-static-mtdll.lib
+        liblept168.dll
+        liblept168.lib
+        liblept168d.dll
+        liblept168d.lib
+        libpng143-static-mtdll-debug.lib
+        libpng143-static-mtdll.lib
+        libtiff394-static-mtdll-debug.lib
+        libtiff394-static-mtdll.lib
+        zlib125-static-mtdll-debug.lib
+        zlib125-static-mtdll.lib
+
+     tesseract-3.02\
+        vs2008\
+           ambiguous_words\
+           classifier_tester\
+           cntraining\
+           combine_tessdata\
+           dawg2wordlist\
+           doc\
+           include\
+           libtesseract\
+              libtesseract.vcproj
+           mftraining\
+           port\
+           shapeclustering\
+           sphinx\
+           tesseract\
+              tesseract.vcproj
+           unicharset_extractor\
+           wordlist2dawg\
+
+           tesseract.sln
+           tesshelper.py
+
+4. Download the |Tesseractocr| source files for the same version as the
+   VS2008 files you just unpacked. In this case, the proper link would
+   be:
+
+      http://code.google.com/p/tesseract-ocr/downloads/detail?name=tesseract-3.02.tar.gz
+
+   Unpack the file to `C:\\BuildFolder`
+
+This will add a bunch of directories to your already existing
+`C:\\BuildFolder\\tesseract-3.0x` directory. You should now have (for
+v3.02)::
+
+   C:\BuildFolder\
+
+     include\
+        leptonica\
+     lib\
+     tesseract-3.02\
+        api\
+        ccmain\
+        ccstruct\
+        ccutil\
+        classify\
+        config\
+        contrib\
+        cube\
+        cutil\
+        dict\
+        doc\
+        image\
+        java\
+        image\
+        neural_networks\
+        tessdata\
+        testing\
+        textord\
+        training\
+        viewer\
+        vs2008\
+        wordrec\
+
+.. _copying-headers:
+
+If you are planning on writing applications that link with
+|Tesseractocr|, and you don't want to add all the `tesseract-3.0x`
+directories to your project's list of ``include`` directories, then do
+this additional step:
+
+5. Copy all the required headers to the "public" include folder.
+
+   If you already have a `C:\\BuildFolder\\include\\tesseract`
+   directory you should delete it in case some of the files have been
+   removed.
+
+   Then use the python `tess-helper.py` script to copy (possibly updated
+   versions of) the required headers by doing::
+
+      cd C:\BuildFolder\tesseract-3.02\vs2008
+      python tesshelper.py .. copy ..\..\include
+
+   See :ref:`tesshelper` for more details.
+
+You are now ready to :doc:`build <building>` |Tesseractocr| using Visual
+Studio 2008.
+
+
+.. _using-latest-sources:
+
+Using the latest |Tesseractocr| sources
+=======================================
+
+If you'd like to try the absolute latest version of |Tesseractocr|,
+here's how to download the source files from its SVN repository:
+
+1. Follow Steps 1 and 2 :ref:`above <directory-setup>`.
+
+#. `Checkout <http://code.google.com/p/tesseract-ocr/source/checkout>`_
+   the |Tesseractocr| sources to a directory on your computer. This
+   directory should :bi:`not` be `C:\\BuildFolder`!
+
+   If you are unfamiliar with `SVN <http://subversion.apache.org/>`_,
+   the easiest way to do this is to first download and install
+   `TortoiseSVN <http://tortoisesvn.net/>`_ and then:
+
+   a. Right-click the (empty) directory where you want the working copy
+      and choose :menuselection:`SVN Chec&kout...` from
+      the pop-up menu.
+
+   #. Enter ``http://tesseract-ocr.googlecode.com/svn/trunk/`` for
+      :guilabel:`&URL of repository`. You can keep all the other
+      settings at their defaults.
+
+      .. image:: images/tortoisesvn_checkout.png
+         :align: center
+         :alt: TortoiseSVN Checkout Dialog Box
+
+   #. Click the :guilabel:`&OK` button to commence downloading the
+      |Tesseractocr| sources to your computer. This might take a while as
+      the language data in the `tessdata` directory is quite large. As
+      of February 2012, about 335MB needs to be transferred for the
+      initial checkout. The total size of the resulting working copy is
+      about 1.2GB.
+      
+   #. Keeping your working copy up to date after this is as simple as
+      right-clicking its directory and choosing :menuselection:`SVN
+      &Update`. Unlike the initial checkout, this will usually finish
+      very quickly.
+      
+#. Copy the :bi:`contents` of your working directory, except for the
+   `tessdata` directory, to `C:\\BuildFolder\\tesseract-3.0x`, where
+   ``x`` should probably be the latest stable release + ``alpha``,
+   ``beta``, etc.
+
+#. Optionally, follow Step 5 from :ref:`above <copying-headers>`.
+
+#. You'll probably want to set an environment varible named
+   ``TESSDATA_PREFIX`` to point at your working copy directory (since
+   that now contains the latest `tessdata` directory). 
+
+#. If someone hasn't already done so, you have to proceed to
+   :ref:`updating-vs2008-directory`. You can skip all the steps that
+   relate to updating the version number. Otherwise, depending on how
+   many changes have been made since the last stable release, you may
+   have little or no work to do.
+
+..         
+   Local Variables:
+   coding: utf-8
+   mode: rst
+   indent-tabs-mode: nil
+   sentence-end-double-space: t
+   fill-column: 72
+   mode: auto-fill
+   standard-indent: 3
+   tab-stop-list: (3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60)
+   End:

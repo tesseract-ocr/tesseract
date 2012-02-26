@@ -1,0 +1,277 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Version Notes &mdash; Visual Studio 2008 Developer Notes for Tesseract-OCR</title>
+    
+    <link rel="stylesheet" href="_static/tesseract.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.02',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="Visual Studio 2008 Developer Notes for Tesseract-OCR" href="index.html" />
+    <link rel="prev" title="Using Visual Studio 2010" href="vs2010-notes.html" />
+ 
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="vs2010-notes.html" title="Using Visual Studio 2010"
+             accesskey="P">previous</a></li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="version-notes">
+<h1>Version Notes<a class="headerlink" href="#version-notes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="february-2012">
+<h2>3.02 &#8211; February ??, 2012<a class="headerlink" href="#february-2012" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Created a completely new Visual Studio 2008 solution from scratch.</p>
+</li>
+<li><p class="first">Added 64 new source files and removed the following deleted files
+(relative to v3.01):</p>
+<blockquote>
+<div><ul>
+<li><p class="first">ccutilmemblk.cpp</p>
+</li>
+<li><p class="first">ccutilmemblk.h</p>
+</li>
+<li><p class="first">ccutilmemryerr.h</p>
+</li>
+<li><p class="first">wordrecpieces.h</p>
+</li>
+<li><p class="first">wordrectally.cpp</p>
+</li>
+<li><p class="first">wordrectally.h</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Created <em class="guilabel">LIB_Release</em>, <em class="guilabel">LIB_Debug</em>,
+<em class="guilabel">DLL_Release</em>, and <em class="guilabel">DLL_Debug</em> build
+configurations.</p>
+</li>
+<li><p class="first">Created a single <span class="filesystem">libtesseract</span> library and removed generation of the
+twelve sub-libraries.</p>
+</li>
+<li><p class="first">Used references to <span class="filesystem">leptonica_versionnumbers.vsprops</span> and
+<span class="filesystem">tesseract_versionnumbers.vsprops</span> Property Sheets, which define
+version number &#8220;user macros&#8221;, in all Visual Studio Projects. These are
+also copied to <span class="filesystem">C:\BuildFolder\include</span>, so you can refer to them in
+your own projects. By using the new <tt class="docutils literal"><span class="pre">*_VERSION</span></tt> macros, you&#8217;ll be
+isolated from worrying about version number changes in the library
+filenames.</p>
+<p>See <a class="reference internal" href="programming.html#apitest"><em>APITest&#8217;s</em></a> <a class="reference internal" href="programming.html#apitest-lib-release"><em>LIB_Release</em></a> Linker
+<em class="guilabel">Additional Dependencies</em> settings for an example of what
+this looks like in practice.</p>
+<p>See <strong>Leptonica</strong>’s explanation <a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/vs2008/downloading-binaries.html#about-version-numbers">About version numbers in library
+filenames</a>
+for more details.</p>
+</li>
+<li><p class="first">Added a <a class="reference internal" href="building.html#version-resource"><em>Version Resource</em></a> to all DLLs and
+applications.</p>
+</li>
+<li><p class="first">Removed inclusion of the <strong>Leptonica</strong> libraries. They now have to be
+<a class="reference internal" href="setup.html#download-leptonica"><em>downloaded separately</em></a>.</p>
+</li>
+<li><p class="first">Changed to a <a class="reference internal" href="setup.html#directory-setup"><em>Build directory structure</em></a> that
+is compatible with <strong>Leptonica</strong> and allows the building of
+<strong>Tesseract-OCR</strong>-based applications using only the <span class="filesystem">include</span> and <span class="filesystem">lib</span>
+directories.</p>
+</li>
+<li><p class="first">The <span class="filesystem">libtesseract</span> libraries are now named as follows:</p>
+<p>static libraries:</p>
+<ul>
+<li><p class="first">libtesseract302-static.lib</p>
+</li>
+<li><p class="first">libtesseract302-static-debug.lib</p>
+</li>
+</ul>
+<p>DLLs:</p>
+<ul>
+<li><p class="first">libtesseract302.lib  (import library)</p>
+</li>
+<li><p class="first">libtesseract302.dll</p>
+</li>
+<li><p class="first">libtesseract302d.lib (import library)</p>
+</li>
+<li><p class="first">libtesseract302d.dll</p>
+</li>
+</ul>
+</li>
+<li><p class="first">Used compiler and linker settings based on the <strong>Leptonica</strong> <a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/vs2008/index.html">VS2008
+Developer package</a>.</p>
+</li>
+<li><p class="first">Removed all preprocessor defines of <tt class="docutils literal"><span class="pre">__MSW32__</span></tt> which is no longer
+needed.</p>
+</li>
+<li><p class="first">Removed <span class="filesystem">vs2008includestdint.h</span> which is no longer required to build
+<span class="filesystem">liblept</span>.</p>
+</li>
+<li><p class="first">Removed <span class="filesystem">vs2008includeinttypes.h</span> which isn&#8217;t needed to build
+<span class="filesystem">liblept</span>.</p>
+</li>
+<li><p class="first">Turned off the following compiler warnings:</p>
+<div class="highlight-none"><div class="highlight"><pre>/wd4005: &#39;snprintf&#39; : macro redefinition
+
+/wd4018 &#39;expression&#39; : signed/unsigned mismatch
+
+/wd4099 type name first seen using &#39;class&#39; now seen using &#39;struct&#39;
+
+/wd4244 conversion from &#39;double&#39; to &#39;float&#39;, possible loss of data
+
+/wd4267 conversion from &#39;size_t&#39; to &#39;type&#39;, possible loss of data
+
+/wd4305 truncation from &#39;type1&#39; to &#39;type2&#39;
+
+/wd4355 &#39;this&#39; : used in base member initializer list
+
+/wd4566 character represented by universal-character-name x cannot
+        be represented in the current code page
+
+/wd4800 forcing value to bool &#39;true&#39; or &#39;false&#39; (performance warning)
+
+/wd4996 &#39;function&#39;: was declared deprecated
+</pre></div>
+</div>
+</li>
+<li><p class="first">Used the &#8220;C7 Compatible&#8221; Debug Information (/Z7) compiler switch,
+which puts the debugging information in the .obj files. That way we
+don&#8217;t have to worry about also supplying <span class="filesystem">.pdb</span> files. See <a class="reference external" href="http://msdn.microsoft.com/en-us/library/958x11bc(VS.90).aspx">/Z7,
+/Zi, /ZI (Debug Information Format)</a> for
+more information.</p>
+</li>
+<li><p class="first">Added Projects for the following new <a class="reference internal" href="overview.html#training-applications"><em>training applications</em></a>:</p>
+<ul>
+<li><p class="first">ambiguous_words</p>
+</li>
+<li><p class="first">classifier_tester</p>
+</li>
+<li><p class="first">dawg2wordlist</p>
+</li>
+<li><p class="first">shapeclustering</p>
+</li>
+</ul>
+</li>
+<li><p class="first">Moved <span class="filesystem">mathfix.h</span> from <span class="filesystem">vs2008\include</span> to the <span class="filesystem">vs2008\port</span>
+directory.</p>
+</li>
+<li><p class="first">Removed Visual Studio 2010 support. See <a class="reference internal" href="vs2010-notes.html"><em>Using Visual Studio 2010</em></a> for the
+rationale.</p>
+</li>
+<li><p class="first">Created a python script called <a class="reference internal" href="maintenance.html#tesshelper"><em>tesshelper.py</em></a>, that
+eases some maintenance tasks related to releasing future VS2008
+Solutions.</p>
+</li>
+<li><p class="first">The list of &#8220;public&#8221; header files that are required to build
+&#8220;external&#8221; applications is now limited to the following 13 files:</p>
+<div class="highlight-none"><div class="highlight"><pre>api\apitypes.h
+api\baseapi.h
+ccmain\thresholder.h
+ccstruct\publictypes.h
+ccutil\errcode.h
+ccutil\fileerr.h
+ccutil\host.h
+ccutil\memry.h
+ccutil\platform.h
+ccutil\serialis.h
+ccutil\strngs.h
+ccutil\tesscallback.h
+ccutil\unichar.h
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setting up <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming with <span class="filesystem">libtesseract</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Handy free tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Maintaining the VS2008 directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vs2010-notes.html">Using Visual Studio 2010</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Version Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#february-2012">3.02 &#8211; February ??, 2012</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="vs2010-notes.html" title="Using Visual Studio 2010"
+             >previous</a></li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

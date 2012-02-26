@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="leptonica_versionnumbers"
+	>
+	<UserMacro
+		Name="GIFLIB_VERSION"
+		Value="416"
+	/>
+	<UserMacro
+		Name="LIBJPEG_VERSION"
+		Value="8c"
+	/>
+	<UserMacro
+		Name="LIBLEPT_VERSION"
+		Value="168"
+	/>
+	<UserMacro
+		Name="LIBLEPT_VERSION_R"
+		Value="1,68,0,0"
+	/>
+	<UserMacro
+		Name="LIBLEPT_NUMBER"
+		Value="1.68"
+	/>
+	<UserMacro
+		Name="LIBPNG_VERSION"
+		Value="143"
+	/>
+	<UserMacro
+		Name="LIBTIFF_VERSION"
+		Value="394"
+	/>
+	<UserMacro
+		Name="ZLIB_VERSION"
+		Value="125"
+	/>
+</VisualStudioPropertySheet>

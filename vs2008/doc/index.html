@@ -1,0 +1,170 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Visual Studio 2008 Developer Notes for Tesseract-OCR &mdash; Visual Studio 2008 Developer Notes for Tesseract-OCR</title>
+    
+    <link rel="stylesheet" href="_static/tesseract.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.02',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="Visual Studio 2008 Developer Notes for Tesseract-OCR" href="#" />
+    <link rel="next" title="Overview" href="overview.html" />
+ 
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="overview.html" title="Overview"
+             accesskey="N">next</a></li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="#">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="visual-studio-2008-developer-notes-for-tesseractocr">
+<span id="vs2008-developer-notes"></span><h1>Visual Studio 2008 Developer Notes for <strong>Tesseract-OCR</strong><a class="headerlink" href="#visual-studio-2008-developer-notes-for-tesseractocr" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">date:</th><td class="field-body">February 23, 2012</td>
+</tr>
+</tbody>
+</table>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setting up <strong>Tesseract-OCR</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="setup.html#initial-build-directory-setup">Initial &#8220;Build&#8221; directory setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup.html#using-the-latest-tesseractocr-sources">Using the latest <strong>Tesseract-OCR</strong> sources</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building <strong>Tesseract-OCR</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="building.html#building-libtesseract-and-tesseract-exe">Building <span class="filesystem">libtesseract</span> and <span class="filesystem">tesseract.exe</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html#testing-tesseract-exe">Testing <span class="filesystem">tesseract.exe</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html#building-the-training-applications">Building the training applications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html#building-tesseractocr-with-visual-c-2008-express-edition">Building <strong>Tesseract-OCR</strong> with Visual C++ 2008 Express Edition</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming with <span class="filesystem">libtesseract</span></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="programming.html#debugging-tips">Debugging Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming.html#apitest-sample">APITest Sample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming.html#apiexamples">APIExamples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming.html#tesseractocr-preprocessor-definitions"><strong>Tesseract-OCR</strong> preprocessor definitions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Handy free tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#id1">TortoiseSVN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#id2">JP Software TCC/LE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#id4">Cygwin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#id7">MSYS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#windiff">WinDiff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#id9">IrfanView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#id10">Aware Systems AsTiffTagViewer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#id11">Dependency Walker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#id12">Sysinternals Process Explorer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#id13">VMware Player</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Maintaining the VS2008 directory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="maintenance.html#the-tesshelper-py-python-script">The <span class="filesystem">tesshelper.py</span> Python script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maintenance.html#generating-the-documentation">Generating the documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maintenance.html#updating-the-vs2008-directory-for-new-releases-of-tesseractocr">Updating the VS2008 directory for new releases of <strong>Tesseract-OCR</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vs2010-notes.html">Using Visual Studio 2010</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versions.html">Version Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="versions.html#february-2012">3.02 &#8211; February ??, 2012</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setting up <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming with <span class="filesystem">libtesseract</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Handy free tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Maintaining the VS2008 directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vs2010-notes.html">Using Visual Studio 2010</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versions.html">Version Notes</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="overview.html" title="Overview"
+             >next</a></li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="#">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

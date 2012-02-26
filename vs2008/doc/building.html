@@ -1,0 +1,321 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Building Tesseract-OCR &mdash; Visual Studio 2008 Developer Notes for Tesseract-OCR</title>
+    
+    <link rel="stylesheet" href="_static/tesseract.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.02',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="Visual Studio 2008 Developer Notes for Tesseract-OCR" href="index.html" />
+    <link rel="next" title="Programming with libtesseract" href="programming.html" />
+    <link rel="prev" title="Setting up Tesseract-OCR" href="setup.html" />
+ 
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="programming.html" title="Programming with libtesseract"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="setup.html" title="Setting up Tesseract-OCR"
+             accesskey="P">previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="building-tesseractocr">
+<h1>Building <strong>Tesseract-OCR</strong><a class="headerlink" href="#building-tesseractocr" title="Permalink to this headline">¶</a></h1>
+<p>The Visual Studio 2008 Solution for <strong>Tesseract-OCR</strong> builds:</p>
+<ul>
+<li><p class="first"><span class="filesystem">libtesseract</span></p>
+</li>
+<li><p class="first"><span class="filesystem">tesseract.exe</span></p>
+</li>
+<li><p class="first">9 training applications (for v3.02)</p>
+</li>
+</ul>
+<p>Unlike earlier Solutions only a single <span class="filesystem">libtesseract</span> library is
+generated &#8212; the twelve projects matching the twelve source subfolders
+have been abandoned. They were deemed too complicated since they were
+never (rarely?) used by themselves, but only along with the entire
+library.</p>
+<p>In addition, <span class="filesystem">libtesseract</span> and <span class="filesystem">tesseract.exe</span> can be built using four
+configurations: <em class="guilabel">LIB_Release</em>, <em class="guilabel">LIB_Debug</em>,
+<em class="guilabel">DLL_Release</em>, and <em class="guilabel">DLL_Debug</em>.</p>
+<p>Two Visual Studio Property Sheets, <span class="filesystem">leptonica_versionnumbers.vsprops</span>
+and <span class="filesystem">tesseract_versionnumbers.vsprops</span>, are employed to isolate the
+Solution from changes in dependency version numbers (and isolate
+dependent Solutions). See <a class="reference internal" href="programming.html#apitest"><em>APITest&#8217;s</em></a> <a class="reference internal" href="programming.html#apitest-lib-release"><em>LIB_Release</em></a> Linker <em class="guilabel">Additional Dependencies</em>
+settings for an example of what this looks like in practice. See
+<strong>Leptonica</strong>’s explanation <a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/vs2008/downloading-binaries.html#about-version-numbers">About version numbers in library filenames</a>
+for the rationale behind using Property Sheets.</p>
+<div class="section" id="building-libtesseract-and-tesseract-exe">
+<h2>Building <span class="filesystem">libtesseract</span> and <span class="filesystem">tesseract.exe</span><a class="headerlink" href="#building-libtesseract-and-tesseract-exe" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Open <span class="filesystem">C:\BuildFolder\tesseract-3.0x\vs2008\tesseract.sln</span> in Visual
+Studio 2008.</p>
+<p>You&#8217;ll see the following projects in the <em class="guilabel">Solution
+Explorer</em> (for v3.02):</p>
+<div class="highlight-none"><div class="highlight"><pre>ambiguous_words
+classifier_tester
+cntraining
+combine_tessdata
+dawg2wordlist
+libtesseract302
+mftraining
+shapeclustering
+tesseract
+unicharset_extractor
+wordlist2dawg
+</pre></div>
+</div>
+</li>
+<li><p class="first">Select the build configuration you&#8217;d like to use from the
+<em class="guilabel">Solution Configurations</em> dropdown. It lists the following
+configurations:</p>
+<div class="highlight-none"><div class="highlight"><pre>DLL_Debug
+DLL_Release
+LIB_Debug
+LIB_Release
+</pre></div>
+</div>
+<p>The <span class="filesystem">DLL_</span> configurations build the DLL version of <span class="filesystem">libtesseract-3.0x</span>
+(and link with the DLL version of Leptonica 1.68). The <span class="filesystem">LIB_</span>
+configurations build the static library version of <span class="filesystem">libtesseract-3.0x</span>
+(and link with the static version of Leptonica 1.68 and the required
+image libraries).</p>
+</li>
+<li><p class="first">Build <span class="filesystem">libtesseract</span> by right-clicking the
+<em class="guilabel">libtesseract30x</em> project and choosing
+<em class="menuselection">B<span class="accelerator">u</span>ild</em> from the pop-up menu.</p>
+<p>The resultant library will be written to the
+<span class="filesystem">C:\BuildFolder\tesseract-3.0x\vs2008\&lt;ConfigurationName&gt;</span> directory
+where <span class="filesystem">&lt;ConfigurationName&gt;</span> is the same as the build configuration you
+selected earlier. It is also copied to the <span class="filesystem">C:\BuildFolder\lib</span> folder
+to make it easy to link your own applications to <span class="filesystem">libtesseract</span>.</p>
+<p>The library is named as follows (for v3.02):</p>
+<pre class="literal-block">
+static libraries:
+
+   <span class="filesystem">libtesseract302-static.lib</span>
+   <span class="filesystem">libtesseract302-static-debug.lib</span>
+
+DLLs:
+
+   <span class="filesystem">libtesseract302.lib</span>  (import library)
+   <span class="filesystem">libtesseract302.dll</span>
+   <span class="filesystem">libtesseract302d.lib</span> (import library)
+   <span class="filesystem">libtesseract302d.dll</span>
+</pre>
+</li>
+<li><p class="first">Build the main tesseract OCR application by right-clicking the
+<em class="guilabel">tesseract</em> project and choosing <em class="menuselection">B<span class="accelerator">u</span>ild</em>.</p>
+<p>The resultant executable will be written to the
+<span class="filesystem">C:\BuildFolder\tesseract-3.0x\vs2008\&lt;ConfigurationName&gt;</span> directory
+where <span class="filesystem">&lt;ConfigurationName&gt;</span> is the same as the build configuration you
+selected earlier. It is named as follows:</p>
+<pre class="literal-block">
+LIB_Release: <span class="filesystem">tesseract.exe</span>
+LIB_Debug:   <span class="filesystem">tesseractd.exe</span>
+DLL_Release: <span class="filesystem">tesseract-dll.exe</span>
+DLL_Debug:   <span class="filesystem">tesseract-dlld.exe</span>
+</pre>
+</li>
+</ol>
+</div>
+<div class="section" id="testing-tesseract-exe">
+<h2>Testing <span class="filesystem">tesseract.exe</span><a class="headerlink" href="#testing-tesseract-exe" title="Permalink to this headline">¶</a></h2>
+<p>It&#8217;s usually better to make a separate directory to test
+<span class="filesystem">tesseract.exe</span>. To run tesseract, you either need to make sure your
+test directory contains the <span class="filesystem">tessdata</span> tesseract language data folder or
+you set the <tt class="docutils literal"><span class="pre">TESSDATA_PREFIX</span></tt> environment variable to point to it. See
+<a class="reference external" href="http://code.google.com/p/tesseract-ocr/wiki/ReadMe">http://code.google.com/p/tesseract-ocr/wiki/ReadMe</a> for important
+details.</p>
+<p>For example, you can use the following directory structure:</p>
+<div class="highlight-none"><div class="highlight"><pre>C:\BuildFolder\
+  include\
+  lib\
+  tesseract-3.02\
+  testing\
+     tessdata\
+</pre></div>
+</div>
+<p>Copy your tesseract executable to <span class="filesystem">C:\BuildFolder\testing</span>. If you
+built a DLL version then be sure to also copy the required DLLs to the
+same directory (or add <span class="filesystem">C:\BuildFolder\lib</span> to your <tt class="docutils literal"><span class="pre">PATH</span></tt> &#8211;
+However, this isn&#8217;t really recommended).</p>
+<p>For example, if you are trying to run <span class="filesystem">tesseractd.exe</span> then you&#8217;ll need
+to also copy the following to <span class="filesystem">C:\BuildFolder\testing</span>:</p>
+<div class="highlight-none"><div class="highlight"><pre>liblept168d.dll
+libtesseract302d.dll
+</pre></div>
+</div>
+<p>Copy a few test images to <span class="filesystem">C:\BuildFolder\testing</span> just to make it easy
+to run test commands.</p>
+<p>Test tesseract by doing something like the following:</p>
+<div class="highlight-none"><div class="highlight"><pre>tesseractd.exe eurotext.tif eurotext
+</pre></div>
+</div>
+<p>This will create a file called <span class="filesystem">eurotext.txt</span> that will contain the
+result of OCRing <span class="filesystem">eurotext.tif</span>.</p>
+</div>
+<div class="section" id="building-the-training-applications">
+<h2>Building the training applications<a class="headerlink" href="#building-the-training-applications" title="Permalink to this headline">¶</a></h2>
+<p>The training related applications are built using the following
+projects:</p>
+<div class="highlight-none"><div class="highlight"><pre>ambiguous_words
+classifier_tester
+cntraining
+combine_tessdata
+dawg2wordlist
+mftraining
+shapeclustering
+unicharset_extractor
+wordlist2dawg
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Currently these applications can <strong>ONLY</strong> be built with the LIB_Debug
+and LIB_Release configurations. If you try to use a DLL configuration
+you&#8217;ll get &#8220;undefined external symbol&#8221; errors.</p>
+</div>
+<p>To build one of the above training applications, simply right-click one
+of the projects in the Solution Explorer, and choose
+<em class="menuselection">B<span class="accelerator">u</span>ild</em> from the pop-up menu.</p>
+<p>Alternatively, you can build <em class="bold-italic">everything</em> in the Solution by
+choosing <em class="menuselection"><span class="accelerator">B</span>uild ‣ <span class="accelerator">B</span>uild Solution</em> (<tt class="kbd docutils literal"><span class="pre">Ctrl+Shift+B</span></tt>)
+from the menu bar.</p>
+<p>See <a class="reference external" href="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</a> for
+more information on using these applications.</p>
+</div>
+<div class="section" id="building-tesseractocr-with-visual-c-2008-express-edition">
+<span id="building-with-vc2008-express"></span><h2>Building <strong>Tesseract-OCR</strong> with Visual C++ 2008 Express Edition<a class="headerlink" href="#building-tesseractocr-with-visual-c-2008-express-edition" title="Permalink to this headline">¶</a></h2>
+<p>The Solution file that comes with <strong>Tesseract-OCR</strong> was created with Visual
+Studio 2008, and is compatible for the most part with the free <a class="reference external" href="http://www.microsoft.com/visualstudio/en-us/products/2008-editions/express">Visual
+C++ 2008 Express Edition</a>. You
+might, however, sometimes see the following error message:</p>
+<div class="highlight-none"><div class="highlight"><pre>Fatal error RC1015: cannot open include file &#39;afxres.h&#39;
+</pre></div>
+</div>
+<p id="version-resource">The Solution uses resource files to set application and DLL properties
+that are visible on Windows 7 when you right-click them in Windows
+Explorer, choose <em class="menuselection">Properties</em>, and look at the
+<em class="guilabel">Details</em> tab (the <em class="guilabel">Version</em> tab on Windows XP).</p>
+<blockquote>
+<div><img alt="Windows 7 Properties' Details Tab" class="align-center" src="_images/dll_properties_details_tab.png" />
+</div></blockquote>
+<p>Unfortunately, the Express Edition doesn&#8217;t include the Resource
+Editor. So in all resource files:</p>
+<div class="highlight-none"><div class="highlight"><pre>#include &quot;afxres.h&quot;
+</pre></div>
+</div>
+<p>has to be changed to:</p>
+<div class="highlight-none"><div class="highlight"><pre>#include &quot;windows.h&quot;
+</pre></div>
+</div>
+<p>If someone has used the VS2008 Resource Editor to change a <span class="filesystem">.rc</span> file
+associated with an application or DLL and forgotten to make these
+changes before checking the file in, you&#8217;ll see the above &#8220;Fatal error&#8221;
+message. Simply manually make the change to fix the error.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setting up <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Building <strong>Tesseract-OCR</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-libtesseract-and-tesseract-exe">Building <span class="filesystem">libtesseract</span> and <span class="filesystem">tesseract.exe</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-tesseract-exe">Testing <span class="filesystem">tesseract.exe</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-the-training-applications">Building the training applications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-tesseractocr-with-visual-c-2008-express-edition">Building <strong>Tesseract-OCR</strong> with Visual C++ 2008 Express Edition</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming with <span class="filesystem">libtesseract</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Handy free tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Maintaining the VS2008 directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vs2010-notes.html">Using Visual Studio 2010</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versions.html">Version Notes</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="programming.html" title="Programming with libtesseract"
+             >next</a></li>
+        <li class="right" >
+          <a href="setup.html" title="Setting up Tesseract-OCR"
+             >previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

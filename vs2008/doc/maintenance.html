@@ -1,0 +1,350 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Maintaining the VS2008 directory &mdash; Visual Studio 2008 Developer Notes for Tesseract-OCR</title>
+    
+    <link rel="stylesheet" href="_static/tesseract.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.02',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="Visual Studio 2008 Developer Notes for Tesseract-OCR" href="index.html" />
+    <link rel="next" title="Using Visual Studio 2010" href="vs2010-notes.html" />
+    <link rel="prev" title="Handy free tools" href="tools.html" />
+ 
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="vs2010-notes.html" title="Using Visual Studio 2010"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="tools.html" title="Handy free tools"
+             accesskey="P">previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="maintaining-the-vs2008-directory">
+<h1>Maintaining the VS2008 directory<a class="headerlink" href="#maintaining-the-vs2008-directory" title="Permalink to this headline">¶</a></h1>
+<p>This section is geared towards project maintainers of the
+<span class="filesystem">tesseract-3.0x\vs2008</span> directory, rather than users of it.</p>
+<p>Python 2.7.x (<em>not</em> 3.x) is required for this section. The recommended
+version is the <a class="reference external" href="http://www.activestate.com/activepython/downloads">latest from ActiveState</a>.</p>
+<div class="section" id="the-tesshelper-py-python-script">
+<span id="tesshelper"></span><h2>The <span class="filesystem">tesshelper.py</span> Python script<a class="headerlink" href="#the-tesshelper-py-python-script" title="Permalink to this headline">¶</a></h2>
+<p><span class="filesystem">tesshelper.py</span> performs a number of useful maintenance related
+operations on the <span class="filesystem">tesseract-3.0x\vs2008</span> directory. To run it, first
+open a Command Prompt window and navigate to the <span class="filesystem">&lt;tesseract install
+dir&gt;\vs2008</span> directory.</p>
+<p>Then entering the following command:</p>
+<div class="highlight-none"><div class="highlight"><pre>python tesshelper.py --help
+</pre></div>
+</div>
+<p>displays the following help message:</p>
+<div class="highlight-none"><div class="highlight"><pre>usage: tesshelper.py [-h] [--version] tessDir {compare,report,copy,clean} ...
+
+positional arguments:
+  tessDir               tesseract installation directory
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             show program&#39;s version number and exit
+
+Commands:
+  {compare,report,copy,clean}
+    compare             compare libtesseract Project with tessDir
+    report              report libtesseract summary stats
+    copy                copy public libtesseract header files to includeDir
+    clean               clean vs2008 folder of build folders and .user files
+
+Examples:
+
+Assume that tesshelper.py is in c:\buildfolder\tesseract-3.01\vs2008,
+which is also the current directory. Then,
+
+    python tesshelper .. compare
+
+will compare c:\buildfolder\tesseract-3.01 &quot;library&quot; directories to the
+libtesseract Project
+(c:\buildfolder\tesseract-3.01\vs2008\libtesseract\libtesseract.vcproj).
+
+    python tesshelper ..  report
+
+will display summary stats for c:\buildfolder\tesseract-3.01 &quot;library&quot;
+directories and the libtesseract Project.
+
+    python tesshelper .. copy ..\..\include
+
+will copy all &quot;public&quot; libtesseract header files to
+c:\buildfolder\include.
+
+    python tesshelper .. clean
+
+will clean the vs2008 folder of all build directories, and .user, .suo,
+.ncb, and other temp files.
+</pre></div>
+</div>
+</div>
+<div class="section" id="generating-the-documentation">
+<h2>Generating the documentation<a class="headerlink" href="#generating-the-documentation" title="Permalink to this headline">¶</a></h2>
+<p>The source files for the documentation you are currently reading are
+written in <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> and processed with the
+<a class="reference external" href="http://sphinx.pocoo.org/index.html">Sphinx Python Documentation Generator</a>.</p>
+<p>To install Sphinx, go to your <span class="filesystem">&lt;python.2.7.x install dir&gt;\scripts</span>
+directory and just do:</p>
+<div class="highlight-none"><div class="highlight"><pre>easy_install -U Sphinx
+</pre></div>
+</div>
+<p>which will download Sphinx and all its dependencies. [Note: This might
+<em>not</em> install the Python Imaging Library. If not, then also do
+<tt class="docutils literal"><span class="pre">easy_install</span> <span class="pre">-U</span> <span class="pre">PIL</span></tt> or download it from <a class="reference external" href="http://www.pythonware.com/products/pil/">here</a>.]</p>
+<p>To generate this <strong>Tesseract-OCR</strong> VS2008 documentation go to
+<span class="filesystem">tesseract-3.0x\vs2008\Sphinx</span> and do:</p>
+<div class="highlight-none"><div class="highlight"><pre>make clean
+make html
+</pre></div>
+</div>
+<p>Which will create a number of items in
+<span class="filesystem">tesseract-3.0x\vs2008\Sphinx\_build\html</span>.</p>
+<p>Copy everything there to the distribution&#8217;s <span class="filesystem">tesseract-3.0x\vs2008\doc</span>
+folder, <em class="bold-italic">except</em> for:</p>
+<div class="highlight-none"><div class="highlight"><pre>.buildinfo
+objects.inv
+</pre></div>
+</div>
+</div>
+<div class="section" id="updating-the-vs2008-directory-for-new-releases-of-tesseractocr">
+<span id="updating-vs2008-directory"></span><h2>Updating the VS2008 directory for new releases of <strong>Tesseract-OCR</strong><a class="headerlink" href="#updating-the-vs2008-directory-for-new-releases-of-tesseractocr" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Change the version number strings in
+<span class="filesystem">tesseract-3.0x\vs2008\include\tesseract_versionnumbers.vsprops</span>.</p>
+</li>
+<li><p class="first">Change the version number in
+<span class="filesystem">tesseract-3.0x\vs2008\port\version.h</span>.</p>
+</li>
+<li><p class="first">Open up a Command Prompt window, and do the following:</p>
+<div class="highlight-none"><div class="highlight"><pre>cd &lt;tesseract-3.0x install dir&gt;\vs2008
+python tesshelper .. compare
+</pre></div>
+</div>
+<p>This will list all added and missing items in the <span class="filesystem">&lt;tesseract-3.0x install
+dir&gt;</span> directories that are used to build <span class="filesystem">libtesseract</span>. For the
+newly added items ignore:</p>
+<div class="highlight-none"><div class="highlight"><pre>api\tesseractmain.cpp
+api\tesseractmain.h
+ccutil\scanutils.cpp
+ccutil\scanutils.h
+</pre></div>
+</div>
+<p>and for the newly missing items ignore:</p>
+<div class="highlight-none"><div class="highlight"><pre>training\commontraining.cpp
+training\commontraining.h
+training\tessopt.cpp
+training\tessopt.h
+</pre></div>
+</div>
+</li>
+<li><p class="first">Open up the <span class="filesystem">tesseract.sln</span> in Visual Studio 2008 (or Visual C++ 2008
+Express Edition but see <a class="reference internal" href="building.html#building-with-vc2008-express"><em>this</em></a> first).</p>
+<ol class="loweralpha">
+<li><p class="first">In the Solution Explorer, rename the <em class="guilabel">libtesseract-3.0x</em>
+Project to the correct version number to make it obvious which
+version of <strong>Tesseract-OCR</strong> this Solution is for.</p>
+</li>
+<li><p class="first">Remove the missing items from the <em class="guilabel">libtesseract-3.0x</em> Project.</p>
+</li>
+<li><p class="first">Add the new items to the <em class="guilabel">libtesseract-3.0x</em> Project.</p>
+<p>If there were a lot of new items, you can use the <span class="filesystem">newheaders.txt</span>
+and <span class="filesystem">newsources.txt</span> files generated by running the
+<span class="filesystem">tesshelper.py</span> script with the <tt class="docutils literal"><span class="pre">compare</span></tt> command. Close the
+Solution, and then you can directly edit
+<span class="filesystem">libtesseract\libtesseract.vcproj</span> to add them to the appropriate
+<tt class="docutils literal"><span class="pre">&lt;Filter&gt;</span> <span class="pre">...</span> <span class="pre">&lt;/Filter&gt;</span></tt> section (either <tt class="docutils literal"><span class="pre">Header</span> <span class="pre">Files</span></tt> or
+<tt class="docutils literal"><span class="pre">Source</span> <span class="pre">Files</span></tt>).</p>
+</li>
+</ol>
+</li>
+<li><p class="first">With the Solution closed, use a text editor to change all the
+Project&#8217;s <span class="filesystem">.rc</span> files to reflect the new version.</p>
+<p>If you have a program like the <em>non-free</em> <a class="reference external" href="http://www.powergrep.com/">PowerGrep</a>, you can use it to change all the
+<span class="filesystem">.rc</span> files in one fell swoop.</p>
+<p>Alternatively, you can edit the Version resources within Visual
+Studio 2008 (but <em>not</em> Visual C++ 2008 Express Edition) and then
+manually make the changes mentioned <a class="reference internal" href="building.html#building-with-vc2008-express"><em>here</em></a> afterwards.</p>
+</li>
+<li id="copying-a-project"><p class="first">If a new training application was added (edit
+<span class="filesystem">tesseract-3.0x\training\Makefile.am</span> and look at the
+<tt class="docutils literal"><span class="pre">bin_PROGRAMS</span></tt> variable to see the list), the easiest thing to do
+is copy another existing training application Project and manually
+change it.</p>
+<p>For example, assuming the new training application is
+called <span class="filesystem">new_trainer.exe</span>, with the Solution closed:</p>
+<ol class="loweralpha">
+<li><p class="first">Copy the <span class="filesystem">ambiguous_words</span> directory to a new directory called
+<span class="filesystem">new_trainer</span>.</p>
+</li>
+<li><p class="first">Change the <span class="filesystem">new_trainer\ambiguous_words.rc</span> filename to
+<span class="filesystem">new_trainer\new_trainer.rc</span>.</p>
+</li>
+<li><p class="first">Change the <span class="filesystem">new_trainer\ambiguous_words.vcproj</span> filename to
+<span class="filesystem">new_trainer\new_trainer.vcproj</span>.</p>
+</li>
+<li><p class="first">Edit <span class="filesystem">new_trainer\new_trainer.rc</span> and change all occurrences of
+<tt class="docutils literal"><span class="pre">ambiguous_words</span></tt> to <tt class="docutils literal"><span class="pre">new_trainer</span></tt>.</p>
+<p>Also change <tt class="docutils literal"><span class="pre">FileDescription</span></tt> to describe the new application.</p>
+</li>
+<li><p class="first">Open up the <strong>Tesseract-OCR</strong> Solution file and right-click the
+<em class="guilabel">Solution:&#8217;tesseract&#8217;</em> in the Solution Explorer. Choose
+<em class="menuselection">A<span class="accelerator">d</span>d ‣ <span class="accelerator">E</span>xisting Project...</em> from the context
+menu and add the <span class="filesystem">new_trainer\new_trainer.vcproj</span> you just
+created.</p>
+</li>
+<li><p class="first">Right-click the newly added Project, and choose
+<em class="menuselection">Project Dependencie<span class="accelerator">s</span>...</em>.</p>
+<p>The <em class="guilabel">Project Dependencies</em> Dialog will open. Make sure
+that <span class="filesystem">libtesseract30x</span> is checked. If you forget this step, Visual
+Studio will not automatically link with <span class="filesystem">libtesseract</span> and
+you&#8217;ll get lots of &#8220;unresolved external symbol&#8221; errors.</p>
+</li>
+</ol>
+<p>This actually goes pretty fast. It should only take you a minute or
+so to add a new application to the <strong>Tesseract-OCR</strong> Solution.</p>
+</li>
+<li><p class="first">(Optional?) Edit <span class="filesystem">vs2008\Sphinx\versions.rst</span> and add a new entry
+describing the changes made for this new version.</p>
+</li>
+<li><p class="first">To make your working directory suitable for reposting back to the
+<strong>Tesseract-OCR</strong> SVN repository, you need to ignore all the following:</p>
+<ul>
+<li><p class="first">All <span class="filesystem">LIB_Release</span>, <span class="filesystem">LIB_Debug</span>, <span class="filesystem">DLL_Release</span>, <span class="filesystem">DLL_Debug</span>
+directories</p>
+</li>
+<li><p class="first">All <span class="filesystem">.suo</span> files</p>
+</li>
+<li><p class="first">All <span class="filesystem">.user</span> files</p>
+</li>
+<li><p class="first">All <span class="filesystem">.ncb</span> files</p>
+</li>
+<li><p class="first"><span class="filesystem">vs2008\newheaders.txt</span></p>
+</li>
+<li><p class="first"><span class="filesystem">vs2008\newsources.txt</span></p>
+</li>
+</ul>
+<p>Optionally, the <span class="filesystem">tesshelper.py</span> script has the <tt class="docutils literal"><span class="pre">clean</span></tt> command
+which will remove the above items. To run it, open a Command Prompt
+window and then do:</p>
+<div class="highlight-none"><div class="highlight"><pre>cd &lt;tesseract-3.0x install dir&gt;\vs2008
+python tesshelper .. clean
+</pre></div>
+</div>
+<p>The script will respond with the following:</p>
+<div class="highlight-none"><div class="highlight"><pre>Are you sure you want to clean the
+ &quot;C:\BuildFolder\tesseract-3.0x\vs2008&quot; folder (Yes/No) [No]? yes
+Only list the items to be deleted (Yes/No) [Yes]? no
+</pre></div>
+</div>
+<p>You have to answer <tt class="docutils literal"><span class="pre">yes</span></tt> and then <tt class="docutils literal"><span class="pre">no</span></tt> to the prompts. Otherwise
+either the script will just exit, or only list the items that will be
+removed instead of actually removing them (which is a good thing to
+try first just in case).</p>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setting up <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming with <span class="filesystem">libtesseract</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Handy free tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Maintaining the VS2008 directory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-tesshelper-py-python-script">The <span class="filesystem">tesshelper.py</span> Python script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-the-documentation">Generating the documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#updating-the-vs2008-directory-for-new-releases-of-tesseractocr">Updating the VS2008 directory for new releases of <strong>Tesseract-OCR</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vs2010-notes.html">Using Visual Studio 2010</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versions.html">Version Notes</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="vs2010-notes.html" title="Using Visual Studio 2010"
+             >next</a></li>
+        <li class="right" >
+          <a href="tools.html" title="Handy free tools"
+             >previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

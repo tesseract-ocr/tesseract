@@ -1,0 +1,309 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Handy free tools &mdash; Visual Studio 2008 Developer Notes for Tesseract-OCR</title>
+    
+    <link rel="stylesheet" href="_static/tesseract.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.02',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="Visual Studio 2008 Developer Notes for Tesseract-OCR" href="index.html" />
+    <link rel="next" title="Maintaining the VS2008 directory" href="maintenance.html" />
+    <link rel="prev" title="Programming with libtesseract" href="programming.html" />
+ 
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="maintenance.html" title="Maintaining the VS2008 directory"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="programming.html" title="Programming with libtesseract"
+             accesskey="P">previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="handy-free-tools">
+<h1>Handy free tools<a class="headerlink" href="#handy-free-tools" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><a class="reference external" href="http://tortoisesvn.net/">TortoiseSVN</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>Tesseract-OCR</strong> source lives in an SVN repository at <a class="reference external" href="http://code.google.com/p/tesseract-ocr/source/checkout">Google Code</a>, so to
+<a class="reference internal" href="setup.html#using-latest-sources"><em>build the latest versions</em></a> you&#8217;ll need to
+know SVN. For newcomers (or not), TortoiseSVN (<a class="reference external" href="http://tortoisesvn.net/">http://tortoisesvn.net/</a>)
+is a great alternative to the SVN command line interface.</p>
+<p>&#8220;TortoiseSVN is an easy-to-use SCM / source control software for
+Microsoft Windows and possibly the best standalone Apache Subversion
+client there is. It is implemented as a Windows shell extension, which
+makes it integrate seamlessly into the Windows explorer. Since it&#8217;s not
+an integration for a specific IDE you can use it with whatever
+development tools you like.&#8221;</p>
+</div>
+<div class="section" id="id2">
+<h2><a class="reference external" href="http://jpsoft.com/tccle_cmd_replacement.html">JP Software TCC/LE</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Instead of using Windows&#8217; plain old Command Prompt window &#8212; and less
+intimidating than using the bash shell from <a class="reference external" href="http://cygwin.com/">cygwin</a> or <a class="reference external" href="http://mingw.org/wiki/msys">MSYS</a> &#8212; the
+&#8220;TCC/LE - Windows CMD Replacement Command Console&#8221; by JP Software is
+definitely worth trying.  It is available at
+<a class="reference external" href="http://jpsoft.com/tccle_cmd_replacement.html">http://jpsoft.com/tccle_cmd_replacement.html</a>.</p>
+<p>For example, to look for all the settable options in <strong>Tesseract-OCR</strong>,
+try:</p>
+<div class="highlight-none"><div class="highlight"><pre>C:\BuildFolder\tesseract-3.02\
+ffind /s/v/c/t&quot;_MEMBER&quot; *.cpp | list/s
+</pre></div>
+</div>
+<p>and you&#8217;ll get something that looks like this in the <span class="filesystem">list</span> viewer:</p>
+<div class="highlight-none"><div class="highlight"><pre>---- C:\BuildFolder\tesseract-3.02\ccmain\tesseractclass.cpp
+  : BOOL_MEMBER(tessedit_resegment_from_boxes, false,
+    BOOL_MEMBER(tessedit_resegment_from_line_boxes, false,
+    BOOL_MEMBER(tessedit_train_from_boxes, false,
+    BOOL_MEMBER(tessedit_make_boxes_from_boxes, false,
+    BOOL_MEMBER(tessedit_dump_pageseg_images, false,
+...
+    double_MEMBER(segsearch_max_char_wh_ratio, 2.0,
+    double_MEMBER(segsearch_max_fixed_pitch_char_wh_ratio, 2.0,
+    BOOL_MEMBER(save_alt_choices, false,
+
+    413 lines in      7 files
+</pre></div>
+</div>
+<p>(Press the <tt class="kbd docutils literal"><span class="pre">Escape</span></tt> key to exit the <span class="filesystem">list</span> viewer).</p>
+<p>The equivalent(?) Linux incantation, copied and slightly modified from
+the grep info, is:</p>
+<div class="highlight-none"><div class="highlight"><pre>find . -name &#39;*.cpp&#39; -print0 | xargs -0r grep -H &#39;_MEMBER&#39; | less
+</pre></div>
+</div>
+<p>Note: You can also do this directly in Visual Studio 2008, by choosing
+<em class="menuselection"><span class="accelerator">E</span>dit ‣ <span class="accelerator">F</span>ind and Replace ‣ F<span class="accelerator">i</span>nd in Files</em>
+(<tt class="kbd docutils literal"><span class="pre">Ctrl+Shift+F</span></tt>), so maybe this wasn&#8217;t the best example:</p>
+<img alt="Visual Studio 2008 Find in Files Dialog" class="align-center" src="_images/find_in_files.png" />
+</div>
+<div class="section" id="id4">
+<h2><a class="reference external" href="http://cygwin.com/">Cygwin</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>&#8220;<a class="reference external" href="http://cygwin.com/">Cygwin</a> is a collection of tools which provide a
+Linux look and feel environment for Windows.&#8221;</p>
+<p><strong>Leptonica</strong> actually still requires a few unix utilities (like <span class="filesystem">rm</span>,
+<span class="filesystem">diff</span>, <span class="filesystem">sleep</span>) for some operations and might silently fail if it they
+not present (as of v1.68). The easiest way to deal with this is to
+<a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/vs2008/installing-cygwin.html">install Cygwin</a>
+or MSYS (see the next section).</p>
+</div>
+<div class="section" id="id7">
+<h2><a class="reference external" href="http://mingw.org/wiki/msys">MSYS</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>&#8220;<a class="reference external" href="http://mingw.org/wiki/msys">MSYS</a> is a collection of GNU utilities
+such as bash, make, gawk and grep to allow building of applications and
+programs which depend on traditionally UNIX tools to be present. It is
+intended to supplement MinGW and the deficiencies of the cmd shell.&#8221;</p>
+</div>
+<div class="section" id="windiff">
+<h2>WinDiff<a class="headerlink" href="#windiff" title="Permalink to this headline">¶</a></h2>
+<p>An important phase of testing <span class="filesystem">tesseract</span> is checking how its output
+compares to previous runs (or ground-truth files). A visual diff program
+can make that easier.</p>
+<p>Microsoft&#8217;s WinDiff doesn&#8217;t seem to come with Visual Studio
+anymore. However it can still be downloaded from <a class="reference external" href="http://www.grigsoft.com/download-windiff.htm">Grig Software</a> (without having to get
+all the other stuff in the <a class="reference external" href="http://www.microsoft.com/download/en/details.aspx?displaylang=en&amp;id=18546">Windows XP Service Pack 2 Support Tools</a>.</p>
+<p>Other options are <a class="reference external" href="http://kdiff3.sourceforge.net/">KDiff3</a> and
+<a class="reference external" href="http://www.prestosoft.com/edp_examdiff.asp">ExamDiff</a> (<a class="reference external" href="http://www.prestosoft.com/edp_examdiffpro.asp">ExamDiff Pro</a> is also recommended
+but it&#8217;s not free).</p>
+<p>KDiff3 doesn&#8217;t seem to correctly auto-detect UTF-8 encodings so choose
+<em class="menuselection"><span class="accelerator">S</span>ettings ‣ <span class="accelerator">C</span>onfigure KDiff3...</em> from the menubar and
+set the <em class="guilabel">Regional Settings</em> tab as follows:</p>
+<img alt="KDiff3 Regional Settings" class="align-center" src="_images/kdif3_settings.png" />
+<p>Also on the <em class="guilabel">Integration</em> tab, make sure that <em class="guilabel">Quit
+also via Escape key</em> is turned on (checked). Since IrfanView also quits
+when you press the <tt class="kbd docutils literal"><span class="pre">Esc</span></tt> key, this just makes it easy to dismiss
+both applications with the same key.</p>
+<p>Here is KDiff3 showing the (slight) difference in OCR results after
+deskewing a grayscale image:</p>
+<div class="figure align-center">
+<a class="reference external image-reference" href="_images/sample_diff.png"><img alt="Diff in OCR after deskewing image" src="_images/sample_diff.png" style="height: 512px;" /></a>
+<p class="caption"><a class="reference external" href="_images/sample_diff.png">Click for larger image</a></p>
+</div>
+</div>
+<div class="section" id="id9">
+<h2><a class="reference external" href="http://www.irfanview.com/">IrfanView</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<p>You need some program to view the images you are trying to OCR and since
+<strong>Leptonica</strong> uses IrfanView (<a class="reference external" href="http://www.irfanview.com/">http://www.irfanview.com/</a>) to <a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/vs2008/installing-irfanview.html">automatically
+display images</a>,
+you might as well use it also.</p>
+<p>&#8220;IrfanView is a very fast, small, compact and innovative FREEWARE (for
+non-commercial use) graphic viewer for Windows 9x, ME, NT, 2000, XP,
+Vista, Windows 7.&#8221;</p>
+<p>Pressing the <tt class="kbd docutils literal"><span class="pre">I</span></tt> key while viewing an image with IrfanView, will
+bring up a dialog box that shows most of its important properties (like
+bits/pixel and DPI).</p>
+</div>
+<div class="section" id="id10">
+<h2><a class="reference external" href="http://www.awaresystems.be/imaging/tiff/astifftagviewer.html">Aware Systems AsTiffTagViewer</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<p>This utility, available at
+<a class="reference external" href="http://www.awaresystems.be/imaging/tiff/astifftagviewer.html">http://www.awaresystems.be/imaging/tiff/astifftagviewer.html</a>, let&#8217;s you
+easily determine TIFF image file properties.</p>
+<p>&#8220;Whenever a customer reports your software doesn&#8217;t handle this or that
+particular TIFF, use AsTiffTagViewer and discover why.&#8221;</p>
+</div>
+<div class="section" id="id11">
+<h2><a class="reference external" href="http://dependencywalker.com/">Dependency Walker</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;re having problems with missing module runtime errors, the
+Dependency Walker (<a class="reference external" href="http://dependencywalker.com/">http://dependencywalker.com/</a>) usually can help track
+down the problem.</p>
+<p>&#8220;Dependency Walker is also very useful for troubleshooting system errors
+related to loading and executing modules. Dependency Walker detects many
+common application problems such as missing modules, invalid modules,
+import/export mismatches, circular dependency errors, mismatched machine
+types of modules, and module initialization failures.&#8221;</p>
+<p>You probably want the 32-bit version even if you are running on a
+Windows 64-bit platform, because the current VS2008 Solution for
+<strong>Tesseract-OCR</strong> by default builds a 32-bit app. From the <a class="reference external" href="http://dependencywalker.com/faq.html">FAQ</a></p>
+<blockquote>
+<div>&#8220;There are 32-bit and 64-bit versions Dependency Walker.  All versions
+are capable or opening 32-bit and 64-bit modules.  However, there are
+major advantages to using the 32-bit Dependency Walker to process 32-bit
+modules and the 64-bit Dependency Walker to process 64-bit modules.
+This is especially true when running on a 64-bit version of Windows,
+which allows execution of both 32-bit and 64-bit programs.  The 32-bit
+subsystem on 64-bit Windows (known as &#8220;WOW64&#8221;) has its own private
+registry, &#8220;AppPaths&#8221;, &#8220;KnownDlls&#8221;, system folders, and manifest
+processing.  Only the 32-bit version of Dependency Walker can access
+this 32-bit environment, which is needed to accurately process a 32-bit
+module.  Likewise, only the 64-bit version of Dependency Walker can
+fully access the 64-bit environment, so it should always be used for
+processing 64-bit modules.&#8221;</div></blockquote>
+<div class="figure align-center">
+<a class="reference external image-reference" href="_images/dependency_walker.png"><img alt="Dependency Walker view of tesseract-dlld.exe" src="_images/dependency_walker.png" style="height: 640px;" /></a>
+<p class="caption"><a class="reference external" href="_images/dependency_walker.png">Click for larger image</a></p>
+</div>
+<p>The above image shows Dependency Walker used on
+<span class="filesystem">tesseract-dlld.exe</span>. The panes show the <span class="filesystem">DLL</span>s that it is dependent
+on, the methods it actually uses from <span class="filesystem">libtesseract302d.dll</span>, and all
+the exported methods from <span class="filesystem">libtesseract302d.dll</span>. Using this it&#8217;s easy
+to see that only the <tt class="docutils literal"><span class="pre">TessBaseAPI</span></tt> and <tt class="docutils literal"><span class="pre">STRING</span></tt> classes are exported
+as mentioned in <a class="reference internal" href="programming.html"><em>Programming with libtesseract</em></a>.</p>
+</div>
+<div class="section" id="id12">
+<h2><a class="reference external" href="http://technet.microsoft.com/en-us/sysinternals/bb896653">Sysinternals Process Explorer</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<p>Another essential program to help figure out what your program is doing
+is Process Explorer
+(<a class="reference external" href="http://technet.microsoft.com/en-us/sysinternals/bb896653">http://technet.microsoft.com/en-us/sysinternals/bb896653</a>).</p>
+<p>&#8220;The unique capabilities of Process Explorer make it useful for tracking
+down DLL-version problems or handle leaks, and provide insight into the
+way Windows and applications work.&#8221;</p>
+</div>
+<div class="section" id="id13">
+<h2><a class="reference external" href="http://www.vmware.com/products/player/">VMware Player</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
+<p>VMware Player (<a class="reference external" href="http://www.vmware.com/products/player/">http://www.vmware.com/products/player/</a>) can be used to
+install, for example, <a class="reference external" href="http://www.ubuntu.com/">Ubuntu 11.10</a> in a
+virtual machine on Windows and see how the other half lives. It also
+helps when trying to figure out if the Windows version of <span class="filesystem">tesseract</span>
+acts the same way as the &#8220;original&#8221; version.</p>
+<p>&#8220;VMware Player is the easiest way to run multiple operating systems at
+the same time on your PC. With its user-friendly interface, VMware
+Player makes it effortless for anyone to try out Windows 8 developer
+release, Windows 7, Chrome OS or the latest Linux releases, or create
+isolated virtual machines to safely test new software and surf the Web.&#8221;</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setting up <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming with <span class="filesystem">libtesseract</span></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Handy free tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">TortoiseSVN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">JP Software TCC/LE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">Cygwin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">MSYS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#windiff">WinDiff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">IrfanView</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">Aware Systems AsTiffTagViewer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">Dependency Walker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">Sysinternals Process Explorer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id13">VMware Player</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Maintaining the VS2008 directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vs2010-notes.html">Using Visual Studio 2010</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versions.html">Version Notes</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="maintenance.html" title="Maintaining the VS2008 directory"
+             >next</a></li>
+        <li class="right" >
+          <a href="programming.html" title="Programming with libtesseract"
+             >previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

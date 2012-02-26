@@ -1,0 +1,371 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Setting up Tesseract-OCR &mdash; Visual Studio 2008 Developer Notes for Tesseract-OCR</title>
+    
+    <link rel="stylesheet" href="_static/tesseract.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '3.02',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <link rel="top" title="Visual Studio 2008 Developer Notes for Tesseract-OCR" href="index.html" />
+    <link rel="next" title="Building Tesseract-OCR" href="building.html" />
+    <link rel="prev" title="Overview" href="overview.html" />
+ 
+    <link href='http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="building.html" title="Building Tesseract-OCR"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="overview.html" title="Overview"
+             accesskey="P">previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setting-up-tesseractocr">
+<h1>Setting up <strong>Tesseract-OCR</strong><a class="headerlink" href="#setting-up-tesseractocr" title="Permalink to this headline">¶</a></h1>
+<p>The Visual Studio 2008 Solutions included with <strong>Tesseract-OCR</strong>, rely on
+<em>relative paths</em> to reference files and directories &#8212; including
+locations that are <em>outside</em> of the <span class="filesystem">tesseract-3.0x</span> tree. It is
+therefore vitally important to correctly set up the directories for the
+various components. This section describes how to do this.</p>
+<div class="section" id="initial-build-directory-setup">
+<span id="directory-setup"></span><h2>Initial &#8220;Build&#8221; directory setup<a class="headerlink" href="#initial-build-directory-setup" title="Permalink to this headline">¶</a></h2>
+<p>First create an empty directory where you will unpack all the required
+downloads. Assume you call this directory <span class="filesystem">C:\BuildFolder</span>.</p>
+<ol class="arabic" id="download-leptonica">
+<li><p class="first">Download the <strong>Leptonica</strong> 1.68 pre-built binary package
+(<span class="filesystem">leptonica-1.68-win32-lib-include-dirs.zip</span>) from:</p>
+<blockquote>
+<div><p><a class="reference external" href="http://code.google.com/p/leptonica/downloads/detail?name=leptonica-1.68-win32-lib-include-dirs.zip">http://code.google.com/p/leptonica/downloads/detail?name=leptonica-1.68-win32-lib-include-dirs.zip</a></p>
+</div></blockquote>
+<p>and unpack it to <span class="filesystem">C:\BuildFolder</span>.</p>
+</li>
+<li><p class="first"><strong>Leptonica</strong>, even on Windows as of v1.68, still requires a few unix
+utilities (like <span class="filesystem">rm</span>, <span class="filesystem">diff</span>, <span class="filesystem">sleep</span>). The easiest way to deal with
+this is to follow the instructions at <a class="reference external" href="http://tpgit.github.com/UnOfficialLeptDocs/vs2008/installing-cygwin.html">Installing Cygwin coreutils</a>.</p>
+</li>
+</ol>
+<p>At this point, if all you want to do is link with <span class="filesystem">libtesseract</span> you can
+<a class="reference external" href="http://code.google.com/p/tesseract-ocr/downloads/list">download</a> the
+file that just contains the &#8220;public&#8221; <strong>Tesseract-OCR</strong> headers along with
+the precompiled library binaries for Windows. Unpack it to
+<span class="filesystem">C:\BuildFolder</span> and you&#8217;ll now have:</p>
+<div class="highlight-none"><div class="highlight"><pre>C:\BuildFolder\
+
+  include\
+     leptonica\
+     tesseract\
+
+     leptonica_versionnumbers.vsprops
+     tesseract_versionnumbers.vsprops
+
+  lib\
+     giflib416-static-mtdll-debug.lib
+     giflib416-static-mtdll.lib
+     libjpeg8c-static-mtdll-debug.lib
+     libjpeg8c-static-mtdll.lib
+     liblept168-static-mtdll-debug.lib
+     liblept168-static-mtdll.lib
+     liblept168.dll
+     liblept168.lib
+     liblept168d.dll
+     liblept168d.lib
+     libpng143-static-mtdll-debug.lib
+     libpng143-static-mtdll.lib
+     libtesseract302.dll
+     libtesseract302.lib
+     libtesseract302d.dll
+     libtesseract302d.lib
+     libtesseract302-static.lib
+     libtesseract302-static-debug.lib
+     libtiff394-static-mtdll-debug.lib
+     libtiff394-static-mtdll.lib
+     zlib125-static-mtdll-debug.lib
+     zlib125-static-mtdll.lib
+</pre></div>
+</div>
+<p>and you can skip the rest of this page and go directly to
+<a class="reference internal" href="programming.html"><em>Programming with libtesseract</em></a>.</p>
+<p>The recommended action, however, is to download the <strong>Tesseract-OCR</strong>
+sources and build them yourself. Therefore...</p>
+<ol class="arabic" start="3">
+<li><p class="first">Download the <strong>Tesseract-OCR</strong> Visual Studio 2008 source files from the
+<a class="reference external" href="http://code.google.com/p/tesseract-ocr/downloads/list">downloads page</a>. If, for
+example, you&#8217;d like to build v3.02 you would use the following link:</p>
+<blockquote>
+<div><p><a class="reference external" href="http://code.google.com/p/tesseract-ocr/downloads/detail?name=tesseract-ocr-3.02-vs2008.zip">http://code.google.com/p/tesseract-ocr/downloads/detail?name=tesseract-ocr-3.02-vs2008.zip</a></p>
+</div></blockquote>
+<p>Unpack the file to <span class="filesystem">C:\BuildFolder</span></p>
+</li>
+</ol>
+<p>You would now have the following directory structure:</p>
+<div class="highlight-none"><div class="highlight"><pre>C:\BuildFolder\
+
+  include\
+     leptonica\
+
+     leptonica_versionnumbers.vsprops
+     tesseract_versionnumbers.vsprops
+
+  lib\
+     giflib416-static-mtdll-debug.lib
+     giflib416-static-mtdll.lib
+     libjpeg8c-static-mtdll-debug.lib
+     libjpeg8c-static-mtdll.lib
+     liblept168-static-mtdll-debug.lib
+     liblept168-static-mtdll.lib
+     liblept168.dll
+     liblept168.lib
+     liblept168d.dll
+     liblept168d.lib
+     libpng143-static-mtdll-debug.lib
+     libpng143-static-mtdll.lib
+     libtiff394-static-mtdll-debug.lib
+     libtiff394-static-mtdll.lib
+     zlib125-static-mtdll-debug.lib
+     zlib125-static-mtdll.lib
+
+  tesseract-3.02\
+     vs2008\
+        ambiguous_words\
+        classifier_tester\
+        cntraining\
+        combine_tessdata\
+        dawg2wordlist\
+        doc\
+        include\
+        libtesseract\
+           libtesseract.vcproj
+        mftraining\
+        port\
+        shapeclustering\
+        sphinx\
+        tesseract\
+           tesseract.vcproj
+        unicharset_extractor\
+        wordlist2dawg\
+
+        tesseract.sln
+        tesshelper.py
+</pre></div>
+</div>
+<ol class="arabic" start="4">
+<li><p class="first">Download the <strong>Tesseract-OCR</strong> source files for the same version as the
+VS2008 files you just unpacked. In this case, the proper link would
+be:</p>
+<blockquote>
+<div><p><a class="reference external" href="http://code.google.com/p/tesseract-ocr/downloads/detail?name=tesseract-3.02.tar.gz">http://code.google.com/p/tesseract-ocr/downloads/detail?name=tesseract-3.02.tar.gz</a></p>
+</div></blockquote>
+<p>Unpack the file to <span class="filesystem">C:\BuildFolder</span></p>
+</li>
+</ol>
+<p>This will add a bunch of directories to your already existing
+<span class="filesystem">C:\BuildFolder\tesseract-3.0x</span> directory. You should now have (for
+v3.02):</p>
+<div class="highlight-none"><div class="highlight"><pre>C:\BuildFolder\
+
+  include\
+     leptonica\
+  lib\
+  tesseract-3.02\
+     api\
+     ccmain\
+     ccstruct\
+     ccutil\
+     classify\
+     config\
+     contrib\
+     cube\
+     cutil\
+     dict\
+     doc\
+     image\
+     java\
+     image\
+     neural_networks\
+     tessdata\
+     testing\
+     textord\
+     training\
+     viewer\
+     vs2008\
+     wordrec\
+</pre></div>
+</div>
+<p id="copying-headers">If you are planning on writing applications that link with
+<strong>Tesseract-OCR</strong>, and you don&#8217;t want to add all the <span class="filesystem">tesseract-3.0x</span>
+directories to your project&#8217;s list of <tt class="docutils literal"><span class="pre">include</span></tt> directories, then do
+this additional step:</p>
+<ol class="arabic" start="5">
+<li><p class="first">Copy all the required headers to the &#8220;public&#8221; include folder.</p>
+<p>If you already have a <span class="filesystem">C:\BuildFolder\include\tesseract</span>
+directory you should delete it in case some of the files have been
+removed.</p>
+<p>Then use the python <span class="filesystem">tess-helper.py</span> script to copy (possibly updated
+versions of) the required headers by doing:</p>
+<div class="highlight-none"><div class="highlight"><pre>cd C:\BuildFolder\tesseract-3.02\vs2008
+python tesshelper.py .. copy ..\..\include
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="maintenance.html#tesshelper"><em>The tesshelper.py Python script</em></a> for more details.</p>
+</li>
+</ol>
+<p>You are now ready to <a class="reference internal" href="building.html"><em>build</em></a> <strong>Tesseract-OCR</strong> using Visual
+Studio 2008.</p>
+</div>
+<div class="section" id="using-the-latest-tesseractocr-sources">
+<span id="using-latest-sources"></span><h2>Using the latest <strong>Tesseract-OCR</strong> sources<a class="headerlink" href="#using-the-latest-tesseractocr-sources" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;d like to try the absolute latest version of <strong>Tesseract-OCR</strong>,
+here&#8217;s how to download the source files from its SVN repository:</p>
+<ol class="arabic">
+<li><p class="first">Follow Steps 1 and 2 <a class="reference internal" href="#directory-setup"><em>above</em></a>.</p>
+</li>
+<li><p class="first"><a class="reference external" href="http://code.google.com/p/tesseract-ocr/source/checkout">Checkout</a>
+the <strong>Tesseract-OCR</strong> sources to a directory on your computer. This
+directory should <em class="bold-italic">not</em> be <span class="filesystem">C:\BuildFolder</span>!</p>
+<p>If you are unfamiliar with <a class="reference external" href="http://subversion.apache.org/">SVN</a>,
+the easiest way to do this is to first download and install
+<a class="reference external" href="http://tortoisesvn.net/">TortoiseSVN</a> and then:</p>
+<ol class="loweralpha">
+<li><p class="first">Right-click the (empty) directory where you want the working copy
+and choose <em class="menuselection">SVN Chec<span class="accelerator">k</span>out...</em> from
+the pop-up menu.</p>
+</li>
+<li><p class="first">Enter <tt class="docutils literal"><span class="pre">http://tesseract-ocr.googlecode.com/svn/trunk/</span></tt> for
+<em class="guilabel"><span class="accelerator">U</span>RL of repository</em>. You can keep all the other
+settings at their defaults.</p>
+<img alt="TortoiseSVN Checkout Dialog Box" class="align-center" src="_images/tortoisesvn_checkout.png" />
+</li>
+<li><p class="first">Click the <em class="guilabel"><span class="accelerator">O</span>K</em> button to commence downloading the
+<strong>Tesseract-OCR</strong> sources to your computer. This might take a while as
+the language data in the <span class="filesystem">tessdata</span> directory is quite large. As
+of February 2012, about 335MB needs to be transferred for the
+initial checkout. The total size of the resulting working copy is
+about 1.2GB.</p>
+</li>
+<li><p class="first">Keeping your working copy up to date after this is as simple as
+right-clicking its directory and choosing <em class="menuselection">SVN
+<span class="accelerator">U</span>pdate</em>. Unlike the initial checkout, this will usually finish
+very quickly.</p>
+</li>
+</ol>
+</li>
+<li><p class="first">Copy the <em class="bold-italic">contents</em> of your working directory, except for the
+<span class="filesystem">tessdata</span> directory, to <span class="filesystem">C:\BuildFolder\tesseract-3.0x</span>, where
+<tt class="docutils literal"><span class="pre">x</span></tt> should probably be the latest stable release + <tt class="docutils literal"><span class="pre">alpha</span></tt>,
+<tt class="docutils literal"><span class="pre">beta</span></tt>, etc.</p>
+</li>
+<li><p class="first">Optionally, follow Step 5 from <a class="reference internal" href="#copying-headers"><em>above</em></a>.</p>
+</li>
+<li><p class="first">You&#8217;ll probably want to set an environment varible named
+<tt class="docutils literal"><span class="pre">TESSDATA_PREFIX</span></tt> to point at your working copy directory (since
+that now contains the latest <span class="filesystem">tessdata</span> directory).</p>
+</li>
+<li><p class="first">If someone hasn&#8217;t already done so, you have to proceed to
+<a class="reference internal" href="maintenance.html#updating-vs2008-directory"><em>Updating the VS2008 directory for new releases of Tesseract-OCR</em></a>. You can skip all the steps that
+relate to updating the version number. Otherwise, depending on how
+many changes have been made since the last stable release, you may
+have little or no work to do.</p>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Setting up <strong>Tesseract-OCR</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#initial-build-directory-setup">Initial &#8220;Build&#8221; directory setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-latest-tesseractocr-sources">Using the latest <strong>Tesseract-OCR</strong> sources</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building <strong>Tesseract-OCR</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="programming.html">Programming with <span class="filesystem">libtesseract</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Handy free tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Maintaining the VS2008 directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vs2010-notes.html">Using Visual Studio 2010</a></li>
+<li class="toctree-l1"><a class="reference internal" href="versions.html">Version Notes</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="building.html" title="Building Tesseract-OCR"
+             >next</a></li>
+        <li class="right" >
+          <a href="overview.html" title="Overview"
+             >previous</a> |</li>
+  <li><a href="http://code.google.com/p/tesseract-ocr/">Tesseract-OCR Home</a> &raquo;</li>
+  
+        <li><a href="index.html">Visual Studio 2008 Developer Notes</a> &raquo;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
