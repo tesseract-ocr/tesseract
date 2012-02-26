@@ -23,7 +23,6 @@
 #include          <string.h>
 #include          "memry.h"
 #include          "serialis.h"
-#include          "genericvector.h"
 
 // STRING_IS_PROTECTED means that  string[index] = X is invalid
 // because you have to go through strings interface to modify it.
@@ -43,6 +42,7 @@
 #define CCUTIL_API
 #endif
 
+template <typename T> class GenericVector;
 
 class CCUTIL_API STRING
 {
