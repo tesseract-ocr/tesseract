@@ -930,6 +930,8 @@ static void AddBoxTohOCR(const PageIterator *it,
 // Make a HTML-formatted string with hOCR markup from the internal
 // data structures.
 // page_number is 0-based but will appear in the output as 1-based.
+// Image name/input_file_ can be set by SetInputName before calling
+// GetHOCRText
 // STL removed from original patch submission and refactored by rays.
 char* TessBaseAPI::GetHOCRText(int page_number) {
   if (tesseract_ == NULL ||
@@ -940,6 +942,9 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
   int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
 
   STRING hocr_str("");
+
+  if (input_file_ == NULL)
+      SetInputName(NULL);
 
   hocr_str.add_str_int("<div class='ocr_page' id='page_", page_id);
   hocr_str += "' title='image \"";

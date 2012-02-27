@@ -606,9 +606,6 @@ class TESSDLL_API TessBaseAPI {
   /** Return the number of dawgs loaded into tesseract_ object. */
   int NumDawgs() const;
 
-  /** Return the language used in the last valid initialization. */
-  const char* GetLastInitLanguage() const;
-
   // Returns a ROW object created from the input row specification.
   static ROW *MakeTessOCRRow(float baseline, float xheight,
                              float descender, float ascender);
