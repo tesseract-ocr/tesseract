@@ -130,9 +130,13 @@ Pix* CCNonTextDetect::ComputeNonTextMask(bool debug, Pix* photo_map,
   MarkAndDeleteNonTextBlobs(&blob_block->blobs, -1,
                             win, ScrollView::WHITE, pix);
   if (debug) {
+    #ifndef GRAPHICS_DISABLED
     win->Update();
+    #endif  // GRAPHICS_DISABLED
     pixWrite("junkccphotomask.png", pix, IFF_PNG);
+    #ifndef GRAPHICS_DISABLED
     delete win->AwaitEvent(SVET_DESTROY);
+    #endif  // GRAPHICS_DISABLED
     delete win;
   }
   return pix;
@@ -250,8 +254,10 @@ void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST* blobs,
         (max_blob_overlaps < 0 ||
             !BlobOverlapsTooMuch(blob, max_blob_overlaps))) {
       blob->ClearNeighbours();
-      if (win != NULL)
+      #ifndef GRAPHICS_DISABLED
+      if (win != NULL) 
         blob->plot(win, ok_color, ok_color);
+      #endif  // GRAPHICS_DISABLED
     } else {
       if (noise_density_->AnyZeroInRect(box)) {
         // There is a danger that the bounding box may overlap real text, so
@@ -272,8 +278,10 @@ void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST* blobs,
         pixRasterop(nontext_mask, box.left(), imageheight - box.top(),
                     box.width(), box.height(), PIX_SET, NULL, 0, 0);
       }
+      #ifndef GRAPHICS_DISABLED
       if (win != NULL)
         blob->plot(win, ScrollView::RED, ScrollView::RED);
+      #endif  // GRAPHICS_DISABLED
       // It is safe to delete the cblob now, as it isn't used by the grid
       // or BlobOverlapsTooMuch, and the BLOBNBOXes will go away with the
       // dead_blobs list.

@@ -242,8 +242,11 @@ void Textord::filter_blobs(ICOORD page_tr,         // top right
   TO_BLOCK_IT block_it = blocks;          // destination iterator
   TO_BLOCK *block;                        // created block
 
+  #ifndef GRAPHICS_DISABLED
   if (to_win != NULL)
     to_win->Clear();
+  #endif  // GRAPHICS_DISABLED
+
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
     block = block_it.data();
@@ -258,7 +261,8 @@ void Textord::filter_blobs(ICOORD page_tr,         // top right
          tesseract::CCStruct::kXHeightFraction;
     block->line_size *= textord_min_linesize;
     block->max_blob_size = block->line_size * textord_excess_blobsize;
-#ifndef GRAPHICS_DISABLED
+
+    #ifndef GRAPHICS_DISABLED
     if (textord_show_blobs && testing_on) {
       if (to_win == NULL)
         create_to_win(page_tr);
@@ -272,7 +276,7 @@ void Textord::filter_blobs(ICOORD page_tr,         // top right
       plot_box_list(to_win, &block->large_blobs, ScrollView::WHITE);
       plot_box_list(to_win, &block->blobs, ScrollView::WHITE);
     }
-#endif
+    #endif  // GRAPHICS_DISABLED
   }
 }
 

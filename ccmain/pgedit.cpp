@@ -705,7 +705,9 @@ void show_point(PAGE_RES* page_res, float x, float y) {
  * Blank display of word then redisplay word according to current display mode
  * settings
  */
+#endif  // GRAPHICS_DISABLED
 namespace tesseract {
+#ifndef GRAPHICS_DISABLED
 BOOL8 Tesseract:: word_blank_and_set_display(BLOCK* block, ROW* row,
                                              WERD_RES* word_res) {
   word_res->word->bounding_box().plot(image_win, ScrollView::BLACK,
@@ -896,6 +898,7 @@ BOOL8 Tesseract::word_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
       editor_image_word_bb_color));
   return TRUE;
 }
+#endif  // GRAPHICS_DISABLED
 
 /**
  * word_dumper()
@@ -919,7 +922,7 @@ BOOL8 Tesseract::word_dumper(BLOCK* block, ROW* row, WERD_RES* word_res) {
   return TRUE;
 }
 
-
+#ifndef GRAPHICS_DISABLED
 /**
  * word_set_display()  Word processor
  *
@@ -936,7 +939,9 @@ BOOL8 Tesseract::word_set_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
   word->set_display_flag(DF_BLAMER, word_display_mode.bit(DF_BLAMER));
   return word_display(block, row, word_res);
 }
+#endif  // GRAPHICS_DISABLED
+
 }  // namespace tesseract
 
 
-#endif  // GRAPHICS_DISABLED
+

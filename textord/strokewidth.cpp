@@ -133,7 +133,9 @@ StrokeWidth::StrokeWidth(int gridsize,
 
 StrokeWidth::~StrokeWidth() {
   if (widths_win_ != NULL) {
+    #ifndef GRAPHICS_DISABLED
     delete widths_win_->AwaitEvent(SVET_DESTROY);
+    #endif  // GRAPHICS_DISABLED
     if (textord_tabfind_only_strokewidths)
       exit(0);
     delete widths_win_;
@@ -322,6 +324,7 @@ void StrokeWidth::RemoveLineResidue(ColPartition_LIST* big_part_list) {
       box.print();
     }
     if (max_size * kLineResidueSizeRatio < box.height()) {
+      #ifndef GRAPHICS_DISABLED
       if (leaders_win_ != NULL) {
         // We are debugging, so display deleted in pink blobs in the same
         // window that we use to display leader detection.
@@ -329,6 +332,7 @@ void StrokeWidth::RemoveLineResidue(ColPartition_LIST* big_part_list) {
         leaders_win_->Rectangle(box.left(), box.bottom(),
                                 box.right(), box.top());
       }
+      #endif  // GRAPHICS_DISABLED
       ColPartition::MakeBigPartition(bbox, big_part_list);
     }
   }
@@ -547,12 +551,14 @@ void StrokeWidth::MarkLeaderNeighbours(const ColPartition* part,
       best_blob->set_leader_on_right(true);
     else
       best_blob->set_leader_on_left(true);
+    #ifndef GRAPHICS_DISABLED
     if (leaders_win_ != NULL) {
       leaders_win_->Pen(side == LR_LEFT ? ScrollView::RED : ScrollView::GREEN);
       const TBOX& blob_box = best_blob->bounding_box();
       leaders_win_->Rectangle(blob_box.left(), blob_box.bottom(),
                               blob_box.right(), blob_box.top());
     }
+    #endif  // GRAPHICS_DISABLED
   }
 }
 
@@ -1870,7 +1876,9 @@ static void DrawDiacriticJoiner(const BLOBNBOX* blob, ScrollView* window) {
   int top = MAX(blob_box.top(), blob->base_char_top());
   int bottom = MIN(blob_box.bottom(), blob->base_char_bottom());
   int x = (blob_box.left() + blob_box.right()) / 2;
+  #ifndef GRAPHICS_DISABLED
   window->Line(x, top, x, bottom);
+  #endif  // GRAPHICS_DISABLED
 }
 
 // Displays blobs colored according to whether or not they are diacritics.

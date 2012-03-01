@@ -742,6 +742,7 @@ void TableFinder::SetGlobalSpacings(ColPartitionGrid* grid) {
   set_global_median_xheight(static_cast<int>(xheight_stats.median() + 0.5));
   set_global_median_blob_width(static_cast<int>(width_stats.median() + 0.5));
   set_global_median_ledding(static_cast<int>(ledding_stats.median() + 0.5));
+  #ifndef GRAPHICS_DISABLED
   if (textord_tablefind_show_stats) {
     const char* kWindowName = "X-height (R), X-width (G), and ledding (B)";
     ScrollView* stats_win = MakeWindow(500, 10, kWindowName);
@@ -749,6 +750,7 @@ void TableFinder::SetGlobalSpacings(ColPartitionGrid* grid) {
     width_stats.plot(stats_win, 10, 200, 2, 15, ScrollView::GREEN);
     ledding_stats.plot(stats_win, 10, 200, 2, 15, ScrollView::BLUE);
   }
+  #endif  // GRAPHICS_DISABLED
 }
 
 void TableFinder::set_global_median_xheight(int xheight) {

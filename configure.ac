@@ -75,12 +75,27 @@ AC_ARG_WITH(extra-libraries,
 
 AC_MSG_CHECKING(--enable-graphics argument)
 AC_ARG_ENABLE([graphics],
-    [  --enable-graphics         Enable graphics (ScrollView) (default).],
+ [AC_HELP_STRING([--enable-graphics],[enable graphics (ScrollView) (default)])
+AC_HELP_STRING([--disable-graphics],[disable graphics (ScrollView)])],
     [enable_graphics=$enableval],
     [enable_graphics="yes"])
 AC_MSG_RESULT($enable_graphics)
 if test "$enable_graphics" = "no"; then
-  AC_DEFINE([DISABLE_GRAPHICS], [], [Disable graphics])
+  AC_DEFINE([GRAPHICS_DISABLED], [], [Disable graphics]) 
+fi
+
+# check whether to build embedded version
+AC_MSG_CHECKING(--enable-embedded argument)
+AC_ARG_ENABLE([embedded],
+    [  --enable-embedded       enable embedded build (default=no)],
+    [enable_embedded=$enableval],
+    [enable_embedded="no"])
+AC_MSG_RESULT($enable_embedded)
+AM_CONDITIONAL([EMBEDDED], [test "$enable_embedded" = "yes"])
+if test "$enable_embedded" = "yes"; then
+  #AC_DEFINE([EMBEDDED], [], [Embedded Mode])
+  AC_SUBST([AM_CXXFLAGS], [-DEMBEDDED])
+  AC_SUBST([AM_CPPFLAGS], [-DEMBEDDED])
 fi
 
 # check whether to build embedded version
@@ -100,7 +115,7 @@ fi
 # check whether to build multiple libraries
 AC_MSG_CHECKING(--enable-multiple-libraries argument)
 AC_ARG_ENABLE([multiple-libraries],
-    [  --enable-multiple-libraries         Enable multiple libraries.],
+    [AC_HELP_STRING([--enable-multiple-libraries],[enable multiple libraries (default=no)])],
     [enable_mlibs=$enableval],
     [enable_mlibs="no"])
 AC_MSG_RESULT($enable_mlibs)

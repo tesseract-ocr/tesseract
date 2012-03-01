@@ -221,6 +221,7 @@ TBOX TESSLINE::bounding_box() const {
 
 void TESSLINE::plot(ScrollView* window, ScrollView::Color color,
                     ScrollView::Color child_color) {
+  #ifndef GRAPHICS_DISABLED
   if (is_hole)
     window->Pen(child_color);
   else
@@ -235,6 +236,7 @@ void TESSLINE::plot(ScrollView* window, ScrollView::Color color,
     else
       window->DrawTo(pt->pos.x, pt->pos.y);
   } while (pt != loop);
+  #endif  // GRAPHICS_DISABLED
 }
 
 // Iterate the given list of outlines, converting to TESSLINE by polygonal

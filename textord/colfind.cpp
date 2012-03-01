@@ -155,10 +155,12 @@ void ColumnFinder::SetupAndFilterNoise(Pix* photo_mask_pix,
   stroke_width_ = new StrokeWidth(gridsize(), bleft(), tright());
   min_gutter_width_ = static_cast<int>(kMinGutterWidthGrid * gridsize());
   input_block->ReSetAndReFilterBlobs();
+  #ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_blocks) {
     input_blobs_win_ = MakeWindow(0, 0, "Filtered Input Blobs");
     input_block->plot_graded_blobs(input_blobs_win_);
   }
+  #endif  // GRAPHICS_DISABLED
   SetBlockRuleEdges(input_block);
   pixDestroy(&nontext_map_);
   // Run a preliminary strokewidth neighbour detection on the medium blobs.
@@ -358,10 +360,12 @@ int ColumnFinder::FindBlocks(bool single_column,
   // Refill the grid using rectangular spreading, and get the benefit
   // of the completed tab vectors marking the rule edges of each blob.
   Clear();
+  #ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_reject_blobs) {
     ScrollView* rej_win = MakeWindow(500, 300, "Rejected blobs");
     input_block->plot_graded_blobs(rej_win);
   }
+  #endif  // GRAPHICS_DISABLED
   InsertBlobsToGrid(false, false, &image_bblobs_, this);
   InsertBlobsToGrid(true, true, &input_block->blobs, this);
 
@@ -412,6 +416,7 @@ int ColumnFinder::FindBlocks(bool single_column,
   part_grid_.RefinePartitionPartners(true);
   SmoothPartnerRuns();
 
+  #ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_partitions) {
     ScrollView* window = MakeWindow(400, 300, "Partitions");
     if (textord_debug_images)
@@ -424,6 +429,7 @@ int ColumnFinder::FindBlocks(bool single_column,
       delete window->AwaitEvent(SVET_DESTROY);
     }
   }
+  #endif  // GRAPHICS_DISABLED
   part_grid_.AssertNoDuplicates();
   // Ownership of the ColPartitions moves from part_sets_ to part_grid_ here,
   // and ownership of the BLOBNBOXes moves to the ColPartitions.
@@ -442,6 +448,7 @@ int ColumnFinder::FindBlocks(bool single_column,
   DisplayBlocks(blocks);
   RotateAndReskewBlocks(input_is_rtl, to_blocks);
   int result = 0;
+  #ifndef GRAPHICS_DISABLED
   if (blocks_win_ != NULL) {
     bool waiting = false;
     do {
@@ -460,6 +467,7 @@ int ColumnFinder::FindBlocks(bool single_column,
       delete event;
     } while (waiting);
   }
+  #endif  // GRAPHICS_DISABLED
   return result;
 }
 

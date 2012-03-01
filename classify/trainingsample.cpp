@@ -282,9 +282,11 @@ Pix* TrainingSample::RenderToPix(const UNICHARSET* unicharset) const {
 // Displays the features in the given window with the given color.
 void TrainingSample::DisplayFeatures(ScrollView::Color color,
                                      ScrollView* window) const {
+  #ifndef GRAPHICS_DISABLED
   for (int f = 0; f < num_features_; ++f) {
     RenderIntFeature(window, &features_[f], color);
   }
+  #endif  // GRAPHICS_DISABLED
 }
 
 // Returns a pix of the original sample image. The pix is padded all round

@@ -681,6 +681,7 @@ void MasterTrainer::DebugCanonical(const char* unichar_str1,
   }
 }
 
+#ifndef GRAPHICS_DISABLED
 // Debugging for cloud/canonical features.
 // Displays a Features window containing:
 // If unichar_str2 is in the unicharset, and canonical_font is non-negative,
@@ -742,6 +743,7 @@ void MasterTrainer::DisplaySamples(const char* unichar_str1, int cloud_font,
     delete ev;
   } while (ev_type != SVET_DESTROY);
 }
+#endif  // GRAPHICS_DISABLED
 
 // Tests the given test_classifier on the internal samples.
 // See TestClassifier for details.

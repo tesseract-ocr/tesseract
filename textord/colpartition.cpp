@@ -1718,6 +1718,7 @@ ColPartition* ColPartition::CopyButDontOwnBlobs() {
   return copy;
 }
 
+#ifndef GRAPHICS_DISABLED
 // Provides a color for BBGrid to draw the rectangle.
 // Must be kept in sync with PolyBlockType.
 ScrollView::Color  ColPartition::BoxColor() const {
@@ -1725,6 +1726,7 @@ ScrollView::Color  ColPartition::BoxColor() const {
     return BLOBNBOX::TextlineColor(blob_type_, flow_);
   return POLY_BLOCK::ColorForPolyBlockType(type_);
 }
+#endif  // GRAPHICS_DISABLED
 
 // Keep in sync with BlobRegionType.
 static char kBlobTypes[BRT_COUNT + 1] = "NHSRIUVT";

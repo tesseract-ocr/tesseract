@@ -228,6 +228,7 @@ void Classify::AdaptiveClassifier(TBLOB *Blob,
 // Clears the window and draws baselines.
 void Classify::RefreshDebugWindow(ScrollView **win, const char *msg,
                                   int y_offset, const TBOX &wbox) {
+  #ifndef GRAPHICS_DISABLED
   const int kSampleSpaceWidth = 500;
   if (*win == NULL) {
     *win = new ScrollView(msg, 100, y_offset, kSampleSpaceWidth * 2, 200,
@@ -241,6 +242,7 @@ void Classify::RefreshDebugWindow(ScrollView **win, const char *msg,
                kSampleSpaceWidth, kBlnXHeight + kBlnBaselineOffset);
   (*win)->ZoomToRectangle(wbox.left(), wbox.top(),
                           wbox.right(), wbox.bottom());
+  #endif  // GRAPHICS_DISABLED
 }
 
 // Learns the given word using its chopped_word, seam_array, denorm,
@@ -276,6 +278,7 @@ void Classify::LearnWord(const char* filename, const char *rejmap,
   int start_blob = 0;
   char prev_map_char = '0';
 
+  #ifndef GRAPHICS_DISABLED
   if (classify_debug_character_fragments) {
     if (learn_fragmented_word_debug_win_ != NULL) {
       window_wait(learn_fragmented_word_debug_win_);
@@ -287,6 +290,7 @@ void Classify::LearnWord(const char* filename, const char *rejmap,
     word->chopped_word->plot(learn_fragmented_word_debug_win_);
     ScrollView::Update();
   }
+  #endif  // GRAPHICS_DISABLED
 
   for (int ch = 0; ch < word_len; ++ch) {
     if (classify_debug_character_fragments) {
@@ -410,6 +414,7 @@ void Classify::LearnPieces(const char* filename, int start, int length,
   if (rotated_blob == NULL)
     rotated_blob = blob;
 
+  #ifndef GRAPHICS_DISABLED
   // Draw debug windows showing the blob that is being learned if needed.
   if (strcmp(classify_learn_debug_str.string(), correct_text) == 0) {
     RefreshDebugWindow(&learn_debug_win_, "LearnPieces", 600,
@@ -424,6 +429,7 @@ void Classify::LearnPieces(const char* filename, int start, int length,
                ScrollView::BLUE, ScrollView::BROWN);
     learn_fragments_debug_win_->Update();
   }
+  #endif  // GRAPHICS_DISABLED
 
   if (filename != NULL) {
     classify_norm_method.set_value(character);  // force char norm spc 30/11/93

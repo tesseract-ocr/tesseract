@@ -108,6 +108,7 @@ class STATS {
   // Prints summary stats only of the histogram.
   void print_summary() const;
 
+  #ifndef GRAPHICS_DISABLED
   // Draws the histogram as a series of rectangles.
   void plot(ScrollView* window,   // window to draw in
             float xorigin,   // origin of histo
@@ -123,6 +124,8 @@ class STATS {
                 float xscale,    // size of one unit
                 float yscale,    // size of one uint
                 ScrollView::Color colour) const;  // colour to draw in
+  #endif  // GRAPHICS_DISABLED
+
  private:
   inT32 rangemin_;                // min of range
   // rangemax_ is not well named as it is really one past the max.

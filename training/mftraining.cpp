@@ -86,6 +86,7 @@ int main (
 /*----------------------------------------------------------------------------
             Public Code
 -----------------------------------------------------------------------------*/
+#ifndef GRAPHICS_DISABLED
 static void DisplayProtoList(const char* ch, LIST protolist) {
   void* window = c_create_window("Char samples", 50, 200,
                                  520, 520, -130.0, 130.0, -130.0, 130.0);
@@ -116,6 +117,7 @@ static void DisplayProtoList(const char* ch, LIST protolist) {
   }
   c_make_current(window);
 }
+#endif  // GRAPHICS_DISABLED
 
 // Helper to run clustering on a single config.
 // Mostly copied from the old mftraining, but with renamed variables.
@@ -135,8 +137,10 @@ static LIST ClusterOneConfig(int shape_id, const char* class_label,
   // Merge protos where reasonable to make more of them significant by
   // representing almost all samples of the class/font.
   MergeInsignificantProtos(proto_list, class_label, clusterer, &Config);
+  #ifndef GRAPHICS_DISABLED
   if (strcmp(FLAGS_test_ch.c_str(), class_label) == 0)
     DisplayProtoList(FLAGS_test_ch.c_str(), proto_list);
+  #endif  // GRAPHICS_DISABLED
   // Delete the protos that will not be used in the inttemp output file.
   proto_list = RemoveInsignificantProtos(proto_list, true,
                                          false,

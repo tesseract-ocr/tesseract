@@ -168,7 +168,7 @@ void RenderIntProto(ScrollView *window,
                     INT_CLASS Class,
                     PROTO_ID ProtoId,
                     ScrollView::Color color);
-#endif
+#endif  // GRAPHICS_DISABLED
 
 int TruncateParam(FLOAT32 Param, int Min, int Max, char *Id);
 
@@ -1942,7 +1942,7 @@ int TruncateParam(FLOAT32 Param, int Min, int Max, char *Id) {
 
 
 /*---------------------------------------------------------------------------*/
-
+#ifndef GRAPHICS_DISABLED
 /**
  * Initializes the int matcher window if it is not already
  * initialized.
@@ -1991,3 +1991,4 @@ void InitFeatureDisplayWindowIfReqd() {
 ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos) {
   return new ScrollView(name, xpos, ypos, 520, 520, 260, 260, true);
 }
+#endif  // GRAPHICS_DISABLED

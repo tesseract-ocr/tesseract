@@ -31,6 +31,11 @@
 #include "textord.h"
 #include "wordrec.h"
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 class PAGE_RES;
 class PAGE_RES_IT;
 class BLOCK_LIST;
@@ -408,7 +413,9 @@ class Tesseract : public Wordrec {
 
   //// pgedit.h //////////////////////////////////////////////////////////
   SVMenuNode *build_menu_new();
+  #ifndef GRAPHICS_DISABLED
   void pgeditor_main(int width, int height, PAGE_RES* page_res);
+  #endif  // GRAPHICS_DISABLED
   void process_image_event( // action in image win
                            const SVEvent &event);
   BOOL8 process_cmd_win_event(                 // UI command semantics
@@ -424,7 +431,9 @@ class Tesseract : public Wordrec {
   BOOL8 word_bln_display(BLOCK* block, ROW* row, WERD_RES* word_res);
   BOOL8 word_blank_and_set_display(BLOCK* block, ROW* row, WERD_RES* word_res);
   BOOL8 word_set_display(BLOCK* block, ROW* row, WERD_RES* word_res);
+  //#ifndef GRAPHICS_DISABLED
   BOOL8 word_dumper(BLOCK* block, ROW* row, WERD_RES* word_res);
+  //#endif  // GRAPHICS_DISABLED
   //// reject.h //////////////////////////////////////////////////////////
   void make_reject_map(            //make rej map for wd //detailed results
                        WERD_RES *word,

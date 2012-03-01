@@ -192,6 +192,7 @@ class MasterTrainer {
   // Generates debug output relating to the canonical distance between the
   // two given UTF8 grapheme strings.
   void DebugCanonical(const char* unichar_str1, const char* unichar_str2);
+  #ifndef GRAPHICS_DISABLED
   // Debugging for cloud/canonical features.
   // Displays a Features window containing:
   // If unichar_str2 is in the unicharset, and canonical_font is non-negative,
@@ -204,6 +205,7 @@ class MasterTrainer {
   // will display the samples that have that feature in a separate window.
   void DisplaySamples(const char* unichar_str1, int cloud_font,
                       const char* unichar_str2, int canonical_font);
+  #endif  // GRAPHICS_DISABLED
 
   // Tests the given test_classifier on the internal samples.
   // See TestClassifier for details.

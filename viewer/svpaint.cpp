@@ -11,12 +11,12 @@
 // - A LMB click either draws point-to-point, point or text.
 // - A LMB dragging either draws a line, a rectangle or ellipse.
 
-
 #include "scrollview.h"
 #include "svmnode.h"
 #include <stdlib.h>
 #include <iostream>
 
+#ifndef GRAPHICS_DISABLED
 // The current color values we use, initially white (== ScrollView::WHITE).
 int rgb[3] = { 255, 255, 255 };
 
@@ -218,3 +218,4 @@ int main(int argc, char** argv) {
 	if (argc > 1) { server_name = argv[1]; } else { server_name = "localhost"; }
 	SVPaint svp(server_name);
 }
+#endif  // GRAPHICS_DISABLED

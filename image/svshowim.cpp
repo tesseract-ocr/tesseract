@@ -6,6 +6,7 @@
 #include "config_auto.h"
 #endif
 
+#ifndef GRAPHICS_DISABLED
 #include "allheaders.h"
 
 #include "svshowim.h"
@@ -36,3 +37,6 @@ void sv_show_sub_image(IMAGE*    source,         // Image to show.
   window->Image(pix, xpos, window->TranslateYCoordinate(yext) + ypos);
   pixDestroy(&pix);
 }
+
+#endif  // GRAPHICS_DISABLED
+
