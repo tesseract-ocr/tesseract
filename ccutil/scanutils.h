@@ -16,8 +16,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCANUTILS_H
-#define SCANUTILS_H
+#ifndef TESSERACT_CCUTIL_SCANUTILS_H_
+#define TESSERACT_CCUTIL_SCANUTILS_H_
 
 #ifdef EMBEDDED
 
@@ -51,6 +51,6 @@ int creat(const char *pathname, mode_t mode);
 // floating-point notation is not supported.
 double strtofloat(const char* s);
 
-#endif
+#endif  // EMBEDDED
 
-#endif
+#endif  // TESSERACT_CCUTIL_SCANUTILS_H_

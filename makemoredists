@@ -1,13 +1,12 @@
 #!/bin/bash
-# Requirement: tesseract directory name must be "tesseract-ocr" otherwise
-# script will not work
+# Requirement: tesseract directory name should be "tesseract-3.02"
 
-# get version information
-version=`grep PACKAGE_VERSION= configure | sed -e "s/PACKAGE_VERSION=//" | sed -e "s/'//g"`
-ver=tesseract-ocr-$version
+source_dir=${PWD##*/}
+ver=$source_dir
 excld="exclude.txt"
+
 cd ..
-echo Output for $ver is in `pwd`...
+echo Output for $source_dir is in `pwd` ...
 
 # create language files packages
 if [ -f $excld ] 
@@ -16,23 +15,30 @@ then
 	rm -f $excld
 fi
 
-for l in tesseract-ocr/tessdata/*.traineddata
+for l in $source_dir/tessdata/*.traineddata
 do
-	echo  Creating language package for `basename "$l" .traineddata`...
-	chmod 644 ${l%%.*}.*
-        tar --group root --owner root -chozf $ver.`basename "$l" .traineddata`.tar.gz ${l%%.*}.*
-	echo ${l%%.*}.* | tr " " "\n" >>$excld
+	filename=`basename "$l"`
+	lang=${filename%.*}
+	echo  Creating language package for `basename "$l"`...
+	chmod 644 $source_dir/tessdata/*$lang*
+	tar --group root --owner root -chozf $ver.`basename "$l" .traineddata`.tar.gz $source_dir/tessdata/*$lang*
+	echo $source_dir/tessdata/*$lang* | tr " " "\n" >>$excld
 done
-
-# create linux source package
-tar -chzf tesseract-ocr-$version.tar.gz --exclude=.svn --exclude=vs2008 --exclude=vs2010 -X $excld tesseract-ocr/*
-rm -f $excld
 
 # Windows build relevant files
 name=$ver-win_vs
 # Let's be nice and use common windows packager ;-)
-zip $name.zip tesseract-ocr/vs2008/* tesseract-ocr/vs2008/include/* tesseract-ocr/vs2008/include/leptonica/* tesseract-ocr/vs2008/port/* tesseract-ocr/vs2008/lib/* tesseract-ocr/vs2010/* tesseract-ocr/vs2010/include/* tesseract-ocr/vs2010/include/leptonica/* tesseract-ocr/vs2010/port/*
+zip -9 -r --exclude=*.svn* $name.zip $source_dir/vs2008/
 
-# create doc
-doxygen tesseract-ocr/doc/Doxyfile
-tar -chzf $ver-doc-html.tar.gz tesseract-ocr/doc/html/*
+# create linux source package
+echo Creating linux source package $ver.tar.gz ...
+tar -chzf $ver.tar.gz --exclude=.svn --exclude=debian --exclude=doc/html --exclude=po/ --exclude=makemoredists --exclude=vs2008 -X $excld $source_dir/*
+
+# create doc and package doc
+cd $source_dir
+doxygen doc/Doxyfile
+cd ..
+tar -chzf $ver-doc-html.tar.gz $source_dir/doc/html/*
+
+rm -f $excld
+cd $source_dir

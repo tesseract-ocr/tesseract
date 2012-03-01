@@ -31,14 +31,15 @@ PROJECT_NAME           = Tesseract
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER         = 3.01
+PROJECT_NUMBER         = 3.02
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
 # If a relative path is entered, it will be relative to the location 
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = tesseract-ocr/doc/
+OUTPUT_DIRECTORY       = doc/
+#OUTPUT_DIRECTORY       =
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 
 # 4096 sub-directories (in 2 levels) under the output directory of each output 
@@ -590,7 +591,8 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = tesseract-ocr
+#INPUT                  = tesseract-ocr
+INPUT                  =
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -649,8 +651,9 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = tesseract-ocr/vs2008 \
-                         tesseract-ocr/vs2010
+#EXCLUDE                = tesseract-ocr/vs2008 \
+#                         tesseract-ocr/vs2010
+EXCLUDE                = vs2008
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix filesystem feature) are excluded 

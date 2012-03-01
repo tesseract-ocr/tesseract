@@ -33,6 +33,8 @@
 #include "scanutils.h"
 #include "tprintf.h"
 
+#ifdef EMBEDDED
+
 enum Flags {
   FL_SPLAT  = 0x01,   // Drop the value, do not assign
   FL_INV    = 0x02,   // Character-set with inverse
@@ -544,3 +546,5 @@ int creat(const char *pathname, mode_t mode)
 {
   return open(pathname, O_CREAT | O_TRUNC | O_WRONLY, mode);
 }
+
+#endif  // EMBEDDED

@@ -83,6 +83,20 @@ if test "$enable_graphics" = "no"; then
   AC_DEFINE([DISABLE_GRAPHICS], [], [Disable graphics])
 fi
 
+# check whether to build embedded version
+AC_MSG_CHECKING(--enable-embedded argument)
+AC_ARG_ENABLE([embedded],
+    [  --enable-embedded       enable embedded build (default=no)],
+    [enable_embedded=$enableval],
+    [enable_embedded="no"])
+AC_MSG_RESULT($enable_embedded)
+AM_CONDITIONAL([EMBEDDED], [test "$enable_embedded" = "yes"])
+if test "$enable_embedded" = "yes"; then
+  #AC_DEFINE([EMBEDDED], [], [Embedded Mode])
+  AC_SUBST([AM_CXXFLAGS], [-DEMBEDDED])
+  AC_SUBST([AM_CPPFLAGS], [-DEMBEDDED])
+fi
+
 # check whether to build multiple libraries
 AC_MSG_CHECKING(--enable-multiple-libraries argument)
 AC_ARG_ENABLE([multiple-libraries],

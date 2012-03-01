@@ -1,7 +1,7 @@
 SUBDIRS =
 AM_CXXFLAGS = -DTESSDATA_PREFIX=@datadir@/
 
-EXTRA_DIST = mfcpch.cpp scanutils.cpp scanutils.h
+EXTRA_DIST = mfcpch.cpp
 
 include_HEADERS = \
     ambigs.h basedir.h bits16.h bitvector.h \
@@ -35,4 +35,7 @@ libtesseract_ccutil_la_SOURCES = \
     unichar.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
     params.cpp
 
-
+if EMBEDDED
+include_HEADERS += scanutils.h
+libtesseract_ccutil_la_SOURCES += scanutils.cpp
+endif
