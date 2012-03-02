@@ -63,15 +63,6 @@ typedef INT_FEATURE_STRUCT *INT_FEATURE;
 typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 struct TBLOB;
 
-#ifdef TESSDLL_EXPORTS
-#define TESSDLL_API __declspec(dllexport)
-#elif defined(TESSDLL_IMPORTS)
-#define TESSDLL_API __declspec(dllimport)
-#else
-#define TESSDLL_API
-#endif
-
-
 namespace tesseract {
 
 class CubeRecoContext;
@@ -107,7 +98,7 @@ typedef TessCallback3<const UNICHARSET &, int, PAGE_RES *> TruthCallback;
  * class to hide the data types so that users of this class don't have to
  * include any other Tesseract headers.
  */
-class TESSDLL_API TessBaseAPI {
+class TESS_API TessBaseAPI {
  public:
   TessBaseAPI();
   virtual ~TessBaseAPI();

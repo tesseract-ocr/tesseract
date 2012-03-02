@@ -21,6 +21,7 @@
 #define           STRNGS_H
 
 #include          <string.h>
+#include          "platform.h"
 #include          "memry.h"
 #include          "serialis.h"
 
@@ -34,17 +35,9 @@
 // cannot assume we know the strlen.
 #define STRING_IS_PROTECTED  0
 
-#ifdef CCUTIL_EXPORTS
-#define CCUTIL_API __declspec(dllexport)
-#elif defined(CCUTIL_IMPORTS)
-#define CCUTIL_API __declspec(dllimport)
-#else
-#define CCUTIL_API
-#endif
-
 template <typename T> class GenericVector;
 
-class CCUTIL_API STRING
+class TESS_API STRING
 {
   public:
     STRING();
