@@ -1,4 +1,3 @@
-SUBDIRS =
 AM_CPPFLAGS = \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
@@ -7,6 +6,11 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/textord -I$(top_srcdir)/wordrec \
     -I$(top_srcdir)/neural_networks/runtime \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer
+        
+if VISIBILITY
+AM_CPPFLAGS += -DTESS_EXPORTS \
+    -fvisibility=hidden -fvisibility-inlines-hidden
+endif
 
 include_HEADERS = \
     altlist.h beam_search.h bmp_8.h cached_file.h \

@@ -1,5 +1,10 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . training java tessdata testing doc
+SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . java tessdata testing doc
+# training subdir can not be build with -fvisibility at the moment
+if !VISIBILITY
+SUBDIRS += training
+endif
+
 #if USING_GETTEXT
 #SUBDIRS += po
 #AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"

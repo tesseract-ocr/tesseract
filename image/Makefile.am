@@ -1,5 +1,9 @@
-SUBDIRS =
 AM_CPPFLAGS = -I$(top_srcdir)/ccutil -I$(top_srcdir)/viewer
+    
+if VISIBILITY
+AM_CPPFLAGS += -DTESS_EXPORTS \
+    -fvisibility=hidden -fvisibility-inlines-hidden
+endif
 
 include_HEADERS = \
     image.h img.h imgerrs.h imgs.h \

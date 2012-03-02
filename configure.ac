@@ -7,7 +7,7 @@
 # ----------------------------------------
 
 AC_PREREQ(2.50)
-AC_INIT([tesseract], [3.02], [theraysmith@gmail.com])
+AC_INIT([tesseract], [3.02], [http://code.google.com/p/tesseract-ocr/issues/list])
 AC_CONFIG_MACRO_DIR([m4])
 AC_REVISION($Id: configure.ac,v 1.4 2007/02/02 22:38:17 theraysmith Exp $)
 AC_CONFIG_AUX_DIR(config)
@@ -97,6 +97,17 @@ if test "$enable_embedded" = "yes"; then
   AC_SUBST([AM_CXXFLAGS], [-DEMBEDDED])
   AC_SUBST([AM_CPPFLAGS], [-DEMBEDDED])
 fi
+
+# check whether to build tesseract with -fvisibility=hidden -fvisibility-inlines-hidden
+# http://gcc.gnu.org/wiki/Visibility
+# http://groups.google.com/group/tesseract-dev/browse_thread/thread/976645ae98189127
+AC_MSG_CHECKING(--enable-visibility argument)
+AC_ARG_ENABLE([visibility],
+    [AC_HELP_STRING([--enable-visibility],[enable experimental build with fvisibility (default=no)])],
+    [enable_visibility=$enableval],
+    [enable_visibility="no"])
+AC_MSG_RESULT($enable_visibility)
+AM_CONDITIONAL([VISIBILITY], [test "$enable_visibility" = "yes"])
 
 # check whether to build multiple libraries
 AC_MSG_CHECKING(--enable-multiple-libraries argument)

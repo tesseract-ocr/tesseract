@@ -1,6 +1,11 @@
 SUBDIRS =
 AM_CXXFLAGS = -DTESSDATA_PREFIX=@datadir@/
 
+if VISIBILITY
+AM_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
+AM_CPPFLAGS += -DTESS_EXPORTS
+endif
+
 EXTRA_DIST = mfcpch.cpp
 
 include_HEADERS = \

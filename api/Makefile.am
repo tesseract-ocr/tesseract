@@ -4,6 +4,10 @@ AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"\
     -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify -I$(top_srcdir)/ccmain \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
+    
+if VISIBILITY
+AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
+endif
 
 include_HEADERS = \
     apitypes.h baseapi.h tesseractmain.h
@@ -28,10 +32,14 @@ libtesseract_api_la_LIBADD = \
     $(top_srcdir)/viewer/libtesseract_viewer.la \
     $(top_srcdir)/ccutil/libtesseract_ccutil.la
 endif
+libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
+if VISIBILITY
+libtesseract_api_la_CPPFLAGS += -DTESS_EXPORTS
+endif
 libtesseract_api_la_SOURCES = baseapi.cpp
 
 lib_LTLIBRARIES += libtesseract.la
-libtesseract_la_LDFLAGS =
+libtesseract_la_LDFLAGS = 
 libtesseract_la_SOURCES =
 # Dummy C++ source to cause C++ linking.
 # see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
@@ -52,8 +60,11 @@ libtesseract_la_LIBADD = \
     $(top_srcdir)/ccutil/libtesseract_ccutil.la
 
 libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_la_LDFLAGS += -L./ -L../ -L../api -L../ccutil -L../viewer -L../cutil -L../image -L../ccstruct -L../dict -L../classify -L../wordrec -L../neural_networks/runtime -L../textord -L../cube -L../ccmain
 
 bin_PROGRAMS = tesseract
 tesseract_SOURCES = $(top_srcdir)/api/tesseractmain.cpp
 tesseract_LDADD = libtesseract.la
+tesseract_CPPFLAGS = $(AM_CPPFLAGS)
+if VISIBILITY
+tesseract_CPPFLAGS += -DTESS_IMPORTS
+endif

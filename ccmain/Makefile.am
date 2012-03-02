@@ -1,4 +1,3 @@
-SUBDIRS =
 AM_CPPFLAGS = \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
@@ -7,6 +6,11 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube \
     -I$(top_srcdir)/textord
+    
+if VISIBILITY
+AM_CPPFLAGS += -DTESS_EXPORTS \
+    -fvisibility=hidden -fvisibility-inlines-hidden
+endif
 
 include_HEADERS = \
     control.h cube_reco_context.h cubeclassifier.h \
