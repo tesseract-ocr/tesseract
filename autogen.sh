@@ -27,6 +27,11 @@
 #
 # All the rest is auto-generated.
 
+# create m4 directory if it not exists
+if [ ! -d m4 ];  then
+	mkdir m4
+fi
+
 bail_out()
 {
 	echo 

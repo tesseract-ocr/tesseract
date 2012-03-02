@@ -26,7 +26,7 @@
 #include "params.h"
 #include "unicharset.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <pthread.h>
@@ -43,7 +43,7 @@ class CCUtilMutex {
 
   void Unlock();
  private:
-#ifdef WIN32
+#ifdef _WIN32
   HANDLE mutex_;
 #else
   pthread_mutex_t mutex_;

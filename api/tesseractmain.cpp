@@ -46,7 +46,7 @@
  **********************************************************************/
 
 int main(int argc, char **argv) {
-#ifdef USE_NLS
+#ifdef USING_GETTEXT
   setlocale (LC_ALL, "");
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);

@@ -24,7 +24,7 @@
 #ifndef TESSERACT_VIEWER_SVUTIL_H__
 #define TESSERACT_VIEWER_SVUTIL_H__
 
-#ifdef WIN32
+#ifdef _WIN32
 #ifndef __GNUC__
 #include <windows.h>
 #define snprintf _snprintf
@@ -73,7 +73,7 @@ class SVSemaphore {
   /// Wait on a semaphore.
   void Wait();
  private:
-#ifdef WIN32
+#ifdef _WIN32
   HANDLE semaphore_;
 #else
   sem_t semaphore_;
@@ -91,7 +91,7 @@ class SVMutex {
   /// Unlocks on a mutex.
   void Unlock();
  private:
-#ifdef WIN32
+#ifdef _WIN32
   HANDLE mutex_;
 #else
   pthread_mutex_t mutex_;

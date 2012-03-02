@@ -19,7 +19,7 @@
 //
 // The parameters editor is used to edit all the parameters used within
 // tesseract from the ui.
-#ifdef WIN32
+#ifdef _WIN32
 #else
 #include <stdlib.h>
 #include <stdio.h>

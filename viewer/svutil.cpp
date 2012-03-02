@@ -21,7 +21,7 @@
 // thread/process creation & synchronization and network connection.
 
 #include <stdio.h>
-#ifdef WIN32
+#ifdef _WIN32
 struct addrinfo {
   struct sockaddr* ai_addr;
   int ai_addrlen;
@@ -64,7 +64,7 @@ const int kMaxMsgSize = 4096;
 
 // Signals a thread to exit.
 void SVSync::ExitThread() {
-#ifdef WIN32
+#ifdef _WIN32
   // ExitThread(0);
 #else
   pthread_exit(0);
@@ -73,7 +73,7 @@ void SVSync::ExitThread() {
 
 // Starts a new process.
 void SVSync::StartProcess(const char* executable, const char* args) {
-#ifdef WIN32
+#ifdef _WIN32
   std::string proc;
   proc.append(executable);
   proc.append(" ");
@@ -123,7 +123,7 @@ void SVSync::StartProcess(const char* executable, const char* args) {
 }
 
 SVSemaphore::SVSemaphore() {
-#ifdef WIN32
+#ifdef _WIN32
   semaphore_ = CreateSemaphore(0, 0, 10, 0);
 #else
   sem_init(&semaphore_, 0, 0);
@@ -131,7 +131,7 @@ SVSemaphore::SVSemaphore() {
 }
 
 void SVSemaphore::Signal() {
-#ifdef WIN32
+#ifdef _WIN32
   ReleaseSemaphore(semaphore_, 1, NULL);
 #else
   sem_post(&semaphore_);
@@ -139,7 +139,7 @@ void SVSemaphore::Signal() {
 }
 
 void SVSemaphore::Wait() {
-#ifdef WIN32
+#ifdef _WIN32
   WaitForSingleObject(semaphore_, INFINITE);
 #else
   sem_wait(&semaphore_);
@@ -147,7 +147,7 @@ void SVSemaphore::Wait() {
 }
 
 SVMutex::SVMutex() {
-#ifdef WIN32
+#ifdef _WIN32
   mutex_ = CreateMutex(0, FALSE, 0);
 #else
   pthread_mutex_init(&mutex_, NULL);
@@ -155,7 +155,7 @@ SVMutex::SVMutex() {
 }
 
 void SVMutex::Lock() {
-#ifdef WIN32
+#ifdef _WIN32
   WaitForSingleObject(mutex_, INFINITE);
 #else
   pthread_mutex_lock(&mutex_);
@@ -163,7 +163,7 @@ void SVMutex::Lock() {
 }
 
 void SVMutex::Unlock() {
-#ifdef WIN32
+#ifdef _WIN32
   ReleaseMutex(mutex_);
 #else
   pthread_mutex_unlock(&mutex_);
@@ -173,7 +173,7 @@ void SVMutex::Unlock() {
 // Create new thread.
 
 void SVSync::StartThread(void *(*func)(void*), void* arg) {
-#ifdef WIN32
+#ifdef _WIN32
   LPTHREAD_START_ROUTINE f = (LPTHREAD_START_ROUTINE) func;
   DWORD threadid;
   HANDLE newthread = CreateThread(
@@ -210,7 +210,7 @@ void SVNetwork::Flush() {
 // This will always return one line of char* (denoted by \n).
 char* SVNetwork::Receive() {
   char* result = NULL;
-#ifdef WIN32
+#ifdef _WIN32
   if (has_content) { result = strtok (NULL, "\n"); }
 #else
   if (buffer_ptr_ != NULL) { result = strtok_r(NULL, "\n", &buffer_ptr_); }
@@ -246,7 +246,7 @@ char* SVNetwork::Receive() {
     if (i <= 0) { return NULL; }
     msg_buffer_in_[i] = '\0';
     has_content = true;
-#ifdef WIN32
+#ifdef _WIN32
     return strtok(msg_buffer_in_, "\n");
 #else
     // Setup a new string tokenizer.
@@ -257,7 +257,7 @@ char* SVNetwork::Receive() {
 
 // Close the connection to the server.
 void SVNetwork::Close() {
-#ifdef WIN32
+#ifdef _WIN32
   closesocket(stream_);
 #else
   close(stream_);
@@ -267,7 +267,7 @@ void SVNetwork::Close() {
 
 // The program to invoke to start ScrollView
 static const char* ScrollViewProg() {
-#ifdef WIN32
+#ifdef _WIN32
   const char* prog = "java -Xms512m -Xmx1024m";
 #else
   const char* prog = "sh";
@@ -283,7 +283,7 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
   // exceptions in piccolo. Ideally piccolo would be debugged to make
   // this unnecessary.
   // Also the path has to be separated by ; on windows and : otherwise.
-#ifdef WIN32
+#ifdef _WIN32
   const char* cmd_template = "-Djava.library.path=%s -cp %s/ScrollView.jar;"
       "%s/piccolo-1.2.jar;%s/piccolox-1.2.jar"
       " com.google.scrollview.ScrollView";
@@ -332,7 +332,7 @@ static int GetAddrInfoNonLinux(const char* hostname, int port,
   (*addr_info)->ai_socktype = SOCK_STREAM;
 
   struct hostent *name;
-#ifdef WIN32
+#ifdef _WIN32
   WSADATA wsaData;
   WSAStartup(MAKEWORD(1, 1), &wsaData);
   name = gethostbyname(hostname);
@@ -412,7 +412,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
     while (connect(stream_, (struct sockaddr *) addr_info->ai_addr,
                    addr_info->ai_addrlen) < 0) {
       std::cout << "ScrollView: Waiting for server...\n";
-#ifdef WIN32
+#ifdef _WIN32
       Sleep(1000);
 #else
       sleep(1);

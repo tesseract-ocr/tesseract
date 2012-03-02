@@ -24,7 +24,7 @@
 
 #include "allheaders.h"
 
-#ifdef USE_NLS
+#ifdef USING_GETTEXT
 #include <libintl.h>
 #include <locale.h>
 #define _(x) gettext(x)
