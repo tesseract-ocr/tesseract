@@ -7,14 +7,14 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+include_HEADERS = publictypes.h
+noinst_HEADERS = \
     blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
     detlinefit.h dppoint.h fontinfo.h genblob.h hpddef.h hpdsizes.h ipoints.h \
     linlsq.h matrix.h mod128.h normalis.h \
     ocrblock.h ocrpara.h ocrrow.h otsuthr.h \
     pageres.h params_training_featdef.h \
     pdblock.h points.h polyaprx.h polyblk.h \
-    publictypes.h \
     quadlsq.h quadratc.h quspline.h ratngs.h rect.h rejctmap.h \
     seam.h split.h statistc.h stepblob.h vecfuncs.h werd.h
 

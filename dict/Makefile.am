@@ -6,7 +6,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+noinst_HEADERS = \
     dawg.h dict.h matchdefs.h \
     permute.h states.h stopper.h trie.h
 

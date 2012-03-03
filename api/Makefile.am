@@ -9,8 +9,8 @@ if VISIBILITY
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
-    apitypes.h baseapi.h tesseractmain.h
+include_HEADERS = apitypes.h baseapi.h
+noinst_HEADERS =  tesseractmain.h
 lib_LTLIBRARIES = 
 
 if !USING_MULTIPLELIBS

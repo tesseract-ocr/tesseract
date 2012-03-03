@@ -9,7 +9,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+noinst_HEADERS = \
     associate.h bestfirst.h chop.h \
     chopper.h closed.h drawfx.h findseam.h gradechop.h \
     language_model.h makechop.h matchtab.h measure.h \
@@ -39,5 +39,3 @@ libtesseract_wordrec_la_SOURCES = \
     olutil.cpp outlines.cpp pieces.cpp \
     plotedges.cpp plotseg.cpp render.cpp segsearch.cpp \
     tface.cpp wordclass.cpp wordrec.cpp
-
-

@@ -15,6 +15,9 @@ EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
 
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
 
+uninstall:
+	rm -rf $(DESTDIR)$(includedir)
+
 dist-hook:
 # Need to remove .svn directories from directories
 # added using EXTRA_DIST. $(distdir)/tessdata would in

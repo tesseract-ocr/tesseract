@@ -9,7 +9,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+noinst_HEADERS = \
     input_file_buffer.h neural_net.h neuron.h
 
 if !USING_MULTIPLELIBS

@@ -5,7 +5,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+noinst_HEADERS = \
     bitvec.h callcpp.h const.h cutil.h cutil_class.h danerror.h efio.h \
     emalloc.h freelist.h globals.h listio.h \
     oldheap.h oldlist.h structures.h tessarray.h

@@ -10,7 +10,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
 endif
 
 
-include_HEADERS = \
+noinst_HEADERS = \
     alignedblob.h bbgrid.h blkocc.h blobgrid.h \
     ccnontextdetect.h cjkpitch.h colfind.h colpartition.h colpartitionset.h \
     colpartitiongrid.h \

@@ -12,7 +12,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+noinst_HEADERS = \
     altlist.h beam_search.h bmp_8.h cached_file.h \
     char_altlist.h char_bigrams.h char_samp.h char_samp_enum.h \
     char_samp_set.h char_set.h classifier_base.h classifier_factory.h \

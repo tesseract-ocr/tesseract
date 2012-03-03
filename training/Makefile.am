@@ -1,4 +1,3 @@
-SUBDIRS =
 AM_CPPFLAGS = \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
@@ -8,7 +7,7 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/classify -I$(top_srcdir)/display \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
 
-include_HEADERS = \
+noinst_HEADERS = \
     commontraining.h tessopt.h mergenf.h
 
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la

@@ -3,7 +3,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+noinst_HEADERS = \
     scrollview.h svmnode.h svutil.h
 
 if !USING_MULTIPLELIBS

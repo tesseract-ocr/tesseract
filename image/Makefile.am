@@ -5,7 +5,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+noinst_HEADERS = \
     image.h img.h imgerrs.h imgs.h \
     imgtiff.h imgunpk.h svshowim.h
 

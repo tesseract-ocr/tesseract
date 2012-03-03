@@ -8,7 +8,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+noinst_HEADERS = \
     adaptive.h baseline.h blobclass.h chartoname.h \
     classify.h cluster.h clusttool.h cutoffs.h \
     errorcounter.h extern.h extract.h \
