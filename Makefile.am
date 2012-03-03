@@ -1,9 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . java tessdata testing doc
-# training subdir can not be build with -fvisibility at the moment
-if !VISIBILITY
-SUBDIRS += training
-endif
+SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . java tessdata testing doc training
 
 #if USING_GETTEXT
 #SUBDIRS += po
@@ -15,7 +11,7 @@ EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
 
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
 
-uninstall:
+uninstall-hook:
 	rm -rf $(DESTDIR)$(includedir)
 
 dist-hook:

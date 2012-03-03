@@ -7,6 +7,12 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/classify -I$(top_srcdir)/display \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
 
+# TODO: training programs can not be linked to shared library created 
+# with -fvisibility 
+if VISIBILITY
+AM_LDFLAGS = -all-static
+endif
+
 noinst_HEADERS = \
     commontraining.h tessopt.h mergenf.h
 
