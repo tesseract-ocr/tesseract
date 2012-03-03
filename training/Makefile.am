@@ -52,6 +52,7 @@ classifier_tester_LDADD = \
     libtesseract_tessopt.la
 if USING_MULTIPLELIBS
 classifier_tester_LDADD += \
+    $(top_srcdir)/api/libtesseract_api.la \
     $(top_srcdir)/textord/libtesseract_textord.la \
     $(top_srcdir)/classify/libtesseract_classify.la \
     $(top_srcdir)/dict/libtesseract_dict.la \
@@ -174,7 +175,8 @@ unicharset_extractor_LDADD = \
     libtesseract_tessopt.la
 if USING_MULTIPLELIBS
 unicharset_extractor_LDADD += \
-    $(top_srcdir)/ccutil/libtesseract_ccutil.la
+    $(top_srcdir)/ccutil/libtesseract_ccutil.la \
+    $(top_srcdir)/ccstruct/libtesseract_ccstruct.la
 else
 unicharset_extractor_LDADD += \
     $(top_srcdir)/api/libtesseract.la

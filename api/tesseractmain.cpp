@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
   // but that doesn't work.
   if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
     api.SetPageSegMode(pagesegmode);
-  printf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
+  tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
            tesseract::TessBaseAPI::Version());
 
 

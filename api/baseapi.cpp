@@ -729,8 +729,8 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   if (npages > 0) {
     for (; page < npages && (pix = pixReadTiff(filename, page)) != NULL;
          ++page) {
-      if (page >= 0)
-        tprintf(_("Page %d\n"), page);
+      if ((page >= 0) && (npages > 1))
+        tprintf(_("Page %d of %d\n"), page + 1, npages);
       char page_str[kMaxIntSize];
       snprintf(page_str, kMaxIntSize - 1, "%d", page);
       SetVariable("applybox_page", page_str);

@@ -19,6 +19,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifdef EMBEDDED
+
 #include <ctype.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -32,8 +34,6 @@
 
 #include "scanutils.h"
 #include "tprintf.h"
-
-#ifdef EMBEDDED
 
 enum Flags {
   FL_SPLAT  = 0x01,   // Drop the value, do not assign
