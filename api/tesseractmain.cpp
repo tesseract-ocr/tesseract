@@ -39,6 +39,7 @@
 #include "baseapi.h"
 #include "strngs.h"
 #include "tesseractmain.h"
+#include "tprintf.h"
 
 /**********************************************************************
  *  main()
@@ -53,7 +54,18 @@ int main(int argc, char **argv) {
 #endif
   if ((argc == 2 && strcmp(argv[1], "-v") == 0) ||
       (argc == 2 && strcmp(argv[1], "--version") == 0)) {
+    char *versionStrP;
+
     fprintf(stderr, "tesseract %s\n", tesseract::TessBaseAPI::Version());
+    
+    versionStrP = getLeptonicaVersion();
+    fprintf(stderr, " %s\n", versionStrP);
+    lept_free(versionStrP);
+    
+    versionStrP = getImagelibVersions();
+    fprintf(stderr, "  %s\n", versionStrP);
+    lept_free(versionStrP);
+
     exit(0);
   }
   // Make the order of args a bit more forgiving than it used to be.

@@ -64,18 +64,11 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <winbase.h>             // winbase.h contains windows.h
-
-#define DLLIMPORT __declspec( dllimport)
-#define DLLEXPORT __declspec( dllexport)
-
 #else
 /********************************************************/
 /* __MSW__ */
 #ifdef __MSW__
 #include <windows.h>             // provides standard definitions (like HANDLE)
-
-#define DLLIMPORT __import
-#define DLLEXPORT __export
 #endif
 #endif
 
@@ -85,17 +78,12 @@
 #include <Types.h>
 /*----------------------------*/
 /*----------------------------*/
-#define DLLIMPORT
-#define DLLEXPORT
-
 #endif
 /********************************************************/
 #if defined(__UNIX__) || defined( __DOS__ ) || defined(__OS2__) || defined(__PM__)
 /*----------------------------*/
 /* FarProc and FarData */
 /*----------------------------*/
-#define DLLIMPORT
-#define DLLEXPORT
 /*----------------------------*/
 #endif
 /*****************************************************************************
