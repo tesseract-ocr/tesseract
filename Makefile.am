@@ -21,3 +21,7 @@ dist-hook:
 	rm -rf `find $(distdir) -name .svn`
 	rm -rf `find $(distdir) -name .deps`
 	rm -rf `find $(distdir) -name Makefile.in`
+
+.PHONY: install-langs
+install-langs:
+	@cd "$(top_builddir)/tessdata" && $(MAKE) $@

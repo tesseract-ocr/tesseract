@@ -9,4 +9,5 @@ So, the steps for making Tesseract are:
   * ./autogen.sh
   * ./configure
   * make
-  * make install
+  * sudo make install
+  * sudo make install-langs
