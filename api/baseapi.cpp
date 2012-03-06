@@ -950,7 +950,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
   hocr_str.add_str_int("<div class='ocr_page' id='page_", page_id);
   hocr_str += "' title='image \"";
-  hocr_str += *input_file_;
+  hocr_str += input_file_ ? *input_file_ : "unknown";
   hocr_str.add_str_int("\"; bbox ", rect_left_);
   hocr_str.add_str_int(" ", rect_top_);
   hocr_str.add_str_int(" ", rect_width_);
@@ -1013,6 +1013,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
           hocr_str += grapheme;
         }
       }
+      delete []grapheme;
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (italic) hocr_str += "</em>";
