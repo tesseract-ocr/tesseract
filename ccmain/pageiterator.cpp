@@ -244,7 +244,6 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
       break;
     case RIL_PARA:
       para = it_->row()->row->para();
-      if (para == NULL) return false;
       // explicit fall-through.
     case RIL_TEXTLINE:
       box = it_->row()->row->bounding_box();
@@ -262,7 +261,9 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
     PageIterator other = *this;
     other.Begin();
     do {
-      if (other.it_->row() && other.it_->row()->row &&
+      if (other.it_->block() &&
+          other.it_->block()->block == it_->block()->block &&
+          other.it_->row() && other.it_->row()->row &&
           other.it_->row()->row->para() == para) {
         box = box.bounding_union(other.it_->row()->row->bounding_box());
       }
@@ -347,13 +348,25 @@ Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
   Pix* pix = NULL;
   switch (level) {
     case RIL_BLOCK:
+    case RIL_PARA:
+      int bleft, btop, bright, bbottom;
+      BoundingBoxInternal(RIL_BLOCK, &bleft, &btop, &bright, &bbottom);
       pix = it_->block()->block->render_mask();
       // AND the mask and the image.
       pixRasterop(pix, 0, 0, pixGetWidth(pix), pixGetHeight(pix),
                   PIX_SRC & PIX_DST, tesseract_->pix_binary(),
-                  left, top);
+                  bleft, btop);
+      if (level == RIL_PARA) {
+        // RIL_PARA needs further attention:
+        //   clip the paragraph from the block mask.
+        Box* box = boxCreate(left - bleft, top - btop,
+                             right - left, bottom - top);
+        Pix* pix2 = pixClipRectangle(pix, box, NULL);
+        boxDestroy(&box);
+        pixDestroy(&pix);
+        pix = pix2;
+      }
       break;
-    case RIL_PARA:
     case RIL_TEXTLINE:
     case RIL_WORD:
     case RIL_SYMBOL:
