@@ -12,16 +12,14 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = thresholder.h
+include_HEADERS = \
+	thresholder.h ltrresultiterator.h pageiterator.h resultiterator.h
 noinst_HEADERS = \
-    control.h cube_reco_context.h cubeclassifier.h \
-    docqual.h equationdetect.h fixspace.h \
-    imgscale.h ltrresultiterator.h mutableiterator.h osdetect.h output.h \
-    pageiterator.h paragraphs.h paragraphs_internal.h paramsd.h pgedit.h \
-    reject.h resultiterator.h scaleimg.h \
-    tessbox.h tessedit.h tesseractclass.h \
-    tesseract_cube_combiner.h \
-    tessvars.h tfacep.h tfacepp.h werdit.h
+    control.h cube_reco_context.h cubeclassifier.h docqual.h \
+    equationdetect.h fixspace.h imgscale.h mutableiterator.h osdetect.h \
+    output.h paragraphs.h paragraphs_internal.h paramsd.h pgedit.h \
+    reject.h scaleimg.h tessbox.h tessedit.h tesseractclass.h \
+    tesseract_cube_combiner.h tessvars.h tfacep.h tfacepp.h werdit.h
 
 if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_main.la

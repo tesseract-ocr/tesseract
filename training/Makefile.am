@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
 # TODO: training programs can not be linked to shared library created 
 # with -fvisibility 
 if VISIBILITY
-AM_LDFLAGS = -all-static
+# AM_LDFLAGS = -all-static
 endif
 
 noinst_HEADERS = \
@@ -20,10 +20,10 @@ noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
 libtesseract_training_la_SOURCES = \
     commontraining.cpp
-libtesseract_training_la_LDFLAGS = -static
+#libtesseract_training_la_LDFLAGS = -static
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
-libtesseract_tessopt_la_LDFLAGS = -static
+#libtesseract_tessopt_la_LDFLAGS = -static
 
 bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_tessdata dawg2wordlist mftraining shapeclustering unicharset_extractor wordlist2dawg
 
@@ -52,6 +52,7 @@ ambiguous_words_LDADD += \
 endif
 
 classifier_tester_SOURCES = classifier_tester.cpp
+#classifier_tester_LDFLAGS = -static
 classifier_tester_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la
@@ -76,6 +77,7 @@ classifier_tester_LDADD += \
 endif
 
 combine_tessdata_SOURCES = combine_tessdata.cpp
+#combine_tessdata_LDFLAGS = -static
 if USING_MULTIPLELIBS
 combine_tessdata_LDADD = \
     $(top_srcdir)/ccutil/libtesseract_ccutil.la
@@ -85,6 +87,7 @@ combine_tessdata_LDADD = \
 endif
 
 cntraining_SOURCES = cntraining.cpp
+#cntraining_LDFLAGS = -static
 cntraining_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la
@@ -108,6 +111,7 @@ cntraining_LDADD += \
 endif
 
 dawg2wordlist_SOURCES = dawg2wordlist.cpp
+#dawg2wordlist_LDFLAGS = -static
 dawg2wordlist_LDADD = \
     libtesseract_tessopt.la
 if USING_MULTIPLELIBS
@@ -130,6 +134,7 @@ dawg2wordlist_LDADD += \
 endif
 
 mftraining_SOURCES = mftraining.cpp mergenf.cpp
+#mftraining_LDFLAGS = -static
 mftraining_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la
@@ -153,6 +158,7 @@ mftraining_LDADD += \
 endif
 
 shapeclustering_SOURCES = shapeclustering.cpp
+#shapeclustering_LDFLAGS = -static
 shapeclustering_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la
@@ -176,6 +182,7 @@ shapeclustering_LDADD += \
 endif
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
+#unicharset_extractor_LDFLAGS = -static
 unicharset_extractor_LDADD = \
     libtesseract_tessopt.la
 if USING_MULTIPLELIBS
@@ -188,6 +195,7 @@ unicharset_extractor_LDADD += \
 endif
 
 wordlist2dawg_SOURCES = wordlist2dawg.cpp
+#wordlist2dawg_LDFLAGS = -static
 wordlist2dawg_LDADD = \
     libtesseract_tessopt.la
 if USING_MULTIPLELIBS

@@ -43,17 +43,25 @@ langdata = bul.traineddata mlt.traineddata chr.traineddata \
 
 .PHONY: install-langs
 install-langs:
-	for l in ./*.traineddata ; do \
-		filename=`basename $$l`;\
-		lang=$${filename%.*} ;\
-        if test "$$lang" == "*" ; then \
-			echo "No lang present." ; \
-			break ; \
-		fi ; \
-		echo "installing data for $$lang" ; \
-		$(INSTALL) -m 644 *$$lang* $(datadir) ; \
-	done;
-	
+	@if [ ! -d $(datadir) ]; then mkdir -p $(datadir); fi;
+	@if test "${LANGS}" != ""; then \
+		for lang_code in ${LANGS}; do \
+			echo "installing data for $$lang_code"; \
+			$(INSTALL) -m 644 $$lang_code.* $(datadir); \
+		done; \
+	else \
+		for l in ./*.traineddata; do \
+			filename=`basename $$l`; \
+			lang_code=$${filename%.*}; \
+			if test "$$lang_code" == "*"; then \
+				echo "No lang present."; \
+				break; \
+			fi; \
+			echo "installing data for $$lang_code"; \
+			$(INSTALL) -m 644 $$lang_code.* $(datadir); \
+		done; \
+	fi;
+
 uninstall-local:
 	cd $(datadir); \
 	rm --force $(langdata)

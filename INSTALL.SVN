@@ -6,8 +6,16 @@ before new build.
 
 So, the steps for making Tesseract are:
 
-  * ./autogen.sh
-  * ./configure
-  * make
-  * sudo make install
-  * sudo make install-langs
+  $ ./autogen.sh
+  $ ./configure
+  $ make
+  $ sudo make install
+  $ sudo make install-langs
+  
+'sudo make install-langs' or 'sudo make install LANGS=' will install all
+available language data files in tessdata directory.
+
+If you want to install just few of them than run:
+  $ make install LANGS="eng ara deu"
+It will install only English, Arabic and German language datafiles (if 
+they are present in tessdata directory)

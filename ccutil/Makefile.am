@@ -8,15 +8,17 @@ endif
 
 EXTRA_DIST = mfcpch.cpp
 
-include_HEADERS = errcode.h fileerr.h host.h memry.h \
-    platform.h serialis.h strngs.h tesscallback.h unichar.h
+include_HEADERS = \
+	errcode.h fileerr.h genericvector.h helpers.h host.h memry.h \
+	ndminx.h params.h platform.h serialis.h strngs.h tesscallback.h \
+	unichar.h unicharmap.h unicharset.h
+     
 noinst_HEADERS = \
-    ambigs.h basedir.h bits16.h bitvector.h ccutil.h clst.h \
-    elst2.h elst.h genericvector.h globaloc.h hashfn.h helpers.h \
-    hosthplb.h indexmapbidi.h lsterr.h mfcpch.h ndminx.h notdll.h \
-    nwmain.h ocrclass.h qrsequence.h secname.h sorthelper.h stderr.h \
-    tessdatamanager.h tprintf.h unicharmap.h unicharset.h \
-    unicity_table.h unicodes.h params.h
+    ambigs.h basedir.h bits16.h bitvector.h ccutil.h clst.h elst2.h \
+    elst.h globaloc.h hashfn.h hosthplb.h indexmapbidi.h lsterr.h \
+    mfcpch.h notdll.h nwmain.h ocrclass.h qrsequence.h secname.h \
+    sorthelper.h stderr.h tessdatamanager.h tprintf.h unicity_table.h \
+    unicodes.h 
 
 if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_ccutil.la
