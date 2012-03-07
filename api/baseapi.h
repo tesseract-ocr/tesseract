@@ -24,11 +24,14 @@
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
+#include "platform.h"
 #include "apitypes.h"
 #include "thresholder.h"
 #include "unichar.h"
 #include "tesscallback.h"
 #include "publictypes.h"
+#include "pageiterator.h"
+#include "resultiterator.h"
 
 template <typename T> class GenericVector;
 class PAGE_RES;
@@ -69,9 +72,7 @@ class CubeRecoContext;
 class Dawg;
 class Dict;
 class EquationDetect;
-class PageIterator;
 class LTRResultIterator;
-class ResultIterator;
 class MutableIterator;
 class Tesseract;
 class Trie;
@@ -643,27 +644,27 @@ class TESS_API TessBaseAPI {
  protected:
 
   /** Common code for setting the image. Returns true if Init has been called. */
-  bool InternalSetImage();
+  TESS_LOCAL bool InternalSetImage();
 
   /**
    * Run the thresholder to make the thresholded image. If pix is not NULL,
    * the source is thresholded to pix instead of the internal IMAGE.
    */
-  virtual void Threshold(Pix** pix);
+  TESS_LOCAL virtual void Threshold(Pix** pix);
 
   /**
    * Find lines from the image making the BLOCK_LIST.
    * @return 0 on success.
    */
-  int FindLines();
+  TESS_LOCAL int FindLines();
 
   /** Delete the pageres and block list ready for a new page. */
-  void ClearResults();
+  TESS_LOCAL void ClearResults();
 
   // Return an LTR Result Iterator -- used only for training, as we really want
   // to ignore all BiDi smarts at that point.
   // delete once you're done with it.
-  LTRResultIterator* GetLTRIterator();
+  TESS_LOCAL LTRResultIterator* GetLTRIterator();
 
   /**
    * Return the length of the output text string, as UTF8, assuming
@@ -671,7 +672,7 @@ class TESS_API TessBaseAPI {
    * and assuming a single character reject marker for each rejected character.
    * Also return the number of recognized blobs in blob_count.
    */
-  int TextLength(int* blob_count);
+  TESS_LOCAL int TextLength(int* blob_count);
 
   /** @defgroup ocropusAddOns ocropus add-ons */
   /* @{ */
@@ -680,26 +681,26 @@ class TESS_API TessBaseAPI {
    * Adapt to recognize the current image as the given character.
    * The image must be preloaded and be just an image of a single character.
    */
-  void AdaptToCharacter(const char *unichar_repr,
-                        int length,
-                        float baseline,
-                        float xheight,
-                        float descender,
-                        float ascender);
+  TESS_LOCAL void AdaptToCharacter(const char *unichar_repr,
+                                   int length,
+                                   float baseline,
+                                   float xheight,
+                                   float descender,
+                                   float ascender);
 
   /** Recognize text doing one pass only, using settings for a given pass. */
-  PAGE_RES* RecognitionPass1(BLOCK_LIST* block_list);
-  PAGE_RES* RecognitionPass2(BLOCK_LIST* block_list, PAGE_RES* pass1_result);
+  TESS_LOCAL PAGE_RES* RecognitionPass1(BLOCK_LIST* block_list);
+  TESS_LOCAL PAGE_RES* RecognitionPass2(BLOCK_LIST* block_list, PAGE_RES* pass1_result);
 
   //// paragraphs.cpp ////////////////////////////////////////////////////
   /** After text is recognized, break each paragraph into blocks. */
-  void DetectParagraphs(int debug_level);
+  TESS_LOCAL void DetectParagraphs(int debug_level);
 
   /**
    * Extract the OCR results, costs (penalty points for uncertainty),
    * and the bounding boxes of the characters.
    */
-  static int TesseractExtractResult(char** text,
+  TESS_LOCAL static int TesseractExtractResult(char** text,
                                     int** lengths,
                                     float** costs,
                                     int** x0,
@@ -708,7 +709,7 @@ class TESS_API TessBaseAPI {
                                     int** y1,
                                     PAGE_RES* page_res);
 
-  const PAGE_RES* GetPageRes() const {
+  TESS_LOCAL const PAGE_RES* GetPageRes() const {
     return page_res_;
   };
 
@@ -740,6 +741,7 @@ class TESS_API TessBaseAPI {
   int image_width_;
   int image_height_;
   /* @} */
+
 };
 
 }  // namespace tesseract.

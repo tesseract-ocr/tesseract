@@ -22,6 +22,7 @@
 #ifndef TESSERACT_CCMAIN_RESULT_ITERATOR_H__
 #define TESSERACT_CCMAIN_RESULT_ITERATOR_H__
 
+#include "platform.h"
 #include "ltrresultiterator.h"
 #include "genericvector.h"
 
@@ -33,7 +34,7 @@ namespace tesseract {
 
 class Tesseract;
 
-class ResultIterator : public LTRResultIterator {
+class TESS_API ResultIterator : public LTRResultIterator {
  public:
   static ResultIterator *StartOfParagraph(const LTRResultIterator &resit);
 
@@ -115,7 +116,7 @@ class ResultIterator : public LTRResultIterator {
   // NB: This is private because it does something that is non-obvious:
   //   it resets to the beginning of the paragraph instead of staying wherever
   //   resit might have pointed.
-  explicit ResultIterator(const LTRResultIterator &resit);
+  TESS_LOCAL explicit ResultIterator(const LTRResultIterator &resit);
 
  private:
   // Calculates the current paragraph's dominant writing direction.

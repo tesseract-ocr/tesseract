@@ -22,6 +22,7 @@
 #define TESSERACT_CCMAIN_PAGEITERATOR_H__
 
 #include "publictypes.h"
+#include "platform.h"
 
 class C_BLOB_IT;
 class PBLOB_IT;
@@ -45,7 +46,7 @@ class Tesseract;
 // See also ResultIterator, derived from PageIterator, which adds in the
 // ability to access OCR output with text-specific methods.
 
-class PageIterator {
+class TESS_API PageIterator {
  public:
   // page_res and tesseract come directly from the BaseAPI.
   // The rectangle parameters are copied indirectly from the Thresholder,
@@ -244,7 +245,7 @@ class PageIterator {
  protected:
   // Sets up the internal data for iterating the blobs of a new word, then
   // moves the iterator to the given offset.
-  void BeginWord(int offset);
+  TESS_LOCAL void BeginWord(int offset);
 
   // Pointer to the page_res owned by the API.
   PAGE_RES* page_res_;
