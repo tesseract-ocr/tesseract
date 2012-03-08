@@ -9,7 +9,7 @@ CCUtil::CCUtil() :
   STRING_INIT_MEMBER(m_data_sub_dir,
                      "tessdata/", "Directory for data files", &params_),
 #ifdef _WIN32
-  STRING_INIT_MEMBER(tessedit_module_name, "tessdll.dll",
+  STRING_INIT_MEMBER(tessedit_module_name, WINDLLNAME,
                      "Module colocated with tessdata dir", &params_),
 #endif
   INT_INIT_MEMBER(ambigs_debug_level, 0, "Debug level for unichar ambiguities",

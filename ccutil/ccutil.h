@@ -83,8 +83,7 @@ class CCUtil {
   // params_ should be initialized before parameters are added to it.
   STRING_VAR_H(m_data_sub_dir, "tessdata/", "Directory for data files");
   #ifdef _WIN32
-  #define makestring(x) #x
-  STRING_VAR_H(tessedit_module_name, makestring(WINDLLNAME),
+  STRING_VAR_H(tessedit_module_name, WINDLLNAME,
                "Module colocated with tessdata dir");
   #endif
   INT_VAR_H(ambigs_debug_level, 0, "Debug level for unichar ambiguities");

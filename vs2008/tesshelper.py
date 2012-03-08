@@ -2,9 +2,9 @@
 
 """
 tesshelper.py -- Utility operations to compare, report stats, and copy 
-                 public headers for tesseract 3.01 VS2008 Project
+                 public headers for tesseract 3.0x VS2008 Project
 
-$RCSfile: tesshelper.py,v $ $Revision: 0d0a22d1a5da $ $Date: 2012/02/23 03:30:03 $
+$RCSfile: tesshelper.py,v $ $Revision: 7ca575b377aa $ $Date: 2012/03/07 17:26:31 $
 """
 
 r"""
@@ -30,18 +30,18 @@ Format for a .vcproj file entry:
 epilogStr = r"""
 Examples:
 
-Assume that tesshelper.py is in c:\buildfolder\tesseract-3.01\vs2008,
+Assume that tesshelper.py is in c:\buildfolder\tesseract-3.02\vs2008,
 which is also the current directory. Then,
 
     python tesshelper .. compare
     
-will compare c:\buildfolder\tesseract-3.01 "library" directories to the
+will compare c:\buildfolder\tesseract-3.02 "library" directories to the
 libtesseract Project 
-(c:\buildfolder\tesseract-3.01\vs2008\libtesseract\libtesseract.vcproj).
+(c:\buildfolder\tesseract-3.02\vs2008\libtesseract\libtesseract.vcproj).
 
     python tesshelper ..  report
     
-will display summary stats for c:\buildfolder\tesseract-3.01 "library" 
+will display summary stats for c:\buildfolder\tesseract-3.02 "library" 
 directories and the libtesseract Project.
 
     python tesshelper .. copy ..\..\include
@@ -68,7 +68,7 @@ import sys
 
 # ====================================================================
 
-VERSION = "1.0 %s" % "$Date: 2012/02/23 03:30:03 $".split()[1]
+VERSION = "1.0 %s" % "$Date: 2012/03/07 17:26:31 $".split()[1]
 PROJ_SUBDIR = r"vs2008\libtesseract"
 PROJFILE = "libtesseract.vcproj"
 
@@ -319,6 +319,21 @@ def tessCopy(tessDir, includeDir):
         #r"ccutil\genericvector.h",
         }
 
+    resultIteratorIncludeSet = {
+        r"ccmain\ltrresultiterator.h",
+        r"ccmain\pageiterator.h",
+        r"ccmain\resultiterator.h",
+        r"ccutil\genericvector.h",
+        r"ccutil\tesscallback.h",
+        r"ccutil\errcode.h",
+        r"ccutil\host.h",
+        r"ccutil\helpers.h",
+        r"ccutil\ndminx.h",
+        r"ccutil\params.h",
+        r"ccutil\unicharmap.h",
+        r"ccutil\unicharset.h",
+        }
+
     genericVectorIncludeSet = {
         r"ccutil\genericvector.h",
         r"ccutil\tesscallback.h",
@@ -358,7 +373,7 @@ def tessCopy(tessDir, includeDir):
         os.mkdir(tessIncludeDir)
     
     #fileSet = baseIncludeSet | strngIncludeSet | genericVectorIncludeSet | blobsIncludeSet
-    fileSet = baseIncludeSet | strngIncludeSet
+    fileSet = baseIncludeSet | strngIncludeSet | resultIteratorIncludeSet
 
     copyIncludes(fileSet, "public", tessDir, tessIncludeDir)
     copyIncludes(extraFilesSet, "extra", tessDir, includeDir)
