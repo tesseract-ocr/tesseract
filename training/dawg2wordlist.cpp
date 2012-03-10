@@ -28,7 +28,7 @@ const int kDictDebugLevel = 1;
 tesseract::Dawg *LoadSquishedDawg(const UNICHARSET &unicharset,
                                   const char *filename) {
   const int kDictDebugLevel = 1;
-  FILE *dawg_file = fopen(filename, "r");
+  FILE *dawg_file = fopen(filename, "rb");
   if (dawg_file == NULL) {
     tprintf("Could not open %s for reading.\n", filename);
     return NULL;
