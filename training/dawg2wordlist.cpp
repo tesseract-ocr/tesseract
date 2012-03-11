@@ -54,7 +54,7 @@ class WordOutputter {
 int WriteDawgAsWordlist(const UNICHARSET &unicharset,
                         const tesseract::Dawg *dawg,
                         const char *outfile_name) {
-  FILE *out = fopen(outfile_name, "w");
+  FILE *out = fopen(outfile_name, "wb");
   if (out == NULL) {
     tprintf("Could not open %s for writing.\n", outfile_name);
     return 1;

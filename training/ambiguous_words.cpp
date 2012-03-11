@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
   api.Init(tessdata_dir, lang.string(), tesseract::OEM_TESSERACT_ONLY,
            NULL, NULL, &vars_vec, &vars_values, false);
   tesseract::Dict &dict = api.tesseract()->getDict();
-  FILE *input_file = fopen(input_file_str, "r");
+  FILE *input_file = fopen(input_file_str, "rb");
   if (input_file == NULL) {
     tprintf("Failed to open input wordlist file %s\n", input_file_str);
     exit(1);

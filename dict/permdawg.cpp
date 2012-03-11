@@ -195,7 +195,7 @@ void Dict::go_deeper_dawg_fxn(
             strcmp(output_ambig_words_file.string(), "") != 0) {
           if (output_ambig_words_file_ == NULL) {
             output_ambig_words_file_ =
-                fopen(output_ambig_words_file.string(), "w+");
+                fopen(output_ambig_words_file.string(), "wb+");
             if (output_ambig_words_file_ == NULL) {
               tprintf("Failed to open output_ambig_words_file %s\n",
                       output_ambig_words_file.string());
