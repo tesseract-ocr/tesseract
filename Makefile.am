@@ -1,4 +1,5 @@
-+ACLOCAL_AMFLAGS = -I m4
+## run autogen.sh to create Makefile.in from this file
+ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . java tessdata testing doc training
 
 #if USING_GETTEXT
@@ -40,6 +41,21 @@ install-data-hook:
 		echo No language file is installed.; \
 	fi;
 
-.PHONY: install-langs
+.PHONY: install-langs ScrollView.jar
 install-langs:
 	@cd "$(top_builddir)/tessdata" && $(MAKE) $@
+	
+ScrollView.jar:
+	@cd "$(top_builddir)/java" && $(MAKE) $@
+
+doc-dummy:
+
+doc: doc-dummy
+	-doxygen doc/Doxyfile
+
+doc-pack: doc
+	-chmod a+r $(top_srcdir)/doc/html/*
+	 @tar --create --directory=$(top_srcdir)/doc/html --verbose --file=- . | gzip -c -9 > $(top_srcdir)/@PACKAGE_NAME@-@PACKAGE_VERSION@-doc-html.tar.gz;
+
+doc-clean:
+	rm -rf $(top_srcdir)/doc/html/*
