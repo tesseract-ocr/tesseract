@@ -16,9 +16,6 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#ifdef _MSC_VER
-#define __func__ __FUNCTION__
-#endif
 
 #include <ctype.h>
 
@@ -2328,7 +2325,8 @@ void InitializeRowInfo(const MutableIterator &it, RowInfo *info) {
   char *text = it.GetUTF8Text(RIL_TEXTLINE);
   int trailing_ws_idx = strlen(text);  // strip trailing space
   while (trailing_ws_idx > 0 &&
-         text[trailing_ws_idx - 1] < 128 &&   // isspace() only takes ASCII
+         // isspace() only takes ASCII
+         ((text[trailing_ws_idx - 1] & 0x80) == 0) &&
          isspace(text[trailing_ws_idx - 1]))
     trailing_ws_idx--;
   if (trailing_ws_idx > 0) {
