@@ -16,6 +16,9 @@
  ** limitations under the License.
  *
  **********************************************************************/
+#ifdef _MSC_VER		
+#define __func__ __FUNCTION__		
+#endif
 
 #include <ctype.h>
 
