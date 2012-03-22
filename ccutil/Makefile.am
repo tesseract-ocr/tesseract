@@ -1,5 +1,9 @@
 SUBDIRS =
-AM_CXXFLAGS = -DTESSDATA_PREFIX=@datadir@/
+AM_CXXFLAGS =
+
+if !NO_TESSDATA_PREFIX
+AM_CXXFLAGS += -DTESSDATA_PREFIX=@datadir@/
+endif
 
 if VISIBILITY
 AM_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
@@ -41,4 +45,9 @@ libtesseract_ccutil_la_SOURCES = \
 if EMBEDDED
 include_HEADERS += scanutils.h
 libtesseract_ccutil_la_SOURCES += scanutils.cpp
+endif
+
+if MINGW
+AM_CPPFLAGS += -I$(top_srcdir)/vs2008/port -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
+libtesseract_ccutil_la_SOURCES += ../vs2008/port/strtok_r.cpp
 endif

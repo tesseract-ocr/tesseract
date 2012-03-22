@@ -1,4 +1,4 @@
-AM_CPPFLAGS = \
+AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/dict \

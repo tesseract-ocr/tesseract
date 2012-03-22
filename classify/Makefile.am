@@ -1,4 +1,4 @@
-AM_CPPFLAGS = \
+AM_CPPFLAGS += \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/dict \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer
@@ -27,12 +27,12 @@ else
 lib_LTLIBRARIES = libtesseract_classify.la
 libtesseract_classify_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 libtesseract_classify_la_LIBADD = \
-	../ccutil/libtesseract_ccutil.la \
-	../cutil/libtesseract_cutil.la \
-	../ccstruct/libtesseract_ccstruct.la \
-	../dict/libtesseract_dict.la \
-	../image/libtesseract_image.la \
-	../viewer/libtesseract_viewer.la
+    ../ccutil/libtesseract_ccutil.la \
+    ../cutil/libtesseract_cutil.la \
+    ../ccstruct/libtesseract_ccstruct.la \
+    ../dict/libtesseract_dict.la \
+    ../image/libtesseract_image.la \
+    ../viewer/libtesseract_viewer.la
 endif
 
 libtesseract_classify_la_SOURCES = \

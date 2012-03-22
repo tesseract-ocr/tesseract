@@ -57,7 +57,7 @@
 #include "osdetect.h"
 #include "params.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(VERSION)
 #include "version.h"
 #endif
 

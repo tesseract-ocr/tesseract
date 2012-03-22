@@ -1,4 +1,4 @@
-AM_CPPFLAGS = \
+AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
 # TODO: training programs can not be linked to shared library created 
 # with -fvisibility 
 if VISIBILITY
-AM_LDFLAGS = -all-static
+AM_LDFLAGS += -all-static
 endif
 
 noinst_HEADERS = \

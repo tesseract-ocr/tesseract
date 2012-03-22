@@ -13,7 +13,6 @@ AC_REVISION($Id: configure.ac,v 1.4 2007/02/02 22:38:17 theraysmith Exp $)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(api/tesseractmain.cpp)
 AC_PREFIX_DEFAULT(/usr/local)
-AC_CANONICAL_HOST
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
@@ -53,6 +52,30 @@ GENERIC_RELEASE=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
 AC_SUBST(GENERIC_RELEASE)
 AC_SUBST(GENERIC_VERSION)
 
+# default conditional
+AM_CONDITIONAL(MINGW, false)
+AM_CONDITIONAL(GRAPHICS_DISABLED, false)
+
+#
+# Platform specific setup
+#
+#############################
+AC_CANONICAL_HOST
+case $host_os in
+    mingw32*)
+        AC_DEFINE_UNQUOTED(MINGW,1,[This is a MinGW system])
+        AM_CONDITIONAL(MINGW, true)
+        #AC_SUBST([AM_CPPFLAGS], ["-DWINDLLNAME=\"lib$GENERIC_LIBRARY_NAME\""])
+        #AC_SUBST([AM_CPPFLAGS], ["-D__BLOB_T_DEFINED -DWINDLLNAME=\"lib$GENERIC_LIBRARY_NAME\""])
+        AC_SUBST([AM_CPPFLAGS], ["-D__BLOB_T_DEFINED"])
+        AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
+        #AM_LDFLAGS='-Wl,-no-undefined -Wl,--as-needed'
+        ;;
+     *)
+		# default
+        ;;
+esac
+
 includedir="${includedir}/tesseract"
 
 AC_ARG_WITH(extra-includes,
@@ -81,7 +104,8 @@ AC_HELP_STRING([--disable-graphics],[disable graphics (ScrollView)])],
     [enable_graphics="yes"])
 AC_MSG_RESULT($enable_graphics)
 if test "$enable_graphics" = "no"; then
-  AC_DEFINE([GRAPHICS_DISABLED], [], [Disable graphics]) 
+  AC_DEFINE([GRAPHICS_DISABLED], [], [Disable graphics])
+  AM_CONDITIONAL(GRAPHICS_DISABLED, true)
 fi
 
 # check whether to build embedded version
@@ -93,8 +117,6 @@ AC_ARG_ENABLE([embedded],
 AC_MSG_RESULT($enable_embedded)
 AM_CONDITIONAL([EMBEDDED], [test "$enable_embedded" = "yes"])
 if test "$enable_embedded" = "yes"; then
-  #AC_DEFINE([EMBEDDED], [], [Embedded Mode])
-  AC_SUBST([AM_CXXFLAGS], [-DEMBEDDED])
   AC_SUBST([AM_CPPFLAGS], [-DEMBEDDED])
 fi
 
@@ -118,6 +140,14 @@ AC_ARG_ENABLE([multiple-libraries],
 AC_MSG_RESULT($enable_mlibs)
 AM_CONDITIONAL([USING_MULTIPLELIBS], [test "$enable_mlibs" = "yes"])
 
+# Check if tessdata-prefix is disabled
+AC_MSG_CHECKING(whether to use tessdata-prefix)
+AC_ARG_ENABLE(tessdata-prefix,
+	[AC_HELP_STRING([--disable-tessdata-prefix],
+			[dont set TESSDATA-PREFIX during compile])],
+	[tessdata_prefix="no"], [tessdata_prefix="yes"])
+AC_MSG_RESULT($tessdata_prefix)
+AM_CONDITIONAL([NO_TESSDATA_PREFIX], [test "$tessdata_prefix" = "no"])
 
 #localedir='${prefix}/share/locale'
 
@@ -459,4 +489,3 @@ AH_BOTTOM([
 /* config_auto.h: end */
 #endif
 ])
-

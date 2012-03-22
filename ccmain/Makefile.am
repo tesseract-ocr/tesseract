@@ -1,4 +1,4 @@
-AM_CPPFLAGS = \
+AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer \

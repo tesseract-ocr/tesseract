@@ -1,4 +1,4 @@
-AM_CPPFLAGS = \
+AM_CPPFLAGS += \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
@@ -29,14 +29,14 @@ else
 lib_LTLIBRARIES = libtesseract_textord.la
 libtesseract_textord_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 libtesseract_textord_la_LIBADD = \
-	../ccstruct/libtesseract_ccstruct.la \
-	../ccutil/libtesseract_ccutil.la \
-	../image/libtesseract_image.la \
-	../viewer/libtesseract_viewer.la \
-	../wordrec/libtesseract_wordrec.la \
-	../cutil/libtesseract_cutil.la \
-	../classify/libtesseract_classify.la \
-	../dict/libtesseract_dict.la 
+    ../ccstruct/libtesseract_ccstruct.la \
+    ../ccutil/libtesseract_ccutil.la \
+    ../image/libtesseract_image.la \
+    ../viewer/libtesseract_viewer.la \
+    ../wordrec/libtesseract_wordrec.la \
+    ../cutil/libtesseract_cutil.la \
+    ../classify/libtesseract_classify.la \
+    ../dict/libtesseract_dict.la 
 endif
 
 libtesseract_textord_la_SOURCES = \

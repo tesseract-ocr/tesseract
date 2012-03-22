@@ -1,10 +1,14 @@
 ## run autogen.sh to create Makefile.in from this file
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . java tessdata testing doc training
+SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . tessdata testing doc training
+
+if !GRAPHICS_DISABLED
+SUBDIRS += java
+endif
 
 #if USING_GETTEXT
 #SUBDIRS += po
-#AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"
+#AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
 #endif
 
 EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
