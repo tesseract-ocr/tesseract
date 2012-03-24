@@ -1,3 +1,5 @@
+AM_CPPFLAGS += -I$(top_srcdir)/ccutil
+
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden

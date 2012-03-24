@@ -26,7 +26,7 @@ they are present in tessdata directory)
 To compile ScrollView.jar you need to download piccolo.JAVA[1] from
 http://www.piccolo2d.org/download.html and extract 
 piccolo-1.2/build/piccolo.jar to tesseract/java as piccolo-1.2.jar and
-piccolo-1.2/build/piccolox.jar to tesseract/java as piccolo-1.2x.jar.
+piccolo-1.2/build/piccolox.jar to tesseract/java as piccolox-1.2.jar.
 
 Than run:
   $ make ScrollView.jar

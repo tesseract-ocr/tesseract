@@ -65,6 +65,11 @@ bin_PROGRAMS = tesseract
 tesseract_SOURCES = $(top_srcdir)/api/tesseractmain.cpp
 tesseract_LDADD = libtesseract.la
 tesseract_CPPFLAGS = $(AM_CPPFLAGS)
+
+if MINGW
+tesseract_LDADD += -lws2_32
+endif
+
 if VISIBILITY
 tesseract_CPPFLAGS += -DTESS_IMPORTS
 endif

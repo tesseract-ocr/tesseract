@@ -20,10 +20,9 @@ noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
 libtesseract_training_la_SOURCES = \
     commontraining.cpp
-#libtesseract_training_la_LDFLAGS = -static
+
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
-#libtesseract_tessopt_la_LDFLAGS = -static
 
 bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_tessdata dawg2wordlist mftraining shapeclustering unicharset_extractor wordlist2dawg
 
@@ -215,4 +214,16 @@ wordlist2dawg_LDADD += \
 else
 wordlist2dawg_LDADD += \
     ../api/libtesseract.la
+endif
+
+if MINGW
+ambiguous_words_LDADD += -lws2_32
+classifier_tester_LDADD += -lws2_32
+cntraining_LDADD += -lws2_32
+combine_tessdata_LDADD += -lws2_32
+dawg2wordlist_LDADD += -lws2_32
+mftraining_LDADD += -lws2_32
+shapeclustering_LDADD += -lws2_32
+unicharset_extractor_LDADD += -lws2_32
+wordlist2dawg_LDADD += -lws2_32
 endif
