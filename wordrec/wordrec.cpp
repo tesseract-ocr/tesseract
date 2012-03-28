@@ -184,7 +184,7 @@ void Wordrec::SaveAltChoices(const LIST &best_choices, WERD_RES *word) {
     for (int i = 0; i < choice->Length; char_choice++, i++) {
       alt_choice->append_unichar_id_space_allocated(
           char_choice->Class, 1, 0, 0);
-      alt_state.push_back(choice->segmentation_state[i]);
+      alt_state.push_back(char_choice->NumChunks);
     }
     alt_choice->set_rating(choice->Rating);
     alt_choice->set_certainty(choice->Certainty);

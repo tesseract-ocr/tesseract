@@ -71,14 +71,10 @@ class VIABLE_CHOICE_STRUCT {
   bool ComposedFromCharFragments;
   CHAR_CHOICE *Blob;
 
-  // segmentation_state: for each choice, how many consecutive blobs
-  //     does it use?
-  uinT8 *segmentation_state;
-
  private:
   // Disallow assignment and copy construction
   VIABLE_CHOICE_STRUCT(const VIABLE_CHOICE_STRUCT &other)
-      : Length(0), Blob(NULL), segmentation_state(NULL) {}
+      : Length(0), Blob(NULL) {}
   VIABLE_CHOICE_STRUCT &operator=(const VIABLE_CHOICE_STRUCT &other) {
     return *this;
   }

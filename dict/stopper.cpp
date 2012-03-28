@@ -101,17 +101,14 @@ static void ExpandChoice(VIABLE_CHOICE Choice,
 VIABLE_CHOICE_STRUCT::VIABLE_CHOICE_STRUCT(int length)
     : Length(length) {
   Blob = new CHAR_CHOICE[length];
-  segmentation_state = new uinT8[length];
 }
 
 VIABLE_CHOICE_STRUCT::VIABLE_CHOICE_STRUCT() : Length(0) {
   Blob = NULL;
-  segmentation_state = NULL;
 }
 
 VIABLE_CHOICE_STRUCT::~VIABLE_CHOICE_STRUCT() {
   delete []Blob;
-  delete []segmentation_state;
 }
 
 void VIABLE_CHOICE_STRUCT::Init(
@@ -137,7 +134,6 @@ void VIABLE_CHOICE_STRUCT::Init(
       blob_choice->NumChunks += blob_width;
       this->ComposedFromCharFragments = true;
     }
-    this->segmentation_state[i] = blob_choice->NumChunks;
   }
 }
 
