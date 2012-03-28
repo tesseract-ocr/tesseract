@@ -377,6 +377,7 @@ class Wordrec : public Classify {
   inT16 select_blob_to_split(const BLOB_CHOICE_LIST_VECTOR &char_choices,
                              float rating_ceiling,
                              bool split_next_to_fragment);
+  inT16 select_blob_to_split_from_fixpt(DANGERR *fixpt);
   void set_chopper_blame(WERD_RES *word);
 
   // findseam.cpp

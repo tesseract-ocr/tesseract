@@ -724,16 +724,17 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
         // fragments is added to other functions.
         int orig_i = 0;
         for (i = 0; i < alt_word->length(); ++i) {
-          if (alt_word->fragment_length(i) > 1) {
-            fixpt->push_back(DANGERR_INFO(
-                orig_i, orig_i+alt_word->fragment_length(i)-1, true,
-                getUnicharset().get_isngram(alt_word->unichar_id(i))));
-            if (stopper_debug_level > 1) {
-              tprintf("fixpt->dangerous+=(%d %d %d %d)\n", orig_i,
-                      (orig_i+alt_word->fragment_length(i)-1), true,
-                      getUnicharset().get_isngram(alt_word->unichar_id(i)));
-            }
-          }
+          bool replacement_is_ngram =
+              getUnicharset().get_isngram(alt_word->unichar_id(i));
+          int end_i = orig_i + alt_word->fragment_length(i) - 1;
+          if (alt_word->fragment_length(i) > 1 ||
+              (orig_i == end_i && replacement_is_ngram)) {
+            fixpt->push_back(DANGERR_INFO(orig_i, end_i, true,
+                                          replacement_is_ngram));
+             if (stopper_debug_level > 1) {
+               tprintf("fixpt->dangerous+=(%d %d %d %d)\n", orig_i, end_i,
+                       true, replacement_is_ngram);
+             }
           orig_i += alt_word->fragment_length(i);
         }
       }

@@ -345,8 +345,14 @@ bool Wordrec::improve_one_blob(WERD_RES *word_res,
   SEAM *seam;
 
   do {
-    *blob_number = select_blob_to_split(*char_choices, rating_ceiling,
-                                        split_next_to_fragment);
+    *blob_number = select_blob_to_split_from_fixpt(fixpt);
+    bool split_point_from_dict = (*blob_number != -1);
+    if (split_point_from_dict) {
+      fixpt->clear();
+    } else {
+      *blob_number = select_blob_to_split(*char_choices, rating_ceiling,
+                                          split_next_to_fragment);
+    }
     if (chop_debug)
       cprintf("blob_number = %d\n", *blob_number);
     if (*blob_number == -1)
@@ -361,7 +367,10 @@ bool Wordrec::improve_one_blob(WERD_RES *word_res,
     if (answer == NULL)
       return false;
     answer_it.set_to_list(answer);
-    rating_ceiling = answer_it.data()->rating();  // try a different blob
+    if (!split_point_from_dict) {
+      // We chopped the worst rated blob, try something else next time.
+      rating_ceiling = answer_it.data()->rating();
+    }
   } while (true);
   /* Split OK */
   for (blob = word->blobs; x < *blob_number; x++) {
@@ -737,11 +746,9 @@ void Wordrec::improve_by_chopping(WERD_RES *word,
                                   bool *best_choice_acceptable) {
   inT32 blob_number;
   float old_best;
-  int fixpt_valid = 1;
   bool updated_best_choice = false;
 
   while (1) {  // improvement loop
-    if (!fixpt_valid) fixpt->clear();
     old_best = word->best_choice->rating();
     if (improve_one_blob(word, char_choices,
                          &blob_number, &word->seam_array,
@@ -755,11 +762,9 @@ void Wordrec::improve_by_chopping(WERD_RES *word,
 
       if (old_best > word->best_choice->rating()) {
         set_n_ones(best_state, char_choices->length() - 1);
-        fixpt_valid = 1;
-      }
-      else {
+      } else {
         insert_new_chunk(best_state, blob_number, char_choices->length() - 2);
-        fixpt_valid = 0;
+        fixpt->clear();
       }
 
       if (chop_debug)
@@ -784,7 +789,6 @@ void Wordrec::improve_by_chopping(WERD_RES *word,
     if (updated_best_choice) CopyCharChoices(*char_choices, best_char_choices);
     if (done) break;
   }
-  if (!fixpt_valid) fixpt->clear();
 }
 
 
@@ -792,7 +796,7 @@ void Wordrec::improve_by_chopping(WERD_RES *word,
  * select_blob_to_split
  *
  * These are the results of the last classification.  Find a likely
- * place to apply splits.
+ * place to apply splits.  If none, return -1.
  **********************************************************************/
 inT16 Wordrec::select_blob_to_split(const BLOB_CHOICE_LIST_VECTOR &char_choices,
                                     float rating_ceiling,
@@ -882,6 +886,26 @@ inT16 Wordrec::select_blob_to_split(const BLOB_CHOICE_LIST_VECTOR &char_choices,
   // worst_near_fragment would be useful.
   return worst_index_near_fragment != -1 ?
     worst_index_near_fragment : worst_index;
+}
+
+/**********************************************************************
+ * select_blob_to_split_from_fixpt
+ *
+ * Given the fix point from a dictionary search, if there is a single
+ * dangerous blob that maps to multiple characters, return that blob
+ * index as a place we need to split.  If none, return -1.
+ **********************************************************************/
+inT16 Wordrec::select_blob_to_split_from_fixpt(DANGERR *fixpt) {
+  if (!fixpt)
+    return -1;
+  for (int i = 0; i < fixpt->size(); i++) {
+    if ((*fixpt)[i].begin == (*fixpt)[i].end &&
+        (*fixpt)[i].dangerous &&
+        (*fixpt)[i].correct_is_ngram) {
+      return (*fixpt)[i].begin;
+    }
+  }
+  return -1;
 }
 
 /**********************************************************************
