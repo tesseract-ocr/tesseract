@@ -1,4 +1,4 @@
-# Doxyfile 1.6.3
+# Doxyfile 1.7.5.1
 
 # This file describes the settings to be used by the documentation system
 # doxygen (www.doxygen.org) for a project
@@ -22,8 +22,9 @@
 
 DOXYFILE_ENCODING      = UTF-8
 
-# The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
-# by quotes) that should identify the project.
+# The PROJECT_NAME tag is a single word (or sequence of words) that should 
+# identify the project. Note that if you do not use Doxywizard you need 
+# to put quotes around the project name if it contains spaces.
 
 PROJECT_NAME           = Tesseract
 
@@ -33,13 +34,25 @@ PROJECT_NAME           = Tesseract
 
 PROJECT_NUMBER         = 3.02
 
+# Using the PROJECT_BRIEF tag one can provide an optional one line description 
+# for a project that appears at the top of each page and should give viewer 
+# a quick idea about the purpose of the project. Keep the description short.
+
+PROJECT_BRIEF          = 
+
+# With the PROJECT_LOGO tag one can specify an logo or icon that is 
+# included in the documentation. The maximum height of the logo should not 
+# exceed 55 pixels and the maximum width should not exceed 200 pixels. 
+# Doxygen will copy the logo to the output directory.
+
+PROJECT_LOGO           = 
+
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) 
 # base path where the generated documentation will be put. 
 # If a relative path is entered, it will be relative to the location 
 # where doxygen was started. If left blank the current directory will be used.
 
 OUTPUT_DIRECTORY       = doc/
-#OUTPUT_DIRECTORY       =
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 
 # 4096 sub-directories (in 2 levels) under the output directory of each output 
@@ -58,7 +71,7 @@ CREATE_SUBDIRS         = NO
 # Croatian, Czech, Danish, Dutch, Esperanto, Farsi, Finnish, French, German, 
 # Greek, Hungarian, Italian, Japanese, Japanese-en (Japanese with English 
 # messages), Korean, Korean-en, Lithuanian, Norwegian, Macedonian, Persian, 
-# Polish, Portuguese, Romanian, Russian, Serbian, Serbian-Cyrilic, Slovak, 
+# Polish, Portuguese, Romanian, Russian, Serbian, Serbian-Cyrillic, Slovak, 
 # Slovene, Spanish, Swedish, Ukrainian, and Vietnamese.
 
 OUTPUT_LANGUAGE        = English
@@ -137,7 +150,7 @@ STRIP_FROM_PATH        = /usr/src
 STRIP_FROM_INC_PATH    = 
 
 # If the SHORT_NAMES tag is set to YES, doxygen will generate much shorter 
-# (but less readable) file names. This can be useful is your file systems 
+# (but less readable) file names. This can be useful if your file system 
 # doesn't support long names like on DOS, Mac, or CD-ROM.
 
 SHORT_NAMES            = NO
@@ -218,15 +231,15 @@ OPTIMIZE_FOR_FORTRAN   = NO
 
 OPTIMIZE_OUTPUT_VHDL   = NO
 
-# Doxygen selects the parser to use depending on the extension of the files it parses. 
-# With this tag you can assign which parser to use for a given extension. 
-# Doxygen has a built-in mapping, but you can override or extend it using this tag. 
-# The format is ext=language, where ext is a file extension, and language is one of 
-# the parsers supported by doxygen: IDL, Java, Javascript, C#, C, C++, D, PHP, 
-# Objective-C, Python, Fortran, VHDL, C, C++. For instance to make doxygen treat 
-# .inc files as Fortran files (default is PHP), and .f files as C (default is Fortran), 
-# use: inc=Fortran f=C. Note that for custom extensions you also need to set
-# FILE_PATTERNS otherwise the files are not read by doxygen.
+# Doxygen selects the parser to use depending on the extension of the files it 
+# parses. With this tag you can assign which parser to use for a given extension. 
+# Doxygen has a built-in mapping, but you can override or extend it using this 
+# tag. The format is ext=language, where ext is a file extension, and language 
+# is one of the parsers supported by doxygen: IDL, Java, Javascript, CSharp, C, 
+# C++, D, PHP, Objective-C, Python, Fortran, VHDL, C, C++. For instance to make 
+# doxygen treat .inc files as Fortran files (default is PHP), and .f files as C 
+# (default is Fortran), use: inc=Fortran f=C. Note that for custom extensions 
+# you also need to set FILE_PATTERNS otherwise the files are not read by doxygen.
 
 EXTENSION_MAPPING      = 
 
@@ -234,7 +247,7 @@ EXTENSION_MAPPING      =
 # to include (a tag file for) the STL sources as input, then you should 
 # set this tag to YES in order to let doxygen match functions declarations and 
 # definitions whose arguments contain STL classes (e.g. func(std::string); v.s. 
-# func(std::string) {}). This also make the inheritance and collaboration 
+# func(std::string) {}). This also makes the inheritance and collaboration 
 # diagrams that involve STL classes more complete and accurate.
 
 BUILTIN_STL_SUPPORT    = YES
@@ -252,7 +265,7 @@ SIP_SUPPORT            = NO
 
 # For Microsoft's IDL there are propget and propput attributes to indicate getter 
 # and setter methods for a property. Setting this option to YES (the default) 
-# will make doxygen to replace the get and set methods by a property in the 
+# will make doxygen replace the get and set methods by a property in the 
 # documentation. This will only work if the methods are indeed getting or 
 # setting a simple type. If this is not the case, or you want to show the 
 # methods anyway, you should set this option to NO.
@@ -274,6 +287,22 @@ DISTRIBUTE_GROUP_DOC   = NO
 
 SUBGROUPING            = YES
 
+# When the INLINE_GROUPED_CLASSES tag is set to YES, classes, structs and 
+# unions are shown inside the group in which they are included (e.g. using 
+# @ingroup) instead of on a separate page (for HTML and Man pages) or 
+# section (for LaTeX and RTF).
+
+INLINE_GROUPED_CLASSES = NO
+
+# When the INLINE_SIMPLE_STRUCTS tag is set to YES, structs, classes, and 
+# unions with only public data fields will be shown inline in the documentation 
+# of the scope in which they are defined (i.e. file, namespace, or group 
+# documentation), provided this scope is documented. If set to NO (the default), 
+# structs, classes, and unions are shown on a separate page (for HTML and Man 
+# pages) or section (for LaTeX and RTF).
+
+INLINE_SIMPLE_STRUCTS  = NO
+
 # When TYPEDEF_HIDES_STRUCT is enabled, a typedef of a struct, union, or enum 
 # is documented as struct, union, or enum with the name of the typedef. So 
 # typedef struct TypeS {} TypeT, will appear in the documentation as a struct 
@@ -290,10 +319,10 @@ TYPEDEF_HIDES_STRUCT   = NO
 # For small to medium size projects (<1000 input files) the default value is 
 # probably good enough. For larger projects a too small cache size can cause 
 # doxygen to be busy swapping symbols to and from disk most of the time 
-# causing a significant performance penality. 
+# causing a significant performance penalty. 
 # If the system has enough physical memory increasing the cache will improve the 
 # performance by keeping more symbols in memory. Note that the value works on 
-# a logarithmic scale so increasing the size by one will rougly double the 
+# a logarithmic scale so increasing the size by one will roughly double the 
 # memory usage. The cache size is given by this formula: 
 # 2^(16+SYMBOL_CACHE_SIZE). The valid range is 0..9, the default is 0, 
 # corresponding to a cache size of 2^16 = 65536 symbols
@@ -338,7 +367,7 @@ EXTRACT_LOCAL_METHODS  = NO
 # extracted and appear in the documentation as a namespace called 
 # 'anonymous_namespace{file}', where file will be replaced with the base 
 # name of the file that contains the anonymous namespace. By default 
-# anonymous namespace are hidden.
+# anonymous namespaces are hidden.
 
 EXTRACT_ANON_NSPACES   = NO
 
@@ -423,12 +452,12 @@ SORT_MEMBER_DOCS       = YES
 
 SORT_BRIEF_DOCS        = NO
 
-# If the SORT_MEMBERS_CTORS_1ST tag is set to YES then doxygen
-# will sort the (brief and detailed) documentation of class members so that
-# constructors and destructors are listed first. If set to NO (the default)
-# the constructors will appear in the respective orders defined by
-# SORT_MEMBER_DOCS and SORT_BRIEF_DOCS.
-# This tag will be ignored for brief docs if SORT_BRIEF_DOCS is set to NO
+# If the SORT_MEMBERS_CTORS_1ST tag is set to YES then doxygen 
+# will sort the (brief and detailed) documentation of class members so that 
+# constructors and destructors are listed first. If set to NO (the default) 
+# the constructors will appear in the respective orders defined by 
+# SORT_MEMBER_DOCS and SORT_BRIEF_DOCS. 
+# This tag will be ignored for brief docs if SORT_BRIEF_DOCS is set to NO 
 # and ignored for detailed docs if SORT_MEMBER_DOCS is set to NO.
 
 SORT_MEMBERS_CTORS_1ST = NO
@@ -448,6 +477,15 @@ SORT_GROUP_NAMES       = NO
 # alphabetical list.
 
 SORT_BY_SCOPE_NAME     = NO
+
+# If the STRICT_PROTO_MATCHING option is enabled and doxygen fails to 
+# do proper type resolution of all parameters of a function it will reject a 
+# match between the prototype and the implementation of a member function even 
+# if there is only one candidate or it is obvious which candidate to choose 
+# by doing a simple string match. By disabling STRICT_PROTO_MATCHING doxygen 
+# will still accept a match between prototype and implementation in such cases.
+
+STRICT_PROTO_MATCHING  = NO
 
 # The GENERATE_TODOLIST tag can be used to enable (YES) or 
 # disable (NO) the todo list. This list is created by putting \todo 
@@ -479,10 +517,10 @@ GENERATE_DEPRECATEDLIST= YES
 ENABLED_SECTIONS       = 
 
 # The MAX_INITIALIZER_LINES tag determines the maximum number of lines 
-# the initial value of a variable or define consists of for it to appear in 
+# the initial value of a variable or macro consists of for it to appear in 
 # the documentation. If the initializer consists of more lines than specified 
 # here it will be hidden. Use a value of 0 to hide initializers completely. 
-# The appearance of the initializer of individual variables and defines in the 
+# The appearance of the initializer of individual variables and macros in the 
 # documentation can be controlled using \showinitializer or \hideinitializer 
 # command in the documentation regardless of this setting.
 
@@ -522,14 +560,23 @@ SHOW_NAMESPACES        = YES
 
 FILE_VERSION_FILTER    = 
 
-# The LAYOUT_FILE tag can be used to specify a layout file which will be parsed by 
-# doxygen. The layout file controls the global structure of the generated output files 
-# in an output format independent way. The create the layout file that represents 
-# doxygen's defaults, run doxygen with the -l option. You can optionally specify a 
-# file name after the option, if omitted DoxygenLayout.xml will be used as the name 
-# of the layout file.
+# The LAYOUT_FILE tag can be used to specify a layout file which will be parsed 
+# by doxygen. The layout file controls the global structure of the generated 
+# output files in an output format independent way. The create the layout file 
+# that represents doxygen's defaults, run doxygen with the -l option. 
+# You can optionally specify a file name after the option, if omitted 
+# DoxygenLayout.xml will be used as the name of the layout file.
 
 LAYOUT_FILE            = 
+
+# The CITE_BIB_FILES tag can be used to specify one or more bib files 
+# containing the references data. This must be a list of .bib files. The 
+# .bib extension is automatically appended if omitted. Using this command 
+# requires the bibtex tool to be installed. See also 
+# http://en.wikipedia.org/wiki/BibTeX for more info. For LaTeX the style 
+# of the bibliography can be controlled using LATEX_BIB_STYLE.
+
+CITE_BIB_FILES         = 
 
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
@@ -559,13 +606,13 @@ WARN_IF_UNDOCUMENTED   = YES
 
 WARN_IF_DOC_ERROR      = YES
 
-# This WARN_NO_PARAMDOC option can be abled to get warnings for 
+# The WARN_NO_PARAMDOC option can be enabled to get warnings for 
 # functions that are documented, but have no documentation for their parameters 
 # or return value. If set to NO (the default) doxygen will only warn about 
 # wrong or incomplete parameter documentation, but not about the absence of 
 # documentation.
 
-WARN_NO_PARAMDOC       = NO
+WARN_NO_PARAMDOC       = YES
 
 # The WARN_FORMAT tag determines the format of the warning messages that 
 # doxygen can produce. The string should contain the $file, $line, and $text 
@@ -580,7 +627,7 @@ WARN_FORMAT            = "$file:$line: $text"
 # and error messages should be written. If left blank the output is written 
 # to stderr.
 
-WARN_LOGFILE           = 
+WARN_LOGFILE           = doc/DoxyWarn.log
 
 #---------------------------------------------------------------------------
 # configuration options related to the input files
@@ -591,8 +638,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-#INPUT                  = tesseract-ocr
-INPUT                  =
+INPUT                  = 
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -606,8 +652,9 @@ INPUT_ENCODING         = UTF-8
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
 # and *.h) to filter out the source-files in the directories. If left 
 # blank the following patterns are tested: 
-# *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx 
-# *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.py *.f90
+# *.c *.cc *.cxx *.cpp *.c++ *.d *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh 
+# *.hxx *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.dox *.py 
+# *.f90 *.f *.for *.vhd *.vhdl
 
 FILE_PATTERNS          = *.c \
                          *.cc \
@@ -649,14 +696,13 @@ RECURSIVE              = YES
 
 # The EXCLUDE tag can be used to specify files and/or directories that should 
 # excluded from the INPUT source files. This way you can easily exclude a 
-# subdirectory from a directory tree whose root is specified with the INPUT tag.
+# subdirectory from a directory tree whose root is specified with the INPUT tag. 
+# Note that relative paths are relative to directory from which doxygen is run.
 
-#EXCLUDE                = tesseract-ocr/vs2008 \
-#                         tesseract-ocr/vs2010
 EXCLUDE                = vs2008
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
-# directories that are symbolic links (a Unix filesystem feature) are excluded 
+# directories that are symbolic links (a Unix file system feature) are excluded 
 # from the input.
 
 EXCLUDE_SYMLINKS       = NO
@@ -717,8 +763,8 @@ INPUT_FILTER           =
 # basis.  Doxygen will compare the file name with each pattern and apply the 
 # filter if there is a match.  The filters are a list of the form: 
 # pattern=filter (like *.cpp=my_cpp_filter). See INPUT_FILTER for further 
-# info on how filters are used. If FILTER_PATTERNS is empty, INPUT_FILTER 
-# is applied to all files.
+# info on how filters are used. If FILTER_PATTERNS is empty or if 
+# non of the patterns match the file name, INPUT_FILTER is applied.
 
 FILTER_PATTERNS        = 
 
@@ -727,6 +773,14 @@ FILTER_PATTERNS        =
 # files to browse (i.e. when SOURCE_BROWSER is set to YES).
 
 FILTER_SOURCE_FILES    = NO
+
+# The FILTER_SOURCE_PATTERNS tag can be used to specify source filters per file 
+# pattern. A pattern will override the setting for FILTER_PATTERN (if any) 
+# and it is also possible to disable source filtering for a specific pattern 
+# using *.ext= (so without naming a filter). This option only has effect when 
+# FILTER_SOURCE_FILES is enabled.
+
+FILTER_SOURCE_PATTERNS = 
 
 #---------------------------------------------------------------------------
 # configuration options related to source browsing
@@ -737,12 +791,12 @@ FILTER_SOURCE_FILES    = NO
 # Note: To get rid of all source code in the generated output, make sure also 
 # VERBATIM_HEADERS is set to NO.
 
-SOURCE_BROWSER         = NO
+SOURCE_BROWSER         = YES
 
 # Setting the INLINE_SOURCES tag to YES will include the body 
 # of functions and classes directly in the documentation.
 
-INLINE_SOURCES         = NO
+INLINE_SOURCES         = YES
 
 # Setting the STRIP_CODE_COMMENTS tag to YES (the default) will instruct 
 # doxygen to hide any special comment blocks from generated source code 
@@ -829,7 +883,14 @@ HTML_FILE_EXTENSION    = .html
 
 # The HTML_HEADER tag can be used to specify a personal HTML header for 
 # each generated HTML page. If it is left blank doxygen will generate a 
-# standard header.
+# standard header. Note that when using a custom header you are responsible  
+# for the proper inclusion of any scripts and style sheets that doxygen 
+# needs, which is dependent on the configuration options used. 
+# It is adviced to generate a default header using "doxygen -w html 
+# header.html footer.html stylesheet.css YourConfigFile" and then modify 
+# that header. Note that the header is subject to change so you typically 
+# have to redo this when upgrading to a newer version of doxygen or when 
+# changing the value of configuration settings such as GENERATE_TREEVIEW!
 
 HTML_HEADER            = 
 
@@ -847,6 +908,40 @@ HTML_FOOTER            =
 # stylesheet in the HTML output directory as well, or it will be erased!
 
 HTML_STYLESHEET        = 
+
+# The HTML_EXTRA_FILES tag can be used to specify one or more extra images or 
+# other source files which should be copied to the HTML output directory. Note 
+# that these files will be copied to the base HTML output directory. Use the 
+# $relpath$ marker in the HTML_HEADER and/or HTML_FOOTER files to load these 
+# files. In the HTML_STYLESHEET file, use the file name only. Also note that 
+# the files will be copied as-is; there are no commands or markers available.
+
+HTML_EXTRA_FILES       = 
+
+# The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. 
+# Doxygen will adjust the colors in the stylesheet and background images 
+# according to this color. Hue is specified as an angle on a colorwheel, 
+# see http://en.wikipedia.org/wiki/Hue for more information. 
+# For instance the value 0 represents red, 60 is yellow, 120 is green, 
+# 180 is cyan, 240 is blue, 300 purple, and 360 is red again. 
+# The allowed range is 0 to 359.
+
+HTML_COLORSTYLE_HUE    = 220
+
+# The HTML_COLORSTYLE_SAT tag controls the purity (or saturation) of 
+# the colors in the HTML output. For a value of 0 the output will use 
+# grayscales only. A value of 255 will produce the most vivid colors.
+
+HTML_COLORSTYLE_SAT    = 100
+
+# The HTML_COLORSTYLE_GAMMA tag controls the gamma correction applied to 
+# the luminance component of the colors in the HTML output. Values below 
+# 100 gradually make the output lighter, whereas values above 100 make 
+# the output darker. The value divided by 100 is the actual gamma applied, 
+# so 80 represents a gamma of 0.8, The value 220 represents a gamma of 2.2, 
+# and 100 does not change the gamma.
+
+HTML_COLORSTYLE_GAMMA  = 80
 
 # If the HTML_TIMESTAMP tag is set to YES then the footer of each generated HTML 
 # page will contain the date and time when the page was generated. Setting 
@@ -876,7 +971,8 @@ HTML_DYNAMIC_SECTIONS  = NO
 # directory and running "make install" will install the docset in 
 # ~/Library/Developer/Shared/Documentation/DocSets so that Xcode will find 
 # it at startup. 
-# See http://developer.apple.com/tools/creatingdocsetswithdoxygen.html for more information.
+# See http://developer.apple.com/tools/creatingdocsetswithdoxygen.html 
+# for more information.
 
 GENERATE_DOCSET        = NO
 
@@ -893,6 +989,16 @@ DOCSET_FEEDNAME        = "Doxygen generated docs"
 # will append .docset to the name.
 
 DOCSET_BUNDLE_ID       = org.doxygen.Project
+
+# When GENERATE_PUBLISHER_ID tag specifies a string that should uniquely identify 
+# the documentation publisher. This should be a reverse domain-name style 
+# string, e.g. com.mycompany.MyDocSet.documentation.
+
+DOCSET_PUBLISHER_ID    = org.doxygen.Publisher
+
+# The GENERATE_PUBLISHER_NAME tag identifies the documentation publisher.
+
+DOCSET_PUBLISHER_NAME  = Publisher
 
 # If the GENERATE_HTMLHELP tag is set to YES, additional index files 
 # will be generated that can be used as input for tools like the 
@@ -938,10 +1044,10 @@ BINARY_TOC             = NO
 
 TOC_EXPAND             = NO
 
-# If the GENERATE_QHP tag is set to YES and both QHP_NAMESPACE and QHP_VIRTUAL_FOLDER 
-# are set, an additional index file will be generated that can be used as input for 
-# Qt's qhelpgenerator to generate a Qt Compressed Help (.qch) of the generated 
-# HTML documentation.
+# If the GENERATE_QHP tag is set to YES and both QHP_NAMESPACE and 
+# QHP_VIRTUAL_FOLDER are set, an additional index file will be generated 
+# that can be used as input for Qt's qhelpgenerator to generate a 
+# Qt Compressed Help (.qch) of the generated HTML documentation.
 
 GENERATE_QHP           = NO
 
@@ -963,20 +1069,24 @@ QHP_NAMESPACE          = org.doxygen.Project
 
 QHP_VIRTUAL_FOLDER     = doc
 
-# If QHP_CUST_FILTER_NAME is set, it specifies the name of a custom filter to add. 
-# For more information please see 
+# If QHP_CUST_FILTER_NAME is set, it specifies the name of a custom filter to 
+# add. For more information please see 
 # http://doc.trolltech.com/qthelpproject.html#custom-filters
 
 QHP_CUST_FILTER_NAME   = 
 
-# The QHP_CUST_FILT_ATTRS tag specifies the list of the attributes of the custom filter to add.For more information please see 
-# <a href="http://doc.trolltech.com/qthelpproject.html#custom-filters">Qt Help Project / Custom Filters</a>.
+# The QHP_CUST_FILT_ATTRS tag specifies the list of the attributes of the 
+# custom filter to add. For more information please see 
+# <a href="http://doc.trolltech.com/qthelpproject.html#custom-filters"> 
+# Qt Help Project / Custom Filters</a>.
 
 QHP_CUST_FILTER_ATTRS  = 
 
-# The QHP_SECT_FILTER_ATTRS tag specifies the list of the attributes this project's 
+# The QHP_SECT_FILTER_ATTRS tag specifies the list of the attributes this 
+# project's 
 # filter section matches. 
-# <a href="http://doc.trolltech.com/qthelpproject.html#filter-attributes">Qt Help Project / Filter Attributes</a>.
+# <a href="http://doc.trolltech.com/qthelpproject.html#filter-attributes"> 
+# Qt Help Project / Filter Attributes</a>.
 
 QHP_SECT_FILTER_ATTRS  = 
 
@@ -988,12 +1098,12 @@ QHP_SECT_FILTER_ATTRS  =
 QHG_LOCATION           = 
 
 # If the GENERATE_ECLIPSEHELP tag is set to YES, additional index files  
-# will be generated, which together with the HTML files, form an Eclipse help  
+# will be generated, which together with the HTML files, form an Eclipse help 
 # plugin. To install this plugin and make it available under the help contents 
 # menu in Eclipse, the contents of the directory containing the HTML and XML 
 # files needs to be copied into the plugins directory of eclipse. The name of 
 # the directory within the plugins directory should be the same as 
-# the ECLIPSE_DOC_ID value. After copying Eclipse needs to be restarted before
+# the ECLIPSE_DOC_ID value. After copying Eclipse needs to be restarted before 
 # the help appears.
 
 GENERATE_ECLIPSEHELP   = NO
@@ -1010,8 +1120,10 @@ ECLIPSE_DOC_ID         = org.doxygen.Project
 
 DISABLE_INDEX          = NO
 
-# This tag can be used to set the number of enum values (range [1..20]) 
-# that doxygen will group on one line in the generated HTML documentation.
+# The ENUM_VALUES_PER_LINE tag can be used to set the number of enum values 
+# (range [0,1..20]) that doxygen will group on one line in the generated HTML 
+# documentation. Note that a value of 0 will completely suppress the enum 
+# values from appearing in the overview section.
 
 ENUM_VALUES_PER_LINE   = 4
 
@@ -1036,6 +1148,11 @@ USE_INLINE_TREES       = NO
 
 TREEVIEW_WIDTH         = 250
 
+# When the EXT_LINKS_IN_WINDOW option is set to YES doxygen will open 
+# links to external symbols imported via tag files in a separate window.
+
+EXT_LINKS_IN_WINDOW    = NO
+
 # Use this tag to change the font size of Latex formulas included 
 # as images in the HTML documentation. The default is 10. Note that 
 # when you change the font size after a successful doxygen run you need 
@@ -1044,22 +1161,55 @@ TREEVIEW_WIDTH         = 250
 
 FORMULA_FONTSIZE       = 10
 
-# When the SEARCHENGINE tag is enabled doxygen will generate a search box
+# Use the FORMULA_TRANPARENT tag to determine whether or not the images 
+# generated for formulas are transparent PNGs. Transparent PNGs are 
+# not supported properly for IE 6.0, but are supported on all modern browsers. 
+# Note that when changing this option you need to delete any form_*.png files 
+# in the HTML output before the changes have effect.
+
+FORMULA_TRANSPARENT    = YES
+
+# Enable the USE_MATHJAX option to render LaTeX formulas using MathJax 
+# (see http://www.mathjax.org) which uses client side Javascript for the 
+# rendering instead of using prerendered bitmaps. Use this if you do not 
+# have LaTeX installed or if you want to formulas look prettier in the HTML 
+# output. When enabled you also need to install MathJax separately and 
+# configure the path to it using the MATHJAX_RELPATH option.
+
+USE_MATHJAX            = NO
+
+# When MathJax is enabled you need to specify the location relative to the 
+# HTML output directory using the MATHJAX_RELPATH option. The destination 
+# directory should contain the MathJax.js script. For instance, if the mathjax 
+# directory is located at the same level as the HTML output directory, then 
+# MATHJAX_RELPATH should be ../mathjax. The default value points to the 
+# mathjax.org site, so you can quickly see the result without installing 
+# MathJax, but it is strongly recommended to install a local copy of MathJax 
+# before deployment.
+
+MATHJAX_RELPATH        = http://www.mathjax.org/mathjax
+
+# The MATHJAX_EXTENSIONS tag can be used to specify one or MathJax extension 
+# names that should be enabled during MathJax rendering.
+
+MATHJAX_EXTENSIONS     = 
+
+# When the SEARCHENGINE tag is enabled doxygen will generate a search box 
 # for the HTML output. The underlying search engine uses javascript 
-# and DHTML and should work on any modern browser. Note that when using
-# HTML help (GENERATE_HTMLHELP), Qt help (GENERATE_QHP), or docsets
+# and DHTML and should work on any modern browser. Note that when using 
+# HTML help (GENERATE_HTMLHELP), Qt help (GENERATE_QHP), or docsets 
 # (GENERATE_DOCSET) there is already a search function so this one should 
 # typically be disabled. For large projects the javascript based search engine 
 # can be slow, then enabling SERVER_BASED_SEARCH may provide a better solution.
 
 SEARCHENGINE           = YES
 
-# When the SERVER_BASED_SEARCH tag is enabled the search engine will be
-# implemented using a PHP enabled web server instead of at the web client
+# When the SERVER_BASED_SEARCH tag is enabled the search engine will be 
+# implemented using a PHP enabled web server instead of at the web client 
 # using Javascript. Doxygen will generate the search PHP script and index 
-# file to put on the web server. The advantage of the server
-# based approach is that it scales better to large projects and allows
-# full text search. The disadvances is that it is more difficult to setup 
+# file to put on the web server. The advantage of the server 
+# based approach is that it scales better to large projects and allows 
+# full text search. The disadvantages are that it is more difficult to setup 
 # and does not have live searching capabilities.
 
 SERVER_BASED_SEARCH    = NO
@@ -1100,7 +1250,7 @@ MAKEINDEX_CMD_NAME     = makeindex
 COMPACT_LATEX          = NO
 
 # The PAPER_TYPE tag can be used to set the paper type that is used 
-# by the printer. Possible values are: a4, a4wide, letter, legal and 
+# by the printer. Possible values are: a4, letter, legal and 
 # executive. If left blank a4wide will be used.
 
 PAPER_TYPE             = a4wide
@@ -1116,6 +1266,13 @@ EXTRA_PACKAGES         =
 # standard header. Notice: only use this tag if you know what you are doing!
 
 LATEX_HEADER           = 
+
+# The LATEX_FOOTER tag can be used to specify a personal LaTeX footer for 
+# the generated latex document. The footer should contain everything after 
+# the last chapter. If it is left blank doxygen will generate a 
+# standard footer. Notice: only use this tag if you know what you are doing!
+
+LATEX_FOOTER           = 
 
 # If the PDF_HYPERLINKS tag is set to YES, the LaTeX that is generated 
 # is prepared for conversion to pdf (using ps2pdf). The pdf file will 
@@ -1143,12 +1300,18 @@ LATEX_BATCHMODE        = NO
 
 LATEX_HIDE_INDICES     = NO
 
-# If LATEX_SOURCE_CODE is set to YES then doxygen will include
-# source code with syntax highlighting in the LaTeX output.
-# Note that which sources are shown also depends on other settings
+# If LATEX_SOURCE_CODE is set to YES then doxygen will include 
+# source code with syntax highlighting in the LaTeX output. 
+# Note that which sources are shown also depends on other settings 
 # such as SOURCE_BROWSER.
 
 LATEX_SOURCE_CODE      = NO
+
+# The LATEX_BIB_STYLE tag can be used to specify the style to use for the 
+# bibliography, e.g. plainnat, or ieeetr. The default style is "plain". See 
+# http://en.wikipedia.org/wiki/BibTeX for more info.
+
+LATEX_BIB_STYLE        = plain
 
 #---------------------------------------------------------------------------
 # configuration options related to the RTF output
@@ -1324,7 +1487,7 @@ MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 
 # If the SEARCH_INCLUDES tag is set to YES (the default) the includes files 
-# in the INCLUDE_PATH (see below) will be search if a #include is found.
+# pointed to by INCLUDE_PATH will be searched when a #include is found.
 
 SEARCH_INCLUDES        = YES
 
@@ -1361,15 +1524,15 @@ PREDEFINED             = "BOOL_VAR_H(var,val,doc)=bool var = val; /**< doc */" \
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 
 # The macro definition that is found in the sources will be used. 
-# Use the PREDEFINED tag if you want to use a different macro definition.
+# Use the PREDEFINED tag if you want to use a different macro definition that 
+# overrules the definition found in the source code.
 
 EXPAND_AS_DEFINED      = 
 
 # If the SKIP_FUNCTION_MACROS tag is set to YES (the default) then 
-# doxygen's preprocessor will remove all function-like macros that are alone 
-# on a line, have an all uppercase name, and do not end with a semicolon. Such 
-# function macros are typically used for boiler-plate code, and will confuse 
-# the parser if not removed.
+# doxygen's preprocessor will remove all references to function-like macros 
+# that are alone on a line, have an all uppercase name, and do not end with a 
+# semicolon, because these will confuse the parser if not removed.
 
 SKIP_FUNCTION_MACROS   = YES
 
@@ -1423,9 +1586,8 @@ PERL_PATH              = /usr/bin/perl
 # If the CLASS_DIAGRAMS tag is set to YES (the default) Doxygen will 
 # generate a inheritance diagram (in HTML, RTF and LaTeX) for classes with base 
 # or super classes. Setting the tag to NO turns the diagrams off. Note that 
-# this option is superseded by the HAVE_DOT option below. This is only a 
-# fallback. It is recommended to install and use dot, since it yields more 
-# powerful graphs.
+# this option also works with HAVE_DOT disabled, but it is recommended to 
+# install and use dot, since it yields more powerful graphs.
 
 CLASS_DIAGRAMS         = YES
 
@@ -1451,14 +1613,20 @@ HIDE_UNDOC_RELATIONS   = YES
 
 HAVE_DOT               = NO
 
-# By default doxygen will write a font called FreeSans.ttf to the output 
-# directory and reference it in all dot files that doxygen generates. This 
-# font does not include all possible unicode characters however, so when you need 
-# these (or just want a differently looking font) you can specify the font name 
-# using DOT_FONTNAME. You need need to make sure dot is able to find the font, 
-# which can be done by putting it in a standard location or by setting the 
-# DOTFONTPATH environment variable or by setting DOT_FONTPATH to the directory 
-# containing the font.
+# The DOT_NUM_THREADS specifies the number of dot invocations doxygen is 
+# allowed to run in parallel. When set to 0 (the default) doxygen will 
+# base this on the number of processors available in the system. You can set it 
+# explicitly to a value larger than 0 to get control over the balance 
+# between CPU load and processing speed.
+
+DOT_NUM_THREADS        = 0
+
+# By default doxygen will use the Helvetica font for all dot files that 
+# doxygen generates. When you want a differently looking font you can specify 
+# the font name using DOT_FONTNAME. You need to make sure dot is able to find 
+# the font, which can be done by putting it in a standard location or by setting 
+# the DOTFONTPATH environment variable or by setting DOT_FONTPATH to the 
+# directory containing the font.
 
 DOT_FONTNAME           = FreeSans
 
@@ -1467,10 +1635,9 @@ DOT_FONTNAME           = FreeSans
 
 DOT_FONTSIZE           = 10
 
-# By default doxygen will tell dot to use the output directory to look for the 
-# FreeSans.ttf font (which doxygen will put there itself). If you specify a 
-# different font using DOT_FONTNAME you can set the path where dot 
-# can find it using this tag.
+# By default doxygen will tell dot to use the Helvetica font. 
+# If you specify a different font using DOT_FONTNAME you can use DOT_FONTPATH to 
+# set the path where dot can find it.
 
 DOT_FONTPATH           = 
 
@@ -1535,7 +1702,7 @@ CALL_GRAPH             = NO
 CALLER_GRAPH           = NO
 
 # If the GRAPHICAL_HIERARCHY and HAVE_DOT tags are set to YES then doxygen 
-# will graphical hierarchy of all classes instead of a textual one.
+# will generate a graphical hierarchy of all classes instead of a textual one.
 
 GRAPHICAL_HIERARCHY    = YES
 
@@ -1547,10 +1714,21 @@ GRAPHICAL_HIERARCHY    = YES
 DIRECTORY_GRAPH        = YES
 
 # The DOT_IMAGE_FORMAT tag can be used to set the image format of the images 
-# generated by dot. Possible values are png, jpg, or gif 
-# If left blank png will be used.
+# generated by dot. Possible values are svg, png, jpg, or gif. 
+# If left blank png will be used. If you choose svg you need to set 
+# HTML_FILE_EXTENSION to xhtml in order to make the SVG files 
+# visible in IE 9+ (other browsers do not have this requirement).
 
 DOT_IMAGE_FORMAT       = png
+
+# If DOT_IMAGE_FORMAT is set to svg, then this option can be set to YES to 
+# enable generation of interactive SVG images that allow zooming and panning. 
+# Note that this requires a modern browser other than Internet Explorer. 
+# Tested and working are Firefox, Chrome, Safari, and Opera. For IE 9+ you 
+# need to set HTML_FILE_EXTENSION to xhtml in order to make the SVG files 
+# visible. Older versions of IE do not have SVG support.
+
+INTERACTIVE_SVG        = NO
 
 # The tag DOT_PATH can be used to specify the path where the dot tool can be 
 # found. If left blank, it is assumed the dot tool can be found in the path.
@@ -1562,6 +1740,12 @@ DOT_PATH               =
 # \dotfile command).
 
 DOTFILE_DIRS           = 
+
+# The MSCFILE_DIRS tag can be used to specify one or more directories that 
+# contain msc files that are included in the documentation (see the 
+# \mscfile command).
+
+MSCFILE_DIRS           = 
 
 # The DOT_GRAPH_MAX_NODES tag can be used to set the maximum number of 
 # nodes that will be shown in the graph. If the number of nodes in a graph 

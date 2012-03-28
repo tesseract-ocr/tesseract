@@ -712,6 +712,7 @@ class TESS_API TessBaseAPI {
   TESS_LOCAL const PAGE_RES* GetPageRes() const {
     return page_res_;
   };
+  /* @} */
 
  protected:
   Tesseract*        tesseract_;       ///< The underlying data object.
@@ -730,7 +731,7 @@ class TESS_API TessBaseAPI {
   TruthCallback *truth_cb_;           /// fxn for setting truth_* in WERD_RES
 
   /**
-   * @defgroup ThresholderParams
+   * @defgroup ThresholderParams Thresholder Parameters
    * Parameters saved from the Thresholder. Needed to rebuild coordinates.
    */
   /* @{ */
