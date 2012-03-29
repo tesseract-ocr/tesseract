@@ -735,6 +735,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
                tprintf("fixpt->dangerous+=(%d %d %d %d)\n", orig_i, end_i,
                        true, replacement_is_ngram);
              }
+          }
           orig_i += alt_word->fragment_length(i);
         }
       }
