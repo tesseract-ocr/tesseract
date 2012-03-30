@@ -96,9 +96,9 @@ void AddLargeSpeckleTo(BLOB_CHOICE_LIST *Choices) {
  * Exceptions: none
  * History: Mon Mar 11 10:06:49 1991, DSJ, Created.
  *
- * @param Blob blob to test against speckle criteria
+ * @param blob blob to test against speckle criteria
  *
- * @return TRUE if Blob is speckle, FALSE otherwise.
+ * @return TRUE if blob is speckle, FALSE otherwise.
  */
 BOOL8 LargeSpeckle(TBLOB *blob) {
   double speckle_size = BASELINE_SCALE * speckle_large_max_size;

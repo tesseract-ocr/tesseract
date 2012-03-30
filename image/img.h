@@ -223,6 +223,7 @@ class DLLSYM IMAGE
      * check coordinates
      * @param x xcoord to check
      * @param y ycoord to check
+     * @param xext extent
      */
     void check_legal_access(inT32 x,
                             inT32 y,

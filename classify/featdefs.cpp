@@ -190,6 +190,7 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
  * Globals: 
  * - none
  *
+ * @param FeatureDefs    definitions of feature types/extractors
  * @param File		open text file to write CharDesc to
  * @param CharDesc	character description to write to File
  *
@@ -249,7 +250,8 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
  *
  * Globals: 
  * - none
- *
+ * 
+ * @param FeatureDefs    definitions of feature types/extractors
  * @param File open text file to read character description from
  * @return Character description read from File.
  * @note Exceptions: 
@@ -288,6 +290,7 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
  * Globals: 
  * - none
  *
+ * @param FeatureDefs    definitions of feature types/extractors
  * @param ShortName short name of a feature type
  * @return Feature type which corresponds to ShortName.
  * @note Exceptions: 

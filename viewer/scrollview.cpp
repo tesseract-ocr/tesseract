@@ -761,8 +761,8 @@ void ScrollView::ZoomToRectangle(int x1, int y1, int x2, int y2) {
           MIN(x1, x2), MIN(y1, y2), MAX(x1, x2), MAX(y1, y2));
 }
 
-// Send an image of type PIX.
-void ScrollView::Image(PIX* image, int x_pos, int y_pos) {
+// Send an image of type Pix.
+void ScrollView::Image(struct Pix* image, int x_pos, int y_pos) {
   int width = image->w;
   int height = image->h;
   l_uint32 bpp = image->d;

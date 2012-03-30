@@ -157,7 +157,7 @@ namespace tesseract {
  * Allocates memory for adapted tempates.
  * each char in unicharset to the newly created templates
  *
- * @param PopulateFromUnicharset if true, add an empty class for
+ * @param InitFromUnicharset if true, add an empty class for
  * @return Ptr to new adapted templates.
  *
  * @note Globals: none

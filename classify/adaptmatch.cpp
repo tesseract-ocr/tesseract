@@ -167,6 +167,7 @@ namespace tesseract {
  * @note History: Mon Mar 11 10:00:58 1991, DSJ, Created.
  *
  * @param Blob    blob to be classified
+ * @param denorm normalization/denormalization parameters
  * @param[out] Choices    List of choices found by adaptive matcher.
  * @param[out] CPResults  Array of CPResultStruct of size MAX_NUM_CLASSES is
  * filled on return with the choices found by the
@@ -742,6 +743,7 @@ void Classify::SettupPass2() {
  * config in that class.
  *
  * @param Blob blob to model new class after
+ * @param denorm normalization/denormalization parameters
  * @param ClassId id of the class to be initialized
  * @param FontinfoId font information inferred from pre-trained templates
  * @param Class adapted class to be initialized
@@ -843,7 +845,6 @@ void Classify::InitAdaptedClass(TBLOB *Blob,
  *
  * Globals: none
  * @param Blob blob to extract features from
- * @param LineStats statistics about text row blob is in
  * @param[out] IntFeatures array to fill with integer features
  * @param[out] FloatFeatures place to return actual floating-pt features
  *
@@ -910,7 +911,7 @@ int Classify::AdaptableWord(TWERD *Word,
 /*---------------------------------------------------------------------------*/
 /**
  * @param Blob blob to add to templates for ClassId
- * @param LineStats statistics about text line blob is in
+ * @param denorm normalization/denormalization parameters
  * @param ClassId class to add blob to
  * @param FontinfoId font information from pre-trained templates
  * @param Threshold minimum match rating to existing template
@@ -1062,7 +1063,7 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, const DENORM& denorm,
 /*---------------------------------------------------------------------------*/
 /**
  * @param Blob blob to add to templates for ClassId
- * @param LineStats statistics about text line blob is in
+ * @param denorm normalization/denormalization parameters
  * @param ClassId class to add blob to
  * @param FontinfoId font information from pre-trained teamples
  * @param Threshold minimum match rating to existing template
@@ -1123,9 +1124,10 @@ void Classify::AdaptToPunc(TBLOB *Blob,
  *
  * @param[out] results results to add new result to
  * @param class_id class of new result
+ * @param shape_id shape index
  * @param rating rating of new result
+ * @param adapted adapted match or not
  * @param config config id of new result
- * @param config2 config id of 2nd choice result
  * @param fontinfo_id font information of the new result
  * @param fontinfo_id2 font information of the 2nd choice result
  *
@@ -1186,7 +1188,9 @@ void Classify::AddNewResult(ADAPT_RESULTS *results,
  * - #AllConfigsOn mask that enables all configs
  *
  * @param Blob blob to be classified
+ * @param denorm normalization/denormalization parameters
  * @param Templates built-in templates to classify against
+ * @param Classes adapted class templates
  * @param Ambiguities array of class id's to match against
  * @param[out] Results place to put match results
  *
@@ -1403,6 +1407,7 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
  * - BaselineCutoffs expected num features for each class
  *
  * @param Blob blob to be classified
+ * @param denorm normalization/denormalization parameters
  * @param Templates current set of adapted templates
  * @param Results place to put match results
  *
@@ -1462,6 +1467,7 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
  * are added to Results.
  *
  * @param Blob blob to be classified
+ * @param denorm normalization/denormalization parameters
  * @param Templates templates to classify unknown against
  * @param Results place to put match results
  *
@@ -1726,6 +1732,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
 /**
  *
  * @param Blob blob whose classification is being debugged
+ * @param denorm normalization/denormalization parameters
  * @param Results results of match being debugged
  *
  * Globals: none
@@ -1782,6 +1789,7 @@ void Classify::DebugAdaptiveClassifier(TBLOB *Blob,
  * of these classifications are merged together into Results.
  *
  * @param Blob blob to be classified
+ * @param denorm normalization/denormalization parameters
  * @param Results place to put match results
  *
  * Globals:
@@ -1839,6 +1847,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob,
  * desired thresholds.
  *
  * @param Word current word
+ * @param denorm normalization/denormalization parameters
  * @param BestChoice best choice for current word with context
  * @param BestRawChoice best choice for current word without context
  * @param[out] Thresholds array of thresholds to be filled in
@@ -1870,6 +1879,7 @@ void Classify::GetAdaptThresholds(TWERD * Word,
  * class which are potential ambiguities.
  *
  * @param Blob blob to get classification ambiguities for
+ * @param denorm normalization/denormalization parameters
  * @param CorrectClass correct class for Blob
  *
  * Globals:
@@ -1923,6 +1933,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
  * array provided by the caller.
  *
  * @param Blob blob to extract features from
+ * @param denorm normalization/denormalization parameters
  * @param Templates used to compute char norm adjustments
  * @param IntFeatures array to fill with integer features
  * @param CharNormArray array to fill with dummy char norm adjustments
@@ -2007,10 +2018,14 @@ bool Classify::LooksLikeGarbage(const DENORM& denorm, TBLOB *blob) {
  * array provided by the caller.
  *
  * @param Blob blob to extract features from
+ * @param denorm normalization/denormalization parameters
  * @param Templates used to compute char norm adjustments
  * @param IntFeatures array to fill with integer features
+ * @param PrunerNormArray Array of factors from blob normalization
+ *        process
  * @param CharNormArray array to fill with dummy char norm adjustments
  * @param BlobLength length of blob in baseline-normalized units
+ * @param FeatureOutlineArray
  *
  * Globals:
  * - FeaturesHaveBeenExtracted TRUE if fx has been done
@@ -2292,6 +2307,7 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features,
  * @param Templates current set of adaptive templates
  * @param ClassId class containing config to be made permanent
  * @param ConfigId config to be made permanent
+ * @param denorm normalization/denormalization parameters
  * @param Blob current blob being adapted to
  *
  * Globals: none
@@ -2354,8 +2370,8 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
  * its proto id is used by the configuration specified in
  * ProtoKey.
  *
- * @param TempProto temporary proto to compare to key
- * @param ProtoKey defines which protos to make permanent
+ * @param item1 (TEMP_PROTO) temporary proto to compare to key
+ * @param item2 (PROTO_KEY) defines which protos to make permanent
  *
  * Globals: none
  *
@@ -2477,7 +2493,7 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
  * all good matches get moved to the front of the classes
  * array.
  *
- * @parm Results contains matches to be filtered
+ * @param Results contains matches to be filtered
  *
  * Globals:
  * - matcher_bad_match_pad defines a "bad match"
@@ -2545,9 +2561,12 @@ void Classify::SetAdaptiveThreshold(FLOAT32 Threshold) {
  * information for the config which matched best.
  *
  * @param Blob blob to show best matching config for
+ * @param denorm normalization/denormalization parameters
  * @param ClassId class whose configs are to be searched
+ * @param shape_id shape index
  * @param AdaptiveOn TRUE if adaptive configs are enabled
  * @param PreTrainedOn TRUE if pretrained configs are enabled
+ * @param Results results of match being debugged
  *
  * Globals:
  * - PreTrainedTemplates built-in training

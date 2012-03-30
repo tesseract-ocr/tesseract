@@ -105,6 +105,8 @@ public class SVPopupMenu implements ActionListener {
    * @param name The caption of the new entry.
    * @param id The Id of the new entry. If it is -1, the entry will be treated
    *        as a menu.
+   * @param value The value of the new entry.
+   * @param desc The description of the new entry.
    */
   public void add(String parent, String name, int id, String value, String desc) {
     SVAbstractMenuItem jmi = items.get(parent);

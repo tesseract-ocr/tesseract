@@ -67,7 +67,6 @@ EXTERN double_VAR(edges_boxarea, 0.875,
  */
 
 OL_BUCKETS::OL_BUCKETS(
-//// constructor
 ICOORD bleft,                    // corners
 ICOORD tright):         bl(bleft), tr(tright) {
   bxdim =(tright.x() - bleft.x()) / BUCKETSIZE + 1;

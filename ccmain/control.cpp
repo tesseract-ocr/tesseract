@@ -92,7 +92,7 @@ void Tesseract::recog_pseudo_word(PAGE_RES* page_res,
  *
  * @param block block
  * @param row row of word
- * @param word word to recognise
+ * @param word_res word to recognise
  */
 BOOL8 Tesseract::recog_interactive(BLOCK* block, ROW* row, WERD_RES* word_res) {
   inT16 char_qual;
@@ -170,6 +170,7 @@ bool Tesseract::ProcessTargetWord(const TBOX& word_box,
  *
  * @param page_res page structure
  * @param monitor progress monitor
+ * @param word_config word_config file
  * @param target_word_box specifies just to extract a rectangle
  * @param dopasses 0 - all, 1 just pass 1, 2 passes 2 and higher
  */

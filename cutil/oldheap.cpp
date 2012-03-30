@@ -67,7 +67,7 @@ HEAP *MakeHeap(int Size) {
  *
  * @param Heap ptr to heap whose top is to be removed and returned
  * @param Key place to put key of top heap item
- * @param Data place to put data of top heap item
+ * @param out_ptr place to put data of top heap item
  *
  * @return OK if top entry returned, EMPTY if heap is empty
  * @note Exceptions: None
@@ -119,7 +119,7 @@ int HeapPop(HEAP *Heap, FLOAT32 *Key, void *out_ptr) {
  *
  * @param Heap ptr to heap whose top is to be removed and returned
  * @param Key place to put key of top heap item
- * @param Data place to put data of top heap item
+ * @param out_ptr place to put data of top heap item
  */
 int HeapPopWorst(HEAP *Heap, FLOAT32 *Key, void *out_ptr) {
   inT32 Index;                   /*current index */
@@ -316,7 +316,7 @@ int GetTopOfHeap(HEAP *Heap, HEAPENTRY *Entry) {
  * this data is also deallocated.
  *
  * @param Heap heap whose data is to be freed
- * @param Deallocator function to be used to deallocate data
+ * @param destructor function to be used to deallocate data
  *
  * Globals: 
  * - None
