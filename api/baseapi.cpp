@@ -63,25 +63,29 @@
 
 namespace tesseract {
 
-// Minimum sensible image size to be worth running tesseract.
+/** Minimum sensible image size to be worth running tesseract. */
 const int kMinRectSize = 10;
-// Character returned when Tesseract couldn't recognize as anything.
+/** Character returned when Tesseract couldn't recognize as anything. */
 const char kTesseractReject = '~';
-// Character used by UNLV error counter as a reject.
+/** Character used by UNLV error counter as a reject. */
 const char kUNLVReject = '~';
-// Character used by UNLV as a suspect marker.
+/** Character used by UNLV as a suspect marker. */
 const char kUNLVSuspect = '^';
-// Filename used for input image file, from which to derive a name to search
-// for a possible UNLV zone file, if none is specified by SetInputName.
+/**
+ * Filename used for input image file, from which to derive a name to search
+ * for a possible UNLV zone file, if none is specified by SetInputName.
+ */
 const char* kInputFile = "noname.tif";
-// Temp file used for storing current parameters before applying retry values.
+/** Temp file used for storing current parameters before applying retry values. */
 const char* kOldVarsFile = "failed_vars.txt";
-// Max string length of an int.
+/** Max string length of an int.  */
 const int kMaxIntSize = 22;
-// Minimum believable resolution. Used as a default if there is no other
-// information, as it is safer to under-estimate than over-estimate.
+/**
+ * Minimum believable resolution. Used as a default if there is no other
+ * information, as it is safer to under-estimate than over-estimate.
+ */
 const int kMinCredibleResolution = 70;
-// Maximum believable resolution.
+/** Maximum believable resolution.  */
 const int kMaxCredibleResolution = 2400;
 
 TessBaseAPI::TessBaseAPI()
@@ -117,8 +121,10 @@ const char* TessBaseAPI::Version() {
   return VERSION;
 }
 
-// Set the name of the input file. Needed only for training and
-// loading a UNLV zone file.
+/**
+ * Set the name of the input file. Needed only for training and
+ * loading a UNLV zone file.
+ */
 void TessBaseAPI::SetInputName(const char* name) {
   if (input_file_ == NULL)
     input_file_ = new STRING(name);
@@ -126,7 +132,7 @@ void TessBaseAPI::SetInputName(const char* name) {
     *input_file_ = name;
 }
 
-// Set the name of the output files. Needed only for debugging.
+/** Set the name of the output files. Needed only for debugging. */
 void TessBaseAPI::SetOutputName(const char* name) {
   if (output_file_ == NULL)
     output_file_ = new STRING(name);
@@ -176,22 +182,24 @@ bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
   return true;
 }
 
-// Get value of named variable as a string, if it exists.
+/** Get value of named variable as a string, if it exists. */
 bool TessBaseAPI::GetVariableAsString(const char *name, STRING *val) {
   return ParamUtils::GetParamAsString(name, tesseract_->params(), val);
 }
 
-// Print Tesseract parameters to the given file.
+/** Print Tesseract parameters to the given file. */
 void TessBaseAPI::PrintVariables(FILE *fp) const {
   ParamUtils::PrintParams(fp, tesseract_->params());
 }
 
-// The datapath must be the name of the data directory (no ending /) or
-// some other file in which the data directory resides (for instance argv[0].)
-// The language is (usually) an ISO 639-3 string or NULL will default to eng.
-// If numeric_mode is true, then only digits and Roman numerals will
-// be returned.
-// Returns 0 on success and -1 on initialization failure.
+/** 
+ * The datapath must be the name of the data directory (no ending /) or
+ * some other file in which the data directory resides (for instance argv[0].)
+ * The language is (usually) an ISO 639-3 string or NULL will default to eng.
+ * If numeric_mode is true, then only digits and Roman numerals will
+ * be returned.
+ * @return: 0 on success and -1 on initialization failure.
+ */
 int TessBaseAPI::Init(const char* datapath, const char* language,
                       OcrEngineMode oem, char **configs, int configs_size,
                       const GenericVector<STRING> *vars_vec,
@@ -240,20 +248,24 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
   return 0;
 }
 
-// Returns the languages string used in the last valid initialization.
-// If the last initialization specified "deu+hin" then that will be
-// returned. If hin loaded eng automatically as well, then that will
-// not be included in this list. To find the languages actually
-// loaded use GetLoadedLanguagesAsVector.
-// The returned string should NOT be deleted.
+/** 
+ * Returns the languages string used in the last valid initialization.
+ * If the last initialization specified "deu+hin" then that will be
+ * returned. If hin loaded eng automatically as well, then that will
+ * not be included in this list. To find the languages actually
+ * loaded use GetLoadedLanguagesAsVector.
+ * The returned string should NOT be deleted.
+ */
 const char* TessBaseAPI::GetInitLanguagesAsString() const {
   return (language_ == NULL || language_->string() == NULL) ?
       "" : language_->string();
 }
 
-// Returns the loaded languages in the vector of STRINGs.
-// Includes all languages loaded by the last Init, including those loaded
-// as dependencies of other loaded languages.
+/**
+ * Returns the loaded languages in the vector of STRINGs.
+ * Includes all languages loaded by the last Init, including those loaded
+ * as dependencies of other loaded languages.
+ */
 void TessBaseAPI::GetLoadedLanguagesAsVector(
     GenericVector<STRING>* langs) const {
   langs->clear();
@@ -265,18 +277,22 @@ void TessBaseAPI::GetLoadedLanguagesAsVector(
   }
 }
 
-// Init only the lang model component of Tesseract. The only functions
-// that work after this init are SetVariable and IsValidWord.
-// WARNING: temporary! This function will be removed from here and placed
-// in a separate API at some future time.
+/**
+ * Init only the lang model component of Tesseract. The only functions
+ * that work after this init are SetVariable and IsValidWord.
+ * WARNING: temporary! This function will be removed from here and placed
+ * in a separate API at some future time.
+ */
 int TessBaseAPI::InitLangMod(const char* datapath, const char* language) {
   if (tesseract_ == NULL)
     tesseract_ = new Tesseract;
   return tesseract_->init_tesseract_lm(datapath, NULL, language);
 }
 
-// Init only for page layout analysis. Use only for calls to SetImage and
-// AnalysePage. Calls that attempt recognition will generate an error.
+/**
+ * Init only for page layout analysis. Use only for calls to SetImage and
+ * AnalysePage. Calls that attempt recognition will generate an error.
+ */
 void TessBaseAPI::InitForAnalysePage() {
   if (tesseract_ == NULL) {
     tesseract_ = new Tesseract;
@@ -284,27 +300,32 @@ void TessBaseAPI::InitForAnalysePage() {
   }
 }
 
-// Read a "config" file containing a set of parameter name, value pairs.
-// Searches the standard places: tessdata/configs, tessdata/tessconfigs
-// and also accepts a relative or absolute path name.
+/**
+ * Read a "config" file containing a set of parameter name, value pairs.
+ * Searches the standard places: tessdata/configs, tessdata/tessconfigs
+ * and also accepts a relative or absolute path name.
+ */
 void TessBaseAPI::ReadConfigFile(const char* filename) {
   tesseract_->read_config_file(filename, SET_PARAM_CONSTRAINT_NON_INIT_ONLY);
 }
-// Same as above, but only set debug params from the given config file.
+
+/** Same as above, but only set debug params from the given config file. */
 void TessBaseAPI::ReadDebugConfigFile(const char* filename) {
   tesseract_->read_config_file(filename, SET_PARAM_CONSTRAINT_DEBUG_ONLY);
 }
 
-// Set the current page segmentation mode. Defaults to PSM_AUTO.
-// The mode is stored as an IntParam so it can also be modified by
-// ReadConfigFile or SetVariable("tessedit_pageseg_mode", mode as string).
+/**
+ * Set the current page segmentation mode. Defaults to PSM_AUTO.
+ * The mode is stored as an IntParam so it can also be modified by
+ * ReadConfigFile or SetVariable("tessedit_pageseg_mode", mode as string).
+ */
 void TessBaseAPI::SetPageSegMode(PageSegMode mode) {
   if (tesseract_ == NULL)
     tesseract_ = new Tesseract;
   tesseract_->tessedit_pageseg_mode.set_value(mode);
 }
 
-// Return the current page segmentation mode.
+/** Return the current page segmentation mode. */
 PageSegMode TessBaseAPI::GetPageSegMode() const {
   if (tesseract_ == NULL)
     return PSM_SINGLE_BLOCK;
@@ -312,17 +333,19 @@ PageSegMode TessBaseAPI::GetPageSegMode() const {
     static_cast<int>(tesseract_->tessedit_pageseg_mode));
 }
 
-// Recognize a rectangle from an image and return the result as a string.
-// May be called many times for a single Init.
-// Currently has no error checking.
-// Greyscale of 8 and color of 24 or 32 bits per pixel may be given.
-// Palette color images will not work properly and must be converted to
-// 24 bit.
-// Binary images of 1 bit per pixel may also be given but they must be
-// byte packed with the MSB of the first byte being the first pixel, and a
-// one pixel is WHITE. For binary images set bytes_per_pixel=0.
-// The recognized text is returned as a char* which is coded
-// as UTF8 and must be freed with the delete [] operator.
+/**
+ * Recognize a rectangle from an image and return the result as a string.
+ * May be called many times for a single Init.
+ * Currently has no error checking.
+ * Greyscale of 8 and color of 24 or 32 bits per pixel may be given.
+ * Palette color images will not work properly and must be converted to
+ * 24 bit.
+ * Binary images of 1 bit per pixel may also be given but they must be
+ * byte packed with the MSB of the first byte being the first pixel, and a
+ * one pixel is WHITE. For binary images set bytes_per_pixel=0.
+ * The recognized text is returned as a char* which is coded
+ * as UTF8 and must be freed with the delete [] operator.
+ */
 char* TessBaseAPI::TesseractRect(const unsigned char* imagedata,
                                  int bytes_per_pixel,
                                  int bytes_per_line,
@@ -341,8 +364,10 @@ char* TessBaseAPI::TesseractRect(const unsigned char* imagedata,
   return GetUTF8Text();
 }
 
-// Call between pages or documents etc to free up memory and forget
-// adaptive data.
+/**
+ * Call between pages or documents etc to free up memory and forget
+ * adaptive data.
+ */
 void TessBaseAPI::ClearAdaptiveClassifier() {
   if (tesseract_ == NULL)
     return;
@@ -350,13 +375,15 @@ void TessBaseAPI::ClearAdaptiveClassifier() {
   tesseract_->ResetDocumentDictionary();
 }
 
-// Provide an image for Tesseract to recognize. Format is as
-// TesseractRect above. Does not copy the image buffer, or take
-// ownership. The source image may be destroyed after Recognize is called,
-// either explicitly or implicitly via one of the Get*Text functions.
-// SetImage clears all recognition results, and sets the rectangle to the
-// full image, so it may be followed immediately by a GetUTF8Text, and it
-// will automatically perform recognition.
+/**
+ * Provide an image for Tesseract to recognize. Format is as
+ * TesseractRect above. Does not copy the image buffer, or take
+ * ownership. The source image may be destroyed after Recognize is called,
+ * either explicitly or implicitly via one of the Get*Text functions.
+ * SetImage clears all recognition results, and sets the rectangle to the
+ * full image, so it may be followed immediately by a GetUTF8Text, and it
+ * will automatically perform recognition.
+ */
 void TessBaseAPI::SetImage(const unsigned char* imagedata,
                            int width, int height,
                            int bytes_per_pixel, int bytes_per_line) {
@@ -372,22 +399,26 @@ void TessBaseAPI::SetSourceResolution(int ppi) {
     tprintf("Please call SetImage before SetSourceResolution.\n");
 }
 
-// Provide an image for Tesseract to recognize. As with SetImage above,
-// Tesseract doesn't take a copy or ownership or pixDestroy the image, so
-// it must persist until after Recognize.
-// Pix vs raw, which to use?
-// Use Pix where possible. A future version of Tesseract may choose to use Pix
-// as its internal representation and discard IMAGE altogether.
-// Because of that, an implementation that sources and targets Pix may end up
-// with less copies than an implementation that does not.
+/**
+ * Provide an image for Tesseract to recognize. As with SetImage above,
+ * Tesseract doesn't take a copy or ownership or pixDestroy the image, so
+ * it must persist until after Recognize.
+ * Pix vs raw, which to use?
+ * Use Pix where possible. A future version of Tesseract may choose to use Pix
+ * as its internal representation and discard IMAGE altogether.
+ * Because of that, an implementation that sources and targets Pix may end up
+ * with less copies than an implementation that does not.
+ */
 void TessBaseAPI::SetImage(const Pix* pix) {
   if (InternalSetImage())
     thresholder_->SetImage(pix);
 }
 
-// Restrict recognition to a sub-rectangle of the image. Call after SetImage.
-// Each SetRectangle clears the recogntion results so multiple rectangles
-// can be recognized with the same image.
+/**
+ * Restrict recognition to a sub-rectangle of the image. Call after SetImage.
+ * Each SetRectangle clears the recogntion results so multiple rectangles
+ * can be recognized with the same image.
+ */
 void TessBaseAPI::SetRectangle(int left, int top, int width, int height) {
   if (thresholder_ == NULL)
     return;
@@ -395,8 +426,10 @@ void TessBaseAPI::SetRectangle(int left, int top, int width, int height) {
   ClearResults();
 }
 
-// ONLY available if you have Leptonica installed.
-// Get a copy of the internal thresholded image from Tesseract.
+/**
+ * ONLY available if you have Leptonica installed.
+ * Get a copy of the internal thresholded image from Tesseract.
+ */
 Pix* TessBaseAPI::GetThresholdedImage() {
   if (tesseract_ == NULL)
     return NULL;
@@ -405,52 +438,64 @@ Pix* TessBaseAPI::GetThresholdedImage() {
   return pixClone(tesseract_->pix_binary());
 }
 
-// Get the result of page layout analysis as a leptonica-style
-// Boxa, Pixa pair, in reading order.
-// Can be called before or after Recognize.
+/**
+ * Get the result of page layout analysis as a leptonica-style
+ * Boxa, Pixa pair, in reading order.
+ * Can be called before or after Recognize.
+ */
 Boxa* TessBaseAPI::GetRegions(Pixa** pixa) {
   return GetComponentImages(RIL_BLOCK, false, pixa, NULL);
 }
 
-// Get the textlines as a leptonica-style Boxa, Pixa pair, in reading order.
-// Can be called before or after Recognize.
-// If blockids is not NULL, the block-id of each line is also returned as an
-// array of one element per line. delete [] after use.
+/**
+ * Get the textlines as a leptonica-style Boxa, Pixa pair, in reading order.
+ * Can be called before or after Recognize.
+ * If blockids is not NULL, the block-id of each line is also returned as an
+ * array of one element per line. delete [] after use.
+ */
 Boxa* TessBaseAPI::GetTextlines(Pixa** pixa, int** blockids) {
   return GetComponentImages(RIL_TEXTLINE, true, pixa, blockids);
 }
 
-// Get textlines and strips of image regions as a leptonica-style Boxa, Pixa
-// pair, in reading order. Enables downstream handling of non-rectangular
-// regions.
-// Can be called before or after Recognize.
-// If blockids is not NULL, the block-id of each line is also returned as an
-// array of one element per line. delete [] after use.
+/**
+ * Get textlines and strips of image regions as a leptonica-style Boxa, Pixa
+ * pair, in reading order. Enables downstream handling of non-rectangular
+ * regions.
+ * Can be called before or after Recognize.
+ * If blockids is not NULL, the block-id of each line is also returned as an
+ * array of one element per line. delete [] after use.
+ */
 Boxa* TessBaseAPI::GetStrips(Pixa** pixa, int** blockids) {
   return GetComponentImages(RIL_TEXTLINE, false, pixa, blockids);
 }
 
-// Get the words as a leptonica-style
-// Boxa, Pixa pair, in reading order.
-// Can be called before or after Recognize.
+/**
+ * Get the words as a leptonica-style
+ * Boxa, Pixa pair, in reading order.
+ * Can be called before or after Recognize.
+ */
 Boxa* TessBaseAPI::GetWords(Pixa** pixa) {
   return GetComponentImages(RIL_WORD, true, pixa, NULL);
 }
 
-// Gets the individual connected (text) components (created
-// after pages segmentation step, but before recognition)
-// as a leptonica-style Boxa, Pixa pair, in reading order.
-// Can be called before or after Recognize.
+/**
+ * Gets the individual connected (text) components (created
+ * after pages segmentation step, but before recognition)
+ * as a leptonica-style Boxa, Pixa pair, in reading order.
+ * Can be called before or after Recognize.
+ */
 Boxa* TessBaseAPI::GetConnectedComponents(Pixa** pixa) {
   return GetComponentImages(RIL_SYMBOL, true, pixa, NULL);
 }
 
-// Get the given level kind of components (block, textline, word etc.) as a
-// leptonica-style Boxa, Pixa pair, in reading order.
-// Can be called before or after Recognize.
-// If blockids is not NULL, the block-id of each component is also returned
-// as an array of one element per component. delete [] after use.
-// If text_only is true, then only text components are returned.
+/**
+ * Get the given level kind of components (block, textline, word etc.) as a
+ * leptonica-style Boxa, Pixa pair, in reading order.
+ * Can be called before or after Recognize.
+ * If blockids is not NULL, the block-id of each component is also returned
+ * as an array of one element per component. delete [] after use.
+ * If text_only is true, then only text components are returned.
+ */
 Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
                                       bool text_only,
                                       Pixa** pixa, int** blockids) {
@@ -507,7 +552,7 @@ int TessBaseAPI::GetThresholdedImageScaleFactor() const {
   return thresholder_->GetScaleFactor();
 }
 
-// Dump the internal binary image to a PGM file.
+/** Dump the internal binary image to a PGM file. */
 void TessBaseAPI::DumpPGM(const char* filename) {
   if (tesseract_ == NULL)
     return;
@@ -526,10 +571,12 @@ void TessBaseAPI::DumpPGM(const char* filename) {
   fclose(fp);
 }
 
-// Placeholder for call to Cube and test that the input data is correct.
-// reskew is the direction of baselines in the skewed image in
-// normalized (cos theta, sin theta) form, so (0.866, 0.5) would represent
-// a 30 degree anticlockwise skew.
+/**
+ * Placeholder for call to Cube and test that the input data is correct.
+ * reskew is the direction of baselines in the skewed image in
+ * normalized (cos theta, sin theta) form, so (0.866, 0.5) would represent
+ * a 30 degree anticlockwise skew.
+ */
 int CubeAPITest(Boxa* boxa_blocks, Pixa* pixa_blocks,
                 Boxa* boxa_words, Pixa* pixa_words,
                 const FCOORD& reskew, Pix* page_pix,
@@ -569,15 +616,17 @@ int CubeAPITest(Boxa* boxa_blocks, Pixa* pixa_blocks,
   return 0;
 }
 
-// Runs page layout analysis in the mode set by SetPageSegMode.
-// May optionally be called prior to Recognize to get access to just
-// the page layout results. Returns an iterator to the results.
-// Returns NULL on error or an empty page.
-// The returned iterator must be deleted after use.
-// WARNING! This class points to data held within the TessBaseAPI class, and
-// therefore can only be used while the TessBaseAPI class still exists and
-// has not been subjected to a call of Init, SetImage, Recognize, Clear, End
-// DetectOS, or anything else that changes the internal PAGE_RES.
+/**
+ * Runs page layout analysis in the mode set by SetPageSegMode.
+ * May optionally be called prior to Recognize to get access to just
+ * the page layout results. Returns an iterator to the results.
+ * Returns NULL on error or an empty page.
+ * The returned iterator must be deleted after use.
+ * WARNING! This class points to data held within the TessBaseAPI class, and
+ * therefore can only be used while the TessBaseAPI class still exists and
+ * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
+ * DetectOS, or anything else that changes the internal PAGE_RES.
+ */
 PageIterator* TessBaseAPI::AnalyseLayout() {
   if (FindLines() == 0) {
     if (block_list_->empty())
@@ -591,8 +640,10 @@ PageIterator* TessBaseAPI::AnalyseLayout() {
   return NULL;
 }
 
-// Recognize the tesseract global image and return the result as Tesseract
-// internal structures.
+/**
+ * Recognize the tesseract global image and return the result as Tesseract
+ * internal structures.
+ */
 int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   if (tesseract_ == NULL)
     return -1;
@@ -651,7 +702,7 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   return result;
 }
 
-// Tests the chopper by exhaustively running chop_one_blob.
+/** Tests the chopper by exhaustively running chop_one_blob. */
 int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
   if (tesseract_ == NULL)
     return -1;
@@ -682,21 +733,22 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
   return 0;
 }
 
-
-// Recognizes all the pages in the named file, as a multi-page tiff or
-// list of filenames, or single image, and gets the appropriate kind of text
-// according to parameters: tessedit_create_boxfile,
-// tessedit_make_boxes_from_boxes, tessedit_write_unlv, tessedit_create_hocr.
-// Calls ProcessPage on each page in the input file, which may be a
-// multi-page tiff, single-page other file format, or a plain text list of
-// images to read. If tessedit_page_number is non-negative, processing begins
-// at that page of a multi-page tiff file, or filelist.
-// The text is returned in text_out. Returns false on error.
-// If non-zero timeout_millisec terminates processing after the timeout on
-// a single page.
-// If non-NULL and non-empty, and some page fails for some reason,
-// the page is reprocessed with the retry_config config file. Useful
-// for interactively debugging a bad page.
+/**
+ * Recognizes all the pages in the named file, as a multi-page tiff or
+ * list of filenames, or single image, and gets the appropriate kind of text
+ * according to parameters: tessedit_create_boxfile,
+ * tessedit_make_boxes_from_boxes, tessedit_write_unlv, tessedit_create_hocr.
+ * Calls ProcessPage on each page in the input file, which may be a
+ * multi-page tiff, single-page other file format, or a plain text list of
+ * images to read. If tessedit_page_number is non-negative, processing begins
+ * at that page of a multi-page tiff file, or filelist.
+ * The text is returned in text_out. Returns false on error.
+ * If non-zero timeout_millisec terminates processing after the timeout on
+ * a single page.
+ * If non-NULL and non-empty, and some page fails for some reason,
+ * the page is reprocessed with the retry_config config file. Useful
+ * for interactively debugging a bad page.
+ */
 bool TessBaseAPI::ProcessPages(const char* filename,
                                const char* retry_config, int timeout_millisec,
                                STRING* text_out) {
@@ -783,16 +835,17 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   return success;
 }
 
-
-// Recognizes a single page for ProcessPages, appending the text to text_out.
-// The pix is the image processed - filename and page_index are metadata
-// used by side-effect processes, such as reading a box file or formatting
-// as hOCR.
-// If non-zero timeout_millisec terminates processing after the timeout.
-// If non-NULL and non-empty, and some page fails for some reason,
-// the page is reprocessed with the retry_config config file. Useful
-// for interactively debugging a bad page.
-// The text is returned in text_out. Returns false on error.
+/**
+ * Recognizes a single page for ProcessPages, appending the text to text_out.
+ * The pix is the image processed - filename and page_index are metadata
+ * used by side-effect processes, such as reading a box file or formatting
+ * as hOCR.
+ * If non-zero timeout_millisec terminates processing after the timeout.
+ * If non-NULL and non-empty, and some page fails for some reason,
+ * the page is reprocessed with the retry_config config file. Useful
+ * for interactively debugging a bad page.
+ * The text is returned in text_out. Returns false on error.
+ */
 bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
                               const char* retry_config, int timeout_millisec,
                               STRING* text_out) {
@@ -857,8 +910,10 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
   return false;
 }
 
-// Get a left-to-right iterator to the results of LayoutAnalysis and/or
-// Recognize. The returned iterator must be deleted after use.
+/**
+ * Get a left-to-right iterator to the results of LayoutAnalysis and/or
+ * Recognize. The returned iterator must be deleted after use.
+ */
 LTRResultIterator* TessBaseAPI::GetLTRIterator() {
   if (tesseract_ == NULL || page_res_ == NULL)
     return NULL;
@@ -868,12 +923,14 @@ LTRResultIterator* TessBaseAPI::GetLTRIterator() {
       rect_left_, rect_top_, rect_width_, rect_height_);
 }
 
-// Get a reading-order iterator to the results of LayoutAnalysis and/or
-// Recognize. The returned iterator must be deleted after use.
-// WARNING! This class points to data held within the TessBaseAPI class, and
-// therefore can only be used while the TessBaseAPI class still exists and
-// has not been subjected to a call of Init, SetImage, Recognize, Clear, End
-// DetectOS, or anything else that changes the internal PAGE_RES.
+/**
+ * Get a reading-order iterator to the results of LayoutAnalysis and/or
+ * Recognize. The returned iterator must be deleted after use.
+ * WARNING! This class points to data held within the TessBaseAPI class, and
+ * therefore can only be used while the TessBaseAPI class still exists and
+ * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
+ * DetectOS, or anything else that changes the internal PAGE_RES.
+ */
 ResultIterator* TessBaseAPI::GetIterator() {
   if (tesseract_ == NULL || page_res_ == NULL)
     return NULL;
@@ -883,12 +940,14 @@ ResultIterator* TessBaseAPI::GetIterator() {
       rect_left_, rect_top_, rect_width_, rect_height_));
 }
 
-// Get a mutable iterator to the results of LayoutAnalysis and/or Recognize.
-// The returned iterator must be deleted after use.
-// WARNING! This class points to data held within the TessBaseAPI class, and
-// therefore can only be used while the TessBaseAPI class still exists and
-// has not been subjected to a call of Init, SetImage, Recognize, Clear, End
-// DetectOS, or anything else that changes the internal PAGE_RES.
+/**
+ * Get a mutable iterator to the results of LayoutAnalysis and/or Recognize.
+ * The returned iterator must be deleted after use.
+ * WARNING! This class points to data held within the TessBaseAPI class, and
+ * therefore can only be used while the TessBaseAPI class still exists and
+ * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
+ * DetectOS, or anything else that changes the internal PAGE_RES.
+ */
 MutableIterator* TessBaseAPI::GetMutableIterator() {
   if (tesseract_ == NULL || page_res_ == NULL)
     return NULL;
@@ -898,7 +957,7 @@ MutableIterator* TessBaseAPI::GetMutableIterator() {
                              rect_left_, rect_top_, rect_width_, rect_height_);
 }
 
-// Make a text string from the internal data structures.
+/** Make a text string from the internal data structures. */
 char* TessBaseAPI::GetUTF8Text() {
   if (tesseract_ == NULL ||
       (!recognition_done_ && Recognize(NULL) < 0))
@@ -929,12 +988,14 @@ static void AddBoxTohOCR(const PageIterator *it,
   *hocr_str += "\">";
 }
 
-// Make a HTML-formatted string with hOCR markup from the internal
-// data structures.
-// page_number is 0-based but will appear in the output as 1-based.
-// Image name/input_file_ can be set by SetInputName before calling
-// GetHOCRText
-// STL removed from original patch submission and refactored by rays.
+/**
+ * Make a HTML-formatted string with hOCR markup from the internal
+ * data structures.
+ * page_number is 0-based but will appear in the output as 1-based.
+ * Image name/input_file_ can be set by SetInputName before calling
+ * GetHOCRText
+ * STL removed from original patch submission and refactored by rays.
+ */
 char* TessBaseAPI::GetHOCRText(int page_number) {
   if (tesseract_ == NULL ||
       (page_res_ == NULL && Recognize(NULL) < 0))
@@ -1042,28 +1103,36 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
   return ret;
 }
 
-// The 5 numbers output for each box (the usual 4 and a page number.)
+/** The 5 numbers output for each box (the usual 4 and a page number.) */
 const int kNumbersPerBlob = 5;
-// The number of bytes taken by each number. Since we use inT16 for ICOORD,
-// assume only 5 digits max.
+/**
+ * The number of bytes taken by each number. Since we use inT16 for ICOORD,
+ * assume only 5 digits max.
+ */
 const int kBytesPerNumber = 5;
-// Multiplier for max expected textlength assumes (kBytesPerNumber + space)
-// * kNumbersPerBlob plus the newline. Add to this the
-// original UTF8 characters, and one kMaxBytesPerLine for safety.
+/**
+ * Multiplier for max expected textlength assumes (kBytesPerNumber + space)
+ * * kNumbersPerBlob plus the newline. Add to this the
+ * original UTF8 characters, and one kMaxBytesPerLine for safety.
+ */
 const int kBytesPerBlob = kNumbersPerBlob * (kBytesPerNumber + 1) + 1;
 const int kBytesPerBoxFileLine = (kBytesPerNumber + 1) * kNumbersPerBlob + 1;
-// Max bytes in the decimal representation of inT64.
+/** Max bytes in the decimal representation of inT64. */
 const int kBytesPer64BitNumber = 20;
-// A maximal single box could occupy kNumbersPerBlob numbers at
-// kBytesPer64BitNumber digits (if someone sneaks in a 64 bit value) and a
-// space plus the newline and the maximum length of a UNICHAR.
-// Test against this on each iteration for safety.
+/**
+ * A maximal single box could occupy kNumbersPerBlob numbers at
+ * kBytesPer64BitNumber digits (if someone sneaks in a 64 bit value) and a
+ * space plus the newline and the maximum length of a UNICHAR.
+ * Test against this on each iteration for safety.
+ */
 const int kMaxBytesPerLine = kNumbersPerBlob * (kBytesPer64BitNumber + 1) + 1 +
     UNICHAR_LEN;
 
-// The recognized text is returned as a char* which is coded
-// as a UTF8 box file and must be freed with the delete [] operator.
-// page_number is a 0-base page index that will appear in the box file.
+/**
+ * The recognized text is returned as a char* which is coded
+ * as a UTF8 box file and must be freed with the delete [] operator.
+ * page_number is a 0-base page index that will appear in the box file.
+ */
 char* TessBaseAPI::GetBoxText(int page_number) {
   if (tesseract_ == NULL ||
       (!recognition_done_ && Recognize(NULL) < 0))
@@ -1100,20 +1169,24 @@ char* TessBaseAPI::GetBoxText(int page_number) {
   return result;
 }
 
-// Conversion table for non-latin characters.
-// Maps characters out of the latin set into the latin set.
-// TODO(rays) incorporate this translation into unicharset.
+/**
+ * Conversion table for non-latin characters.
+ * Maps characters out of the latin set into the latin set.
+ * TODO(rays) incorporate this translation into unicharset.
+ */
 const int kUniChs[] = {
   0x20ac, 0x201c, 0x201d, 0x2018, 0x2019, 0x2022, 0x2014, 0
 };
-// Latin chars corresponding to the unicode chars above.
+/** Latin chars corresponding to the unicode chars above. */
 const int kLatinChs[] = {
   0x00a2, 0x0022, 0x0022, 0x0027, 0x0027, 0x00b7, 0x002d, 0
 };
 
-// The recognized text is returned as a char* which is coded
-// as UNLV format Latin-1 with specific reject and suspect codes
-// and must be freed with the delete [] operator.
+/**
+ * The recognized text is returned as a char* which is coded
+ * as UNLV format Latin-1 with specific reject and suspect codes
+ * and must be freed with the delete [] operator.
+ */
 char* TessBaseAPI::GetUNLVText() {
   if (tesseract_ == NULL ||
       (!recognition_done_ && Recognize(NULL) < 0))
@@ -1215,7 +1288,7 @@ char* TessBaseAPI::GetUNLVText() {
   return result;
 }
 
-// Returns the average word confidence for Tesseract page result.
+/** Returns the average word confidence for Tesseract page result. */
 int TessBaseAPI::MeanTextConf() {
   int* conf = AllWordConfidences();
   if (!conf) return 0;
@@ -1227,7 +1300,7 @@ int TessBaseAPI::MeanTextConf() {
   return sum;
 }
 
-// Returns an array of all word confidences, terminated by -1.
+/** Returns an array of all word confidences, terminated by -1. */
 int* TessBaseAPI::AllWordConfidences() {
   if (tesseract_ == NULL ||
       (!recognition_done_ && Recognize(NULL) < 0))
@@ -1253,14 +1326,14 @@ int* TessBaseAPI::AllWordConfidences() {
 }
 
 /**
-   * Applies the given word to the adaptive classifier if possible.
-   * The word must be SPACE-DELIMITED UTF-8 - l i k e t h i s , so it can
-   * tell the boundaries of the graphemes.
-   * Assumes that SetImage/SetRectangle have been used to set the image
-   * to the given word. The mode arg should be PSM_SINGLE_WORD or
-   * PSM_CIRCLE_WORD, as that will be used to control layout analysis.
-   * The currently set PageSegMode is preserved.
-   * Returns false if adaption was not possible for some reason.
+ * Applies the given word to the adaptive classifier if possible.
+ * The word must be SPACE-DELIMITED UTF-8 - l i k e t h i s , so it can
+ * tell the boundaries of the graphemes.
+ * Assumes that SetImage/SetRectangle have been used to set the image
+ * to the given word. The mode arg should be PSM_SINGLE_WORD or
+ * PSM_CIRCLE_WORD, as that will be used to control layout analysis.
+ * The currently set PageSegMode is preserved.
+ * Returns false if adaption was not possible for some reason.
  */
 bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
   int debug = 0;
@@ -1320,20 +1393,24 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
   return success;
 }
 
-// Free up recognition results and any stored image data, without actually
-// freeing any recognition data that would be time-consuming to reload.
-// Afterwards, you must call SetImage or TesseractRect before doing
-// any Recognize or Get* operation.
+/**
+ * Free up recognition results and any stored image data, without actually
+ * freeing any recognition data that would be time-consuming to reload.
+ * Afterwards, you must call SetImage or TesseractRect before doing
+ * any Recognize or Get* operation.
+ */
 void TessBaseAPI::Clear() {
   if (thresholder_ != NULL)
     thresholder_->Clear();
   ClearResults();
 }
 
-// Close down tesseract and free up all memory. End() is equivalent to
-// destructing and reconstructing your TessBaseAPI.
-// Once End() has been used, none of the other API functions may be used
-// other than Init and anything declared above it in the class definition.
+/**
+ * Close down tesseract and free up all memory. End() is equivalent to
+ * destructing and reconstructing your TessBaseAPI.
+ * Once End() has been used, none of the other API functions may be used
+ * other than Init and anything declared above it in the class definition.
+ */
 void TessBaseAPI::End() {
   if (thresholder_ != NULL) {
     delete thresholder_;
@@ -1384,8 +1461,10 @@ void TessBaseAPI::End() {
   }
 }
 
-// Check whether a word is valid according to Tesseract's language model
-// returns 0 if the word is invalid, non-zero if valid
+/**
+ * Check whether a word is valid according to Tesseract's language model
+ * returns 0 if the word is invalid, non-zero if valid
+ */
 int TessBaseAPI::IsValidWord(const char *word) {
   return tesseract_->getDict().valid_word(word);
 }
@@ -1418,14 +1497,17 @@ bool TessBaseAPI::GetTextDirection(int* out_offset, float* out_slope) {
   return true;
 }
 
-// Sets Dict::letter_is_okay_ function to point to the given function.
+/** Sets Dict::letter_is_okay_ function to point to the given function. */
 void TessBaseAPI::SetDictFunc(DictFunc f) {
   if (tesseract_ != NULL) {
     tesseract_->getDict().letter_is_okay_ = f;
   }
 }
 
-// Sets Dict::probability_in_context_ function to point to the given function.
+/**
+ * Sets Dict::probability_in_context_ function to point to the given
+ * function.
+ */
 void TessBaseAPI::SetProbabilityInContextFunc(ProbabilityInContextFunc f) {
   if (tesseract_ != NULL) {
     tesseract_->getDict().probability_in_context_ = f;
@@ -1437,12 +1519,12 @@ void TessBaseAPI::SetProbabilityInContextFunc(ProbabilityInContextFunc f) {
   }
 }
 
-// Sets Wordrec::fill_lattice_ function to point to the given function.
+/** Sets Wordrec::fill_lattice_ function to point to the given function. */
 void TessBaseAPI::SetFillLatticeFunc(FillLatticeFunc f) {
   if (tesseract_ != NULL) tesseract_->fill_lattice_ = f;
 }
 
-// Common code for setting the image.
+/** Common code for setting the image. */
 bool TessBaseAPI::InternalSetImage() {
   if (tesseract_ == NULL) {
     tprintf("Please call Init before attempting to send an image.");
@@ -1454,10 +1536,12 @@ bool TessBaseAPI::InternalSetImage() {
   return true;
 }
 
-// Run the thresholder to make the thresholded image, returned in pix,
-// which must not be NULL. *pix must be initialized to NULL, or point
-// to an existing pixDestroyable Pix.
-// The usual argument to Threshold is Tesseract::mutable_pix_binary().
+/**
+ * Run the thresholder to make the thresholded image, returned in pix,
+ * which must not be NULL. *pix must be initialized to NULL, or point
+ * to an existing pixDestroyable Pix.
+ * The usual argument to Threshold is Tesseract::mutable_pix_binary().
+ */
 void TessBaseAPI::Threshold(Pix** pix) {
   ASSERT_HOST(pix != NULL);
   if (!thresholder_->IsBinary()) {
@@ -1490,7 +1574,7 @@ void TessBaseAPI::Threshold(Pix** pix) {
   tesseract_->set_source_resolution(estimated_res);
 }
 
-// Find lines from the image making the BLOCK_LIST.
+/** Find lines from the image making the BLOCK_LIST. */
 int TessBaseAPI::FindLines() {
   if (thresholder_ == NULL || thresholder_->IsEmpty()) {
     tprintf("Please call SetImage before attempting recognition.");
@@ -1553,7 +1637,7 @@ int TessBaseAPI::FindLines() {
   return 0;
 }
 
-// Delete the pageres and clear the block list ready for a new page.
+/** Delete the pageres and clear the block list ready for a new page. */
 void TessBaseAPI::ClearResults() {
   if (tesseract_ != NULL) {
     tesseract_->Clear();
@@ -1574,11 +1658,13 @@ void TessBaseAPI::ClearResults() {
   }
 }
 
-// Return the length of the output text string, as UTF8, assuming
-// liberally two spacing marks after each word (as paragraphs end with two
-// newlines), and assuming a single character reject marker for each rejected
-// character.
-// Also return the number of recognized blobs in blob_count.
+/**
+ * Return the length of the output text string, as UTF8, assuming
+ * liberally two spacing marks after each word (as paragraphs end with two
+ * newlines), and assuming a single character reject marker for each rejected
+ * character.
+ * Also return the number of recognized blobs in blob_count.
+ */
 int TessBaseAPI::TextLength(int* blob_count) {
   if (tesseract_ == NULL || page_res_ == NULL)
     return 0;
@@ -1605,8 +1691,10 @@ int TessBaseAPI::TextLength(int* blob_count) {
   return total_length;
 }
 
-// Estimates the Orientation And Script of the image.
-// Returns true if the image was processed successfully.
+/**
+ * Estimates the Orientation And Script of the image.
+ * Returns true if the image was processed successfully.
+ */
 bool TessBaseAPI::DetectOS(OSResults* osr) {
   if (tesseract_ == NULL)
     return false;
@@ -1622,18 +1710,20 @@ void TessBaseAPI::set_min_orientation_margin(double margin) {
   tesseract_->min_orientation_margin.set_value(margin);
 }
 
-// Return text orientation of each block as determined in an earlier page layout
-// analysis operation. Orientation is returned as the number of ccw 90-degree
-// rotations (in [0..3]) required to make the text in the block upright
-// (readable). Note that this may not necessary be the block orientation
-// preferred for recognition (such as the case of vertical CJK text).
-//
-// Also returns whether the text in the block is believed to have vertical
-// writing direction (when in an upright page orientation).
-//
-// The returned array is of length equal to the number of text blocks, which may
-// be less than the total number of blocks. The ordering is intended to be
-// consistent with GetTextLines().
+/**
+ * Return text orientation of each block as determined in an earlier page layout
+ * analysis operation. Orientation is returned as the number of ccw 90-degree
+ * rotations (in [0..3]) required to make the text in the block upright
+ * (readable). Note that this may not necessary be the block orientation
+ * preferred for recognition (such as the case of vertical CJK text).
+ *
+ * Also returns whether the text in the block is believed to have vertical
+ * writing direction (when in an upright page orientation).
+ *
+ * The returned array is of length equal to the number of text blocks, which may
+ * be less than the total number of blocks. The ordering is intended to be
+ * consistent with GetTextLines().
+ */
 void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
                                            bool** vertical_writing) {
   delete[] *block_orientation;
@@ -1681,7 +1771,7 @@ void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
 // ____________________________________________________________________________
 // Ocropus add-ons.
 
-// Find lines from the image making the BLOCK_LIST.
+/** Find lines from the image making the BLOCK_LIST. */
 BLOCK_LIST* TessBaseAPI::FindLinesCreateBlockList() {
   FindLines();
   BLOCK_LIST* result = block_list_;
@@ -1689,9 +1779,11 @@ BLOCK_LIST* TessBaseAPI::FindLinesCreateBlockList() {
   return result;
 }
 
-// Delete a block list.
-// This is to keep BLOCK_LIST pointer opaque
-// and let go of including the other headers.
+/**
+ * Delete a block list.
+ * This is to keep BLOCK_LIST pointer opaque
+ * and let go of including the other headers.
+ */
 void TessBaseAPI::DeleteBlockList(BLOCK_LIST *block_list) {
   delete block_list;
 }
@@ -1713,7 +1805,7 @@ ROW *TessBaseAPI::MakeTessOCRRow(float baseline,
                  0);
 }
 
-// Creates a TBLOB* from the whole pix.
+/** Creates a TBLOB* from the whole pix. */
 TBLOB *TessBaseAPI::MakeTBLOB(Pix *pix) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
@@ -1739,9 +1831,11 @@ TBLOB *TessBaseAPI::MakeTBLOB(Pix *pix) {
   return TBLOB::PolygonalCopy(c_blob_it.data());
 }
 
-// This method baseline normalizes a TBLOB in-place. The input row is used
-// for normalization. The denorm is an optional parameter in which the
-// normalization-antidote is returned.
+/**
+ * This method baseline normalizes a TBLOB in-place. The input row is used
+ * for normalization. The denorm is an optional parameter in which the
+ * normalization-antidote is returned.
+ */
 void TessBaseAPI::NormalizeTBLOB(TBLOB *tblob, ROW *row,
                                  bool numeric_mode, DENORM *denorm) {
   TWERD word;
@@ -1757,8 +1851,10 @@ void TessBaseAPI::NormalizeTBLOB(TBLOB *tblob, ROW *row,
   word.blobs = NULL;
 }
 
-// Return a TBLOB * from the whole pix.
-// To be freed later with delete.
+/**
+ * Return a TBLOB * from the whole pix.
+ * To be freed later with delete.
+ */
 TBLOB *make_tesseract_blob(float baseline, float xheight,
                            float descender, float ascender,
                            bool numeric_mode, Pix* pix) {
@@ -1772,10 +1868,11 @@ TBLOB *make_tesseract_blob(float baseline, float xheight,
   return tblob;
 }
 
-
-// Adapt to recognize the current image as the given character.
-// The image must be preloaded into pix_binary_ and be just an image
-// of a single character.
+/**
+ * Adapt to recognize the current image as the given character.
+ * The image must be preloaded into pix_binary_ and be just an image
+ * of a single character.
+ */
 void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
                                    int length,
                                    float baseline,
@@ -1878,9 +1975,10 @@ static float rating_to_cost(float rating) {
   return rating;
 }
 
-
-// Extract the OCR results, costs (penalty points for uncertainty),
-// and the bounding boxes of the characters.
+/**
+ * Extract the OCR results, costs (penalty points for uncertainty),
+ * and the bounding boxes of the characters.
+ */
 static void extract_result(TESS_CHAR_IT* out,
                            PAGE_RES* page_res) {
   PAGE_RES_IT page_res_it(page_res);
@@ -1907,9 +2005,10 @@ static void extract_result(TESS_CHAR_IT* out,
   }
 }
 
-
-// Extract the OCR results, costs (penalty points for uncertainty),
-// and the bounding boxes of the characters.
+/**
+ * Extract the OCR results, costs (penalty points for uncertainty),
+ * and the bounding boxes of the characters.
+ */
 int TessBaseAPI::TesseractExtractResult(char** text,
                                         int** lengths,
                                         float** costs,
@@ -1955,7 +2054,7 @@ int TessBaseAPI::TesseractExtractResult(char** text,
   return n;
 }
 
-// This method returns the features associated with the input blob.
+/** This method returns the features associated with the input blob. */
 void TessBaseAPI::GetFeaturesForBlob(TBLOB* blob, const DENORM& denorm,
                                      INT_FEATURE_ARRAY int_features,
                                      int* num_features,
@@ -1971,8 +2070,10 @@ void TessBaseAPI::GetFeaturesForBlob(TBLOB* blob, const DENORM& denorm,
   delete [] norm_array;
 }
 
-// This method returns the row to which a box of specified dimensions would
-// belong. If no good match is found, it returns NULL.
+/**
+ * This method returns the row to which a box of specified dimensions would
+ * belong. If no good match is found, it returns NULL.
+ */
 ROW* TessBaseAPI::FindRowForBox(BLOCK_LIST* blocks,
                                 int left, int top, int right, int bottom) {
   TBOX box(left, bottom, right, top);
@@ -1997,7 +2098,7 @@ ROW* TessBaseAPI::FindRowForBox(BLOCK_LIST* blocks,
   return NULL;
 }
 
-// Method to run adaptive classifier on a blob.
+/** Method to run adaptive classifier on a blob. */
 void TessBaseAPI::RunAdaptiveClassifier(TBLOB* blob, const DENORM& denorm,
                                         int num_max_matches,
                                         int* unichar_ids,
@@ -2020,23 +2121,23 @@ void TessBaseAPI::RunAdaptiveClassifier(TBLOB* blob, const DENORM& denorm,
   delete choices;
 }
 
-// This method returns the string form of the specified unichar.
+/** This method returns the string form of the specified unichar. */
 const char* TessBaseAPI::GetUnichar(int unichar_id) {
   return tesseract_->unicharset.id_to_unichar(unichar_id);
 }
 
-// Return the pointer to the i-th dawg loaded into tesseract_ object.
+/** Return the pointer to the i-th dawg loaded into tesseract_ object. */
 const Dawg *TessBaseAPI::GetDawg(int i) const {
   if (tesseract_ == NULL || i >= NumDawgs()) return NULL;
   return tesseract_->getDict().GetDawg(i);
 }
 
-// Return the number of dawgs loaded into tesseract_ object.
+/** Return the number of dawgs loaded into tesseract_ object. */
 int TessBaseAPI::NumDawgs() const {
   return tesseract_ == NULL ? 0 : tesseract_->getDict().NumDawgs();
 }
 
-// Return a pointer to underlying CubeRecoContext object if present.
+/** Return a pointer to underlying CubeRecoContext object if present. */
 CubeRecoContext *TessBaseAPI::GetCubeRecoContext() const {
   return (tesseract_ == NULL) ? NULL : tesseract_->GetCubeRecoContext();
 }

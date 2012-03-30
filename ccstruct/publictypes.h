@@ -29,13 +29,15 @@
 // their includes into the API-level.
 // API-level code should include apitypes.h in preference to this file.
 
-// Number of printers' points in an inch. The unit of the pointsize return.
+/** Number of printers' points in an inch. The unit of the pointsize return. */
 const int kPointsPerInch = 72;
 
-// Possible types for a POLY_BLOCK or ColPartition.
-// Must be kept in sync with kPBColors in polyblk.cpp and PTIs*Type functions
-// below, as well as kPolyBlockNames in publictypes.cpp.
-// Used extensively by ColPartition, and POLY_BLOCK.
+/**
+ * Possible types for a POLY_BLOCK or ColPartition.
+ * Must be kept in sync with kPBColors in polyblk.cpp and PTIs*Type functions
+ * below, as well as kPolyBlockNames in publictypes.cpp.
+ * Used extensively by ColPartition, and POLY_BLOCK.
+*/
 enum PolyBlockType {
   PT_UNKNOWN,        // Type is not yet known. Keep as the first element.
   PT_FLOWING_TEXT,   // Text that lives inside a column.
@@ -55,16 +57,16 @@ enum PolyBlockType {
   PT_COUNT
 };
 
-// Returns true if PolyBlockType is of horizontal line type
+/** Returns true if PolyBlockType is of horizontal line type */
 inline bool PTIsLineType(PolyBlockType type) {
   return type == PT_HORZ_LINE || type == PT_VERT_LINE;
 }
-// Returns true if PolyBlockType is of image type
+/** Returns true if PolyBlockType is of image type */
 inline bool PTIsImageType(PolyBlockType type) {
   return type == PT_FLOWING_IMAGE || type == PT_HEADING_IMAGE ||
          type == PT_PULLOUT_IMAGE;
 }
-// Returns true if PolyBlockType is of text type
+/** Returns true if PolyBlockType is of text type */
 inline bool PTIsTextType(PolyBlockType type) {
   return type == PT_FLOWING_TEXT || type == PT_HEADING_TEXT ||
          type == PT_PULLOUT_TEXT || type == PT_TABLE ||
@@ -72,31 +74,33 @@ inline bool PTIsTextType(PolyBlockType type) {
          type == PT_INLINE_EQUATION;
 }
 
-// String name for each block type. Keep in sync with PolyBlockType.
+/** String name for each block type. Keep in sync with PolyBlockType. */
 extern const char* kPolyBlockNames[];
 
 namespace tesseract {
-//  +------------------+  Orientation Example:
-//  | 1 Aaaa Aaaa Aaaa |  ====================
-//  | Aaa aa aaa aa    |  To left is a diagram of some (1) English and
-//  | aaaaaa A aa aaa. |  (2) Chinese text and a (3) photo credit.
-//  |                2 |
-//  |   #######  c c C |  Upright Latin characters are represented as A and a.
-//  |   #######  c c c |  '<' represents a latin character rotated
-//  | < #######  c c c |      anti-clockwise 90 degrees.
-//  | < #######  c   c |
-//  | < #######  .   c |  Upright Chinese characters are represented C and c.
-//  | 3 #######      c |
-//  +------------------+  NOTA BENE: enum values here should match goodoc.proto
+/**
+ *  +------------------+  Orientation Example:
+ *  | 1 Aaaa Aaaa Aaaa |  ====================
+ *  | Aaa aa aaa aa    |  To left is a diagram of some (1) English and
+ *  | aaaaaa A aa aaa. |  (2) Chinese text and a (3) photo credit.
+ *  |                2 |
+ *  |   #######  c c C |  Upright Latin characters are represented as A and a.
+ *  |   #######  c c c |  '<' represents a latin character rotated
+ *  | < #######  c c c |      anti-clockwise 90 degrees.
+ *  | < #######  c   c |
+ *  | < #######  .   c |  Upright Chinese characters are represented C and c.
+ *  | 3 #######      c |
+ *  +------------------+  NOTA BENE: enum values here should match goodoc.proto
 
-// If you orient your head so that "up" aligns with Orientation,
-// then the characters will appear "right side up" and readable.
-//
-// In the example above, both the English and Chinese paragraphs are oriented
-// so their "up" is the top of the page (page up).  The photo credit is read
-// with one's head turned leftward ("up" is to page left).
-//
-// The values of this enum match the convention of Tesseract's osdetect.h
+ * If you orient your head so that "up" aligns with Orientation,
+ * then the characters will appear "right side up" and readable.
+ *
+ * In the example above, both the English and Chinese paragraphs are oriented
+ * so their "up" is the top of the page (page up).  The photo credit is read
+ * with one's head turned leftward ("up" is to page left).
+ *
+ * The values of this enum match the convention of Tesseract's osdetect.h
+*/
 enum Orientation {
   ORIENTATION_PAGE_UP = 0,
   ORIENTATION_PAGE_RIGHT = 1,
@@ -104,36 +108,42 @@ enum Orientation {
   ORIENTATION_PAGE_LEFT = 3,
 };
 
-// The grapheme clusters within a line of text are laid out logically
-// in this direction, judged when looking at the text line rotated so that
-// its Orientation is "page up".
-//
-// For English text, the writing direction is left-to-right.  For the
-// Chinese text in the above example, the writing direction is top-to-bottom.
+/**
+ * The grapheme clusters within a line of text are laid out logically
+ * in this direction, judged when looking at the text line rotated so that
+ * its Orientation is "page up".
+ *
+ * For English text, the writing direction is left-to-right.  For the
+ * Chinese text in the above example, the writing direction is top-to-bottom.
+*/
 enum WritingDirection {
   WRITING_DIRECTION_LEFT_TO_RIGHT = 0,
   WRITING_DIRECTION_RIGHT_TO_LEFT = 1,
   WRITING_DIRECTION_TOP_TO_BOTTOM = 2,
 };
 
-// The text lines are read in the given sequence.
-//
-// In English, the order is top-to-bottom.
-// In Chinese, vertical text lines are read right-to-left.  Mongolian is
-// written in vertical columns top to bottom like Chinese, but the lines
-// order left-to right.
-//
-// Note that only some combinations make sense.  For example,
-// WRITING_DIRECTION_LEFT_TO_RIGHT implies TEXTLINE_ORDER_TOP_TO_BOTTOM
+/**
+ * The text lines are read in the given sequence.
+ *
+ * In English, the order is top-to-bottom.
+ * In Chinese, vertical text lines are read right-to-left.  Mongolian is
+ * written in vertical columns top to bottom like Chinese, but the lines
+ * order left-to right.
+ *
+ * Note that only some combinations make sense.  For example,
+ * WRITING_DIRECTION_LEFT_TO_RIGHT implies TEXTLINE_ORDER_TOP_TO_BOTTOM
+*/
 enum TextlineOrder {
   TEXTLINE_ORDER_LEFT_TO_RIGHT = 0,
   TEXTLINE_ORDER_RIGHT_TO_LEFT = 1,
   TEXTLINE_ORDER_TOP_TO_BOTTOM = 2,
 };
 
-// Possible modes for page layout analysis. These *must* be kept in order
-// of decreasing amount of layout analysis to be done, except for OSD_ONLY,
-// so that the inequality test macros below work.
+/**
+ * Possible modes for page layout analysis. These *must* be kept in order
+ * of decreasing amount of layout analysis to be done, except for OSD_ONLY,
+ * so that the inequality test macros below work.
+*/
 enum PageSegMode {
   PSM_OSD_ONLY,       ///< Orientation and script detection only.
   PSM_AUTO_OSD,       ///< Automatic page segmentation with orientation and
@@ -152,9 +162,11 @@ enum PageSegMode {
   PSM_COUNT           ///< Number of enum entries.
 };
 
-// Macros that act on a PageSegMode to determine whether components of
-// layout analysis are enabled.
-// *Depend critically on the order of elements of PageSegMode.*
+/**
+ * Macros that act on a PageSegMode to determine whether components of
+ * layout analysis are enabled.
+ * *Depend critically on the order of elements of PageSegMode.*
+*/
 #define PSM_OSD_ENABLED(pageseg_mode) ((pageseg_mode) <= PSM_AUTO_OSD)
 #define PSM_COL_FIND_ENABLED(pageseg_mode) \
   ((pageseg_mode) >= PSM_AUTO_OSD && (pageseg_mode) <= PSM_AUTO)
@@ -165,9 +177,11 @@ enum PageSegMode {
 #define PSM_WORD_FIND_ENABLED(pageseg_mode) \
   ((pageseg_mode) >= PSM_AUTO_OSD && (pageseg_mode) <= PSM_SINGLE_LINE)
 
-// enum of the elements of the page hierarchy, used in ResultIterator
-// to provide functions that operate on each level without having to
-// have 5x as many functions.
+/**
+ * enum of the elements of the page hierarchy, used in ResultIterator
+ * to provide functions that operate on each level without having to
+ * have 5x as many functions.
+*/
 enum PageIteratorLevel {
   RIL_BLOCK,     // Block of text/image/separator line.
   RIL_PARA,      // Paragraph within a block.
@@ -176,28 +190,30 @@ enum PageIteratorLevel {
   RIL_SYMBOL     // Symbol/character within a word.
 };
 
-// JUSTIFICATION_UNKNONW
-//   The alignment is not clearly one of the other options.  This could happen
-//   for example if there are only one or two lines of text or the text looks
-//   like source code or poetry.
-//
-// NOTA BENE: Fully justified paragraphs (text aligned to both left and right
-//    margins) are marked by Tesseract with JUSTIFICATION_LEFT if their text
-//    is written with a left-to-right script and with JUSTIFICATION_RIGHT if
-//    their text is written in a right-to-left script.
-//
-// Interpretation for text read in vertical lines:
-//   "Left" is wherever the starting reading position is.
-//
-// JUSTIFICATION_LEFT
-//   Each line, except possibly the first, is flush to the same left tab stop.
-//
-// JUSTIFICATION_CENTER
-//   The text lines of the paragraph are centered about a line going
-//   down through their middle of the text lines.
-//
-// JUSTIFICATION_RIGHT
-//   Each line, except possibly the first, is flush to the same right tab stop.
+/**
+ * JUSTIFICATION_UNKNONW
+ *   The alignment is not clearly one of the other options.  This could happen
+ *   for example if there are only one or two lines of text or the text looks
+ *   like source code or poetry.
+ *
+ * NOTA BENE: Fully justified paragraphs (text aligned to both left and right
+ *    margins) are marked by Tesseract with JUSTIFICATION_LEFT if their text
+ *    is written with a left-to-right script and with JUSTIFICATION_RIGHT if
+ *    their text is written in a right-to-left script.
+ *
+ * Interpretation for text read in vertical lines:
+ *   "Left" is wherever the starting reading position is.
+ *
+ * JUSTIFICATION_LEFT
+ *   Each line, except possibly the first, is flush to the same left tab stop.
+ *
+ * JUSTIFICATION_CENTER
+ *   The text lines of the paragraph are centered about a line going
+ *   down through their middle of the text lines.
+ *
+ * JUSTIFICATION_RIGHT
+ *   Each line, except possibly the first, is flush to the same right tab stop.
+*/
 enum ParagraphJustification {
   JUSTIFICATION_UNKNOWN,
   JUSTIFICATION_LEFT,
@@ -205,14 +221,16 @@ enum ParagraphJustification {
   JUSTIFICATION_RIGHT,
 };
 
-// When Tesseract/Cube is initialized we can choose to instantiate/load/run
-// only the Tesseract part, only the Cube part or both along with the combiner.
-// The preference of which engine to use is stored in tessedit_ocr_engine_mode.
-//
-// ATTENTION: When modifying this enum, please make sure to make the
-// appropriate changes to all the enums mirroring it (e.g. OCREngine in
-// cityblock/workflow/detection/detection_storage.proto). Such enums will
-// mention the connection to OcrEngineMode in the comments.
+/**
+ * When Tesseract/Cube is initialized we can choose to instantiate/load/run
+ * only the Tesseract part, only the Cube part or both along with the combiner.
+ * The preference of which engine to use is stored in tessedit_ocr_engine_mode.
+ *
+ * ATTENTION: When modifying this enum, please make sure to make the
+ * appropriate changes to all the enums mirroring it (e.g. OCREngine in
+ * cityblock/workflow/detection/detection_storage.proto). Such enums will
+ * mention the connection to OcrEngineMode in the comments.
+*/
 enum OcrEngineMode {
   OEM_TESSERACT_ONLY,           // Run Tesseract only - fastest
   OEM_CUBE_ONLY,                // Run Cube only - better accuracy, but slower

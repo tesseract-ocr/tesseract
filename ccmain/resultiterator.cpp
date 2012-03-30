@@ -519,9 +519,11 @@ bool ResultIterator::IsAtBeginningOf(PageIteratorLevel level) const {
   return false;
 }
 
-// NOTE! This is an exact copy of PageIterator::IsAtFinalElement with the
-//   change that the variable next is now a ResultIterator instead of a
-//   PageIterator.
+/**
+ * NOTE! This is an exact copy of PageIterator::IsAtFinalElement with the
+ *   change that the variable next is now a ResultIterator instead of a
+ *   PageIterator.
+ */
 bool ResultIterator::IsAtFinalElement(PageIteratorLevel level,
                                       PageIteratorLevel element) const {
   if (Empty(element)) return true;  // Already at the end!
@@ -542,8 +544,10 @@ bool ResultIterator::IsAtFinalElement(PageIteratorLevel level,
   return true;
 }
 
-// Returns the null terminated UTF-8 encoded text string for the current
-// object at the given level. Use delete [] to free after use.
+/**
+ * Returns the null terminated UTF-8 encoded text string for the current
+ * object at the given level. Use delete [] to free after use.
+ */
 char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   if (it_->word() == NULL) return NULL;  // Already at the end!
   STRING text;

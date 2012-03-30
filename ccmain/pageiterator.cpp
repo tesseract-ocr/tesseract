@@ -44,9 +44,11 @@ PageIterator::~PageIterator() {
   delete cblob_it_;
 }
 
-// PageIterators may be copied! This makes it possible to iterate over
-// all the objects at a lower level, while maintaining an iterator to
-// objects at a higher level.
+/**
+ * PageIterators may be copied! This makes it possible to iterate over
+ * all the objects at a lower level, while maintaining an iterator to
+ * objects at a higher level.
+ */
 PageIterator::PageIterator(const PageIterator& src)
   : page_res_(src.page_res_), tesseract_(src.tesseract_),
     word_(NULL), word_length_(src.word_length_),
@@ -80,7 +82,7 @@ bool PageIterator::PositionedAtSameWord(const PAGE_RES_IT* other) const {
 
 // ============= Moving around within the page ============.
 
-// Resets the iterator to point to the start of the page.
+/** Resets the iterator to point to the start of the page. */
 void PageIterator::Begin() {
   it_->restart_page_with_empties();
   BeginWord(0);
@@ -110,17 +112,19 @@ void PageIterator::RestartRow() {
   BeginWord(0);
 }
 
-// Moves to the start of the next object at the given level in the
-// page hierarchy, and returns false if the end of the page was reached.
-// NOTE (CHANGED!) that ALL PageIteratorLevel level values will visit each
-// non-text block at least once.
-// Think of non text blocks as containing a single para, with at least one
-// line, with a single imaginary word, containing a single symbol.
-// The bounding boxes mark out any polygonal nature of the block, and
-// PTIsTextType(BLockType()) is false for non-text blocks.
-// Calls to Next with different levels may be freely intermixed.
-// This function iterates words in right-to-left scripts correctly, if
-// the appropriate language has been loaded into Tesseract.
+/**
+ * Moves to the start of the next object at the given level in the
+ * page hierarchy, and returns false if the end of the page was reached.
+ * NOTE (CHANGED!) that ALL PageIteratorLevel level values will visit each
+ * non-text block at least once.
+ * Think of non text blocks as containing a single para, with at least one
+ * line, with a single imaginary word, containing a single symbol.
+ * The bounding boxes mark out any polygonal nature of the block, and
+ * PTIsTextType(BLockType()) is false for non-text blocks.
+ * Calls to Next with different levels may be freely intermixed.
+ * This function iterates words in right-to-left scripts correctly, if
+ * the appropriate language has been loaded into Tesseract.
+ */
 bool PageIterator::Next(PageIteratorLevel level) {
   if (it_->block() == NULL) return false;  // Already at the end!
   if (it_->word() == NULL)
@@ -154,9 +158,11 @@ bool PageIterator::Next(PageIteratorLevel level) {
   return it_->block() != NULL;
 }
 
-// Returns true if the iterator is at the start of an object at the given
-// level. Possible uses include determining if a call to Next(RIL_WORD)
-// moved to the start of a RIL_PARA.
+/**
+ * Returns true if the iterator is at the start of an object at the given
+ * level. Possible uses include determining if a call to Next(RIL_WORD)
+ * moved to the start of a RIL_PARA.
+ */
 bool PageIterator::IsAtBeginningOf(PageIteratorLevel level) const {
   if (it_->block() == NULL) return false;  // Already at the end!
   if (it_->word() == NULL) return true;  // In an image block.
@@ -177,8 +183,10 @@ bool PageIterator::IsAtBeginningOf(PageIteratorLevel level) const {
   return false;
 }
 
-// Returns whether the iterator is positioned at the last element in a
-// given level. (e.g. the last word in a line, the last line in a block)
+/**
+ * Returns whether the iterator is positioned at the last element in a
+ * given level. (e.g. the last word in a line, the last line in a block)
+ */
 bool PageIterator::IsAtFinalElement(PageIteratorLevel level,
                                     PageIteratorLevel element) const {
   if (Empty(element)) return true;  // Already at the end!
@@ -199,10 +207,12 @@ bool PageIterator::IsAtFinalElement(PageIteratorLevel level,
   return true;
 }
 
-// Returns whether this iterator is positioned
-//   before other:   -1
-//   equal to other:  0
-//   after other:     1
+/**
+ * Returns whether this iterator is positioned
+ *   before other:   -1
+ *   equal to other:  0
+ *   after other:     1
+ */
 int PageIterator::Cmp(const PageIterator &other) const {
   int word_cmp = it_->cmp(*other.it_);
   if (word_cmp != 0)
@@ -227,10 +237,12 @@ int PageIterator::Cmp(const PageIterator &other) const {
 // If an image rectangle has been set in the API, then returned coordinates
 // relate to the original (full) image, rather than the rectangle.
 
-// Returns the bounding rectangle of the current object at the given level in
-// the coordinates of the working image that is pix_binary().
-// See comment on coordinate system above.
-// Returns false if there is no such object at the current position.
+/**
+ * Returns the bounding rectangle of the current object at the given level in
+ * the coordinates of the working image that is pix_binary().
+ * See comment on coordinate system above.
+ * Returns false if there is no such object at the current position.
+ */
 bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
                                        int* left, int* top,
                                        int* right, int* bottom) const {
@@ -282,10 +294,12 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
   return true;
 }
 
-// Returns the bounding rectangle of the current object at the given level in
-// coordinates of the original image.
-// See comment on coordinate system above.
-// Returns false if there is no such object at the current position.
+/**
+ * Returns the bounding rectangle of the current object at the given level in
+ * coordinates of the original image.
+ * See comment on coordinate system above.
+ * Returns false if there is no such object at the current position.
+ */
 bool PageIterator::BoundingBox(PageIteratorLevel level,
                                int* left, int* top,
                                int* right, int* bottom) const {
@@ -303,7 +317,7 @@ bool PageIterator::BoundingBox(PageIteratorLevel level,
   return true;
 }
 
-// Return that there is no such object at a given level.
+/** Return that there is no such object at a given level. */
 bool PageIterator::Empty(PageIteratorLevel level) const {
   if (it_->block() == NULL) return true;  // Already at the end!
   if (it_->word() == NULL && level != RIL_BLOCK) return true;  // image block
@@ -312,7 +326,7 @@ bool PageIterator::Empty(PageIteratorLevel level) const {
   return false;
 }
 
-// Returns the type of the current block. See apitypes.h for PolyBlockType.
+/** Returns the type of the current block. See apitypes.h for PolyBlockType. */
 PolyBlockType PageIterator::BlockType() const {
   if (it_->block() == NULL || it_->block()->block == NULL)
     return PT_UNKNOWN;  // Already at the end!
@@ -321,26 +335,28 @@ PolyBlockType PageIterator::BlockType() const {
   return it_->block()->block->poly_block()->isA();
 }
 
-// Returns a binary image of the current object at the given level.
-// The position and size match the return from BoundingBoxInternal, and so this
-// could be upscaled with respect to the original input image.
-// Use pixDestroy to delete the image after use.
-// The following methods are used to generate the images:
-// RIL_BLOCK: mask the page image with the block polygon.
-// RIL_TEXTLINE: Clip the rectangle of the line box from the page image.
-// TODO(rays) fix this to generate and use a line polygon.
-// RIL_WORD: Clip the rectangle of the word box from the page image.
-// RIL_SYMBOL: Render the symbol outline to an image for cblobs (prior
-// to recognition) or the bounding box otherwise.
-// A reconstruction of the original image (using xor to check for double
-// representation) should be reasonably accurate,
-// apart from removed noise, at the block level. Below the block level, the
-// reconstruction will be missing images and line separators.
-// At the symbol level, kerned characters will be invade the bounding box
-// if rendered after recognition, making an xor reconstruction inaccurate, but
-// an or construction better. Before recognition, symbol-level reconstruction
-// should be good, even with xor, since the images come from the connected
-// components.
+/**
+ * Returns a binary image of the current object at the given level.
+ * The position and size match the return from BoundingBoxInternal, and so this
+ * could be upscaled with respect to the original input image.
+ * Use pixDestroy to delete the image after use.
+ * The following methods are used to generate the images:
+ * RIL_BLOCK: mask the page image with the block polygon.
+ * RIL_TEXTLINE: Clip the rectangle of the line box from the page image.
+ * TODO(rays) fix this to generate and use a line polygon.
+ * RIL_WORD: Clip the rectangle of the word box from the page image.
+ * RIL_SYMBOL: Render the symbol outline to an image for cblobs (prior
+ * to recognition) or the bounding box otherwise.
+ * A reconstruction of the original image (using xor to check for double
+ * representation) should be reasonably accurate,
+ * apart from removed noise, at the block level. Below the block level, the
+ * reconstruction will be missing images and line separators.
+ * At the symbol level, kerned characters will be invade the bounding box
+ * if rendered after recognition, making an xor reconstruction inaccurate, but
+ * an or construction better. Before recognition, symbol-level reconstruction
+ * should be good, even with xor, since the images come from the connected
+ * components.
+ */
 Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
   int left, top, right, bottom;
   if (!BoundingBoxInternal(level, &left, &top, &right, &bottom))
@@ -382,14 +398,16 @@ Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
   return pix;
 }
 
-// Returns an image of the current object at the given level in greyscale
-// if available in the input. To guarantee a binary image use BinaryImage.
-// NOTE that in order to give the best possible image, the bounds are
-// expanded slightly over the binary connected component, by the supplied
-// padding, so the top-left position of the returned image is returned
-// in (left,top). These will most likely not match the coordinates
-// returned by BoundingBox.
-// Use pixDestroy to delete the image after use.
+/**
+ * Returns an image of the current object at the given level in greyscale
+ * if available in the input. To guarantee a binary image use BinaryImage.
+ * NOTE that in order to give the best possible image, the bounds are
+ * expanded slightly over the binary connected component, by the supplied
+ * padding, so the top-left position of the returned image is returned
+ * in (left,top). These will most likely not match the coordinates
+ * returned by BoundingBox.
+ * Use pixDestroy to delete the image after use.
+ */
 Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
                             int* left, int* top) const {
   int right, bottom;
@@ -422,9 +440,11 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
   return grey_pix;
 }
 
-// Returns the baseline of the current object at the given level.
-// The baseline is the line that passes through (x1, y1) and (x2, y2).
-// WARNING: with vertical text, baselines may be vertical!
+/**
+ * Returns the baseline of the current object at the given level.
+ * The baseline is the line that passes through (x1, y1) and (x2, y2).
+ * WARNING: with vertical text, baselines may be vertical!
+ */
 bool PageIterator::Baseline(PageIteratorLevel level,
                             int* x1, int* y1, int* x2, int* y2) const {
   if (it_->word() == NULL) return false;  // Already at the end!
@@ -509,8 +529,10 @@ void PageIterator::ParagraphInfo(tesseract::ParagraphJustification *just,
       para->model->body_indent();
 }
 
-// Sets up the internal data for iterating the blobs of a new word, then
-// moves the iterator to the given offset.
+/**
+ * Sets up the internal data for iterating the blobs of a new word, then
+ * moves the iterator to the given offset.
+ */
 void PageIterator::BeginWord(int offset) {
   WERD_RES* word_res = it_->word();
   if (word_res == NULL) {
