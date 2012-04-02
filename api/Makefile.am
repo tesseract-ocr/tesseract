@@ -68,6 +68,7 @@ tesseract_CPPFLAGS = $(AM_CPPFLAGS)
 
 if MINGW
 tesseract_LDADD += -lws2_32
+libtesseract_la_LDFLAGS += -no-undefined  -Wl,--as-needed
 endif
 
 if VISIBILITY
