@@ -731,6 +731,50 @@ before any <em>configfile</em>.</p></div>
 <strong>TESSDATA_PREFIX</strong>/tessdata/<strong>foo</strong>.traineddata and give Tesseract the
 argument <em>-l foo</em>.</p></div>
 </div>
+<h2 id="_config_files_and_augmenting_with_user_data">CONFIG FILES AND AUGMENTING WITH USER DATA</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Tesseract config files consist of lines with variable-value pairs (space
+separated).  The variables are documented as flags in the source code like
+the following one in tesseractclass.h:</p></div>
+<div class="paragraph"><p>STRING_VAR_H(tessedit_char_blacklist, "",
+             "Blacklist of chars not to recognize");</p></div>
+<div class="paragraph"><p>These variables may enable or disable various features of the engine, and
+may cause it to load (or not load) various data.  For instance, let&#8217;s suppose
+you want to OCR in English, but suppress the normal dictionary and load an
+alternative word list and an alternative list of patterns&#8201;&#8212;&#8201;these two files
+are the most commonly used extra data files.</p></div>
+<div class="paragraph"><p>If your language pack is in /path/to/eng.traineddata  and the hocr config
+is in /path/to/configs/hocr then create three new files:</p></div>
+<div class="paragraph"><p>/path/to/eng.user-words:</p></div>
+<div class="verseblock">
+<div class="verseblock-content">the
+quick
+brown
+fox
+jumped</div>
+<div class="verseblock-attribution">
+</div></div>
+<div class="paragraph"><p>/path/to/eng.user-patterns:</p></div>
+<div class="verseblock">
+<div class="verseblock-content">1-\d\d\d-GOOG-411
+www.\n\\\*.com</div>
+<div class="verseblock-attribution">
+</div></div>
+<div class="paragraph"><p>/path/to/configs/bazaar:</p></div>
+<div class="verseblock">
+<div class="verseblock-content">load_system_dawg     F
+load_freq_dawg       F
+user_words_suffix    user-words
+user_patterns_suffix user-patterns</div>
+<div class="verseblock-attribution">
+</div></div>
+<div class="paragraph"><p>Now, if you pass the word <em>bazaar</em> as a trailing command line parameter
+to Tesseract, Tesseract will not bother loading the system dictionary nor
+the dictionary of frequent words and will load and use the eng.user-words
+and eng.user-patterns files you provided.  The former is a simple word list,
+one per line.  The format of the latter is documented in dict/trie.h
+on read_pattern_list().</p></div>
+</div>
 <h2 id="_history">HISTORY</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>The engine was developed at Hewlett Packard Laboratories Bristol and at
@@ -785,7 +829,7 @@ Lloyd, Shobhit Saxena, and Thomas Kielbus.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-02-09 14:18:49 PDT
+Last updated 2012-04-09 12:34:39 PDT
 </div>
 </div>
 </body>

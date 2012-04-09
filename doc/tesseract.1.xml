@@ -172,6 +172,47 @@ before any <emphasis>configfile</emphasis>.</simpara>
 <emphasis role="strong">TESSDATA_PREFIX</emphasis>/tessdata/<emphasis role="strong">foo</emphasis>.traineddata and give Tesseract the
 argument <emphasis>-l foo</emphasis>.</simpara>
 </refsect1>
+<refsect1 id="_config_files_and_augmenting_with_user_data">
+<title>CONFIG FILES AND AUGMENTING WITH USER DATA</title>
+<simpara>Tesseract config files consist of lines with variable-value pairs (space
+separated).  The variables are documented as flags in the source code like
+the following one in tesseractclass.h:</simpara>
+<simpara>STRING_VAR_H(tessedit_char_blacklist, "",
+             "Blacklist of chars not to recognize");</simpara>
+<simpara>These variables may enable or disable various features of the engine, and
+may cause it to load (or not load) various data.  For instance, let&#8217;s suppose
+you want to OCR in English, but suppress the normal dictionary and load an
+alternative word list and an alternative list of patterns&#8201;&#8212;&#8201;these two files
+are the most commonly used extra data files.</simpara>
+<simpara>If your language pack is in /path/to/eng.traineddata  and the hocr config
+is in /path/to/configs/hocr then create three new files:</simpara>
+<simpara>/path/to/eng.user-words:</simpara>
+<blockquote>
+<literallayout>the
+quick
+brown
+fox
+jumped</literallayout>
+</blockquote>
+<simpara>/path/to/eng.user-patterns:</simpara>
+<blockquote>
+<literallayout>1-\d\d\d-GOOG-411
+www.\n\\\*.com</literallayout>
+</blockquote>
+<simpara>/path/to/configs/bazaar:</simpara>
+<blockquote>
+<literallayout>load_system_dawg     F
+load_freq_dawg       F
+user_words_suffix    user-words
+user_patterns_suffix user-patterns</literallayout>
+</blockquote>
+<simpara>Now, if you pass the word <emphasis>bazaar</emphasis> as a trailing command line parameter
+to Tesseract, Tesseract will not bother loading the system dictionary nor
+the dictionary of frequent words and will load and use the eng.user-words
+and eng.user-patterns files you provided.  The former is a simple word list,
+one per line.  The format of the latter is documented in dict/trie.h
+on read_pattern_list().</simpara>
+</refsect1>
 <refsect1 id="_history">
 <title>HISTORY</title>
 <simpara>The engine was developed at Hewlett Packard Laboratories Bristol and at
