@@ -56,7 +56,7 @@ int UnicharAndFonts::SortByUnicharId(const void* v1, const void* v2) {
 
 // Writes to the given file. Returns false in case of error.
 bool Shape::Serialize(FILE* fp) {
-  if (fwrite(&unichars_sorted_, sizeof(unichars_sorted_), 1, fp) != 1)
+  if (fwrite(&unichars_sorted_, 1, 1, fp) != 1)
     return false;
   if (!unichars_.SerializeClasses(fp)) return false;
   return true;
@@ -64,7 +64,7 @@ bool Shape::Serialize(FILE* fp) {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool Shape::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&unichars_sorted_, sizeof(unichars_sorted_), 1, fp) != 1)
+  if (fread(&unichars_sorted_, 1, 1, fp) != 1)
     return false;
   if (!unichars_.DeSerializeClasses(swap, fp)) return false;
   return true;
