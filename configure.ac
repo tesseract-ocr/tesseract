@@ -214,7 +214,7 @@ AM_CONFIG_HEADER(config_auto.h:config/config.h.in)
 #AM_PROG_CC_C_O
 AM_MAINTAINER_MODE
 # Need to tell automake if Visual C++ is being used:
-AM_CONDITIONAL(USING_CL, test x$CC = xcl.exe)
+AM_CONDITIONAL(USING_CL, test "x${CC}" = 'xcl.exe' )
 
 # Additional checking of compiler characteristics
 # ----------------------------------------
