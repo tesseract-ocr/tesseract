@@ -426,6 +426,11 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     EDGEPT *inserted_point = it.data();
     if (!point_used_by_seam(seam, inserted_point)) {
+      for (outline = blob->outlines; outline; outline = outline->next) {
+        if (outline->loop == inserted_point) {
+          outline->loop = outline->loop->next;
+        }
+      }
       remove_edgept(inserted_point);
     }
   }
