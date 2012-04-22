@@ -157,7 +157,7 @@ PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
     }
     if (!foundit) {
       box_failures++;
-      ReportFailedBox(box_count, boxes[i], texts[i].string(),
+      ReportFailedBox(i, boxes[i], texts[i].string(),
                       "FAILURE! Couldn't find a matching blob");
     }
   }
