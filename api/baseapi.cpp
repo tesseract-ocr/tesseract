@@ -632,10 +632,12 @@ PageIterator* TessBaseAPI::AnalyseLayout() {
     if (block_list_->empty())
       return NULL;  // The page was empty.
     page_res_ = new PAGE_RES(block_list_, NULL);
-    return new PageIterator(page_res_, tesseract_,
-                            thresholder_->GetScaleFactor(),
-                            thresholder_->GetScaledYResolution(),
-                            rect_left_, rect_top_, rect_width_, rect_height_);
+    DetectParagraphs(false);
+    return new PageIterator(
+        page_res_, tesseract_,
+        thresholder_->GetScaleFactor(),
+        thresholder_->GetScaledYResolution(),
+        rect_left_, rect_top_, rect_width_, rect_height_);
   }
   return NULL;
 }
@@ -692,9 +694,7 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   } else {
     // Now run the main recognition.
     if (tesseract_->recog_all_words(page_res_, monitor, NULL, NULL, 0)) {
-      int paragraph_debug_level = 0;
-      GetIntVariable("paragraph_debug_level", &paragraph_debug_level);
-      DetectParagraphs(paragraph_debug_level);
+      DetectParagraphs(true);
     } else {
       result = -1;
     }
@@ -1926,13 +1926,16 @@ PAGE_RES* TessBaseAPI::RecognitionPass2(BLOCK_LIST* block_list,
   return pass1_result;
 }
 
-void TessBaseAPI::DetectParagraphs(int debug_level) {
+void TessBaseAPI::DetectParagraphs(bool after_text_recognition) {
+  int debug_level = 0;
+  GetIntVariable("paragraph_debug_level", &debug_level);
   if (paragraph_models_ == NULL)
     paragraph_models_ = new GenericVector<ParagraphModel*>;
   MutableIterator *result_it = GetMutableIterator();
   do {  // Detect paragraphs for this block
     GenericVector<ParagraphModel *> models;
-    ::tesseract::DetectParagraphs(debug_level, result_it, &models);
+    ::tesseract::DetectParagraphs(debug_level, after_text_recognition,
+                                  result_it, &models);
     *paragraph_models_ += models;
   } while (result_it->Next(RIL_BLOCK));
   delete result_it;

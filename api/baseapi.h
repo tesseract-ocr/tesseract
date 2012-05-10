@@ -732,8 +732,7 @@ class TESS_API TessBaseAPI {
   TESS_LOCAL PAGE_RES* RecognitionPass2(BLOCK_LIST* block_list, PAGE_RES* pass1_result);
 
   //// paragraphs.cpp ////////////////////////////////////////////////////
-  /** After text is recognized, break each paragraph into blocks. */
-  TESS_LOCAL void DetectParagraphs(int debug_level);
+  TESS_LOCAL void DetectParagraphs(bool after_text_recognition);
 
   /**
    * Extract the OCR results, costs (penalty points for uncertainty),

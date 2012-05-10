@@ -2302,9 +2302,60 @@ void DetectParagraphs(int debug_level,
 
 // ============ Code interfacing with the rest of Tesseract ==================
 
+void InitializeTextAndBoxesPreRecognition(const MutableIterator &it,
+                                          RowInfo *info) {
+  // Set up text, lword_text, and rword_text (mostly for debug printing).
+  STRING fake_text;
+  PageIterator pit(static_cast<const PageIterator&>(it));
+  bool first_word = true;
+  if (!pit.Empty(RIL_WORD)) {
+    do {
+      fake_text += "x";
+      if (first_word) info->lword_text += "x";
+      info->rword_text += "x";
+      if (pit.IsAtFinalElement(RIL_WORD, RIL_SYMBOL) &&
+          !pit.IsAtFinalElement(RIL_TEXTLINE, RIL_SYMBOL)) {
+        fake_text += " ";
+        info->rword_text = "";
+        first_word = false;
+      }
+    } while (!pit.IsAtFinalElement(RIL_TEXTLINE, RIL_SYMBOL) &&
+             pit.Next(RIL_SYMBOL));
+  }
+  if (fake_text.size() == 0) return;
+
+  int lspaces = info->pix_ldistance / info->average_interword_space;
+  for (int i = 0; i < lspaces; i++) {
+    info->text += ' ';
+  }
+  info->text += fake_text;
+
+  // Set up lword_box, rword_box, and num_words.
+  PAGE_RES_IT page_res_it = *it.PageResIt();
+  WERD_RES *word_res = page_res_it.restart_row();
+  ROW_RES *this_row = page_res_it.row();
+
+  WERD_RES *lword = NULL;
+  WERD_RES *rword = NULL;
+  info->num_words = 0;
+  do {
+    if (word_res) {
+      if (!lword) lword = word_res;
+      if (rword != word_res) info->num_words++;
+      rword = word_res;
+    }
+    word_res = page_res_it.forward();
+  } while (page_res_it.row() == this_row);
+  info->lword_box = lword->word->bounding_box();
+  info->rword_box = rword->word->bounding_box();
+}
+
+
 // Given a Tesseract Iterator pointing to a text line, fill in the paragraph
 // detector RowInfo with all relevant information from the row.
-void InitializeRowInfo(const MutableIterator &it, RowInfo *info) {
+void InitializeRowInfo(bool after_recognition,
+                       const MutableIterator &it,
+                       RowInfo *info) {
   if (it.PageResIt()->row() != NULL) {
     ROW *row = it.PageResIt()->row()->row;
     info->pix_ldistance = row->lmargin();
@@ -2324,6 +2375,20 @@ void InitializeRowInfo(const MutableIterator &it, RowInfo *info) {
     info->ltr = true;
   }
 
+  info->num_words = 0;
+  info->lword_indicates_list_item = false;
+  info->lword_likely_starts_idea = false;
+  info->lword_likely_ends_idea = false;
+  info->rword_indicates_list_item = false;
+  info->rword_likely_starts_idea = false;
+  info->rword_likely_ends_idea = false;
+  info->has_leaders = false;
+  info->ltr = 1;
+
+  if (!after_recognition) {
+    InitializeTextAndBoxesPreRecognition(it, info);
+    return;
+  }
   info->text = "";
   char *text = it.GetUTF8Text(RIL_TEXTLINE);
   int trailing_ws_idx = strlen(text);  // strip trailing space
@@ -2341,28 +2406,17 @@ void InitializeRowInfo(const MutableIterator &it, RowInfo *info) {
   }
   delete []text;
 
-  info->num_words = 0;
-  info->lword_indicates_list_item = false;
-  info->lword_likely_starts_idea = false;
-  info->lword_likely_ends_idea = false;
-  info->rword_indicates_list_item = false;
-  info->rword_likely_starts_idea = false;
-  info->rword_likely_ends_idea = false;
-
   if (info->text.size() == 0) {
-    info->rword_likely_ends_idea = false;
-    info->rword_likely_ends_idea = false;
     return;
   }
-
-  int ltr = 0;
-  int rtl = 0;
 
   PAGE_RES_IT page_res_it = *it.PageResIt();
   GenericVector<WERD_RES *> werds;
   WERD_RES *word_res = page_res_it.restart_row();
   ROW_RES *this_row = page_res_it.row();
   int num_leaders = 0;
+  int ltr = 0;
+  int rtl = 0;
   do {
     if (word_res && word_res->best_choice->unichar_string().length() > 0) {
       werds.push_back(word_res);
@@ -2372,7 +2426,7 @@ void InitializeRowInfo(const MutableIterator &it, RowInfo *info) {
     }
     word_res = page_res_it.forward();
   } while (page_res_it.row() == this_row);
-
+  info->ltr = ltr >= rtl;
   info->has_leaders = num_leaders > 3;
   info->num_words = werds.size();
   if (werds.size() > 0) {
@@ -2392,13 +2446,13 @@ void InitializeRowInfo(const MutableIterator &it, RowInfo *info) {
                         &info->rword_likely_starts_idea,
                         &info->rword_likely_ends_idea);
   }
-  info->ltr = ltr >= rtl;
 }
 
 // This is called after rows have been identified and words are recognized.
 // Much of this could be implemented before word recognition, but text helps
 // to identify bulleted lists and gives good signals for sentence boundaries.
 void DetectParagraphs(int debug_level,
+                      bool after_text_recognition,
                       const MutableIterator *block_start,
                       GenericVector<ParagraphModel *> *models) {
   // Clear out any preconceived notions.
@@ -2422,9 +2476,28 @@ void DetectParagraphs(int debug_level,
     row.PageResIt()->row()->row->set_para(NULL);
     row_infos.push_back(RowInfo());
     RowInfo &ri = row_infos.back();
-    InitializeRowInfo(row, &ri);
+    InitializeRowInfo(after_text_recognition, row, &ri);
   } while (!row.IsAtFinalElement(RIL_BLOCK, RIL_TEXTLINE) &&
            row.Next(RIL_TEXTLINE));
+
+  // If we're called before text recognition, we might not have
+  // tight block bounding boxes, so trim by the minimum on each side.
+  if (row_infos.size() > 0) {
+    int min_lmargin = row_infos[0].pix_ldistance;
+    int min_rmargin = row_infos[0].pix_rdistance;
+    for (int i = 1; i < row_infos.size(); i++) {
+      if (row_infos[i].pix_ldistance < min_lmargin)
+        min_lmargin = row_infos[i].pix_ldistance;
+      if (row_infos[i].pix_rdistance < min_rmargin)
+        min_rmargin = row_infos[i].pix_rdistance;
+    }
+    if (min_lmargin > 0 || min_rmargin > 0) {
+      for (int i = 0; i < row_infos.size(); i++) {
+        row_infos[i].pix_ldistance -= min_lmargin;
+        row_infos[i].pix_rdistance -= min_rmargin;
+      }
+    }
+  }
 
   // Run the paragraph detection algorithm.
   GenericVector<PARA *> row_owners;

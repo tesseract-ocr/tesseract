@@ -99,6 +99,7 @@ void DetectParagraphs(int debug_level,
 // We use unicharset during the function to answer questions such as "is the
 // first letter of this word upper case?"
 void DetectParagraphs(int debug_level,
+                      bool after_text_recognition,
                       const MutableIterator *block_start,
                       GenericVector<ParagraphModel *> *models);
 
