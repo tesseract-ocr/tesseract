@@ -1016,10 +1016,11 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
   hocr_str.add_str_int(" ", rect_top_);
   hocr_str.add_str_int(" ", rect_width_);
   hocr_str.add_str_int(" ", rect_height_);
+  hocr_str.add_str_int("; ppageno ", page_number);
   hocr_str += "'>\n";
 
   ResultIterator *res_it = GetIterator();
-  for (; !res_it->Empty(RIL_BLOCK); wcnt++) {
+  while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
       continue;
@@ -1040,12 +1041,12 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
       AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      hocr_str.add_str_int("<span class='ocr_line' id='line_", lcnt);
+      hocr_str.add_str_int("<span class='ocrx_line' id='line_", lcnt);
       AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
     }
 
     // Now, process the word...
-    hocr_str.add_str_int("<span class='ocr_word' id='word_", wcnt);
+    hocr_str.add_str_int("<span class='ocrx_word' id='word_", wcnt);
     AddBoxTohOCR(res_it, RIL_WORD, &hocr_str);
     const char *font_name;
     bool bold, italic, underlined, monospace, serif, smallcaps;
