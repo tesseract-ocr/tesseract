@@ -1041,7 +1041,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
       AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      hocr_str.add_str_int("<span class='ocrx_line' id='line_", lcnt);
+      hocr_str.add_str_int("<span class='ocr_line' id='line_", lcnt);
       AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
     }
 
