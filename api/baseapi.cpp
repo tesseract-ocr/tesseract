@@ -766,12 +766,17 @@ bool TessBaseAPI::ProcessPages(const char* filename,
 
   if (tesseract_->tessedit_create_hocr) {
     *text_out =
-        "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\""
-        " \"http://www.w3.org/TR/html4/loose.dtd\">\n"
-        "<html>\n<head>\n<title></title>\n"
-        "<meta http-equiv=\"Content-Type\" content=\"text/html;"
-        "charset=utf-8\" />\n<meta name='ocr-system' content='tesseract'/>\n"
-        "</head>\n<body>\n";
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
+        "    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+        "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" "
+        "lang=\"en\">\n <head>\n  <title></title>\n"
+        "  <meta http-equiv=\"Content-Type\" content=\"text/html; "
+		"charset=utf-8\" />\n"
+        "  <meta name='ocr-system' content='tesseract " VERSION "' />\n"
+        "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
+        " ocr_line ocrx_word'/>\n"
+        " </head>\n <body>\n";
   } else {
     *text_out = "";
   }
@@ -831,7 +836,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
     }
   }
   if (tesseract_->tessedit_create_hocr)
-    *text_out += "</body>\n</html>\n";
+    *text_out += " </body>\n</html>\n";
   return success;
 }
 
@@ -1009,7 +1014,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
   if (input_file_ == NULL)
       SetInputName(NULL);
 
-  hocr_str.add_str_int("<div class='ocr_page' id='page_", page_id);
+  hocr_str.add_str_int("  <div class='ocr_page' id='page_", page_id);
   hocr_str += "' title='image \"";
   hocr_str += input_file_ ? *input_file_ : "unknown";
   hocr_str.add_str_int("\"; bbox ", rect_left_);
@@ -1028,20 +1033,20 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
     // Open any new block/paragraph/textline.
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      hocr_str.add_str_int("<div class='ocr_carea' id='block_", bcnt);
+      hocr_str.add_str_int("   <div class='ocr_carea' id='block_", bcnt);
       hocr_str.add_str_int("_", bcnt);
       AddBoxTohOCR(res_it, RIL_BLOCK, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
       if (res_it->ParagraphIsLtr()) {
-        hocr_str.add_str_int("\n<p class='ocr_par' dir='ltr' id='par_", pcnt);
+        hocr_str.add_str_int("\n    <p class='ocr_par' dir='ltr' id='par_", pcnt);
       } else {
-        hocr_str.add_str_int("\n<p class='ocr_par' dir='rtl' id='par_", pcnt);
+        hocr_str.add_str_int("\n    <p class='ocr_par' dir='rtl' id='par_", pcnt);
       }
       AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      hocr_str.add_str_int("<span class='ocr_line' id='line_", lcnt);
+      hocr_str.add_str_int("\n     <span class='ocr_line' id='line_", lcnt);
       AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
     }
 
@@ -1084,19 +1089,19 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
     wcnt++;
     // Close any ending block/paragraph/textline.
     if (last_word_in_line) {
-      hocr_str += "</span>\n";
+      hocr_str += "\n     </span>";
       lcnt++;
     }
     if (last_word_in_para) {
-      hocr_str += "</p>\n";
+      hocr_str += "\n    </p>\n";
       pcnt++;
     }
     if (last_word_in_block) {
-      hocr_str += "</div>\n";
+      hocr_str += "   </div>\n";
       bcnt++;
     }
   }
-  hocr_str += "</div>\n";
+  hocr_str += "  </div>\n";
 
   char *ret = new char[hocr_str.length() + 1];
   strcpy(ret, hocr_str.string());
