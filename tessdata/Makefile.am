@@ -43,7 +43,7 @@ langdata = bul.traineddata mlt.traineddata chr.traineddata \
 
 .PHONY: install-langs
 install-langs:
-	@if [ ! -d $(datadir) ]; then mkdir -p $(datadir); fi;
+	@if [ ! -d  $(DESTDIR)$(datadir) ]; then mkdir -p $(DESTDIR)$(datadir); fi;
 	@if test "${LANGS}" != ""; then \
 		for lang_code in ${LANGS}; do \
 			echo "installing data for $$lang_code"; \
@@ -63,5 +63,5 @@ install-langs:
 	fi;
 
 uninstall-local:
-	cd $(datadir); \
-	rm --force $(DESTDIR)$(langdata)
+	cd $(DESTDIR)$(datadir); \
+	rm --force $(langdata)
