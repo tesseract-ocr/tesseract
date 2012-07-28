@@ -19,9 +19,13 @@ So, the steps for making Tesseract are:
 available language data files in tessdata directory.
 
 If you want to install just few of them than run:
-  $ make install LANGS="eng ara deu"
+  $ sudo make install-langs LANGS="eng ara deu"
 It will install only English, Arabic and German language datafiles (if 
 they are present in tessdata directory)
+
+  $ sudo make install LANGS="eng ara deu"
+will install tesseract library, tesseract programs  and English, Arabic 
+and German language datafiles.
 
 To compile ScrollView.jar you need to download piccolo.JAVA[1] from
 http://www.piccolo2d.org/download.html and extract 

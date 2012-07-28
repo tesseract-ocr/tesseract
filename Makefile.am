@@ -12,7 +12,8 @@ endif
 #endif
 
 EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
-	aclocal.m4 config configure.ac autogen.sh tesseract.spec contrib
+	aclocal.m4 config configure.ac autogen.sh tesseract.spec contrib \
+	tesseract.pc.in
 
 #EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
 
@@ -63,3 +64,6 @@ doc-pack: doc
 
 doc-clean:
 	rm -rf $(top_srcdir)/doc/html/*
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = tesseract.pc

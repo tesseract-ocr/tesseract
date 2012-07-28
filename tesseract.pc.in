@@ -1,0 +1,14 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+datadir=@datadir@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: @PACKAGE_NAME@
+Description: An OCR Engine that was developed at HP Labs between 1985 and 1995... and now at Google.
+URL: https://code.google.com/p/tesseract-ocr
+Version: @VERSION@
+Requires: lept
+Libs: -L${libdir} -ltesseract @LDFLAGS@ @LIBS@
+Cflags: -I${includedir} @CFLAGS@ @CPPFLAGS@ @CXXFLAGS@ @DEFS@

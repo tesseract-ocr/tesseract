@@ -155,13 +155,11 @@ AC_ARG_ENABLE([debug],
     [debug="no"])
 AC_MSG_RESULT($debug)
 if test x"$debug" = x"yes"; then
-    AC_DEFINE([DEBUG],[],[Debug Mode])
-    AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -Wno-uninitialized -O0"
-    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -Wno-uninitialized -O0"
+    AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -Wno-uninitialized -O0 -DDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -Wno-uninitialized -O0 -DDEBUG"
 else
-    AC_DEFINE([NDEBUG],[],[No-debug Mode])
-    AM_CXXFLAGS="$AM_CXXFLAGS -O3"
-    AM_CPPFLAGS="$AM_CPPFLAGS -O3"
+    AM_CXXFLAGS="$AM_CXXFLAGS -O3 -DNDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -O3 -DNDEBUG"
 fi
 
 #localedir='${prefix}/share/locale'
@@ -430,7 +428,7 @@ fi
 # AC_DEFINE_UNQUOTED(TESSERACT_VERSION,["${PACKAGE_VERSION}"],[version string])
 
 # Output files
-AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES([Makefile tesseract.pc])
 #if test "$enable_gettext" = "yes"; then
 #AC_CONFIG_FILES(po/Makefile.in)
 #fi
