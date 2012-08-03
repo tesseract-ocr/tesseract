@@ -1148,6 +1148,7 @@ char* TessBaseAPI::GetBoxText(int page_number) {
   int total_length = blob_count * kBytesPerBoxFileLine + utf8_length +
       kMaxBytesPerLine;
   char* result = new char[total_length];
+  strcpy(result, "\0");
   int output_length = 0;
   LTRResultIterator* it = GetLTRIterator();
   do {
