@@ -395,8 +395,11 @@ class Dict {
   /// AdjustFactor is an adjustment factor which was applied to choice.
   /// Certainties are certainties for each char in new choice.
   /// raw_choice indicates whether WordChoice is a raw or best choice.
-  void LogNewChoice(FLOAT32 AdjustFactor, const float Certainties[],
-                    bool raw_choice, WERD_CHOICE *WordChoice);
+  void LogNewChoice(FLOAT32 AdjustFactor,
+                    const float Certainties[],
+                    bool raw_choice,
+                    WERD_CHOICE *WordChoice,
+                    const BLOB_CHOICE_LIST_VECTOR &blob_choices);
   void EndDangerousAmbigs();
   /// Returns true if WordChoice is the same as the current best choice.
   bool CurrentBestChoiceIs(const WERD_CHOICE &WordChoice);
@@ -707,11 +710,17 @@ class Dict {
   void adjust_word(WERD_CHOICE *word, float *certainty_array,
                    const BLOB_CHOICE_LIST_VECTOR *char_choices,
                    bool nonword, float additional_adjust, bool debug);
-  void adjust_word(WERD_CHOICE *word, float *certainty_array, bool debug) {
-    adjust_word(word, certainty_array, NULL, false, 0.0f, debug);
+  void adjust_word(WERD_CHOICE *word, float *certainty_array,
+                   const BLOB_CHOICE_LIST_VECTOR *char_choices,
+                   bool debug) {
+    adjust_word(word, certainty_array, char_choices, false, 0.0f,
+                debug);
   }
-  void adjust_non_word(WERD_CHOICE *word, float *certainty_array, bool debug) {
-    adjust_word(word, certainty_array, NULL, true, 0.0f, debug);
+  void adjust_non_word(WERD_CHOICE *word,
+                       float *certainty_array,
+                       const BLOB_CHOICE_LIST_VECTOR *char_choices,
+                       bool debug) {
+    adjust_word(word, certainty_array, char_choices, true, 0.0f, debug);
   }
   /// Set wordseg_rating_adjust_factor_ to the given value.
   inline void SetWordsegRatingAdjustFactor(float f) {

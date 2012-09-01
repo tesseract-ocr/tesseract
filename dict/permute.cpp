@@ -363,7 +363,7 @@ WERD_CHOICE *Dict::permute_all(const BLOB_CHOICE_LIST_VECTOR &char_choices,
     float certainties[MAX_PERM_LENGTH];
     float adjust_factor;
     result2 = permuter_state.GetPermutedWord(certainties, &adjust_factor);
-    LogNewChoice(adjust_factor, certainties, false, result2);
+    LogNewChoice(adjust_factor, certainties, false, result2, char_choices);
     result1 = get_best_delete_other(result1, result2);
 
     if (segment_segcost_rating) incorporate_segcost(result1);
@@ -646,7 +646,7 @@ WERD_CHOICE* Dict::permute_chartype_words(
   }
   // All permuter choices should go through adjust_non_word so the choice
   // rating would be adjusted on the same scale.
-  adjust_non_word(current_word, certainties, permute_debug);
+  adjust_non_word(current_word, certainties, &char_choices, permute_debug);
   if (replaced) {
     // Apply a reward multiplier on rating if an chartype permutation is made.
     float rating = current_word->rating();
@@ -744,7 +744,7 @@ WERD_CHOICE* Dict::permute_script_words(
   }
   // All permuter choices should go through adjust_non_word so the choice
   // rating would be adjusted on the same scale.
-  adjust_non_word(current_word, certainties, permute_debug);
+  adjust_non_word(current_word, certainties, &char_choices, permute_debug);
   if (replaced) {
     // Apply a reward multiplier on rating if an script permutation is made.
     float rating = current_word->rating();
@@ -919,7 +919,7 @@ WERD_CHOICE *Dict::get_top_choice_word(
                                                 top_choice->certainty());
     certainties[x] = top_choice->certainty();
   }
-  LogNewChoice(1.0, certainties, true, top_word);
+  LogNewChoice(1.0, certainties, true, top_word, char_choices);
   return top_word;
 }
 
@@ -1122,16 +1122,18 @@ WERD_CHOICE *Dict::permute_top_choice(
 
   if (raw_choice != NULL && word.rating() < raw_choice->rating()) {
     *raw_choice = word;
-    LogNewChoice(1.0, certainties, true, raw_choice);
+    LogNewChoice(1.0, certainties, true, raw_choice, char_choices);
   }
   float rating = word.rating();
-  adjust_non_word(&word, certainties, permute_debug);
+  adjust_non_word(&word, certainties, &char_choices, permute_debug);
 
   float lower_rating = lower_word.rating();
-  adjust_non_word(&lower_word, lower_certainties, permute_debug);
+  adjust_non_word(&lower_word, lower_certainties, &char_choices,
+                  permute_debug);
 
   float upper_rating = capital_word.rating();
-  adjust_non_word(&capital_word, upper_certainties, permute_debug);
+  adjust_non_word(&capital_word, upper_certainties, &char_choices,
+                  permute_debug);
 
   WERD_CHOICE *best_choice = &word;
   *rating_limit = rating;
@@ -1545,7 +1547,7 @@ void Dict::go_deeper_top_fragments_fxn(
                 word->debug_string().string());
       }
       *limit = word->rating();
-      adjust_non_word(word, certainties, permute_debug);
+      adjust_non_word(word, certainties, &char_choices, permute_debug);
       update_best_choice(*word, best_choice);
     } else {  // search the next letter
       permute_choices(debug, char_choices, char_choice_index + 1,

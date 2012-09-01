@@ -24,6 +24,7 @@
 
 #include "genericvector.h"
 #include "params.h"
+#include "ratngs.h"
 #include "states.h"
 #include "unichar.h"
 
@@ -63,6 +64,7 @@ class VIABLE_CHOICE_STRUCT {
             const PIECES_STATE& pieces_state,
             const float certainties[],
             FLOAT32 adjust_factor);
+  void SetBlobChoices(const BLOB_CHOICE_LIST_VECTOR &src_choices);
 
   int Length;
   float Rating;
@@ -70,6 +72,7 @@ class VIABLE_CHOICE_STRUCT {
   FLOAT32 AdjustFactor;
   bool ComposedFromCharFragments;
   CHAR_CHOICE *Blob;
+  BLOB_CHOICE_LIST_CLIST *blob_choices;
 
  private:
   // Disallow assignment and copy construction

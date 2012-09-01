@@ -171,10 +171,6 @@ class Wordrec : public Classify {
 
   // Fills word->alt_choices with alternative paths found during
   // chopping/segmentation search that are kept in best_choices.
-  // TODO(antonova): the function currently saves unchar ids, rating and
-  // certainty information for each alternative choice.
-  // We might need to add saving blob choices and segmentation state
-  // associated with each alt choice if needed.
   void SaveAltChoices(const LIST &best_choices, WERD_RES *word);
 
   // Fills character choice lattice in the given BlamerBundle

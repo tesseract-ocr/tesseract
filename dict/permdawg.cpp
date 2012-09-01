@@ -108,7 +108,7 @@ void Dict::go_deeper_dawg_fxn(
       if (permute_debug && dawg_debug_level)
         tprintf("new hyphen choice = %s\n", word->debug_string().string());
       word->set_permuter(more_args->permuter);
-      adjust_word(word, certainties, permute_debug);
+      adjust_word(word, certainties, &char_choices, permute_debug);
       set_hyphen_word(*word, *(more_args->active_dawgs),
                       *(more_args->constraints));
       update_best_choice(*word, best_choice);
@@ -217,7 +217,7 @@ void Dict::go_deeper_dawg_fxn(
         adjusted_word->set_permuter(more_args->permuter);
         if (!ambigs_mode(*limit)) {
           adjust_word(adjusted_word, &certainties[hyphen_base_size()],
-                      permute_debug);
+                      &char_choices, permute_debug);
         }
         update_best_choice(*adjusted_word, best_choice);
       } else {  // search the next letter

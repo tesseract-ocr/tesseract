@@ -188,6 +188,11 @@ void Wordrec::SaveAltChoices(const LIST &best_choices, WERD_RES *word) {
     }
     alt_choice->set_rating(choice->Rating);
     alt_choice->set_certainty(choice->Certainty);
+
+    ASSERT_HOST(choice->blob_choices != NULL);
+    alt_choice->set_blob_choices(choice->blob_choices);
+    choice->blob_choices = NULL;
+
     word->alt_choices.push_back(alt_choice);
     if (wordrec_debug_level > 0) {
       tprintf("SaveAltChoices: %s %g\n",

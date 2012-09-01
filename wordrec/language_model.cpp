@@ -1228,7 +1228,7 @@ void LanguageModel::UpdateBestChoice(
   if ((vse->top_choice_flags & kSmallestRatingFlag) &&
       word->rating() < best_choice_bundle->raw_choice->rating() &&
       not_blaming) {
-    dict_->LogNewChoice(1.0, certainties, true, word);
+    dict_->LogNewChoice(1.0, certainties, true, word, temp_best_char_choices);
     *(best_choice_bundle->raw_choice) = *word;
     best_choice_bundle->raw_choice->set_permuter(TOP_CHOICE_PERM);
     if (language_model_debug_level > 0) tprintf("Updated raw choice\n");
@@ -1261,7 +1261,7 @@ void LanguageModel::UpdateBestChoice(
     dict_->LogNewChoice(vse->cost / (language_model_ngram_on ?
                                      vse->ngram_info->ngram_cost :
                                      vse->ratings_sum),
-                        certainties, false, word);
+                        certainties, false, word, temp_best_char_choices);
     // Since the rating of the word could have been modified by
     // Dict::LogNewChoice() - check again.
     if (word->rating() < best_choice_bundle->best_choice->rating()) {

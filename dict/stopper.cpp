@@ -101,14 +101,20 @@ static void ExpandChoice(VIABLE_CHOICE Choice,
 VIABLE_CHOICE_STRUCT::VIABLE_CHOICE_STRUCT(int length)
     : Length(length) {
   Blob = new CHAR_CHOICE[length];
+  blob_choices = NULL;
 }
 
 VIABLE_CHOICE_STRUCT::VIABLE_CHOICE_STRUCT() : Length(0) {
   Blob = NULL;
+  blob_choices = NULL;
 }
 
 VIABLE_CHOICE_STRUCT::~VIABLE_CHOICE_STRUCT() {
   delete []Blob;
+  if (blob_choices) {
+    blob_choices->deep_clear();
+    delete blob_choices;
+  }
 }
 
 void VIABLE_CHOICE_STRUCT::Init(
@@ -137,6 +143,21 @@ void VIABLE_CHOICE_STRUCT::Init(
   }
 }
 
+void VIABLE_CHOICE_STRUCT::SetBlobChoices(
+    const BLOB_CHOICE_LIST_VECTOR &src_choices) {
+  if (blob_choices != NULL) {
+    blob_choices->deep_clear();
+  } else {
+    blob_choices = new BLOB_CHOICE_LIST_CLIST();
+  }
+  BLOB_CHOICE_LIST_C_IT list_it(blob_choices);
+
+  for (int i = 0; i < src_choices.size(); ++i) {
+    BLOB_CHOICE_LIST *cc_list = new BLOB_CHOICE_LIST();
+    cc_list->deep_copy(src_choices[i], &BLOB_CHOICE::deep_copy);
+    list_it.add_after_then_move(cc_list);
+  }
+}
 
 namespace tesseract {
 
@@ -463,7 +484,8 @@ void Dict::LogNewSplit(int Blob) {
 void Dict::LogNewChoice(FLOAT32 AdjustFactor,
                         const float Certainties[],
                         bool raw_choice,
-                        WERD_CHOICE *WordChoice) {
+                        WERD_CHOICE *WordChoice,
+                        const BLOB_CHOICE_LIST_VECTOR &blob_choices) {
   LIST ChoicesList;
   LIST Choices;
   FLOAT32 Threshold;
@@ -533,6 +555,9 @@ void Dict::LogNewChoice(FLOAT32 AdjustFactor,
   } else {
     NewChoice = NewViableChoice(*WordChoice, AdjustFactor, Certainties);
   }
+
+  // Now we know we're gonna save it, so add the expensive copy.
+  NewChoice->SetBlobChoices(blob_choices);
 
   ChoicesList = s_adjoin (ChoicesList, NewChoice, CmpChoiceRatings);
   if (stopper_debug_level >= 2)
