@@ -96,8 +96,8 @@ void STRING::FixHeader() const {
 
 
 STRING::STRING() {
-  // 0 indicates old NULL -- it doesnt even have '\0'
-  AllocData(0, kMinCapacity);
+  // Empty STRINGs contain just the "\0".
+  memcpy(AllocData(1, kMinCapacity), "", 1);
 }
 
 STRING::STRING(const STRING& str) {
@@ -111,7 +111,8 @@ STRING::STRING(const STRING& str) {
 
 STRING::STRING(const char* cstr) {
   if (cstr == NULL) {
-    AllocData(0, 0);
+    // Empty STRINGs contain just the "\0".
+    memcpy(AllocData(1, kMinCapacity), "", 1);
   } else {
     int len = strlen(cstr) + 1;
     char* this_cstr = AllocData(len, len);
@@ -350,18 +351,29 @@ STRING & STRING::operator=(const char* cstr) {
     this_header = GetHeader();  // for realloc
     memcpy(this_cstr, cstr, len);
     this_header->used_ = len;
-  }
-  else {
-    // Reallocate to zero capacity buffer, consistent with the corresponding
-    // copy constructor.
+  } else {
+    // Reallocate to same state as default constructor.
     DiscardData();
-    AllocData(0, 0);
+    // Empty STRINGs contain just the "\0".
+    memcpy(AllocData(1, kMinCapacity), "", 1);
   }
 
   assert(InvariantOk());
   return *this;
 }
 
+void STRING::assign(const char *cstr, int len) {
+  STRING_HEADER* this_header = GetHeader();
+  this_header->used_ = 0;  // dont bother copying data if need to realloc
+  char* this_cstr = ensure_cstr(len + 1);  // +1 for '\0'
+
+  this_header = GetHeader();  // for realloc
+  memcpy(this_cstr, cstr, len);
+  this_cstr[len] = '\0';
+  this_header->used_ = len + 1;
+
+  assert(InvariantOk());
+}
 
 STRING STRING::operator+(const STRING& str) const {
   STRING result(*this);

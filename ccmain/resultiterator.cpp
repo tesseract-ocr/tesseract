@@ -585,7 +585,6 @@ char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
       }
       break;
   }
-  if (text.string() == NULL) return NULL;
   int length = text.length() + 1;
   char* result = new char[length];
   strncpy(result, text.string(), length);

@@ -81,6 +81,9 @@ class TESS_API STRING
     STRING & operator+= (const STRING & string);
     STRING & operator+= (const char ch);
 
+    // Assignment for strings which are not null-terminated.
+    void assign(const char *cstr, int len);
+
     // Appends the given string and int (as a %d) to this.
     // += cannot be used for ints as there as a char += operator that would
     // be ambiguous, and ints usually need a string before or between them
