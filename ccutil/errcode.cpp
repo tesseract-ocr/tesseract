@@ -72,7 +72,8 @@ const char *format, ...          // special message
                                  //no specific
     msgptr += sprintf (msgptr, "\n");
 
-  fprintf(stderr, msg);
+  // %s is needed here so msg is printed correctly!
+  fprintf(stderr, "%s", msg);
 
   int* p = NULL;
   switch (action) {
