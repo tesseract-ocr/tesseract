@@ -255,7 +255,7 @@ void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST* blobs,
             !BlobOverlapsTooMuch(blob, max_blob_overlaps))) {
       blob->ClearNeighbours();
       #ifndef GRAPHICS_DISABLED
-      if (win != NULL) 
+      if (win != NULL)
         blob->plot(win, ok_color, ok_color);
       #endif  // GRAPHICS_DISABLED
     } else {
