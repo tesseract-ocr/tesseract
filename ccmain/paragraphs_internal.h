@@ -277,7 +277,7 @@ void RecomputeMarginsAndClearHypotheses(
     GenericVector<RowScratchRegisters> *rows, int start, int end,
     int percentile);
 
-// Return the minimum inter-word space in rows[row_start, row_end).
+// Return the median inter-word space in rows[row_start, row_end).
 int InterwordSpace(const GenericVector<RowScratchRegisters> &rows,
                    int row_start, int row_end);
 

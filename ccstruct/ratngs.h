@@ -138,7 +138,16 @@ class BLOB_CHOICE: public ELIST_LINK
   UNICHAR_ID unichar_id_;          // unichar id
   inT16 fontinfo_id_;              // char font information
   inT16 fontinfo_id2_;             // 2nd choice font information
+  // Rating is the classifier distance weighted by the length of the outline
+  // in the blob. In terms of probability, classifier distance is -klog p such
+  // that the resulting distance is in the range [0, 1] and then
+  // rating = w (-k log p) where w is the weight for the length of the outline.
+  // Sums of ratings may be compared meaningfully for words of different
+  // segmentation.
   float rating_;                  // size related
+  // Certainty is a number in [-20, 0] indicating the classifier certainty
+  // of the choice. In terms of probability, certainty = 20 (k log p) where
+  // k is defined as above to normalize -klog p to the range [0, 1].
   float certainty_;               // absolute
   int script_id_;
   // Stores language model information about this BLOB_CHOICE. Used during
@@ -408,7 +417,9 @@ class WERD_CHOICE {
   char *fragment_lengths_;   // number of fragments in each unichar
   int reserved_;             // size of the above arrays
   int length_;               // word length
+  // Rating is the sum of the ratings of the individual blobs in the word.
   float rating_;             // size related
+  // certainty is the min (worst) certainty of the individual blobs in the word.
   float certainty_;          // absolute
   uinT8 permuter_;           // permuter code
   bool fragment_mark_;       // if true, indicates that this choice

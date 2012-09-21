@@ -1846,7 +1846,6 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
  * proto from the class description and adds a rendering of
  * the proto onto the ShapeList.
  *
- * @param ShapeList   shape list to append proto rendering onto
  * @param Class   class that proto is contained in
  * @param ProtoId   id of proto to be rendered
  * @param color   color to render proto in

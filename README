@@ -26,6 +26,7 @@ Dependencies and Licenses
 
 Leptonica is required. (www.leptonica.com). Tesseract no longer compiles
 without Leptonica.
+Libtiff is no longer required as a direct dependency.
 
 
 Installing and Running Tesseract

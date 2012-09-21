@@ -181,12 +181,10 @@ void Classify::AdaptiveClassifier(TBLOB *Blob,
                                   CLASS_PRUNER_RESULTS CPResults) {
   assert(Choices != NULL);
   ADAPT_RESULTS *Results = new ADAPT_RESULTS();
+  Results->Initialize();
 
   if (AdaptedTemplates == NULL)
     AdaptedTemplates = NewAdaptedTemplates (true);
-
-  Results->Initialize();
-
   DoAdaptiveMatch(Blob, denorm, Results);
   if (CPResults != NULL)
     memcpy(CPResults, Results->CPResults,
@@ -903,7 +901,14 @@ int Classify::AdaptableWord(TWERD *Word,
       BestChoiceLength > 0 &&
       BestChoiceLength == Word->NumBlobs() &&
       BestChoiceLength <= MAX_ADAPTABLE_WERD_SIZE &&
+      // This basically ensures that the word is at least a dictionary match
+      // (freq word, user word, system dawg word, etc).
+      // Since all the other adjustments will make adjust factor higher
+      // than higher than adaptable_score=1.1+0.05=1.15
+      // Since these are other flags that ensure that the word is dict word,
+      // this check could be at times redundant.
       getDict().CurrentBestChoiceAdjustFactor() <= adaptable_score &&
+      // Make sure that alternative choices are not dictionary words.
       getDict().AlternativeChoicesWorseThan(adaptable_score) &&
       getDict().CurrentBestChoiceIs(BestChoiceWord);
 }
@@ -2487,18 +2492,12 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
 
 /*----------------------------------------------------------------------------*/
 /**
- * This routine steps thru each matching class in Results
- * and removes it from the match list if its rating
- * is worse than the BestRating plus a pad.  In other words,
- * all good matches get moved to the front of the classes
- * array.
+ * This routine discards extra digits or punctuation from the results.
+ * We keep only the top 2 punctuation answers and the top 1 digit answer if
+ * present.
  *
  * @param Results contains matches to be filtered
  *
- * Globals:
- * - matcher_bad_match_pad defines a "bad match"
- *
- * @note Exceptions: none
  * @note History: Tue Mar 12 13:51:03 1991, DSJ, Created.
  */
 void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
