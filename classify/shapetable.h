@@ -41,7 +41,7 @@ struct UnicharAndFonts {
   }
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(FILE* fp);
+  bool Serialize(FILE* fp) const;
   // Reads from the given file. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerialize(bool swap, FILE* fp);
@@ -49,8 +49,8 @@ struct UnicharAndFonts {
   // Sort function to sort a pair of UnicharAndFonts by unichar_id.
   static int SortByUnicharId(const void* v1, const void* v2);
 
-  GenericVector<int> font_ids;
-  int unichar_id;
+  GenericVector<inT32> font_ids;
+  inT32 unichar_id;
 };
 
 // A Shape is a collection of unichar-ids and a list of fonts associated with
@@ -64,7 +64,7 @@ class Shape {
   Shape() : destination_index_(-1) {}
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(FILE* fp);
+  bool Serialize(FILE* fp) const;
   // Reads from the given file. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerialize(bool swap, FILE* fp);
@@ -188,9 +188,9 @@ class ShapeTable {
   int BuildFromShape(const Shape& shape, const ShapeTable& master_shapes);
 
   // Returns true if the shapes are already merged.
-  bool AlreadyMerged(int shape_id1, int shape_id2);
+  bool AlreadyMerged(int shape_id1, int shape_id2) const;
   // Returns true if any shape contains multiple unichars.
-  bool AnyMultipleUnichars();
+  bool AnyMultipleUnichars() const;
   // Returns the maximum number of unichars over all shapes.
   int MaxNumUnichars() const;
   // Merges shapes with a common unichar over the [start, end) interval.
