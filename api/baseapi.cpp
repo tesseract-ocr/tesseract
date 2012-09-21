@@ -634,8 +634,7 @@ PageIterator* TessBaseAPI::AnalyseLayout() {
     page_res_ = new PAGE_RES(block_list_, NULL);
     DetectParagraphs(false);
     return new PageIterator(
-        page_res_, tesseract_,
-        thresholder_->GetScaleFactor(),
+        page_res_, tesseract_, thresholder_->GetScaleFactor(),
         thresholder_->GetScaledYResolution(),
         rect_left_, rect_top_, rect_width_, rect_height_);
   }
@@ -653,6 +652,10 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     return -1;
   if (page_res_ != NULL)
     delete page_res_;
+  if (block_list_->empty()) {
+    page_res_ = new PAGE_RES(block_list_, &tesseract_->prev_word_best_choice_);
+    return 0; // Empty page.
+  }
 
   tesseract_->SetBlackAndWhitelist();
   recognition_done_ = true;
