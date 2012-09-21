@@ -344,7 +344,8 @@ AC_LANG_CPLUSPLUS
 # which causes unnecessary warnings with Visual C++.
 # Comment it out for now.
 #AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(pthread,sem_init)
+AC_SEARCH_LIBS(sem_init,pthread rt)
+#AC_CHECK_LIB(pthread,sem_init)
 
 # ----------------------------------------
 # Checks for header files.
