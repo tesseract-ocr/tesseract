@@ -3,6 +3,7 @@ SUBDIRS = com
 JAVAC = javac
 JAR = jar
 
+if !GRAPHICS_DISABLED
 SCROLLVIEW_FILES = \
 	com/google/scrollview/ui/SVAbstractMenuItem.java \
 	com/google/scrollview/ui/SVCheckboxMenuItem.java \
@@ -45,6 +46,7 @@ ScrollView.jar : $(SCROLLVIEW_CLASSES)
 
 $(SCROLLVIEW_CLASSES) : $(SCROLLVIEW_FILES)
 	$(JAVAC) -encoding UTF8 -classpath $(CLASSPATH) $(SCROLLVIEW_FILES) 
+endif
 
 clean :
 	rm -f ScrollView.jar *.class
