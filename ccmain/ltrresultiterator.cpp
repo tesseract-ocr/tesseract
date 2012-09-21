@@ -351,7 +351,7 @@ const char* ChoiceIterator::GetUTF8Text() const {
   if (choice_it_ == NULL)
     return NULL;
   UNICHAR_ID id = choice_it_->data()->unichar_id();
-  return word_res_->BestUTF8(id, false);
+  return word_res_->uch_set->id_to_unichar_ext(id);
 }
 
 // Returns the confidence of the current choice.
