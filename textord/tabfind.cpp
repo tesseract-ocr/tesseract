@@ -976,17 +976,20 @@ void TabFind::ComputeColumnWidths(ScrollView* tab_win,
   #ifndef GRAPHICS_DISABLED
   if (tab_win != NULL)
     tab_win->Pen(ScrollView::WHITE);
+  #endif  // GRAPHICS_DISABLED
   // Accumulate column sections into a STATS
   int col_widths_size = (tright_.x() - bleft_.x()) / kColumnWidthFactor;
   STATS col_widths(0, col_widths_size + 1);
   ApplyPartitionsToColumnWidths(part_grid, &col_widths);
+  #ifndef GRAPHICS_DISABLED
   if (tab_win != NULL) {
     tab_win->Update();
   }
+  #endif  // GRAPHICS_DISABLED
   if (textord_debug_tabfind > 1)
     col_widths.print();
   // Now make a list of column widths.
-  #endif  // GRAPHICS_DISABLED
+  MakeColumnWidths(col_widths_size, &col_widths);
 }
 
 // Find column width and pair-up tab vectors with existing ColPartitions.
