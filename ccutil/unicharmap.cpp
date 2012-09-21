@@ -99,10 +99,10 @@ void UNICHARMAP::insert(const char* const unichar_repr, UNICHAR_ID id) {
 // string is interpreted as an index in an array of nodes. Stop once the tree
 // does not have anymore nodes or once we found the right unichar_repr.
 bool UNICHARMAP::contains(const char* const unichar_repr) const {
+  if (unichar_repr == NULL || *unichar_repr == '\0') return false;
+
   const char* current_char = unichar_repr;
   UNICHARMAP_NODE* current_nodes = nodes;
-
-  assert(*unichar_repr != '\0');
 
   while (current_nodes != 0 && *(current_char + 1) != '\0') {
     current_nodes =
@@ -119,11 +119,11 @@ bool UNICHARMAP::contains(const char* const unichar_repr) const {
 // found the right unichar_repr.
 bool UNICHARMAP::contains(const char* const unichar_repr,
                           int length) const {
+  if (unichar_repr == NULL || *unichar_repr == '\0') return false;
+  if (length <= 0 || length > UNICHAR_LEN) return false;
+
   const char* current_char = unichar_repr;
   UNICHARMAP_NODE* current_nodes = nodes;
-
-  assert(*unichar_repr != '\0');
-  assert(length > 0 && length <= UNICHAR_LEN);
 
   while (current_nodes != 0 && (length > 1 && *(current_char + 1) != '\0')) {
     current_nodes =
