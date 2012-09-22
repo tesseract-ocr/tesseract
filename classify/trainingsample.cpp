@@ -13,6 +13,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "trainingsample.h"
 
 #include <math.h>

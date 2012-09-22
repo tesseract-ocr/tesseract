@@ -34,9 +34,8 @@
 #include "config_auto.h"
 #endif
 
-#ifndef GRAPHICS_DISABLED
-// This class contains the main ScrollView-logic,
-// e.g. parsing & sending messages, images etc.
+#include "scrollview.h"
+
 #ifdef _MSC_VER
 #pragma warning(disable:4786)  // Don't give stupid warnings for stl
 #pragma warning(disable:4018)  // signed/unsigned warnings
@@ -47,7 +46,6 @@ const int kSvPort = 8461;
 const int kMaxMsgSize = 4096;
 const int kMaxIntPairSize = 45;  // Holds %d,%d, for upto 64 bit.
 
-#include "scrollview.h"
 #include "svutil.h"
 
 #include "allheaders.h"
@@ -82,6 +80,7 @@ SVEvent* SVEvent::copy() {
   return any;
 }
 
+#ifndef GRAPHICS_DISABLED
 /// This is the main loop which handles the ScrollView-logic from the server
 /// to the client. It basically loops through messages, parses them to events
 /// and distributes it to the waiting handlers.
@@ -357,8 +356,10 @@ void* ScrollView::StartEventHandler(void* a) {
   } while (sv != NULL);
   return 0;
 }
+#endif  // GRAPHICS_DISABLED
 
 ScrollView::~ScrollView() {
+  #ifndef GRAPHICS_DISABLED
   svmap_mu->Lock();
   if (svmap[window_id_] != NULL) {
     svmap_mu->Unlock();
@@ -381,8 +382,10 @@ ScrollView::~ScrollView() {
   delete mutex_;
   delete semaphore_;
   delete points_;
+  #endif  // GRAPHICS_DISABLED
 }
 
+#ifndef GRAPHICS_DISABLED
 /// Send a message to the server, attaching the window id.
 void ScrollView::SendMsg(const char* format, ...) {
   if (!points_->empty)

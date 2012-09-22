@@ -17,6 +17,11 @@
  *
  **********************************************************************/
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include          "mfcpch.h"     //precompiled headers
 #include          "statistc.h"
 #include          <string.h>
@@ -25,11 +30,6 @@
 #include          "helpers.h"
 #include          "scrollview.h"
 #include          "tprintf.h"
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 
 /**********************************************************************
  * STATS::STATS

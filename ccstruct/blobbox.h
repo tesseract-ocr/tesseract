@@ -431,10 +431,7 @@ class BLOBNBOX:public ELIST_LINK
 
     void plot(ScrollView* window,                // window to draw in
               ScrollView::Color blob_colour,     // for outer bits
-              ScrollView::Color child_colour) {  // for holes
-      if (cblob_ptr != NULL)
-        cblob_ptr->plot(window, blob_colour, child_colour);
-    }
+              ScrollView::Color child_colour);   // for holes
 #endif
 
   // Initializes the bulk of the members to default values for use at

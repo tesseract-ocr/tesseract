@@ -16,6 +16,11 @@
 //            training data of whole, partial or multiple characters.
 //  Author:   Ray Smith
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #ifndef USE_STD_NAMESPACE
 #include "base/commandlineflags.h"
 #endif

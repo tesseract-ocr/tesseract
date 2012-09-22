@@ -660,8 +660,10 @@ class ColPartition : public ELIST2_LINK {
   // treated as read-only.
   ColPartition* CopyButDontOwnBlobs();
 
+  #ifndef GRAPHICS_DISABLED
   // Provides a color for BBGrid to draw the rectangle.
   ScrollView::Color  BoxColor() const;
+  #endif  // GRAPHICS_DISABLED
 
   // Prints debug information on this.
   void Print() const;

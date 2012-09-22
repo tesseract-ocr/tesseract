@@ -93,6 +93,8 @@ class PDBLK
     // Returns a binary Pix mask with a 1 pixel for every pixel within the
     // block. Rotates the coordinate system by rerotation prior to rendering.
     Pix* render_mask(const FCOORD& rerotation);
+
+    #ifndef GRAPHICS_DISABLED
     ///draw histogram
     ///@param window window to draw in
     ///@param serial serial number
@@ -100,7 +102,7 @@ class PDBLK
     void plot(ScrollView* window,
               inT32 serial,
               ScrollView::Color colour);
-
+    #endif  // GRAPHICS_DISABLED
     ///show image
     ///@param image image to show
     ///@param window window to show in

@@ -26,6 +26,11 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "mfcpch.h"
 #include "blobs.h"
 #include "ccstruct.h"
@@ -219,9 +224,9 @@ TBOX TESSLINE::bounding_box() const {
   return TBOX(topleft.x, botright.y, botright.x, topleft.y);
 }
 
+#ifndef GRAPHICS_DISABLED
 void TESSLINE::plot(ScrollView* window, ScrollView::Color color,
                     ScrollView::Color child_color) {
-  #ifndef GRAPHICS_DISABLED
   if (is_hole)
     window->Pen(child_color);
   else
@@ -236,8 +241,8 @@ void TESSLINE::plot(ScrollView* window, ScrollView::Color color,
     else
       window->DrawTo(pt->pos.x, pt->pos.y);
   } while (pt != loop);
-  #endif  // GRAPHICS_DISABLED
 }
+#endif  // GRAPHICS_DISABLED
 
 // Iterate the given list of outlines, converting to TESSLINE by polygonal
 // approximation and recursively any children, returning the current tail
@@ -387,11 +392,13 @@ TBOX TBLOB::bounding_box() const {
   return box;
 }
 
+#ifndef GRAPHICS_DISABLED
 void TBLOB::plot(ScrollView* window, ScrollView::Color color,
                  ScrollView::Color child_color) {
   for (TESSLINE* outline = outlines; outline != NULL; outline = outline->next)
     outline->plot(window, color, child_color);
 }
+#endif  // GRAPHICS_DISABLED
 
 // Factory to build a TWERD from a (C_BLOB) WERD, with polygonal
 // approximation along the way.
@@ -511,6 +518,7 @@ void TWERD::MergeBlobs(int start, int end) {
   }
 }
 
+#ifndef GRAPHICS_DISABLED
 void TWERD::plot(ScrollView* window) {
   ScrollView::Color color = WERD::NextColor(ScrollView::BLACK);
   for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
@@ -518,6 +526,7 @@ void TWERD::plot(ScrollView* window) {
     color = WERD::NextColor(color);
   }
 }
+#endif  // GRAPHICS_DISABLED
 
 /**********************************************************************
  * blob_origin
@@ -569,7 +578,7 @@ WIDTH_RECORD *blobs_widths(TBLOB *blobs) {  /*blob to compute on */
  *
  * Return a count of the number of blobs attached to this one.
  **********************************************************************/
-int count_blobs(TBLOB *blobs) { 
+int count_blobs(TBLOB *blobs) {
   int x = 0;
 
   for (TBLOB* b = blobs; b != NULL; b = b->next)

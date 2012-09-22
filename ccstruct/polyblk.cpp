@@ -393,7 +393,7 @@ int lessthan(const void *first, const void *second) {
     return (0);
 }
 
-
+#ifndef GRAPHICS_DISABLED
 /// Returns a color to draw the given type.
 ScrollView::Color POLY_BLOCK::ColorForPolyBlockType(PolyBlockType type) {
   // Keep kPBColors in sync with PolyBlockType.
@@ -419,3 +419,4 @@ ScrollView::Color POLY_BLOCK::ColorForPolyBlockType(PolyBlockType type) {
   }
   return ScrollView::WHITE;
 }
+#endif  // GRAPHICS_DISABLED

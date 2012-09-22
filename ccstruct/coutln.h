@@ -158,9 +158,11 @@ class DLLSYM C_OUTLINE:public ELIST_LINK
     // being the coords of the upper-left corner of the pix.
     void render_outline(int left, int top, Pix* pix) const;
 
+    #ifndef GRAPHICS_DISABLED
     void plot(                       //draw one
               ScrollView* window,         //window to draw in
               ScrollView::Color colour) const;  //colour to draw it
+    #endif  // GRAPHICS_DISABLED
 
     C_OUTLINE& operator=(const C_OUTLINE& source);
 

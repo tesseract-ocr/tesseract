@@ -291,7 +291,6 @@ void WERD::plot(ScrollView *window, ScrollView::Color colour) {
   }
   plot_rej_blobs(window);
 }
-#endif  // GRAPHICS_DISABLED
 
 // Get the next color in the (looping) rainbow.
 ScrollView::Color WERD::NextColor(ScrollView::Color colour) {
@@ -301,7 +300,6 @@ ScrollView::Color WERD::NextColor(ScrollView::Color colour) {
   return next;
 }
 
-#ifndef GRAPHICS_DISABLED
 /**
  * WERD::plot
  *

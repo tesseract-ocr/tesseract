@@ -121,20 +121,20 @@ class ROW:public ELIST_LINK
     void print(            //print
                FILE *fp);  //file to print on
 
+    #ifndef GRAPHICS_DISABLED
     void plot(                 //draw one
               ScrollView* window,   //window to draw in
               ScrollView::Color colour);  //uniform colour
     void plot(                 //draw one
               ScrollView* window);  //in rainbow colours
 
-#ifndef GRAPHICS_DISABLED
     void plot_baseline(                  //draw the baseline
                        ScrollView* window,    //window to draw in
                        ScrollView::Color colour) {  //colour to draw
                                  //draw it
       baseline.plot (window, colour);
     }
-#endif
+    #endif  // GRAPHICS_DISABLED
     ROW& operator= (const ROW & source);
 
   private:

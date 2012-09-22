@@ -11,12 +11,17 @@
 // - A LMB click either draws point-to-point, point or text.
 // - A LMB dragging either draws a line, a rectangle or ellipse.
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#ifndef GRAPHICS_DISABLED
 #include "scrollview.h"
 #include "svmnode.h"
 #include <stdlib.h>
 #include <iostream>
 
-#ifndef GRAPHICS_DISABLED
 // The current color values we use, initially white (== ScrollView::WHITE).
 int rgb[3] = { 255, 255, 255 };
 

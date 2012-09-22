@@ -22,6 +22,11 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "colfind.h"
 
 #include "ccnontextdetect.h"
@@ -36,11 +41,6 @@
 #include "tablefind.h"
 #include "params.h"
 #include "workingpartset.h"
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 
 namespace tesseract {
 

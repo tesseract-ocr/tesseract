@@ -17,6 +17,11 @@
  *
  **********************************************************************/
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "mfcpch.h"
 #include "blobbox.h"
 #include "helpers.h"
@@ -424,6 +429,13 @@ ScrollView::Color BLOBNBOX::TextlineColor(BlobRegionType region_type,
 // Keep in sync with BlobRegionType.
 ScrollView::Color BLOBNBOX::BoxColor() const {
   return TextlineColor(region_type_, flow_);
+}
+
+void BLOBNBOX::plot(ScrollView* window,                // window to draw in
+                    ScrollView::Color blob_colour,     // for outer bits
+                    ScrollView::Color child_colour) {  // for holes
+  if (cblob_ptr != NULL)
+    cblob_ptr->plot(window, blob_colour, child_colour);
 }
 #endif
 /**********************************************************************

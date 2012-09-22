@@ -105,9 +105,11 @@ Pix* CCNonTextDetect::ComputeNonTextMask(bool debug, Pix* photo_map,
     pixWrite("junknoisemask.png", pix, IFF_PNG);
   }
   ScrollView* win = NULL;
+  #ifndef GRAPHICS_DISABLED
   if (debug) {
     win = MakeWindow(0, 400, "Photo Mask Blobs");
   }
+  #endif  // GRAPHICS_DISABLED
   // Large and medium blobs are not text if they overlap with "a lot" of small
   // blobs.
   MarkAndDeleteNonTextBlobs(&blob_block->large_blobs,
@@ -136,8 +138,8 @@ Pix* CCNonTextDetect::ComputeNonTextMask(bool debug, Pix* photo_map,
     pixWrite("junkccphotomask.png", pix, IFF_PNG);
     #ifndef GRAPHICS_DISABLED
     delete win->AwaitEvent(SVET_DESTROY);
-    #endif  // GRAPHICS_DISABLED
     delete win;
+    #endif  // GRAPHICS_DISABLED
   }
   return pix;
 }
