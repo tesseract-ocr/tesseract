@@ -80,6 +80,12 @@ void CCUtil::main_setup(                 /*main demo program */
     datadir = getenv("TESSDATA_PREFIX");
   }
 
+  // check for missing directory separator
+  const char *lastchar = datadir.string();
+  lastchar += datadir.length() - 1;
+  if ((strcmp(lastchar, "/") != 0) && (strcmp(lastchar, "\\") != 0))
+    datadir += "/";
+
   datadir += m_data_sub_dir;     /*data directory */
 }
 }  // namespace tesseract
