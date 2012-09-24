@@ -68,6 +68,27 @@ int main(int argc, char **argv) {
 
     exit(0);
   }
+  
+  tesseract::TessBaseAPI  api;
+  int rc = api.Init(NULL, NULL);
+  if (rc) {
+    fprintf(stderr, "Could not initialize tesseract.\n");
+    exit(1);
+  }
+
+  if (argc == 2 && strcmp(argv[1], "--list-langs") == 0) {
+	 GenericVector<STRING> languages;
+     api.GetAvailableLanguagesAsVector(&languages);
+	 fprintf(stderr, "List of available languages (%d):\n", languages.size());  
+	 for (int index = 0; index < languages.size(); ++index) {
+       STRING& string = languages[index];
+	   fprintf(stderr, "%s\n", string.string());
+     }
+	 api.Clear();
+     api.End();
+     exit(0);
+  }
+
   // Make the order of args a bit more forgiving than it used to be.
   const char* lang = "eng";
   const char* image = NULL;
@@ -90,7 +111,7 @@ int main(int argc, char **argv) {
   }
   if (output == NULL) {
     fprintf(stderr, _("Usage:%s imagename outputbase [-l lang] "
-                      "[-psm pagesegmode] [configfile...]\n"), argv[0]);
+                      "[-psm pagesegmode] [configfile...]\n\n"), argv[0]);
     fprintf(stderr,
             _("pagesegmode values are:\n"
               "0 = Orientation and script detection (OSD) only.\n"
@@ -105,15 +126,17 @@ int main(int argc, char **argv) {
               "9 = Treat the image as a single word in a circle.\n"
               "10 = Treat the image as a single character.\n"));
     fprintf(stderr, _("-l lang and/or -psm pagesegmode must occur before any"
-                      "configfile.\n"));
+                      "configfile.\n\n"));
+	fprintf(stderr, _("Single options:\n"));
+	fprintf(stderr, _("  -v --version: version info\n"));
+	fprintf(stderr, _("  --list-langs: list available languages for tesseract engine\n"));
     exit(1);
   }
 
-  tesseract::TessBaseAPI  api;
 
   api.SetOutputName(output);
 
-  int rc = api.Init(argv[0], lang, tesseract::OEM_DEFAULT,
+  rc = api.Init(argv[0], lang, tesseract::OEM_DEFAULT,
            &(argv[arg]), argc - arg, NULL, NULL, false);
   if (rc) {
     fprintf(stderr, "Could not initialize tesseract.\n");

@@ -121,6 +121,8 @@ TESS_API const char*
                TESS_CALL TessBaseAPIGetInitLanguagesAsString(const TessBaseAPI* handle);
 TESS_API char**
                TESS_CALL TessBaseAPIGetLoadedLanguagesAsVector(const TessBaseAPI* handle);
+TESS_API char**
+               TESS_CALL TessBaseAPIGetAvailableLanguagesAsVector(const TessBaseAPI* handle);
 
 TESS_API int   TESS_CALL TessBaseAPIInitLangMod(TessBaseAPI* handle, const char* datapath, const char* language);
 TESS_API void  TESS_CALL TessBaseAPIInitForAnalysePage(TessBaseAPI* handle);

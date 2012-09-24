@@ -143,6 +143,17 @@ TESS_API char** TESS_CALL TessBaseAPIGetLoadedLanguagesAsVector(const TessBaseAP
     return arr;
 }
 
+TESS_API char** TESS_CALL TessBaseAPIGetAvailableLanguagesAsVector(const TessBaseAPI* handle)
+{
+    GenericVector<STRING> languages;
+    handle->GetAvailableLanguagesAsVector(&languages);
+    char** arr = new char*[languages.size() + 1];
+    for (int index = 0; index < languages.size(); ++index)
+        arr[index] = languages[index].strdup();
+    arr[languages.size()] = NULL;
+    return arr;
+}
+
 TESS_API int TESS_CALL TessBaseAPIInitLangMod(TessBaseAPI* handle, const char* datapath, const char* language)
 {
     return handle->InitLangMod(datapath, language);

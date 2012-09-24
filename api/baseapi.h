@@ -228,6 +228,11 @@ class TESS_API TessBaseAPI {
   void GetLoadedLanguagesAsVector(GenericVector<STRING>* langs) const;
 
   /**
+   * Returns the available languages in the vector of STRINGs.
+   */
+  void GetAvailableLanguagesAsVector(GenericVector<STRING>* langs) const;
+
+  /**
    * Init only the lang model component of Tesseract. The only functions
    * that work after this init are SetVariable and IsValidWord.
    * WARNING: temporary! This function will be removed from here and placed

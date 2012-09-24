@@ -56,6 +56,16 @@
 #include "otsuthr.h"
 #include "osdetect.h"
 #include "params.h"
+#include "strngs.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#include <stdlib.h>
+#else
+#include <glob.h>
+#include <libgen.h>
+#include <string.h>
+#endif
 
 #if defined(_WIN32) && !defined(VERSION)
 #include "version.h"
@@ -274,6 +284,44 @@ void TessBaseAPI::GetLoadedLanguagesAsVector(
     int num_subs = tesseract_->num_sub_langs();
     for (int i = 0; i < num_subs; ++i)
       langs->push_back(tesseract_->get_sub_lang(i)->lang);
+  }
+}
+
+/**
+ * Returns the available languages in the vector of STRINGs.
+ */
+void TessBaseAPI::GetAvailableLanguagesAsVector(
+    GenericVector<STRING>* langs) const {
+  langs->clear();
+  if (tesseract_ != NULL) {
+    STRING pattern = tesseract_->datadir + "/*." + kTrainedDataSuffix;
+#ifdef _WIN32
+    char fname[_MAX_FNAME];
+    WIN32_FIND_DATA data;
+    BOOL result = TRUE;
+    HANDLE handle = FindFirstFile(pattern.string(), &data);
+    if (handle != INVALID_HANDLE_VALUE) {
+      for (; result; result = FindNextFile(handle, &data)) {
+        _splitpath(data.cFileName, NULL, NULL, fname, NULL);
+        langs->push_back(STRING(fname));
+      }
+      FindClose(handle);
+    }
+#else
+    glob_t pglob;
+    char **paths;
+    char *path, *dot;
+    if (glob(pattern.string(), 0, NULL, &pglob) == 0) {
+      for (paths = pglob.gl_pathv; *paths != NULL; paths++) {
+        path = basename(*paths);
+        if ((dot = strchr(path, '.'))) {
+          *dot = '\0';
+          langs->push_back(STRING(path));
+        }
+      }
+      globfree(&pglob);
+    }
+#endif
   }
 }
 
