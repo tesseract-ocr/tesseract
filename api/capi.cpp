@@ -1,0 +1,592 @@
+#ifndef TESS_CAPI_INCLUDE_BASEAPI
+#   define TESS_CAPI_INCLUDE_BASEAPI
+#endif
+#include "capi.h"
+
+TESS_API const char* TESS_CALL TessVersion()
+{
+    return TessBaseAPI::Version();
+}
+
+TESS_API void TESS_CALL TessDeleteText(char* text)
+{
+    delete [] text;
+}
+
+TESS_API void TESS_CALL TessDeleteTextArray(char** arr)
+{
+    for (char** pos = arr; *pos != NULL; ++pos)
+        delete [] *pos;
+    delete [] arr;
+}
+
+TESS_API void TESS_CALL TessDeleteIntArray(int* arr)
+{
+    delete [] arr;
+}
+
+TESS_API void TESS_CALL TessDeleteBlockList(BLOCK_LIST* block_list)
+{
+    TessBaseAPI::DeleteBlockList(block_list);
+}
+
+TESS_API TessBaseAPI* TESS_CALL TessBaseAPICreate()
+{
+    return new TessBaseAPI;
+}
+
+TESS_API void TESS_CALL TessBaseAPIDelete(TessBaseAPI* handle)
+{
+    delete handle;
+}
+
+TESS_API void TESS_CALL TessBaseAPISetInputName(TessBaseAPI* handle, const char* name)
+{
+    handle->SetInputName(name);
+}
+
+TESS_API void TESS_CALL TessBaseAPISetOutputName(TessBaseAPI* handle, const char* name)
+{
+    handle->SetOutputName(name);
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPISetVariable(TessBaseAPI* handle, const char* name, const char* value)
+{
+    return handle->SetVariable(name, value) ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPISetDebugVariable(TessBaseAPI* handle, const char* name, const char* value)
+{
+    return handle->SetVariable(name, value) ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPIGetIntVariable(const TessBaseAPI* handle, const char* name, int* value)
+{
+    return handle->GetIntVariable(name, value) ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPIGetBoolVariable(const TessBaseAPI* handle, const char* name, BOOL* value)
+{
+    bool boolValue;
+    if (handle->GetBoolVariable(name, &boolValue))
+    {
+        *value = boolValue ? TRUE : FALSE;
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPIGetDoubleVariable(const TessBaseAPI* handle, const char* name, double* value)
+{
+    return handle->GetDoubleVariable(name, value) ? TRUE : FALSE;
+}
+
+TESS_API const char* TESS_CALL TessBaseAPIGetStringVariable(const TessBaseAPI* handle, const char* name)
+{
+    return handle->GetStringVariable(name);
+}
+
+TESS_API void TESS_CALL TessBaseAPIPrintVariables(const TessBaseAPI* handle, FILE* fp)
+{
+    handle->PrintVariables(fp);
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPIPrintVariablesToFile(const TessBaseAPI* handle, const char* filename)
+{
+    FILE* fp = fopen(filename, "w");
+    if (fp != NULL)
+    {
+        handle->PrintVariables(fp);
+        fclose(fp);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPIGetVariableAsString(TessBaseAPI* handle, const char* name, STRING* val)
+{
+    return handle->GetVariableAsString(name, val) ? TRUE : FALSE;
+}
+
+TESS_API int TESS_CALL TessBaseAPIInit1(TessBaseAPI* handle, const char* datapath, const char* language, TessOcrEngineMode oem,
+                                        char** configs, int configs_size)
+{
+    return handle->Init(datapath, language, oem, configs, configs_size, NULL, NULL, false);
+}
+
+TESS_API int TESS_CALL TessBaseAPIInit2(TessBaseAPI* handle, const char* datapath, const char* language, TessOcrEngineMode oem)
+{
+    return handle->Init(datapath, language, oem);
+}
+
+TESS_API int TESS_CALL TessBaseAPIInit3(TessBaseAPI* handle, const char* datapath, const char* language)
+{
+    return handle->Init(datapath, language);
+}
+
+TESS_API const char* TESS_CALL TessBaseAPIGetInitLanguagesAsString(const TessBaseAPI* handle)
+{
+    return handle->GetInitLanguagesAsString();
+}
+
+TESS_API char** TESS_CALL TessBaseAPIGetLoadedLanguagesAsVector(const TessBaseAPI* handle)
+{
+    GenericVector<STRING> languages;
+    handle->GetLoadedLanguagesAsVector(&languages);
+    char** arr = new char*[languages.size() + 1];
+    for (int index = 0; index < languages.size(); ++index)
+        arr[index] = languages[index].strdup();
+    arr[languages.size()] = NULL;
+    return arr;
+}
+
+TESS_API int TESS_CALL TessBaseAPIInitLangMod(TessBaseAPI* handle, const char* datapath, const char* language)
+{
+    return handle->InitLangMod(datapath, language);
+}
+
+TESS_API void TESS_CALL TessBaseAPIInitForAnalysePage(TessBaseAPI* handle)
+{
+    handle->InitForAnalysePage();
+}
+
+TESS_API void TESS_CALL TessBaseAPIReadConfigFile(TessBaseAPI* handle, const char* filename)
+{
+    handle->ReadConfigFile(filename);
+}
+
+TESS_API void TESS_CALL TessBaseAPIReadDebugConfigFile(TessBaseAPI* handle, const char* filename)
+{
+    handle->ReadDebugConfigFile(filename);
+}
+
+TESS_API void TESS_CALL TessBaseAPISetPageSegMode(TessBaseAPI* handle, TessPageSegMode mode)
+{
+    handle->SetPageSegMode(mode);
+}
+
+TESS_API TessPageSegMode TESS_CALL TessBaseAPIGetPageSegMode(const TessBaseAPI* handle)
+{
+    return handle->GetPageSegMode();
+}
+
+TESS_API char* TESS_CALL TessBaseAPIRect(TessBaseAPI* handle, const unsigned char* imagedata,
+                                               int bytes_per_pixel, int bytes_per_line,
+                                               int left, int top, int width, int height)
+{
+    return handle->TesseractRect(imagedata, bytes_per_pixel, bytes_per_line, left, top, width, height);
+}
+
+TESS_API void TESS_CALL TessBaseAPIClearAdaptiveClassifier(TessBaseAPI* handle)
+{
+    handle->ClearAdaptiveClassifier();
+}
+
+TESS_API void TESS_CALL TessBaseAPISetImage(TessBaseAPI* handle, const unsigned char* imagedata, int width, int height,
+                                                  int bytes_per_pixel, int bytes_per_line)
+{
+    handle->SetImage(imagedata, width, height, bytes_per_pixel, bytes_per_line);
+}
+
+TESS_API void TESS_CALL TessBaseAPISetImage2(TessBaseAPI* handle, const Pix* pix)
+{
+    return handle->SetImage(pix);
+}
+
+TESS_API void TESS_CALL TessBaseAPISetSourceResolution(TessBaseAPI* handle, int ppi)
+{
+    handle->SetSourceResolution(ppi);
+}
+
+TESS_API void TESS_CALL TessBaseAPISetRectangle(TessBaseAPI* handle, int left, int top, int width, int height)
+{
+    handle->SetRectangle(left, top, width, height);
+}
+
+TESS_API void TESS_CALL TessBaseAPISetThresholder(TessBaseAPI* handle, TessImageThresholder* thresholder)
+{
+    handle->SetThresholder(thresholder);
+}
+
+TESS_API Pix* TESS_CALL TessBaseAPIGetThresholdedImage(TessBaseAPI* handle)
+{
+    return handle->GetThresholdedImage();
+}
+
+TESS_API Boxa* TESS_CALL TessBaseAPIGetRegions(TessBaseAPI* handle, Pixa** pixa)
+{
+    return handle->GetRegions(pixa);
+}
+
+TESS_API Boxa* TESS_CALL TessBaseAPIGetTextlines(TessBaseAPI* handle, Pixa** pixa, int** blockids)
+{
+    return handle->GetTextlines(pixa, blockids);
+}
+
+TESS_API BOXA* TESS_CALL TessBaseAPIGetStrips(TessBaseAPI* handle, PIXA** pixa, int** blockids)
+{
+    return handle->GetStrips(pixa, blockids);
+}
+
+TESS_API Boxa* TESS_CALL TessBaseAPIGetWords(TessBaseAPI* handle, Pixa** pixa)
+{
+    return handle->GetWords(pixa);
+}
+
+TESS_API Boxa* TESS_CALL TessBaseAPIGetConnectedComponents(TessBaseAPI* handle, Pixa** cc)
+{
+    return handle->GetConnectedComponents(cc);
+}
+
+TESS_API Boxa* TESS_CALL TessBaseAPIGetComponentImages(TessBaseAPI* handle, TessPageIteratorLevel level, BOOL text_only, Pixa** pixa, int** blockids)
+{
+    return handle->GetComponentImages(level, text_only != FALSE, pixa, blockids);
+}
+
+TESS_API int TESS_CALL TessBaseAPIGetThresholdedImageScaleFactor(const TessBaseAPI* handle)
+{
+    return handle->GetThresholdedImageScaleFactor();
+}
+
+TESS_API void TESS_CALL TessBaseAPIDumpPGM(TessBaseAPI* handle, const char* filename)
+{
+    handle->DumpPGM(filename);
+}
+
+TESS_API TessPageIterator* TESS_CALL TessBaseAPIAnalyseLayout(TessBaseAPI* handle)
+{
+    return handle->AnalyseLayout();
+}
+
+TESS_API int TESS_CALL TessBaseAPIRecognize(TessBaseAPI* handle, ETEXT_DESC* monitor)
+{
+    return handle->Recognize(monitor);
+}
+
+TESS_API int TESS_CALL TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle, ETEXT_DESC* monitor)
+{
+    return handle->RecognizeForChopTest(monitor);
+}
+
+TESS_API char* TESS_CALL TessBaseAPIProcessPages(TessBaseAPI* handle, const char* filename, const char* retry_config,
+                                                 int timeout_millisec)
+{
+    STRING text_out;
+    if (handle->ProcessPages(filename, retry_config, timeout_millisec, &text_out))
+        return text_out.strdup();
+    else
+        return NULL;
+}
+
+TESS_API char* TESS_CALL TessBaseAPIProcessPage(TessBaseAPI* handle, Pix* pix, int page_index, const char* filename,
+                                                const char* retry_config, int timeout_millisec)
+{
+    STRING text_out;
+    if (handle->ProcessPage(pix, page_index, filename, retry_config, timeout_millisec, &text_out))
+        return text_out.strdup();    
+    else
+        return NULL;
+}
+
+TESS_API TessResultIterator* TESS_CALL TessBaseAPIGetIterator(TessBaseAPI* handle)
+{
+    return handle->GetIterator();
+}
+
+TESS_API TessMutableIterator* TESS_CALL TessBaseAPIGetMutableIterator(TessBaseAPI* handle)
+{
+    return handle->GetMutableIterator();
+}
+
+TESS_API char* TESS_CALL TessBaseAPIGetUTF8Text(TessBaseAPI* handle)
+{
+    return handle->GetUTF8Text();
+}
+
+TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_number)
+{
+    return handle->GetHOCRText(page_number);
+}
+
+TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number)
+{
+    return handle->GetBoxText(page_number);
+}
+
+TESS_API char* TESS_CALL TessBaseAPIGetUNLVText(TessBaseAPI* handle)
+{
+    return handle->GetUNLVText();
+}
+
+TESS_API int TESS_CALL TessBaseAPIMeanTextConf(TessBaseAPI* handle)
+{
+    return handle->MeanTextConf();
+}
+
+TESS_API int* TESS_CALL TessBaseAPIAllWordConfidences(TessBaseAPI* handle)
+{
+    return handle->AllWordConfidences();
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPIAdaptToWordStr(TessBaseAPI* handle, TessPageSegMode mode, const char* wordstr)
+{
+    return handle->AdaptToWordStr(mode, wordstr) ? TRUE : FALSE;
+}
+
+TESS_API void TESS_CALL TessBaseAPIClear(TessBaseAPI* handle)
+{
+    handle->Clear();
+}
+
+TESS_API void TESS_CALL TessBaseAPIEnd(TessBaseAPI* handle)
+{
+    handle->End();
+}
+
+TESS_API int TESS_CALL TessBaseAPIIsValidWord(TessBaseAPI* handle, const char *word)
+{
+    return handle->IsValidWord(word);
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPIGetTextDirection(TessBaseAPI* handle, int* out_offset, float* out_slope)
+{
+    return handle->GetTextDirection(out_offset, out_slope) ? TRUE : FALSE;
+}
+
+TESS_API void TESS_CALL TessBaseAPISetDictFunc(TessBaseAPI* handle, TessDictFunc f)
+{
+    handle->SetDictFunc(f);
+}
+
+TESS_API void TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* handle, TessProbabilityInContextFunc f)
+{
+    handle->SetProbabilityInContextFunc(f);
+}
+
+TESS_API BOOL TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results)
+{
+    return handle->DetectOS(results) ? TRUE : FALSE;
+}
+
+TESS_API void TESS_CALL TessBaseAPIGetFeaturesForBlob(TessBaseAPI* handle, TBLOB* blob, const DENORM* denorm, INT_FEATURE_ARRAY int_features,
+                                                            int* num_features, int* FeatureOutlineIndex)
+{
+    handle->GetFeaturesForBlob(blob, *denorm, int_features, num_features, FeatureOutlineIndex);
+}
+
+TESS_API ROW* TESS_CALL TessFindRowForBox(BLOCK_LIST* blocks, int left, int top, int right, int bottom)
+{
+    return TessBaseAPI::FindRowForBox(blocks, left, top, right, bottom);
+}
+
+TESS_API void TESS_CALL TessBaseAPIRunAdaptiveClassifier(TessBaseAPI* handle, TBLOB* blob, const DENORM* denorm, int num_max_matches,
+                                                               int* unichar_ids, float* ratings, int* num_matches_returned)
+{
+    handle->RunAdaptiveClassifier(blob, *denorm, num_max_matches, unichar_ids, ratings, num_matches_returned);
+}
+
+TESS_API const char* TESS_CALL TessBaseAPIGetUnichar(TessBaseAPI* handle, int unichar_id)
+{
+    return handle->GetUnichar(unichar_id);
+}
+
+TESS_API const TessDawg* TESS_CALL TessBaseAPIGetDawg(const TessBaseAPI* handle, int i)
+{
+    return handle->GetDawg(i);
+}
+
+TESS_API int TESS_CALL TessBaseAPINumDawgs(const TessBaseAPI* handle)
+{
+    return handle->NumDawgs();
+}
+
+TESS_API ROW* TESS_CALL TessMakeTessOCRRow(float baseline, float xheight, float descender, float ascender)
+{
+    return TessBaseAPI::MakeTessOCRRow(baseline, xheight, descender, ascender);
+}
+
+TESS_API TBLOB* TESS_CALL TessMakeTBLOB(Pix *pix)
+{
+    return TessBaseAPI::MakeTBLOB(pix);
+}
+
+TESS_API void TESS_CALL TessNormalizeTBLOB(TBLOB *tblob, ROW *row, BOOL numeric_mode, DENORM *denorm)
+{
+    TessBaseAPI::NormalizeTBLOB(tblob, row, numeric_mode != FALSE, denorm);
+}
+
+TESS_API TessOcrEngineMode TESS_CALL TessBaseAPIOem(const TessBaseAPI* handle)
+{
+    return handle->oem();
+}
+
+TESS_API void TESS_CALL TessBaseAPIInitTruthCallback(TessBaseAPI* handle, TessTruthCallback *cb)
+{
+    handle->InitTruthCallback(cb);
+}
+
+TESS_API TessCubeRecoContext* TESS_CALL TessBaseAPIGetCubeRecoContext(const TessBaseAPI* handle)
+{
+    return handle->GetCubeRecoContext();
+}
+
+TESS_API void TESS_CALL TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle, double margin)
+{
+    handle->set_min_orientation_margin(margin);
+}
+
+TESS_API void TESS_CALL TessBaseGetBlockTextOrientations(TessBaseAPI* handle, int** block_orientation, bool** vertical_writing)
+{
+    handle->GetBlockTextOrientations(block_orientation, vertical_writing);
+}
+
+TESS_API BLOCK_LIST* TESS_CALL TessBaseAPIFindLinesCreateBlockList(TessBaseAPI* handle)
+{
+    return handle->FindLinesCreateBlockList();
+}
+
+TESS_API void  TESS_CALL TessPageIteratorDelete(TessPageIterator* handle)
+{
+    delete handle;
+}
+
+TESS_API TessPageIterator* TESS_CALL TessPageIteratorCopy(const TessPageIterator* handle)
+{
+    return new TessPageIterator(*handle);
+}
+
+TESS_API void TESS_CALL TessPageIteratorBegin(TessPageIterator* handle)
+{
+    handle->Begin();
+}
+
+TESS_API BOOL TESS_CALL TessPageIteratorNext(TessPageIterator* handle, TessPageIteratorLevel level)
+{
+    return handle->Next(level) ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessPageIteratorIsAtBeginningOf(const TessPageIterator* handle, TessPageIteratorLevel level)
+{
+    return handle->IsAtBeginningOf(level) ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessPageIteratorIsAtFinalElement(const TessPageIterator* handle, TessPageIteratorLevel level,
+                                                               TessPageIteratorLevel element)
+{
+    return handle->IsAtFinalElement(level, element) ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessPageIteratorBoundingBox(const TessPageIterator* handle, TessPageIteratorLevel level,
+                                                          int* left, int* top, int* right, int* bottom)
+{
+    return handle->BoundingBox(level, left, top, right, bottom) ? TRUE : FALSE;
+}
+
+TESS_API TessPolyBlockType TESS_CALL TessPageIteratorBlockType(const TessPageIterator* handle)
+{
+    return handle->BlockType();
+}
+
+TESS_API Pix* TESS_CALL TessPageIteratorGetBinaryImage(const TessPageIterator* handle, TessPageIteratorLevel level)
+{
+    return handle->GetBinaryImage(level);
+}
+
+TESS_API Pix* TESS_CALL TessPageIteratorGetImage(const TessPageIterator* handle, TessPageIteratorLevel level, int padding,
+                                                       int* left, int* top)
+{
+    return handle->GetImage(level, padding, left, top);
+}
+
+TESS_API BOOL TESS_CALL TessPageIteratorBaseline(const TessPageIterator* handle, TessPageIteratorLevel level,
+                                                       int* x1, int* y1, int* x2, int* y2)
+{
+    return handle->Baseline(level, x1, y1, x2, y2) ? TRUE : FALSE;
+}
+
+TESS_API void TESS_CALL TessPageIteratorOrientation(TessPageIterator* handle, TessOrientation *orientation,
+                                                          TessWritingDirection *writing_direction, TessTextlineOrder *textline_order,
+                                                          float *deskew_angle)
+{
+    handle->Orientation(orientation, writing_direction, textline_order, deskew_angle);
+}
+
+TESS_API void TESS_CALL TessResultIteratorDelete(TessResultIterator* handle)
+{
+    delete handle;
+}
+
+TESS_API TessResultIterator* TESS_CALL TessResultIteratorCopy(const TessResultIterator* handle)
+{
+    return static_cast<TessResultIterator*>(new TessPageIterator(*handle));
+}
+
+TESS_API TessPageIterator* TESS_CALL TessResultIteratorGetPageIterator(TessResultIterator* handle)
+{
+    return handle;
+}
+
+TESS_API const TessPageIterator* TESS_CALL TessResultIteratorGetPageIteratorConst(const TessResultIterator* handle)
+{
+    return handle;
+}
+
+TESS_API char* TESS_CALL TessResultIteratorGetUTF8Text(const TessResultIterator* handle, TessPageIteratorLevel level)
+{
+    return handle->GetUTF8Text(level);
+}
+
+TESS_API float TESS_CALL TessResultIteratorConfidence(const TessResultIterator* handle, TessPageIteratorLevel level)
+{
+    return handle->Confidence(level);
+}
+
+TESS_API const char* TESS_CALL TessResultIteratorWordFontAttributes(const TessResultIterator* handle, BOOL* is_bold, BOOL* is_italic,
+                                                                          BOOL* is_underlined, BOOL* is_monospace, BOOL* is_serif,
+                                                                          BOOL* is_smallcaps, int* pointsize, int* font_id)
+{
+    bool bool_is_bold, bool_is_italic, bool_is_underlined, bool_is_monospace, bool_is_serif, bool_is_smallcaps;
+    const char* ret = handle->WordFontAttributes(&bool_is_bold, &bool_is_italic, &bool_is_underlined, &bool_is_monospace, &bool_is_serif,
+                                                 &bool_is_smallcaps, pointsize, font_id);
+    if (is_bold)
+        *is_bold = bool_is_bold ? TRUE : FALSE;
+    if (is_italic)
+        *is_italic = bool_is_italic ? TRUE : FALSE;
+    if (is_underlined)
+        *is_underlined = bool_is_underlined ? TRUE : FALSE;
+    if (is_monospace)
+        *is_monospace = bool_is_monospace ? TRUE : FALSE;
+    if (is_serif)
+        *is_serif = bool_is_serif ? TRUE : FALSE;
+    if (is_smallcaps)
+        *is_smallcaps = bool_is_smallcaps ? TRUE : FALSE;
+    return ret;
+}
+
+TESS_API BOOL TESS_CALL TessResultIteratorWordIsFromDictionary(const TessResultIterator* handle)
+{
+    return handle->WordIsFromDictionary() ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessResultIteratorWordIsNumeric(const TessResultIterator* handle)
+{
+    return handle->WordIsNumeric() ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessResultIteratorSymbolIsSuperscript(const TessResultIterator* handle)
+{
+    return handle->SymbolIsSuperscript() ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessResultIteratorSymbolIsSubscript(const TessResultIterator* handle)
+{
+    return handle->SymbolIsSubscript() ? TRUE : FALSE;
+}
+
+TESS_API BOOL TESS_CALL TessResultIteratorSymbolIsDropcap(const TessResultIterator* handle)
+{
+    return handle->SymbolIsDropcap() ? TRUE : FALSE;
+}

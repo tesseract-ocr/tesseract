@@ -9,7 +9,7 @@ if VISIBILITY
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = apitypes.h baseapi.h
+include_HEADERS = apitypes.h baseapi.h capi.h
 noinst_HEADERS =  tesseractmain.h
 lib_LTLIBRARIES = 
 
@@ -36,7 +36,7 @@ libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
 if VISIBILITY
 libtesseract_api_la_CPPFLAGS += -DTESS_EXPORTS
 endif
-libtesseract_api_la_SOURCES = baseapi.cpp
+libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp
 
 lib_LTLIBRARIES += libtesseract.la
 libtesseract_la_LDFLAGS = 

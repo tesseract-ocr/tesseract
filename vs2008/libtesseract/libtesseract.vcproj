@@ -445,6 +445,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\api\capi.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\textord\ccnontextdetect.cpp"
 				>
 			</File>
@@ -1508,6 +1512,10 @@
 			</File>
 			<File
 				RelativePath="..\..\cutil\callcpp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\api\capi.h"
 				>
 			</File>
 			<File

@@ -56,6 +56,11 @@ class TESS_API STRING
     inT32 size() const { return length(); }
     const char *string() const;
 
+    inline char* strdup() const {
+     inT32 len = length() + 1;
+     return strncpy(new char[len], GetCStr(), len);
+    }
+
 #if STRING_IS_PROTECTED
     const char &operator[] (inT32 index) const;
     // len is number of chars in s to insert starting at index in this string
