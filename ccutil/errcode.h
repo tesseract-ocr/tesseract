@@ -66,7 +66,7 @@ enum TessErrorLogCode {
 #define SUBSUBLOC_TESS    1
 #define SUBSUBLOC_NN    2
 
-class DLLSYM ERRCODE {           // error handler class
+class TESS_API ERRCODE {           // error handler class
   const char *message;           // error message
  public:
   void error(                  // error print function
