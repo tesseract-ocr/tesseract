@@ -26,13 +26,13 @@ do
 done
 
 # Windows build relevant files
-name=$ver-win_vs
+name=$ver-win_vs2008
 # Let's be nice and use common windows packager ;-)
 zip -9 -r --exclude=*.svn* $name.zip $source_dir/vs2008/
 
 # create linux source package
 echo Creating linux source package $ver.tar.gz ...
-tar -chzf $ver.tar.gz --exclude=.svn --exclude=debian --exclude=doc/html --exclude=po/ --exclude=makemoredists --exclude=vs2008 -X $excld $source_dir/*
+tar -chzf $ver.tar.gz --exclude=.svn --exclude=debian --exclude=.pdf --exclude=autom4te.cache --exclude=doc/html --exclude=po/ --exclude=makemoredists --exclude=vs2008 -X $excld $source_dir/*
 
 # create doc and package doc
 cd $source_dir
