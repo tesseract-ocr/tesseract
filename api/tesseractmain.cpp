@@ -85,9 +85,9 @@ int main(int argc, char **argv) {
        fprintf(stderr, "%s\n", string.string());
      }
      api.Clear();
-     api.End();
      exit(0);
   }
+  api.End();
 
   // Make the order of args a bit more forgiving than it used to be.
   const char* lang = "eng";
