@@ -57,34 +57,34 @@ int main(int argc, char **argv) {
     char *versionStrP;
 
     fprintf(stderr, "tesseract %s\n", tesseract::TessBaseAPI::Version());
-    
+
     versionStrP = getLeptonicaVersion();
     fprintf(stderr, " %s\n", versionStrP);
     lept_free(versionStrP);
-    
+
     versionStrP = getImagelibVersions();
     fprintf(stderr, "  %s\n", versionStrP);
     lept_free(versionStrP);
 
     exit(0);
   }
-  
+
   tesseract::TessBaseAPI  api;
-  int rc = api.Init(NULL, NULL);
+  int rc = api.Init(argv[0], NULL);
   if (rc) {
     fprintf(stderr, "Could not initialize tesseract.\n");
     exit(1);
   }
 
   if (argc == 2 && strcmp(argv[1], "--list-langs") == 0) {
-	 GenericVector<STRING> languages;
+     GenericVector<STRING> languages;
      api.GetAvailableLanguagesAsVector(&languages);
-	 fprintf(stderr, "List of available languages (%d):\n", languages.size());  
-	 for (int index = 0; index < languages.size(); ++index) {
+     fprintf(stderr, "List of available languages (%d):\n", languages.size());
+     for (int index = 0; index < languages.size(); ++index) {
        STRING& string = languages[index];
-	   fprintf(stderr, "%s\n", string.string());
+       fprintf(stderr, "%s\n", string.string());
      }
-	 api.Clear();
+     api.Clear();
      api.End();
      exit(0);
   }
@@ -127,9 +127,9 @@ int main(int argc, char **argv) {
               "10 = Treat the image as a single character.\n"));
     fprintf(stderr, _("-l lang and/or -psm pagesegmode must occur before any"
                       "configfile.\n\n"));
-	fprintf(stderr, _("Single options:\n"));
-	fprintf(stderr, _("  -v --version: version info\n"));
-	fprintf(stderr, _("  --list-langs: list available languages for tesseract engine\n"));
+    fprintf(stderr, _("Single options:\n"));
+    fprintf(stderr, _("  -v --version: version info\n"));
+    fprintf(stderr, _("  --list-langs: list available languages for tesseract engine\n"));
     exit(1);
   }
 
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Could not initialize tesseract.\n");
     exit(1);
   }
-   
+
   // We have 2 possible sources of pagesegmode: a config file and
   // the command line. For backwards compatability reasons, the
   // default in tesseract is tesseract::PSM_SINGLE_BLOCK, but the
