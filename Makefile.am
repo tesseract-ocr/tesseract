@@ -22,7 +22,6 @@ dist-hook:
 # theory suffice.
 	rm -rf `find $(distdir) -name .svn`
 	rm -rf `find $(distdir) -name .deps`
-	rm -rf `find $(distdir) -name Makefile.in`
 
 # 'make install' will install only libraries and programs (no language 
 #       data files)
