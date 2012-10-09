@@ -20,19 +20,12 @@
 #ifndef TESSERACT_CCUTIL_UNICHARSET_H__
 #define TESSERACT_CCUTIL_UNICHARSET_H__
 
-#include "assert.h"
+#include "errcode.h"
+#include "helpers.h"
 #include "strngs.h"
+#include "tesscallback.h"
 #include "unichar.h"
 #include "unicharmap.h"
-#include "params.h"
-
-enum StrongScriptDirection {
-  DIR_NEUTRAL = 0,        // Text contains only neutral characters.
-  DIR_LEFT_TO_RIGHT = 1,  // Text contains no Right-to-Left characters.
-  DIR_RIGHT_TO_LEFT = 2,  // Text contains no Left-to-Right characters.
-  DIR_MIX = 3,            // Text contains a mixture of left-to-right
-                          // and right-to-left characters.
-};
 
 class CHAR_FRAGMENT {
  public:

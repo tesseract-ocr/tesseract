@@ -35,6 +35,14 @@ static const int INVALID_UNICHAR_ID = -1;
 // A special unichar that corresponds to INVALID_UNICHAR_ID.
 static const char INVALID_UNICHAR[] = "__INVALID_UNICHAR__";
 
+enum StrongScriptDirection {
+  DIR_NEUTRAL = 0,        // Text contains only neutral characters.
+  DIR_LEFT_TO_RIGHT = 1,  // Text contains no Right-to-Left characters.
+  DIR_RIGHT_TO_LEFT = 2,  // Text contains no Left-to-Right characters.
+  DIR_MIX = 3,            // Text contains a mixture of left-to-right
+                          // and right-to-left characters.
+};
+
 // The UNICHAR class holds a single classification result. This may be
 // a single Unicode character (stored as between 1 and 4 utf8 bytes) or
 // multple Unicode characters representing the NFKC expansion of a ligature
