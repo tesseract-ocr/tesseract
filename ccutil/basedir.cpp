@@ -17,98 +17,28 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
-#include          "strngs.h"
-#ifdef __UNIX__
-#include          <unistd.h>
-#include                    <fcntl.h>
-#else
-#include          <io.h>
-#endif
-#include          <stdlib.h>
 #include          "basedir.h"
-#include          "params.h"
-#include          "notdll.h"     //must be last include
 
-/**********************************************************************
- * getpath
- *
- * Find the directory of the given executable using the usual path rules.
- * This enables data to be located relative to the code.
- **********************************************************************/
+#include          <stdlib.h>
 
-DLLSYM inT8 getpath(                   //get dir name of code
-                    const char *code,  //executable to locate
-                    const STRING &dll_module_name,
-                    STRING &path       //output path name
-                   ) {
-  char directory[MAX_PATH];      //main directory
-  #ifdef __UNIX__
-  inT16 dirind;                  //index in directory
-  register char *pathlist;       //$PATH
-  int fd;                        //file descriptor
+#include          "mfcpch.h"     // Precompiled headers
 
-  strcpy(directory, code);  //get demo directory
-  dirind = strlen (directory);
-  while (dirind > 0 && directory[dirind - 1] != '/')
-    dirind--;                    //look back for dirname
-  directory[dirind] = '\0';      //end at directory
-  if (dirind != 0) {
-    path = directory;            //had it in arg
-    return 0;
+// Returns the given code_path truncated to the last slash.
+// Useful for getting to the directory of argv[0], but does not search
+// any paths.
+TESS_API void truncate_path(const char *code_path, STRING* trunc_path) {
+  int trunc_index = -1;
+  if (code_path != NULL) {
+    const char* last_slash = strrchr(code_path, '/');
+    if (last_slash + 1 - code_path > trunc_index)
+      trunc_index = last_slash + 1 - code_path;
+    last_slash = strrchr(code_path, '\\');
+    if (last_slash + 1 - code_path > trunc_index)
+      trunc_index = last_slash + 1 - code_path;
   }
-  pathlist = getenv ("PATH");    //find search path
-  while (pathlist != NULL && *pathlist) {
-    for (dirind = 0; *pathlist != '\0' && *pathlist != ':';)
-                                 //copy a directory
-      directory[dirind++] = *pathlist++;
-    if (*pathlist == ':')
-      pathlist++;
-    if (dirind == 0)
-      continue;
-    if (directory[dirind - 1] != '/');
-    directory[dirind++] = '/';   //add ending slash
-    directory[dirind++] = '\0';
-    path = directory;            //try this path
-    strcat(directory, code);
-    fd = open (directory, 0);
-    if (fd >= 0) {
-      close(fd);  //found it
-      return 0;
-    }
-  }
-  strcpy (directory, "./");
-  path = directory;              //in current?
-  strcat(directory, code);
-  fd = open (directory, 0);
-  if (fd >= 0) {
-    close(fd);
-    return 0;                    //in current after all
-  }
-  return -1;
-  #endif
-  #ifdef _WIN32
-  char *path_end;                //end of dir
-
-  if (code == NULL) {
-    // Attempt to get the path of the most relevant module. If the dll
-    // is being used, this will be the dll. Otherwise GetModuleHandle will
-    // return NULL and default to the path of the executable.
-    if (GetModuleFileName(GetModuleHandle(dll_module_name.string()),
-                          directory, MAX_PATH - 1) == 0) {
-      return -1;
-    }
-  } else {
-    strncpy(directory, code, MAX_PATH - 1);
-  }
-  while ((path_end = strchr (directory, '\\')) != NULL)
-    *path_end = '/';
-  path_end = strrchr (directory, '/');
-  if (path_end != NULL)
-    path_end[1] = '\0';
+  *trunc_path = code_path;
+  if (trunc_index >= 0)
+    trunc_path->truncate_at(trunc_index);
   else
-    strcpy (directory, "./");
-  path = directory;
-  return 0;
-  #endif
+    *trunc_path = "./";
 }

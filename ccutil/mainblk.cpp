@@ -26,7 +26,6 @@
 #include          <io.h>
 #endif
 #include          <stdlib.h>
-#include          "basedir.h"
 #include          "ccutil.h"
 
 #define VARDIR        "configs/" /*variables files */
@@ -48,15 +47,10 @@ void CCUtil::main_setup(                 /*main demo program */
                 const char *basename     //name of image
                ) {
   imagebasename = basename;      /*name of image */
-  STRING dll_module_name;
-  #ifdef _WIN32
-  dll_module_name = tessedit_module_name;
-  #endif
 
   // TESSDATA_PREFIX Environment variable overrules everything.
   // Compiled in -DTESSDATA_PREFIX is next.
-  // NULL goes to current directory.
-  // An actual value of argv0 is used if getpath is successful.
+  // An actual value of argv0 is used if not NULL, otherwise current directory.
   if (!getenv("TESSDATA_PREFIX")) {
 #ifdef TESSDATA_PREFIX
 #define _STR(a) #a
@@ -66,12 +60,13 @@ void CCUtil::main_setup(                 /*main demo program */
 #undef _STR
 #else
     if (argv0 != NULL) {
-      if (getpath(argv0, dll_module_name, datadir) < 0)
-#ifdef __UNIX__
-        CANTOPENFILE.error("main", ABORT, "%s to get path", argv0);
-#else
-        NO_PATH.error("main", DBG, NULL);
-#endif
+      datadir = argv0;
+      // Remove tessdata from the end if present, as we will add it back!
+      int length = datadir.length();
+      if (length >= 8 && strcmp(&datadir[length - 8], "tessdata") == 0)
+        datadir.truncate_at(length - 8);
+      else if (length >= 9 && strcmp(&datadir[length - 9], "tessdata/") == 0)
+        datadir.truncate_at(length - 9);
     } else {
       datadir = "./";
     }

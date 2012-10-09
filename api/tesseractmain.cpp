@@ -37,6 +37,7 @@
 
 #include "allheaders.h"
 #include "baseapi.h"
+#include "basedir.h"
 #include "strngs.h"
 #include "tesseractmain.h"
 #include "tprintf.h"
@@ -136,8 +137,10 @@ int main(int argc, char **argv) {
 
   api.SetOutputName(output);
 
-  rc = api.Init(argv[0], lang, tesseract::OEM_DEFAULT,
-           &(argv[arg]), argc - arg, NULL, NULL, false);
+  STRING tessdata_dir;
+  truncate_path(argv[0], &tessdata_dir);
+  rc = api.Init(tessdata_dir.string(), lang, tesseract::OEM_DEFAULT,
+                &(argv[arg]), argc - arg, NULL, NULL, false);
   if (rc) {
     fprintf(stderr, "Could not initialize tesseract.\n");
     exit(1);
