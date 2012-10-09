@@ -10,7 +10,7 @@
  **                  MicroSoft Window and MSW32 means the 32 bit worlds
  **                  of MicroSoft Window. Therefore you want the environment
  **                  to be MicroSoft Window and in the 32 bit world -
- **                  __MSW__ and _WIN32 must be uncommented out.
+ **                  _WIN32 must be defined by your compiler.
  **                  11/30/94 MCD Incorporated comments received for more
  **                  readability and the missing typedef for FLOAT.
  **                  12/1/94 MCD Added PFVOID typedef
@@ -48,7 +48,7 @@
 /******************************************************************************
  **                                IMPORTANT!!!                                                                                                                 **
  **                                                                                                                                                                              **
- ** Defines either __MSW__, _WIN32, __MAC__, __UNIX__, __OS2__, __PM__ to
+ ** Defines either _WIN32, __MAC__, __UNIX__, __OS2__, __PM__ to
  ** use the specified definitions indicated below in the preprocessor settings.                                                        **
  **                                                                                                                                                                              **
  ** Also define either  __FarProc__ or  __FarData__  and __MOTO__ to use the
@@ -64,12 +64,6 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <winbase.h>             // winbase.h contains windows.h
-#else
-/********************************************************/
-/* __MSW__ */
-#ifdef __MSW__
-#include <windows.h>             // provides standard definitions (like HANDLE)
-#endif
 #endif
 
 /********************************************************/

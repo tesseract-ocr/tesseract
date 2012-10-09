@@ -55,7 +55,7 @@ typedef struct _BLOB {
     #endif
     #define TESS_LOCAL
 #else
-   #if __GNUC__ >= 4
+    #if __GNUC__ >= 4
       #if defined(TESS_EXPORTS) || defined(TESS_IMPORTS)
           #define TESS_API  __attribute__ ((visibility ("default")))
           #define TESS_LOCAL  __attribute__ ((visibility ("hidden")))
@@ -63,10 +63,10 @@ typedef struct _BLOB {
           #define TESS_API
           #define TESS_LOCAL
       #endif
-   #else
+    #else
       #define TESS_API
       #define TESS_LOCAL
-   #endif
+    #endif
 #endif
 
 #endif  // TESSERACT_CCUTIL_PLATFORM_H__

@@ -26,10 +26,10 @@ extern DLLSYM STRING_VAR_H (debug_file, "", "File to send tprintf output to");
 extern DLLSYM BOOL_VAR_H (debug_window_on, TRUE,
 "Send tprintf to window unless file set");
 
-extern TESS_API void tprintf (            //Trace printf
-const char *format, ...          //special message
+extern TESS_API void tprintf(            // Trace printf
+const char *format, ...          // special message
 );
-                                 //special message
+                                 // special message
 DLLSYM BOOL8 pause_continue (const char *format, ...
 );
 #endif

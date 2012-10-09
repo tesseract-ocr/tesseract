@@ -38,8 +38,8 @@
 DLLSYM STRING_VAR(debug_file, "", "File to send tprintf output to");
 
 DLLSYM void
-tprintf (                        //Trace printf
-const char *format, ...          //special message
+tprintf(                         // Trace printf
+const char *format, ...          // special message
 ) {
   tesseract::tprintfMutex.Lock();
   va_list args;                  //variable args
@@ -53,7 +53,7 @@ const char *format, ...          //special message
                                  //Format into msg
   offset += _vsnprintf (msg + offset, MAX_MSG_LEN - offset, format, args);
   if (strcmp(debug_file.string(), "/dev/null") == 0)
-	  debug_file.set_value("nul");
+    debug_file.set_value("nul");
   #else
                                  //Format into msg
   offset += vsprintf (msg + offset, format, args);
