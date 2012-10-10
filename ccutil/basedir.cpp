@@ -30,10 +30,10 @@ TESS_API void truncate_path(const char *code_path, STRING* trunc_path) {
   int trunc_index = -1;
   if (code_path != NULL) {
     const char* last_slash = strrchr(code_path, '/');
-    if (last_slash + 1 - code_path > trunc_index)
+    if (last_slash != NULL && last_slash + 1 - code_path > trunc_index)
       trunc_index = last_slash + 1 - code_path;
     last_slash = strrchr(code_path, '\\');
-    if (last_slash + 1 - code_path > trunc_index)
+    if (last_slash != NULL && last_slash + 1 - code_path > trunc_index)
       trunc_index = last_slash + 1 - code_path;
   }
   *trunc_path = code_path;
