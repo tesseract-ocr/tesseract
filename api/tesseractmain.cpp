@@ -71,7 +71,9 @@ int main(int argc, char **argv) {
   }
 
   tesseract::TessBaseAPI  api;
-  int rc = api.Init(argv[0], NULL);
+  STRING tessdata_dir;
+  truncate_path(argv[0], &tessdata_dir);
+  int rc = api.Init(tessdata_dir.string(), NULL);
   if (rc) {
     fprintf(stderr, "Could not initialize tesseract.\n");
     exit(1);
@@ -137,8 +139,6 @@ int main(int argc, char **argv) {
 
   api.SetOutputName(output);
 
-  STRING tessdata_dir;
-  truncate_path(argv[0], &tessdata_dir);
   rc = api.Init(tessdata_dir.string(), lang, tesseract::OEM_DEFAULT,
                 &(argv[arg]), argc - arg, NULL, NULL, false);
   if (rc) {
