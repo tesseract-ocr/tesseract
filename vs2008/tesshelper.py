@@ -304,6 +304,7 @@ def tessCopy(tessDir, includeDir):
         r"ccstruct\publictypes.h",
         r"ccmain\thresholder.h",
         r"ccutil\host.h",
+        r"ccutil\basedir.h",
         r"ccutil\tesscallback.h",
         r"ccutil\unichar.h",
         r"ccutil\platform.h",
