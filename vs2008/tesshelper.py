@@ -300,6 +300,7 @@ def tessCopy(tessDir, includeDir):
 
     baseIncludeSet = {
         r"api\baseapi.h",
+        r"api\capi.h",
         r"api\apitypes.h",
         r"ccstruct\publictypes.h",
         r"ccmain\thresholder.h",
