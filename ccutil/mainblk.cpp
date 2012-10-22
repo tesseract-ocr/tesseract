@@ -67,6 +67,8 @@ void CCUtil::main_setup(                 /*main demo program */
         datadir.truncate_at(length - 8);
       else if (length >= 9 && strcmp(&datadir[length - 9], "tessdata/") == 0)
         datadir.truncate_at(length - 9);
+      if (datadir.length() == 0)
+        datadir = "./";
     } else {
       datadir = "./";
     }
