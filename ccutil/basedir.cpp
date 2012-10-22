@@ -23,7 +23,10 @@
 
 #include          "mfcpch.h"     // Precompiled headers
 
-// Returns the given code_path truncated to the last slash.
+// Assuming that code_path is the name of some file in a desired directory,
+// returns the given code_path stripped back to the last slash, leaving
+// the last slash in place. If there is no slash, returns ./ assuming that
+// the input was the name of something in the current directory.
 // Useful for getting to the directory of argv[0], but does not search
 // any paths.
 TESS_API void truncate_path(const char *code_path, STRING* trunc_path) {
