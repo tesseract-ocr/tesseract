@@ -70,19 +70,19 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
-  tesseract::TessBaseAPI  api;
+  tesseract::TessBaseAPI api;
   STRING tessdata_dir;
   truncate_path(argv[0], &tessdata_dir);
   int rc = api.Init(tessdata_dir.string(), NULL);
   if (rc) {
-    fprintf(stderr, "Could not initialize tesseract.\n");
+    fprintf(stderr, _("Could not initialize tesseract.\n"));
     exit(1);
   }
 
   if (argc == 2 && strcmp(argv[1], "--list-langs") == 0) {
      GenericVector<STRING> languages;
      api.GetAvailableLanguagesAsVector(&languages);
-     fprintf(stderr, "List of available languages (%d):\n", languages.size());
+     fprintf(stderr, _("List of available languages (%d):\n"), languages.size());
      for (int index = 0; index < languages.size(); ++index) {
        STRING& string = languages[index];
        fprintf(stderr, "%s\n", string.string());
@@ -132,7 +132,8 @@ int main(int argc, char **argv) {
                       "configfile.\n\n"));
     fprintf(stderr, _("Single options:\n"));
     fprintf(stderr, _("  -v --version: version info\n"));
-    fprintf(stderr, _("  --list-langs: list available languages for tesseract engine\n"));
+    fprintf(stderr, _("  --list-langs: list available languages for tesseract "
+                      "engine\n"));
     exit(1);
   }
 
@@ -142,7 +143,7 @@ int main(int argc, char **argv) {
   rc = api.Init(tessdata_dir.string(), lang, tesseract::OEM_DEFAULT,
                 &(argv[arg]), argc - arg, NULL, NULL, false);
   if (rc) {
-    fprintf(stderr, "Could not initialize tesseract.\n");
+    fprintf(stderr, _("Could not initialize tesseract.\n"));
     exit(1);
   }
 
@@ -166,21 +167,21 @@ int main(int argc, char **argv) {
 
   FILE* fin = fopen(image, "rb");
   if (fin == NULL) {
-    printf("Cannot open input file: %s\n", image);
+    fprintf(stderr, _("Cannot open input file: %s\n"), image);
     exit(2);
   }
   fclose(fin);
 
   PIX   *pixs;
   if ((pixs = pixRead(image)) == NULL) {
-    printf("Unsupported image type.\n");
+    fprintf(stderr, _("Unsupported image type.\n"));
     exit(3);
   }
   pixDestroy(&pixs);
 
   STRING text_out;
   if (!api.ProcessPages(image, NULL, 0, &text_out)) {
-    printf("Error during processing.\n");
+    fprintf(stderr, _("Error during processing.\n"));
   }
   bool output_hocr = false;
   api.GetBoolVariable("tessedit_create_hocr", &output_hocr);
@@ -190,7 +191,7 @@ int main(int argc, char **argv) {
   outfile += output_hocr ? ".html" : output_box ? ".box" : ".txt";
   FILE* fout = fopen(outfile.string(), "wb");
   if (fout == NULL) {
-    printf("Cannot create output file %s\n", outfile.string());
+    fprintf(stderr, _("Cannot create output file %s\n"), outfile.string());
     exit(1);
   }
   fwrite(text_out.string(), 1, text_out.length(), fout);
