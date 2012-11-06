@@ -1103,7 +1103,14 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
     // Now, process the word...
     hocr_str.add_str_int("<span class='ocrx_word' id='word_", wcnt);
-    AddBoxTohOCR(res_it, RIL_WORD, &hocr_str);
+	int left, top, right, bottom;
+    res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
+    hocr_str.add_str_int("' title=\"bbox ", left);
+    hocr_str.add_str_int(" ", top);
+    hocr_str.add_str_int(" ", right);
+    hocr_str.add_str_int(" ", bottom);
+    hocr_str.add_str_int("; x_wconf ", res_it->Confidence(RIL_WORD));
+    hocr_str += "\">";
     const char *font_name;
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
