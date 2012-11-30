@@ -62,7 +62,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #else
-#include <glob.h>
+#include <dirent.h>
 #include <libgen.h>
 #include <string.h>
 #endif
@@ -294,8 +294,8 @@ void TessBaseAPI::GetAvailableLanguagesAsVector(
     GenericVector<STRING>* langs) const {
   langs->clear();
   if (tesseract_ != NULL) {
-    STRING pattern = tesseract_->datadir + "/*." + kTrainedDataSuffix;
 #ifdef _WIN32
+    STRING pattern = tesseract_->datadir + "/*." + kTrainedDataSuffix;
     char fname[_MAX_FNAME];
     WIN32_FIND_DATA data;
     BOOL result = TRUE;
@@ -308,18 +308,27 @@ void TessBaseAPI::GetAvailableLanguagesAsVector(
       FindClose(handle);
     }
 #else
-    glob_t pglob;
-    char **paths;
-    char *path, *dot;
-    if (glob(pattern.string(), 0, NULL, &pglob) == 0) {
-      for (paths = pglob.gl_pathv; *paths != NULL; paths++) {
-        path = basename(*paths);
-        if ((dot = strchr(path, '.'))) {
-          *dot = '\0';
-          langs->push_back(STRING(path));
+    DIR *dir;
+    struct dirent *dirent;
+    char *dot;
+
+    STRING extension = STRING(".") + kTrainedDataSuffix;
+
+    dir = opendir(tesseract_->datadir.string());
+    if (dir != NULL) {
+      while ((dirent = readdir(dir))) {
+        // Skip '.', '..', and hidden files
+        if(dirent->d_name[0] != '.') {
+          if(strstr(dirent->d_name, extension.string()) != NULL) {
+            dot = strrchr(dirent->d_name, '.');
+            // This ensures that .traineddata is at the end of the file name
+            if (strncmp(dot, extension.string(), strlen(extension.string())) == 0) {
+              *dot = '\0';
+              langs->push_back(STRING(dirent->d_name));
+            }
+          }
         }
       }
-      globfree(&pglob);
     }
 #endif
   }
