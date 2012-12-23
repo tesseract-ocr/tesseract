@@ -70,32 +70,13 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
-  tesseract::TessBaseAPI api;
-  STRING tessdata_dir;
-  truncate_path(argv[0], &tessdata_dir);
-  int rc = api.Init(tessdata_dir.string(), NULL);
-  if (rc) {
-    fprintf(stderr, _("Could not initialize tesseract.\n"));
-    exit(1);
-  }
-
-  if (argc == 2 && strcmp(argv[1], "--list-langs") == 0) {
-     GenericVector<STRING> languages;
-     api.GetAvailableLanguagesAsVector(&languages);
-     fprintf(stderr, _("List of available languages (%d):\n"), languages.size());
-     for (int index = 0; index < languages.size(); ++index) {
-       STRING& string = languages[index];
-       fprintf(stderr, "%s\n", string.string());
-     }
-     api.Clear();
-     exit(0);
-  }
-  api.End();
-
   // Make the order of args a bit more forgiving than it used to be.
   const char* lang = "eng";
   const char* image = NULL;
   const char* output = NULL;
+  bool noocr = false;
+  bool list_langs = false;
+
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
   int arg = 1;
   while (arg < argc && (output == NULL || argv[arg][0] == '-')) {
@@ -112,7 +93,13 @@ int main(int argc, char **argv) {
     }
     ++arg;
   }
-  if (output == NULL) {
+
+  if (argc == 2 && strcmp(argv[1], "--list-langs") == 0) {
+    list_langs = true;
+    noocr = true;
+  }
+
+  if (output == NULL && noocr == false) {
     fprintf(stderr, _("Usage:%s imagename outputbase [-l lang] "
                       "[-psm pagesegmode] [configfile...]\n\n"), argv[0]);
     fprintf(stderr,
@@ -137,14 +124,30 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+  tesseract::TessBaseAPI api;
 
+  STRING tessdata_dir;
+  truncate_path(argv[0], &tessdata_dir);
   api.SetOutputName(output);
-
-  rc = api.Init(tessdata_dir.string(), lang, tesseract::OEM_DEFAULT,
+  int rc = api.Init(tessdata_dir.string(), lang, tesseract::OEM_DEFAULT,
                 &(argv[arg]), argc - arg, NULL, NULL, false);
+
   if (rc) {
     fprintf(stderr, _("Could not initialize tesseract.\n"));
     exit(1);
+  }
+
+  if (list_langs) {
+     GenericVector<STRING> languages;
+     api.GetAvailableLanguagesAsVector(&languages);
+     fprintf(stderr, _("List of available languages (%d):\n"),
+             languages.size());
+     for (int index = 0; index < languages.size(); ++index) {
+       STRING& string = languages[index];
+       fprintf(stderr, "%s\n", string.string());
+     }
+     api.End();
+     exit(0);
   }
 
   // We have 2 possible sources of pagesegmode: a config file and
