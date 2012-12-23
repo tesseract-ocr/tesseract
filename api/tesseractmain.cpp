@@ -76,6 +76,7 @@ int main(int argc, char **argv) {
   const char* output = NULL;
   bool noocr = false;
   bool list_langs = false;
+  bool print_parameters = false;
 
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
   int arg = 1;
@@ -86,6 +87,9 @@ int main(int argc, char **argv) {
     } else if (strcmp(argv[arg], "-psm") == 0 && arg + 1 < argc) {
       pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[arg + 1]));
       ++arg;
+    } else if (strcmp(argv[arg], "--print-parameters") == 0) {
+      noocr = true;
+      print_parameters = true;
     } else if (image == NULL) {
       image = argv[arg];
     } else if (output == NULL) {
@@ -121,6 +125,8 @@ int main(int argc, char **argv) {
     fprintf(stderr, _("  -v --version: version info\n"));
     fprintf(stderr, _("  --list-langs: list available languages for tesseract "
                       "engine\n"));
+    fprintf(stderr, _("  --print-parameters: print tesseract parameters to the "
+                      "stdout\n"));
     exit(1);
   }
 
@@ -146,6 +152,14 @@ int main(int argc, char **argv) {
        STRING& string = languages[index];
        fprintf(stderr, "%s\n", string.string());
      }
+     api.End();
+     exit(0);
+  }
+
+  if (print_parameters) {
+     FILE* fout = stdout;
+     fprintf(stdout, _("Tesseract parameters:\n"));
+     api.PrintVariables(fout);
      api.End();
      exit(0);
   }
