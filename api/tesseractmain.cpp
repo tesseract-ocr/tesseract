@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
   }
 
   if (output == NULL && noocr == false) {
-    fprintf(stderr, _("Usage:%s imagename outputbase [-l lang] "
+    fprintf(stderr, _("Usage:%s imagename outputbase|stdout [-l lang] "
                       "[-psm pagesegmode] [configfile...]\n\n"), argv[0]);
     fprintf(stderr,
             _("pagesegmode values are:\n"
@@ -186,12 +186,16 @@ int main(int argc, char **argv) {
   api.GetBoolVariable("tessedit_create_hocr", &output_hocr);
   bool output_box = false;
   api.GetBoolVariable("tessedit_create_boxfile", &output_box);
-  STRING outfile = output;
-  outfile += output_hocr ? ".html" : output_box ? ".box" : ".txt";
-  FILE* fout = fopen(outfile.string(), "wb");
-  if (fout == NULL) {
-    fprintf(stderr, _("Cannot create output file %s\n"), outfile.string());
-    exit(1);
+
+  FILE* fout = stdout;
+  if (strcmp(output, "-") && strcmp(output, "stdout")) {
+    STRING outfile = output;
+    outfile += output_hocr ? ".html" : output_box ? ".box" : ".txt";
+    fout = fopen(outfile.string(), "wb");
+    if (fout == NULL) {
+      fprintf(stderr, _("Cannot create output file %s\n"), outfile.string());
+      exit(1);
+    }
   }
 
   STRING text_out;
@@ -200,7 +204,10 @@ int main(int argc, char **argv) {
   }
 
   fwrite(text_out.string(), 1, text_out.length(), fout);
-  fclose(fout);
+  if (fout != stdout)
+    fclose(fout);
+  else
+    clearerr(fout);
 
   return 0;                      // Normal exit
 }
