@@ -182,10 +182,6 @@ int main(int argc, char **argv) {
   }
   pixDestroy(&pixs);
 
-  STRING text_out;
-  if (!api.ProcessPages(image, NULL, 0, &text_out)) {
-    fprintf(stderr, _("Error during processing.\n"));
-  }
   bool output_hocr = false;
   api.GetBoolVariable("tessedit_create_hocr", &output_hocr);
   bool output_box = false;
@@ -197,6 +193,12 @@ int main(int argc, char **argv) {
     fprintf(stderr, _("Cannot create output file %s\n"), outfile.string());
     exit(1);
   }
+
+  STRING text_out;
+  if (!api.ProcessPages(image, NULL, 0, &text_out)) {
+    fprintf(stderr, _("Error during processing.\n"));
+  }
+
   fwrite(text_out.string(), 1, text_out.length(), fout);
   fclose(fout);
 
