@@ -10,6 +10,7 @@ Name: @PACKAGE_NAME@
 Description: An OCR Engine that was developed at HP Labs between 1985 and 1995... and now at Google.
 URL: https://code.google.com/p/tesseract-ocr
 Version: @VERSION@
-# Requires: lept  ## leptonica do not provide lept.pc
-Libs: -L${libdir} -ltesseract @LDFLAGS@ @LIBS@
-Cflags: -I${includedir} @CFLAGS@ @CPPFLAGS@ @CXXFLAGS@ @DEFS@
+# Requires.private: lept
+Libs: -L${libdir} -ltesseract
+Libs.private: -lpthread -llept
+Cflags: -I${includedir}
