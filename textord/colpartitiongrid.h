@@ -114,6 +114,12 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // all blob boxes have already been done.
   void Deskew(const FCOORD& deskew);
 
+  // Transforms the grid of partitions to the output blocks, putting each
+  // partition into a separate block. We don't really care about the order,
+  // as we just want to get as much text as possible without trying to organize
+  // it into proper blocks or columns.
+  void ExtractPartitionsAsBlocks(BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
+
   // Sets the left and right tabs of the partitions in the grid.
   void SetTabStops(TabFind* tabgrid);
 

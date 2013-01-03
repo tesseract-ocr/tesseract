@@ -280,6 +280,19 @@ void ColPartition::DisownBoxes() {
   }
 }
 
+// NULL the owner of the blobs in this partition that are owned by this
+// partition, so they can be deleted independently of the ColPartition.
+// Any blobs that are not owned by this partition get to keep their owner
+// without an assert failure.
+void ColPartition::DisownBoxesNoAssert() {
+  BLOBNBOX_C_IT bb_it(&boxes_);
+  for (bb_it.mark_cycle_pt(); !bb_it.cycled_list(); bb_it.forward()) {
+    BLOBNBOX* bblob = bb_it.data();
+    if (bblob->owner() == this)
+      bblob->set_owner(NULL);
+  }
+}
+
 // Delete the boxes that this partition owns.
 void ColPartition::DeleteBoxes() {
   // Although the boxes_ list is a C_LIST, in some cases it owns the
@@ -1348,7 +1361,8 @@ void ColPartition::AddToWorkingSet(const ICOORD& bleft, const ICOORD& tright,
   work_set = it.data();
   // If last_column_ != first_column, then we need to scoop up all blocks
   // between here and the last_column_ and put back in work_set.
-  if (!it.cycled_list() && last_column_ != first_column_) {
+  if (!it.cycled_list() && last_column_ != first_column_ &&
+      !IsPulloutType()) {
     // Find the column that the right edge falls in.
     BLOCK_LIST completed_blocks;
     TO_BLOCK_LIST to_blocks;
@@ -1553,28 +1567,12 @@ static TO_BLOCK* MoveBlobsToBlock(bool vertical_text, int line_spacing,
       ASSERT_HOST(!text_type || bblob->region_type() >= BRT_UNKNOWN);
       C_OUTLINE_LIST* outlines = bblob->cblob()->out_list();
       C_OUTLINE_IT ol_it(outlines);
-      if (outlines->singleton()) {
-        ASSERT_HOST(!text_type || ol_it.data()->pathlength() > 0);
-        if (vertical_text)
-          sizes.add(bblob->bounding_box().width(), 1);
-        else
-          sizes.add(bblob->bounding_box().height(), 1);
-        blob_it.add_after_then_move(bblob);
-      } else {
-        // This blob has multiple outlines from CJK repair.
-        // Explode the blob back into individual outlines.
-        for (;!ol_it.empty(); ol_it.forward()) {
-          C_OUTLINE* outline = ol_it.extract();
-          BLOBNBOX* blob = BLOBNBOX::RealBlob(outline);
-          if (vertical_text)
-            sizes.add(blob->bounding_box().width(), 1);
-          else
-            sizes.add(blob->bounding_box().height(), 1);
-          blob_it.add_after_then_move(blob);
-        }
-        delete bblob->cblob();
-        delete bblob;
-      }
+      ASSERT_HOST(!text_type || ol_it.data()->pathlength() > 0);
+      if (vertical_text)
+        sizes.add(bblob->bounding_box().width(), 1);
+      else
+        sizes.add(bblob->bounding_box().height(), 1);
+      blob_it.add_after_then_move(bblob);
     }
     used_it.add_to_end(part);
   }
@@ -1677,6 +1675,31 @@ TO_BLOCK* ColPartition::MakeVerticalTextBlock(const ICOORD& bleft,
                            block_box.right(), block_box.top());
   block->set_poly_block(new POLY_BLOCK(block_box, type));
   return MoveBlobsToBlock(true, line_spacing, block, block_parts, used_parts);
+}
+
+// Makes a TO_ROW matching this and moves all the blobs to it, transferring
+// ownership to to returned TO_ROW.
+TO_ROW* ColPartition::MakeToRow() {
+  BLOBNBOX_C_IT blob_it(&boxes_);
+  TO_ROW* row = NULL;
+  int line_size = IsVerticalType() ? median_width_ : median_size_;
+  // Add all the blobs to a single TO_ROW.
+  for (; !blob_it.empty(); blob_it.forward()) {
+    BLOBNBOX* blob = blob_it.extract();
+//    blob->compute_bounding_box();
+    int top = blob->bounding_box().top();
+    int bottom = blob->bounding_box().bottom();
+    if (row == NULL) {
+      row = new TO_ROW(blob, static_cast<float>(top),
+                       static_cast<float>(bottom),
+                       static_cast<float>(line_size));
+    } else {
+      row->add_blob(blob, static_cast<float>(top),
+                    static_cast<float>(bottom),
+                    static_cast<float>(line_size));
+    }
+  }
+  return row;
 }
 
 // Returns a copy of everything except the list of boxes. The resulting

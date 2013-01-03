@@ -239,7 +239,7 @@ class Tesseract : public Wordrec {
   int SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
                   Tesseract* osd_tess, OSResults* osr);
   void SetupWordScripts(BLOCK_LIST* blocks);
-  int AutoPageSeg(bool single_column, bool osd, bool only_osd,
+  int AutoPageSeg(PageSegMode pageseg_mode,
                   BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks,
                   Tesseract* osd_tess, OSResults* osr);
   ColumnFinder* SetupPageSegAndDetectOrientation(

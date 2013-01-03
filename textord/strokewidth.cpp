@@ -647,6 +647,8 @@ bool StrokeWidth::FixBrokenCJK(TO_BLOCK* block) {
       for (n_it.mark_cycle_pt(); !n_it.cycled_list(); n_it.forward()) {
         BLOBNBOX* neighbour = n_it.data();
         RemoveBBox(neighbour);
+        // Mark empty blob for deletion.
+        neighbour->set_region_type(BRT_NOISE);
         blob->really_merge(neighbour);
         if (rerotation_.x() != 1.0f || rerotation_.y() != 0.0f) {
           blob->rotate_box(rerotation_);
@@ -660,14 +662,11 @@ bool StrokeWidth::FixBrokenCJK(TO_BLOCK* block) {
       }
     }
   }
-  // Mark for deletion all the empty shell blobs that contain no outlines.
+  // Count remaining blobs.
   int num_remaining = 0;
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX* blob = blob_it.data();
-    if (blob->cblob() == NULL || blob->cblob()->out_list()->empty()) {
-      // Mark blob for deletion.
-      blob->set_region_type(BRT_NOISE);
-    } else {
+    if (blob->cblob() != NULL && !blob->cblob()->out_list()->empty()) {
       ++num_remaining;
     }
   }

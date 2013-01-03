@@ -427,6 +427,10 @@ class ColPartition : public ELIST2_LINK {
   bool IsTextType() const {
     return PTIsTextType(type_);
   }
+  // Returns true if partitions is of pullout(inter-column) type
+  bool IsPulloutType() const {
+    return PTIsPulloutType(type_);
+  }
   // Returns true if the partition is of an exclusively vertical type.
   bool IsVerticalType() const {
     return blob_type_ == BRT_VERT_TEXT || blob_type_ == BRT_VLINE;
@@ -472,6 +476,11 @@ class ColPartition : public ELIST2_LINK {
   // NULL the owner of the blobs in this partition, so they can be deleted
   // independently of the ColPartition.
   void DisownBoxes();
+  // NULL the owner of the blobs in this partition that are owned by this
+  // partition, so they can be deleted independently of the ColPartition.
+  // Any blobs that are not owned by this partition get to keep their owner
+  // without an assert failure.
+  void DisownBoxesNoAssert();
 
   // Delete the boxes that this partition owns.
   void DeleteBoxes();
@@ -650,6 +659,10 @@ class ColPartition : public ELIST2_LINK {
                                          const ICOORD& tright,
                                          ColPartition_LIST* block_parts,
                                          ColPartition_LIST* used_parts);
+
+  // Makes a TO_ROW matching this and moves all the blobs to it, transferring
+  // ownership to to returned TO_ROW.
+  TO_ROW* MakeToRow();
 
 
   // Returns a copy of everything except the list of boxes. The resulting

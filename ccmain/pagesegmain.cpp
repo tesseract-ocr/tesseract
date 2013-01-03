@@ -132,17 +132,13 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
     // UNLV file present. Use PSM_SINGLE_BLOCK.
     pageseg_mode = PSM_SINGLE_BLOCK;
   }
-  bool single_column = !PSM_COL_FIND_ENABLED(pageseg_mode);
-  bool osd_enabled = PSM_OSD_ENABLED(pageseg_mode);
-  bool osd_only = pageseg_mode == PSM_OSD_ONLY;
-
   int auto_page_seg_ret_val = 0;
   TO_BLOCK_LIST to_blocks;
-  if (osd_enabled || PSM_BLOCK_FIND_ENABLED(pageseg_mode)) {
+  if (PSM_OSD_ENABLED(pageseg_mode) || PSM_BLOCK_FIND_ENABLED(pageseg_mode) ||
+      PSM_SPARSE(pageseg_mode)) {
     auto_page_seg_ret_val =
-        AutoPageSeg(single_column, osd_enabled, osd_only,
-                    blocks, &to_blocks, osd_tess, osr);
-    if (osd_only)
+        AutoPageSeg(pageseg_mode, blocks, &to_blocks, osd_tess, osr);
+    if (pageseg_mode == PSM_OSD_ONLY)
       return auto_page_seg_ret_val;
     // To create blobs from the image region bounds uncomment this line:
     //  to_blocks.clear();  // Uncomment to go back to the old mode.
@@ -215,7 +211,7 @@ static void WriteDebugBackgroundImage(bool printable, Pix* pix_binary) {
  * another Tesseract that was initialized especially for osd, and the results
  * will be output into osr (orientation and script result).
  */
-int Tesseract::AutoPageSeg(bool single_column, bool osd, bool only_osd,
+int Tesseract::AutoPageSeg(PageSegMode pageseg_mode,
                            BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks,
                            Tesseract* osd_tess, OSResults* osr) {
   if (textord_debug_images) {
@@ -227,9 +223,13 @@ int Tesseract::AutoPageSeg(bool single_column, bool osd, bool only_osd,
   BLOCK_LIST found_blocks;
   TO_BLOCK_LIST temp_blocks;
 
+  bool single_column = !PSM_COL_FIND_ENABLED(pageseg_mode);
+  bool osd_enabled = PSM_OSD_ENABLED(pageseg_mode);
+  bool osd_only = pageseg_mode == PSM_OSD_ONLY;
   ColumnFinder* finder = SetupPageSegAndDetectOrientation(
-      single_column, osd, only_osd, blocks, osd_tess, osr,
+      single_column, osd_enabled, osd_only, blocks, osd_tess, osr,
       &temp_blocks, &photomask_pix, &musicmask_pix);
+  int result = 0;
   if (finder != NULL) {
     TO_BLOCK_IT to_block_it(&temp_blocks);
     TO_BLOCK* to_block = to_block_it.data();
@@ -241,18 +241,17 @@ int Tesseract::AutoPageSeg(bool single_column, bool osd, bool only_osd,
     if (equ_detect_) {
       finder->SetEquationDetect(equ_detect_);
     }
-    if (finder->FindBlocks(single_column, scaled_color_, scaled_factor_,
-                           to_block, photomask_pix,
-                           &found_blocks, to_blocks) < 0) {
-      pixDestroy(&photomask_pix);
-      pixDestroy(&musicmask_pix);
-      return -1;
-    }
-    finder->GetDeskewVectors(&deskew_, &reskew_);
+    result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_,
+                                to_block, photomask_pix,
+                                &found_blocks, to_blocks);
+    if (result >= 0)
+      finder->GetDeskewVectors(&deskew_, &reskew_);
     delete finder;
   }
   pixDestroy(&photomask_pix);
   pixDestroy(&musicmask_pix);
+  if (result < 0) return result;
+
   blocks->clear();
   BLOCK_IT block_it(blocks);
   // Move the found blocks to the input/output blocks.
@@ -262,7 +261,7 @@ int Tesseract::AutoPageSeg(bool single_column, bool osd, bool only_osd,
     // The debug image is no longer needed so delete it.
     unlink(AlignedBlob::textord_debug_pix().string());
   }
-  return 0;
+  return result;
 }
 
 /**

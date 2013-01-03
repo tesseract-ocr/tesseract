@@ -679,6 +679,70 @@ void ColPartitionGrid::ReflectInYAxis() {
   }
 }
 
+// Transforms the grid of partitions to the output blocks, putting each
+// partition into a separate block. We don't really care about the order,
+// as we just want to get as much text as possible without trying to organize
+// it into proper blocks or columns.
+// TODO(rays) some kind of sort function would be useful and probably better
+// than the default here, which is to sort by order of the grid search.
+void ColPartitionGrid::ExtractPartitionsAsBlocks(BLOCK_LIST* blocks,
+                                                 TO_BLOCK_LIST* to_blocks) {
+  TO_BLOCK_IT to_block_it(to_blocks);
+  BLOCK_IT block_it(blocks);
+  // All partitions will be put on this list and deleted on return.
+  ColPartition_LIST parts;
+  ColPartition_IT part_it(&parts);
+  // Iterate the ColPartitions in the grid to extract them.
+  ColPartitionGridSearch gsearch(this);
+  gsearch.StartFullSearch();
+  ColPartition* part;
+  while ((part = gsearch.NextFullSearch()) != NULL) {
+    part_it.add_after_then_move(part);
+    // The partition has to be at least vaguely like text.
+    BlobRegionType blob_type = part->blob_type();
+    if (BLOBNBOX::IsTextType(blob_type) ||
+        (blob_type == BRT_UNKNOWN && part->boxes_count() > 1)) {
+      PolyBlockType type = blob_type == BRT_VERT_TEXT ? PT_VERTICAL_TEXT
+                                                      : PT_FLOWING_TEXT;
+      // Get metrics from the row that will be used for the block.
+      TBOX box = part->bounding_box();
+      int median_width = part->median_width();
+      int median_height = part->median_size();
+      // Turn the partition into a TO_ROW.
+      TO_ROW* row = part->MakeToRow();
+      if (row == NULL) {
+        // This partition is dead.
+        part->DeleteBoxes();
+        continue;
+      }
+      BLOCK* block = new BLOCK("", true, 0, 0, box.left(), box.bottom(),
+                               box.right(), box.top());
+      block->set_poly_block(new POLY_BLOCK(box, type));
+      TO_BLOCK* to_block = new TO_BLOCK(block);
+      TO_ROW_IT row_it(to_block->get_rows());
+      row_it.add_after_then_move(row);
+      // We haven't differentially rotated vertical and horizontal text at
+      // this point, so use width or height as appropriate.
+      if (blob_type == BRT_VERT_TEXT) {
+        to_block->line_size = static_cast<float>(median_width);
+        to_block->line_spacing = static_cast<float>(box.width());
+        to_block->max_blob_size = static_cast<float>(box.width() + 1);
+      } else {
+        to_block->line_size = static_cast<float>(median_height);
+        to_block->line_spacing = static_cast<float>(box.height());
+        to_block->max_blob_size = static_cast<float>(box.height() + 1);
+      }
+      block_it.add_to_end(block);
+      to_block_it.add_to_end(to_block);
+    } else {
+      // This partition is dead.
+      part->DeleteBoxes();
+    }
+  }
+  Clear();
+  // Now it is safe to delete the ColPartitions as parts goes out of scope.
+}
+
 // Rotates the grid and its colpartitions by the given angle, assuming that
 // all blob boxes have already been done.
 void ColPartitionGrid::Deskew(const FCOORD& deskew) {

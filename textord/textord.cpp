@@ -270,7 +270,7 @@ void Textord::TextordPage(PageSegMode pageseg_mode,
   if (to_blocks->empty()) {
     // AutoPageSeg was not used, so we need to find_components first.
     find_components(pix, blocks, to_blocks);
-  } else {
+  } else if (!PSM_SPARSE(pageseg_mode)) {
     // AutoPageSeg does not need to find_components as it did that already.
     // Filter_blobs sets up the TO_BLOCKs the same as find_components does.
     filter_blobs(page_tr_, to_blocks, true);
@@ -303,7 +303,7 @@ void Textord::TextordPage(PageSegMode pageseg_mode,
   // Do it the old fashioned way.
   if (PSM_LINE_FIND_ENABLED(pageseg_mode)) {
     gradient = make_rows(page_tr_, to_blocks);
-  } else {
+  } else if (!PSM_SPARSE(pageseg_mode)) {
     // SINGLE_LINE, SINGLE_WORD and SINGLE_CHAR all need a single row.
     gradient = make_single_row(page_tr_, to_block, to_blocks);
   }
@@ -338,7 +338,7 @@ void Textord::TextordPage(PageSegMode pageseg_mode,
 // than one, clean up and leave only the best.
 void Textord::CleanupSingleRowResult(PageSegMode pageseg_mode,
                                      PAGE_RES* page_res) {
-  if (PSM_LINE_FIND_ENABLED(pageseg_mode))
+  if (PSM_LINE_FIND_ENABLED(pageseg_mode) || PSM_SPARSE(pageseg_mode))
     return;  // No cleanup required.
   PAGE_RES_IT it(page_res);
   // Find the best row, being the greatest mean word conf.

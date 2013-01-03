@@ -281,7 +281,7 @@ void ColumnFinder::CorrectOrientation(TO_BLOCK* block,
 // and may be NULL if the input was not color.
 // Returns -1 if the user hits the 'd' key in the blocks window while running
 // in debug mode, which requests a retry with more debug info.
-int ColumnFinder::FindBlocks(bool single_column,
+int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
                              Pix* scaled_color, int scaled_factor,
                              TO_BLOCK* input_block, Pix* photo_mask_pix,
                              BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks) {
@@ -293,19 +293,21 @@ int ColumnFinder::FindBlocks(bool single_column,
   stroke_width_->GradeBlobsIntoPartitions(rerotate_, input_block, nontext_map_,
                                           denorm_, &projection_,
                                           &part_grid_, &big_parts_);
-  ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
-                                 input_block, this, &part_grid_, &big_parts_);
-  ImageFind::TransferImagePartsToImageMask(rerotate_, &part_grid_,
-                                           photo_mask_pix);
-  ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
-                                 input_block, this, &part_grid_, &big_parts_);
+  if (!PSM_SPARSE(pageseg_mode)) {
+    ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
+                                   input_block, this, &part_grid_, &big_parts_);
+    ImageFind::TransferImagePartsToImageMask(rerotate_, &part_grid_,
+                                             photo_mask_pix);
+    ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
+                                   input_block, this, &part_grid_, &big_parts_);
+  }
   part_grid_.ReTypeBlobs(&image_bblobs_);
   TidyBlobs(input_block);
   Reset();
   // TODO(rays) need to properly handle big_parts_.
   ColPartition_IT p_it(&big_parts_);
   for (p_it.mark_cycle_pt(); !p_it.cycled_list(); p_it.forward())
-    p_it.data()->DisownBoxes();
+    p_it.data()->DisownBoxesNoAssert();
   big_parts_.clear();
   delete stroke_width_;
   stroke_width_ = NULL;
@@ -333,104 +335,108 @@ int ColumnFinder::FindBlocks(bool single_column,
     part_grid_.ReflectInYAxis();
   }
 
-  if (single_column) {
-    // No tab stops needed. Just the grid that FindTabVectors makes.
-    DontFindTabVectors(&image_bblobs_, input_block, &deskew_, &reskew_);
-  } else {
+  if (!PSM_SPARSE(pageseg_mode)) {
+    if (!PSM_COL_FIND_ENABLED(pageseg_mode)) {
+      // No tab stops needed. Just the grid that FindTabVectors makes.
+      DontFindTabVectors(&image_bblobs_, input_block, &deskew_, &reskew_);
+    } else {
+      SetBlockRuleEdges(input_block);
+      // Find the tab stops, estimate skew, and deskew the tabs, blobs and
+      // part_grid_.
+      FindTabVectors(&horizontal_lines_, &image_bblobs_, input_block,
+                     min_gutter_width_, &part_grid_, &deskew_, &reskew_);
+      // Add the deskew to the denorm_.
+      DENORM* new_denorm = new DENORM;
+      new_denorm->SetupNormalization(NULL, NULL, &deskew_, denorm_, NULL, 0,
+                                     0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+      denorm_ = new_denorm;
+    }
     SetBlockRuleEdges(input_block);
-    // Find the tab stops, estimate skew, and deskew the tabs, blobs and
-    // part_grid_.
-    FindTabVectors(&horizontal_lines_, &image_bblobs_, input_block,
-                   min_gutter_width_, &part_grid_, &deskew_, &reskew_);
-    // Add the deskew to the denorm_.
-    DENORM* new_denorm = new DENORM;
-    new_denorm->SetupNormalization(NULL, NULL, &deskew_, denorm_, NULL, 0,
-                                   0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f);
-    denorm_ = new_denorm;
-  }
-  SetBlockRuleEdges(input_block);
-  part_grid_.SetTabStops(this);
+    part_grid_.SetTabStops(this);
 
-  // Make the column_sets_.
-  if (!MakeColumns(single_column)) {
-    tprintf("Empty page!!\n");
-    return 0;  // This is an empty page.
-  }
+    // Make the column_sets_.
+    if (!MakeColumns(false)) {
+      tprintf("Empty page!!\n");
+      return 0;  // This is an empty page.
+    }
 
-  // Refill the grid using rectangular spreading, and get the benefit
-  // of the completed tab vectors marking the rule edges of each blob.
-  Clear();
-  #ifndef GRAPHICS_DISABLED
-  if (textord_tabfind_show_reject_blobs) {
-    ScrollView* rej_win = MakeWindow(500, 300, "Rejected blobs");
-    input_block->plot_graded_blobs(rej_win);
-  }
-  #endif  // GRAPHICS_DISABLED
-  InsertBlobsToGrid(false, false, &image_bblobs_, this);
-  InsertBlobsToGrid(true, true, &input_block->blobs, this);
+    // Refill the grid using rectangular spreading, and get the benefit
+    // of the completed tab vectors marking the rule edges of each blob.
+    Clear();
+    #ifndef GRAPHICS_DISABLED
+    if (textord_tabfind_show_reject_blobs) {
+      ScrollView* rej_win = MakeWindow(500, 300, "Rejected blobs");
+      input_block->plot_graded_blobs(rej_win);
+    }
+    #endif  // GRAPHICS_DISABLED
+    InsertBlobsToGrid(false, false, &image_bblobs_, this);
+    InsertBlobsToGrid(true, true, &input_block->blobs, this);
 
-  part_grid_.GridFindMargins(best_columns_);
-  // Split and merge the partitions by looking at local neighbours.
-  GridSplitPartitions();
-  // Resolve unknown partitions by adding to an existing partition, fixing
-  // the type, or declaring them noise.
-  part_grid_.GridFindMargins(best_columns_);
-  GridMergePartitions();
-  // Insert any unused noise blobs that are close enough to an appropriate
-  // partition.
-  InsertRemainingNoise(input_block);
-  // Add horizontal line separators as partitions.
-  GridInsertHLinePartitions();
-  GridInsertVLinePartitions();
-  // Recompute margins based on a local neighbourhood search.
-  part_grid_.GridFindMargins(best_columns_);
-  SetPartitionTypes();
+    part_grid_.GridFindMargins(best_columns_);
+    // Split and merge the partitions by looking at local neighbours.
+    GridSplitPartitions();
+    // Resolve unknown partitions by adding to an existing partition, fixing
+    // the type, or declaring them noise.
+    part_grid_.GridFindMargins(best_columns_);
+    GridMergePartitions();
+    // Insert any unused noise blobs that are close enough to an appropriate
+    // partition.
+    InsertRemainingNoise(input_block);
+    // Add horizontal line separators as partitions.
+    GridInsertHLinePartitions();
+    GridInsertVLinePartitions();
+    // Recompute margins based on a local neighbourhood search.
+    part_grid_.GridFindMargins(best_columns_);
+    SetPartitionTypes();
+  }
   if (textord_tabfind_show_initial_partitions) {
     ScrollView* part_win = MakeWindow(100, 300, "InitialPartitions");
     part_grid_.DisplayBoxes(part_win);
     DisplayTabVectors(part_win);
   }
 
-  if (equation_detect_) {
-    equation_detect_->FindEquationParts(&part_grid_, best_columns_);
-  }
-  if (textord_tabfind_find_tables) {
-    TableFinder table_finder;
-    table_finder.Init(gridsize(), bleft(), tright());
-    table_finder.set_resolution(resolution_);
-    table_finder.set_left_to_right_language(
-        !input_block->block->right_to_left());
-    // Copy cleaned partitions from part_grid_ to clean_part_grid_ and
-    // insert dot-like noise into period_grid_
-    table_finder.InsertCleanPartitions(&part_grid_, input_block);
-    // Get Table Regions
-    table_finder.LocateTables(&part_grid_, best_columns_, WidthCB(), reskew_);
-  }
-  GridRemoveUnderlinePartitions();
-  part_grid_.DeleteUnknownParts(input_block);
-
-  // Build the partitions into chains that belong in the same block and
-  // refine into one-to-one links, then smooth the types within each chain.
-  part_grid_.FindPartitionPartners();
-  part_grid_.FindFigureCaptions();
-  part_grid_.RefinePartitionPartners(true);
-  SmoothPartnerRuns();
-
-  #ifndef GRAPHICS_DISABLED
-  if (textord_tabfind_show_partitions) {
-    ScrollView* window = MakeWindow(400, 300, "Partitions");
-    if (textord_debug_images)
-      window->Image(AlignedBlob::textord_debug_pix().string(),
-                    image_origin().x(), image_origin().y());
-    part_grid_.DisplayBoxes(window);
-    if (!textord_debug_printable)
-      DisplayTabVectors(window);
-    if (window != NULL && textord_tabfind_show_partitions > 1) {
-      delete window->AwaitEvent(SVET_DESTROY);
+  if (!PSM_SPARSE(pageseg_mode)) {
+    if (equation_detect_) {
+      equation_detect_->FindEquationParts(&part_grid_, best_columns_);
     }
+    if (textord_tabfind_find_tables) {
+      TableFinder table_finder;
+      table_finder.Init(gridsize(), bleft(), tright());
+      table_finder.set_resolution(resolution_);
+      table_finder.set_left_to_right_language(
+          !input_block->block->right_to_left());
+      // Copy cleaned partitions from part_grid_ to clean_part_grid_ and
+      // insert dot-like noise into period_grid_
+      table_finder.InsertCleanPartitions(&part_grid_, input_block);
+      // Get Table Regions
+      table_finder.LocateTables(&part_grid_, best_columns_, WidthCB(), reskew_);
+    }
+    GridRemoveUnderlinePartitions();
+    part_grid_.DeleteUnknownParts(input_block);
+
+    // Build the partitions into chains that belong in the same block and
+    // refine into one-to-one links, then smooth the types within each chain.
+    part_grid_.FindPartitionPartners();
+    part_grid_.FindFigureCaptions();
+    part_grid_.RefinePartitionPartners(true);
+    SmoothPartnerRuns();
+
+    #ifndef GRAPHICS_DISABLED
+    if (textord_tabfind_show_partitions) {
+      ScrollView* window = MakeWindow(400, 300, "Partitions");
+      if (textord_debug_images)
+        window->Image(AlignedBlob::textord_debug_pix().string(),
+                      image_origin().x(), image_origin().y());
+      part_grid_.DisplayBoxes(window);
+      if (!textord_debug_printable)
+        DisplayTabVectors(window);
+      if (window != NULL && textord_tabfind_show_partitions > 1) {
+        delete window->AwaitEvent(SVET_DESTROY);
+      }
+    }
+    #endif  // GRAPHICS_DISABLED
+    part_grid_.AssertNoDuplicates();
   }
-  #endif  // GRAPHICS_DISABLED
-  part_grid_.AssertNoDuplicates();
   // Ownership of the ColPartitions moves from part_sets_ to part_grid_ here,
   // and ownership of the BLOBNBOXes moves to the ColPartitions.
   // (They were previously owned by the block or the image_bblobs list.)
@@ -439,7 +445,10 @@ int ColumnFinder::FindBlocks(bool single_column,
   // noise_parts_ here. In text blocks, ownership of the BLOBNBOXes moves
   // from the ColPartitions to the output TO_BLOCK. In non-text, the
   // BLOBNBOXes stay with the ColPartitions and get deleted in the destructor.
-  TransformToBlocks(blocks, to_blocks);
+  if (PSM_SPARSE(pageseg_mode))
+    part_grid_.ExtractPartitionsAsBlocks(blocks, to_blocks);
+  else
+    TransformToBlocks(blocks, to_blocks);
   if (textord_debug_tabfind) {
     tprintf("Found %d blocks, %d to_blocks\n",
             blocks->length(), to_blocks->length());
@@ -1460,6 +1469,44 @@ void ColumnFinder::ReflectForRtl(TO_BLOCK* input_block, BLOBNBOX_LIST* bblobs) {
   denorm_ = new_denorm;
 }
 
+// Helper fixes up blobs and cblobs to match the desired rotation,
+// exploding multi-outline blobs back to single blobs and accumulating
+// the bounding box widths and heights.
+static void RotateAndExplodeBlobList(const FCOORD& blob_rotation,
+                                     BLOBNBOX_LIST* bblobs,
+                                     STATS* widths,
+                                     STATS* heights) {
+  BLOBNBOX_IT it(bblobs);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    BLOBNBOX* blob = it.data();
+    C_BLOB* cblob = blob->cblob();
+    C_OUTLINE_LIST* outlines = cblob->out_list();
+    C_OUTLINE_IT ol_it(outlines);
+    if (!outlines->singleton()) {
+      // This blob has multiple outlines from CJK repair.
+      // Explode the blob back into individual outlines.
+      for (;!ol_it.empty(); ol_it.forward()) {
+        C_OUTLINE* outline = ol_it.extract();
+        BLOBNBOX* new_blob = BLOBNBOX::RealBlob(outline);
+        // This blob will be revisited later since we add_after_stay_put here.
+        // This means it will get rotated and have its width/height added to
+        // the stats below.
+        it.add_after_stay_put(new_blob);
+      }
+      it.extract();
+      delete cblob;
+      delete blob;
+    } else {
+      if (blob_rotation.x() != 1.0f || blob_rotation.y() != 0.0f) {
+        cblob->rotate(blob_rotation);
+      }
+      blob->compute_bounding_box();
+      widths->add(blob->bounding_box().width(), 1);
+      heights->add(blob->bounding_box().height(), 1);
+    }
+  }
+}
+
 // Undo the deskew that was done in FindTabVectors, as recognition is done
 // without correcting blobs or blob outlines for skew.
 // Reskew the completed blocks to put them back to the original rotated coords
@@ -1501,15 +1548,13 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl,
     // Compute the block median blob width and height as we go.
     STATS widths(0, block->bounding_box().width());
     STATS heights(0, block->bounding_box().height());
-    BLOBNBOX_IT blob_it(&to_block->blobs);
-    for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
-      BLOBNBOX* blob = blob_it.data();
-      if (blob_rotation.x() != 1.0f || blob_rotation.y() != 0.0f) {
-        blob->cblob()->rotate(blob_rotation);
-      }
-      blob->compute_bounding_box();
-      widths.add(blob->bounding_box().width(), 1);
-      heights.add(blob->bounding_box().height(), 1);
+    RotateAndExplodeBlobList(blob_rotation, &to_block->blobs,
+                             &widths, &heights);
+    TO_ROW_IT row_it(to_block->get_rows());
+    for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+      TO_ROW* row = row_it.data();
+      RotateAndExplodeBlobList(blob_rotation, row->blob_list(),
+                               &widths, &heights);
     }
     block->set_median_size(static_cast<int>(widths.median() + 0.5),
                            static_cast<int>(heights.median() + 0.5));

@@ -143,7 +143,7 @@ class ColumnFinder : public TabFind {
   // and may be NULL if the input was not color.
   // Returns -1 if the user hits the 'd' key in the blocks window while running
   // in debug mode, which requests a retry with more debug info.
-  int FindBlocks(bool single_column,
+  int FindBlocks(PageSegMode pageseg_mode,
                  Pix* scaled_color, int scaled_factor,
                  TO_BLOCK* block, Pix* photo_mask_pix,
                  BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);

@@ -1457,7 +1457,8 @@ bool TableFinder::BelongToOneTable(const TBOX &box1, const TBOX &box2) {
   while ((part = rectsearch.NextRectSearch()) != NULL) {
     const TBOX& part_box = part->bounding_box();
     // return true if a colpartition spanning both table regions is found
-    if (part_box.overlap(box1) && part_box.overlap(box2))
+    if (part_box.overlap(box1) && part_box.overlap(box2) &&
+        !part->IsImageType())
       return true;
   }
   return false;

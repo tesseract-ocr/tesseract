@@ -381,7 +381,7 @@ void TabVector::MergeSimilarTabVectors(const ICOORD& vertical,
         }
         ICOORD merged_vector = v2->endpt();
         merged_vector -= v2->startpt();
-        if (abs(merged_vector.x()) > 100) {
+        if (textord_debug_tabfind && abs(merged_vector.x()) > 100) {
           v2->Print("Garbage result of merge?");
         }
         break;
