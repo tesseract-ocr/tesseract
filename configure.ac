@@ -77,6 +77,24 @@ esac
 
 includedir="${includedir}/tesseract"
 
+AC_ARG_WITH(extra-includes,
+            AC_HELP_STRING([--with-extra-includes=DIR],
+                       [Define an additional directory for include files]),
+        [ if test -d "$withval" ; then
+            CFLAGS="$CFLAGS -I$withval"
+          else
+            AC_MSG_ERROR([Cannot stat directory $withval])
+          fi ] )
+
+AC_ARG_WITH(extra-libraries,
+            AC_HELP_STRING([--with-extra-libraries=DIR],
+                       [Define an additional directory for library files]),
+        [ if test -d "$withval" ; then
+           LDFLAGS="$LDFLAGS -L$withval"
+          else
+            AC_MSG_ERROR([Cannot stat directory $withval])
+          fi ] )
+
 AC_MSG_CHECKING(--enable-graphics argument)
 AC_ARG_ENABLE([graphics],
  [AC_HELP_STRING([--enable-graphics],[enable graphics (ScrollView) (default)])
