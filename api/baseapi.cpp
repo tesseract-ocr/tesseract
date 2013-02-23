@@ -1074,6 +1074,20 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
   if (input_file_ == NULL)
       SetInputName(NULL);
 
+  #ifdef _WIN32
+      // convert input name from ANSI encoding to utf-8
+      int str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1, NULL, NULL);
+      wchar_t *uni16_str = new WCHAR[str16_len];
+      str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1, uni16_str, str16_len);
+
+      int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, NULL, NULL, NULL, NULL);
+      char *utf8_str = new char[utf8_len];
+      WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str, utf8_len, NULL, NULL);
+      *input_file_ = utf8_str;
+      delete[] uni16_str;
+      delete[] utf8_str;
+  #endif
+
   hocr_str.add_str_int("  <div class='ocr_page' id='page_", page_id);
   hocr_str += "' title='image \"";
   hocr_str += input_file_ ? *input_file_ : "unknown";
