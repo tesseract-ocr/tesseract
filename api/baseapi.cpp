@@ -835,7 +835,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
 		"charset=utf-8\" />\n"
         "  <meta name='ocr-system' content='tesseract " VERSION "' />\n"
         "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
-        " ocr_line ocrx_word'/>\n"
+        " ocr_line ocrx_word ocrp_lang ocrp_dir'/>\n"
         " </head>\n <body>\n";
   } else {
     *text_out = "";
@@ -1126,14 +1126,24 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
     // Now, process the word...
     hocr_str.add_str_int("<span class='ocrx_word' id='word_", wcnt);
-	int left, top, right, bottom;
+    int left, top, right, bottom;
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
-    hocr_str.add_str_int("' title=\"bbox ", left);
+    hocr_str.add_str_int("' title='bbox ", left);
     hocr_str.add_str_int(" ", top);
     hocr_str.add_str_int(" ", right);
     hocr_str.add_str_int(" ", bottom);
     hocr_str.add_str_int("; x_wconf ", res_it->Confidence(RIL_WORD));
-    hocr_str += "\">";
+    hocr_str += "'";
+    if (res_it->WordRecognitionLanguage()) {
+      hocr_str += " lang='";
+      hocr_str += res_it->WordRecognitionLanguage();
+      hocr_str += "'";
+    }
+    switch (res_it->WordDirection()) {
+      case DIR_LEFT_TO_RIGHT: hocr_str += " dir='ltr'"; break;
+      case DIR_RIGHT_TO_LEFT: hocr_str += " dir='rtl'"; break;
+    }
+    hocr_str += ">";
     const char *font_name;
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
