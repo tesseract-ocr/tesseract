@@ -215,6 +215,9 @@ int main(int argc, char **argv) {
   STRING text_out;
   if (!api.ProcessPages(image, NULL, 0, &text_out)) {
     fprintf(stderr, _("Error during processing.\n"));
+    if (fout != stdout)
+      fclose(fout);
+	exit(1);
   }
 
   fwrite(text_out.string(), 1, text_out.length(), fout);
