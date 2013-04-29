@@ -47,9 +47,6 @@ typedef tesseract::Orientation TessOrientation;
 typedef tesseract::WritingDirection TessWritingDirection;
 typedef tesseract::TextlineOrder TessTextlineOrder;
 typedef PolyBlockType TessPolyBlockType;
-typedef Pix PIX;
-typedef Boxa BOXA;
-typedef Pixa PIXA;
 #else
 typedef struct TessBaseAPI TessBaseAPI;
 typedef struct TessPageIterator TessPageIterator;
@@ -57,7 +54,8 @@ typedef struct TessResultIterator TessResultIterator;
 typedef struct TessMutableIterator TessMutableIterator;
 typedef enum TessOcrEngineMode     { OEM_TESSERACT_ONLY, OEM_CUBE_ONLY, OEM_TESSERACT_CUBE_COMBINED, OEM_DEFAULT } TessOcrEngineMode;
 typedef enum TessPageSegMode       { PSM_OSD_ONLY, PSM_AUTO_OSD, PSM_AUTO_ONLY, PSM_AUTO, PSM_SINGLE_COLUMN, PSM_SINGLE_BLOCK_VERT_TEXT,
-                                     PSM_SINGLE_BLOCK, PSM_SINGLE_LINE, PSM_SINGLE_WORD, PSM_CIRCLE_WORD, PSM_SINGLE_CHAR, PSM_COUNT } TessPageSegMode;
+                                     PSM_SINGLE_BLOCK, PSM_SINGLE_LINE, PSM_SINGLE_WORD, PSM_CIRCLE_WORD, PSM_SINGLE_CHAR, PSM_SPARSE_TEXT,
+                                     PSM_SPARSE_TEXT_OSD, PSM_COUNT } TessPageSegMode;
 typedef enum TessPageIteratorLevel { RIL_BLOCK, RIL_PARA, RIL_TEXTLINE, RIL_WORD, RIL_SYMBOL} TessPageIteratorLevel;
 typedef enum TessPolyBlockType     { PT_UNKNOWN, PT_FLOWING_TEXT, PT_HEADING_TEXT, PT_PULLOUT_TEXT, PT_TABLE, PT_VERTICAL_TEXT,
                                      PT_CAPTION_TEXT, PT_FLOWING_IMAGE, PT_HEADING_IMAGE, PT_PULLOUT_IMAGE, PT_HORZ_LINE, PT_VERT_LINE,
@@ -66,10 +64,11 @@ typedef enum TessOrientation       { ORIENTATION_PAGE_UP, ORIENTATION_PAGE_RIGHT
 typedef enum TessWritingDirection  { WRITING_DIRECTION_LEFT_TO_RIGHT, WRITING_DIRECTION_RIGHT_TO_LEFT, WRITING_DIRECTION_TOP_TO_BOTTOM } TessWritingDirection;
 typedef enum TessTextlineOrder     { TEXTLINE_ORDER_LEFT_TO_RIGHT, TEXTLINE_ORDER_RIGHT_TO_LEFT, TEXTLINE_ORDER_TOP_TO_BOTTOM } TessTextlineOrder;
 typedef struct ETEXT_DESC ETEXT_DESC;
-typedef struct Pix PIX;
-typedef struct Boxa BOXA;
-typedef struct Pixa PIXA;
 #endif
+
+struct Pix;
+struct Boxa;
+struct Pixa;
 
 /* General free functions */
 
@@ -142,7 +141,7 @@ TESS_API void  TESS_CALL TessBaseAPIClearAdaptiveClassifier(TessBaseAPI* handle)
 
 TESS_API void  TESS_CALL TessBaseAPISetImage(TessBaseAPI* handle, const unsigned char* imagedata, int width, int height,
                                              int bytes_per_pixel, int bytes_per_line);
-TESS_API void  TESS_CALL TessBaseAPISetImage2(TessBaseAPI* handle, const PIX* pix);
+TESS_API void  TESS_CALL TessBaseAPISetImage2(TessBaseAPI* handle, const struct Pix* pix);
 
 TESS_API void TESS_CALL TessBaseAPISetSourceResolution(TessBaseAPI* handle, int ppi);
 
@@ -152,13 +151,20 @@ TESS_API void  TESS_CALL TessBaseAPISetRectangle(TessBaseAPI* handle, int left, 
 TESS_API void  TESS_CALL TessBaseAPISetThresholder(TessBaseAPI* handle, TessImageThresholder* thresholder);
 #endif
 
-TESS_API PIX*  TESS_CALL TessBaseAPIGetThresholdedImage(   TessBaseAPI* handle);
-TESS_API BOXA* TESS_CALL TessBaseAPIGetRegions(            TessBaseAPI* handle, PIXA** pixa);
-TESS_API BOXA* TESS_CALL TessBaseAPIGetTextlines(          TessBaseAPI* handle, PIXA** pixa, int** blockids);
-TESS_API BOXA* TESS_CALL TessBaseAPIGetStrips(             TessBaseAPI* handle, PIXA** pixa, int** blockids);
-TESS_API BOXA* TESS_CALL TessBaseAPIGetWords(              TessBaseAPI* handle, PIXA** pixa);
-TESS_API BOXA* TESS_CALL TessBaseAPIGetConnectedComponents(TessBaseAPI* handle, PIXA** cc);
-TESS_API BOXA* TESS_CALL TessBaseAPIGetComponentImages(    TessBaseAPI* handle, TessPageIteratorLevel level, BOOL text_only, PIXA** pixa, int** blockids);
+TESS_API struct Pix*
+               TESS_CALL TessBaseAPIGetThresholdedImage(   TessBaseAPI* handle);
+TESS_API struct Boxa*
+               TESS_CALL TessBaseAPIGetRegions(            TessBaseAPI* handle, struct Pixa** pixa);
+TESS_API struct Boxa*
+               TESS_CALL TessBaseAPIGetTextlines(          TessBaseAPI* handle, struct Pixa** pixa, int** blockids);
+TESS_API struct Boxa*
+               TESS_CALL TessBaseAPIGetStrips(             TessBaseAPI* handle, struct Pixa** pixa, int** blockids);
+TESS_API struct Boxa*
+               TESS_CALL TessBaseAPIGetWords(              TessBaseAPI* handle, struct Pixa** pixa);
+TESS_API struct Boxa*
+               TESS_CALL TessBaseAPIGetConnectedComponents(TessBaseAPI* handle, struct Pixa** cc);
+TESS_API struct Boxa*
+               TESS_CALL TessBaseAPIGetComponentImages(    TessBaseAPI* handle, TessPageIteratorLevel level, BOOL text_only, struct Pixa** pixa, int** blockids);
 
 TESS_API int   TESS_CALL TessBaseAPIGetThresholdedImageScaleFactor(const TessBaseAPI* handle);
 
@@ -171,7 +177,7 @@ TESS_API int   TESS_CALL TessBaseAPIRecognize(TessBaseAPI* handle, ETEXT_DESC* m
 TESS_API int   TESS_CALL TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle, ETEXT_DESC* monitor);
 TESS_API char* TESS_CALL TessBaseAPIProcessPages(TessBaseAPI* handle, const char* filename, const char* retry_config,
                                                  int timeout_millisec);
-TESS_API char* TESS_CALL TessBaseAPIProcessPage(TessBaseAPI* handle, PIX* pix, int page_index, const char* filename,
+TESS_API char* TESS_CALL TessBaseAPIProcessPage(TessBaseAPI* handle, struct Pix* pix, int page_index, const char* filename,
                                                 const char* retry_config, int timeout_millisec);
 
 TESS_API TessResultIterator*
@@ -255,8 +261,10 @@ TESS_API BOOL  TESS_CALL TessPageIteratorBoundingBox(const TessPageIterator* han
 TESS_API TessPolyBlockType
                TESS_CALL TessPageIteratorBlockType(const TessPageIterator* handle);
 
-TESS_API PIX*  TESS_CALL TessPageIteratorGetBinaryImage(const TessPageIterator* handle, TessPageIteratorLevel level);
-TESS_API PIX*  TESS_CALL TessPageIteratorGetImage(const TessPageIterator* handle, TessPageIteratorLevel level, int padding,
+TESS_API struct Pix*
+               TESS_CALL TessPageIteratorGetBinaryImage(const TessPageIterator* handle, TessPageIteratorLevel level);
+TESS_API struct Pix*
+               TESS_CALL TessPageIteratorGetImage(const TessPageIterator* handle, TessPageIteratorLevel level, int padding,
                                                   int* left, int* top);
 
 TESS_API BOOL  TESS_CALL TessPageIteratorBaseline(const TessPageIterator* handle, TessPageIteratorLevel level,

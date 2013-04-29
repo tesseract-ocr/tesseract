@@ -202,7 +202,7 @@ TESS_API void TESS_CALL TessBaseAPISetImage(TessBaseAPI* handle, const unsigned 
     handle->SetImage(imagedata, width, height, bytes_per_pixel, bytes_per_line);
 }
 
-TESS_API void TESS_CALL TessBaseAPISetImage2(TessBaseAPI* handle, const Pix* pix)
+TESS_API void TESS_CALL TessBaseAPISetImage2(TessBaseAPI* handle, const struct Pix* pix)
 {
     return handle->SetImage(pix);
 }
@@ -222,37 +222,37 @@ TESS_API void TESS_CALL TessBaseAPISetThresholder(TessBaseAPI* handle, TessImage
     handle->SetThresholder(thresholder);
 }
 
-TESS_API Pix* TESS_CALL TessBaseAPIGetThresholdedImage(TessBaseAPI* handle)
+TESS_API struct Pix* TESS_CALL TessBaseAPIGetThresholdedImage(TessBaseAPI* handle)
 {
     return handle->GetThresholdedImage();
 }
 
-TESS_API Boxa* TESS_CALL TessBaseAPIGetRegions(TessBaseAPI* handle, Pixa** pixa)
+TESS_API struct Boxa* TESS_CALL TessBaseAPIGetRegions(TessBaseAPI* handle, struct Pixa** pixa)
 {
     return handle->GetRegions(pixa);
 }
 
-TESS_API Boxa* TESS_CALL TessBaseAPIGetTextlines(TessBaseAPI* handle, Pixa** pixa, int** blockids)
+TESS_API struct Boxa* TESS_CALL TessBaseAPIGetTextlines(TessBaseAPI* handle, struct Pixa** pixa, int** blockids)
 {
     return handle->GetTextlines(pixa, blockids);
 }
 
-TESS_API BOXA* TESS_CALL TessBaseAPIGetStrips(TessBaseAPI* handle, PIXA** pixa, int** blockids)
+TESS_API struct Boxa* TESS_CALL TessBaseAPIGetStrips(TessBaseAPI* handle, struct Pixa** pixa, int** blockids)
 {
     return handle->GetStrips(pixa, blockids);
 }
 
-TESS_API Boxa* TESS_CALL TessBaseAPIGetWords(TessBaseAPI* handle, Pixa** pixa)
+TESS_API struct Boxa* TESS_CALL TessBaseAPIGetWords(TessBaseAPI* handle, struct Pixa** pixa)
 {
     return handle->GetWords(pixa);
 }
 
-TESS_API Boxa* TESS_CALL TessBaseAPIGetConnectedComponents(TessBaseAPI* handle, Pixa** cc)
+TESS_API struct Boxa* TESS_CALL TessBaseAPIGetConnectedComponents(TessBaseAPI* handle, struct Pixa** cc)
 {
     return handle->GetConnectedComponents(cc);
 }
 
-TESS_API Boxa* TESS_CALL TessBaseAPIGetComponentImages(TessBaseAPI* handle, TessPageIteratorLevel level, BOOL text_only, Pixa** pixa, int** blockids)
+TESS_API struct Boxa* TESS_CALL TessBaseAPIGetComponentImages(TessBaseAPI* handle, TessPageIteratorLevel level, BOOL text_only, struct Pixa** pixa, int** blockids)
 {
     return handle->GetComponentImages(level, text_only != FALSE, pixa, blockids);
 }
@@ -292,7 +292,7 @@ TESS_API char* TESS_CALL TessBaseAPIProcessPages(TessBaseAPI* handle, const char
         return NULL;
 }
 
-TESS_API char* TESS_CALL TessBaseAPIProcessPage(TessBaseAPI* handle, Pix* pix, int page_index, const char* filename,
+TESS_API char* TESS_CALL TessBaseAPIProcessPage(TessBaseAPI* handle, struct Pix* pix, int page_index, const char* filename,
                                                 const char* retry_config, int timeout_millisec)
 {
     STRING text_out;
@@ -419,7 +419,7 @@ TESS_API ROW* TESS_CALL TessMakeTessOCRRow(float baseline, float xheight, float 
     return TessBaseAPI::MakeTessOCRRow(baseline, xheight, descender, ascender);
 }
 
-TESS_API TBLOB* TESS_CALL TessMakeTBLOB(Pix *pix)
+TESS_API TBLOB* TESS_CALL TessMakeTBLOB(struct Pix *pix)
 {
     return TessBaseAPI::MakeTBLOB(pix);
 }
@@ -501,12 +501,12 @@ TESS_API TessPolyBlockType TESS_CALL TessPageIteratorBlockType(const TessPageIte
     return handle->BlockType();
 }
 
-TESS_API Pix* TESS_CALL TessPageIteratorGetBinaryImage(const TessPageIterator* handle, TessPageIteratorLevel level)
+TESS_API struct Pix* TESS_CALL TessPageIteratorGetBinaryImage(const TessPageIterator* handle, TessPageIteratorLevel level)
 {
     return handle->GetBinaryImage(level);
 }
 
-TESS_API Pix* TESS_CALL TessPageIteratorGetImage(const TessPageIterator* handle, TessPageIteratorLevel level, int padding,
+TESS_API struct Pix* TESS_CALL TessPageIteratorGetImage(const TessPageIterator* handle, TessPageIteratorLevel level, int padding,
                                                        int* left, int* top)
 {
     return handle->GetImage(level, padding, left, top);
