@@ -90,6 +90,9 @@ int main(int argc, char **argv) {
     } else if (strcmp(argv[arg], "--print-parameters") == 0) {
       noocr = true;
       print_parameters = true;
+    } else if (strcmp(argv[arg], "-o") == 0 && arg + 1 < argc) {
+      // handled properly after api init
+      ++arg;
     } else if (image == NULL) {
       image = argv[arg];
     } else if (output == NULL) {
@@ -105,7 +108,8 @@ int main(int argc, char **argv) {
 
   if (output == NULL && noocr == false) {
     fprintf(stderr, _("Usage:%s imagename outputbase|stdout [-l lang] "
-                      "[-psm pagesegmode] [configfile...]\n\n"), argv[0]);
+                      "[-psm pagesegmode] [-o configvar=value] "
+                      "[configfile...]\n\n"), argv[0]);
     fprintf(stderr,
             _("pagesegmode values are:\n"
               "0 = Orientation and script detection (OSD) only.\n"
@@ -119,8 +123,9 @@ int main(int argc, char **argv) {
               "8 = Treat the image as a single word.\n"
               "9 = Treat the image as a single word in a circle.\n"
               "10 = Treat the image as a single character.\n"));
-    fprintf(stderr, _("-l lang and/or -psm pagesegmode must occur before any"
-                      "configfile.\n\n"));
+    fprintf(stderr, _("multiple -o arguments are allowed.\n"));
+    fprintf(stderr, _("-l lang, -psm pagesegmode and any -o options must occur"
+                      "before any configfile.\n\n"));
     fprintf(stderr, _("Single options:\n"));
     fprintf(stderr, _("  -v --version: version info\n"));
     fprintf(stderr, _("  --list-langs: list available languages for tesseract "
@@ -141,6 +146,21 @@ int main(int argc, char **argv) {
   if (rc) {
     fprintf(stderr, _("Could not initialize tesseract.\n"));
     exit(1);
+  }
+
+  char opt1[255], opt2[255];
+  for (arg = 0; arg < argc; arg++) {
+    if (strcmp(argv[arg], "-o") == 0 && arg + 1 < argc) {
+      strncpy(opt1, argv[arg + 1], 255);
+      *(strchr(opt1, '=')) = 0;
+      strncpy(opt2, strchr(argv[arg + 1], '=') + 1, 255);
+      opt2[254] = 0;
+      ++arg;
+
+      if(!api.SetVariable(opt1, opt2)) {
+        fprintf(stderr, _("Could not set option: %s=%s\n"), opt1, opt2);
+      }
+    }
   }
 
   if (list_langs) {

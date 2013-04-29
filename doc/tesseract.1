@@ -31,7 +31,7 @@
 tesseract \- command\-line OCR engine
 .SH "SYNOPSIS"
 .sp
-\fBtesseract\fR \fIimagename\fR \fIoutbase\fR [\fI\-l lang\fR] [\fI\-psm N\fR] [\fIconfigfile\fR \&...]
+\fBtesseract\fR \fIimagename\fR \fIoutbase\fR|\fIstdout\fR [\fI\-l lang\fR] [\fI\-psm N\fR] [\gI\-o configvar=value\fR] [\fIconfigfile\fR \&...]
 .SH "DESCRIPTION"
 .sp
 tesseract(1) is a commercial quality OCR engine originally developed at HP between 1985 and 1995\&. In 1995, this engine was among the top 3 evaluated by UNLV\&. It was open\-sourced by HP and UNLV in 2005, and has been developed at Google since then\&.
@@ -45,7 +45,7 @@ The name of the input image\&. Most image file formats (anything readable by Lep
 \fIoutbase\fR
 .RS 4
 The basename of the output file (to which the appropriate extension will be appended)\&. By default the output will be named
-\fIoutbase\&.txt\fR\&.
+\fIoutbase\&.txt\fR\&. When stdout is used as outbase, output will be sent to stdout\&.
 .RE
 .PP
 \fI\-l lang\fR
@@ -80,6 +80,11 @@ are:
 .\}
 .RE
 .PP
+\fI\-o configvar=value\fR
+.RS 4
+Sets a configuration variable\&. Multiple options can be set by using -o multiple times, once for each option\&.
+.RE
+.PP
 \fI\-v\fR
 .RS 4
 Returns the current version of the tesseract(1) executable\&.
@@ -102,7 +107,7 @@ hocr \- Output in hOCR format instead of as a text file\&.
 .RE
 .RE
 .sp
-\fBNota Bene:\fR The options \fI\-l lang\fR and \fI\-psm N\fR must occur before any \fIconfigfile\fR\&.
+\fBNota Bene:\fR The options \fI\-l lang\fR, \fI\-psm N\fR and \fI\-o configvar=value\fR must occur before any \fIconfigfile\fR\&.
 .SH "LANGUAGES"
 .sp
 There are currently language packs available for the following languages:
