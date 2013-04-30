@@ -14,13 +14,13 @@ EXTRA_DIST = mfcpch.cpp
 
 include_HEADERS = \
 	basedir.h errcode.h fileerr.h genericvector.h helpers.h host.h memry.h \
-	ndminx.h params.h platform.h serialis.h strngs.h tesscallback.h \
-	unichar.h unicharmap.h unicharset.h
+	ndminx.h params.h ocrclass.h platform.h serialis.h strngs.h \
+	tesscallback.h unichar.h unicharmap.h unicharset.h
      
 noinst_HEADERS = \
     ambigs.h bits16.h bitvector.h ccutil.h clst.h elst2.h \
     elst.h globaloc.h hashfn.h hosthplb.h indexmapbidi.h lsterr.h \
-    mfcpch.h notdll.h nwmain.h ocrclass.h qrsequence.h secname.h \
+    mfcpch.h notdll.h nwmain.h qrsequence.h secname.h \
     sorthelper.h stderr.h tessdatamanager.h tprintf.h unicity_table.h \
     unicodes.h 
 
