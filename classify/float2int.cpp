@@ -58,7 +58,7 @@ void Classify::ClearCharNormArray(uinT8* char_norm_array) {
  * into char_norm_array.  CharNormArray is indexed by unichar_id.
  *
  * Globals: 
- * - none
+ * - PreTrainedTemplates current set of built-in templates
  *
  * @param norm_feature character normalization feature
  * @param[out] char_norm_array place to put results of size unicharset.size()
