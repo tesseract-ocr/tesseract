@@ -60,6 +60,8 @@ void restore_underlined_blobs(                 //get chop points
     u_line = under_it.extract ();
     blob_box = u_line->bounding_box ();
     row = most_overlapping_row (block->get_rows (), u_line);
+    if (row == NULL)
+      return;  // Don't crash if there is no row.
     find_underlined_blobs (u_line, &row->baseline, row->xheight,
       row->xheight * textord_underline_offset,
       &chop_cells);
