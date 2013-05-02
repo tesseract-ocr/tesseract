@@ -321,7 +321,7 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   PAGE_RES_IT res_it(*result_it.it_);
   WERD_CHOICE* best_choice = word_res_->best_choice;
   BLOB_CHOICE_LIST_CLIST* choices = best_choice->blob_choices();
-  if (choices != NULL) {
+  if (choices != NULL && !choices->empty()) {
     BLOB_CHOICE_LIST_C_IT blob_choices_it(choices);
     for (int blob = 0; blob < result_it.blob_index_; ++blob)
       blob_choices_it.forward();
