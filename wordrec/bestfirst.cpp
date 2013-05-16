@@ -462,7 +462,7 @@ BLOB_CHOICE_LIST_VECTOR *Wordrec::rebuild_current_state(
       BLOB_CHOICE_IT choice_it(current_choices);
       for (choice_it.mark_cycle_pt(); !choice_it.cycled_list() &&
            merged_choice->rating() > choice_it.data()->rating();
-           choice_it.forward());
+           choice_it.forward())
         choice_it.add_before_stay_put(merged_choice);
     }
     // Get rid of fragments in current_choices.
