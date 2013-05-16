@@ -179,7 +179,7 @@ SearchNode *SearchColumn::AddNode(LangModEdge *edge, int reco_cost,
     // because the langmod state is not unique
     if (edge->IsOOD() == false) {
       if (!node_hash_table_->Insert(edge, new_node)) {
-        printf("Hash table full!!!");
+        tprintf("Hash table full!!!");
         delete new_node;
         return NULL;
       }

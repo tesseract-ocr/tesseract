@@ -172,12 +172,12 @@ C_OUTLINE::C_OUTLINE(                     //constructor
       pos += srcline->step (stepindex);
       destpos = pos;
       destpos.rotate (rotation);
-      //  printf("%i %i %i %i ", destpos.x(), destpos.y(), pos.x(), pos.y());
+      //  tprintf("%i %i %i %i ", destpos.x(), destpos.y(), pos.x(), pos.y());
       while (destpos.x () != prevpos.x () || destpos.y () != prevpos.y ()) {
         dir = DIR128 (FCOORD (destpos - prevpos));
         dir += 64;                 //turn to step style
         new_step = dir.get_dir ();
-        //  printf(" %i\n", new_step);
+        //  tprintf(" %i\n", new_step);
         if (new_step & 31) {
           set_step(destindex++, dir + round1);
           prevpos += step(destindex - 1);

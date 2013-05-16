@@ -130,7 +130,7 @@ int OSResults::get_best_script(int orientation_id) const {
 // Print the script scores for all possible orientations.
 void OSResults::print_scores(void) const {
   for (int i = 0; i < 4; ++i) {
-    printf("Orientation id #%d", i);
+    tprintf("Orientation id #%d", i);
     print_scores(i);
   }
 }
@@ -139,7 +139,7 @@ void OSResults::print_scores(void) const {
 void OSResults::print_scores(int orientation_id) const {
   for (int j = 0; j < kMaxNumberOfScripts; ++j) {
     if (scripts_na[orientation_id][j]) {
-      printf("%12s\t: %f\n", unicharset->get_script_from_script_id(j),
+      tprintf("%12s\t: %f\n", unicharset->get_script_from_script_id(j),
              scripts_na[orientation_id][j]);
     }
   }
@@ -284,13 +284,13 @@ int os_detect_blobs(BLOBNBOX_CLIST* blob_list, OSResults* osr,
 
   BLOBNBOX_C_IT filtered_it(blob_list);
   int real_max = MIN(filtered_it.length(), kMaxCharactersToTry);
-  // printf("Total blobs found = %d\n", blobs_total);
-  // printf("Number of blobs post-filtering = %d\n", filtered_it.length());
-  // printf("Number of blobs to try = %d\n", real_max);
+  // tprintf("Total blobs found = %d\n", blobs_total);
+  // tprintf("Number of blobs post-filtering = %d\n", filtered_it.length());
+  // tprintf("Number of blobs to try = %d\n", real_max);
 
   // If there are too few characters, skip this page entirely.
   if (real_max < kMinCharactersToTry / 2) {
-    printf("Too few characters. Skipping this page\n");
+    tprintf("Too few characters. Skipping this page\n");
     return 0;
   }
 

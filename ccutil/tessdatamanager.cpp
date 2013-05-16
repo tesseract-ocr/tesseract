@@ -217,7 +217,7 @@ bool TessdataManager::TessdataTypeFromFileSuffix(
       return true;
     }
   }
-  printf("TessdataManager can't determine which tessdata"
+  tprintf("TessdataManager can't determine which tessdata"
          " component is represented by %s\n", suffix);
   return false;
 }
@@ -239,7 +239,7 @@ bool TessdataManager::ExtractToFile(const char *filename) {
 
   FILE *output_file = fopen(filename, "wb");
   if (output_file == NULL) {
-    printf("Error openning %s\n", filename);
+    tprintf("Error openning %s\n", filename);
     exit(1);
   }
   inT64 begin_offset = ftell(GetDataFilePtr());
