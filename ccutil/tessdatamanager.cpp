@@ -101,7 +101,7 @@ void TessdataManager::WriteMetadata(inT64 *offset_table, FILE *output_file) {
 
   tprintf("TessdataManager combined tesseract data files.\n");
   for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
-    tprintf("Offset for type %d is %lld\n", i, offset_table[i]);
+    tprintf("Offset for type %2d (lang.%-22s) is %lld\n", i, kTessdataFileSuffixes[i], offset_table[i]);
   }
 }
 
