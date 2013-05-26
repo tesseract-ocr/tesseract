@@ -243,7 +243,11 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
       word_index++;
       if (monitor != NULL) {
         monitor->ocr_alive = TRUE;
-        monitor->progress = 30 + 50 * word_index / stats_.word_count;
+        monitor->progress = 70 * word_index / stats_.word_count;
+        if (monitor->progress_callback!=NULL){
+        	TBOX box = page_res_it.word()->word->bounding_box();
+        	(*monitor->progress_callback)(monitor->progress,box.left(), box.right(), box.top(), box.bottom());
+        }
         if (monitor->deadline_exceeded() ||
             (monitor->cancel != NULL && (*monitor->cancel)(monitor->cancel_this,
                                                            stats_.dict_words)))
@@ -316,7 +320,10 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
     word_index++;
     if (monitor != NULL) {
       monitor->ocr_alive = TRUE;
-      monitor->progress = 80 + 10 * word_index / stats_.word_count;
+      monitor->progress = 70 + 30 * word_index / stats_.word_count;
+      if (monitor->progress_callback!=NULL){
+          	  (*monitor->progress_callback)(monitor->progress,0,0,0,0);
+      }
       if (monitor->deadline_exceeded() ||
           (monitor->cancel != NULL && (*monitor->cancel)(monitor->cancel_this,
                                                          stats_.dict_words)))

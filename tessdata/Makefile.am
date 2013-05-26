@@ -1,4 +1,4 @@
-datadir = @datadir@/tessdata
+dir = @datadir@/tessdata
 
 SUBDIRS = configs tessconfigs
 

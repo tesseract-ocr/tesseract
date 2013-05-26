@@ -319,7 +319,7 @@ TESS_API char* TESS_CALL TessBaseAPIGetUTF8Text(TessBaseAPI* handle)
 
 TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_number)
 {
-    return handle->GetHOCRText(page_number);
+    return handle->GetHOCRText(NULL,page_number);
 }
 
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number)
