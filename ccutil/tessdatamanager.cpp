@@ -92,7 +92,9 @@ void TessdataManager::CopyFile(FILE *input_file, FILE *output_file,
   delete[] chunk;
 }
 
-void TessdataManager::WriteMetadata(inT64 *offset_table, FILE *output_file) {
+void TessdataManager::WriteMetadata(inT64 *offset_table,
+                                    const char * language_data_path_prefix,
+                                    FILE *output_file) {
   fseek(output_file, 0, SEEK_SET);
   inT32 num_entries = TESSDATA_NUM_ENTRIES;
   fwrite(&num_entries, sizeof(inT32), 1, output_file);
@@ -101,7 +103,9 @@ void TessdataManager::WriteMetadata(inT64 *offset_table, FILE *output_file) {
 
   tprintf("TessdataManager combined tesseract data files.\n");
   for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
-    tprintf("Offset for type %2d (lang.%-22s) is %lld\n", i, kTessdataFileSuffixes[i], offset_table[i]);
+    tprintf("Offset for type %2d (%s%-22s) is %lld\n", i,
+            language_data_path_prefix, kTessdataFileSuffixes[i],
+            offset_table[i]);
   }
 }
 
@@ -140,20 +144,21 @@ bool TessdataManager::CombineDataFiles(
 
   // Make sure that the required components are present.
   if (file_ptr[TESSDATA_UNICHARSET] == NULL) {
-    tprintf("Error opening unicharset file\n");
+    tprintf("Error opening %sunicharset file\n", language_data_path_prefix);
     fclose(output_file);
     return false;
   }
   if (file_ptr[TESSDATA_INTTEMP] != NULL &&
       (file_ptr[TESSDATA_PFFMTABLE] == NULL ||
        file_ptr[TESSDATA_NORMPROTO] == NULL)) {
-    tprintf("Error opening pffmtable and/or normproto files"
-            " while inttemp file was present\n");
+    tprintf("Error opening %spffmtable and/or %snormproto files"
+            " while %sinttemp file was present\n", language_data_path_prefix,
+            language_data_path_prefix, language_data_path_prefix);
     fclose(output_file);
     return false;
   }
 
-  WriteMetadata(offset_table, output_file);
+  WriteMetadata(offset_table, language_data_path_prefix, output_file);
   return true;
 }
 
@@ -203,8 +208,8 @@ bool TessdataManager::OverwriteComponents(
       }
     }
   }
-
-  WriteMetadata(offset_table, output_file);
+  const char *language_data_path_prefix = strchr(new_traineddata_filename, '.');
+  WriteMetadata(offset_table, language_data_path_prefix, output_file);
   return true;
 }
 

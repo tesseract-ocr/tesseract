@@ -195,7 +195,9 @@ class TessdataManager {
   }
 
   /** Writes the number of entries and the given offset table to output_file. */
-  static void WriteMetadata(inT64 *offset_table, FILE *output_file);
+  static void WriteMetadata(inT64 *offset_table,
+                            const char *language_data_path_prefix,
+                            FILE *output_file);
 
   /**
    * Reads all the standard tesseract config and data files for a language
