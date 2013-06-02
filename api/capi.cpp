@@ -532,7 +532,7 @@ TESS_API void TESS_CALL TessResultIteratorDelete(TessResultIterator* handle)
 
 TESS_API TessResultIterator* TESS_CALL TessResultIteratorCopy(const TessResultIterator* handle)
 {
-    return static_cast<TessResultIterator*>(new TessPageIterator(*handle));
+    return new TessResultIterator(*handle);
 }
 
 TESS_API TessPageIterator* TESS_CALL TessResultIteratorGetPageIterator(TessResultIterator* handle)
