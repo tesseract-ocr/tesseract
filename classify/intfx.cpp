@@ -331,6 +331,9 @@ int ExtractIntFeat(TBLOB *Blob,
     */
     Results->Ry = 1;
   }
+  if (Results->Rx == 0) {
+    Results->Rx = 1;
+  }
   Results->NumBL = NumBLFeatures;
 
   // Extract character normalized features
