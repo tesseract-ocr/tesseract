@@ -1100,7 +1100,8 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
   ResultIterator *res_it = GetIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
-    if (res_it->Empty(RIL_WORD)) {
+    if (res_it->Empty(RIL_WORD) ||
+        strcmp(res_it->GetUTF8Text(RIL_WORD)," ") == 0) {
       res_it->Next(RIL_WORD);
       continue;
     }
