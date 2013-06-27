@@ -209,13 +209,6 @@ int main(int argc, char **argv) {
   }
   fclose(fin);
 
-  PIX   *pixs;
-  if ((pixs = pixRead(image)) == NULL) {
-    fprintf(stderr, _("Unsupported image type.\n"));
-    exit(3);
-  }
-  pixDestroy(&pixs);
-
   bool output_hocr = false;
   api.GetBoolVariable("tessedit_create_hocr", &output_hocr);
   bool output_box = false;
