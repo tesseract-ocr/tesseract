@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="libtesseract302"
 	ProjectGUID="{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}"
 	RootNamespace="libtesseract"
@@ -802,10 +802,6 @@
 			</File>
 			<File
 				RelativePath="..\..\ccmain\imgscale.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgtiff.cpp"
 				>
 			</File>
 			<File
@@ -1916,10 +1912,6 @@
 			</File>
 			<File
 				RelativePath="..\..\ccmain\imgscale.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgtiff.h"
 				>
 			</File>
 			<File

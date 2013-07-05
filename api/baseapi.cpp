@@ -50,7 +50,6 @@
 #include "equationdetect.h"
 #include "tessbox.h"
 #include "imgs.h"
-#include "imgtiff.h"
 #include "makerow.h"
 #include "permute.h"
 #include "otsuthr.h"
@@ -821,7 +820,8 @@ bool TessBaseAPI::ProcessPages(const char* filename,
     return false;
   }
   // Find the number of pages if a tiff file, or zero otherwise.
-  int npages = CountTiffPages(fp);
+  int npages;
+  tiffGetCount(fp, &npages);
   fclose(fp);
 
   if (tesseract_->tessedit_create_hocr) {
@@ -832,7 +832,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
         "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" "
         "lang=\"en\">\n <head>\n  <title></title>\n"
         "  <meta http-equiv=\"Content-Type\" content=\"text/html; "
-		"charset=utf-8\" />\n"
+        "charset=utf-8\" />\n"
         "  <meta name='ocr-system' content='tesseract " VERSION "' />\n"
         "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
         " ocr_line ocrx_word ocrp_lang ocrp_dir'/>\n"

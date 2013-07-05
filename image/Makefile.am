@@ -7,7 +7,7 @@ endif
 
 noinst_HEADERS = \
     image.h img.h imgerrs.h imgs.h \
-    imgtiff.h imgunpk.h svshowim.h
+    imgunpk.h svshowim.h
 
 if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_image.la
@@ -20,5 +20,5 @@ libtesseract_image_la_LIBADD = \
 endif
 
 libtesseract_image_la_SOURCES = \
-    image.cpp imgs.cpp imgtiff.cpp svshowim.cpp
+    image.cpp imgs.cpp svshowim.cpp
 
