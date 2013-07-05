@@ -67,7 +67,6 @@ case $host_os in
     mingw32*)
         AC_DEFINE_UNQUOTED(MINGW,1,[This is a MinGW system])
         AM_CONDITIONAL(MINGW, true)
-        AC_SUBST([AM_CPPFLAGS], ["-D__BLOB_T_DEFINED"])
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
      *)

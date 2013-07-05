@@ -24,10 +24,12 @@
 #ifdef _WIN32
 #ifdef __GNUC__
 #define ultoa _ultoa
+#ifndef __MINGW32__
 typedef struct _BLOB {
   unsigned int cbSize;
   char *pBlobData;
 } BLOB, *LPBLOB;
+#endif  /* __MINGW32__ */
 #endif  /* __GNUC__ */
 #define SIGNED
 #define snprintf _snprintf

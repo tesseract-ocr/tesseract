@@ -42,7 +42,6 @@ class BLOCK_LIST;
 class DENORM;
 class IMAGE;
 class MATRIX;
-class PBLOB;
 class ROW;
 class STRING;
 class WERD;
@@ -54,7 +53,9 @@ class ETEXT_DESC;
 struct OSResults;
 class TBOX;
 class UNICHARSET;
-
+#ifndef __MINGW32__
+class PBLOB;
+#endif  /* __MINGW32__ */
 // From oldlist.h
 // TODO(antonova): remove when oldlist is deprecated.
 struct list_rec;
