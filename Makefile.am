@@ -2,11 +2,6 @@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . training java doc tessdata testing   
 
-#if USING_GETTEXT
-#SUBDIRS += po
-#AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"
-#endif
-
 EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
 	aclocal.m4 config configure.ac autogen.sh tesseract.spec contrib \
 	tesseract.pc.in

@@ -1,4 +1,0 @@
-# List of source files which contain translatable strings.
-api/tesseractmain.cpp
-image/imgtiff.cpp
-

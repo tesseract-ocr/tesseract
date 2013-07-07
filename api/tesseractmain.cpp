@@ -27,13 +27,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-#ifdef USING_GETTEXT
-#include <libintl.h>
-#include <locale.h>
-#define _(x) gettext(x)
-#else
-#define _(x) (x)
-#endif
 
 #include "allheaders.h"
 #include "baseapi.h"
@@ -48,11 +41,6 @@
  **********************************************************************/
 
 int main(int argc, char **argv) {
-#ifdef USING_GETTEXT
-  setlocale (LC_ALL, "");
-  bindtextdomain (PACKAGE, LOCALEDIR);
-  textdomain (PACKAGE);
-#endif
   if ((argc == 2 && strcmp(argv[1], "-v") == 0) ||
       (argc == 2 && strcmp(argv[1], "--version") == 0)) {
     char *versionStrP;
@@ -107,11 +95,11 @@ int main(int argc, char **argv) {
   }
 
   if (output == NULL && noocr == false) {
-    fprintf(stderr, _("Usage:%s imagename outputbase|stdout [-l lang] "
+    fprintf(stderr, "Usage:%s imagename outputbase|stdout [-l lang] "
                       "[-psm pagesegmode] [-c configvar=value] "
-                      "[configfile...]\n\n"), argv[0]);
+                      "[configfile...]\n\n", argv[0]);
     fprintf(stderr,
-            _("pagesegmode values are:\n"
+              "pagesegmode values are:\n"
               "0 = Orientation and script detection (OSD) only.\n"
               "1 = Automatic page segmentation with OSD.\n"
               "2 = Automatic page segmentation, but no OSD, or OCR\n"
@@ -122,16 +110,16 @@ int main(int argc, char **argv) {
               "7 = Treat the image as a single text line.\n"
               "8 = Treat the image as a single word.\n"
               "9 = Treat the image as a single word in a circle.\n"
-              "10 = Treat the image as a single character.\n"));
-    fprintf(stderr, _("multiple -c arguments are allowed.\n"));
-    fprintf(stderr, _("-l lang, -psm pagesegmode and any -c options must occur"
-                      "before any configfile.\n\n"));
-    fprintf(stderr, _("Single options:\n"));
-    fprintf(stderr, _("  -v --version: version info\n"));
-    fprintf(stderr, _("  --list-langs: list available languages for tesseract "
-                      "engine\n"));
-    fprintf(stderr, _("  --print-parameters: print tesseract parameters to the "
-                      "stdout\n"));
+              "10 = Treat the image as a single character.\n");
+    fprintf(stderr, "multiple -c arguments are allowed.\n");
+    fprintf(stderr, "-l lang, -psm pagesegmode and any -c options must occur"
+                      "before any configfile.\n\n");
+    fprintf(stderr, "Single options:\n");
+    fprintf(stderr, "  -v --version: version info\n");
+    fprintf(stderr, "  --list-langs: list available languages for tesseract "
+                      "engine\n");
+    fprintf(stderr, "  --print-parameters: print tesseract parameters to the "
+                      "stdout\n");
     exit(1);
   }
 
@@ -144,7 +132,7 @@ int main(int argc, char **argv) {
                 &(argv[arg]), argc - arg, NULL, NULL, false);
 
   if (rc) {
-    fprintf(stderr, _("Could not initialize tesseract.\n"));
+    fprintf(stderr, "Could not initialize tesseract.\n");
     exit(1);
   }
 
@@ -158,7 +146,7 @@ int main(int argc, char **argv) {
       ++arg;
 
       if(!api.SetVariable(opt1, opt2)) {
-        fprintf(stderr, _("Could not set option: %s=%s\n"), opt1, opt2);
+        fprintf(stderr, "Could not set option: %s=%s\n", opt1, opt2);
       }
     }
   }
@@ -166,7 +154,7 @@ int main(int argc, char **argv) {
   if (list_langs) {
      GenericVector<STRING> languages;
      api.GetAvailableLanguagesAsVector(&languages);
-     fprintf(stderr, _("List of available languages (%d):\n"),
+     fprintf(stderr, "List of available languages (%d):\n",
              languages.size());
      for (int index = 0; index < languages.size(); ++index) {
        STRING& string = languages[index];
@@ -178,7 +166,7 @@ int main(int argc, char **argv) {
 
   if (print_parameters) {
      FILE* fout = stdout;
-     fprintf(stdout, _("Tesseract parameters:\n"));
+     fprintf(stdout, "Tesseract parameters:\n");
      api.PrintVariables(fout);
      api.End();
      exit(0);
@@ -204,7 +192,7 @@ int main(int argc, char **argv) {
 
   FILE* fin = fopen(image, "rb");
   if (fin == NULL) {
-    fprintf(stderr, _("Cannot open input file: %s\n"), image);
+    fprintf(stderr, "Cannot open input file: %s\n", image);
     exit(2);
   }
   fclose(fin);
@@ -220,17 +208,17 @@ int main(int argc, char **argv) {
     outfile += output_hocr ? ".html" : output_box ? ".box" : ".txt";
     fout = fopen(outfile.string(), "wb");
     if (fout == NULL) {
-      fprintf(stderr, _("Cannot create output file %s\n"), outfile.string());
+      fprintf(stderr, "Cannot create output file %s\n", outfile.string());
       exit(1);
     }
   }
 
   STRING text_out;
   if (!api.ProcessPages(image, NULL, 0, &text_out)) {
-    fprintf(stderr, _("Error during processing.\n"));
+    fprintf(stderr, "Error during processing.\n");
     if (fout != stdout)
       fclose(fout);
-	exit(1);
+  exit(1);
   }
 
   fwrite(text_out.string(), 1, text_out.length(), fout);

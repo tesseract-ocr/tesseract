@@ -165,21 +165,6 @@ fi
 
 #localedir='${prefix}/share/locale'
 
-# Not used yet, so disable
-#AC_ARG_ENABLE([gettext],
-#    [  --enable-gettext         Enable gettext (default).],
-#    [enable_gettext=$enableval],
-#    [enable_gettext="yes"])
-#AC_MSG_RESULT($enable_gettext)
-#if test "$enable_gettext" = "yes"; then
-#  AM_GNU_GETTEXT_VERSION([0.17])
-#  AM_GNU_GETTEXT([external])  
-#  AC_SUBST(localedir)
-#else
-#  AC_DEFINE([NO_GETTEXT], [], [Disable Gettext])
-#fi
-#AM_CONDITIONAL([USING_GETTEXT], [test "$enable_gettext" = "yes"])
-
 # Always look into a "gnu" directory.
 curwd=`pwd`
 if test -d $curwd/gnu/include ; then
@@ -313,9 +298,6 @@ fi
 
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
-#if test "$enable_gettext" = "yes"; then
-#AC_CONFIG_FILES(po/Makefile.in)
-#fi
 AC_CONFIG_FILES(api/Makefile)
 AC_CONFIG_FILES(ccmain/Makefile)
 AC_CONFIG_FILES(ccstruct/Makefile)

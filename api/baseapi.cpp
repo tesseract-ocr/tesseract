@@ -24,16 +24,7 @@
 
 #include "allheaders.h"
 
-#ifdef USING_GETTEXT
-#include <libintl.h>
-#include <locale.h>
-#define _(x) gettext(x)
-#else
-#define _(x) (x)
-#endif
-
 #include "baseapi.h"
-
 #include "resultiterator.h"
 #include "mutableiterator.h"
 #include "thresholder.h"
@@ -816,7 +807,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
     page = 0;
   FILE* fp = fopen(filename, "rb");
   if (fp == NULL) {
-    tprintf(_("Image file %s cannot be opened!\n"), filename);
+    tprintf("Image file %s cannot be opened!\n", filename);
     return false;
   }
   // Find the number of pages if a tiff file, or zero otherwise.
@@ -847,7 +838,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
     for (; page < npages && (pix = pixReadTiff(filename, page)) != NULL;
          ++page) {
       if ((page >= 0) && (npages > 1))
-        tprintf(_("Page %d of %d\n"), page + 1, npages);
+        tprintf("Page %d of %d\n", page + 1, npages);
       char page_str[kMaxIntSize];
       snprintf(page_str, kMaxIntSize - 1, "%d", page);
       SetVariable("applybox_page", page_str);
@@ -869,10 +860,10 @@ bool TessBaseAPI::ProcessPages(const char* filename,
       // The file is not an image file, so try it as a list of filenames.
       FILE* fimg = fopen(filename, "rb");
       if (fimg == NULL) {
-        tprintf(_("File %s cannot be opened!\n"), filename);
+        tprintf("File %s cannot be opened!\n", filename);
         return false;
       }
-      tprintf(_("Reading %s as a list of filenames...\n"), filename);
+      tprintf("Reading %s as a list of filenames...\n", filename);
       char pagename[MAX_PATH];
       // Skip to the requested page number.
       for (int i = 0; i < page &&
@@ -882,11 +873,11 @@ bool TessBaseAPI::ProcessPages(const char* filename,
         chomp_string(pagename);
         pix = pixRead(pagename);
         if (pix == NULL) {
-          tprintf(_("Image file %s cannot be read!\n"), pagename);
+          tprintf("Image file %s cannot be read!\n", pagename);
           fclose(fimg);
           return false;
         }
-        tprintf(_("Page %d : %s\n"), page, pagename);
+        tprintf("Page %d : %s\n", page, pagename);
         success &= ProcessPage(pix, page, pagename, retry_config,
                                timeout_millisec, text_out);
         pixDestroy(&pix);
