@@ -26,7 +26,6 @@
 #include          "ocrblock.h"
 #include          "coutln.h"
 #include          "crakedge.h"
-#include          "notdll.h"
 
 #define BUCKETSIZE      16
 

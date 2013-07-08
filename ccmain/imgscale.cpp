@@ -31,7 +31,6 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
-#include "mfcpch.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "errcode.h"

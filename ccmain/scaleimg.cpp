@@ -28,14 +28,11 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
-#include "mfcpch.h"
 #include          <stdlib.h>
 #include          <string.h>
 #include          "fileerr.h"
 #include          "tprintf.h"
-//#include          "grphics.h"
 #include          "img.h"
-//#include                                      "basefile.h"
 #include          "imgscale.h"
 #include          "scaleimg.h"
 

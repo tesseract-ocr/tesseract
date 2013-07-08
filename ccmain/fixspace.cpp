@@ -19,7 +19,6 @@
 *
 **********************************************************************/
 
-#include "mfcpch.h"
 #include <ctype.h>
 #include "reject.h"
 #include "statistc.h"

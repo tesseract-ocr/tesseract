@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include "blckerr.h"
 #include "helpers.h"
 #include "linlsq.h"

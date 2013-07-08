@@ -16,7 +16,6 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#include "mfcpch.h"
 #ifdef __UNIX__
 #include <assert.h>
 #endif

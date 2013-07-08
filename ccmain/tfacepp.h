@@ -22,7 +22,6 @@
 
 #include          "ratngs.h"
 #include          "blobs.h"
-#include          "notdll.h"
 #include          "tesseractclass.h"
 
 void call_tester(                     //call a tester

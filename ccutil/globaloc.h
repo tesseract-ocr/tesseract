@@ -20,8 +20,7 @@
 #ifndef           GLOBALOC_H
 #define           GLOBALOC_H
 
-#include          "hosthplb.h"
-#include          "notdll.h"
+#include          "host.h"
 
 void signal_exit(                 //
                  int signal_code  //Signal which

@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
 #include          <stdlib.h>
 #include          "helpers.h"
 #include          "ndminx.h"

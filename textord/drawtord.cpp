@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          "pithsync.h"
 #include          "topitch.h"
 #include          "drawtord.h"

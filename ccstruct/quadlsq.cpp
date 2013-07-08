@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          <stdio.h>
 #include          <math.h>
 #include          "errcode.h"

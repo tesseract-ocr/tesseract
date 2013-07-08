@@ -31,7 +31,6 @@
 #include "config_auto.h"
 #endif
 
-#include "mfcpch.h"
 #include "blobs.h"
 #include "ccstruct.h"
 #include "clst.h"

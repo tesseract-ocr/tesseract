@@ -21,7 +21,6 @@
 #define CJKPITCH_H_
 
 #include          "blobbox.h"
-#include          "notdll.h"
 
 // Function to test "fixed-pitchness" of the input text and estimating
 // character pitch parameters for it, based on CJK fixed-pitch layout

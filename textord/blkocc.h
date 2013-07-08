@@ -27,8 +27,6 @@
 
 #include                   "params.h"
 #include          "elst.h"
-#include          "notdll.h"
-#include          "notdll.h"
 
 /***************************************************************************
 CLASS REGION_OCC

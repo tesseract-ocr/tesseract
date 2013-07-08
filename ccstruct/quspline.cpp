@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          "memry.h"
 #include          "quadlsq.h"
 #include          "quspline.h"

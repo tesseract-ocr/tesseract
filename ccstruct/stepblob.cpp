@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include "stepblob.h"
 #include "allheaders.h"
 

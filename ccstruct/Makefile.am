@@ -10,7 +10,7 @@ endif
 include_HEADERS = publictypes.h
 noinst_HEADERS = \
     blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
-    detlinefit.h dppoint.h fontinfo.h genblob.h hpddef.h hpdsizes.h ipoints.h \
+    detlinefit.h dppoint.h fontinfo.h genblob.h hpdsizes.h ipoints.h \
     linlsq.h matrix.h mod128.h normalis.h \
     ocrblock.h ocrpara.h ocrrow.h otsuthr.h \
     pageres.h params_training_featdef.h \

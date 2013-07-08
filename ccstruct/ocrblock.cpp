@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include <stdlib.h>
 #include "blckerr.h"
 #include "ocrblock.h"

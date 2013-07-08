@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #ifdef __UNIX__
 #include          <assert.h>
 #endif
@@ -28,7 +27,6 @@
 #include          "tovars.h"
 #include          "topitch.h"
 #include          "fpchop.h"
-#include          "notdll.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include "ccstruct.h"
 #include          "statistc.h"
 #include          "quadlsq.h"

@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     // Precompiled headers
 #include          "helpers.h"
 #include          "tprintf.h"
 #include          "strngs.h"

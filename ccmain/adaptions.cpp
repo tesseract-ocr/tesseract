@@ -23,8 +23,6 @@
 #pragma warning(disable:4305)  // int/float warnings
 #endif
 
-#include "mfcpch.h"
-
 #ifdef __UNIX__
 #include          <assert.h>
 #endif

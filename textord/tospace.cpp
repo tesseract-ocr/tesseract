@@ -17,7 +17,6 @@
  **********************************************************************/
 
 #include "textord.h"
-#include "mfcpch.h"
 #include "tovars.h"
 #include "drawtord.h"
 #include "textord.h"

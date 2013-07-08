@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"
 #include          <signal.h>
 #include          "errcode.h"
 #include          "tprintf.h"

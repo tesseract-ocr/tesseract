@@ -22,8 +22,6 @@
 #pragma warning(disable:4305)  // int/float warnings
 #endif
 
-#include "mfcpch.h"
-
 #include          "tessvars.h"
 #ifdef __UNIX__
 #include          <assert.h>
@@ -45,7 +43,6 @@
 /* #define SECURE_NAMES done in secnames.h when necessary */
 
 #include "tesseractclass.h"
-#include          "notdll.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

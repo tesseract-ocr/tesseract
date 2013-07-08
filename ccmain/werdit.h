@@ -21,7 +21,6 @@
 #define           WERDIT_H
 
 #include          "pageres.h"
-#include          "notdll.h"
 
 WERD *make_pseudo_word(PAGE_RES* page_res,  // blocks to check
                        TBOX &selection_box,

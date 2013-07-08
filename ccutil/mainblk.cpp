@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          "fileerr.h"
 #ifdef __UNIX__
 #include          <unistd.h>

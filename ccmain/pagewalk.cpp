@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include "pageres.h"
 #include "tesseractclass.h"
 

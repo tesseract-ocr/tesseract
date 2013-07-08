@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 //#include                                                      <osfcn.h>
 //#include                                                      <signal.h>
 //#include                                                      <time.h>
@@ -50,8 +49,6 @@
 #include "globals.h"
 #include "tesseractclass.h"
 #include "params.h"
-
-#include          "notdll.h"     //phils nn stuff
 
 #define VARDIR        "configs/" /*variables files */
                                  //config under api

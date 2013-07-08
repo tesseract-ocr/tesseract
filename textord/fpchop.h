@@ -22,8 +22,6 @@
 
 #include          "params.h"
 #include          "blobbox.h"
-#include          "notdll.h"
-#include          "notdll.h"
 
 class C_OUTLINE_FRAG:public ELIST_LINK
 {

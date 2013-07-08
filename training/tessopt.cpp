@@ -17,11 +17,9 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
 #include          <string.h>
 #include          <stdio.h>
 #include          "tessopt.h"
-#include          "notdll.h"     //must be last include
 
 int tessoptind;
 char *tessoptarg;

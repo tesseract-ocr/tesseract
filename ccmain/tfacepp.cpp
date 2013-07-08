@@ -25,7 +25,6 @@
 
 #include <math.h>
 
-#include "mfcpch.h"
 #ifdef __UNIX__
 #include          <assert.h>
 #endif

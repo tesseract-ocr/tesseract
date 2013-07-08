@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
 #include "serialis.h"
 #include "scanutils.h"
 

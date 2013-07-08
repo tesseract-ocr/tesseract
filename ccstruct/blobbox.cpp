@@ -22,7 +22,6 @@
 #include "config_auto.h"
 #endif
 
-#include "mfcpch.h"
 #include "blobbox.h"
 #include "helpers.h"
 

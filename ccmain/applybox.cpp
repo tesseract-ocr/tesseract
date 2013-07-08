@@ -16,7 +16,6 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#include "mfcpch.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings

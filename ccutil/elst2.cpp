@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
 #include <stdlib.h>
 #include "host.h"
 #include "elst2.h"

@@ -893,10 +893,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ccutil\mfcpch.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\classify\mfdefs.cpp"
 				>
 			</File>
@@ -2031,10 +2027,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ccutil\mfcpch.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\classify\mfdefs.h"
 				>
 			</File>
@@ -2076,10 +2068,6 @@
 			</File>
 			<File
 				RelativePath="..\..\classify\normmatch.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccutil\notdll.h"
 				>
 			</File>
 			<File

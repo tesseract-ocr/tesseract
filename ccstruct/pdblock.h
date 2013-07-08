@@ -25,8 +25,6 @@
 #include          "strngs.h"
 #include          "polyblk.h"
 
-#include          "hpddef.h"     //must be last (handpd.dll)
-
 class DLLSYM PDBLK;              //forward decl
 struct Pix;
 

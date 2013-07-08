@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"  // Must be first include for windows.
 #include          <stdio.h>
 #include          <math.h>
 #include          "errcode.h"

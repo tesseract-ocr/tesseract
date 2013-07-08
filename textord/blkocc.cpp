@@ -28,14 +28,12 @@
 ----------------------------------------------------------------------
 */
 
-#include "mfcpch.h"
 #include <ctype.h>
 #include <math.h>
 #include "errcode.h"
 #include "drawtord.h"
 #include "blkocc.h"
 #include "helpers.h"
-#include "notdll.h"
 
 double_VAR(textord_underline_threshold, 0.5, "Fraction of width occupied");
 

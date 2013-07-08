@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          <stdio.h>
 #ifdef __UNIX__
 #include          <assert.h>

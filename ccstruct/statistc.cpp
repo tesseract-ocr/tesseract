@@ -22,7 +22,6 @@
 #include "config_auto.h"
 #endif
 
-#include          "mfcpch.h"     //precompiled headers
 #include          "statistc.h"
 #include          <string.h>
 #include          <math.h>

@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          <string.h>
 #include          <ctype.h>
 #include          "params.h"

@@ -24,7 +24,6 @@
 #include "ccstruct.h"
 #include "blobbox.h"
 #include "gap_map.h"
-#include "notdll.h"
 #include "publictypes.h"  // For PageSegMode.
 
 class FCOORD;

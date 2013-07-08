@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          "edgloop.h"
 #include          "scanedg.h"
 

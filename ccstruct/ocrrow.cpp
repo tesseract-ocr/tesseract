@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          "ocrrow.h"
 #include          "blobbox.h"
 

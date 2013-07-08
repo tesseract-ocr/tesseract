@@ -24,7 +24,6 @@
 #include          "scrollview.h"
 #include          "pitsync1.h"
 #include          "blobbox.h"
-#include          "notdll.h"
 
 #define NO_SMD        "none"
 

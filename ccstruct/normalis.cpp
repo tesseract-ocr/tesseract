@@ -16,7 +16,6 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#include "mfcpch.h"  // Precompiled header include must be first.
 
 #include "normalis.h"
 

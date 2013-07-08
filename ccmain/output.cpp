@@ -21,7 +21,6 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
-#include "mfcpch.h"
 #include <string.h>
 #include <ctype.h>
 #ifdef __UNIX__

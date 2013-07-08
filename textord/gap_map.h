@@ -2,7 +2,6 @@
 #define           GAP_MAP_H
 
 #include          "blobbox.h"
-#include          "notdll.h"
 
 class GAPMAP
 {

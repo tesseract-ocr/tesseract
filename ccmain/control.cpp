@@ -18,8 +18,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
-
 #include <string.h>
 #include <math.h>
 #ifdef __UNIX__
@@ -42,7 +40,6 @@
 #include "secname.h"
 #include "output.h"
 #include "callcpp.h"
-#include "notdll.h"
 #include "globals.h"
 #include "sorthelper.h"
 #include "tesseractclass.h"

@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          <stdlib.h>
 #include          "allheaders.h"
 #include          "blckerr.h"
@@ -28,8 +27,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-
-#include          "hpddef.h"     //must be last (handpd.dll)
 
 #define BLOCK_LABEL_HEIGHT  150  //char height of block id
 

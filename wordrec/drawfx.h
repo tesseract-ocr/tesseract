@@ -21,7 +21,6 @@
 #define           DRAWFX_H
 
 #include          "params.h"
-#include          "notdll.h"
 #include	  "scrollview.h"
 
 extern STRING_VAR_H (fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");

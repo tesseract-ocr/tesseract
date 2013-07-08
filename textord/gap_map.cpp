@@ -1,4 +1,3 @@
-#include "mfcpch.h"
 #include          "statistc.h"
 #include          "gap_map.h"
 

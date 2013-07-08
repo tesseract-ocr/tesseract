@@ -24,7 +24,6 @@
 
 #include "clst.h"
 #include "genericvector.h"
-#include "notdll.h"
 #include "unichar.h"
 #include "unicharset.h"
 #include "werd.h"

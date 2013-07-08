@@ -30,7 +30,6 @@
 #include          "ratngs.h"
 #include          "statistc.h"
 #include          "pageres.h"
-#include          "notdll.h"
 
 enum ACCEPTABLE_WERD_TYPE
 {

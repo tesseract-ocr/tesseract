@@ -20,10 +20,9 @@
 #ifndef TFACEP_H
 #define TFACEP_H
 
-#include "hosthplb.h"
+#include "host.h"
 #include "blobs.h"
 #include "tessarray.h"
-#include "notdll.h"
 #include "oldlist.h"
 #include "permute.h"
 #include "blobclass.h"

@@ -25,7 +25,6 @@
 #include          "blobs.h"
 #include          "blobbox.h"
 #include          "statistc.h"
-#include          "notdll.h"
 
 enum OVERLAP_STATE
 {

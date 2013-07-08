@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          "drawfx.h"
 #include          "normalis.h"
 #include          "werd.h"

@@ -22,7 +22,6 @@
 
 #include          "params.h"
 #include          "pageres.h"
-#include          "notdll.h"
 
 void reject_blanks(WERD_RES *word);
 void reject_poor_matches(WERD_RES *word, BLOB_CHOICE_LIST_CLIST *blob_choices);

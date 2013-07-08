@@ -19,7 +19,6 @@
 
 #include <stdio.h>
 
-#include "mfcpch.h"
 #include  "tessvars.h"
 
 FILE *debug_fp = stderr;  // write debug stuff here

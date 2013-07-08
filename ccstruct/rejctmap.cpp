@@ -17,9 +17,7 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
-#include          "hosthplb.h"
-//#include                                      "basefile.h"
+#include          "host.h"
 #include          "rejctmap.h"
 #include          "secname.h"
 #include          "params.h"

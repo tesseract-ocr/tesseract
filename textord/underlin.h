@@ -21,7 +21,6 @@
 #define           UNDERLIN_H
 
 #include          "fpchop.h"
-#include          "notdll.h"
 
 extern double_VAR_H (textord_underline_offset, 0.1,
 "Fraction of x to ignore");

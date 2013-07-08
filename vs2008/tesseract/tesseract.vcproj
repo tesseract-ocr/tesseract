@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="tesseract"
 	ProjectGUID="{C76996CB-C4CB-4D89-9F67-F605DF129618}"
 	RootNamespace="tesseract"
@@ -365,10 +365,6 @@
 			>
 			<File
 				RelativePath=".\resource.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\api\tesseractmain.h"
 				>
 			</File>
 		</Filter>

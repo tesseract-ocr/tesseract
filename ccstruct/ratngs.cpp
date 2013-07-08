@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include "ratngs.h"
 
 #include "callcpp.h"

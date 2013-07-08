@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
 #ifdef _WIN32
 #include          <io.h>
 #else
