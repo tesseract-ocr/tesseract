@@ -812,6 +812,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   }
   // Find the number of pages if a tiff file, or zero otherwise.
   int npages;
+  int format;
   Pix *pix;
   pix = pixRead(filename);
   format = pixGetInputFormat(pix);
