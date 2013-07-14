@@ -192,7 +192,7 @@ void TessBaseAPI::PrintVariables(FILE *fp) const {
   ParamUtils::PrintParams(fp, tesseract_->params());
 }
 
-/** 
+/**
  * The datapath must be the name of the data directory (no ending /) or
  * some other file in which the data directory resides (for instance argv[0].)
  * The language is (usually) an ISO 639-3 string or NULL will default to eng.
@@ -248,7 +248,7 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
   return 0;
 }
 
-/** 
+/**
  * Returns the languages string used in the last valid initialization.
  * If the last initialization specified "deu+hin" then that will be
  * returned. If hin loaded eng automatically as well, then that will
@@ -812,7 +812,12 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   }
   // Find the number of pages if a tiff file, or zero otherwise.
   int npages;
-  tiffGetCount(fp, &npages);
+  Pix *pix;
+  pix = pixRead(filename);
+  format = pixGetInputFormat(pix);
+  if (format == IFF_TIFF || format == IFF_TIFF_G4 ||
+      format == IFF_TIFF_G3 || format == IFF_TIFF_PACKBITS)
+    tiffGetCount(fp, &npages);
   fclose(fp);
 
   if (tesseract_->tessedit_create_hocr) {
@@ -833,7 +838,6 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   }
 
   bool success = true;
-  Pix *pix;
   if (npages > 0) {
     for (; page < npages && (pix = pixReadTiff(filename, page)) != NULL;
          ++page) {
@@ -851,7 +855,6 @@ bool TessBaseAPI::ProcessPages(const char* filename,
     }
   } else {
     // The file is not a tiff file, so use the general pixRead function.
-    pix = pixRead(filename);
     if (pix != NULL) {
       success &= ProcessPage(pix, 0, filename, retry_config,
                              timeout_millisec, text_out);
