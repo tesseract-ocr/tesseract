@@ -25,6 +25,7 @@
 #include "allheaders.h"
 #include "baseapi.h"
 #include "basedir.h"
+#include "renderer.h"
 #include "strngs.h"
 #include "tprintf.h"
 
@@ -138,7 +139,7 @@ int main(int argc, char **argv) {
       opt2[254] = 0;
       ++arg;
 
-      if(!api.SetVariable(opt1, opt2)) {
+      if (!api.SetVariable(opt1, opt2)) {
         fprintf(stderr, "Could not set option: %s=%s\n", opt1, opt2);
       }
     }
@@ -190,35 +191,42 @@ int main(int argc, char **argv) {
   }
   fclose(fin);
 
-  bool output_hocr = false;
-  api.GetBoolVariable("tessedit_create_hocr", &output_hocr);
-  bool output_box = false;
-  api.GetBoolVariable("tessedit_create_boxfile", &output_box);
+  tesseract::TessResultRenderer* renderer = new tesseract::TessTextRenderer();
+  bool b;
+  api.GetBoolVariable("tessedit_create_hocr", &b);
+  if (b) renderer->insert(new tesseract::TessHOcrRenderer());
 
-  FILE* fout = stdout;
-  if (strcmp(output, "-") && strcmp(output, "stdout")) {
-    STRING outfile = output;
-    outfile += output_hocr ? ".html" : output_box ? ".box" : ".txt";
-    fout = fopen(outfile.string(), "wb");
-    if (fout == NULL) {
-      fprintf(stderr, "Cannot create output file %s\n", outfile.string());
-      exit(1);
+  api.GetBoolVariable("tessedit_create_boxfile", &b);
+  if (b) renderer->insert(new tesseract::TessBoxTextRenderer());
+
+  if (!api.ProcessPages(image, NULL, 0, renderer)) {
+    fprintf(stderr, "Error during processing.\n");
+  } else {
+    for (tesseract::TessResultRenderer* r = renderer; r != NULL;
+         r = r->next()) {
+      FILE* fout = stdout;
+      if (strcmp(output, "-") && strcmp(output, "stdout")) {
+        STRING outfile = STRING(output)
+            + STRING(".")
+            + STRING(r->file_extension());
+        fout = fopen(outfile.string(), "wb");
+        if (fout == NULL) {
+          fprintf(stderr, "Cannot create output file %s\n", outfile.string());
+          exit(1);
+        }
+      }
+
+      const char* data;
+      inT32 data_len;
+      if (r->GetOutput(&data, &data_len)) {
+        fwrite(data, 1, data_len, fout);
+        if (fout != stdout)
+          fclose(fout);
+        else
+          clearerr(fout);
+      }
     }
   }
-
-  STRING text_out;
-  if (!api.ProcessPages(image, NULL, 0, &text_out)) {
-    fprintf(stderr, "Error during processing.\n");
-    if (fout != stdout)
-      fclose(fout);
-  exit(1);
-  }
-
-  fwrite(text_out.string(), 1, text_out.length(), fout);
-  if (fout != stdout)
-    fclose(fout);
-  else
-    clearerr(fout);
 
   return 0;                      // Normal exit
 }
