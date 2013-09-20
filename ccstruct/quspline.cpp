@@ -17,9 +17,10 @@
  *
  **********************************************************************/
 
-#include          "memry.h"
-#include          "quadlsq.h"
-#include          "quspline.h"
+#include "allheaders.h"
+#include "memry.h"
+#include "quadlsq.h"
+#include "quspline.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -384,3 +385,41 @@ void QSPLINE::plot(                //draw it
   }
 }
 #endif
+
+void QSPLINE::plot(Pix *pix) const {
+  if (pix == NULL) {
+    return;
+  }
+
+  inT32 segment;  // Index of segment
+  inT16 step;  // Index of poly piece
+  double increment;  // x increment
+  double x;  // x coord
+  double height = static_cast<double>(pixGetHeight(pix));
+  Pta* points = ptaCreate(QSPLINE_PRECISION * segments);
+  const int kLineWidth = 5;
+
+  for (segment = 0; segment < segments; segment++) {
+    increment = static_cast<double>((xcoords[segment + 1] -
+        xcoords[segment])) / QSPLINE_PRECISION;
+    x = xcoords[segment];
+    for (step = 0; step <= QSPLINE_PRECISION; step++) {
+      double y = height - quadratics[segment].y(x);
+      ptaAddPt(points, x, y);
+      x += increment;
+    }
+  }
+
+  switch (pixGetDepth(pix)) {
+    case 1:
+      pixRenderPolyline(pix, points, kLineWidth, L_SET_PIXELS, 1);
+      break;
+    case 32:
+      pixRenderPolylineArb(pix, points, kLineWidth, 255, 0, 0, 1);
+      break;
+    default:
+      pixRenderPolyline(pix, points, kLineWidth, L_CLEAR_PIXELS, 1);
+      break;
+  }
+  ptaDestroy(&points);
+}

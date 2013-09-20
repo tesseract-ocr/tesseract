@@ -17,14 +17,13 @@
  *
  **********************************************************************/
 
-#include          <stdio.h>
-#include          <math.h>
-#include          "errcode.h"
-#include          "quadlsq.h"
+#include <stdio.h>
+#include <math.h>
+#include "quadlsq.h"
+#include "tprintf.h"
 
-const ERRCODE EMPTY_QLSQ = "Can't delete from an empty QLSQ";
-
-#define EXTERN
+// Minimum variance in least squares before backing off to a lower degree.
+const double kMinVariance = 1.0 / 1024;
 
 /**********************************************************************
  * QLSQ::clear
@@ -32,19 +31,19 @@ const ERRCODE EMPTY_QLSQ = "Can't delete from an empty QLSQ";
  * Function to initialize a QLSQ.
  **********************************************************************/
 
-void QLSQ::clear() {  //initialize
-  a = 0;
-  b = 0;
-  c = 0;
-  n = 0;                         //no elements
-  sigx = 0;                      //update accumulators
-  sigy = 0;
-  sigxx = 0;
-  sigxy = 0;
-  sigyy = 0;
-  sigxxx = 0;
-  sigxxy = 0;
-  sigxxxx = 0;
+void QLSQ::clear() {  // initialize
+  a = 0.0;
+  b = 0.0;
+  c = 0.0;
+  n = 0;                           // No elements.
+  sigx = 0.0;                      // Zero accumulators.
+  sigy = 0.0;
+  sigxx = 0.0;
+  sigxy = 0.0;
+  sigyy = 0.0;
+  sigxxx = 0.0;
+  sigxxy = 0.0;
+  sigxxxx = 0.0;
 }
 
 
@@ -54,44 +53,39 @@ void QLSQ::clear() {  //initialize
  * Add an element to the accumulator.
  **********************************************************************/
 
-void QLSQ::add(           //add an element
-               double x,  //xcoord
-               double y   //ycoord
-              ) {
-  n++;                           //count elements
-  sigx += x;                     //update accumulators
+void QLSQ::add(double x, double y) {
+  n++;                           // Count elements.
+  sigx += x;                     // Update accumulators.
   sigy += y;
   sigxx += x * x;
   sigxy += x * y;
   sigyy += y * y;
-  sigxxx += (long double) x *x * x;
-  sigxxy += (long double) x *x * y;
-  sigxxxx += (long double) x *x * x * x;
+  sigxxx += static_cast<long double>(x) * x * x;
+  sigxxy += static_cast<long double>(x) * x * y;
+  sigxxxx += static_cast<long double>(x) * x * x * x;
 }
 
 
 /**********************************************************************
  * QLSQ::remove
  *
- * Delete an element from the acculuator.
+ * Delete an element from the accumulator.
  **********************************************************************/
 
-void QLSQ::remove(           //delete an element
-                  double x,  //xcoord
-                  double y   //ycoord
-                 ) {
-  if (n <= 0)
-                                 //illegal
-    EMPTY_QLSQ.error ("QLSQ::remove", ABORT, NULL);
-  n--;                           //count elements
-  sigx -= x;                     //update accumulators
+void QLSQ::remove(double x, double y) {
+  if (n <= 0) {
+    tprintf("Can't remove an element from an empty QLSQ accumulator!\n");
+    return;
+  }
+  n--;                           // Count elements.
+  sigx -= x;                     // Update accumulators.
   sigy -= y;
   sigxx -= x * x;
   sigxy -= x * y;
   sigyy -= y * y;
-  sigxxx -= (long double) x *x * x;
-  sigxxy -= (long double) x *x * y;
-  sigxxxx -= (long double) x *x * x * x;
+  sigxxx -= static_cast<long double>(x) * x * x;
+  sigxxy -= static_cast<long double>(x) * x * y;
+  sigxxxx -= static_cast<long double>(x) * x * x * x;
 }
 
 
@@ -99,48 +93,51 @@ void QLSQ::remove(           //delete an element
  * QLSQ::fit
  *
  * Fit the given degree of polynomial and store the result.
+ * This creates a quadratic of the form axx + bx + c, but limited to
+ * the given degree.
  **********************************************************************/
 
-void QLSQ::fit(            //fit polynomial
-               int degree  //degree to fit
-              ) {
-  long double cubetemp;          //intermediates
-  long double squaretemp;
-  long double top96, bottom96;   /*accurate top & bottom */
+void QLSQ::fit(int degree) {
+  long double x_variance = static_cast<long double>(sigxx) * n -
+      static_cast<long double>(sigx) * sigx;
+
+  // Note: for computational efficiency, we do not normalize the variance,
+  // covariance and cube variance here as they are in the same order in both
+  // nominators and denominators. However, we need be careful in value range
+  // check.
+  if (x_variance < kMinVariance * n * n || degree < 1 || n < 2) {
+    // We cannot calculate b reliably so forget a and b, and just work on c.
+    a = b = 0.0;
+    if (n >= 1 && degree >= 0) {
+      c = sigy / n;
+    } else {
+      c = 0.0;
+    }
+    return;
+  }
+  long double top96 = 0.0;       // Accurate top.
+  long double bottom96 = 0.0;    // Accurate bottom.
+  long double cubevar = sigxxx * n - static_cast<long double>(sigxx) * sigx;
+  long double covariance = static_cast<long double>(sigxy) * n -
+      static_cast<long double>(sigx) * sigy;
 
   if (n >= 4 && degree >= 2) {
-    cubetemp = sigxxx * n - (long double) sigxx *sigx;
+    top96 = cubevar * covariance;
+    top96 += x_variance * (static_cast<long double>(sigxx) * sigy - sigxxy * n);
 
-    top96 =
-      cubetemp * ((long double) sigxy * n - (long double) sigx * sigy);
-
-    squaretemp = (long double) sigxx *n - (long double) sigx *sigx;
-
-    top96 += squaretemp * ((long double) sigxx * sigy - sigxxy * n);
-
-    bottom96 = cubetemp * cubetemp;
-
-    bottom96 -= squaretemp * (sigxxxx * n - (long double) sigxx * sigxx);
-
+    bottom96 = cubevar * cubevar;
+    bottom96 -= x_variance *
+        (sigxxxx * n - static_cast<long double>(sigxx) * sigxx);
+  }
+  if (bottom96 >= kMinVariance * n * n * n * n) {
+    // Denominators looking good
     a = top96 / bottom96;
-
-    top96 = ((long double) sigxx * sigx - sigxxx * n) * a
-      + (long double) sigxy *n - (long double) sigx *sigy;
-    bottom96 = (long double) sigxx *n - (long double) sigx *sigx;
-    b = top96 / bottom96;
-
-    c = (sigy - a * sigxx - b * sigx) / n;
+    top96 = covariance - cubevar * a;
+    b = top96 / x_variance;
+  } else {
+    // Forget a, and concentrate on b.
+    a = 0.0;
+    b = covariance / x_variance;
   }
-  else if (n == 0 || degree < 0) {
-    a = b = c = 0;
-  }
-  else {
-    a = 0;
-    if (n > 1 && degree > 0) {
-      b = (sigxy * n - sigx * sigy) / (sigxx * n - sigx * sigx);
-    }
-    else
-      b = 0;
-    c = (sigy - b * sigx) / n;
-  }
+  c = (sigy - a * sigxx - b * sigx) / n;
 }

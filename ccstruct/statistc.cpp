@@ -30,6 +30,8 @@
 #include          "scrollview.h"
 #include          "tprintf.h"
 
+using tesseract::KDPairInc;
+
 /**********************************************************************
  * STATS::STATS
  *
@@ -435,6 +437,95 @@ inT32 STATS::cluster(float lower,         // thresholds
   } while (new_cluster && cluster_count < max_clusters);
   delete [] centres;
   return cluster_count;
+}
+
+// Helper tests that the current index is still part of the peak and gathers
+// the data into the peak, returning false when the peak is ended.
+// src_buckets[index] - used_buckets[index] is the unused part of the histogram.
+// prev_count is the histogram count of the previous index on entry and is
+// updated to the current index on return.
+// total_count and total_value are accumulating the mean of the peak.
+static bool GatherPeak(int index, const int* src_buckets, int* used_buckets,
+                       int* prev_count, int* total_count, double* total_value) {
+  int pile_count = src_buckets[index] - used_buckets[index];
+  if (pile_count <= *prev_count && pile_count > 0) {
+    // Accumulate count and index.count product.
+    *total_count += pile_count;
+    *total_value += index * pile_count;
+    // Mark this index as used
+    used_buckets[index] = src_buckets[index];
+    *prev_count = pile_count;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+// Finds (at most) the top max_modes modes, well actually the whole peak around
+// each mode, returning them in the given modes vector as a <mean of peak,
+// total count of peak> pair in order of decreasing total count.
+// Since the mean is the key and the count the data in the pair, a single call
+// to sort on the output will re-sort by increasing mean of peak if that is
+// more useful than decreasing total count.
+// Returns the actual number of modes found.
+int STATS::top_n_modes(int max_modes,
+                       GenericVector<KDPairInc<float, int> >* modes) const {
+  if (max_modes <= 0) return 0;
+  int src_count = rangemax_ - rangemin_;
+  // Used copies the counts in buckets_ as they get used.
+  STATS used(rangemin_, rangemax_);
+  modes->truncate(0);
+  // Total count of the smallest peak found so far.
+  int least_count = 1;
+  // Mode that is used as a seed for each peak
+  int max_count = 0;
+  do {
+    // Find an unused mode.
+    max_count = 0;
+    int max_index = 0;
+    for (int src_index = 0; src_index < src_count; src_index++) {
+      int pile_count = buckets_[src_index] - used.buckets_[src_index];
+      if (pile_count > max_count) {
+        max_count = pile_count;
+        max_index = src_index;
+      }
+    }
+    if (max_count > 0) {
+      // Copy the bucket count to used so it doesn't get found again.
+      used.buckets_[max_index] = max_count;
+      // Get the entire peak.
+      double total_value = max_index * max_count;
+      int total_count = max_count;
+      int prev_pile = max_count;
+      for (int offset = 1; max_index + offset < src_count; ++offset) {
+        if (!GatherPeak(max_index + offset, buckets_, used.buckets_,
+                        &prev_pile, &total_count, &total_value))
+          break;
+      }
+      prev_pile = buckets_[max_index];
+      for (int offset = 1; max_index - offset >= 0; ++offset) {
+        if (!GatherPeak(max_index - offset, buckets_, used.buckets_,
+                        &prev_pile, &total_count, &total_value))
+          break;
+      }
+      if (total_count > least_count || modes->size() < max_modes) {
+        // We definitely want this mode, so if we have enough discard the least.
+        if (modes->size() == max_modes)
+          modes->truncate(max_modes - 1);
+        int target_index = 0;
+        // Linear search for the target insertion point.
+        while (target_index < modes->size() &&
+               (*modes)[target_index].data >= total_count)
+          ++target_index;
+        float peak_mean =
+            static_cast<float>(total_value / total_count + rangemin_);
+        modes->insert(KDPairInc<float, int>(peak_mean, total_count),
+                      target_index);
+        least_count = modes->back().data;
+      }
+    }
+  } while (max_count > 0);
+  return modes->size();
 }
 
 /**********************************************************************

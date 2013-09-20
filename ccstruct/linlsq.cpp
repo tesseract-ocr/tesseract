@@ -172,27 +172,88 @@ FCOORD LLSQ::mean_point() const {
   }
 }
 
+// Returns the sqrt of the mean squared error measured perpendicular from the
+// line through mean_point() in the direction dir.
+//
+// Derivation:
+//   Lemma:  Let v and x_i (i=1..N) be a k-dimensional vectors (1xk matrices).
+//     Let % be dot product and ' be transpose.  Note that:
+//      Sum[i=1..N] (v % x_i)^2
+//         = v * [x_1' x_2' ... x_N'] * [x_1' x_2' .. x_N']' * v'
+//     If x_i have average 0 we have:
+//       = v * (N * COVARIANCE_MATRIX(X)) * v'
+//     Expanded for the case that k = 2, where we treat the dimensions
+//     as x_i and y_i, this is:
+//       = v * (N * [VAR(X), COV(X,Y); COV(X,Y) VAR(Y)]) * v'
+//  Now, we are trying to calculate the mean squared error, where v is
+//  perpendicular to our line of interest:
+//    Mean squared error
+//      = E [ (v % (x_i - x_avg))) ^2 ]
+//      = Sum (v % (x_i - x_avg))^2 / N
+//      = v * N * [VAR(X) COV(X,Y); COV(X,Y) VAR(Y)] / N * v'
+//      = v * [VAR(X) COV(X,Y); COV(X,Y) VAR(Y)] * v'
+//      = code below
+double LLSQ::rms_orth(const FCOORD &dir) const {
+  FCOORD v = !dir;
+  v.normalise();
+  return sqrt(v.x() * v.x() * x_variance() +
+              2 * v.x() * v.y() * covariance() +
+              v.y() * v.y() * y_variance());
+}
+
 // Returns the direction of the fitted line as a unit vector, using the
 // least mean squared perpendicular distance. The line runs through the
 // mean_point, i.e. a point p on the line is given by:
 // p = mean_point() + lambda * vector_fit() for some real number lambda.
 // Note that the result (0<=x<=1, -1<=y<=-1) is directionally ambiguous
 // and may be negated without changing its meaning.
+// Fitting a line m + 𝜆v to a set of N points Pi = (xi, yi), where
+// m is the mean point (𝝁, 𝝂) and
+// v is the direction vector (cos𝜃, sin𝜃)
+// The perpendicular distance of each Pi from the line is:
+// (Pi - m) x v, where x is the scalar cross product.
+// Total squared error is thus:
+// E = ∑((xi - 𝝁)sin𝜃 - (yi - 𝝂)cos𝜃)²
+//   = ∑(xi - 𝝁)²sin²𝜃  - 2∑(xi - 𝝁)(yi - 𝝂)sin𝜃 cos𝜃 + ∑(yi - 𝝂)²cos²𝜃
+//   = NVar(xi)sin²𝜃  - 2NCovar(xi, yi)sin𝜃 cos𝜃  + NVar(yi)cos²𝜃   (Eq 1)
+// where Var(xi) is the variance of xi,
+// and Covar(xi, yi) is the covariance of xi, yi.
+// Taking the derivative wrt 𝜃 and setting to 0 to obtain the min/max:
+// 0 = 2NVar(xi)sin𝜃 cos𝜃 -2NCovar(xi, yi)(cos²𝜃 - sin²𝜃) -2NVar(yi)sin𝜃 cos𝜃
+// => Covar(xi, yi)(cos²𝜃 - sin²𝜃) = (Var(xi) - Var(yi))sin𝜃 cos𝜃
+// Using double angles:
+// 2Covar(xi, yi)cos2𝜃 = (Var(xi) - Var(yi))sin2𝜃   (Eq 2)
+// So 𝜃 = 0.5 atan2(2Covar(xi, yi), Var(xi) - Var(yi)) (Eq 3)
+
+// Because it involves 2𝜃 , Eq 2 has 2 solutions 90 degrees apart, but which
+// is the min and which is the max? From Eq1:
+// E/N = Var(xi)sin²𝜃  - 2Covar(xi, yi)sin𝜃 cos𝜃  + Var(yi)cos²𝜃
+// and 90 degrees away, using sin/cos equivalences:
+// E'/N = Var(xi)cos²𝜃  + 2Covar(xi, yi)sin𝜃 cos𝜃  + Var(yi)sin²𝜃
+// The second error is smaller (making it the minimum) iff
+// E'/N < E/N ie:
+// (Var(xi) - Var(yi))(cos²𝜃 - sin²𝜃) < -4Covar(xi, yi)sin𝜃 cos𝜃
+// Using double angles:
+// (Var(xi) - Var(yi))cos2𝜃  < -2Covar(xi, yi)sin2𝜃  (InEq 1)
+// But atan2(2Covar(xi, yi), Var(xi) - Var(yi)) picks 2𝜃  such that:
+// sgn(cos2𝜃) = sgn(Var(xi) - Var(yi)) and sgn(sin2𝜃) = sgn(Covar(xi, yi))
+// so InEq1 can *never* be true, making the atan2 result *always* the min!
+// In the degenerate case, where Covar(xi, yi) = 0 AND Var(xi) = Var(yi),
+// the 2 solutions have equal error and the inequality is still false.
+// Therefore the solution really is as trivial as Eq 3.
+
+// This is equivalent to returning the Principal Component in PCA, or the
+// eigenvector corresponding to the largest eigenvalue in the covariance
+// matrix.  However, atan2 is much simpler! The one reference I found that
+// uses this formula is http://web.mit.edu/18.06/www/Essays/tlsfit.pdf but
+// that is still a much more complex derivation. It seems Pearson had already
+// found this simple solution in 1901.
+// http://books.google.com/books?id=WXwvAQAAIAAJ&pg=PA559
 FCOORD LLSQ::vector_fit() const {
   double x_var = x_variance();
   double y_var = y_variance();
   double covar = covariance();
-  FCOORD result;
-  if (x_var >= y_var) {
-    if (x_var == 0.0)
-      return FCOORD(0.0f, 0.0f);
-    result.set_x(x_var / sqrt(x_var * x_var + covar * covar));
-    result.set_y(sqrt(1.0 - result.x() * result.x()));
-  } else {
-    result.set_y(y_var / sqrt(y_var * y_var + covar * covar));
-    result.set_x(sqrt(1.0 - result.y() * result.y()));
-  }
-  if (covar < 0.0)
-    result.set_y(-result.y());
+  double theta = 0.5 * atan2(2.0 * covar, x_var - y_var);
+  FCOORD result(cos(theta), sin(theta));
   return result;
 }

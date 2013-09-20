@@ -22,7 +22,11 @@
 
 #include <stdio.h>
 #include "host.h"
+#include "kdpair.h"
 #include "scrollview.h"
+
+template <typename T> class GenericVector;
+
 
 // Simple histogram-based statistics for integer values in a known
 // range, such that the range is small compared to the number of samples.
@@ -102,6 +106,16 @@ class STATS {
                 inT32 max_clusters,  // max no to make
                 STATS *clusters);    // array of clusters
 
+// Finds (at most) the top max_modes modes, well actually the whole peak around
+// each mode, returning them in the given modes vector as a <mean of peak,
+// total count of peak> pair in order of decreasing total count.
+// Since the mean is the key and the count the data in the pair, a single call
+// to sort on the output will re-sort by increasing mean of peak if that is
+// more useful than decreasing total count.
+// Returns the actual number of modes found.
+  int top_n_modes(
+      int max_modes,
+      GenericVector<tesseract::KDPairInc<float, int> >* modes) const;
 
   // Prints a summary and table of the histogram.
   void print() const;
