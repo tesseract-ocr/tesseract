@@ -77,9 +77,6 @@ Tesseract::Tesseract()
               "documents while performing ocr.", this->params()),
     STRING_MEMBER(tessedit_write_params_to_file, "",
                   "Write all parameters to the given file.", this->params()),
-    BOOL_MEMBER(tessedit_adapt_to_char_fragments, true,
-                "Adapt to words that contain "
-                " a character composed form fragments", this->params()),
     BOOL_MEMBER(tessedit_adaption_debug, false, "Generate and print debug"
                 " information for adaption", this->params()),
     INT_MEMBER(bidi_debug, 0, "Debug level for BiDi", this->params()),
@@ -103,6 +100,8 @@ Tesseract::Tesseract()
                 "Call Tess to learn blobs", this->params()),
     BOOL_MEMBER(tessedit_dump_choices, false,
                 "Dump char choices", this->params()),
+    BOOL_MEMBER(tessedit_timing_debug, false, "Print timing stats",
+                this->params()),
     BOOL_MEMBER(tessedit_fix_fuzzy_spaces, true,
                 "Try to improve fuzzy spaces", this->params()),
     BOOL_MEMBER(tessedit_unrej_any_wd, false,
@@ -117,7 +116,7 @@ Tesseract::Tesseract()
                 "Output font info per char", this->params()),
     BOOL_MEMBER(tessedit_debug_block_rejection, false,
                 "Block and Row stats", this->params()),
-    BOOL_MEMBER(tessedit_enable_bigram_correction, false,
+    BOOL_MEMBER(tessedit_enable_bigram_correction, true,
                 "Enable correction based on the word bigram dictionary.",
                 this->params()),
     INT_MEMBER(tessedit_bigram_debug, 0,
@@ -142,8 +141,6 @@ Tesseract::Tesseract()
                   "good_quality_doc gte good char limit", this->params()),
     INT_MEMBER(quality_min_initial_alphas_reqd, 2,
                "alphas in a good word", this->params()),
-    BOOL_MEMBER(tessedit_tess_adapt_to_rejmap, false,
-                "Use reject map to control Tesseract adaption", this->params()),
     INT_MEMBER(tessedit_tess_adaption_mode, 0x27,
                "Adaptation decision algorithm for tess", this->params()),
     BOOL_MEMBER(tessedit_minimal_rej_pass1, false,
@@ -154,14 +151,14 @@ Tesseract::Tesseract()
                 "Log matcher activity", this->params()),
     INT_MEMBER(tessedit_test_adaption_mode, 3,
                "Adaptation decision algorithm for tess", this->params()),
-    BOOL_MEMBER(save_blob_choices, false,
-                "Save the results of the recognition step (blob_choices)"
-                " within the corresponding WERD_CHOICE", this->params()),
     BOOL_MEMBER(test_pt, false, "Test for point", this->params()),
     double_MEMBER(test_pt_x, 99999.99, "xcoord", this->params()),
     double_MEMBER(test_pt_y, 99999.99, "ycoord", this->params()),
     INT_MEMBER(paragraph_debug_level, 0, "Print paragraph debug info.",
                this->params()),
+    BOOL_MEMBER(paragraph_text_based, true,
+                "Run paragraph detection on the post-text-recognition "
+                "(more accurate)", this->params()),
     INT_MEMBER(cube_debug_level, 0, "Print cube debug info.", this->params()),
     STRING_MEMBER(outlines_odd, "%| ", "Non standard number of outlines",
                   this->params()),
@@ -282,6 +279,30 @@ Tesseract::Tesseract()
                this->params()),
     INT_MEMBER(x_ht_min_change, 8,
                "Min change in xht before actually trying it", this->params()),
+    INT_MEMBER(superscript_debug, 0, "Debug level for sub & superscript fixer",
+               this->params()),
+    double_MEMBER(superscript_worse_certainty, 2.0, "How many times worse "
+                  "certainty does a superscript position glyph need to be for "
+                  "us to try classifying it as a char with a different "
+                  "baseline?", this->params()),
+    double_MEMBER(superscript_bettered_certainty, 0.97, "What reduction in "
+                  "badness do we think sufficient to choose a superscript "
+                  "over what we'd thought.  For example, a value of 0.6 means "
+                  "we want to reduce badness of certainty by at least 40%",
+                  this->params()),
+    double_MEMBER(superscript_scaledown_ratio, 0.4,
+                  "A superscript scaled down more than this is unbelievably "
+                  "small.  For example, 0.3 means we expect the font size to "
+                  "be no smaller than 30% of the text line font size.",
+                  this->params()),
+    double_MEMBER(subscript_max_y_top, 0.5,
+                  "Maximum top of a character measured as a multiple of "
+                  "x-height above the baseline for us to reconsider whether "
+                  "it's a subscript.", this->params()),
+    double_MEMBER(superscript_min_y_bottom, 0.3,
+                  "Minimum bottom of a character measured as a multiple of "
+                  "x-height above the baseline for us to reconsider whether "
+                  "it's a superscript.", this->params()),
     BOOL_MEMBER(tessedit_write_block_separators, false,
                 "Write block separators in output", this->params()),
     BOOL_MEMBER(tessedit_write_rep_codes, false,
@@ -314,8 +335,6 @@ Tesseract::Tesseract()
     BOOL_MEMBER(tessedit_consistent_reps, true,
                 "Force all rep chars the same", this->params()),
     INT_MEMBER(tessedit_reject_mode, 0, "Rejection algorithm", this->params()),
-    INT_MEMBER(tessedit_ok_mode, 5,
-               "Acceptance decision algorithm", this->params()),
     BOOL_MEMBER(tessedit_rejection_debug, false,
                 "Adaption debug", this->params()),
     BOOL_MEMBER(tessedit_flip_0O, true,
@@ -365,11 +384,17 @@ Tesseract::Tesseract()
                " TessdataManager functions.", this->params()),
     STRING_MEMBER(tessedit_load_sublangs, "",
                   "List of languages to load with this one", this->params()),
+    BOOL_MEMBER(tessedit_use_primary_params_model, false,
+                "In multilingual mode use params model of the"
+                " primary language", this->params()),
     double_MEMBER(min_orientation_margin, 7.0,
                   "Min acceptable orientation margin", this->params()),
     BOOL_MEMBER(textord_tabfind_show_vlines, false, "Debug line finding",
                 this->params()),
     BOOL_MEMBER(textord_use_cjk_fp_model, FALSE, "Use CJK fixed pitch model",
+                this->params()),
+    BOOL_MEMBER(poly_allow_detailed_fx, false,
+                "Allow feature extractors to see the original outline",
                 this->params()),
     BOOL_INIT_MEMBER(tessedit_init_config_only, false,
                      "Only initialize with the config file. Useful if the "
@@ -377,10 +402,93 @@ Tesseract::Tesseract()
                      "for layout analysis.", this->params()),
     BOOL_MEMBER(textord_equation_detect, false, "Turn on equation detector",
                 this->params()),
+
+    // The following parameters were deprecated and removed from their original
+    // locations. The parameters are temporarily kept here to give Tesseract
+    // users a chance to updated their [lang].traineddata and config files
+    // without introducing failures during Tesseract initialization.
+    // TODO(ocr-team): remove these parameters from the code once we are
+    // reasonably sure that Tesseract users have updated their data files.
+    //
+    // BEGIN DEPRECATED PARAMETERS
+    INT_MEMBER(tessedit_ok_mode, 5,
+               "Acceptance decision algorithm", this->params()),
+    BOOL_INIT_MEMBER(load_fixed_length_dawgs, true, "Load fixed length dawgs"
+                     " (e.g. for non-space delimited languages)",
+                     this->params()),
+    INT_MEMBER(segment_debug, 0, "Debug the whole segmentation process",
+               this->params()),
+    BOOL_MEMBER(permute_debug, 0, "Debug char permutation process",
+                this->params()),
+    double_MEMBER(bestrate_pruning_factor, 2.0, "Multiplying factor of"
+                  " current best rate to prune other hypotheses",
+                  this->params()),
+    BOOL_MEMBER(permute_script_word, 0,
+                "Turn on word script consistency permuter",
+                this->params()),
+    BOOL_MEMBER(segment_segcost_rating, 0,
+                "incorporate segmentation cost in word rating?",
+                this->params()),
+    double_MEMBER(segment_reward_script, 0.95,
+                  "Score multipler for script consistency within a word. "
+                  "Being a 'reward' factor, it should be <= 1. "
+                  "Smaller value implies bigger reward.",
+                  this->params()),
+    BOOL_MEMBER(permute_fixed_length_dawg, 0,
+                "Turn on fixed-length phrasebook search permuter",
+                this->params()),
+    BOOL_MEMBER(permute_chartype_word, 0,
+                "Turn on character type (property) consistency permuter",
+                this->params()),
+    double_MEMBER(segment_reward_chartype, 0.97,
+                  "Score multipler for char type consistency within a word. ",
+                  this->params()),
+    double_MEMBER(segment_reward_ngram_best_choice, 0.99,
+                  "Score multipler for ngram permuter's best choice"
+                  " (only used in the Han script path).",
+                  this->params()),
+    BOOL_MEMBER(ngram_permuter_activated, false,
+                "Activate character-level n-gram-based permuter",
+                this->params()),
+    BOOL_MEMBER(permute_only_top, false, "Run only the top choice permuter",
+                this->params()),
+    INT_MEMBER(language_model_fixed_length_choices_depth, 3,
+               "Depth of blob choice lists to explore"
+               " when fixed length dawgs are on",
+               this->params()),
+    BOOL_MEMBER(use_new_state_cost, FALSE,
+                "use new state cost heuristics for segmentation state"
+                " evaluation", this->params()),
+    double_MEMBER(heuristic_segcost_rating_base, 1.25,
+                  "base factor for adding segmentation cost into word rating."
+                  "It's a multiplying factor, the larger the value above 1, "
+                  "the bigger the effect of segmentation cost.",
+                  this->params()),
+    double_MEMBER(heuristic_weight_rating, 1.0,
+                  "weight associated with char rating in combined cost of"
+                  "state", this->params()),
+    double_MEMBER(heuristic_weight_width, 1000.0,
+                  "weight associated with width evidence in combined cost of"
+                  " state", this->params()),
+    double_MEMBER(heuristic_weight_seamcut, 0.0,
+                  "weight associated with seam cut in combined cost of state",
+                  this->params()),
+    double_MEMBER(heuristic_max_char_wh_ratio, 2.0,
+                  "max char width-to-height ratio allowed in segmentation",
+                  this->params()),
+    BOOL_MEMBER(enable_new_segsearch, true,
+                "Enable new segmentation search path.", this->params()),
+    double_MEMBER(segsearch_max_fixed_pitch_char_wh_ratio, 2.0,
+                  "Maximum character width-to-height ratio for"
+                  " fixed-pitch fonts",
+                  this->params()),
+    // END DEPRECATED PARAMETERS
+
     backup_config_file_(NULL),
     pix_binary_(NULL),
     cube_binary_(NULL),
     pix_grey_(NULL),
+    pix_thresholds_(NULL),
     source_resolution_(0),
     textord_(this),
     right_to_left_(false),
@@ -414,6 +522,7 @@ void Tesseract::Clear() {
   pixDestroy(&pix_binary_);
   pixDestroy(&cube_binary_);
   pixDestroy(&pix_grey_);
+  pixDestroy(&pix_thresholds_);
   pixDestroy(&scaled_color_);
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);

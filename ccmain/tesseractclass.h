@@ -181,6 +181,10 @@ class Tesseract : public Wordrec {
   Pix* BestPix() const {
     return pix_grey_ != NULL ? pix_grey_ : pix_binary_;
   }
+  void set_pix_thresholds(Pix* thresholds) {
+    pixDestroy(&pix_thresholds_);
+    pix_thresholds_ = thresholds;
+  }
   int source_resolution() const {
     return source_resolution_;
   }
@@ -277,10 +281,7 @@ class Tesseract : public Wordrec {
   ACCEPTABLE_WERD_TYPE acceptable_word_string(const UNICHARSET& char_set,
                                               const char *s,
                                               const char *lengths);
-  void match_word_pass2(                 //recog one word
-                        WERD_RES *word,  //word to do
-                        ROW *row,
-                        BLOCK* block);
+  void match_word_pass_n(int pass_n, WERD_RES *word, ROW *row, BLOCK* block);
   void classify_word_pass2(BLOCK* block, ROW *row, WERD_RES *word);
   void ReportXhtFixResult(bool accept_new_word, float new_x_ht,
                           WERD_RES* word, WERD_RES* new_word);
@@ -288,11 +289,37 @@ class Tesseract : public Wordrec {
   bool TrainedXheightFix(WERD_RES *word, BLOCK* block, ROW *row);
   BOOL8 recog_interactive(BLOCK* block, ROW* row, WERD_RES* word_res);
 
-  void set_word_fonts(
-      WERD_RES *word,  // set fonts of this word
-      BLOB_CHOICE_LIST_CLIST *blob_choices);  // detailed results
+  // Set fonts of this word.
+  void set_word_fonts(WERD_RES *word);
   void font_recognition_pass(PAGE_RES* page_res);
   BOOL8 check_debug_pt(WERD_RES *word, int location);
+
+  //// superscript.cpp ////////////////////////////////////////////////////
+  bool SubAndSuperscriptFix(WERD_RES *word_res);
+  void GetSubAndSuperscriptCandidates(const WERD_RES *word,
+                                      int *num_rebuilt_leading,
+                                      ScriptPos *leading_pos,
+                                      float *leading_certainty,
+                                      int *num_rebuilt_trailing,
+                                      ScriptPos *trailing_pos,
+                                      float *trailing_certainty,
+                                      float *avg_certainty,
+                                      float *unlikely_threshold);
+  WERD_RES *TrySuperscriptSplits(int num_chopped_leading,
+                                 float leading_certainty,
+                                 ScriptPos leading_pos,
+                                 int num_chopped_trailing,
+                                 float trailing_certainty,
+                                 ScriptPos trailing_pos,
+                                 WERD_RES *word,
+                                 bool *is_good,
+                                 int *retry_leading,
+                                 int *retry_trailing);
+  bool BelievableSuperscript(bool debug,
+                             const WERD_RES &word,
+                             float certainty_threshold,
+                             int *left_ok,
+                             int *right_ok) const;
 
   //// cube_control.cpp ///////////////////////////////////////////////////
   bool init_cube_objects(bool load_combiner,
@@ -314,7 +341,6 @@ class Tesseract : public Wordrec {
   // Sets up a fake result  and returns false if something goes wrong.
   bool cube_recognize(CubeObject *cube_obj, BLOCK* block, WERD_RES *word);
   void fill_werd_res(const BoxWord& cube_box_word,
-                     WERD_CHOICE* cube_werd_choice,
                      const char* cube_best_str,
                      WERD_RES* tess_werd_res);
   bool extract_cube_state(CubeObject* cube_obj, int* num_chars,
@@ -429,13 +455,10 @@ class Tesseract : public Wordrec {
   // #ifndef GRAPHICS_DISABLED
   BOOL8 word_dumper(BLOCK* block, ROW* row, WERD_RES* word_res);
   // #endif  // GRAPHICS_DISABLED
+  void blob_feature_display(PAGE_RES* page_res, const TBOX& selection_box);
   //// reject.h //////////////////////////////////////////////////////////
-  void make_reject_map(            //make rej map for wd //detailed results
-                       WERD_RES *word,
-                       BLOB_CHOICE_LIST_CLIST *blob_choices,
-                       ROW *row,
-                       inT16 pass  //1st or 2nd?
-                      );
+  // make rej map for word
+  void make_reject_map(WERD_RES *word, ROW *row, inT16 pass);
   BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map);
   inT16 first_alphanum_index(const char *word,
                              const char *word_lengths);
@@ -456,8 +479,6 @@ class Tesseract : public Wordrec {
                      WERD_RES *word,
                      ROW *row);
   void nn_recover_rejects(WERD_RES *word, ROW *row);
-  BOOL8 test_ambig_word(  //test for ambiguity
-                        WERD_RES *word);
   void set_done(  //set done flag
                 WERD_RES *word,
                 inT16 pass);
@@ -472,12 +493,16 @@ class Tesseract : public Wordrec {
                        uinT16 mode);
 
   //// tfacepp.cpp ///////////////////////////////////////////////////////
-  void recog_word_recursive(WERD_RES* word,
-                            BLOB_CHOICE_LIST_CLIST *blob_choices);
-  void recog_word(WERD_RES *word,
-                  BLOB_CHOICE_LIST_CLIST *blob_choices);
-  void split_and_recog_word(WERD_RES* word,
-                            BLOB_CHOICE_LIST_CLIST *blob_choices);
+  void recog_word_recursive(WERD_RES* word);
+  void recog_word(WERD_RES *word);
+  void split_and_recog_word(WERD_RES* word);
+  void split_word(WERD_RES *word,
+                  int split_pt,
+                  WERD_RES **right_piece,
+                  BlamerBundle **orig_blamer_bundle) const;
+  void join_words(WERD_RES *word,
+                  WERD_RES *word2,
+                  BlamerBundle *orig_bb) const;
   //// fixspace.cpp ///////////////////////////////////////////////////////
   BOOL8 digit_or_numeric_punct(WERD_RES *word, int char_position);
   inT16 eval_word_spacing(WERD_RES_LIST &word_res_list);
@@ -495,7 +520,6 @@ class Tesseract : public Wordrec {
                         PAGE_RES *page_res);
   void dump_words(WERD_RES_LIST &perm, inT16 score,
                   inT16 mode, BOOL8 improved);
-  BOOL8 uniformly_spaced(WERD_RES *word);
   BOOL8 fixspace_thinks_word_done(WERD_RES *word);
   inT16 worst_noise_blob(WERD_RES *word_res, float *worst_noise_score);
   float blob_noise_score(TBLOB *blob);
@@ -538,14 +562,9 @@ class Tesseract : public Wordrec {
   void tess_add_doc_word(                          //test acceptability
                          WERD_CHOICE *word_choice  //after context
                         );
-  void tess_segment_pass1(WERD_RES *word,
-                          BLOB_CHOICE_LIST_CLIST *blob_choices);
-  void tess_segment_pass2(WERD_RES *word,
-                          BLOB_CHOICE_LIST_CLIST *blob_choices);
-  BOOL8 tess_acceptable_word(                           //test acceptability
-                             WERD_CHOICE *word_choice,  //after context
-                             WERD_CHOICE *raw_choice    //before context
-                            );
+  void tess_segment_pass_n(int pass_n, WERD_RES *word);
+  bool tess_acceptable_word(WERD_RES *word);
+
   //// applybox.cpp //////////////////////////////////////////////////////
   // Applies the box file based on the image name fname, and resegments
   // the words in the block_list (page), with:
@@ -649,7 +668,7 @@ class Tesseract : public Wordrec {
   // estimate.
   float ComputeCompatibleXheight(WERD_RES *word_res);
   //// Data members ///////////////////////////////////////////////////////
-  // TODO(ocr-team): Remove obsolete parameters.
+  // TODO(ocr-team): Find and remove obsolete parameters.
   BOOL_VAR_H(tessedit_resegment_from_boxes, false,
              "Take segmentation and labeling from box file");
   BOOL_VAR_H(tessedit_resegment_from_line_boxes, false,
@@ -684,9 +703,6 @@ class Tesseract : public Wordrec {
             "documents while performing ocr.");
   STRING_VAR_H(tessedit_write_params_to_file, "",
                "Write all parameters to the given file.");
-  BOOL_VAR_H(tessedit_adapt_to_char_fragments, true,
-             "Adapt to words that contain "
-             " a character composed form fragments");
   BOOL_VAR_H(tessedit_adaption_debug, false,
              "Generate and print debug information for adaption");
   INT_VAR_H(bidi_debug, 0, "Debug level for BiDi");
@@ -706,6 +722,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_display_outwords, false, "Draw output words");
   BOOL_VAR_H(tessedit_training_tess, false, "Call Tess to learn blobs");
   BOOL_VAR_H(tessedit_dump_choices, false, "Dump char choices");
+  BOOL_VAR_H(tessedit_timing_debug, false, "Print timing stats");
   BOOL_VAR_H(tessedit_fix_fuzzy_spaces, true,
              "Try to improve fuzzy spaces");
   BOOL_VAR_H(tessedit_unrej_any_wd, false,
@@ -716,7 +733,7 @@ class Tesseract : public Wordrec {
              "Add words to the document dictionary");
   BOOL_VAR_H(tessedit_debug_fonts, false, "Output font info per char");
   BOOL_VAR_H(tessedit_debug_block_rejection, false, "Block and Row stats");
-  BOOL_VAR_H(tessedit_enable_bigram_correction, false,
+  BOOL_VAR_H(tessedit_enable_bigram_correction, true,
              "Enable correction based on the word bigram dictionary.");
   INT_VAR_H(tessedit_bigram_debug, 0, "Amount of debug output for bigram "
             "correction.");
@@ -731,8 +748,6 @@ class Tesseract : public Wordrec {
                "good_quality_doc lte outline error limit");
   double_VAR_H(quality_char_pc, 0.95, "good_quality_doc gte good char limit");
   INT_VAR_H(quality_min_initial_alphas_reqd, 2, "alphas in a good word");
-  BOOL_VAR_H(tessedit_tess_adapt_to_rejmap, false,
-             "Use reject map to control Tesseract adaption");
   INT_VAR_H(tessedit_tess_adaption_mode, 0x27,
             "Adaptation decision algorithm for tess");
   BOOL_VAR_H(tessedit_minimal_rej_pass1, false,
@@ -741,13 +756,13 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_matcher_log, false, "Log matcher activity");
   INT_VAR_H(tessedit_test_adaption_mode, 3,
             "Adaptation decision algorithm for tess");
-  BOOL_VAR_H(save_blob_choices, false,
-             "Save the results of the recognition step"
-             " (blob_choices) within the corresponding WERD_CHOICE");
   BOOL_VAR_H(test_pt, false, "Test for point");
   double_VAR_H(test_pt_x, 99999.99, "xcoord");
   double_VAR_H(test_pt_y, 99999.99, "ycoord");
   INT_VAR_H(paragraph_debug_level, 0, "Print paragraph debug info.");
+  BOOL_VAR_H(paragraph_text_based, true,
+             "Run paragraph detection on the post-text-recognition "
+             "(more accurate)");
   INT_VAR_H(cube_debug_level, 1, "Print cube debug info.");
   STRING_VAR_H(outlines_odd, "%| ", "Non standard number of outlines");
   STRING_VAR_H(outlines_2, "ij!?%\":;", "Non standard number of outlines");
@@ -832,6 +847,26 @@ class Tesseract : public Wordrec {
   INT_VAR_H(x_ht_acceptance_tolerance, 8,
             "Max allowed deviation of blob top outside of font data");
   INT_VAR_H(x_ht_min_change, 8, "Min change in xht before actually trying it");
+  INT_VAR_H(superscript_debug, 0, "Debug level for sub & superscript fixer");
+  double_VAR_H(superscript_worse_certainty, 2.0, "How many times worse "
+               "certainty does a superscript position glyph need to be for us "
+               "to try classifying it as a char with a different baseline?");
+  double_VAR_H(superscript_bettered_certainty, 0.97, "What reduction in "
+               "badness do we think sufficient to choose a superscript over "
+               "what we'd thought.  For example, a value of 0.6 means we want "
+               "to reduce badness of certainty by 40%");
+  double_VAR_H(superscript_scaledown_ratio, 0.4,
+               "A superscript scaled down more than this is unbelievably "
+               "small.  For example, 0.3 means we expect the font size to "
+               "be no smaller than 30% of the text line font size.");
+  double_VAR_H(subscript_max_y_top, 0.5,
+               "Maximum top of a character measured as a multiple of x-height "
+               "above the baseline for us to reconsider whether it's a "
+               "subscript.");
+  double_VAR_H(superscript_min_y_bottom, 0.3,
+              "Minimum bottom of a character measured as a multiple of "
+              "x-height above the baseline for us to reconsider whether it's "
+              "a superscript.");
   BOOL_VAR_H(tessedit_write_block_separators, false,
              "Write block separators in output");
   BOOL_VAR_H(tessedit_write_rep_codes, false,
@@ -856,7 +891,6 @@ class Tesseract : public Wordrec {
              "Dont reject ANYTHING AT ALL");
   BOOL_VAR_H(tessedit_consistent_reps, true, "Force all rep chars the same");
   INT_VAR_H(tessedit_reject_mode, 0, "Rejection algorithm");
-  INT_VAR_H(tessedit_ok_mode, 5, "Acceptance decision algorithm");
   BOOL_VAR_H(tessedit_rejection_debug, false, "Adaption debug");
   BOOL_VAR_H(tessedit_flip_0O, true, "Contextual 0O O0 flips");
   double_VAR_H(tessedit_lower_flip_hyphen, 1.5,
@@ -888,16 +922,80 @@ class Tesseract : public Wordrec {
             "Debug level for TessdataManager functions.");
   STRING_VAR_H(tessedit_load_sublangs, "",
                "List of languages to load with this one");
+  BOOL_VAR_H(tessedit_use_primary_params_model, false,
+             "In multilingual mode use params model of the primary language");
   // Min acceptable orientation margin (difference in scores between top and 2nd
   // choice in OSResults::orientations) to believe the page orientation.
   double_VAR_H(min_orientation_margin, 7.0,
                "Min acceptable orientation margin");
   BOOL_VAR_H(textord_tabfind_show_vlines, false, "Debug line finding");
   BOOL_VAR_H(textord_use_cjk_fp_model, FALSE, "Use CJK fixed pitch model");
+  BOOL_VAR_H(poly_allow_detailed_fx, false,
+             "Allow feature extractors to see the original outline");
   BOOL_VAR_H(tessedit_init_config_only, false,
              "Only initialize with the config file. Useful if the instance is "
              "not going to be used for OCR but say only for layout analysis.");
   BOOL_VAR_H(textord_equation_detect, false, "Turn on equation detector");
+
+  // The following parameters were deprecated and removed from their original
+  // locations. The parameters are temporarily kept here to give Tesseract
+  // users a chance to updated their [lang].traineddata and config files
+  // without introducing failures during Tesseract initialization.
+  // TODO(ocr-team): remove these parameters from the code once we are
+  // reasonably sure that Tesseract users have updated their data files.
+  //
+  // BEGIN DEPRECATED PARAMETERS
+  INT_VAR_H(tessedit_ok_mode, 5, "Acceptance decision algorithm");
+  BOOL_VAR_H(load_fixed_length_dawgs, true,  "Load fixed length"
+             " dawgs (e.g. for non-space delimited languages)");
+  INT_VAR_H(segment_debug, 0, "Debug the whole segmentation process");
+  BOOL_VAR_H(permute_debug, 0, "char permutation debug");
+  double_VAR_H(bestrate_pruning_factor, 2.0, "Multiplying factor of"
+               " current best rate to prune other hypotheses");
+  BOOL_VAR_H(permute_script_word, 0,
+             "Turn on word script consistency permuter");
+  BOOL_VAR_H(segment_segcost_rating, 0,
+             "incorporate segmentation cost in word rating?");
+  double_VAR_H(segment_reward_script, 0.95,
+               "Score multipler for script consistency within a word. "
+               "Being a 'reward' factor, it should be <= 1. "
+               "Smaller value implies bigger reward.");
+  BOOL_VAR_H(permute_fixed_length_dawg, 0,
+             "Turn on fixed-length phrasebook search permuter");
+  BOOL_VAR_H(permute_chartype_word, 0,
+             "Turn on character type (property) consistency permuter");
+  double_VAR_H(segment_reward_chartype, 0.97,
+               "Score multipler for char type consistency within a word. ");
+  double_VAR_H(segment_reward_ngram_best_choice, 0.99,
+               "Score multipler for ngram permuter's best choice"
+               " (only used in the Han script path).");
+  BOOL_VAR_H(ngram_permuter_activated, false,
+             "Activate character-level n-gram-based permuter");
+  BOOL_VAR_H(permute_only_top, false, "Run only the top choice permuter");
+  INT_VAR_H(language_model_fixed_length_choices_depth, 3,
+            "Depth of blob choice lists to explore"
+            " when fixed length dawgs are on");
+  BOOL_VAR_H(use_new_state_cost, FALSE,
+             "use new state cost heuristics for segmentation state evaluation");
+  double_VAR_H(heuristic_segcost_rating_base, 1.25,
+               "base factor for adding segmentation cost into word rating."
+               "It's a multiplying factor, the larger the value above 1, "
+               "the bigger the effect of segmentation cost.");
+  double_VAR_H(heuristic_weight_rating, 1,
+               "weight associated with char rating in combined cost of state");
+  double_VAR_H(heuristic_weight_width, 1000.0,
+               "weight associated with width evidence in combined cost of"
+               " state");
+  double_VAR_H(heuristic_weight_seamcut, 0,
+               "weight associated with seam cut in combined cost of state");
+  double_VAR_H(heuristic_max_char_wh_ratio, 2.0,
+               "max char width-to-height ratio allowed in segmentation");
+  BOOL_VAR_H(enable_new_segsearch, false,
+             "Enable new segmentation search path.");
+  double_VAR_H(segsearch_max_fixed_pitch_char_wh_ratio, 2.0,
+               "Maximum character width-to-height ratio for"
+               "fixed pitch fonts");
+  // END DEPRECATED PARAMETERS
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE *init_recog_training(const STRING &fname);
@@ -927,6 +1025,8 @@ class Tesseract : public Wordrec {
   Pix* cube_binary_;
   // Grey-level input image if the input was not binary, otherwise NULL.
   Pix* pix_grey_;
+  // Thresholds that were used to generate the thresholded image from grey.
+  Pix* pix_thresholds_;
   // Input image resolution after any scaling. The resolution is not well
   // transmitted by operations on Pix, so we keep an independent record here.
   int source_resolution_;
