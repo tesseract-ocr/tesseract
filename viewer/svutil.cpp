@@ -125,14 +125,14 @@ void SVSync::StartProcess(const char* executable, const char* args) {
 SVSemaphore::SVSemaphore() {
 #ifdef _WIN32
   semaphore_ = CreateSemaphore(0, 0, 10, 0);
-#elif defined (__APPLE__)
+#elif defined(__APPLE__)
   char name[50];
-  sprintf(name, "%d", random());
+  snprintf(name, sizeof(name), "%d", random());
   sem_unlink(name);
   semaphore_ = sem_open(name, O_CREAT , S_IWUSR, 0);
   if (semaphore_ == SEM_FAILED) {
-	perror("sem_open");
-  } 
+    perror("sem_open");
+  }
 #else
   sem_init(&semaphore_, 0, 0);
 #endif
@@ -141,7 +141,7 @@ SVSemaphore::SVSemaphore() {
 void SVSemaphore::Signal() {
 #ifdef _WIN32
   ReleaseSemaphore(semaphore_, 1, NULL);
-#elif defined (__APPLE__)
+#elif defined(__APPLE__)
   sem_post(semaphore_);
 #else
   sem_post(&semaphore_);
@@ -151,7 +151,7 @@ void SVSemaphore::Signal() {
 void SVSemaphore::Wait() {
 #ifdef _WIN32
   WaitForSingleObject(semaphore_, INFINITE);
-#elif defined (__APPLE__)
+#elif defined(__APPLE__)
   sem_wait(semaphore_);
 #else
   sem_wait(&semaphore_);
@@ -436,7 +436,6 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
 
       stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
                    addr_info->ai_protocol);
-
     }
   }
   FreeAddrInfo(addr_info);

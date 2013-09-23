@@ -124,7 +124,7 @@ Pixa *CubeLineSegmenter::CrackLine(Pix *cracked_line_pix,
 
   if (line_con_comps == NULL) {
     delete []lines_pixa;
-    return false;
+    return NULL;
   }
 
   // assign each conn comp to the a line based on its centroid
@@ -142,7 +142,7 @@ Pixa *CubeLineSegmenter::CrackLine(Pix *cracked_line_pix,
         delete []lines_pixa;
         boxaDestroy(&line_con_comps);
         pixaDestroy(&line_con_comps_pix);
-        return false;
+        return NULL;
       }
     }
 
@@ -413,14 +413,14 @@ Pix *CubeLineSegmenter::Pixa2Pix(Pixa *pixa, Box **dest_box,
 
   (*dest_box) = boxCreate(min_x, min_y, max_x - min_x, max_y - min_y);
   if ((*dest_box) == NULL) {
-    return false;
+    return NULL;
   }
 
   // create the union pix
   Pix *union_pix = pixCreate((*dest_box)->w, (*dest_box)->h, img_->d);
   if (union_pix == NULL) {
     boxDestroy(dest_box);
-    return false;
+    return NULL;
   }
 
   // create a pix corresponding to the union of all pixs

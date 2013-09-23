@@ -21,25 +21,22 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
-#include          "tfacep.h"
-#include          "tfacepp.h"
-#include          "tessbox.h"
 #include "mfoutline.h"
+#include "tessbox.h"
 #include "tesseractclass.h"
 
 #define EXTERN
 
 /**
- * @name tess_segment_pass1
+ * @name tess_segment_pass_n
  *
- * Segment a word using the pass1 conditions of the tess segmenter.
+ * Segment a word using the pass_n conditions of the tess segmenter.
+ * @param pass_n pass number
  * @param word word to do
- * @param blob_choices list of blob lists
  */
 
 namespace tesseract {
-void Tesseract::tess_segment_pass1(WERD_RES *word,
-                                   BLOB_CHOICE_LIST_CLIST *blob_choices) {
+void Tesseract::tess_segment_pass_n(int pass_n, WERD_RES *word) {
   int saved_enable_assoc = 0;
   int saved_chop_enable = 0;
 
@@ -48,46 +45,17 @@ void Tesseract::tess_segment_pass1(WERD_RES *word,
     saved_chop_enable = chop_enable;
     wordrec_enable_assoc.set_value(0);
     chop_enable.set_value(0);
-    if (word->word->flag(W_REP_CHAR))
-      getDict().permute_only_top.set_value(true);
   }
-  set_pass1();
-  recog_word(word, blob_choices);
+  if (pass_n == 1)
+    set_pass1();
+  else
+    set_pass2();
+  recog_word(word);
+  if (word->best_choice == NULL)
+    word->SetupFake(*word->uch_set);
   if (word->word->flag(W_DONT_CHOP)) {
     wordrec_enable_assoc.set_value(saved_enable_assoc);
     chop_enable.set_value(saved_chop_enable);
-    getDict().permute_only_top.set_value(false);
-  }
-}
-
-
-/**
- * @name tess_segment_pass2
- *
- * Segment a word using the pass2 conditions of the tess segmenter.
- * @param word word to do
- * @param blob_choices list of blob lists
- */
-
-void Tesseract::tess_segment_pass2(WERD_RES *word,
-                                   BLOB_CHOICE_LIST_CLIST *blob_choices) {
-  int saved_enable_assoc = 0;
-  int saved_chop_enable = 0;
-
-  if (word->word->flag(W_DONT_CHOP)) {
-    saved_enable_assoc = wordrec_enable_assoc;
-    saved_chop_enable = chop_enable;
-    wordrec_enable_assoc.set_value(0);
-    chop_enable.set_value(0);
-    if (word->word->flag(W_REP_CHAR))
-      getDict().permute_only_top.set_value(true);
-  }
-  set_pass2();
-  recog_word(word, blob_choices);
-  if (word->word->flag(W_DONT_CHOP)) {
-    wordrec_enable_assoc.set_value(saved_enable_assoc);
-    chop_enable.set_value(saved_chop_enable);
-    getDict().permute_only_top.set_value(false);
   }
 }
 
@@ -98,10 +66,8 @@ void Tesseract::tess_segment_pass2(WERD_RES *word,
  * @param word_choice after context
  * @param raw_choice before context
  */
-BOOL8 Tesseract::tess_acceptable_word(
-    WERD_CHOICE *word_choice,  // after context
-    WERD_CHOICE *raw_choice) {  // before context
-  return getDict().AcceptableResult(*word_choice);
+bool Tesseract::tess_acceptable_word(WERD_RES* word) {
+  return getDict().AcceptableResult(word);
 }
 
 

@@ -1,3 +1,15 @@
+2013-09-20 v3.03
+* Added Renderer to API to allow document-level processing and output
+  of document formats, like hOCR, PDF.
+* Major refactor of word-level recognition, beam search, eliminating dead code.
+* Refactored classifier to make it easier to add new ones.
+* Generalized feature extractor to allow feature extraction from greyscale.
+* Improved sub/superscript treatment.
+* Improved baseline fit.
+* Added set_unicharset_properties to training tools.
+* Many bug fixes.
+
+
 2012-02-01 - v3.02
   * Moved ResultIterator/PageIterator to ccmain.
   * Added Right-to-left/Bidi capability in the output iterators for Hebrew/Arabic.

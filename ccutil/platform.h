@@ -20,16 +20,12 @@
 #ifndef TESSERACT_CCUTIL_PLATFORM_H__
 #define TESSERACT_CCUTIL_PLATFORM_H__
 
+#include <string.h>
+
 #define DLLSYM
 #ifdef _WIN32
 #ifdef __GNUC__
 #define ultoa _ultoa
-#ifndef __MINGW32__
-typedef struct _BLOB {
-  unsigned int cbSize;
-  char *pBlobData;
-} BLOB, *LPBLOB;
-#endif  /* __MINGW32__ */
 #endif  /* __GNUC__ */
 #define SIGNED
 #define snprintf _snprintf
@@ -69,6 +65,14 @@ typedef struct _BLOB {
       #define TESS_API
       #define TESS_LOCAL
     #endif
+#endif
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+    #define _TESS_FILE_BASENAME_                                            \
+      (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else   // Unices
+    #define _TESS_FILE_BASENAME_                                            \
+      (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
 
 #endif  // TESSERACT_CCUTIL_PLATFORM_H__

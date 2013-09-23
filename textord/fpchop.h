@@ -103,42 +103,6 @@ BOOL8 fixed_chop_coutline(                                  //chop the outline
                           C_OUTLINE_FRAG_LIST *left_frags,  //left half of chop
                           C_OUTLINE_FRAG_LIST *right_frags  //right half of chop
                          );
-inT16 next_anti_left_seg(                     //chop the outline
-                         C_OUTLINE *srcline,  //source outline
-                         inT16 tail_index,    //of tailpos
-                         inT16 startindex,    //end of search
-                         inT32 length,        //of outline
-                         inT16 chop_coord,    //place to chop
-                         float pitch_error,   //allowed deviation
-                         ICOORD *tail_pos     //current position
-                        );
-inT16 next_anti_right_seg(                     //chop the outline
-                          C_OUTLINE *srcline,  //source outline
-                          inT16 tail_index,    //of tailpos
-                          inT16 startindex,    //end of search
-                          inT32 length,        //of outline
-                          inT16 chop_coord,    //place to chop
-                          float pitch_error,   //allowed deviation
-                          ICOORD *tail_pos     //current position
-                         );
-inT16 next_clock_left_seg(                     //chop the outline
-                          C_OUTLINE *srcline,  //source outline
-                          inT16 tail_index,    //of tailpos
-                          inT16 startindex,    //end of search
-                          inT32 length,        //of outline
-                          inT16 chop_coord,    //place to chop
-                          float pitch_error,   //allowed deviation
-                          ICOORD *tail_pos     //current position
-                         );
-inT16 next_clock_right_seg(                     //chop the outline
-                           C_OUTLINE *srcline,  //source outline
-                           inT16 tail_index,    //of tailpos
-                           inT16 startindex,    //end of search
-                           inT32 length,        //of outline
-                           inT16 chop_coord,    //place to chop
-                           float pitch_error,   //allowed deviation
-                           ICOORD *tail_pos     //current position
-                          );
 void save_chop_cfragment(                            //chop the outline
                          inT16 head_index,           //head of fragment
                          ICOORD head_pos,            //head of fragment

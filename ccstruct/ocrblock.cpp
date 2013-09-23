@@ -472,6 +472,8 @@ void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
   BLOCK_IT block_it(block_list);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     BLOCK* block = block_it.data();
+    if (block->poly_block() != NULL && !block->poly_block()->IsText())
+      continue;  // Don't touch non-text blocks.
     // Iterate over all rows in the block.
     ROW_IT row_it(block->row_list());
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {

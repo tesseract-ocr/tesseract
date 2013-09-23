@@ -90,12 +90,6 @@ const ERRCODE ASSERT_FAILED = "Assert failed";
 void signal_exit(                 //
                  int signal_code  //Signal which
                 );
-extern "C"
-{
-  void err_exit();
-                                 //The real signal
-  void signal_termination_handler(int sig);
-};
 
 void set_global_loc_code(int loc_code);
 

@@ -74,7 +74,7 @@ LangModEdge **WordListLangModel::GetEdges(CharAltList *alt_list,
   // initialize if necessary
   if (init_ == false) {
     if (Init() == false) {
-      return false;
+      return NULL;
     }
   }
 
@@ -92,7 +92,7 @@ LangModEdge **WordListLangModel::GetEdges(CharAltList *alt_list,
     // advance node
     edge_ref = dawg_->next_node(edge_ref);
     if (edge_ref == 0) {
-      return 0;
+      return NULL;
     }
   }
 

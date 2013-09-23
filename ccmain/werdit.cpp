@@ -27,7 +27,7 @@
  **********************************************************************/
 
 WERD *make_pseudo_word(PAGE_RES* page_res,  // Blocks to check.
-                       TBOX &selection_box,
+                       const TBOX &selection_box,
                        BLOCK *&pseudo_block,
                        ROW *&pseudo_row) {      // Row of selection.
   PAGE_RES_IT pr_it(page_res);

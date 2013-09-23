@@ -33,7 +33,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "errcode.h"
+#include "globaloc.h"  // For err_exit.
 
 #define f(xc, yc) ((xc - factor*yc)*(xc - factor*yc))
 

@@ -17,30 +17,17 @@
  *
  **********************************************************************/
 
-//#include                                                      <osfcn.h>
-//#include                                                      <signal.h>
-//#include                                                      <time.h>
-//#include                                                      <unistd.h>
-#include          "tfacep.h"     //must be before main.h
-//#include                                                      "fileerr.h"
 #include          "stderr.h"
 #include          "basedir.h"
 #include          "tessvars.h"
-//#include                                                      "debgwin.h"
-//#include                                      "epapdest.h"
 #include          "control.h"
 #include          "imgs.h"
 #include          "reject.h"
 #include          "pageres.h"
-//#include                                                      "gpapdest.h"
 #include          "nwmain.h"
 #include          "pgedit.h"
 #include          "tprintf.h"
-//#include                                      "ipeerr.h"
-//#include                                                      "restart.h"
 #include          "tessedit.h"
-//#include                                                      "fontfind.h"
-#include "permute.h"
 #include "stopper.h"
 #include "intmatcher.h"
 #include "chop.h"
@@ -190,9 +177,16 @@ bool Tesseract::init_tesseract_lang_data(
   if (tessdata_manager_debug_level) tprintf("Loaded unicharset\n");
   right_to_left_ = unicharset.major_right_to_left();
 
+  // Setup initial unichar ambigs table and read universal ambigs.
+  UNICHARSET encoder_unicharset;
+  encoder_unicharset.CopyFrom(unicharset);
+  unichar_ambigs.InitUnicharAmbigs(unicharset, use_ambigs_for_adaption);
+  unichar_ambigs.LoadUniversal(encoder_unicharset, &unicharset);
+
   if (!tessedit_ambigs_training &&
       tessdata_manager.SeekToStart(TESSDATA_AMBIGS)) {
     unichar_ambigs.LoadUnicharAmbigs(
+        encoder_unicharset,
         tessdata_manager.GetDataFilePtr(),
         tessdata_manager.GetEndOffset(TESSDATA_AMBIGS),
         ambigs_debug_level, use_ambigs_for_adaption, &unicharset);
@@ -209,6 +203,23 @@ bool Tesseract::init_tesseract_lang_data(
     if (tessdata_manager_debug_level)
       tprintf("Loaded Cube with combiner\n");
   }
+
+  // Init ParamsModel.
+  // Load pass1 and pass2 weights (for now these two sets are the same, but in
+  // the future separate sets of weights can be generated).
+  for (int p = ParamsModel::PTRAIN_PASS1;
+      p < ParamsModel::PTRAIN_NUM_PASSES; ++p) {
+    language_model_->getParamsModel().SetPass(
+        static_cast<ParamsModel::PassEnum>(p));
+    if (tessdata_manager.SeekToStart(TESSDATA_PARAMS_MODEL)) {
+      if (!language_model_->getParamsModel().LoadFromFp(
+          lang.string(), tessdata_manager.GetDataFilePtr(),
+          tessdata_manager.GetEndOffset(TESSDATA_PARAMS_MODEL))) {
+        return false;
+      }
+    }
+  }
+  if (tessdata_manager_debug_level) language_model_->getParamsModel().Print();
 
   return true;
 }
@@ -323,6 +334,30 @@ int Tesseract::init_tesseract(
     tprintf("Tesseract couldn't load any languages!\n");
     return -1;  // Couldn't load any language!
   }
+  if (!sub_langs_.empty()) {
+    // In multilingual mode word ratings have to be directly comparable,
+    // so use the same language model weights for all languages:
+    // use the primary language's params model if
+    // tessedit_use_primary_params_model is set,
+    // otherwise use default language model weights.
+    if (tessedit_use_primary_params_model) {
+      for (int s = 0; s < sub_langs_.size(); ++s) {
+        sub_langs_[s]->language_model_->getParamsModel().Copy(
+            this->language_model_->getParamsModel());
+      }
+      tprintf("Using params model of the primary language\n");
+      if (tessdata_manager_debug_level)  {
+        this->language_model_->getParamsModel().Print();
+      }
+    } else {
+      this->language_model_->getParamsModel().Clear();
+      for (int s = 0; s < sub_langs_.size(); ++s) {
+        sub_langs_[s]->language_model_->getParamsModel().Clear();
+      }
+      tprintf("Using default language params\n");
+    }
+  }
+
   SetupUniversalFontIds();
   return 0;
 }
@@ -420,7 +455,7 @@ int Tesseract::init_tesseract_lm(const char *arg0,
   if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY,
                                 NULL, 0, NULL, NULL, false))
     return -1;
-  getDict().Load();
+  getDict().Load(Dict::GlobalDawgCache());
   tessdata_manager.End();
   return 0;
 }

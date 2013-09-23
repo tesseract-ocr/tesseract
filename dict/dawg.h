@@ -91,10 +91,6 @@ enum DawgType {
 #define NUM_FLAG_BITS          3
 #define REFFORMAT "%lld"
 
-// Set kBeginningDawgsType[i] to true if a Dawg of
-// DawgType i can contain the beginning of a word.
-static const bool kBeginningDawgsType[] = { 1, 1, 1, 1 };
-
 static const bool kDawgSuccessors[DAWG_TYPE_COUNT][DAWG_TYPE_COUNT] = {
   { 0, 1, 1, 0 },  // for DAWG_TYPE_PUNCTUATION
   { 1, 0, 0, 0 },  // for DAWG_TYPE_WORD
@@ -137,11 +133,20 @@ class Dawg {
   /// Returns true if the given word is in the Dawg.
   bool word_in_dawg(const WERD_CHOICE &word) const;
 
+  // Returns true if the given word prefix is not contraindicated by the dawg.
+  // If requires_complete is true, then the exact complete word must be present.
+  bool prefix_in_dawg(const WERD_CHOICE &prefix, bool requires_complete) const;
+
   /// Checks the Dawg for the words that are listed in the requested file.
   /// Returns the number of words in the given file missing from the Dawg.
   int check_for_words(const char *filename,
                       const UNICHARSET &unicharset,
                       bool enable_wildcard) const;
+
+  // For each word in the Dawg, call the given (permanent) callback with the
+  // text (UTF-8) version of the word.
+  void iterate_words(const UNICHARSET &unicharset,
+                     TessCallback1<const WERD_CHOICE *> *cb) const;
 
   // For each word in the Dawg, call the given (permanent) callback with the
   // text (UTF-8) version of the word.
@@ -156,7 +161,8 @@ class Dawg {
 
   /// Fills the given NodeChildVector with all the unichar ids (and the
   /// corresponding EDGE_REFs) for which there is an edge out of this node.
-  virtual void unichar_ids_of(NODE_REF node, NodeChildVector *vec) const = 0;
+  virtual void unichar_ids_of(NODE_REF node, NodeChildVector *vec,
+                              bool word_end) const = 0;
 
   /// Returns the next node visited by following the edge
   /// indicated by the given EDGE_REF.
@@ -277,7 +283,7 @@ class Dawg {
   // Recursively iterate over all words in a dawg (see public iterate_words).
   void iterate_words_rec(const WERD_CHOICE &word_so_far,
                          NODE_REF to_explore,
-                         TessCallback1<const char *> *cb) const;
+                         TessCallback1<const WERD_CHOICE *> *cb) const;
 
   // Member Variables.
   DawgType type_;
@@ -299,22 +305,71 @@ class Dawg {
 };
 
 //
-/// DawgInfo struct and DawgInfoVector class are used for
-/// storing information about the current Dawg search state.
+// DawgPosition keeps track of where we are in the primary dawg we're searching
+// as well as where we may be in the "punctuation dawg" which may provide
+// surrounding context.
 //
-struct DawgInfo {
-  DawgInfo() : dawg_index(-1), ref(NO_EDGE) {}
-  DawgInfo(int i, EDGE_REF r) : dawg_index(i), ref(r) {}
-  bool operator==(const DawgInfo &other) {
-    return (this->dawg_index == other.dawg_index && this->ref == other.ref);
+// Example:
+//   punctuation dawg  -- space is the "pattern character"
+//     " "     // no punctuation
+//     "' '"   // leading and trailing apostrophes
+//     " '"    // trailing apostrophe
+//   word dawg:
+//     "cat"
+//     "cab"
+//     "cat's"
+//
+//  DawgPosition(dawg_index, dawg_ref, punc_index, punc_ref, rtp)
+//
+//  DawgPosition(-1, NO_EDGE, p, pe, false)
+//    We're in the punctuation dawg, no other dawg has been started.
+//    (1) If there's a pattern edge as a punc dawg child of us,
+//        for each punc-following dawg starting with ch, produce:
+//        Result: DawgPosition(k, w, p', false)
+//    (2) If there's a valid continuation in the punc dawg, produce:
+//        Result: DawgPosition(-k, NO_EDGE, p', false)
+//
+//  DawgPosition(k, w, -1, NO_EDGE, false)
+//    We're in dawg k.  Going back to punctuation dawg is not an option.
+//    Follow ch in dawg k.
+//
+//  DawgPosition(k, w, p, pe, false)
+//    We're in dawg k.  Continue in dawg k and/or go back to the punc dawg.
+//    If ending, check that the punctuation dawg is also ok to end here.
+//
+//  DawgPosition(k, w, p, pe true)
+//    We're back in the punctuation dawg.  Continuing there is the only option.
+struct DawgPosition {
+  DawgPosition()
+      : dawg_index(-1), dawg_ref(NO_EDGE), punc_ref(NO_EDGE),
+        back_to_punc(false) {}
+  DawgPosition(int dawg_idx, EDGE_REF dawgref,
+               int punc_idx, EDGE_REF puncref,
+               bool backtopunc)
+      : dawg_index(dawg_idx), dawg_ref(dawgref),
+        punc_index(punc_idx), punc_ref(puncref),
+        back_to_punc(backtopunc) {
   }
-  int dawg_index;
-  EDGE_REF ref;
+  bool operator==(const DawgPosition &other) {
+    return dawg_index == other.dawg_index &&
+        dawg_ref == other.dawg_ref &&
+        punc_index == other.punc_index &&
+        punc_ref == other.punc_ref &&
+        back_to_punc == other.back_to_punc;
+  }
+
+  inT8 dawg_index;
+  EDGE_REF dawg_ref;
+  inT8 punc_index;
+  EDGE_REF punc_ref;
+  // Have we returned to the punc dawg at the end of the word?
+  bool back_to_punc;
 };
-class DawgInfoVector : public GenericVector<DawgInfo> {
+
+class DawgPositionVector : public GenericVector<DawgPosition> {
  public:
   /// Overload destructor, since clear() does not delete data_[] any more.
-  ~DawgInfoVector() {
+  ~DawgPositionVector() {
     if (size_reserved_ > 0) {
       delete[] data_;
       size_used_ = 0;
@@ -327,15 +382,17 @@ class DawgInfoVector : public GenericVector<DawgInfo> {
   /// Adds an entry for the given dawg_index with the given node to the vec.
   /// Returns false if the same entry already exists in the vector,
   /// true otherwise.
-  inline bool add_unique(const DawgInfo &new_info, bool debug,
+  inline bool add_unique(const DawgPosition &new_pos,
+                         bool debug,
                          const char *debug_msg) {
     for (int i = 0; i < size_used_; ++i) {
-      if (data_[i] == new_info) return false;
+      if (data_[i] == new_pos) return false;
     }
-    push_back(new_info);
+    push_back(new_pos);
     if (debug) {
-      tprintf("%s[%d, " REFFORMAT "]\n", debug_msg,
-              new_info.dawg_index, new_info.ref);
+      tprintf("%s[%d, " REFFORMAT "] [punc: " REFFORMAT "%s]\n",
+              debug_msg, new_pos.dawg_index, new_pos.dawg_ref,
+              new_pos.punc_ref, new_pos.back_to_punc ? " returned" : "");
     }
     return true;
   }
@@ -385,12 +442,15 @@ class SquishedDawg : public Dawg {
 
   /// Fills the given NodeChildVector with all the unichar ids (and the
   /// corresponding EDGE_REFs) for which there is an edge out of this node.
-  void unichar_ids_of(NODE_REF node, NodeChildVector *vec) const {
+  void unichar_ids_of(NODE_REF node, NodeChildVector *vec,
+                      bool word_end) const {
     EDGE_REF edge = node;
     if (!edge_occupied(edge) || edge == NO_EDGE) return;
     assert(forward_edge(edge));  // we don't expect any backward edges to
     do {                         // be present when this funciton is called
-      vec->push_back(NodeChild(unichar_id_from_edge_rec(edges_[edge]), edge));
+      if (!word_end || end_of_word_from_edge_rec(edges_[edge])) {
+        vec->push_back(NodeChild(unichar_id_from_edge_rec(edges_[edge]), edge));
+      }
     } while (!last_edge(edge++));
   }
 

@@ -25,67 +25,97 @@
 
 namespace tesseract {
 
+// Maximum number of unichars in the small and medium sized words
+static const int kMaxSmallWordUnichars = 3;
+static const int kMaxMediumWordUnichars = 6;
+
 // Raw features extracted from a single OCR hypothesis.
-// The features are non-normalized real-valued quantities with
-// unbounded range and unknown distribution.
+// The features are normalized (by outline length or number of unichars as
+// appropriate) real-valued quantities with unbounded range and
+// unknown distribution.
 // Normalization / binarization of these features is done at a later stage.
 // Note: when adding new fields to this enum make sure to modify
-// kParamsTrainingRawFeatureTypeName enum accordingly.
-enum ParamsTrainingRawFeatureType {
-  // What dictionary (if any) was this hypothesis found in.
-  // See PermuterType enum in ccstruct/ratngs.h for interpretation.
-  PTRAIN_RAW_FEATURE_DICT_MATCH_TYPE,     // 0
-  // Boolean indicator of whether this hypothesis is ambiguous to a known
-  // dictionary word (or a valid number pattern).
-  PTRAIN_RAW_FEATURE_UNAMBIG_DICT_MATCH,  // 1
-  // Shape cost of the segmentation path for this hypothesis.
-  PTRAIN_RAW_FEATURE_SHAPE_COST,          // 2
-  // Character ngram probability of the string of unichars of this hypothesis.
-  PTRAIN_RAW_FEATURE_NGRAM_PROB,          // 3
-  // Number of bad/inconsistent spots in this hypothesis.
-  PTRAIN_RAW_FEATURE_NUM_BAD_PUNC,        // 4
-  PTRAIN_RAW_FEATURE_NUM_BAD_CASE,        // 5
-  PTRAIN_RAW_FEATURE_NUM_BAD_CHAR_TYPE,   // 6
-  PTRAIN_RAW_FEATURE_NUM_BAD_SPACING,     // 7
-  PTRAIN_RAW_FEATURE_NUM_BAD_SCRIPT,      // 8
-  PTRAIN_RAW_FEATURE_NUM_BAD_FONT,        // 9
-  // Classifier-related features.
-  PTRAIN_RAW_FEATURE_WORST_CERT,          // 10
-  PTRAIN_RAW_FEATURE_RATING,              // 11
-  // Number of classifier results that came from adapted templates.
-  PTRAIN_RAW_FEATURE_ADAPTED,   // 12
-  // Features potentially useful for normalization.
-  PTRAIN_RAW_FEATURE_NUM_UNICHARS,        // 13
-  PTRAIN_RAW_FEATURE_OUTLINE_LEN,         // 14
+// kParamsTrainingFeatureTypeName
+enum kParamsTrainingFeatureType {
+  // Digits
+  PTRAIN_DIGITS_SHORT,             // 0
+  PTRAIN_DIGITS_MED,               // 1
+  PTRAIN_DIGITS_LONG,              // 2
+  // Number or pattern (NUMBER_PERM, USER_PATTERN_PERM)
+  PTRAIN_NUM_SHORT,                // 3
+  PTRAIN_NUM_MED,                  // 4
+  PTRAIN_NUM_LONG,                 // 5
+  // Document word (DOC_DAWG_PERM)
+  PTRAIN_DOC_SHORT,                // 6
+  PTRAIN_DOC_MED,                  // 7
+  PTRAIN_DOC_LONG,                 // 8
+  // Word (SYSTEM_DAWG_PERM, USER_DAWG_PERM, COMPOUND_PERM)
+  PTRAIN_DICT_SHORT,               // 9
+  PTRAIN_DICT_MED,                 // 10
+  PTRAIN_DICT_LONG,                // 11
+  // Frequent word (FREQ_DAWG_PERM)
+  PTRAIN_FREQ_SHORT,               // 12
+  PTRAIN_FREQ_MED,                 // 13
+  PTRAIN_FREQ_LONG,                // 14
+  PTRAIN_SHAPE_COST_PER_CHAR,      // 15
+  PTRAIN_NGRAM_COST_PER_CHAR,      // 16
+  PTRAIN_NUM_BAD_PUNC,             // 17
+  PTRAIN_NUM_BAD_CASE,             // 18
+  PTRAIN_XHEIGHT_CONSISTENCY,      // 19
+  PTRAIN_NUM_BAD_CHAR_TYPE,        // 20
+  PTRAIN_NUM_BAD_SPACING,          // 21
+  PTRAIN_NUM_BAD_FONT,             // 22
+  PTRAIN_RATING_PER_CHAR,          // 23
 
-  PTRAIN_NUM_RAW_FEATURE_TYPES
+  PTRAIN_NUM_FEATURE_TYPES
 };
 
-static const char * const kParamsTrainingRawFeatureTypeName[] = {
-    "DICT_MATCH_TYPE",     // 0
-    "UNAMBIG_DICT_MATCH",  // 1
-    "SHAPE_COST",          // 2
-    "NGRAM_PROB",          // 3
-    "NUM_BAD_PUNC",        // 4
-    "NUM_BAD_CASE",        // 5
-    "NUM_BAD_CHAR_TYPE",   // 6
-    "NUM_BAD_SPACING",     // 7
-    "NUM_BAD_SCRIPT",      // 8
-    "NUM_BAD_FONT",        // 9
-    "WORST_CERT",          // 10
-    "RATING",              // 11
-    "ADAPTED",             // 12
-    "NUM_UNICHARS",        // 13
-    "OUTLINE_LEN",         // 14
+static const char * const kParamsTrainingFeatureTypeName[] = {
+    "PTRAIN_DIGITS_SHORT",             // 0
+    "PTRAIN_DIGITS_MED",               // 1
+    "PTRAIN_DIGITS_LONG",              // 2
+    "PTRAIN_NUM_SHORT",                // 3
+    "PTRAIN_NUM_MED",                  // 4
+    "PTRAIN_NUM_LONG",                 // 5
+    "PTRAIN_DOC_SHORT",                // 6
+    "PTRAIN_DOC_MED",                  // 7
+    "PTRAIN_DOC_LONG",                 // 8
+    "PTRAIN_DICT_SHORT",               // 9
+    "PTRAIN_DICT_MED",                 // 10
+    "PTRAIN_DICT_LONG",                // 11
+    "PTRAIN_FREQ_SHORT",               // 12
+    "PTRAIN_FREQ_MED",                 // 13
+    "PTRAIN_FREQ_LONG",                // 14
+    "PTRAIN_SHAPE_COST_PER_CHAR",      // 15
+    "PTRAIN_NGRAM_COST_PER_CHAR",      // 16
+    "PTRAIN_NUM_BAD_PUNC",             // 17
+    "PTRAIN_NUM_BAD_CASE",             // 18
+    "PTRAIN_XHEIGHT_CONSISTENCY",      // 19
+    "PTRAIN_NUM_BAD_CHAR_TYPE",        // 20
+    "PTRAIN_NUM_BAD_SPACING",          // 21
+    "PTRAIN_NUM_BAD_FONT",             // 22
+    "PTRAIN_RATING_PER_CHAR",          // 23
 };
+
+// Returns the index of the given feature (by name),
+// or -1 meaning the feature is unknown.
+int ParamsTrainingFeatureByName(const char *name);
+
 
 // Entry with features extracted from a single OCR hypothesis for a word.
 struct ParamsTrainingHypothesis {
-  ParamsTrainingHypothesis() {
-    for (int i = 0; i < PTRAIN_NUM_RAW_FEATURE_TYPES; ++i) features[i] = 0.0;
+  ParamsTrainingHypothesis() : cost(0.0) {
+    memset(features, 0, sizeof(float) * PTRAIN_NUM_FEATURE_TYPES);
   }
-  float features[PTRAIN_NUM_RAW_FEATURE_TYPES];
+  ParamsTrainingHypothesis(const ParamsTrainingHypothesis &other) {
+    memcpy(features, other.features,
+           sizeof(float) * PTRAIN_NUM_FEATURE_TYPES);
+    str = other.str;
+    cost = other.cost;
+  }
+  float features[PTRAIN_NUM_FEATURE_TYPES];
   STRING str;  // string corresponding to word hypothesis (for debugging)
+  float cost;  // path cost computed by segsearch
 };
 
 // A list of hypotheses explored during one run of segmentation search.
@@ -104,9 +134,10 @@ class ParamsTrainingBundle {
   }
   // Adds a new ParamsTrainingHypothesis to the current hypothesis list
   // and returns the reference to the newly added entry.
-  ParamsTrainingHypothesis &AddHypothesis() {
+  ParamsTrainingHypothesis &AddHypothesis(
+      const ParamsTrainingHypothesis &other) {
     if (hyp_list_vec.empty()) StartHypothesisList();
-    hyp_list_vec.back().push_back(ParamsTrainingHypothesis());
+    hyp_list_vec.back().push_back(ParamsTrainingHypothesis(other));
     return hyp_list_vec.back().back();
   }
 

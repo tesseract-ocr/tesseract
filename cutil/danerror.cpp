@@ -53,5 +53,5 @@ void DoError(int Error, const char *Message) {
     tprintf("\nError: %s!\n", Message);
   }
 
-  signal_termination_handler(Error);
+  err_exit();
 }                                /* DoError */

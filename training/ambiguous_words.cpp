@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
   while (fgets(str, CHARS_PER_LINE, input_file) != NULL) {
     chomp_string(str);  // remove newline
     WERD_CHOICE word(str, dict.getUnicharset());
-    dict.NoDangerousAmbig(&word, NULL, false, NULL, NULL);
+    dict.NoDangerousAmbig(&word, NULL, false, NULL);
   }
   // Clean up.
   fclose(input_file);

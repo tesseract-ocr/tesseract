@@ -23,7 +23,6 @@
 
 #include          <ctype.h>
 #include          "docqual.h"
-#include          "tfacep.h"
 #include          "reject.h"
 #include          "tesscallback.h"
 #include          "tessvars.h"
@@ -66,7 +65,7 @@ struct DocQualCallbacks {
  *************************************************************************/
 inT16 Tesseract::word_blob_quality(WERD_RES *word, ROW *row) {
   if (word->bln_boxes == NULL ||
-      word->rebuild_word == NULL || word->rebuild_word->blobs == NULL)
+      word->rebuild_word == NULL || word->rebuild_word->blobs.empty())
     return 0;
 
   DocQualCallbacks cb(word);
@@ -81,8 +80,8 @@ inT16 Tesseract::word_outline_errs(WERD_RES *word) {
   inT16 err_count = 0;
 
   if (word->rebuild_word != NULL) {
-    TBLOB* blob = word->rebuild_word->blobs;
-    for (; blob != NULL; blob = blob->next) {
+    for (int b = 0; b < word->rebuild_word->NumBlobs(); ++b) {
+      TBLOB* blob = word->rebuild_word->blobs[b];
       err_count += count_outline_errs(word->best_choice->unichar_string()[i],
                                       blob->NumOutlines());
       i++;
@@ -101,7 +100,7 @@ void Tesseract::word_char_quality(WERD_RES *word,
                                   inT16 *match_count,
                                   inT16 *accepted_match_count) {
   if (word->bln_boxes == NULL ||
-      word->rebuild_word == NULL || word->rebuild_word->blobs == NULL)
+      word->rebuild_word == NULL || word->rebuild_word->blobs.empty())
     return;
 
   DocQualCallbacks cb(word);
@@ -118,7 +117,7 @@ void Tesseract::word_char_quality(WERD_RES *word,
  *************************************************************************/
 void Tesseract::unrej_good_chs(WERD_RES *word, ROW *row) {
   if (word->bln_boxes == NULL ||
-      word->rebuild_word == NULL || word->rebuild_word->blobs == NULL)
+      word->rebuild_word == NULL || word->rebuild_word->blobs.empty())
     return;
 
   DocQualCallbacks cb(word);
@@ -990,7 +989,8 @@ BOOL8 Tesseract::noise_outlines(TWERD *word) {
   inT16 max_dimension;
   float small_limit = kBlnXHeight * crunch_small_outlines_size;
 
-  for (TBLOB* blob = word->blobs; blob != NULL; blob = blob->next) {
+  for (int b = 0; b < word->NumBlobs(); ++b) {
+    TBLOB* blob = word->blobs[b];
     for (TESSLINE* ol = blob->outlines; ol != NULL; ol = ol->next) {
       outline_count++;
       box = ol->bounding_box();
@@ -1002,6 +1002,7 @@ BOOL8 Tesseract::noise_outlines(TWERD *word) {
         small_outline_count++;
     }
   }
-  return (small_outline_count >= outline_count);
+  return small_outline_count >= outline_count;
 }
+
 }  // namespace tesseract

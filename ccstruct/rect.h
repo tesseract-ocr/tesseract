@@ -24,6 +24,7 @@
 #include "points.h"
 #include "ndminx.h"
 #include "scrollview.h"
+#include "strngs.h"
 #include "tprintf.h"
 
 class DLLSYM TBOX  {  // bounding box
@@ -264,15 +265,8 @@ class DLLSYM TBOX  {  // bounding box
       tprintf("Bounding box=(%d,%d)->(%d,%d)\n",
               left(), bottom(), right(), top());
     }
-
-    // Same as print(), but appends debug information to the given string
-    // instead of printing it to stdout.
-    void append_debug(STRING *str) const {
-      char buffer[256];
-      sprintf(buffer, "Bounding box=(%d,%d)->(%d,%d)\n",
-              left(), bottom(), right(), top());
-      *str += buffer;
-    }
+    // Appends the bounding box as (%d,%d)->(%d,%d) to a STRING.
+    void print_to_str(STRING *str) const;
 
 #ifndef GRAPHICS_DISABLED
     void plot(                    // use current settings

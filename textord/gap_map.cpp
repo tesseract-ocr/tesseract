@@ -86,7 +86,8 @@ GAPMAP::GAPMAP(                 //Constructor
         if ((gap_width > gapmap_big_gaps * row->xheight)
         && gap_width > 2) {
           max_quantum = (blob_box.left () - min_left) / bucket_size;
-          for (i = 0; i <= max_quantum; i++)
+          if (max_quantum > map_max) max_quantum = map_max;
+            for (i = 0; i <= max_quantum; i++)
             map[i]++;
         }
       }
@@ -98,6 +99,7 @@ GAPMAP::GAPMAP(                 //Constructor
           min_quantum =
             (prev_blob_box.right () - min_left) / bucket_size;
           max_quantum = (blob_box.left () - min_left) / bucket_size;
+          if (max_quantum > map_max) max_quantum = map_max;
           for (i = min_quantum; i <= max_quantum; i++)
             map[i]++;
         }
@@ -110,6 +112,7 @@ GAPMAP::GAPMAP(                 //Constructor
         && gap_width > 2) {
           min_quantum =
             (prev_blob_box.right () - min_left) / bucket_size;
+          if (min_quantum < 0) min_quantum = 0;
           for (i = min_quantum; i <= map_max; i++)
             map[i]++;
         }
@@ -158,6 +161,11 @@ BOOL8 GAPMAP::table_gap(             //Is gap a table?
 
   min_quantum = (left - min_left) / bucket_size;
   max_quantum = (right - min_left) / bucket_size;
+  // Clip to the bounds of the array. In some circumstances (big blob followed
+  // by small blob) max_quantum can exceed the map_max bounds, but we clip
+  // here instead, as it provides better long-term safety.
+  if (min_quantum < 0) min_quantum = 0;
+  if (max_quantum > map_max) max_quantum = map_max;
   for (i = min_quantum; (!tab_found && (i <= max_quantum)); i++)
     if (map[i] > total_rows / 2)
       tab_found = TRUE;

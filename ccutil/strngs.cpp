@@ -24,8 +24,11 @@
 
 #include <assert.h>
 // Size of buffer needed to host the decimal representation of the maximum
-// possible length of an int (in 64 bits, being -<20 digits>.
+// possible length of an int (in 64 bits), being -<20 digits>.
 const int kMaxIntSize = 22;
+// Size of buffer needed to host the decimal representation of the maximum
+// possible length of a %.8g being -0.12345678e+999<nul> = 15.
+const int kMaxDoubleSize = 15;
 
 /**********************************************************************
  * STRING_HEADER provides metadata about the allocated buffer,
@@ -163,6 +166,10 @@ const char* STRING::string() const {
   return GetCStr();
 }
 
+const char* STRING::c_str() const {
+  return string();
+}
+
 /******
  * The STRING_IS_PROTECTED interface adds additional support to migrate
  * code that needs to modify the STRING in ways not otherwise supported
@@ -220,6 +227,8 @@ void STRING::erase_range(inT32 index, int len) {
 
 #else
 void STRING::truncate_at(inT32 index) {
+  ASSERT_HOST(index >= 0);
+  FixHeader();
   char* this_cstr = ensure_cstr(index + 1);
   this_cstr[index] = '\0';
   GetHeader()->used_ = index + 1;
@@ -337,6 +346,16 @@ void STRING::add_str_int(const char* str, int number) {
   char num_buffer[kMaxIntSize];
   snprintf(num_buffer, kMaxIntSize - 1, "%d", number);
   num_buffer[kMaxIntSize - 1] = '\0';
+  *this += num_buffer;
+}
+// Appends the given string and double (as a %.8g) to this.
+void STRING::add_str_double(const char* str, double number) {
+  if (str != NULL)
+    *this += str;
+  // Allow space for the maximum possible length of %8g.
+  char num_buffer[kMaxDoubleSize];
+  snprintf(num_buffer, kMaxDoubleSize - 1, "%.8g", number);
+  num_buffer[kMaxDoubleSize - 1] = '\0';
   *this += num_buffer;
 }
 

@@ -33,10 +33,9 @@ extern STRING_VAR_H (to_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
 extern STRING_VAR_H (to_smdfile, NO_SMD, "Name of SMD file");
 extern ScrollView* to_win;
 extern FILE *to_debug;
-void create_to_win(                //make features win
-                   ICOORD page_tr  //size of page
-                  );
-void close_to_win();  //make features win
+// Creates a static display window for textord, and returns a pointer to it.
+ScrollView* create_to_win(ICOORD page_tr);
+void close_to_win();  // Destroy the textord window.
 void create_todebug_win();  //make gradients win
 void plot_box_list(                      //make gradients win
                    ScrollView* win,           //window to draw in

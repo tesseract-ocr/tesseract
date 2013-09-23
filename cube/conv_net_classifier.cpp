@@ -234,8 +234,8 @@ bool ConvNetCharClassifier::LoadFoldingSets(const string &data_file_path,
   fclose(fp);
 
   string fold_sets_str;
-  if (!CubeUtils::ReadFileToString(fold_file_name.c_str(),
-                                  &fold_sets_str)) {
+  if (!CubeUtils::ReadFileToString(fold_file_name,
+                                   &fold_sets_str)) {
     return false;
   }
 
@@ -327,7 +327,7 @@ bool ConvNetCharClassifier::LoadNets(const string &data_file_path,
   fclose(fp);
 
   // load main net
-  char_net_ = tesseract::NeuralNet::FromFile(char_net_file.c_str());
+  char_net_ = tesseract::NeuralNet::FromFile(char_net_file);
   if (char_net_ == NULL) {
     fprintf(stderr, "Cube ERROR (ConvNetCharClassifier::LoadNets): "
             "could not load %s\n", char_net_file.c_str());

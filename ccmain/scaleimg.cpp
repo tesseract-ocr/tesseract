@@ -31,6 +31,7 @@
 #include          <stdlib.h>
 #include          <string.h>
 #include          "fileerr.h"
+#include          "globaloc.h"  // For err_exit.
 #include          "tprintf.h"
 #include          "img.h"
 #include          "imgscale.h"

@@ -29,14 +29,12 @@
 #include          <errno.h>
 #endif
 #include "helpers.h"
-#include "tfacep.h"
 #include "tessvars.h"
 #include "control.h"
 #include "secname.h"
 #include "reject.h"
 #include "docqual.h"
 #include "output.h"
-#include "bestfirst.h"
 #include "globals.h"
 #include "tesseractclass.h"
 
@@ -242,13 +240,7 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
       (word->best_choice->unichar_id(0) == space)) {
     /* Prevent adjacent tilde across words - we know that adjacent tildes within
        words have been removed */
-    word->best_choice->remove_unichar_id(0);
-    if (word->best_choice->blob_choices() != NULL) {
-      BLOB_CHOICE_LIST_C_IT blob_choices_it(word->best_choice->blob_choices());
-      if (!blob_choices_it.empty()) delete blob_choices_it.extract();
-    }
-    word->reject_map.remove_pos (0);
-    word->box_word->DeleteBox(0);
+    word->MergeAdjacentBlobs(0);
   }
   if (newline_type ||
     (word->word->flag (W_REP_CHAR) && tessedit_write_rep_codes))

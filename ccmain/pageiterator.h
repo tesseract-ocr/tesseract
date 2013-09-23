@@ -24,6 +24,7 @@
 #include "publictypes.h"
 #include "platform.h"
 
+class BlamerBundle;
 class C_BLOB_IT;
 class PBLOB_IT;
 class PAGE_RES;
@@ -189,6 +190,8 @@ class TESS_API PageIterator {
    */
   bool BoundingBox(PageIteratorLevel level,
                    int* left, int* top, int* right, int* bottom) const;
+  bool BoundingBox(PageIteratorLevel level, const int padding,
+                   int* left, int* top, int* right, int* bottom) const;
   /**
    * Returns the bounding rectangle of the object in a coordinate system of the
    * working image rectangle having its origin at (rect_left_, rect_top_) with
@@ -281,6 +284,12 @@ class TESS_API PageIterator {
                      bool *is_list_item,
                      bool *is_crown,
                      int *first_line_indent) const;
+
+  // If the current WERD_RES (it_->word()) is not NULL, sets the BlamerBundle
+  // of the current word to the given pointer (takes ownership of the pointer)
+  // and returns true.
+  // Can only be used when iterating on the word level.
+  bool SetWordBlamerBundle(BlamerBundle *blamer_bundle);
 
  protected:
   /**

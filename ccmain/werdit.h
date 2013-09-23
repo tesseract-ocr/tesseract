@@ -23,7 +23,7 @@
 #include          "pageres.h"
 
 WERD *make_pseudo_word(PAGE_RES* page_res,  // blocks to check
-                       TBOX &selection_box,
+                       const TBOX &selection_box,
                        BLOCK *&pseudo_block,
                        ROW *&pseudo_row);
 

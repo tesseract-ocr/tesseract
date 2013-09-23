@@ -41,8 +41,16 @@ class Textord {
   ~Textord();
 
   // Make the textlines and words inside each block.
-  void TextordPage(PageSegMode pageseg_mode,
-                   int width, int height, Pix* pix,
+  // binary_pix is mandatory and is the binarized input after line removal.
+  // grey_pix is optional, but if present must match the binary_pix in size,
+  // and must be a *real* grey image instead of binary_pix * 255.
+  // thresholds_pix is expected to be present iff grey_pix is present and
+  // can be an integer factor reduction of the grey_pix. It represents the
+  // thresholds that were used to create the binary_pix from the grey_pix.
+  void TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
+                   int width, int height, Pix* binary_pix,
+                   Pix* thresholds_pix, Pix* grey_pix,
+                   bool use_box_bottoms,
                    BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
 
   // If we were supposed to return only a single textline, and there is more
@@ -89,13 +97,7 @@ class Textord {
                      const FCOORD& skew, TO_BLOCK* block,
                      ScrollView* win);
 
-  void fit_rows(float gradient, ICOORD page_tr, TO_BLOCK_LIST *blocks);
-  void cleanup_rows_fitting(ICOORD page_tr,    // top right
-                            TO_BLOCK *block,   // block to do
-                            float gradient,    // gradient to fit
-                            FCOORD rotation,   // for drawing
-                            inT32 block_edge,  // edge of block
-                            BOOL8 testing_on);  // correct orientation
+ public:
   void compute_block_xheight(TO_BLOCK *block, float gradient);
   void compute_row_xheight(TO_ROW *row,          // row to do
                            const FCOORD& rotation,
@@ -103,10 +105,8 @@ class Textord {
                            int block_line_size);
   void make_spline_rows(TO_BLOCK *block,   // block to do
                         float gradient,    // gradient to fit
-                        FCOORD rotation,   // for drawing
-                        inT32 block_edge,  // edge of block
                         BOOL8 testing_on);
-
+ private:
   //// oldbasel.cpp ////////////////////////////////////////
   void make_old_baselines(TO_BLOCK *block,   // block to do
                           BOOL8 testing_on,  // correct orientation
@@ -201,6 +201,11 @@ class Textord {
                            BLOBNBOX_LIST *noise_list,
                            BLOBNBOX_LIST *small_list,
                            BLOBNBOX_LIST *large_list);
+  // Fixes the block so it obeys all the rules:
+  // Must have at least one ROW.
+  // Must have at least one WERD.
+  // WERDs contain a fake blob.
+  void cleanup_nontext_block(BLOCK* block);
   void cleanup_blocks(BLOCK_LIST *blocks);
   BOOL8 clean_noise_from_row(ROW *row);
   void clean_noise_from_words(ROW *row);
@@ -326,6 +331,7 @@ class Textord {
   BOOL_VAR_H(textord_show_blobs, false, "Display unsorted blobs");
   BOOL_VAR_H(textord_show_boxes, false, "Display boxes");
   INT_VAR_H(textord_max_noise_size, 7, "Pixel size of noise");
+  INT_VAR_H(textord_baseline_debug, 0, "Baseline debug level");
   double_VAR_H(textord_blob_size_bigile, 95, "Percentile for large blobs");
   double_VAR_H(textord_noise_area_ratio, 0.7,
                "Fraction of bounding box for noise");

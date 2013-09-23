@@ -103,11 +103,10 @@ int main(int argc, char** argv) {
   int option;
   const char* output_directory = ".";
   STRING unicharset_file_name;
+  // Special characters are now included by default.
   UNICHARSET unicharset;
 
   setlocale(LC_ALL, "");
-  // Space character needed to represent NIL classification
-  unicharset.unichar_insert(" ");
 
   // Print usage
   if (argc <= 1) {

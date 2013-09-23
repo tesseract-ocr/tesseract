@@ -104,7 +104,7 @@ class ColPartitionSet : public ELIST_LINK {
   // resolution refers to the ppi resolution of the image. It may be 0 if only
   // the first_col and last_col are required.
   ColumnSpanningType SpanningType(int resolution,
-                                  int left, int right, int y,
+                                  int left, int right, int height, int y,
                                   int left_margin, int right_margin,
                                   int* first_col, int* last_col,
                                   int* first_spanned_col);

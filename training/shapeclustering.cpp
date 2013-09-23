@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
     return 1;
 
   if (FLAGS_display_cloud_font >= 0) {
-	#ifndef GRAPHICS_DISABLED 
+    #ifndef GRAPHICS_DISABLED
     trainer->DisplaySamples(FLAGS_canonical_class1.c_str(),
                             FLAGS_display_cloud_font,
                             FLAGS_canonical_class2.c_str(),

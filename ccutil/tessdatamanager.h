@@ -21,7 +21,9 @@
 #define TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 
 #include <stdio.h>
+
 #include "host.h"
+#include "strngs.h"
 #include "tprintf.h"
 
 static const char kTrainedDataSuffix[] = "traineddata";
@@ -44,7 +46,7 @@ static const char kCubeSystemDawgFileSuffix[] = "cube-word-dawg";
 static const char kShapeTableFileSuffix[] = "shapetable";
 static const char kBigramDawgFileSuffix[] = "bigram-dawg";
 static const char kUnambigDawgFileSuffix[] = "unambig-dawg";
-static const char kParamsTrainingModelFileSuffix[] = "params-training-model";
+static const char kParamsModelFileSuffix[] = "params-model";
 
 namespace tesseract {
 
@@ -59,13 +61,13 @@ enum TessdataType {
   TESSDATA_SYSTEM_DAWG,         // 7
   TESSDATA_NUMBER_DAWG,         // 8
   TESSDATA_FREQ_DAWG,           // 9
-  TESSDATA_FIXED_LENGTH_DAWGS,  // 10
+  TESSDATA_FIXED_LENGTH_DAWGS,  // 10  // deprecated
   TESSDATA_CUBE_UNICHARSET,     // 11
   TESSDATA_CUBE_SYSTEM_DAWG,    // 12
   TESSDATA_SHAPE_TABLE,         // 13
   TESSDATA_BIGRAM_DAWG,         // 14
   TESSDATA_UNAMBIG_DAWG,        // 15
-  TESSDATA_PARAMS_TRAINING_MODEL,  // 16
+  TESSDATA_PARAMS_MODEL,        // 16
 
   TESSDATA_NUM_ENTRIES
 };
@@ -85,13 +87,13 @@ static const char * const kTessdataFileSuffixes[] = {
   kSystemDawgFileSuffix,        // 7
   kNumberDawgFileSuffix,        // 8
   kFreqDawgFileSuffix,          // 9
-  kFixedLengthDawgsFileSuffix,  // 10
+  kFixedLengthDawgsFileSuffix,  // 10  // deprecated
   kCubeUnicharsetFileSuffix,    // 11
   kCubeSystemDawgFileSuffix,    // 12
   kShapeTableFileSuffix,        // 13
   kBigramDawgFileSuffix,        // 14
   kUnambigDawgFileSuffix,       // 15
-  kParamsTrainingModelFileSuffix,  // 16
+  kParamsModelFileSuffix,       // 16
 };
 
 /**
@@ -109,13 +111,13 @@ static const bool kTessdataFileIsText[] = {
   false,                        // 7
   false,                        // 8
   false,                        // 9
-  false,                        // 10
+  false,                        // 10  // deprecated
   true,                         // 11
   false,                        // 12
   false,                        // 13
   false,                        // 14
   false,                        // 15
-  false,                        // 16
+  true,                         // 16
 };
 
 /**
@@ -145,6 +147,9 @@ class TessdataManager {
    * Returns true on success.
    */
   bool Init(const char *data_file_name, int debug_level);
+
+  // Return the name of the underlying data file.
+  const STRING &GetDataFileName() const { return data_file_name_; }
 
   /** Returns data file pointer. */
   inline FILE *GetDataFilePtr() const { return data_file_; }
@@ -279,6 +284,7 @@ class TessdataManager {
    * when new tessdata types are introduced.
    */
   inT32 actual_tessdata_num_entries_;
+  STRING data_file_name_;  // name of the data file.
   FILE *data_file_;  ///< pointer to the data file.
   int debug_level_;
   // True if the bytes need swapping.

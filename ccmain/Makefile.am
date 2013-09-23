@@ -19,7 +19,7 @@ noinst_HEADERS = \
     equationdetect.h fixspace.h imgscale.h mutableiterator.h osdetect.h \
     output.h paragraphs.h paragraphs_internal.h paramsd.h pgedit.h \
     reject.h scaleimg.h tessbox.h tessedit.h tesseractclass.h \
-    tesseract_cube_combiner.h tessvars.h tfacep.h tfacepp.h werdit.h
+    tesseract_cube_combiner.h tessvars.h werdit.h
 
 if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_main.la
@@ -46,7 +46,7 @@ libtesseract_main_la_SOURCES = \
     imgscale.cpp ltrresultiterator.cpp \
     osdetect.cpp output.cpp pageiterator.cpp pagesegmain.cpp \
     pagewalk.cpp paragraphs.cpp paramsd.cpp pgedit.cpp recogtraining.cpp \
-    reject.cpp resultiterator.cpp scaleimg.cpp \
+    reject.cpp resultiterator.cpp scaleimg.cpp superscript.cpp \
     tesseract_cube_combiner.cpp \
     tessbox.cpp tessedit.cpp tesseractclass.cpp tessvars.cpp \
     tfacepp.cpp thresholder.cpp \

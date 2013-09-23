@@ -23,7 +23,7 @@
 
 #include "platform.h"
 #include "pageiterator.h"
-#include "unicharset.h"
+#include "unichar.h"
 
 class BLOB_CHOICE_IT;
 class WERD_RES;
@@ -128,7 +128,7 @@ class TESS_API LTRResultIterator : public PageIterator {
 
   // Returns the pointer to ParamsTrainingBundle stored in the BlamerBundle
   // of the current word.
-  void *GetParamsTrainingBundle() const;
+  const void *GetParamsTrainingBundle() const;
 
   // Returns a pointer to the string with blamer information for this word.
   // Assumes that the word's blamer_bundle is not NULL.
@@ -138,9 +138,20 @@ class TESS_API LTRResultIterator : public PageIterator {
   // Assumes that the word's blamer_bundle is not NULL.
   const char *GetBlamerMisadaptionDebug() const;
 
+  // Returns true if a truth string was recorded for the current word.
+  bool HasTruthString() const;
+
+  // Returns true if the given string is equivalent to the truth string for
+  // the current word.
+  bool EquivalentToTruth(const char *str) const;
+
   // Returns a null terminated UTF-8 encoded truth string for the current word.
   // Use delete [] to free after use.
   char* WordTruthUTF8Text() const;
+
+  // Returns a null terminated UTF-8 encoded normalized OCR string for the
+  // current word. Use delete [] to free after use.
+  char* WordNormedUTF8Text() const;
 
   // Returns a pointer to serialized choice lattice.
   // Fills lattice_size with the number of bytes in lattice data.

@@ -114,25 +114,10 @@ BOOL8 Tesseract::word_adaptable(  //should we adapt?
     return FALSE;
   }
 
-//  if (flags.bit (CHECK_AMBIG_WERD) && test_ambig_word (word))
   if (flags.bit (CHECK_AMBIG_WERD) &&
-      !getDict().NoDangerousAmbig(word->best_choice, NULL, false, NULL, NULL)) {
+      word->best_choice->dangerous_ambig_found()) {
     if (tessedit_adaption_debug) tprintf("word is ambiguous\n");
     return FALSE;
-  }
-
-  // Do not adapt to words that are composed from fragments if
-  // tessedit_adapt_to_char_fragments is false.
-  if (!tessedit_adapt_to_char_fragments) {
-    const char *fragment_lengths = word->best_choice->fragment_lengths();
-    if (fragment_lengths != NULL && *fragment_lengths != '\0') {
-      for (int i = 0; i < word->best_choice->length(); ++i) {
-        if (fragment_lengths[i] > 1) {
-          if (tessedit_adaption_debug) tprintf("won't adapt to fragments\n");
-          return false;  // found a character composed from fragments
-        }
-      }
-    }
   }
 
   if (tessedit_adaption_debug) {

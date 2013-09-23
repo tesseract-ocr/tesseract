@@ -73,27 +73,6 @@ void FreeBitVector(BIT_VECTOR BitVector) {
 }                                /* FreeBitVector */
 
 
-/**
- * hamming_distance(array1,array2,length) computes the hamming distance
- * between two bit strings.
- */
-/*--------------------------------------------------------------------------*/
-int hamming_distance(uinT32* array1, uinT32* array2, int length) {
-  register uinT32 diff;   /*bit difference */
-  register int dist;             /*total distance */
-
-  dist = 0;
-  for (; length > 0; length--) {
-    diff = *array1++ ^ *array2++;/*different bits */
-    while (diff) {
-      diff &= diff - 1;          /*lose a bit */
-      dist++;
-    }
-  }
-  return dist;                   /*total distance */
-}
-
-
 /*---------------------------------------------------------------------------*/
 /**
  * Allocate and return a new bit vector large enough to

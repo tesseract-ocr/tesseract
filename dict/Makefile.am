@@ -7,8 +7,8 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
 endif
 
 noinst_HEADERS = \
-    dawg.h dict.h matchdefs.h \
-    permute.h states.h stopper.h trie.h
+    dawg.h dawg_cache.h dict.h matchdefs.h \
+    stopper.h trie.h
 
 if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_dict.la
@@ -25,7 +25,7 @@ endif
 
 libtesseract_dict_la_SOURCES = \
     context.cpp \
-    dawg.cpp dict.cpp hyphen.cpp \
-    permdawg.cpp permute.cpp states.cpp stopper.cpp trie.cpp
+    dawg.cpp dawg_cache.cpp dict.cpp hyphen.cpp \
+    permdawg.cpp stopper.cpp trie.cpp
 
 

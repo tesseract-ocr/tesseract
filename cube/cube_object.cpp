@@ -165,7 +165,7 @@ WordAltList *CubeObject::Recognize(LangModel *lang_mod, bool word_mode) {
       if (deslanted_beam_obj_ == NULL) {
         fprintf(stderr, "Cube ERROR (CubeObject::Recognize): could not "
                 "construct deslanted BeamSearch\n");
-        return false;
+        return NULL;
       }
     }
 

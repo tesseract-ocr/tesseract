@@ -75,7 +75,7 @@ class SVSemaphore {
  private:
 #ifdef _WIN32
   HANDLE semaphore_;
-#elif defined (__APPLE__)
+#elif defined(__APPLE__)
   sem_t *semaphore_;
 #else
   sem_t semaphore_;

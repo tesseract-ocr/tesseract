@@ -2,6 +2,8 @@
 #   define TESS_CAPI_INCLUDE_BASEAPI
 #endif
 #include "capi.h"
+#include "genericvector.h"
+#include "strngs.h"
 
 TESS_API const char* TESS_CALL TessVersion()
 {
@@ -382,10 +384,10 @@ TESS_API BOOL TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* resu
     return handle->DetectOS(results) ? TRUE : FALSE;
 }
 
-TESS_API void TESS_CALL TessBaseAPIGetFeaturesForBlob(TessBaseAPI* handle, TBLOB* blob, const DENORM* denorm, INT_FEATURE_ARRAY int_features,
+TESS_API void TESS_CALL TessBaseAPIGetFeaturesForBlob(TessBaseAPI* handle, TBLOB* blob, INT_FEATURE_STRUCT* int_features,
                                                             int* num_features, int* FeatureOutlineIndex)
 {
-    handle->GetFeaturesForBlob(blob, *denorm, int_features, num_features, FeatureOutlineIndex);
+    handle->GetFeaturesForBlob(blob, int_features, num_features, FeatureOutlineIndex);
 }
 
 TESS_API ROW* TESS_CALL TessFindRowForBox(BLOCK_LIST* blocks, int left, int top, int right, int bottom)
@@ -393,10 +395,10 @@ TESS_API ROW* TESS_CALL TessFindRowForBox(BLOCK_LIST* blocks, int left, int top,
     return TessBaseAPI::FindRowForBox(blocks, left, top, right, bottom);
 }
 
-TESS_API void TESS_CALL TessBaseAPIRunAdaptiveClassifier(TessBaseAPI* handle, TBLOB* blob, const DENORM* denorm, int num_max_matches,
+TESS_API void TESS_CALL TessBaseAPIRunAdaptiveClassifier(TessBaseAPI* handle, TBLOB* blob, int num_max_matches,
                                                                int* unichar_ids, float* ratings, int* num_matches_returned)
 {
-    handle->RunAdaptiveClassifier(blob, *denorm, num_max_matches, unichar_ids, ratings, num_matches_returned);
+    handle->RunAdaptiveClassifier(blob, num_max_matches, unichar_ids, ratings, num_matches_returned);
 }
 
 TESS_API const char* TESS_CALL TessBaseAPIGetUnichar(TessBaseAPI* handle, int unichar_id)
@@ -424,9 +426,9 @@ TESS_API TBLOB* TESS_CALL TessMakeTBLOB(struct Pix *pix)
     return TessBaseAPI::MakeTBLOB(pix);
 }
 
-TESS_API void TESS_CALL TessNormalizeTBLOB(TBLOB *tblob, ROW *row, BOOL numeric_mode, DENORM *denorm)
+TESS_API void TESS_CALL TessNormalizeTBLOB(TBLOB *tblob, ROW *row, BOOL numeric_mode)
 {
-    TessBaseAPI::NormalizeTBLOB(tblob, row, numeric_mode != FALSE, denorm);
+    TessBaseAPI::NormalizeTBLOB(tblob, row, numeric_mode != FALSE);
 }
 
 TESS_API TessOcrEngineMode TESS_CALL TessBaseAPIOem(const TessBaseAPI* handle)

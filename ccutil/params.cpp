@@ -207,4 +207,25 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
   }
 }
 
+// Resets all parameters back to default values;
+void ParamUtils::ResetToDefaults(ParamsVectors* member_params) {
+  int v, i;
+  int num_iterations = (member_params == NULL) ? 1 : 2;
+  for (v = 0; v < num_iterations; ++v) {
+    ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
+    for (i = 0; i < vec->int_params.size(); ++i) {
+      vec->int_params[i]->ResetToDefault();
+    }
+    for (i = 0; i < vec->bool_params.size(); ++i) {
+      vec->bool_params[i]->ResetToDefault();
+    }
+    for (int i = 0; i < vec->string_params.size(); ++i) {
+      vec->string_params[i]->ResetToDefault();
+    }
+    for (int i = 0; i < vec->double_params.size(); ++i) {
+      vec->double_params[i]->ResetToDefault();
+    }
+  }
+}
+
 }  // namespace tesseract

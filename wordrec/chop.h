@@ -29,14 +29,16 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "oldheap.h"
+#include "genericheap.h"
+#include "kdpair.h"
 #include "seam.h"
 
 /*----------------------------------------------------------------------
               T y p e s
 ---------------------------------------------------------------------*/
 #define MAX_NUM_POINTS 50
-typedef HEAP *POINT_GROUP;
-typedef HEAP *SPLIT_GROUP;
+// The PointPair elements do NOT own the EDGEPTs.
+typedef tesseract::KDPairInc<float, EDGEPT*> PointPair;
+typedef tesseract::GenericHeap<PointPair> PointHeap;
 
 #endif

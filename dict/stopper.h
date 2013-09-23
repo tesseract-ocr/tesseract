@@ -25,7 +25,6 @@
 #include "genericvector.h"
 #include "params.h"
 #include "ratngs.h"
-#include "states.h"
 #include "unichar.h"
 
 class WERD_CHOICE;
@@ -34,55 +33,18 @@ typedef uinT8 BLOB_WIDTH;
 
 struct DANGERR_INFO {
   DANGERR_INFO() :
-    begin(-1), end(-1), dangerous(false), correct_is_ngram(false) {}
-  DANGERR_INFO(int b, int e, bool d, bool n) :
-    begin(b), end(e), dangerous(d), correct_is_ngram(n) {}
+    begin(-1), end(-1), dangerous(false), correct_is_ngram(false),
+    leftmost(INVALID_UNICHAR_ID) {}
+  DANGERR_INFO(int b, int e, bool d, bool n, UNICHAR_ID l) :
+    begin(b), end(e), dangerous(d), correct_is_ngram(n), leftmost(l) {}
   int begin;
   int end;
   bool dangerous;
   bool correct_is_ngram;
+  UNICHAR_ID leftmost;   // in the replacement, what's the leftmost character?
 };
 
 typedef GenericVector<DANGERR_INFO> DANGERR;
 
-enum ACCEPTABLE_CHOICE_CALLER { CHOPPER_CALLER, ASSOCIATOR_CALLER };
-
-struct CHAR_CHOICE {
-  UNICHAR_ID Class;
-  uinT16 NumChunks;
-  float Certainty;
-};
-
-class VIABLE_CHOICE_STRUCT {
- public:
-  VIABLE_CHOICE_STRUCT();
-  explicit VIABLE_CHOICE_STRUCT(int length);
-  ~VIABLE_CHOICE_STRUCT();
-
-  // Fill in the data with these values.
-  void Init(const WERD_CHOICE& word_choice,
-            const PIECES_STATE& pieces_state,
-            const float certainties[],
-            FLOAT32 adjust_factor);
-  void SetBlobChoices(const BLOB_CHOICE_LIST_VECTOR &src_choices);
-
-  int Length;
-  float Rating;
-  float Certainty;
-  FLOAT32 AdjustFactor;
-  bool ComposedFromCharFragments;
-  CHAR_CHOICE *Blob;
-  BLOB_CHOICE_LIST_CLIST *blob_choices;
-
- private:
-  // Disallow assignment and copy construction
-  VIABLE_CHOICE_STRUCT(const VIABLE_CHOICE_STRUCT &other)
-      : Length(0), Blob(NULL) {}
-  VIABLE_CHOICE_STRUCT &operator=(const VIABLE_CHOICE_STRUCT &other) {
-    return *this;
-  }
-};
-
-typedef VIABLE_CHOICE_STRUCT *VIABLE_CHOICE;
 
 #endif

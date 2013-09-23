@@ -1,4 +1,5 @@
 AM_CPPFLAGS += \
+    -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
@@ -11,7 +12,7 @@ endif
 
 
 noinst_HEADERS = \
-    alignedblob.h bbgrid.h blkocc.h blobgrid.h \
+    alignedblob.h baselinedetect.h bbgrid.h blkocc.h blobgrid.h \
     ccnontextdetect.h cjkpitch.h colfind.h colpartition.h colpartitionset.h \
     colpartitiongrid.h \
     devanagari_processing.h drawedg.h drawtord.h edgblob.h edgloop.h \
@@ -40,7 +41,7 @@ libtesseract_textord_la_LIBADD = \
 endif
 
 libtesseract_textord_la_SOURCES = \
-    alignedblob.cpp bbgrid.cpp blkocc.cpp blobgrid.cpp \
+    alignedblob.cpp baselinedetect.cpp bbgrid.cpp blkocc.cpp blobgrid.cpp \
     ccnontextdetect.cpp cjkpitch.cpp colfind.cpp colpartition.cpp colpartitionset.cpp \
     colpartitiongrid.cpp devanagari_processing.cpp \
     drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \

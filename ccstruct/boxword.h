@@ -22,6 +22,7 @@
 
 #include "genericvector.h"
 #include "rect.h"
+#include "unichar.h"
 
 class BLOCK;
 class DENORM;
@@ -33,14 +34,6 @@ class WERD_CHOICE;
 class WERD_RES;
 
 namespace tesseract {
-
-// ScriptPos tells whether a character is subscript, superscript or normal.
-enum ScriptPos {
-  SP_NORMAL,
-  SP_SUBSCRIPT,
-  SP_SUPERSCRIPT,
-  SP_DROPCAP
-};
 
 // Class to hold an array of bounding boxes for an output word and
 // the bounding box of the whole word.
@@ -54,19 +47,9 @@ class BoxWord {
 
   void CopyFrom(const BoxWord& src);
 
-  // Factory to build a BoxWord from a TWERD and the DENORM to switch
-  // back to original image coordinates.
-  // If the denorm is not NULL, then the output is denormalized and rotated
-  // back to the original image coordinates.
-  static BoxWord* CopyFromNormalized(const DENORM* denorm,
-                                     TWERD* tessword);
-
-  // Sets up the script_pos_ member using the tessword to get the bln
-  // bounding boxes, the best_choice to get the unichars, and the unicharset
-  // to get the target positions. If small_caps is true, sub/super are not
-  // considered, but dropcaps are.
-  void SetScriptPositions(const UNICHARSET& unicharset, bool small_caps,
-                          TWERD* tessword, WERD_CHOICE* best_choice);
+  // Factory to build a BoxWord from a TWERD using the DENORMs on each blob to
+  // switch back to original image coordinates.
+  static BoxWord* CopyFromNormalized(TWERD* tessword);
 
   // Clean up the bounding boxes from the polygonal approximation by
   // expanding slightly, then clipping to the blobs from the original_word
@@ -102,11 +85,6 @@ class BoxWord {
   const TBOX& BlobBox(int index) const {
     return boxes_[index];
   }
-  ScriptPos BlobPosition(int index) const {
-    if (index < 0 || index >= script_pos_.size())
-      return SP_NORMAL;
-    return script_pos_[index];
-  }
 
  private:
   void ComputeBoundingBox();
@@ -114,7 +92,6 @@ class BoxWord {
   TBOX bbox_;
   int length_;
   GenericVector<TBOX> boxes_;
-  GenericVector<ScriptPos> script_pos_;
 };
 
 }  // namespace tesseract.

@@ -16,12 +16,11 @@
  *
  **********************************************************************/
 
-#include "textord.h"
-#include "tovars.h"
 #include "drawtord.h"
-#include "textord.h"
 #include "ndminx.h"
 #include "statistc.h"
+#include "textord.h"
+#include "tovars.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

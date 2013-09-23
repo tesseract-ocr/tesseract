@@ -62,9 +62,9 @@ const int kMaxCharTopRange = 48;
 // Returns the number of misfit blob tops in this word.
 int Tesseract::CountMisfitTops(WERD_RES *word_res) {
   int bad_blobs = 0;
-  TBLOB* blob = word_res->rebuild_word->blobs;
-  int blob_id = 0;
-  for (; blob != NULL; blob = blob->next, ++blob_id) {
+  int num_blobs = word_res->rebuild_word->NumBlobs();
+  for (int blob_id = 0; blob_id < num_blobs; ++blob_id) {
+    TBLOB* blob = word_res->rebuild_word->blobs[blob_id];
     UNICHAR_ID class_id = word_res->best_choice->unichar_id(blob_id);
     if (unicharset.get_isalpha(class_id) || unicharset.get_isdigit(class_id)) {
       int top = blob->bounding_box().top();
@@ -94,9 +94,9 @@ int Tesseract::CountMisfitTops(WERD_RES *word_res) {
 // See comment above for overall algorithm.
 float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res) {
   STATS top_stats(0, MAX_UINT8);
-  TBLOB* blob = word_res->rebuild_word->blobs;
-  int blob_id = 0;
-  for (; blob != NULL; blob = blob->next, ++blob_id) {
+  int num_blobs = word_res->rebuild_word->NumBlobs();
+  for (int blob_id = 0; blob_id < num_blobs; ++blob_id) {
+    TBLOB* blob = word_res->rebuild_word->blobs[blob_id];
     UNICHAR_ID class_id = word_res->best_choice->unichar_id(blob_id);
     if (unicharset.get_isalpha(class_id) || unicharset.get_isdigit(class_id)) {
       int top = blob->bounding_box().top();

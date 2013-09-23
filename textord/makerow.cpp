@@ -57,10 +57,10 @@ BOOL_VAR(textord_fix_makerow_bug, TRUE, "Prevent multiple baselines");
 BOOL_VAR(textord_debug_xheights, FALSE, "Test xheight algorithms");
 BOOL_VAR(textord_biased_skewcalc, TRUE, "Bias skew estimates with line length");
 BOOL_VAR(textord_interpolating_skew, TRUE, "Interpolate across gaps");
-INT_VAR(textord_skewsmooth_offset, 2, "For smooth factor");
+INT_VAR(textord_skewsmooth_offset, 4, "For smooth factor");
 INT_VAR(textord_skewsmooth_offset2, 1, "For smooth factor");
-INT_VAR(textord_test_x, -1, "coord of test pt");
-INT_VAR(textord_test_y, -1, "coord of test pt");
+INT_VAR(textord_test_x, -MAX_INT32, "coord of test pt");
+INT_VAR(textord_test_y, -MAX_INT32, "coord of test pt");
 INT_VAR(textord_min_blobs_in_row, 4, "Min blobs before gradient counted");
 INT_VAR(textord_spline_minblobs, 8, "Min blobs in each spline segment");
 INT_VAR(textord_spline_medianwin, 6, "Size of window for spline segmentation");
@@ -72,13 +72,13 @@ double_VAR(textord_spline_shift_fraction, 0.02,
 double_VAR(textord_spline_outlier_fraction, 0.1,
            "Fraction of line spacing for outlier");
 double_VAR(textord_skew_ile, 0.5, "Ile of gradients for page skew");
-double_VAR(textord_skew_lag, 0.01, "Lag for skew on row accumulation");
+double_VAR(textord_skew_lag, 0.02, "Lag for skew on row accumulation");
 double_VAR(textord_linespace_iqrlimit, 0.2, "Max iqr/median for linespace");
 double_VAR(textord_width_limit, 8, "Max width of blobs to make rows");
 double_VAR(textord_chop_width, 1.5, "Max width before chopping");
 double_VAR(textord_expansion_factor, 1.0,
            "Factor to expand rows by in expand_rows");
-double_VAR(textord_overlap_x, 0.5, "Fraction of linespace for good overlap");
+double_VAR(textord_overlap_x, 0.375, "Fraction of linespace for good overlap");
 double_VAR(textord_minxh, 0.25, "fraction of linesize for min xheight");
 double_VAR(textord_min_linesize, 1.25, "* blob height for initial linesize");
 double_VAR(textord_excess_blobsize, 1.3,
@@ -143,12 +143,9 @@ float MakeRowFromSubBlobs(TO_BLOCK* block, C_BLOB* blob, TO_ROW_IT* row_it) {
     return 0.0f;
   for (ol_it.mark_cycle_pt(); !ol_it.cycled_list(); ol_it.forward()) {
     // Deep copy the child outline and use that to make a blob.
-    C_OUTLINE* outline = C_OUTLINE::deep_copy(ol_it.data());
-    // The constructor from a list of outlines corrects the direction.
-    C_OUTLINE_LIST outlines;
-    C_OUTLINE_IT ol_it(&outlines);
-    ol_it.add_after_then_move(outline);
-    C_BLOB* blob = new C_BLOB(&outlines);
+    C_BLOB* blob = new C_BLOB(C_OUTLINE::deep_copy(ol_it.data()));
+    // Correct direction as needed.
+    blob->CheckInverseFlagAndDirection();
     BLOBNBOX* bbox = new BLOBNBOX(blob);
     bb_it.add_after_then_move(bbox);
   }
@@ -213,19 +210,6 @@ float make_rows(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
   }
   return port_m;                 // global skew
 }
-
-namespace tesseract {
-
-void Textord::fit_rows(float gradient, ICOORD page_tr, TO_BLOCK_LIST *blocks) {
-  TO_BLOCK_IT block_it(blocks);          // iterator
-  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
-    cleanup_rows_fitting(page_tr, block_it.data(), gradient, FCOORD(1.0f, 0.0f),
-                 block_it.data()->block->bounding_box().left(),
-                 !(BOOL8)textord_test_landscape);
-  }
-}
-
-}  // namespace tesseract.
 
 /**
  * @name make_initial_textrows
@@ -478,7 +462,7 @@ static bool dot_of_i(BLOBNBOX* dot, BLOBNBOX* i, TO_ROW* row) {
   return false;
 }
 
-static void vigorous_noise_removal(TO_BLOCK* block) {
+void vigorous_noise_removal(TO_BLOCK* block) {
   TO_ROW_IT row_it = block->get_rows ();
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     TO_ROW* row = row_it.data();
@@ -577,86 +561,6 @@ void cleanup_rows_making(                   //find lines
   blob_it.add_list_after (&block->small_blobs);
   assign_blobs_to_rows (block, &gradient, 3, FALSE, FALSE, FALSE);
 }
-
-namespace tesseract {
-
-void Textord::cleanup_rows_fitting(ICOORD page_tr,    // top right
-                                   TO_BLOCK *block,   // block to do
-                                   float gradient,    // gradient to fit
-                                   FCOORD rotation,   // for drawing
-                                   inT32 block_edge,  // edge of block
-                                   BOOL8 testing_on) {  // correct orientation
-  BLOBNBOX_IT blob_it = &block->blobs;
-  TO_ROW_IT row_it = block->get_rows();
-
-#ifndef GRAPHICS_DISABLED
-  if (textord_show_parallel_rows && testing_on) {
-    if (to_win == NULL)
-      create_to_win(page_tr);
-  }
-#endif
-  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward())
-    row_it.data()->blob_list()->sort(blob_x_order);
-  fit_parallel_rows(block, gradient, rotation, block_edge, FALSE);
-  if (textord_heavy_nr) {
-    vigorous_noise_removal(block);
-  }
-  POLY_BLOCK* pb = block->block->poly_block();
-  if (pb == NULL || pb->IsText()) {
-    separate_underlines(block, gradient, rotation, testing_on);
-    pre_associate_blobs(page_tr, block, rotation, testing_on);
-  }
-
-#ifndef GRAPHICS_DISABLED
-  if (textord_show_final_rows && testing_on) {
-    if (to_win == NULL)
-      create_to_win(page_tr);
-  }
-#endif
-
-  fit_parallel_rows(block, gradient, rotation, block_edge, FALSE);
-  //              textord_show_final_rows && testing_on);
-  make_spline_rows(block,
-                   gradient,
-                   rotation,
-                   block_edge,
-                   textord_show_final_rows && testing_on);
-  // We only want to call compute_block_xheight() if
-  // both textord_old_xheight and textord_old_baselines are false.
-  // No need to call compute_block_xheight() if textord_old_baselines
-  // is true, since all appropriate xheight computation functions
-  // would be called from make_old_baselines().
-  // Note: it can not be the case that textord_old_baselines is
-  // false, and textord_old_xheight is true.
-  if (!textord_old_xheight && !textord_old_baselines)
-    compute_block_xheight(block, gradient);
-  if (textord_restore_underlines)  // fix underlines
-    restore_underlined_blobs(block);
-#ifndef GRAPHICS_DISABLED
-  if (textord_show_final_rows && testing_on) {
-    ScrollView::Color colour = ScrollView::RED;
-    for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
-      plot_parallel_row(row_it.data(), gradient,
-        block_edge, colour, rotation);
-      colour = (ScrollView::Color) (colour + 1);
-      if (colour > ScrollView::MAGENTA)
-        colour = ScrollView::RED;
-    }
-    plot_blob_list(to_win, &block->blobs,
-                   ScrollView::MAGENTA, ScrollView::WHITE);
-    //show discarded blobs
-    plot_blob_list(to_win, &block->underlines,
-                   ScrollView::YELLOW, ScrollView::CORAL);
-  }
-  if (textord_show_final_rows && testing_on && block->blobs.length () > 0)
-    tprintf ("%d blobs discarded as noise\n", block->blobs.length ());
-  if (textord_show_final_rows && testing_on) {
-    draw_meanlines(block, gradient, block_edge, ScrollView::WHITE, rotation);
-  }
-#endif
-}
-
-}  // namespace tesseract.
 
 /**
  * delete_non_dropout_rows
@@ -2121,8 +2025,6 @@ void fit_parallel_lms(float gradient, TO_ROW *row) {
 namespace tesseract {
 void Textord::make_spline_rows(TO_BLOCK *block,   // block to do
                                float gradient,    // gradient to fit
-                               FCOORD rotation,   // for drawing
-                               inT32 block_edge,  // edge of block
                                BOOL8 testing_on) {
 #ifndef GRAPHICS_DISABLED
   ScrollView::Color colour;       //of row
@@ -2544,47 +2446,51 @@ void assign_blobs_to_rows(                      //find lines
     else if (make_new_rows && top - bottom < block->max_blob_size) {
       overlap_result = NEW_ROW;
       dest_row =
-        new TO_ROW (blob_it.extract (), top, bottom, block->line_size);
+        new TO_ROW(blob_it.extract(), top, bottom, block->line_size);
       row_count++;
-      row_it.add_after_then_move (dest_row);
+      row_it.add_after_then_move(dest_row);
       smooth_factor = 1.0 / (row_count * textord_skew_lag +
                              textord_skewsmooth_offset2);
     }
     else
       overlap_result = REJECT;
-    if (blob->bounding_box ().contains (testpt)) {
+    if (blob->bounding_box ().contains(testpt)) {
       if (overlap_result != REJECT) {
-        tprintf ("Test blob assigned to row at (%g,%g) on pass %d\n",
-          dest_row->min_y (), dest_row->max_y (), pass);
+        tprintf("Test blob assigned to row at (%g,%g) on pass %d\n",
+          dest_row->min_y(), dest_row->max_y(), pass);
       }
       else {
-        tprintf ("Test blob assigned to no row on pass %d\n", pass);
+        tprintf("Test blob assigned to no row on pass %d\n", pass);
       }
     }
     if (overlap_result != REJECT) {
-      while (!row_it.at_first ()
-        && row_it.data ()->min_y () >
-      row_it.data_relative (-1)->min_y ()) {
-        row = row_it.extract ();
-        row_it.backward ();
-        row_it.add_before_then_move (row);
+      while (!row_it.at_first() &&
+             row_it.data()->min_y() > row_it.data_relative(-1)->min_y()) {
+        row = row_it.extract();
+        row_it.backward();
+        row_it.add_before_then_move(row);
       }
-      while (!row_it.at_last ()
-        && row_it.data ()->min_y () <
-      row_it.data_relative (1)->min_y ()) {
-        row = row_it.extract ();
-        row_it.forward ();
-                                 //keep rows in order
-        row_it.add_after_then_move (row);
+      while (!row_it.at_last() &&
+             row_it.data ()->min_y() < row_it.data_relative (1)->min_y()) {
+        row = row_it.extract();
+        row_it.forward();
+                                 // Keep rows in order.
+        row_it.add_after_then_move(row);
       }
-      block_skew = (1 - smooth_factor) * block_skew
-        + smooth_factor * (blob->bounding_box ().bottom () -
-        dest_row->initial_min_y ());
+      BLOBNBOX_IT added_blob_it(dest_row->blob_list());
+      added_blob_it.move_to_last();
+      TBOX prev_box = added_blob_it.data_relative(-1)->bounding_box();
+      if (dest_row->blob_list()->singleton() ||
+          !prev_box.major_x_overlap(blob->bounding_box())) {
+        block_skew = (1 - smooth_factor) * block_skew
+            + smooth_factor * (blob->bounding_box().bottom() -
+            dest_row->initial_min_y());
+      }
     }
   }
-  for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    if (row_it.data ()->blob_list ()->empty ())
-      delete row_it.extract ();  //discard empty rows
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+    if (row_it.data()->blob_list()->empty())
+      delete row_it.extract();  // Discard empty rows.
   }
 }
 
@@ -2620,8 +2526,8 @@ OVERLAP_STATE most_overlapping_row(                    //find best row
                                  //compute overlap
     bestover -= row->min_y () - bottom;
   if (testing_blob) {
-    tprintf ("Test blob y=(%g,%g), row=(%f,%f), overlap=%f\n",
-      bottom, top, row->min_y (), row->max_y (), bestover);
+    tprintf("Test blob y=(%g,%g), row=(%f,%f), size=%g, overlap=%f\n",
+            bottom, top, row->min_y(), row->max_y(), rowsize, bestover);
   }
   test_row = row;
   do {
@@ -2663,10 +2569,9 @@ OVERLAP_STATE most_overlapping_row(                    //find best row
           row = test_row;
         }
         if (testing_blob) {
-          tprintf
-            ("Test blob y=(%g,%g), row=(%f,%f), overlap=%f->%f\n",
-            bottom, top, test_row->min_y (), test_row->max_y (),
-            overlap, bestover);
+          tprintf("Test blob y=(%g,%g), row=(%f,%f), size=%g, overlap=%f->%f\n",
+                  bottom, top, test_row->min_y(), test_row->max_y(),
+                  rowsize, overlap, bestover);
         }
       }
     }
@@ -2771,9 +2676,6 @@ void mark_repeated_chars(TO_ROW *row) {
           if (bblob->flow() != BTFT_LEADER)
             break;
           if (bblob->joined_to_prev() || bblob->cblob() == NULL) {
-            tprintf("Cancelled repeat of length %d due to %s\n",
-                    repeat_length,
-                    bblob->joined_to_prev() ? "Joined" : "Null");
             repeat_length = 0;
             break;
           }

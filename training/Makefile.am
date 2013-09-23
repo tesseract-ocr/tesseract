@@ -14,17 +14,20 @@ AM_LDFLAGS += -all-static
 endif
 
 noinst_HEADERS = \
-    commontraining.h tessopt.h mergenf.h
+    commandlineflags.h commontraining.h fileio.h icuerrorcode.h normstrngs.h \
+      tessopt.h mergenf.h
 
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
 libtesseract_training_la_SOURCES = \
-    commontraining.cpp
+    commandlineflags.cpp commontraining.cpp fileio.cpp normstrngs.cpp
 
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
 
-bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_tessdata dawg2wordlist mftraining shapeclustering unicharset_extractor wordlist2dawg
+bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_tessdata \
+  dawg2wordlist mftraining set_unicharset_properties shapeclustering \
+  unicharset_extractor wordlist2dawg
 
 ambiguous_words_SOURCES = ambiguous_words.cpp
 ambiguous_words_LDADD = \
@@ -153,6 +156,32 @@ mftraining_LDADD += \
     ../ccutil/libtesseract_ccutil.la
 else
 mftraining_LDADD += \
+    ../api/libtesseract.la
+endif
+
+set_unicharset_properties_SOURCES = set_unicharset_properties.cpp
+#set_unicharset_properties_LDFLAGS = -static
+set_unicharset_properties_LDADD = \
+    libtesseract_training.la \
+    libtesseract_tessopt.la \
+    -licuuc
+if USING_MULTIPLELIBS
+set_unicharset_properties_LDADD += \
+    ../textord/libtesseract_textord.la \
+    ../classify/libtesseract_classify.la \
+    ../dict/libtesseract_dict.la \
+    ../ccstruct/libtesseract_ccstruct.la \
+    ../image/libtesseract_image.la \
+    ../cutil/libtesseract_cutil.la \
+    ../viewer/libtesseract_viewer.la \
+    ../ccmain/libtesseract_main.la \
+    ../cube/libtesseract_cube.la \
+    ../neural_networks/runtime/libtesseract_neural.la \
+    ../wordrec/libtesseract_wordrec.la \
+    ../ccutil/libtesseract_ccutil.la \
+    -licuuc
+else
+set_unicharset_properties_LDADD += \
     ../api/libtesseract.la
 endif
 

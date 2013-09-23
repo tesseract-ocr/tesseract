@@ -55,6 +55,7 @@ class TESS_API STRING
     inT32 length() const;
     inT32 size() const { return length(); }
     const char *string() const;
+    const char *c_str() const;
 
     inline char* strdup() const {
      inT32 len = length() + 1;
@@ -94,8 +95,10 @@ class TESS_API STRING
     // be ambiguous, and ints usually need a string before or between them
     // anyway.
     void add_str_int(const char* str, int number);
+    // Appends the given string and double (as a %.8g) to this.
+    void add_str_double(const char* str, double number);
 
-    // ensure capcaity but keep pointer encapsulated
+    // ensure capacity but keep pointer encapsulated
     inline void ensure(inT32 min_capacity) { ensure_cstr(min_capacity); }
 
   private:

@@ -114,12 +114,15 @@ class Trie : public Dawg {
    * Fills the given NodeChildVector with all the unichar ids (and the
    * corresponding EDGE_REFs) for which there is an edge out of this node.
    */
-  void unichar_ids_of(NODE_REF node, NodeChildVector *vec) const {
+  void unichar_ids_of(NODE_REF node, NodeChildVector *vec,
+                      bool word_end) const {
     const EDGE_VECTOR &forward_edges =
       nodes_[static_cast<int>(node)]->forward_edges;
     for (int i = 0; i < forward_edges.size(); ++i) {
-      vec->push_back(NodeChild(unichar_id_from_edge_rec(forward_edges[i]),
-                               make_edge_ref(node, i)));
+      if (!word_end || end_of_word_from_edge_rec(forward_edges[i])) {
+        vec->push_back(NodeChild(unichar_id_from_edge_rec(forward_edges[i]),
+                                 make_edge_ref(node, i)));
+      }
     }
   }
 
@@ -146,6 +149,10 @@ class Trie : public Dawg {
     if (edge_ref == NO_EDGE || num_edges_ == 0) return INVALID_UNICHAR_ID;
     return unichar_id_from_edge_rec(*deref_edge_ref(edge_ref));
   }
+  // Sets the UNICHAR_ID in the given edge_rec to 0, marking the edge dead.
+  void KillEdge(EDGE_RECORD* edge_rec) const {
+    *edge_rec &= ~letter_mask_;
+  }
 
   // Prints the contents of the node indicated by the given NODE_REF.
   // At most max_num_edges will be printed.
@@ -157,12 +164,26 @@ class Trie : public Dawg {
   // with the returned SquishedDawg pointer.
   SquishedDawg *trie_to_dawg();
 
-  // Inserts the list of words from the given file into the Trie.
-  // If reverse is true, calls WERD_CHOICE::reverse_unichar_ids_if_rtl()
-  // on each word before inserting it into the Trie.
+  // Reads a list of words from the given file and adds into the Trie.
+  // Calls WERD_CHOICE::reverse_unichar_ids_if_rtl() according to the reverse
+  // policy and information in the unicharset.
+  // Returns false on error.
+  bool read_and_add_word_list(const char *filename,
+                              const UNICHARSET &unicharset,
+                              Trie::RTLReversePolicy reverse);
+
+  // Reads a list of words from the given file, applying the reverse_policy,
+  // according to information in the unicharset.
+  // Returns false on error.
   bool read_word_list(const char *filename,
                       const UNICHARSET &unicharset,
-                      Trie::RTLReversePolicy reverse);
+                      Trie::RTLReversePolicy reverse_policy,
+                      GenericVector<STRING>* words);
+  // Adds a list of words previously read using read_word_list to the trie
+  // using the given unicharset to convert to unichar-ids.
+  // Returns false on error.
+  bool add_word_list(const GenericVector<STRING>& words,
+                     const UNICHARSET &unicharset);
 
   // Inserts the list of patterns from the given file into the Trie.
   // The pattern list file should contain one pattern per line in UTF-8 format.
@@ -374,7 +395,7 @@ class Trie : public Dawg {
   bool reduce_lettered_edges(EDGE_INDEX edge_index,
                              UNICHAR_ID unichar_id,
                              NODE_REF node,
-                             const EDGE_VECTOR &backward_edges,
+                             EDGE_VECTOR* backward_edges,
                              NODE_MARKER reduced_nodes);
 
   /** 
@@ -397,6 +418,8 @@ class Trie : public Dawg {
   uinT64 max_num_edges_;          // maximum number of edges allowed
   uinT64 deref_direction_mask_;   // mask for EDGE_REF to extract direction
   uinT64 deref_node_index_mask_;  // mask for EDGE_REF to extract node index
+  // Freelist of edges in the root backwards node that were previously zeroed.
+  GenericVector<EDGE_INDEX> root_back_freelist_;
   // Variables for translating character class codes denoted in user patterns
   // file to the unichar ids used to represent them in a Trie.
   bool initialized_patterns_;

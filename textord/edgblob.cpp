@@ -179,7 +179,7 @@ inT32 OL_BUCKETS::outline_complexity(
  *
  * Find number of descendants of this outline.
  */
-
+// TODO(rays) Merge with outline_complexity.
 inT32 OL_BUCKETS::count_children(                     // recursive count
                                  C_OUTLINE *outline,  // parent outline
                                  inT32 max_count      // max output
@@ -409,7 +409,6 @@ void empty_buckets(                     // find blobs
   C_OUTLINE_IT out_it = &outlines;
   C_OUTLINE_IT bucket_it = buckets->start_scan();
   C_OUTLINE_IT parent_it;        // parent outline
-  C_BLOB *blob;                  // new blob
   C_BLOB_IT good_blobs = block->blob_list();
   C_BLOB_IT junk_blobs = block->reject_blobs();
 
@@ -426,11 +425,8 @@ void empty_buckets(                     // find blobs
                                  // move to new list
     out_it.add_after_then_move(parent_it.extract());
     good_blob = capture_children(buckets, &junk_blobs, &out_it);
-    blob = new C_BLOB(&outlines);
-    if (good_blob)
-      good_blobs.add_after_then_move(blob);
-    else
-      junk_blobs.add_after_then_move(blob);
+    C_BLOB::ConstructBlobsFromOutlines(good_blob, &outlines, &good_blobs,
+                                       &junk_blobs);
 
     bucket_it.set_to_list(buckets->scan_next());
   }

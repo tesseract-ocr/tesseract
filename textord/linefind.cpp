@@ -69,7 +69,7 @@ static void RemoveUnusedLineSegments(bool horizontal_lines,
   BLOBNBOX_IT bbox_it(line_bblobs);
   for (bbox_it.mark_cycle_pt(); !bbox_it.cycled_list(); bbox_it.forward()) {
     BLOBNBOX* blob = bbox_it.data();
-    if (blob->left_tab_type() == TT_MAYBE_ALIGNED) {
+    if (blob->left_tab_type() != TT_VLINE) {
       const TBOX& box = blob->bounding_box();
       Box* pixbox = NULL;
       if (horizontal_lines) {
@@ -79,7 +79,6 @@ static void RemoveUnusedLineSegments(bool horizontal_lines,
         // See GetLineBoxes for more explanation.
         pixbox = boxCreate(box.bottom(), height - box.right(),
                            box.height(), box.width());
-
       } else {
         // For vertical lines, just flip upside-down to convert to Leptonica.
         // The y position of the box in Leptonica terms is the distance from

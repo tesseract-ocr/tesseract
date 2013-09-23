@@ -35,6 +35,7 @@ namespace tesseract {
 bool TessdataManager::Init(const char *data_file_name, int debug_level) {
   int i;
   debug_level_ = debug_level;
+  data_file_name_ = data_file_name;
   data_file_ = fopen(data_file_name, "rb");
   if (data_file_ == NULL) {
     tprintf("Error opening data file %s\n", data_file_name);
@@ -244,7 +245,7 @@ bool TessdataManager::ExtractToFile(const char *filename) {
 
   FILE *output_file = fopen(filename, "wb");
   if (output_file == NULL) {
-    tprintf("Error openning %s\n", filename);
+    tprintf("Error opening %s\n", filename);
     exit(1);
   }
   inT64 begin_offset = ftell(GetDataFilePtr());

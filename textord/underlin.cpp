@@ -81,13 +81,6 @@ void restore_underlined_blobs(                 //get chop points
                       &left_coutlines, &right_coutlines);
         if (!left_coutlines.empty()) {
           row->insert_blob(new BLOBNBOX(new C_BLOB(&left_coutlines)));
-        } else {
-          fprintf(stderr,
-            "Error:no outlines after chopping from %d to %d from (%d,%d)->(%d,%d)\n",
-            cell_it.data ()->x (), cell_it.data ()->y (),
-            blob_box.left (), blob_box.bottom (),
-            blob_box.right (), blob_box.top ());
-          ASSERT_HOST(FALSE);
         }
         u_line = NULL;           //no more blobs to add
       }

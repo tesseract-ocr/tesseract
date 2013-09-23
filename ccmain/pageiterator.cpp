@@ -303,16 +303,22 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
 bool PageIterator::BoundingBox(PageIteratorLevel level,
                                int* left, int* top,
                                int* right, int* bottom) const {
+  return BoundingBox(level, 0, left, top, right, bottom);
+}
+
+bool PageIterator::BoundingBox(PageIteratorLevel level, const int padding,
+                               int* left, int* top,
+                               int* right, int* bottom) const {
   if (!BoundingBoxInternal(level, left, top, right, bottom))
     return false;
   // Convert to the coordinate system of the original image.
-  *left = ClipToRange(*left / scale_ + rect_left_,
+  *left = ClipToRange(*left / scale_ + rect_left_ - padding,
                       rect_left_, rect_left_ + rect_width_);
-  *top = ClipToRange(*top / scale_ + rect_top_,
+  *top = ClipToRange(*top / scale_ + rect_top_ - padding,
                      rect_top_, rect_top_ + rect_height_);
-  *right = ClipToRange((*right + scale_ - 1) / scale_ + rect_left_,
+  *right = ClipToRange((*right + scale_ - 1) / scale_ + rect_left_ + padding,
                        *left, rect_left_ + rect_width_);
-  *bottom = ClipToRange((*bottom + scale_ - 1) / scale_ + rect_top_,
+  *bottom = ClipToRange((*bottom + scale_ - 1) / scale_ + rect_top_ + padding,
                         *top, rect_top_ + rect_height_);
   return true;
 }
@@ -546,14 +552,15 @@ void PageIterator::BeginWord(int offset) {
     // Recognition has been done, so we are using the box_word, which
     // is already baseline denormalized.
     word_length_ = word_res->best_choice->length();
-    ASSERT_HOST(word_res->box_word != NULL);
-    if (word_res->box_word->length() != word_length_) {
-      tprintf("Corrupted word! best_choice[len=%d] = %s, box_word[len=%d]: ",
-              word_length_, word_res->best_choice->unichar_string().string(),
-              word_res->box_word->length());
-      word_res->box_word->bounding_box().print();
+    if (word_res->box_word != NULL) {
+      if (word_res->box_word->length() != word_length_) {
+        tprintf("Corrupted word! best_choice[len=%d] = %s, box_word[len=%d]: ",
+                word_length_, word_res->best_choice->unichar_string().string(),
+                word_res->box_word->length());
+        word_res->box_word->bounding_box().print();
+      }
+      ASSERT_HOST(word_res->box_word->length() == word_length_);
     }
-    ASSERT_HOST(word_res->box_word->length() == word_length_);
     word_ = NULL;
     // We will be iterating the box_word.
     if (cblob_it_ != NULL) {
@@ -571,6 +578,15 @@ void PageIterator::BeginWord(int offset) {
   for (blob_index_ = 0; blob_index_ < offset; ++blob_index_) {
     if (cblob_it_ != NULL)
       cblob_it_->forward();
+  }
+}
+
+bool PageIterator::SetWordBlamerBundle(BlamerBundle *blamer_bundle) {
+  if (it_->word() != NULL) {
+    it_->word()->blamer_bundle = blamer_bundle;
+    return true;
+  } else {
+    return false;
   }
 }
 

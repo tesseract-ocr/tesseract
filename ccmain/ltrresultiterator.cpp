@@ -132,23 +132,7 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
      ++certainty_count;
       break;
     case RIL_SYMBOL:
-      BLOB_CHOICE_LIST_CLIST* choices = best_choice->blob_choices();
-      if (choices != NULL) {
-        BLOB_CHOICE_LIST_C_IT blob_choices_it(choices);
-        for (int blob = 0; blob < blob_index_; ++blob)
-          blob_choices_it.forward();
-        BLOB_CHOICE_IT choice_it(blob_choices_it.data());
-        for (choice_it.mark_cycle_pt();
-             !choice_it.cycled_list();
-             choice_it.forward()) {
-          if (choice_it.data()->unichar_id() ==
-              best_choice->unichar_id(blob_index_))
-            break;
-        }
-        mean_certainty += choice_it.data()->certainty();
-      } else {
-        mean_certainty += best_choice->certainty();
-      }
+      mean_certainty += best_choice->certainty(blob_index_);
       ++certainty_count;
   }
   if (certainty_count > 0) {
@@ -237,45 +221,73 @@ bool LTRResultIterator::WordIsNumeric() const {
 
 // Returns true if the word contains blamer information.
 bool LTRResultIterator::HasBlamerInfo() const {
-  return (it_->word() != NULL && it_->word()->blamer_bundle != NULL &&
-           (it_->word()->blamer_bundle->debug.length() > 0 ||
-            it_->word()->blamer_bundle->misadaption_debug.length() > 0));
+  return it_->word() != NULL && it_->word()->blamer_bundle != NULL &&
+         it_->word()->blamer_bundle->HasDebugInfo();
 }
 
 // Returns the pointer to ParamsTrainingBundle stored in the BlamerBundle
 // of the current word.
-void *LTRResultIterator::GetParamsTrainingBundle() const {
+const void *LTRResultIterator::GetParamsTrainingBundle() const {
   return (it_->word() != NULL && it_->word()->blamer_bundle != NULL) ?
-      &(it_->word()->blamer_bundle->params_training_bundle) : NULL;
+      &(it_->word()->blamer_bundle->params_training_bundle()) : NULL;
 }
 
 // Returns the pointer to the string with blamer information for this word.
 // Assumes that the word's blamer_bundle is not NULL.
 const char *LTRResultIterator::GetBlamerDebug() const {
-  return it_->word()->blamer_bundle->debug.string();
+  return it_->word()->blamer_bundle->debug().string();
 }
 
 // Returns the pointer to the string with misadaption information for this word.
 // Assumes that the word's blamer_bundle is not NULL.
 const char *LTRResultIterator::GetBlamerMisadaptionDebug() const {
-  return it_->word()->blamer_bundle->misadaption_debug.string();
+  return it_->word()->blamer_bundle->misadaption_debug().string();
+}
+
+// Returns true if a truth string was recorded for the current word.
+bool LTRResultIterator::HasTruthString() const {
+  if (it_->word() == NULL) return false;  // Already at the end!
+  if (it_->word()->blamer_bundle == NULL ||
+      it_->word()->blamer_bundle->NoTruth()) {
+    return false;  // no truth information for this word
+  }
+  return true;
+}
+
+// Returns true if the given string is equivalent to the truth string for
+// the current word.
+bool LTRResultIterator::EquivalentToTruth(const char *str) const {
+  if (!HasTruthString()) return false;
+  ASSERT_HOST(it_->word()->uch_set != NULL);
+  WERD_CHOICE str_wd(str, *(it_->word()->uch_set));
+  return it_->word()->blamer_bundle->ChoiceIsCorrect(&str_wd);
 }
 
 // Returns the null terminated UTF-8 encoded truth string for the current word.
 // Use delete [] to free after use.
 char* LTRResultIterator::WordTruthUTF8Text() const {
-  if (it_->word() == NULL) return NULL;  // Already at the end!
-  if (it_->word()->blamer_bundle == NULL ||
-      it_->word()->blamer_bundle->incorrect_result_reason == IRR_NO_TRUTH) {
-    return NULL;  // no truth information for this word
-  }
-  const GenericVector<STRING> &truth_vec =
-      it_->word()->blamer_bundle->truth_text;
-  STRING truth_text;
-  for (int i = 0; i < truth_vec.size(); ++i) truth_text += truth_vec[i];
+  if (!HasTruthString()) return NULL;
+  STRING truth_text = it_->word()->blamer_bundle->TruthString();
   int length = truth_text.length() + 1;
   char* result = new char[length];
   strncpy(result, truth_text.string(), length);
+  return result;
+}
+
+// Returns the null terminated UTF-8 encoded normalized OCR string for the
+// current word. Use delete [] to free after use.
+char* LTRResultIterator::WordNormedUTF8Text() const {
+  if (it_->word() == NULL) return NULL;  // Already at the end!
+  STRING ocr_text;
+  WERD_CHOICE* best_choice = it_->word()->best_choice;
+  const UNICHARSET *unicharset = it_->word()->uch_set;
+  ASSERT_HOST(best_choice != NULL);
+  for (int i = 0; i < best_choice->length(); ++i) {
+    ocr_text += unicharset->get_normed_unichar(best_choice->unichar_id(i));
+  }
+  int length = ocr_text.length() + 1;
+  char* result = new char[length];
+  strncpy(result, ocr_text.string(), length);
   return result;
 }
 
@@ -284,8 +296,8 @@ char* LTRResultIterator::WordTruthUTF8Text() const {
 const char *LTRResultIterator::WordLattice(int *lattice_size) const {
   if (it_->word() == NULL) return NULL;  // Already at the end!
   if (it_->word()->blamer_bundle == NULL) return NULL;
-  *lattice_size = it_->word()->blamer_bundle->lattice_size;
-  return it_->word()->blamer_bundle->lattice_data;
+  *lattice_size = it_->word()->blamer_bundle->lattice_size();
+  return it_->word()->blamer_bundle->lattice_data();
 }
 
 // Returns true if the current symbol is a superscript.
@@ -293,7 +305,8 @@ const char *LTRResultIterator::WordLattice(int *lattice_size) const {
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsSuperscript() const {
   if (cblob_it_ == NULL && it_->word() != NULL)
-    return it_->word()->box_word->BlobPosition(blob_index_) == SP_SUPERSCRIPT;
+    return it_->word()->best_choice->BlobPosition(blob_index_) ==
+        SP_SUPERSCRIPT;
   return false;
 }
 
@@ -302,7 +315,7 @@ bool LTRResultIterator::SymbolIsSuperscript() const {
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsSubscript() const {
   if (cblob_it_ == NULL && it_->word() != NULL)
-    return it_->word()->box_word->BlobPosition(blob_index_) == SP_SUBSCRIPT;
+    return it_->word()->best_choice->BlobPosition(blob_index_) == SP_SUBSCRIPT;
   return false;
 }
 
@@ -311,7 +324,7 @@ bool LTRResultIterator::SymbolIsSubscript() const {
 // this will return the attributes of the first symbol in that word.
 bool LTRResultIterator::SymbolIsDropcap() const {
   if (cblob_it_ == NULL && it_->word() != NULL)
-    return it_->word()->box_word->BlobPosition(blob_index_) == SP_DROPCAP;
+    return it_->word()->best_choice->BlobPosition(blob_index_) == SP_DROPCAP;
   return false;
 }
 
@@ -319,13 +332,11 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   ASSERT_HOST(result_it.it_->word() != NULL);
   word_res_ = result_it.it_->word();
   PAGE_RES_IT res_it(*result_it.it_);
-  WERD_CHOICE* best_choice = word_res_->best_choice;
-  BLOB_CHOICE_LIST_CLIST* choices = best_choice->blob_choices();
+  BLOB_CHOICE_LIST* choices = NULL;
+  if (word_res_->ratings != NULL)
+    choices = word_res_->GetBlobChoices(result_it.blob_index_);
   if (choices != NULL && !choices->empty()) {
-    BLOB_CHOICE_LIST_C_IT blob_choices_it(choices);
-    for (int blob = 0; blob < result_it.blob_index_; ++blob)
-      blob_choices_it.forward();
-    choice_it_ = new BLOB_CHOICE_IT(blob_choices_it.data());
+    choice_it_ = new BLOB_CHOICE_IT(choices);
     choice_it_->mark_cycle_pt();
   } else {
     choice_it_ = NULL;
