@@ -122,6 +122,15 @@ class ImageThresholder {
   /// Caller must use pixDestroy to free the created Pix.
   virtual void ThresholdToPix(Pix** pix);
 
+  // Gets a pix that contains an 8 bit threshold value at each pixel. The
+  // returned pix may be an integer reduction of the binary image such that
+  // the scale factor may be inferred from the ratio of the sizes, even down
+  // to the extreme of a 1x1 pixel thresholds image.
+  // Ideally the 8 bit threshold should be the exact threshold used to generate
+  // the binary image in ThresholdToPix, but this is not a hard constraint.
+  // Returns NULL if the input is binary. PixDestroy after use.
+  virtual Pix* GetPixRectThresholds();
+
   /// Get a clone/copy of the source image rectangle.
   /// The returned Pix must be pixDestroyed.
   /// This function will be used in the future by the page layout analysis, and
@@ -129,12 +138,11 @@ class ImageThresholder {
   /// so there is no raw equivalent.
   Pix* GetPixRect();
 
-  /// Get a clone/copy of the source image rectangle, reduced to greyscale.
-  /// The returned Pix must be pixDestroyed.
-  /// This function will be used in the future by the page layout analysis, and
-  /// the layout analysis that uses it will only be available with Leptonica,
-  /// so there is no raw equivalent.
-  Pix* GetPixRectGrey();
+  // Get a clone/copy of the source image rectangle, reduced to greyscale,
+  // and at the same resolution as the output binary.
+  // The returned Pix must be pixDestroyed.
+  // Provided to the classifier to extract features from the greyscale image.
+  virtual Pix* GetPixRectGrey();
 
  protected:
   // ----------------------------------------------------------------------

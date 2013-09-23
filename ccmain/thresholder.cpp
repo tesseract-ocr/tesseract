@@ -169,6 +169,32 @@ void ImageThresholder::ThresholdToPix(Pix** pix) {
   }
 }
 
+// Gets a pix that contains an 8 bit threshold value at each pixel. The
+// returned pix may be an integer reduction of the binary image such that
+// the scale factor may be inferred from the ratio of the sizes, even down
+// to the extreme of a 1x1 pixel thresholds image.
+// Ideally the 8 bit threshold should be the exact threshold used to generate
+// the binary image in ThresholdToPix, but this is not a hard constraint.
+// Returns NULL if the input is binary. PixDestroy after use.
+Pix* ImageThresholder::GetPixRectThresholds() {
+  if (IsBinary()) return NULL;
+  Pix* pix_grey = GetPixRectGrey();
+  int width = pixGetWidth(pix_grey);
+  int height = pixGetHeight(pix_grey);
+  int* thresholds;
+  int* hi_values;
+  OtsuThreshold(reinterpret_cast<const unsigned char*>(pixGetData(pix_grey)),
+                1, pixGetWpl(pix_grey) * sizeof(l_uint32),
+                0, 0, width, height, &thresholds, &hi_values);
+  pixDestroy(&pix_grey);
+  Pix* pix_thresholds = pixCreate(width, height, 8);
+  int threshold = thresholds[0] > 0 ? thresholds[0] : 128;
+  pixSetAllArbitrary(pix_thresholds, threshold);
+  delete [] thresholds;
+  delete [] hi_values;
+  return pix_thresholds;
+}
+
 // Common initialization shared between SetImage methods.
 void ImageThresholder::Init() {
   SetRectangle(0, 0, image_width_, image_height_);
@@ -198,11 +224,10 @@ Pix* ImageThresholder::GetPixRect() {
   return raw_pix;
 }
 
-// Get a clone/copy of the source image rectangle, reduced to greyscale.
+// Get a clone/copy of the source image rectangle, reduced to greyscale,
+// and at the same resolution as the output binary.
 // The returned Pix must be pixDestroyed.
-// This function will be used in the future by the page layout analysis, and
-// the layout analysis that uses it will only be available with Leptonica,
-// so there is no raw equivalent.
+// Provided to the classifier to extract features from the greyscale image.
 Pix* ImageThresholder::GetPixRectGrey() {
   Pix* pix = GetPixRect();  // May have to be reduced to grey.
   int depth = pixGetDepth(pix);

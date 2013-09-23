@@ -326,7 +326,7 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
   tess->tess_cn_matching.set_value(true); // turn it on
   tess->tess_bn_matching.set_value(false);
   C_BLOB* blob = bbox->cblob();
-  TBLOB* tblob = TBLOB::PolygonalCopy(blob);
+  TBLOB* tblob = TBLOB::PolygonalCopy(tess->poly_allow_detailed_fx, blob);
   TBOX box = tblob->bounding_box();
   FCOORD current_rotation(1.0f, 0.0f);
   FCOORD rotation90(0.0f, 1.0f);
@@ -347,13 +347,12 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
       scaling = static_cast<float>(kBlnXHeight) / box.width();
       x_origin = i == 1 ? box.left() : box.right();
     }
-    DENORM denorm;
-    denorm.SetupNormalization(NULL, NULL, &current_rotation, NULL, NULL, 0,
-                              x_origin, y_origin, scaling, scaling,
-                              0.0f, static_cast<float>(kBlnBaselineOffset));
     TBLOB* rotated_blob = new TBLOB(*tblob);
-    rotated_blob->Normalize(denorm);
-    tess->AdaptiveClassifier(rotated_blob, denorm, ratings + i, NULL);
+    rotated_blob->Normalize(NULL, &current_rotation, NULL,
+                            x_origin, y_origin, scaling, scaling,
+                            0.0f, static_cast<float>(kBlnBaselineOffset),
+                            false, NULL);
+    tess->AdaptiveClassifier(rotated_blob, ratings + i, NULL);
     delete rotated_blob;
     current_rotation.rotate(rotation90);
   }

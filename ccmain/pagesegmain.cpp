@@ -163,8 +163,12 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
       tprintf("Empty page\n");
     return 0;  // AutoPageSeg found an empty page.
   }
+  bool splitting =
+      pageseg_devanagari_split_strategy != ShiroRekhaSplitter::NO_SPLIT;
+  bool cjk_mode = textord_use_cjk_fp_model;
 
-  textord_.TextordPage(pageseg_mode, width, height, pix_binary_,
+  textord_.TextordPage(pageseg_mode, reskew_, width, height, pix_binary_,
+                       pix_thresholds_, pix_grey_, splitting || cjk_mode,
                        blocks, &to_blocks);
   return auto_page_seg_ret_val;
 }
@@ -243,6 +247,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode,
     }
     result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_,
                                 to_block, photomask_pix,
+                                pix_thresholds_, pix_grey_,
                                 &found_blocks, to_blocks);
     if (result >= 0)
       finder->GetDeskewVectors(&deskew_, &reskew_);
