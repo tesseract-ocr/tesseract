@@ -61,6 +61,13 @@ const char* UNICHARSET::kCustomLigatures[][2] = {
   {NULL, NULL}
 };
 
+// List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
+const char* UNICHARSET::kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT] = {
+    " ",
+    "Joined",
+    "|Broken|0|1"
+};
+
 UNICHARSET::UNICHAR_PROPERTIES::UNICHAR_PROPERTIES() {
   Init();
 }
@@ -152,6 +159,11 @@ UNICHARSET::UNICHARSET() :
     script_table_size_used(0),
     null_script("NULL") {
   clear();
+  for (int i = 0; i < SPECIAL_UNICHAR_CODES_COUNT; ++i) {
+    unichar_insert(kSpecialUnicharCodes[i]);
+    if (i == UNICHAR_JOINED)
+      set_isngram(i, true);
+  }
 }
 
 UNICHARSET::~UNICHARSET() {
@@ -186,32 +198,44 @@ const UNICHAR_ID UNICHARSET::unichar_to_id(const char* const unichar_repr,
 }
 
 // Return the minimum number of bytes that matches a legal UNICHAR_ID,
-// while leaving a legal UNICHAR_ID afterwards. In other words, if there
-// is both a short and a long match to the string, return the length that
-// ensures there is a legal match after it.
+// while leaving the rest of the string encodable. Returns 0 if the
+// beginning of the string is not encodable.
+// WARNING: this function now encodes the whole string for precision.
+// Use encode_string in preference to repeatedly calling step.
 int UNICHARSET::step(const char* str) const {
+  GenericVector<UNICHAR_ID> encoding;
+  GenericVector<char> lengths;
+  encode_string(str, true, &encoding, &lengths, NULL);
+  if (encoding.empty() || encoding[0] == INVALID_UNICHAR_ID) return 0;
+  return lengths[0];
+}
+// As step except constraining the search to unichar-ids that are
+// self-normalized. Unlike step, does not encode the whole string, therefore
+// should be used on short strings (like those obtained from
+// get_normed_unichar.)
+int UNICHARSET::normed_step(const char* str) const {
   // Find the length of the first matching unicharset member.
-  int minlength = ids.minmatch(str);
-  if (minlength == 0)
+  int length = ids.minmatch(str);
+  if (length == 0)
     return 0;  // Empty string or illegal char.
 
-  int goodlength = minlength;
-  while (goodlength <= UNICHAR_LEN) {
-    if (str[goodlength] == '\0' || ids.minmatch(str + goodlength) > 0)
-      return goodlength;  // This length works!
-
-    // The next char is illegal so find the next usable length.
-    do {
-      ++goodlength;
-    } while (str[goodlength] != '\0' && goodlength <= UNICHAR_LEN &&
-             !ids.contains(str, goodlength));
-    if (goodlength > UNICHAR_LEN || !ids.contains(str, goodlength)) {
-      // This does not constitute a good length!
-      return minlength;
+  while (length <= UNICHAR_LEN) {
+    if (ids.contains(str, length)) {
+      int matched_id = unichar_to_id(str, length);
+      const GenericVector<UNICHAR_ID>& matched_norms = normed_ids(matched_id);
+      bool good_start = matched_norms.size() == 1 &&
+                        matched_norms[0] == matched_id;
+      if (str[length] == '\0') {
+        return good_start ? length : 0;
+      }
+      if (normed_step(str + length) > 0)
+        return length;  // This length works!
+    } else if (str[length] == '\0') {
+      return 0;  // Ran out of string.
     }
+    ++length;
   }
-  // Search to find a subsequent legal char failed so return the minlength.
-  return minlength;
+  return 0;
 }
 
 // Return whether the given UTF-8 string is encodable with this UNICHARSET.
@@ -219,15 +243,46 @@ int UNICHARSET::step(const char* str) const {
 // into the second (return) argument.
 bool UNICHARSET::encodable_string(const char *str,
                                   int *first_bad_position) const {
-  for (int i = 0, len = strlen(str); i < len; ) {
-    int increment = step(str + i);
-    if (increment == 0) {
-      if (first_bad_position) *first_bad_position = i;
-      return false;
+  GenericVector<UNICHAR_ID> encoding;
+  return encode_string(str, true, &encoding, NULL, first_bad_position);
+}
+
+// Encodes the given UTF-8 string with this UNICHARSET.
+// Returns true if the encoding succeeds completely, false if there is at
+// least one INVALID_UNICHAR_ID in the returned encoding, but in this case
+// the rest of the string is still encoded.
+// If lengths is not NULL, then it is filled with the corresponding
+// byte length of each encoded UNICHAR_ID.
+bool UNICHARSET::encode_string(const char* str, bool give_up_on_failure,
+                               GenericVector<UNICHAR_ID>* encoding,
+                               GenericVector<char>* lengths,
+                               int* encoded_length) const {
+  GenericVector<UNICHAR_ID> working_encoding;
+  GenericVector<char> working_lengths;
+  GenericVector<char> best_lengths;
+  encoding->truncate(0);  // Just in case str is empty.
+  int str_length = strlen(str);
+  int str_pos = 0;
+  bool perfect = true;
+  while (str_pos < str_length) {
+    encode_string(str, str_pos, str_length, &working_encoding, &working_lengths,
+                  &str_pos, encoding, &best_lengths);
+    if (str_pos < str_length) {
+      // This is a non-match. Skip one utf-8 character.
+      perfect = false;
+      if (give_up_on_failure) break;
+      int step = UNICHAR::utf8_step(str + str_pos);
+      if (step == 0) step = 1;
+      encoding->push_back(INVALID_UNICHAR_ID);
+      best_lengths.push_back(step);
+      str_pos += step;
+      working_encoding = *encoding;
+      working_lengths = best_lengths;
     }
-    i += increment;
   }
-  return true;
+  if (lengths != NULL) *lengths = best_lengths;
+  if (encoded_length != NULL) *encoded_length = str_pos;
+  return perfect;
 }
 
 const char* const UNICHARSET::id_to_unichar(UNICHAR_ID id) const {
@@ -310,6 +365,26 @@ STRING UNICHARSET::debug_str(UNICHAR_ID id) const {
   return result;
 }
 
+// Sets the normed_ids vector from the normed string. normed_ids is not
+// stored in the file, and needs to be set when the UNICHARSET is loaded.
+void UNICHARSET::set_normed_ids(UNICHAR_ID unichar_id) {
+  unichars[unichar_id].properties.normed_ids.truncate(0);
+  int length = unichars[unichar_id].properties.normed.length();
+  const char* normed_str = unichars[unichar_id].properties.normed.string();
+  int step = 0;
+  for (int offset = 0; offset < length; offset+= step) {
+    step = normed_step(normed_str + offset);
+    if (step == 0) {
+      unichars[unichar_id].properties.normed_ids.truncate(0);
+      unichars[unichar_id].properties.normed_ids.push_back(unichar_id);
+      break;
+    }
+    int normed_id = unichar_to_id(normed_str + offset, step);
+    ASSERT_HOST(normed_id >= 0);
+    unichars[unichar_id].properties.normed_ids.push_back(normed_id);
+  }
+}
+
 // Returns whether the unichar id represents a unicode value in the private use
 // area. We use this range only internally to represent uncommon ligatures
 // (eg. 'ct') that do not have regular unicode values.
@@ -330,8 +405,9 @@ void UNICHARSET::set_ranges_empty() {
 // Sets all the properties for this unicharset given a src unicharset with
 // everything set. The unicharsets don't have to be the same, and graphemes
 // are correctly accounted for.
-void UNICHARSET::SetPropertiesFromOther(const UNICHARSET& src) {
-  for (int ch = 0; ch < size_used; ++ch) {
+void UNICHARSET::PartialSetPropertiesFromOther(int start_index,
+                                               const UNICHARSET& src) {
+  for (int ch = start_index; ch < size_used; ++ch) {
     const char* utf8 = id_to_unichar(ch);
     UNICHAR_PROPERTIES properties;
     if (src.GetStrProperties(utf8, &properties)) {
@@ -351,6 +427,9 @@ void UNICHARSET::SetPropertiesFromOther(const UNICHARSET& src) {
         properties.mirror = ch;
       }
       unichars[ch].properties.CopyFrom(properties);
+      set_normed_ids(ch);
+    } else {
+      tprintf("Failed to get properties for index %d = %s\n", ch, utf8);
     }
   }
 }
@@ -369,17 +448,26 @@ void UNICHARSET::ExpandRangesFromOther(const UNICHARSET& src) {
   }
 }
 
+// Makes this a copy of src. Clears this completely first, so the automattic
+// ids will not be present in this if not in src.
+void UNICHARSET::CopyFrom(const UNICHARSET& src) {
+  clear();
+  AppendOtherUnicharset(src);
+}
+
 // For each id in src, if it does not occur in this, add it, as in
 // SetPropertiesFromOther, otherwise expand the ranges, as in
 // ExpandRangesFromOther.
 void UNICHARSET::AppendOtherUnicharset(const UNICHARSET& src) {
+  int initial_used = size_used;
   for (int ch = 0; ch < src.size_used; ++ch) {
     const UNICHAR_PROPERTIES& src_props = src.unichars[ch].properties;
     const char* utf8 = src.id_to_unichar(ch);
     if (strcmp(utf8, " ") != 0 && src_props.AnyRangeEmpty()) {
       // Only use fully valid entries.
-      tprintf("Bad properties for char %s: %d,%d %d,%d %d,%d %d,%d %d,%d\n",
-              utf8, src_props.min_bottom, src_props.max_bottom,
+      tprintf("Bad properties for index %d, char %s: "
+              "%d,%d %d,%d %d,%d %d,%d %d,%d\n",
+              ch, utf8, src_props.min_bottom, src_props.max_bottom,
               src_props.min_top, src_props.max_top,
               src_props.min_width, src_props.max_width,
               src_props.min_bearing, src_props.max_bearing,
@@ -389,35 +477,72 @@ void UNICHARSET::AppendOtherUnicharset(const UNICHARSET& src) {
     int id = size_used;
     if (contains_unichar(utf8)) {
       id = unichar_to_id(utf8);
+      // Just expand current ranges.
+      unichars[id].properties.ExpandRangesFrom(src_props);
     } else {
       unichar_insert(utf8);
       unichars[id].properties.SetRangesEmpty();
     }
-    if (!unichars[id].properties.AnyRangeEmpty()) {
-      // Just expand current ranges.
-      unichars[id].properties.ExpandRangesFrom(src_props);
-    } else {
-      // Copy properties from src_props.
-      unichars[id].properties.CopyFrom(src_props);
-      // Setup the script_id, other_case and mirror properly.
-      const char* script = src.get_script_from_script_id(src_props.script_id);
-      unichars[id].properties.script_id = add_script(script);
-      const char* other_case = src.id_to_unichar(src_props.other_case);
-      if (!contains_unichar(other_case)) {
-        unichar_insert(other_case);
-        unichars[size_used - 1].properties.SetRangesEmpty();
-        // Other_case will have its ranges set later as it is contained in src.
-      }
-      unichars[id].properties.other_case = unichar_to_id(other_case);
-      const char* mirror_str = src.id_to_unichar(src_props.mirror);
-      if (!contains_unichar(mirror_str)) {
-        unichar_insert(mirror_str);
-        unichars[size_used - 1].properties.SetRangesEmpty();
-        // Mirror will have its ranges set later as it is contained in src.
-      }
-      unichars[id].properties.mirror = unichar_to_id(mirror_str);
-    }
   }
+  // Set properties, including mirror and other_case, WITHOUT reordering
+  // the unicharset.
+  PartialSetPropertiesFromOther(initial_used, src);
+}
+
+// Returns true if the acceptable ranges of the tops of the characters do
+// not overlap, making their x-height calculations distinct.
+bool UNICHARSET::SizesDistinct(UNICHAR_ID id1, UNICHAR_ID id2) const {
+  int overlap = MIN(unichars[id1].properties.max_top,
+                    unichars[id2].properties.max_top) -
+                MAX(unichars[id1].properties.min_top,
+                    unichars[id2].properties.min_top);
+  return overlap <= 0;
+}
+
+// Internal recursive version of encode_string above.
+// Seeks to encode the given string as a sequence of UNICHAR_IDs such that
+// each UNICHAR_ID uses the least possible part of the utf8 str.
+// It does this by depth-first tail recursion on increasing length matches
+// to the UNICHARSET, saving the first encountered result that encodes the
+// maximum total length of str. It stops on a failure to encode to make
+// the overall process of encoding a partially failed string more efficient.
+// See unicharset.h for definition of the args.
+void UNICHARSET::encode_string(const char* str, int str_index, int str_length,
+                               GenericVector<UNICHAR_ID>* encoding,
+                               GenericVector<char>* lengths,
+                               int* best_total_length,
+                               GenericVector<UNICHAR_ID>* best_encoding,
+                               GenericVector<char>* best_lengths) const {
+  if (str_index > *best_total_length) {
+    // This is the best result so far.
+    *best_total_length = str_index;
+    *best_encoding = *encoding;
+    if (best_lengths != NULL)
+      *best_lengths = *lengths;
+  }
+  if (str_index == str_length) return;
+  int encoding_index = encoding->size();
+  // Find the length of the first matching unicharset member.
+  int length = ids.minmatch(str + str_index);
+  if (length == 0 || str_index + length > str_length) return;
+  do {
+    if (ids.contains(str + str_index, length)) {
+      // Successful encoding so far.
+      UNICHAR_ID id = ids.unichar_to_id(str + str_index, length);
+      encoding->push_back(id);
+      lengths->push_back(length);
+      encode_string(str, str_index + length, str_length, encoding, lengths,
+                    best_total_length, best_encoding, best_lengths);
+      if (*best_total_length == str_length)
+        return;  // Tail recursion success!
+      // Failed with that length, truncate back and try again.
+      encoding->truncate(encoding_index);
+      lengths->truncate(encoding_index);
+    }
+    int step = UNICHAR::utf8_step(str + str_index + length);
+    if (step == 0) step = 1;
+    length += step;
+  } while (length <= UNICHAR_LEN && str_index + length <= str_length);
 }
 
 // Gets the properties for a grapheme string, combining properties for
@@ -431,13 +556,12 @@ bool UNICHARSET::GetStrProperties(const char* utf8_str,
   props->SetRangesEmpty();
   props->min_advance = 0;
   props->max_advance = 0;
-  int utf8_step = 0;
   int total_unicodes = 0;
-  for (int offset = 0; utf8_str[offset] != '\0'; offset += utf8_step) {
-    utf8_step = step(utf8_str + offset);
-    if (utf8_step == 0) return false;
-    int id = unichar_to_id(utf8_str + offset, utf8_step);
-    if (id < 0) return false;
+  GenericVector<UNICHAR_ID> encoding;
+  if (!encode_string(utf8_str, true, &encoding, NULL, NULL))
+    return false;  // Some part was invalid.
+  for (int i = 0; i < encoding.size(); ++i) {
+    int id = encoding[i];
     const UNICHAR_PROPERTIES& src_props = unichars[id].properties;
     // Logical OR all the bools.
     if (src_props.isalpha) props->isalpha = true;
@@ -452,14 +576,18 @@ bool UNICHARSET::GetStrProperties(const char* utf8_str,
     UpdateRange(src_props.max_bottom, &props->min_bottom, &props->max_bottom);
     UpdateRange(src_props.min_top, &props->min_top, &props->max_top);
     UpdateRange(src_props.max_top, &props->min_top, &props->max_top);
-    int bearing = props->min_advance + src_props.min_bearing;
+    int bearing = ClipToRange(props->min_advance + src_props.min_bearing,
+                              -MAX_INT16, MAX_INT16);
     if (total_unicodes == 0 || bearing < props->min_bearing)
       props->min_bearing = bearing;
-    bearing = props->max_advance + src_props.max_bearing;
+    bearing = ClipToRange(props->max_advance + src_props.max_bearing,
+                          -MAX_INT16, MAX_INT16);
     if (total_unicodes == 0 || bearing < props->max_bearing)
       props->max_bearing = bearing;
-    props->min_advance += src_props.min_advance;
-    props->max_advance += src_props.max_advance;
+    props->min_advance = ClipToRange(props->min_advance + src_props.min_advance,
+                                     -MAX_INT16, MAX_INT16);
+    props->max_advance = ClipToRange(props->max_advance + src_props.max_advance,
+                                     -MAX_INT16, MAX_INT16);
     // With a single width, just use the widths stored in the unicharset.
     props->min_width = src_props.min_width;
     props->max_width = src_props.max_width;
@@ -478,11 +606,15 @@ bool UNICHARSET::GetStrProperties(const char* utf8_str,
   }
   if (total_unicodes > 1) {
     // Estimate the total widths from the advance - bearing.
-    props->min_width = props->min_advance - props->max_bearing;
-    props->max_width = props->max_advance - props->min_bearing;
+    props->min_width = ClipToRange(props->min_advance - props->max_bearing,
+                                   -MAX_INT16, MAX_INT16);
+    props->max_width = ClipToRange(props->max_advance - props->min_bearing,
+                                   -MAX_INT16, MAX_INT16);
   }
   return total_unicodes > 0;
 }
+
+// TODO(rays) clean-up the order of functions to match unicharset.h.
 
 unsigned int UNICHARSET::get_properties(UNICHAR_ID id) const {
   unsigned int properties = 0;
@@ -772,6 +904,7 @@ void UNICHARSET::post_load_setup() {
       else if (min_top > kMeanlineThreshold && max_top > kMeanlineThreshold)
         ++cap_height_alphas;
     }
+    set_normed_ids(id);
   }
 
   script_has_upper_lower_ = net_case_alphas > 0;
@@ -832,33 +965,22 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
   // Set everything to default
   for (int ch = 0; ch < size_used; ++ch)
     unichars[ch].properties.enabled = def_enabled;
-  int ch_step;
   if (!def_enabled) {
     // Enable the whitelist.
-    for (int w_ind = 0; whitelist[w_ind] != '\0'; w_ind += ch_step) {
-      ch_step = step(whitelist + w_ind);
-      if (ch_step > 0) {
-        UNICHAR_ID u_id = unichar_to_id(whitelist + w_ind, ch_step);
-        if (u_id != INVALID_UNICHAR_ID) {
-          unichars[u_id].properties.enabled = true;
-        }
-      } else {
-        ch_step = 1;
-      }
+    GenericVector<UNICHAR_ID> encoding;
+    encode_string(whitelist, false, &encoding, NULL, NULL);
+    for (int i = 0; i < encoding.size(); ++i) {
+      if (encoding[i] != INVALID_UNICHAR_ID)
+        unichars[encoding[i]].properties.enabled = true;
     }
   }
   if (blacklist != NULL && blacklist[0] != '\0') {
     // Disable the blacklist.
-    for (int b_ind = 0; blacklist[b_ind] != '\0'; b_ind += ch_step) {
-      ch_step = step(blacklist + b_ind);
-      if (ch_step > 0) {
-        UNICHAR_ID u_id = unichar_to_id(blacklist + b_ind, ch_step);
-        if (u_id != INVALID_UNICHAR_ID) {
-          unichars[u_id].properties.enabled = false;
-        }
-      } else {
-        ch_step = 1;
-      }
+    GenericVector<UNICHAR_ID> encoding;
+    encode_string(blacklist, false, &encoding, NULL, NULL);
+    for (int i = 0; i < encoding.size(); ++i) {
+      if (encoding[i] != INVALID_UNICHAR_ID)
+        unichars[encoding[i]].properties.enabled = false;
     }
   }
 }

@@ -21,11 +21,22 @@
 #define TESSERACT_CCUTIL_UNICHARSET_H__
 
 #include "errcode.h"
+#include "genericvector.h"
 #include "helpers.h"
 #include "strngs.h"
 #include "tesscallback.h"
 #include "unichar.h"
 #include "unicharmap.h"
+
+// Enum holding special values of unichar_id. Every unicharset has these.
+// Warning! Keep in sync with kSpecialUnicharCodes.
+enum SpecialUnicharCodes {
+  UNICHAR_SPACE,
+  UNICHAR_JOINED,
+  UNICHAR_BROKEN,
+
+  SPECIAL_UNICHAR_CODES_COUNT
+};
 
 class CHAR_FRAGMENT {
  public:
@@ -131,6 +142,9 @@ class UNICHARSET {
   // by only few font families (eg. Wyld, Adobe Caslon Pro).
   static const char* kCustomLigatures[][2];
 
+  // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
+  static const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
+
   // ICU 2.0 UCharDirection enum (from third_party/icu/include/unicode/uchar.h)
   enum Direction {
       U_LEFT_TO_RIGHT               = 0,
@@ -170,15 +184,38 @@ class UNICHARSET {
                                  int length) const;
 
   // Return the minimum number of bytes that matches a legal UNICHAR_ID,
-  // while leaving a legal UNICHAR_ID afterwards. In other words, if there
-  // is both a short and a long match to the string, return the length that
-  // ensures there is a legal match after it.
+  // while leaving the rest of the string encodable. Returns 0 if the
+  // beginning of the string is not encodable.
+  // WARNING: this function now encodes the whole string for precision.
+  // Use encode_string in preference to repeatedly calling step.
   int step(const char* str) const;
+  // As step except constraining the search to unichar-ids that are
+  // self-normalized. Unlike step, does not encode the whole string, therefore
+  // should be used on short strings (like those obtained from
+  // get_normed_unichar.)
+  int normed_step(const char* str) const;
 
   // Return whether the given UTF-8 string is encodable with this UNICHARSET.
   // If not encodable, write the first byte offset which cannot be converted
   // into the second (return) argument.
   bool encodable_string(const char *str, int *first_bad_position) const;
+
+  // Encodes the given UTF-8 string with this UNICHARSET.
+  // Any part of the string that cannot be encoded (because the utf8 can't
+  // be broken up into pieces that are in the unicharset) then:
+  // if give_up_on_failure, stops and returns a partial encoding,
+  // else continues and inserts an INVALID_UNICHAR_ID in the returned encoding.
+  // Returns true if the encoding succeeds completely, false if there is at
+  // least one failure.
+  // If lengths is not NULL, then it is filled with the corresponding
+  // byte length of each encoded UNICHAR_ID.
+  // If encoded_length is not NULL then on return it contains the length of
+  // str that was encoded. (if give_up_on_failure the location of the first
+  // failure, otherwise strlen(str).)
+  bool encode_string(const char* str, bool give_up_on_failure,
+                     GenericVector<UNICHAR_ID>* encoding,
+                     GenericVector<char>* lengths,
+                     int* encoded_length) const;
 
   // Return the unichar representation corresponding to the given UNICHAR_ID
   // within the UNICHARSET.
@@ -386,7 +423,11 @@ class UNICHARSET {
   // Record normalized version of unichar with the given unichar_id.
   void set_normed(UNICHAR_ID unichar_id, const char* normed) {
     unichars[unichar_id].properties.normed = normed;
+    unichars[unichar_id].properties.normed_ids.truncate(0);
   }
+  // Sets the normed_ids vector from the normed string. normed_ids is not
+  // stored in the file, and needs to be set when the UNICHARSET is loaded.
+  void set_normed_ids(UNICHAR_ID unichar_id);
 
   // Return the isalpha property of the given unichar.
   bool get_isalpha(UNICHAR_ID unichar_id) const {
@@ -443,15 +484,25 @@ class UNICHARSET {
   // Sets all the properties for this unicharset given a src_unicharset with
   // everything set. The unicharsets don't have to be the same, and graphemes
   // are correctly accounted for.
-  void SetPropertiesFromOther(const UNICHARSET& src);
+  void SetPropertiesFromOther(const UNICHARSET& src) {
+    PartialSetPropertiesFromOther(0, src);
+  }
+  // Sets properties from Other, starting only at the given index.
+  void PartialSetPropertiesFromOther(int start_index, const UNICHARSET& src);
   // Expands the tops and bottoms and widths for this unicharset given a
   // src_unicharset with ranges in it. The unicharsets don't have to be the
   // same, and graphemes are correctly accounted for.
   void ExpandRangesFromOther(const UNICHARSET& src);
+  // Makes this a copy of src. Clears this completely first, so the automattic
+  // ids will not be present in this if not in src.
+  void CopyFrom(const UNICHARSET& src);
   // For each id in src, if it does not occur in this, add it, as in
   // SetPropertiesFromOther, otherwise expand the ranges, as in
   // ExpandRangesFromOther.
   void AppendOtherUnicharset(const UNICHARSET& src);
+  // Returns true if the acceptable ranges of the tops of the characters do
+  // not overlap, making their x-height calculations distinct.
+  bool SizesDistinct(UNICHAR_ID id1, UNICHAR_ID id2) const;
   // Returns the min and max bottom and top of the given unichar in
   // baseline-normalized coordinates, ie, where the baseline is
   // kBlnBaselineOffset and the meanline is kBlnBaselineOffset + kBlnXHeight
@@ -605,6 +656,15 @@ class UNICHARSET {
     return unichars[unichar_id].properties.other_case;
   }
 
+  // Returns true if this UNICHARSET has the special codes in
+  // SpecialUnicharCodes available. If false then there are normal unichars
+  // at these codes and they should not be used.
+  bool has_special_codes() const {
+    return get_fragment(UNICHAR_BROKEN) != NULL &&
+        strcmp(id_to_unichar(UNICHAR_BROKEN),
+               kSpecialUnicharCodes[UNICHAR_BROKEN]) == 0;
+  }
+
   // Return a pointer to the CHAR_FRAGMENT class if the given
   // unichar id represents a character fragment.
   const CHAR_FRAGMENT *get_fragment(UNICHAR_ID unichar_id) const {
@@ -703,6 +763,12 @@ class UNICHARSET {
   // Returns normalized version of unichar with the given unichar_id.
   const char *get_normed_unichar(UNICHAR_ID unichar_id) const {
     return unichars[unichar_id].properties.normed.string();
+  }
+  // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
+  // version of the given id. There may be more than one UNICHAR_ID in the
+  // vector if unichar_id represents a ligature.
+  const GenericVector<UNICHAR_ID>& normed_ids(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.normed_ids;
   }
 
   // Return the script name of the given unichar representation.
@@ -823,6 +889,10 @@ class UNICHARSET {
     // '[open paren]', 'd', 'r', 'o', 'w', '[close paren]' not
     // '[close paren]', 'd', 'r', 'o', 'w', '[open paren]'.
     UNICHAR_ID mirror;
+    // A string of unichar_ids that represent the corresponding normed string.
+    // For awkward characters like em-dash, this gives hyphen.
+    // For ligatures, this gives the string of normal unichars.
+    GenericVector<UNICHAR_ID> normed_ids;
     STRING normed;  // normalized version of this unichar
     // Contains meta information about the fragment if a unichar represents
     // a fragment of a character, otherwise should be set to NULL.
@@ -835,6 +905,24 @@ class UNICHARSET {
     char representation[UNICHAR_LEN + 1];
     UNICHAR_PROPERTIES properties;
   };
+
+  // Internal recursive version of encode_string above.
+  // str is the start of the whole string.
+  // str_index is the current position in str.
+  // str_length is the length of str.
+  // encoding is a working encoding of str.
+  // lengths is a working set of lengths of each element of encoding.
+  // best_total_length is the longest length of str that has been successfully
+  // encoded so far.
+  // On return:
+  // best_encoding contains the encoding that used the longest part of str.
+  // best_lengths (may be null) contains the lengths of best_encoding.
+  void encode_string(const char* str, int str_index, int str_length,
+                     GenericVector<UNICHAR_ID>* encoding,
+                     GenericVector<char>* lengths,
+                     int* best_total_length,
+                     GenericVector<UNICHAR_ID>* best_encoding,
+                     GenericVector<char>* best_lengths) const;
 
   // Gets the properties for a grapheme string, combining properties for
   // multiple characters in a meaningful way where possible.
