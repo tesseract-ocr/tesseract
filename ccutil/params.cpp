@@ -62,8 +62,9 @@ bool ParamUtils::ReadParamsFile(const char *file,
     tprintf("read_params_file: Can't open %s\n", file + nameoffset);
     return true;
   }
-  return ReadParamsFromFp(fp, -1, constraint, member_params);
+  bool anyerr = ReadParamsFromFp(fp, -1, constraint, member_params);
   fclose(fp);
+  return anyerr;
 }
 
 bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset,
