@@ -23,7 +23,10 @@
 #endif
 
 #include "blobbox.h"
+#include "allheaders.h"
+#include "blobs.h"
 #include "helpers.h"
+#include "normalis.h"
 
 #define PROJECTION_MARGIN 10     //arbitrary
 #define EXTERN
@@ -240,6 +243,7 @@ int BLOBNBOX::NoisyNeighbours() const {
 // eg if it has a high aspect ratio, yet has a complex shape, such as a
 // joined word in Latin, Arabic, or Hindi, rather than being a -, I, l, 1 etc.
 bool BLOBNBOX::DefiniteIndividualFlow() {
+  if (cblob() == NULL) return false;
   int box_perimeter = 2 * (box.height() + box.width());
   if (box.width() > box.height() * kDefiniteAspectRatio) {
     // Attempt to distinguish a wide joined word from a dash.
@@ -248,7 +252,7 @@ bool BLOBNBOX::DefiniteIndividualFlow() {
     // so perimeter - 2*(box width + stroke width) should be close to zero.
     // A complex shape such as a joined word should have a much larger value.
     int perimeter = cblob()->perimeter();
-    if (vert_stroke_width() > 0)
+    if (vert_stroke_width() > 0 || perimeter <= 0)
       perimeter -= 2 * vert_stroke_width();
     else
       perimeter -= 4 * cblob()->area() / perimeter;
@@ -263,7 +267,7 @@ bool BLOBNBOX::DefiniteIndividualFlow() {
   if (box.height() > box.width() * kDefiniteAspectRatio) {
     // As above, but for a putative vertical word vs a I/1/l.
     int perimeter = cblob()->perimeter();
-    if (horz_stroke_width() > 0)
+    if (horz_stroke_width() > 0 || perimeter <= 0)
       perimeter -= 2 * horz_stroke_width();
     else
       perimeter -= 4 * cblob()->area() / perimeter;
@@ -341,6 +345,14 @@ TBOX BLOBNBOX::BoundsWithinLimits(int left, int right) {
   return shrunken_box;
 }
 
+// Estimates and stores the baseline position based on the shape of the
+// outline.
+void BLOBNBOX::EstimateBaselinePosition() {
+  baseline_y_ = box.bottom();  // The default.
+  if (cblob_ptr == NULL) return;
+  baseline_y_ = cblob_ptr->EstimateBaselinePosition();
+}
+
 // Helper to call CleanNeighbours on all blobs on the list.
 void BLOBNBOX::CleanNeighbours(BLOBNBOX_LIST* blobs) {
   BLOBNBOX_IT blob_it(blobs);
@@ -360,6 +372,39 @@ void BLOBNBOX::DeleteNoiseBlobs(BLOBNBOX_LIST* blobs) {
     }
   }
 }
+
+// Helper to compute edge offsets for  all the blobs on the list.
+// See coutln.h for an explanation of edge offsets.
+void BLOBNBOX::ComputeEdgeOffsets(Pix* thresholds, Pix* grey,
+                                  BLOBNBOX_LIST* blobs) {
+  int grey_height = 0;
+  int thr_height = 0;
+  int scale_factor = 1;
+  if (thresholds != NULL && grey != NULL) {
+    grey_height = pixGetHeight(grey);
+    thr_height = pixGetHeight(thresholds);
+    scale_factor =
+        IntCastRounded(static_cast<double>(grey_height) / thr_height);
+  }
+  BLOBNBOX_IT blob_it(blobs);
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+    BLOBNBOX* blob = blob_it.data();
+    if (blob->cblob() != NULL) {
+      // Get the threshold that applies to this blob.
+      l_uint32 threshold = 128;
+      if (thresholds != NULL && grey != NULL) {
+        const TBOX& box = blob->cblob()->bounding_box();
+        // Transform the coordinates if required.
+        TPOINT pt((box.left() + box.right()) / 2,
+                  (box.top() + box.bottom()) / 2);
+        pixGetPixel(thresholds, pt.x / scale_factor,
+                    thr_height - 1 - pt.y / scale_factor, &threshold);
+      }
+      blob->cblob()->ComputeEdgeOffsets(threshold, grey);
+    }
+  }
+}
+
 
 #ifndef GRAPHICS_DISABLED
 // Helper to draw all the blobs on the list in the given body_colour,
@@ -662,6 +707,15 @@ float row_size                   //ideal
   }
 }
 
+void TO_ROW::print() const {
+  tprintf("pitch=%d, fp=%g, fps=%g, fpns=%g, prs=%g, prns=%g,"
+          " spacing=%g xh=%g y_origin=%g xev=%d, asc=%g, desc=%g,"
+          " body=%g, minsp=%d maxnsp=%d, thr=%d kern=%g sp=%g\n",
+          pitch_decision, fixed_pitch, fp_space, fp_nonsp, pr_space, pr_nonsp,
+          spacing, xheight, y_origin, xheight_evidence, ascrise, descdrop,
+          body_size, min_space, max_nonspace, space_threshold, kern_size,
+          space_size);
+}
 
 /**********************************************************************
  * TO_ROW:add_blob
@@ -983,6 +1037,19 @@ void TO_BLOCK::DeleteUnownedNoise() {
   BLOBNBOX::DeleteNoiseBlobs(&small_blobs);
   BLOBNBOX::DeleteNoiseBlobs(&noise_blobs);
   BLOBNBOX::DeleteNoiseBlobs(&large_blobs);
+}
+
+// Computes and stores the edge offsets on each blob for use in feature
+// extraction, using greyscale if the supplied grey and thresholds pixes
+// are 8-bit or otherwise (if NULL or not 8 bit) the original binary
+// edge step outlines.
+// Thresholds must either be the same size as grey or an integer down-scale
+// of grey.
+// See coutln.h for an explanation of edge offsets.
+void TO_BLOCK::ComputeEdgeOffsets(Pix* thresholds, Pix* grey) {
+  BLOBNBOX::ComputeEdgeOffsets(thresholds, grey, &blobs);
+  BLOBNBOX::ComputeEdgeOffsets(thresholds, grey, &small_blobs);
+  BLOBNBOX::ComputeEdgeOffsets(thresholds, grey, &noise_blobs);
 }
 
 #ifndef GRAPHICS_DISABLED

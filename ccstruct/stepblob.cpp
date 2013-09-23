@@ -25,6 +25,9 @@
 #include "config_auto.h"
 #endif
 
+// Max perimeter to width ratio for a baseline position above box bottom.
+const double kMaxPerimeterWidthRatio = 8.0;
+
 ELISTIZE (C_BLOB)
 /**********************************************************************
  * position_outline
@@ -107,6 +110,23 @@ static void plot_outline_list(                       //draw outlines
         child_colour, child_colour);
   }
 }
+// Draws the outlines in the given colour, and child_colour, normalized
+// using the given denorm, making use of sub-pixel accurate information
+// if available.
+static void plot_normed_outline_list(const DENORM& denorm,
+                                     C_OUTLINE_LIST *list,
+                                     ScrollView::Color colour,
+                                     ScrollView::Color child_colour,
+                                     ScrollView* window) {
+  C_OUTLINE_IT it(list);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    C_OUTLINE* outline = it.data();
+    outline->plot_normed(denorm, colour, window);
+    if (!outline->child()->empty())
+      plot_normed_outline_list(denorm, outline->child(), child_colour,
+                               child_colour, window);
+  }
+}
 #endif
 
 
@@ -116,17 +136,15 @@ static void plot_outline_list(                       //draw outlines
  * Reverse a list of outlines and their children.
  **********************************************************************/
 
-static void reverse_outline_list(                      //reverse outlines
-                                 C_OUTLINE_LIST *list  //outline to reverse
-                                ) {
-  C_OUTLINE *outline;            //current outline
-  C_OUTLINE_IT it = list;        //iterator
+static void reverse_outline_list(C_OUTLINE_LIST *list) {
+  C_OUTLINE_IT it = list;        // iterator
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-    outline = it.data ();
-    outline->reverse ();         //reverse it
-    if (!outline->child ()->empty ())
-      reverse_outline_list (outline->child ());
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    C_OUTLINE* outline = it.data();
+    outline->reverse();         // reverse it
+    outline->set_flag(COUT_INVERSE, TRUE);
+    if (!outline->child()->empty())
+      reverse_outline_list(outline->child());
   }
 }
 
@@ -139,31 +157,13 @@ static void reverse_outline_list(                      //reverse outlines
  * The C_OUTLINEs are nested correctly in the blob.
  **********************************************************************/
 
-C_BLOB::C_BLOB(                              //constructor
-               C_OUTLINE_LIST *outline_list  //in random order
-              ) {
-  C_OUTLINE *outline;            //current outline
-  C_OUTLINE_IT it = outline_list;//iterator
-
-  while (!it.empty ()) {         //grab the list
-    outline = it.extract ();     //get off the list
-                                 //put it in place
+C_BLOB::C_BLOB(C_OUTLINE_LIST *outline_list) {
+  for (C_OUTLINE_IT ol_it(outline_list); !ol_it.empty(); ol_it.forward()) {
+    C_OUTLINE* outline = ol_it.extract();
+    // Position this outline in appropriate position in the hierarchy.
     position_outline(outline, &outlines);
-    if (!it.empty ())
-      it.forward ();
   }
-  it.set_to_list (&outlines);
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-    outline = it.data ();
-    if (outline->turn_direction () < 0) {
-      outline->reverse ();
-      reverse_outline_list (outline->child ());
-      outline->set_flag (COUT_INVERSE, TRUE);
-    }
-    else {
-      outline->set_flag (COUT_INVERSE, FALSE);
-    }
-  }
+  CheckInverseFlagAndDirection();
 }
 
 // Simpler constructor to build a blob from a single outline that has
@@ -171,6 +171,65 @@ C_BLOB::C_BLOB(                              //constructor
 C_BLOB::C_BLOB(C_OUTLINE* outline) {
   C_OUTLINE_IT it(&outlines);
   it.add_to_end(outline);
+}
+
+// Builds a set of one or more blobs from a list of outlines.
+// Input: one outline on outline_list contains all the others, but the
+// nesting and order are undefined.
+// If good_blob is true, the blob is added to good_blobs_it, unless
+// an illegal (generation-skipping) parent-child relationship is found.
+// If so, the parent blob goes to bad_blobs_it, and the immediate children
+// are promoted to the top level, recursively being sent to good_blobs_it.
+// If good_blob is false, all created blobs will go to the bad_blobs_it.
+// Output: outline_list is empty. One or more blobs are added to
+// good_blobs_it and/or bad_blobs_it.
+void C_BLOB::ConstructBlobsFromOutlines(bool good_blob,
+                                        C_OUTLINE_LIST* outline_list,
+                                        C_BLOB_IT* good_blobs_it,
+                                        C_BLOB_IT* bad_blobs_it) {
+  // List of top-level outlines with correctly nested children.
+  C_OUTLINE_LIST nested_outlines;
+  for (C_OUTLINE_IT ol_it(outline_list); !ol_it.empty(); ol_it.forward()) {
+    C_OUTLINE* outline = ol_it.extract();
+    // Position this outline in appropriate position in the hierarchy.
+    position_outline(outline, &nested_outlines);
+  }
+  // Check for legal nesting and reassign as required.
+  for (C_OUTLINE_IT ol_it(&nested_outlines); !ol_it.empty(); ol_it.forward()) {
+    C_OUTLINE* outline = ol_it.extract();
+    bool blob_is_good = good_blob;
+    if (!outline->IsLegallyNested()) {
+      // The blob is illegally nested.
+      // Mark it bad, and add all its children to the top-level list.
+      blob_is_good = false;
+      ol_it.add_list_after(outline->child());
+    }
+    C_BLOB* blob = new C_BLOB(outline);
+    // Set inverse flag and reverse if needed.
+    blob->CheckInverseFlagAndDirection();
+    // Put on appropriate list.
+    if (!blob_is_good && bad_blobs_it != NULL)
+      bad_blobs_it->add_after_then_move(blob);
+    else
+      good_blobs_it->add_after_then_move(blob);
+  }
+}
+
+// Sets the COUT_INVERSE flag appropriately on the outlines and their
+// children recursively, reversing the outlines if needed so that
+// everything has an anticlockwise top-level.
+void C_BLOB::CheckInverseFlagAndDirection() {
+  C_OUTLINE_IT ol_it(&outlines);
+  for (ol_it.mark_cycle_pt(); !ol_it.cycled_list(); ol_it.forward()) {
+    C_OUTLINE* outline = ol_it.data();
+    if (outline->turn_direction() < 0) {
+      outline->reverse();
+      reverse_outline_list(outline->child());
+      outline->set_flag(COUT_INVERSE, TRUE);
+    } else {
+      outline->set_flag(COUT_INVERSE, FALSE);
+    }
+  }
 }
 
 
@@ -328,6 +387,103 @@ void C_BLOB::rotate(const FCOORD& rotation) {
   RotateOutlineList(rotation, &outlines);
 }
 
+// Helper calls ComputeEdgeOffsets or ComputeBinaryOffsets recursively on the
+// outline list and its children.
+static void ComputeEdgeOffsetsOutlineList(int threshold, Pix* pix,
+                                          C_OUTLINE_LIST *list) {
+  C_OUTLINE_IT it(list);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    C_OUTLINE* outline = it.data();
+    if (pix != NULL && pixGetDepth(pix) == 8)
+      outline->ComputeEdgeOffsets(threshold, pix);
+    else
+      outline->ComputeBinaryOffsets();
+    if (!outline->child()->empty())
+      ComputeEdgeOffsetsOutlineList(threshold, pix, outline->child());
+  }
+}
+
+// Adds sub-pixel resolution EdgeOffsets for the outlines using greyscale
+// if the supplied pix is 8-bit or the binary edges if NULL.
+void C_BLOB::ComputeEdgeOffsets(int threshold, Pix* pix) {
+  ComputeEdgeOffsetsOutlineList(threshold, pix, &outlines);
+}
+
+// Estimates and returns the baseline position based on the shape of the
+// outlines.
+// We first find the minimum y-coord (y_mins) at each x-coord within the blob.
+// If there is a run of some y or y+1 in y_mins that is longer than the total
+// number of positions at bottom or bottom+1, subject to the additional
+// condition that at least one side of the y/y+1 run is higher than y+1, so it
+// is not a local minimum, then y, not the bottom, makes a good candidate
+// baseline position for this blob. Eg
+//   |                  ---|
+//   |                  |
+//   |-      -----------|        <=  Good candidate baseline position.
+//    |-    -|
+//     |   -|
+//     |---|                     <=  Bottom of blob
+inT16 C_BLOB::EstimateBaselinePosition() {
+  TBOX box = bounding_box();
+  int left = box.left();
+  int width = box.width();
+  int bottom = box.bottom();
+  if (outlines.empty() || perimeter() > width * kMaxPerimeterWidthRatio)
+    return bottom;  // This is only for non-CJK blobs.
+  // Get the minimum y coordinate at each x-coordinate.
+  GenericVector<int> y_mins;
+  y_mins.init_to_size(width + 1, box.top());
+  C_OUTLINE_IT it(&outlines);
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    C_OUTLINE* outline = it.data();
+    ICOORD pos = outline->start_pos();
+    for (int s = 0; s < outline->pathlength(); ++s) {
+      if (pos.y() < y_mins[pos.x() - left])
+        y_mins[pos.x() - left] = pos.y();
+      pos += outline->step(s);
+    }
+  }
+  // Find the total extent of the bottom or bottom + 1.
+  int bottom_extent = 0;
+  for (int x = 0; x <= width; ++x) {
+    if (y_mins[x] == bottom || y_mins[x] == bottom + 1)
+      ++bottom_extent;
+  }
+  // Find the lowest run longer than the bottom extent that is not the bottom.
+  int best_min = box.top();
+  int prev_run = 0;
+  int prev_y = box.top();
+  int prev_prev_y = box.top();
+  for (int x = 0; x < width; x += prev_run) {
+    // Find the length of the current run.
+    int y_at_x = y_mins[x];
+    int run = 1;
+    while (x + run <= width && y_mins[x + run] == y_at_x) ++run;
+    if (y_at_x > bottom + 1) {
+      // Possible contender.
+      int total_run = run;
+      // Find extent of current value or +1 to the right of x.
+      while (x + total_run <= width &&
+          (y_mins[x + total_run] == y_at_x ||
+              y_mins[x + total_run] == y_at_x + 1)) ++total_run;
+      // At least one end has to be higher so it is not a local max.
+      if (prev_prev_y > y_at_x + 1 || x + total_run > width ||
+          y_mins[x + total_run] > y_at_x + 1) {
+        // If the prev_run is at y + 1, then we can add that too. There cannot
+        // be a suitable run at y before that or we would have found it already.
+        if (prev_run > 0 && prev_y == y_at_x + 1) total_run += prev_run;
+        if (total_run > bottom_extent && y_at_x < best_min) {
+          best_min = y_at_x;
+        }
+      }
+    }
+    prev_run = run;
+    prev_prev_y = prev_y;
+    prev_y = y_at_x;
+  }
+  return best_min == box.top() ? bottom : best_min;
+}
+
 static void render_outline_list(C_OUTLINE_LIST *list,
                                 int left, int top, Pix* pix) {
   C_OUTLINE_IT it(list);
@@ -372,11 +528,19 @@ Pix* C_BLOB::render_outline() {
  **********************************************************************/
 
 #ifndef GRAPHICS_DISABLED
-void C_BLOB::plot(                     //draw it
-                  ScrollView* window,       //window to draw in
-                  ScrollView::Color blob_colour,  //main colour
-                  ScrollView::Color child_colour  //for holes
-                 ) {
+void C_BLOB::plot(ScrollView* window,                // window to draw in
+                  ScrollView::Color blob_colour,     // main colour
+                  ScrollView::Color child_colour) {  // for holes
   plot_outline_list(&outlines, window, blob_colour, child_colour);
+}
+// Draws the blob in the given colour, and child_colour, normalized
+// using the given denorm, making use of sub-pixel accurate information
+// if available.
+void C_BLOB::plot_normed(const DENORM& denorm,
+                         ScrollView::Color blob_colour,
+                         ScrollView::Color child_colour,
+                         ScrollView* window) {
+  plot_normed_outline_list(denorm, &outlines, blob_colour, child_colour,
+                           window);
 }
 #endif
