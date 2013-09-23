@@ -1233,9 +1233,9 @@ void ParagraphTheory::DiscardUnusedModels(const SetOfModels &used_models) {
   for (int i = models_->size() - 1; i >= 0; i--) {
     ParagraphModel *m = (*models_)[i];
     if (!used_models.contains(m) && models_we_added_.contains(m)) {
-      delete m;
       models_->remove(i);
       models_we_added_.remove(models_we_added_.get_index(m));
+      delete m;
     }
   }
 }
