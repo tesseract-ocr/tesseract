@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by libtesseract301.rc
+// Used by libtesseract303.rc
 
 // Next default values for new objects
 // 
