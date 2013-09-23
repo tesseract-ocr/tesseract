@@ -27,7 +27,10 @@
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
+// As with all TBLOBs this one is also baseline normalized.
 CHAR_DESC ExtractFlexFeatures(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                              TBLOB *Blob, const DENORM& denorm);
+                              TBLOB *Blob, const DENORM& bl_denorm,
+                              const DENORM& cn_denorm,
+                              const INT_FX_RESULT_STRUCT& fx_info);
 
 #endif

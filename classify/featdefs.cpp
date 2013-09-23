@@ -19,7 +19,7 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #ifdef _MSC_VER
-#include "mathfix.h"
+#include <mathfix.h>
 #endif
 
 #include "featdefs.h"

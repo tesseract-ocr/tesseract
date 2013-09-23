@@ -94,7 +94,7 @@ FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
   PROTOTYPE *Proto;
   int ProtoId;
 
-  if(ClassId > NormProtos->NumProtos) {
+  if (ClassId > NormProtos->NumProtos) {
     ClassId = NO_CLASS;
   }
 

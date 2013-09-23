@@ -49,8 +49,10 @@ void ExtractorStub();
  * @note History: Sun Jan 21 10:07:28 1990, DSJ, Created.
  */
 CHAR_DESC ExtractBlobFeatures(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                              const DENORM& denorm, TBLOB *Blob) {
-  return (ExtractFlexFeatures(FeatureDefs, Blob, denorm));
+                              const DENORM& bl_denorm, const DENORM& cn_denorm,
+                              const INT_FX_RESULT_STRUCT& fx_info,
+                              TBLOB *Blob) {
+  return ExtractFlexFeatures(FeatureDefs, Blob, bl_denorm, cn_denorm, fx_info);
 }                                /* ExtractBlobFeatures */
 
 /*-----------------------------------------------------------------------------

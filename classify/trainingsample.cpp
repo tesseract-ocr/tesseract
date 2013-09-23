@@ -59,6 +59,8 @@ bool TrainingSample::Serialize(FILE* fp) const {
   if (fwrite(&num_features_, sizeof(num_features_), 1, fp) != 1) return false;
   if (fwrite(&num_micro_features_, sizeof(num_micro_features_), 1, fp) != 1)
     return false;
+  if (fwrite(&outline_length_, sizeof(outline_length_), 1, fp) != 1)
+    return false;
   if (fwrite(features_, sizeof(*features_), num_features_, fp) != num_features_)
     return false;
   if (fwrite(micro_features_, sizeof(*micro_features_), num_micro_features_,
@@ -90,10 +92,13 @@ bool TrainingSample::DeSerialize(bool swap, FILE* fp) {
   if (fread(&num_features_, sizeof(num_features_), 1, fp) != 1) return false;
   if (fread(&num_micro_features_, sizeof(num_micro_features_), 1, fp) != 1)
     return false;
+  if (fread(&outline_length_, sizeof(outline_length_), 1, fp) != 1)
+    return false;
   if (swap) {
     ReverseN(&class_id_, sizeof(class_id_));
     ReverseN(&num_features_, sizeof(num_features_));
     ReverseN(&num_micro_features_, sizeof(num_micro_features_));
+    ReverseN(&outline_length_, sizeof(outline_length_));
   }
   delete [] features_;
   features_ = new INT_FEATURE_STRUCT[num_features_];
@@ -113,18 +118,38 @@ bool TrainingSample::DeSerialize(bool swap, FILE* fp) {
 
 // Saves the given features into a TrainingSample.
 TrainingSample* TrainingSample::CopyFromFeatures(
-    const INT_FX_RESULT_STRUCT& fx_info, const INT_FEATURE_STRUCT* features,
+    const INT_FX_RESULT_STRUCT& fx_info,
+    const TBOX& bounding_box,
+    const INT_FEATURE_STRUCT* features,
     int num_features) {
   TrainingSample* sample = new TrainingSample;
   sample->num_features_ = num_features;
   sample->features_ = new INT_FEATURE_STRUCT[num_features];
+  sample->outline_length_ = fx_info.Length;
   memcpy(sample->features_, features, num_features * sizeof(features[0]));
-  sample->geo_feature_[GeoBottom] = fx_info.YBottom;
-  sample->geo_feature_[GeoTop] = fx_info.YTop;
-  sample->geo_feature_[GeoWidth] = fx_info.Width;
+  sample->geo_feature_[GeoBottom] = bounding_box.bottom();
+  sample->geo_feature_[GeoTop] = bounding_box.top();
+  sample->geo_feature_[GeoWidth] = bounding_box.width();
+
+  // Generate the cn_feature_ from the fx_info.
+  sample->cn_feature_[CharNormY] =
+      MF_SCALE_FACTOR * (fx_info.Ymean - kBlnBaselineOffset);
+  sample->cn_feature_[CharNormLength] =
+      MF_SCALE_FACTOR * fx_info.Length / LENGTH_COMPRESSION;
+  sample->cn_feature_[CharNormRx] = MF_SCALE_FACTOR * fx_info.Rx;
+  sample->cn_feature_[CharNormRy] = MF_SCALE_FACTOR * fx_info.Ry;
+
   sample->features_are_indexed_ = false;
   sample->features_are_mapped_ = false;
   return sample;
+}
+
+// Returns the cn_feature as a FEATURE_STRUCT* needed by cntraining.
+FEATURE_STRUCT* TrainingSample::GetCNFeature() const {
+  FEATURE feature = NewFeature(&CharNormDesc);
+  for (int i = 0; i < kNumCNParams; ++i)
+    feature->Params[i] = cn_feature_[i];
+  return feature;
 }
 
 // Constructs and returns a copy randomized by the method given by

@@ -40,11 +40,14 @@
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
 void LearnBlob(const FEATURE_DEFS_STRUCT &FeatureDefs, const STRING& filename,
-               TBLOB * Blob, const DENORM& denorm, const char* BlobText);
+               TBLOB * Blob, const DENORM& bl_denorm, const DENORM& cn_denorm,
+               const INT_FX_RESULT_STRUCT& fx_info,
+               const char* BlobText);
 
 void LearnBlob(const FEATURE_DEFS_STRUCT &FeatureDefs, FILE* File, TBLOB* Blob,
-               const DENORM& denorm, const char* BlobText,
-               const char* FontName);
+               const DENORM& bl_denorm, const DENORM& cn_denorm,
+               const INT_FX_RESULT_STRUCT& fx_info,
+               const char* BlobText, const char* FontName);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

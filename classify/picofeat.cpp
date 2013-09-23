@@ -224,7 +224,9 @@ void NormalizePicoX(FEATURE_SET FeatureSet) {
 }                                /* NormalizePicoX */
 
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractIntCNFeatures(TBLOB *blob, const DENORM& denorm) {
+FEATURE_SET ExtractIntCNFeatures(TBLOB *blob, const DENORM& bl_denorm,
+                                 const DENORM& cn_denorm,
+                                 const INT_FX_RESULT_STRUCT& fx_info) {
 /*
  ** Parameters:
  **   blob    blob to extract features from
@@ -233,8 +235,8 @@ FEATURE_SET ExtractIntCNFeatures(TBLOB *blob, const DENORM& denorm) {
  ** Exceptions: none
  ** History: 8/8/2011, rays, Created.
  */
-  tesseract::TrainingSample* sample = GetIntFeatures(
-      tesseract::NM_CHAR_ANISOTROPIC, blob, denorm);
+  tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
+      *blob, tesseract::NM_CHAR_ANISOTROPIC, false);
   if (sample == NULL) return NULL;
 
   int num_features = sample->num_features();
@@ -254,7 +256,9 @@ FEATURE_SET ExtractIntCNFeatures(TBLOB *blob, const DENORM& denorm) {
 }                                /* ExtractIntCNFeatures */
 
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractIntGeoFeatures(TBLOB *blob, const DENORM& denorm) {
+FEATURE_SET ExtractIntGeoFeatures(TBLOB *blob, const DENORM& bl_denorm,
+                                  const DENORM& cn_denorm,
+                                  const INT_FX_RESULT_STRUCT& fx_info) {
 /*
  ** Parameters:
  **   blob    blob to extract features from
@@ -263,8 +267,8 @@ FEATURE_SET ExtractIntGeoFeatures(TBLOB *blob, const DENORM& denorm) {
  ** Exceptions: none
  ** History: 8/8/2011, rays, Created.
  */
-  tesseract::TrainingSample* sample = GetIntFeatures(
-      tesseract::NM_CHAR_ANISOTROPIC, blob, denorm);
+  tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
+      *blob, tesseract::NM_CHAR_ANISOTROPIC, false);
   if (sample == NULL) return NULL;
 
   FEATURE_SET feature_set = NewFeatureSet(1);

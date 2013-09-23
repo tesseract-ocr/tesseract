@@ -67,7 +67,7 @@ bool TrainingSampleSet::FontClassInfo::DeSerialize(bool swap, FILE* fp) {
   return true;
 }
 
-TrainingSampleSet::TrainingSampleSet(const UnicityTable<FontInfo>& font_table)
+TrainingSampleSet::TrainingSampleSet(const FontInfoTable& font_table)
   : num_raw_samples_(0), unicharset_size_(0),
     font_class_array_(NULL), fontinfo_table_(font_table) {
 }
@@ -115,11 +115,12 @@ bool TrainingSampleSet::DeSerialize(bool swap, FILE* fp) {
 void TrainingSampleSet::LoadUnicharset(const char* filename) {
   if (!unicharset_.load_from_file(filename)) {
     tprintf("Failed to load unicharset from file %s\n"
-            "Building unicharset for boosting from scratch...\n",
+            "Building unicharset from scratch...\n",
             filename);
     unicharset_.clear();
-    // Space character needed to represent NIL_LIST classification.
-    unicharset_.unichar_insert(" ");
+    // Add special characters as they were removed by the clear.
+    UNICHARSET empty;
+    unicharset_.AppendOtherUnicharset(empty);
   }
   unicharset_size_ = unicharset_.size();
 }
@@ -708,14 +709,6 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap& map,
             continue;
           GenericVector<int> features2 = samples_[s2]->indexed_features();
           double dist = f_table.FeatureDistance(features2);
-          int height = samples_[s2]->geo_feature(GeoTop) -
-              samples_[s2]->geo_feature(GeoBottom);
-          if (dist == 1.0 && height > 64) {
-            // TODO(rays) rethink this when the polygonal approximation goes.
-            // Currently it is possible for dots and other small characters
-            // to be completely different, even within the same class.
-            f_table.DebugFeatureDistance(features2);
-          }
           if (dist > max_dist) {
             max_dist = dist;
             if (dist > max_max_dist) {

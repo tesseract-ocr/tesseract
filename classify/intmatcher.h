@@ -28,7 +28,7 @@ extern BOOL_VAR_H(disable_character_fragments, FALSE,
                   "Do not include character fragments in the"
                   " results of the classifier");
 
-extern INT_VAR_H(classify_integer_matcher_multiplier, 14,
+extern INT_VAR_H(classify_integer_matcher_multiplier, 10,
                  "Integer Matcher Multiplier  0-255:   ");
 
 

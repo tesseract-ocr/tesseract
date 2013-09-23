@@ -43,8 +43,10 @@ static const int kBlankFontinfoId = -2;
 
 namespace tesseract {
 
+class ShapeClassifier;
 struct ShapeRating;
 class ShapeTable;
+struct UnicharRating;
 
 // How segmented is a blob. In this enum, character refers to a classifiable
 // unit, but that is too long and character is usually easier to understand.
@@ -66,6 +68,17 @@ class Classify : public CCStruct {
   const ShapeTable* shape_table() const {
     return shape_table_;
   }
+
+  // Takes ownership of the given classifier, and uses it for future calls
+  // to CharNormClassifier.
+  void SetStaticClassifier(ShapeClassifier* static_classifier);
+
+  // Adds a noise classification result that is a bit worse than the worst
+  // current result, or the worst possible result if no current results.
+  void AddLargeSpeckleTo(int blob_length, BLOB_CHOICE_LIST *choices);
+
+  // Returns true if the blob is small enough to be a large speckle.
+  bool LargeSpeckle(const TBLOB &blob);
 
   /* adaptive.cpp ************************************************************/
   ADAPT_TEMPLATES NewAdaptedTemplates(bool InitFromUnicharset);
@@ -112,9 +125,7 @@ class Classify : public CCStruct {
   // incorrectly segmented blobs. If filename is not NULL, then LearnBlob
   // is called and the data will be written to a file for static training.
   // Otherwise AdaptToBlob is called for adaption within a document.
-  // If rejmap is not NULL, then only chars with a rejmap entry of '1' will
-  // be learned, otherwise all chars with good correct_text are learned.
-  void LearnWord(const char* filename, const char *rejmap, WERD_RES *word);
+  void LearnWord(const char* filename, WERD_RES *word);
 
   // Builds a blob of length fragments, from the word, starting at start,
   // and then learn it, as having the given correct_text.
@@ -130,18 +141,15 @@ class Classify : public CCStruct {
                    const char* correct_text, WERD_RES *word);
   void InitAdaptiveClassifier(bool load_pre_trained_templates);
   void InitAdaptedClass(TBLOB *Blob,
-                        const DENORM& denorm,
                         CLASS_ID ClassId,
                         int FontinfoId,
                         ADAPT_CLASS Class,
                         ADAPT_TEMPLATES Templates);
   void AdaptToPunc(TBLOB *Blob,
-                   const DENORM& denorm,
                    CLASS_ID ClassId,
                    int FontinfoId,
                    FLOAT32 Threshold);
   void AmbigClassifier(TBLOB *Blob,
-                       const DENORM& denorm,
                        INT_TEMPLATES Templates,
                        ADAPT_CLASS *Classes,
                        UNICHAR_ID *Ambiguities,
@@ -194,15 +202,8 @@ class Classify : public CCStruct {
 
 #ifndef GRAPHICS_DISABLED
   void DebugAdaptiveClassifier(TBLOB *Blob,
-                               const DENORM& denorm,
                                ADAPT_RESULTS *Results);
 #endif
-  void GetAdaptThresholds (TWERD * Word,
-                           const DENORM& denorm,
-                           const WERD_CHOICE& BestChoice,
-                           const WERD_CHOICE& BestRawChoice,
-                           FLOAT32 Thresholds[]);
-
   PROTO_ID MakeNewTempProtos(FEATURE_SET Features,
                              int NumBadFeat,
                              FEATURE_ID BadFeat[],
@@ -218,19 +219,14 @@ class Classify : public CCStruct {
   void MakePermanent(ADAPT_TEMPLATES Templates,
                      CLASS_ID ClassId,
                      int ConfigId,
-                     const DENORM& denorm,
                      TBLOB *Blob);
   void PrintAdaptiveMatchResults(FILE *File, ADAPT_RESULTS *Results);
   void RemoveExtraPuncs(ADAPT_RESULTS *Results);
   void RemoveBadMatches(ADAPT_RESULTS *Results);
   void SetAdaptiveThreshold(FLOAT32 Threshold);
-  void ShowBestMatchFor(TBLOB *Blob,
-                        const DENORM& denorm,
-                        CLASS_ID ClassId,
-                        int shape_id,
-                        BOOL8 AdaptiveOn,
-                        BOOL8 PreTrainedOn,
-                        ADAPT_RESULTS *Results);
+  void ShowBestMatchFor(int shape_id,
+                        const INT_FEATURE_STRUCT* features,
+                        int num_features);
   // Returns a string for the classifier class_id: either the corresponding
   // unicharset debug_str or the shape_table_ debug str.
   STRING ClassIDToDebugStr(const INT_TEMPLATES_STRUCT* templates,
@@ -251,59 +247,46 @@ class Classify : public CCStruct {
   // unichar-id!). Uses a search, so not fast.
   int ShapeIDToClassID(int shape_id) const;
   UNICHAR_ID *BaselineClassifier(TBLOB *Blob,
-                                 const DENORM& denorm,
                                  ADAPT_TEMPLATES Templates,
                                  ADAPT_RESULTS *Results);
   int CharNormClassifier(TBLOB *Blob,
-                         const DENORM& denorm,
                          INT_TEMPLATES Templates,
                          ADAPT_RESULTS *Results);
 
   // As CharNormClassifier, but operates on a TrainingSample and outputs to
   // a GenericVector of ShapeRating without conversion to classes.
-  int CharNormTrainingSample(bool pruner_only, const TrainingSample& sample,
-                             GenericVector<ShapeRating>* results);
-  UNICHAR_ID *GetAmbiguities(TBLOB *Blob,
-                             const DENORM& denorm,
-                             CLASS_ID CorrectClass);
-  void DoAdaptiveMatch(TBLOB *Blob,
-                       const DENORM& denorm,
-                       ADAPT_RESULTS *Results);
+  int CharNormTrainingSample(bool pruner_only, int keep_this,
+                             const TrainingSample& sample,
+                             GenericVector<UnicharRating>* results);
+  UNICHAR_ID *GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass);
+  void DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results);
   void AdaptToChar(TBLOB *Blob,
-                   const DENORM& denorm,
                    CLASS_ID ClassId,
                    int FontinfoId,
                    FLOAT32 Threshold);
-  void DisplayAdaptedChar(TBLOB* blob, const DENORM& denorm,
-                          INT_CLASS_STRUCT* int_class);
-  int AdaptableWord(TWERD *Word,
-                  const WERD_CHOICE &BestChoiceWord,
-                  const WERD_CHOICE &RawChoiceWord);
+  void DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class);
+  bool AdaptableWord(WERD_RES* word);
   void EndAdaptiveClassifier();
   void PrintAdaptiveStatistics(FILE *File);
   void SettupPass1();
   void SettupPass2();
   void AdaptiveClassifier(TBLOB *Blob,
-                          const DENORM& denorm,
                           BLOB_CHOICE_LIST *Choices,
                           CLASS_PRUNER_RESULTS cp_results);
   void ClassifyAsNoise(ADAPT_RESULTS *Results);
   void ResetAdaptiveClassifierInternal();
 
   int GetBaselineFeatures(TBLOB *Blob,
-                          const DENORM& denorm,
                           INT_TEMPLATES Templates,
                           INT_FEATURE_ARRAY IntFeatures,
                           uinT8* CharNormArray,
                           inT32 *BlobLength);
   int GetCharNormFeatures(TBLOB *Blob,
-                          const DENORM& denorm,
                           INT_TEMPLATES Templates,
                           INT_FEATURE_ARRAY IntFeatures,
                           uinT8* PrunerNormArray,
                           uinT8* CharNormArray,
-                          inT32 *BlobLength,
-                          inT32 *FeatureOutlineIndex);
+                          inT32 *BlobLength);
   // Computes the char_norm_array for the unicharset and, if not NULL, the
   // pruner_array as appropriate according to the existence of the shape_table.
   // The norm_feature is deleted as it is almost certainly no longer needed.
@@ -313,13 +296,54 @@ class Classify : public CCStruct {
                              uinT8* pruner_array);
 
   bool TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG &config);
-  void UpdateAmbigsGroup(CLASS_ID class_id, const DENORM& denorm, TBLOB *Blob);
+  void UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob);
 
   void ResetFeaturesHaveBeenExtracted();
   bool AdaptiveClassifierIsFull() { return NumAdaptationsFailed > 0; }
-  bool LooksLikeGarbage(const DENORM& denorm, TBLOB *blob);
+  bool LooksLikeGarbage(TBLOB *blob);
   void RefreshDebugWindow(ScrollView **win, const char *msg,
                           int y_offset, const TBOX &wbox);
+  // intfx.cpp
+  // Computes the DENORMS for bl(baseline) and cn(character) normalization
+  // during feature extraction. The input denorm describes the current state
+  // of the blob, which is usually a baseline-normalized word.
+  // The Transforms setup are as follows:
+  // Baseline Normalized (bl) Output:
+  //   We center the grapheme by aligning the x-coordinate of its centroid with
+  //   x=128 and leaving the already-baseline-normalized y as-is.
+  //
+  // Character Normalized (cn) Output:
+  //   We align the grapheme's centroid at the origin and scale it
+  //   asymmetrically in x and y so that the 2nd moments are a standard value
+  //   (51.2) ie the result is vaguely square.
+  // If classify_nonlinear_norm is true:
+  //   A non-linear normalization is setup that attempts to evenly distribute
+  //   edges across x and y.
+  //
+  // Some of the fields of fx_info are also setup:
+  // Length: Total length of outline.
+  // Rx:     Rounded y second moment. (Reversed by convention.)
+  // Ry:     rounded x second moment.
+  // Xmean:  Rounded x center of mass of the blob.
+  // Ymean:  Rounded y center of mass of the blob.
+  static void SetupBLCNDenorms(const TBLOB& blob, bool nonlinear_norm,
+                               DENORM* bl_denorm, DENORM* cn_denorm,
+                               INT_FX_RESULT_STRUCT* fx_info);
+
+  // Extracts sets of 3-D features of length kStandardFeatureLength (=12.8), as
+  // (x,y) position and angle as measured counterclockwise from the vector
+  // <-1, 0>, from blob using two normalizations defined by bl_denorm and
+  // cn_denorm. See SetpuBLCNDenorms for definitions.
+  // If outline_cn_counts is not NULL, on return it contains the cumulative
+  // number of cn features generated for each outline in the blob (in order).
+  // Thus after the first outline, there were (*outline_cn_counts)[0] features,
+  // after the second outline, there were (*outline_cn_counts)[1] features etc.
+  static void ExtractFeatures(const TBLOB& blob,
+                              bool nonlinear_norm,
+                              GenericVector<INT_FEATURE_STRUCT>* bl_features,
+                              GenericVector<INT_FEATURE_STRUCT>* cn_features,
+                              INT_FX_RESULT_STRUCT* results,
+                              GenericVector<int>* outline_cn_counts);
   /* float2int.cpp ************************************************************/
   void ClearCharNormArray(uinT8* char_norm_array);
   void ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
@@ -334,6 +358,9 @@ class Classify : public CCStruct {
   void ShowMatchDisplay();
   /* font detection ***********************************************************/
   UnicityTable<FontInfo>& get_fontinfo_table() {
+    return fontinfo_table_;
+  }
+  const UnicityTable<FontInfo>& get_fontinfo_table() const {
     return fontinfo_table_;
   }
   UnicityTable<FontSet>& get_fontset_table() {
@@ -365,6 +392,10 @@ class Classify : public CCStruct {
   double_VAR_H(classify_max_norm_scale_x, 0.325, "Max char x-norm scale ...");
   double_VAR_H(classify_min_norm_scale_y, 0.0, "Min char y-norm scale ...");
   double_VAR_H(classify_max_norm_scale_y, 0.325, "Max char y-norm scale ...");
+  double_VAR_H(classify_max_rating_ratio, 1.5,
+               "Veto ratio between classifier ratings");
+  double_VAR_H(classify_max_certainty_margin, 5.5,
+               "Veto difference between classifier certainties");
 
   /* adaptmatch.cpp ***********************************************************/
   BOOL_VAR_H(tess_cn_matching, 0, "Character Normalized Matching");
@@ -375,6 +406,8 @@ class Classify : public CCStruct {
   BOOL_VAR_H(classify_save_adapted_templates, 0,
              "Save adapted templates to a file");
   BOOL_VAR_H(classify_enable_adaptive_debugger, 0, "Enable match debugger");
+  BOOL_VAR_H(classify_nonlinear_norm, 0,
+             "Non-linear stroke-density normalization");
   INT_VAR_H(matcher_debug_level, 0, "Matcher Debug Level");
   INT_VAR_H(matcher_debug_flags, 0, "Matcher Debug Flags");
   INT_VAR_H(classify_learning_debug_level, 0, "Learning Debug Level: ");
@@ -398,6 +431,10 @@ class Classify : public CCStruct {
   double_VAR_H(certainty_scale, 20.0, "Certainty scaling factor");
   double_VAR_H(tessedit_class_miss_scale, 0.00390625,
                "Scale factor for features not used");
+  double_VAR_H(classify_adapted_pruning_factor, 2.5,
+               "Prune poor adapted results this much worse than best result");
+  double_VAR_H(classify_adapted_pruning_threshold, -1.0,
+               "Threshold at which classify_adapted_pruning_factor starts");
   INT_VAR_H(classify_adapt_proto_threshold, 230,
             "Threshold for good protos during adaptive 0-255");
   INT_VAR_H(classify_adapt_feature_threshold, 230,
@@ -418,11 +455,11 @@ class Classify : public CCStruct {
   /* intmatcher.cpp **********************************************************/
   INT_VAR_H(classify_class_pruner_threshold, 229,
             "Class Pruner Threshold 0-255");
-  INT_VAR_H(classify_class_pruner_multiplier, 30,
+  INT_VAR_H(classify_class_pruner_multiplier, 15,
             "Class Pruner Multiplier 0-255:       ");
   INT_VAR_H(classify_cp_cutoff_strength, 7,
             "Class Pruner CutoffStrength:         ");
-  INT_VAR_H(classify_integer_matcher_multiplier, 14,
+  INT_VAR_H(classify_integer_matcher_multiplier, 10,
             "Integer Matcher Multiplier  0-255:   ");
 
   // Use class variables to hold onto built-in templates and adapted templates.
@@ -453,6 +490,9 @@ class Classify : public CCStruct {
   INT_VAR_H(il1_adaption_test, 0, "Dont adapt to i/I at beginning of word");
   BOOL_VAR_H(classify_bln_numeric_mode, 0,
              "Assume the input is numbers [0-9].");
+  double_VAR_H(speckle_large_max_size, 0.30, "Max large speckle size");
+  double_VAR_H(speckle_rating_penalty, 10.0,
+               "Penalty to add to worst rating for noise");
 
  protected:
   IntegerMatcher im_;
@@ -466,6 +506,8 @@ class Classify : public CCStruct {
  private:
 
   Dict dict_;
+  // The currently active static classifier.
+  ShapeClassifier* static_classifier_;
 
   /* variables used to hold performance statistics */
   int AdaptiveMatcherCalls;

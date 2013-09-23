@@ -9,7 +9,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
 endif
 
 noinst_HEADERS = \
-    adaptive.h baseline.h blobclass.h chartoname.h \
+    adaptive.h blobclass.h chartoname.h \
     classify.h cluster.h clusttool.h cutoffs.h \
     errorcounter.h extern.h extract.h \
     featdefs.h flexfx.h float2int.h fpoint.h fxdefs.h \
@@ -19,7 +19,7 @@ noinst_HEADERS = \
     normfeat.h normmatch.h \
     ocrfeatures.h outfeat.h picofeat.h protos.h \
     sampleiterator.h shapeclassifier.h shapetable.h \
-    speckle.h tessclassifier.h trainingsample.h trainingsampleset.h xform2d.h
+    tessclassifier.h trainingsample.h trainingsampleset.h xform2d.h
 
 if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_classify.la
@@ -45,7 +45,7 @@ libtesseract_classify_la_SOURCES = \
     mastertrainer.cpp mf.cpp mfdefs.cpp mfoutline.cpp mfx.cpp \
     normfeat.cpp normmatch.cpp \
     ocrfeatures.cpp outfeat.cpp picofeat.cpp protos.cpp \
-    sampleiterator.cpp shapetable.cpp speckle.cpp \
+    sampleiterator.cpp shapeclassifier.cpp shapetable.cpp \
     tessclassifier.cpp trainingsample.cpp trainingsampleset.cpp xform2d.cpp
 
 

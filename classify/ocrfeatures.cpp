@@ -230,7 +230,7 @@ void WriteFeature(FILE *File, FEATURE Feature) {
   int i;
 
   for (i = 0; i < Feature->Type->NumParams; i++) {
-#ifndef _WIN32
+#ifndef WIN32
     assert(!isnan(Feature->Params[i]));
 #endif
     fprintf(File, " %g", Feature->Params[i]);
