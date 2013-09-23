@@ -141,11 +141,17 @@ class ColumnFinder : public TabFind {
   // it is still divided into blocks of equal line spacing/text size.
   // scaled_color is scaled down by scaled_factor from the input color image,
   // and may be NULL if the input was not color.
+  // grey_pix is optional, but if present must match the photo_mask_pix in size,
+  // and must be a *real* grey image instead of binary_pix * 255.
+  // thresholds_pix is expected to be present iff grey_pix is present and
+  // can be an integer factor reduction of the grey_pix. It represents the
+  // thresholds that were used to create the binary_pix from the grey_pix.
   // Returns -1 if the user hits the 'd' key in the blocks window while running
   // in debug mode, which requests a retry with more debug info.
   int FindBlocks(PageSegMode pageseg_mode,
                  Pix* scaled_color, int scaled_factor,
                  TO_BLOCK* block, Pix* photo_mask_pix,
+                 Pix* thresholds_pix, Pix* grey_pix,
                  BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
 
   // Get the rotation required to deskew, and its inverse rotation.

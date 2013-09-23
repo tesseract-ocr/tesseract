@@ -237,8 +237,8 @@ int TextlineProjection::DistanceOfBoxFromBox(const TBOX& from_box,
   if (start_pt.x != end_pt.x || start_pt.y != end_pt.y) {
     if (denorm != NULL) {
       // Denormalize the start and end.
-      denorm->DenormTransform(start_pt, &start_pt);
-      denorm->DenormTransform(end_pt, &end_pt);
+      denorm->DenormTransform(NULL, start_pt, &start_pt);
+      denorm->DenormTransform(NULL, end_pt, &end_pt);
     }
     if (abs(start_pt.y - end_pt.y) >= abs(start_pt.x - end_pt.x)) {
       perpendicular_gap = VerticalDistance(debug, start_pt.x, start_pt.y,
@@ -741,7 +741,7 @@ void TextlineProjection::TransformToPixCoords(const DENORM* denorm,
                                               TPOINT* pt) const {
   if (denorm != NULL) {
     // Denormalize the point.
-    denorm->DenormTransform(*pt, pt);
+    denorm->DenormTransform(NULL, *pt, pt);
   }
   pt->x = ImageXToProjectionX(pt->x);
   pt->y = ImageYToProjectionY(pt->y);

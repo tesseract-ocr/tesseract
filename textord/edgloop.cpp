@@ -28,8 +28,6 @@
 
 #define MINEDGELENGTH   8        // min decent length
 
-INT_VAR(edges_maxedgelength, 16000, "Max steps in any outline");
-
 /**********************************************************************
  * complete_edge
  *
@@ -94,7 +92,7 @@ ScrollView::Color check_path_legal(                  //certify outline
     }
     edgept = edgept->next;
   }
-  while (edgept != start && length < edges_maxedgelength);
+  while (edgept != start && length < C_OUTLINE::kMaxOutlineLength);
 
   if ((chainsum != 4 && chainsum != -4)
   || edgept != start || length < MINEDGELENGTH) {
