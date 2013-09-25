@@ -28,13 +28,13 @@ extern DLLSYM BOOL_VAR_H(debug_window_on, TRUE,
                          "Send tprintf to window unless file set");
 
 // Main logging function.
-#define tprintf(args...) tprintf_internal(0, args)
+#define tprintf(...) tprintf_internal(0, __VA_ARGS__)
 
 // Variant guarded by the numeric logging level parameter FLAGS_v (default 0).
 // Code using ParseCommandLineFlags() can control its value using the --v
 // commandline argument. Otherwise it must be specified in a config file like
 // other params.
-#define tlog(level, args...) tprintf_internal(level, args)
+#define tlog(level, ...) tprintf_internal(level, __VA_ARGS__)
 
 #define TLOG_IS_ON(level) (FLAGS_v >= level)
 
