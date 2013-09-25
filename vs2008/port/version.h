@@ -20,6 +20,6 @@
 #ifndef           VS2008_PORT_VERSION_H_
 #define           VS2008_PORT_VERSION_H_
 
-#define VERSION "3.02.03"
+#define VERSION "3.03"
 
 #endif  // VS2008_PORT_VERSION_H_

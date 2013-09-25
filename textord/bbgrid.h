@@ -30,19 +30,23 @@
 // you don't get this functionality.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
-#endif
+#endif  // HAVE_CONFIG_H
 #ifdef USE_STD_NAMESPACE
-#ifdef __linux__
+#if (defined(__GNUC__) && (((__GNUC__ == 3) && ( __GNUC_MINOR__ > 0)) || __GNUC__ >= 4))  // gcc
 // hash_set is deprecated in gcc
 #include <ext/hash_set>
 using __gnu_cxx::hash_set;
 #else
 #include <hash_set>
+#ifdef _MSC_VER
+using namespace stdext;
+#else
 using std::hash_set;
-#endif
+#endif  // _MSC_VER
+#endif // gcc
 #else
 #include <hash_set>
-#endif
+#endif  // USE_STD_NAMESPACE
 #include "allheaders.h"
 
 class BLOCK;

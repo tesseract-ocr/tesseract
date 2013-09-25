@@ -8,6 +8,10 @@
 #include "genericvector.h"
 #include "renderer.h"
 
+#if !defined(VERSION)
+#include "version.h"
+#endif
+
 namespace tesseract {
 
 // Start with a 4K output buffer which should be pretty big for a page of text

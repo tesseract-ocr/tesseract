@@ -32,6 +32,12 @@
 #include "params.h"
 #include "params_training_featdef.h"
 
+#ifdef _MSC_VER
+double log2(double n) {
+	return log(n) / log(double(2));
+}
+#endif  // _MSC_VER
+
 namespace tesseract {
 
 const float LanguageModel::kMaxAvgNgramCost = 25.0f;

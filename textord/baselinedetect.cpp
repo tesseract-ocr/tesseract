@@ -17,6 +17,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif  // _MSC_VER
+
 #include "baselinedetect.h"
 
 #include <math.h>
