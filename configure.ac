@@ -56,7 +56,6 @@ AC_SUBST(GENERIC_VERSION)
 AM_CONDITIONAL(MINGW, false)
 AM_CONDITIONAL(GRAPHICS_DISABLED, false)
 
-
 #############################
 #
 # Platform specific setup
@@ -248,7 +247,6 @@ AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(sys/ipc.h sys/shm.h)
 AC_CHECK_HEADERS(limits.h malloc.h)
-AC_CHECK_HEADERS(allheaders.h)
 # Enable use of system-defined bool type if available:
 AC_HEADER_STDBOOL
 
@@ -266,7 +264,7 @@ AC_CHECK_TYPES(long long int)
 AC_CHECK_TYPES(mbstate_t,,,[#include "wchar.h"])
 
 # ----------------------------------------
-# Test auxilliary packages
+# Test auxiliary packages
 # ----------------------------------------
 
 # Check location of leptonica/liblept headers.
@@ -293,6 +291,15 @@ if test "$have_lept" = yes ; then
 else
   AC_MSG_ERROR([leptonica not found])
 fi
+
+# Check location of icu headers
+have_icu=false
+AC_CHECK_HEADERS(unicode/uchar.h, have_icu=true, have_icu=false)
+if !($have_icu); then
+        AC_MSG_WARN(Training tools WILL NOT be built because of missing icu library.)
+        AC_MSG_WARN(Try to install libicu-devel package.)
+fi
+AM_CONDITIONAL(ENABLE_TRAINING, $have_icu)
 
 # ----------------------------------------
 # Final Tasks and Output
@@ -325,21 +332,32 @@ AC_CONFIG_FILES(java/com/google/scrollview/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/events/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/ui/Makefile)
 AC_CONFIG_FILES(doc/Makefile)
-# AC_CONFIG_FILES(doc/Doxyfile)
-# AC_CONFIG_FILES(doc/header.html)
-# AC_CONFIG_FILES(doc/footer.html)
-# AC_CONFIG_FILES(doc/header.tex)
-# AC_CONFIG_FILES(doc/RTF_ExtensionFile)
-# AC_CONFIG_FILES(doc/Makefile)
 AC_OUTPUT
 
 # Final message
 echo ""
 echo "Configuration is done."
-echo "You can now build $PACKAGE_NAME by running:"
+echo "You can now build and install $PACKAGE_NAME by running:"
 echo ""
-echo "% make"
+echo "$ make"
+echo "$ sudo make install"
+echo "$ sudo make install LANGS=\"eng ara deu\""
+echo "  Or:"
+echo "$ sudo make install-langs"
 
+if !($have_icu); then
+  echo ""
+  echo "You can not build training tools because of missing dependency."
+  echo "Check configure output for details."
+  echo ""
+else
+  echo ""
+  echo "Training tools can be build and installed (after building of $PACKAGE_NAME) with:"
+  echo ""
+  echo "$ make training"
+  echo "$ sudo make training-install"
+  echo ""
+fi
 # ----------------------------------------
 # CONFIG Template
 # ----------------------------------------

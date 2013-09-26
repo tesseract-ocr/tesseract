@@ -1,12 +1,26 @@
 ## run autogen.sh to create Makefile.in from this file
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . training java doc tessdata testing   
+
+if ENABLE_TRAINING
+TRAINING_SUBDIR = training
+training:
+	@cd "$(top_builddir)/training" && $(MAKE)
+training-install:
+	@cd "$(top_builddir)/training" && $(MAKE) install
+else
+training:
+	@echo "Need to reconfigure project, so there are no errors"
+endif
+
+.PHONY: install-langs ScrollView.jar $(TRAINING_SUBDIR)
+
+SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . tessdata
 
 EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
 	aclocal.m4 config configure.ac autogen.sh tesseract.spec contrib \
-	tesseract.pc.in
+	tesseract.pc.in $(TRAINING_SUBDIR) java doc testing
 
-#EXTRA_DIST = doc/html doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.pdf doc/@PACKAGE_NAME@_@PACKAGE_VERSION@.ps.gz
+DIST_SUBDIRS  = $(SUBDIRS)
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(includedir)
@@ -16,6 +30,7 @@ dist-hook:
 # added using EXTRA_DIST. $(distdir)/tessdata would in
 # theory suffice.
 	rm -rf `find $(distdir) -name .svn`
+	rm -rf `find $(distdir) -name .git`
 	rm -rf `find $(distdir) -name .deps`
 
 # 'make install' will install only libraries and programs (no language 
@@ -36,17 +51,18 @@ install-data-hook:
 		echo No language file is installed.; \
 	fi;
 
-.PHONY: install-langs ScrollView.jar
 install-langs:
 	@cd "$(top_builddir)/tessdata" && $(MAKE) $@
-	
+
 ScrollView.jar:
 	@cd "$(top_builddir)/java" && $(MAKE) $@
 
 doc-dummy:
 
 doc: doc-dummy
-	-doxygen doc/Doxyfile
+	-srcdir="$(top_srcdir)" builddir="$(top_builddir)" \
+	version="@PACKAGE_VERSION@" name="@PACKAGE_NAME@" \
+	doxygen $(top_srcdir)/doc/Doxyfile
 
 doc-pack: doc
 	-chmod a+r $(top_srcdir)/doc/html/*
