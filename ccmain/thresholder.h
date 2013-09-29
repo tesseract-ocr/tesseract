@@ -20,6 +20,8 @@
 #ifndef TESSERACT_CCMAIN_THRESHOLDER_H__
 #define TESSERACT_CCMAIN_THRESHOLDER_H__
 
+#include          "platform.h"
+
 class IMAGE;
 struct Pix;
 
@@ -31,7 +33,7 @@ namespace tesseract {
 /// Each instance deals with a single image, but the design is intended to
 /// be useful for multiple calls to SetRectangle and ThresholdTo* if
 /// desired.
-class ImageThresholder {
+class TESS_API ImageThresholder {
  public:
   ImageThresholder();
   virtual ~ImageThresholder();

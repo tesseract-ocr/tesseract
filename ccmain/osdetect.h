@@ -59,7 +59,7 @@ struct OSResults {
   // orientation id.
   void update_best_script(int orientation_id);
   // Return the index of the script with the highest score for this orientation.
-  int get_best_script(int orientation_id) const;
+  TESS_API int get_best_script(int orientation_id) const;
   // Accumulate scores with given OSResults instance and update the best script.
   void accumulate(const OSResults& osr);
 
@@ -129,6 +129,6 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
 // Helper method to convert an orientation index to its value in degrees.
 // The value represents the amount of clockwise rotation in degrees that must be
 // applied for the text to be upright (readable).
-const int OrientationIdToValue(const int& id);
+TESS_API const int OrientationIdToValue(const int& id);
 
 #endif  // TESSERACT_CCMAIN_OSDETECT_H__

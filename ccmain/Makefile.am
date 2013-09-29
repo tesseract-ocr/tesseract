@@ -6,17 +6,18 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube \
     -I$(top_srcdir)/textord
-    
+
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
 include_HEADERS = \
-	thresholder.h ltrresultiterator.h pageiterator.h resultiterator.h
+	thresholder.h ltrresultiterator.h pageiterator.h resultiterator.h \
+	osdetect.h 
 noinst_HEADERS = \
     control.h cube_reco_context.h cubeclassifier.h docqual.h \
-    equationdetect.h fixspace.h imgscale.h mutableiterator.h osdetect.h \
+    equationdetect.h fixspace.h imgscale.h mutableiterator.h \
     output.h paragraphs.h paragraphs_internal.h paramsd.h pgedit.h \
     reject.h scaleimg.h tessbox.h tessedit.h tesseractclass.h \
     tesseract_cube_combiner.h tessvars.h werdit.h
