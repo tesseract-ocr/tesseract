@@ -47,7 +47,7 @@ install-langs:
 	@if test "${LANGS}" != ""; then \
 		for lang_code in ${LANGS}; do \
 			echo "installing data for $$lang_code"; \
-			$(INSTALL) -m 644 $$lang_code.* $(DESTDIR)$(datadir); \
+			$(INSTALL) -m 644 $(srcdir)/$$lang_code.* $(DESTDIR)$(datadir); \
 		done; \
 	else \
 		for l in ./*.traineddata; do \
@@ -58,7 +58,7 @@ install-langs:
 				break; \
 			fi; \
 			echo "installing data for $$lang_code"; \
-			$(INSTALL) -m 644 $$lang_code.* $(DESTDIR)$(datadir); \
+			$(INSTALL) -m 644 $(srcdir)/$$lang_code.* $(DESTDIR)$(datadir); \
 		done; \
 	fi;
 

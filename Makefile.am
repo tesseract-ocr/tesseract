@@ -12,7 +12,7 @@ training:
 	@echo "Need to reconfigure project, so there are no errors"
 endif
 
-.PHONY: install-langs ScrollView.jar $(TRAINING_SUBDIR)
+.PHONY: install-langs ScrollView.jar install-jars $(TRAINING_SUBDIR)
 
 SUBDIRS = ccutil viewer cutil image ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . tessdata
 
@@ -37,16 +37,20 @@ dist-hook:
 #       data files)
 # 'make install LANGS=' will install libraries, programs and  all 
 #       language datafiles in tessdata/
-# 'make install LANGS="eng ara deu"' will install only English, Arabic 
-#       and German language datafiles if they are present in tessdata/
+# 'make install LANGS="eng ara deu"' will install libraries, programs
+#       English, Arabic and German language datafiles if they are present
+#       in tessdata/
+# 'make install-langs LANGS="eng ara deu"' will install only English,
+#	Arabic and German language datafiles if they are present
+#       in tessdata/
 install-data-hook:
 	@if test $${LANGS+defined}; then \
-			if test "$${LANGS}" == ""; then \
-				echo ____All language files will be installed; \
-			else \
-				echo ___Folowing language files will be installed: "$$LANGS"; \
-			fi; \
-			cd "$(top_builddir)/tessdata" && $(MAKE) install-langs LANG="${LANGS}"; \
+		if test "$${LANGS}" == ""; then \
+			echo ____All language files will be installed; \
+		else \
+			echo ___Folowing language files will be installed: "$$LANGS"; \
+		fi; \
+		cd "$(top_builddir)/tessdata" && $(MAKE) install-langs LANG="${LANGS}"; \
 	else \
 		echo No language file is installed.; \
 	fi;
@@ -55,6 +59,9 @@ install-langs:
 	@cd "$(top_builddir)/tessdata" && $(MAKE) $@
 
 ScrollView.jar:
+	@cd "$(top_builddir)/java" && $(MAKE) $@
+
+install-jars:
 	@cd "$(top_builddir)/java" && $(MAKE) $@
 
 doc-dummy:
