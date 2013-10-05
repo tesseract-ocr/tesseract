@@ -73,12 +73,12 @@ void SVSync::ExitThread() {
 
 // Starts a new process.
 void SVSync::StartProcess(const char* executable, const char* args) {
-#ifdef _WIN32
   std::string proc;
   proc.append(executable);
   proc.append(" ");
   proc.append(args);
   std::cout << "Starting " << proc << std::endl;
+#ifdef _WIN32
   STARTUPINFO start_info;
   PROCESS_INFORMATION proc_info;
   GetStartupInfo(&start_info);
@@ -304,7 +304,7 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
       "-Xms1024m -Xmx2048m -Djava.library.path=%s -cp %s/ScrollView.jar:"
       "%s/piccolo-1.2.jar:%s/piccolox-1.2.jar"
       " com.google.scrollview.ScrollView"
-      " >/dev/null 2>&1 & wait\"";
+      " & wait\"";
 #endif
   int cmdlen = strlen(cmd_template) + 4*strlen(scrollview_path.c_str()) + 1;
   char* cmd = new char[cmdlen];

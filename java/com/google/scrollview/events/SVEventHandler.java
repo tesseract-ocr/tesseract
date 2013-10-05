@@ -173,6 +173,7 @@ public class SVEventHandler extends PBasicInputEventHandler implements
     }
     if (selection != null) {
       svWindow.canvas.getLayer().removeChild(selection);
+      selection = null;
     }
   }
 
