@@ -32,7 +32,8 @@
 #include "config_auto.h"
 #endif  // HAVE_CONFIG_H
 #ifdef USE_STD_NAMESPACE
-#if (defined(__GNUC__) && (((__GNUC__ == 3) && ( __GNUC_MINOR__ > 0)) || __GNUC__ >= 4))  // gcc
+#if (defined(__GNUC__) && (((__GNUC__ == 3) && ( __GNUC_MINOR__ > 0)) || \
+    __GNUC__ >= 4))  // gcc
 // hash_set is deprecated in gcc
 #include <ext/hash_set>
 using __gnu_cxx::hash_set;
@@ -43,7 +44,7 @@ using namespace stdext;
 #else
 using std::hash_set;
 #endif  // _MSC_VER
-#endif // gcc
+#endif  // gcc
 #else
 #include <hash_set>
 #endif  // USE_STD_NAMESPACE

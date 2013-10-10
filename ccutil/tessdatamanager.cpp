@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 
+#include "helpers.h"
 #include "serialis.h"
 #include "strngs.h"
 #include "tprintf.h"
@@ -46,14 +47,15 @@ bool TessdataManager::Init(const char *data_file_name, int debug_level) {
   fread(&actual_tessdata_num_entries_, sizeof(inT32), 1, data_file_);
   swap_ = (actual_tessdata_num_entries_ > kMaxNumTessdataEntries);
   if (swap_) {
-    actual_tessdata_num_entries_ = reverse32(actual_tessdata_num_entries_);
+    ReverseN(&actual_tessdata_num_entries_,
+             sizeof(actual_tessdata_num_entries_));
   }
   ASSERT_HOST(actual_tessdata_num_entries_ <= TESSDATA_NUM_ENTRIES);
   fread(offset_table_, sizeof(inT64),
         actual_tessdata_num_entries_, data_file_);
   if (swap_) {
     for (i = 0 ; i < actual_tessdata_num_entries_; ++i) {
-      offset_table_[i] = reverse64(offset_table_[i]);
+      ReverseN(&offset_table_[i], sizeof(offset_table_[i]));
     }
   }
   if (debug_level_) {

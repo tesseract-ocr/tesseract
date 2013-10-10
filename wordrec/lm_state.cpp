@@ -25,7 +25,7 @@ namespace tesseract {
 ELISTIZE(ViterbiStateEntry);
 
 void ViterbiStateEntry::Print(const char *msg) const {
-  tprintf("%s ViterbiStateEntry");
+  tprintf("%s ViterbiStateEntry", msg);
   if (updated) tprintf("(NEW)");
   if (this->debug_str != NULL) {
     tprintf(" str=%s", this->debug_str->string());

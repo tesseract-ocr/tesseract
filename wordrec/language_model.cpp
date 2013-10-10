@@ -34,7 +34,7 @@
 
 #ifdef _MSC_VER
 double log2(double n) {
-	return log(n) / log(double(2));
+  return log(n) / log(2.0);
 }
 #endif  // _MSC_VER
 

@@ -28,6 +28,7 @@
 #include "errcode.h"
 #include "helpers.h"
 #include "ndminx.h"
+#include "strngs.h"
 
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
 // provides automatic deletion of pointers, [De]Serialize that works, and
@@ -316,6 +317,39 @@ class GenericVector {
 };
 
 namespace tesseract {
+
+// Function to read a GenericVector<char> from a whole file.
+// Returns false on failure.
+typedef bool (*FileReader)(const STRING& filename, GenericVector<char>* data);
+// Function to write a GenericVector<char> to a whole file.
+// Returns false on failure.
+typedef bool (*FileWriter)(const GenericVector<char>& data,
+                           const STRING& filename);
+// The default FileReader loads the whole file into the vector of char,
+// returning false on error.
+inline bool LoadDataFromFile(const STRING& filename,
+                             GenericVector<char>* data) {
+  FILE* fp = fopen(filename.string(), "rb");
+  if (fp == NULL) return false;
+  fseek(fp, 0, SEEK_END);
+  size_t size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  // Pad with a 0, just in case we treat the result as a string.
+  data->init_to_size(size + 1, 0);
+  bool result = fread(&(*data)[0], 1, size, fp) == size;
+  fclose(fp);
+  return result;
+}
+// The default FileWriter writes the vector of char to the filename file,
+// returning false on error.
+inline bool SaveDataToFile(const GenericVector<char>& data,
+                          const STRING& filename) {
+  FILE* fp = fopen(filename.string(), "wb");
+  if (fp == NULL) return false;
+  bool result = fwrite(&data[0], 1, data.size(), fp) == data.size();
+  fclose(fp);
+  return result;
+}
 
 template <typename T>
 bool cmp_eq(T const & t1, T const & t2) {
@@ -878,7 +912,7 @@ int GenericVector<T>::choose_nth_item(int target_index, int start, int end,
   }
   // Place the pivot at start.
   #ifdef _MSC_VER  // TODO(zdenop): check this
-  srand( (unsigned) seed );
+  srand(static_cast<unsigned int>(seed));
   #define rand_r(seed) rand()
   #endif  // _MSC_VER
   int pivot = rand_r(seed) % num_elements + start;

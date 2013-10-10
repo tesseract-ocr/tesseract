@@ -66,16 +66,13 @@ void UnicharAmbigs::InitUnicharAmbigs(const UNICHARSET& unicharset,
 // Loads the universal ambigs that are useful for any language.
 void UnicharAmbigs::LoadUniversal(const UNICHARSET& encoder_set,
                                   UNICHARSET* unicharset) {
-  FILE* fp = fmemopen(const_cast<char*>(kUniversalAmbigsFile),
-                      ksizeofUniversalAmbigsFile, "rb");
-  if (fp == NULL) return;
-  LoadUnicharAmbigs(encoder_set, fp, -1ll, 0, false, unicharset);
-  fclose(fp);
+  TFile file;
+  if (!file.Open(kUniversalAmbigsFile, ksizeofUniversalAmbigsFile)) return;
+  LoadUnicharAmbigs(encoder_set, &file, 0, false, unicharset);
 }
 
 void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET& encoder_set,
-                                      FILE *ambig_file,
-                                      inT64 end_offset,
+                                      TFile *ambig_file,
                                       int debug_level,
                                       bool use_ambigs_for_adaption,
                                       UNICHARSET *unicharset) {
@@ -96,16 +93,15 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET& encoder_set,
 
   // Determine the version of the ambigs file.
   int version = 0;
-  ASSERT_HOST(fgets(buffer, kBufferSize, ambig_file) != NULL &&
+  ASSERT_HOST(ambig_file->FGets(buffer, kBufferSize) != NULL &&
               strlen(buffer) > 0);
   if (*buffer == 'v') {
     version = static_cast<int>(strtol(buffer+1, NULL, 10));
     ++line_num;
   } else {
-    rewind(ambig_file);
+    ambig_file->Rewind();
   }
-  while ((end_offset < 0 || ftell(ambig_file) < end_offset) &&
-         fgets(buffer, kBufferSize, ambig_file) != NULL) {
+  while (ambig_file->FGets(buffer, kBufferSize) != NULL) {
     chomp_string(buffer);
     if (debug_level > 2) tprintf("read line %s\n", buffer);
     ++line_num;

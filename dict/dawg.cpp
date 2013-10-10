@@ -332,8 +332,8 @@ void SquishedDawg::read_squished_dawg(FILE *file,
   fread(&num_edges_, sizeof(inT32), 1, file);
 
   if (swap) {
-    unicharset_size = reverse32(unicharset_size);
-    num_edges_ = reverse32(num_edges_);
+    ReverseN(&unicharset_size, sizeof(unicharset_size));
+    ReverseN(&num_edges_, sizeof(num_edges_));
   }
   ASSERT_HOST(num_edges_ > 0);  // DAWG should not be empty
   Dawg::init(type, lang, perm, unicharset_size, debug_level);
@@ -343,7 +343,7 @@ void SquishedDawg::read_squished_dawg(FILE *file,
   EDGE_REF edge;
   if (swap) {
     for (edge = 0; edge < num_edges_; ++edge) {
-      edges_[edge] = reverse64(edges_[edge]);
+      ReverseN(&edges_[edge], sizeof(edges_[edge]));
     }
   }
   if (debug_level > 2) {

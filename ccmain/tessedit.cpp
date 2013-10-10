@@ -185,10 +185,12 @@ bool Tesseract::init_tesseract_lang_data(
 
   if (!tessedit_ambigs_training &&
       tessdata_manager.SeekToStart(TESSDATA_AMBIGS)) {
+    TFile ambigs_file;
+    ambigs_file.Open(tessdata_manager.GetDataFilePtr(),
+                     tessdata_manager.GetEndOffset(TESSDATA_AMBIGS) + 1);
     unichar_ambigs.LoadUnicharAmbigs(
         encoder_unicharset,
-        tessdata_manager.GetDataFilePtr(),
-        tessdata_manager.GetEndOffset(TESSDATA_AMBIGS),
+        &ambigs_file,
         ambigs_debug_level, use_ambigs_for_adaption, &unicharset);
     if (tessdata_manager_debug_level) tprintf("Loaded ambigs\n");
   }

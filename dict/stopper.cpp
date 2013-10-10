@@ -421,7 +421,7 @@ void Dict::ReplaceAmbig(int wrong_ngram_begin_index, int wrong_ngram_size,
       choice->set_rating(new_rating);
     if (new_certainty < choice->certainty())
       choice->set_certainty(new_certainty);
-    new_choices->sort(&BLOB_CHOICE::SortByRating);
+    // DO NOT SORT!! It will mess up the iterator in LanguageModel::UpdateState.
   } else {
     // Need a new choice with the correct_ngram_id.
     choice = new BLOB_CHOICE(*old_choice);
@@ -430,7 +430,8 @@ void Dict::ReplaceAmbig(int wrong_ngram_begin_index, int wrong_ngram_size,
     choice->set_certainty(new_certainty);
     choice->set_classifier(BCC_AMBIG);
     choice->set_matrix_cell(coord.col, coord.row);
-    new_choices->add_sorted(&BLOB_CHOICE::SortByRating, false, choice);
+    BLOB_CHOICE_IT it (new_choices);
+    it.add_to_end(choice);
   }
   // Remove current unichar from werd_choice. On the last iteration
   // set the correct replacement unichar instead of removing a unichar.
@@ -502,7 +503,7 @@ int Dict::UniformCertainties(const WERD_CHOICE& word) {
     (word_length * (word_length - 1)));
   if (Variance < 0.0)
     Variance = 0.0;
-  StdDev = sqrt (Variance);
+  StdDev = sqrt(Variance);
 
   CertaintyThreshold = Mean - stopper_allowable_character_badness * StdDev;
   if (CertaintyThreshold > stopper_nondict_certainty_base)

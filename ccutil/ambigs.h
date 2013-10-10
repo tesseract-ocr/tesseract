@@ -173,7 +173,7 @@ class UnicharAmbigs {
   // encoder_set is used to encode the ambiguity strings, undisturbed by new
   // unichar_ids that may be created by adding the ambigs.
   void LoadUnicharAmbigs(const UNICHARSET& encoder_set,
-                         FILE *ambigs_file, inT64 end_offset, int debug_level,
+                         TFile *ambigs_file, int debug_level,
                          bool use_ambigs_for_adaption, UNICHARSET *unicharset);
 
   // Returns definite 1-1 ambigs for the given unichar id.

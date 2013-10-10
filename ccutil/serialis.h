@@ -23,14 +23,8 @@
 #include          <stdlib.h>
 #include          <string.h>
 #include          <stdio.h>
-#include "memry.h"
-#include "errcode.h"
-#include "fileerr.h"
 
-// Switch endinan.
-extern DLLSYM uinT64 reverse64(uinT64);
-extern DLLSYM uinT32 reverse32(uinT32);
-extern DLLSYM uinT16 reverse16(uinT16);
+#include "genericvector.h"
 
 /***********************************************************************
   QUOTE_IT   MACRO DEFINITION
@@ -39,5 +33,43 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 ***********************************************************************/
 
 #define QUOTE_IT( parm ) #parm
+
+namespace tesseract {
+
+// Simple file class. Only does input for now.
+// Allows for portable file input from memory.
+class TFile {
+ public:
+  TFile();
+
+  // All the Open methods load the whole file into memory.
+  // Opens a file with a supplied reader, or NULL to use the default.
+  bool Open(const STRING& filename, FileReader reader);
+  // From an existing memory buffer.
+  bool Open(const char* data, int size);
+  // From an open file and an end offset.
+  bool Open(FILE* fp, inT64 end_offset);
+
+  // Reads a line like fgets. Returns NULL on EOF, otherwise buffer.
+  // Reads at most buffer_size bytes, including '\0' terminator, even if
+  // the line is longer. Does nothing if buffer_size <= 0.
+  char* FGets(char* buffer, int buffer_size);
+  // Replicates fread, returning the number of items read.
+  int FRead(void* buffer, int size, int count);
+  // To use fscanf use FGets and sscanf.
+
+  // Resets the TFile as if it has been Opened, but nothing read.
+  void Rewind() {
+    offset_ = 0;
+  }
+
+ private:
+  // The number of bytes used so far.
+  int offset_;
+  // The buffered data from the file.
+  GenericVector<char> data_;
+};
+
+}  // namespace tesseract.
 
 #endif
