@@ -62,11 +62,14 @@ AM_CONDITIONAL(GRAPHICS_DISABLED, false)
 #
 #############################
 AC_CANONICAL_HOST
-case $host_os in
+case "${host_os}" in
     mingw32*)
         AC_DEFINE_UNQUOTED(MINGW,1,[This is a MinGW system])
         AM_CONDITIONAL(MINGW, true)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
+        ;;
+    solaris*)
+        LIBS="-lsocket -lnsl -lrt -lxnet"
         ;;
      *)
         # default
