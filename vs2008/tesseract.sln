@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtesseract302", "libtesseract\libtesseract.vcproj", "{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtesseract303", "libtesseract\libtesseract.vcproj", "{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tesseract", "tesseract\tesseract.vcproj", "{C76996CB-C4CB-4D89-9F67-F605DF129618}"
 	ProjectSection(ProjectDependencies) = postProject

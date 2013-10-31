@@ -15,7 +15,7 @@ So, the steps for making Tesseract are:
   $ sudo make install
   $ sudo make install-langs
   $ make training
-  $ sudo make training-installation
+  $ sudo make training-install
   
 'sudo make install-langs' or 'sudo make install LANGS=' will install all
 available language data files in tessdata directory.

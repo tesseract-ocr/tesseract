@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="libtesseract302"
+	Name="libtesseract303"
 	ProjectGUID="{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}"
 	RootNamespace="libtesseract"
 	TargetFrameworkVersion="196613"
