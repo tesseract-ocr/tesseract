@@ -658,13 +658,13 @@ static void ComputeGradient(const l_uint32* data, int wpl,
                             ICOORD* gradient) {
   const l_uint32* line = data + y * wpl;
   int pix_x_y = x < width && y < height ?
-      GET_DATA_BYTE(reinterpret_cast<const void *>(line), x) : 255;
+      GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x) : 255;
   int pix_x_prevy = x < width && y > 0 ?
-      GET_DATA_BYTE(reinterpret_cast<const void *>(line - wpl), x) : 255;
+      GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line - wpl)), x) : 255;
   int pix_prevx_prevy = x > 0 && y > 0 ?
-      GET_DATA_BYTE(reinterpret_cast<const void *>(line - wpl), x - 1) : 255;
+      GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<void const*>(line - wpl)), x - 1) : 255;
   int pix_prevx_y = x > 0 && y < height ?
-      GET_DATA_BYTE(reinterpret_cast<const void *>(line), x - 1) : 255;
+      GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x - 1) : 255;
   gradient->set_x(pix_x_y + pix_x_prevy - (pix_prevx_y + pix_prevx_prevy));
   gradient->set_y(pix_x_prevy + pix_prevx_prevy - (pix_x_y + pix_prevx_y));
 }
@@ -678,8 +678,8 @@ static bool EvaluateVerticalDiff(const l_uint32* data, int wpl, int diff_sign,
   if (y <= 0 || y >= height)
     return false;
   const l_uint32* line = data + y * wpl;
-  int pixel1 = GET_DATA_BYTE(reinterpret_cast<const void *>(line - wpl), x);
-  int pixel2 = GET_DATA_BYTE(reinterpret_cast<const void *>(line), x);
+  int pixel1 = GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line - wpl)), x);
+  int pixel2 = GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x);
   int diff = (pixel2 - pixel1) * diff_sign;
   if (diff > *best_diff) {
     *best_diff = diff;
@@ -697,8 +697,8 @@ static bool EvaluateHorizontalDiff(const l_uint32* line, int diff_sign,
                                    int* best_diff, int* best_sum, int* best_x) {
   if (x <= 0 || x >= width)
     return false;
-  int pixel1 = GET_DATA_BYTE(reinterpret_cast<const void *>(line), x - 1);
-  int pixel2 = GET_DATA_BYTE(reinterpret_cast<const void *>(line), x);
+  int pixel1 = GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x - 1);
+  int pixel2 = GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x);
   int diff = (pixel2 - pixel1) * diff_sign;
   if (diff > *best_diff) {
     *best_diff = diff;

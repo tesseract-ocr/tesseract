@@ -26,28 +26,21 @@
 #include "rect.h"
 #include "scrollview.h"
 
-// Some code is dependent upon leptonica. If you don't have it,
-// you don't get this functionality.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif  // HAVE_CONFIG_H
-#ifdef USE_STD_NAMESPACE
-#if (defined(__GNUC__) && (((__GNUC__ == 3) && ( __GNUC_MINOR__ > 0)) || \
-    __GNUC__ >= 4))  // gcc
-// hash_set is deprecated in gcc
-#include <ext/hash_set>
-using __gnu_cxx::hash_set;
+
+#if (__cplusplus >= 201103L) || defined(_MSC_VER)
+#include <unordered_set>
+#if (_MSC_VER >= 1500 && _MSC_VER < 1600)  // (Visual Studio 2008)
+using namespace std::tr1;
+#else
+using std::unordered_set;
+#endif
 #else
 #include <hash_set>
-#ifdef _MSC_VER
-using namespace stdext;
-#else
-using std::hash_set;
-#endif  // _MSC_VER
-#endif  // gcc
-#else
-#include <hash_set>
-#endif  // USE_STD_NAMESPACE
+#define unordered_set hash_set
+#endif
 #include "allheaders.h"
 
 class BLOCK;
@@ -385,11 +378,8 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch {
   // An iterator over the list at (x_, y_) in the grid_.
   BBC_C_IT it_;
   // Set of unique returned elements used when unique_mode_ is true.
-#ifdef _MSC_VER
-  hash_set<BBC*, hash_compare<BBC*> > returns_;
-#else
-  hash_set<BBC*, PtrHash<BBC> > returns_;
-#endif
+  inT16 bucket_size;           // half an x ht
+  unordered_set<BBC*, PtrHash<BBC> > returns_;
 };
 
 // Sort function to sort a BBC by bounding_box().left().
