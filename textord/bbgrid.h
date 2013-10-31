@@ -30,17 +30,25 @@
 #include "config_auto.h"
 #endif  // HAVE_CONFIG_H
 
-#if (__cplusplus >= 201103L) || defined(_MSC_VER)
+#ifdef USE_STD_NAMESPACE
+#if (defined(__GNUC__) && (((__GNUC__ == 3) && ( __GNUC_MINOR__ > 0)) || \
+  __GNUC__ >= 4))  // gcc
+// hash_set is deprecated in gcc
+#include <ext/hash_set>
+using __gnu_cxx::hash_set;
+#define unordered_set hash_set
+#elif (__cplusplus >= 201103L) || defined(_MSC_VER)  // Visual Studio
 #include <unordered_set>
-#if (_MSC_VER >= 1500 && _MSC_VER < 1600)  // (Visual Studio 2008)
+#if (_MSC_VER >= 1500 && _MSC_VER < 1600)  // Visual Studio 2008
 using namespace std::tr1;
 #else
 using std::unordered_set;
-#endif
+#endif 
 #else
-#include <hash_set>
-#define unordered_set hash_set
-#endif
+#include <hash_set>		
+#endif  // gcc
+#endif  // USE_STD_NAMESPACE
+
 #include "allheaders.h"
 
 class BLOCK;
@@ -378,7 +386,6 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch {
   // An iterator over the list at (x_, y_) in the grid_.
   BBC_C_IT it_;
   // Set of unique returned elements used when unique_mode_ is true.
-  inT16 bucket_size;           // half an x ht
   unordered_set<BBC*, PtrHash<BBC> > returns_;
 };
 
