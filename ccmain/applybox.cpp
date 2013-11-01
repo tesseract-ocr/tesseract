@@ -739,7 +739,7 @@ void Tesseract::TidyUp(PAGE_RES* page_res) {
 void Tesseract::ReportFailedBox(int boxfile_lineno, TBOX box,
                                 const char *box_ch, const char *err_msg) {
   tprintf("APPLY_BOXES: boxfile line %d/%s ((%d,%d),(%d,%d)): %s\n",
-          boxfile_lineno, box_ch,
+          boxfile_lineno + 1, box_ch,
           box.left(), box.bottom(), box.right(), box.top(), err_msg);
 }
 
