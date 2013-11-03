@@ -78,6 +78,12 @@ esac
 
 includedir="${includedir}/tesseract"
 
+# clear all default flags
+AM_CXXFLAGS=""
+AM_CPPFLAGS=""
+CXXFLAGS=""
+CPPFLAGS=""
+
 AC_ARG_WITH(extra-includes,
             AC_HELP_STRING([--with-extra-includes=DIR],
                        [Define an additional directory for include files]),
@@ -233,6 +239,33 @@ LT_INIT
 
 AC_LANG_CPLUSPLUS
 
+dnl ********************
+dnl turn on c++11
+dnl ********************
+
+OLD_CXXFLAGS=$CXXFLAGS
+AC_MSG_CHECKING(whether compiler supports C++11)
+CXXFLAGS="$CXXFLAGS -std=c++11"
+AC_COMPILE_IFELSE(
+[
+  AC_LANG_SOURCE([[
+    #if (__cplusplus < 201103L)
+    #error C++ 11 is unsupported
+    #endif
+  ]])
+], [
+     AC_MSG_RESULT(yes)
+     has_cpp11=yes
+   ],
+   [
+     AC_MSG_RESULT(no)
+     has_cpp11=no
+   ])
+CXXFLAGS="$OLD_CXXFLAGS"
+if test "x$has_cpp11" = "xyes"
+then
+  CXXFLAGS="$CXXFLAGS -std=c++11"
+fi
 
 # ----------------------------------------
 # Check for libraries
