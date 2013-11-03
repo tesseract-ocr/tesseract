@@ -299,7 +299,7 @@ TESS_API char* TESS_CALL TessBaseAPIProcessPage(TessBaseAPI* handle, struct Pix*
 {
     STRING text_out;
     if (handle->ProcessPage(pix, page_index, filename, retry_config, timeout_millisec, &text_out))
-        return text_out.strdup();    
+        return text_out.strdup();
     else
         return NULL;
 }

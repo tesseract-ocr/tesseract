@@ -63,7 +63,7 @@
 #include <string.h>
 #endif
 
-#if defined(_WIN32) && !defined(VERSION)
+#if !defined(VERSION)
 #include "version.h"
 #endif
 
