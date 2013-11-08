@@ -613,6 +613,8 @@ class Dict {
   BOOL_VAR_H(stopper_no_acceptable_choices, false,
              "Make AcceptableChoice() always return false. Useful"
              " when there is a need to explore all segmentations");
+  BOOL_VAR_H(save_raw_choices, false,
+             "Deprecated- backward compatability only");
   INT_VAR_H(tessedit_truncate_wordchoice_log, 10, "Max words to keep in list");
   STRING_VAR_H(word_to_debug, "", "Word for which stopper debug information"
                " should be printed to stdout");

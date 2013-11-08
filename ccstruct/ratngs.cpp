@@ -530,8 +530,9 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD* word) {
   // Initialize to normal.
   for (int i = 0; i < length_; ++i)
     script_pos_[i] = tesseract::SP_NORMAL;
-  if (word->blobs.empty())
+  if (word->blobs.empty() || word->NumBlobs() != TotalOfStates()) {
     return;
+  }
 
   int position_counts[4];
   for (int i = 0; i < 4; i++) {

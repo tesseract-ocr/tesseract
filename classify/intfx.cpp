@@ -78,31 +78,19 @@ namespace tesseract {
 // TODO(rays) BlobToTrainingSample must remain a global function until
 // the FlexFx and FeatureDescription code can be removed and LearnBlob
 // made a member of Classify.
-TrainingSample* BlobToTrainingSample(const TBLOB& blob,
-                                     tesseract::NormalizationMode mode,
-                                     bool nonlinear_norm) {
-  INT_FX_RESULT_STRUCT fx_info;
-  GenericVector<INT_FEATURE_STRUCT> bl_features;
+TrainingSample* BlobToTrainingSample(
+    const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
+    GenericVector<INT_FEATURE_STRUCT>* bl_features) {
   GenericVector<INT_FEATURE_STRUCT> cn_features;
-  Classify::ExtractFeatures(blob, nonlinear_norm, &bl_features,
-                            &cn_features, &fx_info, NULL);
+  Classify::ExtractFeatures(blob, nonlinear_norm, bl_features,
+                            &cn_features, fx_info, NULL);
   // TODO(rays) Use blob->PreciseBoundingBox() instead.
   TBOX box = blob.bounding_box();
   TrainingSample* sample = NULL;
-  if (mode == tesseract::NM_CHAR_ANISOTROPIC) {
-    int num_features = fx_info.NumCN;
-    if (num_features > 0) {
-      sample = TrainingSample::CopyFromFeatures(fx_info, box, &cn_features[0],
-                                                num_features);
-    }
-  } else if (mode == tesseract::NM_BASELINE) {
-    int num_features = fx_info.NumBL;
-    if (num_features > 0) {
-      sample = TrainingSample::CopyFromFeatures(fx_info, box, &bl_features[0],
-                                                num_features);
-    }
-  } else {
-    ASSERT_HOST(!"Unsupported normalization mode!");
+  int num_features = fx_info->NumCN;
+  if (num_features > 0) {
+    sample = TrainingSample::CopyFromFeatures(*fx_info, box, &cn_features[0],
+                                              num_features);
   }
   if (sample != NULL) {
     // Set the bounding box (in original image coordinates) in the sample.

@@ -97,8 +97,9 @@ BOOL8 Tesseract::recog_interactive(BLOCK* block, ROW* row, WERD_RES* word_res) {
   inT16 char_qual;
   inT16 good_char_qual;
 
-  classify_word_and_language(&Tesseract::classify_word_pass2,
-                             block, row, word_res);
+  WordData word_data(block, row, word_res);
+  SetupWordPassN(2, &word_data);
+  classify_word_and_language(&Tesseract::classify_word_pass2, &word_data);
   if (tessedit_debug_quality_metrics) {
     word_char_quality(word_res, row, &char_qual, &good_char_qual);
     tprintf
@@ -153,6 +154,111 @@ bool Tesseract::ProcessTargetWord(const TBOX& word_box,
   return true;
 }
 
+// If tesseract is to be run, sets the words up ready for it.
+void Tesseract::SetupAllWordsPassN(int pass_n,
+                                   const TBOX* target_word_box,
+                                   const char* word_config,
+                                   PAGE_RES* page_res,
+                                   GenericVector<WordData>* words) {
+  // Prepare all the words.
+  PAGE_RES_IT page_res_it(page_res);
+  for (page_res_it.restart_page(); page_res_it.word() != NULL;
+       page_res_it.forward()) {
+    if (pass_n == 1)
+      page_res_it.word()->SetupFake(unicharset);
+    if (target_word_box == NULL ||
+        ProcessTargetWord(page_res_it.word()->word->bounding_box(),
+                          *target_word_box, word_config, 1)) {
+      words->push_back(WordData(page_res_it));
+    }
+  }
+  // Setup all the words for recognition with polygonal approximation.
+  for (int w = 0; w < words->size(); ++w) {
+    SetupWordPassN(pass_n, &(*words)[w]);
+    if (w > 0) (*words)[w].prev_word = &(*words)[w - 1];
+  }
+}
+
+// Sets up the single word ready for whichever engine is to be run.
+void Tesseract::SetupWordPassN(int pass_n, WordData* word) {
+  if (pass_n == 1 || !word->word->done || tessedit_training_tess) {
+    if (pass_n == 2) {
+      // TODO(rays) Should we do this on pass1 too?
+      word->word->caps_height = 0.0;
+      if (word->word->x_height == 0.0f)
+        word->word->x_height = word->row->x_height();
+    }
+    // Cube doesn't get setup for pass2.
+    if (pass_n != 2 || tessedit_ocr_engine_mode != OEM_CUBE_ONLY) {
+      word->word->SetupForRecognition(
+            unicharset, this, BestPix(), tessedit_ocr_engine_mode, NULL,
+            classify_bln_numeric_mode, textord_use_cjk_fp_model,
+            poly_allow_detailed_fx, word->row, word->block);
+    }
+  }
+  if (!sub_langs_.empty()) {
+    if (word->lang_words.size() != sub_langs_.size()) {
+      // Setup the words for all the sub-languages now.
+      WERD_RES empty;
+      word->lang_words.init_to_size(sub_langs_.size(), empty);
+    }
+    for (int s = 0; s < sub_langs_.size(); ++s) {
+      Tesseract* lang_t = sub_langs_[s];
+      if (pass_n == 1 || (lang_t->tessedit_ocr_engine_mode != OEM_CUBE_ONLY &&
+          (!word->lang_words[s].done || lang_t->tessedit_training_tess))) {
+        word->lang_words[s].InitForRetryRecognition(*word->word);
+        word->lang_words[s].SetupForRecognition(
+              lang_t->unicharset, lang_t, BestPix(),
+              lang_t->tessedit_ocr_engine_mode, NULL,
+              lang_t->classify_bln_numeric_mode,
+              lang_t->textord_use_cjk_fp_model,
+              lang_t->poly_allow_detailed_fx, word->row, word->block);
+      }
+    }
+  }
+}
+
+
+// Runs word recognition on all the words.
+bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
+                                   GenericVector<WordData>* words) {
+  // TODO(rays) Before this loop can be parallelized (it would yield a massive
+  // speed-up) all remaining member globals need to be converted to local/heap
+  // (eg set_pass1 and set_pass2) and an intermediate adaption pass needs to be
+  // added. The results will be significantly different with adaption on, and
+  // deterioration will need investigation.
+  for (int w = 0; w < words->size(); ++w) {
+    WordData* word = &(*words)[w];
+    if (monitor != NULL) {
+      monitor->ocr_alive = TRUE;
+      if (pass_n == 1)
+        monitor->progress = 30 + 50 * w / words->size();
+      else
+        monitor->progress = 80 + 10 * w / words->size();
+      if (monitor->deadline_exceeded() ||
+          (monitor->cancel != NULL && (*monitor->cancel)(monitor->cancel_this,
+                                                         words->size()))) {
+        // Timeout. Fake out the rest of the words.
+        for (; w < words->size(); ++w) {
+          (*words)[w].word->SetupFake(unicharset);
+        }
+        return false;
+      }
+    }
+    if (word->word->tess_failed) continue;
+    WordRecognizer recognizer = pass_n == 1 ? &Tesseract::classify_word_pass1
+                                            : &Tesseract::classify_word_pass2;
+    classify_word_and_language(recognizer, word);
+    if (tessedit_dump_choices) {
+      word_dumper(NULL, word->row, word->word);
+      tprintf("Pass%d: %s [%s]\n", pass_n,
+              word->word->best_choice->unichar_string().string(),
+              word->word->best_choice->debug_string().string());
+    }
+  }
+  return true;
+}
+
 /**
  * recog_all_words()
  *
@@ -179,27 +285,15 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
                                 const TBOX* target_word_box,
                                 const char* word_config,
                                 int dopasses) {
-  PAGE_RES_IT page_res_it;
-  inT32 word_index;              // current word
+  PAGE_RES_IT page_res_it(page_res);
 
   if (tessedit_minimal_rej_pass1) {
     tessedit_test_adaption.set_value (TRUE);
     tessedit_minimal_rejection.set_value (TRUE);
   }
 
-  // Before the main recognition loop below, walk through the whole page and set
-  // up fake words.  That way, if we run out of time a user will still get the
-  // expected best_choice and box_words out the end; they'll just be empty.
-  page_res_it.page_res = page_res;
-  for (page_res_it.restart_page(); page_res_it.word() != NULL;
-       page_res_it.forward()) {
-    page_res_it.word()->SetupFake(unicharset);
-  }
-
   if (dopasses==0 || dopasses==1) {
-    page_res_it.page_res=page_res;
     page_res_it.restart_page();
-
     // ****************** Pass 1 *******************
 
     // Clear adaptive classifier at the beginning of the page if it is full.
@@ -214,20 +308,15 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
       if (sub_langs_[i]->AdaptiveClassifierIsFull())
         sub_langs_[i]->ResetAdaptiveClassifierInternal();
     }
-
-    stats_.word_count = 0;
-    if (monitor != NULL) {
-      monitor->ocr_alive = TRUE;
-      while (page_res_it.word() != NULL) {
-        stats_.word_count++;
-        page_res_it.forward();
-      }
-      page_res_it.restart_page();
-    } else {
-      stats_.word_count = 1;
+    // Set up all words ready for recognition, so that if parallelism is on
+    // all the input and output classes are ready to run the classifier.
+    GenericVector<WordData> words;
+    SetupAllWordsPassN(1, target_word_box, word_config, page_res, &words);
+    if (tessedit_parallelize) {
+      PrerecAllWordsPar(words);
     }
 
-    word_index = 0;
+    stats_.word_count = words.size();
 
     stats_.dict_words = 0;
     stats_.doc_blob_quality = 0;
@@ -237,55 +326,14 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
     stats_.doc_good_char_quality = 0;
 
     most_recently_used_ = this;
+    // Run pass 1 word recognition.
+    if (!RecogAllWordsPassN(1, monitor, &words)) return false;
+    // Pass 1 post-processing.
     while (page_res_it.word() != NULL) {
-      set_global_loc_code(LOC_PASS1);
-      word_index++;
-      if (monitor != NULL) {
-        monitor->ocr_alive = TRUE;
-        monitor->progress = 30 + 50 * word_index / stats_.word_count;
-        if (monitor->deadline_exceeded() ||
-            (monitor->cancel != NULL && (*monitor->cancel)(monitor->cancel_this,
-                                                           stats_.dict_words)))
-          return false;
-      }
-      if (target_word_box &&
-          !ProcessTargetWord(page_res_it.word()->word->bounding_box(),
-                             *target_word_box, word_config, 1)) {
-        page_res_it.forward();
-        continue;
-      }
-      classify_word_and_language(&Tesseract::classify_word_pass1,
-                                 page_res_it.block()->block,
-                                 page_res_it.row()->row,
-                                 page_res_it.word());
       if (page_res_it.word()->word->flag(W_REP_CHAR)) {
         fix_rep_char(&page_res_it);
         page_res_it.forward();
         continue;
-      }
-      if (tessedit_dump_choices) {
-        word_dumper(NULL, page_res_it.row()->row, page_res_it.word());
-        tprintf("Pass1: %s [%s]\n",
-                page_res_it.word()->best_choice->unichar_string().string(),
-                page_res_it.word()->best_choice->debug_string().string());
-      }
-
-      // tessedit_test_adaption enables testing of the accuracy of the
-      // input to the adaptive classifier.
-      if (tessedit_test_adaption && !tessedit_minimal_rejection) {
-        if (!word_adaptable (page_res_it.word(),
-          tessedit_test_adaption_mode)) {
-          page_res_it.word()->reject_map.rej_word_tess_failure();
-          // FAKE PERM REJ
-        } else {
-          // Override rejection mechanisms for this word.
-          UNICHAR_ID space = unicharset.unichar_to_id(" ");
-          for (int i = 0; i < page_res_it.word()->best_choice->length(); i++) {
-            if ((page_res_it.word()->best_choice->unichar_id(i) != space) &&
-                page_res_it.word()->reject_map[i].rejected())
-              page_res_it.word()->reject_map[i].setrej_minimal_rej_accept();
-          }
-        }
       }
 
       // Count dict words.
@@ -307,49 +355,26 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
   if (dopasses == 1) return true;
 
   // ****************** Pass 2 *******************
-  page_res_it.restart_page();
-  word_index = 0;
-  most_recently_used_ = this;
-  while (tessedit_tess_adaption_mode != 0x0 && !tessedit_test_adaption &&
-      page_res_it.word() != NULL) {
-    set_global_loc_code(LOC_PASS2);
-    word_index++;
-    if (monitor != NULL) {
-      monitor->ocr_alive = TRUE;
-      monitor->progress = 80 + 10 * word_index / stats_.word_count;
-      if (monitor->deadline_exceeded() ||
-          (monitor->cancel != NULL && (*monitor->cancel)(monitor->cancel_this,
-                                                         stats_.dict_words)))
-        return false;
+  if (tessedit_tess_adaption_mode != 0x0 && !tessedit_test_adaption) {
+    page_res_it.restart_page();
+    GenericVector<WordData> words;
+    SetupAllWordsPassN(2, target_word_box, word_config, page_res, &words);
+    if (tessedit_parallelize) {
+      PrerecAllWordsPar(words);
     }
-
-    // changed by jetsoft
-    // specific to its needs to extract one word when need
-    if (target_word_box &&
-        !ProcessTargetWord(page_res_it.word()->word->bounding_box(),
-                           *target_word_box, word_config, 2)) {
+    most_recently_used_ = this;
+    // Run pass 2 word recognition.
+    if (!RecogAllWordsPassN(2, monitor, &words)) return false;
+    // Pass 2 post-processing.
+    while (page_res_it.word() != NULL) {
+      WERD_RES* word = page_res_it.word();
+       if (word->word->flag(W_REP_CHAR) && !word->done) {
+        fix_rep_char(&page_res_it);
+        page_res_it.forward();
+        continue;
+      }
       page_res_it.forward();
-      continue;
     }
-    // end jetsoft
-
-    classify_word_and_language(&Tesseract::classify_word_pass2,
-                               page_res_it.block()->block,
-                               page_res_it.row()->row,
-                               page_res_it.word());
-    if (page_res_it.word()->word->flag(W_REP_CHAR) &&
-        !page_res_it.word()->done) {
-      fix_rep_char(&page_res_it);
-      page_res_it.forward();
-      continue;
-    }
-    if (tessedit_dump_choices) {
-      word_dumper(NULL, page_res_it.row()->row, page_res_it.word());
-      tprintf("Pass2: %s [%s]\n",
-              page_res_it.word()->best_choice->unichar_string().string(),
-              page_res_it.word()->best_choice->debug_string().string());
-    }
-    page_res_it.forward();
   }
 
   // The next passes can only be run if tesseract has been used, as cube
@@ -384,6 +409,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
     // Check the correctness of the final results.
     blamer_pass(page_res);
   }
+  script_pos_pass(page_res);
 
   // Write results pass.
   set_global_loc_code(LOC_WRITE_RESULTS);
@@ -672,6 +698,46 @@ void Tesseract::blamer_pass(PAGE_RES* page_res) {
   }
 }
 
+// Sets script positions and detects smallcaps on all output words.
+void Tesseract::script_pos_pass(PAGE_RES* page_res) {
+  PAGE_RES_IT page_res_it(page_res);
+  for (page_res_it.restart_page(); page_res_it.word() != NULL;
+      page_res_it.forward()) {
+    WERD_RES* word = page_res_it.word();
+     if (word->word->flag(W_REP_CHAR)) {
+      page_res_it.forward();
+      continue;
+    }
+    float x_height = page_res_it.block()->block->x_height();
+    float word_x_height = word->x_height;
+    if (word_x_height < word->best_choice->min_x_height() ||
+        word_x_height > word->best_choice->max_x_height()) {
+      word_x_height = (word->best_choice->min_x_height() +
+          word->best_choice->max_x_height()) / 2.0f;
+    }
+    // Test for small caps. Word capheight must be close to block xheight,
+    // and word must contain no lower case letters, and at least one upper case.
+    double small_cap_xheight = x_height * kXHeightCapRatio;
+    double small_cap_delta = (x_height - small_cap_xheight) / 2.0;
+    if (word->uch_set->script_has_xheight() &&
+        small_cap_xheight - small_cap_delta <= word_x_height &&
+        word_x_height <= small_cap_xheight + small_cap_delta) {
+      // Scan for upper/lower.
+      int num_upper = 0;
+      int num_lower = 0;
+      for (int i = 0; i < word->best_choice->length(); ++i) {
+        if (word->uch_set->get_isupper(word->best_choice->unichar_id(i)))
+          ++num_upper;
+        else if (word->uch_set->get_islower(word->best_choice->unichar_id(i)))
+          ++num_lower;
+      }
+      if (num_upper > 0 && num_lower == 0)
+        word->small_caps = true;
+    }
+    word->SetScriptPositions();
+  }
+}
+
 // Helper returns true if the new_word is better than the word, using a
 // simple test of better certainty AND rating (to reduce false positives
 // from cube) or a dictionary vs non-dictionary word.
@@ -701,37 +767,32 @@ static bool NewWordBetter(const WERD_RES& word, const WERD_RES& new_word,
 
 // Helper to recognize the word using the given (language-specific) tesseract.
 // Returns true if the result was better than previously.
-bool Tesseract::RetryWithLanguage(WERD_RES *word, BLOCK* block, ROW *row,
+bool Tesseract::RetryWithLanguage(const WERD_RES& best_word,
+                                  WordData* word_data, WERD_RES* word,
                                   WordRecognizer recognizer) {
   if (classify_debug_level || cube_debug_level) {
     tprintf("Retrying word using lang %s, oem %d\n",
             lang.string(), static_cast<int>(tessedit_ocr_engine_mode));
   }
-  // Setup a trial WERD_RES in which to classify.
-  WERD_RES lang_word;
-  lang_word.InitForRetryRecognition(*word);
   // Run the recognizer on the word.
   // Initial version is a bit of a hack based on better certainty and rating
   // (to reduce false positives from cube) or a dictionary vs non-dictionary
   // word.
-  (this->*recognizer)(block, row, &lang_word);
-  bool new_is_better = NewWordBetter(*word, lang_word,
+  (this->*recognizer)(word_data, word);
+  bool new_is_better = NewWordBetter(best_word, *word,
                                      classify_max_rating_ratio,
                                      classify_max_certainty_margin);
   if (classify_debug_level || cube_debug_level) {
-    if (lang_word.best_choice == NULL) {
-      tprintf("New result %s better:%s\n",
+    if (word->best_choice == NULL) {
+      tprintf("NULL result %s better!\n",
               new_is_better ? "IS" : "NOT");
     } else {
       tprintf("New result %s better:%s, r=%g, c=%g\n",
               new_is_better ? "IS" : "NOT",
-              lang_word.best_choice->unichar_string().string(),
-              lang_word.best_choice->rating(),
-              lang_word.best_choice->certainty());
+              word->best_choice->unichar_string().string(),
+              word->best_choice->rating(),
+              word->best_choice->certainty());
     }
-  }
-  if (new_is_better) {
-    word->ConsumeWordResults(&lang_word);
   }
   return new_is_better;
 }
@@ -743,9 +804,9 @@ bool Tesseract::RetryWithLanguage(WERD_RES *word, BLOCK* block, ROW *row,
 // If recognition was not successful, tries all available languages until
 // it gets a successful result or runs out of languages. Keeps the best result.
 void Tesseract::classify_word_and_language(WordRecognizer recognizer,
-                                           BLOCK* block,
-                                           ROW *row,
-                                           WERD_RES *word) {
+                                           WordData* word_data) {
+  // Points to the best result. May be word or in lang_words.
+  WERD_RES* word = word_data->word;
   clock_t start_t = clock();
   if (classify_debug_level || cube_debug_level) {
     tprintf("Processing word with lang %s at:",
@@ -755,15 +816,23 @@ void Tesseract::classify_word_and_language(WordRecognizer recognizer,
   const char* result_type = "Initial";
   bool initially_done = !word->tess_failed && word->done;
   if (initially_done) {
-    // If done on pass1, we reuse the tesseract that did it, and don't try
-    // any more. The only need to call the classifier at all is for the
-    // cube combiner and xheight fixing (which may be bogus on a done word.)
+    // If done on pass1, leave it as-is.
     most_recently_used_ = word->tesseract;
     result_type = "Already done";
+  } else {
+    if (most_recently_used_ != this) {
+      // Point to the word for most_recently_used_.
+      for (int s = 0; s < sub_langs_.size(); ++s) {
+        if (most_recently_used_ == sub_langs_[s]) {
+          word = &word_data->lang_words[s];
+          break;
+        }
+      }
+    }
+    (most_recently_used_->*recognizer)(word_data, word);
+    if (!word->tess_failed && word->tess_accepted)
+      result_type = "Accepted";
   }
-  (most_recently_used_->*recognizer)(block, row, word);
-  if (!word->tess_failed && word->tess_accepted)
-    result_type = "Accepted";
   if (classify_debug_level || cube_debug_level) {
     tprintf("%s result: %s r=%.4g, c=%.4g, accepted=%d, adaptable=%d"
             " xht=[%g,%g]\n",
@@ -782,11 +851,31 @@ void Tesseract::classify_word_and_language(WordRecognizer recognizer,
       if (classify_debug_level) {
         tprintf("Retrying with main-Tesseract, lang: %s\n", lang.string());
       }
-      if (RetryWithLanguage(word, block, row, recognizer)) {
-        most_recently_used_ = this;
-        if (!word->tess_failed && word->tess_accepted)
-          return;  // No need to look at the others.
+      if (word_data->word->tesseract == this) {
+        // This is pass1, and we are trying the main language.
+        if (RetryWithLanguage(*word, word_data, word_data->word, recognizer)) {
+          most_recently_used_ = this;
+          word = word_data->word;
+        }
+      } else {
+        // This is pass2, and we are trying the main language again, but it
+        // has no word allocated to it, so we must re-initialize it.
+        WERD_RES main_word(*word_data->word);
+        main_word.InitForRetryRecognition(*word_data->word);
+        main_word.SetupForRecognition(unicharset, this, BestPix(),
+                                      tessedit_ocr_engine_mode, NULL,
+                                      classify_bln_numeric_mode,
+                                      textord_use_cjk_fp_model,
+                                      poly_allow_detailed_fx,
+                                      word_data->row, word_data->block);
+        if (RetryWithLanguage(*word, word_data, &main_word, recognizer)) {
+          most_recently_used_ = this;
+          word_data->word->ConsumeWordResults(&main_word);
+          word = word_data->word;
+        }
       }
+      if (!word->tess_failed && word->tess_accepted)
+        return;  // No need to look at the others.
     }
 
     for (int i = 0; i < sub_langs_.size(); ++i) {
@@ -795,13 +884,20 @@ void Tesseract::classify_word_and_language(WordRecognizer recognizer,
           tprintf("Retrying with sub-Tesseract[%d] lang: %s\n",
                   i, sub_langs_[i]->lang.string());
         }
-        if (sub_langs_[i]->RetryWithLanguage(word, block, row, recognizer)) {
+        if (sub_langs_[i]->RetryWithLanguage(*word, word_data,
+                                             &word_data->lang_words[i],
+                                             recognizer)) {
           most_recently_used_ = sub_langs_[i];
+          word = &word_data->lang_words[i];
           if (!word->tess_failed && word->tess_accepted)
-            return;  // No need to look at the others.
+            break;  // No need to look at the others.
         }
       }
     }
+  }
+  if (word != word_data->word) {
+    // Move the result for the best language to the main word.
+    word_data->word->ConsumeWordResults(word);
   }
   clock_t ocr_t = clock();
   if (tessedit_timing_debug) {
@@ -817,7 +913,11 @@ void Tesseract::classify_word_and_language(WordRecognizer recognizer,
  * Baseline normalize the word and pass it to Tess.
  */
 
-void Tesseract::classify_word_pass1(BLOCK* block, ROW *row, WERD_RES *word) {
+void Tesseract::classify_word_pass1(WordData* word_data, WERD_RES* word) {
+  ROW* row = word_data->row;
+  BLOCK* block = word_data->block;
+  prev_word_best_choice_ = word_data->prev_word != NULL
+      ? word_data->prev_word->word->best_choice : NULL;
   // If we only intend to run cube - run it and return.
   if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
     cube_word_pass1(block, row, word);
@@ -880,6 +980,10 @@ bool Tesseract::TrainedXheightFix(WERD_RES *word, BLOCK* block, ROW *row) {
     }
     new_x_ht_word.x_height = new_x_ht;
     new_x_ht_word.caps_height = 0.0;
+    new_x_ht_word.SetupForRecognition(
+          unicharset, this, BestPix(), tessedit_ocr_engine_mode, NULL,
+          classify_bln_numeric_mode, textord_use_cjk_fp_model,
+          poly_allow_detailed_fx, row, block);
     match_word_pass_n(2, &new_x_ht_word, row, block);
     if (!new_x_ht_word.tess_failed) {
       int new_misfits = CountMisfitTops(&new_x_ht_word);
@@ -916,11 +1020,15 @@ bool Tesseract::TrainedXheightFix(WERD_RES *word, BLOCK* block, ROW *row) {
  * Control what to do with the word in pass 2
  */
 
-void Tesseract::classify_word_pass2(BLOCK* block, ROW *row, WERD_RES *word) {
+void Tesseract::classify_word_pass2(WordData* word_data, WERD_RES* word) {
   // Return if we do not want to run Tesseract.
   if (tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY &&
       tessedit_ocr_engine_mode != OEM_TESSERACT_CUBE_COMBINED)
     return;
+  ROW* row = word_data->row;
+  BLOCK* block = word_data->block;
+  prev_word_best_choice_ = word_data->prev_word != NULL
+      ? word_data->prev_word->word->best_choice : NULL;
 
   set_global_subloc_code(SUBLOC_NORM);
   check_debug_pt(word, 30);
@@ -940,26 +1048,6 @@ void Tesseract::classify_word_pass2(BLOCK* block, ROW *row, WERD_RES *word) {
       // Use the tops and bottoms since they are available.
       TrainedXheightFix(word, block, row);
     }
-    // Test for small caps. Word capheight must be close to block xheight,
-    // and word must contain no lower case letters, and at least one upper case.
-    double small_cap_xheight = block->x_height() * kXHeightCapRatio;
-    double small_cap_delta = (block->x_height() - small_cap_xheight) / 2.0;
-    if (unicharset.script_has_xheight() &&
-        small_cap_xheight - small_cap_delta <= word->x_height &&
-        word->x_height <= small_cap_xheight + small_cap_delta) {
-      // Scan for upper/lower.
-      int num_upper = 0;
-      int num_lower = 0;
-      for (int i = 0; i < word->best_choice->length(); ++i) {
-        if (unicharset.get_isupper(word->best_choice->unichar_id(i)))
-          ++num_upper;
-        else if (unicharset.get_islower(word->best_choice->unichar_id(i)))
-          ++num_lower;
-      }
-      if (num_upper > 0 && num_lower == 0)
-        word->small_caps = true;
-    }
-    word->SetScriptPositions();
 
     set_global_subloc_code(SUBLOC_NORM);
   }
@@ -988,12 +1076,8 @@ void Tesseract::classify_word_pass2(BLOCK* block, ROW *row, WERD_RES *word) {
 
 void Tesseract::match_word_pass_n(int pass_n, WERD_RES *word,
                                   ROW *row, BLOCK* block) {
-  if (word->SetupForTessRecognition(unicharset, this, BestPix(),
-                                    classify_bln_numeric_mode,
-                                    textord_use_cjk_fp_model,
-                                    poly_allow_detailed_fx,
-                                    row, block))
-    tess_segment_pass_n(pass_n, word);
+  if (word->tess_failed) return;
+  tess_segment_pass_n(pass_n, word);
 
   if (!word->tess_failed) {
     if (!word->word->flag (W_REP_CHAR)) {
@@ -1136,12 +1220,12 @@ void Tesseract::ExplodeRepeatedWord(BLOB_CHOICE* best_choice,
     WERD_RES* rep_word =
         page_res_it->InsertSimpleCloneWord(*word_res, blob_word);
     // Setup the single char WERD_RES
-    if (rep_word->SetupForTessRecognition(*word_res->uch_set, this, BestPix(),
-                                          false,
-                                          textord_use_cjk_fp_model,
-                                          poly_allow_detailed_fx,
-                                          page_res_it->row()->row,
-                                          page_res_it->block()->block)) {
+    if (rep_word->SetupForRecognition(*word_res->uch_set, this, BestPix(),
+                                      tessedit_ocr_engine_mode, NULL, false,
+                                      textord_use_cjk_fp_model,
+                                      poly_allow_detailed_fx,
+                                      page_res_it->row()->row,
+                                      page_res_it->block()->block)) {
       rep_word->CloneChoppedToRebuild();
       BLOB_CHOICE* blob_choice = new BLOB_CHOICE(*best_choice);
       rep_word->FakeClassifyWord(1, &blob_choice);

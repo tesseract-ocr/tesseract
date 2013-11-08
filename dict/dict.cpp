@@ -119,6 +119,9 @@ Dict::Dict(Image* image_ptr)
                   "Make AcceptableChoice() always return false. Useful"
                   " when there is a need to explore all segmentations",
                   getImage()->getCCUtil()->params()),
+      BOOL_MEMBER(save_raw_choices, false,
+                  "Deprecated- backward compatablity only",
+                  getImage()->getCCUtil()->params()),
       INT_MEMBER(tessedit_truncate_wordchoice_log, 10,
                  "Max words to keep in list",
                  getImage()->getCCUtil()->params()),
@@ -689,7 +692,7 @@ void Dict::adjust_word(WERD_CHOICE *word,
 int Dict::valid_word(const WERD_CHOICE &word, bool numbers_ok) const {
   const WERD_CHOICE *word_ptr = &word;
   WERD_CHOICE temp_word(word.unicharset());
-  if (hyphenated()) {
+  if (hyphenated() && hyphen_word_->unicharset() == word.unicharset()) {
     copy_hyphen_info(&temp_word);
     temp_word += word;
     word_ptr = &temp_word;

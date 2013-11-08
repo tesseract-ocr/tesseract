@@ -440,16 +440,32 @@ namespace tesseract {
  * enough.  The results are returned in the WERD_RES.
  */
 void Wordrec::chop_word_main(WERD_RES *word) {
-  // Initial clean up.
-  word->ClearRatings();
   int num_blobs = word->chopped_word->NumBlobs();
-  word->ratings = new MATRIX(num_blobs, wordrec_max_join_chunks);
-  // Run initial classification.
-  for (int b = 0; b < num_blobs; ++b) {
-    BLOB_CHOICE_LIST* choices = classify_piece(word->seam_array, b, b,
-                                               "Initial:", word->chopped_word,
-                                               word->blamer_bundle);
-    word->ratings->put(b, b, choices);
+  if (word->ratings == NULL) {
+    word->ratings = new MATRIX(num_blobs, wordrec_max_join_chunks);
+  }
+  if (word->ratings->get(0, 0) == NULL) {
+    // Run initial classification.
+    for (int b = 0; b < num_blobs; ++b) {
+      BLOB_CHOICE_LIST* choices = classify_piece(word->seam_array, b, b,
+                                                 "Initial:", word->chopped_word,
+                                                 word->blamer_bundle);
+      word->ratings->put(b, b, choices);
+    }
+  } else {
+    // Blobs have been pre-classified. Set matrix cell for all blob choices
+    for (int col = 0; col < word->ratings->dimension(); ++col) {
+      for (int row = col; row < word->ratings->dimension() &&
+           row < col + word->ratings->bandwidth(); ++row) {
+        BLOB_CHOICE_LIST* choices = word->ratings->get(col, row);
+        if (choices != NULL) {
+          BLOB_CHOICE_IT bc_it(choices);
+          for (bc_it.mark_cycle_pt(); !bc_it.cycled_list(); bc_it.forward()) {
+            bc_it.data()->set_matrix_cell(col, row);
+          }
+        }
+      }
+    }
   }
 
   // Run Segmentation Search.

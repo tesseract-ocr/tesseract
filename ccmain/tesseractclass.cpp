@@ -402,6 +402,8 @@ Tesseract::Tesseract()
                      "for layout analysis.", this->params()),
     BOOL_MEMBER(textord_equation_detect, false, "Turn on equation detector",
                 this->params()),
+    INT_MEMBER(tessedit_parallelize, 0, "Run in parallel where possible",
+                this->params()),
 
     // The following parameters were deprecated and removed from their original
     // locations. The parameters are temporarily kept here to give Tesseract
@@ -528,7 +530,6 @@ void Tesseract::Clear() {
   reskew_ = FCOORD(1.0f, 0.0f);
   splitter_.Clear();
   scaled_factor_ = -1;
-  ResetFeaturesHaveBeenExtracted();
   for (int i = 0; i < sub_langs_.size(); ++i)
     sub_langs_[i]->Clear();
 }

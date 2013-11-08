@@ -60,9 +60,9 @@ namespace tesseract {
   // TODO(rays) BlobToTrainingSample must remain a global function until
   // the FlexFx and FeatureDescription code can be removed and LearnBlob
   // made a member of Classify.
-  TrainingSample* BlobToTrainingSample(const TBLOB& blob,
-                                       tesseract::NormalizationMode mode,
-                                       bool nonlinear_norm);
+  TrainingSample* BlobToTrainingSample(
+      const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
+      GenericVector<INT_FEATURE_STRUCT>* bl_features);
 }
 
 // Deprecated! Prefer tesseract::Classify::ExtractFeatures instead.

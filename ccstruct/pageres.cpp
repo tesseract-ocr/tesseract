@@ -32,6 +32,8 @@ static const double kStopperAmbiguityThresholdGain = 8.0;
 // Constant offset for computing thresholds that determine the ambiguity of a
 // word.
 static const double kStopperAmbiguityThresholdOffset = 1.5;
+// Max number of broken pieces to associate.
+const int kWordrecMaxNumJoinChunks = 4;
 
 // Computes and returns a threshold of certainty difference used to determine
 // which words to keep, based on the adjustment factors of the two words.
@@ -245,16 +247,25 @@ void WERD_RES::InitForRetryRecognition(const WERD_RES& source) {
 // If allow_detailed_fx is true, the feature extractor will receive fine
 // precision outline information, allowing smoother features and better
 // features on low resolution images.
+// The norm_mode_hint sets the default mode for normalization in absence
+// of any of the above flags.
+// norm_box is used to override the word bounding box to determine the
+// normalization scale and offset.
 // Returns false if the word is empty and sets up fake results.
-bool WERD_RES::SetupForTessRecognition(const UNICHARSET& unicharset_in,
+bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
                                    tesseract::Tesseract* tess, Pix* pix,
+                                   int norm_mode,
+                                   const TBOX* norm_box,
                                    bool numeric_mode,
                                    bool use_body_size,
                                    bool allow_detailed_fx,
-                                   ROW *row, BLOCK* block) {
+                                   ROW *row, const BLOCK* block) {
+  tesseract::OcrEngineMode norm_mode_hint =
+      static_cast<tesseract::OcrEngineMode>(norm_mode);
   tesseract = tess;
   POLY_BLOCK* pb = block != NULL ? block->poly_block() : NULL;
-  if (word->cblob_list()->empty() || (pb != NULL && !pb->IsText())) {
+  if ((norm_mode_hint != tesseract::OEM_CUBE_ONLY &&
+       word->cblob_list()->empty()) || (pb != NULL && !pb->IsText())) {
     // Empty words occur when all the blobs have been moved to the rej_blobs
     // list, which seems to occur frequently in junk.
     SetupFake(unicharset_in);
@@ -264,13 +275,17 @@ bool WERD_RES::SetupForTessRecognition(const UNICHARSET& unicharset_in,
   ClearResults();
   SetupWordScript(unicharset_in);
   chopped_word = TWERD::PolygonalCopy(allow_detailed_fx, word);
-  float word_xheight = use_body_size && row->body_size() > 0.0f
+  float word_xheight = use_body_size && row != NULL && row->body_size() > 0.0f
                      ? row->body_size() : x_height;
   chopped_word->BLNormalize(block, row, pix, word->flag(W_INVERSE),
-                            word_xheight, numeric_mode, &denorm);
+                            word_xheight, numeric_mode, norm_mode_hint,
+                            norm_box, &denorm);
   blob_row = row;
   SetupBasicsFromChoppedWord(unicharset_in);
   SetupBlamerBundle();
+  int num_blobs = chopped_word->NumBlobs();
+  ratings = new MATRIX(num_blobs, kWordrecMaxNumJoinChunks);
+  tess_failed = false;
   return true;
 }
 
@@ -282,30 +297,6 @@ void WERD_RES::SetupBasicsFromChoppedWord(const UNICHARSET &unicharset_in) {
   start_seam_list(chopped_word, &seam_array);
   SetupBlobWidthsAndGaps();
   ClearWordChoices();
-}
-
-// Sets up the members used in recognition:
-// bln_boxes, chopped_word, seam_array, denorm, best_choice, raw_choice.
-// Returns false if the word is empty and sets up fake results.
-bool WERD_RES::SetupForCubeRecognition(const UNICHARSET& unicharset_in,
-                                       tesseract::Tesseract* tess,
-                                       const BLOCK* block) {
-  tesseract = tess;
-  POLY_BLOCK* pb = block != NULL ? block->poly_block() : NULL;
-  if (pb != NULL && !pb->IsText()) {
-    // Ignore words in graphic regions.
-    SetupFake(unicharset_in);
-    word->set_flag(W_REP_CHAR, false);
-    return false;
-  }
-  ClearResults();
-  SetupWordScript(unicharset_in);
-  TBOX word_box = word->bounding_box();
-  denorm.SetupNormalization(block, NULL, NULL,
-                            word_box.left(), word_box.bottom(),
-                            1.0f, 1.0f, 0.0f, 0.0f);
-  SetupBlamerBundle();
-  return true;
 }
 
 // Sets up the members used in recognition for an empty recognition result:

@@ -235,8 +235,11 @@ FEATURE_SET ExtractIntCNFeatures(TBLOB *blob, const DENORM& bl_denorm,
  ** Exceptions: none
  ** History: 8/8/2011, rays, Created.
  */
-  tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
-      *blob, tesseract::NM_CHAR_ANISOTROPIC, false);
+  INT_FX_RESULT_STRUCT local_fx_info(fx_info);
+  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  tesseract::TrainingSample* sample =
+      tesseract::BlobToTrainingSample(*blob, false, &local_fx_info,
+                                      &bl_features);
   if (sample == NULL) return NULL;
 
   int num_features = sample->num_features();
@@ -267,8 +270,11 @@ FEATURE_SET ExtractIntGeoFeatures(TBLOB *blob, const DENORM& bl_denorm,
  ** Exceptions: none
  ** History: 8/8/2011, rays, Created.
  */
-  tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
-      *blob, tesseract::NM_CHAR_ANISOTROPIC, false);
+  INT_FX_RESULT_STRUCT local_fx_info(fx_info);
+  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  tesseract::TrainingSample* sample =
+      tesseract::BlobToTrainingSample(*blob, false, &local_fx_info,
+                                      &bl_features);
   if (sample == NULL) return NULL;
 
   FEATURE_SET feature_set = NewFeatureSet(1);

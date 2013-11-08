@@ -339,7 +339,8 @@ class WERD_RES : public ELIST_LINK {
   // characters purely based on their shape on the page, and by default produce
   // the corresponding unicode for a left-to-right context.
   const char* const BestUTF8(int blob_index, bool in_rtl_context) const {
-    if (blob_index < 0 || blob_index >= best_choice->length())
+    if (blob_index < 0 || best_choice == NULL ||
+        blob_index >= best_choice->length())
       return NULL;
     UNICHAR_ID id = best_choice->unichar_id(blob_index);
     if (id < 0 || id >= uch_set->size() || id == INVALID_UNICHAR_ID)
@@ -435,24 +436,21 @@ class WERD_RES : public ELIST_LINK {
   // If allow_detailed_fx is true, the feature extractor will receive fine
   // precision outline information, allowing smoother features and better
   // features on low resolution images.
+  // The norm_mode sets the default mode for normalization in absence
+  // of any of the above flags. It should really be a tesseract::OcrEngineMode
+  // but is declared as int for ease of use with tessedit_ocr_engine_mode.
   // Returns false if the word is empty and sets up fake results.
-  bool SetupForTessRecognition(const UNICHARSET& unicharset_in,
-                               tesseract::Tesseract* tesseract, Pix* pix,
-                               bool numeric_mode, bool use_body_size,
-                               bool allow_detailed_fx,
-                               ROW *row, BLOCK* block);
+  bool SetupForRecognition(const UNICHARSET& unicharset_in,
+                           tesseract::Tesseract* tesseract, Pix* pix,
+                           int norm_mode,
+                           const TBOX* norm_box, bool numeric_mode,
+                           bool use_body_size, bool allow_detailed_fx,
+                           ROW *row, const BLOCK* block);
 
   // Set up the seam array, bln_boxes, best_choice, and raw_choice to empty
   // accumulators from a made chopped word.  We presume the fields are already
   // empty.
   void SetupBasicsFromChoppedWord(const UNICHARSET &unicharset_in);
-
-  // Sets up the members used in recognition:
-  // bln_boxes, chopped_word, seam_array, denorm.
-  // Returns false if the word is empty and sets up fake results.
-  bool SetupForCubeRecognition(const UNICHARSET& unicharset_in,
-                               tesseract::Tesseract* tesseract,
-                               const BLOCK* block);
 
   // Sets up the members used in recognition for an empty recognition result:
   // bln_boxes, chopped_word, seam_array, denorm, best_choice, raw_choice.

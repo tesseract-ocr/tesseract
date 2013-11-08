@@ -46,7 +46,7 @@ libtesseract_main_la_SOURCES = \
     docqual.cpp equationdetect.cpp fixspace.cpp fixxht.cpp \
     imgscale.cpp ltrresultiterator.cpp \
     osdetect.cpp output.cpp pageiterator.cpp pagesegmain.cpp \
-    pagewalk.cpp paragraphs.cpp paramsd.cpp pgedit.cpp recogtraining.cpp \
+    pagewalk.cpp par_control.cpp paragraphs.cpp paramsd.cpp pgedit.cpp recogtraining.cpp \
     reject.cpp resultiterator.cpp scaleimg.cpp superscript.cpp \
     tesseract_cube_combiner.cpp \
     tessbox.cpp tessedit.cpp tesseractclass.cpp tessvars.cpp \

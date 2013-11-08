@@ -122,8 +122,6 @@ struct PROTO_KEY {
 #define MarginalMatch(Rating)       \
 ((Rating) > matcher_great_threshold)
 
-#define InitIntFX() (FeaturesHaveBeenExtracted = FALSE)
-
 /*-----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
@@ -179,8 +177,7 @@ void Classify::AdaptiveClassifier(TBLOB *Blob,
   ADAPT_RESULTS *Results = new ADAPT_RESULTS();
   Results->Initialize();
 
-  if (AdaptedTemplates == NULL)
-    AdaptedTemplates = NewAdaptedTemplates (true);
+  ASSERT_HOST(AdaptedTemplates != NULL);
 
   DoAdaptiveMatch(Blob, Results);
   if (CPResults != NULL)
@@ -207,7 +204,6 @@ void Classify::AdaptiveClassifier(TBLOB *Blob,
     DebugAdaptiveClassifier(Blob, Results);
 #endif
 
-  NumClassesOutput += Choices->length();
   delete Results;
 }                                /* AdaptiveClassifier */
 
@@ -249,7 +245,6 @@ void Classify::LearnWord(const char* filename, WERD_RES *word) {
     if (!EnableLearning || word->best_choice == NULL)
       return;  // Can't or won't adapt.
 
-    NumWordsAdaptedTo++;
     if (classify_learning_debug_level >= 1)
       tprintf("\n\nAdapting to word = %s\n",
               word->best_choice->debug_string().string());
@@ -480,15 +475,11 @@ void Classify::EndAdaptiveClassifier() {
   FreeNormProtos();
   if (AllProtosOn != NULL) {
     FreeBitVector(AllProtosOn);
-    FreeBitVector(PrunedProtos);
     FreeBitVector(AllConfigsOn);
-    FreeBitVector(AllProtosOff);
     FreeBitVector(AllConfigsOff);
     FreeBitVector(TempProtoMask);
     AllProtosOn = NULL;
-    PrunedProtos = NULL;
     AllConfigsOn = NULL;
-    AllProtosOff = NULL;
     AllConfigsOff = NULL;
     TempProtoMask = NULL;
   }
@@ -561,19 +552,15 @@ void Classify::InitAdaptiveClassifier(bool load_pre_trained_templates) {
     static_classifier_ = new TessClassifier(false, this);
   }
 
-  im_.Init(&classify_debug_level, classify_integer_matcher_multiplier);
+  im_.Init(&classify_debug_level);
   InitIntegerFX();
 
   AllProtosOn = NewBitVector(MAX_NUM_PROTOS);
-  PrunedProtos = NewBitVector(MAX_NUM_PROTOS);
   AllConfigsOn = NewBitVector(MAX_NUM_CONFIGS);
-  AllProtosOff = NewBitVector(MAX_NUM_PROTOS);
   AllConfigsOff = NewBitVector(MAX_NUM_CONFIGS);
   TempProtoMask = NewBitVector(MAX_NUM_PROTOS);
   set_all_bits(AllProtosOn, WordsInVectorOfSize(MAX_NUM_PROTOS));
-  set_all_bits(PrunedProtos, WordsInVectorOfSize(MAX_NUM_PROTOS));
   set_all_bits(AllConfigsOn, WordsInVectorOfSize(MAX_NUM_CONFIGS));
-  zero_all_bits(AllProtosOff, WordsInVectorOfSize(MAX_NUM_PROTOS));
   zero_all_bits(AllConfigsOff, WordsInVectorOfSize(MAX_NUM_CONFIGS));
 
   for (int i = 0; i < MAX_NUM_CLASSES; i++) {
@@ -617,52 +604,10 @@ void Classify::ResetAdaptiveClassifierInternal() {
             NumAdaptationsFailed);
   }
   free_adapted_templates(AdaptedTemplates);
-  AdaptedTemplates = NULL;
+  AdaptedTemplates = NewAdaptedTemplates(true);
   NumAdaptationsFailed = 0;
 }
 
-
-/*---------------------------------------------------------------------------*/
-/**
- * Print to File the statistics which have
- * been gathered for the adaptive matcher.
- *
- * @param File open text file to print adaptive statistics to
- *
- * Globals: none
- *
- * @note Exceptions: none
- * @note History: Thu Apr 18 14:37:37 1991, DSJ, Created.
- */
-void Classify::PrintAdaptiveStatistics(FILE *File) {
-  #ifndef SECURE_NAMES
-
-  fprintf (File, "\nADAPTIVE MATCHER STATISTICS:\n");
-  fprintf (File, "\tNum blobs classified = %d\n", AdaptiveMatcherCalls);
-  fprintf (File, "\tNum classes output   = %d (Avg = %4.2f)\n",
-    NumClassesOutput,
-    ((AdaptiveMatcherCalls == 0) ? (0.0) :
-  ((float) NumClassesOutput / AdaptiveMatcherCalls)));
-  fprintf (File, "\t\tBaseline Classifier: %4d calls (%4.2f classes/call)\n",
-    BaselineClassifierCalls,
-    ((BaselineClassifierCalls == 0) ? (0.0) :
-  ((float) NumBaselineClassesTried / BaselineClassifierCalls)));
-  fprintf (File, "\t\tCharNorm Classifier: %4d calls (%4.2f classes/call)\n",
-    CharNormClassifierCalls,
-    ((CharNormClassifierCalls == 0) ? (0.0) :
-  ((float) NumCharNormClassesTried / CharNormClassifierCalls)));
-  fprintf (File, "\t\tAmbig    Classifier: %4d calls (%4.2f classes/call)\n",
-    AmbigClassifierCalls,
-    ((AmbigClassifierCalls == 0) ? (0.0) :
-  ((float) NumAmbigClassesTried / AmbigClassifierCalls)));
-
-  fprintf (File, "\nADAPTIVE LEARNER STATISTICS:\n");
-  fprintf (File, "\tNumber of words adapted to: %d\n", NumWordsAdaptedTo);
-  fprintf (File, "\tNumber of chars adapted to: %d\n", NumCharsAdaptedTo);
-
-  PrintAdaptedTemplates(File, AdaptedTemplates);
-  #endif
-}                                /* PrintAdaptiveStatistics */
 
 
 /*---------------------------------------------------------------------------*/
@@ -915,8 +860,6 @@ void Classify::AdaptToChar(TBLOB *Blob,
   FEATURE_SET FloatFeatures;
   int NewTempConfigId;
 
-  ResetFeaturesHaveBeenExtracted();
-  NumCharsAdaptedTo++;
   if (!LegalClassId (ClassId))
     return;
 
@@ -932,7 +875,6 @@ void Classify::AdaptToChar(TBLOB *Blob,
     if (NumFeatures <= 0)
       return;
 
-    im_.SetBaseLineMatch();
     // Only match configs with the matching font.
     BIT_VECTOR MatchingFontConfigs = NewBitVector(MAX_NUM_PROTOS);
     for (int cfg = 0; cfg < IClass->NumConfigs; ++cfg) {
@@ -1004,17 +946,16 @@ void Classify::AdaptToChar(TBLOB *Blob,
 
 void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
 #ifndef GRAPHICS_DISABLED
-  int bloblength = 0;
-  INT_FEATURE_ARRAY features;
-  uinT8* norm_array = new uinT8[unicharset.size()];
-  int num_features = GetBaselineFeatures(blob, PreTrainedTemplates,
-                                         features,
-                                         norm_array, &bloblength);
-  delete [] norm_array;
-  INT_RESULT_STRUCT IntResult;
+  INT_FX_RESULT_STRUCT fx_info;
+  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  TrainingSample* sample =
+      BlobToTrainingSample(*blob, classify_nonlinear_norm, &fx_info,
+                           &bl_features);
+  if (sample == NULL) return;
 
+  INT_RESULT_STRUCT IntResult;
   im_.Match(int_class, AllProtosOn, AllConfigsOn,
-            num_features, features,
+            bl_features.size(), &bl_features[0],
             &IntResult, classify_adapt_feature_threshold,
             NO_DEBUG, matcher_debug_separate_windows);
   cprintf ("Best match to temp config %d = %4.1f%%.\n",
@@ -1024,7 +965,7 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
     ConfigMask = 1 << IntResult.Config;
     ShowMatchDisplay();
     im_.Match(int_class, AllProtosOn, (BIT_VECTOR)&ConfigMask,
-              num_features, features,
+              bl_features.size(), &bl_features[0],
               &IntResult, classify_adapt_feature_threshold,
               6 | 0x19, matcher_debug_separate_windows);
     UpdateMatchDisplay();
@@ -1032,50 +973,6 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
 #endif
 }
 
-
-/*---------------------------------------------------------------------------*/
-/**
- * @param Blob blob to add to templates for ClassId
- * @param ClassId class to add blob to
- * @param FontinfoId font information from pre-trained teamples
- * @param Threshold minimum match rating to existing template
- *
- * Globals:
- * - PreTrainedTemplates current set of built-in templates
- *
- * @note Exceptions: none
- * @note History: Thu Mar 14 09:36:03 1991, DSJ, Created.
- */
-void Classify::AdaptToPunc(TBLOB *Blob,
-                           CLASS_ID ClassId,
-                           int FontinfoId,
-                           FLOAT32 Threshold) {
-  ADAPT_RESULTS *Results = new ADAPT_RESULTS();
-  int i;
-
-  Results->Initialize();
-  CharNormClassifier(Blob, PreTrainedTemplates, Results);
-  RemoveBadMatches(Results);
-
-  if (Results->NumMatches != 1) {
-    if (classify_learning_debug_level >= 1) {
-      cprintf ("Rejecting punc = %s (Alternatives = ",
-               unicharset.id_to_unichar(ClassId));
-
-      for (i = 0; i < Results->NumMatches; i++)
-        tprintf("%s", unicharset.id_to_unichar(Results->match[i].unichar_id));
-      tprintf(")\n");
-    }
-  } else {
-    #ifndef SECURE_NAMES
-    if (classify_learning_debug_level >= 1)
-      cprintf ("Adapting to punc = %s, thr= %g\n",
-               unicharset.id_to_unichar(ClassId), Threshold);
-    #endif
-    AdaptToChar(Blob, ClassId, FontinfoId, Threshold);
-  }
-  delete Results;
-}                                /* AdaptToPunc */
 
 
 /*---------------------------------------------------------------------------*/
@@ -1167,50 +1064,41 @@ void Classify::AddNewResult(ADAPT_RESULTS *results,
  * @note Exceptions: none
  * @note History: Tue Mar 12 19:40:36 1991, DSJ, Created.
  */
-void Classify::AmbigClassifier(TBLOB *Blob,
-                               INT_TEMPLATES Templates,
-                               ADAPT_CLASS *Classes,
-                               UNICHAR_ID *Ambiguities,
-                               ADAPT_RESULTS *Results) {
-  int NumFeatures;
-  INT_FEATURE_ARRAY IntFeatures;
+void Classify::AmbigClassifier(
+    const GenericVector<INT_FEATURE_STRUCT>& int_features,
+    const INT_FX_RESULT_STRUCT& fx_info,
+    const TBLOB *blob,
+    INT_TEMPLATES templates,
+    ADAPT_CLASS *classes,
+    UNICHAR_ID *ambiguities,
+    ADAPT_RESULTS *results) {
+  if (int_features.empty()) return;
   uinT8* CharNormArray = new uinT8[unicharset.size()];
   INT_RESULT_STRUCT IntResult;
-  CLASS_ID ClassId;
 
-  AmbigClassifierCalls++;
-
-  NumFeatures = GetCharNormFeatures(Blob, Templates, IntFeatures,
-                                    NULL, CharNormArray,
-                                    &(Results->BlobLength));
-  if (NumFeatures <= 0) {
-    delete [] CharNormArray;
-    return;
-  }
-
+  results->BlobLength = GetCharNormFeature(fx_info, templates, NULL,
+                                           CharNormArray);
   bool debug = matcher_debug_level >= 2 || classify_debug_level > 1;
   if (debug)
     tprintf("AM Matches =  ");
 
-  int top = Blob->bounding_box().top();
-  int bottom = Blob->bounding_box().bottom();
-  while (*Ambiguities >= 0) {
-    ClassId = *Ambiguities;
+  int top = blob->bounding_box().top();
+  int bottom = blob->bounding_box().bottom();
+  while (*ambiguities >= 0) {
+    CLASS_ID class_id = *ambiguities;
 
-    im_.SetCharNormMatch(classify_integer_matcher_multiplier);
-    im_.Match(ClassForClassId(Templates, ClassId),
+    im_.Match(ClassForClassId(templates, class_id),
               AllProtosOn, AllConfigsOn,
-              NumFeatures, IntFeatures,
+              int_features.size(), &int_features[0],
               &IntResult,
               classify_adapt_feature_threshold, NO_DEBUG,
               matcher_debug_separate_windows);
 
-    ExpandShapesAndApplyCorrections(NULL, debug, ClassId, bottom, top, 0,
-                                    Results->BlobLength, CharNormArray,
-                                    IntResult, Results);
-    Ambiguities++;
-
-    NumAmbigClassesTried++;
+    ExpandShapesAndApplyCorrections(NULL, debug, class_id, bottom, top, 0,
+                                    results->BlobLength,
+                                    classify_integer_matcher_multiplier,
+                                    CharNormArray, IntResult, results);
+    ambiguities++;
   }
   delete [] CharNormArray;
 }                                /* AmbigClassifier */
@@ -1225,6 +1113,7 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
                              ADAPT_CLASS* classes,
                              int debug,
                              int num_classes,
+                             int matcher_multiplier,
                              const TBOX& blob_box,
                              CLASS_PRUNER_RESULTS results,
                              ADAPT_RESULTS* final_results) {
@@ -1246,7 +1135,8 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
     bool debug = matcher_debug_level >= 2 || classify_debug_level > 1;
     ExpandShapesAndApplyCorrections(classes, debug, class_id, bottom, top,
                                     results[c].Rating,
-                                    final_results->BlobLength, norm_factors,
+                                    final_results->BlobLength,
+                                    matcher_multiplier, norm_factors,
                                     int_result, final_results);
   }
 }
@@ -1258,7 +1148,8 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
 // The results are added to the final_results output.
 void Classify::ExpandShapesAndApplyCorrections(
     ADAPT_CLASS* classes, bool debug, int class_id, int bottom, int top,
-    float cp_rating, int blob_length, const uinT8* cn_factors,
+    float cp_rating, int blob_length, int matcher_multiplier,
+    const uinT8* cn_factors,
     INT_RESULT_STRUCT& int_result, ADAPT_RESULTS* final_results) {
   // Compute the fontinfo_ids.
   int fontinfo_id = kBlankFontinfoId;
@@ -1292,7 +1183,7 @@ void Classify::ExpandShapesAndApplyCorrections(
                                                int_result.Rating,
                                                int_result.FeatureMisses,
                                                bottom, top, blob_length,
-                                               cn_factors);
+                                               matcher_multiplier, cn_factors);
         if (c == 0 || rating < min_rating)
           min_rating = rating;
         if (unicharset.get_enabled(unichar_id)) {
@@ -1309,7 +1200,7 @@ void Classify::ExpandShapesAndApplyCorrections(
                                          int_result.Rating,
                                          int_result.FeatureMisses,
                                          bottom, top, blob_length,
-                                         cn_factors);
+                                         matcher_multiplier, cn_factors);
   if (unicharset.get_enabled(class_id)) {
     AddNewResult(final_results, class_id, -1, rating,
                  classes != NULL, int_result.Config,
@@ -1325,11 +1216,12 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
                                         double cp_rating, double im_rating,
                                         int feature_misses,
                                         int bottom, int top,
-                                        int blob_length,
+                                        int blob_length, int matcher_multiplier,
                                         const uinT8* cn_factors) {
   // Compute class feature corrections.
   double cn_corrected = im_.ApplyCNCorrection(im_rating, blob_length,
-                                              cn_factors[unichar_id]);
+                                              cn_factors[unichar_id],
+                                              matcher_multiplier);
   double miss_penalty = tessedit_class_miss_scale * feature_misses;
   double vertical_penalty = 0.0;
   // Penalize non-alnums for being vertical misfits.
@@ -1383,39 +1275,30 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
  * @note Exceptions: none
  * @note History: Tue Mar 12 19:38:03 1991, DSJ, Created.
  */
-UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
-                                         ADAPT_TEMPLATES Templates,
-                                         ADAPT_RESULTS *Results) {
-  int NumFeatures;
+UNICHAR_ID *Classify::BaselineClassifier(
+    TBLOB *Blob, const GenericVector<INT_FEATURE_STRUCT>& int_features,
+    const INT_FX_RESULT_STRUCT& fx_info,
+    ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results) {
+  if (int_features.empty()) return NULL;
   int NumClasses;
-  INT_FEATURE_ARRAY IntFeatures;
   uinT8* CharNormArray = new uinT8[unicharset.size()];
-  CLASS_ID ClassId;
+  ClearCharNormArray(CharNormArray);
 
-  BaselineClassifierCalls++;
-
-  NumFeatures = GetBaselineFeatures(Blob, Templates->Templates, IntFeatures,
-                                    CharNormArray, &Results->BlobLength);
-  if (NumFeatures <= 0) {
-    delete [] CharNormArray;
-    return NULL;
-  }
-
-  NumClasses = PruneClasses(Templates->Templates, NumFeatures, IntFeatures,
+  Results->BlobLength = IntCastRounded(fx_info.Length / kStandardFeatureLength);
+  NumClasses = PruneClasses(Templates->Templates, int_features.size(),
+                            &int_features[0],
                             CharNormArray, BaselineCutoffs, Results->CPResults);
-
-  NumBaselineClassesTried += NumClasses;
 
   if (matcher_debug_level >= 2 || classify_debug_level > 1)
     cprintf ("BL Matches =  ");
 
-  im_.SetBaseLineMatch();
-  MasterMatcher(Templates->Templates, NumFeatures, IntFeatures, CharNormArray,
-                Templates->Class, matcher_debug_flags, NumClasses,
+  MasterMatcher(Templates->Templates, int_features.size(), &int_features[0],
+                CharNormArray,
+                Templates->Class, matcher_debug_flags, NumClasses, 0,
                 Blob->bounding_box(), Results->CPResults, Results);
 
   delete [] CharNormArray;
-  ClassId = Results->best_match.unichar_id;
+  CLASS_ID ClassId = Results->best_match.unichar_id;
   if (ClassId == NO_CLASS)
     return (NULL);
   /* this is a bug - maybe should return "" */
@@ -1445,17 +1328,13 @@ UNICHAR_ID *Classify::BaselineClassifier(TBLOB *Blob,
  * @note History: Tue Mar 12 16:02:52 1991, DSJ, Created.
  */
 int Classify::CharNormClassifier(TBLOB *blob,
-                                 INT_TEMPLATES Templates,
+                                 const TrainingSample& sample,
                                  ADAPT_RESULTS *adapt_results) {
-  CharNormClassifierCalls++;
-  TrainingSample* sample = BlobToTrainingSample(*blob, NM_CHAR_ANISOTROPIC,
-                                                classify_nonlinear_norm);
-  if (sample == NULL) return 0;
   // This is the length that is used for scaling ratings vs certainty.
   adapt_results->BlobLength =
-      IntCastRounded(sample->outline_length() / kStandardFeatureLength);
+      IntCastRounded(sample.outline_length() / kStandardFeatureLength);
   GenericVector<UnicharRating> unichar_results;
-  static_classifier_->UnicharClassifySample(*sample, blob->denorm().pix(), 0,
+  static_classifier_->UnicharClassifySample(sample, blob->denorm().pix(), 0,
                                             -1, &unichar_results);
   // Convert results to the format used internally by AdaptiveClassifier.
   for (int r = 0; r < unichar_results.size(); ++r) {
@@ -1468,9 +1347,7 @@ int Classify::CharNormClassifier(TBLOB *blob,
     float rating = 1.0f - unichar_results[r].rating;
     AddNewResult(adapt_results, unichar_id, -1, rating, false, 0, font1, font2);
   }
-  int num_features = sample->num_features();
-  delete sample;
-  return num_features;
+  return sample.num_features();
 }                                /* CharNormClassifier */
 
 // As CharNormClassifier, but operates on a TrainingSample and outputs to
@@ -1518,10 +1395,10 @@ int Classify::CharNormTrainingSample(bool pruner_only,
           UnicharRating(class_id, 1.0f - adapt_results->CPResults[i].Rating));
     }
   } else {
-    im_.SetCharNormMatch(classify_integer_matcher_multiplier);
     MasterMatcher(PreTrainedTemplates, num_features, sample.features(),
                   char_norm_array,
                   NULL, matcher_debug_flags, num_classes,
+                  classify_integer_matcher_multiplier,
                   blob_box, adapt_results->CPResults, adapt_results);
     // Convert master matcher results to output format.
     for (int i = 0; i < adapt_results->NumMatches; i++) {
@@ -1711,8 +1588,10 @@ void Classify::DebugAdaptiveClassifier(TBLOB *blob,
     if (i == 0 || Results->match[i].rating < Results->best_match.rating)
       Results->best_match = Results->match[i];
   }
-  TrainingSample* sample = BlobToTrainingSample(*blob, NM_CHAR_ANISOTROPIC,
-                                                classify_nonlinear_norm);
+  INT_FX_RESULT_STRUCT fx_info;
+  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  TrainingSample* sample =
+      BlobToTrainingSample(*blob, false, &fx_info, &bl_features);
   if (sample == NULL) return;
   static_classifier_->DebugDisplay(*sample, blob->denorm().pix(),
                                    Results->best_match.unichar_id);
@@ -1745,21 +1624,26 @@ void Classify::DebugAdaptiveClassifier(TBLOB *blob,
 void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
   UNICHAR_ID *Ambiguities;
 
-  AdaptiveMatcherCalls++;
-  InitIntFX();
+  INT_FX_RESULT_STRUCT fx_info;
+  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  TrainingSample* sample =
+      BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
+                           &bl_features);
+  if (sample == NULL) return;
 
   if (AdaptedTemplates->NumPermClasses < matcher_permanent_classes_min ||
       tess_cn_matching) {
-    CharNormClassifier(Blob, PreTrainedTemplates, Results);
+    CharNormClassifier(Blob, *sample, Results);
   } else {
-    Ambiguities = BaselineClassifier(Blob, AdaptedTemplates, Results);
+    Ambiguities = BaselineClassifier(Blob, bl_features, fx_info,
+                                     AdaptedTemplates, Results);
     if ((Results->NumMatches > 0 &&
          MarginalMatch (Results->best_match.rating) &&
          !tess_bn_matching) ||
         Results->NumMatches == 0) {
-      CharNormClassifier(Blob, PreTrainedTemplates, Results);
+      CharNormClassifier(Blob, *sample, Results);
     } else if (Ambiguities && *Ambiguities >= 0 && !tess_bn_matching) {
-      AmbigClassifier(Blob,
+      AmbigClassifier(bl_features, fx_info, Blob,
                       PreTrainedTemplates,
                       AdaptedTemplates->Class,
                       Ambiguities,
@@ -1773,6 +1657,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
   // just adding a NULL classification.
   if (!Results->HasNonfragment || Results->NumMatches == 0)
     ClassifyAsNoise(Results);
+  delete sample;
 }   /* DoAdaptiveMatch */
 
 /*---------------------------------------------------------------------------*/
@@ -1799,8 +1684,15 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
   int i;
 
   Results->Initialize();
+  INT_FX_RESULT_STRUCT fx_info;
+  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  TrainingSample* sample =
+      BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
+                           &bl_features);
+  if (sample == NULL) return NULL;
 
-  CharNormClassifier(Blob, PreTrainedTemplates, Results);
+  CharNormClassifier(Blob, *sample, Results);
+  delete sample;
   RemoveBadMatches(Results);
   qsort((void *)Results->match, Results->NumMatches,
         sizeof(ScoredClass), CompareByRating);
@@ -1822,58 +1714,6 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
   delete Results;
   return Ambiguities;
 }                              /* GetAmbiguities */
-
-/*---------------------------------------------------------------------------*/
-/**
- * This routine calls the integer (Hardware) feature
- * extractor if it has not been called before for this blob.
- * The results from the feature extractor are placed into
- * globals so that they can be used in other routines without
- * re-extracting the features.
- * It then copies the baseline features into the IntFeatures
- * array provided by the caller.
- *
- * @param Blob blob to extract features from
- * @param Templates used to compute char norm adjustments
- * @param IntFeatures array to fill with integer features
- * @param CharNormArray array to fill with dummy char norm adjustments
- * @param BlobLength length of blob in baseline-normalized units
- *
- * Globals:
- * - FeaturesHaveBeenExtracted TRUE if fx has been done
- * - BaselineFeatures holds extracted baseline feat
- * - CharNormFeatures holds extracted char norm feat
- * - FXInfo holds misc. FX info
- *
- * @return Number of features extracted or 0 if an error occured.
- * @note Exceptions: none
- * @note History: Tue May 28 10:40:52 1991, DSJ, Created.
- */
-int Classify::GetBaselineFeatures(TBLOB *Blob,
-                                  INT_TEMPLATES Templates,
-                                  INT_FEATURE_ARRAY IntFeatures,
-                                  uinT8* CharNormArray,
-                                  inT32 *BlobLength) {
-  if (!FeaturesHaveBeenExtracted) {
-    FeaturesOK = ExtractIntFeat(*Blob, classify_nonlinear_norm,
-                                BaselineFeatures, CharNormFeatures, &FXInfo);
-    FeaturesHaveBeenExtracted = TRUE;
-  }
-
-  *BlobLength = IntCastRounded(FXInfo.Length / kStandardFeatureLength);
-  if (!FeaturesOK) {
-    return 0;
-  }
-
-  memcpy(IntFeatures, BaselineFeatures, FXInfo.NumBL * sizeof(IntFeatures[0]));
-
-  ClearCharNormArray(CharNormArray);
-  return FXInfo.NumBL;
-}                              /* GetBaselineFeatures */
-
-void Classify::ResetFeaturesHaveBeenExtracted() {
-  FeaturesHaveBeenExtracted = FALSE;
-}
 
 // Returns true if the given blob looks too dissimilar to any character
 // present in the classifier templates.
@@ -1921,48 +1761,28 @@ bool Classify::LooksLikeGarbage(TBLOB *blob) {
  * @param BlobLength length of blob in baseline-normalized units
  *
  * Globals:
- * - FeaturesHaveBeenExtracted TRUE if fx has been done
- * - BaselineFeatures holds extracted baseline feat
- * - CharNormFeatures holds extracted char norm feat
- * - FXInfo holds misc. FX info
  *
  * @return Number of features extracted or 0 if an error occured.
  * @note Exceptions: none
  * @note History: Tue May 28 10:40:52 1991, DSJ, Created.
  */
-int Classify::GetCharNormFeatures(TBLOB *Blob,
-                                  INT_TEMPLATES Templates,
-                                  INT_FEATURE_ARRAY IntFeatures,
-                                  uinT8* PrunerNormArray,
-                                  uinT8* CharNormArray,
-                                  inT32 *BlobLength) {
-  FEATURE NormFeature;
-  FLOAT32 Baseline, Scale;
-
-  if (!FeaturesHaveBeenExtracted) {
-    FeaturesOK = ExtractIntFeat(*Blob, classify_nonlinear_norm,
-                                BaselineFeatures, CharNormFeatures, &FXInfo);
-    FeaturesHaveBeenExtracted = TRUE;
-  }
-
-  *BlobLength = IntCastRounded(FXInfo.Length / kStandardFeatureLength);
-  if (!FeaturesOK) {
-    return 0;
-  }
-
-  memcpy(IntFeatures, CharNormFeatures, FXInfo.NumCN * sizeof(IntFeatures[0]));
-
-  NormFeature = NewFeature(&CharNormDesc);
-  Baseline = kBlnBaselineOffset;
-  Scale = MF_SCALE_FACTOR;
-  NormFeature->Params[CharNormY] = (FXInfo.Ymean - Baseline) * Scale;
-  NormFeature->Params[CharNormLength] =
-    FXInfo.Length * Scale / LENGTH_COMPRESSION;
-  NormFeature->Params[CharNormRx] = FXInfo.Rx * Scale;
-  NormFeature->Params[CharNormRy] = FXInfo.Ry * Scale;
-  ComputeCharNormArrays(NormFeature, Templates, CharNormArray, PrunerNormArray);
-  return FXInfo.NumCN;
-}                              /* GetCharNormFeatures */
+int Classify::GetCharNormFeature(const INT_FX_RESULT_STRUCT& fx_info,
+                                 INT_TEMPLATES templates,
+                                 uinT8* pruner_norm_array,
+                                 uinT8* char_norm_array) {
+  FEATURE norm_feature = NewFeature(&CharNormDesc);
+  float baseline = kBlnBaselineOffset;
+  float scale = MF_SCALE_FACTOR;
+  norm_feature->Params[CharNormY] = (fx_info.Ymean - baseline) * scale;
+  norm_feature->Params[CharNormLength] =
+      fx_info.Length * scale / LENGTH_COMPRESSION;
+  norm_feature->Params[CharNormRx] = fx_info.Rx * scale;
+  norm_feature->Params[CharNormRy] = fx_info.Ry * scale;
+  // Deletes norm_feature.
+  ComputeCharNormArrays(norm_feature, templates, char_norm_array,
+                        pruner_norm_array);
+  return IntCastRounded(fx_info.Length / kStandardFeatureLength);
+}                              /* GetCharNormFeature */
 
 // Computes the char_norm_array for the unicharset and, if not NULL, the
 // pruner_array as appropriate according to the existence of the shape_table.
@@ -2454,7 +2274,6 @@ void Classify::ShowBestMatchFor(int shape_id,
   }
   INT_RESULT_STRUCT cn_result;
   classify_norm_method.set_value(character);
-  im_.SetCharNormMatch(classify_integer_matcher_multiplier);
   im_.Match(ClassForClassId(PreTrainedTemplates, shape_id),
             AllProtosOn, AllConfigsOn,
             num_features, features, &cn_result,

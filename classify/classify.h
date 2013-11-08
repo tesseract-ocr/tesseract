@@ -145,15 +145,13 @@ class Classify : public CCStruct {
                         int FontinfoId,
                         ADAPT_CLASS Class,
                         ADAPT_TEMPLATES Templates);
-  void AdaptToPunc(TBLOB *Blob,
-                   CLASS_ID ClassId,
-                   int FontinfoId,
-                   FLOAT32 Threshold);
-  void AmbigClassifier(TBLOB *Blob,
-                       INT_TEMPLATES Templates,
-                       ADAPT_CLASS *Classes,
-                       UNICHAR_ID *Ambiguities,
-                       ADAPT_RESULTS *Results);
+  void AmbigClassifier(const GenericVector<INT_FEATURE_STRUCT>& int_features,
+                       const INT_FX_RESULT_STRUCT& fx_info,
+                       const TBLOB *blob,
+                       INT_TEMPLATES templates,
+                       ADAPT_CLASS *classes,
+                       UNICHAR_ID *ambiguities,
+                       ADAPT_RESULTS *results);
   void MasterMatcher(INT_TEMPLATES templates,
                      inT16 num_features,
                      const INT_FEATURE_STRUCT* features,
@@ -161,6 +159,7 @@ class Classify : public CCStruct {
                      ADAPT_CLASS* classes,
                      int debug,
                      int num_classes,
+                     int matcher_multiplier,
                      const TBOX& blob_box,
                      CLASS_PRUNER_RESULTS results,
                      ADAPT_RESULTS* final_results);
@@ -175,6 +174,7 @@ class Classify : public CCStruct {
                                        int bottom, int top,
                                        float cp_rating,
                                        int blob_length,
+                                       int matcher_multiplier,
                                        const uinT8* cn_factors,
                                        INT_RESULT_STRUCT& int_result,
                                        ADAPT_RESULTS* final_results);
@@ -184,7 +184,8 @@ class Classify : public CCStruct {
   double ComputeCorrectedRating(bool debug, int unichar_id, double cp_rating,
                                 double im_rating, int feature_misses,
                                 int bottom, int top,
-                                int blob_length, const uinT8* cn_factors);
+                                int blob_length, int matcher_multiplier,
+                                const uinT8* cn_factors);
   void ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
                                ADAPT_RESULTS *Results,
                                BLOB_CHOICE_LIST *Choices);
@@ -246,12 +247,13 @@ class Classify : public CCStruct {
   // Converts a shape_table_ index to a classifier class_id index (not a
   // unichar-id!). Uses a search, so not fast.
   int ShapeIDToClassID(int shape_id) const;
-  UNICHAR_ID *BaselineClassifier(TBLOB *Blob,
-                                 ADAPT_TEMPLATES Templates,
-                                 ADAPT_RESULTS *Results);
-  int CharNormClassifier(TBLOB *Blob,
-                         INT_TEMPLATES Templates,
-                         ADAPT_RESULTS *Results);
+  UNICHAR_ID *BaselineClassifier(
+      TBLOB *Blob, const GenericVector<INT_FEATURE_STRUCT>& int_features,
+      const INT_FX_RESULT_STRUCT& fx_info,
+      ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results);
+  int CharNormClassifier(TBLOB *blob,
+                         const TrainingSample& sample,
+                         ADAPT_RESULTS *adapt_results);
 
   // As CharNormClassifier, but operates on a TrainingSample and outputs to
   // a GenericVector of ShapeRating without conversion to classes.
@@ -267,7 +269,6 @@ class Classify : public CCStruct {
   void DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class);
   bool AdaptableWord(WERD_RES* word);
   void EndAdaptiveClassifier();
-  void PrintAdaptiveStatistics(FILE *File);
   void SettupPass1();
   void SettupPass2();
   void AdaptiveClassifier(TBLOB *Blob,
@@ -276,17 +277,10 @@ class Classify : public CCStruct {
   void ClassifyAsNoise(ADAPT_RESULTS *Results);
   void ResetAdaptiveClassifierInternal();
 
-  int GetBaselineFeatures(TBLOB *Blob,
-                          INT_TEMPLATES Templates,
-                          INT_FEATURE_ARRAY IntFeatures,
-                          uinT8* CharNormArray,
-                          inT32 *BlobLength);
-  int GetCharNormFeatures(TBLOB *Blob,
-                          INT_TEMPLATES Templates,
-                          INT_FEATURE_ARRAY IntFeatures,
-                          uinT8* PrunerNormArray,
-                          uinT8* CharNormArray,
-                          inT32 *BlobLength);
+  int GetCharNormFeature(const INT_FX_RESULT_STRUCT& fx_info,
+                         INT_TEMPLATES templates,
+                         uinT8* pruner_norm_array,
+                         uinT8* char_norm_array);
   // Computes the char_norm_array for the unicharset and, if not NULL, the
   // pruner_array as appropriate according to the existence of the shape_table.
   // The norm_feature is deleted as it is almost certainly no longer needed.
@@ -298,7 +292,6 @@ class Classify : public CCStruct {
   bool TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG &config);
   void UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob);
 
-  void ResetFeaturesHaveBeenExtracted();
   bool AdaptiveClassifierIsFull() { return NumAdaptationsFailed > 0; }
   bool LooksLikeGarbage(TBLOB *blob);
   void RefreshDebugWindow(ScrollView **win, const char *msg,
@@ -468,9 +461,7 @@ class Classify : public CCStruct {
 
   // Create dummy proto and config masks for use with the built-in templates.
   BIT_VECTOR AllProtosOn;
-  BIT_VECTOR PrunedProtos;
   BIT_VECTOR AllConfigsOn;
-  BIT_VECTOR AllProtosOff;
   BIT_VECTOR AllConfigsOff;
   BIT_VECTOR TempProtoMask;
   bool EnableLearning;
@@ -504,33 +495,12 @@ class Classify : public CCStruct {
   ShapeTable* shape_table_;
 
  private:
-
   Dict dict_;
   // The currently active static classifier.
   ShapeClassifier* static_classifier_;
 
   /* variables used to hold performance statistics */
-  int AdaptiveMatcherCalls;
-  int BaselineClassifierCalls;
-  int CharNormClassifierCalls;
-  int AmbigClassifierCalls;
-  int NumWordsAdaptedTo;
-  int NumCharsAdaptedTo;
-  int NumBaselineClassesTried;
-  int NumCharNormClassesTried;
-  int NumAmbigClassesTried;
-  int NumClassesOutput;
   int NumAdaptationsFailed;
-
-  /* variables used to hold onto extracted features.  This is used
-  to map from the old scheme in which baseline features and char norm
-  features are extracted separately, to the new scheme in which they
-  are extracted at the same time. */
-  bool FeaturesHaveBeenExtracted;
-  bool FeaturesOK;
-  INT_FEATURE_ARRAY BaselineFeatures;
-  INT_FEATURE_ARRAY CharNormFeatures;
-  INT_FX_RESULT_STRUCT FXInfo;
 
   // Expected number of features in the class pruner, used to penalize
   // unknowns that have too few features (like a c being classified as e) so

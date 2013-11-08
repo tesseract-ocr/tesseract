@@ -165,27 +165,13 @@ Classify::Classify()
   AdaptedTemplates = NULL;
   PreTrainedTemplates = NULL;
   AllProtosOn = NULL;
-  PrunedProtos = NULL;
   AllConfigsOn = NULL;
-  AllProtosOff = NULL;
   AllConfigsOff = NULL;
   TempProtoMask = NULL;
   NormProtos = NULL;
 
-  AdaptiveMatcherCalls = 0;
-  BaselineClassifierCalls = 0;
-  CharNormClassifierCalls = 0;
-  AmbigClassifierCalls = 0;
-  NumWordsAdaptedTo = 0;
-  NumCharsAdaptedTo = 0;
-  NumBaselineClassesTried = 0;
-  NumCharNormClassesTried = 0;
-  NumAmbigClassesTried = 0;
-  NumClassesOutput = 0;
   NumAdaptationsFailed = 0;
 
-  FeaturesHaveBeenExtracted = false;
-  FeaturesOK = true;
   learn_debug_win_ = NULL;
   learn_fragmented_word_debug_win_ = NULL;
   learn_fragments_debug_win_ = NULL;

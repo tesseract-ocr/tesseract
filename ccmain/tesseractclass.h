@@ -100,10 +100,6 @@ class EquationDetect;
 class Tesseract;
 class TesseractCubeCombiner;
 
-typedef void (Tesseract::*WordRecognizer)(BLOCK* block,
-                                          ROW *row,
-                                          WERD_RES *word);
-
 // A collection of various variables for statistics and debugging.
 struct TesseractStats {
   TesseractStats()
@@ -135,6 +131,24 @@ struct TesseractStats {
   bool last_char_was_tilde;
   bool write_results_empty_block;
 };
+
+// Struct to hold all the pointers to relevant data for processing a word.
+struct WordData {
+  WordData() : word(NULL), row(NULL), block(NULL), prev_word(NULL) {}
+  explicit WordData(const PAGE_RES_IT& page_res_it)
+    : word(page_res_it.word()), row(page_res_it.row()->row),
+      block(page_res_it.block()->block), prev_word(NULL) {}
+  WordData(BLOCK* block_in, ROW* row_in, WERD_RES* word_res)
+    : word(word_res), row(row_in), block(block_in), prev_word(NULL) {}
+
+  WERD_RES* word;
+  ROW* row;
+  BLOCK* block;
+  WordData* prev_word;
+  GenericVector<WERD_RES> lang_words;
+};
+
+typedef void (Tesseract::*WordRecognizer)(WordData* word_data, WERD_RES* word);
 
 class Tesseract : public Wordrec {
  public:
@@ -250,10 +264,23 @@ class Tesseract : public Wordrec {
       bool single_column, bool osd, bool only_osd,
       BLOCK_LIST* blocks, Tesseract* osd_tess, OSResults* osr,
       TO_BLOCK_LIST* to_blocks, Pix** photo_mask_pix, Pix** music_mask_pix);
+  // par_control.cpp
+  void PrerecAllWordsPar(const GenericVector<WordData>& words);
 
   //// control.h /////////////////////////////////////////////////////////
   bool ProcessTargetWord(const TBOX& word_box, const TBOX& target_word_box,
                          const char* word_config, int pass);
+  // Sets up the words ready for whichever engine is to be run
+  void SetupAllWordsPassN(int pass_n,
+                          const TBOX* target_word_box,
+                          const char* word_config,
+                          PAGE_RES* page_res,
+                          GenericVector<WordData>* words);
+  // Sets up the single word ready for whichever engine is to be run.
+  void SetupWordPassN(int pass_n, WordData* word);
+  // Runs word recognition on all the words.
+  bool RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
+                          GenericVector<WordData>* words);
   bool recog_all_words(PAGE_RES* page_res,
                        ETEXT_DESC* monitor,
                        const TBOX* target_word_box,
@@ -265,13 +292,15 @@ class Tesseract : public Wordrec {
                         const char* word_config);
   void bigram_correction_pass(PAGE_RES *page_res);
   void blamer_pass(PAGE_RES* page_res);
+  // Sets script positions and detects smallcaps on all output words.
+  void script_pos_pass(PAGE_RES* page_res);
   // Helper to recognize the word using the given (language-specific) tesseract.
   // Returns true if the result was better than previously.
-  bool RetryWithLanguage(WERD_RES *word, BLOCK* block, ROW *row,
-                         WordRecognizer recognizer);
+  bool RetryWithLanguage(const WERD_RES& best_word, WordData* word_data,
+                         WERD_RES* word, WordRecognizer recognizer);
   void classify_word_and_language(WordRecognizer recognizer,
-                                  BLOCK* block, ROW *row, WERD_RES *word);
-  void classify_word_pass1(BLOCK* block, ROW *row, WERD_RES *word);
+                                  WordData* word_data);
+  void classify_word_pass1(WordData* word_data, WERD_RES* word);
   void recog_pseudo_word(PAGE_RES* page_res,  // blocks to check
                          TBOX &selection_box);
 
@@ -282,7 +311,7 @@ class Tesseract : public Wordrec {
                                               const char *s,
                                               const char *lengths);
   void match_word_pass_n(int pass_n, WERD_RES *word, ROW *row, BLOCK* block);
-  void classify_word_pass2(BLOCK* block, ROW *row, WERD_RES *word);
+  void classify_word_pass2(WordData* word_data, WERD_RES* word);
   void ReportXhtFixResult(bool accept_new_word, float new_x_ht,
                           WERD_RES* word, WERD_RES* new_word);
   bool RunOldFixXht(WERD_RES *word, BLOCK* block, ROW *row);
@@ -936,6 +965,7 @@ class Tesseract : public Wordrec {
              "Only initialize with the config file. Useful if the instance is "
              "not going to be used for OCR but say only for layout analysis.");
   BOOL_VAR_H(textord_equation_detect, false, "Turn on equation detector");
+  INT_VAR_H(tessedit_parallelize, 0, "Run in parallel where possible");
 
   // The following parameters were deprecated and removed from their original
   // locations. The parameters are temporarily kept here to give Tesseract

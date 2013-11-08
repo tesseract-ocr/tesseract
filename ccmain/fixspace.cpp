@@ -204,8 +204,9 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word = word_it.data();
     if ((!word->part_of_combo) && (word->box_word == NULL)) {
-      classify_word_and_language(&Tesseract::classify_word_pass2,
-                                 block, row, word);
+      WordData word_data(block, row, word);
+      SetupWordPassN(2, &word_data);
+      classify_word_and_language(&Tesseract::classify_word_pass2, &word_data);
     }
     prev_word_best_choice_ = word->best_choice;
   }

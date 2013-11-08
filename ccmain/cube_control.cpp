@@ -197,6 +197,9 @@ void Tesseract::run_cube_combiner(PAGE_RES *page_res) {
   // Iterate through the word results and call cube on each word.
   for (page_res_it.restart_page(); page_res_it.word () != NULL;
        page_res_it.forward()) {
+    BLOCK* block = page_res_it.block()->block;
+    if (block->poly_block() != NULL && !block->poly_block()->IsText())
+      continue;  // Don't deal with non-text blocks.
     WERD_RES* word = page_res_it.word();
     // Skip cube entirely if tesseract's certainty is greater than threshold.
     int combiner_run_thresh = convert_prob_to_tess_certainty(
@@ -210,6 +213,11 @@ void Tesseract::run_cube_combiner(PAGE_RES *page_res) {
     // Setup a trial WERD_RES in which to classify with cube.
     WERD_RES cube_word;
     cube_word.InitForRetryRecognition(*word);
+    cube_word.SetupForRecognition(lang_tess->unicharset, this, BestPix(),
+                                  OEM_CUBE_ONLY,
+                                  NULL, false, false, false,
+                                  page_res_it.row()->row,
+                                  page_res_it.block()->block);
     CubeObject *cube_obj = lang_tess->cube_recognize_word(
         page_res_it.block()->block, &cube_word);
     if (cube_obj != NULL)
@@ -317,10 +325,6 @@ void Tesseract::cube_combine_word(CubeObject* cube_obj, WERD_RES* cube_word,
  **********************************************************************/
 bool Tesseract::cube_recognize(CubeObject *cube_obj, BLOCK* block,
                                WERD_RES *word) {
-  if (!word->SetupForCubeRecognition(unicharset, this, block)) {
-    return false;  // Graphics block.
-  }
-
   // Run cube
   WordAltList *cube_alt_list = cube_obj->RecognizeWord();
   if (!cube_alt_list || cube_alt_list->AltCount() <= 0) {

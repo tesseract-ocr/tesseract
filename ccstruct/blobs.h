@@ -31,6 +31,7 @@
 ----------------------------------------------------------------------*/
 #include "clst.h"
 #include "normalis.h"
+#include "publictypes.h"
 #include "rect.h"
 #include "vecfuncs.h"
 
@@ -316,7 +317,10 @@ struct TWERD {
   // Baseline normalizes the blobs in-place, recording the normalization in the
   // DENORMs in the blobs.
   void BLNormalize(const BLOCK* block, const ROW* row, Pix* pix, bool inverse,
-                   float x_height, bool numeric_mode, DENORM* word_denorm);
+                   float x_height, bool numeric_mode,
+                   tesseract::OcrEngineMode hint,
+                   const TBOX* norm_box,
+                   DENORM* word_denorm);
   // Copies the data and the blobs, but leaves next untouched.
   void CopyFrom(const TWERD& src);
   // Deletes owned data.

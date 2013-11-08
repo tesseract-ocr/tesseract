@@ -241,10 +241,12 @@ PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
 void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
                                   BLOCK* block, ROW* row,
                                   WERD_RES* word_res) {
-  if (!word_res->SetupForTessRecognition(unicharset, this, BestPix(), false,
-                                         textord_use_cjk_fp_model,
-                                         poly_allow_detailed_fx,
-                                         row, block)) {
+  if (!word_res->SetupForRecognition(unicharset, this, BestPix(),
+                                     tessedit_ocr_engine_mode, NULL,
+                                     classify_bln_numeric_mode,
+                                     textord_use_cjk_fp_model,
+                                     poly_allow_detailed_fx,
+                                     row, block)) {
     word_res->CloneChoppedToRebuild();
     return;
   }
