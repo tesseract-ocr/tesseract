@@ -8,8 +8,9 @@
 
 AC_PREREQ(2.50)
 AC_INIT([tesseract], [3.03], [http://code.google.com/p/tesseract-ocr/issues/list])
+${CXXFLAGS=""}
 AC_CONFIG_MACRO_DIR([m4])
-AC_REVISION($Id: configure.ac,v 1.4 2007/02/02 22:38:17 theraysmith Exp $)
+AC_REVISION([$Revision$])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(api/tesseractmain.cpp)
 AC_PREFIX_DEFAULT(/usr/local)
@@ -77,12 +78,6 @@ case "${host_os}" in
 esac
 
 includedir="${includedir}/tesseract"
-
-# clear all default flags
-AM_CXXFLAGS=""
-AM_CPPFLAGS=""
-CXXFLAGS=""
-CPPFLAGS=""
 
 AC_ARG_WITH(extra-includes,
             AC_HELP_STRING([--with-extra-includes=DIR],
@@ -167,8 +162,8 @@ if test x"$debug" = x"yes"; then
     AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -Wno-uninitialized -O0 -DDEBUG"
     AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -Wno-uninitialized -O0 -DDEBUG"
 else
-    AM_CXXFLAGS="$AM_CXXFLAGS -O3 -DNDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -O3 -DNDEBUG"
+    AM_CXXFLAGS="$AM_CXXFLAGS -O2 -DNDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
 fi
 
 #localedir='${prefix}/share/locale'
