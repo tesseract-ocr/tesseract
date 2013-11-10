@@ -1290,27 +1290,31 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
     // Open any new block/paragraph/textline.
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      hocr_str.add_str_int("   <div class='ocr_carea' id='block_", bcnt);
+      hocr_str.add_str_int("   <div class='ocr_carea' id='block_", page_id);
       hocr_str.add_str_int("_", bcnt);
       AddBoxTohOCR(res_it, RIL_BLOCK, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
       if (res_it->ParagraphIsLtr()) {
         hocr_str.add_str_int("\n    <p class='ocr_par' dir='ltr' id='par_",
-                             pcnt);
+                             page_id);
+        hocr_str.add_str_int("_", pcnt);
       } else {
         hocr_str.add_str_int("\n    <p class='ocr_par' dir='rtl' id='par_",
-                             pcnt);
+                             page_id);
+        hocr_str.add_str_int("_", pcnt);
       }
       AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      hocr_str.add_str_int("\n     <span class='ocr_line' id='line_", lcnt);
+      hocr_str.add_str_int("\n     <span class='ocr_line' id='line_", page_id);
+      hocr_str.add_str_int("_", lcnt);
       AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
     }
 
     // Now, process the word...
-    hocr_str.add_str_int("<span class='ocrx_word' id='word_", wcnt);
+    hocr_str.add_str_int("<span class='ocrx_word' id='word_", page_id);
+    hocr_str.add_str_int("_", wcnt);
     int left, top, right, bottom;
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
     hocr_str.add_str_int("' title='bbox ", left);
