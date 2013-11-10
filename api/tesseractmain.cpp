@@ -24,7 +24,6 @@
 
 #include "allheaders.h"
 #include "baseapi.h"
-#include "basedir.h"
 #include "renderer.h"
 #include "strngs.h"
 #include "tprintf.h"
@@ -56,6 +55,7 @@ int main(int argc, char **argv) {
   const char* lang = "eng";
   const char* image = NULL;
   const char* output = NULL;
+  const char* datapath = NULL;
   bool noocr = false;
   bool list_langs = false;
   bool print_parameters = false;
@@ -66,6 +66,12 @@ int main(int argc, char **argv) {
     if (strcmp(argv[arg], "-l") == 0 && arg + 1 < argc) {
       lang = argv[arg + 1];
       ++arg;
+    } else if (strcmp(argv[arg], "--tessdata-dir") == 0 && arg + 1 < argc) {
+      datapath = argv[arg + 1];
+      ++arg;
+    } else if (strcmp(argv[arg], "--list-langs") == 0) {
+      noocr = true;
+      list_langs = true;
     } else if (strcmp(argv[arg], "-psm") == 0 && arg + 1 < argc) {
       pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[arg + 1]));
       ++arg;
@@ -89,40 +95,43 @@ int main(int argc, char **argv) {
   }
 
   if (output == NULL && noocr == false) {
-    fprintf(stderr, "Usage:%s imagename outputbase|stdout [-l lang] "
-                      "[-psm pagesegmode] [-c configvar=value] "
-                      "[configfile...]\n\n", argv[0]);
+    fprintf(stderr, "Usage:\n  %s imagename outputbase|stdout [options...] "
+                       "[configfile...]\n\n", argv[0]);
+
+    fprintf(stderr, "OCR options:\n");
+    fprintf(stderr, "  --tessdata-dir /path\tspecify location of tessdata"
+                      " path\n");
+    fprintf(stderr, "  -l lang[+lang]\tspecify language(s) used for OCR\n");
+    fprintf(stderr, "  -c configvar=value\tset value for control parameter.\n"
+                      "\t\t\tMultiple -c arguments are allowed.\n");
+    fprintf(stderr, "  -psm pagesegmode\tspecify page segmentation mode.\n");
+    fprintf(stderr, "These options must occur before any configfile.\n\n");
     fprintf(stderr,
               "pagesegmode values are:\n"
-              "0 = Orientation and script detection (OSD) only.\n"
-              "1 = Automatic page segmentation with OSD.\n"
-              "2 = Automatic page segmentation, but no OSD, or OCR\n"
-              "3 = Fully automatic page segmentation, but no OSD. (Default)\n"
-              "4 = Assume a single column of text of variable sizes.\n"
-              "5 = Assume a single uniform block of vertically aligned text.\n"
-              "6 = Assume a single uniform block of text.\n"
-              "7 = Treat the image as a single text line.\n"
-              "8 = Treat the image as a single word.\n"
-              "9 = Treat the image as a single word in a circle.\n"
-              "10 = Treat the image as a single character.\n");
-    fprintf(stderr, "multiple -c arguments are allowed.\n");
-    fprintf(stderr, "-l lang, -psm pagesegmode and any -c options must occur"
-                      "before any configfile.\n\n");
+              "  0 = Orientation and script detection (OSD) only.\n"
+              "  1 = Automatic page segmentation with OSD.\n"
+              "  2 = Automatic page segmentation, but no OSD, or OCR\n"
+              "  3 = Fully automatic page segmentation, but no OSD. (Default)\n"
+              "  4 = Assume a single column of text of variable sizes.\n"
+              "  5 = Assume a single uniform block of vertically aligned text.\n"
+              "  6 = Assume a single uniform block of text.\n"
+              "  7 = Treat the image as a single text line.\n"
+              "  8 = Treat the image as a single word.\n"
+              "  9 = Treat the image as a single word in a circle.\n"
+              "  10 = Treat the image as a single character.\n\n");
     fprintf(stderr, "Single options:\n");
     fprintf(stderr, "  -v --version: version info\n");
     fprintf(stderr, "  --list-langs: list available languages for tesseract "
-                      "engine\n");
+                      "engine. Can be used with --tessdata-dir.\n");
     fprintf(stderr, "  --print-parameters: print tesseract parameters to the "
-                      "stdout\n");
+                      "stdout.\n");
     exit(1);
   }
 
   tesseract::TessBaseAPI api;
 
-  STRING tessdata_dir;
-  truncate_path(argv[0], &tessdata_dir);
   api.SetOutputName(output);
-  int rc = api.Init(tessdata_dir.string(), lang, tesseract::OEM_DEFAULT,
+  int rc = api.Init(datapath, lang, tesseract::OEM_DEFAULT,
                 &(argv[arg]), argc - arg, NULL, NULL, false);
 
   if (rc) {

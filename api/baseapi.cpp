@@ -263,6 +263,10 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
     datapath_ = new STRING(datapath);
   else
     *datapath_ = datapath;
+  if ((strcmp(datapath_->string(), "") == 0) &&
+       (strcmp(tesseract_->datadir.string(), "") != 0))
+     *datapath_ = tesseract_->datadir;
+
   if (language_ == NULL)
     language_ = new STRING(language);
   else
