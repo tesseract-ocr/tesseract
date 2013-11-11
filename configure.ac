@@ -336,10 +336,13 @@ AM_CONDITIONAL(ENABLE_TRAINING, $have_icu)
 # Final Tasks and Output
 # ----------------------------------------
 
+#CPPFLAGS="$CPPFLAGS -DUSE_OPENCL -I/opt/AMDAPP/include -I../opencl"
+#LIBS="$LIBS -lOpenCL"
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
 AC_CONFIG_FILES(api/Makefile)
 AC_CONFIG_FILES(ccmain/Makefile)
+#AC_CONFIG_FILES(opencl/Makefile)
 AC_CONFIG_FILES(ccstruct/Makefile)
 AC_CONFIG_FILES(ccutil/Makefile)
 AC_CONFIG_FILES(classify/Makefile)

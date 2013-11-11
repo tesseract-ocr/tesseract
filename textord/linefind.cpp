@@ -27,6 +27,11 @@
 #include "tabvector.h"
 #include "blobbox.h"
 #include "edgblob.h"
+
+#ifdef USE_OPENCL
+#include "openclwrapper.h"
+#endif
+
 // This entire file is dependent upon leptonica. If you don't have it,
 // then the code doesn't do anything useful.
 #ifdef HAVE_CONFIG_H
@@ -573,6 +578,10 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
                               Pix** pix_hline, Pix** pix_non_hline,
                               Pix** pix_intersections, Pix** pix_music_mask,
                               Pixa* pixa_display) {
+
+  Pix* pix_closed = NULL;
+  Pix* pix_hollow = NULL;
+  
   int max_line_width = resolution / kThinLineFraction;
   int min_line_length = resolution / kMinLineLengthFraction;
   if (pixa_display != NULL) {
@@ -580,11 +589,22 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
             resolution, max_line_width, min_line_length);
   }
   int closing_brick = max_line_width / 3;
+  
+  
+#ifdef USE_OPENCL
+  //OpenCL pixGetLines Operation
+
+  int clStatus = OpenclDevice::initMorphCLAllocations(pixGetWpl(src_pix), pixGetHeight(src_pix), src_pix);
+  bool getpixclosed = pix_music_mask != NULL ? true : false;
+
+  OpenclDevice::pixGetLinesCL(NULL, src_pix, pix_vline, pix_hline, &pix_closed, getpixclosed, closing_brick, closing_brick, max_line_width, max_line_width, min_line_length, min_line_length);
+  
+#else
 
   // Close up small holes, making it less likely that false alarms are found
   // in thickened text (as it will become more solid) and also smoothing over
   // some line breaks and nicks in the edges of the lines.
-  Pix* pix_closed = pixCloseBrick(NULL, src_pix, closing_brick, closing_brick);
+  pix_closed = pixCloseBrick(NULL, src_pix, closing_brick, closing_brick);
   if (pixa_display != NULL)
     pixaAddPix(pixa_display, pix_closed, L_CLONE);
   // Open up with a big box to detect solid areas, which can then be subtracted.
@@ -593,15 +613,21 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
                                 max_line_width);
   if (pixa_display != NULL)
     pixaAddPix(pixa_display, pix_solid, L_CLONE);
-  Pix* pix_hollow = pixSubtract(NULL, pix_closed, pix_solid);
+  pix_hollow = pixSubtract(NULL, pix_closed, pix_solid);
+  
   pixDestroy(&pix_solid);
+  
   // Now open up in both directions independently to find lines of at least
   // 1 inch/kMinLineLengthFraction in length.
   if (pixa_display != NULL)
     pixaAddPix(pixa_display, pix_hollow, L_CLONE);
   *pix_vline = pixOpenBrick(NULL, pix_hollow, 1, min_line_length);
   *pix_hline = pixOpenBrick(NULL, pix_hollow, min_line_length, 1);
-  pixDestroy(&pix_hollow);
+
+  pixDestroy(&pix_hollow); 
+
+#endif
+  
   // Lines are sufficiently rare, that it is worth checking for a zero image.
   l_int32 v_empty = 0;
   l_int32 h_empty = 0;
@@ -680,6 +706,8 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
       pixaAddPix(pixa_display, *pix_music_mask, L_CLONE);
   }
   pixDestroy(&pix_nonlines);
+
+
 }
 
 // Returns a list of boxes corresponding to the candidate line segments. Sets

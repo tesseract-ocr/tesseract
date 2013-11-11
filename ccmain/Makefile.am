@@ -36,7 +36,8 @@ libtesseract_main_la_LIBADD = \
 	../dict/libtesseract_dict.la \
 	../classify/libtesseract_classify.la \
 	../cutil/libtesseract_cutil.la \
-	../cube/libtesseract_cube.la 
+	../cube/libtesseract_cube.la \
+	#../opencl/libtesseract_opencl.la 
 
 endif
 

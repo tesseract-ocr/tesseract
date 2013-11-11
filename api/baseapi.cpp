@@ -54,6 +54,10 @@
 #include "renderer.h"
 #include "strngs.h"
 
+#ifdef USE_OPENCL
+#include "openclwrapper.h"
+#endif
+
 #ifdef _WIN32
 #include <windows.h>
 #include <stdlib.h>
@@ -246,6 +250,11 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
     delete tesseract_;
     tesseract_ = NULL;
   }
+
+#ifdef USE_OPENCL
+  OpenclDevice od;
+  od.InitEnv();
+#endif
 
   bool reset_classifier = true;
   if (tesseract_ == NULL) {
@@ -929,10 +938,21 @@ bool TessBaseAPI::ProcessPages(const char* filename,
     success = false;
   }
 
+#ifdef USE_OPENCL
+  OpenclDevice od;
+#endif
+
   if (npages > 0) {
     pixDestroy(&pix);
-    for (; page < npages && (pix = pixReadTiff(filename, page)) != NULL;
-         ++page) {
+    for (; page < npages; ++page) {
+
+#ifdef USE_OPENCL
+        pix = od.pixReadTiffCl(filename, page);
+#else
+        pix = pixReadTiff(filename, page);
+#endif
+      if (pix == NULL) break;
+
       if ((page >= 0) && (npages > 1))
         tprintf("Page %d of %d\n", page + 1, npages);
       char page_str[kMaxIntSize];

@@ -27,7 +27,8 @@ libtesseract_ccstruct_la_LIBADD = \
     ../ccutil/libtesseract_ccutil.la \
     ../cutil/libtesseract_cutil.la \
     ../image/libtesseract_image.la \
-    ../viewer/libtesseract_viewer.la
+    ../viewer/libtesseract_viewer.la \
+    #../opencl/libtesseract_opencl.la 
 endif
 
 libtesseract_ccstruct_la_SOURCES = \

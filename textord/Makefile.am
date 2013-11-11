@@ -37,7 +37,8 @@ libtesseract_textord_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la \
     ../cutil/libtesseract_cutil.la \
     ../classify/libtesseract_classify.la \
-    ../dict/libtesseract_dict.la 
+    ../dict/libtesseract_dict.la \
+    #../opencl/libtesseract_opencl.la 
 endif
 
 libtesseract_textord_la_SOURCES = \

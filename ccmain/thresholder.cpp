@@ -26,6 +26,10 @@
 #include "img.h"
 #include "otsuthr.h"
 
+#ifdef USE_OPENCL
+#include "openclwrapper.h"
+#endif
+
 namespace tesseract {
 
 ImageThresholder::ImageThresholder()
@@ -252,9 +256,20 @@ void ImageThresholder::OtsuThresholdRectToPix(const unsigned char* imagedata,
                 rect_left_, rect_top_, rect_width_, rect_height_,
                 &thresholds, &hi_values);
 
-  // Threshold the image to the given IMAGE.
+#ifdef USE_OPENCL
+  // duplicate image using OpenCL and do bitwise comparison
+  //Pix** pix_OCL;
+  OpenclDevice od;
+  od.ThresholdRectToPixOCL(imagedata, bytes_per_pixel, bytes_per_line,
+                     thresholds, hi_values, pix /*pix_OCL*/,
+                     rect_height_, rect_width_, rect_top_, rect_left_);
+#else
+    // Threshold the image to the given IMAGE.
+
   ThresholdRectToPix(imagedata, bytes_per_pixel, bytes_per_line,
                      thresholds, hi_values, pix);
+#endif
+
   delete [] thresholds;
   delete [] hi_values;
 }

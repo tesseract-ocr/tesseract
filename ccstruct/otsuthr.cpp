@@ -20,6 +20,10 @@
 #include <string.h>
 #include "otsuthr.h"
 
+#ifdef USE_OPENCL
+#include "openclwrapper.h"
+#endif
+
 namespace tesseract {
 
 // Compute the Otsu threshold(s) for the given image rectangle, making one
@@ -41,7 +45,61 @@ void OtsuThreshold(const unsigned char* imagedata,
   double best_hi_dist = 0.0;
   *thresholds = new int[bytes_per_pixel];
   *hi_values = new int[bytes_per_pixel];
+  int *histogramAllChannels = new int[kHistogramSize*bytes_per_pixel];// all of channel 0 then all of channel 1...
 
+#ifdef USE_OPENCL
+    // Calculate Histogram on GPU
+    OpenclDevice od;
+
+    //printf("Histograming Rect: height=%i, width=%i, channels=%i\n", height, width, bytes_per_pixel);
+    
+    od.HistogramRectOCL(
+        imagedata,
+        bytes_per_pixel,
+        bytes_per_line,
+        left,
+        top,
+        width,
+        height,
+        kHistogramSize,
+        histogramAllChannels);
+  
+  // Calculate Threshold from Histogram on cpu
+  for (int ch = 0; ch < bytes_per_pixel; ++ch) {
+    (*thresholds)[ch] = -1;
+    (*hi_values)[ch] = -1;
+    int *histogram = &histogramAllChannels[kHistogramSize*ch];
+    int H;
+    int best_omega_0;
+    int best_t = OtsuStats(histogram, &H, &best_omega_0);
+    if (best_omega_0 == 0 || best_omega_0 == H) {
+       // This channel is empty.
+       continue;
+     }
+    // To be a convincing foreground we must have a small fraction of H
+    // or to be a convincing background we must have a large fraction of H.
+    // In between we assume this channel contains no thresholding information.
+    int hi_value = best_omega_0 < H * 0.5;
+    (*thresholds)[ch] = best_t;
+    if (best_omega_0 > H * 0.75) {
+      any_good_hivalue = true;
+      (*hi_values)[ch] = 0;
+    } else if (best_omega_0 < H * 0.25) {
+      any_good_hivalue = true;
+      (*hi_values)[ch] = 1;
+    } else {
+      // In case all channels are like this, keep the best of the bad lot.
+      double hi_dist = hi_value ? (H - best_omega_0) : best_omega_0;
+      if (hi_dist > best_hi_dist) {
+        best_hi_dist = hi_dist;
+        best_hi_value = hi_value;
+        best_hi_index = ch;
+      }
+    }
+  }
+  delete[] histogramAllChannels;
+#else
+  
   for (int ch = 0; ch < bytes_per_pixel; ++ch) {
     (*thresholds)[ch] = -1;
     (*hi_values)[ch] = -1;
@@ -77,6 +135,8 @@ void OtsuThreshold(const unsigned char* imagedata,
       }
     }
   }
+#endif // USE_OPENCL
+
   if (!any_good_hivalue) {
     // Use the best of the ones that were not good enough.
     (*hi_values)[best_hi_index] = best_hi_value;
