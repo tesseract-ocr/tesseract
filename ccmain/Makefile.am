@@ -5,8 +5,10 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/classify  -I$(top_srcdir)/dict \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube \
-    -I$(top_srcdir)/textord
-
+    -I$(top_srcdir)/textord -I$(top_srcdir)/opencl
+if USE_OPENCL
+AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
+endif
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
@@ -37,7 +39,7 @@ libtesseract_main_la_LIBADD = \
 	../classify/libtesseract_classify.la \
 	../cutil/libtesseract_cutil.la \
 	../cube/libtesseract_cube.la \
-	#../opencl/libtesseract_opencl.la 
+	../opencl/libtesseract_opencl.la 
 
 endif
 

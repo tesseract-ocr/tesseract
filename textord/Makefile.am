@@ -3,7 +3,11 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
-    -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict
+    -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict \
+    -I$(top_srcdir)/opencl
+if USE_OPENCL
+AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
+endif
         
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
@@ -38,7 +42,7 @@ libtesseract_textord_la_LIBADD = \
     ../cutil/libtesseract_cutil.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
-    #../opencl/libtesseract_opencl.la 
+    ../opencl/libtesseract_opencl.la 
 endif
 
 libtesseract_textord_la_SOURCES = \

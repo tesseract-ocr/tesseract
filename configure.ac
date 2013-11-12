@@ -57,6 +57,8 @@ AC_SUBST(GENERIC_VERSION)
 AM_CONDITIONAL(MINGW, false)
 AM_CONDITIONAL(GRAPHICS_DISABLED, false)
 
+OPENCL_HDR_PATH=""
+OPENCL_LIB=""
 #############################
 #
 # Platform specific setup
@@ -119,6 +121,20 @@ AC_MSG_RESULT($enable_embedded)
 AM_CONDITIONAL([EMBEDDED], [test "$enable_embedded" = "yes"])
 if test "$enable_embedded" = "yes"; then
   AC_SUBST([AM_CPPFLAGS], [-DEMBEDDED])
+fi
+
+# check whether to build opencl version
+AC_MSG_CHECKING(--enable-opencl argument)
+AC_ARG_ENABLE([opencl],
+    [  --enable-opencl       enable opencl build (default=no)],
+    [enable_opencl=$enableval],
+    [enable_opencl="no"])
+AC_MSG_RESULT($enable_opencl)
+AM_CONDITIONAL([USE_OPENCL], [test "$enable_opencl" = "yes"])
+if test "$enable_opencl" = "yes"; then
+  AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
+  AC_SUBST([OPENCL_HDR_PATH],["/opt/AMDAPP/include"])
+  AC_SUBST([OPENCL_LIB],["-lOpenCL"])
 fi
 
 # check whether to build tesseract with -fvisibility=hidden -fvisibility-inlines-hidden
@@ -336,13 +352,11 @@ AM_CONDITIONAL(ENABLE_TRAINING, $have_icu)
 # Final Tasks and Output
 # ----------------------------------------
 
-#CPPFLAGS="$CPPFLAGS -DUSE_OPENCL -I/opt/AMDAPP/include -I../opencl"
-#LIBS="$LIBS -lOpenCL"
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
 AC_CONFIG_FILES(api/Makefile)
 AC_CONFIG_FILES(ccmain/Makefile)
-#AC_CONFIG_FILES(opencl/Makefile)
+AC_CONFIG_FILES(opencl/Makefile)
 AC_CONFIG_FILES(ccstruct/Makefile)
 AC_CONFIG_FILES(ccutil/Makefile)
 AC_CONFIG_FILES(classify/Makefile)
