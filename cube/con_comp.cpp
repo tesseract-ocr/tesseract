@@ -210,6 +210,7 @@ ConComp **ConComp::Segment(int max_hist_wnd, int *concomp_cnt) {
 
   // no segments, nothing to do
   if (seg_pt_cnt == 0) {
+    delete []x_seg_pt;
     return NULL;
   }
 

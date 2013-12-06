@@ -415,6 +415,7 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
     if (xheights_[i] < 0)
       xheights_[i] = mean_xheight;
   }
+  fclose(f);
   return true;
 }  // LoadXHeights
 

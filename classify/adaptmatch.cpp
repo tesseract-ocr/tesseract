@@ -1689,7 +1689,10 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
   TrainingSample* sample =
       BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
-  if (sample == NULL) return NULL;
+  if (sample == NULL) {
+    delete Results;
+    return NULL;
+  }
 
   CharNormClassifier(Blob, *sample, Results);
   delete sample;

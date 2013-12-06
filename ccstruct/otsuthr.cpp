@@ -97,7 +97,6 @@ void OtsuThreshold(const unsigned char* imagedata,
       }
     }
   }
-  delete[] histogramAllChannels;
 #else
   
   for (int ch = 0; ch < bytes_per_pixel; ++ch) {
@@ -136,6 +135,7 @@ void OtsuThreshold(const unsigned char* imagedata,
     }
   }
 #endif // USE_OPENCL
+  delete[] histogramAllChannels;
 
   if (!any_good_hivalue) {
     // Use the best of the ones that were not good enough.

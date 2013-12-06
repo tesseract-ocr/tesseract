@@ -26,7 +26,6 @@
 
 class BLOCK;
 class DENORM;
-class PBLOB_LIST;
 struct TWERD;
 class UNICHARSET;
 class WERD;

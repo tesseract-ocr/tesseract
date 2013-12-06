@@ -26,7 +26,6 @@
 
 class BlamerBundle;
 class C_BLOB_IT;
-class PBLOB_IT;
 class PAGE_RES;
 class PAGE_RES_IT;
 class WERD;

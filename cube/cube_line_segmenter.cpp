@@ -689,6 +689,7 @@ bool CubeLineSegmenter::LineSegment() {
     // get the pix and box corresponding to the column
     Pix *pixt3 = pixaGetPix(pixad, col, L_CLONE);
     if (pixt3 == NULL) {
+      delete []col_order;
       return false;
     }
 
@@ -697,6 +698,7 @@ bool CubeLineSegmenter::LineSegment() {
     Pixa *pixac;
     Boxa *boxa2 = pixConnComp(pixt3, &pixac, 8);
     if (boxa2 == NULL) {
+      delete []col_order;
       return false;
     }
 
@@ -709,6 +711,7 @@ bool CubeLineSegmenter::LineSegment() {
     // add the lines
     if (AddLines(pixac) == true) {
       if (pixaaAddBox(columns_, col_box, L_CLONE) != 0) {
+        delete []col_order;
         return false;
       }
     }
