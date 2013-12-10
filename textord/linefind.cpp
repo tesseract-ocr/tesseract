@@ -28,9 +28,8 @@
 #include "blobbox.h"
 #include "edgblob.h"
 
-#ifdef USE_OPENCL
 #include "openclwrapper.h"
-#endif
+
 
 // This entire file is dependent upon leptonica. If you don't have it,
 // then the code doesn't do anything useful.
@@ -249,6 +248,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Pix* pix,
                                     Pix** pix_music_mask,
                                     TabVector_LIST* v_lines,
                                     TabVector_LIST* h_lines) {
+PERF_COUNT_START("FindAndRemoveLines")
   if (pix == NULL || vertical_x == NULL || vertical_y == NULL) {
     tprintf("Error in parameters for LineFinder::FindAndRemoveLines\n");
     return;
@@ -315,6 +315,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Pix* pix,
 #endif
     pixaDestroy(&pixa_display);
   }
+  PERF_COUNT_END
 }
 
 // Converts the Boxa array to a list of C_BLOB, getting rid of severely
@@ -590,17 +591,17 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
   }
   int closing_brick = max_line_width / 3;
   
-  
+  PERF_COUNT_START("GetLineMasksMorph")
+// only use opencl if compiled w/ OpenCL and selected device is opencl
 #ifdef USE_OPENCL
-  //OpenCL pixGetLines Operation
-
-  int clStatus = OpenclDevice::initMorphCLAllocations(pixGetWpl(src_pix), pixGetHeight(src_pix), src_pix);
-  bool getpixclosed = pix_music_mask != NULL ? true : false;
-
-  OpenclDevice::pixGetLinesCL(NULL, src_pix, pix_vline, pix_hline, &pix_closed, getpixclosed, closing_brick, closing_brick, max_line_width, max_line_width, min_line_length, min_line_length);
-  
-#else
-
+  if (OpenclDevice::selectedDeviceIsOpenCL() ) 
+  {
+	//OpenCL pixGetLines Operation
+    int clStatus = OpenclDevice::initMorphCLAllocations(pixGetWpl(src_pix), pixGetHeight(src_pix), src_pix);
+    bool getpixclosed = pix_music_mask != NULL ? true : false;
+    OpenclDevice::pixGetLinesCL(NULL, src_pix, pix_vline, pix_hline, &pix_closed, getpixclosed, closing_brick, closing_brick, max_line_width, max_line_width, min_line_length, min_line_length);
+  } else {
+#endif
   // Close up small holes, making it less likely that false alarms are found
   // in thickened text (as it will become more solid) and also smoothing over
   // some line breaks and nicks in the edges of the lines.
@@ -625,9 +626,11 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
   *pix_hline = pixOpenBrick(NULL, pix_hollow, min_line_length, 1);
 
   pixDestroy(&pix_hollow); 
-
+#ifdef USE_OPENCL
+  }
 #endif
-  
+  PERF_COUNT_END
+
   // Lines are sufficiently rare, that it is worth checking for a zero image.
   l_int32 v_empty = 0;
   l_int32 h_empty = 0;

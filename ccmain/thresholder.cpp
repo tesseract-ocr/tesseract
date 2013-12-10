@@ -26,9 +26,7 @@
 #include "img.h"
 #include "otsuthr.h"
 
-#ifdef USE_OPENCL
 #include "openclwrapper.h"
-#endif
 
 namespace tesseract {
 
@@ -250,28 +248,35 @@ void ImageThresholder::OtsuThresholdRectToPix(const unsigned char* imagedata,
                                               int bytes_per_pixel,
                                               int bytes_per_line,
                                               Pix** pix) const {
+PERF_COUNT_START("OtsuThresholdRectToPix")
   int* thresholds;
   int* hi_values;
+
   OtsuThreshold(imagedata, bytes_per_pixel, bytes_per_line,
                 rect_left_, rect_top_, rect_width_, rect_height_,
                 &thresholds, &hi_values);
 
+// only use opencl if compiled w/ OpenCL and selected device is opencl
 #ifdef USE_OPENCL
-  // duplicate image using OpenCL and do bitwise comparison
-  //Pix** pix_OCL;
   OpenclDevice od;
-  od.ThresholdRectToPixOCL(imagedata, bytes_per_pixel, bytes_per_line,
+  if ( (bytes_per_pixel == 4 || bytes_per_pixel == 1) && od.selectedDeviceIsOpenCL() && rect_top_ == 0 && rect_left_ == 0 ) {
+    od.ThresholdRectToPixOCL(imagedata, bytes_per_pixel, bytes_per_line,
                      thresholds, hi_values, pix /*pix_OCL*/,
                      rect_height_, rect_width_, rect_top_, rect_left_);
-#else
+  } else {
+#endif
     // Threshold the image to the given IMAGE.
 
   ThresholdRectToPix(imagedata, bytes_per_pixel, bytes_per_line,
                      thresholds, hi_values, pix);
+#ifdef USE_OPENCL
+  }
 #endif
 
   delete [] thresholds;
   delete [] hi_values;
+
+PERF_COUNT_END
 }
 
 // Threshold the rectangle, taking everything except the image buffer pointer
@@ -282,6 +287,7 @@ void ImageThresholder::ThresholdRectToPix(const unsigned char* imagedata,
                                           const int* thresholds,
                                           const int* hi_values,
                                           Pix** pix) const {
+PERF_COUNT_START("ThresholdRectToPix")
   *pix = pixCreate(rect_width_, rect_height_, 1);
   uinT32* pixdata = pixGetData(*pix);
   int wpl = pixGetWpl(*pix);
@@ -306,6 +312,8 @@ void ImageThresholder::ThresholdRectToPix(const unsigned char* imagedata,
     }
     srcdata += bytes_per_line;
   }
+
+PERF_COUNT_END
 }
 
 // Copy the raw image rectangle, taking all data from the class, to the Pix.

@@ -27,6 +27,7 @@
 #include "renderer.h"
 #include "strngs.h"
 #include "tprintf.h"
+#include "openclwrapper.h"
 
 /**********************************************************************
  *  main()
@@ -34,6 +35,7 @@
  **********************************************************************/
 
 int main(int argc, char **argv) {
+	PERF_COUNT_START("Tesseract:main")
   if ((argc == 2 && strcmp(argv[1], "-v") == 0) ||
       (argc == 2 && strcmp(argv[1], "--version") == 0)) {
     char *versionStrP;
@@ -236,6 +238,6 @@ int main(int argc, char **argv) {
       }
     }
   }
-
+  PERF_COUNT_END
   return 0;                      // Normal exit
 }

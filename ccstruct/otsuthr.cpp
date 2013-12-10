@@ -20,9 +20,8 @@
 #include <string.h>
 #include "otsuthr.h"
 
-#ifdef USE_OPENCL
 #include "openclwrapper.h"
-#endif
+
 
 namespace tesseract {
 
@@ -39,6 +38,7 @@ void OtsuThreshold(const unsigned char* imagedata,
                    int** thresholds, int** hi_values) {
   // Of all channels with no good hi_value, keep the best so we can always
   // produce at least one answer.
+PERF_COUNT_START("OtsuThreshold")
   int best_hi_value = 1;
   int best_hi_index = 0;
   bool any_good_hivalue = false;
@@ -47,12 +47,11 @@ void OtsuThreshold(const unsigned char* imagedata,
   *hi_values = new int[bytes_per_pixel];
   int *histogramAllChannels = new int[kHistogramSize*bytes_per_pixel];// all of channel 0 then all of channel 1...
 
+// only use opencl if compiled w/ OpenCL and selected device is opencl
 #ifdef USE_OPENCL
     // Calculate Histogram on GPU
     OpenclDevice od;
-
-    //printf("Histograming Rect: height=%i, width=%i, channels=%i\n", height, width, bytes_per_pixel);
-    
+    if ( od.selectedDeviceIsOpenCL() && (bytes_per_pixel == 1 || bytes_per_pixel == 4) && top == 0 && left == 0 ) {
     od.HistogramRectOCL(
         imagedata,
         bytes_per_pixel,
@@ -97,8 +96,10 @@ void OtsuThreshold(const unsigned char* imagedata,
       }
     }
   }
-#else
-  
+
+  } else {
+#endif
+
   for (int ch = 0; ch < bytes_per_pixel; ++ch) {
     (*thresholds)[ch] = -1;
     (*hi_values)[ch] = -1;
@@ -134,6 +135,8 @@ void OtsuThreshold(const unsigned char* imagedata,
       }
     }
   }
+#ifdef USE_OPENCL
+    }
 #endif // USE_OPENCL
   delete[] histogramAllChannels;
 
@@ -141,6 +144,8 @@ void OtsuThreshold(const unsigned char* imagedata,
     // Use the best of the ones that were not good enough.
     (*hi_values)[best_hi_index] = best_hi_value;
   }
+
+PERF_COUNT_END
 }
 
 // Compute the histogram for the given image rectangle, and the given
@@ -154,6 +159,7 @@ void HistogramRect(const unsigned char* imagedata,
                    int bytes_per_pixel, int bytes_per_line,
                    int left, int top, int width, int height,
                    int* histogram) {
+PERF_COUNT_START("HistogramRect")
   int bottom = top + height;
   memset(histogram, 0, sizeof(*histogram) * kHistogramSize);
   const unsigned char* pixels = imagedata +
@@ -165,6 +171,8 @@ void HistogramRect(const unsigned char* imagedata,
     }
     pixels += bytes_per_line;
   }
+
+PERF_COUNT_END
 }
 
 // Compute the Otsu threshold(s) for the given histogram.

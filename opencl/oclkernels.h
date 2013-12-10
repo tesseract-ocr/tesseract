@@ -846,8 +846,67 @@ void kernel_HistogramRectAllChannels(
 }
 )
 
+KERNEL(
+// NUM_CHANNELS = 1
+__attribute__((reqd_work_group_size(256, 1, 1)))
+__kernel
+void kernel_HistogramRectOneChannel(
+    __global const uchar8 *data,
+    uint numPixels,
+    __global uint *histBuffer) {
+
+    // declare variables
+    uchar8 pixels;
+    int threadOffset = get_global_id(0)%HIST_REDUNDANCY;
+
+    // for each pixel/channel, accumulate in global memory
+    for ( uint pc = get_global_id(0); pc < numPixels/HR_UNROLL_SIZE; pc += get_global_size(0) ) {
+        pixels = data[pc];
+        //                        bin                         thread
+        atomic_inc( &histBuffer[ pixels.s0*HIST_REDUNDANCY + threadOffset ]);
+        atomic_inc( &histBuffer[ pixels.s1*HIST_REDUNDANCY + threadOffset ]);
+        atomic_inc( &histBuffer[ pixels.s2*HIST_REDUNDANCY + threadOffset ]);
+        atomic_inc( &histBuffer[ pixels.s3*HIST_REDUNDANCY + threadOffset ]);
+        atomic_inc( &histBuffer[ pixels.s4*HIST_REDUNDANCY + threadOffset ]);
+        atomic_inc( &histBuffer[ pixels.s5*HIST_REDUNDANCY + threadOffset ]);
+        atomic_inc( &histBuffer[ pixels.s6*HIST_REDUNDANCY + threadOffset ]);
+        atomic_inc( &histBuffer[ pixels.s7*HIST_REDUNDANCY + threadOffset ]);
+    }
+}
+)
+
+
+KERNEL(
+// unused
+\n  __attribute__((reqd_work_group_size(256, 1, 1)))
+\n  __kernel
+\n  void kernel_HistogramRectAllChannels_Grey(
+\n      __global const uchar* data,
+\n      uint numPixels,
+\n        __global uint *histBuffer) { // each wg will write HIST_SIZE*NUM_CHANNELS into this result; cpu will accumulate across wg's
+\n  
+\n      /* declare variables */
+\n  
+\n      // work indices
+\n      size_t groupId = get_group_id(0);
+\n      size_t localId = get_local_id(0); // 0 -> 256-1
+\n      size_t globalId = get_global_id(0); // 0 -> 8*10*256-1=20480-1
+\n      uint numThreads = get_global_size(0);
+\n  
+\n      /* accumulate in global memory */
+\n      for ( uint pc = get_global_id(0); pc < numPixels; pc += get_global_size(0) ) {
+\n          uchar value = data[ pc ];
+\n          int idx = value * get_global_size(0) + get_global_id(0);
+\n           histBuffer[ idx ]++;
+\n          
+\n      }
+\n      
+\n  } // kernel_HistogramRectAllChannels_Grey
+
+)
+
 // HistogramRect Kernel: Reduction
-// assumes 4 channels
+// only supports 4 channels
 // each work group handles a single channel of a single histogram bin
 KERNEL(
 __attribute__((reqd_work_group_size(256, 1, 1)))
@@ -855,12 +914,12 @@ __kernel
 void kernel_HistogramRectAllChannelsReduction(
     int n, // unused pixel redundancy
 	__global uint *histBuffer,
-    __global uint* histResult) {
+    __global int* histResult) {
 
     // declare variables
     int channel = get_group_id(0)/HIST_SIZE;
     int bin     = get_group_id(0)%HIST_SIZE;
-    unsigned int value = 0;
+    int value = 0;
 
     // accumulate in register
     for ( uint i = get_local_id(0); i < HIST_REDUNDANCY; i+=GROUP_SIZE) {
@@ -868,7 +927,7 @@ void kernel_HistogramRectAllChannelsReduction(
     }
 
     // reduction in local memory
-    __local unsigned int localHist[GROUP_SIZE];
+    __local int localHist[GROUP_SIZE];
     localHist[get_local_id(0)] = value;
     barrier(CLK_LOCAL_MEM_FENCE);
     for (int stride = GROUP_SIZE/2; stride >= 1; stride /= 2) {
@@ -889,7 +948,100 @@ void kernel_HistogramRectAllChannelsReduction(
 } // kernel_HistogramRectAllChannels
 )
 
+
+KERNEL(
+// NUM_CHANNELS = 1
+__attribute__((reqd_work_group_size(256, 1, 1)))
+__kernel
+void kernel_HistogramRectOneChannelReduction(
+    int n, // unused pixel redundancy
+    __global uint *histBuffer,
+    __global int* histResult) {
+
+    // declare variables
+    // int channel = get_group_id(0)/HIST_SIZE;
+    int bin     = get_group_id(0)%HIST_SIZE;
+    int value = 0;
+
+    // accumulate in register
+    for ( int i = get_local_id(0); i < HIST_REDUNDANCY; i+=GROUP_SIZE) {
+        value += histBuffer[ bin*HIST_REDUNDANCY+i];
+    }
+
+    // reduction in local memory
+    __local int localHist[GROUP_SIZE];
+    localHist[get_local_id(0)] = value;
+    barrier(CLK_LOCAL_MEM_FENCE);
+    for (int stride = GROUP_SIZE/2; stride >= 1; stride /= 2) {
+        if (get_local_id(0) < stride) {
+            value = localHist[ get_local_id(0)+stride];
+        }
+        barrier(CLK_LOCAL_MEM_FENCE);
+        if (get_local_id(0) < stride) {
+            localHist[ get_local_id(0)] += value;
+        }
+        barrier(CLK_LOCAL_MEM_FENCE);
+    }
+
+    // write reduction to final result
+    if (get_local_id(0) == 0) {
+        histResult[get_group_id(0)] = localHist[0];
+    }
+} // kernel_HistogramRectOneChannelReduction
+)
+
+
+KERNEL(
+// unused
+  // each work group (x256) handles a histogram bin 
+\n  __attribute__((reqd_work_group_size(256, 1, 1)))
+\n  __kernel
+\n  void kernel_HistogramRectAllChannelsReduction_Grey(
+\n      int n, // pixel redundancy that needs to be accumulated
+\n      __global uint *histBuffer,
+\n      __global uint* histResult) { // each wg accumulates 1 bin
+\n  
+\n      /* declare variables */
+\n  
+\n      // work indices
+\n      size_t groupId = get_group_id(0);
+\n      size_t localId = get_local_id(0); // 0 -> 256-1
+\n      size_t globalId = get_global_id(0); // 0 -> 8*10*256-1=20480-1
+\n      uint numThreads = get_global_size(0);
+\n        unsigned int hist = 0;
+\n  
+\n      /* accumulate in global memory */
+\n      for ( uint p = 0; p < n; p+=GROUP_SIZE) {
+\n            hist += histBuffer[ (get_group_id(0)*n + p)];
+\n      }
+\n  
+\n      /* reduction in local memory */
+\n      // populate local memory
+\n      __local unsigned int localHist[GROUP_SIZE];
+
+\n      localHist[localId] = hist;
+\n      barrier(CLK_LOCAL_MEM_FENCE);
+\n  
+\n      for (int stride = GROUP_SIZE/2; stride >= 1; stride /= 2) {
+\n          if (localId < stride) {
+\n              hist = localHist[ (localId+stride)];
+\n          }
+\n          barrier(CLK_LOCAL_MEM_FENCE);
+\n          if (localId < stride) {
+\n              localHist[ localId] += hist;
+\n          }
+\n          barrier(CLK_LOCAL_MEM_FENCE);
+\n      }
+\n  
+\n      if (localId == 0)
+\n          histResult[get_group_id(0)] = localHist[0];
+\n  
+\n  } // kernel_HistogramRectAllChannelsReduction_Grey
+
+)
+
 // ThresholdRectToPix Kernel
+// only supports 4 channels
 // imageData is input image (24-bits/pixel)
 // pix is output image (1-bit/pixel)
 KERNEL(
@@ -938,6 +1090,58 @@ void kernel_ThresholdRectToPix(
             for ( int p = 0; p < PIXELS_PER_BURST; p++) {
                 for ( int c = 0; c < NUM_CHANNELS; c++) {
                     unsigned char pixChan = pixels.s[p*NUM_CHANNELS + c];
+                    if (pHi_Values[c] >= 0 && (pixChan > pThresholds[c]) == (pHi_Values[c] == 0)) {
+                        word |=  (0x80000000 >> ((b*PIXELS_PER_BURST+p)&31));
+                    }
+                }
+            }
+        }
+        pix[w] = word;
+    }
+}
+
+// only supports 1 channel
+ typedef union {
+  uchar s[PIXELS_PER_BURST];
+  uchar8 v[(PIXELS_PER_BURST)/CHAR_VEC_WIDTH];
+ } charVec1;
+
+__attribute__((reqd_work_group_size(256, 1, 1)))
+__kernel
+void kernel_ThresholdRectToPix_OneChan(
+    __global const uchar8 *imageData,
+    int height,
+    int width,
+    int wpl, // words per line
+    __global int *thresholds,
+    __global int *hi_values,
+    __global int *pix) {
+
+    // declare variables
+    int pThresholds[1];
+    int pHi_Values[1];
+    for ( int i = 0; i < 1; i++) {
+        pThresholds[i] = thresholds[i];
+        pHi_Values[i] = hi_values[i];
+    }
+
+    // for each word (32 pixels) in output image
+    for ( uint w = get_global_id(0); w < wpl*height; w += get_global_size(0) ) {
+        unsigned int word = 0; // all bits start at zero
+
+        // for each burst in word
+        for ( int b = 0; b < BURSTS_PER_WORD; b++) {
+
+            // load burst
+            charVec1 pixels;
+            for ( int i = 0; i < (PIXELS_PER_BURST)/CHAR_VEC_WIDTH; i++ ) {
+                pixels.v[i] = imageData[w*(BURSTS_PER_WORD*(PIXELS_PER_BURST)/CHAR_VEC_WIDTH) + b*((PIXELS_PER_BURST)/CHAR_VEC_WIDTH)  + i];
+            }
+
+            // for each pixel in burst
+            for ( int p = 0; p < PIXELS_PER_BURST; p++) {
+                for ( int c = 0; c < 1; c++) {
+                    unsigned char pixChan = pixels.s[p + c];
                     if (pHi_Values[c] >= 0 && (pixChan > pThresholds[c]) == (pHi_Values[c] == 0)) {
                         word |=  (0x80000000 >> ((b*PIXELS_PER_BURST+p)&31));
                     }

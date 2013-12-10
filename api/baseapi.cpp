@@ -54,9 +54,8 @@
 #include "renderer.h"
 #include "strngs.h"
 
-#ifdef USE_OPENCL
 #include "openclwrapper.h"
-#endif
+
 
 #ifdef _WIN32
 #include <windows.h>
@@ -131,6 +130,35 @@ TessBaseAPI::~TessBaseAPI() {
  */
 const char* TessBaseAPI::Version() {
   return VERSION;
+}
+
+  /**
+   * If compiled with OpenCL AND an available OpenCL
+   * device is deemed faster than serial code, then
+   * "device" is populated with the cl_device_id
+   * and returns sizeof(cl_device_id)
+   * otherwise *device=NULL and returns 0.
+   */
+#ifdef USE_OPENCL
+#if USE_DEVICE_SELECTION
+#include "opencl_device_selection.h"
+#endif
+#endif
+size_t TessBaseAPI::getOpenCLDevice( void **data ) {
+
+#ifdef USE_OPENCL
+#if USE_DEVICE_SELECTION
+    ds_device device = OpenclDevice::getDeviceSelection();
+    if (device.type == DS_DEVICE_OPENCL_DEVICE) {
+        *data = (void *)new cl_device_id;
+        memcpy(*data, (void *)&device.oclDeviceID, sizeof(cl_device_id));
+        return sizeof(cl_device_id);
+    }
+#endif
+#endif
+
+    *data = NULL;
+    return 0;
 }
 
 /**
@@ -236,6 +264,7 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
                       const GenericVector<STRING> *vars_vec,
                       const GenericVector<STRING> *vars_values,
                       bool set_only_non_debug_params) {
+PERF_COUNT_START("TessBaseAPI::Init")
   // Default language is "eng".
   if (language == NULL) language = "eng";
   // If the datapath, OcrEngineMode or the language have changed - start again.
@@ -250,12 +279,12 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
     delete tesseract_;
     tesseract_ = NULL;
   }
-
+//PERF_COUNT_SUB("delete tesseract_")
 #ifdef USE_OPENCL
   OpenclDevice od;
   od.InitEnv();
 #endif
-
+PERF_COUNT_SUB("OD::InitEnv()")
   bool reset_classifier = true;
   if (tesseract_ == NULL) {
     reset_classifier = false;
@@ -267,6 +296,7 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
       return -1;
     }
   }
+PERF_COUNT_SUB("update tesseract_")
   // Update datapath and language requested for the last valid initialization.
   if (datapath_ == NULL)
     datapath_ = new STRING(datapath);
@@ -281,10 +311,13 @@ int TessBaseAPI::Init(const char* datapath, const char* language,
   else
     *language_ = language;
   last_oem_requested_ = oem;
-
+//PERF_COUNT_SUB("update last_oem_requested_")
   // For same language and datapath, just reset the adaptive classifier.
-  if (reset_classifier) tesseract_->ResetAdaptiveClassifier();
-
+  if (reset_classifier) {
+      tesseract_->ResetAdaptiveClassifier();
+PERF_COUNT_SUB("tesseract_->ResetAdaptiveClassifier()")
+  }
+ PERF_COUNT_END
   return 0;
 }
 
@@ -913,6 +946,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
 bool TessBaseAPI::ProcessPages(const char* filename,
                                const char* retry_config, int timeout_millisec,
                                TessResultRenderer* renderer) {
+PERF_COUNT_START("ProcessPages")
   int page = tesseract_->tessedit_page_number;
   if (page < 0)
     page = 0;
@@ -946,11 +980,17 @@ bool TessBaseAPI::ProcessPages(const char* filename,
     pixDestroy(&pix);
     for (; page < npages; ++page) {
 
+// only use opencl if compiled w/ OpenCL and selected device is opencl
 #ifdef USE_OPENCL
-        pix = od.pixReadTiffCl(filename, page);
-#else
-        pix = pixReadTiff(filename, page);
+        if ( od.selectedDeviceIsOpenCL() ) {
+            pix = od.pixReadTiffCl(filename, page);
+        } else {
 #endif
+            pix = pixReadTiff(filename, page);
+#ifdef USE_OPENCL
+        }
+#endif
+
       if (pix == NULL) break;
 
       if ((page >= 0) && (npages > 1))
@@ -1006,7 +1046,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   if (renderer && !renderer->EndDocument()) {
     all_ok = false;
   }
-
+PERF_COUNT_END
   return all_ok;
 }
 
@@ -1060,6 +1100,7 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
 bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
                               const char* retry_config, int timeout_millisec,
                               TessResultRenderer* renderer) {
+PERF_COUNT_START("ProcessPage")
   SetInputName(filename);
   SetImage(pix);
   bool failed = false;
@@ -1079,6 +1120,7 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
       failed = true;
     } else {
       delete it;
+PERF_COUNT_END
       return true;
     }
   } else {
@@ -1109,6 +1151,7 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
       renderer->AddImage(this);
     }
   }
+PERF_COUNT_END
   return !failed;
 }
 
