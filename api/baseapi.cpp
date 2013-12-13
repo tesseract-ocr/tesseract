@@ -393,6 +393,7 @@ void TessBaseAPI::GetAvailableLanguagesAsVector(
           }
         }
       }
+      closedir(dir);
     }
 #endif
   }

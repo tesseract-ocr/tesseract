@@ -133,6 +133,7 @@ FILE *CharSampSet::CreateCharDumpFile(string file_name) {
   // read and verify marker
   val32 = 0xfefeabd0;
   if (fwrite(&val32, 1, sizeof(val32), fp) != sizeof(val32)) {
+    fclose(fp);
     return NULL;
   }
   return fp;

@@ -408,6 +408,7 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
   }
   if (xheight_count == 0) {
     fprintf(stderr, "No valid xheights in %s!\n", filename);
+    fclose(f);
     return false;
   }
   int mean_xheight = DivRounded(total_xheight, xheight_count);
