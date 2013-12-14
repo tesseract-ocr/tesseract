@@ -57,8 +57,8 @@ AC_SUBST(GENERIC_VERSION)
 AM_CONDITIONAL(MINGW, false)
 AM_CONDITIONAL(GRAPHICS_DISABLED, false)
 
-OPENCL_HDR_PATH=""
-OPENCL_LIB=""
+OPENCL_INC="/opt/AMDAPP/include"
+OPENCL_LIBS="-lOpenCL"
 #############################
 #
 # Platform specific setup
@@ -73,6 +73,14 @@ case "${host_os}" in
         ;;
     solaris*)
         LIBS="-lsocket -lnsl -lrt -lxnet"
+        ;;
+    powerpc-*-darwin*)
+        OPENCL_LIBS=""
+        OPENCL_INC=""
+        ;;
+    *-*-darwin*)
+        OPENCL_LIBS="-framework OpenCL"
+        OPENCL_INC=""
         ;;
      *)
         # default
@@ -126,15 +134,15 @@ fi
 # check whether to build opencl version
 AC_MSG_CHECKING(--enable-opencl argument)
 AC_ARG_ENABLE([opencl],
-    [  --enable-opencl       enable opencl build (default=no)],
+    [  --enable-opencl         enable opencl build (default=no)],
     [enable_opencl=$enableval],
     [enable_opencl="no"])
 AC_MSG_RESULT($enable_opencl)
 AM_CONDITIONAL([USE_OPENCL], [test "$enable_opencl" = "yes"])
 if test "$enable_opencl" = "yes"; then
   AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
-  AC_SUBST([OPENCL_HDR_PATH],["/opt/AMDAPP/include"])
-  AC_SUBST([OPENCL_LIB],["-lOpenCL"])
+  AC_SUBST([OPENCL_HDR_PATH],[$OPENCL_INC])
+  AC_SUBST([OPENCL_LIB],[$OPENCL_LIBS])
 fi
 
 # check whether to build tesseract with -fvisibility=hidden -fvisibility-inlines-hidden

@@ -2518,8 +2518,8 @@ PERF_COUNT_START("ThresholdRectToPixOCL")
     int requestedOccupancy = 10;
     int numWorkGroups = numCUs * requestedOccupancy;
     int numThreads = block_size*numWorkGroups;
-    size_t local_work_size[] = {block_size};
-    size_t global_work_size[] = {numThreads};
+    size_t local_work_size[] = {(size_t) block_size};
+    size_t global_work_size[] = {(size_t) numThreads};
 
     /* map imagedata to device as read only */
     // USE_HOST_PTR uses onion+ bus which is slowest option; also happens to be coherent which we don't need.

@@ -50,6 +50,29 @@ int main(int argc, char **argv) {
     fprintf(stderr, "  %s\n", versionStrP);
     lept_free(versionStrP);
 
+#ifdef USE_OPENCL
+    cl_platform_id platform;
+    cl_uint num_platforms;
+    cl_device_id devices[2];
+    cl_uint num_devices;
+    cl_int err;
+    char info[256];
+    int i;
+
+    fprintf(stderr, " OpenCL info:\n");
+    clGetPlatformIDs(1, &platform, &num_platforms);
+    fprintf(stderr, "  Found %d platforms.\n", num_platforms);
+    clGetPlatformInfo(platform, CL_PLATFORM_NAME, 256, info, 0);
+    fprintf(stderr, "  Platform name: %s.\n", info);
+    clGetPlatformInfo(platform, CL_PLATFORM_VERSION, 256, info, 0);
+    fprintf(stderr, "  Version: %s.\n", info);
+    clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 2, devices, &num_devices);
+    fprintf(stderr, "  Found %d devices.\n", num_devices);
+    for (i = 0; i < num_devices; ++i) {
+      clGetDeviceInfo(devices[i], CL_DEVICE_NAME, 256, info, 0);
+      fprintf(stderr, "    Device %d name: %s.\n", i+1, info);
+    }
+#endif
     exit(0);
   }
 
@@ -193,7 +216,6 @@ int main(int argc, char **argv) {
     api.SetPageSegMode(pagesegmode);
   tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
            tesseract::TessBaseAPI::Version());
-
 
   FILE* fin = fopen(image, "rb");
   if (fin == NULL) {

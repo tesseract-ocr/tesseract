@@ -138,7 +138,6 @@
 
 #define USE_DEVICE_SELECTION 1
 
-#include "CL/cl.h"
 #include "opencl_device_selection.h"
 
 #ifndef strcasecmp
