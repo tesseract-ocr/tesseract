@@ -35,7 +35,6 @@
  **********************************************************************/
 
 int main(int argc, char **argv) {
-	PERF_COUNT_START("Tesseract:main")
   if ((argc == 2 && strcmp(argv[1], "-v") == 0) ||
       (argc == 2 && strcmp(argv[1], "--version") == 0)) {
     char *versionStrP;
@@ -153,6 +152,9 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+  tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
+           tesseract::TessBaseAPI::Version());
+  PERF_COUNT_START("Tesseract:main")
   tesseract::TessBaseAPI api;
 
   api.SetOutputName(output);
@@ -214,8 +216,6 @@ int main(int argc, char **argv) {
   // but that doesn't work.
   if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
     api.SetPageSegMode(pagesegmode);
-  tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
-           tesseract::TessBaseAPI::Version());
 
   FILE* fin = fopen(image, "rb");
   if (fin == NULL) {

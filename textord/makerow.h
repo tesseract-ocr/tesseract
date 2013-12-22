@@ -111,6 +111,7 @@ extern double_VAR_H (textord_xheight_error_margin, 0.1, "Accepted variation");
 extern INT_VAR_H (textord_lms_line_trials, 12, "Number of linew fits to do");
 extern BOOL_VAR_H (textord_new_initial_xheight, TRUE,
 "Use test xheight mechanism");
+extern BOOL_VAR_H (textord_debug_blob, FALSE, "Print test blob information");
 
 inline void get_min_max_xheight(int block_linesize,
                                 int *min_height, int *max_height) {

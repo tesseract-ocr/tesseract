@@ -100,6 +100,7 @@ double_VAR(textord_descx_ratio_max, 0.6, "Max desc/xheight");
 double_VAR(textord_xheight_error_margin, 0.1, "Accepted variation");
 INT_VAR(textord_lms_line_trials, 12, "Number of linew fits to do");
 BOOL_VAR(textord_new_initial_xheight, TRUE, "Use test xheight mechanism");
+BOOL_VAR(textord_debug_blob, FALSE, "Print test blob information");
 
 #define MAX_HEIGHT_MODES  12
 
@@ -2454,7 +2455,7 @@ void assign_blobs_to_rows(                      //find lines
     }
     else
       overlap_result = REJECT;
-    if (blob->bounding_box ().contains(testpt)) {
+    if (blob->bounding_box ().contains(testpt) && textord_debug_blob) {
       if (overlap_result != REJECT) {
         tprintf("Test blob assigned to row at (%g,%g) on pass %d\n",
           dest_row->min_y(), dest_row->max_y(), pass);
@@ -2525,7 +2526,7 @@ OVERLAP_STATE most_overlapping_row(                    //find best row
   if (bottom < row->min_y ())
                                  //compute overlap
     bestover -= row->min_y () - bottom;
-  if (testing_blob) {
+  if (testing_blob && textord_debug_blob) {
     tprintf("Test blob y=(%g,%g), row=(%f,%f), size=%g, overlap=%f\n",
             bottom, top, row->min_y(), row->max_y(), rowsize, bestover);
   }
@@ -2568,7 +2569,7 @@ OVERLAP_STATE most_overlapping_row(                    //find best row
           bestover = overlap;    //find biggest overlap
           row = test_row;
         }
-        if (testing_blob) {
+        if (testing_blob && textord_debug_blob) {
           tprintf("Test blob y=(%g,%g), row=(%f,%f), size=%g, overlap=%f->%f\n",
                   bottom, top, test_row->min_y(), test_row->max_y(),
                   rowsize, overlap, bestover);
