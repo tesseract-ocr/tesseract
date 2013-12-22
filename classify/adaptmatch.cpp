@@ -2263,6 +2263,7 @@ void Classify::SetAdaptiveThreshold(FLOAT32 Threshold) {
  * @note Exceptions: none
  * @note History: Fri Mar 22 08:43:52 1991, DSJ, Created.
  */
+#ifndef GRAPHICS_DISABLED
 void Classify::ShowBestMatchFor(int shape_id,
                                 const INT_FEATURE_STRUCT* features,
                                 int num_features) {
@@ -2295,6 +2296,7 @@ void Classify::ShowBestMatchFor(int shape_id,
             matcher_debug_separate_windows);
   UpdateMatchDisplay();
 }                              /* ShowBestMatchFor */
+#endif
 
 // Returns a string for the classifier class_id: either the corresponding
 // unicharset debug_str or the shape_table_ debug str.
