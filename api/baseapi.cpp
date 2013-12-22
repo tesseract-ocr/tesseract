@@ -962,8 +962,9 @@ PERF_COUNT_START("ProcessPages")
   Pix *pix;
   pix = pixRead(filename);
   format = pixGetInputFormat(pix);
-  if (format == IFF_TIFF || format == IFF_TIFF_G4 ||
-      format == IFF_TIFF_G3 || format == IFF_TIFF_PACKBITS)
+  if (format == IFF_TIFF || format == IFF_TIFF_PACKBITS ||
+      format == IFF_TIFF_RLE || format == IFF_TIFF_G3 ||
+      format == IFF_TIFF_G4 || format == IFF_TIFF_LZW || IFF_TIFF_ZIP)
     tiffGetCount(fp, &npages);
   fclose(fp);
 
