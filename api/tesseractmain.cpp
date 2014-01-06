@@ -224,13 +224,15 @@ int main(int argc, char **argv) {
   }
   fclose(fin);
 
-  tesseract::TessResultRenderer* renderer = new tesseract::TessTextRenderer();
+  tesseract::TessResultRenderer* renderer = NULL;
   bool b;
   api.GetBoolVariable("tessedit_create_hocr", &b);
-  if (b) renderer->insert(new tesseract::TessHOcrRenderer());
+  if (b) renderer = new tesseract::TessHOcrRenderer();
 
   api.GetBoolVariable("tessedit_create_boxfile", &b);
-  if (b) renderer->insert(new tesseract::TessBoxTextRenderer());
+  if (b) renderer = new tesseract::TessBoxTextRenderer();
+
+  if (renderer == NULL) renderer = new tesseract::TessTextRenderer();
 
   if (!api.ProcessPages(image, NULL, 0, renderer)) {
     fprintf(stderr, "Error during processing.\n");
