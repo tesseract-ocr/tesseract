@@ -29,6 +29,14 @@
 #include "tprintf.h"
 #include "openclwrapper.h"
 
+#include <iostream>
+#include <vector>
+
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif  // _WIN32
+
 /**********************************************************************
  *  main()
  *
@@ -119,7 +127,7 @@ int main(int argc, char **argv) {
   }
 
   if (output == NULL && noocr == false) {
-    fprintf(stderr, "Usage:\n  %s imagename outputbase|stdout [options...] "
+    fprintf(stderr, "Usage:\n  %s imagename|stdin outputbase|stdout [options...] "
                        "[configfile...]\n\n", argv[0]);
 
     fprintf(stderr, "OCR options:\n");
@@ -215,14 +223,7 @@ int main(int argc, char **argv) {
   // It would be simpler if we could set the value before Init,
   // but that doesn't work.
   if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
-    api.SetPageSegMode(pagesegmode);
-
-  FILE* fin = fopen(image, "rb");
-  if (fin == NULL) {
-    fprintf(stderr, "Cannot open input file: %s\n", image);
-    exit(2);
-  }
-  fclose(fin);
+     api.SetPageSegMode(pagesegmode);
 
   tesseract::TessResultRenderer* renderer = NULL;
   bool b;
@@ -234,7 +235,47 @@ int main(int argc, char **argv) {
 
   if (renderer == NULL) renderer = new tesseract::TessTextRenderer();
 
-  if (!api.ProcessPages(image, NULL, 0, renderer)) {
+  bool stdInput = false;
+  if (!strcmp(image, "stdin") || !strcmp(image, "-"))
+      stdInput = true;
+
+  if (stdInput) {
+    char              byt;
+    PIX               *pixd = NULL;
+    std::vector<char> ch_data;
+    std::istream file(std::cin.rdbuf());
+
+#ifdef WIN32
+    if (_setmode(_fileno(stdin), _O_BINARY) == -1)
+      tprintf("ERROR: cin to binary: %s", strerror(errno));
+#endif  // WIN32
+
+    while (file.get(byt)) {
+      ch_data.push_back(byt);
+    }
+    std::cin.ignore(std::cin.rdbuf()->in_avail() + 1);
+
+    size_t  size = ch_data.size();
+    l_uint8 *data;
+    if ( (data = (l_uint8 *) malloc( size )) != NULL ) {
+      memcpy(data, &(ch_data)[0], size);
+    } else {
+      tprintf("Memory allocation error\n");
+      exit(1);
+    }
+
+    pixd = pixReadMem(data, size);
+    api.ProcessPage(pixd, 0, NULL, NULL, 0, renderer);
+  } else {
+    FILE* fin = fopen(image, "rb");
+    if (fin == NULL) {
+      fprintf(stderr, "Cannot open input file: %s\n", image);
+      exit(2);
+    }
+    fclose(fin);
+  }
+
+  if (!stdInput && !api.ProcessPages(image, NULL, 0, renderer)) {
     fprintf(stderr, "Error during processing.\n");
   } else {
     for (tesseract::TessResultRenderer* r = renderer; r != NULL;
