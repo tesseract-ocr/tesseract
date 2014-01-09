@@ -152,7 +152,7 @@ Classify::Classify()
     double_MEMBER(speckle_rating_penalty, 10.0,
                   "Penalty to add to worst rating for noise", this->params()),
     shape_table_(NULL),
-    dict_(&image_),
+    dict_(this),
     static_classifier_(NULL) {
   fontinfo_table_.set_compare_callback(
       NewPermanentTessCallback(CompareFontInfo));
