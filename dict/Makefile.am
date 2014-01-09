@@ -1,5 +1,5 @@
 AM_CPPFLAGS += -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
-    -I$(top_srcdir)/ccstruct -I$(top_srcdir)/viewer -I$(top_srcdir)/image
+    -I$(top_srcdir)/ccstruct -I$(top_srcdir)/viewer
     
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
@@ -19,7 +19,6 @@ libtesseract_dict_la_LIBADD = \
     ../ccutil/libtesseract_ccutil.la \
     ../cutil/libtesseract_cutil.la \
     ../ccstruct/libtesseract_ccstruct.la \
-    ../image/libtesseract_image.la \
     ../viewer/libtesseract_viewer.la
 endif
 

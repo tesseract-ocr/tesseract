@@ -23,7 +23,6 @@
 #include "dawg.h"
 #include "dawg_cache.h"
 #include "host.h"
-#include "image.h"
 #include "oldlist.h"
 #include "ratngs.h"
 #include "stopper.h"
@@ -89,22 +88,22 @@ struct DawgArgs {
 
 class Dict {
  public:
-  Dict(Image* image_ptr);
+  Dict(CCUtil* image_ptr);
   ~Dict();
-  const Image* getImage() const {
-    return image_ptr_;
+  const CCUtil* getCCUtil() const {
+    return ccutil_;
   }
-  Image* getImage() {
-    return image_ptr_;
+  CCUtil* getCCUtil() {
+    return ccutil_;
   }
   const UNICHARSET& getUnicharset() const {
-    return getImage()->getCCUtil()->unicharset;
+    return getCCUtil()->unicharset;
   }
   UNICHARSET& getUnicharset() {
-    return getImage()->getCCUtil()->unicharset;
+    return getCCUtil()->unicharset;
   }
   const UnicharAmbigs &getUnicharAmbigs() const {
-    return getImage()->getCCUtil()->unichar_ambigs;
+    return getCCUtil()->unichar_ambigs;
   }
 
   // Returns true if unichar_id is a word compounding character like - or /.
@@ -369,7 +368,7 @@ class Dict {
                               const char* character,
                               int character_bytes) {
     return (this->*probability_in_context_)(
-        getImage()->getCCUtil()->lang.string(),
+        getCCUtil()->lang.string(),
         context, context_bytes,
         character, character_bytes);
   }
@@ -397,7 +396,7 @@ class Dict {
   float CallParamsModelClassify(void *path) {
     ASSERT_HOST(params_model_classify_ != NULL);  // ASSERT_HOST -> assert
     return (this->*params_model_classify_)(
-        getImage()->getCCUtil()->lang.string(), path);
+        getCCUtil()->lang.string(), path);
   }
 
   inline void SetWildcardID(UNICHAR_ID id) { wildcard_unichar_id_ = id; }
@@ -490,7 +489,7 @@ class Dict {
 
  private:
   /** Private member variables. */
-  Image* image_ptr_;
+  CCUtil* ccutil_;
   /**
    * Table that stores ambiguities computed during training
    * (loaded when NoDangerousAmbigs() is called for the first time).

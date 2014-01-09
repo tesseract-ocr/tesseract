@@ -29,7 +29,6 @@
 #include "dict.h"
 #include "efio.h"
 #include "helpers.h"
-#include "image.h"
 #include "matchdefs.h"
 #include "pageres.h"
 #include "params.h"

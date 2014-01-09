@@ -37,7 +37,6 @@
 
 #include <ctype.h>
 #include "dict.h"
-#include "image.h"
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
