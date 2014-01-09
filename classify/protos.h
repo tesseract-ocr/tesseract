@@ -131,11 +131,11 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
  */
 
 #define PrintProto(Proto)                      \
-(cprintf ("X=%4.2f, Y=%4.2f, Angle=%4.2f",    \
-          Proto->X,                \
-          Proto->Y,                \
-          Proto->Length,                \
-          Proto->Angle))                \
+(tprintf("X=%4.2f, Y=%4.2f, Length=%4.2f, Angle=%4.2f",    \
+         Proto->X,                \
+         Proto->Y,                \
+         Proto->Length,                \
+         Proto->Angle))                \
 
 
 /**
