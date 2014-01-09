@@ -27,9 +27,7 @@
 #include "tabvector.h"
 #include "blobbox.h"
 #include "edgblob.h"
-
 #include "openclwrapper.h"
-
 
 // This entire file is dependent upon leptonica. If you don't have it,
 // then the code doesn't do anything useful.
@@ -248,7 +246,7 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Pix* pix,
                                     Pix** pix_music_mask,
                                     TabVector_LIST* v_lines,
                                     TabVector_LIST* h_lines) {
-PERF_COUNT_START("FindAndRemoveLines")
+  PERF_COUNT_START("FindAndRemoveLines")
   if (pix == NULL || vertical_x == NULL || vertical_y == NULL) {
     tprintf("Error in parameters for LineFinder::FindAndRemoveLines\n");
     return;
@@ -582,7 +580,7 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
 
   Pix* pix_closed = NULL;
   Pix* pix_hollow = NULL;
-  
+
   int max_line_width = resolution / kThinLineFraction;
   int min_line_length = resolution / kMinLineLengthFraction;
   if (pixa_display != NULL) {
@@ -590,16 +588,20 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
             resolution, max_line_width, min_line_length);
   }
   int closing_brick = max_line_width / 3;
-  
+
   PERF_COUNT_START("GetLineMasksMorph")
 // only use opencl if compiled w/ OpenCL and selected device is opencl
 #ifdef USE_OPENCL
-  if (OpenclDevice::selectedDeviceIsOpenCL() ) 
-  {
-	//OpenCL pixGetLines Operation
-    int clStatus = OpenclDevice::initMorphCLAllocations(pixGetWpl(src_pix), pixGetHeight(src_pix), src_pix);
+  if (OpenclDevice::selectedDeviceIsOpenCL()) {
+	  //OpenCL pixGetLines Operation
+    int clStatus = OpenclDevice::initMorphCLAllocations(pixGetWpl(src_pix),
+                                                        pixGetHeight(src_pix),
+                                                        src_pix);
     bool getpixclosed = pix_music_mask != NULL ? true : false;
-    OpenclDevice::pixGetLinesCL(NULL, src_pix, pix_vline, pix_hline, &pix_closed, getpixclosed, closing_brick, closing_brick, max_line_width, max_line_width, min_line_length, min_line_length);
+    OpenclDevice::pixGetLinesCL(NULL, src_pix, pix_vline, pix_hline,
+                                &pix_closed, getpixclosed, closing_brick,
+                                closing_brick, max_line_width, max_line_width,
+                                min_line_length, min_line_length);
   } else {
 #endif
   // Close up small holes, making it less likely that false alarms are found
@@ -709,8 +711,6 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
       pixaAddPix(pixa_display, *pix_music_mask, L_CLONE);
   }
   pixDestroy(&pix_nonlines);
-
-
 }
 
 // Returns a list of boxes corresponding to the candidate line segments. Sets

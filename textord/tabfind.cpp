@@ -563,7 +563,7 @@ ScrollView* TabFind::FindInitialTabVectors(BLOBNBOX_LIST* image_blobs,
 }
 
 // Helper displays all the boxes in the given vector on the given window.
-static void DisplayBoxVector(const GenericVector<BLOBNBOX*> boxes,
+static void DisplayBoxVector(const GenericVector<BLOBNBOX*>& boxes,
                              ScrollView* win) {
   #ifndef GRAPHICS_DISABLED
   for (int i = 0; i < boxes.size(); ++i) {
