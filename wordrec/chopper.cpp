@@ -399,7 +399,7 @@ inT16 check_seam_order(TBLOB *blob, SEAM *seam) {
   TESSLINE *last_outline;
   inT8 found_em[3];
 
-  if (seam->split1 == NULL || seam->split1 == NULL || blob == NULL)
+  if (seam->split1 == NULL || blob == NULL)
     return (TRUE);
 
   found_em[0] = found_em[1] = found_em[2] = FALSE;
