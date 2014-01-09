@@ -151,6 +151,7 @@ class IntParam : public Param {
   }
   ~IntParam() { ParamUtils::RemoveParam<IntParam>(this, params_vec_); }
   operator inT32() const { return value_; }
+  void operator=(inT32 value) { value_ = value; }
   void set_value(inT32 value) { value_ = value; }
   void ResetToDefault() {
     value_ = default_;
@@ -174,6 +175,7 @@ class BoolParam : public Param {
   }
   ~BoolParam() { ParamUtils::RemoveParam<BoolParam>(this, params_vec_); }
   operator BOOL8() const { return value_; }
+  void operator=(BOOL8 value) { value_ = value; }
   void set_value(BOOL8 value) { value_ = value; }
   void ResetToDefault() {
     value_ = default_;
@@ -201,7 +203,9 @@ class StringParam : public Param {
   const char *string() const { return value_.string(); }
   const char *c_str() const { return value_.string(); }
   bool empty() { return value_.length() <= 0; }
-  void set_value(const STRING &value) { value_ = value; }
+  bool operator==(const STRING& other) { return value_ == other; }
+  void operator=(const STRING& value) { value_ = value; }
+  void set_value(const STRING& value) { value_ = value; }
   void ResetToDefault() {
     value_ = default_;
   }
@@ -224,6 +228,7 @@ class DoubleParam : public Param {
   }
   ~DoubleParam() { ParamUtils::RemoveParam<DoubleParam>(this, params_vec_); }
   operator double() const { return value_; }
+  void operator=(double value) { value_ = value; }
   void set_value(double value) { value_ = value; }
   void ResetToDefault() {
     value_ = default_;
