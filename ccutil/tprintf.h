@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        tprintf.c
+ * File:        tprintf.h
  * Description: Trace version of printf - portable between UX and NT
  * Author:      Phil Cheatle
  * Created:     Wed Jun 28 15:01:15 BST 1995
@@ -28,18 +28,9 @@ extern DLLSYM BOOL_VAR_H(debug_window_on, TRUE,
                          "Send tprintf to window unless file set");
 
 // Main logging function.
-#define tprintf(...) tprintf_internal(0, __VA_ARGS__)
-
-// Variant guarded by the numeric logging level parameter FLAGS_v (default 0).
-// Code using ParseCommandLineFlags() can control its value using the --v
-// commandline argument. Otherwise it must be specified in a config file like
-// other params.
-#define tlog(level, ...) tprintf_internal(level, __VA_ARGS__)
-
-#define TLOG_IS_ON(level) (FLAGS_v >= level)
+#define tprintf(...) tprintf_internal(__VA_ARGS__)
 
 extern TESS_API void tprintf_internal(  // Trace printf
-    const int level,                    // Logging level
     const char *format, ...);           // Message
 
 #endif  // define TESSERACT_CCUTIL_TPRINTF_H

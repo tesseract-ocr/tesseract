@@ -35,14 +35,10 @@
 // Since tprintf is protected by a mutex, these parameters can remain global.
 DLLSYM STRING_VAR(debug_file, "", "File to send tprintf output to");
 
-DLLSYM INT_VAR(FLAGS_v, 0, "Minimum logging level for tlog() output");
-
 DLLSYM void
 tprintf_internal(                       // Trace printf
-    const int level,                    // Logging level
     const char *format, ...             // Message
 ) {
-  if (FLAGS_v < level) return;
   tesseract::tprintfMutex.Lock();
   va_list args;                  // variable args
   static FILE *debugfp = NULL;   // debug file
