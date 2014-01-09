@@ -229,25 +229,22 @@ int main(int argc, char **argv) {
   tesseract::TessResultRenderer* renderer = NULL;
   bool b;
   api.GetBoolVariable("tessedit_create_hocr", &b);
-  if (b) renderer = new tesseract::TessHOcrRenderer();
+  if (b && renderer == NULL) renderer = new tesseract::TessHOcrRenderer();
 
   api.GetBoolVariable("tessedit_create_pdf", &b);
-  if (b)
-    renderer->insert(new tesseract::TessPDFRenderer(api.GetDatapath()));
+  if (b && renderer == NULL)
+    renderer = new tesseract::TessPDFRenderer(api.GetDatapath());
 
   api.GetBoolVariable("tessedit_create_boxfile", &b);
-  if (b) renderer = new tesseract::TessBoxTextRenderer();
+  if (b && renderer == NULL) renderer = new tesseract::TessBoxTextRenderer();
 
   if (renderer == NULL) renderer = new tesseract::TessTextRenderer();
 
-  bool stdInput = false;
-  if (!strcmp(image, "stdin") || !strcmp(image, "-"))
-      stdInput = true;
+  bool stdInput = !strcmp(image, "stdin") || !strcmp(image, "-");
 
   if (stdInput) {
-    char              byt;
-    PIX               *pixd = NULL;
-    std::vector<char> ch_data;
+    char byt;
+    GenericVector<l_uint8> ch_data;
     std::istream file(std::cin.rdbuf());
 
 #ifdef WIN32
@@ -260,17 +257,9 @@ int main(int argc, char **argv) {
     }
     std::cin.ignore(std::cin.rdbuf()->in_avail() + 1);
 
-    size_t  size = ch_data.size();
-    l_uint8 *data;
-    if ( (data = (l_uint8 *) malloc( size )) != NULL ) {
-      memcpy(data, &(ch_data)[0], size);
-    } else {
-      tprintf("Memory allocation error\n");
-      exit(1);
-    }
-
-    pixd = pixReadMem(data, size);
-    api.ProcessPage(pixd, 0, NULL, NULL, 0, renderer);
+    Pix* pixs = pixReadMem(&ch_data[0], ch_data.size());
+    api.ProcessPage(pixs, 0, NULL, NULL, 0, renderer);
+    pixDestroy(&pixs);
   } else {
     FILE* fin = fopen(image, "rb");
     if (fin == NULL) {
@@ -278,36 +267,32 @@ int main(int argc, char **argv) {
       exit(2);
     }
     fclose(fin);
+    if (!api.ProcessPages(image, NULL, 0, renderer)) {
+      fprintf(stderr, "Error during processing.\n");
+      exit(1);
+    }
   }
 
-  if (!stdInput && !api.ProcessPages(image, NULL, 0, renderer)) {
-    fprintf(stderr, "Error during processing.\n");
-    exit(1);
-  } else {
-    for (tesseract::TessResultRenderer* r = renderer; r != NULL;
-         r = r->next()) {
-      FILE* fout = stdout;
-      if (strcmp(output, "-") && strcmp(output, "stdout")) {
-        STRING outfile = STRING(output)
-            + STRING(".")
-            + STRING(r->file_extension());
-        fout = fopen(outfile.string(), "wb");
-        if (fout == NULL) {
-          fprintf(stderr, "Cannot create output file %s\n", outfile.string());
-          exit(1);
-        }
-      }
-
-      const char* data;
-      inT32 data_len;
-      if (r->GetOutput(&data, &data_len)) {
-        fwrite(data, 1, data_len, fout);
-        if (fout != stdout)
-          fclose(fout);
-        else
-          clearerr(fout);
-      }
+  FILE* fout = stdout;
+  if (strcmp(output, "-") && strcmp(output, "stdout")) {
+    STRING outfile = STRING(output)
+        + STRING(".")
+        + STRING(renderer->file_extension());
+    fout = fopen(outfile.string(), "wb");
+    if (fout == NULL) {
+      fprintf(stderr, "Cannot create output file %s\n", outfile.string());
+      exit(1);
     }
+  }
+
+  const char* data;
+  inT32 data_len;
+  if (renderer->GetOutput(&data, &data_len)) {
+    fwrite(data, 1, data_len, fout);
+    if (fout != stdout)
+      fclose(fout);
+    else
+      clearerr(fout);
   }
   PERF_COUNT_END
   return 0;                      // Normal exit
