@@ -83,6 +83,69 @@ class UNICHAR {
   // Get the number of bytes in the first character of the given utf8 string.
   static int utf8_step(const char* utf8_str);
 
+  // A class to simplify iterating over and accessing elements of a UTF8
+  // string. Note that unlike the UNICHAR class, const_iterator does NOT COPY or
+  // take ownership of the underlying byte array. It also does not permit
+  // modification of the array (as the name suggests).
+  //
+  // Example:
+  //   for (UNICHAR::const_iterator it = UNICHAR::begin(str, str_len);
+  //        it != UNICHAR::end(str, len);
+  //        ++it) {
+  //     tprintf("UCS-4 symbol code = %d\n", *it);
+  //     char buf[5];
+  //     int char_len = it.get_utf8(buf); buf[char_len] = '\0';
+  //     tprintf("Char = %s\n", buf);
+  //   }
+  class const_iterator {
+    typedef const_iterator CI;
+
+   public:
+    // Step to the next UTF8 character.
+    // If the current position is at an illegal UTF8 character, then print an
+    // error message and step by one byte. If the current position is at a NULL
+    // value, don't step past it.
+    const_iterator& operator++();
+
+    // Return the UCS-4 value at the current position.
+    // If the current position is at an illegal UTF8 value, return a single
+    // space character.
+    int operator*() const;
+
+    // Store the UTF-8 encoding of the current codepoint into buf, which must be
+    // at least 4 bytes long. Return the number of bytes written.
+    // If the current position is at an illegal UTF8 value, writes a single
+    // space character and returns 1.
+    // Note that this method does not null-terminate the buffer.
+    int get_utf8(char* buf) const;
+    // Returns the number of bytes of the current codepoint. Returns 1 if the
+    // current position is at an illegal UTF8 value.
+    int utf8_len() const;
+
+    // Return the pointer into the string at the current position.
+    const char* utf8_data() const { return it_; }
+
+    // Iterator equality operators.
+    friend bool operator==(const CI& lhs, const CI& rhs) {
+      return lhs.it_ == rhs.it_;
+    }
+    friend bool operator!=(const CI& lhs, const CI& rhs) {
+      return !(lhs == rhs);
+    }
+
+   private:
+    friend class UNICHAR;
+    explicit const_iterator(const char* it) : it_(it) {}
+
+    const char* it_;  // Pointer into the string.
+  };
+
+  // Create a start/end iterator pointing to a string. Note that these methods
+  // are static and do NOT create a copy or take ownership of the underlying
+  // array.
+  static const_iterator begin(const char* utf8_str, const int byte_length);
+  static const_iterator end(const char* utf8_str, const int byte_length);
+
  private:
   // A UTF-8 representation of 1 or more Unicode characters.
   // The last element (chars[UNICHAR_LEN - 1]) is a length if

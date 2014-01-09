@@ -18,6 +18,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "unichar.h"
+#include "errcode.h"
+#include "tprintf.h"
 
 #define UNI_MAX_LEGAL_UTF32 0x0010FFFF
 
@@ -141,4 +143,59 @@ int UNICHAR::utf8_step(const char* utf8_str) {
   };
 
   return utf8_bytes[static_cast<unsigned char>(*utf8_str)];
+}
+
+UNICHAR::const_iterator& UNICHAR::const_iterator::operator++() {
+  ASSERT_HOST(it_ != NULL);
+  int step = utf8_step(it_);
+  if (step == 0) {
+    tprintf("ERROR: Illegal UTF8 encountered.\n");
+    for (int i = 0; i < 5 && it_[i] != '\0'; ++i) {
+      tprintf("Index %d char = 0x%x", i, it_[i]);
+    }
+    step = 1;
+  }
+  it_ += step;
+  return *this;
+}
+
+int UNICHAR::const_iterator::operator*() const {
+  ASSERT_HOST(it_ != NULL);
+  const int len = utf8_step(it_);
+  if (len == 0) {
+    tprintf("WARNING: Illegal UTF8 encountered\n");
+    return ' ';
+  }
+  UNICHAR uch(it_, len);
+  return uch.first_uni();
+}
+
+int UNICHAR::const_iterator::get_utf8(char* utf8_output) const {
+  ASSERT_HOST(it_ != NULL);
+  const int len = utf8_step(it_);
+  if (len == 0) {
+    tprintf("WARNING: Illegal UTF8 encountered\n");
+    utf8_output[0] = ' ';
+    return 1;
+  }
+  strncpy(utf8_output, it_, len);
+  return len;
+}
+
+int UNICHAR::const_iterator::utf8_len() const {
+  ASSERT_HOST(it_ != NULL);
+  const int len = utf8_step(it_);
+  if (len == 0) {
+    tprintf("WARNING: Illegal UTF8 encountered\n");
+    return 1;
+  }
+  return len;
+}
+
+UNICHAR::const_iterator UNICHAR::begin(const char* utf8_str, const int len) {
+  return UNICHAR::const_iterator(utf8_str);
+}
+
+UNICHAR::const_iterator UNICHAR::end(const char* utf8_str, const int len) {
+  return UNICHAR::const_iterator(utf8_str + len);
 }
