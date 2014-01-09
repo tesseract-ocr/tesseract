@@ -21,7 +21,6 @@
 #include          "basedir.h"
 #include          "tessvars.h"
 #include          "control.h"
-#include          "imgs.h"
 #include          "reject.h"
 #include          "pageres.h"
 #include          "nwmain.h"
