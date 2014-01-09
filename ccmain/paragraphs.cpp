@@ -53,13 +53,6 @@ static int Epsilon(int space_pix) {
   return space_pix * 4 / 5;
 }
 
-template<typename T>
-void SimpleSwap(T &a, T &b) {
-  T c = a;
-  a = b;
-  b = c;
-}
-
 static bool AcceptableRowArgs(
     int debug_level, int min_num_rows, const char *function_name,
     const GenericVector<RowScratchRegisters> *rows,
@@ -777,7 +770,7 @@ void CalculateTabStops(GenericVector<RowScratchRegisters> *rows,
       left_tabs->remove(to_prune);
     }
   }
-  if (right_tabs->size() == 3 && right_tabs->size() >= 4) {
+  if (right_tabs->size() == 3 && left_tabs->size() >= 4) {
     int to_prune = -1;
     for (int i = right_tabs->size() - 1; i >= 0; i--) {
       if (to_prune < 0 ||
