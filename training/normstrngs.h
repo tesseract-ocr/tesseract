@@ -51,6 +51,32 @@ char32 OCRNormalize(char32 ch);
 // Returns true if the OCRNormalized ch1 and ch2 are the same.
 bool IsOCREquivalent(char32 ch1, char32 ch2);
 
+// Returns true if the value lies in the range of valid unicodes.
+bool IsValidCodepoint(const char32 ch);
+
+// Returns true a code point has the White_Space Unicode property.
+bool IsWhitespace(const char32 ch);
+// Returns true if every char in the given (null-terminated) string has the
+// White_Space Unicode property.
+bool IsUTF8Whitespace(const char* text);
+
+// Returns the length of bytes of the prefix of 'text' that have the White_Space
+// unicode property.
+int SpanUTF8Whitespace(const char* text);
+
+// Returns the length of bytes of the prefix of 'text' that DO NOT have the
+// White_Space unicode property.
+int SpanUTF8NotWhitespace(const char* text);
+
+// Returns true if the char is interchange valid i.e. no C0 or C1 control codes
+// (other than CR LF HT FF) and no non-characters.
+bool IsInterchangeValid(const char32 ch);
+// Same as above but restricted to 7-bit ASCII.
+bool IsInterchangeValid7BitAscii(const char32 ch);
+
+// Convert a full-width UTF-8 string to half-width.
+char32 FullwidthToHalfwidth(const char32 ch);
+
 }  // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_NORMSTRNGS_H_

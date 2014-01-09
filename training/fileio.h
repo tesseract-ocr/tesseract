@@ -44,6 +44,14 @@ class File {
 
   static void ReadFileToStringOrDie(const string& filename, string* out);
   static bool ReadFileToString(const string& filename, string* out);
+
+  // Helper methods
+
+  // Concatenate file paths removing any extra intervening '/' symbols.
+  static string JoinPath(const string& prefix, const string& suffix);
+  // Delete a filename or all filenames matching a glob pattern.
+  static bool Delete(const char* pathname);
+  static bool DeleteMatchingFiles(const char* pattern);
 };
 
 // A class to manipulate Files for reading.

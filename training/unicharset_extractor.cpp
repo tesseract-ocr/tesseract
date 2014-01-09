@@ -24,12 +24,6 @@
 // unichar per line.
 
 #include <stdio.h>
-/*
-** Include automatically generated configuration file if running autoconf
-*/
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 #if defined(HAVE_WCHAR_T) || defined(_WIN32) || defined(GOOGLE3)
 #include <wchar.h>
 #include <wctype.h>

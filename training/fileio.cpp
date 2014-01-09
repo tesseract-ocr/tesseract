@@ -1,8 +1,31 @@
+/**********************************************************************
+ * File:        fileio.cpp
+ * Description: File I/O utilities.
+ * Author:      Samuel Charron
+ * Created:     Tuesday, July 9, 2013
+ *
+ * (C) Copyright 2013, Google Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.  You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required
+ * by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied.  See the License for the specific
+ * language governing permissions and limitations under the License.
+ *
+ **********************************************************************/
 #include "fileio.h"
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <cstdio>
 #include <string>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <glob.h>
+#endif
 
 #include "tprintf.h"
 
@@ -19,7 +42,8 @@ FILE* File::OpenOrDie(const string& filename,
                       const string& mode) {
   FILE* stream = fopen(filename.c_str(), mode.c_str());
   if (stream == NULL) {
-    tprintf("Unable to open '%s' in mode '%s'", filename.c_str(), mode.c_str());
+    tprintf("Unable to open '%s' in mode '%s'\n", filename.c_str(),
+            mode.c_str());
   }
   return stream;
 }
@@ -28,7 +52,7 @@ void File::WriteStringToFileOrDie(const string& str,
                                   const string& filename) {
   FILE* stream = fopen(filename.c_str(), "wb");
   if (stream == NULL) {
-    tprintf("Unable to open '%s' for writing", filename.c_str());
+    tprintf("Unable to open '%s' for writing\n", filename.c_str());
     return;
   }
   fputs(str.c_str(), stream);
@@ -62,6 +86,51 @@ void File::ReadFileToStringOrDie(const string& filename, string* out) {
   ASSERT_HOST(ReadFileToString(filename, out));
 }
 
+
+string File::JoinPath(const string& prefix, const string& suffix) {
+  return (!prefix.size() || prefix[prefix.size() - 1] == '/') ?
+      prefix + suffix : prefix + "/" + suffix;
+}
+
+bool File::Delete(const char* pathname) {
+  const int status = unlink(pathname);
+  if (status != 0) {
+    tprintf("ERROR: Unable to delete file %s\n", pathname);
+    return false;
+  }
+  return true;
+}
+
+#ifdef _WIN32
+bool File::DeleteMatchingFiles(const char* pattern) {
+ char fname[_MAX_FNAME];
+ WIN32_FIND_DATA data;
+ BOOL result = TRUE;
+ HANDLE handle = FindFirstFile(pattern, &data);
+ bool all_deleted = true;
+ if (handle != INVALID_HANDLE_VALUE) {
+   for (; result; result = FindNextFile(handle, &data)) {
+      all_deleted &= File::Delete(data.cFileName);
+   }
+   FindClose(handle);
+ }
+ return all_deleted;
+}
+#else
+bool File::DeleteMatchingFiles(const char* pattern) {
+  glob_t pglob;
+  char **paths;
+  bool all_deleted = true;
+  if (glob(pattern, 0, NULL, &pglob) == 0) {
+    for (paths = pglob.gl_pathv; *paths != NULL; paths++) {
+      all_deleted &= File::Delete(*paths);
+    }
+    globfree(&pglob);
+  }
+  return all_deleted;
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // InputBuffer::
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,8 +160,9 @@ bool InputBuffer::ReadLine(string* out) {
   size_t line_size;
   int len = getline(&line, &line_size, stream_);
 
-  if (len < 0)
+  if (len < 0) {
     return false;
+  }
   if (len >= 1 && line[len - 1] == '\n')
     line[len - 1] = '\0';
   *out = string(line);
