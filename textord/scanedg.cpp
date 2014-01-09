@@ -17,8 +17,10 @@
  *
  **********************************************************************/
 
-#include          "edgloop.h"
-#include          "scanedg.h"
+#include "scanedg.h"
+
+#include "allheaders.h"
+#include "edgloop.h"
 
 #define WHITE_PIX     1          /*thresholded colours */
 #define BLACK_PIX     0
@@ -31,49 +33,47 @@
  * Extract edges from a PDBLK.
  **********************************************************************/
 
-void block_edges(IMAGE *t_image,       // thresholded image
+void block_edges(Pix *t_pix,           // thresholded image
                  PDBLK *block,         // block in image
                  C_OUTLINE_IT* outline_it) {
-  uinT8 margin;                  // margin colour
-  inT16 x;                       // line coords
-  inT16 y;                       // current line
   ICOORD bleft;                  // bounding box
   ICOORD tright;
-  ICOORD block_bleft;            // bounding box
-  ICOORD block_tright;
-  int xindex;                    // index to pixel
   BLOCK_LINE_IT line_it = block; // line iterator
-  IMAGELINE bwline;              // thresholded line
+
+  int width = pixGetWidth(t_pix);
+  int height = pixGetHeight(t_pix);
+  int wpl = pixGetWpl(t_pix);
                                  // lines in progress
-  CRACKEDGE **ptrline = new CRACKEDGE*[t_image->get_xsize()+1];
+  CRACKEDGE **ptrline = new CRACKEDGE*[width + 1];
   CRACKEDGE *free_cracks = NULL;
 
   block->bounding_box(bleft, tright);  // block box
-  block_bleft = bleft;
-  block_tright = tright;
-  for (x = tright.x() - bleft.x(); x >= 0; x--)
-    ptrline[x] = NULL;           //no lines in progress
+  int block_width = tright.x() - bleft.x();
+  for (int x = block_width; x >= 0; x--)
+    ptrline[x] = NULL;           //  no lines in progress
 
-  bwline.init(t_image->get_xsize());
+  uinT8* bwline = new uinT8[width];
 
-  margin = WHITE_PIX;
+  uinT8 margin = WHITE_PIX;
 
-  for (y = tright.y() - 1; y >= bleft.y() - 1; y--) {
-    if (y >= block_bleft.y() && y < block_tright.y()) {
-      t_image->get_line(bleft.x(), y, tright.x() - bleft.x(), &bwline, 0);
-      make_margins(block, &line_it, bwline.pixels, margin, bleft.x(),
-                   tright.x(), y);
+  for (int y = tright.y() - 1; y >= bleft.y() - 1; y--) {
+    if (y >= bleft.y() && y < tright.y()) {
+      // Get the binary pixels from the image.
+      l_uint32* line = pixGetData(t_pix) + wpl * (height - 1 - y);
+      for (int x = 0; x < block_width; ++x) {
+        bwline[x] = GET_DATA_BIT(line, x + bleft.x()) ^ 1;
+      }
+      make_margins(block, &line_it, bwline, margin, bleft.x(), tright.x(), y);
     } else {
-      x = tright.x() - bleft.x();
-      for (xindex = 0; xindex < x; xindex++)
-        bwline.pixels[xindex] = margin;
+      memset(bwline, margin, block_width * sizeof(bwline[0]));
     }
-    line_edges(bleft.x(), y, tright.x() - bleft.x(),
-               margin, bwline.pixels, ptrline, &free_cracks, outline_it);
+    line_edges(bleft.x(), y, block_width,
+               margin, bwline, ptrline, &free_cracks, outline_it);
   }
 
   free_crackedges(free_cracks);  // really free them
   delete[] ptrline;
+  delete[] bwline;
 }
 
 
@@ -133,39 +133,6 @@ void make_margins(                         //get a line
       pixels[xindex - left] = margin;
   }
 }
-
-
-/**********************************************************************
- * whiteout_block
- *
- * Extract edges from a PDBLK.
- **********************************************************************/
-
-void whiteout_block(                 //clean it
-                    IMAGE *t_image,  //threshold image
-                    PDBLK *block     //block in image
-                   ) {
-  inT16 x;                       //line coords
-  inT16 y;                       //current line
-  inT16 xext;                    //line width
-  int xindex;                    //index to pixel
-  uinT8 *dest;                   //destination pixel
-  TBOX block_box;                 //bounding box
-  BLOCK_LINE_IT line_it = block; //line iterator
-  IMAGELINE bwline;              //thresholded line
-
-  block_box = block->bounding_box ();
-  for (y = block_box.bottom (); y < block_box.top (); y++) {
-                                 //find line limits
-    x = line_it.get_line (y, xext);
-    t_image->get_line (x, y, xext, &bwline, 0);
-    dest = bwline.pixels;        //destination pixel
-    for (xindex = 0; xindex < xext; xindex++)
-      *dest++ = 1;
-    t_image->put_line (x, y, xext, &bwline, 0);
-  }
-}
-
 
 /**********************************************************************
  * line_edges

@@ -336,11 +336,7 @@ void extract_edges(Pix* pix,  // thresholded image
   C_OUTLINE_LIST outlines;       // outlines in block
   C_OUTLINE_IT out_it = &outlines;
 
-  // TODO(rays) move the pix all the way down to the bottom.
-  IMAGE image;
-  image.FromPix(pix);
-
-  block_edges(&image, block, &out_it);
+  block_edges(pix, block, &out_it);
   ICOORD bleft;                  // block box
   ICOORD tright;
   block->bounding_box(bleft, tright);

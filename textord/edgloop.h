@@ -22,7 +22,6 @@
 
 #include          "scrollview.h"
 #include          "params.h"
-#include          "img.h"
 #include          "pdblock.h"
 #include          "coutln.h"
 #include          "crakedge.h"

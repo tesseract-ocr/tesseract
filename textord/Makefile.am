@@ -1,7 +1,7 @@
 AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
-    -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
+    -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict \
     -I$(top_srcdir)/opencl
@@ -36,7 +36,6 @@ libtesseract_textord_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 libtesseract_textord_la_LIBADD = \
     ../ccstruct/libtesseract_ccstruct.la \
     ../ccutil/libtesseract_ccutil.la \
-    ../image/libtesseract_image.la \
     ../viewer/libtesseract_viewer.la \
     ../wordrec/libtesseract_wordrec.la \
     ../cutil/libtesseract_cutil.la \

@@ -22,7 +22,6 @@
 
 #include          "params.h"
 #include          "scrollview.h"
-#include          "img.h"
 #include          "pdblock.h"
 #include          "crakedge.h"
 
@@ -34,7 +33,9 @@ struct CrackPos {
   int y;
 };
 
-void block_edges(IMAGE *t_image,       // thresholded image
+struct Pix;
+
+void block_edges(Pix *t_image,         // thresholded image
                  PDBLK *block,         // block in image
                  C_OUTLINE_IT* outline_it);
 void make_margins(PDBLK *block,            // block in image
@@ -44,8 +45,6 @@ void make_margins(PDBLK *block,            // block in image
                   inT16 left,              // block edges
                   inT16 right,
                   inT16 y);                // line coord                 );
-void whiteout_block(IMAGE *t_image,        // thresholded image
-                    PDBLK *block);         // block in image
 void line_edges(inT16 x,                     // coord of line start
                 inT16 y,                     // coord of line
                 inT16 xext,                  // width of line

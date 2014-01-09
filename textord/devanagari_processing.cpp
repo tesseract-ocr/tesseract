@@ -21,7 +21,6 @@
 #include "devanagari_processing.h"
 #include "allheaders.h"
 #include "tordmain.h"
-#include "img.h"
 #include "statistc.h"
 
 // Flags controlling the debugging information for shiro-rekha splitting
