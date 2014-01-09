@@ -311,6 +311,8 @@ Tesseract::Tesseract()
                 "Write .unlv output file", this->params()),
     BOOL_MEMBER(tessedit_create_hocr, false,
                 "Write .html hOCR output file", this->params()),
+    BOOL_MEMBER(tessedit_create_pdf, false,
+                "Write .pdf output file", this->params()),
     STRING_MEMBER(unrecognised_char, "|",
                   "Output char for unidentified blobs", this->params()),
     INT_MEMBER(suspect_level, 99, "Suspect marker level", this->params()),
