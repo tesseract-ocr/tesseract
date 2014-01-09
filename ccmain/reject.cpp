@@ -32,7 +32,6 @@
 #include          <string.h>
 #include          "genericvector.h"
 #include          "reject.h"
-#include          "imgs.h"
 #include          "control.h"
 #include          "docqual.h"
 #include          "secname.h"
