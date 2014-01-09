@@ -33,7 +33,6 @@
 
 #include "blread.h"
 #include "control.h"
-#include "svshowim.h"
 #include "paramsd.h"
 #include "pageres.h"
 #include "tordmain.h"

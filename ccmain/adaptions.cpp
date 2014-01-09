@@ -31,8 +31,6 @@
 #include          "tessbox.h"
 #include          "tessvars.h"
 #include          "memry.h"
-#include          "imgs.h"
-#include          "scaleimg.h"
 #include          "reject.h"
 #include          "control.h"
 #include          "stopper.h"
