@@ -23,31 +23,9 @@
 
 #include "clst.h"
 #include "coutln.h"
+#include "hashfn.h"
 #include "rect.h"
 #include "scrollview.h"
-
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif  // HAVE_CONFIG_H
-
-#ifdef USE_STD_NAMESPACE
-#if (__cplusplus >= 201103L) || defined(_MSC_VER)  // Visual Studio
-#include <unordered_set>
-#if (_MSC_VER >= 1500 && _MSC_VER < 1600)  // Visual Studio 2008
-using namespace std::tr1;
-#else
-using std::unordered_set;
-#endif
-#elif (defined(__GNUC__) && (((__GNUC__ == 3) && ( __GNUC_MINOR__ > 0)) || \
-  __GNUC__ >= 4)) // gcc
-// hash_set is deprecated in gcc
-#include <ext/hash_set>
-using __gnu_cxx::hash_set;
-#define unordered_set hash_set
-#else
-#include <hash_set>
-#endif  // gcc
-#endif  // USE_STD_NAMESPACE
 
 #include "allheaders.h"
 
