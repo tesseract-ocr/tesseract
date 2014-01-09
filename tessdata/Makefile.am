@@ -39,7 +39,8 @@ langdata = bul.traineddata mlt.traineddata chr.traineddata \
 	eng.cube.fold ita.cube.params ara.cube.params ita.cube.fold \
 	ara.cube.bigrams hin.cube.params hin.cube.fold spa.cube.lm \
 	ita.cube.nn fra.cube.size eng.cube.bigrams ara.cube.lm \
-	rus.cube.nn spa.cube.nn hin.cube.bigrams
+	rus.cube.nn spa.cube.nn hin.cube.bigrams \
+    pdf.ttf pdf.ttx
 
 .PHONY: install-langs
 install-langs:
