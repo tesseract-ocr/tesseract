@@ -837,7 +837,7 @@ bool UNICHARSET::load_via_fgets(
                       script, &other_case)) != 4 &&
           (v = sscanf(buffer, "%s %x %63s",
                       unichar, &properties, script)) != 3 &&
-          (v = sscanf(buffer, "%s %x", unichar, &properties) != 2))) {
+          (v = sscanf(buffer, "%s %x", unichar, &properties)) != 2)) {
       return false;
     }
 
