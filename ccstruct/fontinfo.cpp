@@ -212,6 +212,7 @@ bool write_spacing_info(FILE* f, const FontInfo& fi) {
     FontSpacingInfo *fs = fi.spacing_vec->get(i);
     inT32 kern_size = (fs == NULL) ? -1 : fs->kerned_x_gaps.size();
     if (fs == NULL) {
+      // Valid to have the identical fwrites. Writing invalid x-gaps.
       if (fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
           fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
           fwrite(&kern_size, sizeof(kern_size), 1, f) != 1) {

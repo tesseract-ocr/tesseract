@@ -21,7 +21,6 @@
 #include          "allheaders.h"
 #include          "blckerr.h"
 #include          "pdblock.h"
-#include          "svshowim.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -229,33 +228,6 @@ void PDBLK::plot(                //draw outline
   }
 }
 #endif
-
-
-/**********************************************************************
- * PDBLK::show
- *
- * Show the image corresponding to a block as its set of rectangles.
- **********************************************************************/
-
-#ifndef GRAPHICS_DISABLED
-void PDBLK::show(               //show image block
-                 IMAGE *image,  //image to show
-                 ScrollView* window  //window to show in
-                ) {
-  BLOCK_RECT_IT it = this;       //rectangle iterator
-  ICOORD bleft, tright;          //corners of rectangle
-
-  for (it.start_block (); !it.cycled_rects (); it.forward ()) {
-                                 //get rectangle
-    it.bounding_box (bleft, tright);
-    //              tprintf("Drawing a block with a bottom left of (%d,%d)\n",
-    //                      bleft.x(),bleft.y());
-                                 //show it
-    sv_show_sub_image (image, bleft.x (), bleft.y (), tright.x () - bleft.x (), tright.y () - bleft.y (), window, bleft.x (), bleft.y ());
-  }
-}
-#endif
-
 
 /**********************************************************************
  * PDBLK::operator=

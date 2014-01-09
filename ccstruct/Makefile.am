@@ -1,6 +1,6 @@
 AM_CPPFLAGS += \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil \
-    -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
+    -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/opencl
 if USE_OPENCL
 AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
@@ -30,7 +30,6 @@ libtesseract_ccstruct_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 libtesseract_ccstruct_la_LIBADD = \
     ../ccutil/libtesseract_ccutil.la \
     ../cutil/libtesseract_cutil.la \
-    ../image/libtesseract_image.la \
     ../viewer/libtesseract_viewer.la \
     ../opencl/libtesseract_opencl.la 
 endif

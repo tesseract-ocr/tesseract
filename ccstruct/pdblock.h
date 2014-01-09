@@ -21,7 +21,6 @@
 #define           PDBLOCK_H
 
 #include          "clst.h"
-#include          "img.h"
 #include          "strngs.h"
 #include          "polyblk.h"
 
@@ -101,11 +100,6 @@ class PDBLK
               inT32 serial,
               ScrollView::Color colour);
     #endif  // GRAPHICS_DISABLED
-    ///show image
-    ///@param image image to show
-    ///@param window window to show in
-    void show(IMAGE *image,
-              ScrollView* window);
 
     ///assignment
     ///@param source from this

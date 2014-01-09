@@ -20,7 +20,6 @@
 #ifndef           OCRBLOCK_H
 #define           OCRBLOCK_H
 
-#include          "img.h"
 #include          "ocrpara.h"
 #include          "ocrrow.h"
 #include          "pdblock.h"
