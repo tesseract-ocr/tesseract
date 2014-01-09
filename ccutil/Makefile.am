@@ -32,7 +32,7 @@ libtesseract_ccutil_la_SOURCES = \
     ambigs.cpp basedir.cpp bits16.cpp bitvector.cpp \
     ccutil.cpp clst.cpp \
     elst2.cpp elst.cpp errcode.cpp \
-    globaloc.cpp hashfn.cpp indexmapbidi.cpp \
+    globaloc.cpp indexmapbidi.cpp \
     mainblk.cpp memry.cpp \
     serialis.cpp strngs.cpp \
     tessdatamanager.cpp tprintf.cpp \
