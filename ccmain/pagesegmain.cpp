@@ -39,7 +39,6 @@
 #include "colfind.h"
 #include "equationdetect.h"
 #include "imagefind.h"
-#include "img.h"
 #include "linefind.h"
 #include "makerow.h"
 #include "osdetect.h"
