@@ -62,7 +62,7 @@
  * 2 - report total function call time for functions we're tracking
  * 3 - optionally report breakdown of function calls (kernel launch, kernel time, data copies)
  ************************************************************************************/
-#define PERF_COUNT_VERBOSE 2
+#define PERF_COUNT_VERBOSE 1
 #define PERF_COUNT_REPORT_STR "[%36s], %24s, %11.6f\n"
 
 
