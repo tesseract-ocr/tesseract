@@ -42,6 +42,14 @@ inline void SkipNewline(FILE *file) {
   if (fgetc(file) != '\n') fseek(file, -1, SEEK_CUR);
 }
 
+// Swaps the two args pointed to by the pointers.
+// Operator= and copy constructor must work on T.
+template<typename T> inline void Swap(T* p1, T* p2) {
+  T tmp(*p2);
+  *p2 = *p1;
+  *p1 = tmp;
+}
+
 // qsort function to sort 2 floats.
 inline int sort_floats(const void *arg1, const void *arg2) {
   float diff = *((float *) arg1) - *((float *) arg2);
