@@ -22,7 +22,6 @@
 
 #include <stdio.h>
 
-#include          "img.h"
 
 extern FILE *debug_fp;    // write debug stuff here
 #endif
