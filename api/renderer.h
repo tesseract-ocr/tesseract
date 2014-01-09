@@ -21,6 +21,7 @@
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
+#include "genericvector.h"
 #include "platform.h"
 #include "publictypes.h"
 
@@ -178,6 +179,45 @@ protected:
   virtual bool AddImageHandler(TessBaseAPI* api);
   virtual bool EndDocumentHandler();
 };
+
+/**
+ * Renders tesseract output into searchable PDF
+ */
+class TESS_API TessPDFRenderer : public TessResultRenderer {
+ public:
+  TessPDFRenderer(const char *datadir);
+
+protected:
+  virtual bool BeginDocumentHandler();
+  virtual bool AddImageHandler(TessBaseAPI* api);
+  virtual bool EndDocumentHandler();
+
+private:
+  // We don't want to have every image in memory at once,
+  // so we store some metadata as we go along producing
+  // PDFs one page at a time. At the end that metadata is
+  // used to make everything that isn't easily handled in a
+  // streaming fashion.
+  long int obj_;                     // counter for PDF objects
+  GenericVector<long int> offsets_;  // offset of every PDF object in bytes
+  GenericVector<long int> pages_;    // object number for every /Page object
+  const char *datadir_;              // where to find the custom font
+  // Bookkeeping only. DIY = Do It Yourself.
+  void AppendPDFObjectDIY(size_t objectsize);
+  // Bookkeeping + emit data.
+  void AppendPDFObject(const char *data);
+  // Create the /Contents object for an entire page.
+  static char* GetPDFTextObjects(TessBaseAPI* api,
+                                 double width, double height,
+                                 int page_number);
+  // Attempt to create PFD object from an image without transcoding.
+  static bool fileToPDFObj(char *filename, long int objnum,
+                           char **pdf_object, long int *pdf_object_size);
+  // Turn a Pix into a the very best PDF object that we can.
+  static bool pixToPDFObj(Pix *pix, long int objnum,
+                          char **pdf_object, long int *pdf_object_size);
+};
+
 
 /**
  * Renders tesseract output into a plain UTF-8 text string

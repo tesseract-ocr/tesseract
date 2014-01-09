@@ -24,6 +24,7 @@
 
 #include "allheaders.h"
 #include "baseapi.h"
+#include "basedir.h"
 #include "renderer.h"
 #include "strngs.h"
 #include "tprintf.h"
@@ -139,18 +140,18 @@ int main(int argc, char **argv) {
     fprintf(stderr, "  -psm pagesegmode\tspecify page segmentation mode.\n");
     fprintf(stderr, "These options must occur before any configfile.\n\n");
     fprintf(stderr,
-              "pagesegmode values are:\n"
-              "  0 = Orientation and script detection (OSD) only.\n"
-              "  1 = Automatic page segmentation with OSD.\n"
-              "  2 = Automatic page segmentation, but no OSD, or OCR\n"
-              "  3 = Fully automatic page segmentation, but no OSD. (Default)\n"
-              "  4 = Assume a single column of text of variable sizes.\n"
-              "  5 = Assume a single uniform block of vertically aligned text.\n"
-              "  6 = Assume a single uniform block of text.\n"
-              "  7 = Treat the image as a single text line.\n"
-              "  8 = Treat the image as a single word.\n"
-              "  9 = Treat the image as a single word in a circle.\n"
-              "  10 = Treat the image as a single character.\n\n");
+            "pagesegmode values are:\n"
+            "  0 = Orientation and script detection (OSD) only.\n"
+            "  1 = Automatic page segmentation with OSD.\n"
+            "  2 = Automatic page segmentation, but no OSD, or OCR\n"
+            "  3 = Fully automatic page segmentation, but no OSD. (Default)\n"
+            "  4 = Assume a single column of text of variable sizes.\n"
+            "  5 = Assume a single uniform block of vertically aligned text.\n"
+            "  6 = Assume a single uniform block of text.\n"
+            "  7 = Treat the image as a single text line.\n"
+            "  8 = Treat the image as a single word.\n"
+            "  9 = Treat the image as a single word in a circle.\n"
+            "  10 = Treat the image as a single character.\n\n");
     fprintf(stderr, "Single options:\n");
     fprintf(stderr, "  -v --version: version info\n");
     fprintf(stderr, "  --list-langs: list available languages for tesseract "
@@ -230,6 +231,10 @@ int main(int argc, char **argv) {
   api.GetBoolVariable("tessedit_create_hocr", &b);
   if (b) renderer = new tesseract::TessHOcrRenderer();
 
+  api.GetBoolVariable("tessedit_create_pdf", &b);
+  if (b)
+    renderer->insert(new tesseract::TessPDFRenderer(api.GetDatapath()));
+
   api.GetBoolVariable("tessedit_create_boxfile", &b);
   if (b) renderer = new tesseract::TessBoxTextRenderer();
 
@@ -277,6 +282,7 @@ int main(int argc, char **argv) {
 
   if (!stdInput && !api.ProcessPages(image, NULL, 0, renderer)) {
     fprintf(stderr, "Error during processing.\n");
+    exit(1);
   } else {
     for (tesseract::TessResultRenderer* r = renderer; r != NULL;
          r = r->next()) {

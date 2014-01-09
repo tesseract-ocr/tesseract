@@ -1,6 +1,7 @@
 AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"\
-    -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
-    -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
+    -DUSE_STD_NAMESPACE \
+    -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct -I$(top_srcdir)/cube \
+    -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify -I$(top_srcdir)/ccmain \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
@@ -29,7 +30,6 @@ libtesseract_api_la_LIBADD = \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
     ../ccstruct/libtesseract_ccstruct.la \
-    ../image/libtesseract_image.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccutil/libtesseract_ccutil.la \
@@ -40,7 +40,7 @@ libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
 if VISIBILITY
 libtesseract_api_la_CPPFLAGS += -DTESS_EXPORTS
 endif
-libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp renderer.cpp
+libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp pdfrenderer.cpp renderer.cpp
 
 lib_LTLIBRARIES += libtesseract.la
 libtesseract_la_LDFLAGS = 
@@ -58,7 +58,6 @@ libtesseract_la_LIBADD = \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
     ../ccstruct/libtesseract_ccstruct.la \
-    ../image/libtesseract_image.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccutil/libtesseract_ccutil.la \

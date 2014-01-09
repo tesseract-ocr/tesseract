@@ -87,7 +87,8 @@ typedef void (Wordrec::*FillLatticeFunc)(const MATRIX &ratings,
                                          const WERD_CHOICE_LIST &best_choices,
                                          const UNICHARSET &unicharset,
                                          BlamerBundle *blamer_bundle);
-typedef TessCallback4<const UNICHARSET &, int, PageIterator *, Pix *> TruthCallback;
+typedef TessCallback4<const UNICHARSET &, int, PageIterator *, Pix *>
+    TruthCallback;
 
 /**
  * Base class for all tesseract APIs.
@@ -114,7 +115,7 @@ class TESS_API TessBaseAPI {
    * and returns sizeof(cl_device_id)
    * otherwise *device=NULL and returns 0.
    */
-static size_t getOpenCLDevice( void **device );
+  static size_t getOpenCLDevice(void **device);
 
   /**
    * Writes the thresholded image to stderr as a PBM file on receipt of a
@@ -123,10 +124,22 @@ static size_t getOpenCLDevice( void **device );
   static void CatchSignals();
 
   /**
-   * Set the name of the input file. Needed only for training and
-   * reading a UNLV zone file.
+   * Set the name of the input file. Needed for training and
+   * reading a UNLV zone file, and for searchable PDF output.
    */
   void SetInputName(const char* name);
+  /**
+   * These functions are required for searchable PDF output.
+   * We need our hands on the input file so that we can include
+   * it in the PDF without transcoding. If that is not possible,
+   * we need the original image. Finally, resolution metadata
+   * is stored in the PDF so we need that as well.
+   */
+  const char* GetInputName();
+  void SetInputImage(Pix *pix);
+  Pix* GetInputImage();
+  int GetSourceYResolution();
+  const char* GetDatapath();
 
   /** Set the name of the bonus output files. Needed only for debugging. */
   void SetOutputName(const char* name);
@@ -567,6 +580,7 @@ static size_t getOpenCLDevice( void **device );
    * page_number is 0-based but will appear in the output as 1-based.
    */
   char* GetHOCRText(int page_number);
+
   /**
    * The recognized text is returned as a char* which is coded in the same
    * format as a box file used in training. Returned string must be freed with
@@ -759,7 +773,7 @@ static size_t getOpenCLDevice( void **device );
   TESS_LOCAL int FindLines();
 
   /** Delete the pageres and block list ready for a new page. */
-  void ClearResults();
+  TESS_API void ClearResults();
 
   /**
    * Return an LTR Result Iterator -- used only for training, as we really want
@@ -816,6 +830,7 @@ static size_t getOpenCLDevice( void **device );
   };
   /* @} */
 
+
  protected:
   Tesseract*        tesseract_;       ///< The underlying data object.
   Tesseract*        osd_tesseract_;   ///< For orientation & script detection.
@@ -825,6 +840,7 @@ static size_t getOpenCLDevice( void **device );
   BLOCK_LIST*       block_list_;      ///< The page layout.
   PAGE_RES*         page_res_;        ///< The page-level data.
   STRING*           input_file_;      ///< Name used by training code.
+  Pix*              input_image_;     ///< Image used for searchable PDF
   STRING*           output_file_;     ///< Name used by debug code.
   STRING*           datapath_;        ///< Current location of tessdata.
   STRING*           language_;        ///< Last initialized language.
