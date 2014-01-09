@@ -30,7 +30,6 @@
 #include "const.h"
 #include "char_set.h"
 #include "char_samp.h"
-#include "img.h"
 
 namespace tesseract {
 class CubeUtils {
@@ -49,14 +48,9 @@ class CubeUtils {
   static int StrCmp(const char_32 *str1, const char_32 *str2);
   // Duplicates a 32-bit char buffer
   static char_32 *StrDup(const char_32 *str);
-  // Creates a CharSamp from an IMAGE and a bounding box
-  static CharSamp *CharSampleFromImg(IMAGE *img,
-                                     int left, int top, int wid, int hgt);
   // Creates a CharSamp from an Pix and a bounding box
   static CharSamp *CharSampleFromPix(Pix *pix,
                                      int left, int top, int wid, int hgt);
-  // Creates an IMAGE from a CharSamp
-  static IMAGE *ImageFromCharSample(CharSamp *char_samp);
   // Creates a Pix from a CharSamp
   static Pix *PixFromCharSample(CharSamp *char_samp);
   // read the contents of a file to a string
@@ -82,8 +76,6 @@ class CubeUtils {
   // Return array must be freed by caller.
   static char_32 *ToUpper(const char_32 *str32, CharSet *char_set);
  private:
-  static unsigned char *GetImageData(IMAGE *img,
-                                     int left, int top, int wid, int hgt);
   static unsigned char *GetImageData(Pix *pix,
                                      int left, int top, int wid, int hgt);
 };

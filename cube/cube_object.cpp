@@ -29,14 +29,6 @@ CubeObject::CubeObject(CubeRecoContext *cntxt, CharSamp *char_samp) {
   cntxt_ = cntxt;
 }
 
-CubeObject::CubeObject(CubeRecoContext *cntxt, IMAGE *img,
-                       int left, int top, int wid, int hgt) {
-  Init();
-  char_samp_ = CubeUtils::CharSampleFromImg(img, left, top, wid, hgt);
-  own_char_samp_ = true;
-  cntxt_ = cntxt;
-}
-
 CubeObject::CubeObject(CubeRecoContext *cntxt, Pix *pix,
                        int left, int top, int wid, int hgt) {
   Init();
