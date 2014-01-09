@@ -18,8 +18,8 @@ AC_PREFIX_DEFAULT(/usr/local)
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
-PACKAGE_YEAR=2013
-PACKAGE_DATE="08/13"
+PACKAGE_YEAR=2014
+PACKAGE_DATE="01/14"
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -356,6 +356,28 @@ if !($have_icu); then
 fi
 AM_CONDITIONAL(ENABLE_TRAINING, $have_icu)
 
+# Check location of pango headers
+have_pango=false
+AC_CHECK_HEADERS(pango-1.0/pango/pango-features.h, have_pango=true, have_pango=false)
+if !($have_pango); then
+        AC_MSG_WARN(Training tools WILL NOT be built because of missing pango library.)
+        AC_MSG_WARN(Try to install libpango1.0-dev package.)
+else
+      CPPFLAGS="$CPPFLAGS $(pkg-config --cflags pango)"
+fi
+AM_CONDITIONAL(ENABLE_TRAINING, $have_pango)
+
+# Check location of cairo headers
+have_cairo=false
+AC_CHECK_HEADERS(cairo/cairo-version.h, have_cairo=true, have_cairo=false)
+if !($have_cairo); then
+        AC_MSG_WARN(Training tools WILL NOT be built because of missing cairo library.)
+        AC_MSG_WARN(Try to install libcairo-dev?? package.)
+else
+      CPPFLAGS="$CPPFLAGS $(pkg-config --cflags cairo)"
+fi
+AM_CONDITIONAL(ENABLE_TRAINING, $have_cairo)
+
 # ----------------------------------------
 # Final Tasks and Output
 # ----------------------------------------
@@ -371,7 +393,6 @@ AC_CONFIG_FILES(classify/Makefile)
 AC_CONFIG_FILES(cube/Makefile)
 AC_CONFIG_FILES(cutil/Makefile)
 AC_CONFIG_FILES(dict/Makefile)
-AC_CONFIG_FILES(image/Makefile)
 AC_CONFIG_FILES(neural_networks/runtime/Makefile)
 AC_CONFIG_FILES(textord/Makefile)
 AC_CONFIG_FILES(viewer/Makefile)
