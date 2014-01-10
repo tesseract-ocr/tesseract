@@ -24,14 +24,12 @@
 #if (__cplusplus >= 201103L) || defined(_MSC_VER)  // Visual Studio
 #include <unordered_map>
 #include <unordered_set>
-#ifdef _MSC_VER
+#define hash_map std::unordered_map
 #if (_MSC_VER >= 1500 && _MSC_VER < 1600)  // Visual Studio 2008
 using namespace std::tr1;
-#else
+#else  // _MSC_VER
 using std::unordered_map;
 using std::unordered_set;
-#endif
-#else  // _MSC_VER
 #include <memory>
 #define SmartPtr std::unique_ptr
 #define HAVE_UNIQUE_PTR

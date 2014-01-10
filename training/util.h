@@ -23,6 +23,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string>
+#include <vector>
 
 #ifdef USE_STD_NAMESPACE
 using std::string;

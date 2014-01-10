@@ -21,6 +21,10 @@ noinst_HEADERS = \
 
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
+libtesseract_training_la_LIBADD = \
+    ../cutil/libtesseract_cutil.la 
+#    ../api/libtesseract.la
+    
 libtesseract_training_la_SOURCES = \
     boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
       fileio.cpp ligature_table.cpp normstrngs.cpp pango_font_info.cpp \
@@ -227,7 +231,8 @@ else
 text2image_LDADD += \
     ../api/libtesseract.la
 endif
-text2image_LDADD += -licuuc  -licui18n -lpango-1.0 -lpangocairo-1.0 -lgobject-2.0 -lglib-2.0 -lcairo
+text2image_LDADD += -licuuc  -licui18n -lpango-1.0 -lpangocairo-1.0 \
+		    -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
 #unicharset_extractor_LDFLAGS = -static

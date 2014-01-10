@@ -53,6 +53,14 @@ GENERIC_RELEASE=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
 AC_SUBST(GENERIC_RELEASE)
 AC_SUBST(GENERIC_VERSION)
 
+# ----------------------------------------
+# Automake configuration
+# ----------------------------------------
+
+AM_INIT_AUTOMAKE
+AC_CONFIG_HEADERS(config_auto.h:config/config.h.in)
+AM_MAINTAINER_MODE
+
 # default conditional
 AM_CONDITIONAL(MINGW, false)
 AM_CONDITIONAL(GRAPHICS_DISABLED, false)
@@ -224,14 +232,6 @@ esac
 AC_PROG_CXX(g++)
 
 AC_PROG_LIBTOOL
-
-# ----------------------------------------
-# Automake configuration
-# ----------------------------------------
-
-AM_INIT_AUTOMAKE
-AC_CONFIG_HEADERS(config_auto.h:config/config.h.in)
-AM_MAINTAINER_MODE
 
 # ----------------------------------------
 # Additional checking of compiler characteristics
