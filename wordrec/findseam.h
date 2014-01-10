@@ -38,4 +38,7 @@
 typedef tesseract::KDPtrPairInc<float, SEAM> SeamPair;
 typedef tesseract::GenericHeap<SeamPair> SeamQueue;
 
+typedef tesseract::KDPtrPairDec<float, SEAM> SeamDecPair;
+typedef tesseract::GenericHeap<SeamDecPair> SeamPile;
+
 #endif

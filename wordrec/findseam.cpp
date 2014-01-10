@@ -106,7 +106,7 @@ void Wordrec::choose_best_seam(SeamQueue* seam_queue,
                                PRIORITY priority,
                                SEAM **seam_result,
                                TBLOB *blob,
-                               GenericVector<SEAM*>* seam_pile) {
+                               SeamPile* seam_pile) {
   SEAM *seam;
   char str[80];
   float my_priority;
@@ -138,15 +138,14 @@ void Wordrec::choose_best_seam(SeamQueue* seam_queue,
       print_seam(str, seam);
     }
 
-    if ((*seam_result == NULL || /* Replace answer */
-    (*seam_result)->priority > my_priority) && my_priority < chop_ok_split) {
+    if ((*seam_result == NULL || (*seam_result)->priority > my_priority) &&
+        my_priority < chop_ok_split) {
       /* No crossing */
-      if (constrained_split (seam->split1, blob)) {
+      if (constrained_split(seam->split1, blob)) {
         delete *seam_result;
         *seam_result = new SEAM(*seam);
         (*seam_result)->priority = my_priority;
-      }
-      else {
+      } else {
         delete seam;
         seam = NULL;
         my_priority = BAD_PRIORITY;
@@ -160,14 +159,23 @@ void Wordrec::choose_best_seam(SeamQueue* seam_queue,
     }
 
     if (seam) {
-                                 /* Combine with others */
-      if (seam_pile->size() < MAX_NUM_SEAMS
-      /*|| tessedit_truncate_chopper==0 */ ) {
+      /* Combine with others */
+      if (seam_pile->size() < chop_seam_pile_size) {
         combine_seam(*seam_pile, seam, seam_queue);
-        seam_pile->push_back(seam);
-      }
-      else
+        SeamDecPair pair(seam_pair.key(), seam);
+        seam_pile->Push(&pair);
+      } else if (chop_new_seam_pile &&
+                 seam_pile->size() == chop_seam_pile_size &&
+                 seam_pile->PeekTop().key() > seam_pair.key()) {
+        combine_seam(*seam_pile, seam, seam_queue);
+        SeamDecPair pair;
+        seam_pile->Pop(&pair);  // pop the worst.
+        pair.set_key(seam_pair.key());
+        pair.set_data(seam);  // Deletes the old seam.
+        seam_pile->Push(&pair);
+      } else {
         delete seam;
+      }
     }
 
     my_priority = seam_queue->empty() ? NO_FULL_PRIORITY
@@ -186,7 +194,7 @@ void Wordrec::choose_best_seam(SeamQueue* seam_queue,
  * from this union should be added to the seam queue.  The return value
  * tells whether or not any additional seams were added to the queue.
  **********************************************************************/
-void Wordrec::combine_seam(const GenericVector<SEAM*>& seam_pile,
+void Wordrec::combine_seam(const SeamPile& seam_pile,
                            const SEAM* seam, SeamQueue* seam_queue) {
   register inT16 x;
   register inT16 dist;
@@ -194,7 +202,7 @@ void Wordrec::combine_seam(const GenericVector<SEAM*>& seam_pile,
   inT16 bottom2, top2;
 
   SEAM *new_one;
-  SEAM *this_one;
+  const SEAM *this_one;
 
   bottom1 = seam->split1->point1->pos.y;
   if (seam->split1->point2->pos.y >= bottom1)
@@ -217,7 +225,7 @@ void Wordrec::combine_seam(const GenericVector<SEAM*>& seam_pile,
     top2 = top1;
   }
   for (int x = 0; x < seam_pile.size(); ++x) {
-    this_one = seam_pile[x];
+    this_one = seam_pile.get(x).data();
     dist = seam->location.x - this_one->location.x;
     if (-SPLIT_CLOSENESS < dist &&
       dist < SPLIT_CLOSENESS &&
@@ -294,7 +302,7 @@ inT16 Wordrec::constrained_split(SPLIT *split, TBLOB *blob) {
  * Work from the outlines provided.
  **********************************************************************/
 SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
-  GenericVector<SEAM*> seam_pile;
+  SeamPile seam_pile(chop_seam_pile_size);
   EDGEPT *points[MAX_NUM_POINTS];
   EDGEPT_CLIST new_points;
   SEAM *seam = NULL;
@@ -344,8 +352,6 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
       remove_edgept(inserted_point);
     }
   }
-
-  seam_pile.delete_data_pointers();
 
   if (seam) {
     if (seam->priority > chop_ok_split) {
@@ -421,7 +427,7 @@ PRIORITY Wordrec::seam_priority(SEAM *seam, inT16 xmin, inT16 xmax) {
 void Wordrec::try_point_pairs(EDGEPT * points[MAX_NUM_POINTS],
                               inT16 num_points,
                               SeamQueue* seam_queue,
-                              GenericVector<SEAM*>* seam_pile,
+                              SeamPile* seam_pile,
                               SEAM ** seam,
                               TBLOB * blob) {
   inT16 x;
@@ -463,7 +469,7 @@ void Wordrec::try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
                                   inT16 num_points,
                                   EDGEPT_CLIST *new_points,
                                   SeamQueue* seam_queue,
-                                  GenericVector<SEAM*>* seam_pile,
+                                  SeamPile* seam_pile,
                                   SEAM ** seam,
                                   TBLOB * blob) {
   EDGEPT *vertical_point = NULL;

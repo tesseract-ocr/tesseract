@@ -142,6 +142,8 @@ class Wordrec : public Classify {
   INT_VAR_H(chop_split_length, 10000, "Split Length");
   INT_VAR_H(chop_same_distance, 2, "Same distance");
   INT_VAR_H(chop_min_outline_points, 6, "Min Number of Points on Outline");
+  INT_VAR_H(chop_seam_pile_size, 150, "Max number of seams in seam_pile");
+  BOOL_VAR_H(chop_new_seam_pile, 1, "Use new seam_pile");
   INT_VAR_H(chop_inside_angle, -50, "Min Inside Angle Bend");
   INT_VAR_H(chop_min_outline_area, 2000, "Min Outline Area");
   double_VAR_H(chop_split_dist_knob, 0.5, "Split length adjustment");
@@ -327,8 +329,8 @@ class Wordrec : public Classify {
                         PRIORITY priority,
                         SEAM **seam_result,
                         TBLOB *blob,
-                        GenericVector<SEAM*>* seam_pile);
-  void combine_seam(const GenericVector<SEAM*>& seam_pile,
+                        SeamPile* seam_pile);
+  void combine_seam(const SeamPile& seam_pile,
                     const SEAM* seam, SeamQueue* seam_queue);
   inT16 constrained_split(SPLIT *split, TBLOB *blob);
   SEAM *pick_good_seam(TBLOB *blob);
@@ -336,13 +338,13 @@ class Wordrec : public Classify {
   void try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
                         inT16 num_points,
                         SeamQueue* seam_queue,
-                        GenericVector<SEAM*>* seam_pile,
+                        SeamPile* seam_pile,
                         SEAM ** seam, TBLOB * blob);
   void try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
                            inT16 num_points,
                            EDGEPT_CLIST *new_points,
                            SeamQueue* seam_queue,
-                           GenericVector<SEAM*>* seam_pile,
+                           SeamPile* seam_pile,
                            SEAM ** seam, TBLOB * blob);
 
   // gradechop.cpp

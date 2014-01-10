@@ -83,6 +83,10 @@ class GenericHeap {
   GenericVector<Pair>* heap() {
     return &heap_;
   }
+  // Provides read-only access to an element of the underlying vector.
+  const Pair& get(int index) const {
+    return heap_[index];
+  }
 
   // Add entry to the heap, keeping the smallest item at the top, by operator<.
   // Note that *entry is used as the source of operator=, but it is non-const
