@@ -22,6 +22,12 @@
 #include "config_auto.h"
 #endif
 
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif  // _WIN32
+#include <iostream>
+
 #include "allheaders.h"
 #include "baseapi.h"
 #include "basedir.h"
@@ -29,14 +35,6 @@
 #include "strngs.h"
 #include "tprintf.h"
 #include "openclwrapper.h"
-
-#include <iostream>
-#include <vector>
-
-#ifdef _WIN32
-#include <fcntl.h>
-#include <io.h>
-#endif  // _WIN32
 
 /**********************************************************************
  *  main()
@@ -128,8 +126,8 @@ int main(int argc, char **argv) {
   }
 
   if (output == NULL && noocr == false) {
-    fprintf(stderr, "Usage:\n  %s imagename|stdin outputbase|stdout [options...] "
-                       "[configfile...]\n\n", argv[0]);
+    fprintf(stderr, "Usage:\n  %s imagename|stdin outputbase|stdout "
+            "[options...] [configfile...]\n\n", argv[0]);
 
     fprintf(stderr, "OCR options:\n");
     fprintf(stderr, "  --tessdata-dir /path\tspecify location of tessdata"

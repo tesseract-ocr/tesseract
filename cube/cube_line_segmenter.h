@@ -45,7 +45,7 @@ class CubeLineSegmenter {
   }
   int ColumnCnt() {
     if (init_ == false && Init() == false) {
-      return NULL;
+      return 0;
     }
     return columns_->n;
   }
@@ -58,7 +58,7 @@ class CubeLineSegmenter {
   }
   int LineCnt() {
     if (init_ == false && Init() == false) {
-      return NULL;
+      return 0;
     }
 
     return line_cnt_;

@@ -31,7 +31,7 @@ UNICHAR::UNICHAR(const char* utf8_str, int len) {
   int total_len = 0;
   int step = 0;
   if (len < 0) {
-    for (len = 0; utf8_str[len] != 0 && len < UNICHAR_LEN; ++len);
+    for (len = 0; len < UNICHAR_LEN && utf8_str[len] != 0; ++len);
   }
   for (total_len = 0; total_len < len; total_len += step) {
     step = utf8_step(utf8_str + total_len);

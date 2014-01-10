@@ -139,7 +139,7 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
     }
 #ifdef USE_OPENCL
   }
-#endif // USE_OPENCL
+#endif  // USE_OPENCL
   delete[] histogramAllChannels;
 
   if (!any_good_hivalue) {

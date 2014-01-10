@@ -1004,7 +1004,6 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   if (npages > 0) {
     pixDestroy(&pix);
     for (; page < npages; ++page) {
-
       // only use opencl if compiled w/ OpenCL and selected device is opencl
 #ifdef USE_OPENCL
       if ( od.selectedDeviceIsOpenCL() ) {

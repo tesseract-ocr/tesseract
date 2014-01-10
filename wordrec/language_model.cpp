@@ -624,6 +624,7 @@ bool LanguageModel::AddViterbiStateEntry(
       tprintf("Language model components early pruned this entry\n");
     }
     delete ngram_info;
+    delete dawg_info;
     return false;
   }
 

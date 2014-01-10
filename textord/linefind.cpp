@@ -577,7 +577,6 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
                               Pix** pix_hline, Pix** pix_non_hline,
                               Pix** pix_intersections, Pix** pix_music_mask,
                               Pixa* pixa_display) {
-
   Pix* pix_closed = NULL;
   Pix* pix_hollow = NULL;
 
@@ -593,7 +592,7 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
 // only use opencl if compiled w/ OpenCL and selected device is opencl
 #ifdef USE_OPENCL
   if (OpenclDevice::selectedDeviceIsOpenCL()) {
-	  //OpenCL pixGetLines Operation
+    // OpenCL pixGetLines Operation
     int clStatus = OpenclDevice::initMorphCLAllocations(pixGetWpl(src_pix),
                                                         pixGetHeight(src_pix),
                                                         src_pix);
@@ -617,9 +616,9 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
   if (pixa_display != NULL)
     pixaAddPix(pixa_display, pix_solid, L_CLONE);
   pix_hollow = pixSubtract(NULL, pix_closed, pix_solid);
-  
+
   pixDestroy(&pix_solid);
-  
+
   // Now open up in both directions independently to find lines of at least
   // 1 inch/kMinLineLengthFraction in length.
   if (pixa_display != NULL)
@@ -627,7 +626,7 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
   *pix_vline = pixOpenBrick(NULL, pix_hollow, 1, min_line_length);
   *pix_hline = pixOpenBrick(NULL, pix_hollow, min_line_length, 1);
 
-  pixDestroy(&pix_hollow); 
+  pixDestroy(&pix_hollow);
 #ifdef USE_OPENCL
   }
 #endif

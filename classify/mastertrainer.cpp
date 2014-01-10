@@ -397,8 +397,9 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
   int total_xheight = 0;
   int xheight_count = 0;
   while (!feof(f)) {
-    if (fscanf(f, "%1024s %d\n", buffer, &xht) != 2)
+    if (fscanf(f, "%1023s %d\n", buffer, &xht) != 2)
       continue;
+    buffer[1023] = '\0';
     fontinfo.name = buffer;
     if (!fontinfo_table_.contains(fontinfo)) continue;
     int fontinfo_id = fontinfo_table_.get_index(fontinfo);

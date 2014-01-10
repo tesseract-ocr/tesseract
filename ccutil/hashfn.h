@@ -33,10 +33,10 @@ using std::unordered_set;
 #endif
 #else  // _MSC_VER
 #include <memory>
-#define std::unique_ptr SmartPtr
+#define SmartPtr std::unique_ptr
 #define HAVE_UNIQUE_PTR
 #endif  // _MSC_VER
-#elif (defined(__GNUC__) && (((__GNUC__ == 3) && ( __GNUC_MINOR__ > 0)) || \
+#elif (defined(__GNUC__) && (((__GNUC__ == 3) && (__GNUC_MINOR__ > 0)) || \
   __GNUC__ >= 4))  // gcc
 // hash_set is deprecated in gcc
 #include <ext/hash_map>
@@ -61,7 +61,7 @@ using __gnu_cxx::hash_set;
 template<class T> class SmartPtr {
  public:
   SmartPtr() : ptr_(NULL) {}
-  SmartPtr(T* ptr) : ptr_(ptr) {}
+  explicit SmartPtr(T* ptr) : ptr_(ptr) {}
   ~SmartPtr() {
     delete ptr_;
   }
