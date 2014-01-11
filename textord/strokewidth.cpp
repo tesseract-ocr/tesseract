@@ -21,6 +21,10 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "strokewidth.h"
 
 #include <math.h>
@@ -34,11 +38,6 @@
 #include "tabfind.h"
 #include "textlineprojection.h"
 #include "tordmain.h"  // For SetBlobStrokeWidth.
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 
 namespace tesseract {
 
@@ -1871,13 +1870,13 @@ ScrollView* StrokeWidth::DisplayGoodBlobs(const char* window_name,
 }
 
 static void DrawDiacriticJoiner(const BLOBNBOX* blob, ScrollView* window) {
+#ifndef GRAPHICS_DISABLED
   const TBOX& blob_box(blob->bounding_box());
   int top = MAX(blob_box.top(), blob->base_char_top());
   int bottom = MIN(blob_box.bottom(), blob->base_char_bottom());
   int x = (blob_box.left() + blob_box.right()) / 2;
-  #ifndef GRAPHICS_DISABLED
   window->Line(x, top, x, bottom);
-  #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
 }
 
 // Displays blobs colored according to whether or not they are diacritics.

@@ -17,14 +17,13 @@
  *
  **********************************************************************/
 
-#include          "pithsync.h"
-#include          "topitch.h"
-#include          "drawtord.h"
-
-// Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+#include          "pithsync.h"
+#include          "topitch.h"
+#include          "drawtord.h"
 
 #define TO_WIN_XPOS     0       //default window pos
 #define TO_WIN_YPOS     0

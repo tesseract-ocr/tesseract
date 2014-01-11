@@ -26,6 +26,10 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #define _USE_MATH_DEFINES

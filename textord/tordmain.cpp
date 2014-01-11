@@ -16,6 +16,11 @@
  ** limitations under the License.
  *
  **********************************************************************/
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #ifdef __UNIX__
 #include <assert.h>
 #endif
@@ -31,11 +36,6 @@
 #include "textord.h"
 #include "tordmain.h"
 #include "secname.h"
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 
 #include "allheaders.h"
 

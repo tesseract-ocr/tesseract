@@ -20,6 +20,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "shapeclassifier.h"
 #include "genericvector.h"
 #include "scrollview.h"
@@ -93,6 +97,7 @@ const UNICHARSET& ShapeClassifier::GetUnicharset() const {
 void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
                                    Pix* page_pix,
                                    UNICHAR_ID unichar_id) {
+#ifndef GRAPHICS_DISABLED
   static ScrollView* terminator = NULL;
   if (terminator == NULL) {
     terminator = new ScrollView("XIT", 0, 0, 50, 50, 50, 50, true);
@@ -148,6 +153,7 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
              ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
   } while (ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
   delete debug_win;
+#endif  // GRAPHICS_DISABLED
 }
 
 // Displays classification as the given shape_id. Creates as many windows

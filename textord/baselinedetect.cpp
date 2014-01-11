@@ -21,6 +21,10 @@
 #define _USE_MATH_DEFINES
 #endif  // _MSC_VER
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "baselinedetect.h"
 
 #include <math.h>

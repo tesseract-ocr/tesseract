@@ -17,14 +17,13 @@
  *
  **********************************************************************/
 
-#include          "drawfx.h"
-#include          "normalis.h"
-#include          "werd.h"
-
-// Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+#include          "drawfx.h"
+#include          "normalis.h"
+#include          "werd.h"
 
 #ifndef GRAPHICS_DISABLED
 #define FXDEMOWIN     "FXDemo"

@@ -18,6 +18,10 @@
  *
  **********************************************************************/
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "devanagari_processing.h"
 #include "allheaders.h"
 #include "tordmain.h"

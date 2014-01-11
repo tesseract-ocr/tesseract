@@ -22,6 +22,10 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "linefind.h"
 #include "alignedblob.h"
 #include "tabvector.h"
@@ -29,11 +33,6 @@
 #include "edgblob.h"
 #include "openclwrapper.h"
 
-// This entire file is dependent upon leptonica. If you don't have it,
-// then the code doesn't do anything useful.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 #include "allheaders.h"
 
 namespace tesseract {

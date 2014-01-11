@@ -21,17 +21,16 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "tabvector.h"
 #include "blobbox.h"
 #include "colfind.h"
 #include "colpartitionset.h"
 #include "detlinefit.h"
 #include "statistc.h"
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 
 namespace tesseract {
 

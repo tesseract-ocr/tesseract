@@ -18,6 +18,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#endif
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "colpartition.h"
 #include "colpartitiongrid.h"
 #include "colpartitionset.h"
@@ -25,10 +33,6 @@
 #include "dppoint.h"
 #include "imagefind.h"
 #include "workingpartset.h"
-
-#ifdef _MSC_VER
-#pragma warning(disable:4244)  // Conversion warnings
-#endif
 
 namespace tesseract {
 

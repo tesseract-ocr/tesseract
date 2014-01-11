@@ -17,6 +17,11 @@
  *
  **********************************************************************/
 
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "ratngs.h"
 
 #include "blobs.h"
