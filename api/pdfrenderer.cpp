@@ -14,6 +14,10 @@
 #include "version.h"
 #endif
 
+#ifdef _WIN32
+#include "mathfix.h"
+#endif
+
 namespace tesseract {
 
 // Use for PDF object fragments. Must be large enough
@@ -130,7 +134,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
         x = line_x2 + t * (line_x2 - line_x1);
         y = line_y2 + t * (line_y2 - line_y1);
       }
-      word_length = sqrt(dist2(word_x1, word_y1, word_x2, word_y2));
+      word_length = sqrt(double(dist2(word_x1, word_y1, word_x2, word_y2)));
       word_length = word_length * 72.0 / ppi;
       x = x * 72 / ppi;
       y = height - (y * 72.0 / ppi);
@@ -152,7 +156,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       //                          [ sin𝜃  cos𝜃 0 ]  [  0 1 0 ] [ 0 1 0 ]
       //                          [   0    0   1 ]  [  0 0 1 ] [ x y 1 ]
       //
-      double theta = atan2(line_y1 - line_y2, line_x2 - line_x1);
+      double theta = atan2(double(line_y1 - line_y2), double(line_x2 - line_x1));
       double a, b, c, d;
       a = cos(theta);
       b = sin(theta);
@@ -193,7 +197,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       pdf_str.add_str_double(" ", prec(y));  // .
       pdf_str += (" Tm ");                   // Place cursor absolutely
     } else {
-      double offset = sqrt(dist2(old_x, old_y, x, y));
+      double offset = sqrt(double(dist2(old_x, old_y, x, y)));
       pdf_str.add_str_double(" ", prec(offset));  // Delta x in pts
       pdf_str.add_str_double(" ", 0);             // Delta y in pts
       pdf_str += (" Td ");                        // Relative moveto

@@ -773,7 +773,7 @@ class TESS_API TessBaseAPI {
   TESS_LOCAL int FindLines();
 
   /** Delete the pageres and block list ready for a new page. */
-  TESS_API void ClearResults();
+  void ClearResults();
 
   /**
    * Return an LTR Result Iterator -- used only for training, as we really want

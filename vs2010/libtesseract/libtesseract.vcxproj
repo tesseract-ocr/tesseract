@@ -106,7 +106,7 @@
     </CustomBuildStep>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -139,7 +139,7 @@ copy "$(TargetPath)" ..\..\..\lib
     </CustomBuildStep>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -173,7 +173,7 @@ copy "$(TargetPath)" ..\..\..\lib
     </CustomBuildStep>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>$(AMDAPPSDKROOT)\include;$(INTELOCLSDKROOT)\include;..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(AMDAPPSDKROOT)\include;$(INTELOCLSDKROOT)\include;..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>USE_OPENCL;WIN32;_WINDOWS;NDEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -207,7 +207,7 @@ copy "$(TargetPath)" ..\..\..\lib
     </CustomBuildStep>
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_USRDLL;_WINDLL;USE_STD_NAMESPACE;TESS_EXPORTS;LIBLEPT_IMPORTS;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -247,7 +247,7 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     </CustomBuildStep>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_USRDLL;_WINDLL;USE_STD_NAMESPACE;TESS_EXPORTS;LIBLEPT_IMPORTS;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -278,7 +278,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ccmain\adaptions.cpp" />
-    <ClCompile Include="..\..\ccmain\par_control.cpp" />
     <ClCompile Include="..\..\classify\adaptive.cpp" />
     <ClCompile Include="..\..\classify\adaptmatch.cpp" />
     <ClCompile Include="..\..\opencl\openclwrapper.cpp" />
@@ -288,6 +287,7 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\ccmain\applybox.cpp" />
     <ClCompile Include="..\..\wordrec\associate.cpp" />
     <ClCompile Include="..\..\api\baseapi.cpp" />
+    <ClCompile Include="..\..\api\pdfrenderer.cpp" />
     <ClCompile Include="..\..\ccutil\basedir.cpp" />
     <ClCompile Include="..\..\textord\bbgrid.cpp" />
     <ClCompile Include="..\..\cube\beam_search.cpp" />
@@ -385,13 +385,9 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\port\gettimeofday.cpp" />
     <ClCompile Include="..\..\ccutil\globaloc.cpp" />
     <ClCompile Include="..\..\wordrec\gradechop.cpp" />
-    <ClCompile Include="..\..\ccutil\hashfn.cpp" />
     <ClCompile Include="..\..\cube\hybrid_neural_net_classifier.cpp" />
     <ClCompile Include="..\..\dict\hyphen.cpp" />
-    <ClCompile Include="..\..\image\image.cpp" />
     <ClCompile Include="..\..\textord\imagefind.cpp" />
-    <ClCompile Include="..\..\image\imgs.cpp" />
-    <ClCompile Include="..\..\ccmain\imgscale.cpp" />
     <ClCompile Include="..\..\ccutil\indexmapbidi.cpp" />
     <ClCompile Include="..\..\neural_networks\runtime\input_file_buffer.cpp" />
     <ClCompile Include="..\..\classify\intfeaturedist.cpp" />
@@ -440,6 +436,7 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\ccmain\pagewalk.cpp" />
     <ClCompile Include="..\..\ccmain\paragraphs.cpp" />
     <ClCompile Include="..\..\ccutil\params.cpp" />
+    <ClCompile Include="..\..\ccmain\par_control.cpp" />
     <ClCompile Include="..\..\ccmain\paramsd.cpp" />
     <ClCompile Include="..\..\ccstruct\pdblock.cpp" />
     <ClCompile Include="..\..\dict\permdawg.cpp" />
@@ -455,7 +452,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\classify\protos.cpp" />
     <ClCompile Include="..\..\ccstruct\publictypes.cpp" />
     <ClCompile Include="..\..\ccstruct\quadlsq.cpp" />
-    <ClCompile Include="..\..\ccstruct\quadratc.cpp" />
     <ClCompile Include="..\..\ccstruct\quspline.cpp" />
     <ClCompile Include="..\..\ccstruct\ratngs.cpp" />
     <ClCompile Include="..\..\ccmain\recogtraining.cpp" />
@@ -465,7 +461,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\wordrec\render.cpp" />
     <ClCompile Include="..\..\ccmain\resultiterator.cpp" />
     <ClCompile Include="..\..\classify\sampleiterator.cpp" />
-    <ClCompile Include="..\..\ccmain\scaleimg.cpp" />
     <ClCompile Include="..\..\textord\scanedg.cpp" />
     <ClCompile Include="..\..\viewer\scrollview.cpp" />
     <ClCompile Include="..\..\ccstruct\seam.cpp" />
@@ -486,7 +481,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\cutil\structures.cpp" />
     <ClCompile Include="..\..\viewer\svmnode.cpp" />
     <ClCompile Include="..\..\viewer\svpaint.cpp" />
-    <ClCompile Include="..\..\image\svshowim.cpp" />
     <ClCompile Include="..\..\viewer\svutil.cpp" />
     <ClCompile Include="..\..\textord\tabfind.cpp" />
     <ClCompile Include="..\..\textord\tablefind.cpp" />
@@ -665,13 +659,7 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\ccutil\host.h" />
     <ClInclude Include="..\..\ccstruct\hpdsizes.h" />
     <ClInclude Include="..\..\cube\hybrid_neural_net_classifier.h" />
-    <ClInclude Include="..\..\image\image.h" />
     <ClInclude Include="..\..\textord\imagefind.h" />
-    <ClInclude Include="..\..\image\img.h" />
-    <ClInclude Include="..\..\image\imgerrs.h" />
-    <ClInclude Include="..\..\image\imgs.h" />
-    <ClInclude Include="..\..\ccmain\imgscale.h" />
-    <ClInclude Include="..\..\image\imgunpk.h" />
     <ClInclude Include="..\..\ccutil\indexmapbidi.h" />
     <ClInclude Include="..\..\neural_networks\runtime\input_file_buffer.h" />
     <ClInclude Include="..\..\classify\intfeaturedist.h" />
@@ -755,7 +743,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\..\ccmain\resultiterator.h" />
     <ClInclude Include="..\..\classify\sampleiterator.h" />
-    <ClInclude Include="..\..\ccmain\scaleimg.h" />
     <ClInclude Include="..\..\textord\scanedg.h" />
     <ClInclude Include="..\..\viewer\scrollview.h" />
     <ClInclude Include="..\..\ccstruct\seam.h" />
@@ -779,7 +766,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\port\strtok_r.h" />
     <ClInclude Include="..\..\cutil\structures.h" />
     <ClInclude Include="..\..\viewer\svmnode.h" />
-    <ClInclude Include="..\..\image\svshowim.h" />
     <ClInclude Include="..\..\viewer\svutil.h" />
     <ClInclude Include="..\..\textord\tabfind.h" />
     <ClInclude Include="..\..\textord\tablefind.h" />

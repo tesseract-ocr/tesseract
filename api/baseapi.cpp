@@ -54,10 +54,10 @@
 #include "strngs.h"
 #include "openclwrapper.h"
 
-
 #ifdef _WIN32
 #include <windows.h>
 #include <stdlib.h>
+#include "mathfix.h"
 #else
 #include <dirent.h>
 #include <libgen.h>

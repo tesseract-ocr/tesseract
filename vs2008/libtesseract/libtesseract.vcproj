@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
+				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\opencl;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME=\&quot;$(TargetFileName)\&quot;"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -119,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
+				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\opencl;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME=\&quot;$(TargetFileName)\&quot;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -190,7 +190,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
+				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\opencl;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL;_WINDLL;USE_STD_NAMESPACE;TESS_EXPORTS;LIBLEPT_IMPORTS;WINDLLNAME=\&quot;$(TargetFileName)\&quot;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -272,7 +272,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
+				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\opencl;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL;_WINDLL;USE_STD_NAMESPACE;TESS_EXPORTS;LIBLEPT_IMPORTS;WINDLLNAME=\&quot;$(TargetFileName)\&quot;"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -761,10 +761,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ccutil\hashfn.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\cube\hybrid_neural_net_classifier.cpp"
 				>
 			</File>
@@ -773,19 +769,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\image\image.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\textord\imagefind.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgs.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccmain\imgscale.cpp"
 				>
 			</File>
 			<File
@@ -1041,10 +1025,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ccstruct\quadratc.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccstruct\quspline.cpp"
 				>
 			</File>
@@ -1078,10 +1058,6 @@
 			</File>
 			<File
 				RelativePath="..\..\classify\sampleiterator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccmain\scaleimg.cpp"
 				>
 			</File>
 			<File
@@ -1162,10 +1138,6 @@
 			</File>
 			<File
 				RelativePath="..\..\viewer\svpaint.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\svshowim.cpp"
 				>
 			</File>
 			<File
@@ -1394,6 +1366,18 @@
 			</File>
 			<File
 				RelativePath="..\..\wordrec\params_model.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\api\pdfrenderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccmain\par_control.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\opencl\openclwrapper.cpp"
 				>
 			</File>
 		</Filter>
@@ -1867,31 +1851,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\image\image.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\textord\imagefind.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\img.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgerrs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccmain\imgscale.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgunpk.h"
 				>
 			</File>
 			<File
@@ -2227,10 +2187,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ccmain\scaleimg.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\textord\scanedg.h"
 				>
 			</File>
@@ -2320,10 +2276,6 @@
 			</File>
 			<File
 				RelativePath="..\..\viewer\svmnode.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\svshowim.h"
 				>
 			</File>
 			<File
@@ -2556,6 +2508,18 @@
 			</File>
 			<File
 				RelativePath="..\..\wordrec\params_model.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\opencl\oclkernels.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\opencl\opencl_device_selection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\opencl\openclwrapper.h"
 				>
 			</File>
 		</Filter>

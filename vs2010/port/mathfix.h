@@ -17,7 +17,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-
 #ifndef VS2008_INCLUDE_MATHFIX_H_
 #define VS2008_INCLUDE_MATHFIXT_H_
 
@@ -30,6 +29,7 @@
 #define isnan(x) _isnan(x)
 #define isinf(x) (!_finite(x))
 #define fmax max //VC++ does not implement all the provisions of C99 Standard
+#define round(x) roundf(x)
 inline float roundf(float num) { return num > 0 ? floorf(num + 0.5f) : ceilf(num - 0.5f); }
 
 #endif  // VS2008_INCLUDE_MATHFIXT_H_

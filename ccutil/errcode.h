@@ -87,7 +87,7 @@ const ERRCODE ASSERT_FAILED = "Assert failed";
                         __FILE__, __LINE__);                            \
   }
 
-#define ASSERT_HOST_MSG(x, msg...) if (!(x))                            \
+#define ASSERT_HOST_MSG(x, msg, ...) if (!(x))                            \
   {                                                                     \
     tprintf(msg);                                                       \
     ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d",               \
