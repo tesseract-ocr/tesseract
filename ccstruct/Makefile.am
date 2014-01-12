@@ -41,6 +41,6 @@ libtesseract_ccstruct_la_SOURCES = \
     ocrblock.cpp ocrpara.cpp ocrrow.cpp otsuthr.cpp \
     pageres.cpp pdblock.cpp points.cpp polyaprx.cpp polyblk.cpp \
     params_training_featdef.cpp publictypes.cpp \
-    quadlsq.cpp quadratc.cpp quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \
+    quadlsq.cpp quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \
     seam.cpp split.cpp statistc.cpp stepblob.cpp \
     vecfuncs.cpp werd.cpp
