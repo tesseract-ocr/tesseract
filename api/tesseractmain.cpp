@@ -224,22 +224,8 @@ int main(int argc, char **argv) {
   if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
      api.SetPageSegMode(pagesegmode);
 
-  tesseract::TessResultRenderer* renderer = NULL;
-  bool b;
-  api.GetBoolVariable("tessedit_create_hocr", &b);
-  if (b && renderer == NULL) renderer = new tesseract::TessHOcrRenderer();
-
-  api.GetBoolVariable("tessedit_create_pdf", &b);
-  if (b && renderer == NULL)
-    renderer = new tesseract::TessPDFRenderer(api.GetDatapath());
-
-  api.GetBoolVariable("tessedit_create_boxfile", &b);
-  if (b && renderer == NULL) renderer = new tesseract::TessBoxTextRenderer();
-
-  if (renderer == NULL) renderer = new tesseract::TessTextRenderer();
-
   bool stdInput = !strcmp(image, "stdin") || !strcmp(image, "-");
-
+  Pix* pixs = NULL;
   if (stdInput) {
     char byt;
     GenericVector<l_uint8> ch_data;
@@ -255,7 +241,48 @@ int main(int argc, char **argv) {
     }
     std::cin.ignore(std::cin.rdbuf()->in_avail() + 1);
 
-    Pix* pixs = pixReadMem(&ch_data[0], ch_data.size());
+    pixs = pixReadMem(&ch_data[0], ch_data.size());
+  }
+
+  if (pagesegmode == tesseract::PSM_AUTO_OSD) {
+    tesseract::Orientation orientation;
+    tesseract::WritingDirection direction;
+    tesseract::TextlineOrder order;
+    float deskew_angle;
+    int ret_val = 0;
+
+    if (!pixs)
+      pixs = pixRead(image);
+    api.SetImage(pixs);
+    tesseract::PageIterator* it =  api.AnalyseLayout();
+    if (it) {
+      it->Orientation(&orientation, &direction, &order, &deskew_angle);
+      tprintf("Orientation: %d\nWritingDirection: %d\nTextlineOrder: %d\n" \
+              "Deskew angle: %.4f\n",
+               orientation, direction, order, deskew_angle);
+    } else {
+      ret_val = 1;
+    }
+    pixDestroy(&pixs);
+    delete it;
+    exit(ret_val);
+  }
+
+  tesseract::TessResultRenderer* renderer = NULL;
+  bool b;
+  api.GetBoolVariable("tessedit_create_hocr", &b);
+  if (b && renderer == NULL) renderer = new tesseract::TessHOcrRenderer();
+
+  api.GetBoolVariable("tessedit_create_pdf", &b);
+  if (b && renderer == NULL)
+    renderer = new tesseract::TessPDFRenderer(api.GetDatapath());
+
+  api.GetBoolVariable("tessedit_create_boxfile", &b);
+  if (b && renderer == NULL) renderer = new tesseract::TessBoxTextRenderer();
+
+  if (renderer == NULL) renderer = new tesseract::TessTextRenderer();
+
+  if (pixs) {
     api.ProcessPage(pixs, 0, NULL, NULL, 0, renderer);
     pixDestroy(&pixs);
   } else {
