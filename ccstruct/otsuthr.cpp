@@ -58,7 +58,7 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
     if (od.selectedDeviceIsOpenCL() &&
         (num_channels == 1 || num_channels == 4) && top == 0 && left == 0 ) {
       od.HistogramRectOCL(
-          pixGetData(src_pix),
+          (const unsigned char*)pixGetData(src_pix),
           num_channels,
           pixGetWpl(src_pix) * 4,
           left,

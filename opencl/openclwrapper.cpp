@@ -2811,7 +2811,7 @@ double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input,
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
         for (int ch = 0; ch < input.numChannels; ++ch) { 
-            tesseract::HistogramRect(input.imageData + ch, input.numChannels, bytes_per_line,
+            tesseract::HistogramRect(input.pix, input.numChannels,
                   left, top, input.width, input.height, histogram);
         }
 #if ON_WINDOWS
