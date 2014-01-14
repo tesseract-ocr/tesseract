@@ -34,7 +34,7 @@
 // provides automatic deletion of pointers, [De]Serialize that works, and
 // sort that works.
 template <typename T>
-class TESS_API GenericVector {
+class GenericVector {
  public:
   GenericVector() {
     init(kDefaultVectorSize);
