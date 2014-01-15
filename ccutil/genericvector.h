@@ -911,7 +911,7 @@ int GenericVector<T>::choose_nth_item(int target_index, int start, int end,
     }
   }
   // Place the pivot at start.
-  #ifdef _MSC_VER  // TODO(zdenop): check this
+  #if defined(_MSC_VER) || defined(ANDROID)  // TODO(zdenop): check this
   srand(*seed);
   #define rand_r(seed) rand()
   #endif  // _MSC_VER

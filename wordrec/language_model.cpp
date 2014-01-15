@@ -32,7 +32,7 @@
 #include "params.h"
 #include "params_training_featdef.h"
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(ANDROID)
 double log2(double n) {
   return log(n) / log(2.0);
 }

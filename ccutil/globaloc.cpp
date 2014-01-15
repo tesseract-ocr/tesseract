@@ -33,7 +33,11 @@ Pix* global_crash_pixes[kMaxNumThreadPixes];
 
 void SavePixForCrash(int resolution, Pix* pix) {
 #ifdef __linux__
+#ifndef ANDROID
   int thread_id = syscall(SYS_gettid) % kMaxNumThreadPixes;
+#else
+  int thread_id = gettid() % kMaxNumThreadPixes;
+#endif
   pixDestroy(&global_crash_pixes[thread_id]);
   if (pix != NULL) {
     Pix* clone = pixClone(pix);
@@ -47,8 +51,12 @@ void SavePixForCrash(int resolution, Pix* pix) {
 // CALL ONLY from a signal handler! Writes a crash image to stderr.
 void signal_exit(int signal_code) {
   tprintf("Received signal %d!\n", signal_code);
-#ifdef __linux__
+#ifdef __linux__ 
+#ifndef ANDROID
   int thread_id = syscall(SYS_gettid) % kMaxNumThreadPixes;
+#else
+  int thread_id = gettid() % kMaxNumThreadPixes;
+#endif
   if (global_crash_pixes[thread_id] != NULL) {
     fprintf(stderr, "Crash caused by image with resolution %d\n",
             pixGetYRes(global_crash_pixes[thread_id]));
