@@ -18,789 +18,789 @@ const char *kernel_src = KERNEL(
 __kernel void composeRGBPixel(__global uint *tiffdata, int w, int h,int wpl, __global uint *output)
 {
     int i = get_global_id(1);
-	int j = get_global_id(0);
-	int tiffword,rval,gval,bval;
+    int j = get_global_id(0);
+    int tiffword,rval,gval,bval;
 
-	//Ignore the excess
-	if ((i >= h) || (j >= w))
-		return;
+    //Ignore the excess
+    if ((i >= h) || (j >= w))
+        return;
 
-	tiffword = tiffdata[i * w + j];
+    tiffword = tiffdata[i * w + j];
     rval = ((tiffword) & 0xff);
     gval = (((tiffword) >> 8) & 0xff);
     bval = (((tiffword) >> 16) & 0xff);
-	output[i*wpl+j] = (rval << (8 * (sizeof(uint) - 1 - 0))) | (gval << (8 * (sizeof(uint) - 1 - 1))) | (bval << (8 * (sizeof(uint) - 1 - 2)));
+    output[i*wpl+j] = (rval << (8 * (sizeof(uint) - 1 - 0))) | (gval << (8 * (sizeof(uint) - 1 - 1))) | (bval << (8 * (sizeof(uint) - 1 - 2)));
 }
 )
 
 KERNEL(
 \n__kernel void pixSubtract_inplace(__global int *dword, __global int *sword,
-							const int wpl, const int h)
+                            const int wpl, const int h)
 {
-	const unsigned int row = get_global_id(1);
-	const unsigned int col = get_global_id(0);
-	const unsigned int pos = row * wpl + col;
+    const unsigned int row = get_global_id(1);
+    const unsigned int col = get_global_id(0);
+    const unsigned int pos = row * wpl + col;
 
-	//Ignore the execss
-	if (row >= h || col >= wpl)
-		return;
+    //Ignore the execss
+    if (row >= h || col >= wpl)
+        return;
 
-	*(dword + pos) &= ~(*(sword + pos));
+    *(dword + pos) &= ~(*(sword + pos));
 }\n
 )
 
 KERNEL(
 \n__kernel void pixSubtract(__global int *dword, __global int *sword, 
-							const int wpl, const int h, __global int *outword)
+                            const int wpl, const int h, __global int *outword)
 {
-	const unsigned int row = get_global_id(1);
-	const unsigned int col = get_global_id(0);
-	const unsigned int pos = row * wpl + col;
+    const unsigned int row = get_global_id(1);
+    const unsigned int col = get_global_id(0);
+    const unsigned int pos = row * wpl + col;
 
-	//Ignore the execss
-	if (row >= h || col >= wpl)
-		return;
+    //Ignore the execss
+    if (row >= h || col >= wpl)
+        return;
 
-	*(outword + pos) = *(dword + pos) & ~(*(sword + pos));
+    *(outword + pos) = *(dword + pos) & ~(*(sword + pos));
 }\n
 )
 
 KERNEL(
 \n__kernel void pixAND(__global int *dword, __global int *sword, __global int *outword,
-							const int wpl, const int h)
+                            const int wpl, const int h)
 {
-	const unsigned int row = get_global_id(1);
-	const unsigned int col = get_global_id(0);
-	const unsigned int pos = row * wpl + col;
+    const unsigned int row = get_global_id(1);
+    const unsigned int col = get_global_id(0);
+    const unsigned int pos = row * wpl + col;
 
-	//Ignore the execss
-	if (row >= h || col >= wpl)
-		return;
+    //Ignore the execss
+    if (row >= h || col >= wpl)
+        return;
 
-	 *(outword + pos) = *(dword + pos) & (*(sword + pos));
+     *(outword + pos) = *(dword + pos) & (*(sword + pos));
 }\n
 )
 
 KERNEL(
 \n__kernel void pixOR(__global int *dword, __global int *sword, __global int *outword,
-							const int wpl, const int h)
+                            const int wpl, const int h)
 {
-	const unsigned int row = get_global_id(1);
-	const unsigned int col = get_global_id(0);
-	const unsigned int pos = row * wpl + col;
+    const unsigned int row = get_global_id(1);
+    const unsigned int col = get_global_id(0);
+    const unsigned int pos = row * wpl + col;
 
-	//Ignore the execss
-	if (row >= h || col >= wpl)
-		return;
+    //Ignore the execss
+    if (row >= h || col >= wpl)
+        return;
 
-	*(outword + pos) = *(dword + pos) | (*(sword + pos));
+    *(outword + pos) = *(dword + pos) | (*(sword + pos));
 }\n
 )
 
 KERNEL(
 \n__kernel void morphoDilateHor_5x5(__global int *sword,__global int *dword,
-							const int wpl, const int h)
+                            const int wpl, const int h)
 {
-	const unsigned int pos = get_global_id(0);
-	unsigned int prevword, nextword, currword,tempword;
-	unsigned int destword;
-	const int col = pos % wpl;
-	
-	//Ignore the execss
-	if (pos >= (wpl * h))
-		return;
-	
-	
-	currword = *(sword + pos);	
-	destword = currword;
-	
-	//Handle boundary conditions
-	if(col==0)
-		prevword=0;
-	else
-		prevword = *(sword + pos - 1);
-
-	if(col==(wpl - 1))
-		nextword=0;
-	else
-		nextword = *(sword + pos + 1);
-	
-	//Loop unrolled
-	
-	//1 bit to left and 1 bit to right
-		//Get the max value on LHS of every pixel
-		tempword = (prevword << (31)) | ((currword >> 1));
-		destword |= tempword;
-		//Get max value on RHS of every pixel
-		tempword = (currword << 1) | (nextword >> (31));
-		destword |= tempword;
-
-	//2 bit to left and 2 bit to right
-		//Get the max value on LHS of every pixel
-		tempword = (prevword << (30)) | ((currword >> 2));
-		destword |= tempword;
-		//Get max value on RHS of every pixel
-		tempword = (currword << 2) | (nextword >> (30));
-		destword |= tempword;
-	
+    const unsigned int pos = get_global_id(0);
+    unsigned int prevword, nextword, currword,tempword;
+    unsigned int destword;
+    const int col = pos % wpl;
     
-	*(dword + pos) = destword;
-	
+    //Ignore the execss
+    if (pos >= (wpl * h))
+        return;
+    
+    
+    currword = *(sword + pos);  
+    destword = currword;
+    
+    //Handle boundary conditions
+    if(col==0)
+        prevword=0;
+    else
+        prevword = *(sword + pos - 1);
+
+    if(col==(wpl - 1))
+        nextword=0;
+    else
+        nextword = *(sword + pos + 1);
+    
+    //Loop unrolled
+    
+    //1 bit to left and 1 bit to right
+        //Get the max value on LHS of every pixel
+        tempword = (prevword << (31)) | ((currword >> 1));
+        destword |= tempword;
+        //Get max value on RHS of every pixel
+        tempword = (currword << 1) | (nextword >> (31));
+        destword |= tempword;
+
+    //2 bit to left and 2 bit to right
+        //Get the max value on LHS of every pixel
+        tempword = (prevword << (30)) | ((currword >> 2));
+        destword |= tempword;
+        //Get max value on RHS of every pixel
+        tempword = (currword << 2) | (nextword >> (30));
+        destword |= tempword;
+    
+    
+    *(dword + pos) = destword;
+    
 }\n
 )
 
 KERNEL(
 \n__kernel void morphoDilateVer_5x5(__global int *sword,__global int *dword,
-							const int wpl, const int h)
+                            const int wpl, const int h)
 {
-	const int col = get_global_id(0);
-	const int row = get_global_id(1);
-	const unsigned int pos = row * wpl + col;
-	unsigned int tempword;
-	unsigned int destword;
-	int i;
+    const int col = get_global_id(0);
+    const int row = get_global_id(1);
+    const unsigned int pos = row * wpl + col;
+    unsigned int tempword;
+    unsigned int destword;
+    int i;
 
-	//Ignore the execss
-	if (row >= h || col >= wpl)
-		return;
+    //Ignore the execss
+    if (row >= h || col >= wpl)
+        return;
 
-	destword = *(sword + pos);
+    destword = *(sword + pos);
 
-	//2 words above
-	i = (row - 2) < 0 ? row : (row - 2);
-	tempword = *(sword + i*wpl + col);
-	destword |= tempword;
+    //2 words above
+    i = (row - 2) < 0 ? row : (row - 2);
+    tempword = *(sword + i*wpl + col);
+    destword |= tempword;
 
-	//1 word above
-	i = (row - 1) < 0 ? row  : (row - 1);
-	tempword = *(sword + i*wpl + col);
-	destword |= tempword;
+    //1 word above
+    i = (row - 1) < 0 ? row  : (row - 1);
+    tempword = *(sword + i*wpl + col);
+    destword |= tempword;
 
-	//1 word below
-	i = (row >= (h - 1)) ? row : (row + 1);
-	tempword = *(sword + i*wpl + col);
-	destword |= tempword;
+    //1 word below
+    i = (row >= (h - 1)) ? row : (row + 1);
+    tempword = *(sword + i*wpl + col);
+    destword |= tempword;
 
-	//2 words below
-	i = (row >= (h - 2)) ? row : (row + 2);
-	tempword = *(sword + i*wpl + col);
-	destword |= tempword;
+    //2 words below
+    i = (row >= (h - 2)) ? row : (row + 2);
+    tempword = *(sword + i*wpl + col);
+    destword |= tempword;
 
-	*(dword + pos) = destword;
+    *(dword + pos) = destword;
 }\n
 )
 
 KERNEL(
 \n__kernel void morphoDilateHor(__global int *sword,__global int *dword,const int xp, const int xn, const int wpl, const int h)
 {
-	const int col = get_global_id(0);
-	const int row = get_global_id(1);
-	const unsigned int pos = row * wpl + col;
-	unsigned int parbitsxp, parbitsxn, nwords;
-	unsigned int destword, tempword, lastword, currword;
-	unsigned int lnextword, lprevword, rnextword, rprevword, firstword, secondword;
-	int i, j, siter, eiter;
-	
-	//Ignore the execss
-	if (pos >= (wpl*h) || (xn < 1 && xp < 1))
-		return;
+    const int col = get_global_id(0);
+    const int row = get_global_id(1);
+    const unsigned int pos = row * wpl + col;
+    unsigned int parbitsxp, parbitsxn, nwords;
+    unsigned int destword, tempword, lastword, currword;
+    unsigned int lnextword, lprevword, rnextword, rprevword, firstword, secondword;
+    int i, j, siter, eiter;
+    
+    //Ignore the execss
+    if (pos >= (wpl*h) || (xn < 1 && xp < 1))
+        return;
 
-	currword = *(sword + pos);
-	destword = currword;
+    currword = *(sword + pos);
+    destword = currword;
 
-	parbitsxp = xp & 31;
-	parbitsxn = xn & 31;
-	nwords = xp >> 5;
+    parbitsxp = xp & 31;
+    parbitsxn = xn & 31;
+    nwords = xp >> 5;
 
-	if (parbitsxp > 0)
-		nwords += 1;
-	else
-		parbitsxp = 31;
+    if (parbitsxp > 0)
+        nwords += 1;
+    else
+        parbitsxp = 31;
 
-	siter = (col - nwords);
-	eiter = (col + nwords);
+    siter = (col - nwords);
+    eiter = (col + nwords);
 
-	//Get prev word
-	if (col==0)
-		firstword = 0x0;
-	else
-		firstword = *(sword + pos - 1);
-	
-	//Get next word
-	if (col == (wpl - 1))
-		secondword = 0x0;
-	else
-		secondword = *(sword + pos + 1);
+    //Get prev word
+    if (col==0)
+        firstword = 0x0;
+    else
+        firstword = *(sword + pos - 1);
+    
+    //Get next word
+    if (col == (wpl - 1))
+        secondword = 0x0;
+    else
+        secondword = *(sword + pos + 1);
 
-	//Last partial bits on either side
-	for (i = 1; i <= parbitsxp; i++)
-	{
-		//Get the max value on LHS of every pixel
-		tempword = ((i == parbitsxp) && (parbitsxp != parbitsxn)) ? 0x0 : (firstword << (32-i)) | ((currword >> i));
-		
-		destword |= tempword;
+    //Last partial bits on either side
+    for (i = 1; i <= parbitsxp; i++)
+    {
+        //Get the max value on LHS of every pixel
+        tempword = ((i == parbitsxp) && (parbitsxp != parbitsxn)) ? 0x0 : (firstword << (32-i)) | ((currword >> i));
+        
+        destword |= tempword;
 
-		//Get max value on RHS of every pixel
-		tempword = (currword << i) | (secondword >> (32 - i));
-		destword |= tempword;
-	}
+        //Get max value on RHS of every pixel
+        tempword = (currword << i) | (secondword >> (32 - i));
+        destword |= tempword;
+    }
 
-	//Return if halfwidth <= 1 word
-	if (nwords == 1)
-	{
-		if (xn == 32)
-		{
-			destword |= firstword;
-		}
-		if (xp == 32)
-		{
-			destword |= secondword;
-		}
+    //Return if halfwidth <= 1 word
+    if (nwords == 1)
+    {
+        if (xn == 32)
+        {
+            destword |= firstword;
+        }
+        if (xp == 32)
+        {
+            destword |= secondword;
+        }
 
-		*(dword + pos) = destword;
-		return;
-	}
+        *(dword + pos) = destword;
+        return;
+    }
 
-	if (siter < 0)
-		firstword = 0x0;
-	else
-		firstword = *(sword + row*wpl + siter);
+    if (siter < 0)
+        firstword = 0x0;
+    else
+        firstword = *(sword + row*wpl + siter);
 
-	if (eiter >= wpl)	
-		lastword = 0x0;
-	else
-		lastword = *(sword + row*wpl + eiter);
-	
-	for ( i = 1; i < nwords; i++)
-	{
-		//Gets LHS words
-		if ((siter + i) < 0)
-			secondword = 0x0;
-		else
-			secondword = *(sword + row*wpl + siter + i);
+    if (eiter >= wpl)   
+        lastword = 0x0;
+    else
+        lastword = *(sword + row*wpl + eiter);
+    
+    for ( i = 1; i < nwords; i++)
+    {
+        //Gets LHS words
+        if ((siter + i) < 0)
+            secondword = 0x0;
+        else
+            secondword = *(sword + row*wpl + siter + i);
 
-		lprevword = firstword << (32 - parbitsxn) | secondword >> parbitsxn;
-		
-		firstword = secondword;
+        lprevword = firstword << (32 - parbitsxn) | secondword >> parbitsxn;
+        
+        firstword = secondword;
 
-		if ((siter + i + 1) < 0)
-			secondword = 0x0;
-		else
-			secondword = *(sword + row*wpl + siter + i + 1);
-		
-		lnextword = firstword << (32 - parbitsxn) | secondword >> parbitsxn;
+        if ((siter + i + 1) < 0)
+            secondword = 0x0;
+        else
+            secondword = *(sword + row*wpl + siter + i + 1);
+        
+        lnextword = firstword << (32 - parbitsxn) | secondword >> parbitsxn;
 
-		//Gets RHS words
-		if ((eiter - i) >= wpl)
-			firstword = 0x0;
-		else
-			firstword = *(sword + row*wpl + eiter - i);
-			
-		rnextword = firstword << parbitsxp | lastword >> (32 - parbitsxp);
+        //Gets RHS words
+        if ((eiter - i) >= wpl)
+            firstword = 0x0;
+        else
+            firstword = *(sword + row*wpl + eiter - i);
+            
+        rnextword = firstword << parbitsxp | lastword >> (32 - parbitsxp);
 
-		lastword = firstword;
-		if ((eiter - i - 1) >= wpl)
-			firstword = 0x0;
-		else
-			firstword = *(sword + row*wpl + eiter - i - 1);
+        lastword = firstword;
+        if ((eiter - i - 1) >= wpl)
+            firstword = 0x0;
+        else
+            firstword = *(sword + row*wpl + eiter - i - 1);
 
-		rprevword = firstword << parbitsxp | lastword >> (32 - parbitsxp);
+        rprevword = firstword << parbitsxp | lastword >> (32 - parbitsxp);
 
-		for (j = 1; j < 32; j++)
-		{
-			//OR LHS full words
-			tempword = (lprevword << j) | (lnextword >> (32 - j));
-			destword |= tempword;
+        for (j = 1; j < 32; j++)
+        {
+            //OR LHS full words
+            tempword = (lprevword << j) | (lnextword >> (32 - j));
+            destword |= tempword;
 
-			//OR RHS full words
-			tempword = (rprevword << j) | (rnextword >> (32 - j));
-			destword |= tempword;
-		}
+            //OR RHS full words
+            tempword = (rprevword << j) | (rnextword >> (32 - j));
+            destword |= tempword;
+        }
 
-		destword |= lprevword;
-		destword |= lnextword;
-		destword |= rprevword;
-		destword |= rnextword;
+        destword |= lprevword;
+        destword |= lnextword;
+        destword |= rprevword;
+        destword |= rnextword;
 
-		lastword = firstword;
-		firstword = secondword;
-	}
-	
-	*(dword + pos) = destword;
+        lastword = firstword;
+        firstword = secondword;
+    }
+    
+    *(dword + pos) = destword;
 }\n
 )
 
 KERNEL(
 \n__kernel void morphoDilateHor_32word(__global int *sword,__global int *dword,
-							const int halfwidth,
-							const int wpl, const int h,
-							const char isEven)
+                            const int halfwidth,
+                            const int wpl, const int h,
+                            const char isEven)
 {
-	const int col = get_global_id(0);
-	const int row = get_global_id(1);
-	const unsigned int pos = row * wpl + col;
-	unsigned int prevword, nextword, currword,tempword;
-	unsigned int destword;
-	int i;
-	
-	//Ignore the execss
-	if (pos >= (wpl * h))
-		return;
+    const int col = get_global_id(0);
+    const int row = get_global_id(1);
+    const unsigned int pos = row * wpl + col;
+    unsigned int prevword, nextword, currword,tempword;
+    unsigned int destword;
+    int i;
+    
+    //Ignore the execss
+    if (pos >= (wpl * h))
+        return;
 
-	currword = *(sword + pos);	
-	destword = currword;
-	
-	//Handle boundary conditions
-	if(col==0)
-		prevword=0;
-	else
-		prevword = *(sword + pos - 1);
+    currword = *(sword + pos);  
+    destword = currword;
+    
+    //Handle boundary conditions
+    if(col==0)
+        prevword=0;
+    else
+        prevword = *(sword + pos - 1);
 
-	if(col==(wpl - 1))
-		nextword=0;
-	else
-		nextword = *(sword + pos + 1);
-	
-	for (i = 1; i <= halfwidth; i++)
-	{
-		//Get the max value on LHS of every pixel
-		if (i == halfwidth && isEven)
-		{
-			tempword = 0x0;
-		}
-		else
-		{
-			tempword = (prevword << (32-i)) | ((currword >> i));
-		}
+    if(col==(wpl - 1))
+        nextword=0;
+    else
+        nextword = *(sword + pos + 1);
+    
+    for (i = 1; i <= halfwidth; i++)
+    {
+        //Get the max value on LHS of every pixel
+        if (i == halfwidth && isEven)
+        {
+            tempword = 0x0;
+        }
+        else
+        {
+            tempword = (prevword << (32-i)) | ((currword >> i));
+        }
 
-		destword |= tempword;
+        destword |= tempword;
 
-		//Get max value on RHS of every pixel
-		tempword = (currword << i) | (nextword >> (32 - i));
-		
-		destword |= tempword;
-	}
+        //Get max value on RHS of every pixel
+        tempword = (currword << i) | (nextword >> (32 - i));
+        
+        destword |= tempword;
+    }
 
-	*(dword + pos) = destword;
+    *(dword + pos) = destword;
 }\n
 )
 
 KERNEL(
 \n__kernel void morphoDilateVer(__global int *sword,__global int *dword,
-							const int yp,
-							const int wpl, const int h,
-							const int yn)
+                            const int yp,
+                            const int wpl, const int h,
+                            const int yn)
 {
-	const int col = get_global_id(0);
-	const int row = get_global_id(1);
-	const unsigned int pos = row * wpl + col;
-	unsigned int tempword;
-	unsigned int destword;
-	int i, siter, eiter;
-	
-	//Ignore the execss
-	if (row >= h || col >= wpl)
-		return;
+    const int col = get_global_id(0);
+    const int row = get_global_id(1);
+    const unsigned int pos = row * wpl + col;
+    unsigned int tempword;
+    unsigned int destword;
+    int i, siter, eiter;
+    
+    //Ignore the execss
+    if (row >= h || col >= wpl)
+        return;
 
-	destword = *(sword + pos);
+    destword = *(sword + pos);
 
-	//Set start position and end position considering the boundary conditions
-	siter = (row - yn) < 0 ? 0 : (row - yn);
-	eiter = (row >= (h - yp)) ? (h - 1) : (row + yp);
+    //Set start position and end position considering the boundary conditions
+    siter = (row - yn) < 0 ? 0 : (row - yn);
+    eiter = (row >= (h - yp)) ? (h - 1) : (row + yp);
 
-	for (i = siter; i <= eiter; i++)
-	{
-		tempword = *(sword + i*wpl + col);
+    for (i = siter; i <= eiter; i++)
+    {
+        tempword = *(sword + i*wpl + col);
 
-		destword |= tempword;
-	}
+        destword |= tempword;
+    }
 
-	*(dword + pos) = destword;
+    *(dword + pos) = destword;
 }\n
 )
 
 KERNEL(
 \n__kernel void morphoErodeHor_5x5(__global int *sword,__global int *dword,
-							const int wpl, const int h)
+                            const int wpl, const int h)
 {
-	const unsigned int pos = get_global_id(0);
-	unsigned int prevword, nextword, currword,tempword;
-	unsigned int destword;
-	const int col = pos % wpl;
-	
-	//Ignore the execss
-	if (pos >= (wpl * h))
-		return;
-	
-	currword = *(sword + pos);	
-	destword = currword;
-	
-	//Handle boundary conditions
-	if(col==0)
-		prevword=0xffffffff;
-	else
-		prevword = *(sword + pos - 1);
-	
-	if(col==(wpl - 1))
-		nextword=0xffffffff;
-	else
-		nextword = *(sword + pos + 1);
-	
-	//Loop unrolled
-	
-	//1 bit to left and 1 bit to right
-		//Get the min value on LHS of every pixel
-		tempword = (prevword << (31)) | ((currword >> 1));
-		destword &= tempword;
-		//Get min value on RHS of every pixel
-		tempword = (currword << 1) | (nextword >> (31));
-		destword &= tempword;
-
-	//2 bit to left and 2 bit to right
-		//Get the min value on LHS of every pixel
-		tempword = (prevword << (30)) | ((currword >> 2));
-		destword &= tempword;
-		//Get min value on RHS of every pixel
-		tempword = (currword << 2) | (nextword >> (30));
-		destword &= tempword;
-	
+    const unsigned int pos = get_global_id(0);
+    unsigned int prevword, nextword, currword,tempword;
+    unsigned int destword;
+    const int col = pos % wpl;
     
-	*(dword + pos) = destword;
-	
+    //Ignore the execss
+    if (pos >= (wpl * h))
+        return;
+    
+    currword = *(sword + pos);  
+    destword = currword;
+    
+    //Handle boundary conditions
+    if(col==0)
+        prevword=0xffffffff;
+    else
+        prevword = *(sword + pos - 1);
+    
+    if(col==(wpl - 1))
+        nextword=0xffffffff;
+    else
+        nextword = *(sword + pos + 1);
+    
+    //Loop unrolled
+    
+    //1 bit to left and 1 bit to right
+        //Get the min value on LHS of every pixel
+        tempword = (prevword << (31)) | ((currword >> 1));
+        destword &= tempword;
+        //Get min value on RHS of every pixel
+        tempword = (currword << 1) | (nextword >> (31));
+        destword &= tempword;
+
+    //2 bit to left and 2 bit to right
+        //Get the min value on LHS of every pixel
+        tempword = (prevword << (30)) | ((currword >> 2));
+        destword &= tempword;
+        //Get min value on RHS of every pixel
+        tempword = (currword << 2) | (nextword >> (30));
+        destword &= tempword;
+    
+    
+    *(dword + pos) = destword;
+    
 }\n
 )
 
 KERNEL(
 \n__kernel void morphoErodeVer_5x5(__global int *sword,__global int *dword,
-							const int wpl, const int h,
-							const int fwmask, const int lwmask)
+                            const int wpl, const int h,
+                            const int fwmask, const int lwmask)
 {
-	const int col = get_global_id(0);
-	const int row = get_global_id(1);
-	const unsigned int pos = row * wpl + col;
-	unsigned int tempword;
-	unsigned int destword;
-	int i;
+    const int col = get_global_id(0);
+    const int row = get_global_id(1);
+    const unsigned int pos = row * wpl + col;
+    unsigned int tempword;
+    unsigned int destword;
+    int i;
 
-	//Ignore the execss
-	if (row >= h || col >= wpl)
-		return;
+    //Ignore the execss
+    if (row >= h || col >= wpl)
+        return;
 
-	destword = *(sword + pos);
+    destword = *(sword + pos);
 
-	if (row < 2 || row >= (h - 2))
-	{
-		destword = 0x0;
-	}	
-	else
-	{
-		//2 words above
-		//i = (row - 2) < 0 ? row : (row - 2);
-		i = (row - 2);
-		tempword = *(sword + i*wpl + col);
-		destword &= tempword;
+    if (row < 2 || row >= (h - 2))
+    {
+        destword = 0x0;
+    }   
+    else
+    {
+        //2 words above
+        //i = (row - 2) < 0 ? row : (row - 2);
+        i = (row - 2);
+        tempword = *(sword + i*wpl + col);
+        destword &= tempword;
 
-		//1 word above
-		//i = (row - 1) < 0 ? row  : (row - 1);
-		i = (row - 1);
-		tempword = *(sword + i*wpl + col);
-		destword &= tempword;
+        //1 word above
+        //i = (row - 1) < 0 ? row  : (row - 1);
+        i = (row - 1);
+        tempword = *(sword + i*wpl + col);
+        destword &= tempword;
 
-		//1 word below
-		//i = (row >= (h - 1)) ? row : (row + 1);
-		i = (row + 1);
-		tempword = *(sword + i*wpl + col);
-		destword &= tempword;
+        //1 word below
+        //i = (row >= (h - 1)) ? row : (row + 1);
+        i = (row + 1);
+        tempword = *(sword + i*wpl + col);
+        destword &= tempword;
 
-		//2 words below
-		//i = (row >= (h - 2)) ? row : (row + 2);
-		i = (row + 2);
-		tempword = *(sword + i*wpl + col);
-		destword &= tempword;
+        //2 words below
+        //i = (row >= (h - 2)) ? row : (row + 2);
+        i = (row + 2);
+        tempword = *(sword + i*wpl + col);
+        destword &= tempword;
 
-		if (col == 0) 
-		{
-			destword &= fwmask;
-		}
-		if (col == (wpl - 1))
-		{
-			destword &= lwmask;
-		}
-	}
+        if (col == 0) 
+        {
+            destword &= fwmask;
+        }
+        if (col == (wpl - 1))
+        {
+            destword &= lwmask;
+        }
+    }
 
 
-	*(dword + pos) = destword;
+    *(dword + pos) = destword;
 }\n
 )
 
 KERNEL(
-\n__kernel void morphoErodeHor(__global int *sword,__global int *dword,	const int xp, const int xn, const int wpl, 
-								const int h, const char isAsymmetric, const int rwmask, const int lwmask)
+\n__kernel void morphoErodeHor(__global int *sword,__global int *dword, const int xp, const int xn, const int wpl, 
+                                const int h, const char isAsymmetric, const int rwmask, const int lwmask)
 {
-	const int col = get_global_id(0);
-	const int row = get_global_id(1);
-	const unsigned int pos = row * wpl + col;
-	unsigned int parbitsxp, parbitsxn, nwords;
-	unsigned int destword, tempword, lastword, currword;
-	unsigned int lnextword, lprevword, rnextword, rprevword, firstword, secondword;
-	int i, j, siter, eiter;
+    const int col = get_global_id(0);
+    const int row = get_global_id(1);
+    const unsigned int pos = row * wpl + col;
+    unsigned int parbitsxp, parbitsxn, nwords;
+    unsigned int destword, tempword, lastword, currword;
+    unsigned int lnextword, lprevword, rnextword, rprevword, firstword, secondword;
+    int i, j, siter, eiter;
 
-	//Ignore the execss
-	if (pos >= (wpl*h) || (xn < 1 && xp < 1))
-		return;
+    //Ignore the execss
+    if (pos >= (wpl*h) || (xn < 1 && xp < 1))
+        return;
 
-	currword = *(sword + pos);
-	destword = currword;
+    currword = *(sword + pos);
+    destword = currword;
 
-	parbitsxp = xp & 31;
-	parbitsxn = xn & 31;
-	nwords = xp >> 5;
+    parbitsxp = xp & 31;
+    parbitsxn = xn & 31;
+    nwords = xp >> 5;
 
-	if (parbitsxp > 0)
-		nwords += 1;
-	else
-		parbitsxp = 31;
+    if (parbitsxp > 0)
+        nwords += 1;
+    else
+        parbitsxp = 31;
 
-	siter = (col - nwords);
-	eiter = (col + nwords);
+    siter = (col - nwords);
+    eiter = (col + nwords);
 
-	//Get prev word
-	if (col==0)
-		firstword = 0xffffffff;
-	else
-		firstword = *(sword + pos - 1);
-	
-	//Get next word
-	if (col == (wpl - 1))
-		secondword = 0xffffffff;
-	else
-		secondword = *(sword + pos + 1);
+    //Get prev word
+    if (col==0)
+        firstword = 0xffffffff;
+    else
+        firstword = *(sword + pos - 1);
+    
+    //Get next word
+    if (col == (wpl - 1))
+        secondword = 0xffffffff;
+    else
+        secondword = *(sword + pos + 1);
 
-	//Last partial bits on either side
-	for (i = 1; i <= parbitsxp; i++)
-	{
-		//Get the max value on LHS of every pixel
-		tempword = (firstword << (32-i)) | ((currword >> i));
-		destword &= tempword;
+    //Last partial bits on either side
+    for (i = 1; i <= parbitsxp; i++)
+    {
+        //Get the max value on LHS of every pixel
+        tempword = (firstword << (32-i)) | ((currword >> i));
+        destword &= tempword;
 
-		//Get max value on RHS of every pixel
-		tempword = ((i == parbitsxp) && (parbitsxp != parbitsxn)) ? 0xffffffff : (currword << i) | (secondword >> (32 - i));
-		
-		//tempword = (currword << i) | (secondword >> (32 - i));
-		destword &= tempword;
-	}
+        //Get max value on RHS of every pixel
+        tempword = ((i == parbitsxp) && (parbitsxp != parbitsxn)) ? 0xffffffff : (currword << i) | (secondword >> (32 - i));
+        
+        //tempword = (currword << i) | (secondword >> (32 - i));
+        destword &= tempword;
+    }
 
-	//Return if halfwidth <= 1 word
-	if (nwords == 1)
-	{
-		if (xp == 32)
-		{
-			destword &= firstword;
-		}
-		if (xn == 32)
-		{
-			destword &= secondword;
-		}
+    //Return if halfwidth <= 1 word
+    if (nwords == 1)
+    {
+        if (xp == 32)
+        {
+            destword &= firstword;
+        }
+        if (xn == 32)
+        {
+            destword &= secondword;
+        }
 
-		//Clear boundary pixels
-		if (isAsymmetric)
-		{
-			if (col == 0)
-				destword &= rwmask;
-			if (col == (wpl - 1))
-				destword &= lwmask;
-		}
+        //Clear boundary pixels
+        if (isAsymmetric)
+        {
+            if (col == 0)
+                destword &= rwmask;
+            if (col == (wpl - 1))
+                destword &= lwmask;
+        }
 
-		*(dword + pos) = destword;
-		return;
-	}
-	
-	if (siter < 0)
-		firstword = 0xffffffff;
-	else
-		firstword = *(sword + row*wpl + siter);
+        *(dword + pos) = destword;
+        return;
+    }
+    
+    if (siter < 0)
+        firstword = 0xffffffff;
+    else
+        firstword = *(sword + row*wpl + siter);
 
-	if (eiter >= wpl)	
-		lastword = 0xffffffff;
-	else
-		lastword = *(sword + row*wpl + eiter);
-	
-	
-	for ( i = 1; i < nwords; i++)
-	{
-		//Gets LHS words
-		if ((siter + i) < 0)
-			secondword = 0xffffffff;
-		else
-			secondword = *(sword + row*wpl + siter + i);
+    if (eiter >= wpl)   
+        lastword = 0xffffffff;
+    else
+        lastword = *(sword + row*wpl + eiter);
+    
+    
+    for ( i = 1; i < nwords; i++)
+    {
+        //Gets LHS words
+        if ((siter + i) < 0)
+            secondword = 0xffffffff;
+        else
+            secondword = *(sword + row*wpl + siter + i);
 
-		lprevword = firstword << (32 - parbitsxp) | secondword >> (parbitsxp);
-		
-		firstword = secondword;
+        lprevword = firstword << (32 - parbitsxp) | secondword >> (parbitsxp);
+        
+        firstword = secondword;
 
-		if ((siter + i + 1) < 0)
-			secondword = 0xffffffff;
-		else
-			secondword = *(sword + row*wpl + siter + i + 1);
-		
-		lnextword = firstword << (32 - parbitsxp) | secondword >> (parbitsxp);
+        if ((siter + i + 1) < 0)
+            secondword = 0xffffffff;
+        else
+            secondword = *(sword + row*wpl + siter + i + 1);
+        
+        lnextword = firstword << (32 - parbitsxp) | secondword >> (parbitsxp);
 
-		//Gets RHS words
-		if ((eiter - i) >= wpl)
-			firstword = 0xffffffff;
-		else
-			firstword = *(sword + row*wpl + eiter - i);
-			
-		rnextword = firstword << parbitsxn | lastword >> (32 - parbitsxn);
+        //Gets RHS words
+        if ((eiter - i) >= wpl)
+            firstword = 0xffffffff;
+        else
+            firstword = *(sword + row*wpl + eiter - i);
+            
+        rnextword = firstword << parbitsxn | lastword >> (32 - parbitsxn);
 
-		lastword = firstword;
-		if ((eiter - i - 1) >= wpl)
-			firstword = 0xffffffff;
-		else
-			firstword = *(sword + row*wpl + eiter - i - 1);
+        lastword = firstword;
+        if ((eiter - i - 1) >= wpl)
+            firstword = 0xffffffff;
+        else
+            firstword = *(sword + row*wpl + eiter - i - 1);
 
-		rprevword = firstword << parbitsxn | lastword >> (32 - parbitsxn);
+        rprevword = firstword << parbitsxn | lastword >> (32 - parbitsxn);
 
-		for (j = 0; j < 32; j++)
-		{
-			//OR LHS full words
-			tempword = (lprevword << j) | (lnextword >> (32 - j));
-			destword &= tempword;
+        for (j = 0; j < 32; j++)
+        {
+            //OR LHS full words
+            tempword = (lprevword << j) | (lnextword >> (32 - j));
+            destword &= tempword;
 
-			//OR RHS full words
-			tempword = (rprevword << j) | (rnextword >> (32 - j));
-			destword &= tempword;
-		}
+            //OR RHS full words
+            tempword = (rprevword << j) | (rnextword >> (32 - j));
+            destword &= tempword;
+        }
 
-		destword &= lprevword;
-		destword &= lnextword;
-		destword &= rprevword;
-		destword &= rnextword;
+        destword &= lprevword;
+        destword &= lnextword;
+        destword &= rprevword;
+        destword &= rnextword;
 
-		lastword = firstword;
-		firstword = secondword;
-	}
-	
-	if (isAsymmetric)
-	{
-		//Clear boundary pixels
-		if (col < (nwords - 1))
-			destword = 0x0;
-		else if (col == (nwords - 1))
-			destword &= rwmask;
-		else if (col > (wpl - nwords))
-			destword = 0x0;
-		else if (col == (wpl - nwords))
-			destword &= lwmask;
-	}
+        lastword = firstword;
+        firstword = secondword;
+    }
+    
+    if (isAsymmetric)
+    {
+        //Clear boundary pixels
+        if (col < (nwords - 1))
+            destword = 0x0;
+        else if (col == (nwords - 1))
+            destword &= rwmask;
+        else if (col > (wpl - nwords))
+            destword = 0x0;
+        else if (col == (wpl - nwords))
+            destword &= lwmask;
+    }
 
-	*(dword + pos) = destword;
+    *(dword + pos) = destword;
 }\n
 )
 
 KERNEL(
 \n__kernel void morphoErodeHor_32word(__global int *sword,__global int *dword,
-							const int halfwidth, const int wpl, 
-							const int h, const char clearBoundPixH, 
-							const int rwmask, const int lwmask,
-							const char isEven)
+                            const int halfwidth, const int wpl, 
+                            const int h, const char clearBoundPixH, 
+                            const int rwmask, const int lwmask,
+                            const char isEven)
 {
-	const int col = get_global_id(0);
-	const int row = get_global_id(1);
-	const unsigned int pos = row * wpl + col;
-	unsigned int prevword, nextword, currword,tempword, destword;
-	int i;
+    const int col = get_global_id(0);
+    const int row = get_global_id(1);
+    const unsigned int pos = row * wpl + col;
+    unsigned int prevword, nextword, currword,tempword, destword;
+    int i;
 
-	//Ignore the execss
-	if (pos >= (wpl * h))
-		return;
+    //Ignore the execss
+    if (pos >= (wpl * h))
+        return;
 
-	currword = *(sword + pos);	
-	destword = currword;
-	
-	//Handle boundary conditions
-	if(col==0)
-		prevword=0xffffffff;
-	else
-		prevword = *(sword + pos - 1);
-	
-	if(col==(wpl - 1))
-		nextword=0xffffffff;
-	else
-		nextword = *(sword + pos + 1);
-	
-	for (i = 1; i <= halfwidth; i++)
-	{
-		//Get the min value on LHS of every pixel
-		tempword = (prevword << (32-i)) | ((currword >> i));
-		
-		destword &= tempword;
+    currword = *(sword + pos);  
+    destword = currword;
+    
+    //Handle boundary conditions
+    if(col==0)
+        prevword=0xffffffff;
+    else
+        prevword = *(sword + pos - 1);
+    
+    if(col==(wpl - 1))
+        nextword=0xffffffff;
+    else
+        nextword = *(sword + pos + 1);
+    
+    for (i = 1; i <= halfwidth; i++)
+    {
+        //Get the min value on LHS of every pixel
+        tempword = (prevword << (32-i)) | ((currword >> i));
+        
+        destword &= tempword;
 
-		//Get min value on RHS of every pixel
-		if (i == halfwidth && isEven)
-		{
-			tempword = 0xffffffff;
-		}
-		else
-		{
-			tempword = (currword << i) | (nextword >> (32 - i));
-		}
+        //Get min value on RHS of every pixel
+        if (i == halfwidth && isEven)
+        {
+            tempword = 0xffffffff;
+        }
+        else
+        {
+            tempword = (currword << i) | (nextword >> (32 - i));
+        }
 
-		destword &= tempword;
-	}
+        destword &= tempword;
+    }
 
-	if (clearBoundPixH)
-	{
-		if (col == 0) 
-		{
-			destword &= rwmask;
-		}
-		else if (col == (wpl - 1))
-		{
-			destword &= lwmask;
-		}
-	}
+    if (clearBoundPixH)
+    {
+        if (col == 0) 
+        {
+            destword &= rwmask;
+        }
+        else if (col == (wpl - 1))
+        {
+            destword &= lwmask;
+        }
+    }
 
-	*(dword + pos) = destword;
+    *(dword + pos) = destword;
 }\n
 )
 
 KERNEL(
 \n__kernel void morphoErodeVer(__global int *sword,__global int *dword,
-							const int yp, 
-							const int wpl, const int h,
-							const char clearBoundPixV, const int yn)
+                            const int yp, 
+                            const int wpl, const int h,
+                            const char clearBoundPixV, const int yn)
 {
-	const int col = get_global_id(0);
-	const int row = get_global_id(1);
-	const unsigned int pos = row * wpl + col;
-	unsigned int tempword, destword;
-	int i, siter, eiter;
-	
-	//Ignore the execss
-	if (row >= h || col >= wpl)
-		return;
+    const int col = get_global_id(0);
+    const int row = get_global_id(1);
+    const unsigned int pos = row * wpl + col;
+    unsigned int tempword, destword;
+    int i, siter, eiter;
+    
+    //Ignore the execss
+    if (row >= h || col >= wpl)
+        return;
 
-	destword = *(sword + pos);
+    destword = *(sword + pos);
 
-	//Set start position and end position considering the boundary conditions
-	siter = (row - yp) < 0 ? 0 : (row - yp);
-	eiter = (row >= (h - yn)) ? (h - 1) : (row + yn);
+    //Set start position and end position considering the boundary conditions
+    siter = (row - yp) < 0 ? 0 : (row - yp);
+    eiter = (row >= (h - yn)) ? (h - 1) : (row + yn);
 
-	for (i = siter; i <= eiter; i++)
-	{
-		tempword = *(sword + i*wpl + col);
+    for (i = siter; i <= eiter; i++)
+    {
+        tempword = *(sword + i*wpl + col);
 
-		destword &= tempword;
-	}
+        destword &= tempword;
+    }
 
-	//Clear boundary pixels
-	if (clearBoundPixV && ((row < yp) || ((h - row) <= yn)))
-	{	
-		destword = 0x0;
-	}
+    //Clear boundary pixels
+    if (clearBoundPixV && ((row < yp) || ((h - row) <= yn)))
+    {   
+        destword = 0x0;
+    }
 
-	*(dword + pos) = destword;
+    *(dword + pos) = destword;
 }\n
 )
 
@@ -824,7 +824,7 @@ __kernel
 void kernel_HistogramRectAllChannels(
     __global const uchar8 *data,
     uint numPixels,
-	__global uint *histBuffer) {
+    __global uint *histBuffer) {
 
     // declare variables
     uchar8 pixels;
@@ -913,7 +913,7 @@ __attribute__((reqd_work_group_size(256, 1, 1)))
 __kernel
 void kernel_HistogramRectAllChannelsReduction(
     int n, // unused pixel redundancy
-	__global uint *histBuffer,
+    __global uint *histBuffer,
     __global int* histResult) {
 
     // declare variables
@@ -1171,7 +1171,7 @@ void kernel_ThresholdRectToPix_OneChan(
 \n  void kernel_HistogramRectAllChannels_uchar(
 \n      volatile __global const uchar  *data,
 \n                              uint   numPixels,
-\n  	volatile __global       uint   *histBuffer) {
+\n      volatile __global       uint   *histBuffer) {
 \n      
 \n      // for each pixel/channel, accumulate in global memory
 \n      for ( uint pc = get_global_id(0); pc < numPixels*NUM_CHANNELS; pc += get_global_size(0) ) {
@@ -1185,7 +1185,7 @@ void kernel_ThresholdRectToPix_OneChan(
 \n  __kernel
 \n  void kernel_HistogramRectAllChannelsReduction_uchar(
 \n      int n, // pixel redundancy that needs to be accumulated = nthreads/4
-\n  	__global uint4 *histBuffer,
+\n      __global uint4 *histBuffer,
 \n      __global uint* histResult) { // each wg accumulates 1 bin (all channels within it
 \n  
 \n      // declare variables
