@@ -17,7 +17,7 @@ endif
 SUBDIRS = ccutil viewer cutil opencl ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . tessdata
 
 EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
-	aclocal.m4 config configure.ac autogen.sh tesseract.spec contrib \
+	aclocal.m4 config configure.ac autogen.sh contrib \
 	tesseract.pc.in $(TRAINING_SUBDIR) java doc testing
 
 DIST_SUBDIRS  = $(SUBDIRS)
