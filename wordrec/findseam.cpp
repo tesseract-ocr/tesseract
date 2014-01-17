@@ -170,8 +170,10 @@ void Wordrec::choose_best_seam(SeamQueue* seam_queue,
         combine_seam(*seam_pile, seam, seam_queue);
         SeamDecPair pair;
         seam_pile->Pop(&pair);  // pop the worst.
+        // Replace the seam in pair (deleting the old one) with
+        // the new seam and score, then push back into the heap.
         pair.set_key(seam_pair.key());
-        pair.set_data(seam);  // Deletes the old seam.
+        pair.set_data(seam);
         seam_pile->Push(&pair);
       } else {
         delete seam;

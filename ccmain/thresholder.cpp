@@ -257,8 +257,8 @@ void ImageThresholder::OtsuThresholdRectToPix(Pix* src_pix,
   OpenclDevice od;
   if ((num_channels == 4 || num_channels == 1) &&
       od.selectedDeviceIsOpenCL() && rect_top_ == 0 && rect_left_ == 0 ) {
-    od.ThresholdRectToPixOCL((const unsigned char*)pixGetData(src_pix), num_channels,
-                             pixGetWpl(src_pix) * 4,
+    od.ThresholdRectToPixOCL((const unsigned char*)pixGetData(src_pix),
+                             num_channels, pixGetWpl(src_pix) * 4,
                              thresholds, hi_values, out_pix /*pix_OCL*/,
                              rect_height_, rect_width_, rect_top_, rect_left_);
   } else {
@@ -294,7 +294,8 @@ void ImageThresholder::ThresholdRectToPix(Pix* src_pix,
     for (int x = 0; x < rect_width_; ++x) {
       bool white_result = true;
       for (int ch = 0; ch < num_channels; ++ch) {
-        int pixel = GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(linedata)),
+        int pixel = GET_DATA_BYTE(const_cast<void*>(
+                                  reinterpret_cast<const void *>(linedata)),
                                   (x + rect_left_) * num_channels + ch);
         if (hi_values[ch] >= 0 &&
             (pixel > thresholds[ch]) == (hi_values[ch] == 0)) {
