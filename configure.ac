@@ -63,6 +63,7 @@ AM_MAINTAINER_MODE
 
 # default conditional
 AM_CONDITIONAL(MINGW, false)
+AM_CONDITIONAL(OSX, false)
 AM_CONDITIONAL(GRAPHICS_DISABLED, false)
 
 OPENCL_INC="/opt/AMDAPP/include"
@@ -82,13 +83,13 @@ case "${host_os}" in
     solaris*)
         LIBS="-lsocket -lnsl -lrt -lxnet"
         ;;
-    powerpc-*-darwin*)
-        OPENCL_LIBS=""
-        OPENCL_INC=""
-        ;;
     *-*-darwin*)
         OPENCL_LIBS="-framework OpenCL"
         OPENCL_INC=""
+        AM_CONDITIONAL(OSX, true)
+        ;;
+    powerpc-*-darwin*)
+        OPENCL_LIBS=""
         ;;
      *)
         # default
