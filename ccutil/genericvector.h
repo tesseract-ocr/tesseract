@@ -23,10 +23,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-/* #ifdef MINGW
-#include <pthread.h>
-#endif  // MINGW
-*/
 
 #include "tesscallback.h"
 #include "errcode.h"
