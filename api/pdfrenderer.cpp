@@ -14,7 +14,7 @@
 #include "version.h"
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include "mathfix.h"
 #endif
 

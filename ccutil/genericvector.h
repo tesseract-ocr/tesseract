@@ -23,6 +23,10 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+/* #ifdef MINGW
+#include <pthread.h>
+#endif  // MINGW
+*/
 
 #include "tesscallback.h"
 #include "errcode.h"
@@ -911,7 +915,7 @@ int GenericVector<T>::choose_nth_item(int target_index, int start, int end,
     }
   }
   // Place the pivot at start.
-  #if defined(_MSC_VER) || defined(ANDROID)  // TODO(zdenop): check this
+  #ifndef rand_r  // _MSC_VER, ANDROID
   srand(*seed);
   #define rand_r(seed) rand()
   #endif  // _MSC_VER

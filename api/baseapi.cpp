@@ -57,12 +57,14 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <stdlib.h>
+#ifdef _MSC_VER
 #include "mathfix.h"
+#endif // _MSC_VER
 #else
 #include <dirent.h>
 #include <libgen.h>
 #include <string.h>
-#endif
+#endif // _WIN32
 
 #if !defined(VERSION)
 #include "version.h"

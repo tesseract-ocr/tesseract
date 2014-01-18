@@ -8,7 +8,7 @@
 
 AC_PREREQ(2.50)
 AC_INIT([tesseract], [3.03], [http://code.google.com/p/tesseract-ocr/issues/list])
-${CXXFLAGS=""}
+CXXFLAGS=""
 AC_CONFIG_MACRO_DIR([m4])
 AC_REVISION([$Revision$])
 AC_CONFIG_AUX_DIR(config)

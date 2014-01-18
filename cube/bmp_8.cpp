@@ -23,15 +23,10 @@
 #include <algorithm>
 #include "bmp_8.h"
 #include "con_comp.h"
+#include "platform.h"
 #ifdef USE_STD_NAMESPACE
 using std::min;
 using std::max;
-#endif
-
-#ifdef _WIN32
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
 #endif
 
 namespace tesseract {
