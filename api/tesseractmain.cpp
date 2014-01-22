@@ -159,7 +159,7 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  if (strcmp(output, "-") && strcmp(output, "stdout")) {
+  if (output != NULL && strcmp(output, "-") && strcmp(output, "stdout")) {
     tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
            tesseract::TessBaseAPI::Version());
   }
