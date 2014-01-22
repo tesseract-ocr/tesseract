@@ -8,7 +8,7 @@
 
 AC_PREREQ(2.50)
 AC_INIT([tesseract], [3.03], [http://code.google.com/p/tesseract-ocr/issues/list])
-CXXFLAGS=""
+CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
 AC_REVISION([$Revision$])
 AC_CONFIG_AUX_DIR(config)
@@ -78,21 +78,24 @@ case "${host_os}" in
     mingw32*)
         AC_DEFINE_UNQUOTED(MINGW,1,[This is a MinGW system])
         AM_CONDITIONAL(MINGW, true)
+		AM_CONDITIONAL(ADD_RT, false)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
     solaris*)
         LIBS="-lsocket -lnsl -lrt -lxnet"
+		AM_CONDITIONAL(ADD_RT, true)
         ;;
     *-*-darwin*)
         OPENCL_LIBS="-framework OpenCL"
         OPENCL_INC=""
-        AM_CONDITIONAL(OSX, true)
+        AM_CONDITIONAL(ADD_RT, false)
         ;;
     powerpc-*-darwin*)
         OPENCL_LIBS=""
         ;;
-     *)
+    *)
         # default
+		AM_CONDITIONAL(ADD_RT, true)
         ;;
 esac
 

@@ -26,6 +26,25 @@
 #include <signal.h>
 #endif
 
+#if defined(_WIN32)
+#ifdef _MSC_VER
+#include "mathfix.h"
+#elif MINGW
+// workaround for stdlib.h with -std=c++11 for _splitpath and _MAX_FNAME
+#undef __STRICT_ANSI__ 
+#endif // _MSC_VER
+#include <stdlib.h>
+#include <windows.h>
+#else
+#include <dirent.h>
+#include <libgen.h>
+#include <string.h>
+#endif // _WIN32
+
+#if !defined(VERSION)
+#include "version.h"
+#endif
+
 #include "allheaders.h"
 
 #include "baseapi.h"
@@ -53,22 +72,6 @@
 #include "renderer.h"
 #include "strngs.h"
 #include "openclwrapper.h"
-
-#ifdef _WIN32
-#include <windows.h>
-#include <stdlib.h>
-#ifdef _MSC_VER
-#include "mathfix.h"
-#endif // _MSC_VER
-#else
-#include <dirent.h>
-#include <libgen.h>
-#include <string.h>
-#endif // _WIN32
-
-#if !defined(VERSION)
-#include "version.h"
-#endif
 
 namespace tesseract {
 
@@ -370,7 +373,7 @@ void TessBaseAPI::GetAvailableLanguagesAsVector(
       }
       FindClose(handle);
     }
-#else
+#else  // _WIN32
     DIR *dir;
     struct dirent *dirent;
     char *dot;

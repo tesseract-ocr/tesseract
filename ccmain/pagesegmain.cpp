@@ -20,10 +20,13 @@
 #ifdef _WIN32
 #ifndef __GNUC__
 #include <windows.h>
-#endif  /* __GNUC__ */
+#endif  // __GNUC__
+#ifndef unlink
+#include <io.h>
+#endif
 #else
 #include <unistd.h>
-#endif
+#endif // _WIN32
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
 #endif

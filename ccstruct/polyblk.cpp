@@ -252,7 +252,7 @@ void POLY_BLOCK::plot(ScrollView* window, inT32 num) {
   if (num > 0) {
     window->TextAttributes("Times", 80, false, false, false);
     char temp_buff[34];
-    #ifdef __UNIX__
+    #if defined(__UNIX__) || defined(MINGW)
     sprintf(temp_buff, INT32FORMAT, num);
     #else
     ltoa (num, temp_buff, 10);
