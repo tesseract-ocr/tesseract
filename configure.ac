@@ -85,7 +85,7 @@ case "${host_os}" in
         LIBS="-lsocket -lnsl -lrt -lxnet"
 		AM_CONDITIONAL(ADD_RT, true)
         ;;
-    *-*-darwin*)
+    *darwin*)
         OPENCL_LIBS="-framework OpenCL"
         OPENCL_INC=""
         AM_CONDITIONAL(ADD_RT, false)
