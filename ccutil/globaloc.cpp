@@ -51,7 +51,7 @@ void SavePixForCrash(int resolution, Pix* pix) {
 // CALL ONLY from a signal handler! Writes a crash image to stderr.
 void signal_exit(int signal_code) {
   tprintf("Received signal %d!\n", signal_code);
-#ifdef __linux__ 
+#ifdef __linux__
 #ifndef ANDROID
   int thread_id = syscall(SYS_gettid) % kMaxNumThreadPixes;
 #else

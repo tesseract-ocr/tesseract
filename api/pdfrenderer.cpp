@@ -134,13 +134,14 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
         x = line_x2 + t * (line_x2 - line_x1);
         y = line_y2 + t * (line_y2 - line_y1);
       }
-      word_length = sqrt(double(dist2(word_x1, word_y1, word_x2, word_y2)));
+      word_length = sqrt(static_cast<double>(dist2(word_x1, word_y1,
+                                                   word_x2, word_y2)));
       word_length = word_length * 72.0 / ppi;
       x = x * 72 / ppi;
       y = height - (y * 72.0 / ppi);
     }
 
-    int pointsize;
+    int pointsize = 0;
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       // Calculate the rotation angle in the PDF cooordinate system,
       // which has the origin in the bottom left. The Tesseract
@@ -156,7 +157,8 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       //                          [ sin𝜃  cos𝜃 0 ]  [  0 1 0 ] [ 0 1 0 ]
       //                          [   0    0   1 ]  [  0 0 1 ] [ x y 1 ]
       //
-      double theta = atan2(double(line_y1 - line_y2), double(line_x2 - line_x1));
+      double theta = atan2(static_cast<double>(line_y1 - line_y2),
+                           static_cast<double>(line_x2 - line_x1));
       double a, b, c, d;
       a = cos(theta);
       b = sin(theta);
@@ -197,7 +199,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       pdf_str.add_str_double(" ", prec(y));  // .
       pdf_str += (" Tm ");                   // Place cursor absolutely
     } else {
-      double offset = sqrt(double(dist2(old_x, old_y, x, y)));
+      double offset = sqrt(static_cast<double>(dist2(old_x, old_y, x, y)));
       pdf_str.add_str_double(" ", prec(offset));  // Delta x in pts
       pdf_str.add_str_double(" ", 0);             // Delta y in pts
       pdf_str += (" Td ");                        // Relative moveto
@@ -496,15 +498,14 @@ bool TessPDFRenderer::pixToPDFObj(Pix *pix, long int objnum,
   char b0[kBasicBufSize];
   char b1[kBasicBufSize * 2];
   char b2[kBasicBufSize];
+  L_COMP_DATA *cid;
   int encoding_type;
+  const int kJpegQuality = 85;
   if (selectDefaultPdfEncoding(pix, &encoding_type) != 0)
     return false;
-#if 0
-  const int kJpegQuality = 85;
-  L_COMP_DATA *cid;
   if (pixGenerateCIData(pix, encoding_type, kJpegQuality, 0, &cid) != 0)
     return false;
-#endif
+
   const char *filter;
   switch(encoding_type) {
     case L_FLATE_ENCODE:
@@ -520,8 +521,7 @@ bool TessPDFRenderer::pixToPDFObj(Pix *pix, long int objnum,
       return false;
   }
 
-  const char *colorspace = "/DeviceColor";
-#if 0
+  const char *colorspace;
   if (cid->ncolors > 0) {
     snprintf(b0, sizeof(b0), "[ /Indexed /DeviceRGB %d %s ]",
              cid->ncolors - 1, cid->cmapdatahex);
@@ -538,6 +538,7 @@ bool TessPDFRenderer::pixToPDFObj(Pix *pix, long int objnum,
         return false;
     }
   }
+
   snprintf(b1, sizeof(b1),
            "%ld 0 obj\n"
            "<<\n"
@@ -572,7 +573,6 @@ bool TessPDFRenderer::pixToPDFObj(Pix *pix, long int objnum,
   memcpy(*pdf_object, b1, b1_len);
   memcpy(*pdf_object + b1_len, cid->datacomp, cid->nbytescomp);
   memcpy(*pdf_object + b1_len + cid->nbytescomp, b2, b2_len);
-#endif
 
   return true;
 }
