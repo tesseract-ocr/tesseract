@@ -971,7 +971,7 @@ bool Bmp8::LoadFromCharDumpFile(unsigned char **raw_data_ptr) {
 float Bmp8::ForegroundRatio() const {
   int fore_cnt = 0;
 
-  if (wid_ <= 0 || hgt_ <= 0) {
+  if (wid_ == 0 || hgt_ == 0) {
     return 1.0;
   }
 
