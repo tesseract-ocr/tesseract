@@ -54,8 +54,6 @@ struct CP_RESULT_STRUCT {
   CLASS_ID Class;
 };
 
-typedef CP_RESULT_STRUCT CLASS_PRUNER_RESULTS[MAX_NUM_CLASSES];
-
 /*----------------------------------------------------------------------------
             Variables
 -----------------------------------------------------------------------------*/

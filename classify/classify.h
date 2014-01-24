@@ -102,7 +102,7 @@ class Classify : public CCStruct {
                    const INT_FEATURE_STRUCT* features,
                    const uinT8* normalization_factors,
                    const uinT16* expected_num_features,
-                   CP_RESULT_STRUCT* results);
+                   GenericVector<CP_RESULT_STRUCT>* results);
   void ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
                       CLASS_CUTOFF_ARRAY Cutoffs);
   void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
@@ -114,7 +114,6 @@ class Classify : public CCStruct {
   void FreeNormProtos();
   NORM_PROTOS *ReadNormProtos(FILE *File, inT64 end_offset);
   /* protos.cpp ***************************************************************/
-  void ReadClassFile();
   void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class);
   INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos,
                                    const UNICHARSET& target_unicharset);
@@ -158,10 +157,9 @@ class Classify : public CCStruct {
                      const uinT8* norm_factors,
                      ADAPT_CLASS* classes,
                      int debug,
-                     int num_classes,
                      int matcher_multiplier,
                      const TBOX& blob_box,
-                     CLASS_PRUNER_RESULTS results,
+                     const GenericVector<CP_RESULT_STRUCT>& results,
                      ADAPT_RESULTS* final_results);
   // Converts configs to fonts, and if the result is not adapted, and a
   // shape_table_ is present, the shape is expanded to include all
@@ -271,9 +269,7 @@ class Classify : public CCStruct {
   void EndAdaptiveClassifier();
   void SettupPass1();
   void SettupPass2();
-  void AdaptiveClassifier(TBLOB *Blob,
-                          BLOB_CHOICE_LIST *Choices,
-                          CLASS_PRUNER_RESULTS cp_results);
+  void AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices);
   void ClassifyAsNoise(ADAPT_RESULTS *Results);
   void ResetAdaptiveClassifierInternal();
 

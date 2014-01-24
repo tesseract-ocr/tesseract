@@ -352,7 +352,7 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
                             x_origin, y_origin, scaling, scaling,
                             0.0f, static_cast<float>(kBlnBaselineOffset),
                             false, NULL);
-    tess->AdaptiveClassifier(rotated_blob, ratings + i, NULL);
+    tess->AdaptiveClassifier(rotated_blob, ratings + i);
     delete rotated_blob;
     current_rotation.rotate(rotation90);
   }

@@ -31,15 +31,15 @@
 #include "mathfix.h"
 #elif MINGW
 // workaround for stdlib.h with -std=c++11 for _splitpath and _MAX_FNAME
-#undef __STRICT_ANSI__ 
-#endif // _MSC_VER
+#undef __STRICT_ANSI__
+#endif  // _MSC_VER
 #include <stdlib.h>
 #include <windows.h>
 #else
 #include <dirent.h>
 #include <libgen.h>
 #include <string.h>
-#endif // _WIN32
+#endif  // _WIN32
 
 #if !defined(VERSION)
 #include "version.h"
@@ -2288,7 +2288,7 @@ void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
 
   // Classify to get a raw choice.
   BLOB_CHOICE_LIST choices;
-  tesseract_->AdaptiveClassifier(blob, &choices, NULL);
+  tesseract_->AdaptiveClassifier(blob, &choices);
   BLOB_CHOICE_IT choice_it;
   choice_it.set_to_list(&choices);
   for (choice_it.mark_cycle_pt(); !choice_it.cycled_list();
@@ -2520,7 +2520,7 @@ void TessBaseAPI::RunAdaptiveClassifier(TBLOB* blob,
                                         float* ratings,
                                         int* num_matches_returned) {
   BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
-  tesseract_->AdaptiveClassifier(blob, choices, NULL);
+  tesseract_->AdaptiveClassifier(blob, choices);
   BLOB_CHOICE_IT choices_it(choices);
   int& index = *num_matches_returned;
   index = 0;

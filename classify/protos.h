@@ -176,16 +176,4 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs);
 
 void PrintProtos(CLASS_TYPE Class);
 
-void ReadClassFromFile(FILE *File, UNICHAR_ID unichar_id);
-
-void ReadConfigs(register FILE *File, CLASS_TYPE Class);
-
-void ReadProtos(register FILE *File, CLASS_TYPE Class);
-
-int SplitProto(CLASS_TYPE Class, int OldPid);
-
-void WriteOldConfigFile(FILE *File, CLASS_TYPE Class);
-
-void WriteOldProtoFile(FILE *File, CLASS_TYPE Class);
-
 #endif

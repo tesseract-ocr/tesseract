@@ -357,10 +357,12 @@ class ClassPruner {
 
   // Copies the pruned, sorted classes into the output results and returns
   // the number of classes.
-  int SetupResults(CP_RESULT_STRUCT* results) const {
+  int SetupResults(GenericVector<CP_RESULT_STRUCT>* results) const {
+    CP_RESULT_STRUCT empty;
+    results->init_to_size(num_classes_, empty);
     for (int c = 0; c < num_classes_; ++c) {
-      results[c].Class = sort_index_[num_classes_ - c];
-      results[c].Rating = 1.0 - sort_key_[num_classes_ - c] /
+      (*results)[c].Class = sort_index_[num_classes_ - c];
+      (*results)[c].Rating = 1.0 - sort_key_[num_classes_ - c] /
         (static_cast<float>(CLASS_PRUNER_CLASS_MASK) * num_features_);
     }
     return num_classes_;
@@ -408,7 +410,7 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
                            const INT_FEATURE_STRUCT* features,
                            const uinT8* normalization_factors,
                            const uinT16* expected_num_features,
-                           CP_RESULT_STRUCT* results) {
+                           GenericVector<CP_RESULT_STRUCT>* results) {
 /*
  **  Operation:
  **    Prunes the classes using a modified fast match table.

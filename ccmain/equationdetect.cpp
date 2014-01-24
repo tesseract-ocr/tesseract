@@ -186,8 +186,8 @@ void EquationDetect::IdentifySpecialText(
   normed_blob->Normalize(NULL, NULL, NULL, x_orig, y_orig, scaling, scaling,
                          0.0f, static_cast<float>(kBlnBaselineOffset),
                          false, NULL);
-  equ_tesseract_->AdaptiveClassifier(normed_blob, &ratings_equ, NULL);
-  lang_tesseract_->AdaptiveClassifier(normed_blob, &ratings_lang, NULL);
+  equ_tesseract_->AdaptiveClassifier(normed_blob, &ratings_equ);
+  lang_tesseract_->AdaptiveClassifier(normed_blob, &ratings_lang);
   delete normed_blob;
   delete tblob;
 

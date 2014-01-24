@@ -87,17 +87,15 @@ struct ScoredClass {
 
 struct ADAPT_RESULTS {
   inT32 BlobLength;
-  int NumMatches;
   bool HasNonfragment;
-  ScoredClass match[MAX_NUM_CLASSES];
+  GenericVector<ScoredClass> match;
   ScoredClass best_match;
-  CLASS_PRUNER_RESULTS CPResults;
+  GenericVector<CP_RESULT_STRUCT> CPResults;
 
   /// Initializes data members to the default values. Sets the initial
   /// rating of each class to be the worst possible rating (1.0).
   inline void Initialize() {
      BlobLength = MAX_INT32;
-     NumMatches = 0;
      HasNonfragment = false;
      best_match.unichar_id = NO_CLASS;
      best_match.shape_id = -1;
@@ -163,29 +161,22 @@ namespace tesseract {
  *
  * @param Blob    blob to be classified
  * @param[out] Choices    List of choices found by adaptive matcher.
- * @param[out] CPResults  Array of CPResultStruct of size MAX_NUM_CLASSES is
  * filled on return with the choices found by the
  * class pruner and the ratings therefrom. Also
  * contains the detailed results of the integer matcher.
  *
  */
-void Classify::AdaptiveClassifier(TBLOB *Blob,
-                                  BLOB_CHOICE_LIST *Choices,
-                                  CLASS_PRUNER_RESULTS CPResults) {
+void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   assert(Choices != NULL);
-  ADAPT_RESULTS *Results = new ADAPT_RESULTS();
+  ADAPT_RESULTS *Results = new ADAPT_RESULTS;
   Results->Initialize();
 
   ASSERT_HOST(AdaptedTemplates != NULL);
 
   DoAdaptiveMatch(Blob, Results);
-  if (CPResults != NULL)
-    memcpy(CPResults, Results->CPResults,
-           sizeof(CPResults[0]) * Results->NumMatches);
 
   RemoveBadMatches(Results);
-  qsort((void *)Results->match, Results->NumMatches,
-        sizeof(ScoredClass), CompareByRating);
+  Results->match.sort(CompareByRating);
   RemoveExtraPuncs(Results);
   ConvertMatchesToChoices(Blob->denorm(), Blob->bounding_box(), Results,
                           Choices);
@@ -1029,7 +1020,7 @@ void Classify::AddNewResult(ADAPT_RESULTS *results,
   if (old_match)
     old_match->rating = rating;
   else
-    results->match[results->NumMatches++] = match;
+    results->match.push_back(match);
 
   if (rating < results->best_match.rating &&
       // Ensure that fragments do not affect best rating, class and config.
@@ -1111,14 +1102,13 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
                              const uinT8* norm_factors,
                              ADAPT_CLASS* classes,
                              int debug,
-                             int num_classes,
                              int matcher_multiplier,
                              const TBOX& blob_box,
-                             CLASS_PRUNER_RESULTS results,
+                             const GenericVector<CP_RESULT_STRUCT>& results,
                              ADAPT_RESULTS* final_results) {
   int top = blob_box.top();
   int bottom = blob_box.bottom();
-  for (int c = 0; c < num_classes; c++) {
+  for (int c = 0; c < results.size(); c++) {
     CLASS_ID class_id = results[c].Class;
     INT_RESULT_STRUCT& int_result = results[c].IMResult;
     BIT_VECTOR protos = classes != NULL ? classes[class_id]->PermProtos
@@ -1279,21 +1269,19 @@ UNICHAR_ID *Classify::BaselineClassifier(
     const INT_FX_RESULT_STRUCT& fx_info,
     ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results) {
   if (int_features.empty()) return NULL;
-  int NumClasses;
   uinT8* CharNormArray = new uinT8[unicharset.size()];
   ClearCharNormArray(CharNormArray);
 
   Results->BlobLength = IntCastRounded(fx_info.Length / kStandardFeatureLength);
-  NumClasses = PruneClasses(Templates->Templates, int_features.size(),
-                            &int_features[0],
-                            CharNormArray, BaselineCutoffs, Results->CPResults);
+  PruneClasses(Templates->Templates, int_features.size(), &int_features[0],
+               CharNormArray, BaselineCutoffs, &Results->CPResults);
 
   if (matcher_debug_level >= 2 || classify_debug_level > 1)
     cprintf ("BL Matches =  ");
 
   MasterMatcher(Templates->Templates, int_features.size(), &int_features[0],
                 CharNormArray,
-                Templates->Class, matcher_debug_flags, NumClasses, 0,
+                Templates->Class, matcher_debug_flags, 0,
                 Blob->bounding_box(), Results->CPResults, Results);
 
   delete [] CharNormArray;
@@ -1375,20 +1363,18 @@ int Classify::CharNormTrainingSample(bool pruner_only,
   ComputeCharNormArrays(norm_feature, PreTrainedTemplates, char_norm_array,
                         pruner_norm_array);
 
-  int num_classes = PruneClasses(PreTrainedTemplates, num_features,
-                                 sample.features(),
-                                 pruner_norm_array,
-                                 shape_table_ != NULL ? &shapetable_cutoffs_[0]
-                                                      : CharNormCutoffs,
-                                 adapt_results->CPResults);
+  PruneClasses(PreTrainedTemplates, num_features, sample.features(),
+               pruner_norm_array,
+               shape_table_ != NULL ? &shapetable_cutoffs_[0] : CharNormCutoffs,
+               &adapt_results->CPResults);
   delete [] pruner_norm_array;
   if (keep_this >= 0) {
-    num_classes = 1;
     adapt_results->CPResults[0].Class = keep_this;
+    adapt_results->CPResults.truncate(1);
   }
   if (pruner_only) {
     // Convert pruner results to output format.
-    for (int i = 0; i < num_classes; ++i) {
+    for (int i = 0; i < adapt_results->CPResults.size(); ++i) {
       int class_id = adapt_results->CPResults[i].Class;
       results->push_back(
           UnicharRating(class_id, 1.0f - adapt_results->CPResults[i].Rating));
@@ -1396,11 +1382,11 @@ int Classify::CharNormTrainingSample(bool pruner_only,
   } else {
     MasterMatcher(PreTrainedTemplates, num_features, sample.features(),
                   char_norm_array,
-                  NULL, matcher_debug_flags, num_classes,
+                  NULL, matcher_debug_flags,
                   classify_integer_matcher_multiplier,
                   blob_box, adapt_results->CPResults, adapt_results);
     // Convert master matcher results to output format.
-    for (int i = 0; i < adapt_results->NumMatches; i++) {
+    for (int i = 0; i < adapt_results->match.size(); i++) {
       ScoredClass next = adapt_results->match[i];
       UnicharRating rating(next.unichar_id, 1.0f - next.rating);
       if (next.fontinfo_id >= 0) {
@@ -1449,7 +1435,7 @@ void Classify::ClassifyAsNoise(ADAPT_RESULTS *Results) {
 /*---------------------------------------------------------------------------*/
 // Return a pointer to the scored unichar in results, or NULL if not present.
 ScoredClass *FindScoredUnichar(ADAPT_RESULTS *results, UNICHAR_ID id) {
-  for (int i = 0; i < results->NumMatches; i++) {
+  for (int i = 0; i < results->match.size(); i++) {
     if (results->match[i].unichar_id == id)
       return &results->match[i];
   }
@@ -1516,7 +1502,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
   }
 
   float best_certainty = -MAX_FLOAT32;
-  for (int i = 0; i < Results->NumMatches; i++) {
+  for (int i = 0; i < Results->match.size(); i++) {
     ScoredClass next = Results->match[i];
     int fontinfo_id = next.fontinfo_id;
     int fontinfo_id2 = next.fontinfo_id2;
@@ -1564,7 +1550,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
     choices_length++;
     if (choices_length >= max_matches) break;
   }
-  Results->NumMatches = choices_length;
+  Results->match.truncate(choices_length);
 }  // ConvertMatchesToChoices
 
 
@@ -1583,7 +1569,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
 void Classify::DebugAdaptiveClassifier(TBLOB *blob,
                                        ADAPT_RESULTS *Results) {
   if (static_classifier_ == NULL) return;
-  for (int i = 0; i < Results->NumMatches; i++) {
+  for (int i = 0; i < Results->match.size(); i++) {
     if (i == 0 || Results->match[i].rating < Results->best_match.rating)
       Results->best_match = Results->match[i];
   }
@@ -1636,10 +1622,9 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
   } else {
     Ambiguities = BaselineClassifier(Blob, bl_features, fx_info,
                                      AdaptedTemplates, Results);
-    if ((Results->NumMatches > 0 &&
-         MarginalMatch (Results->best_match.rating) &&
+    if ((!Results->match.empty() && MarginalMatch(Results->best_match.rating) &&
          !tess_bn_matching) ||
-        Results->NumMatches == 0) {
+        Results->match.empty()) {
       CharNormClassifier(Blob, *sample, Results);
     } else if (Ambiguities && *Ambiguities >= 0 && !tess_bn_matching) {
       AmbigClassifier(bl_features, fx_info, Blob,
@@ -1654,7 +1639,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
   // if the results contain only fragments.
   // TODO(daria): verify that this is better than
   // just adding a NULL classification.
-  if (!Results->HasNonfragment || Results->NumMatches == 0)
+  if (!Results->HasNonfragment || Results->match.empty())
     ClassifyAsNoise(Results);
   delete sample;
 }   /* DoAdaptiveMatch */
@@ -1696,17 +1681,15 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
   CharNormClassifier(Blob, *sample, Results);
   delete sample;
   RemoveBadMatches(Results);
-  qsort((void *)Results->match, Results->NumMatches,
-        sizeof(ScoredClass), CompareByRating);
+  Results->match.sort(CompareByRating);
 
   /* copy the class id's into an string of ambiguities - don't copy if
      the correct class is the only class id matched */
-  Ambiguities = (UNICHAR_ID *) Emalloc (sizeof (UNICHAR_ID) *
-                                        (Results->NumMatches + 1));
-  if (Results->NumMatches > 1 ||
-      (Results->NumMatches == 1 &&
+  Ambiguities = new UNICHAR_ID[Results->match.size() + 1];
+  if (Results->match.size() > 1 ||
+      (Results->match.size() == 1 &&
           Results->match[0].unichar_id != CorrectClass)) {
-    for (i = 0; i < Results->NumMatches; i++)
+    for (i = 0; i < Results->match.size(); i++)
       Ambiguities[i] = Results->match[i].unichar_id;
     Ambiguities[i] = -1;
   } else {
@@ -1721,7 +1704,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
 // present in the classifier templates.
 bool Classify::LooksLikeGarbage(TBLOB *blob) {
   BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();
-  AdaptiveClassifier(blob, ratings, NULL);
+  AdaptiveClassifier(blob, ratings);
   BLOB_CHOICE_IT ratings_it(ratings);
   const UNICHARSET &unicharset = getDict().getUnicharset();
   if (classify_debug_character_fragments) {
@@ -2119,7 +2102,7 @@ namespace tesseract {
  * @note History: Mon Mar 18 09:24:53 1991, DSJ, Created.
  */
 void Classify::PrintAdaptiveMatchResults(FILE *File, ADAPT_RESULTS *Results) {
-  for (int i = 0; i < Results->NumMatches; ++i) {
+  for (int i = 0; i < Results->match.size(); ++i) {
     tprintf("%s(%d), shape %d, %.2f  ",
             unicharset.debug_str(Results->match[i].unichar_id).string(),
             Results->match[i].unichar_id, Results->match[i].shape_id,
@@ -2158,7 +2141,7 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
     ScoredClass scored_one = ScoredUnichar(Results, unichar_id_one);
     ScoredClass scored_zero = ScoredUnichar(Results, unichar_id_zero);
 
-    for (Next = NextGood = 0; Next < Results->NumMatches; Next++) {
+    for (Next = NextGood = 0; Next < Results->match.size(); Next++) {
       if (Results->match[Next].rating <= BadMatchThreshold) {
         ScoredClass match = Results->match[Next];
         if (!unicharset.get_isalpha(match.unichar_id) ||
@@ -2179,12 +2162,12 @@ void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
       }
     }
   } else {
-    for (Next = NextGood = 0; Next < Results->NumMatches; Next++) {
+    for (Next = NextGood = 0; Next < Results->match.size(); Next++) {
       if (Results->match[Next].rating <= BadMatchThreshold)
         Results->match[NextGood++] = Results->match[Next];
     }
   }
-  Results->NumMatches = NextGood;
+  Results->match.truncate(NextGood);
 }                              /* RemoveBadMatches */
 
 /*----------------------------------------------------------------------------*/
@@ -2207,7 +2190,7 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
 
   punc_count = 0;
   digit_count = 0;
-  for (Next = NextGood = 0; Next < Results->NumMatches; Next++) {
+  for (Next = NextGood = 0; Next < Results->match.size(); Next++) {
     ScoredClass match = Results->match[Next];
     if (strstr(punc_chars,
                unicharset.id_to_unichar(match.unichar_id)) != NULL) {
@@ -2225,7 +2208,7 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
       }
     }
   }
-  Results->NumMatches = NextGood;
+  Results->match.truncate(NextGood);
 }                              /* RemoveExtraPuncs */
 
 /*---------------------------------------------------------------------------*/
