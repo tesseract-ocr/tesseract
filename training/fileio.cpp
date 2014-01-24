@@ -103,7 +103,6 @@ bool File::Delete(const char* pathname) {
 
 #ifdef _WIN32
 bool File::DeleteMatchingFiles(const char* pattern) {
- char fname[_MAX_FNAME];
  WIN32_FIND_DATA data;
  BOOL result = TRUE;
  HANDLE handle = FindFirstFile(pattern, &data);

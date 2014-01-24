@@ -166,11 +166,7 @@ void start_seam_list(TWERD *word, GenericVector<SEAM*>* seam_array) {
 bool test_insert_seam(const GenericVector<SEAM*>& seam_array,
                       TWERD *word, int index) {
   SEAM *test_seam;
-  TBLOB *blob;
-  int test_index;
-  int list_length;
-
-  list_length = seam_array.size();
+  int list_length = seam_array.size();
   for (int test_index = 0; test_index < index; ++test_index) {
     test_seam = seam_array[test_index];
     if (test_index + test_seam->widthp < index &&

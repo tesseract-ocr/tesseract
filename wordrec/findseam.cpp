@@ -198,7 +198,6 @@ void Wordrec::choose_best_seam(SeamQueue* seam_queue,
  **********************************************************************/
 void Wordrec::combine_seam(const SeamPile& seam_pile,
                            const SEAM* seam, SeamQueue* seam_queue) {
-  register inT16 x;
   register inT16 dist;
   inT16 bottom1, top1;
   inT16 bottom2, top2;

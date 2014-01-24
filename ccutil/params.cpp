@@ -41,19 +41,15 @@ namespace tesseract {
 bool ParamUtils::ReadParamsFile(const char *file,
                                 SetParamConstraint constraint,
                                 ParamsVectors *member_params) {
-  char flag;                     // file flag
   inT16 nameoffset;              // offset for real name
   FILE *fp;                      // file pointer
                                  // iterators
 
   if (*file == PLUS) {
-    flag = PLUS;                 // file has flag
     nameoffset = 1;
   } else if (*file == MINUS) {
-    flag = MINUS;
     nameoffset = 1;
   } else {
-    flag = EQUAL;
     nameoffset = 0;
   }
 
@@ -62,7 +58,7 @@ bool ParamUtils::ReadParamsFile(const char *file,
     tprintf("read_params_file: Can't open %s\n", file + nameoffset);
     return true;
   }
-  bool anyerr = ReadParamsFromFp(fp, -1, constraint, member_params);
+  const bool anyerr = ReadParamsFromFp(fp, -1, constraint, member_params);
   fclose(fp);
   return anyerr;
 }

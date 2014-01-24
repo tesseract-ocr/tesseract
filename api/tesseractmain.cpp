@@ -61,7 +61,6 @@ int main(int argc, char **argv) {
     cl_uint num_platforms;
     cl_device_id devices[2];
     cl_uint num_devices;
-    cl_int err;
     char info[256];
     int i;
 
