@@ -41,7 +41,7 @@ class FCOORD;
 #define Y_SHIFT   (0.5)
 
 #define MAX_PROTO_INDEX   24
-#define BITS_PER_WERD   (8 * sizeof (uinT32))
+#define BITS_PER_WERD   static_cast<int>(8 * sizeof(uinT32))
 /* Script detection: increase this number to 128 */
 #define MAX_NUM_CONFIGS   64
 #define MAX_NUM_PROTOS    512

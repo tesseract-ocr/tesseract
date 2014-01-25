@@ -156,7 +156,8 @@ bool read_info(FILE* f, FontInfo* fi, bool swap) {
     Reverse32(&size);
   char* font_name = new char[size + 1];
   fi->name = font_name;
-  if (fread(font_name, sizeof(*font_name), size, f) != size) return false;
+  if (static_cast<int>(fread(font_name, sizeof(*font_name), size, f)) != size)
+    return false;
   font_name[size] = '\0';
   if (fread(&fi->properties, sizeof(fi->properties), 1, f) != 1) return false;
   if (swap)
@@ -167,7 +168,8 @@ bool read_info(FILE* f, FontInfo* fi, bool swap) {
 bool write_info(FILE* f, const FontInfo& fi) {
   inT32 size = strlen(fi.name);
   if (fwrite(&size, sizeof(size), 1, f) != 1) return false;
-  if (fwrite(fi.name, sizeof(*fi.name), size, f) != size) return false;
+  if (static_cast<int>(fwrite(fi.name, sizeof(*fi.name), size, f)) != size)
+    return false;
   if (fwrite(&fi.properties, sizeof(fi.properties), 1, f) != 1) return false;
   return true;
 }

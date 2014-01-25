@@ -24,7 +24,7 @@ class IntFeatureMap;
 class ShapeTable;
 class TrainingSample;
 class TrainingSampleSet;
-class UnicharAndFonts;
+struct UnicharAndFonts;
 
 // Iterator class to encapsulate the complex iteration involved in getting
 // all samples of all shapes needed for a classification problem.

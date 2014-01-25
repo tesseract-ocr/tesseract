@@ -32,7 +32,7 @@ class FontInfoTable;
 class IntFeatureMap;
 class IntFeatureSpace;
 class TrainingSample;
-class UnicharAndFonts;
+struct UnicharAndFonts;
 
 // Collection of TrainingSample used for training or testing a classifier.
 // Provides several useful methods to operate on the collection as a whole,

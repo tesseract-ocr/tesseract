@@ -306,7 +306,6 @@ static TESSLINE** ApproximateOutlineList(bool allow_detailed_fx,
 // contain pointers to the input C_OUTLINEs that enable higher-resolution
 // feature extraction that does not use the polygonal approximation.
 TBLOB* TBLOB::PolygonalCopy(bool allow_detailed_fx, C_BLOB* src) {
-  C_OUTLINE_IT ol_it = src->out_list();
   TBLOB* tblob = new TBLOB;
   ApproximateOutlineList(allow_detailed_fx, src->out_list(), false,
                          &tblob->outlines);

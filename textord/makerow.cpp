@@ -2079,7 +2079,6 @@ void Textord::make_spline_rows(TO_BLOCK *block,   // block to do
  */
 void make_baseline_spline(TO_ROW *row,     //row to fit
                           TO_BLOCK *block) {
-  BLOBNBOX_IT blob_it = row->blob_list ();
   inT32 *xstarts;                // spline boundaries
   double *coeffs;                // quadratic coeffs
   inT32 segments;                // no of segments

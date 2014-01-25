@@ -125,7 +125,7 @@ typedef unsigned char BOOL8;
 
 #define MIN_INT8  0x80
 #define MIN_INT16 0x8000
-#define MIN_INT32 0x80000000
+#define MIN_INT32 static_cast<int>(0x80000000)
 #define MIN_UINT8 0x00
 #define MIN_UINT16  0x0000
 #define MIN_UINT32  0x00000000

@@ -346,7 +346,8 @@ inline bool SaveDataToFile(const GenericVector<char>& data,
                           const STRING& filename) {
   FILE* fp = fopen(filename.string(), "wb");
   if (fp == NULL) return false;
-  bool result = fwrite(&data[0], 1, data.size(), fp) == data.size();
+  bool result =
+      static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
   fclose(fp);
   return result;
 }

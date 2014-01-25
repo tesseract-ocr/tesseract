@@ -230,7 +230,6 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
   float descheight;              /*mean descender drop */
   float mindescheight;           /*min allowed descheight */
   int desccount;                 /*no of samples */
-  float xshift;                  /*shift in xheight */
 
                                  /*no samples */
   xcount = fullcount = desccount = 0;
@@ -285,8 +284,6 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
       if (row->xheight >= lineheight * (1 - MAXHEIGHTVARIANCE)
       && row->xheight <= lineheight * (1 + MAXHEIGHTVARIANCE)) {
         row->ascrise = fullheight - lineheight;
-                                 /*shift in x */
-        xshift = lineheight - row->xheight;
                                  /*set to average */
         row->xheight = lineheight;
 
@@ -294,7 +291,6 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
       else if (row->xheight >= fullheight * (1 - MAXHEIGHTVARIANCE)
       && row->xheight <= fullheight * (1 + MAXHEIGHTVARIANCE)) {
         row->ascrise = row->xheight - lineheight;
-        xshift = -row->ascrise;  /*shift in x */
                                  /*set to average */
         row->xheight = lineheight;
         row->all_caps = TRUE;
@@ -302,7 +298,6 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
       else {
         row->ascrise = (fullheight - lineheight) * row->xheight
           / fullheight;
-        xshift = -row->ascrise;  /*shift in x */
                                  /*scale it */
         row->xheight -= row->ascrise;
         row->all_caps = TRUE;
@@ -1388,7 +1383,6 @@ int bestpart                     /*biggest partition */
   int poscount;                  /*count of best up step */
   int negcount;                  /*count of best down step */
   float partsteps[MAXPARTS];     /*average step to part */
-  float bestpos;                 /*best up step */
   float bestneg;                 /*best down step */
   int runlength;                 /*length of bad run */
   int biggestrun;                /*biggest bad run */
@@ -1400,12 +1394,14 @@ int bestpart                     /*biggest partition */
     xcentre = (blobcoords[blobindex].left ()
       + blobcoords[blobindex].right ()) >> 1;
                                  /*in other parts */
-    if (partids[blobindex] != bestpart) {
+    int part_id =
+        static_cast<int>(static_cast<unsigned char>(partids[blobindex]));
+    if (part_id != bestpart) {
       runlength++;               /*run of non bests */
       if (runlength > biggestrun)
         biggestrun = runlength;
-      partsteps[partids[blobindex]] += blobcoords[blobindex].bottom ()
-        - row->baseline.y (xcentre);
+      partsteps[part_id] += blobcoords[blobindex].bottom()
+        - row->baseline.y(xcentre);
     }
     else
       runlength = 0;
@@ -1415,7 +1411,7 @@ int bestpart                     /*biggest partition */
   else
     row->xheight = 1.0f;         /*success */
   poscount = negcount = 0;
-  bestpos = bestneg = 0.0;       /*no step yet */
+  bestneg = 0.0;       /*no step yet */
   for (partition = 0; partition < partcount; partition++) {
     if (partition != bestpart) {
 
@@ -1429,9 +1425,6 @@ int bestpart                     /*biggest partition */
 
       if (partsteps[partition] >= MINASCRISE
       && partsizes[partition] > poscount) {
-                                 /*ascender rise */
-        bestpos = partsteps[partition];
-                                 /*2nd most popular */
         poscount = partsizes[partition];
       }
       if (partsteps[partition] <= -MINASCRISE

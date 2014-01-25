@@ -27,7 +27,7 @@
 
 class TO_ROW;
 
-class PARA;
+struct PARA;
 
 class ROW:public ELIST_LINK
 {

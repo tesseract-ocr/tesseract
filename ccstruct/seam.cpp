@@ -193,10 +193,7 @@ bool test_insert_seam(const GenericVector<SEAM*>& seam_array,
 void insert_seam(const TWERD* word, int index, SEAM *seam,
                  GenericVector<SEAM*>* seam_array) {
   SEAM *test_seam;
-  int test_index;
-  int list_length;
-
-  list_length = seam_array->size();
+  int list_length = seam_array->size();
   for (int test_index = 0; test_index < index; ++test_index) {
     test_seam = seam_array->get(test_index);
     if (test_index + test_seam->widthp >= index) {

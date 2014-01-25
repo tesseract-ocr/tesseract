@@ -395,10 +395,8 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
   float first = -1;
   float second = -1;
 
-  int idx = -1;
   for (int i = 0; i < 4; ++i) {
     if (osr_->orientations[i] > first) {
-      idx = i;
       second = first;
       first = osr_->orientations[i];
     } else if (osr_->orientations[i] > second) {
@@ -443,14 +441,9 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
     float prev_score = -1;
     int script_count = 0;
     int prev_id = -1;
-    int prev_script;
-    int prev_class_id = -1;
     int prev_fontinfo_id = -1;
     const char* prev_unichar = "";
     const char* unichar = "";
-    float next_best_score = -1.0;
-    int next_best_script_id = -1;
-    const char* next_best_unichar = "";
 
     for (choice_it.mark_cycle_pt(); !choice_it.cycled_list();
          choice_it.forward()) {
@@ -466,15 +459,10 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
         prev_score = -choice->certainty();
         script_count = 1;
         prev_id = id;
-        prev_script = choice->script_id();
         prev_unichar = unichar;
-        prev_class_id = choice->unichar_id();
         prev_fontinfo_id = choice->fontinfo_id();
       } else if (-choice->certainty() < prev_score + kNonAmbiguousMargin) {
         ++script_count;
-        next_best_score = -choice->certainty();
-        next_best_script_id = choice->script_id();
-        next_best_unichar = tess_->unicharset.id_to_unichar(choice->unichar_id());
       }
 
       if (strlen(prev_unichar) == 1)

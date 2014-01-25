@@ -32,9 +32,9 @@ struct Pix;
 class ROW;                          // Forward decl
 class BLOCK;
 class FCOORD;
-class TBLOB;
+struct TBLOB;
 class TBOX;
-class TPOINT;
+struct TPOINT;
 class UNICHARSET;
 
 namespace tesseract {

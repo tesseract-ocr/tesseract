@@ -138,7 +138,8 @@ void BitVector::Init(int length) {
 bool BitVector::Serialize(FILE* fp) const {
   if (fwrite(&bit_size_, sizeof(bit_size_), 1, fp) != 1) return false;
   int wordlen = WordLength();
-  if (fwrite(array_, sizeof(*array_), wordlen, fp) != wordlen) return false;
+  if (static_cast<int>(fwrite(array_, sizeof(*array_), wordlen, fp)) != wordlen)
+      return false;
   return true;
 }
 
@@ -152,7 +153,8 @@ bool BitVector::DeSerialize(bool swap, FILE* fp) {
   }
   Alloc(new_bit_size);
   int wordlen = WordLength();
-  if (fread(array_, sizeof(*array_), wordlen, fp) != wordlen) return false;
+  if (static_cast<int>(fread(array_, sizeof(*array_), wordlen, fp)) != wordlen)
+      return false;
   if (swap) {
     for (int i = 0; i < wordlen; ++i)
       ReverseN(&array_[i], sizeof(array_[i]));

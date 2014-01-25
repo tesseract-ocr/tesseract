@@ -24,7 +24,7 @@
 #include "publictypes.h"
 #include "platform.h"
 
-class BlamerBundle;
+struct BlamerBundle;
 class C_BLOB_IT;
 class PAGE_RES;
 class PAGE_RES_IT;

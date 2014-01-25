@@ -61,10 +61,12 @@ bool TrainingSample::Serialize(FILE* fp) const {
     return false;
   if (fwrite(&outline_length_, sizeof(outline_length_), 1, fp) != 1)
     return false;
-  if (fwrite(features_, sizeof(*features_), num_features_, fp) != num_features_)
+  if (static_cast<int>(fwrite(features_, sizeof(*features_), num_features_, fp))
+      != num_features_)
     return false;
-  if (fwrite(micro_features_, sizeof(*micro_features_), num_micro_features_,
-             fp) != num_micro_features_)
+  if (static_cast<int>(fwrite(micro_features_, sizeof(*micro_features_),
+                              num_micro_features_,
+                              fp)) != num_micro_features_)
     return false;
   if (fwrite(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) !=
       kNumCNParams) return false;
@@ -102,12 +104,14 @@ bool TrainingSample::DeSerialize(bool swap, FILE* fp) {
   }
   delete [] features_;
   features_ = new INT_FEATURE_STRUCT[num_features_];
-  if (fread(features_, sizeof(*features_), num_features_, fp) != num_features_)
+  if (static_cast<int>(fread(features_, sizeof(*features_), num_features_, fp))
+      != num_features_)
     return false;
   delete [] micro_features_;
   micro_features_ = new MicroFeature[num_micro_features_];
-  if (fread(micro_features_, sizeof(*micro_features_), num_micro_features_,
-            fp) != num_micro_features_)
+  if (static_cast<int>(fread(micro_features_, sizeof(*micro_features_),
+                             num_micro_features_,
+                             fp)) != num_micro_features_)
     return false;
   if (fread(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) !=
             kNumCNParams) return false;

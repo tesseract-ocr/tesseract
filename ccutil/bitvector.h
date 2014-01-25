@@ -129,7 +129,7 @@ class BitVector {
   }
 
   // Number of bits in this BitVector.
-  uinT32 bit_size_;
+  inT32 bit_size_;
   // Array of words used to pack the bits.
   // Bits are stored little-endian by uinT32 word, ie by word first and then
   // starting with the least significant bit in each word.

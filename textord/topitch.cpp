@@ -553,7 +553,6 @@ BOOL8 try_rows_fixed(                    //find line stats
                      inT32 block_index,  //block number
                      BOOL8 testing_on    //correct orientation
                     ) {
-  inT32 maxwidth;                //of spaces
   TO_ROW *row;                   //current row
   inT32 row_index;               //row number.
   inT32 def_fixed = 0;           //counters
@@ -570,7 +569,6 @@ BOOL8 try_rows_fixed(                    //find line stats
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
     ASSERT_HOST (row->xheight > 0);
-    maxwidth = (inT32) ceil (row->xheight * textord_words_maxspace);
     if (row->fixed_pitch > 0 &&
         fixed_pitch_row(row, block->block, block_index)) {
       if (row->fixed_pitch == 0) {

@@ -30,7 +30,7 @@ class FontInfoTable;
 class SampleIterator;
 class ShapeClassifier;
 class TrainingSample;
-class UnicharRating;
+struct UnicharRating;
 
 // Enumeration of the different types of error count.
 // Error counts work as follows:

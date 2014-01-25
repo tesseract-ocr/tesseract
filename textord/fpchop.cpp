@@ -69,7 +69,6 @@ ROW *fixed_pitch_words(                 //find lines
   WERD_IT rep_it = &row->rep_words;
   WERD *word;                    //new word
   inT32 xstarts[2];              //row ends
-  double coeffs[3];              //quadratic
   inT32 prev_x;                  //end of prev blob
                                  //iterator
   BLOBNBOX_IT box_it = row->blob_list ();
@@ -190,9 +189,6 @@ ROW *fixed_pitch_words(                 //find lines
   if (prev_chop_coord > prev_x)
     prev_x = prev_chop_coord;
   xstarts[1] = prev_x + 1;
-  coeffs[0] = 0;
-  coeffs[1] = row->line_m ();
-  coeffs[2] = row->line_c ();
   real_row = new ROW (row, (inT16) row->kern_size, (inT16) row->space_size);
   word_it.set_to_list (real_row->word_list ());
                                  //put words in row
@@ -410,7 +406,6 @@ BOOL8 fixed_chop_coutline(                                  //chop the outline
                           C_OUTLINE_FRAG_LIST *right_frags  //right half of chop
                          ) {
   BOOL8 first_frag;              //fragment
-  BOOL8 anticlock;               //direction of loop
   inT16 left_edge;               //of outline
   inT16 startindex;              //in first fragment
   inT32 length;                  //of outline
@@ -425,7 +420,6 @@ BOOL8 fixed_chop_coutline(                                  //chop the outline
 
   length = srcline->pathlength ();
   pos = srcline->start_pos ();
-  anticlock = srcline->turn_direction () > 0;
   left_edge = pos.x ();
   tail_index = 0;
   tail_pos = pos;

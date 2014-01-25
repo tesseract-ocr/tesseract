@@ -90,8 +90,8 @@ void Tesseract::recog_word(WERD_RES *word) {
   // Factored out from control.cpp
   ASSERT_HOST((word->best_choice == NULL) == (word->raw_choice == NULL));
   if (word->best_choice == NULL || word->best_choice->length() == 0 ||
-      strspn(word->best_choice->unichar_string().string(), " ") ==
-        word->best_choice->length()) {
+      static_cast<int>(strspn(word->best_choice->unichar_string().string(),
+                              " ")) == word->best_choice->length()) {
     word->tess_failed = true;
     word->reject_map.initialise(word->box_word->length());
     word->reject_map.rej_word_tess_failure();
@@ -145,8 +145,6 @@ void Tesseract::split_and_recog_word(WERD_RES *word) {
   // Find the biggest blob gap in the chopped_word.
   int bestgap = -MAX_INT32;
   int split_index = 0;
-  TBLOB* best_end = NULL;
-  TBLOB* prev_blob = NULL;
   for (int b = 1; b < word->chopped_word->NumBlobs(); ++b) {
     TBOX prev_box = word->chopped_word->blobs[b - 1]->bounding_box();
     TBOX blob_box = word->chopped_word->blobs[b]->bounding_box();

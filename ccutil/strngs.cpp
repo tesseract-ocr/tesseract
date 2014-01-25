@@ -131,7 +131,7 @@ STRING::~STRING() {
 bool STRING::Serialize(FILE* fp) const {
   inT32 len = length();
   if (fwrite(&len, sizeof(len), 1, fp) != 1) return false;
-  if (fwrite(GetCStr(), 1, len, fp) != len) return false;
+  if (static_cast<int>(fwrite(GetCStr(), 1, len, fp)) != len) return false;
   return true;
 }
 // Reads from the given file. Returns false in case of error.
@@ -142,7 +142,7 @@ bool STRING::DeSerialize(bool swap, FILE* fp) {
   if (swap)
     ReverseN(&len, sizeof(len));
   truncate_at(len);
-  if (fread(GetCStr(), 1, len, fp) != len) return false;
+  if (static_cast<int>(fread(GetCStr(), 1, len, fp)) != len) return false;
   return true;
 }
 

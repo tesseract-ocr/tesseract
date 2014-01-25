@@ -907,7 +907,6 @@ ROW *Textord::make_prop_words(
   inT32 next_rep_char_word_right = MAX_INT32;
   float repetition_spacing;      //gap between repetitions
   inT32 xstarts[2];              //row ends
-  double coeffs[3];              //quadratic
   inT32 prev_x;                  //end of prev blob
   BLOBNBOX *bblob;               //current blob
   TBOX blob_box;                  //bounding box
@@ -1149,9 +1148,6 @@ ROW *Textord::make_prop_words(
         rep_char_it.forward ();
       }
     }
-    coeffs[0] = 0;
-    coeffs[1] = row->line_m ();
-    coeffs[2] = row->line_c ();
     real_row = new ROW (row,
       (inT16) row->kern_size, (inT16) row->space_size);
     word_it.set_to_list (real_row->word_list ());
@@ -1190,7 +1186,6 @@ ROW *Textord::make_blob_words(
   WERD_LIST words;
   WERD_IT word_it;               // new words
   WERD *word;                    // new word
-  double coeffs[3];              // quadratic
   BLOBNBOX *bblob;               // current blob
   TBOX blob_box;                 // bounding box
   BLOBNBOX_IT box_it;            // iterator
@@ -1235,9 +1230,6 @@ ROW *Textord::make_blob_words(
     }
     while (!box_it.at_first()); // until back at start
     /* Setup the row with created words. */
-    coeffs[0] = 0;
-    coeffs[1] = row->line_m();
-    coeffs[2] = row->line_c();
     real_row = new ROW(row, (inT16) row->kern_size, (inT16) row->space_size);
     word_it.set_to_list(real_row->word_list());
                                  //put words in row

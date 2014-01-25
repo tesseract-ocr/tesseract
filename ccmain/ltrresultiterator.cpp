@@ -331,7 +331,6 @@ bool LTRResultIterator::SymbolIsDropcap() const {
 ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   ASSERT_HOST(result_it.it_->word() != NULL);
   word_res_ = result_it.it_->word();
-  PAGE_RES_IT res_it(*result_it.it_);
   BLOB_CHOICE_LIST* choices = NULL;
   if (word_res_->ratings != NULL)
     choices = word_res_->GetBlobChoices(result_it.blob_index_);

@@ -2282,7 +2282,6 @@ void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
                                     tesseract_->classify_bln_numeric_mode,
                                     tesseract_->pix_binary());
   float threshold;
-  UNICHAR_ID best_class = 0;
   float best_rating = -100;
 
 
@@ -2295,7 +2294,6 @@ void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
        choice_it.forward()) {
     if (choice_it.data()->rating() > best_rating) {
       best_rating = choice_it.data()->rating();
-      best_class = choice_it.data()->unichar_id();
     }
   }
 

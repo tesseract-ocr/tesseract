@@ -30,7 +30,7 @@ class BLOBNBOX_LIST;
 class TO_BLOCK;
 class TO_BLOCK_LIST;
 class TO_ROW;
-class Pix;
+struct Pix;
 
 namespace tesseract {
 

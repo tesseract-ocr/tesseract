@@ -9,7 +9,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
 endif
 
 noinst_HEADERS = \
-    adaptive.h blobclass.h chartoname.h \
+    adaptive.h blobclass.h \
     classify.h cluster.h clusttool.h cutoffs.h \
     errorcounter.h extern.h extract.h \
     featdefs.h flexfx.h float2int.h fpoint.h fxdefs.h \
@@ -36,7 +36,7 @@ endif
 
 libtesseract_classify_la_SOURCES = \
     adaptive.cpp adaptmatch.cpp blobclass.cpp \
-    chartoname.cpp classify.cpp cluster.cpp clusttool.cpp cutoffs.cpp \
+    classify.cpp cluster.cpp clusttool.cpp cutoffs.cpp \
     errorcounter.cpp extract.cpp \
     featdefs.cpp flexfx.cpp float2int.cpp fpoint.cpp fxdefs.cpp \
     intfeaturedist.cpp intfeaturemap.cpp intfeaturespace.cpp \

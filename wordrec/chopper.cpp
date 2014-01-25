@@ -396,7 +396,6 @@ SEAM* Wordrec::chop_one_blob(const GenericVector<TBOX>& boxes,
  */
 inT16 check_seam_order(TBLOB *blob, SEAM *seam) {
   TESSLINE *outline;
-  TESSLINE *last_outline;
   inT8 found_em[3];
 
   if (seam->split1 == NULL || blob == NULL)
@@ -420,7 +419,6 @@ inT16 check_seam_order(TBLOB *blob, SEAM *seam) {
     is_split_outline (outline, seam->split3))) {
       found_em[2] = TRUE;
     }
-    last_outline = outline;
   }
 
   if (!found_em[0] || !found_em[1] || !found_em[2])

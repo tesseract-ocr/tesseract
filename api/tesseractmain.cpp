@@ -245,7 +245,8 @@ int main(int argc, char **argv) {
     pixs = pixReadMem(&ch_data[0], ch_data.size());
   }
 
-  if (pagesegmode == tesseract::PSM_AUTO_OSD) {
+  if (pagesegmode == tesseract::PSM_AUTO_ONLY ||
+      pagesegmode == tesseract::PSM_OSD_ONLY) {
     tesseract::Orientation orientation;
     tesseract::WritingDirection direction;
     tesseract::TextlineOrder order;

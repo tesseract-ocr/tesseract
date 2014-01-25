@@ -31,8 +31,8 @@
 #include "werd.h"
 
 class MATRIX;
-class TBLOB;
-class TWERD;
+struct TBLOB;
+struct TWERD;
 
 // Enum to describe the source of a BLOB_CHOICE to make it possible to determine
 // whether a blob has been classified by inspecting the BLOB_CHOICEs.

@@ -37,7 +37,7 @@ template <typename T> class GenericVector;
 class PAGE_RES;
 class PAGE_RES_IT;
 class ParagraphModel;
-class BlamerBundle;
+struct BlamerBundle;
 class BLOCK_LIST;
 class DENORM;
 class IMAGE;

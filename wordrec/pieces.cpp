@@ -155,12 +155,10 @@ void Wordrec::merge_and_put_fragment_lists(inT16 row, inT16 column,
     // Find the maximum unichar_id of the current entry the iterators
     // are pointing at
     UNICHAR_ID max_unichar_id = choice_lists_it[0].data()->unichar_id();
-    int max_list = 0;
     for (int i = 0; i < num_frag_parts; i++) {
       UNICHAR_ID unichar_id = choice_lists_it[i].data()->unichar_id();
       if (max_unichar_id < unichar_id) {
         max_unichar_id = unichar_id;
-        max_list = i;
       }
     }
 

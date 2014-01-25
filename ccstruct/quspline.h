@@ -26,7 +26,7 @@
 #include          "rect.h"
 
 class ROW;
-class Pix;
+struct Pix;
 
 class QSPLINE
 {

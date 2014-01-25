@@ -24,7 +24,6 @@
 #include "efio.h"
 #include "featdefs.h"
 #include "callcpp.h"
-#include "chartoname.h"
 
 #include <math.h>
 #include <stdio.h>

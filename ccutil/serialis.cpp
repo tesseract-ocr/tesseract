@@ -50,7 +50,7 @@ bool TFile::Open(FILE* fp, inT64 end_offset) {
   }
   int size = end_offset - current_pos;
   data_.init_to_size(size, 0);
-  return fread(&data_[0], 1, size, fp) == size;
+  return static_cast<int>(fread(&data_[0], 1, size, fp)) == size;
 }
 
 char* TFile::FGets(char* buffer, int buffer_size) {

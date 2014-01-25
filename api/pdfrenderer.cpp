@@ -177,12 +177,10 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
           break;
       }
 
-      const char *font_name;
       bool bold, italic, underlined, monospace, serif, smallcaps;
       int font_id;
-      font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
-                                             &monospace, &serif, &smallcaps,
-                                             &pointsize, &font_id);
+      res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
+                                 &serif, &smallcaps, &pointsize, &font_id);
 
       if (pointsize != old_pointsize) {
         char textfont[20];
@@ -209,7 +207,6 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     old_y = y;
 
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
-    bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
     STRING pdf_word("");
     int pdf_word_len = 0;
@@ -221,7 +218,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
         string_32 utf32;
         CubeUtils::UTF8ToUTF32(grapheme, &utf32);
         char utf16[20];
-        for (int i = 0; i < utf32.length(); i++) {
+        for (int i = 0; i < static_cast<int>(utf32.length()); i++) {
           snprintf(utf16, sizeof(utf16), "<%04X>", utf32[i]);
           pdf_word += utf16;
           pdf_word_len++;
@@ -262,7 +259,6 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   AppendPDFObject(buf);
 
   // CATALOG
-  long int catalog = obj_;
   snprintf(buf, sizeof(buf),
            "1 0 obj\n"
            "<<\n"
@@ -479,7 +475,8 @@ bool TessPDFRenderer::fileToPDFObj(char *filename, long int objnum,
   if (!pdf_object)
     return false;
   memcpy(*pdf_object, b1, b1_len);
-  if (fread(*pdf_object + b1_len, 1, jpeg_size, fp) != jpeg_size) {
+  if (static_cast<int>(fread(*pdf_object + b1_len, 1, jpeg_size, fp)) !=
+      jpeg_size) {
     delete[] pdf_object;
     return false;
   }

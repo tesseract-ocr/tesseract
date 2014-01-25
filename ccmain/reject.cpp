@@ -629,7 +629,6 @@ void Tesseract::flip_hyphens(WERD_RES *word_res) {
 
   int num_blobs = word_res->rebuild_word->NumBlobs();
   UNICHAR_ID unichar_dash = word_res->uch_set->unichar_to_id("-");
-  bool modified = false;
   for (i = 0; i < best_choice->length() && i < num_blobs; ++i) {
     TBLOB* blob = word_res->rebuild_word->blobs[i];
     out_box = blob->bounding_box();
@@ -647,7 +646,6 @@ void Tesseract::flip_hyphens(WERD_RES *word_res) {
             word_res->uch_set->get_enabled(unichar_dash)) {
           /* Certain HYPHEN */
           best_choice->set_unichar_id(unichar_dash, i);
-          modified = true;
           if (word_res->reject_map[i].rejected())
             word_res->reject_map[i].setrej_hyphen_accept();
         }
@@ -702,7 +700,6 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
       !word_res->uch_set->get_enabled(unichar_O)) {
     return;  // 0 or O are not present/enabled in unicharset
   }
-  bool modified = false;
   for (i = 1; i < best_choice->length(); ++i) {
     if (best_choice->unichar_id(i) == unichar_0 ||
         best_choice->unichar_id(i) == unichar_O) {
@@ -711,7 +708,6 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
           non_O_upper(*word_res->uch_set, best_choice->unichar_id(i-1)) &&
           non_O_upper(*word_res->uch_set, best_choice->unichar_id(i+1))) {
         best_choice->set_unichar_id(unichar_O, i);
-        modified = true;
       }
       /* A00A */
       if (non_O_upper(*word_res->uch_set, best_choice->unichar_id(i-1)) &&
@@ -721,7 +717,6 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
           (i+2) < best_choice->length() &&
           non_O_upper(*word_res->uch_set, best_choice->unichar_id(i+2))) {
         best_choice->set_unichar_id(unichar_O, i);
-        modified = true;
         i++;
       }
       /* AA0<non digit or end of word> */
@@ -734,14 +729,12 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
             !word_res->uch_set->eq(best_choice->unichar_id(i+1), "I")) ||
            (i == best_choice->length() - 1))) {
         best_choice->set_unichar_id(unichar_O, i);
-        modified = true;
       }
       /* 9O9 */
       if (non_0_digit(*word_res->uch_set, best_choice->unichar_id(i-1)) &&
           (i+1) < best_choice->length() &&
           non_0_digit(*word_res->uch_set, best_choice->unichar_id(i+1))) {
         best_choice->set_unichar_id(unichar_0, i);
-        modified = true;
       }
       /* 9OOO */
       if (non_0_digit(*word_res->uch_set, best_choice->unichar_id(i-1)) &&
@@ -753,7 +746,6 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
         best_choice->set_unichar_id(unichar_0, i);
         best_choice->set_unichar_id(unichar_0, i+1);
         best_choice->set_unichar_id(unichar_0, i+2);
-        modified = true;
         i += 2;
       }
       /* 9OO<non upper> */
@@ -764,7 +756,6 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
           !word_res->uch_set->get_isupper(best_choice->unichar_id(i+2))) {
         best_choice->set_unichar_id(unichar_0, i);
         best_choice->set_unichar_id(unichar_0, i+1);
-        modified = true;
         i++;
       }
       /* 9O<non upper> */
@@ -781,13 +772,11 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
            best_choice->unichar_id(i-2) == unichar_O)) {
         if (best_choice->unichar_id(i-2) == unichar_O) {
           best_choice->set_unichar_id(unichar_0, i-2);
-          modified = true;
         }
         while (i < best_choice->length() &&
                (best_choice->unichar_id(i) == unichar_O ||
                 best_choice->unichar_id(i) == unichar_0)) {
           best_choice->set_unichar_id(unichar_0, i);
-          modified = true;
           i++;
         }
         i--;

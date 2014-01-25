@@ -157,7 +157,6 @@ class CubeObject {
   CubeRecoContext *cntxt_;
   BeamSearch *beam_obj_;
   BeamSearch *deslanted_beam_obj_;
-  bool offline_mode_;
   bool own_char_samp_;
   bool deslanted_;
   CharSamp *char_samp_;

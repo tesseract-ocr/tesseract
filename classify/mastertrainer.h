@@ -290,8 +290,6 @@ class MasterTrainer {
   bool enable_shape_anaylsis_;
   // Flag to indicate that sample replication is required.
   bool enable_replication_;
-  // Flag to indicate that junk should be included in samples_.
-  bool include_junk_;
   // Array of classids of fragments that replace the correctly segmented chars.
   int* fragments_;
   // Classid of previous correctly segmented sample that was added.

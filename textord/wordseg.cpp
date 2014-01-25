@@ -136,21 +136,14 @@ void set_row_spaces(                  //find space sizes
                     FCOORD rotation,  //for drawing
                     BOOL8 testing_on  //correct orientation
                    ) {
-  inT32 maxwidth;                //of widest space
   TO_ROW *row;                   //current row
   TO_ROW_IT row_it = block->get_rows ();
 
   if (row_it.empty ())
     return;                      //empty block
-  maxwidth = (inT32) ceil (block->xheight * textord_words_maxspace);
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
     if (row->fixed_pitch == 0) {
-      //                      if (!textord_test_mode
-      //                      && row_words(block,row,maxwidth,rotation,testing_on)==0
-      //                      || textord_test_mode
-      //                      && row_words2(block,row,maxwidth,rotation,testing_on)==0)
-      //                      {
       row->min_space =
         (inT32) ceil (row->pr_space -
         (row->pr_space -
@@ -166,7 +159,6 @@ void set_row_spaces(                  //find space sizes
       row->space_threshold = (row->max_nonspace + row->min_space) / 2;
       row->space_size = row->pr_space;
       row->kern_size = row->pr_nonsp;
-      //                      }
     }
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words && testing_on) {
@@ -572,10 +564,8 @@ ROW *make_rep_words(                 //make a row
                     TO_ROW *row,     //row to convert
                     TO_BLOCK *block  //block it lives in
                    ) {
-  inT32 xstarts[2];              //ends of row
   ROW *real_row;                 //output row
   TBOX word_box;                  //bounding box
-  double coeffs[3];              //spline
                                  //iterator
   WERD_IT word_it = &row->rep_words;
 
@@ -584,11 +574,6 @@ ROW *make_rep_words(                 //make a row
   word_box = word_it.data ()->bounding_box ();
   for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ())
     word_box += word_it.data ()->bounding_box ();
-  xstarts[0] = word_box.left ();
-  xstarts[1] = word_box.right ();
-  coeffs[0] = 0;
-  coeffs[1] = row->line_m ();
-  coeffs[2] = row->line_c ();
   row->xheight = block->xheight;
   real_row = new ROW(row,
     (inT16) block->kern_size, (inT16) block->space_size);
