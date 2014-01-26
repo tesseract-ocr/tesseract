@@ -78,12 +78,12 @@ case "${host_os}" in
     mingw32*)
         AC_DEFINE_UNQUOTED(MINGW,1,[This is a MinGW system])
         AM_CONDITIONAL(MINGW, true)
-		AM_CONDITIONAL(ADD_RT, false)
+        AM_CONDITIONAL(ADD_RT, false)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
     solaris*)
         LIBS="-lsocket -lnsl -lrt -lxnet"
-		AM_CONDITIONAL(ADD_RT, true)
+        AM_CONDITIONAL(ADD_RT, true)
         ;;
     *darwin*)
         OPENCL_LIBS="-framework OpenCL"
@@ -95,7 +95,7 @@ case "${host_os}" in
         ;;
     *)
         # default
-		AM_CONDITIONAL(ADD_RT, true)
+        AM_CONDITIONAL(ADD_RT, true)
         ;;
 esac
 
@@ -285,10 +285,6 @@ AC_COMPILE_IFELSE(
      has_cpp11=no
    ])
 CXXFLAGS="$OLD_CXXFLAGS"
-if test "x$has_cpp11" = "xyes"
-then
-  CXXFLAGS="$CXXFLAGS -std=c++11"
-fi
 
 # ----------------------------------------
 # Check for libraries
@@ -381,6 +377,11 @@ else
       CPPFLAGS="$CPPFLAGS $(pkg-config --cflags cairo)"
 fi
 AM_CONDITIONAL(ENABLE_TRAINING, $have_cairo)
+
+if test "x$has_cpp11" = "xyes"
+then
+  CXXFLAGS="$CXXFLAGS -std=c++11"
+fi
 
 # ----------------------------------------
 # Final Tasks and Output

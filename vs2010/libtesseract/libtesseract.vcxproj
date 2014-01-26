@@ -91,7 +91,7 @@
     <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'">false</EnableManagedIncrementalBuild>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='LIB_Debug|Win32'">$(ProjectName)-static-debug</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='LIB_Release|Win32'">$(ProjectName)-static</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Release|Win32'">$(ProjectName)-static</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Release|Win32'">$(ProjectName)-opencl-static</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'">$(ProjectName)d</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'">false</GenerateManifest>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='DLL_Release|Win32'">true</GenerateManifest>
@@ -154,7 +154,6 @@ copy "$(TargetPath)" ..\..\..\lib
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <Name>
       </Name>
-      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <PostBuildEvent>
       <Message>copy library to lib directory</Message>
@@ -188,7 +187,6 @@ copy "$(TargetPath)" ..\..\..\lib
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <Name>
       </Name>
-      <TargetMachine>MachineX86</TargetMachine>
     </Lib>
     <PostBuildEvent>
       <Message>copy library to lib directory</Message>
@@ -225,7 +223,6 @@ copy "$(TargetPath)" ..\..\..\lib
       <Version>$(LIBTESS_NUMBER)</Version>
       <AdditionalLibraryDirectories>..\..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <TargetMachine>MachineX86</TargetMachine>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
@@ -266,7 +263,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
       <Version>$(LIBTESS_NUMBER)</Version>
       <AdditionalLibraryDirectories>..\..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
       <Message>copy library to lib directory</Message>
@@ -315,7 +311,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\cube\char_samp_enum.cpp" />
     <ClCompile Include="..\..\cube\char_samp_set.cpp" />
     <ClCompile Include="..\..\cube\char_set.cpp" />
-    <ClCompile Include="..\..\classify\chartoname.cpp" />
     <ClCompile Include="..\..\wordrec\chop.cpp" />
     <ClCompile Include="..\..\wordrec\chopper.cpp" />
     <ClCompile Include="..\..\textord\cjkpitch.cpp" />

@@ -17,14 +17,23 @@
  *
  **********************************************************************/
 
-#include "pango_font_info.h"
+ // Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
-#include <stdio.h>
+#ifdef MINGW 
+// workaround for stdlib.h and putenv
+#undef __STRICT_ANSI__
+#include "strcasestr.h"
+#endif  // MINGW
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/param.h>
 #include <algorithm>
 
+#include "pango_font_info.h"
 #include "commandlineflags.h"
 #include "fileio.h"
 #include "normstrngs.h"
@@ -133,12 +142,18 @@ static void InitFontconfig() {
   string fonts_conf_file = File::JoinPath(FLAGS_fontconfig_tmpdir.c_str(),
                                           "fonts.conf");
   File::WriteStringToFileOrDie(fonts_conf_template, fonts_conf_file);
+#ifdef _WIN32
+  std::string env("FONTCONFIG_PATH=");
+  env.append(FLAGS_fontconfig_tmpdir.c_str());
+  putenv(env.c_str());
+  putenv("LANG=en_US.utf8");
+#else
   setenv("FONTCONFIG_PATH", FLAGS_fontconfig_tmpdir.c_str(), true);
   // Fix the locale so that the reported font names are consistent.
   setenv("LANG", "en_US.utf8", true);
+#endif  // _WIN32
   init_fontconfig = true;
 }
-
 
 static void ListFontFamilies(PangoFontFamily*** families,
                              int* n_families) {

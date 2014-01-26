@@ -35,7 +35,10 @@ const int kSaltnPepper = 5;
 const int kMinRampSize = 1000;
 
 static unsigned int random_seed = 0x18273645;
-
+#ifndef rand_r  // _MSC_VER, ANDROID
+#define rand_r(random_seed) rand()
+#endif  // _MSC_VER
+	  
 // Degrade the pix as if by a print/copy/scan cycle with exposure > 0
 // corresponding to darkening on the copier and <0 lighter and 0 not copied.
 // Exposures in [-2,2] are most useful, with -3 and 3 being extreme.
