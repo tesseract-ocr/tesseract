@@ -201,6 +201,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       pdf_str.add_str_double(" ", prec(offset));  // Delta x in pts
       pdf_str.add_str_double(" ", 0);             // Delta y in pts
       pdf_str += (" Td ");                        // Relative moveto
+      pointsize = old_pointsize;
     }
 
     old_x = x;
