@@ -17,7 +17,9 @@
 #ifdef USE_OPENCL
 
 #include "opencl_device_selection.h"
-
+#ifdef _MSC_VER
+int LeptMsgSeverity = 3;  // L_SEVERITY_INFO
+#endif  // _MSC_VER
 GPUEnv OpenclDevice::gpuEnv;
 
 #if USE_DEVICE_SELECTION
