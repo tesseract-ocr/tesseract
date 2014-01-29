@@ -341,6 +341,26 @@ PolyBlockType PageIterator::BlockType() const {
   return it_->block()->block->poly_block()->isA();
 }
 
+/** Returns the polygon outline of the current block. The returned Pta must
+ *  be ptaDestroy-ed after use. */
+Pta* PageIterator::BlockPolygon() const {
+  if (it_->block() == NULL || it_->block()->block == NULL)
+    return NULL;  // Already at the end!
+  if (it_->block()->block->poly_block() == NULL)
+    return NULL;  // No layout analysis used - no polygon.
+  ICOORDELT_IT it(it_->block()->block->poly_block()->points());
+  Pta* pta = ptaCreate(it.length());
+  int num_pts = 0;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++num_pts) {
+    ICOORD* pt = it.data();
+    // Convert to top-down coords within the input image.
+    float x = static_cast<float>(pt->x()) / scale_ + rect_left_;
+    float y = rect_top_ + rect_height_ - static_cast<float>(pt->y()) / scale_;
+    ptaAddPt(pta, x, y);
+  }
+  return pta;
+}
+
 /**
  * Returns a binary image of the current object at the given level.
  * The position and size match the return from BoundingBoxInternal, and so this
