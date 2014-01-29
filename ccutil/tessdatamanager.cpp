@@ -190,8 +190,8 @@ bool TessdataManager::OverwriteComponents(
 
   // Open the files with the new components.
   for (i = 0; i < num_new_components; ++i) {
-    TessdataTypeFromFileName(component_filenames[i], &type, &text_file);
-    file_ptr[type] = fopen(component_filenames[i], "rb");
+    if (TessdataTypeFromFileName(component_filenames[i], &type, &text_file))
+      file_ptr[type] = fopen(component_filenames[i], "rb");
   }
 
   // Write updated data to the output traineddata file.
