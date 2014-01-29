@@ -172,6 +172,8 @@ void* ScrollView::MessageReceiver(void* a) {
         sv->Signal();
         sv->Signal();
       }
+    } else {
+      delete cur;  // Applied to no window.
     }
     svmap_mu->Unlock();
 
@@ -382,6 +384,9 @@ ScrollView::~ScrollView() {
   delete mutex_;
   delete semaphore_;
   delete points_;
+  for (int i = 0; i < SVET_COUNT; i++) {
+    delete event_table_[i];
+  }
   #endif  // GRAPHICS_DISABLED
 }
 
@@ -766,77 +771,44 @@ void ScrollView::ZoomToRectangle(int x1, int y1, int x2, int y2) {
 
 // Send an image of type Pix.
 void ScrollView::Image(struct Pix* image, int x_pos, int y_pos) {
-  int width = image->w;
-  int height = image->h;
-  l_uint32 bpp = image->d;
-  ++image_index_;
-  // PIX* do not have a unique identifier/name associated, so name them "lept".
-  SendMsg("createImage('lept%d',%d,%d,%d)", image_index_, width, height, bpp);
-
-  if (bpp == 32) {
-    Transfer32bppImage(image);
-  } else if (bpp == 8) {
-    TransferGrayImage(image);
-  } else if (bpp == 1) {
-    TransferBinaryImage(image);
-  }
-  // PIX* do not have a unique identifier/name associated, so name them "lept".
-  SendMsg("drawImage('lept%d',%d,%d)", image_index_, x_pos, y_pos);
-}
-
-// Sends each pixel as hex value like html, e.g. #00FF00 for green.
-void ScrollView::Transfer32bppImage(PIX* image) {
-  int ppL = pixGetWidth(image);
-  int h = pixGetHeight(image);
-  int wpl = pixGetWpl(image);
-  int transfer_size= ppL * 7 + 2;
-  char* pixel_data = new char[transfer_size];
-  for (int y = 0; y < h; ++y) {
-    l_uint32* data = pixGetData(image) + y*wpl;
-    for (int x = 0; x < ppL; ++x, ++data) {
-      snprintf(&pixel_data[x*7], 7, "#%.2x%.2x%.2x",
-               GET_DATA_BYTE(data, COLOR_RED),
-               GET_DATA_BYTE(data, COLOR_GREEN),
-               GET_DATA_BYTE(data, COLOR_BLUE));
-    }
-    pixel_data[transfer_size - 2] = '\n';
-    pixel_data[transfer_size - 1] = '\0';
-    SendRawMessage(pixel_data);
-  }
-  delete[] pixel_data;
-}
-
-// Sends for each pixel either '1' or '0'.
-void ScrollView::TransferGrayImage(PIX* image) {
-  char* pixel_data = new char[image->w * 2 + 2];
-  for (int y = 0; y < image->h; y++) {
-    l_uint32* data = pixGetData(image) + y * pixGetWpl(image);
-    for (int x = 0; x < image->w; x++) {
-      snprintf(&pixel_data[x*2], 2, "%.2x", (GET_DATA_BYTE(data, x)));
-      pixel_data[image->w * 2] = '\n';
-      pixel_data[image->w * 2 + 1] = '\0';
-      SendRawMessage(pixel_data);
+  l_uint8* data;
+  size_t size;
+  pixWriteMem(&data, &size, image, IFF_PNG);
+  int base64_len = (size + 2) / 3 * 4;
+  SendMsg("readImage(%d,%d,%d)", x_pos, y_pos, base64_len);
+  // Base64 encode the data.
+  const char kBase64Table[64] = {
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+    'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+    'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+    'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+    'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+    'w', 'x', 'y', 'z', '0', '1', '2', '3',
+    '4', '5', '6', '7', '8', '9', '+', '/',
+  };
+  char* base64 = new char[base64_len + 1];
+  memset(base64, '=', base64_len);
+  base64[base64_len] = '\0';
+  int remainder = 0;
+  int bits_left = 0;
+  int code_len = 0;
+  for (int i = 0; i < size; ++i) {
+    int code = (data[i] >> (bits_left + 2)) | remainder;
+    base64[code_len++] = kBase64Table[code & 63];
+    bits_left += 2;
+    remainder = data[i] << (6 - bits_left);
+    if (bits_left == 6) {
+      base64[code_len++] = kBase64Table[remainder & 63];
+      bits_left = 0;
+      remainder = 0;
     }
   }
-  delete [] pixel_data;
-}
-
-// Sends for each pixel either '1' or '0'.
-void ScrollView::TransferBinaryImage(PIX* image) {
-  char* pixel_data = new char[image->w + 2];
-  for (int y = 0; y < image->h; y++) {
-    l_uint32* data = pixGetData(image) + y * pixGetWpl(image);
-    for (int x = 0; x < image->w; x++) {
-      if (GET_DATA_BIT(data, x))
-        pixel_data[x] = '1';
-      else
-        pixel_data[x] = '0';
-    }
-    pixel_data[image->w] = '\n';
-    pixel_data[image->w + 1] = '\0';
-    SendRawMessage(pixel_data);
-  }
-  delete [] pixel_data;
+  if (bits_left > 0)
+    base64[code_len++] = kBase64Table[remainder & 63];
+  SendRawMessage(base64);
+  delete [] base64;
+  free(data);
 }
 
 // Escapes the ' character with a \, so it can be processed by LUA.

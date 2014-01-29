@@ -14,19 +14,18 @@ import com.google.scrollview.ScrollView;
 import com.google.scrollview.events.SVEvent;
 import com.google.scrollview.events.SVEventHandler;
 import com.google.scrollview.events.SVEventType;
-import com.google.scrollview.ui.SVImageHandler;
 import com.google.scrollview.ui.SVMenuBar;
 import com.google.scrollview.ui.SVPopupMenu;
 
-import edu.umd.cs.piccolo.PCamera;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.PLayer;
+import org.piccolo2d.PCamera;
+import org.piccolo2d.PCanvas;
+import org.piccolo2d.PLayer;
 
-import edu.umd.cs.piccolo.nodes.PImage;
-import edu.umd.cs.piccolo.nodes.PPath;
-import edu.umd.cs.piccolo.nodes.PText;
-import edu.umd.cs.piccolo.util.PPaintContext;
-import edu.umd.cs.piccolox.swing.PScrollPane;
+import org.piccolo2d.nodes.PImage;
+import org.piccolo2d.nodes.PPath;
+import org.piccolo2d.nodes.PText;
+import org.piccolo2d.util.PPaintContext;
+import org.piccolo2d.extras.swing.PScrollPane;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -137,21 +136,6 @@ public class SVWindow extends JFrame {
   }
 
   /**
-   * Start setting up a new image. The server will now expect image data until
-   * the image is complete.
-   *
-   * @param internalName The unique name of the new image
-   * @param width Image width
-   * @param height Image height
-   * @param bitsPerPixel The bit depth (currently supported: 1 (binary) and 32
-   *        (ARGB))
-   */
-  public void createImage(String internalName, int width, int height,
-      int bitsPerPixel) {
-    SVImageHandler.createImage(internalName, width, height, bitsPerPixel);
-  }
-
-  /**
    * Start setting up a new polyline. The server will now expect
    * polyline data until the polyline is complete.
    *
@@ -168,8 +152,20 @@ public class SVWindow extends JFrame {
    * Draw the now complete polyline.
    */
   public void drawPolyline() {
-    PPath pn = PPath.createPolyline(ScrollView.polylineXCoords,
-                                    ScrollView.polylineYCoords);
+    int numCoords = ScrollView.polylineXCoords.length;
+    if (numCoords < 2) {
+      return;
+    }
+    PPath pn = PPath.createLine(ScrollView.polylineXCoords[0],
+                                ScrollView.polylineYCoords[0],
+                                ScrollView.polylineXCoords[1],
+                                ScrollView.polylineYCoords[1]);
+    pn.reset();
+    pn.moveTo(ScrollView.polylineXCoords[0], ScrollView.polylineYCoords[0]);
+    for (int p = 1; p < numCoords; ++p) {
+      pn.lineTo(ScrollView.polylineXCoords[p], ScrollView.polylineYCoords[p]);
+    }
+    pn.closePath();
     ScrollView.polylineSize = 0;
     pn.setStrokePaint(currentPenColor);
     pn.setPaint(null);  // Don't fill the polygon - this is just a polyline.
@@ -323,8 +319,7 @@ public class SVWindow extends JFrame {
    * memory, so if you intend to redraw an image, you do not have to use
    * createImage again.
    */
-  public void drawImage(String internalName, int x_pos, int y_pos) {
-    PImage img = SVImageHandler.getImage(internalName);
+  public void drawImage(PImage img, int x_pos, int y_pos) {
     img.setX(x_pos);
     img.setY(y_pos);
     layer.addChild(img);
@@ -629,15 +624,4 @@ public class SVWindow extends JFrame {
     setVisible(false);
     // dispose();
   }
-
-  /**
-   * Open an image from a given file location and store it in memory. Pro:
-   * Faster than createImage. Con: Works only on the local file system.
-   *
-   * @param filename The path to the image.
-   */
-  public void openImage(String filename) {
-    SVImageHandler.openImage(filename);
-  }
-
 }

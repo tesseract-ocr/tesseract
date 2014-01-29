@@ -36,10 +36,10 @@ SCROLLVIEW_CLASSES = \
 	com/google/scrollview/ScrollView.class
 
 SCROLLVIEW_LIBS = \
-	$(srcdir)/piccolo-1.2.jar \
-	$(srcdir)/piccolox-1.2.jar
+	$(srcdir)/piccolo2d-core-3.0.jar \
+	$(srcdir)/piccolo2d-extras-3.0.jar
 
-CLASSPATH = $(srcdir)/piccolo-1.2.jar:$(srcdir)/piccolox-1.2.jar
+CLASSPATH = $(srcdir)/piccolo2d-core-3.0.jar:$(srcdir)/piccolo2d-extras-3.0.jar
 
 ScrollView.jar : $(SCROLLVIEW_CLASSES)
 	$(JAR) cf $@ com/google/scrollview/*.class \
