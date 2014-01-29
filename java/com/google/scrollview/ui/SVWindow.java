@@ -35,6 +35,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.geom.IllegalPathStateException;
 import java.awt.Rectangle;
 import java.awt.TextArea;
+import java.util.concurrent.Semaphore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,6 +66,9 @@ public class SVWindow extends JFrame {
 
   /** The top level layer we add our PNodes to (root node). */
   PLayer layer;
+
+  /** Semaphore that controls access to clearing the layer. */
+  Semaphore layerSemaphore = new Semaphore(1);
 
   /** The current color of the pen. It is used to draw edges, text, etc. */
   Color currentPenColor;
@@ -132,7 +136,20 @@ public class SVWindow extends JFrame {
 
   /** Erase all content from the window, but do not destroy it. */
   public void clear() {
-    layer.removeAllChildren();
+    layerSemaphore.acquireUninterruptibly();
+    // Manipulation of Piccolo's scene graph should be done from Swings
+    // event dispatch thread since Piccolo is not thread safe. This code calls
+    // removeAllChildren() from that thread and releases the semaphore.
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        layer.removeAllChildren();
+        repaint();
+        layerSemaphore.release();
+      }
+    });
+    // Wait for the clear to complete before continuing.
+    layerSemaphore.acquireUninterruptibly();
+    layerSemaphore.release();
   }
 
   /**
