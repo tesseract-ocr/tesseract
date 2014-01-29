@@ -1,5 +1,8 @@
 datadir = @datadir@/tessdata
 
+data_DATA = pdf.ttf pdf.ttx
+EXTRA_DIST = $(data_DATA)
+
 SUBDIRS = configs tessconfigs
 
 langdata = bul.traineddata mlt.traineddata chr.traineddata \
@@ -39,8 +42,7 @@ langdata = bul.traineddata mlt.traineddata chr.traineddata \
 	eng.cube.fold ita.cube.params ara.cube.params ita.cube.fold \
 	ara.cube.bigrams hin.cube.params hin.cube.fold spa.cube.lm \
 	ita.cube.nn fra.cube.size eng.cube.bigrams ara.cube.lm \
-	rus.cube.nn spa.cube.nn hin.cube.bigrams \
-    pdf.ttf pdf.ttx
+	rus.cube.nn spa.cube.nn hin.cube.bigrams
 
 .PHONY: install-langs
 install-langs:
