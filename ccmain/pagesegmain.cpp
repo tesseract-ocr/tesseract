@@ -26,7 +26,7 @@
 #endif
 #else
 #include <unistd.h>
-#endif // _WIN32
+#endif  // _WIN32
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
 #endif

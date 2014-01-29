@@ -17,12 +17,12 @@
  *
  **********************************************************************/
 
- // Include automatically generated configuration file if running autoconf.
+// Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
-#ifdef MINGW 
+#ifdef MINGW
 // workaround for stdlib.h and putenv
 #undef __STRICT_ANSI__
 #include "strcasestr.h"

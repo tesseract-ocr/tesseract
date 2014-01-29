@@ -977,11 +977,11 @@ BOOL8 fixed_pitch_row(TO_ROW *row,       // row to do
                       BLOCK* block,
                       inT32 block_index  // block_number
                      ) {
-  const char *res_string;        //pitch result
-  inT16 mid_cuts;                //no of cheap cuts
-  float non_space;               //gap size
-  float pitch_sd;                //error on pitch
-  float sp_sd;                   //space sd
+  const char *res_string;        // pitch result
+  inT16 mid_cuts;                // no of cheap cuts
+  float non_space;               // gap size
+  float pitch_sd;                // error on pitch
+  float sp_sd = 0.0f;            // space sd
 
   non_space = row->fp_nonsp;
   if (non_space > row->fixed_pitch)
