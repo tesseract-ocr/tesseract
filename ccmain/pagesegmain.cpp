@@ -326,7 +326,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
   if (to_block->line_size >= 2) {
     finder = new ColumnFinder(static_cast<int>(to_block->line_size),
                               blkbox.botleft(), blkbox.topright(),
-                              source_resolution_,
+                              source_resolution_, textord_use_cjk_fp_model,
                               &v_lines, &h_lines, vertical_x, vertical_y);
 
     finder->SetupAndFilterNoise(*photo_mask_pix, to_block);
@@ -357,13 +357,20 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
           osd_margin = osd_score - osr->orientations[i];
         }
       }
+      int best_script_id = osr->best_result.script_id;
+      const char* best_script_str =
+          osd_tess->unicharset.get_script_from_script_id(best_script_id);
+      bool cjk = best_script_id == osd_tess->unicharset.han_sid() ||
+          best_script_id == osd_tess->unicharset.hiragana_sid() ||
+          best_script_id == osd_tess->unicharset.katakana_sid() ||
+          strcmp("Japanese", best_script_str) == 0 ||
+          strcmp("Korean", best_script_str) == 0 ||
+          strcmp("Hangul", best_script_str) == 0;
+      if (cjk) {
+        finder->set_cjk_script(true);
+      }
       if (osd_margin < min_orientation_margin) {
         // The margin is weak.
-        int best_script_id = osr->best_result.script_id;
-        bool cjk = (best_script_id == osd_tess->unicharset.han_sid()) ||
-            (best_script_id == osd_tess->unicharset.hiragana_sid()) ||
-            (best_script_id == osd_tess->unicharset.katakana_sid());
-
         if (!cjk && !vertical_text && osd_orientation == 2) {
           // upside down latin text is improbable with such a weak margin.
           tprintf("OSD: Weak margin (%.2f), horiz textlines, not CJK: "

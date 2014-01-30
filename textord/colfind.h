@@ -58,8 +58,8 @@ class ColumnFinder : public TabFind {
   // vlines is a (possibly empty) list of TabVector and vertical_x and y are
   // the sum logical vertical vector produced by LineFinder::FindVerticalLines.
   ColumnFinder(int gridsize, const ICOORD& bleft, const ICOORD& tright,
-               int resolution, TabVector_LIST* vlines, TabVector_LIST* hlines,
-               int vertical_x, int vertical_y);
+               int resolution, bool cjk_script, TabVector_LIST* vlines,
+               TabVector_LIST* hlines, int vertical_x, int vertical_y);
   virtual ~ColumnFinder();
 
   // Accessors for testing
@@ -68,6 +68,9 @@ class ColumnFinder : public TabFind {
   }
   const TextlineProjection* projection() const {
     return &projection_;
+  }
+  void set_cjk_script(bool is_cjk) {
+    cjk_script_ = is_cjk;
   }
 
   // ======================================================================
@@ -284,6 +287,8 @@ class ColumnFinder : public TabFind {
   // them sit in the rotated block.
   FCOORD ComputeBlockAndClassifyRotation(BLOCK* block);
 
+  // True if this is most likely a cjk page with rectangular characters.
+  bool cjk_script_;
   // The minimum gutter width to apply for finding columns.
   // Modified when vertical text is detected to prevent detection of
   // vertical text lines as columns.

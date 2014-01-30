@@ -83,11 +83,12 @@ ScrollView* ColumnFinder::blocks_win_ = NULL;
 // the sum logical vertical vector produced by LineFinder::FindVerticalLines.
 ColumnFinder::ColumnFinder(int gridsize,
                            const ICOORD& bleft, const ICOORD& tright,
-                           int resolution,
+                           int resolution, bool cjk_script,
                            TabVector_LIST* vlines, TabVector_LIST* hlines,
                            int vertical_x, int vertical_y)
   : TabFind(gridsize, bleft, tright, vlines, vertical_x, vertical_y,
             resolution),
+    cjk_script_(cjk_script),
     min_gutter_width_(static_cast<int>(kMinGutterWidthGrid * gridsize)),
     mean_column_gap_(tright.x() - bleft.x()),
     reskew_(1.0f, 0.0f), rotation_(1.0f, 0.0f), rerotate_(1.0f, 0.0f),
@@ -169,10 +170,7 @@ void ColumnFinder::SetupAndFilterNoise(Pix* photo_mask_pix,
   // Remove obvious noise and make the initial non-text map.
   nontext_map_ = nontext_detect.ComputeNonTextMask(textord_debug_tabfind,
                                                    photo_mask_pix, input_block);
-  // TODO(rays) experiment with making broken CJK fixing dependent on the
-  // language, and keeping the merged blobs on output instead of exploding at
-  // ColPartition::MakeBlock.
-  stroke_width_->FindTextlineDirectionAndFixBrokenCJK(true, input_block);
+  stroke_width_->FindTextlineDirectionAndFixBrokenCJK(cjk_script_, input_block);
   // Clear the strokewidth grid ready for rotation or leader finding.
   stroke_width_->Clear();
 }
@@ -297,7 +295,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
   FindInitialTabVectors(NULL, min_gutter_width_, input_block);
   SetBlockRuleEdges(input_block);
   stroke_width_->GradeBlobsIntoPartitions(rerotate_, input_block, nontext_map_,
-                                          denorm_, &projection_,
+                                          denorm_, cjk_script_, &projection_,
                                           &part_grid_, &big_parts_);
   if (!PSM_SPARSE(pageseg_mode)) {
     ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
