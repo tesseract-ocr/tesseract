@@ -82,7 +82,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
       pdf_str += "BT\n3 Tr\n";  // Begin text object, use invisible ink
-      old_pointsize = 0.0;      // Let's always declare our fonts at this scope
+      old_pointsize = 0.0;      // Every block will declare its font
     }
 
     int line_x1, line_y1, line_x2, line_y2;
@@ -177,18 +177,6 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
           break;
       }
 
-      bool bold, italic, underlined, monospace, serif, smallcaps;
-      int font_id;
-      res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
-                                 &serif, &smallcaps, &pointsize, &font_id);
-
-      if (pointsize != old_pointsize) {
-        char textfont[20];
-        snprintf(textfont, sizeof(textfont), "/f-0-0 %d Tf\n", pointsize);
-        pdf_str += textfont;                 // Custom font
-        old_pointsize = pointsize;
-      }
-
       pdf_str.add_str_double("",  prec(a));  // . This affine matrix
       pdf_str.add_str_double(" ", prec(b));  // . sets the coordinate
       pdf_str.add_str_double(" ", prec(c));  // . system for all
@@ -201,11 +189,24 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       pdf_str.add_str_double(" ", prec(offset));  // Delta x in pts
       pdf_str.add_str_double(" ", 0);             // Delta y in pts
       pdf_str += (" Td ");                        // Relative moveto
-      pointsize = old_pointsize;
     }
-
     old_x = x;
     old_y = y;
+
+    // Adjust font size on a per word granularity. Pay attention to
+    // pointsize, old_pointsize, and pdf_str.
+    {
+      bool bold, italic, underlined, monospace, serif, smallcaps;
+      int font_id;
+      res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
+                                 &serif, &smallcaps, &pointsize, &font_id);
+      if (pointsize != old_pointsize) {
+        char textfont[20];
+        snprintf(textfont, sizeof(textfont), "/f-0-0 %d Tf ", pointsize);
+        pdf_str += textfont;
+        old_pointsize = pointsize;
+      }
+    }
 
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
@@ -234,8 +235,8 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       pdf_str.add_str_double("", h_stretch);
       pdf_str += " Tz";          // horizontal stretch
       pdf_str += " [ ";
-      pdf_str += pdf_word;       // word in UTF-16BE representation
-      pdf_str += " ] TJ";         // show the text
+      pdf_str += pdf_word;       // UTF-16BE representation
+      pdf_str += " ] TJ";        // show the text
     }
     if (last_word_in_line) {
       pdf_str += " \n";
@@ -530,7 +531,7 @@ bool TessPDFRenderer::pixToPDFObj(Pix *pix, long int objnum,
         colorspace = "/DeviceGray";
         break;
       case 3:
-        colorspace = "/DeviceColor";
+        colorspace = "/DeviceRGB";
         break;
       default:
         return false;
