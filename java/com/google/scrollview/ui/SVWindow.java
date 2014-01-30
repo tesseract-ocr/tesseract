@@ -20,22 +20,20 @@ import com.google.scrollview.ui.SVPopupMenu;
 import org.piccolo2d.PCamera;
 import org.piccolo2d.PCanvas;
 import org.piccolo2d.PLayer;
-
+import org.piccolo2d.extras.swing.PScrollPane;
 import org.piccolo2d.nodes.PImage;
 import org.piccolo2d.nodes.PPath;
 import org.piccolo2d.nodes.PText;
 import org.piccolo2d.util.PPaintContext;
-import org.piccolo2d.extras.swing.PScrollPane;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.awt.geom.IllegalPathStateException;
 import java.awt.Rectangle;
 import java.awt.TextArea;
-import java.util.concurrent.Semaphore;
+import java.awt.geom.IllegalPathStateException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,9 +64,6 @@ public class SVWindow extends JFrame {
 
   /** The top level layer we add our PNodes to (root node). */
   PLayer layer;
-
-  /** Semaphore that controls access to clearing the layer. */
-  Semaphore layerSemaphore = new Semaphore(1);
 
   /** The current color of the pen. It is used to draw edges, text, etc. */
   Color currentPenColor;
@@ -136,20 +131,21 @@ public class SVWindow extends JFrame {
 
   /** Erase all content from the window, but do not destroy it. */
   public void clear() {
-    layerSemaphore.acquireUninterruptibly();
     // Manipulation of Piccolo's scene graph should be done from Swings
     // event dispatch thread since Piccolo is not thread safe. This code calls
-    // removeAllChildren() from that thread and releases the semaphore.
+    // removeAllChildren() from that thread and releases the latch.
+    final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         layer.removeAllChildren();
         repaint();
-        layerSemaphore.release();
+        latch.countDown();
       }
     });
-    // Wait for the clear to complete before continuing.
-    layerSemaphore.acquireUninterruptibly();
-    layerSemaphore.release();
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+    }
   }
 
   /**
@@ -336,9 +332,9 @@ public class SVWindow extends JFrame {
    * memory, so if you intend to redraw an image, you do not have to use
    * createImage again.
    */
-  public void drawImage(PImage img, int x_pos, int y_pos) {
-    img.setX(x_pos);
-    img.setY(y_pos);
+  public void drawImage(PImage img, int xPos, int yPos) {
+    img.setX(xPos);
+    img.setY(yPos);
     layer.addChild(img);
   }
 

@@ -47,12 +47,17 @@ public class SVImageHandler {
       try {
         newRead = in.read(charbuffer, numRead, size - numRead);
       } catch (IOException e) {
-        System.out.println("Failed to read image data from socket" + e.getMessage());
+        System.out.println("Failed to read image data from socket:" + e.getMessage());
+        return null;
       }
       if (newRead < 0) {
         return null;
       }
       numRead += newRead;
+    }
+    if (numRead != size) {
+        System.out.println("Failed to read image data from socket");
+      return null;
     }
     // Convert the character data to binary.
     byte[] binarydata = DatatypeConverter.parseBase64Binary(new String(charbuffer));
