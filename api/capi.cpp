@@ -113,6 +113,24 @@ TESS_API BOOL TESS_CALL TessBaseAPIGetVariableAsString(TessBaseAPI* handle, cons
     return handle->GetVariableAsString(name, val) ? TRUE : FALSE;
 }
 
+TESS_API int TESS_CALL TessBaseAPIInit4(TessBaseAPI* handle, const char* datapath, const char* language,
+	TessOcrEngineMode mode, char** configs, int configs_size,
+	char** vars_vec, char** vars_values, size_t vars_vec_size,
+	BOOL set_only_non_debug_params)
+{
+	GenericVector<STRING> varNames;
+	GenericVector<STRING> varValues;
+	if (vars_vec != NULL && vars_values != NULL) {
+		for (int i = 0; i < vars_vec_size; i++) {
+			varNames.push_back(STRING(vars_vec[i]));
+			varValues.push_back(STRING(vars_values[i]));
+		}
+	}
+
+	return handle->Init(datapath, language, mode, configs, configs_size, &varNames, &varValues, set_only_non_debug_params);
+}
+
+
 TESS_API int TESS_CALL TessBaseAPIInit1(TessBaseAPI* handle, const char* datapath, const char* language, TessOcrEngineMode oem,
                                         char** configs, int configs_size)
 {
