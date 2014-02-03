@@ -125,7 +125,6 @@ bool Trie::edge_char_of(NODE_REF node_ref, NODE_REF next_node,
 bool Trie::add_edge_linkage(NODE_REF node1, NODE_REF node2, bool marker_flag,
                             int direction, bool word_end,
                             UNICHAR_ID unichar_id) {
-  if (num_edges_ == max_num_edges_) return false;
   EDGE_VECTOR *vec = (direction == FORWARD_EDGE) ?
     &(nodes_[node1]->forward_edges) : &(nodes_[node1]->backward_edges);
   int search_index;

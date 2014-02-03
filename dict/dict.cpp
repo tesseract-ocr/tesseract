@@ -239,8 +239,7 @@ void Dict::Load(DawgCache *dawg_cache) {
 
   if (((STRING &)user_words_suffix).length() > 0) {
     Trie *trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
-                              kMaxUserDawgEdges, getUnicharset().size(),
-                              dawg_debug_level);
+                              getUnicharset().size(), dawg_debug_level);
     name = getCCUtil()->language_data_path_prefix;
     name += user_words_suffix;
     if (!trie_ptr->read_and_add_word_list(name.string(), getUnicharset(),
@@ -254,8 +253,7 @@ void Dict::Load(DawgCache *dawg_cache) {
 
   if (((STRING &)user_patterns_suffix).length() > 0) {
     Trie *trie_ptr = new Trie(DAWG_TYPE_PATTERN, lang, USER_PATTERN_PERM,
-                              kMaxUserDawgEdges, getUnicharset().size(),
-                              dawg_debug_level);
+                              getUnicharset().size(), dawg_debug_level);
     trie_ptr->initialize_patterns(&(getUnicharset()));
     name = getCCUtil()->language_data_path_prefix;
     name += user_patterns_suffix;
@@ -268,14 +266,12 @@ void Dict::Load(DawgCache *dawg_cache) {
   }
 
   document_words_ = new Trie(DAWG_TYPE_WORD, lang, DOC_DAWG_PERM,
-                             kMaxDocDawgEdges, getUnicharset().size(),
-                             dawg_debug_level);
+                             getUnicharset().size(), dawg_debug_level);
   dawgs_ += document_words_;
 
   // This dawg is temporary and should not be searched by letter_is_ok.
   pending_words_ = new Trie(DAWG_TYPE_WORD, lang, NO_PERM,
-                            kMaxDocDawgEdges, getUnicharset().size(),
-                            dawg_debug_level);
+                            getUnicharset().size(), dawg_debug_level);
 
   // Construct a list of corresponding successors for each dawg. Each entry i
   // in the successors_ vector is a vector of integers that represent the

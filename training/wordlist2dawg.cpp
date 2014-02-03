@@ -32,8 +32,6 @@
 #include "trie.h"
 #include "unicharset.h"
 
-static const int kMaxNumEdges =  30000000;
-
 int main(int argc, char** argv) {
   if (!(argc == 4 || (argc == 5 && strcmp(argv[1], "-t") == 0) ||
       (argc == 6 && strcmp(argv[1], "-r") == 0))) {
@@ -69,8 +67,7 @@ int main(int argc, char** argv) {
     tesseract::Trie trie(
         // the first 3 arguments are not used in this case
         tesseract::DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM,
-        kMaxNumEdges, unicharset.size(),
-        classify->getDict().dawg_debug_level);
+        unicharset.size(), classify->getDict().dawg_debug_level);
     tprintf("Reading word list from '%s'\n", wordlist_filename);
     if (!trie.read_and_add_word_list(wordlist_filename, unicharset,
                                      reverse_policy)) {
