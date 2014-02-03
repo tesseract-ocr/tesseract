@@ -32,7 +32,6 @@ TESS_API void TESS_CALL TessDeleteBlockList(BLOCK_LIST* block_list)
     TessBaseAPI::DeleteBlockList(block_list);
 }
 
-
 TESS_API TessResultRenderer* TESS_CALL TessTextRendererCreate()
 {
     return new TessTextRenderer;
@@ -378,6 +377,12 @@ TESS_API struct Boxa* TESS_CALL TessBaseAPIGetTextlines(TessBaseAPI* handle, str
     return handle->GetTextlines(pixa, blockids);
 }
 
+TESS_API struct Boxa* TESS_CALL TessBaseAPIGetTextlines1(TessBaseAPI* handle, const BOOL raw_image, const int raw_padding,
+                                                                  struct Pixa** pixa, int** blockids, int** paraids)
+{
+    return handle->GetTextlines(raw_image, raw_padding, pixa, blockids, paraids);
+}
+
 TESS_API struct Boxa* TESS_CALL TessBaseAPIGetStrips(TessBaseAPI* handle, struct Pixa** pixa, int** blockids)
 {
     return handle->GetStrips(pixa, blockids);
@@ -396,6 +401,14 @@ TESS_API struct Boxa* TESS_CALL TessBaseAPIGetConnectedComponents(TessBaseAPI* h
 TESS_API struct Boxa* TESS_CALL TessBaseAPIGetComponentImages(TessBaseAPI* handle, TessPageIteratorLevel level, BOOL text_only, struct Pixa** pixa, int** blockids)
 {
     return handle->GetComponentImages(level, text_only != FALSE, pixa, blockids);
+}
+
+TESS_API struct Boxa*
+               TESS_CALL TessBaseAPIGetComponentImages1(   TessBaseAPI* handle, const TessPageIteratorLevel level, const BOOL text_only,
+                                                           const BOOL raw_image, const int raw_padding,
+                                                           struct Pixa** pixa, int** blockids, int** paraids)
+{
+    return handle->GetComponentImages(level, text_only != FALSE, raw_image, raw_padding, pixa, blockids, paraids);
 }
 
 TESS_API int TESS_CALL TessBaseAPIGetThresholdedImageScaleFactor(const TessBaseAPI* handle)
@@ -433,7 +446,7 @@ TESS_API char* TESS_CALL TessBaseAPIProcessPages(TessBaseAPI* handle, const char
         return NULL;
 }
 
-TESS_API BOOL TessBaseAPIProcessPages1(TessBaseAPI* handle,  const char* filename, const char* retry_config,
+TESS_API BOOL TessBaseAPIProcessPages1(TessBaseAPI* handle, const char* filename, const char* retry_config,
                                                  int timeout_millisec, TessResultRenderer* renderer)
 {
     if (handle->ProcessPages(filename, retry_config, timeout_millisec, renderer))    
@@ -450,6 +463,15 @@ TESS_API char* TESS_CALL TessBaseAPIProcessPage(TessBaseAPI* handle, struct Pix*
         return text_out.strdup();
     else
         return NULL;
+}
+
+TESS_API BOOL TessBaseAPIProcessPage1(TessBaseAPI* handle, struct Pix* pix, int page_index, const char* filename,
+                                      const char* retry_config, int timeout_millisec, TessResultRenderer* renderer)
+{
+    if (handle->ProcessPage(pix, page_index, filename, retry_config, timeout_millisec, renderer))
+        return TRUE;
+    else
+        return FALSE;
 }
 
 TESS_API TessResultIterator* TESS_CALL TessBaseAPIGetIterator(TessBaseAPI* handle)
@@ -522,10 +544,29 @@ TESS_API void TESS_CALL TessBaseAPISetDictFunc(TessBaseAPI* handle, TessDictFunc
     handle->SetDictFunc(f);
 }
 
+TESS_API void  TESS_CALL TessBaseAPIClearPersistentCache(TessBaseAPI* handle)
+{
+    handle->ClearPersistentCache();
+}
+
 TESS_API void TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* handle, TessProbabilityInContextFunc f)
 {
     handle->SetProbabilityInContextFunc(f);
 }
+
+/*
+ * Declared but not defined funcions in API
+
+TESS_API void  TESS_CALL TessBaseAPISetParamsModelClassifyFunc(TessBaseAPI* handle, TessParamsModelClassifyFunc f)
+{
+    handle->SetParamsModelClassifyFunc(f);
+}
+
+TESS_API const char* TESS_CALL TessBaseAPIGetLastInitLanguage(const TessBaseAPI* handle)
+{
+    return handle->GetLastInitLanguage();
+}
+*/
 
 TESS_API BOOL TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results)
 {

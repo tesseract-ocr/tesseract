@@ -46,6 +46,7 @@ typedef tesseract::ImageThresholder TessImageThresholder;
 typedef tesseract::PageIteratorLevel TessPageIteratorLevel;
 typedef tesseract::DictFunc TessDictFunc;
 typedef tesseract::ProbabilityInContextFunc TessProbabilityInContextFunc;
+// typedef tesseract::ParamsModelClassifyFunc TessParamsModelClassifyFunc;
 typedef tesseract::FillLatticeFunc TessFillLatticeFunc;
 typedef tesseract::Dawg TessDawg;
 typedef tesseract::TruthCallback TessTruthCallback;
@@ -208,13 +209,21 @@ TESS_API struct Boxa*
 TESS_API struct Boxa*
                TESS_CALL TessBaseAPIGetTextlines(          TessBaseAPI* handle, struct Pixa** pixa, int** blockids);
 TESS_API struct Boxa*
+               TESS_CALL TessBaseAPIGetTextlines1(         TessBaseAPI* handle, const BOOL raw_image, const int raw_padding,
+                                                                                struct Pixa** pixa, int** blockids, int** paraids);
+TESS_API struct Boxa*
                TESS_CALL TessBaseAPIGetStrips(             TessBaseAPI* handle, struct Pixa** pixa, int** blockids);
 TESS_API struct Boxa*
                TESS_CALL TessBaseAPIGetWords(              TessBaseAPI* handle, struct Pixa** pixa);
 TESS_API struct Boxa*
                TESS_CALL TessBaseAPIGetConnectedComponents(TessBaseAPI* handle, struct Pixa** cc);
 TESS_API struct Boxa*
-               TESS_CALL TessBaseAPIGetComponentImages(    TessBaseAPI* handle, TessPageIteratorLevel level, BOOL text_only, struct Pixa** pixa, int** blockids);
+               TESS_CALL TessBaseAPIGetComponentImages(    TessBaseAPI* handle, const TessPageIteratorLevel level, const BOOL text_only,
+                                                           struct Pixa** pixa, int** blockids);
+TESS_API struct Boxa*
+               TESS_CALL TessBaseAPIGetComponentImages1(   TessBaseAPI* handle, const TessPageIteratorLevel level, const BOOL text_only,
+                                                           const BOOL raw_image, const int raw_padding,
+                                                           struct Pixa** pixa, int** blockids, int** paraids);
 
 TESS_API int   TESS_CALL TessBaseAPIGetThresholdedImageScaleFactor(const TessBaseAPI* handle);
 
@@ -231,6 +240,8 @@ TESS_API BOOL TessBaseAPIProcessPages1(TessBaseAPI* handle,  const char* filenam
                                                  int timeout_millisec, TessResultRenderer* renderer);
 TESS_API char* TESS_CALL TessBaseAPIProcessPage(TessBaseAPI* handle, struct Pix* pix, int page_index, const char* filename,
                                                 const char* retry_config, int timeout_millisec);
+TESS_API BOOL TessBaseAPIProcessPage1(TessBaseAPI* handle, struct Pix* pix, int page_index, const char* filename,
+                                      const char* retry_config, int timeout_millisec, TessResultRenderer* renderer);
 
 TESS_API TessResultIterator*
                TESS_CALL TessBaseAPIGetIterator(TessBaseAPI* handle);
@@ -253,7 +264,12 @@ TESS_API BOOL  TESS_CALL TessBaseAPIGetTextDirection(TessBaseAPI* handle, int* o
 
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
 TESS_API void  TESS_CALL TessBaseAPISetDictFunc(TessBaseAPI* handle, TessDictFunc f);
+TESS_API void  TESS_CALL TessBaseAPIClearPersistentCache(TessBaseAPI* handle);
 TESS_API void  TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* handle, TessProbabilityInContextFunc f);
+/*
+TESS_API void  TESS_CALL TessBaseAPISetParamsModelClassifyFunc(TessBaseAPI* handle, TessParamsModelClassifyFunc f);
+TESS_API const char* TESS_CALL TessBaseAPIGetLastInitLanguage(const TessBaseAPI* handle);
+*/
 TESS_API void  TESS_CALL TessBaseAPISetFillLatticeFunc(TessBaseAPI* handle, TessFillLatticeFunc f);
 TESS_API BOOL  TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results);
 
