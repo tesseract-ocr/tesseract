@@ -271,6 +271,19 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode,
   return result;
 }
 
+// Helper adds all the scripts from sid_set converted to ids from osd_set to
+// allowed_ids.
+static void AddAllScriptsConverted(const UNICHARSET& sid_set,
+                                   const UNICHARSET& osd_set,
+                                   GenericVector<int>* allowed_ids) {
+  for (int i = 0; i < sid_set.get_script_table_size(); ++i) {
+    if (i != sid_set.null_sid()) {
+      const char* script = sid_set.get_script_from_script_id(i);
+      allowed_ids->push_back(osd_set.get_script_id_from_name(script));
+    }
+  }
+}
+
 /**
  * Sets up auto page segmentation, determines the orientation, and corrects it.
  * Somewhat arbitrary chunk of functionality, factored out of AutoPageSeg to
@@ -343,7 +356,17 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
     int osd_orientation = 0;
     bool vertical_text = finder->IsVerticallyAlignedText(to_block, &osd_blobs);
     if (osd && osd_tess != NULL && osr != NULL) {
-      os_detect_blobs(&osd_blobs, osr, osd_tess);
+      GenericVector<int> osd_scripts;
+      if (osd_tess != this) {
+        // We are running osd as part of layout analysis, so constrain the
+        // scripts to those allowed by *this.
+        AddAllScriptsConverted(unicharset, osd_tess->unicharset, &osd_scripts);
+        for (int s = 0; s < sub_langs_.size(); ++s) {
+          AddAllScriptsConverted(sub_langs_[s]->unicharset,
+                                 osd_tess->unicharset, &osd_scripts);
+        }
+      }
+      os_detect_blobs(&osd_scripts, &osd_blobs, osr, osd_tess);
       if (only_osd) {
         delete finder;
         return NULL;

@@ -57,6 +57,9 @@ class ColumnFinder : public TabFind {
   // bleft and tright are the bounds of the image (rectangle) being processed.
   // vlines is a (possibly empty) list of TabVector and vertical_x and y are
   // the sum logical vertical vector produced by LineFinder::FindVerticalLines.
+  // If cjk_script is true, then broken CJK characters are fixed during
+  // layout analysis to assist in detecting horizontal vs vertically written
+  // textlines.
   ColumnFinder(int gridsize, const ICOORD& bleft, const ICOORD& tright,
                int resolution, bool cjk_script, TabVector_LIST* vlines,
                TabVector_LIST* hlines, int vertical_x, int vertical_y);
@@ -287,7 +290,8 @@ class ColumnFinder : public TabFind {
   // them sit in the rotated block.
   FCOORD ComputeBlockAndClassifyRotation(BLOCK* block);
 
-  // True if this is most likely a cjk page with rectangular characters.
+  // If true then the page language is cjk, so it is safe to perform
+  // FixBrokenCJK.
   bool cjk_script_;
   // The minimum gutter width to apply for finding columns.
   // Modified when vertical text is detected to prevent detection of

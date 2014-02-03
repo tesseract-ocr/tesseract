@@ -81,16 +81,20 @@ struct OSResults {
 
 class OrientationDetector {
  public:
-  OrientationDetector(OSResults*);
+  OrientationDetector(const GenericVector<int>* allowed_scripts,
+                      OSResults* results);
   bool detect_blob(BLOB_CHOICE_LIST* scores);
   int get_orientation();
  private:
   OSResults* osr_;
+  tesseract::Tesseract* tess_;
+  const GenericVector<int>* allowed_scripts_;
 };
 
 class ScriptDetector {
  public:
-  ScriptDetector(OSResults*, tesseract::Tesseract* tess);
+  ScriptDetector(const GenericVector<int>* allowed_scripts,
+                 OSResults* osr, tesseract::Tesseract* tess);
   void detect_blob(BLOB_CHOICE_LIST* scores);
   void get_script() ;
   bool must_stop(int orientation);
@@ -108,6 +112,7 @@ class ScriptDetector {
   int latin_id_;
   int fraktur_id_;
   tesseract::Tesseract* tess_;
+  const GenericVector<int>* allowed_scripts_;
 };
 
 int orientation_and_script_detection(STRING& filename,
@@ -118,7 +123,8 @@ int os_detect(TO_BLOCK_LIST* port_blocks,
               OSResults* osr,
               tesseract::Tesseract* tess);
 
-int os_detect_blobs(BLOBNBOX_CLIST* blob_list,
+int os_detect_blobs(const GenericVector<int>* allowed_scripts,
+                    BLOBNBOX_CLIST* blob_list,
                     OSResults* osr,
                     tesseract::Tesseract* tess);
 
