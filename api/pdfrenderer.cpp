@@ -25,6 +25,9 @@ namespace tesseract {
 // PDF representation.
 const int kBasicBufSize = 2048;
 
+// If the font is 10 pts, nominal character width is 5 pts
+const int kCharWidth = 2;
+
 /**********************************************************************
  * PDF Renderer interface implementation
  **********************************************************************/
@@ -88,7 +91,18 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     int line_x1, line_y1, line_x2, line_y2;
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       res_it->Baseline(RIL_TEXTLINE,
-                     &line_x1, &line_y1, &line_x2, &line_y2);
+                       &line_x1, &line_y1, &line_x2, &line_y2);
+      double rise = abs(line_y2 - line_y1) * 72 / ppi;
+      double run = abs(line_x2 - line_x1) * 72 / ppi;
+      // There are some really stupid PDF viewers in the wild, such as
+      // 'Preview' which ships with the Mac. They might do a better
+      // job with text selection and highlighting when given perfectly
+      // straight text instead of very slightly tilted text. I chose
+      // this threshold large enough to absorb noise, but small enough
+      // that lines probably won't cross each other if the whole page
+      // is tilted at almost exactly the clipping threshold.
+      if (rise < 2.0 && 2.0 < run)
+        line_y1 = line_y2 = (line_y1 + line_y2) / 2;
     }
 
     if (res_it->Empty(RIL_WORD)) {
@@ -231,7 +245,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (word_length > 0 && pdf_word_len > 0 && pointsize > 0) {
       double h_stretch =
-          prec(100.0 * word_length / (pointsize * pdf_word_len));
+          kCharWidth * prec(100.0 * word_length / (pointsize * pdf_word_len));
       pdf_str.add_str_double("", h_stretch);
       pdf_str += " Tz";          // horizontal stretch
       pdf_str += " [ ";
@@ -307,11 +321,11 @@ bool TessPDFRenderer::BeginDocumentHandler() {
            "  /FontDescriptor %ld 0 R\n"
            "  /Subtype /CIDFontType2\n"
            "  /Type /Font\n"
-           "  /DW 1000\n"
+           "  /DW %d\n"
            ">>\n"
            "endobj\n",
-           6L         // Font descriptor
-           );
+           6L,         // Font descriptor
+           1000 / kCharWidth);
   AppendPDFObject(buf);
 
   const char *stream =
@@ -347,17 +361,16 @@ bool TessPDFRenderer::BeginDocumentHandler() {
            "endobj\n", (unsigned long) strlen(stream), stream);
   AppendPDFObject(buf);
 
-  // TODO(jbreiden) Fix the FontBBox entry. And of course make
-  // the font data match the descriptor.
   // FONT DESCRIPTOR
+  const int kCharHeight = 2;  // Effect: highlights are half height
   snprintf(buf, sizeof(buf),
            "6 0 obj\n"
            "<<\n"
-           "  /Ascent 1000\n"
-           "  /CapHeight 1000\n"
-           "  /Descent 0\n"          // Nothing goes below baseline
-           "  /Flags 4\n"
-           "  /FontBBox  [ 0 0 1000 1000 ]\n"
+           "  /Ascent %d\n"
+           "  /CapHeight %d\n"
+           "  /Descent -1\n"       // Spec says must be negative
+           "  /Flags 5\n"          // FixedPitch + Symbolic
+           "  /FontBBox  [ 0 0 %d %d ]\n"
            "  /FontFile2 %ld 0 R\n"
            "  /FontName /GlyphLessFont\n"
            "  /ItalicAngle 0\n"
@@ -365,6 +378,10 @@ bool TessPDFRenderer::BeginDocumentHandler() {
            "  /Type /FontDescriptor\n"
            ">>\n"
            "endobj\n",
+           1000 / kCharHeight,
+           1000 / kCharHeight,
+           1000 / kCharWidth,
+           1000 / kCharHeight,
            7L      // Font data
            );
   AppendPDFObject(buf);
