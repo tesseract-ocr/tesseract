@@ -40,7 +40,6 @@ class ParagraphModel;
 struct BlamerBundle;
 class BLOCK_LIST;
 class DENORM;
-class IMAGE;
 class MATRIX;
 class ROW;
 class STRING;

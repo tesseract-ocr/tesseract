@@ -22,7 +22,6 @@
 
 #include          "platform.h"
 
-class IMAGE;
 struct Pix;
 
 namespace tesseract {

@@ -36,7 +36,6 @@ class PAGE_RES_IT;
 class BLOCK_LIST;
 class CharSamp;
 class TO_BLOCK_LIST;
-class IMAGE;
 class WERD_RES;
 class ROW;
 class TBOX;
