@@ -554,20 +554,6 @@ TESS_API void TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* hand
     handle->SetProbabilityInContextFunc(f);
 }
 
-/*
- * Declared but not defined funcions in API
-
-TESS_API void  TESS_CALL TessBaseAPISetParamsModelClassifyFunc(TessBaseAPI* handle, TessParamsModelClassifyFunc f)
-{
-    handle->SetParamsModelClassifyFunc(f);
-}
-
-TESS_API const char* TESS_CALL TessBaseAPIGetLastInitLanguage(const TessBaseAPI* handle)
-{
-    return handle->GetLastInitLanguage();
-}
-*/
-
 TESS_API BOOL TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results)
 {
     return handle->DetectOS(results) ? TRUE : FALSE;

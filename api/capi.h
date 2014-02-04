@@ -266,10 +266,7 @@ TESS_API BOOL  TESS_CALL TessBaseAPIGetTextDirection(TessBaseAPI* handle, int* o
 TESS_API void  TESS_CALL TessBaseAPISetDictFunc(TessBaseAPI* handle, TessDictFunc f);
 TESS_API void  TESS_CALL TessBaseAPIClearPersistentCache(TessBaseAPI* handle);
 TESS_API void  TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* handle, TessProbabilityInContextFunc f);
-/*
-TESS_API void  TESS_CALL TessBaseAPISetParamsModelClassifyFunc(TessBaseAPI* handle, TessParamsModelClassifyFunc f);
-TESS_API const char* TESS_CALL TessBaseAPIGetLastInitLanguage(const TessBaseAPI* handle);
-*/
+
 TESS_API void  TESS_CALL TessBaseAPISetFillLatticeFunc(TessBaseAPI* handle, TessFillLatticeFunc f);
 TESS_API BOOL  TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results);
 
