@@ -96,7 +96,6 @@ class ScriptDetector {
   ScriptDetector(const GenericVector<int>* allowed_scripts,
                  OSResults* osr, tesseract::Tesseract* tess);
   void detect_blob(BLOB_CHOICE_LIST* scores);
-  void get_script() ;
   bool must_stop(int orientation);
  private:
   OSResults* osr_;

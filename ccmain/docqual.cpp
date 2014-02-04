@@ -322,7 +322,7 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
 
         /* Walk rows in block testing for row rejection */
         row_no = 0;
-        while ((word = page_res_it.word()) != NULL &&
+        while (page_res_it.word() != NULL &&
                page_res_it.block() == current_block) {
           current_row = page_res_it.row();
           row_no++;

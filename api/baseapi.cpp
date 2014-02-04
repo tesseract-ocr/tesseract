@@ -1428,12 +1428,12 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
         break;
     }
     hocr_str += ">";
-    const char *font_name;
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
-    font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
-                                           &monospace, &serif, &smallcaps,
-                                           &pointsize, &font_id);
+    // TODO(rays): Is hOCR interested in the font name?
+    (void) res_it->WordFontAttributes(&bold, &italic, &underlined,
+                                      &monospace, &serif, &smallcaps,
+                                      &pointsize, &font_id);
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);

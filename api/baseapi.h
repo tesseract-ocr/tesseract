@@ -659,12 +659,6 @@ class TESS_API TessBaseAPI {
    */
   void SetProbabilityInContextFunc(ProbabilityInContextFunc f);
 
-
-  /** Sets Dict::params_model_classify_ function to point to the given
-   * function.
-   */
-  void SetParamsModelClassifyFunc(ParamsModelClassifyFunc f);
-
   /** Sets Wordrec::fill_lattice_ function to point to the given function. */
   void SetFillLatticeFunc(FillLatticeFunc f);
 
@@ -703,9 +697,6 @@ class TESS_API TessBaseAPI {
 
   /** Return the number of dawgs loaded into tesseract_ object. */
   int NumDawgs() const;
-
-  /** Return the language used in the last valid initialization. */
-  const char* GetLastInitLanguage() const;
 
   /** Returns a ROW object created from the input row specification. */
   static ROW *MakeTessOCRRow(float baseline, float xheight,

@@ -1146,15 +1146,12 @@ void Classify::ExpandShapesAndApplyCorrections(
   if (classes != NULL) {
     // Adapted result.
     fontinfo_id = GetFontinfoId(classes[class_id], int_result.Config);
-    if (int_result.Config2 >= 0)
-      fontinfo_id2 = GetFontinfoId(classes[class_id], int_result.Config2);
+    fontinfo_id2 = GetFontinfoId(classes[class_id], int_result.Config2);
   } else {
     // Pre-trained result.
     fontinfo_id = ClassAndConfigIDToFontOrShapeID(class_id, int_result.Config);
-    if (int_result.Config2 >= 0) {
-      fontinfo_id2 = ClassAndConfigIDToFontOrShapeID(class_id,
-                                                     int_result.Config2);
-    }
+    fontinfo_id2 = ClassAndConfigIDToFontOrShapeID(class_id,
+                                                   int_result.Config2);
     if (shape_table_ != NULL) {
       // Actually fontinfo_id is an index into the shape_table_ and it
       // contains a list of unchar_id/font_id pairs.

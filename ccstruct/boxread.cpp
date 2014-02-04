@@ -130,7 +130,8 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
   // Test for long space-delimited string label.
   if (strcmp(uch, kMultiBlobLabelCode) == 0 &&
       (buffptr = strchr(buffptr, '#')) != NULL) {
-    strncpy(uch, buffptr + 1, kBoxReadBufSize);
+    strncpy(uch, buffptr + 1, kBoxReadBufSize - 1);
+    uch[kBoxReadBufSize - 1] = '\0';  // Prevent buffer overrun.
     chomp_string(uch);
     uch_len = strlen(uch);
   }

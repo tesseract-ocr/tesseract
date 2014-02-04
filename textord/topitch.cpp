@@ -1037,6 +1037,7 @@ BOOL8 fixed_pitch_row(TO_ROW *row,       // row to do
         break;
       case PITCH_MAYBE_FIXED:
         res_string = "MF";
+        break;
       default:
         res_string = "??";
     }

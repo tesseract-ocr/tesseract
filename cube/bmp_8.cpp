@@ -223,6 +223,7 @@ Bmp8 * Bmp8::FromCharDumpFile(CachedFile *fp) {
 
   if (bmp_obj->LoadFromCharDumpFile(fp) == false) {
     delete bmp_obj;
+    return NULL;
   }
 
   return bmp_obj;
@@ -320,6 +321,7 @@ Bmp8 * Bmp8::FromCharDumpFile(FILE *fp) {
 
   if (bmp_obj->LoadFromCharDumpFile(fp) == false) {
     delete bmp_obj;
+    return NULL;
   }
 
   return bmp_obj;

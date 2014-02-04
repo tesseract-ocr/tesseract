@@ -462,6 +462,7 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
       if (fscanf(fontinfo_file, "%s %d", kerned_uch, &x_gap) != 2) {
         tprintf("Bad format of font spacing file %s\n", filename);
         fclose(fontinfo_file);
+        delete spacing;
         return false;
       }
       if (!valid || !unicharset_.contains_unichar(kerned_uch)) continue;

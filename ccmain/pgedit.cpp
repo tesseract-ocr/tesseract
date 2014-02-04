@@ -728,15 +728,14 @@ BOOL8 Tesseract:: word_blank_and_set_display(BLOCK* block, ROW* row,
  * Normalize word and display in word window
  */
 BOOL8 Tesseract::word_bln_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
-  TWERD *bln_word = word_res->chopped_word;
-  if (bln_word == NULL) {
+  if (word_res->chopped_word == NULL) {
+    // Setup word normalization parameters.
     word_res->SetupForRecognition(unicharset, this, BestPix(),
                                   tessedit_ocr_engine_mode, NULL,
                                   classify_bln_numeric_mode,
                                   textord_use_cjk_fp_model,
                                   poly_allow_detailed_fx,
                                   row, block);
-    bln_word = word_res->chopped_word;
   }
   bln_word_window_handle()->Clear();
   display_bln_lines(bln_word_window_handle(), ScrollView::CYAN,

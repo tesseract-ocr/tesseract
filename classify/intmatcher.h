@@ -42,6 +42,8 @@ struct INT_RESULT_STRUCT {
   INT_RESULT_STRUCT() : Rating(0.0f), Config(0), Config2(0), FeatureMisses(0) {}
 
   FLOAT32 Rating;
+  // TODO(rays) It might be desirable for these to be able to represent a
+  // null config.
   uinT8 Config;
   uinT8 Config2;
   uinT16 FeatureMisses;
