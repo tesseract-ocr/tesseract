@@ -201,6 +201,7 @@ CharSamp *CharSamp::FromCharDumpFile(FILE *fp) {
     // read label
     if (fread(label32, 1, val32 * sizeof(*label32), fp) !=
         (val32 * sizeof(*label32))) {
+      delete [] label32;
       return NULL;
     }
     // null terminate
@@ -209,34 +210,22 @@ CharSamp *CharSamp::FromCharDumpFile(FILE *fp) {
     label32 = NULL;
   }
   // read coordinates
-  if (fread(&page, 1, sizeof(page), fp) != sizeof(page)) {
-    return NULL;
-  }
-  if (fread(&left, 1, sizeof(left), fp) != sizeof(left)) {
-    return NULL;
-  }
-  if (fread(&top, 1, sizeof(top), fp) != sizeof(top)) {
-    return NULL;
-  }
-  if (fread(&first_char, 1, sizeof(first_char), fp) != sizeof(first_char)) {
-    return NULL;
-  }
-  if (fread(&last_char, 1, sizeof(last_char), fp) != sizeof(last_char)) {
-    return NULL;
-  }
-  if (fread(&norm_top, 1, sizeof(norm_top), fp) != sizeof(norm_top)) {
-    return NULL;
-  }
-  if (fread(&norm_bottom, 1, sizeof(norm_bottom), fp) != sizeof(norm_bottom)) {
-    return NULL;
-  }
-  if (fread(&norm_aspect_ratio, 1, sizeof(norm_aspect_ratio), fp) !=
-      sizeof(norm_aspect_ratio)) {
+  if (fread(&page, 1, sizeof(page), fp) != sizeof(page) ||
+      fread(&left, 1, sizeof(left), fp) != sizeof(left) ||
+      fread(&top, 1, sizeof(top), fp) != sizeof(top) ||
+      fread(&first_char, 1, sizeof(first_char), fp) != sizeof(first_char) ||
+      fread(&last_char, 1, sizeof(last_char), fp) != sizeof(last_char) ||
+      fread(&norm_top, 1, sizeof(norm_top), fp) != sizeof(norm_top) ||
+      fread(&norm_bottom, 1, sizeof(norm_bottom), fp) != sizeof(norm_bottom) ||
+      fread(&norm_aspect_ratio, 1, sizeof(norm_aspect_ratio), fp) !=
+          sizeof(norm_aspect_ratio)) {
+    delete [] label32;
     return NULL;
   }
   // create the object
   CharSamp *char_samp = new CharSamp();
   if (char_samp == NULL) {
+    delete [] label32;
     return NULL;
   }
   // init
@@ -251,6 +240,7 @@ CharSamp *CharSamp::FromCharDumpFile(FILE *fp) {
   char_samp->norm_aspect_ratio_ = norm_aspect_ratio;
   // load the Bmp8 part
   if (char_samp->LoadFromCharDumpFile(fp) == false) {
+    delete char_samp;  // It owns label32.
     return NULL;
   }
   return char_samp;

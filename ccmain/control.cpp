@@ -36,7 +36,6 @@
 #include "fixspace.h"
 #include "docqual.h"
 #include "control.h"
-#include "secname.h"
 #include "output.h"
 #include "callcpp.h"
 #include "globals.h"
@@ -1342,7 +1341,6 @@ BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
   BOOL8 show_map_detail = FALSE;
   inT16 i;
 
-  #ifndef SECURE_NAMES
   if (!test_pt)
     return FALSE;
 
@@ -1413,10 +1411,9 @@ BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
     tprintf ("Tess Accepted: %s\n", word->tess_accepted ? "TRUE" : "FALSE");
     tprintf ("Done flag: %s\n\n", word->done ? "TRUE" : "FALSE");
     return TRUE;
-  }
-  else
-  #endif
+  } else {
     return FALSE;
+  }
 }
 
 /**

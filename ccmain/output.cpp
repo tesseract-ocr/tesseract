@@ -31,7 +31,6 @@
 #include "helpers.h"
 #include "tessvars.h"
 #include "control.h"
-#include "secname.h"
 #include "reject.h"
 #include "docqual.h"
 #include "output.h"

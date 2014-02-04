@@ -275,7 +275,6 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
   INT_CLASS IClass;
   ADAPT_CLASS AClass;
 
-  #ifndef SECURE_NAMES
   fprintf (File, "\n\nSUMMARY OF ADAPTED TEMPLATES:\n\n");
   fprintf (File, "Num classes = %d;  Num permanent classes = %d\n\n",
            Templates->NumNonEmptyClasses, Templates->NumPermClasses);
@@ -293,7 +292,6 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
       IClass->NumProtos - count (AClass->TempProtos));
     }
   }
-  #endif
   fprintf (File, "\n");
 
 }                                /* PrintAdaptedTemplates */

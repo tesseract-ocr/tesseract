@@ -27,7 +27,6 @@
 #include "genblob.h"
 #include "tessvars.h"
 #include "tessbox.h"
-#include "secname.h"
 #include "globals.h"
 #include "tesseractclass.h"
 
@@ -465,7 +464,6 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, inT16 score,
       }
     }
 
-    #ifndef SECURE_NAMES
     if (debug_fix_space_level > 1) {
       switch (mode) {
         case 1:
@@ -500,7 +498,6 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, inT16 score,
       }
       tprintf("\"\n");
     }
-    #endif
   }
 }
 

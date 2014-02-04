@@ -30,7 +30,6 @@
 #include          "tovars.h"
 #include          "wordseg.h"
 #include          "topitch.h"
-#include          "secname.h"
 #include          "helpers.h"
 
 // Include automatically generated configuration file if running autoconf.
@@ -251,13 +250,11 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
     }
     else {
       bad_row->pitch_decision = PITCH_CORR_PROP;
-      #ifndef SECURE_NAMES
       if (block_votes == 0 && like_votes == 0 && other_votes > 0
         && (textord_debug_pitch_test || textord_debug_pitch_metric))
         tprintf
           ("Warning:row %d of block %d set prop with no like rows against trend\n",
           row_target, block_target);
-      #endif
     }
   }
   if (textord_debug_pitch_metric) {

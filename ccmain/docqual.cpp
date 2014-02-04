@@ -26,7 +26,6 @@
 #include          "reject.h"
 #include          "tesscallback.h"
 #include          "tessvars.h"
-#include          "secname.h"
 #include          "globals.h"
 #include          "tesseractclass.h"
 

@@ -435,7 +435,6 @@ void Classify::EndAdaptiveClassifier() {
   STRING Filename;
   FILE *File;
 
-  #ifndef SECURE_NAMES
   if (AdaptedTemplates != NULL &&
       classify_enable_adaptive_matcher && classify_save_adapted_templates) {
     Filename = imagefile + ADAPT_TEMPLATE_SUFFIX;
@@ -450,7 +449,6 @@ void Classify::EndAdaptiveClassifier() {
       fclose(File);
     }
   }
-  #endif
 
   if (AdaptedTemplates != NULL) {
     free_adapted_templates(AdaptedTemplates);
@@ -567,11 +565,9 @@ void Classify::InitAdaptiveClassifier(bool load_pre_trained_templates) {
     if (File == NULL) {
       AdaptedTemplates = NewAdaptedTemplates(true);
     } else {
-      #ifndef SECURE_NAMES
       cprintf("\nReading pre-adapted templates from %s ...\n",
               Filename.string());
       fflush(stdout);
-      #endif
       AdaptedTemplates = ReadAdaptedTemplates(File);
       cprintf("\n");
       fclose(File);

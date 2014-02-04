@@ -35,7 +35,6 @@
 #include "wordseg.h"
 #include "textord.h"
 #include "tordmain.h"
-#include "secname.h"
 
 #include "allheaders.h"
 
@@ -532,7 +531,6 @@ BOOL8 Textord::clean_noise_from_row(          //remove empties
       else if (blob_box.height () > row->x_height () * 2
         && (!word_it.at_first () || !blob_it.at_first ()))
         dot_count += 2;
-      #ifndef SECURE_NAMES
       if (testing_on) {
         tprintf
           ("Blob at (%d,%d) -> (%d,%d), ols=%d, tc=%d, bldiff=%g\n",
@@ -540,10 +538,8 @@ BOOL8 Textord::clean_noise_from_row(          //remove empties
           blob_box.top (), blob->out_list ()->length (), trans_count,
           blob_box.bottom () - row->base_line (blob_box.left ()));
       }
-      #endif
     }
   }
-  #ifndef SECURE_NAMES
   if (textord_noise_debug) {
     tprintf ("Row ending at (%d,%g):",
       blob_box.right (), row->base_line (blob_box.right ()));
@@ -553,7 +549,6 @@ BOOL8 Textord::clean_noise_from_row(          //remove empties
       dot_count > norm_count * textord_noise_normratio
       && dot_count > 2 ? "REJECTED" : "ACCEPTED");
   }
-  #endif
   return super_norm_count < textord_noise_sncount
     && dot_count > norm_count * textord_noise_rowratio && dot_count > 2;
 }

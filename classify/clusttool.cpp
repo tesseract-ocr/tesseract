@@ -282,24 +282,25 @@ Return:		Pointer to buffer holding floats or NULL if EOF
 Exceptions:	ILLEGALFLOAT
 History:	6/6/89, DSJ, Created.
 ******************************************************************************/
-FLOAT32 *
-ReadNFloats (FILE * File, uinT16 N, FLOAT32 Buffer[]) {
+FLOAT32* ReadNFloats(FILE * File, uinT16 N, FLOAT32 Buffer[]) {
   int i;
   int NumFloatsRead;
 
   if (Buffer == NULL)
-    Buffer = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+    Buffer = reinterpret_cast<FLOAT32*>(Emalloc(N * sizeof(FLOAT32)));
 
   for (i = 0; i < N; i++) {
-    NumFloatsRead = fscanf (File, "%f", &(Buffer[i]));
+    NumFloatsRead = fscanf(File, "%f", &(Buffer[i]));
     if (NumFloatsRead != 1) {
-      if ((NumFloatsRead == EOF) && (i == 0))
-        return (NULL);
-      else
-        DoError (ILLEGALFLOAT, "Illegal float specification");
+      if ((NumFloatsRead == EOF) && (i == 0)) {
+        Efree(Buffer);
+        return NULL;
+      } else {
+        DoError(ILLEGALFLOAT, "Illegal float specification");
+      }
     }
   }
-  return (Buffer);
+  return Buffer;
 }                                // ReadNFloats
 
 

@@ -498,9 +498,15 @@ class PointerVector : public GenericVector<T*> {
       T* item = NULL;
       if (non_null) {
         item = new T;
-        if (!item->DeSerialize(swap, fp)) return false;
+        if (!item->DeSerialize(swap, fp)) {
+          delete item;
+          return false;
+        }
+        this->push_back(item);
+      } else {
+        // Null elements should keep their place in the vector.
+        this->push_back(NULL);
       }
-      this->push_back(item);
     }
     return true;
   }
