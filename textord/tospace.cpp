@@ -932,6 +932,9 @@ ROW *Textord::make_prop_words(
   box_it.set_to_list (row->blob_list ());
   word_it.set_to_list (&words);
   bol = TRUE;
+  fuzzy_non = FALSE;
+  fuzzy_sp = FALSE;
+  blanks = 0;
   prev_blanks = 0;
   prev_fuzzy_sp = FALSE;
   prev_fuzzy_non = FALSE;
