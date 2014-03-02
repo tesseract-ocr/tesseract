@@ -350,7 +350,7 @@ fi
 AC_MSG_CHECKING([leptonica version >= 1.70])
 AC_PREPROC_IFELSE(
     [AC_LANG_PROGRAM([#include <leptonica/allheaders.h>],
-[#if (LIBLEPT_MINOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 70)
+[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 70)
 int i = 0;
 #else
 #error You need to upgrade your leptonica library!

@@ -302,6 +302,9 @@ int main(int argc, char **argv) {
   if (b && renderer == NULL)
     renderer = new tesseract::TessPDFRenderer(api.GetDatapath());
 
+  api.GetBoolVariable("tessedit_write_unlv", &b);
+  if (b && renderer == NULL) renderer = new tesseract::TessUnlvRenderer();
+
   api.GetBoolVariable("tessedit_create_boxfile", &b);
   if (b && renderer == NULL) renderer = new tesseract::TessBoxTextRenderer();
 
