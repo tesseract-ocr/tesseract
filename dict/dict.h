@@ -558,6 +558,12 @@ class Dict {
   BOOL_VAR_H(load_number_dawg, true, "Load dawg with number patterns.");
   BOOL_VAR_H(load_bigram_dawg, true,
              "Load dawg with special word bigrams.");
+
+  // HFST BEGIN
+  BOOL_VAR_H(load_hfst_fsm, true,
+             "Load hfst word model.");
+  // HFST END
+
   double_VAR_H(xheight_penalty_subscripts, 0.125,
                "Score penalty (0.1 = 10%) added if there are subscripts "
                "or superscripts in a word, but it is otherwise OK.");
