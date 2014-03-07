@@ -1,5 +1,0 @@
-#! /bin/bash
-
-sed 's/./&\n/g' |
-sort |
-uniq 
