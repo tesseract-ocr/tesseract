@@ -81,6 +81,10 @@ case "${host_os}" in
         AM_CONDITIONAL(ADD_RT, false)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
+    cygwin*)
+		AM_CONDITIONAL(ADD_RT, false)
+		is_cygwin=yes
+        ;;			
     solaris*)
         LIBS="-lsocket -lnsl -lrt -lxnet"
         AM_CONDITIONAL(ADD_RT, true)
@@ -269,6 +273,7 @@ dnl ********************
 OLD_CXXFLAGS=$CXXFLAGS
 AC_MSG_CHECKING(whether compiler supports C++11)
 CXXFLAGS="$CXXFLAGS -std=c++11"
+snprintfworks=no
 AC_COMPILE_IFELSE(
 [
   AC_LANG_SOURCE([[
@@ -284,6 +289,7 @@ AC_COMPILE_IFELSE(
      AC_MSG_RESULT(no)
      has_cpp11=no
    ])
+AC_CHECK_FUNCS(snprintf,, [snprintfworks=yes])
 CXXFLAGS="$OLD_CXXFLAGS"
 
 # ----------------------------------------
@@ -389,10 +395,17 @@ else
 fi
 AM_CONDITIONAL(ENABLE_TRAINING, $have_cairo)
 
-if test "x$has_cpp11" = "xyes"
-then
-  CXXFLAGS="$CXXFLAGS -std=c++11"
+if test "x$has_cpp11" = "xyes"; then
+	if test "x$is_cygwin" = "xyes" -a "x$snprintfworks" = "xno"; then
+		# cygwin workaround
+		# http://stackoverflow.com/questions/20149633/how-to-use-snprintf-in-g-std-c11-version-4-8-2/20149792#20149792
+		CXXFLAGS="$CXXFLAGS -std=gnu++11"
+	else
+		CXXFLAGS="$CXXFLAGS -std=c++11"
+	fi
 fi
+
+
 
 # ----------------------------------------
 # Final Tasks and Output
