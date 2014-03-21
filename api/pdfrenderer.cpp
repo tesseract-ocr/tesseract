@@ -208,12 +208,17 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     old_y = y;
 
     // Adjust font size on a per word granularity. Pay attention to
-    // pointsize, old_pointsize, and pdf_str.
+    // pointsize, old_pointsize, and pdf_str. We've found that for
+    // in Arabic, Tesseract will happily return a pointsize of zero,
+    //  so we make up a default number to protect ourselves.
     {
       bool bold, italic, underlined, monospace, serif, smallcaps;
       int font_id;
       res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
                                  &serif, &smallcaps, &pointsize, &font_id);
+      const int kDefaultPointSize = 8;
+      if (pointsize <= 0)
+        pointsize = kDefaultPointSize;
       if (pointsize != old_pointsize) {
         char textfont[20];
         snprintf(textfont, sizeof(textfont), "/f-0-0 %d Tf ", pointsize);
@@ -228,7 +233,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     int pdf_word_len = 0;
     do {
       const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
-      if (grapheme && grapheme[0] != 0) {
+      if (grapheme && grapheme[0] != '\0') {
         // TODO(jbreiden) Do a real UTF-16BE conversion
         // http://en.wikipedia.org/wiki/UTF-16#Example_UTF-16_encoding_procedure
         string_32 utf32;
