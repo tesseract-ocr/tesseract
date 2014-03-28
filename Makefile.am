@@ -7,6 +7,8 @@ training:
 	@cd "$(top_builddir)/training" && $(MAKE)
 training-install:
 	@cd "$(top_builddir)/training" && $(MAKE) install
+clean-local:
+	@cd "$(top_builddir)/training" && $(MAKE) clean
 else
 training:
 	@echo "Need to reconfigure project, so there are no errors"
@@ -20,7 +22,7 @@ EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
 	aclocal.m4 config configure.ac autogen.sh contrib \
 	tesseract.pc.in $(TRAINING_SUBDIR) java doc testing
 
-DIST_SUBDIRS  = $(SUBDIRS)
+DIST_SUBDIRS  = $(SUBDIRS) $(TRAINING_SUBDIR)
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(includedir)
