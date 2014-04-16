@@ -159,7 +159,7 @@ bool InputBuffer::ReadLine(string* out) {
   ASSERT_HOST(stream_ != NULL);
   char* line = NULL;
   int len = -1;
-#ifdef _WIN32
+#ifndef HAVE_GETLINE
   char line_buf[BUFSIZ];
   if ((line = fgets(line_buf, BUFSIZ, stream_)) != NULL) {
     len = strlen(line);
@@ -180,7 +180,7 @@ bool InputBuffer::ReadLine(string* out) {
     line[len - 1] = '\0';
   *out = string(line);
   free(line);
-#endif  // _WIN32
+#endif  // HAVE_GETLINE
   return true;
 }
 

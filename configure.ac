@@ -82,8 +82,7 @@ case "${host_os}" in
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
     cygwin*)
-		AM_CONDITIONAL(ADD_RT, false)
-		is_cygwin=yes
+	AM_CONDITIONAL(ADD_RT, false)
         ;;			
     solaris*)
         LIBS="-lsocket -lnsl -lrt -lxnet"
@@ -266,6 +265,17 @@ LT_INIT
 
 AC_LANG_CPLUSPLUS
 
+AC_MSG_CHECKING([if compiling with clang])
+AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([], [[
+#ifndef __clang__
+       not clang
+#endif
+]])],
+[CLANG=yes], [CLANG=no])
+
+AC_MSG_RESULT([$CLANG])
+
 dnl ********************
 dnl turn on c++11
 dnl ********************
@@ -315,6 +325,7 @@ AC_HEADER_STDBOOL
 AC_SYS_INTERPRETER
 AC_SYS_LARGEFILE
 
+AC_CHECK_FUNCS([getline])
 
 # ----------------------------------------
 # Checks for typedefs, structures, and compiler characteristics.
@@ -355,7 +366,7 @@ fi
 
 AC_MSG_CHECKING([leptonica version >= 1.70])
 AC_PREPROC_IFELSE(
-    [AC_LANG_PROGRAM([#include <leptonica/allheaders.h>],
+    [AC_LANG_PROGRAM([#include "allheaders.h"],
 [#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 70)
 int i = 0;
 #else
@@ -395,17 +406,30 @@ else
 fi
 AM_CONDITIONAL(ENABLE_TRAINING, $have_cairo)
 
+# set c++11 support based on platform/compiler
 if test "x$has_cpp11" = "xyes"; then
-	if test "x$is_cygwin" = "xyes" -a "x$snprintfworks" = "xno"; then
-		# cygwin workaround
-		# http://stackoverflow.com/questions/20149633/how-to-use-snprintf-in-g-std-c11-version-4-8-2/20149792#20149792
-		CXXFLAGS="$CXXFLAGS -std=gnu++11"
-	else
-		CXXFLAGS="$CXXFLAGS -std=c++11"
-	fi
+  case "$host" in
+    cygwin*)
+      if test "x$snprintfworks" = "xno"; then
+        # cygwin workaround
+        # http://stackoverflow.com/questions/20149633/how-to-use-snprintf-in-g-std-c11-version-4-8-2/20149792#20149792
+        CXXFLAGS="$CXXFLAGS -std=gnu++11"
+      fi
+      ;;			
+    *-darwin* | *-macos10*)
+       if test "x$CLANG" = "xyes"; then
+         CXXFLAGS="$CXXFLAGS -std=c++11 "
+         LDFLAGS="$LDFLAGS -stdlib=libc++"
+       else
+         CXXFLAGS="$CXXFLAGS -std=c++11"
+       fi
+      ;;
+    *)
+      # default
+      CXXFLAGS="$CXXFLAGS -std=c++11"
+      ;;
+  esac
 fi
-
-
 
 # ----------------------------------------
 # Final Tasks and Output
