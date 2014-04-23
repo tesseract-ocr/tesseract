@@ -186,6 +186,7 @@ bool read_spacing_info(FILE *f, FontInfo* fi, bool swap) {
     if (fread(&fs->x_gap_before, sizeof(fs->x_gap_before), 1, f) != 1 ||
         fread(&fs->x_gap_after, sizeof(fs->x_gap_after), 1, f) != 1 ||
         fread(&kern_size, sizeof(kern_size), 1, f) != 1) {
+      delete fs;
       return false;
     }
     if (swap) {
@@ -199,6 +200,7 @@ bool read_spacing_info(FILE *f, FontInfo* fi, bool swap) {
     }
     if (kern_size > 0 && (!fs->kerned_unichar_ids.DeSerialize(swap, f) ||
                           !fs->kerned_x_gaps.DeSerialize(swap, f))) {
+      delete fs;
       return false;
     }
     fi->add_spacing(i, fs);
