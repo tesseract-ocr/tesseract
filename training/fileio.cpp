@@ -85,7 +85,8 @@ bool File::ReadFileToString(const string& filename, string* out) {
 }
 
 void File::ReadFileToStringOrDie(const string& filename, string* out) {
-  ASSERT_HOST(ReadFileToString(filename, out));
+  ASSERT_HOST_MSG(ReadFileToString(filename, out),
+                  "Failed to read file: %s\n", filename.c_str());
 }
 
 
