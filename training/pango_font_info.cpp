@@ -40,12 +40,7 @@
 #include "tlog.h"
 #include "unichar.h"
 #include "util.h"
-#include "pango/pango-context.h"
-#include "pango/pango-font.h"
-#include "pango/pango-glyph-item.h"
-#include "pango/pango-glyph.h"
-#include "pango/pango-layout.h"
-#include "pango/pango-utils.h"
+#include "pango/pango.h"
 #include "pango/pangocairo.h"
 #include "pango/pangofc-font.h"
 
@@ -62,10 +57,6 @@ BOOL_PARAM_FLAG(fontconfig_refresh_cache, false,
 BOOL_PARAM_FLAG(use_only_legacy_fonts, false,
                 "Overrides --fonts_dir and sets the known universe of fonts to"
                 "the list in legacy_fonts.h");
-// Compatability with pango 1.20.
-#include "pango/pango-glyph-item-private.h"
-#define pango_glyph_item_iter_init_start _pango_glyph_item_iter_init_start
-#define pango_glyph_item_iter_next_cluster _pango_glyph_item_iter_next_cluster
 #else
 using std::pair;
 #endif
@@ -354,7 +345,13 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
   PangoFontMap* font_map = pango_cairo_font_map_get_default();
   PangoContext* context = pango_context_new();
   pango_context_set_font_map(context, font_map);
-  PangoLayout* layout = pango_layout_new(context);
+  PangoLayout* layout;
+  { // Pango is not relasing the cached layout.
+#ifndef USE_STD_NAMESPACE
+    DISABLE_HEAP_LEAK_CHECK;
+#endif
+    layout = pango_layout_new(context);
+  }
   if (desc_) {
     pango_layout_set_font_description(layout, desc_);
   } else {
@@ -452,8 +449,21 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
 // from the font_map, and then check what we loaded to see if it has the
 // description we expected. If it is not, then the font is deemed unavailable.
 /* static */
-bool FontUtils::IsAvailableFont(const char* query_desc) {
-  PangoFontDescription *desc = pango_font_description_from_string(query_desc);
+bool FontUtils::IsAvailableFont(const char* input_query_desc) {
+  string query_desc(input_query_desc);
+  if (PANGO_VERSION <= 12005) {
+    // Strip commas and any ' Medium' substring in the name.
+    query_desc.erase(std::remove(query_desc.begin(), query_desc.end(), ','),
+                     query_desc.end());
+    const string kMediumStr = " Medium";
+    std::size_t found = query_desc.find(kMediumStr);
+    if (found != std::string::npos) {
+      query_desc.erase(found, kMediumStr.length());
+    }
+  }
+
+  PangoFontDescription *desc = pango_font_description_from_string(
+      query_desc.c_str());
   PangoFont* selected_font = NULL;
   {
     InitFontconfig();
@@ -474,7 +484,8 @@ bool FontUtils::IsAvailableFont(const char* query_desc) {
        pango_font_description_get_weight(selected_desc));
 
   char* selected_desc_str = pango_font_description_to_string(selected_desc);
-  tlog(2, "query_desc: '%s' Selected: 's'\n", query_desc, selected_desc_str);
+  tlog(2, "query_desc: '%s' Selected: 's'\n", query_desc.c_str(),
+       selected_desc_str);
 
   g_free(selected_desc_str);
   pango_font_description_free(selected_desc);

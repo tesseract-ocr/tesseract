@@ -38,12 +38,7 @@
 #include "unicode/uchar.h"  // from libicu
 #include "util.h"
 
-#ifndef USE_STD_NAMESPACE
-// Compatability with pango 1.20.
-#include "pango/pango-glyph-item-private.h"
-#define pango_glyph_item_iter_init_start _pango_glyph_item_iter_init_start
-#define pango_glyph_item_iter_next_cluster _pango_glyph_item_iter_next_cluster
-#else
+#ifdef USE_STD_NAMESPACE
 using std::map;
 using std::max;
 using std::min;
