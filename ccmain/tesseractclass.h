@@ -617,6 +617,10 @@ class Tesseract : public Wordrec {
   PAGE_RES* ApplyBoxes(const STRING& fname, bool find_segmentation,
                        BLOCK_LIST *block_list);
 
+  // Any row xheight that is significantly different from the median is set
+  // to the median.
+  void PreenXHeights(BLOCK_LIST *block_list);
+
   // Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
   // All fuzzy spaces are removed, and all the words are maximally chopped.
   PAGE_RES* SetupApplyBoxes(const GenericVector<TBOX>& boxes,

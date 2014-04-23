@@ -25,6 +25,7 @@
 #include <stddef.h>
 
 #include "fileio.h"
+#include "ndminx.h"
 
 namespace tesseract {
 
@@ -77,23 +78,60 @@ void BoxChar::RotateBoxes(float rotation,
   boxaDestroy(&rotated);
 }
 
+const int kMaxLineLength = 1024;
+// Helper appends a tab box to the string to indicate a newline. We can't use
+// an actual newline as the file format is line-based text.
+static void AppendTabBox(const Box* box, int height, int page, string* output) {
+  char buffer[kMaxLineLength];
+  int nbytes = snprintf(buffer, kMaxLineLength, "\t %d %d %d %d %d\n",
+                        box->x + box->w, height - box->y - box->h,
+                        box->x + box->w + 10, height - box->y, page);
+  output->append(buffer, nbytes);
+}
+
 /* static */
 void BoxChar::WriteTesseractBoxFile(const string& filename, int height,
                                     const vector<BoxChar*>& boxes) {
   string output;
-  const int kMaxLineLength = 1024;
   char buffer[kMaxLineLength];
   for (int i = 0; i < boxes.size(); ++i) {
-    if (boxes[i]->box_ != NULL) {
+    const Box* box = boxes[i]->box_;
+    if (box != NULL) {
+      if (i > 0 && boxes[i - 1]->box_ != NULL &&
+          boxes[i - 1]->page_ == boxes[i]->page_ &&
+          box->x + box->w < boxes[i - 1]->box_->x) {
+        // We are on a newline. Output a tab character to indicate the newline.
+        AppendTabBox(boxes[i - 1]->box_, height, boxes[i]->page_, &output);
+      }
       int nbytes = snprintf(buffer, kMaxLineLength,
                             "%s %d %d %d %d %d\n",
                             boxes[i]->ch_.c_str(),
-                            boxes[i]->box_->x,
-                            height - boxes[i]->box_->y - boxes[i]->box_->h,
-                            boxes[i]->box_->x + boxes[i]->box_->w,
-                            height - boxes[i]->box_->y,
+                            box->x, height - box->y - box->h,
+                            box->x + box->w, height - box->y,
                             boxes[i]->page_);
       output.append(buffer, nbytes);
+    } else if (i > 0 && boxes[i - 1]->box_ != NULL) {
+      int j = i + 1;
+      // Find the next non-null box, as there may be multiple spaces.
+      while (j < boxes.size() && boxes[j]->box_ == NULL) ++j;
+      if (j < boxes.size() && boxes[i - 1]->page_ == boxes[j]->page_) {
+        const Box* prev = boxes[i - 1]->box_;
+        const Box* next = boxes[j]->box_;
+        if (next->x + next->w < prev->x) {
+          // We are on a newline. Output a tab character to indicate it.
+          AppendTabBox(prev, height, boxes[j]->page_, &output);
+        } else {
+          // Space between words.
+          int nbytes = snprintf(buffer, kMaxLineLength,
+                                "  %d %d %d %d %d\n",
+                                prev->x + prev->w,
+                                height - MAX(prev->y + prev->h,
+                                             next->y + next->h),
+                                next->x, height - MIN(prev->y, next->y),
+                                boxes[i - 1]->page_);
+          output.append(buffer, nbytes);
+        }
+      }
     }
   }
   File::WriteStringToFileOrDie(output, filename);

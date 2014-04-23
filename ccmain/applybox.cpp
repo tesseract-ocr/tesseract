@@ -191,10 +191,9 @@ static double MedianXHeight(BLOCK_LIST *block_list) {
   return xheights.median();
 }
 
-// Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
-// All fuzzy spaces are removed, and all the words are maximally chopped.
-PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
-                                     BLOCK_LIST *block_list) {
+// Any row xheight that is significantly different from the median is set
+// to the median.
+void Tesseract::PreenXHeights(BLOCK_LIST *block_list) {
   double median_xheight = MedianXHeight(block_list);
   double max_deviation = kMaxXHeightDeviationFraction * median_xheight;
   // Strip all fuzzy space markers to simplify the PAGE_RES.
@@ -212,6 +211,22 @@ PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
         }
         row->set_x_height(static_cast<float>(median_xheight));
       }
+    }
+  }
+}
+
+// Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
+// All fuzzy spaces are removed, and all the words are maximally chopped.
+PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
+                                     BLOCK_LIST *block_list) {
+  PreenXHeights(block_list);
+  // Strip all fuzzy space markers to simplify the PAGE_RES.
+  BLOCK_IT b_it(block_list);
+  for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
+    BLOCK* block = b_it.data();
+    ROW_IT r_it(block->row_list());
+    for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward ()) {
+      ROW* row = r_it.data();
       WERD_IT w_it(row->word_list());
       for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
         WERD* word = w_it.data();
@@ -434,7 +449,7 @@ bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list,
     if (!box.major_overlap(block->bounding_box()))
       continue;
     ROW_IT r_it(block->row_list());
-    for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward ()) {
+    for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {
       ROW* row = r_it.data();
       if (!box.major_overlap(row->bounding_box()))
         continue;
