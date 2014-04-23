@@ -38,6 +38,8 @@
 #include "shapetable.h"
 #include "svmnode.h"
 
+#include "scanutils.h"
+
 namespace tesseract {
 
 // Constants controlling clustering. With a low kMinClusteredShapes and a high
@@ -360,8 +362,8 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
     fontinfo.name = font_name;
     fontinfo.properties = 0;
     fontinfo.universal_id = 0;
-    if (fscanf(fp, "%1024s %i %i %i %i %i\n", font_name,
-               &italic, &bold, &fixed, &serif, &fraktur) != 6)
+    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name,
+                &italic, &bold, &fixed, &serif, &fraktur) != 6)
       continue;
     fontinfo.properties =
         (italic << 0) +
@@ -397,7 +399,7 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
   int total_xheight = 0;
   int xheight_count = 0;
   while (!feof(f)) {
-    if (fscanf(f, "%1023s %d\n", buffer, &xht) != 2)
+    if (tfscanf(f, "%1023s %d\n", buffer, &xht) != 2)
       continue;
     buffer[1023] = '\0';
     fontinfo.name = buffer;
@@ -441,13 +443,13 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
   char uch[UNICHAR_LEN];
   char kerned_uch[UNICHAR_LEN];
   int x_gap, x_gap_before, x_gap_after, num_kerned;
-  ASSERT_HOST(fscanf(fontinfo_file, "%d\n", &num_unichars) == 1);
+  ASSERT_HOST(tfscanf(fontinfo_file, "%d\n", &num_unichars) == 1);
   FontInfo *fi = &fontinfo_table_.get(fontinfo_id);
   fi->init_spacing(unicharset_.size());
   FontSpacingInfo *spacing = NULL;
   for (int l = 0; l < num_unichars; ++l) {
-    if (fscanf(fontinfo_file, "%s %d %d %d",
-               uch, &x_gap_before, &x_gap_after, &num_kerned) != 4) {
+    if (tfscanf(fontinfo_file, "%s %d %d %d",
+                uch, &x_gap_before, &x_gap_after, &num_kerned) != 4) {
       tprintf("Bad format of font spacing file %s\n", filename);
       fclose(fontinfo_file);
       return false;
@@ -459,7 +461,7 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
       spacing->x_gap_after = static_cast<inT16>(x_gap_after * scale);
     }
     for (int k = 0; k < num_kerned; ++k) {
-      if (fscanf(fontinfo_file, "%s %d", kerned_uch, &x_gap) != 2) {
+      if (tfscanf(fontinfo_file, "%s %d", kerned_uch, &x_gap) != 2) {
         tprintf("Bad format of font spacing file %s\n", filename);
         fclose(fontinfo_file);
         delete spacing;

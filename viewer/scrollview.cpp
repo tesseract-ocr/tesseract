@@ -775,6 +775,7 @@ void ScrollView::Image(struct Pix* image, int x_pos, int y_pos) {
   size_t size;
   pixWriteMem(&data, &size, image, IFF_PNG);
   int base64_len = (size + 2) / 3 * 4;
+  y_pos = TranslateYCoordinate(y_pos);
   SendMsg("readImage(%d,%d,%d)", x_pos, y_pos, base64_len);
   // Base64 encode the data.
   const char kBase64Table[64] = {

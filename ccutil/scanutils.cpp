@@ -19,12 +19,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifdef EMBEDDED
-
 #include <ctype.h>
 #include <stdarg.h>
 #include <stddef.h>
-#include <inttypes.h>
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
@@ -34,6 +31,11 @@
 
 #include "scanutils.h"
 #include "tprintf.h"
+
+// workaround for "'off_t' was not declared in this scope" with -std=c++11
+#ifndef off_t
+typedef long off_t;
+#endif  // off_t
 
 enum Flags {
   FL_SPLAT  = 0x01,   // Drop the value, do not assign
@@ -215,19 +217,48 @@ double strtofloat(const char* s)
   return minus ? -f : f;
 }
 
+static int tvfscanf(FILE* stream, const char *format, va_list ap);
+
+int tfscanf(FILE* stream, const char *format, ...)
+{
+  va_list ap;
+  int rv;
+
+  va_start(ap, format);
+  rv = tvfscanf(stream, format, ap);
+  va_end(ap);
+
+  return rv;
+}
+
+#ifdef EMBEDDED
+
 int fscanf(FILE* stream, const char *format, ...)
 {
   va_list ap;
   int rv;
 
   va_start(ap, format);
-  rv = vfscanf(stream, format, ap);
+  rv = tvfscanf(stream, format, ap);
   va_end(ap);
 
   return rv;
 }
 
-int vfscanf(FILE* stream, const char *format, va_list ap)
+int vfscanf(FILE* stream, const char *format, ...)
+{
+  va_list ap;
+  int rv;
+
+  va_start(ap, format);
+  rv = tvfscanf(stream, format, ap);
+  va_end(ap);
+
+  return rv;
+}
+#endif
+
+static int tvfscanf(FILE* stream, const char *format, va_list ap)
 {
   const char *p = format;
   char ch;
@@ -250,7 +281,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
   enum Bail bail = BAIL_NONE;
   int sign;
   int converted = 0;    // Successful conversions
-  unsigned long matchmap[((1 << CHAR_BIT)+(LongBit()-1))/LongBit()];
+  unsigned long matchmap[((1 << CHAR_BIT)+(CHAR_BIT * sizeof(long) - 1))/ (CHAR_BIT * sizeof(long))];
   int matchinv = 0;   // Is match map inverted?
   unsigned char range_start = 0;
   off_t start_off = ftell(stream);
@@ -278,7 +309,8 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
             flags |= FL_SPLAT;
           break;
 
-          case '0' ... '9':
+          case 0: case 1: case 2: case 3: case 4:
+          case 5: case 6: case 7: case 8: case 9:
             width = (ch-'0');
             state = ST_WIDTH;
             flags |= FL_WIDTH;
@@ -542,6 +574,7 @@ int vfscanf(FILE* stream, const char *format, va_list ap)
   return converted;
 }
 
+#ifdef EMBEDDED
 int creat(const char *pathname, mode_t mode)
 {
   return open(pathname, O_CREAT | O_TRUNC | O_WRONLY, mode);
