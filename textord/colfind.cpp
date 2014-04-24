@@ -434,14 +434,16 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
     #ifndef GRAPHICS_DISABLED
     if (textord_tabfind_show_partitions) {
       ScrollView* window = MakeWindow(400, 300, "Partitions");
-      if (textord_debug_images)
-        window->Image(AlignedBlob::textord_debug_pix().string(),
-                      image_origin().x(), image_origin().y());
-      part_grid_.DisplayBoxes(window);
-      if (!textord_debug_printable)
-        DisplayTabVectors(window);
-      if (window != NULL && textord_tabfind_show_partitions > 1) {
-        delete window->AwaitEvent(SVET_DESTROY);
+      if (window != NULL) {
+        if (textord_debug_images)
+          window->Image(AlignedBlob::textord_debug_pix().string(),
+                        image_origin().x(), image_origin().y());
+        part_grid_.DisplayBoxes(window);
+        if (!textord_debug_printable)
+          DisplayTabVectors(window);
+        if (window != NULL && textord_tabfind_show_partitions > 1) {
+          delete window->AwaitEvent(SVET_DESTROY);
+        }
       }
     }
     #endif  // GRAPHICS_DISABLED
