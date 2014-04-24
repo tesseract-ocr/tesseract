@@ -116,6 +116,9 @@ BOOL_PARAM_FLAG(find_fonts, false,
 BOOL_PARAM_FLAG(render_per_font, true,
                 "If find_fonts==true, render each font to its own image. "
                 "Image filenames are of the form output_name.font_name.tif");
+DOUBLE_PARAM_FLAG(min_coverage, 1.0,
+                  "If find_fonts==true, the minimum coverage the font has of "
+                  "the characters in the text file to include it, between 0 and 1.");
 
 BOOL_PARAM_FLAG(list_available_fonts, false, "List available fonts and quit.");
 
@@ -542,7 +545,8 @@ int main(int argc, char** argv) {
       tlog(1, "Starting page %d\n", im);
       Pix* pix = NULL;
       if (FLAGS_find_fonts) {
-        offset += render.RenderAllFontsToImage(to_render_utf8 + offset,
+        offset += render.RenderAllFontsToImage(FLAGS_min_coverage,
+                                               to_render_utf8 + offset,
                                                strlen(to_render_utf8 + offset),
                                                &font_used, &pix);
       } else {

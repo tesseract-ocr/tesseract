@@ -58,8 +58,8 @@ class StringRenderer {
                           Pix** pix);
   // Renders a line of text with all available fonts that were able to render
   // the text.
-  int RenderAllFontsToImage(const char* text, int text_length,
-                            string* font_used, Pix** pix);
+  int RenderAllFontsToImage(double min_coverage, const char* text,
+                            int text_length, string* font_used, Pix** pix);
 
   bool set_font(const string& desc);
   void set_char_spacing(double char_spacing) {
