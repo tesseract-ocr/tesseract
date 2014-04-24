@@ -126,7 +126,7 @@ void SVPaint::ClickHandler(const SVEvent* sv_event) {
     // finally delete the input pointer.
     char* p = window_->ShowInputDialog("Text:");
     window_->Text(sv_event->x, sv_event->y, p);
-    delete p;
+    delete [] p;
     break;
   }
 }
