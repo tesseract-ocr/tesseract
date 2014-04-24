@@ -731,6 +731,7 @@ void Tesseract::TidyUp(PAGE_RES* page_res) {
         word_res->word->bounding_box().print();
       }
       pr_it.DeleteCurrentWord();
+      delete word_choice;
     }
   }
   pr_it.restart_page();
