@@ -44,19 +44,14 @@
 // be added to this or one of the submenus.
 SVMenuNode::SVMenuNode() {
   cmd_event_ = -1;
-  text_ = NULL;
   child_ = NULL;
   next_ = NULL;
   parent_ = NULL;
   toggle_value_ = false;
   is_check_box_entry_ = false;
-  value_ = NULL;
-  description_ = NULL;
 }
 
 SVMenuNode::~SVMenuNode() {
-  delete[] text_;
-//  delete[] description_;
 }
 
 // Create a new sub menu node with just a caption.  This is used to create
@@ -94,15 +89,9 @@ void SVMenuNode::AddChild(const char* txt, int command_event, int tv) {
 // the different values of the menu node.
 SVMenuNode::SVMenuNode(int command_event, const char* txt,
                        int tv, bool check_box_entry, const char* val,
-                       const char* desc) {
+                       const char* desc)
+  : text_(txt), value_(val), description_(desc) {
   cmd_event_ = command_event;
-
-  text_ = new char[strlen(txt) + 1];
-  strncpy(text_, txt, strlen(txt));
-  text_[strlen(txt)] = '\0';
-
-  value_ = val;
-  description_ = desc;
 
   child_ = NULL;
   next_ = NULL;
@@ -132,15 +121,24 @@ void SVMenuNode::AddChild(SVMenuNode* svmn) {
 void SVMenuNode::BuildMenu(ScrollView* sv, bool menu_bar) {
   if ((parent_ != NULL) && (menu_bar)) {
     if (is_check_box_entry_) {
-      sv->MenuItem(parent_->text_, text_, cmd_event_, toggle_value_);
-    } else { sv->MenuItem(parent_->text_, text_, cmd_event_); }
+      sv->MenuItem(parent_->text_.string(), text_.string(), cmd_event_,
+                   toggle_value_);
+    } else {
+      sv->MenuItem(parent_->text_.string(), text_.string(), cmd_event_); }
   } else if ((parent_ != NULL) && (!menu_bar)) {
-    if (description_ != NULL) { sv->PopupItem(parent_->text_, text_,
-                                             cmd_event_, value_, description_);
-      } else { sv->PopupItem(parent_->text_, text_); }
+    if (description_.length() > 0) {
+      sv->PopupItem(parent_->text_.string(), text_.string(), cmd_event_,
+                    value_.string(), description_.string());
+      } else {
+      sv->PopupItem(parent_->text_.string(), text_.string());
+    }
   }
-  if (child_ != NULL) { child_->BuildMenu(sv, menu_bar); delete child_; }
-  if (next_ != NULL) { next_->BuildMenu(sv, menu_bar); delete next_; }
+  if (child_ != NULL) {
+    child_->BuildMenu(sv, menu_bar); delete child_;
+  }
+  if (next_ != NULL) {
+    next_->BuildMenu(sv, menu_bar); delete next_;
+  }
 }
 
 #endif  // GRAPHICS_DISABLED

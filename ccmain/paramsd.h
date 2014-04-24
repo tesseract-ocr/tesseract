@@ -62,7 +62,7 @@ class ParamContent : public ELIST_LINK {
 
   // Getters and Setters.
   void SetValue(const char* val);
-  const char* GetValue() const;
+  STRING GetValue() const;
   const char* GetName() const;
   const char* GetDescription() const;
 
