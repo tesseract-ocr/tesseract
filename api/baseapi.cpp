@@ -1878,8 +1878,10 @@ bool TessBaseAPI::GetTextDirection(int* out_offset, float* out_slope) {
   // Get the y-coord of the baseline at the left and right edges of the
   // textline's bounding box.
   int left, top, right, bottom;
-  if (!it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom))
+  if (!it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom)) {
+    delete it;
     return false;
+  }
   int left_y = IntCastRounded(*out_slope * left + *out_offset);
   int right_y = IntCastRounded(*out_slope * right + *out_offset);
   // Shift the baseline down so it passes through the nearest bottom-corner
