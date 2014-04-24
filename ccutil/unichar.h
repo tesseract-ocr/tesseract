@@ -121,6 +121,8 @@ class UNICHAR {
     // Returns the number of bytes of the current codepoint. Returns 1 if the
     // current position is at an illegal UTF8 value.
     int utf8_len() const;
+    // Returns true if the UTF-8 encoding at the current position is legal.
+    bool is_legal() const;
 
     // Return the pointer into the string at the current position.
     const char* utf8_data() const { return it_; }

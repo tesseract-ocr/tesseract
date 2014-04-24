@@ -151,7 +151,7 @@ UNICHAR::const_iterator& UNICHAR::const_iterator::operator++() {
   if (step == 0) {
     tprintf("ERROR: Illegal UTF8 encountered.\n");
     for (int i = 0; i < 5 && it_[i] != '\0'; ++i) {
-      tprintf("Index %d char = 0x%x", i, it_[i]);
+      tprintf("Index %d char = 0x%x\n", i, it_[i]);
     }
     step = 1;
   }
@@ -190,6 +190,10 @@ int UNICHAR::const_iterator::utf8_len() const {
     return 1;
   }
   return len;
+}
+
+bool UNICHAR::const_iterator::is_legal() const {
+  return utf8_step(it_) > 0;
 }
 
 UNICHAR::const_iterator UNICHAR::begin(const char* utf8_str, const int len) {

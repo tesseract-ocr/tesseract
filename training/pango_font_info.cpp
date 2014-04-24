@@ -268,6 +268,9 @@ int PangoFontInfo::DropUncoveredChars(string* utf8_text) const {
   const UNICHAR::const_iterator it_end =
       UNICHAR::end(utf8_text->c_str(), utf8_text->length());
   for (UNICHAR::const_iterator it = it_begin; it != it_end; ++it) {
+    // Skip bad utf-8.
+    if (!it.is_legal())
+      continue;  // One suitable error message will still be issued.
     if (!IsWhitespace(*it) && !pango_is_zero_width(*it) &&
         pango_coverage_get(coverage, *it) != PANGO_COVERAGE_EXACT) {
       if (TLOG_IS_ON(2)) {
