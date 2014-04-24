@@ -635,6 +635,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
   }
   fclose(fp);
   free_int_templates(int_templates);
+  delete classify;
 }
 
 // Generate debug output relating to the canonical distance between the
