@@ -104,7 +104,7 @@ CharSamp *CharSamp::FromCharDumpFile(CachedFile *fp) {
     return NULL;
   }
   // the label is not null terminated in the file
-  if (val32 > 0) {
+  if (val32 > 0 && val32 < MAX_UINT32) {
     label32 = new char_32[val32 + 1];
     if (label32 == NULL) {
       return NULL;
@@ -193,7 +193,7 @@ CharSamp *CharSamp::FromCharDumpFile(FILE *fp) {
     return NULL;
   }
   // the label is not null terminated in the file
-  if (val32 > 0) {
+  if (val32 > 0 && val32 < MAX_UINT32) {
     label32 = new char_32[val32 + 1];
     if (label32 == NULL) {
       return NULL;
@@ -592,7 +592,7 @@ CharSamp *CharSamp::FromCharDumpFile(unsigned char **raw_data_ptr) {
   memcpy(&val32, raw_data, sizeof(val32));
   raw_data += sizeof(val32);
   // the label is not null terminated in the file
-  if (val32 > 0) {
+  if (val32 > 0 && val32 < MAX_UINT32) {
     label32 = new char_32[val32 + 1];
     if (label32 == NULL) {
       return NULL;
