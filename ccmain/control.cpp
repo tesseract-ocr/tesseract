@@ -424,6 +424,15 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
       static_cast<int>(tessedit_pageseg_mode));
   textord_.CleanupSingleRowResult(pageseg_mode, page_res);
 
+  // Remove empty words, as these mess up the result iterators.
+  for (page_res_it.restart_page(); page_res_it.word() != NULL;
+       page_res_it.forward()) {
+    WERD_RES* word = page_res_it.word();
+    if (word->best_choice == NULL || word->best_choice->length() == 0)
+      page_res_it.DeleteCurrentWord();
+  }
+  
+
   if (monitor != NULL) {
     monitor->progress = 100;
   }
