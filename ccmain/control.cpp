@@ -431,7 +431,6 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
     if (word->best_choice == NULL || word->best_choice->length() == 0)
       page_res_it.DeleteCurrentWord();
   }
-  
 
   if (monitor != NULL) {
     monitor->progress = 100;

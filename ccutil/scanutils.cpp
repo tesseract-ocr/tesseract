@@ -72,8 +72,7 @@ inline size_t LongBit() {
 }
 
 static inline int
-SkipSpace(FILE *s)
-{
+SkipSpace(FILE *s) {
   int p;
   while (isspace(p = fgetc(s)));
   ungetc(p, s);  // Make sure next char is available for reading
@@ -81,19 +80,16 @@ SkipSpace(FILE *s)
 }
 
 static inline void
-SetBit(unsigned long *bitmap, unsigned int bit)
-{
+SetBit(unsigned long *bitmap, unsigned int bit) {
   bitmap[bit/LongBit()] |= 1UL << (bit%LongBit());
 }
 
 static inline int
-TestBit(unsigned long *bitmap, unsigned int bit)
-{
+TestBit(unsigned long *bitmap, unsigned int bit) {
   return static_cast<int>(bitmap[bit/LongBit()] >> (bit%LongBit())) & 1;
 }
 
-static inline int DigitValue(int ch)
-{
+static inline int DigitValue(int ch) {
   if (ch >= '0' && ch <= '9') {
     return ch-'0';
   } else if (ch >= 'A' && ch <= 'Z') {
@@ -106,8 +102,7 @@ static inline int DigitValue(int ch)
 }
 
 // IO (re-)implementations -----------------------------------------------------
-uintmax_t streamtoumax(FILE* s, int base)
-{
+uintmax_t streamtoumax(FILE* s, int base) {
   int minus = 0;
   uintmax_t v = 0;
   int d, c = 0;
@@ -148,8 +143,7 @@ uintmax_t streamtoumax(FILE* s, int base)
   return minus ? -v : v;
 }
 
-double streamtofloat(FILE* s)
-{
+double streamtofloat(FILE* s) {
   int minus = 0;
   int v = 0;
   int d, c = 0;
@@ -184,8 +178,7 @@ double streamtofloat(FILE* s)
   return minus ? -f : f;
 }
 
-double strtofloat(const char* s)
-{
+double strtofloat(const char* s) {
   int minus = 0;
   int v = 0;
   int d;
@@ -219,8 +212,7 @@ double strtofloat(const char* s)
 
 static int tvfscanf(FILE* stream, const char *format, va_list ap);
 
-int tfscanf(FILE* stream, const char *format, ...)
-{
+int tfscanf(FILE* stream, const char *format, ...) {
   va_list ap;
   int rv;
 
@@ -233,8 +225,7 @@ int tfscanf(FILE* stream, const char *format, ...)
 
 #ifdef EMBEDDED
 
-int fscanf(FILE* stream, const char *format, ...)
-{
+int fscanf(FILE* stream, const char *format, ...) {
   va_list ap;
   int rv;
 
@@ -245,8 +236,7 @@ int fscanf(FILE* stream, const char *format, ...)
   return rv;
 }
 
-int vfscanf(FILE* stream, const char *format, ...)
-{
+int vfscanf(FILE* stream, const char *format, ...) {
   va_list ap;
   int rv;
 
@@ -258,8 +248,7 @@ int vfscanf(FILE* stream, const char *format, ...)
 }
 #endif
 
-static int tvfscanf(FILE* stream, const char *format, va_list ap)
-{
+static int tvfscanf(FILE* stream, const char *format, va_list ap) {
   const char *p = format;
   char ch;
   int q = 0;
@@ -281,7 +270,8 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap)
   enum Bail bail = BAIL_NONE;
   int sign;
   int converted = 0;    // Successful conversions
-  unsigned long matchmap[((1 << CHAR_BIT)+(CHAR_BIT * sizeof(long) - 1))/ (CHAR_BIT * sizeof(long))];
+  unsigned long matchmap[((1 << CHAR_BIT)+(CHAR_BIT * sizeof(long) - 1)) /
+      (CHAR_BIT * sizeof(long))];
   int matchinv = 0;   // Is match map inverted?
   unsigned char range_start = 0;
   off_t start_off = ftell(stream);
@@ -575,8 +565,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap)
 }
 
 #ifdef EMBEDDED
-int creat(const char *pathname, mode_t mode)
-{
+int creat(const char *pathname, mode_t mode) {
   return open(pathname, O_CREAT | O_TRUNC | O_WRONLY, mode);
 }
 

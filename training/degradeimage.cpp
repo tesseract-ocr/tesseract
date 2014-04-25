@@ -41,7 +41,7 @@ const int kMinRampSize = 1000;
 // If rotation is NULL, rotation is skipped. If *rotation is non-zero, the pix
 // is rotated by *rotation else it is randomly rotated and *rotation is
 // modified.
-// 
+//
 // HOW IT WORKS:
 // Most of the process is really dictated by the fact that the minimum
 // available convolution is 3X3, which is too big really to simulate a

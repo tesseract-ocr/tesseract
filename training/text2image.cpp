@@ -363,7 +363,8 @@ bool MakeIndividualGlyphs(Pix* pix,
                                          FLAGS_glyph_num_border_pixels_to_pad,
                                          0);
     if (!pix_glyph_sq_pad) {
-      tprintf("ERROR: MakeIndividualGlyphs(): Failed to zero-pad, at i=%d\n", i);
+      tprintf("ERROR: MakeIndividualGlyphs(): Failed to zero-pad, at i=%d\n",
+              i);
       continue;
     }
     // Write out
