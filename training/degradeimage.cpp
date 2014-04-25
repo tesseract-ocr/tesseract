@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include "allheaders.h"   // from leptonica
+#include "helpers.h"  // For TRand.
 
 namespace tesseract {
 
@@ -34,17 +35,13 @@ const int kSaltnPepper = 5;
 // Min sum of width + height on which to operate the ramp.
 const int kMinRampSize = 1000;
 
-static unsigned int random_seed = 0x18273645;
-#ifndef rand_r  // _MSC_VER, ANDROID
-#define rand_r(random_seed) rand()
-#endif  // _MSC_VER
-
 // Degrade the pix as if by a print/copy/scan cycle with exposure > 0
 // corresponding to darkening on the copier and <0 lighter and 0 not copied.
 // Exposures in [-2,2] are most useful, with -3 and 3 being extreme.
 // If rotation is NULL, rotation is skipped. If *rotation is non-zero, the pix
 // is rotated by *rotation else it is randomly rotated and *rotation is
 // modified.
+// 
 // HOW IT WORKS:
 // Most of the process is really dictated by the fact that the minimum
 // available convolution is 3X3, which is too big really to simulate a
@@ -65,7 +62,8 @@ static unsigned int random_seed = 0x18273645;
 // the edges.
 // Finally a greyscale ramp provides a continuum of effects between exposure
 // levels.
-Pix* DegradeImage(Pix* input, int exposure, float* rotation) {
+Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
+                  float* rotation) {
   Pix* pix = pixConvertTo8(input, false);
   pixDestroy(&input);
   input = pix;
@@ -85,12 +83,11 @@ Pix* DegradeImage(Pix* input, int exposure, float* rotation) {
   pixDestroy(&input);
   // A small random rotation helps to make the edges jaggy in a realistic way.
   if (rotation != NULL) {
-    float radians_clockwise;
+    float radians_clockwise = 0.0f;
     if (*rotation) {
       radians_clockwise = *rotation;
-    } else {
-      radians_clockwise = (2.0*rand_r(&random_seed)/RAND_MAX - 1.0) *
-          kRotationRange;
+    } else if (randomizer != NULL) {
+      radians_clockwise = randomizer->SignedRand(kRotationRange);
     }
 
     input = pixRotate(pix, radians_clockwise,
@@ -131,7 +128,8 @@ Pix* DegradeImage(Pix* input, int exposure, float* rotation) {
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       int pixel = GET_DATA_BYTE(data, x);
-      pixel += rand_r(&random_seed) % (kSaltnPepper*2 + 1) - kSaltnPepper;
+      if (randomizer != NULL)
+        pixel += randomizer->IntRand() % (kSaltnPepper*2 + 1) - kSaltnPepper;
       if (height + width > kMinRampSize)
         pixel -= (2*x + y) * 32 / (height + width);
       pixel += erosion_offset;

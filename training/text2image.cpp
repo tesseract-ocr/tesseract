@@ -43,6 +43,7 @@
 #include "degradeimage.h"
 #include "errcode.h"
 #include "fileio.h"
+#include "helpers.h"
 #include "normstrngs.h"
 #include "stringrenderer.h"
 #include "tlog.h"
@@ -54,6 +55,9 @@ using std::make_pair;
 using std::map;
 using std::pair;
 #endif
+
+// A number with which to initialize the random number generator.
+const int kRandomSeed = 0x18273645;
 
 // The text input file.
 STRING_PARAM_FLAG(text, "", "File name of text input to process");
@@ -534,6 +538,8 @@ int main(int argc, char** argv) {
   vector<float> page_rotation;
   const char* to_render_utf8 = src_utf8.c_str();
 
+  tesseract::TRand randomizer;
+  randomizer.set_seed(kRandomSeed);
   // We use a two pass mechanism to rotate images in both direction.
   // The first pass(0) will rotate the images in random directions and
   // the second pass(1) will mirror those rotations.
@@ -560,7 +566,7 @@ int main(int argc, char** argv) {
           rotation = -1 * page_rotation[page_num];
         }
         if (FLAGS_degrade_image) {
-          pix = DegradeImage(pix, FLAGS_exposure, &rotation);
+          pix = DegradeImage(pix, FLAGS_exposure, &randomizer, &rotation);
         }
         render.RotatePageBoxes(rotation);
 
