@@ -27,7 +27,7 @@ int rgb[3] = { 255, 255, 255 };
 
 class SVPaint : public SVEventHandler {
  public:
-   SVPaint(const char* server_name);
+   explicit SVPaint(const char* server_name);
 // This is the main event handling function that we need to overwrite, defined
 // in SVEventHandler.
    void Notify(const SVEvent* sv_event);

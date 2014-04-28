@@ -87,8 +87,7 @@ PARAM_DESC *ReadParamDesc(FILE *File, uinT16 N) {
       ParamDesc[i].NonEssential = FALSE;
     else
       ParamDesc[i].NonEssential = TRUE;
-    if (tfscanf(File, "%f%f", &(ParamDesc[i].Min), &(ParamDesc[i].Max)) !=
-      2)
+    if (tfscanf(File, "%f%f", &(ParamDesc[i].Min), &(ParamDesc[i].Max)) != 2)
       DoError (ILLEGALMINMAXSPEC, "Illegal min or max specification");
     ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
     ParamDesc[i].HalfRange = ParamDesc[i].Range / 2;

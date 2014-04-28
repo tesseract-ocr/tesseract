@@ -167,14 +167,13 @@ FEATURE ReadFeature(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 
   Feature = NewFeature (FeatureDesc);
   for (i = 0; i < Feature->Type->NumParams; i++) {
-    if (tfscanf (File, "%f", &(Feature->Params[i])) != 1)
+    if (tfscanf(File, "%f", &(Feature->Params[i])) != 1)
       DoError (ILLEGAL_FEATURE_PARAM, "Illegal feature parameter spec");
 #ifndef _WIN32
     assert (!isnan(Feature->Params[i]));
 #endif
   }
   return (Feature);
-
 }                                /* ReadFeature */
 
 
@@ -206,7 +205,6 @@ FEATURE_SET ReadFeatureSet(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
     AddFeature(FeatureSet, ReadFeature (File, FeatureDesc));
 
   return (FeatureSet);
-
 }                                /* ReadFeatureSet */
 
 
