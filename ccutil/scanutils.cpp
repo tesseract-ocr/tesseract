@@ -20,6 +20,7 @@
 // limitations under the License.
 
 #include <ctype.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <string.h>
@@ -89,16 +90,16 @@ TestBit(unsigned long *bitmap, unsigned int bit) {
   return static_cast<int>(bitmap[bit/LongBit()] >> (bit%LongBit())) & 1;
 }
 
-static inline int DigitValue(int ch) {
+static inline int DigitValue(int ch, int base) {
   if (ch >= '0' && ch <= '9') {
-    return ch-'0';
-  } else if (ch >= 'A' && ch <= 'Z') {
+    if (base >= 10 || ch <= '7')
+      return ch-'0';
+  } else if (ch >= 'A' && ch <= 'Z' && base == 16) {
     return ch-'A'+10;
-  } else if (ch >= 'a' && ch <= 'z') {
+  } else if (ch >= 'a' && ch <= 'z' && base == 16) {
     return ch-'a'+10;
-  } else {
-    return -1;
   }
+  return -1;
 }
 
 // IO (re-)implementations -----------------------------------------------------
@@ -109,7 +110,7 @@ uintmax_t streamtoumax(FILE* s, int base) {
 
   for (c = fgetc(s);
     isspace(static_cast<unsigned char>(c)) && (c != EOF);
-    c = fgetc(s))
+    c = fgetc(s)) {}
 
   // Single optional + or -
   if (c == '-' || c == '+') {
@@ -136,7 +137,7 @@ uintmax_t streamtoumax(FILE* s, int base) {
   }
 
   // Actual number parsing
-  for (; (c != EOF) && (d = DigitValue(c)) >= 0 && d < base; c = fgetc(s))
+  for (; (c != EOF) && (d = DigitValue(c, base)) >= 0; c = fgetc(s))
     v = v*base + d;
 
   ungetc(c, s);
@@ -161,19 +162,31 @@ double streamtofloat(FILE* s) {
   }
 
   // Actual number parsing
-  for (; (c != EOF) && (d = DigitValue(c)) >= 0; c = fgetc(s))
+  for (; c != EOF && (d = DigitValue(c, 10)) >= 0; c = fgetc(s))
     v = v*10 + d;
   if (c == '.') {
-    for (c = fgetc(s); (c != EOF) && (d = DigitValue(c)) >= 0; c = fgetc(s)) {
+    for (c = fgetc(s); c != EOF && (d = DigitValue(c, 10)) >= 0; c = fgetc(s)) {
       w = w*10 + d;
       k *= 10;
     }
-  } else if (c == 'e' || c == 'E')
-    tprintf("WARNING: Scientific Notation not supported!");
-
-  ungetc(c, s);
+  }
   double f  = static_cast<double>(v)
             + static_cast<double>(w) / static_cast<double>(k);
+  if (c == 'e' || c == 'E') {
+    c = fgetc(s);
+    int expsign = 1;
+    if (c == '-' || c == '+') {
+      expsign = (c == '-') ? -1 : 1;
+      c = fgetc(s);
+    }
+    int exponent = 0;
+    for (; (c != EOF) && (d = DigitValue(c, 10)) >= 0; c = fgetc(s)) {
+      exponent = exponent * 10 + d;
+    }
+    exponent *= expsign;
+    f *= pow(10.0, static_cast<double>(exponent));
+  }
+  ungetc(c, s);
 
   return minus ? -f : f;
 }
@@ -194,14 +207,15 @@ double strtofloat(const char* s) {
   }
 
   // Actual number parsing
-  for (; *s && (d = DigitValue(*s)) >= 0; s++)
+  for (; *s && (d = DigitValue(*s, 10)) >= 0; s++)
     v = v*10 + d;
   if (*s == '.') {
-    for (++s; *s && (d = DigitValue(*s)) >= 0; s++) {
+    for (++s; *s && (d = DigitValue(*s, 10)) >= 0; s++) {
       w = w*10 + d;
       k *= 10;
     }
-  } else if (*s == 'e' || *s == 'E')
+  }
+  if (*s == 'e' || *s == 'E')
     tprintf("WARNING: Scientific Notation not supported!");
 
   double f  = static_cast<double>(v)
@@ -294,22 +308,15 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
         break;
 
       case ST_FLAGS:
-        switch (ch) {
-          case '*':
-            flags |= FL_SPLAT;
-          break;
-
-          case 0: case 1: case 2: case 3: case 4:
-          case 5: case 6: case 7: case 8: case 9:
-            width = (ch-'0');
-            state = ST_WIDTH;
-            flags |= FL_WIDTH;
-          break;
-
-          default:
-            state = ST_MODIFIERS;
-            p--;      // Process this character again
-          break;
+        if (ch == '*') {
+          flags |= FL_SPLAT;
+        } else if ('0' <= ch && ch <= '9') {
+          width = (ch-'0');
+          state = ST_WIDTH;
+          flags |= FL_WIDTH;
+        } else {
+          state = ST_MODIFIERS;
+          p--;      // Process this character again
         }
       break;
 
