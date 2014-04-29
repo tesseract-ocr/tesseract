@@ -399,11 +399,11 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
                 break;
               }
               val = streamtoumax(stream, base);
-              converted++;
               // fall through
 
             set_integer:
               if (!(flags & FL_SPLAT)) {
+                converted++;
                 switch(rank) {
                   case RANK_CHAR:
                     *va_arg(ap, unsigned char *)
@@ -451,8 +451,8 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
                   *va_arg(ap, float *) = static_cast<float>(fval);
                 else if (rank == RANK_LONG)
                   *va_arg(ap, double *) = static_cast<double>(fval);
+                converted++;
               }
-              converted++;
               }
             break;
 
@@ -464,10 +464,11 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
                   bail = BAIL_EOF;
                   break;
                 }
-                if (!(flags & FL_SPLAT)) *sarg++ = q;
+                if (!(flags & FL_SPLAT)) {
+                  *sarg++ = q;
+                  converted++;
+                }
               }
-              if (!bail)
-                converted++;
             break;
 
             case 's':               // String
