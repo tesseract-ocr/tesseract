@@ -446,13 +446,11 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
 
               {
               double fval = streamtofloat(stream);
-              switch(rank) {
-                case RANK_INT:
+              if (!(flags & FL_SPLAT)) {
+                if (rank == RANK_INT)
                   *va_arg(ap, float *) = static_cast<float>(fval);
-                break;
-                case RANK_LONG:
+                else if (rank == RANK_LONG)
                   *va_arg(ap, double *) = static_cast<double>(fval);
-                break;
               }
               converted++;
               }
@@ -466,7 +464,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
                   bail = BAIL_EOF;
                   break;
                 }
-                *sarg++ = q;
+                if (!(flags & FL_SPLAT)) *sarg++ = q;
               }
               if (!bail)
                 converted++;
@@ -482,13 +480,15 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
                   ungetc(q, stream);
                   break;
                 }
-                *sp++ = q;
+                if (!(flags & FL_SPLAT)) *sp = q;
+                sp++;
               }
-              if (sarg != sp) {
+              if (sarg == sp) {
+                bail = BAIL_EOF;
+              } else if (!(flags & FL_SPLAT)) {
                 *sp = '\0'; // Terminate output
                 converted++;
               } else {
-                bail = BAIL_EOF;
               }
             }
             break;
@@ -553,13 +553,14 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
             ungetc(q, stream);
             break;
           }
-          *sarg++ = q;
+          if (!(flags & FL_SPLAT)) *sarg = q;
+          sarg++;
         }
-        if (oarg != sarg) {
+        if (oarg == sarg) {
+          bail = (q <= 0) ? BAIL_EOF : BAIL_ERR;
+        } else if (!(flags & FL_SPLAT)) {
           *sarg = '\0';
           converted++;
-        } else {
-          bail = (q <= 0) ? BAIL_EOF : BAIL_ERR;
         }
       break;
     }
