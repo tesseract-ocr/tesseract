@@ -40,6 +40,7 @@ typedef tesseract::TessBaseAPI TessBaseAPI;
 typedef tesseract::PageIterator TessPageIterator;
 typedef tesseract::ResultIterator TessResultIterator;
 typedef tesseract::MutableIterator TessMutableIterator;
+typedef tesseract::ChoiceIterator TessChoiceIterator;
 typedef tesseract::OcrEngineMode TessOcrEngineMode;
 typedef tesseract::PageSegMode TessPageSegMode;
 typedef tesseract::ImageThresholder TessImageThresholder;
@@ -348,7 +349,10 @@ TESS_API TessPageIterator*
                TESS_CALL TessResultIteratorGetPageIterator(TessResultIterator* handle);
 TESS_API const TessPageIterator*
                TESS_CALL TessResultIteratorGetPageIteratorConst(const TessResultIterator* handle);
+TESS_API const TessChoiceIterator*
+               TESS_CALL TessResultIteratorGetChoiceIterator(const TessResultIterator* handle);
 
+TESS_API BOOL  TESS_CALL TessResultIteratorNext(TessResultIterator* handle, TessPageIteratorLevel level);
 TESS_API char* TESS_CALL TessResultIteratorGetUTF8Text(const TessResultIterator* handle, TessPageIteratorLevel level);
 TESS_API float TESS_CALL TessResultIteratorConfidence(const TessResultIterator* handle, TessPageIteratorLevel level);
 
@@ -362,6 +366,10 @@ TESS_API BOOL  TESS_CALL TessResultIteratorWordIsNumeric(const TessResultIterato
 TESS_API BOOL  TESS_CALL TessResultIteratorSymbolIsSuperscript(const TessResultIterator* handle);
 TESS_API BOOL  TESS_CALL TessResultIteratorSymbolIsSubscript(const TessResultIterator* handle);
 TESS_API BOOL  TESS_CALL TessResultIteratorSymbolIsDropcap(const TessResultIterator* handle);
+
+TESS_API BOOL  TESS_CALL TessChoiceIteratorNext(TessChoiceIterator* handle);
+TESS_API const char* TESS_CALL TessChoiceIteratorGetUTF8Text(const TessChoiceIterator* handle);
+TESS_API float TESS_CALL TessChoiceIteratorConfidence(const TessChoiceIterator* handle);
 
 #ifdef __cplusplus
 }

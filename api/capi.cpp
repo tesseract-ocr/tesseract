@@ -722,6 +722,15 @@ TESS_API const TessPageIterator* TESS_CALL TessResultIteratorGetPageIteratorCons
     return handle;
 }
 
+TESS_API const TessChoiceIterator* TESS_CALL TessResultIteratorGetChoiceIterator(const TessResultIterator* handle)
+{
+	return new TessChoiceIterator(*handle);
+}
+TESS_API BOOL  TESS_CALL TessResultIteratorNext(TessResultIterator* handle, TessPageIteratorLevel level)
+{
+    return handle->Next(level);
+}
+
 TESS_API char* TESS_CALL TessResultIteratorGetUTF8Text(const TessResultIterator* handle, TessPageIteratorLevel level)
 {
     return handle->GetUTF8Text(level);
@@ -777,4 +786,19 @@ TESS_API BOOL TESS_CALL TessResultIteratorSymbolIsSubscript(const TessResultIter
 TESS_API BOOL TESS_CALL TessResultIteratorSymbolIsDropcap(const TessResultIterator* handle)
 {
     return handle->SymbolIsDropcap() ? TRUE : FALSE;
+}
+
+TESS_API BOOL  TESS_CALL TessChoiceIteratorNext(TessChoiceIterator* handle)
+{
+	return handle->Next();
+}
+
+TESS_API const char* TESS_CALL TessChoiceIteratorGetUTF8Text(const TessChoiceIterator* handle)
+{
+	return handle->GetUTF8Text();
+}
+
+TESS_API float TESS_CALL TessChoiceIteratorConfidence(const TessChoiceIterator* handle)
+{
+	return handle->Confidence();
 }
