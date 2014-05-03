@@ -367,6 +367,7 @@ TESS_API BOOL  TESS_CALL TessResultIteratorSymbolIsSuperscript(const TessResultI
 TESS_API BOOL  TESS_CALL TessResultIteratorSymbolIsSubscript(const TessResultIterator* handle);
 TESS_API BOOL  TESS_CALL TessResultIteratorSymbolIsDropcap(const TessResultIterator* handle);
 
+TESS_API void  TESS_CALL TessChoiceIteratorDelete(TessChoiceIterator* handle);
 TESS_API BOOL  TESS_CALL TessChoiceIteratorNext(TessChoiceIterator* handle);
 TESS_API const char* TESS_CALL TessChoiceIteratorGetUTF8Text(const TessChoiceIterator* handle);
 TESS_API float TESS_CALL TessChoiceIteratorConfidence(const TessChoiceIterator* handle);
