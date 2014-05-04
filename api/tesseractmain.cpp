@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
   bool noocr = false;
   bool list_langs = false;
   bool print_parameters = false;
+  GenericVector<STRING> vars_vec, vars_values;
 
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
   int arg = 1;
@@ -99,6 +100,14 @@ int main(int argc, char **argv) {
       ++arg;
     } else if (strcmp(argv[arg], "--tessdata-dir") == 0 && arg + 1 < argc) {
       datapath = argv[arg + 1];
+      ++arg;
+    } else if (strcmp(argv[arg], "--user-words") == 0 && arg + 1 < argc) {
+      vars_vec.push_back("user_words_file");
+      vars_values.push_back(argv[arg + 1]);
+      ++arg;
+    } else if (strcmp(argv[arg], "--user-patterns") == 0 && arg + 1 < argc) {
+      vars_vec.push_back("user_patterns_file");
+      vars_values.push_back(argv[arg + 1]);
       ++arg;
     } else if (strcmp(argv[arg], "--list-langs") == 0) {
       noocr = true;
@@ -130,8 +139,12 @@ int main(int argc, char **argv) {
             "[options...] [configfile...]\n\n", argv[0]);
 
     fprintf(stderr, "OCR options:\n");
-    fprintf(stderr, "  --tessdata-dir /path\tspecify location of tessdata"
+    fprintf(stderr, "  --tessdata-dir /path\tspecify the location of tessdata"
                       " path\n");
+    fprintf(stderr, "  --user-words /path/to/file\tspecify the location of user"
+            " words file\n");
+    fprintf(stderr, "  --user-patterns /path/to/file\tspecify the location of"
+            " user patterns file\n");
     fprintf(stderr, "  -l lang[+lang]\tspecify language(s) used for OCR\n");
     fprintf(stderr, "  -c configvar=value\tset value for control parameter.\n"
                       "\t\t\tMultiple -c arguments are allowed.\n");
@@ -168,7 +181,7 @@ int main(int argc, char **argv) {
 
   api.SetOutputName(output);
   int rc = api.Init(datapath, lang, tesseract::OEM_DEFAULT,
-                &(argv[arg]), argc - arg, NULL, NULL, false);
+                &(argv[arg]), argc - arg, &vars_vec, &vars_values, false);
 
   if (rc) {
     fprintf(stderr, "Could not initialize tesseract.\n");
