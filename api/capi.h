@@ -67,6 +67,7 @@ typedef struct TessBaseAPI TessBaseAPI;
 typedef struct TessPageIterator TessPageIterator;
 typedef struct TessResultIterator TessResultIterator;
 typedef struct TessMutableIterator TessMutableIterator;
+typedef struct TessChoiceIterator TessChoiceIterator;
 typedef enum TessOcrEngineMode     { OEM_TESSERACT_ONLY, OEM_CUBE_ONLY, OEM_TESSERACT_CUBE_COMBINED, OEM_DEFAULT } TessOcrEngineMode;
 typedef enum TessPageSegMode       { PSM_OSD_ONLY, PSM_AUTO_OSD, PSM_AUTO_ONLY, PSM_AUTO, PSM_SINGLE_COLUMN, PSM_SINGLE_BLOCK_VERT_TEXT,
                                      PSM_SINGLE_BLOCK, PSM_SINGLE_LINE, PSM_SINGLE_WORD, PSM_CIRCLE_WORD, PSM_SINGLE_CHAR, PSM_SPARSE_TEXT,
