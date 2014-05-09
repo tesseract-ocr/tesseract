@@ -862,8 +862,10 @@ class TESS_API TessBaseAPI {
    * Caller must destroy result.
    */
   TessResultRenderer* NewRenderer();
-};
+};  // class TessBaseAPI.
 
+/** Escape a char string - remove &<>"' with HTML codes. */
+const char* HOcrEscape(const char* text);
 }  // namespace tesseract.
 
 #endif  // TESSERACT_API_BASEAPI_H__
