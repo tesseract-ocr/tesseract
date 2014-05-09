@@ -355,7 +355,8 @@ int Tesseract::init_tesseract(
       for (int s = 0; s < sub_langs_.size(); ++s) {
         sub_langs_[s]->language_model_->getParamsModel().Clear();
       }
-      tprintf("Using default language params\n");
+      if (tessdata_manager_debug_level)
+        tprintf("Using default language params\n");
     }
   }
 
