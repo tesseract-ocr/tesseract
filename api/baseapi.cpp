@@ -1366,7 +1366,11 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
   hocr_str.add_str_int("  <div class='ocr_page' id='page_", page_id);
   hocr_str += "' title='image \"";
-  hocr_str += input_file_ ? HOcrEscape(input_file_->string()) : "unknown";
+  if (input_file_) {
+    HOcrEscape(input_file_->string(), hocr_str);
+  } else {
+    hocr_str += "unknown";
+  }
   hocr_str.add_str_int("\"; bbox ", rect_left_);
   hocr_str.add_str_int(" ", rect_top_);
   hocr_str.add_str_int(" ", rect_width_);
@@ -1443,7 +1447,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
       const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
       if (grapheme && grapheme[0] != 0) {
         if (grapheme[1] == 0) {
-          hocr_str += HOcrEscape(grapheme);
+          HOcrEscape(grapheme, hocr_str);
         } else {
           hocr_str += grapheme;
         }
@@ -2568,9 +2572,8 @@ TessResultRenderer* TessBaseAPI::NewRenderer() {
 }
 
 /** Escape a char string - remove <>&"' with HTML codes. */
-const char* HOcrEscape(const char* text) {
+const void HOcrEscape(const char* text, STRING& ret) {
   const char *ptr;
-  STRING ret;
   for (ptr = text; *ptr; ptr++) {
     switch (*ptr) {
       case '<': ret += "&lt;"; break;
@@ -2581,6 +2584,5 @@ const char* HOcrEscape(const char* text) {
       default: ret += *ptr;
     }
   }
-  return ret.string();
 }
 }  // namespace tesseract.
