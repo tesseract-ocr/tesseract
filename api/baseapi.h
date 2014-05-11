@@ -865,7 +865,7 @@ class TESS_API TessBaseAPI {
 };  // class TessBaseAPI.
 
 /** Escape a char string - remove &<>"' with HTML codes. */
-const void HOcrEscape(const char* text, STRING& ret);
+void HOcrEscape(const char* text, STRING& ret);
 }  // namespace tesseract.
 
 #endif  // TESSERACT_API_BASEAPI_H__

@@ -2572,7 +2572,7 @@ TessResultRenderer* TessBaseAPI::NewRenderer() {
 }
 
 /** Escape a char string - remove <>&"' with HTML codes. */
-const void HOcrEscape(const char* text, STRING& ret) {
+void HOcrEscape(const char* text, STRING& ret) {
   const char *ptr;
   for (ptr = text; *ptr; ptr++) {
     switch (*ptr) {
