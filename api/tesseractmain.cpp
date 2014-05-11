@@ -324,7 +324,9 @@ int main(int argc, char **argv) {
   if (renderer == NULL) renderer = new tesseract::TessTextRenderer();
 
   if (pixs) {
+    if (renderer) renderer->BeginDocument("");
     api.ProcessPage(pixs, 0, NULL, NULL, 0, renderer);
+    if (renderer) renderer->EndDocument();
     pixDestroy(&pixs);
   } else {
     FILE* fin = fopen(image, "rb");
