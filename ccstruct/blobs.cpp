@@ -35,7 +35,6 @@
 #include "ccstruct.h"
 #include "clst.h"
 #include "cutil.h"
-#include "emalloc.h"
 #include "helpers.h"
 #include "linlsq.h"
 #include "ndminx.h"

@@ -23,7 +23,6 @@
 #endif
 
 #include "featdefs.h"
-#include "emalloc.h"
 #include "danerror.h"
 #include "scanutils.h"
 
@@ -144,7 +143,7 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
   if (CharDesc) {
     for (i = 0; i < CharDesc->NumFeatureSets; i++)
       FreeFeatureSet (CharDesc->FeatureSets[i]);
-    Efree(CharDesc);
+    free(CharDesc);
   }
 }                                /* FreeCharDescription */
 
@@ -165,7 +164,7 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
   CHAR_DESC CharDesc;
   int i;
 
-  CharDesc = (CHAR_DESC) Emalloc (sizeof (CHAR_DESC_STRUCT));
+  CharDesc = (CHAR_DESC) malloc (sizeof (CHAR_DESC_STRUCT));
   CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
 
   for (i = 0; i < CharDesc->NumFeatureSets; i++)

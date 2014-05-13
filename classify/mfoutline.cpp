@@ -19,7 +19,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "clusttool.h"           //If remove you get cought in a loop somewhere
-#include "emalloc.h"
 #include "mfoutline.h"
 #include "blobs.h"
 #include "const.h"

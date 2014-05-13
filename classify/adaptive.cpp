@@ -20,7 +20,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "adaptive.h"
-#include "emalloc.h"
 #include "freelist.h"
 #include "globals.h"
 #include "classify.h"
@@ -111,7 +110,7 @@ ADAPT_CLASS NewAdaptedClass() {
   ADAPT_CLASS Class;
   int i;
 
-  Class = (ADAPT_CLASS) Emalloc (sizeof (ADAPT_CLASS_STRUCT));
+  Class = (ADAPT_CLASS) malloc (sizeof (ADAPT_CLASS_STRUCT));
   Class->NumPermConfigs = 0;
   Class->MaxNumTimesSeen = 0;
   Class->TempProtos = NIL_LIST;
@@ -144,7 +143,7 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
   FreeBitVector (adapt_class->PermProtos);
   FreeBitVector (adapt_class->PermConfigs);
   destroy_nodes (adapt_class->TempProtos, FreeTempProto);
-  Efree(adapt_class);
+  free(adapt_class);
 }
 
 
@@ -165,7 +164,7 @@ ADAPT_TEMPLATES Classify::NewAdaptedTemplates(bool InitFromUnicharset) {
   ADAPT_TEMPLATES Templates;
   int i;
 
-  Templates = (ADAPT_TEMPLATES) Emalloc (sizeof (ADAPT_TEMPLATES_STRUCT));
+  Templates = (ADAPT_TEMPLATES) malloc (sizeof (ADAPT_TEMPLATES_STRUCT));
 
   Templates->Templates = NewIntTemplates ();
   Templates->NumPermClasses = 0;
@@ -200,7 +199,7 @@ void free_adapted_templates(ADAPT_TEMPLATES templates) {
     for (i = 0; i < (templates->Templates)->NumClasses; i++)
       free_adapted_class (templates->Class[i]);
     free_int_templates (templates->Templates);
-    Efree(templates);
+    free(templates);
   }
 }
 
@@ -312,7 +311,7 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
   TEMP_PROTO TempProto;
 
   /* first read high level adapted class structure */
-  Class = (ADAPT_CLASS) Emalloc (sizeof (ADAPT_CLASS_STRUCT));
+  Class = (ADAPT_CLASS) malloc (sizeof (ADAPT_CLASS_STRUCT));
   fread ((char *) Class, sizeof (ADAPT_CLASS_STRUCT), 1, File);
 
   /* then read in the definitions of the permanent protos and configs */
@@ -363,7 +362,7 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(FILE *File) {
   ADAPT_TEMPLATES Templates;
 
   /* first read the high level adaptive template struct */
-  Templates = (ADAPT_TEMPLATES) Emalloc (sizeof (ADAPT_TEMPLATES_STRUCT));
+  Templates = (ADAPT_TEMPLATES) malloc (sizeof (ADAPT_TEMPLATES_STRUCT));
   fread ((char *) Templates, sizeof (ADAPT_TEMPLATES_STRUCT), 1, File);
 
   /* then read in the basic integer templates */

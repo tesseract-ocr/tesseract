@@ -20,7 +20,6 @@
 ----------------------------------------------------------------------------**/
 #include "flexfx.h"
 #include "featdefs.h"
-#include "emalloc.h"
 #include <string.h>
 #include <stdio.h>
 

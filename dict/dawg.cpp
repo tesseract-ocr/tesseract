@@ -34,7 +34,6 @@
 
 #include "cutil.h"
 #include "dict.h"
-#include "emalloc.h"
 #include "freelist.h"
 #include "helpers.h"
 #include "strngs.h"
