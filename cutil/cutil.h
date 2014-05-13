@@ -92,27 +92,6 @@ typedef void (*void_dest) (void *);
 #define print_string(str)  \
   printf ("%s\n", str)
 
-/**********************************************************************
- * strfree
- *
- * Reserve a spot in memory for the string to be stored. Copy the string
- * to it and return the result.
- **********************************************************************/
-
-#define strfree(s)  (free_string(s))
-
-/**********************************************************************
- * strsave
- *
- * Reserve a spot in memory for the string to be stored. Copy the string
- * to it and return the result.
- **********************************************************************/
-
-#define strsave(s)    \
-  ((s) != NULL ?  \
-   ((char*) strcpy (alloc_string(strlen(s)+1), s))  :  \
-   (NULL))
-
 /*----------------------------------------------------------------------
                      F u n c t i o n s
 ----------------------------------------------------------------------*/

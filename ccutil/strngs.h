@@ -23,7 +23,7 @@
 #include          <stdio.h>
 #include          <string.h>
 #include          "platform.h"
-#include          "memry.h"
+#include	  "host.h"
 
 // STRING_IS_PROTECTED means that  string[index] = X is invalid
 // because you have to go through strings interface to modify it.

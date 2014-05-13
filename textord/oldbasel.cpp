@@ -131,7 +131,7 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
     block->xheight = block->line_size;
     return;                      /*none to do */
   }
-  rows = (TO_ROW **) alloc_mem (rowcount * sizeof (TO_ROW *));
+  rows = (TO_ROW **) malloc (rowcount * sizeof (TO_ROW *));
   rowindex = 0;
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
                                  //make array
@@ -150,7 +150,7 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
     compute_block_xheight(block, gradient);
   }
 
-  free_mem(rows);
+  free(rows);
 }
 
 
@@ -347,11 +347,11 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
 
                                  //no of blobs in row
   blobcount = row->blob_list ()->length ();
-  partids = (char *) alloc_mem (blobcount * sizeof (char));
-  xcoords = (int *) alloc_mem (blobcount * sizeof (int));
-  ycoords = (int *) alloc_mem (blobcount * sizeof (int));
-  blobcoords = (TBOX *) alloc_mem (blobcount * sizeof (TBOX));
-  ydiffs = (float *) alloc_mem (blobcount * sizeof (float));
+  partids = (char *) malloc (blobcount * sizeof (char));
+  xcoords = (int *) malloc (blobcount * sizeof (int));
+  ycoords = (int *) malloc (blobcount * sizeof (int));
+  blobcoords = (TBOX *) malloc (blobcount * sizeof (TBOX));
+  ydiffs = (float *) malloc (blobcount * sizeof (float));
 
   lineheight = get_blob_coords (row, (int) block->line_size, blobcoords,
     holed_line, blobcount);
@@ -421,11 +421,11 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
     compute_row_xheight(row, block->block->classify_rotation(),
                         row->line_m(), block->line_size);
   }
-  free_mem(partids);
-  free_mem(xcoords);
-  free_mem(ycoords);
-  free_mem(blobcoords);
-  free_mem(ydiffs);
+  free(partids);
+  free(xcoords);
+  free(ycoords);
+  free(blobcoords);
+  free(ydiffs);
 }
 
 }  // namespace tesseract.

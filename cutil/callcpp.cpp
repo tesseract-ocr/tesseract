@@ -28,7 +28,6 @@
 #include <stdarg.h>
 #endif
 #include          <time.h>
-#include          "memry.h"
 #include          "scrollview.h"
 #include          "params.h"
 #include          "callcpp.h"

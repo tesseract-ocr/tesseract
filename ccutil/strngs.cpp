@@ -47,7 +47,7 @@ const int kMaxDoubleSize = 15;
 const int kMinCapacity = 16;
 
 char* STRING::AllocData(int used, int capacity) {
-  data_ = (STRING_HEADER *)alloc_string(capacity + sizeof(STRING_HEADER));
+  data_ = (STRING_HEADER *)malloc(capacity + sizeof(STRING_HEADER));
 
   // header is the metadata for this memory block
   STRING_HEADER* header = GetHeader();
@@ -57,7 +57,7 @@ char* STRING::AllocData(int used, int capacity) {
 }
 
 void STRING::DiscardData() {
-  free_string((char *)data_);
+  free(data_);
 }
 
 // This is a private method; ensure FixHeader is called (or used_ is well defined)
@@ -74,7 +74,7 @@ char* STRING::ensure_cstr(inT32 min_capacity) {
     min_capacity = 2 * orig_header->capacity_;
 
   int alloc = sizeof(STRING_HEADER) + min_capacity;
-  STRING_HEADER* new_header = (STRING_HEADER*)(alloc_string(alloc));
+  STRING_HEADER* new_header = (STRING_HEADER*)malloc(alloc);
 
   memcpy(&new_header[1], GetCStr(), orig_header->used_);
   new_header->capacity_ = min_capacity;

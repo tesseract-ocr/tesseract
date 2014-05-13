@@ -88,7 +88,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
 
     ~C_OUTLINE () {              //destructor
       if (steps != NULL)
-        free_mem(steps);
+        free (steps);
       steps = NULL;
       delete [] offsets;
     }
