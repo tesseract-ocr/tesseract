@@ -33,7 +33,6 @@
 #include "picofeat.h"
 #include "float2int.h"
 #include "outfeat.h"
-#include "emalloc.h"
 #include "intfx.h"
 #include "efio.h"
 #include "normmatch.h"

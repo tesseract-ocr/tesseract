@@ -19,7 +19,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "ocrfeatures.h"
-#include "emalloc.h"
 #include "callcpp.h"
 #include "danerror.h"
 #include "freelist.h"
@@ -128,7 +127,7 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
  */
   FEATURE_SET FeatureSet;
 
-  FeatureSet = (FEATURE_SET) Emalloc (sizeof (FEATURE_SET_STRUCT) +
+  FeatureSet = (FEATURE_SET) malloc (sizeof (FEATURE_SET_STRUCT) +
     (NumFeatures - 1) * sizeof (FEATURE));
   FeatureSet->MaxNumFeatures = NumFeatures;
   FeatureSet->NumFeatures = 0;

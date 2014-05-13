@@ -23,7 +23,6 @@
 -----------------------------------------------------------------------------*/
 #include "kdtree.h"
 #include "const.h"
-#include "emalloc.h"
 #include "freelist.h"
 #include <stdio.h>
 #include <math.h>
@@ -182,7 +181,7 @@ void KDTreeSearch::Search(int *result_count,
 ///      KeySize  # of dimensions in the K-D tree
 ///      KeyDesc  array of params to describe key dimensions
 KDTREE *MakeKDTree(inT16 KeySize, const PARAM_DESC KeyDesc[]) {
-  KDTREE *KDTree = (KDTREE *) Emalloc(
+  KDTREE *KDTree = (KDTREE *) malloc(
       sizeof(KDTREE) + (KeySize - 1) * sizeof(PARAM_DESC));
   for (int i = 0; i < KeySize; i++) {
     KDTree->KeyDesc[i].NonEssential = KeyDesc[i].NonEssential;
@@ -389,7 +388,7 @@ KDNODE *MakeKDNode(KDTREE *tree, FLOAT32 Key[], void *Data, int Index) {
  */
   KDNODE *NewNode;
 
-  NewNode = (KDNODE *) Emalloc (sizeof (KDNODE));
+  NewNode = (KDNODE *) malloc (sizeof (KDNODE));
 
   NewNode->Key = Key;
   NewNode->Data = Data;
