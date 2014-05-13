@@ -21,7 +21,6 @@
 #include          <assert.h>
 #endif
 #include          <math.h>
-#include          "memry.h"
 #include          "makerow.h"
 #include          "pitsync1.h"
 #include          "topitch.h"
@@ -362,7 +361,7 @@ double check_pitch_sync2(                          //find segmentation
       projection_scale, occupation_count, seg_list,
       start, end);
   array_origin = left_edge - pitch;
-  cutpts = (FPCUTPT *) alloc_mem ((right_edge - left_edge + pitch * 2 + 1)
+  cutpts = (FPCUTPT *) malloc ((right_edge - left_edge + pitch * 2 + 1)
     * sizeof (FPCUTPT));
   for (x = array_origin; x < left_edge; x++)
                                  //free cuts
@@ -476,7 +475,7 @@ double check_pitch_sync2(                          //find segmentation
   if (seg_it.data ()->squares () - mean_sum < 0)
     tprintf ("Impossible sqsum=%g, mean=%g, total=%d\n",
       seg_it.data ()->squares (), seg_it.data ()->sum (), best_count);
-  free_mem(cutpts);
+  free(cutpts);
   //      tprintf("blob_count=%d, pitch=%d, sync=%g, occ=%d\n",
   //              blob_count,pitch,seg_it.data()->squares()-mean_sum,
   //              occupation_count);
@@ -542,9 +541,9 @@ double check_pitch_sync3(                          //find segmentation
   for (right_edge = projection_right; projection->pile_count (right_edge) == 0
     && right_edge > left_edge; right_edge--);
   array_origin = left_edge - pitch;
-  cutpts = (FPCUTPT *) alloc_mem ((right_edge - left_edge + pitch * 2 + 1)
+  cutpts = (FPCUTPT *) malloc ((right_edge - left_edge + pitch * 2 + 1)
     * sizeof (FPCUTPT));
-  mins = (BOOL8 *) alloc_mem ((pitch_error * 2 + 1) * sizeof (BOOL8));
+  mins = (BOOL8 *) malloc ((pitch_error * 2 + 1) * sizeof (BOOL8));
   for (x = array_origin; x < left_edge; x++)
                                  //free cuts
     cutpts[x - array_origin].setup (cutpts, array_origin, projection, zero_count, pitch, x, 0);
@@ -689,7 +688,7 @@ double check_pitch_sync3(                          //find segmentation
   if (seg_it.data ()->squares () - mean_sum < 0)
     tprintf ("Impossible sqsum=%g, mean=%g, total=%d\n",
       seg_it.data ()->squares (), seg_it.data ()->sum (), best_count);
-  free_mem(mins);
-  free_mem(cutpts);
+  free(mins);
+  free(cutpts);
   return seg_it.data ()->squares () - mean_sum;
 }

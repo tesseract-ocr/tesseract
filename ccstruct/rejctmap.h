@@ -44,7 +44,6 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #ifdef __UNIX__
 #include          <assert.h>
 #endif
-#include          "memry.h"
 #include          "bits16.h"
 #include                   "params.h"
 
@@ -221,7 +220,7 @@ class REJMAP
 
     ~REJMAP () {                 //destructor
       if (ptr != NULL)
-        free_struct (ptr, len * sizeof (REJ), "REJ");
+        free (ptr);
     }
 
     void initialise(  //Redefine map

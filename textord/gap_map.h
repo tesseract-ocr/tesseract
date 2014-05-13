@@ -11,7 +11,7 @@ class GAPMAP
 
     ~GAPMAP () {                 //destructor
       if (map != NULL)
-        free_mem(map);
+        free(map);
     }
 
     BOOL8 table_gap(               //Is gap a table?

@@ -317,9 +317,9 @@ void compute_page_skew(                        //get average gradient
     page_err = 0.0f;
     return;
   }
-  gradients = (float *) alloc_mem (blob_count * sizeof (float));
+  gradients = (float *) malloc (blob_count * sizeof (float));
   //get mem
-  errors = (float *) alloc_mem (blob_count * sizeof (float));
+  errors = (float *) malloc (blob_count * sizeof (float));
   if (gradients == NULL || errors == NULL)
     MEMORY_OUT.error ("compute_page_skew", ABORT, NULL);
 
@@ -376,8 +376,8 @@ void compute_page_skew(                        //get average gradient
   row_index = choose_nth_item ((inT32) (row_count * textord_skew_ile),
     errors, row_count);
   page_err = errors[row_index];
-  free_mem(gradients);
-  free_mem(errors);
+  free(gradients);
+  free(errors);
 }
 
 const double kNoiseSize = 0.5;  // Fraction of xheight.
@@ -613,8 +613,8 @@ void delete_non_dropout_rows(                   //find lines
   line_count = max_y - min_y + 1;
   if (line_count <= 0)
     return;                      //empty block
-  deltas = (inT32 *) alloc_mem (line_count * sizeof (inT32));
-  occupation = (inT32 *) alloc_mem (line_count * sizeof (inT32));
+  deltas = (inT32 *) malloc (line_count * sizeof (inT32));
+  occupation = (inT32 *) malloc (line_count * sizeof (inT32));
   if (deltas == NULL || occupation == NULL)
     MEMORY_OUT.error ("compute_line_spacing", ABORT, NULL);
 
@@ -652,8 +652,8 @@ void delete_non_dropout_rows(                   //find lines
     blob_it.add_list_after (row_it.data ()->blob_list ());
   }
 
-  free_mem(deltas);
-  free_mem(occupation);
+  free(deltas);
+  free(occupation);
 }
 
 
@@ -1180,7 +1180,7 @@ void compute_row_stats(                  //find lines
   inT16 rowcount = row_it.length ();
   TO_ROW **rows;                 //for choose nth
 
-  rows = (TO_ROW **) alloc_mem (rowcount * sizeof (TO_ROW *));
+  rows = (TO_ROW **) malloc (rowcount * sizeof (TO_ROW *));
   if (rows == NULL)
     MEMORY_OUT.error ("compute_row_stats", ABORT, NULL);
   rowcount = 0;
@@ -1248,7 +1248,7 @@ void compute_row_stats(                  //find lines
   if (testing_on)
     tprintf ("\nEstimate line size=%g, spacing=%g, offset=%g\n",
       block->line_size, block->line_spacing, block->baseline_offset);
-  free_mem(rows);
+  free(rows);
 }
 
 
@@ -2091,21 +2091,21 @@ void make_baseline_spline(TO_ROW *row,     //row to fit
   inT32 segments;                // no of segments
 
   xstarts =
-    (inT32 *) alloc_mem((row->blob_list()->length() + 1) * sizeof(inT32));
+    (inT32 *) malloc((row->blob_list()->length() + 1) * sizeof(inT32));
   if (segment_baseline(row, block, segments, xstarts)
   && !textord_straight_baselines && !textord_parallel_baselines) {
     coeffs = linear_spline_baseline(row, block, segments, xstarts);
   } else {
     xstarts[1] = xstarts[segments];
     segments = 1;
-    coeffs = (double *) alloc_mem (3 * sizeof (double));
+    coeffs = (double *) malloc (3 * sizeof (double));
     coeffs[0] = 0;
     coeffs[1] = row->line_m ();
     coeffs[2] = row->line_c ();
   }
   row->baseline = QSPLINE (segments, xstarts, coeffs);
-  free_mem(coeffs);
-  free_mem(xstarts);
+  free(coeffs);
+  free(xstarts);
 }
 
 
@@ -2247,7 +2247,7 @@ inT32 xstarts[]                  //coords of segments
   if (segments < 1)
     segments = 1;
   blobs_per_segment = blobcount / segments;
-  coeffs = (double *) alloc_mem (segments * 3 * sizeof (double));
+  coeffs = (double *) malloc (segments * 3 * sizeof (double));
   if (textord_oldbl_debug)
     tprintf
       ("Linear splining baseline of %d blobs at (%d,%d), into %d segments of %d blobs\n",
