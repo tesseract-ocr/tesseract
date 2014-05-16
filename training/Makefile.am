@@ -284,11 +284,27 @@ cntraining_LDADD += -lws2_32
 combine_tessdata_LDADD += -lws2_32
 dawg2wordlist_LDADD += -lws2_32
 mftraining_LDADD += -lws2_32
+set_unicharset_properties_LDADD += -lws2_32
 shapeclustering_LDADD += -lws2_32
 unicharset_extractor_LDADD += -lws2_32
+text2image_LDADD += -lws2_32
 wordlist2dawg_LDADD += -lws2_32
 
 AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port
 noinst_HEADERS += ../vs2010/port/strcasestr.h
 libtesseract_training_la_SOURCES += ../vs2010/port/strcasestr.cpp
+endif
+
+if USE_OPENCL
+ambiguous_words_LDADD += $(OPENCL_LIB)
+classifier_tester_LDADD += $(OPENCL_LIB)
+cntraining_LDADD += $(OPENCL_LIB)
+combine_tessdata_LDADD += $(OPENCL_LIB)
+dawg2wordlist_LDADD += $(OPENCL_LIB)
+mftraining_LDADD += $(OPENCL_LIB)
+set_unicharset_properties_LDADD += $(OPENCL_LIB)
+shapeclustering_LDADD += $(OPENCL_LIB)
+text2image_LDADD += $(OPENCL_LIB)
+unicharset_extractor_LDADD += $(OPENCL_LIB)
+wordlist2dawg_LDADD += $(OPENCL_LIB)
 endif
