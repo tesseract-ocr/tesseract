@@ -356,7 +356,8 @@ TESS_API const TessChoiceIterator*
 TESS_API BOOL  TESS_CALL TessResultIteratorNext(TessResultIterator* handle, TessPageIteratorLevel level);
 TESS_API char* TESS_CALL TessResultIteratorGetUTF8Text(const TessResultIterator* handle, TessPageIteratorLevel level);
 TESS_API float TESS_CALL TessResultIteratorConfidence(const TessResultIterator* handle, TessPageIteratorLevel level);
-
+TESS_API const char*
+               TESS_CALL TessResultIteratorWordRecognitionLanguage(const TessResultIterator* handle);
 TESS_API const char*
                TESS_CALL TessResultIteratorWordFontAttributes(const TessResultIterator* handle, BOOL* is_bold, BOOL* is_italic,
                                                               BOOL* is_underlined, BOOL* is_monospace, BOOL* is_serif,

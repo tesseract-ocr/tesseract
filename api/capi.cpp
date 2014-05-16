@@ -742,6 +742,11 @@ TESS_API float TESS_CALL TessResultIteratorConfidence(const TessResultIterator* 
     return handle->Confidence(level);
 }
 
+TESS_API const char* TESS_CALL TessResultIteratorWordRecognitionLanguage(const TessResultIterator* handle)
+{
+    return handle->WordRecognitionLanguage();
+}
+
 TESS_API const char* TESS_CALL TessResultIteratorWordFontAttributes(const TessResultIterator* handle, BOOL* is_bold, BOOL* is_italic,
                                                                           BOOL* is_underlined, BOOL* is_monospace, BOOL* is_serif,
                                                                           BOOL* is_smallcaps, int* pointsize, int* font_id)
