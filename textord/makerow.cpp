@@ -2667,14 +2667,16 @@ void mark_repeated_chars(TO_ROW *row) {
   if (!box_it.empty()) {
     do {
       BLOBNBOX* bblob = box_it.data();
-      int repeat_length = 0;
+      int repeat_length = 1;
       if (bblob->flow() == BTFT_LEADER &&
           !bblob->joined_to_prev() && bblob->cblob() != NULL) {
         BLOBNBOX_IT test_it(box_it);
-        for (test_it.forward(); !test_it.at_first(); test_it.forward()) {
+        for (test_it.forward(); !test_it.at_first();) {
           bblob = test_it.data();
           if (bblob->flow() != BTFT_LEADER)
             break;
+          test_it.forward();
+          bblob = test_it.data();
           if (bblob->joined_to_prev() || bblob->cblob() == NULL) {
             repeat_length = 0;
             break;
@@ -2688,11 +2690,9 @@ void mark_repeated_chars(TO_ROW *row) {
           bblob = box_it.data();
           bblob->set_repeated_set(num_repeated_sets);
         }
-        if (!box_it.at_first())
-          bblob->set_repeated_set(0);
      } else {
-        box_it.forward();
         bblob->set_repeated_set(0);
+        box_it.forward();
       }
     } while (!box_it.at_first());  // until all done
   }

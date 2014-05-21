@@ -111,25 +111,25 @@ void Textord::block_spacing_stats(
     TO_BLOCK *block,
     GAPMAP *gapmap,
     BOOL8 &old_text_ord_proportional,
-    inT16 &block_space_gap_width,     //resulting estimate
-    inT16 &block_non_space_gap_width  //resulting estimate
+    inT16 &block_space_gap_width,     // resulting estimate
+    inT16 &block_non_space_gap_width  // resulting estimate
                                   ) {
-  TO_ROW_IT row_it;              //row iterator
-  TO_ROW *row;                   //current row
-  BLOBNBOX_IT blob_it;           //iterator
+  TO_ROW_IT row_it;              // row iterator
+  TO_ROW *row;                   // current row
+  BLOBNBOX_IT blob_it;           // iterator
 
   STATS centre_to_centre_stats (0, MAXSPACING);
-  //DEBUG USE ONLY
+  // DEBUG USE ONLY
   STATS all_gap_stats (0, MAXSPACING);
   STATS space_gap_stats (0, MAXSPACING);
-  inT16 minwidth = MAX_INT16;    //narrowest blob
+  inT16 minwidth = MAXSPACING;    // narrowest blob
   TBOX blob_box;
   TBOX prev_blob_box;
   inT16 centre_to_centre;
   inT16 gap_width;
   float real_space_threshold;
-  float iqr_centre_to_centre;    //DEBUG USE ONLY
-  float iqr_all_gap_stats;       //DEBUG USE ONLY
+  float iqr_centre_to_centre;    // DEBUG USE ONLY
+  float iqr_all_gap_stats;       // DEBUG USE ONLY
   inT32 end_of_row;
   inT32 row_length;
 
@@ -885,32 +885,32 @@ ROW *Textord::make_prop_words(
     TO_ROW *row,     // row to make
     FCOORD rotation  // for drawing
                               ) {
-  BOOL8 bol;                     //start of line
+  BOOL8 bol;                     // start of line
   /* prev_ values are for start of word being built. non prev_ values are for
   the gap between the word being built and the next one. */
-  BOOL8 prev_fuzzy_sp;           //probably space
-  BOOL8 prev_fuzzy_non;          //probably not
-  uinT8 prev_blanks;             //in front of word
-  BOOL8 fuzzy_sp;                //probably space
-  BOOL8 fuzzy_non;               //probably not
-  uinT8 blanks;                  //in front of word
+  BOOL8 prev_fuzzy_sp;           // probably space
+  BOOL8 prev_fuzzy_non;          // probably not
+  uinT8 prev_blanks;             // in front of word
+  BOOL8 fuzzy_sp = false;        // probably space
+  BOOL8 fuzzy_non = false;       // probably not
+  uinT8 blanks = 0;              // in front of word
   BOOL8 prev_gap_was_a_space = FALSE;
   BOOL8 break_at_next_gap = FALSE;
-  ROW *real_row;                 //output row
+  ROW *real_row;                 // output row
   C_OUTLINE_IT cout_it;
   C_BLOB_LIST cblobs;
   C_BLOB_IT cblob_it = &cblobs;
   WERD_LIST words;
-  WERD_IT word_it;               //new words
-  WERD *word;                    //new word
-  WERD_IT rep_char_it;           //repeated char words
+  WERD_IT word_it;               // new words
+  WERD *word;                    // new word
+  WERD_IT rep_char_it;           // repeated char words
   inT32 next_rep_char_word_right = MAX_INT32;
-  float repetition_spacing;      //gap between repetitions
-  inT32 xstarts[2];              //row ends
-  inT32 prev_x;                  //end of prev blob
-  BLOBNBOX *bblob;               //current blob
-  TBOX blob_box;                  //bounding box
-  BLOBNBOX_IT box_it;            //iterator
+  float repetition_spacing;      // gap between repetitions
+  inT32 xstarts[2];              // row ends
+  inT32 prev_x;                  // end of prev blob
+  BLOBNBOX *bblob;               // current blob
+  TBOX blob_box;                 // bounding box
+  BLOBNBOX_IT box_it;            // iterator
   TBOX prev_blob_box;
   TBOX next_blob_box;
   inT16 prev_gap = MAX_INT16;

@@ -132,7 +132,7 @@ uintmax_t streamtoumax(FILE* s, int base) {
   } else if (base == 16) {
     if (c == '0') {
       c = fgetc(s);
-      if (c == 'x' && c == 'X') c = fgetc(s);
+      if (c == 'x' || c == 'X') c = fgetc(s);
     }
   }
 

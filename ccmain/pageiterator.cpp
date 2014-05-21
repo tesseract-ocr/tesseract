@@ -432,15 +432,16 @@ Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
  * padding, so the top-left position of the returned image is returned
  * in (left,top). These will most likely not match the coordinates
  * returned by BoundingBox.
+ * If you do not supply an original image, you will get a binary one.
  * Use pixDestroy to delete the image after use.
  */
 Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
+                            Pix* original_img,
                             int* left, int* top) const {
   int right, bottom;
   if (!BoundingBox(level, left, top, &right, &bottom))
     return NULL;
-  Pix* pix = tesseract_->pix_grey();
-  if (pix == NULL)
+  if (original_img == NULL)
     return GetBinaryImage(level);
 
   // Expand the box.
@@ -449,7 +450,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
   right = MIN(right + padding, rect_width_);
   bottom = MIN(bottom + padding, rect_height_);
   Box* box = boxCreate(*left, *top, right - *left, bottom - *top);
-  Pix* grey_pix = pixClipRectangle(pix, box, NULL);
+  Pix* grey_pix = pixClipRectangle(original_img, box, NULL);
   boxDestroy(&box);
   if (level == RIL_BLOCK) {
     Pix* mask = it_->block()->block->render_mask();
@@ -460,7 +461,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
     pixDestroy(&mask);
     pixDilateBrick(expanded_mask, expanded_mask, 2*padding + 1, 2*padding + 1);
     pixInvert(expanded_mask, expanded_mask);
-    pixSetMasked(grey_pix, expanded_mask, 255);
+    pixSetMasked(grey_pix, expanded_mask, MAX_UINT32);
     pixDestroy(&expanded_mask);
   }
   return grey_pix;

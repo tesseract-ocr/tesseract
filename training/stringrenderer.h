@@ -57,7 +57,8 @@ class StringRenderer {
   int RenderToBinaryImage(const char* text, int text_length, int threshold,
                           Pix** pix);
   // Renders a line of text with all available fonts that were able to render
-  // the text.
+  // at least min_coverage fraction of the input text. Use 1.0 to require that
+  // a font be able to render all the text.
   int RenderAllFontsToImage(double min_coverage, const char* text,
                             int text_length, string* font_used, Pix** pix);
 

@@ -86,7 +86,7 @@ class TESS_API PageIterator {
   // ============= Moving around within the page ============.
 
   /**
-   * Moves the iterator to point to the start of the page to begin an 
+   * Moves the iterator to point to the start of the page to begin an
    * iteration.
    */
   virtual void Begin();
@@ -234,9 +234,10 @@ class TESS_API PageIterator {
    * padding, so the top-left position of the returned image is returned
    * in (left,top). These will most likely not match the coordinates
    * returned by BoundingBox.
+   * If you do not supply an original image, you will get a binary one.
    * Use pixDestroy to delete the image after use.
    */
-  Pix* GetImage(PageIteratorLevel level, int padding,
+  Pix* GetImage(PageIteratorLevel level, int padding, Pix* original_img,
                 int* left, int* top) const;
 
   /**

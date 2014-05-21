@@ -122,7 +122,8 @@ BOOL_PARAM_FLAG(render_per_font, true,
                 "Image filenames are of the form output_name.font_name.tif");
 DOUBLE_PARAM_FLAG(min_coverage, 1.0,
                   "If find_fonts==true, the minimum coverage the font has of "
-                  "the characters in the text file to include it, between 0 and 1.");
+                  "the characters in the text file to include it, between "
+                  "0 and 1.");
 
 BOOL_PARAM_FLAG(list_available_fonts, false, "List available fonts and quit.");
 
