@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
   // Make the order of args a bit more forgiving than it used to be.
   const char* lang = "eng";
   const char* image = NULL;
-  const char* output = NULL;
+  const char* outputbase = NULL;
   const char* datapath = NULL;
   bool noocr = false;
   bool list_langs = false;
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
 
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
   int arg = 1;
-  while (arg < argc && (output == NULL || argv[arg][0] == '-')) {
+  while (arg < argc && (outputbase == NULL || argv[arg][0] == '-')) {
     if (strcmp(argv[arg], "-l") == 0 && arg + 1 < argc) {
       lang = argv[arg + 1];
       ++arg;
@@ -123,8 +123,8 @@ int main(int argc, char **argv) {
       ++arg;
     } else if (image == NULL) {
       image = argv[arg];
-    } else if (output == NULL) {
-      output = argv[arg];
+    } else if (outputbase == NULL) {
+      outputbase = argv[arg];
     }
     ++arg;
   }
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
     noocr = true;
   }
 
-  if (output == NULL && noocr == false) {
+  if (outputbase == NULL && noocr == false) {
     fprintf(stderr, "Usage:\n  %s imagename|stdin outputbase|stdout "
             "[options...] [configfile...]\n\n", argv[0]);
 
@@ -172,14 +172,15 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  if (output != NULL && strcmp(output, "-") && strcmp(output, "stdout")) {
+  if (outputbase != NULL && strcmp(outputbase, "-") &&
+      strcmp(outputbase, "stdout")) {
     tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
            tesseract::TessBaseAPI::Version());
   }
   PERF_COUNT_START("Tesseract:main")
   tesseract::TessBaseAPI api;
 
-  api.SetOutputName(output);
+  api.SetOutputName(outputbase);
   int rc = api.Init(datapath, lang, tesseract::OEM_DEFAULT,
                 &(argv[arg]), argc - arg, &vars_vec, &vars_values, false);
 
@@ -192,7 +193,12 @@ int main(int argc, char **argv) {
   for (arg = 0; arg < argc; arg++) {
     if (strcmp(argv[arg], "-c") == 0 && arg + 1 < argc) {
       strncpy(opt1, argv[arg + 1], 255);
-      *(strchr(opt1, '=')) = 0;
+      char *p = strchr(opt1, '=');
+      if (!p) {
+        fprintf(stderr, "Missing = in configvar assignment\n");
+        exit(1);
+      }
+      *p = 0;
       strncpy(opt2, strchr(argv[arg + 1], '=') + 1, 255);
       opt2[254] = 0;
       ++arg;
@@ -239,32 +245,11 @@ int main(int argc, char **argv) {
   if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
      api.SetPageSegMode(pagesegmode);
 
-  bool stdInput = !strcmp(image, "stdin") || !strcmp(image, "-");
-  Pix* pixs = NULL;
-  if (stdInput) {
-    char byt;
-    GenericVector<l_uint8> ch_data;
-    std::istream file(std::cin.rdbuf());
-
-#ifdef WIN32
-    if (_setmode(_fileno(stdin), _O_BINARY) == -1)
-      tprintf("ERROR: cin to binary: %s", strerror(errno));
-#endif  // WIN32
-
-    while (file.get(byt)) {
-      ch_data.push_back(byt);
-    }
-    std::cin.ignore(std::cin.rdbuf()->in_avail() + 1);
-
-    pixs = pixReadMem(&ch_data[0], ch_data.size());
-  }
-
   if (pagesegmode == tesseract::PSM_AUTO_ONLY ||
       pagesegmode == tesseract::PSM_OSD_ONLY) {
     int ret_val = 0;
 
-    if (!pixs)
-      pixs = pixRead(image);
+    Pix* pixs = pixRead(image);
     if (!pixs) {
       fprintf(stderr, "Cannot open input file: %s\n", image);
       exit(2);
@@ -296,7 +281,7 @@ int main(int argc, char **argv) {
          it->Orientation(&orientation, &direction, &order, &deskew_angle);
          tprintf("Orientation: %d\nWritingDirection: %d\nTextlineOrder: %d\n" \
                  "Deskew angle: %.4f\n",
-                  orientation, direction, order, deskew_angle);
+                 orientation, direction, order, deskew_angle);
        } else {
          ret_val = 1;
        }
@@ -309,59 +294,29 @@ int main(int argc, char **argv) {
   tesseract::TessResultRenderer* renderer = NULL;
   bool b;
   api.GetBoolVariable("tessedit_create_hocr", &b);
-  if (b && renderer == NULL) renderer = new tesseract::TessHOcrRenderer();
+  if (b)
+    renderer = new tesseract::TessHOcrRenderer(outputbase);
 
   api.GetBoolVariable("tessedit_create_pdf", &b);
   if (b && renderer == NULL)
-    renderer = new tesseract::TessPDFRenderer(api.GetDatapath());
+    renderer = new tesseract::TessPDFRenderer(outputbase, api.GetDatapath());
 
   api.GetBoolVariable("tessedit_write_unlv", &b);
-  if (b && renderer == NULL) renderer = new tesseract::TessUnlvRenderer();
+  if (b && renderer == NULL)
+    renderer = new tesseract::TessUnlvRenderer(outputbase);
 
   api.GetBoolVariable("tessedit_create_boxfile", &b);
-  if (b && renderer == NULL) renderer = new tesseract::TessBoxTextRenderer();
+  if (b && renderer == NULL)
+    renderer = new tesseract::TessBoxTextRenderer(outputbase);
 
-  if (renderer == NULL) renderer = new tesseract::TessTextRenderer();
+  if (renderer == NULL)
+    renderer = new tesseract::TessTextRenderer(outputbase);
 
-  if (pixs) {
-    if (renderer) renderer->BeginDocument("");
-    api.ProcessPage(pixs, 0, NULL, NULL, 0, renderer);
-    if (renderer) renderer->EndDocument();
-    pixDestroy(&pixs);
-  } else {
-    FILE* fin = fopen(image, "rb");
-    if (fin == NULL) {
-      fprintf(stderr, "Cannot open input file: %s\n", image);
-      exit(2);
-    }
-    fclose(fin);
-    if (!api.ProcessPages(image, NULL, 0, renderer)) {
-      fprintf(stderr, "Error during processing.\n");
-      exit(1);
-    }
+  if (!api.ProcessPages(image, NULL, 0, renderer)) {
+    fprintf(stderr, "Error during processing.\n");
+    exit(1);
   }
 
-  FILE* fout = stdout;
-  if (strcmp(output, "-") && strcmp(output, "stdout")) {
-    STRING outfile = STRING(output)
-        + STRING(".")
-        + STRING(renderer->file_extension());
-    fout = fopen(outfile.string(), "wb");
-    if (fout == NULL) {
-      fprintf(stderr, "Cannot create output file %s\n", outfile.string());
-      exit(1);
-    }
-  }
-
-  const char* data;
-  inT32 data_len;
-  if (renderer->GetOutput(&data, &data_len)) {
-    fwrite(data, 1, data_len, fout);
-    if (fout != stdout)
-      fclose(fout);
-    else
-      clearerr(fout);
-  }
   PERF_COUNT_END
   return 0;                      // Normal exit
 }

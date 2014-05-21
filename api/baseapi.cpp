@@ -41,6 +41,11 @@
 #include <string.h>
 #endif  // _WIN32
 
+#include <iostream>
+#include <string>
+#include <iterator>
+#include <fstream>
+
 #if !defined(VERSION)
 #include "version.h"
 #endif
@@ -72,6 +77,8 @@
 #include "renderer.h"
 #include "strngs.h"
 #include "openclwrapper.h"
+
+BOOL_VAR(stream_filelist, FALSE, "Stream a filelist from stdin");
 
 namespace tesseract {
 
@@ -536,9 +543,10 @@ void TessBaseAPI::SetSourceResolution(int ppi) {
  * Because of that, an implementation that sources and targets Pix may end up
  * with less copies than an implementation that does not.
  */
-void TessBaseAPI::SetImage(const Pix* pix) {
+void TessBaseAPI::SetImage(Pix* pix) {
   if (InternalSetImage())
     thresholder_->SetImage(pix);
+  SetInputImage(pix);
 }
 
 /**
@@ -681,7 +689,8 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
       if (pixa != NULL) {
         Pix* pix = NULL;
         if (raw_image) {
-          pix = page_it->GetImage(level, raw_padding, &left, &top);
+          pix = page_it->GetImage(level, raw_padding, input_image_,
+                                  &left, &top);
         } else {
           pix = page_it->GetBinaryImage(level);
         }
@@ -907,50 +916,12 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
   return 0;
 }
 
-/**
- * Recognizes all the pages in the named file, as a multi-page tiff or
- * list of filenames, or single image, and gets the appropriate kind of text
- * according to parameters: tessedit_create_boxfile,
- * tessedit_make_boxes_from_boxes, tessedit_write_unlv, tessedit_create_hocr.
- * Calls ProcessPage on each page in the input file, which may be a
- * multi-page tiff, single-page other file format, or a plain text list of
- * images to read. If tessedit_page_number is non-negative, processing begins
- * at that page of a multi-page tiff file, or filelist.
- * The text is returned in text_out. Returns false on error.
- * If non-zero timeout_millisec terminates processing after the timeout on
- * a single page.
- * If non-NULL and non-empty, and some page fails for some reason,
- * the page is reprocessed with the retry_config config file. Useful
- * for interactively debugging a bad page.
- */
-bool TessBaseAPI::ProcessPages(const char* filename,
-                               const char* retry_config, int timeout_millisec,
-                               STRING* text_out) {
-  TessResultRenderer* renderer = NewRenderer();
-
-  if (!ProcessPages(filename, retry_config, timeout_millisec, renderer)) {
-    delete renderer;
-    return false;
-  }
-
-  const char* out_data;
-  inT32 out_len;
-  bool success = renderer->GetOutput(&out_data, &out_len);
-  if (success) {
-    // TODO(ewiseblatt): 20111103
-    // if text_out->size() != out_len then we have binary data which STRING wont
-    // support so this should fail. Really want to eliminate this interface
-    // alltogether so not worrying about at this time.
-    text_out->assign(out_data, out_len);
-  }
-  delete renderer;
-  return success;
-}
-
 void TessBaseAPI::SetInputImage(Pix *pix) {
   if (input_image_)
     pixDestroy(&input_image_);
-  input_image_ = pixClone(pix);
+  input_image_ = NULL;
+  if (pix)
+    input_image_ = pixClone(pix);
 }
 
 Pix* TessBaseAPI::GetInputImage() {
@@ -971,168 +942,213 @@ int TessBaseAPI::GetSourceYResolution() {
   return thresholder_->GetSourceYResolution();
 }
 
+// If flist exists, get data from there. Otherwise get data from buf.
+// Seems convoluted, but is the easiest way I know of to meet multiple
+// goals. Support streaming from stdin, and also work on platforms
+// lacking fmemopen.
+bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
+                                       STRING *buf,
+                                       const char* retry_config,
+                                       int timeout_millisec,
+                                       TessResultRenderer* renderer,
+                                       int tessedit_page_number) {
+  if (!flist && !buf) return false;
+  int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
+  char pagename[MAX_PATH];
+
+  GenericVector<STRING> lines;
+  if (!flist) {
+    buf->split('\n', &lines);
+    if (lines.empty()) return false;
+  }
+
+  // Skip to the requested page number.
+  for (int i = 0; i < page; i++) {
+    if (flist) {
+      if (fgets(pagename, sizeof(pagename), flist) == NULL) break;
+    }
+  }
+
+  // Begin producing output
+  const char* kUnknownTitle = "";
+  if (renderer && !renderer->BeginDocument(kUnknownTitle)) {
+    return false;
+  }
+
+  // Loop over all pages - or just the requested one
+  while (true) {
+    if (flist) {
+      if (fgets(pagename, sizeof(pagename), flist) == NULL) break;
+    } else {
+      if (page >= lines.size()) break;
+      snprintf(pagename, sizeof(pagename), "%s", lines[page].c_str());
+    }
+    chomp_string(pagename);
+    Pix *pix = pixRead(pagename);
+    if (pix == NULL) {
+      tprintf("Image file %s cannot be read!\n", pagename);
+      return false;
+    }
+    tprintf("Page %d : %s\n", page, pagename);
+    bool r = ProcessPage(pix, page, pagename, retry_config,
+                         timeout_millisec, renderer);
+    pixDestroy(&pix);
+    if (!r) return false;
+    if (tessedit_page_number >= 0) break;
+    ++page;
+  }
+
+  // Finish producing output
+  if (renderer && !renderer->EndDocument()) {
+    return false;
+  }
+  return true;
+}
+
+bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
+                                            size_t size,
+                                            const char* filename,
+                                            const char* retry_config,
+                                            int timeout_millisec,
+                                            TessResultRenderer* renderer,
+                                            int tessedit_page_number) {
+  Pix *pix = NULL;
+#ifdef USE_OPENCL
+  OpenclDevice od;
+#endif
+  int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
+  for (; ; ++page) {
+    if (tessedit_page_number >= 0)
+      page = tessedit_page_number;
+#ifdef USE_OPENCL
+    if ( od.selectedDeviceIsOpenCL() ) {
+      // FIXME(jbreiden) Not implemented.
+      pix = od.pixReadMemTiffCl(data, size, page);
+    } else {
+#endif
+      pix = pixReadMemTiff(data, size, page);
+#ifdef USE_OPENCL
+    }
+#endif
+    if (pix == NULL) break;
+    tprintf("Page %d\n", page + 1);
+    char page_str[kMaxIntSize];
+    snprintf(page_str, kMaxIntSize - 1, "%d", page);
+    SetVariable("applybox_page", page_str);
+    bool r = ProcessPage(pix, page, filename, retry_config,
+                           timeout_millisec, renderer);
+    pixDestroy(&pix);
+    if (!r) return false;
+    if (tessedit_page_number >= 0) break;
+  }
+  return true;
+}
+
+// In the ideal scenario, Tesseract will start working on data as soon
+// as it can. For example, if you steam a filelist through stdin, we
+// should start the OCR process as soon as the first filename is
+// available. This is particularly useful when hooking Tesseract up to
+// slow hardware such as a book scanning machine.
+//
+// Unfortunately there are tradeoffs. You can't seek on stdin. That
+// makes automatic detection of datatype (TIFF? filelist? PNG?)
+// impractical.  So we support a command line flag to explicitly
+// identify the scenario that really matters: filelists on
+// stdin. We'll still do our best if the user likes pipes.  That means
+// piling up any data coming into stdin into a memory buffer.
 bool TessBaseAPI::ProcessPages(const char* filename,
                                const char* retry_config, int timeout_millisec,
                                TessResultRenderer* renderer) {
   PERF_COUNT_START("ProcessPages")
-  int page = tesseract_->tessedit_page_number;
-  if (page < 0)
-    page = 0;
-  FILE* fp = fopen(filename, "rb");
-  if (fp == NULL) {
-    tprintf("Image file %s cannot be opened!\n", filename);
-    return false;
+  bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "-");
+  if (stdInput) {
+#ifdef WIN32
+    if (_setmode(_fileno(stdin), _O_BINARY) == -1)
+      tprintf("ERROR: cin to binary: %s", strerror(errno));
+#endif  // WIN32
   }
-  // Find the number of pages if a tiff file, or zero otherwise.
-  int npages = 0;
-  int format;
-  Pix *pix;
-  pix = pixRead(filename);
-  format = pixGetInputFormat(pix);
-  if (format == IFF_TIFF || format == IFF_TIFF_PACKBITS ||
-      format == IFF_TIFF_RLE || format == IFF_TIFF_G3 ||
-      format == IFF_TIFF_G4 || format == IFF_TIFF_LZW ||
-      format == IFF_TIFF_ZIP)
-    tiffGetCount(fp, &npages);
-  fclose(fp);
 
-  bool success = true;
+  if (stream_filelist) {
+    return ProcessPagesFileList(stdin, NULL, retry_config,
+                                timeout_millisec, renderer,
+                                tesseract_->tessedit_page_number);
+  }
+
+  // At this point we are officially in autodection territory.
+  // That means we are going to buffer stdin so that it is
+  // seekable. To keep code simple we will also buffer data
+  // coming from a file.
+  std::string buf;
+  if (stdInput) {
+    buf.assign((std::istreambuf_iterator<char>(std::cin)),
+               (std::istreambuf_iterator<char>()));
+  } else {
+    std::ifstream ifs(filename);
+    buf.assign((std::istreambuf_iterator<char>(ifs)),
+               (std::istreambuf_iterator<char>()));
+  }
+
+  // Here is our autodetection
+  int format;
+  const l_uint8 * data = reinterpret_cast<const l_uint8 *>(buf.c_str());
+  findFileFormatBuffer(data, &format);
+
+  // Maybe we have a filelist
+  if (format == IFF_UNKNOWN) {
+    STRING s(buf.c_str());
+    return ProcessPagesFileList(NULL, &s, retry_config,
+                                timeout_millisec, renderer,
+                                tesseract_->tessedit_page_number);
+  }
+
+  // Maybe we have a TIFF which is potentially multipage
+  bool tiff = (format == IFF_TIFF || format == IFF_TIFF_PACKBITS ||
+               format == IFF_TIFF_RLE || format == IFF_TIFF_G3 ||
+               format == IFF_TIFF_G4 || format == IFF_TIFF_LZW ||
+               format == IFF_TIFF_ZIP);
+
+  // Fail early if we can, before producing any output
+  Pix *pix = NULL;
+  if (!tiff) {
+    pix = pixReadMem(data, buf.size());
+    if (pix == NULL) {
+      return false;
+    }
+  }
+
+  // Begin the output
   const char* kUnknownTitle = "";
   if (renderer && !renderer->BeginDocument(kUnknownTitle)) {
-    success = false;
-  }
-
-#ifdef USE_OPENCL
-  OpenclDevice od;
-#endif
-
-  if (npages > 0) {
     pixDestroy(&pix);
-    for (; page < npages; ++page) {
-      // only use opencl if compiled w/ OpenCL and selected device is opencl
-#ifdef USE_OPENCL
-      if ( od.selectedDeviceIsOpenCL() ) {
-        pix = od.pixReadTiffCl(filename, page);
-      } else {
-#endif
-        pix = pixReadTiff(filename, page);
-#ifdef USE_OPENCL
-      }
-#endif
-
-      if (pix == NULL) break;
-
-      if ((page >= 0) && (npages > 1))
-        tprintf("Page %d of %d\n", page + 1, npages);
-      char page_str[kMaxIntSize];
-      snprintf(page_str, kMaxIntSize - 1, "%d", page);
-      SetVariable("applybox_page", page_str);
-      success &= ProcessPage(pix, page, filename, retry_config,
-                             timeout_millisec, renderer);
-      pixDestroy(&pix);
-      if (tesseract_->tessedit_page_number >= 0 || npages == 1) {
-        break;
-      }
-    }
-  } else {
-    // The file is not a tiff file.
-    if (pix != NULL) {
-      success &= ProcessPage(pix, 0, filename, retry_config,
-                             timeout_millisec, renderer);
-      pixDestroy(&pix);
-    } else {
-      // The file is not an image file, so try it as a list of filenames.
-      FILE* fimg = fopen(filename, "rb");
-      if (fimg == NULL) {
-        tprintf("File %s cannot be opened!\n", filename);
-        return false;
-      }
-      tprintf("Reading %s as a list of filenames...\n", filename);
-      char pagename[MAX_PATH];
-      // Skip to the requested page number.
-      for (int i = 0; i < page &&
-           fgets(pagename, sizeof(pagename), fimg) != NULL;
-           ++i);
-      while (fgets(pagename, sizeof(pagename), fimg) != NULL) {
-        chomp_string(pagename);
-        pix = pixRead(pagename);
-        if (pix == NULL) {
-          tprintf("Image file %s cannot be read!\n", pagename);
-          fclose(fimg);
-          return false;
-        }
-        tprintf("Page %d : %s\n", page, pagename);
-        success &= ProcessPage(pix, page, pagename, retry_config,
-                               timeout_millisec, renderer);
-        pixDestroy(&pix);
-        ++page;
-      }
-      fclose(fimg);
-    }
+    return false;
   }
 
-  bool all_ok = success;
-  if (renderer && !renderer->EndDocument()) {
-    all_ok = false;
+  // Produce output
+  bool r = false;
+  if (tiff) {
+    r = ProcessPagesMultipageTiff(data, buf.size(), filename, retry_config,
+                                  timeout_millisec, renderer,
+                                  tesseract_->tessedit_page_number);
+  } else {
+    r = ProcessPage(pix, 0, filename, retry_config,
+                    timeout_millisec, renderer);
+    pixDestroy(&pix);
+  }
+
+  // End the output
+  if (!r || (renderer && !renderer->EndDocument())) {
+    return false;
   }
   PERF_COUNT_END
-  return all_ok;
-}
-
-/**
- * Recognizes a single page for ProcessPages, appending the text to text_out.
- * The pix is the image processed - filename and page_index are metadata
- * used by side-effect processes, such as reading a box file or formatting
- * as hOCR.
- * If non-zero timeout_millisec terminates processing after the timeout.
- * If non-NULL and non-empty, and some page fails for some reason,
- * the page is reprocessed with the retry_config config file. Useful
- * for interactively debugging a bad page.
- * The text is returned in text_out. Returns false on error.
- */
-bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
-                              const char* retry_config, int timeout_millisec,
-                              STRING* text_out) {
-  TessResultRenderer* renderer = NewRenderer();
-
-  if (!ProcessPage(pix, page_index, filename, retry_config, timeout_millisec,
-                   renderer)) {
-    return false;
-  }
-
-  const char* out_data;
-  inT32 out_len;
-  if (!renderer->GetOutput(&out_data, &out_len)) {
-    return false;
-  }
-
-  // TODO(ewiseblatt): 20111103
-  // if text_out->size() != out_len then we have binary data which STRING wont
-  // support so this should fail. Really want to eliminate this interface
-  // alltogether so not worrying about at this time.
-  text_out->assign(out_data, out_len);
-
   return true;
 }
 
-/**
- * Recognizes a single page for ProcessPages, appending the text to text_out.
- * The pix is the image processed - filename and page_index are metadata
- * used by side-effect processes, such as reading a box file or formatting
- * as hOCR.
- * If non-zero timeout_millisec terminates processing after the timeout.
- * If non-NULL and non-empty, and some page fails for some reason,
- * the page is reprocessed with the retry_config config file. Useful
- * for interactively debugging a bad page.
- * The text is returned in renderer. Returns false on error.
- */
 bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
                               const char* retry_config, int timeout_millisec,
                               TessResultRenderer* renderer) {
   PERF_COUNT_START("ProcessPage")
   SetInputName(filename);
   SetImage(pix);
-  SetInputImage(pix);
   bool failed = false;
   if (timeout_millisec > 0) {
     // Running with a timeout.
@@ -1174,12 +1190,8 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
     ReadConfigFile(kOldVarsFile);
   }
 
-  if (renderer) {
-    if (failed) {
-      renderer->AddError(this);
-    } else {
-      failed = !renderer->AddImage(this);
-    }
+  if (renderer && !failed) {
+    failed = !renderer->AddImage(this);
   }
   PERF_COUNT_END
   return !failed;
@@ -1782,6 +1794,7 @@ void TessBaseAPI::Clear() {
   if (thresholder_ != NULL)
     thresholder_->Clear();
   ClearResults();
+  SetInputImage(NULL);
 }
 
 /**
@@ -1825,6 +1838,10 @@ void TessBaseAPI::End() {
   if (input_file_ != NULL) {
     delete input_file_;
     input_file_ = NULL;
+  }
+  if (input_image_ != NULL) {
+    pixDestroy(&input_image_);
+    input_image_ = NULL;
   }
   if (output_file_ != NULL) {
     delete output_file_;
@@ -2554,22 +2571,6 @@ CubeRecoContext *TessBaseAPI::GetCubeRecoContext() const {
   return (tesseract_ == NULL) ? NULL : tesseract_->GetCubeRecoContext();
 }
 
-TessResultRenderer* TessBaseAPI::NewRenderer() {
-  if (tesseract_->tessedit_create_boxfile
-      || tesseract_->tessedit_make_boxes_from_boxes) {
-    return new TessBoxTextRenderer();
-  } else if (tesseract_->tessedit_create_hocr) {
-    return new TessHOcrRenderer();
-  } else if (tesseract_->tessedit_create_pdf) {
-    return new TessPDFRenderer(tesseract_->datadir.c_str());
-  } else if (tesseract_->tessedit_write_unlv) {
-    return new TessUnlvRenderer();
-  } else if (tesseract_->tessedit_create_boxfile) {
-    return new TessBoxTextRenderer();
-  } else {
-    return new TessTextRenderer();
-  }
-}
 
 /** Escape a char string - remove <>&"' with HTML codes. */
 void HOcrEscape(const char* text, STRING& ret) {
