@@ -1084,8 +1084,13 @@ bool TessBaseAPI::ProcessPages(const char* filename,
                (std::istreambuf_iterator<char>()));
   } else {
     std::ifstream ifs(filename);
-    buf.assign((std::istreambuf_iterator<char>(ifs)),
-               (std::istreambuf_iterator<char>()));
+    if (ifs) {
+      buf.assign((std::istreambuf_iterator<char>(ifs)),
+                 (std::istreambuf_iterator<char>()));
+    } else {
+      tprintf("ERROR: Can not open input file %s\n", filename);
+      return false;
+    }
   }
 
   // Here is our autodetection
