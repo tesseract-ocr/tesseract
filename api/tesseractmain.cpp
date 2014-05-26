@@ -22,10 +22,6 @@
 #include "config_auto.h"
 #endif
 
-#ifdef _WIN32
-#include <fcntl.h>
-#include <io.h>
-#endif  // _WIN32
 #include <iostream>
 
 #include "allheaders.h"

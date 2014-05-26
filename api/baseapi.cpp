@@ -35,6 +35,8 @@
 #endif  // _MSC_VER
 #include <stdlib.h>
 #include <windows.h>
+#include <fcntl.h>
+#include <io.h>
 #else
 #include <dirent.h>
 #include <libgen.h>
