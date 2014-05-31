@@ -564,11 +564,11 @@ void TessBaseAPI::SetRectangle(int left, int top, int width, int height) {
 }
 
 /**
- * ONLY available if you have Leptonica installed.
+ * ONLY available after SetImage if you have Leptonica installed.
  * Get a copy of the internal thresholded image from Tesseract.
  */
 Pix* TessBaseAPI::GetThresholdedImage() {
-  if (tesseract_ == NULL)
+  if (tesseract_ == NULL || thresholder_ == NULL)
     return NULL;
   if (tesseract_->pix_binary() == NULL)
     Threshold(tesseract_->mutable_pix_binary());
