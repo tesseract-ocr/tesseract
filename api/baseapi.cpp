@@ -1085,7 +1085,7 @@ bool TessBaseAPI::ProcessPages(const char* filename,
     buf.assign((std::istreambuf_iterator<char>(std::cin)),
                (std::istreambuf_iterator<char>()));
   } else {
-    std::ifstream ifs(filename);
+    std::ifstream ifs(filename, std::ios::binary);
     if (ifs) {
       buf.assign((std::istreambuf_iterator<char>(ifs)),
                  (std::istreambuf_iterator<char>()));
