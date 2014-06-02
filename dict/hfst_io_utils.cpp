@@ -15,7 +15,7 @@ void readsome(char * target, size_t len, std::istream * in)
     { throw InvalidRead(); }
 }
 
-void readsome(char * target, size_t len, _IO_FILE * file)
+  void readsome(char * target, size_t len, /*_IO_*/FILE * file)
 { 
   size_t block_count = fread(target, len, 1, file); 
 
@@ -35,7 +35,7 @@ std::string read_string(std::istream * in)
   return str;
 }
 
-std::string read_string(_IO_FILE * file)
+std::string read_string(/*_IO_*/FILE * file)
 { 
   if (feof(file) or ferror(file))
     { throw InvalidStream(); }
