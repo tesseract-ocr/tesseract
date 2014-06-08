@@ -711,6 +711,14 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
             binaries[i] = (char*) malloc( sizeof(char) * binarySizes[i] );
             if ( binaries[i] == NULL )
             {
+                // cleanup all memory allocated so far
+                for(int cleanupIndex = 0; cleanupIndex < i; ++cleanupIndex)
+                {
+                    free(binaries[cleanupIndex]);
+                }
+                // cleanup binary array
+                free(binaries);
+
                 return 0;
             }
         }
