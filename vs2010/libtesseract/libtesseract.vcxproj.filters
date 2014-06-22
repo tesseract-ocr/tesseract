@@ -1605,9 +1605,6 @@
     <ClInclude Include="..\..\ccstruct\vecfuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\port\version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ccstruct\werd.h">
       <Filter>Header Files</Filter>
     </ClInclude>

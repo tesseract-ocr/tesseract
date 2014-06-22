@@ -20,6 +20,11 @@
 #ifndef TESSERACT_API_BASEAPI_H__
 #define TESSERACT_API_BASEAPI_H__
 
+#define TESSERACT_VERSION_STR "3.03.00"
+#define TESSERACT_VERSION 0x030300
+#define MAKE_VERSION(major, minor, patch) (((major) << 16) | ((minor) << 8) | \
+                                            (patch))
+
 #include <stdio.h>
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible

@@ -10,10 +10,6 @@
 #include "cube_utils.h"
 #include "allheaders.h"
 
-#if !defined(VERSION)
-#include "version.h"
-#endif
-
 #ifdef _MSC_VER
 #include "mathfix.h"
 #endif
@@ -731,7 +727,7 @@ bool TessPDFRenderer::EndDocumentHandler() {
            "  /CreationDate (D:%s)\n"
            "  /Title (%s)"
            ">>\n"
-           "endobj\n", obj_, VERSION, datestr, title());
+           "endobj\n", obj_, TESSERACT_VERSION_STR, datestr, title());
   lept_free(datestr);
   AppendPDFObject(buf);
 

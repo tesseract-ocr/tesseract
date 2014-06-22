@@ -48,10 +48,6 @@
 #include <iterator>
 #include <fstream>
 
-#if !defined(VERSION)
-#include "version.h"
-#endif
-
 #include "allheaders.h"
 
 #include "baseapi.h"
@@ -142,7 +138,7 @@ TessBaseAPI::~TessBaseAPI() {
  * Returns the version identifier as a static string. Do not delete.
  */
 const char* TessBaseAPI::Version() {
-  return VERSION;
+  return TESSERACT_VERSION_STR;
 }
 
 /**
@@ -1948,7 +1944,7 @@ void TessBaseAPI::SetFillLatticeFunc(FillLatticeFunc f) {
 /** Common code for setting the image. */
 bool TessBaseAPI::InternalSetImage() {
   if (tesseract_ == NULL) {
-    tprintf("Please call Init before attempting to send an image.");
+    tprintf("Please call Init before attempting to set an image.");
     return false;
   }
   if (thresholder_ == NULL)
