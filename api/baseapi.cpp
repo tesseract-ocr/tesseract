@@ -919,7 +919,7 @@ void TessBaseAPI::SetInputImage(Pix *pix) {
     pixDestroy(&input_image_);
   input_image_ = NULL;
   if (pix)
-    input_image_ = pixClone(pix);
+    input_image_ = pixCopy(NULL, pix);
 }
 
 Pix* TessBaseAPI::GetInputImage() {
