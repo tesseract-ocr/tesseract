@@ -485,7 +485,7 @@ else
   echo "Training tools can be build and installed (after building of $PACKAGE_NAME) with:"
   echo ""
   echo "$ make training"
-  echo "$ sudo make training-install"
+  echo "$ sudo make training install"
   echo ""
 fi
 # ----------------------------------------
