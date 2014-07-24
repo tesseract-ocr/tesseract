@@ -438,7 +438,7 @@ bool TessPDFRenderer::fileToPDFObj(char *filename, long int objnum,
     return false;
 
   const char *filter;
-  int spp, w, h;
+  int bps, spp, w, h;
   int cmyk = false;
   int format;
   findFileFormatStream(fp, &format);
@@ -448,7 +448,11 @@ bool TessPDFRenderer::fileToPDFObj(char *filename, long int objnum,
         filter = "/DCTDecode";
         break;
     case IFF_JP2:
+#if LIBLEPT_MINOR_VERSION == 70 && LIBLEPT_MAJOR_VERSION <= 1
         freadHeaderJp2k(fp, &w, &h, &spp);
+#else
+        freadHeaderJp2k(fp, &w, &h, &bps, &spp);
+#endif
         filter = "/JPXDecode";
         break;
     default:
