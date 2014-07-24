@@ -67,4 +67,4 @@ install-langs:
 
 uninstall-local:
 	cd $(DESTDIR)$(datadir); \
-	rm --force $(langdata)
+	rm -f $(langdata)
