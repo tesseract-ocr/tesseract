@@ -29,21 +29,19 @@ they are present in tessdata directory)
 will install tesseract library, tesseract programs  and English, Arabic 
 and German language datafiles.
 
-To compile ScrollView.jar you need to download piccolo.JAVA[1] from
-http://www.piccolo2d.org/download.html and extract 
-piccolo-1.2/build/piccolo.jar to tesseract/java as piccolo-1.2.jar and
-piccolo-1.2/build/piccolox.jar to tesseract/java as piccolox-1.2.jar.
+To compile ScrollView.jar you need to download piccolo2d-core-3.0.jar
+and piccolo2d-extras-3.0.jar[1] and place them to tesseract/java.
 
 Than run:
   $ make ScrollView.jar
 
 and follow instruction on Viewer Debugging wiki[2].
 
-[1] http://www.cs.umd.edu/hcil/jazz/download/piccolo/piccolo-1.2-compiled.zip
+[1] http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22
 [2] http://code.google.com/p/tesseract-ocr/wiki/ViewerDebugging
 
 
 WINDOWS
 =======
 
-Please read vs2008/doc/index.html
+Please read vs2008/doc/index.html and http://vorba.ch/2014/tesseract-3.03-vs2013.html
