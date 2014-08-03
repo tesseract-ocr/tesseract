@@ -208,6 +208,8 @@ Tesseract::Tesseract()
                   "good_quality_doc gte good char limit", this->params()),
     BOOL_MEMBER(unlv_tilde_crunching, true,
                 "Mark v.bad words for tilde crunch", this->params()),
+    BOOL_MEMBER(hocr_font_info, false,
+                "Add font info to hocr output", this->params()),
     BOOL_MEMBER(crunch_early_merge_tess_fails, true,
                 "Before word crunch?", this->params()),
     BOOL_MEMBER(crunch_early_convert_bad_unlv_chs, false,

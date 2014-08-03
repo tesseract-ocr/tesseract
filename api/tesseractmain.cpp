@@ -290,8 +290,11 @@ int main(int argc, char **argv) {
   tesseract::TessResultRenderer* renderer = NULL;
   bool b;
   api.GetBoolVariable("tessedit_create_hocr", &b);
-  if (b)
-    renderer = new tesseract::TessHOcrRenderer(outputbase);
+  if (b) {
+    bool font_info;
+    api.GetBoolVariable("hocr_font_info", &font_info);
+    renderer = new tesseract::TessHOcrRenderer(outputbase, font_info);
+  }
 
   api.GetBoolVariable("tessedit_create_pdf", &b);
   if (b && renderer == NULL)

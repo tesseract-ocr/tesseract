@@ -150,12 +150,16 @@ class TESS_API TessTextRenderer : public TessResultRenderer {
  */
 class TESS_API TessHOcrRenderer : public TessResultRenderer {
  public:
+  explicit TessHOcrRenderer(const char *outputbase, bool font_info);
   explicit TessHOcrRenderer(const char *outputbase);
 
 protected:
   virtual bool BeginDocumentHandler();
   virtual bool AddImageHandler(TessBaseAPI* api);
   virtual bool EndDocumentHandler();
+
+private:
+  bool font_info_;              // whether to print font information
 };
 
 /**

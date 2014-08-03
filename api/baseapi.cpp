@@ -1356,6 +1356,8 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
   int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
+  bool font_info = false;
+  GetBoolVariable("hocr_font_info", &font_info);
 
   STRING hocr_str("");
 
@@ -1428,12 +1430,23 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
     hocr_str.add_str_int("<span class='ocrx_word' id='word_", page_id);
     hocr_str.add_str_int("_", wcnt);
     int left, top, right, bottom;
+    bool bold, italic, underlined, monospace, serif, smallcaps;
+    int pointsize, font_id;
+    const char *font_name;
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
+    font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
+                                           &monospace, &serif, &smallcaps,
+                                           &pointsize, &font_id);
     hocr_str.add_str_int("' title='bbox ", left);
     hocr_str.add_str_int(" ", top);
     hocr_str.add_str_int(" ", right);
     hocr_str.add_str_int(" ", bottom);
     hocr_str.add_str_int("; x_wconf ", res_it->Confidence(RIL_WORD));
+    if (font_info) {
+      hocr_str += "; x_font ";
+      HOcrEscape(font_name, hocr_str);
+      hocr_str.add_str_int("; x_fsize ", pointsize);
+    }
     hocr_str += "'";
     if (res_it->WordRecognitionLanguage()) {
       hocr_str += " lang='";
@@ -1447,12 +1460,6 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
         break;
     }
     hocr_str += ">";
-    bool bold, italic, underlined, monospace, serif, smallcaps;
-    int pointsize, font_id;
-    // TODO(rays): Is hOCR interested in the font name?
-    (void) res_it->WordFontAttributes(&bold, &italic, &underlined,
-                                      &monospace, &serif, &smallcaps,
-                                      &pointsize, &font_id);
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);

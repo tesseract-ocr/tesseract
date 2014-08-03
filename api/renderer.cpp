@@ -122,6 +122,12 @@ bool TessTextRenderer::AddImageHandler(TessBaseAPI* api) {
  **********************************************************************/
 TessHOcrRenderer::TessHOcrRenderer(const char *outputbase)
     : TessResultRenderer(outputbase, "hocr") {
+    font_info_ = false;
+}
+
+TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
+    : TessResultRenderer(outputbase, "hocr") {
+    font_info_ = font_info;
 }
 
 bool TessHOcrRenderer::BeginDocumentHandler() {
@@ -139,7 +145,12 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
       "  <meta name='ocr-system' content='tesseract " TESSERACT_VERSION_STR
               "' />\n"
       "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
-      " ocr_line ocrx_word'/>\n"
+      " ocr_line ocrx_word");
+  if (font_info_)
+    AppendString(
+      " ocrp_lang ocrp_dir ocrp_font ocrp_fsize ocrp_wconf");
+  AppendString(
+      "'/>\n"
       "</head>\n<body>\n");
 
   return true;

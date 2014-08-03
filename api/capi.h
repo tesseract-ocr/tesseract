@@ -100,6 +100,7 @@ TESS_API void  TESS_CALL TessDeleteBlockList(BLOCK_LIST* block_list);
 /* Renderer API */
 TESS_API TessResultRenderer* TESS_CALL TessTextRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate(const char* outputbase);
+TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate2(const char* outputbase, BOOL font_info);
 TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir);
 TESS_API TessResultRenderer* TESS_CALL TessUnlvRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessBoxTextRendererCreate(const char* outputbase);
@@ -161,7 +162,7 @@ TESS_API int   TESS_CALL TessBaseAPIInit1(TessBaseAPI* handle, const char* datap
 TESS_API int   TESS_CALL TessBaseAPIInit2(TessBaseAPI* handle, const char* datapath, const char* language, TessOcrEngineMode oem);
 TESS_API int   TESS_CALL TessBaseAPIInit3(TessBaseAPI* handle, const char* datapath, const char* language);
 
-TESS_API int TESS_CALL TessBaseAPIInit4(TessBaseAPI* handle, const char* datapath, const char* language, TessOcrEngineMode mode, 
+TESS_API int TESS_CALL TessBaseAPIInit4(TessBaseAPI* handle, const char* datapath, const char* language, TessOcrEngineMode mode,
     char** configs, int configs_size,
     char** vars_vec, char** vars_values, size_t vars_vec_size,
     BOOL set_only_non_debug_params);
