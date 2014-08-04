@@ -200,10 +200,6 @@ int orientation_and_script_detection(STRING& filename,
   ASSERT_HOST(tess->pix_binary() != NULL)
   int width = pixGetWidth(tess->pix_binary());
   int height = pixGetHeight(tess->pix_binary());
-  int resolution = pixGetXRes(tess->pix_binary());
-  // Zero resolution messes up the algorithms, so make sure it is credible.
-  if (resolution < kMinCredibleResolution)
-    resolution = kDefaultResolution;
 
   BLOCK_LIST blocks;
   if (!read_unlv_file(name, width, height, &blocks))
