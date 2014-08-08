@@ -908,6 +908,13 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_write_unlv, false, "Write .unlv output file");
   BOOL_VAR_H(tessedit_create_hocr, false, "Write .html hOCR output file");
   BOOL_VAR_H(tessedit_create_pdf, false, "Write .pdf output file");
+  INT_VAR_H(tessedit_pdf_compression, 0, "Type of image encoding in pdf output:"
+            "0 - autoselection (default); "
+            "1 - jpeg; "
+            "2 - G4; "
+            "3 - flat");
+  INT_VAR_H(tessedit_pdf_jpg_quality, 85, "Quality level of jpeg image "
+            "compression in pdf output");
   STRING_VAR_H(unrecognised_char, "|",
                "Output char for unidentified blobs");
   INT_VAR_H(suspect_level, 99, "Suspect marker level");

@@ -198,7 +198,8 @@ private:
   static bool fileToPDFObj(char *filename, long int objnum,
                            char **pdf_object, long int *pdf_object_size);
   // Turn a Pix into a the very best PDF object that we can.
-  static bool pixToPDFObj(Pix *pix, long int objnum,
+  static bool pixToPDFObj(tesseract::TessBaseAPI *api, Pix *pix,
+                          long int objnum,
                           char **pdf_object, long int *pdf_object_size);
 };
 
