@@ -320,7 +320,7 @@ Tesseract::Tesseract()
                "0 - autoselection (default); "
                "1 - jpeg; "
                "2 - G4; "
-               "3 - flat",
+               "3 - flate",
                this->params()),
     INT_MEMBER(tessedit_pdf_jpg_quality, 85,
                "Quality level of jpeg image compression in pdf output",

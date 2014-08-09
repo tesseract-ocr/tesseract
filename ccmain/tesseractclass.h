@@ -912,7 +912,7 @@ class Tesseract : public Wordrec {
             "0 - autoselection (default); "
             "1 - jpeg; "
             "2 - G4; "
-            "3 - flat");
+            "3 - flate");
   INT_VAR_H(tessedit_pdf_jpg_quality, 85, "Quality level of jpeg image "
             "compression in pdf output");
   STRING_VAR_H(unrecognised_char, "|",
