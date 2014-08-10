@@ -1300,7 +1300,7 @@ PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer,
  * @param Statistics	statistical info about cluster
  * @param NormalBuckets	histogram struct used to analyze distribution
  * @param Confidence	confidence level for alternate distributions
- * @note return	Pointer to new mixed prototype or NULL.
+ * @return	Pointer to new mixed prototype or NULL.
  * @note Exceptions:	None
  * @note History:	6/12/89, DSJ, Created.
  */
