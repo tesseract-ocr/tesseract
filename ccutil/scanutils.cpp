@@ -34,7 +34,7 @@
 #include "tprintf.h"
 
 // workaround for "'off_t' was not declared in this scope" with -std=c++11
-#ifndef off_t
+#if !defined(off_t) && !defined(__APPLE__)
 typedef long off_t;
 #endif  // off_t
 
