@@ -386,15 +386,16 @@ BOOL8 MultipleCharSamples(CLUSTERER *Clusterer,
 double InvertMatrix(const float* input, int size, float* inv);
 
 //--------------------------Public Code--------------------------------------
-/** MakeClusterer **********************************************************
-Parameters:	SampleSize	number of dimensions in feature space
-      ParamDesc	description of each dimension
-Operation:	This routine creates a new clusterer data structure,
-      initializes it, and returns a pointer to it.
-Return:		pointer to the new clusterer data structure
-Exceptions:	None
-History:	5/29/89, DSJ, Created.
-****************************************************************************/
+/**
+ * This routine creates a new clusterer data structure,
+ * initializes it, and returns a pointer to it.
+ *
+ * @param SampleSize	number of dimensions in feature space
+ * @param ParamDesc	description of each dimension
+ * @return	pointer to the new clusterer data structure
+ * @note Exceptions:	None
+ * @note History:	5/29/89, DSJ, Created.
+ */
 CLUSTERER *
 MakeClusterer (inT16 SampleSize, const PARAM_DESC ParamDesc[]) {
   CLUSTERER *Clusterer;
@@ -437,20 +438,22 @@ MakeClusterer (inT16 SampleSize, const PARAM_DESC ParamDesc[]) {
 }                                // MakeClusterer
 
 
-/** MakeSample ***********************************************************
-Parameters:	Clusterer	clusterer data structure to add sample to
-      Feature		feature to be added to clusterer
-      CharID		unique ident. of char that sample came from
-Operation:	This routine creates a new sample data structure to hold
-      the specified feature.  This sample is added to the clusterer
-      data structure (so that it knows which samples are to be
-      clustered later), and a pointer to the sample is returned to
-      the caller.
-Return:		Pointer to the new sample data structure
-Exceptions:	ALREADYCLUSTERED	MakeSample can't be called after
-      ClusterSamples has been called
-History:	5/29/89, DSJ, Created.
-*****************************************************************************/
+/**
+ * This routine creates a new sample data structure to hold
+ * the specified feature.  This sample is added to the clusterer
+ * data structure (so that it knows which samples are to be
+ * clustered later), and a pointer to the sample is returned to
+ * the caller.
+ *
+ * @param Clusterer	clusterer data structure to add sample to
+ * @param Feature	feature to be added to clusterer
+ * @param CharID	unique ident. of char that sample came from
+ *
+ * @return 		Pointer to the new sample data structure
+ * @note Exceptions:	ALREADYCLUSTERED	MakeSample can't be called after
+ *    ClusterSamples has been called
+ * @note History:	5/29/89, DSJ, Created.
+ */
 SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
                    inT32 CharID) {
   SAMPLE *Sample;
@@ -488,23 +491,27 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
 }                                // MakeSample
 
 
-/** ClusterSamples ***********************************************************
-Parameters:	Clusterer	data struct containing samples to be clustered
-      Config		parameters which control clustering process
-Operation:	This routine first checks to see if the samples in this
-      clusterer have already been clustered before; if so, it does
-      not bother to recreate the cluster tree.  It simply recomputes
-      the prototypes based on the new Config info.
-        If the samples have not been clustered before, the
-      samples in the KD tree are formed into a cluster tree and then
-      the prototypes are computed from the cluster tree.
-        In either case this routine returns a pointer to a
-      list of prototypes that best represent the samples given
-      the constraints specified in Config.
-Return:		Pointer to a list of prototypes
-Exceptions:	None
-History:	5/29/89, DSJ, Created.
-*******************************************************************************/
+/**
+ * This routine first checks to see if the samples in this
+ * clusterer have already been clustered before; if so, it does
+ * not bother to recreate the cluster tree.  It simply recomputes
+ * the prototypes based on the new Config info.
+ *
+ * If the samples have not been clustered before, the
+ * samples in the KD tree are formed into a cluster tree and then
+ * the prototypes are computed from the cluster tree.
+ *
+ * In either case this routine returns a pointer to a
+ * list of prototypes that best represent the samples given
+ * the constraints specified in Config.
+ *
+ * @param Clusterer	data struct containing samples to be clustered
+ * @param Config	parameters which control clustering process
+ *
+ * @return Pointer to a list of prototypes
+ * @note Exceptions:	None
+ * @note History:	5/29/89, DSJ, Created.
+ */
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   //only create cluster tree if samples have never been clustered before
   if (Clusterer->Root == NULL)
@@ -520,19 +527,19 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
 }                                // ClusterSamples
 
 
-/** FreeClusterer *************************************************************
-Parameters:	Clusterer	pointer to data structure to be freed
-Operation:	This routine frees all of the memory allocated to the
-      specified data structure.  It will not, however, free
-      the memory used by the prototype list.  The pointers to
-      the clusters for each prototype in the list will be set
-      to NULL to indicate that the cluster data structures no
-      longer exist.  Any sample lists that have been obtained
-      via calls to GetSamples are no longer valid.
-Return:		None
-Exceptions:	None
-History:	6/6/89, DSJ, Created.
-*******************************************************************************/
+/**
+ * This routine frees all of the memory allocated to the
+ * specified data structure.  It will not, however, free
+ * the memory used by the prototype list.  The pointers to
+ * the clusters for each prototype in the list will be set
+ * to NULL to indicate that the cluster data structures no
+ * longer exist.  Any sample lists that have been obtained
+ * via calls to GetSamples are no longer valid.
+ * @param Clusterer	pointer to data structure to be freed
+ * @return None
+ * @note Exceptions:	None
+ * @note History:	6/6/89, DSJ, Created.
+ */
 void FreeClusterer(CLUSTERER *Clusterer) {
   if (Clusterer != NULL) {
     memfree (Clusterer->ParamDesc);
@@ -552,30 +559,30 @@ void FreeClusterer(CLUSTERER *Clusterer) {
 }                                // FreeClusterer
 
 
-/** FreeProtoList ************************************************************
-Parameters:	ProtoList	pointer to list of prototypes to be freed
-Operation:	This routine frees all of the memory allocated to the
-      specified list of prototypes.  The clusters which are
-      pointed to by the prototypes are not freed.
-Return:		None
-Exceptions:	None
-History:	6/6/89, DSJ, Created.
-*****************************************************************************/
+/**
+ * This routine frees all of the memory allocated to the
+ * specified list of prototypes.  The clusters which are
+ * pointed to by the prototypes are not freed.
+ * @param ProtoList	pointer to list of prototypes to be freed
+ * @return None
+ * @note Exceptions:	None
+ * @note History:	6/6/89, DSJ, Created.
+ */
 void FreeProtoList(LIST *ProtoList) {
   destroy_nodes(*ProtoList, FreePrototype);
 }                                // FreeProtoList
 
 
-/** FreePrototype ************************************************************
-Parameters:	Prototype	prototype data structure to be deallocated
-Operation:	This routine deallocates the memory consumed by the specified
-      prototype and modifies the corresponding cluster so that it
-      is no longer marked as a prototype.  The cluster is NOT
-      deallocated by this routine.
-Return:		None
-Exceptions:	None
-History:	5/30/89, DSJ, Created.
-*******************************************************************************/
+/**
+ * This routine deallocates the memory consumed by the specified
+ * prototype and modifies the corresponding cluster so that it
+ * is no longer marked as a prototype.  The cluster is NOT
+ * deallocated by this routine.
+ * @param Prototype	prototype data structure to be deallocated
+ * @return	None
+ * @note Exceptions:	None
+ * @note History:	5/30/89, DSJ, Created.
+ */
 void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
   PROTOTYPE *Prototype = (PROTOTYPE *) arg;
 
@@ -600,21 +607,21 @@ void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
 }                                // FreePrototype
 
 
-/** NextSample ************************************************************
-Parameters:	SearchState	ptr to list containing clusters to be searched
-Operation:	This routine is used to find all of the samples which
-      belong to a cluster.  It starts by removing the top
-      cluster on the cluster list (SearchState).  If this cluster is
-      a leaf it is returned.  Otherwise, the right subcluster
-      is pushed on the list and we continue the search in the
-      left subcluster.  This continues until a leaf is found.
-      If all samples have been found, NULL is returned.
-      InitSampleSearch() must be called
-      before NextSample() to initialize the search.
-Return:		Pointer to the next leaf cluster (sample) or NULL.
-Exceptions:	None
-History:	6/16/89, DSJ, Created.
-****************************************************************************/
+/**
+ * This routine is used to find all of the samples which
+ * belong to a cluster.  It starts by removing the top
+ * cluster on the cluster list (SearchState).  If this cluster is
+ * a leaf it is returned.  Otherwise, the right subcluster
+ * is pushed on the list and we continue the search in the
+ * left subcluster.  This continues until a leaf is found.
+ * If all samples have been found, NULL is returned.
+ * InitSampleSearch() must be called
+ * before NextSample() to initialize the search.
+ * @param SearchState	ptr to list containing clusters to be searched
+ * @return	Pointer to the next leaf cluster (sample) or NULL.
+ * @note Exceptions:	None
+ * @note History:	6/16/89, DSJ, Created.
+ */
 CLUSTER *NextSample(LIST *SearchState) {
   CLUSTER *Cluster;
 
@@ -631,29 +638,29 @@ CLUSTER *NextSample(LIST *SearchState) {
 }                                // NextSample
 
 
-/** Mean ***********************************************************
-Parameters:	Proto		prototype to return mean of
-      Dimension	dimension whose mean is to be returned
-Operation:	This routine returns the mean of the specified
-      prototype in the indicated dimension.
-Return:		Mean of Prototype in Dimension
-Exceptions: none
-History:	7/6/89, DSJ, Created.
-*********************************************************************/
+/**
+ * This routine returns the mean of the specified
+ * prototype in the indicated dimension.
+ * @param Proto	prototype to return mean of
+ * @param Dimension	dimension whose mean is to be returned
+ * @return	Mean of Prototype in Dimension
+ * @note Exceptions: none
+ * @note History:	7/6/89, DSJ, Created.
+ */
 FLOAT32 Mean(PROTOTYPE *Proto, uinT16 Dimension) {
   return (Proto->Mean[Dimension]);
 }                                // Mean
 
 
-/** StandardDeviation *************************************************
-Parameters:	Proto		prototype to return standard deviation of
-      Dimension	dimension whose stddev is to be returned
-Operation:	This routine returns the standard deviation of the
-      prototype in the indicated dimension.
-Return:		Standard deviation of Prototype in Dimension
-Exceptions: none
-History:	7/6/89, DSJ, Created.
-**********************************************************************/
+/**
+ * This routine returns the standard deviation of the
+ * prototype in the indicated dimension.
+ * @param Proto		prototype to return standard deviation of
+ * @param Dimension	dimension whose stddev is to be returned
+ * @return	Standard deviation of Prototype in Dimension
+ * @note Exceptions: none
+ * @note History:	7/6/89, DSJ, Created.
+ */
 FLOAT32 StandardDeviation(PROTOTYPE *Proto, uinT16 Dimension) {
   switch (Proto->Style) {
     case spherical:
@@ -2248,36 +2255,31 @@ void FreeStatistics(STATISTICS *Statistics) {
 }                                // FreeStatistics
 
 
-//---------------------------------------------------------------------------
-void FreeBuckets(BUCKETS *buckets) {
-/*
- **  Parameters:
- **      buckets  pointer to data structure to be freed
- **  Operation:
- **      This routine properly frees the memory used by a BUCKETS.
+/**
+ * This routine properly frees the memory used by a BUCKETS.
+ *
+ * @param buckets  pointer to data structure to be freed
  */
+void FreeBuckets(BUCKETS *buckets) {
   Efree(buckets->Count);
   Efree(buckets->ExpectedCount);
   Efree(buckets);
 }                                // FreeBuckets
 
 
-//---------------------------------------------------------------------------
-void FreeCluster(CLUSTER *Cluster) {
-/*
- **	Parameters:
- **		Cluster		pointer to cluster to be freed
- **	Operation:
- **		This routine frees the memory consumed by the specified
- **		cluster and all of its subclusters.  This is done by
- **		recursive calls to FreeCluster().
- **	Return:
- **		None
- **	Exceptions:
- **		None
- **	History:
- **		6/6/89, DSJ, Created.
+/**
+ * This routine frees the memory consumed by the specified
+ * cluster and all of its subclusters.  This is done by
+ * recursive calls to FreeCluster().
+ *
+ * @param Cluster	pointer to cluster to be freed
+ *
+ * @return None
+ *
+ * @note Exceptions: None
+ * @note History: 6/6/89, DSJ, Created.
  */
+void FreeCluster(CLUSTER *Cluster) {
   if (Cluster != NULL) {
     FreeCluster (Cluster->Left);
     FreeCluster (Cluster->Right);
@@ -2521,30 +2523,27 @@ void *FunctionParams, FLOAT64 InitialGuess, FLOAT64 Accuracy)
 }                                // Solve
 
 
-//---------------------------------------------------------------------------
-FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x) {
-/*
- **	Parameters:
- **		ChiParams	contains degrees of freedom and alpha
- **		x		value of chi-squared to evaluate
- **	Operation:
- **		This routine computes the area under a chi density curve
- **		from 0 to x, minus the desired area under the curve.  The
- **		number of degrees of freedom of the chi curve is specified
- **		in the ChiParams structure.  The desired area is also
- **		specified in the ChiParams structure as Alpha ( or 1 minus
- **		the desired area ).  This routine is intended to be passed
- **		to the Solve() function to find the value of chi-squared
- **		which will yield a desired area under the right tail of
- **		the chi density curve.  The function will only work for
- **		even degrees of freedom.  The equations are based on
- **		integrating the chi density curve in parts to obtain
- **		a series that can be used to compute the area under the
- **		curve.
- **	Return: Error between actual and desired area under the chi curve.
- **	Exceptions: none
- **	History: Fri Aug  4 12:48:41 1989, DSJ, Created.
+/**
+ * This routine computes the area under a chi density curve
+ * from 0 to x, minus the desired area under the curve.  The
+ * number of degrees of freedom of the chi curve is specified
+ * in the ChiParams structure.  The desired area is also
+ * specified in the ChiParams structure as Alpha ( or 1 minus
+ * the desired area ).  This routine is intended to be passed
+ * to the Solve() function to find the value of chi-squared
+ * which will yield a desired area under the right tail of
+ * the chi density curve.  The function will only work for
+ * even degrees of freedom.  The equations are based on
+ * integrating the chi density curve in parts to obtain
+ * a series that can be used to compute the area under the
+ * curve.
+ * @param ChiParams	contains degrees of freedom and alpha
+ * @param x		value of chi-squared to evaluate
+ * @return Error between actual and desired area under the chi curve.
+ * @note Exceptions: none
+ * @note History: Fri Aug  4 12:48:41 1989, DSJ, Created.
  */
+FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x) {
   int i, N;
   FLOAT64 SeriesTotal;
   FLOAT64 Denominator;
@@ -2564,38 +2563,36 @@ FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x) {
 }                                // ChiArea
 
 
-//---------------------------------------------------------------------------
+/**
+ * This routine looks at all samples in the specified cluster.
+ * It computes a running estimate of the percentage of the
+ * charaters which have more than 1 sample in the cluster.
+ * When this percentage exceeds MaxIllegal, TRUE is returned.
+ * Otherwise FALSE is returned.  The CharID
+ * fields must contain integers which identify the training
+ * characters which were used to generate the sample.  One
+ * integer is used for each sample.  The NumChar field in
+ * the Clusterer must contain the number of characters in the
+ * training set.  All CharID fields must be between 0 and
+ * NumChar-1.  The main function of this routine is to help
+ * identify clusters which need to be split further, i.e. if
+ * numerous training characters have 2 or more features which are
+ * contained in the same cluster, then the cluster should be
+ * split.
+ *
+ * @param Clusterer	data structure holding cluster tree
+ * @param Cluster		cluster containing samples to be tested
+ * @param MaxIllegal	max percentage of samples allowed to have
+ *				more than 1 feature in the cluster
+ * @return TRUE if the cluster should be split, FALSE otherwise.
+ * @note Exceptions: none
+ * @note History: Wed Aug 30 11:13:05 1989, DSJ, Created.
+ * 2/22/90, DSJ, Added MaxIllegal control rather than always
+ * splitting illegal clusters.
+ */
 BOOL8
 MultipleCharSamples (CLUSTERER * Clusterer,
 CLUSTER * Cluster, FLOAT32 MaxIllegal)
-/*
- **	Parameters:
- **		Clusterer	data structure holding cluster tree
- **		Cluster		cluster containing samples to be tested
- **		MaxIllegal	max percentage of samples allowed to have
- **				more than 1 feature in the cluster
- **	Operation:
- **		This routine looks at all samples in the specified cluster.
- **		It computes a running estimate of the percentage of the
- **		charaters which have more than 1 sample in the cluster.
- **		When this percentage exceeds MaxIllegal, TRUE is returned.
- **		Otherwise FALSE is returned.  The CharID
- **		fields must contain integers which identify the training
- **		characters which were used to generate the sample.  One
- **		integer is used for each sample.  The NumChar field in
- **		the Clusterer must contain the number of characters in the
- **		training set.  All CharID fields must be between 0 and
- **		NumChar-1.  The main function of this routine is to help
- **		identify clusters which need to be split further, i.e. if
- **		numerous training characters have 2 or more features which are
- **		contained in the same cluster, then the cluster should be
- **		split.
- **	Return: TRUE if the cluster should be split, FALSE otherwise.
- **	Exceptions: none
- **	History: Wed Aug 30 11:13:05 1989, DSJ, Created.
- **		2/22/90, DSJ, Added MaxIllegal control rather than always
- **				splitting illegal clusters.
- */
 #define ILLEGAL_CHAR    2
 {
   static BOOL8 *CharFlags = NULL;
@@ -2646,9 +2643,11 @@ CLUSTER * Cluster, FLOAT32 MaxIllegal)
 
 }                                // MultipleCharSamples
 
-// Compute the inverse of a matrix using LU decomposition with partial pivoting.
-// The return value is the sum of norms of the off-diagonal terms of the
-// product of a and inv. (A measure of the error.)
+/**
+ * Compute the inverse of a matrix using LU decomposition with partial pivoting. 
+ * The return value is the sum of norms of the off-diagonal terms of the
+ * product of a and inv. (A measure of the error.)
+ */
 double InvertMatrix(const float* input, int size, float* inv) {
   // Allocate memory for the 2D arrays.
   GENERIC_2D_ARRAY<double> U(size, size, 0.0);
