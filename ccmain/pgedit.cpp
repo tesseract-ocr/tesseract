@@ -306,10 +306,7 @@ SVMenuNode *Tesseract::build_menu_new() {
  *  Redisplay page
  */
 void Tesseract::do_re_display(
-    BOOL8 (tesseract::Tesseract::*word_painter)(BLOCK* block,
-                                                ROW* row,
-                                                WERD_RES* word_res)) {
-  PAGE_RES_IT pr_it(current_page_res);
+    BOOL8 (tesseract::Tesseract::*word_painter)(PAGE_RES_IT* pr_it)) {
   int block_count = 1;
 
   image_win->Clear();
@@ -317,8 +314,9 @@ void Tesseract::do_re_display(
     image_win->Image(pix_binary_, 0, 0);
   }
 
+  PAGE_RES_IT pr_it(current_page_res);
   for (WERD_RES* word = pr_it.word(); word != NULL; word = pr_it.forward()) {
-    (this->*word_painter)(pr_it.block()->block, pr_it.row()->row, word);
+    (this->*word_painter)(&pr_it);
     if (display_baselines && pr_it.row() != pr_it.prev_row())
       pr_it.row()->row->plot_baseline(image_win, ScrollView::GREEN);
     if (display_blocks && pr_it.block() != pr_it.prev_block())
@@ -714,11 +712,10 @@ void show_point(PAGE_RES* page_res, float x, float y) {
 #endif  // GRAPHICS_DISABLED
 namespace tesseract {
 #ifndef GRAPHICS_DISABLED
-BOOL8 Tesseract:: word_blank_and_set_display(BLOCK* block, ROW* row,
-                                             WERD_RES* word_res) {
-  word_res->word->bounding_box().plot(image_win, ScrollView::BLACK,
-                                      ScrollView::BLACK);
-  return word_set_display(block, row, word_res);
+BOOL8 Tesseract:: word_blank_and_set_display(PAGE_RES_IT* pr_it) {
+  pr_it->word()->word->bounding_box().plot(image_win, ScrollView::BLACK,
+                                           ScrollView::BLACK);
+  return word_set_display(pr_it);
 }
 
 
@@ -727,7 +724,8 @@ BOOL8 Tesseract:: word_blank_and_set_display(BLOCK* block, ROW* row,
  *
  * Normalize word and display in word window
  */
-BOOL8 Tesseract::word_bln_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
+BOOL8 Tesseract::word_bln_display(PAGE_RES_IT* pr_it) {
+  WERD_RES* word_res = pr_it->word();
   if (word_res->chopped_word == NULL) {
     // Setup word normalization parameters.
     word_res->SetupForRecognition(unicharset, this, BestPix(),
@@ -735,7 +733,7 @@ BOOL8 Tesseract::word_bln_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
                                   classify_bln_numeric_mode,
                                   textord_use_cjk_fp_model,
                                   poly_allow_detailed_fx,
-                                  row, block);
+                                  pr_it->row()->row, pr_it->block()->block);
   }
   bln_word_window_handle()->Clear();
   display_bln_lines(bln_word_window_handle(), ScrollView::CYAN,
@@ -758,7 +756,8 @@ BOOL8 Tesseract::word_bln_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
  *
  *  Display a word according to its display modes
  */
-BOOL8 Tesseract::word_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
+BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
+  WERD_RES* word_res = pr_it->word();
   WERD* word = word_res->word;
   TBOX word_bb;                   // word bounding box
   int word_height;               // ht of word BB
@@ -918,14 +917,15 @@ BOOL8 Tesseract::word_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
  *
  * Dump members to the debug window
  */
-BOOL8 Tesseract::word_dumper(BLOCK* block, ROW* row, WERD_RES* word_res) {
-  if (block != NULL) {
+BOOL8 Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
+  if (pr_it->block()->block != NULL) {
     tprintf("\nBlock data...\n");
-    block->print(NULL, FALSE);
+    pr_it->block()->block->print(NULL, FALSE);
   }
   tprintf("\nRow data...\n");
-  row->print(NULL);
+  pr_it->row()->row->print(NULL);
   tprintf("\nWord data...\n");
+  WERD_RES* word_res = pr_it->word();
   word_res->word->print();
   if (word_res->blamer_bundle != NULL && wordrec_debug_blamer &&
       word_res->blamer_bundle->incorrect_result_reason() != IRR_CORRECT) {
@@ -941,8 +941,8 @@ BOOL8 Tesseract::word_dumper(BLOCK* block, ROW* row, WERD_RES* word_res) {
  *
  * Display word according to current display mode settings
  */
-BOOL8 Tesseract::word_set_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
-  WERD* word = word_res->word;
+BOOL8 Tesseract::word_set_display(PAGE_RES_IT* pr_it) {
+  WERD* word = pr_it->word()->word;
   word->set_display_flag(DF_BOX, word_display_mode.bit(DF_BOX));
   word->set_display_flag(DF_TEXT, word_display_mode.bit(DF_TEXT));
   word->set_display_flag(DF_POLYGONAL, word_display_mode.bit(DF_POLYGONAL));
@@ -950,26 +950,24 @@ BOOL8 Tesseract::word_set_display(BLOCK* block, ROW* row, WERD_RES* word_res) {
   word->set_display_flag(DF_BN_POLYGONAL,
     word_display_mode.bit(DF_BN_POLYGONAL));
   word->set_display_flag(DF_BLAMER, word_display_mode.bit(DF_BLAMER));
-  return word_display(block, row, word_res);
+  return word_display(pr_it);
 }
 
 // page_res is non-const because the iterator doesn't know if you are going
 // to change the items it points to! Really a const here though.
 void Tesseract::blob_feature_display(PAGE_RES* page_res,
                                      const TBOX& selection_box) {
-  ROW* row;               // row of word
-  BLOCK* block;           // block of word
-  WERD* word = make_pseudo_word(page_res, selection_box, block, row);
-  if (word != NULL) {
-    WERD_RES word_res(word);
-    word_res.x_height = row->x_height();
-    word_res.SetupForRecognition(unicharset, this, BestPix(),
-                                 tessedit_ocr_engine_mode, NULL,
-                                 classify_bln_numeric_mode,
-                                 textord_use_cjk_fp_model,
-                                 poly_allow_detailed_fx,
-                                 row, block);
-    TWERD* bln_word = word_res.chopped_word;
+  PAGE_RES_IT* it = make_pseudo_word(page_res, selection_box);
+  if (it != NULL) {
+    WERD_RES* word_res = it->word();
+    word_res->x_height = it->row()->row->x_height();
+    word_res->SetupForRecognition(unicharset, this, BestPix(),
+                                  tessedit_ocr_engine_mode, NULL,
+                                  classify_bln_numeric_mode,
+                                  textord_use_cjk_fp_model,
+                                  poly_allow_detailed_fx,
+                                  it->row()->row, it->block()->block);
+    TWERD* bln_word = word_res->chopped_word;
     TBLOB* bln_blob = bln_word->blobs[0];
     INT_FX_RESULT_STRUCT fx_info;
     GenericVector<INT_FEATURE_STRUCT> bl_features;
@@ -989,7 +987,8 @@ void Tesseract::blob_feature_display(PAGE_RES* page_res,
       RenderIntFeature(cn_win, &cn_features[f], ScrollView::GREEN);
     cn_win->Update();
 
-    delete word;
+    it->DeleteCurrentWord();
+    delete it;
   }
 }
 

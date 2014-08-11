@@ -82,7 +82,8 @@ class PAGE_RES {                 // page result
 
   PAGE_RES() { Init(); }  // empty constructor
 
-  PAGE_RES(BLOCK_LIST *block_list,   // real blocks
+  PAGE_RES(bool merge_similar_words,
+           BLOCK_LIST *block_list,   // real blocks
            WERD_CHOICE **prev_word_best_choice_ptr);
 
   ~PAGE_RES () {               // destructor
@@ -111,7 +112,7 @@ class BLOCK_RES:public ELIST_LINK {
   BLOCK_RES() {
   }                            // empty constructor
 
-  BLOCK_RES(BLOCK *the_block);  // real block
+  BLOCK_RES(bool merge_similar_words, BLOCK *the_block);  // real block
 
   ~BLOCK_RES () {              // destructor
   }
@@ -132,7 +133,7 @@ class ROW_RES:public ELIST_LINK {
   ROW_RES() {
   }                            // empty constructor
 
-  ROW_RES(ROW *the_row);  // real row
+  ROW_RES(bool merge_similar_words, ROW *the_row);  // real row
 
   ~ROW_RES() {                // destructor
   }
@@ -279,7 +280,8 @@ class WERD_RES : public ELIST_LINK {
   BOOL8 tess_accepted;          // Tess thinks its ok?
   BOOL8 tess_would_adapt;       // Tess would adapt?
   BOOL8 done;                   // ready for output?
-  bool small_caps;             // word appears to be small caps
+  bool small_caps;              // word appears to be small caps
+  bool odd_size;                // word is bigger than line or leader dots.
   inT8 italic;
   inT8 bold;
   // The fontinfos are pointers to data owned by the classifier.
@@ -485,6 +487,9 @@ class WERD_RES : public ELIST_LINK {
   // Prints a list of words found if debug is true or the word result matches
   // the word_to_debug.
   void DebugWordChoices(bool debug, const char* word_to_debug);
+
+  // Prints the top choice along with the accepted/done flags.
+  void DebugTopChoice(const char* msg) const;
 
   // Removes from best_choices all choices which are not within a reasonable
   // range of the best choice.
@@ -693,6 +698,11 @@ class PAGE_RES_IT {
   // position. The simple fields of the WERD_RES are copied from clone_res and
   // the resulting WERD_RES is returned for further setup with best_choice etc.
   WERD_RES* InsertSimpleCloneWord(const WERD_RES& clone_res, WERD* new_word);
+
+  // Replaces the current WERD/WERD_RES with the given words. The given words
+  // contain fake blobs that indicate the position of the characters. These are
+  // replaced with real blobs from the current word as much as possible.
+  void ReplaceCurrentWord(tesseract::PointerVector<WERD_RES>* words);
 
   // Deletes the current WERD_RES and its underlying WERD.
   void DeleteCurrentWord();

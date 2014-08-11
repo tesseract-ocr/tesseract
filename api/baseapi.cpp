@@ -790,6 +790,10 @@ int CubeAPITest(Boxa* boxa_blocks, Pixa* pixa_blocks,
  * Runs page layout analysis in the mode set by SetPageSegMode.
  * May optionally be called prior to Recognize to get access to just
  * the page layout results. Returns an iterator to the results.
+ * If merge_similar_words is true, words are combined where suitable for use
+ * with a line recognizer. Use if you want to use AnalyseLayout to find the
+ * textlines, and then want to process textline fragments with an external
+ * line recognizer.
  * Returns NULL on error or an empty page.
  * The returned iterator must be deleted after use.
  * WARNING! This class points to data held within the TessBaseAPI class, and
@@ -797,11 +801,11 @@ int CubeAPITest(Boxa* boxa_blocks, Pixa* pixa_blocks,
  * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
  * DetectOS, or anything else that changes the internal PAGE_RES.
  */
-PageIterator* TessBaseAPI::AnalyseLayout() {
+PageIterator* TessBaseAPI::AnalyseLayout(bool merge_similar_words) {
   if (FindLines() == 0) {
     if (block_list_->empty())
       return NULL;  // The page was empty.
-    page_res_ = new PAGE_RES(block_list_, NULL);
+    page_res_ = new PAGE_RES(merge_similar_words, block_list_, NULL);
     DetectParagraphs(false);
     return new PageIterator(
         page_res_, tesseract_, thresholder_->GetScaleFactor(),
@@ -823,18 +827,22 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   if (page_res_ != NULL)
     delete page_res_;
   if (block_list_->empty()) {
-    page_res_ = new PAGE_RES(block_list_, &tesseract_->prev_word_best_choice_);
+    page_res_ = new PAGE_RES(false, block_list_,
+                             &tesseract_->prev_word_best_choice_);
     return 0; // Empty page.
   }
 
   tesseract_->SetBlackAndWhitelist();
   recognition_done_ = true;
-  if (tesseract_->tessedit_resegment_from_line_boxes)
+  if (tesseract_->tessedit_resegment_from_line_boxes) {
     page_res_ = tesseract_->ApplyBoxes(*input_file_, true, block_list_);
-  else if (tesseract_->tessedit_resegment_from_boxes)
+  } else if (tesseract_->tessedit_resegment_from_boxes) {
     page_res_ = tesseract_->ApplyBoxes(*input_file_, false, block_list_);
-  else
-    page_res_ = new PAGE_RES(block_list_, &tesseract_->prev_word_best_choice_);
+  } else {
+    // TODO(rays) LSTM here.
+    page_res_ = new PAGE_RES(false,
+                             block_list_, &tesseract_->prev_word_best_choice_);
+  }
   if (tesseract_->tessedit_make_boxes_from_boxes) {
     tesseract_->CorrectClassifyWords(page_res_);
     return 0;
@@ -900,7 +908,8 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
 
   recognition_done_ = true;
 
-  page_res_ = new PAGE_RES(block_list_, &(tesseract_->prev_word_best_choice_));
+  page_res_ = new PAGE_RES(false, block_list_,
+                           &(tesseract_->prev_word_best_choice_));
 
   PAGE_RES_IT page_res_it(page_res_);
 
@@ -1977,7 +1986,10 @@ void TessBaseAPI::Threshold(Pix** pix) {
     // than over-estimate resolution.
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
-  thresholder_->ThresholdToPix(pix);
+  PageSegMode pageseg_mode =
+      static_cast<PageSegMode>(
+          static_cast<int>(tesseract_->tessedit_pageseg_mode));
+  thresholder_->ThresholdToPix(pageseg_mode, pix);
   thresholder_->GetImageSizes(&rect_left_, &rect_top_,
                               &rect_width_, &rect_height_,
                               &image_width_, &image_height_);
@@ -2332,7 +2344,7 @@ void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
 
 
 PAGE_RES* TessBaseAPI::RecognitionPass1(BLOCK_LIST* block_list) {
-  PAGE_RES *page_res = new PAGE_RES(block_list,
+  PAGE_RES *page_res = new PAGE_RES(false, block_list,
                                     &(tesseract_->prev_word_best_choice_));
   tesseract_->recog_all_words(page_res, NULL, NULL, NULL, 1);
   return page_res;
@@ -2341,7 +2353,7 @@ PAGE_RES* TessBaseAPI::RecognitionPass1(BLOCK_LIST* block_list) {
 PAGE_RES* TessBaseAPI::RecognitionPass2(BLOCK_LIST* block_list,
                                         PAGE_RES* pass1_result) {
   if (!pass1_result)
-    pass1_result = new PAGE_RES(block_list,
+    pass1_result = new PAGE_RES(false, block_list,
                                 &(tesseract_->prev_word_best_choice_));
   tesseract_->recog_all_words(pass1_result, NULL, NULL, NULL, 2);
   return pass1_result;

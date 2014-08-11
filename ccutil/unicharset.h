@@ -23,6 +23,7 @@
 #include "errcode.h"
 #include "genericvector.h"
 #include "helpers.h"
+#include "serialis.h"
 #include "strngs.h"
 #include "tesscallback.h"
 #include "unichar.h"
@@ -317,7 +318,22 @@ class UNICHARSET {
 
   // Saves the content of the UNICHARSET to the given file.
   // Returns true if the operation is successful.
-  bool save_to_file(FILE *file) const;
+  bool save_to_file(FILE *file) const {
+    STRING str;
+    if (!save_to_string(&str)) return false;
+    if (fwrite(&str[0], str.length(), 1, file) != 1) return false;
+    return true;
+  }
+  bool save_to_file(tesseract::TFile *file) const {
+    STRING str;
+    if (!save_to_string(&str)) return false;
+    if (file->FWrite(&str[0], str.length(), 1) != 1) return false;
+    return true;
+  }
+
+  // Saves the content of the UNICHARSET to the given STRING.
+  // Returns true if the operation is successful.
+  bool save_to_string(STRING *str) const;
 
   // Load a unicharset from a unicharset file that has been loaded into
   // the given memory buffer.
@@ -348,6 +364,8 @@ class UNICHARSET {
   // Returns true if the operation is successful.
   bool load_from_file(FILE *file, bool skip_fragments);
   bool load_from_file(FILE *file) { return load_from_file(file, false); }
+  bool load_from_file(tesseract::TFile *file, bool skip_fragments);
+
 
   // Sets up internal data after loading the file, based on the char
   // properties. Called from load_from_file, but also needs to be run

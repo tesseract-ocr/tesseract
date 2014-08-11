@@ -247,10 +247,11 @@ C_BLOB* C_BLOB::FakeBlob(const TBOX& box) {
  * Return the bounding box of the blob.
  **********************************************************************/
 
-TBOX C_BLOB::bounding_box() {  //bounding box
-  C_OUTLINE *outline;            //current outline
-  C_OUTLINE_IT it = &outlines;   //outlines of blob
-  TBOX box;                       //bounding box
+TBOX C_BLOB::bounding_box() const {  // bounding box
+  C_OUTLINE *outline;                // current outline
+  // This is a read-only iteration of the outlines.
+  C_OUTLINE_IT it = const_cast<C_OUTLINE_LIST*>(&outlines);
+  TBOX box;                          // bounding box
 
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
     outline = it.data ();

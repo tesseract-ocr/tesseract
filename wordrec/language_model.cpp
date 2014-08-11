@@ -299,7 +299,7 @@ bool LanguageModel::UpdateState(
     //if (!curr_list->singleton() && c_it.data()->unichar_id() == 0) continue;
     UNICHAR_ID unichar_id = choice->unichar_id();
     if (unicharset.get_fragment(unichar_id)) {
-      continue;  // skip fragments
+      continue;  // Skip fragments.
     }
     // Set top choice flags.
     LanguageModelFlagsType blob_choice_flags = kXhtConsistentFlag;
@@ -651,6 +651,8 @@ bool LanguageModel::AddViterbiStateEntry(
       ngram_info, (language_model_debug_level > 0) ?
           dict_->getUnicharset().id_to_unichar(b->unichar_id()) : NULL);
   new_vse->cost = ComputeAdjustedPathCost(new_vse);
+  if (language_model_debug_level >= 3)
+    tprintf("Adjusted cost = %g\n", new_vse->cost);
 
   // Invoke Top Choice language model component to make the final adjustments
   // to new_vse->top_choice_flags.
@@ -1311,7 +1313,7 @@ void LanguageModel::UpdateBestChoice(
           vse->dawg_info != NULL && vse->top_choice_flags);
     }
   }
-  if (wordrec_display_segmentations) {
+  if (wordrec_display_segmentations && word_res->chopped_word != NULL) {
     word->DisplaySegmentation(word_res->chopped_word);
   }
 }

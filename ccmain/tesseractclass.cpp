@@ -96,8 +96,6 @@ Tesseract::Tesseract()
                 " whose outlines overlap horizontally.", this->params()),
     BOOL_MEMBER(tessedit_display_outwords, false,
                 "Draw output words", this->params()),
-    BOOL_MEMBER(tessedit_training_tess, false,
-                "Call Tess to learn blobs", this->params()),
     BOOL_MEMBER(tessedit_dump_choices, false,
                 "Dump char choices", this->params()),
     BOOL_MEMBER(tessedit_timing_debug, false, "Print timing stats",
@@ -315,16 +313,6 @@ Tesseract::Tesseract()
                 "Write .html hOCR output file", this->params()),
     BOOL_MEMBER(tessedit_create_pdf, false,
                 "Write .pdf output file", this->params()),
-    INT_MEMBER(tessedit_pdf_compression, 0,
-               "Type of image compression in pdf output: "
-               "0 - autoselection (default); "
-               "1 - jpeg; "
-               "2 - G4; "
-               "3 - flate",
-               this->params()),
-    INT_MEMBER(tessedit_pdf_jpg_quality, 85,
-               "Quality level of jpeg image compression in pdf output",
-               this->params()),
     STRING_MEMBER(unrecognised_char, "|",
                   "Output char for unidentified blobs", this->params()),
     INT_MEMBER(suspect_level, 99, "Suspect marker level", this->params()),

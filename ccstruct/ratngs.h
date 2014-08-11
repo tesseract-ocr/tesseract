@@ -48,11 +48,11 @@ class BLOB_CHOICE: public ELIST_LINK
 {
   public:
     BLOB_CHOICE() {
-      unichar_id_ = INVALID_UNICHAR_ID;
+      unichar_id_ = UNICHAR_SPACE;
       fontinfo_id_ = -1;
       fontinfo_id2_ = -1;
-      rating_ = MAX_FLOAT32;
-      certainty_ = -MAX_FLOAT32;
+      rating_ = 10.0;
+      certainty_ = -1.0;
       script_id_ = -1;
       xgap_before_ = 0;
       xgap_after_ = 0;

@@ -22,9 +22,6 @@
 
 #include          "pageres.h"
 
-WERD *make_pseudo_word(PAGE_RES* page_res,  // blocks to check
-                       const TBOX &selection_box,
-                       BLOCK *&pseudo_block,
-                       ROW *&pseudo_row);
+PAGE_RES_IT* make_pseudo_word(PAGE_RES* page_res, const TBOX& selection_box);
 
 #endif

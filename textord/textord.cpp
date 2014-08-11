@@ -317,8 +317,9 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
   if (PSM_LINE_FIND_ENABLED(pageseg_mode)) {
     gradient = make_rows(page_tr_, to_blocks);
   } else if (!PSM_SPARSE(pageseg_mode)) {
-    // SINGLE_LINE, SINGLE_WORD and SINGLE_CHAR all need a single row.
-    gradient = make_single_row(page_tr_, to_block, to_blocks);
+    // RAW_LINE, SINGLE_LINE, SINGLE_WORD and SINGLE_CHAR all need a single row.
+    gradient = make_single_row(page_tr_, pageseg_mode != PSM_RAW_LINE,
+                               to_block, to_blocks);
   }
   BaselineDetect baseline_detector(textord_baseline_debug,
                                    reskew, to_blocks);
@@ -339,7 +340,8 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
     make_single_word(pageseg_mode == PSM_SINGLE_CHAR,
                      to_block->get_rows(), to_block->block->row_list());
   }
-  cleanup_blocks(blocks);  // Remove empties.
+  cleanup_blocks(PSM_WORD_FIND_ENABLED(pageseg_mode), blocks);
+  // Remove empties.
 
   // Compute the margins for each row in the block, to be used later for
   // paragraph detection.

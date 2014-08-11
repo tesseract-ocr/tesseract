@@ -110,29 +110,19 @@ static void clear_any_old_text(BLOCK_LIST *block_list) {
 PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
                                 bool find_segmentation,
                                 BLOCK_LIST *block_list) {
-  int box_count = 0;
-  int box_failures = 0;
-
-  FILE* box_file = OpenBoxFile(fname);
-  TBOX box;
   GenericVector<TBOX> boxes;
   GenericVector<STRING> texts, full_texts;
-
-  bool found_box = true;
-  while (found_box) {
-    int line_number = 0;           // Line number of the box file.
-    STRING text, full_text;
-    found_box = ReadNextBox(applybox_page, &line_number, box_file, &text, &box);
-    if (found_box) {
-      ++box_count;
-      MakeBoxFileStr(text.string(), box, applybox_page, &full_text);
-    } else {
-      full_text = "";
-    }
-    boxes.push_back(box);
-    texts.push_back(text);
-    full_texts.push_back(full_text);
+  if (!ReadAllBoxes(applybox_page, true, fname, &boxes, &texts, &full_texts,
+                    NULL)) {
+    return NULL;  // Can't do it.
   }
+
+  int box_count = boxes.size();
+  int box_failures = 0;
+  // Add an empty everything to the end.
+  boxes.push_back(TBOX());
+  texts.push_back(STRING());
+  full_texts.push_back(STRING());
 
   // In word mode, we use the boxes to make a word for each box, but
   // in blob mode we use the existing words and maximally chop them first.
@@ -239,7 +229,7 @@ PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
       }
     }
   }
-  PAGE_RES* page_res = new PAGE_RES(block_list, NULL);
+  PAGE_RES* page_res = new PAGE_RES(false, block_list, NULL);
   PAGE_RES_IT pr_it(page_res);
   WERD_RES* word_res;
   while ((word_res = pr_it.word()) != NULL) {

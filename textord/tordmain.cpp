@@ -360,9 +360,11 @@ void Textord::cleanup_nontext_block(BLOCK* block) {
   // Non-text blocks must contain at least one row.
   ROW_IT row_it(block->row_list());
   if (row_it.empty()) {
-    float height = block->bounding_box().height();
-    inT32 zero = 0;
-    ROW* row = new ROW(0, &zero, NULL, height / 2.0f, height / 4.0f,
+    TBOX box = block->bounding_box();
+    float height = box.height();
+    inT32 xstarts[2] = {box.left(), box.right()};
+    double coeffs[3] = {0.0, 0.0, static_cast<double>(box.bottom())};
+    ROW* row = new ROW(1, xstarts, coeffs, height / 2.0f, height / 4.0f,
                        height / 4.0f, 0, 1);
     row_it.add_after_then_move(row);
   }
@@ -398,9 +400,7 @@ void Textord::cleanup_nontext_block(BLOCK* block) {
  * Delete empty blocks, rows from the page.
  **********************************************************************/
 
-void Textord::cleanup_blocks(                    //remove empties
-                             BLOCK_LIST *blocks  //list
-                            ) {
+void Textord::cleanup_blocks(bool clean_noise, BLOCK_LIST *blocks) {
   BLOCK_IT block_it = blocks;    //iterator
   ROW_IT row_it;                 //row iterator
 
@@ -417,22 +417,24 @@ void Textord::cleanup_blocks(                    //remove empties
     }
     num_rows = 0;
     num_rows_all = 0;
-    row_it.set_to_list(block->row_list());
-    for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
-      ++num_rows_all;
-      clean_small_noise_from_words(row_it.data());
-      if ((textord_noise_rejrows && !row_it.data()->word_list()->empty() &&
-           clean_noise_from_row(row_it.data())) ||
-          row_it.data()->word_list()->empty()) {
-        delete row_it.extract();  // lose empty row.
-      } else {
-        if (textord_noise_rejwords)
-          clean_noise_from_words(row_it.data());
-        if (textord_blshift_maxshift >= 0)
-          tweak_row_baseline(row_it.data(),
-                             textord_blshift_maxshift,
-                             textord_blshift_xfraction);
-        ++num_rows;
+    if (clean_noise) {
+      row_it.set_to_list(block->row_list());
+      for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+        ++num_rows_all;
+        clean_small_noise_from_words(row_it.data());
+        if ((textord_noise_rejrows && !row_it.data()->word_list()->empty() &&
+             clean_noise_from_row(row_it.data())) ||
+            row_it.data()->word_list()->empty()) {
+          delete row_it.extract();  // lose empty row.
+        } else {
+          if (textord_noise_rejwords)
+            clean_noise_from_words(row_it.data());
+          if (textord_blshift_maxshift >= 0)
+            tweak_row_baseline(row_it.data(),
+                               textord_blshift_maxshift,
+                               textord_blshift_xfraction);
+          ++num_rows;
+        }
       }
     }
     if (block->row_list()->empty()) {

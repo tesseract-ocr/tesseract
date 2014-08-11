@@ -266,11 +266,22 @@ class Wordrec : public Classify {
   // to combine blobs. Segmentation search will run only one "iteration"
   // on the classifications already recorded in chunks_record.ratings.
   //
-  // Note: this function assumes that word, output_best_state,
-  // best_char_choices and fixpt arguments are not NULL.
+  // Note: this function assumes that word_res, best_choice_bundle arguments
+  // are not NULL.
   void SegSearch(WERD_RES* word_res,
                  BestChoiceBundle* best_choice_bundle,
                  BlamerBundle* blamer_bundle);
+  // Setup and run just the initial segsearch on an established matrix,
+  // without doing any additional chopping or joining.
+  void WordSearch(WERD_RES* word_res);
+
+  // Setup and run just the initial segsearch on an established matrix,
+  // without doing any additional chopping or joining.
+  // (Internal factored version that can be used as part of the main SegSearch.)
+  void InitialSegSearch(WERD_RES* word_res, LMPainPoints* pain_points,
+                        GenericVector<SegSearchPending>* pending,
+                        BestChoiceBundle* best_choice_bundle,
+                        BlamerBundle* blamer_bundle);
 
   // Runs SegSearch() function (above) without needing a best_choice_bundle
   // or blamer_bundle. Used for testing.
