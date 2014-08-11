@@ -91,6 +91,15 @@ INT_PARAM_FLAG(ptsize, 12, "Size of printed text");
 // Inter-character space (in ems).
 DOUBLE_PARAM_FLAG(char_spacing, 0, "Inter-character space in ems");
 
+// Sets the probability (value in [0, 1]) of starting to render a word with an
+// underline. Words are assumed to be space-delimited.
+DOUBLE_PARAM_FLAG(underline_start_prob, 0,
+                  "Fraction of words to underline (value in [0,1])");
+// Set the probability (value in [0, 1]) of continuing a started underline to
+// the next word.
+DOUBLE_PARAM_FLAG(underline_continuation_prob, 0,
+                  "Fraction of words to underline (value in [0,1])");
+
 // Inter-line space (in pixels).
 INT_PARAM_FLAG(leading, 12, "Inter-line space (in pixels)");
 
@@ -441,6 +450,8 @@ int main(int argc, char** argv) {
   render.set_output_word_boxes(FLAGS_output_word_boxes);
   render.set_box_padding(FLAGS_box_padding);
   render.set_strip_unrenderable_words(FLAGS_strip_unrenderable_words);
+  render.set_underline_start_prob(FLAGS_underline_start_prob);
+  render.set_underline_continuation_prob(FLAGS_underline_continuation_prob);
 
   // Set text rendering orientation and their forms.
   if (FLAGS_writing_mode == "horizontal") {
@@ -542,6 +553,7 @@ int main(int argc, char** argv) {
 
   tesseract::TRand randomizer;
   randomizer.set_seed(kRandomSeed);
+  vector<string> font_names;
   // We use a two pass mechanism to rotate images in both direction.
   // The first pass(0) will rotate the images in random directions and
   // the second pass(1) will mirror those rotations.
@@ -582,18 +594,23 @@ int main(int argc, char** argv) {
         Pix* binary = pixThresholdToBinary(gray_pix, 128);
         pixDestroy(&gray_pix);
         char tiff_name[1024];
-        if (FLAGS_find_fonts && FLAGS_render_per_font) {
-          string fontname_for_file = tesseract::StringReplace(
-              font_used, " ", "_");
-          snprintf(tiff_name, 1024, "%s.%s.tif", FLAGS_outputbase.c_str(),
-                   fontname_for_file.c_str());
-          pixWriteTiff(tiff_name, binary, IFF_TIFF_G4, "w");
+        if (FLAGS_find_fonts) {
+          if (FLAGS_render_per_font) {
+            string fontname_for_file = tesseract::StringReplace(
+                font_used, " ", "_");
+            snprintf(tiff_name, 1024, "%s.%s.tif", FLAGS_outputbase.c_str(),
+                     fontname_for_file.c_str());
+            pixWriteTiff(tiff_name, binary, IFF_TIFF_G4, "w");
+            tprintf("Rendered page %d to file %s\n", im, tiff_name);
+          } else {
+            font_names.push_back(font_used);
+          }
         } else {
           snprintf(tiff_name, 1024, "%s.tif", FLAGS_outputbase.c_str());
           pixWriteTiff(tiff_name, binary, IFF_TIFF_G4, im == 0 ? "w" : "a");
+          tprintf("Rendered page %d to file %s\n", im, tiff_name);
         }
-        tprintf("Rendered page %d to file %s\n", im, tiff_name);
-       // Make individual glyphs
+        // Make individual glyphs
         if (FLAGS_output_individual_glyph_images) {
           if (!MakeIndividualGlyphs(binary, render.GetBoxes(), im)) {
             tprintf("ERROR: Individual glyphs not saved\n");
@@ -601,12 +618,28 @@ int main(int argc, char** argv) {
         }
         pixDestroy(&binary);
       }
+      if (FLAGS_find_fonts && !FLAGS_render_per_font && !font_names.empty()) {
+        // We just want a list of names, so we don't need to render any more
+        // of the text.
+        break;
+      }
     }
   }
   if (!FLAGS_find_fonts) {
     string box_name = FLAGS_outputbase.c_str();
     box_name += ".box";
     render.WriteAllBoxes(box_name);
+  } else if (!FLAGS_render_per_font && !font_names.empty()) {
+    string filename = FLAGS_outputbase + ".fontlist.txt";
+    FILE* fp = fopen(filename.c_str(), "wb");
+    if (fp == NULL) {
+      tprintf("Failed to create output font list %s\n", filename.c_str());
+    } else {
+      for (int i = 0; i < font_names.size(); ++i) {
+        fprintf(fp, "%s\n", font_names[i].c_str());
+      }
+      fclose(fp);
+    }
   }
 
   return 0;
