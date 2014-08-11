@@ -69,13 +69,11 @@ bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset,
   char line[MAX_PATH];           // input line
   bool anyerr = false;           // true if any error
   bool foundit;                  // found parameter
-  inT16 length;                  // length of line
   char *valptr;                  // value field
 
   while ((end_offset < 0 || ftell(fp) < end_offset) &&
          fgets(line, MAX_PATH, fp)) {
     if (line[0] != '\n' && line[0] != '#') {
-      length = strlen (line);
       chomp_string(line);  // remove newline
       for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t';
         valptr++);
