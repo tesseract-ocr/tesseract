@@ -7,6 +7,8 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/classify -I$(top_srcdir)/display \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
 
+EXTRA_DIST = tesstrain.sh
+
 if MINGW
 # try static build
 #AM_LDFLAGS += -all-static
