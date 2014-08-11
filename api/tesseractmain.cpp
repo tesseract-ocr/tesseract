@@ -312,10 +312,11 @@ int main(int argc, char **argv) {
     renderer = new tesseract::TessTextRenderer(outputbase);
 
   if (!api.ProcessPages(image, NULL, 0, renderer)) {
+    delete renderer;
     fprintf(stderr, "Error during processing.\n");
     exit(1);
   }
-
+  delete renderer;
   PERF_COUNT_END
   return 0;                      // Normal exit
 }
