@@ -19,6 +19,7 @@
 
 #include "unichar.h"
 #include "errcode.h"
+#include "genericvector.h"
 #include "tprintf.h"
 
 #define UNI_MAX_LEGAL_UTF32 0x0010FFFF
@@ -203,3 +204,14 @@ UNICHAR::const_iterator UNICHAR::begin(const char* utf8_str, const int len) {
 UNICHAR::const_iterator UNICHAR::end(const char* utf8_str, const int len) {
   return UNICHAR::const_iterator(utf8_str + len);
 }
+
+// Converts a utf-8 string to a vector of unicodes.
+void UNICHAR::UTF8ToUnicode(const char* utf8_str,
+                            GenericVector<int>* unicodes) {
+  const int utf8_length = strlen(utf8_str);
+  const_iterator end_it(end(utf8_str, utf8_length));
+  for (const_iterator it(begin(utf8_str, utf8_length)); it != end_it; ++it) {
+    unicodes->push_back(*it);
+  }
+}
+
