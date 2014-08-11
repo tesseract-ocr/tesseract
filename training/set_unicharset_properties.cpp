@@ -95,7 +95,7 @@ static void SetupBasicProperties(UNICHARSET* unicharset) {
       if (other_case_id != INVALID_UNICHAR_ID) {
         unicharset->set_other_case(unichar_id, other_case_id);
       } else {
-        tprintf("Other case %s of %s is not in unicharset",
+        tprintf("Other case %s of %s is not in unicharset\n",
                 other_case_uch.c_str(), unichar_str);
       }
     }
@@ -144,11 +144,11 @@ static void SetPropertiesForInputFile(const string& script_dir,
 
   // Load the input unicharset
   unicharset.load_from_file(input_unicharset_file.c_str());
-  tprintf("Loaded unicharset of size %d from file %s", unicharset.size(),
+  tprintf("Loaded unicharset of size %d from file %s\n", unicharset.size(),
           input_unicharset_file.c_str());
 
   // Set unichar properties
-  tprintf("Setting unichar properties");
+  tprintf("Setting unichar properties\n");
   SetupBasicProperties(&unicharset);
   string xheights_str;
   for (int s = 0; s < unicharset.get_script_table_size(); ++s) {
@@ -170,7 +170,7 @@ static void SetPropertiesForInputFile(const string& script_dir,
     File::WriteStringToFileOrDie(xheights_str, output_xheights_file);
 
   // Write the output unicharset
-  tprintf("Writing unicharset to file %s", output_unicharset_file.c_str());
+  tprintf("Writing unicharset to file %s\n", output_unicharset_file.c_str());
   unicharset.save_to_file(output_unicharset_file.c_str());
 }
 }  // namespace tesseract
@@ -181,11 +181,11 @@ int main(int argc, char** argv) {
 
   // Check validity of input flags.
   if (FLAGS_U.empty() || FLAGS_O.empty()) {
-    tprintf("Specify both input and output unicharsets!");
+    tprintf("Specify both input and output unicharsets!\n");
     exit(1);
   }
   if (FLAGS_script_dir.empty()) {
-    tprintf("Must specify a script_dir!");
+    tprintf("Must specify a script_dir!\n");
     exit(1);
   }
 
