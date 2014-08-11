@@ -59,7 +59,7 @@ void ViterbiStateEntry::Print(const char *msg) const {
   tprintf("\n");
 }
 
-// Clears the viterbi search state back to its initial conditions.
+/// Clears the viterbi search state back to its initial conditions.
 void LanguageModelState::Clear() {
   viterbi_state_entries.clear();
   viterbi_state_entries_prunable_length = 0;
