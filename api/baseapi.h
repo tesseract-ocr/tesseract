@@ -20,8 +20,8 @@
 #ifndef TESSERACT_API_BASEAPI_H__
 #define TESSERACT_API_BASEAPI_H__
 
-#define TESSERACT_VERSION_STR "3.03.00"
-#define TESSERACT_VERSION 0x030300
+#define TESSERACT_VERSION_STR "3.04.00"
+#define TESSERACT_VERSION 0x030400
 #define MAKE_VERSION(major, minor, patch) (((major) << 16) | ((minor) << 8) | \
                                             (patch))
 
@@ -877,7 +877,7 @@ class TESS_API TessBaseAPI {
 };  // class TessBaseAPI.
 
 /** Escape a char string - remove &<>"' with HTML codes. */
-void HOcrEscape(const char* text, STRING& ret);
+STRING HOcrEscape(const char* text);
 }  // namespace tesseract.
 
 #endif  // TESSERACT_API_BASEAPI_H__

@@ -1393,7 +1393,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
   hocr_str.add_str_int("  <div class='ocr_page' id='page_", page_id);
   hocr_str += "' title='image \"";
   if (input_file_) {
-    HOcrEscape(input_file_->string(), hocr_str);
+    hocr_str += HOcrEscape(input_file_->string());
   } else {
     hocr_str += "unknown";
   }
@@ -1453,7 +1453,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
     hocr_str.add_str_int("; x_wconf ", res_it->Confidence(RIL_WORD));
     if (font_info) {
       hocr_str += "; x_font ";
-      HOcrEscape(font_name, hocr_str);
+      hocr_str += HOcrEscape(font_name);
       hocr_str.add_str_int("; x_fsize ", pointsize);
     }
     hocr_str += "'";
@@ -1478,7 +1478,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
       const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
       if (grapheme && grapheme[0] != 0) {
         if (grapheme[1] == 0) {
-          HOcrEscape(grapheme, hocr_str);
+          hocr_str += HOcrEscape(grapheme);
         } else {
           hocr_str += grapheme;
         }
@@ -2593,9 +2593,9 @@ CubeRecoContext *TessBaseAPI::GetCubeRecoContext() const {
   return (tesseract_ == NULL) ? NULL : tesseract_->GetCubeRecoContext();
 }
 
-
 /** Escape a char string - remove <>&"' with HTML codes. */
-void HOcrEscape(const char* text, STRING& ret) {
+STRING HOcrEscape(const char* text) {
+  STRING ret;
   const char *ptr;
   for (ptr = text; *ptr; ptr++) {
     switch (*ptr) {
@@ -2607,5 +2607,7 @@ void HOcrEscape(const char* text, STRING& ret) {
       default: ret += *ptr;
     }
   }
+  return ret;
 }
+
 }  // namespace tesseract.
