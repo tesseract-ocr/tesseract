@@ -184,8 +184,8 @@ void Dawg::init(DawgType type, const STRING &lang,
   // Set bit masks.
   flag_start_bit_ = ceil(log(static_cast<double>(unicharset_size_)) / log(2.0));
   next_node_start_bit_ = flag_start_bit_ + NUM_FLAG_BITS;
-  letter_mask_ = ~(~0 << flag_start_bit_);
-  next_node_mask_ = ~0 << (flag_start_bit_ + NUM_FLAG_BITS);
+  letter_mask_ = ~(~0ull << flag_start_bit_);
+  next_node_mask_ = ~0ull << (flag_start_bit_ + NUM_FLAG_BITS);
   flags_mask_ = ~(letter_mask_ | next_node_mask_);
 
   debug_level_ = debug_level;

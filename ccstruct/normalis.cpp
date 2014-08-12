@@ -451,8 +451,8 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
                             &min_top, &max_top);
 
   // Calculate the scale factor we'll use to get to image y-pixels
-  double midx = (bbox.left() + bbox.right()) / 2;
-  double ydiff = (bbox.top() - bbox.bottom()) + 2;
+  double midx = (bbox.left() + bbox.right()) / 2.0;
+  double ydiff = (bbox.top() - bbox.bottom()) + 2.0;
   FCOORD mid_bot(midx, bbox.bottom()), tmid_bot;
   FCOORD mid_high(midx, bbox.bottom() + ydiff), tmid_high;
   DenormTransform(NULL, mid_bot, &tmid_bot);

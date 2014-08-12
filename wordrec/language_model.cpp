@@ -1161,8 +1161,12 @@ void LanguageModel::FillConsistencyInfo(
         float actual_gap =
             static_cast<float>(word_res->GetBlobsGap(curr_col-1));
         float gap_ratio = expected_gap / actual_gap;
-        // TODO(daria): find a good way to tune this heuristic estimate.
-        if (gap_ratio < 1/2 || gap_ratio > 2) {
+        // TODO(rays) The gaps seem to be way off most of the time, saved by
+        // the error here that the ratio was compared to 1/2, when it should
+        // have been 0.5f. Find the source of the gaps discrepancy and put
+        // the 0.5f here in place of 0.0f.
+        // Test on 2476595.sj, pages 0 to 6. (In French.)
+        if (gap_ratio < 0.0f || gap_ratio > 2.0f) {
           consistency_info->num_inconsistent_spaces++;
         }
         if (language_model_debug_level > 1) {

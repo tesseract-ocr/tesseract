@@ -732,7 +732,7 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
                   gutter_width, median_gutter);
         }
         it.extract();
-        ++num_deleted_boxes = true;
+        ++num_deleted_boxes;
       }
     }
   }
