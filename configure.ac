@@ -415,7 +415,7 @@ if test "x$has_cpp11" = "xyes"; then
         # http://stackoverflow.com/questions/20149633/how-to-use-snprintf-in-g-std-c11-version-4-8-2/20149792#20149792
         CXXFLAGS="$CXXFLAGS -std=gnu++11"
       fi
-      ;;			
+      ;;
     *-darwin* | *-macos10*)
        if test "x$CLANG" = "xyes"; then
          CXXFLAGS="$CXXFLAGS -std=c++11 "
@@ -429,6 +429,9 @@ if test "x$has_cpp11" = "xyes"; then
       CXXFLAGS="$CXXFLAGS -std=c++11"
       ;;
   esac
+else
+  AC_MSG_WARN(Training tools WILL NOT be built because of missing c++11 support.)
+  AM_CONDITIONAL(ENABLE_TRAINING, false)
 fi
 
 # ----------------------------------------
@@ -450,7 +453,6 @@ AC_CONFIG_FILES(neural_networks/runtime/Makefile)
 AC_CONFIG_FILES(textord/Makefile)
 AC_CONFIG_FILES(viewer/Makefile)
 AC_CONFIG_FILES(wordrec/Makefile)
-AC_CONFIG_FILES(training/Makefile)
 AC_CONFIG_FILES(tessdata/Makefile)
 AC_CONFIG_FILES(tessdata/configs/Makefile)
 AC_CONFIG_FILES(tessdata/tessconfigs/Makefile)
@@ -462,6 +464,7 @@ AC_CONFIG_FILES(java/com/google/scrollview/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/events/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/ui/Makefile)
 AC_CONFIG_FILES(doc/Makefile)
+AM_COND_IF([ENABLE_TRAINING], AC_CONFIG_FILES(training/Makefile))
 AC_OUTPUT
 
 # Final message
@@ -471,23 +474,24 @@ echo "You can now build and install $PACKAGE_NAME by running:"
 echo ""
 echo "$ make"
 echo "$ sudo make install"
-echo "$ sudo make install LANGS=\"eng ara deu\""
-echo "  Or:"
-echo "$ sudo make install-langs"
+# echo "$ sudo make install LANGS=\"eng ara deu\""
+# echo "  Or:"
+# echo "$ sudo make install-langs"
 
-if !($have_icu); then
-  echo ""
-  echo "You can not build training tools because of missing dependency."
-  echo "Check configure output for details."
-  echo ""
-else
+AM_COND_IF([ENABLE_TRAINING],
   echo ""
   echo "Training tools can be build and installed (after building of $PACKAGE_NAME) with:"
   echo ""
   echo "$ make training"
   echo "$ sudo make training-install"
   echo ""
-fi
+,
+  echo ""
+  echo "You can not build training tools because of missing dependency."
+  echo "Check configure output for details."
+  echo ""
+)
+
 # ----------------------------------------
 # CONFIG Template
 # ----------------------------------------
