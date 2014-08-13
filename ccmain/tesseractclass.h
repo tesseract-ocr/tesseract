@@ -337,6 +337,7 @@ class Tesseract : public Wordrec {
   // Set fonts of this word.
   void set_word_fonts(WERD_RES *word);
   void font_recognition_pass(PAGE_RES* page_res);
+  void dictionary_correction_pass(PAGE_RES* page_res);
   BOOL8 check_debug_pt(WERD_RES *word, int location);
 
   //// superscript.cpp ////////////////////////////////////////////////////
@@ -776,6 +777,8 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_debug_block_rejection, false, "Block and Row stats");
   BOOL_VAR_H(tessedit_enable_bigram_correction, true,
              "Enable correction based on the word bigram dictionary.");
+  BOOL_VAR_H(tessedit_enable_dict_correction, false,
+             "Enable single word correction based on the dictionary.");
   INT_VAR_H(tessedit_bigram_debug, 0, "Amount of debug output for bigram "
             "correction.");
   INT_VAR_H(debug_x_ht_level, 0, "Reestimate debug");

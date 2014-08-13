@@ -382,6 +382,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
       fix_fuzzy_spaces(monitor, stats_.word_count, page_res);
 
     // ****************** Pass 4 *******************
+    if (tessedit_enable_dict_correction) dictionary_correction_pass(page_res);
     if (tessedit_enable_bigram_correction) bigram_correction_pass(page_res);
 
     // ****************** Pass 5,6 *******************
@@ -1618,6 +1619,39 @@ void Tesseract::font_recognition_pass(PAGE_RES* page_res) {
       word->fontinfo_id_count = 1;
       word->italic = modal_font->is_italic() ? 1 : -1;
       word->bold = modal_font->is_bold() ? 1 : -1;
+    }
+  }
+}
+
+// If a word has multiple alternates check if the best choice is in the
+// dictionary. If not, replace it with an alternate that exists in the
+// dictionary.
+void Tesseract::dictionary_correction_pass(PAGE_RES *page_res) {
+  PAGE_RES_IT word_it(page_res);
+  for (WERD_RES* word = word_it.word(); word != NULL;
+       word = word_it.forward()) {
+    if (word->best_choices.singleton())
+      continue;  // There are no alternates.
+
+    WERD_CHOICE* best = word->best_choice;
+    if (word->tesseract->getDict().valid_word(*best) != 0)
+      continue;  // The best choice is in the dictionary.
+
+    WERD_CHOICE_IT choice_it(&word->best_choices);
+    for (choice_it.mark_cycle_pt(); !choice_it.cycled_list();
+         choice_it.forward()) {
+      WERD_CHOICE* alternate = choice_it.data();
+      if (word->tesseract->getDict().valid_word(*alternate)) {
+        // The alternate choice is in the dictionary.
+        if (tessedit_bigram_debug) {
+          tprintf("Dictionary correction replaces best choice '%s' with '%s'\n",
+                  best->unichar_string().string(),
+                  alternate->unichar_string().string());
+        }
+        // Replace the 'best' choice with a better choice.
+        word->ReplaceBestChoice(alternate);
+        break;
+      }
     }
   }
 }
