@@ -1,0 +1,36 @@
+# Windows
+*.user
+*.log
+*.tlog
+*.cache
+*.obj
+*.sdf
+*.opensdf
+*.lastbuildstate
+*.unsuccessfulbuild
+
+# Linux
+# ignore local configuration
+config.*
+config/*
+Makefile
+Makefile.in
+*.m4
+
+# ignore help scripts/files
+configure
+libtool
+stamp-h1
+tesseract.pc
+config_auto.h
+api/tesseract
+
+# ignore compilation files
+*/.deps/*
+*/.libs/*
+*.lo
+*.la
+*.o
+*.Plo
+*.a
+
