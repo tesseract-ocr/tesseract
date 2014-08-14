@@ -1,11 +1,17 @@
 autotools (LINUX/UNIX...)
 ======================
 
-If you have checked out Tesseract from Subversion, you must generate the 
-configure script.
+If you have checked out Tesseract from Subversion, you must generate
+the configure script.
 
 If you have tesseract 3.0x installation in your system, please remove it
 before new build.
+
+Known depencies for training tools (excluding leptonica):
+ * compiler with c++ support
+ * pango-devel
+ * cairo-devel
+ * icu-devel
 
 So, the steps for making Tesseract are:
 
@@ -13,21 +19,12 @@ So, the steps for making Tesseract are:
   $ ./configure
   $ make
   $ sudo make install
-  $ sudo make install-langs
   $ make training
   $ sudo make training-install
-  
-'sudo make install-langs' or 'sudo make install LANGS=' will install all
-available language data files in tessdata directory.
 
-If you want to install just few of them than run:
-  $ sudo make install-langs LANGS="eng ara deu"
-It will install only English, Arabic and German language datafiles (if 
-they are present in tessdata directory)
-
-  $ sudo make install LANGS="eng ara deu"
-will install tesseract library, tesseract programs  and English, Arabic 
-and German language datafiles.
+You need to install at least English langugage data file to TESSDATA_PREFIX
+directory. All langugage data files can be retrieved from git repository:
+  $ git clone https://code.google.com/p/tesseract-ocr.tessdata/ tessdata
 
 To compile ScrollView.jar you need to download piccolo2d-core-3.0.jar
 and piccolo2d-extras-3.0.jar[1] and place them to tesseract/java.

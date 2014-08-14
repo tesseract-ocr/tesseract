@@ -23,6 +23,7 @@ libtool
 stamp-h1
 tesseract.pc
 config_auto.h
+doc/html/*
 api/tesseract
 training/ambiguous_words
 training/classifier_tester
@@ -46,3 +47,7 @@ training/wordlist2dawg
 *.Plo
 *.a
 
+# tessdata
+*.cube.*
+*.tesseract_cube.*
+*.traineddata
