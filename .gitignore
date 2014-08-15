@@ -8,6 +8,18 @@
 *.opensdf
 *.lastbuildstate
 *.unsuccessfulbuild
+*.suo
+*.res
+*.ipch
+*.manifest
+vs2010/DLL_Debug/*
+vs2010/DLL_Release/*
+vs2010/LIB_Debug/*
+vs2010/LIB_Release/*
+vs2010/LIB_OpenCL_Release/*
+vs2010/LIB_OpenCL_Debug/*
+
+
 
 # Linux
 # ignore local configuration
