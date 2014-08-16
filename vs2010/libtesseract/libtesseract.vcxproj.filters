@@ -1645,7 +1645,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="libtesseract303.rc">
+    <ResourceCompile Include="libtesseract.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
