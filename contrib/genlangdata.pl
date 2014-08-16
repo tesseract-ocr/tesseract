@@ -20,9 +20,9 @@ genwordlists.pl -i large_text_file -d outdir -p lang
 
     genwordlists.pl -i large_text_file -d outdir -p lang
 
-Creates 4 files in C<outdir>: C<lang.word.bigrams.unsorted>,
-C<lang.word.numbers.unsorted>, C<lang.word.punc.unsorted>, and
-C<lang.wordlist.unsorted>, which (when sorted) can be used with
+Creates 4 files in C<outdir>: F<lang.word.bigrams.unsorted>,
+F<lang.word.numbers.unsorted>, F<lang.word.punc.unsorted>, and
+F<lang.wordlist.unsorted>, which (when sorted) can be used with
 C<wordlist2dawg> for Tesseract's language data.
 
 The script can also run as a filter. Given a set of files created
@@ -54,6 +54,12 @@ Followed by:
     cat tmp.wordlist.unsorted | awk -F'\t' '{print $2}' \
     > real.wordlist.unsorted
 
+Note that, although the langdata repository contains the
+counts of each item in most of the punctuation, number, and
+bigram files, these files must be filtered to only contain
+the first column, otherwise C<wordlist2dawg> will fail to write
+the output file.
+
 =head1 CAVEATS
 
 The format of the output files, and how the data are extracted,
@@ -61,7 +67,7 @@ is based only on staring at the input files and taking a guess.
 They may be wildly inaccurate.
 
 The only part I can say for certain is correct is that digits
-are replaced with '?' in the .numbers wordlist. (See C<dict/dict.cpp>
+are replaced with '?' in the .numbers wordlist. (See F<dict/dict.cpp>
 in the Tesseract source).
 
 =head1 COPYRIGHT
@@ -80,6 +86,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+=head1 SEE ALSO
+
+L<wordlist2dawg(1)>
 
 =cut
 
