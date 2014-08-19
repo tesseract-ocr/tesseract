@@ -299,6 +299,14 @@ void PreloadRenderers(tesseract::TessBaseAPI* api,
                      new tesseract::TessHOcrRenderer(outputbase, font_info));
     }
 
+    api->GetBoolVariable("tessedit_create_hocrtsv", &b);
+    if (b) {
+      bool font_info;
+      api->GetBoolVariable("hocr_font_info", &font_info);
+      renderers->push_back(
+          new tesseract::TessHOcrTsvRenderer(outputbase, font_info));
+    }
+
     api->GetBoolVariable("tessedit_create_pdf", &b);
     if (b) {
       renderers->push_back(new tesseract::TessPDFRenderer(outputbase,
@@ -421,6 +429,8 @@ int main(int argc, char **argv) {
         (api.GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
 
   tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
+
+
 
   if (in_training_mode) {
     renderers.push_back(NULL);
