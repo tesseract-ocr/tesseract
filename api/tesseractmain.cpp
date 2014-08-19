@@ -296,6 +296,13 @@ int main(int argc, char **argv) {
     renderer = new tesseract::TessHOcrRenderer(outputbase, font_info);
   }
 
+  api.GetBoolVariable("tessedit_create_hocrtsv", &b);
+  if (b) {
+    bool font_info;
+    api.GetBoolVariable("hocr_font_info", &font_info);
+    renderer = new tesseract::TessHOcrTsvRenderer(outputbase, font_info);
+  }
+
   api.GetBoolVariable("tessedit_create_pdf", &b);
   if (b && renderer == NULL)
     renderer = new tesseract::TessPDFRenderer(outputbase, api.GetDatapath());
