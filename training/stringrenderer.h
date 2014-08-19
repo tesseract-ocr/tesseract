@@ -54,12 +54,14 @@ class StringRenderer {
   // which the text could be rendered so as to fit the specified page
   // dimensions.
   int RenderToImage(const char* text, int text_length, Pix** pix);
+  int RenderToGrayscaleImage(const char* text, int text_length, Pix** pix);
   int RenderToBinaryImage(const char* text, int text_length, int threshold,
                           Pix** pix);
   // Renders a line of text with all available fonts that were able to render
-  // the text.
-  int RenderAllFontsToImage(const char* text, int text_length,
-                            string* font_used, Pix** pix);
+  // at least min_coverage fraction of the input text. Use 1.0 to require that
+  // a font be able to render all the text.
+  int RenderAllFontsToImage(double min_coverage, const char* text,
+                            int text_length, string* font_used, Pix** pix);
 
   bool set_font(const string& desc);
   void set_char_spacing(double char_spacing) {
@@ -77,6 +79,20 @@ class StringRenderer {
   }
   void set_render_fullwidth_latin(bool render_fullwidth_latin) {
     render_fullwidth_latin_ = render_fullwidth_latin;
+  }
+  // Sets the probability (value in [0, 1]) of starting to render a word with an
+  // underline. This implementation consider words to be space-delimited
+  // sequences of characters.
+  void set_underline_start_prob(const double frac) {
+    underline_start_prob_ = std::min(std::max(frac, 0.0), 1.0);
+  }
+  // Set the probability (value in [0, 1]) of continuing a started underline to
+  // the next word.
+  void set_underline_continuation_prob(const double frac) {
+    underline_continuation_prob_ = std::min(std::max(frac, 0.0), 1.0);
+  }
+  void set_underline_style(const PangoUnderline style) {
+    underline_style_ = style;
   }
   void set_page(int page) {
     page_ = page;
@@ -150,8 +166,10 @@ class StringRenderer {
  protected:
   // Init and free local renderer objects.
   void InitPangoCairo();
-  void SetLayoutProperties();
   void FreePangoCairo();
+  // Set rendering properties.
+  void SetLayoutProperties();
+  void SetWordUnderlineAttributes(const string& page_text);
   // Compute bounding boxes around grapheme clusters.
   void ComputeClusterBoxes();
   void CorrectBoxPositionsToLayout(vector<BoxChar*>* boxchars);
@@ -168,6 +186,9 @@ class StringRenderer {
   bool vertical_text_;
   bool gravity_hint_strong_;
   bool render_fullwidth_latin_;
+  double underline_start_prob_;
+  double underline_continuation_prob_;
+  PangoUnderline underline_style_;
   // Text filtering options
   bool drop_uncovered_chars_;
   bool strip_unrenderable_words_;

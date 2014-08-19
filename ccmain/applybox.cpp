@@ -110,29 +110,19 @@ static void clear_any_old_text(BLOCK_LIST *block_list) {
 PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
                                 bool find_segmentation,
                                 BLOCK_LIST *block_list) {
-  int box_count = 0;
-  int box_failures = 0;
-
-  FILE* box_file = OpenBoxFile(fname);
-  TBOX box;
   GenericVector<TBOX> boxes;
   GenericVector<STRING> texts, full_texts;
-
-  bool found_box = true;
-  while (found_box) {
-    int line_number = 0;           // Line number of the box file.
-    STRING text, full_text;
-    found_box = ReadNextBox(applybox_page, &line_number, box_file, &text, &box);
-    if (found_box) {
-      ++box_count;
-      MakeBoxFileStr(text.string(), box, applybox_page, &full_text);
-    } else {
-      full_text = "";
-    }
-    boxes.push_back(box);
-    texts.push_back(text);
-    full_texts.push_back(full_text);
+  if (!ReadAllBoxes(applybox_page, true, fname, &boxes, &texts, &full_texts,
+                    NULL)) {
+    return NULL;  // Can't do it.
   }
+
+  int box_count = boxes.size();
+  int box_failures = 0;
+  // Add an empty everything to the end.
+  boxes.push_back(TBOX());
+  texts.push_back(STRING());
+  full_texts.push_back(STRING());
 
   // In word mode, we use the boxes to make a word for each box, but
   // in blob mode we use the existing words and maximally chop them first.
@@ -191,10 +181,9 @@ static double MedianXHeight(BLOCK_LIST *block_list) {
   return xheights.median();
 }
 
-// Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
-// All fuzzy spaces are removed, and all the words are maximally chopped.
-PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
-                                     BLOCK_LIST *block_list) {
+// Any row xheight that is significantly different from the median is set
+// to the median.
+void Tesseract::PreenXHeights(BLOCK_LIST *block_list) {
   double median_xheight = MedianXHeight(block_list);
   double max_deviation = kMaxXHeightDeviationFraction * median_xheight;
   // Strip all fuzzy space markers to simplify the PAGE_RES.
@@ -212,6 +201,22 @@ PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
         }
         row->set_x_height(static_cast<float>(median_xheight));
       }
+    }
+  }
+}
+
+// Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
+// All fuzzy spaces are removed, and all the words are maximally chopped.
+PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
+                                     BLOCK_LIST *block_list) {
+  PreenXHeights(block_list);
+  // Strip all fuzzy space markers to simplify the PAGE_RES.
+  BLOCK_IT b_it(block_list);
+  for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
+    BLOCK* block = b_it.data();
+    ROW_IT r_it(block->row_list());
+    for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward ()) {
+      ROW* row = r_it.data();
       WERD_IT w_it(row->word_list());
       for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
         WERD* word = w_it.data();
@@ -224,7 +229,7 @@ PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
       }
     }
   }
-  PAGE_RES* page_res = new PAGE_RES(block_list, NULL);
+  PAGE_RES* page_res = new PAGE_RES(false, block_list, NULL);
   PAGE_RES_IT pr_it(page_res);
   WERD_RES* word_res;
   while ((word_res = pr_it.word()) != NULL) {
@@ -434,7 +439,7 @@ bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list,
     if (!box.major_overlap(block->bounding_box()))
       continue;
     ROW_IT r_it(block->row_list());
-    for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward ()) {
+    for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {
       ROW* row = r_it.data();
       if (!box.major_overlap(row->bounding_box()))
         continue;
@@ -716,6 +721,7 @@ void Tesseract::TidyUp(PAGE_RES* page_res) {
         word_res->word->bounding_box().print();
       }
       pr_it.DeleteCurrentWord();
+      delete word_choice;
     }
   }
   pr_it.restart_page();

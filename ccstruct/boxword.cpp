@@ -157,6 +157,13 @@ void BoxWord::InsertBox(int index, const TBOX& box) {
   ComputeBoundingBox();
 }
 
+// Changes the box at the given index to the new box.
+// Recomputes the bounding box.
+void BoxWord::ChangeBox(int index, const TBOX& box) {
+  boxes_[index] = box;
+  ComputeBoundingBox();
+}
+
 // Deletes the box with the given index, and shuffles up the rest.
 // Recomputes the bounding box.
 void BoxWord::DeleteBox(int index) {

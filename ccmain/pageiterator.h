@@ -30,6 +30,7 @@ class PAGE_RES;
 class PAGE_RES_IT;
 class WERD;
 struct Pix;
+struct Pta;
 
 namespace tesseract {
 
@@ -85,7 +86,7 @@ class TESS_API PageIterator {
   // ============= Moving around within the page ============.
 
   /**
-   * Moves the iterator to point to the start of the page to begin an 
+   * Moves the iterator to point to the start of the page to begin an
    * iteration.
    */
   virtual void Begin();
@@ -203,10 +204,19 @@ class TESS_API PageIterator {
   bool Empty(PageIteratorLevel level) const;
 
   /**
-   * Returns the type of the current block. See apitypes.h for 
+   * Returns the type of the current block. See apitypes.h for
    * PolyBlockType.
    */
   PolyBlockType BlockType() const;
+
+  /**
+   * Returns the polygon outline of the current block. The returned Pta must
+   * be ptaDestroy-ed after use. Note that the returned Pta lists the vertices
+   * of the polygon, and the last edge is the line segment between the last
+   * point and the first point. NULL will be returned if the iterator is
+   * at the end of the document or layout analysis was not used.
+   */
+  Pta* BlockPolygon() const;
 
   /**
    * Returns a binary image of the current object at the given level.
@@ -224,9 +234,10 @@ class TESS_API PageIterator {
    * padding, so the top-left position of the returned image is returned
    * in (left,top). These will most likely not match the coordinates
    * returned by BoundingBox.
+   * If you do not supply an original image, you will get a binary one.
    * Use pixDestroy to delete the image after use.
    */
-  Pix* GetImage(PageIteratorLevel level, int padding,
+  Pix* GetImage(PageIteratorLevel level, int padding, Pix* original_img,
                 int* left, int* top) const;
 
   /**

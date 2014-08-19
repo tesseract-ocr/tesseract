@@ -435,7 +435,6 @@ void Classify::EndAdaptiveClassifier() {
   STRING Filename;
   FILE *File;
 
-  #ifndef SECURE_NAMES
   if (AdaptedTemplates != NULL &&
       classify_enable_adaptive_matcher && classify_save_adapted_templates) {
     Filename = imagefile + ADAPT_TEMPLATE_SUFFIX;
@@ -450,7 +449,6 @@ void Classify::EndAdaptiveClassifier() {
       fclose(File);
     }
   }
-  #endif
 
   if (AdaptedTemplates != NULL) {
     free_adapted_templates(AdaptedTemplates);
@@ -567,11 +565,9 @@ void Classify::InitAdaptiveClassifier(bool load_pre_trained_templates) {
     if (File == NULL) {
       AdaptedTemplates = NewAdaptedTemplates(true);
     } else {
-      #ifndef SECURE_NAMES
       cprintf("\nReading pre-adapted templates from %s ...\n",
               Filename.string());
       fflush(stdout);
-      #endif
       AdaptedTemplates = ReadAdaptedTemplates(File);
       cprintf("\n");
       fclose(File);
@@ -1146,15 +1142,12 @@ void Classify::ExpandShapesAndApplyCorrections(
   if (classes != NULL) {
     // Adapted result.
     fontinfo_id = GetFontinfoId(classes[class_id], int_result.Config);
-    if (int_result.Config2 >= 0)
-      fontinfo_id2 = GetFontinfoId(classes[class_id], int_result.Config2);
+    fontinfo_id2 = GetFontinfoId(classes[class_id], int_result.Config2);
   } else {
     // Pre-trained result.
     fontinfo_id = ClassAndConfigIDToFontOrShapeID(class_id, int_result.Config);
-    if (int_result.Config2 >= 0) {
-      fontinfo_id2 = ClassAndConfigIDToFontOrShapeID(class_id,
-                                                     int_result.Config2);
-    }
+    fontinfo_id2 = ClassAndConfigIDToFontOrShapeID(class_id,
+                                                   int_result.Config2);
     if (shape_table_ != NULL) {
       // Actually fontinfo_id is an index into the shape_table_ and it
       // contains a list of unchar_id/font_id pairs.

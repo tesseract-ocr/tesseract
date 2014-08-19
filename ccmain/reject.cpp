@@ -34,12 +34,9 @@
 #include          "reject.h"
 #include          "control.h"
 #include          "docqual.h"
-#include          "secname.h"
 #include          "globaloc.h"  // For err_exit.
 #include          "globals.h"
 #include          "helpers.h"
-
-/* #define SECURE_NAMES done in secnames.h when necessary */
 
 #include "tesseractclass.h"
 

@@ -356,6 +356,7 @@ void StrokeWidth::GradeBlobsIntoPartitions(const FCOORD& rerotation,
                                            TO_BLOCK* block,
                                            Pix* nontext_pix,
                                            const DENORM* denorm,
+                                           bool cjk_script,
                                            TextlineProjection* projection,
                                            ColPartitionGrid* part_grid,
                                            ColPartition_LIST* big_parts) {
@@ -367,10 +368,8 @@ void StrokeWidth::GradeBlobsIntoPartitions(const FCOORD& rerotation,
   // Setup the strokewidth grid with the remaining non-noise, non-leader blobs.
   InsertBlobs(block);
 
-  // Run FixBrokenCJK() again if the page is rotated and the blobs
-  // lists are reset and re-flitered, because we may have some new
-  // blobs in the medium blob list.
-  if (rerotation_.x() != 1.0f || rerotation_.y() != 0.0f) {
+  // Run FixBrokenCJK() again if the page is CJK.
+  if (cjk_script) {
     FixBrokenCJK(block);
   }
   FindTextlineFlowDirection(true);

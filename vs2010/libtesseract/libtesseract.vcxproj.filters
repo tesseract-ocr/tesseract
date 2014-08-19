@@ -118,9 +118,6 @@
     <ClCompile Include="..\..\cube\char_set.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\classify\chartoname.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\wordrec\chop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1606,9 +1603,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ccstruct\vecfuncs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\port\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ccstruct\werd.h">

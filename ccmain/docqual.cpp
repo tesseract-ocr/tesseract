@@ -26,7 +26,6 @@
 #include          "reject.h"
 #include          "tesscallback.h"
 #include          "tessvars.h"
-#include          "secname.h"
 #include          "globals.h"
 #include          "tesseractclass.h"
 
@@ -322,7 +321,7 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
 
         /* Walk rows in block testing for row rejection */
         row_no = 0;
-        while ((word = page_res_it.word()) != NULL &&
+        while (page_res_it.word() != NULL &&
                page_res_it.block() == current_block) {
           current_row = page_res_it.row();
           row_no++;
@@ -667,17 +666,14 @@ void Tesseract::convert_bad_unlv_chs(WERD_RES *word_res) {
   UNICHAR_ID unichar_space = word_res->uch_set->unichar_to_id(" ");
   UNICHAR_ID unichar_tilde = word_res->uch_set->unichar_to_id("~");
   UNICHAR_ID unichar_pow = word_res->uch_set->unichar_to_id("^");
-  bool modified = false;
   for (i = 0; i < word_res->reject_map.length(); ++i) {
     if (word_res->best_choice->unichar_id(i) == unichar_tilde) {
       word_res->best_choice->set_unichar_id(unichar_dash, i);
-      modified = true;
       if (word_res->reject_map[i].accepted ())
         word_res->reject_map[i].setrej_unlv_rej ();
     }
     if (word_res->best_choice->unichar_id(i) == unichar_pow) {
       word_res->best_choice->set_unichar_id(unichar_space, i);
-      modified = true;
       if (word_res->reject_map[i].accepted ())
         word_res->reject_map[i].setrej_unlv_rej ();
     }

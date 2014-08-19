@@ -14,28 +14,26 @@ import com.google.scrollview.ScrollView;
 import com.google.scrollview.events.SVEvent;
 import com.google.scrollview.events.SVEventHandler;
 import com.google.scrollview.events.SVEventType;
-import com.google.scrollview.ui.SVImageHandler;
 import com.google.scrollview.ui.SVMenuBar;
 import com.google.scrollview.ui.SVPopupMenu;
 
-import edu.umd.cs.piccolo.PCamera;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.PLayer;
-
-import edu.umd.cs.piccolo.nodes.PImage;
-import edu.umd.cs.piccolo.nodes.PPath;
-import edu.umd.cs.piccolo.nodes.PText;
-import edu.umd.cs.piccolo.util.PPaintContext;
-import edu.umd.cs.piccolox.swing.PScrollPane;
+import org.piccolo2d.PCamera;
+import org.piccolo2d.PCanvas;
+import org.piccolo2d.PLayer;
+import org.piccolo2d.extras.swing.PScrollPane;
+import org.piccolo2d.nodes.PImage;
+import org.piccolo2d.nodes.PPath;
+import org.piccolo2d.nodes.PText;
+import org.piccolo2d.util.PPaintContext;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.awt.geom.IllegalPathStateException;
 import java.awt.Rectangle;
 import java.awt.TextArea;
+import java.awt.geom.IllegalPathStateException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -133,22 +131,21 @@ public class SVWindow extends JFrame {
 
   /** Erase all content from the window, but do not destroy it. */
   public void clear() {
-    layer.removeAllChildren();
-  }
-
-  /**
-   * Start setting up a new image. The server will now expect image data until
-   * the image is complete.
-   *
-   * @param internalName The unique name of the new image
-   * @param width Image width
-   * @param height Image height
-   * @param bitsPerPixel The bit depth (currently supported: 1 (binary) and 32
-   *        (ARGB))
-   */
-  public void createImage(String internalName, int width, int height,
-      int bitsPerPixel) {
-    SVImageHandler.createImage(internalName, width, height, bitsPerPixel);
+    // Manipulation of Piccolo's scene graph should be done from Swings
+    // event dispatch thread since Piccolo is not thread safe. This code calls
+    // removeAllChildren() from that thread and releases the latch.
+    final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        layer.removeAllChildren();
+        repaint();
+        latch.countDown();
+      }
+    });
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+    }
   }
 
   /**
@@ -168,8 +165,20 @@ public class SVWindow extends JFrame {
    * Draw the now complete polyline.
    */
   public void drawPolyline() {
-    PPath pn = PPath.createPolyline(ScrollView.polylineXCoords,
-                                    ScrollView.polylineYCoords);
+    int numCoords = ScrollView.polylineXCoords.length;
+    if (numCoords < 2) {
+      return;
+    }
+    PPath pn = PPath.createLine(ScrollView.polylineXCoords[0],
+                                ScrollView.polylineYCoords[0],
+                                ScrollView.polylineXCoords[1],
+                                ScrollView.polylineYCoords[1]);
+    pn.reset();
+    pn.moveTo(ScrollView.polylineXCoords[0], ScrollView.polylineYCoords[0]);
+    for (int p = 1; p < numCoords; ++p) {
+      pn.lineTo(ScrollView.polylineXCoords[p], ScrollView.polylineYCoords[p]);
+    }
+    pn.closePath();
     ScrollView.polylineSize = 0;
     pn.setStrokePaint(currentPenColor);
     pn.setPaint(null);  // Don't fill the polygon - this is just a polyline.
@@ -323,10 +332,9 @@ public class SVWindow extends JFrame {
    * memory, so if you intend to redraw an image, you do not have to use
    * createImage again.
    */
-  public void drawImage(String internalName, int x_pos, int y_pos) {
-    PImage img = SVImageHandler.getImage(internalName);
-    img.setX(x_pos);
-    img.setY(y_pos);
+  public void drawImage(PImage img, int xPos, int yPos) {
+    img.setX(xPos);
+    img.setY(yPos);
     layer.addChild(img);
   }
 
@@ -629,15 +637,4 @@ public class SVWindow extends JFrame {
     setVisible(false);
     // dispose();
   }
-
-  /**
-   * Open an image from a given file location and store it in memory. Pro:
-   * Faster than createImage. Con: Works only on the local file system.
-   *
-   * @param filename The path to the image.
-   */
-  public void openImage(String filename) {
-    SVImageHandler.openImage(filename);
-  }
-
 }

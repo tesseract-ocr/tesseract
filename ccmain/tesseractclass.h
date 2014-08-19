@@ -31,21 +31,20 @@
 #include "textord.h"
 #include "wordrec.h"
 
-class PAGE_RES;
-class PAGE_RES_IT;
+class BLOB_CHOICE_LIST_CLIST;
 class BLOCK_LIST;
 class CharSamp;
-class TO_BLOCK_LIST;
-class IMAGE;
-class WERD_RES;
-class ROW;
-class TBOX;
-class SVMenuNode;
-struct Pix;
-class WERD_CHOICE;
-class WERD;
-class BLOB_CHOICE_LIST_CLIST;
 struct OSResults;
+class PAGE_RES;
+class PAGE_RES_IT;
+struct Pix;
+class ROW;
+class SVMenuNode;
+class TBOX;
+class TO_BLOCK_LIST;
+class WERD;
+class WERD_CHOICE;
+class WERD_RES;
 
 
 // Top-level class for all tesseract global instance data.
@@ -145,10 +144,19 @@ struct WordData {
   ROW* row;
   BLOCK* block;
   WordData* prev_word;
-  GenericVector<WERD_RES> lang_words;
+  PointerVector<WERD_RES> lang_words;
 };
 
-typedef void (Tesseract::*WordRecognizer)(WordData* word_data, WERD_RES* word);
+// Definition of a Tesseract WordRecognizer. The WordData provides the context
+// of row/block, in_word holds an initialized, possibly pre-classified word,
+// that the recognizer may or may not consume (but if so it sets *in_word=NULL)
+// and produces one or more output words in out_words, which may be the
+// consumed in_word, or may be generated independently.
+// This api allows both a conventional tesseract classifier to work, or a
+// line-level classifier that generates multiple words from a merged input.
+typedef void (Tesseract::*WordRecognizer)(const WordData& word_data,
+                                          WERD_RES** in_word,
+                                          PointerVector<WERD_RES>* out_words);
 
 class Tesseract : public Wordrec {
  public:
@@ -280,6 +288,7 @@ class Tesseract : public Wordrec {
   void SetupWordPassN(int pass_n, WordData* word);
   // Runs word recognition on all the words.
   bool RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
+                          PAGE_RES_IT* pr_it,
                           GenericVector<WordData>* words);
   bool recog_all_words(PAGE_RES* page_res,
                        ETEXT_DESC* monitor,
@@ -295,32 +304,40 @@ class Tesseract : public Wordrec {
   // Sets script positions and detects smallcaps on all output words.
   void script_pos_pass(PAGE_RES* page_res);
   // Helper to recognize the word using the given (language-specific) tesseract.
-  // Returns true if the result was better than previously.
-  bool RetryWithLanguage(const WERD_RES& best_word, WordData* word_data,
-                         WERD_RES* word, WordRecognizer recognizer);
+  // Returns positive if this recognizer found more new best words than the
+  // number kept from best_words.
+  int RetryWithLanguage(const WordData& word_data,
+                        WordRecognizer recognizer,
+                        WERD_RES** in_word,
+                        PointerVector<WERD_RES>* best_words);
   void classify_word_and_language(WordRecognizer recognizer,
+                                  PAGE_RES_IT* pr_it,
                                   WordData* word_data);
-  void classify_word_pass1(WordData* word_data, WERD_RES* word);
+  void classify_word_pass1(const WordData& word_data,
+                           WERD_RES** in_word,
+                           PointerVector<WERD_RES>* out_words);
   void recog_pseudo_word(PAGE_RES* page_res,  // blocks to check
                          TBOX &selection_box);
 
   void fix_rep_char(PAGE_RES_IT* page_res_it);
-  void ExplodeRepeatedWord(BLOB_CHOICE* best_choice, PAGE_RES_IT* page_res_it);
 
   ACCEPTABLE_WERD_TYPE acceptable_word_string(const UNICHARSET& char_set,
                                               const char *s,
                                               const char *lengths);
   void match_word_pass_n(int pass_n, WERD_RES *word, ROW *row, BLOCK* block);
-  void classify_word_pass2(WordData* word_data, WERD_RES* word);
+  void classify_word_pass2(const WordData& word_data,
+                           WERD_RES** in_word,
+                           PointerVector<WERD_RES>* out_words);
   void ReportXhtFixResult(bool accept_new_word, float new_x_ht,
                           WERD_RES* word, WERD_RES* new_word);
   bool RunOldFixXht(WERD_RES *word, BLOCK* block, ROW *row);
   bool TrainedXheightFix(WERD_RES *word, BLOCK* block, ROW *row);
-  BOOL8 recog_interactive(BLOCK* block, ROW* row, WERD_RES* word_res);
+  BOOL8 recog_interactive(PAGE_RES_IT* pr_it);
 
   // Set fonts of this word.
   void set_word_fonts(WERD_RES *word);
   void font_recognition_pass(PAGE_RES* page_res);
+  void dictionary_correction_pass(PAGE_RES* page_res);
   BOOL8 check_debug_pt(WERD_RES *word, int location);
 
   //// superscript.cpp ////////////////////////////////////////////////////
@@ -474,15 +491,13 @@ class Tesseract : public Wordrec {
                              );
   void debug_word(PAGE_RES* page_res, const TBOX &selection_box);
   void do_re_display(
-      BOOL8 (tesseract::Tesseract::*word_painter)(BLOCK* block,
-                                                  ROW* row,
-                                                  WERD_RES* word_res));
-  BOOL8 word_display(BLOCK* block, ROW* row, WERD_RES* word_res);
-  BOOL8 word_bln_display(BLOCK* block, ROW* row, WERD_RES* word_res);
-  BOOL8 word_blank_and_set_display(BLOCK* block, ROW* row, WERD_RES* word_res);
-  BOOL8 word_set_display(BLOCK* block, ROW* row, WERD_RES* word_res);
+      BOOL8 (tesseract::Tesseract::*word_painter)(PAGE_RES_IT* pr_it));
+  BOOL8 word_display(PAGE_RES_IT* pr_it);
+  BOOL8 word_bln_display(PAGE_RES_IT* pr_it);
+  BOOL8 word_blank_and_set_display(PAGE_RES_IT* pr_its);
+  BOOL8 word_set_display(PAGE_RES_IT* pr_it);
   // #ifndef GRAPHICS_DISABLED
-  BOOL8 word_dumper(BLOCK* block, ROW* row, WERD_RES* word_res);
+  BOOL8 word_dumper(PAGE_RES_IT* pr_it);
   // #endif  // GRAPHICS_DISABLED
   void blob_feature_display(PAGE_RES* page_res, const TBOX& selection_box);
   //// reject.h //////////////////////////////////////////////////////////
@@ -538,10 +553,7 @@ class Tesseract : public Wordrec {
   void match_current_words(WERD_RES_LIST &words, ROW *row, BLOCK* block);
   inT16 fp_eval_word_spacing(WERD_RES_LIST &word_res_list);
   void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK* block);
-  void fix_fuzzy_space_list(  //space explorer
-                            WERD_RES_LIST &best_perm,
-                            ROW *row,
-                            BLOCK* block);
+  void fix_fuzzy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK* block);
   void fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row, BLOCK* block);
   void fix_fuzzy_spaces(                      //find fuzzy words
                         ETEXT_DESC *monitor,  //progress monitor
@@ -584,9 +596,7 @@ class Tesseract : public Wordrec {
       PAGE_RES* page_res, // blocks to check
       //function to call
       TBOX & selection_box,
-      BOOL8 (tesseract::Tesseract::*word_processor) (BLOCK* block,
-                                                     ROW* row,
-                                                     WERD_RES* word_res));
+      BOOL8 (tesseract::Tesseract::*word_processor)(PAGE_RES_IT* pr_it));
   //// tessbox.cpp ///////////////////////////////////////////////////////
   void tess_add_doc_word(                          //test acceptability
                          WERD_CHOICE *word_choice  //after context
@@ -617,6 +627,10 @@ class Tesseract : public Wordrec {
   // is not required before calling ApplyBoxTraining.
   PAGE_RES* ApplyBoxes(const STRING& fname, bool find_segmentation,
                        BLOCK_LIST *block_list);
+
+  // Any row xheight that is significantly different from the median is set
+  // to the median.
+  void PreenXHeights(BLOCK_LIST *block_list);
 
   // Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
   // All fuzzy spaces are removed, and all the words are maximally chopped.
@@ -749,7 +763,6 @@ class Tesseract : public Wordrec {
              "Each bounding box is assumed to contain ngrams. Only"
              " learn the ngrams whose outlines overlap horizontally.");
   BOOL_VAR_H(tessedit_display_outwords, false, "Draw output words");
-  BOOL_VAR_H(tessedit_training_tess, false, "Call Tess to learn blobs");
   BOOL_VAR_H(tessedit_dump_choices, false, "Dump char choices");
   BOOL_VAR_H(tessedit_timing_debug, false, "Print timing stats");
   BOOL_VAR_H(tessedit_fix_fuzzy_spaces, true,
@@ -764,6 +777,8 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_debug_block_rejection, false, "Block and Row stats");
   BOOL_VAR_H(tessedit_enable_bigram_correction, true,
              "Enable correction based on the word bigram dictionary.");
+  BOOL_VAR_H(tessedit_enable_dict_correction, false,
+             "Enable single word correction based on the dictionary.");
   INT_VAR_H(tessedit_bigram_debug, 0, "Amount of debug output for bigram "
             "correction.");
   INT_VAR_H(debug_x_ht_level, 0, "Reestimate debug");
@@ -833,6 +848,8 @@ class Tesseract : public Wordrec {
                "good_quality_doc gte good char limit");
   BOOL_VAR_H(unlv_tilde_crunching, true,
              "Mark v.bad words for tilde crunch");
+  BOOL_VAR_H(hocr_font_info, false,
+             "Add font info to hocr output");
   BOOL_VAR_H(crunch_early_merge_tess_fails, true, "Before word crunch?");
   BOOL_VAR_H(crunch_early_convert_bad_unlv_chs, false, "Take out ~^ early?");
   double_VAR_H(crunch_terrible_rating, 80.0, "crunch rating lt this");
@@ -1034,10 +1051,8 @@ class Tesseract : public Wordrec {
                                 PAGE_RES *page_res,
                                 volatile ETEXT_DESC *monitor,
                                 FILE *output_file);
-  void ambigs_classify_and_output(WERD_RES *werd_res,
-                                  ROW_RES *row_res,
-                                  BLOCK_RES *block_res,
-                                  const char *label,
+  void ambigs_classify_and_output(const char *label,
+                                  PAGE_RES_IT* pr_it,
                                   FILE *output_file);
 
   inline CubeRecoContext *GetCubeRecoContext() { return cube_cntxt_; }

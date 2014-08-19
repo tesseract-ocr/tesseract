@@ -19,7 +19,6 @@
 
 #include          "host.h"
 #include          "rejctmap.h"
-#include          "secname.h"
 #include          "params.h"
 
 BOOL8 REJ::perm_rejected() {  //Is char perm reject?
@@ -233,8 +232,6 @@ void REJ::setrej_minimal_rej_accept() {
 
 
 void REJ::full_print(FILE *fp) {
-  #ifndef SECURE_NAMES
-
   fprintf (fp, "R_TESS_FAILURE: %s\n", flag (R_TESS_FAILURE) ? "T" : "F");
   fprintf (fp, "R_SMALL_XHT: %s\n", flag (R_SMALL_XHT) ? "T" : "F");
   fprintf (fp, "R_EDGE_CHAR: %s\n", flag (R_EDGE_CHAR) ? "T" : "F");
@@ -265,7 +262,6 @@ void REJ::full_print(FILE *fp) {
   fprintf (fp, "R_QUALITY_ACCEPT: %s\n", flag (R_QUALITY_ACCEPT) ? "T" : "F");
   fprintf (fp, "R_MINIMAL_REJ_ACCEPT: %s\n",
     flag (R_MINIMAL_REJ_ACCEPT) ? "T" : "F");
-  #endif
 }
 
 

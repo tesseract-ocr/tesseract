@@ -78,12 +78,15 @@ case "${host_os}" in
     mingw32*)
         AC_DEFINE_UNQUOTED(MINGW,1,[This is a MinGW system])
         AM_CONDITIONAL(MINGW, true)
-		AM_CONDITIONAL(ADD_RT, false)
+        AM_CONDITIONAL(ADD_RT, false)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
+    cygwin*)
+	AM_CONDITIONAL(ADD_RT, false)
+        ;;			
     solaris*)
         LIBS="-lsocket -lnsl -lrt -lxnet"
-		AM_CONDITIONAL(ADD_RT, true)
+        AM_CONDITIONAL(ADD_RT, true)
         ;;
     *darwin*)
         OPENCL_LIBS="-framework OpenCL"
@@ -95,7 +98,7 @@ case "${host_os}" in
         ;;
     *)
         # default
-		AM_CONDITIONAL(ADD_RT, true)
+        AM_CONDITIONAL(ADD_RT, true)
         ;;
 esac
 
@@ -262,6 +265,17 @@ LT_INIT
 
 AC_LANG_CPLUSPLUS
 
+AC_MSG_CHECKING([if compiling with clang])
+AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([], [[
+#ifndef __clang__
+       not clang
+#endif
+]])],
+[CLANG=yes], [CLANG=no])
+
+AC_MSG_RESULT([$CLANG])
+
 dnl ********************
 dnl turn on c++11
 dnl ********************
@@ -269,6 +283,7 @@ dnl ********************
 OLD_CXXFLAGS=$CXXFLAGS
 AC_MSG_CHECKING(whether compiler supports C++11)
 CXXFLAGS="$CXXFLAGS -std=c++11"
+snprintfworks=no
 AC_COMPILE_IFELSE(
 [
   AC_LANG_SOURCE([[
@@ -284,11 +299,8 @@ AC_COMPILE_IFELSE(
      AC_MSG_RESULT(no)
      has_cpp11=no
    ])
+AC_CHECK_FUNCS(snprintf,, [snprintfworks=yes])
 CXXFLAGS="$OLD_CXXFLAGS"
-if test "x$has_cpp11" = "xyes"
-then
-  CXXFLAGS="$CXXFLAGS -std=c++11"
-fi
 
 # ----------------------------------------
 # Check for libraries
@@ -313,6 +325,7 @@ AC_HEADER_STDBOOL
 AC_SYS_INTERPRETER
 AC_SYS_LARGEFILE
 
+AC_CHECK_FUNCS([getline])
 
 # ----------------------------------------
 # Checks for typedefs, structures, and compiler characteristics.
@@ -351,6 +364,17 @@ else
   AC_MSG_ERROR([leptonica not found])
 fi
 
+AC_MSG_CHECKING([leptonica version >= 1.70])
+AC_PREPROC_IFELSE(
+    [AC_LANG_PROGRAM([#include "allheaders.h"],
+[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 70)
+int i = 0;
+#else
+#error You need to upgrade your leptonica library!
+#endif])],
+    [AC_MSG_RESULT(yes)],
+    [AC_MSG_FAILURE([leptonica 1.70 or higher is required])])
+
 # Check location of icu headers
 have_icu=false
 AC_CHECK_HEADERS(unicode/uchar.h, have_icu=true, have_icu=false)
@@ -382,6 +406,34 @@ else
 fi
 AM_CONDITIONAL(ENABLE_TRAINING, $have_cairo)
 
+# set c++11 support based on platform/compiler
+if test "x$has_cpp11" = "xyes"; then
+  case "$host" in
+    cygwin*)
+      if test "x$snprintfworks" = "xno"; then
+        # cygwin workaround
+        # http://stackoverflow.com/questions/20149633/how-to-use-snprintf-in-g-std-c11-version-4-8-2/20149792#20149792
+        CXXFLAGS="$CXXFLAGS -std=gnu++11"
+      fi
+      ;;
+    *-darwin* | *-macos10*)
+       if test "x$CLANG" = "xyes"; then
+         CXXFLAGS="$CXXFLAGS -std=c++11 "
+         LDFLAGS="$LDFLAGS -stdlib=libc++"
+       else
+         CXXFLAGS="$CXXFLAGS -std=c++11"
+       fi
+      ;;
+    *)
+      # default
+      CXXFLAGS="$CXXFLAGS -std=c++11"
+      ;;
+  esac
+else
+  AC_MSG_WARN(Training tools WILL NOT be built because of missing c++11 support.)
+  AM_CONDITIONAL(ENABLE_TRAINING, false)
+fi
+
 # ----------------------------------------
 # Final Tasks and Output
 # ----------------------------------------
@@ -401,7 +453,6 @@ AC_CONFIG_FILES(neural_networks/runtime/Makefile)
 AC_CONFIG_FILES(textord/Makefile)
 AC_CONFIG_FILES(viewer/Makefile)
 AC_CONFIG_FILES(wordrec/Makefile)
-AC_CONFIG_FILES(training/Makefile)
 AC_CONFIG_FILES(ocr-train-tools/Makefile)
 AC_CONFIG_FILES(tessdata/Makefile)
 AC_CONFIG_FILES(tessdata/configs/Makefile)
@@ -414,6 +465,7 @@ AC_CONFIG_FILES(java/com/google/scrollview/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/events/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/ui/Makefile)
 AC_CONFIG_FILES(doc/Makefile)
+AM_COND_IF([ENABLE_TRAINING], AC_CONFIG_FILES(training/Makefile))
 AC_OUTPUT
 
 # Final message
@@ -423,23 +475,24 @@ echo "You can now build and install $PACKAGE_NAME by running:"
 echo ""
 echo "$ make"
 echo "$ sudo make install"
-echo "$ sudo make install LANGS=\"eng ara deu\""
-echo "  Or:"
-echo "$ sudo make install-langs"
+# echo "$ sudo make install LANGS=\"eng ara deu\""
+# echo "  Or:"
+# echo "$ sudo make install-langs"
 
-if !($have_icu); then
-  echo ""
-  echo "You can not build training tools because of missing dependency."
-  echo "Check configure output for details."
-  echo ""
-else
+AM_COND_IF([ENABLE_TRAINING],
   echo ""
   echo "Training tools can be build and installed (after building of $PACKAGE_NAME) with:"
   echo ""
   echo "$ make training"
   echo "$ sudo make training-install"
   echo ""
-fi
+,
+  echo ""
+  echo "You can not build training tools because of missing dependency."
+  echo "Check configure output for details."
+  echo ""
+)
+
 # ----------------------------------------
 # CONFIG Template
 # ----------------------------------------

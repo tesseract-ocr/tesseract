@@ -83,6 +83,7 @@ CharBigrams *CharBigrams::Create(const string &data_file_path,
     if (sscanf(str_vec[big].c_str(), "%d %x %x", &cnt, &ch1, &ch2) != 3) {
       fprintf(stderr, "Cube ERROR (CharBigrams::Create): invalid format "
               "reading line: %s\n", str_vec[big].c_str());
+      delete char_bigrams_obj;
       return NULL;
     }
 
@@ -117,6 +118,7 @@ CharBigrams *CharBigrams::Create(const string &data_file_path,
       if (bigram == NULL) {
         fprintf(stderr, "Cube ERROR (CharBigrams::Create): error allocating "
                 "memory for bigram.\n");
+        delete char_bigrams_obj;
         return NULL;
       }
 

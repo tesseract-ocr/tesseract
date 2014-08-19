@@ -1,4 +1,4 @@
-2014-01-09 v3.03
+2014-02-04 v3.03
 * Added new training tool text2image to generate box/tif file pairs from
   text and truetype fonts.
 * Added support for PDF output with searchable text.
@@ -14,6 +14,7 @@
 * Improved baseline fit.
 * Added set_unicharset_properties to training tools.
 * Many bug fixes.
+* More training source data included.
 
 
 2012-02-01 - v3.02

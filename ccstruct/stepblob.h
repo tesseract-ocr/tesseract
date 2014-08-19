@@ -65,7 +65,7 @@ class C_BLOB:public ELIST_LINK
       return &outlines;
     }
 
-    TBOX bounding_box();  //compute bounding box
+    TBOX bounding_box() const;  // compute bounding box
     inT32 area();  //compute area
     inT32 perimeter();  // Total perimeter of outlines and 1st level children.
     inT32 outer_area();  //compute area
@@ -115,6 +115,14 @@ class C_BLOB:public ELIST_LINK
       *blob = *src;
       return blob;
     }
+
+    static int SortByXMiddle(const void *v1, const void *v2) {
+      const C_BLOB* blob1 = *reinterpret_cast<const C_BLOB* const *>(v1);
+      const C_BLOB* blob2 = *reinterpret_cast<const C_BLOB* const *>(v2);
+      return blob1->bounding_box().x_middle() -
+             blob2->bounding_box().x_middle();
+    }
+
 
   private:
     C_OUTLINE_LIST outlines;     //master elements

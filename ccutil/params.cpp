@@ -69,15 +69,12 @@ bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset,
   char line[MAX_PATH];           // input line
   bool anyerr = false;           // true if any error
   bool foundit;                  // found parameter
-  inT16 length;                  // length of line
   char *valptr;                  // value field
 
   while ((end_offset < 0 || ftell(fp) < end_offset) &&
          fgets(line, MAX_PATH, fp)) {
     if (line[0] != '\n' && line[0] != '#') {
-      length = strlen (line);
-      if (line[length - 1] == '\n')
-        line[length - 1] = '\0';  // cut newline
+      chomp_string(line);  // remove newline
       for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t';
         valptr++);
       if (*valptr) {             // found blank
@@ -186,20 +183,20 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
   for (v = 0; v < num_iterations; ++v) {
     const ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
     for (i = 0; i < vec->int_params.size(); ++i) {
-      fprintf(fp, "%s\t%d\n", vec->int_params[i]->name_str(),
-              (inT32)(*vec->int_params[i]));
+      fprintf(fp, "%s\t%d\t%s\n", vec->int_params[i]->name_str(),
+              (inT32)(*vec->int_params[i]), vec->int_params[i]->info_str());
     }
     for (i = 0; i < vec->bool_params.size(); ++i) {
-      fprintf(fp, "%s\t%d\n", vec->bool_params[i]->name_str(),
-              (BOOL8)(*vec->bool_params[i]));
+      fprintf(fp, "%s\t%d\t%s\n", vec->bool_params[i]->name_str(),
+              (BOOL8)(*vec->bool_params[i]), vec->bool_params[i]->info_str());
     }
     for (int i = 0; i < vec->string_params.size(); ++i) {
-      fprintf(fp, "%s\t%s\n", vec->string_params[i]->name_str(),
-              vec->string_params[i]->string());
+      fprintf(fp, "%s\t%s\t%s\n", vec->string_params[i]->name_str(),
+              vec->string_params[i]->string(), vec->string_params[i]->info_str());
     }
     for (int i = 0; i < vec->double_params.size(); ++i) {
-      fprintf(fp, "%s\t%g\n", vec->double_params[i]->name_str(),
-              (double)(*vec->double_params[i]));
+      fprintf(fp, "%s\t%g\t%s\n", vec->double_params[i]->name_str(),
+              (double)(*vec->double_params[i]), vec->double_params[i]->info_str());
     }
   }
 }

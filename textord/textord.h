@@ -206,7 +206,7 @@ class Textord {
   // Must have at least one WERD.
   // WERDs contain a fake blob.
   void cleanup_nontext_block(BLOCK* block);
-  void cleanup_blocks(BLOCK_LIST *blocks);
+  void cleanup_blocks(bool clean_noise, BLOCK_LIST *blocks);
   BOOL8 clean_noise_from_row(ROW *row);
   void clean_noise_from_words(ROW *row);
   // Remove outlines that are a tiny fraction in either width or height

@@ -408,8 +408,10 @@ inT32 STATS::cluster(float lower,         // thresholds
     if (new_mode > 0 && cluster_count < max_clusters) {
       cluster_count++;
       new_cluster = TRUE;
-      if (!clusters[cluster_count].set_range(rangemin_, rangemax_))
+      if (!clusters[cluster_count].set_range(rangemin_, rangemax_)) {
+        delete [] centres;
         return 0;
+      }
       centres[cluster_count] = static_cast<float>(new_centre);
       clusters[cluster_count].add(new_centre, new_mode);
       clusters[0].add(new_centre, new_mode);

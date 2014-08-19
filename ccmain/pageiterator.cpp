@@ -341,6 +341,26 @@ PolyBlockType PageIterator::BlockType() const {
   return it_->block()->block->poly_block()->isA();
 }
 
+/** Returns the polygon outline of the current block. The returned Pta must
+ *  be ptaDestroy-ed after use. */
+Pta* PageIterator::BlockPolygon() const {
+  if (it_->block() == NULL || it_->block()->block == NULL)
+    return NULL;  // Already at the end!
+  if (it_->block()->block->poly_block() == NULL)
+    return NULL;  // No layout analysis used - no polygon.
+  ICOORDELT_IT it(it_->block()->block->poly_block()->points());
+  Pta* pta = ptaCreate(it.length());
+  int num_pts = 0;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++num_pts) {
+    ICOORD* pt = it.data();
+    // Convert to top-down coords within the input image.
+    float x = static_cast<float>(pt->x()) / scale_ + rect_left_;
+    float y = rect_top_ + rect_height_ - static_cast<float>(pt->y()) / scale_;
+    ptaAddPt(pta, x, y);
+  }
+  return pta;
+}
+
 /**
  * Returns a binary image of the current object at the given level.
  * The position and size match the return from BoundingBoxInternal, and so this
@@ -412,15 +432,16 @@ Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
  * padding, so the top-left position of the returned image is returned
  * in (left,top). These will most likely not match the coordinates
  * returned by BoundingBox.
+ * If you do not supply an original image, you will get a binary one.
  * Use pixDestroy to delete the image after use.
  */
 Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
+                            Pix* original_img,
                             int* left, int* top) const {
   int right, bottom;
   if (!BoundingBox(level, left, top, &right, &bottom))
     return NULL;
-  Pix* pix = tesseract_->pix_grey();
-  if (pix == NULL)
+  if (original_img == NULL)
     return GetBinaryImage(level);
 
   // Expand the box.
@@ -429,7 +450,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
   right = MIN(right + padding, rect_width_);
   bottom = MIN(bottom + padding, rect_height_);
   Box* box = boxCreate(*left, *top, right - *left, bottom - *top);
-  Pix* grey_pix = pixClipRectangle(pix, box, NULL);
+  Pix* grey_pix = pixClipRectangle(original_img, box, NULL);
   boxDestroy(&box);
   if (level == RIL_BLOCK) {
     Pix* mask = it_->block()->block->render_mask();
@@ -440,7 +461,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
     pixDestroy(&mask);
     pixDilateBrick(expanded_mask, expanded_mask, 2*padding + 1, 2*padding + 1);
     pixInvert(expanded_mask, expanded_mask);
-    pixSetMasked(grey_pix, expanded_mask, 255);
+    pixSetMasked(grey_pix, expanded_mask, MAX_UINT32);
     pixDestroy(&expanded_mask);
   }
   return grey_pix;

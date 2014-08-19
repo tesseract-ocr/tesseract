@@ -39,11 +39,18 @@ Dict::Dict(CCUtil* ccutil)
       probability_in_context_(&tesseract::Dict::def_probability_in_context),
       params_model_classify_(NULL),
       ccutil_(ccutil),
+      STRING_MEMBER(user_words_file, "",
+                    "A filename of user-provided words.",
+                    getCCUtil()->params()),
       STRING_INIT_MEMBER(user_words_suffix, "",
-                         "A list of user-provided words.",
+                         "A suffix of user-provided words located in tessdata.",
                          getCCUtil()->params()),
+      STRING_MEMBER(user_patterns_file, "",
+                    "A filename of user-provided patterns.",
+                    getCCUtil()->params()),
       STRING_INIT_MEMBER(user_patterns_suffix, "",
-                         "A list of user-provided patterns.",
+                         "A suffix of user-provided patterns located in "
+                         "tessdata.",
                          getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_system_dawg, true, "Load system word dawg.",
                        getCCUtil()->params()),
@@ -265,12 +272,16 @@ void Dict::Load(DawgCache *dawg_cache) {
     }
   // HFST END
 
-  if (((STRING &)user_words_suffix).length() > 0) {
+  if (((STRING &)user_words_suffix).length() > 0 ||
+      ((STRING &)user_words_file).length() > 0) {
     Trie *trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
-                              kMaxUserDawgEdges, getUnicharset().size(),
-                              dawg_debug_level);
-    name = getCCUtil()->language_data_path_prefix;
-    name += user_words_suffix;
+                              getUnicharset().size(), dawg_debug_level);
+    if (((STRING &)user_words_file).length() > 0) {
+        name = user_words_file;
+    } else {
+        name = getCCUtil()->language_data_path_prefix;
+        name += user_words_suffix;
+    }
     if (!trie_ptr->read_and_add_word_list(name.string(), getUnicharset(),
                                           Trie::RRP_REVERSE_IF_HAS_RTL)) {
       tprintf("Error: failed to load %s\n", name.string());
@@ -280,13 +291,17 @@ void Dict::Load(DawgCache *dawg_cache) {
     }
   }
 
-  if (((STRING &)user_patterns_suffix).length() > 0) {
+  if (((STRING &)user_patterns_suffix).length() > 0 ||
+      ((STRING &)user_patterns_file).length() > 0) {
     Trie *trie_ptr = new Trie(DAWG_TYPE_PATTERN, lang, USER_PATTERN_PERM,
-                              kMaxUserDawgEdges, getUnicharset().size(),
-                              dawg_debug_level);
+                              getUnicharset().size(), dawg_debug_level);
     trie_ptr->initialize_patterns(&(getUnicharset()));
-    name = getCCUtil()->language_data_path_prefix;
-    name += user_patterns_suffix;
+    if (((STRING &)user_patterns_file).length() > 0) {
+        name = user_patterns_file;
+    } else {
+        name = getCCUtil()->language_data_path_prefix;
+        name += user_patterns_suffix;
+    }
     if (!trie_ptr->read_pattern_list(name.string(), getUnicharset())) {
       tprintf("Error: failed to load %s\n", name.string());
       delete trie_ptr;
@@ -296,14 +311,12 @@ void Dict::Load(DawgCache *dawg_cache) {
   }
 
   document_words_ = new Trie(DAWG_TYPE_WORD, lang, DOC_DAWG_PERM,
-                             kMaxDocDawgEdges, getUnicharset().size(),
-                             dawg_debug_level);
+                             getUnicharset().size(), dawg_debug_level);
   dawgs_ += document_words_;
 
   // This dawg is temporary and should not be searched by letter_is_ok.
   pending_words_ = new Trie(DAWG_TYPE_WORD, lang, NO_PERM,
-                            kMaxDocDawgEdges, getUnicharset().size(),
-                            dawg_debug_level);
+                            getUnicharset().size(), dawg_debug_level);
 
   // Construct a list of corresponding successors for each dawg. Each entry i
   // in the successors_ vector is a vector of integers that represent the

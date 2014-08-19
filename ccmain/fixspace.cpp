@@ -27,7 +27,6 @@
 #include "genblob.h"
 #include "tessvars.h"
 #include "tessbox.h"
-#include "secname.h"
 #include "globals.h"
 #include "tesseractclass.h"
 
@@ -206,7 +205,8 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
     if ((!word->part_of_combo) && (word->box_word == NULL)) {
       WordData word_data(block, row, word);
       SetupWordPassN(2, &word_data);
-      classify_word_and_language(&Tesseract::classify_word_pass2, &word_data);
+      classify_word_and_language(&Tesseract::classify_word_pass2, NULL,
+                                 &word_data);
     }
     prev_word_best_choice_ = word->best_choice;
   }
@@ -465,7 +465,6 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, inT16 score,
       }
     }
 
-    #ifndef SECURE_NAMES
     if (debug_fix_space_level > 1) {
       switch (mode) {
         case 1:
@@ -500,7 +499,6 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, inT16 score,
       }
       tprintf("\"\n");
     }
-    #endif
   }
 }
 

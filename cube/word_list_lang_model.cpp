@@ -53,7 +53,6 @@ bool WordListLangModel::Init() {
   // The last parameter to the Trie constructor (the debug level) is set to
   // false for now, until Cube has a way to express its preferred debug level.
   dawg_ = new Trie(DAWG_TYPE_WORD, "", NO_PERM,
-                   WordListLangModel::kMaxDawgEdges,
                    cntxt_->CharacterSet()->ClassCount(), false);
   if (dawg_ == NULL) {
     return false;

@@ -250,6 +250,7 @@ public:
     static l_uint32* pixReadFromTiffKernel(l_uint32 *tiffdata,l_int32 w,l_int32 h,l_int32 wpl, l_uint32 *line);
     static Pix* pixReadTiffCl( const char *filename, l_int32 n );
     static PIX * pixReadStreamTiffCl ( FILE *fp, l_int32 n );
+	static PIX * pixReadMemTiffCl(const l_uint8 *data, size_t size, l_int32  n);
     static PIX* pixReadFromTiffStreamCl(TIFF  *tif);
     static int composeRGBPixelCl(int *tiffdata,int *line,int h,int w);
     static l_int32 getTiffStreamResolutionCl(TIFF *tif,l_int32  *pxres,l_int32  *pyres);

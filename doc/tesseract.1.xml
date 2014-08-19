@@ -3,18 +3,21 @@
 <?asciidoc-toc?>
 <?asciidoc-numbered?>
 <refentry lang="en">
+<refentryinfo>
+    <title>TESSERACT(1)</title>
+</refentryinfo>
 <refmeta>
 <refentrytitle>tesseract</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo class="source">&nbsp;</refmiscinfo>
-<refmiscinfo class="manual">&nbsp;</refmiscinfo>
+<refmiscinfo class="source">&#160;</refmiscinfo>
+<refmiscinfo class="manual">&#160;</refmiscinfo>
 </refmeta>
 <refnamediv>
     <refname>tesseract</refname>
     <refpurpose>command-line OCR engine</refpurpose>
 </refnamediv>
 <refsynopsisdiv id="_synopsis">
-<simpara><emphasis role="strong">tesseract</emphasis> <emphasis>imagename</emphasis> <emphasis>outbase</emphasis> [<emphasis>-l lang</emphasis>] [<emphasis>-psm N</emphasis>] [<emphasis>configfile</emphasis> &#8230;]</simpara>
+<simpara><emphasis role="strong">tesseract</emphasis> <emphasis>imagename</emphasis>|<emphasis>stdin</emphasis> <emphasis>outputbase</emphasis>|<emphasis>stdout</emphasis> [options&#8230;] [configfile&#8230;]</simpara>
 </refsynopsisdiv>
 <refsect1 id="_description">
 <title>DESCRIPTION</title>
@@ -23,8 +26,8 @@ between 1985 and 1995. In 1995, this engine was among the top 3 evaluated by
 UNLV. It was open-sourced by HP and UNLV in 2005, and has been developed
 at Google since then.</simpara>
 </refsect1>
-<refsect1 id="_options">
-<title>OPTIONS</title>
+<refsect1 id="_in_out_arguments">
+<title>IN/OUT ARGUMENTS</title>
 <variablelist>
 <varlistentry>
 <term>
@@ -39,12 +42,77 @@ at Google since then.</simpara>
 </varlistentry>
 <varlistentry>
 <term>
-<emphasis>outbase</emphasis>
+<emphasis>stdin</emphasis>
+</term>
+<listitem>
+<simpara>
+        Instruction to read data from standard input
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>outputbase</emphasis>
 </term>
 <listitem>
 <simpara>
         The basename of the output file (to which the appropriate extension
         will be appended).  By default the output will be named <emphasis>outbase.txt</emphasis>.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>stdout</emphasis>
+</term>
+<listitem>
+<simpara>
+        Instruction to sent output data to standard output
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsect1>
+<refsect1 id="_options">
+<title>OPTIONS</title>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis>--tessdata-dir /path</emphasis>
+</term>
+<listitem>
+<simpara>
+        Specify the location of tessdata path
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>--user-words /path/to/file</emphasis>
+</term>
+<listitem>
+<simpara>
+        Specify the location of user words file
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>--user-patterns /path/to/file specify</emphasis>
+</term>
+<listitem>
+<simpara>
+        The location of user patterns file
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>-c configvar=value</emphasis>
+</term>
+<listitem>
+<simpara>
+        Set value for control parameter. Multiple -c arguments are allowed.
 </simpara>
 </listitem>
 </varlistentry>
@@ -66,7 +134,8 @@ at Google since then.</simpara>
 </term>
 <listitem>
 <simpara>
-        Set Tesseract to only run a subset of layout analysis and assume a certain form of image.  The options for <emphasis role="strong">N</emphasis> are:
+        Set Tesseract to only run a subset of layout analysis and assume
+        a certain form of image. The options for <emphasis role="strong">N</emphasis> are:
 </simpara>
 <literallayout class="monospaced">0 = Orientation and script detection (OSD) only.
 1 = Automatic page segmentation with OSD.
@@ -79,16 +148,6 @@ at Google since then.</simpara>
 8 = Treat the image as a single word.
 9 = Treat the image as a single word in a circle.
 10 = Treat the image as a single character.</literallayout>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>
-<emphasis>-v</emphasis>
-</term>
-<listitem>
-<simpara>
-        Returns the current version of the tesseract(1) executable.
-</simpara>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -108,12 +167,52 @@ at Google since then.</simpara>
 hocr - Output in hOCR format instead of as a text file.
 </simpara>
 </listitem>
+<listitem>
+<simpara>
+pdf  - Output in pdf instead of a text file.
+</simpara>
+</listitem>
 </itemizedlist>
 </listitem>
 </varlistentry>
 </variablelist>
 <simpara><emphasis role="strong">Nota Bene:</emphasis>   The options <emphasis>-l lang</emphasis> and <emphasis>-psm N</emphasis> must occur
 before any <emphasis>configfile</emphasis>.</simpara>
+</refsect1>
+<refsect1 id="_single_options">
+<title>SINGLE OPTIONS</title>
+<variablelist>
+<varlistentry>
+<term>
+<emphasis>-v</emphasis>
+</term>
+<listitem>
+<simpara>
+        Returns the current version of the tesseract(1) executable.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>--list-langs</emphasis>
+</term>
+<listitem>
+<simpara>
+        list available languages for tesseract engine. Can be used with --tessdata-dir.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>--print-parameters</emphasis>
+</term>
+<listitem>
+<simpara>
+        print tesseract parameters to the stdout.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
 </refsect1>
 <refsect1 id="_languages">
 <title>LANGUAGES</title>

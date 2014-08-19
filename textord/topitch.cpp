@@ -30,7 +30,6 @@
 #include          "tovars.h"
 #include          "wordseg.h"
 #include          "topitch.h"
-#include          "secname.h"
 #include          "helpers.h"
 
 // Include automatically generated configuration file if running autoconf.
@@ -251,13 +250,11 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
     }
     else {
       bad_row->pitch_decision = PITCH_CORR_PROP;
-      #ifndef SECURE_NAMES
       if (block_votes == 0 && like_votes == 0 && other_votes > 0
         && (textord_debug_pitch_test || textord_debug_pitch_metric))
         tprintf
           ("Warning:row %d of block %d set prop with no like rows against trend\n",
           row_target, block_target);
-      #endif
     }
   }
   if (textord_debug_pitch_metric) {
@@ -977,11 +974,11 @@ BOOL8 fixed_pitch_row(TO_ROW *row,       // row to do
                       BLOCK* block,
                       inT32 block_index  // block_number
                      ) {
-  const char *res_string;        //pitch result
-  inT16 mid_cuts;                //no of cheap cuts
-  float non_space;               //gap size
-  float pitch_sd;                //error on pitch
-  float sp_sd;                   //space sd
+  const char *res_string;        // pitch result
+  inT16 mid_cuts;                // no of cheap cuts
+  float non_space;               // gap size
+  float pitch_sd;                // error on pitch
+  float sp_sd = 0.0f;            // space sd
 
   non_space = row->fp_nonsp;
   if (non_space > row->fixed_pitch)
@@ -1037,6 +1034,7 @@ BOOL8 fixed_pitch_row(TO_ROW *row,       // row to do
         break;
       case PITCH_MAYBE_FIXED:
         res_string = "MF";
+        break;
       default:
         res_string = "??";
     }

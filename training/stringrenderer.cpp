@@ -38,12 +38,7 @@
 #include "unicode/uchar.h"  // from libicu
 #include "util.h"
 
-#ifndef USE_STD_NAMESPACE
-// Compatability with pango 1.20.
-#include "pango/pango-glyph-item-private.h"
-#define pango_glyph_item_iter_init_start _pango_glyph_item_iter_init_start
-#define pango_glyph_item_iter_next_cluster _pango_glyph_item_iter_next_cluster
-#else
+#ifdef USE_STD_NAMESPACE
 using std::map;
 using std::max;
 using std::min;
@@ -72,6 +67,12 @@ static string EncodeAsUTF8(const char32 ch32) {
   return string(uni_ch.utf8(), uni_ch.utf8_len());
 }
 
+// Returns true with probability 'prob'.
+static bool RandBool(const double prob, TRand* rand) {
+  if (prob == 1.0) return true;
+  if (prob == 0.0) return false;
+  return rand->UnsignedRand(1.0) < prob;
+}
 
 /* static */
 Pix* CairoARGB32ToPixFormat(cairo_surface_t *surface) {
@@ -94,15 +95,32 @@ Pix* CairoARGB32ToPixFormat(cairo_surface_t *surface) {
 }
 
 StringRenderer::StringRenderer(const string& font_desc, int page_width,
-                               int page_height) :
-    page_width_(page_width), page_height_(page_height),
-    h_margin_(50), v_margin_(50), char_spacing_(0), leading_(0),
-    vertical_text_(false), gravity_hint_strong_(false),
-    render_fullwidth_latin_(false) ,drop_uncovered_chars_(true),
-    strip_unrenderable_words_(false), add_ligatures_(false),
-    output_word_boxes_(false), surface_(NULL), cr_(NULL),
-    layout_(NULL), start_box_(0), page_(0), box_padding_(0),
-    total_chars_(0), font_index_(0), last_offset_(0) {
+                               int page_height)
+    : page_width_(page_width),
+      page_height_(page_height),
+      h_margin_(50),
+      v_margin_(50),
+      char_spacing_(0),
+      leading_(0),
+      vertical_text_(false),
+      gravity_hint_strong_(false),
+      render_fullwidth_latin_(false),
+      underline_start_prob_(0),
+      underline_continuation_prob_(0),
+      underline_style_(PANGO_UNDERLINE_SINGLE),
+      drop_uncovered_chars_(true),
+      strip_unrenderable_words_(false),
+      add_ligatures_(false),
+      output_word_boxes_(false),
+      surface_(NULL),
+      cr_(NULL),
+      layout_(NULL),
+      start_box_(0),
+      page_(0),
+      box_padding_(0),
+      total_chars_(0),
+      font_index_(0),
+      last_offset_(0) {
   pen_color_[0] = 0.0;
   pen_color_[1] = 0.0;
   pen_color_[2] = 0.0;
@@ -132,7 +150,10 @@ void StringRenderer::InitPangoCairo() {
   surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, page_width_,
                                         page_height_);
   cr_ = cairo_create(surface_);
-  layout_ = pango_cairo_create_layout(cr_);
+  {
+    DISABLE_HEAP_LEAK_CHECK;
+    layout_ = pango_cairo_create_layout(cr_);
+  }
 
   if (vertical_text_) {
     PangoContext* context = pango_layout_get_context(layout_);
@@ -198,6 +219,50 @@ void StringRenderer::FreePangoCairo() {
   }
 }
 
+void StringRenderer::SetWordUnderlineAttributes(const string& page_text) {
+  if (underline_start_prob_ == 0) return;
+  PangoAttrList* attr_list = pango_layout_get_attributes(layout_);
+
+  const char* text = page_text.c_str();
+  int offset = 0;
+  TRand rand;
+  bool started_underline = false;
+  PangoAttribute* und_attr = nullptr;
+
+  while (offset < page_text.length()) {
+    offset += SpanUTF8Whitespace(text + offset);
+    if (offset == page_text.length()) break;
+
+    int word_start = offset;
+    int word_len = SpanUTF8NotWhitespace(text + offset);
+    offset += word_len;
+    if (started_underline) {
+      // Should we continue the underline to the next word?
+      if (RandBool(underline_continuation_prob_, &rand)) {
+        // Continue the current underline to this word.
+        und_attr->end_index = word_start + word_len;
+      } else {
+        // Otherwise end the current underline attribute at the end of the
+        // previous word.
+        pango_attr_list_insert(attr_list, und_attr);
+        started_underline = false;
+        und_attr = nullptr;
+      }
+    }
+    if (!started_underline && RandBool(underline_start_prob_, &rand)) {
+      // Start a new underline attribute
+      und_attr = pango_attr_underline_new(underline_style_);
+      und_attr->start_index = word_start;
+      und_attr->end_index = word_start + word_len;
+      started_underline = true;
+    }
+  }
+  // Finish the current underline attribute at the end of the page.
+  if (started_underline) {
+    und_attr->end_index = page_text.length();
+    pango_attr_list_insert(attr_list, und_attr);
+  }
+}
 
 // Returns offset in utf8 bytes to first page.
 int StringRenderer::FindFirstPageBreakOffset(const char* text,
@@ -559,6 +624,17 @@ int StringRenderer::StripUnrenderableWords(string* utf8_text) const {
   return num_dropped;
 }
 
+int StringRenderer::RenderToGrayscaleImage(const char* text, int text_length,
+                                           Pix** pix) {
+  Pix *orig_pix = NULL;
+  int offset = RenderToImage(text, text_length, &orig_pix);
+  if (orig_pix) {
+    *pix = pixConvertTo8(orig_pix, false);
+    pixDestroy(&orig_pix);
+  }
+  return offset;
+}
+
 int StringRenderer::RenderToBinaryImage(const char* text, int text_length,
                                         int threshold, Pix** pix) {
   Pix *orig_pix = NULL;
@@ -688,6 +764,9 @@ int StringRenderer::RenderToImage(const char* text, int text_length,
     // Add ligatures wherever possible, including custom ligatures.
     page_text = LigatureTable::Get()->AddLigatures(page_text, &font_);
   }
+  if (underline_start_prob_ > 0) {
+    SetWordUnderlineAttributes(page_text);
+  }
 
   pango_layout_set_text(layout_, page_text.c_str(), page_text.length());
 
@@ -702,8 +781,11 @@ int StringRenderer::RenderToImage(const char* text, int text_length,
     // If the target surface or transformation properties of the cairo instance
     // have changed, update the pango layout to reflect this
     pango_cairo_update_layout(cr_, layout_);
-    // Draw the pango layout onto the cairo surface
-    pango_cairo_show_layout(cr_, layout_);
+    {
+      DISABLE_HEAP_LEAK_CHECK;  // for Fontconfig
+      // Draw the pango layout onto the cairo surface
+      pango_cairo_show_layout(cr_, layout_);
+    }
     *pix = CairoARGB32ToPixFormat(surface_);
   }
   ComputeClusterBoxes();
@@ -717,7 +799,7 @@ int StringRenderer::RenderToImage(const char* text, int text_length,
 // RenderString, except that it ignores the font set at construction and works
 // through all the fonts, returning 0 until they are exhausted, at which point
 // it returns the value it should have returned all along, but no pix this time.
-// Fonts that don't contain a large proportion of the characters in the string
+// Fonts that don't contain a given proportion of the characters in the string
 // get skipped.
 // Fonts that work each get rendered and the font name gets added
 // to the image.
@@ -728,12 +810,13 @@ int StringRenderer::RenderToImage(const char* text, int text_length,
 // int offset = 0;
 // do {
 //   Pix *pix;
-//   offset += renderer.RenderAllFontsToImage(txt + offset,
+//   offset += renderer.RenderAllFontsToImage(min_proportion, txt + offset,
 //                                            strlen(txt + offset), NULL, &pix);
 //   ...
 // } while (offset < strlen(text));
 //
-int StringRenderer::RenderAllFontsToImage(const char* text, int text_length,
+int StringRenderer::RenderAllFontsToImage(double min_coverage,
+                                          const char* text, int text_length,
                                           string* font_used, Pix** image) {
   // Select a suitable font to render the title with.
   const char kTitleTemplate[] = "%s : %d hits = %.2f%%, raw = %d = %.2f%%";
@@ -764,7 +847,7 @@ int StringRenderer::RenderAllFontsToImage(const char* text, int text_length,
     int raw_score = 0;
     int ok_chars = FontUtils::FontScore(char_map_, all_fonts[i], &raw_score,
                                         NULL);
-    if (ok_chars > 0 && ok_chars == total_chars_) {
+    if (ok_chars > 0 && ok_chars >= total_chars_ * min_coverage) {
       set_font(all_fonts[i]);
       int offset = RenderToBinaryImage(text, text_length, 128, image);
       ClearBoxes();  // Get rid of them as they are garbage.

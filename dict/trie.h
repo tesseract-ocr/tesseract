@@ -87,10 +87,9 @@ class Trie : public Dawg {
   // contain more edges than max_num_edges, all the edges are cleared
   // so that new inserts can proceed).
   Trie(DawgType type, const STRING &lang, PermuterType perm,
-       uinT64 max_num_edges, int unicharset_size, int debug_level) {
+       int unicharset_size, int debug_level) {
     init(type, lang, perm, unicharset_size, debug_level);
     num_edges_ = 0;
-    max_num_edges_ = max_num_edges;
     deref_node_index_mask_ = ~letter_mask_;
     new_dawg_node();  // need to allocate node 0
     initialized_patterns_ = false;
@@ -149,9 +148,14 @@ class Trie : public Dawg {
     if (edge_ref == NO_EDGE || num_edges_ == 0) return INVALID_UNICHAR_ID;
     return unichar_id_from_edge_rec(*deref_edge_ref(edge_ref));
   }
-  // Sets the UNICHAR_ID in the given edge_rec to 0, marking the edge dead.
+  // Sets the UNICHAR_ID in the given edge_rec to unicharset_size_, marking
+  // the edge dead.
   void KillEdge(EDGE_RECORD* edge_rec) const {
     *edge_rec &= ~letter_mask_;
+    *edge_rec |= (unicharset_size_ << LETTER_START_BIT);
+  }
+  bool DeadEdge(const EDGE_RECORD& edge_rec) const {
+    return unichar_id_from_edge_rec(edge_rec) == unicharset_size_;
   }
 
   // Prints the contents of the node indicated by the given NODE_REF.
@@ -415,7 +419,6 @@ class Trie : public Dawg {
   // Member variables
   TRIE_NODES nodes_;              // vector of nodes in the Trie
   uinT64 num_edges_;              // sum of all edges (forward and backward)
-  uinT64 max_num_edges_;          // maximum number of edges allowed
   uinT64 deref_direction_mask_;   // mask for EDGE_REF to extract direction
   uinT64 deref_node_index_mask_;  // mask for EDGE_REF to extract node index
   // Freelist of edges in the root backwards node that were previously zeroed.

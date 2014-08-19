@@ -7,6 +7,16 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/classify -I$(top_srcdir)/display \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
 
+EXTRA_DIST = tesstrain.sh
+
+if MINGW
+# try static build
+#AM_LDFLAGS += -all-static
+#libic=-lsicuin -licudt -lsicuuc
+libicu=-licuin -licuuc
+else
+libicu=-licui18n -licuuc
+endif
 # TODO: training programs can not be linked to shared library created 
 # with -fvisibility 
 if VISIBILITY
@@ -167,7 +177,7 @@ set_unicharset_properties_SOURCES = set_unicharset_properties.cpp
 set_unicharset_properties_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la \
-    -licuuc -licui18n
+    $(libicu)
 if USING_MULTIPLELIBS
 set_unicharset_properties_LDADD += \
     ../textord/libtesseract_textord.la \
@@ -231,7 +241,7 @@ else
 text2image_LDADD += \
     ../api/libtesseract.la
 endif
-text2image_LDADD += -licuuc  -licui18n -lpango-1.0 -lpangocairo-1.0 \
+text2image_LDADD += $(libicu) -lpango-1.0 -lpangocairo-1.0 \
 		    -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
@@ -276,7 +286,27 @@ cntraining_LDADD += -lws2_32
 combine_tessdata_LDADD += -lws2_32
 dawg2wordlist_LDADD += -lws2_32
 mftraining_LDADD += -lws2_32
+set_unicharset_properties_LDADD += -lws2_32
 shapeclustering_LDADD += -lws2_32
 unicharset_extractor_LDADD += -lws2_32
+text2image_LDADD += -lws2_32
 wordlist2dawg_LDADD += -lws2_32
+
+AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port
+noinst_HEADERS += ../vs2010/port/strcasestr.h
+libtesseract_training_la_SOURCES += ../vs2010/port/strcasestr.cpp
+endif
+
+if USE_OPENCL
+ambiguous_words_LDADD += $(OPENCL_LIB)
+classifier_tester_LDADD += $(OPENCL_LIB)
+cntraining_LDADD += $(OPENCL_LIB)
+combine_tessdata_LDADD += $(OPENCL_LIB)
+dawg2wordlist_LDADD += $(OPENCL_LIB)
+mftraining_LDADD += $(OPENCL_LIB)
+set_unicharset_properties_LDADD += $(OPENCL_LIB)
+shapeclustering_LDADD += $(OPENCL_LIB)
+text2image_LDADD += $(OPENCL_LIB)
+unicharset_extractor_LDADD += $(OPENCL_LIB)
+wordlist2dawg_LDADD += $(OPENCL_LIB)
 endif

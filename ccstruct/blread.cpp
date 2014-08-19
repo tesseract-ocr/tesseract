@@ -50,9 +50,8 @@ bool read_unlv_file(                    //print list of sides
   name += UNLV_EXT;              //add extension
   if ((pdfp = fopen (name.string (), "rb")) == NULL) {
     return false;                //didn't read one
-  }
-  else {
-    while (fscanf (pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {
+  } else {
+    while (tfscanf(pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {
                                  //make rect block
       block = new BLOCK (name.string (), TRUE, 0, 0,
                          (inT16) x, (inT16) (ysize - y - height),

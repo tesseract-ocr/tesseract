@@ -112,6 +112,7 @@ class StrokeWidth : public BlobGrid {
                                 TO_BLOCK* block,
                                 Pix* nontext_pix,
                                 const DENORM* denorm,
+                                bool cjk_script,
                                 TextlineProjection* projection,
                                 ColPartitionGrid* part_grid,
                                 ColPartition_LIST* big_parts);

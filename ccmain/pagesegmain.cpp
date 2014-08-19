@@ -26,7 +26,7 @@
 #endif
 #else
 #include <unistd.h>
-#endif // _WIN32
+#endif  // _WIN32
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
@@ -271,6 +271,19 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode,
   return result;
 }
 
+// Helper adds all the scripts from sid_set converted to ids from osd_set to
+// allowed_ids.
+static void AddAllScriptsConverted(const UNICHARSET& sid_set,
+                                   const UNICHARSET& osd_set,
+                                   GenericVector<int>* allowed_ids) {
+  for (int i = 0; i < sid_set.get_script_table_size(); ++i) {
+    if (i != sid_set.null_sid()) {
+      const char* script = sid_set.get_script_from_script_id(i);
+      allowed_ids->push_back(osd_set.get_script_id_from_name(script));
+    }
+  }
+}
+
 /**
  * Sets up auto page segmentation, determines the orientation, and corrects it.
  * Somewhat arbitrary chunk of functionality, factored out of AutoPageSeg to
@@ -326,7 +339,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
   if (to_block->line_size >= 2) {
     finder = new ColumnFinder(static_cast<int>(to_block->line_size),
                               blkbox.botleft(), blkbox.topright(),
-                              source_resolution_,
+                              source_resolution_, textord_use_cjk_fp_model,
                               &v_lines, &h_lines, vertical_x, vertical_y);
 
     finder->SetupAndFilterNoise(*photo_mask_pix, to_block);
@@ -343,7 +356,17 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
     int osd_orientation = 0;
     bool vertical_text = finder->IsVerticallyAlignedText(to_block, &osd_blobs);
     if (osd && osd_tess != NULL && osr != NULL) {
-      os_detect_blobs(&osd_blobs, osr, osd_tess);
+      GenericVector<int> osd_scripts;
+      if (osd_tess != this) {
+        // We are running osd as part of layout analysis, so constrain the
+        // scripts to those allowed by *this.
+        AddAllScriptsConverted(unicharset, osd_tess->unicharset, &osd_scripts);
+        for (int s = 0; s < sub_langs_.size(); ++s) {
+          AddAllScriptsConverted(sub_langs_[s]->unicharset,
+                                 osd_tess->unicharset, &osd_scripts);
+        }
+      }
+      os_detect_blobs(&osd_scripts, &osd_blobs, osr, osd_tess);
       if (only_osd) {
         delete finder;
         return NULL;
@@ -357,13 +380,20 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
           osd_margin = osd_score - osr->orientations[i];
         }
       }
+      int best_script_id = osr->best_result.script_id;
+      const char* best_script_str =
+          osd_tess->unicharset.get_script_from_script_id(best_script_id);
+      bool cjk = best_script_id == osd_tess->unicharset.han_sid() ||
+          best_script_id == osd_tess->unicharset.hiragana_sid() ||
+          best_script_id == osd_tess->unicharset.katakana_sid() ||
+          strcmp("Japanese", best_script_str) == 0 ||
+          strcmp("Korean", best_script_str) == 0 ||
+          strcmp("Hangul", best_script_str) == 0;
+      if (cjk) {
+        finder->set_cjk_script(true);
+      }
       if (osd_margin < min_orientation_margin) {
         // The margin is weak.
-        int best_script_id = osr->best_result.script_id;
-        bool cjk = (best_script_id == osd_tess->unicharset.han_sid()) ||
-            (best_script_id == osd_tess->unicharset.hiragana_sid()) ||
-            (best_script_id == osd_tess->unicharset.katakana_sid());
-
         if (!cjk && !vertical_text && osd_orientation == 2) {
           // upside down latin text is improbable with such a weak margin.
           tprintf("OSD: Weak margin (%.2f), horiz textlines, not CJK: "

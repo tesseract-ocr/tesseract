@@ -271,7 +271,8 @@ bool UnicharAmbigs::ParseAmbiguityLine(
   char *token;
   char *next_token;
   if (!(token = strtok_r(buffer, kAmbigDelimiters, &next_token)) ||
-      !sscanf(token, "%d", test_ambig_part_size) || test_ambig_part_size <= 0) {
+      !sscanf(token, "%d", test_ambig_part_size) ||
+      *test_ambig_part_size <= 0) {
     if (debug_level) tprintf(kIllegalMsg, line_num);
     return false;
   }

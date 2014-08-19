@@ -13,6 +13,7 @@ package com.google.scrollview;
 import com.google.scrollview.events.SVEvent;
 import com.google.scrollview.ui.SVImageHandler;
 import com.google.scrollview.ui.SVWindow;
+import org.piccolo2d.nodes.PImage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +23,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
-
 
 /**
  * The ScrollView class is the main class which gets started from the command
@@ -115,28 +115,9 @@ public class ScrollView {
             first = !first;
           }
           assert first;
-        } else if (SVImageHandler.getReadImageData() == false) {
-          // If we are currently not transmitting an image, process this
-          // normally.
+        } else {
+          // Process this normally.
           processInput(inputLine);
-        }
-        // We are still transmitting image data, but there seems to be some
-        // command at the
-        // end of the message attached as well. Thus, we have to split it
-        // accordingly and
-        // first generate the image and afterwards process the remaining
-        // message.
-        else if (inputLine.length() >
-                 SVImageHandler.getMissingRemainingBytes()) {
-          String luaCmd = inputLine.substring(
-              SVImageHandler.getMissingRemainingBytes());
-          String imgData = inputLine.substring(0,
-              SVImageHandler.getMissingRemainingBytes());
-          SVImageHandler.parseData(imgData);
-          processInput(luaCmd);
-        } else { // We are still in the middle of image data and have not
-                 // reached the end yet.
-          SVImageHandler.parseData(inputLine);
         }
       }
     }
@@ -228,6 +209,9 @@ public class ScrollView {
 
   /** Executes the LUA command parsed as parameter. */
   private static void processInput(String inputLine) {
+    if (inputLine == null) {
+      return;
+    }
     // Execute a function encoded as a LUA statement! Yuk!
     if (inputLine.charAt(0) == 'w') {
       // This is a method call on a window. Parse it.
@@ -298,11 +282,6 @@ public class ScrollView {
         } else if (func.equals("drawText")) {
           windows.get(windowID).drawText(intList.get(0), intList.get(1),
                                          stringList.get(0));
-        } else if (func.equals("openImage")) {
-          windows.get(windowID).openImage(stringList.get(0));
-        } else if (func.equals("drawImage")) {
-          windows.get(windowID).drawImage(stringList.get(0),
-                                          intList.get(0), intList.get(1));
         } else if (func.equals("addMenuBarItem")) {
           if (boolList.size() > 0) {
             windows.get(windowID).addMenuBarItem(stringList.get(0),
@@ -337,12 +316,12 @@ public class ScrollView {
         } else if (func.equals("zoomRectangle")) {
           windows.get(windowID).zoomRectangle(intList.get(0), intList.get(1),
                                               intList.get(2), intList.get(3));
-        } else if (func.equals("createImage")) {
-          windows.get(windowID).createImage(stringList.get(0), intList.get(0),
-                                            intList.get(1), intList.get(2));
+        } else if (func.equals("readImage")) {
+          PImage image = SVImageHandler.readImage(intList.get(2), in);
+          windows.get(windowID).drawImage(image, intList.get(0), intList.get(1));
         } else if (func.equals("drawImage")) {
-          windows.get(windowID).drawImage(stringList.get(0),
-                                          intList.get(0), intList.get(1));
+          PImage image = new PImage(stringList.get(0));
+          windows.get(windowID).drawImage(image, intList.get(0), intList.get(1));
         } else if (func.equals("destroy")) {
           windows.get(windowID).destroy();
         }

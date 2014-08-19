@@ -34,7 +34,6 @@
 #include          "reject.h"
 #include          "control.h"
 #include          "stopper.h"
-#include          "secname.h"
 #include          "tesseractclass.h"
 
 // Include automatically generated configuration file if running autoconf.
