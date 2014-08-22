@@ -1350,6 +1350,19 @@ static void AddBoxTohOCR(const PageIterator *it,
   *hocr_str += "\">";
 }
 
+static void AddBoxTohOCRTSV(const PageIterator *it,
+                         PageIteratorLevel level,
+                         STRING* hocr_str) {
+  int left, top, right, bottom;
+  it->BoundingBox(level, &left, &top, &right, &bottom);
+  hocr_str->add_str_int("\t", left);
+  hocr_str->add_str_int("\t", top);
+  hocr_str->add_str_int("\t", right - left + 1);
+  hocr_str->add_str_int("\t", bottom - top + 1);
+}
+
+
+
 /**
  * Make a HTML-formatted string with hOCR markup from the internal
  * data structures.
@@ -1552,19 +1565,18 @@ char* TessBaseAPI::GetHOCRTSVText(int page_number) {
   delete[] utf8_str;
 #endif
 
-  hocr_str.add_str_int("  <div class='ocr_page' id='page_", page_id);
-  hocr_str += "' title='image \"";
-  if (input_file_) {
-    hocr_str += HOcrEscape(input_file_->string());
-  } else {
-    hocr_str += "unknown";
-  }
-  hocr_str.add_str_int("\"; bbox ", rect_left_);
-  hocr_str.add_str_int(" ", rect_top_);
-  hocr_str.add_str_int(" ", rect_width_);
-  hocr_str.add_str_int(" ", rect_height_);
-  hocr_str.add_str_int("; ppageno ", page_number);
-  hocr_str += "'>\n";
+  int page_num = page_id, block_num = 0, par_num = 0, line_num = 0, word_num = 0;
+
+  hocr_str.add_str_int("1\t", page_num);
+  hocr_str.add_str_int("\t", block_num);
+  hocr_str.add_str_int("\t", par_num);
+  hocr_str.add_str_int("\t", line_num);
+  hocr_str.add_str_int("\t", word_num);
+  hocr_str.add_str_int("\t", rect_left_);
+  hocr_str.add_str_int("\t", rect_top_);
+  hocr_str.add_str_int("\t", rect_width_);
+  hocr_str.add_str_int("\t", rect_height_);
+  hocr_str += "\t-1\t\n";
 
   ResultIterator *res_it = GetIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
@@ -1575,31 +1587,37 @@ char* TessBaseAPI::GetHOCRTSVText(int page_number) {
 
     // Open any new block/paragraph/textline.
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      hocr_str.add_str_int("   <div class='ocr_carea' id='block_", page_id);
-      hocr_str.add_str_int("_", bcnt);
-      AddBoxTohOCR(res_it, RIL_BLOCK, &hocr_str);
+      block_num++, par_num = 0, line_num = 0, word_num = 0;
+      hocr_str.add_str_int("2\t", page_num);
+      hocr_str.add_str_int("\t", block_num);
+      hocr_str.add_str_int("\t", par_num);
+      hocr_str.add_str_int("\t", line_num);
+      hocr_str.add_str_int("\t", word_num);
+      AddBoxTohOCRTSV(res_it, RIL_BLOCK, &hocr_str);
+      hocr_str += "\t-1\t\n";
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
-      if (res_it->ParagraphIsLtr()) {
-        hocr_str.add_str_int("\n    <p class='ocr_par' dir='ltr' id='par_",
-                             page_id);
-        hocr_str.add_str_int("_", pcnt);
-      } else {
-        hocr_str.add_str_int("\n    <p class='ocr_par' dir='rtl' id='par_",
-                             page_id);
-        hocr_str.add_str_int("_", pcnt);
-      }
-      AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
+      par_num++, line_num = 0, word_num = 0;
+      hocr_str.add_str_int("3\t", page_num);
+      hocr_str.add_str_int("\t", block_num);
+      hocr_str.add_str_int("\t", par_num);
+      hocr_str.add_str_int("\t", line_num);
+      hocr_str.add_str_int("\t", word_num);
+      AddBoxTohOCRTSV(res_it, RIL_PARA, &hocr_str);
+      hocr_str += "\t-1\t\n";
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      hocr_str.add_str_int("\n     <span class='ocr_line' id='line_", page_id);
-      hocr_str.add_str_int("_", lcnt);
-      AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
+      line_num++, word_num = 0;
+      hocr_str.add_str_int("4\t", page_num);
+      hocr_str.add_str_int("\t", block_num);
+      hocr_str.add_str_int("\t", par_num);
+      hocr_str.add_str_int("\t", line_num);
+      hocr_str.add_str_int("\t", word_num);
+      AddBoxTohOCRTSV(res_it, RIL_TEXTLINE, &hocr_str);
+      hocr_str += "\t-1\t\n";
     }
 
     // Now, process the word...
-    hocr_str.add_str_int("<span class='ocrx_word' id='word_", page_id);
-    hocr_str.add_str_int("_", wcnt);
     int left, top, right, bottom;
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
@@ -1608,34 +1626,21 @@ char* TessBaseAPI::GetHOCRTSVText(int page_number) {
     font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
                                            &monospace, &serif, &smallcaps,
                                            &pointsize, &font_id);
-    hocr_str.add_str_int("' title='bbox ", left);
-    hocr_str.add_str_int(" ", top);
-    hocr_str.add_str_int(" ", right);
-    hocr_str.add_str_int(" ", bottom);
-    hocr_str.add_str_int("; x_wconf ", res_it->Confidence(RIL_WORD));
-    if (font_info) {
-      hocr_str += "; x_font ";
-      hocr_str += HOcrEscape(font_name);
-      hocr_str.add_str_int("; x_fsize ", pointsize);
-    }
-    hocr_str += "'";
-    if (res_it->WordRecognitionLanguage()) {
-      hocr_str += " lang='";
-      hocr_str += res_it->WordRecognitionLanguage();
-      hocr_str += "'";
-    }
-    switch (res_it->WordDirection()) {
-      case DIR_LEFT_TO_RIGHT: hocr_str += " dir='ltr'"; break;
-      case DIR_RIGHT_TO_LEFT: hocr_str += " dir='rtl'"; break;
-      default:  // Do nothing.
-        break;
-    }
-    hocr_str += ">";
+      word_num++;
+      hocr_str.add_str_int("5\t", page_num);
+      hocr_str.add_str_int("\t", block_num);
+      hocr_str.add_str_int("\t", par_num);
+      hocr_str.add_str_int("\t", line_num);
+      hocr_str.add_str_int("\t", word_num);
+      hocr_str.add_str_int("\t", left);
+      hocr_str.add_str_int("\t", top);
+      hocr_str.add_str_int("\t", right - left + 1);
+      hocr_str.add_str_int("\t", bottom - top + 1);
+      hocr_str.add_str_int("\t", res_it->Confidence(RIL_WORD));
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
-    if (bold) hocr_str += "<strong>";
-    if (italic) hocr_str += "<em>";
+    hocr_str += "\t";
     do {
       const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
       if (grapheme && grapheme[0] != 0) {
@@ -1648,25 +1653,19 @@ char* TessBaseAPI::GetHOCRTSVText(int page_number) {
       delete []grapheme;
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
-    if (italic) hocr_str += "</em>";
-    if (bold) hocr_str += "</strong>";
-    hocr_str += "</span> ";
+    hocr_str += "\n";
     wcnt++;
     // Close any ending block/paragraph/textline.
     if (last_word_in_line) {
-      hocr_str += "\n     </span>";
       lcnt++;
     }
     if (last_word_in_para) {
-      hocr_str += "\n    </p>\n";
       pcnt++;
     }
     if (last_word_in_block) {
-      hocr_str += "   </div>\n";
       bcnt++;
     }
   }
-  hocr_str += "  </div>\n";
 
   char *ret = new char[hocr_str.length() + 1];
   strcpy(ret, hocr_str.string());

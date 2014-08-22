@@ -186,43 +186,20 @@ TessHOcrTsvRenderer::TessHOcrTsvRenderer(const char *outputbase, bool font_info)
 }
 
 bool TessHOcrTsvRenderer::BeginDocumentHandler() {
-  AppendString(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
-        "    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
-        "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" "
-        "lang=\"en\">\n <head>\n  <title>\n");
-  AppendString(title());
-  AppendString(
-      "</title>\n"
-      "<meta http-equiv=\"Content-Type\" content=\"text/html;"
-      "charset=utf-8\" />\n"
-      "  <meta name='ocr-system' content='tesseract " TESSERACT_VERSION_STR
-              "' />\n"
-      "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
-      " ocr_line ocrx_word");
-  if (font_info_)
-    AppendString(
-      " ocrp_lang ocrp_dir ocrp_font ocrp_fsize ocrp_wconf");
-  AppendString(
-      "'/>\n"
-      "</head>\n<body>\n");
-
+  AppendString("level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n");
   return true;
 }
 
 bool TessHOcrTsvRenderer::EndDocumentHandler() {
-  AppendString(" </body>\n</html>\n");
-
   return true;
 }
 
 bool TessHOcrTsvRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* hocr = api->GetHOCRText(imagenum());
-  if (hocr == NULL) return false;
+  char* hocrtsv = api->GetHOCRTSVText(imagenum());
+  if (hocrtsv == NULL) return false;
 
-  AppendString(hocr);
-  delete[] hocr;
+  AppendString(hocrtsv);
+  delete[] hocrtsv;
 
   return true;
 }
