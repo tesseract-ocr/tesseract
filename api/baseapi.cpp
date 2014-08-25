@@ -1643,13 +1643,13 @@ char* TessBaseAPI::GetHOCRTSVText(int page_number) {
     hocr_str += "\t";
     do {
       const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
-      if (grapheme && grapheme[0] != 0) {
-        if (grapheme[1] == 0) {
-          hocr_str += HOcrEscape(grapheme);
-        } else {
+//      if (grapheme && grapheme[0] != 0) {
+//        if (grapheme[1] == 0) {
+//          hocr_str += HOcrEscape(grapheme);
+//        } else {
           hocr_str += grapheme;
-        }
-      }
+//        }
+//      }
       delete []grapheme;
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
