@@ -364,16 +364,16 @@ else
   AC_MSG_ERROR([leptonica not found])
 fi
 
-AC_MSG_CHECKING([leptonica version >= 1.70])
+AC_MSG_CHECKING([leptonica version >= 1.71])
 AC_PREPROC_IFELSE(
     [AC_LANG_PROGRAM([#include "allheaders.h"],
-[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 70)
+[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 71)
 int i = 0;
 #else
 #error You need to upgrade your leptonica library!
 #endif])],
     [AC_MSG_RESULT(yes)],
-    [AC_MSG_FAILURE([leptonica 1.70 or higher is required])])
+    [AC_MSG_FAILURE([leptonica 1.71 or higher is required])])
 
 # Check location of icu headers
 have_icu=false
