@@ -316,6 +316,16 @@ Tesseract::Tesseract()
                 "Write .html hOCR output file", this->params()),
     BOOL_MEMBER(tessedit_create_pdf, false,
                 "Write .pdf output file", this->params()),
+    INT_MEMBER(tessedit_pdf_compression, 0,
+               "Type of image compression in pdf output: "
+               "0 - autoselection (default); "
+               "1 - jpeg; "
+               "2 - G4; "
+               "3 - flat",
+               this->params()),
+    INT_MEMBER(tessedit_pdf_jpg_quality, 85,
+               "Quality level of jpeg image compression in pdf output",
+               this->params()),
     STRING_MEMBER(unrecognised_char, "|",
                   "Output char for unidentified blobs", this->params()),
     INT_MEMBER(suspect_level, 99, "Suspect marker level", this->params()),

@@ -422,7 +422,8 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   return true;
 }
 
-bool TessPDFRenderer::imageToPDFObj(Pix *pix,
+bool TessPDFRenderer::imageToPDFObj(TessBaseAPI* api,
+                                    Pix *pix,
                                     char *filename,
                                     long int objnum,
                                     char **pdf_object,
@@ -438,8 +439,16 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
     return false;
 
   L_COMP_DATA *cid = NULL;
-  const int kJpegQuality = 85;
-  l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
+  int kJpegQuality;
+  int encoding_type;
+  api->GetIntVariable("tessedit_pdf_jpg_quality", &kJpegQuality);
+  api->GetIntVariable("tessedit_pdf_compression", &encoding_type);
+  if (encoding_type > 0 && encoding_type < 4) {
+      if (pixGenerateCIData(pix, encoding_type, kJpegQuality, 0, &cid) != 0)
+         return false;
+  } else {
+    l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
+  }
   if (!cid)
     return false;
 
@@ -605,7 +614,7 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   AppendPDFObjectDIY(objsize);
 
   char *pdf_object;
-  if (!imageToPDFObj(pix, filename, obj_, &pdf_object, &objsize)) {
+  if (!imageToPDFObj(api, pix, filename, obj_, &pdf_object, &objsize)) {
     return false;
   }
   AppendData(pdf_object, objsize);
