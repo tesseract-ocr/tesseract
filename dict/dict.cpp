@@ -26,9 +26,9 @@
 #endif
 #include "tprintf.h"
 
-// HFST BEGIN
+#ifdef WITH_HFST
 #include "hfst_word_model.h"
-// HFST END
+#endif
 
 namespace tesseract {
 
@@ -58,11 +58,10 @@ Dict::Dict(CCUtil* ccutil)
       BOOL_INIT_MEMBER(load_bigram_dawg, true, "Load dawg with special word "
                        "bigrams.", getCCUtil()->params()),
 
-      // HFST BEGIN
-      BOOL_INIT_MEMBER(load_hfst_fsm, true, 
-		       "Load hfst word model.", 
-		       getCCUtil()->params()),
-      // HFST END
+#ifdef WITH_HFST
+      BOOL_INIT_MEMBER(load_hfst_fsm, true, "Load hfst word model.",
+                       getCCUtil()->params()),
+#endif
 
       double_MEMBER(xheight_penalty_subscripts, 0.125,
                     "Score penalty (0.1 = 10%) added if there are subscripts "
@@ -248,22 +247,19 @@ void Dict::Load(DawgCache *dawg_cache) {
     if (unambig_dawg_) dawgs_ += unambig_dawg_;
   }
 
-  // HFST BEGIN
-  if (load_hfst_fsm)
-    {
-      Dawg * hfst_model = 
-	dawg_cache_->GetHfstWordModel
-	(lang, data_file_name, TESSDATA_HFST_FSM, dawg_debug_level);
+#ifdef WITH_HFST
+  if (load_hfst_fsm) {
+    Dawg * hfst_model = dawg_cache_->GetHfstWordModel(
+        lang, data_file_name, TESSDATA_HFST_FSM, dawg_debug_level);
 
-      if (hfst_model) 
-	{ 
-	  dawgs_ += hfst_model;
+    if (hfst_model) { 
+      dawgs_ += hfst_model;
 
-	  dynamic_cast<hfst_word_model *>
-	    (hfst_model)->set_unichar_ids(getUnicharset());
-	}
+      dynamic_cast<hfst_word_model *> 
+          (hfst_model)->set_unichar_ids(getUnicharset());
     }
-  // HFST END
+  }
+#endif
 
   if (((STRING &)user_words_suffix).length() > 0) {
     Trie *trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
