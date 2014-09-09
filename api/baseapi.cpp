@@ -1940,6 +1940,10 @@ void TessBaseAPI::SetDictFunc(DictFunc f) {
 /**
  * Sets Dict::probability_in_context_ function to point to the given
  * function.
+ *
+ * @param f A single function that returns the probability of the current 
+ * "character" (in general a utf-8 string), given the context of a previous 
+ * utf-8 string.
  */
 void TessBaseAPI::SetProbabilityInContextFunc(ProbabilityInContextFunc f) {
   if (tesseract_ != NULL) {
