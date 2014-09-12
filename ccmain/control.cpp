@@ -59,8 +59,6 @@ const double kMinRefitXHeightFraction = 0.5;
 
 
 /**
- * recog_pseudo_word
- *
  * Make a word from the selected blobs and run Tess on them.
  *
  * @param page_res recognise blobs
@@ -79,13 +77,9 @@ void Tesseract::recog_pseudo_word(PAGE_RES* page_res,
 
 
 /**
- * recog_interactive
- *
  * Recognize a single word in interactive mode.
  *
- * @param block block
- * @param row row of word
- * @param word_res word to recognise
+ * @param pr_it the page results iterator
  */
 BOOL8 Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
   inT16 char_qual;
@@ -150,7 +144,7 @@ bool Tesseract::ProcessTargetWord(const TBOX& word_box,
   return true;
 }
 
-// If tesseract is to be run, sets the words up ready for it.
+/** If tesseract is to be run, sets the words up ready for it. */
 void Tesseract::SetupAllWordsPassN(int pass_n,
                                    const TBOX* target_word_box,
                                    const char* word_config,

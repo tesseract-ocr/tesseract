@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "outfeat.h"
 
 #include "classify.h"
@@ -28,24 +28,23 @@
 
 #include <stdio.h>
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
-FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
-/*
- **	Parameters:
- **		Blob		blob to extract pico-features from
- **		LineStats	statistics on text row blob is in
- **	Globals: none
- **	Operation: Convert each segment in the outline to a feature
- **		and return the features.
- **	Return: Outline-features for Blob.
- **	Exceptions: none
- **	History: 11/13/90, DSJ, Created.
- **		05/24/91, DSJ, Updated for either char or baseline normalize.
+/**
+ * Convert each segment in the outline to a feature
+ * and return the features.
+ * @param Blob blob to extract pico-features from
+ * @return Outline-features for Blob.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 
+ * - 11/13/90, DSJ, Created.
+ * - 05/24/91, DSJ, Updated for either char or baseline normalize.
  */
+FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
   LIST Outlines;
   LIST RemainingOutlines;
   MFOUTLINE Outline;
@@ -71,30 +70,29 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
 }                                /* ExtractOutlineFeatures */
 }  // namespace tesseract
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Private Code
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine computes the midpoint between Start and
+ * End to obtain the x,y position of the outline-feature.  It
+ * also computes the direction from Start to End as the
+ * direction of the outline-feature and the distance from
+ * Start to End as the length of the outline-feature.
+ * This feature is then
+ * inserted into the next feature slot in FeatureSet.
+ * @param Start starting point of outline-feature
+ * @param End ending point of outline-feature
+ * @param FeatureSet set to add outline-feature to
+ * @return none (results are placed in FeatureSet)
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 11/13/90, DSJ, Created.
+ */
 void AddOutlineFeatureToSet(FPOINT *Start,
                             FPOINT *End,
                             FEATURE_SET FeatureSet) {
-/*
- **	Parameters:
- **		Start		starting point of outline-feature
- **		End		ending point of outline-feature
- **		FeatureSet	set to add outline-feature to
- **	Globals: none
- **	Operation: This routine computes the midpoint between Start and
- **		End to obtain the x,y position of the outline-feature.  It
- **		also computes the direction from Start to End as the
- **		direction of the outline-feature and the distance from
- **		Start to End as the length of the outline-feature.
- **		This feature is then
- **		inserted into the next feature slot in FeatureSet.
- **	Return: none (results are placed in FeatureSet)
- **	Exceptions: none
- **	History: 11/13/90, DSJ, Created.
- */
   FEATURE Feature;
 
   Feature = NewFeature(&OutlineFeatDesc);
@@ -108,21 +106,20 @@ void AddOutlineFeatureToSet(FPOINT *Start,
 
 
 /*---------------------------------------------------------------------------*/
-void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
-/*
- **	Parameters:
- **		Outline		outline to extract outline-features from
- **		FeatureSet	set of features to add outline-features to
- **	Globals: none
- **	Operation:
- **		This routine steps converts each section in the specified
- **		outline to a feature described by its x,y position, length
- **		and angle.
- **	Return: none (results are returned in FeatureSet)
- **	Exceptions: none
- **	History: 11/13/90, DSJ, Created.
- **			5/24/91, DSJ, Added hidden edge capability.
+/**
+ * This routine steps converts each section in the specified
+ * outline to a feature described by its x,y position, length
+ * and angle.
+ * @param Outline outline to extract outline-features from
+ * @param FeatureSet set of features to add outline-features to
+ * @return none (results are returned in FeatureSet)
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 
+ * - 11/13/90, DSJ, Created.
+ * - 5/24/91, DSJ, Added hidden edge capability.
  */
+void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   MFOUTLINE Next;
   MFOUTLINE First;
   FPOINT FeatureStart;
@@ -152,19 +149,18 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
 
 
 /*---------------------------------------------------------------------------*/
-void NormalizeOutlineX(FEATURE_SET FeatureSet) {
-/*
- **	Parameters:
- **		FeatureSet	outline-features to be normalized
- **	Globals: none
- **	Operation: This routine computes the weighted average x position
- **		over all of the outline-features in FeatureSet and then
- **		renormalizes the outline-features to force this average
- **		to be the x origin (i.e. x=0).
- **	Return: none (FeatureSet is changed)
- **	Exceptions: none
- **	History: 11/13/90, DSJ, Created.
+/**
+ * This routine computes the weighted average x position
+ * over all of the outline-features in FeatureSet and then
+ * renormalizes the outline-features to force this average
+ * to be the x origin (i.e. x=0).
+ * @param FeatureSet outline-features to be normalized
+ * @return none (FeatureSet is changed)
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 11/13/90, DSJ, Created.
  */
+void NormalizeOutlineX(FEATURE_SET FeatureSet) {
   int i;
   FEATURE Feature;
   FLOAT32 Length;

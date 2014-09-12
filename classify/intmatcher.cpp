@@ -135,8 +135,8 @@ class ClassPruner {
     delete []sort_index_;
   }
 
-  // Computes the scores for every class in the character set, by summing the
-  // weights for each feature and stores the sums internally in class_count_.
+  /// Computes the scores for every class in the character set, by summing the
+  /// weights for each feature and stores the sums internally in class_count_.
   void ComputeScores(const INT_TEMPLATES_STRUCT* int_templates,
                      int num_features, const INT_FEATURE_STRUCT* features) {
     num_features_ = num_features;
@@ -203,11 +203,11 @@ class ClassPruner {
     }
   }
 
-  // Adjusts the scores according to the number of expected features. Used
-  // in lieu of a constant bias, this penalizes classes that expect more
-  // features than there are present. Thus an actual c will score higher for c
-  // than e, even though almost all the features match e as well as c, because
-  // e expects more features to be present.
+  /// Adjusts the scores according to the number of expected features. Used
+  /// in lieu of a constant bias, this penalizes classes that expect more
+  /// features than there are present. Thus an actual c will score higher for c
+  /// than e, even though almost all the features match e as well as c, because
+  /// e expects more features to be present.
   void AdjustForExpectedNumFeatures(const uinT16* expected_num_features,
                                     int cutoff_strength) {
     for (int class_id = 0; class_id < max_classes_; ++class_id) {
@@ -219,8 +219,8 @@ class ClassPruner {
     }
   }
 
-  // Zeros the scores for classes disabled in the unicharset.
-  // Implements the black-list to recognize a subset of the character set.
+  /// Zeros the scores for classes disabled in the unicharset.
+  /// Implements the black-list to recognize a subset of the character set.
   void DisableDisabledClasses(const UNICHARSET& unicharset) {
     for (int class_id = 0; class_id < max_classes_; ++class_id) {
       if (!unicharset.get_enabled(class_id))
@@ -228,7 +228,7 @@ class ClassPruner {
     }
   }
 
-  // Zeros the scores of fragments.
+  /** Zeros the scores of fragments. */
   void DisableFragments(const UNICHARSET& unicharset) {
     for (int class_id = 0; class_id < max_classes_; ++class_id) {
       // Do not include character fragments in the class pruner
@@ -239,10 +239,10 @@ class ClassPruner {
     }
   }
 
-  // Normalizes the counts for xheight, putting the normalized result in
-  // norm_count_. Applies a simple subtractive penalty for incorrect vertical
-  // position provided by the normalization_factors array, indexed by
-  // character class, and scaled by the norm_multiplier.
+  /// Normalizes the counts for xheight, putting the normalized result in
+  /// norm_count_. Applies a simple subtractive penalty for incorrect vertical
+  /// position provided by the normalization_factors array, indexed by
+  /// character class, and scaled by the norm_multiplier.
   void NormalizeForXheight(int norm_multiplier,
                            const uinT8* normalization_factors) {
     for (int class_id = 0; class_id < max_classes_; class_id++) {
@@ -251,16 +251,16 @@ class ClassPruner {
     }
   }
 
-  // The nop normalization copies the class_count_ array to norm_count_.
+  /** The nop normalization copies the class_count_ array to norm_count_. */
   void NoNormalization() {
     for (int class_id = 0; class_id < max_classes_; class_id++) {
       norm_count_[class_id] = class_count_[class_id];
     }
   }
 
-  // Prunes the classes using <the maximum count> * pruning_factor/256 as a
-  // threshold for keeping classes. If max_of_non_fragments, then ignore
-  // fragments in computing the maximum count.
+  /// Prunes the classes using &lt;the maximum count> * pruning_factor/256 as a
+  /// threshold for keeping classes. If max_of_non_fragments, then ignore
+  /// fragments in computing the maximum count.
   void PruneAndSort(int pruning_factor, int keep_this,
                     bool max_of_non_fragments, const UNICHARSET& unicharset) {
     int max_count = 0;
@@ -295,7 +295,7 @@ class ClassPruner {
       HeapSort(num_classes_, sort_key_, sort_index_);
   }
 
-  // Prints debug info on the class pruner matches for the pruned classes only.
+  /** Prints debug info on the class pruner matches for the pruned classes only. */
   void DebugMatch(const Classify& classify,
                   const INT_TEMPLATES_STRUCT* int_templates,
                   const INT_FEATURE_STRUCT* features) const {
@@ -332,7 +332,7 @@ class ClassPruner {
     }
   }
 
-  // Prints a summary of the pruner result.
+  /** Prints a summary of the pruner result. */
   void SummarizeResult(const Classify& classify,
                        const INT_TEMPLATES_STRUCT* int_templates,
                        const uinT16* expected_num_features,
@@ -354,8 +354,8 @@ class ClassPruner {
     }
   }
 
-  // Copies the pruned, sorted classes into the output results and returns
-  // the number of classes.
+  /// Copies the pruned, sorted classes into the output results and returns
+  /// the number of classes.
   int SetupResults(GenericVector<CP_RESULT_STRUCT>* results) const {
     CP_RESULT_STRUCT empty;
     results->init_to_size(num_classes_, empty);
@@ -368,57 +368,50 @@ class ClassPruner {
   }
 
  private:
-  // Array[rounded_classes_] of initial counts for each class.
+  /** Array[rounded_classes_] of initial counts for each class. */
   int *class_count_;
-  // Array[rounded_classes_] of modified counts for each class after normalizing
-  // for expected number of features, disabled classes, fragments, and xheights.
+  /// Array[rounded_classes_] of modified counts for each class after normalizing
+  /// for expected number of features, disabled classes, fragments, and xheights.
   int *norm_count_;
-  // Array[rounded_classes_ +1] of pruned counts that gets sorted
+  /** Array[rounded_classes_ +1] of pruned counts that gets sorted */
   int *sort_key_;
-  // Array[rounded_classes_ +1] of classes corresponding to sort_key_.
+  /** Array[rounded_classes_ +1] of classes corresponding to sort_key_. */
   int *sort_index_;
-  // Number of classes in this class pruner.
+  /** Number of classes in this class pruner. */
   int max_classes_;
-  // Rounded up number of classes used for array sizes.
+  /** Rounded up number of classes used for array sizes. */
   int rounded_classes_;
-  // Threshold count applied to prune classes.
+  /** Threshold count applied to prune classes. */
   int pruning_threshold_;
-  // The number of features used to compute the scores.
+  /** The number of features used to compute the scores. */
   int num_features_;
-  // Final number of pruned classes.
+  /** Final number of pruned classes. */
   int num_classes_;
 };
 
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-// Runs the class pruner from int_templates on the given features, returning
-// the number of classes output in results.
-//    int_templates          Class pruner tables
-//    num_features           Number of features in blob
-//    features               Array of features
-//    normalization_factors  Array of fudge factors from blob
-//                           normalization process (by CLASS_INDEX)
-//    expected_num_features  Array of expected number of features
-//                           for each class (by CLASS_INDEX)
-//    results                Sorted Array of pruned classes. Must be an array
-//                           of size at least int_templates->NumClasses.
+/**
+ * Runs the class pruner from int_templates on the given features, returning
+ * the number of classes output in results.
+ * @param int_templates          Class pruner tables
+ * @param num_features           Number of features in blob
+ * @param features               Array of features
+ * @param normalization_factors  Array of fudge factors from blob
+ *                               normalization process (by CLASS_INDEX)
+ * @param expected_num_features  Array of expected number of features
+ *                               for each class (by CLASS_INDEX)
+ * @param results                Sorted Array of pruned classes. Must be an array
+ *                               of size at least int_templates->NumClasses.
+ * @param keep_this
+ */
 int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
                            int num_features, int keep_this,
                            const INT_FEATURE_STRUCT* features,
                            const uinT8* normalization_factors,
                            const uinT16* expected_num_features,
                            GenericVector<CP_RESULT_STRUCT>* results) {
-/*
- **  Operation:
- **    Prunes the classes using a modified fast match table.
- **    Returns a sorted list of classes along with the number
- **      of pruned classes in that list.
- **  Return: Number of pruned classes.
- **  Exceptions: none
- **  History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
- */
   ClassPruner pruner(int_templates->NumClasses);
   // Compute initial match scores for all classes.
   pruner.ComputeScores(int_templates, num_features, features);
@@ -457,7 +450,25 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
 
 }  // namespace tesseract
 
-/*---------------------------------------------------------------------------*/
+/**
+ * IntegerMatcher returns the best configuration and rating
+ * for a single class.  The class matched against is determined
+ * by the uniqueness of the ClassTemplate parameter.  The
+ * best rating and its associated configuration are returned.
+ *
+ * Globals:
+ * - local_matcher_multiplier_ Normalization factor multiplier
+ * param ClassTemplate Prototypes & tables for a class
+ * param BlobLength Length of unormalized blob
+ * param NumFeatures Number of features in blob
+ * param Features Array of features
+ * param NormalizationFactor Fudge factor from blob normalization process
+ * param Result Class rating & configuration: (0.0 -> 1.0), 0=bad, 1=good
+ * param Debug Debugger flag: 1=debugger on
+ * @return none
+ * @note Exceptions: none
+ * @note History: Tue Feb 19 16:36:23 MST 1991, RWM, Created.
+ */
 void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                            BIT_VECTOR ProtoMask,
                            BIT_VECTOR ConfigMask,
@@ -467,28 +478,6 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                            int AdaptFeatureThreshold,
                            int Debug,
                            bool SeparateDebugWindows) {
-/*
- **      Parameters:
- **              ClassTemplate             Prototypes & tables for a class
- **              BlobLength                Length of unormalized blob
- **              NumFeatures               Number of features in blob
- **              Features                  Array of features
- **              NormalizationFactor       Fudge factor from blob
- **                                        normalization process
- **              Result                    Class rating & configuration:
- **                                        (0.0 -> 1.0), 0=bad, 1=good
- **              Debug                     Debugger flag: 1=debugger on
- **      Globals:
- **              local_matcher_multiplier_    Normalization factor multiplier
- **      Operation:
- **              IntegerMatcher returns the best configuration and rating
- **              for a single class.  The class matched against is determined
- **              by the uniqueness of the ClassTemplate parameter.  The
- **              best rating and its associated configuration are returned.
- **      Return:
- **      Exceptions: none
- **      History: Tue Feb 19 16:36:23 MST 1991, RWM, Created.
- */
   ScratchEvidence *tables = new ScratchEvidence();
   int Feature;
   int BestMatch;
@@ -542,8 +531,26 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
   delete tables;
 }
 
-
-/*---------------------------------------------------------------------------*/
+/**
+ * FindGoodProtos finds all protos whose normalized proto-evidence
+ * exceed classify_adapt_proto_thresh.  The list is ordered by increasing
+ * proto id number.
+ *
+ * Globals:
+ * - local_matcher_multiplier_    Normalization factor multiplier
+ * param ClassTemplate Prototypes & tables for a class
+ * param ProtoMask AND Mask for proto word
+ * param ConfigMask AND Mask for config word
+ * param BlobLength Length of unormalized blob
+ * param NumFeatures Number of features in blob
+ * param Features Array of features
+ * param ProtoArray Array of good protos
+ * param AdaptProtoThreshold Threshold for good protos
+ * param Debug Debugger flag: 1=debugger on
+ * @return Number of good protos in ProtoArray.
+ * @note Exceptions: none
+ * @note History: Tue Mar 12 17:09:26 MST 1991, RWM, Created
+ */
 int IntegerMatcher::FindGoodProtos(
     INT_CLASS ClassTemplate,
     BIT_VECTOR ProtoMask,
@@ -554,28 +561,6 @@ int IntegerMatcher::FindGoodProtos(
     PROTO_ID *ProtoArray,
     int AdaptProtoThreshold,
     int Debug) {
-/*
- **      Parameters:
- **              ClassTemplate             Prototypes & tables for a class
- **              ProtoMask                 AND Mask for proto word
- **              ConfigMask                AND Mask for config word
- **              BlobLength                Length of unormalized blob
- **              NumFeatures               Number of features in blob
- **              Features                  Array of features
- **              ProtoArray                Array of good protos
- **              AdaptProtoThreshold       Threshold for good protos
- **              Debug                     Debugger flag: 1=debugger on
- **      Globals:
- **              local_matcher_multiplier_    Normalization factor multiplier
- **      Operation:
- **              FindGoodProtos finds all protos whose normalized proto-evidence
- **              exceed classify_adapt_proto_thresh.  The list is ordered by increasing
- **              proto id number.
- **      Return:
- **              Number of good protos in ProtoArray.
- **      Exceptions: none
- **      History: Tue Mar 12 17:09:26 MST 1991, RWM, Created
- */
   ScratchEvidence *tables = new ScratchEvidence();
   int NumGoodProtos = 0;
 
@@ -622,7 +607,21 @@ int IntegerMatcher::FindGoodProtos(
 }
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * FindBadFeatures finds all features with maximum feature-evidence <
+ * AdaptFeatureThresh. The list is ordered by increasing feature number.
+ * @param ClassTemplate Prototypes & tables for a class
+ * @param ProtoMask AND Mask for proto word
+ * @param ConfigMask AND Mask for config word
+ * @param BlobLength Length of unormalized blob
+ * @param NumFeatures Number of features in blob
+ * @param Features Array of features
+ * @param FeatureArray Array of bad features
+ * @param AdaptFeatureThreshold Threshold for bad features
+ * @param Debug Debugger flag: 1=debugger on
+ * @return Number of bad features in FeatureArray.
+ * @note History: Tue Mar 12 17:09:26 MST 1991, RWM, Created
+ */
 int IntegerMatcher::FindBadFeatures(
     INT_CLASS ClassTemplate,
     BIT_VECTOR ProtoMask,
@@ -633,24 +632,6 @@ int IntegerMatcher::FindBadFeatures(
     FEATURE_ID *FeatureArray,
     int AdaptFeatureThreshold,
     int Debug) {
-/*
- **  Parameters:
- **      ClassTemplate             Prototypes & tables for a class
- **      ProtoMask                 AND Mask for proto word
- **      ConfigMask                AND Mask for config word
- **      BlobLength                Length of unormalized blob
- **      NumFeatures               Number of features in blob
- **      Features                  Array of features
- **      FeatureArray              Array of bad features
- **      AdaptFeatureThreshold     Threshold for bad features
- **      Debug                     Debugger flag: 1=debugger on
- **  Operation:
- **      FindBadFeatures finds all features with maximum feature-evidence <
- **      AdaptFeatureThresh. The list is ordered by increasing feature number.
- **  Return:
- **      Number of bad features in FeatureArray.
- **  History: Tue Mar 12 17:09:26 MST 1991, RWM, Created
- */
   ScratchEvidence *tables = new ScratchEvidence();
   int NumBadFeatures = 0;
 
@@ -693,7 +674,6 @@ int IntegerMatcher::FindBadFeatures(
 }
 
 
-/*---------------------------------------------------------------------------*/
 void IntegerMatcher::Init(tesseract::IntParam *classify_debug_level) {
   classify_debug_level_ = classify_debug_level;
 
@@ -722,9 +702,9 @@ void IntegerMatcher::Init(tesseract::IntParam *classify_debug_level) {
 }
 
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Private Code
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 void ScratchEvidence::Clear(const INT_CLASS class_template) {
   memset(sum_feature_evidence_, 0,
          class_template->NumConfigs * sizeof(sum_feature_evidence_[0]));
@@ -739,21 +719,17 @@ void ScratchEvidence::ClearFeatureEvidence(const INT_CLASS class_template) {
 
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * Print debugging information for Configuations
+ * @return none
+ * @note Exceptions: none
+ * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
+ */
 void IMDebugConfiguration(int FeatureNum,
                           uinT16 ActualProtoNum,
                           uinT8 Evidence,
                           BIT_VECTOR ConfigMask,
                           uinT32 ConfigWord) {
-/*
- **      Parameters:
- **      Globals:
- **      Operation:
- **              Print debugging information for Configuations
- **      Return:
- **      Exceptions: none
- **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
- */
   cprintf ("F = %3d, P = %3d, E = %3d, Configs = ",
     FeatureNum, (int) ActualProtoNum, (int) Evidence);
   while (ConfigWord) {
@@ -767,19 +743,15 @@ void IMDebugConfiguration(int FeatureNum,
 }
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * Print debugging information for Configuations
+ * @return none
+ * @note Exceptions: none
+ * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
+ */
 void IMDebugConfigurationSum(int FeatureNum,
                              uinT8 *FeatureEvidence,
                              inT32 ConfigCount) {
-/*
- **      Parameters:
- **      Globals:
- **      Operation:
- **              Print debugging information for Configuations
- **      Return:
- **      Exceptions: none
- **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
- */
   cprintf("F=%3d, C=", FeatureNum);
   for (int ConfigNum = 0; ConfigNum < ConfigCount; ConfigNum++) {
     cprintf("%4d", FeatureEvidence[ConfigNum]);
@@ -787,9 +759,17 @@ void IMDebugConfigurationSum(int FeatureNum,
   cprintf("\n");
 }
 
-
-
-/*---------------------------------------------------------------------------*/
+/**
+ * For the given feature: prune protos, compute evidence,
+ * update Feature Evidence, Proto Evidence, and Sum of Feature
+ * Evidence tables.
+ * @param ClassTemplate Prototypes & tables for a class
+ * @param FeatureNum Current feature number (for DEBUG only)
+ * @param Feature Pointer to a feature struct
+ * @param tables Evidence tables
+ * @param Debug Debugger flag: 1=debugger on
+ * @return none
+ */
 int IntegerMatcher::UpdateTablesForFeature(
     INT_CLASS ClassTemplate,
     BIT_VECTOR ProtoMask,
@@ -798,19 +778,6 @@ int IntegerMatcher::UpdateTablesForFeature(
     const INT_FEATURE_STRUCT* Feature,
     ScratchEvidence *tables,
     int Debug) {
-/*
- **  Parameters:
- **      ClassTemplate         Prototypes & tables for a class
- **      FeatureNum            Current feature number (for DEBUG only)
- **      Feature               Pointer to a feature struct
- **      tables                Evidence tables
- **      Debug                 Debugger flag: 1=debugger on
- **  Operation:
- **       For the given feature: prune protos, compute evidence,
- **       update Feature Evidence, Proto Evidence, and Sum of Feature
- **       Evidence tables.
- **  Return:
- */
   register uinT32 ConfigWord;
   register uinT32 ProtoWord;
   register uinT32 ProtoNum;
@@ -950,7 +917,12 @@ int IntegerMatcher::UpdateTablesForFeature(
 }
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * Print debugging information for Configuations
+ * @return none
+ * @note Exceptions: none
+ * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
+ */
 #ifndef GRAPHICS_DISABLED
 void IntegerMatcher::DebugFeatureProtoError(
     INT_CLASS ClassTemplate,
@@ -959,15 +931,6 @@ void IntegerMatcher::DebugFeatureProtoError(
     const ScratchEvidence& tables,
     inT16 NumFeatures,
     int Debug) {
-/*
- **      Parameters:
- **      Globals:
- **      Operation:
- **              Print debugging information for Configuations
- **      Return:
- **      Exceptions: none
- **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
- */
   FLOAT32 ProtoConfigs[MAX_NUM_CONFIGS];
   int ConfigNum;
   uinT32 ConfigWord;
@@ -1076,8 +1039,6 @@ void IntegerMatcher::DebugFeatureProtoError(
 
 }
 
-
-/*---------------------------------------------------------------------------*/
 void IntegerMatcher::DisplayProtoDebugInfo(
     INT_CLASS ClassTemplate,
     BIT_VECTOR ProtoMask,
@@ -1119,7 +1080,6 @@ void IntegerMatcher::DisplayProtoDebugInfo(
 }
 
 
-/*---------------------------------------------------------------------------*/
 void IntegerMatcher::DisplayFeatureDebugInfo(
     INT_CLASS ClassTemplate,
     BIT_VECTOR ProtoMask,
@@ -1165,8 +1125,9 @@ void IntegerMatcher::DisplayFeatureDebugInfo(
 }
 #endif
 
-/*---------------------------------------------------------------------------*/
-// Add sum of Proto Evidences into Sum Of Feature Evidence Array
+/**
+ * Add sum of Proto Evidences into Sum Of Feature Evidence Array
+ */
 void ScratchEvidence::UpdateSumOfProtoEvidences(
     INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask, inT16 NumFeatures) {
 
@@ -1206,9 +1167,10 @@ void ScratchEvidence::UpdateSumOfProtoEvidences(
 
 
 
-/*---------------------------------------------------------------------------*/
-// Normalize Sum of Proto and Feature Evidence by dividing by the sum of
-// the Feature Lengths and the Proto Lengths for each configuration.
+/**
+ * Normalize Sum of Proto and Feature Evidence by dividing by the sum of
+ * the Feature Lengths and the Proto Lengths for each configuration.
+ */
 void ScratchEvidence::NormalizeSums(
     INT_CLASS ClassTemplate, inT16 NumFeatures, inT32 used_features) {
 
@@ -1219,22 +1181,17 @@ void ScratchEvidence::NormalizeSums(
 }
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * Find the best match for the current class and update the Result
+ * with the configuration and match rating.
+ * @return The best normalized sum of evidences
+ * @note Exceptions: none
+ * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
+ */
 int IntegerMatcher::FindBestMatch(
     INT_CLASS class_template,
     const ScratchEvidence &tables,
     UnicharRating* result) {
-/*
- **      Parameters:
- **      Globals:
- **      Operation:
- **              Find the best match for the current class and update the Result
- **              with the configuration and match rating.
- **      Return:
- **              The best normalized sum of evidences
- **      Exceptions: none
- **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
- */
   int best_match = 0;
   result->config = 0;
   result->fonts.truncate(0);
@@ -1258,8 +1215,10 @@ int IntegerMatcher::FindBestMatch(
   return best_match;
 }
 
-// Applies the CN normalization factor to the given rating and returns
-// the modified rating.
+/**
+ * Applies the CN normalization factor to the given rating and returns
+ * the modified rating.
+ */
 float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
                                         int normalization_factor,
                                         int matcher_multiplier) {
@@ -1268,23 +1227,19 @@ float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
       (blob_length + matcher_multiplier);
 }
 
-/*---------------------------------------------------------------------------*/
+/**
+ * Sort Key array in ascending order using heap sort
+ * algorithm.  Also sort Index array that is tied to
+ * the key array.
+ * @param n Number of elements to sort
+ * @param ra     Key array [1..n]
+ * @param rb     Index array [1..n]
+ * @return none
+ * @note Exceptions: none
+ * @note History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
+ */
 void
 HeapSort (int n, register int ra[], register int rb[]) {
-/*
- **      Parameters:
- **              n      Number of elements to sort
- **              ra     Key array [1..n]
- **              rb     Index array [1..n]
- **      Globals:
- **      Operation:
- **              Sort Key array in ascending order using heap sort
- **              algorithm.  Also sort Index array that is tied to
- **              the key array.
- **      Return:
- **      Exceptions: none
- **      History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
- */
   register int i, rra, rrb;
   int l, j, ir;
 

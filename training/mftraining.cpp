@@ -23,9 +23,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
 ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
@@ -79,9 +79,9 @@ const int kMaxShapeLabelLength = 10;
 
 DECLARE_STRING_PARAM_FLAG(test_ch);
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Public Function Prototypes
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 int main (
      int  argc,
      char  **argv);
@@ -208,41 +208,37 @@ static void SetupConfigMap(ShapeTable* shape_table, IndexMapBiDi* config_map) {
   config_map->CompleteMerges();
 }
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This program reads in a text file consisting of feature
+ * samples from a training page in the following format:
+ * @verbatim
+      FontName UTF8-char-str xmin ymin xmax ymax page-number
+       NumberOfFeatureTypes(N)
+         FeatureTypeName1 NumberOfFeatures(M)
+            Feature1
+            ...
+            FeatureM
+         FeatureTypeName2 NumberOfFeatures(M)
+            Feature1
+            ...
+            FeatureM
+         ...
+         FeatureTypeNameN NumberOfFeatures(M)
+            Feature1
+            ...
+            FeatureM
+      FontName CharName ...
+    @endverbatim
+ * The result of this program is a binary inttemp file used by
+ * the OCR engine.
+ * @param  argc  number of command line arguments
+ * @param  argv  array of command line arguments
+ * @return none
+ * @note Exceptions: none
+ * @note History:  Fri Aug 18 08:56:17 1989, DSJ, Created.
+ * @note History: Mon May 18 1998, Christy Russson, Revistion started.
+ */
 int main (int argc, char **argv) {
-/*
-**  Parameters:
-**    argc  number of command line arguments
-**    argv  array of command line arguments
-**  Globals: none
-**  Operation:
-**    This program reads in a text file consisting of feature
-**    samples from a training page in the following format:
-**
-**      FontName UTF8-char-str xmin ymin xmax ymax page-number
-**       NumberOfFeatureTypes(N)
-**         FeatureTypeName1 NumberOfFeatures(M)
-**            Feature1
-**            ...
-**            FeatureM
-**         FeatureTypeName2 NumberOfFeatures(M)
-**            Feature1
-**            ...
-**            FeatureM
-**         ...
-**         FeatureTypeNameN NumberOfFeatures(M)
-**            Feature1
-**            ...
-**            FeatureM
-**      FontName CharName ...
-**
-**    The result of this program is a binary inttemp file used by
-**    the OCR engine.
-**  Return: none
-**  Exceptions: none
-**  History:  Fri Aug 18 08:56:17 1989, DSJ, Created.
-**        Mon May 18 1998, Christy Russson, Revistion started.
-*/
   ParseArguments(&argc, &argv);
 
   ShapeTable* shape_table = NULL;

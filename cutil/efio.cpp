@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "efio.h"
 #include "danerror.h"
 #include <stdio.h>
@@ -25,29 +25,22 @@
 
 #define MAXERRORMESSAGE   256
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
-FILE *Efopen(const char *Name, const char *Mode) { 
-/*
- **	Parameters:
- **		Name	name of file to be opened
- **		Mode	mode to be used to open file
- **	Globals:
- **		None
- **	Operation:
- **		This routine attempts to open the specified file in the
- **		specified mode.  If the file can be opened, a pointer to
- **		the open file is returned.  If the file cannot be opened,
- **		an error is trapped.
- **	Return:
- **		Pointer to open file.
- **	Exceptions:
- **		FOPENERROR		unable to open specified file
- **	History:
- **		5/21/89, DSJ, Created.
+----------------------------------------------------------------------------*/
+/**
+ * This routine attempts to open the specified file in the
+ * specified mode.  If the file can be opened, a pointer to
+ * the open file is returned.  If the file cannot be opened,
+ * an error is trapped.
+ * @param Name name of file to be opened
+ * @param Mode mode to be used to open file
+ * @return Pointer to open file.
+ * @note Globals: None
+ * @note Exceptions: #FOPENERROR unable to open specified file
+ * @note History: 5/21/89, DSJ, Created.
  */
+FILE *Efopen(const char *Name, const char *Mode) { 
   FILE *File;
   char ErrorMessage[MAXERRORMESSAGE];
 

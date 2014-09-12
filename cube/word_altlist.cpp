@@ -37,7 +37,9 @@ WordAltList::~WordAltList() {
   }
 }
 
-// insert an alternate word with the specified cost and tag
+/**
+ * insert an alternate word with the specified cost and tag
+ */
 bool WordAltList::Insert(char_32 *word_str, int cost, void *tag) {
   if (word_alt_ == NULL || alt_cost_ == NULL) {
     word_alt_ = new char_32*[max_alt_];
@@ -84,7 +86,9 @@ bool WordAltList::Insert(char_32 *word_str, int cost, void *tag) {
   return true;
 }
 
-// sort the alternate in descending order based on the cost
+/**
+ * sort the alternate in descending order based on the cost
+ */
 void WordAltList::Sort() {
   for (int alt_idx = 0; alt_idx < alt_cnt_; alt_idx++) {
     for (int alt = alt_idx + 1; alt < alt_cnt_; alt++) {

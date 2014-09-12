@@ -21,24 +21,24 @@
 
 namespace tesseract {
 
-/**********************************************************************
- * convert_prob_to_tess_certainty
+/**
+ * @name convert_prob_to_tess_certainty
  *
  * Normalize a probability in the range [0.0, 1.0] to a tesseract
  * certainty in the range [-20.0, 0.0]
- **********************************************************************/
+ */
 static float convert_prob_to_tess_certainty(float prob) {
   return (prob - 1.0) * 20.0;
 }
 
-/**********************************************************************
- * char_box_to_tbox
+/**
+ * @name char_box_to_tbox
  *
  * Create a TBOX from a character bounding box. If nonzero, the
  * x_offset accounts for any additional padding of the word box that
  * should be taken into account.
  *
- **********************************************************************/
+ */
 TBOX char_box_to_tbox(Box* char_box, TBOX word_box, int x_offset) {
   l_int32 left;
   l_int32 top;
@@ -55,13 +55,13 @@ TBOX char_box_to_tbox(Box* char_box, TBOX word_box, int x_offset) {
   return TBOX(left, bottom, right, top);
 }
 
-/**********************************************************************
- * extract_cube_state
+/**
+ * @name extract_cube_state
  *
  * Extract CharSamp objects and character bounding boxes from the
  * CubeObject's state. The caller should free both structres.
  *
-**********************************************************************/
+ */
 bool Tesseract::extract_cube_state(CubeObject* cube_obj,
                                    int* num_chars,
                                    Boxa** char_boxes,
@@ -104,15 +104,15 @@ bool Tesseract::extract_cube_state(CubeObject* cube_obj,
   return true;
 }
 
-/**********************************************************************
- * create_cube_box_word
+/**
+ * @name create_cube_box_word
  *
  * Fill the given BoxWord with boxes from character bounding
  * boxes. The char_boxes have local coordinates w.r.t. the
  * word bounding box, i.e., the left-most character bbox of each word
  * has (0,0) left-top coord, but the BoxWord must be defined in page
  * coordinates.
- **********************************************************************/
+ */
 bool Tesseract::create_cube_box_word(Boxa *char_boxes,
                                      int num_chars,
                                      TBOX word_box,
@@ -144,13 +144,13 @@ bool Tesseract::create_cube_box_word(Boxa *char_boxes,
   return true;
 }
 
-/**********************************************************************
- * init_cube_objects
+/**
+ * @name init_cube_objects
  *
  * Instantiates Tesseract object's CubeRecoContext and TesseractCubeCombiner.
  * Returns false if cube context could not be created or if load_combiner is
  * true, but the combiner could not be loaded.
- **********************************************************************/
+ */
 bool Tesseract::init_cube_objects(bool load_combiner,
                                   TessdataManager *tessdata_manager) {
   ASSERT_HOST(cube_cntxt_ == NULL);
@@ -184,12 +184,12 @@ bool Tesseract::init_cube_objects(bool load_combiner,
   return true;
 }
 
-/**********************************************************************
- * run_cube_combiner
+/**
+ * @name run_cube_combiner
  *
  * Iterates through tesseract's results and calls cube on each word,
  * combining the results with the existing tesseract result.
- **********************************************************************/
+ */
 void Tesseract::run_cube_combiner(PAGE_RES *page_res) {
   if (page_res == NULL || tess_cube_combiner_ == NULL)
     return;
@@ -226,23 +226,23 @@ void Tesseract::run_cube_combiner(PAGE_RES *page_res) {
   }
 }
 
-/**********************************************************************
- * cube_word_pass1
+/**
+ * @name cube_word_pass1
  *
  * Recognizes a single word using (only) cube. Compatible with
  * Tesseract's classify_word_pass1/classify_word_pass2.
- **********************************************************************/
+ */
 void Tesseract::cube_word_pass1(BLOCK* block, ROW *row, WERD_RES *word) {
   CubeObject *cube_obj = cube_recognize_word(block, word);
   delete cube_obj;
 }
 
-/**********************************************************************
- * cube_recognize_word
+/**
+ * @name cube_recognize_word
  *
  * Cube recognizer to recognize a single word as with classify_word_pass1
  * but also returns the cube object in case the combiner is needed.
- **********************************************************************/
+ */
 CubeObject* Tesseract::cube_recognize_word(BLOCK* block, WERD_RES* word) {
   if (!cube_binary_ || !cube_cntxt_) {
     if (cube_debug_level > 0 && !cube_binary_)
@@ -274,12 +274,12 @@ CubeObject* Tesseract::cube_recognize_word(BLOCK* block, WERD_RES* word) {
   return cube_obj;
 }
 
-/**********************************************************************
- * cube_combine_word
+/**
+ * @name cube_combine_word
  *
  * Combines the cube and tesseract results for a single word, leaving the
  * result in tess_word.
- **********************************************************************/
+ */
 void Tesseract::cube_combine_word(CubeObject* cube_obj, WERD_RES* cube_word,
                                   WERD_RES* tess_word) {
   float combiner_prob = tess_cube_combiner_->CombineResults(tess_word,
@@ -317,12 +317,12 @@ void Tesseract::cube_combine_word(CubeObject* cube_obj, WERD_RES* cube_word,
   tess_word->ConsumeWordResults(cube_word);
 }
 
-/**********************************************************************
- * cube_recognize
+/**
+ * @name cube_recognize
  *
  * Call cube on the current word, and write the result to word.
  * Sets up a fake result and returns false if something goes wrong.
- **********************************************************************/
+ */
 bool Tesseract::cube_recognize(CubeObject *cube_obj, BLOCK* block,
                                WERD_RES *word) {
   // Run cube
@@ -404,12 +404,12 @@ bool Tesseract::cube_recognize(CubeObject *cube_obj, BLOCK* block,
   return true;
 }
 
-/**********************************************************************
- * fill_werd_res
+/**
+ * @name fill_werd_res
  *
  * Fill Tesseract's word result fields with cube's.
  *
- **********************************************************************/
+ */
 void Tesseract::fill_werd_res(const BoxWord& cube_box_word,
                               const char* cube_best_str,
                               WERD_RES* tess_werd_res) {

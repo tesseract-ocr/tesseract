@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "cutoffs.h"
 
 #include <stdio.h>
@@ -34,26 +34,23 @@
 
 #define MAX_CUTOFF      1000
 
-/**----------------------------------------------------------------------------
-              Public Code
-----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ * Open Filename, read in all of the class-id/cutoff pairs
+ * and insert them into the Cutoffs array.  Cutoffs are
+ * indexed in the array by class id.  Unused entries in the
+ * array are set to an arbitrarily high cutoff value.
+ * @param CutoffFile name of file containing cutoff definitions
+ * @param Cutoffs array to put cutoffs into
+ * @param swap
+ * @param end_offset
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Wed Feb 20 09:38:26 1991, DSJ, Created.
+ */
 void Classify::ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
                               CLASS_CUTOFF_ARRAY Cutoffs) {
-/*
- **	Parameters:
- **		Filename	name of file containing cutoff definitions
- **		Cutoffs		array to put cutoffs into
- **	Globals: none
- **	Operation: Open Filename, read in all of the class-id/cutoff pairs
- **		and insert them into the Cutoffs array.  Cutoffs are
- **		indexed in the array by class id.  Unused entries in the
- **		array are set to an arbitrarily high cutoff value.
- **	Return: none
- **	Exceptions: none
- **	History: Wed Feb 20 09:38:26 1991, DSJ, Created.
- */
   char Class[UNICHAR_LEN + 1];
   CLASS_ID ClassId;
   int Cutoff;
@@ -78,6 +75,6 @@ void Classify::ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
     Cutoffs[ClassId] = Cutoff;
     SkipNewline(CutoffFile);
   }
-}                                /* ReadNewCutoffs */
+}
 
 }  // namespace tesseract

@@ -144,7 +144,7 @@ class TessdataManager {
 
   /**
    * Opens the given data file and reads the offset table.
-   * Returns true on success.
+   * @return true on success.
    */
   bool Init(const char *data_file_name, int debug_level);
 

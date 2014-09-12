@@ -841,8 +841,7 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob,
  *
  * Globals: none
  *
- * @param Word current word
- * @param BestChoiceWord best overall choice for word with context
+ * @param word current word
  *
  * @return TRUE or FALSE
  * @note Exceptions: none
@@ -1007,7 +1006,6 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
 
 
 
-/*---------------------------------------------------------------------------*/
 /**
  * This routine adds the result of a classification into
  * Results.  If the new rating is much worse than the current
@@ -1022,14 +1020,8 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
  * Globals:
  * - #matcher_bad_match_pad defines limits of an acceptable match
  *
+ * @param new_result new result to add
  * @param[out] results results to add new result to
- * @param class_id class of new result
- * @param shape_id shape index
- * @param rating rating of new result
- * @param adapted adapted match or not
- * @param config config id of new result
- * @param fontinfo_id font information of the new result
- * @param fontinfo_id2 font information of the 2nd choice result
  *
  * @note Exceptions: none
  * @note History: Tue Mar 12 18:19:29 1991, DSJ, Created.
@@ -1077,11 +1069,13 @@ void Classify::AddNewResult(const UnicharRating& new_result,
  * - #AllProtosOn mask that enables all protos
  * - #AllConfigsOn mask that enables all configs
  *
- * @param Blob blob to be classified
- * @param Templates built-in templates to classify against
- * @param Classes adapted class templates
- * @param Ambiguities array of class id's to match against
- * @param[out] Results place to put match results
+ * @param blob blob to be classified
+ * @param templates built-in templates to classify against
+ * @param classes adapted class templates
+ * @param ambiguities array of unichar id's to match against
+ * @param[out] results place to put match results
+ * @param int_features
+ * @param fx_info
  *
  * @note Exceptions: none
  * @note History: Tue Mar 12 19:40:36 1991, DSJ, Created.
@@ -1301,6 +1295,8 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
  * @param Blob blob to be classified
  * @param Templates current set of adapted templates
  * @param Results place to put match results
+ * @param int_features
+ * @param fx_info
  *
  * @return Array of possible ambiguous chars that should be checked.
  * @note Exceptions: none
@@ -1343,9 +1339,9 @@ UNICHAR_ID *Classify::BaselineClassifier(
  * specified set of templates.  The classes which match
  * are added to Results.
  *
- * @param Blob blob to be classified
- * @param Templates templates to classify unknown against
- * @param Results place to put match results
+ * @param blob blob to be classified
+ * @param sample templates to classify unknown against
+ * @param adapt_results place to put match results
  *
  * Globals:
  * - CharNormCutoffs expected num features for each class
@@ -1438,7 +1434,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
  * blob.  NOTE: assumes that the blob length has already been
  * computed and placed into Results.
  *
- * @param Results results to add noise classification to
+ * @param results results to add noise classification to
  *
  * Globals:
  * - matcher_avg_noise_size avg. length of a noise blob
@@ -1539,7 +1535,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
 #ifndef GRAPHICS_DISABLED
 /**
  *
- * @param Blob blob whose classification is being debugged
+ * @param blob blob whose classification is being debugged
  * @param Results results of match being debugged
  *
  * Globals: none
@@ -1716,13 +1712,11 @@ bool Classify::LooksLikeGarbage(TBLOB *blob) {
  * It then copies the char norm features into the IntFeatures
  * array provided by the caller.
  *
- * @param Blob blob to extract features from
- * @param Templates used to compute char norm adjustments
- * @param IntFeatures array to fill with integer features
- * @param PrunerNormArray Array of factors from blob normalization
+ * @param templates used to compute char norm adjustments
+ * @param pruner_norm_array Array of factors from blob normalization
  *        process
- * @param CharNormArray array to fill with dummy char norm adjustments
- * @param BlobLength length of blob in baseline-normalized units
+ * @param char_norm_array array to fill with dummy char norm adjustments
+ * @param fx_info
  *
  * Globals:
  *
@@ -2072,8 +2066,7 @@ namespace tesseract {
 /**
  * This routine writes the matches in Results to File.
  *
- * @param File open text file to write Results to
- * @param Results match results to write to File
+ * @param results match results to write to File
  *
  * Globals: none
  *
