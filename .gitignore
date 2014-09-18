@@ -8,6 +8,18 @@
 *.opensdf
 *.lastbuildstate
 *.unsuccessfulbuild
+*.suo
+*.res
+*.ipch
+*.manifest
+vs2010/DLL_Debug/*
+vs2010/DLL_Release/*
+vs2010/LIB_Debug/*
+vs2010/LIB_Release/*
+vs2010/LIB_OpenCL_Release/*
+vs2010/LIB_OpenCL_Debug/*
+
+
 
 # Linux
 # ignore local configuration
@@ -23,6 +35,7 @@ libtool
 stamp-h1
 tesseract.pc
 config_auto.h
+doc/html/*
 api/tesseract
 training/ambiguous_words
 training/classifier_tester
@@ -46,3 +59,7 @@ training/wordlist2dawg
 *.Plo
 *.a
 
+# tessdata
+*.cube.*
+*.tesseract_cube.*
+*.traineddata
