@@ -129,7 +129,9 @@ class LanguageModel {
       const LMConsistencyInfo &consistency_info) {
     if (dawg_info != NULL) {
       return ComputeAdjustment(consistency_info.NumInconsistentCase(),
-                               language_model_penalty_case);
+                               language_model_penalty_case) +
+          (consistency_info.inconsistent_script ?
+             language_model_penalty_script : 0.0f);
     }
     return (ComputeAdjustment(consistency_info.NumInconsistentPunc(),
                               language_model_penalty_punc) +
