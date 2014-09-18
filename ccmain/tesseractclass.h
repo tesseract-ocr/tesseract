@@ -245,6 +245,15 @@ class Tesseract : public Wordrec {
   Tesseract* get_sub_lang(int index) const {
     return sub_langs_[index];
   }
+  // Returns true if any language uses Tesseract (as opposed to cube).
+  bool AnyTessLang() const {
+    if (tessedit_ocr_engine_mode != OEM_CUBE_ONLY) return true;
+    for (int i = 0; i < sub_langs_.size(); ++i) {
+      if (sub_langs_[i]->tessedit_ocr_engine_mode != OEM_CUBE_ONLY)
+        return true;
+    }
+    return false;
+  }
 
   void SetBlackAndWhitelist();
 

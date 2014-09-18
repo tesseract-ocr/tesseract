@@ -357,7 +357,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
 
   // ****************** Pass 2 *******************
   if (tessedit_tess_adaption_mode != 0x0 && !tessedit_test_adaption &&
-      tessedit_ocr_engine_mode != OEM_CUBE_ONLY ) {
+      AnyTessLang()) {
     page_res_it.restart_page();
     GenericVector<WordData> words;
     SetupAllWordsPassN(2, target_word_box, word_config, page_res, &words);
@@ -371,8 +371,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
 
   // The next passes can only be run if tesseract has been used, as cube
   // doesn't set all the necessary outputs in WERD_RES.
-  if (tessedit_ocr_engine_mode == OEM_TESSERACT_ONLY ||
-      tessedit_ocr_engine_mode == OEM_TESSERACT_CUBE_COMBINED) {
+  if (AnyTessLang()) {
     // ****************** Pass 3 *******************
     // Fix fuzzy spaces.
     set_global_loc_code(LOC_FUZZY_SPACE);
@@ -1098,6 +1097,9 @@ void Tesseract::classify_word_pass2(const WordData& word_data,
       tessedit_ocr_engine_mode != OEM_TESSERACT_CUBE_COMBINED &&
       word_data.word->best_choice != NULL)
     return;
+  if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
+    return;
+  }
   ROW* row = word_data.row;
   BLOCK* block = word_data.block;
   WERD_RES* word = *in_word;
