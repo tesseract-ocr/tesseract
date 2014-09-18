@@ -867,8 +867,11 @@ bool UNICHARSET::load_via_fgets(
     // Skip fragments if needed.
     CHAR_FRAGMENT *frag = NULL;
     if (skip_fragments && (frag = CHAR_FRAGMENT::parse_from_string(unichar))) {
+      int num_pieces = frag->get_total();
       delete frag;
-      continue;
+      // Skip multi-element fragments, but keep singles like UNICHAR_BROKEN in.
+      if (num_pieces > 1)
+        continue;
     }
     // Insert unichar into unicharset and set its properties.
     if (strcmp(unichar, "NULL") == 0)
