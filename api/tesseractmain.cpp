@@ -297,19 +297,37 @@ int main(int argc, char **argv) {
   }
 
   api.GetBoolVariable("tessedit_create_pdf", &b);
-  if (b && renderer == NULL)
-    renderer = new tesseract::TessPDFRenderer(outputbase, api.GetDatapath());
+  if (b) {
+    if (renderer == NULL)
+      renderer = new tesseract::TessPDFRenderer(outputbase, api.GetDatapath());
+    else
+      renderer->insert(new tesseract::TessPDFRenderer(outputbase,
+                                                      api.GetDatapath()));
+  }
 
   api.GetBoolVariable("tessedit_write_unlv", &b);
-  if (b && renderer == NULL)
-    renderer = new tesseract::TessUnlvRenderer(outputbase);
+  if (b) {
+    if (renderer == NULL)
+      renderer = new tesseract::TessUnlvRenderer(outputbase);
+    else
+      renderer->insert(new tesseract::TessUnlvRenderer(outputbase));
+  }
 
   api.GetBoolVariable("tessedit_create_boxfile", &b);
-  if (b && renderer == NULL)
-    renderer = new tesseract::TessBoxTextRenderer(outputbase);
+  if (b) {
+    if (renderer == NULL)
+      renderer = new tesseract::TessBoxTextRenderer(outputbase);
+    else
+      renderer->insert(new tesseract::TessBoxTextRenderer(outputbase));
+  }
 
-  if (renderer == NULL)
-    renderer = new tesseract::TessTextRenderer(outputbase);
+  api.GetBoolVariable("tessedit_create_txt", &b);
+  if (b) {
+    if (renderer == NULL)
+      renderer = new tesseract::TessTextRenderer(outputbase);
+    else
+      renderer->insert(new tesseract::TessTextRenderer(outputbase));
+  }
 
   if (!api.ProcessPages(image, NULL, 0, renderer)) {
     delete renderer;
