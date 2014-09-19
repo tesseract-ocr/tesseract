@@ -163,7 +163,7 @@ bool TessHOcrRenderer::EndDocumentHandler() {
 }
 
 bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* hocr = api->GetHOCRText(imagenum());
+  char* hocr = api->GetHOCRText(imagenum(),NULL);
   if (hocr == NULL) return false;
 
   AppendString(hocr);

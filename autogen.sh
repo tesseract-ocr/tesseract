@@ -27,16 +27,6 @@
 #
 # All the rest is auto-generated.
 
-if [ "$1" == "clean" ]; then
-    echo "Cleaning..."
-    rm configure aclocal.m4
-    rm m4/*
-    rmdir m4
-    rm config/*
-    rmdir config
-    find . -iname "Makefile.in" -type f -exec rm '{}' +
-fi
-
 # create m4 directory if it not exists
 if [ ! -d m4 ];  then
     mkdir m4
@@ -96,3 +86,4 @@ echo "All done."
 echo "To build the software now, do something like:"
 echo ""
 echo "$ ./configure [--enable-debug] [...other options]"
+echo "$ make"

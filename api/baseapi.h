@@ -586,7 +586,7 @@ class TESS_API TessBaseAPI {
    * data structures.
    * page_number is 0-based but will appear in the output as 1-based.
    */
-  char* GetHOCRText(int page_number);
+  char* GetHOCRText(int page_number, ETEXT_DESC* monitor);
 
   /**
    * The recognized text is returned as a char* which is coded in the same

@@ -379,30 +379,30 @@ void TessBaseAPI::GetAvailableLanguagesAsVector(
       FindClose(handle);
     }
 #else  // _WIN32
-    DIR *dir;
-    struct dirent *dirent;
-    char *dot;
-
-    STRING extension = STRING(".") + kTrainedDataSuffix;
-
-    dir = opendir(tesseract_->datadir.string());
-    if (dir != NULL) {
-      while ((dirent = readdir(dir))) {
-        // Skip '.', '..', and hidden files
-        if (dirent->d_name[0] != '.') {
-          if (strstr(dirent->d_name, extension.string()) != NULL) {
-            dot = strrchr(dirent->d_name, '.');
-            // This ensures that .traineddata is at the end of the file name
-            if (strncmp(dot, extension.string(),
-                        strlen(extension.string())) == 0) {
-              *dot = '\0';
-              langs->push_back(STRING(dirent->d_name));
-            }
-          }
-        }
-      }
-      closedir(dir);
-    }
+//    DIR *dir;
+//    struct dirent *dirent;
+//    char *dot;
+//
+//    STRING extension = STRING(".") + kTrainedDataSuffix;
+//
+//    dir = opendir(tesseract_->datadir.string());
+//    if (dir != NULL) {
+//      while ((dirent = readdir(dir))) {
+//        // Skip '.', '..', and hidden files
+//        if (dirent->d_name[0] != '.') {
+//          if (strstr(dirent->d_name, extension.string()) != NULL) {
+//            dot = strrchr(dirent->d_name, '.');
+//            // This ensures that .traineddata is at the end of the file name
+//            if (strncmp(dot, extension.string(),
+//                        strlen(extension.string())) == 0) {
+//              *dot = '\0';
+//              langs->push_back(STRING(dirent->d_name));
+//            }
+//          }
+//        }
+//      }
+//      closedir(dir);
+//    }
 #endif
   }
 }
@@ -1358,9 +1358,9 @@ static void AddBoxTohOCR(const PageIterator *it,
  * GetHOCRText
  * STL removed from original patch submission and refactored by rays.
  */
-char* TessBaseAPI::GetHOCRText(int page_number) {
+char* TessBaseAPI::GetHOCRText(int page_number, struct ETEXT_DESC* monitor) {
   if (tesseract_ == NULL ||
-      (page_res_ == NULL && Recognize(NULL) < 0))
+      (page_res_ == NULL && Recognize(monitor) < 0))
     return NULL;
 
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
