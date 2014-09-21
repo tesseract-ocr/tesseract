@@ -447,7 +447,14 @@ bool TessPDFRenderer::imageToPDFObj(TessBaseAPI* api,
       if (pixGenerateCIData(pix, encoding_type, kJpegQuality, 0, &cid) != 0)
          return false;
   } else {
-    l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
+      if (pixGetSpp(pix) == 4) {
+        pixSetSpp(pix, 3);
+        int type = L_FLATE_ENCODE;
+        selectDefaultPdfEncoding(pix, &type);
+        pixGenerateCIData(pix, type, kJpegQuality, 0, &cid);
+      } else {
+        l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
+      }
   }
   if (!cid)
     return false;
@@ -502,7 +509,7 @@ bool TessPDFRenderer::imageToPDFObj(TessBaseAPI* api,
     }
   }
 
-  const char *predictor = (cid->predictor) ? "    /Predictor 14\n" : "";
+  int predictor = (cid->predictor) ? 14 : 1;
 
   // IMAGE
   snprintf(b1, sizeof(b1),
@@ -517,7 +524,8 @@ bool TessPDFRenderer::imageToPDFObj(TessBaseAPI* api,
            "  /Filter %s\n"
            "  /DecodeParms\n"
            "  <<\n"
-           "%s"
+           "    /Predictor %d\n"
+           "    /Colors %d\n"
            "%s"
            "    /Columns %d\n"
            "    /BitsPerComponent %d\n"
@@ -525,8 +533,8 @@ bool TessPDFRenderer::imageToPDFObj(TessBaseAPI* api,
            ">>\n"
            "stream\n",
            objnum, (unsigned long) cid->nbytescomp, colorspace,
-           cid->w, cid->h, cid->bps, filter, predictor, group4,
-           cid->w, cid->bps);
+           cid->w, cid->h, cid->bps, filter, predictor, cid->spp,
+           group4, cid->w, cid->bps);
   size_t b1_len = strlen(b1);
   snprintf(b2, sizeof(b2),
            "\n"
