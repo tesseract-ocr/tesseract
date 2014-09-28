@@ -222,7 +222,7 @@ void SVNetwork::Flush() {
 // This will always return one line of char* (denoted by \n).
 char* SVNetwork::Receive() {
   char* result = NULL;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   if (has_content) { result = strtok (NULL, "\n"); }
 #else
   if (buffer_ptr_ != NULL) { result = strtok_r(NULL, "\n", &buffer_ptr_); }
