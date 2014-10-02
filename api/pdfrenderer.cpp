@@ -444,20 +444,28 @@ bool TessPDFRenderer::imageToPDFObj(TessBaseAPI* api,
   api->GetIntVariable("tessedit_pdf_jpg_quality", &kJpegQuality);
   api->GetIntVariable("tessedit_pdf_compression", &encoding_type);
   if (encoding_type > 0 && encoding_type < 4) {
-      if (pixGenerateCIData(pix, encoding_type, kJpegQuality, 0, &cid) != 0)
-         return false;
+    if (pixGenerateCIData(pix, encoding_type, kJpegQuality, 0, &cid) != 0)
+      return false;
   } else {
-      if (pixGetSpp(pix) == 4) {
-        pixSetSpp(pix, 3);
-        int type = L_FLATE_ENCODE;
-        selectDefaultPdfEncoding(pix, &type);
-        pixGenerateCIData(pix, type, kJpegQuality, 0, &cid);
-      } else {
-        l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
-      }
+    // TODO(jbreiden) Leptonica 1.71 doesn't correctly handle certain
+    // types of PNG files, especially if there are 2 samples per pixel.
+    // We can get rid of this logic after Leptonica 1.72 is released and
+    // has propagated everywhere. Bug discussion as follows.
+    // https://code.google.com/p/tesseract-ocr/issues/detail?id=1300
+    int format, sad;
+    findFileFormat(filename, &format);
+    if (pixGetSpp(pix) == 4 && format == IFF_PNG) {
+      pixSetSpp(pix, 3);
+      sad = pixGenerateCIData(pix, L_FLATE_ENCODE, 0, 0, &cid);
+    } else {
+      sad = l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
+    }
+
+    if (sad || !cid) {
+      l_CIDataDestroy(&cid);
+      return false;
+    }
   }
-  if (!cid)
-    return false;
 
   const char *group4 = "";
   const char *filter;
