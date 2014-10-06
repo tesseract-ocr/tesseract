@@ -267,21 +267,24 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
 
 bool TessPDFRenderer::BeginDocumentHandler() {
   char buf[kBasicBufSize];
+  size_t n;
 
-  snprintf(buf, sizeof(buf),
-           "%%PDF-1.5\n"
-           "%%%c%c%c%c\n",
-           0xDE, 0xAD, 0xBE, 0xEB);
+  n = snprintf(buf, sizeof(buf),
+               "%%PDF-1.5\n"
+               "%%%c%c%c%c\n",
+               0xDE, 0xAD, 0xBE, 0xEB);
+  if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
 
   // CATALOG
-  snprintf(buf, sizeof(buf),
-           "1 0 obj\n"
-           "<<\n"
-           "  /Type /Catalog\n"
-           "  /Pages %ld 0 R\n"
-           ">>\n"
-           "endobj\n", 2L);
+  n = snprintf(buf, sizeof(buf),
+               "1 0 obj\n"
+               "<<\n"
+               "  /Type /Catalog\n"
+               "  /Pages %ld 0 R\n"
+               ">>\n"
+               "endobj\n", 2L);
+  if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
 
   // We are reserving object #2 for the /Pages
@@ -290,42 +293,44 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   AppendPDFObject("");
 
   // TYPE0 FONT
-  snprintf(buf, sizeof(buf),
-           "3 0 obj\n"
-           "<<\n"
-           "  /BaseFont /GlyphLessFont\n"
-           "  /DescendantFonts [ %ld 0 R ]\n"
-           "  /Encoding /Identity-H\n"
-           "  /Subtype /Type0\n"
-           "  /ToUnicode %ld 0 R\n"
-           "  /Type /Font\n"
-           ">>\n"
-           "endobj\n",
-           4L,          // CIDFontType2 font
-           5L           // ToUnicode
-           );
+  n = snprintf(buf, sizeof(buf),
+               "3 0 obj\n"
+               "<<\n"
+               "  /BaseFont /GlyphLessFont\n"
+               "  /DescendantFonts [ %ld 0 R ]\n"
+               "  /Encoding /Identity-H\n"
+               "  /Subtype /Type0\n"
+               "  /ToUnicode %ld 0 R\n"
+               "  /Type /Font\n"
+               ">>\n"
+               "endobj\n",
+               4L,          // CIDFontType2 font
+               5L           // ToUnicode
+               );
+  if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
 
   // CIDFONTTYPE2
-  snprintf(buf, sizeof(buf),
-           "4 0 obj\n"
-           "<<\n"
-           "  /BaseFont /GlyphLessFont\n"
-           "  /CIDToGIDMap /Identity\n"
-           "  /CIDSystemInfo\n"
-           "  <<\n"
-           "     /Ordering (Identity)\n"
-           "     /Registry (Adobe)\n"
-           "     /Supplement 0\n"
-           "  >>\n"
-           "  /FontDescriptor %ld 0 R\n"
-           "  /Subtype /CIDFontType2\n"
-           "  /Type /Font\n"
-           "  /DW %d\n"
-           ">>\n"
-           "endobj\n",
-           6L,         // Font descriptor
-           1000 / kCharWidth);
+  n = snprintf(buf, sizeof(buf),
+               "4 0 obj\n"
+               "<<\n"
+               "  /BaseFont /GlyphLessFont\n"
+               "  /CIDToGIDMap /Identity\n"
+               "  /CIDSystemInfo\n"
+               "  <<\n"
+               "     /Ordering (Identity)\n"
+               "     /Registry (Adobe)\n"
+               "     /Supplement 0\n"
+               "  >>\n"
+               "  /FontDescriptor %ld 0 R\n"
+               "  /Subtype /CIDFontType2\n"
+               "  /Type /Font\n"
+               "  /DW %d\n"
+               ">>\n"
+               "endobj\n",
+               6L,         // Font descriptor
+               1000 / kCharWidth);
+  if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
 
   const char *stream =
@@ -352,41 +357,44 @@ bool TessPDFRenderer::BeginDocumentHandler() {
       "end\n";
 
   // TOUNICODE
-  snprintf(buf, sizeof(buf),
-           "5 0 obj\n"
-           "<< /Length %lu >>\n"
-           "stream\n"
-           "%s"
-           "endstream\n"
-           "endobj\n", (unsigned long) strlen(stream), stream);
+  n = snprintf(buf, sizeof(buf),
+               "5 0 obj\n"
+               "<< /Length %lu >>\n"
+               "stream\n"
+               "%s"
+               "endstream\n"
+               "endobj\n", (unsigned long) strlen(stream), stream);
+  if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
 
   // FONT DESCRIPTOR
   const int kCharHeight = 2;  // Effect: highlights are half height
-  snprintf(buf, sizeof(buf),
-           "6 0 obj\n"
-           "<<\n"
-           "  /Ascent %d\n"
-           "  /CapHeight %d\n"
-           "  /Descent -1\n"       // Spec says must be negative
-           "  /Flags 5\n"          // FixedPitch + Symbolic
-           "  /FontBBox  [ 0 0 %d %d ]\n"
-           "  /FontFile2 %ld 0 R\n"
-           "  /FontName /GlyphLessFont\n"
-           "  /ItalicAngle 0\n"
-           "  /StemV 80\n"
-           "  /Type /FontDescriptor\n"
-           ">>\n"
-           "endobj\n",
-           1000 / kCharHeight,
-           1000 / kCharHeight,
-           1000 / kCharWidth,
-           1000 / kCharHeight,
-           7L      // Font data
-           );
+  n = snprintf(buf, sizeof(buf),
+               "6 0 obj\n"
+               "<<\n"
+               "  /Ascent %d\n"
+               "  /CapHeight %d\n"
+               "  /Descent -1\n"       // Spec says must be negative
+               "  /Flags 5\n"          // FixedPitch + Symbolic
+               "  /FontBBox  [ 0 0 %d %d ]\n"
+               "  /FontFile2 %ld 0 R\n"
+               "  /FontName /GlyphLessFont\n"
+               "  /ItalicAngle 0\n"
+               "  /StemV 80\n"
+               "  /Type /FontDescriptor\n"
+               ">>\n"
+               "endobj\n",
+               1000 / kCharHeight,
+               1000 / kCharHeight,
+               1000 / kCharWidth,
+               1000 / kCharHeight,
+               7L      // Font data
+               );
+  if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
 
-  snprintf(buf, sizeof(buf), "%s/pdf.ttf", datadir_);
+  n = snprintf(buf, sizeof(buf), "%s/pdf.ttf", datadir_);
+  if (n >= sizeof(buf)) return false;
   FILE *fp = fopen(buf, "rb");
   if (!fp)
     return false;
@@ -401,23 +409,24 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   }
   fclose(fp);
   // FONTFILE2
-  snprintf(buf, sizeof(buf),
-           "7 0 obj\n"
-           "<<\n"
-           "  /Length %ld\n"
-           "  /Length1 %ld\n"
-           ">>\n"
-           "stream\n", size, size);
+  n = snprintf(buf, sizeof(buf),
+               "7 0 obj\n"
+               "<<\n"
+               "  /Length %ld\n"
+               "  /Length1 %ld\n"
+               ">>\n"
+               "stream\n", size, size);
+  if (n >= sizeof(buf)) return false;
   AppendString(buf);
   size_t objsize  = strlen(buf);
   AppendData(buffer, size);
   delete[] buffer;
   objsize += size;
-  snprintf(buf, sizeof(buf),
-           "endstream\n"
-           "endobj\n");
-  AppendString(buf);
-  objsize += strlen(buf);
+  const char *b2 =
+      "endstream\n"
+      "endobj\n";
+  AppendString(b2);
+  objsize += strlen(b2);
   AppendPDFObjectDIY(objsize);
   return true;
 }
@@ -428,6 +437,7 @@ bool TessPDFRenderer::imageToPDFObj(TessBaseAPI* api,
                                     long int objnum,
                                     char **pdf_object,
                                     long int *pdf_object_size) {
+  size_t n;
   char b0[kBasicBufSize];
   char b1[kBasicBufSize];
   char b2[kBasicBufSize];
@@ -488,28 +498,26 @@ bool TessPDFRenderer::imageToPDFObj(TessBaseAPI* api,
       return false;
   }
 
-  // Prevent data corruption. Otherwise we'll end up clipping the
-  // PDF representation of the colormap.
-  if (cid->ncolors > 256) {
-    l_CIDataDestroy(&cid);
-    return false;
-  }
-
   // Maybe someday we will accept RGBA but today is not that day.
   // It requires creating an /SMask for the alpha channel.
   // http://stackoverflow.com/questions/14220221
   const char *colorspace;
   if (cid->ncolors > 0) {
-    snprintf(b0, sizeof(b0), "[ /Indexed /DeviceRGB %d %s ]",
-             cid->ncolors - 1, cid->cmapdatahex);
+    n = snprintf(b0, sizeof(b0),
+                 "  /ColorSpace [ /Indexed /DeviceRGB %d %s ]\n",
+                 cid->ncolors - 1, cid->cmapdatahex);
+    if (n >= sizeof(b0)) {
+      l_CIDataDestroy(&cid);
+      return false;
+    }
     colorspace = b0;
   } else {
     switch (cid->spp) {
       case 1:
-        colorspace = "/DeviceGray";
+        colorspace = "  /ColorSpace /DeviceGray\n";
         break;
       case 3:
-        colorspace = "/DeviceRGB";
+        colorspace = "  /ColorSpace /DeviceRGB\n";
         break;
       default:
         l_CIDataDestroy(&cid);
@@ -520,50 +528,72 @@ bool TessPDFRenderer::imageToPDFObj(TessBaseAPI* api,
   int predictor = (cid->predictor) ? 14 : 1;
 
   // IMAGE
-  snprintf(b1, sizeof(b1),
-           "%ld 0 obj\n"
-           "<<\n"
-           "  /Length %ld\n"
-           "  /Subtype /Image\n"
-           "  /ColorSpace %s\n"
-           "  /Width %d\n"
-           "  /Height %d\n"
-           "  /BitsPerComponent %d\n"
-           "  /Filter %s\n"
-           "  /DecodeParms\n"
-           "  <<\n"
-           "    /Predictor %d\n"
-           "    /Colors %d\n"
-           "%s"
-           "    /Columns %d\n"
-           "    /BitsPerComponent %d\n"
-           "  >>\n"
-           ">>\n"
-           "stream\n",
-           objnum, (unsigned long) cid->nbytescomp, colorspace,
-           cid->w, cid->h, cid->bps, filter, predictor, cid->spp,
-           group4, cid->w, cid->bps);
-  size_t b1_len = strlen(b1);
-  snprintf(b2, sizeof(b2),
-           "\n"
-           "endstream\n"
-           "endobj\n");
-  size_t b2_len = strlen(b2);
+  n = snprintf(b1, sizeof(b1),
+               "%ld 0 obj\n"
+               "<<\n"
+               "  /Length %ld\n"
+               "  /Subtype /Image\n",
+               objnum, (unsigned long) cid->nbytescomp);
+  if (n >= sizeof(b1)) {
+    l_CIDataDestroy(&cid);
+    return false;
+  }
 
-  *pdf_object_size = b1_len + cid->nbytescomp + b2_len;
+  n = snprintf(b2, sizeof(b2),
+               "  /Width %d\n"
+               "  /Height %d\n"
+               "  /BitsPerComponent %d\n"
+               "  /Filter %s\n"
+               "  /DecodeParms\n"
+               "  <<\n"
+               "    /Predictor %d\n"
+               "    /Colors %d\n"
+               "%s"
+               "    /Columns %d\n"
+               "    /BitsPerComponent %d\n"
+               "  >>\n"
+               ">>\n"
+               "stream\n",
+               cid->w, cid->h, cid->bps, filter, predictor, cid->spp,
+               group4, cid->w, cid->bps);
+  if (n >= sizeof(b2)) {
+    l_CIDataDestroy(&cid);
+    return false;
+  }
+
+  const char *b3 =
+      "endstream\n"
+      "endobj\n";
+
+  size_t b1_len = strlen(b1);
+  size_t b2_len = strlen(b2);
+  size_t b3_len = strlen(b3);
+  size_t colorspace_len = strlen(colorspace);
+
+  *pdf_object_size =
+      b1_len + colorspace_len + b2_len + cid->nbytescomp + b3_len;
   *pdf_object = new char[*pdf_object_size];
   if (!pdf_object) {
     l_CIDataDestroy(&cid);
     return false;
   }
-  memcpy(*pdf_object, b1, b1_len);
-  memcpy(*pdf_object + b1_len, cid->datacomp, cid->nbytescomp);
-  memcpy(*pdf_object + b1_len + cid->nbytescomp, b2, b2_len);
+
+  char *p = *pdf_object;
+  memcpy(p, b1, b1_len);
+  p += b1_len;
+  memcpy(p, colorspace, colorspace_len);
+  p += colorspace_len;
+  memcpy(p, b2, b2_len);
+  p += b2_len;
+  memcpy(p, cid->datacomp, cid->nbytescomp);
+  p += cid->nbytescomp;
+  memcpy(p, b3, b3_len);
   l_CIDataDestroy(&cid);
   return true;
 }
 
 bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
+  size_t n;
   char buf[kBasicBufSize];
   Pix *pix = api->GetInputImage();
   char *filename = (char *)api->GetInputName();
@@ -574,28 +604,29 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   double height = pixGetHeight(pix) * 72.0 / ppi;
 
   // PAGE
-  snprintf(buf, sizeof(buf),
-           "%ld 0 obj\n"
-           "<<\n"
-           "  /Type /Page\n"
-           "  /Parent %ld 0 R\n"
-           "  /MediaBox [0 0 %.2f %.2f]\n"
-           "  /Contents %ld 0 R\n"
-           "  /Resources\n"
-           "  <<\n"
-           "    /XObject << /Im1 %ld 0 R >>\n"
-           "    /ProcSet [ /PDF /Text /ImageB /ImageI /ImageC ]\n"
-           "    /Font << /f-0-0 %ld 0 R >>\n"
-           "  >>\n"
-           ">>\n"
-           "endobj\n",
-           obj_,
-           2L,            // Pages object
-           width,
-           height,
-           obj_ + 1,      // Contents object
-           obj_ + 2,      // Image object
-           3L);           // Type0 Font
+  n = snprintf(buf, sizeof(buf),
+               "%ld 0 obj\n"
+               "<<\n"
+               "  /Type /Page\n"
+               "  /Parent %ld 0 R\n"
+               "  /MediaBox [0 0 %.2f %.2f]\n"
+               "  /Contents %ld 0 R\n"
+               "  /Resources\n"
+               "  <<\n"
+               "    /XObject << /Im1 %ld 0 R >>\n"
+               "    /ProcSet [ /PDF /Text /ImageB /ImageI /ImageC ]\n"
+               "    /Font << /f-0-0 %ld 0 R >>\n"
+               "  >>\n"
+               ">>\n"
+               "endobj\n",
+               obj_,
+               2L,            // Pages object
+               width,
+               height,
+               obj_ + 1,      // Contents object
+               obj_ + 2,      // Image object
+               3L);           // Type0 Font
+  if (n >= sizeof(buf)) return false;
   pages_.push_back(obj_);
   AppendPDFObject(buf);
 
@@ -609,24 +640,28 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
                    pdftext_len,
                    &len);
   long comp_pdftext_len = len;
-  snprintf(buf, sizeof(buf),
-           "%ld 0 obj\n"
-           "<<\n"
-           "  /Length %ld /Filter /FlateDecode\n"
-           ">>\n"
-           "stream\n", obj_, comp_pdftext_len);
+  n = snprintf(buf, sizeof(buf),
+               "%ld 0 obj\n"
+               "<<\n"
+               "  /Length %ld /Filter /FlateDecode\n"
+               ">>\n"
+               "stream\n", obj_, comp_pdftext_len);
+  if (n >= sizeof(buf)) {
+    delete[] pdftext;
+    lept_free(comp_pdftext);
+    return false;
+  }
   AppendString(buf);
   long objsize = strlen(buf);
   AppendData(reinterpret_cast<char *>(comp_pdftext), comp_pdftext_len);
   objsize += comp_pdftext_len;
   lept_free(comp_pdftext);
-
   delete[] pdftext;
-  snprintf(buf, sizeof(buf),
-           "endstream\n"
-           "endobj\n");
-  AppendString(buf);
-  objsize += strlen(buf);
+  const char *b2 =
+      "endstream\n"
+      "endobj\n";
+  AppendString(b2);
+  objsize += strlen(b2);
   AppendPDFObjectDIY(objsize);
 
   char *pdf_object;
@@ -641,6 +676,7 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
 
 
 bool TessPDFRenderer::EndDocumentHandler() {
+  size_t n;
   char buf[kBasicBufSize];
 
   // We reserved the /Pages object number early, so that the /Page
@@ -652,65 +688,70 @@ bool TessPDFRenderer::EndDocumentHandler() {
   // PAGES
   const long int kPagesObjectNumber = 2;
   offsets_[kPagesObjectNumber] = offsets_.back();  // manipulation #1
-  snprintf(buf, sizeof(buf),
-           "%ld 0 obj\n"
-           "<<\n"
-           "  /Type /Pages\n"
-           "  /Kids [ ", kPagesObjectNumber);
+  n = snprintf(buf, sizeof(buf),
+               "%ld 0 obj\n"
+               "<<\n"
+               "  /Type /Pages\n"
+               "  /Kids [ ", kPagesObjectNumber);
+  if (n >= sizeof(buf)) return false;
   AppendString(buf);
   size_t pages_objsize  = strlen(buf);
   for (size_t i = 0; i < pages_.size(); i++) {
-    snprintf(buf, sizeof(buf),
-             "%ld 0 R ", pages_[i]);
+    n = snprintf(buf, sizeof(buf),
+                 "%ld 0 R ", pages_[i]);
+    if (n >= sizeof(buf)) return false;
     AppendString(buf);
     pages_objsize += strlen(buf);
   }
-  snprintf(buf, sizeof(buf),
-           "]\n"
-           "  /Count %d\n"
-           ">>\n"
-           "endobj\n", pages_.size());
+  n = snprintf(buf, sizeof(buf),
+               "]\n"
+               "  /Count %d\n"
+               ">>\n"
+               "endobj\n", pages_.size());
+  if (n >= sizeof(buf)) return false;
   AppendString(buf);
   pages_objsize += strlen(buf);
   offsets_.back() += pages_objsize;    // manipulation #2
 
   // INFO
   char* datestr = l_getFormattedDate();
-  snprintf(buf, sizeof(buf),
-           "%ld 0 obj\n"
-           "<<\n"
-           "  /Producer (Tesseract %s)\n"
-           "  /CreationDate (D:%s)\n"
-           "  /Title (%s)"
-           ">>\n"
-           "endobj\n", obj_, TESSERACT_VERSION_STR, datestr, title());
+  n = snprintf(buf, sizeof(buf),
+               "%ld 0 obj\n"
+               "<<\n"
+               "  /Producer (Tesseract %s)\n"
+               "  /CreationDate (D:%s)\n"
+               "  /Title (%s)"
+               ">>\n"
+               "endobj\n", obj_, TESSERACT_VERSION_STR, datestr, title());
   lept_free(datestr);
+  if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
-
-  snprintf(buf, sizeof(buf),
-           "xref\n"
-           "0 %ld\n"
-           "0000000000 65535 f \n", obj_);
+  n = snprintf(buf, sizeof(buf),
+               "xref\n"
+               "0 %ld\n"
+               "0000000000 65535 f \n", obj_);
+  if (n >= sizeof(buf)) return false;
   AppendString(buf);
   for (int i = 1; i < obj_; i++) {
-    snprintf(buf, sizeof(buf), "%010ld 00000 n \n", offsets_[i]);
+    n = snprintf(buf, sizeof(buf), "%010ld 00000 n \n", offsets_[i]);
+    if (n >= sizeof(buf)) return false;
     AppendString(buf);
   }
-  snprintf(buf, sizeof(buf),
-           "trailer\n"
-           "<<\n"
-           "  /Size %ld\n"
-           "  /Root %ld 0 R\n"
-           "  /Info %ld 0 R\n"
-           ">>\n"
-           "startxref\n"
-           "%ld\n"
-           "%%%%EOF\n",
-           obj_,
-           1L,               // catalog
-           obj_ - 1,         // info
-           offsets_.back());
-
+  n = snprintf(buf, sizeof(buf),
+               "trailer\n"
+               "<<\n"
+               "  /Size %ld\n"
+               "  /Root %ld 0 R\n"
+               "  /Info %ld 0 R\n"
+               ">>\n"
+               "startxref\n"
+               "%ld\n"
+               "%%%%EOF\n",
+               obj_,
+               1L,               // catalog
+               obj_ - 1,         // info
+               offsets_.back());
+  if (n >= sizeof(buf)) return false;
   AppendString(buf);
   return true;
 }
