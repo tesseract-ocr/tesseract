@@ -1000,6 +1000,14 @@ class Tesseract : public Wordrec {
              "Only initialize with the config file. Useful if the instance is "
              "not going to be used for OCR but say only for layout analysis.");
   BOOL_VAR_H(textord_equation_detect, false, "Turn on equation detector");
+  BOOL_VAR_H(textord_tabfind_vertical_text, true, "Enable vertical detection");
+  BOOL_VAR_H(textord_tabfind_force_vertical_text, false,
+             "Force using vertical text page mode");
+  double_VAR_H(textord_tabfind_vertical_text_ratio, 0.5,
+               "Fraction of textlines deemed vertical to use vertical page "
+               "mode");
+  double_VAR_H(textord_tabfind_aligned_gap_fraction, 0.75,
+               "Fraction of height used as a minimum gap for aligned blobs.");
   INT_VAR_H(tessedit_parallelize, 0, "Run in parallel where possible");
 
   // The following parameters were deprecated and removed from their original
@@ -1010,6 +1018,8 @@ class Tesseract : public Wordrec {
   // reasonably sure that Tesseract users have updated their data files.
   //
   // BEGIN DEPRECATED PARAMETERS
+  BOOL_VAR_H(textord_tabfind_vertical_horizontal_mix, true,
+             "find horizontal lines such as headers in vertical page mode");
   INT_VAR_H(tessedit_ok_mode, 5, "Acceptance decision algorithm");
   BOOL_VAR_H(load_fixed_length_dawgs, true,  "Load fixed length"
              " dawgs (e.g. for non-space delimited languages)");

@@ -78,7 +78,9 @@ class StrokeWidth : public BlobGrid {
   // after rotating everything, otherwise the work done here will be enough.
   // If osd_blobs is not null, a list of blobs from the dominant textline
   // direction are returned for use in orientation and script detection.
-  bool TestVerticalTextDirection(TO_BLOCK* block,
+  // find_vertical_text_ratio should be textord_tabfind_vertical_text_ratio.
+  bool TestVerticalTextDirection(double find_vertical_text_ratio,
+                                 TO_BLOCK* block,
                                  BLOBNBOX_CLIST* osd_blobs);
 
   // Corrects the data structures for the given rotation.

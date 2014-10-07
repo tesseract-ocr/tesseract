@@ -419,6 +419,16 @@ Tesseract::Tesseract()
                      "for layout analysis.", this->params()),
     BOOL_MEMBER(textord_equation_detect, false, "Turn on equation detector",
                 this->params()),
+    BOOL_MEMBER(textord_tabfind_vertical_text, true,
+                "Enable vertical detection", this->params()),
+    BOOL_MEMBER(textord_tabfind_force_vertical_text, false,
+                "Force using vertical text page mode", this->params()),
+    double_MEMBER(textord_tabfind_vertical_text_ratio, 0.5,
+                  "Fraction of textlines deemed vertical to use vertical page "
+                  "mode", this->params()),
+    double_MEMBER(textord_tabfind_aligned_gap_fraction, 0.75,
+                  "Fraction of height used as a minimum gap for aligned blobs.",
+                  this->params()),
     INT_MEMBER(tessedit_parallelize, 0, "Run in parallel where possible",
                 this->params()),
 
@@ -430,6 +440,9 @@ Tesseract::Tesseract()
     // reasonably sure that Tesseract users have updated their data files.
     //
     // BEGIN DEPRECATED PARAMETERS
+    BOOL_MEMBER(textord_tabfind_vertical_horizontal_mix, true,
+                "find horizontal lines such as headers in vertical page mode",
+                this->params()),
     INT_MEMBER(tessedit_ok_mode, 5,
                "Acceptance decision algorithm", this->params()),
     BOOL_INIT_MEMBER(load_fixed_length_dawgs, true, "Load fixed length dawgs"

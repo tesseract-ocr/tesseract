@@ -340,6 +340,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
     finder = new ColumnFinder(static_cast<int>(to_block->line_size),
                               blkbox.botleft(), blkbox.topright(),
                               source_resolution_, textord_use_cjk_fp_model,
+                              textord_tabfind_aligned_gap_fraction,
                               &v_lines, &h_lines, vertical_x, vertical_y);
 
     finder->SetupAndFilterNoise(*photo_mask_pix, to_block);
@@ -354,7 +355,12 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
     // We want the text lines horizontal, (vertical text indicates vertical
     // textlines) which may conflict (eg vertically written CJK).
     int osd_orientation = 0;
-    bool vertical_text = finder->IsVerticallyAlignedText(to_block, &osd_blobs);
+    bool vertical_text = textord_tabfind_force_vertical_text;
+    if (!vertical_text && textord_tabfind_vertical_text) {
+      vertical_text =
+          finder->IsVerticallyAlignedText(textord_tabfind_vertical_text_ratio,
+                                          to_block, &osd_blobs);
+    }
     if (osd && osd_tess != NULL && osr != NULL) {
       GenericVector<int> osd_scripts;
       if (osd_tess != this) {

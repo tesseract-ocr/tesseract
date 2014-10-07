@@ -61,8 +61,9 @@ class ColumnFinder : public TabFind {
   // layout analysis to assist in detecting horizontal vs vertically written
   // textlines.
   ColumnFinder(int gridsize, const ICOORD& bleft, const ICOORD& tright,
-               int resolution, bool cjk_script, TabVector_LIST* vlines,
-               TabVector_LIST* hlines, int vertical_x, int vertical_y);
+               int resolution, bool cjk_script, double aligned_gap_fraction,
+               TabVector_LIST* vlines, TabVector_LIST* hlines,
+               int vertical_x, int vertical_y);
   virtual ~ColumnFinder();
 
   // Accessors for testing
@@ -118,7 +119,9 @@ class ColumnFinder : public TabFind {
   // is vertical, like say Japanese, or due to text whose writing direction is
   // horizontal but whose text appears vertically aligned because the image is
   // not the right way up.
-  bool IsVerticallyAlignedText(TO_BLOCK* block, BLOBNBOX_CLIST* osd_blobs);
+  // find_vertical_text_ratio should be textord_tabfind_vertical_text_ratio.
+  bool IsVerticallyAlignedText(double find_vertical_text_ratio,
+                               TO_BLOCK* block, BLOBNBOX_CLIST* osd_blobs);
 
   // Rotates the blobs and the TabVectors so that the gross writing direction
   // (text lines) are horizontal and lines are read down the page.
@@ -188,7 +191,8 @@ class ColumnFinder : public TabFind {
   void PrintColumnCandidates(const char* title);
   // Finds the optimal set of columns that cover the entire image with as
   // few changes in column partition as possible.
-  void AssignColumns(const PartSetVector& part_sets);
+  // Returns true if any part of the page is multi-column.
+  bool AssignColumns(const PartSetVector& part_sets);
   // Finds the biggest range in part_sets_ that has no assigned column, but
   // column assignment is possible.
   bool BiggestUnassignedRange(int set_count, const bool* any_columns_possible,
@@ -218,7 +222,7 @@ class ColumnFinder : public TabFind {
                            int** column_set_costs, int* assigned_costs);
 
   // Computes the mean_column_gap_.
-  void ComputeMeanColumnGap();
+  void ComputeMeanColumnGap(bool any_multi_column);
 
   //////// Functions that manipulate ColPartitions in the part_grid_ /////
   //////// to split, merge, find margins, and find types.  //////////////
@@ -299,6 +303,9 @@ class ColumnFinder : public TabFind {
   int min_gutter_width_;
   // The mean gap between columns over the page.
   int mean_column_gap_;
+  // Config param saved at construction time. Modifies min_gutter_width_ with
+  // vertical text to prevent detection of vertical text as columns.
+  double tabfind_aligned_gap_fraction_;
   // The rotation vector needed to convert original coords to deskewed.
   FCOORD deskew_;
   // The rotation vector needed to convert deskewed back to original coords.
