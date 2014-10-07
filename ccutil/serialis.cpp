@@ -61,9 +61,11 @@ bool TFile::Open(FILE* fp, inT64 end_offset) {
   offset_ = 0;
   inT64 current_pos = ftell(fp);
   if (end_offset < 0) {
-    fseek(fp, 0, SEEK_END);
+    if (fseek(fp, 0, SEEK_END))
+      return false;
     end_offset = ftell(fp);
-    fseek(fp, current_pos, SEEK_SET);
+    if (fseek(fp, current_pos, SEEK_SET))
+      return false;
   }
   int size = end_offset - current_pos;
   is_writing_ = false;
