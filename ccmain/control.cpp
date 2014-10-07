@@ -1248,7 +1248,6 @@ void Tesseract::fix_rep_char(PAGE_RES_IT* page_res_it) {
   word_res->done = TRUE;
 
   // Measure the mean space.
-  int total_gap = 0;
   int gap_count = 0;
   WERD* werd = word_res->word;
   C_BLOB_IT blob_it(werd->cblob_list());
@@ -1257,7 +1256,6 @@ void Tesseract::fix_rep_char(PAGE_RES_IT* page_res_it) {
     C_BLOB* blob = blob_it.data();
     int gap = blob->bounding_box().left();
     gap -= prev_blob->bounding_box().right();
-    total_gap += gap;
     ++gap_count;
     prev_blob = blob;
   }
