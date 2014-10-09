@@ -195,7 +195,7 @@ private:
                                  double width, double height);
   // Turn an image into a PDF object. Only transcode if we have to.
   static bool imageToPDFObj(Pix *pix, char *filename, long int objnum,
-                            char **pdf_object, long int *pdf_object_size);
+                          char **pdf_object, long int *pdf_object_size);
 };
 
 
