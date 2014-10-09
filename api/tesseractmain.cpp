@@ -287,54 +287,38 @@ int main(int argc, char **argv) {
     exit(ret_val);
   }
 
-  tesseract::TessResultRenderer* renderer = NULL;
   bool b;
+  tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
   api.GetBoolVariable("tessedit_create_hocr", &b);
   if (b) {
     bool font_info;
     api.GetBoolVariable("hocr_font_info", &font_info);
-    renderer = new tesseract::TessHOcrRenderer(outputbase, font_info);
+    renderers.push_back(new tesseract::TessHOcrRenderer(outputbase, font_info));
   }
-
   api.GetBoolVariable("tessedit_create_pdf", &b);
   if (b) {
-    if (renderer == NULL)
-      renderer = new tesseract::TessPDFRenderer(outputbase, api.GetDatapath());
-    else
-      renderer->insert(new tesseract::TessPDFRenderer(outputbase,
-                                                      api.GetDatapath()));
+    renderers.push_back(new tesseract::TessPDFRenderer(outputbase,
+                                                       api.GetDatapath()));
   }
-
   api.GetBoolVariable("tessedit_write_unlv", &b);
-  if (b) {
-    if (renderer == NULL)
-      renderer = new tesseract::TessUnlvRenderer(outputbase);
-    else
-      renderer->insert(new tesseract::TessUnlvRenderer(outputbase));
-  }
-
+  if (b) renderers.push_back(new tesseract::TessUnlvRenderer(outputbase));
   api.GetBoolVariable("tessedit_create_boxfile", &b);
-  if (b) {
-    if (renderer == NULL)
-      renderer = new tesseract::TessBoxTextRenderer(outputbase);
-    else
-      renderer->insert(new tesseract::TessBoxTextRenderer(outputbase));
-  }
-
+  if (b) renderers.push_back(new tesseract::TessBoxTextRenderer(outputbase));
   api.GetBoolVariable("tessedit_create_txt", &b);
-  if (b) {
-    if (renderer == NULL)
-      renderer = new tesseract::TessTextRenderer(outputbase);
-    else
-      renderer->insert(new tesseract::TessTextRenderer(outputbase));
+  if (b) renderers.push_back(new tesseract::TessTextRenderer(outputbase));
+  if (!renderers.empty()) {
+    // Since the PointerVector auto-deletes, null-out the renderers that are
+    // added to the root, and leave the root in the vector.
+    for (int r = 1; r < renderers.size(); ++r) {
+      renderers[0]->insert(renderers[r]);
+      renderers[r] = NULL;
+    }
+    if (!api.ProcessPages(image, NULL, 0, renderers[0])) {
+      fprintf(stderr, "Error during processing.\n");
+      exit(1);
+    }
   }
 
-  if (!api.ProcessPages(image, NULL, 0, renderer)) {
-    delete renderer;
-    fprintf(stderr, "Error during processing.\n");
-    exit(1);
-  }
-  delete renderer;
   PERF_COUNT_END
   return 0;                      // Normal exit
 }
