@@ -1,7 +1,23 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        tesseractclass.cpp
-// Description: An instance of Tesseract. For thread safety, *every*
-//              global variable goes in here, directly, or indirectly.
+// Description: The Tesseract class. It holds/owns everything needed
+//              to run Tesseract on a single language, and also a set of
+//              sub-Tesseracts to run sub-languages. For thread safety, *every*
+//              variable that was previously global or static (except for
+//              constant data, and some visual debugging flags) has been moved
+//              in here, directly, or indirectly.
+//              This makes it safe to run multiple Tesseracts in different
+//              threads in parallel, and keeps the different language
+//              instances separate.
+//              Some global functions remain, but they are isolated re-entrant
+//              functions that operate on their arguments. Functions that work
+//              on variable data have been moved to an appropriate class based
+//              mostly on the directory hierarchy. For more information see
+//              slide 6 of "2ArchitectureAndDataStructures" in
+// https://drive.google.com/file/d/0B7l10Bj_LprhbUlIUFlCdGtDYkE/edit?usp=sharing
+//              Some global data and related functions still exist in the
+//              training-related code, but they don't interfere with normal
+//              recognition operation.
 // Author:      Ray Smith
 // Created:     Fri Mar 07 08:17:01 PST 2008
 //
@@ -65,6 +81,9 @@ Tesseract::Tesseract()
                   "Blacklist of chars not to recognize", this->params()),
     STRING_MEMBER(tessedit_char_whitelist, "",
                   "Whitelist of chars to recognize", this->params()),
+    STRING_MEMBER(tessedit_char_unblacklist, "",
+                  "List of chars to override tessedit_char_blacklist",
+                  this->params()),
     BOOL_MEMBER(tessedit_ambigs_training, false,
                 "Perform training for ambiguities", this->params()),
     INT_MEMBER(pageseg_devanagari_split_strategy,
@@ -578,11 +597,13 @@ void Tesseract::ResetDocumentDictionary() {
 void Tesseract::SetBlackAndWhitelist() {
   // Set the white and blacklists (if any)
   unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
-                                     tessedit_char_whitelist.string());
+                                     tessedit_char_whitelist.string(),
+                                     tessedit_char_unblacklist.string());
   // Black and white lists should apply to all loaded classifiers.
   for (int i = 0; i < sub_langs_.size(); ++i) {
     sub_langs_[i]->unicharset.set_black_and_whitelist(
-        tessedit_char_blacklist.string(), tessedit_char_whitelist.string());
+        tessedit_char_blacklist.string(), tessedit_char_whitelist.string(),
+        tessedit_char_unblacklist.string());
   }
 }
 

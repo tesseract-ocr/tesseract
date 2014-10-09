@@ -1,7 +1,12 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        tesseractclass.h
-// Description: An instance of Tesseract. For thread safety, *every*
+// Description: The Tesseract class. It holds/owns everything needed
+//              to run Tesseract on a single language, and also a set of
+//              sub-Tesseracts to run sub-languages. For thread safety, *every*
 //              global variable goes in here, directly, or indirectly.
+//              This makes it safe to run multiple Tesseracts in different
+//              threads in parallel, and keeps the different language
+//              instances separate.
 // Author:      Ray Smith
 // Created:     Fri Mar 07 08:17:01 PST 2008
 //
@@ -743,6 +748,8 @@ class Tesseract : public Wordrec {
                "Blacklist of chars not to recognize");
   STRING_VAR_H(tessedit_char_whitelist, "",
                "Whitelist of chars to recognize");
+  STRING_VAR_H(tessedit_char_unblacklist, "",
+               "List of chars to override tessedit_char_blacklist");
   BOOL_VAR_H(tessedit_ambigs_training, false,
              "Perform training for ambiguities");
   INT_VAR_H(pageseg_devanagari_split_strategy,
