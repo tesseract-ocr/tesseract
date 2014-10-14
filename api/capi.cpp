@@ -687,7 +687,7 @@ TESS_API const TessPageIterator* TESS_CALL TessResultIteratorGetPageIteratorCons
     return handle;
 }
 
-TESS_API const TessChoiceIterator* TESS_CALL TessResultIteratorGetChoiceIterator(const TessResultIterator* handle)
+TESS_API TessChoiceIterator* TESS_CALL TessResultIteratorGetChoiceIterator(const TessResultIterator* handle)
 {
     return new TessChoiceIterator(*handle);
 }

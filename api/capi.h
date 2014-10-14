@@ -344,7 +344,7 @@ TESS_API TessPageIterator*
                TESS_CALL TessResultIteratorGetPageIterator(TessResultIterator* handle);
 TESS_API const TessPageIterator*
                TESS_CALL TessResultIteratorGetPageIteratorConst(const TessResultIterator* handle);
-TESS_API const TessChoiceIterator*
+TESS_API TessChoiceIterator*
                TESS_CALL TessResultIteratorGetChoiceIterator(const TessResultIterator* handle);
 
 TESS_API BOOL  TESS_CALL TessResultIteratorNext(TessResultIterator* handle, TessPageIteratorLevel level);
