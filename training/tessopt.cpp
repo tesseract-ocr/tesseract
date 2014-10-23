@@ -57,3 +57,9 @@ const char *arglist                    //string of arg chars
   else
     return EOF;
 }
+
+void tessopt_reset()
+{
+  tessoptind = 0;
+  tessoptarg = 0;
+}
