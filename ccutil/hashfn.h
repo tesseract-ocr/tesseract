@@ -47,6 +47,11 @@ using __gnu_cxx::hash_set;
 #include <hash_map>
 #include <hash_set>
 #endif  // gcc
+#elif (__clang__)
+#include <unordered_map>
+#include <unordered_set>
+#define hash_map std::unordered_map
+#define unordered_set std::unordered_set
 #else  // USE_STD_NAMESPACE
 #include <hash_map>
 #include <hash_set>
