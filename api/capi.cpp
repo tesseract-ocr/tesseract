@@ -667,6 +667,14 @@ TESS_API void TESS_CALL TessPageIteratorOrientation(TessPageIterator* handle, Te
     handle->Orientation(orientation, writing_direction, textline_order, deskew_angle);
 }
 
+TESS_API void TESS_CALL TessPageIteratorParagraphInfo(TessPageIterator* handle, TessParagraphJustification* justification,
+	bool *is_list_item,
+	bool *is_crown,
+	int *first_line_indent)
+{
+	handle->ParagraphInfo(justification, is_list_item, is_crown, first_line_indent);
+}
+
 TESS_API void TESS_CALL TessResultIteratorDelete(TessResultIterator* handle)
 {
     delete handle;

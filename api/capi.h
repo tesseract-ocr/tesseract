@@ -53,6 +53,7 @@ typedef tesseract::Dawg TessDawg;
 typedef tesseract::TruthCallback TessTruthCallback;
 typedef tesseract::CubeRecoContext TessCubeRecoContext;
 typedef tesseract::Orientation TessOrientation;
+typedef tesseract::ParagraphJustification TessParagraphJustification;
 typedef tesseract::WritingDirection TessWritingDirection;
 typedef tesseract::TextlineOrder TessTextlineOrder;
 typedef PolyBlockType TessPolyBlockType;
@@ -77,6 +78,7 @@ typedef enum TessPolyBlockType     { PT_UNKNOWN, PT_FLOWING_TEXT, PT_HEADING_TEX
                                      PT_TABLE, PT_VERTICAL_TEXT, PT_CAPTION_TEXT, PT_FLOWING_IMAGE, PT_HEADING_IMAGE,
                                      PT_PULLOUT_IMAGE, PT_HORZ_LINE, PT_VERT_LINE, PT_NOISE, PT_COUNT } TessPolyBlockType;
 typedef enum TessOrientation       { ORIENTATION_PAGE_UP, ORIENTATION_PAGE_RIGHT, ORIENTATION_PAGE_DOWN, ORIENTATION_PAGE_LEFT } TessOrientation;
+typedef enum TessParagraphJustification { JUSTIFICATION_UNKNOWN, JUSTIFICATION_LEFT, JUSTIFICATION_CENTER, JUSTIFICATION_RIGHT } TessParagraphJustification;
 typedef enum TessWritingDirection  { WRITING_DIRECTION_LEFT_TO_RIGHT, WRITING_DIRECTION_RIGHT_TO_LEFT, WRITING_DIRECTION_TOP_TO_BOTTOM } TessWritingDirection;
 typedef enum TessTextlineOrder     { TEXTLINE_ORDER_LEFT_TO_RIGHT, TEXTLINE_ORDER_RIGHT_TO_LEFT, TEXTLINE_ORDER_TOP_TO_BOTTOM } TessTextlineOrder;
 typedef struct ETEXT_DESC ETEXT_DESC;
@@ -334,6 +336,9 @@ TESS_API BOOL  TESS_CALL TessPageIteratorBaseline(const TessPageIterator* handle
 TESS_API void  TESS_CALL TessPageIteratorOrientation(TessPageIterator* handle, TessOrientation* orientation,
                                                      TessWritingDirection* writing_direction, TessTextlineOrder* textline_order,
                                                      float* deskew_angle);
+
+TESS_API void  TESS_CALL TessPageIteratorParagraphInfo(TessPageIterator* handle, TessParagraphJustification* justification,
+                                                       bool *is_list_item, bool *is_crown, int *first_line_indent);
 
 /* Result iterator */
 
