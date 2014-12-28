@@ -301,7 +301,7 @@ TESS_API TessCubeRecoContext*
 
 TESS_API void  TESS_CALL TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle, double margin);
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
-TESS_API void  TESS_CALL TessBaseGetBlockTextOrientations(TessBaseAPI* handle, int** block_orientation, bool** vertical_writing);
+TESS_API void  TESS_CALL TessBaseGetBlockTextOrientations(TessBaseAPI* handle, int** block_orientation, BOOL** vertical_writing);
 
 TESS_API BLOCK_LIST*
                TESS_CALL TessBaseAPIFindLinesCreateBlockList(TessBaseAPI* handle);
@@ -338,7 +338,7 @@ TESS_API void  TESS_CALL TessPageIteratorOrientation(TessPageIterator* handle, T
                                                      float* deskew_angle);
 
 TESS_API void  TESS_CALL TessPageIteratorParagraphInfo(TessPageIterator* handle, TessParagraphJustification* justification,
-                                                       bool *is_list_item, bool *is_crown, int *first_line_indent);
+                                                       BOOL *is_list_item, BOOL *is_crown, int *first_line_indent);
 
 /* Result iterator */
 
