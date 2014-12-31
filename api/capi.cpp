@@ -668,7 +668,7 @@ TESS_API void TESS_CALL TessPageIteratorOrientation(TessPageIterator* handle, Te
 }
 
 TESS_API void  TESS_CALL TessPageIteratorParagraphInfo(TessPageIterator* handle, TessParagraphJustification* justification,
-                                                       BOOL *is_list_item, BOOL *is_crown, int *first_line_indent);
+                                                       BOOL *is_list_item, BOOL *is_crown, int *first_line_indent)
 {
     bool bool_is_list_item, bool_is_crown;
     handle->ParagraphInfo(justification, &bool_is_list_item, &bool_is_crown, first_line_indent);
