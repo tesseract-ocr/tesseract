@@ -440,6 +440,8 @@ Tesseract::Tesseract()
                   this->params()),
     INT_MEMBER(tessedit_parallelize, 0, "Run in parallel where possible",
                 this->params()),
+    BOOL_MEMBER(preserve_interword_spaces, false,
+                "Preserve multiple interword spaces", this->params()),
 
     // The following parameters were deprecated and removed from their original
     // locations. The parameters are temporarily kept here to give Tesseract
