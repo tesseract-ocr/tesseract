@@ -635,7 +635,8 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(STRING *text) {
 
   int words_appended = 0;
   do {
-    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space() : 1;
+    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space() :
+                                                 (words_appended > 0);
     for(int i = 0 ; i < numSpaces ; ++i) {
       *text += " ";
     }
