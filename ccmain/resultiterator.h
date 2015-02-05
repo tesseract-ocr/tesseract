@@ -236,7 +236,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * Should detected inter-word spaces be preserved, or "compressed" to a single
    * space character (default behavior).
    */
-  bool preserve_interword_spaces_ = false;
+  bool preserve_interword_spaces_;
 };
 
 }  // namespace tesseract.

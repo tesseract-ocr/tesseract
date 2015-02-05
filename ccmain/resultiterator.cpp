@@ -34,6 +34,7 @@ ResultIterator::ResultIterator(const LTRResultIterator &resit)
     : LTRResultIterator(resit) {
   in_minor_direction_ = false;
   at_beginning_of_minor_run_ = false;
+  preserve_interword_spaces_ = false;
 
   BoolParam *p = ParamUtils::FindParam<BoolParam>(
     "preserve_interword_spaces", GlobalParams()->bool_params,
