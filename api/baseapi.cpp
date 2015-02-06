@@ -1477,11 +1477,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
     do {
       const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
       if (grapheme && grapheme[0] != 0) {
-        if (grapheme[1] == 0) {
-          hocr_str += HOcrEscape(grapheme);
-        } else {
-          hocr_str += grapheme;
-        }
+        hocr_str += HOcrEscape(grapheme);
       }
       delete []grapheme;
       res_it->Next(RIL_SYMBOL);
@@ -1945,8 +1941,8 @@ void TessBaseAPI::SetDictFunc(DictFunc f) {
  * Sets Dict::probability_in_context_ function to point to the given
  * function.
  *
- * @param f A single function that returns the probability of the current 
- * "character" (in general a utf-8 string), given the context of a previous 
+ * @param f A single function that returns the probability of the current
+ * "character" (in general a utf-8 string), given the context of a previous
  * utf-8 string.
  */
 void TessBaseAPI::SetProbabilityInContextFunc(ProbabilityInContextFunc f) {
