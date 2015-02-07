@@ -442,6 +442,12 @@ Tesseract::Tesseract()
                 this->params()),
     BOOL_MEMBER(preserve_interword_spaces, false,
                 "Preserve multiple interword spaces", this->params()),
+    BOOL_MEMBER(include_page_breaks, FALSE,
+                "Include page separator string in output text after each "
+                "image/page.", this->params()),
+    STRING_MEMBER(page_separator, "\f",
+                  "Page separator (default is form feed control character)",
+                  this->params()),
 
     // The following parameters were deprecated and removed from their original
     // locations. The parameters are temporarily kept here to give Tesseract
