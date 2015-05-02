@@ -96,7 +96,7 @@ L<wordlist2dawg(1)>
 my %lig = (
 	# Longest first
 	'ffi' => 'ﬃ',
-	'ct' => '\N{U+E003}',
+	'ct' => "\N{U+E003}",
 	'ff' => 'ﬀ',
 	'fi' => 'ﬁ',
 	'fl' => 'ﬂ',
@@ -109,15 +109,22 @@ my %bigrams;
 my %opts;
 my %words;
 
-getopts("hi:p:d:", \%opts);
+my $do_ligatures = 0;
+
+getopts("hli:p:d:", \%opts);
 
 if (defined $opts{h}) {
 	print "Usage: genwordlists [options]\n";
 	print "-h\tPrints a brief help message\n";
 	print "-d\tSet the output directory (default is current)\n";
 	print "-b\tSet the prefix for the language data (e.g., eng for English)\n";
+	print "-l\tProcess ligatures\n";
 	print "-i\tSet the input file. If not set, reads from stdin\n";
 	exit;
+}
+
+if (defined $opts{l}) {
+	$do_ligatures = 1;
 }
 
 my $prefix = '';
@@ -187,12 +194,14 @@ while (<$input>) {
 				} else {
 					$bigrams{$tok} = 1;
 				}
-				my $other = do_lig($tok);
-				if ($other ne $tok) {
-					if(defined($bigrams{$other})) {
-						$bigrams{$other}++;
-					} else {
-						$bigrams{$other} = 1;
+				if($do_ligatures == 1) {
+					my $other = do_lig($tok);
+					if ($other ne $tok) {
+						if(defined($bigrams{$other})) {
+							$bigrams{$other}++;
+						} else {
+							$bigrams{$other} = 1;
+						}
 					}
 				}
 			}
