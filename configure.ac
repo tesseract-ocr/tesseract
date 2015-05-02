@@ -5,12 +5,10 @@
 # ----------------------------------------
 # Initialization
 # ----------------------------------------
-
 AC_PREREQ(2.50)
 AC_INIT([tesseract], [3.04], [http://code.google.com/p/tesseract-ocr/issues/list])
 CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
-AC_REVISION([$Revision$])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(api/tesseractmain.cpp)
 AC_PREFIX_DEFAULT(/usr/local)
@@ -20,6 +18,14 @@ AC_PREFIX_DEFAULT(/usr/local)
 # TODO(luc) Generate good documentation using doxygen or equivalent
 PACKAGE_YEAR=2014
 PACKAGE_DATE="08/13"
+
+abs_top_srcdir=`AS_DIRNAME([$0])`
+gitrev="`git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdir} describe --always --tags`"
+if test -n "${gitrev}" ; then
+	AC_REVISION("${gitrev}")
+	AC_DEFINE_UNQUOTED(GIT_REV,"${gitrev}", [Define to be the git revision])
+	echo "Using git revision: ${gitrev}"
+fi
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -85,7 +91,7 @@ case "${host_os}" in
         AM_CONDITIONAL(ADD_RT, false)
         AM_CONDITIONAL(T_WIN, true)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
-        ;;			
+        ;;
     solaris*)
         LIBS="-lsocket -lnsl -lrt -lxnet"
         AM_CONDITIONAL(ADD_RT, true)
