@@ -485,7 +485,10 @@ void WERD_RES::DebugWordChoices(bool debug, const char* word_to_debug) {
 void WERD_RES::DebugTopChoice(const char* msg) const {
   tprintf("Best choice: accepted=%d, adaptable=%d, done=%d : ",
           tess_accepted, tess_would_adapt, done);
-  best_choice->print(msg);
+  if (best_choice == NULL)
+    tprintf("<Null choice>\n");
+  else
+    best_choice->print(msg);
 }
 
 // Removes from best_choices all choices which are not within a reasonable

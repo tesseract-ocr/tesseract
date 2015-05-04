@@ -381,11 +381,14 @@ class UNICHARSET {
   // Set a whitelist and/or blacklist of characters to recognize.
   // An empty or NULL whitelist enables everything (minus any blacklist).
   // An empty or NULL blacklist disables nothing.
+  // An empty or NULL unblacklist has no effect.
   // The blacklist overrides the whitelist.
+  // The unblacklist overrides the blacklist.
   // Each list is a string of utf8 character strings. Boundaries between
   // unicharset units are worked out automatically, and characters not in
   // the unicharset are silently ignored.
-  void set_black_and_whitelist(const char* blacklist, const char* whitelist);
+  void set_black_and_whitelist(const char* blacklist, const char* whitelist,
+                               const char* unblacklist);
 
   // Set the isalpha property of the given unichar to the given value.
   void set_isalpha(UNICHAR_ID unichar_id, bool value) {

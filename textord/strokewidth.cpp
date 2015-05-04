@@ -43,18 +43,11 @@ namespace tesseract {
 
 INT_VAR(textord_tabfind_show_strokewidths, 0, "Show stroke widths");
 BOOL_VAR(textord_tabfind_only_strokewidths, false, "Only run stroke widths");
-BOOL_VAR(textord_tabfind_vertical_text, true, "Enable vertical detection");
-BOOL_VAR(textord_tabfind_force_vertical_text, false,
-         "Force using vertical text page mode");
-BOOL_VAR(textord_tabfind_vertical_horizontal_mix, true,
-         "find horizontal lines such as headers in vertical page mode");
-double_VAR(textord_tabfind_vertical_text_ratio, 0.5,
-           "Fraction of textlines deemed vertical to use vertical page mode");
 
 /** Allowed proportional change in stroke width to be the same font. */
 const double kStrokeWidthFractionTolerance = 0.125;
 /**
- * Allowed constant change in stroke width to be the same font. 
+ * Allowed constant change in stroke width to be the same font.
  * Really 1.5 pixels.
  */
 const double kStrokeWidthTolerance = 1.5;
@@ -215,11 +208,9 @@ static void CollectHorizVertBlobs(BLOBNBOX_LIST* input_blobs,
 // after rotating everything, otherwise the work done here will be enough.
 // If osd_blobs is not null, a list of blobs from the dominant textline
 // direction are returned for use in orientation and script detection.
-bool StrokeWidth::TestVerticalTextDirection(TO_BLOCK* block,
+bool StrokeWidth::TestVerticalTextDirection(double find_vertical_text_ratio,
+                                            TO_BLOCK* block,
                                             BLOBNBOX_CLIST* osd_blobs) {
-  if (textord_tabfind_force_vertical_text) return true;
-  if (!textord_tabfind_vertical_text) return false;
-
   int vertical_boxes = 0;
   int horizontal_boxes = 0;
   // Count vertical normal and large blobs.
@@ -242,7 +233,7 @@ bool StrokeWidth::TestVerticalTextDirection(TO_BLOCK* block,
     return false;
   }
   int min_vert_boxes = static_cast<int>((vertical_boxes + horizontal_boxes) *
-                                        textord_tabfind_vertical_text_ratio);
+                                        find_vertical_text_ratio);
   if (vertical_boxes >= min_vert_boxes) {
     if (osd_blobs != NULL) {
       BLOBNBOX_C_IT osd_it(osd_blobs);

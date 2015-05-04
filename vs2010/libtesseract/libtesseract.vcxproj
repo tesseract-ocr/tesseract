@@ -27,7 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>libtesseract303</ProjectName>
+    <ProjectName>libtesseract304</ProjectName>
     <ProjectGuid>{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}</ProjectGuid>
     <RootNamespace>libtesseract</RootNamespace>
   </PropertyGroup>
@@ -869,7 +869,7 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\wordrec\params_model.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="libtesseract303.rc" />
+    <ResourceCompile Include="libtesseract.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -138,7 +138,11 @@ TessBaseAPI::~TessBaseAPI() {
  * Returns the version identifier as a static string. Do not delete.
  */
 const char* TessBaseAPI::Version() {
+#if defined(DEBUG) && defined(GIT_REV)
+  return GIT_REV;
+#else
   return TESSERACT_VERSION_STR;
+#endif
 }
 
 /**
@@ -1477,11 +1481,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
     do {
       const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
       if (grapheme && grapheme[0] != 0) {
-        if (grapheme[1] == 0) {
-          hocr_str += HOcrEscape(grapheme);
-        } else {
-          hocr_str += grapheme;
-        }
+        hocr_str += HOcrEscape(grapheme);
       }
       delete []grapheme;
       res_it->Next(RIL_SYMBOL);
@@ -1892,6 +1892,10 @@ void TessBaseAPI::ClearPersistentCache() {
 int TessBaseAPI::IsValidWord(const char *word) {
   return tesseract_->getDict().valid_word(word);
 }
+// Returns true if utf8_character is defined in the UniCharset.
+bool TessBaseAPI::IsValidCharacter(const char *utf8_character) {
+    return tesseract_->unicharset.contains_unichar(utf8_character);
+}
 
 
 // TODO(rays) Obsolete this function and replace with a more aptly named
@@ -1940,6 +1944,10 @@ void TessBaseAPI::SetDictFunc(DictFunc f) {
 /**
  * Sets Dict::probability_in_context_ function to point to the given
  * function.
+ *
+ * @param f A single function that returns the probability of the current
+ * "character" (in general a utf-8 string), given the context of a previous
+ * utf-8 string.
  */
 void TessBaseAPI::SetProbabilityInContextFunc(ProbabilityInContextFunc f) {
   if (tesseract_ != NULL) {

@@ -1,7 +1,23 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        tesseractclass.cpp
-// Description: An instance of Tesseract. For thread safety, *every*
-//              global variable goes in here, directly, or indirectly.
+// Description: The Tesseract class. It holds/owns everything needed
+//              to run Tesseract on a single language, and also a set of
+//              sub-Tesseracts to run sub-languages. For thread safety, *every*
+//              variable that was previously global or static (except for
+//              constant data, and some visual debugging flags) has been moved
+//              in here, directly, or indirectly.
+//              This makes it safe to run multiple Tesseracts in different
+//              threads in parallel, and keeps the different language
+//              instances separate.
+//              Some global functions remain, but they are isolated re-entrant
+//              functions that operate on their arguments. Functions that work
+//              on variable data have been moved to an appropriate class based
+//              mostly on the directory hierarchy. For more information see
+//              slide 6 of "2ArchitectureAndDataStructures" in
+// https://drive.google.com/file/d/0B7l10Bj_LprhbUlIUFlCdGtDYkE/edit?usp=sharing
+//              Some global data and related functions still exist in the
+//              training-related code, but they don't interfere with normal
+//              recognition operation.
 // Author:      Ray Smith
 // Created:     Fri Mar 07 08:17:01 PST 2008
 //
@@ -65,6 +81,9 @@ Tesseract::Tesseract()
                   "Blacklist of chars not to recognize", this->params()),
     STRING_MEMBER(tessedit_char_whitelist, "",
                   "Whitelist of chars to recognize", this->params()),
+    STRING_MEMBER(tessedit_char_unblacklist, "",
+                  "List of chars to override tessedit_char_blacklist",
+                  this->params()),
     BOOL_MEMBER(tessedit_ambigs_training, false,
                 "Perform training for ambiguities", this->params()),
     INT_MEMBER(pageseg_devanagari_split_strategy,
@@ -312,6 +331,8 @@ Tesseract::Tesseract()
                 "Write repetition char code", this->params()),
     BOOL_MEMBER(tessedit_write_unlv, false,
                 "Write .unlv output file", this->params()),
+    BOOL_MEMBER(tessedit_create_txt, true,
+                "Write .txt output file", this->params()),
     BOOL_MEMBER(tessedit_create_hocr, false,
                 "Write .html hOCR output file", this->params()),
     BOOL_MEMBER(tessedit_create_pdf, false,
@@ -407,8 +428,26 @@ Tesseract::Tesseract()
                      "for layout analysis.", this->params()),
     BOOL_MEMBER(textord_equation_detect, false, "Turn on equation detector",
                 this->params()),
+    BOOL_MEMBER(textord_tabfind_vertical_text, true,
+                "Enable vertical detection", this->params()),
+    BOOL_MEMBER(textord_tabfind_force_vertical_text, false,
+                "Force using vertical text page mode", this->params()),
+    double_MEMBER(textord_tabfind_vertical_text_ratio, 0.5,
+                  "Fraction of textlines deemed vertical to use vertical page "
+                  "mode", this->params()),
+    double_MEMBER(textord_tabfind_aligned_gap_fraction, 0.75,
+                  "Fraction of height used as a minimum gap for aligned blobs.",
+                  this->params()),
     INT_MEMBER(tessedit_parallelize, 0, "Run in parallel where possible",
                 this->params()),
+    BOOL_MEMBER(preserve_interword_spaces, false,
+                "Preserve multiple interword spaces", this->params()),
+    BOOL_MEMBER(include_page_breaks, FALSE,
+                "Include page separator string in output text after each "
+                "image/page.", this->params()),
+    STRING_MEMBER(page_separator, "\f",
+                  "Page separator (default is form feed control character)",
+                  this->params()),
 
     // The following parameters were deprecated and removed from their original
     // locations. The parameters are temporarily kept here to give Tesseract
@@ -418,6 +457,9 @@ Tesseract::Tesseract()
     // reasonably sure that Tesseract users have updated their data files.
     //
     // BEGIN DEPRECATED PARAMETERS
+    BOOL_MEMBER(textord_tabfind_vertical_horizontal_mix, true,
+                "find horizontal lines such as headers in vertical page mode",
+                this->params()),
     INT_MEMBER(tessedit_ok_mode, 5,
                "Acceptance decision algorithm", this->params()),
     BOOL_INIT_MEMBER(load_fixed_length_dawgs, true, "Load fixed length dawgs"
@@ -563,11 +605,13 @@ void Tesseract::ResetDocumentDictionary() {
 void Tesseract::SetBlackAndWhitelist() {
   // Set the white and blacklists (if any)
   unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
-                                     tessedit_char_whitelist.string());
+                                     tessedit_char_whitelist.string(),
+                                     tessedit_char_unblacklist.string());
   // Black and white lists should apply to all loaded classifiers.
   for (int i = 0; i < sub_langs_.size(); ++i) {
     sub_langs_[i]->unicharset.set_black_and_whitelist(
-        tessedit_char_blacklist.string(), tessedit_char_whitelist.string());
+        tessedit_char_blacklist.string(), tessedit_char_whitelist.string(),
+        tessedit_char_unblacklist.string());
   }
 }
 

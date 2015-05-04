@@ -56,6 +56,13 @@
 #include <time.h>
 #endif
 
+#if ON_APPLE
+#include <mach/clock.h>
+#include <mach/mach.h>
+#define CLOCK_MONOTONIC SYSTEM_CLOCK
+#define clock_gettime clock_get_time
+#endif
+
 /************************************************************************************
  * enable/disable reporting of performance
  * PERF_REPORT_LEVEL

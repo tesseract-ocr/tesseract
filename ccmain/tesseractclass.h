@@ -1,7 +1,12 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        tesseractclass.h
-// Description: An instance of Tesseract. For thread safety, *every*
+// Description: The Tesseract class. It holds/owns everything needed
+//              to run Tesseract on a single language, and also a set of
+//              sub-Tesseracts to run sub-languages. For thread safety, *every*
 //              global variable goes in here, directly, or indirectly.
+//              This makes it safe to run multiple Tesseracts in different
+//              threads in parallel, and keeps the different language
+//              instances separate.
 // Author:      Ray Smith
 // Created:     Fri Mar 07 08:17:01 PST 2008
 //
@@ -244,6 +249,15 @@ class Tesseract : public Wordrec {
   }
   Tesseract* get_sub_lang(int index) const {
     return sub_langs_[index];
+  }
+  // Returns true if any language uses Tesseract (as opposed to cube).
+  bool AnyTessLang() const {
+    if (tessedit_ocr_engine_mode != OEM_CUBE_ONLY) return true;
+    for (int i = 0; i < sub_langs_.size(); ++i) {
+      if (sub_langs_[i]->tessedit_ocr_engine_mode != OEM_CUBE_ONLY)
+        return true;
+    }
+    return false;
   }
 
   void SetBlackAndWhitelist();
@@ -734,6 +748,8 @@ class Tesseract : public Wordrec {
                "Blacklist of chars not to recognize");
   STRING_VAR_H(tessedit_char_whitelist, "",
                "Whitelist of chars to recognize");
+  STRING_VAR_H(tessedit_char_unblacklist, "",
+               "List of chars to override tessedit_char_blacklist");
   BOOL_VAR_H(tessedit_ambigs_training, false,
              "Perform training for ambiguities");
   INT_VAR_H(pageseg_devanagari_split_strategy,
@@ -918,6 +934,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_write_rep_codes, false,
              "Write repetition char code");
   BOOL_VAR_H(tessedit_write_unlv, false, "Write .unlv output file");
+  BOOL_VAR_H(tessedit_create_txt, true, "Write .txt output file");
   BOOL_VAR_H(tessedit_create_hocr, false, "Write .html hOCR output file");
   BOOL_VAR_H(tessedit_create_pdf, false, "Write .pdf output file");
   STRING_VAR_H(unrecognised_char, "|",
@@ -983,7 +1000,22 @@ class Tesseract : public Wordrec {
              "Only initialize with the config file. Useful if the instance is "
              "not going to be used for OCR but say only for layout analysis.");
   BOOL_VAR_H(textord_equation_detect, false, "Turn on equation detector");
+  BOOL_VAR_H(textord_tabfind_vertical_text, true, "Enable vertical detection");
+  BOOL_VAR_H(textord_tabfind_force_vertical_text, false,
+             "Force using vertical text page mode");
+  double_VAR_H(textord_tabfind_vertical_text_ratio, 0.5,
+               "Fraction of textlines deemed vertical to use vertical page "
+               "mode");
+  double_VAR_H(textord_tabfind_aligned_gap_fraction, 0.75,
+               "Fraction of height used as a minimum gap for aligned blobs.");
   INT_VAR_H(tessedit_parallelize, 0, "Run in parallel where possible");
+  BOOL_VAR_H(preserve_interword_spaces, false,
+             "Preserve multiple interword spaces");
+  BOOL_VAR_H(include_page_breaks, false,
+             "Include page separator string in output text after each "
+             "image/page.");
+  STRING_VAR_H(page_separator, "\f",
+               "Page separator (default is form feed control character)");
 
   // The following parameters were deprecated and removed from their original
   // locations. The parameters are temporarily kept here to give Tesseract
@@ -993,6 +1025,8 @@ class Tesseract : public Wordrec {
   // reasonably sure that Tesseract users have updated their data files.
   //
   // BEGIN DEPRECATED PARAMETERS
+  BOOL_VAR_H(textord_tabfind_vertical_horizontal_mix, true,
+             "find horizontal lines such as headers in vertical page mode");
   INT_VAR_H(tessedit_ok_mode, 5, "Acceptance decision algorithm");
   BOOL_VAR_H(load_fixed_length_dawgs, true,  "Load fixed length"
              " dawgs (e.g. for non-space delimited languages)");

@@ -22,8 +22,8 @@ So, the steps for making Tesseract are:
   $ make training
   $ sudo make training-install
 
-You need to install at least English langugage data file to TESSDATA_PREFIX
-directory. All langugage data files can be retrieved from git repository:
+You need to install at least English language data file to TESSDATA_PREFIX
+directory. All language data files can be retrieved from git repository:
   $ git clone https://code.google.com/p/tesseract-ocr.tessdata/ tessdata
 
 To compile ScrollView.jar you need to download piccolo2d-core-3.0.jar

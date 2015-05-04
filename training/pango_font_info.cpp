@@ -280,8 +280,9 @@ int PangoFontInfo::DropUncoveredChars(string* utf8_text) const {
       ++num_dropped_chars;
       continue;
     }
-    strncpy(out, it.utf8_data(), it.utf8_len());
-    out += it.utf8_len();
+    int it_utf8_len = it.utf8_len();
+    strncpy(out, it.utf8_data(), it_utf8_len);
+    out += it_utf8_len;
   }
   utf8_text->resize(out - utf8_text->c_str());
   return num_dropped_chars;

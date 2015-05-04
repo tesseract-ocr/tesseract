@@ -76,11 +76,7 @@ bool File::ReadFileToString(const string& filename, string* out) {
     return false;
   InputBuffer in(stream);
   *out = "";
-  string temp;
-  while (in.ReadLine(&temp)) {
-    *out += temp;
-    *out += '\n';
-  }
+  in.Read(out);
   return in.CloseFile();
 }
 
@@ -156,32 +152,17 @@ InputBuffer::~InputBuffer() {
   }
 }
 
-bool InputBuffer::ReadLine(string* out) {
-  ASSERT_HOST(stream_ != NULL);
-  char* line = NULL;
-  int len = -1;
-#ifndef HAVE_GETLINE
-  char line_buf[BUFSIZ];
-  if ((line = fgets(line_buf, BUFSIZ, stream_)) != NULL) {
-    len = strlen(line);
-    if (line_buf[0] != '\0' && line_buf[len - 1] == '\n')
-        line_buf[len - 1] = '\0';
-  } else {
-    return false;
+bool InputBuffer::Read(string *out) {
+  char buf[BUFSIZ+1];
+  int l;
+  while((l = fread(buf, 1, BUFSIZ, stream_)) > 0) {
+    if(ferror(stream_)) {
+      clearerr(stream_);
+      return false;
+    }
+    buf[l] = 0;
+    out->append(buf);
   }
-  *out = string(line);
-#else
-  size_t line_size;
-  len = getline(&line, &line_size, stream_);
-  if (len < 0) {
-    return false;
-  }
-
-  if (len >= 1 && line[len - 1] == '\n')
-    line[len - 1] = '\0';
-  *out = string(line);
-  free(line);
-#endif  // HAVE_GETLINE
   return true;
 }
 

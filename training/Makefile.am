@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE -DPANGO_ENABLE_ENGINE\
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
@@ -9,7 +10,7 @@ AM_CPPFLAGS += \
 
 EXTRA_DIST = tesstrain.sh
 
-if MINGW
+if T_WIN
 # try static build
 #AM_LDFLAGS += -all-static
 #libic=-lsicuin -licudt -lsicuuc
@@ -279,7 +280,7 @@ wordlist2dawg_LDADD += \
     ../api/libtesseract.la
 endif
 
-if MINGW
+if T_WIN
 ambiguous_words_LDADD += -lws2_32
 classifier_tester_LDADD += -lws2_32
 cntraining_LDADD += -lws2_32

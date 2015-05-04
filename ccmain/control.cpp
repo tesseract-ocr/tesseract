@@ -357,7 +357,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
 
   // ****************** Pass 2 *******************
   if (tessedit_tess_adaption_mode != 0x0 && !tessedit_test_adaption &&
-      tessedit_ocr_engine_mode != OEM_CUBE_ONLY ) {
+      AnyTessLang()) {
     page_res_it.restart_page();
     GenericVector<WordData> words;
     SetupAllWordsPassN(2, target_word_box, word_config, page_res, &words);
@@ -371,8 +371,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
 
   // The next passes can only be run if tesseract has been used, as cube
   // doesn't set all the necessary outputs in WERD_RES.
-  if (tessedit_ocr_engine_mode == OEM_TESSERACT_ONLY ||
-      tessedit_ocr_engine_mode == OEM_TESSERACT_CUBE_COMBINED) {
+  if (AnyTessLang()) {
     // ****************** Pass 3 *******************
     // Fix fuzzy spaces.
     set_global_loc_code(LOC_FUZZY_SPACE);
@@ -1098,6 +1097,9 @@ void Tesseract::classify_word_pass2(const WordData& word_data,
       tessedit_ocr_engine_mode != OEM_TESSERACT_CUBE_COMBINED &&
       word_data.word->best_choice != NULL)
     return;
+  if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
+    return;
+  }
   ROW* row = word_data.row;
   BLOCK* block = word_data.block;
   WERD_RES* word = *in_word;
@@ -1246,7 +1248,6 @@ void Tesseract::fix_rep_char(PAGE_RES_IT* page_res_it) {
   word_res->done = TRUE;
 
   // Measure the mean space.
-  int total_gap = 0;
   int gap_count = 0;
   WERD* werd = word_res->word;
   C_BLOB_IT blob_it(werd->cblob_list());
@@ -1255,7 +1256,6 @@ void Tesseract::fix_rep_char(PAGE_RES_IT* page_res_it) {
     C_BLOB* blob = blob_it.data();
     int gap = blob->bounding_box().left();
     gap -= prev_blob->bounding_box().right();
-    total_gap += gap;
     ++gap_count;
     prev_blob = blob;
   }

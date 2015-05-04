@@ -173,7 +173,8 @@ parse_flags() {
                 local ofs=$IFS
                 IFS='+'
                 FONTS=( ${ARGV[$j]} )
-                IFS=$ofs ;;
+                IFS=$ofs
+                i=$j ;;
             --fonts_dir)
                 parse_value "FONTS_DIR" ${ARGV[$j]}
                 i=$j ;;

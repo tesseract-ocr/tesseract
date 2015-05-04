@@ -656,6 +656,9 @@ class TESS_API TessBaseAPI {
    * in a separate API at some future time.
    */
   int IsValidWord(const char *word);
+  // Returns true if utf8_character is defined in the UniCharset.
+  bool IsValidCharacter(const char *utf8_character);
+
 
   bool GetTextDirection(int* out_offset, float* out_slope);
 
