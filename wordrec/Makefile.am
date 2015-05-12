@@ -13,8 +13,8 @@ noinst_HEADERS = \
     associate.h chop.h \
     chopper.h drawfx.h findseam.h gradechop.h \
     language_model.h lm_consistency.h lm_pain_points.h lm_state.h \
-    makechop.h measure.h \
-    olutil.h outlines.h params_model.h plotedges.h \
+    measure.h \
+    outlines.h params_model.h plotedges.h \
     render.h \
     wordrec.h
 
@@ -36,7 +36,6 @@ libtesseract_wordrec_la_SOURCES = \
     associate.cpp chop.cpp chopper.cpp \
     drawfx.cpp findseam.cpp gradechop.cpp \
     language_model.cpp lm_consistency.cpp lm_pain_points.cpp lm_state.cpp \
-    makechop.cpp \
-    olutil.cpp outlines.cpp params_model.cpp pieces.cpp \
+    outlines.cpp params_model.cpp pieces.cpp \
     plotedges.cpp render.cpp segsearch.cpp \
     tface.cpp wordclass.cpp wordrec.cpp
