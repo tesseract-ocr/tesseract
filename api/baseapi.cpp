@@ -742,6 +742,7 @@ void TessBaseAPI::DumpPGM(const char* filename) {
   fclose(fp);
 }
 
+#ifndef ANDROID_BUILD
 /**
  * Placeholder for call to Cube and test that the input data is correct.
  * reskew is the direction of baselines in the skewed image in
@@ -786,6 +787,7 @@ int CubeAPITest(Boxa* boxa_blocks, Pixa* pixa_blocks,
   ASSERT_HOST(pr_word == word_count);
   return 0;
 }
+#endif
 
 /**
  * Runs page layout analysis in the mode set by SetPageSegMode.
@@ -1022,6 +1024,7 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
                                             int timeout_millisec,
                                             TessResultRenderer* renderer,
                                             int tessedit_page_number) {
+#ifndef ANDROID_BUILD
   Pix *pix = NULL;
 #ifdef USE_OPENCL
   OpenclDevice od;
@@ -1052,6 +1055,9 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
     if (tessedit_page_number >= 0) break;
   }
   return true;
+#else
+  return false;
+#endif
 }
 
 // Master ProcessPages calls ProcessPagesInternal and then does any post-
@@ -1087,6 +1093,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
                                        const char* retry_config,
                                        int timeout_millisec,
                                        TessResultRenderer* renderer) {
+#ifndef ANDROID_BUILD
   PERF_COUNT_START("ProcessPages")
   bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "-");
   if (stdInput) {
@@ -1174,6 +1181,9 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   }
   PERF_COUNT_END
   return true;
+#else
+  return false;
+#endif
 }
 
 bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
@@ -1207,8 +1217,10 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
     failed = Recognize(NULL) < 0;
   }
   if (tesseract_->tessedit_write_images) {
+#ifndef ANDROID_BUILD
     Pix* page_pix = GetThresholdedImage();
     pixWrite("tessinput.tif", page_pix, IFF_TIFF_G4);
+#endif
   }
   if (failed && retry_config != NULL && retry_config[0] != '\0') {
     // Save current config variables before switching modes.
@@ -2613,10 +2625,12 @@ int TessBaseAPI::NumDawgs() const {
   return tesseract_ == NULL ? 0 : tesseract_->getDict().NumDawgs();
 }
 
+#ifndef ANDROID_BUILD
 /** Return a pointer to underlying CubeRecoContext object if present. */
 CubeRecoContext *TessBaseAPI::GetCubeRecoContext() const {
   return (tesseract_ == NULL) ? NULL : tesseract_->GetCubeRecoContext();
 }
+#endif
 
 /** Escape a char string - remove <>&"' with HTML codes. */
 STRING HOcrEscape(const char* text) {

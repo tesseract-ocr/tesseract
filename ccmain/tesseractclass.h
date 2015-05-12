@@ -97,12 +97,16 @@ class WERD_RES;
 namespace tesseract {
 
 class ColumnFinder;
+#ifndef ANDROID_BUILD
 class CubeLineObject;
 class CubeObject;
 class CubeRecoContext;
+#endif
 class EquationDetect;
 class Tesseract;
+#ifndef ANDROID_BUILD
 class TesseractCubeCombiner;
+#endif
 
 // A collection of various variables for statistics and debugging.
 struct TesseractStats {
@@ -382,6 +386,7 @@ class Tesseract : public Wordrec {
                              int *right_ok) const;
 
   //// cube_control.cpp ///////////////////////////////////////////////////
+#ifndef ANDROID_BUILD
   bool init_cube_objects(bool load_combiner,
                          TessdataManager *tessdata_manager);
   // Iterates through tesseract's results and calls cube on each word,
@@ -407,6 +412,7 @@ class Tesseract : public Wordrec {
                           Boxa** char_boxes, CharSamp*** char_samples);
   bool create_cube_box_word(Boxa *char_boxes, int num_chars,
                             TBOX word_box, BoxWord* box_word);
+#endif
   //// output.h //////////////////////////////////////////////////////////
 
   void output_pass(PAGE_RES_IT &page_res_it, const TBOX *target_word_box);
@@ -713,8 +719,8 @@ class Tesseract : public Wordrec {
   // Creates a fake best_choice entry in each WERD_RES with the correct text.
   void CorrectClassifyWords(PAGE_RES* page_res);
   // Call LearnWord to extract features for labelled blobs within each word.
-  // Features are written to the given filename.
-  void ApplyBoxTraining(const STRING& filename, PAGE_RES* page_res);
+  // Features are stored in an internal buffer.
+  void ApplyBoxTraining(const STRING& fontname, PAGE_RES* page_res);
 
   //// fixxht.cpp ///////////////////////////////////////////////////////
   // Returns the number of misfit blob tops in this word.
@@ -1089,7 +1095,9 @@ class Tesseract : public Wordrec {
                                   PAGE_RES_IT* pr_it,
                                   FILE *output_file);
 
+#ifndef ANDROID_BUILD
   inline CubeRecoContext *GetCubeRecoContext() { return cube_cntxt_; }
+#endif
 
  private:
   // The filename of a backup config file. If not null, then we currently
@@ -1129,9 +1137,11 @@ class Tesseract : public Wordrec {
   Tesseract* most_recently_used_;
   // The size of the font table, ie max possible font id + 1.
   int font_table_size_;
+#ifndef ANDROID_BUILD
   // Cube objects.
   CubeRecoContext* cube_cntxt_;
   TesseractCubeCombiner *tess_cube_combiner_;
+#endif
   // Equation detector. Note: this pointer is NOT owned by the class.
   EquationDetect* equ_detect_;
 };

@@ -37,11 +37,15 @@
 #include "tesseractclass.h"
 
 #include "allheaders.h"
+#ifndef ANDROID_BUILD
 #include "cube_reco_context.h"
+#endif
 #include "edgblob.h"
 #include "equationdetect.h"
 #include "globals.h"
+#ifndef ANDROID_BUILD
 #include "tesseract_cube_combiner.h"
+#endif
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -547,8 +551,10 @@ Tesseract::Tesseract()
     reskew_(1.0f, 0.0f),
     most_recently_used_(this),
     font_table_size_(0),
+#ifndef ANDROID_BUILD
     cube_cntxt_(NULL),
     tess_cube_combiner_(NULL),
+#endif
     equ_detect_(NULL) {
 }
 
@@ -556,6 +562,7 @@ Tesseract::~Tesseract() {
   Clear();
   end_tesseract();
   sub_langs_.delete_data_pointers();
+#ifndef ANDROID_BUILD
   // Delete cube objects.
   if (cube_cntxt_ != NULL) {
     delete cube_cntxt_;
@@ -565,6 +572,7 @@ Tesseract::~Tesseract() {
     delete tess_cube_combiner_;
     tess_cube_combiner_ = NULL;
   }
+#endif
 }
 
 void Tesseract::Clear() {
