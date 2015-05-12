@@ -26,7 +26,6 @@
 #define VECFUNCS_H
 
 #include <math.h>
-#include "blobs.h"
 
 struct EDGEPT;
 

@@ -359,8 +359,8 @@ void Classify::LearnPieces(const char* filename, int start, int length,
     return;
 
   if (length > 1) {
-    join_pieces(word->seam_array, start, start + length - 1,
-                word->chopped_word);
+    SEAM::JoinPieces(word->seam_array, word->chopped_word->blobs, start,
+                     start + length - 1);
   }
   TBLOB* blob = word->chopped_word->blobs[start];
   // Rotate the blob if needed for classification.
@@ -413,7 +413,8 @@ void Classify::LearnPieces(const char* filename, int start, int length,
     delete rotated_blob;
   }
 
-  break_pieces(word->seam_array, start, start + length - 1, word->chopped_word);
+  SEAM::BreakPieces(word->seam_array, word->chopped_word->blobs, start,
+                    start + length - 1);
 }  // LearnPieces.
 
 /*---------------------------------------------------------------------------*/

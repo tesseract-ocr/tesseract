@@ -404,7 +404,8 @@ void WERD_RES::SetupBlobWidthsAndGaps() {
 // as the blob widths and gaps.
 void WERD_RES::InsertSeam(int blob_number, SEAM* seam) {
   // Insert the seam into the SEAMS array.
-  insert_seam(chopped_word, blob_number, seam, &seam_array);
+  seam->PrepareToInsertSeam(seam_array, chopped_word->blobs, blob_number, true);
+  seam_array.insert(seam, blob_number);
   if (ratings != NULL) {
     // Expand the ratings matrix.
     ratings = ratings->ConsumeAndMakeBigger(blob_number);
@@ -804,12 +805,16 @@ void WERD_RES::RebuildBestState() {
   for (int i = 0; i < best_choice->length(); ++i) {
     int length = best_choice->state(i);
     best_state.push_back(length);
-    if (length > 1)
-      join_pieces(seam_array, start, start + length - 1, chopped_word);
+    if (length > 1) {
+      SEAM::JoinPieces(seam_array, chopped_word->blobs, start,
+                       start + length - 1);
+    }
     TBLOB* blob = chopped_word->blobs[start];
     rebuild_word->blobs.push_back(new TBLOB(*blob));
-    if (length > 1)
-      break_pieces(seam_array, start, start + length - 1, chopped_word);
+    if (length > 1) {
+      SEAM::BreakPieces(seam_array, chopped_word->blobs, start,
+                        start + length - 1);
+    }
     start += length;
   }
 }
@@ -1065,8 +1070,7 @@ bool WERD_RES::PiecesAllNatural(int start, int count) const {
   for (int index = start; index < start + count - 1; ++index) {
     if (index >= 0 && index < seam_array.size()) {
       SEAM* seam = seam_array[index];
-      if (seam != NULL && seam->split1 != NULL)
-        return false;
+      if (seam != NULL && seam->HasAnySplits()) return false;
     }
   }
   return true;

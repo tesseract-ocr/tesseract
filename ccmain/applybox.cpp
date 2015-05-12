@@ -582,7 +582,7 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID>& target_text,
     int blob_count = 1;
     for (int s = 0; s < word_res->seam_array.size(); ++s) {
       SEAM* seam = word_res->seam_array[s];
-      if (seam->split1 == NULL) {
+      if (!seam->HasAnySplits()) {
         word_res->best_state.push_back(blob_count);
         blob_count = 1;
       } else {

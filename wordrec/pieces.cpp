@@ -58,7 +58,7 @@ BLOB_CHOICE_LIST *Wordrec::classify_piece(const GenericVector<SEAM*>& seams,
                                           const char* description,
                                           TWERD *word,
                                           BlamerBundle *blamer_bundle) {
-  if (end > start) join_pieces(seams, start, end, word);
+  if (end > start) SEAM::JoinPieces(seams, word->blobs, start, end);
   BLOB_CHOICE_LIST *choices = classify_blob(word->blobs[start], description,
                                             White, blamer_bundle);
   // Set the matrix_cell_ entries in all the BLOB_CHOICES.
@@ -67,7 +67,7 @@ BLOB_CHOICE_LIST *Wordrec::classify_piece(const GenericVector<SEAM*>& seams,
     bc_it.data()->set_matrix_cell(start, end);
   }
 
-  if (end > start) break_pieces(seams, start, end, word);
+  if (end > start) SEAM::BreakPieces(seams, word->blobs, start, end);
 
   return (choices);
 }
