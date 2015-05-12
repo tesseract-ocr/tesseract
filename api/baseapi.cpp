@@ -51,6 +51,7 @@
 #include "allheaders.h"
 
 #include "baseapi.h"
+#include "blobclass.h"
 #include "resultiterator.h"
 #include "mutableiterator.h"
 #include "thresholder.h"
@@ -870,7 +871,9 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     page_res_ = NULL;
     return -1;
   } else if (tesseract_->tessedit_train_from_boxes) {
-    tesseract_->ApplyBoxTraining(*output_file_, page_res_);
+    STRING fontname;
+    ExtractFontName(*output_file_, &fontname);
+    tesseract_->ApplyBoxTraining(fontname, page_res_);
   } else if (tesseract_->tessedit_ambigs_training) {
     FILE *training_output_file = tesseract_->init_recog_training(*input_file_);
     // OCR the page segmented into words by tesseract.
@@ -1051,6 +1054,23 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
   return true;
 }
 
+// Master ProcessPages calls ProcessPagesInternal and then does any post-
+// processing required due to being in a training mode.
+bool TessBaseAPI::ProcessPages(const char* filename, const char* retry_config,
+                               int timeout_millisec,
+                               TessResultRenderer* renderer) {
+  bool result =
+      ProcessPagesInternal(filename, retry_config, timeout_millisec, renderer);
+  if (result) {
+    if (tesseract_->tessedit_train_from_boxes &&
+        !tesseract_->WriteTRFile(*output_file_)) {
+      tprintf("Write of TR file failed: %s\n", output_file_->string());
+      return false;
+    }
+  }
+  return result;
+}
+
 // In the ideal scenario, Tesseract will start working on data as soon
 // as it can. For example, if you steam a filelist through stdin, we
 // should start the OCR process as soon as the first filename is
@@ -1063,9 +1083,10 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
 // identify the scenario that really matters: filelists on
 // stdin. We'll still do our best if the user likes pipes.  That means
 // piling up any data coming into stdin into a memory buffer.
-bool TessBaseAPI::ProcessPages(const char* filename,
-                               const char* retry_config, int timeout_millisec,
-                               TessResultRenderer* renderer) {
+bool TessBaseAPI::ProcessPagesInternal(const char* filename,
+                                       const char* retry_config,
+                                       int timeout_millisec,
+                                       TessResultRenderer* renderer) {
   PERF_COUNT_START("ProcessPages")
   bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "-");
   if (stdInput) {

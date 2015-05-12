@@ -538,9 +538,11 @@ class TESS_API TessBaseAPI {
    *
    * Returns true if successful, false on error.
    */
-  bool ProcessPages(const char* filename,
-                    const char* retry_config, int timeout_millisec,
-                    TessResultRenderer* renderer);
+  bool ProcessPages(const char* filename, const char* retry_config,
+                    int timeout_millisec, TessResultRenderer* renderer);
+  // Does the real work of ProcessPages.
+  bool ProcessPagesInternal(const char* filename, const char* retry_config,
+                            int timeout_millisec, TessResultRenderer* renderer);
 
   /**
    * Turn a single image into symbolic text.

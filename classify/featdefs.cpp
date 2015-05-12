@@ -178,7 +178,7 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
 
 /*---------------------------------------------------------------------------*/
 /**
- * Write a textual representation of CharDesc to File.
+ * Appends a textual representation of CharDesc to str.
  * The format used is to write out the number of feature
  * sets which will be written followed by a representation of
  * each feature set.
@@ -187,18 +187,15 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
  * by a description of the feature set.  Feature sets which are
  * not present are not written.
  *
- * Globals: 
- * - none
- *
  * @param FeatureDefs    definitions of feature types/extractors
- * @param File		open text file to write CharDesc to
- * @param CharDesc	character description to write to File
+ * @param str            string to append CharDesc to
+ * @param CharDesc       character description to write to File
  *
  * @note Exceptions: none
  * @note History: Wed May 23 17:21:18 1990, DSJ, Created.
  */
-void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                          FILE *File, CHAR_DESC CharDesc) {
+void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
+                          CHAR_DESC CharDesc, STRING* str) {
   int Type;
   int NumSetsToWrite = 0;
 
@@ -206,11 +203,14 @@ void WriteCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
     if (CharDesc->FeatureSets[Type])
       NumSetsToWrite++;
 
-  fprintf (File, " %d\n", NumSetsToWrite);
-  for (Type = 0; Type < CharDesc->NumFeatureSets; Type++)
-  if (CharDesc->FeatureSets[Type]) {
-    fprintf (File, "%s ", (FeatureDefs.FeatureDesc[Type])->ShortName);
-    WriteFeatureSet (File, CharDesc->FeatureSets[Type]);
+  str->add_str_int(" ", NumSetsToWrite);
+  *str += "\n";
+  for (Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
+    if (CharDesc->FeatureSets[Type]) {
+      *str += FeatureDefs.FeatureDesc[Type]->ShortName;
+      *str += " ";
+      WriteFeatureSet(CharDesc->FeatureSets[Type], str);
+    }
   }
 }                                /* WriteCharDescription */
 
@@ -231,6 +231,8 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
             anything_written = true;
         }
       }
+    } else {
+      return false;
     }
   }
   return anything_written && well_formed;

@@ -775,13 +775,13 @@ void Tesseract::CorrectClassifyWords(PAGE_RES* page_res) {
 }
 
 // Calls LearnWord to extract features for labelled blobs within each word.
-// Features are written to the given filename.
-void Tesseract::ApplyBoxTraining(const STRING& filename, PAGE_RES* page_res) {
+// Features are stored in an internal buffer.
+void Tesseract::ApplyBoxTraining(const STRING& fontname, PAGE_RES* page_res) {
   PAGE_RES_IT pr_it(page_res);
   int word_count = 0;
   for (WERD_RES *word_res = pr_it.word(); word_res != NULL;
        word_res = pr_it.forward()) {
-    LearnWord(filename.string(), word_res);
+    LearnWord(fontname.string(), word_res);
     ++word_count;
   }
   tprintf("Generated training data for %d words\n", word_count);

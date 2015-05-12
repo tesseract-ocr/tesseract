@@ -23,7 +23,6 @@
 ----------------------------------------------------------------------------**/
 #include "oldlist.h"
 #include "matchdefs.h"
-#include "xform2d.h"
 
 /* definition of a list of micro-features */
 typedef LIST MICROFEATURES;
