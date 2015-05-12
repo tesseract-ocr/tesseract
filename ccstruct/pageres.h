@@ -708,6 +708,10 @@ class PAGE_RES_IT {
   // Deletes the current WERD_RES and its underlying WERD.
   void DeleteCurrentWord();
 
+  // Makes the current word a fuzzy space if not already fuzzy. Updates
+  // corresponding part of combo if required.
+  void MakeCurrentWordFuzzy();
+
   WERD_RES *forward() {  // Get next word.
     return internal_forward(false, false);
   }
@@ -747,9 +751,9 @@ class PAGE_RES_IT {
     return next_block_res;
   }
   void rej_stat_word();  // for page/block/row
+  void ResetWordIterator();
 
  private:
-  void ResetWordIterator();
   WERD_RES *internal_forward(bool new_block, bool empty_ok);
 
   WERD_RES * prev_word_res;    // previous word

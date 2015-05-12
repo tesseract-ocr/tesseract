@@ -93,8 +93,7 @@ BOOL8 Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
 
   WordData word_data(*pr_it);
   SetupWordPassN(2, &word_data);
-  classify_word_and_language(&Tesseract::classify_word_pass2, pr_it,
-                             &word_data);
+  classify_word_and_language(2, pr_it, &word_data);
   if (tessedit_debug_quality_metrics) {
     WERD_RES* word_res = pr_it->word();
     word_char_quality(word_res, pr_it->row()->row, &char_qual, &good_char_qual);
@@ -190,6 +189,7 @@ void Tesseract::SetupWordPassN(int pass_n, WordData* word) {
       if (word->word->x_height == 0.0f)
         word->word->x_height = word->row->x_height();
     }
+    word->lang_words.truncate(0);
     for (int s = 0; s <= sub_langs_.size(); ++s) {
       // The sub_langs_.size() entry is for the master language.
       Tesseract* lang_t = s < sub_langs_.size() ? sub_langs_[s] : this;
@@ -249,15 +249,23 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
     while (pr_it->word() != NULL && pr_it->word() != word->word)
       pr_it->forward();
     ASSERT_HOST(pr_it->word() != NULL);
-    WordRecognizer recognizer = pass_n == 1 ? &Tesseract::classify_word_pass1
-                                            : &Tesseract::classify_word_pass2;
-    classify_word_and_language(recognizer, pr_it, word);
-    if (tessedit_dump_choices) {
+    bool make_next_word_fuzzy = false;
+    if (!AnyLSTMLang() &&
+        ReassignDiacritics(pass_n, pr_it, &make_next_word_fuzzy)) {
+      // Needs to be setup again to see the new outlines in the chopped_word.
+      SetupWordPassN(pass_n, word);
+    }
+
+    classify_word_and_language(pass_n, pr_it, word);
+    if (tessedit_dump_choices || debug_noise_removal) {
       tprintf("Pass%d: %s [%s]\n", pass_n,
               word->word->best_choice->unichar_string().string(),
               word->word->best_choice->debug_string().string());
     }
     pr_it->forward();
+    if (make_next_word_fuzzy && pr_it->word() != NULL) {
+      pr_it->MakeCurrentWordFuzzy();
+    }
   }
   return true;
 }
@@ -898,6 +906,359 @@ static bool WordsAcceptable(const PointerVector<WERD_RES>& words) {
   return true;
 }
 
+// Moves good-looking "noise"/diacritics from the reject list to the main
+// blob list on the current word. Returns true if anything was done, and
+// sets make_next_word_fuzzy if blob(s) were added to the end of the word.
+bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT* pr_it,
+                                   bool* make_next_word_fuzzy) {
+  *make_next_word_fuzzy = false;
+  WERD* real_word = pr_it->word()->word;
+  if (real_word->rej_cblob_list()->empty() ||
+      real_word->cblob_list()->empty() ||
+      real_word->rej_cblob_list()->length() > noise_maxperword)
+    return false;
+  real_word->rej_cblob_list()->sort(&C_BLOB::SortByXMiddle);
+  // Get the noise outlines into a vector with matching bool map.
+  GenericVector<C_OUTLINE*> outlines;
+  real_word->GetNoiseOutlines(&outlines);
+  GenericVector<bool> word_wanted;
+  GenericVector<bool> overlapped_any_blob;
+  GenericVector<C_BLOB*> target_blobs;
+  AssignDiacriticsToOverlappingBlobs(outlines, pass, real_word, pr_it,
+                                     &word_wanted, &overlapped_any_blob,
+                                     &target_blobs);
+  // Filter the outlines that overlapped any blob and put them into the word
+  // now. This simplifies the remaining task and also makes it more accurate
+  // as it has more completed blobs to work on.
+  GenericVector<bool> wanted;
+  GenericVector<C_BLOB*> wanted_blobs;
+  GenericVector<C_OUTLINE*> wanted_outlines;
+  int num_overlapped = 0;
+  int num_overlapped_used = 0;
+  for (int i = 0; i < overlapped_any_blob.size(); ++i) {
+    if (overlapped_any_blob[i]) {
+      ++num_overlapped;
+      if (word_wanted[i]) ++num_overlapped_used;
+      wanted.push_back(word_wanted[i]);
+      wanted_blobs.push_back(target_blobs[i]);
+      wanted_outlines.push_back(outlines[i]);
+      outlines[i] = NULL;
+    }
+  }
+  real_word->AddSelectedOutlines(wanted, wanted_blobs, wanted_outlines, NULL);
+  AssignDiacriticsToNewBlobs(outlines, pass, real_word, pr_it, &word_wanted,
+                             &target_blobs);
+  int non_overlapped = 0;
+  int non_overlapped_used = 0;
+  for (int i = 0; i < word_wanted.size(); ++i) {
+    if (word_wanted[i]) ++non_overlapped_used;
+    if (outlines[i] != NULL) ++non_overlapped_used;
+  }
+  if (debug_noise_removal) {
+    tprintf("Used %d/%d overlapped %d/%d non-overlaped diacritics on word:",
+            num_overlapped_used, num_overlapped, non_overlapped_used,
+            non_overlapped);
+    real_word->bounding_box().print();
+  }
+  // Now we have decided which outlines we want, put them into the real_word.
+  if (real_word->AddSelectedOutlines(word_wanted, target_blobs, outlines,
+                                     make_next_word_fuzzy)) {
+    pr_it->MakeCurrentWordFuzzy();
+  }
+  // TODO(rays) Parts of combos have a deep copy of the real word, and need
+  // to have their noise outlines moved/assigned in the same way!!
+  return num_overlapped_used != 0 || non_overlapped_used != 0;
+}
+
+// Attempts to put noise/diacritic outlines into the blobs that they overlap.
+// Input: a set of noisy outlines that probably belong to the real_word.
+// Output: word_wanted indicates which outlines are to be assigned to a blob,
+//   target_blobs indicates which to assign to, and overlapped_any_blob is
+//   true for all outlines that overlapped a blob.
+void Tesseract::AssignDiacriticsToOverlappingBlobs(
+    const GenericVector<C_OUTLINE*>& outlines, int pass, WERD* real_word,
+    PAGE_RES_IT* pr_it, GenericVector<bool>* word_wanted,
+    GenericVector<bool>* overlapped_any_blob,
+    GenericVector<C_BLOB*>* target_blobs) {
+  GenericVector<bool> blob_wanted;
+  word_wanted->init_to_size(outlines.size(), false);
+  overlapped_any_blob->init_to_size(outlines.size(), false);
+  target_blobs->init_to_size(outlines.size(), NULL);
+  // For each real blob, find the outlines that seriously overlap it.
+  // A single blob could be several merged characters, so there can be quite
+  // a few outlines overlapping, and the full engine needs to be used to chop
+  // and join to get a sensible result.
+  C_BLOB_IT blob_it(real_word->cblob_list());
+  for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+    C_BLOB* blob = blob_it.data();
+    TBOX blob_box = blob->bounding_box();
+    blob_wanted.init_to_size(outlines.size(), false);
+    int num_blob_outlines = 0;
+    for (int i = 0; i < outlines.size(); ++i) {
+      if (blob_box.major_x_overlap(outlines[i]->bounding_box()) &&
+          !(*word_wanted)[i]) {
+        blob_wanted[i] = true;
+        (*overlapped_any_blob)[i] = true;
+        ++num_blob_outlines;
+      }
+    }
+    if (debug_noise_removal) {
+      tprintf("%d noise outlines overlap blob at:", num_blob_outlines);
+      blob_box.print();
+    }
+    // If any outlines overlap the blob, and not too many, classify the blob
+    // (using the full engine, languages and all), and choose the maximal
+    // combination of outlines that doesn't hurt the end-result classification
+    // by too much. Mark them as wanted.
+    if (0 < num_blob_outlines && num_blob_outlines < noise_maxperblob) {
+      if (SelectGoodDiacriticOutlines(pass, noise_cert_basechar, pr_it, blob,
+                                      outlines, num_blob_outlines,
+                                      &blob_wanted)) {
+        for (int i = 0; i < blob_wanted.size(); ++i) {
+          if (blob_wanted[i]) {
+            // Claim the outline and record where it is going.
+            (*word_wanted)[i] = true;
+            (*target_blobs)[i] = blob;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Attempts to assign non-overlapping outlines to their nearest blobs or
+// make new blobs out of them.
+void Tesseract::AssignDiacriticsToNewBlobs(
+    const GenericVector<C_OUTLINE*>& outlines, int pass, WERD* real_word,
+    PAGE_RES_IT* pr_it, GenericVector<bool>* word_wanted,
+    GenericVector<C_BLOB*>* target_blobs) {
+  GenericVector<bool> blob_wanted;
+  word_wanted->init_to_size(outlines.size(), false);
+  target_blobs->init_to_size(outlines.size(), NULL);
+  // Check for outlines that need to be turned into stand-alone blobs.
+  for (int i = 0; i < outlines.size(); ++i) {
+    if (outlines[i] == NULL) continue;
+    // Get a set of adjacent outlines that don't overlap any existing blob.
+    blob_wanted.init_to_size(outlines.size(), false);
+    int num_blob_outlines = 0;
+    TBOX total_ol_box(outlines[i]->bounding_box());
+    while (i < outlines.size() && outlines[i] != NULL) {
+      blob_wanted[i] = true;
+      total_ol_box += outlines[i]->bounding_box();
+      ++i;
+      ++num_blob_outlines;
+    }
+    // Find the insertion point.
+    C_BLOB_IT blob_it(real_word->cblob_list());
+    while (!blob_it.at_last() &&
+           blob_it.data_relative(1)->bounding_box().left() <=
+               total_ol_box.left()) {
+      blob_it.forward();
+    }
+    // Choose which combination of them we actually want and where to put
+    // them.
+    if (debug_noise_removal)
+      tprintf("Num blobless outlines = %d\n", num_blob_outlines);
+    C_BLOB* left_blob = blob_it.data();
+    TBOX left_box = left_blob->bounding_box();
+    C_BLOB* right_blob = blob_it.at_last() ? NULL : blob_it.data_relative(1);
+    if ((left_box.x_overlap(total_ol_box) || right_blob == NULL ||
+         !right_blob->bounding_box().x_overlap(total_ol_box)) &&
+        SelectGoodDiacriticOutlines(pass, noise_cert_disjoint, pr_it, left_blob,
+                                    outlines, num_blob_outlines,
+                                    &blob_wanted)) {
+      if (debug_noise_removal) tprintf("Added to left blob\n");
+      for (int j = 0; j < blob_wanted.size(); ++j) {
+        if (blob_wanted[j]) {
+          (*word_wanted)[j] = true;
+          (*target_blobs)[j] = left_blob;
+        }
+      }
+    } else if (right_blob != NULL &&
+               (!left_box.x_overlap(total_ol_box) ||
+                right_blob->bounding_box().x_overlap(total_ol_box)) &&
+               SelectGoodDiacriticOutlines(pass, noise_cert_disjoint, pr_it,
+                                           right_blob, outlines,
+                                           num_blob_outlines, &blob_wanted)) {
+      if (debug_noise_removal) tprintf("Added to right blob\n");
+      for (int j = 0; j < blob_wanted.size(); ++j) {
+        if (blob_wanted[j]) {
+          (*word_wanted)[j] = true;
+          (*target_blobs)[j] = right_blob;
+        }
+      }
+    } else if (SelectGoodDiacriticOutlines(pass, noise_cert_punc, pr_it, NULL,
+                                           outlines, num_blob_outlines,
+                                           &blob_wanted)) {
+      if (debug_noise_removal) tprintf("Fitted between blobs\n");
+      for (int j = 0; j < blob_wanted.size(); ++j) {
+        if (blob_wanted[j]) {
+          (*word_wanted)[j] = true;
+          (*target_blobs)[j] = NULL;
+        }
+      }
+    }
+  }
+}
+
+// Starting with ok_outlines set to indicate which outlines overlap the blob,
+// chooses the optimal set (approximately) and returns true if any outlines
+// are desired, in which case ok_outlines indicates which ones.
+bool Tesseract::SelectGoodDiacriticOutlines(
+    int pass, float certainty_threshold, PAGE_RES_IT* pr_it, C_BLOB* blob,
+    const GenericVector<C_OUTLINE*>& outlines, int num_outlines,
+    GenericVector<bool>* ok_outlines) {
+  STRING best_str;
+  float target_cert = certainty_threshold;
+  if (blob != NULL) {
+    float target_c2;
+    target_cert = ClassifyBlobAsWord(pass, pr_it, blob, &best_str, &target_c2);
+    if (debug_noise_removal) {
+      tprintf("No Noise blob classified as %s=%g(%g) at:", best_str.string(),
+              target_cert, target_c2);
+      blob->bounding_box().print();
+    }
+    target_cert -= (target_cert - certainty_threshold) * noise_cert_factor;
+  }
+  GenericVector<bool> test_outlines = *ok_outlines;
+  // Start with all the outlines in.
+  STRING all_str;
+  GenericVector<bool> best_outlines = *ok_outlines;
+  float best_cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass,
+                                             pr_it, blob, &all_str);
+  if (debug_noise_removal) {
+    TBOX ol_box;
+    for (int i = 0; i < test_outlines.size(); ++i) {
+      if (test_outlines[i]) ol_box += outlines[i]->bounding_box();
+    }
+    tprintf("All Noise blob classified as %s=%g, delta=%g at:",
+            all_str.string(), best_cert, best_cert - target_cert);
+    ol_box.print();
+  }
+  // Iteratively zero out the bit that improves the certainty the most, until
+  // we get past the threshold, have zero bits, or fail to improve.
+  int best_index = 0;  // To zero out.
+  while (num_outlines > 1 && best_index >= 0 &&
+         (blob == NULL || best_cert < target_cert || blob != NULL)) {
+    // Find the best bit to zero out.
+    best_index = -1;
+    for (int i = 0; i < outlines.size(); ++i) {
+      if (test_outlines[i]) {
+        test_outlines[i] = false;
+        STRING str;
+        float cert = ClassifyBlobPlusOutlines(test_outlines, outlines, pass,
+                                              pr_it, blob, &str);
+        if (debug_noise_removal) {
+          TBOX ol_box;
+          for (int j = 0; j < outlines.size(); ++j) {
+            if (test_outlines[j]) ol_box += outlines[j]->bounding_box();
+            tprintf("%d", test_outlines[j]);
+          }
+          tprintf(" blob classified as %s=%g, delta=%g) at:", str.string(),
+                  cert, cert - target_cert);
+          ol_box.print();
+        }
+        if (cert > best_cert) {
+          best_cert = cert;
+          best_index = i;
+          best_outlines = test_outlines;
+        }
+        test_outlines[i] = true;
+      }
+    }
+    if (best_index >= 0) {
+      test_outlines[best_index] = false;
+      --num_outlines;
+    }
+  }
+  if (best_cert >= target_cert) {
+    // Save the best combination.
+    *ok_outlines = best_outlines;
+    if (debug_noise_removal) {
+      tprintf("%s noise combination ", blob ? "Adding" : "New");
+      for (int i = 0; i < best_outlines.size(); ++i) {
+        tprintf("%d", best_outlines[i]);
+      }
+      tprintf(" yields certainty %g, beating target of %g\n", best_cert,
+              target_cert);
+    }
+    return true;
+  }
+  return false;
+}
+
+// Classifies the given blob plus the outlines flagged by ok_outlines, undoes
+// the inclusion of the outlines, and returns the certainty of the raw choice.
+float Tesseract::ClassifyBlobPlusOutlines(
+    const GenericVector<bool>& ok_outlines,
+    const GenericVector<C_OUTLINE*>& outlines, int pass_n, PAGE_RES_IT* pr_it,
+    C_BLOB* blob, STRING* best_str) {
+  C_OUTLINE_IT ol_it;
+  C_OUTLINE* first_to_keep = NULL;
+  if (blob != NULL) {
+    // Add the required outlines to the blob.
+    ol_it.set_to_list(blob->out_list());
+    first_to_keep = ol_it.data();
+  }
+  for (int i = 0; i < ok_outlines.size(); ++i) {
+    if (ok_outlines[i]) {
+      // This outline is to be added.
+      if (blob == NULL) {
+        blob = new C_BLOB(outlines[i]);
+        ol_it.set_to_list(blob->out_list());
+      } else {
+        ol_it.add_before_stay_put(outlines[i]);
+      }
+    }
+  }
+  float c2;
+  float cert = ClassifyBlobAsWord(pass_n, pr_it, blob, best_str, &c2);
+  ol_it.move_to_first();
+  if (first_to_keep == NULL) {
+    // We created blob. Empty its outlines and delete it.
+    for (; !ol_it.empty(); ol_it.forward()) ol_it.extract();
+    delete blob;
+    cert = -c2;
+  } else {
+    // Remove the outlines that we put in.
+    for (; ol_it.data() != first_to_keep; ol_it.forward()) {
+      ol_it.extract();
+    }
+  }
+  return cert;
+}
+
+// Classifies the given blob (part of word_data->word->word) as an individual
+// word, using languages, chopper etc, returning only the certainty of the
+// best raw choice, and undoing all the work done to fake out the word.
+float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT* pr_it,
+                                    C_BLOB* blob, STRING* best_str, float* c2) {
+  WERD* real_word = pr_it->word()->word;
+  WERD* word = real_word->ConstructFromSingleBlob(
+      real_word->flag(W_BOL), real_word->flag(W_EOL), C_BLOB::deep_copy(blob));
+  WERD_RES* word_res = pr_it->InsertSimpleCloneWord(*pr_it->word(), word);
+  // Get a new iterator that points to the new word.
+  PAGE_RES_IT it(pr_it->page_res);
+  while (it.word() != word_res && it.word() != NULL) it.forward();
+  ASSERT_HOST(it.word() == word_res);
+  WordData wd(it);
+  // Force full initialization.
+  SetupWordPassN(1, &wd);
+  classify_word_and_language(pass_n, &it, &wd);
+  if (debug_noise_removal) {
+    tprintf("word xheight=%g, row=%g, range=[%g,%g]\n", word_res->x_height,
+            wd.row->x_height(), wd.word->raw_choice->min_x_height(),
+            wd.word->raw_choice->max_x_height());
+  }
+  float cert = wd.word->raw_choice->certainty();
+  float rat = wd.word->raw_choice->rating();
+  *c2 = rat > 0.0f ? cert * cert / rat : 0.0f;
+  *best_str = wd.word->raw_choice->unichar_string();
+  it.DeleteCurrentWord();
+  pr_it->ResetWordIterator();
+  return cert;
+}
+
 // Generic function for classifying a word. Can be used either for pass1 or
 // pass2 according to the function passed to recognizer.
 // word_data holds the word to be recognized, and its block and row, and
@@ -906,9 +1267,10 @@ static bool WordsAcceptable(const PointerVector<WERD_RES>& words) {
 // Recognizes in the current language, and if successful that is all.
 // If recognition was not successful, tries all available languages until
 // it gets a successful result or runs out of languages. Keeps the best result.
-void Tesseract::classify_word_and_language(WordRecognizer recognizer,
-                                           PAGE_RES_IT* pr_it,
+void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT* pr_it,
                                            WordData* word_data) {
+  WordRecognizer recognizer = pass_n == 1 ? &Tesseract::classify_word_pass1
+                                          : &Tesseract::classify_word_pass2;
   // Best result so far.
   PointerVector<WERD_RES> best_words;
   // Points to the best result. May be word or in lang_words.

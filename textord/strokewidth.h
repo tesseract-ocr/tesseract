@@ -41,6 +41,14 @@ enum LeftOrRight {
   LR_RIGHT
 };
 
+// Return value from FindInitialPartitions indicates detection of severe
+// skew or noise.
+enum PartitionFindResult {
+  PFR_OK,    // Everything is OK.
+  PFR_SKEW,  // Skew was detected and rotated.
+  PFR_NOISE  // Noise was detected and removed.
+};
+
 /**
  * The StrokeWidth class holds all the normal and large blobs.
  * It is used to find good large blobs and move them to the normal blobs
@@ -110,12 +118,10 @@ class StrokeWidth : public BlobGrid {
   // part_grid is the output grid of textline partitions.
   // Large blobs that cause overlap are put in separate partitions and added
   // to the big_parts list.
-  void GradeBlobsIntoPartitions(const FCOORD& rerotation,
-                                TO_BLOCK* block,
-                                Pix* nontext_pix,
-                                const DENORM* denorm,
-                                bool cjk_script,
-                                TextlineProjection* projection,
+  void GradeBlobsIntoPartitions(const FCOORD& rerotation, TO_BLOCK* block,
+                                Pix* nontext_pix, const DENORM* denorm,
+                                bool cjk_script, TextlineProjection* projection,
+                                BLOBNBOX_LIST* diacritic_blobs,
                                 ColPartitionGrid* part_grid,
                                 ColPartition_LIST* big_parts);
 
@@ -205,10 +211,26 @@ class StrokeWidth : public BlobGrid {
   // minimize overlap and smoothes the types with neighbours and the color
   // image if provided. rerotation is used to rotate the coordinate space
   // back to the nontext_map_ image.
-  void FindInitialPartitions(const FCOORD& rerotation,
-                             TO_BLOCK* block,
-                             ColPartitionGrid* part_grid,
-                             ColPartition_LIST* big_parts);
+  // If find_problems is true, detects possible noise pollution by the amount
+  // of partition overlap that is created by the diacritics. If excessive, the
+  // noise is separated out into diacritic blobs, and PFR_NOISE is returned.
+  // [TODO(rays): if the partition overlap is caused by heavy skew, deskews
+  // the components, saves the skew_angle and returns PFR_SKEW.] If the return
+  // is not PFR_OK, the job is incomplete, and FindInitialPartitions must be
+  // called again after cleaning up the partly done work.
+  PartitionFindResult FindInitialPartitions(const FCOORD& rerotation,
+                                            bool find_problems, TO_BLOCK* block,
+                                            BLOBNBOX_LIST* diacritic_blobs,
+                                            ColPartitionGrid* part_grid,
+                                            ColPartition_LIST* big_parts,
+                                            FCOORD* skew_angle);
+  // Detects noise by a significant increase in partition overlap from
+  // pre_overlap to now, and removes noise from the union of all the overlapping
+  // partitions, placing the blobs in diacritic_blobs. Returns true if any noise
+  // was found and removed.
+  bool DetectAndRemoveNoise(int pre_overlap, const TBOX& grid_box,
+                            TO_BLOCK* block, ColPartitionGrid* part_grid,
+                            BLOBNBOX_LIST* diacritic_blobs);
   // Finds vertical chains of text-like blobs and puts them in ColPartitions.
   void FindVerticalTextChains(ColPartitionGrid* part_grid);
   // Finds horizontal chains of text-like blobs and puts them in ColPartitions.

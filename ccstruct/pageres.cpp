@@ -1258,23 +1258,16 @@ int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
   return 0;
 }
 
-// Inserts the new_word and a corresponding WERD_RES before the current
-// position. The simple fields of the WERD_RES are copied from clone_res and
-// the resulting WERD_RES is returned for further setup with best_choice etc.
+// Inserts the new_word as a combination owned by a corresponding WERD_RES
+// before the current position. The simple fields of the WERD_RES are copied
+// from clone_res and the resulting WERD_RES is returned for further setup
+// with best_choice etc.
 WERD_RES* PAGE_RES_IT::InsertSimpleCloneWord(const WERD_RES& clone_res,
                                              WERD* new_word) {
-  // Insert new_word into the ROW.
-  WERD_IT w_it(row()->row->word_list());
-  for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
-    WERD* word = w_it.data();
-    if (word == word_res->word)
-      break;
-  }
-  ASSERT_HOST(!w_it.cycled_list());
-  w_it.add_before_then_move(new_word);
   // Make a WERD_RES for the new_word.
   WERD_RES* new_res = new WERD_RES(new_word);
   new_res->CopySimpleFields(clone_res);
+  new_res->combination = true;
   // Insert into the appropriate place in the ROW_RES.
   WERD_RES_IT wr_it(&row()->word_res_list);
   for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
@@ -1475,6 +1468,33 @@ void PAGE_RES_IT::DeleteCurrentWord() {
   ASSERT_HOST(!wr_it.cycled_list());
   delete wr_it.extract();
   ResetWordIterator();
+}
+
+// Makes the current word a fuzzy space if not already fuzzy. Updates
+// corresponding part of combo if required.
+void PAGE_RES_IT::MakeCurrentWordFuzzy() {
+  WERD* real_word = word_res->word;
+  if (!real_word->flag(W_FUZZY_SP) && !real_word->flag(W_FUZZY_NON)) {
+    real_word->set_flag(W_FUZZY_SP, true);
+    tprintf("Made word fuzzy at:");
+    real_word->bounding_box().print();
+    if (word_res->combination) {
+      // The next word should be the corresponding part of combo, but we have
+      // already stepped past it, so find it by search.
+      WERD_RES_IT wr_it(&row()->word_res_list);
+      for (wr_it.mark_cycle_pt();
+           !wr_it.cycled_list() && wr_it.data() != word_res; wr_it.forward()) {
+      }
+      wr_it.forward();
+      ASSERT_HOST(wr_it.data()->part_of_combo);
+      real_word = wr_it.data()->word;
+      ASSERT_HOST(!real_word->flag(W_FUZZY_SP) &&
+                  !real_word->flag(W_FUZZY_NON));
+      real_word->set_flag(W_FUZZY_SP, true);
+      tprintf("Made part of combo word fuzzy at:");
+      real_word->bounding_box().print();
+    }
+  }
 }
 
 /*************************************************************************

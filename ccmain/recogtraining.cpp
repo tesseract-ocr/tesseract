@@ -207,8 +207,7 @@ void Tesseract::ambigs_classify_and_output(const char *label,
   fflush(stdout);
   WordData word_data(*pr_it);
   SetupWordPassN(1, &word_data);
-  classify_word_and_language(&Tesseract::classify_word_pass1,
-                             pr_it, &word_data);
+  classify_word_and_language(1, pr_it, &word_data);
   WERD_RES* werd_res = word_data.word;
   WERD_CHOICE *best_choice = werd_res->best_choice;
   ASSERT_HOST(best_choice != NULL);
