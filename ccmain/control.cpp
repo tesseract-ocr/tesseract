@@ -1044,45 +1044,77 @@ bool Tesseract::TrainedXheightFix(WERD_RES *word, BLOCK* block, ROW *row) {
   int original_misfits = CountMisfitTops(word);
   if (original_misfits == 0)
     return false;
-  float new_x_ht = ComputeCompatibleXheight(word);
-  if (new_x_ht >= kMinRefitXHeightFraction * word->x_height) {
-    WERD_RES new_x_ht_word(word->word);
-    if (word->blamer_bundle != NULL) {
-      new_x_ht_word.blamer_bundle = new BlamerBundle();
-      new_x_ht_word.blamer_bundle->CopyTruth(*(word->blamer_bundle));
-    }
-    new_x_ht_word.x_height = new_x_ht;
-    new_x_ht_word.caps_height = 0.0;
-    new_x_ht_word.SetupForRecognition(
-          unicharset, this, BestPix(), tessedit_ocr_engine_mode, NULL,
-          classify_bln_numeric_mode, textord_use_cjk_fp_model,
-          poly_allow_detailed_fx, row, block);
-    match_word_pass_n(2, &new_x_ht_word, row, block);
-    if (!new_x_ht_word.tess_failed) {
-      int new_misfits = CountMisfitTops(&new_x_ht_word);
-      if (debug_x_ht_level >= 1) {
-        tprintf("Old misfits=%d with x-height %f, new=%d with x-height %f\n",
-                original_misfits, word->x_height,
-                new_misfits, new_x_ht);
-        tprintf("Old rating= %f, certainty=%f, new=%f, %f\n",
-                word->best_choice->rating(), word->best_choice->certainty(),
-                new_x_ht_word.best_choice->rating(),
-                new_x_ht_word.best_choice->certainty());
-      }
-      // The misfits must improve and either the rating or certainty.
-      accept_new_x_ht = new_misfits < original_misfits &&
-                        (new_x_ht_word.best_choice->certainty() >
-                            word->best_choice->certainty() ||
-                         new_x_ht_word.best_choice->rating() <
-                            word->best_choice->rating());
-      if (debug_x_ht_level >= 1) {
-        ReportXhtFixResult(accept_new_x_ht, new_x_ht, word, &new_x_ht_word);
+  float baseline_shift = 0.0f;
+  float new_x_ht = ComputeCompatibleXheight(word, &baseline_shift);
+  if (baseline_shift != 0.0f) {
+    // Try the shift on its own first.
+    if (!TestNewNormalization(original_misfits, baseline_shift, word->x_height,
+                              word, block, row))
+      return false;
+    original_misfits = CountMisfitTops(word);
+    if (original_misfits > 0) {
+      float new_baseline_shift;
+      // Now recompute the new x_height.
+      new_x_ht = ComputeCompatibleXheight(word, &new_baseline_shift);
+      if (new_x_ht >= kMinRefitXHeightFraction * word->x_height) {
+        // No test of return value here, as we are definitely making a change
+        // to the word by shifting the baseline.
+        TestNewNormalization(original_misfits, baseline_shift, new_x_ht,
+                             word, block, row);
       }
     }
-    if (accept_new_x_ht) {
-      word->ConsumeWordResults(&new_x_ht_word);
-      return true;
+    return true;
+  } else if (new_x_ht >= kMinRefitXHeightFraction * word->x_height) {
+    return TestNewNormalization(original_misfits, 0.0f, new_x_ht,
+                                word, block, row);
+  } else {
+    return false;
+  }
+}
+
+// Runs recognition with the test baseline shift and x-height and returns true
+// if there was an improvement in recognition result.
+bool Tesseract::TestNewNormalization(int original_misfits,
+                                     float baseline_shift, float new_x_ht,
+                                     WERD_RES *word, BLOCK* block, ROW *row) {
+  bool accept_new_x_ht = false;
+  WERD_RES new_x_ht_word(word->word);
+  if (word->blamer_bundle != NULL) {
+    new_x_ht_word.blamer_bundle = new BlamerBundle();
+    new_x_ht_word.blamer_bundle->CopyTruth(*(word->blamer_bundle));
+  }
+  new_x_ht_word.x_height = new_x_ht;
+  new_x_ht_word.baseline_shift = baseline_shift;
+  new_x_ht_word.caps_height = 0.0;
+  new_x_ht_word.SetupForRecognition(
+        unicharset, this, BestPix(), tessedit_ocr_engine_mode, NULL,
+        classify_bln_numeric_mode, textord_use_cjk_fp_model,
+      poly_allow_detailed_fx, row, block);
+  match_word_pass_n(2, &new_x_ht_word, row, block);
+  if (!new_x_ht_word.tess_failed) {
+    int new_misfits = CountMisfitTops(&new_x_ht_word);
+    if (debug_x_ht_level >= 1) {
+      tprintf("Old misfits=%d with x-height %f, new=%d with x-height %f\n",
+              original_misfits, word->x_height,
+              new_misfits, new_x_ht);
+      tprintf("Old rating= %f, certainty=%f, new=%f, %f\n",
+              word->best_choice->rating(), word->best_choice->certainty(),
+              new_x_ht_word.best_choice->rating(),
+              new_x_ht_word.best_choice->certainty());
     }
+    // The misfits must improve and either the rating or certainty.
+    accept_new_x_ht = new_misfits < original_misfits &&
+                      (new_x_ht_word.best_choice->certainty() >
+                          word->best_choice->certainty() ||
+                       new_x_ht_word.best_choice->rating() <
+                          word->best_choice->rating());
+    if (debug_x_ht_level >= 1) {
+      ReportXhtFixResult(accept_new_x_ht, new_x_ht, word, &new_x_ht_word);
+    }
+  }
+  if (accept_new_x_ht) {
+    word->ConsumeWordResults(&new_x_ht_word);
+    return true;
   }
   return false;
 }
@@ -1380,13 +1412,13 @@ BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
     return FALSE;
 
   tessedit_rejection_debug.set_value (FALSE);
-  debug_x_ht_level.set_value (0);
+  debug_x_ht_level.set_value(0);
 
   if (word->word->bounding_box ().contains (FCOORD (test_pt_x, test_pt_y))) {
     if (location < 0)
       return TRUE;               // For breakpoint use
     tessedit_rejection_debug.set_value (TRUE);
-    debug_x_ht_level.set_value (20);
+    debug_x_ht_level.set_value(2);
     tprintf ("\n\nTESTWD::");
     switch (location) {
       case 0:

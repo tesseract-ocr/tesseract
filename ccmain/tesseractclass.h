@@ -350,6 +350,11 @@ class Tesseract : public Wordrec {
                           WERD_RES* word, WERD_RES* new_word);
   bool RunOldFixXht(WERD_RES *word, BLOCK* block, ROW *row);
   bool TrainedXheightFix(WERD_RES *word, BLOCK* block, ROW *row);
+  // Runs recognition with the test baseline shift and x-height and returns true
+  // if there was an improvement in recognition result.
+  bool TestNewNormalization(int original_misfits, float baseline_shift,
+                            float new_x_ht, WERD_RES *word, BLOCK* block,
+                            ROW *row);
   BOOL8 recog_interactive(PAGE_RES_IT* pr_it);
 
   // Set fonts of this word.
@@ -729,7 +734,7 @@ class Tesseract : public Wordrec {
   // maximally compatible with the result in word_res.
   // Returns 0.0f if no x-height is found that is better than the current
   // estimate.
-  float ComputeCompatibleXheight(WERD_RES *word_res);
+  float ComputeCompatibleXheight(WERD_RES *word_res, float* baseline_shift);
   //// Data members ///////////////////////////////////////////////////////
   // TODO(ocr-team): Find and remove obsolete parameters.
   BOOL_VAR_H(tessedit_resegment_from_boxes, false,

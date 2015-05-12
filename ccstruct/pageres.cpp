@@ -252,6 +252,7 @@ void WERD_RES::CopySimpleFields(const WERD_RES& source) {
   fontinfo_id2_count = source.fontinfo_id2_count;
   x_height = source.x_height;
   caps_height = source.caps_height;
+  baseline_shift = source.baseline_shift;
   guessed_x_ht = source.guessed_x_ht;
   guessed_caps_ht = source.guessed_caps_ht;
   reject_spaces = source.reject_spaces;
@@ -314,8 +315,8 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
   float word_xheight = use_body_size && row != NULL && row->body_size() > 0.0f
                      ? row->body_size() : x_height;
   chopped_word->BLNormalize(block, row, pix, word->flag(W_INVERSE),
-                            word_xheight, numeric_mode, norm_mode_hint,
-                            norm_box, &denorm);
+                            word_xheight, baseline_shift, numeric_mode,
+                            norm_mode_hint, norm_box, &denorm);
   blob_row = row;
   SetupBasicsFromChoppedWord(unicharset_in);
   SetupBlamerBundle();
@@ -1100,6 +1101,7 @@ void WERD_RES::InitNonPointers() {
   fontinfo_id2_count = 0;
   x_height = 0.0;
   caps_height = 0.0;
+  baseline_shift = 0.0f;
   guessed_x_ht = TRUE;
   guessed_caps_ht = TRUE;
   combination = FALSE;

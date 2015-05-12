@@ -410,7 +410,7 @@ struct TWERD {
   // Baseline normalizes the blobs in-place, recording the normalization in the
   // DENORMs in the blobs.
   void BLNormalize(const BLOCK* block, const ROW* row, Pix* pix, bool inverse,
-                   float x_height, bool numeric_mode,
+                   float x_height, float baseline_shift, bool numeric_mode,
                    tesseract::OcrEngineMode hint,
                    const TBOX* norm_box,
                    DENORM* word_denorm);

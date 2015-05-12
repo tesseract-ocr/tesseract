@@ -805,8 +805,8 @@ TWERD* TWERD::PolygonalCopy(bool allow_detailed_fx, WERD* src) {
 // Baseline normalizes the blobs in-place, recording the normalization in the
 // DENORMs in the blobs.
 void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
-                        bool inverse, float x_height, bool numeric_mode,
-                        tesseract::OcrEngineMode hint,
+                        bool inverse, float x_height, float baseline_shift,
+                        bool numeric_mode, tesseract::OcrEngineMode hint,
                         const TBOX* norm_box,
                         DENORM* word_denorm) {
   TBOX word_box = bounding_box();
@@ -822,7 +822,7 @@ void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
     if (hint == tesseract::OEM_CUBE_ONLY)
       scale = 1.0f;
   } else {
-    input_y_offset = row->base_line(word_middle);
+    input_y_offset = row->base_line(word_middle) + baseline_shift;
   }
   for (int b = 0; b < blobs.size(); ++b) {
     TBLOB* blob = blobs[b];
@@ -835,7 +835,7 @@ void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
       blob_scale = ClipToRange(kBlnXHeight * 4.0f / (3 * blob_box.height()),
                                scale, scale * 1.5f);
     } else if (row != NULL && hint != tesseract::OEM_CUBE_ONLY) {
-      baseline = row->base_line(mid_x);
+      baseline = row->base_line(mid_x) + baseline_shift;
     }
     // The image will be 8-bit grey if the input was grey or color. Note that in
     // a grey image 0 is black and 255 is white. If the input was binary, then

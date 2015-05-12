@@ -294,6 +294,7 @@ class WERD_RES : public ELIST_LINK {
   CRUNCH_MODE unlv_crunch_mode;
   float x_height;              // post match estimate
   float caps_height;           // post match estimate
+  float baseline_shift;        // post match estimate.
 
   /*
     To deal with fuzzy spaces we need to be able to combine "words" to form
