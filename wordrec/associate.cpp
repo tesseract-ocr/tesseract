@@ -98,26 +98,25 @@ void AssociateUtils::ComputeStats(int col, int row,
     if (col > 0) {
       float left_gap = word_res->GetBlobsGap(col - 1) / normalizing_height;
       SEAM *left_seam = word_res->seam_array[col - 1];
-      if ((!end_row && left_gap < kMinGap) || left_seam->priority > 0.0f) {
+      if ((!end_row && left_gap < kMinGap) || left_seam->priority() > 0.0f) {
         stats->bad_shape = true;
       }
       if (debug) {
-        tprintf("left_gap %g, left_seam %g %s\n", left_gap, left_seam->priority,
-                stats->bad_shape ? "bad_shape" : "");
+        tprintf("left_gap %g, left_seam %g %s\n", left_gap,
+                left_seam->priority(), stats->bad_shape ? "bad_shape" : "");
       }
     }
     float right_gap = 0.0f;
     if (!end_row) {
       right_gap = word_res->GetBlobsGap(row) / normalizing_height;
       SEAM *right_seam = word_res->seam_array[row];
-      if (right_gap < kMinGap || right_seam->priority > 0.0f) {
+      if (right_gap < kMinGap || right_seam->priority() > 0.0f) {
         stats->bad_shape = true;
         if (right_gap < kMinGap) stats->bad_fixed_pitch_right_gap = true;
       }
       if (debug) {
-        tprintf("right_gap %g right_seam %g %s\n",
-                right_gap, right_seam->priority,
-                stats->bad_shape ? "bad_shape" : "");
+        tprintf("right_gap %g right_seam %g %s\n", right_gap,
+                right_seam->priority(), stats->bad_shape ? "bad_shape" : "");
       }
     }
 
