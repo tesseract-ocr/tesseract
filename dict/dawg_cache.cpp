@@ -61,7 +61,7 @@ Dawg *DawgLoader::Load() {
     return NULL;
   }
   if (!data_loader.SeekToStart(tessdata_dawg_type_)) {
-    data_loader.End(); /// Must close the file
+    data_loader.End();
     return NULL;
   }
   FILE *fp = data_loader.GetDataFilePtr();
