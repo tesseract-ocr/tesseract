@@ -114,7 +114,13 @@ class WERD : public ELIST2_LINK {
       script_id_ = id;
     }
 
-    TBOX bounding_box();  // compute bounding box
+    // Returns the (default) bounding box including all the dots.
+    TBOX bounding_box() const;  // compute bounding box
+    // Returns the bounding box including the desired combination of upper and
+    // lower noise/diacritic elements.
+    TBOX restricted_bounding_box(bool upper_dots, bool lower_dots) const;
+    // Returns the bounding box of only the good blobs.
+    TBOX true_bounding_box() const;
 
     const char *text() const { return correct.string(); }
     void set_text(const char *new_text) { correct = new_text; }
@@ -154,6 +160,26 @@ class WERD : public ELIST2_LINK {
     // plot rejected blobs in a rainbow of colours
     void plot_rej_blobs(ScrollView *window);
     #endif  // GRAPHICS_DISABLED
+
+    // Removes noise from the word by moving small outlines to the rej_cblobs
+    // list, based on the size_threshold.
+    void CleanNoise(float size_threshold);
+
+    // Extracts all the noise outlines and stuffs the pointers into the given
+    // vector of outlines. Afterwards, the outlines vector owns the pointers.
+    void GetNoiseOutlines(GenericVector<C_OUTLINE *> *outlines);
+    // Adds the selected outlines to the indcated real blobs, and puts the rest
+    // back in rej_cblobs where they came from. Where the target_blobs entry is
+    // NULL, a run of wanted outlines is put into a single new blob.
+    // Ownership of the outlines is transferred back to the word. (Hence
+    // GenericVector and not PointerVector.)
+    // Returns true if any new blob was added to the start of the word, which
+    // suggests that it might need joining to the word before it, and likewise
+    // sets make_next_word_fuzzy true if any new blob was added to the end.
+    bool AddSelectedOutlines(const GenericVector<bool> &wanted,
+                             const GenericVector<C_BLOB *> &target_blobs,
+                             const GenericVector<C_OUTLINE *> &outlines,
+                             bool *make_next_word_fuzzy);
 
  private:
     uinT8 blanks;                // no of blanks

@@ -51,6 +51,7 @@
 #include "allheaders.h"
 
 #include "baseapi.h"
+#include "blobclass.h"
 #include "resultiterator.h"
 #include "mutableiterator.h"
 #include "thresholder.h"
@@ -745,6 +746,7 @@ void TessBaseAPI::DumpPGM(const char* filename) {
   fclose(fp);
 }
 
+#ifndef ANDROID_BUILD
 /**
  * Placeholder for call to Cube and test that the input data is correct.
  * reskew is the direction of baselines in the skewed image in
@@ -789,6 +791,7 @@ int CubeAPITest(Boxa* boxa_blocks, Pixa* pixa_blocks,
   ASSERT_HOST(pr_word == word_count);
   return 0;
 }
+#endif
 
 /**
  * Runs page layout analysis in the mode set by SetPageSegMode.
@@ -874,7 +877,9 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     page_res_ = NULL;
     return -1;
   } else if (tesseract_->tessedit_train_from_boxes) {
-    tesseract_->ApplyBoxTraining(*output_file_, page_res_);
+    STRING fontname;
+    ExtractFontName(*output_file_, &fontname);
+    tesseract_->ApplyBoxTraining(fontname, page_res_);
   } else if (tesseract_->tessedit_ambigs_training) {
     FILE *training_output_file = tesseract_->init_recog_training(*input_file_);
     // OCR the page segmented into words by tesseract.
@@ -1023,6 +1028,7 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
                                             int timeout_millisec,
                                             TessResultRenderer* renderer,
                                             int tessedit_page_number) {
+#ifndef ANDROID_BUILD
   Pix *pix = NULL;
 #ifdef USE_OPENCL
   OpenclDevice od;
@@ -1053,6 +1059,26 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
     if (tessedit_page_number >= 0) break;
   }
   return true;
+#else
+  return false;
+#endif
+}
+
+// Master ProcessPages calls ProcessPagesInternal and then does any post-
+// processing required due to being in a training mode.
+bool TessBaseAPI::ProcessPages(const char* filename, const char* retry_config,
+                               int timeout_millisec,
+                               TessResultRenderer* renderer) {
+  bool result =
+      ProcessPagesInternal(filename, retry_config, timeout_millisec, renderer);
+  if (result) {
+    if (tesseract_->tessedit_train_from_boxes &&
+        !tesseract_->WriteTRFile(*output_file_)) {
+      tprintf("Write of TR file failed: %s\n", output_file_->string());
+      return false;
+    }
+  }
+  return result;
 }
 
 // In the ideal scenario, Tesseract will start working on data as soon
@@ -1067,9 +1093,11 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
 // identify the scenario that really matters: filelists on
 // stdin. We'll still do our best if the user likes pipes.  That means
 // piling up any data coming into stdin into a memory buffer.
-bool TessBaseAPI::ProcessPages(const char* filename,
-                               const char* retry_config, int timeout_millisec,
-                               TessResultRenderer* renderer) {
+bool TessBaseAPI::ProcessPagesInternal(const char* filename,
+                                       const char* retry_config,
+                                       int timeout_millisec,
+                                       TessResultRenderer* renderer) {
+#ifndef ANDROID_BUILD
   PERF_COUNT_START("ProcessPages")
   bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "-");
   if (stdInput) {
@@ -1157,6 +1185,9 @@ bool TessBaseAPI::ProcessPages(const char* filename,
   }
   PERF_COUNT_END
   return true;
+#else
+  return false;
+#endif
 }
 
 bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
@@ -1190,8 +1221,10 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
     failed = Recognize(NULL) < 0;
   }
   if (tesseract_->tessedit_write_images) {
+#ifndef ANDROID_BUILD
     Pix* page_pix = GetThresholdedImage();
     pixWrite("tessinput.tif", page_pix, IFF_TIFF_G4);
+#endif
   }
   if (failed && retry_config != NULL && retry_config[0] != '\0') {
     // Save current config variables before switching modes.
@@ -2596,10 +2629,12 @@ int TessBaseAPI::NumDawgs() const {
   return tesseract_ == NULL ? 0 : tesseract_->getDict().NumDawgs();
 }
 
+#ifndef ANDROID_BUILD
 /** Return a pointer to underlying CubeRecoContext object if present. */
 CubeRecoContext *TessBaseAPI::GetCubeRecoContext() const {
   return (tesseract_ == NULL) ? NULL : tesseract_->GetCubeRecoContext();
 }
+#endif
 
 /** Escape a char string - remove <>&"' with HTML codes. */
 STRING HOcrEscape(const char* text) {

@@ -223,10 +223,10 @@ void NormalizePicoX(FEATURE_SET FeatureSet) {
   }
 }                                /* NormalizePicoX */
 
+namespace tesseract {
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractIntCNFeatures(TBLOB *blob, const DENORM& bl_denorm,
-                                 const DENORM& cn_denorm,
-                                 const INT_FX_RESULT_STRUCT& fx_info) {
+FEATURE_SET Classify::ExtractIntCNFeatures(
+    const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {
 /*
  ** Parameters:
  **   blob    blob to extract features from
@@ -237,9 +237,8 @@ FEATURE_SET ExtractIntCNFeatures(TBLOB *blob, const DENORM& bl_denorm,
  */
   INT_FX_RESULT_STRUCT local_fx_info(fx_info);
   GenericVector<INT_FEATURE_STRUCT> bl_features;
-  tesseract::TrainingSample* sample =
-      tesseract::BlobToTrainingSample(*blob, false, &local_fx_info,
-                                      &bl_features);
+  tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
+      blob, false, &local_fx_info, &bl_features);
   if (sample == NULL) return NULL;
 
   int num_features = sample->num_features();
@@ -259,9 +258,8 @@ FEATURE_SET ExtractIntCNFeatures(TBLOB *blob, const DENORM& bl_denorm,
 }                                /* ExtractIntCNFeatures */
 
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractIntGeoFeatures(TBLOB *blob, const DENORM& bl_denorm,
-                                  const DENORM& cn_denorm,
-                                  const INT_FX_RESULT_STRUCT& fx_info) {
+FEATURE_SET Classify::ExtractIntGeoFeatures(
+    const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {
 /*
  ** Parameters:
  **   blob    blob to extract features from
@@ -272,9 +270,8 @@ FEATURE_SET ExtractIntGeoFeatures(TBLOB *blob, const DENORM& bl_denorm,
  */
   INT_FX_RESULT_STRUCT local_fx_info(fx_info);
   GenericVector<INT_FEATURE_STRUCT> bl_features;
-  tesseract::TrainingSample* sample =
-      tesseract::BlobToTrainingSample(*blob, false, &local_fx_info,
-                                      &bl_features);
+  tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
+      blob, false, &local_fx_info, &bl_features);
   if (sample == NULL) return NULL;
 
   FEATURE_SET feature_set = NewFeatureSet(1);
@@ -288,3 +285,5 @@ FEATURE_SET ExtractIntGeoFeatures(TBLOB *blob, const DENORM& bl_denorm,
 
   return feature_set;
 }                                /* ExtractIntGeoFeatures */
+
+}  // namespace tesseract.

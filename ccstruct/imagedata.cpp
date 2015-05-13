@@ -51,6 +51,7 @@ void WordFeature::ComputeSize(const GenericVector<WordFeature>& features,
 // Draws the features in the given window.
 void WordFeature::Draw(const GenericVector<WordFeature>& features,
                        ScrollView* window) {
+#ifndef GRAPHICS_DISABLED
   for (int f = 0; f < features.size(); ++f) {
     FCOORD pos(features[f].x_, features[f].y_);
     FCOORD dir;
@@ -61,6 +62,7 @@ void WordFeature::Draw(const GenericVector<WordFeature>& features,
     window->DrawTo(IntCastRounded(pos.x() + dir.x()),
                       IntCastRounded(pos.y() + dir.y()));
   }
+#endif
 }
 
 // Writes to the given file. Returns false in case of error.
@@ -244,6 +246,7 @@ int ImageData::MemoryUsed() const {
 
 // Draws the data in a new window.
 void ImageData::Display() const {
+#ifndef GRAPHICS_DISABLED
   const int kTextSize = 64;
   // Draw the image.
   Pix* pix = GetPix();
@@ -274,6 +277,7 @@ void ImageData::Display() const {
   win->Pen(ScrollView::GREEN);
   win->Update();
   window_wait(win);
+#endif
 }
 
 // Adds the supplied boxes and transcriptions that correspond to the correct

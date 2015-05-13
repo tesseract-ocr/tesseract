@@ -324,6 +324,40 @@ static bool TestCompatibleCandidates(const ColPartition& part, bool debug,
   return true;
 }
 
+// Computes and returns the total overlap of all partitions in the grid.
+// If overlap_grid is non-null, it is filled with a grid that holds empty
+// partitions representing the union of all overlapped partitions.
+int ColPartitionGrid::ComputeTotalOverlap(ColPartitionGrid** overlap_grid) {
+  int total_overlap = 0;
+  // Iterate the ColPartitions in the grid.
+  ColPartitionGridSearch gsearch(this);
+  gsearch.StartFullSearch();
+  ColPartition* part;
+  while ((part = gsearch.NextFullSearch()) != NULL) {
+    ColPartition_CLIST neighbors;
+    const TBOX& part_box = part->bounding_box();
+    FindOverlappingPartitions(part_box, part, &neighbors);
+    ColPartition_C_IT n_it(&neighbors);
+    bool any_part_overlap = false;
+    for (n_it.mark_cycle_pt(); !n_it.cycled_list(); n_it.forward()) {
+      const TBOX& n_box = n_it.data()->bounding_box();
+      int overlap = n_box.intersection(part_box).area();
+      if (overlap > 0 && overlap_grid != NULL) {
+        if (*overlap_grid == NULL) {
+          *overlap_grid = new ColPartitionGrid(gridsize(), bleft(), tright());
+        }
+        (*overlap_grid)->InsertBBox(true, true, n_it.data()->ShallowCopy());
+        if (!any_part_overlap) {
+          (*overlap_grid)->InsertBBox(true, true, part->ShallowCopy());
+        }
+      }
+      any_part_overlap = true;
+      total_overlap += overlap;
+    }
+  }
+  return total_overlap;
+}
+
 // Finds all the ColPartitions in the grid that overlap with the given
 // box and returns them SortByBoxLeft(ed) and uniqued in the given list.
 // Any partition equal to not_this (may be NULL) is excluded.
@@ -901,6 +935,7 @@ void ColPartitionGrid::ReTypeBlobs(BLOBNBOX_LIST* im_blobs) {
   while ((part = gsearch.NextFullSearch()) != NULL) {
     BlobRegionType blob_type = part->blob_type();
     BlobTextFlowType flow = part->flow();
+    bool any_blobs_moved = false;
     if (blob_type == BRT_POLYIMAGE || blob_type == BRT_RECTIMAGE) {
       BLOBNBOX_C_IT blob_it(part->boxes());
       for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
@@ -918,6 +953,7 @@ void ColPartitionGrid::ReTypeBlobs(BLOBNBOX_LIST* im_blobs) {
           ASSERT_HOST(blob->cblob()->area() != 0);
           blob->set_owner(NULL);
           blob_it.extract();
+          any_blobs_moved = true;
         } else {
           blob->set_region_type(blob_type);
           if (blob->flow() != BTFT_LEADER)
@@ -938,6 +974,11 @@ void ColPartitionGrid::ReTypeBlobs(BLOBNBOX_LIST* im_blobs) {
           delete blob;
         }
       }
+    } else if (any_blobs_moved) {
+      gsearch.RemoveBBox();
+      part->ComputeLimits();
+      InsertBBox(true, true, part);
+      gsearch.RepositionIterator();
     }
   }
 }
@@ -1046,6 +1087,24 @@ void ColPartitionGrid::DeleteUnknownParts(TO_BLOCK* block) {
     }
   }
   block->DeleteUnownedNoise();
+}
+
+// Deletes all the partitions in the grid that are NOT of flow type BTFT_LEADER.
+void ColPartitionGrid::DeleteNonLeaderParts() {
+  ColPartitionGridSearch gsearch(this);
+  gsearch.StartFullSearch();
+  ColPartition* part;
+  while ((part = gsearch.NextFullSearch()) != NULL) {
+    if (part->flow() != BTFT_LEADER) {
+      gsearch.RemoveBBox();
+      if (part->ReleaseNonLeaderBoxes()) {
+        InsertBBox(true, true, part);
+        gsearch.RepositionIterator();
+      } else {
+        delete part;
+      }
+    }
+  }
 }
 
 // Finds and marks text partitions that represent figure captions.

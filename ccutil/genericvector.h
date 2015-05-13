@@ -445,8 +445,10 @@ class PointerVector : public GenericVector<T*> {
   }
 
   PointerVector<T>& operator=(const PointerVector& other) {
-    this->truncate(0);
-    this->operator+=(other);
+    if (&other != this) {
+      this->truncate(0);
+      this->operator+=(other);
+    }
     return *this;
   }
 
@@ -777,8 +779,10 @@ GenericVector<T> &GenericVector<T>::operator+=(const GenericVector& other) {
 
 template <typename T>
 GenericVector<T> &GenericVector<T>::operator=(const GenericVector& other) {
-  this->truncate(0);
-  this->operator+=(other);
+  if (&other != this) {
+    this->truncate(0);
+    this->operator+=(other);
+  }
   return *this;
 }
 

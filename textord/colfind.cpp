@@ -286,22 +286,27 @@ void ColumnFinder::CorrectOrientation(TO_BLOCK* block,
 // thresholds_pix is expected to be present iff grey_pix is present and
 // can be an integer factor reduction of the grey_pix. It represents the
 // thresholds that were used to create the binary_pix from the grey_pix.
+// If diacritic_blobs is non-null, then diacritics/noise blobs, that would
+// confuse layout anaylsis by causing textline overlap, are placed there,
+// with the expectation that they will be reassigned to words later and
+// noise/diacriticness determined via classification.
 // Returns -1 if the user hits the 'd' key in the blocks window while running
 // in debug mode, which requests a retry with more debug info.
-int ColumnFinder::FindBlocks(PageSegMode pageseg_mode,
-                             Pix* scaled_color, int scaled_factor,
-                             TO_BLOCK* input_block, Pix* photo_mask_pix,
-                             Pix* thresholds_pix, Pix* grey_pix,
-                             BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks) {
+int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
+                             int scaled_factor, TO_BLOCK* input_block,
+                             Pix* photo_mask_pix, Pix* thresholds_pix,
+                             Pix* grey_pix, BLOCK_LIST* blocks,
+                             BLOBNBOX_LIST* diacritic_blobs,
+                             TO_BLOCK_LIST* to_blocks) {
   pixOr(photo_mask_pix, photo_mask_pix, nontext_map_);
   stroke_width_->FindLeaderPartitions(input_block, &part_grid_);
   stroke_width_->RemoveLineResidue(&big_parts_);
   FindInitialTabVectors(NULL, min_gutter_width_, tabfind_aligned_gap_fraction_,
                         input_block);
   SetBlockRuleEdges(input_block);
-  stroke_width_->GradeBlobsIntoPartitions(rerotate_, input_block, nontext_map_,
-                                          denorm_, cjk_script_, &projection_,
-                                          &part_grid_, &big_parts_);
+  stroke_width_->GradeBlobsIntoPartitions(
+      rerotate_, input_block, nontext_map_, denorm_, cjk_script_, &projection_,
+      diacritic_blobs, &part_grid_, &big_parts_);
   if (!PSM_SPARSE(pageseg_mode)) {
     ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
                                    input_block, this, &part_grid_, &big_parts_);
@@ -1134,9 +1139,13 @@ void ColumnFinder::GridMergePartitions() {
             neighbour->Print();
           }
           rsearch.RemoveBBox();
-          gsearch.RepositionIterator();
+          if (!modified_box) {
+            // We are going to modify part, so remove it and re-insert it after.
+            gsearch.RemoveBBox();
+            rsearch.RepositionIterator();
+            modified_box = true;
+          }
           part->Absorb(neighbour, WidthCB());
-          modified_box = true;
         } else if (debug) {
           tprintf("Neighbour failed hgap test\n");
         }
@@ -1151,7 +1160,6 @@ void ColumnFinder::GridMergePartitions() {
       // or it will never be found by a full search.
       // Because the box has changed, it has to be removed first, otherwise
       // add_sorted may fail to keep a single copy of the pointer.
-      gsearch.RemoveBBox();
       part_grid_.InsertBBox(true, true, part);
       gsearch.RepositionIterator();
     }

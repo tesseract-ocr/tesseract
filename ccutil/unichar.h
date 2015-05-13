@@ -151,7 +151,9 @@ class UNICHAR {
   static const_iterator end(const char* utf8_str, const int byte_length);
 
   // Converts a utf-8 string to a vector of unicodes.
-  static void UTF8ToUnicode(const char* utf8_str, GenericVector<int>* unicodes);
+  // Returns false if the input contains invalid UTF-8, and replaces
+  // the rest of the string with a single space.
+  static bool UTF8ToUnicode(const char* utf8_str, GenericVector<int>* unicodes);
 
  private:
   // A UTF-8 representation of 1 or more Unicode characters.

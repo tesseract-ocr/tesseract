@@ -134,12 +134,20 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
     // UNLV file present. Use PSM_SINGLE_BLOCK.
     pageseg_mode = PSM_SINGLE_BLOCK;
   }
+  // The diacritic_blobs holds noise blobs that may be diacritics. They
+  // are separated out on areas of the image that seem noisy and short-circuit
+  // the layout process, going straight from the initial partition creation
+  // right through to after word segmentation, where they are added to the
+  // rej_cblobs list of the most appropriate word. From there classification
+  // will determine whether they are used.
+  BLOBNBOX_LIST diacritic_blobs;
   int auto_page_seg_ret_val = 0;
   TO_BLOCK_LIST to_blocks;
   if (PSM_OSD_ENABLED(pageseg_mode) || PSM_BLOCK_FIND_ENABLED(pageseg_mode) ||
       PSM_SPARSE(pageseg_mode)) {
-    auto_page_seg_ret_val =
-        AutoPageSeg(pageseg_mode, blocks, &to_blocks, osd_tess, osr);
+    auto_page_seg_ret_val = AutoPageSeg(
+        pageseg_mode, blocks, &to_blocks,
+        enable_noise_removal ? &diacritic_blobs : NULL, osd_tess, osr);
     if (pageseg_mode == PSM_OSD_ONLY)
       return auto_page_seg_ret_val;
     // To create blobs from the image region bounds uncomment this line:
@@ -171,7 +179,7 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
 
   textord_.TextordPage(pageseg_mode, reskew_, width, height, pix_binary_,
                        pix_thresholds_, pix_grey_, splitting || cjk_mode,
-                       blocks, &to_blocks);
+                       &diacritic_blobs, blocks, &to_blocks);
   return auto_page_seg_ret_val;
 }
 
@@ -197,7 +205,6 @@ static void WriteDebugBackgroundImage(bool printable, Pix* pix_binary) {
   pixDestroy(&grey_pix);
 }
 
-
 /**
  * Auto page segmentation. Divide the page image into blocks of uniform
  * text linespacing and images.
@@ -207,9 +214,14 @@ static void WriteDebugBackgroundImage(bool printable, Pix* pix_binary) {
  * The output goes in the blocks list with corresponding TO_BLOCKs in the
  * to_blocks list.
  *
- * If single_column is true, then no attempt is made to divide the image
- * into columns, but multiple blocks are still made if the text is of
- * non-uniform linespacing.
+ * If !PSM_COL_FIND_ENABLED(pageseg_mode), then no attempt is made to divide
+ * the image into columns, but multiple blocks are still made if the text is
+ * of non-uniform linespacing.
+ *
+ * If diacritic_blobs is non-null, then diacritics/noise blobs, that would
+ * confuse layout anaylsis by causing textline overlap, are placed there,
+ * with the expectation that they will be reassigned to words later and
+ * noise/diacriticness determined via classification.
  *
  * If osd (orientation and script detection) is true then that is performed
  * as well. If only_osd is true, then only orientation and script detection is
@@ -217,9 +229,10 @@ static void WriteDebugBackgroundImage(bool printable, Pix* pix_binary) {
  * another Tesseract that was initialized especially for osd, and the results
  * will be output into osr (orientation and script result).
  */
-int Tesseract::AutoPageSeg(PageSegMode pageseg_mode,
-                           BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks,
-                           Tesseract* osd_tess, OSResults* osr) {
+int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
+                           TO_BLOCK_LIST* to_blocks,
+                           BLOBNBOX_LIST* diacritic_blobs, Tesseract* osd_tess,
+                           OSResults* osr) {
   if (textord_debug_images) {
     WriteDebugBackgroundImage(textord_debug_printable, pix_binary_);
   }
@@ -247,10 +260,9 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode,
     if (equ_detect_) {
       finder->SetEquationDetect(equ_detect_);
     }
-    result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_,
-                                to_block, photomask_pix,
-                                pix_thresholds_, pix_grey_,
-                                &found_blocks, to_blocks);
+    result = finder->FindBlocks(
+        pageseg_mode, scaled_color_, scaled_factor_, to_block, photomask_pix,
+        pix_thresholds_, pix_grey_, &found_blocks, diacritic_blobs, to_blocks);
     if (result >= 0)
       finder->GetDeskewVectors(&deskew_, &reskew_);
     delete finder;

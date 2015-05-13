@@ -155,13 +155,15 @@ class ColumnFinder : public TabFind {
   // thresholds_pix is expected to be present iff grey_pix is present and
   // can be an integer factor reduction of the grey_pix. It represents the
   // thresholds that were used to create the binary_pix from the grey_pix.
+  // Small blobs that confuse the segmentation into lines are placed into
+  // diacritic_blobs, with the intention that they be put into the most
+  // appropriate word after the rest of layout analysis.
   // Returns -1 if the user hits the 'd' key in the blocks window while running
   // in debug mode, which requests a retry with more debug info.
-  int FindBlocks(PageSegMode pageseg_mode,
-                 Pix* scaled_color, int scaled_factor,
-                 TO_BLOCK* block, Pix* photo_mask_pix,
-                 Pix* thresholds_pix, Pix* grey_pix,
-                 BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
+  int FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color, int scaled_factor,
+                 TO_BLOCK* block, Pix* photo_mask_pix, Pix* thresholds_pix,
+                 Pix* grey_pix, BLOCK_LIST* blocks,
+                 BLOBNBOX_LIST* diacritic_blobs, TO_BLOCK_LIST* to_blocks);
 
   // Get the rotation required to deskew, and its inverse rotation.
   void GetDeskewVectors(FCOORD* deskew, FCOORD* reskew);

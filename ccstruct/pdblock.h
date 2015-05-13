@@ -89,7 +89,9 @@ class PDBLK
 
     // Returns a binary Pix mask with a 1 pixel for every pixel within the
     // block. Rotates the coordinate system by rerotation prior to rendering.
-    Pix* render_mask(const FCOORD& rerotation);
+    // If not NULL, mask_box is filled with the position box of the returned
+    // mask image.
+    Pix *render_mask(const FCOORD &rerotation, TBOX *mask_box);
 
     #ifndef GRAPHICS_DISABLED
     ///draw histogram

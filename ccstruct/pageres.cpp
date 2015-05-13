@@ -148,6 +148,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
           add_next_word = false;
         }
       }
+      next_word->set_flag(W_FUZZY_NON, add_next_word);
     } else {
       add_next_word = next_word->flag(W_FUZZY_NON);
     }
@@ -206,12 +207,8 @@ WERD_RES& WERD_RES::operator=(const WERD_RES & source) {
   if (!wc_dest_it.empty()) {
     wc_dest_it.move_to_first();
     best_choice = wc_dest_it.data();
-    best_choice_fontinfo_ids = source.best_choice_fontinfo_ids;
   } else {
     best_choice = NULL;
-    if (!best_choice_fontinfo_ids.empty()) {
-      best_choice_fontinfo_ids.clear();
-    }
   }
 
   if (source.raw_choice != NULL) {
@@ -252,6 +249,7 @@ void WERD_RES::CopySimpleFields(const WERD_RES& source) {
   fontinfo_id2_count = source.fontinfo_id2_count;
   x_height = source.x_height;
   caps_height = source.caps_height;
+  baseline_shift = source.baseline_shift;
   guessed_x_ht = source.guessed_x_ht;
   guessed_caps_ht = source.guessed_caps_ht;
   reject_spaces = source.reject_spaces;
@@ -314,8 +312,8 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
   float word_xheight = use_body_size && row != NULL && row->body_size() > 0.0f
                      ? row->body_size() : x_height;
   chopped_word->BLNormalize(block, row, pix, word->flag(W_INVERSE),
-                            word_xheight, numeric_mode, norm_mode_hint,
-                            norm_box, &denorm);
+                            word_xheight, baseline_shift, numeric_mode,
+                            norm_mode_hint, norm_box, &denorm);
   blob_row = row;
   SetupBasicsFromChoppedWord(unicharset_in);
   SetupBlamerBundle();
@@ -366,6 +364,7 @@ void WERD_RES::SetupFake(const UNICHARSET& unicharset_in) {
     LogNewCookedChoice(1, false, word);
   }
   tess_failed = true;
+  done = true;
 }
 
 void WERD_RES::SetupWordScript(const UNICHARSET& uch) {
@@ -404,7 +403,8 @@ void WERD_RES::SetupBlobWidthsAndGaps() {
 // as the blob widths and gaps.
 void WERD_RES::InsertSeam(int blob_number, SEAM* seam) {
   // Insert the seam into the SEAMS array.
-  insert_seam(chopped_word, blob_number, seam, &seam_array);
+  seam->PrepareToInsertSeam(seam_array, chopped_word->blobs, blob_number, true);
+  seam_array.insert(seam, blob_number);
   if (ratings != NULL) {
     // Expand the ratings matrix.
     ratings = ratings->ConsumeAndMakeBigger(blob_number);
@@ -804,12 +804,16 @@ void WERD_RES::RebuildBestState() {
   for (int i = 0; i < best_choice->length(); ++i) {
     int length = best_choice->state(i);
     best_state.push_back(length);
-    if (length > 1)
-      join_pieces(seam_array, start, start + length - 1, chopped_word);
+    if (length > 1) {
+      SEAM::JoinPieces(seam_array, chopped_word->blobs, start,
+                       start + length - 1);
+    }
     TBLOB* blob = chopped_word->blobs[start];
     rebuild_word->blobs.push_back(new TBLOB(*blob));
-    if (length > 1)
-      break_pieces(seam_array, start, start + length - 1, chopped_word);
+    if (length > 1) {
+      SEAM::BreakPieces(seam_array, chopped_word->blobs, start,
+                        start + length - 1);
+    }
     start += length;
   }
 }
@@ -1065,8 +1069,7 @@ bool WERD_RES::PiecesAllNatural(int start, int count) const {
   for (int index = start; index < start + count - 1; ++index) {
     if (index >= 0 && index < seam_array.size()) {
       SEAM* seam = seam_array[index];
-      if (seam != NULL && seam->split1 != NULL)
-        return false;
+      if (seam != NULL && seam->HasAnySplits()) return false;
     }
   }
   return true;
@@ -1096,6 +1099,7 @@ void WERD_RES::InitNonPointers() {
   fontinfo_id2_count = 0;
   x_height = 0.0;
   caps_height = 0.0;
+  baseline_shift = 0.0f;
   guessed_x_ht = TRUE;
   guessed_caps_ht = TRUE;
   combination = FALSE;
@@ -1252,23 +1256,16 @@ int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
   return 0;
 }
 
-// Inserts the new_word and a corresponding WERD_RES before the current
-// position. The simple fields of the WERD_RES are copied from clone_res and
-// the resulting WERD_RES is returned for further setup with best_choice etc.
+// Inserts the new_word as a combination owned by a corresponding WERD_RES
+// before the current position. The simple fields of the WERD_RES are copied
+// from clone_res and the resulting WERD_RES is returned for further setup
+// with best_choice etc.
 WERD_RES* PAGE_RES_IT::InsertSimpleCloneWord(const WERD_RES& clone_res,
                                              WERD* new_word) {
-  // Insert new_word into the ROW.
-  WERD_IT w_it(row()->row->word_list());
-  for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
-    WERD* word = w_it.data();
-    if (word == word_res->word)
-      break;
-  }
-  ASSERT_HOST(!w_it.cycled_list());
-  w_it.add_before_then_move(new_word);
   // Make a WERD_RES for the new_word.
   WERD_RES* new_res = new WERD_RES(new_word);
   new_res->CopySimpleFields(clone_res);
+  new_res->combination = true;
   // Insert into the appropriate place in the ROW_RES.
   WERD_RES_IT wr_it(&row()->word_res_list);
   for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
@@ -1318,6 +1315,10 @@ static void ComputeBlobEnds(const WERD_RES& word, C_BLOB_LIST* next_word_blobs,
 // replaced with real blobs from the current word as much as possible.
 void PAGE_RES_IT::ReplaceCurrentWord(
     tesseract::PointerVector<WERD_RES>* words) {
+  if (words->empty()) {
+    DeleteCurrentWord();
+    return;
+  }
   WERD_RES* input_word = word();
   // Set the BOL/EOL flags on the words from the input word.
   if (input_word->word->flag(W_BOL)) {
@@ -1471,6 +1472,33 @@ void PAGE_RES_IT::DeleteCurrentWord() {
   ResetWordIterator();
 }
 
+// Makes the current word a fuzzy space if not already fuzzy. Updates
+// corresponding part of combo if required.
+void PAGE_RES_IT::MakeCurrentWordFuzzy() {
+  WERD* real_word = word_res->word;
+  if (!real_word->flag(W_FUZZY_SP) && !real_word->flag(W_FUZZY_NON)) {
+    real_word->set_flag(W_FUZZY_SP, true);
+    tprintf("Made word fuzzy at:");
+    real_word->bounding_box().print();
+    if (word_res->combination) {
+      // The next word should be the corresponding part of combo, but we have
+      // already stepped past it, so find it by search.
+      WERD_RES_IT wr_it(&row()->word_res_list);
+      for (wr_it.mark_cycle_pt();
+           !wr_it.cycled_list() && wr_it.data() != word_res; wr_it.forward()) {
+      }
+      wr_it.forward();
+      ASSERT_HOST(wr_it.data()->part_of_combo);
+      real_word = wr_it.data()->word;
+      ASSERT_HOST(!real_word->flag(W_FUZZY_SP) &&
+                  !real_word->flag(W_FUZZY_NON));
+      real_word->set_flag(W_FUZZY_SP, true);
+      tprintf("Made part of combo word fuzzy at:");
+      real_word->bounding_box().print();
+    }
+  }
+}
+
 /*************************************************************************
  * PAGE_RES_IT::restart_page
  *
@@ -1505,12 +1533,13 @@ void PAGE_RES_IT::ResetWordIterator() {
     // Reset the member iterator so it can move forward and detect the
     // cycled_list state correctly.
     word_res_it.move_to_first();
-    word_res_it.mark_cycle_pt();
-    while (!word_res_it.cycled_list() && word_res_it.data() != next_word_res) {
-      if (prev_row_res == row_res)
-        prev_word_res = word_res;
-      word_res = word_res_it.data();
-      word_res_it.forward();
+    for (word_res_it.mark_cycle_pt();
+         !word_res_it.cycled_list() && word_res_it.data() != next_word_res;
+         word_res_it.forward()) {
+      if (!word_res_it.data()->part_of_combo) {
+        if (prev_row_res == row_res) prev_word_res = word_res;
+        word_res = word_res_it.data();
+      }
     }
     ASSERT_HOST(!word_res_it.cycled_list());
     word_res_it.forward();
@@ -1518,9 +1547,10 @@ void PAGE_RES_IT::ResetWordIterator() {
     // word_res_it is OK, but reset word_res and prev_word_res if needed.
     WERD_RES_IT wr_it(&row_res->word_res_list);
     for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
-      if (prev_row_res == row_res)
-        prev_word_res = word_res;
-      word_res = wr_it.data();
+      if (!wr_it.data()->part_of_combo) {
+        if (prev_row_res == row_res) prev_word_res = word_res;
+        word_res = wr_it.data();
+      }
     }
   }
 }

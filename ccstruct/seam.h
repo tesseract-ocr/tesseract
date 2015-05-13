@@ -36,95 +36,163 @@
 ----------------------------------------------------------------------*/
 typedef float PRIORITY;          /*  PRIORITY  */
 
-struct SEAM {
-  // Constructor that was formerly new_seam.
-  SEAM(PRIORITY priority0, const TPOINT& location0,
-       SPLIT *splita, SPLIT *splitb, SPLIT *splitc)
-  : priority(priority0), widthp(0), widthn(0), location(location0),
-    split1(splita), split2(splitb), split3(splitc) {}
-  // Copy constructor that was formerly clone_seam.
-  SEAM(const SEAM& src)
-  : priority(src.priority), widthp(src.widthp), widthn(src.widthn),
-    location(src.location) {
-    clone_split(split1, src.split1);
-    clone_split(split2, src.split2);
-    clone_split(split3, src.split3);
+class SEAM {
+ public:
+  // A seam with no splits
+  SEAM(float priority, const TPOINT& location)
+      : priority_(priority),
+        location_(location),
+        widthp_(0),
+        widthn_(0),
+        num_splits_(0) {}
+  // A seam with a single split point.
+  SEAM(float priority, const TPOINT& location, const SPLIT& split)
+      : priority_(priority),
+        location_(location),
+        widthp_(0),
+        widthn_(0),
+        num_splits_(1) {
+    splits_[0] = split;
   }
-  // Destructor was delete_seam.
-  ~SEAM() {
-    if (split1)
-      delete_split(split1);
-    if (split2)
-      delete_split(split2);
-    if (split3)
-      delete_split(split3);
+  // Default copy constructor, operator= and destructor are OK!
+
+  // Accessors.
+  float priority() const { return priority_; }
+  void set_priority(float priority) { priority_ = priority; }
+  bool HasAnySplits() const { return num_splits_ > 0; }
+
+  // Returns the bounding box of all the points in the seam.
+  TBOX bounding_box() const;
+
+  // Returns true if other can be combined into *this.
+  bool CombineableWith(const SEAM& other, int max_x_dist,
+                       float max_total_priority) const;
+  // Combines other into *this. Only works if CombinableWith returned true.
+  void CombineWith(const SEAM& other);
+
+  // Returns true if the given blob contains all splits of *this SEAM.
+  bool ContainedByBlob(const TBLOB& blob) const {
+    for (int s = 0; s < num_splits_; ++s) {
+      if (!splits_[s].ContainedByBlob(blob)) return false;
+    }
+    return true;
   }
 
-  PRIORITY priority;
-  inT8 widthp;
-  inT8 widthn;
-  TPOINT location;
-  SPLIT *split1;
-  SPLIT *split2;
-  SPLIT *split3;
+  // Returns true if the given EDGEPT is used by this SEAM, checking only
+  // the EDGEPT pointer, not the coordinates.
+  bool UsesPoint(const EDGEPT* point) const {
+    for (int s = 0; s < num_splits_; ++s) {
+      if (splits_[s].UsesPoint(point)) return true;
+    }
+    return false;
+  }
+  // Returns true if *this and other share any common point, by coordinates.
+  bool SharesPosition(const SEAM& other) const {
+    for (int s = 0; s < num_splits_; ++s) {
+      for (int t = 0; t < other.num_splits_; ++t)
+        if (splits_[s].SharesPosition(other.splits_[t])) return true;
+    }
+    return false;
+  }
+  // Returns true if *this and other have any vertically overlapping splits.
+  bool OverlappingSplits(const SEAM& other) const {
+    for (int s = 0; s < num_splits_; ++s) {
+      TBOX split1_box = splits_[s].bounding_box();
+      for (int t = 0; t < other.num_splits_; ++t) {
+        TBOX split2_box = other.splits_[t].bounding_box();
+        if (split1_box.y_overlap(split2_box)) return true;
+      }
+    }
+    return false;
+  }
+
+  // Marks the edgepts used by the seam so the segments made by the cut
+  // never get split further by another seam in the future.
+  void Finalize() {
+    for (int s = 0; s < num_splits_; ++s) {
+      splits_[s].point1->MarkChop();
+      splits_[s].point2->MarkChop();
+    }
+  }
+
+  // Returns true if the splits in *this SEAM appear OK in the sense that they
+  // do not cross any outlines and do not chop off any ridiculously small
+  // pieces.
+  bool IsHealthy(const TBLOB& blob, int min_points, int min_area) const;
+
+  // Computes the widthp_/widthn_ range for all existing SEAMs and for *this
+  // seam, which is about to be inserted at insert_index. Returns false if
+  // any of the computations fails, as this indicates an invalid chop.
+  // widthn_/widthp_ are only changed if modify is true.
+  bool PrepareToInsertSeam(const GenericVector<SEAM*>& seams,
+                           const GenericVector<TBLOB*>& blobs, int insert_index,
+                           bool modify);
+  // Computes the widthp_/widthn_ range. Returns false if not all the splits
+  // are accounted for. widthn_/widthp_ are only changed if modify is true.
+  bool FindBlobWidth(const GenericVector<TBLOB*>& blobs, int index,
+                     bool modify);
+
+  // Splits this blob into two blobs by applying the splits included in
+  // *this SEAM
+  void ApplySeam(bool italic_blob, TBLOB* blob, TBLOB* other_blob) const;
+  // Undoes ApplySeam by removing the seam between these two blobs.
+  // Produces one blob as a result, and deletes other_blob.
+  void UndoSeam(TBLOB* blob, TBLOB* other_blob) const;
+
+  // Prints everything in *this SEAM.
+  void Print(const char* label) const;
+  // Prints a collection of SEAMs.
+  static void PrintSeams(const char* label, const GenericVector<SEAM*>& seams);
+#ifndef GRAPHICS_DISABLED
+  // Draws the seam in the given window.
+  void Mark(ScrollView* window) const;
+#endif
+
+  // Break up the blobs in this chain so that they are all independent.
+  // This operation should undo the affect of join_pieces.
+  static void BreakPieces(const GenericVector<SEAM*>& seams,
+                          const GenericVector<TBLOB*>& blobs, int first,
+                          int last);
+  // Join a group of base level pieces into a single blob that can then
+  // be classified.
+  static void JoinPieces(const GenericVector<SEAM*>& seams,
+                         const GenericVector<TBLOB*>& blobs, int first,
+                         int last);
+
+  // Hides the seam so the outlines appear not to be cut by it.
+  void Hide() const;
+  // Undoes hide, so the outlines are cut by the seam.
+  void Reveal() const;
+
+  // Computes and returns, but does not set, the full priority of *this SEAM.
+  // The arguments here are config parameters defined in Wordrec. Add chop_
+  // to the beginning of the name.
+  float FullPriority(int xmin, int xmax, double overlap_knob,
+                     int centered_maxwidth, double center_knob,
+                     double width_change_knob) const;
+
+ private:
+  // Maximum number of splits that a SEAM can hold.
+  static const int kMaxNumSplits = 3;
+  // Priority of this split. Lower is better.
+  float priority_;
+  // Position of the middle of the seam.
+  TPOINT location_;
+  // A range such that all splits in *this SEAM are contained within blobs in
+  // the range [index - widthn_,index + widthp_] where index is the index of
+  // this SEAM in the seams vector.
+  inT8 widthp_;
+  inT8 widthn_;
+  // Number of splits_ that are used.
+  inT8 num_splits_;
+  // Set of pairs of points that are the ends of each split in the SEAM.
+  SPLIT splits_[kMaxNumSplits];
 };
-
-/**
- * exact_point
- *
- * Return TRUE if the point positions are the exactly the same. The
- * parameters must be of type (EDGEPT*).
- */
-
-#define exact_point(p1,p2)                    \
-        (! ((p1->pos.x - p2->pos.x) || (p1->pos.y - p2->pos.y)))
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-bool point_in_split(SPLIT *split, EDGEPT *point1, EDGEPT *point2);
 
-bool point_in_seam(const SEAM *seam, SPLIT *split);
-
-bool point_used_by_split(SPLIT *split, EDGEPT *point);
-
-bool point_used_by_seam(SEAM *seam, EDGEPT *point);
-
-void combine_seams(SEAM *dest_seam, SEAM *source_seam);
-
-void start_seam_list(TWERD *word, GenericVector<SEAM*>* seam_array);
-
-bool test_insert_seam(const GenericVector<SEAM*>& seam_array,
-                      TWERD *word, int index);
-
-void insert_seam(const TWERD *word, int index, SEAM *seam,
-                 GenericVector<SEAM*>* seam_array);
-
-int account_splits(const SEAM *seam, const TWERD *word, int blob_index,
-                   int blob_direction);
-
-bool find_split_in_blob(SPLIT *split, TBLOB *blob);
-
-SEAM *join_two_seams(const SEAM *seam1, const SEAM *seam2);
-
-void print_seam(const char *label, SEAM *seam);
-
-void print_seams(const char *label, const GenericVector<SEAM*>& seams);
-
-int shared_split_points(const SEAM *seam1, const SEAM *seam2);
-
-void break_pieces(const GenericVector<SEAM*>& seams,
-                  int first, int last, TWERD *word);
-
-void join_pieces(const GenericVector<SEAM*>& seams,
-                 int first, int last, TWERD *word);
-
-void hide_seam(SEAM *seam);
-
-void hide_edge_pair(EDGEPT *pt1, EDGEPT *pt2);
-
-void reveal_seam(SEAM *seam);
-
-void reveal_edge_pair(EDGEPT *pt1, EDGEPT *pt2);
+void start_seam_list(TWERD* word, GenericVector<SEAM*>* seam_array);
 
 #endif

@@ -27,7 +27,6 @@
 ----------------------------------------------------------------------*/
 #include "findseam.h"
 #include "gradechop.h"
-#include "olutil.h"
 #include "plotedges.h"
 #include "outlines.h"
 #include "freelist.h"
@@ -67,7 +66,7 @@ void Wordrec::add_seam_to_queue(float new_priority, SEAM *new_seam,
   if (new_seam == NULL) return;
   if (chop_debug) {
     tprintf("Pushing new seam with priority %g :", new_priority);
-    print_seam("seam: ", new_seam);
+    new_seam->Print("seam: ");
   }
   if (seams->size() >= MAX_NUM_SEAMS) {
     SeamPair old_pair(0, NULL);
@@ -101,12 +100,9 @@ void Wordrec::add_seam_to_queue(float new_priority, SEAM *new_seam,
  * a split of NULL, then no further splits can be supplied by the
  * caller.
  **********************************************************************/
-void Wordrec::choose_best_seam(SeamQueue* seam_queue,
-                               SPLIT *split,
-                               PRIORITY priority,
-                               SEAM **seam_result,
-                               TBLOB *blob,
-                               SeamPile* seam_pile) {
+void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split,
+                               PRIORITY priority, SEAM **seam_result,
+                               TBLOB *blob, SeamPile *seam_pile) {
   SEAM *seam;
   char str[80];
   float my_priority;
@@ -116,9 +112,8 @@ void Wordrec::choose_best_seam(SeamQueue* seam_queue,
     TPOINT split_point = split->point1->pos;
     split_point += split->point2->pos;
     split_point /= 2;
-    seam = new SEAM(my_priority, split_point, split, NULL, NULL);
-    if (chop_debug > 1)
-      print_seam ("Partial priority    ", seam);
+    seam = new SEAM(my_priority, split_point, *split);
+    if (chop_debug > 1) seam->Print("Partial priority    ");
     add_seam_to_queue(my_priority, seam, seam_queue);
 
     if (my_priority > chop_good_split)
@@ -132,19 +127,22 @@ void Wordrec::choose_best_seam(SeamQueue* seam_queue,
     seam_queue->Pop(&seam_pair);
     seam = seam_pair.extract_data();
     /* Set full priority */
-    my_priority = seam_priority(seam, bbox.left(), bbox.right());
+    my_priority = seam->FullPriority(bbox.left(), bbox.right(),
+                                     chop_overlap_knob, chop_centered_maxwidth,
+                                     chop_center_knob, chop_width_change_knob);
     if (chop_debug) {
       sprintf (str, "Full my_priority %0.0f,  ", my_priority);
-      print_seam(str, seam);
+      seam->Print(str);
     }
 
-    if ((*seam_result == NULL || (*seam_result)->priority > my_priority) &&
+    if ((*seam_result == NULL || (*seam_result)->priority() > my_priority) &&
         my_priority < chop_ok_split) {
       /* No crossing */
-      if (constrained_split(seam->split1, blob)) {
+      if (seam->IsHealthy(*blob, chop_min_outline_points,
+                          chop_min_outline_area)) {
         delete *seam_result;
         *seam_result = new SEAM(*seam);
-        (*seam_result)->priority = my_priority;
+        (*seam_result)->set_priority(my_priority);
       } else {
         delete seam;
         seam = NULL;
@@ -198,102 +196,15 @@ void Wordrec::choose_best_seam(SeamQueue* seam_queue,
  **********************************************************************/
 void Wordrec::combine_seam(const SeamPile& seam_pile,
                            const SEAM* seam, SeamQueue* seam_queue) {
-  register inT16 dist;
-  inT16 bottom1, top1;
-  inT16 bottom2, top2;
-
-  SEAM *new_one;
-  const SEAM *this_one;
-
-  bottom1 = seam->split1->point1->pos.y;
-  if (seam->split1->point2->pos.y >= bottom1)
-    top1 = seam->split1->point2->pos.y;
-  else {
-    top1 = bottom1;
-    bottom1 = seam->split1->point2->pos.y;
-  }
-  if (seam->split2 != NULL) {
-    bottom2 = seam->split2->point1->pos.y;
-    if (seam->split2->point2->pos.y >= bottom2)
-      top2 = seam->split2->point2->pos.y;
-    else {
-      top2 = bottom2;
-      bottom2 = seam->split2->point2->pos.y;
-    }
-  }
-  else {
-    bottom2 = bottom1;
-    top2 = top1;
-  }
   for (int x = 0; x < seam_pile.size(); ++x) {
-    this_one = seam_pile.get(x).data();
-    dist = seam->location.x - this_one->location.x;
-    if (-SPLIT_CLOSENESS < dist &&
-      dist < SPLIT_CLOSENESS &&
-    seam->priority + this_one->priority < chop_ok_split) {
-      inT16 split1_point1_y = this_one->split1->point1->pos.y;
-      inT16 split1_point2_y = this_one->split1->point2->pos.y;
-      inT16 split2_point1_y = 0;
-      inT16 split2_point2_y = 0;
-      if (this_one->split2) {
-        split2_point1_y = this_one->split2->point1->pos.y;
-        split2_point2_y = this_one->split2->point2->pos.y;
-      }
-      if (
-        /*!tessedit_fix_sideways_chops || */
-        (
-          /* this_one->split1 always exists */
-          (
-            ((split1_point1_y >= top1 && split1_point2_y >= top1) ||
-             (split1_point1_y <= bottom1 && split1_point2_y <= bottom1))
-            &&
-            ((split1_point1_y >= top2 && split1_point2_y >= top2) ||
-             (split1_point1_y <= bottom2 && split1_point2_y <= bottom2))
-          )
-        )
-        &&
-        (
-          this_one->split2 == NULL ||
-          (
-            ((split2_point1_y >= top1 && split2_point2_y >= top1) ||
-             (split2_point1_y <= bottom1 && split2_point2_y <= bottom1))
-            &&
-            ((split2_point1_y >= top2 && split2_point2_y >= top2) ||
-             (split2_point1_y <= bottom2 && split2_point2_y <= bottom2))
-          )
-        )
-      ) {
-        new_one = join_two_seams (seam, this_one);
-        if (new_one != NULL) {
-          if (chop_debug > 1)
-            print_seam ("Combo priority       ", new_one);
-          add_seam_to_queue(new_one->priority, new_one, seam_queue);
-        }
-      }
+    const SEAM *this_one = seam_pile.get(x).data();
+    if (seam->CombineableWith(*this_one, SPLIT_CLOSENESS, chop_ok_split)) {
+      SEAM *new_one = new SEAM(*seam);
+      new_one->CombineWith(*this_one);
+      if (chop_debug > 1) new_one->Print("Combo priority       ");
+      add_seam_to_queue(new_one->priority(), new_one, seam_queue);
     }
   }
-}
-
-
-/**********************************************************************
- * constrained_split
- *
- * Constrain this split to obey certain rules.  It must not cross any
- * inner outline.  It must not cut off a small chunk of the outline.
- **********************************************************************/
-inT16 Wordrec::constrained_split(SPLIT *split, TBLOB *blob) {
-  TESSLINE *outline;
-
-  if (is_little_chunk (split->point1, split->point2))
-    return (FALSE);
-
-  for (outline = blob->outlines; outline; outline = outline->next) {
-    if (split_bounds_overlap (split, outline) &&
-    crosses_outline (split->point1, split->point2, outline->loop)) {
-      return (FALSE);
-    }
-  }
-  return (TRUE);
 }
 
 /**********************************************************************
@@ -335,16 +246,15 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
 
   if (seam == NULL) {
     choose_best_seam(&seam_queue, NULL, BAD_PRIORITY, &seam, blob, &seam_pile);
-  }
-  else if (seam->priority > chop_good_split) {
-    choose_best_seam(&seam_queue, NULL, seam->priority,
-                     &seam, blob, &seam_pile);
+  } else if (seam->priority() > chop_good_split) {
+    choose_best_seam(&seam_queue, NULL, seam->priority(), &seam, blob,
+                     &seam_pile);
   }
 
   EDGEPT_C_IT it(&new_points);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     EDGEPT *inserted_point = it.data();
-    if (!point_used_by_seam(seam, inserted_point)) {
+    if (seam == NULL || !seam->UsesPoint(inserted_point)) {
       for (outline = blob->outlines; outline; outline = outline->next) {
         if (outline->loop == inserted_point) {
           outline->loop = outline->loop->next;
@@ -355,18 +265,13 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
   }
 
   if (seam) {
-    if (seam->priority > chop_ok_split) {
+    if (seam->priority() > chop_ok_split) {
       delete seam;
       seam = NULL;
     }
 #ifndef GRAPHICS_DISABLED
     else if (wordrec_display_splits) {
-      if (seam->split1)
-        mark_split (seam->split1);
-      if (seam->split2)
-        mark_split (seam->split2);
-      if (seam->split3)
-        mark_split (seam->split3);
+      seam->Mark(edge_window);
       if (chop_debug > 2) {
         update_edge_window();
         edge_window_wait();
@@ -379,42 +284,6 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
     wordrec_display_splits.set_value(false);
 
   return (seam);
-}
-
-
-/**********************************************************************
- * seam_priority
- *
- * Assign a full priority value to the seam.
- **********************************************************************/
-PRIORITY Wordrec::seam_priority(SEAM *seam, inT16 xmin, inT16 xmax) {
-  PRIORITY priority;
-
-  if (seam->split1 == NULL)
-    priority = 0;
-
-  else if (seam->split2 == NULL) {
-    priority = (seam->priority +
-      full_split_priority (seam->split1, xmin, xmax));
-  }
-
-  else if (seam->split3 == NULL) {
-    split_outline (seam->split2->point1, seam->split2->point2);
-    priority = (seam->priority +
-      full_split_priority (seam->split1, xmin, xmax));
-    unsplit_outlines (seam->split2->point1, seam->split2->point2);
-  }
-
-  else {
-    split_outline (seam->split2->point1, seam->split2->point2);
-    split_outline (seam->split3->point1, seam->split3->point2);
-    priority = (seam->priority +
-      full_split_priority (seam->split1, xmin, xmax));
-    unsplit_outlines (seam->split3->point1, seam->split3->point2);
-    unsplit_outlines (seam->split2->point1, seam->split2->point2);
-  }
-
-  return (priority);
 }
 
 
@@ -433,23 +302,20 @@ void Wordrec::try_point_pairs(EDGEPT * points[MAX_NUM_POINTS],
                               TBLOB * blob) {
   inT16 x;
   inT16 y;
-  SPLIT *split;
   PRIORITY priority;
 
   for (x = 0; x < num_points; x++) {
     for (y = x + 1; y < num_points; y++) {
-
       if (points[y] &&
-          weighted_edgept_dist(points[x], points[y],
-                               chop_x_y_weight) < chop_split_length &&
-          points[x] != points[y]->next &&
-          points[y] != points[x]->next &&
+          points[x]->WeightedDistance(*points[y], chop_x_y_weight) <
+              chop_split_length &&
+          points[x] != points[y]->next && points[y] != points[x]->next &&
           !is_exterior_point(points[x], points[y]) &&
           !is_exterior_point(points[y], points[x])) {
-        split = new_split (points[x], points[y]);
-        priority = partial_split_priority (split);
+        SPLIT split(points[x], points[y]);
+        priority = partial_split_priority(&split);
 
-        choose_best_seam(seam_queue, split, priority, seam, blob, seam_pile);
+        choose_best_seam(seam_queue, &split, priority, seam, blob, seam_pile);
       }
     }
   }
@@ -474,7 +340,6 @@ void Wordrec::try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
                                   SEAM ** seam,
                                   TBLOB * blob) {
   EDGEPT *vertical_point = NULL;
-  SPLIT *split;
   inT16 x;
   PRIORITY priority;
   TESSLINE *outline;
@@ -486,16 +351,13 @@ void Wordrec::try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
                                 &vertical_point, new_points);
     }
 
-    if (vertical_point &&
-      points[x] != vertical_point->next &&
-      vertical_point != points[x]->next &&
-      weighted_edgept_dist(points[x], vertical_point,
-                           chop_x_y_weight) < chop_split_length) {
-
-      split = new_split (points[x], vertical_point);
-      priority = partial_split_priority (split);
-
-      choose_best_seam(seam_queue, split, priority, seam, blob, seam_pile);
+    if (vertical_point && points[x] != vertical_point->next &&
+        vertical_point != points[x]->next &&
+        points[x]->WeightedDistance(*vertical_point, chop_x_y_weight) <
+            chop_split_length) {
+      SPLIT split(points[x], vertical_point);
+      priority = partial_split_priority(&split);
+      choose_best_seam(seam_queue, &split, priority, seam, blob, seam_pile);
     }
   }
 }
