@@ -18,7 +18,6 @@
  **********************************************************************/
 
 #include "allheaders.h"
-#include "memry.h"
 #include "quadlsq.h"
 #include "quspline.h"
 
@@ -43,8 +42,8 @@ QSPLINE::QSPLINE(                 //constructor
   inT32 index;                   //segment index
 
                                  //get memory
-  xcoords = (inT32 *) alloc_mem ((count + 1) * sizeof (inT32));
-  quadratics = (QUAD_COEFFS *) alloc_mem (count * sizeof (QUAD_COEFFS));
+  xcoords = (inT32 *) malloc ((count + 1) * sizeof (inT32));
+  quadratics = (QUAD_COEFFS *) malloc (count * sizeof (QUAD_COEFFS));
   segments = count;
   for (index = 0; index < segments; index++) {
                                  //copy them
@@ -77,9 +76,9 @@ int degree                       //fit required
   QLSQ qlsq;                     /*accumulator */
 
   segments = segcount;
-  xcoords = (inT32 *) alloc_mem ((segcount + 1) * sizeof (inT32));
-  ptcounts = (inT32 *) alloc_mem ((segcount + 1) * sizeof (inT32));
-  quadratics = (QUAD_COEFFS *) alloc_mem (segcount * sizeof (QUAD_COEFFS));
+  xcoords = (inT32 *) malloc ((segcount + 1) * sizeof (inT32));
+  ptcounts = (inT32 *) malloc ((segcount + 1) * sizeof (inT32));
+  quadratics = (QUAD_COEFFS *) malloc (segcount * sizeof (QUAD_COEFFS));
   memmove (xcoords, xstarts, (segcount + 1) * sizeof (inT32));
   ptcounts[0] = 0;               /*none in any yet */
   for (segment = 0, pointindex = 0; pointindex < pointcount; pointindex++) {
@@ -123,7 +122,7 @@ int degree                       //fit required
     quadratics[segment].b = qlsq.get_b ();
     quadratics[segment].c = qlsq.get_c ();
   }
-  free_mem(ptcounts);
+  free(ptcounts);
 }
 
 
@@ -151,11 +150,11 @@ QSPLINE::QSPLINE(  //constructor
 QSPLINE::~QSPLINE (              //constructor
 ) {
   if (xcoords != NULL) {
-    free_mem(xcoords);
+    free(xcoords);
     xcoords = NULL;
   }
   if (quadratics != NULL) {
-    free_mem(quadratics);
+    free(quadratics);
     quadratics = NULL;
   }
 }
@@ -170,13 +169,13 @@ QSPLINE::~QSPLINE (              //constructor
 QSPLINE & QSPLINE::operator= (   //assignment
 const QSPLINE & source) {
   if (xcoords != NULL)
-    free_mem(xcoords);
+    free(xcoords);
   if (quadratics != NULL)
-    free_mem(quadratics);
+    free(quadratics);
 
   segments = source.segments;
-  xcoords = (inT32 *) alloc_mem ((segments + 1) * sizeof (inT32));
-  quadratics = (QUAD_COEFFS *) alloc_mem (segments * sizeof (QUAD_COEFFS));
+  xcoords = (inT32 *) malloc ((segments + 1) * sizeof (inT32));
+  quadratics = (QUAD_COEFFS *) malloc (segments * sizeof (QUAD_COEFFS));
   memmove (xcoords, source.xcoords, (segments + 1) * sizeof (inT32));
   memmove (quadratics, source.quadratics, segments * sizeof (QUAD_COEFFS));
   return *this;
@@ -319,9 +318,9 @@ void QSPLINE::extrapolate(                  //linear extrapolation
     increment++;
   if (increment == 0)
     return;
-  xstarts = (int *) alloc_mem ((segments + 1 + increment) * sizeof (int));
+  xstarts = (int *) malloc ((segments + 1 + increment) * sizeof (int));
   quads =
-    (QUAD_COEFFS *) alloc_mem ((segments + increment) * sizeof (QUAD_COEFFS));
+    (QUAD_COEFFS *) malloc ((segments + increment) * sizeof (QUAD_COEFFS));
   if (xmin < xcoords[0]) {
     xstarts[0] = xmin;
     quads[0].a = 0;
@@ -346,8 +345,8 @@ void QSPLINE::extrapolate(                  //linear extrapolation
     xstarts[dest_segment] = xmax + 1;
   }
   segments = dest_segment;
-  free_mem(xcoords);
-  free_mem(quadratics);
+  free(xcoords);
+  free(quadratics);
   xcoords = (inT32 *) xstarts;
   quadratics = quads;
 }

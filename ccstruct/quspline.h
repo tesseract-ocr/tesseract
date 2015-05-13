@@ -22,7 +22,6 @@
 
 #include          "quadratc.h"
 #include          "serialis.h"
-#include          "memry.h"
 #include          "rect.h"
 
 class ROW;

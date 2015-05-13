@@ -23,11 +23,11 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "callcpp.h"
 #include "classify.h"
 #include "clusttool.h"
 #include "const.h"
 #include "efio.h"
-#include "emalloc.h"
 #include "globals.h"
 #include "helpers.h"
 #include "normfeat.h"
@@ -162,9 +162,9 @@ void Classify::FreeNormProtos() {
   if (NormProtos != NULL) {
     for (int i = 0; i < NormProtos->NumProtos; i++)
       FreeProtoList(&NormProtos->Protos[i]);
-    Efree(NormProtos->Protos);
-    Efree(NormProtos->ParamDesc);
-    Efree(NormProtos);
+    free(NormProtos->Protos);
+    free(NormProtos->ParamDesc);
+    free(NormProtos);
     NormProtos = NULL;
   }
 }
@@ -251,9 +251,9 @@ NORM_PROTOS *Classify::ReadNormProtos(FILE *File, inT64 end_offset) {
   int NumProtos;
 
   /* allocate and initialization data structure */
-  NormProtos = (NORM_PROTOS *) Emalloc (sizeof (NORM_PROTOS));
+  NormProtos = (NORM_PROTOS *) malloc (sizeof (NORM_PROTOS));
   NormProtos->NumProtos = unicharset.size();
-  NormProtos->Protos = (LIST *) Emalloc (NormProtos->NumProtos * sizeof(LIST));
+  NormProtos->Protos = (LIST *) malloc (NormProtos->NumProtos * sizeof(LIST));
   for (i = 0; i < NormProtos->NumProtos; i++)
     NormProtos->Protos[i] = NIL_LIST;
 

@@ -59,7 +59,7 @@ ICOORD top_right, inT16 length   //length of loop
     return;
   }
                                  //get memory
-  steps = (uinT8 *) alloc_mem (step_mem());
+  steps = (uinT8 *) malloc (step_mem());
   memset(steps, 0, step_mem());
   edgept = startpt;
 
@@ -94,7 +94,7 @@ inT16 length                     //length of loop
   pos = startpt;
   stepcount = length;            // No. of steps.
   ASSERT_HOST(length >= 0);
-  steps = reinterpret_cast<uinT8*>(alloc_mem(step_mem()));  // Get memory.
+  steps = reinterpret_cast<uinT8*>(malloc(step_mem()));  // Get memory.
   memset(steps, 0, step_mem());
 
   lastdir = new_steps[length - 1];
@@ -159,7 +159,7 @@ C_OUTLINE::C_OUTLINE(                     //constructor
     return;
   }
                                  //get memory
-  steps = (uinT8 *) alloc_mem (step_mem());
+  steps = (uinT8 *) malloc (step_mem());
   memset(steps, 0, step_mem());
 
   for (int iteration = 0; iteration < 2; ++iteration) {
@@ -1003,9 +1003,9 @@ const C_OUTLINE & source         //from this
   box = source.box;
   start = source.start;
   if (steps != NULL)
-    free_mem(steps);
+    free(steps);
   stepcount = source.stepcount;
-  steps = (uinT8 *) alloc_mem (step_mem());
+  steps = (uinT8 *) malloc (step_mem());
   memmove (steps, source.steps, step_mem());
   if (!children.empty ())
     children.clear ();

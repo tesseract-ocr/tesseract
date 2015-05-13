@@ -23,7 +23,6 @@
 
 #include <stdio.h>
 
-#include "emalloc.h"
 #include "freelist.h"
 #include "tprintf.h"
 
@@ -46,7 +45,7 @@
  * @note History: Fri Nov 16 10:11:16 1990, DSJ, Created.
  */
 BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits) {
-  return ((BIT_VECTOR) Erealloc(Vector,
+  return ((BIT_VECTOR) realloc(Vector,
     sizeof(Vector[0]) * WordsInVectorOfSize(NewNumBits)));
 }                                /* ExpandBitVector */
 
@@ -68,7 +67,7 @@ void FreeBitVector(BIT_VECTOR BitVector) {
  * @note History: Tue Oct 23 16:46:09 1990, DSJ, Created.
  */
   if (BitVector) {
-    Efree(BitVector);
+    free(BitVector);
   }
 }                                /* FreeBitVector */
 
@@ -88,6 +87,6 @@ void FreeBitVector(BIT_VECTOR BitVector) {
  * @note History: Tue Oct 23 16:51:27 1990, DSJ, Created.
  */
 BIT_VECTOR NewBitVector(int NumBits) {
-  return ((BIT_VECTOR) Emalloc(sizeof(uinT32) *
+  return ((BIT_VECTOR) malloc(sizeof(uinT32) *
     WordsInVectorOfSize(NumBits)));
 }                                /* NewBitVector */

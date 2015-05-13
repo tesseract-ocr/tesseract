@@ -20,7 +20,6 @@
 #include "clusttool.h"
 #include "const.h"
 #include "danerror.h"
-#include "emalloc.h"
 #include "scanutils.h"
 #include <stdio.h>
 #include <math.h>
@@ -70,7 +69,7 @@ PARAM_DESC *ReadParamDesc(FILE *File, uinT16 N) {
   PARAM_DESC *ParamDesc;
   char Token[TOKENSIZE];
 
-  ParamDesc = (PARAM_DESC *) Emalloc (N * sizeof (PARAM_DESC));
+  ParamDesc = (PARAM_DESC *) malloc (N * sizeof (PARAM_DESC));
   for (i = 0; i < N; i++) {
     if (tfscanf(File, "%s", Token) != 1)
       DoError (ILLEGALCIRCULARSPEC,
@@ -119,7 +118,7 @@ PROTOTYPE *ReadPrototype(FILE *File, uinT16 N) {
   int i;
 
   if ((Status = tfscanf(File, "%s", Token)) == 1) {
-    Proto = (PROTOTYPE *) Emalloc (sizeof (PROTOTYPE));
+    Proto = (PROTOTYPE *) malloc (sizeof (PROTOTYPE));
     Proto->Cluster = NULL;
     if (Token[0] == 's')
       Proto->Significant = TRUE;
@@ -153,9 +152,9 @@ PROTOTYPE *ReadPrototype(FILE *File, uinT16 N) {
         if (Proto->Variance.Elliptical == NULL)
           DoError (ILLEGALVARIANCESPEC, "Illegal prototype variance");
         Proto->Magnitude.Elliptical =
-          (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+          (FLOAT32 *) malloc (N * sizeof (FLOAT32));
         Proto->Weight.Elliptical =
-          (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+          (FLOAT32 *) malloc (N * sizeof (FLOAT32));
         Proto->TotalMagnitude = 1.0;
         for (i = 0; i < N; i++) {
           Proto->Magnitude.Elliptical[i] =
@@ -170,7 +169,7 @@ PROTOTYPE *ReadPrototype(FILE *File, uinT16 N) {
         break;
       case mixed:
         Proto->Distrib =
-          (DISTRIBUTION *) Emalloc (N * sizeof (DISTRIBUTION));
+          (DISTRIBUTION *) malloc (N * sizeof (DISTRIBUTION));
         for (i = 0; i < N; i++) {
           if (tfscanf(File, "%s", Token) != 1)
             DoError (ILLEGALDISTRIBUTION,
@@ -194,9 +193,9 @@ PROTOTYPE *ReadPrototype(FILE *File, uinT16 N) {
         if (Proto->Variance.Elliptical == NULL)
           DoError (ILLEGALVARIANCESPEC, "Illegal prototype variance");
         Proto->Magnitude.Elliptical =
-          (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+          (FLOAT32 *) malloc (N * sizeof (FLOAT32));
         Proto->Weight.Elliptical =
-          (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+          (FLOAT32 *) malloc (N * sizeof (FLOAT32));
         Proto->TotalMagnitude = 1.0;
         for (i = 0; i < N; i++) {
           switch (Proto->Distrib[i]) {
@@ -286,13 +285,13 @@ FLOAT32* ReadNFloats(FILE * File, uinT16 N, FLOAT32 Buffer[]) {
   int NumFloatsRead;
 
   if (Buffer == NULL)
-    Buffer = reinterpret_cast<FLOAT32*>(Emalloc(N * sizeof(FLOAT32)));
+    Buffer = reinterpret_cast<FLOAT32*>(malloc(N * sizeof(FLOAT32)));
 
   for (i = 0; i < N; i++) {
     NumFloatsRead = tfscanf(File, "%f", &(Buffer[i]));
     if (NumFloatsRead != 1) {
       if ((NumFloatsRead == EOF) && (i == 0)) {
-        Efree(Buffer);
+        free(Buffer);
         return NULL;
       } else {
         DoError(ILLEGALFLOAT, "Illegal float specification");

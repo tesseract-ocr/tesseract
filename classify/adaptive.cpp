@@ -20,7 +20,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "adaptive.h"
-#include "emalloc.h"
 #include "freelist.h"
 #include "globals.h"
 #include "classify.h"
@@ -79,24 +78,21 @@ void AddAdaptedClass(ADAPT_TEMPLATES Templates,
  */
 void FreeTempConfig(TEMP_CONFIG Config) {
   assert (Config != NULL);
-
   destroy_nodes (Config->ContextsSeen, memfree);
   FreeBitVector (Config->Protos);
-  free_struct (Config, sizeof (TEMP_CONFIG_STRUCT), "TEMP_CONFIG_STRUCT");
-
+  free (Config);
 }                                /* FreeTempConfig */
 
 /*---------------------------------------------------------------------------*/
 void FreeTempProto(void *arg) {
   PROTO proto = (PROTO) arg;
-
-  free_struct (proto, sizeof (TEMP_PROTO_STRUCT), "TEMP_PROTO_STRUCT");
+  free (proto);
 }
 
 void FreePermConfig(PERM_CONFIG Config) {
   assert(Config != NULL);
   delete [] Config->Ambigs;
-  free_struct(Config, sizeof(PERM_CONFIG_STRUCT), "PERM_CONFIG_STRUCT");
+  free (Config);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -114,7 +110,7 @@ ADAPT_CLASS NewAdaptedClass() {
   ADAPT_CLASS Class;
   int i;
 
-  Class = (ADAPT_CLASS) Emalloc (sizeof (ADAPT_CLASS_STRUCT));
+  Class = (ADAPT_CLASS) malloc (sizeof (ADAPT_CLASS_STRUCT));
   Class->NumPermConfigs = 0;
   Class->MaxNumTimesSeen = 0;
   Class->TempProtos = NIL_LIST;
@@ -147,7 +143,7 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
   FreeBitVector (adapt_class->PermProtos);
   FreeBitVector (adapt_class->PermConfigs);
   destroy_nodes (adapt_class->TempProtos, FreeTempProto);
-  Efree(adapt_class);
+  free(adapt_class);
 }
 
 
@@ -168,7 +164,7 @@ ADAPT_TEMPLATES Classify::NewAdaptedTemplates(bool InitFromUnicharset) {
   ADAPT_TEMPLATES Templates;
   int i;
 
-  Templates = (ADAPT_TEMPLATES) Emalloc (sizeof (ADAPT_TEMPLATES_STRUCT));
+  Templates = (ADAPT_TEMPLATES) malloc (sizeof (ADAPT_TEMPLATES_STRUCT));
 
   Templates->Templates = NewIntTemplates ();
   Templates->NumPermClasses = 0;
@@ -203,7 +199,7 @@ void free_adapted_templates(ADAPT_TEMPLATES templates) {
     for (i = 0; i < (templates->Templates)->NumClasses; i++)
       free_adapted_class (templates->Class[i]);
     free_int_templates (templates->Templates);
-    Efree(templates);
+    free(templates);
   }
 }
 
@@ -224,9 +220,7 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId) {
   TEMP_CONFIG Config;
   int NumProtos = MaxProtoId + 1;
 
-  Config =
-    (TEMP_CONFIG) alloc_struct (sizeof (TEMP_CONFIG_STRUCT),
-    "TEMP_CONFIG_STRUCT");
+  Config = (TEMP_CONFIG) malloc (sizeof (TEMP_CONFIG_STRUCT));
   Config->Protos = NewBitVector (NumProtos);
 
   Config->NumTimesSeen = 1;
@@ -252,8 +246,7 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId) {
  * @note History: Thu Mar 14 13:31:31 1991, DSJ, Created.
  */
 TEMP_PROTO NewTempProto() {
-  return ((TEMP_PROTO)
-    alloc_struct (sizeof (TEMP_PROTO_STRUCT), "TEMP_PROTO_STRUCT"));
+  return (TEMP_PROTO) malloc (sizeof (TEMP_PROTO_STRUCT));
 }                                /* NewTempProto */
 
 
@@ -318,7 +311,7 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
   TEMP_PROTO TempProto;
 
   /* first read high level adapted class structure */
-  Class = (ADAPT_CLASS) Emalloc (sizeof (ADAPT_CLASS_STRUCT));
+  Class = (ADAPT_CLASS) malloc (sizeof (ADAPT_CLASS_STRUCT));
   fread ((char *) Class, sizeof (ADAPT_CLASS_STRUCT), 1, File);
 
   /* then read in the definitions of the permanent protos and configs */
@@ -333,9 +326,7 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
   fread ((char *) &NumTempProtos, sizeof (int), 1, File);
   Class->TempProtos = NIL_LIST;
   for (i = 0; i < NumTempProtos; i++) {
-    TempProto =
-      (TEMP_PROTO) alloc_struct (sizeof (TEMP_PROTO_STRUCT),
-      "TEMP_PROTO_STRUCT");
+    TempProto = (TEMP_PROTO) malloc (sizeof (TEMP_PROTO_STRUCT));
     fread ((char *) TempProto, sizeof (TEMP_PROTO_STRUCT), 1, File);
     Class->TempProtos = push_last (Class->TempProtos, TempProto);
   }
@@ -371,7 +362,7 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(FILE *File) {
   ADAPT_TEMPLATES Templates;
 
   /* first read the high level adaptive template struct */
-  Templates = (ADAPT_TEMPLATES) Emalloc (sizeof (ADAPT_TEMPLATES_STRUCT));
+  Templates = (ADAPT_TEMPLATES) malloc (sizeof (ADAPT_TEMPLATES_STRUCT));
   fread ((char *) Templates, sizeof (ADAPT_TEMPLATES_STRUCT), 1, File);
 
   /* then read in the basic integer templates */
@@ -400,8 +391,7 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(FILE *File) {
  * @note History: Tue Mar 19 14:25:26 1991, DSJ, Created.
  */
 PERM_CONFIG ReadPermConfig(FILE *File) {
-  PERM_CONFIG Config = (PERM_CONFIG) alloc_struct(sizeof(PERM_CONFIG_STRUCT),
-                                                  "PERM_CONFIG_STRUCT");
+  PERM_CONFIG Config = (PERM_CONFIG) malloc(sizeof(PERM_CONFIG_STRUCT));
   uinT8 NumAmbigs;
   fread ((char *) &NumAmbigs, sizeof(uinT8), 1, File);
   Config->Ambigs = new UNICHAR_ID[NumAmbigs + 1];
@@ -429,9 +419,7 @@ PERM_CONFIG ReadPermConfig(FILE *File) {
 TEMP_CONFIG ReadTempConfig(FILE *File) {
   TEMP_CONFIG Config;
 
-  Config =
-    (TEMP_CONFIG) alloc_struct (sizeof (TEMP_CONFIG_STRUCT),
-    "TEMP_CONFIG_STRUCT");
+  Config = (TEMP_CONFIG) malloc (sizeof (TEMP_CONFIG_STRUCT));
   fread ((char *) Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
 
   Config->Protos = NewBitVector (Config->ProtoVectorSize * BITSINLONG);

@@ -19,7 +19,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "mfdefs.h"
-#include "emalloc.h"
 #include <math.h>
 
 /**----------------------------------------------------------------------------
@@ -37,7 +36,7 @@ MICROFEATURE NewMicroFeature() {
  **	Exceptions: none
  **	History: 7/27/89, DSJ, Created.
  */
-  return ((MICROFEATURE) Emalloc (sizeof (MFBLOCK)));
+  return ((MICROFEATURE) malloc (sizeof (MFBLOCK)));
 }                                /* NewMicroFeature */
 
 
@@ -54,5 +53,5 @@ void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
  **	Exceptions: none
  **	History: 7/27/89, DSJ, Created.
  */
-  destroy_nodes(MicroFeatures, Efree); 
+  destroy_nodes(MicroFeatures, free);
 }                                /* FreeMicroFeatures */

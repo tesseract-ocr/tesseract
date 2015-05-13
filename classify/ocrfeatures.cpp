@@ -19,7 +19,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "ocrfeatures.h"
-#include "emalloc.h"
 #include "callcpp.h"
 #include "danerror.h"
 #include "freelist.h"
@@ -67,11 +66,8 @@ void FreeFeature(FEATURE Feature) {
  **	History: Mon May 21 13:33:27 1990, DSJ, Created.
  */
   if (Feature) {
-    free_struct (Feature, sizeof (FEATURE_STRUCT)
-      + sizeof (FLOAT32) * (Feature->Type->NumParams - 1),
-      "sizeof(FEATURE_STRUCT)+sizeof(FLOAT32)*(NumParamsIn(Feature)-1)");
+    free (Feature);
   }
-
 }                                /* FreeFeature */
 
 
@@ -111,14 +107,9 @@ FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
  **	History: Mon May 21 14:06:42 1990, DSJ, Created.
  */
   FEATURE Feature;
-
-  Feature = (FEATURE) alloc_struct (sizeof (FEATURE_STRUCT) +
-    (FeatureDesc->NumParams - 1) *
-    sizeof (FLOAT32),
-    "sizeof(FEATURE_STRUCT)+sizeof(FLOAT32)*(NumParamsIn(Feature)-1)");
+  Feature = (FEATURE) malloc (sizeof (FEATURE_STRUCT) + (FeatureDesc->NumParams - 1) * sizeof (FLOAT32));
   Feature->Type = FeatureDesc;
   return (Feature);
-
 }                                /* NewFeature */
 
 
@@ -136,7 +127,7 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
  */
   FEATURE_SET FeatureSet;
 
-  FeatureSet = (FEATURE_SET) Emalloc (sizeof (FEATURE_SET_STRUCT) +
+  FeatureSet = (FEATURE_SET) malloc (sizeof (FEATURE_SET_STRUCT) +
     (NumFeatures - 1) * sizeof (FEATURE));
   FeatureSet->MaxNumFeatures = NumFeatures;
   FeatureSet->NumFeatures = 0;

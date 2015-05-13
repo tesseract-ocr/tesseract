@@ -26,9 +26,9 @@
 #include <unistd.h>
 #endif
 
+#include "callcpp.h"
 #include "classify.h"
 #include "const.h"
-#include "emalloc.h"
 #include "fontinfo.h"
 #include "genericvector.h"
 #include "globals.h"
@@ -310,13 +310,13 @@ int AddIntProto(INT_CLASS Class) {
   if (Class->NumProtos > MaxNumIntProtosIn(Class)) {
     ProtoSetId = Class->NumProtoSets++;
 
-    ProtoSet = (PROTO_SET) Emalloc(sizeof(PROTO_SET_STRUCT));
+    ProtoSet = (PROTO_SET) malloc(sizeof(PROTO_SET_STRUCT));
     Class->ProtoSets[ProtoSetId] = ProtoSet;
     memset(ProtoSet, 0, sizeof(*ProtoSet));
 
     /* reallocate space for the proto lengths and install in class */
     Class->ProtoLengths =
-      (uinT8 *)Erealloc(Class->ProtoLengths,
+      (uinT8 *)realloc(Class->ProtoLengths,
                         MaxNumIntProtosIn(Class) * sizeof(uinT8));
     memset(&Class->ProtoLengths[Index], 0,
            sizeof(*Class->ProtoLengths) * (MaxNumIntProtosIn(Class) - Index));
@@ -716,7 +716,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
 
   assert(MaxNumConfigs <= MAX_NUM_CONFIGS);
 
-  Class = (INT_CLASS) Emalloc(sizeof(INT_CLASS_STRUCT));
+  Class = (INT_CLASS) malloc(sizeof(INT_CLASS_STRUCT));
   Class->NumProtoSets = ((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) /
                             PROTOS_PER_PROTO_SET);
 
@@ -727,7 +727,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
 
   for (i = 0; i < Class->NumProtoSets; i++) {
     /* allocate space for a proto set, install in class, and initialize */
-    ProtoSet = (PROTO_SET) Emalloc(sizeof(PROTO_SET_STRUCT));
+    ProtoSet = (PROTO_SET) malloc(sizeof(PROTO_SET_STRUCT));
     memset(ProtoSet, 0, sizeof(*ProtoSet));
     Class->ProtoSets[i] = ProtoSet;
 
@@ -735,7 +735,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   }
   if (MaxNumIntProtosIn (Class) > 0) {
     Class->ProtoLengths =
-      (uinT8 *)Emalloc(MaxNumIntProtosIn (Class) * sizeof (uinT8));
+      (uinT8 *)malloc(MaxNumIntProtosIn (Class) * sizeof (uinT8));
     memset(Class->ProtoLengths, 0,
            MaxNumIntProtosIn(Class) * sizeof(*Class->ProtoLengths));
   } else {
@@ -753,12 +753,12 @@ void free_int_class(INT_CLASS int_class) {
   int i;
 
   for (i = 0; i < int_class->NumProtoSets; i++) {
-    Efree (int_class->ProtoSets[i]);
+    free (int_class->ProtoSets[i]);
   }
   if (int_class->ProtoLengths != NULL) {
-    Efree (int_class->ProtoLengths);
+    free (int_class->ProtoLengths);
   }
-  Efree(int_class);
+  free(int_class);
 }
 
 
@@ -776,7 +776,7 @@ INT_TEMPLATES NewIntTemplates() {
   INT_TEMPLATES T;
   int i;
 
-  T = (INT_TEMPLATES) Emalloc (sizeof (INT_TEMPLATES_STRUCT));
+  T = (INT_TEMPLATES) malloc (sizeof (INT_TEMPLATES_STRUCT));
   T->NumClasses = 0;
   T->NumClassPruners = 0;
 
@@ -795,7 +795,7 @@ void free_int_templates(INT_TEMPLATES templates) {
     free_int_class(templates->Class[i]);
   for (i = 0; i < templates->NumClassPruners; i++)
     delete templates->ClassPruners[i];
-  Efree(templates);
+  free(templates);
 }
 
 
@@ -966,7 +966,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   /* then read in each class */
   for (i = 0; i < Templates->NumClasses; i++) {
     /* first read in the high level struct for the class */
-    Class = (INT_CLASS) Emalloc (sizeof (INT_CLASS_STRUCT));
+    Class = (INT_CLASS) malloc (sizeof (INT_CLASS_STRUCT));
     if (fread(&Class->NumProtos, sizeof(Class->NumProtos), 1, File) != 1 ||
         fread(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1, File) != 1 ||
         fread(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File) != 1)
@@ -1010,7 +1010,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     /* then read in the proto lengths */
     Lengths = NULL;
     if (MaxNumIntProtosIn (Class) > 0) {
-      Lengths = (uinT8 *)Emalloc(sizeof(uinT8) * MaxNumIntProtosIn(Class));
+      Lengths = (uinT8 *)malloc(sizeof(uinT8) * MaxNumIntProtosIn(Class));
       if ((nread =
            fread((char *)Lengths, sizeof(uinT8),
                  MaxNumIntProtosIn(Class), File)) != MaxNumIntProtosIn (Class))
@@ -1020,7 +1020,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
 
     /* then read in the proto sets */
     for (j = 0; j < Class->NumProtoSets; j++) {
-      ProtoSet = (PROTO_SET)Emalloc(sizeof(PROTO_SET_STRUCT));
+      ProtoSet = (PROTO_SET)malloc(sizeof(PROTO_SET_STRUCT));
       if (version_id < 3) {
         if ((nread =
              fread((char *) &ProtoSet->ProtoPruner, 1,

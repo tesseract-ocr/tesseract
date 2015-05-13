@@ -27,7 +27,6 @@
 ----------------------------------------------------------------------*/
 #include "protos.h"
 #include "const.h"
-#include "emalloc.h"
 #include "freelist.h"
 #include "callcpp.h"
 #include "tprintf.h"
@@ -74,7 +73,7 @@ int AddConfigToClass(CLASS_TYPE Class) {
       CONFIG_INCREMENT) * CONFIG_INCREMENT);
 
     Class->Configurations =
-      (CONFIGS) Erealloc (Class->Configurations,
+      (CONFIGS) realloc (Class->Configurations,
       sizeof (BIT_VECTOR) * NewNumConfigs);
 
     Class->MaxNumConfigs = NewNumConfigs;
@@ -108,7 +107,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
     NewNumProtos = (((Class->MaxNumProtos + PROTO_INCREMENT) /
       PROTO_INCREMENT) * PROTO_INCREMENT);
 
-    Class->Prototypes = (PROTO) Erealloc (Class->Prototypes,
+    Class->Prototypes = (PROTO) realloc (Class->Prototypes,
       sizeof (PROTO_STRUCT) *
       NewNumProtos);
 
@@ -251,10 +250,10 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
   Class = new CLASS_STRUCT;
 
   if (NumProtos > 0)
-    Class->Prototypes = (PROTO) Emalloc (NumProtos * sizeof (PROTO_STRUCT));
+    Class->Prototypes = (PROTO) malloc (NumProtos * sizeof (PROTO_STRUCT));
 
   if (NumConfigs > 0)
-    Class->Configurations = (CONFIGS) Emalloc (NumConfigs *
+    Class->Configurations = (CONFIGS) malloc (NumConfigs *
       sizeof (BIT_VECTOR));
   Class->MaxNumProtos = NumProtos;
   Class->MaxNumConfigs = NumConfigs;
