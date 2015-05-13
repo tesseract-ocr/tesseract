@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C++ Express 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtesseract303", "libtesseract\libtesseract.vcxproj", "{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtesseract304", "libtesseract\libtesseract.vcxproj", "{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tesseract", "tesseract\tesseract.vcxproj", "{C76996CB-C4CB-4D89-9F67-F605DF129618}"
 EndProject

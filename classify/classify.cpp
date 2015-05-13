@@ -217,7 +217,7 @@ void Classify::AddLargeSpeckleTo(int blob_length, BLOB_CHOICE_LIST *choices) {
         (rating_scale * blob_length);
   }
   BLOB_CHOICE* blob_choice = new BLOB_CHOICE(UNICHAR_SPACE, rating, certainty,
-                                             -1, -1, 0, 0, MAX_FLOAT32, 0,
+                                             -1, 0.0f, MAX_FLOAT32, 0,
                                              BCC_SPECKLE_CLASSIFIER);
   bc_it.add_to_end(blob_choice);
 }

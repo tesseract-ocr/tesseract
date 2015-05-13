@@ -51,15 +51,11 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
 
 // Copies the bounding box from page_res_it->word() to the given TBOX.
 bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
-  while (page_res_it->block() != NULL) {
-    if (page_res_it->word() != NULL)
-      break;
+  while (page_res_it->block() != NULL && page_res_it->word() == NULL)
     page_res_it->forward();
-  }
 
   if (page_res_it->word() != NULL) {
     *tbox = page_res_it->word()->word->bounding_box();
-    page_res_it->forward();
 
     // If tbox->left() is negative, the training image has vertical text and
     // all the coordinates of bounding boxes of page_res are rotated by 90
@@ -109,26 +105,34 @@ void Tesseract::recog_training_segmented(const STRING &fname,
     // Align bottom left points of the TBOXes.
     while (keep_going &&
            !NearlyEqual<int>(tbox.bottom(), bbox.bottom(), kMaxBoxEdgeDiff)) {
-      keep_going = (bbox.bottom() < tbox.bottom()) ?
-          read_t(&page_res_it, &tbox) :
-            ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
+      if (bbox.bottom() < tbox.bottom()) {
+        page_res_it.forward();
+        keep_going = read_t(&page_res_it, &tbox);
+      } else {
+        keep_going = ReadNextBox(applybox_page, &line_number, box_file, &label,
+                                 &bbox);
+      }
     }
     while (keep_going &&
            !NearlyEqual<int>(tbox.left(), bbox.left(), kMaxBoxEdgeDiff)) {
-      keep_going = (bbox.left() > tbox.left()) ? read_t(&page_res_it, &tbox) :
-          ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
+      if (bbox.left() > tbox.left()) {
+        page_res_it.forward();
+        keep_going = read_t(&page_res_it, &tbox);
+      } else {
+        keep_going = ReadNextBox(applybox_page, &line_number, box_file, &label,
+                                 &bbox);
+      }
     }
     // OCR the word if top right points of the TBOXes are similar.
     if (keep_going &&
         NearlyEqual<int>(tbox.right(), bbox.right(), kMaxBoxEdgeDiff) &&
         NearlyEqual<int>(tbox.top(), bbox.top(), kMaxBoxEdgeDiff)) {
-        ambigs_classify_and_output(page_res_it.prev_word(),
-                                   page_res_it.prev_row(),
-                                   page_res_it.prev_block(),
-                                   label.string(), output_file);
+        ambigs_classify_and_output(label.string(), &page_res_it, output_file);
         examined_words++;
     }
+    page_res_it.forward();
   } while (keep_going);
+  fclose(box_file);
 
   // Set up scripts on all of the words that did not get sent to
   // ambigs_classify_and_output.  They all should have, but if all the
@@ -196,16 +200,15 @@ static void PrintMatrixPaths(int col, int dim,
 // raw choice as a result of the classification. For words labeled with a
 // single unichar also outputs all alternatives from blob_choices of the
 // best choice.
-void Tesseract::ambigs_classify_and_output(WERD_RES *werd_res,
-                                           ROW_RES *row_res,
-                                           BLOCK_RES *block_res,
-                                           const char *label,
+void Tesseract::ambigs_classify_and_output(const char *label,
+                                           PAGE_RES_IT* pr_it,
                                            FILE *output_file) {
   // Classify word.
   fflush(stdout);
-  WordData word_data(block_res->block, row_res->row, werd_res);
+  WordData word_data(*pr_it);
   SetupWordPassN(1, &word_data);
-  classify_word_pass1(&word_data, werd_res);
+  classify_word_and_language(1, pr_it, &word_data);
+  WERD_RES* werd_res = word_data.word;
   WERD_CHOICE *best_choice = werd_res->best_choice;
   ASSERT_HOST(best_choice != NULL);
 

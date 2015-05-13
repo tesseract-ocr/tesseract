@@ -383,8 +383,8 @@ bool Tesseract::cube_recognize(CubeObject *cube_obj, BLOCK* block,
   for (int i = 0; i < num_chars; ++i) {
     UNICHAR_ID uch_id =
         cube_cntxt_->CharacterSet()->UnicharID(char_samples[i]->StrLabel());
-    choices[i] = new BLOB_CHOICE(uch_id, 0.0, cube_certainty, -1, -1,
-                                 0, 0, 0, 0, BCC_STATIC_CLASSIFIER);
+    choices[i] = new BLOB_CHOICE(uch_id, -cube_certainty, cube_certainty,
+                                 -1, 0.0f, 0.0f, 0.0f, BCC_STATIC_CLASSIFIER);
   }
   word->FakeClassifyWord(num_chars, choices);
   // within a word, cube recognizes the word in reading order.

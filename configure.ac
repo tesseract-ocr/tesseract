@@ -5,12 +5,10 @@
 # ----------------------------------------
 # Initialization
 # ----------------------------------------
-
 AC_PREREQ(2.50)
-AC_INIT([tesseract], [3.03], [http://code.google.com/p/tesseract-ocr/issues/list])
+AC_INIT([tesseract], [3.04], [http://code.google.com/p/tesseract-ocr/issues/list])
 CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
-AC_REVISION([$Revision$])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(api/tesseractmain.cpp)
 AC_PREFIX_DEFAULT(/usr/local)
@@ -19,7 +17,15 @@ AC_PREFIX_DEFAULT(/usr/local)
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
 PACKAGE_YEAR=2014
-PACKAGE_DATE="01/14"
+PACKAGE_DATE="08/13"
+
+abs_top_srcdir=`AS_DIRNAME([$0])`
+gitrev="`git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdir} describe --always --tags`"
+if test -n "${gitrev}" ; then
+	AC_REVISION("${gitrev}")
+	AC_DEFINE_UNQUOTED(GIT_REV,"${gitrev}", [Define to be the git revision])
+	echo "Using git revision: ${gitrev}"
+fi
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -35,7 +41,7 @@ GENERIC_LIBRARY_NAME=tesseract
 
 # Release versioning
 GENERIC_MAJOR_VERSION=3
-GENERIC_MINOR_VERSION=3
+GENERIC_MINOR_VERSION=4
 GENERIC_MICRO_VERSION=0
 
 # API version (often = GENERIC_MAJOR_VERSION.GENERIC_MINOR_VERSION)
@@ -62,7 +68,7 @@ AC_CONFIG_HEADERS(config_auto.h:config/config.h.in)
 AM_MAINTAINER_MODE
 
 # default conditional
-AM_CONDITIONAL(MINGW, false)
+AM_CONDITIONAL(T_WIN, false)
 AM_CONDITIONAL(OSX, false)
 AM_CONDITIONAL(GRAPHICS_DISABLED, false)
 
@@ -77,13 +83,15 @@ AC_CANONICAL_HOST
 case "${host_os}" in
     mingw32*)
         AC_DEFINE_UNQUOTED(MINGW,1,[This is a MinGW system])
-        AM_CONDITIONAL(MINGW, true)
+        AM_CONDITIONAL(T_WIN, true)
         AM_CONDITIONAL(ADD_RT, false)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
     cygwin*)
-	AM_CONDITIONAL(ADD_RT, false)
-        ;;			
+        AM_CONDITIONAL(ADD_RT, false)
+        AM_CONDITIONAL(T_WIN, true)
+        AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
+        ;;
     solaris*)
         LIBS="-lsocket -lnsl -lrt -lxnet"
         AM_CONDITIONAL(ADD_RT, true)
@@ -364,16 +372,16 @@ else
   AC_MSG_ERROR([leptonica not found])
 fi
 
-AC_MSG_CHECKING([leptonica version >= 1.70])
+AC_MSG_CHECKING([leptonica version >= 1.71])
 AC_PREPROC_IFELSE(
     [AC_LANG_PROGRAM([#include "allheaders.h"],
-[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 70)
+[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 71)
 int i = 0;
 #else
 #error You need to upgrade your leptonica library!
 #endif])],
     [AC_MSG_RESULT(yes)],
-    [AC_MSG_FAILURE([leptonica 1.70 or higher is required])])
+    [AC_MSG_FAILURE([leptonica 1.71 or higher is required])])
 
 # Check location of icu headers
 have_icu=false
@@ -408,14 +416,10 @@ AM_CONDITIONAL(ENABLE_TRAINING, $have_cairo)
 
 # set c++11 support based on platform/compiler
 if test "x$has_cpp11" = "xyes"; then
-  case "$host" in
+  case "${host_os}" in
     cygwin*)
-      if test "x$snprintfworks" = "xno"; then
-        # cygwin workaround
-        # http://stackoverflow.com/questions/20149633/how-to-use-snprintf-in-g-std-c11-version-4-8-2/20149792#20149792
-        CXXFLAGS="$CXXFLAGS -std=gnu++11"
-      fi
-      ;;			
+      CXXFLAGS="$CXXFLAGS -std=gnu++11"
+      ;;
     *-darwin* | *-macos10*)
        if test "x$CLANG" = "xyes"; then
          CXXFLAGS="$CXXFLAGS -std=c++11 "
@@ -429,6 +433,9 @@ if test "x$has_cpp11" = "xyes"; then
       CXXFLAGS="$CXXFLAGS -std=c++11"
       ;;
   esac
+else
+  AC_MSG_WARN(Training tools WILL NOT be built because of missing c++11 support.)
+  AM_CONDITIONAL(ENABLE_TRAINING, false)
 fi
 
 # ----------------------------------------
@@ -450,7 +457,6 @@ AC_CONFIG_FILES(neural_networks/runtime/Makefile)
 AC_CONFIG_FILES(textord/Makefile)
 AC_CONFIG_FILES(viewer/Makefile)
 AC_CONFIG_FILES(wordrec/Makefile)
-AC_CONFIG_FILES(training/Makefile)
 AC_CONFIG_FILES(tessdata/Makefile)
 AC_CONFIG_FILES(tessdata/configs/Makefile)
 AC_CONFIG_FILES(tessdata/tessconfigs/Makefile)
@@ -462,6 +468,7 @@ AC_CONFIG_FILES(java/com/google/scrollview/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/events/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/ui/Makefile)
 AC_CONFIG_FILES(doc/Makefile)
+AM_COND_IF([ENABLE_TRAINING], AC_CONFIG_FILES(training/Makefile))
 AC_OUTPUT
 
 # Final message
@@ -471,23 +478,24 @@ echo "You can now build and install $PACKAGE_NAME by running:"
 echo ""
 echo "$ make"
 echo "$ sudo make install"
-echo "$ sudo make install LANGS=\"eng ara deu\""
-echo "  Or:"
-echo "$ sudo make install-langs"
+# echo "$ sudo make install LANGS=\"eng ara deu\""
+# echo "  Or:"
+# echo "$ sudo make install-langs"
 
-if !($have_icu); then
-  echo ""
-  echo "You can not build training tools because of missing dependency."
-  echo "Check configure output for details."
-  echo ""
-else
+AM_COND_IF([ENABLE_TRAINING],
   echo ""
   echo "Training tools can be build and installed (after building of $PACKAGE_NAME) with:"
   echo ""
   echo "$ make training"
   echo "$ sudo make training-install"
   echo ""
-fi
+,
+  echo ""
+  echo "You can not build training tools because of missing dependency."
+  echo "Check configure output for details."
+  echo ""
+)
+
 # ----------------------------------------
 # CONFIG Template
 # ----------------------------------------

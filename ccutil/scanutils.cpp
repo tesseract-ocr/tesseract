@@ -34,7 +34,7 @@
 #include "tprintf.h"
 
 // workaround for "'off_t' was not declared in this scope" with -std=c++11
-#ifndef off_t
+#if !defined(off_t) && !defined(__APPLE__) && !defined(__CYGWIN__)
 typedef long off_t;
 #endif  // off_t
 
@@ -132,7 +132,7 @@ uintmax_t streamtoumax(FILE* s, int base) {
   } else if (base == 16) {
     if (c == '0') {
       c = fgetc(s);
-      if (c == 'x' && c == 'X') c = fgetc(s);
+      if (c == 'x' || c == 'X') c = fgetc(s);
     }
   }
 

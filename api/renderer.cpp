@@ -8,29 +8,32 @@
 #include "genericvector.h"
 #include "renderer.h"
 
-#if !defined(VERSION)
-#include "version.h"
-#endif
-
 namespace tesseract {
-
-// Start with a 4K output buffer which should be pretty big for a page of text
-// though might need to grow for other formats or multi-page documents.
-static const int kInitialAlloc = 1 << 12;
 
 /**********************************************************************
  * Base Renderer interface implementation
  **********************************************************************/
-TessResultRenderer::TessResultRenderer(const char* type, const char* extension)
-    : full_typename_(type), file_extension_(extension),
+TessResultRenderer::TessResultRenderer(const char *outputbase,
+                                       const char* extension)
+    : file_extension_(extension),
       title_(""), imagenum_(-1),
-      output_data_(NULL),
-      next_(NULL) {
-  ResetData();
+      fout_(stdout),
+      next_(NULL),
+      happy_(true) {
+  if (strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
+    STRING outfile = STRING(outputbase) + STRING(".") + STRING(file_extension_);
+    fout_ = fopen(outfile.string(), "wb");
+    if (fout_ == NULL) {
+      happy_ = false;
+    }
+  }
 }
 
 TessResultRenderer::~TessResultRenderer() {
-  delete[] output_data_;
+ if (fout_ != stdout)
+    fclose(fout_);
+  else
+    clearerr(fout_);
   delete next_;
 }
 
@@ -48,8 +51,7 @@ void TessResultRenderer::insert(TessResultRenderer* next) {
 }
 
 bool TessResultRenderer::BeginDocument(const char* title) {
-  ResetData();
-
+  if (!happy_) return false;
   title_ = title;
   imagenum_ = -1;
   bool ok = BeginDocumentHandler();
@@ -60,6 +62,7 @@ bool TessResultRenderer::BeginDocument(const char* title) {
 }
 
 bool TessResultRenderer::AddImage(TessBaseAPI* api) {
+  if (!happy_) return false;
   ++imagenum_;
   bool ok = AddImageHandler(api);
   if (next_) {
@@ -68,16 +71,8 @@ bool TessResultRenderer::AddImage(TessBaseAPI* api) {
   return ok;
 }
 
-bool TessResultRenderer::AddError(TessBaseAPI* api) {
-  ++imagenum_;
-  bool ok = AddErrorHandler(api);
-  if (next_) {
-    ok = next_->AddError(api) && ok;
-  }
-  return ok;
-}
-
 bool TessResultRenderer::EndDocument() {
+  if (!happy_) return false;
   bool ok = EndDocumentHandler();
   if (next_) {
     ok = next_->EndDocument() && ok;
@@ -85,62 +80,29 @@ bool TessResultRenderer::EndDocument() {
   return ok;
 }
 
-bool TessResultRenderer::GetOutput(const char** data, int* data_len) const {
-  *data = output_data_;
-  *data_len = output_len_;
-  return true;
-}
-
-void TessResultRenderer::ResetData() {
-  delete[] output_data_;
-  output_data_ = new char[kInitialAlloc];
-  output_alloc_ = kInitialAlloc;
-  output_len_ = 0;
-}
-
-void TessResultRenderer::ReserveAdditionalData(int relative_len) {
-  int total = relative_len + output_len_;
-  if (total <= output_alloc_)
-    return;
-
-  if (total < 2 * output_alloc_) {
-    total = 2 * output_alloc_;
-  }
-
-  char* new_data = new char[total];
-  memcpy(new_data, output_data_, output_len_);
-  delete[] output_data_;
-  output_data_ = new_data;
-}
-
 void TessResultRenderer::AppendString(const char* s) {
   AppendData(s, strlen(s));
 }
 
 void TessResultRenderer::AppendData(const char* s, int len) {
-  ReserveAdditionalData(len);
-  memcpy(output_data_ + output_len_, s, len);
-  output_len_ += len;
+  int n = fwrite(s, 1, len, fout_);
+  if (n != len) happy_ = false;
 }
 
 bool TessResultRenderer::BeginDocumentHandler() {
-  return true;
-}
-
-bool TessResultRenderer::AddErrorHandler(TessBaseAPI* api) {
-  return true;
+  return happy_;
 }
 
 bool TessResultRenderer::EndDocumentHandler() {
-  return true;
+  return happy_;
 }
 
 
 /**********************************************************************
  * UTF8 Text Renderer interface implementation
  **********************************************************************/
-TessTextRenderer::TessTextRenderer()
-    : TessResultRenderer("Text", "txt") {
+TessTextRenderer::TessTextRenderer(const char *outputbase)
+    : TessResultRenderer(outputbase, "txt") {
 }
 
 bool TessTextRenderer::AddImageHandler(TessBaseAPI* api) {
@@ -152,14 +114,27 @@ bool TessTextRenderer::AddImageHandler(TessBaseAPI* api) {
   AppendString(utf8);
   delete[] utf8;
 
+  bool pageBreak = false;
+  api->GetBoolVariable("include_page_breaks", &pageBreak);
+  const char* pageSeparator = api->GetStringVariable("page_separator");
+  if (pageBreak) {
+    AppendString(pageSeparator);
+  }
+
   return true;
 }
 
 /**********************************************************************
  * HOcr Text Renderer interface implementation
  **********************************************************************/
-TessHOcrRenderer::TessHOcrRenderer()
-    : TessResultRenderer("HOcr", "hocr") {
+TessHOcrRenderer::TessHOcrRenderer(const char *outputbase)
+    : TessResultRenderer(outputbase, "hocr") {
+    font_info_ = false;
+}
+
+TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
+    : TessResultRenderer(outputbase, "hocr") {
+    font_info_ = font_info;
 }
 
 bool TessHOcrRenderer::BeginDocumentHandler() {
@@ -174,9 +149,15 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
       "</title>\n"
       "<meta http-equiv=\"Content-Type\" content=\"text/html;"
       "charset=utf-8\" />\n"
-      "  <meta name='ocr-system' content='tesseract " VERSION "' />\n"
+      "  <meta name='ocr-system' content='tesseract " TESSERACT_VERSION_STR
+              "' />\n"
       "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
-      " ocr_line ocrx_word'/>\n"
+      " ocr_line ocrx_word");
+  if (font_info_)
+    AppendString(
+      " ocrp_lang ocrp_dir ocrp_font ocrp_fsize ocrp_wconf");
+  AppendString(
+      "'/>\n"
       "</head>\n<body>\n");
 
   return true;
@@ -201,8 +182,8 @@ bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
 /**********************************************************************
  * UNLV Text Renderer interface implementation
  **********************************************************************/
-TessUnlvRenderer::TessUnlvRenderer()
-    : TessResultRenderer("UNLV", "unlv") {
+TessUnlvRenderer::TessUnlvRenderer(const char *outputbase)
+    : TessResultRenderer(outputbase, "unlv") {
 }
 
 bool TessUnlvRenderer::AddImageHandler(TessBaseAPI* api) {
@@ -218,8 +199,8 @@ bool TessUnlvRenderer::AddImageHandler(TessBaseAPI* api) {
 /**********************************************************************
  * BoxText Renderer interface implementation
  **********************************************************************/
-TessBoxTextRenderer::TessBoxTextRenderer()
-    : TessResultRenderer("Box Text", "box") {
+TessBoxTextRenderer::TessBoxTextRenderer(const char *outputbase)
+    : TessResultRenderer(outputbase, "box") {
 }
 
 bool TessBoxTextRenderer::AddImageHandler(TessBaseAPI* api) {

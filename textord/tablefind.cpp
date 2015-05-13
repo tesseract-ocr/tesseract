@@ -974,12 +974,12 @@ bool TableFinder::HasLeaderAdjacent(const ColPartition& part) {
     hsearch.StartSideSearch(x, bottom, top);
     ColPartition* leader = NULL;
     while ((leader = hsearch.NextSideSearch(right_to_left)) != NULL) {
-      // This should not happen, they are in different grids.
-      ASSERT_HOST(&part != leader);
       // The leader could be a horizontal ruling in the grid.
       // Make sure it is actually a leader.
       if (leader->flow() != BTFT_LEADER)
         continue;
+      // This should not happen, they are in different grids.
+      ASSERT_HOST(&part != leader);
       // Make sure the leader shares a page column with the partition,
       // otherwise we are spreading across columns.
       if (!part.IsInSameColumnAs(*leader))

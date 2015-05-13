@@ -33,11 +33,6 @@
 #include "ndminx.h"
 
 /*----------------------------------------------------------------------
-              T y p e s
-----------------------------------------------------------------------*/
-typedef inT16 BOUNDS_RECT[4];
-
-/*----------------------------------------------------------------------
               M a c r o s
 ----------------------------------------------------------------------*/
 /**********************************************************************
@@ -51,19 +46,5 @@ typedef inT16 BOUNDS_RECT[4];
 #define partial_split_priority(split)  \
 (grade_split_length   (split) +      \
 	grade_sharpness      (split))       \
-
-
-/**********************************************************************
- * split_bounds_overlap
- *
- * Check to see if this split might overlap with this outline.  Return
- * TRUE if there is a positive overlap in the bounding boxes of the two.
- **********************************************************************/
-
-#define split_bounds_overlap(split,outline)  \
-(outline->topleft.x  <= MAX (split->point1->pos.x,split->point2->pos.x) && \
-	outline->botright.x >= MIN (split->point1->pos.x,split->point2->pos.x) && \
-	outline->botright.y <= MAX (split->point1->pos.y,split->point2->pos.y) && \
-	outline->topleft.y  >= MIN (split->point1->pos.y,split->point2->pos.y))
 
 #endif

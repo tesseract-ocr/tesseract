@@ -302,7 +302,7 @@ CharAltList * CubeSearchObject::RecognizeSegment(int start_pt, int end_pt) {
     CharAltList *alt_list = new CharAltList(cntxt_->CharacterSet(), class_cnt);
     int seg_cnt = end_pt - start_pt;
     double prob_val = (1.0 / class_cnt) *
-        exp(-abs(seg_cnt - 2.0)) *
+        exp(-fabs(seg_cnt - 2.0)) *
         exp(-samp->Width() / static_cast<double>(samp->Height()));
 
     if (alt_list) {

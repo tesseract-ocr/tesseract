@@ -43,7 +43,7 @@ static string EncodeAsUTF8(const char32 ch32) {
 // from. Note that this range does not contain the custom ligatures that we
 // encode in the private use area.
 const int kMinLigature = 0xfb00;
-const int kMaxLigature = 0xfb4f;
+const int kMaxLigature = 0xfb17;  // Don't put the wide Hebrew letters in.
 
 /* static */
 SmartPtr<LigatureTable> LigatureTable::instance_;

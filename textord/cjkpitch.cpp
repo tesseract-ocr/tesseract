@@ -426,7 +426,7 @@ class FPRow {
         box2.height() >= pitch * (1.0 + kFPTolerance)) return false;
 
     const float real_pitch = box_pitch(box1, box2);
-    if (abs(real_pitch - pitch) < pitch * kFPTolerance) return true;
+    if (fabs(real_pitch - pitch) < pitch * kFPTolerance) return true;
 
     if (textord_space_size_is_variable) {
       // Hangul characters usually have fixed pitch, but words are
@@ -631,9 +631,9 @@ void FPRow::EstimatePitch(bool pass1) {
         // character may have a good pitch only between its successor.
         // So we collect only pitch values between two good
         // characters. and within tolerance in pass2.
-        if (pass1 ||
-            (prev_was_good &&
-             abs(estimated_pitch_ - pitch) < kFPTolerance * estimated_pitch_)) {
+        if (pass1 || (prev_was_good &&
+                      fabs(estimated_pitch_ - pitch) <
+                          kFPTolerance * estimated_pitch_)) {
           good_pitches_.Add(pitch);
           if (!is_box_modified(i - 1) && !is_box_modified(i)) {
             good_gaps_.Add(gap);

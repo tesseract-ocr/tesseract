@@ -39,7 +39,6 @@
 #include "findseam.h"
 #include "freelist.h"
 #include "globals.h"
-#include "makechop.h"
 #include "render.h"
 #include "pageres.h"
 #include "seam.h"
@@ -135,18 +134,14 @@ void restore_outline_tree(TESSLINE *srcline) {
 static SEAM* CheckSeam(int debug_level, inT32 blob_number, TWERD* word,
                        TBLOB* blob, TBLOB* other_blob,
                        const GenericVector<SEAM*>& seams, SEAM* seam) {
-  if (seam == NULL ||
-      blob->outlines == NULL ||
-      other_blob->outlines == NULL ||
-      total_containment(blob, other_blob) ||
-      check_blob(other_blob) ||
-      !(check_seam_order(blob, seam) &&
-          check_seam_order(other_blob, seam)) ||
+  if (seam == NULL || blob->outlines == NULL || other_blob->outlines == NULL ||
+      total_containment(blob, other_blob) || check_blob(other_blob) ||
+      !seam->ContainedByBlob(*blob) || !seam->ContainedByBlob(*other_blob) ||
       any_shared_split_points(seams, seam) ||
-      !test_insert_seam(seams, word, blob_number)) {
+      !seam->PrepareToInsertSeam(seams, word->blobs, blob_number, false)) {
     word->blobs.remove(blob_number + 1);
     if (seam) {
-      undo_seam(blob, other_blob, seam);
+      seam->UndoSeam(blob, other_blob);
       delete seam;
       seam = NULL;
 #ifndef GRAPHICS_DISABLED
@@ -185,19 +180,19 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, inT32 blob_number,
   if (prioritize_division) {
     TPOINT location;
     if (divisible_blob(blob, italic_blob, &location)) {
-      seam = new SEAM(0.0f, location, NULL, NULL, NULL);
+      seam = new SEAM(0.0f, location);
     }
   }
   if (seam == NULL)
     seam = pick_good_seam(blob);
   if (chop_debug) {
     if (seam != NULL)
-      print_seam("Good seam picked=", seam);
+      seam->Print("Good seam picked=");
     else
       tprintf("\n** no seam picked *** \n");
   }
   if (seam) {
-    apply_seam(blob, other_blob, italic_blob, seam);
+    seam->ApplySeam(italic_blob, blob, other_blob);
   }
 
   seam = CheckSeam(chop_debug, blob_number, word, blob, other_blob,
@@ -211,12 +206,16 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, inT32 blob_number,
       if (divisible_blob(blob, italic_blob, &location)) {
         other_blob = TBLOB::ShallowCopy(*blob);       /* Make new blob */
         word->blobs.insert(other_blob, blob_number + 1);
-        seam = new SEAM(0.0f, location, NULL, NULL, NULL);
-        apply_seam(blob, other_blob, italic_blob, seam);
+        seam = new SEAM(0.0f, location);
+        seam->ApplySeam(italic_blob, blob, other_blob);
         seam = CheckSeam(chop_debug, blob_number, word, blob, other_blob,
                          seams, seam);
       }
     }
+  }
+  if (seam != NULL) {
+    // Make sure this seam doesn't get chopped again.
+    seam->Finalize();
   }
   return seam;
 }
@@ -286,8 +285,7 @@ int any_shared_split_points(const GenericVector<SEAM*>& seams, SEAM *seam) {
 
   length = seams.size();
   for (index = 0; index < length; index++)
-    if (shared_split_points(seams[index], seam))
-      return TRUE;
+    if (seam->SharesPosition(*seams[index])) return TRUE;
   return FALSE;
 }
 
@@ -384,50 +382,6 @@ SEAM* Wordrec::chop_one_blob(const GenericVector<TBOX>& boxes,
                             blob_number);
   }
 }
-}  // namespace tesseract
-
-/**
- * @name check_seam_order
- *
- * Make sure that each of the splits in this seam match to outlines
- * in this blob.  If any of the splits could not correspond to this
- * blob then there is a problem (and FALSE should be returned to the
- * caller).
- */
-inT16 check_seam_order(TBLOB *blob, SEAM *seam) {
-  TESSLINE *outline;
-  inT8 found_em[3];
-
-  if (seam->split1 == NULL || blob == NULL)
-    return (TRUE);
-
-  found_em[0] = found_em[1] = found_em[2] = FALSE;
-
-  for (outline = blob->outlines; outline; outline = outline->next) {
-    if (!found_em[0] &&
-      ((seam->split1 == NULL) ||
-    is_split_outline (outline, seam->split1))) {
-      found_em[0] = TRUE;
-    }
-    if (!found_em[1] &&
-      ((seam->split2 == NULL) ||
-    is_split_outline (outline, seam->split2))) {
-      found_em[1] = TRUE;
-    }
-    if (!found_em[2] &&
-      ((seam->split3 == NULL) ||
-    is_split_outline (outline, seam->split3))) {
-      found_em[2] = TRUE;
-    }
-  }
-
-  if (!found_em[0] || !found_em[1] || !found_em[2])
-    return (FALSE);
-  else
-    return (TRUE);
-}
-
-namespace tesseract {
 
 /**
  * @name chop_word_main

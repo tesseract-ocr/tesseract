@@ -59,9 +59,7 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
 ----------------------------------------------------------------------------**/
 
 /*---------------------------------------------------------------------------*/
-CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM& bl_denorm,
-                                const DENORM& cn_denorm,
-                                const INT_FX_RESULT_STRUCT& fx_info) {
+MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
 /*
  **      Parameters:
  **              Blob            blob to extract micro-features from
@@ -98,7 +96,7 @@ CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM& bl_denorm,
     }
     FreeOutlines(Outlines);
   }
-  return ((CHAR_FEATURES) MicroFeatures);
+  return MicroFeatures;
 }                                /* BlobMicroFeatures */
 
 

@@ -17,15 +17,17 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include "unicharset.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "params.h"
+#include "serialis.h"
 #include "tesscallback.h"
 #include "tprintf.h"
 #include "unichar.h"
-#include "unicharset.h"
-#include "params.h"
 
 // Special character used in representing character fragments.
 static const char kSeparator = '|';
@@ -448,11 +450,19 @@ void UNICHARSET::ExpandRangesFromOther(const UNICHARSET& src) {
   }
 }
 
-// Makes this a copy of src. Clears this completely first, so the automattic
-// ids will not be present in this if not in src.
+// Makes this a copy of src. Clears this completely first, so the automatic
+// ids will not be present in this if not in src. Does NOT reorder the set!
 void UNICHARSET::CopyFrom(const UNICHARSET& src) {
   clear();
-  AppendOtherUnicharset(src);
+  for (int ch = 0; ch < src.size_used; ++ch) {
+    const UNICHAR_PROPERTIES& src_props = src.unichars[ch].properties;
+    const char* utf8 = src.id_to_unichar(ch);
+    unichar_insert(utf8);
+    unichars[ch].properties.ExpandRangesFrom(src_props);
+  }
+  // Set properties, including mirror and other_case, WITHOUT reordering
+  // the unicharset.
+  PartialSetPropertiesFromOther(0, src);
 }
 
 // For each id in src, if it does not occur in this, add it, as in
@@ -689,8 +699,11 @@ bool UNICHARSET::eq(UNICHAR_ID unichar_id,
   return strcmp(this->id_to_unichar(unichar_id), unichar_repr) == 0;
 }
 
-bool UNICHARSET::save_to_file(FILE *file) const {
-  fprintf(file, "%d\n", this->size());
+bool UNICHARSET::save_to_string(STRING *str) const {
+  const int kFileBufSize = 1024;
+  char buffer[kFileBufSize + 1];
+  snprintf(buffer, kFileBufSize, "%d\n", this->size());
+  *str = buffer;
   for (UNICHAR_ID id = 0; id < this->size(); ++id) {
     int min_bottom, max_bottom, min_top, max_top;
     get_top_bottom(id, &min_bottom, &max_bottom, &min_top, &max_top);
@@ -702,11 +715,11 @@ bool UNICHARSET::save_to_file(FILE *file) const {
     get_advance_range(id, &min_advance, &max_advance);
     unsigned int properties = this->get_properties(id);
     if (strcmp(this->id_to_unichar(id), " ") == 0) {
-      fprintf(file, "%s %x %s %d\n", "NULL", properties,
+      snprintf(buffer, kFileBufSize, "%s %x %s %d\n", "NULL", properties,
               this->get_script_from_script_id(this->get_script(id)),
               this->get_other_case(id));
     } else {
-      fprintf(file,
+      snprintf(buffer, kFileBufSize,
               "%s %x %d,%d,%d,%d,%d,%d,%d,%d,%d,%d %s %d %d %d %s\t# %s\n",
               this->id_to_unichar(id), properties,
               min_bottom, max_bottom, min_top, max_top, min_width, max_width,
@@ -716,10 +729,12 @@ bool UNICHARSET::save_to_file(FILE *file) const {
               this->get_mirror(id), this->get_normed_unichar(id),
               this->debug_str(id).string());
     }
+    *str += buffer;
   }
   return true;
 }
 
+// TODO(rays) Replace with TFile everywhere.
 class InMemoryFilePointer {
  public:
   InMemoryFilePointer(const char *memory, int mem_size)
@@ -771,6 +786,14 @@ bool UNICHARSET::load_from_file(FILE *file, bool skip_fragments) {
   LocalFilePointer lfp(file);
   TessResultCallback2<char *, char *, int> *fgets_cb =
       NewPermanentTessCallback(&lfp, &LocalFilePointer::fgets);
+  bool success = load_via_fgets(fgets_cb, skip_fragments);
+  delete fgets_cb;
+  return success;
+}
+
+bool UNICHARSET::load_from_file(tesseract::TFile *file, bool skip_fragments) {
+  TessResultCallback2<char *, char *, int> *fgets_cb =
+      NewPermanentTessCallback(file, &tesseract::TFile::FGets);
   bool success = load_via_fgets(fgets_cb, skip_fragments);
   delete fgets_cb;
   return success;
@@ -844,8 +867,11 @@ bool UNICHARSET::load_via_fgets(
     // Skip fragments if needed.
     CHAR_FRAGMENT *frag = NULL;
     if (skip_fragments && (frag = CHAR_FRAGMENT::parse_from_string(unichar))) {
+      int num_pieces = frag->get_total();
       delete frag;
-      continue;
+      // Skip multi-element fragments, but keep singles like UNICHAR_BROKEN in.
+      if (num_pieces > 1)
+        continue;
     }
     // Insert unichar into unicharset and set its properties.
     if (strcmp(unichar, "NULL") == 0)
@@ -959,8 +985,10 @@ bool UNICHARSET::major_right_to_left() const {
 // Set a whitelist and/or blacklist of characters to recognize.
 // An empty or NULL whitelist enables everything (minus any blacklist).
 // An empty or NULL blacklist disables nothing.
+// An empty or NULL blacklist has no effect.
 void UNICHARSET::set_black_and_whitelist(const char* blacklist,
-                                         const char* whitelist) {
+                                         const char* whitelist,
+                                         const char* unblacklist) {
   bool def_enabled = whitelist == NULL || whitelist[0] == '\0';
   // Set everything to default
   for (int ch = 0; ch < size_used; ++ch)
@@ -981,6 +1009,15 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
         unichars[encoding[i]].properties.enabled = false;
+    }
+  }
+  if (unblacklist != NULL && unblacklist[0] != '\0') {
+    // Re-enable the unblacklist.
+    GenericVector<UNICHAR_ID> encoding;
+    encode_string(unblacklist, false, &encoding, NULL, NULL);
+    for (int i = 0; i < encoding.size(); ++i) {
+      if (encoding[i] != INVALID_UNICHAR_ID)
+        unichars[encoding[i]].properties.enabled = true;
     }
   }
 }

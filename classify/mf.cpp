@@ -33,9 +33,7 @@
               Private Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM& bl_denorm,
-                          const DENORM& cn_denorm,
-                          const INT_FX_RESULT_STRUCT& fx_info) {
+FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
 /*
  **	Parameters:
  **		Blob		blob to extract micro-features from
@@ -54,8 +52,7 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM& bl_denorm,
   FEATURE Feature;
   MICROFEATURE OldFeature;
 
-  OldFeatures = (MICROFEATURES)BlobMicroFeatures(Blob, bl_denorm, cn_denorm,
-                                                 fx_info);
+  OldFeatures = BlobMicroFeatures(Blob, cn_denorm);
   if (OldFeatures == NULL)
     return NULL;
   NumFeatures = count (OldFeatures);

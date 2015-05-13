@@ -89,10 +89,7 @@ class ImageData {
  public:
   ImageData();
   // Takes ownership of the pix.
-  explicit ImageData(Pix* pix);
-  ImageData(const GenericVector<WordFeature>& features,
-            const GenericVector<TBOX>& boxes,
-            const GenericVector<STRING>& texts);
+  ImageData(bool vertical, Pix* pix);
   ~ImageData();
 
   // Builds and returns an ImageData from the basic data. Note that imagedata,
@@ -102,10 +99,10 @@ class ImageData {
                           const char* truth_text, const char* box_text);
 
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(FILE* fp) const;
+  bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
+  bool DeSerialize(bool swap, TFile* fp);
 
   // Other accessors.
   const STRING& imagefilename() const {
@@ -135,36 +132,35 @@ class ImageData {
   const GenericVector<TBOX>& boxes() const {
     return boxes_;
   }
+  const GenericVector<STRING>& box_texts() const {
+    return box_texts_;
+  }
   const STRING& box_text(int index) const {
     return box_texts_[index];
-  }
-  const GenericVector<WordFeature>& features() const {
-    return features_;
-  }
-  bool partial_boxes() const {
-    return partial_boxes_;
   }
   // Saves the given Pix as a PNG-encoded string and destroys it.
   void SetPix(Pix* pix);
   // Returns the Pix image for *this. Must be pixDestroyed after use.
   Pix* GetPix() const;
-  // Saves the given Pix as a PNG-encoded string and destroys it.
-  void SetPix2(Pix* pix);
-  // Saves the given PNG-encoded string as the secondary image data.
-  void SetPix2Data(const char* data, int size);
-  // Returns the Pix image for *this. Must be pixDestroyed after use.
-  Pix* GetPix2() const;
   // Gets anything and everything with a non-NULL pointer, prescaled to a
   // given target_height (if 0, then the original image height), and aligned.
   // Also returns (if not NULL) the width and height of the scaled image.
-  void PreScale(int target_height, Pix** pix,
-                int* scaled_width, int* scaled_height,
-                GenericVector<TBOX>* boxes) const;
+  // The return value is the scale factor that was applied to the image to
+  // achieve the target_height.
+  float PreScale(int target_height, Pix** pix,
+                 int* scaled_width, int* scaled_height,
+                 GenericVector<TBOX>* boxes) const;
 
   int MemoryUsed() const;
 
   // Draws the data in a new window.
   void Display() const;
+
+  // Adds the supplied boxes and transcriptions that correspond to the correct
+  // page number.
+  void AddBoxes(const GenericVector<TBOX>& boxes,
+                const GenericVector<STRING>& texts,
+                const GenericVector<int>& box_pages);
 
  private:
   // Saves the given Pix as a PNG-encoded string and destroys it.
@@ -174,11 +170,6 @@ class ImageData {
   // Parses the text string as a box file and adds any discovered boxes that
   // match the page number. Returns false on error.
   bool AddBoxes(const char* box_text);
-  // Adds the supplied boxes and transcriptions that correspond to the correct
-  // page number.
-  void AddBoxes(const GenericVector<TBOX>& boxes,
-                const GenericVector<STRING>& texts,
-                const GenericVector<int>& box_pages);
 
  private:
   STRING imagefilename_;             // File to read image from.
@@ -188,9 +179,7 @@ class ImageData {
   STRING transcription_;             // UTF-8 ground truth of image.
   GenericVector<TBOX> boxes_;        // If non-empty boxes of the image.
   GenericVector<STRING> box_texts_;  // String for text in each box.
-  GenericVector<WordFeature> features_;
-  GenericVector<char> side_data_;    // PNG file data.
-  bool partial_boxes_;               // Box text disagrees with transcription.
+  bool vertical_text_;               // Image has been rotated from vertical.
 };
 
 // A collection of ImageData that knows roughly how much memory it is using.
@@ -199,9 +188,13 @@ class DocumentData {
   explicit DocumentData(const STRING& name);
   ~DocumentData();
 
-  // Adds all the pages in the given lstmf filename to the cache. The reader
+  // Reads all the pages in the given lstmf filename to the cache. The reader
   // is used to read the file.
-  bool LoadDocument(const char* filename, const char* lang, FileReader reader);
+  bool LoadDocument(const char* filename, const char* lang, int start_page,
+                    inT64 max_memory, FileReader reader);
+  // Writes all the pages to the given filename. Returns false on error.
+  bool SaveDocument(const char* filename, FileWriter writer);
+  bool SaveToBuffer(GenericVector<char>* buffer);
 
   // Adds the given page data to this document, counting up memory.
   void AddPageToDocument(ImageData* page);
@@ -209,12 +202,15 @@ class DocumentData {
   const STRING& document_name() const {
     return document_name_;
   }
-  const PointerVector<ImageData>& pages() const {
-    return pages_;
+  int NumPages() const {
+    return total_pages_;
   }
   inT64 memory_used() const {
     return memory_used_;
   }
+  // Returns a pointer to the page with the given index, modulo the total
+  // number of pages, recaching if needed.
+  const ImageData* GetPage(int index);
   // Takes ownership of the given page index. The page is made NULL in *this.
   ImageData* TakePage(int index) {
     ImageData* page = pages_[index];
@@ -223,12 +219,26 @@ class DocumentData {
   }
 
  private:
+  // Loads as many pages can fit in max_memory_ starting at index pages_offset_.
+  bool ReCachePages();
+
+ private:
   // A name for this document.
   STRING document_name_;
+  // The language of this document.
+  STRING lang_;
   // A group of pages that corresponds in some loose way to a document.
   PointerVector<ImageData> pages_;
+  // Page number of the first index in pages_.
+  int pages_offset_;
+  // Total number of pages in document (may exceed size of pages_.)
+  int total_pages_;
   // Total of all pix sizes in the document.
   inT64 memory_used_;
+  // Max memory to use at any time.
+  inT64 max_memory_;
+  // Saved reader from LoadDocument to allow re-caching.
+  FileReader reader_;
 };
 
 // A collection of DocumentData that knows roughly how much memory it is using.
@@ -237,7 +247,7 @@ class DocumentCache {
   explicit DocumentCache(inT64 max_memory);
   ~DocumentCache();
 
-  // Adds all the documents in the list of filenames, couting memory.
+  // Adds all the documents in the list of filenames, counting memory.
   // The reader is used to read the files.
   bool LoadDocuments(const GenericVector<STRING>& filenames, const char* lang,
                      FileReader reader);
@@ -250,7 +260,7 @@ class DocumentCache {
 
   // Returns a page by serial number, selecting them in a round-robin fashion
   // from all the documents.
-  const ImageData* GetPageBySerial(int serial) const;
+  const ImageData* GetPageBySerial(int serial);
 
   const PointerVector<DocumentData>& documents() const {
     return documents_;

@@ -18,7 +18,7 @@ endif
 
 SUBDIRS = ccutil viewer cutil opencl ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . tessdata doc
 
-EXTRA_DIST = eurotext.tif phototest.tif ReleaseNotes \
+EXTRA_DIST = ReleaseNotes \
 	aclocal.m4 config configure.ac autogen.sh contrib \
 	tesseract.pc.in $(TRAINING_SUBDIR) java doc testing
 
@@ -34,31 +34,12 @@ dist-hook:
 	rm -rf `find $(distdir) -name .svn`
 	rm -rf `find $(distdir) -name .git`
 	rm -rf `find $(distdir) -name .deps`
-
-# 'make install' will install only libraries and programs (no language 
-#       data files)
-# 'make install LANGS=' will install libraries, programs and  all 
-#       language datafiles in tessdata/
-# 'make install LANGS="eng ara deu"' will install libraries, programs
-#       English, Arabic and German language datafiles if they are present
-#       in tessdata/
-# 'make install-langs LANGS="eng ara deu"' will install only English,
-#	Arabic and German language datafiles if they are present
-#       in tessdata/
-install-data-hook:
-	@if test $${LANGS+defined}; then \
-		if test "$${LANGS}" == ""; then \
-			echo ____All language files will be installed; \
-		else \
-			echo ___Folowing language files will be installed: "$$LANGS"; \
-		fi; \
-		cd "$(top_builddir)/tessdata" && $(MAKE) install-langs LANG="${LANGS}"; \
-	else \
-		echo No language file is installed.; \
-	fi;
-
-install-langs:
-	@cd "$(top_builddir)/tessdata" && $(MAKE) $@
+	rm -rf `find $(distdir) -name .libs`
+	rm -rf `find $(distdir) -name *.o`
+	rm -rf `find $(distdir) -name *.lo`
+	rm -rf `find $(distdir) -name *.la`
+	rm -rf `find $(distdir)/training -executable -type f`
+	rm -rf $(distdir)/doc/html/*
 
 ScrollView.jar:
 	@cd "$(top_builddir)/java" && $(MAKE) $@

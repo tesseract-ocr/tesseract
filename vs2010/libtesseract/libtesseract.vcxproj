@@ -27,7 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>libtesseract303</ProjectName>
+    <ProjectName>libtesseract304</ProjectName>
     <ProjectGuid>{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}</ProjectGuid>
     <RootNamespace>libtesseract</RootNamespace>
   </PropertyGroup>
@@ -843,7 +843,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\ccutil\unicity_table.h" />
     <ClInclude Include="..\..\ccutil\unicodes.h" />
     <ClInclude Include="..\..\ccstruct\vecfuncs.h" />
-    <ClInclude Include="..\port\version.h" />
     <ClInclude Include="..\..\ccstruct\werd.h" />
     <ClInclude Include="..\..\ccmain\werdit.h" />
     <ClInclude Include="..\..\cube\word_altlist.h" />
@@ -870,7 +869,7 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\wordrec\params_model.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="libtesseract303.rc" />
+    <ResourceCompile Include="libtesseract.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
