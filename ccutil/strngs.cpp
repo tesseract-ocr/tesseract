@@ -52,6 +52,9 @@ const int kMaxDoubleSize = 15;
 const int kMinCapacity = 16;
 
 char* STRING::AllocData(int used, int capacity) {
+  if (data_ != NULL) {
+    DiscardData();
+  }
   data_ = (STRING_HEADER *)alloc_string(capacity + sizeof(STRING_HEADER));
 
   // header is the metadata for this memory block
