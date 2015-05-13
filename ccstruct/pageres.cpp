@@ -364,6 +364,7 @@ void WERD_RES::SetupFake(const UNICHARSET& unicharset_in) {
     LogNewCookedChoice(1, false, word);
   }
   tess_failed = true;
+  done = true;
 }
 
 void WERD_RES::SetupWordScript(const UNICHARSET& uch) {
@@ -1314,6 +1315,10 @@ static void ComputeBlobEnds(const WERD_RES& word, C_BLOB_LIST* next_word_blobs,
 // replaced with real blobs from the current word as much as possible.
 void PAGE_RES_IT::ReplaceCurrentWord(
     tesseract::PointerVector<WERD_RES>* words) {
+  if (words->empty()) {
+    DeleteCurrentWord();
+    return;
+  }
   WERD_RES* input_word = word();
   // Set the BOL/EOL flags on the words from the input word.
   if (input_word->word->flag(W_BOL)) {
@@ -1528,12 +1533,13 @@ void PAGE_RES_IT::ResetWordIterator() {
     // Reset the member iterator so it can move forward and detect the
     // cycled_list state correctly.
     word_res_it.move_to_first();
-    word_res_it.mark_cycle_pt();
-    while (!word_res_it.cycled_list() && word_res_it.data() != next_word_res) {
-      if (prev_row_res == row_res)
-        prev_word_res = word_res;
-      word_res = word_res_it.data();
-      word_res_it.forward();
+    for (word_res_it.mark_cycle_pt();
+         !word_res_it.cycled_list() && word_res_it.data() != next_word_res;
+         word_res_it.forward()) {
+      if (!word_res_it.data()->part_of_combo) {
+        if (prev_row_res == row_res) prev_word_res = word_res;
+        word_res = word_res_it.data();
+      }
     }
     ASSERT_HOST(!word_res_it.cycled_list());
     word_res_it.forward();
@@ -1541,9 +1547,10 @@ void PAGE_RES_IT::ResetWordIterator() {
     // word_res_it is OK, but reset word_res and prev_word_res if needed.
     WERD_RES_IT wr_it(&row_res->word_res_list);
     for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
-      if (prev_row_res == row_res)
-        prev_word_res = word_res;
-      word_res = wr_it.data();
+      if (!wr_it.data()->part_of_combo) {
+        if (prev_row_res == row_res) prev_word_res = word_res;
+        word_res = wr_it.data();
+      }
     }
   }
 }
