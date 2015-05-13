@@ -24,6 +24,7 @@
 
 #include "clst.h"
 #include "elst.h"
+#include "fontinfo.h"
 #include "genericvector.h"
 #include "matrix.h"
 #include "unichar.h"
@@ -64,8 +65,6 @@ class BLOB_CHOICE: public ELIST_LINK
     BLOB_CHOICE(UNICHAR_ID src_unichar_id,  // character id
                 float src_rating,          // rating
                 float src_cert,            // certainty
-                inT16 src_fontinfo_id,     // font
-                inT16 src_fontinfo_id2,    // 2nd choice font
                 int script_id,             // script
                 float min_xheight,         // min xheight in image pixel units
                 float max_xheight,         // max xheight allowed by this char
@@ -88,6 +87,26 @@ class BLOB_CHOICE: public ELIST_LINK
     }
     inT16 fontinfo_id2() const {
       return fontinfo_id2_;
+    }
+    const GenericVector<tesseract::ScoredFont>& fonts() const {
+      return fonts_;
+    }
+    void set_fonts(const GenericVector<tesseract::ScoredFont>& fonts) {
+      fonts_ = fonts;
+      int score1 = 0, score2 = 0;
+      fontinfo_id_ = -1;
+      fontinfo_id2_ = -1;
+      for (int f = 0; f < fonts_.size(); ++f) {
+        if (fonts_[f].score > score1) {
+          score2 = score1;
+          fontinfo_id2_ = fontinfo_id_;
+          score1 = fonts_[f].score;
+          fontinfo_id_ = fonts_[f].fontinfo_id;
+        } else if (fonts_[f].score > score2) {
+          score2 = fonts_[f].score;
+          fontinfo_id2_ = fonts_[f].fontinfo_id;
+        }
+      }
     }
     int script_id() const {
       return script_id_;
@@ -130,12 +149,6 @@ class BLOB_CHOICE: public ELIST_LINK
     }
     void set_certainty(float newrat) {
       certainty_ = newrat;
-    }
-    void set_fontinfo_id(inT16 newfont) {
-      fontinfo_id_ = newfont;
-    }
-    void set_fontinfo_id2(inT16 newfont) {
-      fontinfo_id2_ = newfont;
     }
     void set_script(int newscript_id) {
       script_id_ = newscript_id;
@@ -186,6 +199,8 @@ class BLOB_CHOICE: public ELIST_LINK
 
  private:
   UNICHAR_ID unichar_id_;          // unichar id
+  // Fonts and scores. Allowed to be empty.
+  GenericVector<tesseract::ScoredFont> fonts_;
   inT16 fontinfo_id_;              // char font information
   inT16 fontinfo_id2_;             // 2nd choice font information
   // Rating is the classifier distance weighted by the length of the outline

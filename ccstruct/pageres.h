@@ -315,8 +315,6 @@ class WERD_RES : public ELIST_LINK {
   BOOL8 combination;           //of two fuzzy gap wds
   BOOL8 part_of_combo;         //part of a combo
   BOOL8 reject_spaces;         //Reject spacing?
-  // FontInfo ids for each unichar in best_choice.
-  GenericVector<inT8> best_choice_fontinfo_ids;
 
   WERD_RES() {
     InitNonPointers();

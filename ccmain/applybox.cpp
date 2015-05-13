@@ -272,7 +272,7 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
     // limited by the ability of the chopper to find suitable chop points,
     // and not by the value of the certainties.
     BLOB_CHOICE* choice =
-        new BLOB_CHOICE(0, rating, -rating, -1, -1, 0, 0, 0, 0, BCC_FAKE);
+        new BLOB_CHOICE(0, rating, -rating, -1, 0.0f, 0.0f, 0.0f, BCC_FAKE);
     blob_choices.push_back(choice);
     rating -= 0.125f;
   }
@@ -291,8 +291,8 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
       left_choice->set_certainty(-rating);
       // combine confidence w/ serial #
       BLOB_CHOICE* right_choice = new BLOB_CHOICE(++right_chop_index,
-                                                  rating - 0.125f, -rating,
-                                                  -1, -1, 0, 0, 0, 0, BCC_FAKE);
+                                                  rating - 0.125f, -rating, -1,
+                                                  0.0f, 0.0f, 0.0f, BCC_FAKE);
       blob_choices.insert(right_choice, blob_number + 1);
     }
   }

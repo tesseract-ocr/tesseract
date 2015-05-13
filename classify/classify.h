@@ -175,7 +175,7 @@ class Classify : public CCStruct {
                                        int blob_length,
                                        int matcher_multiplier,
                                        const uinT8* cn_factors,
-                                       INT_RESULT_STRUCT& int_result,
+                                       UnicharRating* int_result,
                                        ADAPT_RESULTS* final_results);
   // Applies a set of corrections to the distance im_rating,
   // including the cn_correction, miss penalty and additional penalty
@@ -188,14 +188,7 @@ class Classify : public CCStruct {
   void ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
                                ADAPT_RESULTS *Results,
                                BLOB_CHOICE_LIST *Choices);
-  void AddNewResult(ADAPT_RESULTS *results,
-                    CLASS_ID class_id,
-                    int shape_id,
-                    FLOAT32 rating,
-                    bool adapted,
-                    int config,
-                    int fontinfo_id,
-                    int fontinfo_id2);
+  void AddNewResult(const UnicharRating& new_result, ADAPT_RESULTS *results);
   int GetAdaptiveFeatures(TBLOB *Blob,
                           INT_FEATURE_ARRAY IntFeatures,
                           FEATURE_SET *FloatFeatures);
@@ -220,7 +213,7 @@ class Classify : public CCStruct {
                      CLASS_ID ClassId,
                      int ConfigId,
                      TBLOB *Blob);
-  void PrintAdaptiveMatchResults(FILE *File, ADAPT_RESULTS *Results);
+  void PrintAdaptiveMatchResults(const ADAPT_RESULTS& results);
   void RemoveExtraPuncs(ADAPT_RESULTS *Results);
   void RemoveBadMatches(ADAPT_RESULTS *Results);
   void SetAdaptiveThreshold(FLOAT32 Threshold);

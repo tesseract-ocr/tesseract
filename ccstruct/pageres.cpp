@@ -148,6 +148,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
           add_next_word = false;
         }
       }
+      next_word->set_flag(W_FUZZY_NON, add_next_word);
     } else {
       add_next_word = next_word->flag(W_FUZZY_NON);
     }
@@ -206,12 +207,8 @@ WERD_RES& WERD_RES::operator=(const WERD_RES & source) {
   if (!wc_dest_it.empty()) {
     wc_dest_it.move_to_first();
     best_choice = wc_dest_it.data();
-    best_choice_fontinfo_ids = source.best_choice_fontinfo_ids;
   } else {
     best_choice = NULL;
-    if (!best_choice_fontinfo_ids.empty()) {
-      best_choice_fontinfo_ids.clear();
-    }
   }
 
   if (source.raw_choice != NULL) {

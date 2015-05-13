@@ -1885,62 +1885,54 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   if (word->chopped_word == NULL) return;
   ASSERT_HOST(word->best_choice != NULL);
 
-  inT32 index;                   // char id index
-                                 // character iterator
-  BLOB_CHOICE_IT choice_it;      // choice iterator
   int fontinfo_size = get_fontinfo_table().size();
-  int fontset_size = get_fontset_table().size();
-  if (fontinfo_size == 0 || fontset_size == 0) return;
-  STATS fonts(0, fontinfo_size);  // font counters
+  if (fontinfo_size == 0) return;
+  GenericVector<int> font_total_score;
+  font_total_score.init_to_size(fontinfo_size, 0);
 
   word->italic = 0;
   word->bold = 0;
-  if (!word->best_choice_fontinfo_ids.empty()) {
-    word->best_choice_fontinfo_ids.clear();
+  // Compute the font scores for the word
+  if (tessedit_debug_fonts) {
+    tprintf("Examining fonts in %s\n",
+            word->best_choice->debug_string().string());
   }
-  // Compute the modal font for the word
-  for (index = 0; index < word->best_choice->length(); ++index) {
-    UNICHAR_ID word_ch_id = word->best_choice->unichar_id(index);
-    choice_it.set_to_list(word->GetBlobChoices(index));
-    if (tessedit_debug_fonts) {
-      tprintf("Examining fonts in %s\n",
-              word->best_choice->debug_string().string());
-    }
-    for (choice_it.mark_cycle_pt(); !choice_it.cycled_list();
-         choice_it.forward()) {
-      UNICHAR_ID blob_ch_id = choice_it.data()->unichar_id();
-      if (blob_ch_id == word_ch_id) {
-        if (tessedit_debug_fonts) {
-          tprintf("%s font %s (%d) font2 %s (%d)\n",
-                  word->uch_set->id_to_unichar(blob_ch_id),
-                  choice_it.data()->fontinfo_id() < 0 ? "unknown" :
-                  fontinfo_table_.get(choice_it.data()->fontinfo_id()).name,
-                  choice_it.data()->fontinfo_id(),
-                  choice_it.data()->fontinfo_id2() < 0 ? "unknown" :
-                  fontinfo_table_.get(choice_it.data()->fontinfo_id2()).name,
-                  choice_it.data()->fontinfo_id2());
-        }
-        // 1st choice font gets 2 pts, 2nd choice 1 pt.
-        if (choice_it.data()->fontinfo_id() >= 0) {
-          fonts.add(choice_it.data()->fontinfo_id(), 2);
-        }
-        if (choice_it.data()->fontinfo_id2() >= 0) {
-          fonts.add(choice_it.data()->fontinfo_id2(), 1);
-        }
-        break;
+  for (int b = 0; b < word->best_choice->length(); ++b) {
+    BLOB_CHOICE* choice = word->GetBlobChoice(b);
+    if (choice == NULL) continue;
+    const GenericVector<ScoredFont>& fonts = choice->fonts();
+    for (int f = 0; f < fonts.size(); ++f) {
+      int fontinfo_id = fonts[f].fontinfo_id;
+      if (0 <= fontinfo_id && fontinfo_id < fontinfo_size) {
+        font_total_score[fontinfo_id] += fonts[f].score;
       }
     }
   }
-  inT16 font_id1, font_id2;
-  find_modal_font(&fonts, &font_id1, &word->fontinfo_id_count);
-  find_modal_font(&fonts, &font_id2, &word->fontinfo_id2_count);
+  // Find the top and 2nd choice for the word.
+  int score1 = 0, score2 = 0;
+  inT16 font_id1 = -1, font_id2 = -1;
+  for (int f = 0; f < fontinfo_size; ++f) {
+    if (tessedit_debug_fonts && font_total_score[f] > 0) {
+      tprintf("Font %s, total score = %d\n",
+              fontinfo_table_.get(f).name, font_total_score[f]);
+    }
+    if (font_total_score[f] > score1) {
+      score2 = score1;
+      font_id2 = font_id1;
+      score1 = font_total_score[f];
+      font_id1 = f;
+    } else if (font_total_score[f] > score2) {
+      score2 = font_total_score[f];
+      font_id2 = f;
+    }
+  }
   word->fontinfo = font_id1 >= 0 ? &fontinfo_table_.get(font_id1) : NULL;
   word->fontinfo2 = font_id2 >= 0 ? &fontinfo_table_.get(font_id2) : NULL;
-  // All the blobs get the word's best choice font.
-  for (int i = 0; i < word->best_choice->length(); ++i) {
-    word->best_choice_fontinfo_ids.push_back(font_id1);
-  }
-  if (word->fontinfo_id_count > 0) {
+  // Each score has a limit of MAX_UINT16, so divide by that to get the number
+  // of "votes" for that font, ie number of perfect scores.
+  word->fontinfo_id_count = ClipToRange(score1 / MAX_UINT16, 1, MAX_INT8);
+  word->fontinfo_id2_count = ClipToRange(score2 / MAX_UINT16, 0, MAX_INT8);
+  if (score1 > 0) {
     FontInfo fi = fontinfo_table_.get(font_id1);
     if (tessedit_debug_fonts) {
       if (word->fontinfo_id2_count > 0) {
@@ -1953,9 +1945,8 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
                 fi.name, word->fontinfo_id_count);
       }
     }
-    // 1st choices got 2 pts, so we need to halve the score for the mode.
-    word->italic = (fi.is_italic() ? 1 : -1) * (word->fontinfo_id_count + 1) / 2;
-    word->bold = (fi.is_bold() ? 1 : -1) * (word->fontinfo_id_count + 1) / 2;
+    word->italic = (fi.is_italic() ? 1 : -1) * word->fontinfo_id_count;
+    word->bold = (fi.is_bold() ? 1 : -1) * word->fontinfo_id_count;
   }
 }
 
@@ -2009,8 +2000,7 @@ void Tesseract::font_recognition_pass(PAGE_RES* page_res) {
     word = page_res_it.word();
     int length = word->best_choice->length();
 
-    // 1st choices got 2 pts, so we need to halve the score for the mode.
-    int count = (word->fontinfo_id_count + 1) / 2;
+    int count = word->fontinfo_id_count;
     if (!(count == length || (length > 3 && count >= length * 3 / 4))) {
       word->fontinfo = modal_font;
       // Counts only get 1 as it came from the doc.

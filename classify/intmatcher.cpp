@@ -26,6 +26,8 @@
                           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "intmatcher.h"
+
+#include "fontinfo.h"
 #include "intproto.h"
 #include "callcpp.h"
 #include "scrollview.h"
@@ -35,6 +37,9 @@
 #include "classify.h"
 #include "shapetable.h"
 #include <math.h>
+
+using tesseract::ScoredFont;
+using tesseract::UnicharRating;
 
 /*----------------------------------------------------------------------------
                     Global Data Definitions and Declarations
@@ -464,7 +469,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                            BIT_VECTOR ConfigMask,
                            inT16 NumFeatures,
                            const INT_FEATURE_STRUCT* Features,
-                           INT_RESULT Result,
+                           UnicharRating* Result,
                            int AdaptFeatureThreshold,
                            int Debug,
                            bool SeparateDebugWindows) {
@@ -477,7 +482,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
  **              NormalizationFactor       Fudge factor from blob
  **                                        normalization process
  **              Result                    Class rating & configuration:
- **                                        (0.0 -> 1.0), 0=good, 1=bad
+ **                                        (0.0 -> 1.0), 0=bad, 1=good
  **              Debug                     Debugger flag: 1=debugger on
  **      Globals:
  **              local_matcher_multiplier_    Normalization factor multiplier
@@ -498,7 +503,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
     cprintf ("Integer Matcher -------------------------------------------\n");
 
   tables->Clear(ClassTemplate);
-  Result->FeatureMisses = 0;
+  Result->feature_misses = 0;
 
   for (Feature = 0; Feature < NumFeatures; Feature++) {
     int csum = UpdateTablesForFeature(ClassTemplate, ProtoMask, ConfigMask,
@@ -506,7 +511,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                                       tables, Debug);
     // Count features that were missed over all configs.
     if (csum == 0)
-      Result->FeatureMisses++;
+      ++Result->feature_misses;
   }
 
 #ifndef GRAPHICS_DISABLED
@@ -534,7 +539,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
 
 #ifndef GRAPHICS_DISABLED
   if (PrintMatchSummaryOn(Debug))
-    DebugBestMatch(BestMatch, Result);
+    Result->Print();
 
   if (MatchDebuggingOn(Debug))
     cprintf("Match Complete --------------------------------------------\n");
@@ -1222,9 +1227,9 @@ void ScratchEvidence::NormalizeSums(
 
 /*---------------------------------------------------------------------------*/
 int IntegerMatcher::FindBestMatch(
-    INT_CLASS ClassTemplate,
+    INT_CLASS class_template,
     const ScratchEvidence &tables,
-    INT_RESULT Result) {
+    UnicharRating* result) {
 /*
  **      Parameters:
  **      Globals:
@@ -1236,35 +1241,27 @@ int IntegerMatcher::FindBestMatch(
  **      Exceptions: none
  **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
-  int BestMatch = 0;
-  int Best2Match = 0;
-  Result->Config = 0;
-  Result->Config2 = 0;
+  int best_match = 0;
+  result->config = 0;
+  result->fonts.truncate(0);
+  result->fonts.reserve(class_template->NumConfigs);
 
   /* Find best match */
-  for (int ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++) {
-    int rating = tables.sum_feature_evidence_[ConfigNum];
+  for (int c = 0; c < class_template->NumConfigs; ++c) {
+    int rating = tables.sum_feature_evidence_[c];
     if (*classify_debug_level_ > 2)
-      cprintf("Config %d, rating=%d\n", ConfigNum, rating);
-    if (rating > BestMatch) {
-      if (BestMatch > 0) {
-        Result->Config2 = Result->Config;
-        Best2Match = BestMatch;
-      } else {
-        Result->Config2 = ConfigNum;
-      }
-      Result->Config = ConfigNum;
-      BestMatch = rating;
-    } else if (rating > Best2Match) {
-      Result->Config2 = ConfigNum;
-      Best2Match = rating;
+      tprintf("Config %d, rating=%d\n", c, rating);
+    if (rating > best_match) {
+      result->config = c;
+      best_match = rating;
     }
+    result->fonts.push_back(ScoredFont(c, rating));
   }
 
-  /* Compute Certainty Rating */
-  Result->Rating = (65536.0 - BestMatch) / 65536.0;
+  // Compute confidence on a Probability scale.
+  result->rating = best_match / 65536.0f;
 
-  return BestMatch;
+  return best_match;
 }
 
 // Applies the CN normalization factor to the given rating and returns
