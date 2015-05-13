@@ -8,7 +8,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/classify -I$(top_srcdir)/display \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
 
-EXTRA_DIST = tesstrain.sh
+EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 
 if T_WIN
 # try static build
@@ -28,7 +28,7 @@ noinst_HEADERS = \
     boxchar.h commandlineflags.h commontraining.h degradeimage.h \
       fileio.h icuerrorcode.h ligature_table.h normstrngs.h \
       mergenf.h pango_font_info.h stringrenderer.h \
-      tessopt.h tlog.h util.h
+      tessopt.h tlog.h unicharset_training_utils.h util.h
 
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
@@ -39,7 +39,7 @@ libtesseract_training_la_LIBADD = \
 libtesseract_training_la_SOURCES = \
     boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
       fileio.cpp ligature_table.cpp normstrngs.cpp pango_font_info.cpp \
-      stringrenderer.cpp tlog.cpp
+      stringrenderer.cpp tlog.cpp unicharset_training_utils.cpp
 
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
