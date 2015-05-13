@@ -37,8 +37,8 @@ ResultIterator::ResultIterator(const LTRResultIterator &resit)
   preserve_interword_spaces_ = false;
 
   BoolParam *p = ParamUtils::FindParam<BoolParam>(
-    "preserve_interword_spaces", GlobalParams()->bool_params,
-    tesseract_->params()->bool_params);
+      "preserve_interword_spaces", GlobalParams()->bool_params,
+      tesseract_->params()->bool_params);
   if (p != NULL) preserve_interword_spaces_ = (bool)(*p);
 
   current_paragraph_is_ltr_ = CurrentParagraphIsLtr();
@@ -636,9 +636,9 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(STRING *text) {
 
   int words_appended = 0;
   do {
-    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space() :
-                                                 (words_appended > 0);
-    for(int i = 0 ; i < numSpaces ; ++i) {
+    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space()
+                                               : (words_appended > 0);
+    for (int i = 0; i < numSpaces; ++i) {
       *text += " ";
     }
     AppendUTF8WordText(text);

@@ -206,9 +206,6 @@ void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
     PrintAdaptiveMatchResults(*Results);
   }
 
-  if (LargeSpeckle(*Blob) || Choices->length() == 0)
-    AddLargeSpeckleTo(Results->BlobLength, Choices);
-
 #ifndef GRAPHICS_DISABLED
   if (classify_enable_adaptive_debugger)
     DebugAdaptiveClassifier(Blob, Results);
