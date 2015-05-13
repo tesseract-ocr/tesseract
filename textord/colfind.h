@@ -57,8 +57,12 @@ class ColumnFinder : public TabFind {
   // bleft and tright are the bounds of the image (rectangle) being processed.
   // vlines is a (possibly empty) list of TabVector and vertical_x and y are
   // the sum logical vertical vector produced by LineFinder::FindVerticalLines.
+  // If cjk_script is true, then broken CJK characters are fixed during
+  // layout analysis to assist in detecting horizontal vs vertically written
+  // textlines.
   ColumnFinder(int gridsize, const ICOORD& bleft, const ICOORD& tright,
-               int resolution, TabVector_LIST* vlines, TabVector_LIST* hlines,
+               int resolution, bool cjk_script, double aligned_gap_fraction,
+               TabVector_LIST* vlines, TabVector_LIST* hlines,
                int vertical_x, int vertical_y);
   virtual ~ColumnFinder();
 
@@ -68,6 +72,9 @@ class ColumnFinder : public TabFind {
   }
   const TextlineProjection* projection() const {
     return &projection_;
+  }
+  void set_cjk_script(bool is_cjk) {
+    cjk_script_ = is_cjk;
   }
 
   // ======================================================================
@@ -112,7 +119,9 @@ class ColumnFinder : public TabFind {
   // is vertical, like say Japanese, or due to text whose writing direction is
   // horizontal but whose text appears vertically aligned because the image is
   // not the right way up.
-  bool IsVerticallyAlignedText(TO_BLOCK* block, BLOBNBOX_CLIST* osd_blobs);
+  // find_vertical_text_ratio should be textord_tabfind_vertical_text_ratio.
+  bool IsVerticallyAlignedText(double find_vertical_text_ratio,
+                               TO_BLOCK* block, BLOBNBOX_CLIST* osd_blobs);
 
   // Rotates the blobs and the TabVectors so that the gross writing direction
   // (text lines) are horizontal and lines are read down the page.
@@ -146,13 +155,15 @@ class ColumnFinder : public TabFind {
   // thresholds_pix is expected to be present iff grey_pix is present and
   // can be an integer factor reduction of the grey_pix. It represents the
   // thresholds that were used to create the binary_pix from the grey_pix.
+  // Small blobs that confuse the segmentation into lines are placed into
+  // diacritic_blobs, with the intention that they be put into the most
+  // appropriate word after the rest of layout analysis.
   // Returns -1 if the user hits the 'd' key in the blocks window while running
   // in debug mode, which requests a retry with more debug info.
-  int FindBlocks(PageSegMode pageseg_mode,
-                 Pix* scaled_color, int scaled_factor,
-                 TO_BLOCK* block, Pix* photo_mask_pix,
-                 Pix* thresholds_pix, Pix* grey_pix,
-                 BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
+  int FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color, int scaled_factor,
+                 TO_BLOCK* block, Pix* photo_mask_pix, Pix* thresholds_pix,
+                 Pix* grey_pix, BLOCK_LIST* blocks,
+                 BLOBNBOX_LIST* diacritic_blobs, TO_BLOCK_LIST* to_blocks);
 
   // Get the rotation required to deskew, and its inverse rotation.
   void GetDeskewVectors(FCOORD* deskew, FCOORD* reskew);
@@ -182,7 +193,8 @@ class ColumnFinder : public TabFind {
   void PrintColumnCandidates(const char* title);
   // Finds the optimal set of columns that cover the entire image with as
   // few changes in column partition as possible.
-  void AssignColumns(const PartSetVector& part_sets);
+  // Returns true if any part of the page is multi-column.
+  bool AssignColumns(const PartSetVector& part_sets);
   // Finds the biggest range in part_sets_ that has no assigned column, but
   // column assignment is possible.
   bool BiggestUnassignedRange(int set_count, const bool* any_columns_possible,
@@ -212,7 +224,7 @@ class ColumnFinder : public TabFind {
                            int** column_set_costs, int* assigned_costs);
 
   // Computes the mean_column_gap_.
-  void ComputeMeanColumnGap();
+  void ComputeMeanColumnGap(bool any_multi_column);
 
   //////// Functions that manipulate ColPartitions in the part_grid_ /////
   //////// to split, merge, find margins, and find types.  //////////////
@@ -284,12 +296,18 @@ class ColumnFinder : public TabFind {
   // them sit in the rotated block.
   FCOORD ComputeBlockAndClassifyRotation(BLOCK* block);
 
+  // If true then the page language is cjk, so it is safe to perform
+  // FixBrokenCJK.
+  bool cjk_script_;
   // The minimum gutter width to apply for finding columns.
   // Modified when vertical text is detected to prevent detection of
   // vertical text lines as columns.
   int min_gutter_width_;
   // The mean gap between columns over the page.
   int mean_column_gap_;
+  // Config param saved at construction time. Modifies min_gutter_width_ with
+  // vertical text to prevent detection of vertical text as columns.
+  double tabfind_aligned_gap_fraction_;
   // The rotation vector needed to convert original coords to deskewed.
   FCOORD deskew_;
   // The rotation vector needed to convert deskewed back to original coords.

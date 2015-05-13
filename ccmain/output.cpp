@@ -31,7 +31,6 @@
 #include "helpers.h"
 #include "tessvars.h"
 #include "control.h"
-#include "secname.h"
 #include "reject.h"
 #include "docqual.h"
 #include "output.h"
@@ -218,7 +217,7 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
              word->best_choice->debug_string().string(),
              dict_word(*(word->best_choice)));
   }
-  if (!word->word->flag (W_REP_CHAR) || !tessedit_write_rep_codes) {
+  if (!word->word->flag(W_REP_CHAR) || !tessedit_write_rep_codes) {
     if (tessedit_zero_rejection) {
       /* OVERRIDE ALL REJECTION MECHANISMS - ONLY REJECT TESS FAILURES */
       for (i = 0; i < word->best_choice->length(); ++i) {

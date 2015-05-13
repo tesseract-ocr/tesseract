@@ -54,9 +54,9 @@ int CubeClassifier::UnicharClassifySample(
       pixGetHeight(page_pix) - char_box.top(),
       char_box.width(), char_box.height());
   CharAltList* alt_list = cube_obj->RecognizeChar();
-  alt_list->Sort();
-  CharSet* char_set = cube_cntxt_->CharacterSet();
   if (alt_list != NULL) {
+    alt_list->Sort();
+    CharSet* char_set = cube_cntxt_->CharacterSet();
     for (int i = 0; i < alt_list->AltCount(); ++i) {
       // Convert cube representation to a shape_id.
       int alt_id = alt_list->Alt(i);

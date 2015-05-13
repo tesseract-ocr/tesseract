@@ -356,7 +356,7 @@ bool ChoiceIterator::Next() {
 }
 
 // Returns the null terminated UTF-8 encoded text string for the current
-// choice. Use delete [] to free after use.
+// choice. Do NOT use delete [] to free after use.
 const char* ChoiceIterator::GetUTF8Text() const {
   if (choice_it_ == NULL)
     return NULL;

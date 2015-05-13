@@ -61,9 +61,6 @@ static const char kHyphenSymbol[] = "-";
 static const char kSlashSymbol[] = "/";
 static const char kQuestionSymbol[] = "?";
 static const char kApostropheSymbol[] = "'";
-static const int kMaxNumDawgEdgees = 2000000;
-static const int kMaxDocDawgEdges = 250000;
-static const int kMaxUserDawgEdges = 50000;
 static const float kSimCertaintyScale = -10.0;   // similarity matcher scaling
 static const float kSimCertaintyOffset = -10.0;  // similarity matcher offset
 static const float kSimilarityFloor = 100.0;  // worst E*L product to stop on
@@ -547,9 +544,13 @@ class Dict {
   /// Variable members.
   /// These have to be declared and initialized after image_ptr_, which contains
   /// the pointer to the params vector - the member of its base CCUtil class.
-  STRING_VAR_H(user_words_suffix, "", "A list of user-provided words.");
+  STRING_VAR_H(user_words_file, "", "A filename of user-provided words.");
+  STRING_VAR_H(user_words_suffix, "",
+               "A suffix of user-provided words located in tessdata.");
+  STRING_VAR_H(user_patterns_file, "",
+               "A filename of user-provided patterns.");
   STRING_VAR_H(user_patterns_suffix, "",
-               "A list of user-provided patterns.");
+               "A suffix of user-provided patterns located in tessdata.");
   BOOL_VAR_H(load_system_dawg, true, "Load system word dawg.");
   BOOL_VAR_H(load_freq_dawg, true, "Load frequent word dawg.");
   BOOL_VAR_H(load_unambig_dawg, true, "Load unambiguous word dawg.");

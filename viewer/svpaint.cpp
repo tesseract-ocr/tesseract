@@ -27,7 +27,7 @@ int rgb[3] = { 255, 255, 255 };
 
 class SVPaint : public SVEventHandler {
  public:
-   SVPaint(const char* server_name);
+   explicit SVPaint(const char* server_name);
 // This is the main event handling function that we need to overwrite, defined
 // in SVEventHandler.
    void Notify(const SVEvent* sv_event);
@@ -126,7 +126,7 @@ void SVPaint::ClickHandler(const SVEvent* sv_event) {
     // finally delete the input pointer.
     char* p = window_->ShowInputDialog("Text:");
     window_->Text(sv_event->x, sv_event->y, p);
-    delete p;
+    delete [] p;
     break;
   }
 }

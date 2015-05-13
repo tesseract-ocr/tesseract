@@ -20,6 +20,11 @@
 #ifndef TESSERACT_API_BASEAPI_H__
 #define TESSERACT_API_BASEAPI_H__
 
+#define TESSERACT_VERSION_STR "3.04.00"
+#define TESSERACT_VERSION 0x030400
+#define MAKE_VERSION(major, minor, patch) (((major) << 16) | ((minor) << 8) | \
+                                            (patch))
+
 #include <stdio.h>
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
@@ -40,7 +45,6 @@ class ParagraphModel;
 struct BlamerBundle;
 class BLOCK_LIST;
 class DENORM;
-class IMAGE;
 class MATRIX;
 class ROW;
 class STRING;
@@ -347,7 +351,7 @@ class TESS_API TessBaseAPI {
    * Because of that, an implementation that sources and targets Pix may end up
    * with less copies than an implementation that does not.
    */
-  void SetImage(const Pix* pix);
+  void SetImage(Pix* pix);
 
   /**
    * Set the resolution of the source image in pixels per inch so font size
@@ -480,14 +484,21 @@ class TESS_API TessBaseAPI {
    * Runs page layout analysis in the mode set by SetPageSegMode.
    * May optionally be called prior to Recognize to get access to just
    * the page layout results. Returns an iterator to the results.
-   * Returns NULL on error.
+   * If merge_similar_words is true, words are combined where suitable for use
+   * with a line recognizer. Use if you want to use AnalyseLayout to find the
+   * textlines, and then want to process textline fragments with an external
+   * line recognizer.
+   * Returns NULL on error or an empty page.
    * The returned iterator must be deleted after use.
    * WARNING! This class points to data held within the TessBaseAPI class, and
    * therefore can only be used while the TessBaseAPI class still exists and
    * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
    * DetectOS, or anything else that changes the internal PAGE_RES.
    */
-  PageIterator* AnalyseLayout();
+  PageIterator* AnalyseLayout() {
+    return AnalyseLayout(false);
+  }
+  PageIterator* AnalyseLayout(bool merge_similar_words);
 
   /**
    * Recognize the image from SetAndThresholdImage, generating Tesseract
@@ -506,44 +517,42 @@ class TESS_API TessBaseAPI {
   int RecognizeForChopTest(ETEXT_DESC* monitor);
 
   /**
-   * Recognizes all the pages in the named file, as a multi-page tiff or
-   * list of filenames, or single image, and gets the appropriate kind of text
-   * according to parameters: tessedit_create_boxfile,
-   * tessedit_make_boxes_from_boxes, tessedit_write_unlv, tessedit_create_hocr.
-   * Calls ProcessPage on each page in the input file, which may be a
-   * multi-page tiff, single-page other file format, or a plain text list of
-   * images to read. If tessedit_page_number is non-negative, processing begins
-   * at that page of a multi-page tiff file, or filelist.
-   * The text is returned in text_out. Returns false on error.
-   * If non-zero timeout_millisec terminates processing after the timeout on
-   * a single page.
-   * If non-NULL and non-empty, and some page fails for some reason,
-   * the page is reprocessed with the retry_config config file. Useful
-   * for interactively debugging a bad page.
+   * Turns images into symbolic text.
+   *
+   * filename can point to a single image, a multi-page TIFF,
+   * or a plain text list of image filenames.
+   *
+   * retry_config is useful for debugging. If not NULL, you can fall
+   * back to an alternate configuration if a page fails for some
+   * reason.
+   *
+   * timeout_millisec terminates processing if any single page
+   * takes too long. Set to 0 for unlimited time.
+   *
+   * renderer is responible for creating the output. For example,
+   * use the TessTextRenderer if you want plaintext output, or
+   * the TessPDFRender to produce searchable PDF.
+   *
+   * If tessedit_page_number is non-negative, will only process that
+   * single page. Works for multi-page tiff file, or filelist.
+   *
+   * Returns true if successful, false on error.
    */
-  bool ProcessPages(const char* filename,
-                    const char* retry_config, int timeout_millisec,
-                    STRING* text_out);
-
-  bool ProcessPages(const char* filename,
-                    const char* retry_config, int timeout_millisec,
-                    TessResultRenderer* renderer);
+  bool ProcessPages(const char* filename, const char* retry_config,
+                    int timeout_millisec, TessResultRenderer* renderer);
+  // Does the real work of ProcessPages.
+  bool ProcessPagesInternal(const char* filename, const char* retry_config,
+                            int timeout_millisec, TessResultRenderer* renderer);
 
   /**
-   * Recognizes a single page for ProcessPages, appending the text to text_out.
-   * The pix is the image processed - filename and page_index are metadata
-   * used by side-effect processes, such as reading a box file or formatting
-   * as hOCR.
-   * If non-zero timeout_millisec terminates processing after the timeout.
-   * If non-NULL and non-empty, and some page fails for some reason,
-   * the page is reprocessed with the retry_config config file. Useful
-   * for interactively debugging a bad page.
-   * The text is returned in text_out. Returns false on error.
+   * Turn a single image into symbolic text.
+   *
+   * The pix is the image processed. filename and page_index are
+   * metadata used by side-effect processes, such as reading a box
+   * file or formatting as hOCR.
+   *
+   * See ProcessPages for desciptions of other parameters.
    */
-  bool ProcessPage(Pix* pix, int page_index, const char* filename,
-                   const char* retry_config, int timeout_millisec,
-                   STRING* text_out);
-
   bool ProcessPage(Pix* pix, int page_index, const char* filename,
                    const char* retry_config, int timeout_millisec,
                    TessResultRenderer* renderer);
@@ -649,6 +658,9 @@ class TESS_API TessBaseAPI {
    * in a separate API at some future time.
    */
   int IsValidWord(const char *word);
+  // Returns true if utf8_character is defined in the UniCharset.
+  bool IsValidCharacter(const char *utf8_character);
+
 
   bool GetTextDirection(int* out_offset, float* out_slope);
 
@@ -659,12 +671,6 @@ class TESS_API TessBaseAPI {
    * function.
    */
   void SetProbabilityInContextFunc(ProbabilityInContextFunc f);
-
-
-  /** Sets Dict::params_model_classify_ function to point to the given
-   * function.
-   */
-  void SetParamsModelClassifyFunc(ParamsModelClassifyFunc f);
 
   /** Sets Wordrec::fill_lattice_ function to point to the given function. */
   void SetFillLatticeFunc(FillLatticeFunc f);
@@ -704,9 +710,6 @@ class TESS_API TessBaseAPI {
 
   /** Return the number of dawgs loaded into tesseract_ object. */
   int NumDawgs() const;
-
-  /** Return the language used in the last valid initialization. */
-  const char* GetLastInitLanguage() const;
 
   /** Returns a ROW object created from the input row specification. */
   static ROW *MakeTessOCRRow(float baseline, float xheight,
@@ -862,18 +865,24 @@ class TESS_API TessBaseAPI {
   /* @} */
 
  private:
-  /**
-   * DEPRECATED
-   * Returns new renderer instance based on how tesseract was configured to
-   * render results using old API. This should be removed along with those
-   * attributes so that the renderer is just passed in rather than the
-   * old methods taking output strings.
-   *
-   * Caller must destroy result.
-   */
-  TessResultRenderer* NewRenderer();
-};
+  // A list of image filenames gets special consideration
+  bool ProcessPagesFileList(FILE *fp,
+                            STRING *buf,
+                            const char* retry_config, int timeout_millisec,
+                            TessResultRenderer* renderer,
+                            int tessedit_page_number);
+  // TIFF supports multipage so gets special consideration
+  bool ProcessPagesMultipageTiff(const unsigned char *data,
+                                 size_t size,
+                                 const char* filename,
+                                 const char* retry_config,
+                                 int timeout_millisec,
+                                 TessResultRenderer* renderer,
+                                 int tessedit_page_number);
+};  // class TessBaseAPI.
 
+/** Escape a char string - remove &<>"' with HTML codes. */
+STRING HOcrEscape(const char* text);
 }  // namespace tesseract.
 
 #endif  // TESSERACT_API_BASEAPI_H__

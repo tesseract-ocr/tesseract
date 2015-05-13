@@ -171,7 +171,7 @@ void ImageThresholder::SetImage(const Pix* pix) {
 // Threshold the source image as efficiently as possible to the output Pix.
 // Creates a Pix and sets pix to point to the resulting pointer.
 // Caller must use pixDestroy to free the created Pix.
-void ImageThresholder::ThresholdToPix(Pix** pix) {
+void ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
   if (pix_channels_ == 0) {
     // We have a binary image, so it just has to be cloned.
     *pix = GetPixRect();

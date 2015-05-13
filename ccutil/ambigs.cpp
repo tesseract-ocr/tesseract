@@ -24,13 +24,13 @@
 #include "helpers.h"
 #include "universalambigs.h"
 
-#ifdef _WIN32
+#if defined _WIN32 || defined(__CYGWIN__)
 #ifndef __GNUC__
 #define strtok_r strtok_s
 #else
 #include "strtok_r.h"
 #endif  /* __GNUC__ */
-#endif  /* _WIN32 */
+#endif  /* _WIN32 __CYGWIN__*/
 
 namespace tesseract {
 
@@ -271,7 +271,8 @@ bool UnicharAmbigs::ParseAmbiguityLine(
   char *token;
   char *next_token;
   if (!(token = strtok_r(buffer, kAmbigDelimiters, &next_token)) ||
-      !sscanf(token, "%d", test_ambig_part_size) || test_ambig_part_size <= 0) {
+      !sscanf(token, "%d", test_ambig_part_size) ||
+      *test_ambig_part_size <= 0) {
     if (debug_level) tprintf(kIllegalMsg, line_num);
     return false;
   }

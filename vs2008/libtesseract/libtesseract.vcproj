@@ -2411,10 +2411,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\port\version.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccstruct\werd.h"
 				>
 			</File>

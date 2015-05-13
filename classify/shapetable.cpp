@@ -710,7 +710,11 @@ void ShapeTable::AddShapeToResults(const ShapeRating& shape_rating,
     int result_index = AddUnicharToResults(shape[u].unichar_id,
                                            shape_rating.rating,
                                            unichar_map, results);
-    (*results)[result_index].fonts += shape[u].font_ids;
+    for (int f = 0; f < shape[u].font_ids.size(); ++f) {
+      (*results)[result_index].fonts.push_back(
+          ScoredFont(shape[u].font_ids[f],
+                     IntCastRounded(shape_rating.rating * MAX_INT16)));
+    }
   }
 }
 

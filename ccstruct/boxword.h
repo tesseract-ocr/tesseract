@@ -63,6 +63,10 @@ class BoxWord {
   // Recomputes the bounding box.
   void InsertBox(int index, const TBOX& box);
 
+  // Changes the box at the given index to the new box.
+  // Recomputes the bounding box.
+  void ChangeBox(int index, const TBOX& box);
+
   // Deletes the box with the given index, and shuffles up the rest.
   // Recomputes the bounding box.
   void DeleteBox(int index);

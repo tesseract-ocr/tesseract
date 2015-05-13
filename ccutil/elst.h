@@ -94,8 +94,7 @@ class DLLSYM ELIST_LINK
     }
     //constructor
 
-    ELIST_LINK(                       //copy constructor
-               const ELIST_LINK &) {  //dont copy link
+    ELIST_LINK(const ELIST_LINK &) {  // don't copy link.
       next = NULL;
     }
 
@@ -210,8 +209,7 @@ class DLLSYM ELIST_ITERATOR
       list = NULL;
     }                            //unassigned list
 
-    ELIST_ITERATOR(  //constructor
-                   ELIST *list_to_iterate);
+    explicit ELIST_ITERATOR(ELIST *list_to_iterate);
 
     void set_to_list(  //change list
                      ELIST *list_to_iterate);
@@ -893,95 +891,99 @@ ELISTIZEH is a concatenation of 3 fragments ELISTIZEH_A, ELISTIZEH_B and
 ELISTIZEH_C.
 ***********************************************************************/
 
-#define ELISTIZEH_A(CLASSNAME)                                               \
-                                                                             \
+#define ELISTIZEH_A(CLASSNAME)                                                \
+                                                                              \
 extern DLLSYM void CLASSNAME##_zapper(ELIST_LINK* link);
 
-#define ELISTIZEH_B(CLASSNAME)                                               \
-                                                                             \
-/***********************************************************************        \
-*                           CLASS - CLASSNAME##_LIST                                                                    \
-*                                                                                                       \
-*                           List class for class CLASSNAME                                                          \
-*                                                                                                       \
-**********************************************************************/         \
-                                                                                                        \
-class DLLSYM                CLASSNAME##_LIST : public ELIST                         \
-{                                                                                                       \
-public:                                                                                             \
-                            CLASSNAME##_LIST():ELIST() {}\
-                                                        /* constructor */       \
-                                                                                                        \
-                            CLASSNAME##_LIST(           /* dont construct */ \
-    const CLASSNAME##_LIST&)                            /*by initial assign*/\
-    { DONT_CONSTRUCT_LIST_BY_COPY.error( QUOTE_IT( CLASSNAME##_LIST ),      \
-                                                        ABORT, NULL ); }                            \
-                                                                                                        \
-void                        clear()                     /* delete elements */\
-    { ELIST::internal_clear( &CLASSNAME##_zapper ); }                               \
-                                                                                                        \
-                                    ~CLASSNAME##_LIST() /* destructor */        \
-    { clear(); }                                                                                \
-\
-/* Become a deep copy of src_list*/ \
-void deep_copy(const CLASSNAME##_LIST* src_list, \
-               CLASSNAME* (*copier)(const CLASSNAME*)); \
-\
-void                        operator=(                  /* prevent assign */    \
-    const CLASSNAME##_LIST&)                                                                \
-    { DONT_ASSIGN_LISTS.error( QUOTE_IT( CLASSNAME##_LIST ),                        \
-                                            ABORT, NULL ); }
+#define ELISTIZEH_B(CLASSNAME)                                                \
+                                                                              \
+/***********************************************************************      \
+*                           CLASS - CLASSNAME##_LIST                          \
+*                                                                             \
+*                           List class for class CLASSNAME                    \
+*                                                                             \
+**********************************************************************/       \
+                                                                              \
+class DLLSYM CLASSNAME##_LIST : public ELIST {                                \
+ public:                                                                      \
+  CLASSNAME##_LIST():ELIST() {}                                               \
+                                                                              \
+  void clear()  {                                        /* delete elements */\
+    ELIST::internal_clear(&CLASSNAME##_zapper);                               \
+  }                                                                           \
+                                                                              \
+  ~CLASSNAME##_LIST() {                                                       \
+    clear();                                                                  \
+   }                                                                          \
+                                                                              \
+  /* Become a deep copy of src_list*/                                         \
+  void deep_copy(const CLASSNAME##_LIST* src_list,                            \
+                 CLASSNAME* (*copier)(const CLASSNAME*));                     \
+                                                                              \
+private:                                                                      \
+ /* Prevent assign and copy construction. */                                  \
+ CLASSNAME##_LIST(const CLASSNAME##_LIST&) {                                  \
+   DONT_CONSTRUCT_LIST_BY_COPY.error(QUOTE_IT(CLASSNAME##_LIST), ABORT, NULL);\
+ }                                                                            \
+ void operator=(const CLASSNAME##_LIST&) {                                    \
+   DONT_ASSIGN_LISTS.error(QUOTE_IT(CLASSNAME##_LIST), ABORT, NULL );         \
+ }                                                                            \
 
-#define ELISTIZEH_C( CLASSNAME )                                                        \
-};                                                                                                      \
-                                                                                                        \
-                                                                                                        \
-                                                                                                        \
-/***********************************************************************        \
-*                           CLASS - CLASSNAME##_IT                                                                      \
-*                                                                                                       \
-*                           Iterator class for class CLASSNAME##_LIST                                           \
-*                                                                                                       \
-*  Note: We don't need to coerce pointers to member functions input             \
-*  parameters as these are automatically converted to the type of the base      \
-*  type. ("A ptr to a class may be converted to a pointer to a public base      \
-*  class of that class")                                                                        \
-**********************************************************************/         \
-                                                                                                        \
-class DLLSYM                CLASSNAME##_IT : public ELIST_ITERATOR                  \
-{                                                                                                       \
-public:                                                                                             \
-                                CLASSNAME##_IT():ELIST_ITERATOR(){}                     \
-                                                                                                        \
-                                CLASSNAME##_IT(                                             \
-CLASSNAME##_LIST*           list):ELIST_ITERATOR(list){}                                \
-                                                                                                        \
-    CLASSNAME*          data()                                                          \
-        { return (CLASSNAME*) ELIST_ITERATOR::data(); }                             \
-                                                                                                        \
-    CLASSNAME*          data_relative(                                                  \
-    inT8                    offset)                                                         \
-        { return (CLASSNAME*) ELIST_ITERATOR::data_relative( offset ); }        \
-                                                                                                        \
-    CLASSNAME*          forward()                                                       \
-        { return (CLASSNAME*) ELIST_ITERATOR::forward(); }                          \
-                                                                                                        \
-    CLASSNAME*          extract()                                                       \
-        { return (CLASSNAME*) ELIST_ITERATOR::extract(); }                          \
-                                                                                                        \
-    CLASSNAME*          move_to_first()                                             \
-        { return (CLASSNAME*) ELIST_ITERATOR::move_to_first(); }                    \
-                                                                                                        \
-    CLASSNAME*          move_to_last()                                                  \
-        { return (CLASSNAME*) ELIST_ITERATOR::move_to_last(); }                 \
+#define ELISTIZEH_C( CLASSNAME )                                              \
+};                                                                            \
+                                                                              \
+                                                                              \
+                                                                              \
+/***********************************************************************      \
+*                           CLASS - CLASSNAME##_IT                            \
+*                                                                             \
+*                           Iterator class for class CLASSNAME##_LIST         \
+*                                                                             \
+*  Note: We don't need to coerce pointers to member functions input           \
+*  parameters as these are automatically converted to the type of the base    \
+*  type. ("A ptr to a class may be converted to a pointer to a public base    \
+*  class of that class")                                                      \
+**********************************************************************/       \
+                                                                              \
+class DLLSYM CLASSNAME##_IT : public ELIST_ITERATOR {                         \
+ public:                                                                      \
+  CLASSNAME##_IT():ELIST_ITERATOR(){}                                         \
+                                                                              \
+  /* TODO(rays) This constructor should be explicit, but that means changing  \
+     hundreds of incorrect initializations of iterators that use = over () */ \
+  CLASSNAME##_IT(CLASSNAME##_LIST* list) : ELIST_ITERATOR(list) {}            \
+                                                                              \
+  CLASSNAME* data() {                                                         \
+    return reinterpret_cast<CLASSNAME*>(ELIST_ITERATOR::data());              \
+  }                                                                           \
+                                                                              \
+  CLASSNAME* data_relative(inT8 offset) {                                     \
+    return reinterpret_cast<CLASSNAME*>(ELIST_ITERATOR::data_relative(offset));\
+  }                                                                           \
+                                                                              \
+  CLASSNAME* forward() {                                                      \
+    return reinterpret_cast<CLASSNAME*>(ELIST_ITERATOR::forward());           \
+  }                                                                           \
+                                                                              \
+  CLASSNAME* extract() {                                                      \
+    return reinterpret_cast<CLASSNAME*>(ELIST_ITERATOR::extract());           \
+  }                                                                           \
+                                                                              \
+  CLASSNAME* move_to_first() {                                                \
+    return reinterpret_cast<CLASSNAME*>(ELIST_ITERATOR::move_to_first());     \
+  }                                                                           \
+                                                                              \
+  CLASSNAME* move_to_last() {                                                 \
+    return reinterpret_cast<CLASSNAME*>(ELIST_ITERATOR::move_to_last());      \
+  }                                                                           \
 };
 
-#define ELISTIZEH( CLASSNAME )                                                      \
-                                                                                                        \
-ELISTIZEH_A( CLASSNAME )                                                                        \
-                                                                                                        \
-ELISTIZEH_B( CLASSNAME )                                                                        \
-                                                                                                        \
+#define ELISTIZEH( CLASSNAME )                                                \
+                                                                              \
+ELISTIZEH_A( CLASSNAME )                                                      \
+                                                                              \
+ELISTIZEH_B( CLASSNAME )                                                      \
+                                                                              \
 ELISTIZEH_C( CLASSNAME )
 
 

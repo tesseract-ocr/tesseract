@@ -14,7 +14,9 @@ endif
 include_HEADERS = publictypes.h
 noinst_HEADERS = \
     blamer.h blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
-    detlinefit.h dppoint.h fontinfo.h genblob.h hpdsizes.h ipoints.h \
+    detlinefit.h dppoint.h fontinfo.h genblob.h hpdsizes.h \
+ ##   imagedata.h \
+    ipoints.h \
     linlsq.h matrix.h mod128.h normalis.h \
     ocrblock.h ocrpara.h ocrrow.h otsuthr.h \
     pageres.h params_training_featdef.h \
@@ -37,6 +39,7 @@ endif
 libtesseract_ccstruct_la_SOURCES = \
     blamer.cpp blobbox.cpp blobs.cpp blread.cpp boxread.cpp boxword.cpp ccstruct.cpp coutln.cpp \
     detlinefit.cpp dppoint.cpp fontinfo.cpp genblob.cpp \
+ ##    imagedata.cpp \
     linlsq.cpp matrix.cpp mod128.cpp normalis.cpp \
     ocrblock.cpp ocrpara.cpp ocrrow.cpp otsuthr.cpp \
     pageres.cpp pdblock.cpp points.cpp polyaprx.cpp polyblk.cpp \

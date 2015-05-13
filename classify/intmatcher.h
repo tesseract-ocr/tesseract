@@ -38,19 +38,14 @@ extern INT_VAR_H(classify_integer_matcher_multiplier, 10,
 #include "intproto.h"
 #include "cutoffs.h"
 
-struct INT_RESULT_STRUCT {
-  FLOAT32 Rating;
-  uinT8 Config;
-  uinT8 Config2;
-  uinT16 FeatureMisses;
-};
-
-typedef INT_RESULT_STRUCT *INT_RESULT;
-
+namespace tesseract {
+class UnicharRating;
+}
 
 struct CP_RESULT_STRUCT {
+  CP_RESULT_STRUCT() : Rating(0.0f), Class(0) {}
+
   FLOAT32 Rating;
-  INT_RESULT_STRUCT IMResult;
   CLASS_ID Class;
 };
 
@@ -107,7 +102,7 @@ class IntegerMatcher {
              BIT_VECTOR ConfigMask,
              inT16 NumFeatures,
              const INT_FEATURE_STRUCT* Features,
-             INT_RESULT Result,
+             tesseract::UnicharRating* Result,
              int AdaptFeatureThreshold,
              int Debug,
              bool SeparateDebugWindows);
@@ -149,7 +144,7 @@ class IntegerMatcher {
 
   int FindBestMatch(INT_CLASS ClassTemplate,
                     const ScratchEvidence &tables,
-                    INT_RESULT Result);
+                    tesseract::UnicharRating* Result);
 
 #ifndef GRAPHICS_DISABLED
   void DebugFeatureProtoError(
@@ -176,8 +171,6 @@ class IntegerMatcher {
       int AdaptFeatureThreshold,
       int Debug,
       bool SeparateDebugWindows);
-
-  void DebugBestMatch(int BestMatch, INT_RESULT Result);
 #endif
 
 

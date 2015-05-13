@@ -1,0 +1,4 @@
+<!--
+    This file is needed by the android_native_library rule to determine the
+    project directory for ndk-build.
+-->

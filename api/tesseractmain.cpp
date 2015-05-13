@@ -22,10 +22,6 @@
 #include "config_auto.h"
 #endif
 
-#ifdef _WIN32
-#include <fcntl.h>
-#include <io.h>
-#endif  // _WIN32
 #include <iostream>
 
 #include "allheaders.h"
@@ -35,6 +31,7 @@
 #include "strngs.h"
 #include "tprintf.h"
 #include "openclwrapper.h"
+#include "osdetect.h"
 
 /**********************************************************************
  *  main()
@@ -84,20 +81,29 @@ int main(int argc, char **argv) {
   // Make the order of args a bit more forgiving than it used to be.
   const char* lang = "eng";
   const char* image = NULL;
-  const char* output = NULL;
+  const char* outputbase = NULL;
   const char* datapath = NULL;
   bool noocr = false;
   bool list_langs = false;
   bool print_parameters = false;
+  GenericVector<STRING> vars_vec, vars_values;
 
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
   int arg = 1;
-  while (arg < argc && (output == NULL || argv[arg][0] == '-')) {
+  while (arg < argc && (outputbase == NULL || argv[arg][0] == '-')) {
     if (strcmp(argv[arg], "-l") == 0 && arg + 1 < argc) {
       lang = argv[arg + 1];
       ++arg;
     } else if (strcmp(argv[arg], "--tessdata-dir") == 0 && arg + 1 < argc) {
       datapath = argv[arg + 1];
+      ++arg;
+    } else if (strcmp(argv[arg], "--user-words") == 0 && arg + 1 < argc) {
+      vars_vec.push_back("user_words_file");
+      vars_values.push_back(argv[arg + 1]);
+      ++arg;
+    } else if (strcmp(argv[arg], "--user-patterns") == 0 && arg + 1 < argc) {
+      vars_vec.push_back("user_patterns_file");
+      vars_values.push_back(argv[arg + 1]);
       ++arg;
     } else if (strcmp(argv[arg], "--list-langs") == 0) {
       noocr = true;
@@ -113,8 +119,8 @@ int main(int argc, char **argv) {
       ++arg;
     } else if (image == NULL) {
       image = argv[arg];
-    } else if (output == NULL) {
-      output = argv[arg];
+    } else if (outputbase == NULL) {
+      outputbase = argv[arg];
     }
     ++arg;
   }
@@ -124,13 +130,17 @@ int main(int argc, char **argv) {
     noocr = true;
   }
 
-  if (output == NULL && noocr == false) {
+  if (outputbase == NULL && noocr == false) {
     fprintf(stderr, "Usage:\n  %s imagename|stdin outputbase|stdout "
             "[options...] [configfile...]\n\n", argv[0]);
 
     fprintf(stderr, "OCR options:\n");
-    fprintf(stderr, "  --tessdata-dir /path\tspecify location of tessdata"
+    fprintf(stderr, "  --tessdata-dir /path\tspecify the location of tessdata"
                       " path\n");
+    fprintf(stderr, "  --user-words /path/to/file\tspecify the location of user"
+            " words file\n");
+    fprintf(stderr, "  --user-patterns /path/to/file\tspecify the location of"
+            " user patterns file\n");
     fprintf(stderr, "  -l lang[+lang]\tspecify language(s) used for OCR\n");
     fprintf(stderr, "  -c configvar=value\tset value for control parameter.\n"
                       "\t\t\tMultiple -c arguments are allowed.\n");
@@ -158,16 +168,17 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  if (output != NULL && strcmp(output, "-") && strcmp(output, "stdout")) {
+  if (outputbase != NULL && strcmp(outputbase, "-") &&
+      strcmp(outputbase, "stdout")) {
     tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
            tesseract::TessBaseAPI::Version());
   }
   PERF_COUNT_START("Tesseract:main")
   tesseract::TessBaseAPI api;
 
-  api.SetOutputName(output);
+  api.SetOutputName(outputbase);
   int rc = api.Init(datapath, lang, tesseract::OEM_DEFAULT,
-                &(argv[arg]), argc - arg, NULL, NULL, false);
+                &(argv[arg]), argc - arg, &vars_vec, &vars_values, false);
 
   if (rc) {
     fprintf(stderr, "Could not initialize tesseract.\n");
@@ -178,7 +189,12 @@ int main(int argc, char **argv) {
   for (arg = 0; arg < argc; arg++) {
     if (strcmp(argv[arg], "-c") == 0 && arg + 1 < argc) {
       strncpy(opt1, argv[arg + 1], 255);
-      *(strchr(opt1, '=')) = 0;
+      char *p = strchr(opt1, '=');
+      if (!p) {
+        fprintf(stderr, "Missing = in configvar assignment\n");
+        exit(1);
+      }
+      *p = 0;
       strncpy(opt2, strchr(argv[arg + 1], '=') + 1, 255);
       opt2[254] = 0;
       ++arg;
@@ -225,102 +241,84 @@ int main(int argc, char **argv) {
   if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
      api.SetPageSegMode(pagesegmode);
 
-  bool stdInput = !strcmp(image, "stdin") || !strcmp(image, "-");
-  Pix* pixs = NULL;
-  if (stdInput) {
-    char byt;
-    GenericVector<l_uint8> ch_data;
-    std::istream file(std::cin.rdbuf());
-
-#ifdef WIN32
-    if (_setmode(_fileno(stdin), _O_BINARY) == -1)
-      tprintf("ERROR: cin to binary: %s", strerror(errno));
-#endif  // WIN32
-
-    while (file.get(byt)) {
-      ch_data.push_back(byt);
-    }
-    std::cin.ignore(std::cin.rdbuf()->in_avail() + 1);
-
-    pixs = pixReadMem(&ch_data[0], ch_data.size());
-  }
-
   if (pagesegmode == tesseract::PSM_AUTO_ONLY ||
       pagesegmode == tesseract::PSM_OSD_ONLY) {
-    tesseract::Orientation orientation;
-    tesseract::WritingDirection direction;
-    tesseract::TextlineOrder order;
-    float deskew_angle;
     int ret_val = 0;
 
-    if (!pixs)
-      pixs = pixRead(image);
-    api.SetImage(pixs);
-    tesseract::PageIterator* it =  api.AnalyseLayout();
-    if (it) {
-      it->Orientation(&orientation, &direction, &order, &deskew_angle);
-      tprintf("Orientation: %d\nWritingDirection: %d\nTextlineOrder: %d\n" \
-              "Deskew angle: %.4f\n",
-               orientation, direction, order, deskew_angle);
-    } else {
-      ret_val = 1;
-    }
-    pixDestroy(&pixs);
-    delete it;
-    exit(ret_val);
-  }
-
-  tesseract::TessResultRenderer* renderer = NULL;
-  bool b;
-  api.GetBoolVariable("tessedit_create_hocr", &b);
-  if (b && renderer == NULL) renderer = new tesseract::TessHOcrRenderer();
-
-  api.GetBoolVariable("tessedit_create_pdf", &b);
-  if (b && renderer == NULL)
-    renderer = new tesseract::TessPDFRenderer(api.GetDatapath());
-
-  api.GetBoolVariable("tessedit_create_boxfile", &b);
-  if (b && renderer == NULL) renderer = new tesseract::TessBoxTextRenderer();
-
-  if (renderer == NULL) renderer = new tesseract::TessTextRenderer();
-
-  if (pixs) {
-    api.ProcessPage(pixs, 0, NULL, NULL, 0, renderer);
-    pixDestroy(&pixs);
-  } else {
-    FILE* fin = fopen(image, "rb");
-    if (fin == NULL) {
+    Pix* pixs = pixRead(image);
+    if (!pixs) {
       fprintf(stderr, "Cannot open input file: %s\n", image);
       exit(2);
     }
-    fclose(fin);
-    if (!api.ProcessPages(image, NULL, 0, renderer)) {
+    api.SetImage(pixs);
+
+    if (pagesegmode == tesseract::PSM_OSD_ONLY) {
+       OSResults osr;
+       if (api.DetectOS(&osr)) {
+         int orient = osr.best_result.orientation_id;
+         int script_id = osr.get_best_script(orient);
+         float orient_oco = osr.best_result.oconfidence;
+         float orient_sco = osr.best_result.sconfidence;
+         tprintf("Orientation: %d\nOrientation in degrees: %d\n" \
+                 "Orientation confidence: %.2f\n" \
+                 "Script: %d\nScript confidence: %.2f\n",
+                 orient, OrientationIdToValue(orient), orient_oco,
+                 script_id, orient_sco);
+       } else {
+         ret_val = 1;
+       }
+    } else {
+       tesseract::Orientation orientation;
+       tesseract::WritingDirection direction;
+       tesseract::TextlineOrder order;
+       float deskew_angle;
+       tesseract::PageIterator* it =  api.AnalyseLayout();
+       if (it) {
+         it->Orientation(&orientation, &direction, &order, &deskew_angle);
+         tprintf("Orientation: %d\nWritingDirection: %d\nTextlineOrder: %d\n" \
+                 "Deskew angle: %.4f\n",
+                 orientation, direction, order, deskew_angle);
+       } else {
+         ret_val = 1;
+       }
+       delete it;
+    }
+    pixDestroy(&pixs);
+    exit(ret_val);
+  }
+
+  bool b;
+  tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
+  api.GetBoolVariable("tessedit_create_hocr", &b);
+  if (b) {
+    bool font_info;
+    api.GetBoolVariable("hocr_font_info", &font_info);
+    renderers.push_back(new tesseract::TessHOcrRenderer(outputbase, font_info));
+  }
+  api.GetBoolVariable("tessedit_create_pdf", &b);
+  if (b) {
+    renderers.push_back(new tesseract::TessPDFRenderer(outputbase,
+                                                       api.GetDatapath()));
+  }
+  api.GetBoolVariable("tessedit_write_unlv", &b);
+  if (b) renderers.push_back(new tesseract::TessUnlvRenderer(outputbase));
+  api.GetBoolVariable("tessedit_create_boxfile", &b);
+  if (b) renderers.push_back(new tesseract::TessBoxTextRenderer(outputbase));
+  api.GetBoolVariable("tessedit_create_txt", &b);
+  if (b) renderers.push_back(new tesseract::TessTextRenderer(outputbase));
+  if (!renderers.empty()) {
+    // Since the PointerVector auto-deletes, null-out the renderers that are
+    // added to the root, and leave the root in the vector.
+    for (int r = 1; r < renderers.size(); ++r) {
+      renderers[0]->insert(renderers[r]);
+      renderers[r] = NULL;
+    }
+    if (!api.ProcessPages(image, NULL, 0, renderers[0])) {
       fprintf(stderr, "Error during processing.\n");
       exit(1);
     }
   }
 
-  FILE* fout = stdout;
-  if (strcmp(output, "-") && strcmp(output, "stdout")) {
-    STRING outfile = STRING(output)
-        + STRING(".")
-        + STRING(renderer->file_extension());
-    fout = fopen(outfile.string(), "wb");
-    if (fout == NULL) {
-      fprintf(stderr, "Cannot create output file %s\n", outfile.string());
-      exit(1);
-    }
-  }
-
-  const char* data;
-  inT32 data_len;
-  if (renderer->GetOutput(&data, &data_len)) {
-    fwrite(data, 1, data_len, fout);
-    if (fout != stdout)
-      fclose(fout);
-    else
-      clearerr(fout);
-  }
   PERF_COUNT_END
   return 0;                      // Normal exit
 }

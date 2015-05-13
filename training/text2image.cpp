@@ -43,6 +43,7 @@
 #include "degradeimage.h"
 #include "errcode.h"
 #include "fileio.h"
+#include "helpers.h"
 #include "normstrngs.h"
 #include "stringrenderer.h"
 #include "tlog.h"
@@ -54,6 +55,9 @@ using std::make_pair;
 using std::map;
 using std::pair;
 #endif
+
+// A number with which to initialize the random number generator.
+const int kRandomSeed = 0x18273645;
 
 // The text input file.
 STRING_PARAM_FLAG(text, "", "File name of text input to process");
@@ -87,6 +91,15 @@ INT_PARAM_FLAG(ptsize, 12, "Size of printed text");
 // Inter-character space (in ems).
 DOUBLE_PARAM_FLAG(char_spacing, 0, "Inter-character space in ems");
 
+// Sets the probability (value in [0, 1]) of starting to render a word with an
+// underline. Words are assumed to be space-delimited.
+DOUBLE_PARAM_FLAG(underline_start_prob, 0,
+                  "Fraction of words to underline (value in [0,1])");
+// Set the probability (value in [0, 1]) of continuing a started underline to
+// the next word.
+DOUBLE_PARAM_FLAG(underline_continuation_prob, 0,
+                  "Fraction of words to underline (value in [0,1])");
+
 // Inter-line space (in pixels).
 INT_PARAM_FLAG(leading, 12, "Inter-line space (in pixels)");
 
@@ -102,7 +115,7 @@ STRING_PARAM_FLAG(writing_mode, "horizontal",
 
 INT_PARAM_FLAG(box_padding, 0, "Padding around produced bounding boxes");
 
-BOOL_PARAM_FLAG(strip_unrenderable_words, false,
+BOOL_PARAM_FLAG(strip_unrenderable_words, true,
                 "Remove unrenderable words from source text");
 
 // Font name.
@@ -116,6 +129,10 @@ BOOL_PARAM_FLAG(find_fonts, false,
 BOOL_PARAM_FLAG(render_per_font, true,
                 "If find_fonts==true, render each font to its own image. "
                 "Image filenames are of the form output_name.font_name.tif");
+DOUBLE_PARAM_FLAG(min_coverage, 1.0,
+                  "If find_fonts==true, the minimum coverage the font has of "
+                  "the characters in the text file to include it, between "
+                  "0 and 1.");
 
 BOOL_PARAM_FLAG(list_available_fonts, false, "List available fonts and quit.");
 
@@ -356,7 +373,8 @@ bool MakeIndividualGlyphs(Pix* pix,
                                          FLAGS_glyph_num_border_pixels_to_pad,
                                          0);
     if (!pix_glyph_sq_pad) {
-      tprintf("ERROR: MakeIndividualGlyphs(): Failed to zero-pad, at i=%d\n", i);
+      tprintf("ERROR: MakeIndividualGlyphs(): Failed to zero-pad, at i=%d\n",
+              i);
       continue;
     }
     // Write out
@@ -432,6 +450,8 @@ int main(int argc, char** argv) {
   render.set_output_word_boxes(FLAGS_output_word_boxes);
   render.set_box_padding(FLAGS_box_padding);
   render.set_strip_unrenderable_words(FLAGS_strip_unrenderable_words);
+  render.set_underline_start_prob(FLAGS_underline_start_prob);
+  render.set_underline_continuation_prob(FLAGS_underline_continuation_prob);
 
   // Set text rendering orientation and their forms.
   if (FLAGS_writing_mode == "horizontal") {
@@ -531,6 +551,9 @@ int main(int argc, char** argv) {
   vector<float> page_rotation;
   const char* to_render_utf8 = src_utf8.c_str();
 
+  tesseract::TRand randomizer;
+  randomizer.set_seed(kRandomSeed);
+  vector<string> font_names;
   // We use a two pass mechanism to rotate images in both direction.
   // The first pass(0) will rotate the images in random directions and
   // the second pass(1) will mirror those rotations.
@@ -542,7 +565,8 @@ int main(int argc, char** argv) {
       tlog(1, "Starting page %d\n", im);
       Pix* pix = NULL;
       if (FLAGS_find_fonts) {
-        offset += render.RenderAllFontsToImage(to_render_utf8 + offset,
+        offset += render.RenderAllFontsToImage(FLAGS_min_coverage,
+                                               to_render_utf8 + offset,
                                                strlen(to_render_utf8 + offset),
                                                &font_used, &pix);
       } else {
@@ -556,7 +580,7 @@ int main(int argc, char** argv) {
           rotation = -1 * page_rotation[page_num];
         }
         if (FLAGS_degrade_image) {
-          pix = DegradeImage(pix, FLAGS_exposure, &rotation);
+          pix = DegradeImage(pix, FLAGS_exposure, &randomizer, &rotation);
         }
         render.RotatePageBoxes(rotation);
 
@@ -570,18 +594,23 @@ int main(int argc, char** argv) {
         Pix* binary = pixThresholdToBinary(gray_pix, 128);
         pixDestroy(&gray_pix);
         char tiff_name[1024];
-        if (FLAGS_find_fonts && FLAGS_render_per_font) {
-          string fontname_for_file = tesseract::StringReplace(
-              font_used, " ", "_");
-          snprintf(tiff_name, 1024, "%s.%s.tif", FLAGS_outputbase.c_str(),
-                   fontname_for_file.c_str());
-          pixWriteTiff(tiff_name, binary, IFF_TIFF_G4, "w");
+        if (FLAGS_find_fonts) {
+          if (FLAGS_render_per_font) {
+            string fontname_for_file = tesseract::StringReplace(
+                font_used, " ", "_");
+            snprintf(tiff_name, 1024, "%s.%s.tif", FLAGS_outputbase.c_str(),
+                     fontname_for_file.c_str());
+            pixWriteTiff(tiff_name, binary, IFF_TIFF_G4, "w");
+            tprintf("Rendered page %d to file %s\n", im, tiff_name);
+          } else {
+            font_names.push_back(font_used);
+          }
         } else {
           snprintf(tiff_name, 1024, "%s.tif", FLAGS_outputbase.c_str());
           pixWriteTiff(tiff_name, binary, IFF_TIFF_G4, im == 0 ? "w" : "a");
+          tprintf("Rendered page %d to file %s\n", im, tiff_name);
         }
-        tprintf("Rendered page %d to file %s\n", im, tiff_name);
-       // Make individual glyphs
+        // Make individual glyphs
         if (FLAGS_output_individual_glyph_images) {
           if (!MakeIndividualGlyphs(binary, render.GetBoxes(), im)) {
             tprintf("ERROR: Individual glyphs not saved\n");
@@ -589,12 +618,28 @@ int main(int argc, char** argv) {
         }
         pixDestroy(&binary);
       }
+      if (FLAGS_find_fonts && offset != 0) {
+        // We just want a list of names, or some sample images so we don't need
+        // to render more than the first page of the text.
+        break;
+      }
     }
   }
   if (!FLAGS_find_fonts) {
     string box_name = FLAGS_outputbase.c_str();
     box_name += ".box";
     render.WriteAllBoxes(box_name);
+  } else if (!FLAGS_render_per_font && !font_names.empty()) {
+    string filename = FLAGS_outputbase + ".fontlist.txt";
+    FILE* fp = fopen(filename.c_str(), "wb");
+    if (fp == NULL) {
+      tprintf("Failed to create output font list %s\n", filename.c_str());
+    } else {
+      for (int i = 0; i < font_names.size(); ++i) {
+        fprintf(fp, "%s\n", font_names[i].c_str());
+      }
+      fclose(fp);
+    }
   }
 
   return 0;

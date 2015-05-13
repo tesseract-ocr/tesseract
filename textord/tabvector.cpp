@@ -608,7 +608,7 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
     mean_height += height;
     ++height_count;
   }
-  mean_height /= height_count;
+  if (height_count > 0) mean_height /= height_count;
   int max_gutter = kGutterMultiple * mean_height;
   if (IsRagged()) {
     // Ragged edges face a tougher test in that the gap must always be within
@@ -732,7 +732,7 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
                   gutter_width, median_gutter);
         }
         it.extract();
-        ++num_deleted_boxes = true;
+        ++num_deleted_boxes;
       }
     }
   }
@@ -926,6 +926,7 @@ TabVector* TabVector::VerticalTextlinePartner() {
     total_widths += box.width();
     prev_bbox = bbox;
   }
+  if (num_unmatched + num_matched == 0) return NULL;
   double avg_width = total_widths * 1.0 / (num_unmatched + num_matched);
   double max_gap = textord_tabvector_vertical_gap_fraction * avg_width;
   int min_box_match = static_cast<int>((num_matched + num_unmatched) *

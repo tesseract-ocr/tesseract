@@ -83,6 +83,11 @@ class PangoFontInfo {
   bool GetSpacingProperties(const string& utf8_char,
                             int* x_bearing, int* x_advance) const;
 
+  // Initializes FontConfig by setting its environment variable and creating
+  // a fonts.conf file that points to the given fonts_dir. Once initialized,
+  // it is not re-initialized unless force_clear is true.
+  static void InitFontConfig(bool force_clear, const string& fonts_dir);
+
   // Accessors
   string DescriptionName() const;
   // Font Family name eg. "Arial"
@@ -123,6 +128,10 @@ class PangoFontInfo {
   // Default output resolution to assume for GetSpacingProperties() and any
   // other methods that returns pixel values.
   int resolution_;
+  // Fontconfig operates through an environment variable, so it intrinsically
+  // cannot be thread-friendly, but you can serialize multiple independent
+  // font configurations by calling InitFontConfig(true, path).
+  static bool fontconfig_initialized_;
 
  private:
   PangoFontInfo(const PangoFontInfo&);
@@ -135,7 +144,13 @@ class FontUtils {
  public:
   // Returns true if the font of the given description name is available in the
   // target directory specified by --fonts_dir
-  static bool IsAvailableFont(const char* font_desc);
+  static bool IsAvailableFont(const char* font_desc) {
+    return IsAvailableFont(font_desc, NULL);
+  }
+  // Returns true if the font of the given description name is available in the
+  // target directory specified by --fonts_dir. If false is returned, and
+  // best_match is not NULL, the closest matching font is returned there.
+  static bool IsAvailableFont(const char* font_desc, string* best_match);
   // Outputs description names of available fonts.
   static const vector<string>& ListAvailableFonts();
 
@@ -181,6 +196,12 @@ class FontUtils {
   static int FontScore(const unordered_map<char32, inT64>& ch_map,
                        const string& fontname, int* raw_score,
                        vector<bool>* ch_flags);
+
+  // PangoFontInfo is reinitialized, so clear the static list of fonts.
+  static void ReInit();
+
+ private:
+  static vector<string> available_fonts_;  // cache list
 };
 }  // namespace tesseract
 

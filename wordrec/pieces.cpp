@@ -40,6 +40,8 @@
 #include "config_auto.h"
 #endif
 
+using tesseract::ScoredFont;
+
 /*----------------------------------------------------------------------
           F u n c t i o n s
 ----------------------------------------------------------------------*/
@@ -58,7 +60,7 @@ BLOB_CHOICE_LIST *Wordrec::classify_piece(const GenericVector<SEAM*>& seams,
                                           const char* description,
                                           TWERD *word,
                                           BlamerBundle *blamer_bundle) {
-  if (end > start) join_pieces(seams, start, end, word);
+  if (end > start) SEAM::JoinPieces(seams, word->blobs, start, end);
   BLOB_CHOICE_LIST *choices = classify_blob(word->blobs[start], description,
                                             White, blamer_bundle);
   // Set the matrix_cell_ entries in all the BLOB_CHOICES.
@@ -67,7 +69,7 @@ BLOB_CHOICE_LIST *Wordrec::classify_piece(const GenericVector<SEAM*>& seams,
     bc_it.data()->set_matrix_cell(start, end);
   }
 
-  if (end > start) break_pieces(seams, start, end, word);
+  if (end > start) SEAM::BreakPieces(seams, word->blobs, start, end);
 
   return (choices);
 }
@@ -194,8 +196,8 @@ void Wordrec::merge_and_put_fragment_lists(inT16 row, inT16 column,
     if (same_unichar) {
       // Add the merged character to the result
       UNICHAR_ID merged_unichar_id = first_unichar_id;
-      inT16 merged_fontinfo_id = choice_lists_it[0].data()->fontinfo_id();
-      inT16 merged_fontinfo_id2 = choice_lists_it[0].data()->fontinfo_id2();
+      GenericVector<ScoredFont> merged_fonts =
+          choice_lists_it[0].data()->fonts();
       float merged_min_xheight = choice_lists_it[0].data()->min_xheight();
       float merged_max_xheight = choice_lists_it[0].data()->max_xheight();
       float positive_yshift = 0, negative_yshift = 0;
@@ -220,21 +222,36 @@ void Wordrec::merge_and_put_fragment_lists(inT16 row, inT16 column,
         float yshift = choice_lists_it[i].data()->yshift();
         if (yshift > positive_yshift) positive_yshift = yshift;
         if (yshift < negative_yshift) negative_yshift = yshift;
+        // Use the min font rating over the parts.
+        // TODO(rays) font lists are unsorted. Need to be faster?
+        const GenericVector<ScoredFont>& frag_fonts =
+            choice_lists_it[i].data()->fonts();
+        for (int f = 0; f < frag_fonts.size(); ++f) {
+          int merged_f = 0;
+          for (merged_f = 0; merged_f < merged_fonts.size() &&
+               merged_fonts[merged_f].fontinfo_id != frag_fonts[f].fontinfo_id;
+               ++merged_f) {}
+          if (merged_f == merged_fonts.size()) {
+            merged_fonts.push_back(frag_fonts[f]);
+          } else if (merged_fonts[merged_f].score > frag_fonts[f].score) {
+            merged_fonts[merged_f].score = frag_fonts[f].score;
+          }
+        }
       }
 
       float merged_yshift = positive_yshift != 0
           ? (negative_yshift != 0 ? 0 : positive_yshift)
           : negative_yshift;
-      merged_choice_it.add_to_end(new BLOB_CHOICE(merged_unichar_id,
-                                                  merged_rating,
-                                                  merged_certainty,
-                                                  merged_fontinfo_id,
-                                                  merged_fontinfo_id2,
-                                                  merged_script_id,
-                                                  merged_min_xheight,
-                                                  merged_max_xheight,
-                                                  merged_yshift,
-                                                  classifier));
+      BLOB_CHOICE* choice = new BLOB_CHOICE(merged_unichar_id,
+                                            merged_rating,
+                                            merged_certainty,
+                                            merged_script_id,
+                                            merged_min_xheight,
+                                            merged_max_xheight,
+                                            merged_yshift,
+                                            classifier);
+      choice->set_fonts(merged_fonts);
+      merged_choice_it.add_to_end(choice);
     }
   }
 

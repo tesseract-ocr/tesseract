@@ -14,19 +14,21 @@
  * language governing permissions and limitations under the License.
  *
  **********************************************************************/
-#include "fileio.h"
+#ifdef _WIN32
+#include <windows.h>
+#ifndef unlink
+#include <io.h>
+#endif
+#else
+#include <glob.h>
+#include <unistd.h>
+#endif
 
 #include <stdlib.h>
-#include <unistd.h>
 #include <cstdio>
 #include <string>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <glob.h>
-#endif
-
+#include "fileio.h"
 #include "tprintf.h"
 
 namespace tesseract {
@@ -74,16 +76,13 @@ bool File::ReadFileToString(const string& filename, string* out) {
     return false;
   InputBuffer in(stream);
   *out = "";
-  string temp;
-  while (in.ReadLine(&temp)) {
-    *out += temp;
-    *out += '\n';
-  }
+  in.Read(out);
   return in.CloseFile();
 }
 
 void File::ReadFileToStringOrDie(const string& filename, string* out) {
-  ASSERT_HOST(ReadFileToString(filename, out));
+  ASSERT_HOST_MSG(ReadFileToString(filename, out),
+                  "Failed to read file: %s\n", filename.c_str());
 }
 
 
@@ -153,19 +152,17 @@ InputBuffer::~InputBuffer() {
   }
 }
 
-bool InputBuffer::ReadLine(string* out) {
-  ASSERT_HOST(stream_ != NULL);
-  char* line = NULL;
-  size_t line_size;
-  int len = getline(&line, &line_size, stream_);
-
-  if (len < 0) {
-    return false;
+bool InputBuffer::Read(string *out) {
+  char buf[BUFSIZ+1];
+  int l;
+  while((l = fread(buf, 1, BUFSIZ, stream_)) > 0) {
+    if(ferror(stream_)) {
+      clearerr(stream_);
+      return false;
+    }
+    buf[l] = 0;
+    out->append(buf);
   }
-  if (len >= 1 && line[len - 1] == '\n')
-    line[len - 1] = '\0';
-  *out = string(line);
-  free(line);
   return true;
 }
 

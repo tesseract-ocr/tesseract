@@ -30,7 +30,6 @@
 #include          "tovars.h"
 #include          "wordseg.h"
 #include          "topitch.h"
-#include          "secname.h"
 #include          "helpers.h"
 
 // Include automatically generated configuration file if running autoconf.
@@ -251,13 +250,11 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
     }
     else {
       bad_row->pitch_decision = PITCH_CORR_PROP;
-      #ifndef SECURE_NAMES
       if (block_votes == 0 && like_votes == 0 && other_votes > 0
         && (textord_debug_pitch_test || textord_debug_pitch_metric))
         tprintf
           ("Warning:row %d of block %d set prop with no like rows against trend\n",
           row_target, block_target);
-      #endif
     }
   }
   if (textord_debug_pitch_metric) {
@@ -286,12 +283,13 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
     bad_row->space_threshold =
       (bad_row->min_space + bad_row->max_nonspace) / 2;
     bad_row->space_size = bad_row->fixed_pitch;
-    if (bad_row->char_cells.empty ())
+    if (bad_row->char_cells.empty() && !bad_row->blob_list()->empty()) {
       tune_row_pitch (bad_row, &bad_row->projection,
         bad_row->projection_left, bad_row->projection_right,
         (bad_row->fixed_pitch +
         bad_row->max_nonspace * 3) / 4, bad_row->fixed_pitch,
         sp_sd, mid_cuts, &bad_row->char_cells, FALSE);
+    }
   }
   else if (bad_row->pitch_decision == PITCH_CORR_PROP
   || bad_row->pitch_decision == PITCH_DEF_PROP) {
@@ -977,11 +975,11 @@ BOOL8 fixed_pitch_row(TO_ROW *row,       // row to do
                       BLOCK* block,
                       inT32 block_index  // block_number
                      ) {
-  const char *res_string;        //pitch result
-  inT16 mid_cuts;                //no of cheap cuts
-  float non_space;               //gap size
-  float pitch_sd;                //error on pitch
-  float sp_sd;                   //space sd
+  const char *res_string;        // pitch result
+  inT16 mid_cuts;                // no of cheap cuts
+  float non_space;               // gap size
+  float pitch_sd;                // error on pitch
+  float sp_sd = 0.0f;            // space sd
 
   non_space = row->fp_nonsp;
   if (non_space > row->fixed_pitch)
@@ -1037,6 +1035,7 @@ BOOL8 fixed_pitch_row(TO_ROW *row,       // row to do
         break;
       case PITCH_MAYBE_FIXED:
         res_string = "MF";
+        break;
       default:
         res_string = "??";
     }
@@ -1281,13 +1280,13 @@ float tune_row_pitch2(                             //find fp cells
 
   best_sp_sd = initial_pitch;
 
-  if (textord_disable_pitch_test) {
+  best_pitch = static_cast<int>(initial_pitch);
+  if (textord_disable_pitch_test || best_pitch <= textord_pitch_range) {
     return initial_pitch;
   }
   sum_proj = new STATS[textord_pitch_range * 2 + 1];
   if (sum_proj == NULL)
     return initial_pitch;
-  best_pitch = (inT32) initial_pitch;
 
   for (pitch_delta = -textord_pitch_range; pitch_delta <= textord_pitch_range;
     pitch_delta++)
@@ -1295,12 +1294,12 @@ float tune_row_pitch2(                             //find fp cells
       best_pitch +
       pitch_delta + 1);
   for (pixel = projection_left; pixel <= projection_right; pixel++) {
-    for (pitch_delta = -textord_pitch_range;
-      pitch_delta <= textord_pitch_range; pitch_delta++)
-    sum_proj[textord_pitch_range +
-        pitch_delta].add ((pixel - projection_left) % (best_pitch +
-        pitch_delta),
-        projection->pile_count (pixel));
+    for (pitch_delta = -textord_pitch_range; pitch_delta <= textord_pitch_range;
+         pitch_delta++) {
+      sum_proj[textord_pitch_range + pitch_delta].add(
+          (pixel - projection_left) % (best_pitch + pitch_delta),
+          projection->pile_count(pixel));
+    }
   }
   best_count = sum_proj[textord_pitch_range].pile_count (0);
   best_delta = 0;
@@ -1429,7 +1428,7 @@ float compute_pitch_sd(                            //find fp cells
   if (blob_it.empty ())
     return space_size * 10;
 #ifndef GRAPHICS_DISABLED
-  if (testing_on && to_win > 0) {
+  if (testing_on && to_win != NULL) {
     blob_box = blob_it.data ()->bounding_box ();
     projection->plot (to_win, projection_left,
       row->intercept (), 1.0f, -1.0f, ScrollView::CORAL);
@@ -1478,7 +1477,7 @@ float compute_pitch_sd(                            //find fp cells
       tprintf ("\n");
     }
 #ifndef GRAPHICS_DISABLED
-    if (textord_show_fixed_cuts && blob_count > 0 && to_win > 0)
+    if (textord_show_fixed_cuts && blob_count > 0 && to_win != NULL)
       plot_fp_cells2(to_win, ScrollView::GOLDENROD, row, &seg_list);
 #endif
     seg_it.set_to_list (&seg_list);
@@ -1568,7 +1567,7 @@ float compute_pitch_sd2(                            //find fp cells
     return initial_pitch * 10;
   }
 #ifndef GRAPHICS_DISABLED
-  if (testing_on && to_win > 0) {
+  if (testing_on && to_win != NULL) {
     projection->plot (to_win, projection_left,
       row->intercept (), 1.0f, -1.0f, ScrollView::CORAL);
   }
@@ -1604,7 +1603,7 @@ float compute_pitch_sd2(                            //find fp cells
     tprintf ("\n");
   }
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_fixed_cuts && blob_count > 0 && to_win > 0)
+  if (textord_show_fixed_cuts && blob_count > 0 && to_win != NULL)
     plot_fp_cells2(to_win, ScrollView::GOLDENROD, row, &seg_list);
 #endif
   seg_it.set_to_list (&seg_list);

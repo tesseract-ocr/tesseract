@@ -16,8 +16,13 @@
 
 #ifdef USE_OPENCL
 
-#include "opencl_device_selection.h"
+#if ON_APPLE
+#define TIMESPEC mach_timespec
+#else
+#define TIMESPEC timespec
+#endif
 
+#include "opencl_device_selection.h"
 GPUEnv OpenclDevice::gpuEnv;
 
 #if USE_DEVICE_SELECTION
@@ -709,6 +714,14 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
             binaries[i] = (char*) malloc( sizeof(char) * binarySizes[i] );
             if ( binaries[i] == NULL )
             {
+                // cleanup all memory allocated so far
+                for(int cleanupIndex = 0; cleanupIndex < i; ++cleanupIndex)
+                {
+                    free(binaries[cleanupIndex]);
+                }
+                // cleanup binary array
+                free(binaries);
+
                 return 0;
             }
         }
@@ -1104,6 +1117,279 @@ l_float32  fxres, fyres;
 
     return 0;
 }
+
+struct L_Memstream
+{
+l_uint8   *buffer;    /* expands to hold data when written to;         */
+                        /* fixed size when read from.                    */
+size_t     bufsize;   /* current size allocated when written to;       */
+                        /* fixed size of input data when read from.      */
+size_t     offset;    /* byte offset from beginning of buffer.         */
+size_t     hw;        /* high-water mark; max bytes in buffer.         */
+l_uint8  **poutdata;  /* input param for writing; data goes here.      */
+size_t    *poutsize;  /* input param for writing; data size goes here. */
+};
+typedef struct L_Memstream  L_MEMSTREAM;
+
+/* These are static functions for memory I/O */
+static L_MEMSTREAM *memstreamCreateForRead(l_uint8 *indata, size_t pinsize);
+static L_MEMSTREAM *memstreamCreateForWrite(l_uint8 **poutdata,
+	size_t *poutsize);
+static tsize_t tiffReadCallback(thandle_t handle, tdata_t data, tsize_t length);
+static tsize_t tiffWriteCallback(thandle_t handle, tdata_t data,
+	tsize_t length);
+static toff_t tiffSeekCallback(thandle_t handle, toff_t offset, l_int32 whence);
+static l_int32 tiffCloseCallback(thandle_t handle);
+static toff_t tiffSizeCallback(thandle_t handle);
+static l_int32 tiffMapCallback(thandle_t handle, tdata_t *data, toff_t *length);
+static void tiffUnmapCallback(thandle_t handle, tdata_t data, toff_t length);
+
+
+static L_MEMSTREAM *
+memstreamCreateForRead(l_uint8  *indata,
+size_t    insize)
+{
+	L_MEMSTREAM  *mstream;
+
+	mstream = (L_MEMSTREAM *)CALLOC(1, sizeof(L_MEMSTREAM));
+	mstream->buffer = indata;   /* handle to input data array */
+	mstream->bufsize = insize;  /* amount of input data */
+	mstream->hw = insize;       /* high-water mark fixed at input data size */
+	mstream->offset = 0;        /* offset always starts at 0 */
+	return mstream;
+}
+
+
+static L_MEMSTREAM *
+memstreamCreateForWrite(l_uint8  **poutdata,
+size_t    *poutsize)
+{
+	L_MEMSTREAM  *mstream;
+
+	mstream = (L_MEMSTREAM *)CALLOC(1, sizeof(L_MEMSTREAM));
+	mstream->buffer = (l_uint8 *)CALLOC(8 * 1024, 1);
+	mstream->bufsize = 8 * 1024;
+	mstream->poutdata = poutdata;  /* used only at end of write */
+	mstream->poutsize = poutsize;  /* ditto  */
+	mstream->hw = mstream->offset = 0;
+	return mstream;
+}
+
+
+static tsize_t
+tiffReadCallback(thandle_t  handle,
+tdata_t    data,
+tsize_t    length)
+{
+	L_MEMSTREAM  *mstream;
+	size_t        amount;
+
+	mstream = (L_MEMSTREAM *)handle;
+	amount = L_MIN((size_t)length, mstream->hw - mstream->offset);
+	memcpy(data, mstream->buffer + mstream->offset, amount);
+	mstream->offset += amount;
+	return amount;
+}
+
+
+static tsize_t
+tiffWriteCallback(thandle_t  handle,
+tdata_t    data,
+tsize_t    length)
+{
+	L_MEMSTREAM  *mstream;
+	size_t        newsize;
+
+	/* reallocNew() uses calloc to initialize the array.
+	* If malloc is used instead, for some of the encoding methods,
+	* not all the data in 'bufsize' bytes in the buffer will
+	* have been initialized by the end of the compression. */
+	mstream = (L_MEMSTREAM *)handle;
+	if (mstream->offset + length > mstream->bufsize) {
+		newsize = 2 * (mstream->offset + length);
+		mstream->buffer = (l_uint8 *)reallocNew((void **)&mstream->buffer,
+			mstream->offset, newsize);
+		mstream->bufsize = newsize;
+	}
+
+	memcpy(mstream->buffer + mstream->offset, data, length);
+	mstream->offset += length;
+	mstream->hw = L_MAX(mstream->offset, mstream->hw);
+	return length;
+}
+
+
+static toff_t
+tiffSeekCallback(thandle_t  handle,
+toff_t     offset,
+l_int32    whence)
+{
+	L_MEMSTREAM  *mstream;
+
+	PROCNAME("tiffSeekCallback");
+	mstream = (L_MEMSTREAM *)handle;
+	switch (whence) {
+	case SEEK_SET:
+		/*            fprintf(stderr, "seek_set: offset = %d\n", offset); */
+		mstream->offset = offset;
+		break;
+	case SEEK_CUR:
+		/*            fprintf(stderr, "seek_cur: offset = %d\n", offset); */
+		mstream->offset += offset;
+		break;
+	case SEEK_END:
+		/*            fprintf(stderr, "seek end: hw = %d, offset = %d\n",
+		mstream->hw, offset); */
+		mstream->offset = mstream->hw - offset;  /* offset >= 0 */
+		break;
+	default:
+		return (toff_t)ERROR_INT("bad whence value", procName,
+			mstream->offset);
+	}
+
+	return mstream->offset;
+}
+
+
+static l_int32
+tiffCloseCallback(thandle_t  handle)
+{
+	L_MEMSTREAM  *mstream;
+
+	mstream = (L_MEMSTREAM *)handle;
+	if (mstream->poutdata) {   /* writing: save the output data */
+		*mstream->poutdata = mstream->buffer;
+		*mstream->poutsize = mstream->hw;
+	}
+	FREE(mstream);  /* never free the buffer! */
+	return 0;
+}
+
+
+static toff_t
+tiffSizeCallback(thandle_t  handle)
+{
+	L_MEMSTREAM  *mstream;
+
+	mstream = (L_MEMSTREAM *)handle;
+	return mstream->hw;
+}
+
+
+static l_int32
+tiffMapCallback(thandle_t  handle,
+tdata_t   *data,
+toff_t    *length)
+{
+	L_MEMSTREAM  *mstream;
+
+	mstream = (L_MEMSTREAM *)handle;
+	*data = mstream->buffer;
+	*length = mstream->hw;
+	return 0;
+}
+
+
+static void
+tiffUnmapCallback(thandle_t  handle,
+tdata_t    data,
+toff_t     length)
+{
+	return;
+}
+
+
+/*!
+*  fopenTiffMemstream()
+*
+*      Input:  filename (for error output; can be "")
+*              operation ("w" for write, "r" for read)
+*              &data (<return> written data)
+*              &datasize (<return> size of written data)
+*      Return: tiff (data structure, opened for write to memory)
+*
+*  Notes:
+*      (1) This wraps up a number of callbacks for either:
+*            * reading from tiff in memory buffer --> pix
+*            * writing from pix --> tiff in memory buffer
+*      (2) After use, the memstream is automatically destroyed when
+*          TIFFClose() is called.  TIFFCleanup() doesn't free the memstream.
+*/
+static TIFF *
+fopenTiffMemstream(const char  *filename,
+const char  *operation,
+l_uint8    **pdata,
+size_t      *pdatasize)
+{
+	L_MEMSTREAM  *mstream;
+
+	PROCNAME("fopenTiffMemstream");
+
+	if (!filename)
+		return (TIFF *)ERROR_PTR("filename not defined", procName, NULL);
+	if (!operation)
+		return (TIFF *)ERROR_PTR("operation not defined", procName, NULL);
+	if (!pdata)
+		return (TIFF *)ERROR_PTR("&data not defined", procName, NULL);
+	if (!pdatasize)
+		return (TIFF *)ERROR_PTR("&datasize not defined", procName, NULL);
+	if (!strcmp(operation, "r") && !strcmp(operation, "w"))
+		return (TIFF *)ERROR_PTR("operation not 'r' or 'w'}", procName, NULL);
+
+	if (!strcmp(operation, "r"))
+		mstream = memstreamCreateForRead(*pdata, *pdatasize);
+	else
+		mstream = memstreamCreateForWrite(pdata, pdatasize);
+
+	return TIFFClientOpen(filename, operation, mstream,
+		tiffReadCallback, tiffWriteCallback,
+		tiffSeekCallback, tiffCloseCallback,
+		tiffSizeCallback, tiffMapCallback,
+		tiffUnmapCallback);
+}
+
+
+
+PIX *
+OpenclDevice::pixReadMemTiffCl(const l_uint8 *data,size_t size,l_int32  n)
+{
+	l_int32  i, pagefound;
+	PIX     *pix;
+	TIFF    *tif;
+	L_MEMSTREAM *memStream;
+	PROCNAME("pixReadMemTiffCl");
+
+	if (!data)
+		return (PIX *)ERROR_PTR("data pointer is NULL", procName, NULL);
+
+	if ((tif = fopenTiffMemstream("", "r", (l_uint8 **)&data, &size)) == NULL)
+		return (PIX *)ERROR_PTR("tif not opened", procName, NULL);
+
+	pagefound = FALSE;
+	pix = NULL;
+	for (i = 0; i < MAX_PAGES_IN_TIFF_FILE; i++) {
+		if (i == n) {
+			pagefound = TRUE;
+			if ((pix = pixReadFromTiffStreamCl(tif)) == NULL) {
+				TIFFCleanup(tif);
+				return (PIX *)ERROR_PTR("pix not read", procName, NULL);
+			}
+			break;
+		}
+		if (TIFFReadDirectory(tif) == 0)
+			break;
+	}
+
+	if (pagefound == FALSE) {
+		L_WARNING("tiff page %d not found", procName);
+		TIFFCleanup(tif);
+		return NULL;
+	}
+
+	TIFFCleanup(tif);
+	return pix;
+}
+
 PIX *
 OpenclDevice::pixReadStreamTiffCl(FILE    *fp,
                   l_int32  n)
@@ -1136,7 +1422,7 @@ TIFF    *tif;
     }
 
     if (pagefound == FALSE) {
-        L_WARNING_INT("tiff page %d not found", procName, n);
+        L_WARNING("tiff page %d not found", procName, n);
         TIFFCleanup(tif);
         return NULL;
     }
@@ -2381,9 +2667,9 @@ PERF_COUNT_START("HistogramRectOCL")
     int requestedOccupancy = 10;
     int numWorkGroups = numCUs * requestedOccupancy;
     int numThreads = block_size*numWorkGroups;
-    size_t local_work_size[] = {block_size};
-    size_t global_work_size[] = {numThreads};
-    size_t red_global_work_size[] = {block_size*kHistogramSize*bytes_per_pixel}; 
+    size_t local_work_size[] = {static_cast<size_t>(block_size)};
+    size_t global_work_size[] = {static_cast<size_t>(numThreads)};
+    size_t red_global_work_size[] = {static_cast<size_t>(block_size*kHistogramSize*bytes_per_pixel)};
 
     /* map histogramAllChannels as write only */
     int numBins = kHistogramSize*bytes_per_pixel*numWorkGroups;
@@ -2700,7 +2986,7 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
 #else
-    timespec time_funct_start, time_funct_end;
+    TIMESPEC time_funct_start, time_funct_end;
 #endif
     // input data
     l_uint32 *tiffdata = (l_uint32 *)input.imageData;// same size and random data; data doesn't change workload
@@ -2772,7 +3058,7 @@ double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input,
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
 #else
-    timespec time_funct_start, time_funct_end;
+    TIMESPEC time_funct_start, time_funct_end;
 #endif
     
     unsigned char pixelHi = (unsigned char)255;
@@ -2875,7 +3161,7 @@ double thresholdRectToPixMicroBench( GPUEnv *env, TessScoreEvaluationInputData i
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
 #else
-    timespec time_funct_start, time_funct_end;
+    TIMESPEC time_funct_start, time_funct_end;
 #endif
     
     // input data
@@ -2949,7 +3235,7 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
 #else
-    timespec time_funct_start, time_funct_end;
+    TIMESPEC time_funct_start, time_funct_end;
 #endif
 
     // input data

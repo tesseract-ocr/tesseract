@@ -118,9 +118,6 @@
     <ClCompile Include="..\..\cube\char_set.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\classify\chartoname.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\wordrec\chop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1608,9 +1605,6 @@
     <ClInclude Include="..\..\ccstruct\vecfuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\port\version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ccstruct\werd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1651,7 +1645,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="libtesseract303.rc">
+    <ResourceCompile Include="libtesseract.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

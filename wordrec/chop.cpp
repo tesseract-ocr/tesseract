@@ -29,7 +29,6 @@
 
 #include "chop.h"
 #include "outlines.h"
-#include "olutil.h"
 #include "callcpp.h"
 #include "plotedges.h"
 #include "const.h"
@@ -74,6 +73,11 @@ void Wordrec::add_point_to_list(PointHeap* point_heap, EDGEPT *point) {
 #endif
 }
 
+// Returns true if the edgept supplied as input is an inside angle.  This
+// is determined by the angular change of the vectors from point to point.
+bool Wordrec::is_inside_angle(EDGEPT *pt) {
+  return angle_change(pt->prev, pt, pt->next) < chop_inside_angle;
+}
 
 /**
  * @name angle_change
@@ -110,65 +114,6 @@ int Wordrec::angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
     angle += 360;
   return (angle);
 }
-
-/**
- * @name is_little_chunk
- *
- * Return TRUE if one of the pieces resulting from this split would
- * less than some number of edge points.
- */
-int Wordrec::is_little_chunk(EDGEPT *point1, EDGEPT *point2) {
-  EDGEPT *p = point1;            /* Iterator */
-  int counter = 0;
-
-  do {
-                                 /* Go from P1 to P2 */
-    if (is_same_edgept (point2, p)) {
-      if (is_small_area (point1, point2))
-        return (TRUE);
-      else
-        break;
-    }
-    p = p->next;
-  }
-  while ((p != point1) && (counter++ < chop_min_outline_points));
-  /* Go from P2 to P1 */
-  p = point2;
-  counter = 0;
-  do {
-    if (is_same_edgept (point1, p)) {
-      return (is_small_area (point2, point1));
-    }
-    p = p->next;
-  }
-  while ((p != point2) && (counter++ < chop_min_outline_points));
-
-  return (FALSE);
-}
-
-
-/**
- * @name is_small_area
- *
- * Test the area defined by a split accross this outline.
- */
-int Wordrec::is_small_area(EDGEPT *point1, EDGEPT *point2) {
-  EDGEPT *p = point1->next;      /* Iterator */
-  int area = 0;
-  TPOINT origin;
-
-  do {
-                                 /* Go from P1 to P2 */
-    origin.x = p->pos.x - point1->pos.x;
-    origin.y = p->pos.y - point1->pos.y;
-    area += CROSS (origin, p->vec);
-    p = p->next;
-  }
-  while (!is_same_edgept (point2, p));
-
-  return (area < chop_min_outline_area);
-}
-
 
 /**
  * @name pick_close_point

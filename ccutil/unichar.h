@@ -23,6 +23,8 @@
 #include <memory.h>
 #include <string.h>
 
+template <typename T> class GenericVector;
+
 // Maximum number of characters that can be stored in a UNICHAR. Must be
 // at least 4. Must not exceed 31 without changing the coding of length.
 #define UNICHAR_LEN 30
@@ -121,6 +123,8 @@ class UNICHAR {
     // Returns the number of bytes of the current codepoint. Returns 1 if the
     // current position is at an illegal UTF8 value.
     int utf8_len() const;
+    // Returns true if the UTF-8 encoding at the current position is legal.
+    bool is_legal() const;
 
     // Return the pointer into the string at the current position.
     const char* utf8_data() const { return it_; }
@@ -145,6 +149,11 @@ class UNICHAR {
   // array.
   static const_iterator begin(const char* utf8_str, const int byte_length);
   static const_iterator end(const char* utf8_str, const int byte_length);
+
+  // Converts a utf-8 string to a vector of unicodes.
+  // Returns false if the input contains invalid UTF-8, and replaces
+  // the rest of the string with a single space.
+  static bool UTF8ToUnicode(const char* utf8_str, GenericVector<int>* unicodes);
 
  private:
   // A UTF-8 representation of 1 or more Unicode characters.

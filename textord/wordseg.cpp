@@ -394,7 +394,6 @@ inT32 row_words2(                  //compute space size
     if (!blob->joined_to_prev ()) {
       blob_box = blob->bounding_box ();
       this_valid = blob_box.width () >= min_width;
-      this_valid = TRUE;
       if (this_valid && prev_valid
       && blob_box.left () - prev_x < maxwidth) {
         gap_stats.add (blob_box.left () - prev_x, 1);

@@ -222,7 +222,7 @@ void SVNetwork::Flush() {
 // This will always return one line of char* (denoted by \n).
 char* SVNetwork::Receive() {
   char* result = NULL;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   if (has_content) { result = strtok (NULL, "\n"); }
 #else
   if (buffer_ptr_ != NULL) { result = strtok_r(NULL, "\n", &buffer_ptr_); }
@@ -297,12 +297,12 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
   // Also the path has to be separated by ; on windows and : otherwise.
 #ifdef _WIN32
   const char* cmd_template = "-Djava.library.path=%s -cp %s/ScrollView.jar;"
-      "%s/piccolo-1.2.jar;%s/piccolox-1.2.jar"
+      "%s/piccolo2d-core-3.0.jar:%s/piccolo2d-extras-3.0.jar"
       " com.google.scrollview.ScrollView";
 #else
   const char* cmd_template = "-c \"trap 'kill %%1' 0 1 2 ; java "
       "-Xms1024m -Xmx2048m -Djava.library.path=%s -cp %s/ScrollView.jar:"
-      "%s/piccolo-1.2.jar:%s/piccolox-1.2.jar"
+      "%s/piccolo2d-core-3.0.jar:%s/piccolo2d-extras-3.0.jar"
       " com.google.scrollview.ScrollView"
       " & wait\"";
 #endif

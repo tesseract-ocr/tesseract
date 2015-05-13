@@ -36,23 +36,103 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
+// Limit on the amount of penalty for the chop being off-center.
+const int kCenterGradeCap = 25;
+// Ridiculously large priority for splits that are no use.
+const double kBadPriority = 999.0;
+
 BOOL_VAR(wordrec_display_splits, 0, "Display splits");
 
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
-
-/**********************************************************************
- * delete_split
- *
- * Remove this split from existence.
- **********************************************************************/
-void delete_split(SPLIT *split) { 
-  if (split) {
-    delete split;
-  }
+// Returns the bounding box of all the points in the split.
+TBOX SPLIT::bounding_box() const {
+  return TBOX(
+      MIN(point1->pos.x, point2->pos.x), MIN(point1->pos.y, point2->pos.y),
+      MAX(point1->pos.x, point2->pos.x), MAX(point1->pos.y, point2->pos.y));
 }
 
+// Hides the SPLIT so the outlines appear not to be cut by it.
+void SPLIT::Hide() const {
+  EDGEPT* edgept = point1;
+  do {
+    edgept->Hide();
+    edgept = edgept->next;
+  } while (!edgept->EqualPos(*point2) && edgept != point1);
+  edgept = point2;
+  do {
+    edgept->Hide();
+    edgept = edgept->next;
+  } while (!edgept->EqualPos(*point1) && edgept != point2);
+}
+
+// Undoes hide, so the outlines are cut by the SPLIT.
+void SPLIT::Reveal() const {
+  EDGEPT* edgept = point1;
+  do {
+    edgept->Reveal();
+    edgept = edgept->next;
+  } while (!edgept->EqualPos(*point2) && edgept != point1);
+  edgept = point2;
+  do {
+    edgept->Reveal();
+    edgept = edgept->next;
+  } while (!edgept->EqualPos(*point1) && edgept != point2);
+}
+
+// Compute a split priority based on the bounding boxes of the parts.
+// The arguments here are config parameters defined in Wordrec. Add chop_
+// to the beginning of the name.
+float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob,
+                          int centered_maxwidth, double center_knob,
+                          double width_change_knob) const {
+  TBOX box1 = Box12();
+  TBOX box2 = Box21();
+  int min_left = MIN(box1.left(), box2.left());
+  int max_right = MAX(box1.right(), box2.right());
+  if (xmin < min_left && xmax > max_right) return kBadPriority;
+
+  float grade = 0.0f;
+  // grade_overlap.
+  int width1 = box1.width();
+  int width2 = box2.width();
+  int min_width = MIN(width1, width2);
+  int overlap = -box1.x_gap(box2);
+  if (overlap == min_width) {
+    grade += 100.0f;  // Total overlap.
+  } else {
+    if (2 * overlap > min_width) overlap += 2 * overlap - min_width;
+    if (overlap > 0) grade += overlap_knob * overlap;
+  }
+  // grade_center_of_blob.
+  if (width1 <= centered_maxwidth || width2 <= centered_maxwidth) {
+    grade += MIN(kCenterGradeCap, center_knob * abs(width1 - width2));
+  }
+  // grade_width_change.
+  float width_change_grade = 20 - (max_right - min_left - MAX(width1, width2));
+  if (width_change_grade > 0.0f)
+    grade += width_change_grade * width_change_knob;
+  return grade;
+}
+
+// Returns true if *this SPLIT appears OK in the sense that it does not cross
+// any outlines and does not chop off any ridiculously small pieces.
+bool SPLIT::IsHealthy(const TBLOB& blob, int min_points, int min_area) const {
+  return !IsLittleChunk(min_points, min_area) &&
+         !blob.SegmentCrossesOutline(point1->pos, point2->pos);
+}
+
+// Returns true if the split generates a small chunk in terms of either area
+// or number of points.
+bool SPLIT::IsLittleChunk(int min_points, int min_area) const {
+  if (point1->ShortNonCircularSegment(min_points, point2) &&
+      point1->SegmentArea(point2) < min_area) {
+    return true;
+  }
+  if (point2->ShortNonCircularSegment(min_points, point1) &&
+      point2->SegmentArea(point1) < min_area) {
+    return true;
+  }
+  return false;
+}
 
 /**********************************************************************
  * make_edgept
@@ -135,102 +215,113 @@ void remove_edgept(EDGEPT *point) {
 }
 
 /**********************************************************************
- * new_split
+ * Print
  *
- * Create a new split record and initialize it.  Put it on the display
- * list.
+ * Shows the coordinates of both points in a split.
  **********************************************************************/
-SPLIT *new_split(EDGEPT *point1, EDGEPT *point2) { 
-  SPLIT *s = new SPLIT;
-  s->point1 = point1;
-  s->point2 = point2;
-  return (s);
-}
-
-
-/**********************************************************************
- * print_split
- *
- * Print a list of splits.  Show the coordinates of both points in
- * each split.
- **********************************************************************/
-void print_split(SPLIT *split) { 
-  if (split) {
-    tprintf("(%d,%d)--(%d,%d)",
-            split->point1->pos.x, split->point1->pos.y,
-            split->point2->pos.x, split->point2->pos.y);
+void SPLIT::Print() const {
+  if (this != NULL) {
+    tprintf("(%d,%d)--(%d,%d)", point1->pos.x, point1->pos.y, point2->pos.x,
+            point2->pos.y);
   }
 }
 
+#ifndef GRAPHICS_DISABLED
+// Draws the split in the given window.
+void SPLIT::Mark(ScrollView* window) const {
+  window->Pen(ScrollView::GREEN);
+  window->Line(point1->pos.x, point1->pos.y, point2->pos.x, point2->pos.y);
+  window->UpdateWindow();
+}
+#endif
 
-/**********************************************************************
- * split_outline
- *
- * Split between these two edge points.
- **********************************************************************/
-void split_outline(EDGEPT *join_point1, EDGEPT *join_point2) { 
-  assert(join_point1 != join_point2);
+// Creates two outlines out of one by splitting the original one in half.
+// Inserts the resulting outlines into the given list.
+void SPLIT::SplitOutlineList(TESSLINE* outlines) const {
+  SplitOutline();
+  while (outlines->next != NULL) outlines = outlines->next;
 
-  EDGEPT* temp2 = join_point2->next;
-  EDGEPT* temp1 = join_point1->next;
-  /* Create two new points */
-  EDGEPT* new_point1 = make_edgept(join_point1->pos.x, join_point1->pos.y,
-                                   temp1, join_point2);
-  EDGEPT* new_point2 = make_edgept(join_point2->pos.x, join_point2->pos.y,
-                                   temp2, join_point1);
-  // Join_point1 and 2 are now cross-over points, so they must have NULL
-  // src_outlines and give their src_outline information their new
-  // replacements.
-  new_point1->src_outline = join_point1->src_outline;
-  new_point1->start_step = join_point1->start_step;
-  new_point1->step_count = join_point1->step_count;
-  new_point2->src_outline = join_point2->src_outline;
-  new_point2->start_step = join_point2->start_step;
-  new_point2->step_count = join_point2->step_count;
-  join_point1->src_outline = NULL;
-  join_point1->start_step = 0;
-  join_point1->step_count = 0;
-  join_point2->src_outline = NULL;
-  join_point2->start_step = 0;
-  join_point2->step_count = 0;
-  join_point1->MarkChop();
-  join_point2->MarkChop();
+  outlines->next = new TESSLINE;
+  outlines->next->loop = point1;
+  outlines->next->ComputeBoundingBox();
+
+  outlines = outlines->next;
+
+  outlines->next = new TESSLINE;
+  outlines->next->loop = point2;
+  outlines->next->ComputeBoundingBox();
+
+  outlines->next->next = NULL;
 }
 
+// Makes a split between these two edge points, but does not affect the
+// outlines to which they belong.
+void SPLIT::SplitOutline() const {
+  EDGEPT* temp2 = point2->next;
+  EDGEPT* temp1 = point1->next;
+  /* Create two new points */
+  EDGEPT* new_point1 = make_edgept(point1->pos.x, point1->pos.y, temp1, point2);
+  EDGEPT* new_point2 = make_edgept(point2->pos.x, point2->pos.y, temp2, point1);
+  // point1 and 2 are now cross-over points, so they must have NULL
+  // src_outlines and give their src_outline information their new
+  // replacements.
+  new_point1->src_outline = point1->src_outline;
+  new_point1->start_step = point1->start_step;
+  new_point1->step_count = point1->step_count;
+  new_point2->src_outline = point2->src_outline;
+  new_point2->start_step = point2->start_step;
+  new_point2->step_count = point2->step_count;
+  point1->src_outline = NULL;
+  point1->start_step = 0;
+  point1->step_count = 0;
+  point2->src_outline = NULL;
+  point2->start_step = 0;
+  point2->step_count = 0;
+}
 
-/**********************************************************************
- * unsplit_outlines
- *
- * Remove the split that was put between these two points.
- **********************************************************************/
-void unsplit_outlines(EDGEPT *p1, EDGEPT *p2) { 
-  EDGEPT *tmp1 = p1->next;
-  EDGEPT *tmp2 = p2->next;
+// Undoes the effect of SplitOutlineList, correcting the outlines for undoing
+// the split, but possibly leaving some duplicate outlines.
+void SPLIT::UnsplitOutlineList(TBLOB* blob) const {
+  /* Modify edge points */
+  UnsplitOutlines();
 
-  assert (p1 != p2);
+  TESSLINE* outline1 = new TESSLINE;
+  outline1->next = blob->outlines;
+  blob->outlines = outline1;
+  outline1->loop = point1;
 
-  tmp1->next->prev = p2;
-  tmp2->next->prev = p1;
+  TESSLINE* outline2 = new TESSLINE;
+  outline2->next = blob->outlines;
+  blob->outlines = outline2;
+  outline2->loop = point2;
+}
 
-  // tmp2 is coincident with p1. p1 takes tmp2's place as tmp2 is deleted.
-  p1->next = tmp2->next;
-  p1->src_outline = tmp2->src_outline;
-  p1->start_step = tmp2->start_step;
-  p1->step_count = tmp2->step_count;
-  // Likewise p2 takes tmp1's place.
-  p2->next = tmp1->next;
-  p2->src_outline = tmp1->src_outline;
-  p2->start_step = tmp1->start_step;
-  p2->step_count = tmp1->step_count;
-  p1->UnmarkChop();
-  p2->UnmarkChop();
+// Removes the split that was put between these two points.
+void SPLIT::UnsplitOutlines() const {
+  EDGEPT* tmp1 = point1->next;
+  EDGEPT* tmp2 = point2->next;
+
+  tmp1->next->prev = point2;
+  tmp2->next->prev = point1;
+
+  // tmp2 is coincident with point1. point1 takes tmp2's place as tmp2 is
+  // deleted.
+  point1->next = tmp2->next;
+  point1->src_outline = tmp2->src_outline;
+  point1->start_step = tmp2->start_step;
+  point1->step_count = tmp2->step_count;
+  // Likewise point2 takes tmp1's place.
+  point2->next = tmp1->next;
+  point2->src_outline = tmp1->src_outline;
+  point2->start_step = tmp1->start_step;
+  point2->step_count = tmp1->step_count;
 
   delete tmp1;
   delete tmp2;
 
-  p1->vec.x = p1->next->pos.x - p1->pos.x;
-  p1->vec.y = p1->next->pos.y - p1->pos.y;
+  point1->vec.x = point1->next->pos.x - point1->pos.x;
+  point1->vec.y = point1->next->pos.y - point1->pos.y;
 
-  p2->vec.x = p2->next->pos.x - p2->pos.x;
-  p2->vec.y = p2->next->pos.y - p2->pos.y;
+  point2->vec.x = point2->next->pos.x - point2->pos.x;
+  point2->vec.y = point2->next->pos.y - point2->pos.y;
 }

@@ -30,6 +30,7 @@ class PAGE_RES;
 class PAGE_RES_IT;
 class WERD;
 struct Pix;
+struct Pta;
 
 namespace tesseract {
 
@@ -85,7 +86,7 @@ class TESS_API PageIterator {
   // ============= Moving around within the page ============.
 
   /**
-   * Moves the iterator to point to the start of the page to begin an 
+   * Moves the iterator to point to the start of the page to begin an
    * iteration.
    */
   virtual void Begin();
@@ -179,6 +180,21 @@ class TESS_API PageIterator {
   // relate to the original (full) image, rather than the rectangle.
 
   /**
+   * Controls what to include in a bounding box. Bounding boxes of all levels
+   * between RIL_WORD and RIL_BLOCK can include or exclude potential diacritics.
+   * Between layout analysis and recognition, it isn't known where all
+   * diacritics belong, so this control is used to include or exclude some
+   * diacritics that are above or below the main body of the word. In most cases
+   * where the placement is obvious, and after recognition, it doesn't make as
+   * much difference, as the diacritics will already be included in the word.
+   */
+  void SetBoundingBoxComponents(bool include_upper_dots,
+                                bool include_lower_dots) {
+    include_upper_dots_ = include_upper_dots;
+    include_lower_dots_ = include_lower_dots;
+  }
+
+  /**
    * Returns the bounding rectangle of the current object at the given level.
    * See comment on coordinate system above.
    * Returns false if there is no such object at the current position.
@@ -203,10 +219,19 @@ class TESS_API PageIterator {
   bool Empty(PageIteratorLevel level) const;
 
   /**
-   * Returns the type of the current block. See apitypes.h for 
+   * Returns the type of the current block. See apitypes.h for
    * PolyBlockType.
    */
   PolyBlockType BlockType() const;
+
+  /**
+   * Returns the polygon outline of the current block. The returned Pta must
+   * be ptaDestroy-ed after use. Note that the returned Pta lists the vertices
+   * of the polygon, and the last edge is the line segment between the last
+   * point and the first point. NULL will be returned if the iterator is
+   * at the end of the document or layout analysis was not used.
+   */
+  Pta* BlockPolygon() const;
 
   /**
    * Returns a binary image of the current object at the given level.
@@ -224,9 +249,10 @@ class TESS_API PageIterator {
    * padding, so the top-left position of the returned image is returned
    * in (left,top). These will most likely not match the coordinates
    * returned by BoundingBox.
+   * If you do not supply an original image, you will get a binary one.
    * Use pixDestroy to delete the image after use.
    */
-  Pix* GetImage(PageIteratorLevel level, int padding,
+  Pix* GetImage(PageIteratorLevel level, int padding, Pix* original_img,
                 int* left, int* top) const;
 
   /**
@@ -321,6 +347,9 @@ class TESS_API PageIterator {
    * Owned by this ResultIterator.
    */
   C_BLOB_IT* cblob_it_;
+  /** Control over what to include in bounding boxes. */
+  bool include_upper_dots_;
+  bool include_lower_dots_;
   /** Parameters saved from the Thresholder. Needed to rebuild coordinates.*/
   int scale_;
   int scaled_yres_;
