@@ -53,5 +53,5 @@ void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
  **	Exceptions: none
  **	History: 7/27/89, DSJ, Created.
  */
-  destroy_nodes(MicroFeatures, free); 
+  destroy_nodes(MicroFeatures, free);
 }                                /* FreeMicroFeatures */
