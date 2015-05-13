@@ -330,7 +330,8 @@ void StringRenderer::ClearBoxes() {
   boxaDestroy(&page_boxes_);
 }
 
-void StringRenderer::WriteAllBoxes(const string& filename) const {
+void StringRenderer::WriteAllBoxes(const string& filename) {
+  BoxChar::PrepareToWrite(&boxchars_);
   BoxChar::WriteTesseractBoxFile(filename, page_height_, boxchars_);
 }
 

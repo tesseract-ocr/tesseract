@@ -57,8 +57,35 @@ class BoxChar {
   string* mutable_ch() { return &ch_; }
   Box* mutable_box()   { return box_; }
 
+  // Sort function for sorting by left edge of box. Note that this will not
+  // work properly until after InsertNewlines and InsertSpaces.
+  bool operator<(const BoxChar& other) const {
+    if (box_ == NULL) return true;
+    if (other.box_ == NULL) return false;
+    return box_->x < other.box_->x;
+  }
+
   static void TranslateBoxes(int xshift, int yshift,
                              vector<BoxChar*>* boxes);
+
+  // Prepares for writing the boxes to a file by inserting newlines, spaces,
+  // and re-ordering so the boxes are strictly left-to-right.
+  static void PrepareToWrite(vector<BoxChar*>* boxes);
+  // Inserts newline (tab) characters into the vector at newline positions.
+  static void InsertNewlines(bool rtl_rules, bool vertical_rules,
+                             vector<BoxChar*>* boxes);
+  // Converts NULL boxes to space characters, with appropriate bounding boxes.
+  static void InsertSpaces(bool rtl_rules, bool vertical_rules,
+                           vector<BoxChar*>* boxes);
+  // Reorders text in a right-to-left script in left-to-right order.
+  static void ReorderRTLText(vector<BoxChar*>* boxes);
+  // Returns true if the vector contains mostly RTL characters.
+  static bool ContainsMostlyRTL(const vector<BoxChar*>& boxes);
+  // Returns true if the text is mostly laid out vertically.
+  static bool MostlyVertical(const vector<BoxChar*>& boxes);
+
+  // Returns the total length of all the strings in the boxes.
+  static int TotalByteLength(const vector<BoxChar*>& boxes);
 
   // Rotate the vector of boxes between start and end by the given rotation.
   // The rotation is in radians clockwise about the given center.
@@ -79,6 +106,14 @@ class BoxChar {
   Box* box_;
   int page_;
 };
+
+// Sort predicate to sort a vector of BoxChar*.
+struct BoxCharPtrSort {
+  bool operator()(const BoxChar* box1, const BoxChar* box2) const {
+    return *box1 < *box2;
+  }
+};
+
 }  // namespace tesseract
 
 #endif  // TESSERACT_TRAINING_BOXCHAR_H_
