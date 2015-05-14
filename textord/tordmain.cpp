@@ -772,16 +772,12 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
   PointerVector<WordWithBox> word_ptrs;
   for (int g = 0; g < groups.size(); ++g) {
     const BlockGroup* group = groups[g];
-    tprintf("group %d, xh=%g, %d blocks\n", g, group->min_xheight,
-            group->blocks.size());
     WordGrid word_grid(group->min_xheight, group->bounding_box.botleft(),
                        group->bounding_box.topright());
     for (int b = 0; b < group->blocks.size(); ++b) {
-      tprintf("block %d, %d rows\n", b, group->blocks[b]->row_list()->length());
       ROW_IT row_it(group->blocks[b]->row_list());
       for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
         ROW* row = row_it.data();
-        tprintf("%d words in row\n", row->word_list()->length());
         // Put the words of the row into the grid.
         WERD_IT w_it(row->word_list());
         for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
