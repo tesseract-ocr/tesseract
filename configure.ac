@@ -435,7 +435,7 @@ if test "x$has_cpp11" = "xyes"; then
   esac
 else
   AC_MSG_WARN(Training tools WILL NOT be built because of missing c++11 support.)
-  AM_CONDITIONAL(ENABLE_TRAINING, false)
+  AM_CONDITIONAL(ENABLE_TRAINING, [test "x$has_cpp11" = "xyes"])
 fi
 
 # ----------------------------------------
