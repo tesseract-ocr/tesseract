@@ -630,7 +630,8 @@ int main(int argc, char** argv) {
     box_name += ".box";
     render.WriteAllBoxes(box_name);
   } else if (!FLAGS_render_per_font && !font_names.empty()) {
-    string filename = FLAGS_outputbase + ".fontlist.txt";
+    string filename = FLAGS_outputbase.c_str();
+    filename += ".fontlist.txt";
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp == NULL) {
       tprintf("Failed to create output font list %s\n", filename.c_str());

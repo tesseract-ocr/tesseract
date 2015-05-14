@@ -617,6 +617,10 @@ class UNICHARSET {
     unichars[unichar_id].properties.max_advance =
         static_cast<inT16>(ClipToRange(max_advance, 0, MAX_INT16));
   }
+  // Returns true if the font metrics properties are empty.
+  bool PropertiesIncomplete(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.AnyRangeEmpty();
+  }
 
   // Return the script name of the given unichar.
   // The returned pointer will always be the same for the same script, it's

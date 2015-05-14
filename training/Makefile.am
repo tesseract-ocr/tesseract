@@ -243,7 +243,7 @@ text2image_LDADD += \
     ../api/libtesseract.la
 endif
 text2image_LDADD += $(libicu) -lpango-1.0 -lpangocairo-1.0 \
-		    -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0
+		    -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0 -lfontconfig
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
 #unicharset_extractor_LDFLAGS = -static

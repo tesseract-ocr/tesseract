@@ -161,7 +161,7 @@ void PangoFontInfo::InitFontConfig(bool force_clear, const string& fonts_dir) {
 
 static void ListFontFamilies(PangoFontFamily*** families,
                              int* n_families) {
-  PangoFontInfo::InitFontConfig(false, FLAGS_fonts_dir);
+  PangoFontInfo::InitFontConfig(false, FLAGS_fonts_dir.c_str());
   PangoFontMap* font_map = pango_cairo_font_map_get_default();
   DISABLE_HEAP_LEAK_CHECK;
   pango_font_map_list_families(font_map, families, n_families);
@@ -235,7 +235,7 @@ bool PangoFontInfo::ParseFontDescriptionName(const string& name) {
 // in the font map. Note that if the font is wholly missing, this could
 // correspond to a completely different font family and face.
 PangoFont* PangoFontInfo::ToPangoFont() const {
-  InitFontConfig(false, FLAGS_fonts_dir);
+  InitFontConfig(false, FLAGS_fonts_dir.c_str());
   PangoFontMap* font_map = pango_cairo_font_map_get_default();
   PangoContext* context = pango_context_new();
   pango_cairo_context_set_resolution(context, resolution_);
@@ -512,7 +512,7 @@ bool FontUtils::IsAvailableFont(const char* input_query_desc,
       query_desc.c_str());
   PangoFont* selected_font = NULL;
   {
-    PangoFontInfo::InitFontConfig(false, FLAGS_fonts_dir);
+    PangoFontInfo::InitFontConfig(false, FLAGS_fonts_dir.c_str());
     PangoFontMap* font_map = pango_cairo_font_map_get_default();
     PangoContext* context = pango_context_new();
     pango_context_set_font_map(context, font_map);
