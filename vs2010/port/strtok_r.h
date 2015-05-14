@@ -24,4 +24,4 @@
 
 char *strtok_r(char *s1, const char *s2, char **lasts);
 
-#endif  // VS2010_PORT_STRCASESTR_H_
+#endif  // VS2010_PORT_STRTOK_R_H_
