@@ -1283,7 +1283,7 @@ UNICHAR_ID *Classify::BaselineClassifier(
   ClearCharNormArray(CharNormArray);
 
   Results->BlobLength = IntCastRounded(fx_info.Length / kStandardFeatureLength);
-  PruneClasses(Templates->Templates, int_features.size(), &int_features[0],
+  PruneClasses(Templates->Templates, int_features.size(), -1, &int_features[0],
                CharNormArray, BaselineCutoffs, &Results->CPResults);
 
   if (matcher_debug_level >= 2 || classify_debug_level > 1)
@@ -1365,7 +1365,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
   ComputeCharNormArrays(norm_feature, PreTrainedTemplates, char_norm_array,
                         pruner_norm_array);
 
-  PruneClasses(PreTrainedTemplates, num_features, sample.features(),
+  PruneClasses(PreTrainedTemplates, num_features, keep_this, sample.features(),
                pruner_norm_array,
                shape_table_ != NULL ? &shapetable_cutoffs_[0] : CharNormCutoffs,
                &adapt_results->CPResults);

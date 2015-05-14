@@ -98,9 +98,8 @@ class Classify : public CCStruct {
   //    results                (output) Sorted Array of pruned classes.
   //                           Array must be sized to take the maximum possible
   //                           number of outputs : int_templates->NumClasses.
-  int PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
-                   int num_features,
-                   const INT_FEATURE_STRUCT* features,
+  int PruneClasses(const INT_TEMPLATES_STRUCT* int_templates, int num_features,
+                   int keep_this, const INT_FEATURE_STRUCT* features,
                    const uinT8* normalization_factors,
                    const uinT16* expected_num_features,
                    GenericVector<CP_RESULT_STRUCT>* results);
