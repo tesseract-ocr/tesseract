@@ -24,6 +24,7 @@
 #endif
 
 #include <ctype.h>
+#include "shapeclassifier.h"
 #include "ambigs.h"
 #include "blobclass.h"
 #include "blobs.h"
