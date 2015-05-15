@@ -140,7 +140,7 @@ TessBaseAPI::~TessBaseAPI() {
  * Returns the version identifier as a static string. Do not delete.
  */
 const char* TessBaseAPI::Version() {
-#if defined(DEBUG) && defined(GIT_REV)
+#if defined(GIT_REV) && (defined(DEBUG) || defined(_DEBUG))
   return GIT_REV;
 #else
   return TESSERACT_VERSION_STR;

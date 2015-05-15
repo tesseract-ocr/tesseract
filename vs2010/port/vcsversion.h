@@ -1,1 +1,1 @@
-#define GIT_REV "3.03-rc1-159-g035b324" 
+#define GIT_REV "3.04-rc1-69-gaec22a4" 
