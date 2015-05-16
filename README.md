@@ -1,6 +1,7 @@
 Note that this is a text-only and possibly out-of-date version of the 
 wiki ReadMe, which is located at:
- http://code.google.com/p/tesseract-ocr/wiki/ReadMe
+
+  https://github.com/tesseract-ocr/tesseract/blob/master/README
 
 Introduction
 ============
@@ -10,15 +11,15 @@ Originally developed at Hewlett Packard Laboratories Bristol and
 at Hewlett Packard Co, Greeley Colorado, all the code
 in this distribution is now licensed under the Apache License:
 
-** Licensed under the Apache License, Version 2.0 (the "License");
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-** http://www.apache.org/licenses/LICENSE-2.0
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 
 
 Dependencies and Licenses
@@ -56,7 +57,7 @@ those that want to do their own training. Most users should NOT download
 these files.
 
 Instructions for using the training tools are documented separately at 
-Tesseract wiki http://code.google.com/p/tesseract-ocr/w/list
+Tesseract wiki https://github.com/tesseract-ocr/tesseract/wiki
 
 
 Windows
@@ -64,6 +65,9 @@ Windows
 
 Please use installer (for 3.00 and above). Tesseract is library with 
 command line interface. If you need GUI, please check AddOns wiki page
+
+TODO-UPDATE-WIKI-LINKS
+
 http://code.google.com/p/tesseract-ocr/wiki/AddOns#GUI
 
 If you are building from the sources, the recommended build platform is 
@@ -82,6 +86,9 @@ tesseract imagename outputbase [-l lang] [-psm pagesegmode] [configfiles...]
 
 If you need interface to other applications, please check wrapper section
 on AddOns wiki page:
+
+TODO-UPDATE-WIKI-LINKS
+
 http://code.google.com/p/tesseract-ocr/wiki/AddOns#Tesseract_3.0x
 
 
