@@ -112,6 +112,10 @@ If you are linking to the libraries, as Ocropus does, please link to
 libtesseract_api.
 
 
+If you get `leptonica not found` and you've installed it with e.g. homebrew, you
+can run `CPPFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" ./configure`
+instead of `./configure` above.
+
 
 History
 =======
