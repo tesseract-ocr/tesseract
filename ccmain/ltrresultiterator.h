@@ -91,6 +91,11 @@ class TESS_API LTRResultIterator : public PageIterator {
   // The number should be interpreted as a percent probability. (0.0f-100.0f)
   float Confidence(PageIteratorLevel level) const;
 
+  // Returns the attributes of the current row.
+  void RowAttributes(float* row_height,
+                     float* descenders,
+                     float* ascenders) const;
+
   // ============= Functions that refer to words only ============.
 
   // Returns the font attributes of the current word. If iterating at a higher
