@@ -1408,6 +1408,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
   int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
+  float row_height, descenders, ascenders;  // row attributes
   bool font_info = false;
   GetBoolVariable("hocr_font_info", &font_info);
 
@@ -1473,7 +1474,12 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
       AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
+      int fontsize;
       hocr_str.add_str_int("\n     <span class='ocr_line' id='line_", page_id);
+      res_it->RowAttributes(&row_height, &descenders, &ascenders);
+      hocr_str.add_str_int("' size='", row_height);
+      hocr_str.add_str_int("' descenders='", descenders * -1);
+      hocr_str.add_str_int("' ascenders='", ascenders);
       hocr_str.add_str_int("_", lcnt);
       AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
     }
