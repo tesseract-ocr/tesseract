@@ -73,7 +73,7 @@ enum DawgType {
   DAWG_TYPE_WORD,
   DAWG_TYPE_NUMBER,
   DAWG_TYPE_PATTERN,
-
+  DAWG_TYPE_HFST, // used by OCRicola
   DAWG_TYPE_COUNT  // number of enum entries
 };
 
