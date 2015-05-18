@@ -110,29 +110,19 @@ static void clear_any_old_text(BLOCK_LIST *block_list) {
 PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
                                 bool find_segmentation,
                                 BLOCK_LIST *block_list) {
-  int box_count = 0;
-  int box_failures = 0;
-
-  FILE* box_file = OpenBoxFile(fname);
-  TBOX box;
   GenericVector<TBOX> boxes;
   GenericVector<STRING> texts, full_texts;
-
-  bool found_box = true;
-  while (found_box) {
-    int line_number = 0;           // Line number of the box file.
-    STRING text, full_text;
-    found_box = ReadNextBox(applybox_page, &line_number, box_file, &text, &box);
-    if (found_box) {
-      ++box_count;
-      MakeBoxFileStr(text.string(), box, applybox_page, &full_text);
-    } else {
-      full_text = "";
-    }
-    boxes.push_back(box);
-    texts.push_back(text);
-    full_texts.push_back(full_text);
+  if (!ReadAllBoxes(applybox_page, true, fname, &boxes, &texts, &full_texts,
+                    NULL)) {
+    return NULL;  // Can't do it.
   }
+
+  int box_count = boxes.size();
+  int box_failures = 0;
+  // Add an empty everything to the end.
+  boxes.push_back(TBOX());
+  texts.push_back(STRING());
+  full_texts.push_back(STRING());
 
   // In word mode, we use the boxes to make a word for each box, but
   // in blob mode we use the existing words and maximally chop them first.
@@ -239,7 +229,7 @@ PAGE_RES* Tesseract::SetupApplyBoxes(const GenericVector<TBOX>& boxes,
       }
     }
   }
-  PAGE_RES* page_res = new PAGE_RES(block_list, NULL);
+  PAGE_RES* page_res = new PAGE_RES(false, block_list, NULL);
   PAGE_RES_IT pr_it(page_res);
   WERD_RES* word_res;
   while ((word_res = pr_it.word()) != NULL) {
@@ -282,7 +272,7 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
     // limited by the ability of the chopper to find suitable chop points,
     // and not by the value of the certainties.
     BLOB_CHOICE* choice =
-        new BLOB_CHOICE(0, rating, -rating, -1, -1, 0, 0, 0, 0, BCC_FAKE);
+        new BLOB_CHOICE(0, rating, -rating, -1, 0.0f, 0.0f, 0.0f, BCC_FAKE);
     blob_choices.push_back(choice);
     rating -= 0.125f;
   }
@@ -301,8 +291,8 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
       left_choice->set_certainty(-rating);
       // combine confidence w/ serial #
       BLOB_CHOICE* right_choice = new BLOB_CHOICE(++right_chop_index,
-                                                  rating - 0.125f, -rating,
-                                                  -1, -1, 0, 0, 0, 0, BCC_FAKE);
+                                                  rating - 0.125f, -rating, -1,
+                                                  0.0f, 0.0f, 0.0f, BCC_FAKE);
       blob_choices.insert(right_choice, blob_number + 1);
     }
   }
@@ -592,7 +582,7 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID>& target_text,
     int blob_count = 1;
     for (int s = 0; s < word_res->seam_array.size(); ++s) {
       SEAM* seam = word_res->seam_array[s];
-      if (seam->split1 == NULL) {
+      if (!seam->HasAnySplits()) {
         word_res->best_state.push_back(blob_count);
         blob_count = 1;
       } else {
@@ -785,13 +775,13 @@ void Tesseract::CorrectClassifyWords(PAGE_RES* page_res) {
 }
 
 // Calls LearnWord to extract features for labelled blobs within each word.
-// Features are written to the given filename.
-void Tesseract::ApplyBoxTraining(const STRING& filename, PAGE_RES* page_res) {
+// Features are stored in an internal buffer.
+void Tesseract::ApplyBoxTraining(const STRING& fontname, PAGE_RES* page_res) {
   PAGE_RES_IT pr_it(page_res);
   int word_count = 0;
   for (WERD_RES *word_res = pr_it.word(); word_res != NULL;
        word_res = pr_it.forward()) {
-    LearnWord(filename.string(), word_res);
+    LearnWord(fontname.string(), word_res);
     ++word_count;
   }
   tprintf("Generated training data for %d words\n", word_count);

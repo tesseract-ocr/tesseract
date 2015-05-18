@@ -34,8 +34,6 @@ typedef enum {
 ----------------------------------------------------------------------------**/
 FLOAT32 ActualOutlineLength(FEATURE Feature);
 
-FEATURE_SET ExtractCharNormFeatures(TBLOB *Blob, const DENORM& bl_denorm,
-                                    const DENORM& cn_denorm,
-                                    const INT_FX_RESULT_STRUCT& fx_info);
+FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info);
 
 #endif

@@ -133,7 +133,7 @@ inline bool within_error_margin(float test, float num, float margin) {
 void fill_heights(TO_ROW *row, float gradient, int min_height,
                   int max_height, STATS *heights, STATS *floating_heights);
 
-float make_single_row(ICOORD page_tr, TO_BLOCK* block,
+float make_single_row(ICOORD page_tr, bool allow_sub_blobs, TO_BLOCK* block,
                       TO_BLOCK_LIST* blocks);
 float make_rows(ICOORD page_tr,              // top right
                 TO_BLOCK_LIST *port_blocks);

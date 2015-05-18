@@ -78,6 +78,12 @@ class DLLSYM TBOX  {  // bounding box
     void set_right(int x) {
       top_right.set_x(x);
     }
+    int x_middle() const {
+      return (bot_left.x() + top_right.x()) / 2;
+    }
+    int y_middle() const {
+      return (bot_left.y() + top_right.y()) / 2;
+    }
 
     const ICOORD &botleft() const {  // access function
       return bot_left;

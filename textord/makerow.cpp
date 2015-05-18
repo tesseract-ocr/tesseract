@@ -161,7 +161,8 @@ float MakeRowFromSubBlobs(TO_BLOCK* block, C_BLOB* blob, TO_ROW_IT* row_it) {
  * only a single blob, it makes 2 rows, in case the top-level blob
  * is a container of the real blobs to recognize.
  */
-float make_single_row(ICOORD page_tr, TO_BLOCK* block, TO_BLOCK_LIST* blocks) {
+float make_single_row(ICOORD page_tr, bool allow_sub_blobs,
+                      TO_BLOCK* block, TO_BLOCK_LIST* blocks) {
   BLOBNBOX_IT blob_it = &block->blobs;
   TO_ROW_IT row_it = block->get_rows();
 
@@ -169,11 +170,17 @@ float make_single_row(ICOORD page_tr, TO_BLOCK* block, TO_BLOCK_LIST* blocks) {
   blob_it.add_list_after(&block->small_blobs);
   blob_it.add_list_after(&block->noise_blobs);
   blob_it.add_list_after(&block->large_blobs);
-  if (block->blobs.singleton()) {
+  if (block->blobs.singleton() && allow_sub_blobs) {
     blob_it.move_to_first();
     float size = MakeRowFromSubBlobs(block, blob_it.data()->cblob(), &row_it);
     if (size > block->line_size)
       block->line_size = size;
+  } else if (block->blobs.empty()) {
+    // Make a fake blob.
+    C_BLOB* blob = C_BLOB::FakeBlob(block->block->bounding_box());
+    // The blobnbox owns the blob.
+    BLOBNBOX* bblob = new BLOBNBOX(blob);
+    blob_it.add_after_then_move(bblob);
   }
   MakeRowFromBlobs(block->line_size, &blob_it, &row_it);
   // Fit an LMS line to the rows.

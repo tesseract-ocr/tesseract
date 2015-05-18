@@ -21,6 +21,7 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
+#include "mfdefs.h"
 #include "params.h"
 /**----------------------------------------------------------------------------
           Variables
@@ -35,8 +36,6 @@ extern double_VAR_H(classify_max_slope, 2.414213562,
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM& bl_denorm,
-                                const DENORM& cn_denorm,
-                                const INT_FX_RESULT_STRUCT& fx_info);
+MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm);
 
 #endif

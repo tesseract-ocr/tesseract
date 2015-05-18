@@ -23,6 +23,7 @@
 #include "errcode.h"
 #include "genericvector.h"
 #include "helpers.h"
+#include "serialis.h"
 #include "strngs.h"
 #include "tesscallback.h"
 #include "unichar.h"
@@ -317,7 +318,22 @@ class UNICHARSET {
 
   // Saves the content of the UNICHARSET to the given file.
   // Returns true if the operation is successful.
-  bool save_to_file(FILE *file) const;
+  bool save_to_file(FILE *file) const {
+    STRING str;
+    if (!save_to_string(&str)) return false;
+    if (fwrite(&str[0], str.length(), 1, file) != 1) return false;
+    return true;
+  }
+  bool save_to_file(tesseract::TFile *file) const {
+    STRING str;
+    if (!save_to_string(&str)) return false;
+    if (file->FWrite(&str[0], str.length(), 1) != 1) return false;
+    return true;
+  }
+
+  // Saves the content of the UNICHARSET to the given STRING.
+  // Returns true if the operation is successful.
+  bool save_to_string(STRING *str) const;
 
   // Load a unicharset from a unicharset file that has been loaded into
   // the given memory buffer.
@@ -348,6 +364,8 @@ class UNICHARSET {
   // Returns true if the operation is successful.
   bool load_from_file(FILE *file, bool skip_fragments);
   bool load_from_file(FILE *file) { return load_from_file(file, false); }
+  bool load_from_file(tesseract::TFile *file, bool skip_fragments);
+
 
   // Sets up internal data after loading the file, based on the char
   // properties. Called from load_from_file, but also needs to be run
@@ -363,11 +381,14 @@ class UNICHARSET {
   // Set a whitelist and/or blacklist of characters to recognize.
   // An empty or NULL whitelist enables everything (minus any blacklist).
   // An empty or NULL blacklist disables nothing.
+  // An empty or NULL unblacklist has no effect.
   // The blacklist overrides the whitelist.
+  // The unblacklist overrides the blacklist.
   // Each list is a string of utf8 character strings. Boundaries between
   // unicharset units are worked out automatically, and characters not in
   // the unicharset are silently ignored.
-  void set_black_and_whitelist(const char* blacklist, const char* whitelist);
+  void set_black_and_whitelist(const char* blacklist, const char* whitelist,
+                               const char* unblacklist);
 
   // Set the isalpha property of the given unichar to the given value.
   void set_isalpha(UNICHAR_ID unichar_id, bool value) {
@@ -595,6 +616,10 @@ class UNICHARSET {
         static_cast<inT16>(ClipToRange(min_advance, 0, MAX_INT16));
     unichars[unichar_id].properties.max_advance =
         static_cast<inT16>(ClipToRange(max_advance, 0, MAX_INT16));
+  }
+  // Returns true if the font metrics properties are empty.
+  bool PropertiesIncomplete(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.AnyRangeEmpty();
   }
 
   // Return the script name of the given unichar.

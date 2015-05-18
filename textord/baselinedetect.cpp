@@ -108,7 +108,7 @@ double BaselineRow::BaselineAngle() const {
 double BaselineRow::SpaceBetween(const BaselineRow& other) const {
   // Find the x-centre of overlap of the lines.
   float x = (MAX(bounding_box_.left(), other.bounding_box_.left()) +
-      MIN(bounding_box_.right(), other.bounding_box_.right())) / 2;
+      MIN(bounding_box_.right(), other.bounding_box_.right())) / 2.0f;
   // Find the vertical centre between them.
   float y = (StraightYAtX(x) + other.StraightYAtX(x)) / 2.0f;
   // Find the perpendicular distance of (x,y) from each line.

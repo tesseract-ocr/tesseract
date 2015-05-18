@@ -266,11 +266,22 @@ class Wordrec : public Classify {
   // to combine blobs. Segmentation search will run only one "iteration"
   // on the classifications already recorded in chunks_record.ratings.
   //
-  // Note: this function assumes that word, output_best_state,
-  // best_char_choices and fixpt arguments are not NULL.
+  // Note: this function assumes that word_res, best_choice_bundle arguments
+  // are not NULL.
   void SegSearch(WERD_RES* word_res,
                  BestChoiceBundle* best_choice_bundle,
                  BlamerBundle* blamer_bundle);
+  // Setup and run just the initial segsearch on an established matrix,
+  // without doing any additional chopping or joining.
+  void WordSearch(WERD_RES* word_res);
+
+  // Setup and run just the initial segsearch on an established matrix,
+  // without doing any additional chopping or joining.
+  // (Internal factored version that can be used as part of the main SegSearch.)
+  void InitialSegSearch(WERD_RES* word_res, LMPainPoints* pain_points,
+                        GenericVector<SegSearchPending>* pending,
+                        BestChoiceBundle* best_choice_bundle,
+                        BlamerBundle* blamer_bundle);
 
   // Runs SegSearch() function (above) without needing a best_choice_bundle
   // or blamer_bundle. Used for testing.
@@ -279,9 +290,10 @@ class Wordrec : public Classify {
   // chop.cpp
   PRIORITY point_priority(EDGEPT *point);
   void add_point_to_list(PointHeap* point_heap, EDGEPT *point);
+  // Returns true if the edgept supplied as input is an inside angle.  This
+  // is determined by the angular change of the vectors from point to point.
+  bool is_inside_angle(EDGEPT *pt);
   int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3);
-  int is_little_chunk(EDGEPT *point1, EDGEPT *point2);
-  int is_small_area(EDGEPT *point1, EDGEPT *point2);
   EDGEPT *pick_close_point(EDGEPT *critical_point,
                            EDGEPT *vertical_point,
                            int *best_dist);
@@ -324,17 +336,12 @@ class Wordrec : public Classify {
 
   // findseam.cpp
   void add_seam_to_queue(float new_priority, SEAM *new_seam, SeamQueue* seams);
-  void choose_best_seam(SeamQueue* seam_queue,
-                        SPLIT *split,
-                        PRIORITY priority,
-                        SEAM **seam_result,
-                        TBLOB *blob,
-                        SeamPile* seam_pile);
+  void choose_best_seam(SeamQueue *seam_queue, const SPLIT *split,
+                        PRIORITY priority, SEAM **seam_result, TBLOB *blob,
+                        SeamPile *seam_pile);
   void combine_seam(const SeamPile& seam_pile,
                     const SEAM* seam, SeamQueue* seam_queue);
-  inT16 constrained_split(SPLIT *split, TBLOB *blob);
   SEAM *pick_good_seam(TBLOB *blob);
-  PRIORITY seam_priority(SEAM *seam, inT16 xmin, inT16 xmax);
   void try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
                         inT16 num_points,
                         SeamQueue* seam_queue,
@@ -348,23 +355,12 @@ class Wordrec : public Classify {
                            SEAM ** seam, TBLOB * blob);
 
   // gradechop.cpp
-  PRIORITY full_split_priority(SPLIT *split, inT16 xmin, inT16 xmax);
-  PRIORITY grade_center_of_blob(register BOUNDS_RECT rect);
-  PRIORITY grade_overlap(register BOUNDS_RECT rect);
   PRIORITY grade_split_length(register SPLIT *split);
   PRIORITY grade_sharpness(register SPLIT *split);
-  PRIORITY grade_width_change(register BOUNDS_RECT rect);
-  void set_outline_bounds(register EDGEPT *point1,
-                          register EDGEPT *point2,
-                          BOUNDS_RECT rect);
 
   // outlines.cpp
-  int crosses_outline(EDGEPT *p0, EDGEPT *p1, EDGEPT *outline);
-  int is_crossed(TPOINT a0, TPOINT a1, TPOINT b0, TPOINT b1);
-  int is_same_edgept(EDGEPT *p1, EDGEPT *p2);
   bool near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1,
                   EDGEPT **near_pt);
-  void reverse_outline(EDGEPT *outline);
 
   // pieces.cpp
   virtual BLOB_CHOICE_LIST *classify_piece(const GenericVector<SEAM*>& seams,

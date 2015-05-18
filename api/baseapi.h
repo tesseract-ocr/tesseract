@@ -20,8 +20,8 @@
 #ifndef TESSERACT_API_BASEAPI_H__
 #define TESSERACT_API_BASEAPI_H__
 
-#define TESSERACT_VERSION_STR "3.03.00"
-#define TESSERACT_VERSION 0x030300
+#define TESSERACT_VERSION_STR "3.04.00"
+#define TESSERACT_VERSION 0x030400
 #define MAKE_VERSION(major, minor, patch) (((major) << 16) | ((minor) << 8) | \
                                             (patch))
 
@@ -484,14 +484,21 @@ class TESS_API TessBaseAPI {
    * Runs page layout analysis in the mode set by SetPageSegMode.
    * May optionally be called prior to Recognize to get access to just
    * the page layout results. Returns an iterator to the results.
-   * Returns NULL on error.
+   * If merge_similar_words is true, words are combined where suitable for use
+   * with a line recognizer. Use if you want to use AnalyseLayout to find the
+   * textlines, and then want to process textline fragments with an external
+   * line recognizer.
+   * Returns NULL on error or an empty page.
    * The returned iterator must be deleted after use.
    * WARNING! This class points to data held within the TessBaseAPI class, and
    * therefore can only be used while the TessBaseAPI class still exists and
    * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
    * DetectOS, or anything else that changes the internal PAGE_RES.
    */
-  PageIterator* AnalyseLayout();
+  PageIterator* AnalyseLayout() {
+    return AnalyseLayout(false);
+  }
+  PageIterator* AnalyseLayout(bool merge_similar_words);
 
   /**
    * Recognize the image from SetAndThresholdImage, generating Tesseract
@@ -531,9 +538,11 @@ class TESS_API TessBaseAPI {
    *
    * Returns true if successful, false on error.
    */
-  bool ProcessPages(const char* filename,
-                    const char* retry_config, int timeout_millisec,
-                    TessResultRenderer* renderer);
+  bool ProcessPages(const char* filename, const char* retry_config,
+                    int timeout_millisec, TessResultRenderer* renderer);
+  // Does the real work of ProcessPages.
+  bool ProcessPagesInternal(const char* filename, const char* retry_config,
+                            int timeout_millisec, TessResultRenderer* renderer);
 
   /**
    * Turn a single image into symbolic text.
@@ -649,6 +658,9 @@ class TESS_API TessBaseAPI {
    * in a separate API at some future time.
    */
   int IsValidWord(const char *word);
+  // Returns true if utf8_character is defined in the UniCharset.
+  bool IsValidCharacter(const char *utf8_character);
+
 
   bool GetTextDirection(int* out_offset, float* out_slope);
 
@@ -870,7 +882,7 @@ class TESS_API TessBaseAPI {
 };  // class TessBaseAPI.
 
 /** Escape a char string - remove &<>"' with HTML codes. */
-void HOcrEscape(const char* text, STRING& ret);
+STRING HOcrEscape(const char* text);
 }  // namespace tesseract.
 
 #endif  // TESSERACT_API_BASEAPI_H__

@@ -24,7 +24,9 @@
 #define VARABLED_H
 
 #include "elst.h"
+#ifndef ANDROID_BUILD
 #include "scrollview.h"
+#endif
 #include "params.h"
 #include "tesseractclass.h"
 

@@ -58,13 +58,6 @@ extern double_VAR_H(classify_pico_feature_length, 0.05, "Pico Feature Length");
 ----------------------------------------------------------------------------**/
 #define GetPicoFeatureLength()  (PicoFeatureLength)
 
-FEATURE_SET ExtractIntCNFeatures(TBLOB *Blob, const DENORM& bl_denorm,
-                                 const DENORM& cn_denorm,
-                                 const INT_FX_RESULT_STRUCT& fx_info);
-FEATURE_SET ExtractIntGeoFeatures(TBLOB *Blob, const DENORM& bl_denorm,
-                                  const DENORM& cn_denorm,
-                                  const INT_FX_RESULT_STRUCT& fx_info);
-
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/

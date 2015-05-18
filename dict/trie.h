@@ -148,9 +148,14 @@ class Trie : public Dawg {
     if (edge_ref == NO_EDGE || num_edges_ == 0) return INVALID_UNICHAR_ID;
     return unichar_id_from_edge_rec(*deref_edge_ref(edge_ref));
   }
-  // Sets the UNICHAR_ID in the given edge_rec to 0, marking the edge dead.
+  // Sets the UNICHAR_ID in the given edge_rec to unicharset_size_, marking
+  // the edge dead.
   void KillEdge(EDGE_RECORD* edge_rec) const {
     *edge_rec &= ~letter_mask_;
+    *edge_rec |= (unicharset_size_ << LETTER_START_BIT);
+  }
+  bool DeadEdge(const EDGE_RECORD& edge_rec) const {
+    return unichar_id_from_edge_rec(edge_rec) == unicharset_size_;
   }
 
   // Prints the contents of the node indicated by the given NODE_REF.

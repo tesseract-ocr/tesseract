@@ -17,12 +17,17 @@
  *
  **********************************************************************/
 
-#include          "helpers.h"
-#include          "tprintf.h"
-#include          "strngs.h"
-#include          "genericvector.h"
+#include "strngs.h"
 
 #include <assert.h>
+
+#include "genericvector.h"
+#include "helpers.h"
+#include "serialis.h"
+#include "tprintf.h"
+
+using tesseract::TFile;
+
 // Size of buffer needed to host the decimal representation of the maximum
 // possible length of an int (in 64 bits), being -<20 digits>.
 const int kMaxIntSize = 22;
@@ -123,15 +128,34 @@ STRING::STRING(const char* cstr) {
   assert(InvariantOk());
 }
 
+STRING::STRING(const char *data, int length) {
+  if (data == NULL) {
+    // Empty STRINGs contain just the "\0".
+    memcpy(AllocData(1, kMinCapacity), "", 1);
+  } else {
+    char* this_cstr = AllocData(length + 1, length + 1);
+    memcpy(this_cstr, data, length);
+    this_cstr[length] = '\0';
+  }
+}
+
 STRING::~STRING() {
   DiscardData();
 }
 
+// TODO(rays) Change all callers to use TFile and remove the old functions.
 // Writes to the given file. Returns false in case of error.
 bool STRING::Serialize(FILE* fp) const {
   inT32 len = length();
   if (fwrite(&len, sizeof(len), 1, fp) != 1) return false;
   if (static_cast<int>(fwrite(GetCStr(), 1, len, fp)) != len) return false;
+  return true;
+}
+// Writes to the given file. Returns false in case of error.
+bool STRING::Serialize(TFile* fp) const {
+  inT32 len = length();
+  if (fp->FWrite(&len, sizeof(len), 1) != 1) return false;
+  if (fp->FWrite(GetCStr(), 1, len) != len) return false;
   return true;
 }
 // Reads from the given file. Returns false in case of error.
@@ -143,6 +167,17 @@ bool STRING::DeSerialize(bool swap, FILE* fp) {
     ReverseN(&len, sizeof(len));
   truncate_at(len);
   if (static_cast<int>(fread(GetCStr(), 1, len, fp)) != len) return false;
+  return true;
+}
+// Reads from the given file. Returns false in case of error.
+// If swap is true, assumes a big/little-endian swap is needed.
+bool STRING::DeSerialize(bool swap, TFile* fp) {
+  inT32 len;
+  if (fp->FRead(&len, sizeof(len), 1) != 1) return false;
+  if (swap)
+    ReverseN(&len, sizeof(len));
+  truncate_at(len);
+  if (fp->FRead(GetCStr(), 1, len) != len) return false;
   return true;
 }
 
@@ -245,21 +280,20 @@ char& STRING::operator[](inT32 index) const {
 
 void STRING::split(const char c, GenericVector<STRING> *splited) {
   int start_index = 0;
-  for (int i = 0; i < length(); i++) {
+  int len = length();
+  for (int i = 0; i < len; i++) {
     if ((*this)[i] == c) {
       if (i != start_index) {
         (*this)[i] = '\0';
-        STRING tmp = GetCStr() + start_index;
-        splited->push_back(tmp);
+        splited->push_back(STRING(GetCStr() + start_index, i - start_index));
         (*this)[i] = c;
       }
       start_index = i + 1;
     }
   }
 
-  if (length() != start_index) {
-    STRING tmp = GetCStr() + start_index;
-    splited->push_back(tmp);
+  if (len != start_index) {
+    splited->push_back(STRING(GetCStr() + start_index, len - start_index));
   }
 }
 

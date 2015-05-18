@@ -58,7 +58,6 @@ const int par2 = 6750 / (approx_dist * approx_dist);
 
 
 TESSLINE* ApproximateOutline(bool allow_detailed_fx, C_OUTLINE* c_outline) {
-  EDGEPT *edgept;                // converted steps
   TBOX loop_box;                  // bounding box
   inT32 area;                    // loop area
   EDGEPT stack_edgepts[FASTEDGELENGTH];  // converted path
@@ -73,9 +72,9 @@ TESSLINE* ApproximateOutline(bool allow_detailed_fx, C_OUTLINE* c_outline) {
   if (!poly_wide_objects_better && loop_box.width() > area)
     area = loop_box.width();
   area *= area;
-  edgept = edgesteps_to_edgepts(c_outline, edgepts);
+  edgesteps_to_edgepts(c_outline, edgepts);
   fix2(edgepts, area);
-  edgept = poly2 (edgepts, area);  // 2nd approximation.
+  EDGEPT* edgept = poly2(edgepts, area);  // 2nd approximation.
   EDGEPT* startpt = edgept;
   EDGEPT* result = NULL;
   EDGEPT* prev_result = NULL;

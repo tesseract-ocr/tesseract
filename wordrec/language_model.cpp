@@ -308,7 +308,7 @@ bool LanguageModel::UpdateState(
     //if (!curr_list->singleton() && c_it.data()->unichar_id() == 0) continue;
     UNICHAR_ID unichar_id = choice->unichar_id();
     if (unicharset.get_fragment(unichar_id)) {
-      continue;  // skip fragments
+      continue;  // Skip fragments.
     }
     // Set top choice flags.
     LanguageModelFlagsType blob_choice_flags = kXhtConsistentFlag;
@@ -666,6 +666,8 @@ bool LanguageModel::AddViterbiStateEntry(
       ngram_info, (language_model_debug_level > 0) ?
           dict_->getUnicharset().id_to_unichar(b->unichar_id()) : NULL);
   new_vse->cost = ComputeAdjustedPathCost(new_vse);
+  if (language_model_debug_level >= 3)
+    tprintf("Adjusted cost = %g\n", new_vse->cost);
 
   // Invoke Top Choice language model component to make the final adjustments
   // to new_vse->top_choice_flags.
@@ -1174,8 +1176,12 @@ void LanguageModel::FillConsistencyInfo(
         float actual_gap =
             static_cast<float>(word_res->GetBlobsGap(curr_col-1));
         float gap_ratio = expected_gap / actual_gap;
-        // TODO(daria): find a good way to tune this heuristic estimate.
-        if (gap_ratio < 1/2 || gap_ratio > 2) {
+        // TODO(rays) The gaps seem to be way off most of the time, saved by
+        // the error here that the ratio was compared to 1/2, when it should
+        // have been 0.5f. Find the source of the gaps discrepancy and put
+        // the 0.5f here in place of 0.0f.
+        // Test on 2476595.sj, pages 0 to 6. (In French.)
+        if (gap_ratio < 0.0f || gap_ratio > 2.0f) {
           consistency_info->num_inconsistent_spaces++;
         }
         if (language_model_debug_level > 1) {
@@ -1326,7 +1332,7 @@ void LanguageModel::UpdateBestChoice(
           vse->dawg_info != NULL && vse->top_choice_flags);
     }
   }
-  if (wordrec_display_segmentations) {
+  if (wordrec_display_segmentations && word_res->chopped_word != NULL) {
     word->DisplaySegmentation(word_res->chopped_word);
   }
 }

@@ -192,8 +192,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
         BLOB_CHOICE_IT lst_it(lst);
         // TODO(rays/antonova) Put real xheights and y shifts here.
         lst_it.add_to_end(new BLOB_CHOICE(best_choice->unichar_id(i),
-                                          0.0, 0.0, -1, -1, -1, 0, 1, 0,
-                                          BCC_AMBIG));
+                                          0.0, 0.0, -1, 0, 1, 0, BCC_AMBIG));
         ambig_blob_choices.push_back(lst);
       }
     }
@@ -278,7 +277,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
               BLOB_CHOICE_IT bc_it(ambig_blob_choices[i+tmp_index]);
               bc_it.add_to_end(new BLOB_CHOICE(
                   ambig_spec->correct_fragments[tmp_index], -1.0, 0.0,
-                  -1, -1, -1, 0, 1, 0, BCC_AMBIG));
+                  -1, 0, 1, 0, BCC_AMBIG));
             }
           }
           spec_it.forward();

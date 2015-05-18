@@ -16,10 +16,13 @@
 
 #ifdef USE_OPENCL
 
+#if ON_APPLE
+#define TIMESPEC mach_timespec
+#else
+#define TIMESPEC timespec
+#endif
+
 #include "opencl_device_selection.h"
-#ifdef _MSC_VER
-int LeptMsgSeverity = 3;  // L_SEVERITY_INFO
-#endif  // _MSC_VER
 GPUEnv OpenclDevice::gpuEnv;
 
 #if USE_DEVICE_SELECTION
@@ -2664,9 +2667,9 @@ PERF_COUNT_START("HistogramRectOCL")
     int requestedOccupancy = 10;
     int numWorkGroups = numCUs * requestedOccupancy;
     int numThreads = block_size*numWorkGroups;
-    size_t local_work_size[] = {block_size};
-    size_t global_work_size[] = {numThreads};
-    size_t red_global_work_size[] = {block_size*kHistogramSize*bytes_per_pixel}; 
+    size_t local_work_size[] = {static_cast<size_t>(block_size)};
+    size_t global_work_size[] = {static_cast<size_t>(numThreads)};
+    size_t red_global_work_size[] = {static_cast<size_t>(block_size*kHistogramSize*bytes_per_pixel)};
 
     /* map histogramAllChannels as write only */
     int numBins = kHistogramSize*bytes_per_pixel*numWorkGroups;
@@ -2983,7 +2986,7 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
 #else
-    timespec time_funct_start, time_funct_end;
+    TIMESPEC time_funct_start, time_funct_end;
 #endif
     // input data
     l_uint32 *tiffdata = (l_uint32 *)input.imageData;// same size and random data; data doesn't change workload
@@ -3055,7 +3058,7 @@ double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input,
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
 #else
-    timespec time_funct_start, time_funct_end;
+    TIMESPEC time_funct_start, time_funct_end;
 #endif
     
     unsigned char pixelHi = (unsigned char)255;
@@ -3158,7 +3161,7 @@ double thresholdRectToPixMicroBench( GPUEnv *env, TessScoreEvaluationInputData i
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
 #else
-    timespec time_funct_start, time_funct_end;
+    TIMESPEC time_funct_start, time_funct_end;
 #endif
     
     // input data
@@ -3232,7 +3235,7 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
 #else
-    timespec time_funct_start, time_funct_end;
+    TIMESPEC time_funct_start, time_funct_end;
 #endif
 
     // input data

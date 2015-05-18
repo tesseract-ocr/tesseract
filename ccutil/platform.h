@@ -28,10 +28,12 @@
 #define ultoa _ultoa
 #endif  /* __GNUC__ */
 #define SIGNED
+#if defined(_MSC_VER)
 #define snprintf _snprintf
 #if (_MSC_VER <= 1400)
 #define vsnprintf _vsnprintf
-#endif /* _WIN32 */
+#endif /* (_MSC_VER <= 1400) */
+#endif /* defined(_MSC_VER) */
 #else
 #define __UNIX__
 #include <limits.h>

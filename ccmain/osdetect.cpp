@@ -544,10 +544,10 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
         osr_->scripts_na[i][japanese_id_] += 1.0;
       if (prev_id == hangul_id_)
         osr_->scripts_na[i][korean_id_] += 1.0;
-      if (prev_id == han_id_)
+      if (prev_id == han_id_) {
         osr_->scripts_na[i][korean_id_] += kHanRatioInKorean;
-      if (prev_id == han_id_)
         osr_->scripts_na[i][japanese_id_] += kHanRatioInJapanese;
+      }
     }
   }  // iterate over each orientation
 }

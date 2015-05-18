@@ -64,6 +64,42 @@ const TPOINT kDivisibleVerticalItalic(1, 5);
 
 CLISTIZE(EDGEPT);
 
+// Returns true when the two line segments cross each other.
+// (Moved from outlines.cpp).
+// Finds where the projected lines would cross and then checks to see if the
+// point of intersection lies on both of the line segments. If it does
+// then these two segments cross.
+/* static */
+bool TPOINT::IsCrossed(const TPOINT& a0, const TPOINT& a1, const TPOINT& b0,
+                       const TPOINT& b1) {
+  int b0a1xb0b1, b0b1xb0a0;
+  int a1b1xa1a0, a1a0xa1b0;
+
+  TPOINT b0a1, b0a0, a1b1, b0b1, a1a0;
+
+  b0a1.x = a1.x - b0.x;
+  b0a0.x = a0.x - b0.x;
+  a1b1.x = b1.x - a1.x;
+  b0b1.x = b1.x - b0.x;
+  a1a0.x = a0.x - a1.x;
+  b0a1.y = a1.y - b0.y;
+  b0a0.y = a0.y - b0.y;
+  a1b1.y = b1.y - a1.y;
+  b0b1.y = b1.y - b0.y;
+  a1a0.y = a0.y - a1.y;
+
+  b0a1xb0b1 = CROSS(b0a1, b0b1);
+  b0b1xb0a0 = CROSS(b0b1, b0a0);
+  a1b1xa1a0 = CROSS(a1b1, a1a0);
+  // For clarity, we want CROSS(a1a0,a1b0) here but we have b0a1 instead of a1b0
+  // so use -CROSS(a1b0,b0a1) instead, which is the same.
+  a1a0xa1b0 = -CROSS(a1a0, b0a1);
+
+  return ((b0a1xb0b1 > 0 && b0b1xb0a0 > 0) ||
+          (b0a1xb0b1 < 0 && b0b1xb0a0 < 0)) &&
+         ((a1b1xa1a0 > 0 && a1a0xa1b0 > 0) || (a1b1xa1a0 < 0 && a1a0xa1b0 < 0));
+}
+
 // Consume the circular list of EDGEPTs to make a TESSLINE.
 TESSLINE* TESSLINE::BuildFromOutlineList(EDGEPT* outline) {
   TESSLINE* result = new TESSLINE;
@@ -454,6 +490,36 @@ TBOX TBLOB::bounding_box() const {
   return box;
 }
 
+// Finds and deletes any duplicate outlines in this blob, without deleting
+// their EDGEPTs.
+void TBLOB::EliminateDuplicateOutlines() {
+  for (TESSLINE* outline = outlines; outline != NULL; outline = outline->next) {
+    TESSLINE* last_outline = outline;
+    for (TESSLINE* other_outline = outline->next; other_outline != NULL;
+         last_outline = other_outline, other_outline = other_outline->next) {
+      if (outline->SameBox(*other_outline)) {
+        last_outline->next = other_outline->next;
+        // This doesn't leak - the outlines share the EDGEPTs.
+        other_outline->loop = NULL;
+        delete other_outline;
+        other_outline = last_outline;
+        // If it is part of a cut, then it can't be a hole any more.
+        outline->is_hole = false;
+      }
+    }
+  }
+}
+
+// Swaps the outlines of *this and next if needed to keep the centers in
+// increasing x.
+void TBLOB::CorrectBlobOrder(TBLOB* next) {
+  TBOX box = bounding_box();
+  TBOX next_box = next->bounding_box();
+  if (box.x_middle() > next_box.x_middle()) {
+    Swap(&outlines, &next->outlines);
+  }
+}
+
 #ifndef GRAPHICS_DISABLED
 void TBLOB::plot(ScrollView* window, ScrollView::Color color,
                  ScrollView::Color child_color) {
@@ -739,8 +805,8 @@ TWERD* TWERD::PolygonalCopy(bool allow_detailed_fx, WERD* src) {
 // Baseline normalizes the blobs in-place, recording the normalization in the
 // DENORMs in the blobs.
 void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
-                        bool inverse, float x_height, bool numeric_mode,
-                        tesseract::OcrEngineMode hint,
+                        bool inverse, float x_height, float baseline_shift,
+                        bool numeric_mode, tesseract::OcrEngineMode hint,
                         const TBOX* norm_box,
                         DENORM* word_denorm) {
   TBOX word_box = bounding_box();
@@ -756,7 +822,7 @@ void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
     if (hint == tesseract::OEM_CUBE_ONLY)
       scale = 1.0f;
   } else {
-    input_y_offset = row->base_line(word_middle);
+    input_y_offset = row->base_line(word_middle) + baseline_shift;
   }
   for (int b = 0; b < blobs.size(); ++b) {
     TBLOB* blob = blobs[b];
@@ -769,7 +835,7 @@ void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
       blob_scale = ClipToRange(kBlnXHeight * 4.0f / (3 * blob_box.height()),
                                scale, scale * 1.5f);
     } else if (row != NULL && hint != tesseract::OEM_CUBE_ONLY) {
-      baseline = row->base_line(mid_x);
+      baseline = row->base_line(mid_x) + baseline_shift;
     }
     // The image will be 8-bit grey if the input was grey or color. Note that in
     // a grey image 0 is black and 255 is white. If the input was binary, then
@@ -857,18 +923,6 @@ void TWERD::plot(ScrollView* window) {
   }
 }
 #endif  // GRAPHICS_DISABLED
-
-/**********************************************************************
- * blob_origin
- *
- * Compute the origin of a compound blob, define to be the centre
- * of the bounding box.
- **********************************************************************/
-void blob_origin(TBLOB *blob,       /*blob to compute on */
-                 TPOINT *origin) {  /*return value */
-  TBOX bbox = blob->bounding_box();
-  *origin = (bbox.topleft() + bbox.botright()) / 2;
-}
 
 /**********************************************************************
  * divisible_blob

@@ -86,6 +86,18 @@ void BLOCK::rotate(const FCOORD& rotation) {
   box = *poly_block()->bounding_box();
 }
 
+// Returns the bounding box including the desired combination of upper and
+// lower noise/diacritic elements.
+TBOX BLOCK::restricted_bounding_box(bool upper_dots, bool lower_dots) const {
+  TBOX box;
+  // This is a read-only iteration of the rows in the block.
+  ROW_IT it(const_cast<ROW_LIST*>(&rows));
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+    box += it.data()->restricted_bounding_box(upper_dots, lower_dots);
+  }
+  return box;
+}
+
 /**
  * BLOCK::reflect_polygon_in_y_axis
  *

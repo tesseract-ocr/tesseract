@@ -26,10 +26,10 @@
 
 #include <math.h>
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Private Code
 ----------------------------------------------------------------------------**/
 /**
@@ -51,8 +51,7 @@ FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM& bl_denorm,
   FEATURE Feature;
   MICROFEATURE OldFeature;
 
-  OldFeatures = (MICROFEATURES)BlobMicroFeatures(Blob, bl_denorm, cn_denorm,
-                                                 fx_info);
+  OldFeatures = BlobMicroFeatures(Blob, cn_denorm);
   if (OldFeatures == NULL)
     return NULL;
   NumFeatures = count (OldFeatures);

@@ -19,6 +19,7 @@
 
 #ifndef           DRAWEDG_H
 #define           DRAWEDG_H
+#ifndef ANDROID_BUILD
 
 #include          "scrollview.h"
 #include          "crakedge.h"
@@ -31,4 +32,5 @@ void draw_raw_edge(                   //draw the cracks
                    CRACKEDGE *start,  //start of loop
                    ScrollView::Color colour      //colour to draw in
                   );
+#endif
 #endif
