@@ -64,12 +64,8 @@ Dict::Dict(CCUtil* ccutil)
                        " patterns.", getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_bigram_dawg, true, "Load dawg with special word "
                        "bigrams.", getCCUtil()->params()),
-
-#ifdef WITH_HFST
-      BOOL_INIT_MEMBER(load_hfst_fsm, true, "Load hfst word model.",
+      BOOL_INIT_MEMBER(load_hfst_fsm, false, "Load hfst word model.",
                        getCCUtil()->params()),
-#endif
-
       double_MEMBER(xheight_penalty_subscripts, 0.125,
                     "Score penalty (0.1 = 10%) added if there are subscripts "
                     "or superscripts in a word, but it is otherwise OK.",
