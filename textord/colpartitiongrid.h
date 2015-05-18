@@ -63,6 +63,11 @@ class ColPartitionGrid : public BBGrid<ColPartition,
                                      const ColPartition*>* confirm_cb,
                  ColPartition* part);
 
+  // Computes and returns the total overlap of all partitions in the grid.
+  // If overlap_grid is non-null, it is filled with a grid that holds empty
+  // partitions representing the union of all overlapped partitions.
+  int ComputeTotalOverlap(ColPartitionGrid** overlap_grid);
+
   // Finds all the ColPartitions in the grid that overlap with the given
   // box and returns them SortByBoxLeft(ed) and uniqued in the given list.
   // Any partition equal to not_this (may be NULL) is excluded.
@@ -164,6 +169,10 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // Deletes all the partitions in the grid that are of type BRT_UNKNOWN and
   // all the blobs in them.
   void DeleteUnknownParts(TO_BLOCK* block);
+
+  // Deletes all the partitions in the grid that are NOT of flow type
+  // BTFT_LEADER.
+  void DeleteNonLeaderParts();
 
   // Finds and marks text partitions that represent figure captions.
   void FindFigureCaptions();

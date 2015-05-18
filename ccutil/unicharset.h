@@ -381,11 +381,14 @@ class UNICHARSET {
   // Set a whitelist and/or blacklist of characters to recognize.
   // An empty or NULL whitelist enables everything (minus any blacklist).
   // An empty or NULL blacklist disables nothing.
+  // An empty or NULL unblacklist has no effect.
   // The blacklist overrides the whitelist.
+  // The unblacklist overrides the blacklist.
   // Each list is a string of utf8 character strings. Boundaries between
   // unicharset units are worked out automatically, and characters not in
   // the unicharset are silently ignored.
-  void set_black_and_whitelist(const char* blacklist, const char* whitelist);
+  void set_black_and_whitelist(const char* blacklist, const char* whitelist,
+                               const char* unblacklist);
 
   // Set the isalpha property of the given unichar to the given value.
   void set_isalpha(UNICHAR_ID unichar_id, bool value) {
@@ -613,6 +616,10 @@ class UNICHARSET {
         static_cast<inT16>(ClipToRange(min_advance, 0, MAX_INT16));
     unichars[unichar_id].properties.max_advance =
         static_cast<inT16>(ClipToRange(max_advance, 0, MAX_INT16));
+  }
+  // Returns true if the font metrics properties are empty.
+  bool PropertiesIncomplete(UNICHAR_ID unichar_id) const {
+    return unichars[unichar_id].properties.AnyRangeEmpty();
   }
 
   // Return the script name of the given unichar.

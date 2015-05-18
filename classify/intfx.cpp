@@ -75,9 +75,9 @@ namespace tesseract {
 
 // Generates a TrainingSample from a TBLOB. Extracts features and sets
 // the bounding box, so classifiers that operate on the image can work.
-// TODO(rays) BlobToTrainingSample must remain a global function until
-// the FlexFx and FeatureDescription code can be removed and LearnBlob
-// made a member of Classify.
+// TODO(rays) Make BlobToTrainingSample a member of Classify now that
+// the FlexFx and FeatureDescription code have been removed and LearnBlob
+// is now a member of Classify.
 TrainingSample* BlobToTrainingSample(
     const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
     GenericVector<INT_FEATURE_STRUCT>* bl_features) {

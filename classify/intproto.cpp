@@ -439,52 +439,25 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
 
 
 /*---------------------------------------------------------------------------*/
-int BucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets) {
-/*
- ** Parameters:
- **   Param   parameter value to map into a bucket number
- **   Offset    amount to shift param before mapping it
- **   NumBuckets  number of buckets to map param into
- ** Globals: none
- ** Operation: This routine maps a parameter value into a bucket between
- **   0 and NumBuckets-1.  Offset is added to the parameter
- **   before mapping it.  Values which map to buckets outside
- **   the range are truncated to fit within the range.  Mapping
- **   is done by truncating rather than rounding.
- ** Return: Bucket number corresponding to Param + Offset.
- ** Exceptions: none
- ** History: Thu Feb 14 13:24:33 1991, DSJ, Created.
- */
-  return ClipToRange(static_cast<int>(MapParam(Param, Offset, NumBuckets)),
-                     0, NumBuckets - 1);
-}                                /* BucketFor */
-
+// Returns a quantized bucket for the given param shifted by offset,
+// notionally (param + offset) * num_buckets, but clipped and casted to the
+// appropriate type.
+uinT8 Bucket8For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
+  int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
+  return static_cast<uinT8>(ClipToRange(bucket, 0, num_buckets - 1));
+}
+uinT16 Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
+  int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
+  return static_cast<uinT16>(ClipToRange(bucket, 0, num_buckets - 1));
+}
 
 /*---------------------------------------------------------------------------*/
-int CircBucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets) {
-/*
- ** Parameters:
- **   Param   parameter value to map into a circular bucket
- **   Offset    amount to shift param before mapping it
- **   NumBuckets  number of buckets to map param into
- ** Globals: none
- ** Operation: This routine maps a parameter value into a bucket between
- **   0 and NumBuckets-1.  Offset is added to the parameter
- **   before mapping it.  Values which map to buckets outside
- **   the range are wrapped to a new value in a circular fashion.
- **   Mapping is done by truncating rather than rounding.
- ** Return: Bucket number corresponding to Param + Offset.
- ** Exceptions: none
- ** History: Thu Feb 14 13:24:33 1991, DSJ, Created.
- */
-  int Bucket;
-
-  Bucket = static_cast<int>(MapParam(Param, Offset, NumBuckets));
-  if (Bucket < 0)
-    Bucket += NumBuckets;
-  else if (Bucket >= NumBuckets)
-    Bucket -= NumBuckets;
-  return Bucket;
+// Returns a quantized bucket for the given circular param shifted by offset,
+// notionally (param + offset) * num_buckets, but modded and casted to the
+// appropriate type.
+uinT8 CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets) {
+  int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
+  return static_cast<uinT8>(Modulo(bucket, num_buckets));
 }                                /* CircBucketFor */
 
 
@@ -1694,23 +1667,23 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 
   if (fabs (Angle - 0.0) < HV_TOLERANCE || fabs (Angle - 0.5) < HV_TOLERANCE) {
     /* horizontal proto - handle as special case */
-    Filler->X = BucketFor(X - HalfLength - EndPad, XS, NB);
-    Filler->YStart = BucketFor(Y - SidePad, YS, NB * 256);
-    Filler->YEnd = BucketFor(Y + SidePad, YS, NB * 256);
+    Filler->X = Bucket8For(X - HalfLength - EndPad, XS, NB);
+    Filler->YStart = Bucket16For(Y - SidePad, YS, NB * 256);
+    Filler->YEnd = Bucket16For(Y + SidePad, YS, NB * 256);
     Filler->StartDelta = 0;
     Filler->EndDelta = 0;
     Filler->Switch[0].Type = LastSwitch;
-    Filler->Switch[0].X = BucketFor(X + HalfLength + EndPad, XS, NB);
+    Filler->Switch[0].X = Bucket8For(X + HalfLength + EndPad, XS, NB);
   } else if (fabs(Angle - 0.25) < HV_TOLERANCE ||
            fabs(Angle - 0.75) < HV_TOLERANCE) {
     /* vertical proto - handle as special case */
-    Filler->X = BucketFor(X - SidePad, XS, NB);
-    Filler->YStart = BucketFor(Y - HalfLength - EndPad, YS, NB * 256);
-    Filler->YEnd = BucketFor(Y + HalfLength + EndPad, YS, NB * 256);
+    Filler->X = Bucket8For(X - SidePad, XS, NB);
+    Filler->YStart = Bucket16For(Y - HalfLength - EndPad, YS, NB * 256);
+    Filler->YEnd = Bucket16For(Y + HalfLength + EndPad, YS, NB * 256);
     Filler->StartDelta = 0;
     Filler->EndDelta = 0;
     Filler->Switch[0].Type = LastSwitch;
-    Filler->Switch[0].X = BucketFor(X + SidePad, XS, NB);
+    Filler->Switch[0].X = Bucket8For(X + SidePad, XS, NB);
   } else {
     /* diagonal proto */
 
@@ -1736,36 +1709,34 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
       }
 
       /* translate into bucket positions and deltas */
-      Filler->X = (inT8) MapParam(Start.x, XS, NB);
+      Filler->X = Bucket8For(Start.x, XS, NB);
       Filler->StartDelta = -(inT16) ((Cos / Sin) * 256);
       Filler->EndDelta = (inT16) ((Sin / Cos) * 256);
 
       XAdjust = BucketEnd(Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Cos / Sin;
-      Filler->YStart = (inT16) MapParam(Start.y - YAdjust, YS, NB * 256);
+      Filler->YStart = Bucket16For(Start.y - YAdjust, YS, NB * 256);
       YAdjust = XAdjust * Sin / Cos;
-      Filler->YEnd = (inT16) MapParam(Start.y + YAdjust, YS, NB * 256);
+      Filler->YEnd = Bucket16For(Start.y + YAdjust, YS, NB * 256);
 
       Filler->Switch[S1].Type = StartSwitch;
-      Filler->Switch[S1].X = (inT8) MapParam(Switch1.x, XS, NB);
-      Filler->Switch[S1].Y = (inT8) MapParam(Switch1.y, YS, NB);
+      Filler->Switch[S1].X = Bucket8For(Switch1.x, XS, NB);
+      Filler->Switch[S1].Y = Bucket8For(Switch1.y, YS, NB);
       XAdjust = Switch1.x - BucketStart(Filler->Switch[S1].X, XS, NB);
       YAdjust = XAdjust * Sin / Cos;
-      Filler->Switch[S1].YInit =
-        (inT16) MapParam(Switch1.y - YAdjust, YS, NB * 256);
+      Filler->Switch[S1].YInit = Bucket16For(Switch1.y - YAdjust, YS, NB * 256);
       Filler->Switch[S1].Delta = Filler->EndDelta;
 
       Filler->Switch[S2].Type = EndSwitch;
-      Filler->Switch[S2].X = (inT8) MapParam(Switch2.x, XS, NB);
-      Filler->Switch[S2].Y = (inT8) MapParam(Switch2.y, YS, NB);
+      Filler->Switch[S2].X = Bucket8For(Switch2.x, XS, NB);
+      Filler->Switch[S2].Y = Bucket8For(Switch2.y, YS, NB);
       XAdjust = Switch2.x - BucketStart(Filler->Switch[S2].X, XS, NB);
       YAdjust = XAdjust * Cos / Sin;
-      Filler->Switch[S2].YInit =
-        (inT16) MapParam(Switch2.y + YAdjust, YS, NB * 256);
+      Filler->Switch[S2].YInit = Bucket16For(Switch2.y + YAdjust, YS, NB * 256);
       Filler->Switch[S2].Delta = Filler->StartDelta;
 
       Filler->Switch[2].Type = LastSwitch;
-      Filler->Switch[2].X = (inT8)MapParam(End.x, XS, NB);
+      Filler->Switch[2].X = Bucket8For(End.x, XS, NB);
     } else {
       /* falling diagonal proto */
       Angle *= 2.0 * PI;
@@ -1788,36 +1759,34 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
       }
 
       /* translate into bucket positions and deltas */
-      Filler->X = (inT8) MapParam(Start.x, XS, NB);
+      Filler->X = Bucket8For(Start.x, XS, NB);
       Filler->StartDelta = -(inT16) ((Sin / Cos) * 256);
       Filler->EndDelta = (inT16) ((Cos / Sin) * 256);
 
       XAdjust = BucketEnd(Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Sin / Cos;
-      Filler->YStart = (inT16) MapParam(Start.y - YAdjust, YS, NB * 256);
+      Filler->YStart = Bucket16For(Start.y - YAdjust, YS, NB * 256);
       YAdjust = XAdjust * Cos / Sin;
-      Filler->YEnd = (inT16) MapParam(Start.y + YAdjust, YS, NB * 256);
+      Filler->YEnd = Bucket16For(Start.y + YAdjust, YS, NB * 256);
 
       Filler->Switch[S1].Type = EndSwitch;
-      Filler->Switch[S1].X = (inT8) MapParam(Switch1.x, XS, NB);
-      Filler->Switch[S1].Y = (inT8) MapParam(Switch1.y, YS, NB);
+      Filler->Switch[S1].X = Bucket8For(Switch1.x, XS, NB);
+      Filler->Switch[S1].Y = Bucket8For(Switch1.y, YS, NB);
       XAdjust = Switch1.x - BucketStart(Filler->Switch[S1].X, XS, NB);
       YAdjust = XAdjust * Sin / Cos;
-      Filler->Switch[S1].YInit =
-        (inT16) MapParam(Switch1.y + YAdjust, YS, NB * 256);
+      Filler->Switch[S1].YInit = Bucket16For(Switch1.y + YAdjust, YS, NB * 256);
       Filler->Switch[S1].Delta = Filler->StartDelta;
 
       Filler->Switch[S2].Type = StartSwitch;
-      Filler->Switch[S2].X = (inT8) MapParam(Switch2.x, XS, NB);
-      Filler->Switch[S2].Y = (inT8) MapParam(Switch2.y, YS, NB);
+      Filler->Switch[S2].X = Bucket8For(Switch2.x, XS, NB);
+      Filler->Switch[S2].Y = Bucket8For(Switch2.y, YS, NB);
       XAdjust = Switch2.x - BucketStart(Filler->Switch[S2].X, XS, NB);
       YAdjust = XAdjust * Cos / Sin;
-      Filler->Switch[S2].YInit =
-        (inT16) MapParam(Switch2.y - YAdjust, YS, NB * 256);
+      Filler->Switch[S2].YInit = Bucket16For(Switch2.y - YAdjust, YS, NB * 256);
       Filler->Switch[S2].Delta = Filler->EndDelta;
 
       Filler->Switch[2].Type = LastSwitch;
-      Filler->Switch[2].X = (inT8) MapParam(End.x, XS, NB);
+      Filler->Switch[2].X = Bucket8For(End.x, XS, NB);
     }
   }
 }                                /* InitTableFiller */

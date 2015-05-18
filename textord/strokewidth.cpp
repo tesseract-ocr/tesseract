@@ -43,18 +43,11 @@ namespace tesseract {
 
 INT_VAR(textord_tabfind_show_strokewidths, 0, "Show stroke widths");
 BOOL_VAR(textord_tabfind_only_strokewidths, false, "Only run stroke widths");
-BOOL_VAR(textord_tabfind_vertical_text, true, "Enable vertical detection");
-BOOL_VAR(textord_tabfind_force_vertical_text, false,
-         "Force using vertical text page mode");
-BOOL_VAR(textord_tabfind_vertical_horizontal_mix, true,
-         "find horizontal lines such as headers in vertical page mode");
-double_VAR(textord_tabfind_vertical_text_ratio, 0.5,
-           "Fraction of textlines deemed vertical to use vertical page mode");
 
 /** Allowed proportional change in stroke width to be the same font. */
 const double kStrokeWidthFractionTolerance = 0.125;
 /**
- * Allowed constant change in stroke width to be the same font. 
+ * Allowed constant change in stroke width to be the same font.
  * Really 1.5 pixels.
  */
 const double kStrokeWidthTolerance = 1.5;
@@ -116,6 +109,13 @@ const float kSizeRatioToReject = 2.0;
 const int kMaxLargeOverlaps = 3;
 // Expansion factor for search box for good neighbours.
 const double kNeighbourSearchFactor = 2.5;
+// Factor of increase of overlap when adding diacritics to make an image noisy.
+const double kNoiseOverlapGrowthFactor = 4.0;
+// Fraction of the image size to add overlap when adding diacritics for an
+// image to qualify as noisy.
+const double kNoiseOverlapAreaFactor = 1.0 / 512;
+// Ratio of perimeter^2/area for a blob to be considered noise vs i dot.
+const double kShapePerimeterRatio = 3.0;
 
 StrokeWidth::StrokeWidth(int gridsize,
                          const ICOORD& bleft, const ICOORD& tright)
@@ -215,11 +215,9 @@ static void CollectHorizVertBlobs(BLOBNBOX_LIST* input_blobs,
 // after rotating everything, otherwise the work done here will be enough.
 // If osd_blobs is not null, a list of blobs from the dominant textline
 // direction are returned for use in orientation and script detection.
-bool StrokeWidth::TestVerticalTextDirection(TO_BLOCK* block,
+bool StrokeWidth::TestVerticalTextDirection(double find_vertical_text_ratio,
+                                            TO_BLOCK* block,
                                             BLOBNBOX_CLIST* osd_blobs) {
-  if (textord_tabfind_force_vertical_text) return true;
-  if (!textord_tabfind_vertical_text) return false;
-
   int vertical_boxes = 0;
   int horizontal_boxes = 0;
   // Count vertical normal and large blobs.
@@ -242,7 +240,7 @@ bool StrokeWidth::TestVerticalTextDirection(TO_BLOCK* block,
     return false;
   }
   int min_vert_boxes = static_cast<int>((vertical_boxes + horizontal_boxes) *
-                                        textord_tabfind_vertical_text_ratio);
+                                        find_vertical_text_ratio);
   if (vertical_boxes >= min_vert_boxes) {
     if (osd_blobs != NULL) {
       BLOBNBOX_C_IT osd_it(osd_blobs);
@@ -352,14 +350,11 @@ void StrokeWidth::RemoveLineResidue(ColPartition_LIST* big_part_list) {
 // part_grid is the output grid of textline partitions.
 // Large blobs that cause overlap are put in separate partitions and added
 // to the big_parts list.
-void StrokeWidth::GradeBlobsIntoPartitions(const FCOORD& rerotation,
-                                           TO_BLOCK* block,
-                                           Pix* nontext_pix,
-                                           const DENORM* denorm,
-                                           bool cjk_script,
-                                           TextlineProjection* projection,
-                                           ColPartitionGrid* part_grid,
-                                           ColPartition_LIST* big_parts) {
+void StrokeWidth::GradeBlobsIntoPartitions(
+    const FCOORD& rerotation, TO_BLOCK* block, Pix* nontext_pix,
+    const DENORM* denorm, bool cjk_script, TextlineProjection* projection,
+    BLOBNBOX_LIST* diacritic_blobs, ColPartitionGrid* part_grid,
+    ColPartition_LIST* big_parts) {
   nontext_map_ = nontext_pix;
   projection_ = projection;
   denorm_ = denorm;
@@ -372,7 +367,7 @@ void StrokeWidth::GradeBlobsIntoPartitions(const FCOORD& rerotation,
   if (cjk_script) {
     FixBrokenCJK(block);
   }
-  FindTextlineFlowDirection(true);
+  FindTextlineFlowDirection(false);
   projection_->ConstructProjection(block, rerotation, nontext_map_);
   if (textord_tabfind_show_strokewidths) {
     ScrollView* line_blobs_win = MakeWindow(0, 0, "Initial textline Blobs");
@@ -384,7 +379,19 @@ void StrokeWidth::GradeBlobsIntoPartitions(const FCOORD& rerotation,
   // Clear and re Insert to take advantage of the removed diacritics.
   Clear();
   InsertBlobs(block);
-  FindInitialPartitions(rerotation, block, part_grid, big_parts);
+  FCOORD skew;
+  FindTextlineFlowDirection(true);
+  PartitionFindResult r = FindInitialPartitions(
+      rerotation, true, block, diacritic_blobs, part_grid, big_parts, &skew);
+  if (r == PFR_NOISE) {
+    tprintf("Detected %d diacritics\n", diacritic_blobs->length());
+    // Noise was found, and removed.
+    Clear();
+    InsertBlobs(block);
+    FindTextlineFlowDirection(true);
+    r = FindInitialPartitions(rerotation, false, block, diacritic_blobs,
+                              part_grid, big_parts, &skew);
+  }
   nontext_map_ = NULL;
   projection_ = NULL;
   denorm_ = NULL;
@@ -1229,16 +1236,27 @@ void StrokeWidth::SmoothNeighbourTypes(BLOBNBOX* blob, bool reset_all) {
 // minimize overlap and smoothes the types with neighbours and the color
 // image if provided. rerotation is used to rotate the coordinate space
 // back to the nontext_map_ image.
-void StrokeWidth::FindInitialPartitions(const FCOORD& rerotation,
-                                        TO_BLOCK* block,
-                                        ColPartitionGrid* part_grid,
-                                        ColPartition_LIST* big_parts) {
+// If find_problems is true, detects possible noise pollution by the amount
+// of partition overlap that is created by the diacritics. If excessive, the
+// noise is separated out into diacritic blobs, and PFR_NOISE is returned.
+// [TODO(rays): if the partition overlap is caused by heavy skew, deskews
+// the components, saves the skew_angle and returns PFR_SKEW.] If the return
+// is not PFR_OK, the job is incomplete, and FindInitialPartitions must be
+// called again after cleaning up the partly done work.
+PartitionFindResult StrokeWidth::FindInitialPartitions(
+    const FCOORD& rerotation, bool find_problems, TO_BLOCK* block,
+    BLOBNBOX_LIST* diacritic_blobs, ColPartitionGrid* part_grid,
+    ColPartition_LIST* big_parts, FCOORD* skew_angle) {
   FindVerticalTextChains(part_grid);
   FindHorizontalTextChains(part_grid);
   if (textord_tabfind_show_strokewidths) {
     chains_win_ = MakeWindow(0, 400, "Initial text chains");
     part_grid->DisplayBoxes(chains_win_);
     projection_->DisplayProjection();
+  }
+  if (find_problems) {
+    // TODO(rays) Do something to find skew, set skew_angle and return if there
+    // is some.
   }
   part_grid->SplitOverlappingPartitions(big_parts);
   EasyMerges(part_grid);
@@ -1248,8 +1266,14 @@ void StrokeWidth::FindInitialPartitions(const FCOORD& rerotation,
                                          rerotation));
   while (part_grid->GridSmoothNeighbours(BTFT_NEIGHBOURS, nontext_map_,
                                          grid_box, rerotation));
+  int pre_overlap = part_grid->ComputeTotalOverlap(NULL);
   TestDiacritics(part_grid, block);
   MergeDiacritics(block, part_grid);
+  if (find_problems && diacritic_blobs != NULL &&
+      DetectAndRemoveNoise(pre_overlap, grid_box, block, part_grid,
+                           diacritic_blobs)) {
+    return PFR_NOISE;
+  }
   if (textord_tabfind_show_strokewidths) {
     textlines_win_ = MakeWindow(400, 400, "GoodTextline blobs");
     part_grid->DisplayBoxes(textlines_win_);
@@ -1269,6 +1293,57 @@ void StrokeWidth::FindInitialPartitions(const FCOORD& rerotation,
     smoothed_win_ = MakeWindow(800, 400, "Smoothed blobs");
     part_grid->DisplayBoxes(smoothed_win_);
   }
+  return PFR_OK;
+}
+
+// Detects noise by a significant increase in partition overlap from
+// pre_overlap to now, and removes noise from the union of all the overlapping
+// partitions, placing the blobs in diacritic_blobs. Returns true if any noise
+// was found and removed.
+bool StrokeWidth::DetectAndRemoveNoise(int pre_overlap, const TBOX& grid_box,
+                                       TO_BLOCK* block,
+                                       ColPartitionGrid* part_grid,
+                                       BLOBNBOX_LIST* diacritic_blobs) {
+  ColPartitionGrid* noise_grid = NULL;
+  int post_overlap = part_grid->ComputeTotalOverlap(&noise_grid);
+  if (pre_overlap == 0) pre_overlap = 1;
+  BLOBNBOX_IT diacritic_it(diacritic_blobs);
+  if (noise_grid != NULL) {
+    if (post_overlap > pre_overlap * kNoiseOverlapGrowthFactor &&
+        post_overlap > grid_box.area() * kNoiseOverlapAreaFactor) {
+      // This is noisy enough to fix.
+      if (textord_tabfind_show_strokewidths) {
+        ScrollView* noise_win = MakeWindow(1000, 500, "Noise Areas");
+        noise_grid->DisplayBoxes(noise_win);
+      }
+      part_grid->DeleteNonLeaderParts();
+      BLOBNBOX_IT blob_it(&block->noise_blobs);
+      ColPartitionGridSearch rsearch(noise_grid);
+      for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
+        BLOBNBOX* blob = blob_it.data();
+        blob->ClearNeighbours();
+        if (!blob->IsDiacritic() || blob->owner() != NULL)
+          continue;  // Not a noise candidate.
+        TBOX blob_box(blob->bounding_box());
+        TBOX search_box(blob->bounding_box());
+        search_box.pad(gridsize(), gridsize());
+        rsearch.StartRectSearch(search_box);
+        ColPartition* part = rsearch.NextRectSearch();
+        if (part != NULL) {
+          // Consider blob as possible noise.
+          blob->set_owns_cblob(true);
+          blob->compute_bounding_box();
+          diacritic_it.add_after_then_move(blob_it.extract());
+        }
+      }
+      noise_grid->DeleteParts();
+      delete noise_grid;
+      return true;
+    }
+    noise_grid->DeleteParts();
+    delete noise_grid;
+  }
+  return false;
 }
 
 // Helper verifies that blob's neighbour in direction dir is good to add to a

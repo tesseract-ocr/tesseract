@@ -209,55 +209,52 @@ FEATURE_SET ReadFeatureSet(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 
 
 /*---------------------------------------------------------------------------*/
-void WriteFeature(FILE *File, FEATURE Feature) {
 /*
- **	Parameters:
- **		File		open text file to write Feature to
- **		Feature		feature to write out to File
- **	Globals: none
- **	Operation: Write a textual representation of Feature to File.
- **		This representation is simply a list of the N parameters
- **		of the feature, terminated with a newline.  It is assumed
- **		that the ExtraPenalty field can be reconstructed from the
- **		parameters of the feature.  It is also assumed that the
- **		feature type information is specified or assumed elsewhere.
- **	Return: none
- **	Exceptions: none
- **	History: Wed May 23 09:28:18 1990, DSJ, Created.
+ ** Parameters:
+ ** Feature: feature to write out to str
+ ** str:     string to write Feature to
+ ** Operation: Appends a textual representation of Feature to str.
+ ** This representation is simply a list of the N parameters
+ ** of the feature, terminated with a newline.  It is assumed
+ ** that the ExtraPenalty field can be reconstructed from the
+ ** parameters of the feature.  It is also assumed that the
+ ** feature type information is specified or assumed elsewhere.
+ ** Return: none
+ ** Exceptions: none
+ ** History: Wed May 23 09:28:18 1990, DSJ, Created.
  */
-  int i;
-
-  for (i = 0; i < Feature->Type->NumParams; i++) {
+void WriteFeature(FEATURE Feature, STRING* str) {
+  for (int i = 0; i < Feature->Type->NumParams; i++) {
 #ifndef WIN32
     assert(!isnan(Feature->Params[i]));
 #endif
-    fprintf(File, " %g", Feature->Params[i]);
+    str->add_str_double(" ", Feature->Params[i]);
   }
-  fprintf(File, "\n");
+  *str += "\n";
 }                                /* WriteFeature */
 
 
 /*---------------------------------------------------------------------------*/
-void WriteFeatureSet(FILE *File, FEATURE_SET FeatureSet) {
 /*
- **	Parameters:
- **		File		open text file to write FeatureSet to
- **		FeatureSet	feature set to write to File
- **	Globals: none
- **	Operation: Write a textual representation of FeatureSet to File.
- **		This representation is an integer specifying the number of
- **		features in the set, followed by a newline, followed by
- **		text representations for each feature in the set.
- **	Return: none
- **	Exceptions: none
- **	History: Wed May 23 10:06:03 1990, DSJ, Created.
+ ** Parameters:
+ ** FeatureSet: feature set to write to File
+ ** str:        string to write Feature to
+ ** Globals: none
+ ** Operation: Write a textual representation of FeatureSet to File.
+ ** This representation is an integer specifying the number of
+ ** features in the set, followed by a newline, followed by
+ ** text representations for each feature in the set.
+ ** Return: none
+ ** Exceptions: none
+ ** History: Wed May 23 10:06:03 1990, DSJ, Created.
  */
-  int i;
-
+void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
   if (FeatureSet) {
-    fprintf (File, "%d\n", FeatureSet->NumFeatures);
-    for (i = 0; i < FeatureSet->NumFeatures; i++)
-      WriteFeature (File, FeatureSet->Features[i]);
+    str->add_str_int("", FeatureSet->NumFeatures);
+    *str += "\n";
+    for (int i = 0; i < FeatureSet->NumFeatures; i++) {
+      WriteFeature(FeatureSet->Features[i], str);
+    }
   }
 }                                /* WriteFeatureSet */
 

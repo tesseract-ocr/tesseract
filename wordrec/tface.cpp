@@ -21,7 +21,6 @@
 #include "chop.h"
 #include "chopper.h"
 #include "danerror.h"
-#include "fxdefs.h"
 #include "globals.h"
 #include "gradechop.h"
 #include "pageres.h"
@@ -49,7 +48,6 @@ void Wordrec::program_editup(const char *textbase,
                              bool init_dict) {
   if (textbase != NULL) imagefile = textbase;
   InitFeatureDefs(&feature_defs_);
-  SetupExtractors(&feature_defs_);
   InitAdaptiveClassifier(init_classifier);
   if (init_dict) getDict().Load(Dict::GlobalDawgCache());
   pass2_ok_split = chop_ok_split;

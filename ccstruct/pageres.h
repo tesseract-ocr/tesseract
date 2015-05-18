@@ -294,6 +294,7 @@ class WERD_RES : public ELIST_LINK {
   CRUNCH_MODE unlv_crunch_mode;
   float x_height;              // post match estimate
   float caps_height;           // post match estimate
+  float baseline_shift;        // post match estimate.
 
   /*
     To deal with fuzzy spaces we need to be able to combine "words" to form
@@ -314,8 +315,6 @@ class WERD_RES : public ELIST_LINK {
   BOOL8 combination;           //of two fuzzy gap wds
   BOOL8 part_of_combo;         //part of a combo
   BOOL8 reject_spaces;         //Reject spacing?
-  // FontInfo ids for each unichar in best_choice.
-  GenericVector<inT8> best_choice_fontinfo_ids;
 
   WERD_RES() {
     InitNonPointers();
@@ -707,6 +706,10 @@ class PAGE_RES_IT {
   // Deletes the current WERD_RES and its underlying WERD.
   void DeleteCurrentWord();
 
+  // Makes the current word a fuzzy space if not already fuzzy. Updates
+  // corresponding part of combo if required.
+  void MakeCurrentWordFuzzy();
+
   WERD_RES *forward() {  // Get next word.
     return internal_forward(false, false);
   }
@@ -746,9 +749,9 @@ class PAGE_RES_IT {
     return next_block_res;
   }
   void rej_stat_word();  // for page/block/row
+  void ResetWordIterator();
 
  private:
-  void ResetWordIterator();
   WERD_RES *internal_forward(bool new_block, bool empty_ok);
 
   WERD_RES * prev_word_res;    // previous word

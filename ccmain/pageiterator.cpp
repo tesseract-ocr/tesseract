@@ -26,15 +26,23 @@
 
 namespace tesseract {
 
-PageIterator::PageIterator(PAGE_RES* page_res, Tesseract* tesseract,
-                           int scale, int scaled_yres,
-                           int rect_left, int rect_top,
+PageIterator::PageIterator(PAGE_RES* page_res, Tesseract* tesseract, int scale,
+                           int scaled_yres, int rect_left, int rect_top,
                            int rect_width, int rect_height)
-  : page_res_(page_res), tesseract_(tesseract),
-    word_(NULL), word_length_(0), blob_index_(0), cblob_it_(NULL),
-    scale_(scale), scaled_yres_(scaled_yres),
-    rect_left_(rect_left), rect_top_(rect_top),
-    rect_width_(rect_width), rect_height_(rect_height) {
+    : page_res_(page_res),
+      tesseract_(tesseract),
+      word_(NULL),
+      word_length_(0),
+      blob_index_(0),
+      cblob_it_(NULL),
+      include_upper_dots_(false),
+      include_lower_dots_(false),
+      scale_(scale),
+      scaled_yres_(scaled_yres),
+      rect_left_(rect_left),
+      rect_top_(rect_top),
+      rect_width_(rect_width),
+      rect_height_(rect_height) {
   it_ = new PAGE_RES_IT(page_res);
   PageIterator::Begin();
 }
@@ -50,12 +58,20 @@ PageIterator::~PageIterator() {
  * objects at a higher level.
  */
 PageIterator::PageIterator(const PageIterator& src)
-  : page_res_(src.page_res_), tesseract_(src.tesseract_),
-    word_(NULL), word_length_(src.word_length_),
-    blob_index_(src.blob_index_), cblob_it_(NULL),
-    scale_(src.scale_), scaled_yres_(src.scaled_yres_),
-    rect_left_(src.rect_left_), rect_top_(src.rect_top_),
-    rect_width_(src.rect_width_), rect_height_(src.rect_height_) {
+    : page_res_(src.page_res_),
+      tesseract_(src.tesseract_),
+      word_(NULL),
+      word_length_(src.word_length_),
+      blob_index_(src.blob_index_),
+      cblob_it_(NULL),
+      include_upper_dots_(src.include_upper_dots_),
+      include_lower_dots_(src.include_lower_dots_),
+      scale_(src.scale_),
+      scaled_yres_(src.scaled_yres_),
+      rect_left_(src.rect_left_),
+      rect_top_(src.rect_top_),
+      rect_width_(src.rect_width_),
+      rect_height_(src.rect_height_) {
   it_ = new PAGE_RES_IT(*src.it_);
   BeginWord(src.blob_index_);
 }
@@ -63,6 +79,8 @@ PageIterator::PageIterator(const PageIterator& src)
 const PageIterator& PageIterator::operator=(const PageIterator& src) {
   page_res_ = src.page_res_;
   tesseract_ = src.tesseract_;
+  include_upper_dots_ = src.include_upper_dots_;
+  include_lower_dots_ = src.include_lower_dots_;
   scale_ = src.scale_;
   scaled_yres_ = src.scaled_yres_;
   rect_left_ = src.rect_left_;
@@ -252,16 +270,19 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
   PARA *para = NULL;
   switch (level) {
     case RIL_BLOCK:
-      box = it_->block()->block->bounding_box();
+      box = it_->block()->block->restricted_bounding_box(include_upper_dots_,
+                                                         include_lower_dots_);
       break;
     case RIL_PARA:
       para = it_->row()->row->para();
       // explicit fall-through.
     case RIL_TEXTLINE:
-      box = it_->row()->row->bounding_box();
+      box = it_->row()->row->restricted_bounding_box(include_upper_dots_,
+                                                     include_lower_dots_);
       break;
     case RIL_WORD:
-      box = it_->word()->word->bounding_box();
+      box = it_->word()->word->restricted_bounding_box(include_upper_dots_,
+                                                       include_lower_dots_);
       break;
     case RIL_SYMBOL:
       if (cblob_it_ == NULL)
@@ -387,39 +408,23 @@ Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
   int left, top, right, bottom;
   if (!BoundingBoxInternal(level, &left, &top, &right, &bottom))
     return NULL;
-  Pix* pix = NULL;
-  switch (level) {
-    case RIL_BLOCK:
-    case RIL_PARA:
-      int bleft, btop, bright, bbottom;
-      BoundingBoxInternal(RIL_BLOCK, &bleft, &btop, &bright, &bbottom);
-      pix = it_->block()->block->render_mask();
-      // AND the mask and the image.
-      pixRasterop(pix, 0, 0, pixGetWidth(pix), pixGetHeight(pix),
-                  PIX_SRC & PIX_DST, tesseract_->pix_binary(),
-                  bleft, btop);
-      if (level == RIL_PARA) {
-        // RIL_PARA needs further attention:
-        //   clip the paragraph from the block mask.
-        Box* box = boxCreate(left - bleft, top - btop,
-                             right - left, bottom - top);
-        Pix* pix2 = pixClipRectangle(pix, box, NULL);
-        boxDestroy(&box);
-        pixDestroy(&pix);
-        pix = pix2;
-      }
-      break;
-    case RIL_TEXTLINE:
-    case RIL_WORD:
-    case RIL_SYMBOL:
-      if (level == RIL_SYMBOL && cblob_it_ != NULL &&
-          cblob_it_->data()->area() != 0)
-        return cblob_it_->data()->render();
-      // Just clip from the bounding box.
-      Box* box = boxCreate(left, top, right - left, bottom - top);
-      pix = pixClipRectangle(tesseract_->pix_binary(), box, NULL);
-      boxDestroy(&box);
-      break;
+  if (level == RIL_SYMBOL && cblob_it_ != NULL &&
+      cblob_it_->data()->area() != 0)
+    return cblob_it_->data()->render();
+  Box* box = boxCreate(left, top, right - left, bottom - top);
+  Pix* pix = pixClipRectangle(tesseract_->pix_binary(), box, NULL);
+  boxDestroy(&box);
+  if (level == RIL_BLOCK || level == RIL_PARA) {
+    // Clip to the block polygon as well.
+    TBOX mask_box;
+    Pix* mask = it_->block()->block->render_mask(&mask_box);
+    int mask_x = left - mask_box.left();
+    int mask_y = top - (tesseract_->ImageHeight() - mask_box.top());
+    // AND the mask and pix, putting the result in pix.
+    pixRasterop(pix, MAX(0, -mask_x), MAX(0, -mask_y), pixGetWidth(pix),
+                pixGetHeight(pix), PIX_SRC & PIX_DST, mask, MAX(0, mask_x),
+                MAX(0, mask_y));
+    pixDestroy(&mask);
   }
   return pix;
 }
@@ -452,17 +457,24 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
   Box* box = boxCreate(*left, *top, right - *left, bottom - *top);
   Pix* grey_pix = pixClipRectangle(original_img, box, NULL);
   boxDestroy(&box);
-  if (level == RIL_BLOCK) {
-    Pix* mask = it_->block()->block->render_mask();
-    Pix* expanded_mask = pixCreate(right - *left, bottom - *top, 1);
-    pixRasterop(expanded_mask, padding, padding,
-                pixGetWidth(mask), pixGetHeight(mask),
-                PIX_SRC, mask, 0, 0);
+  if (level == RIL_BLOCK || level == RIL_PARA) {
+    // Clip to the block polygon as well.
+    TBOX mask_box;
+    Pix* mask = it_->block()->block->render_mask(&mask_box);
+    // Copy the mask registered correctly into an image the size of grey_pix.
+    int mask_x = *left - mask_box.left();
+    int mask_y = *top - (pixGetHeight(original_img) - mask_box.top());
+    int width = pixGetWidth(grey_pix);
+    int height = pixGetHeight(grey_pix);
+    Pix* resized_mask = pixCreate(width, height, 1);
+    pixRasterop(resized_mask, MAX(0, -mask_x), MAX(0, -mask_y), width, height,
+                PIX_SRC, mask, MAX(0, mask_x), MAX(0, mask_y));
     pixDestroy(&mask);
-    pixDilateBrick(expanded_mask, expanded_mask, 2*padding + 1, 2*padding + 1);
-    pixInvert(expanded_mask, expanded_mask);
-    pixSetMasked(grey_pix, expanded_mask, MAX_UINT32);
-    pixDestroy(&expanded_mask);
+    pixDilateBrick(resized_mask, resized_mask, 2 * padding + 1,
+                   2 * padding + 1);
+    pixInvert(resized_mask, resized_mask);
+    pixSetMasked(grey_pix, resized_mask, MAX_UINT32);
+    pixDestroy(&resized_mask);
   }
   return grey_pix;
 }

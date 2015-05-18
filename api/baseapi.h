@@ -538,9 +538,11 @@ class TESS_API TessBaseAPI {
    *
    * Returns true if successful, false on error.
    */
-  bool ProcessPages(const char* filename,
-                    const char* retry_config, int timeout_millisec,
-                    TessResultRenderer* renderer);
+  bool ProcessPages(const char* filename, const char* retry_config,
+                    int timeout_millisec, TessResultRenderer* renderer);
+  // Does the real work of ProcessPages.
+  bool ProcessPagesInternal(const char* filename, const char* retry_config,
+                            int timeout_millisec, TessResultRenderer* renderer);
 
   /**
    * Turn a single image into symbolic text.
@@ -585,8 +587,18 @@ class TESS_API TessBaseAPI {
    * Make a HTML-formatted string with hOCR markup from the internal
    * data structures.
    * page_number is 0-based but will appear in the output as 1-based.
+   * monitor can be used to
+   * 	cancel the regocnition
+   * 	receive progress callbacks
    */
-  char* GetHOCRText(int page_number, ETEXT_DESC* monitor);
+  char* GetHOCRText(struct ETEXT_DESC* monitor, int page_number);
+
+  /**
+   * Make a HTML-formatted string with hOCR markup from the internal
+   * data structures.
+   * page_number is 0-based but will appear in the output as 1-based.
+   */
+  char* GetHOCRText(int page_number);
 
   /**
    * The recognized text is returned as a char* which is coded in the same
@@ -656,6 +668,9 @@ class TESS_API TessBaseAPI {
    * in a separate API at some future time.
    */
   int IsValidWord(const char *word);
+  // Returns true if utf8_character is defined in the UniCharset.
+  bool IsValidCharacter(const char *utf8_character);
+
 
   bool GetTextDirection(int* out_offset, float* out_slope);
 

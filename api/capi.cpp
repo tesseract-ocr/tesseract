@@ -424,7 +424,7 @@ TESS_API int TESS_CALL TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle, ETEX
 TESS_API BOOL TESS_CALL TessBaseAPIProcessPages(TessBaseAPI* handle, const char* filename, const char* retry_config,
                                                 int timeout_millisec, TessResultRenderer* renderer)
 {
-    if (handle->ProcessPages(filename, retry_config, timeout_millisec, renderer))    
+    if (handle->ProcessPages(filename, retry_config, timeout_millisec, renderer))
         return TRUE;
     else
         return FALSE;
@@ -456,7 +456,7 @@ TESS_API char* TESS_CALL TessBaseAPIGetUTF8Text(TessBaseAPI* handle)
 
 TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_number)
 {
-    return handle->GetHOCRText(page_number,NULL);
+    return handle->GetHOCRText(NULL, page_number);
 }
 
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number)
@@ -667,6 +667,18 @@ TESS_API void TESS_CALL TessPageIteratorOrientation(TessPageIterator* handle, Te
     handle->Orientation(orientation, writing_direction, textline_order, deskew_angle);
 }
 
+TESS_API void  TESS_CALL TessPageIteratorParagraphInfo(TessPageIterator* handle, TessParagraphJustification* justification,
+                                                       BOOL *is_list_item, BOOL *is_crown, int *first_line_indent)
+{
+    bool bool_is_list_item, bool_is_crown;
+    handle->ParagraphInfo(justification, &bool_is_list_item, &bool_is_crown, first_line_indent);
+    if (is_list_item)
+        *is_list_item = bool_is_list_item ? TRUE : FALSE;
+    if (is_crown)
+        *is_crown = bool_is_crown ? TRUE : FALSE;
+}
+
+
 TESS_API void TESS_CALL TessResultIteratorDelete(TessResultIterator* handle)
 {
     delete handle;
@@ -687,7 +699,7 @@ TESS_API const TessPageIterator* TESS_CALL TessResultIteratorGetPageIteratorCons
     return handle;
 }
 
-TESS_API const TessChoiceIterator* TESS_CALL TessResultIteratorGetChoiceIterator(const TessResultIterator* handle)
+TESS_API TessChoiceIterator* TESS_CALL TessResultIteratorGetChoiceIterator(const TessResultIterator* handle)
 {
     return new TessChoiceIterator(*handle);
 }

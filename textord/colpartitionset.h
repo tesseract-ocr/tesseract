@@ -50,12 +50,15 @@ class ColPartitionSet : public ELIST_LINK {
   const TBOX& bounding_box() const {
     return bounding_box_;
   }
-  bool Empty() {
+  bool Empty() const {
     return parts_.empty();
   }
-  int ColumnCount() {
+  int ColumnCount() const {
     return parts_.length();
   }
+
+  // Returns the number of columns of good width.
+  int GoodColumnCount() const;
 
   // Return an element of the parts_ list from its index.
   ColPartition* GetColumnByIndex(int index);
