@@ -20,7 +20,11 @@ FONTS=(
     "Arial" \
     "Times New Roman," \
 )
-FONTS_DIR="/usr/share/fonts/truetype/"
+if [ "$(uname)" == "Darwin" ];then
+    FONTS_DIR="/Library/Fonts/"
+else
+    FONTS_DIR="/usr/share/fonts/truetype/"
+fi
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
 OVERWRITE=0
 RUN_SHAPE_CLUSTERING=0

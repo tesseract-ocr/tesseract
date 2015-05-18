@@ -261,8 +261,8 @@ class ClassPruner {
   // Prunes the classes using <the maximum count> * pruning_factor/256 as a
   // threshold for keeping classes. If max_of_non_fragments, then ignore
   // fragments in computing the maximum count.
-  void PruneAndSort(int pruning_factor, bool max_of_non_fragments,
-                    const UNICHARSET& unicharset) {
+  void PruneAndSort(int pruning_factor, int keep_this,
+                    bool max_of_non_fragments, const UNICHARSET& unicharset) {
     int max_count = 0;
     for (int c = 0; c < max_classes_; ++c) {
       if (norm_count_[c] > max_count &&
@@ -282,7 +282,8 @@ class ClassPruner {
       pruning_threshold_ = 1;
     num_classes_ = 0;
     for (int class_id = 0; class_id < max_classes_; class_id++) {
-      if (norm_count_[class_id] >= pruning_threshold_) {
+      if (norm_count_[class_id] >= pruning_threshold_ ||
+          class_id == keep_this) {
           ++num_classes_;
         sort_index_[num_classes_] = class_id;
         sort_key_[num_classes_] = norm_count_[class_id];
@@ -404,7 +405,7 @@ class ClassPruner {
 //    results                Sorted Array of pruned classes. Must be an array
 //                           of size at least int_templates->NumClasses.
 int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
-                           int num_features,
+                           int num_features, int keep_this,
                            const INT_FEATURE_STRUCT* features,
                            const uinT8* normalization_factors,
                            const uinT16* expected_num_features,
@@ -439,7 +440,7 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
     pruner.NoNormalization();
   }
   // Do the actual pruning and sort the short-list.
-  pruner.PruneAndSort(classify_class_pruner_threshold,
+  pruner.PruneAndSort(classify_class_pruner_threshold, keep_this,
                       shape_table_ == NULL, unicharset);
 
   if (classify_debug_level > 2) {

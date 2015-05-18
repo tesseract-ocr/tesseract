@@ -28,6 +28,7 @@
 
 #if defined(_WIN32)
 #ifdef _MSC_VER
+#include "vcsversion.h"
 #include "mathfix.h"
 #elif MINGW
 // workaround for stdlib.h with -std=c++11 for _splitpath and _MAX_FNAME
@@ -139,7 +140,7 @@ TessBaseAPI::~TessBaseAPI() {
  * Returns the version identifier as a static string. Do not delete.
  */
 const char* TessBaseAPI::Version() {
-#if defined(DEBUG) && defined(GIT_REV)
+#if defined(GIT_REV) && (defined(DEBUG) || defined(_DEBUG))
   return GIT_REV;
 #else
   return TESSERACT_VERSION_STR;

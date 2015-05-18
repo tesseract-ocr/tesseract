@@ -218,9 +218,10 @@ void AddProtoToClassPruner(PROTO Proto,
 void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
                            INT_CLASS Class, bool debug);
 
-int BucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets);
+uinT8 Bucket8For(FLOAT32 param, FLOAT32 offset, int num_buckets);
+uinT16 Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets);
 
-int CircBucketFor(FLOAT32 Param, FLOAT32 Offset, int NumBuckets);
+uinT8 CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets);
 
 void UpdateMatchDisplay();
 

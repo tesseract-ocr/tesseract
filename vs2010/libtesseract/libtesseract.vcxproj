@@ -144,6 +144,12 @@
 copy "$(TargetPath)" ..\..\..\lib
 </Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>..\version.bat</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>GIT_REV</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Debug|Win32'">
     <CustomBuildStep>
@@ -323,6 +329,7 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ccmain\adaptions.cpp" />
+    <ClCompile Include="..\..\ccstruct\imagedata.cpp" />
     <ClCompile Include="..\..\classify\adaptive.cpp" />
     <ClCompile Include="..\..\classify\adaptmatch.cpp" />
     <ClCompile Include="..\..\opencl\openclwrapper.cpp" />
@@ -409,7 +416,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\textord\equationdetectbase.cpp" />
     <ClCompile Include="..\..\ccutil\errcode.cpp" />
     <ClCompile Include="..\..\classify\errorcounter.cpp" />
-    <ClCompile Include="..\..\classify\extract.cpp" />
     <ClCompile Include="..\..\classify\featdefs.cpp" />
     <ClCompile Include="..\..\cube\feature_bmp.cpp" />
     <ClCompile Include="..\..\cube\feature_chebyshev.cpp" />
@@ -417,13 +423,11 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\wordrec\findseam.cpp" />
     <ClCompile Include="..\..\ccmain\fixspace.cpp" />
     <ClCompile Include="..\..\ccmain\fixxht.cpp" />
-    <ClCompile Include="..\..\classify\flexfx.cpp" />
     <ClCompile Include="..\..\classify\float2int.cpp" />
     <ClCompile Include="..\..\ccstruct\fontinfo.cpp" />
     <ClCompile Include="..\..\textord\fpchop.cpp" />
     <ClCompile Include="..\..\classify\fpoint.cpp" />
     <ClCompile Include="..\..\cutil\freelist.cpp" />
-    <ClCompile Include="..\..\classify\fxdefs.cpp" />
     <ClCompile Include="..\..\textord\gap_map.cpp" />
     <ClCompile Include="..\..\ccstruct\genblob.cpp" />
     <ClCompile Include="..\port\gettimeofday.cpp" />
@@ -447,7 +451,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\cutil\listio.cpp" />
     <ClCompile Include="..\..\ccmain\ltrresultiterator.cpp" />
     <ClCompile Include="..\..\ccutil\mainblk.cpp" />
-    <ClCompile Include="..\..\wordrec\makechop.cpp" />
     <ClCompile Include="..\..\textord\makerow.cpp" />
     <ClCompile Include="..\..\classify\mastertrainer.cpp" />
     <ClCompile Include="..\..\ccstruct\matrix.cpp" />
@@ -468,7 +471,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\ccstruct\ocrrow.cpp" />
     <ClCompile Include="..\..\textord\oldbasel.cpp" />
     <ClCompile Include="..\..\cutil\oldlist.cpp" />
-    <ClCompile Include="..\..\wordrec\olutil.cpp" />
     <ClCompile Include="..\..\ccmain\osdetect.cpp" />
     <ClCompile Include="..\..\ccstruct\otsuthr.cpp" />
     <ClCompile Include="..\..\classify\outfeat.cpp" />
@@ -568,7 +570,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\wordrec\wordrec.cpp" />
     <ClCompile Include="..\..\textord\wordseg.cpp" />
     <ClCompile Include="..\..\textord\workingpartset.cpp" />
-    <ClCompile Include="..\..\classify\xform2d.cpp" />
     <ClCompile Include="..\..\api\renderer.cpp" />
     <ClCompile Include="..\..\ccmain\superscript.cpp" />
     <ClCompile Include="..\..\ccstruct\blamer.cpp" />
@@ -584,6 +585,7 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\wordrec\params_model.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\ccstruct\imagedata.h" />
     <ClInclude Include="..\..\classify\adaptive.h" />
     <ClInclude Include="..\..\opencl\oclkernels.h" />
     <ClInclude Include="..\..\opencl\openclwrapper.h" />
@@ -622,7 +624,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\cube\char_samp_enum.h" />
     <ClInclude Include="..\..\cube\char_samp_set.h" />
     <ClInclude Include="..\..\cube\char_set.h" />
-    <ClInclude Include="..\..\classify\chartoname.h" />
     <ClInclude Include="..\..\wordrec\chop.h" />
     <ClInclude Include="..\..\wordrec\chopper.h" />
     <ClInclude Include="..\..\textord\cjkpitch.h" />
@@ -674,8 +675,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\textord\equationdetectbase.h" />
     <ClInclude Include="..\..\ccutil\errcode.h" />
     <ClInclude Include="..\..\classify\errorcounter.h" />
-    <ClInclude Include="..\..\classify\extern.h" />
-    <ClInclude Include="..\..\classify\extract.h" />
     <ClInclude Include="..\..\classify\featdefs.h" />
     <ClInclude Include="..\..\cube\feature_base.h" />
     <ClInclude Include="..\..\cube\feature_bmp.h" />
@@ -684,13 +683,11 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\ccutil\fileerr.h" />
     <ClInclude Include="..\..\wordrec\findseam.h" />
     <ClInclude Include="..\..\ccmain\fixspace.h" />
-    <ClInclude Include="..\..\classify\flexfx.h" />
     <ClInclude Include="..\..\classify\float2int.h" />
     <ClInclude Include="..\..\ccstruct\fontinfo.h" />
     <ClInclude Include="..\..\textord\fpchop.h" />
     <ClInclude Include="..\..\classify\fpoint.h" />
     <ClInclude Include="..\..\cutil\freelist.h" />
-    <ClInclude Include="..\..\classify\fxdefs.h" />
     <ClInclude Include="..\..\textord\gap_map.h" />
     <ClInclude Include="..\..\ccstruct\genblob.h" />
     <ClInclude Include="..\..\ccutil\genericvector.h" />
@@ -722,7 +719,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\cutil\listio.h" />
     <ClInclude Include="..\..\ccutil\lsterr.h" />
     <ClInclude Include="..\..\ccmain\ltrresultiterator.h" />
-    <ClInclude Include="..\..\wordrec\makechop.h" />
     <ClInclude Include="..\..\textord\makerow.h" />
     <ClInclude Include="..\..\classify\mastertrainer.h" />
     <ClInclude Include="..\..\dict\matchdefs.h" />
@@ -750,7 +746,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\ccstruct\ocrrow.h" />
     <ClInclude Include="..\..\textord\oldbasel.h" />
     <ClInclude Include="..\..\cutil\oldlist.h" />
-    <ClInclude Include="..\..\wordrec\olutil.h" />
     <ClInclude Include="..\..\ccmain\osdetect.h" />
     <ClInclude Include="..\..\ccstruct\otsuthr.h" />
     <ClInclude Include="..\..\classify\outfeat.h" />
@@ -852,7 +847,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\wordrec\wordrec.h" />
     <ClInclude Include="..\..\textord\wordseg.h" />
     <ClInclude Include="..\..\textord\workingpartset.h" />
-    <ClInclude Include="..\..\classify\xform2d.h" />
     <ClInclude Include="..\..\api\renderer.h" />
     <ClInclude Include="..\..\ccstruct\blamer.h" />
     <ClInclude Include="..\..\ccutil\doubleptr.h" />

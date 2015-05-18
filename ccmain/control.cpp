@@ -250,8 +250,7 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
       pr_it->forward();
     ASSERT_HOST(pr_it->word() != NULL);
     bool make_next_word_fuzzy = false;
-    if (!AnyLSTMLang() &&
-        ReassignDiacritics(pass_n, pr_it, &make_next_word_fuzzy)) {
+    if (ReassignDiacritics(pass_n, pr_it, &make_next_word_fuzzy)) {
       // Needs to be setup again to see the new outlines in the chopped_word.
       SetupWordPassN(pass_n, word);
     }

@@ -614,8 +614,10 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   n = snprintf(buf, sizeof(buf), "%s/pdf.ttf", datadir_);
   if (n >= sizeof(buf)) return false;
   FILE *fp = fopen(buf, "rb");
-  if (!fp)
+  if (!fp) {
+    fprintf(stderr, "Can not open file \"%s\"!\n", buf);
     return false;
+  }
   fseek(fp, 0, SEEK_END);
   long int size = ftell(fp);
   fseek(fp, 0, SEEK_SET);

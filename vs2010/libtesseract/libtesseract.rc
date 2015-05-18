@@ -72,7 +72,7 @@ BEGIN
             VALUE "FileDescription", "Tesseract OCR library"
             VALUE "FileVersion", "3, 4, 0, 0"
             VALUE "InternalName", "libtesseract"
-            VALUE "LegalCopyright", "Copyright (C) 2014 Google, Inc. Licensed under the Apache License, Version 2.0"
+            VALUE "LegalCopyright", "Copyright (C) 2015 Google, Inc. Licensed under the Apache License, Version 2.0"
             VALUE "OriginalFilename", "libtesseract"
             VALUE "ProductName", "Tesseract OCR Library"
             VALUE "ProductVersion", "3, 4, 0, 0"
