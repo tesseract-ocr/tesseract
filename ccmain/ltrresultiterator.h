@@ -110,6 +110,8 @@ class TESS_API LTRResultIterator : public PageIterator {
                                  int* pointsize,
                                  int* font_id) const;
 
+  void RowAttributes(float* row_height, float* descenders, float* ascenders) const;
+
   // Return the name of the language used to recognize this word.
   // On error, NULL.  Do not delete this pointer.
   const char* WordRecognitionLanguage() const;
