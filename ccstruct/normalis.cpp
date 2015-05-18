@@ -487,7 +487,7 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
       top > kBlnCellHeight - kBlnBaselineOffset / 2)
     max_top += kBlnBaselineOffset;
   top -= bln_yshift;
-  int height = top - kBlnBaselineOffset - bottom_shift;
+  int height = top - kBlnBaselineOffset;
   double min_height = min_top - kBlnBaselineOffset - tolerance;
   double max_height = max_top - kBlnBaselineOffset + tolerance;
 

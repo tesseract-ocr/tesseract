@@ -44,7 +44,5 @@ int any_shared_split_points(const GenericVector<SEAM*>& seams, SEAM *seam);
 
 int check_blob(TBLOB *blob);
 
-inT16 check_seam_order(TBLOB *blob, SEAM *seam);
-
 inT16 total_containment(TBLOB *blob1, TBLOB *blob2);
 #endif

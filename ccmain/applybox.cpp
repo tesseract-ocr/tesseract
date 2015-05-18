@@ -272,7 +272,7 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
     // limited by the ability of the chopper to find suitable chop points,
     // and not by the value of the certainties.
     BLOB_CHOICE* choice =
-        new BLOB_CHOICE(0, rating, -rating, -1, -1, 0, 0, 0, 0, BCC_FAKE);
+        new BLOB_CHOICE(0, rating, -rating, -1, 0.0f, 0.0f, 0.0f, BCC_FAKE);
     blob_choices.push_back(choice);
     rating -= 0.125f;
   }
@@ -291,8 +291,8 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
       left_choice->set_certainty(-rating);
       // combine confidence w/ serial #
       BLOB_CHOICE* right_choice = new BLOB_CHOICE(++right_chop_index,
-                                                  rating - 0.125f, -rating,
-                                                  -1, -1, 0, 0, 0, 0, BCC_FAKE);
+                                                  rating - 0.125f, -rating, -1,
+                                                  0.0f, 0.0f, 0.0f, BCC_FAKE);
       blob_choices.insert(right_choice, blob_number + 1);
     }
   }
@@ -582,7 +582,7 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID>& target_text,
     int blob_count = 1;
     for (int s = 0; s < word_res->seam_array.size(); ++s) {
       SEAM* seam = word_res->seam_array[s];
-      if (seam->split1 == NULL) {
+      if (!seam->HasAnySplits()) {
         word_res->best_state.push_back(blob_count);
         blob_count = 1;
       } else {
@@ -775,13 +775,13 @@ void Tesseract::CorrectClassifyWords(PAGE_RES* page_res) {
 }
 
 // Calls LearnWord to extract features for labelled blobs within each word.
-// Features are written to the given filename.
-void Tesseract::ApplyBoxTraining(const STRING& filename, PAGE_RES* page_res) {
+// Features are stored in an internal buffer.
+void Tesseract::ApplyBoxTraining(const STRING& fontname, PAGE_RES* page_res) {
   PAGE_RES_IT pr_it(page_res);
   int word_count = 0;
   for (WERD_RES *word_res = pr_it.word(); word_res != NULL;
        word_res = pr_it.forward()) {
-    LearnWord(filename.string(), word_res);
+    LearnWord(fontname.string(), word_res);
     ++word_count;
   }
   tprintf("Generated training data for %d words\n", word_count);

@@ -22,6 +22,7 @@
 #define TESSERACT_TEXTORD_TEXTORD_H__
 
 #include "ccstruct.h"
+#include "bbgrid.h"
 #include "blobbox.h"
 #include "gap_map.h"
 #include "publictypes.h"  // For PageSegMode.
@@ -35,6 +36,35 @@ class ScrollView;
 
 namespace tesseract {
 
+// A simple class that can be used by BBGrid to hold a word and an expanded
+// bounding box that makes it easy to find words to put diacritics.
+class WordWithBox {
+ public:
+  WordWithBox() : word_(NULL) {}
+  explicit WordWithBox(WERD *word)
+      : word_(word), bounding_box_(word->bounding_box()) {
+    int height = bounding_box_.height();
+    bounding_box_.pad(height, height);
+  }
+
+  const TBOX &bounding_box() const { return bounding_box_; }
+  // Returns the bounding box of only the good blobs.
+  TBOX true_bounding_box() const { return word_->true_bounding_box(); }
+  C_BLOB_LIST *RejBlobs() const { return word_->rej_cblob_list(); }
+  const WERD *word() const { return word_; }
+
+ private:
+  // Borrowed pointer to a real word somewhere that must outlive this class.
+  WERD *word_;
+  // Cached expanded bounding box of the word, padded all round by its height.
+  TBOX bounding_box_;
+};
+
+// Make it usable by BBGrid.
+CLISTIZEH(WordWithBox)
+typedef BBGrid<WordWithBox, WordWithBox_CLIST, WordWithBox_C_IT> WordGrid;
+typedef GridSearch<WordWithBox, WordWithBox_CLIST, WordWithBox_C_IT> WordSearch;
+
 class Textord {
  public:
   explicit Textord(CCStruct* ccstruct);
@@ -47,11 +77,13 @@ class Textord {
   // thresholds_pix is expected to be present iff grey_pix is present and
   // can be an integer factor reduction of the grey_pix. It represents the
   // thresholds that were used to create the binary_pix from the grey_pix.
-  void TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
-                   int width, int height, Pix* binary_pix,
-                   Pix* thresholds_pix, Pix* grey_pix,
-                   bool use_box_bottoms,
-                   BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
+  // diacritic_blobs contain small confusing components that should be added
+  // to the appropriate word(s) in case they are really diacritics.
+  void TextordPage(PageSegMode pageseg_mode, const FCOORD &reskew, int width,
+                   int height, Pix *binary_pix, Pix *thresholds_pix,
+                   Pix *grey_pix, bool use_box_bottoms,
+                   BLOBNBOX_LIST *diacritic_blobs, BLOCK_LIST *blocks,
+                   TO_BLOCK_LIST *to_blocks);
 
   // If we were supposed to return only a single textline, and there is more
   // than one, clean up and leave only the best.
@@ -212,6 +244,17 @@ class Textord {
   // Remove outlines that are a tiny fraction in either width or height
   // of the word height.
   void clean_small_noise_from_words(ROW *row);
+  // Groups blocks by rotation, then, for each group, makes a WordGrid and calls
+  // TransferDiacriticsToWords to copy the diacritic blobs to the most
+  // appropriate words in the group of blocks. Source blobs are not touched.
+  void TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
+                                       BLOCK_LIST* blocks);
+  // Places a copy of blobs that are near a word (after applying rotation to the
+  // blob) in the most appropriate word, unless there is doubt, in which case a
+  // blob can end up in two words. Source blobs are not touched.
+  void TransferDiacriticsToWords(BLOBNBOX_LIST *diacritic_blobs,
+                                 const FCOORD &rotation, WordGrid *word_grid);
+
  public:
   // makerow.cpp ///////////////////////////////////////////
   BOOL_VAR_H(textord_single_height_mode, false,

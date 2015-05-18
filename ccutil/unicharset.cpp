@@ -867,8 +867,11 @@ bool UNICHARSET::load_via_fgets(
     // Skip fragments if needed.
     CHAR_FRAGMENT *frag = NULL;
     if (skip_fragments && (frag = CHAR_FRAGMENT::parse_from_string(unichar))) {
+      int num_pieces = frag->get_total();
       delete frag;
-      continue;
+      // Skip multi-element fragments, but keep singles like UNICHAR_BROKEN in.
+      if (num_pieces > 1)
+        continue;
     }
     // Insert unichar into unicharset and set its properties.
     if (strcmp(unichar, "NULL") == 0)
@@ -982,8 +985,10 @@ bool UNICHARSET::major_right_to_left() const {
 // Set a whitelist and/or blacklist of characters to recognize.
 // An empty or NULL whitelist enables everything (minus any blacklist).
 // An empty or NULL blacklist disables nothing.
+// An empty or NULL blacklist has no effect.
 void UNICHARSET::set_black_and_whitelist(const char* blacklist,
-                                         const char* whitelist) {
+                                         const char* whitelist,
+                                         const char* unblacklist) {
   bool def_enabled = whitelist == NULL || whitelist[0] == '\0';
   // Set everything to default
   for (int ch = 0; ch < size_used; ++ch)
@@ -1004,6 +1009,15 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
         unichars[encoding[i]].properties.enabled = false;
+    }
+  }
+  if (unblacklist != NULL && unblacklist[0] != '\0') {
+    // Re-enable the unblacklist.
+    GenericVector<UNICHAR_ID> encoding;
+    encode_string(unblacklist, false, &encoding, NULL, NULL);
+    for (int i = 0; i < encoding.size(); ++i) {
+      if (encoding[i] != INVALID_UNICHAR_ID)
+        unichars[encoding[i]].properties.enabled = true;
     }
   }
 }

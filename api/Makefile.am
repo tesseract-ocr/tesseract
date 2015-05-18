@@ -66,7 +66,7 @@ libtesseract_la_LIBADD = \
 libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION)
 
 bin_PROGRAMS = tesseract
-tesseract_SOURCES = $(top_srcdir)/api/tesseractmain.cpp
+tesseract_SOURCES = tesseractmain.cpp
 tesseract_CPPFLAGS = $(AM_CPPFLAGS)
 if VISIBILITY
 tesseract_CPPFLAGS += -DTESS_IMPORTS
@@ -78,7 +78,7 @@ if USE_OPENCL
 tesseract_LDADD += $(OPENCL_LIB)
 endif
 
-if MINGW
+if T_WIN
 tesseract_LDADD += -lws2_32
 libtesseract_la_LDFLAGS += -no-undefined -Wl,--as-needed -lws2_32
 endif

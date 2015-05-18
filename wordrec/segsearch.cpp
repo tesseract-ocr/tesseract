@@ -53,8 +53,7 @@ void Wordrec::SegSearch(WERD_RES* word_res,
       improve_by_chopping(rating_cert_scale, word_res, best_choice_bundle,
                           blamer_bundle, &pain_points, &pending);
     }
-    if (chop_debug)
-      print_seams("Final seam list:", word_res->seam_array);
+    if (chop_debug) SEAM::PrintSeams("Final seam list:", word_res->seam_array);
 
     if (blamer_bundle != NULL &&
         !blamer_bundle->ChoiceIsCorrect(word_res->best_choice)) {

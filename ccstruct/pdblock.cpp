@@ -77,7 +77,6 @@ void PDBLK::set_sides(                       //set vertex lists
   right_it.add_list_before (right);
 }
 
-
 /**********************************************************************
  * PDBLK::contains
  *
@@ -126,7 +125,7 @@ void PDBLK::move(                  // reposition block
 
 // Returns a binary Pix mask with a 1 pixel for every pixel within the
 // block. Rotates the coordinate system by rerotation prior to rendering.
-Pix* PDBLK::render_mask(const FCOORD& rerotation) {
+Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
   TBOX rotated_box(box);
   rotated_box.rotate(rerotation);
   Pix* pix = pixCreate(rotated_box.width(), rotated_box.height(), 1);
@@ -163,6 +162,7 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation) {
     pixRasterop(pix, 0, 0, rotated_box.width(), rotated_box.height(),
                 PIX_SET, NULL, 0, 0);
   }
+  if (mask_box != NULL) *mask_box = rotated_box;
   return pix;
 }
 

@@ -35,6 +35,8 @@ namespace tesseract {
 // guessed that the blob tops are caps and will have placed the xheight too low.
 // 3. Noise/logos beside words, or changes in font size on a line. Such
 // things can blow the statistics and cause an incorrect estimate.
+// 4. Incorrect baseline. Can happen when 2 columns are incorrectly merged.
+// In this case the x-height is often still correct.
 //
 // Algorithm.
 // Compare the vertical position (top only) of alphnumerics in a word with
@@ -54,6 +56,10 @@ namespace tesseract {
 // even if the x-height is incorrect. This is not a terrible assumption, but
 // it is not great. An improvement would be to use a classifier that does
 // not care about vertical position or scaling at all.
+// Separately collect stats on shifted baselines and apply the same logic to
+// computing a best-fit shift to fix the error. If the baseline needs to be
+// shifted, but the x-height is OK, returns the original x-height along with
+// the baseline shift to indicate that recognition needs to re-run.
 
 // If the max-min top of a unicharset char is bigger than kMaxCharTopRange
 // then the char top cannot be used to judge misfits or suggest a new top.
@@ -92,65 +98,108 @@ int Tesseract::CountMisfitTops(WERD_RES *word_res) {
 
 // Returns a new x-height maximally compatible with the result in word_res.
 // See comment above for overall algorithm.
-float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res) {
+float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res,
+                                          float* baseline_shift) {
   STATS top_stats(0, MAX_UINT8);
+  STATS shift_stats(-MAX_UINT8, MAX_UINT8);
+  int bottom_shift = 0;
   int num_blobs = word_res->rebuild_word->NumBlobs();
-  for (int blob_id = 0; blob_id < num_blobs; ++blob_id) {
-    TBLOB* blob = word_res->rebuild_word->blobs[blob_id];
-    UNICHAR_ID class_id = word_res->best_choice->unichar_id(blob_id);
-    if (unicharset.get_isalpha(class_id) || unicharset.get_isdigit(class_id)) {
-      int top = blob->bounding_box().top();
-      // Clip the top to the limit of normalized feature space.
-      if (top >= INT_FEAT_RANGE)
-        top = INT_FEAT_RANGE - 1;
-      int bottom = blob->bounding_box().bottom();
-      int min_bottom, max_bottom, min_top, max_top;
-      unicharset.get_top_bottom(class_id, &min_bottom, &max_bottom,
-                                &min_top, &max_top);
-      // Chars with a wild top range would mess up the result so ignore them.
-      if (max_top - min_top > kMaxCharTopRange)
-        continue;
-      int misfit_dist = MAX((min_top - x_ht_acceptance_tolerance) - top,
-                          top - (max_top + x_ht_acceptance_tolerance));
-      int height = top - kBlnBaselineOffset;
-      if (debug_x_ht_level >= 20) {
-        tprintf("Class %s: height=%d, bottom=%d,%d top=%d,%d, actual=%d,%d : ",
-                unicharset.id_to_unichar(class_id),
-                height, min_bottom, max_bottom, min_top, max_top,
-                bottom, top);
-      }
-      // Use only chars that fit in the expected bottom range, and where
-      // the range of tops is sensibly near the xheight.
-      if (min_bottom <= bottom + x_ht_acceptance_tolerance &&
-          bottom - x_ht_acceptance_tolerance <= max_bottom &&
-          min_top > kBlnBaselineOffset &&
-          max_top - kBlnBaselineOffset >= kBlnXHeight &&
-          misfit_dist > 0) {
-        // Compute the x-height position using proportionality between the
-        // actual height and expected height.
-        int min_xht = DivRounded(height * kBlnXHeight,
-                                 max_top - kBlnBaselineOffset);
-        int max_xht = DivRounded(height * kBlnXHeight,
-                                 min_top - kBlnBaselineOffset);
-        if (debug_x_ht_level >= 20) {
-          tprintf(" xht range min=%d, max=%d\n",
-                  min_xht, max_xht);
+  do {
+    top_stats.clear();
+    shift_stats.clear();
+    for (int blob_id = 0; blob_id < num_blobs; ++blob_id) {
+      TBLOB* blob = word_res->rebuild_word->blobs[blob_id];
+      UNICHAR_ID class_id = word_res->best_choice->unichar_id(blob_id);
+      if (unicharset.get_isalpha(class_id) ||
+          unicharset.get_isdigit(class_id)) {
+        int top = blob->bounding_box().top() + bottom_shift;
+        // Clip the top to the limit of normalized feature space.
+        if (top >= INT_FEAT_RANGE)
+          top = INT_FEAT_RANGE - 1;
+        int bottom = blob->bounding_box().bottom() + bottom_shift;
+        int min_bottom, max_bottom, min_top, max_top;
+        unicharset.get_top_bottom(class_id, &min_bottom, &max_bottom,
+                                  &min_top, &max_top);
+        // Chars with a wild top range would mess up the result so ignore them.
+        if (max_top - min_top > kMaxCharTopRange)
+          continue;
+        int misfit_dist = MAX((min_top - x_ht_acceptance_tolerance) - top,
+                            top - (max_top + x_ht_acceptance_tolerance));
+        int height = top - kBlnBaselineOffset;
+        if (debug_x_ht_level >= 2) {
+          tprintf("Class %s: height=%d, bottom=%d,%d top=%d,%d, actual=%d,%d: ",
+                  unicharset.id_to_unichar(class_id),
+                  height, min_bottom, max_bottom, min_top, max_top,
+                  bottom, top);
         }
-        // The range of expected heights gets a vote equal to the distance
-        // of the actual top from the expected top.
-        for (int y = min_xht; y <= max_xht; ++y)
-          top_stats.add(y, misfit_dist);
-      } else if (debug_x_ht_level >= 20) {
-        tprintf(" already OK\n");
+        // Use only chars that fit in the expected bottom range, and where
+        // the range of tops is sensibly near the xheight.
+        if (min_bottom <= bottom + x_ht_acceptance_tolerance &&
+            bottom - x_ht_acceptance_tolerance <= max_bottom &&
+            min_top > kBlnBaselineOffset &&
+            max_top - kBlnBaselineOffset >= kBlnXHeight &&
+            misfit_dist > 0) {
+          // Compute the x-height position using proportionality between the
+          // actual height and expected height.
+          int min_xht = DivRounded(height * kBlnXHeight,
+                                   max_top - kBlnBaselineOffset);
+          int max_xht = DivRounded(height * kBlnXHeight,
+                                   min_top - kBlnBaselineOffset);
+          if (debug_x_ht_level >= 2) {
+            tprintf(" xht range min=%d, max=%d\n", min_xht, max_xht);
+          }
+          // The range of expected heights gets a vote equal to the distance
+          // of the actual top from the expected top.
+          for (int y = min_xht; y <= max_xht; ++y)
+            top_stats.add(y, misfit_dist);
+        } else if ((min_bottom > bottom + x_ht_acceptance_tolerance ||
+                    bottom - x_ht_acceptance_tolerance > max_bottom) &&
+                   bottom_shift == 0) {
+          // Get the range of required bottom shift.
+          int min_shift = min_bottom - bottom;
+          int max_shift = max_bottom - bottom;
+          if (debug_x_ht_level >= 2) {
+            tprintf(" bottom shift min=%d, max=%d\n", min_shift, max_shift);
+          }
+          // The range of expected shifts gets a vote equal to the min distance
+          // of the actual bottom from the expected bottom, spread over the
+          // range of its acceptance.
+          int misfit_weight = abs(min_shift);
+          if (max_shift > min_shift)
+            misfit_weight /= max_shift - min_shift;
+          for (int y = min_shift; y <= max_shift; ++y)
+            shift_stats.add(y, misfit_weight);
+        } else {
+          if (bottom_shift == 0) {
+            // Things with bottoms that are already ok need to say so, on the
+            // 1st iteration only.
+            shift_stats.add(0, kBlnBaselineOffset);
+          }
+          if (debug_x_ht_level >= 2) {
+            tprintf(" already OK\n");
+          }
+        }
       }
     }
+    if (shift_stats.get_total() > top_stats.get_total()) {
+      bottom_shift = IntCastRounded(shift_stats.median());
+      if (debug_x_ht_level >= 2) {
+        tprintf("Applying bottom shift=%d\n", bottom_shift);
+      }
+    }
+  } while (bottom_shift != 0 &&
+           top_stats.get_total() < shift_stats.get_total());
+  // Baseline shift is opposite sign to the bottom shift.
+  *baseline_shift = -bottom_shift / word_res->denorm.y_scale();
+  if (debug_x_ht_level >= 2) {
+    tprintf("baseline shift=%g\n", *baseline_shift);
   }
   if (top_stats.get_total() == 0)
-    return 0.0f;
+    return bottom_shift != 0 ? word_res->x_height : 0.0f;
   // The new xheight is just the median vote, which is then scaled out
   // of BLN space back to pixel space to get the x-height in pixel space.
   float new_xht = top_stats.median();
-  if (debug_x_ht_level >= 20) {
+  if (debug_x_ht_level >= 2) {
     tprintf("Median xht=%f\n", new_xht);
     tprintf("Mode20:A: New x-height = %f (norm), %f (orig)\n",
             new_xht, new_xht / word_res->denorm.y_scale());
@@ -159,7 +208,7 @@ float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res) {
   if (fabs(new_xht - kBlnXHeight) >= x_ht_min_change)
     return new_xht / word_res->denorm.y_scale();
   else
-    return 0.0f;
+    return bottom_shift != 0 ? word_res->x_height : 0.0f;
 }
 
 }  // namespace tesseract

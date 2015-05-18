@@ -148,7 +148,7 @@ class StringRenderer {
   void RotatePageBoxes(float rotation);
   // Delete all boxes.
   void ClearBoxes();
-  void WriteAllBoxes(const string& filename) const;
+  void WriteAllBoxes(const string& filename);
   // Removes space-delimited words from the string that are not renderable by
   // the current font and returns the count of such words.
   int StripUnrenderableWords(string* utf8_text) const;

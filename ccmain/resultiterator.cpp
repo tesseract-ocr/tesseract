@@ -34,6 +34,13 @@ ResultIterator::ResultIterator(const LTRResultIterator &resit)
     : LTRResultIterator(resit) {
   in_minor_direction_ = false;
   at_beginning_of_minor_run_ = false;
+  preserve_interword_spaces_ = false;
+
+  BoolParam *p = ParamUtils::FindParam<BoolParam>(
+      "preserve_interword_spaces", GlobalParams()->bool_params,
+      tesseract_->params()->bool_params);
+  if (p != NULL) preserve_interword_spaces_ = (bool)(*p);
+
   current_paragraph_is_ltr_ = CurrentParagraphIsLtr();
   MoveToLogicalStartOfTextline();
 }
@@ -629,14 +636,17 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(STRING *text) {
 
   int words_appended = 0;
   do {
+    int numSpaces = preserve_interword_spaces_ ? it_->word()->word->space()
+                                               : (words_appended > 0);
+    for (int i = 0; i < numSpaces; ++i) {
+      *text += " ";
+    }
     AppendUTF8WordText(text);
     words_appended++;
-    *text += " ";
   } while (Next(RIL_WORD) && !IsAtBeginningOf(RIL_TEXTLINE));
   if (BidiDebug(1)) {
     tprintf("%d words printed\n", words_appended);
   }
-  text->truncate_at(text->length() - 1);
   *text += line_separator_;
   // If we just finished a paragraph, add an extra newline.
   if (it_->block() == NULL || IsAtBeginningOf(RIL_PARA))

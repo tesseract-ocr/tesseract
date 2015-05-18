@@ -199,8 +199,10 @@ class TessdataManager {
     return swap_;
   }
 
-  /** Writes the number of entries and the given offset table to output_file. */
-  static void WriteMetadata(inT64 *offset_table,
+  /** Writes the number of entries and the given offset table to output_file.
+   * Returns false on error.
+   */
+  static bool WriteMetadata(inT64 *offset_table,
                             const char *language_data_path_prefix,
                             FILE *output_file);
 

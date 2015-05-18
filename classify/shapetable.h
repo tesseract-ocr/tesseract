@@ -24,6 +24,7 @@
 #define TESSERACT_CLASSIFY_SHAPETABLE_H_
 
 #include "bitvector.h"
+#include "fontinfo.h"
 #include "genericheap.h"
 #include "genericvector.h"
 #include "intmatcher.h"
@@ -33,16 +34,23 @@ class UNICHARSET;
 
 namespace tesseract {
 
-struct FontInfo;
-class FontInfoTable;
 class ShapeTable;
 
 // Simple struct to hold a single classifier unichar selection, a corresponding
 // rating, and a list of appropriate fonts.
 struct UnicharRating {
-  UnicharRating() : unichar_id(0), rating(0.0f) {}
+  UnicharRating()
+    : unichar_id(0), rating(0.0f), adapted(false), config(0),
+      feature_misses(0) {}
   UnicharRating(int u, float r)
-    : unichar_id(u), rating(r) {}
+    : unichar_id(u), rating(r), adapted(false), config(0), feature_misses(0) {}
+
+  // Print debug info.
+  void Print() const {
+    tprintf("Unichar-id=%d, rating=%g, adapted=%d, config=%d, misses=%d,"
+            " %d fonts\n", unichar_id, rating, adapted, config, feature_misses,
+            fonts.size());
+  }
 
   // Sort function to sort ratings appropriately by descending rating.
   static int SortDescendingRating(const void* t1, const void* t2) {
@@ -68,9 +76,16 @@ struct UnicharRating {
   // Rating from classifier with 1.0 perfect and 0.0 impossible.
   // Call it a probability if you must.
   float rating;
-  // Set of fonts for this shape in order of decreasing preference.
-  // (There is no mechanism for storing scores for fonts as yet.)
-  GenericVector<int> fonts;
+  // True if this result is from the adaptive classifier.
+  bool adapted;
+  // Index of best matching font configuration of result.
+  uinT8 config;
+  // Number of features that were total misses - were liked by no classes.
+  uinT16 feature_misses;
+  // Unsorted collection of fontinfo ids and scores. Note that a raw result
+  // from the IntegerMatch will contain config ids, that require transforming
+  // to fontinfo ids via fontsets and (possibly) shapetable.
+  GenericVector<ScoredFont> fonts;
 };
 
 // Classifier result from a low-level classification is an index into some

@@ -254,7 +254,7 @@ void Tesseract::join_words(WERD_RES *word,
   // Move the word2 seams onto the end of the word1 seam_array.
   // Since the seam list is one element short, an empty seam marking the
   // end of the last blob in the first word is needed first.
-  word->seam_array.push_back(new SEAM(0.0f, split_pt, NULL, NULL, NULL));
+  word->seam_array.push_back(new SEAM(0.0f, split_pt));
   word->seam_array += word2->seam_array;
   word2->seam_array.truncate(0);
   // Fix widths and gaps.

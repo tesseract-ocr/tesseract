@@ -268,7 +268,7 @@ Textord::~Textord() {
 void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
                           int width, int height, Pix* binary_pix,
                           Pix* thresholds_pix, Pix* grey_pix,
-                          bool use_box_bottoms,
+                          bool use_box_bottoms, BLOBNBOX_LIST* diacritic_blobs,
                           BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks) {
   page_tr_.set_x(width);
   page_tr_.set_y(height);
@@ -340,9 +340,9 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
     make_single_word(pageseg_mode == PSM_SINGLE_CHAR,
                      to_block->get_rows(), to_block->block->row_list());
   }
-  cleanup_blocks(PSM_WORD_FIND_ENABLED(pageseg_mode), blocks);
   // Remove empties.
-
+  cleanup_blocks(PSM_WORD_FIND_ENABLED(pageseg_mode), blocks);
+  TransferDiacriticsToBlockGroups(diacritic_blobs, blocks);
   // Compute the margins for each row in the block, to be used later for
   // paragraph detection.
   BLOCK_IT b_it(blocks);

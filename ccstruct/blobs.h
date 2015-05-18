@@ -60,6 +60,13 @@ struct TPOINT {
     x /= divisor;
     y /= divisor;
   }
+  bool operator==(const TPOINT& other) const {
+    return x == other.x && y == other.y;
+  }
+  // Returns true when the two line segments cross each other.
+  // (Moved from outlines.cpp).
+  static bool IsCrossed(const TPOINT& a0, const TPOINT& a1, const TPOINT& b0,
+                        const TPOINT& b1);
 
   inT16 x;                       // absolute x coord.
   inT16 y;                       // absolute y coord.
@@ -87,6 +94,55 @@ struct EDGEPT {
     start_step = src.start_step;
     step_count = src.step_count;
   }
+  // Returns the squared distance between the points, with the x-component
+  // weighted by x_factor.
+  int WeightedDistance(const EDGEPT& other, int x_factor) const {
+    int x_dist = pos.x - other.pos.x;
+    int y_dist = pos.y - other.pos.y;
+    return x_dist * x_dist * x_factor + y_dist * y_dist;
+  }
+  // Returns true if the positions are equal.
+  bool EqualPos(const EDGEPT& other) const { return pos == other.pos; }
+  // Returns the bounding box of the outline segment from *this to *end.
+  // Ignores hidden edge flags.
+  TBOX SegmentBox(const EDGEPT* end) const {
+    TBOX box(pos.x, pos.y, pos.x, pos.y);
+    const EDGEPT* pt = this;
+    do {
+      pt = pt->next;
+      if (pt->pos.x < box.left()) box.set_left(pt->pos.x);
+      if (pt->pos.x > box.right()) box.set_right(pt->pos.x);
+      if (pt->pos.y < box.bottom()) box.set_bottom(pt->pos.y);
+      if (pt->pos.y > box.top()) box.set_top(pt->pos.y);
+    } while (pt != end && pt != this);
+    return box;
+  }
+  // Returns the area of the outline segment from *this to *end.
+  // Ignores hidden edge flags.
+  int SegmentArea(const EDGEPT* end) const {
+    int area = 0;
+    const EDGEPT* pt = this->next;
+    do {
+      TPOINT origin_vec(pt->pos.x - pos.x, pt->pos.y - pos.y);
+      area += CROSS(origin_vec, pt->vec);
+      pt = pt->next;
+    } while (pt != end && pt != this);
+    return area;
+  }
+  // Returns true if the number of points in the outline segment from *this to
+  // *end is less that min_points and false if we get back to *this first.
+  // Ignores hidden edge flags.
+  bool ShortNonCircularSegment(int min_points, const EDGEPT* end) const {
+    int count = 0;
+    const EDGEPT* pt = this;
+    do {
+      if (pt == end) return true;
+      pt = pt->next;
+      ++count;
+    } while (pt != this && count <= min_points);
+    return false;
+  }
+
   // Accessors to hide or reveal a cut edge from feature extractors.
   void Hide() {
     flags[0] = true;
@@ -99,9 +155,6 @@ struct EDGEPT {
   }
   void MarkChop() {
     flags[2] = true;
-  }
-  void UnmarkChop() {
-    flags[2] = false;
   }
   bool IsChopPt() const {
     return flags[2] != 0;
@@ -162,8 +215,23 @@ struct TESSLINE {
   void MinMaxCrossProduct(const TPOINT vec, int* min_xp, int* max_xp) const;
 
   TBOX bounding_box() const;
+  // Returns true if *this and other have equal bounding boxes.
+  bool SameBox(const TESSLINE& other) const {
+    return topleft == other.topleft && botright == other.botright;
+  }
+  // Returns true if the given line segment crosses any outline of this blob.
+  bool SegmentCrosses(const TPOINT& pt1, const TPOINT& pt2) const {
+    if (Contains(pt1) && Contains(pt2)) {
+      EDGEPT* pt = loop;
+      do {
+        if (TPOINT::IsCrossed(pt1, pt2, pt->pos, pt->next->pos)) return true;
+        pt = pt->next;
+      } while (pt != loop);
+    }
+    return false;
+  }
   // Returns true if the point is contained within the outline box.
-  bool Contains(const TPOINT& pt) {
+  bool Contains(const TPOINT& pt) const {
     return topleft.x <= pt.x && pt.x <= botright.x &&
            botright.y <= pt.y && pt.y <= topleft.y;
   }
@@ -244,6 +312,31 @@ struct TBLOB {
 
   TBOX bounding_box() const;
 
+  // Returns true if the given line segment crosses any outline of this blob.
+  bool SegmentCrossesOutline(const TPOINT& pt1, const TPOINT& pt2) const {
+    for (const TESSLINE* outline = outlines; outline != NULL;
+         outline = outline->next) {
+      if (outline->SegmentCrosses(pt1, pt2)) return true;
+    }
+    return false;
+  }
+  // Returns true if the point is contained within any of the outline boxes.
+  bool Contains(const TPOINT& pt) const {
+    for (const TESSLINE* outline = outlines; outline != NULL;
+         outline = outline->next) {
+      if (outline->Contains(pt)) return true;
+    }
+    return false;
+  }
+
+  // Finds and deletes any duplicate outlines in this blob, without deleting
+  // their EDGEPTs.
+  void EliminateDuplicateOutlines();
+
+  // Swaps the outlines of *this and next if needed to keep the centers in
+  // increasing x.
+  void CorrectBlobOrder(TBLOB* next);
+
   const DENORM& denorm() const {
     return denorm_;
   }
@@ -317,7 +410,7 @@ struct TWERD {
   // Baseline normalizes the blobs in-place, recording the normalization in the
   // DENORMs in the blobs.
   void BLNormalize(const BLOCK* block, const ROW* row, Pix* pix, bool inverse,
-                   float x_height, bool numeric_mode,
+                   float x_height, float baseline_shift, bool numeric_mode,
                    tesseract::OcrEngineMode hint,
                    const TBOX* norm_box,
                    DENORM* word_denorm);
@@ -358,12 +451,7 @@ if (w) memfree (w)
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-// TODO(rays) This will become a member of TBLOB when TBLOB's definition
-// moves to blobs.h
-
-// Returns the center of blob's bounding box in origin.
-void blob_origin(TBLOB *blob, TPOINT *origin);
-
+// TODO(rays) Make divisible_blob and divide_blobs members of TBLOB.
 bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT* location);
 
 void divide_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,

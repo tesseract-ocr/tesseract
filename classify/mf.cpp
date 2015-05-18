@@ -26,36 +26,32 @@
 
 #include <math.h>
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Private Code
 ----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
+/**
+ * Call the old micro-feature extractor and then copy
+ * the features into the new format.  Then deallocate the
+ * old micro-features.
+ * @param Blob	blob to extract micro-features from
+ * @param denorm  control parameter to feature extractor.
+ * @return Micro-features for Blob.
+ * @note Exceptions: none
+ * @note History: Wed May 23 18:06:38 1990, DSJ, Created.
+ */
 FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM& bl_denorm,
                           const DENORM& cn_denorm,
                           const INT_FX_RESULT_STRUCT& fx_info) {
-/*
- **	Parameters:
- **		Blob		blob to extract micro-features from
- **		denorm  control parameter to feature extractor.
- **	Globals: none
- **	Operation: Call the old micro-feature extractor and then copy
- **		the features into the new format.  Then deallocate the
- **		old micro-features.
- **	Return: Micro-features for Blob.
- **	Exceptions: none
- **	History: Wed May 23 18:06:38 1990, DSJ, Created.
- */
   int NumFeatures;
   MICROFEATURES Features, OldFeatures;
   FEATURE_SET FeatureSet;
   FEATURE Feature;
   MICROFEATURE OldFeature;
 
-  OldFeatures = (MICROFEATURES)BlobMicroFeatures(Blob, bl_denorm, cn_denorm,
-                                                 fx_info);
+  OldFeatures = BlobMicroFeatures(Blob, cn_denorm);
   if (OldFeatures == NULL)
     return NULL;
   NumFeatures = count (OldFeatures);

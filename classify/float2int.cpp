@@ -111,12 +111,12 @@ void Classify::ComputeIntFeatures(FEATURE_SET Features,
   for (Fid = 0; Fid < Features->NumFeatures; Fid++) {
     Feature = Features->Features[Fid];
 
-    IntFeatures[Fid].X = BucketFor (Feature->Params[PicoFeatX],
-      X_SHIFT, INT_FEAT_RANGE);
-    IntFeatures[Fid].Y = BucketFor (Feature->Params[PicoFeatY],
-      YShift, INT_FEAT_RANGE);
-    IntFeatures[Fid].Theta = CircBucketFor (Feature->Params[PicoFeatDir],
-      ANGLE_SHIFT, INT_FEAT_RANGE);
+    IntFeatures[Fid].X =
+        Bucket8For(Feature->Params[PicoFeatX], X_SHIFT, INT_FEAT_RANGE);
+    IntFeatures[Fid].Y =
+        Bucket8For(Feature->Params[PicoFeatY], YShift, INT_FEAT_RANGE);
+    IntFeatures[Fid].Theta = CircBucketFor(Feature->Params[PicoFeatDir],
+                                           ANGLE_SHIFT, INT_FEAT_RANGE);
     IntFeatures[Fid].CP_misses = 0;
   }
 }                                /* ComputeIntFeatures */

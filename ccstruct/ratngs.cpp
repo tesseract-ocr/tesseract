@@ -90,8 +90,6 @@ static const char * const kPermuterTypeNames[] = {
 BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
                          float src_rating,         // rating
                          float src_cert,           // certainty
-                         inT16 src_fontinfo_id,     // font
-                         inT16 src_fontinfo_id2,    // 2nd choice font
                          int src_script_id,        // script
                          float min_xheight,        // min xheight allowed
                          float max_xheight,        // max xheight by this char
@@ -100,8 +98,8 @@ BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
   unichar_id_ = src_unichar_id;
   rating_ = src_rating;
   certainty_ = src_cert;
-  fontinfo_id_ = src_fontinfo_id;
-  fontinfo_id2_ = src_fontinfo_id2;
+  fontinfo_id_ = -1;
+  fontinfo_id2_ = -1;
   script_id_ = src_script_id;
   min_xheight_ = min_xheight;
   max_xheight_ = max_xheight;
@@ -126,6 +124,7 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) {
   max_xheight_ = other.max_xheight_;
   yshift_ = other.yshift();
   classifier_ = other.classifier_;
+  fonts_ = other.fonts_;
 }
 
 // Returns true if *this and other agree on the baseline and x-height

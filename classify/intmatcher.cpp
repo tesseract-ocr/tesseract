@@ -26,6 +26,8 @@
                           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "intmatcher.h"
+
+#include "fontinfo.h"
 #include "intproto.h"
 #include "callcpp.h"
 #include "scrollview.h"
@@ -36,6 +38,9 @@
 #include "shapetable.h"
 #include <math.h>
 
+using tesseract::ScoredFont;
+using tesseract::UnicharRating;
+
 /*----------------------------------------------------------------------------
                     Global Data Definitions and Declarations
 ----------------------------------------------------------------------------*/
@@ -45,58 +50,51 @@
 const float IntegerMatcher::kSEExponentialMultiplier = 0.0;
 const float IntegerMatcher::kSimilarityCenter = 0.0075;
 
-static const uinT8 offset_table[256] = {
-  255, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  7, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
-};
+#define offset_table_entries                                                   \
+  255, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, \
+      0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4,  \
+      0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 6, 0, 1, 0, 2, 0, 1, 0, 3,  \
+      0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 5,  \
+      0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3,  \
+      0, 1, 0, 2, 0, 1, 0, 7, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4,  \
+      0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3,  \
+      0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 6,  \
+      0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3,  \
+      0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4,  \
+      0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
 
-static const uinT8 next_table[256] = {
-  0, 0, 0, 0x2, 0, 0x4, 0x4, 0x6, 0, 0x8, 0x8, 0x0a, 0x08, 0x0c, 0x0c, 0x0e,
-  0, 0x10, 0x10, 0x12, 0x10, 0x14, 0x14, 0x16, 0x10, 0x18, 0x18, 0x1a, 0x18,
-  0x1c, 0x1c, 0x1e,
-  0, 0x20, 0x20, 0x22, 0x20, 0x24, 0x24, 0x26, 0x20, 0x28, 0x28, 0x2a, 0x28,
-  0x2c, 0x2c, 0x2e,
-  0x20, 0x30, 0x30, 0x32, 0x30, 0x34, 0x34, 0x36, 0x30, 0x38, 0x38, 0x3a,
-  0x38, 0x3c, 0x3c, 0x3e,
-  0, 0x40, 0x40, 0x42, 0x40, 0x44, 0x44, 0x46, 0x40, 0x48, 0x48, 0x4a, 0x48,
-  0x4c, 0x4c, 0x4e,
-  0x40, 0x50, 0x50, 0x52, 0x50, 0x54, 0x54, 0x56, 0x50, 0x58, 0x58, 0x5a,
-  0x58, 0x5c, 0x5c, 0x5e,
-  0x40, 0x60, 0x60, 0x62, 0x60, 0x64, 0x64, 0x66, 0x60, 0x68, 0x68, 0x6a,
-  0x68, 0x6c, 0x6c, 0x6e,
-  0x60, 0x70, 0x70, 0x72, 0x70, 0x74, 0x74, 0x76, 0x70, 0x78, 0x78, 0x7a,
-  0x78, 0x7c, 0x7c, 0x7e,
-  0, 0x80, 0x80, 0x82, 0x80, 0x84, 0x84, 0x86, 0x80, 0x88, 0x88, 0x8a, 0x88,
-  0x8c, 0x8c, 0x8e,
-  0x80, 0x90, 0x90, 0x92, 0x90, 0x94, 0x94, 0x96, 0x90, 0x98, 0x98, 0x9a,
-  0x98, 0x9c, 0x9c, 0x9e,
-  0x80, 0xa0, 0xa0, 0xa2, 0xa0, 0xa4, 0xa4, 0xa6, 0xa0, 0xa8, 0xa8, 0xaa,
-  0xa8, 0xac, 0xac, 0xae,
-  0xa0, 0xb0, 0xb0, 0xb2, 0xb0, 0xb4, 0xb4, 0xb6, 0xb0, 0xb8, 0xb8, 0xba,
-  0xb8, 0xbc, 0xbc, 0xbe,
-  0x80, 0xc0, 0xc0, 0xc2, 0xc0, 0xc4, 0xc4, 0xc6, 0xc0, 0xc8, 0xc8, 0xca,
-  0xc8, 0xcc, 0xcc, 0xce,
-  0xc0, 0xd0, 0xd0, 0xd2, 0xd0, 0xd4, 0xd4, 0xd6, 0xd0, 0xd8, 0xd8, 0xda,
-  0xd8, 0xdc, 0xdc, 0xde,
-  0xc0, 0xe0, 0xe0, 0xe2, 0xe0, 0xe4, 0xe4, 0xe6, 0xe0, 0xe8, 0xe8, 0xea,
-  0xe8, 0xec, 0xec, 0xee,
-  0xe0, 0xf0, 0xf0, 0xf2, 0xf0, 0xf4, 0xf4, 0xf6, 0xf0, 0xf8, 0xf8, 0xfa,
-  0xf8, 0xfc, 0xfc, 0xfe
-};
+#define INTMATCHER_OFFSET_TABLE_SIZE 256
+
+#define next_table_entries                                                    \
+  0, 0, 0, 0x2, 0, 0x4, 0x4, 0x6, 0, 0x8, 0x8, 0x0a, 0x08, 0x0c, 0x0c, 0x0e,  \
+      0, 0x10, 0x10, 0x12, 0x10, 0x14, 0x14, 0x16, 0x10, 0x18, 0x18, 0x1a,    \
+      0x18, 0x1c, 0x1c, 0x1e, 0, 0x20, 0x20, 0x22, 0x20, 0x24, 0x24, 0x26,    \
+      0x20, 0x28, 0x28, 0x2a, 0x28, 0x2c, 0x2c, 0x2e, 0x20, 0x30, 0x30, 0x32, \
+      0x30, 0x34, 0x34, 0x36, 0x30, 0x38, 0x38, 0x3a, 0x38, 0x3c, 0x3c, 0x3e, \
+      0, 0x40, 0x40, 0x42, 0x40, 0x44, 0x44, 0x46, 0x40, 0x48, 0x48, 0x4a,    \
+      0x48, 0x4c, 0x4c, 0x4e, 0x40, 0x50, 0x50, 0x52, 0x50, 0x54, 0x54, 0x56, \
+      0x50, 0x58, 0x58, 0x5a, 0x58, 0x5c, 0x5c, 0x5e, 0x40, 0x60, 0x60, 0x62, \
+      0x60, 0x64, 0x64, 0x66, 0x60, 0x68, 0x68, 0x6a, 0x68, 0x6c, 0x6c, 0x6e, \
+      0x60, 0x70, 0x70, 0x72, 0x70, 0x74, 0x74, 0x76, 0x70, 0x78, 0x78, 0x7a, \
+      0x78, 0x7c, 0x7c, 0x7e, 0, 0x80, 0x80, 0x82, 0x80, 0x84, 0x84, 0x86,    \
+      0x80, 0x88, 0x88, 0x8a, 0x88, 0x8c, 0x8c, 0x8e, 0x80, 0x90, 0x90, 0x92, \
+      0x90, 0x94, 0x94, 0x96, 0x90, 0x98, 0x98, 0x9a, 0x98, 0x9c, 0x9c, 0x9e, \
+      0x80, 0xa0, 0xa0, 0xa2, 0xa0, 0xa4, 0xa4, 0xa6, 0xa0, 0xa8, 0xa8, 0xaa, \
+      0xa8, 0xac, 0xac, 0xae, 0xa0, 0xb0, 0xb0, 0xb2, 0xb0, 0xb4, 0xb4, 0xb6, \
+      0xb0, 0xb8, 0xb8, 0xba, 0xb8, 0xbc, 0xbc, 0xbe, 0x80, 0xc0, 0xc0, 0xc2, \
+      0xc0, 0xc4, 0xc4, 0xc6, 0xc0, 0xc8, 0xc8, 0xca, 0xc8, 0xcc, 0xcc, 0xce, \
+      0xc0, 0xd0, 0xd0, 0xd2, 0xd0, 0xd4, 0xd4, 0xd6, 0xd0, 0xd8, 0xd8, 0xda, \
+      0xd8, 0xdc, 0xdc, 0xde, 0xc0, 0xe0, 0xe0, 0xe2, 0xe0, 0xe4, 0xe4, 0xe6, \
+      0xe0, 0xe8, 0xe8, 0xea, 0xe8, 0xec, 0xec, 0xee, 0xe0, 0xf0, 0xf0, 0xf2, \
+      0xf0, 0xf4, 0xf4, 0xf6, 0xf0, 0xf8, 0xf8, 0xfa, 0xf8, 0xfc, 0xfc, 0xfe
+
+// See http://b/19318793 (#6) for a complete discussion.  Merging arrays
+// offset_table and next_table helps improve performance of PIE code.
+static const uinT8 data_table[512] = {offset_table_entries, next_table_entries};
+
+static const uinT8* const offset_table = &data_table[0];
+static const uinT8* const next_table =
+    &data_table[INTMATCHER_OFFSET_TABLE_SIZE];
 
 namespace tesseract {
 
@@ -263,8 +261,8 @@ class ClassPruner {
   // Prunes the classes using <the maximum count> * pruning_factor/256 as a
   // threshold for keeping classes. If max_of_non_fragments, then ignore
   // fragments in computing the maximum count.
-  void PruneAndSort(int pruning_factor, bool max_of_non_fragments,
-                    const UNICHARSET& unicharset) {
+  void PruneAndSort(int pruning_factor, int keep_this,
+                    bool max_of_non_fragments, const UNICHARSET& unicharset) {
     int max_count = 0;
     for (int c = 0; c < max_classes_; ++c) {
       if (norm_count_[c] > max_count &&
@@ -284,7 +282,8 @@ class ClassPruner {
       pruning_threshold_ = 1;
     num_classes_ = 0;
     for (int class_id = 0; class_id < max_classes_; class_id++) {
-      if (norm_count_[class_id] >= pruning_threshold_) {
+      if (norm_count_[class_id] >= pruning_threshold_ ||
+          class_id == keep_this) {
           ++num_classes_;
         sort_index_[num_classes_] = class_id;
         sort_key_[num_classes_] = norm_count_[class_id];
@@ -406,7 +405,7 @@ class ClassPruner {
 //    results                Sorted Array of pruned classes. Must be an array
 //                           of size at least int_templates->NumClasses.
 int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
-                           int num_features,
+                           int num_features, int keep_this,
                            const INT_FEATURE_STRUCT* features,
                            const uinT8* normalization_factors,
                            const uinT16* expected_num_features,
@@ -441,7 +440,7 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
     pruner.NoNormalization();
   }
   // Do the actual pruning and sort the short-list.
-  pruner.PruneAndSort(classify_class_pruner_threshold,
+  pruner.PruneAndSort(classify_class_pruner_threshold, keep_this,
                       shape_table_ == NULL, unicharset);
 
   if (classify_debug_level > 2) {
@@ -464,7 +463,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                            BIT_VECTOR ConfigMask,
                            inT16 NumFeatures,
                            const INT_FEATURE_STRUCT* Features,
-                           INT_RESULT Result,
+                           UnicharRating* Result,
                            int AdaptFeatureThreshold,
                            int Debug,
                            bool SeparateDebugWindows) {
@@ -477,7 +476,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
  **              NormalizationFactor       Fudge factor from blob
  **                                        normalization process
  **              Result                    Class rating & configuration:
- **                                        (0.0 -> 1.0), 0=good, 1=bad
+ **                                        (0.0 -> 1.0), 0=bad, 1=good
  **              Debug                     Debugger flag: 1=debugger on
  **      Globals:
  **              local_matcher_multiplier_    Normalization factor multiplier
@@ -498,7 +497,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
     cprintf ("Integer Matcher -------------------------------------------\n");
 
   tables->Clear(ClassTemplate);
-  Result->FeatureMisses = 0;
+  Result->feature_misses = 0;
 
   for (Feature = 0; Feature < NumFeatures; Feature++) {
     int csum = UpdateTablesForFeature(ClassTemplate, ProtoMask, ConfigMask,
@@ -506,7 +505,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                                       tables, Debug);
     // Count features that were missed over all configs.
     if (csum == 0)
-      Result->FeatureMisses++;
+      ++Result->feature_misses;
   }
 
 #ifndef GRAPHICS_DISABLED
@@ -534,7 +533,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
 
 #ifndef GRAPHICS_DISABLED
   if (PrintMatchSummaryOn(Debug))
-    DebugBestMatch(BestMatch, Result);
+    Result->Print();
 
   if (MatchDebuggingOn(Debug))
     cprintf("Match Complete --------------------------------------------\n");
@@ -1222,9 +1221,9 @@ void ScratchEvidence::NormalizeSums(
 
 /*---------------------------------------------------------------------------*/
 int IntegerMatcher::FindBestMatch(
-    INT_CLASS ClassTemplate,
+    INT_CLASS class_template,
     const ScratchEvidence &tables,
-    INT_RESULT Result) {
+    UnicharRating* result) {
 /*
  **      Parameters:
  **      Globals:
@@ -1236,35 +1235,27 @@ int IntegerMatcher::FindBestMatch(
  **      Exceptions: none
  **      History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
-  int BestMatch = 0;
-  int Best2Match = 0;
-  Result->Config = 0;
-  Result->Config2 = 0;
+  int best_match = 0;
+  result->config = 0;
+  result->fonts.truncate(0);
+  result->fonts.reserve(class_template->NumConfigs);
 
   /* Find best match */
-  for (int ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++) {
-    int rating = tables.sum_feature_evidence_[ConfigNum];
+  for (int c = 0; c < class_template->NumConfigs; ++c) {
+    int rating = tables.sum_feature_evidence_[c];
     if (*classify_debug_level_ > 2)
-      cprintf("Config %d, rating=%d\n", ConfigNum, rating);
-    if (rating > BestMatch) {
-      if (BestMatch > 0) {
-        Result->Config2 = Result->Config;
-        Best2Match = BestMatch;
-      } else {
-        Result->Config2 = ConfigNum;
-      }
-      Result->Config = ConfigNum;
-      BestMatch = rating;
-    } else if (rating > Best2Match) {
-      Result->Config2 = ConfigNum;
-      Best2Match = rating;
+      tprintf("Config %d, rating=%d\n", c, rating);
+    if (rating > best_match) {
+      result->config = c;
+      best_match = rating;
     }
+    result->fonts.push_back(ScoredFont(c, rating));
   }
 
-  /* Compute Certainty Rating */
-  Result->Rating = (65536.0 - BestMatch) / 65536.0;
+  // Compute confidence on a Probability scale.
+  result->rating = best_match / 65536.0f;
 
-  return BestMatch;
+  return best_match;
 }
 
 // Applies the CN normalization factor to the given rating and returns
@@ -1276,17 +1267,6 @@ float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
           matcher_multiplier * normalization_factor / 256.0) /
       (blob_length + matcher_multiplier);
 }
-
-/*---------------------------------------------------------------------------*/
-#ifndef GRAPHICS_DISABLED
-// Print debug information about the best match for the current class.
-void IntegerMatcher::DebugBestMatch(
-    int BestMatch, INT_RESULT Result) {
-  tprintf("Rating = %5.1f%%  Best Config = %3d, Distance = %5.1f\n",
-          100.0 * Result->Rating, Result->Config,
-          100.0 * (65536.0 - BestMatch) / 65536.0);
-}
-#endif
 
 /*---------------------------------------------------------------------------*/
 void

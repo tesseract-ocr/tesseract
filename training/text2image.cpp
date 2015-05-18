@@ -115,7 +115,7 @@ STRING_PARAM_FLAG(writing_mode, "horizontal",
 
 INT_PARAM_FLAG(box_padding, 0, "Padding around produced bounding boxes");
 
-BOOL_PARAM_FLAG(strip_unrenderable_words, false,
+BOOL_PARAM_FLAG(strip_unrenderable_words, true,
                 "Remove unrenderable words from source text");
 
 // Font name.
@@ -618,9 +618,9 @@ int main(int argc, char** argv) {
         }
         pixDestroy(&binary);
       }
-      if (FLAGS_find_fonts && !FLAGS_render_per_font && !font_names.empty()) {
-        // We just want a list of names, so we don't need to render any more
-        // of the text.
+      if (FLAGS_find_fonts && offset != 0) {
+        // We just want a list of names, or some sample images so we don't need
+        // to render more than the first page of the text.
         break;
       }
     }
