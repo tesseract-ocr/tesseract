@@ -1,4 +1,4 @@
-datadir = @datadir@/tessdata
+dir = @datadir@/tessdata
 
 data_DATA = pdf.ttf
 EXTRA_DIST = $(data_DATA)

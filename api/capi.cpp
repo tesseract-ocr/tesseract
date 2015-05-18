@@ -424,7 +424,7 @@ TESS_API int TESS_CALL TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle, ETEX
 TESS_API BOOL TESS_CALL TessBaseAPIProcessPages(TessBaseAPI* handle, const char* filename, const char* retry_config,
                                                 int timeout_millisec, TessResultRenderer* renderer)
 {
-    if (handle->ProcessPages(filename, retry_config, timeout_millisec, renderer))    
+    if (handle->ProcessPages(filename, retry_config, timeout_millisec, renderer))
         return TRUE;
     else
         return FALSE;
@@ -456,7 +456,7 @@ TESS_API char* TESS_CALL TessBaseAPIGetUTF8Text(TessBaseAPI* handle)
 
 TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_number)
 {
-    return handle->GetHOCRText(page_number);
+    return handle->GetHOCRText(NULL, page_number);
 }
 
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number)
