@@ -18,8 +18,7 @@
 #ifndef HEADER_size_defs_h
 #define HEADER_size_defs_h
 
-namespace hfst
-{
+namespace hfst {
 const int INTSIZE           =          4;
 const int SHORTSIZE         =          2;
 const int CHARSIZE          =          1;
