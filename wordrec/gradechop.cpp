@@ -94,8 +94,15 @@ PRIORITY Wordrec::full_split_priority(SPLIT *split, inT16 xmin, inT16 xmax) {
  **********************************************************************/
 PRIORITY Wordrec::grade_center_of_blob(register BOUNDS_RECT rect) {
   register PRIORITY grade;
+  int width1 = rect[1] - rect[0];
+  int width2 = rect[3] - rect[2];
 
-  grade = (rect[1] - rect[0]) - (rect[3] - rect[2]);
+  if (width1 > chop_centered_maxwidth &&
+      width2 > chop_centered_maxwidth) {
+    return 0.0;
+  }
+
+  grade = width1 - width2;
   if (grade < 0)
     grade = -grade;
 

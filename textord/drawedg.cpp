@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include          "drawedg.h"
 
 // Include automatically generated configuration file if running autoconf.

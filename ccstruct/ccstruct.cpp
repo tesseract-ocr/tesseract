@@ -28,9 +28,7 @@ const double CCStruct::kAscenderFraction = 0.25;
 const double CCStruct::kXHeightCapRatio = CCStruct::kXHeightFraction /
     (CCStruct::kXHeightFraction + CCStruct::kAscenderFraction);
 
-CCStruct::CCStruct()
-  : image_(this) {
-}
+CCStruct::CCStruct() {}
 
 CCStruct::~CCStruct() {
 }

@@ -17,13 +17,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "alignedblob.h"
-#include "ndminx.h"
-
-// Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+#include "alignedblob.h"
+#include "ndminx.h"
 
 INT_VAR(textord_debug_tabfind, 0, "Debug tab finding");
 INT_VAR(textord_debug_bugs, 0, "Turn on output related to bugs in tab finding");

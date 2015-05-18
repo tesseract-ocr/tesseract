@@ -73,12 +73,12 @@ void SVSync::ExitThread() {
 
 // Starts a new process.
 void SVSync::StartProcess(const char* executable, const char* args) {
-#ifdef _WIN32
   std::string proc;
   proc.append(executable);
   proc.append(" ");
   proc.append(args);
   std::cout << "Starting " << proc << std::endl;
+#ifdef _WIN32
   STARTUPINFO start_info;
   PROCESS_INFORMATION proc_info;
   GetStartupInfo(&start_info);
@@ -125,14 +125,14 @@ void SVSync::StartProcess(const char* executable, const char* args) {
 SVSemaphore::SVSemaphore() {
 #ifdef _WIN32
   semaphore_ = CreateSemaphore(0, 0, 10, 0);
-#elif defined (__APPLE__)
+#elif defined(__APPLE__)
   char name[50];
-  sprintf(name, "%d", random());
+  snprintf(name, sizeof(name), "%d", random());
   sem_unlink(name);
   semaphore_ = sem_open(name, O_CREAT , S_IWUSR, 0);
   if (semaphore_ == SEM_FAILED) {
-	perror("sem_open");
-  } 
+    perror("sem_open");
+  }
 #else
   sem_init(&semaphore_, 0, 0);
 #endif
@@ -141,7 +141,7 @@ SVSemaphore::SVSemaphore() {
 void SVSemaphore::Signal() {
 #ifdef _WIN32
   ReleaseSemaphore(semaphore_, 1, NULL);
-#elif defined (__APPLE__)
+#elif defined(__APPLE__)
   sem_post(semaphore_);
 #else
   sem_post(&semaphore_);
@@ -151,7 +151,7 @@ void SVSemaphore::Signal() {
 void SVSemaphore::Wait() {
 #ifdef _WIN32
   WaitForSingleObject(semaphore_, INFINITE);
-#elif defined (__APPLE__)
+#elif defined(__APPLE__)
   sem_wait(semaphore_);
 #else
   sem_wait(&semaphore_);
@@ -297,14 +297,14 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
   // Also the path has to be separated by ; on windows and : otherwise.
 #ifdef _WIN32
   const char* cmd_template = "-Djava.library.path=%s -cp %s/ScrollView.jar;"
-      "%s/piccolo-1.2.jar;%s/piccolox-1.2.jar"
+      "%s/piccolo2d-core-3.0.jar:%s/piccolo2d-extras-3.0.jar"
       " com.google.scrollview.ScrollView";
 #else
   const char* cmd_template = "-c \"trap 'kill %%1' 0 1 2 ; java "
       "-Xms1024m -Xmx2048m -Djava.library.path=%s -cp %s/ScrollView.jar:"
-      "%s/piccolo-1.2.jar:%s/piccolox-1.2.jar"
+      "%s/piccolo2d-core-3.0.jar:%s/piccolo2d-extras-3.0.jar"
       " com.google.scrollview.ScrollView"
-      " >/dev/null 2>&1 & wait\"";
+      " & wait\"";
 #endif
   int cmdlen = strlen(cmd_template) + 4*strlen(scrollview_path.c_str()) + 1;
   char* cmd = new char[cmdlen];
@@ -436,7 +436,6 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
 
       stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
                    addr_info->ai_protocol);
-
     }
   }
   FreeAddrInfo(addr_info);

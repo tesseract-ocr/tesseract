@@ -17,7 +17,10 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif  // _MSC_VER
+
 #include          <stdlib.h>
 #include          "helpers.h"
 #include          "ndminx.h"
@@ -101,4 +104,42 @@ void ICOORD::setup_render(ICOORD* major_step, ICOORD* minor_step,
     *major = abs_y;
     *minor = abs_x;
   }
+}
+
+// Returns the standard feature direction corresponding to this.
+// See binary_angle_plus_pi below for a description of the direction.
+uinT8 FCOORD::to_direction() const {
+  return binary_angle_plus_pi(angle());
+}
+// Sets this with a unit vector in the given standard feature direction.
+void FCOORD::from_direction(uinT8 direction) {
+  double radians = angle_from_direction(direction);
+  xcoord = cos(radians);
+  ycoord = sin(radians);
+}
+
+// Converts an angle in radians (from ICOORD::angle or FCOORD::angle) to a
+// standard feature direction as an unsigned angle in 256ths of a circle
+// measured anticlockwise from (-1, 0).
+uinT8 FCOORD::binary_angle_plus_pi(double radians) {
+  return Modulo(IntCastRounded((radians + M_PI) * 128.0 / M_PI), 256);
+}
+// Inverse of binary_angle_plus_pi returns an angle in radians for the
+// given standard feature direction.
+double FCOORD::angle_from_direction(uinT8 direction) {
+  return direction * M_PI / 128.0 - M_PI;
+}
+
+// Returns the point on the given line nearest to this, ie the point such
+// that the vector point->this is perpendicular to the line.
+// The line is defined as a line_point and a dir_vector for its direction.
+FCOORD FCOORD::nearest_pt_on_line(const FCOORD& line_point,
+                                  const FCOORD& dir_vector) const {
+  FCOORD point_vector(*this - line_point);
+  // The dot product (%) is |dir_vector||point_vector|cos theta, so dividing by
+  // the square of the length of dir_vector gives us the fraction of dir_vector
+  // to add to line1 to get the appropriate point, so
+  // result = line1 + lambda dir_vector.
+  double lambda = point_vector % dir_vector / dir_vector.sqlength();
+  return line_point + (dir_vector * lambda);
 }

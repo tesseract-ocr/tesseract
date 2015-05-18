@@ -23,15 +23,10 @@
 #include <algorithm>
 #include "bmp_8.h"
 #include "con_comp.h"
+#include "platform.h"
 #ifdef USE_STD_NAMESPACE
 using std::min;
 using std::max;
-#endif
-
-#ifdef _WIN32
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
 #endif
 
 namespace tesseract {
@@ -228,6 +223,7 @@ Bmp8 * Bmp8::FromCharDumpFile(CachedFile *fp) {
 
   if (bmp_obj->LoadFromCharDumpFile(fp) == false) {
     delete bmp_obj;
+    return NULL;
   }
 
   return bmp_obj;
@@ -299,14 +295,11 @@ bool Bmp8::LoadFromCharDumpFile(FILE *fp) {
     for (x = 0; x < wid_; x++, pix += 3) {
       // for now we only support gray scale,
       // so we expect R = G = B, it this is not the case, bail out
-      if  ( buff[pix] != buff[pix + 1] ||
-            buff[pix] != buff[pix + 2]
-          ) {
+      if  (buff[pix] != buff[pix + 1] || buff[pix] != buff[pix + 2]) {
         delete []buff;
         return false;
-          }
-
-          line_buff_[y][x] = buff[pix];
+      }
+      line_buff_[y][x] = buff[pix];
     }
   }
 
@@ -325,6 +318,7 @@ Bmp8 * Bmp8::FromCharDumpFile(FILE *fp) {
 
   if (bmp_obj->LoadFromCharDumpFile(fp) == false) {
     delete bmp_obj;
+    return NULL;
   }
 
   return bmp_obj;
@@ -976,7 +970,7 @@ bool Bmp8::LoadFromCharDumpFile(unsigned char **raw_data_ptr) {
 float Bmp8::ForegroundRatio() const {
   int fore_cnt = 0;
 
-  if (wid_ <= 0 || hgt_ <= 0) {
+  if (wid_ == 0 || hgt_ == 0) {
     return 1.0;
   }
 

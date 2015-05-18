@@ -1,0 +1,877 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DLL_Debug|Win32">
+      <Configuration>DLL_Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL_Release|Win32">
+      <Configuration>DLL_Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="LIB_Debug|Win32">
+      <Configuration>LIB_Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="LIB_OpenCL_Debug|Win32">
+      <Configuration>LIB_OpenCL_Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="LIB_OpenCL_Release|Win32">
+      <Configuration>LIB_OpenCL_Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="LIB_Release|Win32">
+      <Configuration>LIB_Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>libtesseract303</ProjectName>
+    <ProjectGuid>{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}</ProjectGuid>
+    <RootNamespace>libtesseract</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLL_Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LIB_Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LIB_Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\include\tesseract_versionnumbers.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DLL_Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\include\tesseract_versionnumbers.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='LIB_Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\include\tesseract_versionnumbers.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\include\tesseract_versionnumbers.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='LIB_Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\include\tesseract_versionnumbers.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\include\tesseract_versionnumbers.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='LIB_Debug|Win32'">..\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Debug|Win32'">..\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='LIB_Debug|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Debug|Win32'">$(Configuration)\</IntDir>
+    <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='LIB_Debug|Win32'">false</EnableManagedIncrementalBuild>
+    <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Debug|Win32'">false</EnableManagedIncrementalBuild>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='LIB_Release|Win32'">..\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Release|Win32'">..\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='LIB_Release|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Release|Win32'">$(Configuration)\</IntDir>
+    <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='LIB_Release|Win32'">false</EnableManagedIncrementalBuild>
+    <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Release|Win32'">false</EnableManagedIncrementalBuild>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='DLL_Release|Win32'">..\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='DLL_Release|Win32'">$(Configuration)\</IntDir>
+    <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='DLL_Release|Win32'">false</EnableManagedIncrementalBuild>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'">..\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'">$(Configuration)\</IntDir>
+    <EnableManagedIncrementalBuild Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'">false</EnableManagedIncrementalBuild>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='LIB_Debug|Win32'">$(ProjectName)-static-debug</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Debug|Win32'">$(ProjectName)-opencl-static-debug</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='LIB_Release|Win32'">$(ProjectName)-static</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Release|Win32'">$(ProjectName)-opencl-static</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'">$(ProjectName)d</TargetName>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'">false</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='DLL_Release|Win32'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LIB_Debug|Win32'">
+    <CustomBuildStep>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4244;4305;4018;4267;4996;4800;4005;4355;4099;4566;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Message>copy library to lib directory</Message>
+      <Command>if not exist ..\..\..\lib md ..\..\..\lib
+copy "$(TargetPath)" ..\..\..\lib
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Debug|Win32'">
+    <CustomBuildStep>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(AMDAPPSDKROOT)\include;$(INTELOCLSDKROOT)\include;..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_OPENCL;WIN32;_WINDOWS;_DEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4244;4305;4018;4267;4996;4800;4005;4355;4099;4566;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Message>copy library to lib directory</Message>
+      <Command>if not exist ..\..\..\lib md ..\..\..\lib
+copy "$(TargetPath)" ..\..\..\lib
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LIB_Release|Win32'">
+    <CustomBuildStep>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4244;4305;4018;4267;4996;4800;4005;4355;4099;4566;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <Name>
+      </Name>
+    </Lib>
+    <PostBuildEvent>
+      <Message>copy library to lib directory</Message>
+      <Command>if not exist ..\..\..\lib md ..\..\..\lib
+copy "$(TargetPath)" ..\..\..\lib
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LIB_OpenCL_Release|Win32'">
+    <CustomBuildStep>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>$(AMDAPPSDKROOT)\include;$(INTELOCLSDKROOT)\include;..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_OPENCL;WIN32;_WINDOWS;NDEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4244;4305;4018;4267;4996;4800;4005;4355;4099;4566;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <Name>
+      </Name>
+    </Lib>
+    <PostBuildEvent>
+      <Message>copy library to lib directory</Message>
+      <Command>if not exist ..\..\..\lib md ..\..\..\lib
+copy "$(TargetPath)" ..\..\..\lib
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLL_Release|Win32'">
+    <CustomBuildStep>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_USRDLL;_WINDLL;USE_STD_NAMESPACE;TESS_EXPORTS;LIBLEPT_IMPORTS;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4244;4305;4018;4267;4996;4800;4005;4355;4099;4566;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;user32.lib;liblept$(LIBLEPT_VERSION).lib;libtiff$(LIBTIFF_VERSION)-static-mtdll.lib</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <Version>$(LIBTESS_NUMBER)</Version>
+      <AdditionalLibraryDirectories>..\..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+    <PostBuildEvent>
+      <Message>copy library to lib directory</Message>
+      <Command>if not exist ..\..\..\lib md ..\..\..\lib
+copy "$(TargetPath)" ..\..\..\lib
+copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLL_Debug|Win32'">
+    <CustomBuildStep>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
+      <Outputs>%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_USRDLL;_WINDLL;USE_STD_NAMESPACE;TESS_EXPORTS;LIBLEPT_IMPORTS;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4244;4305;4018;4267;4996;4800;4005;4355;4099;4566;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;user32.lib;liblept$(LIBLEPT_VERSION)d.lib;libtiff$(LIBTIFF_VERSION)-static-mtdll-debug.lib</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <Version>$(LIBTESS_NUMBER)</Version>
+      <AdditionalLibraryDirectories>..\..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Message>copy library to lib directory</Message>
+      <Command>if not exist ..\..\..\lib md ..\..\..\lib
+copy "$(TargetPath)" ..\..\..\lib
+copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\ccmain\adaptions.cpp" />
+    <ClCompile Include="..\..\classify\adaptive.cpp" />
+    <ClCompile Include="..\..\classify\adaptmatch.cpp" />
+    <ClCompile Include="..\..\opencl\openclwrapper.cpp" />
+    <ClCompile Include="..\..\textord\alignedblob.cpp" />
+    <ClCompile Include="..\..\cube\altlist.cpp" />
+    <ClCompile Include="..\..\ccutil\ambigs.cpp" />
+    <ClCompile Include="..\..\ccmain\applybox.cpp" />
+    <ClCompile Include="..\..\wordrec\associate.cpp" />
+    <ClCompile Include="..\..\api\baseapi.cpp" />
+    <ClCompile Include="..\..\api\pdfrenderer.cpp" />
+    <ClCompile Include="..\..\ccutil\basedir.cpp" />
+    <ClCompile Include="..\..\textord\bbgrid.cpp" />
+    <ClCompile Include="..\..\cube\beam_search.cpp" />
+    <ClCompile Include="..\..\ccutil\bits16.cpp" />
+    <ClCompile Include="..\..\cutil\bitvec.cpp" />
+    <ClCompile Include="..\..\ccutil\bitvector.cpp" />
+    <ClCompile Include="..\..\textord\blkocc.cpp" />
+    <ClCompile Include="..\..\ccstruct\blobbox.cpp" />
+    <ClCompile Include="..\..\classify\blobclass.cpp" />
+    <ClCompile Include="..\..\textord\blobgrid.cpp" />
+    <ClCompile Include="..\..\ccstruct\blobs.cpp" />
+    <ClCompile Include="..\..\ccstruct\blread.cpp" />
+    <ClCompile Include="..\..\cube\bmp_8.cpp" />
+    <ClCompile Include="..\..\ccstruct\boxread.cpp" />
+    <ClCompile Include="..\..\ccstruct\boxword.cpp" />
+    <ClCompile Include="..\..\cube\cached_file.cpp" />
+    <ClCompile Include="..\..\cutil\callcpp.cpp" />
+    <ClCompile Include="..\..\api\capi.cpp" />
+    <ClCompile Include="..\..\textord\ccnontextdetect.cpp" />
+    <ClCompile Include="..\..\ccstruct\ccstruct.cpp" />
+    <ClCompile Include="..\..\ccutil\ccutil.cpp" />
+    <ClCompile Include="..\..\cube\char_altlist.cpp" />
+    <ClCompile Include="..\..\cube\char_bigrams.cpp" />
+    <ClCompile Include="..\..\cube\char_samp.cpp" />
+    <ClCompile Include="..\..\cube\char_samp_enum.cpp" />
+    <ClCompile Include="..\..\cube\char_samp_set.cpp" />
+    <ClCompile Include="..\..\cube\char_set.cpp" />
+    <ClCompile Include="..\..\wordrec\chop.cpp" />
+    <ClCompile Include="..\..\wordrec\chopper.cpp" />
+    <ClCompile Include="..\..\textord\cjkpitch.cpp" />
+    <ClCompile Include="..\..\cube\classifier_factory.cpp" />
+    <ClCompile Include="..\..\classify\classify.cpp" />
+    <ClCompile Include="..\..\ccutil\clst.cpp" />
+    <ClCompile Include="..\..\classify\cluster.cpp" />
+    <ClCompile Include="..\..\classify\clusttool.cpp" />
+    <ClCompile Include="..\..\textord\colfind.cpp" />
+    <ClCompile Include="..\..\textord\colpartition.cpp" />
+    <ClCompile Include="..\..\textord\colpartitiongrid.cpp" />
+    <ClCompile Include="..\..\textord\colpartitionset.cpp" />
+    <ClCompile Include="..\..\cube\con_comp.cpp" />
+    <ClCompile Include="..\..\dict\context.cpp" />
+    <ClCompile Include="..\..\ccmain\control.cpp" />
+    <ClCompile Include="..\..\cube\conv_net_classifier.cpp" />
+    <ClCompile Include="..\..\ccstruct\coutln.cpp" />
+    <ClCompile Include="..\..\ccmain\cube_control.cpp" />
+    <ClCompile Include="..\..\cube\cube_line_object.cpp" />
+    <ClCompile Include="..\..\cube\cube_line_segmenter.cpp" />
+    <ClCompile Include="..\..\cube\cube_object.cpp" />
+    <ClCompile Include="..\..\ccmain\cube_reco_context.cpp" />
+    <ClCompile Include="..\..\cube\cube_search_object.cpp" />
+    <ClCompile Include="..\..\cube\cube_tuning_params.cpp" />
+    <ClCompile Include="..\..\cube\cube_utils.cpp" />
+    <ClCompile Include="..\..\ccmain\cubeclassifier.cpp" />
+    <ClCompile Include="..\..\cutil\cutil.cpp" />
+    <ClCompile Include="..\..\cutil\cutil_class.cpp" />
+    <ClCompile Include="..\..\classify\cutoffs.cpp" />
+    <ClCompile Include="..\..\cutil\danerror.cpp" />
+    <ClCompile Include="..\..\dict\dawg.cpp" />
+    <ClCompile Include="..\..\ccstruct\detlinefit.cpp" />
+    <ClCompile Include="..\..\textord\devanagari_processing.cpp" />
+    <ClCompile Include="..\..\dict\dict.cpp" />
+    <ClCompile Include="..\..\ccmain\docqual.cpp" />
+    <ClCompile Include="..\..\ccstruct\dppoint.cpp" />
+    <ClCompile Include="..\..\textord\drawedg.cpp" />
+    <ClCompile Include="..\..\wordrec\drawfx.cpp" />
+    <ClCompile Include="..\..\textord\drawtord.cpp" />
+    <ClCompile Include="..\..\textord\edgblob.cpp" />
+    <ClCompile Include="..\..\textord\edgloop.cpp" />
+    <ClCompile Include="..\..\cutil\efio.cpp" />
+    <ClCompile Include="..\..\ccutil\elst.cpp" />
+    <ClCompile Include="..\..\ccutil\elst2.cpp" />
+    <ClCompile Include="..\..\cutil\emalloc.cpp" />
+    <ClCompile Include="..\..\ccmain\equationdetect.cpp" />
+    <ClCompile Include="..\..\textord\equationdetectbase.cpp" />
+    <ClCompile Include="..\..\ccutil\errcode.cpp" />
+    <ClCompile Include="..\..\classify\errorcounter.cpp" />
+    <ClCompile Include="..\..\classify\extract.cpp" />
+    <ClCompile Include="..\..\classify\featdefs.cpp" />
+    <ClCompile Include="..\..\cube\feature_bmp.cpp" />
+    <ClCompile Include="..\..\cube\feature_chebyshev.cpp" />
+    <ClCompile Include="..\..\cube\feature_hybrid.cpp" />
+    <ClCompile Include="..\..\wordrec\findseam.cpp" />
+    <ClCompile Include="..\..\ccmain\fixspace.cpp" />
+    <ClCompile Include="..\..\ccmain\fixxht.cpp" />
+    <ClCompile Include="..\..\classify\flexfx.cpp" />
+    <ClCompile Include="..\..\classify\float2int.cpp" />
+    <ClCompile Include="..\..\ccstruct\fontinfo.cpp" />
+    <ClCompile Include="..\..\textord\fpchop.cpp" />
+    <ClCompile Include="..\..\classify\fpoint.cpp" />
+    <ClCompile Include="..\..\cutil\freelist.cpp" />
+    <ClCompile Include="..\..\classify\fxdefs.cpp" />
+    <ClCompile Include="..\..\textord\gap_map.cpp" />
+    <ClCompile Include="..\..\ccstruct\genblob.cpp" />
+    <ClCompile Include="..\port\gettimeofday.cpp" />
+    <ClCompile Include="..\..\ccutil\globaloc.cpp" />
+    <ClCompile Include="..\..\wordrec\gradechop.cpp" />
+    <ClCompile Include="..\..\cube\hybrid_neural_net_classifier.cpp" />
+    <ClCompile Include="..\..\dict\hyphen.cpp" />
+    <ClCompile Include="..\..\textord\imagefind.cpp" />
+    <ClCompile Include="..\..\ccutil\indexmapbidi.cpp" />
+    <ClCompile Include="..\..\neural_networks\runtime\input_file_buffer.cpp" />
+    <ClCompile Include="..\..\classify\intfeaturedist.cpp" />
+    <ClCompile Include="..\..\classify\intfeaturemap.cpp" />
+    <ClCompile Include="..\..\classify\intfeaturespace.cpp" />
+    <ClCompile Include="..\..\classify\intfx.cpp" />
+    <ClCompile Include="..\..\classify\intmatcher.cpp" />
+    <ClCompile Include="..\..\classify\intproto.cpp" />
+    <ClCompile Include="..\..\classify\kdtree.cpp" />
+    <ClCompile Include="..\..\wordrec\language_model.cpp" />
+    <ClCompile Include="..\..\textord\linefind.cpp" />
+    <ClCompile Include="..\..\ccstruct\linlsq.cpp" />
+    <ClCompile Include="..\..\cutil\listio.cpp" />
+    <ClCompile Include="..\..\ccmain\ltrresultiterator.cpp" />
+    <ClCompile Include="..\..\ccutil\mainblk.cpp" />
+    <ClCompile Include="..\..\wordrec\makechop.cpp" />
+    <ClCompile Include="..\..\textord\makerow.cpp" />
+    <ClCompile Include="..\..\classify\mastertrainer.cpp" />
+    <ClCompile Include="..\..\ccstruct\matrix.cpp" />
+    <ClCompile Include="..\..\ccutil\memry.cpp" />
+    <ClCompile Include="..\..\classify\mf.cpp" />
+    <ClCompile Include="..\..\classify\mfdefs.cpp" />
+    <ClCompile Include="..\..\classify\mfoutline.cpp" />
+    <ClCompile Include="..\..\classify\mfx.cpp" />
+    <ClCompile Include="..\..\ccstruct\mod128.cpp" />
+    <ClCompile Include="..\..\neural_networks\runtime\neural_net.cpp" />
+    <ClCompile Include="..\..\neural_networks\runtime\neuron.cpp" />
+    <ClCompile Include="..\..\ccstruct\normalis.cpp" />
+    <ClCompile Include="..\..\classify\normfeat.cpp" />
+    <ClCompile Include="..\..\classify\normmatch.cpp" />
+    <ClCompile Include="..\..\ccstruct\ocrblock.cpp" />
+    <ClCompile Include="..\..\classify\ocrfeatures.cpp" />
+    <ClCompile Include="..\..\ccstruct\ocrpara.cpp" />
+    <ClCompile Include="..\..\ccstruct\ocrrow.cpp" />
+    <ClCompile Include="..\..\textord\oldbasel.cpp" />
+    <ClCompile Include="..\..\cutil\oldlist.cpp" />
+    <ClCompile Include="..\..\wordrec\olutil.cpp" />
+    <ClCompile Include="..\..\ccmain\osdetect.cpp" />
+    <ClCompile Include="..\..\ccstruct\otsuthr.cpp" />
+    <ClCompile Include="..\..\classify\outfeat.cpp" />
+    <ClCompile Include="..\..\wordrec\outlines.cpp" />
+    <ClCompile Include="..\..\ccmain\output.cpp" />
+    <ClCompile Include="..\..\ccmain\pageiterator.cpp" />
+    <ClCompile Include="..\..\ccstruct\pageres.cpp" />
+    <ClCompile Include="..\..\ccmain\pagesegmain.cpp" />
+    <ClCompile Include="..\..\ccmain\pagewalk.cpp" />
+    <ClCompile Include="..\..\ccmain\paragraphs.cpp" />
+    <ClCompile Include="..\..\ccutil\params.cpp" />
+    <ClCompile Include="..\..\ccmain\par_control.cpp" />
+    <ClCompile Include="..\..\ccmain\paramsd.cpp" />
+    <ClCompile Include="..\..\ccstruct\pdblock.cpp" />
+    <ClCompile Include="..\..\dict\permdawg.cpp" />
+    <ClCompile Include="..\..\ccmain\pgedit.cpp" />
+    <ClCompile Include="..\..\classify\picofeat.cpp" />
+    <ClCompile Include="..\..\wordrec\pieces.cpp" />
+    <ClCompile Include="..\..\textord\pithsync.cpp" />
+    <ClCompile Include="..\..\textord\pitsync1.cpp" />
+    <ClCompile Include="..\..\wordrec\plotedges.cpp" />
+    <ClCompile Include="..\..\ccstruct\points.cpp" />
+    <ClCompile Include="..\..\ccstruct\polyaprx.cpp" />
+    <ClCompile Include="..\..\ccstruct\polyblk.cpp" />
+    <ClCompile Include="..\..\classify\protos.cpp" />
+    <ClCompile Include="..\..\ccstruct\publictypes.cpp" />
+    <ClCompile Include="..\..\ccstruct\quadlsq.cpp" />
+    <ClCompile Include="..\..\ccstruct\quspline.cpp" />
+    <ClCompile Include="..\..\ccstruct\ratngs.cpp" />
+    <ClCompile Include="..\..\ccmain\recogtraining.cpp" />
+    <ClCompile Include="..\..\ccstruct\rect.cpp" />
+    <ClCompile Include="..\..\ccstruct\rejctmap.cpp" />
+    <ClCompile Include="..\..\ccmain\reject.cpp" />
+    <ClCompile Include="..\..\wordrec\render.cpp" />
+    <ClCompile Include="..\..\ccmain\resultiterator.cpp" />
+    <ClCompile Include="..\..\classify\sampleiterator.cpp" />
+    <ClCompile Include="..\..\textord\scanedg.cpp" />
+    <ClCompile Include="..\..\viewer\scrollview.cpp" />
+    <ClCompile Include="..\..\ccstruct\seam.cpp" />
+    <ClCompile Include="..\..\cube\search_column.cpp" />
+    <ClCompile Include="..\..\cube\search_node.cpp" />
+    <ClCompile Include="..\..\wordrec\segsearch.cpp" />
+    <ClCompile Include="..\..\ccutil\serialis.cpp" />
+    <ClCompile Include="..\..\classify\shapetable.cpp" />
+    <ClCompile Include="..\..\neural_networks\runtime\sigmoid_table.cpp" />
+    <ClCompile Include="..\..\textord\sortflts.cpp" />
+    <ClCompile Include="..\..\ccstruct\split.cpp" />
+    <ClCompile Include="..\..\ccstruct\statistc.cpp" />
+    <ClCompile Include="..\..\ccstruct\stepblob.cpp" />
+    <ClCompile Include="..\..\dict\stopper.cpp" />
+    <ClCompile Include="..\..\ccutil\strngs.cpp" />
+    <ClCompile Include="..\..\textord\strokewidth.cpp" />
+    <ClCompile Include="..\port\strtok_r.cpp" />
+    <ClCompile Include="..\..\cutil\structures.cpp" />
+    <ClCompile Include="..\..\viewer\svmnode.cpp" />
+    <ClCompile Include="..\..\viewer\svpaint.cpp" />
+    <ClCompile Include="..\..\viewer\svutil.cpp" />
+    <ClCompile Include="..\..\textord\tabfind.cpp" />
+    <ClCompile Include="..\..\textord\tablefind.cpp" />
+    <ClCompile Include="..\..\textord\tablerecog.cpp" />
+    <ClCompile Include="..\..\textord\tabvector.cpp" />
+    <ClCompile Include="..\..\cube\tess_lang_mod_edge.cpp" />
+    <ClCompile Include="..\..\cube\tess_lang_model.cpp" />
+    <ClCompile Include="..\..\ccmain\tessbox.cpp" />
+    <ClCompile Include="..\..\classify\tessclassifier.cpp" />
+    <ClCompile Include="..\..\ccutil\tessdatamanager.cpp" />
+    <ClCompile Include="..\..\ccmain\tessedit.cpp" />
+    <ClCompile Include="..\..\ccmain\tesseract_cube_combiner.cpp" />
+    <ClCompile Include="..\..\ccmain\tesseractclass.cpp" />
+    <ClCompile Include="..\..\ccmain\tessvars.cpp" />
+    <ClCompile Include="..\..\textord\textlineprojection.cpp" />
+    <ClCompile Include="..\..\textord\textord.cpp" />
+    <ClCompile Include="..\..\wordrec\tface.cpp" />
+    <ClCompile Include="..\..\ccmain\tfacepp.cpp" />
+    <ClCompile Include="..\..\ccmain\thresholder.cpp" />
+    <ClCompile Include="..\..\textord\topitch.cpp" />
+    <ClCompile Include="..\..\textord\tordmain.cpp" />
+    <ClCompile Include="..\..\textord\tospace.cpp" />
+    <ClCompile Include="..\..\textord\tovars.cpp" />
+    <ClCompile Include="..\..\ccutil\tprintf.cpp" />
+    <ClCompile Include="..\..\classify\trainingsample.cpp" />
+    <ClCompile Include="..\..\classify\trainingsampleset.cpp" />
+    <ClCompile Include="..\..\dict\trie.cpp" />
+    <ClCompile Include="..\..\textord\underlin.cpp" />
+    <ClCompile Include="..\..\ccutil\unichar.cpp" />
+    <ClCompile Include="..\..\ccutil\unicharmap.cpp" />
+    <ClCompile Include="..\..\ccutil\unicharset.cpp" />
+    <ClCompile Include="..\..\ccutil\unicodes.cpp" />
+    <ClCompile Include="..\..\ccstruct\vecfuncs.cpp" />
+    <ClCompile Include="..\..\ccstruct\werd.cpp" />
+    <ClCompile Include="..\..\ccmain\werdit.cpp" />
+    <ClCompile Include="..\..\cube\word_altlist.cpp" />
+    <ClCompile Include="..\..\cube\word_list_lang_model.cpp" />
+    <ClCompile Include="..\..\cube\word_size_model.cpp" />
+    <ClCompile Include="..\..\cube\word_unigrams.cpp" />
+    <ClCompile Include="..\..\wordrec\wordclass.cpp" />
+    <ClCompile Include="..\..\wordrec\wordrec.cpp" />
+    <ClCompile Include="..\..\textord\wordseg.cpp" />
+    <ClCompile Include="..\..\textord\workingpartset.cpp" />
+    <ClCompile Include="..\..\classify\xform2d.cpp" />
+    <ClCompile Include="..\..\api\renderer.cpp" />
+    <ClCompile Include="..\..\ccmain\superscript.cpp" />
+    <ClCompile Include="..\..\ccstruct\blamer.cpp" />
+    <ClCompile Include="..\..\ccstruct\params_training_featdef.cpp" />
+    <ClCompile Include="..\..\ccutil\scanutils.cpp" />
+    <ClCompile Include="..\..\ccutil\universalambigs.cpp" />
+    <ClCompile Include="..\..\classify\shapeclassifier.cpp" />
+    <ClCompile Include="..\..\dict\dawg_cache.cpp" />
+    <ClCompile Include="..\..\textord\baselinedetect.cpp" />
+    <ClCompile Include="..\..\wordrec\lm_consistency.cpp" />
+    <ClCompile Include="..\..\wordrec\lm_pain_points.cpp" />
+    <ClCompile Include="..\..\wordrec\lm_state.cpp" />
+    <ClCompile Include="..\..\wordrec\params_model.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\classify\adaptive.h" />
+    <ClInclude Include="..\..\opencl\oclkernels.h" />
+    <ClInclude Include="..\..\opencl\openclwrapper.h" />
+    <ClInclude Include="..\..\opencl\opencl_device_selection.h" />
+    <ClInclude Include="..\..\textord\alignedblob.h" />
+    <ClInclude Include="..\..\cube\altlist.h" />
+    <ClInclude Include="..\..\ccutil\ambigs.h" />
+    <ClInclude Include="..\..\api\apitypes.h" />
+    <ClInclude Include="..\..\wordrec\associate.h" />
+    <ClInclude Include="..\..\api\baseapi.h" />
+    <ClInclude Include="..\..\ccutil\basedir.h" />
+    <ClInclude Include="..\..\textord\bbgrid.h" />
+    <ClInclude Include="..\..\cube\beam_search.h" />
+    <ClInclude Include="..\..\ccutil\bits16.h" />
+    <ClInclude Include="..\..\cutil\bitvec.h" />
+    <ClInclude Include="..\..\ccutil\bitvector.h" />
+    <ClInclude Include="..\..\ccstruct\blckerr.h" />
+    <ClInclude Include="..\..\textord\blkocc.h" />
+    <ClInclude Include="..\..\ccstruct\blobbox.h" />
+    <ClInclude Include="..\..\classify\blobclass.h" />
+    <ClInclude Include="..\..\textord\blobgrid.h" />
+    <ClInclude Include="..\..\ccstruct\blobs.h" />
+    <ClInclude Include="..\..\ccstruct\blread.h" />
+    <ClInclude Include="..\..\cube\bmp_8.h" />
+    <ClInclude Include="..\..\ccstruct\boxread.h" />
+    <ClInclude Include="..\..\ccstruct\boxword.h" />
+    <ClInclude Include="..\..\cube\cached_file.h" />
+    <ClInclude Include="..\..\cutil\callcpp.h" />
+    <ClInclude Include="..\..\api\capi.h" />
+    <ClInclude Include="..\..\textord\ccnontextdetect.h" />
+    <ClInclude Include="..\..\ccstruct\ccstruct.h" />
+    <ClInclude Include="..\..\ccutil\ccutil.h" />
+    <ClInclude Include="..\..\cube\char_altlist.h" />
+    <ClInclude Include="..\..\cube\char_bigrams.h" />
+    <ClInclude Include="..\..\cube\char_samp.h" />
+    <ClInclude Include="..\..\cube\char_samp_enum.h" />
+    <ClInclude Include="..\..\cube\char_samp_set.h" />
+    <ClInclude Include="..\..\cube\char_set.h" />
+    <ClInclude Include="..\..\classify\chartoname.h" />
+    <ClInclude Include="..\..\wordrec\chop.h" />
+    <ClInclude Include="..\..\wordrec\chopper.h" />
+    <ClInclude Include="..\..\textord\cjkpitch.h" />
+    <ClInclude Include="..\..\cube\classifier_base.h" />
+    <ClInclude Include="..\..\cube\classifier_factory.h" />
+    <ClInclude Include="..\..\classify\classify.h" />
+    <ClInclude Include="..\..\ccutil\clst.h" />
+    <ClInclude Include="..\..\classify\cluster.h" />
+    <ClInclude Include="..\..\classify\clusttool.h" />
+    <ClInclude Include="..\..\textord\colfind.h" />
+    <ClInclude Include="..\..\textord\colpartition.h" />
+    <ClInclude Include="..\..\textord\colpartitiongrid.h" />
+    <ClInclude Include="..\..\textord\colpartitionset.h" />
+    <ClInclude Include="..\..\cube\con_comp.h" />
+    <ClInclude Include="..\..\cutil\const.h" />
+    <ClInclude Include="..\..\ccmain\control.h" />
+    <ClInclude Include="..\..\cube\conv_net_classifier.h" />
+    <ClInclude Include="..\..\ccstruct\coutln.h" />
+    <ClInclude Include="..\..\ccstruct\crakedge.h" />
+    <ClInclude Include="..\..\cube\cube_const.h" />
+    <ClInclude Include="..\..\cube\cube_line_object.h" />
+    <ClInclude Include="..\..\cube\cube_line_segmenter.h" />
+    <ClInclude Include="..\..\cube\cube_object.h" />
+    <ClInclude Include="..\..\ccmain\cube_reco_context.h" />
+    <ClInclude Include="..\..\cube\cube_search_object.h" />
+    <ClInclude Include="..\..\cube\cube_tuning_params.h" />
+    <ClInclude Include="..\..\cube\cube_utils.h" />
+    <ClInclude Include="..\..\ccmain\cubeclassifier.h" />
+    <ClInclude Include="..\..\cutil\cutil.h" />
+    <ClInclude Include="..\..\cutil\cutil_class.h" />
+    <ClInclude Include="..\..\classify\cutoffs.h" />
+    <ClInclude Include="..\..\cutil\danerror.h" />
+    <ClInclude Include="..\..\dict\dawg.h" />
+    <ClInclude Include="..\..\ccstruct\detlinefit.h" />
+    <ClInclude Include="..\..\textord\devanagari_processing.h" />
+    <ClInclude Include="..\..\dict\dict.h" />
+    <ClInclude Include="..\..\ccmain\docqual.h" />
+    <ClInclude Include="..\..\ccstruct\dppoint.h" />
+    <ClInclude Include="..\..\textord\drawedg.h" />
+    <ClInclude Include="..\..\wordrec\drawfx.h" />
+    <ClInclude Include="..\..\textord\drawtord.h" />
+    <ClInclude Include="..\..\textord\edgblob.h" />
+    <ClInclude Include="..\..\textord\edgloop.h" />
+    <ClInclude Include="..\..\cutil\efio.h" />
+    <ClInclude Include="..\..\ccutil\elst.h" />
+    <ClInclude Include="..\..\ccutil\elst2.h" />
+    <ClInclude Include="..\..\cutil\emalloc.h" />
+    <ClInclude Include="..\..\ccmain\equationdetect.h" />
+    <ClInclude Include="..\..\textord\equationdetectbase.h" />
+    <ClInclude Include="..\..\ccutil\errcode.h" />
+    <ClInclude Include="..\..\classify\errorcounter.h" />
+    <ClInclude Include="..\..\classify\extern.h" />
+    <ClInclude Include="..\..\classify\extract.h" />
+    <ClInclude Include="..\..\classify\featdefs.h" />
+    <ClInclude Include="..\..\cube\feature_base.h" />
+    <ClInclude Include="..\..\cube\feature_bmp.h" />
+    <ClInclude Include="..\..\cube\feature_chebyshev.h" />
+    <ClInclude Include="..\..\cube\feature_hybrid.h" />
+    <ClInclude Include="..\..\ccutil\fileerr.h" />
+    <ClInclude Include="..\..\wordrec\findseam.h" />
+    <ClInclude Include="..\..\ccmain\fixspace.h" />
+    <ClInclude Include="..\..\classify\flexfx.h" />
+    <ClInclude Include="..\..\classify\float2int.h" />
+    <ClInclude Include="..\..\ccstruct\fontinfo.h" />
+    <ClInclude Include="..\..\textord\fpchop.h" />
+    <ClInclude Include="..\..\classify\fpoint.h" />
+    <ClInclude Include="..\..\cutil\freelist.h" />
+    <ClInclude Include="..\..\classify\fxdefs.h" />
+    <ClInclude Include="..\..\textord\gap_map.h" />
+    <ClInclude Include="..\..\ccstruct\genblob.h" />
+    <ClInclude Include="..\..\ccutil\genericvector.h" />
+    <ClInclude Include="..\port\gettimeofday.h" />
+    <ClInclude Include="..\..\ccutil\globaloc.h" />
+    <ClInclude Include="..\..\cutil\globals.h" />
+    <ClInclude Include="..\..\wordrec\gradechop.h" />
+    <ClInclude Include="..\..\ccutil\hashfn.h" />
+    <ClInclude Include="..\..\ccutil\helpers.h" />
+    <ClInclude Include="..\..\ccutil\host.h" />
+    <ClInclude Include="..\..\ccstruct\hpdsizes.h" />
+    <ClInclude Include="..\..\cube\hybrid_neural_net_classifier.h" />
+    <ClInclude Include="..\..\textord\imagefind.h" />
+    <ClInclude Include="..\..\ccutil\indexmapbidi.h" />
+    <ClInclude Include="..\..\neural_networks\runtime\input_file_buffer.h" />
+    <ClInclude Include="..\..\classify\intfeaturedist.h" />
+    <ClInclude Include="..\..\classify\intfeaturemap.h" />
+    <ClInclude Include="..\..\classify\intfeaturespace.h" />
+    <ClInclude Include="..\..\classify\intfx.h" />
+    <ClInclude Include="..\..\classify\intmatcher.h" />
+    <ClInclude Include="..\..\classify\intproto.h" />
+    <ClInclude Include="..\..\ccstruct\ipoints.h" />
+    <ClInclude Include="..\..\classify\kdtree.h" />
+    <ClInclude Include="..\..\cube\lang_mod_edge.h" />
+    <ClInclude Include="..\..\cube\lang_model.h" />
+    <ClInclude Include="..\..\wordrec\language_model.h" />
+    <ClInclude Include="..\..\textord\linefind.h" />
+    <ClInclude Include="..\..\ccstruct\linlsq.h" />
+    <ClInclude Include="..\..\cutil\listio.h" />
+    <ClInclude Include="..\..\ccutil\lsterr.h" />
+    <ClInclude Include="..\..\ccmain\ltrresultiterator.h" />
+    <ClInclude Include="..\..\wordrec\makechop.h" />
+    <ClInclude Include="..\..\textord\makerow.h" />
+    <ClInclude Include="..\..\classify\mastertrainer.h" />
+    <ClInclude Include="..\..\dict\matchdefs.h" />
+    <ClInclude Include="..\port\mathfix.h" />
+    <ClInclude Include="..\..\ccstruct\matrix.h" />
+    <ClInclude Include="..\..\wordrec\measure.h" />
+    <ClInclude Include="..\..\ccutil\memry.h" />
+    <ClInclude Include="..\..\classify\mf.h" />
+    <ClInclude Include="..\..\classify\mfdefs.h" />
+    <ClInclude Include="..\..\classify\mfoutline.h" />
+    <ClInclude Include="..\..\classify\mfx.h" />
+    <ClInclude Include="..\..\ccstruct\mod128.h" />
+    <ClInclude Include="..\..\ccmain\mutableiterator.h" />
+    <ClInclude Include="..\..\ccutil\ndminx.h" />
+    <ClInclude Include="..\..\neural_networks\runtime\neural_net.h" />
+    <ClInclude Include="..\..\neural_networks\runtime\neuron.h" />
+    <ClInclude Include="..\..\ccstruct\normalis.h" />
+    <ClInclude Include="..\..\classify\normfeat.h" />
+    <ClInclude Include="..\..\classify\normmatch.h" />
+    <ClInclude Include="..\..\ccutil\nwmain.h" />
+    <ClInclude Include="..\..\ccstruct\ocrblock.h" />
+    <ClInclude Include="..\..\ccutil\ocrclass.h" />
+    <ClInclude Include="..\..\classify\ocrfeatures.h" />
+    <ClInclude Include="..\..\ccstruct\ocrpara.h" />
+    <ClInclude Include="..\..\ccstruct\ocrrow.h" />
+    <ClInclude Include="..\..\textord\oldbasel.h" />
+    <ClInclude Include="..\..\cutil\oldlist.h" />
+    <ClInclude Include="..\..\wordrec\olutil.h" />
+    <ClInclude Include="..\..\ccmain\osdetect.h" />
+    <ClInclude Include="..\..\ccstruct\otsuthr.h" />
+    <ClInclude Include="..\..\classify\outfeat.h" />
+    <ClInclude Include="..\..\wordrec\outlines.h" />
+    <ClInclude Include="..\..\ccmain\output.h" />
+    <ClInclude Include="..\..\ccmain\pageiterator.h" />
+    <ClInclude Include="..\..\ccstruct\pageres.h" />
+    <ClInclude Include="..\..\ccmain\paragraphs.h" />
+    <ClInclude Include="..\..\ccmain\paragraphs_internal.h" />
+    <ClInclude Include="..\..\ccutil\params.h" />
+    <ClInclude Include="..\..\ccstruct\params_training_featdef.h" />
+    <ClInclude Include="..\..\ccmain\paramsd.h" />
+    <ClInclude Include="..\..\ccstruct\pdblock.h" />
+    <ClInclude Include="..\..\ccmain\pgedit.h" />
+    <ClInclude Include="..\..\classify\picofeat.h" />
+    <ClInclude Include="..\..\textord\pithsync.h" />
+    <ClInclude Include="..\..\textord\pitsync1.h" />
+    <ClInclude Include="..\..\ccutil\platform.h" />
+    <ClInclude Include="..\..\wordrec\plotedges.h" />
+    <ClInclude Include="..\..\ccstruct\points.h" />
+    <ClInclude Include="..\..\ccstruct\polyaprx.h" />
+    <ClInclude Include="..\..\ccstruct\polyblk.h" />
+    <ClInclude Include="..\..\classify\protos.h" />
+    <ClInclude Include="..\..\ccstruct\publictypes.h" />
+    <ClInclude Include="..\..\ccutil\qrsequence.h" />
+    <ClInclude Include="..\..\ccstruct\quadlsq.h" />
+    <ClInclude Include="..\..\ccstruct\quadratc.h" />
+    <ClInclude Include="..\..\ccstruct\quspline.h" />
+    <ClInclude Include="..\..\ccstruct\ratngs.h" />
+    <ClInclude Include="..\..\ccstruct\rect.h" />
+    <ClInclude Include="..\..\ccstruct\rejctmap.h" />
+    <ClInclude Include="..\..\ccmain\reject.h" />
+    <ClInclude Include="..\..\wordrec\render.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\ccmain\resultiterator.h" />
+    <ClInclude Include="..\..\classify\sampleiterator.h" />
+    <ClInclude Include="..\..\textord\scanedg.h" />
+    <ClInclude Include="..\..\viewer\scrollview.h" />
+    <ClInclude Include="..\..\ccstruct\seam.h" />
+    <ClInclude Include="..\..\cube\search_column.h" />
+    <ClInclude Include="..\..\cube\search_node.h" />
+    <ClInclude Include="..\..\cube\search_object.h" />
+    <ClInclude Include="..\..\ccutil\secname.h" />
+    <ClInclude Include="..\..\ccutil\serialis.h" />
+    <ClInclude Include="..\..\classify\shapeclassifier.h" />
+    <ClInclude Include="..\..\classify\shapetable.h" />
+    <ClInclude Include="..\..\textord\sortflts.h" />
+    <ClInclude Include="..\..\ccutil\sorthelper.h" />
+    <ClInclude Include="..\..\ccstruct\split.h" />
+    <ClInclude Include="..\..\ccstruct\statistc.h" />
+    <ClInclude Include="..\..\ccutil\stderr.h" />
+    <ClInclude Include="..\..\ccstruct\stepblob.h" />
+    <ClInclude Include="..\..\dict\stopper.h" />
+    <ClInclude Include="..\..\cube\string_32.h" />
+    <ClInclude Include="..\..\ccutil\strngs.h" />
+    <ClInclude Include="..\..\textord\strokewidth.h" />
+    <ClInclude Include="..\port\strtok_r.h" />
+    <ClInclude Include="..\..\cutil\structures.h" />
+    <ClInclude Include="..\..\viewer\svmnode.h" />
+    <ClInclude Include="..\..\viewer\svutil.h" />
+    <ClInclude Include="..\..\textord\tabfind.h" />
+    <ClInclude Include="..\..\textord\tablefind.h" />
+    <ClInclude Include="..\..\textord\tablerecog.h" />
+    <ClInclude Include="..\..\textord\tabvector.h" />
+    <ClInclude Include="..\..\cube\tess_lang_mod_edge.h" />
+    <ClInclude Include="..\..\cube\tess_lang_model.h" />
+    <ClInclude Include="..\..\ccmain\tessbox.h" />
+    <ClInclude Include="..\..\ccutil\tesscallback.h" />
+    <ClInclude Include="..\..\classify\tessclassifier.h" />
+    <ClInclude Include="..\..\ccutil\tessdatamanager.h" />
+    <ClInclude Include="..\..\ccmain\tessedit.h" />
+    <ClInclude Include="..\..\ccmain\tesseract_cube_combiner.h" />
+    <ClInclude Include="..\..\ccmain\tesseractclass.h" />
+    <ClInclude Include="..\..\ccmain\tessvars.h" />
+    <ClInclude Include="..\..\textord\textlineprojection.h" />
+    <ClInclude Include="..\..\textord\textord.h" />
+    <ClInclude Include="..\..\ccmain\thresholder.h" />
+    <ClInclude Include="..\..\textord\topitch.h" />
+    <ClInclude Include="..\..\textord\tordmain.h" />
+    <ClInclude Include="..\..\textord\tovars.h" />
+    <ClInclude Include="..\..\ccutil\tprintf.h" />
+    <ClInclude Include="..\..\classify\trainingsample.h" />
+    <ClInclude Include="..\..\classify\trainingsampleset.h" />
+    <ClInclude Include="..\..\dict\trie.h" />
+    <ClInclude Include="..\..\cube\tuning_params.h" />
+    <ClInclude Include="..\..\textord\underlin.h" />
+    <ClInclude Include="..\..\ccutil\unichar.h" />
+    <ClInclude Include="..\..\ccutil\unicharmap.h" />
+    <ClInclude Include="..\..\ccutil\unicharset.h" />
+    <ClInclude Include="..\..\ccutil\unicity_table.h" />
+    <ClInclude Include="..\..\ccutil\unicodes.h" />
+    <ClInclude Include="..\..\ccstruct\vecfuncs.h" />
+    <ClInclude Include="..\..\ccstruct\werd.h" />
+    <ClInclude Include="..\..\ccmain\werdit.h" />
+    <ClInclude Include="..\..\cube\word_altlist.h" />
+    <ClInclude Include="..\..\cube\word_list_lang_model.h" />
+    <ClInclude Include="..\..\cube\word_size_model.h" />
+    <ClInclude Include="..\..\cube\word_unigrams.h" />
+    <ClInclude Include="..\..\wordrec\wordrec.h" />
+    <ClInclude Include="..\..\textord\wordseg.h" />
+    <ClInclude Include="..\..\textord\workingpartset.h" />
+    <ClInclude Include="..\..\classify\xform2d.h" />
+    <ClInclude Include="..\..\api\renderer.h" />
+    <ClInclude Include="..\..\ccstruct\blamer.h" />
+    <ClInclude Include="..\..\ccutil\doubleptr.h" />
+    <ClInclude Include="..\..\ccutil\genericheap.h" />
+    <ClInclude Include="..\..\ccutil\kdpair.h" />
+    <ClInclude Include="..\..\ccutil\object_cache.h" />
+    <ClInclude Include="..\..\ccutil\scanutils.h" />
+    <ClInclude Include="..\..\ccutil\universalambigs.h" />
+    <ClInclude Include="..\..\dict\dawg_cache.h" />
+    <ClInclude Include="..\..\textord\baselinedetect.h" />
+    <ClInclude Include="..\..\wordrec\lm_consistency.h" />
+    <ClInclude Include="..\..\wordrec\lm_pain_points.h" />
+    <ClInclude Include="..\..\wordrec\lm_state.h" />
+    <ClInclude Include="..\..\wordrec\params_model.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="libtesseract303.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

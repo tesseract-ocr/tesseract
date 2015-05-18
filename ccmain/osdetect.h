@@ -59,7 +59,7 @@ struct OSResults {
   // orientation id.
   void update_best_script(int orientation_id);
   // Return the index of the script with the highest score for this orientation.
-  int get_best_script(int orientation_id) const;
+  TESS_API int get_best_script(int orientation_id) const;
   // Accumulate scores with given OSResults instance and update the best script.
   void accumulate(const OSResults& osr);
 
@@ -81,18 +81,21 @@ struct OSResults {
 
 class OrientationDetector {
  public:
-  OrientationDetector(OSResults*);
+  OrientationDetector(const GenericVector<int>* allowed_scripts,
+                      OSResults* results);
   bool detect_blob(BLOB_CHOICE_LIST* scores);
   int get_orientation();
  private:
   OSResults* osr_;
+  tesseract::Tesseract* tess_;
+  const GenericVector<int>* allowed_scripts_;
 };
 
 class ScriptDetector {
  public:
-  ScriptDetector(OSResults*, tesseract::Tesseract* tess);
+  ScriptDetector(const GenericVector<int>* allowed_scripts,
+                 OSResults* osr, tesseract::Tesseract* tess);
   void detect_blob(BLOB_CHOICE_LIST* scores);
-  void get_script() ;
   bool must_stop(int orientation);
  private:
   OSResults* osr_;
@@ -108,6 +111,7 @@ class ScriptDetector {
   int latin_id_;
   int fraktur_id_;
   tesseract::Tesseract* tess_;
+  const GenericVector<int>* allowed_scripts_;
 };
 
 int orientation_and_script_detection(STRING& filename,
@@ -118,7 +122,8 @@ int os_detect(TO_BLOCK_LIST* port_blocks,
               OSResults* osr,
               tesseract::Tesseract* tess);
 
-int os_detect_blobs(BLOBNBOX_CLIST* blob_list,
+int os_detect_blobs(const GenericVector<int>* allowed_scripts,
+                    BLOBNBOX_CLIST* blob_list,
                     OSResults* osr,
                     tesseract::Tesseract* tess);
 
@@ -129,6 +134,6 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
 // Helper method to convert an orientation index to its value in degrees.
 // The value represents the amount of clockwise rotation in degrees that must be
 // applied for the text to be upright (readable).
-const int OrientationIdToValue(const int& id);
+TESS_API const int OrientationIdToValue(const int& id);
 
 #endif  // TESSERACT_CCMAIN_OSDETECT_H__

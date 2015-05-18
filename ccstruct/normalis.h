@@ -21,6 +21,7 @@
 #define           NORMALIS_H
 
 #include <stdio.h>
+#include "genericvector.h"
 #include "host.h"
 
 const int kBlnCellHeight = 256;     // Full-height for baseline normalization.
@@ -31,12 +32,13 @@ struct Pix;
 class ROW;                          // Forward decl
 class BLOCK;
 class FCOORD;
-class TBLOB;
+struct TBLOB;
 class TBOX;
-class TPOINT;
+struct TPOINT;
 class UNICHARSET;
 
 namespace tesseract {
+
 // Possible normalization methods. Use NEGATIVE values as these also
 // double up as markers for the last sub-classifier.
 enum NormalizationMode {
@@ -47,38 +49,14 @@ enum NormalizationMode {
 
 }  // namespace tesseract.
 
-class DENORM_SEG {
- public:
-  DENORM_SEG() {}
-
-  inT32 xstart;         // start of segment
-  inT32 ycoord;         // y at segment
-  float scale_factor;   // normalized_x/scale_factor + x_center == original_x
-};
-
 class DENORM {
  public:
   DENORM();
-  DENORM(float x, float scaling, ROW *src);
-  DENORM(float x,              // from same pieces
-         float scaling,
-         double line_m,        // default line: y = mx + c
-         double line_c,
-         inT16 seg_count,      // no of segments
-         DENORM_SEG *seg_pts,  // actual segments
-         BOOL8 using_row,      // as baseline
-         ROW *src);
+
   // Copying a DENORM is allowed.
   DENORM(const DENORM &);
   DENORM& operator=(const DENORM&);
   ~DENORM();
-
-  // Setup for a baseline normalization. If there are segs, then they
-  // are used, otherwise, if there is a row, that is used, otherwise the
-  // bottom of the word_box is used for the baseline.
-  void SetupBLNormalize(const BLOCK* block, const ROW* row, float x_height,
-                        const TBOX& word_box,
-                        int num_segs, const DENORM_SEG* segs);
 
   // Setup the normalization transformation parameters.
   // The normalizations applied to a blob are as follows:
@@ -120,18 +98,12 @@ class DENORM {
   // block: if not NULL, then this is the first transformation, and
   //        block->re_rotation() needs to be used after the Denorm
   //        transformation to get back to the image coords.
-  // row: if not NULL, then row->baseline(x) is added to the y_origin, unless
-  //      segs is not NULL and num_segs > 0, in which case they are used.
   // rotation: if not NULL, apply this rotation after translation to the
   //           origin and scaling. (Usually a classify rotation.)
   // predecessor: if not NULL, then predecessor has been applied to the
   //              input space and needs to be undone to complete the inverse.
-  // segs: if not NULL and num_segs > 0, then the segs provide the y_origin
-  //       and the y_scale at a given source x.
-  // num_segs: the number of segs.
   // The above pointers are not owned by this DENORM and are assumed to live
-  // longer than this denorm, except rotation and segs, which are deep
-  // copied on input.
+  // longer than this denorm, except rotation, which is deep copied on input.
   //
   // x_origin: The x origin which will be mapped to final_xshift in the result.
   // y_origin: The y origin which will be mapped to final_yshift in the result.
@@ -148,21 +120,23 @@ class DENORM {
   //
   // In theory, any of the commonly used normalizations can be setup here:
   // * Traditional baseline normalization on a word:
-  // SetupNormalization(block, row, NULL, NULL, NULL, 0,
-  //                    box.x_middle(), 0.0f,
+  // SetupNormalization(block, NULL, NULL,
+  //                    box.x_middle(), baseline,
   //                    kBlnXHeight / x_height, kBlnXHeight / x_height,
   //                    0, kBlnBaselineOffset);
-  // * Numeric mode baseline normalization on a word:
-  // SetupNormalization(block, NULL, NULL, NULL, segs, num_segs,
-  //                    box.x_middle(), 0.0f,
+  // * "Numeric mode" baseline normalization on a word, in which the blobs
+  //   are positioned with the bottom as the baseline is achieved by making
+  //   a separate DENORM for each blob.
+  // SetupNormalization(block, NULL, NULL,
+  //                    box.x_middle(), box.bottom(),
   //                    kBlnXHeight / x_height, kBlnXHeight / x_height,
   //                    0, kBlnBaselineOffset);
   // * Anisotropic character normalization used by IntFx.
-  // SetupNormalization(NULL, NULL, NULL, denorm, NULL, 0,
+  // SetupNormalization(NULL, NULL, denorm,
   //                    centroid_x, centroid_y,
   //                    51.2 / ry, 51.2 / rx, 128, 128);
   // * Normalize blob height to x-height (current OSD):
-  // SetupNormalization(NULL, NULL, &rotation, NULL, NULL, 0,
+  // SetupNormalization(NULL, &rotation, NULL,
   //                    box.rotational_x_middle(rotation),
   //                    box.rotational_y_middle(rotation),
   //                    kBlnXHeight / box.rotational_height(rotation),
@@ -171,7 +145,7 @@ class DENORM {
   // * Secondary normalization for classification rotation (current):
   // FCOORD rotation = block->classify_rotation();
   // float target_height = kBlnXHeight / CCStruct::kXHeightCapRatio;
-  // SetupNormalization(NULL, NULL, &rotation, denorm, NULL, 0,
+  // SetupNormalization(NULL, &rotation, denorm,
   //                    box.rotational_x_middle(rotation),
   //                    box.rotational_y_middle(rotation),
   //                    target_height / box.rotational_height(rotation),
@@ -183,7 +157,7 @@ class DENORM {
   // Scales height and width independently so that modal height and pitch
   // fill the cell respectively.
   // float cap_height = x_height / CCStruct::kXHeightCapRatio;
-  // SetupNormalization(block, row, NULL, NULL, NULL, 0,
+  // SetupNormalization(block, NULL, NULL,
   //                    box.x_middle(), cap_height / 2.0f,
   //                    kBlnCellHeight / fixed_pitch,
   //                    kBlnCellHeight / cap_height,
@@ -193,20 +167,38 @@ class DENORM {
   // cell, no further scaling and a simple rotation (or nothing) about the
   // cell center.
   // FCOORD rotation = block->classify_rotation();
-  // SetupNormalization(NULL, NULL, &rotation, denorm, NULL, 0,
+  // SetupNormalization(NULL, &rotation, denorm,
   //                    fixed_pitch_cell_center,
   //                    0.0f,
   //                    1.0f,
   //                    1.0f,
   //                    0, 0);
   void SetupNormalization(const BLOCK* block,
-                          const ROW* row,
                           const FCOORD* rotation,
                           const DENORM* predecessor,
-                          const DENORM_SEG* segs, int num_segs,
                           float x_origin, float y_origin,
                           float x_scale, float y_scale,
                           float final_xshift, float final_yshift);
+
+  // Sets up the DENORM to execute a non-linear transformation based on
+  // preserving an even distribution of stroke edges. The transformation
+  // operates only within the given box, scaling input coords within the box
+  // non-linearly to a box of target_width by target_height, with all other
+  // coords being clipped to the box edge. As with SetupNormalization above,
+  // final_xshift and final_yshift are applied after scaling, and the bottom-
+  // left of box is used as a pre-scaling origin.
+  // x_coords is a collection of the x-coords of vertical edges for each
+  // y-coord starting at box.bottom().
+  // y_coords is a collection of the y-coords of horizontal edges for each
+  // x-coord starting at box.left().
+  // Eg x_coords[0] is a collection of the x-coords of edges at y=bottom.
+  // Eg x_coords[1] is a collection of the x-coords of edges at y=bottom + 1.
+  // The second-level vectors must all be sorted in ascending order.
+  void SetupNonLinear(const DENORM* predecessor, const TBOX& box,
+                      float target_width, float target_height,
+                      float final_xshift, float final_yshift,
+                      const GenericVector<GenericVector<int> >& x_coords,
+                      const GenericVector<GenericVector<int> >& y_coords);
 
   // Transforms the given coords one step forward to normalized space, without
   // using any block rotation or predecessor.
@@ -214,9 +206,13 @@ class DENORM {
   void LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const;
   // Transforms the given coords forward to normalized space using the
   // full transformation sequence defined by the block rotation, the
-  // predecessors, deepest first, and finally this.
-  void NormTransform(const TPOINT& pt, TPOINT* transformed) const;
-  void NormTransform(const FCOORD& pt, FCOORD* transformed) const;
+  // predecessors, deepest first, and finally this. If first_norm is not NULL,
+  // then the first and deepest transformation used is first_norm, ending
+  // with this, and the block rotation will not be applied.
+  void NormTransform(const DENORM* first_norm, const TPOINT& pt,
+                     TPOINT* transformed) const;
+  void NormTransform(const DENORM* first_norm, const FCOORD& pt,
+                     FCOORD* transformed) const;
   // Transforms the given coords one step back to source space, without
   // using to any block rotation or predecessor.
   void LocalDenormTransform(const TPOINT& pt, TPOINT* original) const;
@@ -224,21 +220,30 @@ class DENORM {
   // Transforms the given coords all the way back to source image space using
   // the full transformation sequence defined by this and its predecesors
   // recursively, shallowest first, and finally any block re_rotation.
-  void DenormTransform(const TPOINT& pt, TPOINT* original) const;
-  void DenormTransform(const FCOORD& pt, FCOORD* original) const;
+  // If last_denorm is not NULL, then the last transformation used will
+  // be last_denorm, and the block re_rotation will never be executed.
+  void DenormTransform(const DENORM* last_denorm, const TPOINT& pt,
+                       TPOINT* original) const;
+  void DenormTransform(const DENORM* last_denorm, const FCOORD& pt,
+                       FCOORD* original) const;
 
   // Normalize a blob using blob transformations. Less accurate, but
   // more accurately copies the old way.
   void LocalNormBlob(TBLOB* blob) const;
 
-  // Fills in the x-height range accepted by the given unichar_id, given its
-  // bounding box in the usual baseline-normalized coordinates, with some
-  // initial crude x-height estimate (such as word size) and this denoting the
-  // transformation that was used. Returns false, and an empty range if the
-  // bottom is a mis-fit. Returns true and empty [0, 0] range if the bottom
-  // fits, but the top is impossible.
-  bool XHeightRange(int unichar_id, const UNICHARSET& unicharset,
-                    const TBOX& bbox, inT16* min_xht, inT16* max_xht) const;
+  // Fills in the x-height range accepted by the given unichar_id in blob
+  // coordinates, given its bounding box in the usual baseline-normalized
+  // coordinates, with some initial crude x-height estimate (such as word
+  // size) and this denoting the transformation that was used.
+  // Also returns the amount the character must have shifted up or down.
+  void XHeightRange(int unichar_id, const UNICHARSET& unicharset,
+                    const TBOX& bbox,
+                    float* min_xht,
+                    float* max_xht,
+                    float* yshift) const;
+
+  // Prints the content of the DENORM for debug purposes.
+  void Print() const;
 
   Pix* pix() const {
     return pix_;
@@ -267,12 +272,6 @@ class DENORM {
   float y_scale() const {
     return y_scale_;
   }
-  const ROW *row() const {
-    return row_;
-  }
-  void set_row(ROW* row) {
-    row_ = row;
-  }
   const BLOCK* block() const {
     return block_;
   }
@@ -286,36 +285,24 @@ class DENORM {
   // Setup default values.
   void Init();
 
-  // Returns the y-origin at the original (un-normalized) x.
-  float YOriginAtOrigX(float orig_x) const;
-
-  // Returns the y-scale at the original (un-normalized) x.
-  float YScaleAtOrigX(float orig_x) const;
-
-  // Deep copy the array of segments for use as a y_origin and y_scale.
-  void SetSegments(const DENORM_SEG* new_segs, int seg_count);
-
-  // Finds the appropriate segment for a given original x-coord
-  const DENORM_SEG* BinarySearchSegment(float orig_x) const;
-
   // Best available image.
   Pix* pix_;
   // True if the source image is white-on-black.
   bool inverse_;
   // Block the word came from. If not null, block->re_rotation() takes the
   // "untransformed" coordinates even further back to the original image.
+  // Used only on the first DENORM in a chain.
   const BLOCK* block_;
-  // Row the word came from. If not null, row->baseline() is added to y_origin_.
-  const ROW* row_;
   // Rotation to apply between translation to the origin and scaling.
   const FCOORD* rotation_;
   // Previous transformation in a chain.
   const DENORM* predecessor_;
-  // Array of segments used to specify local y_origin_ and y_scale_.
-  // Owned by the DENORM.
-  DENORM_SEG *segs_;
-  // Size of the segs_ array.
-  int num_segs_;
+  // Non-linear transformation maps directly from each integer offset from the
+  // origin to the corresponding x-coord. Owned by the DENORM.
+  GenericVector<float>* x_map_;
+  // Non-linear transformation maps directly from each integer offset from the
+  // origin to the corresponding y-coord. Owned by the DENORM.
+  GenericVector<float>* y_map_;
   // x-coordinate to be mapped to final_xshift_ in the result.
   float x_origin_;
   // y-coordinate to be mapped to final_yshift_ in the result.

@@ -23,7 +23,6 @@
 #include "control.h"
 #include "cutil.h"
 #include "host.h"
-#include "permute.h"
 #include "ratngs.h"
 #include "reject.h"
 #include "stopper.h"
@@ -38,10 +37,6 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
   if (tessedit_ambigs_training) {
     tessedit_tess_adaption_mode.set_value(0);    // turn off adaption
     tessedit_enable_doc_dict.set_value(0);       // turn off document dictionary
-    save_blob_choices.set_value(1);              // save individual char choices
-    getDict().save_raw_choices.set_value(1);     // save raw choices
-    getDict().permute_only_top.set_value(true);  // use only top choice permuter
-    tessedit_ok_mode.set_value(0);               // turn off context checking
     // Explore all segmentations.
     getDict().stopper_no_acceptable_choices.set_value(1);
   }
@@ -56,15 +51,11 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
 
 // Copies the bounding box from page_res_it->word() to the given TBOX.
 bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
-  while (page_res_it->block() != NULL) {
-    if (page_res_it->word() != NULL)
-      break;
+  while (page_res_it->block() != NULL && page_res_it->word() == NULL)
     page_res_it->forward();
-  }
 
   if (page_res_it->word() != NULL) {
     *tbox = page_res_it->word()->word->bounding_box();
-    page_res_it->forward();
 
     // If tbox->left() is negative, the training image has vertical text and
     // all the coordinates of bounding boxes of page_res are rotated by 90
@@ -114,26 +105,34 @@ void Tesseract::recog_training_segmented(const STRING &fname,
     // Align bottom left points of the TBOXes.
     while (keep_going &&
            !NearlyEqual<int>(tbox.bottom(), bbox.bottom(), kMaxBoxEdgeDiff)) {
-      keep_going = (bbox.bottom() < tbox.bottom()) ?
-          read_t(&page_res_it, &tbox) :
-            ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
+      if (bbox.bottom() < tbox.bottom()) {
+        page_res_it.forward();
+        keep_going = read_t(&page_res_it, &tbox);
+      } else {
+        keep_going = ReadNextBox(applybox_page, &line_number, box_file, &label,
+                                 &bbox);
+      }
     }
     while (keep_going &&
            !NearlyEqual<int>(tbox.left(), bbox.left(), kMaxBoxEdgeDiff)) {
-      keep_going = (bbox.left() > tbox.left()) ? read_t(&page_res_it, &tbox) :
-          ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
+      if (bbox.left() > tbox.left()) {
+        page_res_it.forward();
+        keep_going = read_t(&page_res_it, &tbox);
+      } else {
+        keep_going = ReadNextBox(applybox_page, &line_number, box_file, &label,
+                                 &bbox);
+      }
     }
     // OCR the word if top right points of the TBOXes are similar.
     if (keep_going &&
         NearlyEqual<int>(tbox.right(), bbox.right(), kMaxBoxEdgeDiff) &&
         NearlyEqual<int>(tbox.top(), bbox.top(), kMaxBoxEdgeDiff)) {
-        ambigs_classify_and_output(page_res_it.prev_word(),
-                                   page_res_it.prev_row(),
-                                   page_res_it.prev_block(),
-                                   label.string(), output_file);
+        ambigs_classify_and_output(label.string(), &page_res_it, output_file);
         examined_words++;
     }
+    page_res_it.forward();
   } while (keep_going);
+  fclose(box_file);
 
   // Set up scripts on all of the words that did not get sent to
   // ambigs_classify_and_output.  They all should have, but if all the
@@ -156,53 +155,77 @@ void Tesseract::recog_training_segmented(const STRING &fname,
           examined_words, total_words);
 }
 
+// Helper prints the given set of blob choices.
+static void PrintPath(int length, const BLOB_CHOICE** blob_choices,
+                      const UNICHARSET& unicharset,
+                      const char *label, FILE *output_file) {
+  float rating = 0.0f;
+  float certainty = 0.0f;
+  for (int i = 0; i < length; ++i) {
+    const BLOB_CHOICE* blob_choice = blob_choices[i];
+    fprintf(output_file, "%s",
+           unicharset.id_to_unichar(blob_choice->unichar_id()));
+    rating += blob_choice->rating();
+    if (certainty > blob_choice->certainty())
+      certainty = blob_choice->certainty();
+  }
+  fprintf(output_file, "\t%s\t%.4f\t%.4f\n",
+         label, rating, certainty);
+}
+
+// Helper recursively prints all paths through the ratings matrix, starting
+// at column col.
+static void PrintMatrixPaths(int col, int dim,
+                             const MATRIX& ratings,
+                             int length, const BLOB_CHOICE** blob_choices,
+                             const UNICHARSET& unicharset,
+                             const char *label, FILE *output_file) {
+  for (int row = col; row < dim && row - col < ratings.bandwidth(); ++row) {
+    if (ratings.get(col, row) != NOT_CLASSIFIED) {
+      BLOB_CHOICE_IT bc_it(ratings.get(col, row));
+      for (bc_it.mark_cycle_pt(); !bc_it.cycled_list(); bc_it.forward()) {
+        blob_choices[length] = bc_it.data();
+        if (row + 1 < dim) {
+          PrintMatrixPaths(row + 1, dim, ratings, length + 1, blob_choices,
+                           unicharset, label, output_file);
+        } else {
+          PrintPath(length + 1, blob_choices, unicharset, label, output_file);
+        }
+      }
+    }
+  }
+}
+
 // Runs classify_word_pass1() on the current word. Outputs Tesseract's
 // raw choice as a result of the classification. For words labeled with a
 // single unichar also outputs all alternatives from blob_choices of the
 // best choice.
-void Tesseract::ambigs_classify_and_output(WERD_RES *werd_res,
-                                           ROW_RES *row_res,
-                                           BLOCK_RES *block_res,
-                                           const char *label,
+void Tesseract::ambigs_classify_and_output(const char *label,
+                                           PAGE_RES_IT* pr_it,
                                            FILE *output_file) {
-  int offset;
   // Classify word.
   fflush(stdout);
-  classify_word_pass1(block_res->block, row_res->row, werd_res);
+  WordData word_data(*pr_it);
+  SetupWordPassN(1, &word_data);
+  classify_word_and_language(&Tesseract::classify_word_pass1,
+                             pr_it, &word_data);
+  WERD_RES* werd_res = word_data.word;
   WERD_CHOICE *best_choice = werd_res->best_choice;
   ASSERT_HOST(best_choice != NULL);
-  ASSERT_HOST(best_choice->blob_choices() != NULL);
 
   // Compute the number of unichars in the label.
-  int label_num_unichars = 0;
-  int step = 1;  // should be non-zero on the first iteration
-  for (offset = 0; label[offset] != '\0' && step > 0;
-       step = werd_res->uch_set->step(label + offset),
-       offset += step, ++label_num_unichars);
-  if (step == 0) {
+  GenericVector<UNICHAR_ID> encoding;
+  if (!unicharset.encode_string(label, true, &encoding, NULL, NULL)) {
     tprintf("Not outputting illegal unichar %s\n", label);
     return;
   }
 
-  // Output all classifier choices for the unigrams (1->1 classifications).
-  if (label_num_unichars == 1 && best_choice->blob_choices()->length() == 1) {
-    BLOB_CHOICE_LIST_C_IT outer_blob_choice_it;
-    outer_blob_choice_it.set_to_list(best_choice->blob_choices());
-    BLOB_CHOICE_IT blob_choice_it;
-    blob_choice_it.set_to_list(outer_blob_choice_it.data());
-    for (blob_choice_it.mark_cycle_pt();
-         !blob_choice_it.cycled_list();
-         blob_choice_it.forward()) {
-      BLOB_CHOICE *blob_choice = blob_choice_it.data();
-      if (blob_choice->unichar_id() != INVALID_UNICHAR_ID) {
-        fprintf(output_file, "%s\t%s\t%.4f\t%.4f\n",
-               unicharset.id_to_unichar(blob_choice->unichar_id()),
-               label, blob_choice->rating(), blob_choice->certainty());
-      }
-    }
-  }
-  // Output raw choices for many->many and 1->many classifications.
-  getDict().PrintAmbigAlternatives(output_file, label, label_num_unichars);
+  // Dump all paths through the ratings matrix (which is normally small).
+  int dim = werd_res->ratings->dimension();
+  const BLOB_CHOICE** blob_choices = new const BLOB_CHOICE*[dim];
+  PrintMatrixPaths(0, dim, *werd_res->ratings, 0, blob_choices,
+                   unicharset, label, output_file);
+  delete [] blob_choices;
 }
 
 }  // namespace tesseract

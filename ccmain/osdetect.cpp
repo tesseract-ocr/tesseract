@@ -200,10 +200,6 @@ int orientation_and_script_detection(STRING& filename,
   ASSERT_HOST(tess->pix_binary() != NULL)
   int width = pixGetWidth(tess->pix_binary());
   int height = pixGetHeight(tess->pix_binary());
-  int resolution = pixGetXRes(tess->pix_binary());
-  // Zero resolution messes up the algorithms, so make sure it is credible.
-  if (resolution < kMinCredibleResolution)
-    resolution = kDefaultResolution;
 
   BLOCK_LIST blocks;
   if (!read_unlv_file(name, width, height, &blocks))
@@ -266,21 +262,25 @@ int os_detect(TO_BLOCK_LIST* port_blocks, OSResults* osr,
       filtered_it.add_to_end(bbox);
     }
   }
-  return os_detect_blobs(&filtered_list, osr, tess);
+  return os_detect_blobs(NULL, &filtered_list, osr, tess);
 }
 
 // Detect orientation and script from a list of blobs.
 // Returns a non-zero number of blobs if the list was successfully processed, or
-// zero if the list had too few characters to be reliable
-int os_detect_blobs(BLOBNBOX_CLIST* blob_list, OSResults* osr,
+// zero if the list had too few characters to be reliable.
+// If allowed_scripts is non-null and non-empty, it is a list of scripts that
+// constrains both orientation and script detection to consider only scripts
+// from the list.
+int os_detect_blobs(const GenericVector<int>* allowed_scripts,
+                    BLOBNBOX_CLIST* blob_list, OSResults* osr,
                     tesseract::Tesseract* tess) {
   OSResults osr_;
   if (osr == NULL)
     osr = &osr_;
 
   osr->unicharset = &tess->unicharset;
-  OrientationDetector o(osr);
-  ScriptDetector s(osr, tess);
+  OrientationDetector o(allowed_scripts, osr);
+  ScriptDetector s(allowed_scripts, osr, tess);
 
   BLOBNBOX_C_IT filtered_it(blob_list);
   int real_max = MIN(filtered_it.length(), kMaxCharactersToTry);
@@ -326,7 +326,7 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
   tess->tess_cn_matching.set_value(true); // turn it on
   tess->tess_bn_matching.set_value(false);
   C_BLOB* blob = bbox->cblob();
-  TBLOB* tblob = TBLOB::PolygonalCopy(blob);
+  TBLOB* tblob = TBLOB::PolygonalCopy(tess->poly_allow_detailed_fx, blob);
   TBOX box = tblob->bounding_box();
   FCOORD current_rotation(1.0f, 0.0f);
   FCOORD rotation90(0.0f, 1.0f);
@@ -347,13 +347,12 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
       scaling = static_cast<float>(kBlnXHeight) / box.width();
       x_origin = i == 1 ? box.left() : box.right();
     }
-    DENORM denorm;
-    denorm.SetupNormalization(NULL, NULL, &current_rotation, NULL, NULL, 0,
-                              x_origin, y_origin, scaling, scaling,
-                              0.0f, static_cast<float>(kBlnBaselineOffset));
     TBLOB* rotated_blob = new TBLOB(*tblob);
-    rotated_blob->Normalize(denorm);
-    tess->AdaptiveClassifier(rotated_blob, denorm, ratings + i, NULL);
+    rotated_blob->Normalize(NULL, &current_rotation, NULL,
+                            x_origin, y_origin, scaling, scaling,
+                            0.0f, static_cast<float>(kBlnBaselineOffset),
+                            false, NULL);
+    tess->AdaptiveClassifier(rotated_blob, ratings + i);
     delete rotated_blob;
     current_rotation.rotate(rotation90);
   }
@@ -367,24 +366,66 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
 }
 
 
-OrientationDetector::OrientationDetector(OSResults* osr) {
+OrientationDetector::OrientationDetector(
+    const GenericVector<int>* allowed_scripts, OSResults* osr) {
   osr_ = osr;
+  allowed_scripts_ = allowed_scripts;
 }
 
 // Score the given blob and return true if it is now sure of the orientation
 // after adding this block.
 bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
-  float blob_o_score[4] = {0.0, 0.0, 0.0, 0.0};
-  float total_blob_o_score = 0.0;
+  float blob_o_score[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+  float total_blob_o_score = 0.0f;
 
   for (int i = 0; i < 4; ++i) {
-    BLOB_CHOICE_IT choice_it;
-    choice_it.set_to_list(scores + i);
+    BLOB_CHOICE_IT choice_it(scores + i);
     if (!choice_it.empty()) {
-      // The certainty score ranges between [-20,0]. This is converted here to
-      // [0,1], with 1 indicating best match.
-      blob_o_score[i] = 1 + 0.05 * choice_it.data()->certainty();
-      total_blob_o_score += blob_o_score[i];
+      BLOB_CHOICE* choice = NULL;
+      if (allowed_scripts_ != NULL && !allowed_scripts_->empty()) {
+        // Find the top choice in an allowed script.
+        for (choice_it.mark_cycle_pt(); !choice_it.cycled_list() &&
+             choice == NULL; choice_it.forward()) {
+          int choice_script = choice_it.data()->script_id();
+          int s = 0;
+          for (s = 0; s < allowed_scripts_->size(); ++s) {
+            if ((*allowed_scripts_)[s] == choice_script) {
+              choice = choice_it.data();
+              break;
+            }
+          }
+        }
+      } else {
+        choice = choice_it.data();
+      }
+      if (choice != NULL) {
+        // The certainty score ranges between [-20,0]. This is converted here to
+        // [0,1], with 1 indicating best match.
+        blob_o_score[i] = 1 + 0.05 * choice->certainty();
+        total_blob_o_score += blob_o_score[i];
+      }
+    }
+  }
+  if (total_blob_o_score == 0.0) return false;
+  // Fill in any blanks with the worst score of the others. This is better than
+  // picking an arbitrary probability for it and way better than -inf.
+  float worst_score = 0.0f;
+  int num_good_scores = 0;
+  for (int i = 0; i < 4; ++i) {
+    if (blob_o_score[i] > 0.0f) {
+      ++num_good_scores;
+      if (worst_score == 0.0f || blob_o_score[i] < worst_score)
+        worst_score = blob_o_score[i];
+    }
+  }
+  if (num_good_scores == 1) {
+    // Lower worst if there is only one.
+    worst_score /= 2.0f;
+  }
+  for (int i = 0; i < 4; ++i) {
+    if (blob_o_score[i] == 0.0f) {
+      blob_o_score[i] = worst_score;
+      total_blob_o_score += worst_score;
     }
   }
   // Normalize the orientation scores for the blob and use them to
@@ -393,21 +434,9 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
     osr_->orientations[i] += log(blob_o_score[i] / total_blob_o_score);
   }
 
-  float first = -1;
-  float second = -1;
-
-  int idx = -1;
-  for (int i = 0; i < 4; ++i) {
-    if (osr_->orientations[i] > first) {
-      idx = i;
-      second = first;
-      first = osr_->orientations[i];
-    } else if (osr_->orientations[i] > second) {
-      second = osr_->orientations[i];
-    }
-  }
-
-  return first / second > kOrientationAcceptRatio;
+  // TODO(ranjith) Add an early exit test, based on min_orientation_margin,
+  // as used in pagesegmain.cpp.
+  return false;
 }
 
 int OrientationDetector::get_orientation() {
@@ -416,9 +445,11 @@ int OrientationDetector::get_orientation() {
 }
 
 
-ScriptDetector::ScriptDetector(OSResults* osr, tesseract::Tesseract* tess) {
+ScriptDetector::ScriptDetector(const GenericVector<int>* allowed_scripts,
+                               OSResults* osr, tesseract::Tesseract* tess) {
   osr_ = osr;
   tess_ = tess;
+  allowed_scripts_ = allowed_scripts;
   katakana_id_ = tess_->unicharset.add_script(katakana_script);
   hiragana_id_ = tess_->unicharset.add_script(hiragana_script);
   han_id_ = tess_->unicharset.add_script(han_script);
@@ -444,19 +475,22 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
     float prev_score = -1;
     int script_count = 0;
     int prev_id = -1;
-    int prev_script;
-    int prev_class_id = -1;
     int prev_fontinfo_id = -1;
     const char* prev_unichar = "";
     const char* unichar = "";
-    float next_best_score = -1.0;
-    int next_best_script_id = -1;
-    const char* next_best_unichar = "";
 
     for (choice_it.mark_cycle_pt(); !choice_it.cycled_list();
          choice_it.forward()) {
       BLOB_CHOICE* choice = choice_it.data();
       int id = choice->script_id();
+      if (allowed_scripts_ != NULL && !allowed_scripts_->empty()) {
+        // Check that the choice is in an allowed script.
+        int s = 0;
+        for (s = 0; s < allowed_scripts_->size(); ++s) {
+          if ((*allowed_scripts_)[s] == id) break;
+        }
+        if (s == allowed_scripts_->size()) continue;  // Not found in list.
+      }
       // Script already processed before.
       if (done[id]) continue;
       done[id] = true;
@@ -467,15 +501,10 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
         prev_score = -choice->certainty();
         script_count = 1;
         prev_id = id;
-        prev_script = choice->script_id();
         prev_unichar = unichar;
-        prev_class_id = choice->unichar_id();
         prev_fontinfo_id = choice->fontinfo_id();
       } else if (-choice->certainty() < prev_score + kNonAmbiguousMargin) {
         ++script_count;
-        next_best_score = -choice->certainty();
-        next_best_script_id = choice->script_id();
-        next_best_unichar = tess_->unicharset.id_to_unichar(choice->unichar_id());
       }
 
       if (strlen(prev_unichar) == 1)
@@ -515,10 +544,10 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
         osr_->scripts_na[i][japanese_id_] += 1.0;
       if (prev_id == hangul_id_)
         osr_->scripts_na[i][korean_id_] += 1.0;
-      if (prev_id == han_id_)
+      if (prev_id == han_id_) {
         osr_->scripts_na[i][korean_id_] += kHanRatioInKorean;
-      if (prev_id == han_id_)
         osr_->scripts_na[i][japanese_id_] += kHanRatioInJapanese;
+      }
     }
   }  // iterate over each orientation
 }

@@ -11,6 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "textlineprojection.h"
 #include "allheaders.h"
 #include "bbgrid.h"         // Base class.
@@ -77,7 +81,7 @@ void TextlineProjection::ConstructProjection(TO_BLOCK* input_block,
 // Display the blobs in the window colored according to textline quality.
 void TextlineProjection::PlotGradedBlobs(BLOBNBOX_LIST* blobs,
                                          ScrollView* win) {
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   BLOBNBOX_IT it(blobs);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX* blob = it.data();
@@ -90,7 +94,7 @@ void TextlineProjection::PlotGradedBlobs(BLOBNBOX_LIST* blobs,
     win->Rectangle(box.left(), box.bottom(), box.right(), box.top());
   }
   win->Update();
-  #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
 }
 
 // Moves blobs that look like they don't sit well on a textline from the
@@ -237,8 +241,8 @@ int TextlineProjection::DistanceOfBoxFromBox(const TBOX& from_box,
   if (start_pt.x != end_pt.x || start_pt.y != end_pt.y) {
     if (denorm != NULL) {
       // Denormalize the start and end.
-      denorm->DenormTransform(start_pt, &start_pt);
-      denorm->DenormTransform(end_pt, &end_pt);
+      denorm->DenormTransform(NULL, start_pt, &start_pt);
+      denorm->DenormTransform(NULL, end_pt, &end_pt);
     }
     if (abs(start_pt.y - end_pt.y) >= abs(start_pt.x - end_pt.x)) {
       perpendicular_gap = VerticalDistance(debug, start_pt.x, start_pt.y,
@@ -741,7 +745,7 @@ void TextlineProjection::TransformToPixCoords(const DENORM* denorm,
                                               TPOINT* pt) const {
   if (denorm != NULL) {
     // Denormalize the point.
-    denorm->DenormTransform(*pt, pt);
+    denorm->DenormTransform(NULL, *pt, pt);
   }
   pt->x = ImageXToProjectionX(pt->x);
   pt->y = ImageYToProjectionY(pt->y);

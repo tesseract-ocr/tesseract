@@ -24,40 +24,11 @@
 
 #include "blobs.h"
 #include "elst.h"
-#include "matrix.h"
+#include "ratngs.h"
 #include "seam.h"
 #include "split.h"
-#include "states.h"
 
 class WERD_RES;
-
-typedef inT16 BLOB_WEIGHTS[MAX_NUM_CHUNKS];
-
-// Each unichar evaluated.
-struct EVALUATION_RECORD {
-  float match;
-  float certainty;
-  char character;
-  int width;
-  int gap;
-};
-
-typedef EVALUATION_RECORD EVALUATION_ARRAY[MAX_NUM_CHUNKS];
-
-// Classification info for chunks.
-//
-// TODO(daria): move to tesseract namespace when obsolete code using
-// this struct that is not in tesseract namespace is deprecated.
-struct CHUNKS_RECORD {
-  MATRIX *ratings;
-  TBLOB *chunks;
-  WERD_RES* word_res;  // Borrowed pointer - do not delete!
-  SEAMS splits;
-  int x_height;
-  WIDTH_RECORD *chunk_widths;
-  WIDTH_RECORD *char_widths;
-  inT16 *weights;
-};
 
 namespace tesseract {
 
@@ -73,6 +44,7 @@ struct AssociateStats {
     full_wh_ratio_var = 0.0f;
     bad_fixed_pitch_right_gap = false;
     bad_fixed_pitch_wh_ratio = false;
+    gap_sum = 0;
   }
 
   void Print() {
@@ -89,6 +61,7 @@ struct AssociateStats {
                                    // the blob on the right
   bool bad_fixed_pitch_wh_ratio;   // true if the blobs has width-to-hight
                                    // ratio > kMaxFixedPitchCharAspectRatio
+  int gap_sum;  // sum of gaps within the blob
 };
 
 // Utility functions for scoring segmentation paths according to their
@@ -98,9 +71,26 @@ class AssociateUtils {
   static const float kMaxFixedPitchCharAspectRatio;
   static const float kMinGap;
 
+  // Returns outline length of the given blob is computed as:
+  // rating_cert_scale * rating / certainty
+  // Since from Wordrec::SegSearch() in segsearch.cpp
+  // rating_cert_scale = -1.0 * getDict().certainty_scale / rating_scale
+  // And from Classify::ConvertMatchesToChoices() in adaptmatch.cpp
+  // Rating = Certainty = next.rating
+  // Rating *= rating_scale * Results->BlobLength
+  // Certainty *= -(getDict().certainty_scale)
+  static inline float ComputeOutlineLength(float rating_cert_scale,
+                                           const BLOB_CHOICE &b) {
+    return rating_cert_scale * b.rating() / b.certainty();
+  }
+  static inline float ComputeRating(float rating_cert_scale,
+                                    float cert, int width) {
+    return static_cast<float>(width) * cert / rating_cert_scale;
+  }
+
   // Computes character widths, gaps and seams stats given the
   // AssociateStats of the path so far, col, row of the blob that
-  // is being added to the path, and CHUNKS_RECORD containing information
+  // is being added to the path, and WERD_RES containing information
   // about character widths, gaps and seams.
   // Fills associate_cost with the combined shape, gap and seam cost
   // of adding a unichar from (col, row) to the path (note that since
@@ -108,31 +98,16 @@ class AssociateUtils {
   // pain points, (col, row) entry might not be classified yet; thus
   // information in the (col, row) entry of the ratings matrix is not used).
   //
-  // Note: the function assumes that chunks_record, stats and
+  // Note: the function assumes that word_res, stats and
   // associate_cost pointers are not NULL.
   static void ComputeStats(int col, int row,
                            const AssociateStats *parent_stats,
                            int parent_path_length,
                            bool fixed_pitch,
                            float max_char_wh_ratio,
-                           const DENORM *denorm,
-                           CHUNKS_RECORD *chunks_record,
-                           int debug_level,
+                           WERD_RES *word_res,
+                           bool debug,
                            AssociateStats *stats);
-
-  // Returns the width of a chunk which is a composed of several blobs
-  // blobs[start_blob..last_blob] inclusively.
-  // Widths/gaps records are in the form:
-  // width_record->num_char = n
-  // width_record->widths[2*n-1] = w0,g0,w1,g1..w(n-1),g(n-1)
-  static int GetChunksWidth(WIDTH_RECORD *width_record,
-                            int start_blob, int last_blob);
-
-  // Returns the width of a gap between the specified chunk and the next one.
-  static inline int GetChunksGap(WIDTH_RECORD *width_record, int last_chunk) {
-    return (last_chunk >= 0 && last_chunk < width_record->num_chars - 1) ?
-      width_record->widths[last_chunk * 2 + 1] : 0;
-  }
 
   // Returns the width cost for fixed-pitch text.
   static float FixedPitchWidthCost(float norm_width, float right_gap,

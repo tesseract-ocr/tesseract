@@ -17,6 +17,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "tabfind.h"
 #include "alignedblob.h"
 #include "blobbox.h"
@@ -24,11 +28,6 @@
 #include "detlinefit.h"
 #include "linefind.h"
 #include "ndminx.h"
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 
 namespace tesseract {
 
@@ -563,7 +562,7 @@ ScrollView* TabFind::FindInitialTabVectors(BLOBNBOX_LIST* image_blobs,
 }
 
 // Helper displays all the boxes in the given vector on the given window.
-static void DisplayBoxVector(const GenericVector<BLOBNBOX*> boxes,
+static void DisplayBoxVector(const GenericVector<BLOBNBOX*>& boxes,
                              ScrollView* win) {
   #ifndef GRAPHICS_DISABLED
   for (int i = 0; i < boxes.size(); ++i) {

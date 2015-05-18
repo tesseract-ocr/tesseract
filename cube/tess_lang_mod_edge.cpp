@@ -107,7 +107,7 @@ int TessLangModEdge::CreateChildren(CubeRecoContext *cntxt,
                                     LangModEdge **edge_array) {
   int edge_cnt = 0;
   NodeChildVector vec;
-  dawg->unichar_ids_of(parent_node, &vec);  // find all children of the parent
+  dawg->unichar_ids_of(parent_node, &vec, false);  // find all children
   for (int i = 0; i < vec.size(); ++i) {
     const NodeChild &child = vec[i];
     if (child.unichar_id == INVALID_UNICHAR_ID) continue;

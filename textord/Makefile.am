@@ -1,8 +1,13 @@
 AM_CPPFLAGS += \
+    -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
-    -I$(top_srcdir)/image -I$(top_srcdir)/viewer \
+    -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
-    -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict
+    -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict \
+    -I$(top_srcdir)/opencl
+if USE_OPENCL
+AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
+endif
         
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
@@ -11,7 +16,7 @@ endif
 
 
 noinst_HEADERS = \
-    alignedblob.h bbgrid.h blkocc.h blobgrid.h \
+    alignedblob.h baselinedetect.h bbgrid.h blkocc.h blobgrid.h \
     ccnontextdetect.h cjkpitch.h colfind.h colpartition.h colpartitionset.h \
     colpartitiongrid.h \
     devanagari_processing.h drawedg.h drawtord.h edgblob.h edgloop.h \
@@ -31,16 +36,16 @@ libtesseract_textord_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 libtesseract_textord_la_LIBADD = \
     ../ccstruct/libtesseract_ccstruct.la \
     ../ccutil/libtesseract_ccutil.la \
-    ../image/libtesseract_image.la \
     ../viewer/libtesseract_viewer.la \
     ../wordrec/libtesseract_wordrec.la \
     ../cutil/libtesseract_cutil.la \
     ../classify/libtesseract_classify.la \
-    ../dict/libtesseract_dict.la 
+    ../dict/libtesseract_dict.la \
+    ../opencl/libtesseract_opencl.la 
 endif
 
 libtesseract_textord_la_SOURCES = \
-    alignedblob.cpp bbgrid.cpp blkocc.cpp blobgrid.cpp \
+    alignedblob.cpp baselinedetect.cpp bbgrid.cpp blkocc.cpp blobgrid.cpp \
     ccnontextdetect.cpp cjkpitch.cpp colfind.cpp colpartition.cpp colpartitionset.cpp \
     colpartitiongrid.cpp devanagari_processing.cpp \
     drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \

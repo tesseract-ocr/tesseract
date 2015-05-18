@@ -32,18 +32,10 @@
 #include "trie.h"
 #include "unicharset.h"
 
-static const int kMaxNumEdges =  30000000;
-
 int main(int argc, char** argv) {
-  int min_word_length;
-  int max_word_length;
   if (!(argc == 4 || (argc == 5 && strcmp(argv[1], "-t") == 0) ||
-      (argc == 6 && strcmp(argv[1], "-r") == 0) ||
-      (argc == 7 && strcmp(argv[1], "-l") == 0 &&
-         sscanf(argv[2], "%d", &min_word_length) == 1 &&
-         sscanf(argv[3], "%d", &max_word_length) == 1))) {
-    printf("Usage: %s [-t | -r [reverse policy] |"
-           " -l min_len max_len] word_list_file"
+      (argc == 6 && strcmp(argv[1], "-r") == 0))) {
+    printf("Usage: %s [-t | -r [reverse policy] ] word_list_file"
            " dawg_file unicharset_file\n", argv[0]);
     return 1;
   }
@@ -75,11 +67,11 @@ int main(int argc, char** argv) {
     tesseract::Trie trie(
         // the first 3 arguments are not used in this case
         tesseract::DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM,
-        kMaxNumEdges, unicharset.size(),
-        classify->getDict().dawg_debug_level);
+        unicharset.size(), classify->getDict().dawg_debug_level);
     tprintf("Reading word list from '%s'\n", wordlist_filename);
-    if (!trie.read_word_list(wordlist_filename, unicharset, reverse_policy)) {
-      tprintf("Failed to read word list from '%s'\n", wordlist_filename);
+    if (!trie.read_and_add_word_list(wordlist_filename, unicharset,
+                                     reverse_policy)) {
+      tprintf("Failed to add word list from '%s'\n", wordlist_filename);
       exit(1);
     }
     tprintf("Reducing Trie to SquishedDawg\n");
@@ -100,76 +92,6 @@ int main(int argc, char** argv) {
         classify->getDict().dawg_debug_level);
     tprintf("Checking word list from '%s'\n", wordlist_filename);
     words.check_for_words(wordlist_filename, unicharset, true);
-  } else if (argc == 7) {
-    // Place words of different lengths in separate Dawgs.
-    char str[CHARS_PER_LINE];
-    FILE *word_file = fopen(wordlist_filename, "rb");
-    if (word_file == NULL) {
-      tprintf("Failed to open wordlist file %s\n", wordlist_filename);
-      exit(1);
-    }
-    FILE *dawg_file = fopen(dawg_filename, "wb");
-    if (dawg_file == NULL) {
-      tprintf("Failed to open dawg output file %s\n", dawg_filename);
-      exit(1);
-    }
-    tprintf("Reading word list from '%s'\n", wordlist_filename);
-    GenericVector<tesseract::Trie *> trie_vec;
-    int i;
-    for (i = min_word_length; i <= max_word_length; ++i) {
-      trie_vec.push_back(new tesseract::Trie(
-          // the first 3 arguments are not used in this case
-          tesseract::DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM,
-          kMaxNumEdges, unicharset.size(),
-          classify->getDict().dawg_debug_level));
-    }
-    while (fgets(str, CHARS_PER_LINE, word_file) != NULL) {
-      chomp_string(str);  // remove newline
-      int badpos;
-      if (!unicharset.encodable_string(str, &badpos)) {
-        tprintf("String '%s' not compatible with unicharset. "
-                "Bad chars here: '%s'\n", str, str + badpos);
-        continue;
-      }
-      WERD_CHOICE word(str, unicharset);
-      if ((reverse_policy == tesseract::Trie::RRP_REVERSE_IF_HAS_RTL &&
-          word.has_rtl_unichar_id()) ||
-          reverse_policy == tesseract::Trie::RRP_FORCE_REVERSE) {
-        word.reverse_and_mirror_unichar_ids();
-      }
-      if (word.length() >= min_word_length &&
-          word.length() <= max_word_length &&
-          !word.contains_unichar_id(INVALID_UNICHAR_ID)) {
-        tesseract::Trie *curr_trie = trie_vec[word.length()-min_word_length];
-        if (!curr_trie->word_in_dawg(word)) {
-          if (!curr_trie->add_word_to_dawg(word)) {
-            tprintf("Failed to add the following word to dawg:\n");
-            word.print();
-            exit(1);
-          }
-          if (classify->getDict().dawg_debug_level > 1) {
-            tprintf("Added word %s of length %d\n", str, word.length());
-          }
-          if (!curr_trie->word_in_dawg(word)) {
-            tprintf("Error: word '%s' not in DAWG after adding it\n", str);
-            exit(1);
-          }
-        }
-      }
-    }
-    fclose(word_file);
-    tprintf("Writing fixed length dawgs to '%s'\n", dawg_filename);
-    GenericVector<tesseract::SquishedDawg *> dawg_vec;
-    for (i = 0; i <= max_word_length; ++i) {
-      dawg_vec.push_back(i < min_word_length ? NULL :
-                         trie_vec[i-min_word_length]->trie_to_dawg());
-    }
-    tesseract::Dict::WriteFixedLengthDawgs(
-        dawg_vec, max_word_length - min_word_length + 1,
-        classify->getDict().dawg_debug_level, dawg_file);
-    fclose(dawg_file);
-    dawg_vec.delete_data_pointers();
-    trie_vec.delete_data_pointers();
   } else {  // should never get here
     tprintf("Invalid command-line options\n");
     exit(1);

@@ -23,7 +23,9 @@
 #include          "coutln.h"
 #include          "rect.h"
 
+class C_BLOB;
 struct Pix;
+ELISTIZEH(C_BLOB)
 
 class C_BLOB:public ELIST_LINK
 {
@@ -35,6 +37,26 @@ class C_BLOB:public ELIST_LINK
     // already been fully initialized.
     explicit C_BLOB(C_OUTLINE* outline);
 
+    // Builds a set of one or more blobs from a list of outlines.
+    // Input: one outline on outline_list contains all the others, but the
+    // nesting and order are undefined.
+    // If good_blob is true, the blob is added to good_blobs_it, unless
+    // an illegal (generation-skipping) parent-child relationship is found.
+    // If so, the parent blob goes to bad_blobs_it, and the immediate children
+    // are promoted to the top level, recursively being sent to good_blobs_it.
+    // If good_blob is false, all created blobs will go to the bad_blobs_it.
+    // Output: outline_list is empty. One or more blobs are added to
+    // good_blobs_it and/or bad_blobs_it.
+    static void ConstructBlobsFromOutlines(bool good_blob,
+                                           C_OUTLINE_LIST* outline_list,
+                                           C_BLOB_IT* good_blobs_it,
+                                           C_BLOB_IT* bad_blobs_it);
+
+    // Sets the COUT_INVERSE flag appropriately on the outlines and their
+    // children recursively, reversing the outlines if needed so that
+    // everything has an anticlockwise top-level.
+    void CheckInverseFlagAndDirection();
+
     // Build and return a fake blob containing a single fake outline with no
     // steps.
     static C_BLOB* FakeBlob(const TBOX& box);
@@ -43,7 +65,7 @@ class C_BLOB:public ELIST_LINK
       return &outlines;
     }
 
-    TBOX bounding_box();  //compute bounding box
+    TBOX bounding_box() const;  // compute bounding box
     inT32 area();  //compute area
     inT32 perimeter();  // Total perimeter of outlines and 1st level children.
     inT32 outer_area();  //compute area
@@ -52,6 +74,14 @@ class C_BLOB:public ELIST_LINK
 
     void move(const ICOORD vec);  // repostion blob by vector
     void rotate(const FCOORD& rotation);  // Rotate by given vector.
+
+    // Adds sub-pixel resolution EdgeOffsets for the outlines using greyscale
+    // if the supplied pix is 8-bit or the binary edges if NULL.
+    void ComputeEdgeOffsets(int threshold, Pix* pix);
+
+    // Estimates and returns the baseline position based on the shape of the
+    // outlines.
+    inT16 EstimateBaselinePosition();
 
     // Returns a Pix rendering of the blob. pixDestroy after use.
     Pix* render();
@@ -64,6 +94,13 @@ class C_BLOB:public ELIST_LINK
               ScrollView* window,         //window to draw in
               ScrollView::Color blob_colour,    //for outer bits
               ScrollView::Color child_colour);  //for holes
+    // Draws the blob in the given colour, and child_colour, normalized
+    // using the given denorm, making use of sub-pixel accurate information
+    // if available.
+    void plot_normed(const DENORM& denorm,
+                     ScrollView::Color blob_colour,
+                     ScrollView::Color child_colour,
+                     ScrollView* window);
     #endif  // GRAPHICS_DISABLED
 
     C_BLOB& operator= (const C_BLOB & source) {
@@ -79,9 +116,16 @@ class C_BLOB:public ELIST_LINK
       return blob;
     }
 
+    static int SortByXMiddle(const void *v1, const void *v2) {
+      const C_BLOB* blob1 = *reinterpret_cast<const C_BLOB* const *>(v1);
+      const C_BLOB* blob2 = *reinterpret_cast<const C_BLOB* const *>(v2);
+      return blob1->bounding_box().x_middle() -
+             blob2->bounding_box().x_middle();
+    }
+
+
   private:
     C_OUTLINE_LIST outlines;     //master elements
 };
 
-ELISTIZEH (C_BLOB)
 #endif

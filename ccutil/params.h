@@ -104,6 +104,9 @@ class ParamUtils {
 
   // Print parameters to the given file.
   static void PrintParams(FILE *fp, const ParamsVectors *member_params);
+
+  // Resets all parameters back to default values;
+  static void ResetToDefaults(ParamsVectors* member_params);
 };
 
 // Definition of various parameter types.
@@ -142,15 +145,21 @@ class IntParam : public Param {
    IntParam(inT32 value, const char *name, const char *comment, bool init,
             ParamsVectors *vec) : Param(name, comment, init) {
     value_ = value;
+    default_ = value;
     params_vec_ = &(vec->int_params);
     vec->int_params.push_back(this);
   }
   ~IntParam() { ParamUtils::RemoveParam<IntParam>(this, params_vec_); }
   operator inT32() const { return value_; }
+  void operator=(inT32 value) { value_ = value; }
   void set_value(inT32 value) { value_ = value; }
+  void ResetToDefault() {
+    value_ = default_;
+  }
 
  private:
   inT32 value_;
+  inT32 default_;
   // Pointer to the vector that contains this param (not owened by this class).
   GenericVector<IntParam *> *params_vec_;
 };
@@ -160,15 +169,21 @@ class BoolParam : public Param {
   BoolParam(bool value, const char *name, const char *comment, bool init,
             ParamsVectors *vec) : Param(name, comment, init) {
     value_ = value;
+    default_ = value;
     params_vec_ = &(vec->bool_params);
     vec->bool_params.push_back(this);
   }
   ~BoolParam() { ParamUtils::RemoveParam<BoolParam>(this, params_vec_); }
   operator BOOL8() const { return value_; }
+  void operator=(BOOL8 value) { value_ = value; }
   void set_value(BOOL8 value) { value_ = value; }
+  void ResetToDefault() {
+    value_ = default_;
+  }
 
  private:
   BOOL8 value_;
+  BOOL8 default_;
   // Pointer to the vector that contains this param (not owned by this class).
   GenericVector<BoolParam *> *params_vec_;
 };
@@ -179,17 +194,25 @@ class StringParam : public Param {
               const char *comment, bool init,
               ParamsVectors *vec) : Param(name, comment, init) {
     value_ = value;
+    default_ = value;
     params_vec_ = &(vec->string_params);
     vec->string_params.push_back(this);
   }
   ~StringParam() { ParamUtils::RemoveParam<StringParam>(this, params_vec_); }
   operator STRING &() { return value_; }
   const char *string() const { return value_.string(); }
+  const char *c_str() const { return value_.string(); }
   bool empty() { return value_.length() <= 0; }
-  void set_value(const STRING &value) { value_ = value; }
+  bool operator==(const STRING& other) { return value_ == other; }
+  void operator=(const STRING& value) { value_ = value; }
+  void set_value(const STRING& value) { value_ = value; }
+  void ResetToDefault() {
+    value_ = default_;
+  }
 
  private:
   STRING value_;
+  STRING default_;
   // Pointer to the vector that contains this param (not owened by this class).
   GenericVector<StringParam *> *params_vec_;
 };
@@ -199,15 +222,21 @@ class DoubleParam : public Param {
   DoubleParam(double value, const char *name, const char *comment,
               bool init, ParamsVectors *vec) : Param(name, comment, init) {
     value_ = value;
+    default_ = value;
     params_vec_ = &(vec->double_params);
     vec->double_params.push_back(this);
   }
   ~DoubleParam() { ParamUtils::RemoveParam<DoubleParam>(this, params_vec_); }
   operator double() const { return value_; }
+  void operator=(double value) { value_ = value; }
   void set_value(double value) { value_ = value; }
+  void ResetToDefault() {
+    value_ = default_;
+  }
 
  private:
   double value_;
+  double default_;
   // Pointer to the vector that contains this param (not owned by this class).
   GenericVector<DoubleParam *> *params_vec_;
 };

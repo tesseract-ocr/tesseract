@@ -36,8 +36,6 @@ Wordrec::Wordrec() :
               "force associator to run regardless of what enable_assoc is."
               "This is used for CJK where component grouping is necessary.",
               CCUtil::params()),
-  INT_MEMBER(wordrec_num_seg_states, 30, "Segmentation states",
-             CCUtil::params()),
   double_MEMBER(wordrec_worst_state, 1.0, "Worst segmentation state",
                 params()),
   BOOL_MEMBER(fragments_guide_chopper, FALSE,
@@ -59,6 +57,9 @@ Wordrec::Wordrec() :
              params()),
   INT_MEMBER(chop_min_outline_points, 6, "Min Number of Points on Outline",
              params()),
+  INT_MEMBER(chop_seam_pile_size, 150, "Max number of seams in seam_pile",
+             params()),
+  BOOL_MEMBER(chop_new_seam_pile, 1, "Use new seam_pile", params()),
   INT_MEMBER(chop_inside_angle, -50, "Min Inside Angle Bend",
              params()),
   INT_MEMBER(chop_min_outline_area, 2000, "Min Outline Area",
@@ -69,6 +70,9 @@ Wordrec::Wordrec() :
                 params()),
   double_MEMBER(chop_center_knob, 0.15, "Split center adjustment",
                 params()),
+  INT_MEMBER(chop_centered_maxwidth, 90, "Width of (smaller) chopped blobs "
+             "above which we don't care that a chop is not near the center.",
+             params()),
   double_MEMBER(chop_sharpness_knob, 0.06, "Split sharpness adjustment",
                 params()),
   double_MEMBER(chop_width_change_knob, 5.0, "Width change adjustment",
@@ -84,121 +88,40 @@ Wordrec::Wordrec() :
   BOOL_MEMBER(assume_fixed_pitch_char_segment, FALSE,
               "include fixed-pitch heuristics in char segmentation",
               params()),
-  BOOL_MEMBER(use_new_state_cost, FALSE,
-              "use new state cost heuristics for segmentation state evaluation",
-              params()),
-  double_MEMBER(heuristic_segcost_rating_base, 1.25,
-                "base factor for adding segmentation cost into word rating."
-                "It's a multiplying factor, the larger the value above 1, "
-                "the bigger the effect of segmentation cost.",
-                params()),
-  double_MEMBER(heuristic_weight_rating, 1.0,
-                "weight associated with char rating in combined cost of state",
-                params()),
-  double_MEMBER(heuristic_weight_width, 1000.0,
-                "weight associated with width evidence in combined cost of"
-                " state", params()),
-  double_MEMBER(heuristic_weight_seamcut, 0.0,
-                "weight associated with seam cut in combined cost of state",
-                params()),
-  double_MEMBER(heuristic_max_char_wh_ratio, 2.0,
-                "max char width-to-height ratio allowed in segmentation",
-                params()),
   INT_MEMBER(wordrec_debug_level, 0,
              "Debug level for wordrec", params()),
+  INT_MEMBER(wordrec_max_join_chunks, 4,
+             "Max number of broken pieces to associate", params()),
+  BOOL_MEMBER(wordrec_skip_no_truth_words, false,
+              "Only run OCR for words that had truth recorded in BlamerBundle",
+              params()),
   BOOL_MEMBER(wordrec_debug_blamer, false,
               "Print blamer debug messages", params()),
   BOOL_MEMBER(wordrec_run_blamer, false,
               "Try to set the blame for errors", params()),
-  BOOL_MEMBER(enable_new_segsearch, true,
-                   "Enable new segmentation search path.", params()),
   INT_MEMBER(segsearch_debug_level, 0,
              "SegSearch debug level", params()),
   INT_MEMBER(segsearch_max_pain_points, 2000,
              "Maximum number of pain points stored in the queue",
              params()),
-  INT_MEMBER(segsearch_max_futile_classifications, 10,
-             "Maximum number of pain point classifications per word that"
+  INT_MEMBER(segsearch_max_futile_classifications, 20,
+             "Maximum number of pain point classifications per chunk that"
              "did not result in finding a better word choice.",
              params()),
   double_MEMBER(segsearch_max_char_wh_ratio, 2.0,
                 "Maximum character width-to-height ratio", params()),
-  double_MEMBER(segsearch_max_fixed_pitch_char_wh_ratio, 2.0,
-                "Maximum character width-to-height ratio for"
-                " fixed-pitch fonts",
-                params()),
-  BOOL_MEMBER(save_alt_choices, false,
+  BOOL_MEMBER(save_alt_choices, true,
               "Save alternative paths found during chopping"
               " and segmentation search",
               params()) {
   prev_word_best_choice_ = NULL;
   language_model_ = new LanguageModel(&get_fontinfo_table(),
                                       &(getDict()));
-  pass2_seg_states = 0;
-  num_joints = 0;
-  num_pushed = 0;
-  num_popped = 0;
   fill_lattice_ = NULL;
 }
 
 Wordrec::~Wordrec() {
   delete language_model_;
-}
-
-void Wordrec::CopyCharChoices(const BLOB_CHOICE_LIST_VECTOR &from,
-                              BLOB_CHOICE_LIST_VECTOR *to) {
-  to->delete_data_pointers();
-  to->clear();
-  for (int i = 0; i < from.size(); ++i) {
-    BLOB_CHOICE_LIST *cc_list = new BLOB_CHOICE_LIST();
-    cc_list->deep_copy(from[i], &BLOB_CHOICE::deep_copy);
-    to->push_back(cc_list);
-  }
-}
-
-bool Wordrec::ChoiceIsCorrect(const UNICHARSET &uni_set,
-                              const WERD_CHOICE *choice,
-                              const GenericVector<STRING> &truth_text) {
-  if (choice == NULL) return false;
-  int i;
-  STRING truth_str;
-  for (i = 0; i < truth_text.length(); ++i) truth_str += truth_text[i];
-  STRING normed_choice_str;
-  for (i = 0; i < choice->length(); ++i) {
-    normed_choice_str += uni_set.get_normed_unichar(choice->unichar_id(i));
-  }
-  return (truth_str == normed_choice_str);
-}
-
-void Wordrec::SaveAltChoices(const LIST &best_choices, WERD_RES *word) {
-  ASSERT_HOST(word->alt_choices.empty());
-  ASSERT_HOST(word->alt_states.empty());
-  LIST list_it;
-  iterate_list(list_it, best_choices) {
-    VIABLE_CHOICE choice =
-        reinterpret_cast<VIABLE_CHOICE>(first_node(list_it));
-    CHAR_CHOICE *char_choice = &(choice->Blob[0]);
-    WERD_CHOICE *alt_choice = new WERD_CHOICE(word->uch_set, choice->Length);
-    word->alt_states.push_back(GenericVector<int>(choice->Length));
-    GenericVector<int> &alt_state = word->alt_states.back();
-    for (int i = 0; i < choice->Length; char_choice++, i++) {
-      alt_choice->append_unichar_id_space_allocated(
-          char_choice->Class, 1, 0, 0);
-      alt_state.push_back(char_choice->NumChunks);
-    }
-    alt_choice->set_rating(choice->Rating);
-    alt_choice->set_certainty(choice->Certainty);
-
-    ASSERT_HOST(choice->blob_choices != NULL);
-    alt_choice->set_blob_choices(choice->blob_choices);
-    choice->blob_choices = NULL;
-
-    word->alt_choices.push_back(alt_choice);
-    if (wordrec_debug_level > 0) {
-      tprintf("SaveAltChoices: %s %g\n",
-              alt_choice->unichar_string().string(), alt_choice->rating());
-    }
-  }
 }
 
 }  // namespace tesseract

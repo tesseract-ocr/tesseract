@@ -21,7 +21,6 @@
 #define           DOCQUAL_H
 
 #include          "control.h"
-#include          "notdll.h"
 
 enum GARBAGE_LEVEL
 {

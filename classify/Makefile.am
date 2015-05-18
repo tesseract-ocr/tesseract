@@ -1,7 +1,7 @@
 AM_CPPFLAGS += \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/dict \
-    -I$(top_srcdir)/image -I$(top_srcdir)/viewer
+    -I$(top_srcdir)/viewer
     
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
@@ -9,7 +9,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
 endif
 
 noinst_HEADERS = \
-    adaptive.h baseline.h blobclass.h chartoname.h \
+    adaptive.h blobclass.h \
     classify.h cluster.h clusttool.h cutoffs.h \
     errorcounter.h extern.h extract.h \
     featdefs.h flexfx.h float2int.h fpoint.h fxdefs.h \
@@ -19,7 +19,7 @@ noinst_HEADERS = \
     normfeat.h normmatch.h \
     ocrfeatures.h outfeat.h picofeat.h protos.h \
     sampleiterator.h shapeclassifier.h shapetable.h \
-    speckle.h tessclassifier.h trainingsample.h trainingsampleset.h xform2d.h
+    tessclassifier.h trainingsample.h trainingsampleset.h xform2d.h
 
 if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_classify.la
@@ -31,13 +31,12 @@ libtesseract_classify_la_LIBADD = \
     ../cutil/libtesseract_cutil.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../dict/libtesseract_dict.la \
-    ../image/libtesseract_image.la \
     ../viewer/libtesseract_viewer.la
 endif
 
 libtesseract_classify_la_SOURCES = \
     adaptive.cpp adaptmatch.cpp blobclass.cpp \
-    chartoname.cpp classify.cpp cluster.cpp clusttool.cpp cutoffs.cpp \
+    classify.cpp cluster.cpp clusttool.cpp cutoffs.cpp \
     errorcounter.cpp extract.cpp \
     featdefs.cpp flexfx.cpp float2int.cpp fpoint.cpp fxdefs.cpp \
     intfeaturedist.cpp intfeaturemap.cpp intfeaturespace.cpp \
@@ -45,7 +44,7 @@ libtesseract_classify_la_SOURCES = \
     mastertrainer.cpp mf.cpp mfdefs.cpp mfoutline.cpp mfx.cpp \
     normfeat.cpp normmatch.cpp \
     ocrfeatures.cpp outfeat.cpp picofeat.cpp protos.cpp \
-    sampleiterator.cpp shapetable.cpp speckle.cpp \
+    sampleiterator.cpp shapeclassifier.cpp shapetable.cpp \
     tessclassifier.cpp trainingsample.cpp trainingsampleset.cpp xform2d.cpp
 
 

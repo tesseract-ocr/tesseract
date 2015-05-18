@@ -131,11 +131,11 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
  */
 
 #define PrintProto(Proto)                      \
-(cprintf ("X=%4.2f, Y=%4.2f, Angle=%4.2f",    \
-          Proto->X,                \
-          Proto->Y,                \
-          Proto->Length,                \
-          Proto->Angle))                \
+(tprintf("X=%4.2f, Y=%4.2f, Length=%4.2f, Angle=%4.2f",    \
+         Proto->X,                \
+         Proto->Y,                \
+         Proto->Length,                \
+         Proto->Angle))                \
 
 
 /**
@@ -175,17 +175,5 @@ void InitPrototypes();
 CLASS_TYPE NewClass(int NumProtos, int NumConfigs);
 
 void PrintProtos(CLASS_TYPE Class);
-
-void ReadClassFromFile(FILE *File, UNICHAR_ID unichar_id);
-
-void ReadConfigs(register FILE *File, CLASS_TYPE Class);
-
-void ReadProtos(register FILE *File, CLASS_TYPE Class);
-
-int SplitProto(CLASS_TYPE Class, int OldPid);
-
-void WriteOldConfigFile(FILE *File, CLASS_TYPE Class);
-
-void WriteOldProtoFile(FILE *File, CLASS_TYPE Class);
 
 #endif

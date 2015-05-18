@@ -90,8 +90,7 @@ void IntFeatureSpace::IndexAndSortFeatures(
 // window, or -1 if the feature is a miss.
 int IntFeatureSpace::XYToFeatureIndex(int x, int y) const {
   // Round the x,y position to a feature. Search for a valid theta.
-  INT_FEATURE_STRUCT feature = {static_cast<uinT8>(x), static_cast<uinT8>(y),
-                                0, 0};
+  INT_FEATURE_STRUCT feature(x, y, 0);
   int index = -1;
   for (int theta = 0; theta <= MAX_UINT8 && index < 0; ++theta) {
     feature.Theta = theta;
@@ -127,16 +126,10 @@ int IntFeatureSpace::XYToFeatureIndex(int x, int y) const {
 INT_FEATURE_STRUCT IntFeatureSpace::PositionFromBuckets(int x,
                                                         int y,
                                                         int theta) const {
-  INT_FEATURE_STRUCT pos = {
-      static_cast<uinT8>(ClipToRange(
-          (x * kIntFeatureExtent + kIntFeatureExtent / 2) / x_buckets_,
-          0, MAX_UINT8)),
-      static_cast<uinT8>(ClipToRange(
-          (y * kIntFeatureExtent + kIntFeatureExtent / 2) / y_buckets_,
-          0, MAX_UINT8)),
-      static_cast<uinT8>(ClipToRange(
-          DivRounded(theta * kIntFeatureExtent, theta_buckets_),
-          0, MAX_UINT8))};
+  INT_FEATURE_STRUCT pos(
+      (x * kIntFeatureExtent + kIntFeatureExtent / 2) / x_buckets_,
+      (y * kIntFeatureExtent + kIntFeatureExtent / 2) / y_buckets_,
+      DivRounded(theta * kIntFeatureExtent, theta_buckets_));
   return pos;
 }
 

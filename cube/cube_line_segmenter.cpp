@@ -106,6 +106,21 @@ Pixa *CubeLineSegmenter::VerticalClosing(Pix *pix,
   return pixac;
 }
 
+// Helper cleans up after CrackLine.
+static void CleanupCrackLine(int line_cnt, Pixa **lines_pixa,
+                             Boxa **line_con_comps,
+                             Pixa **line_con_comps_pix) {
+  for (int line = 0; line < line_cnt; line++) {
+    if (lines_pixa[line] != NULL) {
+      pixaDestroy(&lines_pixa[line]);
+    }
+  }
+
+  delete []lines_pixa;
+  boxaDestroy(line_con_comps);
+  pixaDestroy(line_con_comps_pix);
+}
+
 // do a desperate attempt at cracking lines
 Pixa *CubeLineSegmenter::CrackLine(Pix *cracked_line_pix,
                                    Box *cracked_line_box, int line_cnt) {
@@ -124,7 +139,7 @@ Pixa *CubeLineSegmenter::CrackLine(Pix *cracked_line_pix,
 
   if (line_con_comps == NULL) {
     delete []lines_pixa;
-    return false;
+    return NULL;
   }
 
   // assign each conn comp to the a line based on its centroid
@@ -139,19 +154,18 @@ Pixa *CubeLineSegmenter::CrackLine(Pix *cracked_line_pix,
     if (lines_pixa[line_idx] == NULL) {
       lines_pixa[line_idx] = pixaCreate(line_con_comps->n);
       if (lines_pixa[line_idx] == NULL) {
-        delete []lines_pixa;
-        boxaDestroy(&line_con_comps);
-        pixaDestroy(&line_con_comps_pix);
-        return false;
+        CleanupCrackLine(line_cnt, lines_pixa, &line_con_comps,
+                         &line_con_comps_pix);
+        return NULL;
       }
     }
 
     // add the concomp to the line
     if (pixaAddPix(lines_pixa[line_idx], con_pix, L_CLONE) != 0 ||
         pixaAddBox(lines_pixa[line_idx], con_box, L_CLONE)) {
-      delete []lines_pixa;
-      boxaDestroy(&line_con_comps);
-      pixaDestroy(&line_con_comps_pix);
+      CleanupCrackLine(line_cnt, lines_pixa, &line_con_comps,
+                       &line_con_comps_pix);
+      return NULL;
     }
   }
 
@@ -192,15 +206,8 @@ Pixa *CubeLineSegmenter::CrackLine(Pix *cracked_line_pix,
   }
 
   // cleanup
-  for (int line = 0; line < line_cnt; line++) {
-    if (lines_pixa[line] != NULL) {
-      pixaDestroy(&lines_pixa[line]);
-    }
-  }
-
-  delete []lines_pixa;
-  boxaDestroy(&line_con_comps);
-  pixaDestroy(&line_con_comps_pix);
+  CleanupCrackLine(line_cnt, lines_pixa, &line_con_comps,
+                   &line_con_comps_pix);
 
   if (success == false) {
     pixaDestroy(&lines);
@@ -413,14 +420,14 @@ Pix *CubeLineSegmenter::Pixa2Pix(Pixa *pixa, Box **dest_box,
 
   (*dest_box) = boxCreate(min_x, min_y, max_x - min_x, max_y - min_y);
   if ((*dest_box) == NULL) {
-    return false;
+    return NULL;
   }
 
   // create the union pix
   Pix *union_pix = pixCreate((*dest_box)->w, (*dest_box)->h, img_->d);
   if (union_pix == NULL) {
     boxDestroy(dest_box);
-    return false;
+    return NULL;
   }
 
   // create a pix corresponding to the union of all pixs
@@ -689,6 +696,7 @@ bool CubeLineSegmenter::LineSegment() {
     // get the pix and box corresponding to the column
     Pix *pixt3 = pixaGetPix(pixad, col, L_CLONE);
     if (pixt3 == NULL) {
+      delete []col_order;
       return false;
     }
 
@@ -697,6 +705,7 @@ bool CubeLineSegmenter::LineSegment() {
     Pixa *pixac;
     Boxa *boxa2 = pixConnComp(pixt3, &pixac, 8);
     if (boxa2 == NULL) {
+      delete []col_order;
       return false;
     }
 
@@ -709,6 +718,7 @@ bool CubeLineSegmenter::LineSegment() {
     // add the lines
     if (AddLines(pixac) == true) {
       if (pixaaAddBox(columns_, col_box, L_CLONE) != 0) {
+        delete []col_order;
         return false;
       }
     }

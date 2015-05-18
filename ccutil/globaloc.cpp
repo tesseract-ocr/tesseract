@@ -17,84 +17,63 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"
 #include          <signal.h>
+#ifdef __linux__
+#include          <sys/syscall.h>   // For SYS_gettid.
+#include          <unistd.h>        // For syscall itself.
+#endif
+#include          "allheaders.h"
 #include          "errcode.h"
 #include          "tprintf.h"
 
-/*inT16 global_loc_code = LOC_INIT;//location code
-inT16 global_subloc_code = SUBLOC_NORM;
-                                 //pass2 subloc code
-inT16 global_subsubloc_code = SUBSUBLOC_OTHER;
-                                 //location code
-inT16 global_abort_code = NO_ABORT_CODE;
-                                 //Prog abort code
-*/
-void signal_exit(                 //
-                 int signal_code  //Signal which
-                ) {
-  /*int exit_status;
+// Size of thread-id array of pixes to keep in case of crash.
+const int kMaxNumThreadPixes = 32768;
 
-  if ((global_loc_code == LOC_PASS2) || (global_loc_code == LOC_FUZZY_SPACE))
-    global_loc_code += global_subloc_code + global_subsubloc_code;
+Pix* global_crash_pixes[kMaxNumThreadPixes];
 
-  if (signal_code < 0) {
-    exit_status = global_loc_code * 8 + global_abort_code * 2 + 1;
-    tprintf ("Signal_exit %d ABORT. LocCode: %d  AbortCode: %d\n",
-      exit_status, global_loc_code, global_abort_code);
+void SavePixForCrash(int resolution, Pix* pix) {
+#ifdef __linux__
+#ifndef ANDROID
+  int thread_id = syscall(SYS_gettid) % kMaxNumThreadPixes;
+#else
+  int thread_id = gettid() % kMaxNumThreadPixes;
+#endif
+  pixDestroy(&global_crash_pixes[thread_id]);
+  if (pix != NULL) {
+    Pix* clone = pixClone(pix);
+    pixSetXRes(clone, resolution);
+    pixSetYRes(clone, resolution);
+    global_crash_pixes[thread_id] = clone;
   }
-  else {
-    exit_status = global_loc_code * 8 + signal_code * 2;
-    tprintf ("Signal_exit %d SIGNAL ABORT. LocCode: %d  SignalCode: %d\n",
-      exit_status, global_loc_code, signal_code);
-  }
-
-  exit(exit_status);*/
-  exit(signal_code);
+#endif
 }
 
-
-/*************************************************************************
- * err_exit()
- * All program exits should go through this point. It allows a meaningful status
- * code to be generated for the real exit() call. The status code is made up
- * as follows:
- *  Bit  0    : 1 = Program Abort   0 = System Abort
- *	Bits 1,2  : IF bit 0 = 1 THEN ERRCODE::abort_code
- *				ELSE    0 = Bus Err or Seg Vi
- *								1 = Floating point exception
- *							2 = TimeOut (Signal 15 from command timer)
- *							3 = Any other signal
- *  Bits 3..7 : Location code NEVER 0 !
- *************************************************************************/
-
-//extern "C" {
+// CALL ONLY from a signal handler! Writes a crash image to stderr.
+void signal_exit(int signal_code) {
+  tprintf("Received signal %d!\n", signal_code);
+#ifdef __linux__
+#ifndef ANDROID
+  int thread_id = syscall(SYS_gettid) % kMaxNumThreadPixes;
+#else
+  int thread_id = gettid() % kMaxNumThreadPixes;
+#endif
+  if (global_crash_pixes[thread_id] != NULL) {
+    fprintf(stderr, "Crash caused by image with resolution %d\n",
+            pixGetYRes(global_crash_pixes[thread_id]));
+    fprintf(stderr, "<Cut here>\n");
+    pixWriteStreamPng(stderr, global_crash_pixes[thread_id], 0.0);
+    fprintf(stderr, "\n<End cut>\n");
+  }
+  // Raise an uncaught signal, so as to get a useful stack trace.
+  raise(SIGILL);
+#else
+  abort();
+#endif
+}
 
 void err_exit() {
-  signal_exit (-1);
+  ASSERT_HOST("Fatal error encountered!" == NULL);
 }
-
-
-void signal_termination_handler(int sig) {
-  const ERRCODE SIGNAL_HANDLER_ERR = "Signal_termination_handler called";
-  SIGNAL_HANDLER_ERR.error("signal_termination_handler", ABORT, "Code %d", sig);
-  switch (sig) {
-    case SIGABRT:
-      signal_exit (-1);          //use abort code
-      //         case SIGBUS:
-    case SIGSEGV:
-      signal_exit (0);
-    case SIGFPE:
-      signal_exit (1);           //floating point
-    case SIGTERM:
-      signal_exit (2);           //timeout by cmdtimer
-    default:
-      signal_exit (3);           //Anything else
-  }
-}
-
-
-//};                                                                                                            //end extern "C"
 
 
 void set_global_loc_code(int loc_code) {

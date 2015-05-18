@@ -19,7 +19,7 @@
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
-#include "mathfix.h"
+#include <mathfix.h>
 #endif
 
 #ifdef __MINGW32__
@@ -173,21 +173,21 @@ void EquationDetect::IdentifySpecialText(
 
   BLOB_CHOICE_LIST ratings_equ, ratings_lang;
   C_BLOB* blob = blobnbox->cblob();
-  TBLOB* tblob = TBLOB::PolygonalCopy(blob);
+  // TODO(joeliu/rays) Fix this. We may have to normalize separately for
+  // each classifier here, as they may require different PolygonalCopy.
+  TBLOB* tblob = TBLOB::PolygonalCopy(false, blob);
   const TBOX& box = tblob->bounding_box();
 
   // Normalize the blob. Set the origin to the place we want to be the
   // bottom-middle, and scaling is to make the height the x-height.
   float scaling = static_cast<float>(kBlnXHeight) / box.height();
-  DENORM denorm;
   float x_orig = (box.left() + box.right()) / 2.0f, y_orig = box.bottom();
-  denorm.SetupNormalization(NULL, NULL, NULL, NULL, NULL, 0,
-                            x_orig, y_orig, scaling, scaling,
-                            0.0f, static_cast<float>(kBlnBaselineOffset));
   TBLOB* normed_blob = new TBLOB(*tblob);
-  normed_blob->Normalize(denorm);
-  equ_tesseract_->AdaptiveClassifier(normed_blob, denorm, &ratings_equ, NULL);
-  lang_tesseract_->AdaptiveClassifier(normed_blob, denorm, &ratings_lang, NULL);
+  normed_blob->Normalize(NULL, NULL, NULL, x_orig, y_orig, scaling, scaling,
+                         0.0f, static_cast<float>(kBlnBaselineOffset),
+                         false, NULL);
+  equ_tesseract_->AdaptiveClassifier(normed_blob, &ratings_equ);
+  lang_tesseract_->AdaptiveClassifier(normed_blob, &ratings_lang);
   delete normed_blob;
   delete tblob;
 

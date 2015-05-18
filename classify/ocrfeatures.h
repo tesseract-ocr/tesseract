@@ -26,6 +26,7 @@
 #include <stdio.h>
 
 class DENORM;
+struct INT_FX_RESULT_STRUCT;
 
 #undef Min
 #undef Max
@@ -78,7 +79,8 @@ typedef FEATURE_SET_STRUCT *FEATURE_SET;
 // classifier does not need to know the details of this data structure.
 typedef char *CHAR_FEATURES;
 
-typedef FEATURE_SET (*FX_FUNC) (TBLOB *, const DENORM&);
+typedef FEATURE_SET (*FX_FUNC)(TBLOB *, const DENORM&, const DENORM&,
+                               const INT_FX_RESULT_STRUCT&);
 
 struct FEATURE_EXT_STRUCT {
   FX_FUNC Extractor;             // func to extract features

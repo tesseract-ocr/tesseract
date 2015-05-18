@@ -249,6 +249,25 @@ class DLLSYM FCOORD
     float angle() const {
       return (float) atan2 (ycoord, xcoord);
     }
+    // Returns the standard feature direction corresponding to this.
+    // See binary_angle_plus_pi below for a description of the direction.
+    uinT8 to_direction() const;
+    // Sets this with a unit vector in the given standard feature direction.
+    void from_direction(uinT8 direction);
+
+    // Converts an angle in radians (from ICOORD::angle or FCOORD::angle) to a
+    // standard feature direction as an unsigned angle in 256ths of a circle
+    // measured anticlockwise from (-1, 0).
+    static uinT8 binary_angle_plus_pi(double angle);
+    // Inverse of binary_angle_plus_pi returns an angle in radians for the
+    // given standard feature direction.
+    static double angle_from_direction(uinT8 direction);
+    // Returns the point on the given line nearest to this, ie the point such
+    // that the vector point->this is perpendicular to the line.
+    // The line is defined as a line_point and a dir_vector for its direction.
+    // dir_vector need not be a unit vector.
+    FCOORD nearest_pt_on_line(const FCOORD& line_point,
+                              const FCOORD& dir_vector) const;
 
     ///Convert to unit vec
     bool normalise();

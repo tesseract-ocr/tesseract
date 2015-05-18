@@ -18,6 +18,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "colpartitionset.h"
 #include "ndminx.h"
 #include "workingpartset.h"
@@ -374,14 +378,14 @@ void ColPartitionSet::GetColumnBoxes(int y_bottom, int y_top,
 // Display the edges of the columns at the given y coords.
 void ColPartitionSet::DisplayColumnEdges(int y_bottom, int y_top,
                                          ScrollView* win) {
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   ColPartition_IT it(&parts_);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     ColPartition* part = it.data();
     win->Line(part->LeftAtY(y_top), y_top, part->LeftAtY(y_bottom), y_bottom);
     win->Line(part->RightAtY(y_top), y_top, part->RightAtY(y_bottom), y_bottom);
   }
-  #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
 }
 
 // Return the ColumnSpanningType that best explains the columns overlapped
@@ -392,7 +396,8 @@ void ColPartitionSet::DisplayColumnEdges(int y_bottom, int y_top,
 // represent the gaps in between columns, with 0 being left of the leftmost.
 // resolution refers to the ppi resolution of the image.
 ColumnSpanningType ColPartitionSet::SpanningType(int resolution,
-                                                 int left, int right, int y,
+                                                 int left, int right,
+                                                 int height, int y,
                                                  int left_margin,
                                                  int right_margin,
                                                  int* first_col,
@@ -406,13 +411,15 @@ ColumnSpanningType ColPartitionSet::SpanningType(int resolution,
   int col_index = 1;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), col_index += 2) {
     ColPartition* part = it.data();
-    if (part->ColumnContains(left, y)) {
+    if (part->ColumnContains(left, y) ||
+        (it.at_first() && part->ColumnContains(left + height, y))) {
       // In the default case, first_col is set, but columns_spanned remains
       // zero, so first_col will get reset in the first column genuinely
       // spanned, but we can tell the difference from a noise partition
       // that touches no column.
       *first_col = col_index;
-      if (part->ColumnContains(right, y)) {
+      if (part->ColumnContains(right, y) ||
+          (it.at_last() && part->ColumnContains(right - height, y))) {
         // Both within a single column.
         *last_col = col_index;
         return CST_FLOWING;
@@ -422,7 +429,8 @@ ColumnSpanningType ColPartitionSet::SpanningType(int resolution,
         *first_spanned_col = col_index;
         margin_columns = 1;
       }
-    } else if (part->ColumnContains(right, y)) {
+    } else if (part->ColumnContains(right, y) ||
+               (it.at_last() && part->ColumnContains(right - height, y))) {
       if (*first_col < 0) {
         // It started in-between.
         *first_col = col_index - 1;

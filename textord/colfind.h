@@ -57,9 +57,12 @@ class ColumnFinder : public TabFind {
   // bleft and tright are the bounds of the image (rectangle) being processed.
   // vlines is a (possibly empty) list of TabVector and vertical_x and y are
   // the sum logical vertical vector produced by LineFinder::FindVerticalLines.
+  // If cjk_script is true, then broken CJK characters are fixed during
+  // layout analysis to assist in detecting horizontal vs vertically written
+  // textlines.
   ColumnFinder(int gridsize, const ICOORD& bleft, const ICOORD& tright,
-               int resolution, TabVector_LIST* vlines, TabVector_LIST* hlines,
-               int vertical_x, int vertical_y);
+               int resolution, bool cjk_script, TabVector_LIST* vlines,
+               TabVector_LIST* hlines, int vertical_x, int vertical_y);
   virtual ~ColumnFinder();
 
   // Accessors for testing
@@ -68,6 +71,9 @@ class ColumnFinder : public TabFind {
   }
   const TextlineProjection* projection() const {
     return &projection_;
+  }
+  void set_cjk_script(bool is_cjk) {
+    cjk_script_ = is_cjk;
   }
 
   // ======================================================================
@@ -141,11 +147,17 @@ class ColumnFinder : public TabFind {
   // it is still divided into blocks of equal line spacing/text size.
   // scaled_color is scaled down by scaled_factor from the input color image,
   // and may be NULL if the input was not color.
+  // grey_pix is optional, but if present must match the photo_mask_pix in size,
+  // and must be a *real* grey image instead of binary_pix * 255.
+  // thresholds_pix is expected to be present iff grey_pix is present and
+  // can be an integer factor reduction of the grey_pix. It represents the
+  // thresholds that were used to create the binary_pix from the grey_pix.
   // Returns -1 if the user hits the 'd' key in the blocks window while running
   // in debug mode, which requests a retry with more debug info.
   int FindBlocks(PageSegMode pageseg_mode,
                  Pix* scaled_color, int scaled_factor,
                  TO_BLOCK* block, Pix* photo_mask_pix,
+                 Pix* thresholds_pix, Pix* grey_pix,
                  BLOCK_LIST* blocks, TO_BLOCK_LIST* to_blocks);
 
   // Get the rotation required to deskew, and its inverse rotation.
@@ -278,6 +290,9 @@ class ColumnFinder : public TabFind {
   // them sit in the rotated block.
   FCOORD ComputeBlockAndClassifyRotation(BLOCK* block);
 
+  // If true then the page language is cjk, so it is safe to perform
+  // FixBrokenCJK.
+  bool cjk_script_;
   // The minimum gutter width to apply for finding columns.
   // Modified when vertical text is detected to prevent detection of
   // vertical text lines as columns.

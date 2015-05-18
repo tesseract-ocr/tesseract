@@ -29,6 +29,7 @@
 #include "cluster.h"
 #include "intfx.h"
 #include "elst.h"
+#include "errorcounter.h"
 #include "featdefs.h"
 #include "fontinfo.h"
 #include "indexmapbidi.h"
@@ -89,7 +90,7 @@ class MasterTrainer {
   // Reads the samples and their features from the given file,
   // adding them to the trainer with the font_id from the content of the file.
   // If verification, then these are verification samples, not training.
-  void ReadTrainingSamples(FILE  *fp,
+  void ReadTrainingSamples(const char* page_name,
                            const FEATURE_DEFS_STRUCT& feature_defs,
                            bool verification);
 
@@ -159,6 +160,12 @@ class MasterTrainer {
   // one of the fonts. If more than one is matched, the longest is returned.
   int GetBestMatchingFontInfoId(const char* filename);
 
+  // Returns the filename of the tr file corresponding to the command-line
+  // argument with the given index.
+  const STRING& GetTRFileName(int index) const {
+    return tr_filenames_[index];
+  }
+
   // Sets up a flat shapetable with one shape per class/font combination.
   void SetupFlatShapeTable(ShapeTable* shape_table);
 
@@ -207,13 +214,19 @@ class MasterTrainer {
                       const char* unichar_str2, int canonical_font);
   #endif  // GRAPHICS_DISABLED
 
+  void TestClassifierVOld(bool replicate_samples,
+                          ShapeClassifier* test_classifier,
+                          ShapeClassifier* old_classifier);
+
   // Tests the given test_classifier on the internal samples.
   // See TestClassifier for details.
-  void TestClassifierOnSamples(int report_level,
+  void TestClassifierOnSamples(CountTypes error_mode,
+                               int report_level,
                                bool replicate_samples,
                                ShapeClassifier* test_classifier,
                                STRING* report_string);
   // Tests the given test_classifier on the given samples
+  // error_mode indicates what counts as an error.
   // report_levels:
   // 0 = no output.
   // 1 = bottom-line error rate.
@@ -225,7 +238,8 @@ class MasterTrainer {
   // sample including replicated and systematically perturbed samples.
   // If report_string is non-NULL, a summary of the results for each font
   // is appended to the report_string.
-  double TestClassifier(int report_level,
+  double TestClassifier(CountTypes error_mode,
+                        int report_level,
                         bool replicate_samples,
                         TrainingSampleSet* samples,
                         ShapeClassifier* test_classifier,
@@ -263,9 +277,9 @@ class MasterTrainer {
   // Flat shape table has each unichar/font id pair in a separate shape.
   ShapeTable flat_shapes_;
   // Font metrics gathered from multiple files.
-  UnicityTable<FontInfo> fontinfo_table_;
+  FontInfoTable fontinfo_table_;
   // Array of xheights indexed by font ids in fontinfo_table_;
-  GenericVector<int> xheights_;
+  GenericVector<inT32> xheights_;
 
   // Non-serialized data initialized by other means or used temporarily
   // during loading of training samples.
@@ -276,8 +290,6 @@ class MasterTrainer {
   bool enable_shape_anaylsis_;
   // Flag to indicate that sample replication is required.
   bool enable_replication_;
-  // Flag to indicate that junk should be included in samples_.
-  bool include_junk_;
   // Array of classids of fragments that replace the correctly segmented chars.
   int* fragments_;
   // Classid of previous correctly segmented sample that was added.
@@ -291,6 +303,8 @@ class MasterTrainer {
   // Indexed by page_num_ in the samples.
   // These images are owned by the trainer and need to be pixDestroyed.
   GenericVector<Pix*> page_images_;
+  // Vector of filenames of loaded tr files.
+  GenericVector<STRING> tr_filenames_;
 };
 
 }  // namespace tesseract.

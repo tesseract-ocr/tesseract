@@ -30,183 +30,150 @@ namespace tesseract {
 
 class Image;
 
-Dict::Dict(Image* image_ptr)
+Dict::Dict(CCUtil* ccutil)
     : letter_is_okay_(&tesseract::Dict::def_letter_is_okay),
       probability_in_context_(&tesseract::Dict::def_probability_in_context),
-      image_ptr_(image_ptr),
+      params_model_classify_(NULL),
+      ccutil_(ccutil),
+      STRING_MEMBER(user_words_file, "",
+                    "A filename of user-provided words.",
+                    getCCUtil()->params()),
       STRING_INIT_MEMBER(user_words_suffix, "",
-                         "A list of user-provided words.",
-                         getImage()->getCCUtil()->params()),
+                         "A suffix of user-provided words located in tessdata.",
+                         getCCUtil()->params()),
+      STRING_MEMBER(user_patterns_file, "",
+                    "A filename of user-provided patterns.",
+                    getCCUtil()->params()),
       STRING_INIT_MEMBER(user_patterns_suffix, "",
-                         "A list of user-provided patterns.",
-                         getImage()->getCCUtil()->params()),
+                         "A suffix of user-provided patterns located in "
+                         "tessdata.",
+                         getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_system_dawg, true, "Load system word dawg.",
-                       getImage()->getCCUtil()->params()),
+                       getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_freq_dawg, true, "Load frequent word dawg.",
-                       getImage()->getCCUtil()->params()),
+                       getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_unambig_dawg, true, "Load unambiguous word dawg.",
-                       getImage()->getCCUtil()->params()),
+                       getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_punc_dawg, true, "Load dawg with punctuation"
-                       " patterns.", getImage()->getCCUtil()->params()),
+                       " patterns.", getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_number_dawg, true, "Load dawg with number"
-                       " patterns.", getImage()->getCCUtil()->params()),
-      BOOL_INIT_MEMBER(load_fixed_length_dawgs, true, "Load fixed length dawgs"
-                       " (e.g. for non-space delimited languages)",
-                       getImage()->getCCUtil()->params()),
-      BOOL_INIT_MEMBER(load_bigram_dawg, false, "Load dawg with special word "
-                       "bigrams.", getImage()->getCCUtil()->params()),
+                       " patterns.", getCCUtil()->params()),
+      BOOL_INIT_MEMBER(load_bigram_dawg, true, "Load dawg with special word "
+                       "bigrams.", getCCUtil()->params()),
+      double_MEMBER(xheight_penalty_subscripts, 0.125,
+                    "Score penalty (0.1 = 10%) added if there are subscripts "
+                    "or superscripts in a word, but it is otherwise OK.",
+                    getCCUtil()->params()),
+      double_MEMBER(xheight_penalty_inconsistent, 0.25,
+                    "Score penalty (0.1 = 10%) added if an xheight is "
+                    "inconsistent.", getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_frequent_word, 1.0,
                     "Score multiplier for word matches which have good case and"
                     "are frequent in the given language (lower is better).",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_case_ok, 1.1,
                     "Score multiplier for word matches that have good case "
-                    "(lower is better).", getImage()->getCCUtil()->params()),
+                    "(lower is better).", getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_case_bad, 1.3125,
                     "Default score multiplier for word matches, which may have "
                     "case issues (lower is better).",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       double_MEMBER(segment_penalty_ngram_best_choice, 1.24,
                    "Multipler to for the best choice from the ngram model.",
-                   getImage()->getCCUtil()->params()),
+                   getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_nonword, 1.25,
                     "Score multiplier for glyph fragment segmentations which "
                     "do not match a dictionary word (lower is better).",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       double_MEMBER(segment_penalty_garbage, 1.50,
                     "Score multiplier for poorly cased strings that are not in"
                     " the dictionary and generally look like garbage (lower is"
-                    " better).", getImage()->getCCUtil()->params()),
+                    " better).", getCCUtil()->params()),
       STRING_MEMBER(output_ambig_words_file, "",
                     "Output file for ambiguities found in the dictionary",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       INT_MEMBER(dawg_debug_level, 0, "Set to 1 for general debug info"
                  ", to 2 for more details, to 3 to see all the debug messages",
-                 getImage()->getCCUtil()->params()),
+                 getCCUtil()->params()),
       INT_MEMBER(hyphen_debug_level, 0, "Debug level for hyphenated words.",
-                 getImage()->getCCUtil()->params()),
+                 getCCUtil()->params()),
       INT_MEMBER(max_viterbi_list_size, 10, "Maximum size of viterbi list.",
-                 getImage()->getCCUtil()->params()),
+                 getCCUtil()->params()),
       BOOL_MEMBER(use_only_first_uft8_step, false,
                   "Use only the first UTF8 step of the given string"
                   " when computing log probabilities.",
-                  getImage()->getCCUtil()->params()),
+                  getCCUtil()->params()),
       double_MEMBER(certainty_scale, 20.0, "Certainty scaling factor",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       double_MEMBER(stopper_nondict_certainty_base, -2.50,
                     "Certainty threshold for non-dict words",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       double_MEMBER(stopper_phase2_certainty_rejection_offset, 1.0,
                     "Reject certainty offset",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       INT_MEMBER(stopper_smallword_size, 2,
                  "Size of dict word to be treated as non-dict word",
-                 getImage()->getCCUtil()->params()),
+                 getCCUtil()->params()),
       double_MEMBER(stopper_certainty_per_char, -0.50, "Certainty to add"
                     " for each dict char above small word size.",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       double_MEMBER(stopper_allowable_character_badness, 3.0,
                     "Max certaintly variation allowed in a word (in sigma)",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       INT_MEMBER(stopper_debug_level, 0, "Stopper debug level",
-                 getImage()->getCCUtil()->params()),
+                 getCCUtil()->params()),
       BOOL_MEMBER(stopper_no_acceptable_choices, false,
                   "Make AcceptableChoice() always return false. Useful"
                   " when there is a need to explore all segmentations",
-                  getImage()->getCCUtil()->params()),
-      double_MEMBER(stopper_ambiguity_threshold_gain, 8.0,
-                    "Gain factor for ambiguity threshold.",
-                    getImage()->getCCUtil()->params()),
-      double_MEMBER(stopper_ambiguity_threshold_offset, 1.5,
-                    "Certainty offset for ambiguity threshold.",
-                    getImage()->getCCUtil()->params()),
-      BOOL_MEMBER(save_raw_choices, false, "Save all explored raw choices",
-                  getImage()->getCCUtil()->params()),
+                  getCCUtil()->params()),
+      BOOL_MEMBER(save_raw_choices, false,
+                  "Deprecated- backward compatablity only",
+                  getCCUtil()->params()),
       INT_MEMBER(tessedit_truncate_wordchoice_log, 10,
                  "Max words to keep in list",
-                 getImage()->getCCUtil()->params()),
+                 getCCUtil()->params()),
       STRING_MEMBER(word_to_debug, "", "Word for which stopper debug"
                     " information should be printed to stdout",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       STRING_MEMBER(word_to_debug_lengths, "",
                     "Lengths of unichars in word_to_debug",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       INT_MEMBER(fragments_debug, 0, "Debug character fragments",
-                 getImage()->getCCUtil()->params()),
-      INT_MEMBER(segment_debug, 0, "Debug the whole segmentation process",
-                 getImage()->getCCUtil()->params()),
-      BOOL_MEMBER(permute_debug, 0, "Debug char permutation process",
-                  getImage()->getCCUtil()->params()),
-      double_MEMBER(bestrate_pruning_factor, 2.0, "Multiplying factor of"
-                    " current best rate to prune other hypotheses",
-                    getImage()->getCCUtil()->params()),
-      BOOL_MEMBER(permute_script_word, 0,
-                  "Turn on word script consistency permuter",
-                  getImage()->getCCUtil()->params()),
-      BOOL_MEMBER(segment_segcost_rating, 0,
-                  "incorporate segmentation cost in word rating?",
-                  getImage()->getCCUtil()->params()),
+                 getCCUtil()->params()),
       BOOL_MEMBER(segment_nonalphabetic_script, false,
                  "Don't use any alphabetic-specific tricks."
                  "Set to true in the traineddata config file for"
                  " scripts that are cursive or inherently fixed-pitch",
-                 getImage()->getCCUtil()->params()),
-      double_MEMBER(segment_reward_script, 0.95,
-                    "Score multipler for script consistency within a word. "
-                    "Being a 'reward' factor, it should be <= 1. "
-                    "Smaller value implies bigger reward.",
-                    getImage()->getCCUtil()->params()),
-      BOOL_MEMBER(permute_fixed_length_dawg, 0,
-                  "Turn on fixed-length phrasebook search permuter",
-                  getImage()->getCCUtil()->params()),
-      BOOL_MEMBER(permute_chartype_word, 0,
-                  "Turn on character type (property) consistency permuter",
-                  getImage()->getCCUtil()->params()),
-      double_MEMBER(segment_reward_chartype, 0.97,
-                    "Score multipler for char type consistency within a word. ",
-                    getImage()->getCCUtil()->params()),
-      double_MEMBER(segment_reward_ngram_best_choice, 0.99,
-                    "Score multipler for ngram permuter's best choice"
-                    " (only used in the Han script path).",
-                    getImage()->getCCUtil()->params()),
+                 getCCUtil()->params()),
       BOOL_MEMBER(save_doc_words, 0, "Save Document Words",
-                  getImage()->getCCUtil()->params()),
-      BOOL_MEMBER(doc_dict_enable, 1, "Enable Document Dictionary ",
-                  getImage()->getCCUtil()->params()),
+                  getCCUtil()->params()),
       double_MEMBER(doc_dict_pending_threshold, 0.0,
                     "Worst certainty for using pending dictionary",
-                    getImage()->getCCUtil()->params()),
+                    getCCUtil()->params()),
       double_MEMBER(doc_dict_certainty_threshold, -2.25,
                     "Worst certainty for words that can be inserted into the"
-                    "document dictionary", getImage()->getCCUtil()->params()),
-      BOOL_MEMBER(ngram_permuter_activated, false,
-                  "Activate character-level n-gram-based permuter",
-                  getImage()->getCCUtil()->params()),
+                    "document dictionary", getCCUtil()->params()),
       INT_MEMBER(max_permuter_attempts, 10000, "Maximum number of different"
                  " character choices to consider during permutation."
                  " This limit is especially useful when user patterns"
                  " are specified, since overly generic patterns can result in"
                  " dawg search exploring an overly large number of options.",
-                 getImage()->getCCUtil()->params()),
-      BOOL_MEMBER(permute_only_top, false, "Run only the top choice permuter",
-                  getImage()->getCCUtil()->params()) {
+                 getCCUtil()->params()) {
   dang_ambigs_table_ = NULL;
   replace_ambigs_table_ = NULL;
-  keep_word_choices_ = false;
   reject_offset_ = 0.0;
-  best_raw_choice_ = NULL;
-  best_choices_ = NIL_LIST;
-  raw_choices_ = NIL_LIST;
   go_deeper_fxn_ = NULL;
   hyphen_word_ = NULL;
   last_word_on_line_ = false;
   hyphen_unichar_id_ = INVALID_UNICHAR_ID;
   document_words_ = NULL;
+  dawg_cache_ = NULL;
+  dawg_cache_is_ours_ = false;
   pending_words_ = NULL;
   bigram_dawg_ = NULL;
   freq_dawg_ = NULL;
   punc_dawg_ = NULL;
-  max_fixed_length_dawgs_wdlen_ = -1;
+  unambig_dawg_ = NULL;
   wordseg_rating_adjust_factor_ = -1.0f;
   output_ambig_words_file_ = NULL;
 }
@@ -216,104 +183,112 @@ Dict::~Dict() {
   if (output_ambig_words_file_ != NULL) fclose(output_ambig_words_file_);
 }
 
-void Dict::Load() {
+DawgCache *Dict::GlobalDawgCache() {
+  // We dynamically allocate this global cache (a singleton) so it will outlive
+  // every Tesseract instance (even those that someone else might declare as
+  // global statics).
+  static DawgCache *cache = new DawgCache();  // evil global singleton
+  return cache;
+}
+
+void Dict::Load(DawgCache *dawg_cache) {
   STRING name;
-  STRING &lang = getImage()->getCCUtil()->lang;
+  STRING &lang = getCCUtil()->lang;
 
   if (dawgs_.length() != 0) this->End();
 
+  apostrophe_unichar_id_ = getUnicharset().unichar_to_id(kApostropheSymbol);
+  question_unichar_id_ = getUnicharset().unichar_to_id(kQuestionSymbol);
+  slash_unichar_id_ = getUnicharset().unichar_to_id(kSlashSymbol);
   hyphen_unichar_id_ = getUnicharset().unichar_to_id(kHyphenSymbol);
 
-  LoadEquivalenceList(kHyphenLikeUTF8);
-  LoadEquivalenceList(kApostropheLikeUTF8);
+  if (dawg_cache != NULL) {
+    dawg_cache_ = dawg_cache;
+    dawg_cache_is_ours_ = false;
+  } else {
+    dawg_cache_ = new DawgCache();
+    dawg_cache_is_ours_ = true;
+  }
 
-  TessdataManager &tessdata_manager =
-    getImage()->getCCUtil()->tessdata_manager;
+  TessdataManager &tessdata_manager = getCCUtil()->tessdata_manager;
+  const char *data_file_name = tessdata_manager.GetDataFileName().string();
 
   // Load dawgs_.
-  if (load_punc_dawg && tessdata_manager.SeekToStart(TESSDATA_PUNC_DAWG)) {
-    punc_dawg_ = new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                                  DAWG_TYPE_PUNCTUATION, lang, PUNC_PERM,
-                                  dawg_debug_level);
-    dawgs_ += punc_dawg_;
+  if (load_punc_dawg) {
+    punc_dawg_ = dawg_cache_->GetSquishedDawg(
+        lang, data_file_name, TESSDATA_PUNC_DAWG, dawg_debug_level);
+    if (punc_dawg_) dawgs_ += punc_dawg_;
   }
-  if (load_system_dawg && tessdata_manager.SeekToStart(TESSDATA_SYSTEM_DAWG)) {
-    dawgs_ += new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                               DAWG_TYPE_WORD, lang, SYSTEM_DAWG_PERM,
-                               dawg_debug_level);
+  if (load_system_dawg) {
+    Dawg *system_dawg = dawg_cache_->GetSquishedDawg(
+        lang, data_file_name, TESSDATA_SYSTEM_DAWG, dawg_debug_level);
+    if (system_dawg) dawgs_ += system_dawg;
   }
-  if (load_number_dawg && tessdata_manager.SeekToStart(TESSDATA_NUMBER_DAWG)) {
-    dawgs_ +=
-      new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                       DAWG_TYPE_NUMBER, lang, NUMBER_PERM, dawg_debug_level);
+  if (load_number_dawg) {
+    Dawg *number_dawg = dawg_cache_->GetSquishedDawg(
+        lang, data_file_name, TESSDATA_NUMBER_DAWG, dawg_debug_level);
+    if (number_dawg) dawgs_ += number_dawg;
   }
-  if (load_bigram_dawg && tessdata_manager.SeekToStart(TESSDATA_BIGRAM_DAWG)) {
-    bigram_dawg_ = new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                                    DAWG_TYPE_WORD, // doesn't actually matter.
-                                    lang,
-                                    COMPOUND_PERM,  // doesn't actually matter.
-                                    dawg_debug_level);
+  if (load_bigram_dawg) {
+    bigram_dawg_ = dawg_cache_->GetSquishedDawg(
+        lang, data_file_name, TESSDATA_BIGRAM_DAWG, dawg_debug_level);
   }
-  if (load_freq_dawg && tessdata_manager.SeekToStart(TESSDATA_FREQ_DAWG)) {
-    freq_dawg_ = new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                                  DAWG_TYPE_WORD, lang, FREQ_DAWG_PERM,
-                                  dawg_debug_level);
-    dawgs_ += freq_dawg_;
+  if (load_freq_dawg) {
+    freq_dawg_ = dawg_cache_->GetSquishedDawg(
+        lang, data_file_name, TESSDATA_FREQ_DAWG, dawg_debug_level);
+    if (freq_dawg_) { dawgs_ += freq_dawg_; }
   }
-  if (load_unambig_dawg &&
-      tessdata_manager.SeekToStart(TESSDATA_UNAMBIG_DAWG)) {
-    unambig_dawg_ = new SquishedDawg(tessdata_manager.GetDataFilePtr(),
-                                     DAWG_TYPE_WORD, lang, SYSTEM_DAWG_PERM,
-                                     dawg_debug_level);
-    dawgs_ += unambig_dawg_;
+  if (load_unambig_dawg) {
+    unambig_dawg_ = dawg_cache_->GetSquishedDawg(
+        lang, data_file_name, TESSDATA_UNAMBIG_DAWG, dawg_debug_level);
+    if (unambig_dawg_) dawgs_ += unambig_dawg_;
   }
 
-  if (((STRING &)user_words_suffix).length() > 0) {
+  if (((STRING &)user_words_suffix).length() > 0 ||
+      ((STRING &)user_words_file).length() > 0) {
     Trie *trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
-                              kMaxUserDawgEdges, getUnicharset().size(),
-                              dawg_debug_level);
-    name = getImage()->getCCUtil()->language_data_path_prefix;
-    name += user_words_suffix;
-    if (!trie_ptr->read_word_list(name.string(), getUnicharset(),
-                                  Trie::RRP_REVERSE_IF_HAS_RTL)) {
-      tprintf("Error: failed to load %s\n", name.string());
-      exit(1);
+                              getUnicharset().size(), dawg_debug_level);
+    if (((STRING &)user_words_file).length() > 0) {
+        name = user_words_file;
+    } else {
+        name = getCCUtil()->language_data_path_prefix;
+        name += user_words_suffix;
     }
-    dawgs_ += trie_ptr;
+    if (!trie_ptr->read_and_add_word_list(name.string(), getUnicharset(),
+                                          Trie::RRP_REVERSE_IF_HAS_RTL)) {
+      tprintf("Error: failed to load %s\n", name.string());
+      delete trie_ptr;
+    } else {
+      dawgs_ += trie_ptr;
+    }
   }
 
-  if (((STRING &)user_patterns_suffix).length() > 0) {
+  if (((STRING &)user_patterns_suffix).length() > 0 ||
+      ((STRING &)user_patterns_file).length() > 0) {
     Trie *trie_ptr = new Trie(DAWG_TYPE_PATTERN, lang, USER_PATTERN_PERM,
-                              kMaxUserDawgEdges, getUnicharset().size(),
-                              dawg_debug_level);
+                              getUnicharset().size(), dawg_debug_level);
     trie_ptr->initialize_patterns(&(getUnicharset()));
-    name = getImage()->getCCUtil()->language_data_path_prefix;
-    name += user_patterns_suffix;
+    if (((STRING &)user_patterns_file).length() > 0) {
+        name = user_patterns_file;
+    } else {
+        name = getCCUtil()->language_data_path_prefix;
+        name += user_patterns_suffix;
+    }
     if (!trie_ptr->read_pattern_list(name.string(), getUnicharset())) {
       tprintf("Error: failed to load %s\n", name.string());
-      exit(1);
+      delete trie_ptr;
+    } else {
+      dawgs_ += trie_ptr;
     }
-    dawgs_ += trie_ptr;
   }
 
   document_words_ = new Trie(DAWG_TYPE_WORD, lang, DOC_DAWG_PERM,
-                             kMaxDocDawgEdges, getUnicharset().size(),
-                             dawg_debug_level);
+                             getUnicharset().size(), dawg_debug_level);
   dawgs_ += document_words_;
 
   // This dawg is temporary and should not be searched by letter_is_ok.
   pending_words_ = new Trie(DAWG_TYPE_WORD, lang, NO_PERM,
-                            kMaxDocDawgEdges, getUnicharset().size(),
-                            dawg_debug_level);
-
-  // Load fixed length dawgs if necessary (used for phrase search
-  // for non-space delimited languages).
-  if (load_fixed_length_dawgs &&
-      tessdata_manager.SeekToStart(TESSDATA_FIXED_LENGTH_DAWGS)) {
-    ReadFixedLengthDawgs(DAWG_TYPE_WORD, lang, SYSTEM_DAWG_PERM,
-                         dawg_debug_level, tessdata_manager.GetDataFilePtr(),
-                         &dawgs_, &max_fixed_length_dawgs_wdlen_);
-  }
+                            getUnicharset().size(), dawg_debug_level);
 
   // Construct a list of corresponding successors for each dawg. Each entry i
   // in the successors_ vector is a vector of integers that represent the
@@ -335,43 +310,24 @@ void Dict::Load() {
 void Dict::End() {
   if (dawgs_.length() == 0)
     return;  // Not safe to call twice.
-  dawgs_.delete_data_pointers();
+  for (int i = 0; i < dawgs_.size(); i++) {
+    if (!dawg_cache_->FreeDawg(dawgs_[i])) {
+      delete dawgs_[i];
+    }
+  }
+  dawg_cache_->FreeDawg(bigram_dawg_);
+  if (dawg_cache_is_ours_) {
+    delete dawg_cache_;
+    dawg_cache_ = NULL;
+  }
   successors_.delete_data_pointers();
   dawgs_.clear();
-  delete bigram_dawg_;
   successors_.clear();
   document_words_ = NULL;
-  max_fixed_length_dawgs_wdlen_ = -1;
   if (pending_words_ != NULL) {
     delete pending_words_;
     pending_words_ = NULL;
   }
-}
-
-// Create unicharset adaptations of known, short lists of UTF-8 equivalent
-// characters (think all hyphen-like symbols).  The first version of the
-// list is taken as equivalent for matching against the dictionary.
-void Dict::LoadEquivalenceList(const char *unichar_strings[]) {
-  equivalent_symbols_.push_back(GenericVectorEqEq<UNICHAR_ID>());
-  const UNICHARSET &unicharset = getUnicharset();
-  GenericVectorEqEq<UNICHAR_ID> *equiv_list = &equivalent_symbols_.back();
-  for (int i = 0; unichar_strings[i] != 0; i++) {
-    UNICHAR_ID unichar_id = unicharset.unichar_to_id(unichar_strings[i]);
-    if (unichar_id != INVALID_UNICHAR_ID) {
-      equiv_list->push_back(unichar_id);
-    }
-  }
-}
-
-// Normalize all hyphen and apostrophes to the canonicalized one for
-// matching; pass everything else through as is.
-UNICHAR_ID Dict::NormalizeUnicharIdForMatch(UNICHAR_ID unichar_id) const {
-  for (int i = 0; i < equivalent_symbols_.size(); i++) {
-    if (equivalent_symbols_[i].contains(unichar_id)) {
-      return equivalent_symbols_[i][0];
-    }
-  }
-  return unichar_id;
 }
 
 // Returns true if in light of the current state unichar_id is allowed
@@ -384,10 +340,9 @@ int Dict::def_letter_is_okay(void* void_dawg_args,
 
   if (dawg_debug_level >= 3) {
     tprintf("def_letter_is_okay: current unichar=%s word_end=%d"
-            " num active dawgs=%d num constraints=%d\n",
+            " num active dawgs=%d\n",
             getUnicharset().debug_str(unichar_id).string(), word_end,
-            dawg_args->active_dawgs->length(),
-            dawg_args->constraints->length());
+            dawg_args->active_dawgs->length());
   }
 
   // Do not accept words that contain kPatternUnicharID.
@@ -401,144 +356,118 @@ int Dict::def_letter_is_okay(void* void_dawg_args,
 
   // Initialization.
   PermuterType curr_perm = NO_PERM;
-  dawg_args->updated_active_dawgs->clear();
-  const DawgInfoVector &constraints = *(dawg_args->constraints);
-  *dawg_args->updated_constraints = constraints;
+  dawg_args->updated_dawgs->clear();
 
-  // Go over the active_dawgs vector and insert DawgInfo records with the
-  // updated ref (an edge with the corresponding unichar id) into
-  // dawg_args->updated_active_dawgs.
+  // Go over the active_dawgs vector and insert DawgPosition records
+  // with the updated ref (an edge with the corresponding unichar id) into
+  // dawg_args->updated_pos.
   for (int a = 0; a < dawg_args->active_dawgs->length(); ++a) {
-    const DawgInfo &info = (*dawg_args->active_dawgs)[a];
-    const Dawg *dawg = dawgs_[info.dawg_index];
-    // dawg_unichar_id will contain the literal unichar_id to be found in the
-    // dawgs (e.g. didgit pattern if unichar_id is a digit and dawg contains
-    // number patterns, word pattern if dawg is a puncutation dawg and we
-    // reached an end of beginning puntuation pattern, etc).
-    UNICHAR_ID dawg_unichar_id = unichar_id;
+    const DawgPosition &pos = (*dawg_args->active_dawgs)[a];
+    const Dawg *punc_dawg = pos.punc_index >= 0 ? dawgs_[pos.punc_index] : NULL;
+    const Dawg *dawg = pos.dawg_index >= 0 ? dawgs_[pos.dawg_index] : NULL;
+
+    if (!dawg && !punc_dawg) {
+      // shouldn't happen.
+      tprintf("Received DawgPosition with no dawg or punc_dawg.  wth?\n");
+      continue;
+    }
+    if (!dawg) {
+      // We're in the punctuation dawg.  A core dawg has not been chosen.
+      NODE_REF punc_node = GetStartingNode(punc_dawg, pos.punc_ref);
+      EDGE_REF punc_transition_edge = punc_dawg->edge_char_of(
+          punc_node, Dawg::kPatternUnicharID, word_end);
+      if (punc_transition_edge != NO_EDGE) {
+        // Find all successors, and see which can transition.
+        const SuccessorList &slist = *(successors_[pos.punc_index]);
+        for (int s = 0; s < slist.length(); ++s) {
+          int sdawg_index = slist[s];
+          const Dawg *sdawg = dawgs_[sdawg_index];
+          UNICHAR_ID ch = char_for_dawg(unichar_id, sdawg);
+          EDGE_REF dawg_edge = sdawg->edge_char_of(0, ch, word_end);
+          if (dawg_edge != NO_EDGE) {
+            if (dawg_debug_level >=3) {
+              tprintf("Letter found in dawg %d\n", sdawg_index);
+            }
+            dawg_args->updated_dawgs->add_unique(
+                DawgPosition(sdawg_index, dawg_edge,
+                             pos.punc_index, punc_transition_edge, false),
+                dawg_debug_level > 0,
+                "Append transition from punc dawg to current dawgs: ");
+            if (sdawg->permuter() > curr_perm) curr_perm = sdawg->permuter();
+          }
+        }
+      }
+      EDGE_REF punc_edge = punc_dawg->edge_char_of(punc_node, unichar_id,
+                                                   word_end);
+      if (punc_edge != NO_EDGE) {
+        if (dawg_debug_level >=3) {
+          tprintf("Letter found in punctuation dawg\n");
+        }
+        dawg_args->updated_dawgs->add_unique(
+            DawgPosition(-1, NO_EDGE, pos.punc_index, punc_edge, false),
+            dawg_debug_level > 0,
+            "Extend punctuation dawg: ");
+        if (PUNC_PERM > curr_perm) curr_perm = PUNC_PERM;
+      }
+      continue;
+    }
+
+    if (punc_dawg && dawg->end_of_word(pos.dawg_ref)) {
+      // We can end the main word here.
+      //  If we can continue on the punc ref, add that possibility.
+      NODE_REF punc_node = GetStartingNode(punc_dawg, pos.punc_ref);
+      EDGE_REF punc_edge = punc_node == NO_EDGE ? NO_EDGE
+          : punc_dawg->edge_char_of(punc_node, unichar_id, word_end);
+      if (punc_edge != NO_EDGE) {
+        dawg_args->updated_dawgs->add_unique(
+            DawgPosition(pos.dawg_index, pos.dawg_ref,
+                         pos.punc_index, punc_edge, true),
+            dawg_debug_level > 0,
+            "Return to punctuation dawg: ");
+        if (dawg->permuter() > curr_perm) curr_perm = dawg->permuter();
+      }
+    }
+
+    if (pos.back_to_punc) continue;
 
     // If we are dealing with the pattern dawg, look up all the
     // possible edges, not only for the exact unichar_id, but also
     // for all its character classes (alpha, digit, etc).
     if (dawg->type() == DAWG_TYPE_PATTERN) {
-      ProcessPatternEdges(dawg, info, dawg_unichar_id, word_end,
-                          dawg_args, &curr_perm);
+      ProcessPatternEdges(dawg, pos, unichar_id, word_end,
+                          dawg_args->updated_dawgs, &curr_perm);
       // There can't be any successors to dawg that is of type
-      // DAWG_TYPE_PATTERN, so we are done examining this DawgInfo.
+      // DAWG_TYPE_PATTERN, so we are done examining this DawgPosition.
       continue;
     }
 
-    // The number dawg generalizes all digits to be kPatternUnicharID,
-    // so try to match kPatternUnicharID if the current unichar is a digit.
-    if (dawg->type() == DAWG_TYPE_NUMBER &&
-        getUnicharset().get_isdigit(dawg_unichar_id)) {
-      dawg_unichar_id = Dawg::kPatternUnicharID;
-    }
-
-    // Find the edge out of the node for the dawg_unichar_id.
-    NODE_REF node = GetStartingNode(dawg, info.ref);
-    EDGE_REF edge = (node != NO_EDGE) ?
-      dawg->edge_char_of(node, dawg_unichar_id, word_end) : NO_EDGE;
+    // Find the edge out of the node for the unichar_id.
+    NODE_REF node = GetStartingNode(dawg, pos.dawg_ref);
+    EDGE_REF edge = (node == NO_EDGE) ? NO_EDGE
+        : dawg->edge_char_of(node, char_for_dawg(unichar_id, dawg), word_end);
 
     if (dawg_debug_level >= 3) {
       tprintf("Active dawg: [%d, " REFFORMAT "] edge=" REFFORMAT "\n",
-              info.dawg_index, node, edge);
+              pos.dawg_index, node, edge);
     }
 
     if (edge != NO_EDGE) {  // the unichar was found in the current dawg
-      if (ConstraintsOk(*(dawg_args->updated_constraints),
-                        word_end, dawg->type())) {
-        if (dawg_debug_level >=3) {
-          tprintf("Letter found in dawg %d\n", info.dawg_index);
-        }
-        if (dawg->permuter() > curr_perm) curr_perm = dawg->permuter();
-        dawg_args->updated_active_dawgs->add_unique(
-            DawgInfo(info.dawg_index, edge), dawg_debug_level > 0,
-            "Append current dawg to updated active dawgs: ");
+      if (dawg_debug_level >=3) {
+        tprintf("Letter found in dawg %d\n", pos.dawg_index);
       }
-    } else if (dawg_args->sought_word_length == kAnyWordLength) {
-      // The unichar was not found in the current dawg.
-      // Explore the successor dawgs (but only if we are not
-      // just searching one dawg with a fixed word length).
-
-      // Handle leading/trailing punctuation dawgs that denote a word pattern
-      // as an edge with kPatternUnicharID. If such an edge is found we add a
-      // constraint denoting the state of the dawg before the word pattern.
-      // This constraint will be applied later when this dawg is found among
-      // successor dawgs as well potentially at the end of the word.
-      if (dawg->type() == DAWG_TYPE_PUNCTUATION) {
-        edge = dawg->edge_char_of(node, Dawg::kPatternUnicharID, word_end);
-        if (edge != NO_EDGE) {
-          dawg_args->updated_constraints->add_unique(
-              DawgInfo(info.dawg_index, edge), dawg_debug_level > 0,
-              "Recording constraint: ");
-        } else {
-          // Do not explore successors of this dawg, since this
-          // must be invalid leading or trailing punctuation.
-          if (dawg_debug_level >= 3) {
-            tprintf("Invalid punctuation from dawg %d\n", info.dawg_index);
-          }
-          continue;
-        }
-      }
-
-      if (info.ref == NO_EDGE) {
+      if (word_end && punc_dawg && !punc_dawg->end_of_word(pos.punc_ref)) {
         if (dawg_debug_level >= 3) {
-          tprintf("No letters matched in dawg %d\n", info.dawg_index);
+          tprintf("Punctuation constraint not satisfied at end of word.\n");
         }
         continue;
       }
-
-      // Discard the dawg if the pattern can not end at previous letter.
-      if (edge == NO_EDGE &&  // previous part is not leading punctuation
-          !dawg->end_of_word(info.ref)) {
-        if (dawg_debug_level >= 3) {
-          tprintf("No valid pattern end in dawg %d\n", info.dawg_index);
-        }
-        continue;
-      }
-
-      // Look for the unichar in each of this dawg's successors
-      // and append those in which it is found to active_dawgs.
-      const SuccessorList &slist = *(successors_[info.dawg_index]);
-      for (int s = 0; s < slist.length(); ++s) {
-        int sdawg_index = slist[s];
-        const Dawg *sdawg = dawgs_[sdawg_index];
-        NODE_REF snode = 0;
-        // Apply constraints to the successor dawg.
-        for (int c = 0; c < constraints.length(); ++c) {
-          // If the successor dawg is described in the constraints change
-          // the start ref from 0 to the one recorded as the constraint.
-          const DawgInfo &cinfo = constraints[c];
-          if (cinfo.dawg_index == sdawg_index) {
-            snode = sdawg->next_node(cinfo.ref);
-            // Make sure we do not search the successor dawg if after
-            // applying the saved constraint we are at the end of the word.
-            if (snode == 0) snode = NO_EDGE;
-            if (dawg_debug_level >= 3) {
-               tprintf("Applying constraint [%d, " REFFORMAT "]\n",
-                       sdawg_index, snode);
-            }
-          }
-        }
-        // Look for the letter in this successor dawg.
-        EDGE_REF sedge = sdawg->edge_char_of(snode, unichar_id, word_end);
-        // If we found the letter append sdawg to the active_dawgs list.
-        if (sedge != NO_EDGE &&
-            ConstraintsOk(*(dawg_args->updated_constraints), word_end,
-                          dawgs_[sdawg_index]->type())) {
-          if (dawg_debug_level >= 3) {
-            tprintf("Letter found in the successor dawg %d\n", sdawg_index);
-          }
-          if (sdawg->permuter() > curr_perm) curr_perm = sdawg->permuter();
-          if (sdawg->next_node(sedge) != 0) {  // if not word end
-            dawg_args->updated_active_dawgs->add_unique(
-              DawgInfo(sdawg_index, sedge), dawg_debug_level > 0,
-              "Append successor to updated active dawgs: ");
-          }
-        }
-      }  // end successors loop
-    }  // end if/else
+      if (dawg->permuter() > curr_perm) curr_perm = dawg->permuter();
+      dawg_args->updated_dawgs->add_unique(
+          DawgPosition(pos.dawg_index, edge, pos.punc_index, pos.punc_ref,
+                       false),
+          dawg_debug_level > 0,
+          "Append current dawg to updated active dawgs: ");
+    }
   }  // end for
   // Update dawg_args->permuter if it used to be NO_PERM or became NO_PERM
   // or if we found the current letter in a non-punctuation dawg. This
@@ -548,14 +477,17 @@ int Dict::def_letter_is_okay(void* void_dawg_args,
       (curr_perm != PUNC_PERM && dawg_args->permuter != COMPOUND_PERM)) {
     dawg_args->permuter = curr_perm;
   }
+  if (dawg_debug_level >= 2) {
+    tprintf("Returning %d for permuter code for this character.\n");
+  }
   return dawg_args->permuter;
 }
 
-void Dict::ProcessPatternEdges(const Dawg *dawg, const DawgInfo &info,
+void Dict::ProcessPatternEdges(const Dawg *dawg, const DawgPosition &pos,
                                UNICHAR_ID unichar_id, bool word_end,
-                               DawgArgs *dawg_args,
+                               DawgPositionVector *updated_dawgs,
                                PermuterType *curr_perm) const {
-  NODE_REF node = GetStartingNode(dawg, info.ref);
+  NODE_REF node = GetStartingNode(dawg, pos.dawg_ref);
   // Try to find the edge corresponding to the exact unichar_id and to all the
   // edges corresponding to the character class of unichar_id.
   GenericVector<UNICHAR_ID> unichar_id_patterns;
@@ -566,73 +498,21 @@ void Dict::ProcessPatternEdges(const Dawg *dawg, const DawgInfo &info,
     // On the first iteration check all the outgoing edges.
     // On the second iteration check all self-loops.
     for (int k = 0; k < 2; ++k) {
-    EDGE_REF edge = (k == 0) ?
-      dawg->edge_char_of(node, unichar_id_patterns[i], word_end)
-      : dawg->pattern_loop_edge(info.ref, unichar_id_patterns[i], word_end);
-      if (edge != NO_EDGE) {
-        if (dawg_debug_level >= 3) {
-          tprintf("Pattern dawg: [%d, " REFFORMAT "] edge=" REFFORMAT "\n",
-                  info.dawg_index, node, edge);
-        }
-        if (ConstraintsOk(*(dawg_args->updated_constraints),
-                          word_end, dawg->type())) {
-          if (dawg_debug_level >=3) {
-            tprintf("Letter found in pattern dawg %d\n", info.dawg_index);
-          }
-          if (dawg->permuter() > *curr_perm) *curr_perm = dawg->permuter();
-          dawg_args->updated_active_dawgs->add_unique(
-              DawgInfo(info.dawg_index, edge), dawg_debug_level > 0,
-              "Append current dawg to updated active dawgs: ");
-        }
+      EDGE_REF edge = (k == 0)
+      ? dawg->edge_char_of(node, unichar_id_patterns[i], word_end)
+      : dawg->pattern_loop_edge(pos.dawg_ref, unichar_id_patterns[i], word_end);
+      if (edge == NO_EDGE) continue;
+      if (dawg_debug_level >= 3) {
+        tprintf("Pattern dawg: [%d, " REFFORMAT "] edge=" REFFORMAT "\n",
+                pos.dawg_index, node, edge);
+        tprintf("Letter found in pattern dawg %d\n", pos.dawg_index);
       }
-    }
-  }
-}
-
-void Dict::ReadFixedLengthDawgs(DawgType type, const STRING &lang,
-                                PermuterType perm, int debug_level,
-                                FILE *file, DawgVector *dawg_vec,
-                                int *max_wdlen) {
-  int i;
-  DawgVector dawg_vec_copy;
-  dawg_vec_copy.move(dawg_vec); // save the input dawg_vec.
-  inT32 num_dawgs;
-  fread(&num_dawgs, sizeof(inT32), 1, file);
-  bool swap = (num_dawgs > MAX_WERD_LENGTH);
-  if (swap) num_dawgs = reverse32(num_dawgs);
-  inT32 word_length;
-  int max_word_length = 0;
-  // Read and record pointers to fixed-length dawgs such that:
-  // dawg_vec[word_length] = pointer to dawg with word length of word_length,
-  //                         NULL if such fixed-length dawg does not exist.
-  for (i = 0; i < num_dawgs; ++i) {
-    fread(&word_length, sizeof(inT32), 1, file);
-    if (swap) word_length = reverse32(word_length);
-    ASSERT_HOST(word_length >  0 && word_length <= MAX_WERD_LENGTH);
-    while (word_length >= dawg_vec->size()) dawg_vec->push_back(NULL);
-    (*dawg_vec)[word_length] =
-      new SquishedDawg(file, type, lang, perm, debug_level);
-    if (word_length > max_word_length) max_word_length = word_length;
-  }
-  *max_wdlen = max_word_length;
-  // Entries dawg_vec[0] to dawg_vec[max_word_length] now hold pointers
-  // to fixed-length dawgs. The rest of the vector will contain the dawg
-  // pointers from the original input dawg_vec.
-  for (i = 0; i < dawg_vec_copy.size(); ++i) {
-    dawg_vec->push_back(dawg_vec_copy[i]);
-  }
-}
-
-void Dict::WriteFixedLengthDawgs(
-    const GenericVector<SquishedDawg *> &dawg_vec,
-    int num_dawgs, int debug_level, FILE *output_file) {
-  fwrite(&num_dawgs, sizeof(inT32), 1, output_file);
-  if (debug_level) tprintf("Writing %d split length dawgs\n", num_dawgs);
-  for (int i = 1; i < dawg_vec.size(); ++i) {
-    if ((dawg_vec)[i] != NULL) {
-      fwrite(&i, sizeof(inT32), 1, output_file);
-      dawg_vec[i]->write_squished_dawg(output_file);
-      if (debug_level) tprintf("Wrote Dawg with word length %d\n", i);
+      if (dawg->permuter() > *curr_perm) *curr_perm = dawg->permuter();
+      updated_dawgs->add_unique(
+          DawgPosition(pos.dawg_index, edge, pos.punc_index, pos.punc_ref,
+                       pos.back_to_punc),
+          dawg_debug_level > 0,
+          "Append current dawg to updated active dawgs: ");
     }
   }
 }
@@ -640,48 +520,45 @@ void Dict::WriteFixedLengthDawgs(
 // Fill the given active_dawgs vector with dawgs that could contain the
 // beginning of the word. If hyphenated() returns true, copy the entries
 // from hyphen_active_dawgs_ instead.
-void Dict::init_active_dawgs(int sought_word_length,
-                             DawgInfoVector *active_dawgs,
+void Dict::init_active_dawgs(DawgPositionVector *active_dawgs,
                              bool ambigs_mode) const {
   int i;
-  if (sought_word_length != kAnyWordLength) {
-    // Only search one fixed word length dawg.
-    if (sought_word_length <= max_fixed_length_dawgs_wdlen_ &&
-        dawgs_[sought_word_length] != NULL) {
-      *active_dawgs += DawgInfo(sought_word_length, NO_EDGE);
-    }
-  } else if (hyphenated()) {
+  if (hyphenated()) {
     *active_dawgs = hyphen_active_dawgs_;
     if (dawg_debug_level >= 3) {
       for (i = 0; i < hyphen_active_dawgs_.size(); ++i) {
         tprintf("Adding hyphen beginning dawg [%d, " REFFORMAT "]\n",
                 hyphen_active_dawgs_[i].dawg_index,
-                hyphen_active_dawgs_[i].ref);
+                hyphen_active_dawgs_[i].dawg_ref);
       }
     }
   } else {
-    for (i = 0; i < dawgs_.length(); ++i) {
-      if (dawgs_[i] != NULL && kBeginningDawgsType[(dawgs_[i])->type()] &&
-          !(ambigs_mode && (dawgs_[i])->type() == DAWG_TYPE_PATTERN)) {
-        *active_dawgs += DawgInfo(i, NO_EDGE);
-        if (dawg_debug_level >= 3) {
-          tprintf("Adding beginning dawg [%d, " REFFORMAT "]\n", i, NO_EDGE);
-        }
-      }
-    }
+    default_dawgs(active_dawgs, ambigs_mode);
   }
 }
 
-// If hyphenated() returns true, copy the entries from hyphen_constraints_
-// into the given constraints vector.
-void Dict::init_constraints(DawgInfoVector *constraints) const {
-  if (hyphenated()) {
-    *constraints = hyphen_constraints_;
-    if (dawg_debug_level >= 3) {
-      for (int i = 0; i < hyphen_constraints_.size(); ++i) {
-        tprintf("Adding hyphen constraint [%d, " REFFORMAT "]\n",
-                hyphen_constraints_[i].dawg_index,
-                hyphen_constraints_[i].ref);
+void Dict::default_dawgs(DawgPositionVector *dawg_pos_vec,
+                         bool suppress_patterns) const {
+  bool punc_dawg_available =
+    (punc_dawg_ != NULL) &&
+    punc_dawg_->edge_char_of(0, Dawg::kPatternUnicharID, true) != NO_EDGE;
+
+  for (int i = 0; i < dawgs_.length(); i++) {
+    if (dawgs_[i] != NULL &&
+        !(suppress_patterns && (dawgs_[i])->type() == DAWG_TYPE_PATTERN)) {
+      int dawg_ty = dawgs_[i]->type();
+      bool subsumed_by_punc = kDawgSuccessors[DAWG_TYPE_PUNCTUATION][dawg_ty];
+      if (dawg_ty == DAWG_TYPE_PUNCTUATION) {
+        *dawg_pos_vec += DawgPosition(-1, NO_EDGE, i, NO_EDGE, false);
+        if (dawg_debug_level >= 3) {
+          tprintf("Adding beginning punc dawg [%d, " REFFORMAT "]\n", i,
+                  NO_EDGE);
+        }
+      } else if (!punc_dawg_available || !subsumed_by_punc) {
+        *dawg_pos_vec += DawgPosition(i, NO_EDGE, -1, NO_EDGE, false);
+        if (dawg_debug_level >= 3) {
+          tprintf("Adding beginning dawg [%d, " REFFORMAT "]\n", i, NO_EDGE);
+        }
       }
     }
   }
@@ -700,8 +577,7 @@ void Dict::add_document_word(const WERD_CHOICE &best_choice) {
   FILE *doc_word_file;
   int stringlen = best_choice.length();
 
-  if (!doc_dict_enable || valid_word(best_choice) ||
-      CurrentWordAmbig() || stringlen < 2)
+  if (valid_word(best_choice) || stringlen < 2)
     return;
 
   // Discard words that contain >= kDocDictMaxRepChars repeating unichars.
@@ -736,7 +612,7 @@ void Dict::add_document_word(const WERD_CHOICE &best_choice) {
   }
 
   if (save_doc_words) {
-    strcpy(filename, getImage()->getCCUtil()->imagefile.string());
+    strcpy(filename, getCCUtil()->imagefile.string());
     strcat(filename, ".doc");
     doc_word_file = open_file (filename, "a");
     fprintf(doc_word_file, "%s\n",
@@ -747,25 +623,48 @@ void Dict::add_document_word(const WERD_CHOICE &best_choice) {
 }
 
 void Dict::adjust_word(WERD_CHOICE *word,
-                       float *certainty_array,
-                       const BLOB_CHOICE_LIST_VECTOR *char_choices,
                        bool nonword,
+                       XHeightConsistencyEnum xheight_consistency,
                        float additional_adjust,
+                       bool modify_rating,
                        bool debug) {
-  bool is_han = (char_choices != NULL &&
-                 getUnicharset().han_sid() != getUnicharset().null_sid() &&
-                 get_top_word_script(*char_choices, getUnicharset()) ==
-                 getUnicharset().han_sid());
+  bool is_han = (getUnicharset().han_sid() != getUnicharset().null_sid() &&
+                 word->GetTopScriptID() == getUnicharset().han_sid());
   bool case_is_ok = (is_han || case_ok(*word, getUnicharset()));
   bool punc_is_ok = (is_han || !nonword || valid_punctuation(*word));
 
   float adjust_factor = additional_adjust;
   float new_rating = word->rating();
-  if (debug) {
-    tprintf("%sWord: %s %4.2f ", nonword ? "Non-" : "",
-            word->debug_string().string(), word->rating());
-  }
   new_rating += kRatingPad;
+  const char *xheight_triggered = "";
+  if (word->length() > 1) {
+    // Calculate x-height and y-offset consistency penalties.
+    switch (xheight_consistency) {
+      case XH_INCONSISTENT:
+        adjust_factor += xheight_penalty_inconsistent;
+        xheight_triggered = ", xhtBAD";
+        break;
+      case XH_SUBNORMAL:
+        adjust_factor += xheight_penalty_subscripts;
+        xheight_triggered = ", xhtSUB";
+        break;
+      case XH_GOOD:
+        // leave the factor alone - all good!
+        break;
+    }
+    // TODO(eger): if nonword is true, but there is a "core" thats' a dict
+    // word, negate nonword status.
+  } else {
+    if (debug) {
+      tprintf("Consistency could not be calculated.\n");
+    }
+  }
+  if (debug) {
+    tprintf("%sWord: %s %4.2f%s", nonword ? "Non-" : "",
+            word->unichar_string().string(), word->rating(),
+            xheight_triggered);
+  }
+
   if (nonword) {  // non-dictionary word
     if (case_is_ok && punc_is_ok) {
       adjust_factor += segment_penalty_dict_nonword;
@@ -798,50 +697,40 @@ void Dict::adjust_word(WERD_CHOICE *word,
     }
   }
   new_rating -= kRatingPad;
-  word->set_rating(new_rating);
+  if (modify_rating) word->set_rating(new_rating);
   if (debug) tprintf(" %4.2f --> %4.2f\n", adjust_factor, new_rating);
-  LogNewChoice(adjust_factor, certainty_array, false, word,
-               *char_choices);
+  word->set_adjust_factor(adjust_factor);
 }
 
 int Dict::valid_word(const WERD_CHOICE &word, bool numbers_ok) const {
   const WERD_CHOICE *word_ptr = &word;
   WERD_CHOICE temp_word(word.unicharset());
-  if (hyphenated()) {
+  if (hyphenated() && hyphen_word_->unicharset() == word.unicharset()) {
     copy_hyphen_info(&temp_word);
     temp_word += word;
     word_ptr = &temp_word;
   }
   if (word_ptr->length() == 0) return NO_PERM;
   // Allocate vectors for holding current and updated
-  // active_dawgs and constraints and initialize them.
-  DawgInfoVector *active_dawgs = new DawgInfoVector[2];
-  DawgInfoVector *constraints = new DawgInfoVector[2];
-  init_active_dawgs(kAnyWordLength, &(active_dawgs[0]), false);
-  init_constraints(&(constraints[0]));
-  DawgArgs dawg_args(&(active_dawgs[0]), &(constraints[0]),
-                     &(active_dawgs[1]), &(constraints[1]),
-                     0.0, NO_PERM, kAnyWordLength, 0);
+  // active_dawgs and initialize them.
+  DawgPositionVector *active_dawgs = new DawgPositionVector[2];
+  init_active_dawgs(&(active_dawgs[0]), false);
+  DawgArgs dawg_args(&(active_dawgs[0]), &(active_dawgs[1]), NO_PERM);
   int last_index = word_ptr->length() - 1;
   // Call leter_is_okay for each letter in the word.
   for (int i = hyphen_base_size(); i <= last_index; ++i) {
     if (!((this->*letter_is_okay_)(&dawg_args, word_ptr->unichar_id(i),
                                    i == last_index))) break;
     // Swap active_dawgs, constraints with the corresponding updated vector.
-    if (dawg_args.updated_active_dawgs == &(active_dawgs[1])) {
-      dawg_args.updated_active_dawgs = &(active_dawgs[0]);
-      dawg_args.updated_constraints = &(constraints[0]);
+    if (dawg_args.updated_dawgs == &(active_dawgs[1])) {
+      dawg_args.updated_dawgs = &(active_dawgs[0]);
       ++(dawg_args.active_dawgs);
-      ++(dawg_args.constraints);
     } else {
-      ++(dawg_args.updated_active_dawgs);
-      ++(dawg_args.updated_constraints);
+      ++(dawg_args.updated_dawgs);
       dawg_args.active_dawgs = &(active_dawgs[0]);
-      dawg_args.constraints = &(constraints[0]);
     }
   }
   delete[] active_dawgs;
-  delete[] constraints;
   return valid_word_permuter(dawg_args.permuter, numbers_ok) ?
     dawg_args.permuter : NO_PERM;
 }
@@ -862,17 +751,30 @@ bool Dict::valid_bigram(const WERD_CHOICE &word1,
   if (w2start >= w2end) return word2.length() < 3;
 
   const UNICHARSET& uchset = getUnicharset();
-  STRING bigram_string;
+  GenericVector<UNICHAR_ID> bigram_string;
+  bigram_string.reserve(w1end + w2end + 1);
   for (int i = w1start; i < w1end; i++) {
-    UNICHAR_ID ch = NormalizeUnicharIdForMatch(word1.unichar_id(i));
-    bigram_string += uchset.get_isdigit(ch) ? "?" : uchset.id_to_unichar(ch);
+    const GenericVector<UNICHAR_ID>& normed_ids =
+        getUnicharset().normed_ids(word1.unichar_id(i));
+    if (normed_ids.size() == 1 && uchset.get_isdigit(normed_ids[0]))
+      bigram_string.push_back(question_unichar_id_);
+    else
+      bigram_string += normed_ids;
   }
-  bigram_string += " ";
+  bigram_string.push_back(UNICHAR_SPACE);
   for (int i = w2start; i < w2end; i++) {
-    UNICHAR_ID ch = NormalizeUnicharIdForMatch(word2.unichar_id(i));
-    bigram_string += uchset.get_isdigit(ch) ? "?" : uchset.id_to_unichar(ch);
+    const GenericVector<UNICHAR_ID>& normed_ids =
+        getUnicharset().normed_ids(word2.unichar_id(i));
+    if (normed_ids.size() == 1 && uchset.get_isdigit(normed_ids[0]))
+      bigram_string.push_back(question_unichar_id_);
+    else
+      bigram_string += normed_ids;
   }
-  WERD_CHOICE normalized_word(bigram_string.string(), uchset);
+  WERD_CHOICE normalized_word(&uchset, bigram_string.size());
+  for (int i = 0; i < bigram_string.size(); ++i) {
+    normalized_word.append_unichar_id_space_allocated(bigram_string[i], 1,
+                                                      0.0f, 0.0f);
+  }
   return bigram_dawg_->word_in_dawg(normalized_word);
 }
 
@@ -902,39 +804,5 @@ bool Dict::valid_punctuation(const WERD_CHOICE &word) {
   return false;
 }
 
-// Returns the "dominant" script ID for the word.  By "dominant", the script
-// must account for at least half the characters.  Otherwise, it returns 0.
-// Note that for Japanese, Hiragana and Katakana are simply treated as Han.
-int Dict::get_top_word_script(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                              const UNICHARSET &unicharset) {
-  int max_script = unicharset.get_script_table_size();
-  int *sid = new int[max_script];
-  int x;
-  for (x = 0; x < max_script; x++) sid[x] = 0;
-  for (x = 0; x < char_choices.length(); ++x) {
-    BLOB_CHOICE_IT blob_choice_it(char_choices.get(x));
-    sid[blob_choice_it.data()->script_id()]++;
-  }
-  if (unicharset.han_sid() != unicharset.null_sid()) {
-    // Add the Hiragana & Katakana counts to Han and zero them out.
-    if (unicharset.hiragana_sid() != unicharset.null_sid()) {
-      sid[unicharset.han_sid()] += sid[unicharset.hiragana_sid()];
-      sid[unicharset.hiragana_sid()] = 0;
-    }
-    if (unicharset.katakana_sid() != unicharset.null_sid()) {
-      sid[unicharset.han_sid()] += sid[unicharset.katakana_sid()];
-      sid[unicharset.katakana_sid()] = 0;
-    }
-  }
-  // Note that high script ID overrides lower one on a tie, thus biasing
-  // towards non-Common script (if sorted that way in unicharset file).
-  int max_sid = 0;
-  for (x = 1; x < max_script; x++)
-    if (sid[x] >= sid[max_sid]) max_sid = x;
-  if (sid[max_sid] < char_choices.length() / 2)
-    max_sid = unicharset.null_sid();
-  delete[] sid;
-  return max_sid;
-}
 
 }  // namespace tesseract

@@ -1,5 +1,8 @@
 dir = @datadir@/tessdata
 
+data_DATA = pdf.ttf pdf.ttx
+EXTRA_DIST = $(data_DATA)
+
 SUBDIRS = configs tessconfigs
 
 langdata = bul.traineddata mlt.traineddata chr.traineddata \
@@ -47,7 +50,7 @@ install-langs:
 	@if test "${LANGS}" != ""; then \
 		for lang_code in ${LANGS}; do \
 			echo "installing data for $$lang_code"; \
-			$(INSTALL) -m 644 $$lang_code.* $(DESTDIR)$(datadir); \
+			$(INSTALL) -m 644 $(srcdir)/$$lang_code.* $(DESTDIR)$(datadir); \
 		done; \
 	else \
 		for l in ./*.traineddata; do \
@@ -58,10 +61,10 @@ install-langs:
 				break; \
 			fi; \
 			echo "installing data for $$lang_code"; \
-			$(INSTALL) -m 644 $$lang_code.* $(DESTDIR)$(datadir); \
+			$(INSTALL) -m 644 $(srcdir)/$$lang_code.* $(DESTDIR)$(datadir); \
 		done; \
 	fi;
 
 uninstall-local:
 	cd $(DESTDIR)$(datadir); \
-	rm --force $(langdata)
+	rm -f $(langdata)

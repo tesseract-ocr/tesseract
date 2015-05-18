@@ -56,7 +56,9 @@ class SortHelper {
   }
 
   // Constructor takes a hint of the array size, but it need not be accurate.
-  explicit SortHelper(int sizehint) : counts_(sizehint) {}
+  explicit SortHelper(int sizehint) {
+    counts_.reserve(sizehint);
+  }
 
   // Add a value that may be a duplicate of an existing value.
   // Uses a linear search.

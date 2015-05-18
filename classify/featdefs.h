@@ -46,7 +46,7 @@ struct CHAR_DESC_STRUCT {
 typedef CHAR_DESC_STRUCT *CHAR_DESC;
 
 struct FEATURE_DEFS_STRUCT {
-  uinT32 NumFeatureTypes;
+  inT32 NumFeatureTypes;
   const FEATURE_DESC_STRUCT* FeatureDesc[NUM_FEATURE_TYPES];
   const FEATURE_EXT_STRUCT* FeatureExtractors[NUM_FEATURE_TYPES];
   int FeatureEnabled[NUM_FEATURE_TYPES];

@@ -26,6 +26,7 @@
 #include          "rect.h"
 
 class ROW;
+struct Pix;
 
 class QSPLINE
 {
@@ -79,6 +80,10 @@ class QSPLINE
               ScrollView* window,         //in window
               ScrollView::Color colour) const;  //in colour
 #endif
+
+    // Paint the baseline over pix. If pix has depth of 32, then the line will
+    // be painted in red. Otherwise it will be painted in black.
+    void plot(Pix* pix) const;
 
     QSPLINE & operator= (
       const QSPLINE & source);   //from this

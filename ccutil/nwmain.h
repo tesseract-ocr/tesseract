@@ -22,7 +22,6 @@
 
 #include          "host.h"
 #include          "params.h"
-#include          "notdll.h"     //must be last include
 
 #define DECLARE_MAIN(ARGC,ARGV)\
 STRING_VAR(init_config_file,"config","Config file to read on startup");\

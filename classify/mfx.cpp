@@ -59,7 +59,9 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
 ----------------------------------------------------------------------------**/
 
 /*---------------------------------------------------------------------------*/
-CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM& denorm) {
+CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM& bl_denorm,
+                                const DENORM& cn_denorm,
+                                const INT_FX_RESULT_STRUCT& fx_info) {
 /*
  **      Parameters:
  **              Blob            blob to extract micro-features from
@@ -74,35 +76,25 @@ CHAR_FEATURES BlobMicroFeatures(TBLOB *Blob, const DENORM& denorm) {
  **      History: 7/21/89, DSJ, Created.
  */
   MICROFEATURES MicroFeatures = NIL_LIST;
-  FLOAT32 XScale, YScale;
   LIST Outlines;
   LIST RemainingOutlines;
   MFOUTLINE Outline;
-  INT_FEATURE_ARRAY blfeatures;
-  INT_FEATURE_ARRAY cnfeatures;
-  INT_FX_RESULT_STRUCT results;
 
   if (Blob != NULL) {
-    Outlines = ConvertBlob (Blob);
-    if (!ExtractIntFeat(Blob, denorm, blfeatures, cnfeatures, &results))
-      return NULL;
-    XScale = 0.2f / results.Ry;
-    YScale = 0.2f / results.Rx;
+    Outlines = ConvertBlob(Blob);
 
     RemainingOutlines = Outlines;
     iterate(RemainingOutlines) {
       Outline = (MFOUTLINE) first_node (RemainingOutlines);
-      CharNormalizeOutline (Outline,
-        results.Xmean, results.Ymean,
-        XScale, YScale);
+      CharNormalizeOutline(Outline, cn_denorm);
     }
 
     RemainingOutlines = Outlines;
     iterate(RemainingOutlines) {
-      Outline = (MFOUTLINE) first_node (RemainingOutlines);
+      Outline = (MFOUTLINE) first_node(RemainingOutlines);
       FindDirectionChanges(Outline, classify_min_slope, classify_max_slope);
       MarkDirectionChanges(Outline);
-      MicroFeatures = ConvertToMicroFeatures (Outline, MicroFeatures);
+      MicroFeatures = ConvertToMicroFeatures(Outline, MicroFeatures);
     }
     FreeOutlines(Outlines);
   }

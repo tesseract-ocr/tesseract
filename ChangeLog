@@ -1,3 +1,22 @@
+2014-02-04 v3.03
+* Added new training tool text2image to generate box/tif file pairs from
+  text and truetype fonts.
+* Added support for PDF output with searchable text.
+* Removed entire IMAGE class and all code in image directory.
+* Tesseract executable: support for output to stdout; limited support for one 
+  page images from stdin  (especially on Windows)
+* Added Renderer to API to allow document-level processing and output
+  of document formats, like hOCR, PDF.
+* Major refactor of word-level recognition, beam search, eliminating dead code.
+* Refactored classifier to make it easier to add new ones.
+* Generalized feature extractor to allow feature extraction from greyscale.
+* Improved sub/superscript treatment.
+* Improved baseline fit.
+* Added set_unicharset_properties to training tools.
+* Many bug fixes.
+* More training source data included.
+
+
 2012-02-01 - v3.02
   * Moved ResultIterator/PageIterator to ccmain.
   * Added Right-to-left/Bidi capability in the output iterators for Hebrew/Arabic.
@@ -86,20 +105,6 @@
     349, 352: thanks to nguyenq87, max.markin, zdenop)
   * Fixed a number of errors in newer (stricter) versions of VC++ (Issues 
     301, among others)
-
-2010-07-19  gettextize  <bug-gnu-gettext@gnu.org>
-
-	* m4/gettext.m4: New file, from gettext-0.17.
-	* m4/iconv.m4: New file, from gettext-0.17.
-	* m4/lib-ld.m4: New file, from gettext-0.17.
-	* m4/lib-link.m4: New file, from gettext-0.17.
-	* m4/lib-prefix.m4: New file, from gettext-0.17.
-	* m4/nls.m4: New file, from gettext-0.17.
-	* m4/po.m4: New file, from gettext-0.17.
-	* m4/progtest.m4: New file, from gettext-0.17.
-	* Makefile.am (SUBDIRS): Add po.
-	(EXTRA_DIST): Add config/config.rpath.
-	* configure.ac (AC_CONFIG_FILES): Add po/Makefile.in.
 
 June  2006 - V1.0 of open source Tesseract checked-in.
 Sep 7 2006 - V1.01.

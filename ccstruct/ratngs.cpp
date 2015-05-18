@@ -17,16 +17,40 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "ratngs.h"
 
+#include "blobs.h"
 #include "callcpp.h"
 #include "genericvector.h"
+#include "matrix.h"
+#include "normalis.h"  // kBlnBaselineOffset.
 #include "unicharset.h"
 
-ELISTIZE (BLOB_CHOICE) CLISTIZE (BLOB_CHOICE_LIST) CLISTIZE (WERD_CHOICE);
+using tesseract::ScriptPos;
+
+ELISTIZE(BLOB_CHOICE);
+ELISTIZE(WERD_CHOICE);
 
 const float WERD_CHOICE::kBadRating = 100000.0;
+// Min offset in baseline-normalized coords to make a character a subscript.
+const int kMinSubscriptOffset = 20;
+// Min offset in baseline-normalized coords to make a character a superscript.
+const int kMinSuperscriptOffset = 20;
+// Max y of bottom of a drop-cap blob.
+const int kMaxDropCapBottom = -128;
+// Max fraction of x-height to use as denominator in measuring x-height overlap.
+const double kMaxOverlapDenominator = 0.125;
+// Min fraction of x-height range that should be in agreement for matching
+// x-heights.
+const double kMinXHeightMatch = 0.5;
+// Max tolerance on baseline position as a fraction of x-height for matching
+// baselines.
+const double kMaxBaselineDrift = 0.0625;
 
 static const char kPermuterTypeNoPerm[] = "None";
 static const char kPermuterTypePuncPerm[] = "Punctuation";
@@ -69,20 +93,20 @@ BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
                          inT16 src_fontinfo_id,     // font
                          inT16 src_fontinfo_id2,    // 2nd choice font
                          int src_script_id,        // script
-                         inT16 min_xheight,        // min xheight allowed
-                         inT16 max_xheight,        // max xheight by this char
-                         bool adapted              // adapted match or not
-                        ) {
+                         float min_xheight,        // min xheight allowed
+                         float max_xheight,        // max xheight by this char
+                         float yshift,             // yshift out of position
+                         BlobChoiceClassifier c) {  // adapted match or other
   unichar_id_ = src_unichar_id;
   rating_ = src_rating;
   certainty_ = src_cert;
   fontinfo_id_ = src_fontinfo_id;
   fontinfo_id2_ = src_fontinfo_id2;
   script_id_ = src_script_id;
-  language_model_state_ = NULL;
   min_xheight_ = min_xheight;
   max_xheight_ = max_xheight;
-  adapted_ = adapted;
+  yshift_ = yshift;
+  classifier_ = c;
 }
 
 /**
@@ -97,11 +121,74 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) {
   fontinfo_id_ = other.fontinfo_id();
   fontinfo_id2_ = other.fontinfo_id2();
   script_id_ = other.script_id();
-  language_model_state_ = NULL;
+  matrix_cell_ = other.matrix_cell_;
   min_xheight_ = other.min_xheight_;
   max_xheight_ = other.max_xheight_;
-  adapted_ = other.adapted_;
+  yshift_ = other.yshift();
+  classifier_ = other.classifier_;
 }
+
+// Returns true if *this and other agree on the baseline and x-height
+// to within some tolerance based on a given estimate of the x-height.
+bool BLOB_CHOICE::PosAndSizeAgree(const BLOB_CHOICE& other, float x_height,
+                                  bool debug) const {
+  double baseline_diff = fabs(yshift() - other.yshift());
+  if (baseline_diff > kMaxBaselineDrift * x_height) {
+    if (debug) {
+      tprintf("Baseline diff %g for %d v %d\n",
+              baseline_diff, unichar_id_, other.unichar_id_);
+    }
+    return false;
+  }
+  double this_range = max_xheight() - min_xheight();
+  double other_range = other.max_xheight() - other.min_xheight();
+  double denominator = ClipToRange(MIN(this_range, other_range),
+                                   1.0, kMaxOverlapDenominator * x_height);
+  double overlap = MIN(max_xheight(), other.max_xheight()) -
+                   MAX(min_xheight(), other.min_xheight());
+  overlap /= denominator;
+  if (debug) {
+    tprintf("PosAndSize for %d v %d: bl diff = %g, ranges %g, %g / %g ->%g\n",
+            unichar_id_, other.unichar_id_, baseline_diff,
+            this_range, other_range, denominator, overlap);
+  }
+
+  return overlap >= kMinXHeightMatch;
+}
+
+// Helper to find the BLOB_CHOICE in the bc_list that matches the given
+// unichar_id, or NULL if there is no match.
+BLOB_CHOICE* FindMatchingChoice(UNICHAR_ID char_id,
+                                BLOB_CHOICE_LIST* bc_list) {
+  // Find the corresponding best BLOB_CHOICE.
+  BLOB_CHOICE_IT choice_it(bc_list);
+  for (choice_it.mark_cycle_pt(); !choice_it.cycled_list();
+       choice_it.forward()) {
+    BLOB_CHOICE* choice = choice_it.data();
+    if (choice->unichar_id() == char_id) {
+      return choice;
+    }
+  }
+  return NULL;
+}
+
+const char *WERD_CHOICE::permuter_name(uinT8 permuter) {
+  return kPermuterTypeNames[permuter];
+}
+
+namespace tesseract {
+
+const char *ScriptPosToString(enum ScriptPos script_pos) {
+  switch (script_pos) {
+    case SP_NORMAL: return "NORM";
+    case SP_SUBSCRIPT: return "SUB";
+    case SP_SUPERSCRIPT: return "SUPER";
+    case SP_DROPCAP: return "DROPC";
+  }
+  return "SP_UNKNOWN";
+}
+
+}  // namespace tesseract.
 
 /**
  * WERD_CHOICE::WERD_CHOICE
@@ -112,16 +199,13 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) {
 WERD_CHOICE::WERD_CHOICE(const char *src_string,
                          const UNICHARSET &unicharset)
     : unicharset_(&unicharset){
-  STRING src_lengths;
-  const char *ptr = src_string;
-  const char *end = src_string + strlen(src_string);
-  int step = unicharset.step(ptr);
-  for (; ptr < end && step > 0;
-       step = unicharset.step(ptr), src_lengths += step, ptr += step);
-  if (step != 0 && ptr == end) {
-    this->init(src_string, src_lengths.string(),
-               0.0, 0.0, NO_PERM);
-  } else {  // there must have been an invalid unichar in the string
+  GenericVector<UNICHAR_ID> encoding;
+  GenericVector<char> lengths;
+  if (unicharset.encode_string(src_string, true, &encoding, &lengths, NULL)) {
+    lengths.push_back('\0');
+    STRING src_lengths = &lengths[0];
+    this->init(src_string, src_lengths.string(), 0.0, 0.0, NO_PERM);
+  } else {  // There must have been an invalid unichar in the string.
     this->init(8);
     this->make_bad();
   }
@@ -153,13 +237,16 @@ void WERD_CHOICE::init(const char *src_string,
       int unichar_length = src_lengths ? src_lengths[i] : 1;
       unichar_ids_[i] =
           unicharset_->unichar_to_id(src_string+offset, unichar_length);
-      fragment_lengths_[i] = 1;
+      state_[i] = 1;
+      certainties_[i] = src_certainty;
       offset += unichar_length;
     }
   }
+  adjust_factor_ = 1.0f;
   rating_ = src_rating;
   certainty_ = src_certainty;
   permuter_ = src_permuter;
+  dangerous_ambig_found_ = false;
 }
 
 /**
@@ -167,25 +254,46 @@ void WERD_CHOICE::init(const char *src_string,
  */
 WERD_CHOICE::~WERD_CHOICE() {
   delete[] unichar_ids_;
-  delete[] fragment_lengths_;
-  delete_blob_choices();
+  delete[] script_pos_;
+  delete[] state_;
+  delete[] certainties_;
 }
 
 const char *WERD_CHOICE::permuter_name() const {
   return kPermuterTypeNames[permuter_];
 }
 
-/**
- * WERD_CHOICE::set_blob_choices
- *
- * Delete current blob_choices. Set the blob_choices to the given new
- * list.
- */
-void WERD_CHOICE::set_blob_choices(BLOB_CHOICE_LIST_CLIST *blob_choices) {
-  if (blob_choices_ != blob_choices) {
-    delete_blob_choices();
-    blob_choices_ = blob_choices;
+// Returns the BLOB_CHOICE_LIST corresponding to the given index in the word,
+// taken from the appropriate cell in the ratings MATRIX.
+// Borrowed pointer, so do not delete.
+BLOB_CHOICE_LIST* WERD_CHOICE::blob_choices(int index, MATRIX* ratings) const {
+  MATRIX_COORD coord = MatrixCoord(index);
+  BLOB_CHOICE_LIST* result = ratings->get(coord.col, coord.row);
+  if (result == NULL) {
+    result = new BLOB_CHOICE_LIST;
+    ratings->put(coord.col, coord.row, result);
   }
+  return result;
+}
+
+// Returns the MATRIX_COORD corresponding to the location in the ratings
+// MATRIX for the given index into the word.
+MATRIX_COORD WERD_CHOICE::MatrixCoord(int index) const {
+  int col = 0;
+  for (int i = 0; i < index; ++i)
+    col += state_[i];
+  int row = col + state_[index] - 1;
+  return MATRIX_COORD(col, row);
+}
+
+// Sets the entries for the given index from the BLOB_CHOICE, assuming
+// unit fragment lengths, but setting the state for this index to blob_count.
+void WERD_CHOICE::set_blob_choice(int index, int blob_count,
+                                  const BLOB_CHOICE* blob_choice) {
+  unichar_ids_[index] = blob_choice->unichar_id();
+  script_pos_[index] = tesseract::SP_NORMAL;
+  state_[index] = blob_count;
+  certainties_[index] = blob_choice->certainty();
 }
 
 
@@ -212,9 +320,18 @@ bool WERD_CHOICE::contains_unichar_id(UNICHAR_ID unichar_id) const {
  */
 void WERD_CHOICE::remove_unichar_ids(int start, int num) {
   ASSERT_HOST(start >= 0 && start + num <= length_);
-  for (int i = start; i+num < length_; ++i) {
-    unichar_ids_[i] = unichar_ids_[i+num];
-    fragment_lengths_[i] = fragment_lengths_[i+num];
+  // Accumulate the states to account for the merged blobs.
+  for (int i = 0; i < num; ++i) {
+    if (start > 0)
+      state_[start - 1] += state_[start + i];
+    else if (start + num < length_)
+      state_[start + num] += state_[start + i];
+  }
+  for (int i = start; i + num < length_; ++i) {
+    unichar_ids_[i] = unichar_ids_[i + num];
+    script_pos_[i] = script_pos_[i + num];
+    state_[i] = state_[i + num];
+    certainties_[i] = certainties_[i + num];
   }
   length_ -= num;
 }
@@ -225,7 +342,7 @@ void WERD_CHOICE::remove_unichar_ids(int start, int num) {
  * Reverses and mirrors unichars in unichar_ids.
  */
 void WERD_CHOICE::reverse_and_mirror_unichar_ids() {
-  for (int i = 0; i < length_/2; ++i) {
+  for (int i = 0; i < length_ / 2; ++i) {
     UNICHAR_ID tmp_id = unichar_ids_[i];
     unichar_ids_[i] = unicharset_->get_mirror(unichar_ids_[length_-1-i]);
     unichar_ids_[length_-1-i] = unicharset_->get_mirror(tmp_id);
@@ -256,6 +373,23 @@ void WERD_CHOICE::punct_stripped(int *start, int *end) const {
   (*end)++;
 }
 
+void WERD_CHOICE::GetNonSuperscriptSpan(int *pstart, int *pend) const {
+  int end = length();
+  while (end > 0 &&
+         unicharset_->get_isdigit(unichar_ids_[end - 1]) &&
+         BlobPosition(end - 1) == tesseract::SP_SUPERSCRIPT) {
+    end--;
+  }
+  int start = 0;
+  while (start < end &&
+         unicharset_->get_isdigit(unichar_ids_[start]) &&
+         BlobPosition(start) == tesseract::SP_SUPERSCRIPT) {
+    start++;
+  }
+  *pstart = start;
+  *pend = end;
+}
+
 WERD_CHOICE WERD_CHOICE::shallow_copy(int start, int end) const {
   ASSERT_HOST(start >= 0 && start <= length_);
   ASSERT_HOST(end >= 0 && end <= length_);
@@ -263,7 +397,7 @@ WERD_CHOICE WERD_CHOICE::shallow_copy(int start, int end) const {
   WERD_CHOICE retval(unicharset_, end - start);
   for (int i = start; i < end; i++) {
     retval.append_unichar_id_space_allocated(
-        unichar_ids_[i], fragment_lengths_[i], 0.0f, 0.0f);
+        unichar_ids_[i], state_[i], 0.0f, certainties_[i]);
   }
   return retval;
 }
@@ -311,12 +445,12 @@ void WERD_CHOICE::string_and_lengths(STRING *word_str,
  * and call append_unichar_id_space_allocated().
  */
 void WERD_CHOICE::append_unichar_id(
-    UNICHAR_ID unichar_id, char fragment_length,
+    UNICHAR_ID unichar_id, int blob_count,
     float rating, float certainty) {
   if (length_ == reserved_) {
     this->double_the_size();
   }
-  this->append_unichar_id_space_allocated(unichar_id, fragment_length,
+  this->append_unichar_id_space_allocated(unichar_id, blob_count,
                                           rating, certainty);
 }
 
@@ -328,58 +462,30 @@ void WERD_CHOICE::append_unichar_id(
  * If the permuters are NOT the same the permuter is set to COMPOUND_PERM
  */
 WERD_CHOICE & WERD_CHOICE::operator+= (const WERD_CHOICE & second) {
-  // TODO(daria): find out why the choice was cleared this way if any
-  // of the pieces are empty. Add the description of this behavior
-  // to the comments.
-  // if (word_string.length () == 0 || second.word_string.length () == 0) {
-  //   word_string = NULL;          //make it empty
-  //   word_lengths = NULL;
-  //   delete_blob_choices();
-  // } else {
   ASSERT_HOST(unicharset_ == second.unicharset_);
   while (reserved_ < length_ + second.length()) {
     this->double_the_size();
   }
   const UNICHAR_ID *other_unichar_ids = second.unichar_ids();
-  const char *other_fragment_lengths = second.fragment_lengths();
   for (int i = 0; i < second.length(); ++i) {
     unichar_ids_[length_ + i] = other_unichar_ids[i];
-    fragment_lengths_[length_ + i] = other_fragment_lengths[i];
+    state_[length_ + i] = second.state_[i];
+    certainties_[length_ + i] = second.certainties_[i];
+    script_pos_[length_ + i] = second.BlobPosition(i);
   }
   length_ += second.length();
+  if (second.adjust_factor_ > adjust_factor_)
+    adjust_factor_ = second.adjust_factor_;
   rating_ += second.rating();  // add ratings
   if (second.certainty() < certainty_) // take min
     certainty_ = second.certainty();
+  if (second.dangerous_ambig_found_)
+    dangerous_ambig_found_ = true;
   if (permuter_ == NO_PERM) {
     permuter_ = second.permuter();
   } else if (second.permuter() != NO_PERM &&
              second.permuter() != permuter_) {
     permuter_ = COMPOUND_PERM;
-  }
-
-  // Append a deep copy of second blob_choices if it exists.
-  if (second.blob_choices_ != NULL) {
-    if (this->blob_choices_ == NULL)
-      this->blob_choices_ = new BLOB_CHOICE_LIST_CLIST;
-
-    BLOB_CHOICE_LIST_C_IT this_blob_choices_it;
-    BLOB_CHOICE_LIST_C_IT second_blob_choices_it;
-
-    this_blob_choices_it.set_to_list(this->blob_choices_);
-    this_blob_choices_it.move_to_last();
-
-    second_blob_choices_it.set_to_list(second.blob_choices_);
-
-    for (second_blob_choices_it.mark_cycle_pt();
-         !second_blob_choices_it.cycled_list();
-         second_blob_choices_it.forward()) {
-
-      BLOB_CHOICE_LIST* blob_choices_copy = new BLOB_CHOICE_LIST();
-      blob_choices_copy->deep_copy(second_blob_choices_it.data(),
-                                   &BLOB_CHOICE::deep_copy);
-
-      this_blob_choices_it.add_after_then_move(blob_choices_copy);
-    }
   }
   return *this;
 }
@@ -398,55 +504,203 @@ WERD_CHOICE& WERD_CHOICE::operator=(const WERD_CHOICE& source) {
 
   unicharset_ = source.unicharset_;
   const UNICHAR_ID *other_unichar_ids = source.unichar_ids();
-  const char *other_fragment_lengths = source.fragment_lengths();
   for (int i = 0; i < source.length(); ++i) {
     unichar_ids_[i] = other_unichar_ids[i];
-    fragment_lengths_[i] = other_fragment_lengths[i];
+    state_[i] = source.state_[i];
+    certainties_[i] = source.certainties_[i];
+    script_pos_[i] = source.BlobPosition(i);
   }
   length_ = source.length();
+  adjust_factor_ = source.adjust_factor_;
   rating_ = source.rating();
   certainty_ = source.certainty();
+  min_x_height_ = source.min_x_height();
+  max_x_height_ = source.max_x_height();
   permuter_ = source.permuter();
-  fragment_mark_ = source.fragment_mark();
-
-  // Delete existing blob_choices
-  this->delete_blob_choices();
-
-  // Deep copy blob_choices of source
-  if (source.blob_choices_ != NULL) {
-    BLOB_CHOICE_LIST_C_IT this_blob_choices_it;
-    BLOB_CHOICE_LIST_C_IT source_blob_choices_it;
-
-    this->blob_choices_ = new BLOB_CHOICE_LIST_CLIST();
-
-    this_blob_choices_it.set_to_list(this->blob_choices_);
-    source_blob_choices_it.set_to_list(source.blob_choices_);
-
-    for (source_blob_choices_it.mark_cycle_pt();
-         !source_blob_choices_it.cycled_list();
-         source_blob_choices_it.forward()) {
-
-      BLOB_CHOICE_LIST* blob_choices_copy = new BLOB_CHOICE_LIST();
-      blob_choices_copy->deep_copy(source_blob_choices_it.data(),
-                                   &BLOB_CHOICE::deep_copy);
-
-      this_blob_choices_it.add_after_then_move(blob_choices_copy);
-    }
-  }
+  dangerous_ambig_found_ = source.dangerous_ambig_found_;
   return *this;
 }
 
-/**********************************************************************
- * WERD_CHOICE::delete_blob_choices
- *
- * Clear the blob_choices list, delete it and set it to NULL.
- **********************************************************************/
-void WERD_CHOICE::delete_blob_choices() {
-  if (blob_choices_ != NULL) {
-    blob_choices_->deep_clear();
-    delete blob_choices_;
-    blob_choices_ = NULL;
+// Sets up the script_pos_ member using the blobs_list to get the bln
+// bounding boxes, *this to get the unichars, and this->unicharset
+// to get the target positions. If small_caps is true, sub/super are not
+// considered, but dropcaps are.
+// NOTE: blobs_list should be the chopped_word blobs. (Fully segemented.)
+void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD* word) {
+  // Since WERD_CHOICE isn't supposed to depend on a Tesseract,
+  // we don't have easy access to the flags Tesseract stores.  Therefore, debug
+  // for this module is hard compiled in.
+  int debug = 0;
+
+  // Initialize to normal.
+  for (int i = 0; i < length_; ++i)
+    script_pos_[i] = tesseract::SP_NORMAL;
+  if (word->blobs.empty() || word->NumBlobs() != TotalOfStates()) {
+    return;
   }
+
+  int position_counts[4];
+  for (int i = 0; i < 4; i++) {
+    position_counts[i] = 0;
+  }
+
+  int chunk_index = 0;
+  for (int blob_index = 0; blob_index < length_; ++blob_index, ++chunk_index) {
+    TBLOB* tblob = word->blobs[chunk_index];
+    int uni_id = unichar_id(blob_index);
+    TBOX blob_box = tblob->bounding_box();
+    if (state_ != NULL) {
+      for (int i = 1; i <  state_[blob_index]; ++i) {
+        ++chunk_index;
+        tblob = word->blobs[chunk_index];
+        blob_box += tblob->bounding_box();
+      }
+    }
+    script_pos_[blob_index] = ScriptPositionOf(false, *unicharset_, blob_box,
+                                               uni_id);
+    if (small_caps && script_pos_[blob_index] != tesseract::SP_DROPCAP) {
+      script_pos_[blob_index] = tesseract::SP_NORMAL;
+    }
+    position_counts[script_pos_[blob_index]]++;
+  }
+  // If almost everything looks like a superscript or subscript,
+  // we most likely just got the baseline wrong.
+  if (position_counts[tesseract::SP_SUBSCRIPT] > 0.75 * length_ ||
+      position_counts[tesseract::SP_SUPERSCRIPT] > 0.75 * length_) {
+    if (debug >= 2) {
+      tprintf("Most characters of %s are subscript or superscript.\n"
+              "That seems wrong, so I'll assume we got the baseline wrong\n",
+              unichar_string().string());
+    }
+    for (int i = 0; i < length_; i++) {
+      ScriptPos sp = script_pos_[i];
+      if (sp == tesseract::SP_SUBSCRIPT || sp == tesseract::SP_SUPERSCRIPT) {
+        position_counts[sp]--;
+        position_counts[tesseract::SP_NORMAL]++;
+        script_pos_[i] = tesseract::SP_NORMAL;
+      }
+    }
+  }
+
+  if ((debug >= 1 && position_counts[tesseract::SP_NORMAL] < length_) ||
+      debug >= 2) {
+    tprintf("SetScriptPosition on %s\n", unichar_string().string());
+    int chunk_index = 0;
+    for (int blob_index = 0; blob_index < length_; ++blob_index) {
+      if (debug >= 2 || script_pos_[blob_index] != tesseract::SP_NORMAL) {
+        TBLOB* tblob = word->blobs[chunk_index];
+        ScriptPositionOf(true, *unicharset_, tblob->bounding_box(),
+                         unichar_id(blob_index));
+      }
+      chunk_index += state_ != NULL ? state_[blob_index] : 1;
+    }
+  }
+}
+// Sets the script_pos_ member from some source positions with a given length.
+void WERD_CHOICE::SetScriptPositions(const tesseract::ScriptPos* positions,
+                                     int length) {
+  ASSERT_HOST(length == length_);
+  if (positions != script_pos_) {
+    delete [] script_pos_;
+    script_pos_ = new ScriptPos[length];
+    memcpy(script_pos_, positions, sizeof(positions[0]) * length);
+  }
+}
+// Sets all the script_pos_ positions to the given position.
+void WERD_CHOICE::SetAllScriptPositions(tesseract::ScriptPos position) {
+  for (int i = 0; i < length_; ++i)
+    script_pos_[i] = position;
+}
+
+/* static */
+ScriptPos WERD_CHOICE::ScriptPositionOf(bool print_debug,
+                                        const UNICHARSET& unicharset,
+                                        const TBOX& blob_box,
+                                        UNICHAR_ID unichar_id) {
+  ScriptPos retval = tesseract::SP_NORMAL;
+  int top = blob_box.top();
+  int bottom = blob_box.bottom();
+  int min_bottom, max_bottom, min_top, max_top;
+  unicharset.get_top_bottom(unichar_id,
+                            &min_bottom, &max_bottom,
+                            &min_top, &max_top);
+
+  int sub_thresh_top = min_top - kMinSubscriptOffset;
+  int sub_thresh_bot = kBlnBaselineOffset - kMinSubscriptOffset;
+  int sup_thresh_bot = max_bottom + kMinSuperscriptOffset;
+  if (bottom <= kMaxDropCapBottom) {
+    retval = tesseract::SP_DROPCAP;
+  } else if (top < sub_thresh_top && bottom < sub_thresh_bot) {
+    retval = tesseract::SP_SUBSCRIPT;
+  } else if (bottom > sup_thresh_bot) {
+    retval = tesseract::SP_SUPERSCRIPT;
+  }
+
+  if (print_debug) {
+    const char *pos = ScriptPosToString(retval);
+    tprintf("%s Character %s[bot:%d top: %d]  "
+            "bot_range[%d,%d]  top_range[%d, %d] "
+            "sub_thresh[bot:%d top:%d]  sup_thresh_bot %d\n",
+            pos, unicharset.id_to_unichar(unichar_id),
+            bottom, top,
+            min_bottom, max_bottom, min_top, max_top,
+            sub_thresh_bot, sub_thresh_top,
+            sup_thresh_bot);
+  }
+  return retval;
+}
+
+// Returns the script-id (eg Han) of the dominant script in the word.
+int WERD_CHOICE::GetTopScriptID() const {
+  int max_script = unicharset_->get_script_table_size();
+  int *sid = new int[max_script];
+  int x;
+  for (x = 0; x < max_script; x++) sid[x] = 0;
+  for (x = 0; x < length_; ++x) {
+    int script_id = unicharset_->get_script(unichar_id(x));
+    sid[script_id]++;
+  }
+  if (unicharset_->han_sid() != unicharset_->null_sid()) {
+    // Add the Hiragana & Katakana counts to Han and zero them out.
+    if (unicharset_->hiragana_sid() != unicharset_->null_sid()) {
+      sid[unicharset_->han_sid()] += sid[unicharset_->hiragana_sid()];
+      sid[unicharset_->hiragana_sid()] = 0;
+    }
+    if (unicharset_->katakana_sid() != unicharset_->null_sid()) {
+      sid[unicharset_->han_sid()] += sid[unicharset_->katakana_sid()];
+      sid[unicharset_->katakana_sid()] = 0;
+    }
+  }
+  // Note that high script ID overrides lower one on a tie, thus biasing
+  // towards non-Common script (if sorted that way in unicharset file).
+  int max_sid = 0;
+  for (x = 1; x < max_script; x++)
+    if (sid[x] >= sid[max_sid]) max_sid = x;
+  if (sid[max_sid] < length_ / 2)
+    max_sid = unicharset_->null_sid();
+  delete[] sid;
+  return max_sid;
+}
+
+// Fixes the state_ for a chop at the given blob_posiiton.
+void WERD_CHOICE::UpdateStateForSplit(int blob_position) {
+  int total_chunks = 0;
+  for (int i = 0; i < length_; ++i) {
+    total_chunks += state_[i];
+    if (total_chunks > blob_position) {
+      ++state_[i];
+      return;
+    }
+  }
+}
+
+// Returns the sum of all the state elements, being the total number of blobs.
+int WERD_CHOICE::TotalOfStates() const {
+  int total_chunks = 0;
+  for (int i = 0; i < length_; ++i) {
+    total_chunks += state_[i];
+  }
+  return total_chunks;
 }
 
 /**
@@ -454,31 +708,86 @@ void WERD_CHOICE::delete_blob_choices() {
  *
  * Print WERD_CHOICE to stdout.
  */
-const void WERD_CHOICE::print(const char *msg) const {
-  tprintf("%s WERD_CHOICE:\n", msg);
-  tprintf("length_ %d reserved_ %d permuter_ %d\n",
-         length_, reserved_, permuter_);
-  tprintf("rating_ %.4f certainty_ %.4f", rating_, certainty_);
-  if (fragment_mark_) {
-    tprintf(" fragment_mark_ true");
+void WERD_CHOICE::print(const char *msg) const {
+  tprintf("%s : ", msg);
+  for (int i = 0; i < length_; ++i) {
+    tprintf("%s", unicharset_->id_to_unichar(unichar_ids_[i]));
+  }
+  tprintf(" : R=%g, C=%g, F=%g, Perm=%d, xht=[%g,%g], ambig=%d\n",
+          rating_, certainty_, adjust_factor_, permuter_,
+          min_x_height_, max_x_height_, dangerous_ambig_found_);
+  tprintf("pos");
+  for (int i = 0; i < length_; ++i) {
+    tprintf("\t%s", ScriptPosToString(script_pos_[i]));
+  }
+  tprintf("\nstr");
+  for (int i = 0; i < length_; ++i) {
+    tprintf("\t%s", unicharset_->id_to_unichar(unichar_ids_[i]));
+  }
+  tprintf("\nstate:");
+  for (int i = 0; i < length_; ++i) {
+    tprintf("\t%d ", state_[i]);
+  }
+  tprintf("\nC");
+  for (int i = 0; i < length_; ++i) {
+    tprintf("\t%.3f", certainties_[i]);
   }
   tprintf("\n");
-  if (unichar_string_.length() > 0) {
-    tprintf("unichar_string_ %s unichar_lengths_ %s\n",
-            unichar_string_.string(), unichar_lengths_.string());
-  }
-  tprintf("unichar_ids: ");
-  int i;
-  for (i = 0; i < length_; ++i) {
-    tprintf("%d ", unichar_ids_[i]);
-  }
-  tprintf("\nfragment_lengths_: ");
-  for (i = 0; i < length_; ++i) {
-    tprintf("%d ", fragment_lengths_[i]);
-  }
-  tprintf("\n");
-  fflush(stdout);
 }
+
+// Prints the segmentation state with an introductory message.
+void WERD_CHOICE::print_state(const char *msg) const {
+  tprintf("%s", msg);
+  for (int i = 0; i < length_; ++i)
+    tprintf(" %d", state_[i]);
+  tprintf("\n");
+}
+
+// Displays the segmentation state of *this (if not the same as the last
+// one displayed) and waits for a click in the window.
+void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
+#ifndef GRAPHICS_DISABLED
+  // Number of different colors to draw with.
+  const int kNumColors = 6;
+  static ScrollView *segm_window = NULL;
+  // Check the state against the static prev_drawn_state.
+  static GenericVector<int> prev_drawn_state;
+  bool already_done = prev_drawn_state.size() == length_;
+  if (!already_done) prev_drawn_state.init_to_size(length_, 0);
+  for (int i = 0; i < length_; ++i) {
+    if (prev_drawn_state[i] != state_[i]) {
+      already_done = false;
+    }
+    prev_drawn_state[i] = state_[i];
+  }
+  if (already_done || word->blobs.empty()) return;
+
+  // Create the window if needed.
+  if (segm_window == NULL) {
+    segm_window = new ScrollView("Segmentation", 5, 10, 500, 256,
+                                 2000.0, 256.0, true);
+  } else {
+    segm_window->Clear();
+  }
+
+  TBOX bbox;
+  int blob_index = 0;
+  for (int c = 0; c < length_; ++c) {
+    ScrollView::Color color =
+        static_cast<ScrollView::Color>(c % kNumColors + 3);
+    for (int i = 0; i < state_[c]; ++i, ++blob_index) {
+      TBLOB* blob = word->blobs[blob_index];
+      bbox += blob->bounding_box();
+      blob->plot(segm_window, color, color);
+    }
+  }
+  segm_window->ZoomToRectangle(bbox.left(), bbox.top(),
+                               bbox.right(), bbox.bottom());
+  segm_window->Update();
+  window_wait(segm_window);
+#endif
+}
+
 
 bool EqualIgnoringCaseAndTerminalPunct(const WERD_CHOICE &word1,
                                        const WERD_CHOICE &word2) {
@@ -526,115 +835,4 @@ void print_ratings_list(const char *msg,
   }
   tprintf("\n");
   fflush(stdout);
-}
-
-/**
- * print_ratings_list
- *
- * Print ratings list (unichar ids only).
- */
-void print_ratings_list(const char *msg, BLOB_CHOICE_LIST *ratings) {
-  if (ratings->length() == 0) {
-    tprintf("%s:<none>\n", msg);
-    return;
-  }
-  if (*msg != '\0') {
-    tprintf("%s\n", msg);
-  }
-  BLOB_CHOICE_IT c_it;
-  c_it.set_to_list(ratings);
-  for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward()) {
-    c_it.data()->print(NULL);
-    if (!c_it.at_last()) tprintf("\n");
-  }
-  tprintf("\n");
-  fflush(stdout);
-}
-
-/**
- * print_ratings_info
- *
- * Send all the ratings out to the logfile.
- *
- * @param fp file to use
- * @param ratings list of results
- * @param current_unicharset unicharset that can be used
- * for id-to-unichar conversion
- */
-void print_ratings_info(FILE *fp,
-                        BLOB_CHOICE_LIST *ratings,
-                        const UNICHARSET &current_unicharset) {
-  inT32 index;                    // to list
-  const char* first_char = NULL;  // character
-  FLOAT32 first_rat;              // rating
-  FLOAT32 first_cert;             // certainty
-  const char* sec_char = NULL;    // character
-  FLOAT32 sec_rat = 0.0f;         // rating
-  FLOAT32 sec_cert = 0.0f;        // certainty
-  BLOB_CHOICE_IT c_it = ratings;  // iterator
-
-  index = ratings->length();
-  if (index > 0) {
-    first_char = current_unicharset.id_to_unichar(c_it.data()->unichar_id());
-    first_rat = c_it.data()->rating();
-    first_cert = -c_it.data()->certainty();
-    if (index > 1) {
-      sec_char = current_unicharset.id_to_unichar(
-          c_it.data_relative(1)->unichar_id());
-      sec_rat = c_it.data_relative(1)->rating();
-      sec_cert = -c_it.data_relative(1)->certainty();
-    } else {
-      sec_char = NULL;
-      sec_rat = -1;
-      sec_cert = -1;
-    }
-  } else {
-    first_char = NULL;
-    first_rat = -1;
-    first_cert = -1;
-  }
-  if (first_char != NULL && (*first_char == '\0' || *first_char == ' '))
-    first_char = NULL;
-  if (sec_char != NULL && (*sec_char == '\0' || *sec_char == ' '))
-    sec_char = NULL;
-  tprintf(" " INT32FORMAT " %s %g %g %s %g %g\n",
-          ratings->length(),
-          first_char != NULL ? first_char : "~",
-          first_rat, first_cert, sec_char != NULL ? sec_char : "~",
-          sec_rat, sec_cert);
-}
-
-/**
- * print_char_choices_list
- */
-void print_char_choices_list(const char *msg,
-                             const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                             const UNICHARSET &current_unicharset,
-                             BOOL8 detailed) {
-  if (*msg != '\0') tprintf("%s\n", msg);
-  for (int x = 0; x < char_choices.length(); ++x) {
-    BLOB_CHOICE_IT c_it;
-    c_it.set_to_list(char_choices.get(x));
-    tprintf("\nchar[%d]: %s\n", x,
-            current_unicharset.debug_str( c_it.data()->unichar_id()).string());
-    if (detailed)
-      print_ratings_list("", char_choices.get(x), current_unicharset);
-  }
-}
-
-/**
- * print_word_alternates_list
- */
-void print_word_alternates_list(
-    WERD_CHOICE *word,
-    GenericVector<WERD_CHOICE *> *alternates) {
-  if (!word || !alternates) return;
-
-  STRING alternates_str;
-  for (int i = 0; i < alternates->size(); i++) {
-    if (i > 0) alternates_str += "\", \"";
-    alternates_str += alternates->get(i)->unichar_string();
-  }
-  tprintf("Alternates for \"%s\": {\"%s\"}\n",
-          word->unichar_string().string(), alternates_str.string());
 }

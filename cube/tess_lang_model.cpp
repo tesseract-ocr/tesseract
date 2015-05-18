@@ -387,7 +387,7 @@ int TessLangModel::NumberEdges(EDGE_REF edge_ref, LangModEdge **edge_array) {
   EDGE_REF new_state,
     state;
 
-  int repeat_cnt,
+  inT64 repeat_cnt,
     new_repeat_cnt;
 
   state = ((edge_ref & NUMBER_STATE_MASK) >> NUMBER_STATE_SHIFT);

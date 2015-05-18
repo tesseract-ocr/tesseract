@@ -19,7 +19,7 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #ifdef _MSC_VER
-#include "mathfix.h"
+#include <mathfix.h>
 #endif
 
 #include "featdefs.h"
@@ -265,13 +265,13 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
   CHAR_DESC CharDesc;
   int Type;
 
-  if (fscanf (File, "%d", &NumSetsToRead) != 1 ||
+  if (tfscanf(File, "%d", &NumSetsToRead) != 1 ||
     NumSetsToRead < 0 || NumSetsToRead > FeatureDefs.NumFeatureTypes)
     DoError (ILLEGAL_NUM_SETS, "Illegal number of feature sets");
 
   CharDesc = NewCharDescription(FeatureDefs);
   for (; NumSetsToRead > 0; NumSetsToRead--) {
-    fscanf (File, "%s", ShortName);
+    tfscanf(File, "%s", ShortName);
     Type = ShortNameToFeatureType(FeatureDefs, ShortName);
     CharDesc->FeatureSets[Type] =
       ReadFeatureSet (File, FeatureDefs.FeatureDesc[Type]);

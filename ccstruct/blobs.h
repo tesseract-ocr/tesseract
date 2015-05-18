@@ -30,12 +30,15 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "clst.h"
+#include "normalis.h"
+#include "publictypes.h"
 #include "rect.h"
 #include "vecfuncs.h"
 
 class BLOCK;
 class C_BLOB;
-class DENORM;
+class C_OUTLINE;
+class LLSQ;
 class ROW;
 class WERD;
 
@@ -43,12 +46,6 @@ class WERD;
               T y p e s
 ----------------------------------------------------------------------*/
 #define EDGEPTFLAGS     4        /*concavity,length etc. */
-
-typedef struct
-{                                /* Widths of pieces */
-  int num_chars;
-  int widths[1];
-} WIDTH_RECORD;
 
 struct TPOINT {
   TPOINT(): x(0), y(0) {}
@@ -70,7 +67,8 @@ struct TPOINT {
 typedef TPOINT VECTOR;           // structure for coordinates.
 
 struct EDGEPT {
-  EDGEPT() : next(NULL), prev(NULL) {
+  EDGEPT()
+  : next(NULL), prev(NULL), src_outline(NULL), start_step(0), step_count(0) {
     memset(flags, 0, EDGEPTFLAGS * sizeof(flags[0]));
   }
   EDGEPT(const EDGEPT& src) : next(NULL), prev(NULL) {
@@ -85,6 +83,9 @@ struct EDGEPT {
     pos = src.pos;
     vec = src.vec;
     memcpy(flags, src.flags, EDGEPTFLAGS * sizeof(flags[0]));
+    src_outline = src.src_outline;
+    start_step = src.start_step;
+    step_count = src.step_count;
   }
   // Accessors to hide or reveal a cut edge from feature extractors.
   void Hide() {
@@ -96,6 +97,15 @@ struct EDGEPT {
   bool IsHidden() const {
     return flags[0] != 0;
   }
+  void MarkChop() {
+    flags[2] = true;
+  }
+  void UnmarkChop() {
+    flags[2] = false;
+  }
+  bool IsChopPt() const {
+    return flags[2] != 0;
+  }
 
   TPOINT pos;                    // position
   VECTOR vec;                    // vector to next point
@@ -105,6 +115,10 @@ struct EDGEPT {
   char flags[EDGEPTFLAGS];       // concavity, length etc
   EDGEPT* next;                  // anticlockwise element
   EDGEPT* prev;                  // clockwise element
+  C_OUTLINE* src_outline;        // Outline it came from.
+  // The following fields are not used if src_outline is NULL.
+  int start_step;                // Location of pos in src_outline.
+  int step_count;                // Number of steps used (may wrap around).
 };
 
 // For use in chop and findseam to keep a list of which EDGEPTs were inserted.
@@ -159,6 +173,11 @@ struct TESSLINE {
             ScrollView::Color child_color);
   #endif  // GRAPHICS_DISABLED
 
+  // Returns the first outline point that has a different src_outline to its
+  // predecessor, or, if all the same, the lowest indexed point.
+  EDGEPT* FindBestStartPt() const;
+
+
   int BBArea() const {
     return (botright.x - topleft.x) * (topleft.y - botright.y);
   }
@@ -172,8 +191,8 @@ struct TESSLINE {
 };                               // Outline structure.
 
 struct TBLOB {
-  TBLOB() : outlines(NULL), next(NULL) {}
-  TBLOB(const TBLOB& src) : outlines(NULL), next(NULL) {
+  TBLOB() : outlines(NULL) {}
+  TBLOB(const TBLOB& src) : outlines(NULL) {
     CopyFrom(src);
   }
   ~TBLOB() {
@@ -183,21 +202,34 @@ struct TBLOB {
     CopyFrom(src);
     return *this;
   }
-  // Factory to build a TBLOB from a C_BLOB with polygonal
-  // approximation along the way.
-  static TBLOB* PolygonalCopy(C_BLOB* src);
+  // Factory to build a TBLOB from a C_BLOB with polygonal approximation along
+  // the way. If allow_detailed_fx is true, the EDGEPTs in the returned TBLOB
+  // contain pointers to the input C_OUTLINEs that enable higher-resolution
+  // feature extraction that does not use the polygonal approximation.
+  static TBLOB* PolygonalCopy(bool allow_detailed_fx, C_BLOB* src);
+  // Factory builds a blob with no outlines, but copies the other member data.
+  static TBLOB* ShallowCopy(const TBLOB& src);
   // Normalizes the blob for classification only if needed.
   // (Normally this means a non-zero classify rotation.)
-  // If no Normalization is needed, then NULL is returned, and the denorm is
-  // unchanged. Otherwise a new TBLOB is returned and the denorm points to
-  // a new DENORM. In this case, both the TBLOB and DENORM must be deleted.
-  TBLOB* ClassifyNormalizeIfNeeded(const DENORM** denorm) const;
+  // If no Normalization is needed, then NULL is returned, and the input blob
+  // can be used directly. Otherwise a new TBLOB is returned which must be
+  // deleted after use.
+  TBLOB* ClassifyNormalizeIfNeeded() const;
+
   // Copies the data and the outlines, but leaves next untouched.
   void CopyFrom(const TBLOB& src);
   // Deletes owned data.
   void Clear();
-  // Normalize in-place using the DENORM.
-  void Normalize(const DENORM& denorm);
+  // Sets up the built-in DENORM and normalizes the blob in-place.
+  // For parameters see DENORM::SetupNormalization, plus the inverse flag for
+  // this blob and the Pix for the full image.
+  void Normalize(const BLOCK* block,
+                 const FCOORD* rotation,
+                 const DENORM* predecessor,
+                 float x_origin, float y_origin,
+                 float x_scale, float y_scale,
+                 float final_xshift, float final_yshift,
+                 bool inverse, Pix* pix);
   // Rotates by the given rotation in place.
   void Rotate(const FCOORD rotation);
   // Moves by the given vec in place.
@@ -212,6 +244,10 @@ struct TBLOB {
 
   TBOX bounding_box() const;
 
+  const DENORM& denorm() const {
+    return denorm_;
+  }
+
   #ifndef GRAPHICS_DISABLED
   void plot(ScrollView* window, ScrollView::Color color,
             ScrollView::Color child_color);
@@ -224,15 +260,48 @@ struct TBLOB {
     return total_area;
   }
 
+  // Computes the center of mass and second moments for the old baseline and
+  // 2nd moment normalizations. Returns the outline length.
+  // The input denorm should be the normalizations that have been applied from
+  // the image to the current state of this TBLOB.
+  int ComputeMoments(FCOORD* center, FCOORD* second_moments) const;
+  // Computes the precise bounding box of the coords that are generated by
+  // GetEdgeCoords. This may be different from the bounding box of the polygon.
+  void GetPreciseBoundingBox(TBOX* precise_box) const;
+  // Adds edges to the given vectors.
+  // For all the edge steps in all the outlines, or polygonal approximation
+  // where there are no edge steps, collects the steps into x_coords/y_coords.
+  // x_coords is a collection of the x-coords of vertical edges for each
+  // y-coord starting at box.bottom().
+  // y_coords is a collection of the y-coords of horizontal edges for each
+  // x-coord starting at box.left().
+  // Eg x_coords[0] is a collection of the x-coords of edges at y=bottom.
+  // Eg x_coords[1] is a collection of the x-coords of edges at y=bottom + 1.
+  void GetEdgeCoords(const TBOX& box,
+                     GenericVector<GenericVector<int> >* x_coords,
+                     GenericVector<GenericVector<int> >* y_coords) const;
+
   TESSLINE *outlines;            // List of outlines in blob.
-  TBLOB *next;                   // Next blob in block.
+
+ private:  // TODO(rays) Someday the data members will be private too.
+  // For all the edge steps in all the outlines, or polygonal approximation
+  // where there are no edge steps, collects the steps into the bounding_box,
+  // llsq and/or the x_coords/y_coords. Both are used in different kinds of
+  // normalization.
+  // For a description of x_coords, y_coords, see GetEdgeCoords above.
+  void CollectEdges(const TBOX& box,
+                    TBOX* bounding_box, LLSQ* llsq,
+                    GenericVector<GenericVector<int> >* x_coords,
+                    GenericVector<GenericVector<int> >* y_coords) const;
+
+ private:
+  // DENORM indicating the transformations that this blob has undergone so far.
+  DENORM denorm_;
 };                               // Blob structure.
 
-int count_blobs(TBLOB *blobs);
-
 struct TWERD {
-  TWERD() : blobs(NULL), latin_script(false), next(NULL) {}
-  TWERD(const TWERD& src) : blobs(NULL), next(NULL) {
+  TWERD() : latin_script(false) {}
+  TWERD(const TWERD& src) {
     CopyFrom(src);
   }
   ~TWERD() {
@@ -244,14 +313,14 @@ struct TWERD {
   }
   // Factory to build a TWERD from a (C_BLOB) WERD, with polygonal
   // approximation along the way.
-  static TWERD* PolygonalCopy(WERD* src);
-  // Setup for Baseline normalization, recording the normalization in the
-  // DENORM, but doesn't do any normalization.
-  void SetupBLNormalize(const BLOCK* block, const ROW* row,
-                        float x_height, bool numeric_mode,
-                        DENORM* denorm) const;
-  // Normalize in-place using the DENORM.
-  void Normalize(const DENORM& denorm);
+  static TWERD* PolygonalCopy(bool allow_detailed_fx, WERD* src);
+  // Baseline normalizes the blobs in-place, recording the normalization in the
+  // DENORMs in the blobs.
+  void BLNormalize(const BLOCK* block, const ROW* row, Pix* pix, bool inverse,
+                   float x_height, bool numeric_mode,
+                   tesseract::OcrEngineMode hint,
+                   const TBOX* norm_box,
+                   DENORM* word_denorm);
   // Copies the data and the blobs, but leaves next untouched.
   void CopyFrom(const TWERD& src);
   // Deletes owned data.
@@ -261,7 +330,7 @@ struct TWERD {
 
   // Returns the number of blobs in the word.
   int NumBlobs() const {
-    return count_blobs(blobs);
+    return blobs.size();
   }
   TBOX bounding_box() const;
 
@@ -271,9 +340,8 @@ struct TWERD {
 
   void plot(ScrollView* window);
 
-  TBLOB* blobs;                  // blobs in word.
+  GenericVector<TBLOB*> blobs;   // Blobs in word.
   bool latin_script;             // This word is in a latin-based script.
-  TWERD* next;                   // next word.
 };
 
 /*----------------------------------------------------------------------
@@ -295,9 +363,6 @@ if (w) memfree (w)
 
 // Returns the center of blob's bounding box in origin.
 void blob_origin(TBLOB *blob, TPOINT *origin);
-
-                                 /*blob to compute on */
-WIDTH_RECORD *blobs_widths(TBLOB *blobs);
 
 bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT* location);
 

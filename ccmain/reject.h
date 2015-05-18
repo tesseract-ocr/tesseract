@@ -22,11 +22,10 @@
 
 #include          "params.h"
 #include          "pageres.h"
-#include          "notdll.h"
 
 void reject_blanks(WERD_RES *word);
-void reject_poor_matches(WERD_RES *word, BLOB_CHOICE_LIST_CLIST *blob_choices);
-float compute_reject_threshold(BLOB_CHOICE_LIST_CLIST *blob_choices);
+void reject_poor_matches(WERD_RES *word);
+float compute_reject_threshold(WERD_CHOICE* word);
 BOOL8 word_contains_non_1_digit(const char *word, const char *word_lengths);
 void dont_allow_1Il(WERD_RES *word);
 void flip_hyphens(WERD_RES *word);

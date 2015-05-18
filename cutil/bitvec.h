@@ -70,8 +70,6 @@ BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits);
 
 void FreeBitVector(BIT_VECTOR BitVector);
 
-int hamming_distance(uinT32* array1, uinT32* array2, int length);
-
 BIT_VECTOR NewBitVector(int NumBits);
 
 #endif

@@ -357,10 +357,12 @@ class ClassPruner {
 
   // Copies the pruned, sorted classes into the output results and returns
   // the number of classes.
-  int SetupResults(CP_RESULT_STRUCT* results) const {
+  int SetupResults(GenericVector<CP_RESULT_STRUCT>* results) const {
+    CP_RESULT_STRUCT empty;
+    results->init_to_size(num_classes_, empty);
     for (int c = 0; c < num_classes_; ++c) {
-      results[c].Class = sort_index_[num_classes_ - c];
-      results[c].Rating = 1.0 - sort_key_[num_classes_ - c] /
+      (*results)[c].Class = sort_index_[num_classes_ - c];
+      (*results)[c].Rating = 1.0 - sort_key_[num_classes_ - c] /
         (static_cast<float>(CLASS_PRUNER_CLASS_MASK) * num_features_);
     }
     return num_classes_;
@@ -408,7 +410,7 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
                            const INT_FEATURE_STRUCT* features,
                            const uinT8* normalization_factors,
                            const uinT16* expected_num_features,
-                           CP_RESULT_STRUCT* results) {
+                           GenericVector<CP_RESULT_STRUCT>* results) {
 /*
  **  Operation:
  **    Prunes the classes using a modified fast match table.
@@ -693,12 +695,8 @@ int IntegerMatcher::FindBadFeatures(
 
 
 /*---------------------------------------------------------------------------*/
-void IntegerMatcher::Init(tesseract::IntParam *classify_debug_level,
-                          int classify_integer_matcher_multiplier) {
+void IntegerMatcher::Init(tesseract::IntParam *classify_debug_level) {
   classify_debug_level_ = classify_debug_level;
-
-  /* Set default mode of operation of IntegerMatcher */
-  SetCharNormMatch(classify_integer_matcher_multiplier);
 
   /* Initialize table for evidence to similarity lookup */
   for (int i = 0; i < SE_TABLE_SIZE; i++) {
@@ -722,17 +720,6 @@ void IntegerMatcher::Init(tesseract::IntParam *classify_debug_level,
   mult_trunc_shift_bits_ = (14 - kIntEvidenceTruncBits);
   table_trunc_shift_bits_ = (27 - SE_TABLE_BITS - (mult_trunc_shift_bits_ << 1));
   evidence_mult_mask_ = ((1 << kIntEvidenceTruncBits) - 1);
-}
-
-/*--------------------------------------------------------------------------*/
-void IntegerMatcher::SetBaseLineMatch() {
-  local_matcher_multiplier_ = 0;
-}
-
-
-/*--------------------------------------------------------------------------*/
-void IntegerMatcher::SetCharNormMatch(int integer_matcher_multiplier) {
-  local_matcher_multiplier_ = integer_matcher_multiplier;
 }
 
 
@@ -1283,10 +1270,11 @@ int IntegerMatcher::FindBestMatch(
 // Applies the CN normalization factor to the given rating and returns
 // the modified rating.
 float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
-                                        int normalization_factor) {
+                                        int normalization_factor,
+                                        int matcher_multiplier) {
   return (rating * blob_length +
-    local_matcher_multiplier_ * normalization_factor / 256.0) /
-    (blob_length + local_matcher_multiplier_);
+          matcher_multiplier * normalization_factor / 256.0) /
+      (blob_length + matcher_multiplier);
 }
 
 /*---------------------------------------------------------------------------*/

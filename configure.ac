@@ -7,9 +7,10 @@
 # ----------------------------------------
 
 AC_PREREQ(2.50)
-AC_INIT([tesseract], [3.02.02], [http://code.google.com/p/tesseract-ocr/issues/list])
+AC_INIT([tesseract], [3.03], [http://code.google.com/p/tesseract-ocr/issues/list])
+CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
-AC_REVISION($Id: configure.ac,v 1.4 2007/02/02 22:38:17 theraysmith Exp $)
+AC_REVISION([$Revision$])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(api/tesseractmain.cpp)
 AC_PREFIX_DEFAULT(/usr/local)
@@ -17,8 +18,8 @@ AC_PREFIX_DEFAULT(/usr/local)
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 # TODO(luc) Generate good documentation using doxygen or equivalent
-PACKAGE_YEAR=2012
-PACKAGE_DATE="10/23"
+PACKAGE_YEAR=2014
+PACKAGE_DATE="01/14"
 
 AC_DEFINE_UNQUOTED(PACKAGE_NAME,["${PACKAGE_NAME}"],[Name of package])
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION,["${PACKAGE_VERSION}"],[Version number])
@@ -34,8 +35,8 @@ GENERIC_LIBRARY_NAME=tesseract
 
 # Release versioning
 GENERIC_MAJOR_VERSION=3
-GENERIC_MINOR_VERSION=2
-GENERIC_MICRO_VERSION=2
+GENERIC_MINOR_VERSION=3
+GENERIC_MICRO_VERSION=0
 
 # API version (often = GENERIC_MAJOR_VERSION.GENERIC_MINOR_VERSION)
 GENERIC_API_VERSION=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
@@ -52,26 +53,52 @@ GENERIC_RELEASE=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
 AC_SUBST(GENERIC_RELEASE)
 AC_SUBST(GENERIC_VERSION)
 
+# ----------------------------------------
+# Automake configuration
+# ----------------------------------------
+
+AM_INIT_AUTOMAKE
+AC_CONFIG_HEADERS(config_auto.h:config/config.h.in)
+AM_MAINTAINER_MODE
+
 # default conditional
 AM_CONDITIONAL(MINGW, false)
+AM_CONDITIONAL(OSX, false)
 AM_CONDITIONAL(GRAPHICS_DISABLED, false)
 
-
+OPENCL_INC="/opt/AMDAPP/include"
+OPENCL_LIBS="-lOpenCL"
 #############################
 #
 # Platform specific setup
 #
 #############################
 AC_CANONICAL_HOST
-case $host_os in
+case "${host_os}" in
     mingw32*)
         AC_DEFINE_UNQUOTED(MINGW,1,[This is a MinGW system])
         AM_CONDITIONAL(MINGW, true)
-        AC_SUBST([AM_CPPFLAGS], ["-D__BLOB_T_DEFINED"])
+        AM_CONDITIONAL(ADD_RT, false)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
-     *)
+    cygwin*)
+	AM_CONDITIONAL(ADD_RT, false)
+        ;;			
+    solaris*)
+        LIBS="-lsocket -lnsl -lrt -lxnet"
+        AM_CONDITIONAL(ADD_RT, true)
+        ;;
+    *darwin*)
+        OPENCL_LIBS="-framework OpenCL"
+        OPENCL_INC=""
+        AM_CONDITIONAL(ADD_RT, false)
+        ;;
+    powerpc-*-darwin*)
+        OPENCL_LIBS=""
+        ;;
+    *)
         # default
+        AM_CONDITIONAL(ADD_RT, true)
         ;;
 esac
 
@@ -119,6 +146,20 @@ if test "$enable_embedded" = "yes"; then
   AC_SUBST([AM_CPPFLAGS], [-DEMBEDDED])
 fi
 
+# check whether to build opencl version
+AC_MSG_CHECKING(--enable-opencl argument)
+AC_ARG_ENABLE([opencl],
+    [  --enable-opencl         enable opencl build (default=no)],
+    [enable_opencl=$enableval],
+    [enable_opencl="no"])
+AC_MSG_RESULT($enable_opencl)
+AM_CONDITIONAL([USE_OPENCL], [test "$enable_opencl" = "yes"])
+if test "$enable_opencl" = "yes"; then
+  AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
+  AC_SUBST([OPENCL_HDR_PATH],[$OPENCL_INC])
+  AC_SUBST([OPENCL_LIB],[$OPENCL_LIBS])
+fi
+
 # check whether to build tesseract with -fvisibility=hidden -fvisibility-inlines-hidden
 # http://gcc.gnu.org/wiki/Visibility
 # http://groups.google.com/group/tesseract-dev/browse_thread/thread/976645ae98189127
@@ -160,26 +201,11 @@ if test x"$debug" = x"yes"; then
     AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -Wno-uninitialized -O0 -DDEBUG"
     AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -Wno-uninitialized -O0 -DDEBUG"
 else
-    AM_CXXFLAGS="$AM_CXXFLAGS -O3 -DNDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -O3 -DNDEBUG"
+    AM_CXXFLAGS="$AM_CXXFLAGS -O2 -DNDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
 fi
 
 #localedir='${prefix}/share/locale'
-
-# Not used yet, so disable
-#AC_ARG_ENABLE([gettext],
-#    [  --enable-gettext         Enable gettext (default).],
-#    [enable_gettext=$enableval],
-#    [enable_gettext="yes"])
-#AC_MSG_RESULT($enable_gettext)
-#if test "$enable_gettext" = "yes"; then
-#  AM_GNU_GETTEXT_VERSION([0.17])
-#  AM_GNU_GETTEXT([external])  
-#  AC_SUBST(localedir)
-#else
-#  AC_DEFINE([NO_GETTEXT], [], [Disable Gettext])
-#fi
-#AM_CONDITIONAL([USING_GETTEXT], [test "$enable_gettext" = "yes"])
 
 # Always look into a "gnu" directory.
 curwd=`pwd`
@@ -215,14 +241,6 @@ AC_PROG_CXX(g++)
 AC_PROG_LIBTOOL
 
 # ----------------------------------------
-# Automake configuration
-# ----------------------------------------
-
-AM_INIT_AUTOMAKE
-AC_CONFIG_HEADERS(config_auto.h:config/config.h.in)
-AM_MAINTAINER_MODE
-
-# ----------------------------------------
 # Additional checking of compiler characteristics
 # ----------------------------------------
 
@@ -247,6 +265,42 @@ LT_INIT
 
 AC_LANG_CPLUSPLUS
 
+AC_MSG_CHECKING([if compiling with clang])
+AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([], [[
+#ifndef __clang__
+       not clang
+#endif
+]])],
+[CLANG=yes], [CLANG=no])
+
+AC_MSG_RESULT([$CLANG])
+
+dnl ********************
+dnl turn on c++11
+dnl ********************
+
+OLD_CXXFLAGS=$CXXFLAGS
+AC_MSG_CHECKING(whether compiler supports C++11)
+CXXFLAGS="$CXXFLAGS -std=c++11"
+snprintfworks=no
+AC_COMPILE_IFELSE(
+[
+  AC_LANG_SOURCE([[
+    #if (__cplusplus < 201103L)
+    #error C++ 11 is unsupported
+    #endif
+  ]])
+], [
+     AC_MSG_RESULT(yes)
+     has_cpp11=yes
+   ],
+   [
+     AC_MSG_RESULT(no)
+     has_cpp11=no
+   ])
+AC_CHECK_FUNCS(snprintf,, [snprintfworks=yes])
+CXXFLAGS="$OLD_CXXFLAGS"
 
 # ----------------------------------------
 # Check for libraries
@@ -271,16 +325,18 @@ AC_HEADER_STDBOOL
 AC_SYS_INTERPRETER
 AC_SYS_LARGEFILE
 
+AC_CHECK_FUNCS([getline])
 
 # ----------------------------------------
 # Checks for typedefs, structures, and compiler characteristics.
 # ----------------------------------------
 
 AC_CHECK_TYPES(wchar_t)
+AC_CHECK_TYPES(long long int)
 AC_CHECK_TYPES(mbstate_t,,,[#include "wchar.h"])
 
 # ----------------------------------------
-# Test auxilliary packages
+# Test auxiliary packages
 # ----------------------------------------
 
 # Check location of leptonica/liblept headers.
@@ -308,29 +364,95 @@ else
   AC_MSG_ERROR([leptonica not found])
 fi
 
+AC_MSG_CHECKING([leptonica version >= 1.70])
+AC_PREPROC_IFELSE(
+    [AC_LANG_PROGRAM([#include "allheaders.h"],
+[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 70)
+int i = 0;
+#else
+#error You need to upgrade your leptonica library!
+#endif])],
+    [AC_MSG_RESULT(yes)],
+    [AC_MSG_FAILURE([leptonica 1.70 or higher is required])])
+
+# Check location of icu headers
+have_icu=false
+AC_CHECK_HEADERS(unicode/uchar.h, have_icu=true, have_icu=false)
+if !($have_icu); then
+        AC_MSG_WARN(Training tools WILL NOT be built because of missing icu library.)
+        AC_MSG_WARN(Try to install libicu-devel package.)
+fi
+AM_CONDITIONAL(ENABLE_TRAINING, $have_icu)
+
+# Check location of pango headers
+have_pango=false
+AC_CHECK_HEADERS(pango-1.0/pango/pango-features.h, have_pango=true, have_pango=false)
+if !($have_pango); then
+        AC_MSG_WARN(Training tools WILL NOT be built because of missing pango library.)
+        AC_MSG_WARN(Try to install libpango1.0-dev package.)
+else
+      CPPFLAGS="$CPPFLAGS $(pkg-config --cflags pango)"
+fi
+AM_CONDITIONAL(ENABLE_TRAINING, $have_pango)
+
+# Check location of cairo headers
+have_cairo=false
+AC_CHECK_HEADERS(cairo/cairo-version.h, have_cairo=true, have_cairo=false)
+if !($have_cairo); then
+        AC_MSG_WARN(Training tools WILL NOT be built because of missing cairo library.)
+        AC_MSG_WARN(Try to install libcairo-dev?? package.)
+else
+      CPPFLAGS="$CPPFLAGS $(pkg-config --cflags cairo)"
+fi
+AM_CONDITIONAL(ENABLE_TRAINING, $have_cairo)
+
+# set c++11 support based on platform/compiler
+if test "x$has_cpp11" = "xyes"; then
+  case "$host" in
+    cygwin*)
+      if test "x$snprintfworks" = "xno"; then
+        # cygwin workaround
+        # http://stackoverflow.com/questions/20149633/how-to-use-snprintf-in-g-std-c11-version-4-8-2/20149792#20149792
+        CXXFLAGS="$CXXFLAGS -std=gnu++11"
+      fi
+      ;;
+    *-darwin* | *-macos10*)
+       if test "x$CLANG" = "xyes"; then
+         CXXFLAGS="$CXXFLAGS -std=c++11 "
+         LDFLAGS="$LDFLAGS -stdlib=libc++"
+       else
+         CXXFLAGS="$CXXFLAGS -std=c++11"
+       fi
+      ;;
+    *)
+      # default
+      CXXFLAGS="$CXXFLAGS -std=c++11"
+      ;;
+  esac
+else
+  AC_MSG_WARN(Training tools WILL NOT be built because of missing c++11 support.)
+  AM_CONDITIONAL(ENABLE_TRAINING, false)
+fi
+
 # ----------------------------------------
 # Final Tasks and Output
 # ----------------------------------------
 
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
-#if test "$enable_gettext" = "yes"; then
-#AC_CONFIG_FILES(po/Makefile.in)
-#fi
 AC_CONFIG_FILES(api/Makefile)
 AC_CONFIG_FILES(ccmain/Makefile)
+AC_CONFIG_FILES(opencl/Makefile)
 AC_CONFIG_FILES(ccstruct/Makefile)
 AC_CONFIG_FILES(ccutil/Makefile)
 AC_CONFIG_FILES(classify/Makefile)
 AC_CONFIG_FILES(cube/Makefile)
 AC_CONFIG_FILES(cutil/Makefile)
 AC_CONFIG_FILES(dict/Makefile)
-AC_CONFIG_FILES(image/Makefile)
 AC_CONFIG_FILES(neural_networks/runtime/Makefile)
 AC_CONFIG_FILES(textord/Makefile)
 AC_CONFIG_FILES(viewer/Makefile)
 AC_CONFIG_FILES(wordrec/Makefile)
-AC_CONFIG_FILES(training/Makefile)
 AC_CONFIG_FILES(tessdata/Makefile)
 AC_CONFIG_FILES(tessdata/configs/Makefile)
 AC_CONFIG_FILES(tessdata/tessconfigs/Makefile)
@@ -342,20 +464,33 @@ AC_CONFIG_FILES(java/com/google/scrollview/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/events/Makefile)
 AC_CONFIG_FILES(java/com/google/scrollview/ui/Makefile)
 AC_CONFIG_FILES(doc/Makefile)
-# AC_CONFIG_FILES(doc/Doxyfile)
-# AC_CONFIG_FILES(doc/header.html)
-# AC_CONFIG_FILES(doc/footer.html)
-# AC_CONFIG_FILES(doc/header.tex)
-# AC_CONFIG_FILES(doc/RTF_ExtensionFile)
-# AC_CONFIG_FILES(doc/Makefile)
+AM_COND_IF([ENABLE_TRAINING], AC_CONFIG_FILES(training/Makefile))
 AC_OUTPUT
 
 # Final message
 echo ""
 echo "Configuration is done."
-echo "You can now build $PACKAGE_NAME by running:"
+echo "You can now build and install $PACKAGE_NAME by running:"
 echo ""
-echo "% make"
+echo "$ make"
+echo "$ sudo make install"
+# echo "$ sudo make install LANGS=\"eng ara deu\""
+# echo "  Or:"
+# echo "$ sudo make install-langs"
+
+AM_COND_IF([ENABLE_TRAINING],
+  echo ""
+  echo "Training tools can be build and installed (after building of $PACKAGE_NAME) with:"
+  echo ""
+  echo "$ make training"
+  echo "$ sudo make training-install"
+  echo ""
+,
+  echo ""
+  echo "You can not build training tools because of missing dependency."
+  echo "Check configure output for details."
+  echo ""
+)
 
 # ----------------------------------------
 # CONFIG Template

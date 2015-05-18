@@ -52,113 +52,39 @@
 #define BAD_PRIORITY           9999.0
 
 /*----------------------------------------------------------------------
-              M a c r o s
-----------------------------------------------------------------------*/
-/**********************************************************************
- * add_seam_to_queue
- *
- * Add this seam value to the seam queue.  If the heap is already full
- * then nothing is done.
- **********************************************************************/
-
-#define add_seam_to_queue(seams,seam,priority)  \
-if (seam)\
-{\
-		if (HeapFull(seams))\
-			junk_worst_seam(seams,seam,priority);\
-		else\
-			HeapPush (seams, priority, (char*) seam);\
-	}
-
-/**********************************************************************
- * best_seam_priority
- *
- * Return the best priority value on the queue.
- **********************************************************************/
-
-#define best_seam_priority(seam_queue)   \
-(HeapEmpty (seam_queue) ?              \
-	NO_FULL_PRIORITY       :              \
-	((SEAM*) seam_queue_element(seam_queue, 0))->priority)
-
-/**********************************************************************
- * create_seam_queue
- *
- * Create a new seam queue with no elements in it.
- **********************************************************************/
-
-#define create_seam_queue(seam_queue)     \
-(seam_queue = MakeHeap (MAX_NUM_SEAMS))
-
-/**********************************************************************
- * create_seam_pile
- *
- * Create a new seam pile with no elements in it.
- **********************************************************************/
-
-#define create_seam_pile(seam_pile)     \
-(seam_pile = array_new (MAX_OLD_SEAMS))
-
-/**********************************************************************
- * delete_seam_queue
- *
- * Delete a seam queue along with all the seam structures associated
- * with it.
- **********************************************************************/
-
-#define delete_seam_queue(seam_queue)      \
-(FreeHeapData (seam_queue, delete_seam), \
-	seam_queue = NULL)                      \
-
-
-/**********************************************************************
- * pop_next_seam
- *
- * Remove the next seam from the queue.  Put the seam and priority
- * values in the requested variables.  If there was nothing to pop
- * then return FALSE, else return TRUE.
- **********************************************************************/
-
-#define pop_next_seam(seams,seam,priority)  \
-(HeapPop (seams,&priority,&seam) == TESS_HEAP_OK)   \
-
-
-/**********************************************************************
- * seam_queue_element
- *
- * Return the element from the seam queue at the requested index.
- **********************************************************************/
-
-#define seam_queue_element(seam_queue,index)  \
-((index < SizeOfHeap (seam_queue)) ?        \
-	HeapDataFor (seam_queue, index)   :        \
-	NULL)                                      \
-
-
-/*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 namespace tesseract {
 
 /**********************************************************************
- * junk_worst_seam
+ * add_seam_to_queue
  *
- * Delete the worst seam from the queue because it is full.
+ * Adds the given new_seam to the seams priority queue, unless it is full
+ * and the new seam is worse than the worst.
  **********************************************************************/
-void Wordrec::junk_worst_seam(SEAM_QUEUE seams, SEAM *new_seam,
-                              float new_priority) {
-  SEAM *seam;
-  float priority;
-
-  HeapPopWorst(seams, &priority, &seam);
-  if (priority > new_priority) {
-    delete_seam(seam);  /*get rid of it */
-    HeapPush (seams, new_priority, (char *) new_seam);
+void Wordrec::add_seam_to_queue(float new_priority, SEAM *new_seam,
+                                SeamQueue* seams) {
+  if (new_seam == NULL) return;
+  if (chop_debug) {
+    tprintf("Pushing new seam with priority %g :", new_priority);
+    print_seam("seam: ", new_seam);
   }
-  else {
-    delete_seam(new_seam);
-    HeapPush (seams, priority, (char *) seam);
+  if (seams->size() >= MAX_NUM_SEAMS) {
+    SeamPair old_pair(0, NULL);
+    if (seams->PopWorst(&old_pair) && old_pair.key() <= new_priority) {
+      if (chop_debug) {
+        tprintf("Old seam staying with priority %g\n", old_pair.key());
+      }
+      delete new_seam;
+      seams->Push(&old_pair);
+      return;
+    } else if (chop_debug) {
+      tprintf("New seam with priority %g beats old worst seam with %g\n",
+              new_priority, old_pair.key());
+    }
   }
+  SeamPair new_pair(new_priority, new_seam);
+  seams->Push(&new_pair);
 }
 
 
@@ -175,12 +101,12 @@ void Wordrec::junk_worst_seam(SEAM_QUEUE seams, SEAM *new_seam,
  * a split of NULL, then no further splits can be supplied by the
  * caller.
  **********************************************************************/
-void Wordrec::choose_best_seam(SEAM_QUEUE seam_queue,
-                               SEAM_PILE *seam_pile,
+void Wordrec::choose_best_seam(SeamQueue* seam_queue,
                                SPLIT *split,
                                PRIORITY priority,
                                SEAM **seam_result,
-                               TBLOB *blob) {
+                               TBLOB *blob,
+                               SeamPile* seam_pile) {
   SEAM *seam;
   char str[80];
   float my_priority;
@@ -190,10 +116,10 @@ void Wordrec::choose_best_seam(SEAM_QUEUE seam_queue,
     TPOINT split_point = split->point1->pos;
     split_point += split->point2->pos;
     split_point /= 2;
-    seam = new_seam(my_priority, split_point, split, NULL, NULL);
+    seam = new SEAM(my_priority, split_point, split, NULL, NULL);
     if (chop_debug > 1)
       print_seam ("Partial priority    ", seam);
-    add_seam_to_queue (seam_queue, seam, (float) my_priority);
+    add_seam_to_queue(my_priority, seam, seam_queue);
 
     if (my_priority > chop_good_split)
       return;
@@ -201,24 +127,26 @@ void Wordrec::choose_best_seam(SEAM_QUEUE seam_queue,
 
   TBOX bbox = blob->bounding_box();
   /* Queue loop */
-  while (pop_next_seam (seam_queue, seam, my_priority)) {
+  while (!seam_queue->empty()) {
+    SeamPair seam_pair;
+    seam_queue->Pop(&seam_pair);
+    seam = seam_pair.extract_data();
     /* Set full priority */
-    my_priority = seam_priority (seam, bbox.left(), bbox.right());
+    my_priority = seam_priority(seam, bbox.left(), bbox.right());
     if (chop_debug) {
       sprintf (str, "Full my_priority %0.0f,  ", my_priority);
       print_seam(str, seam);
     }
 
-    if ((*seam_result == NULL || /* Replace answer */
-    (*seam_result)->priority > my_priority) && my_priority < chop_ok_split) {
+    if ((*seam_result == NULL || (*seam_result)->priority > my_priority) &&
+        my_priority < chop_ok_split) {
       /* No crossing */
-      if (constrained_split (seam->split1, blob)) {
-        delete_seam(*seam_result);
-        clone_seam(*seam_result, seam);
+      if (constrained_split(seam->split1, blob)) {
+        delete *seam_result;
+        *seam_result = new SEAM(*seam);
         (*seam_result)->priority = my_priority;
-      }
-      else {
-        delete_seam(seam);
+      } else {
+        delete seam;
         seam = NULL;
         my_priority = BAD_PRIORITY;
       }
@@ -226,22 +154,34 @@ void Wordrec::choose_best_seam(SEAM_QUEUE seam_queue,
 
     if (my_priority < chop_good_split) {
       if (seam)
-        delete_seam(seam);
+        delete seam;
       return;                    /* Made good answer */
     }
 
     if (seam) {
-                                 /* Combine with others */
-      if (array_count (*seam_pile) < MAX_NUM_SEAMS
-      /*|| tessedit_truncate_chopper==0 */ ) {
-        combine_seam(seam_queue, *seam_pile, seam);
-        *seam_pile = array_push (*seam_pile, seam);
+      /* Combine with others */
+      if (seam_pile->size() < chop_seam_pile_size) {
+        combine_seam(*seam_pile, seam, seam_queue);
+        SeamDecPair pair(seam_pair.key(), seam);
+        seam_pile->Push(&pair);
+      } else if (chop_new_seam_pile &&
+                 seam_pile->size() == chop_seam_pile_size &&
+                 seam_pile->PeekTop().key() > seam_pair.key()) {
+        combine_seam(*seam_pile, seam, seam_queue);
+        SeamDecPair pair;
+        seam_pile->Pop(&pair);  // pop the worst.
+        // Replace the seam in pair (deleting the old one) with
+        // the new seam and score, then push back into the heap.
+        pair.set_key(seam_pair.key());
+        pair.set_data(seam);
+        seam_pile->Push(&pair);
+      } else {
+        delete seam;
       }
-      else
-        delete_seam(seam);
     }
 
-    my_priority = best_seam_priority (seam_queue);
+    my_priority = seam_queue->empty() ? NO_FULL_PRIORITY
+                                      : seam_queue->PeekTop().key();
     if ((my_priority > chop_ok_split) ||
       (my_priority > chop_good_split && split))
       return;
@@ -256,15 +196,14 @@ void Wordrec::choose_best_seam(SEAM_QUEUE seam_queue,
  * from this union should be added to the seam queue.  The return value
  * tells whether or not any additional seams were added to the queue.
  **********************************************************************/
-void Wordrec::combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile,
-                           SEAM *seam) {
-  register inT16 x;
+void Wordrec::combine_seam(const SeamPile& seam_pile,
+                           const SEAM* seam, SeamQueue* seam_queue) {
   register inT16 dist;
   inT16 bottom1, top1;
   inT16 bottom2, top2;
 
   SEAM *new_one;
-  SEAM *this_one;
+  const SEAM *this_one;
 
   bottom1 = seam->split1->point1->pos.y;
   if (seam->split1->point2->pos.y >= bottom1)
@@ -286,8 +225,8 @@ void Wordrec::combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile,
     bottom2 = bottom1;
     top2 = top1;
   }
-  array_loop(seam_pile, x) {
-    this_one = (SEAM *) array_value (seam_pile, x);
+  for (int x = 0; x < seam_pile.size(); ++x) {
+    this_one = seam_pile.get(x).data();
     dist = seam->location.x - this_one->location.x;
     if (-SPLIT_CLOSENESS < dist &&
       dist < SPLIT_CLOSENESS &&
@@ -325,9 +264,11 @@ void Wordrec::combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile,
         )
       ) {
         new_one = join_two_seams (seam, this_one);
-        if (chop_debug > 1)
-          print_seam ("Combo priority       ", new_one);
-        add_seam_to_queue (seam_queue, new_one, new_one->priority);
+        if (new_one != NULL) {
+          if (chop_debug > 1)
+            print_seam ("Combo priority       ", new_one);
+          add_seam_to_queue(new_one->priority, new_one, seam_queue);
+        }
       }
     }
   }
@@ -355,22 +296,6 @@ inT16 Wordrec::constrained_split(SPLIT *split, TBLOB *blob) {
   return (TRUE);
 }
 
-
-/**********************************************************************
- * delete_seam_pile
- *
- * Delete the seams that are held in the seam pile.  Destroy the splits
- * that are referenced by these seams.
- **********************************************************************/
-void Wordrec::delete_seam_pile(SEAM_PILE seam_pile) {
-  inT16 x;
-
-  array_loop(seam_pile, x) {
-    delete_seam ((SEAM *) array_value (seam_pile, x));
-  }
-  array_free(seam_pile);
-}
-
 /**********************************************************************
  * pick_good_seam
  *
@@ -378,11 +303,7 @@ void Wordrec::delete_seam_pile(SEAM_PILE seam_pile) {
  * Work from the outlines provided.
  **********************************************************************/
 SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
-  SEAM_QUEUE seam_queue;
-  SEAM_PILE seam_pile;
-  POINT_GROUP point_heap;
-  PRIORITY priority;
-  EDGEPT *edge;
+  SeamPile seam_pile(chop_seam_pile_size);
   EDGEPT *points[MAX_NUM_POINTS];
   EDGEPT_CLIST new_points;
   SEAM *seam = NULL;
@@ -396,30 +317,28 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
   draw_blob_edges(blob);
 #endif
 
-  point_heap = MakeHeap (MAX_NUM_POINTS);
+  PointHeap point_heap(MAX_NUM_POINTS);
   for (outline = blob->outlines; outline; outline = outline->next)
-    prioritize_points(outline, point_heap);
+    prioritize_points(outline, &point_heap);
 
-  while (HeapPop (point_heap, &priority, &edge) == TESS_HEAP_OK) {
-    if (num_points < MAX_NUM_POINTS)
-      points[num_points++] = (EDGEPT *) edge;
+  while (!point_heap.empty() && num_points < MAX_NUM_POINTS) {
+    points[num_points++] = point_heap.PeekTop().data;
+    point_heap.Pop(NULL);
   }
-  FreeHeap(point_heap);
 
-  /* Initialize queue & pile */
-  create_seam_pile(seam_pile);
-  create_seam_queue(seam_queue);
+  /* Initialize queue */
+  SeamQueue seam_queue(MAX_NUM_SEAMS);
 
-  try_point_pairs(points, num_points, seam_queue, &seam_pile, &seam, blob);
+  try_point_pairs(points, num_points, &seam_queue, &seam_pile, &seam, blob);
   try_vertical_splits(points, num_points, &new_points,
-                      seam_queue, &seam_pile, &seam, blob);
+                      &seam_queue, &seam_pile, &seam, blob);
 
   if (seam == NULL) {
-    choose_best_seam(seam_queue, &seam_pile, NULL, BAD_PRIORITY, &seam, blob);
+    choose_best_seam(&seam_queue, NULL, BAD_PRIORITY, &seam, blob, &seam_pile);
   }
   else if (seam->priority > chop_good_split) {
-    choose_best_seam (seam_queue, &seam_pile, NULL, seam->priority,
-      &seam, blob);
+    choose_best_seam(&seam_queue, NULL, seam->priority,
+                     &seam, blob, &seam_pile);
   }
 
   EDGEPT_C_IT it(&new_points);
@@ -435,12 +354,9 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
     }
   }
 
-  delete_seam_queue(seam_queue);
-  delete_seam_pile(seam_pile);
-
   if (seam) {
     if (seam->priority > chop_ok_split) {
-      delete_seam(seam);
+      delete seam;
       seam = NULL;
     }
 #ifndef GRAPHICS_DISABLED
@@ -509,12 +425,12 @@ PRIORITY Wordrec::seam_priority(SEAM *seam, inT16 xmin, inT16 xmax) {
  * together.  See if any of them are suitable for use.  Use a seam
  * queue and seam pile that have already been initialized and used.
  **********************************************************************/
-void Wordrec::try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
-                               inT16 num_points,
-                               SEAM_QUEUE seam_queue,
-                               SEAM_PILE * seam_pile,
-                               SEAM ** seam,
-                               TBLOB * blob) {
+void Wordrec::try_point_pairs(EDGEPT * points[MAX_NUM_POINTS],
+                              inT16 num_points,
+                              SeamQueue* seam_queue,
+                              SeamPile* seam_pile,
+                              SEAM ** seam,
+                              TBLOB * blob) {
   inT16 x;
   inT16 y;
   SPLIT *split;
@@ -533,11 +449,10 @@ void Wordrec::try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
         split = new_split (points[x], points[y]);
         priority = partial_split_priority (split);
 
-        choose_best_seam(seam_queue, seam_pile, split, priority, seam, blob);
+        choose_best_seam(seam_queue, split, priority, seam, blob, seam_pile);
       }
     }
   }
-
 }
 
 
@@ -554,8 +469,8 @@ void Wordrec::try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
 void Wordrec::try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
                                   inT16 num_points,
                                   EDGEPT_CLIST *new_points,
-                                  SEAM_QUEUE seam_queue,
-                                  SEAM_PILE * seam_pile,
+                                  SeamQueue* seam_queue,
+                                  SeamPile* seam_pile,
                                   SEAM ** seam,
                                   TBLOB * blob) {
   EDGEPT *vertical_point = NULL;
@@ -580,7 +495,7 @@ void Wordrec::try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
       split = new_split (points[x], vertical_point);
       priority = partial_split_priority (split);
 
-      choose_best_seam(seam_queue, seam_pile, split, priority, seam, blob);
+      choose_best_seam(seam_queue, split, priority, seam, blob, seam_pile);
     }
   }
 }

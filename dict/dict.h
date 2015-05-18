@@ -21,14 +21,17 @@
 
 #include "ambigs.h"
 #include "dawg.h"
+#include "dawg_cache.h"
 #include "host.h"
-#include "image.h"
 #include "oldlist.h"
 #include "ratngs.h"
 #include "stopper.h"
 #include "trie.h"
 #include "unicharset.h"
-#include "permute.h"
+#include "params_training_featdef.h"
+
+class MATRIX;
+class WERD_RES;
 
 #define MAX_WERD_LENGTH        (inT64) 128
 #define NO_RATING               -1
@@ -49,74 +52,78 @@ typedef GenericVector<Dawg *> DawgVector;
 //
 // Constants
 //
-static const int kAnyWordLength = -1;
 static const int kRatingPad = 4;
+static const char kDictWildcard[] = "\u2606";   // WHITE STAR
+static const int kDictMaxWildcards = 2;  // max wildcards for a word
 // TODO(daria): If hyphens are different in different languages and can be
 // inferred from training data we should load their values dynamically.
 static const char kHyphenSymbol[] = "-";
-static const int kMaxNumDawgEdgees = 2000000;
-static const int kMaxDocDawgEdges = 250000;
-static const int kMaxUserDawgEdges = 50000;
+static const char kSlashSymbol[] = "/";
+static const char kQuestionSymbol[] = "?";
+static const char kApostropheSymbol[] = "'";
 static const float kSimCertaintyScale = -10.0;   // similarity matcher scaling
 static const float kSimCertaintyOffset = -10.0;  // similarity matcher offset
 static const float kSimilarityFloor = 100.0;  // worst E*L product to stop on
 static const int kDocDictMaxRepChars = 4;
 
-struct DawgArgs {
-  DawgArgs(DawgInfoVector *d, DawgInfoVector *c, DawgInfoVector *ud,
-           DawgInfoVector *uc, float r, PermuterType p, int len, int e) :
-    active_dawgs(d), constraints(c), updated_active_dawgs(ud),
-    updated_constraints(uc), rating_margin(r) {
-    for (int i = 0; i < MAX_WERD_LENGTH; ++i) {
-      rating_array[i] = NO_RATING;
-    }
-    permuter = p;
-    sought_word_length = len;
-    end_char_choice_index = e;
-  }
-  DawgInfoVector *active_dawgs;
-  DawgInfoVector *constraints;
-  DawgInfoVector *updated_active_dawgs;
-  DawgInfoVector *updated_constraints;
-  PermuterType permuter;
-  int sought_word_length;
+// Enum for describing whether the x-height for the word is consistent:
+//  0 - everything is good.
+//  1 - there are one or two secondary (but consistent) baselines
+//      [think subscript and superscript], or there is an oversized
+//      first character.
+//  2 - the word is inconsistent.
+enum XHeightConsistencyEnum {XH_GOOD, XH_SUBNORMAL, XH_INCONSISTENT};
 
-  // TODO(daria): remove these fields when permdawg is deprecated.
-  float rating_margin;  /**< pruning margin ratio */
-  float rating_array[MAX_WERD_LENGTH];
-  int end_char_choice_index;
+struct DawgArgs {
+  DawgArgs(DawgPositionVector *d, DawgPositionVector *up, PermuterType p)
+      : active_dawgs(d), updated_dawgs(up), permuter(p) {}
+
+  DawgPositionVector *active_dawgs;
+  DawgPositionVector *updated_dawgs;
+  PermuterType permuter;
 };
 
 class Dict {
  public:
-  Dict(Image* image_ptr);
+  Dict(CCUtil* image_ptr);
   ~Dict();
-  const Image* getImage() const {
-    return image_ptr_;
+  const CCUtil* getCCUtil() const {
+    return ccutil_;
   }
-  Image* getImage() {
-    return image_ptr_;
+  CCUtil* getCCUtil() {
+    return ccutil_;
   }
   const UNICHARSET& getUnicharset() const {
-    return getImage()->getCCUtil()->unicharset;
+    return getCCUtil()->unicharset;
   }
   UNICHARSET& getUnicharset() {
-    return getImage()->getCCUtil()->unicharset;
+    return getCCUtil()->unicharset;
   }
-  const UnicharAmbigs &getUnicharAmbigs() {
-    return getImage()->getCCUtil()->unichar_ambigs;
+  const UnicharAmbigs &getUnicharAmbigs() const {
+    return getCCUtil()->unichar_ambigs;
   }
 
+  // Returns true if unichar_id is a word compounding character like - or /.
   inline bool compound_marker(UNICHAR_ID unichar_id) {
-    return (unichar_id == getUnicharset().unichar_to_id("-") ||
-            unichar_id == getUnicharset().unichar_to_id("/"));
+    const GenericVector<UNICHAR_ID>& normed_ids =
+        getUnicharset().normed_ids(unichar_id);
+    return normed_ids.size() == 1 &&
+        (normed_ids[0] == hyphen_unichar_id_ ||
+         normed_ids[0] == slash_unichar_id_);
+  }
+  // Returns true if unichar_id is an apostrophe-like character that may
+  // separate prefix/suffix words from a main body word.
+  inline bool is_apostrophe(UNICHAR_ID unichar_id) {
+    const GenericVector<UNICHAR_ID>& normed_ids =
+        getUnicharset().normed_ids(unichar_id);
+    return normed_ids.size() == 1 && normed_ids[0] == apostrophe_unichar_id_;
   }
 
   /* hyphen.cpp ************************************************************/
 
   /// Returns true if we've recorded the beginning of a hyphenated word.
   inline bool hyphenated() const { return
-    !last_word_on_line_ && hyphen_word_ && GetMaxFixedLengthDawgIndex() < 0;
+    !last_word_on_line_ && hyphen_word_;
   }
   /// Size of the base word (the part on the line before) of a hyphenated word.
   inline int hyphen_base_size() const {
@@ -131,19 +138,13 @@ class Dict {
       if (hyphen_debug_level) word->print("copy_hyphen_info: ");
     }
   }
-  /// Erase the unichar ids corresponding to the portion of the word
-  /// from the previous line. The word is not changed if it is not
-  /// split between lines and hyphenated.
-  inline void remove_hyphen_head(WERD_CHOICE *word) const {
-    if (this->hyphenated()) {
-      word->remove_unichar_ids(0, hyphen_word_->length());
-      if (hyphen_debug_level) hyphen_word_->print("remove_hyphen_head: ");
-    }
-  }
   /// Check whether the word has a hyphen at the end.
   inline bool has_hyphen_end(UNICHAR_ID unichar_id, bool first_pos) const {
-    return (last_word_on_line_ && !first_pos &&
-            unichar_id == hyphen_unichar_id_);
+    if (!last_word_on_line_ || first_pos)
+      return false;
+    const GenericVector<UNICHAR_ID>& normed_ids =
+        getUnicharset().normed_ids(unichar_id);
+    return normed_ids.size() == 1 && normed_ids[0] == hyphen_unichar_id_;
   }
   /// Same as above, but check the unichar at the end of the word.
   inline bool has_hyphen_end(const WERD_CHOICE &word) const {
@@ -152,54 +153,45 @@ class Dict {
   }
   /// Unless the previous word was the last one on the line, and the current
   /// one is not (thus it is the first one on the line), erase hyphen_word_,
-  /// clear hyphen_active_dawgs_, hyphen_constraints_ update last_word_on_line_.
+  /// clear hyphen_active_dawgs_, update last_word_on_line_.
   void reset_hyphen_vars(bool last_word_on_line);
-  /// Update hyphen_word_, and copy the given DawgInfoVectors into
-  /// hyphen_active_dawgs_ and hyphen_constraints_.
+  /// Update hyphen_word_, and copy the given DawgPositionVectors into
+  /// hyphen_active_dawgs_ .
   void set_hyphen_word(const WERD_CHOICE &word,
-                       const DawgInfoVector &active_dawgs,
-                       const DawgInfoVector &constraints);
+                       const DawgPositionVector &active_dawgs);
 
   /* permdawg.cpp ************************************************************/
+  // Note: Functions in permdawg.cpp are only used by NoDangerousAmbig().
+  // When this function is refactored, permdawg.cpp can be removed.
+
   /// Copies word into best_choice if its rating is smaller
   /// than that of best_choice.
   inline void update_best_choice(const WERD_CHOICE &word,
                                  WERD_CHOICE *best_choice) {
-    if (word.rating() < best_choice->rating()) *best_choice = word;
+    if (word.rating() < best_choice->rating()) {
+      *best_choice = word;
+    }
   }
   /// Fill the given active_dawgs vector with dawgs that could contain the
   /// beginning of the word. If hyphenated() returns true, copy the entries
   /// from hyphen_active_dawgs_ instead.
-  void init_active_dawgs(int sought_word_length,
-                         DawgInfoVector *active_dawgs,
+  void init_active_dawgs(DawgPositionVector *active_dawgs,
                          bool ambigs_mode) const;
-  /// If hyphenated() returns true, copy the entries from hyphen_constraints_
-  /// into the given constraints vector.
-  void init_constraints(DawgInfoVector *constraints) const;
-  /// Returns true if we are operating in ambigs mode.
-  inline bool ambigs_mode(float rating_limit) {
-    return rating_limit <= 0.0;
-  }
+  // Fill the given vector with the default collection of any-length dawgs
+  void default_dawgs(DawgPositionVector *anylength_dawgs,
+                               bool suppress_patterns) const;
+
+
   /// Recursively explore all the possible character combinations in
   /// the given char_choices. Use go_deeper_dawg_fxn() to explore all the
   /// dawgs in the dawgs_ vector in parallel and discard invalid words.
   ///
   /// Allocate and return a WERD_CHOICE with the best valid word found.
   WERD_CHOICE *dawg_permute_and_select(
-      const BLOB_CHOICE_LIST_VECTOR &char_choices, float rating_limit,
-      int sought_word_length, int end_char_choice_index);
-  WERD_CHOICE *dawg_permute_and_select(
-      const BLOB_CHOICE_LIST_VECTOR &char_choices, float rating_limit) {
-    return dawg_permute_and_select(char_choices, rating_limit,
-                                   kAnyWordLength, 0);
-  }
+      const BLOB_CHOICE_LIST_VECTOR &char_choices, float rating_limit);
   /// If the choice being composed so far could be a dictionary word
   /// and we have not reached the end of the word keep exploring the
   /// char_choices further.
-  /// Also:
-  /// -- sets hyphen word if needed
-  /// -- if word_ending is true and the word is better than best_choice,
-  ///    copies word to best_choice and logs new word choice
   void go_deeper_dawg_fxn(
       const char *debug, const BLOB_CHOICE_LIST_VECTOR &char_choices,
       int char_choice_index, const CHAR_FRAGMENT_INFO *prev_char_frag_info,
@@ -207,79 +199,18 @@ class Dict {
       float *limit, WERD_CHOICE *best_choice, int *attempts_left,
       void *void_more_args);
 
-  /* permute.cpp *************************************************************/
-  WERD_CHOICE *get_top_choice_word(
-      const BLOB_CHOICE_LIST_VECTOR &char_choices);
-  WERD_CHOICE *permute_top_choice(
-    const BLOB_CHOICE_LIST_VECTOR &char_choices,
-    float* rating_limit,
-    WERD_CHOICE *raw_choice,
-    BOOL8 *any_alpha);
-  const char* choose_il1(const char *first_char,       //first choice
-                         const char *second_char,      //second choice
-                         const char *third_char,       //third choice
-                         const char *prev_char,        //prev in word
-                         const char *next_char,        //next in word
-                         const char *next_next_char);  //after next next in word
-  WERD_CHOICE *permute_all(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                           const WERD_CHOICE *best_choice,
-                           WERD_CHOICE *raw_choice);
-  void end_permute();
-  void permute_subword(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                       float rating_limit,
-                       int start,
-                       int end,
-                       WERD_CHOICE *current_word);
-  bool permute_characters(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                          WERD_CHOICE *best_choice,
-                          WERD_CHOICE *raw_choice);
-  WERD_CHOICE *permute_compound_words(
-      const BLOB_CHOICE_LIST_VECTOR &char_choices,
-      float rating_limit);
-  /// Find permutations matching a list of fixed-char-length dawgs
-  /// The bestchoice based on this permuter alone is returned. Alternatively,
-  /// non-conflicting changes can be combined through permuter_state.
-  WERD_CHOICE *permute_fixed_length_words(
-      const BLOB_CHOICE_LIST_VECTOR &char_choices,
-      PermuterState *permuter_state);
-  /// Incoporate segmentation cost into word rating
-  void incorporate_segcost(WERD_CHOICE* word);
-  /// Checks for script-consistent permutations.  Similar to fixed-length
-  /// permuter, the best choice is returned by the function, but the combined
-  /// changes are also recorded into permuter_state.
-  WERD_CHOICE *permute_script_words(
-      const BLOB_CHOICE_LIST_VECTOR &char_choices,
-      PermuterState *permuter_state);
-  /// checks for consistency in character property (eg. alpah, digit, punct)
-  WERD_CHOICE *permute_chartype_words(
-      const BLOB_CHOICE_LIST_VECTOR &char_choices,
-      PermuterState *permuter_state);
-
-  /// Look up the main chartype for each character position and store it in
-  /// the given array.  Also returns the dominant type from unambiguous top
-  /// choices.
-  char top_word_chartype(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                         char* pos_chartypes);
-
-  WERD_CHOICE *top_fragments_permute_and_select(
-      const BLOB_CHOICE_LIST_VECTOR &char_choices,
-      float rating_limit);
-  /// While the choice being composed so far could be better
-  /// than best_choice keeps exploring char_choices.
-  /// If the end of the word is reached and the word is better than
-  /// best_choice, copies word to best_choice and logs the new word choice.
-  void go_deeper_top_fragments_fxn(
-      const char *debug, const BLOB_CHOICE_LIST_VECTOR &char_choices,
-      int char_choice_index, const CHAR_FRAGMENT_INFO *prev_char_frag_info,
-      bool word_ending, WERD_CHOICE *word, float certainties[], float *limit,
-      WERD_CHOICE *best_choice, int *attempts_left, void *more_args);
-
-  /// Semi-generic functions used by multiple permuters.
-  bool fragment_state_okay(UNICHAR_ID curr_unichar_id,
-                           float curr_rating, float curr_certainty,
-                           const CHAR_FRAGMENT_INFO *prev_char_frag_info,
-                           const char *debug, int word_ending,
-                           CHAR_FRAGMENT_INFO *char_frag_info);
+  /// Pointer to go_deeper function.
+  void (Dict::*go_deeper_fxn_)(const char *debug,
+                               const BLOB_CHOICE_LIST_VECTOR &char_choices,
+                               int char_choice_index,
+                               const CHAR_FRAGMENT_INFO *prev_char_frag_info,
+                               bool word_ending, WERD_CHOICE *word,
+                               float certainties[], float *limit,
+                               WERD_CHOICE *best_choice, int *attempts_left,
+                               void *void_more_args);
+  //
+  // Helper functions for dawg_permute_and_select().
+  //
   void permute_choices(
       const char *debug,
       const BLOB_CHOICE_LIST_VECTOR &char_choices,
@@ -304,68 +235,31 @@ class Dict {
       WERD_CHOICE *best_choice,
       int *attempts_left,
       void *more_args);
-  /// Pointer to go_deeper function that will be modified by various permuters.
-  void (Dict::*go_deeper_fxn_)(const char *debug,
-                               const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                               int char_choice_index,
-                               const CHAR_FRAGMENT_INFO *prev_char_frag_info,
-                               bool word_ending, WERD_CHOICE *word,
-                               float certainties[], float *limit,
-                               WERD_CHOICE *best_choice, int *attempts_left,
-                               void *void_more_args);
+
+    bool fragment_state_okay(UNICHAR_ID curr_unichar_id,
+                             float curr_rating, float curr_certainty,
+                             const CHAR_FRAGMENT_INFO *prev_char_frag_info,
+                             const char *debug, int word_ending,
+                             CHAR_FRAGMENT_INFO *char_frag_info);
+
   /* stopper.cpp *************************************************************/
   bool NoDangerousAmbig(WERD_CHOICE *BestChoice,
                         DANGERR *fixpt,
                         bool fix_replaceable,
-                        BLOB_CHOICE_LIST_VECTOR *Choices,
-                        bool *modified_blobs);
-  double StopperAmbigThreshold(double f1, double f2) {
-    return (f2 - f1) * stopper_ambiguity_threshold_gain -
-        stopper_ambiguity_threshold_offset;
-  }
-  // If the certainty of any chunk in Choice (item1) is not ambiguous with the
-  // corresponding chunk in the best choice (item2), frees Choice and
-  // returns true.
-  int FreeBadChoice(void *item1,   // VIABLE_CHOICE Choice
-                    void *item2);  // EXPANDED_CHOICE *BestChoice
-  /// Replaces the corresponding wrong ngram in werd_choice with the correct
-  /// one. We indicate that this newly inserted ngram unichar is composed from
-  /// several fragments and modify the corresponding entries in blob_choices to
-  /// contain fragments of the correct ngram unichar instead of the original
-  /// unichars. Ratings and certainties of entries in blob_choices and
-  /// werd_choice are unichaged. E.g. for werd_choice mystring'' and ambiguity
-  /// ''->": werd_choice becomes mystring", first ' in blob_choices becomes
-  /// |"|0|2, second one is set to |"|1|2.
+                        MATRIX* ratings);
+  // Replaces the corresponding wrong ngram in werd_choice with the correct
+  // one. The whole correct n-gram is inserted into the ratings matrix and
+  // the werd_choice: no more fragments!. Rating and certainty of new entries
+  // in matrix and werd_choice are the sum and mean of the wrong ngram
+  // respectively.
+  // E.g. for werd_choice mystring'' and ambiguity ''->": werd_choice becomes
+  // mystring", with a new entry in the ratings matrix for ".
   void ReplaceAmbig(int wrong_ngram_begin_index, int wrong_ngram_size,
                     UNICHAR_ID correct_ngram_id, WERD_CHOICE *werd_choice,
-                    BLOB_CHOICE_LIST_VECTOR *blob_choices,
-                    bool *modified_blobs);
-
-  inline void DisableChoiceAccum() { keep_word_choices_ = false; }
-  inline void EnableChoiceAccum() { keep_word_choices_ = true; }
-  inline bool ChoiceAccumEnabled() { return keep_word_choices_; }
+                    MATRIX *ratings);
 
   /// Returns the length of the shortest alpha run in WordChoice.
   int LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice);
-  /// Allocates a new viable choice data structure, copies WordChoice,
-  /// Certainties, and current_segmentation_ into it, returns a pointer to
-  /// the newly created VIABLE_CHOICE.
-  /// WordChoice is a choice to be converted to a viable choice.
-  /// AdjustFactor is a factor used to adjust ratings for WordChoice.
-  /// Certainties contain certainty for each character in WordChoice.
-  VIABLE_CHOICE NewViableChoice(const WERD_CHOICE &WordChoice,
-                                FLOAT32 AdjustFactor,
-                                const float Certainties[]);
-  /// Dumps a text representation of the specified Choice to File.
-  void PrintViableChoice(FILE *File, const char *Label, VIABLE_CHOICE Choice);
-  /// Compares unichar ids in word_choice to those in viable_choice,
-  /// returns true if they are the same.
-  bool StringSameAs(const WERD_CHOICE &WordChoice,
-                    VIABLE_CHOICE ViableChoice);
-  /// Compares String to ViableChoice and returns true if they are the same.
-  bool StringSameAs(const char *String,
-                    const char *String_lengths,
-                    VIABLE_CHOICE ViableChoice);
   /// Returns true if the certainty of the BestChoice word is within a
   /// reasonable range of the average certainties for the best choices for
   /// each character in the segmentation.  This test is used to catch words
@@ -373,89 +267,17 @@ class Dict {
   /// word (i.e. false will be returned in that case). The algorithm computes
   /// the mean and std deviation of the certainties in the word with the worst
   /// certainty thrown out.
-  int UniformCertainties(const BLOB_CHOICE_LIST_VECTOR &Choices,
-                         const WERD_CHOICE &BestChoice);
+  int UniformCertainties(const WERD_CHOICE& word);
   /// Returns true if the given best_choice is good enough to stop.
-  bool AcceptableChoice(BLOB_CHOICE_LIST_VECTOR *Choices,
-                        WERD_CHOICE *BestChoice,
-                        DANGERR *fixpt,
-                        ACCEPTABLE_CHOICE_CALLER caller,
-                        bool *modified_blobs);
+  bool AcceptableChoice(const WERD_CHOICE& best_choice,
+                        XHeightConsistencyEnum xheight_consistency);
   /// Returns false if the best choice for the current word is questionable
   /// and should be tried again on the second pass or should be flagged to
   /// the user.
-  bool AcceptableResult(const WERD_CHOICE &BestChoice);
-  /// Compares the corresponding strings of WordChoice and ViableChoice and
-  /// returns true if they are the same.
-  int ChoiceSameAs(const WERD_CHOICE &WordChoice, VIABLE_CHOICE ViableChoice);
-  /// Adds Choice to ChoicesList if the adjusted certainty for Choice is within
-  /// a reasonable range of the best choice in ChoicesList. The ChoicesList list
-  /// is kept in sorted order by rating. Duplicates are removed.
-  /// WordChoice is the new choice for current word.
-  /// AdjustFactor is an adjustment factor which was applied to choice.
-  /// Certainties are certainties for each char in new choice.
-  /// raw_choice indicates whether WordChoice is a raw or best choice.
-  void LogNewChoice(FLOAT32 AdjustFactor,
-                    const float Certainties[],
-                    bool raw_choice,
-                    WERD_CHOICE *WordChoice,
-                    const BLOB_CHOICE_LIST_VECTOR &blob_choices);
+  bool AcceptableResult(WERD_RES* word);
   void EndDangerousAmbigs();
-  /// Returns true if WordChoice is the same as the current best choice.
-  bool CurrentBestChoiceIs(const WERD_CHOICE &WordChoice);
-  /// Returns the adjustment factor for the best choice for the current word.
-  FLOAT32 CurrentBestChoiceAdjustFactor();
-  /// Returns true if there are multiple good choices for the current word.
-  bool CurrentWordAmbig();
   /// Prints the current choices for this word to stdout.
   void DebugWordChoices();
-  /// Print all the choices in raw_choices_ list for non 1-1 ambiguities.
-  void PrintAmbigAlternatives(FILE *file, const char *label,
-                              int label_num_unichars);
-  /// Fill ViableChoice with information from WordChoice, AChoice, AdjustFactor,
-  /// and Certainties.
-  void FillViableChoice(const WERD_CHOICE &WordChoice,
-                        FLOAT32 AdjustFactor, const float Certainties[],
-                        VIABLE_CHOICE ViableChoice);
-  /// Returns true if there are no alternative choices for the current word
-  /// or if all alternatives have an adjust factor worse than Threshold.
-  bool AlternativeChoicesWorseThan(FLOAT32 Threshold);
-  /// Removes from best_choices_ all choices which are not within a reasonable
-  /// range of the best choice.
-  void FilterWordChoices();
-  /// Compares the best choice for the current word to the best raw choice
-  /// to determine which characters were classified incorrectly by the
-  /// classifier. Then places a separate threshold into Thresholds for each
-  /// character in the word. If the classifier was correct, MaxRating is placed
-  /// into Thresholds. If the classifier was incorrect, the avg. match rating
-  /// (error percentage) of the classifier's incorrect choice minus some margin
-  /// is placed into thresholds.This can then be used by the caller to try to
-  /// create a new template for the desired class that will classify the
-  /// character with a rating better than the threshold value. The match rating
-  /// placed into Thresholds is never allowed to be below MinRating in order to
-  /// prevent trying to make overly tight templates.
-  /// MinRating limits how tight to make a template.
-  /// MaxRating limits how loose to make a template.
-  /// RatingMargin denotes the amount of margin to put in template.
-  void FindClassifierErrors(FLOAT32 MinRating,
-                            FLOAT32 MaxRating,
-                            FLOAT32 RatingMargin,
-                            FLOAT32 Thresholds[]);
-  /// Initializes the data structures used to keep track the good word choices
-  /// found for a word.
-  void InitChoiceAccum();
-  /// Clears best_choices_ list accumulated by the stopper.
-  void ClearBestChoiceAccum();
-  /// Updates the blob widths in current_segmentation_ to be the same as
-  /// provided in BlobWidth. BlobWidth[] contains the number of chunks in each
-  /// blob in the current segmentation.
-  void LogNewSegmentation(PIECES_STATE BlobWidth);
-  /// Given Blob (the index of the blob that was split), adds 1 chunk to the
-  /// specified blob for each choice in best_choices_ and for best_raw_choice_.
-  void LogNewSplit(int Blob);
-  /// Increments the chunk count of the character in Choice which corresponds
-  /// to Blob (index of the blob being split).
-  void AddNewChunk(VIABLE_CHOICE Choice, int Blob);
   /// Sets up stopper variables in preparation for the first pass.
   void SettupStopperPass1();
   /// Sets up stopper variables in preparation for the second pass.
@@ -471,7 +293,8 @@ class Dict {
 
   /// Initialize Dict class - load dawgs from [lang].traineddata and
   /// user-specified wordlist and parttern list.
-  void Load();
+  static DawgCache *GlobalDawgCache();
+  void Load(DawgCache *dawg_cache);
   void End();
 
   // Resets the document dictionary analogous to ResetAdaptiveClassifier.
@@ -482,15 +305,6 @@ class Dict {
       document_words_->clear();
   }
 
-  // Create unicharset adaptations of known, short lists of UTF-8 equivalent
-  // characters (think all hyphen-like symbols).  The first version of the
-  // list is taken as equivalent for matching against the dictionary.
-  void LoadEquivalenceList(const char *unichar_strings[]);
-
-  // Normalize all hyphen and apostrophes to the canonicalized one for
-  // matching; pass everything else through as is.  See LoadEquivalenceList().
-  UNICHAR_ID NormalizeUnicharIdForMatch(UNICHAR_ID unichar_id) const;
-
   /**
    * Returns the maximal permuter code (from ccstruct/ratngs.h) if in light
    * of the current state the letter at word_index in the given word
@@ -498,59 +312,32 @@ class Dict {
    * otherwise returns NO_PERM.
    *
    * The state is described by void_dawg_args, which are interpreted as
-   * DawgArgs and contain two relevant input vectors: active_dawgs and
-   * constraints. Each entry in the active_dawgs vector contains an index
+   * DawgArgs and contain relevant active dawg positions.
+   * Each entry in the active_dawgs vector contains an index
    * into the dawgs_ vector and an EDGE_REF that indicates the last edge
-   * followed in the dawg. Each entry in the constraints vector contains
-   * an index into the dawgs_ vector and an EDGE_REF that indicates an edge
-   * in a pattern dawg followed to match a pattern. Currently constraints
-   * are used to save the state of punctuation dawgs after leading
-   * punctuation was found.
+   * followed in the dawg.  It also may contain a position in the punctuation
+   * dawg which describes surrounding punctuation (see struct DawgPosition).
    *
    * Input:
    * At word_index 0 dawg_args->active_dawgs should contain an entry for each
-   * dawg whose type has a bit set in kBeginningDawgsType,
-   * dawg_args->constraints should be empty. EDGE_REFs in active_dawgs and
-   * constraints vectors should be initialized to NO_EDGE. If hyphen state
-   * needs to be applied, initial dawg_args->active_dawgs and
-   * dawg_args->constrains can be copied from the saved hyphen state
-   * (maintained by Dict).
-   * For word_index > 0 the corresponding state (active_dawgs and constraints)
-   * can be obtained from dawg_args->updated_* passed to def_letter_is_okay
-   * for word_index-1.
-   * Note: the function assumes that active_dags, constraints and updated_*
+   * dawg that may start at the beginning of a word, with punc_ref and edge_ref
+   * initialized to NO_EDGE.  Since the punctuation dawg includes the empty
+   * pattern " " (meaning anything without surrounding punctuation), having a
+   * single entry for the punctuation dawg will cover all dawgs reachable
+   * therefrom -- that includes all number and word dawgs. The only dawg
+   * non-reachable from the punctuation_dawg is the pattern dawg.
+   * If hyphen state needs to be applied, initial dawg_args->active_dawgs can
+   * be copied from the saved hyphen state (maintained by Dict).
+   * For word_index > 0 the corresponding state (active_dawgs and punc position)
+   * can be obtained from dawg_args->updated_dawgs passed to
+   * def_letter_is_okay for word_index-1.
+   * Note: the function assumes that active_dawgs, nd updated_dawgs
    * member variables of dawg_args are not NULL.
    *
    * Output:
-   * The function fills in dawg_args->updated_active_dawgs vector with the
+   * The function fills in dawg_args->updated_dawgs vector with the
    * entries for dawgs that contain the word up to the letter at word_index.
-   * The new constraints (if any) are added to dawg_args->updated_constraints,
-   * the constraints from dawg_args->constraints are also copied into it.
    *
-   * Detailed description:
-   * In order to determine whether the word is still valid after considering
-   * all the letters up to the one at word_index the following is done for
-   * each entry in dawg_args->active_dawgs:
-   *
-   *  - next starting node is obtained from entry.ref and edge_char_of() is
-   *    called to obtain the next edge
-   *  - if a valid edge is found, the function returns the updated permuter
-   *    code true and an entry [entry.dawg_index, edge] is inserted in
-   *    dawg_args->updated_active_dawgs
-   *    otherwise:
-   *    - if we are dealing with dawg of type DAWG_TYPE_PUNCTUATION,
-   *      edge_char_of() is called again, but now with kPatternUnicharID
-   *      as unichar_id; if a valid edge is found it is recorded in
-   *      dawg_args->updated_constraints
-   *    - the function checks whether the word can end with the previous
-   *      letter
-   *    - each successor of the dawg (e.g. dawgs with type DAWG_TYPE_WORD
-   *      could be successors to dawgs with type DAWG_TYPE_PUNCTUATION; the
-   *      successors are defined by successors_ vector) is explored and if
-   *      a letter is found in the successor dawg, a new entry is inserted
-   *      into dawg_args->updated_active_dawgs with EDGE_REF being either
-   *      NO_EDGE or an EDGE_REF recorded in constraints vector for the
-   *      corresponding dawg index
    */
 
   //
@@ -578,7 +365,7 @@ class Dict {
                               const char* character,
                               int character_bytes) {
     return (this->*probability_in_context_)(
-        getImage()->getCCUtil()->lang.string(),
+        getCCUtil()->lang.string(),
         context, context_bytes,
         character, character_bytes);
   }
@@ -599,6 +386,20 @@ class Dict {
                                       const char* character,
                                       int character_bytes);
 
+  // Interface with params model.
+  float (Dict::*params_model_classify_)(const char *lang, void *path);
+  float ParamsModelClassify(const char *lang, void *path);
+  // Call params_model_classify_ member function.
+  float CallParamsModelClassify(void *path) {
+    ASSERT_HOST(params_model_classify_ != NULL);  // ASSERT_HOST -> assert
+    return (this->*params_model_classify_)(
+        getCCUtil()->lang.string(), path);
+  }
+
+  inline void SetWildcardID(UNICHAR_ID id) { wildcard_unichar_id_ = id; }
+  inline const UNICHAR_ID WildcardID() const {
+    return wildcard_unichar_id_;
+  }
   /// Return the number of dawgs in the dawgs_ vector.
   inline const int NumDawgs() const { return dawgs_.size(); }
   /// Return i-th dawg pointer recorded in the dawgs_ vector.
@@ -607,15 +408,6 @@ class Dict {
   inline const Dawg *GetPuncDawg() const { return punc_dawg_; }
   /// Return the points to the unambiguous words dawg.
   inline const Dawg *GetUnambigDawg() const { return unambig_dawg_; }
-  /// Return the pointer to the Dawg that contains words of length word_length.
-  inline const Dawg *GetFixedLengthDawg(int word_length) const {
-    if (word_length > max_fixed_length_dawgs_wdlen_) return NULL;
-    assert(dawgs_.size() > word_length);
-    return dawgs_[word_length];
-  }
-  inline const int GetMaxFixedLengthDawgIndex() const {
-    return max_fixed_length_dawgs_wdlen_;
-  }
   /// Returns the appropriate next node given the EDGE_REF.
   static inline NODE_REF GetStartingNode(const Dawg *dawg, EDGE_REF edge_ref) {
     if (edge_ref == NO_EDGE) return 0;  // beginning to explore the dawg
@@ -623,27 +415,18 @@ class Dict {
     if (node == 0) node = NO_EDGE;  // end of word
     return node;
   }
-  /// At word ending make sure all the recorded constraints are satisfied.
-  /// Each constraint signifies that we found a beginning pattern in a
-  /// pattern dawg. Check that this pattern can end here (e.g. if some
-  /// leading punctuation is found this would ensure that we are not
-  /// expecting any particular trailing punctuation after the word).
-  inline bool ConstraintsOk(const DawgInfoVector &constraints,
-                            int word_end, DawgType current_dawg_type) const {
-    if (!word_end) return true;
-    if (current_dawg_type == DAWG_TYPE_PUNCTUATION) return true;
-    for (int c = 0; c < constraints.length(); ++c) {
-      const DawgInfo &cinfo = constraints[c];
-      Dawg *cdawg = dawgs_[cinfo.dawg_index];
-      if (!cdawg->end_of_word(cinfo.ref)) {
-        if (dawg_debug_level >= 3) {
-          tprintf("Constraint [%d, " REFFORMAT "] is not satisfied\n",
-                  cinfo.dawg_index, cinfo.ref);
-        }
-        return false;
-      }
+
+  // Given a unichar from a string and a given dawg, return the unichar
+  // we should use to match in that dawg type.  (for example, in the number
+  // dawg, all numbers are transformed to kPatternUnicharId).
+  inline UNICHAR_ID char_for_dawg(UNICHAR_ID ch, const Dawg *dawg) const {
+    if (!dawg) return ch;
+    switch (dawg->type()) {
+      case DAWG_TYPE_NUMBER:
+        return getUnicharset().get_isdigit(ch) ? Dawg::kPatternUnicharID : ch;
+      default:
+        return ch;
     }
-    return true;
   }
 
   /// For each of the character classes of the given unichar_id (and the
@@ -651,35 +434,21 @@ class Dict {
   /// in the given dawg and (after checking that it is valid) records it in
   /// dawg_args->updated_ative_dawgs. Updates current_permuter if any valid
   /// edges were found.
-  void ProcessPatternEdges(const Dawg *dawg, const DawgInfo &info,
+  void ProcessPatternEdges(const Dawg *dawg, const DawgPosition &info,
                            UNICHAR_ID unichar_id, bool word_end,
-                           DawgArgs *dawg_args,
+                           DawgPositionVector *updated_dawgs,
                            PermuterType *current_permuter) const;
 
   /// Read/Write/Access special purpose dawgs which contain words
   /// only of a certain length (used for phrase search for
   /// non-space-delimited languages).
 
-  /// Reads a sequence of dawgs from the given file.
-  /// Appends the constructed dawgs to the given dawg_vec.
-  /// Fills the given table with indices of the dawgs in the
-  /// dawg_vec corresponding to the dawgs with words
-  /// of a particular length.
-  static void ReadFixedLengthDawgs(DawgType type, const STRING &lang,
-                                   PermuterType perm, int debug_level,
-                                   FILE *file, DawgVector *dawg_vec,
-                                   int *max_wdlen);
-  /// Writes the dawgs in the dawgs_vec to a file. Updates the given table with
-  /// the indices of dawgs in the dawg_vec for the corresponding word lengths.
-  static void WriteFixedLengthDawgs(
-      const GenericVector<SquishedDawg *> &dawg_vec,
-      int num_dawgs, int debug_level, FILE *output_file);
-
   /// Check all the DAWGs to see if this word is in any of them.
   inline static bool valid_word_permuter(uinT8 perm, bool numbers_ok) {
     return (perm == SYSTEM_DAWG_PERM || perm == FREQ_DAWG_PERM ||
             perm == DOC_DAWG_PERM || perm == USER_DAWG_PERM ||
-            perm == USER_PATTERN_PERM || (numbers_ok && perm == NUMBER_PERM));
+            perm == USER_PATTERN_PERM || perm == COMPOUND_PERM ||
+            (numbers_ok && perm == NUMBER_PERM));
   }
   int valid_word(const WERD_CHOICE &word, bool numbers_ok) const;
   int valid_word(const WERD_CHOICE &word) const {
@@ -704,34 +473,20 @@ class Dict {
   int good_choice(const WERD_CHOICE &choice);
   /// Adds a word found on this document to the document specific dictionary.
   void add_document_word(const WERD_CHOICE &best_choice);
-  int get_top_word_script(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                          const UNICHARSET &unicharset);
   /// Adjusts the rating of the given word.
-  void adjust_word(WERD_CHOICE *word, float *certainty_array,
-                   const BLOB_CHOICE_LIST_VECTOR *char_choices,
-                   bool nonword, float additional_adjust, bool debug);
-  void adjust_word(WERD_CHOICE *word, float *certainty_array,
-                   const BLOB_CHOICE_LIST_VECTOR *char_choices,
-                   bool debug) {
-    adjust_word(word, certainty_array, char_choices, false, 0.0f,
-                debug);
-  }
-  void adjust_non_word(WERD_CHOICE *word,
-                       float *certainty_array,
-                       const BLOB_CHOICE_LIST_VECTOR *char_choices,
-                       bool debug) {
-    adjust_word(word, certainty_array, char_choices, true, 0.0f, debug);
-  }
+  void adjust_word(WERD_CHOICE *word,
+                   bool nonword, XHeightConsistencyEnum xheight_consistency,
+                   float additional_adjust,
+                   bool modify_rating,
+                   bool debug);
   /// Set wordseg_rating_adjust_factor_ to the given value.
   inline void SetWordsegRatingAdjustFactor(float f) {
     wordseg_rating_adjust_factor_ = f;
   }
-  // Accessor for best_choices_.
-  const LIST &getBestChoices() { return best_choices_; }
 
  private:
   /** Private member variables. */
-  Image* image_ptr_;
+  CCUtil* ccutil_;
   /**
    * Table that stores ambiguities computed during training
    * (loaded when NoDangerousAmbigs() is called for the first time).
@@ -741,30 +496,26 @@ class Dict {
   UnicharAmbigs *dang_ambigs_table_;
   /** Same as above, but for ambiguities with replace flag set. */
   UnicharAmbigs *replace_ambigs_table_;
-  /**
-   * Flag used to disable accumulation of word choices
-   * during compound word permutation.
-   */
-  bool keep_word_choices_;
   /** Additional certainty padding allowed before a word is rejected. */
   FLOAT32 reject_offset_;
-  /** Current word segmentation. */
-  PIECES_STATE current_segmentation_;
-  /** Variables to keep track of best/raw word choices. */
-  VIABLE_CHOICE best_raw_choice_;
-  LIST raw_choices_;
-  LIST best_choices_;
+  // Cached UNICHAR_IDs:
+  UNICHAR_ID wildcard_unichar_id_;    // kDictWildcard.
+  UNICHAR_ID apostrophe_unichar_id_;  // kApostropheSymbol.
+  UNICHAR_ID question_unichar_id_;    // kQuestionSymbol.
+  UNICHAR_ID slash_unichar_id_;       // kSlashSymbol.
+  UNICHAR_ID hyphen_unichar_id_;      // kHyphenSymbol.
   // Hyphen-related variables.
-  UNICHAR_ID hyphen_unichar_id_;
   WERD_CHOICE *hyphen_word_;
-  DawgInfoVector hyphen_active_dawgs_;
-  DawgInfoVector hyphen_constraints_;
+  DawgPositionVector hyphen_active_dawgs_;
   bool last_word_on_line_;
   // List of lists of "equivalent" UNICHAR_IDs for the purposes of dictionary
   // matching.  The first member of each list is taken as canonical.  For
   // example, the first list contains hyphens and dashes with the first symbol
   // being the ASCII hyphen minus.
   GenericVector<GenericVectorEqEq<UNICHAR_ID> > equivalent_symbols_;
+  // Dawg Cache reference - this is who we ask to allocate/deallocate dawgs.
+  DawgCache *dawg_cache_;
+  bool dawg_cache_is_ours_;  // we should delete our own dawg_cache_
   // Dawgs.
   DawgVector dawgs_;
   SuccessorListsVector successors_;
@@ -783,9 +534,6 @@ class Dict {
   Dawg *unambig_dawg_;
   Dawg *punc_dawg_;
   Trie *document_words_;
-  /// Maximum word length of fixed-length word dawgs.
-  /// A value < 1 indicates that no fixed-length dawgs are loaded.
-  int max_fixed_length_dawgs_wdlen_;
   /// Current segmentation cost adjust factor for word rating.
   /// See comments in incorporate_segcost.
   float wordseg_rating_adjust_factor_;
@@ -796,19 +544,27 @@ class Dict {
   /// Variable members.
   /// These have to be declared and initialized after image_ptr_, which contains
   /// the pointer to the params vector - the member of its base CCUtil class.
-  STRING_VAR_H(user_words_suffix, "", "A list of user-provided words.");
+  STRING_VAR_H(user_words_file, "", "A filename of user-provided words.");
+  STRING_VAR_H(user_words_suffix, "",
+               "A suffix of user-provided words located in tessdata.");
+  STRING_VAR_H(user_patterns_file, "",
+               "A filename of user-provided patterns.");
   STRING_VAR_H(user_patterns_suffix, "",
-               "A list of user-provided patterns.");
+               "A suffix of user-provided patterns located in tessdata.");
   BOOL_VAR_H(load_system_dawg, true, "Load system word dawg.");
   BOOL_VAR_H(load_freq_dawg, true, "Load frequent word dawg.");
   BOOL_VAR_H(load_unambig_dawg, true, "Load unambiguous word dawg.");
   BOOL_VAR_H(load_punc_dawg, true,
              "Load dawg with punctuation patterns.");
   BOOL_VAR_H(load_number_dawg, true, "Load dawg with number patterns.");
-  BOOL_VAR_H(load_fixed_length_dawgs, true,  "Load fixed length"
-             " dawgs (e.g. for non-space delimited languages)");
-  BOOL_VAR_H(load_bigram_dawg, false,
+  BOOL_VAR_H(load_bigram_dawg, true,
              "Load dawg with special word bigrams.");
+  double_VAR_H(xheight_penalty_subscripts, 0.125,
+               "Score penalty (0.1 = 10%) added if there are subscripts "
+               "or superscripts in a word, but it is otherwise OK.");
+  double_VAR_H(xheight_penalty_inconsistent, 0.25,
+               "Score penalty (0.1 = 10%) added if an xheight is "
+               "inconsistent.");
   double_VAR_H(segment_penalty_dict_frequent_word, 1.0,
                "Score multiplier for word matches which have good case and"
                "are frequent in the given language (lower is better).");
@@ -857,57 +613,28 @@ class Dict {
   BOOL_VAR_H(stopper_no_acceptable_choices, false,
              "Make AcceptableChoice() always return false. Useful"
              " when there is a need to explore all segmentations");
-  double_VAR_H(stopper_ambiguity_threshold_gain, 8.0,
-               "Gain factor for ambiguity threshold.");
-  double_VAR_H(stopper_ambiguity_threshold_offset, 1.5,
-               "Certainty offset for ambiguity threshold.");
-  BOOL_VAR_H(save_raw_choices, false, "Save all explored raw choices");
+  BOOL_VAR_H(save_raw_choices, false,
+             "Deprecated- backward compatability only");
   INT_VAR_H(tessedit_truncate_wordchoice_log, 10, "Max words to keep in list");
   STRING_VAR_H(word_to_debug, "", "Word for which stopper debug information"
                " should be printed to stdout");
   STRING_VAR_H(word_to_debug_lengths, "",
                "Lengths of unichars in word_to_debug");
   INT_VAR_H(fragments_debug, 0, "Debug character fragments");
-  INT_VAR_H(segment_debug, 0, "Debug the whole segmentation process");
-  BOOL_VAR_H(permute_debug, 0, "Debug char permutation process");
-  double_VAR_H(bestrate_pruning_factor, 2.0, "Multiplying factor of"
-               " current best rate to prune other hypotheses");
-  BOOL_VAR_H(permute_script_word, 0,
-             "Turn on word script consistency permuter");
-  BOOL_VAR_H(segment_segcost_rating, 0,
-             "incorporate segmentation cost in word rating?");
   BOOL_VAR_H(segment_nonalphabetic_script, false,
              "Don't use any alphabetic-specific tricks."
              "Set to true in the traineddata config file for"
              " scripts that are cursive or inherently fixed-pitch");
-  double_VAR_H(segment_reward_script, 0.95,
-               "Score multipler for script consistency within a word. "
-               "Being a 'reward' factor, it should be <= 1. "
-               "Smaller value implies bigger reward.");
-  BOOL_VAR_H(permute_fixed_length_dawg, 0,
-             "Turn on fixed-length phrasebook search permuter");
-  BOOL_VAR_H(permute_chartype_word, 0,
-             "Turn on character type (property) consistency permuter");
-  double_VAR_H(segment_reward_chartype, 0.97,
-               "Score multipler for char type consistency within a word. ");
-  // TODO(daria): remove this param when ngram permuter is deprecated.
-  double_VAR_H(segment_reward_ngram_best_choice, 0.99,
-               "Score multipler for ngram permuter's best choice"
-               " (only used in the Han script path).");
   BOOL_VAR_H(save_doc_words, 0, "Save Document Words");
-  BOOL_VAR_H(doc_dict_enable, 1, "Enable Document Dictionary ");
   double_VAR_H(doc_dict_pending_threshold, 0.0,
                "Worst certainty for using pending dictionary");
   double_VAR_H(doc_dict_certainty_threshold, -2.25, "Worst certainty"
                " for words that can be inserted into the document dictionary");
-  BOOL_VAR_H(ngram_permuter_activated, false,
-             "Activate character-level n-gram-based permuter");
   INT_VAR_H(max_permuter_attempts, 10000, "Maximum number of different"
-            " character choices to consider during permutation."
-            " This limit is especially useful when user patterns"
-            " are specified, since overly generic patterns can result in"
-            " dawg search exploring an overly large number of options.");
-  BOOL_VAR_H(permute_only_top, false, "Run only the top choice permuter");
+              " character choices to consider during permutation."
+              " This limit is especially useful when user patterns"
+              " are specified, since overly generic patterns can result in"
+              " dawg search exploring an overly large number of options.");
 };
 }  // namespace tesseract
 

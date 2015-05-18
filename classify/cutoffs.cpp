@@ -68,7 +68,7 @@ void Classify::ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
     Cutoffs[i] = MAX_CUTOFF;
 
   while ((end_offset < 0 || ftell(CutoffFile) < end_offset) &&
-         fscanf(CutoffFile, "%" REALLY_QUOTE_IT(UNICHAR_LEN) "s %d",
+         tfscanf(CutoffFile, "%" REALLY_QUOTE_IT(UNICHAR_LEN) "s %d",
                 Class, &Cutoff) == 2) {
     if (strcmp(Class, "NULL") == 0) {
       ClassId = unicharset.unichar_to_id(" ");

@@ -95,7 +95,7 @@ void FreeTempProto(void *arg) {
 
 void FreePermConfig(PERM_CONFIG Config) {
   assert(Config != NULL);
-  Efree(Config->Ambigs);
+  delete [] Config->Ambigs;
   free_struct(Config, sizeof(PERM_CONFIG_STRUCT), "PERM_CONFIG_STRUCT");
 }
 
@@ -275,7 +275,6 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
   INT_CLASS IClass;
   ADAPT_CLASS AClass;
 
-  #ifndef SECURE_NAMES
   fprintf (File, "\n\nSUMMARY OF ADAPTED TEMPLATES:\n\n");
   fprintf (File, "Num classes = %d;  Num permanent classes = %d\n\n",
            Templates->NumNonEmptyClasses, Templates->NumPermClasses);
@@ -293,7 +292,6 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
       IClass->NumProtos - count (AClass->TempProtos));
     }
   }
-  #endif
   fprintf (File, "\n");
 
 }                                /* PrintAdaptedTemplates */
@@ -406,7 +404,7 @@ PERM_CONFIG ReadPermConfig(FILE *File) {
                                                   "PERM_CONFIG_STRUCT");
   uinT8 NumAmbigs;
   fread ((char *) &NumAmbigs, sizeof(uinT8), 1, File);
-  Config->Ambigs = (UNICHAR_ID *)Emalloc(sizeof(UNICHAR_ID) * (NumAmbigs + 1));
+  Config->Ambigs = new UNICHAR_ID[NumAmbigs + 1];
   fread(Config->Ambigs, sizeof(UNICHAR_ID), NumAmbigs, File);
   Config->Ambigs[NumAmbigs] = -1;
   fread(&(Config->FontinfoId), sizeof(int), 1, File);

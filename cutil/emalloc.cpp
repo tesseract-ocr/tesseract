@@ -32,7 +32,7 @@
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-void *Emalloc(size_t Size) { 
+void *Emalloc(int Size) {
 /*
  **							Parameters:
  **							Size
@@ -67,7 +67,7 @@ void *Emalloc(size_t Size) {
 
 
 /*---------------------------------------------------------------------------*/
-void *Erealloc(void *ptr, size_t size) { 
+void *Erealloc(void *ptr, int size) {
   void *Buffer;
 
   if (size < 0 || (size == 0 && ptr == NULL))

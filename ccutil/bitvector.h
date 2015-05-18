@@ -33,6 +33,16 @@ namespace tesseract {
 // Serialize/DeSerialize. Replaces the old macros.
 class BitVector {
  public:
+  // Fast lookup table to get the first least significant set bit in a byte.
+  // For zero, the table has 255, but since it is a special case, most code
+  // that uses this table will check for zero before looking up lsb_index_.
+  static const uinT8 lsb_index_[256];
+  // Fast lookup table to get the residual bits after zeroing the least
+  // significant set bit in a byte.
+  static const uinT8 lsb_eroded_[256];
+  // Fast lookup table to give the number of set bits in a byte.
+  static const int hamming_table_[256];
+
   BitVector();
   // Initializes the array to length * false.
   explicit BitVector(int length);
@@ -79,6 +89,21 @@ class BitVector {
     return (array_[WordIndex(index)] & BitMask(index)) != 0;
   }
 
+  // Returns the index of the next set bit after the given index.
+  // Useful for quickly iterating through the set bits in a sparse vector.
+  int NextSetBit(int prev_bit) const;
+
+  // Returns the number of set bits in the vector.
+  int NumSetBits() const;
+
+  // Logical in-place operations on whole bit vectors. Tries to do something
+  // sensible if they aren't the same size, but they should be really.
+  void operator|=(const BitVector& other);
+  void operator&=(const BitVector& other);
+  void operator^=(const BitVector& other);
+  // Set subtraction *this = v1 - v2.
+  void SetSubtract(const BitVector& v1, const BitVector& v2);
+
  private:
   // Allocates memory for a vector of the given length.
   void Alloc(int length);
@@ -104,8 +129,10 @@ class BitVector {
   }
 
   // Number of bits in this BitVector.
-  uinT32 bit_size_;
+  inT32 bit_size_;
   // Array of words used to pack the bits.
+  // Bits are stored little-endian by uinT32 word, ie by word first and then
+  // starting with the least significant bit in each word.
   uinT32* array_;
   // Number of bits in an array_ element.
   static const int kBitFactor = sizeof(uinT32) * 8;

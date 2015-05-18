@@ -18,8 +18,103 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "fontinfo.h"
+#include "bitvector.h"
+#include "unicity_table.h"
 
 namespace tesseract {
+
+// Writes to the given file. Returns false in case of error.
+bool FontInfo::Serialize(FILE* fp) const {
+  if (!write_info(fp, *this)) return false;
+  if (!write_spacing_info(fp, *this)) return false;
+  return true;
+}
+// Reads from the given file. Returns false in case of error.
+// If swap is true, assumes a big/little-endian swap is needed.
+bool FontInfo::DeSerialize(bool swap, FILE* fp) {
+  if (!read_info(fp, this, swap)) return false;
+  if (!read_spacing_info(fp, this, swap)) return false;
+  return true;
+}
+
+FontInfoTable::FontInfoTable() {
+  set_compare_callback(NewPermanentTessCallback(CompareFontInfo));
+  set_clear_callback(NewPermanentTessCallback(FontInfoDeleteCallback));
+}
+
+FontInfoTable::~FontInfoTable() {
+}
+
+// Writes to the given file. Returns false in case of error.
+bool FontInfoTable::Serialize(FILE* fp) const {
+  return this->SerializeClasses(fp);
+}
+// Reads from the given file. Returns false in case of error.
+// If swap is true, assumes a big/little-endian swap is needed.
+bool FontInfoTable::DeSerialize(bool swap, FILE* fp) {
+  truncate(0);
+  return this->DeSerializeClasses(swap, fp);
+}
+
+// Returns true if the given set of fonts includes one with the same
+// properties as font_id.
+bool FontInfoTable::SetContainsFontProperties(
+    int font_id, const GenericVector<int>& font_set) const {
+  uinT32 properties = get(font_id).properties;
+  for (int f = 0; f < font_set.size(); ++f) {
+    if (get(font_set[f]).properties == properties)
+      return true;
+  }
+  return false;
+}
+
+// Returns true if the given set of fonts includes multiple properties.
+bool FontInfoTable::SetContainsMultipleFontProperties(
+    const GenericVector<int>& font_set) const {
+  if (font_set.empty()) return false;
+  int first_font = font_set[0];
+  uinT32 properties = get(first_font).properties;
+  for (int f = 1; f < font_set.size(); ++f) {
+    if (get(font_set[f]).properties != properties)
+      return true;
+  }
+  return false;
+}
+
+// Moves any non-empty FontSpacingInfo entries from other to this.
+void FontInfoTable::MoveSpacingInfoFrom(FontInfoTable* other) {
+  set_compare_callback(NewPermanentTessCallback(CompareFontInfo));
+  set_clear_callback(NewPermanentTessCallback(FontInfoDeleteCallback));
+  for (int i = 0; i < other->size(); ++i) {
+    GenericVector<FontSpacingInfo*>* spacing_vec = other->get(i).spacing_vec;
+    if (spacing_vec != NULL) {
+      int target_index = get_index(other->get(i));
+      if (target_index < 0) {
+        // Bit copy the FontInfo and steal all the pointers.
+        push_back(other->get(i));
+        other->get(i).name = NULL;
+      } else {
+        delete [] get(target_index).spacing_vec;
+        get(target_index).spacing_vec = other->get(i).spacing_vec;
+      }
+      other->get(i).spacing_vec = NULL;
+    }
+  }
+}
+
+// Moves this to the target unicity table.
+void FontInfoTable::MoveTo(UnicityTable<FontInfo>* target) {
+  target->clear();
+  target->set_compare_callback(NewPermanentTessCallback(CompareFontInfo));
+  target->set_clear_callback(NewPermanentTessCallback(FontInfoDeleteCallback));
+  for (int i = 0; i < size(); ++i) {
+    // Bit copy the FontInfo and steal all the pointers.
+    target->push_back(get(i));
+    get(i).name = NULL;
+    get(i).spacing_vec = NULL;
+  }
+}
+
 
 // Compare FontInfo structures.
 bool CompareFontInfo(const FontInfo& fi1, const FontInfo& fi2) {
@@ -61,7 +156,8 @@ bool read_info(FILE* f, FontInfo* fi, bool swap) {
     Reverse32(&size);
   char* font_name = new char[size + 1];
   fi->name = font_name;
-  if (fread(font_name, sizeof(*font_name), size, f) != size) return false;
+  if (static_cast<int>(fread(font_name, sizeof(*font_name), size, f)) != size)
+    return false;
   font_name[size] = '\0';
   if (fread(&fi->properties, sizeof(fi->properties), 1, f) != 1) return false;
   if (swap)
@@ -72,7 +168,8 @@ bool read_info(FILE* f, FontInfo* fi, bool swap) {
 bool write_info(FILE* f, const FontInfo& fi) {
   inT32 size = strlen(fi.name);
   if (fwrite(&size, sizeof(size), 1, f) != 1) return false;
-  if (fwrite(fi.name, sizeof(*fi.name), size, f) != size) return false;
+  if (static_cast<int>(fwrite(fi.name, sizeof(*fi.name), size, f)) != size)
+    return false;
   if (fwrite(&fi.properties, sizeof(fi.properties), 1, f) != 1) return false;
   return true;
 }
@@ -89,6 +186,7 @@ bool read_spacing_info(FILE *f, FontInfo* fi, bool swap) {
     if (fread(&fs->x_gap_before, sizeof(fs->x_gap_before), 1, f) != 1 ||
         fread(&fs->x_gap_after, sizeof(fs->x_gap_after), 1, f) != 1 ||
         fread(&kern_size, sizeof(kern_size), 1, f) != 1) {
+      delete fs;
       return false;
     }
     if (swap) {
@@ -102,6 +200,7 @@ bool read_spacing_info(FILE *f, FontInfo* fi, bool swap) {
     }
     if (kern_size > 0 && (!fs->kerned_unichar_ids.DeSerialize(swap, f) ||
                           !fs->kerned_x_gaps.DeSerialize(swap, f))) {
+      delete fs;
       return false;
     }
     fi->add_spacing(i, fs);
@@ -117,6 +216,7 @@ bool write_spacing_info(FILE* f, const FontInfo& fi) {
     FontSpacingInfo *fs = fi.spacing_vec->get(i);
     inT32 kern_size = (fs == NULL) ? -1 : fs->kerned_x_gaps.size();
     if (fs == NULL) {
+      // Valid to have the identical fwrites. Writing invalid x-gaps.
       if (fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
           fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
           fwrite(&kern_size, sizeof(kern_size), 1, f) != 1) {

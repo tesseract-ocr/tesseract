@@ -21,7 +21,6 @@
 #define           TOPITCH_H
 
 #include          "blobbox.h"
-#include          "notdll.h"
 
 namespace tesseract {
 class Tesseract;

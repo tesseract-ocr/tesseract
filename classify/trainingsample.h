@@ -54,7 +54,7 @@ class TrainingSample : public ELIST_LINK {
  public:
   TrainingSample()
     : class_id_(INVALID_UNICHAR_ID), font_id_(0), page_num_(0),
-      num_features_(0), num_micro_features_(0),
+      num_features_(0), num_micro_features_(0), outline_length_(0),
       features_(NULL), micro_features_(NULL), weight_(1.0),
       max_dist_(0.0), sample_index_(0),
       features_are_indexed_(false), features_are_mapped_(false),
@@ -65,8 +65,11 @@ class TrainingSample : public ELIST_LINK {
   // Saves the given features into a TrainingSample. The features are copied,
   // so may be deleted afterwards. Delete the return value after use.
   static TrainingSample* CopyFromFeatures(const INT_FX_RESULT_STRUCT& fx_info,
+                                          const TBOX& bounding_box,
                                           const INT_FEATURE_STRUCT* features,
                                           int num_features);
+  // Returns the cn_feature as a FEATURE_STRUCT* needed by cntraining.
+  FEATURE_STRUCT* GetCNFeature() const;
   // Constructs and returns a copy "randomized" by the method given by
   // the randomizer index. If index is out of [0, kSampleRandomSize) then
   // an exact copy is returned.
@@ -146,6 +149,9 @@ class TrainingSample : public ELIST_LINK {
   const MicroFeature* micro_features() const {
     return micro_features_;
   }
+  int outline_length() const {
+    return outline_length_;
+  }
   float cn_feature(int index) const {
     return cn_feature_[index];
   }
@@ -203,6 +209,10 @@ class TrainingSample : public ELIST_LINK {
   int num_features_;
   // Number of MicroFeature in micro_features_ array.
   int num_micro_features_;
+  // Total length of outline in the baseline normalized coordinate space.
+  // See comment in WERD_RES class definition for a discussion of coordinate
+  // spaces.
+  int outline_length_;
   // Array of features.
   INT_FEATURE_STRUCT* features_;
   // Array of features.

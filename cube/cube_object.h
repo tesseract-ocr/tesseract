@@ -72,7 +72,6 @@
 #ifndef CUBE_OBJECT_H
 #define CUBE_OBJECT_H
 
-#include "img.h"
 #include "char_samp.h"
 #include "word_altlist.h"
 #include "beam_search.h"
@@ -93,8 +92,6 @@ class CubeObject {
   // Different flavors of constructor. They just differ in the way the
   // word image is specified
   CubeObject(CubeRecoContext *cntxt, CharSamp *char_samp);
-  CubeObject(CubeRecoContext *cntxt, IMAGE *img,
-             int left, int top, int wid, int hgt);
   CubeObject(CubeRecoContext *cntxt, Pix *pix,
              int left, int top, int wid, int hgt);
   ~CubeObject();
@@ -160,7 +157,6 @@ class CubeObject {
   CubeRecoContext *cntxt_;
   BeamSearch *beam_obj_;
   BeamSearch *deslanted_beam_obj_;
-  bool offline_mode_;
   bool own_char_samp_;
   bool deslanted_;
   CharSamp *char_samp_;

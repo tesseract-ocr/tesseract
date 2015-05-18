@@ -25,51 +25,83 @@
 #include "language_model.h"
 #include "ratngs.h"
 #include "matrix.h"
-#include "matchtab.h"
-#include "oldheap.h"
 #include "gradechop.h"
 #include "seam.h"
-#include "states.h"
 #include "findseam.h"
 #include "callcpp.h"
 
-struct CHUNKS_RECORD;
-struct SEARCH_RECORD;
 class WERD_RES;
 
-// A struct for storing child/parent pairs of the BLOB_CHOICE_LISTs
-// to be processed by the segmentation search.
-struct SEG_SEARCH_PENDING : public ELIST_LINK {
-  SEG_SEARCH_PENDING(int child_row_arg,
-                     BLOB_CHOICE_LIST *parent_arg,
-                     tesseract::LanguageModelFlagsType changed_arg) :
-    child_row(child_row_arg), parent(parent_arg), changed(changed_arg) {}
+namespace tesseract {
 
-  // Comparator function for add_sorted().
-  static int compare(const void *p1, const void *p2) {
-    const SEG_SEARCH_PENDING *e1 = *reinterpret_cast<
-      const SEG_SEARCH_PENDING * const *>(p1);
-    const SEG_SEARCH_PENDING *e2 = *reinterpret_cast<
-      const SEG_SEARCH_PENDING * const *>(p2);
-    if (e1->child_row == e2->child_row &&
-        e1->parent == e2->parent) return 0;
-    return (e1->child_row < e2->child_row) ? -1 : 1;
+// A class for storing which nodes are to be processed by the segmentation
+// search. There is a single SegSearchPending for each column in the ratings
+// matrix, and it indicates whether the segsearch should combine all
+// BLOB_CHOICES in the column, or just the given row with the parents
+// corresponding to *this SegSearchPending, and whether only updated parent
+// ViterbiStateEntries should be combined, or all, with the BLOB_CHOICEs.
+class SegSearchPending {
+ public:
+  SegSearchPending()
+    : classified_row_(-1),
+      revisit_whole_column_(false),
+      column_classified_(false) {}
+
+  // Marks the whole column as just classified. Used to start a search on
+  // a newly initialized ratings matrix.
+  void SetColumnClassified() {
+    column_classified_ = true;
+  }
+  // Marks the matrix entry at the given row as just classified.
+  // Used after classifying a new matrix cell.
+  // Additional to, not overriding a previous RevisitWholeColumn.
+  void SetBlobClassified(int row) {
+    classified_row_ = row;
+  }
+  // Marks the whole column as needing work, but not just classified.
+  // Used when the parent vse list is updated.
+  // Additional to, not overriding a previous SetBlobClassified.
+  void RevisitWholeColumn() {
+    revisit_whole_column_ = true;
   }
 
-  int child_row;  // row of the child in the ratings matrix
-  BLOB_CHOICE_LIST *parent;  // pointer to the parent BLOB_CHOICE_LIST
-  // Flags that indicate which language model components are still active
-  // on the parent path (i.e. recorded some changes to the language model
-  // state) and need to be invoked for this pending entry.
-  // This field is used as an argument to LanguageModel::UpdateState()
-  // in Wordrec::UpdateSegSearchNodes().
-  tesseract::LanguageModelFlagsType changed;
+  // Clears *this to indicate no work to do.
+  void Clear() {
+    classified_row_ = -1;
+    revisit_whole_column_ = false;
+    column_classified_ = false;
+  }
+
+  // Returns true if there are updates to do in the column that *this
+  // represents.
+  bool WorkToDo() const {
+    return revisit_whole_column_ || column_classified_ || classified_row_ >= 0;
+  }
+  // Returns true if the given row was just classified.
+  bool IsRowJustClassified(int row) const {
+    return row == classified_row_ || column_classified_;
+  }
+  // Returns the single row to process if there is only one, otherwise -1.
+  int SingleRow() const {
+    return revisit_whole_column_ || column_classified_ ? -1 : classified_row_;
+  }
+
+ private:
+  // If non-negative, indicates the single row in the ratings matrix that has
+  // just been classified, and so should be combined with all the parents in the
+  // column that this SegSearchPending represents.
+  // Operates independently of revisit_whole_column.
+  int classified_row_;
+  // If revisit_whole_column is true, then all BLOB_CHOICEs in this column will
+  // be processed, but classified_row can indicate a row that is newly
+  // classified. Overridden if column_classified is true.
+  bool revisit_whole_column_;
+  // If column_classified is true, parent vses are processed with all rows
+  // regardless of whether they are just updated, overriding
+  // revisit_whole_column and classified_row.
+  bool column_classified_;
 };
 
-ELISTIZEH(SEG_SEARCH_PENDING);
-
-
-namespace tesseract {
 
 /* ccmain/tstruct.cpp *********************************************************/
 class FRAGMENT:public ELIST_LINK
@@ -99,7 +131,6 @@ class Wordrec : public Classify {
   BOOL_VAR_H(force_word_assoc, FALSE,
              "force associator to run regardless of what enable_assoc is."
              "This is used for CJK where component grouping is necessary.");
-  INT_VAR_H(wordrec_num_seg_states, 30, "Segmentation states");
   double_VAR_H(wordrec_worst_state, 1, "Worst segmentation state");
   BOOL_VAR_H(fragments_guide_chopper, FALSE,
              "Use information from fragments to guide chopping process");
@@ -111,11 +142,15 @@ class Wordrec : public Classify {
   INT_VAR_H(chop_split_length, 10000, "Split Length");
   INT_VAR_H(chop_same_distance, 2, "Same distance");
   INT_VAR_H(chop_min_outline_points, 6, "Min Number of Points on Outline");
+  INT_VAR_H(chop_seam_pile_size, 150, "Max number of seams in seam_pile");
+  BOOL_VAR_H(chop_new_seam_pile, 1, "Use new seam_pile");
   INT_VAR_H(chop_inside_angle, -50, "Min Inside Angle Bend");
   INT_VAR_H(chop_min_outline_area, 2000, "Min Outline Area");
   double_VAR_H(chop_split_dist_knob, 0.5, "Split length adjustment");
   double_VAR_H(chop_overlap_knob, 0.9, "Split overlap adjustment");
   double_VAR_H(chop_center_knob, 0.15, "Split center adjustment");
+  INT_VAR_H(chop_centered_maxwidth, 90, "Width of (smaller) chopped blobs "
+            "above which we don't care that a chop is not near the center.");
   double_VAR_H(chop_sharpness_knob, 0.06, "Split sharpness adjustment");
   double_VAR_H(chop_width_change_knob, 5.0, "Width change adjustment");
   double_VAR_H(chop_ok_split, 100.0, "OK split limit");
@@ -124,25 +159,13 @@ class Wordrec : public Classify {
   INT_VAR_H(segment_adjust_debug, 0, "Segmentation adjustment debug");
   BOOL_VAR_H(assume_fixed_pitch_char_segment, FALSE,
              "include fixed-pitch heuristics in char segmentation");
-  BOOL_VAR_H(use_new_state_cost, FALSE,
-             "use new state cost heuristics for segmentation state evaluation");
-  double_VAR_H(heuristic_segcost_rating_base, 1.25,
-               "base factor for adding segmentation cost into word rating."
-               "It's a multiplying factor, the larger the value above 1, "
-               "the bigger the effect of segmentation cost.");
-  double_VAR_H(heuristic_weight_rating, 1,
-               "weight associated with char rating in combined cost of state");
-  double_VAR_H(heuristic_weight_width, 0,
-               "weight associated with width evidence in combined cost of state");
-  double_VAR_H(heuristic_weight_seamcut, 0,
-               "weight associated with seam cut in combined cost of state");
-  double_VAR_H(heuristic_max_char_wh_ratio, 2.0,
-               "max char width-to-height ratio allowed in segmentation");
   INT_VAR_H(wordrec_debug_level, 0, "Debug level for wordrec");
+  INT_VAR_H(wordrec_max_join_chunks, 4,
+            "Max number of broken pieces to associate");
+  BOOL_VAR_H(wordrec_skip_no_truth_words, false,
+             "Only run OCR for words that had truth recorded in BlamerBundle");
   BOOL_VAR_H(wordrec_debug_blamer, false, "Print blamer debug messages");
   BOOL_VAR_H(wordrec_run_blamer, false, "Try to set the blame for errors");
-  BOOL_VAR_H(enable_new_segsearch, false,
-             "Enable new segmentation search path.");
   INT_VAR_H(segsearch_debug_level, 0, "SegSearch debug level");
   INT_VAR_H(segsearch_max_pain_points, 2000,
             "Maximum number of pain points stored in the queue");
@@ -150,10 +173,7 @@ class Wordrec : public Classify {
             "Maximum number of pain point classifications per word.");
   double_VAR_H(segsearch_max_char_wh_ratio, 2.0,
                "Maximum character width-to-height ratio");
-  double_VAR_H(segsearch_max_fixed_pitch_char_wh_ratio, 2.0,
-               "Maximum character width-to-height ratio for"
-               "fixed pitch fonts");
-  BOOL_VAR_H(save_alt_choices, false,
+  BOOL_VAR_H(save_alt_choices, true,
              "Save alternative paths found during chopping "
              "and segmentation search");
 
@@ -161,27 +181,21 @@ class Wordrec : public Classify {
   Wordrec();
   virtual ~Wordrec();
 
-  void CopyCharChoices(const BLOB_CHOICE_LIST_VECTOR &from,
-                       BLOB_CHOICE_LIST_VECTOR *to);
-
-  // Returns true if text recorded in choice is the same as truth_text.
-  bool ChoiceIsCorrect(const UNICHARSET& uni_set,
-                       const WERD_CHOICE *choice,
-                       const GenericVector<STRING> &truth_text);
-
   // Fills word->alt_choices with alternative paths found during
   // chopping/segmentation search that are kept in best_choices.
   void SaveAltChoices(const LIST &best_choices, WERD_RES *word);
 
   // Fills character choice lattice in the given BlamerBundle
   // using the given ratings matrix and best choice list.
-  void FillLattice(const MATRIX &ratings, const LIST &best_choices,
+  void FillLattice(const MATRIX &ratings, const WERD_CHOICE_LIST &best_choices,
                    const UNICHARSET &unicharset, BlamerBundle *blamer_bundle);
 
   // Calls fill_lattice_ member function
   // (assumes that fill_lattice_ is not NULL).
-  void CallFillLattice(const MATRIX &ratings, const LIST &best_choices,
-                       const UNICHARSET &unicharset, BlamerBundle *blamer_bundle) {
+  void CallFillLattice(const MATRIX &ratings,
+                       const WERD_CHOICE_LIST &best_choices,
+                       const UNICHARSET &unicharset,
+                       BlamerBundle *blamer_bundle) {
     (this->*fill_lattice_)(ratings, best_choices, unicharset, blamer_bundle);
   }
 
@@ -189,81 +203,18 @@ class Wordrec : public Classify {
   void program_editup(const char *textbase,
                       bool init_classifier,
                       bool init_permute);
-  BLOB_CHOICE_LIST_VECTOR *cc_recog(WERD_RES *word);
+  void cc_recog(WERD_RES *word);
   void program_editdown(inT32 elasped_time);
   void set_pass1();
   void set_pass2();
   int end_recog();
-  BLOB_CHOICE_LIST *call_matcher(const DENORM* denorm, TBLOB* blob);
+  BLOB_CHOICE_LIST *call_matcher(TBLOB* blob);
   int dict_word(const WERD_CHOICE &word);
   // wordclass.cpp
   BLOB_CHOICE_LIST *classify_blob(TBLOB *blob,
-                                  const DENORM& denorm,
                                   const char *string,
                                   C_COL color,
                                   BlamerBundle *blamer_bundle);
-  BLOB_CHOICE_LIST *fake_classify_blob(UNICHAR_ID class_id,
-                                       float rating, float certainty);
-  void update_blob_classifications(TWERD *word,
-                                   const BLOB_CHOICE_LIST_VECTOR &choices);
-
-  // bestfirst.cpp
-  BLOB_CHOICE_LIST_VECTOR *evaluate_chunks(CHUNKS_RECORD *chunks_record,
-                                           SEARCH_STATE search_state,
-                                           BlamerBundle *blamer_bundle);
-  void update_ratings(const BLOB_CHOICE_LIST_VECTOR &new_choices,
-                      const CHUNKS_RECORD *chunks_record,
-                      const SEARCH_STATE search_state);
-  inT16 evaluate_state(CHUNKS_RECORD *chunks_record,
-                       SEARCH_RECORD *the_search,
-                       DANGERR *fixpt,
-                       BlamerBundle *blamer_bundle);
-  SEARCH_RECORD *new_search(CHUNKS_RECORD *chunks_record,
-                            int num_joints,
-                            BLOB_CHOICE_LIST_VECTOR *best_char_choices,
-                            WERD_CHOICE *best_choice,
-                            WERD_CHOICE *raw_choice,
-                            STATE *state);
-  void best_first_search(CHUNKS_RECORD *chunks_record,
-                         BLOB_CHOICE_LIST_VECTOR *best_char_choices,
-                         WERD_RES *word,
-                         STATE *state,
-                         DANGERR *fixpt,
-                         STATE *best_state);
-  void delete_search(SEARCH_RECORD *the_search);
-  void expand_node(FLOAT32 worst_priority,
-                   CHUNKS_RECORD *chunks_record,
-                   SEARCH_RECORD *the_search);
-  void replace_char_widths(CHUNKS_RECORD *chunks_record,
-                           SEARCH_STATE state);
-  // Transfers the given state to the word's output fields: rebuild_word,
-  // best_state, box_word, and returns the corresponding blob choices.
-  BLOB_CHOICE_LIST_VECTOR *rebuild_current_state(
-      WERD_RES *word,
-      STATE *state,
-      BLOB_CHOICE_LIST_VECTOR *char_choices,
-      MATRIX *ratings);
-  // Creates a fake blob choice from the combination of the given fragments.
-  // unichar is the class to be made from the combination,
-  // expanded_fragment_lengths[choice_index] is the number of fragments to use.
-  // old_choices[choice_index] has the classifier output for each fragment.
-  // choice index initially indexes the last fragment and should be decremented
-  // expanded_fragment_lengths[choice_index] times to get the earlier fragments.
-  // Guarantees to return something non-null, or abort!
-  BLOB_CHOICE* rebuild_fragments(
-      const char* unichar,
-      const char* expanded_fragment_lengths,
-      int choice_index,
-      BLOB_CHOICE_LIST_VECTOR *old_choices);
-  // Creates a joined copy of the blobs between x and y (inclusive) and
-  // insert into the rebuild_word in word.
-  // Returns a deep copy of the classifier results for the blob.
-  BLOB_CHOICE_LIST *join_blobs_and_classify(
-      WERD_RES* word, int x, int y, int choice_index, MATRIX *ratings,
-      BLOB_CHOICE_LIST_VECTOR *old_choices);
-  STATE *pop_queue(HEAP *queue);
-  void push_queue(HEAP *queue, STATE *state, FLOAT32 worst_priority,
-                  FLOAT32 priority, bool debug);
 
   // segsearch.cpp
   // SegSearch works on the lower diagonal matrix of BLOB_CHOICE_LISTs.
@@ -310,94 +261,102 @@ class Wordrec : public Classify {
   // composed from the best paths in the segmentation graph is "good enough"
   // (e.g. above a certain certainty threshold, is an unambiguous dictionary
   // word, etc) or there are no more "pain points" to explore.
-  void SegSearch(CHUNKS_RECORD *chunks_record,
-                 WERD_CHOICE *best_choice,
-                 BLOB_CHOICE_LIST_VECTOR *best_char_choices,
-                 WERD_CHOICE *raw_choice,
-                 STATE *output_best_state,
-                 BlamerBundle *blamer_bundle);
+  //
+  // If associate_blobs is set to false no new classifications will be done
+  // to combine blobs. Segmentation search will run only one "iteration"
+  // on the classifications already recorded in chunks_record.ratings.
+  //
+  // Note: this function assumes that word_res, best_choice_bundle arguments
+  // are not NULL.
+  void SegSearch(WERD_RES* word_res,
+                 BestChoiceBundle* best_choice_bundle,
+                 BlamerBundle* blamer_bundle);
+  // Setup and run just the initial segsearch on an established matrix,
+  // without doing any additional chopping or joining.
+  void WordSearch(WERD_RES* word_res);
+
+  // Setup and run just the initial segsearch on an established matrix,
+  // without doing any additional chopping or joining.
+  // (Internal factored version that can be used as part of the main SegSearch.)
+  void InitialSegSearch(WERD_RES* word_res, LMPainPoints* pain_points,
+                        GenericVector<SegSearchPending>* pending,
+                        BestChoiceBundle* best_choice_bundle,
+                        BlamerBundle* blamer_bundle);
+
+  // Runs SegSearch() function (above) without needing a best_choice_bundle
+  // or blamer_bundle. Used for testing.
+  void DoSegSearch(WERD_RES* word_res);
 
   // chop.cpp
   PRIORITY point_priority(EDGEPT *point);
-  void add_point_to_list(POINT_GROUP point_list, EDGEPT *point);
+  void add_point_to_list(PointHeap* point_heap, EDGEPT *point);
   int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3);
   int is_little_chunk(EDGEPT *point1, EDGEPT *point2);
   int is_small_area(EDGEPT *point1, EDGEPT *point2);
   EDGEPT *pick_close_point(EDGEPT *critical_point,
                            EDGEPT *vertical_point,
                            int *best_dist);
-  void prioritize_points(TESSLINE *outline, POINT_GROUP points);
-  void new_min_point(EDGEPT *local_min, POINT_GROUP points);
-  void new_max_point(EDGEPT *local_max, POINT_GROUP points);
+  void prioritize_points(TESSLINE *outline, PointHeap* points);
+  void new_min_point(EDGEPT *local_min, PointHeap* points);
+  void new_max_point(EDGEPT *local_max, PointHeap* points);
   void vertical_projection_point(EDGEPT *split_point, EDGEPT *target_point,
                                  EDGEPT** best_point,
                                  EDGEPT_CLIST *new_points);
 
   // chopper.cpp
   SEAM *attempt_blob_chop(TWERD *word, TBLOB *blob, inT32 blob_number,
-                          bool italic_blob, SEAMS seam_list);
+                          bool italic_blob, const GenericVector<SEAM*>& seams);
   SEAM *chop_numbered_blob(TWERD *word, inT32 blob_number,
-                           bool italic_blob, SEAMS seam_list);
+                           bool italic_blob, const GenericVector<SEAM*>& seams);
   SEAM *chop_overlapping_blob(const GenericVector<TBOX>& boxes,
-                              WERD_RES *word_res, inT32 *blob_number,
-                              bool italic_blob, SEAMS seam_list);
-  bool improve_one_blob(WERD_RES *word_res,
-                        BLOB_CHOICE_LIST_VECTOR *char_choices,
-                        inT32 *blob_number,
-                        SEAMS *seam_list,
-                        DANGERR *fixpt,
-                        bool split_next_to_fragment,
-                        BlamerBundle *blamer_bundle);
-  void modify_blob_choice(BLOB_CHOICE_LIST *answer,
-                          int chop_index);
-  bool chop_one_blob(TWERD *word,
-                     BLOB_CHOICE_LIST_VECTOR *char_choices,
-                     inT32 *blob_number,
-                     SEAMS *seam_list,
-                     int *right_chop_index);
-  bool chop_one_blob2(const GenericVector<TBOX>& boxes,
-                      WERD_RES *word_res, SEAMS *seam_list);
-  BLOB_CHOICE_LIST_VECTOR *chop_word_main(WERD_RES *word);
-  void improve_by_chopping(WERD_RES *word,
-                           BLOB_CHOICE_LIST_VECTOR *char_choices,
-                           STATE *best_state,
-                           BLOB_CHOICE_LIST_VECTOR *best_char_choices,
-                           DANGERR *fixpt,
-                           bool *updated_best_choice);
-  MATRIX *word_associator(bool only_create_ratings_matrtix,
-                          WERD_RES *word,
-                          STATE *state,
-                          BLOB_CHOICE_LIST_VECTOR *best_char_choices,
-                          DANGERR *fixpt,
-                          STATE *best_state);
-  inT16 select_blob_to_split(const BLOB_CHOICE_LIST_VECTOR &char_choices,
-                             float rating_ceiling,
-                             bool split_next_to_fragment);
-  inT16 select_blob_to_split_from_fixpt(DANGERR *fixpt);
-  void set_chopper_blame(WERD_RES *word);
+                              bool italic_blob,
+                              WERD_RES *word_res, int *blob_number);
+  SEAM *improve_one_blob(const GenericVector<BLOB_CHOICE*> &blob_choices,
+                         DANGERR *fixpt,
+                         bool split_next_to_fragment,
+                         bool italic_blob,
+                         WERD_RES *word,
+                         int *blob_number);
+  SEAM *chop_one_blob(const GenericVector<TBOX> &boxes,
+                      const GenericVector<BLOB_CHOICE*> &blob_choices,
+                      WERD_RES *word_res,
+                      int *blob_number);
+  void chop_word_main(WERD_RES *word);
+  void improve_by_chopping(float rating_cert_scale,
+                           WERD_RES *word,
+                           BestChoiceBundle *best_choice_bundle,
+                           BlamerBundle *blamer_bundle,
+                           LMPainPoints *pain_points,
+                           GenericVector<SegSearchPending>* pending);
+  int select_blob_to_split(const GenericVector<BLOB_CHOICE*> &blob_choices,
+                           float rating_ceiling,
+                           bool split_next_to_fragment);
+  int select_blob_to_split_from_fixpt(DANGERR *fixpt);
 
   // findseam.cpp
-  void junk_worst_seam(SEAM_QUEUE seams, SEAM *new_seam, float new_priority);
-  void choose_best_seam(SEAM_QUEUE seam_queue,
-                        SEAM_PILE *seam_pile,
+  void add_seam_to_queue(float new_priority, SEAM *new_seam, SeamQueue* seams);
+  void choose_best_seam(SeamQueue* seam_queue,
                         SPLIT *split,
                         PRIORITY priority,
                         SEAM **seam_result,
-                        TBLOB *blob);
-  void combine_seam(SEAM_QUEUE seam_queue, SEAM_PILE seam_pile, SEAM *seam);
+                        TBLOB *blob,
+                        SeamPile* seam_pile);
+  void combine_seam(const SeamPile& seam_pile,
+                    const SEAM* seam, SeamQueue* seam_queue);
   inT16 constrained_split(SPLIT *split, TBLOB *blob);
-  void delete_seam_pile(SEAM_PILE seam_pile);
   SEAM *pick_good_seam(TBLOB *blob);
   PRIORITY seam_priority(SEAM *seam, inT16 xmin, inT16 xmax);
   void try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
                         inT16 num_points,
-                        SEAM_QUEUE seam_queue,
-                        SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob);
+                        SeamQueue* seam_queue,
+                        SeamPile* seam_pile,
+                        SEAM ** seam, TBLOB * blob);
   void try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
                            inT16 num_points,
                            EDGEPT_CLIST *new_points,
-                           SEAM_QUEUE seam_queue,
-                           SEAM_PILE * seam_pile, SEAM ** seam, TBLOB * blob);
+                           SeamQueue* seam_queue,
+                           SeamPile* seam_pile,
+                           SEAM ** seam, TBLOB * blob);
 
   // gradechop.cpp
   PRIORITY full_split_priority(SPLIT *split, inT16 xmin, inT16 xmax);
@@ -419,11 +378,11 @@ class Wordrec : public Classify {
   void reverse_outline(EDGEPT *outline);
 
   // pieces.cpp
-  virtual BLOB_CHOICE_LIST *classify_piece(TBLOB *pieces,
-                                           const DENORM& denorm,
-                                           SEAMS seams,
+  virtual BLOB_CHOICE_LIST *classify_piece(const GenericVector<SEAM*>& seams,
                                            inT16 start,
                                            inT16 end,
+                                           const char* description,
+                                           TWERD *word,
                                            BlamerBundle *blamer_bundle);
   // Try to merge fragments in the ratings matrix and put the result in
   // the corresponding row and column
@@ -461,45 +420,11 @@ class Wordrec : public Classify {
                                    int fragment_pos,
                                    int num_frag_parts,
                                    BLOB_CHOICE_LIST *filtered_choices);
-  BLOB_CHOICE_LIST *get_piece_rating(MATRIX *ratings,
-                                     TBLOB *blobs,
-                                     const DENORM& denorm,
-                                     SEAMS seams,
-                                     inT16 start,
-                                     inT16 end,
-                                     BlamerBundle *blamer_bundle);
-  // returns an array of bounding boxes for the given list of blobs.
-  TBOX *record_blob_bounds(TBLOB *blobs);
-  MATRIX *record_piece_ratings(TBLOB *blobs);
-
-  // heuristic.cpp
-  WIDTH_RECORD* state_char_widths(WIDTH_RECORD *chunk_widths,
-                                  STATE *state,
-                                  int num_joints);
-  FLOAT32 get_width_variance(WIDTH_RECORD *wrec, float norm_height);
-  FLOAT32 get_gap_variance(WIDTH_RECORD *wrec, float norm_height);
-  FLOAT32 prioritize_state(CHUNKS_RECORD *chunks_record,
-                           SEARCH_RECORD *the_search);
-  FLOAT32 width_priority(CHUNKS_RECORD *chunks_record,
-                         STATE *state,
-                         int num_joints);
-  FLOAT32 seamcut_priority(SEAMS seams,
-                           STATE *state,
-                           int num_joints);
-  FLOAT32 rating_priority(CHUNKS_RECORD *chunks_record,
-                          STATE *state,
-                          int num_joints);
 
   // Member variables.
 
   LanguageModel *language_model_;
   PRIORITY pass2_ok_split;
-  int pass2_seg_states;
-  int num_joints;
-  int num_pushed;
-  int num_popped;
-  BlobMatchTable blob_match_table;
-  EVALUATION_ARRAY last_segmentation;
   // Stores the best choice for the previous word in the paragraph.
   // This variable is modified by PAGE_RES_IT when iterating over
   // words to OCR on the page.
@@ -508,9 +433,9 @@ class Wordrec : public Classify {
   GenericVector<int> blame_reasons_;
   // Function used to fill char choice lattices.
   void (Wordrec::*fill_lattice_)(const MATRIX &ratings,
-                                  const LIST &best_choices,
-                                  const UNICHARSET &unicharset,
-                                  BlamerBundle *blamer_bundle);
+                                 const WERD_CHOICE_LIST &best_choices,
+                                 const UNICHARSET &unicharset,
+                                 BlamerBundle *blamer_bundle);
 
  protected:
   inline bool SegSearchDone(int num_futile_classifications) {
@@ -544,38 +469,38 @@ class Wordrec : public Classify {
   // best_choice_bundle: a collection of variables that should be updated
   // if a new best choice is found
   //
-  void UpdateSegSearchNodes(int starting_col,
-                            SEG_SEARCH_PENDING_LIST *pending[],
-                            BestPathByColumn *best_path_by_column[],
-                            CHUNKS_RECORD *chunks_record,
-                            HEAP *pain_points,
-                            BestChoiceBundle *best_choice_bundle,
-                            BlamerBundle *blamer_bundle);
+  void UpdateSegSearchNodes(
+      float rating_cert_scale,
+      int starting_col,
+      GenericVector<SegSearchPending>* pending,
+      WERD_RES *word_res,
+      LMPainPoints *pain_points,
+      BestChoiceBundle *best_choice_bundle,
+      BlamerBundle *blamer_bundle);
 
   // Process the given pain point: classify the corresponding blob, enqueue
   // new pain points to join the newly classified blob with its neighbors.
   void ProcessSegSearchPainPoint(float pain_point_priority,
                                  const MATRIX_COORD &pain_point,
-                                 const WERD_CHOICE *best_choice,
-                                 SEG_SEARCH_PENDING_LIST *pending[],
-                                 CHUNKS_RECORD *chunks_record,
-                                 HEAP *pain_points,
+                                 const char* pain_point_type,
+                                 GenericVector<SegSearchPending>* pending,
+                                 WERD_RES *word_res,
+                                 LMPainPoints *pain_points,
                                  BlamerBundle *blamer_bundle);
+  // Resets enough of the results so that the Viterbi search is re-run.
+  // Needed when the n-gram model is enabled, as the multi-length comparison
+  // implementation will re-value existing paths to worse values.
+  void ResetNGramSearch(WERD_RES* word_res,
+                        BestChoiceBundle* best_choice_bundle,
+                        GenericVector<SegSearchPending>* pending);
 
   // Add pain points for classifying blobs on the correct segmentation path
   // (so that we can evaluate correct segmentation path and discover the reason
   // for incorrect result).
-  void InitBlamerForSegSearch(const WERD_CHOICE *best_choice,
-                              CHUNKS_RECORD *chunks_record,
-                              HEAP *pain_points,
+  void InitBlamerForSegSearch(WERD_RES *word_res,
+                              LMPainPoints *pain_points,
                               BlamerBundle *blamer_bundle,
                               STRING *blamer_debug);
-
-  // Analyze the contents of BlamerBundle and set incorrect result reason.
-  void FinishBlamerForSegSearch(const WERD_CHOICE *best_choice,
-                                BlamerBundle *blamer_bundle,
-                                STRING *blamer_debug);
-
 };
 
 

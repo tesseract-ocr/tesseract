@@ -81,21 +81,29 @@ class TESS_API ERRCODE {           // error handler class
 
 const ERRCODE ASSERT_FAILED = "Assert failed";
 
-#define ASSERT_HOST(x) if (!(x))										\
-{																			\
-	ASSERT_FAILED.error(#x,ABORT,"in file %s, line %d",		\
-		__FILE__,__LINE__);											\
-}
+#define ASSERT_HOST(x) if (!(x))                                        \
+  {                                                                     \
+    ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d",               \
+                        __FILE__, __LINE__);                            \
+  }
 
-void signal_exit(                 //
-                 int signal_code  //Signal which
-                );
-extern "C"
-{
-  void err_exit();
-                                 //The real signal
-  void signal_termination_handler(int sig);
-};
+#ifdef _MSC_VER
+#define ASSERT_HOST_MSG(x, msg, ...) if (!(x))                            \
+  {                                                                     \
+    tprintf(msg);                                                       \
+    ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d",               \
+                        __FILE__, __LINE__);                            \
+  }
+#else
+#define ASSERT_HOST_MSG(x, msg...) if (!(x))                            \
+  {                                                                     \
+    tprintf(msg);                                                       \
+    ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d",               \
+                        __FILE__, __LINE__);                            \
+  }
+#endif
+
+void signal_exit(int signal_code);
 
 void set_global_loc_code(int loc_code);
 

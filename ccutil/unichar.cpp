@@ -18,6 +18,9 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "unichar.h"
+#include "errcode.h"
+#include "genericvector.h"
+#include "tprintf.h"
 
 #define UNI_MAX_LEGAL_UTF32 0x0010FFFF
 
@@ -29,7 +32,7 @@ UNICHAR::UNICHAR(const char* utf8_str, int len) {
   int total_len = 0;
   int step = 0;
   if (len < 0) {
-    for (len = 0; utf8_str[len] != 0 && len < UNICHAR_LEN; ++len);
+    for (len = 0; len < UNICHAR_LEN && utf8_str[len] != 0; ++len);
   }
   for (total_len = 0; total_len < len; total_len += step) {
     step = utf8_step(utf8_str + total_len);
@@ -142,3 +145,73 @@ int UNICHAR::utf8_step(const char* utf8_str) {
 
   return utf8_bytes[static_cast<unsigned char>(*utf8_str)];
 }
+
+UNICHAR::const_iterator& UNICHAR::const_iterator::operator++() {
+  ASSERT_HOST(it_ != NULL);
+  int step = utf8_step(it_);
+  if (step == 0) {
+    tprintf("ERROR: Illegal UTF8 encountered.\n");
+    for (int i = 0; i < 5 && it_[i] != '\0'; ++i) {
+      tprintf("Index %d char = 0x%x\n", i, it_[i]);
+    }
+    step = 1;
+  }
+  it_ += step;
+  return *this;
+}
+
+int UNICHAR::const_iterator::operator*() const {
+  ASSERT_HOST(it_ != NULL);
+  const int len = utf8_step(it_);
+  if (len == 0) {
+    tprintf("WARNING: Illegal UTF8 encountered\n");
+    return ' ';
+  }
+  UNICHAR uch(it_, len);
+  return uch.first_uni();
+}
+
+int UNICHAR::const_iterator::get_utf8(char* utf8_output) const {
+  ASSERT_HOST(it_ != NULL);
+  const int len = utf8_step(it_);
+  if (len == 0) {
+    tprintf("WARNING: Illegal UTF8 encountered\n");
+    utf8_output[0] = ' ';
+    return 1;
+  }
+  strncpy(utf8_output, it_, len);
+  return len;
+}
+
+int UNICHAR::const_iterator::utf8_len() const {
+  ASSERT_HOST(it_ != NULL);
+  const int len = utf8_step(it_);
+  if (len == 0) {
+    tprintf("WARNING: Illegal UTF8 encountered\n");
+    return 1;
+  }
+  return len;
+}
+
+bool UNICHAR::const_iterator::is_legal() const {
+  return utf8_step(it_) > 0;
+}
+
+UNICHAR::const_iterator UNICHAR::begin(const char* utf8_str, const int len) {
+  return UNICHAR::const_iterator(utf8_str);
+}
+
+UNICHAR::const_iterator UNICHAR::end(const char* utf8_str, const int len) {
+  return UNICHAR::const_iterator(utf8_str + len);
+}
+
+// Converts a utf-8 string to a vector of unicodes.
+void UNICHAR::UTF8ToUnicode(const char* utf8_str,
+                            GenericVector<int>* unicodes) {
+  const int utf8_length = strlen(utf8_str);
+  const_iterator end_it(end(utf8_str, utf8_length));
+  for (const_iterator it(begin(utf8_str, utf8_length)); it != end_it; ++it) {
+    unicodes->push_back(*it);
+  }
+}
+

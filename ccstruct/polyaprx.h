@@ -24,7 +24,7 @@
 #include          "coutln.h"
 
 // convert a chain-coded input to the old OUTLINE approximation
-TESSLINE* ApproximateOutline(C_OUTLINE *c_outline);
+TESSLINE* ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline);
 EDGEPT *edgesteps_to_edgepts (   //convert outline
 C_OUTLINE * c_outline,           //input
 EDGEPT edgepts[]                 //output is array

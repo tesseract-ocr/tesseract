@@ -37,6 +37,7 @@
 #include "mfoutline.h"
 #include "ndminx.h"
 #include "picofeat.h"
+#include "points.h"
 #include "shapetable.h"
 #include "svmnode.h"
 
@@ -206,6 +207,22 @@ double_VAR(classify_pp_side_pad, 2.5, "Proto Pruner Side Pad");
 /*-----------------------------------------------------------------------------
               Public Code
 -----------------------------------------------------------------------------*/
+// Builds a feature from an FCOORD for position with all the necessary
+// clipping and rounding.
+INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(const FCOORD& pos, uinT8 theta)
+  : X(ClipToRange<inT16>(static_cast<inT16>(pos.x() + 0.5), 0, 255)),
+    Y(ClipToRange<inT16>(static_cast<inT16>(pos.y() + 0.5), 0, 255)),
+    Theta(theta),
+    CP_misses(0) {
+}
+// Builds a feature from ints with all the necessary clipping and casting.
+INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
+  : X(static_cast<uinT8>(ClipToRange(x, 0, MAX_UINT8))),
+    Y(static_cast<uinT8>(ClipToRange(y, 0, MAX_UINT8))),
+    Theta(static_cast<uinT8>(ClipToRange(theta, 0, MAX_UINT8))),
+    CP_misses(0) {
+}
+
 /*---------------------------------------------------------------------------*/
 /**
  * This routine adds a new class structure to a set of

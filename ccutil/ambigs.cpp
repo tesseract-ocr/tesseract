@@ -19,7 +19,10 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "ambigs.h"
+
+#include <stdio.h>
 #include "helpers.h"
+#include "universalambigs.h"
 
 #ifdef _WIN32
 #ifndef __GNUC__
@@ -31,6 +34,11 @@
 
 namespace tesseract {
 
+// Maximum line size:
+//   10 for sizes of ambigs, tabs, abmig type and newline
+//   UNICHAR_LEN * (MAX_AMBIG_SIZE + 1) for each part of the ambig
+const int kMaxAmbigStringSize = UNICHAR_LEN * (MAX_AMBIG_SIZE + 1);
+
 AmbigSpec::AmbigSpec() {
   wrong_ngram[0] = INVALID_UNICHAR_ID;
   correct_fragments[0] = INVALID_UNICHAR_ID;
@@ -41,14 +49,10 @@ AmbigSpec::AmbigSpec() {
 
 ELISTIZE(AmbigSpec);
 
-void UnicharAmbigs::LoadUnicharAmbigs(FILE *AmbigFile,
-                                      inT64 end_offset,
-                                      int debug_level,
-                                      bool use_ambigs_for_adaption,
-                                      UNICHARSET *unicharset) {
-  int i, j;
-  UnicharIdVector *adaption_ambigs_entry;
-  for (i = 0; i < unicharset->size(); ++i) {
+// Initializes the ambigs by adding a NULL pointer to each table.
+void UnicharAmbigs::InitUnicharAmbigs(const UNICHARSET& unicharset,
+                                      bool use_ambigs_for_adaption) {
+  for (int i = 0; i < unicharset.size(); ++i) {
     replace_ambigs_.push_back(NULL);
     dang_ambigs_.push_back(NULL);
     one_to_one_definite_ambigs_.push_back(NULL);
@@ -57,85 +61,99 @@ void UnicharAmbigs::LoadUnicharAmbigs(FILE *AmbigFile,
       reverse_ambigs_for_adaption_.push_back(NULL);
     }
   }
+}
+
+// Loads the universal ambigs that are useful for any language.
+void UnicharAmbigs::LoadUniversal(const UNICHARSET& encoder_set,
+                                  UNICHARSET* unicharset) {
+  TFile file;
+  if (!file.Open(kUniversalAmbigsFile, ksizeofUniversalAmbigsFile)) return;
+  LoadUnicharAmbigs(encoder_set, &file, 0, false, unicharset);
+}
+
+void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET& encoder_set,
+                                      TFile *ambig_file,
+                                      int debug_level,
+                                      bool use_ambigs_for_adaption,
+                                      UNICHARSET *unicharset) {
+  int i, j;
+  UnicharIdVector *adaption_ambigs_entry;
   if (debug_level) tprintf("Reading ambiguities\n");
 
-  int TestAmbigPartSize;
-  int ReplacementAmbigPartSize;
-  // Maximum line size:
-  //   10 for sizes of ambigs, tabs, abmig type and newline
-  //   UNICHAR_LEN * (MAX_AMBIG_SIZE + 1) for each part of the ambig
+  int test_ambig_part_size;
+  int replacement_ambig_part_size;
   // The space for buffer is allocated on the heap to avoid
   // GCC frame size warning.
-  const int kMaxAmbigStringSize = UNICHAR_LEN * (MAX_AMBIG_SIZE + 1);
   const int kBufferSize = 10 + 2 * kMaxAmbigStringSize;
   char *buffer = new char[kBufferSize];
-  char ReplacementString[kMaxAmbigStringSize];
-  UNICHAR_ID TestUnicharIds[MAX_AMBIG_SIZE + 1];
+  char replacement_string[kMaxAmbigStringSize];
+  UNICHAR_ID test_unichar_ids[MAX_AMBIG_SIZE + 1];
   int line_num = 0;
   int type = NOT_AMBIG;
 
   // Determine the version of the ambigs file.
   int version = 0;
-  ASSERT_HOST(fgets(buffer, kBufferSize, AmbigFile) != NULL &&
+  ASSERT_HOST(ambig_file->FGets(buffer, kBufferSize) != NULL &&
               strlen(buffer) > 0);
   if (*buffer == 'v') {
     version = static_cast<int>(strtol(buffer+1, NULL, 10));
     ++line_num;
   } else {
-    rewind(AmbigFile);
+    ambig_file->Rewind();
   }
-  while ((end_offset < 0 || ftell(AmbigFile) < end_offset) &&
-         fgets(buffer, kBufferSize, AmbigFile) != NULL) {
+  while (ambig_file->FGets(buffer, kBufferSize) != NULL) {
     chomp_string(buffer);
     if (debug_level > 2) tprintf("read line %s\n", buffer);
     ++line_num;
-    if (!ParseAmbiguityLine(line_num, version, debug_level, *unicharset,
-                            buffer, &TestAmbigPartSize, TestUnicharIds,
-                            &ReplacementAmbigPartSize,
-                            ReplacementString, &type)) continue;
+    if (!ParseAmbiguityLine(line_num, version, debug_level, encoder_set,
+                            buffer, &test_ambig_part_size, test_unichar_ids,
+                            &replacement_ambig_part_size,
+                            replacement_string, &type)) continue;
     // Construct AmbigSpec and add it to the appropriate AmbigSpec_LIST.
     AmbigSpec *ambig_spec = new AmbigSpec();
-    InsertIntoTable((type == REPLACE_AMBIG) ? replace_ambigs_ : dang_ambigs_,
-                    TestAmbigPartSize, TestUnicharIds,
-                    ReplacementAmbigPartSize, ReplacementString, type,
-                    ambig_spec, unicharset);
+    if (!InsertIntoTable((type == REPLACE_AMBIG) ? replace_ambigs_
+                                                 : dang_ambigs_,
+                         test_ambig_part_size, test_unichar_ids,
+                         replacement_ambig_part_size, replacement_string, type,
+                         ambig_spec, unicharset))
+      continue;
 
     // Update one_to_one_definite_ambigs_.
-    if (TestAmbigPartSize == 1 &&
-        ReplacementAmbigPartSize == 1 && type == DEFINITE_AMBIG) {
-      if (one_to_one_definite_ambigs_[TestUnicharIds[0]] == NULL) {
-        one_to_one_definite_ambigs_[TestUnicharIds[0]] = new UnicharIdVector();
+    if (test_ambig_part_size == 1 &&
+        replacement_ambig_part_size == 1 && type == DEFINITE_AMBIG) {
+      if (one_to_one_definite_ambigs_[test_unichar_ids[0]] == NULL) {
+        one_to_one_definite_ambigs_[test_unichar_ids[0]] = new UnicharIdVector();
       }
-      one_to_one_definite_ambigs_[TestUnicharIds[0]]->push_back(
+      one_to_one_definite_ambigs_[test_unichar_ids[0]]->push_back(
           ambig_spec->correct_ngram_id);
     }
     // Update ambigs_for_adaption_.
     if (use_ambigs_for_adaption) {
-      for (i = 0; i < TestAmbigPartSize; ++i) {
-        if (ambigs_for_adaption_[TestUnicharIds[i]] == NULL) {
-          ambigs_for_adaption_[TestUnicharIds[i]] = new UnicharIdVector();
-        }
-        adaption_ambigs_entry = ambigs_for_adaption_[TestUnicharIds[i]];
-        const char *tmp_ptr = ReplacementString;
-        const char *tmp_ptr_end = ReplacementString + strlen(ReplacementString);
-        int step = unicharset->step(tmp_ptr);
-        while (step > 0) {
-          UNICHAR_ID id_to_insert = unicharset->unichar_to_id(tmp_ptr, step);
-          ASSERT_HOST(id_to_insert != INVALID_UNICHAR_ID);
-          // Add the new unichar id to adaption_ambigs_entry (only if the
-          // vector does not already contain it) keeping it in sorted order.
-          for (j = 0; j < adaption_ambigs_entry->size() &&
-               (*adaption_ambigs_entry)[j] > id_to_insert; ++j);
-          if (j < adaption_ambigs_entry->size()) {
-            if ((*adaption_ambigs_entry)[j] != id_to_insert) {
-              adaption_ambigs_entry->insert(id_to_insert, j);
-            }
-          } else {
-            adaption_ambigs_entry->push_back(id_to_insert);
+      GenericVector<UNICHAR_ID> encoding;
+      // Silently ignore invalid strings, as before, so it is safe to use a
+      // universal ambigs file.
+      if (unicharset->encode_string(replacement_string, true, &encoding,
+                                    NULL, NULL)) {
+        for (i = 0; i < test_ambig_part_size; ++i) {
+          if (ambigs_for_adaption_[test_unichar_ids[i]] == NULL) {
+            ambigs_for_adaption_[test_unichar_ids[i]] = new UnicharIdVector();
           }
-          // Update tmp_ptr and step.
-          tmp_ptr += step;
-          step = tmp_ptr < tmp_ptr_end ? unicharset->step(tmp_ptr) : 0;
+          adaption_ambigs_entry = ambigs_for_adaption_[test_unichar_ids[i]];
+          for (int r = 0; r < encoding.size(); ++r) {
+            UNICHAR_ID id_to_insert = encoding[r];
+            ASSERT_HOST(id_to_insert != INVALID_UNICHAR_ID);
+            // Add the new unichar id to adaption_ambigs_entry (only if the
+            // vector does not already contain it) keeping it in sorted order.
+            for (j = 0; j < adaption_ambigs_entry->size() &&
+                 (*adaption_ambigs_entry)[j] > id_to_insert; ++j);
+            if (j < adaption_ambigs_entry->size()) {
+              if ((*adaption_ambigs_entry)[j] != id_to_insert) {
+                adaption_ambigs_entry->insert(id_to_insert, j);
+              }
+            } else {
+              adaption_ambigs_entry->push_back(id_to_insert);
+            }
+          }
         }
       }
     }
@@ -204,51 +222,97 @@ void UnicharAmbigs::LoadUnicharAmbigs(FILE *AmbigFile,
 
 bool UnicharAmbigs::ParseAmbiguityLine(
     int line_num, int version, int debug_level, const UNICHARSET &unicharset,
-    char *buffer, int *TestAmbigPartSize, UNICHAR_ID *TestUnicharIds,
-    int *ReplacementAmbigPartSize, char *ReplacementString, int *type) {
+    char *buffer, int *test_ambig_part_size, UNICHAR_ID *test_unichar_ids,
+    int *replacement_ambig_part_size, char *replacement_string, int *type) {
+  if (version > 1) {
+    // Simpler format is just wrong-string correct-string type\n.
+    STRING input(buffer);
+    GenericVector<STRING> fields;
+    input.split(' ', &fields);
+    if (fields.size() != 3) {
+      if (debug_level) tprintf(kIllegalMsg, line_num);
+      return false;
+    }
+    // Encode wrong-string.
+    GenericVector<UNICHAR_ID> unichars;
+    if (!unicharset.encode_string(fields[0].string(), true, &unichars, NULL,
+                                  NULL)) {
+      return false;
+    }
+    *test_ambig_part_size = unichars.size();
+    if (*test_ambig_part_size > MAX_AMBIG_SIZE) {
+      if (debug_level)
+        tprintf("Too many unichars in ambiguity on line %d\n", line_num);
+      return false;
+    }
+    // Copy encoded string to output.
+    for (int i = 0; i < unichars.size(); ++i)
+      test_unichar_ids[i] = unichars[i];
+    test_unichar_ids[unichars.size()] = INVALID_UNICHAR_ID;
+    // Encode replacement-string to check validity.
+    if (!unicharset.encode_string(fields[1].string(), true, &unichars, NULL,
+                                  NULL)) {
+      return false;
+    }
+    *replacement_ambig_part_size = unichars.size();
+    if (*replacement_ambig_part_size > MAX_AMBIG_SIZE) {
+      if (debug_level)
+        tprintf("Too many unichars in ambiguity on line %d\n", line_num);
+      return false;
+    }
+    if (sscanf(fields[2].string(), "%d", type) != 1) {
+      if (debug_level) tprintf(kIllegalMsg, line_num);
+      return false;
+    }
+    snprintf(replacement_string, kMaxAmbigStringSize, "%s", fields[1].string());
+    return true;
+  }
   int i;
   char *token;
   char *next_token;
   if (!(token = strtok_r(buffer, kAmbigDelimiters, &next_token)) ||
-      !sscanf(token, "%d", TestAmbigPartSize) || TestAmbigPartSize <= 0) {
+      !sscanf(token, "%d", test_ambig_part_size) ||
+      *test_ambig_part_size <= 0) {
     if (debug_level) tprintf(kIllegalMsg, line_num);
     return false;
   }
-  if (*TestAmbigPartSize > MAX_AMBIG_SIZE) {
-    tprintf("Too many unichars in ambiguity on line %d\n");
+  if (*test_ambig_part_size > MAX_AMBIG_SIZE) {
+    if (debug_level)
+      tprintf("Too many unichars in ambiguity on line %d\n", line_num);
     return false;
   }
-  for (i = 0; i < *TestAmbigPartSize; ++i) {
+  for (i = 0; i < *test_ambig_part_size; ++i) {
     if (!(token = strtok_r(NULL, kAmbigDelimiters, &next_token))) break;
     if (!unicharset.contains_unichar(token)) {
       if (debug_level) tprintf(kIllegalUnicharMsg, token);
       break;
     }
-    TestUnicharIds[i] = unicharset.unichar_to_id(token);
+    test_unichar_ids[i] = unicharset.unichar_to_id(token);
   }
-  TestUnicharIds[i] = INVALID_UNICHAR_ID;
+  test_unichar_ids[i] = INVALID_UNICHAR_ID;
 
-  if (i != *TestAmbigPartSize ||
+  if (i != *test_ambig_part_size ||
       !(token = strtok_r(NULL, kAmbigDelimiters, &next_token)) ||
-      !sscanf(token, "%d", ReplacementAmbigPartSize) ||
-        *ReplacementAmbigPartSize <= 0) {
+      !sscanf(token, "%d", replacement_ambig_part_size) ||
+        *replacement_ambig_part_size <= 0) {
     if (debug_level) tprintf(kIllegalMsg, line_num);
     return false;
   }
-  if (*ReplacementAmbigPartSize > MAX_AMBIG_SIZE) {
-    tprintf("Too many unichars in ambiguity on line %d\n");
+  if (*replacement_ambig_part_size > MAX_AMBIG_SIZE) {
+    if (debug_level)
+      tprintf("Too many unichars in ambiguity on line %d\n", line_num);
     return false;
   }
-  ReplacementString[0] = '\0';
-  for (i = 0; i < *ReplacementAmbigPartSize; ++i) {
+  replacement_string[0] = '\0';
+  for (i = 0; i < *replacement_ambig_part_size; ++i) {
     if (!(token = strtok_r(NULL, kAmbigDelimiters, &next_token))) break;
-    strcat(ReplacementString, token);
+    strcat(replacement_string, token);
     if (!unicharset.contains_unichar(token)) {
       if (debug_level) tprintf(kIllegalUnicharMsg, token);
       break;
     }
   }
-  if (i != *ReplacementAmbigPartSize) {
+  if (i != *replacement_ambig_part_size) {
     if (debug_level) tprintf(kIllegalMsg, line_num);
     return false;
   }
@@ -271,20 +335,20 @@ bool UnicharAmbigs::ParseAmbiguityLine(
   return true;
 }
 
-void UnicharAmbigs::InsertIntoTable(
-    UnicharAmbigsVector &table, int TestAmbigPartSize,
-    UNICHAR_ID *TestUnicharIds, int ReplacementAmbigPartSize,
-    const char *ReplacementString, int type,
+bool UnicharAmbigs::InsertIntoTable(
+    UnicharAmbigsVector &table, int test_ambig_part_size,
+    UNICHAR_ID *test_unichar_ids, int replacement_ambig_part_size,
+    const char *replacement_string, int type,
     AmbigSpec *ambig_spec, UNICHARSET *unicharset) {
   ambig_spec->type = static_cast<AmbigType>(type);
-  if (TestAmbigPartSize == 1 && ReplacementAmbigPartSize == 1 &&
-      unicharset->to_lower(TestUnicharIds[0]) ==
-      unicharset->to_lower(unicharset->unichar_to_id(ReplacementString))) {
+  if (test_ambig_part_size == 1 && replacement_ambig_part_size == 1 &&
+      unicharset->to_lower(test_unichar_ids[0]) ==
+      unicharset->to_lower(unicharset->unichar_to_id(replacement_string))) {
     ambig_spec->type = CASE_AMBIG;
   }
 
   ambig_spec->wrong_ngram_size =
-    UnicharIdArrayUtils::copy(TestUnicharIds, ambig_spec->wrong_ngram);
+    UnicharIdArrayUtils::copy(test_unichar_ids, ambig_spec->wrong_ngram);
 
   // Since we need to maintain a constant number of unichar positions in
   // order to construct ambig_blob_choices vector in NoDangerousAmbig(), for
@@ -297,21 +361,21 @@ void UnicharAmbigs::InsertIntoTable(
   // Insert the corresponding correct ngram into the unicharset.
   // Unicharset code assumes that the "base" ngram is inserted into
   // the unicharset before fragments of this ngram are inserted.
-  unicharset->unichar_insert(ReplacementString);
+  unicharset->unichar_insert(replacement_string);
   ambig_spec->correct_ngram_id =
-    unicharset->unichar_to_id(ReplacementString);
-  if (ReplacementAmbigPartSize > 1) {
+    unicharset->unichar_to_id(replacement_string);
+  if (replacement_ambig_part_size > 1) {
     unicharset->set_isngram(ambig_spec->correct_ngram_id, true);
   }
   // Add the corresponding fragments of the wrong ngram to unicharset.
   int i;
-  for (i = 0; i < TestAmbigPartSize; ++i) {
+  for (i = 0; i < test_ambig_part_size; ++i) {
     UNICHAR_ID unichar_id;
-    if (TestAmbigPartSize == 1) {
+    if (test_ambig_part_size == 1) {
       unichar_id = ambig_spec->correct_ngram_id;
     } else {
       STRING frag_str = CHAR_FRAGMENT::to_string(
-          ReplacementString, i, TestAmbigPartSize, false);
+          replacement_string, i, test_ambig_part_size, false);
       unicharset->unichar_insert(frag_str.string());
       unichar_id = unicharset->unichar_to_id(frag_str.string());
     }
@@ -321,11 +385,14 @@ void UnicharAmbigs::InsertIntoTable(
 
   // Add AmbigSpec for this ambiguity to the corresponding AmbigSpec_LIST.
   // Keep AmbigSpec_LISTs sorted by AmbigSpec.wrong_ngram.
-  if (table[TestUnicharIds[0]] == NULL) {
-    table[TestUnicharIds[0]] = new AmbigSpec_LIST();
+  if (table[test_unichar_ids[0]] == NULL) {
+    table[test_unichar_ids[0]] = new AmbigSpec_LIST();
   }
-  table[TestUnicharIds[0]]->add_sorted(
-      AmbigSpec::compare_ambig_specs, false, ambig_spec);
+  if (table[test_unichar_ids[0]]->add_sorted(
+        AmbigSpec::compare_ambig_specs, true, ambig_spec))
+    return true;
+  delete ambig_spec;
+  return false;
 }
 
 }  // namespace tesseract

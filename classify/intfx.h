@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    intfx.h
- **	Purpose:     Interface to high level integer feature extractor.
- **	Author:      Robert Moss
- **	History:     Tue May 21 15:51:57 MDT 1991, RWM, Created.
+ **  Filename:    intfx.h
+ **  Purpose:     Interface to high level integer feature extractor.
+ **  Author:      Robert Moss
+ **  History:     Tue May 21 15:51:57 MDT 1991, RWM, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ **  (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -42,6 +42,9 @@ struct INT_FX_RESULT_STRUCT {
   uinT8 YTop;                    // Top of blob in BLN coords.
 };
 
+// The standard feature length
+const double kStandardFeatureLength = 64.0 / 5;
+
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
@@ -51,28 +54,22 @@ void InitIntegerFX();
 // theta direction in an INT_FEATURE_STRUCT.
 FCOORD FeatureDirection(uinT8 theta);
 
-tesseract::TrainingSample* GetIntFeatures(
-    tesseract::NormalizationMode mode, TBLOB *blob,
-    const DENORM& denorm);
+namespace tesseract {
+  // Generates a TrainingSample from a TBLOB. Extracts features and sets
+  // the bounding box, so classifiers that operate on the image can work.
+  // TODO(rays) BlobToTrainingSample must remain a global function until
+  // the FlexFx and FeatureDescription code can be removed and LearnBlob
+  // made a member of Classify.
+  TrainingSample* BlobToTrainingSample(
+      const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
+      GenericVector<INT_FEATURE_STRUCT>* bl_features);
+}
 
-int ExtractIntFeat(TBLOB *Blob,
-                   const DENORM& denorm,
-                   INT_FEATURE_ARRAY BLFeat,
-                   INT_FEATURE_ARRAY CNFeat,
-                   INT_FX_RESULT_STRUCT* Results,
-                   inT32 *FeatureOutlineArray = 0);
+// Deprecated! Prefer tesseract::Classify::ExtractFeatures instead.
+bool ExtractIntFeat(const TBLOB& blob,
+                    bool nonlinear_norm,
+                    INT_FEATURE_ARRAY BLFeat,
+                    INT_FEATURE_ARRAY CNFeat,
+                    INT_FX_RESULT_STRUCT* Results);
 
-uinT8 BinaryAnglePlusPi(inT32 Y, inT32 X);
-
-int SaveFeature(INT_FEATURE_ARRAY FeatureArray,
-                uinT16 FeatureNum,
-                inT16 X,
-                inT16 Y,
-                uinT8 Theta);
-
-uinT16 MySqrt(inT32 X, inT32 Y);
-
-uinT8 MySqrt2(uinT16 N, uinT32 I, uinT8 *Exp);
-
-void ClipRadius(uinT8 *RxInv, uinT8 *RxExp, uinT8 *RyInv, uinT8 *RyExp);
 #endif

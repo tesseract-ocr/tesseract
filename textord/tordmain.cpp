@@ -16,7 +16,11 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#include "mfcpch.h"
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #ifdef __UNIX__
 #include <assert.h>
 #endif
@@ -29,15 +33,8 @@
 #include "drawtord.h"
 #include "makerow.h"
 #include "wordseg.h"
-#include "imgs.h"
 #include "textord.h"
 #include "tordmain.h"
-#include "secname.h"
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 
 #include "allheaders.h"
 
@@ -306,18 +303,18 @@ float Textord::filter_noise_blobs(
   float max_x;
   float max_height;              //of good blobs
 
-  for (src_it.mark_cycle_pt (); !src_it.cycled_list (); src_it.forward ()) {
-    blob = src_it.data ();
-    if (blob->bounding_box ().height () < textord_max_noise_size)
-      noise_it.add_after_then_move (src_it.extract ());
-    else if (blob->enclosed_area () >= blob->bounding_box ().height ()
-      * blob->bounding_box ().width () * textord_noise_area_ratio)
-      small_it.add_after_then_move (src_it.extract ());
+  for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
+    blob = src_it.data();
+    if (blob->bounding_box().height() < textord_max_noise_size)
+      noise_it.add_after_then_move(src_it.extract());
+    else if (blob->enclosed_area() >= blob->bounding_box().height()
+      * blob->bounding_box().width() * textord_noise_area_ratio)
+      small_it.add_after_then_move(src_it.extract());
   }
-  for (src_it.mark_cycle_pt (); !src_it.cycled_list (); src_it.forward ()) {
-    size_stats.add (src_it.data ()->bounding_box ().height (), 1);
+  for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
+    size_stats.add(src_it.data()->bounding_box().height(), 1);
   }
-  initial_x = size_stats.ile (textord_initialx_ile);
+  initial_x = size_stats.ile(textord_initialx_ile);
   max_y = ceil(initial_x *
                (tesseract::CCStruct::kDescenderFraction +
                 tesseract::CCStruct::kXHeightFraction +
@@ -355,15 +352,55 @@ float Textord::filter_noise_blobs(
   return initial_x;
 }
 
+// Fixes the block so it obeys all the rules:
+// Must have at least one ROW.
+// Must have at least one WERD.
+// WERDs contain a fake blob.
+void Textord::cleanup_nontext_block(BLOCK* block) {
+  // Non-text blocks must contain at least one row.
+  ROW_IT row_it(block->row_list());
+  if (row_it.empty()) {
+    TBOX box = block->bounding_box();
+    float height = box.height();
+    inT32 xstarts[2] = {box.left(), box.right()};
+    double coeffs[3] = {0.0, 0.0, static_cast<double>(box.bottom())};
+    ROW* row = new ROW(1, xstarts, coeffs, height / 2.0f, height / 4.0f,
+                       height / 4.0f, 0, 1);
+    row_it.add_after_then_move(row);
+  }
+  // Each row must contain at least one word.
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+    ROW* row = row_it.data();
+    WERD_IT w_it(row->word_list());
+    if (w_it.empty()) {
+      // Make a fake blob to put in the word.
+      TBOX box = block->row_list()->singleton() ? block->bounding_box()
+                                                : row->bounding_box();
+      C_BLOB* blob = C_BLOB::FakeBlob(box);
+      C_BLOB_LIST blobs;
+      C_BLOB_IT blob_it(&blobs);
+      blob_it.add_after_then_move(blob);
+      WERD* word = new WERD(&blobs, 0, NULL);
+      w_it.add_after_then_move(word);
+    }
+    // Each word must contain a fake blob.
+    for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
+      WERD* word = w_it.data();
+      // Just assert that this is true, as it would be useful to find
+      // out why it isn't.
+      ASSERT_HOST(!word->cblob_list()->empty());
+    }
+    row->recalc_bounding_box();
+  }
+}
+
 /**********************************************************************
  * cleanup_blocks
  *
  * Delete empty blocks, rows from the page.
  **********************************************************************/
 
-void Textord::cleanup_blocks(                    //remove empties
-                             BLOCK_LIST *blocks  //list
-                            ) {
+void Textord::cleanup_blocks(bool clean_noise, BLOCK_LIST *blocks) {
   BLOCK_IT block_it = blocks;    //iterator
   ROW_IT row_it;                 //row iterator
 
@@ -371,33 +408,37 @@ void Textord::cleanup_blocks(                    //remove empties
   int num_rows_all = 0;
   int num_blocks = 0;
   int num_blocks_all = 0;
-  for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
-       block_it.forward ()) {
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list();
+       block_it.forward()) {
+    BLOCK* block = block_it.data();
+    if (block->poly_block() != NULL && !block->poly_block()->IsText()) {
+      cleanup_nontext_block(block);
+      continue;
+    }
     num_rows = 0;
     num_rows_all = 0;
-    row_it.set_to_list (block_it.data ()->row_list ());
-    for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-      ++num_rows_all;
-      clean_small_noise_from_words(row_it.data());
-      if ((textord_noise_rejrows
-           && !row_it.data ()->word_list ()->empty ()
-           && clean_noise_from_row (row_it.data ()))
-          || row_it.data ()->word_list ()->empty ())
-        delete row_it.extract ();//lose empty row
-      else {
-        if (textord_noise_rejwords)
-          clean_noise_from_words (row_it.data ());
-        if (textord_blshift_maxshift >= 0)
-          tweak_row_baseline(row_it.data(),
-                             textord_blshift_maxshift,
-                             textord_blshift_xfraction);
-        ++num_rows;
+    if (clean_noise) {
+      row_it.set_to_list(block->row_list());
+      for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+        ++num_rows_all;
+        clean_small_noise_from_words(row_it.data());
+        if ((textord_noise_rejrows && !row_it.data()->word_list()->empty() &&
+             clean_noise_from_row(row_it.data())) ||
+            row_it.data()->word_list()->empty()) {
+          delete row_it.extract();  // lose empty row.
+        } else {
+          if (textord_noise_rejwords)
+            clean_noise_from_words(row_it.data());
+          if (textord_blshift_maxshift >= 0)
+            tweak_row_baseline(row_it.data(),
+                               textord_blshift_maxshift,
+                               textord_blshift_xfraction);
+          ++num_rows;
+        }
       }
     }
-    if (block_it.data()->row_list()->empty() &&
-        (block_it.data()->poly_block() == NULL ||
-         block_it.data()->poly_block()->IsText())) {
-      delete block_it.extract();  // Lose empty text blocks but not other types.
+    if (block->row_list()->empty()) {
+      delete block_it.extract();  // Lose empty text blocks.
     } else {
       ++num_blocks;
     }
@@ -492,7 +533,6 @@ BOOL8 Textord::clean_noise_from_row(          //remove empties
       else if (blob_box.height () > row->x_height () * 2
         && (!word_it.at_first () || !blob_it.at_first ()))
         dot_count += 2;
-      #ifndef SECURE_NAMES
       if (testing_on) {
         tprintf
           ("Blob at (%d,%d) -> (%d,%d), ols=%d, tc=%d, bldiff=%g\n",
@@ -500,10 +540,8 @@ BOOL8 Textord::clean_noise_from_row(          //remove empties
           blob_box.top (), blob->out_list ()->length (), trans_count,
           blob_box.bottom () - row->base_line (blob_box.left ()));
       }
-      #endif
     }
   }
-  #ifndef SECURE_NAMES
   if (textord_noise_debug) {
     tprintf ("Row ending at (%d,%g):",
       blob_box.right (), row->base_line (blob_box.right ()));
@@ -513,7 +551,6 @@ BOOL8 Textord::clean_noise_from_row(          //remove empties
       dot_count > norm_count * textord_noise_normratio
       && dot_count > 2 ? "REJECTED" : "ACCEPTED");
   }
-  #endif
   return super_norm_count < textord_noise_sncount
     && dot_count > norm_count * textord_noise_rowratio && dot_count > 2;
 }

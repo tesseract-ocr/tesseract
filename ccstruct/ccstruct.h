@@ -20,7 +20,6 @@
 #define TESSERACT_CCSTRUCT_CCSTRUCT_H__
 
 #include "cutil.h"
-#include "image.h"
 
 namespace tesseract {
 class CCStruct : public CUtil {
@@ -36,9 +35,6 @@ class CCStruct : public CUtil {
   static const double kAscenderFraction;   // = 0.25;
   // Derived value giving the x-height as a fraction of cap-height.
   static const double kXHeightCapRatio;    // = XHeight/(XHeight + Ascender).
-
- protected:
-  Image image_;
 };
 
 class Tesseract;

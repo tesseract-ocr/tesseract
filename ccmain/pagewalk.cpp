@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include "pageres.h"
 #include "tesseractclass.h"
 
@@ -31,15 +30,12 @@ namespace tesseract {
 void Tesseract::process_selected_words(
     PAGE_RES* page_res, // blocks to check
     TBOX & selection_box,
-    BOOL8(tesseract::Tesseract::*word_processor)(  // function to call
-        BLOCK* block, ROW* row, WERD_RES* word_res)) {
+    BOOL8(tesseract::Tesseract::*word_processor)(PAGE_RES_IT* pr_it)) {
   for (PAGE_RES_IT page_res_it(page_res); page_res_it.word() != NULL;
        page_res_it.forward()) {
     WERD* word = page_res_it.word()->word;
     if (word->bounding_box().overlap(selection_box)) {
-      if (!((this->*word_processor)(page_res_it.block()->block,
-                                    page_res_it.row()->row,
-                                    page_res_it.word())))
+      if (!(this->*word_processor)(&page_res_it))
         return;
     }
   }

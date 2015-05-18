@@ -26,8 +26,12 @@ class DENORM;
 /*-----------------------------------------------------------------------------
           Public Function Prototypes
 -----------------------------------------------------------------------------*/
+// Deprecated! Will be deleted soon!
+// In the meantime, as all TBLOBs, Blob is in baseline normalized coords.
+// See SetupBLCNDenorms in intfx.cpp for other args.
 CHAR_DESC ExtractBlobFeatures(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                              const DENORM& denorm, TBLOB *Blob);
+                              const DENORM& bl_denorm, const DENORM& cn_denorm,
+                              const INT_FX_RESULT_STRUCT& fx_info, TBLOB *Blob);
 
 /*---------------------------------------------------------------------------
           Private Function Prototypes

@@ -21,10 +21,10 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
+#include "blobs.h"
 #include "host.h"
 #include "oldlist.h"
 #include "fpoint.h"
-#include "baseline.h"
 #include "params.h"
 
 #define NORMAL_X_HEIGHT   (0.5)
@@ -68,7 +68,7 @@ typedef enum {
 #define AverageOf(A,B)    (((A) + (B)) / 2)
 
 /* macro for computing the scale factor to use to normalize characters */
-#define MF_SCALE_FACTOR  (NORMAL_X_HEIGHT / BASELINE_SCALE)
+#define MF_SCALE_FACTOR  (NORMAL_X_HEIGHT / kBlnXHeight)
 
 /* macros for manipulating micro-feature outlines */
 #define DegenerateOutline(O)  (((O) == NIL_LIST) || ((O) == list_rest(O)))
@@ -92,8 +92,6 @@ MFOUTLINE ConvertOutline(TESSLINE *Outline);
 LIST ConvertOutlines(TESSLINE *Outline,
                      LIST ConvertedOutlines,
                      OUTLINETYPE OutlineType);
-
-void ComputeOutlineStats(LIST Outlines, OUTLINE_STATS *OutlineStats);
 
 void FilterEdgeNoise(MFOUTLINE Outline, FLOAT32 NoiseSegmentLength);
 
@@ -119,11 +117,10 @@ void NormalizeOutline(MFOUTLINE Outline,
 -----------------------------------------------------------------------------*/
 void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction);
 
-void CharNormalizeOutline(MFOUTLINE Outline,
-                          FLOAT32 XCenter,
-                          FLOAT32 YCenter,
-                          FLOAT32 XScale,
-                          FLOAT32 YScale);
+// Normalizes the Outline in-place using cn_denorm's local transformation,
+// then converts from the integer feature range [0,255] to the clusterer
+// feature range of [-0.5, 0.5].
+void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm);
 
 void ComputeDirection(MFEDGEPT *Start,
                       MFEDGEPT *Finish,

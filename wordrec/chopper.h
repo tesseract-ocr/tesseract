@@ -29,7 +29,6 @@
 #include "cutil.h"
 #include "matrix.h"
 #include "seam.h"
-#include "states.h"
 #include "stopper.h"
 
 
@@ -41,7 +40,7 @@ EDGEPT *restore_outline(EDGEPT *start);
 
 void restore_outline_tree(TESSLINE *srcline);
 
-int any_shared_split_points(SEAMS seam_list, SEAM *seam);
+int any_shared_split_points(const GenericVector<SEAM*>& seams, SEAM *seam);
 
 int check_blob(TBLOB *blob);
 

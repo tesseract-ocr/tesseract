@@ -221,16 +221,16 @@ bool TesseractCubeCombiner::ComputeCombinerFeatures(const string &tess_str,
     features->push_back(cube_best_bigram_cost);
   }
   // case-insensitive string comparison, including punctuation
-  int compare_nocase_punc = CompareStrings(cube_best_str.c_str(),
-                                           tess_str.c_str(), false, true);
+  int compare_nocase_punc = CompareStrings(cube_best_str,
+                                           tess_str, false, true);
   features->push_back(compare_nocase_punc == 0);
   // case-sensitive string comparison, ignoring punctuation
-  int compare_case_nopunc = CompareStrings(cube_best_str.c_str(),
-                                           tess_str.c_str(), true, false);
+  int compare_case_nopunc = CompareStrings(cube_best_str,
+                                           tess_str, true, false);
   features->push_back(compare_case_nopunc == 0);
   // case-insensitive string comparison, ignoring punctuation
-  int compare_nocase_nopunc = CompareStrings(cube_best_str.c_str(),
-                                             tess_str.c_str(), true, true);
+  int compare_nocase_nopunc = CompareStrings(cube_best_str,
+                                             tess_str, true, true);
   features->push_back(compare_nocase_nopunc == 0);
   return true;
 }

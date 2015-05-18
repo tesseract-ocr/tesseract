@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="UserMacros">
+    <GIFLIB_VERSION>416</GIFLIB_VERSION>
+    <LIBJPEG_VERSION>8c</LIBJPEG_VERSION>
+    <LIBLEPT_VERSION>171</LIBLEPT_VERSION>
+    <LIBLEPT_VERSION_R>1,71,0,0</LIBLEPT_VERSION_R>
+    <LIBLEPT_NUMBER>1.71</LIBLEPT_NUMBER>
+    <LIBPNG_VERSION>143</LIBPNG_VERSION>
+    <LIBTIFF_VERSION>394</LIBTIFF_VERSION>
+    <ZLIB_VERSION>125</ZLIB_VERSION>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <BuildMacro Include="GIFLIB_VERSION">
+      <Value>$(GIFLIB_VERSION)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBJPEG_VERSION">
+      <Value>$(LIBJPEG_VERSION)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBLEPT_VERSION">
+      <Value>$(LIBLEPT_VERSION)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBLEPT_VERSION_R">
+      <Value>$(LIBLEPT_VERSION_R)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBLEPT_NUMBER">
+      <Value>$(LIBLEPT_NUMBER)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBPNG_VERSION">
+      <Value>$(LIBPNG_VERSION)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBTIFF_VERSION">
+      <Value>$(LIBTIFF_VERSION)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ZLIB_VERSION">
+      <Value>$(ZLIB_VERSION)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

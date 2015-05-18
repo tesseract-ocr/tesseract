@@ -22,7 +22,6 @@
 
 #include          "params.h"
 #include          "blobbox.h"
-#include          "notdll.h"
 
 extern BOOL_VAR_H (textord_really_old_xheight, FALSE,
 "Use original wiseowl xheight");

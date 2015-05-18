@@ -24,12 +24,6 @@
 // unichar per line.
 
 #include <stdio.h>
-/*
-** Include automatically generated configuration file if running autoconf
-*/
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 #if defined(HAVE_WCHAR_T) || defined(_WIN32) || defined(GOOGLE3)
 #include <wchar.h>
 #include <wctype.h>
@@ -103,11 +97,10 @@ int main(int argc, char** argv) {
   int option;
   const char* output_directory = ".";
   STRING unicharset_file_name;
+  // Special characters are now included by default.
   UNICHARSET unicharset;
 
   setlocale(LC_ALL, "");
-  // Space character needed to represent NIL classification
-  unicharset.unichar_insert(" ");
 
   // Print usage
   if (argc <= 1) {

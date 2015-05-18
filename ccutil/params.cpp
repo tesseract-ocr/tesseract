@@ -17,8 +17,6 @@
  *
  **********************************************************************/
 
-#include          "mfcpch.h"     //precompiled headers
-
 #include          <stdio.h>
 #include          <string.h>
 #include          <stdlib.h>
@@ -43,19 +41,15 @@ namespace tesseract {
 bool ParamUtils::ReadParamsFile(const char *file,
                                 SetParamConstraint constraint,
                                 ParamsVectors *member_params) {
-  char flag;                     // file flag
   inT16 nameoffset;              // offset for real name
   FILE *fp;                      // file pointer
                                  // iterators
 
   if (*file == PLUS) {
-    flag = PLUS;                 // file has flag
     nameoffset = 1;
   } else if (*file == MINUS) {
-    flag = MINUS;
     nameoffset = 1;
   } else {
-    flag = EQUAL;
     nameoffset = 0;
   }
 
@@ -64,8 +58,9 @@ bool ParamUtils::ReadParamsFile(const char *file,
     tprintf("read_params_file: Can't open %s\n", file + nameoffset);
     return true;
   }
-  return ReadParamsFromFp(fp, -1, constraint, member_params);
+  const bool anyerr = ReadParamsFromFp(fp, -1, constraint, member_params);
   fclose(fp);
+  return anyerr;
 }
 
 bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset,
@@ -74,15 +69,12 @@ bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset,
   char line[MAX_PATH];           // input line
   bool anyerr = false;           // true if any error
   bool foundit;                  // found parameter
-  inT16 length;                  // length of line
   char *valptr;                  // value field
 
   while ((end_offset < 0 || ftell(fp) < end_offset) &&
          fgets(line, MAX_PATH, fp)) {
     if (line[0] != '\n' && line[0] != '#') {
-      length = strlen (line);
-      if (line[length - 1] == '\n')
-        line[length - 1] = '\0';  // cut newline
+      chomp_string(line);  // remove newline
       for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t';
         valptr++);
       if (*valptr) {             // found blank
@@ -191,20 +183,41 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
   for (v = 0; v < num_iterations; ++v) {
     const ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
     for (i = 0; i < vec->int_params.size(); ++i) {
-      fprintf(fp, "%s\t%d\n", vec->int_params[i]->name_str(),
-              (inT32)(*vec->int_params[i]));
+      fprintf(fp, "%s\t%d\t%s\n", vec->int_params[i]->name_str(),
+              (inT32)(*vec->int_params[i]), vec->int_params[i]->info_str());
     }
     for (i = 0; i < vec->bool_params.size(); ++i) {
-      fprintf(fp, "%s\t%d\n", vec->bool_params[i]->name_str(),
-              (BOOL8)(*vec->bool_params[i]));
+      fprintf(fp, "%s\t%d\t%s\n", vec->bool_params[i]->name_str(),
+              (BOOL8)(*vec->bool_params[i]), vec->bool_params[i]->info_str());
     }
     for (int i = 0; i < vec->string_params.size(); ++i) {
-      fprintf(fp, "%s\t%s\n", vec->string_params[i]->name_str(),
-              vec->string_params[i]->string());
+      fprintf(fp, "%s\t%s\t%s\n", vec->string_params[i]->name_str(),
+              vec->string_params[i]->string(), vec->string_params[i]->info_str());
     }
     for (int i = 0; i < vec->double_params.size(); ++i) {
-      fprintf(fp, "%s\t%g\n", vec->double_params[i]->name_str(),
-              (double)(*vec->double_params[i]));
+      fprintf(fp, "%s\t%g\t%s\n", vec->double_params[i]->name_str(),
+              (double)(*vec->double_params[i]), vec->double_params[i]->info_str());
+    }
+  }
+}
+
+// Resets all parameters back to default values;
+void ParamUtils::ResetToDefaults(ParamsVectors* member_params) {
+  int v, i;
+  int num_iterations = (member_params == NULL) ? 1 : 2;
+  for (v = 0; v < num_iterations; ++v) {
+    ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
+    for (i = 0; i < vec->int_params.size(); ++i) {
+      vec->int_params[i]->ResetToDefault();
+    }
+    for (i = 0; i < vec->bool_params.size(); ++i) {
+      vec->bool_params[i]->ResetToDefault();
+    }
+    for (int i = 0; i < vec->string_params.size(); ++i) {
+      vec->string_params[i]->ResetToDefault();
+    }
+    for (int i = 0; i < vec->double_params.size(); ++i) {
+      vec->double_params[i]->ResetToDefault();
     }
   }
 }

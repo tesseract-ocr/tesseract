@@ -18,10 +18,13 @@
  *
  **********************************************************************/
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "devanagari_processing.h"
 #include "allheaders.h"
 #include "tordmain.h"
-#include "img.h"
 #include "statistc.h"
 
 // Flags controlling the debugging information for shiro-rekha splitting
@@ -441,7 +444,7 @@ void ShiroRekhaSplitter::GetShiroRekhaYExtents(Pix* word_pix,
   int llimit = topline_ylevel;
   while (ulimit > 0 && hist_horiz.hist()[ulimit] >= thresh)
     --ulimit;
-  while (llimit < word_pix->h && hist_horiz.hist()[llimit] >= thresh)
+  while (llimit < pixGetHeight(word_pix) && hist_horiz.hist()[llimit] >= thresh)
     ++llimit;
 
   if (shirorekha_top) *shirorekha_top = ulimit;

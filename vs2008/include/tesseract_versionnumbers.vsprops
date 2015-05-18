@@ -7,14 +7,14 @@
 	>
 	<UserMacro
 		Name="LIBTESS_VERSION"
-		Value="302"
+		Value="303"
 	/>
 	<UserMacro
 		Name="LIBTESS_VERSION_R"
-		Value="3,2,0,0"
+		Value="3,3,0,0"
 	/>
 	<UserMacro
 		Name="LIBTESS_NUMBER"
-		Value="3.02"
+		Value="3.03"
 	/>
 </VisualStudioPropertySheet>

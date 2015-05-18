@@ -30,12 +30,15 @@
 #include "allheaders.h"
 #include "boxread.h"
 #include "classify.h"
+#include "efio.h"
 #include "errorcounter.h"
 #include "featdefs.h"
 #include "sampleiterator.h"
 #include "shapeclassifier.h"
 #include "shapetable.h"
 #include "svmnode.h"
+
+#include "scanutils.h"
 
 namespace tesseract {
 
@@ -58,10 +61,6 @@ MasterTrainer::MasterTrainer(NormalizationMode norm_mode,
     enable_shape_anaylsis_(shape_analysis),
     enable_replication_(replicate_samples),
     fragments_(NULL), prev_unichar_id_(-1), debug_level_(debug_level) {
-  fontinfo_table_.set_compare_callback(
-      NewPermanentTessCallback(CompareFontInfo));
-  fontinfo_table_.set_clear_callback(
-      NewPermanentTessCallback(FontInfoDeleteCallback));
 }
 
 MasterTrainer::~MasterTrainer() {
@@ -82,10 +81,7 @@ bool MasterTrainer::Serialize(FILE* fp) const {
   if (!verify_samples_.Serialize(fp)) return false;
   if (!master_shapes_.Serialize(fp)) return false;
   if (!flat_shapes_.Serialize(fp)) return false;
-  if (!fontinfo_table_.write(fp, NewPermanentTessCallback(write_info)))
-    return false;
-  if (!fontinfo_table_.write(fp, NewPermanentTessCallback(write_spacing_info)))
-    return false;
+  if (!fontinfo_table_.Serialize(fp)) return false;
   if (!xheights_.Serialize(fp)) return false;
   return true;
 }
@@ -106,11 +102,7 @@ bool MasterTrainer::DeSerialize(bool swap, FILE* fp) {
   if (!verify_samples_.DeSerialize(swap, fp)) return false;
   if (!master_shapes_.DeSerialize(swap, fp)) return false;
   if (!flat_shapes_.DeSerialize(swap, fp)) return false;
-  if (!fontinfo_table_.read(fp, NewPermanentTessCallback(read_info), swap))
-    return false;
-  if (!fontinfo_table_.read(fp, NewPermanentTessCallback(read_spacing_info),
-                            swap))
-    return false;
+  if (!fontinfo_table_.DeSerialize(swap, fp)) return false;
   if (!xheights_.DeSerialize(swap, fp)) return false;
   return true;
 }
@@ -122,8 +114,10 @@ void MasterTrainer::LoadUnicharset(const char* filename) {
             "Building unicharset for training from scratch...\n",
             filename);
     unicharset_.clear();
-    // Space character needed to represent NIL_LIST classification.
-    unicharset_.unichar_insert(" ");
+    UNICHARSET initialized;
+    // Add special characters, as they were removed by the clear, but the
+    // default constructor puts them in.
+    unicharset_.AppendOtherUnicharset(initialized);
   }
   charsetsize_ = unicharset_.size();
   delete [] fragments_;
@@ -138,7 +132,7 @@ void MasterTrainer::LoadUnicharset(const char* filename) {
 // adding them to the trainer with the font_id from the content of the file.
 // See mftraining.cpp for a description of the file format.
 // If verification, then these are verification samples, not training.
-void MasterTrainer::ReadTrainingSamples(FILE  *fp,
+void MasterTrainer::ReadTrainingSamples(const char* page_name,
                                         const FEATURE_DEFS_STRUCT& feature_defs,
                                         bool verification) {
   char buffer[2048];
@@ -148,6 +142,12 @@ void MasterTrainer::ReadTrainingSamples(FILE  *fp,
   int cn_feature_type = ShortNameToFeatureType(feature_defs, kCNFeatureType);
   int geo_feature_type = ShortNameToFeatureType(feature_defs, kGeoFeatureType);
 
+  FILE* fp = Efopen(page_name, "rb");
+  if (fp == NULL) {
+    tprintf("Failed to open tr file: %s\n", page_name);
+    return;
+  }
+  tr_filenames_.push_back(STRING(page_name));
   while (fgets(buffer, sizeof(buffer), fp) != NULL) {
     if (buffer[0] == '\n')
       continue;
@@ -159,6 +159,7 @@ void MasterTrainer::ReadTrainingSamples(FILE  *fp,
     }
     *space++ = '\0';
     int font_id = GetFontInfoId(buffer);
+    if (font_id < 0) font_id = 0;
     int page_number;
     STRING unichar;
     TBOX bounding_box;
@@ -177,6 +178,7 @@ void MasterTrainer::ReadTrainingSamples(FILE  *fp,
     FreeCharDescription(char_desc);
   }
   charsetsize_ = unicharset_.size();
+  fclose(fp);
 }
 
 // Adds the given single sample to the trainer, setting the classid
@@ -278,23 +280,23 @@ void MasterTrainer::SetupMasterShapes() {
     const CHAR_FRAGMENT *fragment = samples_.unicharset().get_fragment(c);
 
     if (fragment == NULL)
-      char_shapes.AppendMasterShapes(shapes);
+      char_shapes.AppendMasterShapes(shapes, NULL);
     else if (fragment->is_beginning())
-      char_shapes_begin_fragment.AppendMasterShapes(shapes);
+      char_shapes_begin_fragment.AppendMasterShapes(shapes, NULL);
     else if (fragment->is_ending())
-      char_shapes_end_fragment.AppendMasterShapes(shapes);
+      char_shapes_end_fragment.AppendMasterShapes(shapes, NULL);
     else
-      char_shapes.AppendMasterShapes(shapes);
+      char_shapes.AppendMasterShapes(shapes, NULL);
   }
   ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
                 kFontMergeDistance, &char_shapes_begin_fragment);
-  char_shapes.AppendMasterShapes(char_shapes_begin_fragment);
+  char_shapes.AppendMasterShapes(char_shapes_begin_fragment, NULL);
   ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
                 kFontMergeDistance, &char_shapes_end_fragment);
-  char_shapes.AppendMasterShapes(char_shapes_end_fragment);
+  char_shapes.AppendMasterShapes(char_shapes_end_fragment, NULL);
   ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
                 kFontMergeDistance, &char_shapes);
-  master_shapes_.AppendMasterShapes(char_shapes);
+  master_shapes_.AppendMasterShapes(char_shapes, NULL);
   tprintf("Master shape_table:%s\n", master_shapes_.SummaryStr().string());
 }
 
@@ -360,8 +362,8 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
     fontinfo.name = font_name;
     fontinfo.properties = 0;
     fontinfo.universal_id = 0;
-    if (fscanf(fp, "%1024s %i %i %i %i %i\n", font_name,
-               &italic, &bold, &fixed, &serif, &fraktur) != 6)
+    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name,
+                &italic, &bold, &fixed, &serif, &fraktur) != 6)
       continue;
     fontinfo.properties =
         (italic << 0) +
@@ -397,17 +399,19 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
   int total_xheight = 0;
   int xheight_count = 0;
   while (!feof(f)) {
-    if (fscanf(f, "%1024s %d\n", buffer, &xht) != 2)
+    if (tfscanf(f, "%1023s %d\n", buffer, &xht) != 2)
       continue;
+    buffer[1023] = '\0';
     fontinfo.name = buffer;
     if (!fontinfo_table_.contains(fontinfo)) continue;
-    int fontinfo_id = fontinfo_table_.get_id(fontinfo);
+    int fontinfo_id = fontinfo_table_.get_index(fontinfo);
     xheights_[fontinfo_id] = xht;
     total_xheight += xht;
     ++xheight_count;
   }
   if (xheight_count == 0) {
     fprintf(stderr, "No valid xheights in %s!\n", filename);
+    fclose(f);
     return false;
   }
   int mean_xheight = DivRounded(total_xheight, xheight_count);
@@ -415,6 +419,7 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
     if (xheights_[i] < 0)
       xheights_[i] = mean_xheight;
   }
+  fclose(f);
   return true;
 }  // LoadXHeights
 
@@ -438,13 +443,13 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
   char uch[UNICHAR_LEN];
   char kerned_uch[UNICHAR_LEN];
   int x_gap, x_gap_before, x_gap_after, num_kerned;
-  ASSERT_HOST(fscanf(fontinfo_file, "%d\n", &num_unichars) == 1);
-  FontInfo *fi = fontinfo_table_.get_mutable(fontinfo_id);
+  ASSERT_HOST(tfscanf(fontinfo_file, "%d\n", &num_unichars) == 1);
+  FontInfo *fi = &fontinfo_table_.get(fontinfo_id);
   fi->init_spacing(unicharset_.size());
   FontSpacingInfo *spacing = NULL;
   for (int l = 0; l < num_unichars; ++l) {
-    if (fscanf(fontinfo_file, "%s %d %d %d",
-               uch, &x_gap_before, &x_gap_after, &num_kerned) != 4) {
+    if (tfscanf(fontinfo_file, "%s %d %d %d",
+                uch, &x_gap_before, &x_gap_after, &num_kerned) != 4) {
       tprintf("Bad format of font spacing file %s\n", filename);
       fclose(fontinfo_file);
       return false;
@@ -456,9 +461,10 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
       spacing->x_gap_after = static_cast<inT16>(x_gap_after * scale);
     }
     for (int k = 0; k < num_kerned; ++k) {
-      if (fscanf(fontinfo_file, "%s %d", kerned_uch, &x_gap) != 2) {
+      if (tfscanf(fontinfo_file, "%s %d", kerned_uch, &x_gap) != 2) {
         tprintf("Bad format of font spacing file %s\n", filename);
         fclose(fontinfo_file);
+        delete spacing;
         return false;
       }
       if (!valid || !unicharset_.contains_unichar(kerned_uch)) continue;
@@ -480,11 +486,7 @@ int MasterTrainer::GetFontInfoId(const char* font_name) {
   fontinfo.name = const_cast<char*>(font_name);
   fontinfo.properties = 0;  // Not used to lookup in the table
   fontinfo.universal_id = 0;
-  if (!fontinfo_table_.contains(fontinfo)) {
-    return -1;
-  } else {
-    return fontinfo_table_.get_id(fontinfo);
-  }
+  return fontinfo_table_.get_index(fontinfo);
 }
 // Returns the font_id of the closest matching font name to the given
 // filename. It is assumed that a substring of the filename will match
@@ -585,7 +587,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
                                              const char* pffmtable_file) {
   tesseract::Classify *classify = new tesseract::Classify();
   // Move the fontinfo table to classify.
-  classify->get_fontinfo_table().move(&fontinfo_table_);
+  fontinfo_table_.MoveTo(&classify->get_fontinfo_table());
   INT_TEMPLATES int_templates = classify->CreateIntTemplates(float_classes,
                                                              shape_set);
   FILE* fp = fopen(inttemp_file, "wb");
@@ -633,6 +635,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
   }
   fclose(fp);
   free_int_templates(int_templates);
+  delete classify;
 }
 
 // Generate debug output relating to the canonical distance between the
@@ -750,17 +753,29 @@ void MasterTrainer::DisplaySamples(const char* unichar_str1, int cloud_font,
 }
 #endif  // GRAPHICS_DISABLED
 
+void MasterTrainer::TestClassifierVOld(bool replicate_samples,
+                                       ShapeClassifier* test_classifier,
+                                       ShapeClassifier* old_classifier) {
+  SampleIterator sample_it;
+  sample_it.Init(NULL, NULL, replicate_samples, &samples_);
+  ErrorCounter::DebugNewErrors(test_classifier, old_classifier,
+                               CT_UNICHAR_TOPN_ERR, fontinfo_table_,
+                               page_images_, &sample_it);
+}
+
 // Tests the given test_classifier on the internal samples.
 // See TestClassifier for details.
-void MasterTrainer::TestClassifierOnSamples(int report_level,
+void MasterTrainer::TestClassifierOnSamples(CountTypes error_mode,
+                                            int report_level,
                                             bool replicate_samples,
                                             ShapeClassifier* test_classifier,
                                             STRING* report_string) {
-  TestClassifier(report_level, replicate_samples, &samples_,
+  TestClassifier(error_mode, report_level, replicate_samples, &samples_,
                  test_classifier, report_string);
 }
 
-// Tests the given test_classifier on the given samples
+// Tests the given test_classifier on the given samples.
+// error_mode indicates what counts as an error.
 // report_levels:
 // 0 = no output.
 // 1 = bottom-line error rate.
@@ -772,14 +787,14 @@ void MasterTrainer::TestClassifierOnSamples(int report_level,
 // sample including replicated and systematically perturbed samples.
 // If report_string is non-NULL, a summary of the results for each font
 // is appended to the report_string.
-double MasterTrainer::TestClassifier(int report_level,
+double MasterTrainer::TestClassifier(CountTypes error_mode,
+                                     int report_level,
                                      bool replicate_samples,
                                      TrainingSampleSet* samples,
                                      ShapeClassifier* test_classifier,
                                      STRING* report_string) {
   SampleIterator sample_it;
-  sample_it.Init(NULL, test_classifier->GetShapeTable(), replicate_samples,
-                 samples);
+  sample_it.Init(NULL, NULL, replicate_samples, samples);
   if (report_level > 0) {
     int num_samples = 0;
     for (sample_it.Begin(); !sample_it.AtEnd(); sample_it.Next())
@@ -791,7 +806,7 @@ double MasterTrainer::TestClassifier(int report_level,
   }
   double unichar_error = 0.0;
   ErrorCounter::ComputeErrorRate(test_classifier, report_level,
-                                 CT_SHAPE_TOP_ERR, fontinfo_table_,
+                                 error_mode, fontinfo_table_,
                                  page_images_, &sample_it, &unichar_error,
                                  NULL, report_string);
   return unichar_error;

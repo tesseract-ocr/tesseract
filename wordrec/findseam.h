@@ -30,10 +30,15 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "seam.h"
-#include "oldheap.h"
+#include "genericheap.h"
+#include "kdpair.h"
 #include "chop.h"
 
-typedef HEAP *SEAM_QUEUE;
-typedef ARRAY SEAM_PILE;
+// The SeamPair elements own their SEAMs and delete them upon destruction.
+typedef tesseract::KDPtrPairInc<float, SEAM> SeamPair;
+typedef tesseract::GenericHeap<SeamPair> SeamQueue;
+
+typedef tesseract::KDPtrPairDec<float, SEAM> SeamDecPair;
+typedef tesseract::GenericHeap<SeamDecPair> SeamPile;
 
 #endif

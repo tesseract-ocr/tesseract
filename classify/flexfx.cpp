@@ -28,8 +28,13 @@
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
+// Deprecated! Will be deleted soon!
+// In the meantime, as all TBLOBs, Blob is in baseline normalized coords.
+// See SetupBLCNDenorms in intfx.cpp for other args.
 CHAR_DESC ExtractFlexFeatures(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                              TBLOB *Blob, const DENORM& denorm) {
+                              TBLOB *Blob, const DENORM& bl_denorm,
+                              const DENORM& cn_denorm,
+                              const INT_FX_RESULT_STRUCT& fx_info) {
 /*
  **	Parameters:
  **		Blob		blob to extract features from
@@ -50,8 +55,13 @@ CHAR_DESC ExtractFlexFeatures(const FEATURE_DEFS_STRUCT &FeatureDefs,
     if (FeatureDefs.FeatureExtractors[Type] != NULL &&
         FeatureDefs.FeatureExtractors[Type]->Extractor != NULL) {
       CharDesc->FeatureSets[Type] =
-        (FeatureDefs.FeatureExtractors[Type])->Extractor(Blob, denorm);
+        (FeatureDefs.FeatureExtractors[Type])->Extractor(Blob,
+                                                         bl_denorm,
+                                                         cn_denorm,
+                                                         fx_info);
       if (CharDesc->FeatureSets[Type] == NULL) {
+        tprintf("Feature extractor for type %d = %s returned NULL!\n",
+                Type, FeatureDefs.FeatureDesc[Type]->ShortName);
         FreeCharDescription(CharDesc);
         return NULL;
       }

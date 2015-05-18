@@ -18,7 +18,7 @@ NeuralNet::NeuralNet() {
 
 NeuralNet::~NeuralNet() {
   // clean up the wts chunks vector
-  for(int vec = 0; vec < wts_vec_.size(); vec++) {
+  for (int vec = 0; vec < static_cast<int>(wts_vec_.size()); vec++) {
     delete wts_vec_[vec];
   }
   // clean up neurons

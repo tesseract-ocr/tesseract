@@ -230,8 +230,8 @@ bool HybridNeuralNetCharClassifier::LoadFoldingSets(
   fclose(fp);
 
   string fold_sets_str;
-  if (!CubeUtils::ReadFileToString(fold_file_name.c_str(),
-                                  &fold_sets_str)) {
+  if (!CubeUtils::ReadFileToString(fold_file_name,
+                                   &fold_sets_str)) {
     return false;
   }
 
@@ -323,7 +323,7 @@ bool HybridNeuralNetCharClassifier::LoadNets(const string &data_file_path,
   fclose(fp);
 
   string str;
-  if (!CubeUtils::ReadFileToString(hybrid_net_file.c_str(), &str)) {
+  if (!CubeUtils::ReadFileToString(hybrid_net_file, &str)) {
     return false;
   }
 
@@ -348,7 +348,7 @@ bool HybridNeuralNetCharClassifier::LoadNets(const string &data_file_path,
     }
     // load the net
     string net_file_name = data_file_path + tokens_vec[0];
-    nets_[net_idx] = tesseract::NeuralNet::FromFile(net_file_name.c_str());
+    nets_[net_idx] = tesseract::NeuralNet::FromFile(net_file_name);
     if (nets_[net_idx] == NULL) {
       return false;
     }

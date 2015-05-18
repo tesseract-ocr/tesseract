@@ -1,6 +1,10 @@
 AM_CPPFLAGS += \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil \
-    -I$(top_srcdir)/image -I$(top_srcdir)/viewer
+    -I$(top_srcdir)/viewer \
+    -I$(top_srcdir)/opencl
+if USE_OPENCL
+AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
+endif
     
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
@@ -9,8 +13,10 @@ endif
 
 include_HEADERS = publictypes.h
 noinst_HEADERS = \
-    blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
-    detlinefit.h dppoint.h fontinfo.h genblob.h hpddef.h hpdsizes.h ipoints.h \
+    blamer.h blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
+    detlinefit.h dppoint.h fontinfo.h genblob.h hpdsizes.h \
+ ##   imagedata.h \
+    ipoints.h \
     linlsq.h matrix.h mod128.h normalis.h \
     ocrblock.h ocrpara.h ocrrow.h otsuthr.h \
     pageres.h params_training_featdef.h \
@@ -26,17 +32,18 @@ libtesseract_ccstruct_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 libtesseract_ccstruct_la_LIBADD = \
     ../ccutil/libtesseract_ccutil.la \
     ../cutil/libtesseract_cutil.la \
-    ../image/libtesseract_image.la \
-    ../viewer/libtesseract_viewer.la
+    ../viewer/libtesseract_viewer.la \
+    ../opencl/libtesseract_opencl.la 
 endif
 
 libtesseract_ccstruct_la_SOURCES = \
-    blobbox.cpp blobs.cpp blread.cpp boxread.cpp boxword.cpp ccstruct.cpp coutln.cpp \
+    blamer.cpp blobbox.cpp blobs.cpp blread.cpp boxread.cpp boxword.cpp ccstruct.cpp coutln.cpp \
     detlinefit.cpp dppoint.cpp fontinfo.cpp genblob.cpp \
+ ##    imagedata.cpp \
     linlsq.cpp matrix.cpp mod128.cpp normalis.cpp \
     ocrblock.cpp ocrpara.cpp ocrrow.cpp otsuthr.cpp \
     pageres.cpp pdblock.cpp points.cpp polyaprx.cpp polyblk.cpp \
-    publictypes.cpp \
-    quadlsq.cpp quadratc.cpp quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \
+    params_training_featdef.cpp publictypes.cpp \
+    quadlsq.cpp quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \
     seam.cpp split.cpp statistc.cpp stepblob.cpp \
     vecfuncs.cpp werd.cpp

@@ -8,7 +8,7 @@ endif
 noinst_HEADERS = \
     bitvec.h callcpp.h const.h cutil.h cutil_class.h danerror.h efio.h \
     emalloc.h freelist.h globals.h listio.h \
-    oldheap.h oldlist.h structures.h tessarray.h
+    oldlist.h structures.h
 
 if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_cutil.la
@@ -22,7 +22,7 @@ endif
 
 libtesseract_cutil_la_SOURCES = \
     bitvec.cpp callcpp.cpp cutil.cpp cutil_class.cpp danerror.cpp efio.cpp \
-    emalloc.cpp freelist.cpp listio.cpp oldheap.cpp \
-    oldlist.cpp structures.cpp tessarray.cpp
+    emalloc.cpp freelist.cpp listio.cpp \
+    oldlist.cpp structures.cpp
 
 

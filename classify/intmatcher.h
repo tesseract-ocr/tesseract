@@ -28,7 +28,7 @@ extern BOOL_VAR_H(disable_character_fragments, FALSE,
                   "Do not include character fragments in the"
                   " results of the classifier");
 
-extern INT_VAR_H(classify_integer_matcher_multiplier, 14,
+extern INT_VAR_H(classify_integer_matcher_multiplier, 10,
                  "Integer Matcher Multiplier  0-255:   ");
 
 
@@ -39,7 +39,11 @@ extern INT_VAR_H(classify_integer_matcher_multiplier, 14,
 #include "cutoffs.h"
 
 struct INT_RESULT_STRUCT {
+  INT_RESULT_STRUCT() : Rating(0.0f), Config(0), Config2(0), FeatureMisses(0) {}
+
   FLOAT32 Rating;
+  // TODO(rays) It might be desirable for these to be able to represent a
+  // null config.
   uinT8 Config;
   uinT8 Config2;
   uinT16 FeatureMisses;
@@ -49,12 +53,12 @@ typedef INT_RESULT_STRUCT *INT_RESULT;
 
 
 struct CP_RESULT_STRUCT {
+  CP_RESULT_STRUCT() : Rating(0.0f), Class(0) {}
+
   FLOAT32 Rating;
   INT_RESULT_STRUCT IMResult;
   CLASS_ID Class;
 };
-
-typedef CP_RESULT_STRUCT CLASS_PRUNER_RESULTS[MAX_NUM_CLASSES];
 
 /*----------------------------------------------------------------------------
             Variables
@@ -102,11 +106,7 @@ class IntegerMatcher {
 
   IntegerMatcher() : classify_debug_level_(0) {}
 
-  void Init(tesseract::IntParam *classify_debug_level,
-            int classify_integer_matcher_multiplier);
-
-  void SetBaseLineMatch();
-  void SetCharNormMatch(int integer_matcher_multiplier);
+  void Init(tesseract::IntParam *classify_debug_level);
 
   void Match(INT_CLASS ClassTemplate,
              BIT_VECTOR ProtoMask,
@@ -121,7 +121,7 @@ class IntegerMatcher {
   // Applies the CN normalization factor to the given rating and returns
   // the modified rating.
   float ApplyCNCorrection(float rating, int blob_length,
-                          int normalization_factor);
+                          int normalization_factor, int matcher_multiplier);
 
   int FindGoodProtos(INT_CLASS ClassTemplate,
                      BIT_VECTOR ProtoMask,
@@ -192,7 +192,6 @@ class IntegerMatcher {
   uinT32 evidence_table_mask_;
   uinT32 mult_trunc_shift_bits_;
   uinT32 table_trunc_shift_bits_;
-  inT16 local_matcher_multiplier_;
   tesseract::IntParam *classify_debug_level_;
   uinT32 evidence_mult_mask_;
 };

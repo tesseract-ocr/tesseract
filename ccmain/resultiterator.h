@@ -24,8 +24,9 @@
 
 #include "platform.h"
 #include "ltrresultiterator.h"
-#include "genericvector.h"
 
+template <typename T> class GenericVector;
+template <typename T> class GenericVectorEqEq;
 class BLOB_CHOICE_IT;
 class WERD_RES;
 class STRING;

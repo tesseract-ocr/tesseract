@@ -100,14 +100,17 @@ CharSampSet * CharSampSet::FromCharDumpFile(string file_name) {
   }
   // read and verify marker
   if (fread(&val32, 1, sizeof(val32), fp) != sizeof(val32)) {
+    fclose(fp);
     return NULL;
   }
   if (val32 != 0xfefeabd0) {
+    fclose(fp);
     return NULL;
   }
   // create an object
   CharSampSet *samp_set = new CharSampSet();
   if (samp_set == NULL) {
+    fclose(fp);
     return NULL;
   }
   if (samp_set->LoadCharSamples(fp) == false) {
@@ -130,6 +133,7 @@ FILE *CharSampSet::CreateCharDumpFile(string file_name) {
   // read and verify marker
   val32 = 0xfefeabd0;
   if (fwrite(&val32, 1, sizeof(val32), fp) != sizeof(val32)) {
+    fclose(fp);
     return NULL;
   }
   return fp;

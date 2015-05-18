@@ -25,7 +25,11 @@
 #include "host.h"
 #include "unichar.h"
 
+template <typename T> class UnicityTable;
+
 namespace tesseract {
+
+class BitVector;
 
 // Struct for information about spacing between characters in a particular font.
 struct FontSpacingInfo {
@@ -40,8 +44,15 @@ struct FontSpacingInfo {
  * serif, fraktur
  */
 struct FontInfo {
-  FontInfo() : name(NULL), spacing_vec(NULL) {}
+  FontInfo() : name(NULL), properties(0), universal_id(0), spacing_vec(NULL) {}
   ~FontInfo() {}
+
+  // Writes to the given file. Returns false in case of error.
+  bool Serialize(FILE* fp) const;
+  // Reads from the given file. Returns false in case of error.
+  // If swap is true, assumes a big/little-endian swap is needed.
+  bool DeSerialize(bool swap, FILE* fp);
+
   // Reserves unicharset_size spots in spacing_vec.
   void init_spacing(int unicharset_size) {
     spacing_vec = new GenericVector<FontSpacingInfo *>();
@@ -110,6 +121,35 @@ struct FontInfo {
 struct FontSet {
   int           size;
   int*          configs;  // FontInfo ids
+};
+
+// Class that adds a bit of functionality on top of GenericVector to
+// implement a table of FontInfo that replaces UniCityTable<FontInfo>.
+// TODO(rays) change all references once all existing traineddata files
+// are replaced.
+class FontInfoTable : public GenericVector<FontInfo> {
+ public:
+  FontInfoTable();
+  ~FontInfoTable();
+
+  // Writes to the given file. Returns false in case of error.
+  bool Serialize(FILE* fp) const;
+  // Reads from the given file. Returns false in case of error.
+  // If swap is true, assumes a big/little-endian swap is needed.
+  bool DeSerialize(bool swap, FILE* fp);
+
+  // Returns true if the given set of fonts includes one with the same
+  // properties as font_id.
+  bool SetContainsFontProperties(int font_id,
+                                 const GenericVector<int>& font_set) const;
+  // Returns true if the given set of fonts includes multiple properties.
+  bool SetContainsMultipleFontProperties(
+      const GenericVector<int>& font_set) const;
+
+  // Moves any non-empty FontSpacingInfo entries from other to this.
+  void MoveSpacingInfoFrom(FontInfoTable* other);
+  // Moves this to the target unicity table.
+  void MoveTo(UnicityTable<FontInfo>* target);
 };
 
 // Compare FontInfo structures.

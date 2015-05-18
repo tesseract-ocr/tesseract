@@ -56,7 +56,6 @@ const int case_state_table[6][4] = { {
   };
 
 int Dict::case_ok(const WERD_CHOICE &word, const UNICHARSET &unicharset) {
-  int last_state = 0;
   int state = 0;
   int x;
   for (x = 0; x < word.length(); ++x) {
@@ -70,7 +69,6 @@ int Dict::case_ok(const WERD_CHOICE &word, const UNICHARSET &unicharset) {
     else
       state = case_state_table[state][0];
     if (state == -1) return false;
-    last_state = state;
   }
   return state != 5; // single lower is bad
 }

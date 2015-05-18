@@ -22,7 +22,6 @@
 
 #include          "scrollview.h"
 #include          "params.h"
-#include          "img.h"
 #include          "pdblock.h"
 #include          "coutln.h"
 #include          "crakedge.h"
@@ -30,15 +29,10 @@
 #define BUCKETSIZE      16
 
 
-extern double_VAR_H (edges_threshold_greyfraction, 0.07,
-"Min edge diff for grad vector");
-extern BOOL_VAR_H (edges_show_paths, FALSE, "Draw raw outlines");
-extern BOOL_VAR_H (edges_show_needles, FALSE, "Draw edge needles");
 extern INT_VAR_H (edges_children_per_grandchild, 10,
 "Importance ratio for chucking outlines");
 extern INT_VAR_H (edges_children_count_limit, 45,
 "Max holes allowed in blob");
-extern INT_VAR_H (edges_maxedgelength, 16000, "Max steps in any outline");
 extern double_VAR_H (edges_childarea, 0.5,
 "Max area fraction of child outline");
 extern double_VAR_H (edges_boxarea, 0.8,

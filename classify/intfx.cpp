@@ -1,8 +1,11 @@
 /******************************************************************************
  **      Filename:    intfx.c
  **      Purpose:     Integer character normalization & feature extraction
- **      Author:      Robert Moss
+ **      Author:      Robert Moss, rays@google.com (Ray Smith)
  **      History:     Tue May 21 15:51:57 MDT 1991, RWM, Created.
+ **                   Tue Feb 28 10:42:00 PST 2012, vastly rewritten to allow
+                                                    greyscale fx and non-linear
+                                                    normalization.
  **
  **      (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,48 +22,26 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "intfx.h"
-#include "intmatcher.h"
+#include "allheaders.h"
+#include "ccutil.h"
+#include "classify.h"
 #include "const.h"
 #include "helpers.h"
-#include "ccutil.h"
+#include "intmatcher.h"
+#include "linlsq.h"
+#include "ndminx.h"
+#include "normalis.h"
 #include "statistc.h"
 #include "trainingsample.h"
-#ifdef __UNIX__
-#endif
 
 using tesseract::TrainingSample;
 
 /**----------------------------------------------------------------------------
-          Private Function Prototypes
-----------------------------------------------------------------------------**/
-int SaveFeature();
-uinT8 BinaryAnglePlusPi(inT32 Y, inT32 X);
-uinT8 MySqrt2();
-void ClipRadius();
-
-INT_VAR(classify_radius_gyr_min_man, 255,
-        "Minimum Radius of Gyration Mantissa 0-255:        ");
-
-INT_VAR(classify_radius_gyr_min_exp, 0,
-        "Minimum Radius of Gyration Exponent 0-255:        ");
-
-INT_VAR(classify_radius_gyr_max_man, 158,
-        "Maximum Radius of Gyration Mantissa 0-255:        ");
-
-INT_VAR(classify_radius_gyr_max_exp, 8,
-        "Maximum Radius of Gyration Exponent 0-255:        ");
-
-/**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
-#define  ATAN_TABLE_SIZE    64
-
-// Look up table for arc tangent containing:
-//    atan(0.0) ... atan(ATAN_TABLE_SIZE - 1 / ATAN_TABLE_SIZE)
-// The entries are in binary degrees where a full circle is 256 binary degrees.
-static uinT8 AtanTable[ATAN_TABLE_SIZE];
 // Look up table for cos and sin to turn the intfx feature angle to a vector.
-// Also protected by atan_table_mutex.
+// Protected by atan_table_mutex.
+// The entries are in binary degrees where a full circle is 256 binary degrees.
 static float cos_table[INT_CHAR_NORM_RANGE];
 static float sin_table[INT_CHAR_NORM_RANGE];
 // Guards write access to AtanTable so we dont create it more than once.
@@ -75,10 +56,6 @@ void InitIntegerFX() {
   static bool atan_table_init = false;
   atan_table_mutex.Lock();
   if (!atan_table_init) {
-    for (int i = 0; i < ATAN_TABLE_SIZE; i++) {
-      AtanTable[i] =
-          (uinT8) (atan ((i / (float) ATAN_TABLE_SIZE)) * 128.0 / PI + 0.5);
-    }
     for (int i = 0; i < INT_CHAR_NORM_RANGE; ++i) {
       cos_table[i] = cos(i * 2 * PI / INT_CHAR_NORM_RANGE + PI);
       sin_table[i] = sin(i * 2 * PI / INT_CHAR_NORM_RANGE + PI);
@@ -94,30 +71,422 @@ FCOORD FeatureDirection(uinT8 theta) {
   return FCOORD(cos_table[theta], sin_table[theta]);
 }
 
-TrainingSample* GetIntFeatures(tesseract::NormalizationMode mode,
-                               TBLOB *blob, const DENORM& denorm) {
-  INT_FEATURE_ARRAY blfeatures;
-  INT_FEATURE_ARRAY cnfeatures;
-  INT_FX_RESULT_STRUCT fx_info;
-  ExtractIntFeat(blob, denorm, blfeatures, cnfeatures, &fx_info, NULL);
+namespace tesseract {
+
+// Generates a TrainingSample from a TBLOB. Extracts features and sets
+// the bounding box, so classifiers that operate on the image can work.
+// TODO(rays) BlobToTrainingSample must remain a global function until
+// the FlexFx and FeatureDescription code can be removed and LearnBlob
+// made a member of Classify.
+TrainingSample* BlobToTrainingSample(
+    const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
+    GenericVector<INT_FEATURE_STRUCT>* bl_features) {
+  GenericVector<INT_FEATURE_STRUCT> cn_features;
+  Classify::ExtractFeatures(blob, nonlinear_norm, bl_features,
+                            &cn_features, fx_info, NULL);
+  // TODO(rays) Use blob->PreciseBoundingBox() instead.
+  TBOX box = blob.bounding_box();
   TrainingSample* sample = NULL;
-  if (mode == tesseract::NM_CHAR_ANISOTROPIC) {
-    int num_features = fx_info.NumCN;
-    if (num_features > 0) {
-      sample = TrainingSample::CopyFromFeatures(fx_info, cnfeatures,
-                                                num_features);
-    }
-  } else if (mode == tesseract::NM_BASELINE) {
-    int num_features = fx_info.NumBL;
-    if (num_features > 0) {
-      sample = TrainingSample::CopyFromFeatures(fx_info, blfeatures,
-                                                num_features);
-    }
-  } else {
-    ASSERT_HOST(!"Unsupported normalization mode!");
+  int num_features = fx_info->NumCN;
+  if (num_features > 0) {
+    sample = TrainingSample::CopyFromFeatures(*fx_info, box, &cn_features[0],
+                                              num_features);
+  }
+  if (sample != NULL) {
+    // Set the bounding box (in original image coordinates) in the sample.
+    TPOINT topleft, botright;
+    topleft.x = box.left();
+    topleft.y = box.top();
+    botright.x = box.right();
+    botright.y = box.bottom();
+    TPOINT original_topleft, original_botright;
+    blob.denorm().DenormTransform(NULL, topleft, &original_topleft);
+    blob.denorm().DenormTransform(NULL, botright, &original_botright);
+    sample->set_bounding_box(TBOX(original_topleft.x, original_botright.y,
+                                  original_botright.x, original_topleft.y));
   }
   return sample;
 }
+
+// Computes the DENORMS for bl(baseline) and cn(character) normalization
+// during feature extraction. The input denorm describes the current state
+// of the blob, which is usually a baseline-normalized word.
+// The Transforms setup are as follows:
+// Baseline Normalized (bl) Output:
+//   We center the grapheme by aligning the x-coordinate of its centroid with
+//   x=128 and leaving the already-baseline-normalized y as-is.
+//
+// Character Normalized (cn) Output:
+//   We align the grapheme's centroid at the origin and scale it
+//   asymmetrically in x and y so that the 2nd moments are a standard value
+//   (51.2) ie the result is vaguely square.
+// If classify_nonlinear_norm is true:
+//   A non-linear normalization is setup that attempts to evenly distribute
+//   edges across x and y.
+//
+// Some of the fields of fx_info are also setup:
+// Length: Total length of outline.
+// Rx:     Rounded y second moment. (Reversed by convention.)
+// Ry:     rounded x second moment.
+// Xmean:  Rounded x center of mass of the blob.
+// Ymean:  Rounded y center of mass of the blob.
+void Classify::SetupBLCNDenorms(const TBLOB& blob, bool nonlinear_norm,
+                                DENORM* bl_denorm, DENORM* cn_denorm,
+                                INT_FX_RESULT_STRUCT* fx_info) {
+  // Compute 1st and 2nd moments of the original outline.
+  FCOORD center, second_moments;
+  int length = blob.ComputeMoments(&center, &second_moments);
+  if (fx_info != NULL) {
+    fx_info->Length = length;
+    fx_info->Rx = IntCastRounded(second_moments.y());
+    fx_info->Ry = IntCastRounded(second_moments.x());
+
+    fx_info->Xmean = IntCastRounded(center.x());
+    fx_info->Ymean = IntCastRounded(center.y());
+  }
+  // Setup the denorm for Baseline normalization.
+  bl_denorm->SetupNormalization(NULL, NULL, &blob.denorm(), center.x(), 128.0f,
+                                1.0f, 1.0f, 128.0f, 128.0f);
+  // Setup the denorm for character normalization.
+  if (nonlinear_norm) {
+    GenericVector<GenericVector<int> > x_coords;
+    GenericVector<GenericVector<int> > y_coords;
+    TBOX box;
+    blob.GetPreciseBoundingBox(&box);
+    box.pad(1, 1);
+    blob.GetEdgeCoords(box, &x_coords, &y_coords);
+    cn_denorm->SetupNonLinear(&blob.denorm(), box, MAX_UINT8, MAX_UINT8,
+                              0.0f, 0.0f, x_coords, y_coords);
+  } else {
+    cn_denorm->SetupNormalization(NULL, NULL, &blob.denorm(),
+                                  center.x(), center.y(),
+                                  51.2f / second_moments.x(),
+                                  51.2f / second_moments.y(),
+                                  128.0f, 128.0f);
+  }
+}
+
+// Helper normalizes the direction, assuming that it is at the given
+// unnormed_pos, using the given denorm, starting at the root_denorm.
+uinT8 NormalizeDirection(uinT8 dir, const FCOORD& unnormed_pos,
+                         const DENORM& denorm, const DENORM* root_denorm) {
+  // Convert direction to a vector.
+  FCOORD unnormed_end;
+  unnormed_end.from_direction(dir);
+  unnormed_end += unnormed_pos;
+  FCOORD normed_pos, normed_end;
+  denorm.NormTransform(root_denorm, unnormed_pos, &normed_pos);
+  denorm.NormTransform(root_denorm, unnormed_end, &normed_end);
+  normed_end -= normed_pos;
+  return normed_end.to_direction();
+}
+
+// Helper returns the mean direction vector from the given stats. Use the
+// mean direction from dirs if there is information available, otherwise, use
+// the fit_vector from point_diffs.
+static FCOORD MeanDirectionVector(const LLSQ& point_diffs, const LLSQ& dirs,
+                                  const FCOORD& start_pt,
+                                  const FCOORD& end_pt) {
+  FCOORD fit_vector;
+  if (dirs.count() > 0) {
+    // There were directions, so use them. To avoid wrap-around problems, we
+    // have 2 accumulators in dirs: x for normal directions and y for
+    // directions offset by 128. We will use the one with the least variance.
+    FCOORD mean_pt = dirs.mean_point();
+    double mean_dir = 0.0;
+    if (dirs.x_variance() <= dirs.y_variance()) {
+      mean_dir = mean_pt.x();
+    } else {
+      mean_dir = mean_pt.y() + 128;
+    }
+    fit_vector.from_direction(Modulo(IntCastRounded(mean_dir), 256));
+  } else {
+    // There were no directions, so we rely on the vector_fit to the points.
+    // Since the vector_fit is 180 degrees ambiguous, we align with the
+    // supplied feature_dir by making the scalar product non-negative.
+    FCOORD feature_dir(end_pt - start_pt);
+    fit_vector = point_diffs.vector_fit();
+    if (fit_vector.x() == 0.0f && fit_vector.y() == 0.0f) {
+      // There was only a single point. Use feature_dir directly.
+      fit_vector = feature_dir;
+    } else {
+      // Sometimes the least mean squares fit is wrong, due to the small sample
+      // of points and scaling. Use a 90 degree rotated vector if that matches
+      // feature_dir better.
+      FCOORD fit_vector2 = !fit_vector;
+      // The fit_vector is 180 degrees ambiguous, so resolve the ambiguity by
+      // insisting that the scalar product with the feature_dir should be +ve.
+      if (fit_vector % feature_dir < 0.0)
+        fit_vector = -fit_vector;
+      if (fit_vector2 % feature_dir < 0.0)
+        fit_vector2 = -fit_vector2;
+      // Even though fit_vector2 has a higher mean squared error, it might be
+      // a better fit, so use it if the dot product with feature_dir is bigger.
+      if (fit_vector2 % feature_dir > fit_vector % feature_dir)
+        fit_vector = fit_vector2;
+    }
+  }
+  return fit_vector;
+}
+
+// Helper computes one or more features corresponding to the given points.
+// Emitted features are on the line defined by:
+// start_pt + lambda * (end_pt - start_pt) for scalar lambda.
+// Features are spaced at feature_length intervals.
+static int ComputeFeatures(const FCOORD& start_pt, const FCOORD& end_pt,
+                           double feature_length,
+                           GenericVector<INT_FEATURE_STRUCT>* features) {
+  FCOORD feature_vector(end_pt - start_pt);
+  if (feature_vector.x() == 0.0f && feature_vector.y() == 0.0f) return 0;
+  // Compute theta for the feature based on its direction.
+  uinT8 theta = feature_vector.to_direction();
+  // Compute the number of features and lambda_step.
+  double target_length = feature_vector.length();
+  int num_features = IntCastRounded(target_length / feature_length);
+  if (num_features == 0) return 0;
+  // Divide the length evenly into num_features pieces.
+  double lambda_step = 1.0 / num_features;
+  double lambda = lambda_step / 2.0;
+  for (int f = 0; f < num_features; ++f, lambda += lambda_step) {
+    FCOORD feature_pt(start_pt);
+    feature_pt += feature_vector * lambda;
+    INT_FEATURE_STRUCT feature(feature_pt, theta);
+    features->push_back(feature);
+  }
+  return num_features;
+}
+
+// Gathers outline points and their directions from start_index into dirs by
+// stepping along the outline and normalizing the coordinates until the
+// required feature_length has been collected or end_index is reached.
+// On input pos must point to the position corresponding to start_index and on
+// return pos is updated to the current raw position, and pos_normed is set to
+// the normed version of pos.
+// Since directions wrap-around, they need special treatment to get the mean.
+// Provided the cluster of directions doesn't straddle the wrap-around point,
+// the simple mean works. If they do, then, unless the directions are wildly
+// varying, the cluster rotated by 180 degrees will not straddle the wrap-
+// around point, so mean(dir + 180 degrees) - 180 degrees will work. Since
+// LLSQ conveniently stores the mean of 2 variables, we use it to store
+// dir and dir+128 (128 is 180 degrees) and then use the resulting mean
+// with the least variance.
+static int GatherPoints(const C_OUTLINE* outline, double feature_length,
+                        const DENORM& denorm, const DENORM* root_denorm,
+                        int start_index, int end_index,
+                        ICOORD* pos, FCOORD* pos_normed,
+                        LLSQ* points, LLSQ* dirs) {
+  int step_length = outline->pathlength();
+  ICOORD step = outline->step(start_index % step_length);
+  // Prev_normed is the start point of this collection and will be set on the
+  // first iteration, and on later iterations used to determine the length
+  // that has been collected.
+  FCOORD prev_normed;
+  points->clear();
+  dirs->clear();
+  int num_points = 0;
+  int index;
+  for (index = start_index; index <= end_index; ++index, *pos += step) {
+    step = outline->step(index % step_length);
+    int edge_weight = outline->edge_strength_at_index(index % step_length);
+    if (edge_weight == 0) {
+      // This point has conflicting gradient and step direction, so ignore it.
+      continue;
+    }
+    // Get the sub-pixel precise location and normalize.
+    FCOORD f_pos = outline->sub_pixel_pos_at_index(*pos, index % step_length);
+    denorm.NormTransform(root_denorm, f_pos, pos_normed);
+    if (num_points == 0) {
+      // The start of this segment.
+      prev_normed = *pos_normed;
+    } else {
+      FCOORD offset = *pos_normed - prev_normed;
+      float length = offset.length();
+      if (length > feature_length) {
+        // We have gone far enough from the start. We will use this point in
+        // the next set so return what we have so far.
+        return index;
+      }
+    }
+    points->add(pos_normed->x(), pos_normed->y(), edge_weight);
+    int direction = outline->direction_at_index(index % step_length);
+    if (direction >= 0) {
+      direction = NormalizeDirection(direction, f_pos, denorm, root_denorm);
+      // Use both the direction and direction +128 so we are not trying to
+      // take the mean of something straddling the wrap-around point.
+      dirs->add(direction, Modulo(direction + 128, 256));
+    }
+    ++num_points;
+  }
+  return index;
+}
+
+// Extracts Tesseract features and appends them to the features vector.
+// Startpt to lastpt, inclusive, MUST have the same src_outline member,
+// which may be NULL. The vector from lastpt to its next is included in
+// the feature extraction. Hidden edges should be excluded by the caller.
+// If force_poly is true, the features will be extracted from the polygonal
+// approximation even if more accurate data is available.
+static void ExtractFeaturesFromRun(
+    const EDGEPT* startpt, const EDGEPT* lastpt,
+    const DENORM& denorm, double feature_length, bool force_poly,
+    GenericVector<INT_FEATURE_STRUCT>* features) {
+  const EDGEPT* endpt = lastpt->next;
+  const C_OUTLINE* outline = startpt->src_outline;
+  if (outline != NULL && !force_poly) {
+    // Detailed information is available. We have to normalize only from
+    // the root_denorm to denorm.
+    const DENORM* root_denorm = denorm.RootDenorm();
+    int total_features = 0;
+    // Get the features from the outline.
+    int step_length = outline->pathlength();
+    int start_index = startpt->start_step;
+    // pos is the integer coordinates of the binary image steps.
+    ICOORD pos = outline->position_at_index(start_index);
+    // We use an end_index that allows us to use a positive increment, but that
+    // may be beyond the bounds of the outline steps/ due to wrap-around, to
+    // so we use % step_length everywhere, except for start_index.
+    int end_index = lastpt->start_step + lastpt->step_count;
+    if (end_index <= start_index)
+      end_index += step_length;
+    LLSQ prev_points;
+    LLSQ prev_dirs;
+    FCOORD prev_normed_pos = outline->sub_pixel_pos_at_index(pos, start_index);
+    denorm.NormTransform(root_denorm, prev_normed_pos, &prev_normed_pos);
+    LLSQ points;
+    LLSQ dirs;
+    FCOORD normed_pos;
+    int index = GatherPoints(outline, feature_length, denorm, root_denorm,
+                             start_index, end_index, &pos, &normed_pos,
+                             &points, &dirs);
+    while (index <= end_index) {
+      // At each iteration we nominally have 3 accumulated sets of points and
+      // dirs: prev_points/dirs, points/dirs, next_points/dirs and sum them
+      // into sum_points/dirs, but we don't necessarily get any features out,
+      // so if that is the case, we keep accumulating instead of rotating the
+      // accumulators.
+      LLSQ next_points;
+      LLSQ next_dirs;
+      FCOORD next_normed_pos;
+      index = GatherPoints(outline, feature_length, denorm, root_denorm,
+                           index, end_index, &pos, &next_normed_pos,
+                           &next_points, &next_dirs);
+      LLSQ sum_points(prev_points);
+      // TODO(rays) find out why it is better to use just dirs and next_dirs
+      // in sum_dirs, instead of using prev_dirs as well.
+      LLSQ sum_dirs(dirs);
+      sum_points.add(points);
+      sum_points.add(next_points);
+      sum_dirs.add(next_dirs);
+      bool made_features = false;
+      // If we have some points, we can try making some features.
+      if (sum_points.count() > 0) {
+        // We have gone far enough from the start. Make a feature and restart.
+        FCOORD fit_pt = sum_points.mean_point();
+        FCOORD fit_vector = MeanDirectionVector(sum_points, sum_dirs,
+                                                prev_normed_pos, normed_pos);
+        // The segment to which we fit features is the line passing through
+        // fit_pt in direction of fit_vector that starts nearest to
+        // prev_normed_pos and ends nearest to normed_pos.
+        FCOORD start_pos = prev_normed_pos.nearest_pt_on_line(fit_pt,
+                                                              fit_vector);
+        FCOORD end_pos = normed_pos.nearest_pt_on_line(fit_pt, fit_vector);
+        // Possible correction to match the adjacent polygon segment.
+        if (total_features == 0 && startpt != endpt) {
+          FCOORD poly_pos(startpt->pos.x, startpt->pos.y);
+          denorm.LocalNormTransform(poly_pos, &start_pos);
+        }
+        if (index > end_index && startpt != endpt) {
+          FCOORD poly_pos(endpt->pos.x, endpt->pos.y);
+          denorm.LocalNormTransform(poly_pos, &end_pos);
+        }
+        int num_features = ComputeFeatures(start_pos, end_pos, feature_length,
+                                           features);
+        if (num_features > 0) {
+          // We made some features so shuffle the accumulators.
+          prev_points = points;
+          prev_dirs = dirs;
+          prev_normed_pos = normed_pos;
+          points = next_points;
+          dirs = next_dirs;
+          made_features = true;
+          total_features += num_features;
+        }
+        // The end of the next set becomes the end next time around.
+        normed_pos = next_normed_pos;
+      }
+      if (!made_features) {
+        // We didn't make any features, so keep the prev accumulators and
+        // add the next ones into the current.
+        points.add(next_points);
+        dirs.add(next_dirs);
+      }
+    }
+  } else {
+    // There is no outline, so we are forced to use the polygonal approximation.
+    const EDGEPT* pt = startpt;
+    do {
+      FCOORD start_pos(pt->pos.x, pt->pos.y);
+      FCOORD end_pos(pt->next->pos.x, pt->next->pos.y);
+      denorm.LocalNormTransform(start_pos, &start_pos);
+      denorm.LocalNormTransform(end_pos, &end_pos);
+      ComputeFeatures(start_pos, end_pos, feature_length, features);
+    } while ((pt = pt->next) != endpt);
+  }
+}
+
+// Extracts sets of 3-D features of length kStandardFeatureLength (=12.8), as
+// (x,y) position and angle as measured counterclockwise from the vector
+// <-1, 0>, from blob using two normalizations defined by bl_denorm and
+// cn_denorm. See SetpuBLCNDenorms for definitions.
+// If outline_cn_counts is not NULL, on return it contains the cumulative
+// number of cn features generated for each outline in the blob (in order).
+// Thus after the first outline, there were (*outline_cn_counts)[0] features,
+// after the second outline, there were (*outline_cn_counts)[1] features etc.
+void Classify::ExtractFeatures(const TBLOB& blob,
+                               bool nonlinear_norm,
+                               GenericVector<INT_FEATURE_STRUCT>* bl_features,
+                               GenericVector<INT_FEATURE_STRUCT>* cn_features,
+                               INT_FX_RESULT_STRUCT* results,
+                               GenericVector<int>* outline_cn_counts) {
+  DENORM bl_denorm, cn_denorm;
+  tesseract::Classify::SetupBLCNDenorms(blob, nonlinear_norm,
+                                        &bl_denorm, &cn_denorm, results);
+  if (outline_cn_counts != NULL)
+    outline_cn_counts->truncate(0);
+  // Iterate the outlines.
+  for (TESSLINE* ol = blob.outlines; ol != NULL; ol = ol->next) {
+    // Iterate the polygon.
+    EDGEPT* loop_pt = ol->FindBestStartPt();
+    EDGEPT* pt = loop_pt;
+    if (pt == NULL) continue;
+    do {
+      if (pt->IsHidden()) continue;
+      // Find a run of equal src_outline.
+      EDGEPT* last_pt = pt;
+      do {
+        last_pt = last_pt->next;
+      } while (last_pt != loop_pt && !last_pt->IsHidden() &&
+               last_pt->src_outline == pt->src_outline);
+      last_pt = last_pt->prev;
+      // Until the adaptive classifier can be weaned off polygon segments,
+      // we have to force extraction from the polygon for the bl_features.
+      ExtractFeaturesFromRun(pt, last_pt, bl_denorm, kStandardFeatureLength,
+                             true, bl_features);
+      ExtractFeaturesFromRun(pt, last_pt, cn_denorm, kStandardFeatureLength,
+                             false, cn_features);
+      pt = last_pt;
+    } while ((pt = pt->next) != loop_pt);
+    if (outline_cn_counts != NULL)
+      outline_cn_counts->push_back(cn_features->size());
+  }
+  results->NumBL = bl_features->size();
+  results->NumCN = cn_features->size();
+  results->YBottom = blob.bounding_box().bottom();
+  results->YTop = blob.bounding_box().top();
+  results->Width = blob.bounding_box().width();
+}
+
+}  // namespace tesseract
 
 
 /*--------------------------------------------------------------------------*/
@@ -140,605 +509,25 @@ TrainingSample* GetIntFeatures(tesseract::NormalizationMode mode,
 //   We align the grapheme's centroid at the origin and scale it asymmetrically
 //   in x and y so that the result is vaguely square.
 //
-int ExtractIntFeat(TBLOB *Blob,
-                   const DENORM& denorm,
-                   INT_FEATURE_ARRAY BLFeat,
-                   INT_FEATURE_ARRAY CNFeat,
-                   INT_FX_RESULT_STRUCT* Results,
-                   inT32 *FeatureOutlineArray) {
-
-  TESSLINE *OutLine;
-  EDGEPT *Loop, *LoopStart, *Segment;
-  inT16 LastX, LastY, Xmean, Ymean;
-  inT32 NormX, NormY, DeltaX, DeltaY;
-  inT32 Xsum, Ysum;
-  uinT32 Ix, Iy, LengthSum;
-  uinT16 n;
-  // n - the number of features to extract from a given outline segment.
-  //   We extract features from every outline segment longer than ~6 units.
-  //   We chop these long segments into standard-sized features approximately
-  //   13 (= 64 / 5) units in length.
-  uinT8 Theta;
-  uinT16 NumBLFeatures, NumCNFeatures;
-  uinT8 RxInv, RyInv;            /* x.xxxxxxx  *  2^Exp  */
-  uinT8 RxExp, RyExp;
-                                 /* sxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxx */
-  register inT32 pfX, pfY, dX, dY;
-  uinT16 Length;
-  register int i;
-
-  Results->Length = 0;
-  Results->Xmean = 0;
-  Results->Ymean = 0;
-  Results->Rx = 0;
-  Results->Ry = 0;
-  Results->NumBL = 0;
-  Results->NumCN = 0;
-  Results->YBottom = MAX_UINT8;
-  Results->YTop = 0;
-
-  // Calculate the centroid (Xmean, Ymean) for the blob.
-  //   We use centroid (instead of center of bounding box or center of smallest
-  //   enclosing circle) so the algorithm will not be too greatly influenced by
-  //   small amounts of information at the edge of a character's bounding box.
-  NumBLFeatures = 0;
-  NumCNFeatures = 0;
-  OutLine = Blob->outlines;
-  Xsum = 0;
-  Ysum = 0;
-  LengthSum = 0;
-  while (OutLine != NULL) {
-    LoopStart = OutLine->loop;
-    Loop = LoopStart;
-    LastX = Loop->pos.x;
-    LastY = Loop->pos.y;
-    /* Check for bad loops */
-    if ((Loop == NULL) || (Loop->next == NULL) || (Loop->next == LoopStart))
-      return FALSE;
-    do {
-      Segment = Loop;
-      Loop = Loop->next;
-      NormX = Loop->pos.x;
-      NormY = Loop->pos.y;
-
-      n = 1;
-      if (!Segment->IsHidden()) {
-        DeltaX = NormX - LastX;
-        DeltaY = NormY - LastY;
-        Length = MySqrt(DeltaX, DeltaY);
-        n = ((Length << 2) + Length + 32) >> 6;
-        if (n != 0) {
-          Xsum += ((LastX << 1) + DeltaX) * (int) Length;
-          Ysum += ((LastY << 1) + DeltaY) * (int) Length;
-          LengthSum += Length;
-        }
-      }
-      if (n != 0) {              /* Throw away a point that is too close */
-        LastX = NormX;
-        LastY = NormY;
-      }
-    }
-    while (Loop != LoopStart);
-    OutLine = OutLine->next;
+// Deprecated! Prefer tesseract::Classify::ExtractFeatures instead.
+bool ExtractIntFeat(const TBLOB& blob,
+                    bool nonlinear_norm,
+                    INT_FEATURE_ARRAY baseline_features,
+                    INT_FEATURE_ARRAY charnorm_features,
+                    INT_FX_RESULT_STRUCT* results) {
+  GenericVector<INT_FEATURE_STRUCT> bl_features;
+  GenericVector<INT_FEATURE_STRUCT> cn_features;
+  tesseract::Classify::ExtractFeatures(blob, nonlinear_norm,
+                                       &bl_features, &cn_features, results,
+                                       NULL);
+  if (bl_features.size() == 0 || cn_features.size() == 0 ||
+      bl_features.size() > MAX_NUM_INT_FEATURES ||
+      cn_features.size() > MAX_NUM_INT_FEATURES) {
+    return false;  // Feature extraction failed.
   }
-  if (LengthSum == 0)
-    return FALSE;
-  Xmean = (Xsum / (inT32) LengthSum) >> 1;
-  Ymean = (Ysum / (inT32) LengthSum) >> 1;
-
-  Results->Length = LengthSum;
-  Results->Xmean = Xmean;
-  Results->Ymean = Ymean;
-
-  // Extract Baseline normalized features,
-  // and find 2nd moments (Ix, Iy) & radius of gyration (Rx, Ry).
-  //
-  //   Ix = Sum y^2 dA, where:
-  //     Ix: the second moment of area about the axis x
-  //     dA = 1 for our standard-sized piece of outline
-  //      y: the perependicular distance to the x axis
-  //   Rx = sqrt(Ix / A)
-  //      Note: 1 <= Rx <= height of blob / 2
-  //   Ry = sqrt(Iy / A)
-  //      Note: 1 <= Ry <=  width of blob / 2
-  Ix = 0;
-  Iy = 0;
-  NumBLFeatures = 0;
-  OutLine = Blob->outlines;
-  int min_x = 0;
-  int max_x = 0;
-  while (OutLine != NULL) {
-    LoopStart = OutLine->loop;
-    Loop = LoopStart;
-    LastX = Loop->pos.x - Xmean;
-    LastY = Loop->pos.y;
-    /* Check for bad loops */
-    if ((Loop == NULL) || (Loop->next == NULL) || (Loop->next == LoopStart))
-      return FALSE;
-    do {
-      Segment = Loop;
-      Loop = Loop->next;
-      NormX = Loop->pos.x - Xmean;
-      NormY = Loop->pos.y;
-      if (NormY < Results->YBottom)
-        Results->YBottom = ClipToRange(NormY, 0, MAX_UINT8);
-      if (NormY > Results->YTop)
-        Results->YTop = ClipToRange(NormY, 0, MAX_UINT8);
-      UpdateRange(NormX, &min_x, &max_x);
-
-      n = 1;
-      if (!Segment->IsHidden()) {
-        DeltaX = NormX - LastX;
-        DeltaY = NormY - LastY;
-        Length = MySqrt(DeltaX, DeltaY);
-        n = ((Length << 2) + Length + 32) >> 6;
-        if (n != 0) {
-          Theta = BinaryAnglePlusPi(DeltaY, DeltaX);
-          dX = (DeltaX << 8) / n;
-          dY = (DeltaY << 8) / n;
-          pfX = (LastX << 8) + (dX >> 1);
-          pfY = (LastY << 8) + (dY >> 1);
-          Ix += ((pfY >> 8) - Ymean) * ((pfY >> 8) - Ymean);
-          // TODO(eger): Hmmm... Xmean is not necessarily 0.
-          //   Figure out if we should center against Xmean for these
-          //   features, and if so fix Iy & SaveFeature().
-          Iy += (pfX >> 8) * (pfX >> 8);
-          if (SaveFeature(BLFeat,
-                          NumBLFeatures,
-                          (inT16) (pfX >> 8),
-                          (inT16) ((pfY >> 8) - 128),
-                          Theta) == FALSE)
-            return FALSE;
-          NumBLFeatures++;
-          for (i = 1; i < n; i++) {
-            pfX += dX;
-            pfY += dY;
-            Ix += ((pfY >> 8) - Ymean) * ((pfY >> 8) - Ymean);
-            Iy += (pfX >> 8) * (pfX >> 8);
-            if (SaveFeature(BLFeat,
-                            NumBLFeatures,
-                            (inT16) (pfX >> 8),
-                            (inT16) ((pfY >> 8) - 128),
-                            Theta) == FALSE)
-              return FALSE;
-            NumBLFeatures++;
-          }
-        }
-      }
-      if (n != 0) {              /* Throw away a point that is too close */
-        LastX = NormX;
-        LastY = NormY;
-      }
-    }
-    while (Loop != LoopStart);
-    OutLine = OutLine->next;
-  }
-  Results->Width = max_x - min_x;
-  if (Ix == 0)
-    Ix = 1;
-  if (Iy == 0)
-    Iy = 1;
-  RxInv = MySqrt2 (NumBLFeatures, Ix, &RxExp);
-  RyInv = MySqrt2 (NumBLFeatures, Iy, &RyExp);
-  ClipRadius(&RxInv, &RxExp, &RyInv, &RyExp);
-
-  Results->Rx = (inT16) (51.2 / (double) RxInv * pow (2.0, (double) RxExp));
-  Results->Ry = (inT16) (51.2 / (double) RyInv * pow (2.0, (double) RyExp));
-  if (Results->Ry == 0) {
-    /*
-        This would result in features having 'nan' values.
-        Since the expression is always > 0, assign a value of 1.
-    */
-    Results->Ry = 1;
-  }
-  Results->NumBL = NumBLFeatures;
-
-  // Extract character normalized features
-  //
-  //   Rescale the co-ordinates to "equalize" distribution in X and Y, making
-  //   all of the following unichars be sized to look similar:  , ' 1 i
-  //
-  //   We calculate co-ordinates relative to the centroid, and then scale them
-  //   as follows (accomplishing a scale of up to 102.4 / dimension):
-  //     y *= 51.2 / Rx    [ y scaled by 0.0 ... 102.4 / height of glyph  ]
-  //     x *= 51.2 / Ry    [ x scaled by 0.0 ... 102.4 / width of glyph ]
-  //   Although tempting to think so, this does not guarantee that our range
-  //   is within [-102.4...102.4] x [-102.4...102.4] because (Xmean, Ymean)
-  //   is the centroid, not the center of the bounding box.  Instead, we can
-  //   only bound the result to [-204 ... 204] x [-204 ... 204]
-  //
-  NumCNFeatures = 0;
-  OutLine = Blob->outlines;
-  int OutLineIndex = -1;
-  while (OutLine != NULL) {
-    LoopStart = OutLine->loop;
-    Loop = LoopStart;
-    LastX = (Loop->pos.x - Xmean) * RyInv;
-    LastY = (Loop->pos.y - Ymean) * RxInv;
-    LastX >>= (inT8) RyExp;
-    LastY >>= (inT8) RxExp;
-    OutLineIndex++;
-
-    /* Check for bad loops */
-    if ((Loop == NULL) || (Loop->next == NULL) || (Loop->next == LoopStart))
-      return FALSE;
-    do {
-      Segment = Loop;
-      Loop = Loop->next;
-      NormX = (Loop->pos.x - Xmean) * RyInv;
-      NormY = (Loop->pos.y - Ymean) * RxInv;
-      NormX >>= (inT8) RyExp;
-      NormY >>= (inT8) RxExp;
-
-      n = 1;
-      if (!Segment->IsHidden()) {
-        DeltaX = NormX - LastX;
-        DeltaY = NormY - LastY;
-        Length = MySqrt(DeltaX, DeltaY);
-        n = ((Length << 2) + Length + 32) >> 6;
-        if (n != 0) {
-          Theta = BinaryAnglePlusPi(DeltaY, DeltaX);
-          dX = (DeltaX << 8) / n;
-          dY = (DeltaY << 8) / n;
-          pfX = (LastX << 8) + (dX >> 1);
-          pfY = (LastY << 8) + (dY >> 1);
-          if (SaveFeature(CNFeat,
-                          NumCNFeatures,
-                          (inT16) (pfX >> 8),
-                          (inT16) (pfY >> 8),
-                          Theta) == FALSE)
-            return FALSE;
-          if (FeatureOutlineArray) {
-            FeatureOutlineArray[NumCNFeatures] = OutLineIndex;
-          }
-          NumCNFeatures++;
-          for (i = 1; i < n; i++) {
-            pfX += dX;
-            pfY += dY;
-            if (SaveFeature(CNFeat,
-                            NumCNFeatures,
-                            (inT16) (pfX >> 8),
-                            (inT16) (pfY >> 8),
-                            Theta) == FALSE)
-              return FALSE;
-            if (FeatureOutlineArray) {
-              FeatureOutlineArray[NumCNFeatures] = OutLineIndex;
-            }
-            NumCNFeatures++;
-          }
-        }
-      }
-      if (n != 0) {              /* Throw away a point that is too close */
-        LastX = NormX;
-        LastY = NormY;
-      }
-    }
-    while (Loop != LoopStart);
-    OutLine = OutLine->next;
-  }
-
-  Results->NumCN = NumCNFeatures;
-  return TRUE;
-}
-
-
-/*--------------------------------------------------------------------------*/
-// Return the "binary angle" [0..255]
-//    made by vector <X, Y> as measured counterclockwise from <-1, 0>
-// The order of the arguments follows the convention of atan2(3)
-uinT8 BinaryAnglePlusPi(inT32 Y, inT32 X) {
-  inT16 Angle, Atan;
-  uinT16 Ratio;
-  uinT32 AbsX, AbsY;
-
-  assert ((X != 0) || (Y != 0));
-  if (X < 0)
-    AbsX = -X;
-  else
-    AbsX = X;
-  if (Y < 0)
-    AbsY = -Y;
-  else
-    AbsY = Y;
-  if (AbsX > AbsY)
-    Ratio = AbsY * ATAN_TABLE_SIZE / AbsX;
-  else
-    Ratio = AbsX * ATAN_TABLE_SIZE / AbsY;
-  if (Ratio >= ATAN_TABLE_SIZE)
-    Ratio = ATAN_TABLE_SIZE - 1;
-  Atan = AtanTable[Ratio];
-  if (X >= 0)
-    if (Y >= 0)
-      if (AbsX > AbsY)
-        Angle = Atan;
-      else
-        Angle = 64 - Atan;
-    else if (AbsX > AbsY)
-      Angle = 256 - Atan;
-    else
-      Angle = 192 + Atan;
-  else if (Y >= 0)
-    if (AbsX > AbsY)
-      Angle = 128 - Atan;
-    else
-      Angle = 64 + Atan;
-  else if (AbsX > AbsY)
-    Angle = 128 + Atan;
-  else
-    Angle = 192 - Atan;
-
-  /* reverse angles to match old feature extractor:   Angle += PI */
-  Angle += 128;
-  Angle &= 255;
-  return (uinT8) Angle;
-}
-
-
-/*--------------------------------------------------------------------------*/
-int SaveFeature(INT_FEATURE_ARRAY FeatureArray,
-                uinT16 FeatureNum,
-                inT16 X,
-                inT16 Y,
-                uinT8 Theta) {
-  INT_FEATURE Feature;
-
-  if (FeatureNum >= MAX_NUM_INT_FEATURES)
-    return FALSE;
-
-  Feature = &(FeatureArray[FeatureNum]);
-
-  X = X + 128;
-  Y = Y + 128;
-
-  Feature->X = ClipToRange<inT16>(X, 0, 255);
-  Feature->Y = ClipToRange<inT16>(Y, 0, 255);
-  Feature->Theta = Theta;
-  Feature->CP_misses = 0;
-
-  return TRUE;
-}
-
-
-/*---------------------------------------------------------------------------*/
-// Return floor(sqrt(min(emm, x)^2 + min(emm, y)^2))
-//    where emm = EvidenceMultMask.
-uinT16 MySqrt(inT32 X, inT32 Y) {
-  register uinT16 SqRoot;
-  register uinT32 Square;
-  register uinT16 BitLocation;
-  register uinT32 Sum;
-  const uinT32 EvidenceMultMask =
-    ((1 << IntegerMatcher::kIntEvidenceTruncBits) - 1);
-
-  if (X < 0)
-    X = -X;
-  if (Y < 0)
-    Y = -Y;
-
-  if (X > EvidenceMultMask)
-    X = EvidenceMultMask;
-  if (Y > EvidenceMultMask)
-    Y = EvidenceMultMask;
-
-  Sum = X * X + Y * Y;
-
-  BitLocation = (EvidenceMultMask + 1) << 1;
-  SqRoot = 0;
-  do {
-    Square = (SqRoot | BitLocation) * (SqRoot | BitLocation);
-    if (Square <= Sum)
-      SqRoot |= BitLocation;
-    BitLocation >>= 1;
-  }
-  while (BitLocation);
-
-  return SqRoot;
-}
-
-
-/*--------------------------------------------------------------------------*/
-// Return two integers which can be used to express the sqrt(I/N):
-//   sqrt(I/N) = 51.2 * 2^(*Exp) / retval
-uinT8 MySqrt2(uinT16 N, uinT32 I, uinT8 *Exp) {
-  register inT8 k;
-  register uinT32 N2;
-  register uinT8 SqRoot;
-  register uinT16 Square;
-  register uinT8 BitLocation;
-  register uinT16 Ratio;
-
-  N2 = N * 41943;
-
-  k = 9;
-  while ((N2 & 0xc0000000) == 0) {
-    N2 <<= 2;
-    k += 1;
-  }
-
-  while ((I & 0xc0000000) == 0) {
-    I <<= 2;
-    k -= 1;
-  }
-
-  if (((N2 & 0x80000000) == 0) && ((I & 0x80000000) == 0)) {
-    N2 <<= 1;
-    I <<= 1;
-  }
-
-  N2 &= 0xffff0000;
-  I >>= 14;
-  Ratio = N2 / I;
-
-  BitLocation = 128;
-  SqRoot = 0;
-  do {
-    Square = (SqRoot | BitLocation) * (SqRoot | BitLocation);
-    if (Square <= Ratio)
-      SqRoot |= BitLocation;
-    BitLocation >>= 1;
-  }
-  while (BitLocation);
-
-  if (k < 0) {
-    *Exp = 0;
-    return 255;
-  }
-  else {
-    *Exp = k;
-    return SqRoot;
-  }
-}
-
-
-/*-------------------------------------------------------------------------*/
-void ClipRadius(uinT8 *RxInv, uinT8 *RxExp, uinT8 *RyInv, uinT8 *RyExp) {
-  register uinT8 AM, BM, AE, BE;
-  register uinT8 BitN, LastCarry;
-  int RxInvLarge, RyInvSmall;
-
-  AM = classify_radius_gyr_min_man;
-  AE = classify_radius_gyr_min_exp;
-  BM = *RxInv;
-  BE = *RxExp;
-  LastCarry = 1;
-  while ((AM != 0) || (BM != 0)) {
-    if (AE > BE) {
-      BitN = LastCarry + (AM & 1) + 1;
-      AM >>= 1;
-      AE--;
-    }
-    else if (AE < BE) {
-      BitN = LastCarry + (!(BM & 1));
-      BM >>= 1;
-      BE--;
-    }
-    else {                       /* AE == BE */
-      BitN = LastCarry + (AM & 1) + (!(BM & 1));
-      AM >>= 1;
-      BM >>= 1;
-      AE--;
-      BE--;
-    }
-    LastCarry = (BitN & 2) > 1;
-    BitN = BitN & 1;
-  }
-  BitN = LastCarry + 1;
-  LastCarry = (BitN & 2) > 1;
-  BitN = BitN & 1;
-
-  if (BitN == 1) {
-    *RxInv = classify_radius_gyr_min_man;
-    *RxExp = classify_radius_gyr_min_exp;
-  }
-
-  AM = classify_radius_gyr_min_man;
-  AE = classify_radius_gyr_min_exp;
-  BM = *RyInv;
-  BE = *RyExp;
-  LastCarry = 1;
-  while ((AM != 0) || (BM != 0)) {
-    if (AE > BE) {
-      BitN = LastCarry + (AM & 1) + 1;
-      AM >>= 1;
-      AE--;
-    }
-    else if (AE < BE) {
-      BitN = LastCarry + (!(BM & 1));
-      BM >>= 1;
-      BE--;
-    }
-    else {                       /* AE == BE */
-      BitN = LastCarry + (AM & 1) + (!(BM & 1));
-      AM >>= 1;
-      BM >>= 1;
-      AE--;
-      BE--;
-    }
-    LastCarry = (BitN & 2) > 1;
-    BitN = BitN & 1;
-  }
-  BitN = LastCarry + 1;
-  LastCarry = (BitN & 2) > 1;
-  BitN = BitN & 1;
-
-  if (BitN == 1) {
-    *RyInv = classify_radius_gyr_min_man;
-    *RyExp = classify_radius_gyr_min_exp;
-  }
-
-  AM = classify_radius_gyr_max_man;
-  AE = classify_radius_gyr_max_exp;
-  BM = *RxInv;
-  BE = *RxExp;
-  LastCarry = 1;
-  while ((AM != 0) || (BM != 0)) {
-    if (AE > BE) {
-      BitN = LastCarry + (AM & 1) + 1;
-      AM >>= 1;
-      AE--;
-    }
-    else if (AE < BE) {
-      BitN = LastCarry + (!(BM & 1));
-      BM >>= 1;
-      BE--;
-    }
-    else {                       /* AE == BE */
-      BitN = LastCarry + (AM & 1) + (!(BM & 1));
-      AM >>= 1;
-      BM >>= 1;
-      AE--;
-      BE--;
-    }
-    LastCarry = (BitN & 2) > 1;
-    BitN = BitN & 1;
-  }
-  BitN = LastCarry + 1;
-  LastCarry = (BitN & 2) > 1;
-  BitN = BitN & 1;
-
-  if (BitN == 1)
-    RxInvLarge = 1;
-  else
-    RxInvLarge = 0;
-
-  AM = *RyInv;
-  AE = *RyExp;
-  BM = classify_radius_gyr_max_man;
-  BE = classify_radius_gyr_max_exp;
-  LastCarry = 1;
-  while ((AM != 0) || (BM != 0)) {
-    if (AE > BE) {
-      BitN = LastCarry + (AM & 1) + 1;
-      AM >>= 1;
-      AE--;
-    }
-    else if (AE < BE) {
-      BitN = LastCarry + (!(BM & 1));
-      BM >>= 1;
-      BE--;
-    }
-    else {                       /* AE == BE */
-      BitN = LastCarry + (AM & 1) + (!(BM & 1));
-      AM >>= 1;
-      BM >>= 1;
-      AE--;
-      BE--;
-    }
-    LastCarry = (BitN & 2) > 1;
-    BitN = BitN & 1;
-  }
-  BitN = LastCarry + 1;
-  LastCarry = (BitN & 2) > 1;
-  BitN = BitN & 1;
-
-  if (BitN == 1)
-    RyInvSmall = 1;
-  else
-    RyInvSmall = 0;
-
-  if (RxInvLarge && RyInvSmall) {
-    *RyInv = classify_radius_gyr_max_man;
-    *RyExp = classify_radius_gyr_max_exp;
-  }
-
+  memcpy(baseline_features, &bl_features[0],
+         bl_features.size() * sizeof(bl_features[0]));
+  memcpy(charnorm_features, &cn_features[0],
+         cn_features.size() * sizeof(cn_features[0]));
+  return true;
 }

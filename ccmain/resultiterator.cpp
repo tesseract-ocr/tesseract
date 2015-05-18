@@ -376,11 +376,9 @@ void ResultIterator::AppendSuffixMarks(STRING *text) const {
     *text += reading_direction_is_ltr ? kLRM : kRLM;
   } else if (last_non_word_mark == kMinorRunEnd) {
     if (current_paragraph_is_ltr_) {
-      *text += kRLM;
       *text += kLRM;
     } else {
       *text += kRLM;
-      *text += kLRM;
     }
   }
 }

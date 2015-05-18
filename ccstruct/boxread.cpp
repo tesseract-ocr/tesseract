@@ -17,10 +17,10 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include "boxread.h"
 #include <string.h>
 
+#include "fileerr.h"
 #include "rect.h"
 #include "strngs.h"
 #include "tprintf.h"
@@ -31,12 +31,7 @@ static const char* kMultiBlobLabelCode = "WordStr";
 
 // Open the boxfile based on the given image filename.
 FILE* OpenBoxFile(const STRING& fname) {
-  STRING filename = fname;
-  const char *lastdot = strrchr(filename.string(), '.');
-  if (lastdot != NULL)
-    filename[lastdot - filename.string()] = '\0';
-
-  filename += ".box";
+  STRING filename = BoxFileName(fname);
   FILE* box_file = NULL;
   if (!(box_file = fopen(filename.string(), "rb"))) {
     CANTOPENFILE.error("read_next_box", TESSEXIT,
@@ -46,6 +41,70 @@ FILE* OpenBoxFile(const STRING& fname) {
   return box_file;
 }
 
+// Reads all boxes from the given filename.
+// Reads a specific target_page number if >= 0, or all pages otherwise.
+// Skips blanks if skip_blanks is true.
+// The UTF-8 label of the box is put in texts, and the full box definition as
+// a string is put in box_texts, with the corresponding page number in pages.
+// Each of the output vectors is optional (may be NULL).
+// Returns false if no boxes are found.
+bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
+                  GenericVector<TBOX>* boxes,
+                  GenericVector<STRING>* texts,
+                  GenericVector<STRING>* box_texts,
+                  GenericVector<int>* pages) {
+  GenericVector<char> box_data;
+  if (!tesseract::LoadDataFromFile(BoxFileName(filename), &box_data))
+    return false;
+  return ReadMemBoxes(target_page, skip_blanks, &box_data[0], boxes, texts,
+                      box_texts, pages);
+}
+
+// Reads all boxes from the string. Otherwise, as ReadAllBoxes.
+bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
+                  GenericVector<TBOX>* boxes,
+                  GenericVector<STRING>* texts,
+                  GenericVector<STRING>* box_texts,
+                  GenericVector<int>* pages) {
+  STRING box_str(box_data);
+  GenericVector<STRING> lines;
+  box_str.split('\n', &lines);
+  if (lines.empty()) return false;
+  int num_boxes = 0;
+  for (int i = 0; i < lines.size(); ++i) {
+    int page = 0;
+    STRING utf8_str;
+    TBOX box;
+    if (!ParseBoxFileStr(lines[i].string(), &page, &utf8_str, &box)) {
+      continue;
+    }
+    if (skip_blanks && utf8_str == " ") continue;
+    if (target_page >= 0 && page != target_page) continue;
+    if (boxes != NULL) boxes->push_back(box);
+    if (texts != NULL) texts->push_back(utf8_str);
+    if (box_texts != NULL) {
+      STRING full_text;
+      MakeBoxFileStr(utf8_str.string(), box, target_page, &full_text);
+      box_texts->push_back(full_text);
+    }
+    if (pages != NULL) pages->push_back(page);
+    ++num_boxes;
+  }
+  return num_boxes > 0;
+}
+
+// Returns the box file name corresponding to the given image_filename.
+STRING BoxFileName(const STRING& image_filename) {
+  STRING box_filename = image_filename;
+  const char *lastdot = strrchr(box_filename.string(), '.');
+  if (lastdot != NULL)
+    box_filename.truncate_at(lastdot - box_filename.string());
+
+  box_filename += ".box";
+  return box_filename;
+}
+
+// TODO(rays) convert all uses of ReadNextBox to use the new ReadAllBoxes.
 // Box files are used ONLY DURING TRAINING, but by both processes of
 // creating tr files with tesseract, and unicharset_extractor.
 // ReadNextBox factors out the code to interpret a line of a box
@@ -78,8 +137,9 @@ bool ReadNextBox(int target_page, int *line_number, FILE* box_file,
     if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
       buffptr += 3;  // Skip unicode file designation.
     // Check for blank lines in box file
-    while (*buffptr == ' ' || *buffptr == '\t')
-      buffptr++;
+    if (*buffptr == '\n' || *buffptr == '\0') continue;
+    // Skip blank boxes.
+    if (*buffptr == ' ' || *buffptr == '\t') continue;
     if (*buffptr != '\0') {
       if (!ParseBoxFileStr(buffptr, &page, utf8_str, bounding_box)) {
         tprintf("Box file format error on line %i; ignored\n", *line_number);
@@ -113,10 +173,17 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
   // as whitespace by sscanf, so it is more reliable to just find
   // ascii space and tab.
   int uch_len = 0;
-  while (*buffptr != '\0' && *buffptr != ' ' && *buffptr != '\t' &&
-         uch_len < kBoxReadBufSize - 1) {
+  // Skip unicode file designation, if present.
+  const unsigned char *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
+  if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
+      buffptr += 3;
+  // Allow a single blank as the UTF-8 string. Check for empty string and
+  // then blindly eat the first character.
+  if (*buffptr == '\0') return false;
+  do {
     uch[uch_len++] = *buffptr++;
-  }
+  } while (*buffptr != '\0' && *buffptr != ' ' && *buffptr != '\t' &&
+           uch_len < kBoxReadBufSize - 1);
   uch[uch_len] = '\0';
   if (*buffptr != '\0') ++buffptr;
   int x_min, y_min, x_max, y_max;
@@ -124,13 +191,14 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
   int count = sscanf(buffptr, "%d %d %d %d %d",
                  &x_min, &y_min, &x_max, &y_max, page_number);
   if (count != 5 && count != 4) {
-    tprintf("Bad box coordinates in boxfile string!\n");
+    tprintf("Bad box coordinates in boxfile string! %s\n", ubuf);
     return false;
   }
   // Test for long space-delimited string label.
   if (strcmp(uch, kMultiBlobLabelCode) == 0 &&
       (buffptr = strchr(buffptr, '#')) != NULL) {
-    strncpy(uch, buffptr + 1, kBoxReadBufSize);
+    strncpy(uch, buffptr + 1, kBoxReadBufSize - 1);
+    uch[kBoxReadBufSize - 1] = '\0';  // Prevent buffer overrun.
     chomp_string(uch);
     uch_len = strlen(uch);
   }
@@ -147,6 +215,8 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
     used += new_used;
   }
   *utf8_str = uch;
+  if (x_min > x_max) Swap(&x_min, &x_max);
+  if (y_min > y_max) Swap(&y_min, &y_max);
   bounding_box->set_to_given_coords(x_min, y_min, x_max, y_max);
   return true;  // Successfully read a box.
 }

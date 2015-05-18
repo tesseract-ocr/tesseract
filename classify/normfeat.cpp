@@ -59,22 +59,18 @@ FLOAT32 ActualOutlineLength(FEATURE Feature) {
 //     the x center of the grapheme's bounding box.
 //     English: [0.011, 0.31]
 //
-FEATURE_SET ExtractCharNormFeatures(TBLOB *blob, const DENORM& denorm) {
+FEATURE_SET ExtractCharNormFeatures(TBLOB *blob, const DENORM& bl_denorm,
+                                    const DENORM& cn_denorm,
+                                    const INT_FX_RESULT_STRUCT& fx_info) {
   FEATURE_SET feature_set = NewFeatureSet(1);
   FEATURE feature = NewFeature(&CharNormDesc);
 
-  INT_FEATURE_ARRAY blfeatures;
-  INT_FEATURE_ARRAY cnfeatures;
-  INT_FX_RESULT_STRUCT FXInfo;
-
-  ExtractIntFeat(blob, denorm, blfeatures, cnfeatures, &FXInfo);
-
   feature->Params[CharNormY] =
-      MF_SCALE_FACTOR * (FXInfo.Ymean - BASELINE_OFFSET);
+      MF_SCALE_FACTOR * (fx_info.Ymean - kBlnBaselineOffset);
   feature->Params[CharNormLength] =
-      MF_SCALE_FACTOR * FXInfo.Length / LENGTH_COMPRESSION;
-  feature->Params[CharNormRx] = MF_SCALE_FACTOR * FXInfo.Rx;
-  feature->Params[CharNormRy] = MF_SCALE_FACTOR * FXInfo.Ry;
+      MF_SCALE_FACTOR * fx_info.Length / LENGTH_COMPRESSION;
+  feature->Params[CharNormRx] = MF_SCALE_FACTOR * fx_info.Rx;
+  feature->Params[CharNormRy] = MF_SCALE_FACTOR * fx_info.Ry;
 
   AddFeature(feature_set, feature);
 

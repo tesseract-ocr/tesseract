@@ -5,7 +5,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/classify \
     -I$(top_srcdir)/textord -I$(top_srcdir)/wordrec \
     -I$(top_srcdir)/neural_networks/runtime \
-    -I$(top_srcdir)/image -I$(top_srcdir)/viewer
+    -I$(top_srcdir)/viewer
         
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
@@ -34,7 +34,6 @@ libtesseract_cube_la_LIBADD = \
     ../ccstruct/libtesseract_ccstruct.la \
     ../ccutil/libtesseract_ccutil.la \
     ../neural_networks/runtime/libtesseract_neural.la \
-    ../image/libtesseract_image.la \
     ../viewer/libtesseract_viewer.la \
     ../wordrec/libtesseract_wordrec.la \
     ../cutil/libtesseract_cutil.la \

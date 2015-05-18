@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+    <Import Project="leptonica_versionnumbers.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <LIBTESS_VERSION>303</LIBTESS_VERSION>
+    <LIBTESS_VERSION_R>3,3,0,0</LIBTESS_VERSION_R>
+    <LIBTESS_NUMBER>3.03</LIBTESS_NUMBER>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <BuildMacro Include="LIBTESS_VERSION">
+      <Value>$(LIBTESS_VERSION)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBTESS_VERSION_R">
+      <Value>$(LIBTESS_VERSION_R)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LIBTESS_NUMBER">
+      <Value>$(LIBTESS_NUMBER)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

@@ -103,56 +103,6 @@ LIST ConvertOutlines(TESSLINE *outline,
   return mf_outlines;
 }
 
-
-/*---------------------------------------------------------------------------*/
-void ComputeOutlineStats(LIST Outlines, OUTLINE_STATS *OutlineStats) {
-/*
- ** Parameters:
- **   Outlines  list of outlines to compute stats for
- **   OutlineStats  place to put results
- ** Globals: none
- ** Operation: This routine computes several statistics about the outlines
- **   in Outlines.  These statistics are usually used to perform
- **   anistropic normalization of all of the outlines.  The
- **   statistics generated are:
- **     first moments about x and y axes
- **     total length of all outlines
- **     center of mass of all outlines
- **     second moments about center of mass axes
- **     radius of gyration about center of mass axes
- ** Return: none (results are returned in OutlineStats)
- ** Exceptions: none
- ** History: Fri Dec 14 08:32:03 1990, DSJ, Created.
- */
-  MFOUTLINE Outline;
-  MFOUTLINE EdgePoint;
-  MFEDGEPT *Current;
-  MFEDGEPT *Last;
-
-  InitOutlineStats(OutlineStats);
-  iterate(Outlines) {
-    Outline = (MFOUTLINE) first_node (Outlines);
-
-    Last = PointAt (Outline);
-    Outline = NextPointAfter (Outline);
-    EdgePoint = Outline;
-    do {
-      Current = PointAt (EdgePoint);
-
-      UpdateOutlineStats (OutlineStats,
-        Last->Point.x, Last->Point.y,
-        Current->Point.x, Current->Point.y);
-
-      Last = Current;
-      EdgePoint = NextPointAfter (EdgePoint);
-    }
-    while (EdgePoint != Outline);
-  }
-  FinishOutlineStats(OutlineStats);
-
-}                                /* ComputeOutlineStats */
-
-
 /*---------------------------------------------------------------------------*/
 void FindDirectionChanges(MFOUTLINE Outline,
                           FLOAT32 MinSlope,
@@ -334,7 +284,8 @@ void NormalizeOutline(MFOUTLINE Outline,
   MFOUTLINE EdgePoint = Outline;
   do {
     MFEDGEPT *Current = PointAt(EdgePoint);
-    Current->Point.y = MF_SCALE_FACTOR * (Current->Point.y - BASELINE_OFFSET);
+    Current->Point.y = MF_SCALE_FACTOR *
+        (Current->Point.y - kBlnBaselineOffset);
     Current->Point.x = MF_SCALE_FACTOR * (Current->Point.x - XOrigin);
     EdgePoint = NextPointAfter(EdgePoint);
   } while (EdgePoint != Outline);
@@ -365,34 +316,10 @@ void Classify::NormalizeOutlines(LIST Outlines,
  ** History: Fri Dec 14 08:14:55 1990, DSJ, Created.
  */
   MFOUTLINE Outline;
-  OUTLINE_STATS OutlineStats;
-  FLOAT32 BaselineScale;
 
   switch (classify_norm_method) {
     case character:
-      ComputeOutlineStats(Outlines, &OutlineStats);
-
-      /* limit scale factor to avoid overscaling small blobs (.,`'),
-         thin blobs (l1ift), and merged blobs */
-      *XScale = *YScale = BaselineScale = MF_SCALE_FACTOR;
-      *XScale *= OutlineStats.Ry;
-      *YScale *= OutlineStats.Rx;
-      if (*XScale < classify_min_norm_scale_x)
-        *XScale = classify_min_norm_scale_x;
-      if (*YScale < classify_min_norm_scale_y)
-        *YScale = classify_min_norm_scale_y;
-      if (*XScale > classify_max_norm_scale_x &&
-          *YScale <= classify_max_norm_scale_y)
-        *XScale = classify_max_norm_scale_x;
-      *XScale = classify_char_norm_range * BaselineScale / *XScale;
-      *YScale = classify_char_norm_range * BaselineScale / *YScale;
-
-      iterate(Outlines) {
-        Outline = (MFOUTLINE) first_node (Outlines);
-        CharNormalizeOutline (Outline,
-          OutlineStats.x, OutlineStats.y,
-          *XScale, *YScale);
-      }
+      ASSERT_HOST(!"How did NormalizeOutlines get called in character mode?");
       break;
 
     case baseline:
@@ -436,11 +363,7 @@ void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
 
 
 /*---------------------------------------------------------------------------*/
-void CharNormalizeOutline(MFOUTLINE Outline,
-                          FLOAT32 XCenter,
-                          FLOAT32 YCenter,
-                          FLOAT32 XScale,
-                          FLOAT32 YScale) {
+void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
 /*
  ** Parameters:
  **   Outline     outline to be character normalized
@@ -463,13 +386,13 @@ void CharNormalizeOutline(MFOUTLINE Outline,
   First = Outline;
   Current = First;
   do {
-    CurrentPoint = PointAt (Current);
-    CurrentPoint->Point.x =
-      (CurrentPoint->Point.x - XCenter) * XScale;
-    CurrentPoint->Point.y =
-      (CurrentPoint->Point.y - YCenter) * YScale;
+    CurrentPoint = PointAt(Current);
+    FCOORD pos(CurrentPoint->Point.x, CurrentPoint->Point.y);
+    cn_denorm.LocalNormTransform(pos, &pos);
+    CurrentPoint->Point.x = (pos.x() - MAX_UINT8 / 2) * MF_SCALE_FACTOR;
+    CurrentPoint->Point.y = (pos.y() - MAX_UINT8 / 2) * MF_SCALE_FACTOR;
 
-    Current = NextPointAfter (Current);
+    Current = NextPointAfter(Current);
   }
   while (Current != First);
 

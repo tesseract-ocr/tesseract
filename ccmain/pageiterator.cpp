@@ -303,16 +303,22 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
 bool PageIterator::BoundingBox(PageIteratorLevel level,
                                int* left, int* top,
                                int* right, int* bottom) const {
+  return BoundingBox(level, 0, left, top, right, bottom);
+}
+
+bool PageIterator::BoundingBox(PageIteratorLevel level, const int padding,
+                               int* left, int* top,
+                               int* right, int* bottom) const {
   if (!BoundingBoxInternal(level, left, top, right, bottom))
     return false;
   // Convert to the coordinate system of the original image.
-  *left = ClipToRange(*left / scale_ + rect_left_,
+  *left = ClipToRange(*left / scale_ + rect_left_ - padding,
                       rect_left_, rect_left_ + rect_width_);
-  *top = ClipToRange(*top / scale_ + rect_top_,
+  *top = ClipToRange(*top / scale_ + rect_top_ - padding,
                      rect_top_, rect_top_ + rect_height_);
-  *right = ClipToRange((*right + scale_ - 1) / scale_ + rect_left_,
+  *right = ClipToRange((*right + scale_ - 1) / scale_ + rect_left_ + padding,
                        *left, rect_left_ + rect_width_);
-  *bottom = ClipToRange((*bottom + scale_ - 1) / scale_ + rect_top_,
+  *bottom = ClipToRange((*bottom + scale_ - 1) / scale_ + rect_top_ + padding,
                         *top, rect_top_ + rect_height_);
   return true;
 }
@@ -333,6 +339,26 @@ PolyBlockType PageIterator::BlockType() const {
   if (it_->block()->block->poly_block() == NULL)
     return PT_FLOWING_TEXT;  // No layout analysis used - assume text.
   return it_->block()->block->poly_block()->isA();
+}
+
+/** Returns the polygon outline of the current block. The returned Pta must
+ *  be ptaDestroy-ed after use. */
+Pta* PageIterator::BlockPolygon() const {
+  if (it_->block() == NULL || it_->block()->block == NULL)
+    return NULL;  // Already at the end!
+  if (it_->block()->block->poly_block() == NULL)
+    return NULL;  // No layout analysis used - no polygon.
+  ICOORDELT_IT it(it_->block()->block->poly_block()->points());
+  Pta* pta = ptaCreate(it.length());
+  int num_pts = 0;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++num_pts) {
+    ICOORD* pt = it.data();
+    // Convert to top-down coords within the input image.
+    float x = static_cast<float>(pt->x()) / scale_ + rect_left_;
+    float y = rect_top_ + rect_height_ - static_cast<float>(pt->y()) / scale_;
+    ptaAddPt(pta, x, y);
+  }
+  return pta;
 }
 
 /**
@@ -406,15 +432,16 @@ Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
  * padding, so the top-left position of the returned image is returned
  * in (left,top). These will most likely not match the coordinates
  * returned by BoundingBox.
+ * If you do not supply an original image, you will get a binary one.
  * Use pixDestroy to delete the image after use.
  */
 Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
+                            Pix* original_img,
                             int* left, int* top) const {
   int right, bottom;
   if (!BoundingBox(level, left, top, &right, &bottom))
     return NULL;
-  Pix* pix = tesseract_->pix_grey();
-  if (pix == NULL)
+  if (original_img == NULL)
     return GetBinaryImage(level);
 
   // Expand the box.
@@ -423,7 +450,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
   right = MIN(right + padding, rect_width_);
   bottom = MIN(bottom + padding, rect_height_);
   Box* box = boxCreate(*left, *top, right - *left, bottom - *top);
-  Pix* grey_pix = pixClipRectangle(pix, box, NULL);
+  Pix* grey_pix = pixClipRectangle(original_img, box, NULL);
   boxDestroy(&box);
   if (level == RIL_BLOCK) {
     Pix* mask = it_->block()->block->render_mask();
@@ -434,7 +461,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
     pixDestroy(&mask);
     pixDilateBrick(expanded_mask, expanded_mask, 2*padding + 1, 2*padding + 1);
     pixInvert(expanded_mask, expanded_mask);
-    pixSetMasked(grey_pix, expanded_mask, 255);
+    pixSetMasked(grey_pix, expanded_mask, MAX_UINT32);
     pixDestroy(&expanded_mask);
   }
   return grey_pix;
@@ -546,14 +573,15 @@ void PageIterator::BeginWord(int offset) {
     // Recognition has been done, so we are using the box_word, which
     // is already baseline denormalized.
     word_length_ = word_res->best_choice->length();
-    ASSERT_HOST(word_res->box_word != NULL);
-    if (word_res->box_word->length() != word_length_) {
-      tprintf("Corrupted word! best_choice[len=%d] = %s, box_word[len=%d]: ",
-              word_length_, word_res->best_choice->unichar_string().string(),
-              word_res->box_word->length());
-      word_res->box_word->bounding_box().print();
+    if (word_res->box_word != NULL) {
+      if (word_res->box_word->length() != word_length_) {
+        tprintf("Corrupted word! best_choice[len=%d] = %s, box_word[len=%d]: ",
+                word_length_, word_res->best_choice->unichar_string().string(),
+                word_res->box_word->length());
+        word_res->box_word->bounding_box().print();
+      }
+      ASSERT_HOST(word_res->box_word->length() == word_length_);
     }
-    ASSERT_HOST(word_res->box_word->length() == word_length_);
     word_ = NULL;
     // We will be iterating the box_word.
     if (cblob_it_ != NULL) {
@@ -571,6 +599,15 @@ void PageIterator::BeginWord(int offset) {
   for (blob_index_ = 0; blob_index_ < offset; ++blob_index_) {
     if (cblob_it_ != NULL)
       cblob_it_->forward();
+  }
+}
+
+bool PageIterator::SetWordBlamerBundle(BlamerBundle *blamer_bundle) {
+  if (it_->word() != NULL) {
+    it_->word()->blamer_bundle = blamer_bundle;
+    return true;
+  } else {
+    return false;
   }
 }
 

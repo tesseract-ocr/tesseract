@@ -15,11 +15,12 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#include "oldheap.h"
 #include "const.h"
 #include "cluster.h"
 #include "emalloc.h"
+#include "genericheap.h"
 #include "helpers.h"
+#include "kdpair.h"
 #include "matrix.h"
 #include "tprintf.h"
 #include "danerror.h"
@@ -164,6 +165,9 @@ struct TEMPCLUSTER {
   CLUSTER *Neighbor;
 };
 
+typedef tesseract::KDPairInc<float, TEMPCLUSTER*> ClusterPair;
+typedef tesseract::GenericHeap<ClusterPair> ClusterHeap;
+
 struct STATISTICS {
   FLOAT32 AvgVariance;
   FLOAT32 *CoVariance;
@@ -190,7 +194,7 @@ struct CHISTRUCT{
 
 // For use with KDWalk / MakePotentialClusters
 struct ClusteringContext {
-  HEAP *heap;  // heap used to hold temp clusters, "best" on top
+  ClusterHeap *heap;  // heap used to hold temp clusters, "best" on top
   TEMPCLUSTER *candidates;  // array of potential clusters
   KDTREE *tree;  // kd-tree to be searched for neighbors
   inT32 next;  // next candidate to be used
@@ -693,7 +697,7 @@ History:	5/29/89, DSJ, Created.
 ******************************************************************************/
 void CreateClusterTree(CLUSTERER *Clusterer) {
   ClusteringContext context;
-  HEAPENTRY HeapEntry;
+  ClusterPair HeapEntry;
   TEMPCLUSTER *PotentialCluster;
 
   // each sample and its nearest neighbor form a "potential" cluster
@@ -702,12 +706,12 @@ void CreateClusterTree(CLUSTERER *Clusterer) {
   context.candidates = (TEMPCLUSTER *)
     Emalloc(Clusterer->NumberOfSamples * sizeof(TEMPCLUSTER));
   context.next = 0;
-  context.heap = MakeHeap(Clusterer->NumberOfSamples);
+  context.heap = new ClusterHeap(Clusterer->NumberOfSamples);
   KDWalk(context.tree, (void_proc)MakePotentialClusters, &context);
 
   // form potential clusters into actual clusters - always do "best" first
-  while (GetTopOfHeap(context.heap, &HeapEntry) != EMPTY) {
-    PotentialCluster = (TEMPCLUSTER *)HeapEntry.Data;
+  while (context.heap->Pop(&HeapEntry)) {
+    PotentialCluster = HeapEntry.data;
 
     // if main cluster of potential cluster is already in another cluster
     // then we don't need to worry about it
@@ -720,9 +724,9 @@ void CreateClusterTree(CLUSTERER *Clusterer) {
     else if (PotentialCluster->Neighbor->Clustered) {
       PotentialCluster->Neighbor =
         FindNearestNeighbor(context.tree, PotentialCluster->Cluster,
-                            &HeapEntry.Key);
+                            &HeapEntry.key);
       if (PotentialCluster->Neighbor != NULL) {
-        HeapStore(context.heap, &HeapEntry);
+        context.heap->Push(&HeapEntry);
       }
     }
 
@@ -732,9 +736,9 @@ void CreateClusterTree(CLUSTERER *Clusterer) {
           MakeNewCluster(Clusterer, PotentialCluster);
       PotentialCluster->Neighbor =
           FindNearestNeighbor(context.tree, PotentialCluster->Cluster,
-                              &HeapEntry.Key);
+                              &HeapEntry.key);
       if (PotentialCluster->Neighbor != NULL) {
-        HeapStore(context.heap, &HeapEntry);
+        context.heap->Push(&HeapEntry);
       }
     }
   }
@@ -745,7 +749,7 @@ void CreateClusterTree(CLUSTERER *Clusterer) {
   // free up the memory used by the K-D tree, heap, and temp clusters
   FreeKDTree(context.tree);
   Clusterer->KDTree = NULL;
-  FreeHeap(context.heap);
+  delete context.heap;
   memfree(context.candidates);
 }                                // CreateClusterTree
 
@@ -763,16 +767,16 @@ void CreateClusterTree(CLUSTERER *Clusterer) {
 ******************************************************************************/
 void MakePotentialClusters(ClusteringContext *context,
                            CLUSTER *Cluster, inT32 Level) {
-  HEAPENTRY HeapEntry;
+  ClusterPair HeapEntry;
   int next = context->next;
   context->candidates[next].Cluster = Cluster;
-  HeapEntry.Data = (char *) &(context->candidates[next]);
+  HeapEntry.data = &(context->candidates[next]);
   context->candidates[next].Neighbor =
       FindNearestNeighbor(context->tree,
                           context->candidates[next].Cluster,
-                          &HeapEntry.Key);
+                          &HeapEntry.key);
   if (context->candidates[next].Neighbor != NULL) {
-    HeapStore(context->heap, &HeapEntry);
+    context->heap->Push(&HeapEntry);
     context->next++;
   }
 }                                // MakePotentialClusters

@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "bestfirst.h"
 #include "callcpp.h"
 #include "chop.h"
 #include "chopper.h"
@@ -25,12 +24,10 @@
 #include "fxdefs.h"
 #include "globals.h"
 #include "gradechop.h"
-#include "matchtab.h"
 #include "pageres.h"
-#include "permute.h"
-#include "wordclass.h"
 #include "wordrec.h"
 #include "featdefs.h"
+#include "params_model.h"
 
 #include <math.h>
 #ifdef __UNIX__
@@ -54,9 +51,8 @@ void Wordrec::program_editup(const char *textbase,
   InitFeatureDefs(&feature_defs_);
   SetupExtractors(&feature_defs_);
   InitAdaptiveClassifier(init_classifier);
-  if (init_dict) getDict().Load();
+  if (init_dict) getDict().Load(Dict::GlobalDawgCache());
   pass2_ok_split = chop_ok_split;
-  pass2_seg_states = wordrec_num_seg_states;
 }
 
 /**
@@ -79,8 +75,6 @@ int Wordrec::end_recog() {
  */
 void Wordrec::program_editdown(inT32 elasped_time) {
   EndAdaptiveClassifier();
-  blob_match_table.end_match_table();
-  getDict().InitChoiceAccum();
   getDict().End();
 }
 
@@ -92,7 +86,7 @@ void Wordrec::program_editdown(inT32 elasped_time) {
  */
 void Wordrec::set_pass1() {
   chop_ok_split.set_value(70.0);
-  wordrec_num_seg_states.set_value(15);
+  language_model_->getParamsModel().SetPass(ParamsModel::PTRAIN_PASS1);
   SettupPass1();
 }
 
@@ -104,7 +98,7 @@ void Wordrec::set_pass1() {
  */
 void Wordrec::set_pass2() {
   chop_ok_split.set_value(pass2_ok_split);
-  wordrec_num_seg_states.set_value(pass2_seg_states);
+  language_model_->getParamsModel().SetPass(ParamsModel::PTRAIN_PASS2);
   SettupPass2();
 }
 
@@ -114,13 +108,12 @@ void Wordrec::set_pass2() {
  *
  * Recognize a word.
  */
-BLOB_CHOICE_LIST_VECTOR *Wordrec::cc_recog(WERD_RES *word) {
-  getDict().InitChoiceAccum();
+void Wordrec::cc_recog(WERD_RES *word) {
   getDict().reset_hyphen_vars(word->word->flag(W_EOL));
-  blob_match_table.init_match_table();
-  BLOB_CHOICE_LIST_VECTOR *results = chop_word_main(word);
-  getDict().DebugWordChoices();
-  return results;
+  chop_word_main(word);
+  word->DebugWordChoices(getDict().stopper_debug_level >= 1,
+                         getDict().word_to_debug.string());
+  ASSERT_HOST(word->StatesAllValid());
 }
 
 
@@ -140,17 +133,16 @@ int Wordrec::dict_word(const WERD_CHOICE &word) {
  * Called from Tess with a blob in tess form.
  * The blob may need rotating to the correct orientation for classification.
  */
-BLOB_CHOICE_LIST *Wordrec::call_matcher(const DENORM* denorm, TBLOB *tessblob) {
+BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
   // Rotate the blob for classification if necessary.
-  TBLOB* rotated_blob = tessblob->ClassifyNormalizeIfNeeded(&denorm);
+  TBLOB* rotated_blob = tessblob->ClassifyNormalizeIfNeeded();
   if (rotated_blob == NULL) {
     rotated_blob = tessblob;
   }
   BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();  // matcher result
-  AdaptiveClassifier(rotated_blob, *denorm, ratings, NULL);
+  AdaptiveClassifier(rotated_blob, ratings);
   if (rotated_blob != tessblob) {
     delete rotated_blob;
-    delete denorm;
   }
   return ratings;
 }

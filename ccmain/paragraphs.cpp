@@ -16,8 +16,8 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#ifdef _MSC_VER		
-#define __func__ __FUNCTION__		
+#ifdef _MSC_VER
+#define __func__ __FUNCTION__
 #endif
 
 #include <ctype.h>
@@ -40,11 +40,6 @@
 
 namespace tesseract {
 
-// The tab vectors for a given line should be ignored if both its tab vectors
-// are infrequent, specifically, if both tab vectors appear at most once per
-// kStrayLinePer lines in a block.
-const int kStrayLinePer = 6;
-
 // Special "weak" ParagraphModels.
 const ParagraphModel *kCrownLeft
     = reinterpret_cast<ParagraphModel *>(0xDEAD111F);
@@ -56,13 +51,6 @@ const ParagraphModel *kCrownRight
 // can vary and still be aligned.
 static int Epsilon(int space_pix) {
   return space_pix * 4 / 5;
-}
-
-template<typename T>
-void SimpleSwap(T &a, T &b) {
-  T c = a;
-  a = b;
-  b = c;
 }
 
 static bool AcceptableRowArgs(
@@ -727,7 +715,15 @@ void CalculateTabStops(GenericVector<RowScratchRegisters> *rows,
   //   tab stop is frequent.
   SimpleClusterer lefts(tolerance);
   SimpleClusterer rights(tolerance);
-  int infrequent_enough_to_ignore = (row_end - row_start) / kStrayLinePer;
+
+  // Outlier elimination.  We might want to switch this to test outlier-ness
+  // based on how strange a position an outlier is in instead of or in addition
+  // to how rare it is.  These outliers get re-added if we end up having too
+  // few tab stops, to work with, however.
+  int infrequent_enough_to_ignore = 0;
+  if (row_end - row_start >= 8) infrequent_enough_to_ignore = 1;
+  if (row_end - row_start >= 20) infrequent_enough_to_ignore = 2;
+
   for (int i = row_start; i < row_end; i++) {
     int lidx = ClosestCluster(initial_left_tabs, (*rows)[i].lindent_);
     int ridx = ClosestCluster(initial_right_tabs, (*rows)[i].rindent_);
@@ -739,6 +735,54 @@ void CalculateTabStops(GenericVector<RowScratchRegisters> *rows,
   }
   lefts.GetClusters(left_tabs);
   rights.GetClusters(right_tabs);
+
+  if ((left_tabs->size() == 1 && right_tabs->size() >= 4) ||
+      (right_tabs->size() == 1 && left_tabs->size() >= 4)) {
+    // One side is really ragged, and the other only has one tab stop,
+    // so those "insignificant outliers" are probably important, actually.
+    // This often happens on a page of an index.  Add back in the ones
+    // we omitted in the first pass.
+    for (int i = row_start; i < row_end; i++) {
+      int lidx = ClosestCluster(initial_left_tabs, (*rows)[i].lindent_);
+      int ridx = ClosestCluster(initial_right_tabs, (*rows)[i].rindent_);
+      if (!(initial_left_tabs[lidx].count > infrequent_enough_to_ignore ||
+            initial_right_tabs[ridx].count > infrequent_enough_to_ignore)) {
+        lefts.Add((*rows)[i].lindent_);
+        rights.Add((*rows)[i].rindent_);
+      }
+    }
+  }
+  lefts.GetClusters(left_tabs);
+  rights.GetClusters(right_tabs);
+
+  // If one side is almost a two-indent aligned side, and the other clearly
+  // isn't, try to prune out the least frequent tab stop from that side.
+  if (left_tabs->size() == 3 && right_tabs->size() >= 4) {
+    int to_prune = -1;
+    for (int i = left_tabs->size() - 1; i >= 0; i--) {
+      if (to_prune < 0 ||
+          (*left_tabs)[i].count < (*left_tabs)[to_prune].count) {
+        to_prune = i;
+      }
+    }
+    if (to_prune >= 0 &&
+        (*left_tabs)[to_prune].count <= infrequent_enough_to_ignore) {
+      left_tabs->remove(to_prune);
+    }
+  }
+  if (right_tabs->size() == 3 && left_tabs->size() >= 4) {
+    int to_prune = -1;
+    for (int i = right_tabs->size() - 1; i >= 0; i--) {
+      if (to_prune < 0 ||
+          (*right_tabs)[i].count < (*right_tabs)[to_prune].count) {
+        to_prune = i;
+      }
+    }
+    if (to_prune >= 0 &&
+        (*right_tabs)[to_prune].count <= infrequent_enough_to_ignore) {
+      right_tabs->remove(to_prune);
+    }
+  }
 }
 
 // Given a paragraph model mark rows[row_start, row_end) as said model
@@ -816,6 +860,11 @@ struct GeometricClassifierState {
     tolerance = InterwordSpace(*r, r_start, r_end);
     CalculateTabStops(r, r_start, r_end, tolerance,
                       &left_tabs, &right_tabs);
+    if (debug_level >= 3) {
+      tprintf("Geometry: TabStop cluster tolerance = %d; "
+              "%d left tabs; %d right tabs\n",
+              tolerance, left_tabs.size(), right_tabs.size());
+    }
     ltr = (*r)[r_start].ri_->ltr;
   }
 
@@ -1079,16 +1128,18 @@ void GeometricClassify(int debug_level,
     firsts[s.AlignsideTabIndex(s.row_start)]++;
     // For each line, if the first word would have fit on the previous
     // line count it as a likely paragraph start line.
+    bool jam_packed = true;
     for (int i = s.row_start + 1; i < s.row_end; i++) {
       if (s.FirstWordWouldHaveFit(i - 1, i)) {
         firsts[s.AlignsideTabIndex(i)]++;
+        jam_packed = false;
       }
     }
     // Make an extra accounting for the last line of the paragraph just
     // in case it's the only short line in the block.  That is, take its
     // first word as typical and see if this looks like the *last* line
     // of a paragraph.  If so, mark the *other* indent as probably a first.
-    if (s.FirstWordWouldHaveFit(s.row_end - 1, s.row_end - 1)) {
+    if (jam_packed && s.FirstWordWouldHaveFit(s.row_end - 1, s.row_end - 1)) {
       firsts[1 - s.AlignsideTabIndex(s.row_end - 1)]++;
     }
 
@@ -1175,9 +1226,9 @@ void ParagraphTheory::DiscardUnusedModels(const SetOfModels &used_models) {
   for (int i = models_->size() - 1; i >= 0; i--) {
     ParagraphModel *m = (*models_)[i];
     if (!used_models.contains(m) && models_we_added_.contains(m)) {
-      delete m;
       models_->remove(i);
       models_we_added_.remove(models_we_added_.get_index(m));
+      delete m;
     }
   }
 }
@@ -1543,24 +1594,26 @@ void RecomputeMarginsAndClearHypotheses(
   }
 }
 
-// Return the minimum inter-word space in rows[row_start, row_end).
+// Return the median inter-word space in rows[row_start, row_end).
 int InterwordSpace(const GenericVector<RowScratchRegisters> &rows,
                    int row_start, int row_end) {
   if (row_end < row_start + 1) return 1;
-  bool legit = false;
-  int natural_space = rows[row_start].ri_->average_interword_space;
+  int word_height = (rows[row_start].ri_->lword_box.height() +
+                     rows[row_end - 1].ri_->lword_box.height()) / 2;
+  int word_width = (rows[row_start].ri_->lword_box.width() +
+                    rows[row_end - 1].ri_->lword_box.width())  / 2;
+  STATS spacing_widths(0, 5 + word_width);
   for (int i = row_start; i < row_end; i++) {
     if (rows[i].ri_->num_words > 1) {
-      if (!legit) {
-        natural_space = rows[i].ri_->average_interword_space;
-        legit = true;
-      } else {
-        if (rows[i].ri_->average_interword_space < natural_space)
-          natural_space = rows[i].ri_->average_interword_space;
-      }
+      spacing_widths.add(rows[i].ri_->average_interword_space, 1);
     }
   }
-  return natural_space;
+  int minimum_reasonable_space = word_height / 3;
+  if (minimum_reasonable_space < 2)
+    minimum_reasonable_space = 2;
+  int median = spacing_widths.median();
+  return (median > minimum_reasonable_space)
+      ? median : minimum_reasonable_space;
 }
 
 // Return whether the first word on the after line can fit in the space at
@@ -2274,6 +2327,7 @@ void DetectParagraphs(int debug_level,
     GeometricClassify(debug_level, &rows,
                       leftovers[i].begin, leftovers[i].end, &theory);
   }
+
   // Undo any flush models for which there's little evidence.
   DowngradeWeakestToCrowns(debug_level, &theory, &rows);
 

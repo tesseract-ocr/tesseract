@@ -37,6 +37,7 @@
 #include "freelist.h"
 #include "genericvector.h"
 #include "helpers.h"
+#include "kdpair.h"
 
 namespace tesseract {
 
@@ -65,6 +66,7 @@ const char *Trie::get_reverse_policy_name(RTLReversePolicy reverse_policy) {
 void Trie::clear() {
   nodes_.delete_data_pointers();
   nodes_.clear();
+  root_back_freelist_.clear();
   num_edges_ = 0;
   new_dawg_node();  // Need to allocate node 0.
 }
@@ -85,7 +87,7 @@ bool Trie::edge_char_of(NODE_REF node_ref, NODE_REF next_node,
   EDGE_VECTOR &vec = (direction == FORWARD_EDGE) ?
     nodes_[node_ref]->forward_edges : nodes_[node_ref]->backward_edges;
   int vec_size = vec.size();
-  if (node_ref == 0) { // binary search
+  if (node_ref == 0 && direction == FORWARD_EDGE) {  // binary search
     EDGE_INDEX start = 0;
     EDGE_INDEX end = vec_size - 1;
     EDGE_INDEX k;
@@ -123,11 +125,10 @@ bool Trie::edge_char_of(NODE_REF node_ref, NODE_REF next_node,
 bool Trie::add_edge_linkage(NODE_REF node1, NODE_REF node2, bool marker_flag,
                             int direction, bool word_end,
                             UNICHAR_ID unichar_id) {
-  if (num_edges_ == max_num_edges_) return false;
   EDGE_VECTOR *vec = (direction == FORWARD_EDGE) ?
     &(nodes_[node1]->forward_edges) : &(nodes_[node1]->backward_edges);
   int search_index;
-  if (node1 == 0) {
+  if (node1 == 0 && direction == FORWARD_EDGE) {
     search_index = 0;  // find the index to make the add sorted
     while (search_index < vec->size() &&
            given_greater_than_edge_rec(node2, word_end, unichar_id,
@@ -139,7 +140,11 @@ bool Trie::add_edge_linkage(NODE_REF node1, NODE_REF node2, bool marker_flag,
   }
   EDGE_RECORD edge_rec;
   link_edge(&edge_rec, node2, marker_flag, direction, word_end, unichar_id);
-  if (search_index < vec->size()) {
+  if (node1 == 0 && direction == BACKWARD_EDGE &&
+      !root_back_freelist_.empty()) {
+    EDGE_INDEX edge_index = root_back_freelist_.pop_back();
+    (*vec)[edge_index] = edge_rec;
+  } else if (search_index < vec->size()) {
     vec->insert(edge_rec, search_index);
   } else {
     vec->push_back(edge_rec);
@@ -208,10 +213,18 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
       if (!found) {
         still_finding_chars = false;
       } else if (next_node_from_edge_rec(*edge_ptr) == 0) {
+        // We hit the end of an existing word, but the new word is longer.
+        // In this case we have to disconnect the existing word from the
+        // backwards root node, mark the current position as end-of-word
+        // and add new nodes for the increased length. Disconnecting the
+        // existing word from the backwards root node requires a linear
+        // search, so it is much faster to add the longest words first,
+        // to avoid having to come here.
         word_end = true;
         still_finding_chars = false;
         remove_edge(last_node, 0, word_end, unichar_id);
       } else {
+        // We have to add a new branch here for the new word.
         if (marker_flag) set_marker_flag_in_edge_rec(edge_ptr);
         last_node = next_node_from_edge_rec(*edge_ptr);
       }
@@ -245,6 +258,9 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
     add_word_ending(edge_ptr, next_node_from_edge_rec(*edge_ptr),
                     marker_flag, unichar_id);
   } else {
+    // Add a link to node 0. All leaves connect to node 0 so the back links can
+    // be used in reduction to a dawg. This root backward node has one edge
+    // entry for every word, (except prefixes of longer words) so it is huge.
     if (!add_failed &&
         !add_new_edge(last_node, the_next_node, marker_flag, true, unichar_id))
       add_failed = true;
@@ -265,14 +281,33 @@ NODE_REF Trie::new_dawg_node() {
   return nodes_.length() - 1;
 }
 
+// Sort function to sort words by decreasing order of length.
+static int sort_strings_by_dec_length(const void* v1, const void* v2) {
+  const STRING* s1 = reinterpret_cast<const STRING*>(v1);
+  const STRING* s2 = reinterpret_cast<const STRING*>(v2);
+  return s2->length() - s1->length();
+}
+
+bool Trie::read_and_add_word_list(const char *filename,
+                                  const UNICHARSET &unicharset,
+                                  Trie::RTLReversePolicy reverse_policy) {
+  GenericVector<STRING> word_list;
+  if (!read_word_list(filename, unicharset, reverse_policy, &word_list))
+    return false;
+  word_list.sort(sort_strings_by_dec_length);
+  return add_word_list(word_list, unicharset);
+}
+
 bool Trie::read_word_list(const char *filename,
                           const UNICHARSET &unicharset,
-                          Trie::RTLReversePolicy reverse_policy) {
+                          Trie::RTLReversePolicy reverse_policy,
+                          GenericVector<STRING>* words) {
   FILE *word_file;
   char string[CHARS_PER_LINE];
   int  word_count = 0;
 
-  word_file = open_file (filename, "r");
+  word_file = fopen(filename, "rb");
+  if (word_file == NULL) return false;
 
   while (fgets(string, CHARS_PER_LINE, word_file) != NULL) {
     chomp_string(string);  // remove newline
@@ -286,13 +321,7 @@ bool Trie::read_word_list(const char *filename,
     if (debug_level_ && word_count % 10000 == 0)
       tprintf("Read %d words so far\n", word_count);
     if (word.length() != 0 && !word.contains_unichar_id(INVALID_UNICHAR_ID)) {
-      if (!this->word_in_dawg(word)) {
-        this->add_word_to_dawg(word);
-        if (!this->word_in_dawg(word)) {
-          tprintf("Error: word '%s' not in DAWG after adding it\n", string);
-          return false;
-        }
-      }
+      words->push_back(word.unichar_string());
     } else if (debug_level_) {
       tprintf("Skipping invalid word %s\n", string);
       if (debug_level_ >= 3) word.print();
@@ -301,6 +330,22 @@ bool Trie::read_word_list(const char *filename,
   if (debug_level_)
     tprintf("Read %d words total.\n", word_count);
   fclose(word_file);
+  return true;
+}
+
+bool Trie::add_word_list(const GenericVector<STRING>& words,
+                   const UNICHARSET &unicharset) {
+  for (int i = 0; i < words.size(); ++i) {
+    WERD_CHOICE word(words[i].string(), unicharset);
+    if (!word_in_dawg(word)) {
+      add_word_to_dawg(word);
+      if (!word_in_dawg(word)) {
+        tprintf("Error: word '%s' not in DAWG after adding it\n",
+                words[i].string());
+        return false;
+      }
+    }
+  }
   return true;
 }
 
@@ -368,7 +413,7 @@ bool Trie::read_pattern_list(const char *filename,
     return false;
   }
 
-  FILE *pattern_file = open_file (filename, "r");
+  FILE *pattern_file = fopen(filename, "rb");
   if (pattern_file == NULL) {
     tprintf("Error opening pattern file %s\n", filename);
     return false;
@@ -456,13 +501,30 @@ void Trie::remove_edge_linkage(NODE_REF node1, NODE_REF node2, int direction,
   }
   if (direction == FORWARD_EDGE) {
     nodes_[node1]->forward_edges.remove(edge_index);
+  } else if (node1 == 0) {
+    KillEdge(&nodes_[node1]->backward_edges[edge_index]);
+    root_back_freelist_.push_back(edge_index);
   } else {
     nodes_[node1]->backward_edges.remove(edge_index);
   }
   --num_edges_;
 }
 
+// Some optimizations employed in add_word_to_dawg and trie_to_dawg:
+// 1 Avoid insertion sorting or bubble sorting the tail root node
+//   (back links on node 0, a list of all the leaves.). The node is
+//   huge, and sorting it with n^2 time is terrible.
+// 2 Avoid using GenericVector::remove on the tail root node.
+//   (a) During add of words to the trie, zero-out the unichars and
+//       keep a freelist of spaces to re-use.
+//   (b) During reduction, just zero-out the unichars of deleted back
+//       links, skipping zero entries while searching.
+// 3 Avoid linear search of the tail root node. This has to be done when
+//   a suffix is added to an existing word. Adding words by decreasing
+//   length avoids this problem entirely. Words can still be added in
+//   any order, but it is faster to add the longest first.
 SquishedDawg *Trie::trie_to_dawg() {
+  root_back_freelist_.clear();  // Will be invalided by trie_to_dawg.
   if (debug_level_ > 2) {
     print_all("Before reduction:", MAX_NODE_EDGES_DISPLAY);
   }
@@ -528,11 +590,7 @@ bool Trie::eliminate_redundant_edges(NODE_REF node,
   EDGE_RECORD *edge_ptr = NULL;
   EDGE_INDEX edge_index;
   int i;
-  // Remove the backward link in node to next_node2.
-  const EDGE_RECORD &fwd_edge = next_node2_ptr->forward_edges[0];
-  remove_edge_linkage(node, next_node2, BACKWARD_EDGE,
-                      end_of_word_from_edge_rec(fwd_edge),
-                      unichar_id_from_edge_rec(fwd_edge));
+  // The backward link in node to next_node2 will be zeroed out by the caller.
   // Copy all the backward links in next_node2 to node next_node1
   for (i = 0; i < next_node2_ptr->backward_edges.size(); ++i) {
     const EDGE_RECORD &bkw_edge = next_node2_ptr->backward_edges[i];
@@ -563,32 +621,38 @@ bool Trie::eliminate_redundant_edges(NODE_REF node,
 bool Trie::reduce_lettered_edges(EDGE_INDEX edge_index,
                                  UNICHAR_ID unichar_id,
                                  NODE_REF node,
-                                 const EDGE_VECTOR &backward_edges,
+                                 EDGE_VECTOR* backward_edges,
                                  NODE_MARKER reduced_nodes) {
   if (debug_level_ > 1)
     tprintf("reduce_lettered_edges(edge=" REFFORMAT ")\n", edge_index);
   // Compare each of the edge pairs with the given unichar_id.
   bool did_something = false;
-  for (int i = edge_index; i < backward_edges.size() - 1; ++i) {
+  for (int i = edge_index; i < backward_edges->size() - 1; ++i) {
     // Find the first edge that can be eliminated.
     UNICHAR_ID curr_unichar_id = INVALID_UNICHAR_ID;
-    while (i < backward_edges.size() &&
-           ((curr_unichar_id = unichar_id_from_edge_rec(backward_edges[i])) ==
-            unichar_id) &&
-           !can_be_eliminated(backward_edges[i])) ++i;
-    if (i == backward_edges.size() || curr_unichar_id != unichar_id) break;
-    const EDGE_RECORD &edge_rec = backward_edges[i];
+    while (i < backward_edges->size()) {
+      if (!DeadEdge((*backward_edges)[i])) {
+        curr_unichar_id = unichar_id_from_edge_rec((*backward_edges)[i]);
+        if (curr_unichar_id != unichar_id) return did_something;
+        if (can_be_eliminated((*backward_edges)[i])) break;
+      }
+      ++i;
+    }
+    if (i == backward_edges->size()) break;
+    const EDGE_RECORD &edge_rec = (*backward_edges)[i];
     // Compare it to the rest of the edges with the given unichar_id.
-    for (int j = i + 1; j < backward_edges.size(); ++j) {
-      const EDGE_RECORD &next_edge_rec = backward_edges[j];
-      if (unichar_id_from_edge_rec(next_edge_rec) != unichar_id) break;
+    for (int j = i + 1; j < backward_edges->size(); ++j) {
+      const EDGE_RECORD &next_edge_rec = (*backward_edges)[j];
+      if (DeadEdge(next_edge_rec)) continue;
+      UNICHAR_ID next_id = unichar_id_from_edge_rec(next_edge_rec);
+      if (next_id != unichar_id) break;
       if (end_of_word_from_edge_rec(next_edge_rec) ==
           end_of_word_from_edge_rec(edge_rec) &&
           can_be_eliminated(next_edge_rec) &&
           eliminate_redundant_edges(node, edge_rec, next_edge_rec)) {
         reduced_nodes[next_node_from_edge_rec(edge_rec)] = 0;
         did_something = true;
-        --j;  // do not increment j if next_edge_rec was removed
+        KillEdge(&(*backward_edges)[j]);
       }
     }
   }
@@ -598,37 +662,37 @@ bool Trie::reduce_lettered_edges(EDGE_INDEX edge_index,
 void Trie::sort_edges(EDGE_VECTOR *edges) {
   int num_edges = edges->size();
   if (num_edges <= 1) return;
-  for (int i = 0; i < num_edges - 1; ++i) {
-    int min = i;
-    for (int j = (i + 1); j < num_edges; ++j) {
-      if (unichar_id_from_edge_rec((*edges)[j]) <
-          unichar_id_from_edge_rec((*edges)[min])) min = j;
-    }
-    if (i != min) {
-      EDGE_RECORD temp = (*edges)[i];
-      (*edges)[i] = (*edges)[min];
-      (*edges)[min] = temp;
-    }
+  GenericVector<KDPairInc<UNICHAR_ID, EDGE_RECORD> > sort_vec;
+  sort_vec.reserve(num_edges);
+  for (int i = 0; i < num_edges; ++i) {
+    sort_vec.push_back(KDPairInc<UNICHAR_ID, EDGE_RECORD>(
+        unichar_id_from_edge_rec((*edges)[i]), (*edges)[i]));
   }
+  sort_vec.sort();
+  for (int i = 0; i < num_edges; ++i)
+    (*edges)[i] = sort_vec[i].data;
 }
 
 void Trie::reduce_node_input(NODE_REF node,
                              NODE_MARKER reduced_nodes) {
+  EDGE_VECTOR &backward_edges = nodes_[node]->backward_edges;
+  sort_edges(&backward_edges);
   if (debug_level_ > 1) {
     tprintf("reduce_node_input(node=" REFFORMAT ")\n", node);
     print_node(node, MAX_NODE_EDGES_DISPLAY);
   }
 
-  EDGE_VECTOR &backward_edges = nodes_[node]->backward_edges;
-  if (node != 0) sort_edges(&backward_edges);
   EDGE_INDEX edge_index = 0;
   while (edge_index < backward_edges.size()) {
+    if (DeadEdge(backward_edges[edge_index])) continue;
     UNICHAR_ID unichar_id =
       unichar_id_from_edge_rec(backward_edges[edge_index]);
     while (reduce_lettered_edges(edge_index, unichar_id, node,
-                                 backward_edges, reduced_nodes));
-    while (++edge_index < backward_edges.size() &&
-           unichar_id_from_edge_rec(backward_edges[edge_index]) == unichar_id);
+                                 &backward_edges, reduced_nodes));
+    while (++edge_index < backward_edges.size()) {
+      UNICHAR_ID id = unichar_id_from_edge_rec(backward_edges[edge_index]);
+      if (!DeadEdge(backward_edges[edge_index]) && id != unichar_id) break;
+    }
   }
   reduced_nodes[node] = true;  // mark as reduced
 
@@ -638,6 +702,7 @@ void Trie::reduce_node_input(NODE_REF node,
   }
 
   for (int i = 0; i < backward_edges.size(); ++i) {
+    if (DeadEdge(backward_edges[i])) continue;
     NODE_REF next_node = next_node_from_edge_rec(backward_edges[i]);
     if (next_node != 0 && !reduced_nodes[next_node]) {
       reduce_node_input(next_node, reduced_nodes);
@@ -662,6 +727,7 @@ void Trie::print_node(NODE_REF node, int max_num_edges) const {
     int i;
     for (i = 0; (dir == 0 ? i < num_fwd : i < num_bkw) &&
          i < max_num_edges; ++i) {
+      if (DeadEdge((*vec)[i])) continue;
       print_edge_rec((*vec)[i]);
       tprintf(" ");
     }
@@ -669,4 +735,5 @@ void Trie::print_node(NODE_REF node, int max_num_edges) const {
     tprintf("\n");
   }
 }
+
 }  // namespace tesseract

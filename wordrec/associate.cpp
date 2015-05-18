@@ -26,8 +26,8 @@
 #include <math.h>
 
 #include "associate.h"
-#include "baseline.h"
 #include "normalis.h"
+#include "pageres.h"
 
 namespace tesseract {
 
@@ -39,69 +39,85 @@ void AssociateUtils::ComputeStats(int col, int row,
                                   int parent_path_length,
                                   bool fixed_pitch,
                                   float max_char_wh_ratio,
-                                  const DENORM *denorm,
-                                  CHUNKS_RECORD *chunks_record,
-                                  int debug_level,
+                                  WERD_RES *word_res,
+                                  bool debug,
                                   AssociateStats *stats) {
   stats->Clear();
 
-  if (debug_level > 0) {
+  ASSERT_HOST(word_res != NULL);
+  if (word_res->blob_widths.empty()) {
+    return;
+  }
+  if (debug) {
     tprintf("AssociateUtils::ComputeStats() for col=%d, row=%d%s\n",
             col, row, fixed_pitch ? " (fixed pitch)" : "");
   }
-  float normalizing_height = BASELINE_SCALE;
+  float normalizing_height = kBlnXHeight;
+  ROW* blob_row = word_res->blob_row;
   // TODO(rays/daria) Can unicharset.script_has_xheight be useful here?
-  if (fixed_pitch && denorm != NULL && denorm->row() != NULL) {
+  if (fixed_pitch && blob_row != NULL) {
     // For fixed pitch language like CJK, we use the full text height
     // as the normalizing factor so we are not dependent on xheight
     // calculation.
-    if (denorm->row()->body_size() > 0.0f) {
-      normalizing_height = denorm->y_scale() * denorm->row()->body_size();
+    if (blob_row->body_size() > 0.0f) {
+      normalizing_height = word_res->denorm.y_scale() * blob_row->body_size();
     } else {
-      normalizing_height = denorm->y_scale() *
-          (denorm->row()->x_height() + denorm->row()->ascenders());
+      normalizing_height = word_res->denorm.y_scale() *
+          (blob_row->x_height() + blob_row->ascenders());
     }
-    if (debug_level > 0) {
+    if (debug) {
       tprintf("normalizing height = %g (scale %g xheight %g ascenders %g)\n",
-              normalizing_height, denorm->y_scale(), denorm->row()->x_height(),
-              denorm->row()->ascenders());
+              normalizing_height, word_res->denorm.y_scale(),
+              blob_row->x_height(), blob_row->ascenders());
     }
   }
-  float wh_ratio =
-    GetChunksWidth(chunks_record->chunk_widths, col, row) / normalizing_height;
-  if (debug_level) tprintf("wh_ratio %g\n", wh_ratio);
+  float wh_ratio = word_res->GetBlobsWidth(col, row) / normalizing_height;
   if (wh_ratio > max_char_wh_ratio) stats->bad_shape = true;
+  // Compute the gap sum for this shape. If there are only negative or only
+  // positive gaps, record their sum in stats->gap_sum. However, if there is
+  // a mixture, record only the sum of the positive gaps.
+  // TODO(antonova): explain fragment.
+  int negative_gap_sum = 0;
+  for (int c = col; c < row; ++c) {
+    int gap = word_res->GetBlobsGap(c);
+    (gap > 0) ? stats->gap_sum += gap : negative_gap_sum += gap;
+  }
+  if (stats->gap_sum == 0) stats->gap_sum = negative_gap_sum;
+  if (debug) {
+    tprintf("wh_ratio=%g (max_char_wh_ratio=%g) gap_sum=%d %s\n",
+            wh_ratio, max_char_wh_ratio, stats->gap_sum,
+            stats->bad_shape ? "bad_shape" : "");
+  }
+  // Compute shape_cost (for fixed pitch mode).
   if (fixed_pitch) {
-    bool end_row = (row == (chunks_record->ratings->dimension() - 1));
+    bool end_row = (row == (word_res->ratings->dimension() - 1));
 
     // Ensure that the blob has gaps on the left and the right sides
     // (except for beginning and ending punctuation) and that there is
     // no cutting through ink at the blob boundaries.
     if (col > 0) {
-      float left_gap =
-        GetChunksGap(chunks_record->chunk_widths, col-1) / normalizing_height;
-      SEAM *left_seam =
-        static_cast<SEAM *>(array_value(chunks_record->splits, col-1));
-      if (debug_level) {
-        tprintf("left_gap %g, left_seam %g\n", left_gap, left_seam->priority);
-      }
+      float left_gap = word_res->GetBlobsGap(col - 1) / normalizing_height;
+      SEAM *left_seam = word_res->seam_array[col - 1];
       if ((!end_row && left_gap < kMinGap) || left_seam->priority > 0.0f) {
         stats->bad_shape = true;
+      }
+      if (debug) {
+        tprintf("left_gap %g, left_seam %g %s\n", left_gap, left_seam->priority,
+                stats->bad_shape ? "bad_shape" : "");
       }
     }
     float right_gap = 0.0f;
     if (!end_row) {
-      right_gap =
-        GetChunksGap(chunks_record->chunk_widths, row) / normalizing_height;
-      SEAM *right_seam =
-        static_cast<SEAM *>(array_value(chunks_record->splits, row));
-      if (debug_level) {
-        tprintf("right_gap %g right_seam %g\n",
-                right_gap, right_seam->priority);
-      }
+      right_gap = word_res->GetBlobsGap(row) / normalizing_height;
+      SEAM *right_seam = word_res->seam_array[row];
       if (right_gap < kMinGap || right_seam->priority > 0.0f) {
         stats->bad_shape = true;
         if (right_gap < kMinGap) stats->bad_fixed_pitch_right_gap = true;
+      }
+      if (debug) {
+        tprintf("right_gap %g right_seam %g %s\n",
+                right_gap, right_seam->priority,
+                stats->bad_shape ? "bad_shape" : "");
       }
     }
 
@@ -121,7 +137,7 @@ void AssociateUtils::ComputeStats(int col, int row,
     } else {
       stats->full_wh_ratio_total = stats->full_wh_ratio;
     }
-    if (debug_level) {
+    if (debug) {
       tprintf("full_wh_ratio %g full_wh_ratio_total %g full_wh_ratio_var %g\n",
               stats->full_wh_ratio, stats->full_wh_ratio_total,
               stats->full_wh_ratio_var);
@@ -137,16 +153,8 @@ void AssociateUtils::ComputeStats(int col, int row,
       stats->shape_cost += 10;
     }
     stats->shape_cost += stats->full_wh_ratio_var;
-    if (debug_level) tprintf("shape_cost %g\n", stats->shape_cost);
+    if (debug) tprintf("shape_cost %g\n", stats->shape_cost);
   }
-}
-
-int AssociateUtils::GetChunksWidth(WIDTH_RECORD *width_record,
-                                   int start_blob, int last_blob) {
-  int result = 0;
-  for (int x = start_blob * 2; x <= last_blob * 2; x++)
-    result += width_record->widths[x];
-  return result;
 }
 
 float AssociateUtils::FixedPitchWidthCost(float norm_width,

@@ -20,7 +20,9 @@
 #ifndef TESSERACT_CCMAIN_THRESHOLDER_H__
 #define TESSERACT_CCMAIN_THRESHOLDER_H__
 
-class IMAGE;
+#include "platform.h"
+#include "publictypes.h"
+
 struct Pix;
 
 namespace tesseract {
@@ -31,7 +33,7 @@ namespace tesseract {
 /// Each instance deals with a single image, but the design is intended to
 /// be useful for multiple calls to SetRectangle and ThresholdTo* if
 /// desired.
-class ImageThresholder {
+class TESS_API ImageThresholder {
  public:
   ImageThresholder();
   virtual ~ImageThresholder();
@@ -42,10 +44,8 @@ class ImageThresholder {
   /// Return true if no image has been set.
   bool IsEmpty() const;
 
-  /// SetImage makes a copy of only the metadata, not the underlying
-  /// image buffer. It promises to treat the source as read-only in either case,
-  /// but in return assumes that the Pix or image buffer remain valid
-  /// throughout the life of the ImageThresholder.
+  /// SetImage makes a copy of all the image data, so it may be deleted
+  /// immediately after this call.
   /// Greyscale of 8 and color of 24 or 32 bits per pixel may be given.
   /// Palette color images will not work properly and must be converted to
   /// 24 bit.
@@ -68,12 +68,12 @@ class ImageThresholder {
 
   /// Return true if the source image is color.
   bool IsColor() const {
-    return image_bytespp_ >= 3;
+    return pix_channels_ >= 3;
   }
 
   /// Returns true if the source image is binary.
   bool IsBinary() const {
-    return image_bytespp_ == 0;
+    return pix_channels_ == 0;
   }
 
   int GetScaleFactor() const {
@@ -107,20 +107,26 @@ class ImageThresholder {
     return scale_ * estimated_res_;
   }
 
-  /// Pix vs raw, which to use?
-  /// Implementations should provide the ability to source and target Pix
-  /// where possible. A future version of Tesseract may choose to use Pix
-  /// as its internal representation and discard IMAGE altogether.
-  /// Because of that, an implementation that sources and targets Pix may end up
-  /// with less copies than an implementation that does not.
-  /// NOTE: Opposite to SetImage for raw images, SetImage for Pix clones its
-  /// input, so the source pix may be pixDestroyed immediately after.
+  /// Pix vs raw, which to use? Pix is the preferred input for efficiency,
+  /// since raw buffers are copied.
+  /// SetImage for Pix clones its input, so the source pix may be pixDestroyed
+  /// immediately after, but may not go away until after the Thresholder has
+  /// finished with it.
   void SetImage(const Pix* pix);
 
   /// Threshold the source image as efficiently as possible to the output Pix.
   /// Creates a Pix and sets pix to point to the resulting pointer.
   /// Caller must use pixDestroy to free the created Pix.
-  virtual void ThresholdToPix(Pix** pix);
+  virtual void ThresholdToPix(PageSegMode pageseg_mode, Pix** pix);
+
+  // Gets a pix that contains an 8 bit threshold value at each pixel. The
+  // returned pix may be an integer reduction of the binary image such that
+  // the scale factor may be inferred from the ratio of the sizes, even down
+  // to the extreme of a 1x1 pixel thresholds image.
+  // Ideally the 8 bit threshold should be the exact threshold used to generate
+  // the binary image in ThresholdToPix, but this is not a hard constraint.
+  // Returns NULL if the input is binary. PixDestroy after use.
+  virtual Pix* GetPixRectThresholds();
 
   /// Get a clone/copy of the source image rectangle.
   /// The returned Pix must be pixDestroyed.
@@ -129,12 +135,11 @@ class ImageThresholder {
   /// so there is no raw equivalent.
   Pix* GetPixRect();
 
-  /// Get a clone/copy of the source image rectangle, reduced to greyscale.
-  /// The returned Pix must be pixDestroyed.
-  /// This function will be used in the future by the page layout analysis, and
-  /// the layout analysis that uses it will only be available with Leptonica,
-  /// so there is no raw equivalent.
-  Pix* GetPixRectGrey();
+  // Get a clone/copy of the source image rectangle, reduced to greyscale,
+  // and at the same resolution as the output binary.
+  // The returned Pix must be pixDestroyed.
+  // Provided to the classifier to extract features from the greyscale image.
+  virtual Pix* GetPixRectGrey();
 
  protected:
   // ----------------------------------------------------------------------
@@ -149,33 +154,26 @@ class ImageThresholder {
            rect_width_ == image_width_ && rect_height_ == image_height_;
   }
 
-  /// Otsu threshold the rectangle, taking everything except the image buffer
-  /// pointer from the class, to the output Pix.
-  void OtsuThresholdRectToPix(const unsigned char* imagedata,
-                              int bytes_per_pixel, int bytes_per_line,
-                              Pix** pix) const;
+  // Otsu thresholds the rectangle, taking the rectangle from *this.
+  void OtsuThresholdRectToPix(Pix* src_pix, Pix** out_pix) const;
 
-  /// Threshold the rectangle, taking everything except the image buffer pointer
-  /// from the class, using thresholds/hi_values to the output IMAGE.
-  void ThresholdRectToPix(const unsigned char* imagedata,
-                          int bytes_per_pixel, int bytes_per_line,
+  /// Threshold the rectangle, taking everything except the src_pix
+  /// from the class, using thresholds/hi_values to the output pix.
+  /// NOTE that num_channels is the size of the thresholds and hi_values
+  // arrays and also the bytes per pixel in src_pix.
+  void ThresholdRectToPix(Pix* src_pix, int num_channels,
                           const int* thresholds, const int* hi_values,
                           Pix** pix) const;
-
-  /// Copy the raw image rectangle, taking all data from the class, to the Pix.
-  void RawRectToPix(Pix** pix) const;
 
  protected:
   /// Clone or other copy of the source Pix.
   /// The pix will always be PixDestroy()ed on destruction of the class.
   Pix*                 pix_;
-  /// Exactly one of pix_ and image_data_ is not NULL.
-  const unsigned char* image_data_;     //< Raw source image.
 
-  int                  image_width_;    //< Width of source image/pix.
-  int                  image_height_;   //< Height of source image/pix.
-  int                  image_bytespp_;  //< Bytes per pixel of source image/pix.
-  int                  image_bytespl_;  //< Bytes per line of source image/pix.
+  int                  image_width_;    //< Width of source pix_.
+  int                  image_height_;   //< Height of source pix_.
+  int                  pix_channels_;   //< Number of 8-bit channels in pix_.
+  int                  pix_wpl_;        //< Words per line of pix_.
   // Limits of image rectangle to be processed.
   int                  scale_;          //< Scale factor from original image.
   int                  yres_;           //< y pixels/inch in source image.

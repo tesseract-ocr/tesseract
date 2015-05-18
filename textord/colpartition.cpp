@@ -18,6 +18,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef _MSC_VER
+#pragma warning(disable:4244)  // Conversion warnings
+#endif
+
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "colpartition.h"
 #include "colpartitiongrid.h"
 #include "colpartitionset.h"
@@ -25,10 +33,6 @@
 #include "dppoint.h"
 #include "imagefind.h"
 #include "workingpartset.h"
-
-#ifdef _MSC_VER
-#pragma warning(disable:4244)  // Conversion warnings
-#endif
 
 namespace tesseract {
 
@@ -310,8 +314,8 @@ void ColPartition::DeleteBoxes() {
 // this function is assumed to be used shortly after initial creation, which
 // is before a lot of the members are used.
 void ColPartition::ReflectInYAxis() {
-  ColPartition_CLIST reversed_boxes;
-  ColPartition_C_IT reversed_it(&reversed_boxes);
+  BLOBNBOX_CLIST reversed_boxes;
+  BLOBNBOX_C_IT reversed_it(&reversed_boxes);
   // Reverse the order of the boxes_.
   BLOBNBOX_C_IT bb_it(&boxes_);
   for (bb_it.mark_cycle_pt(); !bb_it.cycled_list(); bb_it.forward()) {
@@ -961,6 +965,7 @@ void ColPartition::SetPartitionType(int resolution, ColPartitionSet* columns) {
   ColumnSpanningType span_type =
       columns->SpanningType(resolution,
                             bounding_box_.left(), bounding_box_.right(),
+                            MIN(bounding_box_.height(), bounding_box_.width()),
                             MidY(), left_margin_, right_margin_,
                             &first_column_, &last_column_,
                             &first_spanned_col);
@@ -1044,6 +1049,7 @@ void ColPartition::ColumnRange(int resolution, ColPartitionSet* columns,
   ColumnSpanningType span_type =
       columns->SpanningType(resolution,
                             bounding_box_.left(), bounding_box_.right(),
+                            MIN(bounding_box_.height(), bounding_box_.width()),
                             MidY(), left_margin_, right_margin_,
                             first_col, last_col,
                             &first_spanned_col);
@@ -1361,8 +1367,7 @@ void ColPartition::AddToWorkingSet(const ICOORD& bleft, const ICOORD& tright,
   work_set = it.data();
   // If last_column_ != first_column, then we need to scoop up all blocks
   // between here and the last_column_ and put back in work_set.
-  if (!it.cycled_list() && last_column_ != first_column_ &&
-      !IsPulloutType()) {
+  if (!it.cycled_list() && last_column_ != first_column_ && !IsPulloutType()) {
     // Find the column that the right edge falls in.
     BLOCK_LIST completed_blocks;
     TO_BLOCK_LIST to_blocks;
@@ -1913,7 +1918,7 @@ void ColPartition::RefinePartnersByType(bool upper,
   }
   ColPartition_C_IT it(partners);
   // Purify text by type.
-  if (!IsImageType()) {
+  if (!IsImageType() && !IsLineType() && type() != PT_TABLE) {
     // Keep only partners matching type_.
     // Exception: PT_VERTICAL_TEXT is allowed to stay with the other
     // text types if it is the only partner.

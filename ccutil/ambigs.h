@@ -123,7 +123,10 @@ class AmbigSpec : public ELIST_LINK {
       *reinterpret_cast<const AmbigSpec * const *>(spec1);
     const AmbigSpec *s2 =
       *reinterpret_cast<const AmbigSpec * const *>(spec2);
-    return UnicharIdArrayUtils::compare(s1->wrong_ngram, s2->wrong_ngram);
+    int result = UnicharIdArrayUtils::compare(s1->wrong_ngram, s2->wrong_ngram);
+    if (result != 0) return result;
+    return UnicharIdArrayUtils::compare(s1->correct_fragments,
+                                        s2->correct_fragments);
   }
 
   UNICHAR_ID wrong_ngram[MAX_AMBIG_SIZE + 1];
@@ -150,6 +153,13 @@ class UnicharAmbigs {
   const UnicharAmbigsVector &dang_ambigs() const { return dang_ambigs_; }
   const UnicharAmbigsVector &replace_ambigs() const { return replace_ambigs_; }
 
+  // Initializes the ambigs by adding a NULL pointer to each table.
+  void InitUnicharAmbigs(const UNICHARSET& unicharset,
+                         bool use_ambigs_for_adaption);
+
+  // Loads the universal ambigs that are useful for any language.
+  void LoadUniversal(const UNICHARSET& encoder_set, UNICHARSET* unicharset);
+
   // Fills in two ambiguity tables (replaceable and dangerous) with information
   // read from the ambigs file. An ambiguity table is an array of lists.
   // The array is indexed by a class id. Each entry in the table provides
@@ -160,7 +170,10 @@ class UnicharAmbigs {
   // one_to_one_definite_ambigs_. This vector is also indexed by the class id
   // of the wrong part of the ambiguity and each entry contains a vector of
   // unichar ids that are ambiguous to it.
-  void LoadUnicharAmbigs(FILE *ambigs_file, inT64 end_offset, int debug_level,
+  // encoder_set is used to encode the ambiguity strings, undisturbed by new
+  // unichar_ids that may be created by adding the ambigs.
+  void LoadUnicharAmbigs(const UNICHARSET& encoder_set,
+                         TFile *ambigs_file, int debug_level,
                          bool use_ambigs_for_adaption, UNICHARSET *unicharset);
 
   // Returns definite 1-1 ambigs for the given unichar id.
@@ -191,17 +204,18 @@ class UnicharAmbigs {
   }
 
  private:
-
   bool ParseAmbiguityLine(int line_num, int version, int debug_level,
                           const UNICHARSET &unicharset, char *buffer,
-                          int *TestAmbigPartSize, UNICHAR_ID *TestUnicharIds,
-                          int *ReplacementAmbigPartSize,
-                          char *ReplacementString, int *type);
-  void InsertIntoTable(UnicharAmbigsVector &table,
-                       int TestAmbigPartSize, UNICHAR_ID *TestUnicharIds,
-                       int ReplacementAmbigPartSize,
-                       const char *ReplacementString, int type,
+                          int *test_ambig_part_size,
+                          UNICHAR_ID *test_unichar_ids,
+                          int *replacement_ambig_part_size,
+                          char *replacement_string, int *type);
+  bool InsertIntoTable(UnicharAmbigsVector &table,
+                       int test_ambig_part_size, UNICHAR_ID *test_unichar_ids,
+                       int replacement_ambig_part_size,
+                       const char *replacement_string, int type,
                        AmbigSpec *ambig_spec, UNICHARSET *unicharset);
+
   UnicharAmbigsVector dang_ambigs_;
   UnicharAmbigsVector replace_ambigs_;
   GenericVector<UnicharIdVector *> one_to_one_definite_ambigs_;

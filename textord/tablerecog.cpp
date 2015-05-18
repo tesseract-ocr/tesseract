@@ -20,6 +20,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "tablerecog.h"
 
 namespace tesseract {
@@ -276,7 +280,11 @@ double StructuredTable::CalculateCellFilledPercentage(int row, int column) {
     if (text->IsTextType())
       area_covered += text->bounding_box().intersection(kCellBox).area();
   }
-  return MIN(1.0, area_covered / kCellBox.area());
+  const inT32 current_area = kCellBox.area();
+  if (current_area == 0) {
+    return 1.0;
+  }
+  return MIN(1.0, area_covered / current_area);
 }
 
 void StructuredTable::Display(ScrollView* window, ScrollView::Color color) {

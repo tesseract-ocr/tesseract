@@ -25,7 +25,6 @@
 #include          "ocrblock.h"
 #include          "blobs.h"
 #include          "blobbox.h"
-#include          "notdll.h"
 
 struct Pix;
 namespace tesseract {

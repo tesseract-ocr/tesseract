@@ -17,30 +17,21 @@
 *
 **********************************************************************/
 
-// #define USE_VLD //Uncomment for Visual Leak Detector.
-#if (defined _MSC_VER && defined USE_VLD)
-#include "mfcpch.h"
-#include <vld.h>
-#endif
-
 // Include automatically generated configuration file if running autoconf
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
-#ifdef USING_GETTEXT
-#include <libintl.h>
-#include <locale.h>
-#define _(x) gettext(x)
-#else
-#define _(x) (x)
-#endif
+
+#include <iostream>
 
 #include "allheaders.h"
 #include "baseapi.h"
 #include "basedir.h"
+#include "renderer.h"
 #include "strngs.h"
-#include "tesseractmain.h"
 #include "tprintf.h"
+#include "openclwrapper.h"
+#include "osdetect.h"
 
 /**********************************************************************
  *  main()
@@ -48,11 +39,6 @@
  **********************************************************************/
 
 int main(int argc, char **argv) {
-#ifdef USING_GETTEXT
-  setlocale (LC_ALL, "");
-  bindtextdomain (PACKAGE, LOCALEDIR);
-  textdomain (PACKAGE);
-#endif
   if ((argc == 2 && strcmp(argv[1], "-v") == 0) ||
       (argc == 2 && strcmp(argv[1], "--version") == 0)) {
     char *versionStrP;
@@ -67,23 +53,61 @@ int main(int argc, char **argv) {
     fprintf(stderr, "  %s\n", versionStrP);
     lept_free(versionStrP);
 
+#ifdef USE_OPENCL
+    cl_platform_id platform;
+    cl_uint num_platforms;
+    cl_device_id devices[2];
+    cl_uint num_devices;
+    char info[256];
+    int i;
+
+    fprintf(stderr, " OpenCL info:\n");
+    clGetPlatformIDs(1, &platform, &num_platforms);
+    fprintf(stderr, "  Found %d platforms.\n", num_platforms);
+    clGetPlatformInfo(platform, CL_PLATFORM_NAME, 256, info, 0);
+    fprintf(stderr, "  Platform name: %s.\n", info);
+    clGetPlatformInfo(platform, CL_PLATFORM_VERSION, 256, info, 0);
+    fprintf(stderr, "  Version: %s.\n", info);
+    clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 2, devices, &num_devices);
+    fprintf(stderr, "  Found %d devices.\n", num_devices);
+    for (i = 0; i < num_devices; ++i) {
+      clGetDeviceInfo(devices[i], CL_DEVICE_NAME, 256, info, 0);
+      fprintf(stderr, "    Device %d name: %s.\n", i+1, info);
+    }
+#endif
     exit(0);
   }
 
   // Make the order of args a bit more forgiving than it used to be.
   const char* lang = "eng";
   const char* image = NULL;
-  const char* output = NULL;
+  const char* outputbase = NULL;
+  const char* datapath = NULL;
   bool noocr = false;
   bool list_langs = false;
   bool print_parameters = false;
+  GenericVector<STRING> vars_vec, vars_values;
 
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
   int arg = 1;
-  while (arg < argc && (output == NULL || argv[arg][0] == '-')) {
+  while (arg < argc && (outputbase == NULL || argv[arg][0] == '-')) {
     if (strcmp(argv[arg], "-l") == 0 && arg + 1 < argc) {
       lang = argv[arg + 1];
       ++arg;
+    } else if (strcmp(argv[arg], "--tessdata-dir") == 0 && arg + 1 < argc) {
+      datapath = argv[arg + 1];
+      ++arg;
+    } else if (strcmp(argv[arg], "--user-words") == 0 && arg + 1 < argc) {
+      vars_vec.push_back("user_words_file");
+      vars_values.push_back(argv[arg + 1]);
+      ++arg;
+    } else if (strcmp(argv[arg], "--user-patterns") == 0 && arg + 1 < argc) {
+      vars_vec.push_back("user_patterns_file");
+      vars_values.push_back(argv[arg + 1]);
+      ++arg;
+    } else if (strcmp(argv[arg], "--list-langs") == 0) {
+      noocr = true;
+      list_langs = true;
     } else if (strcmp(argv[arg], "-psm") == 0 && arg + 1 < argc) {
       pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[arg + 1]));
       ++arg;
@@ -95,8 +119,8 @@ int main(int argc, char **argv) {
       ++arg;
     } else if (image == NULL) {
       image = argv[arg];
-    } else if (output == NULL) {
-      output = argv[arg];
+    } else if (outputbase == NULL) {
+      outputbase = argv[arg];
     }
     ++arg;
   }
@@ -106,45 +130,58 @@ int main(int argc, char **argv) {
     noocr = true;
   }
 
-  if (output == NULL && noocr == false) {
-    fprintf(stderr, _("Usage:%s imagename outputbase|stdout [-l lang] "
-                      "[-psm pagesegmode] [-c configvar=value] "
-                      "[configfile...]\n\n"), argv[0]);
+  if (outputbase == NULL && noocr == false) {
+    fprintf(stderr, "Usage:\n  %s imagename|stdin outputbase|stdout "
+            "[options...] [configfile...]\n\n", argv[0]);
+
+    fprintf(stderr, "OCR options:\n");
+    fprintf(stderr, "  --tessdata-dir /path\tspecify the location of tessdata"
+                      " path\n");
+    fprintf(stderr, "  --user-words /path/to/file\tspecify the location of user"
+            " words file\n");
+    fprintf(stderr, "  --user-patterns /path/to/file\tspecify the location of"
+            " user patterns file\n");
+    fprintf(stderr, "  -l lang[+lang]\tspecify language(s) used for OCR\n");
+    fprintf(stderr, "  -c configvar=value\tset value for control parameter.\n"
+                      "\t\t\tMultiple -c arguments are allowed.\n");
+    fprintf(stderr, "  -psm pagesegmode\tspecify page segmentation mode.\n");
+    fprintf(stderr, "These options must occur before any configfile.\n\n");
     fprintf(stderr,
-            _("pagesegmode values are:\n"
-              "0 = Orientation and script detection (OSD) only.\n"
-              "1 = Automatic page segmentation with OSD.\n"
-              "2 = Automatic page segmentation, but no OSD, or OCR\n"
-              "3 = Fully automatic page segmentation, but no OSD. (Default)\n"
-              "4 = Assume a single column of text of variable sizes.\n"
-              "5 = Assume a single uniform block of vertically aligned text.\n"
-              "6 = Assume a single uniform block of text.\n"
-              "7 = Treat the image as a single text line.\n"
-              "8 = Treat the image as a single word.\n"
-              "9 = Treat the image as a single word in a circle.\n"
-              "10 = Treat the image as a single character.\n"));
-    fprintf(stderr, _("multiple -c arguments are allowed.\n"));
-    fprintf(stderr, _("-l lang, -psm pagesegmode and any -c options must occur"
-                      "before any configfile.\n\n"));
-    fprintf(stderr, _("Single options:\n"));
-    fprintf(stderr, _("  -v --version: version info\n"));
-    fprintf(stderr, _("  --list-langs: list available languages for tesseract "
-                      "engine\n"));
-    fprintf(stderr, _("  --print-parameters: print tesseract parameters to the "
-                      "stdout\n"));
+            "pagesegmode values are:\n"
+            "  0 = Orientation and script detection (OSD) only.\n"
+            "  1 = Automatic page segmentation with OSD.\n"
+            "  2 = Automatic page segmentation, but no OSD, or OCR\n"
+            "  3 = Fully automatic page segmentation, but no OSD. (Default)\n"
+            "  4 = Assume a single column of text of variable sizes.\n"
+            "  5 = Assume a single uniform block of vertically aligned text.\n"
+            "  6 = Assume a single uniform block of text.\n"
+            "  7 = Treat the image as a single text line.\n"
+            "  8 = Treat the image as a single word.\n"
+            "  9 = Treat the image as a single word in a circle.\n"
+            "  10 = Treat the image as a single character.\n\n");
+    fprintf(stderr, "Single options:\n");
+    fprintf(stderr, "  -v --version: version info\n");
+    fprintf(stderr, "  --list-langs: list available languages for tesseract "
+                      "engine. Can be used with --tessdata-dir.\n");
+    fprintf(stderr, "  --print-parameters: print tesseract parameters to the "
+                      "stdout.\n");
     exit(1);
   }
 
+  if (outputbase != NULL && strcmp(outputbase, "-") &&
+      strcmp(outputbase, "stdout")) {
+    tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
+           tesseract::TessBaseAPI::Version());
+  }
+  PERF_COUNT_START("Tesseract:main")
   tesseract::TessBaseAPI api;
 
-  STRING tessdata_dir;
-  truncate_path(argv[0], &tessdata_dir);
-  api.SetOutputName(output);
-  int rc = api.Init(tessdata_dir.string(), lang, tesseract::OEM_DEFAULT,
-                &(argv[arg]), argc - arg, NULL, NULL, false);
+  api.SetOutputName(outputbase);
+  int rc = api.Init(datapath, lang, tesseract::OEM_DEFAULT,
+                &(argv[arg]), argc - arg, &vars_vec, &vars_values, false);
 
   if (rc) {
-    fprintf(stderr, _("Could not initialize tesseract.\n"));
+    fprintf(stderr, "Could not initialize tesseract.\n");
     exit(1);
   }
 
@@ -152,13 +189,18 @@ int main(int argc, char **argv) {
   for (arg = 0; arg < argc; arg++) {
     if (strcmp(argv[arg], "-c") == 0 && arg + 1 < argc) {
       strncpy(opt1, argv[arg + 1], 255);
-      *(strchr(opt1, '=')) = 0;
+      char *p = strchr(opt1, '=');
+      if (!p) {
+        fprintf(stderr, "Missing = in configvar assignment\n");
+        exit(1);
+      }
+      *p = 0;
       strncpy(opt2, strchr(argv[arg + 1], '=') + 1, 255);
       opt2[254] = 0;
       ++arg;
 
-      if(!api.SetVariable(opt1, opt2)) {
-        fprintf(stderr, _("Could not set option: %s=%s\n"), opt1, opt2);
+      if (!api.SetVariable(opt1, opt2)) {
+        fprintf(stderr, "Could not set option: %s=%s\n", opt1, opt2);
       }
     }
   }
@@ -166,7 +208,7 @@ int main(int argc, char **argv) {
   if (list_langs) {
      GenericVector<STRING> languages;
      api.GetAvailableLanguagesAsVector(&languages);
-     fprintf(stderr, _("List of available languages (%d):\n"),
+     fprintf(stderr, "List of available languages (%d):\n",
              languages.size());
      for (int index = 0; index < languages.size(); ++index) {
        STRING& string = languages[index];
@@ -178,7 +220,7 @@ int main(int argc, char **argv) {
 
   if (print_parameters) {
      FILE* fout = stdout;
-     fprintf(stdout, _("Tesseract parameters:\n"));
+     fprintf(stdout, "Tesseract parameters:\n");
      api.PrintVariables(fout);
      api.End();
      exit(0);
@@ -197,200 +239,84 @@ int main(int argc, char **argv) {
   // It would be simpler if we could set the value before Init,
   // but that doesn't work.
   if (api.GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
-    api.SetPageSegMode(pagesegmode);
-  tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
-           tesseract::TessBaseAPI::Version());
+     api.SetPageSegMode(pagesegmode);
 
+  if (pagesegmode == tesseract::PSM_AUTO_ONLY ||
+      pagesegmode == tesseract::PSM_OSD_ONLY) {
+    int ret_val = 0;
 
-  FILE* fin = fopen(image, "rb");
-  if (fin == NULL) {
-    fprintf(stderr, _("Cannot open input file: %s\n"), image);
-    exit(2);
-  }
-  fclose(fin);
-
-  PIX   *pixs;
-  if ((pixs = pixRead(image)) == NULL) {
-    fprintf(stderr, _("Unsupported image type.\n"));
-    exit(3);
-  }
-  pixDestroy(&pixs);
-
-  bool output_hocr = false;
-  api.GetBoolVariable("tessedit_create_hocr", &output_hocr);
-  bool output_box = false;
-  api.GetBoolVariable("tessedit_create_boxfile", &output_box);
-
-  FILE* fout = stdout;
-  if (strcmp(output, "-") && strcmp(output, "stdout")) {
-    STRING outfile = output;
-    outfile += output_hocr ? ".html" : output_box ? ".box" : ".txt";
-    fout = fopen(outfile.string(), "wb");
-    if (fout == NULL) {
-      fprintf(stderr, _("Cannot create output file %s\n"), outfile.string());
-      exit(1);
+    Pix* pixs = pixRead(image);
+    if (!pixs) {
+      fprintf(stderr, "Cannot open input file: %s\n", image);
+      exit(2);
     }
+    api.SetImage(pixs);
+
+    if (pagesegmode == tesseract::PSM_OSD_ONLY) {
+       OSResults osr;
+       if (api.DetectOS(&osr)) {
+         int orient = osr.best_result.orientation_id;
+         int script_id = osr.get_best_script(orient);
+         float orient_oco = osr.best_result.oconfidence;
+         float orient_sco = osr.best_result.sconfidence;
+         tprintf("Orientation: %d\nOrientation in degrees: %d\n" \
+                 "Orientation confidence: %.2f\n" \
+                 "Script: %d\nScript confidence: %.2f\n",
+                 orient, OrientationIdToValue(orient), orient_oco,
+                 script_id, orient_sco);
+       } else {
+         ret_val = 1;
+       }
+    } else {
+       tesseract::Orientation orientation;
+       tesseract::WritingDirection direction;
+       tesseract::TextlineOrder order;
+       float deskew_angle;
+       tesseract::PageIterator* it =  api.AnalyseLayout();
+       if (it) {
+         it->Orientation(&orientation, &direction, &order, &deskew_angle);
+         tprintf("Orientation: %d\nWritingDirection: %d\nTextlineOrder: %d\n" \
+                 "Deskew angle: %.4f\n",
+                 orientation, direction, order, deskew_angle);
+       } else {
+         ret_val = 1;
+       }
+       delete it;
+    }
+    pixDestroy(&pixs);
+    exit(ret_val);
   }
 
-  STRING text_out;
-  if (!api.ProcessPages(image, NULL, 0, &text_out)) {
-    fprintf(stderr, _("Error during processing.\n"));
-    if (fout != stdout)
-      fclose(fout);
-	exit(1);
+  tesseract::TessResultRenderer* renderer = NULL;
+  bool b;
+  api.GetBoolVariable("tessedit_create_hocr", &b);
+  if (b) {
+    bool font_info;
+    api.GetBoolVariable("hocr_font_info", &font_info);
+    renderer = new tesseract::TessHOcrRenderer(outputbase, font_info);
   }
 
-  fwrite(text_out.string(), 1, text_out.length(), fout);
-  if (fout != stdout)
-    fclose(fout);
-  else
-    clearerr(fout);
+  api.GetBoolVariable("tessedit_create_pdf", &b);
+  if (b && renderer == NULL)
+    renderer = new tesseract::TessPDFRenderer(outputbase, api.GetDatapath());
 
+  api.GetBoolVariable("tessedit_write_unlv", &b);
+  if (b && renderer == NULL)
+    renderer = new tesseract::TessUnlvRenderer(outputbase);
+
+  api.GetBoolVariable("tessedit_create_boxfile", &b);
+  if (b && renderer == NULL)
+    renderer = new tesseract::TessBoxTextRenderer(outputbase);
+
+  if (renderer == NULL)
+    renderer = new tesseract::TessTextRenderer(outputbase);
+
+  if (!api.ProcessPages(image, NULL, 0, renderer)) {
+    delete renderer;
+    fprintf(stderr, "Error during processing.\n");
+    exit(1);
+  }
+  delete renderer;
+  PERF_COUNT_END
   return 0;                      // Normal exit
 }
-
-#ifdef _WIN32
-
-char szAppName[] = "Tesseract";   //app name
-int initialized = 0;
-
-/**********************************************************************
-* WinMain
-*
-* Main function for a windows program.
-**********************************************************************/
-
-int WINAPI WinMain(  //main for windows //command line
-        HINSTANCE hInstance,
-        HINSTANCE hPrevInstance,
-        LPSTR lpszCmdLine,
-        int nCmdShow) {
-  WNDCLASS wc;
-  HWND hwnd;
-  MSG msg;
-
-  char **argv;
-  char *argsin[2];
-  int argc;
-  int exit_code;
-
-  wc.style = CS_NOCLOSE | CS_OWNDC;
-  wc.lpfnWndProc = (WNDPROC) WndProc;
-  wc.cbClsExtra = 0;
-  wc.cbWndExtra = 0;
-  wc.hInstance = hInstance;
-  wc.hIcon = NULL;         //LoadIcon (NULL, IDI_APPLICATION);
-  wc.hCursor = NULL;       //LoadCursor (NULL, IDC_ARROW);
-  wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
-  wc.lpszMenuName = NULL;
-  wc.lpszClassName = szAppName;
-
-  RegisterClass(&wc);
-
-  hwnd = CreateWindow (szAppName, szAppName,
-                       WS_OVERLAPPEDWINDOW | WS_DISABLED,
-                       CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-                       CW_USEDEFAULT, HWND_DESKTOP, NULL, hInstance, NULL);
-
-  argsin[0] = strdup (szAppName);
-  argsin[1] = strdup (lpszCmdLine);
-  /*allocate memory for the args. There can never be more than half*/
-  /*the total number of characters in the arguments.*/
-  argv = (char **)malloc(((strlen(argsin[0]) + strlen(argsin[1])) / 2 + 1) *
-                         sizeof(char *));
-
-  /*now construct argv as it should be for C.*/
-  argc = parse_args (2, argsin, argv);
-
-  //  ShowWindow (hwnd, nCmdShow);
-  //  UpdateWindow (hwnd);
-
-  if (initialized) {
-    exit_code = main (argc, argv);
-    free (argsin[0]);
-    free (argsin[1]);
-    free(argv);
-    return exit_code;
-  }
-  while (GetMessage (&msg, NULL, 0, 0)) {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-    if (initialized) {
-      exit_code = main (argc, argv);
-      break;
-    }
-    else
-      exit_code = msg.wParam;
-  }
-  free (argsin[0]);
-  free (argsin[1]);
-  free(argv);
-  return exit_code;
-}
-
-
-/**********************************************************************
-* WndProc
-*
-* Function to respond to messages.
-**********************************************************************/
-
-LONG WINAPI WndProc(            //message handler
-        HWND hwnd,              //window with message
-        UINT msg,               //message typ
-        WPARAM wParam,
-        LPARAM lParam) {
-  HDC hdc;
-
-  if (msg == WM_CREATE) {
-    //
-    // Create a rendering context.
-    //
-    hdc = GetDC (hwnd);
-    ReleaseDC(hwnd, hdc);
-    initialized = 1;
-    return 0;
-  }
-  return DefWindowProc (hwnd, msg, wParam, lParam);
-}
-
-
-/**********************************************************************
-* parse_args
-*
-* Turn a list of args into a new list of args with each separate
-* whitespace spaced string being an arg.
-**********************************************************************/
-
-int
-parse_args (                     /*refine arg list */
-        int argc,                /*no of input args */
-        char *argv[],            /*input args */
-        char *arglist[]          /*output args */
-        ) {
-  int argcount;            /*converted argc */
-  char *testchar;          /*char in option string */
-  int arg;                 /*current argument */
-
-  argcount = 0;            /*no of options */
-  for (arg = 0; arg < argc; arg++) {
-    testchar = argv[arg]; /*start of arg */
-    do {
-      while (*testchar
-             && (*testchar == ' ' || *testchar == '\n'
-                 || *testchar == '\t'))
-        testchar++; /*skip white space */
-      if (*testchar) {
-        /*new arg */
-        arglist[argcount++] = testchar;
-        /*skip to white space */
-        for (testchar++; *testchar && *testchar != ' ' && *testchar != '\n' && *testchar != '\t'; testchar++) ;
-        if (*testchar)
-          *testchar++ = '\0'; /*turn to separate args */
-      }
-    }
-    while (*testchar);
-  }
-  return argcount;         /*new number of args */
-}
-#endif

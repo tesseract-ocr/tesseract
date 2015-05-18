@@ -11,9 +11,15 @@
 package com.google.scrollview.events;
 
 import com.google.scrollview.ScrollView;
-import com.google.scrollview.ui.SVWindow;
 import com.google.scrollview.events.SVEvent;
 import com.google.scrollview.events.SVEventType;
+import com.google.scrollview.ui.SVWindow;
+
+import org.piccolo2d.PCamera;
+import org.piccolo2d.PNode;
+import org.piccolo2d.event.PBasicInputEventHandler;
+import org.piccolo2d.event.PInputEvent;
+import org.piccolo2d.nodes.PPath;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -24,12 +30,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.Timer;
-
-import edu.umd.cs.piccolo.PCamera;
-import edu.umd.cs.piccolo.PNode;
-import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
-import edu.umd.cs.piccolo.event.PInputEvent;
-import edu.umd.cs.piccolo.nodes.PPath;
 
 /**
  * The ScrollViewEventHandler takes care of any events which might happen on the
@@ -173,6 +173,7 @@ public class SVEventHandler extends PBasicInputEventHandler implements
     }
     if (selection != null) {
       svWindow.canvas.getLayer().removeChild(selection);
+      selection = null;
     }
   }
 

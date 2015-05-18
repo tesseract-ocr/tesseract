@@ -54,15 +54,15 @@ class ParamContent : public ELIST_LINK {
   // Constructors for the various ParamTypes.
   ParamContent() {
   }
-  ParamContent(tesseract::StringParam* it);
-  ParamContent(tesseract::IntParam* it);
-  ParamContent(tesseract::BoolParam* it);
-  ParamContent(tesseract::DoubleParam* it);
+  explicit ParamContent(tesseract::StringParam* it);
+  explicit ParamContent(tesseract::IntParam* it);
+  explicit ParamContent(tesseract::BoolParam* it);
+  explicit ParamContent(tesseract::DoubleParam* it);
 
 
   // Getters and Setters.
   void SetValue(const char* val);
-  const char* GetValue() const;
+  STRING GetValue() const;
   const char* GetName() const;
   const char* GetDescription() const;
 
@@ -93,7 +93,7 @@ class ParamsEditor : public SVEventHandler {
   // Integrate the parameters editor as popupmenu into the existing scrollview
   // window (usually the pg editor). If sv == null, create a new empty
   // empty window and attach the parameter editor to that window (ugly).
-  ParamsEditor(tesseract::Tesseract*, ScrollView* sv = NULL);
+  explicit ParamsEditor(tesseract::Tesseract*, ScrollView* sv = NULL);
 
   // Event listener. Waits for SVET_POPUP events and processes them.
   void Notify(const SVEvent* sve);

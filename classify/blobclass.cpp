@@ -24,7 +24,6 @@
 #include "efio.h"
 #include "featdefs.h"
 #include "callcpp.h"
-#include "chartoname.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -49,8 +48,11 @@ extern char imagefile[];
 ----------------------------------------------------------------------------**/
 
 /*---------------------------------------------------------------------------*/
+// As all TBLOBs, Blob is in baseline normalized coords.
+// See SetupBLCNDenorms in intfx.cpp for other args.
 void LearnBlob(const FEATURE_DEFS_STRUCT &FeatureDefs, const STRING& filename,
-               TBLOB * Blob, const DENORM& denorm, const char* BlobText) {
+               TBLOB * Blob, const DENORM& bl_denorm, const DENORM& cn_denorm,
+               const INT_FX_RESULT_STRUCT& fx_info, const char* BlobText) {
 /*
  **      Parameters:
  **              Blob            blob whose micro-features are to be learned
@@ -95,18 +97,20 @@ void LearnBlob(const FEATURE_DEFS_STRUCT &FeatureDefs, const STRING& filename,
     cprintf("TRAINING ... Font name = %s\n", CurrFontName.string());
   }
 
-  LearnBlob(FeatureDefs, FeatureFile, Blob, denorm, BlobText,
-            CurrFontName.string());
+  LearnBlob(FeatureDefs, FeatureFile, Blob, bl_denorm, cn_denorm, fx_info,
+            BlobText, CurrFontName.string());
 }                                // LearnBlob
 
 void LearnBlob(const FEATURE_DEFS_STRUCT &FeatureDefs, FILE* FeatureFile,
-               TBLOB* Blob, const DENORM& denorm,
+               TBLOB* Blob, const DENORM& bl_denorm, const DENORM& cn_denorm,
+               const INT_FX_RESULT_STRUCT& fx_info,
                const char* BlobText, const char* FontName) {
   CHAR_DESC CharDesc;
 
   ASSERT_HOST(FeatureFile != NULL);
 
-  CharDesc = ExtractBlobFeatures(FeatureDefs, denorm, Blob);
+  CharDesc = ExtractBlobFeatures(FeatureDefs, bl_denorm, cn_denorm, fx_info,
+                                 Blob);
   if (CharDesc == NULL) {
     cprintf("LearnBLob: CharDesc was NULL. Aborting.\n");
     return;

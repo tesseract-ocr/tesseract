@@ -22,6 +22,10 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "imagefind.h"
 #include "colpartitiongrid.h"
 #include "linlsq.h"
@@ -29,11 +33,6 @@
 #include "statistc.h"
 #include "params.h"
 
-// This entire file is dependent upon leptonica. If you don't have it,
-// you don't get this functionality.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 #include "allheaders.h"
 
 INT_VAR(textord_tabfind_show_images, false, "Show image blobs");

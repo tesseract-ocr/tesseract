@@ -17,97 +17,166 @@
  *
  **********************************************************************/
 
-#include <string.h>
 #include "otsuthr.h"
+
+#include <string.h>
+#include "allheaders.h"
+#include "helpers.h"
+#include "openclwrapper.h"
+
 
 namespace tesseract {
 
-// Compute the Otsu threshold(s) for the given image rectangle, making one
+// Computes the Otsu threshold(s) for the given image rectangle, making one
 // for each channel. Each channel is always one byte per pixel.
 // Returns an array of threshold values and an array of hi_values, such
 // that a pixel value >threshold[channel] is considered foreground if
 // hi_values[channel] is 0 or background if 1. A hi_value of -1 indicates
 // that there is no apparent foreground. At least one hi_value will not be -1.
 // Delete thresholds and hi_values with delete [] after use.
-void OtsuThreshold(const unsigned char* imagedata,
-                   int bytes_per_pixel, int bytes_per_line,
-                   int left, int top, int width, int height,
-                   int** thresholds, int** hi_values) {
+// The return value is the number of channels in the input image, being
+// the size of the output thresholds and hi_values arrays.
+int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
+                  int** thresholds, int** hi_values) {
+  int num_channels = pixGetDepth(src_pix) / 8;
   // Of all channels with no good hi_value, keep the best so we can always
   // produce at least one answer.
+  PERF_COUNT_START("OtsuThreshold")
   int best_hi_value = 1;
   int best_hi_index = 0;
   bool any_good_hivalue = false;
   double best_hi_dist = 0.0;
-  *thresholds = new int[bytes_per_pixel];
-  *hi_values = new int[bytes_per_pixel];
+  *thresholds = new int[num_channels];
+  *hi_values = new int[num_channels];
+  // all of channel 0 then all of channel 1...
+  int *histogramAllChannels = new int[kHistogramSize * num_channels];
 
-  for (int ch = 0; ch < bytes_per_pixel; ++ch) {
-    (*thresholds)[ch] = -1;
-    (*hi_values)[ch] = -1;
-    // Compute the histogram of the image rectangle.
-    int histogram[kHistogramSize];
-    HistogramRect(imagedata + ch, bytes_per_pixel, bytes_per_line,
-                  left, top, width, height, histogram);
-    int H;
-    int best_omega_0;
-    int best_t = OtsuStats(histogram, &H, &best_omega_0);
-    if (best_omega_0 == 0 || best_omega_0 == H) {
-       // This channel is empty.
-       continue;
-     }
-    // To be a convincing foreground we must have a small fraction of H
-    // or to be a convincing background we must have a large fraction of H.
-    // In between we assume this channel contains no thresholding information.
-    int hi_value = best_omega_0 < H * 0.5;
-    (*thresholds)[ch] = best_t;
-    if (best_omega_0 > H * 0.75) {
-      any_good_hivalue = true;
-      (*hi_values)[ch] = 0;
-    } else if (best_omega_0 < H * 0.25) {
-      any_good_hivalue = true;
-      (*hi_values)[ch] = 1;
-    } else {
-      // In case all channels are like this, keep the best of the bad lot.
-      double hi_dist = hi_value ? (H - best_omega_0) : best_omega_0;
-      if (hi_dist > best_hi_dist) {
-        best_hi_dist = hi_dist;
-        best_hi_value = hi_value;
-        best_hi_index = ch;
+  // only use opencl if compiled w/ OpenCL and selected device is opencl
+#ifdef USE_OPENCL
+    // Calculate Histogram on GPU
+    OpenclDevice od;
+    if (od.selectedDeviceIsOpenCL() &&
+        (num_channels == 1 || num_channels == 4) && top == 0 && left == 0 ) {
+      od.HistogramRectOCL(
+          (const unsigned char*)pixGetData(src_pix),
+          num_channels,
+          pixGetWpl(src_pix) * 4,
+          left,
+          top,
+          width,
+          height,
+          kHistogramSize,
+          histogramAllChannels);
+
+    // Calculate Threshold from Histogram on cpu
+    for (int ch = 0; ch < num_channels; ++ch) {
+      (*thresholds)[ch] = -1;
+      (*hi_values)[ch] = -1;
+      int *histogram = &histogramAllChannels[kHistogramSize * ch];
+      int H;
+      int best_omega_0;
+      int best_t = OtsuStats(histogram, &H, &best_omega_0);
+      if (best_omega_0 == 0 || best_omega_0 == H) {
+         // This channel is empty.
+         continue;
+       }
+      // To be a convincing foreground we must have a small fraction of H
+      // or to be a convincing background we must have a large fraction of H.
+      // In between we assume this channel contains no thresholding information.
+      int hi_value = best_omega_0 < H * 0.5;
+      (*thresholds)[ch] = best_t;
+      if (best_omega_0 > H * 0.75) {
+        any_good_hivalue = true;
+        (*hi_values)[ch] = 0;
+      } else if (best_omega_0 < H * 0.25) {
+        any_good_hivalue = true;
+        (*hi_values)[ch] = 1;
+      } else {
+        // In case all channels are like this, keep the best of the bad lot.
+        double hi_dist = hi_value ? (H - best_omega_0) : best_omega_0;
+        if (hi_dist > best_hi_dist) {
+          best_hi_dist = hi_dist;
+          best_hi_value = hi_value;
+          best_hi_index = ch;
+        }
       }
     }
+  } else {
+#endif
+    for (int ch = 0; ch < num_channels; ++ch) {
+      (*thresholds)[ch] = -1;
+      (*hi_values)[ch] = -1;
+      // Compute the histogram of the image rectangle.
+      int histogram[kHistogramSize];
+      HistogramRect(src_pix, ch, left, top, width, height, histogram);
+      int H;
+      int best_omega_0;
+      int best_t = OtsuStats(histogram, &H, &best_omega_0);
+      if (best_omega_0 == 0 || best_omega_0 == H) {
+         // This channel is empty.
+         continue;
+       }
+      // To be a convincing foreground we must have a small fraction of H
+      // or to be a convincing background we must have a large fraction of H.
+      // In between we assume this channel contains no thresholding information.
+      int hi_value = best_omega_0 < H * 0.5;
+      (*thresholds)[ch] = best_t;
+      if (best_omega_0 > H * 0.75) {
+        any_good_hivalue = true;
+        (*hi_values)[ch] = 0;
+      } else if (best_omega_0 < H * 0.25) {
+        any_good_hivalue = true;
+        (*hi_values)[ch] = 1;
+      } else {
+        // In case all channels are like this, keep the best of the bad lot.
+        double hi_dist = hi_value ? (H - best_omega_0) : best_omega_0;
+        if (hi_dist > best_hi_dist) {
+          best_hi_dist = hi_dist;
+          best_hi_value = hi_value;
+          best_hi_index = ch;
+        }
+      }
+    }
+#ifdef USE_OPENCL
   }
+#endif  // USE_OPENCL
+  delete[] histogramAllChannels;
+
   if (!any_good_hivalue) {
     // Use the best of the ones that were not good enough.
     (*hi_values)[best_hi_index] = best_hi_value;
   }
+  PERF_COUNT_END
+  return num_channels;
 }
 
-// Compute the histogram for the given image rectangle, and the given
-// channel. (Channel pointed to by imagedata.) Each channel is always
-// one byte per pixel.
-// Bytes per pixel is used to skip channels not being
-// counted with this call in a multi-channel (pixel-major) image.
+// Computes the histogram for the given image rectangle, and the given
+// single channel. Each channel is always one byte per pixel.
 // Histogram is always a kHistogramSize(256) element array to count
 // occurrences of each pixel value.
-void HistogramRect(const unsigned char* imagedata,
-                   int bytes_per_pixel, int bytes_per_line,
+void HistogramRect(Pix* src_pix, int channel,
                    int left, int top, int width, int height,
                    int* histogram) {
+  PERF_COUNT_START("HistogramRect")
+  int num_channels = pixGetDepth(src_pix) / 8;
+  channel = ClipToRange(channel, 0, num_channels - 1);
   int bottom = top + height;
   memset(histogram, 0, sizeof(*histogram) * kHistogramSize);
-  const unsigned char* pixels = imagedata +
-                                top * bytes_per_line +
-                                left * bytes_per_pixel;
+  int src_wpl = pixGetWpl(src_pix);
+  l_uint32* srcdata = pixGetData(src_pix);
   for (int y = top; y < bottom; ++y) {
+    const l_uint32* linedata = srcdata + y * src_wpl;
     for (int x = 0; x < width; ++x) {
-      ++histogram[pixels[x * bytes_per_pixel]];
+      int pixel = GET_DATA_BYTE(const_cast<void*>(
+          reinterpret_cast<const void *>(linedata)),
+          (x + left) * num_channels + channel);
+      ++histogram[pixel];
     }
-    pixels += bytes_per_line;
   }
+  PERF_COUNT_END
 }
 
-// Compute the Otsu threshold(s) for the given histogram.
+// Computes the Otsu threshold(s) for the given histogram.
 // Also returns H = total count in histogram, and
 // omega0 = count of histogram below threshold.
 int OtsuStats(const int* histogram, int* H_out, int* omega0_out) {

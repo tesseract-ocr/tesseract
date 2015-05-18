@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "mfcpch.h"
 #include "blckerr.h"
 #include "helpers.h"
 #include "linlsq.h"
@@ -466,7 +465,7 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
       TBOX a_blob_box = a_blob->bounding_box();
       if ((not_found_box.major_overlap(a_blob_box) ||
            a_blob_box.major_overlap(not_found_box)) &&
-           not_found_box.y_overlap(a_blob_box)) {
+           not_found_box.y_overlap_fraction(a_blob_box) > 0.8) {
         // Already taken care of.
         delete not_found_it.extract();
         break;

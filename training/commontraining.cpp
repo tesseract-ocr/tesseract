@@ -13,30 +13,27 @@
 
 #include "commontraining.h"
 
-#ifndef USE_STD_NAMESPACE
-#include "base/init_google.h"
-#include "base/commandlineflags.h"
-#endif
 #include "allheaders.h"
 #include "ccutil.h"
 #include "classify.h"
-#include "oldlist.h"
-#include "globals.h"
-#include "mf.h"
-#include "clusttool.h"
 #include "cluster.h"
-#include "tessopt.h"
+#include "clusttool.h"
 #include "efio.h"
 #include "emalloc.h"
 #include "featdefs.h"
 #include "fontinfo.h"
+#include "freelist.h"
+#include "globals.h"
 #include "intfeaturespace.h"
 #include "mastertrainer.h"
-#include "tessdatamanager.h"
-#include "tprintf.h"
-#include "freelist.h"
+#include "mf.h"
+#include "ndminx.h"
+#include "oldlist.h"
 #include "params.h"
 #include "shapetable.h"
+#include "tessdatamanager.h"
+#include "tessopt.h"
+#include "tprintf.h"
 #include "unicity_table.h"
 
 #include <math.h>
@@ -48,9 +45,12 @@ using tesseract::ParamUtils;
 using tesseract::ShapeTable;
 
 // Global Variables.
+
 // global variable to hold configuration parameters to control clustering
 // -M 0.625   -B 0.05   -I 1.0   -C 1e-6.
 CLUSTERCONFIG Config = { elliptical, 0.625, 0.05, 1.0, 1e-6, 0 };
+FEATURE_DEFS_STRUCT feature_defs;
+CCUtil ccutil;
 
 INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
 INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
@@ -60,114 +60,51 @@ STRING_PARAM_FLAG(F, "font_properties", "File listing font properties");
 STRING_PARAM_FLAG(X, "", "File listing font xheights");
 STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
 STRING_PARAM_FLAG(O, "", "File to write unicharset to");
-STRING_PARAM_FLAG(input_trainer, "", "File to load trainer from");
+STRING_PARAM_FLAG(T, "", "File to load trainer from");
 STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
+DOUBLE_PARAM_FLAG(clusterconfig_min_samples_fraction, Config.MinSamples,
+                  "Min number of samples per proto as % of total");
+DOUBLE_PARAM_FLAG(clusterconfig_max_illegal, Config.MaxIllegal,
+                  "Max percentage of samples in a cluster which have more"
+                  " than 1 feature in that cluster");
+DOUBLE_PARAM_FLAG(clusterconfig_independence, Config.Independence,
+                  "Desired independence between dimensions");
+DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
+                  "Desired confidence in prototypes created");
 
-// The usage strings are different as the DEFINE_* flags are available on
-// the command line, but the *_VAR flags are set through a config file with
-// some of them available through special command-line args.
-#ifndef USE_STD_NAMESPACE
-const char* kUsage = "[flags] [ .tr files ... ]\n";
-#else
-const char* kUsage = "[-c configfile]\n"
-    "\t[-D Directory]\n"
-    "\t[-M MinSamples] [-B MaxBad] [-I Independence] [-C Confidence]\n"
-    "\t[-U InputUnicharset]\n"
-    "\t[-O OutputUnicharset]\n"
-    "\t[-F FontInfoFile]\n"
-    "\t[-X InputXHeightsFile]\n"
-    "\t[-S InputShapeTable]\n"
-    "\t[ .tr files ... ]\n";
-#endif
-
-FEATURE_DEFS_STRUCT feature_defs;
-CCUtil ccutil;
-
-/*---------------------------------------------------------------------------*/
-void ParseArguments(int* argc, char ***argv) {
 /*
  **	Parameters:
- **		argc	number of command line arguments to parse
- **		argv	command line arguments
+ **		argc    number of command line arguments to parse
+ **		argv    command line arguments
  **	Globals:
- **		ShowSignificantProtos	flag controlling proto display
- **		ShowInsignificantProtos	flag controlling proto display
- **		Config			current clustering parameters
- **		tessoptarg, tessoptind		defined by tessopt sys call
- **		Argc, Argv		global copies of argc and argv
+ **		Config  current clustering parameters
  **	Operation:
  **		This routine parses the command line arguments that were
- **		passed to the program.  The legal arguments are shown in the usage
- **		message below:
-
+ **		passed to the program and ses them to set relevant
+ **             training-related global parameters
  **	Return: none
  **	Exceptions: Illegal options terminate the program.
- **	History: 7/24/89, DSJ, Created.
  */
-#ifndef USE_STD_NAMESPACE
-  InitGoogle(kUsage, argc, argv, true);
-  tessoptind = 1;
-#else
-  int    Option;
-  int    ParametersRead;
-  BOOL8  Error;
-
-  Error = FALSE;
-  while ((Option = tessopt(*argc, *argv, "F:O:U:D:C:I:M:B:S:X:c:")) != EOF) {
-    switch (Option) {
-      case 'C':
-        ParametersRead = sscanf(tessoptarg, "%lf", &(Config.Confidence) );
-        if ( ParametersRead != 1 ) Error = TRUE;
-        else if ( Config.Confidence > 1 ) Config.Confidence = 1;
-        else if ( Config.Confidence < 0 ) Config.Confidence = 0;
-        break;
-      case 'I':
-        ParametersRead = sscanf(tessoptarg, "%f", &(Config.Independence) );
-        if ( ParametersRead != 1 ) Error = TRUE;
-        else if ( Config.Independence > 1 ) Config.Independence = 1;
-        else if ( Config.Independence < 0 ) Config.Independence = 0;
-        break;
-      case 'M':
-        ParametersRead = sscanf(tessoptarg, "%f", &(Config.MinSamples) );
-        if ( ParametersRead != 1 ) Error = TRUE;
-        else if ( Config.MinSamples > 1 ) Config.MinSamples = 1;
-        else if ( Config.MinSamples < 0 ) Config.MinSamples = 0;
-        break;
-      case 'B':
-        ParametersRead = sscanf(tessoptarg, "%f", &(Config.MaxIllegal) );
-        if ( ParametersRead != 1 ) Error = TRUE;
-        else if ( Config.MaxIllegal > 1 ) Config.MaxIllegal = 1;
-        else if ( Config.MaxIllegal < 0 ) Config.MaxIllegal = 0;
-        break;
-      case 'c':
-        FLAGS_configfile.set_value(tessoptarg);
-        break;
-      case 'D':
-        FLAGS_D.set_value(tessoptarg);
-        break;
-      case 'U':
-        FLAGS_U.set_value(tessoptarg);
-        break;
-      case 'O':
-        FLAGS_O.set_value(tessoptarg);
-        break;
-      case 'F':
-        FLAGS_F.set_value(tessoptarg);
-        break;
-      case 'X':
-        FLAGS_X.set_value(tessoptarg);
-        break;
-      case '?':
-        Error = TRUE;
-        break;
-    }
-    if (Error) {
-      fprintf(stderr, "Usage: %s %s\n", (*argv)[0], kUsage);
-      exit(2);
-    }
+void ParseArguments(int* argc, char ***argv) {
+  STRING usage;
+  if (*argc) {
+    usage += (*argv)[0];
   }
-#endif
+  usage += " [.tr files ...]";
+  tesseract::ParseCommandLineFlags(usage.c_str(), argc, argv, true);
+  // Record the index of the first non-flag argument to 1, since we set
+  // remove_flags to true when parsing the flags.
+  tessoptind = 1;
+  // Set some global values based on the flags.
+  Config.MinSamples =
+      MAX(0.0, MIN(1.0, double(FLAGS_clusterconfig_min_samples_fraction)));
+  Config.MaxIllegal =
+      MAX(0.0, MIN(1.0, double(FLAGS_clusterconfig_max_illegal)));
+  Config.Independence =
+      MAX(0.0, MIN(1.0, double(FLAGS_clusterconfig_independence)));
+  Config.Confidence =
+      MAX(0.0, MIN(1.0, double(FLAGS_clusterconfig_confidence)));
   // Set additional parameters from config file if specified.
   if (!FLAGS_configfile.empty()) {
     tesseract::ParamUtils::ReadParamsFile(
@@ -175,10 +112,9 @@ void ParseArguments(int* argc, char ***argv) {
         tesseract::SET_PARAM_CONSTRAINT_NON_INIT_ONLY,
         ccutil.params());
   }
-}  // ParseArguments
+}
 
 namespace tesseract {
-
 // Helper loads shape table from the given file.
 ShapeTable* LoadShapeTable(const STRING& file_prefix) {
   ShapeTable* shape_table = NULL;
@@ -226,7 +162,7 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table) {
 // Initializes feature_defs and IntegerFX.
 // Loads the shape_table if shape_table != NULL.
 // Loads initial unicharset from -U command-line option.
-// If FLAGS_input_trainer is set, loads the majority of data from there, else:
+// If FLAGS_T is set, loads the majority of data from there, else:
 //   Loads font info from -F option.
 //   Loads xheights from -X option.
 //   Loads samples from .tr files in remaining command-line args.
@@ -262,7 +198,9 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
                                              shape_analysis,
                                              replication,
                                              FLAGS_debug_level);
-  if (FLAGS_input_trainer.empty()) {
+  IntFeatureSpace fs;
+  fs.Init(kBoostXYBuckets, kBoostXYBuckets, kBoostDirBuckets);
+  if (FLAGS_T.empty()) {
     trainer->LoadUnicharset(FLAGS_U.c_str());
     // Get basic font information from font_properties.
     if (!FLAGS_F.empty()) {
@@ -277,16 +215,12 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
         return NULL;
       }
     }
-    IntFeatureSpace fs;
-    fs.Init(kBoostXYBuckets, kBoostXYBuckets, kBoostDirBuckets);
     trainer->SetFeatureSpace(fs);
     const char* page_name;
     // Load training data from .tr files on the command line.
     while ((page_name = GetNextFilename(argc, argv)) != NULL) {
       tprintf("Reading %s ...\n", page_name);
-      FILE* fp = Efopen(page_name, "rb");
-      trainer->ReadTrainingSamples(fp, feature_defs, false);
-      fclose(fp);
+      trainer->ReadTrainingSamples(page_name, feature_defs, false);
 
       // If there is a file with [lang].[fontname].exp[num].fontinfo present,
       // read font spacing information in to fontinfo_table.
@@ -320,11 +254,11 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
   } else {
     bool success = false;
     tprintf("Loading master trainer from file:%s\n",
-            FLAGS_input_trainer.c_str());
-    FILE* fp = fopen(FLAGS_input_trainer.c_str(), "rb");
+            FLAGS_T.c_str());
+    FILE* fp = fopen(FLAGS_T.c_str(), "rb");
     if (fp == NULL) {
       tprintf("Can't read file %s to initialize master trainer\n",
-              FLAGS_input_trainer.c_str());
+              FLAGS_T.c_str());
     } else {
       success = trainer->DeSerialize(false, fp);
       fclose(fp);
@@ -334,6 +268,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
       delete trainer;
       return NULL;
     }
+    trainer->SetFeatureSpace(fs);
   }
   trainer->PreTrainingSetup();
   if (!FLAGS_O.empty() &&

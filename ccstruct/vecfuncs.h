@@ -28,7 +28,7 @@
 #include <math.h>
 #include "blobs.h"
 
-class EDGEPT;
+struct EDGEPT;
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -42,8 +42,7 @@ class EDGEPT;
 
 #define point_diff(p,p1,p2)  \
 ((p).x = (p1).x - (p2).x,        \
-	(p).y = (p1).y - (p2).y,        \
-	(p))
+	(p).y = (p1).y - (p2).y)
 
 /**********************************************************************
  * CROSS

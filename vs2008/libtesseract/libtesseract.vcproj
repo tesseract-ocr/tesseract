@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
-	Name="libtesseract302"
+	Version="9,00"
+	Name="libtesseract303"
 	ProjectGUID="{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}"
 	RootNamespace="libtesseract"
 	TargetFrameworkVersion="196613"
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
+				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\opencl;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME=\&quot;$(TargetFileName)\&quot;"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -119,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
+				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\opencl;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME=\&quot;$(TargetFileName)\&quot;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -190,7 +190,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
+				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\opencl;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL;_WINDLL;USE_STD_NAMESPACE;TESS_EXPORTS;LIBLEPT_IMPORTS;WINDLLNAME=\&quot;$(TargetFileName)\&quot;"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -272,7 +272,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\image;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
+				AdditionalIncludeDirectories="..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\opencl;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL;_WINDLL;USE_STD_NAMESPACE;TESS_EXPORTS;LIBLEPT_IMPORTS;WINDLLNAME=\&quot;$(TargetFileName)\&quot;"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -382,10 +382,6 @@
 			</File>
 			<File
 				RelativePath="..\..\cube\beam_search.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\wordrec\bestfirst.cpp"
 				>
 			</File>
 			<File
@@ -509,10 +505,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\wordrec\closed.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccutil\clst.cpp"
 				>
 			</File>
@@ -538,10 +530,6 @@
 			</File>
 			<File
 				RelativePath="..\..\textord\colpartitionset.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\training\commontraining.cpp"
 				>
 			</File>
 			<File
@@ -773,14 +761,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ccutil\hashfn.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\wordrec\heuristic.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\cube\hybrid_neural_net_classifier.cpp"
 				>
 			</File>
@@ -789,23 +769,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\image\image.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\textord\imagefind.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgs.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccmain\imgscale.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgtiff.cpp"
 				>
 			</File>
 			<File
@@ -881,10 +845,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\wordrec\matchtab.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccstruct\matrix.cpp"
 				>
 			</File>
@@ -894,10 +854,6 @@
 			</File>
 			<File
 				RelativePath="..\..\classify\mf.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccutil\mfcpch.cpp"
 				>
 			</File>
 			<File
@@ -954,10 +910,6 @@
 			</File>
 			<File
 				RelativePath="..\..\textord\oldbasel.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cutil\oldheap.cpp"
 				>
 			</File>
 			<File
@@ -1025,10 +977,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\dict\permute.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccmain\pgedit.cpp"
 				>
 			</File>
@@ -1053,10 +1001,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\wordrec\plotseg.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccstruct\points.cpp"
 				>
 			</File>
@@ -1078,10 +1022,6 @@
 			</File>
 			<File
 				RelativePath="..\..\ccstruct\quadlsq.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccstruct\quadratc.cpp"
 				>
 			</File>
 			<File
@@ -1118,10 +1058,6 @@
 			</File>
 			<File
 				RelativePath="..\..\classify\sampleiterator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccmain\scaleimg.cpp"
 				>
 			</File>
 			<File
@@ -1165,15 +1101,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\classify\speckle.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccstruct\split.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\dict\states.cpp"
 				>
 			</File>
 			<File
@@ -1213,10 +1141,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\image\svshowim.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\viewer\svutil.cpp"
 				>
 			</File>
@@ -1245,10 +1169,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\cutil\tessarray.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccmain\tessbox.cpp"
 				>
 			</File>
@@ -1270,10 +1190,6 @@
 			</File>
 			<File
 				RelativePath="..\..\ccmain\tesseractclass.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\training\tessopt.cpp"
 				>
 			</File>
 			<File
@@ -1400,6 +1316,70 @@
 				RelativePath="..\..\classify\xform2d.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\api\renderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccmain\superscript.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccstruct\blamer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccstruct\params_training_featdef.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccutil\scanutils.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccutil\universalambigs.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\classify\shapeclassifier.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dict\dawg_cache.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\textord\baselinedetect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\wordrec\lm_consistency.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\wordrec\lm_pain_points.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\wordrec\lm_state.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\wordrec\params_model.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\api\pdfrenderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccmain\par_control.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\opencl\openclwrapper.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1439,19 +1419,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\classify\baseline.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\textord\bbgrid.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\cube\beam_search.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\wordrec\bestfirst.h"
 				>
 			</File>
 			<File
@@ -1583,10 +1555,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\wordrec\closed.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccutil\clst.h"
 				>
 			</File>
@@ -1612,10 +1580,6 @@
 			</File>
 			<File
 				RelativePath="..\..\textord\colpartitionset.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\training\commontraining.h"
 				>
 			</File>
 			<File
@@ -1879,14 +1843,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ccutil\hosthplb.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccstruct\hpddef.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccstruct\hpdsizes.h"
 				>
 			</File>
@@ -1895,35 +1851,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\image\image.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\textord\imagefind.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\img.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgerrs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccmain\imgscale.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgtiff.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\image\imgunpk.h"
 				>
 			</File>
 			<File
@@ -2015,10 +1943,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\wordrec\matchtab.h"
-				>
-			</File>
-			<File
 				RelativePath="..\port\mathfix.h"
 				>
 			</File>
@@ -2036,10 +1960,6 @@
 			</File>
 			<File
 				RelativePath="..\..\classify\mf.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccutil\mfcpch.h"
 				>
 			</File>
 			<File
@@ -2087,10 +2007,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ccutil\notdll.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccutil\nwmain.h"
 				>
 			</File>
@@ -2116,10 +2032,6 @@
 			</File>
 			<File
 				RelativePath="..\..\textord\oldbasel.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cutil\oldheap.h"
 				>
 			</File>
 			<File
@@ -2183,10 +2095,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\dict\permute.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccmain\pgedit.h"
 				>
 			</File>
@@ -2208,10 +2116,6 @@
 			</File>
 			<File
 				RelativePath="..\..\wordrec\plotedges.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\wordrec\plotseg.h"
 				>
 			</File>
 			<File
@@ -2283,10 +2187,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ccmain\scaleimg.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\textord\scanedg.h"
 				>
 			</File>
@@ -2335,15 +2235,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\classify\speckle.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccstruct\split.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\dict\states.h"
 				>
 			</File>
 			<File
@@ -2387,10 +2279,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\image\svshowim.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\viewer\svutil.h"
 				>
 			</File>
@@ -2416,10 +2304,6 @@
 			</File>
 			<File
 				RelativePath="..\..\cube\tess_lang_model.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\cutil\tessarray.h"
 				>
 			</File>
 			<File
@@ -2451,10 +2335,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\training\tessopt.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccmain\tessvars.h"
 				>
 			</File>
@@ -2464,14 +2344,6 @@
 			</File>
 			<File
 				RelativePath="..\..\textord\textord.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccmain\tfacep.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\ccmain\tfacepp.h"
 				>
 			</File>
 			<File
@@ -2539,10 +2411,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\port\version.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\ccstruct\werd.h"
 				>
 			</File>
@@ -2567,10 +2435,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\wordrec\wordclass.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\wordrec\wordrec.h"
 				>
 			</File>
@@ -2586,6 +2450,74 @@
 				RelativePath="..\..\classify\xform2d.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\api\renderer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccstruct\blamer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccutil\doubleptr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccutil\genericheap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccutil\kdpair.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccutil\object_cache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccutil\scanutils.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\ccutil\universalambigs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dict\dawg_cache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\textord\baselinedetect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\wordrec\lm_consistency.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\wordrec\lm_pain_points.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\wordrec\lm_state.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\wordrec\params_model.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\opencl\oclkernels.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\opencl\opencl_device_selection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\opencl\openclwrapper.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -2593,7 +2525,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\libtesseract302.rc"
+				RelativePath=".\libtesseract303.rc"
 				>
 			</File>
 		</Filter>

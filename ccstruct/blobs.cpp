@@ -31,13 +31,13 @@
 #include "config_auto.h"
 #endif
 
-#include "mfcpch.h"
 #include "blobs.h"
 #include "ccstruct.h"
 #include "clst.h"
 #include "cutil.h"
 #include "emalloc.h"
 #include "helpers.h"
+#include "linlsq.h"
 #include "ndminx.h"
 #include "normalis.h"
 #include "ocrblock.h"
@@ -68,6 +68,20 @@ CLISTIZE(EDGEPT);
 TESSLINE* TESSLINE::BuildFromOutlineList(EDGEPT* outline) {
   TESSLINE* result = new TESSLINE;
   result->loop = outline;
+  if (outline->src_outline != NULL) {
+    // ASSUMPTION: This function is only ever called from ApproximateOutline
+    // and therefore either all points have a src_outline or all do not.
+		// Just as SetupFromPos sets the vectors from the vertices, setup the
+		// step_count members to indicate the (positive) number of original
+		// C_OUTLINE steps to the next vertex.
+		EDGEPT* pt = outline;
+		do {
+		  pt->step_count = pt->next->start_step - pt->start_step;
+		  if (pt->step_count < 0)
+		    pt->step_count += pt->src_outline->pathlength();
+		  pt = pt->next;
+		} while (pt != outline);
+  }
   result->SetupFromPos();
   return result;
 }
@@ -244,61 +258,90 @@ void TESSLINE::plot(ScrollView* window, ScrollView::Color color,
 }
 #endif  // GRAPHICS_DISABLED
 
+// Returns the first non-hidden EDGEPT that has a different src_outline to
+// its predecessor, or, if all the same, the lowest indexed point.
+EDGEPT* TESSLINE::FindBestStartPt() const {
+  EDGEPT* best_start = loop;
+  int best_step = loop->start_step;
+  // Iterate the polygon.
+  EDGEPT* pt = loop;
+  do {
+    if (pt->IsHidden()) continue;
+    if (pt->prev->IsHidden() || pt->prev->src_outline != pt->src_outline)
+      return pt;  // Qualifies as the best.
+    if (pt->start_step < best_step) {
+      best_step = pt->start_step;
+      best_start = pt;
+    }
+  } while ((pt = pt->next) != loop);
+  return best_start;
+}
+
 // Iterate the given list of outlines, converting to TESSLINE by polygonal
 // approximation and recursively any children, returning the current tail
 // of the resulting list of TESSLINEs.
-static TESSLINE** ApproximateOutlineList(C_OUTLINE_LIST* outlines,
+static TESSLINE** ApproximateOutlineList(bool allow_detailed_fx,
+                                         C_OUTLINE_LIST* outlines,
                                          bool children,
                                          TESSLINE** tail) {
   C_OUTLINE_IT ol_it(outlines);
   for (ol_it.mark_cycle_pt(); !ol_it.cycled_list(); ol_it.forward()) {
     C_OUTLINE* outline = ol_it.data();
-    TESSLINE* tessline = ApproximateOutline(outline);
-    tessline->is_hole = children;
-    *tail = tessline;
-    tail = &tessline->next;
+    if (outline->pathlength() > 0) {
+      TESSLINE* tessline = ApproximateOutline(allow_detailed_fx, outline);
+      tessline->is_hole = children;
+      *tail = tessline;
+      tail = &tessline->next;
+    }
     if (!outline->child()->empty()) {
-      tail = ApproximateOutlineList(outline->child(), true, tail);
+      tail = ApproximateOutlineList(allow_detailed_fx, outline->child(), true,
+                                    tail);
     }
   }
   return tail;
 }
 
-// Factory to build a TBLOB from a C_BLOB with polygonal
-// approximation along the way.
-TBLOB* TBLOB::PolygonalCopy(C_BLOB* src) {
-  C_OUTLINE_IT ol_it = src->out_list();
+// Factory to build a TBLOB from a C_BLOB with polygonal approximation along
+// the way. If allow_detailed_fx is true, the EDGEPTs in the returned TBLOB
+// contain pointers to the input C_OUTLINEs that enable higher-resolution
+// feature extraction that does not use the polygonal approximation.
+TBLOB* TBLOB::PolygonalCopy(bool allow_detailed_fx, C_BLOB* src) {
   TBLOB* tblob = new TBLOB;
-  ApproximateOutlineList(src->out_list(), false, &tblob->outlines);
+  ApproximateOutlineList(allow_detailed_fx, src->out_list(), false,
+                         &tblob->outlines);
   return tblob;
+}
+
+// Factory builds a blob with no outlines, but copies the other member data.
+TBLOB* TBLOB::ShallowCopy(const TBLOB& src) {
+  TBLOB* blob = new TBLOB;
+  blob->denorm_ = src.denorm_;
+  return blob;
 }
 
 // Normalizes the blob for classification only if needed.
 // (Normally this means a non-zero classify rotation.)
-// If no Normalization is needed, then NULL is returned, and the denorm is
-// unchanged. Otherwise a new TBLOB is returned and the denorm points to
-// a new DENORM. In this case, both the TBLOB and DENORM must be deleted.
-TBLOB* TBLOB::ClassifyNormalizeIfNeeded(const DENORM** denorm) const {
+// If no Normalization is needed, then NULL is returned, and the input blob
+// can be used directly. Otherwise a new TBLOB is returned which must be
+// deleted after use.
+TBLOB* TBLOB::ClassifyNormalizeIfNeeded() const {
   TBLOB* rotated_blob = NULL;
   // If necessary, copy the blob and rotate it. The rotation is always
   // +/- 90 degrees, as 180 was already taken care of.
-  if ((*denorm)->block() != NULL &&
-      (*denorm)->block()->classify_rotation().y() != 0.0) {
+  if (denorm_.block() != NULL &&
+      denorm_.block()->classify_rotation().y() != 0.0) {
     TBOX box = bounding_box();
     int x_middle = (box.left() + box.right()) / 2;
     int y_middle = (box.top() + box.bottom()) / 2;
     rotated_blob = new TBLOB(*this);
-    const FCOORD& rotation = (*denorm)->block()->classify_rotation();
-    DENORM* norm = new DENORM;
+    const FCOORD& rotation = denorm_.block()->classify_rotation();
     // Move the rotated blob back to the same y-position so that we
     // can still distinguish similar glyphs with differeny y-position.
     float target_y = kBlnBaselineOffset +
         (rotation.y() > 0 ? x_middle - box.left() : box.right() - x_middle);
-    norm->SetupNormalization(NULL, NULL, &rotation, *denorm, NULL, 0,
-                             x_middle, y_middle, 1.0f, 1.0f, 0.0f, target_y);
-    //                             x_middle, y_middle, 1.0f, 1.0f, 0.0f, y_middle);
-    rotated_blob->Normalize(*norm);
-    *denorm = norm;
+    rotated_blob->Normalize(NULL, &rotation, &denorm_, x_middle, y_middle,
+                            1.0f, 1.0f, 0.0f, target_y,
+                            denorm_.inverse(), denorm_.pix());
   }
   return rotated_blob;
 }
@@ -316,6 +359,7 @@ void TBLOB::CopyFrom(const TBLOB& src) {
       prev_outline->next = new_outline;
     prev_outline = new_outline;
   }
+  denorm_ = src.denorm_;
 }
 
 // Deletes owned data.
@@ -326,16 +370,34 @@ void TBLOB::Clear() {
     delete outlines;
   }
 }
-// Normalize in-place using the DENORM.
-void TBLOB::Normalize(const DENORM& denorm) {
+
+// Sets up the built-in DENORM and normalizes the blob in-place.
+// For parameters see DENORM::SetupNormalization, plus the inverse flag for
+// this blob and the Pix for the full image.
+void TBLOB::Normalize(const BLOCK* block,
+                      const FCOORD* rotation,
+                      const DENORM* predecessor,
+                      float x_origin, float y_origin,
+                      float x_scale, float y_scale,
+                      float final_xshift, float final_yshift,
+                      bool inverse, Pix* pix) {
+  denorm_.SetupNormalization(block, rotation, predecessor, x_origin, y_origin,
+                             x_scale, y_scale, final_xshift, final_yshift);
+  denorm_.set_inverse(inverse);
+  denorm_.set_pix(pix);
   // TODO(rays) outline->Normalize is more accurate, but breaks tests due
   // the changes it makes. Reinstate this code with a retraining.
-#if 1
+  // The reason this change is troublesome is that it normalizes for the
+  // baseline value computed independently at each x-coord. If the baseline
+  // is not horizontal, this introduces shear into the normalized blob, which
+  // is useful on the rare occasions that the baseline is really curved, but
+  // the baselines need to be stabilized the rest of the time.
+#if 0
   for (TESSLINE* outline = outlines; outline != NULL; outline = outline->next) {
-    outline->Normalize(denorm);
+    outline->Normalize(denorm_);
   }
 #else
-  denorm.LocalNormBlob(this);
+  denorm_.LocalNormBlob(this);
 #endif
 }
 
@@ -400,53 +462,330 @@ void TBLOB::plot(ScrollView* window, ScrollView::Color color,
 }
 #endif  // GRAPHICS_DISABLED
 
+// Computes the center of mass and second moments for the old baseline and
+// 2nd moment normalizations. Returns the outline length.
+// The input denorm should be the normalizations that have been applied from
+// the image to the current state of this TBLOB.
+int TBLOB::ComputeMoments(FCOORD* center, FCOORD* second_moments) const {
+  // Compute 1st and 2nd moments of the original outline.
+  LLSQ accumulator;
+  TBOX box = bounding_box();
+  // Iterate the outlines, accumulating edges relative the box.botleft().
+  CollectEdges(box, NULL, &accumulator, NULL, NULL);
+  *center = accumulator.mean_point() + box.botleft();
+  // The 2nd moments are just the standard deviation of the point positions.
+  double x2nd = sqrt(accumulator.x_variance());
+  double y2nd = sqrt(accumulator.y_variance());
+  if (x2nd < 1.0) x2nd = 1.0;
+  if (y2nd < 1.0) y2nd = 1.0;
+  second_moments->set_x(x2nd);
+  second_moments->set_y(y2nd);
+  return accumulator.count();
+}
+
+// Computes the precise bounding box of the coords that are generated by
+// GetEdgeCoords. This may be different from the bounding box of the polygon.
+void TBLOB::GetPreciseBoundingBox(TBOX* precise_box) const {
+  TBOX box = bounding_box();
+  *precise_box = TBOX();
+  CollectEdges(box, precise_box, NULL, NULL, NULL);
+  precise_box->move(box.botleft());
+}
+
+// Adds edges to the given vectors.
+// For all the edge steps in all the outlines, or polygonal approximation
+// where there are no edge steps, collects the steps into x_coords/y_coords.
+// x_coords is a collection of the x-coords of vertical edges for each
+// y-coord starting at box.bottom().
+// y_coords is a collection of the y-coords of horizontal edges for each
+// x-coord starting at box.left().
+// Eg x_coords[0] is a collection of the x-coords of edges at y=bottom.
+// Eg x_coords[1] is a collection of the x-coords of edges at y=bottom + 1.
+void TBLOB::GetEdgeCoords(const TBOX& box,
+                          GenericVector<GenericVector<int> >* x_coords,
+                          GenericVector<GenericVector<int> >* y_coords) const {
+  GenericVector<int> empty;
+  x_coords->init_to_size(box.height(), empty);
+  y_coords->init_to_size(box.width(), empty);
+  CollectEdges(box, NULL, NULL, x_coords, y_coords);
+  // Sort the output vectors.
+  for (int i = 0; i < x_coords->size(); ++i)
+    (*x_coords)[i].sort();
+  for (int i = 0; i < y_coords->size(); ++i)
+    (*y_coords)[i].sort();
+}
+
+// Accumulates the segment between pt1 and pt2 in the LLSQ, quantizing over
+// the integer coordinate grid to properly weight long vectors.
+static void SegmentLLSQ(const FCOORD& pt1, const FCOORD& pt2,
+                        LLSQ* accumulator) {
+  FCOORD step(pt2);
+  step -= pt1;
+  int xstart = IntCastRounded(MIN(pt1.x(), pt2.x()));
+  int xend = IntCastRounded(MAX(pt1.x(), pt2.x()));
+  int ystart = IntCastRounded(MIN(pt1.y(), pt2.y()));
+  int yend = IntCastRounded(MAX(pt1.y(), pt2.y()));
+  if (xstart == xend && ystart == yend) return;  // Nothing to do.
+  double weight = step.length() / (xend - xstart + yend - ystart);
+  // Compute and save the y-position at the middle of each x-step.
+  for (int x = xstart; x < xend; ++x) {
+    double y = pt1.y() + step.y() * (x + 0.5 - pt1.x()) / step.x();
+    accumulator->add(x + 0.5, y, weight);
+  }
+  // Compute and save the x-position at the middle of each y-step.
+  for (int y = ystart; y < yend; ++y) {
+    double x = pt1.x() + step.x() * (y + 0.5 - pt1.y()) / step.y();
+    accumulator->add(x, y + 0.5, weight);
+  }
+}
+
+// Adds any edges from a single segment of outline between pt1 and pt2 to
+// the x_coords, y_coords vectors. pt1 and pt2 should be relative to the
+// bottom-left of the bounding box, hence indices to x_coords, y_coords
+// are clipped to ([0,x_limit], [0,y_limit]).
+// See GetEdgeCoords above for a description of x_coords, y_coords.
+static void SegmentCoords(const FCOORD& pt1, const FCOORD& pt2,
+                          int x_limit, int y_limit,
+                          GenericVector<GenericVector<int> >* x_coords,
+                          GenericVector<GenericVector<int> >* y_coords) {
+  FCOORD step(pt2);
+  step -= pt1;
+  int start = ClipToRange(IntCastRounded(MIN(pt1.x(), pt2.x())), 0, x_limit);
+  int end = ClipToRange(IntCastRounded(MAX(pt1.x(), pt2.x())), 0, x_limit);
+  for (int x = start; x < end; ++x) {
+    int y = IntCastRounded(pt1.y() + step.y() * (x + 0.5 - pt1.x()) / step.x());
+    (*y_coords)[x].push_back(y);
+  }
+  start = ClipToRange(IntCastRounded(MIN(pt1.y(), pt2.y())), 0, y_limit);
+  end = ClipToRange(IntCastRounded(MAX(pt1.y(), pt2.y())), 0, y_limit);
+  for (int y = start; y < end; ++y) {
+    int x = IntCastRounded(pt1.x() + step.x() * (y + 0.5 - pt1.y()) / step.y());
+    (*x_coords)[y].push_back(x);
+  }
+}
+
+// Adds any edges from a single segment of outline between pt1 and pt2 to
+// the bbox such that it guarantees to contain anything produced by
+// SegmentCoords.
+static void SegmentBBox(const FCOORD& pt1, const FCOORD& pt2, TBOX* bbox) {
+  FCOORD step(pt2);
+  step -= pt1;
+  int x1 = IntCastRounded(MIN(pt1.x(), pt2.x()));
+  int x2 = IntCastRounded(MAX(pt1.x(), pt2.x()));
+  if (x2 > x1) {
+    int y1 = IntCastRounded(pt1.y() + step.y() * (x1 + 0.5 - pt1.x()) /
+                            step.x());
+    int y2 = IntCastRounded(pt1.y() + step.y() * (x2 - 0.5 - pt1.x()) /
+                            step.x());
+    TBOX point(x1, MIN(y1, y2), x2, MAX(y1, y2));
+    *bbox += point;
+  }
+  int y1 = IntCastRounded(MIN(pt1.y(), pt2.y()));
+  int y2 = IntCastRounded(MAX(pt1.y(), pt2.y()));
+  if (y2 > y1) {
+    int x1 = IntCastRounded(pt1.x() + step.x() * (y1 + 0.5 - pt1.y()) /
+                            step.y());
+    int x2 = IntCastRounded(pt1.x() + step.x() * (y2 - 0.5 - pt1.y()) /
+                            step.y());
+    TBOX point(MIN(x1, x2), y1, MAX(x1, x2), y2);
+    *bbox += point;
+  }
+}
+
+// Collects edges into the given bounding box, LLSQ accumulator and/or x_coords,
+// y_coords vectors.
+// For a description of x_coords/y_coords, see GetEdgeCoords above.
+// Startpt to lastpt, inclusive, MUST have the same src_outline member,
+// which may be NULL. The vector from lastpt to its next is included in
+// the accumulation. Hidden edges should be excluded by the caller.
+// The input denorm should be the normalizations that have been applied from
+// the image to the current state of the TBLOB from which startpt, lastpt come.
+// box is the bounding box of the blob from which the EDGEPTs are taken and
+// indices into x_coords, y_coords are offset by box.botleft().
+static void CollectEdgesOfRun(const EDGEPT* startpt, const EDGEPT* lastpt,
+                              const DENORM& denorm, const TBOX& box,
+                              TBOX* bounding_box,
+                              LLSQ* accumulator,
+                              GenericVector<GenericVector<int> > *x_coords,
+                              GenericVector<GenericVector<int> > *y_coords) {
+  const C_OUTLINE* outline = startpt->src_outline;
+  int x_limit = box.width() - 1;
+  int y_limit = box.height() - 1;
+  if (outline != NULL) {
+    // Use higher-resolution edge points stored on the outline.
+    // The outline coordinates may not match the binary image because of the
+    // rotation for vertical text lines, but the root_denorm IS the matching
+    // start of the DENORM chain.
+    const DENORM* root_denorm = denorm.RootDenorm();
+    int step_length = outline->pathlength();
+    int start_index = startpt->start_step;
+    // Note that if this run straddles the wrap-around point of the outline,
+    // that lastpt->start_step may have a lower index than startpt->start_step,
+    // and we want to use an end_index that allows us to use a positive
+    // increment, so we add step_length if necessary, but that may be beyond the
+    // bounds of the outline steps/ due to wrap-around, so we use % step_length
+    // everywhere, except for start_index.
+    int end_index = lastpt->start_step + lastpt->step_count;
+    if (end_index <= start_index)
+      end_index += step_length;
+    // pos is the integer coordinates of the binary image steps.
+    ICOORD pos = outline->position_at_index(start_index);
+    FCOORD origin(box.left(), box.bottom());
+    // f_pos is a floating-point version of pos that offers improved edge
+    // positioning using greyscale information or smoothing of edge steps.
+    FCOORD f_pos = outline->sub_pixel_pos_at_index(pos, start_index);
+    // pos_normed is f_pos after the appropriate normalization, and relative
+    // to origin.
+    // prev_normed is the previous value of pos_normed.
+    FCOORD prev_normed;
+    denorm.NormTransform(root_denorm, f_pos, &prev_normed);
+    prev_normed -= origin;
+    for (int index = start_index; index < end_index; ++index) {
+      ICOORD step = outline->step(index % step_length);
+      // Only use the point if its edge strength is positive. This excludes
+      // points that don't provide useful information, eg
+      // ___________
+      //            |___________
+      // The vertical step provides only noisy, damaging information, as even
+      // with a greyscale image, the positioning of the edge there may be a
+      // fictitious extrapolation, so previous processing has eliminated it.
+      if (outline->edge_strength_at_index(index % step_length) > 0) {
+        FCOORD f_pos = outline->sub_pixel_pos_at_index(pos,
+                                                       index % step_length);
+        FCOORD pos_normed;
+        denorm.NormTransform(root_denorm, f_pos, &pos_normed);
+        pos_normed -= origin;
+        // Accumulate the information that is selected by the caller.
+        if (bounding_box != NULL) {
+          SegmentBBox(pos_normed, prev_normed, bounding_box);
+        }
+        if (accumulator != NULL) {
+          SegmentLLSQ(pos_normed, prev_normed, accumulator);
+        }
+        if (x_coords != NULL && y_coords != NULL) {
+          SegmentCoords(pos_normed, prev_normed, x_limit, y_limit,
+                        x_coords, y_coords);
+        }
+        prev_normed = pos_normed;
+      }
+      pos += step;
+    }
+  } else {
+    // There is no outline, so we are forced to use the polygonal approximation.
+    const EDGEPT* endpt = lastpt->next;
+    const EDGEPT* pt = startpt;
+    do {
+      FCOORD next_pos(pt->next->pos.x - box.left(),
+                      pt->next->pos.y - box.bottom());
+      FCOORD pos(pt->pos.x - box.left(), pt->pos.y - box.bottom());
+      if (bounding_box != NULL) {
+        SegmentBBox(next_pos, pos, bounding_box);
+      }
+      if (accumulator != NULL) {
+        SegmentLLSQ(next_pos, pos, accumulator);
+      }
+      if (x_coords != NULL && y_coords != NULL) {
+        SegmentCoords(next_pos, pos, x_limit, y_limit, x_coords, y_coords);
+      }
+    } while ((pt = pt->next) != endpt);
+  }
+}
+
+// For all the edge steps in all the outlines, or polygonal approximation
+// where there are no edge steps, collects the steps into the bounding_box,
+// llsq and/or the x_coords/y_coords. Both are used in different kinds of
+// normalization.
+// For a description of x_coords, y_coords, see GetEdgeCoords above.
+void TBLOB::CollectEdges(const TBOX& box,
+                         TBOX* bounding_box, LLSQ* llsq,
+                         GenericVector<GenericVector<int> >* x_coords,
+                         GenericVector<GenericVector<int> >* y_coords) const {
+  // Iterate the outlines.
+  for (const TESSLINE* ol = outlines; ol != NULL; ol = ol->next) {
+    // Iterate the polygon.
+    EDGEPT* loop_pt = ol->FindBestStartPt();
+    EDGEPT* pt = loop_pt;
+    if (pt == NULL) continue;
+    do {
+      if (pt->IsHidden()) continue;
+      // Find a run of equal src_outline.
+      EDGEPT* last_pt = pt;
+      do {
+        last_pt = last_pt->next;
+      } while (last_pt != loop_pt && !last_pt->IsHidden() &&
+               last_pt->src_outline == pt->src_outline);
+      last_pt = last_pt->prev;
+      CollectEdgesOfRun(pt, last_pt, denorm_, box,
+                        bounding_box, llsq, x_coords, y_coords);
+      pt = last_pt;
+    } while ((pt = pt->next) != loop_pt);
+  }
+}
+
 // Factory to build a TWERD from a (C_BLOB) WERD, with polygonal
 // approximation along the way.
-TWERD* TWERD::PolygonalCopy(WERD* src) {
+TWERD* TWERD::PolygonalCopy(bool allow_detailed_fx, WERD* src) {
   TWERD* tessword = new TWERD;
   tessword->latin_script = src->flag(W_SCRIPT_IS_LATIN);
   C_BLOB_IT b_it(src->cblob_list());
-  TBLOB *tail = NULL;
   for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
     C_BLOB* blob = b_it.data();
-    TBLOB* tblob = TBLOB::PolygonalCopy(blob);
-    if (tail == NULL) {
-      tessword->blobs = tblob;
-    } else {
-      tail->next = tblob;
-    }
-    tail = tblob;
+    TBLOB* tblob = TBLOB::PolygonalCopy(allow_detailed_fx, blob);
+    tessword->blobs.push_back(tblob);
   }
   return tessword;
 }
 
-// Normalize in-place and record the normalization in the DENORM.
-void TWERD::SetupBLNormalize(const BLOCK* block, const ROW* row,
-                             float x_height, bool numeric_mode,
-                             DENORM* denorm) const {
-  int num_segments = 0;
-  DENORM_SEG* segs = NULL;
-  if (numeric_mode) {
-    segs = new DENORM_SEG[NumBlobs()];
-    for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
-      TBOX blob_box = blob->bounding_box();
-      float factor = kBlnXHeight / x_height;
-      factor = ClipToRange(kBlnXHeight * 4.0f / (3 * blob_box.height()),
-                           factor, factor * 1.5f);
-      segs[num_segments].xstart = blob_box.left();
-      segs[num_segments].ycoord = blob_box.bottom();
-      segs[num_segments++].scale_factor = factor;
-    }
+// Baseline normalizes the blobs in-place, recording the normalization in the
+// DENORMs in the blobs.
+void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
+                        bool inverse, float x_height, bool numeric_mode,
+                        tesseract::OcrEngineMode hint,
+                        const TBOX* norm_box,
+                        DENORM* word_denorm) {
+  TBOX word_box = bounding_box();
+  if (norm_box != NULL) word_box = *norm_box;
+  float word_middle = (word_box.left() + word_box.right()) / 2.0f;
+  float input_y_offset = 0.0f;
+  float final_y_offset = static_cast<float>(kBlnBaselineOffset);
+  float scale = kBlnXHeight / x_height;
+  if (hint == tesseract::OEM_CUBE_ONLY || row == NULL) {
+    word_middle = word_box.left();
+    input_y_offset = word_box.bottom();
+    final_y_offset = 0.0f;
+    if (hint == tesseract::OEM_CUBE_ONLY)
+      scale = 1.0f;
+  } else {
+    input_y_offset = row->base_line(word_middle);
   }
-  denorm->SetupBLNormalize(block, row, x_height, bounding_box(),
-                           num_segments, segs);
-  delete [] segs;
-}
-
-// Normalize in-place using the DENORM.
-void TWERD::Normalize(const DENORM& denorm) {
-  for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
-    blob->Normalize(denorm);
+  for (int b = 0; b < blobs.size(); ++b) {
+    TBLOB* blob = blobs[b];
+    TBOX blob_box = blob->bounding_box();
+    float mid_x = (blob_box.left() + blob_box.right()) / 2.0f;
+    float baseline = input_y_offset;
+    float blob_scale = scale;
+    if (numeric_mode) {
+      baseline = blob_box.bottom();
+      blob_scale = ClipToRange(kBlnXHeight * 4.0f / (3 * blob_box.height()),
+                               scale, scale * 1.5f);
+    } else if (row != NULL && hint != tesseract::OEM_CUBE_ONLY) {
+      baseline = row->base_line(mid_x);
+    }
+    // The image will be 8-bit grey if the input was grey or color. Note that in
+    // a grey image 0 is black and 255 is white. If the input was binary, then
+    // the pix will be binary and 0 is white, with 1 being black.
+    // To tell the difference pixGetDepth() will return 8 or 1.
+    // The inverse flag will be true iff the word has been determined to be
+    // white on black, and is independent of whether the pix is 8 bit or 1 bit.
+    blob->Normalize(block, NULL, NULL, word_middle, baseline, blob_scale,
+                    blob_scale, 0.0f, final_y_offset, inverse, pix);
+  }
+  if (word_denorm != NULL) {
+    word_denorm->SetupNormalization(block, NULL, NULL, word_middle,
+                                    input_y_offset, scale, scale,
+                                    0.0f, final_y_offset);
+    word_denorm->set_inverse(inverse);
+    word_denorm->set_pix(pix);
   }
 }
 
@@ -454,36 +793,29 @@ void TWERD::Normalize(const DENORM& denorm) {
 void TWERD::CopyFrom(const TWERD& src) {
   Clear();
   latin_script = src.latin_script;
-  TBLOB* prev_blob = NULL;
-  for (TBLOB* srcblob = src.blobs; srcblob != NULL; srcblob = srcblob->next) {
-    TBLOB* new_blob = new TBLOB(*srcblob);
-    if (blobs == NULL)
-      blobs = new_blob;
-    else
-      prev_blob->next = new_blob;
-    prev_blob = new_blob;
+  for (int b = 0; b < src.blobs.size(); ++b) {
+    TBLOB* new_blob = new TBLOB(*src.blobs[b]);
+    blobs.push_back(new_blob);
   }
 }
 
 // Deletes owned data.
 void TWERD::Clear() {
-  for (TBLOB* next_blob = NULL; blobs != NULL; blobs = next_blob) {
-    next_blob = blobs->next;
-    delete blobs;
-  }
+  blobs.delete_data_pointers();
+  blobs.clear();
 }
 
 // Recomputes the bounding boxes of the blobs.
 void TWERD::ComputeBoundingBoxes() {
-  for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
-    blob->ComputeBoundingBoxes();
+  for (int b = 0; b < blobs.size(); ++b) {
+    blobs[b]->ComputeBoundingBoxes();
   }
 }
 
 TBOX TWERD::bounding_box() const {
   TBOX result;
-  for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
-    TBOX box = blob->bounding_box();
+  for (int b = 0; b < blobs.size(); ++b) {
+    TBOX box = blobs[b]->bounding_box();
     result += box;
   }
   return result;
@@ -492,18 +824,14 @@ TBOX TWERD::bounding_box() const {
 // Merges the blobs from start to end, not including end, and deletes
 // the blobs between start and end.
 void TWERD::MergeBlobs(int start, int end) {
-  TBLOB* blob = blobs;
-  for (int i = 0; i < start && blob != NULL; ++i)
-    blob = blob->next;
-  if (blob == NULL || blob->next == NULL)
-    return;
-  TBLOB* next_blob = blob->next;
-  TESSLINE* outline = blob->outlines;
-  for (int i = start + 1; i < end && next_blob != NULL; ++i) {
+  if (start >= blobs.size() - 1)  return;  // Nothing to do.
+  TESSLINE* outline = blobs[start]->outlines;
+  for (int i = start + 1; i < end && i < blobs.size(); ++i) {
+    TBLOB* next_blob = blobs[i];
     // Take the outlines from the next blob.
     if (outline == NULL) {
-      blob->outlines = next_blob->outlines;
-      outline = blob->outlines;
+      blobs[start]->outlines = next_blob->outlines;
+      outline = blobs[start]->outlines;
     } else {
       while (outline->next != NULL)
         outline = outline->next;
@@ -511,18 +839,20 @@ void TWERD::MergeBlobs(int start, int end) {
       next_blob->outlines = NULL;
     }
     // Delete the next blob and move on.
-    TBLOB* dead_blob = next_blob;
-    next_blob = next_blob->next;
-    blob->next = next_blob;
-    delete dead_blob;
+    delete next_blob;
+    blobs[i] = NULL;
+  }
+  // Remove dead blobs from the vector.
+  for (int i = start + 1; i < end && start + 1 < blobs.size(); ++i) {
+    blobs.remove(start + 1);
   }
 }
 
 #ifndef GRAPHICS_DISABLED
 void TWERD::plot(ScrollView* window) {
   ScrollView::Color color = WERD::NextColor(ScrollView::BLACK);
-  for (TBLOB* blob = blobs; blob != NULL; blob = blob->next) {
-    blob->plot(window, color, ScrollView::BROWN);
+  for (int b = 0; b < blobs.size(); ++b) {
+    blobs[b]->plot(window, color, ScrollView::BROWN);
     color = WERD::NextColor(color);
   }
 }
@@ -538,52 +868,6 @@ void blob_origin(TBLOB *blob,       /*blob to compute on */
                  TPOINT *origin) {  /*return value */
   TBOX bbox = blob->bounding_box();
   *origin = (bbox.topleft() + bbox.botright()) / 2;
-}
-
-/**********************************************************************
- * blobs_widths
- *
- * Compute the widths of a list of blobs. Return an array of the widths
- * and gaps.
- **********************************************************************/
-WIDTH_RECORD *blobs_widths(TBLOB *blobs) {  /*blob to compute on */
-  WIDTH_RECORD *width_record;
-  TPOINT topleft;                /*bounding box */
-  TPOINT botright;
-  int i = 0;
-  int blob_end;
-  int num_blobs = count_blobs (blobs);
-
-  /* Get memory */
-  width_record = (WIDTH_RECORD *) memalloc (sizeof (int) * num_blobs * 2);
-  width_record->num_chars = num_blobs;
-
-  TBOX bbox = blobs->bounding_box();
-  width_record->widths[i++] = bbox.width();
-  /* First width */
-  blob_end = bbox.right();
-
-  for (TBLOB* blob = blobs->next; blob != NULL; blob = blob->next) {
-    TBOX curbox = blob->bounding_box();
-    width_record->widths[i++] = curbox.left() - blob_end;
-    width_record->widths[i++] = curbox.width();
-    blob_end = curbox.right();
-  }
-  return width_record;
-}
-
-
-/**********************************************************************
- * count_blobs
- *
- * Return a count of the number of blobs attached to this one.
- **********************************************************************/
-int count_blobs(TBLOB *blobs) {
-  int x = 0;
-
-  for (TBLOB* b = blobs; b != NULL; b = b->next)
-    x++;
-  return x;
 }
 
 /**********************************************************************
