@@ -588,7 +588,7 @@ class TESS_API TessBaseAPI {
    * data structures.
    * page_number is 0-based but will appear in the output as 1-based.
    * monitor can be used to
-   * 	cancel the regocnition
+   * 	cancel the recognition
    * 	receive progress callbacks
    */
   char* GetHOCRText(struct ETEXT_DESC* monitor, int page_number);
