@@ -636,7 +636,11 @@ bool TessPDFRenderer::BeginDocumentHandler() {
                "  /Length1 %ld\n"
                ">>\n"
                "stream\n", size, size);
-  if (n >= sizeof(buf)) return false;
+  if (n >= sizeof(buf))
+  { 
+  	delete[] buffer;
+	return false;
+  }
   AppendString(buf);
   objsize  = strlen(buf);
   AppendData(buffer, size);
