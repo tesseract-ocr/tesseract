@@ -61,18 +61,14 @@ those that want to do their own training. Most users should NOT download
 these files.
 
 Instructions for using the training tools are documented separately at 
-Tesseract wiki https://github.com/tesseract-ocr/tesseract/wiki
+[Tesseract Training wiki](https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract)
 
 
 Windows
 -------
 
 Please use the installer (for 3.00 and above). Tesseract is a library with a 
-command line interface. If you need a GUI, please check the AddOns wiki page.
-
-TODO-UPDATE-WIKI-LINKS
-
-http://code.google.com/p/tesseract-ocr/wiki/AddOns#GUI
+command line interface. If you need a GUI, please check the [3rdParty wiki page](https://github.com/tesseract-ocr/tesseract/wiki/3rdParty#gui).
 
 If you are building from the sources, the recommended build platform is 
 VC++ Express 2008 (optionally 2010).
@@ -89,11 +85,7 @@ The command line is:
     tesseract imagename outputbase [-l lang] [-psm pagesegmode] [configfiles...]
 
 If you need interface to other applications, please check wrapper section
-on AddOns wiki page:
-
-TODO-UPDATE-WIKI-LINKS
-
-http://code.google.com/p/tesseract-ocr/wiki/AddOns#Tesseract_3.0x
+on [AddOns wiki page](https://github.com/tesseract-ocr/tesseract/wiki/AddOns#for-tesseract-ocr-30x).
 
 
 Non-Windows (or Cygwin)
