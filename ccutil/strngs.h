@@ -23,7 +23,7 @@
 #include          <stdio.h>
 #include          <string.h>
 #include          "platform.h"
-#include          "memry.h"
+#include	  "host.h"
 
 namespace tesseract {
 class TFile;

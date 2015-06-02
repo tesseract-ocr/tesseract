@@ -17,7 +17,6 @@
  ******************************************************************************/
 #include "const.h"
 #include "cluster.h"
-#include "emalloc.h"
 #include "genericheap.h"
 #include "helpers.h"
 #include "kdpair.h"
@@ -401,7 +400,7 @@ MakeClusterer (inT16 SampleSize, const PARAM_DESC ParamDesc[]) {
   int i;
 
   // allocate main clusterer data structure and init simple fields
-  Clusterer = (CLUSTERER *) Emalloc (sizeof (CLUSTERER));
+  Clusterer = (CLUSTERER *) malloc (sizeof (CLUSTERER));
   Clusterer->SampleSize = SampleSize;
   Clusterer->NumberOfSamples = 0;
   Clusterer->NumChar = 0;
@@ -412,7 +411,7 @@ MakeClusterer (inT16 SampleSize, const PARAM_DESC ParamDesc[]) {
 
   // maintain a copy of param descriptors in the clusterer data structure
   Clusterer->ParamDesc =
-    (PARAM_DESC *) Emalloc (SampleSize * sizeof (PARAM_DESC));
+    (PARAM_DESC *) malloc (SampleSize * sizeof (PARAM_DESC));
   for (i = 0; i < SampleSize; i++) {
     Clusterer->ParamDesc[i].Circular = ParamDesc[i].Circular;
     Clusterer->ParamDesc[i].NonEssential = ParamDesc[i].NonEssential;
@@ -462,7 +461,7 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
       "Can't add samples after they have been clustered");
 
   // allocate the new sample and initialize it
-  Sample = (SAMPLE *) Emalloc (sizeof (SAMPLE) +
+  Sample = (SAMPLE *) malloc (sizeof (SAMPLE) +
     (Clusterer->SampleSize -
     1) * sizeof (FLOAT32));
   Sample->Clustered = FALSE;
@@ -704,7 +703,7 @@ void CreateClusterTree(CLUSTERER *Clusterer) {
   // save these in a heap with the "best" potential clusters on top
   context.tree = Clusterer->KDTree;
   context.candidates = (TEMPCLUSTER *)
-    Emalloc(Clusterer->NumberOfSamples * sizeof(TEMPCLUSTER));
+    malloc(Clusterer->NumberOfSamples * sizeof(TEMPCLUSTER));
   context.next = 0;
   context.heap = new ClusterHeap(Clusterer->NumberOfSamples);
   KDWalk(context.tree, (void_proc)MakePotentialClusters, &context);
@@ -842,7 +841,7 @@ CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster) {
   CLUSTER *Cluster;
 
   // allocate the new cluster and initialize it
-  Cluster = (CLUSTER *) Emalloc(
+  Cluster = (CLUSTER *) malloc(
       sizeof(CLUSTER) + (Clusterer->SampleSize - 1) * sizeof(FLOAT32));
   Cluster->Clustered = FALSE;
   Cluster->Prototype = FALSE;
@@ -1131,9 +1130,9 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
   if (TotalDims < N + 1 || TotalDims < 2)
     return NULL;
   const int kMatrixSize = N * N * sizeof(FLOAT32);
-  FLOAT32* Covariance = reinterpret_cast<FLOAT32 *>(Emalloc(kMatrixSize));
-  FLOAT32* Inverse = reinterpret_cast<FLOAT32 *>(Emalloc(kMatrixSize));
-  FLOAT32* Delta = reinterpret_cast<FLOAT32*>(Emalloc(N * sizeof(FLOAT32)));
+  FLOAT32* Covariance = reinterpret_cast<FLOAT32 *>(malloc(kMatrixSize));
+  FLOAT32* Inverse = reinterpret_cast<FLOAT32 *>(malloc(kMatrixSize));
+  FLOAT32* Delta = reinterpret_cast<FLOAT32*>(malloc(N * sizeof(FLOAT32)));
   // Compute a new covariance matrix that only uses essential features.
   for (int i = 0; i < N; ++i) {
     int row_offset = i * N;
@@ -1433,13 +1432,13 @@ ComputeStatistics (inT16 N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
   uinT32 SampleCountAdjustedForBias;
 
   // allocate memory to hold the statistics results
-  Statistics = (STATISTICS *) Emalloc (sizeof (STATISTICS));
-  Statistics->CoVariance = (FLOAT32 *) Emalloc (N * N * sizeof (FLOAT32));
-  Statistics->Min = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-  Statistics->Max = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Statistics = (STATISTICS *) malloc (sizeof (STATISTICS));
+  Statistics->CoVariance = (FLOAT32 *) malloc (N * N * sizeof (FLOAT32));
+  Statistics->Min = (FLOAT32 *) malloc (N * sizeof (FLOAT32));
+  Statistics->Max = (FLOAT32 *) malloc (N * sizeof (FLOAT32));
 
   // allocate temporary memory to hold the sample to mean distances
-  Distance = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Distance = (FLOAT32 *) malloc (N * sizeof (FLOAT32));
 
   // initialize the statistics
   Statistics->AvgVariance = 1.0;
@@ -1553,9 +1552,9 @@ PROTOTYPE *NewEllipticalProto(inT16 N,
   int i;
 
   Proto = NewSimpleProto (N, Cluster);
-  Proto->Variance.Elliptical = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-  Proto->Magnitude.Elliptical = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-  Proto->Weight.Elliptical = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Proto->Variance.Elliptical = (FLOAT32 *) malloc (N * sizeof (FLOAT32));
+  Proto->Magnitude.Elliptical = (FLOAT32 *) malloc (N * sizeof (FLOAT32));
+  Proto->Weight.Elliptical = (FLOAT32 *) malloc (N * sizeof (FLOAT32));
 
   CoVariance = Statistics->CoVariance;
   Proto->TotalMagnitude = 1.0;
@@ -1595,7 +1594,7 @@ PROTOTYPE *NewMixedProto(inT16 N, CLUSTER *Cluster, STATISTICS *Statistics) {
   int i;
 
   Proto = NewEllipticalProto (N, Cluster, Statistics);
-  Proto->Distrib = (DISTRIBUTION *) Emalloc (N * sizeof (DISTRIBUTION));
+  Proto->Distrib = (DISTRIBUTION *) malloc (N * sizeof (DISTRIBUTION));
 
   for (i = 0; i < N; i++) {
     Proto->Distrib[i] = normal;
@@ -1619,8 +1618,8 @@ PROTOTYPE *NewSimpleProto(inT16 N, CLUSTER *Cluster) {
   PROTOTYPE *Proto;
   int i;
 
-  Proto = (PROTOTYPE *) Emalloc (sizeof (PROTOTYPE));
-  Proto->Mean = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Proto = (PROTOTYPE *) malloc (sizeof (PROTOTYPE));
+  Proto->Mean = (FLOAT32 *) malloc (N * sizeof (FLOAT32));
 
   for (i = 0; i < N; i++)
     Proto->Mean[i] = Cluster->Mean[i];
@@ -1773,14 +1772,14 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
   BOOL8 Symmetrical;
 
   // allocate memory needed for data structure
-  Buckets = reinterpret_cast<BUCKETS*>(Emalloc(sizeof(BUCKETS)));
+  Buckets = reinterpret_cast<BUCKETS*>(malloc(sizeof(BUCKETS)));
   Buckets->NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
   Buckets->SampleCount = SampleCount;
   Buckets->Confidence = Confidence;
   Buckets->Count = reinterpret_cast<uinT32*>(
-      Emalloc(Buckets->NumberOfBuckets * sizeof(uinT32)));
+      malloc(Buckets->NumberOfBuckets * sizeof(uinT32)));
   Buckets->ExpectedCount = reinterpret_cast<FLOAT32*>(
-      Emalloc(Buckets->NumberOfBuckets * sizeof(FLOAT32)));
+      malloc(Buckets->NumberOfBuckets * sizeof(FLOAT32)));
 
   // initialize simple fields
   Buckets->Distribution = Distribution;
@@ -2256,9 +2255,9 @@ void FreeBuckets(BUCKETS *buckets) {
  **  Operation:
  **      This routine properly frees the memory used by a BUCKETS.
  */
-  Efree(buckets->Count);
-  Efree(buckets->ExpectedCount);
-  Efree(buckets);
+  free(buckets->Count);
+  free(buckets->ExpectedCount);
+  free(buckets);
 }                                // FreeBuckets
 
 
@@ -2448,7 +2447,7 @@ CHISTRUCT *NewChiStruct(uinT16 DegreesOfFreedom, FLOAT64 Alpha) {
  */
   CHISTRUCT *NewChiStruct;
 
-  NewChiStruct = (CHISTRUCT *) Emalloc (sizeof (CHISTRUCT));
+  NewChiStruct = (CHISTRUCT *) malloc (sizeof (CHISTRUCT));
   NewChiStruct->DegreesOfFreedom = DegreesOfFreedom;
   NewChiStruct->Alpha = Alpha;
   return (NewChiStruct);
@@ -2616,7 +2615,7 @@ CLUSTER * Cluster, FLOAT32 MaxIllegal)
     if (CharFlags != NULL)
       memfree(CharFlags);
     NumFlags = Clusterer->NumChar;
-    CharFlags = (BOOL8 *) Emalloc (NumFlags * sizeof (BOOL8));
+    CharFlags = (BOOL8 *) malloc (NumFlags * sizeof (BOOL8));
   }
 
   for (i = 0; i < NumFlags; i++)

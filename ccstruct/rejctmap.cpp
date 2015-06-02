@@ -265,13 +265,6 @@ void REJ::full_print(FILE *fp) {
 }
 
 
-//The REJMAP class has been hacked to use alloc_struct instead of new [].
-//This is to reduce memory fragmentation only as it is rather kludgy.
-//alloc_struct by-passes the call to the contsructor of REJ on each
-//array element. Although the constructor is empty, the BITS16 members
-//do have a constructor which sets all the flags to 0. The memset
-//replaces this functionality.
-
 REJMAP::REJMAP(  //classwise copy
                const REJMAP &source) {
   REJ *to;
@@ -281,7 +274,7 @@ REJMAP::REJMAP(  //classwise copy
   len = source.length ();
 
   if (len > 0) {
-    ptr = (REJ *) alloc_struct (len * sizeof (REJ), "REJ");
+    ptr = (REJ *) malloc (len * sizeof (REJ));
     to = ptr;
     for (i = 0; i < len; i++) {
       *to = *from;
@@ -318,11 +311,10 @@ const REJMAP & source            //from this
 void REJMAP::initialise(  //Redefine map
                         inT16 length) {
   if (ptr != NULL)
-    free_struct (ptr, len * sizeof (REJ), "REJ");
+    free (ptr);
   len = length;
   if (len > 0)
-    ptr = (REJ *) memset (alloc_struct (len * sizeof (REJ), "REJ"),
-      0, len * sizeof (REJ));
+    ptr = (REJ *) calloc(len, sizeof (REJ));
   else
     ptr = NULL;
 }
@@ -374,8 +366,7 @@ void REJMAP::remove_pos(           //Cut out an element
 
   len--;
   if (len > 0)
-    new_ptr = (REJ *) memset (alloc_struct (len * sizeof (REJ), "REJ"),
-      0, len * sizeof (REJ));
+    new_ptr = (REJ *) calloc(len, sizeof (REJ));
   else
     new_ptr = NULL;
 
@@ -386,7 +377,7 @@ void REJMAP::remove_pos(           //Cut out an element
     new_ptr[pos] = ptr[pos + 1]; //copy post pos
 
                                  //delete old map
-  free_struct (ptr, (len + 1) * sizeof (REJ), "REJ");
+  free (ptr);
   ptr = new_ptr;
 }
 

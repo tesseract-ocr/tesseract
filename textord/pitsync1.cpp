@@ -21,7 +21,6 @@
 #include          <assert.h>
 #endif
 #include          <math.h>
-#include          "memry.h"
 #include          "pitsync1.h"
 
 ELISTIZE (FPSEGPT) CLISTIZE (FPSEGPT_LIST)

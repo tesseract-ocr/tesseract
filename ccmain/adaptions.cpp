@@ -30,7 +30,6 @@
 #include          <string.h>
 #include          "tessbox.h"
 #include          "tessvars.h"
-#include          "memry.h"
 #include          "reject.h"
 #include          "control.h"
 #include          "stopper.h"
