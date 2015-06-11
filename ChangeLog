@@ -1,21 +1,20 @@
 2014-02-04 v3.03
-* Added new training tool text2image to generate box/tif file pairs from
-  text and truetype fonts.
-* Added support for PDF output with searchable text.
-* Removed entire IMAGE class and all code in image directory.
-* Tesseract executable: support for output to stdout; limited support for one 
-  page images from stdin  (especially on Windows)
-* Added Renderer to API to allow document-level processing and output
-  of document formats, like hOCR, PDF.
-* Major refactor of word-level recognition, beam search, eliminating dead code.
-* Refactored classifier to make it easier to add new ones.
-* Generalized feature extractor to allow feature extraction from greyscale.
-* Improved sub/superscript treatment.
-* Improved baseline fit.
-* Added set_unicharset_properties to training tools.
-* Many bug fixes.
-* More training source data included.
-
+  * Added new training tool text2image to generate box/tif file pairs from
+    text and truetype fonts.
+  * Added support for PDF output with searchable text.
+  * Removed entire IMAGE class and all code in image directory.
+  * Tesseract executable: support for output to stdout; limited support for one 
+    page images from stdin  (especially on Windows)
+  * Added Renderer to API to allow document-level processing and output
+    of document formats, like hOCR, PDF.
+  * Major refactor of word-level recognition, beam search, eliminating dead code.
+  * Refactored classifier to make it easier to add new ones.
+  * Generalized feature extractor to allow feature extraction from greyscale.
+  * Improved sub/superscript treatment.
+  * Improved baseline fit.
+  * Added set_unicharset_properties to training tools.
+  * Many bug fixes.
+  * More training source data included.
 
 2012-02-01 - v3.02
   * Moved ResultIterator/PageIterator to ccmain.
@@ -106,74 +105,83 @@
   * Fixed a number of errors in newer (stricter) versions of VC++ (Issues 
     301, among others)
 
-June  2006 - V1.0 of open source Tesseract checked-in.
-Sep 7 2006 - V1.01.
-          Added mfcpch.cpp and getopt.cpp for VC++.
-          Fixed problem with greyscale images and no libtiff.
-          Stopped debug window from being used for the usage output.
-          Fixed load of inttemp for big-endian architectures.
-          Fixed some Mac compilation issues.
-Oct 4 2006 - V1.02
-          Removed dependency on Aspirin.
-          Fixed a few missing Apache license headers.
-          Removed $log.
-Feb 2 2007 - V1.03
-          Added mftraining and cntraining.
-          Added baseapi with adaptive thresholding for grey and color.
-          Fixed many memory leaks.
-          Fixed several bugs including lack of use of adaptive classifier.
-          Added ifdefs to eliminate graphics code and add embedded platform support.
-          Incorporated several patches, including 64-bit builds, Mac builds.
-          Minor accuracy improvements.
-May 15 2007 - V1.04
-          Added dll exports for Windows.
-          Fixed name collisions with stl etc.
-          Made some preliminary changes ready for unicodeization.
-          Several bug fixes discovered during unicodeization.
-July 02 2007 - V2.00
-          Converted internal character handling to UTF8.
-          Trained with 6 languages.
-          Added unicharset_extractor, wordlist2dawg.
-          Added boxfile creation mode.
-          Added UNLV regression test capability.
-          Fixed problems with copyright and registered symbols.
-          Fixed extern "C" declarations problem.
-August 27 2007 - V2.01
-          Fixed UTF8 input problems with box file reader.
-          Fixed various infinite loops and crashes in dawg code.
-          Removed include of config_auto.h from host.h.
-          Added automatic wctype encoding to unicharset_extractor.
-          Fixed dawg table too full error.
-          Removed svn files from tarball.
-          Added new functions to tessdll.
-          Increased maximum utf8 string in a classification result to 8.
+2009-06-30 - V2.04
+  * Integrated bug fixes and patches and misc changes for portability.
+  * Integrated a patch to remove some of the "access" macros.
+  * Removed dependence on lua from the viewer, speeding it up
+    dramatically.
+  * Fixed the viewer so it compiles and runs properly!
+  * Specifically fixing issues: 1, 63, 67, 71, 76, 81, 82, 106, 111,
+   112, 128, 129, 130, 133, 135, 142, 143, 145, 147, 153, 154, 160,
+   165, 170, 175, 177, 187, 192, 195, 199, 201, 205, 209, 108, 169
 
-January 23 2008 - V2.02
-          Improvements to clustering, training and classifier.
-          Major internationalization improvements for large-character-set
-          languages, eg Kannada.
-          Removed some compiler warnings.
-          Added multipage tiff support for training and running.
-          Updated graphics output to talk to new java-based viewer.
-          Added ability to save n-best lists.
-          Added leptonica support for more file types.
-          Improved Init/End to make them safe.
-          Reduced memory use of dictionaries.
-          Added some new APIs to TessBaseAPI.
-April 21 2008 - V2.02 (again)
-          Fixed namespace collisions with jpeg library (INT32).
-          Portability fixes for Windows for new code.
-          Updates to autoconf system for new code.
-April 22 2008 - V2.03
-          Fixed crash introduced in 2.02.
-	  Fixed lack of tessembedded.cpp in distribution.
-	  Added test for leptonica header files and conditional test for lib.
-June 30 2009 - V2.04
-	  Integrated bug fixes and patches and misc changes for portability.
-	  Integrated a patch to remove some of the "access" macros.
-	  Removed dependence on lua from the viewer, speeding it up
-	  dramatically.
-	  Fixed the viewer so it compiles and runs properly!
-	  Specifically fixing issues: 1, 63, 67, 71, 76, 81, 82, 106, 111,
-	  112, 128, 129, 130, 133, 135, 142, 143, 145, 147, 153, 154, 160,
-	  165, 170, 175, 177, 187, 192, 195, 199, 201, 205, 209, 108, 169
+2008-04-22 - V2.03
+  * Fixed crash introduced in 2.02.
+  * Fixed lack of tessembedded.cpp in distribution.
+  * Added test for leptonica header files and conditional test for lib.
+
+2008-04-21 - V2.02 (again)
+  * Fixed namespace collisions with jpeg library (INT32).
+  * Portability fixes for Windows for new code.
+  * Updates to autoconf system for new code.
+
+2008-01-23 - V2.02
+  * Improvements to clustering, training and classifier.
+  * Major internationalization improvements for large-character-set
+  * languages, eg Kannada.
+  * Removed some compiler warnings.
+  * Added multipage tiff support for training and running.
+  * Updated graphics output to talk to new java-based viewer.
+  * Added ability to save n-best lists.
+  * Added leptonica support for more file types.
+  * Improved Init/End to make them safe.
+  * Reduced memory use of dictionaries.
+  * Added some new APIs to TessBaseAPI.
+
+2007-08-27 - V2.01
+  * Fixed UTF8 input problems with box file reader.
+  * Fixed various infinite loops and crashes in dawg code.
+  * Removed include of config_auto.h from host.h.
+  * Added automatic wctype encoding to unicharset_extractor.
+  * Fixed dawg table too full error.
+  * Removed svn files from tarball.
+  * Added new functions to tessdll.
+  * Increased maximum utf8 string in a classification result to 8.
+
+2007-07-02 - V2.00
+  * Converted internal character handling to UTF8.
+  * Trained with 6 languages.
+  * Added unicharset_extractor, wordlist2dawg.
+  * Added boxfile creation mode.
+  * Added UNLV regression test capability.
+  * Fixed problems with copyright and registered symbols.
+  * Fixed extern "C" declarations problem.
+
+2007-05-15 - V1.04
+  * Added dll exports for Windows.
+  * Fixed name collisions with stl etc.
+  * Made some preliminary changes ready for unicodeization.
+  * Several bug fixes discovered during unicodeization.
+
+2007-02-02 - V1.03
+  * Added mftraining and cntraining.
+  * Added baseapi with adaptive thresholding for grey and color.
+  * Fixed many memory leaks.
+  * Fixed several bugs including lack of use of adaptive classifier.
+  * Added ifdefs to eliminate graphics code and add embedded platform support.
+  * Incorporated several patches, including 64-bit builds, Mac builds.
+  * Minor accuracy improvements.
+
+2006-10-04 - V1.02
+  * Removed dependency on Aspirin.
+  * Fixed a few missing Apache license headers.
+  * Removed $log.
+
+2006-09-07 - V1.01.
+  * Added mfcpch.cpp and getopt.cpp for VC++.
+  * Fixed problem with greyscale images and no libtiff.
+  * Stopped debug window from being used for the usage output.
+  * Fixed load of inttemp for big-endian architectures.
+  * Fixed some Mac compilation issues.
+
+2006-06-16 - V1.0 of open source Tesseract checked-in.
