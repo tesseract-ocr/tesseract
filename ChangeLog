@@ -105,21 +105,21 @@
   * Fixed a number of errors in newer (stricter) versions of VC++ (Issues 
     301, among others)
 
-June  2006 - V1.0 of open source Tesseract checked-in.
+2006-06-16 - V1.0 of open source Tesseract checked-in.
 
-Sep 7 2006 - V1.01.
+2006-09-07 - V1.01.
   * Added mfcpch.cpp and getopt.cpp for VC++.
   * Fixed problem with greyscale images and no libtiff.
   * Stopped debug window from being used for the usage output.
   * Fixed load of inttemp for big-endian architectures.
   * Fixed some Mac compilation issues.
 
-Oct 4 2006 - V1.02
+2006-10-04 - V1.02
   * Removed dependency on Aspirin.
   * Fixed a few missing Apache license headers.
   * Removed $log.
 
-Feb 2 2007 - V1.03
+2007-02-02 - V1.03
   * Added mftraining and cntraining.
   * Added baseapi with adaptive thresholding for grey and color.
   * Fixed many memory leaks.
@@ -128,13 +128,13 @@ Feb 2 2007 - V1.03
   * Incorporated several patches, including 64-bit builds, Mac builds.
   * Minor accuracy improvements.
 
-May 15 2007 - V1.04
+2007-05-15 - V1.04
   * Added dll exports for Windows.
   * Fixed name collisions with stl etc.
   * Made some preliminary changes ready for unicodeization.
   * Several bug fixes discovered during unicodeization.
 
-July 02 2007 - V2.00
+2007-07-02 - V2.00
   * Converted internal character handling to UTF8.
   * Trained with 6 languages.
   * Added unicharset_extractor, wordlist2dawg.
@@ -143,7 +143,7 @@ July 02 2007 - V2.00
   * Fixed problems with copyright and registered symbols.
   * Fixed extern "C" declarations problem.
 
-August 27 2007 - V2.01
+2007-08-27 - V2.01
   * Fixed UTF8 input problems with box file reader.
   * Fixed various infinite loops and crashes in dawg code.
   * Removed include of config_auto.h from host.h.
@@ -153,7 +153,7 @@ August 27 2007 - V2.01
   * Added new functions to tessdll.
   * Increased maximum utf8 string in a classification result to 8.
 
-January 23 2008 - V2.02
+2008-01-23 - V2.02
   * Improvements to clustering, training and classifier.
   * Major internationalization improvements for large-character-set
   * languages, eg Kannada.
@@ -166,17 +166,17 @@ January 23 2008 - V2.02
   * Reduced memory use of dictionaries.
   * Added some new APIs to TessBaseAPI.
 
-April 21 2008 - V2.02 (again)
+2008-04-21 - V2.02 (again)
   * Fixed namespace collisions with jpeg library (INT32).
   * Portability fixes for Windows for new code.
   * Updates to autoconf system for new code.
 
-April 22 2008 - V2.03
+2008-04-22 - V2.03
   * Fixed crash introduced in 2.02.
   * Fixed lack of tessembedded.cpp in distribution.
   * Added test for leptonica header files and conditional test for lib.
 
-June 30 2009 - V2.04
+2009-06-30 - V2.04
   * Integrated bug fixes and patches and misc changes for portability.
   * Integrated a patch to remove some of the "access" macros.
   * Removed dependence on lua from the viewer, speeding it up
