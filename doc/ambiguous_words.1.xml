@@ -3,11 +3,14 @@
 <?asciidoc-toc?>
 <?asciidoc-numbered?>
 <refentry lang="en">
+<refentryinfo>
+    <title>AMBIGUOUS_WORDS(1)</title>
+</refentryinfo>
 <refmeta>
 <refentrytitle>ambiguous_words</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo class="source">&nbsp;</refmiscinfo>
-<refmiscinfo class="manual">&nbsp;</refmiscinfo>
+<refmiscinfo class="source">&#160;</refmiscinfo>
+<refmiscinfo class="manual">&#160;</refmiscinfo>
 </refmeta>
 <refnamediv>
     <refname>ambiguous_words</refname>

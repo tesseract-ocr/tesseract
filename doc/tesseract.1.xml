@@ -327,7 +327,7 @@ to train Tesseract.</simpara>
 <simpara>Tesseract was included in UNLV&#8217;s Fourth Annual Test of OCR Accuracy.
 See <ulink url="http://www.isri.unlv.edu/downloads/AT-1995.pdf">http://www.isri.unlv.edu/downloads/AT-1995.pdf</ulink>. With Tesseract 2.00,
 scripts are now included to allow anyone to reproduce some of these tests.
-See <ulink url="http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract</ulink> for more
+See <ulink url="https://github.com/tesseract-ocr/tesseract/wiki/TestingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TestingTesseract</ulink> for more
 details.</simpara>
 <simpara>Tesseract 3.00 adds a number of new languages, including Chinese, Japanese,
 and Korean. It also introduces a new, single-file based system of managing
@@ -338,8 +338,8 @@ multiple languages in a single image, and improved layout analysis.</simpara>
 </refsect1>
 <refsect1 id="_resources">
 <title>RESOURCES</title>
-<simpara>Main web site: <ulink url="http://code.google.com/p/tesseract-ocr/">http://code.google.com/p/tesseract-ocr/</ulink><?asciidoc-br?>
-Information on training: <ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</ulink></simpara>
+<simpara>Main web site: <ulink url="https://github.com/tesseract-ocr">https://github.com/tesseract-ocr</ulink><?asciidoc-br?>
+Information on training: <ulink url="https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract</ulink></simpara>
 </refsect1>
 <refsect1 id="_see_also">
 <title>SEE ALSO</title>

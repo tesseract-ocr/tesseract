@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
-<meta name="generator" content="AsciiDoc 8.6.8" />
+<meta name="generator" content="AsciiDoc 8.6.9" />
 <title>TESSERACT(1)</title>
 <style type="text/css">
 /* Shared CSS for AsciiDoc xhtml11 and html5 backends */
@@ -94,7 +94,9 @@ ul > li > * { color: black; }
   padding: 0;
   margin: 0;
 }
-
+pre {
+  white-space: pre-wrap;
+}
 
 #author {
   color: #527bbd;
@@ -223,7 +225,7 @@ div.exampleblock > div.content {
 }
 
 div.imageblock div.content { padding-left: 0; }
-span.image img { border-style: none; }
+span.image img { border-style: none; vertical-align: text-bottom; }
 a.image:visited { color: white; }
 
 dl {
@@ -1047,7 +1049,7 @@ to train Tesseract.</p></div>
 <div class="paragraph"><p>Tesseract was included in UNLV&#8217;s Fourth Annual Test of OCR Accuracy.
 See <a href="http://www.isri.unlv.edu/downloads/AT-1995.pdf">http://www.isri.unlv.edu/downloads/AT-1995.pdf</a>. With Tesseract 2.00,
 scripts are now included to allow anyone to reproduce some of these tests.
-See <a href="http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract</a> for more
+See <a href="https://github.com/tesseract-ocr/tesseract/wiki/TestingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TestingTesseract</a> for more
 details.</p></div>
 <div class="paragraph"><p>Tesseract 3.00 adds a number of new languages, including Chinese, Japanese,
 and Korean. It also introduces a new, single-file based system of managing
@@ -1060,8 +1062,8 @@ multiple languages in a single image, and improved layout analysis.</p></div>
 <div class="sect1">
 <h2 id="_resources">RESOURCES</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Main web site: <a href="http://code.google.com/p/tesseract-ocr/">http://code.google.com/p/tesseract-ocr/</a><br />
-Information on training: <a href="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</a></p></div>
+<div class="paragraph"><p>Main web site: <a href="https://github.com/tesseract-ocr">https://github.com/tesseract-ocr</a><br />
+Information on training: <a href="https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract</a></p></div>
 </div>
 </div>
 <div class="sect1">
@@ -1095,7 +1097,7 @@ Lloyd, Shobhit Saxena, and Thomas Kielbus.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-08-02 22:51:16 CEST
+Last updated 2015-06-12 23:49:44 CEST
 </div>
 </div>
 </body>
