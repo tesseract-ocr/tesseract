@@ -430,9 +430,14 @@ int main(int argc, char** argv) {
   ASSERT_HOST_MSG(FLAGS_render_ngrams || FLAGS_unicharset_file.empty(),
                   "Use --unicharset_file only if --render_ngrams is set.\n");
 
-  ASSERT_HOST_MSG(FLAGS_find_fonts ||
-                  FontUtils::IsAvailableFont(FLAGS_font.c_str()),
-                  "Could not find font named %s\n", FLAGS_font.c_str());
+  if (!FLAGS_find_fonts && !FontUtils::IsAvailableFont(FLAGS_font.c_str())) {
+    string pango_name;
+    if (!FontUtils::IsAvailableFont(FLAGS_font.c_str(), &pango_name)) {
+      tprintf("Could not find font named %s. Pango suggested font %s\n",
+              FLAGS_font.c_str(), pango_name.c_str());
+      TLOG_FATAL("Please correct --font arg.");
+    }
+  }
 
   if (FLAGS_render_ngrams)
     FLAGS_output_word_boxes = true;

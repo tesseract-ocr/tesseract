@@ -247,34 +247,11 @@ THAI_FONTS=( \
 KOREAN_FONTS=( \
     "Arial Unicode MS" \
     "Arial Unicode MS Bold" \
-    "Ascender Uni" \
     "Baekmuk Batang Patched" \
     "Baekmuk Batang" \
     "Baekmuk Dotum" \
     "Baekmuk Gulim" \
     "Baekmuk Headline" \
-    "Bandal Medium" \
-    "Bangwool Medium" \
-    "Dotum" \
-    "Eunjin Medium" \
-    "EunjinNakseo Medium" \
-    "FBHanGothicDB" \
-    "Guseul Medium" \
-    "JejuGothic" \
-    "JejuHallasan" \
-    "JejuMyeongjo" \
-    "KoPub Batang Bold" \
-    "KoPub Batang Light" \
-    "KoPub Batang" \
-    "Nanum Brush Script" \
-    "NanumGothic Bold" \
-    "NanumGothic Ultra-Bold" \
-    "NanumGothic" \
-    "NanumMyeongjo Bold" \
-    "NanumMyeongjo Semi-Bold" \
-    "NanumMyeongjo" \
-    "Nanum Pen" \
-    "WenQuanYi Zen Hei Medium" \
     )
 
 CHI_SIM_FONTS=( \
@@ -282,70 +259,16 @@ CHI_SIM_FONTS=( \
     "AR PL UMing Patched Light" \
     "Arial Unicode MS" \
     "Arial Unicode MS Bold" \
-    "CFangSongPRC" \
-    "CGuLi PRC" \
-    "CGuYin PRC" \
-    "CHei2 PRC" \
-    "CHei3 PRC" \
-    "CNganKai PRC" \
-    "CPo3 PRC" \
-    "CPo PRC" \
-    "CSong3 PRC" \
-    "CWeiBei PRC" \
-    "CXLi PRC" \
-    "CXYao PRC" \
-    "CXing PRC" \
-    "CYuen2 PRC" \
-    "MComic PRC" \
-    "MCute PRC" \
-    "MElle PRC" \
-    "MGentle PRC" \
-    "MJNgai PRC" \
-    "MKai PRC" \
-    "MMarker PRC" \
-    "MRocky PRC" \
-    "MSung PRC" \
-    "MWindy PRC" \
-    "MYoung PRC" \
-    "MYuen PRC" \
-    "MYuppy PRC" \
     "WenQuanYi Zen Hei Medium" \
     )
 
-# The PRC fonts don't cover all the character set for chi_tra, but they
-# provide a broader view of the fonts for the characters they do cover.
 CHI_TRA_FONTS=( \
+    "AR PL UKai TW" \
+    "AR PL UMing TW MBE Light" \
     "AR PL UKai Patched" \
     "AR PL UMing Patched Light" \
     "Arial Unicode MS" \
     "Arial Unicode MS Bold" \
-    "CFangSongPRC" \
-    "CGuLi PRC" \
-    "CGuYin PRC" \
-    "CHei2 PRC" \
-    "CHei3 PRC" \
-    "CNganKai PRC" \
-    "CPo3 PRC" \
-    "CPo PRC" \
-    "CSong3 PRC" \
-    "CWeiBei PRC" \
-    "CXLi PRC" \
-    "CXYao PRC" \
-    "CXing PRC" \
-    "CYuen2 PRC" \
-    "MComic PRC" \
-    "MCute PRC" \
-    "MElle PRC" \
-    "MGentle PRC" \
-    "MJNgai PRC" \
-    "MKai PRC" \
-    "MMarker PRC" \
-    "MRocky PRC" \
-    "MSung PRC" \
-    "MWindy PRC" \
-    "MYoung PRC" \
-    "MYuen PRC" \
-    "MYuppy PRC" \
     "WenQuanYi Zen Hei Medium" \
     )
 
@@ -358,23 +281,8 @@ JPN_FONTS=( \
     "TakaoPMincho" \
     "VL Gothic" \
     "VL PGothic" \
-    "Noto Sans Japanese Black" \
     "Noto Sans Japanese Bold" \
     "Noto Sans Japanese Light" \
-    "Noto Sans Japanese Medium" \
-    "Noto Sans Japanese" \
-    "Noto Sans Japanese Thin" \
-    "IPAGothic" \
-    "IPAPGothic" \
-    "IPAUIGothic" \
-    "IPAMincho" \
-    "IPAPMincho" \
-    "Kochi Gothic" \
-    "Kochi Mincho" \
-    "Monapo" \
-    "UmePlus Gothic" \
-    "UmePlus P Gothic" \
-    "WenQuanYi Zen Hei Medium" \
     )
 
 RUSSIAN_FONTS=( \
@@ -889,7 +797,15 @@ set_lang_specific_parameters() {
   FONTS=( "${LATIN_FONTS[@]}" )
   FILTER_ARGUMENTS=""
   WORDLIST2DAWG_ARGUMENTS=""
-  WORD_DAWG_SIZE=100000
+  # These dawg factors represent the fraction of the corpus not covered by the
+  # dawg, and seem like reasonable defaults, but the optimal value is likely
+  # to be highly corpus-dependent, as well as somewhat language-dependent.
+  # Number dawg factor is the fraction of all numeric strings that are not
+  # covered, which is why it is higher relative to the others.
+  PUNC_DAWG_FACTOR=
+  NUMBER_DAWG_FACTOR=0.125
+  WORD_DAWG_FACTOR=0.05
+  BIGRAM_DAWG_FACTOR=0.015
   TRAINING_DATA_ARGUMENTS=""
   FRAGMENTS_DISABLED="y"
   RUN_SHAPE_CLUSTERING=0
@@ -935,17 +851,17 @@ set_lang_specific_parameters() {
     bos ) ;;
     cat ) ;;
     ceb ) ;;
-    ces ) ;;
+    ces ) PUNC_DAWG_FACTOR=0.004 ;;
     cym ) ;;
     dan ) ;;
-    deu ) ;;
-    eng ) ;;
+    deu ) WORD_DAWG_FACTOR=0.125 ;;
+    eng ) WORD_DAWG_FACTOR=0.03 ;;
     epo ) ;;
     est ) ;;
     eus ) ;;
     fil ) ;;
     fin ) ;;
-    fra ) ;;
+    fra ) WORD_DAWG_FACTOR=0.08 ;;
     gle ) ;;
     glg ) ;;
     hat ) ;;
@@ -959,7 +875,7 @@ set_lang_specific_parameters() {
     lit ) ;;
     mlt ) ;;
     msa ) ;;
-    nld ) ;;
+    nld ) WORD_DAWG_FACTOR=0.02 ;;
     nor ) ;;
     por ) ;;
     ron ) ;;
@@ -987,6 +903,7 @@ set_lang_specific_parameters() {
 
     # Cyrillic script-based languages.
     rus ) FONTS=( "${RUSSIAN_FONTS[@]}" )
+          NUMBER_DAWG_FACTOR=0.05
           WORD_DAWG_SIZE=1000000 ;;
     aze_cyrl | bel | bul | kaz | mkd | srp | tgk | ukr | uzb_cyrl )
           FONTS=( "${RUSSIAN_FONTS[@]}" ) ;;
@@ -998,7 +915,6 @@ set_lang_specific_parameters() {
           TEXT_CORPUS=${FLAGS_webtext_prefix}/cyr_lid.corpus.txt
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           GENERATE_WORD_BIGRAMS=0
-          FRAGMENTS_DISABLED="y"
           WORD_DAWG_SIZE=1000000
           FONTS=( "${RUSSIAN_FONTS[@]}" );;
 
@@ -1006,48 +922,66 @@ set_lang_specific_parameters() {
     # down the MEAN_COUNT so as not to get a huge amount of text.
     asm | ben )
           MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           FONTS=( "${BENGALI_FONTS[@]}" ) ;;
     bih | hin | mar | nep | san )
           MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           FONTS=( "${DEVANAGARI_FONTS[@]}" ) ;;
     bod ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           FONTS=( "${TIBETAN_FONTS[@]}" ) ;;
-    dzo ) FONTS=( "${TIBETAN_FONTS[@]}" ) ;;
+    dzo )
+          WORD_DAWG_FACTOR=0.01
+          FONTS=( "${TIBETAN_FONTS[@]}" ) ;;
     guj ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           FONTS=( "${GUJARATI_FONTS[@]}" ) ;;
     kan ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --no_newline_in_output"
           TEXT2IMAGE_EXTRA_ARGS=" --char_spacing=0.5"
           FONTS=( "${KANNADA_FONTS[@]}" ) ;;
     mal ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --no_newline_in_output"
           TEXT2IMAGE_EXTRA_ARGS=" --char_spacing=0.5"
           FONTS=( "${MALAYALAM_FONTS[@]}" ) ;;
-    ori ) FONTS=( "${ORIYA_FONTS[@]}" ) ;;
+    ori )
+          WORD_DAWG_FACTOR=0.01
+          FONTS=( "${ORIYA_FONTS[@]}" ) ;;
     pan ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.01
           FONTS=( "${PUNJABI_FONTS[@]}" ) ;;
     sin ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.01
           FONTS=( "${SINHALA_FONTS[@]}" ) ;;
     tam ) MEAN_COUNT="30"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --no_newline_in_output"
           TEXT2IMAGE_EXTRA_ARGS=" --char_spacing=0.5"
           FONTS=( "${TAMIL_FONTS[@]}" ) ;;
     tel ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --no_newline_in_output"
           TEXT2IMAGE_EXTRA_ARGS=" --char_spacing=0.5"
           FONTS=( "${TELUGU_FONTS[@]}" ) ;;
 
     # SouthEast Asian scripts.
     khm ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           FONTS=( "${KHMER_FONTS[@]}" ) ;;
     lao ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           FONTS=( "${LAOTHIAN_FONTS[@]}" ) ;;
     mya ) MEAN_COUNT="12"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           FONTS=( "${BURMESE_FONTS[@]}" ) ;;
     tha ) MEAN_COUNT="30"
+          WORD_DAWG_FACTOR=0.01
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           FILTER_ARGUMENTS="--segmenter_lang=tha"
           TRAINING_DATA_ARGUMENTS+=" --no_space_in_output --desired_bigrams="
@@ -1058,36 +992,35 @@ set_lang_specific_parameters() {
     # CJK
     chi_sim )
           MEAN_COUNT="15"
+          PUNC_DAWG_FACTOR=0.015
+          WORD_DAWG_FACTOR=0.015
           GENERATE_WORD_BIGRAMS=0
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           TRAINING_DATA_ARGUMENTS+=" --no_space_in_output --desired_bigrams="
           FILTER_ARGUMENTS="--charset_filter=chi_sim --segmenter_lang=chi_sim"
-          FRAGMENTS_DISABLED="y"
-          GENERATE_DAWGS=0
           FONTS=( "${CHI_SIM_FONTS[@]}" ) ;;
     chi_tra )
           MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.015
           GENERATE_WORD_BIGRAMS=0
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           TRAINING_DATA_ARGUMENTS+=" --no_space_in_output --desired_bigrams="
           FILTER_ARGUMENTS="--charset_filter=chi_tra --segmenter_lang=chi_tra"
-          FRAGMENTS_DISABLED="y"
-          GENERATE_DAWGS=0
           FONTS=( "${CHI_TRA_FONTS[@]}" ) ;;
     jpn ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.015
           GENERATE_WORD_BIGRAMS=0
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           TRAINING_DATA_ARGUMENTS+=" --no_space_in_output --desired_bigrams="
           FILTER_ARGUMENTS="--charset_filter=jpn --segmenter_lang=jpn"
-          FRAGMENTS_DISABLED="y"
-          GENERATE_DAWGS=0
           FONTS=( "${JPN_FONTS[@]}" ) ;;
     kor ) MEAN_COUNT="20"
+          WORD_DAWG_FACTOR=0.015
+          NUMBER_DAWG_FACTOR=0.05
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           TRAINING_DATA_ARGUMENTS+=" --desired_bigrams="
           GENERATE_WORD_BIGRAMS=0
           FILTER_ARGUMENTS="--charset_filter=kor --segmenter_lang=kor"
-          FRAGMENTS_DISABLED="y"
           FONTS=( "${KOREAN_FONTS[@]}" ) ;;
 
     # Middle-Eastern scripts.
@@ -1096,6 +1029,8 @@ set_lang_specific_parameters() {
     fas | pus | snd | uig | urd )
           FONTS=( "${PERSIAN_FONTS[@]}" ) ;;
     heb | yid )
+          NUMBER_DAWG_FACTOR=0.05
+          WORD_DAWG_FACTOR=0.08
           FONTS=( "${HEBREW_FONTS[@]}" ) ;;
     syr ) FONTS=( "${SYRIAC_FONTS[@]}" ) ;;
 
@@ -1106,6 +1041,8 @@ set_lang_specific_parameters() {
                   "Noto Sans Cherokee" \
                 ) ;;
     ell | grc )
+          NUMBER_DAWG_FACTOR=0.05
+          WORD_DAWG_FACTOR=0.08
           FONTS=( "${GREEK_FONTS[@]}" ) ;;
     hye ) FONTS=( "${ARMENIAN_FONTS[@]}" ) ;;
     iku ) FONTS=( "${NORTH_AMERICAN_ABORIGINAL_FONTS[@]}" ) ;;

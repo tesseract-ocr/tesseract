@@ -69,33 +69,6 @@ check_file_readable() {
     done
 }
 
-# Write a file (with name specified in $2) with records that account for
-# n% (specified in $3) of the total weights of records in the input file
-# (input file name specified in $1). The input file should have one record
-# per line along with its weight separated by \t. The records should be
-# sorted in non-ascending order of frequency.
-# If $4 is true the first record is skipped.
-# USAGE: discard_tail INPUT_FILE OUTPUT_FILE PERCENTAGE
-discard_tail() {
-    local infile=$1
-    local outfile=$2
-    local pct=$3
-    local skip_first=$4
-
-    local more_arg="1";
-    if [[ ${skip_first} ]]; then
-        more_arg="2"
-    fi
-    local sum=$(tail -n +${more_arg} ${infile} \
-        | awk 'BEGIN {FS = "\t"} {if ($1 != " ") {s=s+$2}}; END {print s}')
-    if [[ ${sum} == "" ]]; then sum=0
-    fi
-    local limit=$((${sum}*${pct}/100))
-    tail -n +${more_arg} ${infile} | awk 'BEGIN {FS = "\t"}
-        {if (s > 0) {print $1; if ($1 != " ") {s=s-$2;}}}' s=${limit} \
-            >> ${outfile}
-}
-
 # Set global path variables that are based on parsed flags.
 set_prog_paths() {
     if [[ -z ${BINDIR} ]]; then
@@ -206,7 +179,7 @@ parse_flags() {
     LOG_FILE=${TRAINING_DIR}/tesstrain.log
 
     # Take training text and wordlist from the langdata directory if not
-    # specified in the commend-line.
+    # specified in the command-line.
     if [[ -z ${TRAINING_TEXT} ]]; then
         TRAINING_TEXT=${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}.training_text
     fi
@@ -351,7 +324,7 @@ phase_D_generate_dawg() {
 
     # Word DAWG
     local freq_wordlist_file=${TRAINING_DIR}/${LANG_CODE}.wordlist.clean.freq
-    if [[ -r ${WORDLIST_FILE} ]]; then
+    if [[ -s ${WORDLIST_FILE} ]]; then
         tlog "Generating word Dawg"
         check_file_readable ${UNICHARSET_FILE}
         run_command ${WORDLIST2DAWG_EXE} -r 1 ${WORDLIST_FILE} ${WORD_DAWG} \
@@ -363,23 +336,15 @@ phase_D_generate_dawg() {
     fi
 
     # Freq-word DAWG
-    if [[ -r ${freq_wordlist_file} ]]; then
+    if [[ -s ${freq_wordlist_file} ]]; then
         check_file_readable ${UNICHARSET_FILE}
         tlog "Generating frequent-word Dawg"
-        run_command ${WORDLIST2DAWG_EXE}  -r 1 ${freq_wordlist_file} ${FREQ_DAWG} \
-            ${UNICHARSET_FILE}
+        run_command ${WORDLIST2DAWG_EXE}  -r 1 ${freq_wordlist_file} \
+            ${FREQ_DAWG} ${UNICHARSET_FILE}
         check_file_readable ${FREQ_DAWG}
     fi
 
     # Punctuation DAWG
-    local punc_clean="${LANGDATA_ROOT}/common.punc"
-    if [[ -r ${PUNC_FILE} ]]; then
-        local top_punc_file=${TRAINING_DIR}/${LANG_CODE}.punc.top
-        head -n 1 ${PUNC_FILE} | awk 'BEGIN {FS = "\t"} {print $1}' \
-            > ${top_punc_file}
-        discard_tail ${PUNC_FILE} ${top_punc_file} 99 1
-        punc_clean="${top_punc_file}"
-    fi
     # -r arguments to WORDLIST2DAWG_EXE denote RTL reverse policy
     # (see Trie::RTLReversePolicy enum in third_party/tesseract/dict/trie.h).
     # We specify 0/RRP_DO_NO_REVERSE when generating number DAWG,
@@ -391,25 +356,23 @@ phase_D_generate_dawg() {
         punc_reverse_policy=2 ;;
       * ) ;;
     esac
-    if [[ -r ${punc_clean} ]]; then
-        run_command ${WORDLIST2DAWG_EXE} -r ${punc_reverse_policy} \
-            ${punc_clean} ${PUNC_DAWG} ${UNICHARSET_FILE}
-        check_file_readable ${PUNC_DAWG}
+    if [[ ! -s ${PUNC_FILE} ]]; then
+        PUNC_FILE="${LANGDATA_ROOT}/common.punc"
     fi
+    check_file_readable ${PUNC_FILE}
+    run_command ${WORDLIST2DAWG_EXE} -r ${punc_reverse_policy} \
+        ${PUNC_FILE} ${PUNC_DAWG} ${UNICHARSET_FILE}
+    check_file_readable ${PUNC_DAWG}
 
     # Numbers DAWG
-    if [[ -r ${NUMBERS_FILE} ]]; then
-        local top_num_file=${TRAINING_DIR}/${LANG_CODE}.numbers.top
-        head -n 1 ${NUMBERS_FILE} | awk 'BEGIN {FS = "\t"} {print $1}' \
-            > ${top_num_file}
-        discard_tail ${NUMBERS_FILE} ${top_num_file} 85 1
+    if [[ -s ${NUMBERS_FILE} ]]; then
         run_command ${WORDLIST2DAWG_EXE} -r 0 \
-            ${top_num_file} ${NUMBER_DAWG} ${UNICHARSET_FILE}
+            ${NUMBERS_FILE} ${NUMBER_DAWG} ${UNICHARSET_FILE}
         check_file_readable ${NUMBER_DAWG}
     fi
 
     # Bigram dawg
-    if [[ -r ${WORD_BIGRAMS_FILE} ]]; then
+    if [[ -s ${WORD_BIGRAMS_FILE} ]]; then
         run_command ${WORDLIST2DAWG_EXE} -r 1 \
             ${WORD_BIGRAMS_FILE} ${BIGRAM_DAWG} ${UNICHARSET_FILE}
         check_file_readable ${BIGRAM_DAWG}
