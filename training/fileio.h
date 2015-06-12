@@ -63,11 +63,6 @@ class InputBuffer {
 
   ~InputBuffer();
 
-  // Read data until end-of-file or a \n is read.
-  // The data is stored in '*out', excluding the \n if present.
-  // Return false if an error occurs or at end-of-file, true otherwise.
-  bool ReadLine(string* out);
-
   // Read data until end-of-file.
   // The data is stored in '*out'.
   // Return false if an error occurs, true otherwise.

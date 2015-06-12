@@ -615,7 +615,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   if (n >= sizeof(buf)) return false;
   FILE *fp = fopen(buf, "rb");
   if (!fp) {
-    fprintf(stderr, "Can not open file \"%s\"!\n", buf);
+    tprintf("Can not open file \"%s\"!\n", buf);
     return false;
   }
   fseek(fp, 0, SEEK_END);
@@ -636,8 +636,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
                "  /Length1 %ld\n"
                ">>\n"
                "stream\n", size, size);
-  if (n >= sizeof(buf))
-  { 
+  if (n >= sizeof(buf)) { 
   	delete[] buffer;
 	return false;
   }

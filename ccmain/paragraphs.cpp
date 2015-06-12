@@ -2401,10 +2401,8 @@ void InitializeTextAndBoxesPreRecognition(const MutableIterator &it,
     word_res = page_res_it.forward();
   } while (page_res_it.row() == this_row);
 
-  if(lword)
-    info->lword_box = lword->word->bounding_box();
-  if(rword)
-    info->rword_box = rword->word->bounding_box();
+  if (lword) info->lword_box = lword->word->bounding_box();
+  if (rword) info->rword_box = rword->word->bounding_box();
 }
 
 
