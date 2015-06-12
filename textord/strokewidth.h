@@ -68,7 +68,8 @@ class StrokeWidth : public BlobGrid {
   // and large blobs with optional repair of broken CJK characters first.
   // Repair of broken CJK is needed here because broken CJK characters
   // can fool the textline direction detection algorithm.
-  void FindTextlineDirectionAndFixBrokenCJK(bool cjk_merge,
+  void FindTextlineDirectionAndFixBrokenCJK(PageSegMode pageseg_mode,
+                                            bool cjk_merge,
                                             TO_BLOCK* input_block);
 
   // To save computation, the process of generating partitions is broken
@@ -118,7 +119,8 @@ class StrokeWidth : public BlobGrid {
   // part_grid is the output grid of textline partitions.
   // Large blobs that cause overlap are put in separate partitions and added
   // to the big_parts list.
-  void GradeBlobsIntoPartitions(const FCOORD& rerotation, TO_BLOCK* block,
+  void GradeBlobsIntoPartitions(PageSegMode pageseg_mode,
+                                const FCOORD& rerotation, TO_BLOCK* block,
                                 Pix* nontext_pix, const DENORM* denorm,
                                 bool cjk_script, TextlineProjection* projection,
                                 BLOBNBOX_LIST* diacritic_blobs,
@@ -171,7 +173,8 @@ class StrokeWidth : public BlobGrid {
   // flags in the BLOBNBOXes currently in this grid.
   // This function is called more than once if page orientation is uncertain,
   // so display_if_debugging is true on the final call to display the results.
-  void FindTextlineFlowDirection(bool display_if_debugging);
+  void FindTextlineFlowDirection(PageSegMode pageseg_mode,
+                                 bool display_if_debugging);
 
   // Sets the neighbours and good_stroke_neighbours members of the blob by
   // searching close on all 4 sides.
@@ -199,7 +202,8 @@ class StrokeWidth : public BlobGrid {
   // Smoothes the vertical/horizontal type of the blob based on the
   // 2nd-order neighbours. If reset_all is true, then all blobs are
   // changed. Otherwise, only ambiguous blobs are processed.
-  void SmoothNeighbourTypes(BLOBNBOX* blob, bool desperate);
+  void SmoothNeighbourTypes(PageSegMode pageseg_mode, bool desperate,
+                            BLOBNBOX* blob);
 
   // Checks the left or right side of the given leader partition and sets the
   // (opposite) leader_on_right or leader_on_left flags for blobs
@@ -218,7 +222,8 @@ class StrokeWidth : public BlobGrid {
   // the components, saves the skew_angle and returns PFR_SKEW.] If the return
   // is not PFR_OK, the job is incomplete, and FindInitialPartitions must be
   // called again after cleaning up the partly done work.
-  PartitionFindResult FindInitialPartitions(const FCOORD& rerotation,
+  PartitionFindResult FindInitialPartitions(PageSegMode pageseg_mode,
+                                            const FCOORD& rerotation,
                                             bool find_problems, TO_BLOCK* block,
                                             BLOBNBOX_LIST* diacritic_blobs,
                                             ColPartitionGrid* part_grid,
@@ -269,17 +274,38 @@ class StrokeWidth : public BlobGrid {
                               ColPartition_LIST* big_parts);
 
     // All remaining unused blobs are put in individual ColPartitions.
-  void PartitionRemainingBlobs(ColPartitionGrid* part_grid);
+  void PartitionRemainingBlobs(PageSegMode pageseg_mode,
+                               ColPartitionGrid* part_grid);
 
   // If combine, put all blobs in the cell_list into a single partition,
   // otherwise put each one into its own partition.
-  void MakePartitionsFromCellList(bool combine,
+  void MakePartitionsFromCellList(PageSegMode pageseg_mode, bool combine,
                                   ColPartitionGrid* part_grid,
                                   BLOBNBOX_CLIST* cell_list);
 
   // Helper function to finish setting up a ColPartition and insert into
   // part_grid.
-  void CompletePartition(ColPartition* part, ColPartitionGrid* part_grid);
+  void CompletePartition(PageSegMode pageseg_mode, ColPartition* part,
+                         ColPartitionGrid* part_grid);
+
+  // Helper returns true if we are looking only for vertical textlines,
+  // taking into account any rotation that has been done.
+  bool FindingVerticalOnly(PageSegMode pageseg_mode) const {
+    if (rerotation_.y() == 0.0f) {
+      return pageseg_mode == PSM_SINGLE_BLOCK_VERT_TEXT;
+    }
+    return !PSM_ORIENTATION_ENABLED(pageseg_mode) &&
+           pageseg_mode != PSM_SINGLE_BLOCK_VERT_TEXT;
+  }
+  // Helper returns true if we are looking only for horizontal textlines,
+  // taking into account any rotation that has been done.
+  bool FindingHorizontalOnly(PageSegMode pageseg_mode) const {
+    if (rerotation_.y() == 0.0f) {
+      return !PSM_ORIENTATION_ENABLED(pageseg_mode) &&
+             pageseg_mode != PSM_SINGLE_BLOCK_VERT_TEXT;
+    }
+    return pageseg_mode == PSM_SINGLE_BLOCK_VERT_TEXT;
+  }
 
   // Merge partitions where the merge appears harmless.
   void EasyMerges(ColPartitionGrid* part_grid);

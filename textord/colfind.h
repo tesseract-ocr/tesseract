@@ -110,7 +110,8 @@ class ColumnFinder : public TabFind {
   // direction, so the textline projection_ map can be setup.
   // On return, IsVerticallyAlignedText may be called (now optionally) to
   // determine the gross textline alignment of the page.
-  void SetupAndFilterNoise(Pix* photo_mask_pix, TO_BLOCK* input_block);
+  void SetupAndFilterNoise(PageSegMode pageseg_mode, Pix* photo_mask_pix,
+                           TO_BLOCK* input_block);
 
   // Tests for vertical alignment of text (returning true if so), and generates
   // a list of blobs (in osd_blobs) for orientation and script detection.

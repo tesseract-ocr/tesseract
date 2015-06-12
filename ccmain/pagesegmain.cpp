@@ -242,12 +242,9 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
   BLOCK_LIST found_blocks;
   TO_BLOCK_LIST temp_blocks;
 
-  bool single_column = !PSM_COL_FIND_ENABLED(pageseg_mode);
-  bool osd_enabled = PSM_OSD_ENABLED(pageseg_mode);
-  bool osd_only = pageseg_mode == PSM_OSD_ONLY;
   ColumnFinder* finder = SetupPageSegAndDetectOrientation(
-      single_column, osd_enabled, osd_only, blocks, osd_tess, osr,
-      &temp_blocks, &photomask_pix, &musicmask_pix);
+      pageseg_mode, blocks, osd_tess, osr, &temp_blocks, &photomask_pix,
+      &musicmask_pix);
   int result = 0;
   if (finder != NULL) {
     TO_BLOCK_IT to_block_it(&temp_blocks);
@@ -310,9 +307,9 @@ static void AddAllScriptsConverted(const UNICHARSET& sid_set,
  * The returned ColumnFinder must be deleted after use.
  */
 ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
-    bool single_column, bool osd, bool only_osd,
-    BLOCK_LIST* blocks, Tesseract* osd_tess, OSResults* osr,
-    TO_BLOCK_LIST* to_blocks, Pix** photo_mask_pix, Pix** music_mask_pix) {
+    PageSegMode pageseg_mode, BLOCK_LIST* blocks, Tesseract* osd_tess,
+    OSResults* osr, TO_BLOCK_LIST* to_blocks, Pix** photo_mask_pix,
+    Pix** music_mask_pix) {
   int vertical_x = 0;
   int vertical_y = 1;
   TabVector_LIST v_lines;
@@ -334,8 +331,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
   *photo_mask_pix = ImageFind::FindImages(pix_binary_);
   if (tessedit_dump_pageseg_images)
     pixWrite("tessnoimages.png", pix_binary_, IFF_PNG);
-  if (single_column)
-    v_lines.clear();
+  if (!PSM_COL_FIND_ENABLED(pageseg_mode)) v_lines.clear();
 
   // The rest of the algorithm uses the usual connected components.
   textord_.find_components(pix_binary_, blocks, to_blocks);
@@ -355,7 +351,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
                               textord_tabfind_aligned_gap_fraction,
                               &v_lines, &h_lines, vertical_x, vertical_y);
 
-    finder->SetupAndFilterNoise(*photo_mask_pix, to_block);
+    finder->SetupAndFilterNoise(pageseg_mode, *photo_mask_pix, to_block);
 
     if (equ_detect_) {
       equ_detect_->LabelSpecialText(to_block);
@@ -367,13 +363,15 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
     // We want the text lines horizontal, (vertical text indicates vertical
     // textlines) which may conflict (eg vertically written CJK).
     int osd_orientation = 0;
-    bool vertical_text = textord_tabfind_force_vertical_text;
-    if (!vertical_text && textord_tabfind_vertical_text) {
+    bool vertical_text = textord_tabfind_force_vertical_text ||
+                         pageseg_mode == PSM_SINGLE_BLOCK_VERT_TEXT;
+    if (!vertical_text && textord_tabfind_vertical_text &&
+        PSM_ORIENTATION_ENABLED(pageseg_mode)) {
       vertical_text =
           finder->IsVerticallyAlignedText(textord_tabfind_vertical_text_ratio,
                                           to_block, &osd_blobs);
     }
-    if (osd && osd_tess != NULL && osr != NULL) {
+    if (PSM_OSD_ENABLED(pageseg_mode) && osd_tess != NULL && osr != NULL) {
       GenericVector<int> osd_scripts;
       if (osd_tess != this) {
         // We are running osd as part of layout analysis, so constrain the
@@ -385,7 +383,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
         }
       }
       os_detect_blobs(&osd_scripts, &osd_blobs, osr, osd_tess);
-      if (only_osd) {
+      if (pageseg_mode == PSM_OSD_ONLY) {
         delete finder;
         return NULL;
       }
