@@ -374,6 +374,12 @@ class Classify : public CCStruct {
   // Member variables.
 
   // Parameters.
+  // Set during training (in lang.config) to indicate whether the divisible
+  // blobs chopper should be used (true for latin script.)
+  BOOL_VAR_H(allow_blob_division, true, "Use divisible blobs chopping");
+  // Set during training (in lang.config) to indicate whether the divisible
+  // blobs chopper should be used in preference to chopping. Set to true for
+  // southern Indic scripts.
   BOOL_VAR_H(prioritize_division, FALSE,
              "Prioritize blob division over chopping");
   INT_VAR_H(tessedit_single_match, FALSE, "Top choice only from CP");
