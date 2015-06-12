@@ -179,6 +179,9 @@ enum PageSegMode {
 inline bool PSM_OSD_ENABLED(int pageseg_mode) {
   return pageseg_mode <= PSM_AUTO_OSD || pageseg_mode == PSM_SPARSE_TEXT_OSD;
 }
+inline bool PSM_ORIENTATION_ENABLED(int pageseg_mode) {
+  return pageseg_mode <= PSM_AUTO || pageseg_mode == PSM_SPARSE_TEXT_OSD;
+}
 inline bool PSM_COL_FIND_ENABLED(int pageseg_mode) {
   return pageseg_mode >= PSM_AUTO_OSD && pageseg_mode <= PSM_AUTO;
 }
