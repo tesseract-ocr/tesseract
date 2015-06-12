@@ -24,36 +24,36 @@
 #endif
 
 #include <ctype.h>
-#include "shapeclassifier.h"
 #include "ambigs.h"
 #include "blobclass.h"
 #include "blobs.h"
-#include "helpers.h"
-#include "normfeat.h"
-#include "mfoutline.h"
-#include "picofeat.h"
-#include "float2int.h"
-#include "outfeat.h"
-#include "emalloc.h"
-#include "intfx.h"
-#include "efio.h"
-#include "normmatch.h"
-#include "ndminx.h"
-#include "intproto.h"
-#include "const.h"
-#include "globals.h"
-#include "werd.h"
 #include "callcpp.h"
+#include "classify.h"
+#include "const.h"
+#include "dict.h"
+#include "efio.h"
+#include "emalloc.h"
+#include "featdefs.h"
+#include "float2int.h"
+#include "genericvector.h"
+#include "globals.h"
+#include "helpers.h"
+#include "intfx.h"
+#include "intproto.h"
+#include "mfoutline.h"
+#include "ndminx.h"
+#include "normfeat.h"
+#include "normmatch.h"
+#include "outfeat.h"
 #include "pageres.h"
 #include "params.h"
-#include "classify.h"
+#include "picofeat.h"
+#include "shapeclassifier.h"
 #include "shapetable.h"
 #include "tessclassifier.h"
 #include "trainingsample.h"
 #include "unicharset.h"
-#include "dict.h"
-#include "featdefs.h"
-#include "genericvector.h"
+#include "werd.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -420,7 +420,13 @@ void Classify::LearnPieces(const char* fontname, int start, int length,
               unicharset.id_to_unichar(class_id), threshold, font_id);
     // If filename is not NULL we are doing recognition
     // (as opposed to training), so we must have already set word fonts.
-    AdaptToChar(rotated_blob, class_id, font_id, threshold);
+    AdaptToChar(rotated_blob, class_id, font_id, threshold, AdaptedTemplates);
+    if (BackupAdaptedTemplates != NULL) {
+      // Adapt the backup templates too. They will be used if the primary gets
+      // too full.
+      AdaptToChar(rotated_blob, class_id, font_id, threshold,
+                  BackupAdaptedTemplates);
+    }
   } else if (classify_debug_level >= 1) {
     tprintf("Can't adapt to %s not in unicharset\n", correct_text);
   }
@@ -469,6 +475,10 @@ void Classify::EndAdaptiveClassifier() {
   if (AdaptedTemplates != NULL) {
     free_adapted_templates(AdaptedTemplates);
     AdaptedTemplates = NULL;
+  }
+  if (BackupAdaptedTemplates != NULL) {
+    free_adapted_templates(BackupAdaptedTemplates);
+    BackupAdaptedTemplates = NULL;
   }
 
   if (PreTrainedTemplates != NULL) {
@@ -607,10 +617,35 @@ void Classify::ResetAdaptiveClassifierInternal() {
   }
   free_adapted_templates(AdaptedTemplates);
   AdaptedTemplates = NewAdaptedTemplates(true);
+  if (BackupAdaptedTemplates != NULL)
+    free_adapted_templates(BackupAdaptedTemplates);
+  BackupAdaptedTemplates = NULL;
   NumAdaptationsFailed = 0;
 }
 
+// If there are backup adapted templates, switches to those, otherwise resets
+// the main adaptive classifier (because it is full.)
+void Classify::SwitchAdaptiveClassifier() {
+  if (BackupAdaptedTemplates == NULL) {
+    ResetAdaptiveClassifierInternal();
+    return;
+  }
+  if (classify_learning_debug_level > 0) {
+    tprintf("Switch to backup adaptive classifier (NumAdaptationsFailed=%d)\n",
+            NumAdaptationsFailed);
+  }
+  free_adapted_templates(AdaptedTemplates);
+  AdaptedTemplates = BackupAdaptedTemplates;
+  BackupAdaptedTemplates = NULL;
+  NumAdaptationsFailed = 0;
+}
 
+// Resets the backup adaptive classifier to empty.
+void Classify::StartBackupAdaptiveClassifier() {
+  if (BackupAdaptedTemplates != NULL)
+    free_adapted_templates(BackupAdaptedTemplates);
+  BackupAdaptedTemplates = NewAdaptedTemplates(true);
+}
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -839,9 +874,9 @@ bool Classify::AdaptableWord(WERD_RES* word) {
  * @param ClassId class to add blob to
  * @param FontinfoId font information from pre-trained templates
  * @param Threshold minimum match rating to existing template
+ * @param adaptive_templates current set of adapted templates
  *
  * Globals:
- * - AdaptedTemplates current set of adapted templates
  * - AllProtosOn dummy mask to match against all protos
  * - AllConfigsOn dummy mask to match against all configs
  *
@@ -849,10 +884,9 @@ bool Classify::AdaptableWord(WERD_RES* word) {
  * @note Exceptions: none
  * @note History: Thu Mar 14 09:36:03 1991, DSJ, Created.
  */
-void Classify::AdaptToChar(TBLOB *Blob,
-                           CLASS_ID ClassId,
-                           int FontinfoId,
-                           FLOAT32 Threshold) {
+void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
+                           FLOAT32 Threshold,
+                           ADAPT_TEMPLATES adaptive_templates) {
   int NumFeatures;
   INT_FEATURE_ARRAY IntFeatures;
   UnicharRating int_result;
@@ -866,12 +900,12 @@ void Classify::AdaptToChar(TBLOB *Blob,
     return;
 
   int_result.unichar_id = ClassId;
-  Class = AdaptedTemplates->Class[ClassId];
+  Class = adaptive_templates->Class[ClassId];
   assert(Class != NULL);
   if (IsEmptyAdaptedClass(Class)) {
-    InitAdaptedClass(Blob, ClassId, FontinfoId, Class, AdaptedTemplates);
+    InitAdaptedClass(Blob, ClassId, FontinfoId, Class, adaptive_templates);
   } else {
-    IClass = ClassForClassId(AdaptedTemplates->Templates, ClassId);
+    IClass = ClassForClassId(adaptive_templates->Templates, ClassId);
 
     NumFeatures = GetAdaptiveFeatures(Blob, IntFeatures, &FloatFeatures);
     if (NumFeatures <= 0)
@@ -913,7 +947,7 @@ void Classify::AdaptToChar(TBLOB *Blob,
                 int_result.config, TempConfig->NumTimesSeen);
 
       if (TempConfigReliable(ClassId, TempConfig)) {
-        MakePermanent(AdaptedTemplates, ClassId, int_result.config, Blob);
+        MakePermanent(adaptive_templates, ClassId, int_result.config, Blob);
         UpdateAmbigsGroup(ClassId, Blob);
       }
     } else {
@@ -923,15 +957,12 @@ void Classify::AdaptToChar(TBLOB *Blob,
         if (classify_learning_debug_level > 2)
           DisplayAdaptedChar(Blob, IClass);
       }
-      NewTempConfigId = MakeNewTemporaryConfig(AdaptedTemplates,
-                                               ClassId,
-                                               FontinfoId,
-                                               NumFeatures,
-                                               IntFeatures,
-                                               FloatFeatures);
+      NewTempConfigId =
+          MakeNewTemporaryConfig(adaptive_templates, ClassId, FontinfoId,
+                                 NumFeatures, IntFeatures, FloatFeatures);
       if (NewTempConfigId >= 0 &&
           TempConfigReliable(ClassId, TempConfigFor(Class, NewTempConfigId))) {
-        MakePermanent(AdaptedTemplates, ClassId, NewTempConfigId, Blob);
+        MakePermanent(adaptive_templates, ClassId, NewTempConfigId, Blob);
         UpdateAmbigsGroup(ClassId, Blob);
       }
 
@@ -1547,7 +1578,7 @@ void Classify::DebugAdaptiveClassifier(TBLOB *blob,
  * Globals:
  * - PreTrainedTemplates built-in training templates
  * - AdaptedTemplates templates adapted for this page
- * - matcher_great_threshold rating limit for a great match
+ * - matcher_reliable_adaptive_result rating limit for a great match
  *
  * @note Exceptions: none
  * @note History: Tue Mar 12 08:50:11 1991, DSJ, Created.
@@ -1569,7 +1600,8 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
     Ambiguities = BaselineClassifier(Blob, bl_features, fx_info,
                                      AdaptedTemplates, Results);
     if ((!Results->match.empty() &&
-         MarginalMatch(Results->best_rating, matcher_great_threshold) &&
+         MarginalMatch(Results->best_rating,
+                       matcher_reliable_adaptive_result) &&
          !tess_bn_matching) ||
         Results->match.empty()) {
       CharNormClassifier(Blob, *sample, Results);

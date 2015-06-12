@@ -306,17 +306,22 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
     page_res_it.restart_page();
     // ****************** Pass 1 *******************
 
-    // Clear adaptive classifier at the beginning of the page if it is full.
-    // This is done only at the beginning of the page to ensure that the
-    // classifier is not reset at an arbitrary point while processing the page,
-    // which would cripple Passes 2+ if the reset happens towards the end of
-    // Pass 1 on a page with very difficult text.
-    // TODO(daria): preemptively clear the classifier if it is almost full.
-    if (AdaptiveClassifierIsFull()) ResetAdaptiveClassifierInternal();
+    // If the adaptive classifier is full switch to one we prepared earlier,
+    // ie on the previous page. If the current adaptive classifier is non-empty,
+    // prepare a backup starting at this page, in case it fills up. Do all this
+    // independently for each language.
+    if (AdaptiveClassifierIsFull()) {
+      SwitchAdaptiveClassifier();
+    } else if (!AdaptiveClassifierIsEmpty()) {
+      StartBackupAdaptiveClassifier();
+    }
     // Now check the sub-langs as well.
     for (int i = 0; i < sub_langs_.size(); ++i) {
-      if (sub_langs_[i]->AdaptiveClassifierIsFull())
-        sub_langs_[i]->ResetAdaptiveClassifierInternal();
+      if (sub_langs_[i]->AdaptiveClassifierIsFull()) {
+        sub_langs_[i]->SwitchAdaptiveClassifier();
+      } else if (!sub_langs_[i]->AdaptiveClassifierIsEmpty()) {
+        sub_langs_[i]->StartBackupAdaptiveClassifier();
+      }
     }
     // Set up all words ready for recognition, so that if parallelism is on
     // all the input and output classes are ready to run the classifier.

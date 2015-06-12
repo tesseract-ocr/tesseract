@@ -171,6 +171,7 @@ Classify::Classify()
   fontset_table_.set_clear_callback(
       NewPermanentTessCallback(FontSetDeleteCallback));
   AdaptedTemplates = NULL;
+  BackupAdaptedTemplates = NULL;
   PreTrainedTemplates = NULL;
   AllProtosOn = NULL;
   AllConfigsOn = NULL;
