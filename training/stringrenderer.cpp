@@ -140,6 +140,14 @@ void StringRenderer::set_resolution(const int resolution) {
   font_.set_resolution(resolution);
 }
 
+void StringRenderer::set_underline_start_prob(const double frac) {
+  underline_start_prob_ = min(max(frac, 0.0), 1.0);
+}
+
+void StringRenderer::set_underline_continuation_prob(const double frac) {
+  underline_continuation_prob_ = min(max(frac, 0.0), 1.0);
+}
+
 StringRenderer::~StringRenderer() {
   ClearBoxes();
   FreePangoCairo();
