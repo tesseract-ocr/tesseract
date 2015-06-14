@@ -139,7 +139,7 @@ is fully UTF8 capable, and is fully trainable. See TrainingTesseract for
 more information on training.
 
 Tesseract was included in UNLV's Fourth Annual Test of OCR Accuracy. 
-Results were available on http://www.isri.unlv.edu/downloads/AT-1995.pdf.
+Results were available on https://github.com/tesseract-ocr/docs/blob/master/AT-1995.pdf.
 With Tesseract 2.00, scripts were included to allow anyone to reproduce 
 some of these tests. See TestingTesseract for more details. 
 
