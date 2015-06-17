@@ -794,11 +794,16 @@ void FreeClassStructs(CLASS_STRUCT* classes, unsigned int size)
 
     // free the prototypes and configurations first, 
     // then delete classes array
+  CLASS_TYPE curClass;
   for (unsigned int i = 0; i < size; ++i) {
-    free(classes[i].Prototypes); 
-    free(classes[i].Configurations); 
-    classes[i].Prototypes = NULL;
-    classes[i].Configurations = NULL;
+    curClass = &classes[i];
+    for(unsigned int configIdx = 0; configIdx < curClass->NumConfigs; ++configIdx) {
+      free(curClass->Configurations[configIdx]); // see setupforfloat2int for "NewConfig.."
+    }
+    free(curClass->Prototypes); 
+    free(curClass->Configurations); 
+    curClass->Prototypes = NULL;
+    curClass->Configurations = NULL;
   }
   delete[] classes;
 }
