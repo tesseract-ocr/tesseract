@@ -770,6 +770,39 @@ void FreeLabeledClassList (
 
 }	/* FreeLabeledClassList */
 
+  
+/* Returns an array which can be used for any purpose as a CLASS_STRUCT would. 
+Must be deleted after usage, prototypes and configurations must also be deleted
+if owner owns the ptrs.. */
+CLASS_STRUCT* MakeClassStructs(unsigned int size)
+{
+  CLASS_STRUCT* float_classes = new CLASS_STRUCT[size];
+  for (unsigned int i = 0; i < size; ++i) {
+    float_classes[i].Prototypes = NULL;
+    float_classes[i].Configurations = NULL;
+  }
+  return float_classes;
+}
+
+void FreeClassStructs(CLASS_STRUCT* classes, unsigned int size)
+{
+  // if size is not specified then try to figure it out
+  if(size == 0 && classes) 
+    size = (sizeof(classes)/sizeof(classes[0]));
+  if(size == 0 || !classes) 
+    return;
+
+    // free the prototypes and configurations first, 
+    // then delete classes array
+  for (unsigned int i = 0; i < size; ++i) {
+    free(classes[i].Prototypes); 
+    free(classes[i].Configurations); 
+    classes[i].Prototypes = NULL;
+    classes[i].Configurations = NULL;
+  }
+  delete[] classes;
+}
+
 /** SetUpForFloat2Int **************************************************/
 CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
                                 LIST LabeledClassList) {
