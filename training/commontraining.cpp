@@ -825,7 +825,7 @@ CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
 
   // 	printf("Float2Int ...\n");
 
-  CLASS_STRUCT* float_classes = new CLASS_STRUCT[unicharset.size()];
+  CLASS_STRUCT* float_classes = MakeClassStructs(unicharset.size());
   iterate(LabeledClassList)
   {
     UnicityTableEqEq<int>   font_set;
