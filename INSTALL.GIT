@@ -1,13 +1,13 @@
 autotools (LINUX/UNIX...)
 ======================
 
-If you have checked out Tesseract from Subversion, you must generate
+If you have cloned Tesseract from Github, you must generate
 the configure script.
 
 If you have tesseract 3.0x installation in your system, please remove it
 before new build.
 
-Known depencies for training tools (excluding leptonica):
+Known dependencies for training tools (excluding leptonica):
  * compiler with c++ support
  * pango-devel
  * cairo-devel
