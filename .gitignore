@@ -59,6 +59,8 @@ training/wordlist2dawg
 *.o
 *.Plo
 *.a
+*.class
+*.jar
 
 # tessdata
 *.cube.*
