@@ -127,7 +127,7 @@ SVSemaphore::SVSemaphore() {
   semaphore_ = CreateSemaphore(0, 0, 10, 0);
 #elif defined(__APPLE__)
   char name[50];
-  snprintf(name, sizeof(name), "%d", random());
+  snprintf(name, sizeof(name), "%ld", random());
   sem_unlink(name);
   semaphore_ = sem_open(name, O_CREAT , S_IWUSR, 0);
   if (semaphore_ == SEM_FAILED) {
@@ -296,14 +296,11 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
   // this unnecessary.
   // Also the path has to be separated by ; on windows and : otherwise.
 #ifdef _WIN32
-  const char* cmd_template = "-Djava.library.path=%s -cp %s/ScrollView.jar;"
-      "%s/piccolo2d-core-3.0.jar:%s/piccolo2d-extras-3.0.jar"
-      " com.google.scrollview.ScrollView";
+  const char* cmd_template = "-Djava.library.path=%s -jar %s/ScrollView.jar";
+
 #else
   const char* cmd_template = "-c \"trap 'kill %%1' 0 1 2 ; java "
-      "-Xms1024m -Xmx2048m -Djava.library.path=%s -cp %s/ScrollView.jar:"
-      "%s/piccolo2d-core-3.0.jar:%s/piccolo2d-extras-3.0.jar"
-      " com.google.scrollview.ScrollView"
+      "-Xms1024m -Xmx2048m -jar %s/ScrollView.jar"
       " & wait\"";
 #endif
   int cmdlen = strlen(cmd_template) + 4*strlen(scrollview_path.c_str()) + 1;
@@ -374,7 +371,7 @@ static int GetAddrInfo(const char* hostname, int port,
                        struct addrinfo** address) {
 #if defined(__linux__)
   char port_str[40];
-  snprintf(port_str, 40, "%d", port);
+  snprintf(port_str, 40, "%ld", port);
   return getaddrinfo(hostname, port_str, NULL, address);
 #else
   return GetAddrInfoNonLinux(hostname, port, address);
