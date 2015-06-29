@@ -2985,6 +2985,8 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
+#elif ON_APPLE
+    mach_timespec_t time_funct_start, time_funct_end;
 #else
     TIMESPEC time_funct_start, time_funct_end;
 #endif
@@ -3057,6 +3059,8 @@ double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input,
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
+#elif ON_APPLE
+    mach_timespec_t time_funct_start, time_funct_end;
 #else
     TIMESPEC time_funct_start, time_funct_end;
 #endif
@@ -3160,6 +3164,8 @@ double thresholdRectToPixMicroBench( GPUEnv *env, TessScoreEvaluationInputData i
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
+#elif ON_APPLE
+    mach_timespec_t time_funct_start, time_funct_end;
 #else
     TIMESPEC time_funct_start, time_funct_end;
 #endif
@@ -3234,6 +3240,8 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
+#elif ON_APPLE
+    mach_timespec_t time_funct_start, time_funct_end;
 #else
     TIMESPEC time_funct_start, time_funct_end;
 #endif
