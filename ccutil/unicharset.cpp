@@ -99,12 +99,12 @@ void UNICHARSET::UNICHAR_PROPERTIES::SetRangesOpen() {
   max_bottom = MAX_UINT8;
   min_top = 0;
   max_top = MAX_UINT8;
-  min_width = 0;
-  max_width = MAX_INT16;
-  min_bearing = 0;
-  max_bearing = MAX_INT16;
-  min_advance = 0;
-  max_advance = MAX_INT16;
+  width = 0.0f;
+  width_sd = 0.0f;
+  bearing = 0.0f;
+  bearing_sd = 0.0f;
+  advance = 0.0f;
+  advance_sd = 0.0f;
 }
 
 // Sets all ranges to empty. Used before expanding with font-based data.
@@ -113,20 +113,18 @@ void UNICHARSET::UNICHAR_PROPERTIES::SetRangesEmpty() {
   max_bottom = 0;
   min_top = MAX_UINT8;
   max_top = 0;
-  min_width = MAX_INT16;
-  max_width = 0;
-  min_bearing = MAX_INT16;
-  max_bearing = 0;
-  min_advance = MAX_INT16;
-  max_advance = 0;
+  width = 0.0f;
+  width_sd = 0.0f;
+  bearing = 0.0f;
+  bearing_sd = 0.0f;
+  advance = 0.0f;
+  advance_sd = 0.0f;
 }
 
-// Returns true if any of the top/bottom/width/bearing/advance ranges is
-// emtpy.
+// Returns true if any of the top/bottom/width/bearing/advance ranges/stats
+// is emtpy.
 bool UNICHARSET::UNICHAR_PROPERTIES::AnyRangeEmpty() const {
-  return min_bottom > max_bottom || min_top > max_top ||
-      min_width > max_width || min_bearing > max_bearing ||
-      min_advance > max_advance;
+  return width == 0.0f || advance == 0.0f;
 }
 
 // Expands the ranges with the ranges from the src properties.
@@ -136,12 +134,18 @@ void UNICHARSET::UNICHAR_PROPERTIES::ExpandRangesFrom(
   UpdateRange(src.max_bottom, &min_bottom, &max_bottom);
   UpdateRange(src.min_top, &min_top, &max_top);
   UpdateRange(src.max_top, &min_top, &max_top);
-  UpdateRange(src.min_width, &min_width, &max_width);
-  UpdateRange(src.max_width, &min_width, &max_width);
-  UpdateRange(src.min_bearing, &min_bearing, &max_bearing);
-  UpdateRange(src.max_bearing, &min_bearing, &max_bearing);
-  UpdateRange(src.min_advance, &min_advance, &max_advance);
-  UpdateRange(src.max_advance, &min_advance, &max_advance);
+  if (src.width_sd > width_sd) {
+    width = src.width;
+    width_sd = src.width_sd;
+  }
+  if (src.bearing_sd > bearing_sd) {
+    bearing = src.bearing;
+    bearing_sd = src.bearing_sd;
+  }
+  if (src.advance_sd > advance_sd) {
+    advance = src.advance;
+    advance_sd = src.advance_sd;
+  }
 }
 
 // Copies the properties from src into this.
@@ -430,8 +434,6 @@ void UNICHARSET::PartialSetPropertiesFromOther(int start_index,
       }
       unichars[ch].properties.CopyFrom(properties);
       set_normed_ids(ch);
-    } else {
-      tprintf("Failed to get properties for index %d = %s\n", ch, utf8);
     }
   }
 }
@@ -473,15 +475,15 @@ void UNICHARSET::AppendOtherUnicharset(const UNICHARSET& src) {
   for (int ch = 0; ch < src.size_used; ++ch) {
     const UNICHAR_PROPERTIES& src_props = src.unichars[ch].properties;
     const char* utf8 = src.id_to_unichar(ch);
-    if (strcmp(utf8, " ") != 0 && src_props.AnyRangeEmpty()) {
+    if (ch >= SPECIAL_UNICHAR_CODES_COUNT && src_props.AnyRangeEmpty()) {
       // Only use fully valid entries.
       tprintf("Bad properties for index %d, char %s: "
-              "%d,%d %d,%d %d,%d %d,%d %d,%d\n",
+              "%d,%d %d,%d %g,%g %g,%g %g,%g\n",
               ch, utf8, src_props.min_bottom, src_props.max_bottom,
               src_props.min_top, src_props.max_top,
-              src_props.min_width, src_props.max_width,
-              src_props.min_bearing, src_props.max_bearing,
-              src_props.min_advance, src_props.max_advance);
+              src_props.width, src_props.width_sd,
+              src_props.bearing, src_props.bearing_sd,
+              src_props.advance, src_props.advance_sd);
       continue;
     }
     int id = size_used;
@@ -564,8 +566,6 @@ bool UNICHARSET::GetStrProperties(const char* utf8_str,
                                   UNICHAR_PROPERTIES* props) const {
   props->Init();
   props->SetRangesEmpty();
-  props->min_advance = 0;
-  props->max_advance = 0;
   int total_unicodes = 0;
   GenericVector<UNICHAR_ID> encoding;
   if (!encode_string(utf8_str, true, &encoding, NULL, NULL))
@@ -586,21 +586,16 @@ bool UNICHARSET::GetStrProperties(const char* utf8_str,
     UpdateRange(src_props.max_bottom, &props->min_bottom, &props->max_bottom);
     UpdateRange(src_props.min_top, &props->min_top, &props->max_top);
     UpdateRange(src_props.max_top, &props->min_top, &props->max_top);
-    int bearing = ClipToRange(props->min_advance + src_props.min_bearing,
-                              -MAX_INT16, MAX_INT16);
-    if (total_unicodes == 0 || bearing < props->min_bearing)
-      props->min_bearing = bearing;
-    bearing = ClipToRange(props->max_advance + src_props.max_bearing,
-                          -MAX_INT16, MAX_INT16);
-    if (total_unicodes == 0 || bearing < props->max_bearing)
-      props->max_bearing = bearing;
-    props->min_advance = ClipToRange(props->min_advance + src_props.min_advance,
-                                     -MAX_INT16, MAX_INT16);
-    props->max_advance = ClipToRange(props->max_advance + src_props.max_advance,
-                                     -MAX_INT16, MAX_INT16);
+    float bearing = props->advance + src_props.bearing;
+    if (total_unicodes == 0 || bearing < props->bearing) {
+      props->bearing = bearing;
+      props->bearing_sd = props->advance_sd + src_props.bearing_sd;
+    }
+    props->advance += src_props.advance;
+    props->advance_sd += src_props.advance_sd;
     // With a single width, just use the widths stored in the unicharset.
-    props->min_width = src_props.min_width;
-    props->max_width = src_props.max_width;
+    props->width = src_props.width;
+    props->width_sd = src_props.width_sd;
     // Use the first script id, other_case, mirror, direction.
     // Note that these will need translation, except direction.
     if (total_unicodes == 0) {
@@ -616,10 +611,8 @@ bool UNICHARSET::GetStrProperties(const char* utf8_str,
   }
   if (total_unicodes > 1) {
     // Estimate the total widths from the advance - bearing.
-    props->min_width = ClipToRange(props->min_advance - props->max_bearing,
-                                   -MAX_INT16, MAX_INT16);
-    props->max_width = ClipToRange(props->max_advance - props->min_bearing,
-                                   -MAX_INT16, MAX_INT16);
+    props->width = props->advance - props->bearing;
+    props->width_sd = props->advance_sd + props->bearing_sd;
   }
   return total_unicodes > 0;
 }
@@ -707,12 +700,12 @@ bool UNICHARSET::save_to_string(STRING *str) const {
   for (UNICHAR_ID id = 0; id < this->size(); ++id) {
     int min_bottom, max_bottom, min_top, max_top;
     get_top_bottom(id, &min_bottom, &max_bottom, &min_top, &max_top);
-    int min_width, max_width;
-    get_width_range(id, &min_width, &max_width);
-    int min_bearing, max_bearing;
-    get_bearing_range(id, &min_bearing, &max_bearing);
-    int min_advance, max_advance;
-    get_advance_range(id, &min_advance, &max_advance);
+    float width, width_sd;
+    get_width_stats(id, &width, &width_sd);
+    float bearing, bearing_sd;
+    get_bearing_stats(id, &bearing, &bearing_sd);
+    float advance, advance_sd;
+    get_advance_stats(id, &advance, &advance_sd);
     unsigned int properties = this->get_properties(id);
     if (strcmp(this->id_to_unichar(id), " ") == 0) {
       snprintf(buffer, kFileBufSize, "%s %x %s %d\n", "NULL", properties,
@@ -720,10 +713,10 @@ bool UNICHARSET::save_to_string(STRING *str) const {
               this->get_other_case(id));
     } else {
       snprintf(buffer, kFileBufSize,
-              "%s %x %d,%d,%d,%d,%d,%d,%d,%d,%d,%d %s %d %d %d %s\t# %s\n",
+              "%s %x %d,%d,%d,%d,%g,%g,%g,%g,%g,%g %s %d %d %d %s\t# %s\n",
               this->id_to_unichar(id), properties,
-              min_bottom, max_bottom, min_top, max_top, min_width, max_width,
-              min_bearing, max_bearing, min_advance, max_advance,
+              min_bottom, max_bottom, min_top, max_top, width, width_sd,
+              bearing, bearing_sd, advance, advance_sd,
               this->get_script_from_script_id(this->get_script(id)),
               this->get_other_case(id), this->get_direction(id),
               this->get_mirror(id), this->get_normed_unichar(id),
@@ -821,12 +814,12 @@ bool UNICHARSET::load_via_fgets(
     int max_bottom = MAX_UINT8;
     int min_top = 0;
     int max_top = MAX_UINT8;
-    int min_width = 0;
-    int max_width = MAX_INT16;
-    int min_bearing = 0;
-    int max_bearing = MAX_INT16;
-    int min_advance = 0;
-    int max_advance = MAX_INT16;
+    float width = 0.0f;
+    float width_sd = 0.0f;
+    float bearing = 0.0f;
+    float bearing_sd = 0.0f;
+    float advance = 0.0f;
+    float advance_sd = 0.0f;
     // TODO(eger): check that this default it ok
     // after enabling BiDi iterator for Arabic+Cube.
     int direction = UNICHARSET::U_LEFT_TO_RIGHT;
@@ -836,19 +829,19 @@ bool UNICHARSET::load_via_fgets(
     int v = -1;
     if (fgets_cb->Run(buffer, sizeof (buffer)) == NULL ||
         ((v = sscanf(buffer,
-                     "%s %x %d,%d,%d,%d,%d,%d,%d,%d,%d,%d %63s %d %d %d %63s",
+                     "%s %x %d,%d,%d,%d,%g,%g,%g,%g,%g,%g %63s %d %d %d %63s",
                      unichar, &properties,
                      &min_bottom, &max_bottom, &min_top, &max_top,
-                     &min_width, &max_width, &min_bearing, &max_bearing,
-                     &min_advance, &max_advance, script, &other_case,
+                     &width, &width_sd, &bearing, &bearing_sd,
+                     &advance, &advance_sd, script, &other_case,
                      &direction, &mirror, normed)) != 17 &&
          (v = sscanf(buffer,
-                     "%s %x %d,%d,%d,%d,%d,%d,%d,%d,%d,%d %63s %d %d %d",
+                     "%s %x %d,%d,%d,%d,%g,%g,%g,%g,%g,%g %63s %d %d %d",
                      unichar, &properties,
                      &min_bottom, &max_bottom, &min_top, &max_top,
-                     &min_width, &max_width, &min_bearing, &max_bearing,
-                     &min_advance, &max_advance,
-                     script, &other_case, &direction, &mirror)) != 16 &&
+                     &width, &width_sd, &bearing, &bearing_sd,
+                     &advance, &advance_sd, script, &other_case,
+                     &direction, &mirror)) != 16 &&
           (v = sscanf(buffer, "%s %x %d,%d,%d,%d %63s %d %d %d",
                       unichar, &properties,
                       &min_bottom, &max_bottom, &min_top, &max_top,
@@ -888,9 +881,9 @@ bool UNICHARSET::load_via_fgets(
     this->set_script(id, script);
     this->unichars[id].properties.enabled = true;
     this->set_top_bottom(id, min_bottom, max_bottom, min_top, max_top);
-    this->set_width_range(id, min_width, max_width);
-    this->set_bearing_range(id, min_bearing, max_bearing);
-    this->set_advance_range(id, min_advance, max_advance);
+    this->set_width_stats(id, width, width_sd);
+    this->set_bearing_stats(id, bearing, bearing_sd);
+    this->set_advance_stats(id, advance, advance_sd);
     this->set_direction(id, static_cast<UNICHARSET::Direction>(direction));
     ASSERT_HOST(other_case < unicharset_size);
     this->set_other_case(id, (v>3) ? other_case : id);
