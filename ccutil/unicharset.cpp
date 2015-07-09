@@ -215,34 +215,6 @@ int UNICHARSET::step(const char* str) const {
   if (encoding.empty() || encoding[0] == INVALID_UNICHAR_ID) return 0;
   return lengths[0];
 }
-// As step except constraining the search to unichar-ids that are
-// self-normalized. Unlike step, does not encode the whole string, therefore
-// should be used on short strings (like those obtained from
-// get_normed_unichar.)
-int UNICHARSET::normed_step(const char* str) const {
-  // Find the length of the first matching unicharset member.
-  int length = ids.minmatch(str);
-  if (length == 0)
-    return 0;  // Empty string or illegal char.
-
-  while (length <= UNICHAR_LEN) {
-    if (ids.contains(str, length)) {
-      int matched_id = unichar_to_id(str, length);
-      const GenericVector<UNICHAR_ID>& matched_norms = normed_ids(matched_id);
-      bool good_start = matched_norms.size() == 1 &&
-                        matched_norms[0] == matched_id;
-      if (str[length] == '\0') {
-        return good_start ? length : 0;
-      }
-      if (normed_step(str + length) > 0)
-        return length;  // This length works!
-    } else if (str[length] == '\0') {
-      return 0;  // Ran out of string.
-    }
-    ++length;
-  }
-  return 0;
-}
 
 // Return whether the given UTF-8 string is encodable with this UNICHARSET.
 // If not encodable, write the first byte offset which cannot be converted
@@ -375,19 +347,13 @@ STRING UNICHARSET::debug_str(UNICHAR_ID id) const {
 // stored in the file, and needs to be set when the UNICHARSET is loaded.
 void UNICHARSET::set_normed_ids(UNICHAR_ID unichar_id) {
   unichars[unichar_id].properties.normed_ids.truncate(0);
-  int length = unichars[unichar_id].properties.normed.length();
-  const char* normed_str = unichars[unichar_id].properties.normed.string();
-  int step = 0;
-  for (int offset = 0; offset < length; offset+= step) {
-    step = normed_step(normed_str + offset);
-    if (step == 0) {
-      unichars[unichar_id].properties.normed_ids.truncate(0);
-      unichars[unichar_id].properties.normed_ids.push_back(unichar_id);
-      break;
-    }
-    int normed_id = unichar_to_id(normed_str + offset, step);
-    ASSERT_HOST(normed_id >= 0);
-    unichars[unichar_id].properties.normed_ids.push_back(normed_id);
+  if (unichar_id == UNICHAR_SPACE && id_to_unichar(unichar_id)[0] == ' ') {
+    unichars[unichar_id].properties.normed_ids.push_back(UNICHAR_SPACE);
+  } else if (!encode_string(unichars[unichar_id].properties.normed.string(),
+                            true, &unichars[unichar_id].properties.normed_ids,
+                            NULL, NULL)) {
+    unichars[unichar_id].properties.normed_ids.truncate(0);
+    unichars[unichar_id].properties.normed_ids.push_back(unichar_id);
   }
 }
 
@@ -1013,6 +979,24 @@ void UNICHARSET::set_black_and_whitelist(const char* blacklist,
         unichars[encoding[i]].properties.enabled = true;
     }
   }
+}
+
+// Returns true if there are any repeated unicodes in the normalized
+// text of any unichar-id in the unicharset.
+bool UNICHARSET::AnyRepeatedUnicodes() const {
+  int start_id = 0;
+  if (has_special_codes()) start_id = SPECIAL_UNICHAR_CODES_COUNT;
+  for (int id = start_id; id < size_used; ++id) {
+    // Convert to unicodes.
+    GenericVector<int> unicodes;
+    if (UNICHAR::UTF8ToUnicode(get_normed_unichar(id), &unicodes) &&
+        unicodes.size() > 1) {
+      for (int u = 1; u < unicodes.size(); ++u) {
+        if (unicodes[u - 1] == unicodes[u]) return true;
+      }
+    }
+  }
+  return false;
 }
 
 int UNICHARSET::add_script(const char* script) {

@@ -50,7 +50,10 @@ bool TessdataManager::Init(const char *data_file_name, int debug_level) {
     ReverseN(&actual_tessdata_num_entries_,
              sizeof(actual_tessdata_num_entries_));
   }
-  ASSERT_HOST(actual_tessdata_num_entries_ <= TESSDATA_NUM_ENTRIES);
+  if (actual_tessdata_num_entries_ > TESSDATA_NUM_ENTRIES) {
+    // For forward compatability, truncate to the number we can handle.
+    actual_tessdata_num_entries_ = TESSDATA_NUM_ENTRIES;
+  }
   fread(offset_table_, sizeof(inT64),
         actual_tessdata_num_entries_, data_file_);
   if (swap_) {

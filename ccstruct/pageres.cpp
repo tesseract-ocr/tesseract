@@ -1,7 +1,12 @@
 /**********************************************************************
  * File:        pageres.cpp  (Formerly page_res.c)
- * Description: Results classes used by control.c
- * Author:		Phil Cheatle
+ * Description: Hierarchy of results classes from PAGE_RES to WERD_RES
+ *              and an iterator class to iterate over the words.
+ * Main purposes:
+ *              Easy way to iterate over the words without a 3-nested loop.
+ *              Holds data used during word recognition.
+ *              Holds information about alternative spacing paths.
+ * Author:      Phil Cheatle
  * Created:     Tue Sep 22 08:42:49 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
@@ -1478,8 +1483,6 @@ void PAGE_RES_IT::MakeCurrentWordFuzzy() {
   WERD* real_word = word_res->word;
   if (!real_word->flag(W_FUZZY_SP) && !real_word->flag(W_FUZZY_NON)) {
     real_word->set_flag(W_FUZZY_SP, true);
-    tprintf("Made word fuzzy at:");
-    real_word->bounding_box().print();
     if (word_res->combination) {
       // The next word should be the corresponding part of combo, but we have
       // already stepped past it, so find it by search.
@@ -1493,8 +1496,6 @@ void PAGE_RES_IT::MakeCurrentWordFuzzy() {
       ASSERT_HOST(!real_word->flag(W_FUZZY_SP) &&
                   !real_word->flag(W_FUZZY_NON));
       real_word->set_flag(W_FUZZY_SP, true);
-      tprintf("Made part of combo word fuzzy at:");
-      real_word->bounding_box().print();
     }
   }
 }

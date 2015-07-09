@@ -190,11 +190,6 @@ class UNICHARSET {
   // WARNING: this function now encodes the whole string for precision.
   // Use encode_string in preference to repeatedly calling step.
   int step(const char* str) const;
-  // As step except constraining the search to unichar-ids that are
-  // self-normalized. Unlike step, does not encode the whole string, therefore
-  // should be used on short strings (like those obtained from
-  // get_normed_unichar.)
-  int normed_step(const char* str) const;
 
   // Return whether the given UTF-8 string is encodable with this UNICHARSET.
   // If not encodable, write the first byte offset which cannot be converted
@@ -678,6 +673,10 @@ class UNICHARSET {
                kSpecialUnicharCodes[UNICHAR_BROKEN]) == 0;
   }
 
+  // Returns true if there are any repeated unicodes in the normalized
+  // text of any unichar-id in the unicharset.
+  bool AnyRepeatedUnicodes() const;
+
   // Return a pointer to the CHAR_FRAGMENT class if the given
   // unichar id represents a character fragment.
   const CHAR_FRAGMENT *get_fragment(UNICHAR_ID unichar_id) const {
@@ -775,6 +774,7 @@ class UNICHARSET {
 
   // Returns normalized version of unichar with the given unichar_id.
   const char *get_normed_unichar(UNICHAR_ID unichar_id) const {
+    if (unichar_id == UNICHAR_SPACE && has_special_codes()) return " ";
     return unichars[unichar_id].properties.normed.string();
   }
   // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
