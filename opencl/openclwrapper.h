@@ -82,7 +82,6 @@
 #define clock_gettime clock_get_time
 #endif
 
-
 #if ON_WINDOWS
 
 #if PERF_COUNT_VERBOSE >= 2
