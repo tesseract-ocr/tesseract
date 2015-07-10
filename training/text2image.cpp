@@ -250,7 +250,6 @@ void ExtractFontProperties(const string &utf8_text,
       // API.
       // Safeguard against these cases here by just skipping the bigram.
       if (IsWhitespaceBox(boxes[b+1])) {
-        tprintf("WARNING: Found unexpected ligature: %s\n", ch0.c_str());
         continue;
       }
       int xgap = (boxes[b+1]->box()->x -

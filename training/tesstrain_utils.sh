@@ -23,7 +23,7 @@ FONTS=(
 if [ "$(uname)" == "Darwin" ];then
     FONTS_DIR="/Library/Fonts/"
 else
-    FONTS_DIR="/usr/share/fonts/truetype/"
+    FONTS_DIR="/usr/share/fonts/"
 fi
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
 OVERWRITE=0
