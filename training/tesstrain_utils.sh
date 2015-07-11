@@ -12,7 +12,7 @@
 #
 # This script defines functions that are used by tesstrain.sh
 # For a detailed description of the phases, see
-# https://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3
+# https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
 #
 # USAGE: source tesstrain_utils.sh
 
