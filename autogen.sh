@@ -27,7 +27,7 @@
 #
 # All the rest is auto-generated.
 
-if [ "$1" == "clean" ]; then
+if [ "$1" = "clean" ]; then
     echo "Cleaning..."
     rm configure aclocal.m4
     rm m4/*
