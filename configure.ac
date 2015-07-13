@@ -6,7 +6,7 @@
 # Initialization
 # ----------------------------------------
 AC_PREREQ(2.50)
-AC_INIT([tesseract], [3.04], [http://code.google.com/p/tesseract-ocr/issues/list])
+AC_INIT([tesseract], [3.04.00], [https://github.com/tesseract-ocr/tesseract/issues])
 CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR(config)
@@ -15,9 +15,8 @@ AC_PREFIX_DEFAULT(/usr/local)
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
-# TODO(luc) Generate good documentation using doxygen or equivalent
-PACKAGE_YEAR=2014
-PACKAGE_DATE="08/13"
+PACKAGE_YEAR=2015
+PACKAGE_DATE="07/11"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 gitrev="`git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdir} describe --always --tags`"

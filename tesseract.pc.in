@@ -8,7 +8,7 @@ includedir=@includedir@
 
 Name: @PACKAGE_NAME@
 Description: An OCR Engine that was developed at HP Labs between 1985 and 1995... and now at Google.
-URL: https://code.google.com/p/tesseract-ocr
+URL: https://github.com/tesseract-ocr/tesseract
 Version: @VERSION@
 Requires.private: lept
 Libs: -L${libdir} -ltesseract

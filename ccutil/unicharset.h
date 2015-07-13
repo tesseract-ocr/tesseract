@@ -190,11 +190,6 @@ class UNICHARSET {
   // WARNING: this function now encodes the whole string for precision.
   // Use encode_string in preference to repeatedly calling step.
   int step(const char* str) const;
-  // As step except constraining the search to unichar-ids that are
-  // self-normalized. Unlike step, does not encode the whole string, therefore
-  // should be used on short strings (like those obtained from
-  // get_normed_unichar.)
-  int normed_step(const char* str) const;
 
   // Return whether the given UTF-8 string is encodable with this UNICHARSET.
   // If not encodable, write the first byte offset which cannot be converted
@@ -554,68 +549,56 @@ class UNICHARSET {
     unichars[unichar_id].properties.max_top =
         static_cast<uinT8>(ClipToRange(max_top, 0, MAX_UINT8));
   }
-  // Returns the width range of the given unichar in baseline-normalized
-  // coordinates, ie, where the baseline is kBlnBaselineOffset and the
-  // meanline is kBlnBaselineOffset + kBlnXHeight.
-  // (See normalis.h for the definitions).
-  void get_width_range(UNICHAR_ID unichar_id,
-                       int* min_width, int* max_width) const {
+  // Returns the width stats (as mean, sd) of the given unichar relative to the
+  // median advance of all characters in the character set.
+  void get_width_stats(UNICHAR_ID unichar_id,
+                       float* width, float* width_sd) const {
     if (INVALID_UNICHAR_ID == unichar_id) {
-      *min_width = 0;
-      *max_width = 256;  // kBlnCellHeight;
+      *width = 0.0f;
+      *width_sd = 0.0f;;
       return;
     }
     ASSERT_HOST(contains_unichar_id(unichar_id));
-    *min_width = unichars[unichar_id].properties.min_width;
-    *max_width = unichars[unichar_id].properties.max_width;
+    *width = unichars[unichar_id].properties.width;
+    *width_sd = unichars[unichar_id].properties.width_sd;
   }
-  void set_width_range(UNICHAR_ID unichar_id, int min_width, int max_width) {
-    unichars[unichar_id].properties.min_width =
-        static_cast<inT16>(ClipToRange(min_width, 0, MAX_INT16));
-    unichars[unichar_id].properties.max_width =
-        static_cast<inT16>(ClipToRange(max_width, 0, MAX_INT16));
+  void set_width_stats(UNICHAR_ID unichar_id, float width, float width_sd) {
+    unichars[unichar_id].properties.width = width;
+    unichars[unichar_id].properties.width_sd = width_sd;
   }
-  // Returns the range of the x-bearing of the given unichar in
-  // baseline-normalized coordinates, ie, where the baseline is
-  // kBlnBaselineOffset and the meanline is kBlnBaselineOffset + kBlnXHeight.
-  // (See normalis.h for the definitions).
-  void get_bearing_range(UNICHAR_ID unichar_id,
-                         int* min_bearing, int* max_bearing) const {
+  // Returns the stats of the x-bearing (as mean, sd) of the given unichar
+  // relative to the median advance of all characters in the character set.
+  void get_bearing_stats(UNICHAR_ID unichar_id,
+                         float* bearing, float* bearing_sd) const {
     if (INVALID_UNICHAR_ID == unichar_id) {
-      *min_bearing = *max_bearing = 0;
+      *bearing = *bearing_sd = 0.0f;
       return;
     }
     ASSERT_HOST(contains_unichar_id(unichar_id));
-    *min_bearing = unichars[unichar_id].properties.min_bearing;
-    *max_bearing = unichars[unichar_id].properties.max_bearing;
+    *bearing = unichars[unichar_id].properties.bearing;
+    *bearing_sd = unichars[unichar_id].properties.bearing_sd;
   }
-  void set_bearing_range(UNICHAR_ID unichar_id,
-                         int min_bearing, int max_bearing) {
-    unichars[unichar_id].properties.min_bearing =
-        static_cast<inT16>(ClipToRange(min_bearing, 0, MAX_INT16));
-    unichars[unichar_id].properties.max_bearing =
-        static_cast<inT16>(ClipToRange(max_bearing, 0, MAX_INT16));
+  void set_bearing_stats(UNICHAR_ID unichar_id,
+                         float bearing, float bearing_sd) {
+    unichars[unichar_id].properties.bearing = bearing;
+    unichars[unichar_id].properties.bearing_sd = bearing_sd;
   }
-  // Returns the range of the x-advance of the given unichar in
-  // baseline-normalized coordinates, ie, where the baseline is
-  // kBlnBaselineOffset and the meanline is kBlnBaselineOffset + kBlnXHeight.
-  // (See normalis.h for the definitions).
-  void get_advance_range(UNICHAR_ID unichar_id,
-                         int* min_advance, int* max_advance) const {
+  // Returns the stats of the x-advance of the given unichar (as mean, sd)
+  // relative to the median advance of all characters in the character set.
+  void get_advance_stats(UNICHAR_ID unichar_id,
+                         float* advance, float* advance_sd) const {
     if (INVALID_UNICHAR_ID == unichar_id) {
-      *min_advance = *max_advance = 0;
+      *advance = *advance_sd = 0;
       return;
     }
     ASSERT_HOST(contains_unichar_id(unichar_id));
-    *min_advance = unichars[unichar_id].properties.min_advance;
-    *max_advance = unichars[unichar_id].properties.max_advance;
+    *advance = unichars[unichar_id].properties.advance;
+    *advance_sd = unichars[unichar_id].properties.advance_sd;
   }
-  void set_advance_range(UNICHAR_ID unichar_id,
-                         int min_advance, int max_advance) {
-    unichars[unichar_id].properties.min_advance =
-        static_cast<inT16>(ClipToRange(min_advance, 0, MAX_INT16));
-    unichars[unichar_id].properties.max_advance =
-        static_cast<inT16>(ClipToRange(max_advance, 0, MAX_INT16));
+  void set_advance_stats(UNICHAR_ID unichar_id,
+                         float advance, float advance_sd) {
+    unichars[unichar_id].properties.advance = advance;
+    unichars[unichar_id].properties.advance_sd = advance_sd;
   }
   // Returns true if the font metrics properties are empty.
   bool PropertiesIncomplete(UNICHAR_ID unichar_id) const {
@@ -689,6 +672,10 @@ class UNICHARSET {
         strcmp(id_to_unichar(UNICHAR_BROKEN),
                kSpecialUnicharCodes[UNICHAR_BROKEN]) == 0;
   }
+
+  // Returns true if there are any repeated unicodes in the normalized
+  // text of any unichar-id in the unicharset.
+  bool AnyRepeatedUnicodes() const;
 
   // Return a pointer to the CHAR_FRAGMENT class if the given
   // unichar id represents a character fragment.
@@ -787,6 +774,7 @@ class UNICHARSET {
 
   // Returns normalized version of unichar with the given unichar_id.
   const char *get_normed_unichar(UNICHAR_ID unichar_id) const {
+    if (unichar_id == UNICHAR_SPACE && has_special_codes()) return " ";
     return unichars[unichar_id].properties.normed.string();
   }
   // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
@@ -873,8 +861,8 @@ class UNICHARSET {
     void SetRangesOpen();
     // Sets all ranges to empty. Used before expanding with font-based data.
     void SetRangesEmpty();
-    // Returns true if any of the top/bottom/width/bearing/advance ranges is
-    // emtpy.
+    // Returns true if any of the top/bottom/width/bearing/advance ranges/stats
+    // is emtpy.
     bool AnyRangeEmpty() const;
     // Expands the ranges with the ranges from the src properties.
     void ExpandRangesFrom(const UNICHAR_PROPERTIES& src);
@@ -896,14 +884,14 @@ class UNICHARSET {
     uinT8 max_bottom;
     uinT8 min_top;
     uinT8 max_top;
-    // Limits on the widths of bounding box, also in baseline-normalized coords.
-    inT16 min_width;
-    inT16 max_width;
-    // Limits on the x-bearing and advance, also in baseline-normalized coords.
-    inT16 min_bearing;
-    inT16 max_bearing;
-    inT16 min_advance;
-    inT16 max_advance;
+    // Statstics of the widths of bounding box, relative to the median advance.
+    float width;
+    float width_sd;
+    // Stats of the x-bearing and advance, also relative to the median advance.
+    float bearing;
+    float bearing_sd;
+    float advance;
+    float advance_sd;
     int   script_id;
     UNICHAR_ID other_case;  // id of the corresponding upper/lower case unichar
     Direction direction;  // direction of this unichar

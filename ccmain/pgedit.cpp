@@ -314,6 +314,7 @@ void Tesseract::do_re_display(
     image_win->Image(pix_binary_, 0, 0);
   }
 
+  image_win->Brush(ScrollView::NONE);
   PAGE_RES_IT pr_it(current_page_res);
   for (WERD_RES* word = pr_it.word(); word != NULL; word = pr_it.forward()) {
     (this->*word_painter)(&pr_it);

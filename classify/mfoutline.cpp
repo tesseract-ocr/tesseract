@@ -30,8 +30,6 @@
 #include <math.h>
 #include <stdio.h>
 
-#define MIN_INERTIA (0.00001)
-
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
@@ -475,71 +473,6 @@ void ComputeDirection(MFEDGEPT *Start,
   Finish->PreviousDirection = Start->Direction;
 }                                /* ComputeDirection */
 
-
-/*---------------------------------------------------------------------------*/
-void FinishOutlineStats(register OUTLINE_STATS *OutlineStats) {
-/*
- ** Parameters:
- **   OutlineStats  statistics about a set of outlines
- ** Globals: none
- ** Operation: Use the preliminary statistics accumulated in OutlineStats
- **   to compute the final statistics.
- **   (see Dan Johnson's Tesseract lab
- **   notebook #2, pgs. 74-78).
- ** Return: none
- ** Exceptions: none
- ** History: Fri Dec 14 10:13:36 1990, DSJ, Created.
- */
-  OutlineStats->x = 0.5 * OutlineStats->My / OutlineStats->L;
-  OutlineStats->y = 0.5 * OutlineStats->Mx / OutlineStats->L;
-
-  OutlineStats->Ix = (OutlineStats->Ix / 3.0 -
-    OutlineStats->y * OutlineStats->Mx +
-    OutlineStats->y * OutlineStats->y * OutlineStats->L);
-
-  OutlineStats->Iy = (OutlineStats->Iy / 3.0 -
-    OutlineStats->x * OutlineStats->My +
-    OutlineStats->x * OutlineStats->x * OutlineStats->L);
-
-  /* Ix and/or Iy could possibly be negative due to roundoff error */
-  if (OutlineStats->Ix < 0.0)
-    OutlineStats->Ix = MIN_INERTIA;
-  if (OutlineStats->Iy < 0.0)
-    OutlineStats->Iy = MIN_INERTIA;
-
-  OutlineStats->Rx = sqrt (OutlineStats->Ix / OutlineStats->L);
-  OutlineStats->Ry = sqrt (OutlineStats->Iy / OutlineStats->L);
-
-  OutlineStats->Mx *= 0.5;
-  OutlineStats->My *= 0.5;
-
-}                                /* FinishOutlineStats */
-
-
-/*---------------------------------------------------------------------------*/
-void InitOutlineStats(OUTLINE_STATS *OutlineStats) {
-/*
- ** Parameters:
- **   OutlineStats  stats data structure to be initialized
- ** Globals: none
- ** Operation: Initialize the outline statistics data structure so
- **   that it is ready to start accumulating statistics.
- ** Return: none
- ** Exceptions: none
- ** History: Fri Dec 14 08:55:22 1990, DSJ, Created.
- */
-  OutlineStats->Mx = 0.0;
-  OutlineStats->My = 0.0;
-  OutlineStats->L = 0.0;
-  OutlineStats->x = 0.0;
-  OutlineStats->y = 0.0;
-  OutlineStats->Ix = 0.0;
-  OutlineStats->Iy = 0.0;
-  OutlineStats->Rx = 0.0;
-  OutlineStats->Ry = 0.0;
-}                                /* InitOutlineStats */
-
-
 /*---------------------------------------------------------------------------*/
 MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
 /*
@@ -569,51 +502,3 @@ MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
 
   return (EdgePoint);
 }                                /* NextDirectionChange */
-
-
-/*---------------------------------------------------------------------------*/
-void UpdateOutlineStats(register OUTLINE_STATS *OutlineStats,
-                        register FLOAT32 x1,
-                        register FLOAT32 x2,
-                        register FLOAT32 y1,
-                        register FLOAT32 y2) {
-/*
- ** Parameters:
- **   OutlineStats  statistics to add this segment to
- **   x1, y1, x2, y2  segment to be added to statistics
- ** Globals: none
- ** Operation: This routine adds the statistics for the specified
- **   line segment to OutlineStats.  The statistics that are
- **   kept are:
- **     sum of length of all segments
- **     sum of 2*Mx for all segments
- **     sum of 2*My for all segments
- **     sum of 2*Mx*(y1+y2) - L*y1*y2 for all segments
- **     sum of 2*My*(x1+x2) - L*x1*x2 for all segments
- **   These numbers, once collected can later be used to easily
- **   compute the center of mass, first and second moments,
- **   and radii of gyration.  (see Dan Johnson's Tesseract lab
- **   notebook #2, pgs. 74-78).
- ** Return: none
- ** Exceptions: none
- ** History: Fri Dec 14 08:59:17 1990, DSJ, Created.
- */
-  register FLOAT64 L;
-  register FLOAT64 Mx2;
-  register FLOAT64 My2;
-
-  /* compute length of segment */
-  L = sqrt ((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-  OutlineStats->L += L;
-
-  /* compute 2Mx and 2My components */
-  Mx2 = L * (y1 + y2);
-  My2 = L * (x1 + x2);
-  OutlineStats->Mx += Mx2;
-  OutlineStats->My += My2;
-
-  /* compute second moment component */
-  OutlineStats->Ix += Mx2 * (y1 + y2) - L * y1 * y2;
-  OutlineStats->Iy += My2 * (x1 + x2) - L * x1 * x2;
-
-}                                /* UpdateOutlineStats */

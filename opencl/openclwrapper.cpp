@@ -2669,7 +2669,8 @@ PERF_COUNT_START("HistogramRectOCL")
     int numThreads = block_size*numWorkGroups;
     size_t local_work_size[] = {static_cast<size_t>(block_size)};
     size_t global_work_size[] = {static_cast<size_t>(numThreads)};
-    size_t red_global_work_size[] = {static_cast<size_t>(block_size*kHistogramSize*bytes_per_pixel)};
+    size_t red_global_work_size[] = {
+        static_cast<size_t>(block_size * kHistogramSize * bytes_per_pixel)};
 
     /* map histogramAllChannels as write only */
     int numBins = kHistogramSize*bytes_per_pixel*numWorkGroups;

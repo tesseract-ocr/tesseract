@@ -24,6 +24,7 @@
 #endif
 
 #include <ctype.h>
+#include "shapeclassifier.h"
 #include "ambigs.h"
 #include "blobclass.h"
 #include "blobs.h"
@@ -48,7 +49,6 @@
 #include "pageres.h"
 #include "params.h"
 #include "picofeat.h"
-#include "shapeclassifier.h"
 #include "shapetable.h"
 #include "tessclassifier.h"
 #include "trainingsample.h"

@@ -152,11 +152,11 @@ InputBuffer::~InputBuffer() {
   }
 }
 
-bool InputBuffer::Read(string *out) {
-  char buf[BUFSIZ+1];
+bool InputBuffer::Read(string* out) {
+  char buf[BUFSIZ + 1];
   int l;
-  while((l = fread(buf, 1, BUFSIZ, stream_)) > 0) {
-    if(ferror(stream_)) {
+  while ((l = fread(buf, 1, BUFSIZ, stream_)) > 0) {
+    if (ferror(stream_)) {
       clearerr(stream_);
       return false;
     }
