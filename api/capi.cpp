@@ -64,7 +64,7 @@ TESS_API TessResultRenderer* TESS_CALL TessBoxTextRendererCreate(const char* out
 
 TESS_API void TESS_CALL TessDeleteResultRenderer(TessResultRenderer* renderer)
 {
-    delete [] renderer;
+    delete renderer;
 }
 
 TESS_API void TESS_CALL TessResultRendererInsert(TessResultRenderer* renderer, TessResultRenderer* next)
