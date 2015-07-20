@@ -258,7 +258,7 @@ class ClassPruner {
     }
   }
 
-  /// Prunes the classes using <the maximum count> * pruning_factor/256 as a
+  /// Prunes the classes using &lt;the maximum count> * pruning_factor/256 as a
   /// threshold for keeping classes. If max_of_non_fragments, then ignore
   /// fragments in computing the maximum count.
   void PruneAndSort(int pruning_factor, int keep_this,
