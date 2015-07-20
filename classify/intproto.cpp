@@ -207,15 +207,15 @@ double_VAR(classify_pp_side_pad, 2.5, "Proto Pruner Side Pad");
 /*-----------------------------------------------------------------------------
               Public Code
 -----------------------------------------------------------------------------*/
-// Builds a feature from an FCOORD for position with all the necessary
-// clipping and rounding.
+/// Builds a feature from an FCOORD for position with all the necessary
+/// clipping and rounding.
 INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(const FCOORD& pos, uinT8 theta)
   : X(ClipToRange<inT16>(static_cast<inT16>(pos.x() + 0.5), 0, 255)),
     Y(ClipToRange<inT16>(static_cast<inT16>(pos.y() + 0.5), 0, 255)),
     Theta(theta),
     CP_misses(0) {
 }
-// Builds a feature from ints with all the necessary clipping and casting.
+/** Builds a feature from ints with all the necessary clipping and casting. */
 INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
   : X(static_cast<uinT8>(ClipToRange(x, 0, MAX_UINT8))),
     Y(static_cast<uinT8>(ClipToRange(y, 0, MAX_UINT8))),
@@ -223,7 +223,6 @@ INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
     CP_misses(0) {
 }
 
-/*---------------------------------------------------------------------------*/
 /**
  * This routine adds a new class structure to a set of
  * templates. Classes have to be added to Templates in
@@ -258,7 +257,6 @@ void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
 }                                /* AddIntClass */
 
 
-/*---------------------------------------------------------------------------*/
 /**
  * This routine returns the index of the next free config
  * in Class.
@@ -282,7 +280,6 @@ int AddIntConfig(INT_CLASS Class) {
 }                                /* AddIntConfig */
 
 
-/*---------------------------------------------------------------------------*/
 /**
  * This routine allocates the next free proto in Class and
  * returns its index.
@@ -330,25 +327,24 @@ int AddIntProto(INT_CLASS Class) {
 
   return (Index);
 
-}                                /* AddIntProto */
+}
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This routine adds Proto to the class pruning tables
+ * for the specified class in Templates.
+ *
+ * Globals:
+ *  - classify_num_cp_levels number of levels used in the class pruner
+ * @param Proto   floating-pt proto to add to class pruner
+ * @param ClassId   class id corresponding to Proto
+ * @param Templates set of templates containing class pruner
+ * @return none
+ * @note Exceptions: none
+ * @note History: Wed Feb 13 08:49:54 1991, DSJ, Created.
+ */
 void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
                             INT_TEMPLATES Templates)
-/*
- ** Parameters:
- **   Proto   floating-pt proto to add to class pruner
- **   ClassId   class id corresponding to Proto
- **   Templates set of templates containing class pruner
- ** Globals:
- **   classify_num_cp_levels number of levels used in the class pruner
- ** Operation: This routine adds Proto to the class pruning tables
- **   for the specified class in Templates.
- ** Return: none
- ** Exceptions: none
- ** History: Wed Feb 13 08:49:54 1991, DSJ, Created.
- */
 #define MAX_LEVEL     2
 {
   CLASS_PRUNER_STRUCT* Pruner;
@@ -377,22 +373,21 @@ void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
 }                                /* AddProtoToClassPruner */
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This routine updates the proto pruner lookup tables
+ * for Class to include a new proto identified by ProtoId
+ * and described by Proto.
+ * @param Proto floating-pt proto to be added to proto pruner
+ * @param ProtoId id of proto
+ * @param Class integer class that contains desired proto pruner
+ * @param debug debug flag
+ * @note Globals: none
+ * @return none
+ * @note Exceptions: none
+ * @note History: Fri Feb  8 13:07:19 1991, DSJ, Created.
+ */
 void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
                            INT_CLASS Class, bool debug) {
-/*
- ** Parameters:
- **   Proto floating-pt proto to be added to proto pruner
- **   ProtoId id of proto
- **   Class integer class that contains desired proto pruner
- ** Globals: none
- ** Operation: This routine updates the proto pruner lookup tables
- **   for Class to include a new proto identified by ProtoId
- **   and described by Proto.
- ** Return: none
- ** Exceptions: none
- ** History: Fri Feb  8 13:07:19 1991, DSJ, Created.
- */
   FLOAT32 Angle, X, Y, Length;
   FLOAT32 Pad;
   int Index;
@@ -773,18 +768,17 @@ void free_int_templates(INT_TEMPLATES templates) {
 
 
 namespace tesseract {
-INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
-/*
- ** Parameters:
- **   File    open file to read templates from
- ** Globals: none
- ** Operation: This routine reads a set of integer templates from
- **   File.  File must already be open and must be in the
- **   correct binary format.
- ** Return: Pointer to integer templates read from File.
- ** Exceptions: none
- ** History: Wed Feb 27 11:48:46 1991, DSJ, Created.
+/**
+ * This routine reads a set of integer templates from
+ * File.  File must already be open and must be in the
+ * correct binary format.
+ * @param  File    open file to read templates from
+ * @return Pointer to integer templates read from File.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Wed Feb 27 11:48:46 1991, DSJ, Created.
  */
+INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   int i, j, w, x, y, z;
   BOOL8 swap;
   int nread;
@@ -1081,20 +1075,19 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
 }                                /* ReadIntTemplates */
 
 
-/*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-void Classify::ShowMatchDisplay() {
-/*
- ** Parameters: none
- ** Globals:
- **   FeatureShapes display list containing feature matches
- **   ProtoShapes display list containing proto matches
- ** Operation: This routine sends the shapes in the global display
- **   lists to the match debugger window.
- ** Return: none
- ** Exceptions: none
- ** History: Thu Mar 21 15:47:33 1991, DSJ, Created.
+/**
+ * This routine sends the shapes in the global display
+ * lists to the match debugger window.
+ *
+ * Globals:
+ * - FeatureShapes display list containing feature matches
+ * - ProtoShapes display list containing proto matches
+ * @return none
+ * @note Exceptions: none
+ * @note History: Thu Mar 21 15:47:33 1991, DSJ, Created.
  */
+void Classify::ShowMatchDisplay() {
   InitIntMatchWindowIfReqd();
   if (ProtoDisplayWindow) {
     ProtoDisplayWindow->Clear();
@@ -1117,8 +1110,8 @@ void Classify::ShowMatchDisplay() {
   }
 }                                /* ShowMatchDisplay */
 
-// Clears the given window and draws the featurespace guides for the
-// appropriate normalization method.
+/// Clears the given window and draws the featurespace guides for the
+/// appropriate normalization method.
 void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window) {
   window->Clear();
 
@@ -1141,21 +1134,19 @@ void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window) {
 }
 #endif
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This routine writes Templates to File.  The format
+ * is an efficient binary format.  File must already be open
+ * for writing.
+ * @param File    open file to write templates to
+ * @param Templates templates to save into File
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Wed Feb 27 11:48:46 1991, DSJ, Created.
+ */
 void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
                                  const UNICHARSET& target_unicharset) {
-/*
- ** Parameters:
- **   File    open file to write templates to
- **   Templates templates to save into File
- ** Globals: none
- ** Operation: This routine writes Templates to File.  The format
- **   is an efficient binary format.  File must already be open
- **   for writing.
- ** Return: none
- ** Exceptions: none
- ** History: Wed Feb 27 11:48:46 1991, DSJ, Created.
- */
   int i, j;
   INT_CLASS Class;
   int unicharset_size = target_unicharset.size();
@@ -1219,43 +1210,39 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
 /*-----------------------------------------------------------------------------
               Private Code
 -----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets) {
-/*
- ** Parameters:
- **   Bucket    bucket whose start is to be computed
- **   Offset    offset used to map params to buckets
- **   NumBuckets  total number of buckets
- ** Globals: none
- ** Operation: This routine returns the parameter value which
- **   corresponds to the beginning of the specified bucket.
- **   The bucket number should have been generated using the
- **   BucketFor() function with parameters Offset and NumBuckets.
- ** Return: Param value corresponding to start position of Bucket.
- ** Exceptions: none
- ** History: Thu Feb 14 13:24:33 1991, DSJ, Created.
+/**
+ * This routine returns the parameter value which
+ * corresponds to the beginning of the specified bucket.
+ * The bucket number should have been generated using the
+ * BucketFor() function with parameters Offset and NumBuckets.
+ * @param Bucket    bucket whose start is to be computed
+ * @param Offset    offset used to map params to buckets
+ * @param NumBuckets  total number of buckets
+ * @return Param value corresponding to start position of Bucket.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Thu Feb 14 13:24:33 1991, DSJ, Created.
  */
+FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets) {
   return (((FLOAT32) Bucket / NumBuckets) - Offset);
 
 }                                /* BucketStart */
 
 
-/*---------------------------------------------------------------------------*/
-FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
-/*
- ** Parameters:
- **   Bucket    bucket whose end is to be computed
- **   Offset    offset used to map params to buckets
- **   NumBuckets  total number of buckets
- ** Globals: none
- ** Operation: This routine returns the parameter value which
- **   corresponds to the end of the specified bucket.
- **   The bucket number should have been generated using the
- **   BucketFor() function with parameters Offset and NumBuckets.
- ** Return: Param value corresponding to end position of Bucket.
- ** Exceptions: none
- ** History: Thu Feb 14 13:24:33 1991, DSJ, Created.
+/**
+ * This routine returns the parameter value which
+ * corresponds to the end of the specified bucket.
+ * The bucket number should have been generated using the
+ * BucketFor() function with parameters Offset and NumBuckets.
+ * @param Bucket    bucket whose end is to be computed
+ * @param Offset    offset used to map params to buckets
+ * @param NumBuckets  total number of buckets
+ * @return Param value corresponding to end position of Bucket.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Thu Feb 14 13:24:33 1991, DSJ, Created.
  */
+FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
   return (((FLOAT32) (Bucket + 1) / NumBuckets) - Offset);
 }                                /* BucketEnd */
 
@@ -1378,27 +1365,25 @@ void FillPPCircularBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 }                                /* FillPPCircularBits */
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This routine sets Bit in each bit vector whose
+ * bucket lies within the range Center +- Spread.  The fill
+ * is done for a linear dimension, i.e. there is no wrap-around
+ * for this dimension.  It is assumed that Center and Spread
+ * are expressed in a linear coordinate system whose range
+ * is approximately 0 to 1.  Values outside this range will
+ * be clipped.
+ * @param ParamTable  table of bit vectors, one per param bucket
+ * @param Bit   bit number being filled
+ * @param Center    center of filled area
+ * @param Spread    spread of filled area
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Tue Oct 16 09:26:54 1990, DSJ, Created.
+ */
 void FillPPLinearBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                       int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug) {
-/*
- ** Parameters:
- **   ParamTable  table of bit vectors, one per param bucket
- **   Bit   bit number being filled
- **   Center    center of filled area
- **   Spread    spread of filled area
- ** Globals: none
- ** Operation: This routine sets Bit in each bit vector whose
- **   bucket lies within the range Center +- Spread.  The fill
- **   is done for a linear dimension, i.e. there is no wrap-around
- **   for this dimension.  It is assumed that Center and Spread
- **   are expressed in a linear coordinate system whose range
- **   is approximately 0 to 1.  Values outside this range will
- **   be clipped.
- ** Return: none
- ** Exceptions: none
- ** History: Tue Oct 16 09:26:54 1990, DSJ, Created.
- */
   int i, FirstBucket, LastBucket;
 
   FirstBucket = (int) floor ((Center - Spread) * NUM_PP_BUCKETS);
@@ -1419,18 +1404,17 @@ void FillPPLinearBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
 /*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
 namespace tesseract {
+/**
+ * This routine prompts the user with Prompt and waits
+ * for the user to enter something in the debug window.
+ * @param Prompt  prompt to print while waiting for input from window
+ * @return Character entered in the debug window.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Thu Mar 21 16:55:13 1991, DSJ, Created.
+ */
 CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
                                    bool* pretrained_on, int* shape_id) {
-/*
- ** Parameters:
- **   Prompt  prompt to print while waiting for input from window
- ** Globals: none
- ** Operation: This routine prompts the user with Prompt and waits
- **   for the user to enter something in the debug window.
- ** Return: Character entered in the debug window.
- ** Exceptions: none
- ** History: Thu Mar 21 16:55:13 1991, DSJ, Created.
- */
   tprintf("%s\n", Prompt);
   SVEvent* ev;
   SVEventType ev_type;
@@ -1494,27 +1478,25 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
 }  // namespace tesseract
 #endif
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This routine copies the appropriate global pad variables
+ * into EndPad, SidePad, and AnglePad.  This is a kludge used
+ * to get around the fact that global control variables cannot
+ * be arrays.  If the specified level is illegal, the tightest
+ * possible pads are returned.
+ * @param Level   "tightness" level to return pads for
+ * @param EndPad    place to put end pad for Level
+ * @param SidePad   place to put side pad for Level
+ * @param AnglePad  place to put angle pad for Level
+ * @return none (results are returned in EndPad, SidePad, and AnglePad.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Thu Feb 14 08:26:49 1991, DSJ, Created.
+ */
 void GetCPPadsForLevel(int Level,
                        FLOAT32 *EndPad,
                        FLOAT32 *SidePad,
                        FLOAT32 *AnglePad) {
-/*
- ** Parameters:
- **   Level   "tightness" level to return pads for
- **   EndPad    place to put end pad for Level
- **   SidePad   place to put side pad for Level
- **   AnglePad  place to put angle pad for Level
- ** Globals: none
- ** Operation: This routine copies the appropriate global pad variables
- **   into EndPad, SidePad, and AnglePad.  This is a kludge used
- **   to get around the fact that global control variables cannot
- **   be arrays.  If the specified level is illegal, the tightest
- **   possible pads are returned.
- ** Return: none (results are returned in EndPad, SidePad, and AnglePad.
- ** Exceptions: none
- ** History: Thu Feb 14 08:26:49 1991, DSJ, Created.
- */
   switch (Level) {
     case 0:
       *EndPad = classify_cp_end_pad_loose * GetPicoFeatureLength ();
@@ -1546,18 +1528,14 @@ void GetCPPadsForLevel(int Level,
 }                                /* GetCPPadsForLevel */
 
 
-/*---------------------------------------------------------------------------*/
-ScrollView::Color GetMatchColorFor(FLOAT32 Evidence) {
-/*
- ** Parameters:
- **   Evidence  evidence value to return color for
- ** Globals: none
- ** Operation:
- ** Return: Color which corresponds to specified Evidence value.
- ** Exceptions: none
- ** History: Thu Mar 21 15:24:52 1991, DSJ, Created.
+/**
+ * @param Evidence  evidence value to return color for
+ * @return Color which corresponds to specified Evidence value.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Thu Mar 21 15:24:52 1991, DSJ, Created.
  */
-
+ScrollView::Color GetMatchColorFor(FLOAT32 Evidence) {
   assert (Evidence >= 0.0);
   assert (Evidence <= 1.0);
 
@@ -1572,21 +1550,19 @@ ScrollView::Color GetMatchColorFor(FLOAT32 Evidence) {
 }                                /* GetMatchColorFor */
 
 
-/*---------------------------------------------------------------------------*/
-void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
-/*
- ** Parameters:
- **   Filler    filler to get next fill spec from
- **   Fill    place to put spec for next fill
- ** Globals: none
- ** Operation: This routine returns (in Fill) the specification of
- **   the next line to be filled from Filler.  FillerDone() should
- **   always be called before GetNextFill() to ensure that we
- **   do not run past the end of the fill table.
- ** Return: none (results are returned in Fill)
- ** Exceptions: none
- ** History: Tue Feb 19 10:17:42 1991, DSJ, Created.
+/**
+ * This routine returns (in Fill) the specification of
+ * the next line to be filled from Filler.  FillerDone() should
+ * always be called before GetNextFill() to ensure that we
+ * do not run past the end of the fill table.
+ * @param Filler    filler to get next fill spec from
+ * @param Fill    place to put spec for next fill
+ * @return none (results are returned in Fill)
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Tue Feb 19 10:17:42 1991, DSJ, Created.
  */
+void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
   FILL_SWITCH *Next;
 
   /* compute the fill assuming no switches will be encountered */
@@ -1625,7 +1601,6 @@ void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
 }                                /* GetNextFill */
 
 
-/*---------------------------------------------------------------------------*/
 /**
  * This routine computes a data structure (Filler)
  * which can be used to fill in a rectangle surrounding
@@ -1635,9 +1610,8 @@ void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
  * @param Proto       proto to create a filler for
  * @param Filler        place to put table filler
  *
- * Globals: none
- *
  * @return none (results are returned in Filler)
+ * @note Globals: none
  * @note Exceptions: none
  * @note History: Thu Feb 14 09:27:05 1991, DSJ, Created.
  */
@@ -1794,14 +1768,13 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 
 /*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-/*
- * Parameters:
- *   ShapeList shape list to add feature rendering to
- *   Feature   feature to be rendered
- *   Color   color to use for feature rendering
- * Globals: none
- * Operation: This routine renders the specified feature into ShapeList.
- * Return: New shape list with rendering of Feature added.
+/**
+ * This routine renders the specified feature into ShapeList.
+ * @param ShapeList shape list to add feature rendering to
+ * @param Feature   feature to be rendered
+ * @param Color   color to use for feature rendering
+ * @return New shape list with rendering of Feature added.
+ * @note Globals: none
  * @note Exceptions: none
  * @note History: Thu Mar 21 14:57:41 1991, DSJ, Created.
  */
@@ -1826,8 +1799,7 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
 }                                /* RenderIntFeature */
 
 
-/*---------------------------------------------------------------------------*/
-/*
+/**
  * This routine extracts the parameters of the specified
  * proto from the class description and adds a rendering of
  * the proto onto the ShapeList.
@@ -1894,7 +1866,6 @@ void RenderIntProto(ScrollView *window,
 }                                /* RenderIntProto */
 #endif
 
-/*---------------------------------------------------------------------------*/
 /**
  * This routine truncates Param to lie within the range
  * of Min-Max inclusive.  If a truncation is performed, and
@@ -1971,8 +1942,8 @@ void InitFeatureDisplayWindowIfReqd() {
   }
 }
 
-// Creates a window of the appropriate size for displaying elements
-// in feature space.
+/// Creates a window of the appropriate size for displaying elements
+/// in feature space.
 ScrollView* CreateFeatureSpaceWindow(const char* name, int xpos, int ypos) {
   return new ScrollView(name, xpos, ypos, 520, 520, 260, 260, true);
 }
