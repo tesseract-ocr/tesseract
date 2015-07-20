@@ -34,13 +34,9 @@
  * stack is empty, the calling program is terminated with a
  * fatal error message.
  *
- * Globals:
- * - #ErrorTrapStack stack of error traps
- * - #CurrentTrapDepth number of traps on the stack
  * @param Error error number which is to be trapped
  * @param Message pointer to a string to be printed as an error message
  * @return None - this routine does not return.
- * @note Exceptions: Empty error trap stack terminates the calling program.
  * @note History: 4/3/89, DSJ, Created.
  */
 void DoError(int Error, const char *Message) {
