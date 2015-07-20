@@ -236,6 +236,7 @@ namespace tesseract {
  * a set of character normalization protos.  It then fills in
  * the data structure by reading from the specified File.
  * @param File open text file to read normalization protos from
+ * @param end_offset
  * Globals: none
  * @return Character normalization protos.
  * @note Exceptions: none
