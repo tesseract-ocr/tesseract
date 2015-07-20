@@ -1074,6 +1074,8 @@ void Classify::AddNewResult(const UnicharRating& new_result,
  * @param classes adapted class templates
  * @param ambiguities array of unichar id's to match against
  * @param[out] results place to put match results
+ * @param int_features
+ * @param fx_info
  *
  * @note Exceptions: none
  * @note History: Tue Mar 12 19:40:36 1991, DSJ, Created.
@@ -1293,6 +1295,8 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
  * @param Blob blob to be classified
  * @param Templates current set of adapted templates
  * @param Results place to put match results
+ * @param int_features
+ * @param fx_info
  *
  * @return Array of possible ambiguous chars that should be checked.
  * @note Exceptions: none
@@ -1335,9 +1339,9 @@ UNICHAR_ID *Classify::BaselineClassifier(
  * specified set of templates.  The classes which match
  * are added to Results.
  *
- * @param Blob blob to be classified
- * @param Templates templates to classify unknown against
- * @param Results place to put match results
+ * @param blob blob to be classified
+ * @param sample templates to classify unknown against
+ * @param adapt_results place to put match results
  *
  * Globals:
  * - CharNormCutoffs expected num features for each class
