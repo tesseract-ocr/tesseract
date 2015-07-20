@@ -1712,13 +1712,11 @@ bool Classify::LooksLikeGarbage(TBLOB *blob) {
  * It then copies the char norm features into the IntFeatures
  * array provided by the caller.
  *
- * @param Blob blob to extract features from
- * @param Templates used to compute char norm adjustments
- * @param IntFeatures array to fill with integer features
- * @param PrunerNormArray Array of factors from blob normalization
+ * @param templates used to compute char norm adjustments
+ * @param pruner_norm_array Array of factors from blob normalization
  *        process
- * @param CharNormArray array to fill with dummy char norm adjustments
- * @param BlobLength length of blob in baseline-normalized units
+ * @param char_norm_array array to fill with dummy char norm adjustments
+ * @param fx_info
  *
  * Globals:
  *

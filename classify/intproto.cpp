@@ -1393,7 +1393,10 @@ namespace tesseract {
 /**
  * This routine prompts the user with Prompt and waits
  * for the user to enter something in the debug window.
- * @param Prompt  prompt to print while waiting for input from window
+ * @param Prompt prompt to print while waiting for input from window
+ * @param adaptive_on
+ * @param pretrained_on
+ * @param shape_id
  * @return Character entered in the debug window.
  * @note Globals: none
  * @note Exceptions: none
