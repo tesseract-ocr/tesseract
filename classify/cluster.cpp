@@ -2257,9 +2257,9 @@ uinT16 DegreesOfFreedom(DISTRIBUTION Distribution, uinT16 HistogramBuckets) {
  * This routine is used to search a list of histogram data
  * structures to find one with the specified number of
  * buckets.  It is called by the list search routines.
- * @param Histogram	current histogram being tested for a match
- * @param DesiredNumberOfBuckets	match key
- * @return TRUE if Histogram matches DesiredNumberOfBuckets
+ * @param arg1 current histogram being tested for a match
+ * @param arg2 match key
+ * @return TRUE if arg1 matches arg2
  * @note Exceptions: none
  * @note History: Thu Aug  3 14:17:33 1989, DSJ, Created.
  */
