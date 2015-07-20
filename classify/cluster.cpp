@@ -2340,8 +2340,8 @@ void InitBuckets(BUCKETS *Buckets) {
  *
  * It is called by the list search routines.
  *
- * @param ChiStruct	chi-squared struct being tested for a match
- * @param SearchKey	chi-squared struct that is the search key
+ * @param arg1 chi-squared struct being tested for a match
+ * @param arg2 chi-squared struct that is the search key
  * @return TRUE if ChiStruct's Alpha matches SearchKey's Alpha
  * @note Exceptions: none
  * @note History: Thu Aug  3 14:17:33 1989, DSJ, Created.
