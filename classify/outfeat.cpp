@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "outfeat.h"
 
 #include "classify.h"
@@ -156,7 +156,7 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
  * renormalizes the outline-features to force this average
  * to be the x origin (i.e. x=0).
  * @param FeatureSet outline-features to be normalized
- * @eturn none (FeatureSet is changed)
+ * @return none (FeatureSet is changed)
  * @note Globals: none
  * @note Exceptions: none
  * @note History: 11/13/90, DSJ, Created.
