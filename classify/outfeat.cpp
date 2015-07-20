@@ -37,8 +37,7 @@ namespace tesseract {
  * Convert each segment in the outline to a feature
  * and return the features.
  * @param Blob blob to extract pico-features from
- * @param LineStats statistics on text row blob is in
- * @eturn Outline-features for Blob.
+ * @return Outline-features for Blob.
  * @note Globals: none
  * @note Exceptions: none
  * @note History: 

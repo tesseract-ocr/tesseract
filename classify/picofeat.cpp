@@ -60,10 +60,9 @@ namespace tesseract {
  * Globals:
  * - classify_norm_method normalization method currently specified
  * @param Blob blob to extract pico-features from
- * @param LineStats statistics on text row blob is in
- * @eturn Pico-features for Blob.
+ * @return Pico-features for Blob.
  * @note Exceptions: none
- * @notw History: 9/4/90, DSJ, Created.
+ * @note History: 9/4/90, DSJ, Created.
  */
 FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   LIST Outlines;
@@ -223,7 +222,7 @@ namespace tesseract {
 /*---------------------------------------------------------------------------*/
 /**
  * @param blob blob to extract features from
- * @param denorm normalization/denormalization parameters.
+ * @param fx_info
  * @return Integer character-normalized features for blob.
  * @note Exceptions: none
  * @note History: 8/8/2011, rays, Created.
@@ -255,7 +254,7 @@ FEATURE_SET Classify::ExtractIntCNFeatures(
 /*---------------------------------------------------------------------------*/
 /**
  * @param blob blob to extract features from
- * @param denorm normalization/denormalization parameters.
+ * @param fx_info
  * @return Geometric (top/bottom/width) features for blob.
  * @note Exceptions: none
  * @note History: 8/8/2011, rays, Created.

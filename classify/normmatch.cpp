@@ -75,7 +75,7 @@ namespace tesseract {
  * normalization proto for ClassId and returns the match
  * rating of the best match.
  * @param ClassId id of class to match against
- * @param Feature character normalization feature
+ * @param feature character normalization feature
  * @param DebugMatch controls dump of debug info
  *
  * Globals:

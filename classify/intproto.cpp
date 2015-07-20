@@ -555,6 +555,7 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
  * This routine converts from the old floating point format
  * to the new integer format.
  * @param FloatProtos prototypes in old floating pt format
+ * @param target_unicharset the UNICHARSET to use
  * @return New set of training templates in integer format.
  * @note Globals: none
  * @note Exceptions: none
