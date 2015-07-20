@@ -310,10 +310,10 @@ KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data) {
  * @param Query    ptr to query key (point in D-space)
  * @param QuerySize  number of nearest neighbors to be found
  * @param MaxDistance  all neighbors must be within this distance
- * @param NBuffer    ptr to QuerySize buffer to hold nearest neighbors
- * @param DBuffer    ptr to QuerySize buffer to hold distances
+ * @param NBuffer[out] ptr to QuerySize buffer to hold nearest neighbors
+ * @param DBuffer[out] ptr to QuerySize buffer to hold distances
  *          from nearest neighbor to query point
- * @return Number of nearest neighbors actually found
+ * @param[out] NumberOfResults Number of nearest neighbors actually found
  * @note Exceptions: none
  * @note History:
  * - 3/10/89, DSJ, Created.
