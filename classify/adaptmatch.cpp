@@ -1430,7 +1430,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
  * blob.  NOTE: assumes that the blob length has already been
  * computed and placed into Results.
  *
- * @param Results results to add noise classification to
+ * @param results results to add noise classification to
  *
  * Globals:
  * - matcher_avg_noise_size avg. length of a noise blob
@@ -1531,7 +1531,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
 #ifndef GRAPHICS_DISABLED
 /**
  *
- * @param Blob blob whose classification is being debugged
+ * @param blob blob whose classification is being debugged
  * @param Results results of match being debugged
  *
  * Globals: none
