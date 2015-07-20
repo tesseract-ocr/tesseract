@@ -38,11 +38,11 @@ ICOORD C_OUTLINE::step_coords[4] = {
   ICOORD (-1, 0), ICOORD (0, -1), ICOORD (1, 0), ICOORD (0, 1)
 };
 
-/**********************************************************************
- * C_OUTLINE::C_OUTLINE
+/**
+ * @name C_OUTLINE::C_OUTLINE
  *
  * Constructor to build a C_OUTLINE from a CRACKEDGE LOOP.
- **********************************************************************/
+ */
 
 C_OUTLINE::C_OUTLINE (
 //constructor
@@ -71,11 +71,11 @@ ICOORD top_right, inT16 length   //length of loop
 }
 
 
-/**********************************************************************
- * C_OUTLINE::C_OUTLINE
+/**
+ * @name C_OUTLINE::C_OUTLINE
  *
  * Constructor to build a C_OUTLINE from a C_OUTLINE_FRAG.
- **********************************************************************/
+ */
 C_OUTLINE::C_OUTLINE (
 //constructor
                                  //steps to copy
@@ -130,11 +130,11 @@ inT16 length                     //length of loop
   ASSERT_HOST (stepcount >= 4);
 }
 
-/**********************************************************************
- * C_OUTLINE::C_OUTLINE
+/**
+ * @name C_OUTLINE::C_OUTLINE
  *
  * Constructor to build a C_OUTLINE from a rotation of a C_OUTLINE.
- **********************************************************************/
+ */
 
 C_OUTLINE::C_OUTLINE(                     //constructor
                      C_OUTLINE *srcline,  //outline to
@@ -247,11 +247,11 @@ void C_OUTLINE::FakeOutline(const TBOX& box, C_OUTLINE_LIST* outlines) {
   ol_it.add_to_end(outline);
 }
 
-/**********************************************************************
- * C_OUTLINE::area
+/**
+ * @name C_OUTLINE::area
  *
  * Compute the area of the outline.
- **********************************************************************/
+ */
 
 inT32 C_OUTLINE::area() const {
   int stepindex;                 //current step
@@ -281,11 +281,11 @@ inT32 C_OUTLINE::area() const {
   return total;
 }
 
-/**********************************************************************
- * C_OUTLINE::perimeter
+/**
+ * @name C_OUTLINE::perimeter
  *
  * Compute the perimeter of the outline and its first level children.
- **********************************************************************/
+ */
 
 inT32 C_OUTLINE::perimeter() const {
   inT32 total_steps;             // Return value.
@@ -301,11 +301,11 @@ inT32 C_OUTLINE::perimeter() const {
 }
 
 
-/**********************************************************************
- * C_OUTLINE::outer_area
+/**
+ * @name C_OUTLINE::outer_area
  *
  * Compute the area of the outline.
- **********************************************************************/
+ */
 
 inT32 C_OUTLINE::outer_area() const {
   int stepindex;                 //current step
@@ -333,11 +333,11 @@ inT32 C_OUTLINE::outer_area() const {
 }
 
 
-/**********************************************************************
- * C_OUTLINE::count_transitions
+/**
+ * @name C_OUTLINE::count_transitions
  *
  * Compute the number of x and y maxes and mins in the outline.
- **********************************************************************/
+ */
 
 inT32 C_OUTLINE::count_transitions(                 //winding number
                                    inT32 threshold  //on size
@@ -461,16 +461,15 @@ inT32 C_OUTLINE::count_transitions(                 //winding number
 }
 
 
-/**********************************************************************
- * C_OUTLINE::operator<
+/**
+ * @name C_OUTLINE::operator<
  *
- * Return TRUE if the left operand is inside the right one.
- **********************************************************************/
+ * @return TRUE if the left operand is inside the right one.
+ * @param other other outline
+ */
 
 BOOL8
-C_OUTLINE::operator< (           //winding number
-const C_OUTLINE & other          //other outline
-) const
+C_OUTLINE::operator< (const C_OUTLINE & other) const
 {
   inT16 count = 0;               //winding count
   ICOORD pos;                    //position of point
@@ -498,15 +497,14 @@ const C_OUTLINE & other          //other outline
 }
 
 
-/**********************************************************************
- * C_OUTLINE::winding_number
+/**
+ * @name C_OUTLINE::winding_number
  *
- * Return the winding number of the outline around the given point.
- **********************************************************************/
+ * @return the winding number of the outline around the given point.
+ * @param point point to wind around
+ */
 
-inT16 C_OUTLINE::winding_number(              //winding number
-                                ICOORD point  //point to wind around
-                               ) const {
+inT16 C_OUTLINE::winding_number(ICOORD point) const {
   inT16 stepindex;               //index to cstep
   inT16 count;                   //winding count
   ICOORD vec;                    //to current point
@@ -590,15 +588,14 @@ void C_OUTLINE::reverse() {  //reverse drection
 }
 
 
-/**********************************************************************
- * C_OUTLINE::move
+/**
+ * @name C_OUTLINE::move
  *
  * Move C_OUTLINE by vector
- **********************************************************************/
+ * @param vec vector to reposition OUTLINE by
+ */
 
-void C_OUTLINE::move(                  // reposition OUTLINE
-                     const ICOORD vec  // by vector
-                    ) {
+void C_OUTLINE::move(const ICOORD vec) {
   C_OUTLINE_IT it(&children);  // iterator
 
   box.move (vec);
@@ -608,10 +605,12 @@ void C_OUTLINE::move(                  // reposition OUTLINE
     it.data ()->move (vec);      // move child outlines
 }
 
-// Returns true if *this and its children are legally nested.
-// The outer area of a child should have the opposite sign to the
-// parent. If not, it means we have discarded an outline in between
-// (probably due to excessive length).
+/**
+ * Returns true if *this and its children are legally nested.
+ * The outer area of a child should have the opposite sign to the
+ * parent. If not, it means we have discarded an outline in between
+ * (probably due to excessive length).
+ */
 bool C_OUTLINE::IsLegallyNested() const {
   if (stepcount == 0) return true;
   int parent_area = outer_area();
