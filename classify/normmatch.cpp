@@ -59,10 +59,10 @@ NORM_PROTOS *ReadNormProtos(FILE *File);
         Variables
 ----------------------------------------------------------------------------*/
 
-/* control knobs used to control the normalization adjustment process */
+/** control knobs used to control the normalization adjustment process */
 double_VAR(classify_norm_adj_midpoint, 32.0, "Norm adjust midpoint ...");
 double_VAR(classify_norm_adj_curl, 2.0, "Norm adjust curl ...");
-/* Weight of width variance against height and vertical position. */
+/** Weight of width variance against height and vertical position. */
 const double kWidthErrorWeighting = 0.125;
 
 /*----------------------------------------------------------------------------
