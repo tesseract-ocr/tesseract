@@ -80,8 +80,8 @@ DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
  *
  * Globals:
  * - Config  current clustering parameters
- * @param argc    number of command line arguments to parse
- * @parm argv    command line arguments
+ * @param argc number of command line arguments to parse
+ * @param argv command line arguments
  * @return none
  * @note Exceptions: Illegal options terminate the program.
  */
@@ -378,6 +378,11 @@ LABELEDLIST NewLabeledList (
  * samples by FontName and CharName.  It then returns this
  * data structure.
  * @param file open text file to read samples from
+ * @param feature_defs
+ * @param feature_name
+ * @param max_samples
+ * @param unicharset
+ * @param training_samples
  * @return none
  * @note Globals: none
  * @note Exceptions: none
@@ -444,7 +449,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
 /**
  * This routine deallocates all of the space allocated to
  * the specified list of training samples.
- * @param FontList list of all fonts in document
+ * @param CharList list of all fonts in document
  * @return none
  * @note Globals: none
  * @note Exceptions: none
@@ -725,7 +730,7 @@ MERGE_CLASS NewLabeledClass (
 /**
  * This routine deallocates all of the space allocated to
  * the specified list of training samples.
- * @param FontList list of all fonts in document
+ * @param ClassList list of all fonts in document
  * @return none
  * @note Globals: none
  * @note Exceptions: none
