@@ -73,6 +73,10 @@ enum DawgType {
   DAWG_TYPE_WORD,
   DAWG_TYPE_NUMBER,
   DAWG_TYPE_PATTERN,
+  
+  // HFST BEGIN
+  DAWG_TYPE_HFST,
+  // HFST END
 
   DAWG_TYPE_COUNT  // number of enum entries
 };

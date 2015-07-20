@@ -16,7 +16,7 @@ endif
 
 .PHONY: install-langs ScrollView.jar install-jars $(TRAINING_SUBDIR)
 
-SUBDIRS = ccutil viewer cutil opencl ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . tessdata doc
+SUBDIRS = ccutil viewer cutil opencl ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . tessdata doc ocr-train-tools
 
 EXTRA_DIST = ReleaseNotes \
 	aclocal.m4 config configure.ac autogen.sh contrib \

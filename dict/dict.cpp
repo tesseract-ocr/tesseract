@@ -26,6 +26,10 @@
 #endif
 #include "tprintf.h"
 
+// HFST BEGIN
+#include "hfst_word_model.h"
+// HFST END
+
 namespace tesseract {
 
 class Image;
@@ -60,6 +64,13 @@ Dict::Dict(CCUtil* ccutil)
                        " patterns.", getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_bigram_dawg, true, "Load dawg with special word "
                        "bigrams.", getCCUtil()->params()),
+
+      // HFST BEGIN
+      BOOL_INIT_MEMBER(load_hfst_fsm, true, 
+		       "Load hfst word model.", 
+		       getCCUtil()->params()),
+      // HFST END
+
       double_MEMBER(xheight_penalty_subscripts, 0.125,
                     "Score penalty (0.1 = 10%) added if there are subscripts "
                     "or superscripts in a word, but it is otherwise OK.",
@@ -243,6 +254,23 @@ void Dict::Load(DawgCache *dawg_cache) {
         lang, data_file_name, TESSDATA_UNAMBIG_DAWG, dawg_debug_level);
     if (unambig_dawg_) dawgs_ += unambig_dawg_;
   }
+
+  // HFST BEGIN
+  if (load_hfst_fsm)
+    {
+      Dawg * hfst_model = 
+	dawg_cache_->GetHfstWordModel
+	(lang, data_file_name, TESSDATA_HFST_FSM, dawg_debug_level);
+
+      if (hfst_model) 
+	{ 
+	  dawgs_ += hfst_model;
+
+	  dynamic_cast<hfst_word_model *>
+	    (hfst_model)->set_unichar_ids(getUnicharset());
+	}
+    }
+  // HFST END
 
   if (((STRING &)user_words_suffix).length() > 0 ||
       ((STRING &)user_words_file).length() > 0) {

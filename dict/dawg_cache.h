@@ -35,6 +35,14 @@ class DawgCache {
       TessdataType tessdata_dawg_type,
       int debug_level);
 
+  // HFST BEGIN
+  Dawg *GetHfstWordModel
+    (const STRING &lang,
+     const char *data_file_name,
+     TessdataType tessdata_dawg_type,
+     int debug_level);
+  // HFST END
+
   // If we manage the given dawg, decrement its count,
   // and possibly delete it if the count reaches zero.
   // If dawg is unknown to us, return false.
