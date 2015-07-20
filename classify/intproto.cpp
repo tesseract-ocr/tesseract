@@ -433,10 +433,11 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
 }                                /* AddProtoToProtoPruner */
 
 
-/*---------------------------------------------------------------------------*/
-// Returns a quantized bucket for the given param shifted by offset,
-// notionally (param + offset) * num_buckets, but clipped and casted to the
-// appropriate type.
+/**
+ * Returns a quantized bucket for the given param shifted by offset,
+ * notionally (param + offset) * num_buckets, but clipped and casted to the
+ * appropriate type.
+ */
 uinT8 Bucket8For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
   return static_cast<uinT8>(ClipToRange(bucket, 0, num_buckets - 1));
@@ -446,52 +447,50 @@ uinT16 Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
   return static_cast<uinT16>(ClipToRange(bucket, 0, num_buckets - 1));
 }
 
-/*---------------------------------------------------------------------------*/
-// Returns a quantized bucket for the given circular param shifted by offset,
-// notionally (param + offset) * num_buckets, but modded and casted to the
-// appropriate type.
+/**
+ * Returns a quantized bucket for the given circular param shifted by offset,
+ * notionally (param + offset) * num_buckets, but modded and casted to the
+ * appropriate type.
+ */
 uinT8 CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
   return static_cast<uinT8>(Modulo(bucket, num_buckets));
 }                                /* CircBucketFor */
 
 
-/*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-void UpdateMatchDisplay() {
-/*
- ** Parameters: none
- ** Globals:
- **   FeatureShapes display list for features
- **   ProtoShapes display list for protos
- ** Operation: This routine clears the global feature and proto
- **   display lists.
- ** Return: none
- ** Exceptions: none
- ** History: Thu Mar 21 15:40:19 1991, DSJ, Created.
+/**
+ * This routine clears the global feature and proto
+ * display lists.
+ *
+ * Globals:
+ * - FeatureShapes display list for features
+ * - ProtoShapes display list for protos
+ * @return none
+ * @note Exceptions: none
+ * @note History: Thu Mar 21 15:40:19 1991, DSJ, Created.
  */
+void UpdateMatchDisplay() {
   if (IntMatchWindow != NULL)
     IntMatchWindow->Update();
 }                                /* ClearMatchDisplay */
 #endif
 
-/*---------------------------------------------------------------------------*/
-void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
-/*
- ** Parameters:
- **   Config    config to be added to class
- **   ConfigId  id to be used for new config
- **   Class   class to add new config to
- ** Globals: none
- ** Operation: This operation updates the config vectors of all protos
- **   in Class to indicate that the protos with 1's in Config
- **   belong to a new configuration identified by ConfigId.
- **   It is assumed that the length of the Config bit vector is
- **   equal to the number of protos in Class.
- ** Return: none
- ** Exceptions: none
- ** History: Mon Feb 11 14:57:31 1991, DSJ, Created.
+/**
+ * This operation updates the config vectors of all protos
+ * in Class to indicate that the protos with 1's in Config
+ * belong to a new configuration identified by ConfigId.
+ * It is assumed that the length of the Config bit vector is
+ * equal to the number of protos in Class.
+ * @param Config    config to be added to class
+ * @param ConfigId  id to be used for new config
+ * @param Class   class to add new config to
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Mon Feb 11 14:57:31 1991, DSJ, Created.
  */
+void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
   int ProtoId;
   INT_PROTO Proto;
   int TotalLength;
@@ -509,20 +508,18 @@ void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
 
 
 namespace tesseract {
-/*---------------------------------------------------------------------------*/
-void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
-/*
- ** Parameters:
- **   Proto floating-pt proto to be converted to integer format
- **   ProtoId id of proto
- **   Class integer class to add converted proto to
- ** Globals: none
- ** Operation: This routine converts Proto to integer format and
- **   installs it as ProtoId in Class.
- ** Return: none
- ** Exceptions: none
- ** History: Fri Feb  8 11:22:43 1991, DSJ, Created.
+/**
+ * This routine converts Proto to integer format and
+ * installs it as ProtoId in Class.
+ * @param Proto floating-pt proto to be converted to integer format
+ * @param ProtoId id of proto
+ * @param Class integer class to add converted proto to
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Fri Feb  8 11:22:43 1991, DSJ, Created.
  */
+void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   INT_PROTO P;
   FLOAT32 Param;
 
@@ -554,20 +551,18 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
 }                                /* ConvertProto */
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This routine converts from the old floating point format
+ * to the new integer format.
+ * @param FloatProtos prototypes in old floating pt format
+ * @return New set of training templates in integer format.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Thu Feb  7 14:40:42 1991, DSJ, Created.
+ */
 INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
                                            const UNICHARSET&
                                            target_unicharset) {
-/*
- ** Parameters:
- **   FloatProtos prototypes in old floating pt format
- ** Globals: none
- ** Operation: This routine converts from the old floating point format
- **   to the new integer format.
- ** Return: New set of training templates in integer format.
- ** Exceptions: none
- ** History: Thu Feb  7 14:40:42 1991, DSJ, Created.
- */
   INT_TEMPLATES IntTemplates;
   CLASS_TYPE FClass;
   INT_CLASS IClass;
@@ -618,21 +613,20 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
 }  // namespace tesseract
 
 
-/*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
-void DisplayIntFeature(const INT_FEATURE_STRUCT* Feature, FLOAT32 Evidence) {
-/*
- ** Parameters:
- **   Feature   pico-feature to be displayed
- **   Evidence  best evidence for this feature (0-1)
- ** Globals:
- **   FeatureShapes global display list for features
- ** Operation: This routine renders the specified feature into a
- **   global display list.
- ** Return: none
- ** Exceptions: none
- ** History: Thu Mar 21 14:45:04 1991, DSJ, Created.
+/**
+ * This routine renders the specified feature into a
+ * global display list.
+ *
+ * Globals:
+ * - FeatureShapes global display list for features
+ * @param Feature   pico-feature to be displayed
+ * @param Evidence  best evidence for this feature (0-1)
+ * @return none
+ * @note Exceptions: none
+ * @note History: Thu Mar 21 14:45:04 1991, DSJ, Created.
  */
+void DisplayIntFeature(const INT_FEATURE_STRUCT* Feature, FLOAT32 Evidence) {
   ScrollView::Color color = GetMatchColorFor(Evidence);
   RenderIntFeature(IntMatchWindow, Feature, color);
   if (FeatureDisplayWindow) {
@@ -641,21 +635,20 @@ void DisplayIntFeature(const INT_FEATURE_STRUCT* Feature, FLOAT32 Evidence) {
 }                                /* DisplayIntFeature */
 
 
-/*---------------------------------------------------------------------------*/
-void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence) {
-/*
- ** Parameters:
- **   Class   class to take proto from
- **   ProtoId   id of proto in Class to be displayed
- **   Evidence  total evidence for proto (0-1)
- ** Globals:
- **   ProtoShapes global display list for protos
- ** Operation: This routine renders the specified proto into a
- **   global display list.
- ** Return: none
- ** Exceptions: none
- ** History: Thu Mar 21 14:45:04 1991, DSJ, Created.
+/**
+ * This routine renders the specified proto into a
+ * global display list.
+ *
+ * Globals:
+ * - ProtoShapes global display list for protos
+ * @param Class   class to take proto from
+ * @param ProtoId   id of proto in Class to be displayed
+ * @param Evidence  total evidence for proto (0-1)
+ * @return none
+ * @note Exceptions: none
+ * @note History: Thu Mar 21 14:45:04 1991, DSJ, Created.
  */
+void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence) {
   ScrollView::Color color = GetMatchColorFor(Evidence);
   RenderIntProto(IntMatchWindow, Class, ProtoId, color);
   if (ProtoDisplayWindow) {
@@ -664,17 +657,15 @@ void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence) {
 }                                /* DisplayIntProto */
 #endif
 
-/*---------------------------------------------------------------------------*/
 INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
 /*
- ** Parameters:
  **   MaxNumProtos  number of protos to allocate space for
  **   MaxNumConfigs number of configs to allocate space for
- ** Globals: none
  ** Operation: This routine creates a new integer class data structure
  **   and returns it.  Sufficient space is allocated
  **   to handle the specified number of protos and configs.
- ** Return: New class created.
+ * @return New class created.
+ ** Globals: none
  ** Exceptions: none
  ** History: Fri Feb  8 10:51:23 1991, DSJ, Created.
  */
@@ -730,17 +721,15 @@ void free_int_class(INT_CLASS int_class) {
 }
 
 
-/*---------------------------------------------------------------------------*/
-INT_TEMPLATES NewIntTemplates() {
-/*
- ** Parameters: none
- ** Globals: none
- ** Operation: This routine allocates a new set of integer templates
- **   initialized to hold 0 classes.
- ** Return: The integer templates created.
- ** Exceptions: none
- ** History: Fri Feb  8 08:38:51 1991, DSJ, Created.
+/**
+ * This routine allocates a new set of integer templates
+ * initialized to hold 0 classes.
+ * @return The integer templates created.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Fri Feb  8 08:38:51 1991, DSJ, Created.
  */
+INT_TEMPLATES NewIntTemplates() {
   INT_TEMPLATES T;
   int i;
 
@@ -1247,27 +1236,25 @@ FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
 }                                /* BucketEnd */
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This routine fills in the section of a class pruner
+ * corresponding to a single x value for a single proto of
+ * a class.
+ * @param FillSpec  specifies which bits to fill in pruner
+ * @param Pruner    class pruner to be filled
+ * @param ClassMask indicates which bits to change in each word
+ * @param ClassCount  indicates what to change bits to
+ * @param WordIndex indicates which word to change
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Tue Feb 19 11:11:29 1991, DSJ, Created.
+ */
 void DoFill(FILL_SPEC *FillSpec,
             CLASS_PRUNER_STRUCT* Pruner,
             register uinT32 ClassMask,
             register uinT32 ClassCount,
             register uinT32 WordIndex) {
-/*
- ** Parameters:
- **   FillSpec  specifies which bits to fill in pruner
- **   Pruner    class pruner to be filled
- **   ClassMask indicates which bits to change in each word
- **   ClassCount  indicates what to change bits to
- **   WordIndex indicates which word to change
- ** Globals: none
- ** Operation: This routine fills in the section of a class pruner
- **   corresponding to a single x value for a single proto of
- **   a class.
- ** Return: none
- ** Exceptions: none
- ** History: Tue Feb 19 11:11:29 1991, DSJ, Created.
- */
   register int X, Y, Angle;
   register uinT32 OldWord;
 
@@ -1297,18 +1284,16 @@ void DoFill(FILL_SPEC *FillSpec,
 }                                /* DoFill */
 
 
-/*---------------------------------------------------------------------------*/
-BOOL8 FillerDone(TABLE_FILLER *Filler) {
-/*
- ** Parameters:
- **   Filler    table filler to check if done
- ** Globals: none
- ** Operation: Return TRUE if the specified table filler is done, i.e.
- **   if it has no more lines to fill.
- ** Return: TRUE if no more lines to fill, FALSE otherwise.
- ** Exceptions: none
- ** History: Tue Feb 19 10:08:05 1991, DSJ, Created.
+/**
+ * Return TRUE if the specified table filler is done, i.e.
+ * if it has no more lines to fill.
+ * @param Filler    table filler to check if done
+ * @return TRUE if no more lines to fill, FALSE otherwise.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Tue Feb 19 10:08:05 1991, DSJ, Created.
  */
+BOOL8 FillerDone(TABLE_FILLER *Filler) {
   FILL_SWITCH *Next;
 
   Next = &(Filler->Switch[Filler->NextSwitch]);
@@ -1321,26 +1306,24 @@ BOOL8 FillerDone(TABLE_FILLER *Filler) {
 }                                /* FillerDone */
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This routine sets Bit in each bit vector whose
+ * bucket lies within the range Center +- Spread.  The fill
+ * is done for a circular dimension, i.e. bucket 0 is adjacent
+ * to the last bucket.  It is assumed that Center and Spread
+ * are expressed in a circular coordinate system whose range
+ * is 0 to 1.
+ * @param ParamTable  table of bit vectors, one per param bucket
+ * @param Bit   bit position in vectors to be filled
+ * @param Center    center of filled area
+ * @param Spread    spread of filled area
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Tue Oct 16 09:26:54 1990, DSJ, Created.
+ */
 void FillPPCircularBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                         int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug) {
-/*
- ** Parameters:
- **   ParamTable  table of bit vectors, one per param bucket
- **   Bit   bit position in vectors to be filled
- **   Center    center of filled area
- **   Spread    spread of filled area
- ** Globals: none
- ** Operation: This routine sets Bit in each bit vector whose
- **   bucket lies within the range Center +- Spread.  The fill
- **   is done for a circular dimension, i.e. bucket 0 is adjacent
- **   to the last bucket.  It is assumed that Center and Spread
- **   are expressed in a circular coordinate system whose range
- **   is 0 to 1.
- ** Return: none
- ** Exceptions: none
- ** History: Tue Oct 16 09:26:54 1990, DSJ, Created.
- */
   int i, FirstBucket, LastBucket;
 
   if (Spread > 0.5)
