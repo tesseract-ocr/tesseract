@@ -496,6 +496,8 @@ void FreeLabeledList(LABELEDLIST LabeledList) {
  * those samples into a clusterer data structure.  This
  * data structure is then returned to the caller.
  * @param char_sample: LABELEDLIST that holds all the feature information for a
+ * @param FeatureDefs
+ * @param program_feature_type
  * given character.
  * @return Pointer to new clusterer data structure.
  * @note Globals: None
