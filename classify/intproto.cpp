@@ -657,18 +657,18 @@ void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence) {
 }                                /* DisplayIntProto */
 #endif
 
-INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
-/*
- **   MaxNumProtos  number of protos to allocate space for
- **   MaxNumConfigs number of configs to allocate space for
- ** Operation: This routine creates a new integer class data structure
- **   and returns it.  Sufficient space is allocated
- **   to handle the specified number of protos and configs.
+/**
+ * This routine creates a new integer class data structure
+ * and returns it.  Sufficient space is allocated
+ * to handle the specified number of protos and configs.
+ * @param MaxNumProtos  number of protos to allocate space for
+ * @param MaxNumConfigs number of configs to allocate space for
  * @return New class created.
- ** Globals: none
- ** Exceptions: none
- ** History: Fri Feb  8 10:51:23 1991, DSJ, Created.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Fri Feb  8 10:51:23 1991, DSJ, Created.
  */
+INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   INT_CLASS Class;
   PROTO_SET ProtoSet;
   int i;
@@ -707,7 +707,6 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
 }                                /* NewIntClass */
 
 
-/*-------------------------------------------------------------------------*/
 void free_int_class(INT_CLASS int_class) {
   int i;
 
@@ -1880,7 +1879,6 @@ int TruncateParam(FLOAT32 Param, int Min, int Max, char *Id) {
 }                                /* TruncateParam */
 
 
-/*---------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
 /**
  * Initializes the int matcher window if it is not already
