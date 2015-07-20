@@ -17,7 +17,7 @@
  ******************************************************************************/
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "normmatch.h"
 
 #include <stdio.h>
@@ -45,7 +45,7 @@ struct NORM_PROTOS
 
 /*----------------------------------------------------------------------------
           Private Function Prototypes
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 double NormEvidenceOf(register double NormAdj);
 
 void PrintNormMatch(FILE *File,
@@ -57,17 +57,17 @@ NORM_PROTOS *ReadNormProtos(FILE *File);
 
 /*----------------------------------------------------------------------------
         Variables
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 
-/* control knobs used to control the normalization adjustment process */
+/** control knobs used to control the normalization adjustment process */
 double_VAR(classify_norm_adj_midpoint, 32.0, "Norm adjust midpoint ...");
 double_VAR(classify_norm_adj_curl, 2.0, "Norm adjust curl ...");
-// Weight of width variance against height and vertical position.
+/** Weight of width variance against height and vertical position. */
 const double kWidthErrorWeighting = 0.125;
 
 /*----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
 /**
@@ -79,7 +79,7 @@ namespace tesseract {
  * @param DebugMatch	controls dump of debug info
  *
  * Globals:
- * NormProtos	character normalization prototypes
+ * #NormProtos	character normalization prototypes
  *
  * @return Best match rating for Feature against protos of ClassId.
  * @note Exceptions: none
@@ -173,7 +173,7 @@ void Classify::FreeNormProtos() {
 
 /*----------------------------------------------------------------------------
               Private Code
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 /**
  * @name NormEvidenceOf
  *
