@@ -309,7 +309,7 @@ int main (int argc, char **argv) {
                                     *shape_table, float_classes,
                                     inttemp_file.string(),
                                     pffmtable_file.string());
-  delete [] float_classes;
+  FreeClassStructs(float_classes, unicharset->size());
   FreeLabeledClassList(mf_classes);
   delete trainer;
   delete shape_table;

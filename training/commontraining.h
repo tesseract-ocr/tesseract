@@ -146,6 +146,13 @@ MERGE_CLASS NewLabeledClass(
 void FreeTrainingSamples(
     LIST        CharList);
 
+// helper for creating and initializing the CLASS_STRUCTs 
+CLASS_STRUCT* MakeClassStructs(unsigned int size);
+
+// Frees the Prototypes and Configrations and then Frees the classes[]
+// size specifies the number of CLASS_STRUCT elements to delete
+void FreeClassStructs(CLASS_STRUCT* classes, unsigned int size = 0);
+
 CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
                                 LIST LabeledClassList);
 

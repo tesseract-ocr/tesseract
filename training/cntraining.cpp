@@ -192,6 +192,8 @@ int main(int  argc, char* argv[])
     }
     Config.MinSamples = SavedMinSamples;
     AddToNormProtosList(&NormProtoList, ProtoList, CharSample->Label);
+    if(pCharList->next)
+      FreeClusterer(Clusterer);
   }
   FreeTrainingSamples(CharList);
   if (Clusterer == NULL) { // To avoid a SIGSEGV
@@ -200,7 +202,8 @@ int main(int  argc, char* argv[])
   }
   WriteNormProtos(FLAGS_D.c_str(), NormProtoList, Clusterer);
   FreeNormProtoList(NormProtoList);
-  FreeProtoList(&ProtoList);
+  FreeProtoList(&ProtoList);  // TODO: also delete the other ProtoLists in Norm-
+                              // ProtoList without causing a heap corruption
   FreeClusterer(Clusterer);
   printf ("\n");
   return 0;
