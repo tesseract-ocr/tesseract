@@ -1,3 +1,4 @@
+tessedit_create_txt 0
 file_type                   .bl
 #tessedit_use_nn				F
 textord_fast_pitch_test	T

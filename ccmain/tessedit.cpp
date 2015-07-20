@@ -1,8 +1,10 @@
 /**********************************************************************
  * File:        tessedit.cpp  (Formerly tessedit.c)
- * Description: Main program for merge of tess and editor.
- * Author:					Ray Smith
- * Created:					Tue Jan 07 15:21:46 GMT 1992
+ * Description: (Previously) Main program for merge of tess and editor.
+ *              Now just code to load the language model and various
+ *              engine-specific data files.
+ * Author:      Ray Smith
+ * Created:     Tue Jan 07 15:21:46 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

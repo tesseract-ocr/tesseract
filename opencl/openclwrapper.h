@@ -74,6 +74,13 @@
 #define PERF_COUNT_VERBOSE 1
 #define PERF_COUNT_REPORT_STR "[%36s], %24s, %11.6f\n"
 
+#if ON_APPLE
+#include <time.h>
+#include <mach/clock.h>
+#include <mach/mach.h>
+#define CLOCK_MONOTONIC SYSTEM_CLOCK
+#define clock_gettime clock_get_time
+#endif
 
 #if ON_WINDOWS
 

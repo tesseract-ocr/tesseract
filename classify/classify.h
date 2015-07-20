@@ -253,10 +253,8 @@ class Classify : public CCStruct {
                              GenericVector<UnicharRating>* results);
   UNICHAR_ID *GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass);
   void DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results);
-  void AdaptToChar(TBLOB *Blob,
-                   CLASS_ID ClassId,
-                   int FontinfoId,
-                   FLOAT32 Threshold);
+  void AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
+                   FLOAT32 Threshold, ADAPT_TEMPLATES adaptive_templates);
   void DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class);
   bool AdaptableWord(WERD_RES* word);
   void EndAdaptiveClassifier();
@@ -265,6 +263,8 @@ class Classify : public CCStruct {
   void AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices);
   void ClassifyAsNoise(ADAPT_RESULTS *Results);
   void ResetAdaptiveClassifierInternal();
+  void SwitchAdaptiveClassifier();
+  void StartBackupAdaptiveClassifier();
 
   int GetCharNormFeature(const INT_FX_RESULT_STRUCT& fx_info,
                          INT_TEMPLATES templates,
@@ -281,7 +281,10 @@ class Classify : public CCStruct {
   bool TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG &config);
   void UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob);
 
-  bool AdaptiveClassifierIsFull() { return NumAdaptationsFailed > 0; }
+  bool AdaptiveClassifierIsFull() const { return NumAdaptationsFailed > 0; }
+  bool AdaptiveClassifierIsEmpty() const {
+    return AdaptedTemplates->NumPermClasses == 0;
+  }
   bool LooksLikeGarbage(TBLOB *blob);
   void RefreshDebugWindow(ScrollView **win, const char *msg,
                           int y_offset, const TBOX &wbox);
@@ -374,6 +377,12 @@ class Classify : public CCStruct {
   // Member variables.
 
   // Parameters.
+  // Set during training (in lang.config) to indicate whether the divisible
+  // blobs chopper should be used (true for latin script.)
+  BOOL_VAR_H(allow_blob_division, true, "Use divisible blobs chopping");
+  // Set during training (in lang.config) to indicate whether the divisible
+  // blobs chopper should be used in preference to chopping. Set to true for
+  // southern Indic scripts.
   BOOL_VAR_H(prioritize_division, FALSE,
              "Prioritize blob division over chopping");
   INT_VAR_H(tessedit_single_match, FALSE, "Top choice only from CP");
@@ -409,7 +418,7 @@ class Classify : public CCStruct {
   INT_VAR_H(matcher_debug_flags, 0, "Matcher Debug Flags");
   INT_VAR_H(classify_learning_debug_level, 0, "Learning Debug Level: ");
   double_VAR_H(matcher_good_threshold, 0.125, "Good Match (0-1)");
-  double_VAR_H(matcher_great_threshold, 0.0, "Great Match (0-1)");
+  double_VAR_H(matcher_reliable_adaptive_result, 0.0, "Great Match (0-1)");
   double_VAR_H(matcher_perfect_threshold, 0.02, "Perfect Match (0-1)");
   double_VAR_H(matcher_bad_match_pad, 0.15, "Bad Match Pad (0-1)");
   double_VAR_H(matcher_rating_margin, 0.1, "New template margin (0-1)");
@@ -462,6 +471,10 @@ class Classify : public CCStruct {
   // Use class variables to hold onto built-in templates and adapted templates.
   INT_TEMPLATES PreTrainedTemplates;
   ADAPT_TEMPLATES AdaptedTemplates;
+  // The backup adapted templates are created from the previous page (only)
+  // so they are always ready and reasonably well trained if the primary
+  // adapted templates become full.
+  ADAPT_TEMPLATES BackupAdaptedTemplates;
 
   // Create dummy proto and config masks for use with the built-in templates.
   BIT_VECTOR AllProtosOn;

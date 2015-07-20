@@ -1490,8 +1490,10 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
     hocr_str.add_str_int(" ", bottom);
     hocr_str.add_str_int("; x_wconf ", res_it->Confidence(RIL_WORD));
     if (font_info) {
-      hocr_str += "; x_font ";
-      hocr_str += HOcrEscape(font_name);
+      if (font_name) {
+        hocr_str += "; x_font ";
+        hocr_str += HOcrEscape(font_name);
+      }
       hocr_str.add_str_int("; x_fsize ", pointsize);
     }
     hocr_str += "'";
@@ -2380,7 +2382,8 @@ void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
   threshold = tesseract_->matcher_good_threshold;
 
   if (blob->outlines)
-    tesseract_->AdaptToChar(blob, id, kUnknownFontinfoId, threshold);
+    tesseract_->AdaptToChar(blob, id, kUnknownFontinfoId, threshold,
+                            tesseract_->AdaptedTemplates);
   delete blob;
 }
 

@@ -287,9 +287,9 @@ class Tesseract : public Wordrec {
                   TO_BLOCK_LIST* to_blocks, BLOBNBOX_LIST* diacritic_blobs,
                   Tesseract* osd_tess, OSResults* osr);
   ColumnFinder* SetupPageSegAndDetectOrientation(
-      bool single_column, bool osd, bool only_osd,
-      BLOCK_LIST* blocks, Tesseract* osd_tess, OSResults* osr,
-      TO_BLOCK_LIST* to_blocks, Pix** photo_mask_pix, Pix** music_mask_pix);
+      PageSegMode pageseg_mode, BLOCK_LIST* blocks, Tesseract* osd_tess,
+      OSResults* osr, TO_BLOCK_LIST* to_blocks, Pix** photo_mask_pix,
+      Pix** music_mask_pix);
   // par_control.cpp
   void PrerecAllWordsPar(const GenericVector<WordData>& words);
 

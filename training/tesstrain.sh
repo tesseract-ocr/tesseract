@@ -12,7 +12,7 @@
 #
 # This script provides an easy way to execute various phases of training
 # Tesseract.  For a detailed description of the phases, see
-# https://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3
+# https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
 #
 # USAGE:
 #

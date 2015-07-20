@@ -216,56 +216,115 @@ before any <emphasis>configfile</emphasis>.</simpara>
 </refsect1>
 <refsect1 id="_languages">
 <title>LANGUAGES</title>
-<simpara>There are currently language packs available for the following languages:</simpara>
-<simpara><emphasis role="strong">ara</emphasis> (Arabic),
-<emphasis role="strong">aze</emphasis> (Azerbauijani),
-<emphasis role="strong">bul</emphasis> (Bulgarian),
-<emphasis role="strong">cat</emphasis> (Catalan),
-<emphasis role="strong">ces</emphasis> (Czech),
-<emphasis role="strong">chi_sim</emphasis> (Simplified Chinese),
-<emphasis role="strong">chi_tra</emphasis> (Traditional Chinese),
-<emphasis role="strong">chr</emphasis> (Cherokee),
-<emphasis role="strong">dan</emphasis> (Danish),
-<emphasis role="strong">dan-frak</emphasis> (Danish (Fraktur)),
-<emphasis role="strong">deu</emphasis> (German),
-<emphasis role="strong">ell</emphasis> (Greek),
-<emphasis role="strong">eng</emphasis> (English),
-<emphasis role="strong">enm</emphasis> (Old English),
-<emphasis role="strong">epo</emphasis> (Esperanto),
-<emphasis role="strong">est</emphasis> (Estonian),
-<emphasis role="strong">fin</emphasis> (Finnish),
-<emphasis role="strong">fra</emphasis> (French),
-<emphasis role="strong">frm</emphasis> (Old French),
-<emphasis role="strong">glg</emphasis> (Galician),
-<emphasis role="strong">heb</emphasis> (Hebrew),
-<emphasis role="strong">hin</emphasis> (Hindi),
-<emphasis role="strong">hrv</emphasis> (Croation),
-<emphasis role="strong">hun</emphasis> (Hungarian),
-<emphasis role="strong">ind</emphasis> (Indonesian),
-<emphasis role="strong">ita</emphasis> (Italian),
-<emphasis role="strong">jpn</emphasis> (Japanese),
-<emphasis role="strong">kor</emphasis> (Korean),
-<emphasis role="strong">lav</emphasis> (Latvian),
-<emphasis role="strong">lit</emphasis> (Lithuanian),
-<emphasis role="strong">nld</emphasis> (Dutch),
-<emphasis role="strong">nor</emphasis> (Norwegian),
-<emphasis role="strong">pol</emphasis> (Polish),
-<emphasis role="strong">por</emphasis> (Portuguese),
-<emphasis role="strong">ron</emphasis> (Romanian),
-<emphasis role="strong">rus</emphasis> (Russian),
-<emphasis role="strong">slk</emphasis> (Slovakian),
-<emphasis role="strong">slv</emphasis> (Slovenian),
-<emphasis role="strong">sqi</emphasis> (Albanian),
-<emphasis role="strong">spa</emphasis> (Spanish),
-<emphasis role="strong">srp</emphasis> (Serbian),
-<emphasis role="strong">swe</emphasis> (Swedish),
-<emphasis role="strong">tam</emphasis> (Tamil),
-<emphasis role="strong">tel</emphasis> (Telugu),
-<emphasis role="strong">tgl</emphasis> (Tagalog),
-<emphasis role="strong">tha</emphasis> (Thai),
-<emphasis role="strong">tur</emphasis> (Turkish),
-<emphasis role="strong">ukr</emphasis> (Ukrainian),
-<emphasis role="strong">vie</emphasis> (Vietnamese)</simpara>
+<simpara>There are currently language packs available for the following languages
+(in <ulink url="https://github.com/tesseract-ocr/tessdata">https://github.com/tesseract-ocr/tessdata</ulink>):</simpara>
+<simpara><emphasis role="strong">afr</emphasis> (Afrikaans)
+<emphasis role="strong">amh</emphasis> (Amharic)
+<emphasis role="strong">ara</emphasis> (Arabic)
+<emphasis role="strong">asm</emphasis> (Assamese)
+<emphasis role="strong">aze</emphasis> (Azerbaijani)
+<emphasis role="strong">aze_cyrl</emphasis> (Azerbaijani - Cyrilic)
+<emphasis role="strong">bel</emphasis> (Belarusian)
+<emphasis role="strong">ben</emphasis> (Bengali)
+<emphasis role="strong">bod</emphasis> (Tibetan)
+<emphasis role="strong">bos</emphasis> (Bosnian)
+<emphasis role="strong">bul</emphasis> (Bulgarian)
+<emphasis role="strong">cat</emphasis> (Catalan; Valencian)
+<emphasis role="strong">ceb</emphasis> (Cebuano)
+<emphasis role="strong">ces</emphasis> (Czech)
+<emphasis role="strong">chi_sim</emphasis> (Chinese - Simplified)
+<emphasis role="strong">chi_tra</emphasis> (Chinese - Traditional)
+<emphasis role="strong">chr</emphasis> (Cherokee)
+<emphasis role="strong">cym</emphasis> (Welsh)
+<emphasis role="strong">dan</emphasis> (Danish)
+<emphasis role="strong">dan_frak</emphasis> (Danish - Fraktur)
+<emphasis role="strong">deu</emphasis> (German)
+<emphasis role="strong">deu_frak</emphasis> (German - Fraktur)
+<emphasis role="strong">dzo</emphasis> (Dzongkha)
+<emphasis role="strong">ell</emphasis> (Greek, Modern (1453-))
+<emphasis role="strong">eng</emphasis> (English)
+<emphasis role="strong">enm</emphasis> (English, Middle (1100-1500))
+<emphasis role="strong">epo</emphasis> (Esperanto)
+<emphasis role="strong">equ</emphasis> (Math / equation detection module)
+<emphasis role="strong">est</emphasis> (Estonian)
+<emphasis role="strong">eus</emphasis> (Basque)
+<emphasis role="strong">fas</emphasis> (Persian)
+<emphasis role="strong">fin</emphasis> (Finnish)
+<emphasis role="strong">fra</emphasis> (French)
+<emphasis role="strong">frk</emphasis> (Frankish)
+<emphasis role="strong">frm</emphasis> (French, Middle (ca.1400-1600))
+<emphasis role="strong">gle</emphasis> (Irish)
+<emphasis role="strong">glg</emphasis> (Galician)
+<emphasis role="strong">grc</emphasis> (Greek, Ancient (to 1453))
+<emphasis role="strong">guj</emphasis> (Gujarati)
+<emphasis role="strong">hat</emphasis> (Haitian; Haitian Creole)
+<emphasis role="strong">heb</emphasis> (Hebrew)
+<emphasis role="strong">hin</emphasis> (Hindi)
+<emphasis role="strong">hrv</emphasis> (Croatian)
+<emphasis role="strong">hun</emphasis> (Hungarian)
+<emphasis role="strong">iku</emphasis> (Inuktitut)
+<emphasis role="strong">ind</emphasis> (Indonesian)
+<emphasis role="strong">isl</emphasis> (Icelandic)
+<emphasis role="strong">ita</emphasis> (Italian)
+<emphasis role="strong">ita_old</emphasis> (Italian - Old)
+<emphasis role="strong">jav</emphasis> (Javanese)
+<emphasis role="strong">jpn</emphasis> (Japanese)
+<emphasis role="strong">kan</emphasis> (Kannada)
+<emphasis role="strong">kat</emphasis> (Georgian)
+<emphasis role="strong">kat_old</emphasis> (Georgian - Old)
+<emphasis role="strong">kaz</emphasis> (Kazakh)
+<emphasis role="strong">khm</emphasis> (Central Khmer)
+<emphasis role="strong">kir</emphasis> (Kirghiz; Kyrgyz)
+<emphasis role="strong">kor</emphasis> (Korean)
+<emphasis role="strong">kur</emphasis> (Kurdish)
+<emphasis role="strong">lao</emphasis> (Lao)
+<emphasis role="strong">lat</emphasis> (Latin)
+<emphasis role="strong">lav</emphasis> (Latvian)
+<emphasis role="strong">lit</emphasis> (Lithuanian)
+<emphasis role="strong">mal</emphasis> (Malayalam)
+<emphasis role="strong">mar</emphasis> (Marathi)
+<emphasis role="strong">mkd</emphasis> (Macedonian)
+<emphasis role="strong">mlt</emphasis> (Maltese)
+<emphasis role="strong">msa</emphasis> (Malay)
+<emphasis role="strong">mya</emphasis> (Burmese)
+<emphasis role="strong">nep</emphasis> (Nepali)
+<emphasis role="strong">nld</emphasis> (Dutch; Flemish)
+<emphasis role="strong">nor</emphasis> (Norwegian)
+<emphasis role="strong">ori</emphasis> (Oriya)
+<emphasis role="strong">osd</emphasis> (Orientation and script detection module)
+<emphasis role="strong">pan</emphasis> (Panjabi; Punjabi)
+<emphasis role="strong">pol</emphasis> (Polish)
+<emphasis role="strong">por</emphasis> (Portuguese)
+<emphasis role="strong">pus</emphasis> (Pushto; Pashto)
+<emphasis role="strong">ron</emphasis> (Romanian; Moldavian; Moldovan)
+<emphasis role="strong">rus</emphasis> (Russian)
+<emphasis role="strong">san</emphasis> (Sanskrit)
+<emphasis role="strong">sin</emphasis> (Sinhala; Sinhalese)
+<emphasis role="strong">slk</emphasis> (Slovak)
+<emphasis role="strong">slk_frak</emphasis> (Slovak - Fraktur)
+<emphasis role="strong">slv</emphasis> (Slovenian)
+<emphasis role="strong">spa</emphasis> (Spanish; Castilian)
+<emphasis role="strong">spa_old</emphasis> (Spanish; Castilian - Old)
+<emphasis role="strong">sqi</emphasis> (Albanian)
+<emphasis role="strong">srp</emphasis> (Serbian)
+<emphasis role="strong">srp_latn</emphasis> (Serbian - Latin)
+<emphasis role="strong">swa</emphasis> (Swahili)
+<emphasis role="strong">swe</emphasis> (Swedish)
+<emphasis role="strong">syr</emphasis> (Syriac)
+<emphasis role="strong">tam</emphasis> (Tamil)
+<emphasis role="strong">tel</emphasis> (Telugu)
+<emphasis role="strong">tgk</emphasis> (Tajik)
+<emphasis role="strong">tgl</emphasis> (Tagalog)
+<emphasis role="strong">tha</emphasis> (Thai)
+<emphasis role="strong">tir</emphasis> (Tigrinya)
+<emphasis role="strong">tur</emphasis> (Turkish)
+<emphasis role="strong">uig</emphasis> (Uighur; Uyghur)
+<emphasis role="strong">ukr</emphasis> (Ukrainian)
+<emphasis role="strong">urd</emphasis> (Urdu)
+<emphasis role="strong">uzb</emphasis> (Uzbek)
+<emphasis role="strong">uzb_cyrl</emphasis> (Uzbek - Cyrilic)
+<emphasis role="strong">vie</emphasis> (Vietnamese)
+<emphasis role="strong">yid</emphasis> (Yiddish)</simpara>
 <simpara>To use a non-standard language pack named <emphasis role="strong">foo.traineddata</emphasis>, set the
 <emphasis role="strong">TESSDATA_PREFIX</emphasis> environment variable so the file can be found at
 <emphasis role="strong">TESSDATA_PREFIX</emphasis>/tessdata/<emphasis role="strong">foo</emphasis>.traineddata and give Tesseract the
@@ -325,9 +384,9 @@ debug.</simpara>
 <simpara>Version 2.00 brought Unicode (UTF-8) support, six languages, and the ability
 to train Tesseract.</simpara>
 <simpara>Tesseract was included in UNLV&#8217;s Fourth Annual Test of OCR Accuracy.
-See <ulink url="http://www.isri.unlv.edu/downloads/AT-1995.pdf">http://www.isri.unlv.edu/downloads/AT-1995.pdf</ulink>. With Tesseract 2.00,
+See <ulink url="https://github.com/tesseract-ocr/docs/blob/master/AT-1995.pdf">https://github.com/tesseract-ocr/docs/blob/master/AT-1995.pdf</ulink>. With Tesseract 2.00,
 scripts are now included to allow anyone to reproduce some of these tests.
-See <ulink url="http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract</ulink> for more
+See <ulink url="https://github.com/tesseract-ocr/tesseract/wiki/TestingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TestingTesseract</ulink> for more
 details.</simpara>
 <simpara>Tesseract 3.00 adds a number of new languages, including Chinese, Japanese,
 and Korean. It also introduces a new, single-file based system of managing
@@ -338,8 +397,8 @@ multiple languages in a single image, and improved layout analysis.</simpara>
 </refsect1>
 <refsect1 id="_resources">
 <title>RESOURCES</title>
-<simpara>Main web site: <ulink url="http://code.google.com/p/tesseract-ocr/">http://code.google.com/p/tesseract-ocr/</ulink><?asciidoc-br?>
-Information on training: <ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</ulink></simpara>
+<simpara>Main web site: <ulink url="https://github.com/tesseract-ocr">https://github.com/tesseract-ocr</ulink><?asciidoc-br?>
+Information on training: <ulink url="https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract</ulink></simpara>
 </refsect1>
 <refsect1 id="_see_also">
 <title>SEE ALSO</title>

@@ -176,10 +176,9 @@ class TessLangModEdge : public LangModEdge {
   // returns the Hash value of the edge. Used by the SearchNode hash table
   // to quickly lookup exisiting edges to converge during search
   inline unsigned int Hash() const {
-    return static_cast<unsigned int>(((start_edge_ | end_edge_) ^
-      ((reinterpret_cast<uintptr_t>(dawg_)))) ^
-      ((unsigned int)edge_mask_) ^
-      class_id_);
+    return static_cast<unsigned int>(
+        ((start_edge_ | end_edge_) ^ ((reinterpret_cast<uintptr_t>(dawg_)))) ^
+        ((unsigned int)edge_mask_) ^ class_id_);
   }
 
   // A verbal description of the edge: Used by visualizers

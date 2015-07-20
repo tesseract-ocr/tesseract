@@ -150,7 +150,8 @@ ColumnFinder::~ColumnFinder() {
 // direction, so the textline projection_ map can be setup.
 // On return, IsVerticallyAlignedText may be called (now optionally) to
 // determine the gross textline alignment of the page.
-void ColumnFinder::SetupAndFilterNoise(Pix* photo_mask_pix,
+void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode,
+                                       Pix* photo_mask_pix,
                                        TO_BLOCK* input_block) {
   part_grid_.Init(gridsize(), bleft(), tright());
   if (stroke_width_ != NULL)
@@ -172,7 +173,8 @@ void ColumnFinder::SetupAndFilterNoise(Pix* photo_mask_pix,
   // Remove obvious noise and make the initial non-text map.
   nontext_map_ = nontext_detect.ComputeNonTextMask(textord_debug_tabfind,
                                                    photo_mask_pix, input_block);
-  stroke_width_->FindTextlineDirectionAndFixBrokenCJK(cjk_script_, input_block);
+  stroke_width_->FindTextlineDirectionAndFixBrokenCJK(pageseg_mode, cjk_script_,
+                                                      input_block);
   // Clear the strokewidth grid ready for rotation or leader finding.
   stroke_width_->Clear();
 }
@@ -305,8 +307,8 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
                         input_block);
   SetBlockRuleEdges(input_block);
   stroke_width_->GradeBlobsIntoPartitions(
-      rerotate_, input_block, nontext_map_, denorm_, cjk_script_, &projection_,
-      diacritic_blobs, &part_grid_, &big_parts_);
+      pageseg_mode, rerotate_, input_block, nontext_map_, denorm_, cjk_script_,
+      &projection_, diacritic_blobs, &part_grid_, &big_parts_);
   if (!PSM_SPARSE(pageseg_mode)) {
     ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
                                    input_block, this, &part_grid_, &big_parts_);

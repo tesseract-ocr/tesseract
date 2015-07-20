@@ -83,14 +83,10 @@ class StringRenderer {
   // Sets the probability (value in [0, 1]) of starting to render a word with an
   // underline. This implementation consider words to be space-delimited
   // sequences of characters.
-  void set_underline_start_prob(const double frac) {
-    underline_start_prob_ = std::min(std::max(frac, 0.0), 1.0);
-  }
+  void set_underline_start_prob(const double frac);
   // Set the probability (value in [0, 1]) of continuing a started underline to
   // the next word.
-  void set_underline_continuation_prob(const double frac) {
-    underline_continuation_prob_ = std::min(std::max(frac, 0.0), 1.0);
-  }
+  void set_underline_continuation_prob(const double frac);
   void set_underline_style(const PangoUnderline style) {
     underline_style_ = style;
   }

@@ -200,7 +200,7 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, inT32 blob_number,
   if (seam == NULL) {
     if (repair_unchopped_blobs)
       restore_outline_tree(blob->outlines);
-    if (word->latin_script) {
+    if (allow_blob_division && !prioritize_division) {
       // If the blob can simply be divided into outlines, then do that.
       TPOINT location;
       if (divisible_blob(blob, italic_blob, &location)) {
