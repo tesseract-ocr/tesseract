@@ -1702,7 +1702,7 @@ inT16 N, FLOAT32 * CoVariance, FLOAT32 Independence) {
  * a list of bucket data structures which have already been
  * created so that it minimizes the computation time needed
  * to create a new bucket.
- * @param Clusterer  which keeps a bucket_cache for us.
+ * @param clusterer  which keeps a bucket_cache for us.
  * @param Distribution	type of probability distribution to test for
  * @param SampleCount	number of samples that are available
  * @param Confidence	probability of a Type I error
