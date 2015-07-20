@@ -59,10 +59,10 @@ NORM_PROTOS *ReadNormProtos(FILE *File);
         Variables
 ----------------------------------------------------------------------------*/
 
-/** control knobs used to control the normalization adjustment process */
+/* control knobs used to control the normalization adjustment process */
 double_VAR(classify_norm_adj_midpoint, 32.0, "Norm adjust midpoint ...");
 double_VAR(classify_norm_adj_curl, 2.0, "Norm adjust curl ...");
-/** Weight of width variance against height and vertical position. */
+/* Weight of width variance against height and vertical position. */
 const double kWidthErrorWeighting = 0.125;
 
 /*----------------------------------------------------------------------------
@@ -74,12 +74,12 @@ namespace tesseract {
  * This routine compares Features against each character
  * normalization proto for ClassId and returns the match
  * rating of the best match.
- * @param ClassId		id of class to match against
- * @param Feature		character normalization feature
- * @param DebugMatch	controls dump of debug info
+ * @param ClassId id of class to match against
+ * @param Feature character normalization feature
+ * @param DebugMatch controls dump of debug info
  *
  * Globals:
- * #NormProtos	character normalization prototypes
+ * #NormProtos character normalization prototypes
  *
  * @return Best match rating for Feature against protos of ClassId.
  * @note Exceptions: none
