@@ -42,7 +42,7 @@ libtesseract_ccutil_la_SOURCES = \
     params.cpp universalambigs.cpp
 
 if T_WIN
-AM_CPPFLAGS += -I$(top_srcdir)/vs2008/port -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
+AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
 noinst_HEADERS += ../vs2010/port/strtok_r.h
 libtesseract_ccutil_la_SOURCES += ../vs2010/port/strtok_r.cpp
 endif
