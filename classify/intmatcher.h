@@ -39,7 +39,7 @@ extern INT_VAR_H(classify_integer_matcher_multiplier, 10,
 #include "cutoffs.h"
 
 namespace tesseract {
-class UnicharRating;
+struct UnicharRating;
 }
 
 struct CP_RESULT_STRUCT {
