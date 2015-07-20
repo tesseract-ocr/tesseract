@@ -42,14 +42,15 @@ ICOORD C_OUTLINE::step_coords[4] = {
  * @name C_OUTLINE::C_OUTLINE
  *
  * Constructor to build a C_OUTLINE from a CRACKEDGE LOOP.
+ * @param startpt outline to convert
+ * @param bot_left bounding box
+ * @param top_right bounding box
+ * @param length length of loop
  */
 
-C_OUTLINE::C_OUTLINE (
-//constructor
-CRACKEDGE * startpt,             //outline to convert
-ICOORD bot_left,                 //bounding box
-ICOORD top_right, inT16 length   //length of loop
-):box (bot_left, top_right), start (startpt->pos), offsets(NULL) {
+C_OUTLINE::C_OUTLINE (CRACKEDGE * startpt, ICOORD bot_left, 
+                      ICOORD top_right, inT16 length)
+    : box (bot_left, top_right), start (startpt->pos), offsets(NULL) {
   inT16 stepindex;               //index to step
   CRACKEDGE *edgept;             //current point
 
@@ -134,12 +135,11 @@ inT16 length                     //length of loop
  * @name C_OUTLINE::C_OUTLINE
  *
  * Constructor to build a C_OUTLINE from a rotation of a C_OUTLINE.
+ * @param srcline outline to rotate
+ * @param rotation rotate to coord
  */
 
-C_OUTLINE::C_OUTLINE(                     //constructor
-                     C_OUTLINE *srcline,  //outline to
-                     FCOORD rotation      //rotate
-                    ) : offsets(NULL) {
+C_OUTLINE::C_OUTLINE(C_OUTLINE *srcline, FCOORD rotation) : offsets(NULL) {
   TBOX new_box;                   //easy bounding
   inT16 stepindex;               //index to step
   inT16 dirdiff;                 //direction change
@@ -337,11 +337,10 @@ inT32 C_OUTLINE::outer_area() const {
  * @name C_OUTLINE::count_transitions
  *
  * Compute the number of x and y maxes and mins in the outline.
+ * @param threshold winding number on size
  */
 
-inT32 C_OUTLINE::count_transitions(                 //winding number
-                                   inT32 threshold  //on size
-                                  ) {
+inT32 C_OUTLINE::count_transitions(inT32 threshold) {
   BOOL8 first_was_max_x;         //what was first
   BOOL8 first_was_max_y;
   BOOL8 looking_for_max_x;       //what is next
@@ -536,11 +535,11 @@ inT16 C_OUTLINE::winding_number(ICOORD point) const {
 }
 
 
-/**********************************************************************
+/**
  * C_OUTLINE::turn_direction
  *
- * Return the sum direction delta of the outline.
- **********************************************************************/
+ * @return the sum direction delta of the outline.
+ */
 
 inT16 C_OUTLINE::turn_direction() const {  //winding number
   DIR128 prevdir;                //previous direction
@@ -565,11 +564,11 @@ inT16 C_OUTLINE::turn_direction() const {  //winding number
 }
 
 
-/**********************************************************************
- * C_OUTLINE::reverse
+/**
+ * @name C_OUTLINE::reverse
  *
  * Reverse the direction of an outline.
- **********************************************************************/
+ */
 
 void C_OUTLINE::reverse() {  //reverse drection
   DIR128 halfturn = MODULUS / 2; //amount to shift
@@ -625,11 +624,15 @@ bool C_OUTLINE::IsLegallyNested() const {
   return true;
 }
 
-// If this outline is smaller than the given min_size, delete this and
-// remove from its list, via *it, after checking that *it points to this.
-// Otherwise, if any children of this are too small, delete them.
-// On entry, *it must be an iterator pointing to this. If this gets deleted
-// then this is extracted from *it, so an iteration can continue.
+/**
+ * If this outline is smaller than the given min_size, delete this and
+ * remove from its list, via *it, after checking that *it points to this.
+ * Otherwise, if any children of this are too small, delete them.
+ * On entry, *it must be an iterator pointing to this. If this gets deleted
+ * then this is extracted from *it, so an iteration can continue.
+ * @param min_size minimum size for outline
+ * @parm it outline iterator
+ */
 void C_OUTLINE::RemoveSmallRecursive(int min_size, C_OUTLINE_IT* it) {
   if (box.width() < min_size || box.height() < min_size) {
     ASSERT_HOST(this == it->data());
@@ -901,8 +904,13 @@ void C_OUTLINE::render(int left, int top, Pix* pix) const {
   }
 }
 
-// Renders just the outline to the given pix (no fill), with left and top
-// being the coords of the upper-left corner of the pix.
+/**
+ * Renders just the outline to the given pix (no fill), with left and top
+ * being the coords of the upper-left corner of the pix.
+ * @param left coord
+ * @param top coord
+ * @param pix the pix to outline
+ */
 void C_OUTLINE::render_outline(int left, int top, Pix* pix) const {
   ICOORD pos = start;
   for (int stepindex = 0; stepindex < stepcount; ++stepindex) {
@@ -920,17 +928,17 @@ void C_OUTLINE::render_outline(int left, int top, Pix* pix) const {
   }
 }
 
-/**********************************************************************
- * C_OUTLINE::plot
+/**
+ * @name C_OUTLINE::plot
  *
  * Draw the outline in the given colour.
- **********************************************************************/
+ * @param window window to draw in
+ * @param colour colour to draw in
+ */
 
 #ifndef GRAPHICS_DISABLED
-void C_OUTLINE::plot(                //draw it
-                     ScrollView* window,       // window to draw in
-                     ScrollView::Color colour  // colour to draw in
-                    ) const {
+void C_OUTLINE::plot(ScrollView* window,
+                     ScrollView::Color colour) const {
   inT16 stepindex;               // index to cstep
   ICOORD pos;                    // current position
   DIR128 stepdir;                // direction of step
@@ -989,16 +997,14 @@ void C_OUTLINE::plot_normed(const DENORM& denorm, ScrollView::Color colour,
 #endif
 
 
-/**********************************************************************
- * C_OUTLINE::operator=
+/**
+ * @name C_OUTLINE::operator=
  *
  * Assignment - deep copy data
- **********************************************************************/
+ * @param source assign from this
+ */
 
-                                 //assignment
-C_OUTLINE & C_OUTLINE::operator= (
-const C_OUTLINE & source         //from this
-) {
+C_OUTLINE & C_OUTLINE::operator= (const C_OUTLINE & source) {
   box = source.box;
   start = source.start;
   if (steps != NULL)
