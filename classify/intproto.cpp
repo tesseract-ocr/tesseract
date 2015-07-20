@@ -1126,8 +1126,9 @@ void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window) {
  * This routine writes Templates to File.  The format
  * is an efficient binary format.  File must already be open
  * for writing.
- * @param File    open file to write templates to
+ * @param File open file to write templates to
  * @param Templates templates to save into File
+ * @param target_unicharset the UNICHARSET to use
  * @return none
  * @note Globals: none
  * @note Exceptions: none
