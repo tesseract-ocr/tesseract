@@ -2066,8 +2066,7 @@ namespace tesseract {
 /**
  * This routine writes the matches in Results to File.
  *
- * @param File open text file to write Results to
- * @param Results match results to write to File
+ * @param results match results to write to File
  *
  * Globals: none
  *
