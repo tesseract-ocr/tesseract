@@ -17,8 +17,6 @@
 
 #include "hfst_word_model.h"
 
-#ifndef TEST_hfst_word_model_cc
-
 #include <iostream>
 #include <queue>
 
@@ -265,14 +263,3 @@ void hfst_word_model::set_tr_start_indices(void) {
 
 }
 
-#else // TEST_hfst_word_model_cc
-
-#include <iostream>
-
-using namespace tesseract;
-
-int main(int argc, char * argv[]) {
-  hfst_word_model model(argv[1], DAWG_TYPE_WORD, "FIN",  NO_PERM, 1);
-}
-
-#endif // TEST_hfst_word_model_cc

@@ -17,8 +17,6 @@
 
 #include "hfst_io_utils.h"
 
-#ifndef TEST_io_utils_cc
-
 #include <cassert>
 
 namespace hfst {
