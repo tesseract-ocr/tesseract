@@ -631,7 +631,7 @@ bool C_OUTLINE::IsLegallyNested() const {
  * On entry, *it must be an iterator pointing to this. If this gets deleted
  * then this is extracted from *it, so an iteration can continue.
  * @param min_size minimum size for outline
- * @parm it outline iterator
+ * @param it outline iterator
  */
 void C_OUTLINE::RemoveSmallRecursive(int min_size, C_OUTLINE_IT* it) {
   if (box.width() < min_size || box.height() < min_size) {
@@ -652,9 +652,11 @@ void C_OUTLINE::RemoveSmallRecursive(int min_size, C_OUTLINE_IT* it) {
 // on data from an 8-bit Pix, and assume that any input x and/or y are already
 // constrained to be legal Pix coordinates.
 
-// Helper computes the local 2-D gradient (dx, dy) from the 2x2 cell centered
-// on the given (x,y). If the cell would go outside the image, it is padded
-// with white.
+/**
+ * Helper computes the local 2-D gradient (dx, dy) from the 2x2 cell centered
+ * on the given (x,y). If the cell would go outside the image, it is padded
+ * with white.
+ */
 static void ComputeGradient(const l_uint32* data, int wpl,
                             int x, int y, int width, int height,
                             ICOORD* gradient) {
@@ -671,9 +673,11 @@ static void ComputeGradient(const l_uint32* data, int wpl,
   gradient->set_y(pix_x_prevy + pix_prevx_prevy - (pix_x_y + pix_prevx_y));
 }
 
-// Helper evaluates a vertical difference, (x,y) - (x,y-1), returning true if
-// the difference, matches diff_sign and updating the best_diff, best_sum,
-// best_y if a new max.
+/**
+ * Helper evaluates a vertical difference, (x,y) - (x,y-1), returning true if
+ * the difference, matches diff_sign and updating the best_diff, best_sum,
+ * best_y if a new max.
+ */
 static bool EvaluateVerticalDiff(const l_uint32* data, int wpl, int diff_sign,
                                  int x, int y, int height,
                                  int* best_diff, int* best_sum, int* best_y) {
@@ -691,9 +695,11 @@ static bool EvaluateVerticalDiff(const l_uint32* data, int wpl, int diff_sign,
   return diff > 0;
 }
 
-// Helper evaluates a horizontal difference, (x,y) - (x-1,y), where y is implied
-// by the input image line, returning true if the difference matches diff_sign
-// and updating the best_diff, best_sum, best_x if a new max.
+/**
+ * Helper evaluates a horizontal difference, (x,y) - (x-1,y), where y is implied
+ * by the input image line, returning true if the difference matches diff_sign
+ * and updating the best_diff, best_sum, best_x if a new max.
+ */
 static bool EvaluateHorizontalDiff(const l_uint32* line, int diff_sign,
                                    int x, int width,
                                    int* best_diff, int* best_sum, int* best_x) {
@@ -710,17 +716,21 @@ static bool EvaluateHorizontalDiff(const l_uint32* line, int diff_sign,
   return diff > 0;
 }
 
-// Adds sub-pixel resolution EdgeOffsets for the outline if the supplied
-// pix is 8-bit. Does nothing otherwise.
-// Operation: Consider the following near-horizontal line:
-// _________
-//          |________
-//                   |________
-// At *every* position along this line, the gradient direction will be close
-// to vertical. Extrapoaltion/interpolation of the position of the threshold
-// that was used to binarize the image gives a more precise vertical position
-// for each horizontal step, and the conflict in step direction and gradient
-// direction can be used to ignore the vertical steps.
+/**
+ * Adds sub-pixel resolution EdgeOffsets for the outline if the supplied
+ * pix is 8-bit. Does nothing otherwise.
+ * Operation: Consider the following near-horizontal line:
+ * @verbatim
+ *   _________
+ *            |________
+ *                     |________
+ * @endverbatim
+ * At *every* position along this line, the gradient direction will be close
+ * to vertical. Extrapoaltion/interpolation of the position of the threshold
+ * that was used to binarize the image gives a more precise vertical position
+ * for each horizontal step, and the conflict in step direction and gradient
+ * direction can be used to ignore the vertical steps.
+ */
 void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix* pix) {
   if (pixGetDepth(pix) != 8) return;
   const l_uint32* data = pixGetData(pix);
@@ -809,30 +819,35 @@ void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix* pix) {
   }
 }
 
-// Adds sub-pixel resolution EdgeOffsets for the outline using only
-// a binary image source.
-// Runs a sliding window of 5 edge steps over the outline, maintaining a count
-// of the number of steps in each of the 4 directions in the window, and a
-// sum of the x or y position of each step (as appropriate to its direction.)
-// Ignores single-count steps EXCEPT the sharp U-turn and smoothes out the
-// perpendicular direction. Eg
-// ___              ___       Chain code from the left:
-//    |___    ___   ___|      222122212223221232223000
-//        |___|  |_|          Corresponding counts of each direction:
-//                          0   00000000000000000123
-//                          1   11121111001111100000
-//                          2   44434443443333343321
-//                          3   00000001111111112111
-// Count of direction at center 41434143413313143313
-// Step gets used?              YNYYYNYYYNYYNYNYYYyY (y= U-turn exception)
-// Path redrawn showing only the used points:
-// ___              ___
-//     ___    ___   ___|
-//         ___    _
-// Sub-pixel edge position cannot be shown well with ASCII-art, but each
-// horizontal step's y position is the mean of the y positions of the steps
-// in the same direction in the sliding window, which makes a much smoother
-// outline, without losing important detail.
+/**
+ * Adds sub-pixel resolution EdgeOffsets for the outline using only
+ * a binary image source.
+ *
+ * Runs a sliding window of 5 edge steps over the outline, maintaining a count
+ * of the number of steps in each of the 4 directions in the window, and a
+ * sum of the x or y position of each step (as appropriate to its direction.)
+ * Ignores single-count steps EXCEPT the sharp U-turn and smoothes out the
+ * perpendicular direction. Eg
+ * @verbatim
+ * ___              ___       Chain code from the left:
+ *    |___    ___   ___|      222122212223221232223000
+ *        |___|  |_|          Corresponding counts of each direction:
+ *                          0   00000000000000000123
+ *                          1   11121111001111100000
+ *                          2   44434443443333343321
+ *                          3   00000001111111112111
+ * Count of direction at center 41434143413313143313
+ * Step gets used?              YNYYYNYYYNYYNYNYYYyY (y= U-turn exception)
+ * Path redrawn showing only the used points:
+ * ___              ___
+ *     ___    ___   ___|
+ *         ___    _
+ * @endverbatim
+ * Sub-pixel edge position cannot be shown well with ASCII-art, but each
+ * horizontal step's y position is the mean of the y positions of the steps
+ * in the same direction in the sliding window, which makes a much smoother
+ * outline, without losing important detail.
+ */
 void C_OUTLINE::ComputeBinaryOffsets() {
   delete [] offsets;
   offsets = new EdgeOffset[stepcount];
@@ -887,8 +902,10 @@ void C_OUTLINE::ComputeBinaryOffsets() {
   }
 }
 
-// Renders the outline to the given pix, with left and top being
-// the coords of the upper-left corner of the pix.
+/**
+ * Renders the outline to the given pix, with left and top being
+ * the coords of the upper-left corner of the pix.
+ */
 void C_OUTLINE::render(int left, int top, Pix* pix) const {
   ICOORD pos = start;
   for (int stepindex = 0; stepindex < stepcount; ++stepindex) {
@@ -965,8 +982,11 @@ void C_OUTLINE::plot(ScrollView* window,
     window->DrawTo(pos.x(), pos.y());
   }
 }
-// Draws the outline in the given colour, normalized using the given denorm,
-// making use of sub-pixel accurate information if available.
+
+/**
+ * Draws the outline in the given colour, normalized using the given denorm,
+ * making use of sub-pixel accurate information if available.
+ */
 void C_OUTLINE::plot_normed(const DENORM& denorm, ScrollView::Color colour,
                             ScrollView* window) const {
   window->Pen(colour);
@@ -1025,10 +1045,12 @@ C_OUTLINE & C_OUTLINE::operator= (const C_OUTLINE & source) {
   return *this;
 }
 
-// Helper for ComputeBinaryOffsets. Increments pos, dir_counts, pos_totals
-// by the step, increment, and vertical step ? x : y position * increment
-// at step s Mod stepcount respectively. Used to add or subtract the
-// direction and position to/from accumulators of a small neighbourhood.
+/**
+ * Helper for ComputeBinaryOffsets. Increments pos, dir_counts, pos_totals
+ * by the step, increment, and vertical step ? x : y position * increment
+ * at step s Mod stepcount respectively. Used to add or subtract the
+ * direction and position to/from accumulators of a small neighbourhood.
+ */
 void C_OUTLINE::increment_step(int s, int increment, ICOORD* pos,
                                int* dir_counts, int* pos_totals) const {
   int step_index = Modulo(s, stepcount);
