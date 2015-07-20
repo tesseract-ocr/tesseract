@@ -165,23 +165,22 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
 }                                /* ConvertToMicroFeatures */
 
 
-/*
- **      Parameters:
- **              Start           starting point of micro-feature
- **              End             ending point of micro-feature
- **      Globals: none
- **      Operation:
- **              This routine computes the feature parameters which describe
- **              the micro-feature that starts and Start and ends at End.
- **              A new micro-feature is allocated, filled with the feature
- **              parameters, and returned.  The routine assumes that
- **              Start and End are not the same point.  If they are the
- **              same point, NULL is returned, a warning message is
- **              printed, and the current outline is dumped to stdout.
- **      Return: New micro-feature or NULL if the feature was rejected.
- **      Exceptions: none
- **      History: 7/26/89, DSJ, Created.
- **              11/17/89, DSJ, Added handling for Start and End same point.
+/**
+ * This routine computes the feature parameters which describe
+ * the micro-feature that starts and Start and ends at End.
+ * A new micro-feature is allocated, filled with the feature
+ * parameters, and returned.  The routine assumes that
+ * Start and End are not the same point.  If they are the
+ * same point, NULL is returned, a warning message is
+ * printed, and the current outline is dumped to stdout.
+ * @param Start starting point of micro-feature
+ * @param End ending point of micro-feature
+ * @return New micro-feature or NULL if the feature was rejected.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 
+ * - 7/26/89, DSJ, Created.
+ * - 11/17/89, DSJ, Added handling for Start and End same point.
  */
 MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
   MICROFEATURE NewFeature;
