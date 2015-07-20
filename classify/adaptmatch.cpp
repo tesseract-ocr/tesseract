@@ -841,8 +841,7 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob,
  *
  * Globals: none
  *
- * @param Word current word
- * @param BestChoiceWord best overall choice for word with context
+ * @param word current word
  *
  * @return TRUE or FALSE
  * @note Exceptions: none
@@ -1070,11 +1069,11 @@ void Classify::AddNewResult(const UnicharRating& new_result,
  * - #AllProtosOn mask that enables all protos
  * - #AllConfigsOn mask that enables all configs
  *
- * @param Blob blob to be classified
- * @param Templates built-in templates to classify against
- * @param Classes adapted class templates
- * @param Ambiguities array of class id's to match against
- * @param[out] Results place to put match results
+ * @param blob blob to be classified
+ * @param templates built-in templates to classify against
+ * @param classes adapted class templates
+ * @param ambiguities array of unichar id's to match against
+ * @param[out] results place to put match results
  *
  * @note Exceptions: none
  * @note History: Tue Mar 12 19:40:36 1991, DSJ, Created.
