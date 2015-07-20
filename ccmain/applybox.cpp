@@ -618,6 +618,14 @@ bool Tesseract::FindSegmentation(const GenericVector<UNICHAR_ID>& target_text,
 /// with each element representing a starting position in the word, and the
 /// #GenericVector holding classification results for a sequence of consecutive
 /// blobs, with index 0 being a single blob, index 1 being 2 blobs etc.
+/// @param choices_pos
+/// @param choices_length
+/// @param target_text
+/// @param text_index
+/// @param rating
+/// @param segmentation
+/// @param best_rating
+/// @param best_segmentation
 void Tesseract::SearchForText(const GenericVector<BLOB_CHOICE_LIST*>* choices,
                               int choices_pos, int choices_length,
                               const GenericVector<UNICHAR_ID>& target_text,
