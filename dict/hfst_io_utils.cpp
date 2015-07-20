@@ -27,21 +27,21 @@ void readsome(char * target, size_t len, std::istream * in) {
   in->read(target, len);
 
   if (in->fail()) {
-    throw InvalidRead();
+    tprintf ("readsome: Error reading file\n");
   }
 }
 
-void readsome(char * target, size_t len, /*_IO_*/FILE * file) {
+void readsome(char * target, size_t len, FILE * file) {
   size_t block_count = fread(target, len, 1, file);
 
   if (block_count != 1) {
-    throw InvalidRead();
+    tprintf ("readsome: Error reading file\n");
   }
 }
 
 std::string read_string(std::istream * in) {
   if (in->eof() or in->fail() or in->bad()) {
-    throw InvalidStream();
+    tprintf ("read_string: Error reading file\n");
   }
 
   std::string str;
@@ -51,9 +51,9 @@ std::string read_string(std::istream * in) {
   return str;
 }
 
-std::string read_string(/*_IO_*/FILE * file) {
+std::string read_string(FILE * file) {
   if (feof(file) or ferror(file)) {
-    throw InvalidStream();
+    tprintf ("read_string: Error reading file\n");
   }
 
   char target[MAX_STRING_BUFFER + 1];
@@ -74,11 +74,3 @@ std::string read_string(/*_IO_*/FILE * file) {
 }
 
 }
-
-#else // TEST_io_utils_cc
-
-int main(void) {
-
-}
-
-#endif // TEST_io_utils_cc
