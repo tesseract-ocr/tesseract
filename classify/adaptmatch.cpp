@@ -1007,7 +1007,6 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
 
 
 
-/*---------------------------------------------------------------------------*/
 /**
  * This routine adds the result of a classification into
  * Results.  If the new rating is much worse than the current
@@ -1022,14 +1021,8 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
  * Globals:
  * - #matcher_bad_match_pad defines limits of an acceptable match
  *
+ * @param new_result new result to add
  * @param[out] results results to add new result to
- * @param class_id class of new result
- * @param shape_id shape index
- * @param rating rating of new result
- * @param adapted adapted match or not
- * @param config config id of new result
- * @param fontinfo_id font information of the new result
- * @param fontinfo_id2 font information of the 2nd choice result
  *
  * @note Exceptions: none
  * @note History: Tue Mar 12 18:19:29 1991, DSJ, Created.
