@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "mf.h"
 
 #include "featdefs.h"
@@ -37,7 +37,9 @@
  * the features into the new format.  Then deallocate the
  * old micro-features.
  * @param Blob	blob to extract micro-features from
- * @param denorm  control parameter to feature extractor.
+ * @param bl_denorm currently unused
+ * @param cn_denorm  control parameter to feature extractor.
+ * @param fx_info currently unused
  * @return Micro-features for Blob.
  * @note Exceptions: none
  * @note History: Wed May 23 18:06:38 1990, DSJ, Created.
