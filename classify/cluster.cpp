@@ -578,10 +578,10 @@ void FreeProtoList(LIST *ProtoList) {
  * prototype and modifies the corresponding cluster so that it
  * is no longer marked as a prototype.  The cluster is NOT
  * deallocated by this routine.
- * @param Prototype	prototype data structure to be deallocated
- * @return	None
- * @note Exceptions:	None
- * @note History:	5/30/89, DSJ, Created.
+ * @param arg prototype data structure to be deallocated
+ * @return None
+ * @note Exceptions: None
+ * @note History: 5/30/89, DSJ, Created.
  */
 void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
   PROTOTYPE *Prototype = (PROTOTYPE *) arg;
