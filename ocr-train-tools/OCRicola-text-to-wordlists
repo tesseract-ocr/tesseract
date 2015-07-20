@@ -1,0 +1,42 @@
+#! /bin/bash
+
+cat $1                   |
+tr -s '\n\t\r ' '\n'     |
+sort                     |
+uniq -c                  |
+sort -nr                 |
+sed 's/ *[0-9][0-9]* //' > $1.words
+
+cat $1.words | 
+head -1000   > $1.words.top.1000
+
+cat $1.words  | 
+tail -n +1001 > $1.words.1001.to.last
+
+cat $1.words      |
+egrep "[0-9]"     |
+egrep "[^0-9]"    |
+sed 's/[0-9]/ /g' > $1.digit_words
+
+cat $1            |
+tr -s '\t\r ' ' ' | 
+tr -s '\n'        |
+tr ' \n' '\n'     |
+tr '0-9' ' '      > $1.unigrams
+
+tail -n +2 $1.unigrams > $1.unigrams.1
+
+paste $1.unigrams $1.unigrams.1 |
+grep "..*	..*"            |
+tr '\t' ' '                     |
+sort                            |
+uniq                            |
+grep "[^ ]"                     > $1.word_bigrams
+
+cat $1.words                                                                                         |
+grep "^\([[:punct:]][^[:punct:]]*[[:punct:]]\|[[:punct:]][^[:punct:]]*\|[^[:punct:]]*[[:punct:]]\)$" |
+sed  's/[^[:punct:]][^[:punct:]]*/ /g'                                                               |
+sort                                                                                                 |
+uniq                                                                                                 > $1.punc
+
+rm -f $1.unigrams $1.unigrams.1 $1.words

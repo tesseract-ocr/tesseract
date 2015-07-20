@@ -24,6 +24,10 @@
 #include "strngs.h"
 #include "tessdatamanager.h"
 
+// HFST BEGIN
+#include "hfst_word_model.h"
+// HFST END
+
 namespace tesseract {
 
 struct DawgLoader {
@@ -54,6 +58,20 @@ Dawg *DawgCache::GetSquishedDawg(
   DawgLoader loader(lang, data_file_name, tessdata_dawg_type, debug_level);
   return dawgs_.Get(data_id, NewTessCallback(&loader, &DawgLoader::Load));
 }
+
+  // HFST BEGIN
+  Dawg * DawgCache::GetHfstWordModel
+  (const STRING &               lang,
+   const char   *     data_file_name,
+   TessdataType   tessdata_dawg_type,
+   int                   debug_level) 
+  {
+    STRING data_id = data_file_name;
+    data_id += kTessdataFileSuffixes[tessdata_dawg_type];
+    DawgLoader loader(lang, data_file_name, tessdata_dawg_type, debug_level);
+    return dawgs_.Get(data_id, NewTessCallback(&loader, &DawgLoader::Load));
+  }
+  // HFST END
 
 Dawg *DawgLoader::Load() {
   TessdataManager data_loader;
@@ -89,14 +107,37 @@ Dawg *DawgLoader::Load() {
       dawg_type = DAWG_TYPE_WORD;
       perm_type = FREQ_DAWG_PERM;
       break;
+
+    // HFST BEGIN
+    case TESSDATA_HFST_FSM:
+      dawg_type = DAWG_TYPE_HFST;
+      perm_type = SYSTEM_DAWG_PERM;
+      break;
+    // HFST END
+
     default:
       data_loader.End();
       return NULL;
   }
-  SquishedDawg *retval =
-      new SquishedDawg(fp, dawg_type, lang_, perm_type, dawg_debug_level_);
-  data_loader.End();
-  return retval;
+
+  // HFST BEGIN
+  if (dawg_type == DAWG_TYPE_HFST)
+    {
+      hfst_word_model * retval =
+	new hfst_word_model(fp, dawg_type, lang_, perm_type, dawg_debug_level_);
+      data_loader.End();
+      return retval;
+    }
+  else
+    {
+  // HFST END
+      SquishedDawg *retval =
+	new SquishedDawg(fp, dawg_type, lang_, perm_type, dawg_debug_level_);
+      data_loader.End();
+      return retval;
+  // HFST BEGIN
+    }
+  // HFST END
 }
 
 }  // namespace tesseract
