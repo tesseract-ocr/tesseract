@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "mfdefs.h"
 #include "mfoutline.h"
 #include "clusttool.h"           //NEEDED
@@ -28,9 +28,9 @@
 
 #include <math.h>
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Variables
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 
 /* old numbers corresponded to 10.0 degrees and 80.0 degrees */
 double_VAR(classify_min_slope, 0.414213562,
@@ -38,9 +38,9 @@ double_VAR(classify_min_slope, 0.414213562,
 double_VAR(classify_max_slope, 2.414213562,
            "Slope above which lines are called vertical");
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Macros
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 /* miscellaneous macros */
 #define NormalizeAngle(A)       ( (((A)<0)?((A)+2*PI):(A)) / (2*PI) )
 
@@ -54,25 +54,22 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
 
 MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
             Public Code
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 
-/*---------------------------------------------------------------------------*/
-MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
-/*
- **      Parameters:
- **              Blob            blob to extract micro-features from
- **              denorm          control parameter to feature extractor
- **      Operation:
- **              This routine extracts micro-features from the specified
- **              blob and returns a list of the micro-features.  All
- **              micro-features are normalized according to the specified
- **              line statistics.
- **      Return: List of micro-features extracted from the blob.
- **      Exceptions: none
- **      History: 7/21/89, DSJ, Created.
+/**
+ * This routine extracts micro-features from the specified
+ * blob and returns a list of the micro-features.  All
+ * micro-features are normalized according to the specified
+ * line statistics.
+ * @param Blob blob to extract micro-features from
+ * @param cn_denorm control parameter to feature extractor
+ * @return List of micro-features extracted from the blob.
+ * @note Exceptions: none
+ * @note History: 7/21/89, DSJ, Created.
  */
+MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
   MICROFEATURES MicroFeatures = NIL_LIST;
   LIST Outlines;
   LIST RemainingOutlines;
@@ -104,26 +101,23 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
             Private Code
 ---------------------------------------------------------------------------*/
 
-/*---------------------------------------------------------------------------*/
-FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
-/*
- **      Parameters:
- **              Start           starting edge point of micro-feature
- **              End             ending edge point of micro-feature
- **      Globals: none
- **      Operation:
- **              This routine computes the orientation parameter of the
- **              specified micro-feature.  The orientation is the angle of
- **              the vector from Start to End.  It is normalized to a number
- **              between 0 and 1 where 0 corresponds to 0 degrees and 1
- **              corresponds to 360 degrees.  The actual range is [0,1), i.e.
- **              1 is excluded from the range (since it is actual the
- **              same orientation as 0).  This routine assumes that Start
- **              and End are not the same point.
- **      Return: Orientation parameter for the specified micro-feature.
- **      Exceptions: none
- **      History: 7/27/89, DSJ, Created.
+/**
+ * This routine computes the orientation parameter of the
+ * specified micro-feature.  The orientation is the angle of
+ * the vector from Start to End.  It is normalized to a number
+ * between 0 and 1 where 0 corresponds to 0 degrees and 1
+ * corresponds to 360 degrees.  The actual range is [0,1), i.e.
+ * 1 is excluded from the range (since it is actual the
+ * same orientation as 0).  This routine assumes that Start
+ * and End are not the same point.
+ * @param Start           starting edge point of micro-feature
+ * @param End             ending edge point of micro-feature
+ * @note Globals: none
+ * @return Orientation parameter for the specified micro-feature.
+ * @note Exceptions: none
+ * @note History: 7/27/89, DSJ, Created.
  */
+FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
   FLOAT32 Orientation;
 
   Orientation = NormalizeAngle (AngleFrom (Start->Point, End->Point));
@@ -135,20 +129,17 @@ FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
 }                                /* ComputeOrientation */
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * Convert Outline to MicroFeatures
+ * @param Outline         outline to extract micro-features from
+ * @param MicroFeatures   list of micro-features to add to
+ * @return List of micro-features with new features added to front.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 7/26/89, DSJ, Created.
+ */
 MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
                                      MICROFEATURES MicroFeatures) {
-/*
- **      Parameters:
- **              Outline         outline to extract micro-features from
- **              MicroFeatures   list of micro-features to add to
- **      Globals: none
- **      Operation:
- **              This routine
- **      Return: List of micro-features with new features added to front.
- **      Exceptions: none
- **      History: 7/26/89, DSJ, Created.
- */
   MFOUTLINE Current;
   MFOUTLINE Last;
   MFOUTLINE First;
@@ -174,8 +165,6 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
 }                                /* ConvertToMicroFeatures */
 
 
-/*---------------------------------------------------------------------------*/
-MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
 /*
  **      Parameters:
  **              Start           starting point of micro-feature
@@ -194,6 +183,7 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
  **      History: 7/26/89, DSJ, Created.
  **              11/17/89, DSJ, Added handling for Start and End same point.
  */
+MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
   MICROFEATURE NewFeature;
   MFEDGEPT *P1, *P2;
 
