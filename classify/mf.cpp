@@ -37,16 +37,12 @@
  * the features into the new format.  Then deallocate the
  * old micro-features.
  * @param Blob	blob to extract micro-features from
- * @param bl_denorm currently unused
  * @param cn_denorm  control parameter to feature extractor.
- * @param fx_info currently unused
  * @return Micro-features for Blob.
  * @note Exceptions: none
  * @note History: Wed May 23 18:06:38 1990, DSJ, Created.
  */
-FEATURE_SET ExtractMicros(TBLOB *Blob, const DENORM& bl_denorm,
-                          const DENORM& cn_denorm,
-                          const INT_FX_RESULT_STRUCT& fx_info) {
+FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
   int NumFeatures;
   MICROFEATURES Features, OldFeatures;
   FEATURE_SET FeatureSet;
