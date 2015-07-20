@@ -404,6 +404,7 @@ class ClassPruner {
  *                               for each class (by CLASS_INDEX)
  * @param results                Sorted Array of pruned classes. Must be an array
  *                               of size at least int_templates->NumClasses.
+ * @param keep_this
  */
 int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
                            int num_features, int keep_this,
