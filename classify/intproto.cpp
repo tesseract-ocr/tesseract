@@ -1314,9 +1314,10 @@ BOOL8 FillerDone(TABLE_FILLER *Filler) {
  * are expressed in a circular coordinate system whose range
  * is 0 to 1.
  * @param ParamTable  table of bit vectors, one per param bucket
- * @param Bit   bit position in vectors to be filled
- * @param Center    center of filled area
- * @param Spread    spread of filled area
+ * @param Bit bit position in vectors to be filled
+ * @param Center center of filled area
+ * @param Spread spread of filled area
+ * @param debug debug flag
  * @return none
  * @note Globals: none
  * @note Exceptions: none
@@ -1356,10 +1357,11 @@ void FillPPCircularBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
  * are expressed in a linear coordinate system whose range
  * is approximately 0 to 1.  Values outside this range will
  * be clipped.
- * @param ParamTable  table of bit vectors, one per param bucket
- * @param Bit   bit number being filled
- * @param Center    center of filled area
- * @param Spread    spread of filled area
+ * @param ParamTable table of bit vectors, one per param bucket
+ * @param Bit bit number being filled
+ * @param Center center of filled area
+ * @param Spread spread of filled area
+ * @param debug debug flag
  * @return none
  * @note Globals: none
  * @note Exceptions: none
@@ -1753,9 +1755,9 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 #ifndef GRAPHICS_DISABLED
 /**
  * This routine renders the specified feature into ShapeList.
- * @param ShapeList shape list to add feature rendering to
- * @param Feature   feature to be rendered
- * @param Color   color to use for feature rendering
+ * @param window to add feature rendering to
+ * @param Feature feature to be rendered
+ * @param color color to use for feature rendering
  * @return New shape list with rendering of Feature added.
  * @note Globals: none
  * @note Exceptions: none
