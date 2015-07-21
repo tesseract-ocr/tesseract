@@ -6,7 +6,7 @@
 # Initialization
 # ----------------------------------------
 AC_PREREQ(2.50)
-AC_INIT([tesseract], [3.04.00], [https://github.com/tesseract-ocr/tesseract/issues])
+AC_INIT([tesseract], [3.04.01dev], [https://github.com/tesseract-ocr/tesseract/issues])
 CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR(config)
