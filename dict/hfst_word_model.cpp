@@ -171,18 +171,21 @@ UNICHAR_ID hfst_word_model::edge_letter(EDGE_REF edge_ref) const {
 }
 
 void hfst_word_model::print_node(NODE_REF node, int max_num_edges) const {
-
-  std::cerr << "whatever" << std::endl;
+  tprintf("FIXME: hfst_word_model::print_node not implemented\n");
 }
 
+/**
+ * @note not implemented. Writing HFST files requires the use of HFST tools
+ */
 void hfst_word_model::write_squished_dawg(FILE *file) {
-  // FIXME
-  assert(0);
+  tprintf("write_squished_dawg not implemented for HFST\n");
 }
 
+/**
+ * @note not implemented. Writing HFST files requires the use of HFST tools
+ */
 void hfst_word_model::write_squished_dawg(const char *filename) {
-  // FIXME
-  assert(0);
+  tprintf("write_squished_dawg not implemented for HFST\n");
 }
 
 UNICHAR_ID hfst_word_model::get_symbol_uc(unsigned short symbol) const {
