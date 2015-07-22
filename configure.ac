@@ -160,25 +160,28 @@ AC_ARG_ENABLE([opencl],
     [enable_opencl=$enableval],
     [enable_opencl="no"])
 AC_MSG_RESULT($enable_opencl)
+# check for opencl header
+have_opencl=false
+AC_CHECK_HEADERS(CL/cl.h, have_opencl=true, [
+    AC_CHECK_HEADERS(OpenCL/cl.h, have_opencl=true, have_opencl=false)
+])
+have_opencl_lib=false
+AC_CHECK_LIB(OpenCL, clGetPlatformIDs, have_opencl_lib=true, have_opencl_lib=false)
+have_tiff=false
+AC_CHECK_HEADERS(tiffio.h, have_tiff=true, have_tiff=false)
 if test "$enable_opencl" = "yes"; then
-    # check for opencl header
-    AC_CHECK_HEADERS(CL/cl.h, [], [
-        AC_CHECK_HEADERS(OpenCL/cl.h, [], [
-            AC_MSG_ERROR(OpenCL headers file was not found)
-            ])
-    ])
-    # check for libtiff
-    have_tiff=false
-    AC_CHECK_HEADERS(tiffio.h, have_tiff=true, have_tiff=false)
-    if !($have_tiff); then
-        AC_MSG_WARN(OpenCL will not be used - required TIFF headers not found)
-        AC_MSG_WARN(Try to install libtiff-dev?? package.)
-        enable_opencl="no"
-    else
-        AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
-        AC_SUBST([OPENCL_HDR_PATH],[$OPENCL_INC])
-        AC_SUBST([OPENCL_LIB],[$OPENCL_LIBS])
+    if !($have_opencl); then
+        AC_MSG_ERROR(Required OpenCL headers not found!)
     fi
+    if !($have_opencl_lib); then
+        AC_MSG_ERROR(Required OpenCL library not found!)
+    fi
+    if !($have_tiff); then
+        AC_MSG_ERROR(Required TIFF headers not found! Try to install libtiff-dev?? package.)
+    fi
+    AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
+    AC_SUBST([OPENCL_HDR_PATH],[$OPENCL_INC])
+    AC_SUBST([OPENCL_LIB],[$OPENCL_LIBS])
 fi
 AM_CONDITIONAL([USE_OPENCL], [test "$enable_opencl" = "yes"])
 
