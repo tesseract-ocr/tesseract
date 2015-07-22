@@ -160,12 +160,27 @@ AC_ARG_ENABLE([opencl],
     [enable_opencl=$enableval],
     [enable_opencl="no"])
 AC_MSG_RESULT($enable_opencl)
-AM_CONDITIONAL([USE_OPENCL], [test "$enable_opencl" = "yes"])
 if test "$enable_opencl" = "yes"; then
-  AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
-  AC_SUBST([OPENCL_HDR_PATH],[$OPENCL_INC])
-  AC_SUBST([OPENCL_LIB],[$OPENCL_LIBS])
+    # check for opencl header
+    AC_CHECK_HEADERS(CL/cl.h, [], [
+        AC_CHECK_HEADERS(OpenCL/cl.h, [], [
+            AC_MSG_ERROR(OpenCL headers file was not found)
+            ])
+    ])
+    # check for libtiff
+    have_tiff=false
+    AC_CHECK_HEADERS(tiffio.h, have_tiff=true, have_tiff=false)
+    if !($have_tiff); then
+        AC_MSG_WARN(OpenCL will not be used - required TIFF headers not found)
+        AC_MSG_WARN(Try to install libtiff-dev?? package.)
+        enable_opencl="no"
+    else
+        AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
+        AC_SUBST([OPENCL_HDR_PATH],[$OPENCL_INC])
+        AC_SUBST([OPENCL_LIB],[$OPENCL_LIBS])
+    fi
 fi
+AM_CONDITIONAL([USE_OPENCL], [test "$enable_opencl" = "yes"])
 
 # check whether to build tesseract with -fvisibility=hidden -fvisibility-inlines-hidden
 # http://gcc.gnu.org/wiki/Visibility
