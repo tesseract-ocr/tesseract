@@ -277,7 +277,7 @@ void CubeUtils::UTF8ToUTF32(const char *utf8_str, string_32 *str32) {
 }
 
 /**
- * UTF-8 to UTF-32 conversion functions
+ * UTF-32 to UTF-8 conversion functions
  */
 void CubeUtils::UTF32ToUTF8(const char_32 *utf32_str, string *str) {
   str->clear();
