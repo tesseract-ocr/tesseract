@@ -10,7 +10,7 @@ AM_CPPFLAGS += \
 
 EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 
-if T_WIN
+if MINGW
 # try static build
 #AM_LDFLAGS += -all-static
 #libic=-lsicuin -licudt -lsicuuc
