@@ -22,11 +22,11 @@
 #include "config_auto.h"
 #endif
 
-#ifdef MINGW
+#if (defined MINGW) || (defined __CYGWIN__)
 // workaround for stdlib.h and putenv
 #undef __STRICT_ANSI__
 #include "strcasestr.h"
-#endif  // MINGW
+#endif  // MINGW/Cygwin
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
