@@ -143,6 +143,17 @@ if test "$enable_graphics" = "no"; then
   AM_CONDITIONAL(GRAPHICS_DISABLED, true)
 fi
 
+# Check if cube should be disabled
+AC_MSG_CHECKING(whether to disable cube)
+AC_ARG_ENABLE([cube],
+  [AC_HELP_STRING([--disable-cube], [don't build cube support (experimental)])],
+    [disable_cube="yes"], [disable_cube="no"])
+AC_MSG_RESULT($disable_cube)
+AM_CONDITIONAL([NO_CUBE_BUILD], [test "$disable_cube" = "yes"])
+if test "$disable_cube" = "yes"; then
+  AC_SUBST([AM_CPPFLAGS], [-DNO_CUBE_BUILD])
+fi
+
 # check whether to build embedded version
 AC_MSG_CHECKING(--enable-embedded argument)
 AC_ARG_ENABLE([embedded],
@@ -211,7 +222,7 @@ AM_CONDITIONAL([USING_MULTIPLELIBS], [test "$enable_mlibs" = "yes"])
 AC_MSG_CHECKING(whether to use tessdata-prefix)
 AC_ARG_ENABLE(tessdata-prefix,
     [AC_HELP_STRING([--disable-tessdata-prefix],
-            [dont set TESSDATA-PREFIX during compile])],
+            [don't set TESSDATA-PREFIX during compile])],
     [tessdata_prefix="no"], [tessdata_prefix="yes"])
 AC_MSG_RESULT($tessdata_prefix)
 AM_CONDITIONAL([NO_TESSDATA_PREFIX], [test "$tessdata_prefix" = "no"])

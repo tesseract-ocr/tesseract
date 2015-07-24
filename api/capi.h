@@ -33,7 +33,9 @@ extern "C" {
 typedef tesseract::TessResultRenderer TessResultRenderer;
 typedef tesseract::TessTextRenderer TessTextRenderer;
 typedef tesseract::TessHOcrRenderer TessHOcrRenderer;
+#ifndef NO_CUBE_BUILD
 typedef tesseract::TessPDFRenderer TessPDFRenderer;
+#endif  // NO_CUBE_BUILD
 typedef tesseract::TessUnlvRenderer TessUnlvRenderer;
 typedef tesseract::TessBoxTextRenderer TessBoxTextRenderer;
 typedef tesseract::TessBaseAPI TessBaseAPI;
@@ -51,7 +53,9 @@ typedef tesseract::ProbabilityInContextFunc TessProbabilityInContextFunc;
 typedef tesseract::FillLatticeFunc TessFillLatticeFunc;
 typedef tesseract::Dawg TessDawg;
 typedef tesseract::TruthCallback TessTruthCallback;
+#ifndef NO_CUBE_BUILD
 typedef tesseract::CubeRecoContext TessCubeRecoContext;
+#endif  // NO_CUBE_BUILD
 typedef tesseract::Orientation TessOrientation;
 typedef tesseract::ParagraphJustification TessParagraphJustification;
 typedef tesseract::WritingDirection TessWritingDirection;
@@ -295,8 +299,10 @@ TESS_API TessOcrEngineMode
                TESS_CALL TessBaseAPIOem(const TessBaseAPI* handle);
 TESS_API void  TESS_CALL TessBaseAPIInitTruthCallback(TessBaseAPI* handle, TessTruthCallback* cb);
 
+#ifndef NO_CUBE_BUILD
 TESS_API TessCubeRecoContext*
                TESS_CALL TessBaseAPIGetCubeRecoContext(const TessBaseAPI* handle);
+#endif  // NO_CUBE_BUILD
 #endif
 
 TESS_API void  TESS_CALL TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle, double margin);

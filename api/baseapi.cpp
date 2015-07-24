@@ -747,7 +747,7 @@ void TessBaseAPI::DumpPGM(const char* filename) {
   fclose(fp);
 }
 
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
 /**
  * Placeholder for call to Cube and test that the input data is correct.
  * reskew is the direction of baselines in the skewed image in
@@ -1029,7 +1029,7 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
                                             int timeout_millisec,
                                             TessResultRenderer* renderer,
                                             int tessedit_page_number) {
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
   Pix *pix = NULL;
 #ifdef USE_OPENCL
   OpenclDevice od;
@@ -1098,7 +1098,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
                                        const char* retry_config,
                                        int timeout_millisec,
                                        TessResultRenderer* renderer) {
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
   PERF_COUNT_START("ProcessPages")
   bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "-");
   if (stdInput) {
@@ -1222,7 +1222,7 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
     failed = Recognize(NULL) < 0;
   }
   if (tesseract_->tessedit_write_images) {
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
     Pix* page_pix = GetThresholdedImage();
     pixWrite("tessinput.tif", page_pix, IFF_TIFF_G4);
 #endif
@@ -2633,7 +2633,7 @@ int TessBaseAPI::NumDawgs() const {
   return tesseract_ == NULL ? 0 : tesseract_->getDict().NumDawgs();
 }
 
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
 /** Return a pointer to underlying CubeRecoContext object if present. */
 CubeRecoContext *TessBaseAPI::GetCubeRecoContext() const {
   return (tesseract_ == NULL) ? NULL : tesseract_->GetCubeRecoContext();
