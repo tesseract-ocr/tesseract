@@ -295,11 +295,13 @@ int main(int argc, char **argv) {
     api.GetBoolVariable("hocr_font_info", &font_info);
     renderers.push_back(new tesseract::TessHOcrRenderer(outputbase, font_info));
   }
+#ifndef NO_CUBE_BUILD
   api.GetBoolVariable("tessedit_create_pdf", &b);
   if (b) {
     renderers.push_back(new tesseract::TessPDFRenderer(outputbase,
                                                        api.GetDatapath()));
   }
+#endif
   api.GetBoolVariable("tessedit_write_unlv", &b);
   if (b) renderers.push_back(new tesseract::TessUnlvRenderer(outputbase));
   api.GetBoolVariable("tessedit_create_boxfile", &b);

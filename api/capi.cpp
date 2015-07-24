@@ -47,10 +47,12 @@ TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate2(const char* outpu
     return new TessHOcrRenderer(outputbase, font_info);
 }
 
+#ifndef NO_CUBE_BUILD
 TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir)
 {
     return new TessPDFRenderer(outputbase, datadir);
 }
+#endif
 
 TESS_API TessResultRenderer* TESS_CALL TessUnlvRendererCreate(const char* outputbase)
 {
@@ -581,10 +583,12 @@ TESS_API void TESS_CALL TessBaseAPIInitTruthCallback(TessBaseAPI* handle, TessTr
     handle->InitTruthCallback(cb);
 }
 
+#ifndef NO_CUBE_BUILD
 TESS_API TessCubeRecoContext* TESS_CALL TessBaseAPIGetCubeRecoContext(const TessBaseAPI* handle)
 {
     return handle->GetCubeRecoContext();
 }
+#endif  // NO_CUBE_BUILD
 
 TESS_API void TESS_CALL TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle, double margin)
 {

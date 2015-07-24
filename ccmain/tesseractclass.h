@@ -97,14 +97,14 @@ class WERD_RES;
 namespace tesseract {
 
 class ColumnFinder;
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
 class CubeLineObject;
 class CubeObject;
 class CubeRecoContext;
 #endif
 class EquationDetect;
 class Tesseract;
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
 class TesseractCubeCombiner;
 #endif
 
@@ -429,7 +429,7 @@ class Tesseract : public Wordrec {
                              int *right_ok) const;
 
   //// cube_control.cpp ///////////////////////////////////////////////////
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
   bool init_cube_objects(bool load_combiner,
                          TessdataManager *tessdata_manager);
   // Iterates through tesseract's results and calls cube on each word,
@@ -1156,7 +1156,7 @@ class Tesseract : public Wordrec {
                                   PAGE_RES_IT* pr_it,
                                   FILE *output_file);
 
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
   inline CubeRecoContext *GetCubeRecoContext() { return cube_cntxt_; }
 #endif
 
@@ -1198,7 +1198,7 @@ class Tesseract : public Wordrec {
   Tesseract* most_recently_used_;
   // The size of the font table, ie max possible font id + 1.
   int font_table_size_;
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
   // Cube objects.
   CubeRecoContext* cube_cntxt_;
   TesseractCubeCombiner *tess_cube_combiner_;
