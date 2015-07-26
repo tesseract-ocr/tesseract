@@ -361,7 +361,7 @@ inline bool LoadDataFromFile(const STRING& filename,
   size_t size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   // Pad with a 0, just in case we treat the result as a string.
-  data->init_to_size(size + 1, 0);
+  data->init_to_size((int)size + 1, 0);
   bool result = fread(&(*data)[0], 1, size, fp) == size;
   fclose(fp);
   return result;
