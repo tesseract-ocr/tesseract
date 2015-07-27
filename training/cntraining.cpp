@@ -167,6 +167,8 @@ int main(int  argc, char* argv[])
   pCharList = CharList;
   iterate(pCharList) {
     //Cluster
+    if (Clusterer)
+       FreeClusterer(Clusterer);
     CharSample = (LABELEDLIST)first_node(pCharList);
     Clusterer =
       SetUpForClustering(FeatureDefs, CharSample, PROGRAM_FEATURE_TYPE);
