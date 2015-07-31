@@ -1416,9 +1416,6 @@
     <ClInclude Include="..\..\cube\search_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\ccutil\secname.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ccutil\serialis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
