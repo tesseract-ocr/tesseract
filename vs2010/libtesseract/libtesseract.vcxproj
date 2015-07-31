@@ -788,7 +788,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\cube\search_column.h" />
     <ClInclude Include="..\..\cube\search_node.h" />
     <ClInclude Include="..\..\cube\search_object.h" />
-    <ClInclude Include="..\..\ccutil\secname.h" />
     <ClInclude Include="..\..\ccutil\serialis.h" />
     <ClInclude Include="..\..\classify\shapeclassifier.h" />
     <ClInclude Include="..\..\classify\shapetable.h" />
