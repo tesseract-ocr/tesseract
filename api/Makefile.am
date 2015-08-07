@@ -42,7 +42,7 @@ libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
 if VISIBILITY
 libtesseract_api_la_CPPFLAGS += -DTESS_EXPORTS
 endif
-libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp renderer.cpp
+libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp renderer.cpp pdfrenderer.cpp
 
 lib_LTLIBRARIES += libtesseract.la
 libtesseract_la_LDFLAGS = 
@@ -63,7 +63,6 @@ libtesseract_la_LIBADD = \
     ../ccutil/libtesseract_ccutil.la \
     ../opencl/libtesseract_opencl.la 
 if !NO_CUBE_BUILD
-libtesseract_api_la_SOURCES += pdfrenderer.cpp
 libtesseract_la_LIBADD += ../cube/libtesseract_cube.la \
         ../neural_networks/runtime/libtesseract_neural.la
 endif

@@ -47,12 +47,10 @@ TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate2(const char* outpu
     return new TessHOcrRenderer(outputbase, font_info);
 }
 
-#ifndef NO_CUBE_BUILD
 TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir)
 {
     return new TessPDFRenderer(outputbase, datadir);
 }
-#endif
 
 TESS_API TessResultRenderer* TESS_CALL TessUnlvRendererCreate(const char* outputbase)
 {
@@ -426,7 +424,7 @@ TESS_API int TESS_CALL TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle, ETEX
 TESS_API BOOL TESS_CALL TessBaseAPIProcessPages(TessBaseAPI* handle, const char* filename, const char* retry_config,
                                                 int timeout_millisec, TessResultRenderer* renderer)
 {
-    if (handle->ProcessPages(filename, retry_config, timeout_millisec, renderer))    
+    if (handle->ProcessPages(filename, retry_config, timeout_millisec, renderer))
         return TRUE;
     else
         return FALSE;

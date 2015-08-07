@@ -33,9 +33,7 @@ extern "C" {
 typedef tesseract::TessResultRenderer TessResultRenderer;
 typedef tesseract::TessTextRenderer TessTextRenderer;
 typedef tesseract::TessHOcrRenderer TessHOcrRenderer;
-#ifndef NO_CUBE_BUILD
 typedef tesseract::TessPDFRenderer TessPDFRenderer;
-#endif  // NO_CUBE_BUILD
 typedef tesseract::TessUnlvRenderer TessUnlvRenderer;
 typedef tesseract::TessBoxTextRenderer TessBoxTextRenderer;
 typedef tesseract::TessBaseAPI TessBaseAPI;
