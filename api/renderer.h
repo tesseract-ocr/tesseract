@@ -162,7 +162,6 @@ private:
   bool font_info_;              // whether to print font information
 };
 
-#ifndef NO_CUBE_BUILD
 /**
  * Renders tesseract output into searchable PDF
  */
@@ -198,7 +197,6 @@ private:
   static bool imageToPDFObj(Pix *pix, char *filename, long int objnum,
                           char **pdf_object, long int *pdf_object_size);
 };
-#endif  // NO_CUBE_BUILD
 
 
 /**
