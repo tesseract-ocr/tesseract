@@ -65,7 +65,9 @@ struct TBLOB;
 
 namespace tesseract {
 
+#ifndef NO_CUBE_BUILD
 class CubeRecoContext;
+#endif  // NO_CUBE_BUILD
 class Dawg;
 class Dict;
 class EquationDetect;
@@ -735,8 +737,10 @@ class TESS_API TessBaseAPI {
 
   void InitTruthCallback(TruthCallback *cb) { truth_cb_ = cb; }
 
+#ifndef NO_CUBE_BUILD
   /** Return a pointer to underlying CubeRecoContext object if present. */
   CubeRecoContext *GetCubeRecoContext() const;
+#endif  // NO_CUBE_BUILD
 
   void set_min_orientation_margin(double margin);
 

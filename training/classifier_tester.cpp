@@ -19,10 +19,12 @@
 #include <stdio.h>
 #ifndef USE_STD_NAMESPACE
 #include "base/commandlineflags.h"
-#endif
+#endif  // USE_STD_NAMESPACE
 #include "baseapi.h"
 #include "commontraining.h"
+#ifndef NO_CUBE_BUILD
 #include "cubeclassifier.h"
+#endif  // NO_CUBE_BUILD
 #include "mastertrainer.h"
 #include "params.h"
 #include "strngs.h"
@@ -37,12 +39,18 @@ DECLARE_STRING_PARAM_FLAG(T);
 enum ClassifierName {
   CN_PRUNER,
   CN_FULL,
+#ifndef NO_CUBE_BUILD
   CN_CUBE,
   CN_CUBETESS,
+#endif  // NO_CUBE_BUILD
   CN_COUNT
 };
 
-const char* names[] = {"pruner", "full", "cube", "cubetess", NULL };
+const char* names[] = {"pruner", "full",
+#ifndef NO_CUBE_BUILD
+  "cube", "cubetess",
+#endif  // NO_CUBE_BUILD
+  NULL };
 
 static tesseract::ShapeClassifier* InitializeClassifier(
     const char* classifer_name, const UNICHARSET& unicharset,
@@ -64,13 +72,20 @@ static tesseract::ShapeClassifier* InitializeClassifier(
   // We need to initialize tesseract to test.
   *api = new tesseract::TessBaseAPI;
   tesseract::OcrEngineMode engine_mode = tesseract::OEM_TESSERACT_ONLY;
+#ifndef NO_CUBE_BUILD
   if (classifier == CN_CUBE || classifier == CN_CUBETESS)
     engine_mode = tesseract::OEM_TESSERACT_CUBE_COMBINED;
+#endif  // NO_CUBE_BUILD
   tesseract::Tesseract* tesseract = NULL;
   tesseract::Classify* classify = NULL;
-  if (classifier == CN_CUBE || classifier == CN_CUBETESS ||
+  if (
+#ifndef NO_CUBE_BUILD
+    classifier == CN_CUBE || classifier == CN_CUBETESS ||
+#endif  // NO_CUBE_BUILD
       classifier == CN_PRUNER || classifier == CN_FULL) {
+#ifndef NO_CUBE_BUILD
     (*api)->SetVariable("cube_debug_level", "2");
+#endif  // NO_CUBE_BUILD
     if ((*api)->Init(FLAGS_tessdata_dir.c_str(), FLAGS_lang.c_str(),
                  engine_mode) < 0) {
       fprintf(stderr, "Tesseract initialization failed!\n");
@@ -96,10 +111,12 @@ static tesseract::ShapeClassifier* InitializeClassifier(
     shape_classifier = new tesseract::TessClassifier(true, classify);
   } else if (classifier == CN_FULL) {
     shape_classifier = new tesseract::TessClassifier(false, classify);
+#ifndef NO_CUBE_BUILD
   } else if (classifier == CN_CUBE) {
     shape_classifier = new tesseract::CubeClassifier(tesseract);
   } else if (classifier == CN_CUBETESS) {
     shape_classifier = new tesseract::CubeTessClassifier(tesseract);
+#endif  // NO_CUBE_BUILD
   } else {
     fprintf(stderr, "%s tester not yet implemented\n", classifer_name);
     return NULL;
