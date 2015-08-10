@@ -419,7 +419,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
         for (int i = 0; i < unicodes.length(); i++) {
           int code = unicodes[i];
           // Convert to UTF-16BE https://en.wikipedia.org/wiki/UTF-16
-          if ((code > 0xD7FF && code < 0xE0000) || code > 0x10FFFF) {
+          if ((code > 0xD7FF && code < 0xE000) || code > 0x10FFFF) {
                 tprintf("Dropping invalid codepoint %d\n", code);
                 continue;
           }
