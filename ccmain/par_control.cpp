@@ -18,6 +18,9 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "tesseractclass.h"
+#ifdef OPENMP
+#include <omp.h>
+#endif  // OPENMP
 
 namespace tesseract {
 
