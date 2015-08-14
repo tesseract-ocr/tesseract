@@ -166,6 +166,15 @@ if test "$enable_embedded" = "yes"; then
   AC_SUBST([AM_CPPFLAGS], [-DEMBEDDED])
 fi
 
+# check whether to build OpenMP support
+AC_OPENMP
+AS_IF([test "x$OPENMP_CFLAGS" != "x"],
+  AM_CONDITIONAL([OPENMP], test "x$OPENMP_CFLAGS" != "x")
+  AC_SUBST(AM_CPPFLAGS,"$OPENMP_CXXFLAGS")
+  AC_DEFINE([OPENMP], [], [Defined when compiled with OpenMP support])
+)
+
+
 # check whether to build opencl version
 AC_MSG_CHECKING(--enable-opencl argument)
 AC_ARG_ENABLE([opencl],
