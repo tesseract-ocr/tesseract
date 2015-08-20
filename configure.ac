@@ -62,7 +62,8 @@ AC_SUBST(GENERIC_VERSION)
 # Automake configuration
 # ----------------------------------------
 
-AM_INIT_AUTOMAKE
+# Do not require README file (we use README.md)
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADERS(config_auto.h:config/config.h.in)
 AM_MAINTAINER_MODE
 
