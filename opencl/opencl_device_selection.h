@@ -63,6 +63,8 @@ static ds_status releaseDSProfile(ds_profile* profile, ds_score_release sr) {
     if (profile->devices!=NULL && sr!=NULL) {
       unsigned int i;
       for (i = 0; i < profile->numDevices; i++) {
+        if (profile->devices[i].oclDeviceName) free(profile->devices[i].oclDeviceName);
+        if (profile->devices[i].oclDriverVersion) free(profile->devices[i].oclDriverVersion);
         status = sr(profile->devices[i].score);
         if (status != DS_SUCCESS)
           break;
