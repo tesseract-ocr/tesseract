@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #include <io.h>
+
 #else
 #include <sys/types.h>
 #include <unistd.h>
@@ -14,23 +15,24 @@
 #include "otsuthr.h"
 #include "thresholder.h"
 
+#if ON_APPLE
+#include <stdio.h>
+#include <mach/mach_time.h>
+#endif
 #ifdef USE_OPENCL
 
-#if ON_APPLE
-#define TIMESPEC mach_timespec
-#else
-#define TIMESPEC timespec
-#endif
-
 #include "opencl_device_selection.h"
+#ifdef _MSC_VER
+int LeptMsgSeverity = 3;  // L_SEVERITY_INFO
+#endif  // _MSC_VER
 GPUEnv OpenclDevice::gpuEnv;
 
-#if USE_DEVICE_SELECTION
+
 bool OpenclDevice::deviceIsSelected = false;
 ds_device OpenclDevice::selectedDevice;
-#endif
 
-int OpenclDevice::isInited =0;
+
+int OpenclDevice::isInited = 0;
 
 struct tiff_transform {
     int vflip;    /* if non-zero, image needs a vertical fip */
@@ -51,7 +53,7 @@ static struct tiff_transform tiff_orientation_transforms[] = {
     {0, 0, -1}
 };
 
-static const l_int32  MAX_PAGES_IN_TIFF_FILE = 3000; 
+static const l_int32  MAX_PAGES_IN_TIFF_FILE = 3000;
 
 cl_mem pixsCLBuffer, pixdCLBuffer, pixdCLIntermediate; //Morph operations buffers
 cl_mem pixThBuffer; //output from thresholdtopix calculation
@@ -104,7 +106,7 @@ void populateGPUEnvFromDevice( GPUEnv *gpuInfo, cl_device_id device ) {
     cl_command_queue_properties queueProperties = 0;
     gpuInfo->mpCmdQueue = clCreateCommandQueue( gpuInfo->mpContext, gpuInfo->mpDevID, queueProperties, &clStatus );
     CHECK_OPENCL( clStatus, "populateGPUEnv::createCommandQueue");
-    
+
 }
 
 int OpenclDevice::LoadOpencl()
@@ -120,7 +122,7 @@ int OpenclDevice::LoadOpencl()
         fprintf(stderr, "[OD] Load opencl.dll failed!\n");
         FreeLibrary( static_cast<HINSTANCE>( OpenclDll ) );
         return 0;
-        
+
     }
     fprintf(stderr, "[OD] Load opencl.dll successful!\n");
 #endif
@@ -144,7 +146,7 @@ cl_mem allocateZeroCopyBuffer(KernelEnv rEnv, l_uint32 *hostbuffer, size_t nElem
 }
 
 PIX* mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, PIX* pixd, PIX* pixs, int elements, cl_mem_flags flags, bool memcopy = false, bool sync = true)
-{   
+{
     PROCNAME("mapOutputCLBuffer");
     if (!pixd)
     {
@@ -161,7 +163,7 @@ PIX* mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, PIX* pixd, PIX* pixs, in
     }
     l_uint32 *pValues = (l_uint32 *)clEnqueueMapBuffer(rEnv.mpkCmdQueue, clbuffer, CL_TRUE, flags, 0,
                                                     elements * sizeof(l_uint32), 0, NULL, NULL, NULL );
-    
+
     if (memcopy)
     {
         memcpy(pixGetData(pixd), pValues, elements * sizeof(l_uint32));
@@ -172,7 +174,7 @@ PIX* mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, PIX* pixd, PIX* pixs, in
     }
 
     clEnqueueUnmapMemObject(rEnv.mpkCmdQueue,clbuffer,pValues,0,NULL,NULL);
-    
+
     if (sync)
     {
         clFinish( rEnv.mpkCmdQueue );
@@ -202,175 +204,6 @@ PIX* mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, PIX* pixd, PIX* pixs, in
     return xValues;
 }
 
-int OpenclDevice::InitOpenclRunEnv( GPUEnv *gpuInfo )
-{
-    size_t length;
-    cl_int clStatus;
-    cl_uint numPlatforms, numDevices;
-    cl_platform_id *platforms;
-    cl_context_properties cps[3];
-    char platformName[256];
-    unsigned int i;
-
-
-    // Have a look at the available platforms.
-
-    if ( !gpuInfo->mnIsUserCreated )
-    {
-        clStatus = clGetPlatformIDs( 0, NULL, &numPlatforms );
-        if ( clStatus != CL_SUCCESS )
-        {
-            return 1;
-        }
-        gpuInfo->mpPlatformID = NULL;
-
-        if ( 0 < numPlatforms )
-        {
-            platforms = (cl_platform_id*) malloc( numPlatforms * sizeof( cl_platform_id ) );
-            if ( platforms == (cl_platform_id*) NULL )
-            {
-                return 1;
-            }
-            clStatus = clGetPlatformIDs( numPlatforms, platforms, NULL );
-
-            if ( clStatus != CL_SUCCESS )
-            {
-                return 1;
-            }
-
-            for ( i = 0; i < numPlatforms; i++ )
-            {
-                clStatus = clGetPlatformInfo( platforms[i], CL_PLATFORM_VENDOR,
-                    sizeof( platformName ), platformName, NULL );
-
-                if ( clStatus != CL_SUCCESS )
-                {
-                    return 1;
-                }
-                gpuInfo->mpPlatformID = platforms[i];
-
-                //if (!strcmp(platformName, "Intel(R) Coporation"))
-                //if( !strcmp( platformName, "Advanced Micro Devices, Inc." ))
-                {
-                    gpuInfo->mpPlatformID = platforms[i];
-                    
-                    if ( getenv("SC_OPENCLCPU") )
-                    {
-                        clStatus = clGetDeviceIDs(gpuInfo->mpPlatformID, // platform
-                                                  CL_DEVICE_TYPE_CPU,    // device_type for CPU device
-                                                  0,                     // num_entries
-                                                  NULL,                  // devices
-                                                  &numDevices);
-                        printf("Selecting OpenCL device: CPU (a)\n");
-                    }
-                    else
-                    {
-                          clStatus = clGetDeviceIDs(gpuInfo->mpPlatformID, // platform
-                                                  CL_DEVICE_TYPE_GPU,      // device_type for GPU device
-                                                  0,                       // num_entries
-                                                  NULL,                    // devices
-                                                  &numDevices);
-                          printf("Selecting OpenCL device: GPU (a)\n");
-                    }
-                    if ( clStatus != CL_SUCCESS )
-                        continue;
-
-                    if ( numDevices )
-                        break;
-                }
-            }
-            if ( clStatus != CL_SUCCESS )
-                return 1;
-            free( platforms );
-        }
-        if ( NULL == gpuInfo->mpPlatformID )
-            return 1;
-
-        // Use available platform.
-        cps[0] = CL_CONTEXT_PLATFORM;
-        cps[1] = (cl_context_properties) gpuInfo->mpPlatformID;
-        cps[2] = 0;
-        // Set device type for OpenCL
-        
-        if ( getenv("SC_OPENCLCPU") )
-        {
-            gpuInfo->mDevType = CL_DEVICE_TYPE_CPU;
-            printf("Selecting OpenCL device: CPU (b)\n");
-        }
-        else
-        {
-            gpuInfo->mDevType = CL_DEVICE_TYPE_GPU;
-            printf("Selecting OpenCL device: GPU (b)\n");
-        }
-
-        gpuInfo->mpContext = clCreateContextFromType( cps, gpuInfo->mDevType, NULL, NULL, &clStatus );
-
-        if ( ( gpuInfo->mpContext == (cl_context) NULL) || ( clStatus != CL_SUCCESS ) )
-        {
-            gpuInfo->mDevType = CL_DEVICE_TYPE_CPU;
-            gpuInfo->mpContext = clCreateContextFromType( cps, gpuInfo->mDevType, NULL, NULL, &clStatus );
-            printf("Selecting OpenCL device: CPU (c)\n");
-        }
-        if ( ( gpuInfo->mpContext == (cl_context) NULL) || ( clStatus != CL_SUCCESS ) )
-        {
-            gpuInfo->mDevType = CL_DEVICE_TYPE_DEFAULT;
-            gpuInfo->mpContext = clCreateContextFromType( cps, gpuInfo->mDevType, NULL, NULL, &clStatus );
-            printf("Selecting OpenCL device: DEFAULT (c)\n");
-        }
-        if ( ( gpuInfo->mpContext == (cl_context) NULL) || ( clStatus != CL_SUCCESS ) )
-            return 1;
-        // Detect OpenCL devices.
-        // First, get the size of device list data
-        clStatus = clGetContextInfo( gpuInfo->mpContext, CL_CONTEXT_DEVICES, 0, NULL, &length );
-        if ( ( clStatus != CL_SUCCESS ) || ( length == 0 ) )
-            return 1;
-        // Now allocate memory for device list based on the size we got earlier
-        gpuInfo->mpArryDevsID = (cl_device_id*) malloc( length );
-        if ( gpuInfo->mpArryDevsID == (cl_device_id*) NULL )
-            return 1;
-        // Now, get the device list data
-        clStatus = clGetContextInfo( gpuInfo->mpContext, CL_CONTEXT_DEVICES, length,
-                       gpuInfo->mpArryDevsID, NULL );
-        if ( clStatus != CL_SUCCESS )
-            return 1;
-
-        // Create OpenCL command queue.
-        gpuInfo->mpCmdQueue = clCreateCommandQueue( gpuInfo->mpContext, gpuInfo->mpArryDevsID[0], 0, &clStatus );
-
-        if ( clStatus != CL_SUCCESS )
-            return 1;
-    }
-
-    clStatus = clGetCommandQueueInfo( gpuInfo->mpCmdQueue, CL_QUEUE_THREAD_HANDLE_AMD, 0, NULL, NULL );
-    // Check device extensions for double type
-    size_t aDevExtInfoSize = 0;
-
-    clStatus = clGetDeviceInfo( gpuInfo->mpArryDevsID[0], CL_DEVICE_EXTENSIONS, 0, NULL, &aDevExtInfoSize );
-    CHECK_OPENCL( clStatus, "clGetDeviceInfo" );
-
-    char *aExtInfo = new char[aDevExtInfoSize];
-
-    clStatus = clGetDeviceInfo( gpuInfo->mpArryDevsID[0], CL_DEVICE_EXTENSIONS,
-                   sizeof(char) * aDevExtInfoSize, aExtInfo, NULL);
-    CHECK_OPENCL( clStatus, "clGetDeviceInfo" );
-
-    gpuInfo->mnKhrFp64Flag = 0;
-    gpuInfo->mnAmdFp64Flag = 0;
-
-    if ( strstr( aExtInfo, "cl_khr_fp64" ) )
-    {
-        gpuInfo->mnKhrFp64Flag = 1;
-    }
-    else
-    {
-        // Check if cl_amd_fp64 extension is supported
-        if ( strstr( aExtInfo, "cl_amd_fp64" ) )
-            gpuInfo->mnAmdFp64Flag = 1;
-    }
-    delete []aExtInfo;
-
-    return 0;
-}
 
 void OpenclDevice::releaseMorphCLBuffers()
 {
@@ -387,11 +220,11 @@ void OpenclDevice::releaseMorphCLBuffers()
 int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, PIX* pixs)
 {
     SetKernelEnv( &rEnv );
-    
+
     if (pixThBuffer != NULL)
     {
         pixsCLBuffer = allocateZeroCopyBuffer(rEnv, NULL, wpl*h, CL_MEM_ALLOC_HOST_PTR, &clStatus);
-        
+
         //Get the output from ThresholdToPix operation
         clStatus = clEnqueueCopyBuffer(rEnv.mpkCmdQueue, pixThBuffer, pixsCLBuffer, 0, 0, sizeof(l_uint32) * wpl*h, 0, NULL, NULL);
     }
@@ -400,10 +233,10 @@ int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, PIX* pixs)
         //Get data from the source image
         l_uint32* srcdata = (l_uint32*) malloc(wpl*h*sizeof(l_uint32));
         memcpy(srcdata, pixGetData(pixs), wpl*h*sizeof(l_uint32));
-    
+
         pixsCLBuffer = allocateZeroCopyBuffer(rEnv, srcdata, wpl*h, CL_MEM_USE_HOST_PTR, &clStatus);
     }
-    
+
     pixdCLBuffer = allocateZeroCopyBuffer(rEnv, NULL, wpl*h, CL_MEM_ALLOC_HOST_PTR, &clStatus);
 
     pixdCLIntermediate = allocateZeroCopyBuffer(rEnv, NULL, wpl*h, CL_MEM_ALLOC_HOST_PTR, &clStatus);
@@ -424,16 +257,10 @@ int OpenclDevice::InitEnv()
 PERF_COUNT_SUB("LoadOpencl")
 #endif
     // sets up environment, compiles programs
-    
 
-#if USE_DEVICE_SELECTION
-    
+
     InitOpenclRunEnv_DeviceSelection( 0 );
 //PERF_COUNT_SUB("called InitOpenclRunEnv_DS")
-#else
-    // init according to device
-    InitOpenclRunEnv( 0 );
-#endif
 //PERF_COUNT_END
     return 1;
 }
@@ -465,62 +292,9 @@ int OpenclDevice::RegistOpenclKernel()
     AddKernelConfig( 1, (const char*) "oclAverageSub1" );
     return 0;
 }
-int OpenclDevice::InitOpenclRunEnv( int argc )
-{
-    int status = 0;
-    if ( MAX_CLKERNEL_NUM <= 0 )
-    {
-        return 1;
-    }
-    if ( ( argc > MAX_CLFILE_NUM ) || ( argc < 0 ) )
-        return 1;
-
-    if ( !isInited )
-    {
-        RegistOpenclKernel();
-        //initialize devices, context, comand_queue
-        status = InitOpenclRunEnv( &gpuEnv );
-        if ( status )
-        {
-            fprintf(stderr,"init_opencl_env failed.\n");
-            return 1;
-        }
-        fprintf(stderr,"init_opencl_env successed.\n");
-        //initialize program, kernelName, kernelCount
-        if( getenv( "SC_FLOAT" ) )
-        {
-            gpuEnv.mnKhrFp64Flag = 0;
-            gpuEnv.mnAmdFp64Flag = 0;
-        }
-        if( gpuEnv.mnKhrFp64Flag )
-        {
-            fprintf(stderr,"----use khr double type in kernel----\n");
-            status = CompileKernelFile( &gpuEnv, "-D KHR_DP_EXTENSION -Dfp_t=double -Dfp_t4=double4 -Dfp_t16=double16" );
-        }
-        else if( gpuEnv.mnAmdFp64Flag )
-        {
-            fprintf(stderr,"----use amd double type in kernel----\n");
-            status = CompileKernelFile( &gpuEnv, "-D AMD_DP_EXTENSION -Dfp_t=double -Dfp_t4=double4 -Dfp_t16=double16" );
-        }
-        else
-        {
-            fprintf(stderr,"----use float type in kernel----\n");
-            status = CompileKernelFile( &gpuEnv, "-Dfp_t=float -Dfp_t4=float4 -Dfp_t16=float16" );
-        }
-        if ( status == 0 || gpuEnv.mnKernelCount == 0 )
-        {
-            fprintf(stderr,"CompileKernelFile failed.\n");
-            return 1;
-        }
-        fprintf(stderr,"CompileKernelFile successed.\n");
-        isInited = 1;
-    }
-    return 0;
-}
 
 int OpenclDevice::InitOpenclRunEnv_DeviceSelection( int argc ) {
 //PERF_COUNT_START("InitOpenclRunEnv_DS")
-#if USE_DEVICE_SELECTION
     if (!isInited) {
         // after programs compiled, selects best device
         //printf("[DS] InitOpenclRunEnv_DS::Calling performDeviceSelection()\n");
@@ -541,7 +315,6 @@ int OpenclDevice::InitOpenclRunEnv_DeviceSelection( int argc ) {
         }
         isInited = 1;
     }
-#endif
 //PERF_COUNT_END
     return 0;
 }
@@ -598,41 +371,17 @@ int OpenclDevice::BinaryGenerated( const char * clFileName, FILE ** fhandle )
     int status = 0;
     char *str = NULL;
     FILE *fd = NULL;
-    cl_uint numDevices=0;
-    if ( getenv("SC_OPENCLCPU") )
-    {
-        clStatus = clGetDeviceIDs(gpuEnv.mpPlatformID, // platform
-                                  CL_DEVICE_TYPE_CPU,  // device_type for CPU device
-                                  0,                   // num_entries
-                                  NULL,                // devices ID
-                                  &numDevices);
-    }
-    else
-    {
-        clStatus = clGetDeviceIDs(gpuEnv.mpPlatformID, // platform
-                                  CL_DEVICE_TYPE_GPU,  // device_type for GPU device
-                                  0,                   // num_entries
-                                  NULL,                // devices ID
-                                  &numDevices);
-    }
-    CHECK_OPENCL( clStatus, "clGetDeviceIDs" );
-    for ( i = 0; i < numDevices; i++ )
-    {
-        char fileName[256] = { 0 }, cl_name[128] = { 0 };
-        if ( gpuEnv.mpArryDevsID[i] != 0 )
-        {
-            char deviceName[1024];
-            clStatus = clGetDeviceInfo( gpuEnv.mpArryDevsID[i], CL_DEVICE_NAME, sizeof(deviceName), deviceName, NULL );
-            CHECK_OPENCL( clStatus, "clGetDeviceInfo" );
-            str = (char*) strstr( clFileName, (char*) ".cl" );
-            memcpy( cl_name, clFileName, str - clFileName );
-            cl_name[str - clFileName] = '\0';
-            sprintf( fileName, "%s-%s.bin", cl_name, deviceName );
-            legalizeFileName(fileName);
-            fd = fopen( fileName, "rb" );
-            status = ( fd != NULL ) ? 1 : 0;
-        }
-    }
+    char fileName[256] = { 0 }, cl_name[128] = { 0 };
+    char deviceName[1024];
+    clStatus = clGetDeviceInfo( gpuEnv.mpArryDevsID[i], CL_DEVICE_NAME, sizeof(deviceName), deviceName, NULL );
+    CHECK_OPENCL( clStatus, "clGetDeviceInfo" );
+    str = (char*) strstr( clFileName, (char*) ".cl" );
+    memcpy( cl_name, clFileName, str - clFileName );
+    cl_name[str - clFileName] = '\0';
+    sprintf( fileName, "%s-%s.bin", cl_name, deviceName );
+    legalizeFileName(fileName);
+    fd = fopen( fileName, "rb" );
+    status = ( fd != NULL ) ? 1 : 0;
     if ( fd != NULL )
     {
         *fhandle = fd;
@@ -675,7 +424,7 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
 {
     unsigned int i = 0;
     cl_int clStatus;
-    size_t *binarySizes, numDevices;
+    size_t *binarySizes, numDevices=0;
     cl_device_id *mpArryDevsID;
     char **binaries, *str = NULL;
 
@@ -714,14 +463,6 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
             binaries[i] = (char*) malloc( sizeof(char) * binarySizes[i] );
             if ( binaries[i] == NULL )
             {
-                // cleanup all memory allocated so far
-                for(int cleanupIndex = 0; cleanupIndex < i; ++cleanupIndex)
-                {
-                    free(binaries[cleanupIndex]);
-                }
-                // cleanup binary array
-                free(binaries);
-
                 return 0;
             }
         }
@@ -988,7 +729,7 @@ PERF_COUNT_START("pixReadFromTiffKernel")
     size_t globalThreads[2];
     size_t localThreads[2];
     int gsize;
-    cl_mem valuesCl; 
+    cl_mem valuesCl;
     cl_mem outputCl;
 
     //global and local work dimensions for Horizontal pass
@@ -1000,11 +741,11 @@ PERF_COUNT_START("pixReadFromTiffKernel")
     localThreads[1] = GROUPSIZE_Y;
 
     SetKernelEnv( &rEnv );
-    
+
     l_uint32 *pResult = (l_uint32 *)malloc(w*h * sizeof(l_uint32));
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "composeRGBPixel", &clStatus );
     CHECK_OPENCL( clStatus, "clCreateKernel");
-    
+
     //Allocate input and output OCL buffers
     valuesCl = allocateZeroCopyBuffer(rEnv, tiffdata, w*h, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, &clStatus);
     outputCl = allocateZeroCopyBuffer(rEnv, pResult, w*h, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, &clStatus);
@@ -1020,12 +761,12 @@ PERF_COUNT_START("pixReadFromTiffKernel")
     CHECK_OPENCL( clStatus, "clSetKernelArg" );
     clStatus = clSetKernelArg( rEnv.mpkKernel, 4, sizeof(cl_mem), (void *)&outputCl );
     CHECK_OPENCL( clStatus, "clSetKernelArg");
-    
+
     //Kernel enqueue
 PERF_COUNT_SUB("before")
     clStatus = clEnqueueNDRangeKernel( rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, NULL, globalThreads, localThreads, 0, NULL, NULL );
     CHECK_OPENCL( clStatus, "clEnqueueNDRangeKernel" );
-    
+
      /* map results back from gpu */
     void *ptr = clEnqueueMapBuffer(rEnv.mpkCmdQueue, outputCl, CL_TRUE, CL_MAP_READ, 0, w*h * sizeof(l_uint32), 0, NULL, NULL, &clStatus);
     CHECK_OPENCL( clStatus, "clEnqueueMapBuffer outputCl");
@@ -1037,7 +778,6 @@ PERF_COUNT_SUB("kernel & map")
 PERF_COUNT_END
     return pResult;
 }
-
 
 PIX * OpenclDevice::pixReadTiffCl ( const char *filename, l_int32 n )
 {
@@ -1060,7 +800,7 @@ PIX   *pix;
     fclose(fp);
 PERF_COUNT_END
     return pix;
-    
+
 }
 TIFF *
 OpenclDevice::fopenTiffCl(FILE        *fp,
@@ -1356,7 +1096,7 @@ OpenclDevice::pixReadMemTiffCl(const l_uint8 *data,size_t size,l_int32  n)
 	l_int32  i, pagefound;
 	PIX     *pix;
 	TIFF    *tif;
-	L_MEMSTREAM *memStream;
+	//L_MEMSTREAM *memStream;
 	PROCNAME("pixReadMemTiffCl");
 
 	if (!data)
@@ -1474,7 +1214,7 @@ void compare(l_uint32  *cpu, l_uint32  *gpu,int size)
         }
     }
     printf("\nit matches\n");
-    
+
 }
 
 //OpenCL implementation of pixReadFromTiffStream.
@@ -1497,7 +1237,7 @@ PIXCMAP   *cmap;
     if (!tif)
         return (PIX *)ERROR_PTR("tif not defined", procName, NULL);
 
-    
+
     TIFFGetFieldDefaulted(tif, TIFFTAG_BITSPERSAMPLE, &bps);
     TIFFGetFieldDefaulted(tif, TIFFTAG_SAMPLESPERPIXEL, &spp);
     bpp = bps * spp;
@@ -1520,11 +1260,11 @@ PIXCMAP   *cmap;
     wpl = pixGetWpl(pix);
     bpl = 4 * wpl;
 
-   
+
     if (spp == 1) {
         if ((linebuf = (l_uint8 *)CALLOC(tiffbpl + 1, sizeof(l_uint8))) == NULL)
             return (PIX *)ERROR_PTR("calloc fail for linebuf", procName, NULL);
-        
+
         for (i = 0 ; i < h ; i++) {
             if (TIFFReadScanline(tif, linebuf, i, 0) < 0) {
                 FREE(linebuf);
@@ -1536,11 +1276,11 @@ PIXCMAP   *cmap;
         }
         if (bps <= 8)
             pixEndianByteSwap(pix);
-        else   
+        else
             pixEndianTwoByteSwap(pix);
         FREE(linebuf);
     }
-    else {  
+    else {
         if ((tiffdata = (l_uint32 *)CALLOC(w * h, sizeof(l_uint32))) == NULL) {
             pixDestroy(&pix);
             return (PIX *)ERROR_PTR("calloc fail for tiffdata", procName, NULL);
@@ -1555,9 +1295,12 @@ PIXCMAP   *cmap;
 
         //Invoke the OpenCL kernel for pixReadFromTiff
         l_uint32* output_gpu=pixReadFromTiffKernel(tiffdata,w,h,wpl,line);
+
         pixSetData(pix, output_gpu);
-        
+        // pix already has data allocated, it now points to output_gpu?
         FREE(tiffdata);
+        FREE(line);
+        //FREE(output_gpu);
     }
 
     if (getTiffStreamResolutionCl(tif, &xres, &yres) == 0) {
@@ -1571,7 +1314,7 @@ PIXCMAP   *cmap;
     pixSetInputFormat(pix, comptype);
 
     if (TIFFGetField(tif, TIFFTAG_COLORMAP, &redmap, &greenmap, &bluemap)) {
-           
+
         if ((cmap = pixcmapCreate(bps)) == NULL) {
             pixDestroy(&pix);
             return (PIX *)ERROR_PTR("cmap not made", procName, NULL);
@@ -1582,9 +1325,9 @@ PIXCMAP   *cmap;
                             bluemap[i] >> 8);
         pixSetColormap(pix, cmap);
     }
-    else {  
+    else {
         if (!TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometry)) {
-       
+
             if (tiffcomp == COMPRESSION_CCITTFAX3 ||
                 tiffcomp == COMPRESSION_CCITTFAX4 ||
                 tiffcomp == COMPRESSION_CCITTRLE ||
@@ -1634,7 +1377,7 @@ pixDilateCL_55(l_int32  wpl, l_int32  h)
     localThreads[1] = GROUPSIZE_HMORY;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateHor_5x5", &status );
-    
+
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
         sizeof(cl_mem),
@@ -1661,7 +1404,7 @@ pixDilateCL_55(l_int32  wpl, l_int32  h)
                             0,
                             NULL,
                             NULL);
-    
+
     //Swap source and dest buffers
     pixtemp = pixsCLBuffer;
     pixsCLBuffer = pixdCLBuffer;
@@ -1676,7 +1419,7 @@ pixDilateCL_55(l_int32  wpl, l_int32  h)
     localThreads[1] = GROUPSIZE_Y;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateVer_5x5", &status );
-    
+
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
         sizeof(cl_mem),
@@ -1728,7 +1471,7 @@ pixErodeCL_55(l_int32  wpl, l_int32  h)
     localThreads[1] = GROUPSIZE_HMORY;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoErodeHor_5x5", &status );
-    
+
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
         sizeof(cl_mem),
@@ -1755,7 +1498,7 @@ pixErodeCL_55(l_int32  wpl, l_int32  h)
                             0,
                             NULL,
                             NULL);
-    
+
     //Swap source and dest buffers
     pixtemp = pixsCLBuffer;
     pixsCLBuffer = pixdCLBuffer;
@@ -1770,7 +1513,7 @@ pixErodeCL_55(l_int32  wpl, l_int32  h)
     localThreads[1] = GROUPSIZE_Y;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoErodeVer_5x5", &status );
-    
+
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
         sizeof(cl_mem),
@@ -1822,18 +1565,18 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
     char isEven;
 
     OpenclDevice::SetKernelEnv( &rEnv );
-    
+
     if (hsize == 5 && vsize == 5)
     {
         //Specific case for 5x5
         status = pixDilateCL_55(wpl, h);
         return status;
     }
-    
-    sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
-    
-    selFindMaxTranslations(sel, &xp, &yp, &xn, &yn);
 
+    sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
+
+    selFindMaxTranslations(sel, &xp, &yp, &xn, &yn);
+    selDestroy(&sel);
     //global and local work dimensions for Horizontal pass
     gsize = (wpl + GROUPSIZE_X - 1)/ GROUPSIZE_X * GROUPSIZE_X;
     globalThreads[0] = gsize;
@@ -1844,9 +1587,9 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
 
     if (xp > 31 || xn > 31)
     {
-        //Generic case. 
+        //Generic case.
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateHor", &status );
-    
+
         status = clSetKernelArg(rEnv.mpkKernel,
             0,
             sizeof(cl_mem),
@@ -1893,7 +1636,7 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
         //Specfic Horizontal pass kernel for half width < 32
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateHor_32word", &status );
         isEven = (xp != xn);
-        
+
         status = clSetKernelArg(rEnv.mpkKernel,
             0,
             sizeof(cl_mem),
@@ -1934,12 +1677,12 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
             pixsCLBuffer = pixdCLBuffer;
             pixdCLBuffer = pixtemp;
         }
-    } 
+    }
 
     if (yp > 0 || yn > 0)
     {
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateVer", &status );
-        
+
         status = clSetKernelArg(rEnv.mpkKernel,
             0,
             sizeof(cl_mem),
@@ -1974,13 +1717,13 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
                                 NULL,
                                 NULL);
     }
-    
+
 
     return status;
 }
 
 //Morphology Erode operation. Invokes the relevant OpenCL kernels
-cl_int 
+cl_int
 pixErodeCL(l_int32  hsize, l_int32  vsize, l_uint32 wpl, l_uint32 h)
 {
 
@@ -1996,9 +1739,9 @@ pixErodeCL(l_int32  hsize, l_int32  vsize, l_uint32 wpl, l_uint32 h)
     char isEven;
 
     sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
-    
+
     selFindMaxTranslations(sel, &xp, &yp, &xn, &yn);
-    
+    selDestroy(&sel);
     OpenclDevice::SetKernelEnv( &rEnv );
 
     if (hsize == 5 && vsize == 5 && isAsymmetric)
@@ -2018,13 +1761,13 @@ pixErodeCL(l_int32  hsize, l_int32  vsize, l_uint32 wpl, l_uint32 h)
     globalThreads[1] = gsize;
     localThreads[0] = GROUPSIZE_X;
     localThreads[1] = GROUPSIZE_Y;
-    
+
     //Horizontal Pass
     if (xp > 31 || xn > 31 )
     {
-        //Generic case. 
+        //Generic case.
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoErodeHor", &status );
-        
+
         status = clSetKernelArg(rEnv.mpkKernel,
             0,
             sizeof(cl_mem),
@@ -2128,7 +1871,7 @@ pixErodeCL(l_int32  hsize, l_int32  vsize, l_uint32 wpl, l_uint32 h)
                                 0,
                                 NULL,
                                 NULL);
-    
+
         if (yp > 0 || yn > 0)
         {
             pixtemp = pixsCLBuffer;
@@ -2141,7 +1884,7 @@ pixErodeCL(l_int32  hsize, l_int32  vsize, l_uint32 wpl, l_uint32 h)
     if (yp > 0 || yn > 0)
     {
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoErodeVer", &status );
-        
+
         status = clSetKernelArg(rEnv.mpkKernel,
             0,
             sizeof(cl_mem),
@@ -2186,14 +1929,14 @@ pixErodeCL(l_int32  hsize, l_int32  vsize, l_uint32 wpl, l_uint32 h)
 
 // OpenCL implementation of Morphology Dilate
 //Note: Assumes the source and dest opencl buffer are initialized. No check done
-PIX* 
+PIX*
 OpenclDevice::pixDilateBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy = false)
 {
     l_uint32 wpl, h;
 
     wpl = pixGetWpl(pixs);
     h = pixGetHeight(pixs);
-    
+
     clStatus = pixDilateCL(hsize, vsize, wpl, h);
 
     if (reqDataCopy)
@@ -2206,16 +1949,16 @@ OpenclDevice::pixDilateBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  
 
 // OpenCL implementation of Morphology Erode
 //Note: Assumes the source and dest opencl buffer are initialized. No check done
-PIX* 
+PIX*
 OpenclDevice::pixErodeBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy = false)
 {
     l_uint32 wpl, h;
-    
+
     wpl = pixGetWpl(pixs);
     h = pixGetHeight(pixs);
 
     clStatus = pixErodeCL(hsize, vsize, wpl, h);
-    
+
     if (reqDataCopy)
     {
         pixd = mapOutputCLBuffer(rEnv, pixdCLBuffer, pixd, pixs, wpl*h, CL_MAP_READ);
@@ -2230,10 +1973,10 @@ pixOpenCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
 {
     cl_int status;
     cl_mem pixtemp;
-    
+
     //Erode followed by Dilate
     status = pixErodeCL(hsize, vsize, wpl, h);
-    
+
     pixtemp = pixsCLBuffer;
     pixsCLBuffer = pixdCLBuffer;
     pixdCLBuffer = pixtemp;
@@ -2249,10 +1992,10 @@ pixCloseCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
 {
     cl_int status;
     cl_mem pixtemp;
-    
+
     //Dilate followed by Erode
     status = pixDilateCL(hsize, vsize, wpl, h);
-    
+
     pixtemp = pixsCLBuffer;
     pixsCLBuffer = pixdCLBuffer;
     pixdCLBuffer = pixtemp;
@@ -2264,15 +2007,15 @@ pixCloseCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
 
 // OpenCL implementation of Morphology Close
 //Note: Assumes the source and dest opencl buffer are initialized. No check done
-PIX* 
-OpenclDevice::pixCloseBrickCL(PIX  *pixd, 
-                              PIX  *pixs, 
-                              l_int32  hsize, 
-                              l_int32  vsize, 
+PIX*
+OpenclDevice::pixCloseBrickCL(PIX  *pixd,
+                              PIX  *pixs,
+                              l_int32  hsize,
+                              l_int32  vsize,
                               bool reqDataCopy = false)
 {
     l_uint32 wpl, h;
-    
+
     wpl = pixGetWpl(pixs);
     h = pixGetHeight(pixs);
 
@@ -2288,15 +2031,15 @@ OpenclDevice::pixCloseBrickCL(PIX  *pixd,
 
 // OpenCL implementation of Morphology Open
 //Note: Assumes the source and dest opencl buffer are initialized. No check done
-PIX* 
-OpenclDevice::pixOpenBrickCL(PIX  *pixd, 
-                              PIX  *pixs, 
-                              l_int32  hsize, 
-                              l_int32  vsize, 
+PIX*
+OpenclDevice::pixOpenBrickCL(PIX  *pixd,
+                              PIX  *pixs,
+                              l_int32  hsize,
+                              l_int32  vsize,
                               bool reqDataCopy = false)
 {
     l_uint32 wpl, h;
-    
+
     wpl = pixGetWpl(pixs);
     h = pixGetHeight(pixs);
 
@@ -2374,7 +2117,7 @@ pixANDCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1, cl_mem buffer2, cl_mem o
     globalThreads[1] = gsize;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "pixAND", &status );
-                
+
     // Enqueue a kernel run call.
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
@@ -2471,11 +2214,11 @@ pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1, cl_mem buffer2, cl_
 
 // OpenCL implementation of Subtract pix
 //Note: Assumes the source and dest opencl buffer are initialized. No check done
-PIX* 
+PIX*
 OpenclDevice::pixSubtractCL(PIX  *pixd, PIX  *pixs1, PIX  *pixs2, bool reqDataCopy = false)
 {
     l_uint32 wpl, h;
-    
+
     PROCNAME("pixSubtractCL");
 
     if (!pixs1)
@@ -2506,12 +2249,12 @@ OpenclDevice::pixSubtractCL(PIX  *pixd, PIX  *pixs1, PIX  *pixs2, bool reqDataCo
 
 // OpenCL implementation of Hollow pix
 //Note: Assumes the source and dest opencl buffer are initialized. No check done
-PIX* 
-OpenclDevice::pixHollowCL(PIX  *pixd, 
-                        PIX  *pixs, 
-                        l_int32  close_hsize, 
-                        l_int32  close_vsize, 
-                        l_int32  open_hsize, 
+PIX*
+OpenclDevice::pixHollowCL(PIX  *pixd,
+                        PIX  *pixs,
+                        l_int32  close_hsize,
+                        l_int32  close_vsize,
+                        l_int32  open_hsize,
                         l_int32  open_vsize,
                         bool reqDataCopy = false)
 {
@@ -2553,14 +2296,14 @@ OpenclDevice::pixHollowCL(PIX  *pixd,
 
 // OpenCL implementation of Get Lines from pix function
 //Note: Assumes the source and dest opencl buffer are initialized. No check done
-void 
-OpenclDevice::pixGetLinesCL(PIX  *pixd, 
-                            PIX  *pixs, 
-                            PIX** pix_vline, 
-                            PIX** pix_hline, 
+void
+OpenclDevice::pixGetLinesCL(PIX  *pixd,
+                            PIX  *pixs,
+                            PIX** pix_vline,
+                            PIX** pix_hline,
                             PIX** pixClosed,
                             bool  getpixClosed,
-                            l_int32  close_hsize, l_int32  close_vsize, 
+                            l_int32  close_hsize, l_int32  close_vsize,
                             l_int32  open_hsize, l_int32  open_vsize,
                             l_int32  line_hsize, l_int32  line_vsize)
 {
@@ -2582,7 +2325,7 @@ OpenclDevice::pixGetLinesCL(PIX  *pixd,
     //Store the output of close operation in an intermediate buffer
     //this will be later used for pixsubtract
     clStatus = clEnqueueCopyBuffer(rEnv.mpkCmdQueue, pixdCLBuffer, pixdCLIntermediate, 0, 0, sizeof(int) * wpl*h, 0, NULL, NULL);
-    
+
     //Second step: Open Operation - Erode followed by Dilate
     pixtemp = pixsCLBuffer;
     pixsCLBuffer = pixdCLBuffer;
@@ -2599,7 +2342,7 @@ OpenclDevice::pixGetLinesCL(PIX  *pixd,
     clStatus = pixSubtractCL_work(wpl, h, pixdCLBuffer, pixsCLBuffer);
 
     //Store the output of Hollow operation in an intermediate buffer
-    //this will be later used 
+    //this will be later used
     clStatus = clEnqueueCopyBuffer(rEnv.mpkCmdQueue, pixdCLBuffer, pixdCLIntermediate, 0, 0, sizeof(int) * wpl*h, 0, NULL, NULL);
 
     pixtemp = pixsCLBuffer;
@@ -2612,7 +2355,7 @@ OpenclDevice::pixGetLinesCL(PIX  *pixd,
 
     //Copy the vertical line output to CPU buffer
     *pix_vline = mapOutputCLBuffer(rEnv, pixdCLBuffer, *pix_vline, pixs, wpl*h, CL_MAP_READ, true, false);
-    
+
     pixtemp = pixsCLBuffer;
     pixsCLBuffer = pixdCLIntermediate;
     pixdCLIntermediate = pixtemp;
@@ -2620,7 +2363,7 @@ OpenclDevice::pixGetLinesCL(PIX  *pixd,
     //Fifth step: Get horizontal line
     //pixOpenBrick(NULL, pix_hollow, min_line_length, 1);
     clStatus = pixOpenCL(line_hsize, 1, wpl, h);
-        
+
     //Copy the horizontal line output to CPU buffer
     *pix_hline = mapOutputCLBuffer(rEnv, pixdCLBuffer, *pix_hline, pixs, wpl*h, CL_MAP_READ, true, true);
 
@@ -2634,7 +2377,7 @@ OpenclDevice::pixGetLinesCL(PIX  *pixd,
  *  histogramAllChannels is layed out as all channel 0, then all channel 1...
  *  only supports 1 or 4 channels (bytes_per_pixel)
  ************************************************************************/
-void OpenclDevice::HistogramRectOCL(
+int OpenclDevice::HistogramRectOCL(
     const unsigned char* imageData,
     int bytes_per_pixel,
     int bytes_per_line,
@@ -2647,6 +2390,7 @@ void OpenclDevice::HistogramRectOCL(
 {
 PERF_COUNT_START("HistogramRectOCL")
     cl_int clStatus;
+    int retVal= 0;
     KernelEnv histKern;
     SetKernelEnv( &histKern );
     KernelEnv histRedKern;
@@ -2667,20 +2411,19 @@ PERF_COUNT_START("HistogramRectOCL")
     int requestedOccupancy = 10;
     int numWorkGroups = numCUs * requestedOccupancy;
     int numThreads = block_size*numWorkGroups;
-    size_t local_work_size[] = {static_cast<size_t>(block_size)};
-    size_t global_work_size[] = {static_cast<size_t>(numThreads)};
-    size_t red_global_work_size[] = {
-        static_cast<size_t>(block_size * kHistogramSize * bytes_per_pixel)};
+    size_t local_work_size[] = {block_size};
+    size_t global_work_size[] = {numThreads};
+    size_t red_global_work_size[] = {block_size*kHistogramSize*bytes_per_pixel};
 
     /* map histogramAllChannels as write only */
     int numBins = kHistogramSize*bytes_per_pixel*numWorkGroups;
-    
+
     cl_mem histogramBuffer = clCreateBuffer( histKern.mpkContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, kHistogramSize*bytes_per_pixel*sizeof(int), (void *)histogramAllChannels, &clStatus );
     CHECK_OPENCL( clStatus, "clCreateBuffer histogramBuffer");
 
     /* intermediate histogram buffer */
     int histRed = 256;
-    int tmpHistogramBins =  kHistogramSize*bytes_per_pixel*histRed; 
+    int tmpHistogramBins =  kHistogramSize*bytes_per_pixel*histRed;
 
     cl_mem tmpHistogramBuffer = clCreateBuffer( histKern.mpkContext, CL_MEM_READ_WRITE, tmpHistogramBins*sizeof(cl_uint), NULL, &clStatus );
     CHECK_OPENCL( clStatus, "clCreateBuffer tmpHistogramBuffer");
@@ -2690,7 +2433,7 @@ PERF_COUNT_START("HistogramRectOCL")
     zeroBuffer[0] = 0;
     cl_mem atomicSyncBuffer = clCreateBuffer( histKern.mpkContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_int), (void *)zeroBuffer, &clStatus );
     CHECK_OPENCL( clStatus, "clCreateBuffer atomicSyncBuffer");
-
+    delete[] zeroBuffer;
     //Create kernel objects based on bytes_per_pixel
     if (bytes_per_pixel == 1)
     {
@@ -2708,11 +2451,11 @@ PERF_COUNT_START("HistogramRectOCL")
     }
 
     void *ptr;
-    
+
     //Initialize tmpHistogramBuffer buffer
     ptr = clEnqueueMapBuffer(histKern.mpkCmdQueue, tmpHistogramBuffer, CL_TRUE, CL_MAP_WRITE, 0, tmpHistogramBins*sizeof(cl_uint), 0, NULL, NULL, &clStatus);
     CHECK_OPENCL( clStatus, "clEnqueueMapBuffer tmpHistogramBuffer");
-    
+
     memset(ptr, 0, tmpHistogramBins*sizeof(cl_uint));
     clEnqueueUnmapMemObject(histKern.mpkCmdQueue, tmpHistogramBuffer, ptr, 0, NULL, NULL);
 
@@ -2743,7 +2486,10 @@ PERF_COUNT_SUB("before")
         0, NULL, NULL );
     CHECK_OPENCL( clStatus, "clEnqueueNDRangeKernel kernel_HistogramRectAllChannels" );
     clFinish( histKern.mpkCmdQueue );
-
+    if(clStatus !=0)
+    {
+		retVal = -1;
+	}
     /* launch histogram */
     clStatus = clEnqueueNDRangeKernel(
         histRedKern.mpkCmdQueue,
@@ -2752,19 +2498,26 @@ PERF_COUNT_SUB("before")
         0, NULL, NULL );
     CHECK_OPENCL( clStatus, "clEnqueueNDRangeKernel kernel_HistogramRectAllChannelsReduction" );
     clFinish( histRedKern.mpkCmdQueue );
-
+	if(clStatus !=0)
+	{
+			retVal = -1;
+	}
 PERF_COUNT_SUB("redKernel")
 
     /* map results back from gpu */
     ptr = clEnqueueMapBuffer(histRedKern.mpkCmdQueue, histogramBuffer, CL_TRUE, CL_MAP_READ, 0, kHistogramSize*bytes_per_pixel*sizeof(int), 0, NULL, NULL, &clStatus);
     CHECK_OPENCL( clStatus, "clEnqueueMapBuffer histogramBuffer");
-    
+    if(clStatus !=0)
+    {
+				retVal = -1;
+	}
     clEnqueueUnmapMemObject(histRedKern.mpkCmdQueue, histogramBuffer, ptr, 0, NULL, NULL);
-   
+
     clReleaseMemObject(histogramBuffer);
     clReleaseMemObject(imageBuffer);
 PERF_COUNT_SUB("after")
 PERF_COUNT_END
+   return retVal;
 
 }
 
@@ -2773,7 +2526,7 @@ PERF_COUNT_END
  * from the class, using thresholds/hi_values to the output IMAGE.
  * only supports 1 or 4 channels
  ************************************************************************/
-void OpenclDevice::ThresholdRectToPixOCL(
+int OpenclDevice::ThresholdRectToPixOCL(
     const unsigned char* imageData,
     int bytes_per_pixel,
     int bytes_per_line,
@@ -2785,12 +2538,12 @@ void OpenclDevice::ThresholdRectToPixOCL(
     int top,
     int left) {
 PERF_COUNT_START("ThresholdRectToPixOCL")
-
-    /* create pix result buffer */                                 
+    int retVal =0;
+    /* create pix result buffer */
     *pix = pixCreate(width, height, 1);
     uinT32* pixData = pixGetData(*pix);
     int wpl = pixGetWpl(*pix);
-    int pixSize = wpl*height*sizeof(uinT32);
+    int pixSize = wpl*height*sizeof(uinT32); // number of pixels
 
     cl_int clStatus;
     KernelEnv rEnv;
@@ -2827,8 +2580,8 @@ PERF_COUNT_START("ThresholdRectToPixOCL")
 
     /* compile kernel */
     if (bytes_per_pixel == 4) {
-    rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "kernel_ThresholdRectToPix", &clStatus );
-    CHECK_OPENCL( clStatus, "clCreateKernel kernel_ThresholdRectToPix");
+        rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "kernel_ThresholdRectToPix", &clStatus );
+        CHECK_OPENCL( clStatus, "clCreateKernel kernel_ThresholdRectToPix");
     } else {
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "kernel_ThresholdRectToPix_OneChan", &clStatus );
         CHECK_OPENCL( clStatus, "clCreateKernel kernel_ThresholdRectToPix_OneChan");
@@ -2861,22 +2614,26 @@ PERF_COUNT_SUB("before")
     CHECK_OPENCL( clStatus, "clEnqueueNDRangeKernel kernel_ThresholdRectToPix" );
     clFinish( rEnv.mpkCmdQueue );
 PERF_COUNT_SUB("kernel")
-    
+	if(clStatus !=0)
+		{
+				printf("Setting return value to -1\n");
+				retVal = -1;
+	}
     /* map results back from gpu */
     void *ptr = clEnqueueMapBuffer(rEnv.mpkCmdQueue, pixThBuffer, CL_TRUE, CL_MAP_READ, 0, pixSize, 0, NULL, NULL, &clStatus);
     CHECK_OPENCL( clStatus, "clEnqueueMapBuffer histogramBuffer");
     clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, pixThBuffer, ptr, 0, NULL, NULL);
-    
+
     clReleaseMemObject(imageBuffer);
     clReleaseMemObject(thresholdsBuffer);
     clReleaseMemObject(hiValuesBuffer);
 
 PERF_COUNT_SUB("after")
 PERF_COUNT_END
+return retVal;
 }
 
 
-#if USE_DEVICE_SELECTION
 
 /******************************************************************************
  * Data Types for Device Selection
@@ -2901,7 +2658,7 @@ void populateTessScoreEvaluationInputData( TessScoreEvaluationInputData *input )
     input->numChannels = numChannels;
     unsigned char (*imageData4)[4] = (unsigned char (*)[4]) malloc(height*width*numChannels*sizeof(unsigned char)); // new unsigned char[4][height*width];
     input->imageData = (unsigned char *) &imageData4[0];
-    
+
     // zero out image
     unsigned char pixelWhite[4] = {  0,   0,   0, 255};
     unsigned char pixelBlack[4] = {255, 255, 255, 255};
@@ -2950,7 +2707,7 @@ void populateTessScoreEvaluationInputData( TessScoreEvaluationInputData *input )
     float fractionBlack = 0.1; // how much of the image should be blackened
     int numSpots = (height*width)*fractionBlack/(maxLineWidth*maxLineWidth/2/2);
     for (int i = 0; i < numSpots; i++) {
-        
+
         int lineWidth = rand()%maxLineWidth;
         int col = lineWidth + rand()%(width-2*lineWidth);
         int row = lineWidth + rand()%(height-2*lineWidth);
@@ -2981,15 +2738,17 @@ typedef struct _TessDeviceScore {
  *****************************************************************************/
 
 double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type ) {
-    
+
     double time = 0;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
 #elif ON_APPLE
-    mach_timespec_t time_funct_start, time_funct_end;
+	mach_timebase_info_data_t info = { 0, 0 };
+    mach_timebase_info(&info);
+	long long start,stop;
 #else
-    TIMESPEC time_funct_start, time_funct_end;
+    timespec time_funct_start, time_funct_end;
 #endif
     // input data
     l_uint32 *tiffdata = (l_uint32 *)input.imageData;// same size and random data; data doesn't change workload
@@ -2998,6 +2757,8 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
     if (type == DS_DEVICE_OPENCL_DEVICE) {
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_start);
+#elif  ON_APPLE
+	start = mach_absolute_time();
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
@@ -3008,6 +2769,9 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);
         time = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart);
+#elif  ON_APPLE
+		stop = mach_absolute_time();
+		time = ((stop - start) * (double) info.numer / info.denom) / 1.0E9;
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_end );
         time = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0;
@@ -3016,6 +2780,8 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
     } else {
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_start);
+#elif  ON_APPLE
+		start = mach_absolute_time();
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
@@ -3028,7 +2794,7 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
         int idx = 0;
         for (i = 0; i < input.height ; i++) {
             for (j = 0; j < input.width; j++) {
-                
+
                 l_uint32 tiffword = tiffdata[i * input.width + j];
                 l_int32 rval = ((tiffword) & 0xff);
                 l_int32 gval = (((tiffword) >> 8) & 0xff);
@@ -3041,6 +2807,9 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);
         time = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart);
+#elif  ON_APPLE
+		stop = mach_absolute_time();
+		time = ((stop - start) * (double) info.numer / info.denom) / 1.0E9;
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_end );
         time = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0;
@@ -3055,59 +2824,78 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
 }
 
 double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type ) {
-    
+
     double time;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
-#elif ON_APPLE
-    mach_timespec_t time_funct_start, time_funct_end;
+#elif  ON_APPLE
+	mach_timebase_info_data_t info = { 0, 0 };
+    mach_timebase_info(&info);
+	long long start,stop;
 #else
-    TIMESPEC time_funct_start, time_funct_end;
+    timespec time_funct_start, time_funct_end;
 #endif
-    
+
     unsigned char pixelHi = (unsigned char)255;
-    
+
     int left = 0;
     int top = 0;
     int kHistogramSize = 256;
     int bytes_per_line = input.width*input.numChannels;
     int *histogramAllChannels = new int[kHistogramSize*input.numChannels];
-
+    int retVal= 0;
     // function call
     if (type == DS_DEVICE_OPENCL_DEVICE) {
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_start);
+#elif  ON_APPLE
+		start = mach_absolute_time();
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
 
         OpenclDevice::gpuEnv = *env;
         int wpl = pixGetWpl(input.pix);
-        OpenclDevice::HistogramRectOCL(input.imageData, input.numChannels, bytes_per_line, top, left, input.width, input.height, kHistogramSize, histogramAllChannels);
+        retVal= OpenclDevice::HistogramRectOCL(input.imageData, input.numChannels, bytes_per_line, top, left, input.width, input.height, kHistogramSize, histogramAllChannels);
 
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);
         time = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart);
+#elif  ON_APPLE
+		stop = mach_absolute_time();
+		if(retVal ==0)
+		{
+			time = ((stop - start) * (double) info.numer / info.denom) / 1.0E9;
+		}
+		else
+		{
+			time= FLT_MAX;
+		}
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_end );
         time = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0;
 #endif
     } else {
-    
+
         int *histogram = new int[kHistogramSize];
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_start);
+#elif  ON_APPLE
+		start = mach_absolute_time();
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
-        for (int ch = 0; ch < input.numChannels; ++ch) { 
+        for (int ch = 0; ch < input.numChannels; ++ch) {
             tesseract::HistogramRect(input.pix, input.numChannels,
                   left, top, input.width, input.height, histogram);
         }
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);
         time = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart);
+#elif  ON_APPLE
+		stop = mach_absolute_time();
+		time = ((stop - start) * (double) info.numer / info.denom) / 1.0E9;
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_end );
         time = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0;
@@ -3116,7 +2904,6 @@ double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input,
     }
 
     // cleanup
-    //delete[] imageData;
     delete[] histogramAllChannels;
     return time;
 }
@@ -3160,17 +2947,20 @@ void ThresholdRectToPix_Native(const unsigned char* imagedata,
 }
 
 double thresholdRectToPixMicroBench( GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type ) {
-    
+
     double time;
+    int retVal =0;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
-#elif ON_APPLE
-    mach_timespec_t time_funct_start, time_funct_end;
+#elif  ON_APPLE
+	mach_timebase_info_data_t info = { 0, 0 };
+    mach_timebase_info(&info);
+	long long start,stop;
 #else
-    TIMESPEC time_funct_start, time_funct_end;
+    timespec time_funct_start, time_funct_end;
 #endif
-    
+
     // input data
     unsigned char pixelHi = (unsigned char)255;
     int* thresholds = new int[4];
@@ -3192,17 +2982,30 @@ double thresholdRectToPixMicroBench( GPUEnv *env, TessScoreEvaluationInputData i
     if (type == DS_DEVICE_OPENCL_DEVICE) {
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_start);
+#elif  ON_APPLE
+		start = mach_absolute_time();
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
 
         OpenclDevice::gpuEnv = *env;
         int wpl = pixGetWpl(input.pix);
-        OpenclDevice::ThresholdRectToPixOCL(input.imageData, input.numChannels, bytes_per_line, thresholds, hi_values, &input.pix, input.height, input.width, top, left);
+        retVal= OpenclDevice::ThresholdRectToPixOCL(input.imageData, input.numChannels, bytes_per_line, thresholds, hi_values, &input.pix, input.height, input.width, top, left);
 
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);
         time = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart);
+#elif  ON_APPLE
+		stop = mach_absolute_time();
+		if(retVal ==0)
+		{
+			time = ((stop - start) * (double) info.numer / info.denom) / 1.0E9;;
+		}
+		else
+		{
+			time= FLT_MAX;
+		}
+
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_end );
         time = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0;
@@ -3214,6 +3017,8 @@ double thresholdRectToPixMicroBench( GPUEnv *env, TessScoreEvaluationInputData i
         thresholder.SetImage( input.pix );
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_start);
+#elif  ON_APPLE
+		start = mach_absolute_time();
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
@@ -3223,6 +3028,9 @@ double thresholdRectToPixMicroBench( GPUEnv *env, TessScoreEvaluationInputData i
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);
         time = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart);
+#elif  ON_APPLE
+		stop = mach_absolute_time();
+		time = ((stop - start) * (double) info.numer / info.denom) / 1.0E9;
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_end );
         time = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0;
@@ -3241,10 +3049,12 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
-#elif ON_APPLE
-    mach_timespec_t time_funct_start, time_funct_end;
+#elif  ON_APPLE
+	mach_timebase_info_data_t info = { 0, 0 };
+    mach_timebase_info(&info);
+	long long start,stop;
 #else
-    TIMESPEC time_funct_start, time_funct_end;
+    timespec time_funct_start, time_funct_end;
 #endif
 
     // input data
@@ -3255,11 +3065,13 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
     int max_line_width = resolution / kThinLineFraction;
     int min_line_length = resolution / kMinLineLengthFraction;
     int closing_brick = max_line_width / 3;
-   
+
     // function call
     if (type == DS_DEVICE_OPENCL_DEVICE) {
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_start);
+#elif  ON_APPLE
+		start = mach_absolute_time();
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
@@ -3274,6 +3086,9 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);
         time = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart);
+#elif  ON_APPLE
+		stop = mach_absolute_time();
+		time = ((stop - start) * (double) info.numer / info.denom) / 1.0E9;
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_end );
         time = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0;
@@ -3281,6 +3096,8 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
     } else {
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_start);
+#elif  ON_APPLE
+		start = mach_absolute_time();
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
@@ -3298,6 +3115,9 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);
         time = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart);
+#elif  ON_APPLE
+		stop = mach_absolute_time();
+		time = ((stop - start) * (double) info.numer / info.denom) / 1.0E9;
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_end );
         time = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0;
@@ -3315,7 +3135,7 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
 
 #include "stdlib.h"
 
- 
+
 // encode score object as byte string
 ds_status serializeScore( ds_device* device, void **serializedScore, unsigned int* serializedScoreSize ) {
     *serializedScoreSize = sizeof(TessDeviceScore);
@@ -3332,11 +3152,14 @@ ds_status deserializeScore( ds_device* device, const unsigned char* serializedSc
     return DS_SUCCESS;
 }
 
-
+ds_status releaseScore( void* score ) {
+  delete[] score;
+  return DS_SUCCESS;
+}
 
 // evaluate devices
 ds_status evaluateScoreForDevice( ds_device *device, void *inputData) {
-    
+
     // overwrite statuc gpuEnv w/ current device
     // so native opencl calls can be used; they use static gpuEnv
     printf("\n[DS] Device: \"%s\" (%s) evaluation...\n", device->oclDeviceName, device->type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native" );
@@ -3351,10 +3174,9 @@ ds_status evaluateScoreForDevice( ds_device *device, void *inputData) {
         OpenclDevice::gpuEnv = *env;
         OpenclDevice::CompileKernelFile(env, "");
     }
-    
 
     TessScoreEvaluationInputData *input = (TessScoreEvaluationInputData *)inputData;
-    
+
     // pixReadTiff
     double composeRGBPixelTime = composeRGBPixelMicroBench( env, *input, device->type );
 
@@ -3373,9 +3195,9 @@ ds_status evaluateScoreForDevice( ds_device *device, void *inputData) {
     float composeRGBPixelWeight     = 1.2f;
     float histogramRectWeight       = 2.4f;
     float thresholdRectToPixWeight  = 4.5f;
-    float getLineMasksMorphWeight        = 5.0f;
-    
-    float weightedTime = 
+    float getLineMasksMorphWeight   = 5.0f;
+
+    float weightedTime =
         composeRGBPixelWeight       * composeRGBPixelTime +
         histogramRectWeight         * histogramRectTime +
         thresholdRectToPixWeight    * thresholdRectToPixTime +
@@ -3383,7 +3205,7 @@ ds_status evaluateScoreForDevice( ds_device *device, void *inputData) {
         ;
     device->score = (void *)new TessDeviceScore;
     ((TessDeviceScore *)device->score)->time = weightedTime;
-    
+
     printf("[DS] Device: \"%s\" (%s) evaluated\n", device->oclDeviceName, device->type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native" );
     printf("[DS]%25s: %f (w=%.1f)\n", "composeRGBPixel", composeRGBPixelTime, composeRGBPixelWeight );
     printf("[DS]%25s: %f (w=%.1f)\n", "HistogramRect", histogramRectTime, histogramRectWeight );
@@ -3395,12 +3217,11 @@ ds_status evaluateScoreForDevice( ds_device *device, void *inputData) {
 
 // initial call to select device
 ds_device OpenclDevice::getDeviceSelection( ) {
-//PERF_COUNT_START("getDeviceSelection")
-    if (!deviceIsSelected) {
+  if (!deviceIsSelected) {
 PERF_COUNT_START("getDeviceSelection")
-        // check if opencl is available at runtime
-        if( 1 == LoadOpencl() ) {
-            // opencl is available
+  // check if opencl is available at runtime
+  if( 1 == LoadOpencl() ) {
+    // opencl is available
 //PERF_COUNT_SUB("LoadOpencl")
     // setup devices
     ds_status status;
@@ -3411,30 +3232,29 @@ PERF_COUNT_SUB("initDSProfile")
     char *fileName = "tesseract_opencl_profile_devices.dat";
     status = readProfileFromFile( profile, deserializeScore, fileName);
     if (status != DS_SUCCESS) {
-        // need to run evaluation
-                printf("[DS] Profile file not available (%s); performing profiling.\n", fileName);
+      // need to run evaluation
+      printf("[DS] Profile file not available (%s); performing profiling.\n", fileName);
 
-        // create input data
-        TessScoreEvaluationInputData input;
-                populateTessScoreEvaluationInputData( &input );
+      // create input data
+      TessScoreEvaluationInputData input;
+      populateTessScoreEvaluationInputData( &input );
 //PERF_COUNT_SUB("populateTessScoreEvaluationInputData")
-        // perform evaluations
-        unsigned int numUpdates;
-        status =  profileDevices( profile, DS_EVALUATE_ALL, evaluateScoreForDevice, (void *)&input, &numUpdates );
+      // perform evaluations
+      unsigned int numUpdates;
+      status =  profileDevices( profile, DS_EVALUATE_ALL, evaluateScoreForDevice, (void *)&input, &numUpdates );
 PERF_COUNT_SUB("profileDevices")
-        // write scores to file
-        if ( status == DS_SUCCESS ) {
-            status = writeProfileToFile( profile, serializeScore, fileName);
+      // write scores to file
+      if ( status == DS_SUCCESS ) {
+        status = writeProfileToFile( profile, serializeScore, fileName);
 PERF_COUNT_SUB("writeProfileToFile")
-            if ( status == DS_SUCCESS ) {
-                        printf("[DS] Scores written to file (%s).\n", fileName);
-            } else {
-                        printf("[DS] Error saving scores to file (%s); scores not written to file.\n", fileName);
-            }
+        if ( status == DS_SUCCESS ) {
+          printf("[DS] Scores written to file (%s).\n", fileName);
         } else {
-                    printf("[DS] Unable to evaluate performance; scores not written to file.\n");
+          printf("[DS] Error saving scores to file (%s); scores not written to file.\n", fileName);
         }
-
+      } else {
+        printf("[DS] Unable to evaluate performance; scores not written to file.\n");
+      }
     } else {
 
 PERF_COUNT_SUB("readProfileFromFile")
@@ -3446,76 +3266,228 @@ PERF_COUNT_SUB("readProfileFromFile")
     float bestTime = FLT_MAX; // begin search with worst possible time
     int bestDeviceIdx = -1;
     for (int d = 0; d < profile->numDevices; d++) {
-        //((TessDeviceScore *)device->score)->time
-        ds_device device = profile->devices[d];
-        TessDeviceScore score = *(TessDeviceScore *)device.score;
-        
-        float time = score.time;
-                printf("[DS] Device[%i] %i:%s score is %f\n", d+1, device.type, device.oclDeviceName, time);
-        if (time < bestTime) {
-                    bestTime = time;
-            bestDeviceIdx = d;
-        }
+      ds_device device = profile->devices[d];
+      TessDeviceScore score = *(TessDeviceScore *)device.score;
+
+      float time = score.time;
+              printf("[DS] Device[%i] %i:%s score is %f\n", d+1, device.type, device.oclDeviceName, time);
+      if (time < bestTime) {
+                  bestTime = time;
+          bestDeviceIdx = d;
+      }
     }
-            printf("[DS] Selected Device[%i]: \"%s\" (%s)\n", bestDeviceIdx+1, profile->devices[bestDeviceIdx].oclDeviceName, profile->devices[bestDeviceIdx].type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
+    printf("[DS] Selected Device[%i]: \"%s\" (%s)\n", bestDeviceIdx+1, profile->devices[bestDeviceIdx].oclDeviceName, profile->devices[bestDeviceIdx].type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
     // cleanup
-            // TODO: call destructor for profile object?
+    // TODO: call destructor for profile object?
 
-            bool overrided = false;
-            char *overrideDeviceStr = getenv("TESSERACT_OPENCL_DEVICE");
-            if (overrideDeviceStr != NULL) {
-                int overrideDeviceIdx = atoi(overrideDeviceStr);
-                if (overrideDeviceIdx > 0 && overrideDeviceIdx <= profile->numDevices ) {
-                    printf("[DS] Overriding Device Selection (TESSERACT_OPENCL_DEVICE=%s, %i)\n", overrideDeviceStr, overrideDeviceIdx);
-                    bestDeviceIdx = overrideDeviceIdx - 1;
-                    overrided = true;
-                } else {
-                    printf("[DS] Ignoring invalid TESSERACT_OPENCL_DEVICE=%s ([1,%i] are valid devices).\n", overrideDeviceStr, profile->numDevices);
-                }
-}
-
-            if (overrided) {
-                printf("[DS] Overridden Device[%i]: \"%s\" (%s)\n", bestDeviceIdx+1, profile->devices[bestDeviceIdx].oclDeviceName, profile->devices[bestDeviceIdx].type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
-            }
-            selectedDevice = profile->devices[bestDeviceIdx];
-
+      bool overrided = false;
+      char *overrideDeviceStr = getenv("TESSERACT_OPENCL_DEVICE");
+      if (overrideDeviceStr != NULL) {
+        int overrideDeviceIdx = atoi(overrideDeviceStr);
+        if (overrideDeviceIdx > 0 && overrideDeviceIdx <= profile->numDevices ) {
+          printf("[DS] Overriding Device Selection (TESSERACT_OPENCL_DEVICE=%s, %i)\n", overrideDeviceStr, overrideDeviceIdx);
+          bestDeviceIdx = overrideDeviceIdx - 1;
+          overrided = true;
         } else {
-            // opencl isn't available at runtime, select native cpu device
-            printf("[DS] OpenCL runtime not available.\n");
-            selectedDevice.type = DS_DEVICE_NATIVE_CPU;
-            selectedDevice.oclDeviceName = "(null)";
-            selectedDevice.score = NULL;
-            selectedDevice.oclDeviceID = NULL;
-            selectedDevice.oclDriverVersion = NULL;
+          printf("[DS] Ignoring invalid TESSERACT_OPENCL_DEVICE=%s ([1,%i] are valid devices).\n", overrideDeviceStr, profile->numDevices);
         }
-        deviceIsSelected = true;
+      }
+
+      if (overrided) {
+        printf("[DS] Overridden Device[%i]: \"%s\" (%s)\n", bestDeviceIdx+1, profile->devices[bestDeviceIdx].oclDeviceName, profile->devices[bestDeviceIdx].type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
+      }
+      selectedDevice = profile->devices[bestDeviceIdx];
+      // cleanup
+      releaseDSProfile(profile, releaseScore);
+    } else {
+      // opencl isn't available at runtime, select native cpu device
+      printf("[DS] OpenCL runtime not available.\n");
+      selectedDevice.type = DS_DEVICE_NATIVE_CPU;
+      selectedDevice.oclDeviceName = "(null)";
+      selectedDevice.score = NULL;
+      selectedDevice.oclDeviceID = NULL;
+      selectedDevice.oclDriverVersion = NULL;
+    }
+    deviceIsSelected = true;
 PERF_COUNT_SUB("select from Profile")
 PERF_COUNT_END
-    }
+  }
 //PERF_COUNT_END
-    return selectedDevice;
+  return selectedDevice;
 }
 
-#endif
 
 bool OpenclDevice::selectedDeviceIsOpenCL() {
-#if USE_DEVICE_SELECTION
-    ds_device device = getDeviceSelection();
-    return (device.type == DS_DEVICE_OPENCL_DEVICE);
-#else
-    return true;
-#endif
+  ds_device device = getDeviceSelection();
+  return (device.type == DS_DEVICE_OPENCL_DEVICE);
 }
 
 bool OpenclDevice::selectedDeviceIsNativeCPU() {
-#if USE_DEVICE_SELECTION
-    ds_device device = getDeviceSelection();
-    return (device.type == DS_DEVICE_NATIVE_CPU);
-#else
-    return false;
-#endif
+  ds_device device = getDeviceSelection();
+  return (device.type == DS_DEVICE_NATIVE_CPU);
 }
 
 
 
+/*!
+ *  pixConvertRGBToGray() from leptonica, converted to opencl kernel
+ *
+ *      Input:  pix (32 bpp RGB)
+ *              rwt, gwt, bwt  (non-negative; these should add to 1.0,
+ *                              or use 0.0 for default)
+ *      Return: 8 bpp pix, or null on error
+ *
+ *  Notes:
+ *      (1) Use a weighted average of the RGB values.
+ */
+#define SET_DATA_BYTE( pdata, n, val ) (*(l_uint8 *)((l_uintptr_t)((l_uint8 *)(pdata) + (n)) ^ 3) = (val))
+
+Pix * OpenclDevice::pixConvertRGBToGrayOCL(
+	Pix *srcPix, // 32-bit source
+	float rwt,
+	float gwt,
+	float bwt )
+{
+PERF_COUNT_START("pixConvertRGBToGrayOCL")
+	Pix *dstPix; // 8-bit destination
+
+	if (rwt < 0.0 || gwt < 0.0 || bwt < 0.0) return NULL;
+
+	if (rwt == 0.0 && gwt == 0.0 && bwt == 0.0) {
+		// magic numbers from leptonica
+	    rwt = 0.3;
+	    gwt = 0.5;
+	    bwt = 0.2;
+	}
+	// normalize
+	float sum = rwt + gwt + bwt;
+	rwt /= sum;
+	gwt /= sum;
+	bwt /= sum;
+
+	// source pix
+	int w, h;
+	pixGetDimensions(srcPix, &w, &h, NULL);
+    //printf("Image is %i x %i\n", w, h);
+    unsigned int *srcData = pixGetData(srcPix);
+    int srcWPL = pixGetWpl(srcPix);
+	int srcSize = srcWPL * h * sizeof(unsigned int);
+
+	// destination pix
+    if ((dstPix = pixCreate(w, h, 8)) == NULL)
+        return NULL;
+    pixCopyResolution(dstPix, srcPix);
+    unsigned int *dstData = pixGetData(dstPix);
+    int dstWPL = pixGetWpl(dstPix);
+	int dstWords = dstWPL * h;
+	int dstSize = dstWords * sizeof(unsigned int);
+    //printf("dstSize = %i\n", dstSize);
+PERF_COUNT_SUB("pix setup")
+
+	// opencl objects
+	cl_int clStatus;
+    KernelEnv kEnv;
+    SetKernelEnv( &kEnv );
+
+	// source buffer
+	cl_mem srcBuffer = clCreateBuffer( kEnv.mpkContext, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, srcSize, (void *)srcData, &clStatus );
+    CHECK_OPENCL( clStatus, "clCreateBuffer srcBuffer");
+
+    // destination buffer
+    cl_mem dstBuffer = clCreateBuffer( kEnv.mpkContext, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, dstSize, (void *)dstData, &clStatus );
+    CHECK_OPENCL( clStatus, "clCreateBuffer dstBuffer");
+
+    // setup work group size parameters
+    int block_size = 256;
+    int numWorkGroups = ((h*w+block_size-1) / block_size );
+    int numThreads = block_size*numWorkGroups;
+    size_t local_work_size[] = {block_size};
+    size_t global_work_size[] = {numThreads};
+    //printf("Enqueueing %i threads for %i output pixels\n", numThreads, w*h);
+
+    /* compile kernel */
+    kEnv.mpkKernel = clCreateKernel( kEnv.mpkProgram, "kernel_RGBToGray", &clStatus );
+    CHECK_OPENCL( clStatus, "clCreateKernel kernel_RGBToGray");
+
+
+    /* set kernel arguments */
+    clStatus = clSetKernelArg( kEnv.mpkKernel, 0, sizeof(cl_mem), (void *)&srcBuffer );
+    CHECK_OPENCL( clStatus, "clSetKernelArg srcBuffer");
+	clStatus = clSetKernelArg( kEnv.mpkKernel, 1, sizeof(cl_mem), (void *)&dstBuffer );
+    CHECK_OPENCL( clStatus, "clSetKernelArg dstBuffer");
+    clStatus = clSetKernelArg( kEnv.mpkKernel, 2, sizeof(int), (void *)&srcWPL );
+    CHECK_OPENCL( clStatus, "clSetKernelArg srcWPL" );
+    clStatus = clSetKernelArg( kEnv.mpkKernel, 3, sizeof(int), (void *)&dstWPL );
+    CHECK_OPENCL( clStatus, "clSetKernelArg dstWPL" );
+    clStatus = clSetKernelArg( kEnv.mpkKernel, 4, sizeof(int), (void *)&h );
+    CHECK_OPENCL( clStatus, "clSetKernelArg height" );
+    clStatus = clSetKernelArg( kEnv.mpkKernel, 5, sizeof(int), (void *)&w );
+    CHECK_OPENCL( clStatus, "clSetKernelArg width" );
+    clStatus = clSetKernelArg( kEnv.mpkKernel, 6, sizeof(float), (void *)&rwt );
+    CHECK_OPENCL( clStatus, "clSetKernelArg rwt" );
+    clStatus = clSetKernelArg( kEnv.mpkKernel, 7, sizeof(float), (void *)&gwt );
+    CHECK_OPENCL( clStatus, "clSetKernelArg gwt");
+    clStatus = clSetKernelArg( kEnv.mpkKernel, 8, sizeof(float), (void *)&bwt );
+    CHECK_OPENCL( clStatus, "clSetKernelArg bwt");
+
+    /* launch kernel & wait */
+PERF_COUNT_SUB("before")
+    clStatus = clEnqueueNDRangeKernel(
+        kEnv.mpkCmdQueue,
+        kEnv.mpkKernel,
+        1, NULL, global_work_size, local_work_size,
+        0, NULL, NULL );
+    CHECK_OPENCL( clStatus, "clEnqueueNDRangeKernel kernel_RGBToGray" );
+    clFinish( kEnv.mpkCmdQueue );
+PERF_COUNT_SUB("kernel")
+
+    /* map results back from gpu */
+    void *ptr = clEnqueueMapBuffer(kEnv.mpkCmdQueue, dstBuffer, CL_TRUE, CL_MAP_READ, 0, dstSize, 0, NULL, NULL, &clStatus);
+    CHECK_OPENCL( clStatus, "clEnqueueMapBuffer dstBuffer");
+    clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, dstBuffer, ptr, 0, NULL, NULL);
+
+#if 0
+    // validate: compute on cpu
+    Pix *cpuPix = pixCreate(w, h, 8);
+    pixCopyResolution(cpuPix, srcPix);
+    unsigned int *cpuData = pixGetData(cpuPix);
+    int cpuWPL = pixGetWpl(cpuPix);
+    unsigned int *cpuLine, *srcLine;
+    int i, j;
+    for (i = 0, srcLine = srcData, cpuLine = cpuData; i < h; i++) {
+        for (j = 0; j < w; j++) {
+            unsigned int word = *(srcLine + j);
+            int val = (l_int32)(rwt * ((word >> L_RED_SHIFT) & 0xff) +
+                            gwt * ((word >> L_GREEN_SHIFT) & 0xff) +
+                            bwt * ((word >> L_BLUE_SHIFT) & 0xff) + 0.5);
+            SET_DATA_BYTE(cpuLine, j, val);
+        }
+        srcLine += srcWPL;
+        cpuLine += cpuWPL;
+    }
+
+    // validate: compare
+    printf("converted 32-bit -> 8-bit image\n");
+    for (int row = 0; row < h; row++) {
+        for (int col = 0; col < w; col++) {
+            int idx = row*w + col;
+            unsigned int srcVal = srcData[idx];
+            unsigned char cpuVal = ((unsigned char *)cpuData)[idx];
+            unsigned char oclVal = ((unsigned char *)dstData)[idx];
+            if (srcVal > 0) {
+                printf("%4i,%4i: %u, %u, %u\n", row, col, srcVal, cpuVal, oclVal);
+            }
+        }
+        //printf("\n");
+    }
+#endif
+    // release opencl objects
+    clReleaseMemObject(srcBuffer);
+    clReleaseMemObject(dstBuffer);
+
+
+PERF_COUNT_END
+	// success
+	return dstPix;
+}
 #endif
