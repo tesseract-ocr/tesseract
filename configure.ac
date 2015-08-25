@@ -168,9 +168,10 @@ if test "$enable_embedded" = "yes"; then
 fi
 
 # check whether to build OpenMP support
+AM_CONDITIONAL(OPENMP, false)
 AC_OPENMP
 AS_IF([test "x$OPENMP_CFLAGS" != "x"],
-  AM_CONDITIONAL([OPENMP], test "x$OPENMP_CFLAGS" != "x")
+  AM_CONDITIONAL([OPENMP], true)
   AC_SUBST(AM_CPPFLAGS,"$OPENMP_CXXFLAGS")
   AC_DEFINE([OPENMP], [], [Defined when compiled with OpenMP support])
 )
@@ -188,10 +189,39 @@ have_opencl=false
 AC_CHECK_HEADERS(CL/cl.h, have_opencl=true, [
     AC_CHECK_HEADERS(OpenCL/cl.h, have_opencl=true, have_opencl=false)
 ])
-have_opencl_lib=false
-AC_CHECK_LIB(OpenCL, clGetPlatformIDs, have_opencl_lib=true, have_opencl_lib=false)
+
 have_tiff=false
 AC_CHECK_HEADERS(tiffio.h, have_tiff=true, have_tiff=false)
+
+# https://lists.apple.com/archives/unix-porting/2009/Jan/msg00026.html
+m4_define([MY_CHECK_FRAMEWORK],
+  [AC_CACHE_CHECK([if -framework $1 works],[my_cv_framework_$1],
+     [save_LIBS="$LIBS"
+     LIBS="$LIBS -framework $1"
+     AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
+             [my_cv_framework_$1=yes],
+            [my_cv_framework_$1=no])
+     LIBS="$save_LIBS"
+    ])
+   if test "$my_cv_framework_$1"="yes"; then
+       AC_DEFINE(AS_TR_CPP([HAVE_FRAMEWORK_$1]),1,
+            [Define if you have the  $1 framework])
+   AS_TR_CPP([FRAMEWORK_$1])="-framework $1"
+   AC_SUBST(AS_TR_CPP([FRAMEWORK_$1]))
+   fi]
+)
+
+have_opencl_lib=false
+if test $host_os != Darwin; then
+    AC_CHECK_LIB(OpenCL, clGetPlatformIDs, have_opencl_lib=true, have_opencl_lib=false)
+else
+   echo "checking for OpenCL framework"
+   MY_CHECK_FRAMEWORK([OpenCL])
+   if test $my_cv_framework_OpenCL = yes; then
+      have_opencl_lib=true
+   fi
+fi
+
 if test "$enable_opencl" = "yes"; then
     if !($have_opencl); then
         AC_MSG_ERROR(Required OpenCL headers not found!)
@@ -263,19 +293,6 @@ fi
 if test -d $curwd/gnu/lib ; then
    LDFLAGS="$LDFLAGS -L$curwd/gnu/lib"
 fi
-
-# Special cases
-case "$host" in
-  *-darwin* | *-macos10*)
-     if test -d /opt/local ; then
-       CPPFLAGS="$CPPFLAGS -I/opt/local/include"
-       LDFLAGS="$LDFLAGS -L/opt/local/lib"
-     elif test -d /sw ; then
-       CPPFLAGS="$CPPFLAGS -I/sw/include"
-       LDFLAGS="$LDFLAGS -L/sw/lib"
-     fi
-  ;;
-esac
 
 # ----------------------------------------
 # Check Compiler Characteristics and
@@ -393,7 +410,7 @@ AC_ARG_VAR(LIBLEPT_HEADERSDIR,[Leptonica headers directory])
 
 have_lept=no
 if test "$LIBLEPT_HEADERSDIR" = "" ; then
-  LIBLEPT_HEADERSDIR="/usr/local/include /usr/include"
+  LIBLEPT_HEADERSDIR="/usr/local/include /usr/include /opt/local/include/leptonica"
 fi
 for incd in $LIBLEPT_HEADERSDIR
 do
