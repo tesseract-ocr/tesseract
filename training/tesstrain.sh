@@ -17,7 +17,6 @@
 # USAGE:
 #
 # tesstrain.sh
-#    --bin_dir PATH             # Location of training program.
 #    --fontlist FONTS_STR       # A plus-separated list of fontnames to train on.
 #    --fonts_dir FONTS_PATH     # Path to font files.
 #    --lang LANG_CODE           # ISO 639 code.
