@@ -60,7 +60,7 @@ KernelEnv rEnv;
 // substitute invalid characters in device name with _
 void legalizeFileName( char *fileName) {
     //printf("fileName: %s\n", fileName);
-    char *invalidChars = "/\?:*\"><| "; // space is valid but can cause headaches
+    const char* invalidChars = "/\?:*\"><| "; // space is valid but can cause headaches
     // for each invalid char
     for (int i = 0; i < strlen(invalidChars); i++) {
         char invalidStr[4];
@@ -2408,9 +2408,9 @@ PERF_COUNT_START("HistogramRectOCL")
     int requestedOccupancy = 10;
     int numWorkGroups = numCUs * requestedOccupancy;
     int numThreads = block_size*numWorkGroups;
-    size_t local_work_size[] = {block_size};
-    size_t global_work_size[] = {numThreads};
-    size_t red_global_work_size[] = {block_size*kHistogramSize*bytes_per_pixel};
+    size_t local_work_size[] = {static_cast<size_t>(block_size)};
+    size_t global_work_size[] = {static_cast<size_t>(numThreads)};
+    size_t red_global_work_size[] = {static_cast<size_t>(block_size*kHistogramSize*bytes_per_pixel)};
 
     /* map histogramAllChannels as write only */
     int numBins = kHistogramSize*bytes_per_pixel*numWorkGroups;
@@ -3398,8 +3398,8 @@ PERF_COUNT_SUB("pix setup")
     int block_size = 256;
     int numWorkGroups = ((h*w+block_size-1) / block_size );
     int numThreads = block_size*numWorkGroups;
-    size_t local_work_size[] = {block_size};
-    size_t global_work_size[] = {numThreads};
+    size_t local_work_size[] = {static_cast<size_t>(block_size)};
+    size_t global_work_size[] = {static_cast<size_t>(numThreads)};
     //printf("Enqueueing %i threads for %i output pixels\n", numThreads, w*h);
 
     /* compile kernel */
