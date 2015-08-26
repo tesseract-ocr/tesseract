@@ -41,11 +41,11 @@ err_exit() {
 # if the program file is not found.
 # Usage: run_command CMD ARG1 ARG2...
 run_command() {
-    local cmd=$1
-    shift
-    if [[ ! -x ${cmd} ]]; then
-        err_exit "File ${cmd} not found"
+    local cmd=`which $1`
+    if [[ -z ${cmd} ]]; then
+        err_exit "$1 not found"
     fi
+    shift
     tlog "[$(date)] ${cmd} $@"
     ${cmd} "$@" 2>&1 1>&2 | tee -a ${LOG_FILE}
     # check completion status
@@ -63,22 +63,6 @@ check_file_readable() {
             err_exit "${file} does not exist or is not readable"
         fi
     done
-}
-
-# Set global path variables that are based on parsed flags.
-set_prog_paths() {
-    if [[ -z ${BINDIR} ]]; then
-        err_exit "Need to specify location of program files"
-    fi
-    CN_TRAINING_EXE=${BINDIR}/cntraining
-    COMBINE_TESSDATA_EXE=${BINDIR}/combine_tessdata
-    MF_TRAINING_EXE=${BINDIR}/mftraining
-    SET_UNICHARSET_PROPERTIES_EXE=${BINDIR}/set_unicharset_properties
-    SHAPE_TRAINING_EXE=${BINDIR}/shapeclustering
-    TESSERACT_EXE=${BINDIR}/tesseract
-    TEXT2IMAGE_EXE=${BINDIR}/text2image
-    UNICHARSET_EXTRACTOR_EXE=${BINDIR}/unicharset_extractor
-    WORDLIST2DAWG_EXE=${BINDIR}/wordlist2dawg
 }
 
 # Sets the named variable to given value. Aborts if the value is missing or
@@ -105,9 +89,6 @@ parse_flags() {
         case ${ARGV[$i]} in
             --)
                 break;;
-            --bin_dir)
-                parse_value "BINDIR" ${ARGV[$j]}
-                i=$j ;;
             --fontlist)   # Expect a plus-separated list of names
                 if [[ -z ${ARGV[$j]} ]] || [[ ${ARGV[$j]:0:2} == "--" ]]; then
                     err_exit "Invalid value passed to --fontlist"
@@ -152,9 +133,6 @@ parse_flags() {
     if [[ -z ${LANG_CODE} ]]; then
         err_exit "Need to specify a language --lang"
     fi
-    if [[ -z ${BINDIR} ]]; then
-        err_exit "Need to specify path to built binaries --bin_dir"
-    fi
     if [[ -z ${LANGDATA_ROOT} ]]; then
         err_exit "Need to specify path to language files --langdata_dir"
     fi
@@ -166,8 +144,6 @@ parse_flags() {
             TESSDATA_DIR="${TESSDATA_PREFIX}"
         fi
     fi
-
-    set_prog_paths
 
     # Location where intermediate files will be created.
     TRAINING_DIR=${WORKSPACE_DIR}/${LANG_CODE}
@@ -196,7 +172,7 @@ initialize_fontconfig() {
     export FONT_CONFIG_CACHE=$(mktemp -d --tmpdir font_tmp.XXXXXXXXXX)
     local sample_path=${FONT_CONFIG_CACHE}/sample_text.txt
     echo "Text" >${sample_path}
-    run_command ${TEXT2IMAGE_EXE} --fonts_dir=${FONTS_DIR} \
+    run_command text2image --fonts_dir=${FONTS_DIR} \
         --font="${FONTS[0]}" --outputbase=${sample_path} --text=${sample_path} \
         --fontconfig_tmpdir=${FONT_CONFIG_CACHE}
 }
@@ -224,14 +200,14 @@ generate_font_image() {
       fi
     done
 
-    run_command ${TEXT2IMAGE_EXE} ${common_args} --font="${font}" \
+    run_command text2image ${common_args} --font="${font}" \
         --text=${TRAINING_TEXT} ${TEXT2IMAGE_EXTRA_ARGS}
     check_file_readable ${outbase}.box ${outbase}.tif
 
     if (( ${EXTRACT_FONT_PROPERTIES} )) &&
         [[ -r ${TRAIN_NGRAMS_FILE} ]]; then
         tlog "Extracting font properties of ${font}"
-        run_command ${TEXT2IMAGE_EXE} ${common_args} --font="${font}" \
+        run_command text2image ${common_args} --font="${font}" \
             --ligatures=false --text=${TRAIN_NGRAMS_FILE} \
             --only_extract_font_properties --ptsize=32
         check_file_readable ${outbase}.fontinfo
@@ -287,7 +263,7 @@ phase_UP_generate_unicharset() {
     tlog "\n=== Phase UP: Generating unicharset and unichar properties files ==="
 
     local box_files=$(ls ${TRAINING_DIR}/*.box)
-    run_command ${UNICHARSET_EXTRACTOR_EXE} -D "${TRAINING_DIR}/" ${box_files}
+    run_command unicharset_extractor -D "${TRAINING_DIR}/" ${box_files}
     local outfile=${TRAINING_DIR}/unicharset
     UNICHARSET_FILE="${TRAINING_DIR}/${LANG_CODE}.unicharset"
     check_file_readable ${outfile}
@@ -295,7 +271,7 @@ phase_UP_generate_unicharset() {
 
     XHEIGHTS_FILE="${TRAINING_DIR}/${LANG_CODE}.xheights"
     check_file_readable ${UNICHARSET_FILE}
-    run_command ${SET_UNICHARSET_PROPERTIES_EXE} \
+    run_command set_unicharset_properties \
         -U ${UNICHARSET_FILE} -O ${UNICHARSET_FILE} -X ${XHEIGHTS_FILE} \
         --script_dir=${LANGDATA_ROOT}
     check_file_readable ${XHEIGHTS_FILE}
@@ -323,7 +299,7 @@ phase_D_generate_dawg() {
     if [[ -s ${WORDLIST_FILE} ]]; then
         tlog "Generating word Dawg"
         check_file_readable ${UNICHARSET_FILE}
-        run_command ${WORDLIST2DAWG_EXE} -r 1 ${WORDLIST_FILE} ${WORD_DAWG} \
+        run_command wordlist2dawg -r 1 ${WORDLIST_FILE} ${WORD_DAWG} \
             ${UNICHARSET_FILE}
         check_file_readable ${WORD_DAWG}
 
@@ -335,13 +311,13 @@ phase_D_generate_dawg() {
     if [[ -s ${freq_wordlist_file} ]]; then
         check_file_readable ${UNICHARSET_FILE}
         tlog "Generating frequent-word Dawg"
-        run_command ${WORDLIST2DAWG_EXE}  -r 1 ${freq_wordlist_file} \
+        run_command wordlist2dawg  -r 1 ${freq_wordlist_file} \
             ${FREQ_DAWG} ${UNICHARSET_FILE}
         check_file_readable ${FREQ_DAWG}
     fi
 
     # Punctuation DAWG
-    # -r arguments to WORDLIST2DAWG_EXE denote RTL reverse policy
+    # -r arguments to wordlist2dawg denote RTL reverse policy
     # (see Trie::RTLReversePolicy enum in third_party/tesseract/dict/trie.h).
     # We specify 0/RRP_DO_NO_REVERSE when generating number DAWG,
     # 1/RRP_REVERSE_IF_HAS_RTL for freq and word DAWGS,
@@ -356,20 +332,20 @@ phase_D_generate_dawg() {
         PUNC_FILE="${LANGDATA_ROOT}/common.punc"
     fi
     check_file_readable ${PUNC_FILE}
-    run_command ${WORDLIST2DAWG_EXE} -r ${punc_reverse_policy} \
+    run_command wordlist2dawg -r ${punc_reverse_policy} \
         ${PUNC_FILE} ${PUNC_DAWG} ${UNICHARSET_FILE}
     check_file_readable ${PUNC_DAWG}
 
     # Numbers DAWG
     if [[ -s ${NUMBERS_FILE} ]]; then
-        run_command ${WORDLIST2DAWG_EXE} -r 0 \
+        run_command wordlist2dawg -r 0 \
             ${NUMBERS_FILE} ${NUMBER_DAWG} ${UNICHARSET_FILE}
         check_file_readable ${NUMBER_DAWG}
     fi
 
     # Bigram dawg
     if [[ -s ${WORD_BIGRAMS_FILE} ]]; then
-        run_command ${WORDLIST2DAWG_EXE} -r 1 \
+        run_command wordlist2dawg -r 1 \
             ${WORD_BIGRAMS_FILE} ${BIGRAM_DAWG} ${UNICHARSET_FILE}
         check_file_readable ${BIGRAM_DAWG}
     fi
@@ -401,7 +377,7 @@ phase_E_extract_features() {
     tlog "Using TESSDATA_PREFIX=${TESSDATA_PREFIX}"
     local counter=0
     for img_file in ${img_files}; do
-        run_command ${TESSERACT_EXE} ${img_file} ${img_file%.*} \
+        run_command tesseract ${img_file} ${img_file%.*} \
             ${box_config} ${config} &
       let counter=counter+1
       let rem=counter%par_factor
@@ -423,7 +399,7 @@ phase_C_cluster_prototypes() {
     tlog "\n=== Phase C: Clustering feature prototypes (cnTraining) ==="
     local out_normproto=$1
 
-    run_command ${CN_TRAINING_EXE} -D "${TRAINING_DIR}/" \
+    run_command cntraining -D "${TRAINING_DIR}/" \
         $(ls ${TRAINING_DIR}/*.tr)
 
     check_file_readable ${TRAINING_DIR}/normproto
@@ -443,7 +419,7 @@ phase_S_cluster_shapes() {
         font_props=${font_props}" -X ${TRAINING_DIR}/${LANG_CODE}.xheights"
     fi
 
-    run_command ${SHAPE_TRAINING_EXE} \
+    run_command shapeclustering \
         -D "${TRAINING_DIR}/" \
         -U ${TRAINING_DIR}/${LANG_CODE}.unicharset \
         -O ${TRAINING_DIR}/${LANG_CODE}.mfunicharset \
@@ -464,7 +440,7 @@ phase_M_cluster_microfeatures() {
         font_props=${font_props}" -X ${TRAINING_DIR}/${LANG_CODE}.xheights"
     fi
 
-    run_command ${MF_TRAINING_EXE} \
+    run_command mftraining \
         -D "${TRAINING_DIR}/" \
         -U ${TRAINING_DIR}/${LANG_CODE}.unicharset \
         -O ${TRAINING_DIR}/${LANG_CODE}.mfunicharset \
@@ -524,7 +500,7 @@ make__traineddata() {
   fi
 
   # Compose the traineddata file.
-  run_command ${COMBINE_TESSDATA_EXE} ${TRAINING_DIR}/${LANG_CODE}.
+  run_command combine_tessdata ${TRAINING_DIR}/${LANG_CODE}.
 
   # Copy it to the output dir, overwriting only if allowed by the cmdline flag.
   if [[ ! -d ${OUTPUT_DIR} ]]; then
