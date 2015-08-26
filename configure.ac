@@ -219,10 +219,12 @@ case "${host_os}" in
     if test $my_cv_framework_OpenCL = yes; then
        have_opencl_lib=true
     fi
+    AC_SUBST(OPENCL_OSX, [yes])
     ;;
   *)
     # default
     AC_CHECK_LIB(OpenCL, clGetPlatformIDs, have_opencl_lib=true, have_opencl_lib=false)
+    AC_SUBST(OPENCL_OSX, [no])
     ;;
 esac
 

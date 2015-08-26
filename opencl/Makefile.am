@@ -1,6 +1,10 @@
 AM_CPPFLAGS += -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccmain 
 if USE_OPENCL
-AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
+	if OPENCL_OSX
+		AM_CFLAGS += -framework OpenCL
+	else
+		AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
+	endif
 endif
 noinst_HEADERS = \
     openclwrapper.h oclkernels.h opencl_device_selection.h 
@@ -14,7 +18,11 @@ libtesseract_opencl_la_LIBADD = \
     ../ccutil/libtesseract_ccutil.la \
     ../viewer/libtesseract_viewer.la
 if USE_OPENCL
-libtesseract_opencl_la_LDFLAGS += $(OPENCL_LIB)
+	if OPENCL_OSX
+		libtesseract_opencl_la_LDFLAGS += -framework OpenCL
+	else
+		libtesseract_opencl_la_LDFLAGS += $(OPENCL_LIB)
+	endif
 endif
 endif
 
