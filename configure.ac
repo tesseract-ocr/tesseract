@@ -212,15 +212,19 @@ m4_define([MY_CHECK_FRAMEWORK],
 )
 
 have_opencl_lib=false
-if test $host_os != Darwin; then
+case "${host_os}" in
+  *darwin* | *-macos10*)
+    echo "checking for OpenCL framework"
+    MY_CHECK_FRAMEWORK([OpenCL])
+    if test $my_cv_framework_OpenCL = yes; then
+       have_opencl_lib=true
+    fi
+    ;;
+  *)
+    # default
     AC_CHECK_LIB(OpenCL, clGetPlatformIDs, have_opencl_lib=true, have_opencl_lib=false)
-else
-   echo "checking for OpenCL framework"
-   MY_CHECK_FRAMEWORK([OpenCL])
-   if test $my_cv_framework_OpenCL = yes; then
-      have_opencl_lib=true
-   fi
-fi
+    ;;
+esac
 
 if test "$enable_opencl" = "yes"; then
     if !($have_opencl); then
