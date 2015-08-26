@@ -16,10 +16,6 @@
 #
 # USAGE: source tesstrain_utils.sh
 
-FONTS=(
-    "Arial" \
-    "Times New Roman," \
-)
 if [ "$(uname)" == "Darwin" ];then
     FONTS_DIR="/Library/Fonts/"
 else
