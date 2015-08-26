@@ -2,9 +2,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/opencl
-if USE_OPENCL
-AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
-endif
+AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
     
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
