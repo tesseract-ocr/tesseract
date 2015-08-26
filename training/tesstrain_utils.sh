@@ -197,7 +197,7 @@ initialize_fontconfig() {
     local sample_path=${FONT_CONFIG_CACHE}/sample_text.txt
     echo "Text" >${sample_path}
     run_command ${TEXT2IMAGE_EXE} --fonts_dir=${FONTS_DIR} \
-        --font="Arial" --outputbase=${sample_path} --text=${sample_path} \
+        --font="${FONTS[0]}" --outputbase=${sample_path} --text=${sample_path} \
         --fontconfig_tmpdir=${FONT_CONFIG_CACHE}
 }
 
