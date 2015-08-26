@@ -221,9 +221,14 @@ case "${host_os}" in
     if test $my_cv_framework_OpenCL = yes; then
        have_opencl_lib=true
     fi
-    AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
-    OPENCL_CPPFLAGS=""
-    OPENCL_LDFLAGS="-framework OpenCL"
+    if test "$enable_opencl" = "yes"; then
+      if !($have_opencl_lib); then
+        AC_MSG_ERROR(Required OpenCL library not found!)
+      fi
+      AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
+      OPENCL_CPPFLAGS=""
+      OPENCL_LDFLAGS="-framework OpenCL"
+    fi
     ;;
   *)
     # default
