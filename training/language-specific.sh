@@ -794,7 +794,7 @@ set_lang_specific_parameters() {
   local lang=$1
   # The default text location is now given directly from the language code.
   TEXT_CORPUS="${FLAGS_webtext_prefix}/${lang}.corpus.txt"
-  FONTS=( "${LATIN_FONTS[@]}" )
+  test -z "$FONTS" && FONTS=( "${LATIN_FONTS[@]}" )
   FILTER_ARGUMENTS=""
   WORDLIST2DAWG_ARGUMENTS=""
   # These dawg factors represent the fraction of the corpus not covered by the
