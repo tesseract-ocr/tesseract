@@ -5,9 +5,8 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict \
     -I$(top_srcdir)/opencl
-if USE_OPENCL
-AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
-endif
+
+AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
         
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \

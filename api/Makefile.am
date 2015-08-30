@@ -6,9 +6,9 @@ AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"\
     -I$(top_srcdir)/classify -I$(top_srcdir)/ccmain \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/opencl
-if USE_OPENCL
-AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
-endif
+
+AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
+
 if VISIBILITY
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif
@@ -78,9 +78,9 @@ endif
 
 tesseract_LDADD = libtesseract.la
 
-if USE_OPENCL
-tesseract_LDADD += $(OPENCL_LIB)
-endif
+
+tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
+
 if OPENMP
 tesseract_LDADD += $(OPENMP_CFLAGS)
 endif
