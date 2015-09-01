@@ -64,3 +64,8 @@ training/wordlist2dawg
 *.cube.*
 *.tesseract_cube.*
 *.traineddata
+
+# OpenCL
+tesseract_opencl_profile_devices.dat
+kernel*.bin
+

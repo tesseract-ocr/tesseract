@@ -99,7 +99,7 @@ case "${host_os}" in
         AM_CONDITIONAL(ADD_RT, true)
         ;;
     *darwin*)
-        OPENCL_LIBS="-framework OpenCL"
+        OPENCL_LIBS=""
         OPENCL_INC=""
         AM_CONDITIONAL(ADD_RT, false)
         ;;
@@ -212,6 +212,8 @@ m4_define([MY_CHECK_FRAMEWORK],
 )
 
 have_opencl_lib=false
+OPENCL_CPPFLAGS=''
+OPENCL_LDFLAGS=''
 case "${host_os}" in
   *darwin* | *-macos10*)
     echo "checking for OpenCL framework"
@@ -219,28 +221,37 @@ case "${host_os}" in
     if test $my_cv_framework_OpenCL = yes; then
        have_opencl_lib=true
     fi
+    if test "$enable_opencl" = "yes"; then
+      if !($have_opencl_lib); then
+        AC_MSG_ERROR(Required OpenCL library not found!)
+      fi
+      AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
+      OPENCL_CPPFLAGS=""
+      OPENCL_LDFLAGS="-framework OpenCL"
+    fi
     ;;
   *)
     # default
     AC_CHECK_LIB(OpenCL, clGetPlatformIDs, have_opencl_lib=true, have_opencl_lib=false)
+    if test "$enable_opencl" = "yes"; then
+        if !($have_opencl); then
+            AC_MSG_ERROR(Required OpenCL headers not found!)
+        fi
+        if !($have_opencl_lib); then
+            AC_MSG_ERROR(Required OpenCL library not found!)
+        fi
+        if !($have_tiff); then
+            AC_MSG_ERROR(Required TIFF headers not found! Try to install libtiff-dev?? package.)
+        fi
+        AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
+        OPENCL_CPPFLAGS="-I${OPENCL_INC}"
+        OPENCL_LDFLAGS="${OPENCL_LIBS}"
+    fi
     ;;
 esac
-
-if test "$enable_opencl" = "yes"; then
-    if !($have_opencl); then
-        AC_MSG_ERROR(Required OpenCL headers not found!)
-    fi
-    if !($have_opencl_lib); then
-        AC_MSG_ERROR(Required OpenCL library not found!)
-    fi
-    if !($have_tiff); then
-        AC_MSG_ERROR(Required TIFF headers not found! Try to install libtiff-dev?? package.)
-    fi
-    AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
-    AC_SUBST([OPENCL_HDR_PATH],[$OPENCL_INC])
-    AC_SUBST([OPENCL_LIB],[$OPENCL_LIBS])
-fi
 AM_CONDITIONAL([USE_OPENCL], [test "$enable_opencl" = "yes"])
+AC_SUBST(OPENCL_CPPFLAGS)
+AC_SUBST(OPENCL_LDFLAGS)
 
 # check whether to build tesseract with -fvisibility=hidden -fvisibility-inlines-hidden
 # http://gcc.gnu.org/wiki/Visibility

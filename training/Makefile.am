@@ -298,16 +298,14 @@ noinst_HEADERS += ../vs2010/port/strcasestr.h
 libtesseract_training_la_SOURCES += ../vs2010/port/strcasestr.cpp
 endif
 
-if USE_OPENCL
-ambiguous_words_LDADD += $(OPENCL_LIB)
-classifier_tester_LDADD += $(OPENCL_LIB)
-cntraining_LDADD += $(OPENCL_LIB)
-combine_tessdata_LDADD += $(OPENCL_LIB)
-dawg2wordlist_LDADD += $(OPENCL_LIB)
-mftraining_LDADD += $(OPENCL_LIB)
-set_unicharset_properties_LDADD += $(OPENCL_LIB)
-shapeclustering_LDADD += $(OPENCL_LIB)
-text2image_LDADD += $(OPENCL_LIB)
-unicharset_extractor_LDADD += $(OPENCL_LIB)
-wordlist2dawg_LDADD += $(OPENCL_LIB)
-endif
+ambiguous_words_LDFLAGS = $(OPENCL_LDFLAGS)
+classifier_tester_LDFLAGS = $(OPENCL_LDFLAGS)
+cntraining_LDFLAGS = $(OPENCL_LDFLAGS)
+combine_tessdata_LDFLAGS = $(OPENCL_LDFLAGS)
+dawg2wordlist_LDFLAGS = $(OPENCL_LDFLAGS)
+mftraining_LDFLAGS = $(OPENCL_LDFLAGS)
+set_unicharset_properties_LDFLAGS = $(OPENCL_LDFLAGS)
+shapeclustering_LDFLAGS = $(OPENCL_LDFLAGS)
+text2image_LDFLAGS = $(OPENCL_LDFLAGS)
+unicharset_extractor_LDFLAGS = $(OPENCL_LDFLAGS)
+wordlist2dawg_LDFLAGS = $(OPENCL_LDFLAGS)
