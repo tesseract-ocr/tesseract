@@ -8,7 +8,7 @@
 #
 ###############################################################################
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 2.8.11)
 
 # In-source builds are disabled.
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -46,9 +46,11 @@ set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 
 find_package(Leptonica 1.72 REQUIRED)
 
-if (BUILD_TRAINING)
 find_package(ICU COMPONENTS uc i18n)
+find_package(OpenCL QUIET)
 find_package(PkgConfig)
+
+if (PKG_CONFIG_FOUND)
 pkg_check_modules(Pango pango)
 pkg_check_modules(Cairo cairo)
 pkg_check_modules(PangoFt2 pangoft2)
@@ -81,6 +83,10 @@ if (WIN32)
     endif()
     
     set(LIB_Ws2_32 Ws2_32)
+endif()
+
+if (CYGWIN)
+    add_definitions(-D__CYGWIN__)
 endif()
 
 if (UNIX)
