@@ -22,6 +22,7 @@ addons:
     - g++-4.8
 
 before_install:
+  - if [[ $TRAVIS_OS_NAME == osx ]]; then OSX=true; fi
   - if [[ $OSX ]]; then brew update; fi
 
 install:
