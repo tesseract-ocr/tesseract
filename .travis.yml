@@ -28,7 +28,7 @@ before_install:
   - if [[ $OSX ]]; then brew update; fi
 
 install:
-  - if [[ $OSX ]]; then brew install icu4c pango ; fi
+  - if [[ $OSX ]]; then brew install icu4c pango; brew link --force gettext; fi
   - if [[ $OSX ]]; then export ICU_ROOT=/usr/local/opt/icu4c ; fi
   - wget http://www.cmake.org/files/v3.3/cmake-3.3.1-Linux-x86_64.sh
   - sudo sh cmake-3.3.1-Linux-x86_64.sh --skip-license --prefix=/usr
