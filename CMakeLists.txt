@@ -95,28 +95,16 @@ configure_file(
 #
 ###############################################################################
 
-########################################
-# FUNCTION build_dir
-########################################
-function(build_dir target_name)
-    if (${ARGC} GREATER 1)
-        set(dir ${ARGV1})
-    else()
-        set(dir ${target_name})
-    endif()
-    file(GLOB ${dir}_src "${dir}/*.cpp")
-    file(GLOB ${dir}_hdr "${dir}/*.h")
-    add_library(${target_name} ${${dir}_src} ${${dir}_hdr})
-endfunction(build_dir)
-########################################
+include(BuildFunctions)
+include(SourceGroups)
 
 add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
 add_definitions(-DUSE_STD_NAMESPACE=1)
 add_definitions(-DWINDLLNAME="libtesseract${VERSION_MAJOR}${VERSION_MINOR}.dll")
-add_definitions(-DTESS_EXPORTS)
 
 include_directories(${Leptonica_INCLUDE_DIRS})
 
+include_directories(api)
 include_directories(ccmain)
 include_directories(ccstruct)
 include_directories(ccutil)
@@ -132,65 +120,52 @@ include_directories(viewer)
 include_directories(wordrec)
 
 ########################################
-# LIBRARY api
+# LIBRARY tesseract
 ########################################
 
-set(api_src
+
+file(GLOB tesseract_src
+    "ccmain/*.cpp"
+    "ccstruct/*.cpp"
+    "ccutil/*.cpp"
+    "classify/*.cpp"
+    "cube/*.cpp"
+    "cutil/*.cpp"
+    "dict/*.cpp"
+    "neural_networks/runtime/*.cpp"
+    "opencl/*.cpp"
+    "textord/*.cpp"
+    "viewer/*.cpp"
+    "vs2010/port/*.cpp"
+    "wordrec/*.cpp"
+)
+file(GLOB tesseract_hdr
+    "api/*.h"
+    "ccmain/*.h"
+    "ccstruct/*.h"
+    "ccutil/*.h"
+    "classify/*.h"
+    "cube/*.h"
+    "cutil/*.h"
+    "dict/*.h"
+    "neural_networks/runtime/*.h"
+    "opencl/*.h"
+    "textord/*.h"
+    "viewer/*.h"
+    "vs2010/port/*.h"
+    "wordrec/*.h"
+)
+
+set(tesseract_src ${tesseract_src}
     api/baseapi.cpp
     api/capi.cpp
     api/renderer.cpp
     api/pdfrenderer.cpp
 )
-file(GLOB api_hdr "api/*.h")
-add_library(api ${api_src} ${api_hdr})
-
-
-########################################
-
-########################################
-# LIBRARIES tesseract
-########################################
-
-build_dir(main ccmain)
-build_dir(struct ccstruct)
-build_dir(ccutil)
-build_dir(classify)
-build_dir(cube)
-build_dir(cutil)
-build_dir(dict)
-build_dir(neural neural_networks/runtime)
-build_dir(opencl)
-build_dir(textord)
-build_dir(viewer)
-build_dir(port vs2010/port)
-build_dir(wordrec)
-
-
-########################################
-# LIBRARY tesseract
-########################################
 
 add_library                     (tesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
-target_link_libraries           (tesseract
-    PRIVATE
-        main
-        struct
-        ccutil
-        classify
-        cube
-        cutil
-        dict
-        neural
-        opencl
-        textord
-        viewer
-        port
-        wordrec
-
-    PUBLIC
-        ${Leptonica_LIBRARIES}
-        Ws2_32
-)
+target_compile_definitions      (tesseract PUBLIC -DTESS_EXPORTS)
+target_link_libraries           (tesseract ${Leptonica_LIBRARIES} Ws2_32)
 set_target_properties           (tesseract PROPERTIES OUTPUT_NAME libtesseract${VERSION_MAJOR}${VERSION_MINOR})
 set_target_properties           (tesseract PROPERTIES DEBUG_OUTPUT_NAME libtesseract${VERSION_MAJOR}${VERSION_MINOR}d)
 export(TARGETS tesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
@@ -207,5 +182,9 @@ set(tesseractmain_src
 )
 add_executable                  (tesseractmain ${tesseractmain_src})
 target_link_libraries           (tesseractmain tesseract)
+
+########################################
+
+add_subdirectory(training)
 
 ###############################################################################
