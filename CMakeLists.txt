@@ -54,6 +54,7 @@ pkg_check_modules(PangoFt2 pangoft2)
 pkg_check_modules(PangoCairo pangocairo)
 pkg_check_modules(FontConfig fontconfig)
 
+include_directories(${ICU_INCLUDE_DIRS})
 include_directories(${Pango_INCLUDE_DIRS})
 include_directories(${Cairo_INCLUDE_DIRS})
 
