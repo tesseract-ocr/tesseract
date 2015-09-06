@@ -46,6 +46,7 @@ set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 
 find_package(Leptonica 1.72 REQUIRED)
 
+if (BUILD_TRAINING)
 find_package(ICU COMPONENTS uc i18n)
 find_package(PkgConfig)
 pkg_check_modules(Pango pango)
@@ -57,6 +58,7 @@ pkg_check_modules(FontConfig fontconfig)
 include_directories(${ICU_INCLUDE_DIRS})
 include_directories(${Pango_INCLUDE_DIRS})
 include_directories(${Cairo_INCLUDE_DIRS})
+endif()
 
 ###############################################################################
 #
@@ -212,6 +214,8 @@ target_link_libraries           (tesseractmain tesseract)
 
 ########################################
 
+if (BUILD_TRAINING)
 add_subdirectory(training)
+endif()
 
 ###############################################################################
