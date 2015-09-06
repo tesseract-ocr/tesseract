@@ -22,7 +22,9 @@ addons:
     - g++-4.8
 
 before_install:
-  - if [[ $TRAVIS_OS_NAME == osx ]]; then OSX=true; fi
+  - if [[ $TRAVIS_OS_NAME == linux   ]]; then LINUX=true; fi
+  - if [[ $TRAVIS_OS_NAME == osx     ]]; then OSX=true; fi
+  
   - if [[ $OSX ]]; then brew update; fi
 
 install:
@@ -34,7 +36,7 @@ install:
   - unzip leptonica.zip -d .
   - cmake -Hleptonica-master -Bleptonica-master/build
   - make -C leptonica-master/build
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+  - if [ $LINUX && "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 script:
   - mkdir build
