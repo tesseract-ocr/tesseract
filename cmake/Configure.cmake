@@ -36,6 +36,24 @@ function(check_functions functions)
 endfunction(check_functions)
 
 ########################################
+# FUNCTION check_types
+########################################
+function(check_types types)
+    foreach(T ${${types}})
+        set(name ${T})
+        string(REPLACE " " "_" name ${name})
+        string(REPLACE "-" "_" name ${name})
+        string(REPLACE "." "_" name ${name})
+        string(REPLACE "/" "_" name ${name})
+        string(TOUPPER ${name} name)
+        check_type_size(${T} HAVE_${name})
+        file(APPEND ${AUTOCONFIG_SRC} "/* Define to 1 if the system has the type `${T}'. */\n")
+        file(APPEND ${AUTOCONFIG_SRC} "#cmakedefine HAVE_${name} 1\n")
+        file(APPEND ${AUTOCONFIG_SRC} "\n")
+    endforeach()
+endfunction(check_types)
+
+########################################
 
 file(WRITE ${AUTOCONFIG_SRC})
 
@@ -55,78 +73,60 @@ include(TestBigEndian)
 set(include_files_list
     dlfcn.h
     inttypes.h
+    limits.h
+    malloc.h
     memory.h
+    stdbool.h
     stdint.h
     stdlib.h
     strings.h
     string.h
+    sys/ipc.h
+    sys/shm.h
     sys/stat.h
     sys/types.h
+    sys/wait.h
+    tiffio.h
     unistd.h
     
-    openjpeg-2.0/openjpeg.h
-    openjpeg-2.1/openjpeg.h
-    openjpeg-2.2/openjpeg.h
+    cairo/cairo-version.h
+    CL/cl.h
+    OpenCL/cl.h
+    pango-1.0/pango/pango-features.h
+    unicode/uchar.h
 )
 check_includes(include_files_list)
 
 set(functions_list
-    fmemopen
+    getline
+    snprintf
 )
 check_functions(functions_list)
+
+set(types_list
+    "long long int"
+    mbstate_t
+    wchar_t
+    _Bool
+)
+check_types(types_list)
+
+check_c_source_compiles("#include <sys/time.h>\n#include <time.h>\nmain(){}" TIME_WITH_SYS_TIME)
 
 test_big_endian(WORDS_BIGENDIAN)
 
 set(STDC_HEADERS 1)
 
-if (GIF_FOUND)
-    set(HAVE_LIBGIF 1)
-endif()
-
-if (JPEG_FOUND)
-    set(HAVE_LIBJPEG 1)
-endif()
-
-if (PNG_FOUND)
-    set(HAVE_LIBPNG 1)
-endif()
-
-if (TIFF_FOUND)
-    set(HAVE_LIBTIFF 1)
-endif()
-
-if (ZLIB_FOUND)
-    set(HAVE_LIBZ 1)
-endif()
-
 file(APPEND ${AUTOCONFIG_SRC} "
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1
 
-/* Define to 1 if you have giflib. */
-#cmakedefine HAVE_LIBGIF 1
-
-/* Define to 1 if you have libopenjp2. */
-#cmakedefine HAVE_LIBJP2K 1
-
-/* Define to 1 if you have jpeg. */
-#cmakedefine HAVE_LIBJPEG 1
-
-/* Define to 1 if you have libpng. */
-#cmakedefine HAVE_LIBPNG 1
-
-/* Define to 1 if you have libtiff. */
-#cmakedefine HAVE_LIBTIFF 1
-
-/* Define to 1 if you have libwebp. */
-#cmakedefine HAVE_LIBWEBP 1
-
-/* Define to 1 if you have zlib. */
-#cmakedefine HAVE_LIBZ 1
-
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #cmakedefine WORDS_BIGENDIAN 1
+
+/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
+#cmakedefine TIME_WITH_SYS_TIME 1
 ")
 
 ########################################

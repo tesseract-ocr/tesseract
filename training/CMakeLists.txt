@@ -2,6 +2,8 @@
 # tesseract
 #
 
+add_definitions(-DPANGO_ENABLE_ENGINE)
+
 ########################################
 # LIBRARY tessopt
 ########################################
@@ -26,7 +28,6 @@ set(training_hdr
     tessopt.h tlog.h unicharset_training_utils.h util.h
 )
 add_library             (training ${training_src} ${training_hdr})
-#target_link_libraries   (training port)
 project_group           (training "Training Tools")
 
 
@@ -89,7 +90,7 @@ project_group           (mftraining "Training Tools")
 ########################################
 
 add_executable          (set_unicharset_properties set_unicharset_properties.cpp)
-target_link_libraries   (set_unicharset_properties tesseract training tessopt)
+target_link_libraries   (set_unicharset_properties tesseract training tessopt ${ICU_LIBRARIES})
 project_group           (set_unicharset_properties "Training Tools")
 
 
@@ -107,7 +108,14 @@ project_group           (shapeclustering "Training Tools")
 ########################################
 
 add_executable          (text2image text2image.cpp)
-target_link_libraries   (text2image tesseract training tessopt)
+target_link_libraries   (text2image tesseract training tessopt
+    ${ICU_LIBRARIES}
+    ${Pango_LIBRARIES}
+    ${Cairo_LIBRARIES}
+    ${PangoCairo_LIBRARIES}
+    ${PangoFt2_LIBRARIES}
+    ${FontConfig_LIBRARIES}
+)
 project_group           (text2image "Training Tools")
 
 

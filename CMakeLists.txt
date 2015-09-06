@@ -46,6 +46,17 @@ set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 
 find_package(Leptonica 1.72 REQUIRED)
 
+find_package(ICU COMPONENTS uc i18n)
+find_package(PkgConfig QUIET)
+pkg_check_modules(Pango pango)
+pkg_check_modules(Cairo cairo)
+pkg_check_modules(PangoFt2 pangoft2)
+pkg_check_modules(PangoCairo pangocairo)
+pkg_check_modules(FontConfig fontconfig)
+
+include_directories(${Pango_INCLUDE_DIRS})
+include_directories(${Cairo_INCLUDE_DIRS})
+
 ###############################################################################
 #
 # compiler and linker
@@ -65,6 +76,14 @@ if (WIN32)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
     endif()
+    
+    set(LIB_Ws2_32 Ws2_32)
+endif()
+
+if (UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
+    
+    set(LIB_pthread pthread)
 endif()
 
 ###############################################################################
@@ -74,7 +93,7 @@ endif()
 ###############################################################################
 
 set(AUTOCONFIG_SRC ${CMAKE_BINARY_DIR}/config_auto.h.in)
-set(AUTOCONFIG ${CMAKE_BINARY_DIR}/src/config_auto.h)
+set(AUTOCONFIG ${CMAKE_BINARY_DIR}/config_auto.h)
 
 include(Configure)
 
@@ -98,11 +117,14 @@ configure_file(
 include(BuildFunctions)
 include(SourceGroups)
 
+add_definitions(-DHAVE_CONFIG_H)
 add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
 add_definitions(-DUSE_STD_NAMESPACE=1)
 add_definitions(-DWINDLLNAME="libtesseract${VERSION_MAJOR}${VERSION_MINOR}.dll")
 
 include_directories(${Leptonica_INCLUDE_DIRS})
+
+include_directories(${CMAKE_BINARY_DIR})
 
 include_directories(api)
 include_directories(ccmain)
@@ -136,7 +158,6 @@ file(GLOB tesseract_src
     "opencl/*.cpp"
     "textord/*.cpp"
     "viewer/*.cpp"
-    "vs2010/port/*.cpp"
     "wordrec/*.cpp"
 )
 file(GLOB tesseract_hdr
@@ -152,9 +173,14 @@ file(GLOB tesseract_hdr
     "opencl/*.h"
     "textord/*.h"
     "viewer/*.h"
-    "vs2010/port/*.h"
     "wordrec/*.h"
 )
+if (WIN32)
+    file(GLOB tesseract_win32_src "vs2010/port/*.cpp")
+    file(GLOB tesseract_win32_hdr "vs2010/port/*.h")
+    set(tesseract_src ${tesseract_src} ${tesseract_win32_src})
+    set(tesseract_hdr ${tesseract_hdr} ${tesseract_win32_hdr})
+endif()
 
 set(tesseract_src ${tesseract_src}
     api/baseapi.cpp
@@ -165,9 +191,9 @@ set(tesseract_src ${tesseract_src}
 
 add_library                     (tesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
 target_compile_definitions      (tesseract PUBLIC -DTESS_EXPORTS)
-target_link_libraries           (tesseract ${Leptonica_LIBRARIES} Ws2_32)
-set_target_properties           (tesseract PROPERTIES OUTPUT_NAME libtesseract${VERSION_MAJOR}${VERSION_MINOR})
-set_target_properties           (tesseract PROPERTIES DEBUG_OUTPUT_NAME libtesseract${VERSION_MAJOR}${VERSION_MINOR}d)
+target_link_libraries           (tesseract ${Leptonica_LIBRARIES} ${LIB_Ws2_32} ${LIB_pthread})
+set_target_properties           (tesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
+set_target_properties           (tesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
 export(TARGETS tesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
 
 
