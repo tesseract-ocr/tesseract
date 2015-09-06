@@ -36,7 +36,7 @@ install:
   - unzip leptonica.zip -d .
   - cmake -Hleptonica-master -Bleptonica-master/build
   - make -C leptonica-master/build
-  - if [ $LINUX && "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+  - if [[ $LINUX && "$CXX" = "g++" ]]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 script:
   - mkdir build
