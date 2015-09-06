@@ -47,7 +47,7 @@ set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 find_package(Leptonica 1.72 REQUIRED)
 
 find_package(ICU COMPONENTS uc i18n)
-find_package(PkgConfig QUIET)
+find_package(PkgConfig)
 pkg_check_modules(Pango pango)
 pkg_check_modules(Cairo cairo)
 pkg_check_modules(PangoFt2 pangoft2)
