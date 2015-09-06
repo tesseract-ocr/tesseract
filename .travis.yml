@@ -27,6 +27,7 @@ before_install:
 
 install:
   - if [[ $OSX ]]; then brew install icu4c; fi
+  - if [[ $OSX ]]; then export ICU_ROOT=/usr/local/opt/icu4c ; fi
   - wget http://www.cmake.org/files/v3.3/cmake-3.3.1-Linux-x86_64.sh
   - sudo sh cmake-3.3.1-Linux-x86_64.sh --skip-license --prefix=/usr
   - wget -O leptonica.zip https://github.com/egorpugin/leptonica/archive/master.zip
