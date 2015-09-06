@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/egorpugin/tesseract.svg?branch=master)](https://travis-ci.org/egorpugin/tesseract)
+
 Note that this is possibly out-of-date version of the wiki ReadMe,
 which is located at:
 
