@@ -193,7 +193,9 @@ set(tesseract_src ${tesseract_src}
 )
 
 add_library                     (tesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
+if (NOT STATIC)
 target_compile_definitions      (tesseract PUBLIC -DTESS_EXPORTS)
+endif()
 target_link_libraries           (tesseract ${Leptonica_LIBRARIES} ${LIB_Ws2_32} ${LIB_pthread})
 set_target_properties           (tesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
 set_target_properties           (tesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
@@ -214,8 +216,6 @@ target_link_libraries           (tesseractmain tesseract)
 
 ########################################
 
-if (BUILD_TRAINING)
 add_subdirectory(training)
-endif()
 
 ###############################################################################
