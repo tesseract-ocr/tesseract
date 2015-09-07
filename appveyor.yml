@@ -20,5 +20,5 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - cmake .. -G "%generator%" -DLeptonica_DIR=leptonica-master/build
+  - cmake .. -G "%generator%" -DLeptonica_DIR=leptonica-master/build -DSTATIC=1
   - msbuild tesseract.sln /p:Platform=%vcplatform% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
