@@ -116,6 +116,8 @@ project_group               (wordlist2dawg "Training Tools")
 
 if (ICU_FOUND)
 
+include_directories(${ICU_INCLUDE_DIRS})
+
 add_executable              (set_unicharset_properties
     set_unicharset_properties.cpp
     unicharset_training_utils.cpp
@@ -126,17 +128,15 @@ add_executable              (set_unicharset_properties
     normstrngs.h
     icuerrorcode.h
 )
-#target_include_directories  (set_unicharset_properties PRIVATE ${ICU_INCLUDE_DIRS})
 target_link_libraries       (set_unicharset_properties common_training ${ICU_LIBRARIES})
 project_group               (set_unicharset_properties "Training Tools")
 
-endif (ICU_FOUND)
 
 ########################################
 # EXECUTABLE text2image
 ########################################
 
-if (ICU_FOUND AND PKG_CONFIG_FOUND)
+if (PKG_CONFIG_FOUND)
 
 pkg_check_modules(Pango REQUIRED pango)
 pkg_check_modules(Cairo REQUIRED cairo)
@@ -182,7 +182,8 @@ target_link_libraries       (text2image tesseract common_training
 )
 project_group               (text2image "Training Tools")
 
-endif(ICU_FOUND AND PKG_CONFIG_FOUND)
+endif(PKG_CONFIG_FOUND)
+endif(ICU_FOUND)
 endif(STATIC OR NOT (WIN32 OR CYGWIN))
 
 ###############################################################################
