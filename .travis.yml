@@ -41,5 +41,5 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DLeptonica_DIR=leptonica-master/build -DBUILD_TRAINING=1
+  - cmake .. -DLeptonica_DIR=leptonica-master/build
   - make
