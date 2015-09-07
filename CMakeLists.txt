@@ -50,18 +50,6 @@ find_package(ICU COMPONENTS uc i18n)
 find_package(OpenCL QUIET)
 find_package(PkgConfig)
 
-if (PKG_CONFIG_FOUND)
-pkg_check_modules(Pango pango)
-pkg_check_modules(Cairo cairo)
-pkg_check_modules(PangoFt2 pangoft2)
-pkg_check_modules(PangoCairo pangocairo)
-pkg_check_modules(FontConfig fontconfig)
-
-include_directories(${ICU_INCLUDE_DIRS})
-include_directories(${Pango_INCLUDE_DIRS})
-include_directories(${Cairo_INCLUDE_DIRS})
-endif()
-
 ###############################################################################
 #
 # compiler and linker
