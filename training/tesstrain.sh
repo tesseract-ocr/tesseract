@@ -24,6 +24,7 @@
 #    --output_dir OUTPUTDIR     # Location of output traineddata file.
 #    --overwrite                # Safe to overwrite files in output_dir.
 #    --run_shape_clustering     # Run shape clustering (use for Indic langs).
+#    --exposures EXPOSURES      # A list of exposure levels to use (e.g. "-1 0 1").
 #
 # OPTIONAL flags for input data. If unspecified we will look for them in
 # the langdata_dir directory.
