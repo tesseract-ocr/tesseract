@@ -353,6 +353,30 @@ GREEK_FONTS=( \
     "VL PGothic" \
     )
 
+ANCIENT_GREEK_FONTS=( \
+    "GFS Artemisia \
+    "GFS Artemisia Bold" \
+    "GFS Artemisia Bold Italic" \
+    "GFS Artemisia Italic" \
+    "GFS Bodoni" \
+    "GFS Bodoni Bold" \
+    "GFS Bodoni Bold Italic" \
+    "GFS Bodoni Italic" \
+    "GFS Didot" \
+    "GFS Didot Bold" \
+    "GFS Didot Bold Italic" \
+    "GFS Didot Italic" \
+    "GFS DidotClassic" \
+    "GFS Neohellenic" \
+    "GFS Neohellenic Bold" \
+    "GFS Neohellenic Bold Italic" \
+    "GFS Neohellenic Italic" \
+    "GFS Philostratos" \
+    "GFS Porson" \
+    "GFS Pyrsos" \
+    "GFS Solomos" \
+    )
+
 ARABIC_FONTS=( \
     "Arabic Transparent Bold" \
     "Arabic Transparent" \
@@ -1039,10 +1063,14 @@ set_lang_specific_parameters() {
     chr ) test -z "$FONTS" && FONTS=( "${NORTH_AMERICAN_ABORIGINAL_FONTS[@]}" \
                   "Noto Sans Cherokee" \
                 ) ;;
-    ell | grc )
+    ell )
           NUMBER_DAWG_FACTOR=0.05
           WORD_DAWG_FACTOR=0.08
           test -z "$FONTS" && FONTS=( "${GREEK_FONTS[@]}" ) ;;
+    grc )
+          NUMBER_DAWG_FACTOR=0.05
+          WORD_DAWG_FACTOR=0.08
+          test -z "$FONTS" && FONTS=( "${ANCIENT_GREEK_FONTS[@]}" ) ;;
     hye ) test -z "$FONTS" && FONTS=( "${ARMENIAN_FONTS[@]}" ) ;;
     iku ) test -z "$FONTS" && FONTS=( "${NORTH_AMERICAN_ABORIGINAL_FONTS[@]}" ) ;;
     kat)  test -z "$FONTS" && FONTS=( "${GEORGIAN_FONTS[@]}" ) ;;
