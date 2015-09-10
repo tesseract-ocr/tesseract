@@ -61,8 +61,8 @@ class TRand {
  private:
   // Steps the generator to the next value.
   void Iterate() {
-    seed_ *= 6364136223846793005;
-    seed_ += 1442695040888963407;
+    seed_ *= 6364136223846793005ULL;
+    seed_ += 1442695040888963407ULL;
   }
 
   // The current value of the seed.
