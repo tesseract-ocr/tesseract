@@ -1,0 +1,2 @@
+Main-Class: com/google/scrollview/ScrollView
+Class-Path: ScrollView.jar piccolo2d-core-3.0.jar piccolo2d-extras-3.0.jar
