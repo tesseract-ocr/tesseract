@@ -26,6 +26,7 @@ OVERWRITE=0
 RUN_SHAPE_CLUSTERING=0
 EXTRACT_FONT_PROPERTIES=1
 WORKSPACE_DIR="/tmp/tesstrain"
+EXPOSURES=0
 
 # Logging helper functions.
 tlog() {
@@ -98,6 +99,16 @@ parse_flags() {
                 FONTS=( ${ARGV[$j]} )
                 IFS=$ofs
                 i=$j ;;
+            --exposures)
+                exp=""
+                while test $j -lt ${#ARGV[@]}; do
+                    test -z ${ARGV[$j]} && break
+                    test `echo ${ARGV[$j]} | cut -c -2` = "--" && break
+                    exp="$exp ${ARGV[$j]}"
+                    j=$((j+1))
+                done
+                parse_value "EXPOSURES" "$exp"
+                i=$((j-1)) ;;
             --fonts_dir)
                 parse_value "FONTS_DIR" ${ARGV[$j]}
                 i=$j ;;
@@ -226,35 +237,36 @@ phase_I_generate_image() {
         err_exit "Could not find training text file ${TRAINING_TEXT}"
     fi
     CHAR_SPACING="0.0"
-    EXPOSURE="0"
 
-    if (( ${EXTRACT_FONT_PROPERTIES} )) && [[ -r ${BIGRAM_FREQS_FILE} ]]; then
-        # Parse .bigram_freqs file and compose a .train_ngrams file with text
-        # for tesseract to recognize during training. Take only the ngrams whose
-        # combined weight accounts for 95% of all the bigrams in the language.
-        NGRAM_FRAC=$(cat ${BIGRAM_FREQS_FILE} \
-            | awk '{s=s+$2}; END {print (s/100)*p}' p=99)
-        cat ${BIGRAM_FREQS_FILE} | sort -rnk2 \
-            | awk '{s=s+$2; if (s <= x) {printf "%s ", $1; } }' \
-            x=${NGRAM_FRAC} > ${TRAIN_NGRAMS_FILE}
-        check_file_readable ${TRAIN_NGRAMS_FILE}
-    fi
-
-    local counter=0
-    for font in "${FONTS[@]}"; do
-        generate_font_image "${font}" &
-        let counter=counter+1
-        let rem=counter%par_factor
-        if [[ "${rem}" -eq 0 ]]; then
-          wait
+    for EXPOSURE in $EXPOSURES; do
+        if (( ${EXTRACT_FONT_PROPERTIES} )) && [[ -r ${BIGRAM_FREQS_FILE} ]]; then
+            # Parse .bigram_freqs file and compose a .train_ngrams file with text
+            # for tesseract to recognize during training. Take only the ngrams whose
+            # combined weight accounts for 95% of all the bigrams in the language.
+            NGRAM_FRAC=$(cat ${BIGRAM_FREQS_FILE} \
+                | awk '{s=s+$2}; END {print (s/100)*p}' p=99)
+            cat ${BIGRAM_FREQS_FILE} | sort -rnk2 \
+                | awk '{s=s+$2; if (s <= x) {printf "%s ", $1; } }' \
+                x=${NGRAM_FRAC} > ${TRAIN_NGRAMS_FILE}
+            check_file_readable ${TRAIN_NGRAMS_FILE}
         fi
-    done
-    wait
-    # Check that each process was successful.
-    for font in "${FONTS[@]}"; do
-        local fontname=$(echo ${font} | tr ' ' '_' | sed 's/,//g')
-        local outbase=${TRAINING_DIR}/${LANG_CODE}.${fontname}.exp${EXPOSURE}
-        check_file_readable ${outbase}.box ${outbase}.tif
+
+        local counter=0
+        for font in "${FONTS[@]}"; do
+            generate_font_image "${font}" &
+            let counter=counter+1
+            let rem=counter%par_factor
+            if [[ "${rem}" -eq 0 ]]; then
+              wait
+            fi
+        done
+        wait
+        # Check that each process was successful.
+        for font in "${FONTS[@]}"; do
+            local fontname=$(echo ${font} | tr ' ' '_' | sed 's/,//g')
+            local outbase=${TRAINING_DIR}/${LANG_CODE}.${fontname}.exp${EXPOSURE}
+            check_file_readable ${outbase}.box ${outbase}.tif
+        done
     done
 }
 
@@ -359,10 +371,9 @@ phase_E_extract_features() {
         par_factor=1
     fi
     tlog "\n=== Phase E: Extracting features ==="
-    TRAIN_EXPOSURES='0'
 
     local img_files=""
-    for exposure in ${TRAIN_EXPOSURES}; do
+    for exposure in ${EXPOSURES}; do
         img_files=${img_files}' '$(ls ${TRAINING_DIR}/*.exp${exposure}.tif)
     done
 
