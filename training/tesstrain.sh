@@ -49,11 +49,8 @@ source `dirname $0`/tesstrain_utils.sh
 ARGV=("$@")
 parse_flags
 
-tlog "\n=== Starting training for language '${LANG_CODE}'"
-
-tlog "Cleaning workspace directory ${TRAINING_DIR}..."
 mkdir -p ${TRAINING_DIR}
-rm -fr ${TRAINING_DIR}/*
+tlog "\n=== Starting training for language '${LANG_CODE}'"
 
 source `dirname $0`/language-specific.sh
 set_lang_specific_parameters ${LANG_CODE}
