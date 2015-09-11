@@ -26,7 +26,6 @@ OVERWRITE=0
 RUN_SHAPE_CLUSTERING=0
 EXTRACT_FONT_PROPERTIES=1
 WORKSPACE_DIR=`mktemp -d`
-EXPOSURES=0
 
 # Logging helper functions.
 tlog() {
