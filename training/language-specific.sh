@@ -1068,8 +1068,6 @@ set_lang_specific_parameters() {
           WORD_DAWG_FACTOR=0.08
           test -z "$FONTS" && FONTS=( "${GREEK_FONTS[@]}" ) ;;
     grc )
-          NUMBER_DAWG_FACTOR=0.05
-          WORD_DAWG_FACTOR=0.08
           test -z "$FONTS" && FONTS=( "${ANCIENT_GREEK_FONTS[@]}" ) ;;
     hye ) test -z "$FONTS" && FONTS=( "${ARMENIAN_FONTS[@]}" ) ;;
     iku ) test -z "$FONTS" && FONTS=( "${NORTH_AMERICAN_ABORIGINAL_FONTS[@]}" ) ;;
