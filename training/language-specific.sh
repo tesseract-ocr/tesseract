@@ -1068,6 +1068,7 @@ set_lang_specific_parameters() {
           WORD_DAWG_FACTOR=0.08
           test -z "$FONTS" && FONTS=( "${GREEK_FONTS[@]}" ) ;;
     grc )
+          test -z "$EXPOSURES" && EXPOSURES="-3 -2 -1 0 1 2 3"
           test -z "$FONTS" && FONTS=( "${ANCIENT_GREEK_FONTS[@]}" ) ;;
     hye ) test -z "$FONTS" && FONTS=( "${ARMENIAN_FONTS[@]}" ) ;;
     iku ) test -z "$FONTS" && FONTS=( "${NORTH_AMERICAN_ABORIGINAL_FONTS[@]}" ) ;;
@@ -1087,7 +1088,10 @@ set_lang_specific_parameters() {
     TRAINING_DATA_ARGUMENTS+=" --mean_count=${MEAN_COUNT}"
   fi
   # Default to Latin fonts if none have been set
-  test -z "$FONTS" && test -z "$FONTS" && FONTS=( "${LATIN_FONTS[@]}" )
+  test -z "$FONTS" && FONTS=( "${LATIN_FONTS[@]}" )
+
+  # Default to 0 exposure if it hasn't been set
+  test -z "$EXPOSURES" && EXPOSURES=0
 }
 
 #=============================================================================
