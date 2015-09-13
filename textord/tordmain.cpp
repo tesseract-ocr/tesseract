@@ -588,7 +588,7 @@ void Textord::clean_noise_from_words(          //remove empties
   ok_words = word_it.length ();
   if (ok_words == 0 || textord_no_rejects)
     return;
-  word_dud = (inT8 *) alloc_mem (ok_words * sizeof (inT8));
+  word_dud = (inT8 *) malloc (ok_words * sizeof (inT8));
   dud_words = 0;
   ok_words = 0;
   word_index = 0;
@@ -672,7 +672,7 @@ void Textord::clean_noise_from_words(          //remove empties
     }
     word_index++;
   }
-  free_mem(word_dud);
+  free(word_dud);
 }
 
 // Remove outlines that are a tiny fraction in either width or height
@@ -909,10 +909,10 @@ void tweak_row_baseline(ROW *row,
   if (blob_count == 0)
     return;
   xstarts =
-    (inT32 *) alloc_mem ((blob_count + row->baseline.segments + 1) *
+    (inT32 *) malloc ((blob_count + row->baseline.segments + 1) *
     sizeof (inT32));
   coeffs =
-    (double *) alloc_mem ((blob_count + row->baseline.segments) * 3 *
+    (double *) malloc ((blob_count + row->baseline.segments) * 3 *
     sizeof (double));
 
   src_index = 0;
@@ -986,6 +986,6 @@ void tweak_row_baseline(ROW *row,
   }
                                  //turn to spline
   row->baseline = QSPLINE (dest_index, xstarts, coeffs);
-  free_mem(xstarts);
-  free_mem(coeffs);
+  free(xstarts);
+  free(coeffs);
 }

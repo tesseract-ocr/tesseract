@@ -69,9 +69,7 @@ GAPMAP::GAPMAP(                 //Constructor
   }
   bucket_size = (inT16) floor (xht_stats.median () + 0.5) / 2;
   map_max = (max_right - min_left) / bucket_size;
-  map = (inT16 *) alloc_mem ((map_max + 1) * sizeof (inT16));
-  for (i = 0; i <= map_max; i++)
-    map[i] = 0;
+  map = (inT16 *) calloc (map_max + 1, sizeof (inT16));
 
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();

@@ -59,11 +59,8 @@ BOOL8 AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
  */
 void FreeFeature(FEATURE Feature) {
   if (Feature) {
-    free_struct (Feature, sizeof (FEATURE_STRUCT)
-      + sizeof (FLOAT32) * (Feature->Type->NumParams - 1),
-      "sizeof(FEATURE_STRUCT)+sizeof(FLOAT32)*(NumParamsIn(Feature)-1)");
+    free (Feature);
   }
-
 }                                /* FreeFeature */
 
 
@@ -95,14 +92,9 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
  */
 FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
-
-  Feature = (FEATURE) alloc_struct (sizeof (FEATURE_STRUCT) +
-    (FeatureDesc->NumParams - 1) *
-    sizeof (FLOAT32),
-    "sizeof(FEATURE_STRUCT)+sizeof(FLOAT32)*(NumParamsIn(Feature)-1)");
+  Feature = (FEATURE) malloc (sizeof (FEATURE_STRUCT) + (FeatureDesc->NumParams - 1) * sizeof (FLOAT32));
   Feature->Type = FeatureDesc;
   return (Feature);
-
 }                                /* NewFeature */
 
 

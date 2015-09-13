@@ -12,7 +12,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS
 endif
 
 include_HEADERS = \
-	basedir.h errcode.h fileerr.h genericvector.h helpers.h host.h memry.h \
+	basedir.h errcode.h fileerr.h genericvector.h helpers.h host.h \
 	ndminx.h params.h ocrclass.h platform.h serialis.h strngs.h \
 	tesscallback.h unichar.h unicharmap.h unicharset.h
 
@@ -35,7 +35,7 @@ libtesseract_ccutil_la_SOURCES = \
     ccutil.cpp clst.cpp \
     elst2.cpp elst.cpp errcode.cpp \
     globaloc.cpp indexmapbidi.cpp \
-    mainblk.cpp memry.cpp \
+    mainblk.cpp \
     serialis.cpp strngs.cpp scanutils.cpp \
     tessdatamanager.cpp tprintf.cpp \
     unichar.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
