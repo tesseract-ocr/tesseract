@@ -949,7 +949,7 @@ bool GenericVector<T>::SerializeClasses(tesseract::TFile* fp) const {
 
 // Reads a vector of classes from the given file. Assumes the existence of
 // bool T::Deserialize(bool swap, FILE* fp) that returns false in case of
-// error. Alse needs T::T() and T::T(constT&), as init_to_size is used in
+// error. Also needs T::T() and T::T(constT&), as init_to_size is used in
 // this function. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 template <typename T>

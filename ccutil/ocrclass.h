@@ -21,7 +21,7 @@
  * the HP OCR interface.
  * The code is designed to be used with either a C or C++ compiler.
  * The structures are designed to allow them to be used with any
- * structure alignment upto 8.
+ * structure alignment up to 8.
  **********************************************************************/
 
 #ifndef            CCUTIL_OCRCLASS_H_
