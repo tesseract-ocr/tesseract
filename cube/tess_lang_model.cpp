@@ -397,7 +397,7 @@ int TessLangModel::NumberEdges(EDGE_REF edge_ref, LangModEdge **edge_array) {
     return 0;
   }
 
-  // go thru all valid transitions from the state
+  // go through all valid transitions from the state
   int edge_cnt = 0;
 
   EDGE_REF new_edge_ref;
