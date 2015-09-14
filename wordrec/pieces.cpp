@@ -273,7 +273,7 @@ void Wordrec::merge_and_put_fragment_lists(inT16 row, inT16 column,
  *
  * Recursively go through the ratings matrix to find lists of fragments
  * to be merged in the function merge_and_put_fragment_lists.
- * current_frag is the postion of the piece we are looking for.
+ * current_frag is the position of the piece we are looking for.
  * current_row is the row in the rating matrix we are currently at.
  * start is the row we started initially, so that we can know where
  * to append the results to the matrix. num_frag_parts is the total
