@@ -447,7 +447,7 @@ class SquishedDawg : public Dawg {
     EDGE_REF edge = node;
     if (!edge_occupied(edge) || edge == NO_EDGE) return;
     assert(forward_edge(edge));  // we don't expect any backward edges to
-    do {                         // be present when this funciton is called
+    do {                         // be present when this function is called
       if (!word_end || end_of_word_from_edge_rec(edges_[edge])) {
         vec->push_back(NodeChild(unichar_id_from_edge_rec(edges_[edge]), edge));
       }
