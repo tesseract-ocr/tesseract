@@ -1556,7 +1556,7 @@ void Tesseract::match_word_pass_n(int pass_n, WERD_RES *word,
        word->fix_quotes();
       if (tessedit_fix_hyphens)
         word->fix_hyphens();
-      /* Dont trust fix_quotes! - though I think I've fixed the bug */
+      /* Don't trust fix_quotes! - though I think I've fixed the bug */
       if (word->best_choice->length() != word->box_word->length()) {
         tprintf("POST FIX_QUOTES FAIL String:\"%s\"; Strlen=%d;"
                 " #Blobs=%d\n",
@@ -1694,7 +1694,7 @@ ACCEPTABLE_WERD_TYPE Tesseract::acceptable_word_string(
       goto not_a_word;
     /*
     Allow a single hyphen in a lower case word
-    - dont trust upper case - I've seen several cases of "H" -> "I-I"
+    - don't trust upper case - I've seen several cases of "H" -> "I-I"
     */
     if (lengths[i] == 1 && s[offset] == '-') {
       hyphen_pos = i;
