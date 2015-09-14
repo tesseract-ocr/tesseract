@@ -48,7 +48,7 @@ class HybridNeuralNetCharClassifier : public CharClassifier {
   // is currently not implemented. TODO(ahmadab): implement end-2-end training
   virtual bool Train(CharSamp *char_samp, int ClassID);
   // A secondary function needed for training. Allows the trainer to set the
-  // value of any train-time paramter. This function is currently not
+  // value of any train-time parameter. This function is currently not
   // implemented. TODO(ahmadab): implement end-2-end training
   virtual bool SetLearnParam(char *var_name, float val);
   // Externally sets the Neural Net used by the classifier. Used for training

@@ -247,7 +247,7 @@ int CubeLineObject::ComputeWordBreakThreshold(int con_comp_cnt,
     word_break_threshold--;
   } while (!valid && word_break_threshold > 0);
 
-  // failed to find a threshold that acheives the target aspect ratio.
+  // failed to find a threshold that achieves the target aspect ratio.
   // Just use the default threshold
   return  static_cast<int>(line_pix_->h *
                            cntxt_->Params()->MaxSpaceHeightRatio());
