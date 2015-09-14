@@ -495,7 +495,7 @@ class Classify : public CCStruct {
   // font combinations that the shape represents.
   UnicityTable<FontSet> fontset_table_;
 
-  INT_VAR_H(il1_adaption_test, 0, "Dont adapt to i/I at beginning of word");
+  INT_VAR_H(il1_adaption_test, 0, "Don't adapt to i/I at beginning of word");
   BOOL_VAR_H(classify_bln_numeric_mode, 0,
              "Assume the input is numbers [0-9].");
   double_VAR_H(speckle_large_max_size, 0.30, "Max large speckle size");

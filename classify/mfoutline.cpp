@@ -104,7 +104,7 @@ LIST ConvertOutlines(TESSLINE *outline,
 
 /*---------------------------------------------------------------------------*/
 /**
- * This routine searches thru the specified outline, computes
+ * This routine searches through the specified outline, computes
  * a slope for each vector in the outline, and marks each
  * vector as having one of the following directions:
  *   N, S, E, W, NE, NW, SE, SW
@@ -182,7 +182,7 @@ void FreeOutlines(LIST Outlines) {
 
 /*---------------------------------------------------------------------------*/
 /**
- * This routine searches thru the specified outline and finds
+ * This routine searches through the specified outline and finds
  * the points at which the outline changes direction.  These
  * points are then marked as "extremities".  This routine is
  * used as an alternative to FindExtremities().  It forces the
