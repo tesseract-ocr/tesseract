@@ -123,7 +123,7 @@ public class SVPopupMenu implements ActionListener {
 
 
   /**
-   * A click on one of the items in our menubar has occured. Forward it
+   * A click on one of the items in our menubar has occurred. Forward it
    * to the item itself to let it decide what happens.
    */
   public void actionPerformed(ActionEvent e) {
