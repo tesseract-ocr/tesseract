@@ -16,7 +16,7 @@
  ** limitations under the License.
  *
 
-This module may look unneccessarily verbose, but here's the philosophy...
+This module may look unnecessarily verbose, but here's the philosophy...
 
 ALL processing of the reject map is done in this module. There are lots of
 separate calls to set reject/accept flags. These have DELIBERATELY been kept
@@ -51,7 +51,7 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 enum REJ_FLAGS
 {
   /* Reject modes which are NEVER overridden */
-  R_TESS_FAILURE,                // PERM Tess didnt classify
+  R_TESS_FAILURE,                // PERM Tess didn't classify
   R_SMALL_XHT,                   // PERM Xht too small
   R_EDGE_CHAR,                   // PERM Too close to edge of image
   R_1IL_CONFLICT,                // PERM 1Il confusion
@@ -62,7 +62,7 @@ enum REJ_FLAGS
 
   /* Initial reject modes (pre NN_ACCEPT) */
   R_POOR_MATCH,                  // TEMP Ray's original heuristic (Not used)
-  R_NOT_TESS_ACCEPTED,           // TEMP Tess didnt accept WERD
+  R_NOT_TESS_ACCEPTED,           // TEMP Tess didn't accept WERD
   R_CONTAINS_BLANKS,             // TEMP Tess failed on other chs in WERD
   R_BAD_PERMUTER,                // POTENTIAL Bad permuter for WERD
 
@@ -82,7 +82,7 @@ enum REJ_FLAGS
   R_ROW_REJ,                     // TEMP Row rejection
   R_UNLV_REJ,                    // TEMP ~ turned to - or ^ turned to space
 
-  /* Accept modes which occur inbetween the above rejection groups */
+  /* Accept modes which occur between the above rejection groups */
   R_NN_ACCEPT,                   //NN acceptance
   R_HYPHEN_ACCEPT,               //Hyphen acceptance
   R_MM_ACCEPT,                   //Matrix match acceptance

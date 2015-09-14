@@ -218,7 +218,7 @@ class DENORM {
   void LocalDenormTransform(const TPOINT& pt, TPOINT* original) const;
   void LocalDenormTransform(const FCOORD& pt, FCOORD* original) const;
   // Transforms the given coords all the way back to source image space using
-  // the full transformation sequence defined by this and its predecesors
+  // the full transformation sequence defined by this and its predecessors
   // recursively, shallowest first, and finally any block re_rotation.
   // If last_denorm is not NULL, then the last transformation used will
   // be last_denorm, and the block re_rotation will never be executed.
