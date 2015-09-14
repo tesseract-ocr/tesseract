@@ -51,7 +51,7 @@ bool TessdataManager::Init(const char *data_file_name, int debug_level) {
              sizeof(actual_tessdata_num_entries_));
   }
   if (actual_tessdata_num_entries_ > TESSDATA_NUM_ENTRIES) {
-    // For forward compatability, truncate to the number we can handle.
+    // For forward compatibility, truncate to the number we can handle.
     actual_tessdata_num_entries_ = TESSDATA_NUM_ENTRIES;
   }
   fread(offset_table_, sizeof(inT64),

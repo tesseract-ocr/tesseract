@@ -282,7 +282,7 @@ class TessdataManager {
    * same or smaller than TESSDATA_NUM_ENTRIES, but can never be larger,
    * since then it would be impossible to interpret the type of tessdata at
    * indices same and higher than TESSDATA_NUM_ENTRIES.
-   * This parameter is used to allow for backward compatiblity
+   * This parameter is used to allow for backward compatibility
    * when new tessdata types are introduced.
    */
   inT32 actual_tessdata_num_entries_;

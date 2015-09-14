@@ -53,7 +53,7 @@ enum TessErrorLogCode {
 #define LOC_DOC_BLK_REJ   22
 #define LOC_WRITE_RESULTS 23
 #define LOC_ADAPTIVE    24
-/* DONT DEFINE ANY LOCATION > 31 !!! */
+/* DON'T DEFINE ANY LOCATION > 31 !!! */
 
 /* Sub locatation determines whether pass2 was in normal mode or fix xht mode*/
 #define SUBLOC_NORM     0

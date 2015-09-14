@@ -190,7 +190,7 @@ const void *, const void *)) {
 
 // Assuming list has been sorted already, insert new_data to
 // keep the list sorted according to the same comparison function.
-// Comparision function is the same as used by sort, i.e. uses double
+// Comparison function is the same as used by sort, i.e. uses double
 // indirection. Time is O(1) to add to beginning or end.
 // Time is linear to add pre-sorted items to an empty list.
 // If unique, then don't add duplicate entries.
@@ -513,7 +513,7 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist(                             //from 
 
   temp_it.mark_cycle_pt ();
   do {                           //walk sublist
-    if (temp_it.cycled_list ())  //cant find end pt
+    if (temp_it.cycled_list ())  //can't find end pt
       BAD_SUBLIST.error ("CLIST_ITERATOR.extract_sublist", ABORT, NULL);
 
     if (temp_it.at_last ()) {
