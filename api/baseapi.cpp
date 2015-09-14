@@ -1660,7 +1660,7 @@ char* TessBaseAPI::GetUNLVText() {
             word->word->space() > 0 &&
             !word->word->flag(W_FUZZY_NON) &&
             !word->word->flag(W_FUZZY_SP)) {
-          /* Write a space to separate from preceeding good text */
+          /* Write a space to separate from preceding good text */
           *ptr++ = ' ';
           last_char_was_tilde = false;
         }

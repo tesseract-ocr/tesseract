@@ -227,7 +227,7 @@ int main(int argc, char **argv) {
   }
 
   // We have 2 possible sources of pagesegmode: a config file and
-  // the command line. For backwards compatability reasons, the
+  // the command line. For backwards compatibility reasons, the
   // default in tesseract is tesseract::PSM_SINGLE_BLOCK, but the
   // default for this program is tesseract::PSM_AUTO. We will let
   // the config file take priority, so the command-line default
