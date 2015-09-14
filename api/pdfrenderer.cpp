@@ -178,7 +178,7 @@ void TessPDFRenderer::AppendPDFObject(const char *data) {
   AppendString((const char *)data);
 }
 
-// Helper function to prevent us from accidentaly writing
+// Helper function to prevent us from accidentally writing
 // scientific notation to an HOCR or PDF file. Besides, three
 // decimal points are all you really need.
 double prec(double x) {
