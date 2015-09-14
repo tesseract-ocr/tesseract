@@ -515,7 +515,7 @@ void Classify::EndAdaptiveClassifier() {
  *      load_pre_trained_templates  Indicates whether the pre-trained
  *                     templates (inttemp, normproto and pffmtable components)
  *                     should be lodaded. Should only be set to true if the
- *                     necesary classifier components are present in the
+ *                     necessary classifier components are present in the
  *                     [lang].traineddata file.
  *  Globals:
  *      BuiltInTemplatesFile  file to get built-in temps from
@@ -1720,7 +1720,7 @@ bool Classify::LooksLikeGarbage(TBLOB *blob) {
  *
  * Globals:
  *
- * @return Number of features extracted or 0 if an error occured.
+ * @return Number of features extracted or 0 if an error occurred.
  * @note Exceptions: none
  * @note History: Tue May 28 10:40:52 1991, DSJ, Created.
  */
@@ -2082,7 +2082,7 @@ void Classify::PrintAdaptiveMatchResults(const ADAPT_RESULTS& results) {
 
 /*---------------------------------------------------------------------------*/
 /**
- * This routine steps thru each matching class in Results
+ * This routine steps through each matching class in Results
  * and removes it from the match list if its rating
  * is worse than the BestRating plus a pad.  In other words,
  * all good matches get moved to the front of the classes

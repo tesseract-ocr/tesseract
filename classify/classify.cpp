@@ -151,7 +151,7 @@ Classify::Classify()
       INT_MEMBER(classify_integer_matcher_multiplier, 10,
                  "Integer Matcher Multiplier  0-255:   ", this->params()),
       EnableLearning(true),
-      INT_MEMBER(il1_adaption_test, 0, "Dont adapt to i/I at beginning of word",
+      INT_MEMBER(il1_adaption_test, 0, "Don't adapt to i/I at beginning of word",
                  this->params()),
       BOOL_MEMBER(classify_bln_numeric_mode, 0,
                   "Assume the input is numbers [0-9].", this->params()),
