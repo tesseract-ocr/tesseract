@@ -285,7 +285,7 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
 
 /*---------------------------------------------------------------------------*/
 /**
- * Search thru all features currently defined and return
+ * Search through all features currently defined and return
  * the feature type for the feature with the specified short
  * name.  Trap an error if the specified name is not found.
  *

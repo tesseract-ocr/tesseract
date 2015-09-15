@@ -57,7 +57,7 @@ install-jars : ScrollView.jar
 	@if [ ! -d  $(scrollview_path) ]; then mkdir -p $(scrollview_path); fi;
 	$(INSTALL) -m 644 $(SCROLLVIEW_LIBS) $(scrollview_path);
 	$(INSTALL) -m 644 ScrollView.jar $(scrollview_path);
-	@echo "Don't forget to set enviroment variable SCROLLVIEW_PATH to $(scrollview_path)";
+	@echo "Don't forget to set environment variable SCROLLVIEW_PATH to $(scrollview_path)";
 
 uninstall:
 	rm -f $(scrollview_path)/*.jar

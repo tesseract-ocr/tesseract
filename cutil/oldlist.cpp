@@ -407,7 +407,7 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
  *
  *  Search list, return NIL_LIST if not found. Return the list starting from
  *  the item if found.  The compare routine "is_equal" is passed in as
- *  the third paramter to this routine.   If the value NULL is supplied
+ *  the third parameter to this routine.   If the value NULL is supplied
  *  for is_equal, the is_key routine will be used.
  **********************************************************************/
 LIST search(LIST list, void *key, int_compare is_equal) {

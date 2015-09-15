@@ -93,7 +93,7 @@ void BeamSearch::CreateChildren(SearchColumn *out_col, LangModel *lang_mod,
   }  // lm_edges
 }
 
-// Performs a beam seach in the specified search using the specified
+// Performs a beam search in the specified search using the specified
 // language model; returns an alternate list of possible words as a result.
 WordAltList * BeamSearch::Search(SearchObject *srch_obj, LangModel *lang_mod) {
   // verifications

@@ -127,7 +127,7 @@ Dict::Dict(CCUtil* ccutil)
                   " when there is a need to explore all segmentations",
                   getCCUtil()->params()),
       BOOL_MEMBER(save_raw_choices, false,
-                  "Deprecated- backward compatablity only",
+                  "Deprecated- backward compatibility only",
                   getCCUtil()->params()),
       INT_MEMBER(tessedit_truncate_wordchoice_log, 10,
                  "Max words to keep in list",

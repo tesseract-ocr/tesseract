@@ -45,7 +45,7 @@ class BeamSearch {
  public:
   explicit BeamSearch(CubeRecoContext *cntxt, bool word_mode = true);
   ~BeamSearch();
-  // Performs a beam seach in the specified search using the specified
+  // Performs a beam search in the specified search using the specified
   // language model; returns an alternate list of possible words as a result.
   WordAltList *Search(SearchObject *srch_obj, LangModel *lang_mod = NULL);
   // Returns the best node in the last column of last performed search.

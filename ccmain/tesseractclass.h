@@ -733,7 +733,7 @@ class Tesseract : public Wordrec {
                                GenericVector<UNICHAR_ID>* class_ids);
   // Resegments the word to achieve the target_text from the classifier.
   // Returns false if the re-segmentation fails.
-  // Uses brute-force combination of upto kMaxGroupSize adjacent blobs, and
+  // Uses brute-force combination of up to kMaxGroupSize adjacent blobs, and
   // applies a full search on the classifier results to find the best classified
   // segmentation. As a compromise to obtain better recall, 1-1 ambigiguity
   // substitutions ARE used.
@@ -833,7 +833,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_fix_fuzzy_spaces, true,
              "Try to improve fuzzy spaces");
   BOOL_VAR_H(tessedit_unrej_any_wd, false,
-             "Dont bother with word plausibility");
+             "Don't bother with word plausibility");
   BOOL_VAR_H(tessedit_fix_hyphens, true, "Crunch double hyphens?");
   BOOL_VAR_H(tessedit_redo_xheight, true, "Check/Correct x-height");
   BOOL_VAR_H(tessedit_enable_doc_dict, true,
@@ -954,15 +954,15 @@ class Tesseract : public Wordrec {
   double_VAR_H(crunch_small_outlines_size, 0.6, "Small if lt xht x this");
   INT_VAR_H(crunch_rating_max, 10, "For adj length in rating per ch");
   INT_VAR_H(crunch_pot_indicators, 1, "How many potential indicators needed");
-  BOOL_VAR_H(crunch_leave_ok_strings, true, "Dont touch sensible strings");
+  BOOL_VAR_H(crunch_leave_ok_strings, true, "Don't touch sensible strings");
   BOOL_VAR_H(crunch_accept_ok, true, "Use acceptability in okstring");
   BOOL_VAR_H(crunch_leave_accept_strings, false,
-             "Dont pot crunch sensible strings");
+             "Don't pot crunch sensible strings");
   BOOL_VAR_H(crunch_include_numerals, false, "Fiddle alpha figures");
   INT_VAR_H(crunch_leave_lc_strings, 4,
-            "Dont crunch words with long lower case strings");
+            "Don't crunch words with long lower case strings");
   INT_VAR_H(crunch_leave_uc_strings, 4,
-            "Dont crunch words with long lower case strings");
+            "Don't crunch words with long lower case strings");
   INT_VAR_H(crunch_long_repetitions, 3, "Crunch words with long repetitions");
   INT_VAR_H(crunch_debug, 0, "As it says");
   INT_VAR_H(fixsp_non_noise_limit, 1,
@@ -1010,16 +1010,16 @@ class Tesseract : public Wordrec {
   INT_VAR_H(suspect_space_level, 100,
             "Min suspect level for rejecting spaces");
   INT_VAR_H(suspect_short_words, 2,
-            "Dont Suspect dict wds longer than this");
+            "Don't Suspect dict wds longer than this");
   BOOL_VAR_H(suspect_constrain_1Il, false, "UNLV keep 1Il chars rejected");
-  double_VAR_H(suspect_rating_per_ch, 999.9, "Dont touch bad rating limit");
+  double_VAR_H(suspect_rating_per_ch, 999.9, "Don't touch bad rating limit");
   double_VAR_H(suspect_accept_rating, -999.9, "Accept good rating limit");
   BOOL_VAR_H(tessedit_minimal_rejection, false, "Only reject tess failures");
-  BOOL_VAR_H(tessedit_zero_rejection, false, "Dont reject ANYTHING");
+  BOOL_VAR_H(tessedit_zero_rejection, false, "Don't reject ANYTHING");
   BOOL_VAR_H(tessedit_word_for_word, false,
              "Make output have exactly one word per WERD");
   BOOL_VAR_H(tessedit_zero_kelvin_rejection, false,
-             "Dont reject ANYTHING AT ALL");
+             "Don't reject ANYTHING AT ALL");
   BOOL_VAR_H(tessedit_consistent_reps, true, "Force all rep chars the same");
   INT_VAR_H(tessedit_reject_mode, 0, "Rejection algorithm");
   BOOL_VAR_H(tessedit_rejection_debug, false, "Adaption debug");
@@ -1030,7 +1030,7 @@ class Tesseract : public Wordrec {
                "Aspect ratio dot/hyphen test");
   BOOL_VAR_H(rej_trust_doc_dawg, false, "Use DOC dawg in 11l conf. detector");
   BOOL_VAR_H(rej_1Il_use_dict_word, false, "Use dictword test");
-  BOOL_VAR_H(rej_1Il_trust_permuter_type, true, "Dont double check");
+  BOOL_VAR_H(rej_1Il_trust_permuter_type, true, "Don't double check");
   BOOL_VAR_H(rej_use_tess_accepted, true, "Individual rejection control");
   BOOL_VAR_H(rej_use_tess_blanks, true, "Individual rejection control");
   BOOL_VAR_H(rej_use_good_perm, true, "Individual rejection control");

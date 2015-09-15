@@ -72,7 +72,7 @@ bool ConvNetCharClassifier::Train(CharSamp *char_samp, int ClassID) {
 
 /**
  * A secondary function needed for training. Allows the trainer to set the
- * value of any train-time paramter. This function is currently not
+ * value of any train-time parameter. This function is currently not
  * implemented. TODO(ahmadab): implement end-2-end training
  */
 bool ConvNetCharClassifier::SetLearnParam(char *var_name, float val) {
