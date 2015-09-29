@@ -1,8 +1,3 @@
-Note that this is possibly out-of-date version of the wiki ReadMe,
-which is located at:
-
-  https://github.com/tesseract-ocr/tesseract/blob/master/README.md
-
 Introduction
 ============
 
