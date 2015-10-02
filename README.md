@@ -100,7 +100,7 @@ find its data directory. You must either:
     ./autogen.sh
     ./configure
     make
-    make install
+    sudo make install
     sudo ldconfig
 
 to move the data files to the standard place, or:

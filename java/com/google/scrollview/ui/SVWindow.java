@@ -298,7 +298,7 @@ public class SVWindow extends JFrame {
       ta.setEditable(false);
       getContentPane().add(ta, BorderLayout.SOUTH);
     }
-    // We need to make the window bigger to accomodate the message box.
+    // We need to make the window bigger to accommodate the message box.
     winSizeY += DEF_MESSAGEBOX_HEIGHT;
     setSize(winSizeX, winSizeY);
   }

@@ -69,11 +69,11 @@ class DLLSYM ELIST2_LINK
     }
 
     ELIST2_LINK(                        //copy constructor
-                const ELIST2_LINK &) {  //dont copy link
+                const ELIST2_LINK &) {  //don't copy link
       prev = next = NULL;
     }
 
-    void operator= (             //dont copy links
+    void operator= (             //don't copy links
     const ELIST2_LINK &) {
       prev = next = NULL;
     }
@@ -133,7 +133,7 @@ class DLLSYM ELIST2
 
     // Assuming list has been sorted already, insert new_link to
     // keep the list sorted according to the same comparison function.
-    // Comparision function is the same as used by sort, i.e. uses double
+    // Comparison function is the same as used by sort, i.e. uses double
     // indirection. Time is O(1) to add to beginning or end.
     // Time is linear to add pre-sorted items to an empty list.
     void add_sorted(int comparator(const void*, const void*),
@@ -241,7 +241,7 @@ class DLLSYM ELIST2_ITERATOR
     BOOL8 cycled_list();  //Completed a cycle?
 
     void add_to_end(                         //add at end &
-                    ELIST2_LINK *new_link);  //dont move
+                    ELIST2_LINK *new_link);  //don't move
 
     void exchange(                             //positions of 2 links
                   ELIST2_ITERATOR *other_it);  //other iterator
@@ -450,7 +450,7 @@ inline void ELIST2_ITERATOR::add_before_then_move(  // element to add
 /***********************************************************************
  *							ELIST2_ITERATOR::add_before_stay_put
  *
- *  Add a new element to the list before the current element but dont move the
+ *  Add a new element to the list before the current element but don't move the
  *  iterator to the new element.
  **********************************************************************/
 
@@ -500,7 +500,7 @@ inline void ELIST2_ITERATOR::add_before_stay_put(  // element to add
 /***********************************************************************
  *							ELIST2_ITERATOR::add_list_after
  *
- *  Insert another list to this list after the current element but dont move the
+ *  Insert another list to this list after the current element but don't move the
  *  iterator.
  **********************************************************************/
 
@@ -883,7 +883,7 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 CLASSNAME is assumed to be the name of a class which has a baseclass of
 ELIST2_LINK.
 
-NOTE:  Because we dont use virtual functions in the list code, the list code
+NOTE:  Because we don't use virtual functions in the list code, the list code
 will NOT work correctly for classes derived from this.
 
 The macro generates:
@@ -927,7 +927,7 @@ public:																								\
 							CLASSNAME##_LIST():ELIST2() {} \
 														/* constructor */		\
 																										\
-							CLASSNAME##_LIST(			/* dont construct */ \
+							CLASSNAME##_LIST(			/* don't construct */ \
 	const CLASSNAME##_LIST&)							/*by initial assign*/\
 	{ DONT_CONSTRUCT_LIST_BY_COPY.error( QUOTE_IT( CLASSNAME##_LIST ),      \
 														ABORT, NULL ); }							\
@@ -1015,7 +1015,7 @@ ELIST2IZEH_C( CLASSNAME )
 *  A function which can delete a CLASSNAME element.  This is passed to the		\
 *  generic clear list member function so that when a list is cleared the		\
 *  elements on the list are properly destroyed from the base class, even		\
-*  though we dont use a virtual destructor function.									\
+*  though we don't use a virtual destructor function.									\
 **********************************************************************/			\
 																										\
 DLLSYM void					CLASSNAME##_zapper(			/*delete a link*/		\

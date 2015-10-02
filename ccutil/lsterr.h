@@ -38,6 +38,6 @@ const ERRCODE NULL_PREV = "Previous element on the list is NULL";
 const ERRCODE EMPTY_LIST = "List is empty";
 const ERRCODE BAD_PARAMETER = "List parameter error";
 const ERRCODE STILL_LINKED =
-"Attemting to add an element with non NULL links, to a list";
+"Attempting to add an element with non NULL links, to a list";
 #endif
 #endif

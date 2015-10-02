@@ -33,7 +33,7 @@ static const int kMinAbsoluteGarbageWordLength = 10;
 static const float kMinAbsoluteGarbageAlphanumFrac = 0.5f;
 
 const int case_state_table[6][4] = { {
-                                  /*  0. Begining of word        */
+                                  /*  0. Beginning of word       */
     /*    P   U   L   D                                          */
                                   /* -1. Error on case           */
       0, 1, 5, 4

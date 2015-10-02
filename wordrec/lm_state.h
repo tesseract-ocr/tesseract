@@ -177,11 +177,11 @@ struct ViterbiStateEntry : public ELIST_LINK {
   /// the smallest rating or lower/upper case letters).
   LanguageModelFlagsType top_choice_flags;
 
-  /// Extra information maintained by Dawg laguage model component
+  /// Extra information maintained by Dawg language model component
   /// (owned by ViterbiStateEntry).
   LanguageModelDawgInfo *dawg_info;
 
-  /// Extra information maintained by Ngram laguage model component
+  /// Extra information maintained by Ngram language model component
   /// (owned by ViterbiStateEntry).
   LanguageModelNgramInfo *ngram_info;
 

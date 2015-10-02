@@ -147,7 +147,7 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
 
 /*---------------------------------------------------------------------------*/
 /**
- * This routine steps thru the specified outline and cuts it
+ * This routine steps through the specified outline and cuts it
  * up into pieces of equal length.  These pieces become the
  * desired pico-features.  Each segment in the outline
  * is converted into an integral number of pico-features.

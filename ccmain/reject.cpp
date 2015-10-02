@@ -521,7 +521,7 @@ BOOL8 Tesseract::word_contains_non_1_digit(const char *word,
 
 /*************************************************************************
  * dont_allow_1Il()
- * Dont unreject LONE accepted 1Il conflict set chars
+ * Don't unreject LONE accepted 1Il conflict set chars
  *************************************************************************/
 void Tesseract::dont_allow_1Il(WERD_RES *word) {
   int i = 0;
@@ -633,7 +633,7 @@ void Tesseract::flip_hyphens(WERD_RES *word_res) {
       next_left = 9999;
     else
       next_left = word_res->rebuild_word->blobs[i + 1]->bounding_box().left();
-    // Dont touch small or touching blobs - it is too dangerous.
+    // Don't touch small or touching blobs - it is too dangerous.
     if ((out_box.width() > 8 * word_res->denorm.x_scale()) &&
         (out_box.left() > prev_right) && (out_box.right() < next_left)) {
       aspect_ratio = out_box.width() / (float) out_box.height();
