@@ -117,7 +117,7 @@ inT32 ELIST::length() const {  // count elements
  *							ELIST::sort
  *
  *  Sort elements on list
- *  NB If you dont like the const declarations in the comparator, coerce yours:
+ *  NB If you don't like the const declarations in the comparator, coerce yours:
  *   ( int (*)(const void *, const void *)
  **********************************************************************/
 
@@ -161,7 +161,7 @@ const void *, const void *)) {
 
 // Assuming list has been sorted already, insert new_link to
 // keep the list sorted according to the same comparison function.
-// Comparision function is the same as used by sort, i.e. uses double
+// Comparison function is the same as used by sort, i.e. uses double
 // indirection. Time is O(1) to add to beginning or end.
 // Time is linear to add pre-sorted items to an empty list.
 // If unique is set to true and comparator() returns 0 (an entry with the
@@ -455,7 +455,7 @@ ELIST_LINK *ELIST_ITERATOR::extract_sublist(                             //from 
 
   temp_it.mark_cycle_pt ();
   do {                           //walk sublist
-    if (temp_it.cycled_list ())  //cant find end pt
+    if (temp_it.cycled_list ())  //can't find end pt
       BAD_SUBLIST.error ("ELIST_ITERATOR.extract_sublist", ABORT, NULL);
 
     if (temp_it.at_last ()) {

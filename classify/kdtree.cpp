@@ -521,7 +521,7 @@ bool KDTreeSearch::BoxIntersectsSearch(FLOAT32 *lower, FLOAT32 *upper) {
  * Walk a tree, calling action once on each node.
  *
  * Operation:
- *   This routine walks thru the specified sub_tree and invokes action
+ *   This routine walks through the specified sub_tree and invokes action
  *   action at each node as follows:
  *       action(context, data, level)
  *   data  the data contents of the node being visited,

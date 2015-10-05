@@ -8,7 +8,7 @@
 #
 ###############################################################################
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 2.8.11)
 
 # In-source builds are disabled.
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -47,15 +47,8 @@ set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 find_package(Leptonica 1.71 REQUIRED)
 
 find_package(ICU COMPONENTS uc i18n)
-find_package(PkgConfig QUIET)
-pkg_check_modules(Pango pango)
-pkg_check_modules(Cairo cairo)
-pkg_check_modules(PangoFt2 pangoft2)
-pkg_check_modules(PangoCairo pangocairo)
-pkg_check_modules(FontConfig fontconfig)
-
-include_directories(${Pango_INCLUDE_DIRS})
-include_directories(${Cairo_INCLUDE_DIRS})
+find_package(OpenCL QUIET)
+find_package(PkgConfig)
 
 ###############################################################################
 #
@@ -78,6 +71,10 @@ if (WIN32)
     endif()
     
     set(LIB_Ws2_32 Ws2_32)
+endif()
+
+if (CYGWIN)
+    add_definitions(-D__CYGWIN__)
 endif()
 
 if (UNIX)
@@ -190,7 +187,9 @@ set(tesseract_src ${tesseract_src}
 )
 
 add_library                     (tesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
+if (NOT STATIC)
 target_compile_definitions      (tesseract PUBLIC -DTESS_EXPORTS)
+endif()
 target_link_libraries           (tesseract ${Leptonica_LIBRARIES} ${LIB_Ws2_32} ${LIB_pthread})
 set_target_properties           (tesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
 set_target_properties           (tesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)

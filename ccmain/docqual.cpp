@@ -129,7 +129,7 @@ inT16 Tesseract::count_outline_errs(char c, inT16 outline_count) {
   int expected_outline_count;
 
   if (STRING (outlines_odd).contains (c))
-    return 0;                    //Dont use this char
+    return 0;                    //Don't use this char
   else if (STRING (outlines_2).contains (c))
     expected_outline_count = 2;
   else
@@ -157,7 +157,7 @@ void Tesseract::quality_based_rejection(PAGE_RES_IT &page_res_it,
  *    - Word segmentation is the same as the original image
  *		- All characters have the expected number of outlines
  * NOTE - the rejection counts are recalculated after unrejection
- *      - CANT do it in a single pass without a bit of fiddling
+ *      - CAN'T do it in a single pass without a bit of fiddling
  *		- keep it simple but inefficient
  *************************************************************************/
 void Tesseract::unrej_good_quality_words(  //unreject potential
@@ -403,7 +403,7 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
 
 /*************************************************************************
  * reject_whole_page()
- * Dont believe any of it - set the reject map to 00..00 in all words
+ * Don't believe any of it - set the reject map to 00..00 in all words
  *
  *************************************************************************/
 

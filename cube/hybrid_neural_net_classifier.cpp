@@ -72,7 +72,7 @@ bool HybridNeuralNetCharClassifier::Train(CharSamp *char_samp, int ClassID) {
 }
 
 // A secondary function needed for training. Allows the trainer to set the
-// value of any train-time paramter. This function is currently not
+// value of any train-time parameter. This function is currently not
 // implemented. TODO(ahmadab): implement end-2-end training
 bool HybridNeuralNetCharClassifier::SetLearnParam(char *var_name, float val) {
   // TODO(ahmadab): implementation of parameter initializing.
@@ -151,7 +151,7 @@ bool HybridNeuralNetCharClassifier::RunNets(CharSamp *char_samp) {
     return false;
   }
 
-  // go thru all the nets
+  // go through all the nets
   memset(net_output_, 0, class_cnt * sizeof(*net_output_));
   float *inputs = net_input_;
   for (int net_idx = 0; net_idx < nets_.size(); net_idx++) {

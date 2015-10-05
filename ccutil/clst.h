@@ -51,11 +51,11 @@ class DLLSYM CLIST_LINK
     }
 
     CLIST_LINK(                       //copy constructor
-               const CLIST_LINK &) {  //dont copy link
+               const CLIST_LINK &) {  //don't copy link
       data = next = NULL;
     }
 
-    void operator= (             //dont copy links
+    void operator= (             //don't copy links
     const CLIST_LINK &) {
       data = next = NULL;
     }
@@ -89,7 +89,7 @@ class DLLSYM CLIST
     void internal_deep_clear (   //destroy all links
       void (*zapper) (void *));  //ptr to zapper functn
 
-    void shallow_clear();  //clear list but dont
+    void shallow_clear();  //clear list but don't
     //delete data elements
 
     bool empty() const {  //is list empty?
@@ -117,7 +117,7 @@ class DLLSYM CLIST
 
     // Assuming list has been sorted already, insert new_data to
     // keep the list sorted according to the same comparison function.
-    // Comparision function is the same as used by sort, i.e. uses double
+    // Comparison function is the same as used by sort, i.e. uses double
     // indirection. Time is O(1) to add to beginning or end.
     // Time is linear to add pre-sorted items to an empty list.
     // If unique, then don't add duplicate entries.
@@ -232,7 +232,7 @@ class DLLSYM CLIST_ITERATOR
     BOOL8 cycled_list();  //Completed a cycle?
 
     void add_to_end(                  //add at end &
-                    void *new_data);  //dont move
+                    void *new_data);  //don't move
 
     void exchange(                            //positions of 2 links
                   CLIST_ITERATOR *other_it);  //other iterator
@@ -437,7 +437,7 @@ inline void CLIST_ITERATOR::add_before_then_move(  // element to add
 /***********************************************************************
  *							CLIST_ITERATOR::add_before_stay_put
  *
- *  Add a new element to the list before the current element but dont move the
+ *  Add a new element to the list before the current element but don't move the
  *  iterator to the new element.
  **********************************************************************/
 
@@ -485,7 +485,7 @@ inline void CLIST_ITERATOR::add_before_stay_put(  // element to add
 /***********************************************************************
  *							CLIST_ITERATOR::add_list_after
  *
- *  Insert another list to this list after the current element but dont move the
+ *  Insert another list to this list after the current element but don't move the
  *  iterator.
  **********************************************************************/
 
@@ -836,7 +836,7 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 
 CLASSNAME is assumed to be the name of a class to be used in a CONS list
 
-NOTE:  Because we dont use virtual functions in the list code, the list code
+NOTE:  Because we don't use virtual functions in the list code, the list code
 will NOT work correctly for classes derived from this.
 
 The macro generates:
@@ -885,7 +885,7 @@ public:																			\
 							CLASSNAME##_CLIST():CLIST() {}						\
 														/* constructor */		\
 																				\
-							CLASSNAME##_CLIST(	/* dont construct */			\
+							CLASSNAME##_CLIST(	/* don't construct */			\
 	const CLASSNAME##_CLIST&)							/*by initial assign*/	\
 	{ DONT_CONSTRUCT_LIST_BY_COPY.error( QUOTE_IT( CLASSNAME##_CLIST ),			\
 														ABORT, NULL ); }		\
@@ -963,7 +963,7 @@ CLISTIZEH_C( CLASSNAME )
 *  A function which can delete a CLASSNAME element.  This is passed to the		\
 *  generic deep_clear list member function so that when a list is cleared the	\
 *  elements on the list are properly destroyed from the base class, even		\
-*  though we dont use a virtual destructor function.							\
+*  though we don't use a virtual destructor function.							\
 **********************************************************************/			\
 																				\
 DLLSYM void					CLASSNAME##_c1_zapper(		/*delete a link*/		\

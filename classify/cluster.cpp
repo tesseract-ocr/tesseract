@@ -182,7 +182,7 @@ struct BUCKETS {
   FLOAT64 ChiSquared;            // test threshold
   uinT16 NumberOfBuckets;        // number of cells in histogram
   uinT16 Bucket[BUCKETTABLESIZE];// mapping to histogram buckets
-  uinT32 *Count;                 // frequency of occurence histogram
+  uinT32 *Count;                 // frequency of occurrence histogram
   FLOAT32 *ExpectedCount;        // expected histogram
 };
 

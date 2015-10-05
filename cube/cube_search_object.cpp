@@ -212,7 +212,7 @@ CharSamp *CubeSearchObject::CharSample(int start_pt, int end_pt) {
     samp->SetLastChar(last_char ? 255 : 0);
   } else {
     // for non cursive languages, these features correspond
-    // to whether the charsamp is at the begining or end of the word
+    // to whether the charsamp is at the beginning or end of the word
     samp->SetFirstChar((start_pt == -1) ? 255 : 0);
     samp->SetLastChar((end_pt == (segment_cnt_ - 1)) ? 255 : 0);
   }

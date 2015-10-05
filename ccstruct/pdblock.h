@@ -108,7 +108,7 @@ class PDBLK
     PDBLK & operator= (const PDBLK & source);
 
   protected:
-    POLY_BLOCK *hand_poly;       //< wierd as well
+    POLY_BLOCK *hand_poly;       //< weird as well
     ICOORDELT_LIST leftside;     //< left side vertices
     ICOORDELT_LIST rightside;    //< right side vertices
     TBOX box;                    //< bounding box

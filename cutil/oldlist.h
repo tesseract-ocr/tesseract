@@ -234,7 +234,7 @@ first_node (list_rest (l))
 first_node (list_rest (list_rest (l)))
 
 /*----------------------------------------------------------------------
-          Public Funtion Prototypes
+          Public Function Prototypes
 ----------------------------------------------------------------------*/
 int count(LIST var_list);
 

@@ -67,7 +67,7 @@ The implementation of lists is very careful about space and speed overheads.
 This is why many embedded lists are provided. The same concerns mean that
 in-line type coercion is done, rather than use virtual functions.  This is
 cumbersome in that each data type to be listed requires its own iterator and
-list class - though macros can gererate these.  It also prevents heterogenous
+list class - though macros can gererate these.  It also prevents heterogeneous
 lists.
 **********************************************************************/
 
@@ -98,7 +98,7 @@ class DLLSYM ELIST_LINK
       next = NULL;
     }
 
-    void operator= (             //dont copy links
+    void operator= (             //don't copy links
     const ELIST_LINK &) {
       next = NULL;
     }
@@ -158,7 +158,7 @@ class DLLSYM ELIST
 
     // Assuming list has been sorted already, insert new_link to
     // keep the list sorted according to the same comparison function.
-    // Comparision function is the same as used by sort, i.e. uses double
+    // Comparison function is the same as used by sort, i.e. uses double
     // indirection. Time is O(1) to add to beginning or end.
     // Time is linear to add pre-sorted items to an empty list.
     // If unique is set to true and comparator() returns 0 (an entry with the
@@ -274,7 +274,7 @@ class DLLSYM ELIST_ITERATOR
     bool cycled_list();  //Completed a cycle?
 
     void add_to_end(                        //add at end &
-                    ELIST_LINK *new_link);  //dont move
+                    ELIST_LINK *new_link);  //don't move
 
     void exchange(                            //positions of 2 links
                   ELIST_ITERATOR *other_it);  //other iterator
@@ -470,7 +470,7 @@ inline void ELIST_ITERATOR::add_before_then_move(  // element to add
 /***********************************************************************
  *                          ELIST_ITERATOR::add_before_stay_put
  *
- *  Add a new element to the list before the current element but dont move the
+ *  Add a new element to the list before the current element but don't move the
  *  iterator to the new element.
  **********************************************************************/
 
@@ -515,7 +515,7 @@ inline void ELIST_ITERATOR::add_before_stay_put(  // element to add
 /***********************************************************************
  *                          ELIST_ITERATOR::add_list_after
  *
- *  Insert another list to this list after the current element but dont move the
+ *  Insert another list to this list after the current element but don't move the
  *  iterator.
  **********************************************************************/
 
@@ -868,7 +868,7 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 CLASSNAME is assumed to be the name of a class which has a baseclass of
 ELIST_LINK.
 
-NOTE:  Because we dont use virtual functions in the list code, the list code
+NOTE:  Because we don't use virtual functions in the list code, the list code
 will NOT work correctly for classes derived from this.
 
 The macros generate:
@@ -999,7 +999,7 @@ ELISTIZEH_C( CLASSNAME )
 *  A function which can delete a CLASSNAME element.  This is passed to the  \
 *  generic clear list member function so that when a list is cleared the    \
 *  elements on the list are properly destroyed from the base class, even    \
-*  though we dont use a virtual destructor function.                        \
+*  though we don't use a virtual destructor function.                       \
 **********************************************************************/     \
                                                                             \
 DLLSYM void CLASSNAME##_zapper(ELIST_LINK* link) {                          \

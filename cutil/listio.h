@@ -37,7 +37,7 @@
 #include "oldlist.h"
 
 /*----------------------------------------------------------------------------
-        Public Funtion Prototypes
+        Public Function Prototypes
 --------------------------------------------------------------------------*/
 LIST read_list(const char *filename);
 #endif
