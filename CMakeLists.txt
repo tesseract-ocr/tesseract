@@ -44,7 +44,7 @@ set(VERSION_MAJOR 3)
 set(VERSION_MINOR 05)
 set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 
-find_package(Leptonica 1.72 REQUIRED)
+find_package(Leptonica 1.71 REQUIRED)
 
 find_package(ICU COMPONENTS uc i18n)
 find_package(PkgConfig QUIET)
