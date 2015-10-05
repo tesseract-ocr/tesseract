@@ -200,7 +200,7 @@ class ColPartitionGrid : public BBGrid<ColPartition,
                            bool debug, ColPartition_CLIST* candidates);
 
   // Smoothes the region type/flow type of the given part by looking at local
-  // neigbours and the given image mask. Searches a padded rectangle with the
+  // neighbours and the given image mask. Searches a padded rectangle with the
   // padding truncated on one size of the part's box in turn for each side,
   // using the result (if any) that has the least distance to all neighbours
   // that contribute to the decision. This biases in favor of rectangular

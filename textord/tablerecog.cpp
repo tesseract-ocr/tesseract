@@ -740,7 +740,7 @@ StructuredTable* TableRecognizer::RecognizeTable(const TBOX& guess) {
   table->set_line_grid(line_grid_);
   table->set_max_text_height(max_text_height_);
 
-  // Try to solve ths simple case, a table with *both*
+  // Try to solve this simple case, a table with *both*
   // vertical and horizontal lines.
   if (RecognizeLinedTable(guess, table))
     return table;

@@ -671,7 +671,7 @@ BOOL8 find_best_dropout_row(                    //find neighbours
                             TO_ROW_IT *row_it,  //current position
                             BOOL8 testing_on    //correct orientation
                            ) {
-  inT32 next_index;              //of neigbouring row
+  inT32 next_index;              //of neighbouring row
   inT32 row_offset;              //from current row
   inT32 abs_dist;                //absolute distance
   inT8 row_inc;                  //increment to row_index

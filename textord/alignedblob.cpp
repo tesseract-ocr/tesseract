@@ -502,7 +502,7 @@ BLOBNBOX* AlignedBlob::FindAlignedBlob(const AlignedBlobParams& p,
     }
     if ((p.right_tab && neighbour->leader_on_right()) ||
         (!p.right_tab && neighbour->leader_on_left()))
-      continue;  // Neigbours of leaders are not allowed to be used.
+      continue;  // Neighbours of leaders are not allowed to be used.
     if (n_x <= x_at_n_y + p.r_align_tolerance &&
         n_x >= x_at_n_y - p.l_align_tolerance) {
       // Aligned so keep it. If it is a marked tab save it as result,

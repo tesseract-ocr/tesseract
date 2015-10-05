@@ -981,7 +981,7 @@ int ColPartition::CountOverlappingBoxes(const TBOX& box) {
   return overlap_count;
 }
 
-// Computes and sets the type_ and first_colum_, last_column_ and column_set_.
+// Computes and sets the type_ and first_column_, last_column_ and column_set_.
 // resolution refers to the ppi resolution of the image.
 void ColPartition::SetPartitionType(int resolution, ColPartitionSet* columns) {
   int first_spanned_col = -1;

@@ -695,7 +695,7 @@ class ColPartition : public ELIST2_LINK {
   // one partner. This makes block creation simpler.
   // If get_desperate is true, goes to more desperate merge methods
   // to merge flowing text before breaking partnerships.
-  void RefinePartners(PolyBlockType type, bool get_desparate,
+  void RefinePartners(PolyBlockType type, bool get_desperate,
                       ColPartitionGrid* grid);
 
   // Returns true if this column partition is in the same column as
