@@ -411,7 +411,7 @@ AC_CHECK_FUNCS([getline])
 # Checks for typedefs, structures, and compiler characteristics.
 # ----------------------------------------
 
-AC_CHECK_TYPES(wchar_t)
+AC_CHECK_TYPES(wchar_t,,,[#include "wchar.h"])
 AC_CHECK_TYPES(long long int)
 AC_CHECK_TYPES(mbstate_t,,,[#include "wchar.h"])
 
