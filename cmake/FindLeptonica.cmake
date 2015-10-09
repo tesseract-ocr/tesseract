@@ -17,8 +17,9 @@ find_path(Leptonica_INCLUDE_DIR leptonica/allheaders.h
     /usr/local/include
     /opt/include
     /opt/local/include
+    ${Leptonica_DIR}/include
 )
-if(NOT Leptonica_INCLUDE_DIR-NOTFOUND)
+if("${Leptonica_INCLUDE_DIR}" EQUAL "Leptonica_INCLUDE_DIR-NOTFOUND")
     set(Leptonica_INCLUDE_DIRS ${Leptonica_INCLUDE_DIR}/leptonica)
     file(STRINGS ${Leptonica_INCLUDE_DIRS}/allheaders.h Leptonica_MAJOR_VERSION REGEX "LIBLEPT_MAJOR_VERSION")
     file(STRINGS ${Leptonica_INCLUDE_DIRS}/allheaders.h Leptonica_MINOR_VERSION REGEX "LIBLEPT_MINOR_VERSION")
@@ -33,6 +34,7 @@ find_library(Leptonica_LIBRARY NAMES lept liblept
     /usr/local/lib
     /opt/lib
     /opt/local/lib
+    ${Leptonica_DIR}/lib
 )
 set(Leptonica_LIBRARIES ${Leptonica_LIBRARY})
 
@@ -43,6 +45,7 @@ find_package_handle_standard_args(Leptonica
         Leptonica_INCLUDE_DIRS
         Leptonica_LIBRARIES
     VERSION_VAR Leptonica_VERSION
+    FAIL_MESSAGE "Try to set Leptonica_DIR or Leptonica_ROOT"
 )
 
 mark_as_advanced(Leptonica_INCLUDE_DIRS Leptonica_LIBRARIES)

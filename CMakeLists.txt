@@ -44,7 +44,13 @@ set(VERSION_MAJOR 3)
 set(VERSION_MINOR 05)
 set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 
-find_package(Leptonica 1.71 REQUIRED)
+set(MINIMUM_LEPTONICA_VERSION 1.71)
+
+if (NOT Leptonica_BUILD_DIR)
+find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED)
+else()
+find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
+endif()
 
 find_package(ICU COMPONENTS uc i18n)
 find_package(OpenCL QUIET)
@@ -142,6 +148,8 @@ include_directories(wordrec)
 # LIBRARY tesseract
 ########################################
 
+string(SUBSTRING ${VERSION_MINOR} 0 1 VERSION_MINOR_0)
+string(SUBSTRING ${VERSION_MINOR} 1 1 VERSION_MINOR_1)
 
 file(GLOB tesseract_src
     "ccmain/*.cpp"
@@ -191,8 +199,12 @@ if (NOT STATIC)
 target_compile_definitions      (tesseract PUBLIC -DTESS_EXPORTS)
 endif()
 target_link_libraries           (tesseract ${Leptonica_LIBRARIES} ${LIB_Ws2_32} ${LIB_pthread})
+set_target_properties           (tesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
+set_target_properties           (tesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
+if (WIN32)
 set_target_properties           (tesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
 set_target_properties           (tesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
+endif()
 export(TARGETS tesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
 
 
