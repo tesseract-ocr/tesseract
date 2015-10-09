@@ -49,6 +49,7 @@ set(MINIMUM_LEPTONICA_VERSION 1.71)
 if (NOT Leptonica_BUILD_DIR)
 find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED)
 else()
+set(Leptonica_DIR ${Leptonica_BUILD_DIR})
 find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
 endif()
 
