@@ -19,7 +19,7 @@ find_path(Leptonica_INCLUDE_DIR leptonica/allheaders.h
     /opt/local/include
     ${Leptonica_DIR}/include
 )
-if("${Leptonica_INCLUDE_DIR}" EQUAL "Leptonica_INCLUDE_DIR-NOTFOUND")
+if(NOT "${Leptonica_INCLUDE_DIR}" EQUAL "Leptonica_INCLUDE_DIR-NOTFOUND")
     set(Leptonica_INCLUDE_DIRS ${Leptonica_INCLUDE_DIR}/leptonica)
     file(STRINGS ${Leptonica_INCLUDE_DIRS}/allheaders.h Leptonica_MAJOR_VERSION REGEX "LIBLEPT_MAJOR_VERSION")
     file(STRINGS ${Leptonica_INCLUDE_DIRS}/allheaders.h Leptonica_MINOR_VERSION REGEX "LIBLEPT_MINOR_VERSION")
