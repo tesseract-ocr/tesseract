@@ -1,5 +1,5 @@
-autotools (LINUX/UNIX...)
-======================
+# autotools (LINUX/UNIX , msys...)
+
 
 If you have cloned Tesseract from Github, you must generate
 the configure script.
@@ -39,7 +39,32 @@ and follow instruction on Viewer Debugging wiki[2].
 [1] http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22
 [2] https://github.com/tesseract-ocr/tesseract/wiki/ViewerDebugging
 
-WINDOWS
-=======
+
+# CMAKE
+
+
+## LINUX
+
+mkdir build
+cd build && cmake .. && make
+sudo make install
+
+
+## WINDOWS
+
+
+cd leptonica
+mkdir build
+cd build
+cmake ..
+
+cd tesseract
+mkdir build
+cd build
+cmake .. -DLeptonica_BUILD_DIR=/abs/path/to/leptonica/build
+
+
+# WINDOWS Visual Studio
+
 
 Please read http://vorba.ch/2014/tesseract-3.03-vs2013.html

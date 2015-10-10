@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/egorpugin/tesseract.svg?branch=master)](https://travis-ci.org/egorpugin/tesseract)
-[![Build status](https://ci.appveyor.com/api/projects/status/34s8gu4md3i9s93k?svg=true)](https://ci.appveyor.com/project/egorpugin/tesseract)
+[![Build Status](https://travis-ci.org/tesseract-ocr/tesseract.svg?branch=master)](https://travis-ci.org/tesseract-ocr/tesseract)
+[![Build status](https://ci.appveyor.com/api/projects/status/miah0ikfsf0j3819?svg=true)](https://ci.appveyor.com/project/zdenop/tesseract/)
 
 Note that this is possibly out-of-date version of the wiki ReadMe,
 which is located at:

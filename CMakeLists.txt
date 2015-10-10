@@ -220,6 +220,7 @@ set(tesseractmain_src
 )
 add_executable                  (tesseractmain ${tesseractmain_src})
 target_link_libraries           (tesseractmain tesseract)
+set_target_properties           (tesseractmain PROPERTIES OUTPUT_NAME tesseract)
 
 ########################################
 
