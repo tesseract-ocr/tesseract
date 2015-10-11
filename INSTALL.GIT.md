@@ -51,18 +51,19 @@ There is alternative build system based on multiplatform [cmake](https://cmake.o
 ## WINDOWS
 
 You need to use leptonica with cmake patch:
+
     git clone https://github.com/egorpugin/leptonica.git
     cd leptonica
     mkdir build
     cd build
     cmake ..
     cmake --build .
-
+    cd ..\..
     git clone https://github.com/tesseract-ocr/tesseract.git
     cd tesseract
     mkdir build
     cd build
-    cmake .. -DLeptonica_BUILD_DIR=/abs/path/to/leptonica/build
+    cmake .. -DLeptonica_BUILD_DIR=\abs\path\to\leptonica\build
     cmake --build .
 
 
