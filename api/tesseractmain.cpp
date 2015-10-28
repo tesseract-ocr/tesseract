@@ -32,6 +32,7 @@
 #include "tprintf.h"
 #include "openclwrapper.h"
 #include "osdetect.h"
+#include "unicharset.h"
 
 /**********************************************************************
  *  main()
@@ -257,13 +258,17 @@ int main(int argc, char **argv) {
        if (api.DetectOS(&osr)) {
          int orient = osr.best_result.orientation_id;
          int script_id = osr.get_best_script(orient);
+         const char* script_name = 
+             osr.unicharset->get_script_from_script_id(script_id);
          float orient_oco = osr.best_result.oconfidence;
          float orient_sco = osr.best_result.sconfidence;
-         tprintf("Orientation: %d\nOrientation in degrees: %d\n" \
-                 "Orientation confidence: %.2f\n" \
-                 "Script: %d\nScript confidence: %.2f\n",
+         tprintf("Orientation: %d\n"
+                 "Orientation in degrees: %d\n"
+                 "Orientation confidence: %.2f\n"
+                 "Script: %s\n"
+                 "Script confidence: %.2f\n",
                  orient, OrientationIdToValue(orient), orient_oco,
-                 script_id, orient_sco);
+                 script_name, orient_sco);
        } else {
          ret_val = 1;
        }
