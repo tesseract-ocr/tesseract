@@ -213,4 +213,21 @@ bool TessBoxTextRenderer::AddImageHandler(TessBaseAPI* api) {
   return true;
 }
 
+/**********************************************************************
+ * Osd Text Renderer interface implementation
+ **********************************************************************/
+TessOsdRenderer::TessOsdRenderer(const char* outputbase)
+    : TessResultRenderer(outputbase, "osd") {
+}
+
+bool TessOsdRenderer::AddImageHandler(TessBaseAPI* api) {
+  char* osd = api->GetOsdText(imagenum());
+  if (osd == NULL) return false;
+
+  AppendString(osd);
+  delete[] osd;
+
+  return true;
+}
+
 }  // namespace tesseract
