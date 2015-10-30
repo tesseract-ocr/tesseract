@@ -600,12 +600,21 @@ class TESS_API TessBaseAPI {
    * page_number is a 0-based page index that will appear in the box file.
    */
   char* GetBoxText(int page_number);
+
   /**
    * The recognized text is returned as a char* which is coded
    * as UNLV format Latin-1 with specific reject and suspect codes
    * and must be freed with the delete [] operator.
    */
   char* GetUNLVText();
+
+  /**
+   * The recognized text is returned as a char* which is coded
+   * as UTF8 and must be freed with the delete [] operator.
+   * page_number is a 0-based page index that will appear in the osd file.
+   */
+  char* GetOsdText(int page_number);
+
   /** Returns the (average) confidence value between 0 and 100. */
   int MeanTextConf();
   /**
