@@ -38,6 +38,7 @@ struct addrinfo {
 #include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
+#include <sys/select.h>
 #include <sys/socket.h>
 #ifdef __linux__
 #include <sys/prctl.h>
