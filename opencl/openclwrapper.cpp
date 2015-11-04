@@ -495,7 +495,7 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
                 printf("[OD] write binary[%s] failed\n", fileName);
                 return 0;
             } //else
-            printf("[OD] write binary[%s] succesfully\n", fileName);
+            printf("[OD] write binary[%s] successfully\n", fileName);
         }
     }
 
@@ -1630,7 +1630,7 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
     }
     else if (xp > 0 || xn > 0 )
     {
-        //Specfic Horizontal pass kernel for half width < 32
+        //Specific Horizontal pass kernel for half width < 32
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateHor_32word", &status );
         isEven = (xp != xn);
 
@@ -2371,7 +2371,7 @@ OpenclDevice::pixGetLinesCL(PIX  *pixd,
 /*************************************************************************
  *  HistogramRect
  *  Otsu Thresholding Operations
- *  histogramAllChannels is layed out as all channel 0, then all channel 1...
+ *  histogramAllChannels is laid out as all channel 0, then all channel 1...
  *  only supports 1 or 4 channels (bytes_per_pixel)
  ************************************************************************/
 int OpenclDevice::HistogramRectOCL(
