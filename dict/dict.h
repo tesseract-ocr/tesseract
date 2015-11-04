@@ -397,11 +397,11 @@ class Dict {
   }
 
   inline void SetWildcardID(UNICHAR_ID id) { wildcard_unichar_id_ = id; }
-  inline const UNICHAR_ID WildcardID() const {
+  inline UNICHAR_ID WildcardID() const {
     return wildcard_unichar_id_;
   }
   /// Return the number of dawgs in the dawgs_ vector.
-  inline const int NumDawgs() const { return dawgs_.size(); }
+  inline int NumDawgs() const { return dawgs_.size(); }
   /// Return i-th dawg pointer recorded in the dawgs_ vector.
   inline const Dawg *GetDawg(int index) const { return dawgs_[index]; }
   /// Return the points to the punctuation dawg.

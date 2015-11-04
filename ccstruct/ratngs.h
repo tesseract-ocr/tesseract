@@ -309,7 +309,7 @@ class WERD_CHOICE : public ELIST_LINK {
   inline const UNICHAR_ID *unichar_ids() const {
     return unichar_ids_;
   }
-  inline const UNICHAR_ID unichar_id(int index) const {
+  inline UNICHAR_ID unichar_id(int index) const {
     assert(index < length_);
     return unichar_ids_[index];
   }
