@@ -39,7 +39,7 @@ CLASS REGION_OCC
   built in sorted order of min x. Overlapping REGION_OCCs are not permitted on
   a single list. An overlapping region to be added causes the existing region
   to be extended. This extension may result in the following REGION_OCC on the
-  list overlapping the ammended one. In this case the ammended REGION_OCC is
+  list overlapping the amended one. In this case the amended REGION_OCC is
   further extended to include the range of the following one, so that the
   following one can be deleted.
 

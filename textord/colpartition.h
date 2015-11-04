@@ -713,7 +713,7 @@ class ColPartition : public ELIST2_LINK {
   }
 
  private:
-  // enum to refer to the entries in a neigbourhood of lines.
+  // enum to refer to the entries in a neighbourhood of lines.
   // Used by SmoothSpacings to test for blips with OKSpacingBlip.
   enum SpacingNeighbourhood {
     PN_ABOVE2,

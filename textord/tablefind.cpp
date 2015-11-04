@@ -943,7 +943,7 @@ bool TableFinder::HasWideOrNoInterWordGap(ColPartition* part) const {
     return true;
 
   // return true if the maximum gap found is smaller than the minimum allowed
-  // max_gap in a text partition. This indicates that there is no signficant
+  // max_gap in a text partition. This indicates that there is no significant
   // space in the partition, hence it is likely a single word.
   return largest_partition_gap_found < min_gap;
 }
@@ -954,7 +954,7 @@ bool TableFinder::HasWideOrNoInterWordGap(ColPartition* part) const {
 // Note that this includes overlapping leaders. However, it does not
 // include leaders in different columns on the page.
 // Possible false-positive will include lists, such as a table of contents.
-// As these arise, the agressive nature of this search may need to be
+// As these arise, the aggressive nature of this search may need to be
 // trimmed down.
 bool TableFinder::HasLeaderAdjacent(const ColPartition& part) {
   if (part.flow() == BTFT_LEADER)

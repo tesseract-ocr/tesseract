@@ -106,7 +106,7 @@ void ColPartitionGrid::HandleClick(int x, int y) {
 // Merges ColPartitions in the grid that look like they belong in the same
 // textline.
 // For all partitions in the grid, calls the box_cb permanent callback
-// to compute the search box, seaches the box, and if a candidate is found,
+// to compute the search box, searches the box, and if a candidate is found,
 // calls the confirm_cb to check any more rules. If the confirm_cb returns
 // true, then the partitions are merged.
 // Both callbacks are deleted before returning.
@@ -1759,7 +1759,7 @@ void ColPartitionGrid::FindPartitionMargins(ColPartitionSet* columns,
   part->set_right_margin(right_margin);
 }
 
-// Starting at x, and going in the specified direction, upto x_limit, finds
+// Starting at x, and going in the specified direction, up to x_limit, finds
 // the margin for the given y range by searching sideways,
 // and ignoring not_this.
 int ColPartitionGrid::FindMargin(int x, bool right_to_left, int x_limit,

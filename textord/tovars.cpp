@@ -50,7 +50,7 @@ EXTERN double_VAR (textord_words_min_minspace, 0.3, "Fraction of xheight");
 EXTERN double_VAR (textord_words_default_nonspace, 0.2,
 "Fraction of xheight");
 EXTERN double_VAR (textord_words_initial_lower, 0.25,
-"Max inital cluster size");
+"Max initial cluster size");
 EXTERN double_VAR (textord_words_initial_upper, 0.15,
 "Min initial cluster spacing");
 EXTERN double_VAR (textord_words_minlarge, 0.75,
@@ -67,7 +67,7 @@ EXTERN double_VAR (textord_pitch_rowsimilarity, 0.08,
 "Fraction of xheight for sameness");
 EXTERN BOOL_VAR (textord_pitch_scalebigwords, FALSE,
 "Scale scores on big words");
-EXTERN double_VAR (words_initial_lower, 0.5, "Max inital cluster size");
+EXTERN double_VAR (words_initial_lower, 0.5, "Max initial cluster size");
 EXTERN double_VAR (words_initial_upper, 0.15, "Min initial cluster spacing");
 EXTERN double_VAR (words_default_prop_nonspace, 0.25, "Fraction of xheight");
 EXTERN double_VAR (words_default_fixed_space, 0.75, "Fraction of xheight");

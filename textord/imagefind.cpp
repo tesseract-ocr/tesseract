@@ -648,7 +648,7 @@ static void CutChunkFromParts(const TBOX& box, const TBOX& im_box,
     TBOX part_box = part->bounding_box();
     if (part_box.overlap(box)) {
       // This part must be cut and replaced with the remains. There are
-      // upto 4 pieces to be made. Start with the first one and use
+      // up to 4 pieces to be made. Start with the first one and use
       // add_before_stay_put. For each piece if it has no black pixels
       // left, just don't make the box.
       // Above box.
