@@ -736,11 +736,11 @@ class TESS_API TessBaseAPI {
    */
   static void NormalizeTBLOB(TBLOB *tblob, ROW *row, bool numeric_mode);
 
-  Tesseract* const tesseract() const {
+  Tesseract* tesseract() const {
     return tesseract_;
   }
 
-  OcrEngineMode const oem() const {
+  OcrEngineMode oem() const {
     return last_oem_requested_;
   }
 
