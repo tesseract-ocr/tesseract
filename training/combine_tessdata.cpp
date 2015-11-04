@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
       printf("Error combining tessdata files into %s\n",
              output_file.string());
     } else {
-      printf("Output %s created sucessfully.\n", output_file.string());
+      printf("Output %s created successfully.\n", output_file.string());
     }
   } else if (argc >= 4 && (strcmp(argv[1], "-e") == 0 ||
                            strcmp(argv[1], "-u") == 0)) {

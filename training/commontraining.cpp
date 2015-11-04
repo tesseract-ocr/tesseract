@@ -318,7 +318,7 @@ const char *GetNextFilename(int argc, const char* const * argv) {
 
 /*---------------------------------------------------------------------------*/
 /**
- * This routine searches thru a list of labeled lists to find
+ * This routine searches through a list of labeled lists to find
  * a list with the specified label.  If a matching labeled list
  * cannot be found, NULL is returned.
  * @param List list to search
@@ -461,10 +461,10 @@ void FreeTrainingSamples(LIST CharList) {
   LIST FeatureList;
 
 
-  iterate(CharList) {  /* iterate thru all of the fonts */
+  iterate(CharList) {  /* iterate through all of the fonts */
     char_sample = (LABELEDLIST) first_node(CharList);
     FeatureList = char_sample->List;
-    iterate(FeatureList) {  /* iterate thru all of the classes */
+    iterate(FeatureList) {  /* iterate through all of the classes */
       FeatureSet = (FEATURE_SET) first_node(FeatureList);
       FreeFeatureSet(FeatureSet);
     }
@@ -743,7 +743,7 @@ void FreeLabeledClassList (
 {
   MERGE_CLASS	MergeClass;
 
-  iterate (ClassList) 		/* iterate thru all of the fonts */
+  iterate (ClassList) 		/* iterate through all of the fonts */
   {
     MergeClass = (MERGE_CLASS) first_node (ClassList);
     free (MergeClass->Label);
@@ -841,7 +841,7 @@ void FreeNormProtoList (
 {
   LABELEDLIST	char_sample;
 
-  iterate (CharList) 		/* iterate thru all of the fonts */
+  iterate (CharList) 		/* iterate through all of the fonts */
   {
     char_sample = (LABELEDLIST) first_node (CharList);
     FreeLabeledList (char_sample);
