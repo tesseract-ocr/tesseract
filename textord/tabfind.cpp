@@ -75,7 +75,7 @@ const int kMaxTextLineBlobRatio = 5;
 const int kMinTextLineBlobRatio = 3;
 // Fraction of box area covered by image to make a blob image.
 const double kMinImageArea = 0.5;
-// Upto 30 degrees is allowed for rotations of diacritic blobs.
+// Up to 30 degrees is allowed for rotations of diacritic blobs.
 // Keep this value slightly larger than kCosSmallAngle in blobbox.cpp
 // so that the assert there never fails.
 const double kCosMaxSkewAngle = 0.866025;

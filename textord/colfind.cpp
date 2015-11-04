@@ -340,7 +340,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
   // into thinking they are dealing with left-to-right text.
   // To do this, we reflect the needed data in the y-axis and then reflect
   // the blocks back after they have been created. This is a temporary
-  // arrangment that is confined to this function only, so the reflection
+  // arrangement that is confined to this function only, so the reflection
   // is completely invisible in the output blocks.
   // The only objects reflected are:
   // The vertical separator lines that have already been found;
@@ -869,7 +869,7 @@ void ColumnFinder::ShrinkRangeToLongestRun(int** column_set_costs,
   }
 }
 
-// Moves start in the direction of step, upto, but not including end while
+// Moves start in the direction of step, up to, but not including end while
 // the only incompatible regions are no more than kMaxIncompatibleColumnCount
 // in size, and the compatible regions beyond are bigger.
 void ColumnFinder::ExtendRangePastSmallGaps(int** column_set_costs,

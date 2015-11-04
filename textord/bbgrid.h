@@ -127,7 +127,7 @@ class IntGrid : public GridBase {
     grid_[grid_y * gridwidth_ + grid_x] = value;
   }
   // Returns true if more than half the area of the rect is covered by grid
-  // cells that are over the theshold.
+  // cells that are over the threshold.
   bool RectMostlyOverThreshold(const TBOX& rect, int threshold) const;
 
   // Returns true if any cell value in the given rectangle is zero.
@@ -292,7 +292,7 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch {
   // Return the next bbox in the search or NULL if done.
   BBC* NextFullSearch();
 
-  // Start a new radius search. Will search in a spiral upto a
+  // Start a new radius search. Will search in a spiral up to a
   // given maximum radius in grid cells from the given center in pixels.
   void StartRadSearch(int x, int y, int max_radius);
   // Return the next bbox in the radius search or NULL if the
@@ -750,7 +750,7 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::StartSideSearch(int x,
                                                            int ymin, int ymax) {
   // Right search records the x in x_origin_, the ymax in y_origin_
   // and the size of the vertical strip to search in radius_.
-  // To guarantee finding overlapping objects of upto twice the
+  // To guarantee finding overlapping objects of up to twice the
   // given size, double the height.
   radius_ = ((ymax - ymin) * 2 + grid_->gridsize_ - 1) / grid_->gridsize_;
   rad_index_ = 0;

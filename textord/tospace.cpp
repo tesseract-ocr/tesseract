@@ -419,7 +419,7 @@ void Textord::row_spacing_stats(
     if (suspected_table &&
     (row->space_size < tosp_table_kn_sp_ratio * row->kern_size)) {
       if (tosp_debug_level > 5)
-        tprintf ("B:%d R:%d -- DONT BELIEVE SPACE %3.2f %d %3.2f.\n",
+        tprintf ("B:%d R:%d -- DON'T BELIEVE SPACE %3.2f %d %3.2f.\n",
           block_idx, row_idx,
           row->kern_size, row->space_threshold, row->space_size);
       row->space_threshold =
@@ -442,7 +442,7 @@ void Textord::row_spacing_stats(
           row->xheight / 2);
       if (tosp_debug_level > 5)
         tprintf
-          ("B:%d R:%d -- DONT BELIEVE SPACE %3.2f %d %3.2f -> %3.2f.\n",
+          ("B:%d R:%d -- DON'T BELIEVE SPACE %3.2f %d %3.2f -> %3.2f.\n",
           block_idx, row_idx, row->kern_size, row->space_threshold,
           row->space_size, sane_space);
       row->space_size = sane_space;
@@ -455,7 +455,7 @@ void Textord::row_spacing_stats(
       MAX (row->kern_size, 2.5)));
     if (row->space_threshold > sane_threshold) {
       if (tosp_debug_level > 5)
-        tprintf ("B:%d R:%d -- DONT BELIEVE THRESH %3.2f %d %3.2f->%d.\n",
+        tprintf ("B:%d R:%d -- DON'T BELIEVE THRESH %3.2f %d %3.2f->%d.\n",
           block_idx, row_idx,
           row->kern_size,
           row->space_threshold, row->space_size, sane_threshold);
@@ -498,7 +498,7 @@ void Textord::row_spacing_stats(
       MIN (inT32 (ceil (tosp_fuzzy_space_factor * row->xheight)),
       inT32 (row->space_size));
     if (row->min_space <= row->space_threshold)
-                                 //Dont be silly
+                                 //Don't be silly
       row->min_space = row->space_threshold + 1;
     /*
     Lets try to guess the max certain kern gap by looking at the cluster of
@@ -542,7 +542,7 @@ void Textord::row_spacing_stats(
   /* Ensure that ANY space less than some multiplier times the kern size is
   fuzzy.  In tables there is a risk of erroneously setting a small space size
   when there are no real spaces. Sometimes tables have text squashed into
-  columns so that the kn->sp ratio is small anyway - this means that we cant
+  columns so that the kn->sp ratio is small anyway - this means that we can't
   use this to force a wider separation - hence we rely on context to join any
   dubious breaks. */
 
@@ -559,7 +559,7 @@ void Textord::row_spacing_stats(
       row->kern_size));
   }
   if (row->max_nonspace > row->space_threshold) {
-                                 //Dont be silly
+                                 //Don't be silly
     row->max_nonspace = row->space_threshold;
   }
 
@@ -700,7 +700,7 @@ BOOL8 Textord::isolated_row_stats(TO_ROW *row,
     ((small_gaps_count / (float) total) < tosp_enough_small_gaps) ||
   (total - small_gaps_count < 1)) {
     if (tosp_debug_level > 5)
-      tprintf ("B:%d R:%d -- Cant do isolated row stats.\n",
+      tprintf ("B:%d R:%d -- Can't do isolated row stats.\n",
         block_idx, row_idx);
     return FALSE;
   }
@@ -1728,7 +1728,7 @@ BOOL8 Textord::ignore_big_gap(TO_ROW *row,
   inT16 gap = right - left + 1;
 
   if (tosp_ignore_big_gaps > 999)
-    return FALSE;                //Dont ignore
+    return FALSE;                //Don't ignore
   if (tosp_ignore_big_gaps > 0)
     return (gap > tosp_ignore_big_gaps * row->xheight);
   if (gap > tosp_ignore_very_big_gaps * row->xheight)
@@ -1757,7 +1757,7 @@ BOOL8 Textord::ignore_big_gap(TO_ROW *row,
  * Compute the bounding box of this blob with merging of x overlaps
  * but no pre-chopping.
  * Then move the iterator on to the start of the next blob.
- * DONT reduce the box for small things - eg punctuation.
+ * DON'T reduce the box for small things - eg punctuation.
  **********************************************************************/
 TBOX Textord::reduced_box_next(
     TO_ROW *row,     // current row

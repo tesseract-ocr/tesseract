@@ -2194,7 +2194,7 @@ bool ColPartition::IsInSameColumnAs(const ColPartition& part) const {
 void ColPartition::SmoothSpacings(int resolution, int page_height,
                                   ColPartition_LIST* parts) {
   // The task would be trivial if we didn't have to allow for blips -
-  // occasional offsets in spacing caused by anomolous text, such as all
+  // occasional offsets in spacing caused by anomalous text, such as all
   // caps, groups of descenders, joined words, Arabic etc.
   // The neighbourhood stores a consecutive group of partitions so that
   // blips can be detected correctly, yet conservatively enough to not
