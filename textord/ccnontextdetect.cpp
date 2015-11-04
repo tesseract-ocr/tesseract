@@ -67,7 +67,7 @@ CCNonTextDetect::CCNonTextDetect(int gridsize,
     noise_density_(NULL) {
   // TODO(rays) break max_noise_count_ out into an area-proportional
   // value, as now plus an additive constant for the number of text blobs
-  // in the 3x3 neigbourhood - maybe 9.
+  // in the 3x3 neighbourhood - maybe 9.
 }
 
 CCNonTextDetect::~CCNonTextDetect() {

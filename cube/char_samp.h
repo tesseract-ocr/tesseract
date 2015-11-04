@@ -81,7 +81,7 @@ class CharSamp : public Bmp8 {
       label32_ = NULL;
     }
     if (label32 != NULL) {
-      // remove any byte order markes if any
+      // remove any byte order marks if any
       if (label32[0] == 0xfeff) {
         label32++;
       }

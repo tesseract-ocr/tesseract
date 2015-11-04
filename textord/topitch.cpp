@@ -1084,7 +1084,7 @@ BOOL8 count_pitch_stats(                       //find lines
     return FALSE;
   prev_valid = FALSE;
   prev_centre = 0;
-  prev_right = 0;                //stop complier warning
+  prev_right = 0;                //stop compiler warning
   joined_box = blob_it.data ()->bounding_box ();
   do {
     blob_it.forward ();

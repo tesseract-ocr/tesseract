@@ -175,7 +175,7 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
             right = prev->x;
           }
         }
-        // Left becomes the max right of all next boxes foward to the first
+        // Left becomes the max right of all next boxes forward to the first
         // space or newline.
         for (int j = i + 2; j < boxes->size() && (*boxes)[j]->box_ != NULL &&
                                 (*boxes)[j]->ch_ != "\t";

@@ -212,7 +212,7 @@ class ColumnFinder : public TabFind {
                                const bool* any_columns_possible,
                                int column_set_id,
                                int* best_start, int* best_end);
-  // Moves start in the direction of step, upto, but not including end while
+  // Moves start in the direction of step, up to, but not including end while
   // the only incompatible regions are no more than kMaxIncompatibleColumnCount
   // in size, and the compatible regions beyond are bigger.
   void ExtendRangePastSmallGaps(int** column_set_costs,

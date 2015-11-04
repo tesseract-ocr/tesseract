@@ -685,7 +685,7 @@ int StructuredTable::CountHorizontalIntersections(int y) {
 
 // Counts how many text partitions are in this box.
 // This is used to count partitons in cells, as that can indicate
-// how "strong" a potential table row/colum (or even full table) actually is.
+// how "strong" a potential table row/column (or even full table) actually is.
 int StructuredTable::CountPartitions(const TBOX& box) {
   ColPartitionGridSearch gsearch(text_grid_);
   gsearch.SetUniqueMode(true);
@@ -740,7 +740,7 @@ StructuredTable* TableRecognizer::RecognizeTable(const TBOX& guess) {
   table->set_line_grid(line_grid_);
   table->set_max_text_height(max_text_height_);
 
-  // Try to solve ths simple case, a table with *both*
+  // Try to solve this simple case, a table with *both*
   // vertical and horizontal lines.
   if (RecognizeLinedTable(guess, table))
     return table;

@@ -263,14 +263,14 @@ cmap_table cmap = {
     0x0000,          /* encodingID = 0 */
     0x20000000,      /* Offset of data */
     0x0600,          /* STart of Apple table (format 6) */
-    0x0C00,          /* lenght of table (12) */
+    0x0C00,          /* length of table (12) */
     0x0000,          /* Language must be 0 for non-Apple or
                         non-specific language */
     0x0000,          /* firstCode = 0 */
     0x0100,          /* number of codes is 1 */
     0x0000,          /* GID is 0 */
     0x0600,          /* Start of MS Table (format 4) */
-    0x0C00,          /* lenght of table (12) */
+    0x0C00,          /* length of table (12) */
     0x0000,          /* Language must be 0 for non-Apple or
                         non-specific language */
     0x0000,          /* firstCode = 0 */

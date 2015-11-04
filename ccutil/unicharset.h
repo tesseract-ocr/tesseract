@@ -219,7 +219,7 @@ class UNICHARSET {
 
   // Return the UTF8 representation corresponding to the given UNICHAR_ID after
   // resolving any private encodings internal to Tesseract. This method is
-  // preferrable to id_to_unichar for outputting text that will be visible to
+  // preferable to id_to_unichar for outputting text that will be visible to
   // external applications.
   const char* const id_to_unichar_ext(UNICHAR_ID id) const;
 

@@ -149,7 +149,7 @@ void ComputeMergedProto (PROTO  p1,
 } /* ComputeMergedProto */
 
 /**
- * This routine searches thru all of the prototypes in
+ * This routine searches through all of the prototypes in
  * Class and returns the id of the proto which would provide
  * the best approximation of Prototype.  If no close
  * approximation can be found, NO_PROTO is returned.
