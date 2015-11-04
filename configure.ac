@@ -7,6 +7,9 @@
 # ----------------------------------------
 AC_PREREQ(2.50)
 AC_INIT([tesseract], [3.05.00dev], [https://github.com/tesseract-ocr/tesseract/issues])
+AC_PROG_CXX(g++ clang++)
+AC_LANG([C++])
+AC_LANG_COMPILER_REQUIRE
 CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR(config)
@@ -314,9 +317,6 @@ fi
 # configure automake. The two appear to
 # be intimately linked...
 # ----------------------------------------
-
-# Define order of compilers
-AC_PROG_CXX(g++)
 
 AC_PROG_LIBTOOL
 
