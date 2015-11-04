@@ -372,7 +372,7 @@ static int GetAddrInfo(const char* hostname, int port,
                        struct addrinfo** address) {
 #if defined(__linux__)
   char port_str[40];
-  snprintf(port_str, 40, "%ld", port);
+  snprintf(port_str, 40, "%d", port);
   return getaddrinfo(hostname, port_str, NULL, address);
 #else
   return GetAddrInfoNonLinux(hostname, port, address);
