@@ -831,7 +831,6 @@ namespace tesseract {
 inT16 Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_it(&word_res_list);
   WERD_RES *word;
-  inT16 word_length;
   inT16 score = 0;
   inT16 i;
   float small_limit = kBlnXHeight * fixsp_small_outlines_size;
@@ -840,7 +839,6 @@ inT16 Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
     word = word_it.data();
     if (word->rebuild_word == NULL)
       continue;  // Can't handle cube words.
-    word_length = word->reject_map.length();
     if (word->done ||
         word->tess_accepted ||
         word->best_choice->permuter() == SYSTEM_DAWG_PERM ||

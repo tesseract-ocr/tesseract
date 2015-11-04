@@ -1400,7 +1400,6 @@ void Tesseract::ReportXhtFixResult(bool accept_new_word, float new_x_ht,
 // Returns true if the word was changed.
 // See the comment in fixxht.cpp for a description of the overall process.
 bool Tesseract::TrainedXheightFix(WERD_RES *word, BLOCK* block, ROW *row) {
-  bool accept_new_x_ht = false;
   int original_misfits = CountMisfitTops(word);
   if (original_misfits == 0)
     return false;
