@@ -544,9 +544,9 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   n = snprintf(buf, sizeof(buf),
                "5 0 obj\n"
                "<<\n"
-               "  /Length %ld /Filter /FlateDecode\n"
+               "  /Length %lu /Filter /FlateDecode\n"
                ">>\n"
-               "stream\n", len);
+               "stream\n", (unsigned long)len);
   if (n >= sizeof(buf)) {
     lept_free(comp);
     return false;

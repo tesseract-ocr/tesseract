@@ -94,6 +94,8 @@ DIR128::DIR128(                 //from fcoord
  * Convert a direction to a vector.
  **********************************************************************/
 
+#if 0 // code is buggy for negative dir and unused
 ICOORD DIR128::vector() const {  //convert to vector
   return dirtab[dir];            //easy really
 }
+#endif

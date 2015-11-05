@@ -190,14 +190,14 @@ void UNICHARSET::reserve(int unichars_number) {
   }
 }
 
-const UNICHAR_ID
+UNICHAR_ID
 UNICHARSET::unichar_to_id(const char* const unichar_repr) const {
   return ids.contains(unichar_repr) ?
     ids.unichar_to_id(unichar_repr) : INVALID_UNICHAR_ID;
 }
 
-const UNICHAR_ID UNICHARSET::unichar_to_id(const char* const unichar_repr,
-                                           int length) const {
+UNICHAR_ID UNICHARSET::unichar_to_id(const char* const unichar_repr,
+                                     int length) const {
   assert(length > 0 && length <= UNICHAR_LEN);
   return ids.contains(unichar_repr, length) ?
     ids.unichar_to_id(unichar_repr, length) : INVALID_UNICHAR_ID;
@@ -263,7 +263,7 @@ bool UNICHARSET::encode_string(const char* str, bool give_up_on_failure,
   return perfect;
 }
 
-const char* const UNICHARSET::id_to_unichar(UNICHAR_ID id) const {
+const char* UNICHARSET::id_to_unichar(UNICHAR_ID id) const {
   if (id == INVALID_UNICHAR_ID) {
     return INVALID_UNICHAR;
   }
@@ -271,7 +271,7 @@ const char* const UNICHARSET::id_to_unichar(UNICHAR_ID id) const {
   return unichars[id].representation;
 }
 
-const char* const UNICHARSET::id_to_unichar_ext(UNICHAR_ID id) const {
+const char* UNICHARSET::id_to_unichar_ext(UNICHAR_ID id) const {
   if (id == INVALID_UNICHAR_ID) {
     return INVALID_UNICHAR;
   }
