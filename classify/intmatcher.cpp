@@ -778,10 +778,10 @@ int IntegerMatcher::UpdateTablesForFeature(
     const INT_FEATURE_STRUCT* Feature,
     ScratchEvidence *tables,
     int Debug) {
-  register uinT32 ConfigWord;
-  register uinT32 ProtoWord;
-  register uinT32 ProtoNum;
-  register uinT32 ActualProtoNum;
+  uinT32 ConfigWord;
+  uinT32 ProtoWord;
+  uinT32 ProtoNum;
+  uinT32 ActualProtoNum;
   uinT8 proto_byte;
   inT32 proto_word_offset;
   inT32 proto_offset;
@@ -795,14 +795,14 @@ int IntegerMatcher::UpdateTablesForFeature(
   uinT32 XFeatureAddress;
   uinT32 YFeatureAddress;
   uinT32 ThetaFeatureAddress;
-  register uinT8 *UINT8Pointer;
-  register int ProtoIndex;
+  uinT8 *UINT8Pointer;
+  int ProtoIndex;
   uinT8 Temp;
-  register int *IntPointer;
+  int *IntPointer;
   int ConfigNum;
-  register inT32 M3;
-  register inT32 A3;
-  register uinT32 A4;
+  inT32 M3;
+  inT32 A3;
+  uinT32 A4;
 
   tables->ClearFeatureEvidence(ClassTemplate);
 
@@ -1240,7 +1240,7 @@ float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
  */
 void
 HeapSort (int n, register int ra[], register int rb[]) {
-  register int i, rra, rrb;
+  int i, rra, rrb;
   int l, j, ir;
 
   l = (n >> 1) + 1;
