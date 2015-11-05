@@ -112,7 +112,7 @@ BLOB_CHOICE::BLOB_CHOICE(UNICHAR_ID src_unichar_id, // character id
  *
  * Constructor to build a BLOB_CHOICE from another BLOB_CHOICE.
  */
-BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) {
+BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) : ELIST_LINK(other) {
   unichar_id_ = other.unichar_id();
   rating_ = other.rating();
   certainty_ = other.certainty();

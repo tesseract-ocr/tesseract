@@ -288,7 +288,7 @@ class WERD_CHOICE : public ELIST_LINK {
                src_certainty, src_permuter);
   }
   WERD_CHOICE(const char *src_string, const UNICHARSET &unicharset);
-  WERD_CHOICE(const WERD_CHOICE &word) : unicharset_(word.unicharset_) {
+  WERD_CHOICE(const WERD_CHOICE &word) : ELIST_LINK(word), unicharset_(word.unicharset_) {
     this->init(word.length());
     this->operator=(word);
   }
