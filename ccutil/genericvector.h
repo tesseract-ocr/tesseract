@@ -432,7 +432,7 @@ class PointerVector : public GenericVector<T*> {
   }
   // Copy must be deep, as the pointers will be automatically deleted on
   // destruction.
-  PointerVector(const PointerVector& other) {
+  PointerVector(const PointerVector& other) : GenericVector<T*>(other) {
     this->init(other.size());
     this->operator+=(other);
   }
