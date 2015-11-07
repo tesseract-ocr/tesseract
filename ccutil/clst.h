@@ -255,8 +255,6 @@ class DLLSYM CLIST_ITERATOR
 inline void CLIST_ITERATOR::set_to_list(  //change list
                                         CLIST *list_to_iterate) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::set_to_list", ABORT, NULL);
   if (!list_to_iterate)
     BAD_PARAMETER.error ("CLIST_ITERATOR::set_to_list", ABORT,
       "list_to_iterate is NULL");
@@ -296,8 +294,6 @@ inline void CLIST_ITERATOR::add_after_then_move(  // element to add
   CLIST_LINK *new_element;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::add_after_then_move", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::add_after_then_move", ABORT, NULL);
   if (!new_data)
@@ -346,8 +342,6 @@ inline void CLIST_ITERATOR::add_after_stay_put(  // element to add
   CLIST_LINK *new_element;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::add_after_stay_put", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::add_after_stay_put", ABORT, NULL);
   if (!new_data)
@@ -399,8 +393,6 @@ inline void CLIST_ITERATOR::add_before_then_move(  // element to add
   CLIST_LINK *new_element;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::add_before_then_move", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::add_before_then_move", ABORT, NULL);
   if (!new_data)
@@ -446,8 +438,6 @@ inline void CLIST_ITERATOR::add_before_stay_put(  // element to add
   CLIST_LINK *new_element;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::add_before_stay_put", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::add_before_stay_put", ABORT, NULL);
   if (!new_data)
@@ -491,8 +481,6 @@ inline void CLIST_ITERATOR::add_before_stay_put(  // element to add
 
 inline void CLIST_ITERATOR::add_list_after(CLIST *list_to_add) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::add_list_after", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::add_list_after", ABORT, NULL);
   if (!list_to_add)
@@ -541,8 +529,6 @@ inline void CLIST_ITERATOR::add_list_after(CLIST *list_to_add) {
 
 inline void CLIST_ITERATOR::add_list_before(CLIST *list_to_add) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::add_list_before", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::add_list_before", ABORT, NULL);
   if (!list_to_add)
@@ -591,8 +577,6 @@ inline void *CLIST_ITERATOR::extract() {
   void *extracted_data;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::extract", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::extract", ABORT, NULL);
   if (!current)                  //list empty or
@@ -632,8 +616,6 @@ inline void *CLIST_ITERATOR::extract() {
 
 inline void *CLIST_ITERATOR::move_to_first() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::move_to_first", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::move_to_first", ABORT, NULL);
   #endif
@@ -658,8 +640,6 @@ inline void *CLIST_ITERATOR::move_to_first() {
 
 inline void CLIST_ITERATOR::mark_cycle_pt() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::mark_cycle_pt", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::mark_cycle_pt", ABORT, NULL);
   #endif
@@ -681,8 +661,6 @@ inline void CLIST_ITERATOR::mark_cycle_pt() {
 
 inline BOOL8 CLIST_ITERATOR::at_first() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::at_first", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::at_first", ABORT, NULL);
   #endif
@@ -703,8 +681,6 @@ inline BOOL8 CLIST_ITERATOR::at_first() {
 
 inline BOOL8 CLIST_ITERATOR::at_last() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::at_last", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::at_last", ABORT, NULL);
   #endif
@@ -725,8 +701,6 @@ inline BOOL8 CLIST_ITERATOR::at_last() {
 
 inline BOOL8 CLIST_ITERATOR::cycled_list() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::cycled_list", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::cycled_list", ABORT, NULL);
   #endif
@@ -745,8 +719,6 @@ inline BOOL8 CLIST_ITERATOR::cycled_list() {
 
 inline inT32 CLIST_ITERATOR::length() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::length", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::length", ABORT, NULL);
   #endif
@@ -767,8 +739,6 @@ CLIST_ITERATOR::sort (           //sort elements
 int comparator (                 //comparison routine
 const void *, const void *)) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::sort", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::sort", ABORT, NULL);
   #endif
@@ -793,8 +763,6 @@ inline void CLIST_ITERATOR::add_to_end(  // element to add
   CLIST_LINK *new_element;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("CLIST_ITERATOR::add_to_end", ABORT, NULL);
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::add_to_end", ABORT, NULL);
   if (!new_data)
