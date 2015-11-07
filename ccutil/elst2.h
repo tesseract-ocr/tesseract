@@ -264,8 +264,6 @@ class DLLSYM ELIST2_ITERATOR
 inline void ELIST2_ITERATOR::set_to_list(  //change list
                                          ELIST2 *list_to_iterate) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::set_to_list", ABORT, NULL);
   if (!list_to_iterate)
     BAD_PARAMETER.error ("ELIST2_ITERATOR::set_to_list", ABORT,
       "list_to_iterate is NULL");
@@ -303,8 +301,6 @@ inline ELIST2_ITERATOR::ELIST2_ITERATOR(ELIST2 *list_to_iterate) {
 inline void ELIST2_ITERATOR::add_after_then_move(  // element to add
                                                  ELIST2_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::add_after_then_move", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::add_after_then_move", ABORT, NULL);
   if (!new_element)
@@ -354,8 +350,6 @@ inline void ELIST2_ITERATOR::add_after_then_move(  // element to add
 inline void ELIST2_ITERATOR::add_after_stay_put(  // element to add
                                                 ELIST2_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::add_after_stay_put", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::add_after_stay_put", ABORT, NULL);
   if (!new_element)
@@ -408,8 +402,6 @@ inline void ELIST2_ITERATOR::add_after_stay_put(  // element to add
 inline void ELIST2_ITERATOR::add_before_then_move(  // element to add
                                                   ELIST2_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::add_before_then_move", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::add_before_then_move", ABORT, NULL);
   if (!new_element)
@@ -457,8 +449,6 @@ inline void ELIST2_ITERATOR::add_before_then_move(  // element to add
 inline void ELIST2_ITERATOR::add_before_stay_put(  // element to add
                                                  ELIST2_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::add_before_stay_put", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::add_before_stay_put", ABORT, NULL);
   if (!new_element)
@@ -506,8 +496,6 @@ inline void ELIST2_ITERATOR::add_before_stay_put(  // element to add
 
 inline void ELIST2_ITERATOR::add_list_after(ELIST2 *list_to_add) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::add_list_after", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::add_list_after", ABORT, NULL);
   if (!list_to_add)
@@ -560,8 +548,6 @@ inline void ELIST2_ITERATOR::add_list_after(ELIST2 *list_to_add) {
 
 inline void ELIST2_ITERATOR::add_list_before(ELIST2 *list_to_add) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::add_list_before", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::add_list_before", ABORT, NULL);
   if (!list_to_add)
@@ -614,8 +600,6 @@ inline ELIST2_LINK *ELIST2_ITERATOR::extract() {
   ELIST2_LINK *extracted_link;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::extract", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::extract", ABORT, NULL);
   if (!current)                  //list empty or
@@ -657,8 +641,6 @@ inline ELIST2_LINK *ELIST2_ITERATOR::extract() {
 
 inline ELIST2_LINK *ELIST2_ITERATOR::move_to_first() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::move_to_first", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::move_to_first", ABORT, NULL);
   #endif
@@ -679,8 +661,6 @@ inline ELIST2_LINK *ELIST2_ITERATOR::move_to_first() {
 
 inline ELIST2_LINK *ELIST2_ITERATOR::move_to_last() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::move_to_last", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::move_to_last", ABORT, NULL);
   #endif
@@ -705,8 +685,6 @@ inline ELIST2_LINK *ELIST2_ITERATOR::move_to_last() {
 
 inline void ELIST2_ITERATOR::mark_cycle_pt() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::mark_cycle_pt", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::mark_cycle_pt", ABORT, NULL);
   #endif
@@ -728,8 +706,6 @@ inline void ELIST2_ITERATOR::mark_cycle_pt() {
 
 inline BOOL8 ELIST2_ITERATOR::at_first() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::at_first", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::at_first", ABORT, NULL);
   #endif
@@ -750,8 +726,6 @@ inline BOOL8 ELIST2_ITERATOR::at_first() {
 
 inline BOOL8 ELIST2_ITERATOR::at_last() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::at_last", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::at_last", ABORT, NULL);
   #endif
@@ -772,8 +746,6 @@ inline BOOL8 ELIST2_ITERATOR::at_last() {
 
 inline BOOL8 ELIST2_ITERATOR::cycled_list() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::cycled_list", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::cycled_list", ABORT, NULL);
   #endif
@@ -792,8 +764,6 @@ inline BOOL8 ELIST2_ITERATOR::cycled_list() {
 
 inline inT32 ELIST2_ITERATOR::length() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::length", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::length", ABORT, NULL);
   #endif
@@ -814,8 +784,6 @@ ELIST2_ITERATOR::sort (          //sort elements
 int comparator (                 //comparison routine
 const void *, const void *)) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::sort", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::sort", ABORT, NULL);
   #endif
@@ -838,8 +806,6 @@ const void *, const void *)) {
 inline void ELIST2_ITERATOR::add_to_end(  // element to add
                                         ELIST2_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::add_to_end", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::add_to_end", ABORT, NULL);
   if (!new_element)
