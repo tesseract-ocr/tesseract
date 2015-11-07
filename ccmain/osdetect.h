@@ -87,7 +87,6 @@ class OrientationDetector {
   int get_orientation();
  private:
   OSResults* osr_;
-  tesseract::Tesseract* tess_;
   const GenericVector<int>* allowed_scripts_;
 };
 
