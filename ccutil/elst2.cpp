@@ -45,11 +45,6 @@ void (*zapper) (ELIST2_LINK *)) {
   ELIST2_LINK *ptr;
   ELIST2_LINK *next;
 
-  #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2::internal_clear", ABORT, NULL);
-  #endif
-
   if (!empty ()) {
     ptr = last->next;            //set to first
     last->next = NULL;           //break circle
@@ -81,11 +76,6 @@ void ELIST2::assign_to_sublist(                            //to this list
   const ERRCODE LIST_NOT_EMPTY =
     "Destination list must be empty before extracting a sublist";
 
-  #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2::assign_to_sublist", ABORT, NULL);
-  #endif
-
   if (!empty ())
     LIST_NOT_EMPTY.error ("ELIST2.assign_to_sublist", ABORT, NULL);
 
@@ -102,11 +92,6 @@ void ELIST2::assign_to_sublist(                            //to this list
 inT32 ELIST2::length() const {  // count elements
   ELIST2_ITERATOR it(const_cast<ELIST2*>(this));
   inT32 count = 0;
-
-  #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2::length", ABORT, NULL);
-  #endif
 
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
     count++;
@@ -131,11 +116,6 @@ const void *, const void *)) {
   ELIST2_LINK **base;            //ptr array to sort
   ELIST2_LINK **current;
   inT32 i;
-
-  #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2::sort", ABORT, NULL);
-  #endif
 
   /* Allocate an array of pointers, one per list element */
   count = length ();
@@ -208,8 +188,6 @@ void ELIST2::add_sorted(int comparator(const void*, const void*),
 
 ELIST2_LINK *ELIST2_ITERATOR::forward() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::forward", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::forward", ABORT, NULL);
   #endif
@@ -250,8 +228,6 @@ ELIST2_LINK *ELIST2_ITERATOR::forward() {
 
 ELIST2_LINK *ELIST2_ITERATOR::backward() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::backward", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::backward", ABORT, NULL);
   #endif
@@ -294,8 +270,6 @@ ELIST2_LINK *ELIST2_ITERATOR::data_relative(                //get data + or - ..
   ELIST2_LINK *ptr;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::data_relative", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::data_relative", ABORT, NULL);
   if (list->empty ())
@@ -334,8 +308,6 @@ void ELIST2_ITERATOR::exchange(                              //positions of 2 li
   ELIST2_LINK *old_current;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::exchange", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::exchange", ABORT, NULL);
   if (!other_it)
@@ -452,8 +424,6 @@ ELIST2_LINK *ELIST2_ITERATOR::extract_sublist(                              //fr
   ELIST2_LINK *end_of_new_list;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST2_ITERATOR::extract_sublist", ABORT, NULL);
   if (!other_it)
     BAD_PARAMETER.error ("ELIST2_ITERATOR::extract_sublist", ABORT,
       "other_it NULL");
