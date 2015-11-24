@@ -186,10 +186,11 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  char opt1[255], opt2[255];
+  char opt1[256], opt2[255];
   for (arg = 0; arg < argc; arg++) {
     if (strcmp(argv[arg], "-c") == 0 && arg + 1 < argc) {
       strncpy(opt1, argv[arg + 1], 255);
+      opt1[255] = '\0';
       char *p = strchr(opt1, '=');
       if (!p) {
         fprintf(stderr, "Missing = in configvar assignment\n");
