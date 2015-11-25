@@ -180,6 +180,38 @@ bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
 }
 
 /**********************************************************************
+ * HOcr Text Renderer interface implementation
+ **********************************************************************/
+TessHOcrTsvRenderer::TessHOcrTsvRenderer(const char *outputbase)
+    : TessResultRenderer(outputbase, "hocr.tsv") {
+    font_info_ = false;
+}
+
+TessHOcrTsvRenderer::TessHOcrTsvRenderer(const char *outputbase, bool font_info)
+    : TessResultRenderer(outputbase, "hocr.tsv") {
+    font_info_ = font_info;
+}
+
+bool TessHOcrTsvRenderer::BeginDocumentHandler() {
+  AppendString("level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n");
+  return true;
+}
+
+bool TessHOcrTsvRenderer::EndDocumentHandler() {
+  return true;
+}
+
+bool TessHOcrTsvRenderer::AddImageHandler(TessBaseAPI* api) {
+  char* hocrtsv = api->GetHOCRTSVText(imagenum());
+  if (hocrtsv == NULL) return false;
+
+  AppendString(hocrtsv);
+  delete[] hocrtsv;
+
+  return true;
+}
+
+/**********************************************************************
  * UNLV Text Renderer interface implementation
  **********************************************************************/
 TessUnlvRenderer::TessUnlvRenderer(const char *outputbase)
