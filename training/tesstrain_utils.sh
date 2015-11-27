@@ -89,19 +89,21 @@ parse_flags() {
         case ${ARGV[$i]} in
             --)
                 break;;
-            --fontlist)   # Expect a plus-separated list of names
-                if [[ -z ${ARGV[$j]} ]] || [[ ${ARGV[$j]:0:2} == "--" ]]; then
-                    err_exit "Invalid value passed to --fontlist"
-                fi
-                local ofs=$IFS
-                IFS='+'
-                FONTS=( ${ARGV[$j]} )
-                IFS=$ofs
-                i=$j ;;
+            --fontlist)
+		fn=0
+		FONTS=""
+                while test $j -lt ${#ARGV[@]}; do
+                    test -z "${ARGV[$j]}" && break
+                    test `echo ${ARGV[$j]} | cut -c -2` = "--" && break
+                    FONTS[$fn]="${ARGV[$j]}"
+                    fn=$((fn+1))
+                    j=$((j+1))
+                done
+                i=$((j-1)) ;;
             --exposures)
                 exp=""
                 while test $j -lt ${#ARGV[@]}; do
-                    test -z ${ARGV[$j]} && break
+                    test -z "${ARGV[$j]}" && break
                     test `echo ${ARGV[$j]} | cut -c -2` = "--" && break
                     exp="$exp ${ARGV[$j]}"
                     j=$((j+1))
