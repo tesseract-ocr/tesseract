@@ -71,21 +71,21 @@ void PrintVersionInfo() {
 }
 
 void PrintUsage(const char* program) {
-  fprintf(stderr, 
+  fprintf(stderr,
       "Usage:\n"
-      "  %s --help | --help-psm | --version\n" 
+      "  %s --help | --help-psm | --version\n"
       "  %s --list-langs [--tessdata-dir PATH]\n"
       "  %s --print-parameters [options...] [configfile...]\n"
-      "  %s imagename|stdin outputbase|stdout [options...] [configfile...]\n", 
+      "  %s imagename|stdin outputbase|stdout [options...] [configfile...]\n",
       program, program, program, program);
 }
 
 void PrintHelpForPSM() {
-  const char* msg = 
-      "Page Segmentation Modes:\n"
+  const char* msg =
+      "Page segmentation modes:\n"
         "  0    Orientation and script detection (OSD) only.\n"
         "  1    Automatic page segmentation with OSD.\n"
-        "  2    Automatic page segmentation, but no OSD, or OCR\n"
+        "  2    Automatic page segmentation, but no OSD, or OCR.\n"
         "  3    Fully automatic page segmentation, but no OSD. (Default)\n"
         "  4    Assume a single column of text of variable sizes.\n"
         "  5    Assume a single uniform block of vertically aligned text.\n"
@@ -111,30 +111,31 @@ void PrintHelpForPSM() {
 void PrintHelpMessage(const char* program) {
   PrintUsage(program);
 
-  const char* msg = 
-      "\n\n"
-      "Options:\n"
-      "  -h, --help" "\tShow this help message.\n"
-      "  --help-psm" "\tShow Page Segmentation Modes.\n"
-      "  -v,  --version" "\tShow version information.\n\n"
-
-      "  --list-langs" "\tlist available languages for tesseract engine.\n\n" 
-
-      "  --tessdata-dir PATH" "\tspecify the location of tessdata path.\n"
-      "  --print-parameters" "\tprint tesseract parameters to the stdout.\n"
-      "  --user-words PATH" "\tspecify the location of user words"
-        " file.\n"
-      "  --user-patterns PATH" "\tspecify the location of"
-        " user patterns file.\n"
-      "  -l LANG[+LANG]" "\tspecify language(s) used for OCR.\n"
-      "  -c VAR=VALUE" "\tset value for config variables.\n"
-        "\t\t\tMultiple -c arguments are allowed.\n"
-      "  -psm NUM" "\tspecify page segmentation mode.\n"
-      "  NOTE: The options above must occur before any configfile.\n"
+  const char* ocr_options =
+      "OCR options:\n"
+      "  --tessdata-dir PATH   Specify the location of tessdata path.\n"
+      "  --user-words PATH     Specify the location of user words file.\n"
+      "  --user-patterns PATH  Specify the location of user patterns file.\n"
+      "  -l LANG[+LANG]        Specify language(s) used for OCR.\n"
+      "  -c VAR=VALUE          Set value for config variables.\n"
+      "                        Multiple -c arguments are allowed.\n"
+      "  -psm NUM              Specify page segmentation mode.\n"
+      "NOTE: These options must occur before any configfile.\n"
      ;
 
-  fprintf(stderr, "%s\n", msg);
+  fprintf(stderr, "\n%s\n", ocr_options);
   PrintHelpForPSM();
+
+  const char *single_options =
+      "Single options:\n"
+      "  -h, --help            Show this help message.\n"
+      "  --help-psm            Show page segmentation modes.\n"
+      "  -v, --version         Show version information.\n"
+      "  --list-langs          List available languages for tesseract engine.\n"
+      "  --print-parameters    Print tesseract parameters to stdout.\n"
+      ;
+
+  fprintf(stderr, "\n%s", single_options);
 }
 
 void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc, char** argv) {
@@ -186,7 +187,7 @@ void PrintLangsList(tesseract::TessBaseAPI* api) {
   * It would be simpler if we could set the value before Init,
   * but that doesn't work.
  */
-void FixPageSegMode(tesseract::TessBaseAPI* api, 
+void FixPageSegMode(tesseract::TessBaseAPI* api,
               tesseract::PageSegMode pagesegmode) {
   if (api->GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
      api->SetPageSegMode(pagesegmode);
@@ -198,9 +199,9 @@ void ParseArgs(const int argc, char** argv,
                   const char** image,
                   const char** outputbase,
                   const char** datapath,
-                  bool* list_langs, 
+                  bool* list_langs,
                   bool* print_parameters,
-                  GenericVector<STRING>* vars_vec, 
+                  GenericVector<STRING>* vars_vec,
                   GenericVector<STRING>* vars_values,
                   int* arg_i,
                   tesseract::PageSegMode* pagesegmode) {
@@ -334,8 +335,8 @@ int main(int argc, char **argv) {
   int arg_i = 1;
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
 
-  ParseArgs(argc, argv, 
-          &lang, &image, &outputbase, &datapath, 
+  ParseArgs(argc, argv,
+          &lang, &image, &outputbase, &datapath,
           &list_langs, &print_parameters,
           &vars_vec, &vars_values, &arg_i, &pagesegmode);
 
@@ -393,9 +394,9 @@ int main(int argc, char **argv) {
     } else {
       ret_val = 1;
     }
-    
+
     delete it;
-    
+
     pixDestroy(&pixs);
     exit(ret_val);
   }
