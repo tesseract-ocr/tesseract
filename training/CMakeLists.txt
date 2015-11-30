@@ -4,6 +4,54 @@
 
 if (STATIC OR NOT (WIN32 OR CYGWIN))
 
+# experimental
+if (MSVC)
+
+include(CheckTypeSize)
+check_type_size("void *" SIZEOF_VOID_P)
+
+if (SIZEOF_VOID_P EQUAL 8)
+    set(X64 1)
+    set(ARCH_DIR_NAME 64)
+elseif (SIZEOF_VOID_P EQUAL 4)
+    set(X86 1)
+    set(ARCH_DIR_NAME 32)
+else()
+    message(FATAL_ERROR "Cannot determine target architecture")
+endif()
+
+set(icu_dir "${CMAKE_CURRENT_BINARY_DIR}/icu")
+set(icu_archive "${icu_dir}/icu${ARCH_DIR_NAME}.zip")
+
+if (X86)
+    set(icu_hash 45167a240b60e36b59a87eda23490ce4)
+else()
+    set(icu_hash 480c72491576c048de1218c3c5519399)
+endif()
+
+message(STATUS "Downloading latest ICU binaries")
+
+file(DOWNLOAD
+    "http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win${ARCH_DIR_NAME}-msvc10.zip"
+    "${icu_archive}"
+    SHOW_PROGRESS
+    EXPECTED_HASH MD5=${icu_hash}
+)
+execute_process(COMMAND ${CMAKE_COMMAND} -E tar xz "${icu_archive}"
+    WORKING_DIRECTORY "${icu_dir}"
+    RESULT_VARIABLE __result
+)
+if(NOT __result EQUAL 0)
+    message(FATAL_ERROR "error ${__result}")
+endif()
+
+set(ICU_ROOT ${icu_dir}/icu)
+
+endif(MSVC)
+# experimental
+
+find_package(ICU COMPONENTS uc i18n)
+
 ########################################
 # LIBRARY tessopt
 ########################################

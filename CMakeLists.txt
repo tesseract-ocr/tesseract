@@ -53,7 +53,6 @@ set(Leptonica_DIR ${Leptonica_BUILD_DIR})
 find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
 endif()
 
-find_package(ICU COMPONENTS uc i18n)
 find_package(OpenCL QUIET)
 find_package(PkgConfig)
 
@@ -70,11 +69,9 @@ endif()
 
 if (WIN32)
     if (MSVC)
-        add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-        add_definitions(-D_CRT_SECURE_NO_WARNINGS)        
+        add_definitions(-D_CRT_SECURE_NO_WARNINGS)
         
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
     endif()
     
     set(LIB_Ws2_32 Ws2_32)
