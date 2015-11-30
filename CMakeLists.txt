@@ -53,7 +53,6 @@ set(Leptonica_DIR ${Leptonica_BUILD_DIR})
 find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
 endif()
 
-find_package(ICU COMPONENTS uc i18n)
 find_package(OpenCL QUIET)
 find_package(PkgConfig)
 
@@ -220,6 +219,7 @@ set(tesseractmain_src
 )
 add_executable                  (tesseractmain ${tesseractmain_src})
 target_link_libraries           (tesseractmain tesseract)
+set_target_properties           (tesseractmain PROPERTIES OUTPUT_NAME tesseract)
 
 ########################################
 
