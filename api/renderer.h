@@ -221,6 +221,17 @@ class TESS_API TessBoxTextRenderer : public TessResultRenderer {
   virtual bool AddImageHandler(TessBaseAPI* api);
 };
 
+/**
+ * Renders tesseract output into an osd text string
+ */
+class TESS_API TessOsdRenderer : public TessResultRenderer {
+ public:
+  explicit TessOsdRenderer(const char* outputbase);
+
+ protected:
+  virtual bool AddImageHandler(TessBaseAPI* api);
+};
+
 }  // namespace tesseract.
 
 #endif  // TESSERACT_API_RENDERER_H__

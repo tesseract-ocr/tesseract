@@ -17,7 +17,7 @@
 # USAGE:
 #
 # tesstrain.sh
-#    --fontlist FONTS_STR       # A plus-separated list of fontnames to train on.
+#    --fontlist FONTS           # A list of fontnames to train on.
 #    --fonts_dir FONTS_PATH     # Path to font files.
 #    --lang LANG_CODE           # ISO 639 code.
 #    --langdata_dir DATADIR     # Path to tesseract/training/langdata directory.

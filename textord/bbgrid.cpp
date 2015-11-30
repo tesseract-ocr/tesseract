@@ -154,7 +154,7 @@ IntGrid* IntGrid::NeighbourhoodSum() const {
 }
 
 // Returns true if more than half the area of the rect is covered by grid
-// cells that are over the theshold.
+// cells that are over the threshold.
 bool IntGrid::RectMostlyOverThreshold(const TBOX& rect, int threshold) const {
   int min_x, min_y, max_x, max_y;
   GridCoords(rect.left(), rect.bottom(), &min_x, &min_y);

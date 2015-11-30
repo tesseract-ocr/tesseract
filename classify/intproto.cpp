@@ -297,7 +297,7 @@ int AddIntProto(INT_CLASS Class) {
   int ProtoSetId;
   PROTO_SET ProtoSet;
   INT_PROTO Proto;
-  register uinT32 *Word;
+  uinT32 *Word;
 
   if (Class->NumProtos >= MAX_NUM_PROTOS)
     return (NO_PROTO);
@@ -1256,8 +1256,8 @@ void DoFill(FILL_SPEC *FillSpec,
             register uinT32 ClassMask,
             register uinT32 ClassCount,
             register uinT32 WordIndex) {
-  register int X, Y, Angle;
-  register uinT32 OldWord;
+  int X, Y, Angle;
+  uinT32 OldWord;
 
   X = FillSpec->X;
   if (X < 0)

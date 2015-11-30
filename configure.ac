@@ -7,6 +7,9 @@
 # ----------------------------------------
 AC_PREREQ(2.50)
 AC_INIT([tesseract], [3.05.00dev], [https://github.com/tesseract-ocr/tesseract/issues])
+AC_PROG_CXX(g++ clang++)
+AC_LANG([C++])
+AC_LANG_COMPILER_REQUIRE
 CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR(config)
@@ -315,9 +318,6 @@ fi
 # be intimately linked...
 # ----------------------------------------
 
-# Define order of compilers
-AC_PROG_CXX(g++)
-
 AC_PROG_LIBTOOL
 
 # ----------------------------------------
@@ -411,8 +411,9 @@ AC_CHECK_FUNCS([getline])
 # Checks for typedefs, structures, and compiler characteristics.
 # ----------------------------------------
 
-AC_CHECK_TYPES(wchar_t)
+AC_CHECK_TYPES(wchar_t,,,[#include "wchar.h"])
 AC_CHECK_TYPES(long long int)
+AC_CHECK_TYPES(off_t,,,[#include "sys/types.h"])
 AC_CHECK_TYPES(mbstate_t,,,[#include "wchar.h"])
 
 # ----------------------------------------

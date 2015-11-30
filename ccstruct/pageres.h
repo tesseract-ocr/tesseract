@@ -327,7 +327,7 @@ class WERD_RES : public ELIST_LINK {
   }
   // Deep copies everything except the ratings MATRIX.
   // To get that use deep_copy below.
-  WERD_RES(const WERD_RES &source) {
+  WERD_RES(const WERD_RES &source) : ELIST_LINK(source) {
     InitPointers();
     *this = source;            // see operator=
   }
@@ -339,7 +339,7 @@ class WERD_RES : public ELIST_LINK {
   // This matters for mirrorable characters such as parentheses.  We recognize
   // characters purely based on their shape on the page, and by default produce
   // the corresponding unicode for a left-to-right context.
-  const char* const BestUTF8(int blob_index, bool in_rtl_context) const {
+  const char* BestUTF8(int blob_index, bool in_rtl_context) const {
     if (blob_index < 0 || best_choice == NULL ||
         blob_index >= best_choice->length())
       return NULL;
@@ -352,7 +352,7 @@ class WERD_RES : public ELIST_LINK {
     return uch_set->id_to_unichar_ext(id);
   }
   // Returns the UTF-8 string for the given blob index in the raw_choice word.
-  const char* const RawUTF8(int blob_index) const {
+  const char* RawUTF8(int blob_index) const {
     if (blob_index < 0 || blob_index >= raw_choice->length())
       return NULL;
     UNICHAR_ID id = raw_choice->unichar_id(blob_index);

@@ -560,7 +560,7 @@ bool ScriptDetector::must_stop(int orientation) {
 // Helper method to convert an orientation index to its value in degrees.
 // The value represents the amount of clockwise rotation in degrees that must be
 // applied for the text to be upright (readable).
-const int OrientationIdToValue(const int& id) {
+int OrientationIdToValue(const int& id) {
   switch (id) {
     case 0:
       return 0;

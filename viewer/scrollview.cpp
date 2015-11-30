@@ -44,7 +44,7 @@
 
 const int kSvPort = 8461;
 const int kMaxMsgSize = 4096;
-const int kMaxIntPairSize = 45;  // Holds %d,%d, for upto 64 bit.
+const int kMaxIntPairSize = 45;  // Holds %d,%d, for up to 64 bit.
 
 #include "svutil.h"
 
@@ -342,7 +342,7 @@ void* ScrollView::StartEventHandler(void* a) {
         k = i;
       }
     }
-    // If we didnt find anything we had an old alarm and just sleep again.
+    // If we didn't find anything we had an old alarm and just sleep again.
     if (new_event != NULL) {
       sv->event_table_[k] = NULL;
       sv->mutex_->Unlock();

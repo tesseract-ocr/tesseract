@@ -177,11 +177,11 @@ class UNICHARSET {
 
   // Return the UNICHAR_ID of a given unichar representation within the
   // UNICHARSET.
-  const UNICHAR_ID unichar_to_id(const char* const unichar_repr) const;
+  UNICHAR_ID unichar_to_id(const char* const unichar_repr) const;
 
   // Return the UNICHAR_ID of a given unichar representation within the
   // UNICHARSET. Only the first length characters from unichar_repr are used.
-  const UNICHAR_ID unichar_to_id(const char* const unichar_repr,
+  UNICHAR_ID unichar_to_id(const char* const unichar_repr,
                                  int length) const;
 
   // Return the minimum number of bytes that matches a legal UNICHAR_ID,
@@ -215,13 +215,13 @@ class UNICHARSET {
 
   // Return the unichar representation corresponding to the given UNICHAR_ID
   // within the UNICHARSET.
-  const char* const id_to_unichar(UNICHAR_ID id) const;
+  const char* id_to_unichar(UNICHAR_ID id) const;
 
   // Return the UTF8 representation corresponding to the given UNICHAR_ID after
   // resolving any private encodings internal to Tesseract. This method is
-  // preferrable to id_to_unichar for outputting text that will be visible to
+  // preferable to id_to_unichar for outputting text that will be visible to
   // external applications.
-  const char* const id_to_unichar_ext(UNICHAR_ID id) const;
+  const char* id_to_unichar_ext(UNICHAR_ID id) const;
 
   // Return a STRING that reformats the utf8 str into the str followed
   // by its hex unicodes.

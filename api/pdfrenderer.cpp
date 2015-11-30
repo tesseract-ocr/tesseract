@@ -311,6 +311,11 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
   pdf_str.add_str_double("", prec(height));
   pdf_str += " 0 0 cm /Im1 Do Q\n";
 
+  int line_x1 = 0;
+  int line_y1 = 0;
+  int line_x2 = 0;
+  int line_y2 = 0;
+
   ResultIterator *res_it = api->GetIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
@@ -319,7 +324,6 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       new_block = true;          // Every block will declare its affine matrix
     }
 
-    int line_x1, line_y1, line_x2, line_y2;
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       int x1, y1, x2, y2;
       res_it->Baseline(RIL_TEXTLINE, &x1, &y1, &x2, &y2);
@@ -544,9 +548,9 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   n = snprintf(buf, sizeof(buf),
                "5 0 obj\n"
                "<<\n"
-               "  /Length %ld /Filter /FlateDecode\n"
+               "  /Length %lu /Filter /FlateDecode\n"
                ">>\n"
-               "stream\n", len);
+               "stream\n", (unsigned long)len);
   if (n >= sizeof(buf)) {
     lept_free(comp);
     return false;

@@ -33,7 +33,7 @@ typedef signed int char32;
 
 namespace tesseract {
 
-// Data holder class for a font, intented to avoid having to work with Pango or
+// Data holder class for a font, intended to avoid having to work with Pango or
 // FontConfig-specific objects directly.
 class PangoFontInfo {
  public:

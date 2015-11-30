@@ -331,7 +331,7 @@ class GenericVector {
   void init(int size);
 
   // We are assuming that the object generally placed in thie
-  // vector are small enough that for efficiency it makes sence
+  // vector are small enough that for efficiency it makes sense
   // to start with a larger initial size.
   static const int kDefaultVectorSize = 4;
   inT32   size_used_;
@@ -361,7 +361,7 @@ inline bool LoadDataFromFile(const STRING& filename,
   size_t size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   // Pad with a 0, just in case we treat the result as a string.
-  data->init_to_size(size + 1, 0);
+  data->init_to_size((int)size + 1, 0);
   bool result = fread(&(*data)[0], 1, size, fp) == size;
   fclose(fp);
   return result;
@@ -432,7 +432,7 @@ class PointerVector : public GenericVector<T*> {
   }
   // Copy must be deep, as the pointers will be automatically deleted on
   // destruction.
-  PointerVector(const PointerVector& other) {
+  PointerVector(const PointerVector& other) : GenericVector<T*>(other) {
     this->init(other.size());
     this->operator+=(other);
   }

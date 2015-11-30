@@ -66,7 +66,7 @@ class FPCUTPT
       inT16 pitch,               //proposed pitch
       inT16 pitch_error);        //allowed tolerance
 
-    inT32 position() {  //acces func
+    inT32 position() {  //access func
       return xpos;
     }
     double cost_function() {

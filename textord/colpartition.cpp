@@ -981,7 +981,7 @@ int ColPartition::CountOverlappingBoxes(const TBOX& box) {
   return overlap_count;
 }
 
-// Computes and sets the type_ and first_colum_, last_column_ and column_set_.
+// Computes and sets the type_ and first_column_, last_column_ and column_set_.
 // resolution refers to the ppi resolution of the image.
 void ColPartition::SetPartitionType(int resolution, ColPartitionSet* columns) {
   int first_spanned_col = -1;
@@ -2194,7 +2194,7 @@ bool ColPartition::IsInSameColumnAs(const ColPartition& part) const {
 void ColPartition::SmoothSpacings(int resolution, int page_height,
                                   ColPartition_LIST* parts) {
   // The task would be trivial if we didn't have to allow for blips -
-  // occasional offsets in spacing caused by anomolous text, such as all
+  // occasional offsets in spacing caused by anomalous text, such as all
   // caps, groups of descenders, joined words, Arabic etc.
   // The neighbourhood stores a consecutive group of partitions so that
   // blips can be detected correctly, yet conservatively enough to not

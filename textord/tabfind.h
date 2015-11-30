@@ -371,7 +371,7 @@ class TabFind : public AlignedBlob {
   TabVector_LIST vectors_;        //< List of rule line and tabstops.
   TabVector_IT v_it_;             //< Iterator for searching vectors_.
   TabVector_LIST dead_vectors_;   //< Separators and unpartnered tab vectors.
-  // List of commonly occuring width ranges with x=min and y=max.
+  // List of commonly occurring width ranges with x=min and y=max.
   ICOORDELT_LIST column_widths_;  //< List of commonly occurring width ranges.
   /** Callback to test an int for being a common width. */
   WidthCallback* width_cb_;

@@ -105,6 +105,7 @@ check_functions(functions_list)
 
 set(types_list
     "long long int"
+    off_t
     mbstate_t
     wchar_t
     _Bool

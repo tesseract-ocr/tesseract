@@ -105,6 +105,11 @@ int main(int argc, char** argv) {
   // Print usage
   if (argc <= 1) {
     printf("Usage: %s [-D DIRECTORY] FILE...\n", argv[0]);
+#ifdef USING_WCTYPE
+    printf("Character properties using wctype is enabled\n");
+#else
+    printf("WARNING: Character properties using wctype is DISABLED\n");
+#endif
     exit(1);
 
   }

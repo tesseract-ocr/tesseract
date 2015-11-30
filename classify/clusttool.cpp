@@ -279,17 +279,22 @@ PROTOSTYLE ReadProtoStyle(FILE *File) {
  * @note History: 6/6/89, DSJ, Created.
  */
 FLOAT32* ReadNFloats(FILE * File, uinT16 N, FLOAT32 Buffer[]) {
+  bool needs_free = false;
   int i;
   int NumFloatsRead;
 
-  if (Buffer == NULL)
+  if (Buffer == NULL) {
     Buffer = reinterpret_cast<FLOAT32*>(Emalloc(N * sizeof(FLOAT32)));
+    needs_free = true;
+  }
 
   for (i = 0; i < N; i++) {
     NumFloatsRead = tfscanf(File, "%f", &(Buffer[i]));
     if (NumFloatsRead != 1) {
       if ((NumFloatsRead == EOF) && (i == 0)) {
-        Efree(Buffer);
+        if (needs_free) {
+            Efree(Buffer);
+        }
         return NULL;
       } else {
         DoError(ILLEGALFLOAT, "Illegal float specification");
