@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtesseract304", "libtesseract\libtesseract.vcxproj", "{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tesseract", "tesseract\tesseract.vcxproj", "{C76996CB-C4CB-4D89-9F67-F605DF129618}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		DLL_Debug|Win32 = DLL_Debug|Win32
+		DLL_Release|Win32 = DLL_Release|Win32
+		LIB_Debug|Win32 = LIB_Debug|Win32
+		LIB_OpenCL_Debug|Win32 = LIB_OpenCL_Debug|Win32
+		LIB_OpenCL_Release|Win32 = LIB_OpenCL_Release|Win32
+		LIB_Release|Win32 = LIB_Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.DLL_Debug|Win32.ActiveCfg = DLL_Debug|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.DLL_Debug|Win32.Build.0 = DLL_Debug|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.DLL_Release|Win32.ActiveCfg = DLL_Release|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.DLL_Release|Win32.Build.0 = DLL_Release|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.LIB_Debug|Win32.ActiveCfg = LIB_Debug|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.LIB_Debug|Win32.Build.0 = LIB_Debug|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.LIB_OpenCL_Debug|Win32.ActiveCfg = LIB_OpenCL_Debug|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.LIB_OpenCL_Debug|Win32.Build.0 = LIB_OpenCL_Debug|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.LIB_OpenCL_Release|Win32.ActiveCfg = LIB_OpenCL_Release|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.LIB_OpenCL_Release|Win32.Build.0 = LIB_OpenCL_Release|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.LIB_Release|Win32.ActiveCfg = LIB_Release|Win32
+		{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}.LIB_Release|Win32.Build.0 = LIB_Release|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.DLL_Debug|Win32.ActiveCfg = DLL_Debug|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.DLL_Debug|Win32.Build.0 = DLL_Debug|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.DLL_Release|Win32.ActiveCfg = DLL_Release|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.DLL_Release|Win32.Build.0 = DLL_Release|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.LIB_Debug|Win32.ActiveCfg = LIB_Debug|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.LIB_Debug|Win32.Build.0 = LIB_Debug|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.LIB_OpenCL_Debug|Win32.ActiveCfg = LIB_OpenCL_Debug|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.LIB_OpenCL_Debug|Win32.Build.0 = LIB_OpenCL_Debug|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.LIB_OpenCL_Release|Win32.ActiveCfg = LIB_OpenCL_Release|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.LIB_OpenCL_Release|Win32.Build.0 = LIB_OpenCL_Release|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.LIB_Release|Win32.ActiveCfg = LIB_Release|Win32
+		{C76996CB-C4CB-4D89-9F67-F605DF129618}.LIB_Release|Win32.Build.0 = LIB_Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
