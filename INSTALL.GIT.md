@@ -1,7 +1,6 @@
 # autotools (LINUX/UNIX , msys...)
 
-
-If you have cloned Tesseract from Github, you must generate
+If you have cloned Tesseract from GitHub, you must generate
 the configure script.
 
 If you have tesseract 3.0x installation in your system, please remove it
@@ -24,14 +23,17 @@ So, the steps for making Tesseract are:
 
 You need to install at least English language data file to TESSDATA_PREFIX
 directory. All language data files can be retrieved from git repository:
+
     $ git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
+
 (Repository it huge - more that 1.2Gb. You do not need to download
 all languages)
 
 To compile ScrollView.jar you need to download piccolo2d-core-3.0.jar
 and [piccolo2d-extras-3.0.jar](http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22) and place them to tesseract/java.
 
-Than run:
+Then run:
+
     $ make ScrollView.jar
 
 and follow instruction on [Viewer Debugging wiki](https://github.com/tesseract-ocr/tesseract/wiki/ViewerDebugging).
