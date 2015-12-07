@@ -26,7 +26,7 @@ directory. All language data files can be retrieved from git repository:
 
     $ git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
 
-(Repository it huge - more that 1.2Gb. You do not need to download
+(Repository is huge - more that 1.2 GB. You do not need to download
 all languages)
 
 To compile ScrollView.jar you need to download piccolo2d-core-3.0.jar
