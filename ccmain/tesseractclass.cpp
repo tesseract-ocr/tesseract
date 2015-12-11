@@ -381,7 +381,7 @@ Tesseract::Tesseract()
                   this->params()),
       BOOL_MEMBER(tessedit_write_unlv, false, "Write .unlv output file",
                   this->params()),
-      BOOL_MEMBER(tessedit_create_txt, true, "Write .txt output file",
+      BOOL_MEMBER(tessedit_create_txt, false, "Write .txt output file",
                   this->params()),
       BOOL_MEMBER(tessedit_create_hocr, false, "Write .html hOCR output file",
                   this->params()),
