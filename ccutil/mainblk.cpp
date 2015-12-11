@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        mainblk.c  (Formerly main.c)
  * Description: Function to call from main() to setup.
- * Author:					Ray Smith
- * Created:					Tue Oct 22 11:09:40 BST 1991
+ * Author:      Ray Smith
+ * Created:     Tue Oct 22 11:09:40 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,26 +47,40 @@ namespace tesseract {
  * @param argv0 - paths to the directory with language files and config files.
  * An actual value of argv0 is used if not NULL, otherwise TESSDATA_PREFIX is
  * used if not NULL, next try to use compiled in -DTESSDATA_PREFIX. If previous
- * is not sucessul - use current directory.
+ * is not successful - use current directory.
  * @param basename - name of image
  */
 void CCUtil::main_setup(const char *argv0, const char *basename) {
   imagebasename = basename;      /**< name of image */
 
+  char *tessdata_prefix = getenv("TESSDATA_PREFIX");
+
   if (argv0 != NULL) {
+    /* Use tessdata prefix from the command line. */
     datadir = argv0;
+  } else if (tessdata_prefix) {
+    /* Use tessdata prefix from the environment. */
+    datadir = tessdata_prefix;
+#if defined(_WIN32)
+  } else if (datadir == NULL || access(datadir.string(), 0) != 0) {
+    /* Look for tessdata in directory of executable. */
+    static char dir[128];
+    static char exe[128];
+    DWORD length = GetModuleFileName(NULL, exe, sizeof(exe));
+    if (length > 0 && length < sizeof(exe)) {
+      _splitpath(exe, NULL, dir, NULL, NULL);
+      datadir = dir;
+    }
+#endif /* _WIN32 */
+#if defined(TESSDATA_PREFIX)
   } else {
-    if (getenv("TESSDATA_PREFIX")) {
-      datadir = getenv("TESSDATA_PREFIX");
-    } else {
-#ifdef TESSDATA_PREFIX
+    /* Use tessdata prefix which was compiled in. */
 #define _STR(a) #a
 #define _XSTR(a) _STR(a)
     datadir = _XSTR(TESSDATA_PREFIX);
 #undef _XSTR
 #undef _STR
 #endif
-    }
   }
 
   // datadir may still be empty:
