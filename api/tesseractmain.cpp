@@ -176,16 +176,16 @@ void PrintLangsList(tesseract::TessBaseAPI* api) {
 /**
  * We have 2 possible sources of pagesegmode: a config file and
  * the command line. For backwards compatibility reasons, the
-  * default in tesseract is tesseract::PSM_SINGLE_BLOCK, but the
-  * default for this program is tesseract::PSM_AUTO. We will let
-  * the config file take priority, so the command-line default
-  * can take priority over the tesseract default, so we use the
-  * value from the command line only if the retrieved mode
-  * is still tesseract::PSM_SINGLE_BLOCK, indicating no change
-  * in any config file. Therefore the only way to force
-  * tesseract::PSM_SINGLE_BLOCK is from the command line.
-  * It would be simpler if we could set the value before Init,
-  * but that doesn't work.
+ * default in tesseract is tesseract::PSM_SINGLE_BLOCK, but the
+ * default for this program is tesseract::PSM_AUTO. We will let
+ * the config file take priority, so the command-line default
+ * can take priority over the tesseract default, so we use the
+ * value from the command line only if the retrieved mode
+ * is still tesseract::PSM_SINGLE_BLOCK, indicating no change
+ * in any config file. Therefore the only way to force
+ * tesseract::PSM_SINGLE_BLOCK is from the command line.
+ * It would be simpler if we could set the value before Init,
+ * but that doesn't work.
  */
 void FixPageSegMode(tesseract::TessBaseAPI* api,
               tesseract::PageSegMode pagesegmode) {
@@ -295,19 +295,37 @@ void PreloadRenderers(tesseract::TessBaseAPI* api,
     if (b) {
       bool font_info;
       api->GetBoolVariable("hocr_font_info", &font_info);
-      renderers->push_back(new tesseract::TessHOcrRenderer(outputbase, font_info));
+      renderers->push_back(
+                     new tesseract::TessHOcrRenderer(outputbase, font_info));
     }
+
     api->GetBoolVariable("tessedit_create_pdf", &b);
     if (b) {
       renderers->push_back(new tesseract::TessPDFRenderer(outputbase,
-                                                         api->GetDatapath()));
+                                                        api->GetDatapath()));
     }
+
     api->GetBoolVariable("tessedit_write_unlv", &b);
-    if (b) renderers->push_back(new tesseract::TessUnlvRenderer(outputbase));
+    if (b) {
+      renderers->push_back(new tesseract::TessUnlvRenderer(outputbase));
+    }
+
     api->GetBoolVariable("tessedit_create_boxfile", &b);
-    if (b) renderers->push_back(new tesseract::TessBoxTextRenderer(outputbase));
+    if (b) {
+      renderers->push_back(new tesseract::TessBoxTextRenderer(outputbase));
+    }
+
+    // disable text renderer when using one of these configs:
+    // ambigs.train, box.train, box.train.stderr, linebox, rebox
+    bool disable_text_renderer =
+          (api->GetBoolVariable("tessedit_ambigs_training", &b) && b) ||
+          (api->GetBoolVariable("tessedit_resegment_from_boxes", &b) && b) ||
+          (api->GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
+
     api->GetBoolVariable("tessedit_create_txt", &b);
-    if (b) renderers->push_back(new tesseract::TessTextRenderer(outputbase));
+    if (b || (renderers->empty() && !disable_text_renderer) {
+      renderers->push_back(new tesseract::TessTextRenderer(outputbase));
+    }
   }
 
   if (!renderers->empty()) {
