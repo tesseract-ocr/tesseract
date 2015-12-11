@@ -323,7 +323,7 @@ void PreloadRenderers(tesseract::TessBaseAPI* api,
           (api->GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
 
     api->GetBoolVariable("tessedit_create_txt", &b);
-    if (b || (renderers->empty() && !disable_text_renderer) {
+    if (b || (renderers->empty() && !disable_text_renderer)) {
       renderers->push_back(new tesseract::TessTextRenderer(outputbase));
     }
   }
