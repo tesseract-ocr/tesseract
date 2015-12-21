@@ -41,9 +41,6 @@ CLISTIZE(ColPartition)
 
 //////////////// ColPartition Implementation ////////////////
 
-// If multiple partners survive the partner depth test beyond this level,
-// then arbitrarily pick one.
-const int kMaxPartnerDepth = 4;
 // Maximum change in spacing (in inches) to ignore.
 const double kMaxSpacingDrift = 1.0 / 72;  // 1/72 is one point.
 // Maximum fraction of line height used as an additional allowance
@@ -60,8 +57,6 @@ const double kMaxLeaderGapFractionOfMax = 0.25;
 const double kMaxLeaderGapFractionOfMin = 0.5;
 // Minimum number of blobs to be considered a leader.
 const int kMinLeaderCount = 5;
-// Cost of a cut through a leader.
-const int kLeaderCutCost = 8;
 // Minimum score for a STRONG_CHAIN textline.
 const int kMinStrongTextValue = 6;
 // Minimum score for a CHAIN textline.

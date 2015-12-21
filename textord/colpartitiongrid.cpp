@@ -35,10 +35,6 @@ const int kMaxPadFactor = 6;
 // Max multiple of size (min(height, width)) for the distance of the nearest
 // neighbour for the change of type to be used.
 const int kMaxNeighbourDistFactor = 4;
-// Max RMS color noise to compare colors.
-const int kMaxRMSColorNoise = 128;
-// Minimum number of blobs in text to make a strong text partition.
-const int kHorzStrongTextlineCount = 10;
 // Maximum number of lines in a credible figure caption.
 const int kMaxCaptionLines = 7;
 // Min ratio between biggest and smallest gap to bound a caption.
@@ -49,10 +45,6 @@ const double kMinCaptionGapHeightRatio = 0.5;
 const double kMarginOverlapFraction = 0.25;
 // Size ratio required to consider an unmerged overlapping partition to be big.
 const double kBigPartSizeRatio = 1.75;
-// Allowed proportional change in stroke width to match for smoothing.
-const double kStrokeWidthFractionTolerance = 0.25;
-// Allowed constant change in stroke width to match for smoothing.
-const double kStrokeWidthConstantTolerance = 2.0;
 // Fraction of gridsize to allow arbitrary overlap between partitions.
 const double kTinyEnoughTextlineOverlapFraction = 0.25;
 // Max vertical distance of neighbouring ColPartition as a multiple of

@@ -60,7 +60,6 @@ struct addrinfo {
 
 #include "svutil.h"
 
-const int kBufferSize = 65536;
 const int kMaxMsgSize = 4096;
 
 // Signals a thread to exit.
