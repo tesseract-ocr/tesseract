@@ -354,7 +354,7 @@ GREEK_FONTS=( \
     )
 
 ANCIENT_GREEK_FONTS=( \
-    "GFS Artemisia \
+    "GFS Artemisia" \
     "GFS Artemisia Bold" \
     "GFS Artemisia Bold Italic" \
     "GFS Artemisia Italic" \
@@ -553,29 +553,29 @@ NORTH_AMERICAN_ABORIGINAL_FONTS=( \
 GEORGIAN_FONTS=( \
     "Arial Unicode MS Bold" \
     "Arial Unicode MS" \
-    "BPG Algeti GPL&GNU" \
-    "BPG Chveulebrivi GPL&GNU" \
-    "BPG Courier GPL&GNU" \
-    "BPG Courier S GPL&GNU" \
+    "BPG Algeti GPL\&GNU" \
+    "BPG Chveulebrivi GPL\&GNU" \
+    "BPG Courier GPL\&GNU" \
+    "BPG Courier S GPL\&GNU" \
     "BPG DejaVu Sans 2011 GNU-GPL" \
-    "BPG Elite GPL&GNU" \
-    "BPG Excelsior GPL&GNU" \
-    "BPG Glaho GPL&GNU" \
-    "BPG Gorda GPL&GNU" \
-    "BPG Ingiri GPL&GNU" \
-    "BPG Mrgvlovani Caps GNU&GPL" \
-    "BPG Mrgvlovani GPL&GNU" \
-    "BPG Nateli Caps GPL&GNU Light" \
-    "BPG Nateli Condenced GPL&GNU Light" \
-    "BPG Nateli GPL&GNU Light" \
-    "BPG Nino Medium Cond GPL&GNU" \
-    "BPG Nino Medium GPL&GNU Medium" \
-    "BPG Sans GPL&GNU" \
-    "BPG Sans Medium GPL&GNU" \
-    "BPG Sans Modern GPL&GNU" \
-    "BPG Sans Regular GPL&GNU" \
-    "BPG Serif GPL&GNU" \
-    "BPG Serif Modern GPL&GNU" \
+    "BPG Elite GPL\&GNU" \
+    "BPG Excelsior GPL\&GNU" \
+    "BPG Glaho GPL\&GNU" \
+    "BPG Gorda GPL\&GNU" \
+    "BPG Ingiri GPL\&GNU" \
+    "BPG Mrgvlovani Caps GNU\&GPL" \
+    "BPG Mrgvlovani GPL\&GNU" \
+    "BPG Nateli Caps GPL\&GNU Light" \
+    "BPG Nateli Condenced GPL\&GNU Light" \
+    "BPG Nateli GPL\&GNU Light" \
+    "BPG Nino Medium Cond GPL\&GNU" \
+    "BPG Nino Medium GPL\&GNU Medium" \
+    "BPG Sans GPL\&GNU" \
+    "BPG Sans Medium GPL\&GNU" \
+    "BPG Sans Modern GPL\&GNU" \
+    "BPG Sans Regular GPL\&GNU" \
+    "BPG Serif GPL\&GNU" \
+    "BPG Serif Modern GPL\&GNU" \
     "FreeMono" \
     "FreeMono Bold Italic" \
     "FreeSans" \
@@ -588,26 +588,26 @@ GEORGIAN_FONTS=( \
 OLD_GEORGIAN_FONTS=( \
     "Arial Unicode MS Bold" \
     "Arial Unicode MS" \
-    "BPG Algeti GPL&GNU" \
-    "BPG Courier S GPL&GNU" \
+    "BPG Algeti GPL\&GNU" \
+    "BPG Courier S GPL\&GNU" \
     "BPG DejaVu Sans 2011 GNU-GPL" \
-    "BPG Elite GPL&GNU" \
-    "BPG Excelsior GPL&GNU" \
-    "BPG Glaho GPL&GNU" \
-    "BPG Ingiri GPL&GNU" \
-    "BPG Mrgvlovani Caps GNU&GPL" \
-    "BPG Mrgvlovani GPL&GNU" \
-    "BPG Nateli Caps GPL&GNU Light" \
-    "BPG Nateli Condenced GPL&GNU Light" \
-    "BPG Nateli GPL&GNU Light" \
-    "BPG Nino Medium Cond GPL&GNU" \
-    "BPG Nino Medium GPL&GNU Medium" \
-    "BPG Sans GPL&GNU" \
-    "BPG Sans Medium GPL&GNU" \
-    "BPG Sans Modern GPL&GNU" \
-    "BPG Sans Regular GPL&GNU" \
-    "BPG Serif GPL&GNU" \
-    "BPG Serif Modern GPL&GNU" \
+    "BPG Elite GPL\&GNU" \
+    "BPG Excelsior GPL\&GNU" \
+    "BPG Glaho GPL\&GNU" \
+    "BPG Ingiri GPL\&GNU" \
+    "BPG Mrgvlovani Caps GNU\&GPL" \
+    "BPG Mrgvlovani GPL\&GNU" \
+    "BPG Nateli Caps GPL\&GNU Light" \
+    "BPG Nateli Condenced GPL\&GNU Light" \
+    "BPG Nateli GPL\&GNU Light" \
+    "BPG Nino Medium Cond GPL\&GNU" \
+    "BPG Nino Medium GPL\&GNU Medium" \
+    "BPG Sans GPL\&GNU" \
+    "BPG Sans Medium GPL\&GNU" \
+    "BPG Sans Modern GPL\&GNU" \
+    "BPG Sans Regular GPL\&GNU" \
+    "BPG Serif GPL\&GNU" \
+    "BPG Serif Modern GPL\&GNU" \
     "FreeSans" \
     "FreeSerif" \
     "FreeSerif Bold" \
