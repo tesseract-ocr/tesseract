@@ -66,6 +66,8 @@
 #include <winbase.h>             // winbase.h contains windows.h
 #endif
 
+#include <stdint.h>              // int32_t, ...
+
 /********************************************************/
 /* __MAC__ */
 #ifdef __MAC__
@@ -95,19 +97,14 @@
 //typedef HANDLE FD*  PHANDLE;
 
 // definitions of portable data types (numbers and characters)
-typedef SIGNED char inT8;
-typedef unsigned char uinT8;
-typedef short inT16;
-typedef unsigned short uinT16;
-typedef int inT32;
-typedef unsigned int uinT32;
-#if (_MSC_VER >= 1200)            //%%% vkr for VC 6.0
-typedef INT64 inT64;
-typedef UINT64 uinT64;
-#else
-typedef long long int inT64;
-typedef unsigned long long int uinT64;
-#endif                           //%%% vkr for VC 6.0
+typedef int8_t inT8;
+typedef uint8_t uinT8;
+typedef int16_t inT16;
+typedef uint16_t uinT16;
+typedef int32_t inT32;
+typedef uint32_t uinT32;
+typedef int64_t inT64;
+typedef uint64_t uinT64;
 typedef float FLOAT32;
 typedef double FLOAT64;
 typedef unsigned char BOOL8;
