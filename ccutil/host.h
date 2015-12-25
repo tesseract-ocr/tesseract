@@ -140,10 +140,6 @@ typedef unsigned char BOOL8;
 #define FALSE           0
 #endif
 
-#ifndef NULL
-#define NULL            0L
-#endif
-
 // Return true if x is within tolerance of y
 template<class T> bool NearlyEqual(T x, T y, T tolerance) {
   T diff = x - y;
