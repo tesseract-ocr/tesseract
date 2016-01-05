@@ -1402,12 +1402,25 @@ static void AddBoxTohOCR(const PageIterator *it,
  * STL removed from original patch submission and refactored by rays.
  */
 char* TessBaseAPI::GetHOCRText(int page_number) {
+  return GetHOCRText(NULL,page_number);
+}
+
+/**
+ * Make a HTML-formatted string with hOCR markup from the internal
+ * data structures.
+ * page_number is 0-based but will appear in the output as 1-based.
+ * Image name/input_file_ can be set by SetInputName before calling
+ * GetHOCRText
+ * STL removed from original patch submission and refactored by rays.
+ */
+char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
   if (tesseract_ == NULL ||
-      (page_res_ == NULL && Recognize(NULL) < 0))
+      (page_res_ == NULL && Recognize(monitor) < 0))
     return NULL;
 
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
   int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
+  float row_height, descenders, ascenders;  // row attributes
   bool font_info = false;
   GetBoolVariable("hocr_font_info", &font_info);
 
@@ -1473,7 +1486,12 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
       AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
+      int fontsize;
       hocr_str.add_str_int("\n     <span class='ocr_line' id='line_", page_id);
+      res_it->RowAttributes(&row_height, &descenders, &ascenders);
+      hocr_str.add_str_int("' size='", row_height);
+      hocr_str.add_str_int("' descenders='", descenders * -1);
+      hocr_str.add_str_int("' ascenders='", ascenders);
       hocr_str.add_str_int("_", lcnt);
       AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
     }

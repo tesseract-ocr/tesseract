@@ -589,6 +589,16 @@ class TESS_API TessBaseAPI {
    * Make a HTML-formatted string with hOCR markup from the internal
    * data structures.
    * page_number is 0-based but will appear in the output as 1-based.
+   * monitor can be used to
+   * 	cancel the recognition
+   * 	receive progress callbacks
+   */
+  char* GetHOCRText(struct ETEXT_DESC* monitor, int page_number);
+
+  /**
+   * Make a HTML-formatted string with hOCR markup from the internal
+   * data structures.
+   * page_number is 0-based but will appear in the output as 1-based.
    */
   char* GetHOCRText(int page_number);
 
