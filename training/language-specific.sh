@@ -69,6 +69,39 @@ LATIN_FONTS=(
     "DejaVu Sans Ultra-Light" \
 )
 
+# List of fonts for printed/neo-Latin ('lat' language code, different from Latin script)
+NEOLATIN_FONTS=(
+    "GFS Bodoni" \
+    "GFS Bodoni Bold" \
+    "GFS Bodoni Italic" \
+    "GFS Bodoni Bold Italic" \
+    "GFS Didot" \
+    "GFS Didot Bold" \
+    "GFS Didot Italic" \
+    "GFS Didot Bold Italic" \
+    "Cardo" \
+    "Cardo Bold" \
+    "Cardo Italic" \
+    "Wyld" \
+    "Wyld Italic" \
+    "EB Garamond" \
+    "EB Garamond Italic" \
+    "Junicode" \
+    "Junicode Bold" \
+    "Junicode Italic" \
+    "Junicode Bold Italic" \
+    "IM FELL DW Pica PRO" \
+    "IM FELL English PRO" \
+    "IM FELL Double Pica PRO" \
+    "IM FELL French Canon PRO" \
+    "IM FELL Great Primer PRO" \
+    "IM FELL DW Pica PRO Italic" \
+    "IM FELL English PRO Italic" \
+    "IM FELL Double Pica PRO Italic" \
+    "IM FELL French Canon PRO Italic" \
+    "IM FELL Great Primer PRO Italic" \
+)
+
 EARLY_LATIN_FONTS=(
     "${FRAKTUR_FONTS[@]}" \
     "${LATIN_FONTS[@]}" \
@@ -853,6 +886,9 @@ set_lang_specific_parameters() {
           FILTER_ARGUMENTS="--make_early_language_variant=ita"
           TEXT2IMAGE_EXTRA_ARGS=" --ligatures"   # Add ligatures when supported.
           test -z "$FONTS" && FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
+    lat )
+          test -z "$EXPOSURES" && EXPOSURES="-3 -2 -1 0 1 2 3"
+          test -z "$FONTS" && FONTS=( "${NEOLATIN_FONTS[@]}" ) ;;
     spa_old )
           TEXT_CORPUS="${FLAGS_webtext_prefix}/spa.corpus.txt"
           # Make long-s substitutions for Early Spanish text
@@ -893,7 +929,6 @@ set_lang_specific_parameters() {
     isl ) ;;
     ita ) ;;
     jav ) ;;
-    lat ) ;;
     lav ) ;;
     lit ) ;;
     mlt ) ;;
