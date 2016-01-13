@@ -86,6 +86,10 @@ NEOLATIN_FONTS=(
     "Wyld Italic" \
     "EB Garamond" \
     "EB Garamond Italic" \
+    "Junicode" \
+    "Junicode Bold" \
+    "Junicode Italic" \
+    "Junicode Bold Italic" \
     "IM FELL DW Pica PRO" \
     "IM FELL English PRO" \
     "IM FELL Double Pica PRO" \
