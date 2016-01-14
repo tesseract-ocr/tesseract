@@ -5,7 +5,7 @@ platform:
   - Win64
 
 configuration:
-  - Debug
+  - Release
 
 before_build:
   - if %platform%==Win32 set generator=Visual Studio 14
