@@ -27,19 +27,21 @@ before_install:
   
   - if [[ $OSX ]]; then brew update; fi
 
+  - export LEPT_VER=1.72
+
 install:
   - if [[ $OSX ]]; then brew install icu4c pango; brew link --force gettext; fi
   - if [[ $OSX ]]; then export ICU_ROOT=/usr/local/opt/icu4c ; fi
   - wget --no-check-certificate https://www.cmake.org/files/v3.3/cmake-3.3.1-Linux-x86_64.sh
   - sudo sh cmake-3.3.1-Linux-x86_64.sh --skip-license --prefix=/usr
-  - wget -O leptonica.zip https://github.com/egorpugin/leptonica/archive/master.zip
+  - wget -O leptonica.zip https://github.com/DanBloomberg/leptonica/archive/v$LEPT_VER.zip
   - unzip leptonica.zip -d .
-  - cmake -Hleptonica-master -Bleptonica-master/build
-  - make -C leptonica-master/build
+  - cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build
+  - make -C leptonica-$LEPT_VER/build
   - if [[ $LINUX && "$CXX" = "g++" ]]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 script:
   - mkdir build
   - cd build
-  - cmake .. -DLeptonica_BUILD_DIR=leptonica-master/build
+  - cmake .. -DLeptonica_BUILD_DIR=leptonica-$LEPT_VER/build
   - make
