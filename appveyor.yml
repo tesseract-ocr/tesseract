@@ -15,7 +15,7 @@ before_build:
 
   - set LEPT_VER=1.72
 
-  - ps: Start-FileDownload 'https://github.com/DanBloomberg/leptonica/archive/v$env:LEPT_VER.zip' -FileName leptonica.zip
+  - ps: Start-FileDownload 'https://github.com/DanBloomberg/leptonica/archive/v'$env:LEPT_VER'.zip' -FileName leptonica.zip
   - 7z x leptonica.zip
   - cmake -Hleptonica-%LEPT_VER% -Bleptonica-%LEPT_VER%/build -G "%generator%"
   - msbuild leptonica-%LEPT_VER%/build/leptonica.sln /p:Platform=%vcplatform% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
