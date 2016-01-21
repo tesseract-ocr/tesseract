@@ -69,6 +69,17 @@ You need to use leptonica with cmake patch:
     cmake --build .
 
 
+# BASIC MAKEFILES
+
+There is another build system available which just uses regular makefiles, and should work on any unix-like systems.
+
+To configure install paths, library locations, etc. edit the simplemake/config.mk file.
+
+    $ cd simplemake
+    $ make
+    $ make training # (optional)
+
+
 # WINDOWS Visual Studio
 
 Please read http://vorba.ch/2014/tesseract-3.03-vs2013.html

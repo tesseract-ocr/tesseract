@@ -1,0 +1,32 @@
+MISCDATA = \
+           ../tessdata/pdf.ttf \
+
+CONFIGS = \
+          ../tessdata/configs/ambigs.train \
+          ../tessdata/configs/api_config \
+          ../tessdata/configs/bazaar \
+          ../tessdata/configs/bigram \
+          ../tessdata/configs/box.train \
+          ../tessdata/configs/box.train.stderr \
+          ../tessdata/configs/digits \
+          ../tessdata/configs/get.image \
+          ../tessdata/configs/hocr \
+          ../tessdata/configs/inter \
+          ../tessdata/configs/kannada \
+          ../tessdata/configs/linebox \
+          ../tessdata/configs/logfile \
+          ../tessdata/configs/makebox \
+          ../tessdata/configs/pdf \
+          ../tessdata/configs/quiet \
+          ../tessdata/configs/rebox \
+          ../tessdata/configs/strokewidth \
+          ../tessdata/configs/txt \
+          ../tessdata/configs/unlv
+
+TESSCONFIGS = \
+              ../tessdata/tessconfigs/batch \
+              ../tessdata/tessconfigs/batch.nochop \
+              ../tessdata/tessconfigs/matdemo \
+              ../tessdata/tessconfigs/msdemo \
+              ../tessdata/tessconfigs/nobatch \
+              ../tessdata/tessconfigs/segdemo
