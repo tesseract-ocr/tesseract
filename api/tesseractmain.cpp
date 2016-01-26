@@ -286,7 +286,8 @@ void ParseArgs(const int argc, char** argv,
 void PreloadRenderers(tesseract::TessBaseAPI* api,
           tesseract::PointerVector<tesseract::TessResultRenderer>* renderers,
           tesseract::PageSegMode pagesegmode,
-          const char* outputbase) {
+          const char* outputbase,
+          bool in_training_mode) {
   if (pagesegmode == tesseract::PSM_OSD_ONLY) {
     renderers->push_back(new tesseract::TessOsdRenderer(outputbase));
   } else {
@@ -315,15 +316,8 @@ void PreloadRenderers(tesseract::TessBaseAPI* api,
       renderers->push_back(new tesseract::TessBoxTextRenderer(outputbase));
     }
 
-    // disable text renderer when using one of these configs:
-    // ambigs.train, box.train, box.train.stderr, linebox, rebox
-    bool disable_text_renderer =
-          (api->GetBoolVariable("tessedit_ambigs_training", &b) && b) ||
-          (api->GetBoolVariable("tessedit_resegment_from_boxes", &b) && b) ||
-          (api->GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
-
     api->GetBoolVariable("tessedit_create_txt", &b);
-    if (b || (renderers->empty() && !disable_text_renderer)) {
+    if (b || (renderers->empty() && !in_training_mode)) {
       renderers->push_back(new tesseract::TessTextRenderer(outputbase));
     }
   }
@@ -419,9 +413,19 @@ int main(int argc, char **argv) {
     exit(ret_val);
   }
 
+  // set in_training_mode to true when using one of these configs:
+  // ambigs.train, box.train, box.train.stderr, linebox, rebox
+  bool b = false;
+  bool in_training_mode =
+        (api.GetBoolVariable("tessedit_ambigs_training", &b) && b) ||
+        (api.GetBoolVariable("tessedit_resegment_from_boxes", &b) && b) ||
+        (api.GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
+
   tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
-  PreloadRenderers(&api, &renderers, pagesegmode, outputbase);
-  if (!renderers.empty()) {
+  PreloadRenderers(&api, &renderers, pagesegmode, outputbase,
+                               in_training_mode);
+
+  if (!renderers.empty() || in_training_mode) {
     bool succeed = api.ProcessPages(image, NULL, 0, renderers[0]);
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
