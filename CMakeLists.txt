@@ -46,10 +46,9 @@ set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 
 set(MINIMUM_LEPTONICA_VERSION 1.73)
 
-if (NOT Leptonica_BUILD_DIR)
+if (NOT WIN32)
 find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED)
 else()
-set(Leptonica_DIR ${Leptonica_BUILD_DIR})
 find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
 endif()
 
