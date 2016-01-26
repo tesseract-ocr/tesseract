@@ -43,5 +43,5 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DLeptonica_BUILD_DIR=leptonica-$LEPT_VER/build
+  - cmake .. -DLeptonica_DIR=leptonica-$LEPT_VER/build
   - make
