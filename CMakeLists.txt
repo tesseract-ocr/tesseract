@@ -46,10 +46,10 @@ set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 
 set(MINIMUM_LEPTONICA_VERSION 1.71)
 
-if (NOT Leptonica_BUILD_DIR)
-find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED)
+if (NOT Leptonica_DIR AND NOT MSVC)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(Leptonica REQUIRED lept)
 else()
-set(Leptonica_DIR ${Leptonica_BUILD_DIR})
 find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
 endif()
 

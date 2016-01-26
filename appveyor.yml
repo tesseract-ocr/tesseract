@@ -5,20 +5,23 @@ platform:
   - Win64
 
 configuration:
-  - Debug
+  - Release
 
 before_build:
   - if %platform%==Win32 set generator=Visual Studio 14
   - if %platform%==Win64 set generator=Visual Studio 14 Win64
   - if %platform%==Win32 set vcplatform=Win32
   - if %platform%==Win64 set vcplatform=x64
-  - ps: Start-FileDownload 'https://github.com/egorpugin/leptonica/archive/master.zip' -FileName leptonica.zip
+
+  - set LEPT_VER=1.73
+
+  - ps: Start-FileDownload "https://github.com/DanBloomberg/leptonica/archive/v$env:LEPT_VER.zip" -FileName leptonica.zip
   - 7z x leptonica.zip
-  - cmake -Hleptonica-master -Bleptonica-master/build -G "%generator%"
-  - msbuild leptonica-master/build/leptonica.sln /p:Platform=%vcplatform% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - cmake -Hleptonica-%LEPT_VER% -Bleptonica-%LEPT_VER%/build -G "%generator%"
+  - msbuild leptonica-%LEPT_VER%/build/leptonica.sln /p:Platform=%vcplatform% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 build_script:
   - mkdir build
   - cd build
-  - cmake .. -G "%generator%" -DLeptonica_BUILD_DIR=leptonica-master/build -DSTATIC=1
+  - cmake .. -G "%generator%" -DLeptonica_DIR=leptonica-%LEPT_VER%/build -DSTATIC=1
   - msbuild tesseract.sln /p:Platform=%vcplatform% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
