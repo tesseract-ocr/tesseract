@@ -13,7 +13,7 @@ before_build:
   - if %platform%==Win32 set vcplatform=Win32
   - if %platform%==Win64 set vcplatform=x64
 
-  - set LEPT_VER=1.72
+  - set LEPT_VER=1.73
 
   - ps: Start-FileDownload "https://github.com/DanBloomberg/leptonica/archive/v$env:LEPT_VER.zip" -FileName leptonica.zip
   - 7z x leptonica.zip
