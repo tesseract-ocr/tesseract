@@ -286,8 +286,7 @@ void ParseArgs(const int argc, char** argv,
 void PreloadRenderers(tesseract::TessBaseAPI* api,
           tesseract::PointerVector<tesseract::TessResultRenderer>* renderers,
           tesseract::PageSegMode pagesegmode,
-          const char* outputbase,
-          bool in_training_mode) {
+          const char* outputbase) {
   if (pagesegmode == tesseract::PSM_OSD_ONLY) {
     renderers->push_back(new tesseract::TessOsdRenderer(outputbase));
   } else {
@@ -317,7 +316,7 @@ void PreloadRenderers(tesseract::TessBaseAPI* api,
     }
 
     api->GetBoolVariable("tessedit_create_txt", &b);
-    if (b || (renderers->empty() && !in_training_mode)) {
+    if (b || renderers->empty()) {
       renderers->push_back(new tesseract::TessTextRenderer(outputbase));
     }
   }
@@ -422,16 +421,21 @@ int main(int argc, char **argv) {
         (api.GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
 
   tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
-  PreloadRenderers(&api, &renderers, pagesegmode, outputbase,
-                               in_training_mode);
 
-  if (!renderers.empty() || in_training_mode) {
+  if (in_training_mode) {
+    renderers.push_back(NULL);
+  } else {
+    PreloadRenderers(&api, &renderers, pagesegmode, outputbase);
+  }
+
+  if (!renderers.empty()) {
     bool succeed = api.ProcessPages(image, NULL, 0, renderers[0]);
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
       exit(1);
     }
   }
+
   PERF_COUNT_END
   return 0;                      // Normal exit
 }
