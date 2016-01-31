@@ -19,6 +19,22 @@
 #include <stdio.h>
 #include <mach/mach_time.h>
 #endif
+
+/*
+    Convenience macro to test the version of Leptonica.
+*/
+#if defined(LIBLEPT_MAJOR_VERSION) && defined(LIBLEPT_MINOR_VERSION)
+#   define TESSERACT_LIBLEPT_PREREQ(maj, min) \
+        ((LIBLEPT_MAJOR_VERSION) > (maj) || ((LIBLEPT_MAJOR_VERSION) == (maj) && (LIBLEPT_MINOR_VERSION) >= (min)))
+#else
+#   define TESSERACT_LIBLEPT_PREREQ(maj, min) 0
+#endif
+
+#if TESSERACT_LIBLEPT_PREREQ(1,73)
+#   define CALLOC LEPT_CALLOC
+#   define FREE LEPT_FREE
+#endif
+
 #ifdef USE_OPENCL
 
 #include "opencl_device_selection.h"
