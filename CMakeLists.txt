@@ -70,10 +70,10 @@ endif()
 if (WIN32)
     if (MSVC)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-        
+
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
     endif()
-    
+
     set(LIB_Ws2_32 Ws2_32)
 endif()
 
@@ -83,7 +83,7 @@ endif()
 
 if (UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
-    
+
     set(LIB_pthread pthread)
 endif()
 
@@ -100,14 +100,19 @@ include(Configure)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
-set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/api)
+set(INCLUDE_DIR
+    ${CMAKE_SOURCE_DIR}/api
+    ${CMAKE_SOURCE_DIR}/ccmain
+    ${CMAKE_SOURCE_DIR}/ccstruct
+    ${CMAKE_SOURCE_DIR}/ccutil
+)
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
     ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
 configure_file(
     ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig.cmake.in
-    ${CMAKE_BINARY_DIR}/TesseractConfig.cmake @ONLY) 
+    ${CMAKE_BINARY_DIR}/TesseractConfig.cmake @ONLY)
 
 ###############################################################################
 #
