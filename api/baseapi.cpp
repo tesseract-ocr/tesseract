@@ -122,6 +122,8 @@ TessBaseAPI::TessBaseAPI()
     page_res_(NULL),
     input_file_(NULL),
     input_image_(NULL),
+    visible_pdf_image_file_(NULL),
+    visible_pdf_image_(NULL),
     output_file_(NULL),
     datapath_(NULL),
     language_(NULL),
@@ -204,6 +206,14 @@ void TessBaseAPI::SetInputName(const char* name) {
   else
     *input_file_ = name;
 }
+
+void TessBaseAPI::SetVisiblePdfImageFilename(const char* name) {
+  if (visible_pdf_image_file_ == NULL)
+    visible_pdf_image_file_ = new STRING(name);
+  else
+    *visible_pdf_image_file_ = name;
+}
+
 
 /** Set the name of the output files. Needed only for debugging. */
 void TessBaseAPI::SetOutputName(const char* name) {
@@ -948,13 +958,31 @@ void TessBaseAPI::SetInputImage(Pix *pix) {
     input_image_ = pixCopy(NULL, pix);
 }
 
+void TessBaseAPI::SetVisiblePdfImage(Pix *pix) {
+  if (visible_pdf_image_)
+    pixDestroy(&visible_pdf_image_);
+  visible_pdf_image_ = NULL;
+  if (pix)
+    visible_pdf_image_ = pixCopy(NULL, pix);
+}
+
 Pix* TessBaseAPI::GetInputImage() {
   return input_image_;
+}
+
+Pix* TessBaseAPI::GetVisiblePdfImage() {
+  return visible_pdf_image_;
 }
 
 const char * TessBaseAPI::GetInputName() {
   if (input_file_)
     return input_file_->c_str();
+  return NULL;
+}
+
+const char * TessBaseAPI::GetVisiblePdfImageFilename() {
+  if (visible_pdf_image_file_)
+    return visible_pdf_image_file_->c_str();
   return NULL;
 }
 
@@ -2118,6 +2146,10 @@ void TessBaseAPI::End() {
   if (input_image_ != NULL) {
     pixDestroy(&input_image_);
     input_image_ = NULL;
+  }
+  if (visible_pdf_image_ != NULL) {
+    pixDestroy(&visible_pdf_image_);
+    visible_pdf_image_ = NULL;
   }
   if (output_file_ != NULL) {
     delete output_file_;

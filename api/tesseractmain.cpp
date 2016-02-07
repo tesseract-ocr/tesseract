@@ -220,6 +220,7 @@ void ParseArgs(const int argc, char** argv,
                   const char** image,
                   const char** outputbase,
                   const char** datapath,
+                  const char **visible_pdf_image_file,
                   bool* list_langs,
                   bool* print_parameters,
                   GenericVector<STRING>* vars_vec,
@@ -276,6 +277,9 @@ void ParseArgs(const int argc, char** argv,
       *print_parameters = true;
     } else if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
       // handled properly after api init
+      ++i;
+    } else if (strcmp(argv[i], "--visible-pdf-image") == 0 && i + 1 < argc) {
+      *visible_pdf_image_file = argv[i + 1];
       ++i;
     } else if (*image == NULL) {
       *image = argv[i];
@@ -363,6 +367,7 @@ int main(int argc, char **argv) {
   const char* image = NULL;
   const char* outputbase = NULL;
   const char* datapath = NULL;
+  const char *visible_pdf_image_file = NULL;
   bool list_langs = false;
   bool print_parameters = false;
   GenericVector<STRING> vars_vec, vars_values;
@@ -376,6 +381,7 @@ int main(int argc, char **argv) {
 
   ParseArgs(argc, argv,
           &lang, &image, &outputbase, &datapath,
+          &visible_pdf_image_file,
           &list_langs, &print_parameters,
           &vars_vec, &vars_values, &arg_i, &pagesegmode);
 
@@ -413,6 +419,9 @@ int main(int argc, char **argv) {
   }
 
   FixPageSegMode(&api, pagesegmode);
+
+  if (visible_pdf_image_file)
+    api.SetVisiblePdfImageFilename(visible_pdf_image_file);
 
   if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
     int ret_val = 0;

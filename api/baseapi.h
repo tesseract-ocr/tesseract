@@ -146,6 +146,10 @@ class TESS_API TessBaseAPI {
   Pix* GetInputImage();
   int GetSourceYResolution();
   const char* GetDatapath();
+  void SetVisiblePdfImageFilename(const char* name);
+  const char *GetVisiblePdfImageFilename();
+  void SetVisiblePdfImage(Pix *pix);
+  Pix* GetVisiblePdfImage();
 
   /** Set the name of the bonus output files. Needed only for debugging. */
   void SetOutputName(const char* name);
@@ -871,6 +875,8 @@ class TESS_API TessBaseAPI {
   PAGE_RES*         page_res_;        ///< The page-level data.
   STRING*           input_file_;      ///< Name used by training code.
   Pix*              input_image_;     ///< Image used for searchable PDF
+  STRING*           visible_pdf_image_file_;
+  Pix*              visible_pdf_image_; ///< Image used in output PDF
   STRING*           output_file_;     ///< Name used by debug code.
   STRING*           datapath_;        ///< Current location of tessdata.
   STRING*           language_;        ///< Last initialized language.
