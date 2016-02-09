@@ -14,6 +14,10 @@ languages "out of the box". It can be trained to recognize other languages. See 
 
 Tesseract supports various output formats: plain-text, hocr(html), pdf.
 
+This project does not include a GUI application. If you need one, please see the [3rdParty](https://github.com/tesseract-ocr/tesseract/wiki/3rdParty) wiki page.
+
+You should note that in many cases, in order to get better OCR results, you'll need to [improve the quality](https://github.com/tesseract-ocr/tesseract/wiki/ImproveQuality) of the image you are giving Tesseract.
+
 The latest stable version is 3.04, released in July 2015.
 
 #Brief history
@@ -25,6 +29,12 @@ more changes made in 1996 to port to Windows, and some C++izing in 1998.
 In 2005 Tesseract was open sourced by HP. Since 2006 it is developed by Google.
 
 [Release Notes](https://github.com/tesseract-ocr/tesseract/wiki/ReleaseNotes)
+
+#For developers
+
+Developers can use `libtesseract` [C](https://github.com/tesseract-ocr/tesseract/blob/master/api/capi.h) or [C++](https://github.com/tesseract-ocr/tesseract/blob/master/api/baseapi.h) API to build their own application. If you need bindings to `libtesseract` for other programming languages, please see the [wrapper](https://github.com/tesseract-ocr/tesseract/wiki/AddOns#tesseract-wrappers) section on AddOns wiki page.
+
+Documentation of Tesseract generated from source code by doxygen can be found on [tesseract-ocr.github.io](http://tesseract-ocr.github.io/).
 
 #License
 
@@ -52,7 +62,7 @@ Basic command line usage:
 
     tesseract imagename outputbase [-l lang] [-psm pagesegmode] [configfiles...]
 
-To see the full usage use `tesseract --help`
+For more information about the various command line options use `tesseract --help` or `man tesseract`. 
 
 #Support
 
