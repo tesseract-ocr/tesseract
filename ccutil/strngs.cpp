@@ -190,14 +190,14 @@ inT32 STRING::length() const {
   return GetHeader()->used_ - 1;
 }
 
-const char* STRING::string() const {
+const char* STRING::string() {
   const STRING_HEADER* header = GetHeader();
   if (header->used_ == 0)
     return NULL;
 
   // mark header length unreliable because tesseract might
   // cast away the const and mutate the string directly.
-  header->used_ = -1;
+  header->used_ = -1; // this write may be surprising to new developers using this const method and expecting the object not to change
   return GetCStr();
 }
 
